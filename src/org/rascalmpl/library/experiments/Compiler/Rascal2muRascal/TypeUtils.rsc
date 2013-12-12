@@ -123,12 +123,17 @@ Symbol getClosureType(loc l) {
    }
 }
 
-// Compute the scope size, excluding declared nested functions and closures
-int getScopeSize(str fuid) = size({ pos | int pos <- range(uid2addr)[fuid], pos != -1 })
-								// r2mu translation of functions introduces variables in place of formal parameter patterns
-								// and uses patterns to match these variables 
-								+ size(fuid2type[invertUnique(fuid2str)[fuid]].parameters);
+int getFormals(int fuid) = size(fuid2type[fuid].parameters) + 1;       // '+ 1' accounts for keyword arguments
+int getFormals(loc l)    = size(fuid2type[loc2uid[l]].parameters) + 1; // '+ 1' accounts for keyword arguments
 
+// Compute the scope size, excluding declared nested functions, closures and keyword parameters
+int getScopeSize(str fuid) =  // r2mu translation of functions introduces variables in place of formal parameter patterns
+							  // and uses patterns to match these variables 
+						      size(fuid2type[invertUnique(fuid2str)[fuid]].parameters)
+						    + size({ pos | int pos <- range(uid2addr)[fuid], pos != -1 })
+						    + 2 // '+ 2' accounts for keyword arguments and default values of keyword parameters 
+						    ;
+							
 KeywordParamMap getKeywords(loc location) = config.store[loc2uid[location]].keywordParams;
 
 @doc{Make a call to a library function given its name, module's name and a number of its formal parameters}
@@ -187,8 +192,6 @@ MuExp mkVarRef(str name, loc l){
 MuExp mkAssign(str name, loc l, MuExp exp) {
   uid = loc2uid[l];
   tuple[str fuid, int pos] addr = uid2addr[uid];
-  res = "<name>::<addr.fuid>::<addr.pos>";
-  //println("mkVar: <name> =\> <res>");
   if(uid in keywordParameters) {
       return muAssignKwp(addr.fuid,name,exp);
   }
@@ -346,7 +349,7 @@ void extractScopes(){
 	}
 	
     for(int fuid <- functions) {
-    	nformals = size(fuid2type[fuid].parameters) + 1; // ***Note: 'parameters' field does not include keyword parameters, '+ 1' accounts for keyword arguments 
+    	nformals = getFormals(fuid); // ***Note: Includes keyword parameters as a single map parameter 
         innerScopes = {fuid} + containmentPlus[fuid];
         // First, fill in variables to get their positions right
         keywordParams = config.store[fuid].keywordParams;
@@ -357,7 +360,8 @@ void extractScopes(){
         fuid_str = fuid2str[fuid];
         for(int i <- index(decls_non_kwp)) {
         	// Note: we need to reserve positions for variables that will replace formal parameter patterns
-        	uid2addr[decls_non_kwp[i]] = <fuid_str, i + nformals + 1>; // '+ 1' accounts for a local variable used to store default values of keyword parameters
+        	// '+ 1' is needed to allocate the first local variable to store default values of keyword parameters
+        	uid2addr[decls_non_kwp[i]] = <fuid_str, i + nformals + 1>;
         }
         // Filter all the keyword variables (parameters) within the function scope
         decls_kwp = sort([ uid | int uid <- declares[innerScopes], variable(name,_,_,_,_) := config.store[uid], name in keywordParams ]);
@@ -393,8 +397,8 @@ void extractScopes(){
 }
 
 str getFUID(str fname, Symbol \type) { 
-  println("getFUID: <fname>, <\type>");
-   return "<fname>(<for(p<-\type.parameters){><p>;<}>)";
+    println("getFUID: <fname>, <\type>");
+    return "<fname>(<for(p<-\type.parameters){><p>;<}>)";
 }
 
 
