@@ -365,10 +365,10 @@ public enum Opcode {
 			return "FAILRETURN";
 			
 		case LOADOFUN:
-			return "LOADOFUN " + cb.getFunctionName(arg1);
+			return "LOADOFUN " + cb.getOverloadedFunctionName(arg1);
 			
 		case OCALL:
-			return "OCALL " +  cb.getFunctionName(arg1)  + ", " + arg2;
+			return "OCALL " +  cb.getOverloadedFunctionName(arg1)  + ", " + arg2;
 			
 		case OCALLDYN:
 			return "OCALLDYN " + cb.getConstantType(arg1) + ", " + arg2;
