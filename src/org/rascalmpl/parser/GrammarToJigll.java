@@ -145,7 +145,7 @@ public class GrammarToJigll {
 	}
 
 	public void generateGraph(IString path) {
-		parser = ParserFactory.createLevelParser(grammar, 30);
+		parser = ParserFactory.createRecursiveDescentParser(grammar);
 
 		NonterminalSymbolNode sppf;
 		try {
