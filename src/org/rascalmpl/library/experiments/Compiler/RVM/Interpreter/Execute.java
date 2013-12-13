@@ -500,6 +500,22 @@ public class Execute {
 				codeblock.JMPINDEXED((IList)instruction.get("labels"));
 				break;
 				
+			case "LOADLOCKWP":
+				codeblock.LOADLOCKWP(getStrField(instruction, "name"));
+				break;
+				
+			case "LOADVARKWP":
+				codeblock.LOADVARKWP(getStrField(instruction, "fuid"), getStrField(instruction, "name"));
+				break;
+				
+			case "STORELOCKWP":
+				codeblock.STORELOCKWP(getStrField(instruction, "name"));
+				break;
+				
+			case "STOREVARKWP":
+				codeblock.STOREVARKWP(getStrField(instruction, "fuid"), getStrField(instruction, "name"));
+				break;
+				
 			default:
 				throw new RuntimeException("PANIC: In function " + name + ", nknown instruction: " + opcode);
 			}

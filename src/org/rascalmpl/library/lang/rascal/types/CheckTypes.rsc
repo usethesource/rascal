@@ -1068,7 +1068,7 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
 }
 
 @doc{Check the types of Rascal expressions: CallOrTree}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expression ","}* eps> )`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expression ","}* eps> <KeywordArguments keywordArguments> )`, Configuration c) {
     // check for failures
     set[Symbol] failures = { };
     
