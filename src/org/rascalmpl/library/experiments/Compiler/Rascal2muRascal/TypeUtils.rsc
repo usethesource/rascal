@@ -64,6 +64,7 @@ public void resetScopeExtraction() {
 	defaultFunctions = {};
 	constructors = {};
 	variables = {};
+	keywordParameters = {};
 	ofunctions = {};
 	
 	uid2name = ();
