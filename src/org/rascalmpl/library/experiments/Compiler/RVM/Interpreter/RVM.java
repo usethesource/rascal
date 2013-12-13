@@ -859,14 +859,14 @@ public class RVM {
 							this.appendToTrace("		" + getFunctionName(index));
 						}
 					}
+					
 					functions = of_instance.functions;
 					constructors = of_instance.constructors;
 					fun_index = 0;
 					of_cf = cf;
-					// TODO: Re-think of the cases of polymorphic and var args function alternatives
+					// TODO: Re-think of the cases of polymorphic and varArgs function alternatives
 					// The most straightforward solution would be to check the arity and let pattern matching on formal parameters do the rest
-					if(fun_index < functions.length) {
-						int index = functions[fun_index];
+					for(int index : functions) {
 						fun = functionStore.get(index);
 						for(Type type : of_types) {
 							if(type == fun.ftype) {
@@ -881,32 +881,33 @@ public class RVM {
 								cf = pushOverloadedFunctionArguments(cf, fun_instance, of_args);
 								stack = cf.stack;
 								sp = fun.nlocals;
-								pc = 0;													
+								pc = 0;
+								continue NEXT_INSTRUCTION;
 							}
 						}
-						continue NEXT_INSTRUCTION;
-					} else {
-						for(int index : of_instance.constructors) {
-							constructor = constructorStore.get(index);
-							for(Type type : of_types) {
-								if(type == constructor) {
-									
-									if(debug) {
-										this.appendToTrace("		" + "try constructor alternative: " + getConstructorName(index));
-									}
-									
-									stack[sp++] = vf.constructor(constructor, of_constr_args); // Temporarily
-									functions = null;
-									constructors = null;
-									fun_index = 0;
-									of_args = null;
-									of_constr_args = null; // Temporarily
-									continue NEXT_INSTRUCTION;													
+						fun_index++;
+					};
+					
+					for(int index : constructors) {
+						constructor = constructorStore.get(index);
+						for(Type type : of_types) {
+							if(type == constructor) {
+								
+								if(debug) {
+									this.appendToTrace("		" + "try constructor alternative: " + getConstructorName(index));
 								}
+								
+								stack[sp++] = vf.constructor(constructor, of_constr_args); // Temporarily
+								functions = null;
+								constructors = null;
+								fun_index = 0;
+								of_args = null;
+								of_constr_args = null; // Temporarily
+								continue NEXT_INSTRUCTION;													
 							}
 						}
-						throw new RuntimeException("Call to an overloded function: either all functions have failed, or some function scope has not been found!");
 					}
+					throw new RuntimeException("Call to an overloded function: either all functions have failed, or some function scope has not been found!");		
 					
 				case Opcode.OP_OCALL:					
 					of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
@@ -978,8 +979,10 @@ public class RVM {
 												
 				case Opcode.OP_FAILRETURN:
 					assert cf.previousCallFrame == of_cf;
+					
 					fun_index++;
-					if(fun_index < functions.length) {
+					
+					if(of_types == null && fun_index < functions.length) {
 						int index = functions[fun_index];
 						
 						if(debug) {
@@ -994,7 +997,8 @@ public class RVM {
 						stack = cf.stack;
 						sp = fun.nlocals;
 						pc = 0;
-					} else {
+						continue NEXT_INSTRUCTION;
+					} else if(of_types == null) {
 						cf = cf.previousCallFrame;
 						stack = cf.stack;
 						sp = cf.sp;
@@ -1004,8 +1008,55 @@ public class RVM {
 						constructors = null;
 						fun_index = 0;
 						of_args = null;
+						continue NEXT_INSTRUCTION;
 					}
-					continue NEXT_INSTRUCTION;
+					
+					while(fun_index < functions.length) {
+						int index = functions[fun_index];
+						fun = functionStore.get(index);
+						for(Type type : of_types) {
+							if(type == fun.ftype) {
+								FunctionInstance fun_instance = new FunctionInstance(fun, cf.previousScope);
+										
+								if(debug) {
+									this.appendToTrace("		" + "try alternative: " + getFunctionName(index));
+								}
+										
+								cf.pc = pc;
+								cf.sp = sp;
+								cf = pushOverloadedFunctionArguments(cf.previousCallFrame, fun_instance, of_args);
+								stack = cf.stack;
+								sp = fun.nlocals;
+								pc = 0;
+								continue NEXT_INSTRUCTION;
+							}
+						}
+						fun_index++;
+					}
+					
+					for(int index : constructors) {
+						constructor = constructorStore.get(index);
+						for(Type type : of_types) {
+							if(type == constructor) {
+								
+								if(debug) {
+									this.appendToTrace("		" + "try constructor alternative: " + getConstructorName(index));
+								}
+								cf = cf.previousCallFrame;
+								stack = cf.stack;
+								sp = cf.sp;
+								stack[sp++] = vf.constructor(constructor, of_constr_args); // Temporarily
+								pc = cf.pc;
+								functions = null;
+								constructors = null;
+								fun_index = 0;
+								of_args = null;
+								of_constr_args = null; // Temporarily
+								continue NEXT_INSTRUCTION;													
+							}
+						}
+					}
+					throw new RuntimeException("Call to an overloded function: either all functions have failed, or some function scope has not been found!");
 					
 				case Opcode.OP_FILTERRETURN:
 				case Opcode.OP_RETURN0:
