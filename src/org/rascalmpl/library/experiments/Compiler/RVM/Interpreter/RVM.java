@@ -1512,7 +1512,7 @@ public class RVM {
 			}
 		} catch (Exception e) {
 			e.printStackTrace(stderr);
-			throw new RuntimeException("PANIC: (instruction execution): " + e.getMessage());
+			throw new RuntimeException("PANIC: (instruction execution): instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: "+ e.getMessage() );
 			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
 			//e.printStackTrace();
 			//stderr.println(e.getStackTrace());
