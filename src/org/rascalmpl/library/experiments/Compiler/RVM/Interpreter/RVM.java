@@ -362,20 +362,21 @@ public class RVM {
 		
 		// Pass function arguments and account for the case of a variable number of parameters
 		if(func.function.isVarArgs) {
-			for(int i = 0; i < func.function.nformals - 1; i++) {
+			for(int i = 0; i < func.function.nformals - 2; i++) {
 				cf.stack[i] = args[i];
 			}
 			Type argTypes = ((FunctionType) func.function.ftype).getArgumentTypes();
 			if(args.length == func.function.nformals
-					&& args[func.function.nformals - 1].getType().isSubtypeOf(argTypes.getFieldType(func.function.nformals - 1))) {
-				cf.stack[func.function.nformals - 1] = args[func.function.nformals - 1];
+					&& args[func.function.nformals - 2].getType().isSubtypeOf(argTypes.getFieldType(func.function.nformals - 2))) {
+				cf.stack[func.function.nformals - 2] = args[func.function.nformals - 2];
 			} else {
 				IListWriter writer = vf.listWriter();
-				for(int i = func.function.nformals - 1; i < args.length; i++) {
-					writer.append(args[i]);
+				for(int i = func.function.nformals - 2; i < args.length - 1; i++) {
+					writer.append((IValue) args[i]);
 				}
-				cf.stack[func.function.nformals - 1] = writer.done();
+				cf.stack[func.function.nformals - 2] = writer.done();
 			}
+			cf.stack[func.function.nformals - 1] = args[args.length - 1];
 		} else {
 			for(int i = 0; i < args.length; i++){
 				cf.stack[i] = args[i]; 
@@ -406,8 +407,8 @@ public class RVM {
 			throw new RuntimeException("PANIC: No function " + uid_main + " found");
 		}
 		
-		if (main_function.nformals != 1) {
-			throw new RuntimeException("PANIC: function " + uid_main + " should have one argument");
+		if (main_function.nformals != 2) { // List of IValues and empty map of keyword parameters
+			throw new RuntimeException("PANIC: function " + uid_main + " should have two arguments");
 		}
 		
 		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
@@ -426,7 +427,7 @@ public class RVM {
 	}
 	
 	private Object executeProgram(Frame root, Frame cf) {
-		Object[] stack = cf.stack;		                              		// current stack
+		Object[] stack = cf.stack;		                              	// current stack
 		int sp = cf.function.nlocals;				                  	// current stack pointer
 		int [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
 		int pc = 0;				                                      	// current program counter
@@ -902,9 +903,14 @@ public class RVM {
 					}
 					
 					// Get arguments from the stack
-					args = new IValue[arity]; 
+					args = new IValue[arity];
+					// TODO: Re-think of the contructor cases
+					IValue[] constrArgs = new IValue[arity - 1];
 					for(int i = arity - 1; i >= 0; i--) {
 						args[i] = (IValue) stack[sp - arity + i];
+						if(i != arity - 1) {
+							constrArgs[i] = args[i];
+						}
 					}			
 					sp = sp - arity;
 					
@@ -976,8 +982,8 @@ public class RVM {
 					if(debug) {
 						this.appendToTrace("		" + "try constructor alternative: " + getConstructorName(index));
 					}
-									
-					stack[sp++] = vf.constructor(constructor, args);
+					
+					stack[sp++] = vf.constructor(constructor, constrArgs);
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_FAILRETURN:
@@ -1440,6 +1446,37 @@ public class RVM {
 					}
 					// If a handler has not been found in the caller functions...
 					return thrown;
+					
+				case Opcode.OP_LOADLOCKWP:
+					IString name = (IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction));
+					@SuppressWarnings("unchecked")
+					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
+					Map.Entry<Type, IValue> defaultValue = defaults.get(name.getValue());
+					for(Frame f = cf; f != null; f = f.previousCallFrame) {
+						IMap kargs = (IMap) f.stack[f.function.nformals - 1];
+						if(kargs.containsKey(name)) {
+							val = kargs.get(name);
+							if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+								stack[sp++] = val;
+								continue NEXT_INSTRUCTION;
+							}
+						}
+					}				
+					stack[sp++] = defaultValue.getValue();
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_LOADVARKWP:
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_STORELOCKWP:
+					val = (IValue) stack[sp - 1];
+					name = (IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction));
+					IMap kargs = (IMap) stack[cf.function.nformals - 1];
+					stack[cf.function.nformals - 1] = kargs.put(name, val);
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_STOREVARKWP:
+					continue NEXT_INSTRUCTION;
 								
 				default:
 					throw new RuntimeException("RVM main loop -- cannot decode instruction");

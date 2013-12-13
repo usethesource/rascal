@@ -25,7 +25,7 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
 int size_exps({Expression ","}* es) = size([e | e <- es]);		     // TODO: should become library function
 int size_exps({Expression ","}+ es) = size([e | e <- es]);		     // TODO: should become library function
-int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	// TODO: should become library function
+int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: should become library function
 
 // Create (and flatten) a muAll
 
@@ -284,7 +284,9 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 
 // Call
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`){
-   // ignore kw arguments for the moment
+
+   MuExp kwargs = translateKeywordArguments(keywordArguments);
+      
    MuExp receiver = translate(expression);
    list[MuExp] args = [ translate(a) | a <- arguments ];
    if(getOuterType(expression) == "str") {
@@ -296,7 +298,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    }
    
    if(muFun(str _) := receiver || muFun(str _, str _) := receiver || muConstr(str _) := receiver) {
-       return muCall(receiver, args);
+       return muCall(receiver, args); // keyword arguments
    }
    
    // Now overloading resolution...
@@ -386,7 +388,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
        overloadingResolver[ofqname] = i;
-       return muOCall(muOFun(ofqname), args);
+       return muOCall(muOFun(ofqname), args + [ kwargs ]);
    }
    if(isOverloadedFunction(receiver) && receiver.fuid notin overloadingResolver) {
       throw "The use of a function has to be managed via overloading resolver!";
@@ -394,7 +396,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    // Push down additional information if the overloading resolution needs to be done at runtime
    return muOCall(receiver, 
    				  isFunctionType(ftype) ? Symbol::\tuple([ ftype ]) : Symbol::\tuple([ t | Symbol t <- getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype) ]), 
-   				  args);
+   				  args + [ kwargs ]);
 }
 
 // Any
@@ -979,14 +981,19 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
 	
     ftype = getClosureType(e@\loc);
 	nformals = size(ftype.parameters);
-	nlocals = getScopeSize(fuid);
 	bool isVarArgs = (varArgs(_,_) := parameters);
-  	// TODO: keyword parameters
+  	
+  	// Keyword parameters
+    list[MuExp] kwps = translateKeywordParameters(parameters, getFormals(uid), e@\loc);
     
-    MuExp body = translateFunction(parameters.formals.formals, isVarArgs, cbody, []);
+    // TODO: we plan to introduce keyword patterns as formal parameters
+    MuExp body = translateFunction(parameters.formals.formals, isVarArgs, kwps, cbody, []);
+    
     tuple[str fuid,int pos] addr = uid2addr[uid];
     functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									  nformals, nlocals, isVarArgs, e@\loc, [], (), body);
+  									  getFormals(uid), getScopeSize(fuid), 
+  									  isVarArgs, e@\loc, [], (), 
+  									  body);
   	
   	leaveFunctionScope();								  
   	
@@ -1003,8 +1010,7 @@ MuExp translateBoolClosure(Expression e){
 	nformals = 0;
 	nlocals = 0;
 	bool isVarArgs = false;
-  	// TODO: keyword parameters
-    
+  	
     MuExp body = muReturn(translate(e));
     functions_in_module += muFunction(fuid, ftype, addr.fuid, 
   									  nformals, nlocals, isVarArgs, e@\loc, [], (), body);
@@ -1243,4 +1249,15 @@ private bool hasTopLevelInsert(Case c) {
 	}
 	println("Insert has not been found, non-rebuilding visit!");
 	return false;
+}
+
+MuExp translateKeywordArguments(KeywordArguments keywordArguments) {
+   // Keyword arguments
+   list[MuExp] kwargs = [ muAssignTmp("map_of_keyword_arguments", muCallPrim("mapwriter_open",[])) ];
+   if(keywordArguments is \default) {
+       for(KeywordArgument kwarg <- keywordArguments.keywordArgumentList) {
+           kwargs += muCallPrim("mapwriter_add",[ muTmp("map_of_keyword_arguments"), muCon("<kwarg.name>"), translate(kwarg.expression) ]);           
+       }
+   }
+   return muBlock([ *kwargs, muCallPrim("mapwriter_close", [ muTmp("map_of_keyword_arguments") ]) ]);
 }
