@@ -31,6 +31,10 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.I
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Jmp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpFalse;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpIndexed;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocKwp;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarKwp;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocKwp;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Label;
@@ -611,6 +615,22 @@ public class CodeBlock {
 		
 	public CodeBlock JMPINDEXED(IList labels){
 		return add(new JmpIndexed(this, labels));
+	}
+	
+	public CodeBlock LOADLOCKWP(String name) {
+		return add(new LoadLocKwp(this, name));
+	}
+	
+	public CodeBlock LOADVARKWP(String fuid, String name) {
+		return add(new LoadVarKwp(this, fuid, name));
+	}
+	
+	public CodeBlock STORELOCKWP(String name) {
+		return add(new StoreLocKwp(this, name));
+	}
+	
+	public CodeBlock STOREVARKWP(String fuid, String name) {
+		return add(new StoreVarKwp(this, fuid, name));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
