@@ -354,13 +354,9 @@ public class RVM {
 		return narrow(o); 
 	}
 	
-	// Execute a function instance, i.e., a function in its environment
-	// Note: the root frame is the environment of the non-nested functions, which enables access to the global variables
-	// Note: the return type is 'Object' as this method is used to implement call to overloaded functions, its alternatives may fail
-	private Object executeFunction(Frame root, FunctionInstance func, IValue[] args){
-		Frame cf = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
-		
-		// Pass function arguments and account for the case of a variable number of parameters
+	private Frame pushOverloadedFunctionArguments(Frame cf, FunctionInstance func, IValue[] args) {
+		cf = new Frame(func.function.scopeId, cf, func.env, func.function.maxstack, func.function);	
+		// Pass function arguments dealing with both varArgs and keyword arguments
 		if(func.function.isVarArgs) {
 			for(int i = 0; i < func.function.nformals - 2; i++) {
 				cf.stack[i] = args[i];
@@ -382,9 +378,9 @@ public class RVM {
 				cf.stack[i] = args[i]; 
 			}
 		}
-		return executeProgram(root, cf);
+		return cf;
 	}
-	
+		
 	private String trace = "";
 	
 	
@@ -437,6 +433,15 @@ public class RVM {
 		Thrown thrown;
 		int arity;
 		String last_function_name = "";
+		
+		// Overloading specific
+		int[] functions = null;
+		int[] constructors = null;
+		Type of_types = null;
+		IValue[] of_args = null;
+		IValue[] of_constr_args = null; // Temporarily
+		int fun_index = 0;
+		Frame of_cf = null; // used for an extra check
 				
 		try {
 			NEXT_INSTRUCTION: while (true) {
@@ -816,7 +821,7 @@ public class RVM {
 					
 				case Opcode.OP_OCALLDYN:
 					// Get function types to perform a type-based dynamic resolution
-					Type types = cf.function.codeblock.getConstantType(CodeBlock.fetchArg1(instruction));		
+					of_types = cf.function.codeblock.getConstantType(CodeBlock.fetchArg1(instruction));		
 					arity = CodeBlock.fetchArg2(instruction);
 					
 					// Objects of three types may appear on the stack:
@@ -824,18 +829,24 @@ public class RVM {
 					// 	2. OverloadedFunctionInstance due to named Rascal functions
 					Object funcObject = stack[--sp];
 					// Get function arguments from the stack
-					args = new IValue[arity]; 
+					of_args = new IValue[arity];
+					of_constr_args = new IValue[arity - 1]; // Temporarily
 					for(int i = arity - 1; i >= 0; i--) {
-						args[i] = (IValue) stack[sp - arity + i];
+						of_args[i] = (IValue) stack[sp - arity + i];
+						if(i != arity - 1) {
+							of_constr_args[i] = of_args[i]; // Temporarily
+						}
 					}			
 					sp = sp - arity;
 					
 					if(funcObject instanceof FunctionInstance) {
 						FunctionInstance fun_instance = (FunctionInstance) funcObject;
-						rval = executeFunction(root, fun_instance, args);
-						if(rval != NONE) {
-							stack[sp++] = rval;
-						}
+						cf.sp = sp;
+						cf.pc = pc;
+						cf = pushOverloadedFunctionArguments(cf, fun_instance, of_args);
+						stack = cf.stack;
+						sp = cf.sp;
+						pc = cf.pc;
 						continue NEXT_INSTRUCTION;
 					}
 					
@@ -848,12 +859,16 @@ public class RVM {
 							this.appendToTrace("		" + getFunctionName(index));
 						}
 					}
+					functions = of_instance.functions;
+					constructors = of_instance.constructors;
+					fun_index = 0;
+					of_cf = cf;
 					// TODO: Re-think of the cases of polymorphic and var args function alternatives
 					// The most straightforward solution would be to check the arity and let pattern matching on formal parameters do the rest
-					NEXT_FUNCTION: 
-					for(int index : of_instance.functions) {
+					if(fun_index < functions.length) {
+						int index = functions[fun_index];
 						fun = functionStore.get(index);
-						for(Type type : types) {
+						for(Type type : of_types) {
 							if(type == fun.ftype) {
 								FunctionInstance fun_instance = new FunctionInstance(fun, of_instance.env);
 										
@@ -861,34 +876,37 @@ public class RVM {
 									this.appendToTrace("		" + "try alternative: " + getFunctionName(index));
 								}
 										
-								rval = executeFunction(root, fun_instance, args);
-								if(rval == FAILURE) {
-									continue NEXT_FUNCTION;
-								} else {
-									if(rval != NONE) {
-										stack[sp++] = rval;
+								cf.pc = pc;
+								cf.sp = sp;
+								cf = pushOverloadedFunctionArguments(cf, fun_instance, of_args);
+								stack = cf.stack;
+								sp = fun.nlocals;
+								pc = 0;													
+							}
+						}
+						continue NEXT_INSTRUCTION;
+					} else {
+						for(int index : of_instance.constructors) {
+							constructor = constructorStore.get(index);
+							for(Type type : of_types) {
+								if(type == constructor) {
+									
+									if(debug) {
+										this.appendToTrace("		" + "try constructor alternative: " + getConstructorName(index));
 									}
-									continue NEXT_INSTRUCTION;
-								}													
-							}
-						}
-					}
-					
-					for(int index : of_instance.constructors) {
-						constructor = constructorStore.get(index);
-						for(Type type : types) {
-							if(type == constructor) {
-								
-								if(debug) {
-									this.appendToTrace("		" + "try constructor alternative: " + getConstructorName(index));
+									
+									stack[sp++] = vf.constructor(constructor, of_constr_args); // Temporarily
+									functions = null;
+									constructors = null;
+									fun_index = 0;
+									of_args = null;
+									of_constr_args = null; // Temporarily
+									continue NEXT_INSTRUCTION;													
 								}
-								
-								stack[sp++] = vf.constructor(constructor, args);
-								continue NEXT_INSTRUCTION;													
 							}
 						}
+						throw new RuntimeException("Call to an overloded function: either all functions have failed, or some function scope has not been found!");
 					}
-					throw new RuntimeException("Call to an overloded function: either all functions have failed, or some function scope has not been found!");
 					
 				case Opcode.OP_OCALL:					
 					of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
@@ -903,13 +921,12 @@ public class RVM {
 					}
 					
 					// Get arguments from the stack
-					args = new IValue[arity];
-					// TODO: Re-think of the contructor cases
-					IValue[] constrArgs = new IValue[arity - 1];
+					of_args = new IValue[arity];
+					of_constr_args = new IValue[arity - 1]; // Temporarily
 					for(int i = arity - 1; i >= 0; i--) {
-						args[i] = (IValue) stack[sp - arity + i];
+						of_args[i] = (IValue) stack[sp - arity + i];
 						if(i != arity - 1) {
-							constrArgs[i] = args[i];
+							of_constr_args[i] = of_args[i]; // Temporarily 
 						}
 					}			
 					sp = sp - arity;
@@ -929,72 +946,66 @@ public class RVM {
 						}
 					}
 					
-					NEXT_FUNCTION: 
-					for(int index : of.functions) {
-						fun = functionStore.get(index);
-						FunctionInstance fun_instance = new FunctionInstance(fun, environment);
+					functions = of.functions;
+					constructors = of.constructors;
+					fun_index = 0;
+					of_cf = cf;
+					if(fun_index < functions.length) {
+						int index = functions[fun_index];
 						
 						if(debug) {
 							this.appendToTrace("		" + "try alternative: " + getFunctionName(index));
 						}
-								
-						rval = executeFunction(root, fun_instance, args);
-						if(rval == FAILURE) {
-							continue NEXT_FUNCTION;
-						} 
-						else if(rval instanceof Thrown) {
-							// EXCEPTION HANDLING
-							thrown = (Thrown) rval;
-							thrown.stacktrace.add(cf);
-							// First, try to find a handler in the current frame function,
-							// given the current instruction index and the value type,
-							// then, if not found, look up the caller function(s)
-							for(Frame f = cf; f != null; f = f.previousCallFrame) {
-								int handler = f.function.getHandler(pc - 1, thrown.value.getType());
-								if(handler != -1) {
-									if(f != cf) {
-										cf = f;
-										instructions = cf.function.codeblock.getInstructions();
-										stack = cf.stack;
-										sp = cf.sp;
-										pc = cf.pc;
-									}
-									pc = handler;
-									// Put the thrown value on the stack
-									stack[sp++] = thrown;
-									continue NEXT_INSTRUCTION;
-								}
-							}
-							// If a handler has not been found in the caller functions...
-							return (Thrown) rval;
-							
-						} else {
-							if(rval != NONE) {
-								stack[sp++] = rval;
-							}
-							continue NEXT_INSTRUCTION;
-						}							
-					}
-					
-					int index = of.constructors[0];
-					constructor = constructorStore.get(index);
-					
-					if(debug) {
-						this.appendToTrace("		" + "try constructor alternative: " + getConstructorName(index));
-					}
-					
-					stack[sp++] = vf.constructor(constructor, constrArgs);
-					continue NEXT_INSTRUCTION;
-				
-				case Opcode.OP_FAILRETURN:
-					rval = Failure.getInstance();
-					// TODO: Need to re-consider management of active coroutines
-					cf = cf.previousCallFrame;
-					if(cf == null) {
-						return rval;
+						
+						fun = functionStore.get(index);
+						FunctionInstance fun_instance = new FunctionInstance(fun, environment);
+						cf.pc = pc;
+						cf.sp = sp;
+						cf = pushOverloadedFunctionArguments(cf, fun_instance, of_args);
+						stack = cf.stack;
+						sp = fun.nlocals;
+						pc = 0;
 					} else {
-						throw new RuntimeException("PANIC: FAILRETURN should return from the program execution given the current design!");
+						stack[sp++] = vf.constructor(constructorStore.get(constructors[0]), of_constr_args);
+						functions = null;
+						constructors = null;
+						fun_index = 0;
+						of_args = null;
+						of_constr_args = null; // Temporarily
+						of_cf = null;
 					}
+					continue NEXT_INSTRUCTION;
+												
+				case Opcode.OP_FAILRETURN:
+					assert cf.previousCallFrame == of_cf;
+					fun_index++;
+					if(fun_index < functions.length) {
+						int index = functions[fun_index];
+						
+						if(debug) {
+							this.appendToTrace("		" + "try alternative: " + getFunctionName(index));
+						}
+						
+						fun = functionStore.get(index);
+						// All the function alternatives of an overloaded function have to be defined within one scope
+						FunctionInstance fun_instance = new FunctionInstance(fun, cf.previousScope);
+						// Potentially, may be optimised
+						cf = pushOverloadedFunctionArguments(cf.previousCallFrame, fun_instance, of_args);
+						stack = cf.stack;
+						sp = fun.nlocals;
+						pc = 0;
+					} else {
+						cf = cf.previousCallFrame;
+						stack = cf.stack;
+						sp = cf.sp;
+						stack[sp++] = vf.constructor(constructorStore.get(constructors[0]), of_args);
+						pc = cf.pc;
+						functions = null;
+						constructors = null;
+						fun_index = 0;
+						of_args = null;
+					}
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_FILTERRETURN:
 				case Opcode.OP_RETURN0:
