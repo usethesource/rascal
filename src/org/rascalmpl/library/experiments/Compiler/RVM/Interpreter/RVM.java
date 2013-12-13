@@ -903,9 +903,14 @@ public class RVM {
 					}
 					
 					// Get arguments from the stack
-					args = new IValue[arity]; 
+					args = new IValue[arity];
+					// TODO: Re-think of the contructor cases
+					IValue[] constrArgs = new IValue[arity - 1];
 					for(int i = arity - 1; i >= 0; i--) {
 						args[i] = (IValue) stack[sp - arity + i];
+						if(i != arity - 1) {
+							constrArgs[i] = args[i];
+						}
 					}			
 					sp = sp - arity;
 					
@@ -977,8 +982,8 @@ public class RVM {
 					if(debug) {
 						this.appendToTrace("		" + "try constructor alternative: " + getConstructorName(index));
 					}
-									
-					stack[sp++] = vf.constructor(constructor, args);
+					
+					stack[sp++] = vf.constructor(constructor, constrArgs);
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_FAILRETURN:
@@ -1507,7 +1512,7 @@ public class RVM {
 			}
 		} catch (Exception e) {
 			e.printStackTrace(stderr);
-			throw new RuntimeException("PANIC: (instruction execution): " + e.getMessage() + "; instruction: " + cf.function.codeblock.toString(pc - 1));
+			throw new RuntimeException("PANIC: (instruction execution): " + e.getMessage());
 			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
 			//e.printStackTrace();
 			//stderr.println(e.getStackTrace());
