@@ -68,6 +68,8 @@ import experiments::Compiler::Examples::FailWithLabel2;
 import experiments::Compiler::Examples::IMP3;
 
 import experiments::Compiler::Examples::KWP1;
+import experiments::Compiler::Examples::KWP2;
+import experiments::Compiler::Examples::KWP3;
 
 loc base = |rascal:///experiments/Compiler/Examples/|;
 
@@ -144,3 +146,5 @@ test bool tst() = demo("FailWithLabel1") == experiments::Compiler::Examples::Fai
 test bool tst() = demo("FailWithLabel2") == experiments::Compiler::Examples::FailWithLabel2::main([]);
 
 test bool tst() = demo("KWP1") == experiments::Compiler::Examples::KWP1::main([]);
+test bool tst() = demo("KWP2") == experiments::Compiler::Examples::KWP2::main([]);
+test bool tst() = demo("KWP3") == experiments::Compiler::Examples::KWP3::main([]);
