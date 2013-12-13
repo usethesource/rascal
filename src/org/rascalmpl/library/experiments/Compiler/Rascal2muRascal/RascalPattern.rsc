@@ -150,7 +150,7 @@ tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegEx
    return <mkVarRef("<name>", name@\loc), exps>;
 }
 
-MuExp translatePat(p:(Pattern) `<Concrete concrete>`) { throw("Concrete syntax pattern"); }
+MuExp translatePat(p:(Pattern) `<Concrete concrete>`) = translateConcretePattern(concrete);
      
 MuExp translatePat(p:(Pattern) `<QualifiedName name>`) {
    if("<name>" == "_"){
@@ -235,6 +235,12 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) {
 // Default rule for pattern translation
 
 default MuExp translatePat(Pattern p) { throw "Pattern <p> cannot be translated"; }
+
+/*********************************************************************/
+/*                  Concrete Pattern                                */
+/*********************************************************************/
+
+MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { throw "Concrete Pattern"; }
 
 /*********************************************************************/
 /*                  Descendant Pattern                               */
