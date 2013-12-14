@@ -838,6 +838,7 @@ public class RVM {
 						cf.sp = sp;
 						cf.pc = pc;
 						cf = pushArguments(cf, fun_instance.function, fun_instance.env, args);
+						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
 						pc = cf.pc;
@@ -946,7 +947,7 @@ public class RVM {
 				case Opcode.OP_RETURN1:
 					
 					// Overloading specific
-					if(c_ofun_call != null && cf == c_ofun_call.cf) {
+					if(c_ofun_call != null && cf.previousCallFrame == c_ofun_call.cf) {
 						ocalls.pop();
 						c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
 					}
