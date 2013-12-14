@@ -7,7 +7,8 @@ import experiments::Compiler::Examples::AsType1;
 import experiments::Compiler::Examples::AsType2;
 import experiments::Compiler::Examples::Bottles;
 import experiments::Compiler::Examples::Capture;
-import experiments::Compiler::Examples::NestedFunctions;
+import experiments::Compiler::Examples::NestedFunctions1;
+import experiments::Compiler::Examples::NestedFunctions2;
 import experiments::Compiler::Examples::E1E2;
 import experiments::Compiler::Examples::Fac;
 import experiments::Compiler::Examples::Fib;
@@ -93,15 +94,15 @@ test bool tst() = demo("Odd") == experiments::Compiler::Examples::Odd::main([]);
 test bool tst() = demo("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
 
 test bool tst() = demo("Template") == experiments::Compiler::Examples::Template::main([]);
-test bool tst101() = demo("Overloading1") == experiments::Compiler::Examples::Overloading1::main([]);
-test bool tst102() = demo("Overloading2") == experiments::Compiler::Examples::Overloading2::main([]) && demo("Overloading1") == demo("Overloading2");
-test bool tst103() = demo("Overloading3") == experiments::Compiler::Examples::Overloading3::main([]);
-test bool tst104() = demo("OverloadingMatch") == experiments::Compiler::Examples::OverloadingMatch::main([]);
-test bool tst105() = demo("OverloadingPlusBacktracking1") == experiments::Compiler::Examples::OverloadingPlusBacktracking1::main([]);
-test bool tst106() = demo("OverloadingPlusBacktracking2") == experiments::Compiler::Examples::OverloadingPlusBacktracking2::main([]);
-test bool tst107() = demo("OverloadingDynamicCall") == experiments::Compiler::Examples::OverloadingDynamicCall::main([]);
-test bool tst108() = demo("OverloadingPlusVarArgs") == experiments::Compiler::Examples::OverloadingPlusVarArgs::main([]);
-test bool tst109() = demo("OverloadingPlusVarArgsSpecialCase") == experiments::Compiler::Examples::OverloadingPlusVarArgsSpecialCase::main([]);
+test bool tst() = demo("Overloading1") == experiments::Compiler::Examples::Overloading1::main([]);
+test bool tst() = demo("Overloading2") == experiments::Compiler::Examples::Overloading2::main([]) && demo("Overloading1") == demo("Overloading2");
+test bool tst() = demo("Overloading3") == experiments::Compiler::Examples::Overloading3::main([]);
+test bool tst() = demo("OverloadingMatch") == experiments::Compiler::Examples::OverloadingMatch::main([]);
+test bool tst() = demo("OverloadingPlusBacktracking1") == experiments::Compiler::Examples::OverloadingPlusBacktracking1::main([]);
+test bool tst() = demo("OverloadingPlusBacktracking2") == experiments::Compiler::Examples::OverloadingPlusBacktracking2::main([]);
+test bool tst() = demo("OverloadingDynamicCall") == experiments::Compiler::Examples::OverloadingDynamicCall::main([]);
+test bool tst() = demo("OverloadingPlusVarArgs") == experiments::Compiler::Examples::OverloadingPlusVarArgs::main([]);
+test bool tst() = demo("OverloadingPlusVarArgsSpecialCase") == experiments::Compiler::Examples::OverloadingPlusVarArgsSpecialCase::main([]);
 test bool tst() = demo("ExceptionHandling1") == experiments::Compiler::Examples::ExceptionHandling1::main([]);
 test bool tst() = demo("ExceptionHandling2") == experiments::Compiler::Examples::ExceptionHandling2::main([]);
 test bool tst() = demo("ExceptionHandling3") == experiments::Compiler::Examples::ExceptionHandling3::main([]);
@@ -152,5 +153,5 @@ test bool tst() = demo("KWP2") == experiments::Compiler::Examples::KWP2::main([]
 test bool tst() = demo("KWP3") == experiments::Compiler::Examples::KWP3::main([]);
 
 // Nested functions
-// Note: fails
-test bool tst1001() = demo("NestedFunctions") == experiments::Compiler::Examples::NestedFunctions::main([]);
+test bool tst() = demo("NestedFunctions1") == experiments::Compiler::Examples::NestedFunctions1::main([]);
+test bool tst() = demo("NestedFunctions2") == experiments::Compiler::Examples::NestedFunctions2::main([]);
