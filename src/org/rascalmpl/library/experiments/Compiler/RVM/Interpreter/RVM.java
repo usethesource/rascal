@@ -871,11 +871,12 @@ public class RVM {
 						for(Type type : of_types) {
 							if(type == fun.ftype) {
 								FunctionInstance fun_instance = new FunctionInstance(fun, of_instance.env);
-										
+									
 								if(debug) {
 									this.appendToTrace("		" + "try alternative: " + getFunctionName(index));
 								}
-										
+								
+								instructions = fun.codeblock.getInstructions();
 								cf.pc = pc;
 								cf.sp = sp;
 								cf = pushOverloadedFunctionArguments(cf, fun_instance, of_args);
@@ -959,6 +960,7 @@ public class RVM {
 						}
 						
 						fun = functionStore.get(index);
+						instructions = fun.codeblock.getInstructions();
 						FunctionInstance fun_instance = new FunctionInstance(fun, environment);
 						cf.pc = pc;
 						cf.sp = sp;
@@ -990,6 +992,7 @@ public class RVM {
 						}
 						
 						fun = functionStore.get(index);
+						instructions = fun.codeblock.getInstructions();
 						// All the function alternatives of an overloaded function have to be defined within one scope
 						FunctionInstance fun_instance = new FunctionInstance(fun, cf.previousScope);
 						// Potentially, may be optimised
@@ -1000,9 +1003,10 @@ public class RVM {
 						continue NEXT_INSTRUCTION;
 					} else if(of_types == null) {
 						cf = cf.previousCallFrame;
+						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
-						stack[sp++] = vf.constructor(constructorStore.get(constructors[0]), of_args);
+						stack[sp++] = vf.constructor(constructorStore.get(constructors[0]), of_constr_args);
 						pc = cf.pc;
 						functions = null;
 						constructors = null;
@@ -1021,7 +1025,8 @@ public class RVM {
 								if(debug) {
 									this.appendToTrace("		" + "try alternative: " + getFunctionName(index));
 								}
-										
+								
+								instructions = fun.codeblock.getInstructions();
 								cf.pc = pc;
 								cf.sp = sp;
 								cf = pushOverloadedFunctionArguments(cf.previousCallFrame, fun_instance, of_args);
@@ -1043,6 +1048,7 @@ public class RVM {
 									this.appendToTrace("		" + "try constructor alternative: " + getConstructorName(index));
 								}
 								cf = cf.previousCallFrame;
+								instructions = cf.function.codeblock.getInstructions();
 								stack = cf.stack;
 								sp = cf.sp;
 								stack[sp++] = vf.constructor(constructor, of_constr_args); // Temporarily
