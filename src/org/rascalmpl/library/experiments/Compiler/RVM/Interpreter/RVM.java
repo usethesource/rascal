@@ -653,8 +653,9 @@ public class RVM {
 							stacktrace = new ArrayList<Frame>();
 							stacktrace.add(cf);
 							thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
+							cf.pc = pc;
 							for(Frame f = cf; f != null; f = f.previousCallFrame) {
-								int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+								int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 								if(handler != -1) {
 									if(f != cf) {
 										cf = f;
@@ -666,6 +667,10 @@ public class RVM {
 									pc = handler;
 									stack[sp++] = thrown;
 									continue NEXT_INSTRUCTION;
+								}
+								if(c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
+									ocalls.pop();
+									c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
 								}
 							}
 							// If a handler has not been found in the caller functions...
@@ -685,8 +690,9 @@ public class RVM {
 								stacktrace = new ArrayList<Frame>();
 								stacktrace.add(cf);
 								thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
+								cf.pc = pc;
 								for(Frame f = cf; f != null; f = f.previousCallFrame) {
-									int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+									int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 									if(handler != -1) {
 										if(f != cf) {
 											cf = f;
@@ -698,6 +704,10 @@ public class RVM {
 										pc = handler;
 										stack[sp++] = thrown;
 										continue NEXT_INSTRUCTION;
+									}
+									if(c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
+										ocalls.pop();
+										c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
 									}
 								}
 								// If a handler has not been found in the caller functions...
@@ -871,7 +881,7 @@ public class RVM {
 						instructions = fun.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
-						pc = 0;
+						pc = cf.pc;
 					} else {
 						stack[sp++] = vf.constructor(c_ofun_call.nextConstructor(constructorStore), c_ofun_call.constr_args);
 					}
@@ -911,7 +921,7 @@ public class RVM {
 						instructions = fun.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
-						pc = 0;
+						pc = cf.pc;
 					} else {
 						stack[sp++] = vf.constructor(c_ofun_call.nextConstructor(constructorStore), c_ofun_call.constr_args);
 					}
@@ -1009,8 +1019,9 @@ public class RVM {
 					} catch(Throw e) {
 						thrown = Thrown.getInstance(e.getException(), e.getLocation(), new ArrayList<Frame>());
 						// EXCEPTION HANDLING
+						cf.pc = pc;
 						for(Frame f = cf; f != null; f = f.previousCallFrame) {
-							int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+							int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 							if(handler != -1) {
 								if(f != cf) {
 									cf = f;
@@ -1022,7 +1033,11 @@ public class RVM {
 								pc = handler;
 								stack[sp++] = thrown;
 								continue NEXT_INSTRUCTION;
-							} 
+							}
+							if(c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
+								ocalls.pop();
+								c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
+							}
 						}
 						// If a handler has not been found in the caller functions...
 						return thrown;
@@ -1258,8 +1273,9 @@ public class RVM {
 						thrown = (Thrown) targetException.getTargetException();
 						thrown.stacktrace.add(cf);
 						sp = sp - arity;
+						cf.pc = pc;
 						for(Frame f = cf; f != null; f = f.previousCallFrame) {
-							int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+							int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 							if(handler != -1) {
 								if(f != cf) {
 									cf = f;
@@ -1382,6 +1398,7 @@ public class RVM {
 					// First, try to find a handler in the current frame function,
 					// given the current instruction index and the value type,
 					// then, if not found, look up the caller function(s)
+					cf.pc = pc;
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
 						int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 						if(handler != -1) {
@@ -1395,7 +1412,11 @@ public class RVM {
 							pc = handler;
 							stack[sp++] = thrown;
 							continue NEXT_INSTRUCTION;
-						} 
+						}
+						if(c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
+							ocalls.pop();
+							c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
+						}
 					}
 					// If a handler has not been found in the caller functions...
 					return thrown;
@@ -1442,8 +1463,9 @@ public class RVM {
 					stacktrace = new ArrayList<Frame>();
 					stacktrace.add(cf);
 					thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
+					cf.pc = pc;
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+						int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 						if(handler != -1) {
 							if(f != cf) {
 								cf = f;
@@ -1455,6 +1477,10 @@ public class RVM {
 							pc = handler;
 							stack[sp++] = thrown;
 							continue NEXT_INSTRUCTION;
+						}
+						if(c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
+							ocalls.pop();
+							c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
 						}
 					}
 					// If a handler has not been found in the caller functions...
