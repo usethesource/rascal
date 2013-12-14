@@ -946,7 +946,7 @@ public class RVM {
 				case Opcode.OP_RETURN1:
 					
 					// Overloading specific
-					if(cf == c_ofun_call.cf) {
+					if(c_ofun_call != null && cf == c_ofun_call.cf) {
 						ocalls.pop();
 						c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
 					}
