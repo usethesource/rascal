@@ -1383,7 +1383,7 @@ public class RVM {
 					// given the current instruction index and the value type,
 					// then, if not found, look up the caller function(s)
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+						int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 						if(handler != -1) {
 							if(f != cf) {
 								cf = f;
