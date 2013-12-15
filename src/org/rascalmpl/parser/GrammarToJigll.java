@@ -244,7 +244,6 @@ public class GrammarToJigll {
 		
 		IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
 		createRegularExpressions(regularExpressions);
-		
 
 		for (IValue nonterminal : definitions) {
 
@@ -258,6 +257,10 @@ public class GrammarToJigll {
 			}
 
 			if(isKeyword(constructor)) {
+				continue;
+			}
+			
+			if(isRegularExpression(constructor)) {
 				continue;
 			}
 
@@ -284,7 +287,7 @@ public class GrammarToJigll {
 					IList rhs = (IList) prod.get("symbols");
 
 					List<Symbol> body = getSymbolList(rhs);
-
+					
 					Rule rule = new Rule(head, body, object);
 					rulesMap.put(prod, rule);
 					builder.addRule(rule);
@@ -468,27 +471,69 @@ public class GrammarToJigll {
 	private boolean isKeyword(IConstructor symbol) {
 		return symbol.getName().equals("lit");
 	}
+	
+	private boolean isRegularExpression(IConstructor symbol) {
+		
+		if(SymbolAdapter.isIterStar(symbol)) {
+			return isRegularExpression(getSymbolCons(symbol));
+		}
+		else if(SymbolAdapter.isIterStarSeps(symbol)) {
+			return isRegularExpression(getSymbolCons(symbol));
+		}
+		else if(SymbolAdapter.isIterPlusSeps(symbol)) {
+			return isRegularExpression(getSymbolCons(symbol));
+		}
+		else if(SymbolAdapter.isIterPlus(symbol)) {
+			return isRegularExpression(getSymbolCons(symbol));
+		} 
+		else if(SymbolAdapter.isAlt(symbol)) {
+			ISet alts = (ISet) symbol.get("alternatives");
+			for(IValue i : alts) {
+				if(!isRegularExpression((IConstructor) i)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		else if(SymbolAdapter.isSequence(symbol)) {
+			IList symbols = (IList) symbol.get("symbols");
+			for(IValue i : symbols) {
+				if(!isRegularExpression((IConstructor) i)) {
+					return false;
+				}
+			}
+			return true;
+		} 
+		
+		else if(SymbolAdapter.isCharClass(symbol)) {
+			return true;
+		}
+
+		
+		return false;
+	}
+		
 
 	private Nonterminal getHead(IConstructor symbol) {
 		switch (symbol.getName()) {
 
-		case "lit":
-			return new Nonterminal(SymbolAdapter.toString(symbol, true));
-
-		case "iter":
-			return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-
-		case "iter-seps":
-			return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-
-		case "iter-star":
-			return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-
-		case "iter-star-seps":
-			return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-
-		default:
-			return new Nonterminal(SymbolAdapter.toString(symbol, true));
+			case "lit":
+				return new Nonterminal(SymbolAdapter.toString(symbol, true));
+	
+			case "iter":
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+	
+			case "iter-seps":
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+	
+			case "iter-star":
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+	
+			case "iter-star-seps":
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+	
+			default:
+				return new Nonterminal(SymbolAdapter.toString(symbol, true));
 		}
 	}
 
@@ -498,6 +543,10 @@ public class GrammarToJigll {
 		RegularExpression regexp = regularExpressionsMap.get(symbol.getName());
 		if(regexp != null) {
 			return regexp;
+		}
+		
+		if(isRegularExpression(symbol)) {
+			return getRegularExpression(symbol);
 		}
 
 		switch (symbol.getName()) {
@@ -551,38 +600,38 @@ public class GrammarToJigll {
 		
 		switch (symbol.getName()) {
 			
-		case "conditional":
-			return getRegularExpression(getSymbolCons(symbol)).addConditions(getConditions(symbol));
-		
-		case "label":
-			return getRegularExpression(getSymbolCons(symbol));
+			case "conditional":
+				return getRegularExpression(getSymbolCons(symbol)).addConditions(getConditions(symbol));
 			
-		case "char-class":
-			return getCharacterClass(symbol);	
-
-		case "iter":
-			return new Plus(getRegularExpression(getSymbolCons(symbol)));
-
-		case "iter-seps":
-			return new Plus(getRegularExpression(getSymbolCons(symbol)));
-
-		case "iter-star":
-			return new Star(getRegularExpression(getSymbolCons(symbol)));
-
-		case "iter-star-seps":
-			return new Star(getRegularExpression(getSymbolCons(symbol)));
-
-		case "opt":
-			return new Opt(getRegularExpression(getSymbolCons(symbol)));
-
-		case "alt":
-			return new Alt(getRegularExpressionList((ISet) symbol.get("alternatives")));
-
-		case "seq":
-			return new Group(getRegularExpressionList((IList) symbol.get("symbols")));
-			
-		default:
-			throw new IllegalStateException("Should not reach here. " + symbol);
+			case "label":
+				return getRegularExpression(getSymbolCons(symbol));
+				
+			case "char-class":
+				return getCharacterClass(symbol);	
+	
+			case "iter":
+				return new Plus(getRegularExpression(getSymbolCons(symbol)));
+	
+			case "iter-seps":
+				return new Plus(getRegularExpression(getSymbolCons(symbol)));
+	
+			case "iter-star":
+				return new Star(getRegularExpression(getSymbolCons(symbol)));
+	
+			case "iter-star-seps":
+				return new Star(getRegularExpression(getSymbolCons(symbol)));
+	
+			case "opt":
+				return new Opt(getRegularExpression(getSymbolCons(symbol)));
+	
+			case "alt":
+				return new Alt(getRegularExpressionList((ISet) symbol.get("alternatives")));
+	
+			case "seq":
+				return new Group(getRegularExpressionList((IList) symbol.get("symbols")));
+				
+			default:
+				throw new IllegalStateException("Should not reach here. " + symbol);
 		}
 	}
 
