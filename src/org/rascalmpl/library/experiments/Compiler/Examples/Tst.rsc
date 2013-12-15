@@ -1,3 +1,11 @@
 module experiments::Compiler::Examples::Tst
 
-public value main(list[value] args) =  [1 ,1.5 .. 2.0]; //== [1.0, 1.5];
+syntax A = "a";
+//syntax As = A+;
+
+//syntax B = "b";
+//syntax Bs = B+;
+
+//bool f([A] "a") = true;
+
+value main(list[value] args) = (A) `a` := [A] "a";
