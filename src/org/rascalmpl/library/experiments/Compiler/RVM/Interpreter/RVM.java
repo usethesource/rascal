@@ -829,85 +829,52 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_OCALLDYN:
-					// Get function types to perform a type-based dynamic resolution
-					Type types = cf.function.codeblock.getConstantType(CodeBlock.fetchArg1(instruction));		
-					arity = CodeBlock.fetchArg2(instruction);
-					
-					// Objects of three types may appear on the stack:
-					// 	1. FunctionInstance due to closures
-					// 	2. OverloadedFunctionInstance due to named Rascal functions
-					Object funcObject = stack[--sp];
-					// Get function arguments from the stack
-					args = new IValue[arity];
-					for(int i = arity - 1; i >= 0; i--) {
-						args[i] = (IValue) stack[sp - arity + i];
-					}			
-					sp = sp - arity;
-					
-					if(funcObject instanceof FunctionInstance) {
-						FunctionInstance fun_instance = (FunctionInstance) funcObject;
-						cf.sp = sp;
-						cf.pc = pc;
-						cf = pushArguments(cf, fun_instance.function, fun_instance.env, args);
-						instructions = cf.function.codeblock.getInstructions();
-						stack = cf.stack;
-						sp = cf.sp;
-						pc = cf.pc;
-						continue NEXT_INSTRUCTION;
-					}
-					
-					OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
-					
-					if(debug) {
-						this.appendToTrace("OVERLOADED FUNCTION CALLDYN: ");
-						this.appendToTrace("	with alternatives:");
-						for(int index : of_instance.functions) {
-							this.appendToTrace("		" + getFunctionName(index));
-						}
-					}
-					
-					c_ofun_call = new OverloadedFunctionInstanceCall(vf, cf, of_instance.functions, of_instance.constructors, of_instance.env, args, types);
-					ocalls.push(c_ofun_call);
-					
-					fun = c_ofun_call.nextFunction(functionStore);
-					
-					if(fun != null) {						
-						if(debug) {
-							this.appendToTrace("		" + "try alternative: " + fun.name);
-						}
-						cf.sp = sp;
-						cf.pc = pc;
-						cf = pushArguments(c_ofun_call.cf, fun, c_ofun_call.env, c_ofun_call.args);
-						instructions = fun.codeblock.getInstructions();
-						stack = cf.stack;
-						sp = cf.sp;
-						pc = cf.pc;
-					} else {
-						stack[sp++] = vf.constructor(c_ofun_call.nextConstructor(constructorStore), c_ofun_call.constr_args);
-					}
-					continue NEXT_INSTRUCTION;
-					
 				case Opcode.OP_OCALL:					
-					of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
+					Object funcObject = (op == Opcode.OP_OCALLDYN) ? stack[--sp] : null;
+					// Get function arguments from the stack
 					arity = CodeBlock.fetchArg2(instruction);
-					
-					if(debug) {
-						this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
-						this.appendToTrace("	with alternatives:");
-						for(int index : of.functions) {
-							this.appendToTrace("		" + getFunctionName(index));
-						}
-					}
-					
-					// Get arguments from the stack
 					args = new IValue[arity];
 					for(int i = arity - 1; i >= 0; i--) {
 						args[i] = (IValue) stack[sp - arity + i];
 					}			
 					sp = sp - arity;
 					
-					c_ofun_call = new OverloadedFunctionInstanceCall(vf, root, cf, of.functions, of.constructors, of.scopeIn, args, null);
+					if(op == Opcode.OP_OCALLDYN) {
+						// Get function types to perform a type-based dynamic resolution
+						Type types = cf.function.codeblock.getConstantType(CodeBlock.fetchArg1(instruction));
+						// Objects of three types may appear on the stack:
+						// 	1. FunctionInstance due to closures
+						// 	2. OverloadedFunctionInstance due to named Rascal functions
+						if(funcObject instanceof FunctionInstance) {
+							FunctionInstance fun_instance = (FunctionInstance) funcObject;
+							cf.sp = sp;
+							cf.pc = pc;
+							cf = pushArguments(cf, fun_instance.function, fun_instance.env, args);
+							instructions = cf.function.codeblock.getInstructions();
+							stack = cf.stack;
+							sp = cf.sp;
+							pc = cf.pc;
+							continue NEXT_INSTRUCTION;
+						}
+						OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
+						c_ofun_call = new OverloadedFunctionInstanceCall(vf, cf, of_instance.functions, of_instance.constructors, of_instance.env, args, types);
+					} else {
+						of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
+						c_ofun_call = new OverloadedFunctionInstanceCall(vf, root, cf, of.functions, of.constructors, of.scopeIn, args, null);
+					}
 					ocalls.push(c_ofun_call);
+					
+					if(debug) {
+						if(op == Opcode.OP_OCALL) {
+							this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
+						} else {
+							this.appendToTrace("OVERLOADED FUNCTION CALLDYN: ");
+						}
+						this.appendToTrace("	with alternatives:");
+						for(int index : c_ofun_call.functions) {
+							this.appendToTrace("		" + getFunctionName(index));
+						}
+					}
 					
 					fun = c_ofun_call.nextFunction(functionStore);
 					
@@ -926,7 +893,7 @@ public class RVM {
 						stack[sp++] = vf.constructor(c_ofun_call.nextConstructor(constructorStore), c_ofun_call.constr_args);
 					}
 					continue NEXT_INSTRUCTION;
-												
+					
 				case Opcode.OP_FAILRETURN:
 					assert cf.previousCallFrame == c_ofun_call.cf;
 					
