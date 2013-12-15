@@ -479,55 +479,18 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
     }
     
     // Add the constructor. This also performs an overlap check if this is not the first
-    // constructor with this name -- note that we only check for overlaps with constructors
-    // defined in the same ADT, since there is no language mechanism to distinguish them
-    // when used in a program (we cannot prefix the constructor with the ADT name, for
-    // instance).
-    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-    if (n notin c.fcvEnv) {
-        // On the initial add, we create three versions of the constructor name:
-        // * the bare name
-        // * the name, qualified with the ADT name
-        // * the name, qualified with the name of the module
-        // This ensures that all valid lookups of the name are successful.
-        c.fcvEnv[n] = c.nextLoc;
-        c.fcvEnv[appendName(adtName,n)] = c.nextLoc;
-        c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
-        c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
-        c.nextLoc = c.nextLoc + 1;
-    } else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-        // If the same constructor definitions comes in along multiple paths, this is fine.
-        // The only thing we do then is make sure the names are correct, since, given module
-        // B extending module A, we could call the constructor A::cons or B::cons.
-        existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
-        c.fcvEnv[appendName(adtName,n)] = c.fcvEnv[n];
-        c.fcvEnv[appendName(moduleName,n)] = c.fcvEnv[n];
-        if (!existsAlready) {
-            c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-            c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes,defaults + rt));
-            c.definitions = c.definitions + < c.nextLoc, l >;
-            overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt)}; //, !equivalent(c.store[i].rtype,rt)};
-            if (size(overlaps) > 0)
-                c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <c.nextLoc>, <overlaps>",l);
-            c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
-            c.nextLoc = c.nextLoc + 1;
-        }
-    } else if (constructor(_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
-        // If the same constructor definitions comes in along multiple paths, this is fine.
-        // The only thing we do then is make sure the names are correct, since, given module
-        // B extending module A, we could call the constructor A::cons or B::cons.
-        existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
-        c.fcvEnv[appendName(adtName,n)] = c.fcvEnv[n];
-        c.fcvEnv[appendName(moduleName,n)] = c.fcvEnv[n];
-        if (!existsAlready) {
-            c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-            c.definitions = c.definitions + < c.nextLoc, l >;
-            overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt) };
-            if (size(overlaps) > 0)
-                c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <c.nextLoc>, <overlaps>",l);
-            c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
+    // constructor with this name to ensure the constructor is distinguishable within
+    // the same ADT (we can add the ADT name to distinguish constructors from different
+    // ADTs).
+    void addConstructorItem(RName n, int constructorItemId) {
+	    if (n notin c.fcvEnv) {
+	    	// Case 1: This is the first occurrence of this name.
+	        c.fcvEnv[n] = constructorItemId;
+	    } else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
+	    	// Case 2: The name is already overloaded. Add this as one more overload.
+	    	// TODO: If we are annotating overload items, we need to copy annotations here
+            c.store[c.fcvEnv[n]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + rt));
+	    } else if (constructor(_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
             nonDefaults = {};
             defaults = { rt };
             if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
@@ -539,14 +502,37 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
             		nonDefaults += c.store[c.fcvEnv[n]].rtype;
             	}
             }
-            c.store[c.nextLoc+1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded(nonDefaults,defaults));
-            for (cname <- invert(c.fcvEnv)[c.fcvEnv[n]])
-                c.fcvEnv[cname] = c.nextLoc+1;
-            c.nextLoc = c.nextLoc + 2;
-        }
-    } else {
-        throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
-    }
+            c.store[c.nextLoc] = overload({ c.fcvEnv[n], constructorItemId }, overloaded(nonDefaults,defaults));
+            c.fcvEnv[n] = c.nextLoc;
+            c.nextLoc = c.nextLoc + 1;
+	    } else {
+	        throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
+	    }
+	}
+
+    existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
+    if (!existsAlready) {
+	    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+	    nameWithAdt = appendName(adtName,n);
+	    nameWithModule = appendName(moduleName,n);
+    
+        overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt)}; //, !equivalent(c.store[i].rtype,rt)};
+        if (size(overlaps) > 0)
+            c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
+
+	    constructorItemId = c.nextLoc;
+	    c.nextLoc = c.nextLoc + 1;
+
+	    constructorItem = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
+	    c.store[constructorItemId] = constructorItem;
+	    c.definitions = c.definitions + < constructorItemId, l >;
+	    c.adtConstructors = c.adtConstructors + < adtId, constructorItemId >;
+	    
+	    addConstructorItem(n, constructorItemId);
+	    addConstructorItem(nameWithAdt, constructorItemId);
+	    addConstructorItem(nameWithModule, constructorItemId);
+	}    
+	
     return c;
 }
 
@@ -634,6 +620,8 @@ public Configuration addClosure(Configuration c, Symbol rt, KeywordParamMap keyw
     return c;
 }
 
+// TODO: This requires the same overload logic just added to constructor to keep
+// name and module qualified name separate
 public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordParamMap keywordParams, set[Modifier] modifiers, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l) {
     // TODO: Handle the visibility properly. The main point is that we should not have variants
     // for the same function that are given different visibilities.
@@ -1644,7 +1632,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("For a relation with arity <size(getRelFields(t1))> you can have at most <size(getRelFields(t1))-1> subscripts",exp@\loc));
         else {
             relFields = getRelFields(t1);
-            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), !comparable(tl[idx],relFields[idx]) };
+            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],\set(relFields[idx]))) };
             if (size(failures) > 0)
                 return markLocationFailed(c,exp@\loc,failures);
             else if ((size(relFields) - size(tl)) == 1)
@@ -1657,7 +1645,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("For a list relation with arity <size(getListRelFields(t1))> you can have at most <size(getListRelFields(t1))-1> subscripts",exp@\loc));
         else {
             relFields = getListRelFields(t1);
-            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to list relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), !comparable(tl[idx],relFields[idx]) };
+            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],\set(relFields[idx]))) };
             if (size(failures) > 0)
                 return markLocationFailed(c,exp@\loc,failures);
             else if ((size(relFields) - size(tl)) == 1)
