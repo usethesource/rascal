@@ -7,7 +7,9 @@ import experiments::Compiler::Examples::AsType1;
 import experiments::Compiler::Examples::AsType2;
 import experiments::Compiler::Examples::Bottles;
 import experiments::Compiler::Examples::Capture;
-import experiments::Compiler::Examples::NestedFunctions;
+import experiments::Compiler::Examples::NestedFunctions1;
+import experiments::Compiler::Examples::NestedFunctions2;
+import experiments::Compiler::Examples::NestedFunctions3;
 import experiments::Compiler::Examples::E1E2;
 import experiments::Compiler::Examples::Fac;
 import experiments::Compiler::Examples::Fib;
@@ -152,5 +154,6 @@ test bool tst() = demo("KWP2") == experiments::Compiler::Examples::KWP2::main([]
 test bool tst() = demo("KWP3") == experiments::Compiler::Examples::KWP3::main([]);
 
 // Nested functions
-// Note: fails
-test bool tst1001() = demo("NestedFunctions") == experiments::Compiler::Examples::NestedFunctions::main([]);
+test bool tst() = demo("NestedFunctions1") == experiments::Compiler::Examples::NestedFunctions1::main([]);
+test bool tst() = demo("NestedFunctions2") == experiments::Compiler::Examples::NestedFunctions2::main([]);
+test bool tst() = demo("NestedFunctions3") == experiments::Compiler::Examples::NestedFunctions3::main([]);
