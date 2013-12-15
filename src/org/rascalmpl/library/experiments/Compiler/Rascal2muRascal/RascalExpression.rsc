@@ -29,7 +29,7 @@ int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: shou
 
 // Create (and flatten) a muAll
 
-MuExp makeMuAll([*exps1, muAll(list[MuExp] exps2), exps3]) = makeMuAll(exps1 + exps2 + exps3);
+MuExp makeMuAll([*exps1, muAll(list[MuExp] exps2), *exps3]) = makeMuAll(exps1 + exps2 + exps3);
 default MuExp makeMuAll(list[MuExp] exps) = muAll(exps);
 
 // Create (and flatten) a muOne
