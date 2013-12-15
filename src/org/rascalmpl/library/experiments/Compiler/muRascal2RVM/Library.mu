@@ -2,23 +2,26 @@ module Library
 
 // Semantics of the all operator
 
-coroutine ALL[1, coArray, 
-                 len, j, coInits, co] {
-    len = size_array(coArray);
-    j = 0;
-    // coiInits is not created!
-    put_array(coInits,j,init(get_array(coArray,j)));
-    while(j >= 0) {
-        co = get_array(coInits,j);
-        if(next(co)) {
-            if(j == len - 1) {
+coroutine ALL[1,tasks,len,p,workers]{
+    len = size_array(tasks);
+    guard len > 0;
+    workers = make_array(len);
+    p = 0;
+    put_array(workers,p,init(get_array(tasks,p)));
+    while(true) {
+        while(next(get_array(workers,p))) {
+            if(p == len - 1) {
                 yield;
             } else {
-                j = j + 1;
-                put_array(coInits,j,init(get_array(coArray,j)));
+                p = p + 1;
+                put_array(workers,p,init(get_array(tasks,p)));
             };
+        };
+        if(p > 0){
+            p = p - 1;
         } else {
-            j = j - 1; };
+            exhaust;
+        };
     };
 }
 
