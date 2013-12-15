@@ -46,6 +46,7 @@ import org.jgll.parser.ParserFactory;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
+import org.jgll.util.CollectionsUtil;
 import org.jgll.util.Input;
 import org.jgll.util.Visualization;
 import org.jgll.util.logging.LoggerWrapper;
@@ -546,9 +547,9 @@ public class GrammarToJigll {
 		}
 		
 		if(isRegularExpression(symbol)) {
-			return getRegularExpression(symbol);
+			return new RegularExpression(symbol.getName(), CollectionsUtil.list(getRegularExpression(symbol)));
 		}
-
+		
 		switch (symbol.getName()) {
 
 			case "lex":
