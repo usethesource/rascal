@@ -34,8 +34,8 @@ default MuExp makeMuAll(list[MuExp] exps) = muAll(exps);
 
 // Create (and flatten) a muOne
 
-MuExp makeMuOne([*exps1, muOne(list[MuExp] exps2), exps3]) = makeMuOne(exps1 + exps2 + exps3);
-default MuExp makeMuOne(exp) = muOne(exp);
+MuExp makeMuOne([*exps1, muOne(list[MuExp] exps2), *exps3]) = makeMuOne(exps1 + exps2 + exps3);
+default MuExp makeMuOne(exps) = muOne(exps);
 
 // Generate code for completely type-resolved operators
 
