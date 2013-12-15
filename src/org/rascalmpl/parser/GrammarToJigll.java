@@ -252,8 +252,10 @@ public class GrammarToJigll {
 			
 			boolean ebnf = isEBNF(constructor);
 
+			Nonterminal head = getHead(constructor);
+			
 			// Don't create a rule body for regular expression heads.
-			if(regularExpressionsMap.containsKey(constructor.getName())) {
+			if(regularExpressionsMap.containsKey(head.getName())) {
 				continue;
 			}
 
@@ -264,8 +266,6 @@ public class GrammarToJigll {
 			if(isRegularExpression(constructor)) {
 				continue;
 			}
-
-			Nonterminal head = getHead(constructor);
 
 			IConstructor choice = (IConstructor) definitions.get(nonterminal);
 			assert choice.getName().equals("choice");
