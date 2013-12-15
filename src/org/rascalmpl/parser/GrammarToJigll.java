@@ -9,13 +9,11 @@ import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -250,18 +248,20 @@ public class GrammarToJigll {
 
 		for (IValue nonterminal : definitions) {
 
-			boolean ebnf = isEBNF((IConstructor) nonterminal);
+			IConstructor constructor = (IConstructor) nonterminal;
+			
+			boolean ebnf = isEBNF(constructor);
 
-			Nonterminal head = getHead((IConstructor) nonterminal);
-			
-			if (head == null) {
-				continue;
-			}
-			
 			// Don't create a rule body for regular expression heads.
-			if(regularExpressionsMap.containsKey(head.getName())) {
+			if(regularExpressionsMap.containsKey(constructor.getName())) {
 				continue;
 			}
+
+			if(isKeyword(constructor)) {
+				continue;
+			}
+
+			Nonterminal head = getHead(constructor);
 
 			IConstructor choice = (IConstructor) definitions.get(nonterminal);
 			assert choice.getName().equals("choice");
@@ -463,6 +463,10 @@ public class GrammarToJigll {
 		}
 
 		return keyword;
+	}
+	
+	private boolean isKeyword(IConstructor symbol) {
+		return symbol.getName().equals("lit");
 	}
 
 	private Nonterminal getHead(IConstructor symbol) {
