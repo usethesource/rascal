@@ -244,10 +244,8 @@ public class GrammarToJigll {
 		keywordsMap = new HashMap<>();
 		regularExpressionsMap = new HashMap<>();
 		
-		Set<Rule> rules = new HashSet<>();
-		
 		IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
-		createRegularExpressionRules(regularExpressions);
+		createRegularExpressions(regularExpressions);
 		
 
 		for (IValue nonterminal : definitions) {
@@ -255,8 +253,13 @@ public class GrammarToJigll {
 			boolean ebnf = isEBNF((IConstructor) nonterminal);
 
 			Nonterminal head = getHead((IConstructor) nonterminal);
-
+			
 			if (head == null) {
+				continue;
+			}
+			
+			// Don't create a rule body for regular expression heads.
+			if(regularExpressionsMap.containsKey(head.getName())) {
 				continue;
 			}
 
@@ -284,20 +287,11 @@ public class GrammarToJigll {
 
 					Rule rule = new Rule(head, body, object);
 					rulesMap.put(prod, rule);
-					rules.add(rule);
+					builder.addRule(rule);
 				}
 			}
 		}
 		
-//		Map<Nonterminal, Rule> regularExpressionRules = createRegularExpressionRules(regularExpressions);
-//
-//		for (Rule rule : regularExpressionRules.values()) {
-//			builder.addRule(rule);
-//		}
-		
-		for (Rule rule : rules) {
-			builder.addRule(rule);
-		}
 		
 		return builder;
 	}
@@ -324,7 +318,7 @@ public class GrammarToJigll {
 		}
 	}
 	
-	private void createRegularExpressionRules(IMap regularExpressions) {
+	private void createRegularExpressions(IMap regularExpressions) {
 		
 		Iterator<Entry<IValue, IValue>> it = regularExpressions.entryIterator();
 
@@ -337,6 +331,7 @@ public class GrammarToJigll {
 
 			List<Symbol> body = getRegularExpressionList(rhs);
 			
+//			System.out.println(new RegularExpression(head.getName(), body));
 			regularExpressionsMap.put(head.getName(), new RegularExpression(head.getName(), body));
 		}
 	}
@@ -503,44 +498,48 @@ public class GrammarToJigll {
 
 		switch (symbol.getName()) {
 
-		case "char-class":
-			return getCharacterClass(symbol);
-
-		case "lit":
-			return getKeyword(symbol);
-
-		case "label":
-			return getSymbol(getSymbolCons(symbol));
-
-		case "iter":
-			return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-
-		case "iter-seps":
-			return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-
-		case "iter-star":
-			return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-
-		case "iter-star-seps":
-			return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-
-		case "opt":
-			return new Nonterminal(SymbolAdapter.toString(symbol, true));
-
-		case "alt":
-			return new Nonterminal(SymbolAdapter.toString(symbol, true));
-
-		case "seq":
-			return new Nonterminal(SymbolAdapter.toString(symbol, true));
-
-		case "start":
-			return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
-
-		case "conditional":
-			return getSymbol(getSymbolCons(symbol)).addConditions(getConditions(symbol));
-
-		default:
-			return new Nonterminal(SymbolAdapter.toString(symbol, true));
+			case "lex":
+				// TODO: check if this is always the case
+				return regularExpressionsMap.get(((IString)symbol.get("name")).getValue());
+			
+			case "char-class":
+				return getCharacterClass(symbol);
+	
+			case "lit":
+				return getKeyword(symbol);
+	
+			case "label":
+				return getSymbol(getSymbolCons(symbol));
+	
+			case "iter":
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+	
+			case "iter-seps":
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+	
+			case "iter-star":
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+	
+			case "iter-star-seps":
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+	
+			case "opt":
+				return new Nonterminal(SymbolAdapter.toString(symbol, true));
+	
+			case "alt":
+				return new Nonterminal(SymbolAdapter.toString(symbol, true));
+	
+			case "seq":
+				return new Nonterminal(SymbolAdapter.toString(symbol, true));
+	
+			case "start":
+				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
+	
+			case "conditional":
+				return getSymbol(getSymbolCons(symbol)).addConditions(getConditions(symbol));
+	
+			default:
+				return new Nonterminal(SymbolAdapter.toString(symbol, true));
 		}
 	}
 	
