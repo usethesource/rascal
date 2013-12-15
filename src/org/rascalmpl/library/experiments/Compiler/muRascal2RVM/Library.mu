@@ -2,7 +2,7 @@ module Library
 
 // Semantics of the all operator
 
-coroutine ALL[1,tasks,len,p,workers]{
+coroutine ALL[1,tasks,len,p,workers] {
     len = size_array(tasks);
     guard len > 0;
     workers = make_array(len);
@@ -22,6 +22,19 @@ coroutine ALL[1,tasks,len,p,workers]{
         } else {
             exhaust;
         };
+    };
+}
+
+coroutine OR[1,tasks,len,p,worker] {
+    len = size_array(tasks);
+    guard len > 0;
+    p = 0;
+    while(p < len) {
+        worker = init(get_array(tasks,p));
+        while(worker) {
+            yield;
+        };
+        p = p + 1;
     };
 }
 
