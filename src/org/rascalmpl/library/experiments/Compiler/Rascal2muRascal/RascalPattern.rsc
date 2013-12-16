@@ -269,24 +269,35 @@ MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) {
   println("**** Grammar");
   iprintln(getGrammar(config));
   parsedFragment = parseFragment(getModuleName(), concrete, p@\loc, getGrammar(config));
-  parsedFragment = parsedFragment.args[7]; // the tree version of the concrete parts
+//  parsedFragment = parsedFragment.args[7]; // the tree version of the concrete parts
   println("**** parsedFragment");
   iprintln(parsedFragment);
   return translateParsedConcretePattern(parsedFragment);
 }
 
 MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){
-  println("**** prod");
-  iprintln(prod);
-  println("**** args (<size(args)>)");
-  iprintln(args);
+ // println("**** prod");
+  //iprintln(prod);
+  if(prod.def == label("hole", lex("ConcretePart"))){
+     println("CONCRETE HOLE"); iprintln(prod);
+     println("**** args (<size(args)>)");
+     iprintln(args);
+     println("args[0]args[4].args[0].args:");  iprintln(args[0].args[4].args[0]);
+     varloc = args[0].args[4].args[0]@\loc;
+     println("varloc =  <varloc>");
+     println("type i= <getType(varloc)>");
+     <fuid, pos> = getVariableScope("ConcreteVar", varloc);
+     //println("transPattern: <fuid>, <pos>");
+     return muCreate(mkCallToLibFun("Library","MATCH_VAR",2), [muVarRef("ConcreteVar", fuid, pos)]);
+  }
+  
   applCode = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon("appl")]);
   prodCode = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(prod)]);
   argsCode = translateConcreteListPattern(args);
   return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", [applCode, prodCode, argsCode] )]);
 }
 
-MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){ }
+//MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){ }
 
 //MuExp translateParsedConcretePattern(lt: lit(str s)) {
 //  return muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(s)]);
@@ -303,10 +314,16 @@ default MuExp translateParsedConcretePattern(Tree c) {
 
 MuExp translateConcreteListPattern(list[Tree] pats){
  lookahead = computeConcreteLookahead(pats);  
- return muCreate(mkCallToLibFun("Library","MATCH_LIST",2), [muCallMuPrim("make_array", [ translatePatAsConcreteListElem(pats[i], lookahead[i]) | i <- index(pats), i % 2 == 0])]);
+ arb = muCreate(mkCallToLibFun("Library","MATCH_ARB_IN_LIST",3), []);
+ return muCreate(mkCallToLibFun("Library","MATCH_LIST",2), [muCallMuPrim("make_array", 
+         [ (i % 2 == 0) ? translatePatAsConcreteListElem(pats[i], lookahead[i]) : arb | i <- index(pats) ])]);
 }
 
-MuExp translatePatAsConcreteListElem(Tree c, Lookahead lookahead){
+MuExp translatePatAsConcreteListElem(cc: char(int c), Lookahead lookahead){
+  return muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST",4), [muCon(cc)]);
+}
+
+default MuExp translatePatAsConcreteListElem(Tree c, Lookahead lookahead){
   return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_LIST",4), [translateParsedConcretePattern(c)]);
 }
 
@@ -359,6 +376,10 @@ MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead looka
    return muCreate(mkCallToLibFun("Library","MATCH_VAR_IN_LIST",4), [muVarRef("<name>", fuid, pos)]);
 } 
 */
+
+MuExp translatePatAsListElem(p:(Pattern) `<Literal lit>`, Lookahead lookahead) {
+  return muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST",4), [translate(lit)]);
+}
 
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`, Lookahead lookahead) {
    if("<name>" == "_"){

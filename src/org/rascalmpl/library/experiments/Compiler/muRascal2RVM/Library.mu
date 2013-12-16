@@ -499,6 +499,25 @@ coroutine MATCH_PAT_IN_LIST[4, pat, iSubject, rNext, available, start, cpat]{
        yield start + 1;   
     };
 } 
+
+coroutine MATCH_ARB_IN_LIST[3, iSubject, rNext, available, start]{ 
+    guard available > 0;
+    start = deref rNext;
+    println("MATCH_ARB_IN_LIST", start, get_list(iSubject, start));
+    yield start + 1;   	// TODO: should be return;
+} 
+
+coroutine MATCH_LITERAL_IN_LIST[4, pat, iSubject, rNext, available, start, elm]{
+	guard available > 0;
+	start = deref rNext;
+	elm =  get_list(iSubject, start);
+    if(equal(typeOf(pat),typeOf(elm)) && equal(pat, elm)){
+       println("MATCH_LITERAL_IN_LIST: true", pat, start, elm);
+       yield start + 1;			// TODO: should be return;
+    };
+    println("MATCH_LITERAL_IN_LIST: false", pat, start, elm);
+}
+
 /*
 coroutine MATCH_VAR_IN_LIST[4, rVar, iSubject, rNext, available, start, iVal, iElem]{
    println("MATCH_VAR_IN_LIST", iSubject, start, available);

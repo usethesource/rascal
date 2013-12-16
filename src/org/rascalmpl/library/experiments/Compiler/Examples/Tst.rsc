@@ -1,11 +1,12 @@
 module experiments::Compiler::Examples::Tst
 
+layout Whitespace = [\ ]*;
 syntax A = "a";
-//syntax As = A+;
+syntax B = "b";
+start syntax AB = A B;
 
-//syntax B = "b";
-//syntax Bs = B+;
+//syntax AS = A+;
 
-//bool f([A] "a") = true;
+//syntax ASBS = "xx" A+ "yy";
 
-value main(list[value] args) = (A) `a` := [A] "a";
+value main(list[value] args) = (AB) `<A XXXXX>b` := [AB] "ab";
