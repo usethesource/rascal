@@ -277,11 +277,12 @@ coroutine RANGE_STEP_INT[4, pat, iFirst, iSecond, iEnd, j, n, step]{
 }
 
 coroutine RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step, mixed]{
-   j = iFirst;
    n = iEnd;
    if(iFirst is int && iSecond is int && iEnd is int){
+     j = iFirst;
      mixed = false;
    } else {
+     j = prim("num_to_real", iFirst);
      mixed = true;
    };
    if(prim("less", j, n)) {
