@@ -46,7 +46,7 @@ public enum ToplevelType {
 
 			@Override
 			public ToplevelType visitReal(Type type) throws RuntimeException {
-				return BOOL;
+				return REAL;
 			}
 
 			@Override

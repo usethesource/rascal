@@ -145,8 +145,9 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     if(listing){
     	iprintln(fun);
     }
+    
     // Append catch blocks to the end of the function body code
-    //code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
     code = peephole(tr(fun.body)) + [ *catchBlock | INS catchBlock <- catchBlocks ];
     
     // Debugging exception handling
@@ -174,7 +175,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   	 module_init_fun = getFUID(module_name,"#<module_name>_init",ftype,0);
   }
   
-  funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, false, estimate_stack_size(initializations) + size(variables) + 1, 
+  funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 2, size(variables) + 2, false, estimate_stack_size(initializations) + size(variables) + 1,
   									[*trvoidblock(initializations), 
   									 LOADCON(true),
   									 RETURN1(1),
@@ -202,7 +203,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
 /*********************************************************************/
 
 
-INS  tr(list[MuExp] exps) = [ *tr(exp) | exp <- exps ];
+INS tr(list[MuExp] exps) = [ *tr(exp) | exp <- exps ];
 
 INS tr_and_pop(muBlock([])) = [];
 
@@ -259,6 +260,9 @@ INS tr(muVar(str id, str fuid, int pos)) = [fuid == functionScope ? LOADLOC(pos)
 INS tr(muLoc(str id, int pos)) = [LOADLOC(pos)];
 INS tr(muTmp(str id)) = [LOADLOC(getTmp(id))];
 
+INS tr(muLocKwp(str name)) = [ LOADLOCKWP(name) ];
+INS tr(muVarKwp(str fuid, str name)) = [ fuid == functionScope ? LOADLOCKWP(name) : LOADVARKWP(fuid, name) ];
+
 INS tr(muLocDeref(str name, int pos)) = [ LOADLOCDEREF(pos) ];
 INS tr(muVarDeref(str name, str fuid, int pos)) = [ fuid == functionScope ? LOADLOCDEREF(pos) : LOADVARDEREF(fuid, pos) ];
 
@@ -272,6 +276,9 @@ INS tr(muAssignVarDeref(str id, str fuid, int pos, MuExp exp)) = [ *tr(exp), fui
 INS tr(muAssign(str id, str fuid, int pos, MuExp exp)) = [*tr(exp), fuid == functionScope ? STORELOC(pos) : STOREVAR(fuid, pos)];
 INS tr(muAssignLoc(str id, int pos, MuExp exp)) = [*tr(exp), STORELOC(pos) ];
 INS tr(muAssignTmp(str id, MuExp exp)) = [*tr(exp), STORELOC(getTmp(id)) ];
+
+INS tr(muAssignLocKwp(str name, MuExp exp)) = [ *tr(exp), STORELOCKWP(name) ];
+INS tr(muAssignKwp(str fuid, str name, MuExp exp)) = [ *tr(exp), fuid == functionScope ? STORELOCKWP(name) : STOREVARKWP(fuid,name) ];
 
 // Calls
 
@@ -289,8 +296,8 @@ INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size
 
 INS tr(muOCall(muOFun(str fuid), list[MuExp] args)) = [*tr(args), OCALL(fuid, size(args))];
 INS tr(muOCall(MuExp fun, Symbol types, list[MuExp] args)) 
-	= [ *tr(args), 
-		*tr(fun), 
+	= [ *tr(args),
+	    *tr(fun), 
 		OCALLDYN(types, size(args))];
 
 // Calls to Rascal primitives
