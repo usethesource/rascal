@@ -4,6 +4,7 @@ module experiments::Compiler::Rascal2muRascal::RascalPattern
 import Prelude;
 
 import lang::rascal::\syntax::Rascal;
+import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::Rascal2muRascal::RascalType;
@@ -12,6 +13,7 @@ import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
 import experiments::Compiler::RVM::Interpreter::ParsingTools;
 
@@ -254,20 +256,68 @@ lexical ConcretePart
   | @category="MetaSkipped" bq: "\\`"
   | @category="MetaSkipped" bs: "\\\\"
   ;
-*/
-
-/*
-// AsType
-MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
-   muCallPrim("parse", [muCon(getModuleName()), muCon(type(symbolToValue(translateType(typ), config).symbol,getGrammar(config))), translate(argument)]);
+  
+syntax ConcreteHole 
+  = \one: "\<" Sym symbol Name name "\>"
+  ;
 */
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
-  println("concrete: <concrete>");
-  println("symbol: <concrete.symbol>, parts: <concrete.parts>");
-  iprintln(concrete);
-  parseFragment(getModuleName(), concrete, p@\loc);
-  throw "Concrete Pattern"; 
+  //println("concrete: <concrete>");
+  //println("symbol: <concrete.symbol>, parts: <concrete.parts>");
+  //iprintln(concrete);
+  println("**** Grammar");
+  iprintln(getGrammar(config));
+  parsedFragment = parseFragment(getModuleName(), concrete, p@\loc, getGrammar(config));
+  parsedFragment = parsedFragment.args[7]; // the tree version of the concrete parts
+  println("**** parsedFragment");
+  iprintln(parsedFragment);
+  return translateParsedConcretePattern(parsedFragment);
+}
+
+MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){
+  println("**** prod");
+  iprintln(prod);
+  println("**** args (<size(args)>)");
+  iprintln(args);
+  applCode = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon("appl")]);
+  prodCode = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(prod)]);
+  argsCode = translateConcreteListPattern(args);
+  return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", [applCode, prodCode, argsCode] )]);
+}
+
+MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){ }
+
+//MuExp translateParsedConcretePattern(lt: lit(str s)) {
+//  return muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(s)]);
+//}
+
+MuExp translateParsedConcretePattern(cc: char(int c)) {
+  return muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(cc)]);
+}
+
+default MuExp translateParsedConcretePattern(Tree c) {
+   iprintln(c);
+   throw "translateParsedConcretePattern: Cannot handle <c>";
+}
+
+MuExp translateConcreteListPattern(list[Tree] pats){
+ lookahead = computeConcreteLookahead(pats);  
+ return muCreate(mkCallToLibFun("Library","MATCH_LIST",2), [muCallMuPrim("make_array", [ translatePatAsConcreteListElem(pats[i], lookahead[i]) | i <- index(pats), i % 2 == 0])]);
+}
+
+MuExp translatePatAsConcreteListElem(Tree c, Lookahead lookahead){
+  return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_LIST",4), [translateParsedConcretePattern(c)]);
+}
+
+list[Lookahead] computeConcreteLookahead(list[Tree] pats){
+    nElem = 0;
+    nMultiVar = 0;
+    rprops = for(p <- reverse([p | p <- pats])){
+                 append <nElem, nMultiVar>;
+                 /*if(isMultiVar(p)) nMultiVar += 1; else */nElem += 1;
+             };
+    return reverse(rprops);
 }
 
 /*********************************************************************/
