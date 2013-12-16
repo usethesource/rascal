@@ -104,7 +104,7 @@ MuFunction preprocess(Function f, str modName){
    
    scopeIn = (!isEmpty(f.funNames)) ? getUID(modName,f.funNames) : ""; // if not a function scope, then the root one
    // Generate a very generic function type
-   ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..f.nformals + 1] ]);
+   ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..f.nformals] ]);
    
    body = preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body);
    return (f is preCoroutine) ? muCoroutine(uid, scopeIn, f.nformals, size(vardefs[uid]), refs, muBlock(insertGuard ? [ muGuard(muBool(true)), *body, muExhaust() ] : [ *body, muExhaust() ]))
