@@ -65,4 +65,17 @@ class ConcatInputStream extends InputStream {
 		return second.read(b, off, len);
 	}
 	
+	@Override
+	public void close() throws IOException {
+		try {
+			first.close();
+		}
+		catch (IOException e) {
+			// yes, but also close the second
+			second.close();
+			throw e;
+		}
+		second.close();
+	}
+	
 }
