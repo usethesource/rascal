@@ -326,6 +326,8 @@ coroutine MATCH[2, pat, iSubject, cpat]{
 coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
    plen = size_array(pats);
    slen = size_array(subjects);
+   println("MATCH_N: pats    ", plen, pats);
+   println("MATCH_N: subjects", slen, subjects);
    guard plen == slen;
    p = 0;
    ipats = make_array(plen);
@@ -333,6 +335,7 @@ coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
    while((p >= 0) && (p < plen)) {
        pat = get_array(ipats, p);
        if(next(pat)) {
+           println("MATCH_N succeeds:", p);
            if(p < (plen - 1)) {
                p = p + 1;
                put_array(ipats, p, init(get_array(pats, p), get_array(subjects, p)));
@@ -340,17 +343,20 @@ coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
                yield;
            };
        } else {
+           println("MATCH_N fails:", p);
            p = p - 1;
        };
    };   
 }
 
 coroutine MATCH_CALL_OR_TREE[2, pats, iSubject, cpats]{
+    println("MATCH_CALL_OR_TREE", pats, " AND ", iSubject, iSubject is node);
     guard iSubject is node;
     cpats = init(create(MATCH_N, pats, get_name_and_children(iSubject)));
     while(next(cpats)) {
         yield;
     };
+    println("MATCH_CALL_OR_TREE fails", pats, " AND ", iSubject);
 }
 
 coroutine MATCH_REIFIED_TYPE[2, pat, iSubject, nc, konstructor, symbol]{
@@ -372,6 +378,7 @@ coroutine MATCH_TUPLE[2, pats, iSubject, cpats]{
 }
 
 coroutine MATCH_LITERAL[2, pat, iSubject]{
+    println("MATCH_LITERAL", pat, " and ", iSubject);
     guard (equal(typeOf(pat),typeOf(iSubject)) 
     		&& equal(pat, iSubject));
     return;

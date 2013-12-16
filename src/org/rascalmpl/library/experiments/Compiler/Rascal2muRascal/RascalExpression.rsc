@@ -201,7 +201,7 @@ MuExp translateConcrete(e:(ConcreteHole) `\< <Sym symbol> <Name name> \>`){
 default MuExp translateConcrete(e: appl(Production prod, list[Tree] args)){
    //MuExp receiver =  getConstructor("appl");
    //return muCall(receiver, [muCon(prod), muCallPrim("list_create",  [ translateConcrete(a) | a <- args ])]);
-    return muCallPrim("parse_fragment", [muCon(getModuleName()), muCon(e), muCon(e@\loc)]);
+    return muCallPrim("parse_fragment", [muCon(getModuleName()), muCon(e), muCon(e@\loc), getGrammar(config)]);
 }
 
 default MuExp translateConcrete(t) = muCon(t);
