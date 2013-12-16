@@ -486,12 +486,13 @@ public class ParsingTools {
 	      
 	      IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri, input, converter, nodeFactory);
 	      fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
-
-	      IConstructor prod = TreeAdapter.getProduction(tree);
-	      IConstructor sym = ProductionAdapter.getDefined(prod);
-	      sym = SymbolAdapter.delabel(sym); 
-	      prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
-	      return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
+	      return fragment;
+	      
+//	      IConstructor prod = TreeAdapter.getProduction(tree);
+//	      IConstructor sym = ProductionAdapter.getDefined(prod);
+//	      sym = SymbolAdapter.delabel(sym); 
+//	      prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
+//	      return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
 	    }
 	    catch (ParseError e) {
 	      ISourceLocation loc = TreeAdapter.getLocation(tree);
