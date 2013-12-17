@@ -672,7 +672,8 @@ public enum RascalPrimitive {
 		if(usedRVM != null){
 			stdout = usedRVM.stdout;
 			rvm = usedRVM;
-			parsingTools = new ParsingTools(fact, rvm.ctx);
+			parsingTools = new ParsingTools(fact);
+			parsingTools.setContext(rvm.ctx);
 		} else {
 			System.err.println("No RVM found");
 		}
