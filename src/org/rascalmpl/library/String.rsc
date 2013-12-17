@@ -614,3 +614,17 @@ list[loc] originsOf(lrel[Maybe[loc], str] orgs, loc subject) {
   }
   return [ l | <just(loc l), _> <- found ];	
 }
+
+
+data OrgString
+  = chunk(str val, loc origin)
+  | orphan(str val)
+  | insincere(str val, list[loc] origins)
+  | concat(OrgString lhs, OrgString rhs)
+  ;
+  
+@javaClass{org.rascalmpl.library.Prelude}
+public java OrgString toOrgString(str x);
+
+
+
