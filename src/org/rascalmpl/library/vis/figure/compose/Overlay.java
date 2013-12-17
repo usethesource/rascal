@@ -103,15 +103,16 @@ public class Overlay extends Compose{
 		if(!mouseInside(c)){
 			return;
 		}
-		for(int i = children.length - 1 ; i >= 0 ; i--){
-			children[i].getFiguresUnderMouse(c, result);
-		}
 		if(handlesInput()){
 			Point2D.Double d = new Point2D.Double(c.getX(), c.getY());
 			if(makePath().contains(d)){
 				result.add(this);
 			}
 		}
+		for(int i = children.length - 1 ; i >= 0 ; i--){
+			children[i].getFiguresUnderMouse(c, result);
+		}
+		
 	}
 
 	
