@@ -1112,6 +1112,16 @@ public class RVM {
 						fun = functionStore.get(CodeBlock.fetchArg1(instruction));
 						arity = CodeBlock.fetchArg2(instruction);
 						previousScope = null;
+						if(fun.scopeIn != -1) {
+							for(Frame f = cf; f != null; f = f.previousCallFrame) {
+								if (f.scopeId == fun.scopeIn) {
+									previousScope = f;
+								}
+							}
+							if(previousScope == null) {
+								throw new RuntimeException("LOAD_NESTED_FUN cannot find matching scope: " + fun.scopeIn);
+							}
+						}
 					} else {
 						arity = CodeBlock.fetchArg1(instruction);
 						src = stack[--sp];
