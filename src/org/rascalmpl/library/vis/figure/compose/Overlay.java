@@ -103,8 +103,8 @@ public class Overlay extends Compose{
 		if(!mouseInside(c)){
 			return;
 		}
-		for(Figure child : children){
-			child.getFiguresUnderMouse(c, result);
+		for(int i = children.length - 1 ; i >= 0 ; i--){
+			children[i].getFiguresUnderMouse(c, result);
 		}
 		if(handlesInput()){
 			Point2D.Double d = new Point2D.Double(c.getX(), c.getY());
@@ -182,7 +182,7 @@ public class Overlay extends Compose{
 	        		gc.vertex(children[i].globalLocation.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
 	        				 children[i].globalLocation.getY()  + children[i].prop.getReal(VCONNECT) * children[i].size.getY()  );
 	        	} 
-	        	System.out.printf("child %s\n",children[i].globalLocation);
+	        	//System.out.printf("child %s\n",children[i].globalLocation);
 	        }
         }
         
