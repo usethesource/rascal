@@ -371,5 +371,5 @@ void generate_tests(str module_name){
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
    name_testsuite = "<module_name>_testsuite";
    main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-   functions_in_module += muFunction(main_testsuite, ftype, "" /*in the root*/, 1, 1, false, |rascal:///|, [], (), code);
+   functions_in_module += muFunction(main_testsuite, ftype, "" /*in the root*/, 2, 2, false, |rascal:///|, [], (), code);
 }

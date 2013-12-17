@@ -13,6 +13,8 @@ import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
+import experiments::Compiler::RVM::Interpreter::ParsingTools;
+
 /*********************************************************************/
 /*                  Match                                            */
 /*********************************************************************/
@@ -150,7 +152,7 @@ tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegEx
    return <mkVarRef("<name>", name@\loc), exps>;
 }
 
-MuExp translatePat(p:(Pattern) `<Concrete concrete>`) = translateConcretePattern(concrete);
+MuExp translatePat(p:(Pattern) `<Concrete concrete>`) = translateConcretePattern(p);
      
 MuExp translatePat(p:(Pattern) `<QualifiedName name>`) {
    if("<name>" == "_"){
@@ -239,8 +241,34 @@ default MuExp translatePat(Pattern p) { throw "Pattern <p> cannot be translated"
 /*********************************************************************/
 /*                  Concrete Pattern                                */
 /*********************************************************************/
+/*
+lexical Concrete 
+  = typed: "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`";
 
-MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { throw "Concrete Pattern"; }
+lexical ConcretePart
+  = @category="MetaSkipped" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
+  | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'"
+  | @category="MetaVariable" hole : ConcreteHole hole
+  | @category="MetaSkipped" lt: "\\\<"
+  | @category="MetaSkipped" gt: "\\\>"
+  | @category="MetaSkipped" bq: "\\`"
+  | @category="MetaSkipped" bs: "\\\\"
+  ;
+*/
+
+/*
+// AsType
+MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
+   muCallPrim("parse", [muCon(getModuleName()), muCon(type(symbolToValue(translateType(typ), config).symbol,getGrammar(config))), translate(argument)]);
+*/
+
+MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
+  println("concrete: <concrete>");
+  println("symbol: <concrete.symbol>, parts: <concrete.parts>");
+  iprintln(concrete);
+  parseFragment(getModuleName(), concrete, p@\loc);
+  throw "Concrete Pattern"; 
+}
 
 /*********************************************************************/
 /*                  Descendant Pattern                               */
