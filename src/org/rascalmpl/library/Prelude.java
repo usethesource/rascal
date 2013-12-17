@@ -3476,6 +3476,46 @@ public class Prelude {
 		}
 		return values.list();
 	}
+	
+	
+	public IConstructor toOrgString(IString x) {
+		if (x instanceof OrgString) {
+			final Stack<IConstructor> stack = new Stack<>();
+			OrgString os = (OrgString)x;
+			os.accept(new IOrgStringVisitor() {
+				@Override
+				public void visit(Concat concat) {
+					concat.getRhs().accept(this); // NB: rhs first
+					concat.getLhs().accept(this);
+					stack.push(values.constructor(
+							org.rascalmpl.values.orgstring.Factory.OrgString_concat,
+							stack.pop(),
+							stack.pop()));
+				}
+				
+				@Override
+				public void visit(Chunk chunk) {
+					Type t = org.rascalmpl.values.orgstring.Factory.OrgString_chunk;
+					stack.push(values.constructor(t, chunk, chunk.getOrigin()));
+				}
+
+				@Override
+				public void visit(NoOrg noOrg) {
+					Type t = org.rascalmpl.values.orgstring.Factory.OrgString_orphan;
+					stack.push(values.constructor(t, noOrg));
+				}
+
+				@Override
+				public void visit(Insincere insincere) {
+					Type t = org.rascalmpl.values.orgstring.Factory.OrgString_insincere;
+					stack.push(values.constructor(t, insincere, insincere.getOrigins()));
+				}
+			});
+			return stack.pop();
+		}
+		return values.constructor(org.rascalmpl.values.orgstring.Factory.OrgString_orphan, x);
+	}
+	
 }
 
 // Utilities used by Graph
