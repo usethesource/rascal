@@ -90,9 +90,6 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 	public abstract void accept(IOrgStringVisitor visitor);
 
 	public IString replaceAll(String sub, IString string) {
-		if (getValue().indexOf("public") != -1) {
-			System.err.println("Bla");
-		}
 		int ind = indexOf(sub);
 		if (ind != -1) {
 			IString l = substring(0, ind);
