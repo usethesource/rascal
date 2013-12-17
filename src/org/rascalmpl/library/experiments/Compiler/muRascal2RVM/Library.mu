@@ -490,6 +490,7 @@ coroutine MATCH_LIST[2,
 // - rNext: reference variable to return next cursor position
 // - available: the number of remaining, unmatched, elements in the subject list
 
+// Any pattern in a list not handled by a special case
 coroutine MATCH_PAT_IN_LIST[4, pat, iSubject, rNext, available, start, cpat]{ 
     guard available > 0;
     start = deref rNext;
@@ -500,29 +501,47 @@ coroutine MATCH_PAT_IN_LIST[4, pat, iSubject, rNext, available, start, cpat]{
     };
 } 
 
-coroutine MATCH_ARB_IN_LIST[3, iSubject, rNext, available, start]{ 
-    guard available > 0;
-    start = deref rNext;
-    println("MATCH_ARB_IN_LIST", start, get_list(iSubject, start));
-    yield start + 1;   	// TODO: should be return;
-} 
-
+// A literal in a list
 coroutine MATCH_LITERAL_IN_LIST[4, pat, iSubject, rNext, available, start, elm]{
 	guard available > 0;
 	start = deref rNext;
 	elm =  get_list(iSubject, start);
     if(equal(typeOf(pat),typeOf(elm)) && equal(pat, elm)){
        println("MATCH_LITERAL_IN_LIST: true", pat, start, elm);
-       yield start + 1;			// TODO: should be return;
+       return(start + 1);
     };
     println("MATCH_LITERAL_IN_LIST: false", pat, start, elm);
 }
 
-/*
+// Tree node in concrete pattern
+coroutine MATCH_APPL_IN_LIST[5, iProd, args, iSubject, rNext, available, start, iElem, children, cpats]{
+    println("MATCH_APPL_IN_LIST", iProd, args, " AND ", iSubject, iSubject is node);
+    start = deref rNext;
+    iElem = get_list(iSubject, start);
+    guard iElem is node;
+    children = get_children(iElem);
+    if(equal(get_name(iElem), "appl") && equal(iProd, get_array(children, 0))){
+       cpats = init(args, get_array(children, 1));
+       while(next(cpats)) {
+          yield(start + 1);
+       };
+    };
+    println("MATCH_APPL_IN_LIST fails",  iProd, args, " AND ", iSubject);
+}
+
+// An arbitrary pattern in a list: used to skip layout in concrete patterns
+coroutine MATCH_ARB_IN_LIST[3, iSubject, rNext, available, start]{ 
+    guard available > 0;
+    start = deref rNext;
+    println("MATCH_ARB_IN_LIST", start, get_list(iSubject, start));
+    return(start + 1);
+} 
+
 coroutine MATCH_VAR_IN_LIST[4, rVar, iSubject, rNext, available, start, iVal, iElem]{
+   start = deref rNext;
    println("MATCH_VAR_IN_LIST", iSubject, start, available);
    guard available > 0;
-   start = deref rNext;
+   
    iElem = get_list(iSubject, start);
    if(is_defined(rVar)){
       iVal = deref rVar;
@@ -538,7 +557,7 @@ coroutine MATCH_ANONYMOUS_VAR_IN_LIST[3, iSubject, rNext, available]{
    guard available > 0;
    return deref rNext + 1;
 }
-*/
+
 
 coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iLookahead, iSubject, rNext, available, start, len, iVal]{
     start = deref rNext;
