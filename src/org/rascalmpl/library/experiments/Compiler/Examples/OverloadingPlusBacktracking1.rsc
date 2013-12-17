@@ -1,4 +1,4 @@
-module experiments::Compiler::Examples::OverloadingPlusBacktracking
+module experiments::Compiler::Examples::OverloadingPlusBacktracking1
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java int size(list[int] lst);

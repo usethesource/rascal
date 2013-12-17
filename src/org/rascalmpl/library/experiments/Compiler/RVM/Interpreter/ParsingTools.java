@@ -22,12 +22,9 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.NonTerminalType;
@@ -64,8 +61,12 @@ public class ParsingTools {
 	private HashMap<String,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>> parsers;
 	private IEvaluatorContext ctx;
 	
-	ParsingTools(IRascalValueFactory fact, IEvaluatorContext ctx){
+	ParsingTools(IRascalValueFactory fact){
+		super();
 		vf = fact;
+	}
+	
+	public void setContext(IEvaluatorContext ctx){
 		this.ctx = ctx;
 		resolverRegistry = ctx.getResolverRegistry();
 		monitor = ctx.getEvaluator().getMonitor();
@@ -543,51 +544,51 @@ public class ParsingTools {
 	  }
 
 	  private IConstructor replaceHolesByAntiQuotes(IConstructor fragment, final Map<String, IConstructor> antiquotes) {
-	      return (IConstructor) fragment.accept(new IdentityTreeVisitor<ImplementationError>() {     
-	        @Override
-	        public IConstructor visitTreeAppl(IConstructor tree)  {
-	          String cons = TreeAdapter.getConstructorName(tree);
-	          if (cons == null || !cons.equals("$MetaHole") ) {
-	            IListWriter w = vf.listWriter();
-	            IList args = TreeAdapter.getArgs(tree);
-	            for (IValue elem : args) {
-	              w.append(elem.accept(this));
-	            }
-	            args = w.done();
-	            
-	            return TreeAdapter.setArgs(tree, args);
-	          }
-	          
-	          IConstructor type = retrieveHoleType(tree);
-	          return antiquotes.get(TreeAdapter.yield(tree)).asAnnotatable().setAnnotation("holeType", type);
-	        }
-	        
-	        private IConstructor retrieveHoleType(IConstructor tree) {
-	          IConstructor prod = TreeAdapter.getProduction(tree);
-	          ISet attrs = ProductionAdapter.getAttributes(prod);
+		  return (IConstructor) fragment.accept(new IdentityTreeVisitor<ImplementationError>() {
+			  @Override
+			  public IConstructor visitTreeAppl(IConstructor tree)  {
+				  String cons = TreeAdapter.getConstructorName(tree);
+				  if (cons == null || !cons.equals("$MetaHole") ) {
+					  IListWriter w = vf.listWriter();
+					  IList args = TreeAdapter.getArgs(tree);
+					  for (IValue elem : args) {
+						  w.append(elem.accept(this));
+					  }
+					  args = w.done();
 
-	          for (IValue attr : attrs) {
-	            if (((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
-	              IValue arg = ((IConstructor) attr).get(0);
-	              
-	              if (arg.getType().isNode() && ((INode) arg).getName().equals("holeType")) {
-	                return (IConstructor) ((INode) arg).get(0);
-	              }
-	            }
-	          }
-	          
-	          throw new ImplementationError("expected to find a holeType, but did not: " + tree);
-	        }
+					  return TreeAdapter.setArgs(tree, args);
+				  }
 
-	        @Override
-	        public IConstructor visitTreeAmb(IConstructor arg)  {
-	          ISetWriter w = vf.setWriter();
-	          for (IValue elem : TreeAdapter.getAlternatives(arg)) {
-	            w.insert(elem.accept(this));
-	          }
-	          return arg.set("alternatives", w.done());
-	        }
-	      });
+				  IConstructor type = retrieveHoleType(tree);
+				  return antiquotes.get(TreeAdapter.yield(tree)).asAnnotatable().setAnnotation("holeType", type);
+			  }
+
+			  private IConstructor retrieveHoleType(IConstructor tree) {
+				  IConstructor prod = TreeAdapter.getProduction(tree);
+				  ISet attrs = ProductionAdapter.getAttributes(prod);
+
+				  for (IValue attr : attrs) {
+					  if (((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
+						  IValue arg = ((IConstructor) attr).get(0);
+
+						  if (arg.getType().isNode() && ((INode) arg).getName().equals("holeType")) {
+							  return (IConstructor) ((INode) arg).get(0);
+						  }
+					  }
+				  }
+
+				  throw new ImplementationError("expected to find a holeType, but did not: " + tree);
+			  }
+
+			  @Override
+			  public IConstructor visitTreeAmb(IConstructor arg)  {
+				  ISetWriter w = vf.setWriter();
+				  for (IValue elem : TreeAdapter.getAlternatives(arg)) {
+					  w.insert(elem.accept(this));
+				  }
+				  return arg.set("alternatives", w.done());
+			  }
+		  });
 	  }
 	 
 //	  private static boolean containsBackTick(char[] data, int offset) {

@@ -16,8 +16,8 @@ INS peephole(INS instructions){
   result3 = unused_labels(result2);
   result4 = dead_code(result3);
   println("**** peephole removed <size(instructions) - size(result4)> instructions");
-  //iprintln(instructions);
-  //iprintln(result4);
+  iprintln(instructions);
+  iprintln(result4);
   return result4;
 }
 
@@ -57,7 +57,8 @@ INS unused_labels([ *Instruction instructions ]){
        case JMP(lab): used += lab;
        case JMPFALSE(lab): used += lab;
        case JMPTRUE(lab): used += lab;
-       case JMPSWITCH(labs): used += toSet(labs);
+       case TYPESWITCH(labs): used += toSet(labs);
+       case JMPINDEXED(labs): used += toSet(labs);
     };
     return 
       for(ins <- instructions){

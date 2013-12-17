@@ -9,7 +9,7 @@ public data Declaration =
 		  		   int nformals, 
 		  		   int nlocals,
 		  		   bool isVarArgs,
-		  		   int maxStack, 
+		  		   int maxStack,
 		  		   list[Instruction] instructions,
 		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
 	    | COROUTINE(str qname, 
@@ -45,10 +45,16 @@ data Instruction =
 		| LOADLOC(int pos)							// Push value of local variable
 		| STORELOC(int pos)							// Store value on top-of-stack in the local variable (value remains on stack)
 		
-		| UNWRAPTHROWN(int pos)                    // Unwrap a thrown value on top-of-stack, and store the unwrapped value in the local variable (value removed from the stack)
+		| LOADLOCKWP(str name)                        // Load value of a keyword parameter
+		| STORELOCKWP(str name)                       // Store value on top-of-stack in the keyword parameter (value remains on stack)
+		
+		| UNWRAPTHROWN(int pos)                     // Unwrap a thrown value on top-of-stack, and store the unwrapped value in the local variable (value removed from the stack)
 	   	
 		| LOADVAR(str fuid, int pos)                // Push a variable from an outer scope
-		| STOREVAR(str fuid, int pos)               // Store value on  top-of-stack in variable in surrounding scope (value remains on stack)
+		| STOREVAR(str fuid, int pos)               // Store value on top-of-stack in variable in surrounding scope (value remains on stack)
+		
+		| LOADVARKWP(str fuid, str name)              // Load a keyword parameter from an outer scope
+		| STOREVARKWP(str fuid, str name)             // Store value on top-of-stack in the keyword parameter of a surrounding scope (value remains on stack)
 
 		| LOADMODULEVAR(str fuid)          			// Push a variable from a global module scope
 		| STOREMODULEVAR(str fuid)         			// Store value on  top-of-stack in variable in global module scope (value remains on stack)
@@ -86,7 +92,8 @@ data Instruction =
 		| JMPTRUE(str label)						// Jump to labelled instruction when top-of-stack is true (stack is popped)
 		| JMPFALSE(str label)						// Jump to labelled instruction when top-of-stack is false (stack is popped)
 													// TODO: JMPTRUE and JMPFALSE currently act on Java booleans and Rascal booleans; this has to be split
-		| JMPSWITCH(list[str] labels)				// Computed jump. Takes an integer i from the stack and jumps to the i-th label in the list
+		| TYPESWITCH(list[str] labels)				// Switch on type. Takes the type of the value on the stack and  jumps to the corresponding label in the list
+		| JMPINDEXED(list[str] labels)				// Computed jump. Takes an integer i from the stack and jumps to the i-th label in the list
 		
 		| CREATE(str fuid, int arity)				// Create a co-routine from a named function
 		| CREATEDYN(int arity)						// Create a co-routine from a function on the stack

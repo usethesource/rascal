@@ -6,17 +6,17 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 
-public class JmpSwitch extends Instruction {
+public class JmpIndexed extends Instruction {
 
 	IList labels;
 
-	public JmpSwitch(CodeBlock ins, IList labels){
-		super(ins, Opcode.JMPSWITCH);
+	public JmpIndexed(CodeBlock ins, IList labels){
+		super(ins, Opcode.JMPINDEXED);
 		this.labels = labels;
 	}
 	
 	public String toString() { 
-		String res = "JMPSWITCH ";
+		String res = "JMPINDEXED ";
 		String sep = "";
 		for(IValue vlabel : labels){
 			String label = ((IString) vlabel).getValue();
@@ -32,7 +32,6 @@ public class JmpSwitch extends Instruction {
 			String label = ((IString) vlabel).getValue();
 			w.append(codeblock.vf.integer(codeblock.getLabelPC(label)));
 		}
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(codeblock.getConstantIndex(w.done()));
+		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(w.done()));
 	}
 }

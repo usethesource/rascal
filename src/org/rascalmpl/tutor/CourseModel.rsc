@@ -35,7 +35,7 @@ public loc courseDir    = |courses:///|;
  * - The submitted results reside in ~user/Dropbox/RascalExams/AP2012/results/Test1/Test1.html
 */
 
-public loc examsDir        = |home:///Dropbox/RascalExams/|; 
+public loc examsDir        = |home:///Documents/Dropbox/RascalExams/|; 
 public bool isExam  = false;
 
 public str remoteLoc      = "remote-loc.value";

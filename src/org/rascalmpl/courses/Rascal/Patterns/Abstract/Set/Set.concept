@@ -46,7 +46,7 @@ for({*S1, *S2} :={30, 20, 10})
     println("<S1> and <S2>");
 // 3. Already declared set variable:
 set[int] S;
-if({10, S, 50} := {10, 20, 30, 40, 50})
+if({10, *S, 50} := {10, 20, 30, 40, 50})
    println("Match succeeded, S = <S>");
 // 4. Already declared element variable:
 int N;

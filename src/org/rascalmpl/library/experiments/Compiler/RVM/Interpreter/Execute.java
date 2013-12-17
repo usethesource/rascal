@@ -1,4 +1,4 @@
- package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
 public class Execute {
 
@@ -197,6 +198,7 @@ public class Execute {
 			long now = System.currentTimeMillis();
 			MuPrimitive.exit();
 			RascalPrimitive.exit();
+			Opcode.exit();
 			return vf.tuple((IValue) result, vf.integer(now - start));
 			
 		} catch(Thrown e) {
@@ -434,8 +436,8 @@ public class Execute {
 				codeblock.THROW();
 				break;
 			
-			case "JMPSWITCH":
-				codeblock.JMPSWITCH((IList)instruction.get("labels"));
+			case "TYPESWITCH":
+				codeblock.TYPESWITCH((IList)instruction.get("labels"));
 				break;
 				
 			case "UNWRAPTHROWN":
@@ -492,6 +494,26 @@ public class Execute {
 				
 			case "CHECKARGTYPE":
 				codeblock.CHECKARGTYPE();
+				break;
+				
+			case "JMPINDEXED":
+				codeblock.JMPINDEXED((IList)instruction.get("labels"));
+				break;
+				
+			case "LOADLOCKWP":
+				codeblock.LOADLOCKWP(getStrField(instruction, "name"));
+				break;
+				
+			case "LOADVARKWP":
+				codeblock.LOADVARKWP(getStrField(instruction, "fuid"), getStrField(instruction, "name"));
+				break;
+				
+			case "STORELOCKWP":
+				codeblock.STORELOCKWP(getStrField(instruction, "name"));
+				break;
+				
+			case "STOREVARKWP":
+				codeblock.STOREVARKWP(getStrField(instruction, "fuid"), getStrField(instruction, "name"));
 				break;
 				
 			default:

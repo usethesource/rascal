@@ -27,14 +27,13 @@ import List;
 import util::FileSystem;
 import demo::common::Crawl;
 
-data Modifier = \annotation(loc \ann);
-
 anno rel[loc from, loc to] M3@extends;            // classes extending classes and interfaces extending interfaces
 anno rel[loc from, loc to] M3@implements;         // classes implementing interfaces
 anno rel[loc from, loc to] M3@methodInvocation;   // methods calling each other (including constructors)
 anno rel[loc from, loc to] M3@fieldAccess;        // code using data (like fields)
 anno rel[loc from, loc to] M3@typeDependency;     // using a type literal in some code (types of variables, annotations)
 anno rel[loc from, loc to] M3@methodOverrides;    // which method override which other methods
+anno rel[loc declaration, loc annotation] M3@annotations;
 
 public M3 composeJavaM3(loc id, set[M3] models) {
   m = composeM3(id, models);
@@ -45,6 +44,7 @@ public M3 composeJavaM3(loc id, set[M3] models) {
   m@fieldAccess = {*model@fieldAccess | model <- models};
   m@typeDependency = {*model@typeDependency | model <- models};
   m@methodOverrides = {*model@methodOverrides | model <- models};
+  m@annotations = {*model@annotations | model <- models};
   
   return m;
 }
@@ -64,8 +64,10 @@ public java M3 createM3FromFile(loc file, str javaVersion = "1.7");
 @reflect
 public java M3 createM3FromJarClass(loc jarClass);
 
+map[loc, map[loc, Declaration]] methodASTs = ();
+
 @doc{
-Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [M3] model
+Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
 }
 public M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
     if (!(isDirectory(project)))
@@ -78,28 +80,19 @@ public M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
     for (sp <- sourcePaths) {
       result = composeJavaM3(project, { createM3FromFile(f, javaVersion = javaVersion) | loc f <- find(sp, "java") });
     }
-    registerProject(project.authority, result);
+    registerProject(project, result);
     return result;
 }
 
 public Declaration getMethodAST(loc methodLoc, M3 model = m3(|unknown:///|)) {
-  if (isMethod(methodLoc)) {
-    if (isEmpty(model)) {
-      model = getModelContaining(methodLoc);
-      if (isEmpty(model))
-        throw "Declaration for <methodLoc> not found in any models";
-    }
-    loc file = getFileContaining(methodLoc, model);
-    Declaration fileAST = createAstFromFile(file, true);
-    visit(fileAST) {
-      case Declaration d: {
-        if ("decl" in getAnnotations(d) && d@decl == methodLoc)
-          return d;
-      }
-    }
-    throw "No declaration matching <methodLoc> found";
+  if (isEmpty(model)) {
+    model = getModelContaining(methodLoc);
   }
-  throw "Only methods are supported at the moment";
+  if (model.id notin methodASTs) {
+    methodASTs[model.id] = ( d@decl : d |/Declaration d := createAstsFromDirectory(model.id, true), d is method || d is constructor);
+  }
+  try return methodASTs[model.id][methodLoc];
+  catch: throw "Method <methodLoc> not found in any model";
 }
 
 public M3 createM3FromJar(loc jarFile) {
@@ -155,7 +148,7 @@ public rel[loc, loc] declaredTopTypes(M3 m)
   = {e | tuple[loc lhs, loc rhs] e <- m@containment, isCompilationUnit(e.lhs), isClass(e.rhs) || isInterface(e.rhs)}; 
 
 public rel[loc, loc] declaredSubTypes(M3 m) 
-  = {e | tuple[loc lhs, loc rhs] e <- m@containment, isClass(e.rhs)} - declaredTopTypes(rels);
+  = {e | tuple[loc lhs, loc rhs] e <- m@containment, isClass(e.rhs)} - declaredTopTypes(m);
 
 @memo public set[loc] classes(M3 m) =  {e | e <- m@declarations<name>, isClass(e)};
 @memo public set[loc] interfaces(M3 m) =  {e | e <- m@declarations<name>, isInterface(e)};
