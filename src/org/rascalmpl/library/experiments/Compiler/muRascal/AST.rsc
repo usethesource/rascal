@@ -25,7 +25,9 @@ public data MuModule =
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-                muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, loc source, list[str] modifiers, map[str,str] tags, MuExp body)
+                muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, 
+                           loc source, list[str] modifiers, map[str,str] tags,
+                           MuExp body)
               | muCoroutine(str qname, str scopeIn, int nformals, int nlocals, list[int] refs, MuExp body)
           ;
           
@@ -69,17 +71,23 @@ public data MuExp =
           | muLocRef(str name, int pos) 				        // Call-by-reference: expression that returns a value location
           | muVarRef(str name, str fuid, int pos)
           | muTmpRef(str name)
+          
+          // Keyword parameters
+          | muLocKwp(str name)                                  // Local keyword parameter
+          | muVarKwp(str fuid, str name)                        // Keyword parameter
              
           | muTypeCon(Symbol tp)								// Type constant
           
           // Call/return    		
-          | muCall(MuExp fun, list[MuExp] args)					// Call a *muRascal function
+          | muCall(MuExp fun, list[MuExp] args)                 // Call a *muRascal function
           
           | muOCall(MuExp fun, list[MuExp] args)                // Call a declared *Rascal function
+
           | muOCall(MuExp fun, Symbol types,                    // Call a dynamic *Rascal function
           					   list[MuExp] args)
           
           | muCallConstr(str fuid, list[MuExp] args) 			// Call a constructor
+          
           | muCallPrim(str name)                                // Call a Rascal primitive function (with empty list of arguments)
           | muCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
           | muCallMuPrim(str name, list[MuExp] exps)			// Call a muRascal primitive function
@@ -99,6 +107,10 @@ public data MuExp =
           | muAssignLoc(str name, int pos, MuExp exp)			// Assign a value to a local variable
           | muAssign(str name, str fuid, int pos, MuExp exp)	// Assign a value to a variable
           | muAssignTmp(str name, MuExp exp)					// Assign to temporary variable introduced by front-end
+          
+          // Keyword parameters
+          | muAssignLocKwp(str name, MuExp exp)
+          | muAssignKwp(str fuid, str name, MuExp exp)
           
           | muAssignLocDeref(str name, int pos, MuExp exp)      // Call-by-reference assignment:
           | muAssignVarDeref(str name, str fuid, 
@@ -145,6 +157,7 @@ public data MuExp =
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
           | muOne(list[MuExp] exps)								// Compute one result for a list of boolean expressions
           | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
+          | muOr(list[MuExp] exps)        						// Compute the or of a list of Boolean expressions.
           
           // Exceptions
           

@@ -388,7 +388,7 @@ Synopsis: Make sets of elements in the range that relate to the same element in 
 
 Description:
 <screen>
-import Relation;
+import ListRelation;
 skins = [<"bird", "feather">, <"dog", "fur">, <"tortoise", "shell">, <"human", "skin">, <"fish", "scale">, <"lizard", "scale">, <"crab", "shell">, <"cat", "fur">];
 groupRangeByDomain(skins);
 </screen>

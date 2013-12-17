@@ -429,16 +429,16 @@ Also see [readFileLines].
 == Encoding ==
 A text file can be encoded in many different character sets, most common are UTF8, ISO-8859-1, and ASCII.
 If you know the encoding of the file, please use the [readFileEnc] and [readFileLinesEnc] overloads.
-If you do not know, we try to detect this. This detection shall be explained below:
+If you do not know, we try to detect this. This detection is explained below:
 
-# Does the scheme of the [Location] (eg. `|project:///|`) define the charset of the file? __Use the provided charset__
-# Does the file contain a UTF8/16/32 [BOM](http://en.wikipedia.org/wiki/Byte_order_mark)? __Use the charset matching the BOM__
-# Try to use heuristics to determine if our default fallbacks can match:
-  ## Are the first 32 bytes valid UTF-8? __Use UTF-8__
-  ## Are the first 32 bytes valid UTF-32? __Use UTF-32__
-# Fallback to the system default
+# If the implementation of the used scheme [$Values/Location] (eg. `|project:///|`) defines the charset of the file then this is used.
+# Otherwise if the file contains a UTF8/16/32 [BOM](http://en.wikipedia.org/wiki/Byte_order_mark), then this is used.
+# As a last resort the IO library uses heuristics to determine if UTF-8 or UTF-32 could work:
+  ## Are the first 32 bytes valid UTF-8? Then use UTF-8.
+  ## Are the first 32 bytes valid UTF-32? Then use UTF-32.
+# Finally, we fall back to the system default (as given by the Java Runtime Environment).
 
-__To summarize__, we use UTF-8 by default, except if the [Location] has available meta-data, the file contains a BOM, or
+__To summarize__, we use UTF-8 by default, except if the [$Values/Location] has available meta-data, the file contains a BOM, or
 the first 32 bytes of the file are not valid UTF-8.
 
 Pitfalls:
@@ -446,7 +446,6 @@ Pitfalls:
 * In case encoding is not known, we try to estimate as best as we can.
 * We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
   you might get an decoding error or just strange looking characters.
-
 
 }
 
@@ -528,6 +527,14 @@ Files are encoded in UTF-8, in case this is not desired, use [writeFileEnc].
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void writeFile(loc file, value V...)
+throws PathNotFound(loc file), IO(str msg);
+
+@doc{
+Synopsis: Write a list of bytes to a file.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses URI Resolver Registry}
+public java void writeFileBytes(loc file, list[int] bytes)
 throws PathNotFound(loc file), IO(str msg);
 
 @doc{

@@ -479,55 +479,18 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
     }
     
     // Add the constructor. This also performs an overlap check if this is not the first
-    // constructor with this name -- note that we only check for overlaps with constructors
-    // defined in the same ADT, since there is no language mechanism to distinguish them
-    // when used in a program (we cannot prefix the constructor with the ADT name, for
-    // instance).
-    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-    if (n notin c.fcvEnv) {
-        // On the initial add, we create three versions of the constructor name:
-        // * the bare name
-        // * the name, qualified with the ADT name
-        // * the name, qualified with the name of the module
-        // This ensures that all valid lookups of the name are successful.
-        c.fcvEnv[n] = c.nextLoc;
-        c.fcvEnv[appendName(adtName,n)] = c.nextLoc;
-        c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
-        c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
-        c.nextLoc = c.nextLoc + 1;
-    } else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-        // If the same constructor definitions comes in along multiple paths, this is fine.
-        // The only thing we do then is make sure the names are correct, since, given module
-        // B extending module A, we could call the constructor A::cons or B::cons.
-        existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
-        c.fcvEnv[appendName(adtName,n)] = c.fcvEnv[n];
-        c.fcvEnv[appendName(moduleName,n)] = c.fcvEnv[n];
-        if (!existsAlready) {
-            c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-            c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes,defaults + rt));
-            c.definitions = c.definitions + < c.nextLoc, l >;
-            overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt)}; //, !equivalent(c.store[i].rtype,rt)};
-            if (size(overlaps) > 0)
-                c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <c.nextLoc>, <overlaps>",l);
-            c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
-            c.nextLoc = c.nextLoc + 1;
-        }
-    } else if (constructor(_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
-        // If the same constructor definitions comes in along multiple paths, this is fine.
-        // The only thing we do then is make sure the names are correct, since, given module
-        // B extending module A, we could call the constructor A::cons or B::cons.
-        existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
-        c.fcvEnv[appendName(adtName,n)] = c.fcvEnv[n];
-        c.fcvEnv[appendName(moduleName,n)] = c.fcvEnv[n];
-        if (!existsAlready) {
-            c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-            c.definitions = c.definitions + < c.nextLoc, l >;
-            overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt) };
-            if (size(overlaps) > 0)
-                c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <c.nextLoc>, <overlaps>",l);
-            c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
+    // constructor with this name to ensure the constructor is distinguishable within
+    // the same ADT (we can add the ADT name to distinguish constructors from different
+    // ADTs).
+    void addConstructorItem(RName n, int constructorItemId) {
+	    if (n notin c.fcvEnv) {
+	    	// Case 1: This is the first occurrence of this name.
+	        c.fcvEnv[n] = constructorItemId;
+	    } else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
+	    	// Case 2: The name is already overloaded. Add this as one more overload.
+	    	// TODO: If we are annotating overload items, we need to copy annotations here
+            c.store[c.fcvEnv[n]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + rt));
+	    } else if (constructor(_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
             nonDefaults = {};
             defaults = { rt };
             if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
@@ -539,14 +502,37 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
             		nonDefaults += c.store[c.fcvEnv[n]].rtype;
             	}
             }
-            c.store[c.nextLoc+1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded(nonDefaults,defaults));
-            for (cname <- invert(c.fcvEnv)[c.fcvEnv[n]])
-                c.fcvEnv[cname] = c.nextLoc+1;
-            c.nextLoc = c.nextLoc + 2;
-        }
-    } else {
-        throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
-    }
+            c.store[c.nextLoc] = overload({ c.fcvEnv[n], constructorItemId }, overloaded(nonDefaults,defaults));
+            c.fcvEnv[n] = c.nextLoc;
+            c.nextLoc = c.nextLoc + 1;
+	    } else {
+	        throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
+	    }
+	}
+
+    existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
+    if (!existsAlready) {
+	    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+	    nameWithAdt = appendName(adtName,n);
+	    nameWithModule = appendName(moduleName,n);
+    
+        overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt)}; //, !equivalent(c.store[i].rtype,rt)};
+        if (size(overlaps) > 0)
+            c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
+
+	    constructorItemId = c.nextLoc;
+	    c.nextLoc = c.nextLoc + 1;
+
+	    constructorItem = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
+	    c.store[constructorItemId] = constructorItem;
+	    c.definitions = c.definitions + < constructorItemId, l >;
+	    c.adtConstructors = c.adtConstructors + < adtId, constructorItemId >;
+	    
+	    addConstructorItem(n, constructorItemId);
+	    addConstructorItem(nameWithAdt, constructorItemId);
+	    addConstructorItem(nameWithModule, constructorItemId);
+	}    
+	
     return c;
 }
 
@@ -634,6 +620,8 @@ public Configuration addClosure(Configuration c, Symbol rt, KeywordParamMap keyw
     return c;
 }
 
+// TODO: This requires the same overload logic just added to constructor to keep
+// name and module qualified name separate
 public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordParamMap keywordParams, set[Modifier] modifiers, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l) {
     // TODO: Handle the visibility properly. The main point is that we should not have variants
     // for the same function that are given different visibilities.
@@ -1068,7 +1056,7 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
 }
 
 @doc{Check the types of Rascal expressions: CallOrTree}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expression ","}* eps> )`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expression ","}* eps> <KeywordArguments keywordArguments> )`, Configuration c) {
     // check for failures
     set[Symbol] failures = { };
     
@@ -1644,7 +1632,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("For a relation with arity <size(getRelFields(t1))> you can have at most <size(getRelFields(t1))-1> subscripts",exp@\loc));
         else {
             relFields = getRelFields(t1);
-            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), !comparable(tl[idx],relFields[idx]) };
+            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],\set(relFields[idx]))) };
             if (size(failures) > 0)
                 return markLocationFailed(c,exp@\loc,failures);
             else if ((size(relFields) - size(tl)) == 1)
@@ -1657,11 +1645,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("For a list relation with arity <size(getListRelFields(t1))> you can have at most <size(getListRelFields(t1))-1> subscripts",exp@\loc));
         else {
             relFields = getListRelFields(t1);
-            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to list relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), !comparable(tl[idx],relFields[idx]) };
+            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],\set(relFields[idx]))) };
             if (size(failures) > 0)
                 return markLocationFailed(c,exp@\loc,failures);
             else if ((size(relFields) - size(tl)) == 1)
-                return markLocationType(c,exp@\loc,\set(last(relFields)));
+                return markLocationType(c,exp@\loc,\list(last(relFields)));
             else
                 return markLocationType(c,exp@\loc,\lrel(tail(relFields,size(relFields)-size(tl))));
         }
@@ -1730,7 +1718,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
 		res = \list(\value());
 	}
 	
-	if (isFailType(res))
+	if (isFailType(res) || size(failures) > 0)
 		return markLocationFailed(c, exp@\loc, failures + res);
 	else
 		return markLocationType(c, exp@\loc, res);
@@ -1765,7 +1753,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
 		res = \list(\value());
 	}
 	
-	if (isFailType(res))
+	if (isFailType(res) || size(failures) > 0)
 		return markLocationFailed(c, exp@\loc, failures + res);
 	else
 		return markLocationType(c, exp@\loc, res);
@@ -4039,10 +4027,13 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         }
         
         case literalNode(nt) : {
-            if (!isInferredType(rt) && !comparable(pt@rtype,rt))
+        	if (\sort(_) := rt && isStrType(pt@rtype)) {
+        		return < c, pt >;
+        	} else if (!isInferredType(rt) && !comparable(pt@rtype,rt)) {
                 throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
-            else
+            } else {
                 return < c, pt >;
+			}
         }
         
         case literalNode(list[LiteralNodeInfo] names) : {
@@ -4847,6 +4838,8 @@ data AssignableTree
     = bracketNode(AssignableTree child)
     | variableNode(RName name)
     | subscriptNode(AssignableTree receiver, Symbol subscriptType)
+    | sliceNode(AssignableTree receiver, Symbol firstType, Symbol lastType)
+    | sliceStepNode(AssignableTree receiver, Symbol firstType, Symbol secondType, Symbol lastType)
     | fieldAccessNode(AssignableTree receiver, RName name)
     | ifDefinedOrDefaultNode(AssignableTree receiver, Symbol defaultType)
     | constructorNode(RName name, list[AssignableTree] children)
@@ -4944,6 +4937,79 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
         return < c, subscriptNode(atree,tsub)[@atype=getRelFields(atree@atype)[1]][@at=assn@\loc] >;
 
     return < c, subscriptNode(atree,tsub)[@atype=makeFailType("Cannot subscript assignable of type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
+}
+
+@doc{Extract a tree representation of the assignable and perform basic checks: Slice (DONE)}
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, bool top, Configuration c) {
+    < c, atree > = buildAssignableTree(ar, false, c);
+    
+    tFirst = makeIntType();
+    tLast = makeIntType();
+    
+    if ((OptionalExpression)`<Expression eFirst>` := optFirst)
+    	< c, tFirst > = checkExp(eFirst, c);
+    
+    if ((OptionalExpression)`<Expression eLast>` := optLast)
+    	< c, tLast > = checkExp(eLast, c);
+    
+    if (isFailType(atree@atype) || isFailType(tFirst) || isFailType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=collapseFailTypes({atree@atype,tFirst,tLast})][@at=assn@\loc] >;
+
+    if (!concreteType(atree@atype)) {
+        failtype = makeFailType("Assignable <ar> must have an actual type before subscripting", assn@\loc);
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=failtype][@at=assn@\loc] >;
+    }
+
+    if (isListType(atree@atype) && isIntType(tFirst) && isIntType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+    if (isNodeType(atree@atype) && isIntType(tFirst) && isIntType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+    if (isStrType(atree@atype) && isIntType(tFirst) && isIntType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+	if (!isIntType(tFirst) || !isIntType(tLast))
+		return < c, sliceNode(atree,tFirst,tLast)[@atype=makeFailType("Indexes must be of type int, given: <prettyPrintType(tFirst)>, <prettyPrintType(tLast)>",assn@\loc)][@at=assn@\loc] >;
+		
+    return < c, sliceNode(atree,tFirst,tLast)[@atype=makeFailType("Cannot use slicing to assign into type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
+}
+
+@doc{Extract a tree representation of the assignable and perform basic checks: Slice Step (DONE)}
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, bool top, Configuration c) {
+    < c, atree > = buildAssignableTree(ar, false, c);
+    
+    tFirst = makeIntType();
+    if ((OptionalExpression)`<Expression eFirst>` := optFirst)
+    	< c, tFirst > = checkExp(eFirst, c);
+    
+    < c, tSecond > = checkExp(second, c);
+        
+    tLast = makeIntType();
+    if ((OptionalExpression)`<Expression eLast>` := optLast)
+    	< c, tLast > = checkExp(eLast, c);
+    
+    if (isFailType(atree@atype) || isFailType(tFirst) || isFailType(tSecond) || isFailType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=collapseFailTypes({atree@atype,tFirst,tSecond,tLast})][@at=assn@\loc] >;
+
+    if (!concreteType(atree@atype)) {
+        failtype = makeFailType("Assignable <ar> must have an actual type before subscripting", assn@\loc);
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=failtype][@at=assn@\loc] >;
+    }
+
+    if (isListType(atree@atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+    if (isNodeType(atree@atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+    if (isStrType(atree@atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+	if (!isIntType(tFirst) || !isIntType(tSecond) || !isIntType(tLast))
+		return < c, sliceNode(atree,tFirst,tLast)[@atype=makeFailType("Indexes must be of type int, given: <prettyPrintType(tFirst)>, <prettyPrintType(tSecond)>, <prettyPrintType(tLast)>",assn@\loc)][@at=assn@\loc] >;
+		
+    return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=makeFailType("Cannot use slicing to assign into type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: FieldAccess (DONE)}
@@ -5233,11 +5299,42 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable 
     }
 }
 
+@doc{General function to calculate the type of an append.}
+Symbol computeAppendType(Symbol t1, Symbol t2, loc l) {
+    if (isListType(t1)) return \list(lub(getListElementType(t1),t2));
+    return makeFailType("Append not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
+}
+
 @doc{Check the type of Rascal assignments: Append}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`\<\<=`, Assignable a, Symbol st, Configuration c) {
+	// TODO: This isn't implemented yet, so we need to verify this is actually the correct type.
+    cbak = c;
     < c, atree > = buildAssignableTree(a, true, c);
     if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
-    throw "Not yet implemented";
+
+    // If the assignment point is not concrete, we cannot do the assignment -- 
+    // the subject type cannot influence the type here.
+    if (!concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a \<\< operation", a@\loc));
+    
+    // Check to ensure the append is valid. If so, the resulting type is the overall
+    // type of the assignable, else it is the failure type generated by the operation.
+    rt = computeAppendType(atree@atype, st, l);
+    if (isFailType(rt)) return markLocationType(c, l, rt);
+
+    // Now, using the result type, try to bind it to the assignable tree
+    try {
+        < c, atree > = bindAssignable(atree, rt, c);
+    } catch : {
+        return markLocationFailed(cbak, l, makeFailType("Unable to bind result type <prettyPrintType(rt)> to assignable", l));
+    }
+
+    unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+    if (size(unresolved) > 0)
+        return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
+    else {
+        c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
+        return markLocationType(c, l, atree@otype);
+    }
 }
 
 @doc{Bind variable types to variables in assignables: Bracket}
@@ -5287,20 +5384,12 @@ public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Sy
 
 @doc{Bind variable types to variables in assignables: Subscript}
 public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree receiver, Symbol stype), Symbol st, Configuration c) {
-    // To bind the subscript, we push the subject type back through into the receiver
-    // after calculating the proper type. For instance, given x is a list[int], an
-    // assignable like x[5] was originally given an atype of int. To calculate
-    // the type we are trying to bind, we then take the lub of the list element
-    // type and the subject type and wrap those in a list. So, for x[5] = 3.4,
-    // this would be \list(\num()). NOTE: The expected subject type below is
-    // always the element type, never the container type -- we are assigning
-    // into a list, tuple, etc, not over one.
     
-    if (isListType(receiver@atype)) {
+    if (isListType(receiver@atype)) { 
         < c, receiver > = bindAssignable(receiver, \list(lub(st,getListElementType(receiver@atype))), c);
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=getListElementType(receiver@atype)] >;
     } else if (isNodeType(receiver@atype)) {
-        < c, receiver > = bindAssignable(receiver, \node());
+        < c, receiver > = bindAssignable(receiver, \node(), c);
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\value()] >;
     } else if (isTupleType(receiver@atype)) {
         tupleFields = getTupleFields(receiver@atype);
@@ -5308,7 +5397,7 @@ public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree
         // in range, all we can infer about the resulting type is that, since
         // we could assign to each field, each field could have a type based
         // on the lub of the existing field type and the subject type.
-        < c, receiver > = bindAssignable(receiver, \tuple([lub(tupleFields[idx],st) | idx <- index(tupleFields)]));
+        < c, receiver > = bindAssignable(receiver, \tuple([lub(tupleFields[idx],st) | idx <- index(tupleFields)]), c);
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\value()] >;
     } else if (isMapType(receiver@atype)) {
         < c, receiver > = bindAssignable(receiver, \map(getMapDomainType(receiver@atype), lub(st,getMapRangeType(receiver@atype))), c);
@@ -5317,6 +5406,45 @@ public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree
         relFields = getRelFields(receiver@atype);
         < c, receiver > = bindAssignable(receiver, \rel([relFields[0],lub(relFields[1],st)]), c);
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=getRelFields(receiver@atype)[1]] >;
+    } else {
+    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver@atype)>";
+    }
+}
+
+public default ATResult bindAssignable(AssignableTree atree, Symbol st, Configuration c) {
+	throw "Missing assignable!";
+	return < c, atree >;
+}
+
+@doc{Bind variable types to variables in assignables: Slice}
+public ATResult bindAssignable(AssignableTree atree:sliceNode(AssignableTree receiver, Symbol firstType, Symbol lastType), Symbol st, Configuration c) {    
+    if (isListType(receiver@atype) && isListType(st)) {
+        < c, receiver > = bindAssignable(receiver, lub(st,receiver@atype), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=receiver@atype] >;
+    } else if (isNodeType(receiver@atype) && isListType(st)) {
+        < c, receiver > = bindAssignable(receiver, \node(), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\node()] >;
+    } else if (isStrType(receiver@atype) && isStrType(st)) {
+        < c, receiver > = bindAssignable(receiver, \str(), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\str()] >;
+    } else {
+    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver@atype)>";
+    }
+}
+
+@doc{Bind variable types to variables in assignables: Slice Step}
+public ATResult bindAssignable(AssignableTree atree:sliceStepNode(AssignableTree receiver, Symbol firstType, Symbol secondType, Symbol lastType), Symbol st, Configuration c) {    
+    if (isListType(receiver@atype) && isListType(st)) {
+        < c, receiver > = bindAssignable(receiver, lub(st,receiver@atype), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=receiver@atype] >;
+    } else if (isNodeType(receiver@atype) && isListType(st)) {
+        < c, receiver > = bindAssignable(receiver, \node(), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\node()] >;
+    } else if (isStrType(receiver@atype) && isStrType(st)) {
+        < c, receiver > = bindAssignable(receiver, \str(), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\str()] >;
+    } else {
+    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver@atype)>";
     }
 }
 

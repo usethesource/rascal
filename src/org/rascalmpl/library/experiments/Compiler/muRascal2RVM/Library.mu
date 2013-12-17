@@ -6,6 +6,7 @@ coroutine ALL[1, coArray,
                  len, j, coInits, co] {
     len = size_array(coArray);
     j = 0;
+    // coiInits is not created!
     put_array(coInits,j,init(get_array(coArray,j)));
     while(j >= 0) {
         co = get_array(coInits,j);
@@ -18,6 +19,50 @@ coroutine ALL[1, coArray,
             };
         } else {
             j = j - 1; };
+    };
+}
+
+function RASCAL_ALL[2, genArray, generators, 
+                        len, j, gen, genInits, forward] {
+    len = size_array(genArray);
+    j = 0;
+    genInits = make_array(len);
+    forward = true;
+    while(true){
+        if(get_array(generators, j)){
+           if(forward){
+              put_array(genInits,j,init(get_array(genArray,j)));
+           };
+           gen = get_array(genInits,j);
+           if(next(gen)) {
+              forward = true;
+              j = j + 1;
+           } else {
+             forward = false;
+             j = j - 1;
+           };
+        } else {
+          if(forward){
+             if(get_array(genArray, j)()){
+                forward = true;
+                j = j + 1;
+             } else {
+               return false;
+             };
+           } else {
+             j = j - 1;
+           };
+        };
+        if(j <= 0){
+           return true;
+        };
+        if(j == len){
+           forward = false;
+           j = j - 2;
+           if(j < 0){
+              return true;
+           };
+        };
     };
 }
 
@@ -168,7 +213,7 @@ coroutine ENUMERATE_CHECK_AND_ASSIGN[3, typ, rVar, iVal]{
 
 // ***** Ranges ***** // NOTE: skipped this for now
 
-coroutine RANGE[3, pat, iFirst, iEnd, j, n]{
+coroutine RANGE_INT[3, pat, iFirst, iEnd, j, n]{
    j = mint(iFirst);
    n = mint(iEnd);
    if(j < n) {
@@ -184,7 +229,28 @@ coroutine RANGE[3, pat, iFirst, iEnd, j, n]{
    };
 }
 
-coroutine RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step]{
+coroutine RANGE[3, pat, iFirst, iEnd, j, n, rone]{
+   j = iFirst;
+   n = iEnd;
+   if(iFirst is int && iEnd is int){
+     rone = rint(1);
+   } else {
+     rone = prim("num_to_real", rint(1));
+   };
+   if(prim("less", j, n)) {
+      while(prim("less", j, n)) {
+        DO_ALL(pat, j);
+        j = prim("add", j, rone);
+      };
+   } else {
+      while(prim("greater", j, n)) {
+        DO_ALL(pat, j); 
+        j = prim("subtract", j, rone);
+      };
+   };
+}
+
+coroutine RANGE_STEP_INT[4, pat, iFirst, iSecond, iEnd, j, n, step]{
    j = mint(iFirst);
    n = mint(iEnd);
    if(j < n) {
@@ -205,6 +271,44 @@ coroutine RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step]{
       while(j > n) {
         DO_ALL(pat, rint(j));
         j = j + step;
+      };
+      exhaust;
+   };
+}
+
+coroutine RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step, mixed]{
+   n = iEnd;
+   if(iFirst is int && iSecond is int && iEnd is int){
+     j = iFirst;
+     mixed = false;
+   } else {
+     j = prim("num_to_real", iFirst);
+     mixed = true;
+   };
+   if(prim("less", j, n)) {
+      step = prim("subtract", iSecond, j);
+      if(mixed){
+        step = prim("num_to_real", step);
+      };
+      if(prim("lessequal", step, rint(0))) {
+         exhaust;
+      };   
+      while(prim("less", j, n)) {
+        DO_ALL(pat, j);
+        j = prim("add", j, step);
+      };
+      exhaust;
+   } else {
+      step = prim("subtract", iSecond, j);
+      if(mixed){
+        step = prim("num_to_real", step);
+      };
+      if(prim("greaterequal", step, rint(0))) {
+         exhaust;
+      };   
+      while(prim("greater", j, n)) {
+        DO_ALL(pat, j);
+        j = prim("add", j, step);
       };
       exhaust;
    };
@@ -746,10 +850,9 @@ coroutine MATCH_DESCENDANT[2, pat, iSubject, gen, cpat]{
 }
 
 // ***** Match and descent for all types *****
+// Enforces the same left-most innermost traversal order as the interpreter
 
 coroutine MATCH_AND_DESCENT[2, pat, iVal]{
-  DO_ALL(pat, iVal);
-  
   typeswitch(iVal){
     case list:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), iVal);
     case lrel:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), iVal);
@@ -759,8 +862,9 @@ coroutine MATCH_AND_DESCENT[2, pat, iVal]{
     case set:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat),  iVal);
     case rel:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat),  iVal);
     case tuple:       DO_ALL(create(MATCH_AND_DESCENT_TUPLE, pat),iVal);
-    default:          exhaust;
+    default:          true;
   };  
+  DO_ALL(pat, iVal);
 }
 
 coroutine MATCH_AND_DESCENT_LITERAL[2, pat, iSubject, res]{
@@ -809,9 +913,9 @@ coroutine MATCH_AND_DESCENT_MAP[2, pat, iMap, iKlst, iVlst, last, j]{
 coroutine MATCH_AND_DESCENT_NODE[2, pat, iNd, last, j, ar]{
    ar = get_name_and_children(iNd);
    last = size_array(ar);
-   j = 0; 
+   j = 1; 
    while(j < last){
-      DO_ALL(pat, get_array(ar, j));
+      //DO_ALL(pat, get_array(ar, j));
       DO_ALL(create(MATCH_AND_DESCENT, pat),  get_array(ar, j));
       j = j + 1;
    };

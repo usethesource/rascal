@@ -11,7 +11,7 @@ import analysis::m3::Core;
 import String;
 import IO;
 
-private map[str project, M3 model] projects = ();
+private map[loc project, M3 model] projects = ();
 
 @doc{
 Synopsis: register an M3 model for a certain project name.
@@ -33,7 +33,7 @@ Pitfalls:
 * the registry is a global store that will retain links to M3 models even when they are not in use anymore. The 
 programmer should take care to call [unregisterProject] to prevent memory leakage.
 }
-void registerProject(str project, M3 model) {
+void registerProject(loc project, M3 model) {
   projects[project] = model;
 }
 
@@ -45,14 +45,15 @@ Description:
 This is necessary to solve memory leaks. When you are sure not to reference an M3 model anymore, the model
 can be removed from the registry.
 }
-void unregisterProject(str project) {
+void unregisterProject(loc project) {
   projects -= (project:m3(project));
 }
 
 M3 getModelContaining(loc entity) {
   for (proj <- projects) {
-    if (<name, _> <- projects[proj]@declarations)
+    if (<entity, _> <- projects[proj]@declarations) {
       return projects[proj];
+    }
   }
   throw "No model found containing the declaration <entity>";
 }

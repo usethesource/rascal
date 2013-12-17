@@ -92,7 +92,7 @@ Questions:
 module ParseTree
 
 extend Type;
-import Message;
+extend Message;
 
 @doc{
 Synopsis: The Tree data type as produced by the parser.
@@ -508,7 +508,7 @@ Description: Select the innermost Tree of type `t` which is enclosed by location
 }
 public TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, a:appl(_, _)) {
 	if ((a@\loc)?, al := a@\loc, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
-		for (arg <- a.args, r:treeFound(_) := treeAt(t, l, arg)) {
+		for (arg <- a.args, TreeSearchResult[&T<:Tree] r:treeFound(&T<:Tree _) := treeAt(t, l, arg)) {
 			return r;
 		}
 		

@@ -1,5 +1,11 @@
 module experiments::Compiler::Examples::Tst
 
-import Type;
+syntax A = "a";
+//syntax As = A+;
 
-value main(list[value] args) = #int.symbol;
+//syntax B = "b";
+//syntax Bs = B+;
+
+//bool f([A] "a") = true;
+
+value main(list[value] args) = (A) `a` := [A] "a";

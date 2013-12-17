@@ -90,16 +90,6 @@ set[loc] files(M3 model) {
  return done;
 }
 
-loc getFileContaining(loc method, M3 model) {
-  for (loc l <- ((model@containment<1,0>)+)[method]) {
-    if (isCompilationUnit(l)) {
-      assert size(model@declarations[l]) == 1 : "Got more than one file containing the method";
-      return getOneFrom(model@declarations[l]);
-    }
-  }
-  throw "No file containing method <method> found";
-}
-
 @doc{
 Synopsis: transform the containment relation to a recursive tree model
 
@@ -119,6 +109,7 @@ set[FileSystem] containmentToFileSystem(M3 model) = relToFileSystem(model@contai
 
 list[Message] checkM3(M3 model) {
   result  = [m | m <- model@messages, m is error];
-  result += [error("undeclared element in containment", decl) | decl <- m@containment<to> - m@declarations<name>];
-  result += [error("non-root element is not contained anywhere", decl) | decl <- m@containment<from> - m@declarations<name> - top(m@containment)];
+  result += [error("undeclared element in containment", decl) | decl <- model@containment<to> - model@declarations<name>];
+  result += [error("non-root element is not contained anywhere", decl) | decl <- model@containment<from> - model@declarations<name> - top(model@containment)];
+  return result;
 }

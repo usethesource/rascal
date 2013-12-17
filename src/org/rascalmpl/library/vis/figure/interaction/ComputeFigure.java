@@ -42,6 +42,9 @@ public class ComputeFigure extends LayoutProxy {
 		if(prevValue == null || recompute.getValue()){
 			IConstructor figureCons =
 				(IConstructor) env.getCallBackEnv().executeRascalFigureCallBack(callback, noTypes, noArgs);
+			if(figureCons == null){
+				return;
+			}
 			if(prevValue == null || !figureCons.isEqual(prevValue)){
 				if(innerFig != null){
 					innerFig.destroy(env);

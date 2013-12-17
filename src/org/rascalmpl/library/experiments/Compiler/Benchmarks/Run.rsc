@@ -154,7 +154,7 @@ void report_latex(){
 void main(){
   measurements = ();
   nsamples = 1;
-  run("BasType", experiments::Compiler::Benchmarks::BasType::main);
+  //run("BasType", experiments::Compiler::Benchmarks::BasType::main);
   run("BBottles", experiments::Compiler::Benchmarks::BBottles::main);
   run("BCompareFor", experiments::Compiler::Benchmarks::BCompareFor::main);
   run("BCompareIf", experiments::Compiler::Benchmarks::BCompareIf::main);
@@ -171,7 +171,7 @@ void main(){
   run("BListMatch3", experiments::Compiler::Benchmarks::BListMatch3::main);
   run("BMarriage", experiments::Compiler::Benchmarks::BMarriage::main);
   run("BReverse1", experiments::Compiler::Benchmarks::BReverse1::main);
-  run("BRSFCalls", experiments::Compiler::Benchmarks::BRSFCalls::main);
+  //run("BRSFCalls", experiments::Compiler::Benchmarks::BRSFCalls::main);
   run("BSet1", experiments::Compiler::Benchmarks::BSet1::main);
   run("BSetMatch1", experiments::Compiler::Benchmarks::BSetMatch1::main);
   run("BSetMatch2", experiments::Compiler::Benchmarks::BSetMatch2::main);
@@ -245,7 +245,7 @@ void main_paper2(){
   run("BFac", experiments::Compiler::Benchmarks::BFac::main);
   run("BFib", experiments::Compiler::Benchmarks::BFib::main);
   run("BMarriage", experiments::Compiler::Benchmarks::BMarriage::main);
-  run("BRSFCalls", experiments::Compiler::Benchmarks::BRSFCalls::main);
+  //run("BRSFCalls", experiments::Compiler::Benchmarks::BRSFCalls::main);
   run("BSendMoreMoney", experiments::Compiler::Benchmarks::BSendMoreMoney::main);
   run("BSudoku", experiments::Compiler::Benchmarks::BSudoku::main);
   run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);

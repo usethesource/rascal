@@ -14,6 +14,8 @@ package org.rascalmpl.library.vis.figure.tree;
 import static org.rascalmpl.library.vis.properties.Properties.AREA;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.combine.containers.Box;
@@ -58,26 +60,58 @@ public class TreeMap extends Compose{
 		}
 	}
 	
-	private double worstAspectRatio(ArrayList<Figure> figs,double cumulatedArea){
-		double height = (cumulatedArea / area) * size.getY();
-		double result = 1.0;
-		for(Figure fig : figs){
-			double width = (fig.prop.getReal(AREA) / cumulatedArea) * size.getX();
-			double widthDivHeight = width / height;
-			result = Math.max(result, Math.max(widthDivHeight, 1.0/widthDivHeight));
+	private double worstAspectRatio(double xOffset,double yOffset, ArrayList<Figure> figs,double cumulatedArea, double areaLeft){
+		if(size.getX() - xOffset < size.getY() - yOffset){
+			double height = (cumulatedArea / areaLeft) * (size.getY() - yOffset) ;
+			double result = 1.0;
+			for(Figure fig : figs){
+				double width = (fig.prop.getReal(AREA) / cumulatedArea) * (size.getX() - xOffset);
+				double widthDivHeight = width / height;
+				result = Math.max(result, Math.max(widthDivHeight, 1.0/widthDivHeight));
+			}
+			return result;
+		} else {
+			double height = (cumulatedArea / areaLeft) * (size.getX() - xOffset) ;
+			double result = 1.0;
+			for(Figure fig : figs){
+				double width = (fig.prop.getReal(AREA) / cumulatedArea)* (size.getY() - yOffset);
+				double widthDivHeight = width / height;
+				result = Math.max(result, Math.max(widthDivHeight, 1.0/widthDivHeight));
+			}
+			return result;
 		}
-		return result;
+	
 	}
 	
-
-	private double layoutRow(double yOffset,double cumulatedArea,ArrayList<Figure> figs){
-		double height = (cumulatedArea / area) * size.getY();
-		double x = 0;
+	private double layoutRowVer(double xOffset,double yOffset,double cumulatedArea,double areaLeft,ArrayList<Figure> figs){
+		double width = (cumulatedArea / areaLeft) * (size.getX() - xOffset);
+		double y = yOffset;
+		for(Figure fig : figs){
+			fig.localLocation.setX(xOffset);
+			fig.localLocation.setY(y);
+			fig.size.setX(width);
+			double height = (fig.prop.getReal(AREA) / cumulatedArea)* (size.getY() - yOffset);
+			fig.size.setY( height);
+			if(fig.size.getX() < fig.minSize.getX() || fig.size.getY() < fig.minSize.getY()){
+				children[curChild] = new Box(null, areas[curChild].prop);
+			} else {
+				children[curChild] = areas[curChild];
+			}
+			curChild++;
+			y+=height;
+		}
+		return xOffset + width;
+	}
+	
+	
+	private double layoutRowHor(double xOffset,double yOffset,double cumulatedArea,double areaLeft,ArrayList<Figure> figs){
+		double height = (cumulatedArea / areaLeft) * (size.getY() - yOffset);
+		double x = xOffset;
 		for(Figure fig : figs){
 			fig.localLocation.setY(yOffset);
 			fig.localLocation.setX(x);
 			fig.size.setY(height);
-			double width = (fig.prop.getReal(AREA) / cumulatedArea)* size.getX();
+			double width = (fig.prop.getReal(AREA) / cumulatedArea)* (size.getX()- xOffset);
 			fig.size.setX( width);
 			if(fig.size.getX() < fig.minSize.getX() || fig.size.getY() < fig.minSize.getY()){
 				children[curChild] = new Box(null, areas[curChild].prop);
@@ -97,26 +131,47 @@ public class TreeMap extends Compose{
 		ArrayList<Figure> currentRow = new ArrayList<Figure>();
 		double prevAR = Double.MAX_VALUE;
 		double yOffset = 0;
+		double xOffset = 0;
 		double cumulatedArea = 0;
+		double w = size.getX();
+		double h = size.getY();
+		double areaLeft =area;
+		Arrays.sort(areas, new Comparator<Figure>() {
+			@Override
+			public int compare(Figure o1, Figure o2) {
+				return new Double(o2.prop.getReal(AREA))
+				      .compareTo(o1.prop.getReal(AREA));
+			}
+		});
 		for(Figure cur : areas ){
-			
 			cumulatedArea += cur.prop.getReal(AREA);
 			currentRow.add(cur);
-			double curAR = worstAspectRatio(currentRow,cumulatedArea);
+			double curAR = worstAspectRatio(xOffset,yOffset,currentRow,cumulatedArea, areaLeft);
 			if(curAR > prevAR){
 				currentRow.remove(currentRow.size()-1);
 				cumulatedArea -= cur.prop.getReal(AREA);
-				yOffset = layoutRow(yOffset,cumulatedArea,currentRow);
+
+				if(w - xOffset > h - yOffset) {
+					xOffset = layoutRowVer(xOffset,yOffset, cumulatedArea, areaLeft,currentRow);
+				} else {
+					yOffset = layoutRowHor(xOffset,yOffset,cumulatedArea,areaLeft,currentRow);
+				}
 				currentRow.clear();
 				currentRow.add(cur);
+				areaLeft -= cumulatedArea;
 				cumulatedArea = cur.prop.getReal(AREA);
-				prevAR = Double.MAX_VALUE;
+				prevAR = worstAspectRatio(xOffset,yOffset,currentRow,cumulatedArea,areaLeft);
+
 			} else {
 				prevAR = curAR;
 			}
 			
 		}
-		layoutRow(yOffset,cumulatedArea,currentRow);
+		if(w - xOffset > h - yOffset) {
+			xOffset = layoutRowVer(xOffset,yOffset, cumulatedArea, areaLeft, currentRow);
+		} else {
+			yOffset = layoutRowHor(xOffset,yOffset,cumulatedArea, areaLeft,currentRow);
+		}
 	}
 
 	@Override

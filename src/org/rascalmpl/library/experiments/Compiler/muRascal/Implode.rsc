@@ -9,6 +9,13 @@ import Ambiguity;
 rel[str,str] global_functions = {};
 map[str,map[str,int]] vardefs = ();
 
+int nLabel = 0;
+
+str nextLabel(str prefix) {
+  nLabel += 1;
+  return "<prefix><nLabel>";
+}
+
 MuModule preprocess(Module pmod){
    global_functions = {};
    vardefs = ();
@@ -97,7 +104,7 @@ MuFunction preprocess(Function f, str modName){
    
    scopeIn = (!isEmpty(f.funNames)) ? getUID(modName,f.funNames) : ""; // if not a function scope, then the root one
    // Generate a very generic function type
-   ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..f.nformals + 1] ]);
+   ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..f.nformals] ]);
    
    body = preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body);
    return (f is preCoroutine) ? muCoroutine(uid, scopeIn, f.nformals, size(vardefs[uid]), refs, muBlock(insertGuard ? [ muGuard(muBool(true)), *body, muExhaust() ] : [ *body, muExhaust() ]))
@@ -213,8 +220,10 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preDivision(MuExp lhs, MuExp rhs)											=> muCallMuPrim("division_mint_mint", [lhs, rhs])
       	       case preModulo(MuExp lhs, MuExp rhs)												=> muCallMuPrim("modulo_mint_mint", [lhs, rhs])
       	       case prePower(MuExp lhs, MuExp rhs)												=> muCallMuPrim("power_mint_mint", [lhs, rhs])
-      	       case preAnd(MuExp lhs, MuExp rhs)												=> muCallMuPrim("and_mbool_mbool", [lhs, rhs])
-      	       case preOr(MuExp lhs, MuExp rhs)									    			=> muCallMuPrim("or_mbool_mbool", [lhs, rhs])
+      	       
+      	       case preAnd(MuExp lhs, MuExp rhs)												=> muIfelse(nextLabel("L_AND"), lhs, [rhs], [muCon(false)])      	       
+      	       case preOr(MuExp lhs, MuExp rhs)									    			=> muIfelse(nextLabel("L_OR"), lhs, [muCon(true)], [rhs])
+      	       
       	       case preIs(MuExp lhs, str typeName)												=> muCallMuPrim("is_<typeName>", [lhs])
       	       
       	       // Overloading

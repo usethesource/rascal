@@ -348,6 +348,35 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
       }
 	  }
 	}
+	
+	private static boolean validCodePoint(int cp) {
+		return Character.isDefined(cp) 
+			&& Character.isValidCodePoint(cp) 
+			&& Character.getType(cp) != Character.UNASSIGNED
+			;
+	}
+	
+	private int[] generateCodePoints(int start, int stop, int count) {
+		int[] result =new int[count];
+		int range = stop - start;
+		for (int i =0 ; i < count; i++) {
+			int newPoint = 0;
+			while (!validCodePoint(newPoint)) {
+				newPoint = start + stRandom.nextInt(range);
+			}
+			result[i] = newPoint;
+
+		}
+		return result;
+	}
+	private String randomString(int count) {
+		if (stRandom.nextBoolean()) {
+			return RandomStringUtils.random(count);
+		}
+		else {
+			return new String(generateCodePoints(0x10000, 0x2FFFF, count), 0 , count);
+		}
+	}
 
 	@Override
 	public IValue visitString(Type type) {
@@ -356,11 +385,39 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		} else {
 			RandomValueTypeVisitor visitor = descend();
 			IString str = vf.string(visitor.generate(type).toString());
-			IString result = str.concat(vf.string(RandomStringUtils.random(1)));
+			IString result = str.concat(vf.string(randomString(1)));
+			String sanitized = sanitize(result.getValue());
 			// make sure we are not generating very strange sequences
-			String normalized = Normalizer.normalize(result.getValue(), Form.NFC);
+			String normalized = Normalizer.normalize(sanitized, Form.NFC);
 			return vf.string(normalized);
 		}
+	}
+
+	private static String sanitize(String unclean) {
+		// let's avoid testing with invalid codepoints
+		int i = 0;
+		char [] chars = unclean.toCharArray();
+		while (i < chars.length) {
+			char c = chars[i];
+			if (Character.isHighSurrogate(c)) {
+				i++;
+				if (i < chars.length) {
+					int cp = Character.toCodePoint(c, chars[i]);
+					if (!validCodePoint(cp)) {
+						chars[i-1]	= '_';
+						chars[i]	= '_';
+					}
+				}
+				else {
+					chars[i] = '_';
+				}
+			}
+			else if (!validCodePoint(c)) {
+				chars[i] = '_';
+			}
+			i++;
+		}
+		return new String(chars);
 	}
 
 	@Override

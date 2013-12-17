@@ -53,6 +53,13 @@ str currentLoop(){
   return top(loops);
 }
 
+str currentLoop(DataTarget target){
+  if(target is empty)
+     return currentLoop();
+  else
+     return "<target.label>";
+}
+
 void leaveLoop(){
   loops = tail(loops);
 }

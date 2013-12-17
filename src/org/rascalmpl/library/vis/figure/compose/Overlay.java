@@ -22,6 +22,9 @@ import static org.rascalmpl.library.vis.properties.TwoDProperties.POS;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.SHRINK;
 import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.rascalmpl.library.vis.figure.Figure;
@@ -32,8 +35,10 @@ import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.library.vis.util.vector.Coordinate;
 import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
+import org.rascalmpl.library.vis.graphics.Interpolation;
 /**
  * 
  * Overlay elements by stacking them
@@ -41,6 +46,9 @@ import org.rascalmpl.library.vis.util.vector.Rectangle;
  * @author paulk
  *
  */
+import org.rascalmpl.library.vis.graphics.TypedPoint;
+
+
 public class Overlay extends Compose{
 	
 	public Overlay(Figure[] children, PropertyManager properties) {
@@ -91,11 +99,70 @@ public class Overlay extends Compose{
 	}
 	
 	@Override
+	public void getFiguresUnderMouse(Coordinate c,List<Figure> result){
+		if(!mouseInside(c)){
+			return;
+		}
+		if(handlesInput()){
+			Point2D.Double d = new Point2D.Double(c.getX(), c.getY());
+			if(makePath().contains(d)){
+				result.add(this);
+			}
+		}
+		for(int i = children.length - 1 ; i >= 0 ; i--){
+			children[i].getFiguresUnderMouse(c, result);
+		}
+		
+	}
+
+	
+	
+	
+	public Path2D.Double makePath(){
+	
+		  boolean closed = prop.getBool(SHAPE_CLOSED);
+	        boolean curved = prop.getBool(SHAPE_CURVED);
+	        boolean connected =  prop.getBool(SHAPE_CONNECTED) || closed || curved;
+        	Path2D.Double p = new Path2D.Double();
+	        if(connected && closed && children.length >= 0){
+
+	        	if(curved) {
+	        	ArrayList<TypedPoint> res = new ArrayList<TypedPoint>();
+	        	for(int i = 0 ; i < children.length ; i++){
+	        		res.add(new TypedPoint(children[i].globalLocation.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
+    				children[i].globalLocation.getY()   + children[i].prop.getReal(VCONNECT)  * children[i].size.getY(),TypedPoint.kind.CURVED));
+	        	}
+	        	
+	        		Interpolation.solve(res, true);
+	        		p.moveTo(Interpolation.P0[0].x, Interpolation.P0[0].y);
+	        		int n = Interpolation.P0.length;
+	        		for (int i = 0; i < n; i++)
+	        			p.curveTo(
+	        			Interpolation.P1[i].x,
+	        					Interpolation.P1[i].y,
+	        					Interpolation.P2[i].x,
+	        					 Interpolation.P2[i].y,
+	        					 Interpolation.P3[i].x,
+	        					Interpolation.P3[i].y);
+	        	} else{
+	        		p.moveTo(children[0].globalLocation.getX() + children[0].prop.getReal(HCONNECT) * children[0].size.getX(),
+		    				children[0].globalLocation.getY()   + children[0].prop.getReal(VCONNECT)  * children[0].size.getY());
+	        		for(int i = 0 ; i < children.length ; i++){
+		        		p.lineTo(children[i].globalLocation.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
+	    				children[i].globalLocation.getY()   + children[i].prop.getReal(VCONNECT)  * children[i].size.getY());
+		        	}
+	        	}
+	        	p.closePath();
+	        }	
+	        	
+	        return p;
+	}
+	
+	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
 	  boolean closed = prop.getBool(SHAPE_CLOSED);
         boolean curved = prop.getBool(SHAPE_CURVED);
         boolean connected =  prop.getBool(SHAPE_CONNECTED) || closed || curved;
-        // TODO: this curved stuff is unclear to me...
         if(connected){
             gc.beginShape();
         }
@@ -116,7 +183,7 @@ public class Overlay extends Compose{
 	        		gc.vertex(children[i].globalLocation.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
 	        				 children[i].globalLocation.getY()  + children[i].prop.getReal(VCONNECT) * children[i].size.getY()  );
 	        	} 
-	        	System.out.printf("child %s\n",children[i].globalLocation);
+	        	//System.out.printf("child %s\n",children[i].globalLocation);
 	        }
         }
         
