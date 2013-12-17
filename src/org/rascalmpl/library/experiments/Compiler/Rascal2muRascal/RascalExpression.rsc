@@ -29,20 +29,20 @@ int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: shou
 
 // Create (and flatten) a muAll
 
-// MuExp makeMuAll([*exps1, muAll(list[MuExp] exps2), *exps3]) = makeMuAll(exps1 + exps2 + exps3);
-// default MuExp makeMuAll(list[MuExp] exps) = muAll(exps);
-MuExp makeMuAll(list[MuExp] exps, str co) {
+MuExp makeMu(str muAllOrMuOr, list[MuExp] exps, str co) {
     str fuid = topFunctionScope();
     list[MuExp] tasks = [];
     for(MuExp exp <- exps) {
         if(muMulti(e) := exp) {
             tasks += e; // coroutines
         } else {
-            // TODO
-            ;
+            // Works because mkVar and mkAssign produce muVar and muAssign, i.e., specify explicitly function scopes computed by the type checker
+            str gen_uid = "<fuid>/GEN_<nextLabel()>(0)";
+            functions_in_module += muCoroutine(gen_uid, fuid, 0, 0, [], muBlock([ muGuard(exp), muReturn() ]));
+            tasks += muCreate(muFun(gen_uid));
         }
     }
-    return muAssignTmp(co, muInit(muCreate(mkCallToLibFun("Library","ALL",1),[ muCallMuPrim("make_array",tasks) ]),[]));
+    return muAssignTmp(co, muInit(muCreate(mkCallToLibFun("Library",muAllOrMuOr,1),[ muCallMuPrim("make_array",tasks) ])));
 }
 
 // Create (and flatten) a muOne
@@ -251,11 +251,13 @@ MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) {
 
   kind = getOuterType(first) == "int" && getOuterType(last) == "int" ? "_INT" : "";
   rangecode = muMulti(muCreate(mkCallToLibFun("Library", "RANGE<kind>", 3), [ patcode, translate(first), translate(last)]));
-    
+  
+  co = asTmp(nextLabel());
   return
     muBlock(
     [ muAssignTmp(writer, muCallPrim("listwriter_open", [])),
-      muWhile(loopname, makeMuAll([rangecode]), [ muCallPrim("listwriter_add", [muTmp(writer), muTmp(var)])]),
+      makeMu("All",[ rangecode ],co),
+      muWhile(loopname, muNext(muTmp(co)), [ muCallPrim("listwriter_add", [muTmp(writer), muTmp(var)])]),
       muCallPrim("listwriter_close", [muTmp(writer)]) 
     ]);
     
@@ -269,11 +271,13 @@ MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <
 
   kind = getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int" ? "_INT" : "";
   rangecode = muMulti(muCreate(mkCallToLibFun("Library", "RANGE_STEP<kind>", 4), [ patcode, translate(first), translate(second), translate(last)]));
-    
+  
+  co = asTmp(nextLabel());
   return
     muBlock(
     [ muAssignTmp(writer, muCallPrim("listwriter_open", [])),
-      muWhile(loopname, makeMuAll([rangecode]), [ muCallPrim("listwriter_add", [muTmp(writer), muTmp(var)])]),
+      makeMu("ALL",[ rangecode ],co),
+      muWhile(loopname, muNext(muTmp(co)), [ muCallPrim("listwriter_add", [muTmp(writer), muTmp(var)])]),
       muCallPrim("listwriter_close", [muTmp(writer)]) 
     ]);
     
@@ -569,9 +573,10 @@ MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS) {
 	cond2 = muCallMuPrim("equal", [ muCon("NoSuchAnnotation"),
 									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children", [ muTmp(asUnwrapedThrown(varname)) ]), muInt(0) ] ) ]);
 	
-	elsePart3 = muIfelse(nextLabel(), muAll([cond3]), [ muRHS ], [ muThrow(muTmp(varname)) ]);
-	elsePart2 = muIfelse(nextLabel(), muAll([cond2]), [ muRHS ], [ elsePart3 ]);
-	catchBody = muIfelse(nextLabel(), muAll([cond1]), [ muRHS ], [ elsePart2 ]);
+	co = asTmp(nextLabel());
+	elsePart3 = muBlock([ makeMu("ALL",[ cond3 ],co), muIfelse(nextLabel(), muNext(muTmp(co)), [ muRHS ], [ muThrow(muTmp(varname)) ]) ]);
+	elsePart2 = muBlock([ makeMu("ALL",[ cond2 ],co), muIfelse(nextLabel(), muNext(muTmp(co)), [ muRHS ], [ elsePart3 ]) ]);
+	catchBody = muBlock([ makeMu("ALL",[ cond1 ],co), muIfelse(nextLabel(), muNext(muTmp(co)), [ muRHS ], [ elsePart2 ]) ]);
 	return muTry(muLHS, muCatch(varname, Symbol::\adt("RuntimeException",[]), catchBody), 
 			  		 	muBlock([]));
 }
@@ -685,9 +690,11 @@ MuExp translate(e:(Expression) `<Expression lhs> && <Expression rhs>`)  = transl
 MuExp translate(e:(Expression) `<Expression lhs> || <Expression rhs>`)  = translateBool(e);
  
 // Conditional Expression
-MuExp translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = 
-	// Label (used to backtrack) here is not important as it is not allowed to have 'fail' in conditional expressions 
-    muIfelse(nextLabel(),makeMuAll([translate(condition)]), [translate(thenExp)],  [translate(elseExp)]); 
+MuExp translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) {
+	// Label (used to backtrack) here is not important as it is not allowed to have 'fail' in conditional expressions
+	co = asTmp(nextLabel()); 
+    muBlock([ makeMu("ALL",[ translate(condition) ],co), muIfelse(nextLabel(),muNext(muTmp(co)), [translate(thenExp)],  [translate(elseExp)]) ]);
+} 
 
 // Default: should not happen
 default MuExp translate(Expression e) {
