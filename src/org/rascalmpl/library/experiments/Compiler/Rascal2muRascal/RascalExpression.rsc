@@ -29,8 +29,21 @@ int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: shou
 
 // Create (and flatten) a muAll
 
-MuExp makeMuAll([*exps1, muAll(list[MuExp] exps2), *exps3]) = makeMuAll(exps1 + exps2 + exps3);
-default MuExp makeMuAll(list[MuExp] exps) = muAll(exps);
+// MuExp makeMuAll([*exps1, muAll(list[MuExp] exps2), *exps3]) = makeMuAll(exps1 + exps2 + exps3);
+// default MuExp makeMuAll(list[MuExp] exps) = muAll(exps);
+MuExp makeMuAll(list[MuExp] exps, str co) {
+    str fuid = topFunctionScope();
+    list[MuExp] tasks = [];
+    for(MuExp exp <- exps) {
+        if(muMulti(e) := exp) {
+            tasks += e; // coroutines
+        } else {
+            // TODO
+            ;
+        }
+    }
+    return muAssignTmp(co, muInit(muCreate(mkCallToLibFun("Library","ALL",1),[ muCallMuPrim("make_array",tasks) ]),[]));
+}
 
 // Create (and flatten) a muOne
 

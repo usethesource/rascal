@@ -96,8 +96,10 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
     tmp = asTmp(forname);
     enterLoop(forname);
     enterBacktrackingScope(forname);
-    code = [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])), 
-             muWhile(forname, makeMuAll([translate(c) | c <-generators]), [ translate(body) ]),
+    co = asTmp(nextLabel());
+    code = [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])),
+             makeMuAll([translate(c) | c <-generators],co),
+             muWhile(forname, muNext(muTmp(co)), [ translate(body) ]),
              muCallPrim("listwriter_close", [muTmp(tmp)])
            ];
     leaveBacktrackingScope();
@@ -124,9 +126,9 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
 } 
 
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) {
-	ifname = getLabel(label);
+    ifname = getLabel(label);
 	enterBacktrackingScope(ifname);
-	code = muIfelse(ifname, muAll([translate(c) | c <-conditions]), [translate(thenStatement)], []);
+	code = muIfelse(ifname, makeMuAll([translate(c) | c <-conditions]), [translate(thenStatement)], []);
     leaveBacktrackingScope();
     return code;
 }
