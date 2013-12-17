@@ -40,6 +40,7 @@ public enum MuPrimitive {
 	equal,
 	equal_set_mset,
 	equivalent_mbool_mbool,
+	get_children,
 	get_name,
 	get_name_and_children,
 	get_tuple_elements,
@@ -327,6 +328,17 @@ public enum MuPrimitive {
 		assert arity == 1;
 		INode nd = (INode) stack[sp - 1];
 		stack[sp - 1] = vf.string(nd.getName());
+		return sp;
+	}
+	
+	public static int get_children(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		INode nd = (INode) stack[sp - 1];
+		Object[] elems = new Object[nd.arity()];
+		for(int i = 0; i < nd.arity(); i++){
+			elems[i] = nd.get(i);
+		}
+		stack[sp - 1] =  elems;
 		return sp;
 	}
 		
