@@ -513,20 +513,20 @@ coroutine MATCH_LITERAL_IN_LIST[4, pat, iSubject, rNext, available, start, elm]{
     println("MATCH_LITERAL_IN_LIST: false", pat, start, elm);
 }
 
-// Tree node in concrete pattern
-coroutine MATCH_APPL_IN_LIST[5, iProd, args, iSubject, rNext, available, start, iElem, children, cpats]{
-    println("MATCH_APPL_IN_LIST", iProd, args, " AND ", iSubject, iSubject is node);
+// Tree node in concrete pattern: appl(iProd, argspat), where argspat is a list pattern
+coroutine MATCH_APPL_IN_LIST[5, iProd, argspat, iSubject, rNext, available, start, iElem, children, cpats]{
+    println("MATCH_APPL_IN_LIST", iProd, argspat, " AND ", iSubject, iSubject is node);
     start = deref rNext;
     iElem = get_list(iSubject, start);
     guard iElem is node;
     children = get_children(iElem);
     if(equal(get_name(iElem), "appl") && equal(iProd, get_array(children, 0))){
-       cpats = init(args, get_array(children, 1));
+       cpats = init(argspat, get_array(children, 1));
        while(next(cpats)) {
           yield(start + 1);
        };
     };
-    println("MATCH_APPL_IN_LIST fails",  iProd, args, " AND ", iSubject);
+    println("MATCH_APPL_IN_LIST fails",  iProd, argspat, " AND ", iSubject);
 }
 
 // An arbitrary pattern in a list: used to skip layout in concrete patterns
