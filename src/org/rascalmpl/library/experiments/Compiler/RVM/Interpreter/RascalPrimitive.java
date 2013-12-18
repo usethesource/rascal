@@ -5138,21 +5138,22 @@ public enum RascalPrimitive {
 		IValue[] elems = new  IValue[resArity];
 		ISetWriter w = vf.setWriter();
 		NextTuple:
-		for(IValue vtup : rel){
-			ITuple tup = (ITuple) vtup;
-			for(int i = 0; i < indexArity; i++){
-				IValue v = tup.get(i);
-				if(indices[i].getType().isSet()){
-					ISet s = (ISet) indices[i];
-					if(!s.contains(v)){
-						continue NextTuple;
+			for(IValue vtup : rel){
+				ITuple tup = (ITuple) vtup;
+				for(int i = 0; i < indexArity; i++){
+					if(indices[i] != null){
+						IValue v = tup.get(i);
+						if(indices[i].getType().isSet()){
+							ISet s = (ISet) indices[i];
+							if(!s.contains(v)){
+								continue NextTuple;
+							}
+						} else
+							if(!v.isEqual(indices[i])){
+								continue NextTuple;
+							}
 					}
-				} else
-				if(!v.isEqual(indices[i])){
-					if(indices[i] != null)
-						continue NextTuple;
 				}
-			}
 			for(int i = 0; i < resArity; i++){
 				elems[i] = tup.get(indexArity + i);
 			}
@@ -5185,16 +5186,17 @@ public enum RascalPrimitive {
 		for(IValue vtup : lrel){
 			ITuple tup = (ITuple) vtup;
 			for(int i = 0; i < indexArity; i++){
-				IValue v = tup.get(i);
-				if(indices[i].getType().isSet()){
-					ISet s = (ISet) indices[i];
-					if(!s.contains(v)){
-						continue NextTuple;
-					}
-				} else
-				if(!v.isEqual(indices[i])){
-					if(indices[i] != null)
-						continue NextTuple;
+				if(indices[i] != null){
+					IValue v = tup.get(i);
+					if(indices[i].getType().isSet()){
+						ISet s = (ISet) indices[i];
+						if(!s.contains(v)){
+							continue NextTuple;
+						}
+					} else
+						if(!v.isEqual(indices[i])){
+							continue NextTuple;
+						}
 				}
 			}
 			for(int i = 0; i < resArity; i++){
