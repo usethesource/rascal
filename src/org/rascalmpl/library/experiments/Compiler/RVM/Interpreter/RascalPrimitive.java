@@ -5124,7 +5124,7 @@ public enum RascalPrimitive {
 		ISet rel = ((ISet) stack[sp - arity]);
 		int indexArity = arity - 1;
 		int relArity = rel.getElementType().getArity();
-		assert relArity < indexArity;
+		assert indexArity < relArity ;
 		int resArity = relArity - indexArity;
 		IValue[] indices = new IValue[indexArity];
 		for(int i = 0; i < indexArity; i++ ){
@@ -5141,7 +5141,14 @@ public enum RascalPrimitive {
 		for(IValue vtup : rel){
 			ITuple tup = (ITuple) vtup;
 			for(int i = 0; i < indexArity; i++){
-				if(!tup.get(i).isEqual(indices[i])){
+				IValue v = tup.get(i);
+				if(indices[i].getType().isSet()){
+					ISet s = (ISet) indices[i];
+					if(!s.contains(v)){
+						continue NextTuple;
+					}
+				} else
+				if(!v.isEqual(indices[i])){
 					if(indices[i] != null)
 						continue NextTuple;
 				}
@@ -5161,7 +5168,7 @@ public enum RascalPrimitive {
 		IList lrel = ((IList) stack[sp - arity]);
 		int indexArity = arity - 1;
 		int lrelArity = lrel.getElementType().getArity();
-		assert lrelArity < indexArity;
+		assert indexArity < lrelArity;
 		int resArity = lrelArity - indexArity;
 		IValue[] indices = new IValue[indexArity];
 		for(int i = 0; i < indexArity; i++ ){
@@ -5178,7 +5185,14 @@ public enum RascalPrimitive {
 		for(IValue vtup : lrel){
 			ITuple tup = (ITuple) vtup;
 			for(int i = 0; i < indexArity; i++){
-				if(!tup.get(i).isEqual(indices[i])){
+				IValue v = tup.get(i);
+				if(indices[i].getType().isSet()){
+					ISet s = (ISet) indices[i];
+					if(!s.contains(v)){
+						continue NextTuple;
+					}
+				} else
+				if(!v.isEqual(indices[i])){
 					if(indices[i] != null)
 						continue NextTuple;
 				}
