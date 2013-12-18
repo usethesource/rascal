@@ -5191,6 +5191,8 @@ public enum RascalPrimitive {
 		stack[sp - arity] = w.done();
 		return sp - arity + 1;
 	}
+	
+	
 
 	/*
 	 * subtraction
@@ -5528,8 +5530,12 @@ public enum RascalPrimitive {
 		assert arity == 3;
 		IList lst = (IList) stack[sp - 3];
 		int n = ((IInteger) stack[sp - 2]).intValue();
-		stack[sp - 3] = lst.put(n, (IValue) stack[sp - 1]);
-		return sp - 2;
+		try {
+			stack[sp - 3] = lst.put(n, (IValue) stack[sp - 1]);
+			return sp - 2;
+		} catch (IndexOutOfBoundsException e){
+			throw RuntimeExceptions.indexOutOfBounds(vf.integer(n), null, new ArrayList<Frame>());
+		}
 	}
 	
 	public static int map_update(Object[] stack, int sp, int arity) {
@@ -5544,8 +5550,12 @@ public enum RascalPrimitive {
 		assert arity == 3;
 		ITuple tup = (ITuple) stack[sp - 3];
 		int n = ((IInteger) stack[sp - 2]).intValue();
-		stack[sp - 3] = tup.set(n, (IValue) stack[sp - 1]);
-		return sp - 2;
+		try {
+			stack[sp - 3] = tup.set(n, (IValue) stack[sp - 1]);
+			return sp - 2;
+		} catch (IndexOutOfBoundsException e){
+			throw RuntimeExceptions.indexOutOfBounds(vf.integer(n), null, new ArrayList<Frame>());
+		}
 	}
 	
 	/*
