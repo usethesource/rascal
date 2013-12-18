@@ -96,10 +96,8 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
     tmp = asTmp(forname);
     enterLoop(forname);
     enterBacktrackingScope(forname);
-    co = asTmp(nextLabel());
     code = [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])),
-             makeMu("ALL",[ translate(c) | c <-generators ],co),
-             muWhile(forname, muNext(muTmp(co)), [ translate(body) ]),
+             muWhile(forname, makeMu("ALL",[ translate(c) | c <-generators ]), [ translate(body) ]),
              muCallPrim("listwriter_close", [muTmp(tmp)])
            ];
     leaveBacktrackingScope();
@@ -112,10 +110,8 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
     result = asTmp(forname);
     enterLoop(forname);
     enterBacktrackingScope(forname);
-    co = asTmp(nextLabel());
     code = [ muAssignTmp(result, muCallPrim("template_open", [muCon(""), muTmp(pre)])),
-             makeMu("ALL",[ translate(c) | c <-generators ], co),
-             muWhile(forname, muNext(muTmp(co)), 
+             muWhile(forname, makeMu("ALL",[ translate(c) | c <-generators ]), 
                      [ translateStats(preStats),  
                        muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])),
                        translateStats(postStats)
@@ -130,9 +126,7 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) {
     ifname = getLabel(label);
 	enterBacktrackingScope(ifname);
-	co = asTmp(nextLabel());
-	code = muBlock([ makeMu("ALL", [ translate(c) | c <-conditions ], co), 
-	                 muIfelse(ifname, muNext(muTmp(co)), [translate(thenStatement)], []) ]);
+	code = muIfelse(ifname, makeMu("ALL", [ translate(c) | c <-conditions ]), [translate(thenStatement)], []);
     leaveBacktrackingScope();
     return code;
 }
@@ -141,10 +135,8 @@ MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) {
     ifname = nextLabel();
     result = asTmp(ifname);
     enterBacktrackingScope(ifname);
-    co = asTmp(nextLabel());
     code = [ muAssignTmp(result, muCallPrim("template_open", [muCon(""), muTmp(pre)])),
-             makeMu("ALL", [ translate(c) | c <- conditions ], co),
-             muIfelse(ifname, muNext(muTmp(co)), 
+             muIfelse(ifname, makeMu("ALL", [ translate(c) | c <- conditions ]), 
                       [ translateStats(preStats),
                         muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])),
                         translateStats(postStats)],
@@ -158,9 +150,7 @@ MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) {
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`) {
 	ifname = getLabel(label);
 	enterBacktrackingScope(ifname);
-	co = asTmp(nextLabel());
-    code = muBlock([ makeMu("ALL",[ translate(c) | c <- conditions ],co),
-                     muIfelse(ifname, muNext(muTmp(co)), [translate(thenStatement)], [translate(elseStatement)]) ]);
+	code = muIfelse(ifname, makeMu("ALL",[ translate(c) | c <- conditions ]), [translate(thenStatement)], [translate(elseStatement)]);
     leaveBacktrackingScope();
     return code;
 }
@@ -169,10 +159,8 @@ MuExp translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) 
     ifname = nextLabel();
     result = asTmp(ifname);
     enterBacktrackingScope(ifname);
-    co = asTmp(nextLabel());
     code = [ muAssignTmp(result, muCallPrim("template_open", [muCon(""), muTmp(pre)])),
-             makeMu("ALL",[ translate(c) | c <- conditions ],co),
-             muIfelse(ifname, muNext(muTmp(co)), 
+             muIfelse(ifname, makeMu("ALL",[ translate(c) | c <- conditions ]), 
                       [ translateStats(preStatsThen), 
                         muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(thenString)])),
                         translateStats(postStatsThen)
@@ -262,9 +250,7 @@ MuExp translateCatches(str varname, list[Catch] catches, bool hasDefault) {
           conds = [ muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(c.pattern), muTmp(asUnwrapedThrown(varname))])) ];
           then = [ translate(c.body) ];
       }
-      co = asTmp(nextLabel());
-      exp = muBlock([ makeMu("ALL",conds,co),
-                      muIfelse(ifname, muNext(muTmp(co)), then, [translateCatches(varname, tail(catches), hasDefault)]) ]);
+      exp = muIfelse(ifname, makeMu("ALL",conds), then, [translateCatches(varname, tail(catches), hasDefault)]);
       leaveBacktrackingScope();
       return exp;
   }
@@ -343,9 +329,7 @@ MuExp translateSwitchCases(str switchval, list[Case] cases) {
      	ifname = nextLabel();
      	enterBacktrackingScope(ifname);
         cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pwa.pattern), muTmp(switchval)]));
-        co = asTmp(nextLabel());
-        exp = muBlock([ makeMu("ALL",[cond],co),
-                        muIfelse(ifname, muNext(muTmp(co)), [translate(pwa.statement)], [translateSwitchCases(switchval, tail(cases))]) ]);
+        exp = muIfelse(ifname, makeMu("ALL",[cond]), [translate(pwa.statement)], [translateSwitchCases(switchval, tail(cases))]);
         leaveBacktrackingScope();
         return exp; 
      } else {
