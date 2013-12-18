@@ -130,7 +130,7 @@ int getFormals(loc l)    = size(fuid2type[loc2uid[l]].parameters) + 1; // '+ 1' 
 // Compute the scope size, excluding declared nested functions, closures and keyword parameters
 int getScopeSize(str fuid) =  // r2mu translation of functions introduces variables in place of formal parameter patterns
 							  // and uses patterns to match these variables 
-						      size(fuid2type[invertUnique(fuid2str)[fuid]].parameters)
+							  size(fuid2type[invertUnique(fuid2str)[fuid]].parameters)
 						    + size({ pos | int pos <- range(uid2addr)[fuid], pos != -1 })
 						    + 2 // '+ 2' accounts for keyword arguments and default values of keyword parameters 
 						    ;
@@ -263,16 +263,18 @@ void extractScopes(){
         								   }
         case production(rname,rtype,
                         inScope,src):      {
-                                             constructors += {uid};
-                                             declares += {<inScope, uid>};
-                                             loc2uid[src] = uid;
-                                             for(l <- config.uses[uid]) {
-                                                 loc2uid[l] = uid;
+                                             if(!isEmpty(getSimpleName(rname))) {
+                                             	constructors += {uid};
+                                             	declares += {<inScope, uid>};
+                                             	loc2uid[src] = uid;
+                                             	for(l <- config.uses[uid]) {
+                                                  loc2uid[l] = uid;
+                                             	}
+                                             	// Fill in uid2name
+                                             	uid2name[uid] = getPUID(getSimpleName(rname),rtype);
+                                             	// Fill in fuid2type to enable more precise overloading resolution
+                                             	fuid2type[uid] = rtype;
                                              }
-                                             // Fill in uid2name
-                                             uid2name[uid] = getPUID(getSimpleName(rname),rtype);
-                                             // Fill in fuid2type to enable more precise overloading resolution
-                                             fuid2type[uid] = rtype;
                                            }
         case blockScope(inScope,src):      { 
         								     containment += {<inScope, uid>};
