@@ -1,14 +1,13 @@
 module experiments::Compiler::Examples::Tst
 
-//layout Whitespace = [\ ]*;
-//syntax A = "a";
-//syntax B = "b";
-//start syntax AB = "x" {A ","}+ "y" {B ","}+;
+layout Whitespace = [\ ]*;
+syntax A = "a";
+syntax B = "b";
+start syntax AB = "x" {A ","}* "y";
 
 //syntax AS = A+;
 
 //syntax ASBS = "xx" A+ "yy";
 
 //value main(list[value] args) = (AB) `x <{A ","}+ XXXXX> y<{B ","}+ YYYYY>` := [AB] "xa, a,ayb,b" ? <XXXXX, YYYYY> : "NOMATCH";
-
-value main(list[value] args) = {<1, "a", 10>, <2, "b", 20>, <1, "abc", 100>}[{1,2}];
+value main(list[value] args) = (AB) `x <{A ","}* XXXXX> ,a,<{A ","}* YYYYY> y` := [AB] "xa, a,ay" ? <XXXXX, YYYYY> : "NOMATCH";

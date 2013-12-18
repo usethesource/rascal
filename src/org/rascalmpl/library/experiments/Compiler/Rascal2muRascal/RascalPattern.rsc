@@ -359,6 +359,7 @@ println("computeConcreteLookahead: <pats>");
                  append <nElem, nMultiVar>;
                  if(isConcreteMultiVar(p)) nMultiVar += 1; else nElem += 1;
              };
+    println("result = <reverse(rprops)>");
     return reverse(rprops);
 }
 
