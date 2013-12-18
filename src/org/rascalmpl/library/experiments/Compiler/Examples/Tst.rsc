@@ -1,13 +1,25 @@
 module experiments::Compiler::Examples::Tst
 
+import ParseTree;
 layout Whitespace = [\ ]*;
 syntax A = "a";
 syntax B = "b";
-start syntax AB = "x" {A ","}* "y";
+start syntax AB = "x" A B "y";
 
-//syntax AS = A+;
+value main(list[value] args) { A a = [A] "a"; return (AB) `x <A a> by`; }
 
-//syntax ASBS = "xx" A+ "yy";
-
-//value main(list[value] args) = (AB) `x <{A ","}+ XXXXX> y<{B ","}+ YYYYY>` := [AB] "xa, a,ayb,b" ? <XXXXX, YYYYY> : "NOMATCH";
-value main(list[value] args) = (AB) `x <{A ","}* XXXXX> ,a,<{A ","}* YYYYY> y` := [AB] "xa, a,ay" ? <XXXXX, YYYYY> : "NOMATCH";
+//value main(list[value] args) =
+//appl(
+//prod(
+//  sort("AB"),
+//  [
+//    lit("x"),
+//    layouts("Whitespace"),
+//    sort("A"),
+//    layouts("Whitespace"),
+//    sort("B"),
+//    layouts("Whitespace"),
+//    lit("y")
+//  ],
+//  {}),
+//  []);

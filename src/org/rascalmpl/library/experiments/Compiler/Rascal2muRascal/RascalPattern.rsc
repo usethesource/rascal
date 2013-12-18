@@ -263,13 +263,9 @@ syntax ConcreteHole
 */
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
-  //println("concrete: <concrete>");
-  //println("symbol: <concrete.symbol>, parts: <concrete.parts>");
-  //iprintln(concrete);
   println("**** Grammar");
   iprintln(getGrammar(config));
   parsedFragment = parseFragment(getModuleName(), concrete, p@\loc, getGrammar(config));
-//  parsedFragment = parsedFragment.args[7]; // the tree version of the concrete parts
   println("**** parsedFragment");
   iprintln(parsedFragment);
   return translateParsedConcretePattern(parsedFragment);
@@ -288,12 +284,6 @@ MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){
   return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", [applCode, prodCode, argsCode] )]);
 }
 
-//MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){ }
-
-//MuExp translateParsedConcretePattern(lt: lit(str s)) {
-//  return muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(s)]);
-//}
-
 MuExp translateParsedConcretePattern(cc: char(int c)) {
   return muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(cc)]);
 }
@@ -309,8 +299,6 @@ MuExp translateConcreteListPattern(list[Tree] pats){
  return muCreate(mkCallToLibFun("Library","MATCH_LIST",2), [muCallMuPrim("make_array", 
          [ (i % 2 == 0) ? translatePatAsConcreteListElem(pats[i], lookahead[i]) : arb | i <- index(pats) ])]);
 }
-
-//anno Symbol Tree@holeType;
 
 bool isIter(\iter(Symbol symbol)) = true;
 bool isIter(\iter-star(Symbol symbol)) = true;
