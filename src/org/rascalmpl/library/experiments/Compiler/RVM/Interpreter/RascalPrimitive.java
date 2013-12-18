@@ -5610,25 +5610,41 @@ public enum RascalPrimitive {
 		return sp - arity + 1;
 	}
 	
+	private static boolean $isTree(IValue v){
+		return v.getType().isAbstractData() && v.getType().getName().equals("Tree");
+	}
+	
+	private static String $value2string(IValue val){
+		if(val.getType().isString()){
+			return ((IString) val).getValue();
+		}
+		if($isTree(val)){
+			StringWriter w = new StringWriter();
+			try {
+				IConstructor c = (IConstructor) val;
+				TreeAdapter.unparse(c, w);
+				return w.toString();
+			} catch (FactTypeUseException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return val.toString();
+	}
+	
 	public static int value_to_string(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		IValue val = (IValue) stack[sp -1];
-		if(val.getType().isString()){
-			stack[sp - 1] = vf.string(((IString) val).getValue());
-		} else if(val.getType().isAbstractData()){
-			IConstructor c = (IConstructor) val;
-			if(c.getName().equals("appl")){
-				StringWriter w = new StringWriter();
-				try {
-					TreeAdapter.unparse(c, w);
-					stack[sp - 1] =  vf.string(w.toString());
-				} catch (FactTypeUseException | IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		
+		if(val.getType().isList()){
+			IList lst = (IList) val;
+			StringWriter w = new StringWriter();
+			for(int i = 0; i < lst.length(); i++){
+				w.write($value2string(lst.get(i)));
 			}
+			stack[sp - 1] = vf.string(w.toString());
 		} else {
-			stack[sp - 1] = vf.string(val.toString());
+			stack[sp - 1] = vf.string($value2string(val));
 		}
 		return sp;
 	}
