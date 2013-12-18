@@ -147,7 +147,7 @@ import lang::rascal::\syntax::Rascal;
 // 31. addition on functions
 
 @doc{The source of a label (visit, block, etc).}
-data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel() | switchLabel() | caseLabel() ;
+data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel() | switchLabel() | caseLabel() | functionLabel() ;
 
 @doc{Function modifiers.}
 data Modifier = javaModifier() | testModifier() | defaultModifier();
@@ -5805,7 +5805,10 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+        cFun = addLabel(cFun,rn,fd@\loc,functionLabel());
+        cFun.labelStack = labelStackItem(rn, functionLabel(), \void()) + cFun.labelStack;
         < cFun, tExp > = checkExp(exp, cFun);
+        cFun.labelStack = tail(cFun.labelStack);
         if (!isFailType(tExp) && !subtype(tExp, cFun.expectedReturnType))
             cFun = addScopeMessage(cFun,error("Unexpected type: type of body expression, <prettyPrintType(tExp)>, must be a subtype of the function return type, <prettyPrintType(cFun.expectedReturnType)>", exp@\loc));
         c = recoverEnvironmentsAfterCall(cFun, c);
@@ -5873,7 +5876,11 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
                 cWhen = addScopeMessage(cWhen,error("Unexpected type: condition should be of type bool, not type <prettyPrintType(tCond)>", cond@\loc));
         }
         
+        cWhen = addLabel(cWhen,rn,fd@\loc,functionLabel());
+        cWhen.labelStack = labelStackItem(rn, functionLabel(), \void()) + cWhen.labelStack;
         < cWhen, tExp > = checkExp(exp, cWhen);
+        cWhen.labelStack = tail(cWhen.labelStack);
+
         if (!isFailType(tExp) && !subtype(tExp, cWhen.expectedReturnType))
             cWhen = addScopeMessage(cWhen,error("Unexpected type: type of body expression, <prettyPrintType(tExp)>, must be a subtype of the function return type, <prettyPrintType(cFun.expectedReturnType)>", exp@\loc));
             
@@ -5932,9 +5939,14 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);        
+        cFun = addLabel(cFun,rn,fd@\loc,functionLabel());
+        cFun.labelStack = labelStackItem(rn, functionLabel(), \void()) + cFun.labelStack;
+
         if ((FunctionBody)`{ <Statement* ss> }` := body) {
 			< cFun, tStmt > = checkStatementSequence([ssi | ssi <- ss], cFun);
         }
+
+        cFun.labelStack = tail(cFun.labelStack);
         c = recoverEnvironmentsAfterCall(cFun, c);
     }
 
