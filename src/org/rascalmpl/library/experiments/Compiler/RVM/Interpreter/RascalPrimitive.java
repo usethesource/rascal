@@ -51,6 +51,7 @@ import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 /*
  * The primitives that can be called via the CALLPRIM instruction.
@@ -5614,6 +5615,18 @@ public enum RascalPrimitive {
 		IValue val = (IValue) stack[sp -1];
 		if(val.getType().isString()){
 			stack[sp - 1] = vf.string(((IString) val).getValue());
+		} else if(val.getType().isAbstractData()){
+			IConstructor c = (IConstructor) val;
+			if(c.getName().equals("appl")){
+				StringWriter w = new StringWriter();
+				try {
+					TreeAdapter.unparse(c, w);
+					stack[sp - 1] =  vf.string(w.toString());
+				} catch (FactTypeUseException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		} else {
 			stack[sp - 1] = vf.string(val.toString());
 		}
