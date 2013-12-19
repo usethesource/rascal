@@ -3575,7 +3575,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     }
     
     if (size(failures) > 0) {
-        return < cbak, collapseFailTypes(failures) >;
+    	// TODO: Allowing the "bad" config to go back, change back to
+    	// cbak if this causes chaos...
+        return < c, collapseFailTypes(failures) >;
     }
         
     bool modified = true;
@@ -3656,7 +3658,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                         }
                     } else {
                         if (!subtype(cp@rtype, rt))
-                            failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable of type <prettyPrintType(rt)>", ptn@at);
+                            failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn@at);
                     }
                 }
             }
@@ -3665,7 +3667,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
                     Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[c.fcvEnv[n]].rtype;
                     if (!subtype(cp@rtype, rt))
-                        failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable of type <prettyPrintType(rt)>", ptn@at);
+                        failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn@at);
                 }
             }
             
@@ -3769,7 +3771,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         }
         
         if (size(failures) > 0) {
-            return < cbak, collapseFailTypes(failures) >;
+	    	// TODO: Allowing the "bad" config to go back, change back to
+	    	// cbak if this causes chaos...
+            return < c, collapseFailTypes(failures) >;
         }
         
         if (size(subjects) == 1) {
@@ -3793,7 +3797,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     }
     
     if (size(failures) > 0) {
-        return < cbak, collapseFailTypes(failures) >;
+    	// TODO: Allowing the "bad" config to go back, change back to
+    	// cbak if this causes chaos...
+        return < c, collapseFailTypes(failures) >;
     }
 
     set[PatternTree] unknownConstructorFailures(PatternTree pt) {
