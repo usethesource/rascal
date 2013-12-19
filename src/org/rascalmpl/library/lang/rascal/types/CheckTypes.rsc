@@ -278,6 +278,7 @@ public Configuration addLabel(Configuration c, RName n, loc l, LabelSource ls) {
 public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
 
 public int definingContainer(Configuration c, int i) {
+	if (c.store[i] is overload) return definingContainer(c, getOneFrom(c.store[i].items));
     cid = c.store[i].containedIn;
     if (\module(_,_) := c.store[cid]) return cid;
     if (\function(_,_,_,_,_,_,_) := c.store[cid]) return cid;
@@ -323,7 +324,7 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
         } else if (atRootOfModule && \module(_,_) := c.store[getContainedIn(c,c.store[c.fcvEnv[n]])] && getContainedIn(c,c.store[c.fcvEnv[n]]) == moduleId) {
             // In this case, we are adding a global variable that shadows another global item
             // from the same module, which is not allowed.
-            c = addScopeError(c, "Cannot re-declare global name", l);
+            c = addScopeError(c, "Cannot re-declare global name: <prettyPrintName(n)>", l);
             c.uses = c.uses + < c.fcvEnv[n], l >;
             c.usedIn[l] = head(c.stack);
         } else {
@@ -331,7 +332,7 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
             conflictIds = (overload(ids,_) := c.store[c.fcvEnv[n]]) ? ids : { c.fcvEnv[n] };
             containingIds = { definingContainer(c,i) | i <- conflictIds };
             if (size(toSet(containingScopes) & containingIds) > 0) {
-                c = addScopeError(c, "Cannot re-declare name that is already declared in the current function or closure", l);
+                c = addScopeError(c, "Cannot re-declare name that is already declared in the current function or closure: <prettyPrintName(n)>", l);
                 c.uses = c.uses + < c.fcvEnv[n], l >;
                 c.usedIn[l] = head(c.stack);
             } else {
@@ -637,85 +638,78 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
     rt@isVarArgs = isVarArgs;
     currentModuleId = head([i | i <- c.stack, \module(_,_) := c.store[i]]);
 
-    if (n notin c.fcvEnv) {
-        c.fcvEnv[n] = c.nextLoc;
-        if (\module(_,_) := c.store[head(c.stack)]) {
-            // If this function is module-level, also make it referenceable through
-            // the qualified name module::function.
-            moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-            c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
-        }
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        } 
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        c.nextLoc = c.nextLoc + 1;
-    } else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        }
-        if(hasDefaultModifier(modifiers)) {
-        	defaults += rt;
-        } else {
-        	itemTypes += rt;
-        }
-        c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes,defaults));
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        c.nextLoc = c.nextLoc + 1;
-    } else if (function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        }
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        itemTypes = {};
-        defaults = {};
-        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
-        	defaults += c.store[c.fcvEnv[n]].rtype;
-        } else {
-        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-        		defaults += c.store[c.fcvEnv[n]].rtype;
-        	} else {
-        		itemTypes += c.store[c.fcvEnv[n]].rtype;
-        	}
-        }
-        if(hasDefaultModifier(modifiers)) {
-        	defaults += rt;
-        } else {
-        	itemTypes += rt;
-        }
-        c.store[c.nextLoc + 1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded(itemTypes,defaults));
-        for (fname <- invert(c.fcvEnv)[c.fcvEnv[n]])
-            c.fcvEnv[fname] = c.nextLoc+1;
-        c.nextLoc = c.nextLoc + 2;
-    } else if ((\module(_,_) := c.store[c.fcvEnv[n]] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) { // ???
-        c = addScopeWarning(c, "Function declaration masks imported variable or constructor definition", l);
-        c.fcvEnv[n] = c.nextLoc;
-        if (\module(_,_) := c.store[head(c.stack)]) {
-            // If this function is module-level, also make it referenceable through
-            // the qualified name module::function.
-            moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-            c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
-        }
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        }
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        c.nextLoc = c.nextLoc + 1;
-    } else {
-        c = addScopeError(c, "Cannot add function <prettyPrintName(n)>, non-function items of that name have already been defined in the current scope",l);
+	// Create the new function item and insert it into the store; also keep track of
+	// the item Id. This also handles other bookkeeping information, such as the
+	// information on definitions and visibilities.
+	functionItem = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
+	functionId = c.nextLoc;
+	c.nextLoc = c.nextLoc + 1;
+	c.store[functionId] = functionItem;
+    c.definitions = c.definitions + < functionId, l >;
+    c.visibilities[functionId] = visibility;
+    for(Modifier modifier <- modifiers) c.functionModifiers = c.functionModifiers + <functionId,modifier>;
+
+	// This actually links in the function item with a name in the proper manner. This is handled name by
+	// name so we can keep separate overload sets for different versions of a name (if we qualify the name,
+	// it should not refer to other names with different qualifiers).
+	void addFunctionItem(RName n, int functionId) {	
+	    if (n notin c.fcvEnv) {
+	    	// Case 1: The name does not appear at all, so insert it and link it to the function item.
+	        c.fcvEnv[n] = functionId;
+	    } else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
+	    	// Case 2: The name is already overloaded, so link in the Id as one of the overloads.
+	        if(hasDefaultModifier(modifiers)) {
+	        	defaults += rt;
+	        } else {
+	        	itemTypes += rt;
+	        }
+	        c.store[c.fcvEnv[n]] = overload(items + functionId, overloaded(itemTypes,defaults));
+	    } else if (function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
+	    	// Case 3: The name is not overloaded yet, but this will make it overloaded. So, create the
+	    	// overloading entry. We also then point the current name to this overload item, which will
+	    	// then point (using the overload set) to the item currently referenced by the name.
+	        itemTypes = {};
+	        defaults = {};
+	        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
+	        	defaults += c.store[c.fcvEnv[n]].rtype;
+	        } else {
+	        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+	        		defaults += c.store[c.fcvEnv[n]].rtype;
+	        	} else {
+	        		itemTypes += c.store[c.fcvEnv[n]].rtype;
+	        	}
+	        }
+	        if(hasDefaultModifier(modifiers)) {
+	        	defaults += rt;
+	        } else {
+	        	itemTypes += rt;
+	        }
+	        c.store[c.nextLoc] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded(itemTypes,defaults));
+			c.fcvEnv[n] = c.nextLoc;
+	        c.nextLoc = c.nextLoc + 1;
+	    } else if ((\module(_,_) := c.store[c.store[c.fcvEnv[n]].containedIn] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) {
+	    	// Case 4: This function has the same name as a variable defined in another module. We still add
+	    	// it, but we also issue a warning, since reuse of the name may be accidental.
+	        c = addScopeWarning(c, "Function declaration masks imported variable definition", l);
+	        c.fcvEnv[n] = functionId;
+	    } else {
+	    	// Case 5: This function has the same name as a variable defined in the same module. We don't allow
+	    	// functions to shadow variables in this case.
+	    	// TODO: Verify that we don't want a looser rule.
+	        c = addScopeError(c, "Cannot add function <prettyPrintName(n)>, a variable of the same name has already been defined in the current scope",l);
+	    }
+	}
+
+	// Now, link up the names. We always link up the unqualified name. If we are at the top of the module,
+	// we also link up a version of the name qualified with the module name.
+	addFunctionItem(n, functionId);
+    if (\module(_,_) := c.store[head(c.stack)]) {
+        // If this function is module-level, also make it referenceable through
+        // the qualified name module::function.
+        moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+        addFunctionItem(appendName(moduleName,n), functionId);
     }
+	
     return c;
 }
 
@@ -2212,6 +2206,34 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> o <Expre
 		rt = Symbol::\func(compositeRet, compositeArgs);
 		return markLocationType(c, exp@\loc, rt);         
     }
+    
+    // Here, one or both types are overloaded functions, with at most one a normal function.
+    if ((isOverloadedType(t1) || isFunctionType(t1)) && (isOverloadedType(t2) || isFunctionType(t2))) {
+    	// Step 1: get back all the type possibilities on the left and right
+    	leftFuns = (isFunctionType(t1)) ? { t1 } : (getNonDefaultOverloadOptions(t1) + getDefaultOverloadOptions(t1));
+    	rightFuns = (isFunctionType(t2)) ? { t2 } : (getNonDefaultOverloadOptions(t2) + getDefaultOverloadOptions(t2));
+    	
+    	// Step 2: filter out leftmost functions that cannot be used in compositions
+    	leftFuns = { f | f <- leftFuns, size(getFunctionArgumentTypes(f)) == 1 };
+    	
+    	// Step 3: combine the ones we can -- the return of the rightmost type has to be allowed
+    	// as the parameter for the leftmost type
+    	newFunTypes = { Symbol::\func(getFunctionReturnType(lf), getFunctionArgumentTypes(rf)) |
+    		rf <- rightFuns, lf <- leftFuns, subtype(getFunctionReturnType(rf),getFunctionArgumentTypes(lf)[0]) };
+    		
+    	// Step 4: If we get an empty set, fail; if we get just 1, return that; if we get multiple possibilities,
+    	// return an overloaded type
+    	if (size(newFunTypes) == 0) {
+    		ft = makeFailType("The functions cannot be composed", exp@\loc);
+    		return markLocationFailed(c, exp@\loc, ft);
+    	} else if (size(newFunTypes) == 1) {
+    		return markLocationType(c, exp@\loc, getOneFrom(newFunTypes));
+    	} else {
+    		// TODO: Do we need to keep track of defaults through all this? If so, do we compose default
+    		// and non-default functions?
+    		return markLocationType(c, exp@\loc, \overloaded(newFunTypes,{}));
+    	}
+    }
 
     return markLocationFailed(c, exp@\loc, makeFailType("Composition not defined for <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
 }
@@ -2413,6 +2435,22 @@ Symbol computeAdditionType(Symbol t1, Symbol t2, loc l) {
     if (isBagType(t1))
         return \bag(lub(getBagElementType(t1),t2));
         
+	// If we are adding together two functions, this creates an overloaded
+	// type with the two items as non-defaults.
+	// TODO: If we need to track default status here as well, we will need
+	// to special case plus to handle f + g, where f and g are both function
+	// names, and catch this before evaluating them both and retrieving their
+	// types.
+	// TODO: Can we also add together constructor types?
+	if (isFunctionType(t1) && isFunctionType(t2))
+		return \overloaded({t1,t2},{});
+	else if (\overloaded(nd1,d1) := t1 && \overloaded(nd2,d2) := t2)
+		return \overloaded(nd1+nd2,d1+d2);
+	else if (\overloaded(nd1,d1) := t1 && isFunctionType(t2))
+		return \overloaded(nd1+t2,d1);
+	else if (isFunctionType(t1) && \overloaded(nd2,d2) := t2)
+		return \overloaded(nd2+t1,d2);
+		
     return makeFailType("Addition not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
 }
 
