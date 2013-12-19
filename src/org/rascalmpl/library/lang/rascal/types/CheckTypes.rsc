@@ -637,85 +637,78 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
     rt@isVarArgs = isVarArgs;
     currentModuleId = head([i | i <- c.stack, \module(_,_) := c.store[i]]);
 
-    if (n notin c.fcvEnv) {
-        c.fcvEnv[n] = c.nextLoc;
-        if (\module(_,_) := c.store[head(c.stack)]) {
-            // If this function is module-level, also make it referenceable through
-            // the qualified name module::function.
-            moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-            c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
-        }
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        } 
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        c.nextLoc = c.nextLoc + 1;
-    } else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        }
-        if(hasDefaultModifier(modifiers)) {
-        	defaults += rt;
-        } else {
-        	itemTypes += rt;
-        }
-        c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes,defaults));
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        c.nextLoc = c.nextLoc + 1;
-    } else if (function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        }
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        itemTypes = {};
-        defaults = {};
-        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
-        	defaults += c.store[c.fcvEnv[n]].rtype;
-        } else {
-        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-        		defaults += c.store[c.fcvEnv[n]].rtype;
-        	} else {
-        		itemTypes += c.store[c.fcvEnv[n]].rtype;
-        	}
-        }
-        if(hasDefaultModifier(modifiers)) {
-        	defaults += rt;
-        } else {
-        	itemTypes += rt;
-        }
-        c.store[c.nextLoc + 1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded(itemTypes,defaults));
-        for (fname <- invert(c.fcvEnv)[c.fcvEnv[n]])
-            c.fcvEnv[fname] = c.nextLoc+1;
-        c.nextLoc = c.nextLoc + 2;
-    } else if ((\module(_,_) := c.store[c.fcvEnv[n]] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) { // ???
-        c = addScopeWarning(c, "Function declaration masks imported variable or constructor definition", l);
-        c.fcvEnv[n] = c.nextLoc;
-        if (\module(_,_) := c.store[head(c.stack)]) {
-            // If this function is module-level, also make it referenceable through
-            // the qualified name module::function.
-            moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-            c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
-        }
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        }
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        c.nextLoc = c.nextLoc + 1;
-    } else {
-        c = addScopeError(c, "Cannot add function <prettyPrintName(n)>, non-function items of that name have already been defined in the current scope",l);
+	// Create the new function item and insert it into the store; also keep track of
+	// the item Id. This also handles other bookkeeping information, such as the
+	// information on definitions and visibilities.
+	functionItem = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
+	functionId = c.nextLoc;
+	c.nextLoc = c.nextLoc + 1;
+	c.store[functionId] = functionItem;
+    c.definitions = c.definitions + < functionId, l >;
+    c.visibilities[functionId] = visibility;
+    for(Modifier modifier <- modifiers) c.functionModifiers = c.functionModifiers + <functionId,modifier>;
+
+	// This actually links in the function item with a name in the proper manner. This is handled name by
+	// name so we can keep separate overload sets for different versions of a name (if we qualify the name,
+	// it should not refer to other names with different qualifiers).
+	void addFunctionItem(RName n, int functionId) {	
+	    if (n notin c.fcvEnv) {
+	    	// Case 1: The name does not appear at all, so insert it and link it to the function item.
+	        c.fcvEnv[n] = functionId;
+	    } else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
+	    	// Case 2: The name is already overloaded, so link in the Id as one of the overloads.
+	        if(hasDefaultModifier(modifiers)) {
+	        	defaults += rt;
+	        } else {
+	        	itemTypes += rt;
+	        }
+	        c.store[c.fcvEnv[n]] = overload(items + functionId, overloaded(itemTypes,defaults));
+	    } else if (function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
+	    	// Case 3: The name is not overloaded yet, but this will make it overloaded. So, create the
+	    	// overloading entry. We also then point the current name to this overload item, which will
+	    	// then point (using the overload set) to the item currently referenced by the name.
+	        itemTypes = {};
+	        defaults = {};
+	        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
+	        	defaults += c.store[c.fcvEnv[n]].rtype;
+	        } else {
+	        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+	        		defaults += c.store[c.fcvEnv[n]].rtype;
+	        	} else {
+	        		itemTypes += c.store[c.fcvEnv[n]].rtype;
+	        	}
+	        }
+	        if(hasDefaultModifier(modifiers)) {
+	        	defaults += rt;
+	        } else {
+	        	itemTypes += rt;
+	        }
+	        c.store[c.nextLoc] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded(itemTypes,defaults));
+			c.fcvEnv[n] = c.nextLoc;
+	        c.nextLoc = c.nextLoc + 1;
+	    } else if ((\module(_,_) := c.store[c.store[c.fcvEnv[n]].containedIn] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) {
+	    	// Case 4: This function has the same name as a variable defined in another module. We still add
+	    	// it, but we also issue a warning, since reuse of the name may be accidental.
+	        c = addScopeWarning(c, "Function declaration masks imported variable definition", l);
+	        c.fcvEnv[n] = functionId;
+	    } else {
+	    	// Case 5: This function has the same name as a variable defined in the same module. We don't allow
+	    	// functions to shadow variables in this case.
+	    	// TODO: Verify that we don't want a looser rule.
+	        c = addScopeError(c, "Cannot add function <prettyPrintName(n)>, a variable of the same name has already been defined in the current scope",l);
+	    }
+	}
+
+	// Now, link up the names. We always link up the unqualified name. If we are at the top of the module,
+	// we also link up a version of the name qualified with the module name.
+	addFunctionItem(n, functionId);
+    if (\module(_,_) := c.store[head(c.stack)]) {
+        // If this function is module-level, also make it referenceable through
+        // the qualified name module::function.
+        moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+        addFunctionItem(appendName(moduleName,n), functionId);
     }
+	
     return c;
 }
 
