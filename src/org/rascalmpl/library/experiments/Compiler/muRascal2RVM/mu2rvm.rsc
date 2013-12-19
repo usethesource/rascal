@@ -9,6 +9,7 @@ import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Implode;
 
 import experiments::Compiler::Rascal2muRascal::RascalModule;
+import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::muRascal2RVM::ToplevelType;
 import experiments::Compiler::muRascal2RVM::StackSize;
@@ -564,7 +565,7 @@ INS tr(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[MuExp] elsePar
 INS tr(muWhile(str label, MuExp cond, list[MuExp] body)) {
     if(label == ""){
     	label = nextLabel();
-    }	
+    }
     continueLab = mkContinue(label);
     failLab = mkFail(label);
     breakLab = mkBreak(label);
@@ -611,32 +612,17 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)){
 
 // Multi/One/All/Or outside conditional context
     
-default INS tr(e: muMulti(MuExp exp)) = 
+INS tr(e:muMulti(MuExp exp)) = 
 	 [ *tr(exp),
        INIT(0),
        NEXT0()
-    ];
-   
+     ];
     
-INS tr(e:muOne(list[MuExp] exps)) {
-   failLab = nextLabel("OneFail");
-   afterLab = nextLabel("OneAfter");
-   return [*tr_cond(muAll(exps), {}, failLab), LOADCON(true), JMP(afterLab), LABEL(failLab), LOADCON(false), LABEL(afterLab)];
-}
-
-INS tr(e:muAll(list[MuExp] exps)) {
-    afterLab = nextLabel("AllAfter");
-    failLab = nextLabel("AllFail");
-    return [*tr_cond(e, {}, failLab), LOADCON(true), JMP(afterLab), LABEL(failLab), LOADCON(false), LABEL(afterLab)];
-}
-
-INS tr(e:muOr(list[MuExp] exps)){
-    continueLab = nextLabel("OrContinue");
-    failLab = nextLabel("OrFail");
-    afterLab = nextLabel("OrAfter");
-    return [*tr_cond(e, {continueLab}, failLab), LOADCON(true), JMP(afterLab), LABEL(failLab), LOADCON(false), LABEL(afterLab)];
-}
-
+INS tr(e:muOne(MuExp exp)) =
+    [ *tr(exp),
+       INIT(0),
+       NEXT0()
+     ];
 
 // The above list of muExps is exhaustive, no other cases exist
 
@@ -663,151 +649,37 @@ default INS tr(MuExp e) { throw "Unknown node in the muRascal AST: <e>"; }
 
 // muOne: explore one successfull evaluation
 
-INS tr_cond(e: muOne(list[MuExp] exps), set[str] continueLabs, str failLab){
-    code = [LABEL(continueLab) | str continueLab <- continueLabs];
-    for(exp <- exps){
-        if(muMulti(exp1) := exp){
-          code += [*tr(exp1), 
-          		   INIT(0), 
-          		   NEXT0(), 
-          		   JMPFALSE(failLab)
-          		  ];
-        } else {
-          code += [*tr_cond(exp, {}, failLab)
-          		   //JMPFALSE(failLab)
-          		  ];
-        } 
-    } 
-    return code;   
-}
+INS tr_cond(e: muOne(MuExp exp), set[str] continueLabs, str failLab) =
+      [ LABEL(continueLab) | str continueLab <- continueLabs ]
+    + [ *tr(exp), 
+        INIT(0), 
+        NEXT0(), 
+        JMPFALSE(failLab)
+      ];
 
 // Special case for do_while:
 // - continueLab is inserted by caller.
 
-INS tr_cond_do(muOne(list[MuExp] exps), set[str] continueLabs, str failLab){
-    code = [];
-    for(exp <- exps){
-        if(muMulti(exp1) := exp){
-          code += [*tr(exp1), 
-          		   INIT(0), 
-          		   NEXT0(), 
-          		   JMPFALSE(failLab)
-          		  ];
-        } else {
-          code += tr_cond(exp, {}, failLab);
-        } 
-    } 
-    return code;   
-}
-
-// muAll: explore all sucessfull evaluations
-
-INS tr_cond(e: muAll(list[MuExp] exps), set[str] continueLabs, str failLab){
-    code = [];
-    lastBacktrackingElm = -1;
-    
-    for(i <- index(exps)){
-        if(muMulti(exp1) := exps[i] || muOr(exp1) := exps[i]){
-           lastBacktrackingElm = i;
-        }
-    }
-    startLab = nextLabel();
-    currentFail = failLab;
-    if(lastBacktrackingElm == -1)
-       code = [ JMP(startLab),
-                *[ LABEL(continueLab) | str continueLab <- continueLabs ],
-                JMP(failLab),
-                LABEL(startLab)
-              ];
- 
-    for(i <- index(exps)){
-        exp = exps[i];
-        if(muMulti(exp1) := exp){
-          newFail = nextLabel();
-          co = newLocal();
-          code += [ *tr(exp1), 
-          		    INIT(0), 
-          		    STORELOC(co), 
-          		    POP(),
-           	        LABEL(newFail),
-          			*( (i == lastBacktrackingElm) ? [ LABEL(continueLab) | str continueLab <- continueLabs ] : [] ),
-          		    LOADLOC(co), 
-          		    NEXT0(), 
-          		    JMPFALSE(currentFail)
-          		  ];
-          currentFail = newFail;
-        } else if(muOr(exps1) := exp){
-           newFail = nextLabel();
-           code += tr_cond(exp, {newFail} + ((i == lastBacktrackingElm) ? continueLabs : {}), currentFail);
-           currentFail = newFail;
-        } else {
-           code += tr_cond(exp, {}, currentFail);
-        } 
-    }
-    return code;
-}
-
-INS tr_cond(e:muOr(list[MuExp] exps), set[str] continueLabs, str failLab) {    
-    argInitLabels = [ nextLabel("ARG_<i>_INIT") | i <- [0 .. size(exps) + 1] ];
-    argContLabels = [ nextLabel("ARG_<i>_CONT") | i <- [0 .. size(exps) + 1] ];
-    afterLab = nextLabel();
-    argId = newLocal();
-    
-    code = [
-    		 LOADCON(0),
-    		 STORELOC(argId)
-           ];
-    for(i <- index(exps)){
-        exp = exps[i];
-        if(muMulti(exp1) := exp){
-           co = newLocal();
-           code += [ LABEL(argInitLabels[i]),
-           			 LOADCON(i),
-          		     STORELOC(argId),
-                     *tr(exp1), 
-          		     INIT(0), 
-          		     STORELOC(co), 
-          		     POP(),
-          		     LABEL(argContLabels[i]),
-          		     LOADLOC(co), 
-          		     NEXT0(), 
-          		     JMPFALSE(argInitLabels[i + 1]),
-          		     JMP(afterLab)
-          		     
-          		   ];
-        } else {
-          code += [ LABEL(argInitLabels[i]),
-          			LABEL(argContLabels[i]),
-                    *tr(exp), 
-          		    JMPFALSE(argInitLabels[i + 1]),
-          		    LOADCON(i + 1),
-          		    STORELOC(argId),
-          		    JMP(afterLab)
-          		  ];
-        } 
-    }
-    code += [ 	*[ LABEL(continueLab) | str continueLab <- continueLabs ],
-    			LOADLOC(argId),
-                JMPINDEXED(argContLabels),
-   				LABEL(argInitLabels[size(exps)]),
-   				LABEL(argContLabels[size(exps)]),
-   				LOADCON(0),
-    		    STORELOC(argId),
-    			JMP(failLab),
-    			LABEL(afterLab)
-    		 ];
-    return code;   
-}
-
-
-INS tr_cond(e: muMulti(MuExp exp), set[str] continueLabs, str failLab) =
-    [ *[ LABEL(continueLab) | str continueLab <- continueLabs ],
-      *tr(exp),
-      INIT(0),
-      NEXT0(),
+INS tr_cond_do(muOne(MuExp exp), set[str] continueLabs, str failLab) =
+    [ *tr(exp), 
+      INIT(0), 
+      NEXT0(), 
       JMPFALSE(failLab)
     ];
 
+INS tr_cond(e: muMulti(MuExp exp), set[str] continueLabs, str failLab) {
+    co = newLocal();
+    return [ *tr(exp),
+             INIT(0),
+             STORELOC(co),
+             POP(),
+             *[ LABEL(continueLab) | str continueLab <- continueLabs ],
+             LOADLOC(co),
+             NEXT0(),
+             JMPFALSE(failLab)
+           ];
+}
+
 default INS tr_cond(MuExp exp, set[str] continueLabs, str failLab) 
-	= [ * [ LABEL(continueLab) | str continueLab <- continueLabs ], *tr(exp), JMPFALSE(failLab) ];
+	= [ *[ LABEL(continueLab) | str continueLab <- continueLabs ], *tr(exp), JMPFALSE(failLab) ];
     

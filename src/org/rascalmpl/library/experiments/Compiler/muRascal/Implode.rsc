@@ -106,7 +106,7 @@ MuFunction preprocess(Function f, str modName){
    // Generate a very generic function type
    ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..f.nformals] ]);
    
-   body = preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body);
+   body = preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body);   
    return (f is preCoroutine) ? muCoroutine(uid, scopeIn, f.nformals, size(vardefs[uid]), refs, muBlock(insertGuard ? [ muGuard(muBool(true)), *body, muExhaust() ] : [ *body, muExhaust() ]))
                               : muFunction(uid, ftype, scopeIn, f.nformals, size(vardefs[uid]), false, |rascal:///|, [], (), muBlock(body));
 }
@@ -131,22 +131,22 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case preVar(mvar("true")) 														=> muBool(true)
                case preVar(mvar("false")) 														=> muBool(false)
                case preVar(fvar(str var))                                           			=> { if(!isGlobalNonOverloadedFunction(var)) { throw "Function or coroutine <var> has not been declared!"; } muFun(getUidOfGlobalNonOverloadedFunction(var)); }
-     	       case preVar(Identifier id) 														=> muLoc(id.var, vardefs[uid][id.var])
+     	       case preVar(Identifier id) 														=> muVar(id.var,uid,vardefs[uid][id.var])
      	       case preVar(lrel[str,int] funNames, Identifier id)        						=> muVar(name,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
      	       case preAssignLocList(Identifier id1, Identifier id2, MuExp exp1) 				=> muCallMuPrim("assign_pair", [muInt(vardefs[uid][id1.var]), muInt(vardefs[uid][id2.var]), exp1])
      	       
-     	       case preAssignLoc(Identifier id, MuExp exp) 										=> muAssignLoc(id.var, vardefs[uid][id.var], exp)
+     	       case preAssignLoc(Identifier id, MuExp exp) 										=> muAssign(id.var,uid,vardefs[uid][id.var], exp)
      	       case preAssign(lrel[str,int] funNames, 
      	       				  Identifier id, MuExp exp)                  						=> muAssign(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var],exp)
      	       case preList(list[MuExp] exps)													=> muCallMuPrim("make_array", exps)
      	        
       	       case preIfthen(cond,thenPart) 													=> muIfelse("", cond, thenPart, [])
       	       
-      	       case preLocDeref(Identifier id)                   								=> muLocDeref(id.var, vardefs[uid][id.var])
+      	       case preLocDeref(Identifier id)                   								=> muVarDeref(id.var,uid,vardefs[uid][id.var])
       	       case preVarDeref(lrel[str,int] funNames, Identifier id)   						=> muVarDeref(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
-      	       case preLocRef(Identifier id)                     								=> muLocRef(id.var, vardefs[uid][id.var])
+      	       case preLocRef(Identifier id)                     								=> muVarRef(id.var,uid,vardefs[uid][id.var])
       	       case preVarRef(lrel[str,int] funNames, Identifier id)     						=> muVarRef(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
-      	       case preAssignLocDeref(Identifier id, MuExp exp)  								=> muAssignLocDeref(id.var, vardefs[uid][id.var], exp)
+      	       case preAssignLocDeref(Identifier id, MuExp exp)  								=> muAssignVarDeref(id.var,uid,vardefs[uid][id.var], exp)
       	       case preAssignVarDeref(lrel[str,int] funNames, Identifier id, muExp exp)         => muAssignVarDeref(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var],exp)
       	       
       	       case muCallPrim(str name)                                            			=> muCallPrim(name[1..-1], [])
@@ -230,10 +230,38 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preFunNN(str modName,  str name, int nformals)                  			=> muFun(getUID(modName,[],name,nformals))
       	       case preFunN(lrel[str,int] funNames,  str name, int nformals)        			=> muFun(getUID(modName,funNames,name,nformals), getUID(modName,funNames))
       	       
+      	       case muAll([ MuExp exp ])                                                        => muMulti(exp)
+      	       case muAll(list[MuExp] exps)                                                     => makeMu("ALL",exps,uid)
+      	       case muOr([ MuExp exp ])                                                         => muMulti(exp)
+      	       case muOr(list[MuExp] exps)                                                      => makeMu("OR",exps,uid)
+      	       case muOne([ MuExp exp ])                                                        => muOne(exp)
+      	       case muOne(list[MuExp] exps)                                                     => makeMuOne("ALL",exps,uid)
+      	       
             };
       } catch e: throw "In muRascal function <modName>::<for(<f,n> <- funNames){><f>::<n>::<}><fname>::<nformals> (uid = <uid>) : <e>";   
     }    
 }
+
+MuExp makeMu(str muAllOrMuOr, list[MuExp] exps, str fuid) {
+    list[MuExp] tasks = [];
+    for(MuExp exp <- exps) {
+        if(muMulti(e) := exp) {
+            tasks += e; // coroutines
+        } else if(muOne(e) := exp) {
+            str gen_uid = "<fuid>/GEN_<nextLabel()>(0)";
+            functions_in_module += muCoroutine(gen_uid, fuid, 0, 0, [], muBlock([ muGuard(muCon(true)), muIfelse(nextLabel(), muNext(muInit(e)), [ muReturn() ], [ muExhaust() ]) ]));
+            tasks += muCreate(muFun(gen_uid));
+        } else {
+            // Note: this works because mkVar and mkAssign produce muVar and muAssign, i.e., specify explicitly function scopes
+            str gen_uid = "<fuid>/<nextLabel("GEN_")>(0)";
+            functions_in_module += muCoroutine(gen_uid, fuid, 0, 0, [], muBlock([ muGuard(exp), muReturn() ]));
+            tasks += muCreate(muFun(gen_uid));
+        }
+    }
+    return muMulti(muCreate(muFun("Library/<muAllOrMuOr>(1)"),[ muCallMuPrim(" make_array ",tasks) ]));
+}
+
+MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps, str fuid) = muOne(makeMu(muAllOrMuOr,exps,fuid).exp);
 
 MuModule parse(loc s) {
   pt = parse( #start[Module], s);
@@ -242,11 +270,8 @@ MuModule parse(loc s) {
      iprintln(dia);
      throw  "*** Ambiguities in muRascal code, see above report";
   }   
-  //iprintln(pt);
   ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
-  //iprintln(ast);
   ast2 = preprocess(ast);
-  //iprintln(ast2);
   return ast2;						   
 }
 
@@ -257,10 +282,7 @@ MuModule parse(str s) {
      iprintln(dia);
      throw  "*** Ambiguities in muRascal code, see above report";
   }   
- // iprintln(pt);
   ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
-  //iprintln(ast);
   ast2 = preprocess(ast);
-  //iprintln(ast2);
   return ast2;							   
 }

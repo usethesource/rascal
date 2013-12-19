@@ -33,7 +33,7 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
     enterLoop(whilename);
     enterBacktrackingScope(whilename);
     code = [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])), 
-             muWhile(whilename, muOne([translate(c) | c <-conditions]), [translate(body)]),
+             muWhile(whilename, makeMuOne("ALL", [ translate(c) | c <- conditions ]), [translate(body)]),
              muCallPrim("listwriter_close", [muTmp(tmp)])
            ];
     leaveBacktrackingScope();
@@ -47,7 +47,7 @@ MuExp translateTemplate((StringTemplate) `while ( <Expression condition> ) { <St
     enterLoop(whilename);
     enterBacktrackingScope(whilename);
     code = [ muAssignTmp(result, muCallPrim("template_open", [muCon(""), muTmp(pre)])), 
-             muWhile(whilename, muOne([translate(condition)]), 
+             muWhile(whilename, makeMuOne("ALL", [ translate(condition) ]), 
                      [ translateStats(preStats),  
                         muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])), 
                        translateStats(postStats)
@@ -65,7 +65,7 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
     enterLoop(doname);
     enterBacktrackingScope(doname);
     code = [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])), 
-             muDo(doname,  [translate(body)], muOne([translate(condition)])),
+             muDo(doname,  [translate(body)], makeMuOne("ALL",[ translate(condition) ])),
              muCallPrim("listwriter_close", [muTmp(tmp)])
            ];
     leaveBacktrackingScope();
@@ -82,7 +82,7 @@ MuExp translateTemplate(s: (StringTemplate) `do { < Statement* preStats> <String
              muDo(doname,  [ translateStats(preStats),
                              muAssignTmp(result, muCallPrim("template_add", [muTmp(result), translateMiddle(body)])),
                              translateStats(postStats)], 
-                  muOne([translate(condition)])
+                  makeMuOne("ALL",[ translate(condition) ])
                  ),
              muCallPrim("template_close", [muTmp(result)])
            ];

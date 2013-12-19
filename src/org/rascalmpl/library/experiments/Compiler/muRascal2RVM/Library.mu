@@ -31,7 +31,7 @@ coroutine OR[1,tasks,len,p,worker] {
     p = 0;
     while(p < len) {
         worker = init(get_array(tasks,p));
-        while(worker) {
+        while(next(worker)) {
             yield;
         };
         p = p + 1;
