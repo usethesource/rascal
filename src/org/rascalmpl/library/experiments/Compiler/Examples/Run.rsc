@@ -7,6 +7,7 @@ import experiments::Compiler::Examples::AsType1;
 import experiments::Compiler::Examples::AsType2;
 import experiments::Compiler::Examples::Bottles;
 import experiments::Compiler::Examples::Capture;
+import experiments::Compiler::Examples::ConcreteMatching;
 import experiments::Compiler::Examples::NestedFunctions1;
 import experiments::Compiler::Examples::NestedFunctions2;
 import experiments::Compiler::Examples::NestedFunctions3;
@@ -85,6 +86,7 @@ test bool tst() = demo("AsType1",recompile=true) == experiments::Compiler::Examp
 test bool tst() = demo("AsType2",recompile=true) == experiments::Compiler::Examples::AsType2::main([]);
 test bool tst() = demo("Bottles") == experiments::Compiler::Examples::Bottles::main([]);
 test bool tst() = demo("Capture") == experiments::Compiler::Examples::Capture::main([]);
+test bool tst() = demo("ConcreteMatching") == experiments::Compiler::Examples::ConcreteMatching::main([]);
 test bool tst() = demo("E1E2") == experiments::Compiler::Examples::E1E2::main([]);
 test bool tst() = demo("Fac") == experiments::Compiler::Examples::Fac::main([]);
 test bool tst() = demo("Fib") == experiments::Compiler::Examples::Fib::main([]);

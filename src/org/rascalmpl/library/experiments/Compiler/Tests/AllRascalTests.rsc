@@ -25,6 +25,7 @@ list[str] functionalityTests = [
 //"RangeTests"				// OK, 4 tests fail but this is due to false 1. == 1.0 comparisons.
 //"RegExpTests"				// OK
  							// Commented out 6: Treatment of redeclared local variables
+//"SubscriptTests"			// OK
 //"TryCatchTests"			// OK
 
 // Not yet OK
@@ -42,7 +43,7 @@ list[str] functionalityTests = [
 //"FunctionCompositionTests"	//[6]
 							// TC does not support function composition, issue #431
 							
-"PatternTests"			// [420]
+//"PatternTests"			// [420]
 							// Uses keyword parameters
 							// Checking function matchADTwithKeywords4
 							// |rascal://lang::rascal::types::CheckTypes|(140533,19,<2772,21>,<2772,40>): The called signature: checkExp(sort("Expression"), Configuration),
@@ -51,7 +52,7 @@ list[str] functionalityTests = [
 
 //"StatementTests"			// [64] Fail in overloaded constructor gives problem ==> Issue posted
 						
-//"SubscriptTests"			// [50] set-based subscripts of relations ==> Issue posted.
+
 
 //"ProjectionTests" 		// [4]
 							//	Issue #432
