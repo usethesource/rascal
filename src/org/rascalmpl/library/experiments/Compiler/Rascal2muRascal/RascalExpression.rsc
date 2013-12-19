@@ -21,6 +21,7 @@ import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+import experiments::Compiler::RVM::Interpreter::ParsingTools;
 
 
 int size_exps({Expression ","}* es) = size([e | e <- es]);		     // TODO: should become library function
@@ -93,7 +94,7 @@ set[str] numeric = {"int", "real", "rat", "num"};
 MuExp comparison(str op, Expression e) {
   lot = getOuterType(e.lhs);
   rot = getOuterType(e.rhs);
-  println("comparison: op = <op>, lot = <lot>, rot = <rot>");
+  //println("comparison: op = <op>, lot = <lot>, rot = <rot>");
   if(lot == "value" || rot == "value"){
      lot = ""; rot = "";
   } else {
@@ -192,19 +193,30 @@ syntax ConcreteHole
   ;
 */
 
-MuExp translateConcrete(e:(ConcreteHole) `\< <Sym symbol> <Name name> \>`){
-  println("***** ConcreteHole, name: <name>");
-  iprint(e);
-  return muCallPrim("list_subscript_int", [muCallPrim("adt_field_access", [mkVar("<name>", name@\loc), muCon("args")]), muCon(7)]);
-}
+//MuExp translateConcrete(e:(ConcreteHole) `\< <Sym symbol> <Name name> \>`){
+//  println("***** ConcreteHole, name: <name>");
+//  iprint(e);
+//  return muCallPrim("list_subscript_int", [muCallPrim("adt_field_access", [mkVar("<name>", name@\loc), muCon("args")]), muCon(7)]);
+//}
 
-default MuExp translateConcrete(e: appl(Production prod, list[Tree] args)){
-   //MuExp receiver =  getConstructor("appl");
-   //return muCall(receiver, [muCon(prod), muCallPrim("list_create",  [ translateConcrete(a) | a <- args ])]);
-    return muCallPrim("parse_fragment", [muCon(getModuleName()), muCon(e), muCon(e@\loc)]);
+default MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){   
+    Tree parsedFragment = parseFragment(getModuleName(), e, e@\loc, getGrammar(config));
+    return translateConcreteParsed(parsedFragment);
 }
 
 default MuExp translateConcrete(t) = muCon(t);
+
+MuExp translateConcreteParsed(e: appl(Production prod, list[Tree] args)){
+   if(prod.def == label("hole", lex("ConcretePart"))){
+       varloc = args[0].args[4].args[0]@\loc;		// TODO: refactor (see concrete patterns)
+       <fuid, pos> = getVariableScope("ConcreteVar", varloc);
+       return muVar("ConcreteVar", fuid, pos);
+    }    
+    return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
+                   [muCon(prod), muCallPrim("list_create", [translateConcreteParsed(arg) | arg <- args])]);
+}
+
+default MuExp translateConcreteParsed(Tree t) = muCon(t);
 
 // Block
 MuExp translate(e:(Expression) `{ <Statement+ statements> }`) = muBlock([translate(stat) | stat <- statements]);
@@ -263,14 +275,7 @@ MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <
       muWhile(loopname, makeMuAll([rangecode]), [ muCallPrim("listwriter_add", [muTmp(writer), muTmp(var)])]),
       muCallPrim("listwriter_close", [muTmp(writer)]) 
     ]);
-    
 }
-
-
-//MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]`) {
-//   kind = (getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int") ? "int" : "real";
-//   return muCallPrim("range_step_create_<kind>", [translate(first),  translate(second), translate(last)]);
-//}
 
 // Visit
 MuExp translate (e:(Expression) `<Label label> <Visit visitItself>`) = translateVisit(label, visitItself);
