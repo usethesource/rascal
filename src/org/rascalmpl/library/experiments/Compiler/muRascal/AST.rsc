@@ -155,6 +155,7 @@ public data MuExp =
           
           | muBlock(list[MuExp] exps)  							// A list of expressions, only last value remains
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
+          | muOne(MuExp exp)                                    // Expression that always produces only the first value
           | muOne(list[MuExp] exps)								// Compute one result for a list of boolean expressions
           | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
           | muOr(list[MuExp] exps)        						// Compute the or of a list of Boolean expressions.
@@ -167,6 +168,9 @@ public data MuExp =
           
           | muTry(MuExp exp, MuCatch \catch, MuExp \finally)
           ;
+          
+public MuExp muMulti(muOne(MuExp exp)) = muOne(exp);
+public MuExp muOne(muMulti(MuExp exp)) = muOne(exp);
  
 data MuCatch = muCatch(str id, Symbol \type, MuExp body);    
 
