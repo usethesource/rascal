@@ -27,8 +27,8 @@ int size_exps({Expression ","}* es) = size([e | e <- es]);		     // TODO: should
 int size_exps({Expression ","}+ es) = size([e | e <- es]);		     // TODO: should become library function
 int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: should become library function
 
-MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) =
-    muMulti(muCreate(mkCallToLibFun("Library",muAllOrMuOr,1),[ muCallMuPrim("make_array",[ makeMuMulti(exp) | MuExp exp <- exps ]) ]));
+MuExp makeMuMulti(str muAllOrMuOr, list[MuExp] exps) =
+    muMulti(muCreate(mkCallToLibFun("Library",muAllOrMuOr,1),[ muCallMuPrim("make_array",[ makeMuMulti(exp).exp | MuExp exp <- exps ]) ]));
 
 MuExp makeMuMulti(e:muMulti(_)) = e;
 MuExp makeMuMulti(e:muOne(MuExp exp)) {
@@ -45,7 +45,7 @@ default MuExp makeMuMulti(MuExp exp) {
     return muMulti(muCreate(muFun(gen_uid)));
 }
 
-MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps) = muOne(makeMu(muAllOrMuOr,exps).exp);
+MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps) = muOne(makeMuMulti(muAllOrMuOr,exps).exp);
 
 // Generate code for completely type-resolved operators
 
@@ -252,7 +252,7 @@ MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) {
   return
     muBlock(
     [ muAssignTmp(writer, muCallPrim("listwriter_open", [])),
-      muWhile(loopname, makeMu("All",[ rangecode ]), [ muCallPrim("listwriter_add", [muTmp(writer), muTmp(var)])]),
+      muWhile(loopname, makeMuMulti(rangecode), [ muCallPrim("listwriter_add", [muTmp(writer), muTmp(var)])]),
       muCallPrim("listwriter_close", [muTmp(writer)]) 
     ]);
     
@@ -270,7 +270,7 @@ MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <
   return
     muBlock(
     [ muAssignTmp(writer, muCallPrim("listwriter_open", [])),
-      muWhile(loopname, makeMu("ALL",[ rangecode ]), [ muCallPrim("listwriter_add", [muTmp(writer), muTmp(var)])]),
+      muWhile(loopname, makeMuMulti(rangecode), [ muCallPrim("listwriter_add", [muTmp(writer), muTmp(var)])]),
       muCallPrim("listwriter_close", [muTmp(writer)]) 
     ]);
     
@@ -755,15 +755,15 @@ MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
   } else {
     switch(fun){
     // TODO: Review short-cut semantics
-    	case "and": return makeMu("ALL",[translate(lhs), translate(rhs)]);
+    	case "and": return makeMuMulti("ALL",[translate(lhs), translate(rhs)]);
     	case "or":  // a or b == !(!a and !b)
-    				return makeMu("OR",[translate(lhs), translate(rhs)]);
+    	            return makeMuMulti("OR",[translate(lhs), translate(rhs)]);
     	case "implies":
     				// a ==> b
-    	            return makeMu("ALL",[muIfelse(nextLabel("L_IMPLIES"), translate(lhs), [translate(rhs)], [muCon(true)])]);
+    	            return makeMuMulti("ALL",[muIfelse(nextLabel("L_IMPLIES"), translate(lhs), [translate(rhs)], [muCon(true)])]);
     	case "equivalent":
     				// a <==> b
-    				return makeMu("ALL",[muIfelse(nextLabel("L_EQUIVALENCE"), translate(lhs), [translate(rhs)], [muCallMuPrim("not_mbool", [translate(rhs)])])]);
+    				return makeMuMulti("ALL",[muIfelse(nextLabel("L_EQUIVALENCE"), translate(lhs), [translate(rhs)], [muCallMuPrim("not_mbool", [translate(rhs)])])]);
     	default:
     		throw "translateBoolBinary: unknown operator <fun>";
     }
@@ -774,7 +774,7 @@ MuExp translateBoolNot(Expression lhs){
   if(backtrackFree(lhs)){
   	  return muCallMuPrim("not_mbool", [translateBool(lhs)]);
   	} else {
-  	  return muCallMuPrim("not_mbool", [ makeMu("ALL",[translate(lhs)]) ]);
+  	  return muCallMuPrim("not_mbool", [ makeMuMulti("ALL",[translate(lhs)]) ]);
   	}
 }
 
@@ -1028,9 +1028,9 @@ MuExp translateBoolClosure(Expression e){
 
 MuExp translateGenerators({Expression ","}+ generators){
    if(all(gen <- generators, backtrackFree(gen))){
-      return makeMu("ALL",[translate(g) | g <-generators]);
+      return makeMuMulti("ALL",[translate(g) | g <-generators]);
    } else {
-     return makeMu("ALL",[muCallPrim("rbool", [translate(g)]) | g <-generators]);
+     return makeMuMulti("ALL",[muCallPrim("rbool", [translate(g)]) | g <-generators]);
    }
 }
 
@@ -1051,7 +1051,7 @@ MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ results> |
     return
     muBlock(
     [ muAssignTmp(tmp, muCallPrim("listwriter_open", [])),
-      muWhile(loopname, makeMu("ALL",[ translate(g) | g <- generators ]), translateComprehensionContribution("list", tmp, [r | r <- results])),
+      muWhile(loopname, makeMuMulti("ALL",[ translate(g) | g <- generators ]), translateComprehensionContribution("list", tmp, [r | r <- results])),
       muCallPrim("listwriter_close", [muTmp(tmp)]) 
     ]);
 }
@@ -1062,7 +1062,7 @@ MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ results> |
     return
     muBlock(
     [ muAssignTmp(tmp, muCallPrim("setwriter_open", [])),
-      muWhile(loopname, makeMu("ALL",[ translate(g) | g <- generators ]), translateComprehensionContribution("set", tmp, [r | r <- results])),
+      muWhile(loopname, makeMuMulti("ALL",[ translate(g) | g <- generators ]), translateComprehensionContribution("set", tmp, [r | r <- results])),
       muCallPrim("setwriter_close", [muTmp(tmp)]) 
     ]);
 }
@@ -1073,7 +1073,7 @@ MuExp translateComprehension(c: (Comprehension) `(<Expression from> : <Expressio
     return
     muBlock(
     [ muAssignTmp(tmp, muCallPrim("mapwriter_open", [])),
-      muWhile(loopname, makeMu("ALL",[ translate(g) | g <- generators ]), [muCallPrim("mapwriter_add", [muTmp(tmp)] + [ translate(from), translate(to)])]), 
+      muWhile(loopname, makeMuMulti("ALL",[ translate(g) | g <- generators ]), [muCallPrim("mapwriter_add", [muTmp(tmp)] + [ translate(from), translate(to)])]), 
       muCallPrim("mapwriter_close", [muTmp(tmp)]) 
     ]);
 }
@@ -1084,7 +1084,7 @@ MuExp translateReducer(init, result, generators){
     loopname = nextLabel(); 
     tmp = asTmp(loopname); 
     pushIt(tmp);
-    code = [ muAssignTmp(tmp, translate(init)), muWhile(loopname, makeMu("ALL", [ translate(g) | g <- generators ]), [muAssignTmp(tmp, translate(result))]), muTmp(tmp)];
+    code = [ muAssignTmp(tmp, translate(init)), muWhile(loopname, makeMuMulti("ALL", [ translate(g) | g <- generators ]), [muAssignTmp(tmp, translate(result))]), muTmp(tmp)];
     popIt();
     return muBlock(code);
 }
@@ -1219,7 +1219,7 @@ MuExp translateVisitCases(list[Case] cases,str fuid) {
 			replacementType = getType(c.patternWithAction.replacement.replacementExpression@\loc);
 			tcond = muCallPrim("subtype", [ muTypeCon(replacementType), muCallPrim("typeOf", [ muVar("iSubject",fuid,0) ]) ]);
 			list[MuExp] cbody = [ muAssignDeref("matched",fuid,1,muBool(true)), muAssignDeref("hasInsert",fuid,2,muBool(true)), replacement ];
-        	exp = muIfelse(ifname, makeMu("ALL",[ cond,tcond,*conditions ]), [ muReturn(muBlock(cbody)) ], [ translateVisitCases(tail(cases),fuid) ]);
+        	exp = muIfelse(ifname, makeMuMulti("ALL",[ cond,tcond,*conditions ]), [ muReturn(muBlock(cbody)) ], [ translateVisitCases(tail(cases),fuid) ]);
         	leaveBacktrackingScope();
         	return exp;
 		} else {
@@ -1234,7 +1234,7 @@ MuExp translateVisitCases(list[Case] cases,str fuid) {
 				cbody += \case;
 			}
 			cbody += muReturn(muVar("subject",fuid,0));
-			exp = muIfelse(ifname, makeMu("ALL",[ cond,tcond ]), cbody, [ translateVisitCases(tail(cases),fuid) ]);
+			exp = muIfelse(ifname, makeMuMulti("ALL",[ cond,tcond ]), cbody, [ translateVisitCases(tail(cases),fuid) ]);
         	leaveBacktrackingScope();
 			return exp;
 		}
