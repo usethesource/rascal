@@ -17,7 +17,9 @@ import analysis::statistics::markup::Dimple;
 import lang::json::IO;
 import IO;
 
-alias Axis = tuple[str varName, str aggregateMethod, str plotFunction,str series];
+alias Axis = tuple[str varName, str aggregateMethod, str plotFunction,value series];
+
+alias ColorAxis = tuple[str varName, value color];
 
 public tuple[int width, int height] svgDim = <1200, 800>;
 
@@ -58,6 +60,7 @@ public loc barChart(
     , tuple[list[str] hd, list[list[value]] t] relation
     , str title="title"
     , value x_axis="x"
+    , ColorAxis colorAxis = <"", "">
     , value orderRule = ""
     , value series=""
     , list[tagColor] assignColor=[]
@@ -90,8 +93,12 @@ public loc barChart(
         var(("y1":expr(chart.addMeasureAxis("myChart", "y", y_axis[0]))))
         , 
         var(("y2":expr(isNull(y_axis2[0])?"null":chart.addMeasureAxis("myChart", "y", y_axis2[0]))))
+        , 
+        var(("colorAxis":expr(isNull(colorAxis[0])?"null":chart.addColorAxis("myChart", 
+              colorAxis[0],  colorAxis[1]))))
         ,
-        var(("mySeries":expr(chart.addSeries("myChart", y_axis[3],  "dimple.plot.<y_axis[2]>",  expr("[x, y1]")))))
+        var(("mySeries":expr(chart.addSeries("myChart", y_axis[3],  "dimple.plot.<y_axis[2]>",  expr(
+                    isNull(colorAxis[0])?"[x, y1]":"[x, y1, colorAxis]")))))
         ,
         var(("mySeries2":expr(isNull(y_axis2[0])?"null":chart.addSeries("myChart", y_axis2[3],  "dimple.plot.<y_axis2[2]>", expr("[x, y2]")))))
         ,

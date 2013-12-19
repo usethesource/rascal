@@ -38,28 +38,28 @@ public list[list[value]] jn(rel[value , value] r...) {
 
 /* Print number of statements */
 
-rel[loc, int] methodSize() {
-    rel[loc, int] r={};
+rel[str, int] methodSize() {
+    rel[str, int] r={};
     for (e<-declaredMethods(model)) { 
         Declaration ast = getMethodASTEclipse(e[1], model = model);
         if (\method(_, str name, _, _, Statement impl):=ast) {
              int n = 1;
              if (\block(list[Statement] ls):=impl) { n = size(ls);}
-              r+=<e[1], n>;   
+              r+=<e[1].path, n>;   
          }
          if (\constructor(str name, _, _, Statement impl):=ast) {
              int n = 1;
              if (\block(list[Statement] ls):=impl) { n = size(ls);}
-             r+=<e[1], n>;   
+             r+=<e[1].path, n>;   
              }                          
         }                              
     return r;
     }
 // \constructor(str name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
 // \method(Type \return, str name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
-public rel[loc method, str src] declMethods() {
+public rel[str method, str src] declMethods() {
      methodSize();
-     return  {<e[1], e[0].file>|e<-declaredMethods(model)};
+     return  {<e[1].path, e[0].file>|e<-declaredMethods(model)};
      }
 
 list[str] sortSrc() {
@@ -76,15 +76,15 @@ list[str] sortSrc() {
 public tuple[list[str], list[list[value]]] getMethodsWorking(loc project) { 
         model = createM3FromEclipseProject(project);
         rel[loc name, TypeSymbol typ] methodReturntype = { d| m <- declaredMethods(model), d<-model@types};
-        rel[value method, value proc ] methodProc = 
-           {<n, \void()==r?"void":"function">|<n, t> <- methodReturntype, \method(_,_, r,_):=t}
+        rel[str method, value proc ] methodProc = 
+           {<n.path, \void()==r?"void":"function">|<n, t> <- methodReturntype, \method(_,_, r,_):=t}
            +
-           {<n, "constructor" >|<n, t> <- methodReturntype, \constructor(_,_):=t}
+           {<n.path, "constructor" >|<n, t> <- methodReturntype, \constructor(_,_):=t}
            ;
        
-        rel[loc method, str src] methodSrc =  declMethods();
+        rel[str method, str src] methodSrc =  declMethods();
         rel[int len, str src] lengthSrc =  lengthSource();
-        rel[loc method, int len] methodLength = invert(lengthSrc o invert(methodSrc)); 
+        rel[str method, int len] methodLength = invert(lengthSrc o invert(methodSrc)); 
         list[list[value]] q = jn(methodSrc, methodLength, methodProc, methodSize()); 
         return <["method", "src", "length", "proc", "methodSize"], q>; 
 }
@@ -102,34 +102,38 @@ public rel[value, value] simplifyFile(rel[value, value] q) {
 
 public tuple[list[str], list[list[value]]] dataMatrix = getMethodsWorking(|project://dotplugin|);
 
-
+/*
 public loc chart = barChart(|project://chart/src/m3|
     ,dataMatrix
     ,title="First example" 
     ,x_axis = "src"
     ,y_axis = <"method","count", "bar", "proc">
     ,y_axis2 =<"methodSize","max", "line", "">
+    
     ,orderRule= sortSrc()
     ,assignColor=[getTagColor("constructor", fill="green", stroke="green")]
     ,legend = true
     );
+*/
 
-/*
+
 public loc otherChart = barChart(|project://chart/src/m3|
     ,dataMatrix
     ,title="Second example" 
     ,x_axis = "src"
-    ,y_axis =<"methodSize","max", "bubble","method">
+    ,y_axis =<"methodSize","max", "bubble",["method","proc"]>
+    // ,colorAxis=<"methodSize","">
     ,orderRule= sortSrc()
-    ,defaultColors=[getColor(fill="blue")]
+    // ,defaultColors=[getColor(fill="blue")]
+    ,legend=true
     );
-*/
+
 
 /* Use this by entering
 import util::HtmlDisplay;
 */
 public void main() {
-    htmlDisplay(chart);
+    htmlDisplay(otherChart);
     }
 
 
