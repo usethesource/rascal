@@ -2,7 +2,6 @@ package org.rascalmpl.values;
 
 import org.apache.commons.lang.WordUtils;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 
 public class Insincere extends Atom {

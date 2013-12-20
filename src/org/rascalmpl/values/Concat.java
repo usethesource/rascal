@@ -138,12 +138,6 @@ public class Concat extends OrgString {
 		return lhs.hashCode() + rhs.hashCode();
 	}
 
-	@Override
-	public void serialize(StringBuilder b) {
-		lhs.serialize(b);
-		rhs.serialize(b);
-	}
-	
 	public OrgString capitalize() {
 		assert lhs.length() > 0;
 		return (OrgString) lhs.capitalize().concat(rhs);
