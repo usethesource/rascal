@@ -4,6 +4,7 @@ module experiments::Compiler::Rascal2muRascal::RascalPattern
 import Prelude;
 
 import lang::rascal::\syntax::Rascal;
+import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::Rascal2muRascal::RascalType;
@@ -12,6 +13,7 @@ import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
 import experiments::Compiler::RVM::Interpreter::ParsingTools;
 
@@ -254,20 +256,99 @@ lexical ConcretePart
   | @category="MetaSkipped" bq: "\\`"
   | @category="MetaSkipped" bs: "\\\\"
   ;
-*/
-
-/*
-// AsType
-MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
-   muCallPrim("parse", [muCon(getModuleName()), muCon(type(symbolToValue(translateType(typ), config).symbol,getGrammar(config))), translate(argument)]);
+  
+syntax ConcreteHole 
+  = \one: "\<" Sym symbol Name name "\>"
+  ;
 */
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
-  println("concrete: <concrete>");
-  println("symbol: <concrete.symbol>, parts: <concrete.parts>");
-  iprintln(concrete);
-  parseFragment(getModuleName(), concrete, p@\loc);
-  throw "Concrete Pattern"; 
+  println("**** Grammar");
+  iprintln(getGrammar(config));
+  parsedFragment = parseFragment(getModuleName(), concrete, p@\loc, getGrammar(config));
+  println("**** parsedFragment");
+  iprintln(parsedFragment);
+  return translateParsedConcretePattern(parsedFragment);
+}
+
+MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){
+  if(prod.def == label("hole", lex("ConcretePart"))){
+     varloc = args[0].args[4].args[0]@\loc;
+     <fuid, pos> = getVariableScope("ConcreteVar", varloc);
+     return muCreate(mkCallToLibFun("Library","MATCH_VAR",2), [muVarRef("ConcreteVar", fuid, pos)]);
+  }
+  
+  applCode = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon("appl")]);
+  prodCode = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(prod)]);
+  argsCode = translateConcreteListPattern(args);
+  return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", [applCode, prodCode, argsCode] )]);
+}
+
+MuExp translateParsedConcretePattern(cc: char(int c)) {
+  return muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(cc)]);
+}
+
+default MuExp translateParsedConcretePattern(Tree c) {
+   iprintln(c);
+   throw "translateParsedConcretePattern: Cannot handle <c>";
+}
+
+MuExp translateConcreteListPattern(list[Tree] pats){
+ lookahead = computeConcreteLookahead(pats);  
+ arb = muCreate(mkCallToLibFun("Library","MATCH_ARB_IN_LIST",3), []);
+ return muCreate(mkCallToLibFun("Library","MATCH_LIST",2), [muCallMuPrim("make_array", 
+         [ (i % 2 == 0) ? translatePatAsConcreteListElem(pats[i], lookahead[i]) : arb | i <- index(pats) ])]);
+}
+
+bool isIter(\iter(Symbol symbol)) = true;
+bool isIter(\iter-star(Symbol symbol)) = true;
+bool isIter(\iter-seps(Symbol symbol, list[Symbol] separators)) = true;
+bool isIter(\iter-star-seps(Symbol symbol, list[Symbol] separators)) = true;
+default bool isIter(Symbol s) = false;
+
+MuExp translatePatAsConcreteListElem(t:appl(Production prod, list[Tree] args), Lookahead lookahead){
+  if(prod.def == label("hole", lex("ConcretePart"))){
+     //println(t@\holeType);
+     varloc = args[0].args[4].args[0]@\loc;
+     <fuid, pos> = getVariableScope("ConcreteVar", varloc);
+    holeType = getType(varloc);
+     if(isIter(holeType))
+        return muCreate(mkCallToLibFun("Library","MATCH_MULTIVAR_IN_LIST",5), [muVarRef("ConcreteListVar", fuid, pos), muCon(lookahead.nElem)]);
+     return muCreate(mkCallToLibFun("Library","MATCH_VAR_IN_LIST",4), [muVarRef("ConcreteVar", fuid, pos)]);
+  }
+  
+  return muCreate(mkCallToLibFun("Library","MATCH_APPL_IN_LIST",5), [muCon(prod), translateConcreteListPattern(args)]);
+}
+
+MuExp translatePatAsConcreteListElem(cc: char(int c), Lookahead lookahead){
+  return muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST",4), [muCon(cc)]);
+}
+
+default MuExp translatePatAsConcreteListElem(Tree c, Lookahead lookahead){
+  return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_LIST",4), [translateParsedConcretePattern(c)]);
+}
+
+bool isConcreteMultiVar(t:appl(Production prod, list[Tree] args)){
+  if(prod.def == label("hole", lex("ConcretePart"))){
+     varloc = args[0].args[4].args[0]@\loc;
+     holeType = getType(varloc);
+     return isIter(holeType);
+  }
+  return false;
+}
+
+default bool isConcreteMultiVar(Tree t) = false;
+
+list[Lookahead] computeConcreteLookahead(list[Tree] pats){
+println("computeConcreteLookahead: <pats>");
+    nElem = 0;
+    nMultiVar = 0;
+    rprops = for(p <- reverse([p | p <- pats])){
+                 append <nElem, nMultiVar>;
+                 if(isConcreteMultiVar(p)) nMultiVar += 1; else nElem += 1;
+             };
+    println("result = <reverse(rprops)>");
+    return reverse(rprops);
 }
 
 /*********************************************************************/
@@ -300,7 +381,7 @@ list[Lookahead] computeLookahead((Pattern) `[<{Pattern ","}* pats>]`){
 }
 
 str isLast(Lookahead lookahead) = lookahead.nMultiVar == 0 ? "LAST_" : "";
-/*
+
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead lookahead) {
    if("<name>" == "_"){
        return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_LIST",3), []);
@@ -308,7 +389,11 @@ MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead looka
    <fuid, pos> = getVariableScope("<name>", name@\loc);
    return muCreate(mkCallToLibFun("Library","MATCH_VAR_IN_LIST",4), [muVarRef("<name>", fuid, pos)]);
 } 
-*/
+
+
+MuExp translatePatAsListElem(p:(Pattern) `<Literal lit>`, Lookahead lookahead) {
+  return muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST",4), [translate(lit)]);
+}
 
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`, Lookahead lookahead) {
    if("<name>" == "_"){
