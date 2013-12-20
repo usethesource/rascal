@@ -22,8 +22,22 @@ import lang::rascal::types::TypeExceptions;
 public alias Bindings = map[str varName, Symbol varType];
 
 public Bindings defaultMatch(Symbol t, Symbol m, Bindings bindings) {
+	if (isFunctionType(t) && isFunctionType(m)) {
+		// Our subtyping rules don't work with uninstantiated or partially
+		// instantiated function types, so just perform a sanity check here
+		// to make sure each type is comparable. If not, fall through, the
+		// logic below will throw if appropriate.
+		tTypes = [ getFunctionReturnType(t), *getFunctionArgumentTypes(t) ];
+		mTypes = [ getFunctionReturnType(m), *getFunctionArgumentTypes(m) ];
+		
+		if (size(tTypes) == size(mTypes) && false notin {comparable(tTypes[idx],mTypes[idx]) | idx <- index(tTypes)}) {
+			return bindings;
+		}
+	}
+	
 	if (!comparable(m,t))
 		throw invalidMatch(t, m);
+		
 	return bindings;
 }
 
@@ -108,10 +122,10 @@ public Bindings match(Symbol t:\alias(str s, list[Symbol] ps, Symbol at), Symbol
 public Bindings match(Symbol t:Symbol::\func(Symbol r, list[Symbol] ps), Symbol m, Bindings bindings) {
 	bindings = defaultMatch(t,m,bindings);
 	if (!isOverloadedType(m)) {
-		; // TODO: Add
-	} else {
-		bindings = match(\tuple(ps), getFunctionArgumentTypes(m), bindings);
+		bindings = match(\tuple(ps), \tuple(getFunctionArgumentTypes(m)), bindings);
 		bindings = match(r, getFunctionReturnType(m), bindings); 
+	} else {
+		; // TODO: How do we handle overloaded types here?
 	}
 	return bindings;	
 }
