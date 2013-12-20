@@ -72,10 +72,4 @@ public abstract class Atom extends OrgString {
 		};
 	}
 	
-	@Override
-	public void serialize(StringBuilder b) {
-		// Don't call getValue on this!!!
-		b.append(value.getValue());
-	}
-
 }

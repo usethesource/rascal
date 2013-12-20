@@ -3,6 +3,7 @@ package org.rascalmpl.values;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Iterator;
+import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IList;
@@ -188,7 +189,20 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 	}
 
 	
-	public abstract void serialize(StringBuilder b);
+	public void serialize(StringBuilder b) {
+		Stack<OrgString> stack = new Stack<>();
+		stack.push(this);
+		while (!stack.empty()) {
+			OrgString cur = stack.pop();
+			if (cur instanceof Atom) {
+				b.append(cur.getValue());
+			}
+			else if (cur instanceof Concat) {
+				stack.push(((Concat)cur).getRhs());
+				stack.push(((Concat)cur).getLhs());
+			}
+		}
+	}
 	
 	
 	public OrgString escape(IMap substitutions) {
