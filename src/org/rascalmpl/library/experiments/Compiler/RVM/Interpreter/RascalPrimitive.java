@@ -51,6 +51,7 @@ import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTyp
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 /*
  * The primitives that can be called via the CALLPRIM instruction.
@@ -5024,16 +5025,16 @@ public enum RascalPrimitive {
 	}
 	
 	public static int parse_fragment(Object[] stack, int sp, int arity) {
-		assert arity == 3;
-		IString module_name = (IString) stack[sp - 3];
-		IConstructor ctree = (IConstructor) stack[sp - 2];
-		ISourceLocation loc = ((ISourceLocation) stack[sp - 1]);
+		assert arity == 4;
+		IString module_name = (IString) stack[sp - 4];
+		IConstructor ctree = (IConstructor) stack[sp - 3];
+		ISourceLocation loc = ((ISourceLocation) stack[sp - 2]);
+		IMap grammar = (IMap) stack[sp - 1];
 	
-		IValue tree = parsingTools.parseFragment(module_name, ctree, loc.getURI());
-		stack[sp - 3] = tree;
-		return sp - 2;
+		IValue tree = parsingTools.parseFragment(module_name, ctree, loc.getURI(), grammar);
+		stack[sp - 4] = tree;
+		return sp - 3;
 	}
-	
 	
 
 	/*
@@ -5124,7 +5125,7 @@ public enum RascalPrimitive {
 		ISet rel = ((ISet) stack[sp - arity]);
 		int indexArity = arity - 1;
 		int relArity = rel.getElementType().getArity();
-		assert relArity < indexArity;
+		assert indexArity < relArity ;
 		int resArity = relArity - indexArity;
 		IValue[] indices = new IValue[indexArity];
 		for(int i = 0; i < indexArity; i++ ){
@@ -5138,14 +5139,22 @@ public enum RascalPrimitive {
 		IValue[] elems = new  IValue[resArity];
 		ISetWriter w = vf.setWriter();
 		NextTuple:
-		for(IValue vtup : rel){
-			ITuple tup = (ITuple) vtup;
-			for(int i = 0; i < indexArity; i++){
-				if(!tup.get(i).isEqual(indices[i])){
-					if(indices[i] != null)
-						continue NextTuple;
+			for(IValue vtup : rel){
+				ITuple tup = (ITuple) vtup;
+				for(int i = 0; i < indexArity; i++){
+					if(indices[i] != null){
+						IValue v = tup.get(i);
+						if(indices[i].getType().isSet()){
+							ISet s = (ISet) indices[i];
+							if(!s.contains(v)){
+								continue NextTuple;
+							}
+						} else
+							if(!v.isEqual(indices[i])){
+								continue NextTuple;
+							}
+					}
 				}
-			}
 			for(int i = 0; i < resArity; i++){
 				elems[i] = tup.get(indexArity + i);
 			}
@@ -5161,7 +5170,7 @@ public enum RascalPrimitive {
 		IList lrel = ((IList) stack[sp - arity]);
 		int indexArity = arity - 1;
 		int lrelArity = lrel.getElementType().getArity();
-		assert lrelArity < indexArity;
+		assert indexArity < lrelArity;
 		int resArity = lrelArity - indexArity;
 		IValue[] indices = new IValue[indexArity];
 		for(int i = 0; i < indexArity; i++ ){
@@ -5178,9 +5187,17 @@ public enum RascalPrimitive {
 		for(IValue vtup : lrel){
 			ITuple tup = (ITuple) vtup;
 			for(int i = 0; i < indexArity; i++){
-				if(!tup.get(i).isEqual(indices[i])){
-					if(indices[i] != null)
-						continue NextTuple;
+				if(indices[i] != null){
+					IValue v = tup.get(i);
+					if(indices[i].getType().isSet()){
+						ISet s = (ISet) indices[i];
+						if(!s.contains(v)){
+							continue NextTuple;
+						}
+					} else
+						if(!v.isEqual(indices[i])){
+							continue NextTuple;
+						}
 				}
 			}
 			for(int i = 0; i < resArity; i++){
@@ -5191,6 +5208,8 @@ public enum RascalPrimitive {
 		stack[sp - arity] = w.done();
 		return sp - arity + 1;
 	}
+	
+	
 
 	/*
 	 * subtraction
@@ -5528,8 +5547,12 @@ public enum RascalPrimitive {
 		assert arity == 3;
 		IList lst = (IList) stack[sp - 3];
 		int n = ((IInteger) stack[sp - 2]).intValue();
-		stack[sp - 3] = lst.put(n, (IValue) stack[sp - 1]);
-		return sp - 2;
+		try {
+			stack[sp - 3] = lst.put(n, (IValue) stack[sp - 1]);
+			return sp - 2;
+		} catch (IndexOutOfBoundsException e){
+			throw RuntimeExceptions.indexOutOfBounds(vf.integer(n), null, new ArrayList<Frame>());
+		}
 	}
 	
 	public static int map_update(Object[] stack, int sp, int arity) {
@@ -5544,8 +5567,12 @@ public enum RascalPrimitive {
 		assert arity == 3;
 		ITuple tup = (ITuple) stack[sp - 3];
 		int n = ((IInteger) stack[sp - 2]).intValue();
-		stack[sp - 3] = tup.set(n, (IValue) stack[sp - 1]);
-		return sp - 2;
+		try {
+			stack[sp - 3] = tup.set(n, (IValue) stack[sp - 1]);
+			return sp - 2;
+		} catch (IndexOutOfBoundsException e){
+			throw RuntimeExceptions.indexOutOfBounds(vf.integer(n), null, new ArrayList<Frame>());
+		}
 	}
 	
 	/*
@@ -5583,13 +5610,41 @@ public enum RascalPrimitive {
 		return sp - arity + 1;
 	}
 	
+	private static boolean $isTree(IValue v){
+		return v.getType().isAbstractData() && v.getType().getName().equals("Tree");
+	}
+	
+	private static String $value2string(IValue val){
+		if(val.getType().isString()){
+			return ((IString) val).getValue();
+		}
+		if($isTree(val)){
+			StringWriter w = new StringWriter();
+			try {
+				IConstructor c = (IConstructor) val;
+				TreeAdapter.unparse(c, w);
+				return w.toString();
+			} catch (FactTypeUseException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return val.toString();
+	}
+	
 	public static int value_to_string(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		IValue val = (IValue) stack[sp -1];
-		if(val.getType().isString()){
-			stack[sp - 1] = vf.string(((IString) val).getValue());
+		
+		if(val.getType().isList()){
+			IList lst = (IList) val;
+			StringWriter w = new StringWriter();
+			for(int i = 0; i < lst.length(); i++){
+				w.write($value2string(lst.get(i)));
+			}
+			stack[sp - 1] = vf.string(w.toString());
 		} else {
-			stack[sp - 1] = vf.string(val.toString());
+			stack[sp - 1] = vf.string($value2string(val));
 		}
 		return sp;
 	}

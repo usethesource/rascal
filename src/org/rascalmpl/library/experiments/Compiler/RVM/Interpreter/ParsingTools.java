@@ -113,7 +113,7 @@ public class ParsingTools {
 	 */
 	private Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getObjectParser(String moduleName) {
 		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = parsers.get(moduleName);
-		stderr.println("Retrieving parser for : " + moduleName + ((parser == null) ? "fails" : "succeeds"));
+		stderr.println("Retrieving parser for : " + moduleName + ((parser == null) ? " fails" : " succeeds"));
 		return parser;
 	}
 	
@@ -459,13 +459,21 @@ public class ParsingTools {
 	  }
 	  
 	  private boolean getBootstrap() { return false; }
+	  
+	// Rascal library function
+	public IConstructor parseFragment(IString name, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
+		if(this.ctx == null){
+			setContext(ctx);
+		}
+		return parseFragment(name, tree, loc.getURI(), grammar);
+	}
 
-	IConstructor parseFragment(IString name, IConstructor tree, URI uri) {
+	IConstructor parseFragment(IString name, IConstructor tree, URI uri, IMap grammar) {
 	    IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
 	    IConstructor lit = TreeAdapter.getArg(tree, "parts");
 	    Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
 	    
-	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getBootstrap() ? new RascalParser() : getParser(name.getValue(), TreeAdapter.getLocation(tree).getURI(), false, null);
+	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getBootstrap() ? new RascalParser() : getParser(name.getValue(), TreeAdapter.getLocation(tree).getURI(), false, grammar);
 	    
 	    try {
 	      String parserMethodName = getParserGenerator().getParserMethodName(symTree);
@@ -476,12 +484,13 @@ public class ParsingTools {
 	      
 	      IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri, input, converter, nodeFactory);
 	      fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
-
-	      IConstructor prod = TreeAdapter.getProduction(tree);
-	      IConstructor sym = ProductionAdapter.getDefined(prod);
-	      sym = SymbolAdapter.delabel(sym); 
-	      prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
-	      return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
+	      return fragment;
+	      
+//	      IConstructor prod = TreeAdapter.getProduction(tree);
+//	      IConstructor sym = ProductionAdapter.getDefined(prod);
+//	      sym = SymbolAdapter.delabel(sym); 
+//	      prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
+//	      return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
 	    }
 	    catch (ParseError e) {
 	      ISourceLocation loc = TreeAdapter.getLocation(tree);
