@@ -543,12 +543,14 @@ public str esc(Symbol s){
 
 map[str,str] javaStringEscapes = ( "\n":"\\n", "\"":"\\\"", "\t":"\\t", "\r":"\\r","\\u":"\\\\u","\\":"\\\\");
 
+@memo
 public str esc(str s){
     return escape(s, javaStringEscapes);
 }
 
 map[str,str] javaIdEscapes = javaStringEscapes + ("-":"_", "_": "__");
 
+@memo
 public str escId(str s){
     return escape(s, javaIdEscapes);
 }
