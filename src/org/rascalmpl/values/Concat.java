@@ -64,11 +64,6 @@ public class Concat extends OrgString {
 	}
 
 	@Override
-	public int compare(IString other) {
-		return getValue().compareTo(other.getValue());
-	}
-
-	@Override
 	public void accept(IOrgStringVisitor visitor) {
 		visitor.visit(this);
 	}
@@ -109,7 +104,7 @@ public class Concat extends OrgString {
 
 
 	@Override
-	public int indexOf(String str) {
+	public int indexOf(IString str) {
 		int ind = lhs.indexOf(str);
 		if (ind != -1) {
 			return ind;
@@ -118,8 +113,8 @@ public class Concat extends OrgString {
 		for (int i = 1; i < str.length(); i++) {
 			// for a string abcd we partition as
 			// a bcd, ab cd, abc d
-			String before = str.substring(0, i);
-			String after = str.substring(i, str.length());
+			IString before = str.substring(0, i);
+			IString after = str.substring(i, str.length());
 			int lind = lhs.indexOf(before);
 			int rind = rhs.indexOf(after);
 			if (lind == str.length() - i && rind == 0) {
@@ -141,6 +136,13 @@ public class Concat extends OrgString {
 	public OrgString capitalize() {
 		assert lhs.length() > 0;
 		return (OrgString) lhs.capitalize().concat(rhs);
+	}
+
+	@Override
+	public String getValue() {
+		StringBuilder b = new StringBuilder();
+		serialize(b);
+		return b.toString();
 	}
 
 }

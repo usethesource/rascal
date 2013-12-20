@@ -42,12 +42,27 @@ public abstract class Atom extends OrgString {
 	
 	@Override
 	public int charAt(int index) {
-		return value.charAt(index);
+		return value.getValue().charAt(index);
+	}
+	
+	
+	private boolean match(IString pat, int offset) {
+		for (int i = 0; i < pat.length(); i++) {
+			if (pat.charAt(i) != charAt(offset + i)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	@Override
-	public int indexOf(String str) {
-		return getValue().indexOf(str);
+	public int indexOf(IString pat) {
+		for (int i = 0; i < length() - pat.length() + 1; i++) {
+			if (match(pat, i)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 	
 	@Override

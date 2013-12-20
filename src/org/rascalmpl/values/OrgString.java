@@ -90,7 +90,7 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 	
 	public abstract void accept(IOrgStringVisitor visitor);
 
-	public IString replaceAll(String sub, IString string) {
+	public IString replaceAll(IString sub, IString string) {
 		int ind = indexOf(sub);
 		if (ind != -1) {
 			IString l = substring(0, ind);
@@ -100,7 +100,7 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 		return this;
 	}
 	
-	public abstract int indexOf(String str);
+	public abstract int indexOf(IString str);
 	
 	@Override
 	public boolean isEqual(IValue other) {
@@ -128,7 +128,9 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 		Iterator<Integer> iter1 = iterator();
 		Iterator<Integer> iter2 = os.iterator();
 		while (iter1.hasNext() && iter2.hasNext()) {
-			if (iter1.next() != iter2.next()) {
+			int i1 = iter1.next();
+			int i2 = iter2.next();
+			if (i1 != i2) {
 				return false;
 			}
 		}
@@ -162,7 +164,7 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 		return "";
 	}
 
-	public IList split(String sep) {
+	public IList split(IString sep) {
 		IListWriter w = vf.listWriter();
 		split(w, sep);
 		return w.done();
@@ -170,24 +172,18 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 	
 	public abstract OrgString capitalize();
 	
-	private void split(IListWriter w, String sep) {
+	private void split(IListWriter w, IString sep) {
 		int ind = indexOf(sep);		
 		if (ind != -1) {
 			w.append(substring(0, ind));
-			((OrgString)substring(ind + sep.length())).split(w, sep);
+			if (ind + sep.length() < length()) {
+				((OrgString)substring(ind + sep.length())).split(w, sep);
+			}
 		}
 		else {
 			w.append(this);
 		}
 	}
-	
-	@Override
-	public String getValue() {
-		StringBuilder b = new StringBuilder();
-		serialize(b);
-		return b.toString();
-	}
-
 	
 	public void serialize(StringBuilder b) {
 		Stack<OrgString> stack = new Stack<>();
@@ -211,7 +207,7 @@ public abstract class OrgString implements IString, Iterable<Integer> {
 		for (IValue k: substitutions) {
 			IString s = ((IString)k);
 			IString v = (IString)substitutions.get(s);
-			result = (OrgString) result.replaceAll(s.getValue(), v);
+			result = (OrgString) result.replaceAll(s, v);
 		}
 		return result;
 	}
