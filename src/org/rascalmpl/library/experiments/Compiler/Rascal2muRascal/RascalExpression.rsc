@@ -1167,7 +1167,7 @@ MuExp translateVisit(label,\visit) {
 	
 	enterVisit();	
 	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 3, 3, false, \visit@\loc, [], (), 
-										translateVisitCases([ c | Case c <- \visit.cases ]),phi_fuid);
+										translateVisitCases([ c | Case c <- \visit.cases ],phi_fuid));
 	leaveVisit();
 	
 	if(fixpoint) {
@@ -1223,7 +1223,7 @@ MuExp translateVisitCases(list[Case] cases,str fuid) {
 			}
 			replacementType = getType(c.patternWithAction.replacement.replacementExpression@\loc);
 			tcond = muCallPrim("subtype", [ muTypeCon(replacementType), muCallPrim("typeOf", [ muVar("iSubject",fuid,0) ]) ]);
-			list[MuExp] cbody = [ muAssignDeref("matched",fuid,1,muBool(true)), muAssignDeref("hasInsert",fuid,2,muBool(true)), replacement ];
+			list[MuExp] cbody = [ muAssignVarDeref("matched",fuid,1,muBool(true)), muAssignVarDeref("hasInsert",fuid,2,muBool(true)), replacement ];
         	exp = muIfelse(ifname, makeMuMulti("ALL",[ cond,tcond,*conditions ]), [ muReturn(muBlock(cbody)) ], [ translateVisitCases(tail(cases),fuid) ]);
         	leaveBacktrackingScope();
         	return exp;
@@ -1234,7 +1234,7 @@ MuExp translateVisitCases(list[Case] cases,str fuid) {
 			insertType = topCaseType();
 			clearCaseType();
 			tcond = muCallPrim("subtype", [ muTypeCon(insertType), muCallPrim("typeOf", [ muVar("iSubject",fuid,0) ]) ]);
-			list[MuExp] cbody = [ muAssignDeref("matched",fuid,1,muBool(true)) ];
+			list[MuExp] cbody = [ muAssignVarDeref("matched",fuid,1,muBool(true)) ];
 			if(!(muBlock([]) := \case)) {
 				cbody += \case;
 			}
@@ -1245,7 +1245,7 @@ MuExp translateVisitCases(list[Case] cases,str fuid) {
 		}
 	} else {
 		// Default
-		return muBlock([ muAssignDeref("matched",fuid,1,muBool(true)), translate(c.statement), muReturn(muVar("iSubject",fuid,0)) ]);
+		return muBlock([ muAssignVarDeref("matched",fuid,1,muBool(true)), translate(c.statement), muReturn(muVar("iSubject",fuid,0)) ]);
 	}
 }
 

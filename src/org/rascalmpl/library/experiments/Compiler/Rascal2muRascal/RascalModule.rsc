@@ -182,6 +182,8 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   tuple[str fuid,int pos] addr = uid2addr[uid];
   bool isVarArgs = (varArgs(_,_) := signature.parameters);
   
+  enterFunctionScope(fuid);
+  
   // Keyword parameters
   list[MuExp] kwps = translateKeywordParameters(signature.parameters, getFormals(uid), fd@\loc);
  
@@ -199,6 +201,9 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   									getFormals(uid), getScopeSize(fuid),
   									isVarArgs, fd@\loc, tmods, ttags, 
   									tbody);
+  	
+  	leaveFunctionScope();
+  	
   } else {
     println("r2mu: <fuid> ignored");
   }
