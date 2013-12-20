@@ -14,6 +14,8 @@ import util::HtmlDisplay;
 
 public alias tagColor = tuple[str tg, str fill , str stroke , real opacity];
 
+public alias dColor = tuple[str fill , str stroke , real opacity];
+
 
 public tuple[str(str, int, int) newSvg, str(str, str) chart, tuple [str() bar] plot]  dimple = 
   < 
@@ -26,7 +28,11 @@ public tuple[str(str, int, int) newSvg, str(str, str) chart, tuple [str() bar] p
      <str() {return "dimple.plot.bar";}>
   >;
   
-tagColor getTagColor(str tg, str fill="black", str stroke="black", real opacity=1.0) {
+public dColor getColor(str fill="white", str stroke="black", real opacity=1.0) {
+    return <fill, stroke, opacity>;
+    }
+  
+public tagColor getTagColor(str tg, str fill="white", str stroke="black", real opacity=1.0) {
     return <tg, fill, stroke, opacity>;
     }
   
@@ -47,6 +53,8 @@ public tuple[
       //  [horizontalAlign], [series]
       ,
       str(str, list[tagColor]) assignColor //  chart, fillColor, [strokeColor], [opacity]
+      ,
+      str(str, list[dColor]) defaultColors //  chart, defaultColors
         
       ]
 chart=
@@ -70,6 +78,9 @@ str(str chart, list[tagColor] q) {
      for (t<-q) 
      r+= ";<chart>.assignColor(<val(t[0])>, <val(t[1])>, <val(t[2])>, <val(t[3])>)";
      return r;
+     },
+str(str chart, list[dColor] q) {
+       return "<chart>.defaultColors=<val(q)>";
      }
 >;
 
@@ -85,6 +96,18 @@ str val(value field) {
            str r="[";
            r += "\"<head(fields)>\"";
            for (f<-tail(fields)) r+= ",\"<f>\"";
+           r += "]";
+           return r;
+       }
+       if (list[dColor] fields := field) {
+           if (isEmpty(fields)) return "[]";
+           str r="[";
+           dColor p = head(fields);
+           r += "new dimple.color(\"<p[0]>\",\"<p[1]>\",\"<p[2]>\")";
+           for (f<-tail(fields)) {
+               p = head(f);
+               r += ",new dimple.color(\"<p[0]>\",\"<p[1]>\",\"<p[2]>\")";            
+           }
            r += "]";
            return r;
        }

@@ -6,6 +6,7 @@ coroutine ALL[1, coArray,
                  len, j, coInits, co] {
     len = size_array(coArray);
     j = 0;
+    // coiInits is not created!
     put_array(coInits,j,init(get_array(coArray,j)));
     while(j >= 0) {
         co = get_array(coInits,j);
@@ -18,6 +19,50 @@ coroutine ALL[1, coArray,
             };
         } else {
             j = j - 1; };
+    };
+}
+
+function RASCAL_ALL[2, genArray, generators, 
+                        len, j, gen, genInits, forward] {
+    len = size_array(genArray);
+    j = 0;
+    genInits = make_array(len);
+    forward = true;
+    while(true){
+        if(get_array(generators, j)){
+           if(forward){
+              put_array(genInits,j,init(get_array(genArray,j)));
+           };
+           gen = get_array(genInits,j);
+           if(next(gen)) {
+              forward = true;
+              j = j + 1;
+           } else {
+             forward = false;
+             j = j - 1;
+           };
+        } else {
+          if(forward){
+             if(get_array(genArray, j)()){
+                forward = true;
+                j = j + 1;
+             } else {
+               return false;
+             };
+           } else {
+             j = j - 1;
+           };
+        };
+        if(j <= 0){
+           return true;
+        };
+        if(j == len){
+           forward = false;
+           j = j - 2;
+           if(j < 0){
+              return true;
+           };
+        };
     };
 }
 
@@ -232,11 +277,12 @@ coroutine RANGE_STEP_INT[4, pat, iFirst, iSecond, iEnd, j, n, step]{
 }
 
 coroutine RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step, mixed]{
-   j = iFirst;
    n = iEnd;
    if(iFirst is int && iSecond is int && iEnd is int){
+     j = iFirst;
      mixed = false;
    } else {
+     j = prim("num_to_real", iFirst);
      mixed = true;
    };
    if(prim("less", j, n)) {
@@ -280,6 +326,8 @@ coroutine MATCH[2, pat, iSubject, cpat]{
 coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
    plen = size_array(pats);
    slen = size_array(subjects);
+   //println("MATCH_N: pats    ", plen, pats);
+   //println("MATCH_N: subjects", slen, subjects);
    guard plen == slen;
    p = 0;
    ipats = make_array(plen);
@@ -287,6 +335,7 @@ coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
    while((p >= 0) && (p < plen)) {
        pat = get_array(ipats, p);
        if(next(pat)) {
+           //println("MATCH_N succeeds:", p);
            if(p < (plen - 1)) {
                p = p + 1;
                put_array(ipats, p, init(get_array(pats, p), get_array(subjects, p)));
@@ -294,17 +343,20 @@ coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
                yield;
            };
        } else {
+           //println("MATCH_N fails:", p);
            p = p - 1;
        };
    };   
 }
 
 coroutine MATCH_CALL_OR_TREE[2, pats, iSubject, cpats]{
+    //("MATCH_CALL_OR_TREE", pats, " AND ", iSubject, iSubject is node);
     guard iSubject is node;
     cpats = init(create(MATCH_N, pats, get_name_and_children(iSubject)));
     while(next(cpats)) {
         yield;
     };
+    //("MATCH_CALL_OR_TREE fails", pats, " AND ", iSubject);
 }
 
 coroutine MATCH_REIFIED_TYPE[2, pat, iSubject, nc, konstructor, symbol]{
@@ -326,6 +378,7 @@ coroutine MATCH_TUPLE[2, pats, iSubject, cpats]{
 }
 
 coroutine MATCH_LITERAL[2, pat, iSubject]{
+    //("MATCH_LITERAL", pat, " and ", iSubject);
     guard (equal(typeOf(pat),typeOf(iSubject)) 
     		&& equal(pat, iSubject));
     return;
@@ -437,6 +490,7 @@ coroutine MATCH_LIST[2,
 // - rNext: reference variable to return next cursor position
 // - available: the number of remaining, unmatched, elements in the subject list
 
+// Any pattern in a list not handled by a special case
 coroutine MATCH_PAT_IN_LIST[4, pat, iSubject, rNext, available, start, cpat]{ 
     guard available > 0;
     start = deref rNext;
@@ -446,11 +500,48 @@ coroutine MATCH_PAT_IN_LIST[4, pat, iSubject, rNext, available, start, cpat]{
        yield start + 1;   
     };
 } 
-/*
+
+// A literal in a list
+coroutine MATCH_LITERAL_IN_LIST[4, pat, iSubject, rNext, available, start, elm]{
+	guard available > 0;
+	start = deref rNext;
+	elm =  get_list(iSubject, start);
+    if(equal(typeOf(pat),typeOf(elm)) && equal(pat, elm)){
+       //println("MATCH_LITERAL_IN_LIST: true", pat, start, elm);
+       return(start + 1);
+    };
+    //println("MATCH_LITERAL_IN_LIST: false", pat, start, elm);
+}
+
+// Tree node in concrete pattern: appl(iProd, argspat), where argspat is a list pattern
+coroutine MATCH_APPL_IN_LIST[5, iProd, argspat, iSubject, rNext, available, start, iElem, children, cpats]{
+    //println("MATCH_APPL_IN_LIST", iProd, argspat, " AND ", iSubject, iSubject is node);
+    start = deref rNext;
+    iElem = get_list(iSubject, start);
+    guard iElem is node;
+    children = get_children(iElem);
+    if(equal(get_name(iElem), "appl") && equal(iProd, get_array(children, 0))){
+       cpats = init(argspat, get_array(children, 1));
+       while(next(cpats)) {
+          yield(start + 1);
+       };
+    };
+    //println("MATCH_APPL_IN_LIST fails",  iProd, argspat, " AND ", iSubject);
+}
+
+// An arbitrary pattern in a list: used to skip layout in concrete patterns
+coroutine MATCH_ARB_IN_LIST[3, iSubject, rNext, available, start]{ 
+    guard available > 0;
+    start = deref rNext;
+    //println("MATCH_ARB_IN_LIST", start, get_list(iSubject, start));
+    return(start + 1);
+} 
+
 coroutine MATCH_VAR_IN_LIST[4, rVar, iSubject, rNext, available, start, iVal, iElem]{
-   println("MATCH_VAR_IN_LIST", iSubject, start, available);
-   guard available > 0;
    start = deref rNext;
+   //println("MATCH_VAR_IN_LIST", iSubject, start, available);
+   guard available > 0;
+   
    iElem = get_list(iSubject, start);
    if(is_defined(rVar)){
       iVal = deref rVar;
@@ -466,7 +557,7 @@ coroutine MATCH_ANONYMOUS_VAR_IN_LIST[3, iSubject, rNext, available]{
    guard available > 0;
    return deref rNext + 1;
 }
-*/
+
 
 coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iLookahead, iSubject, rNext, available, start, len, iVal]{
     start = deref rNext;
@@ -804,10 +895,9 @@ coroutine MATCH_DESCENDANT[2, pat, iSubject, gen, cpat]{
 }
 
 // ***** Match and descent for all types *****
+// Enforces the same left-most innermost traversal order as the interpreter
 
 coroutine MATCH_AND_DESCENT[2, pat, iVal]{
-  DO_ALL(pat, iVal);
-  
   typeswitch(iVal){
     case list:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), iVal);
     case lrel:        DO_ALL(create(MATCH_AND_DESCENT_LIST, pat), iVal);
@@ -817,8 +907,9 @@ coroutine MATCH_AND_DESCENT[2, pat, iVal]{
     case set:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat),  iVal);
     case rel:         DO_ALL(create(MATCH_AND_DESCENT_SET, pat),  iVal);
     case tuple:       DO_ALL(create(MATCH_AND_DESCENT_TUPLE, pat),iVal);
-    default:          exhaust;
+    default:          true;
   };  
+  DO_ALL(pat, iVal);
 }
 
 coroutine MATCH_AND_DESCENT_LITERAL[2, pat, iSubject, res]{
@@ -867,9 +958,9 @@ coroutine MATCH_AND_DESCENT_MAP[2, pat, iMap, iKlst, iVlst, last, j]{
 coroutine MATCH_AND_DESCENT_NODE[2, pat, iNd, last, j, ar]{
    ar = get_name_and_children(iNd);
    last = size_array(ar);
-   j = 0; 
+   j = 1; 
    while(j < last){
-      DO_ALL(pat, get_array(ar, j));
+      //DO_ALL(pat, get_array(ar, j));
       DO_ALL(create(MATCH_AND_DESCENT, pat),  get_array(ar, j));
       j = j + 1;
    };

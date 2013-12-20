@@ -7,6 +7,10 @@ import experiments::Compiler::Examples::AsType1;
 import experiments::Compiler::Examples::AsType2;
 import experiments::Compiler::Examples::Bottles;
 import experiments::Compiler::Examples::Capture;
+import experiments::Compiler::Examples::ConcreteMatching;
+import experiments::Compiler::Examples::NestedFunctions1;
+import experiments::Compiler::Examples::NestedFunctions2;
+import experiments::Compiler::Examples::NestedFunctions3;
 import experiments::Compiler::Examples::E1E2;
 import experiments::Compiler::Examples::Fac;
 import experiments::Compiler::Examples::Fib;
@@ -31,6 +35,7 @@ import experiments::Compiler::Examples::OverloadingPlusVarArgsSpecialCase;
 import experiments::Compiler::Examples::ExceptionHandling1;
 import experiments::Compiler::Examples::ExceptionHandling2;
 import experiments::Compiler::Examples::ExceptionHandling3;
+import experiments::Compiler::Examples::ExceptionHandling4;
 import experiments::Compiler::Examples::ExceptionHandlingFinally1;
 import experiments::Compiler::Examples::ExceptionHandlingFinally2;
 import experiments::Compiler::Examples::ExceptionHandlingFinally3;
@@ -66,6 +71,11 @@ import experiments::Compiler::Examples::FailWithLabel2;
 
 import experiments::Compiler::Examples::IMP3;
 
+import experiments::Compiler::Examples::KWP1;
+import experiments::Compiler::Examples::KWP2;
+import experiments::Compiler::Examples::KWP3;
+import experiments::Compiler::Examples::KWP4;
+
 loc base = |rascal:///experiments/Compiler/Examples/|;
 
 
@@ -76,6 +86,7 @@ test bool tst() = demo("AsType1",recompile=true) == experiments::Compiler::Examp
 test bool tst() = demo("AsType2",recompile=true) == experiments::Compiler::Examples::AsType2::main([]);
 test bool tst() = demo("Bottles") == experiments::Compiler::Examples::Bottles::main([]);
 test bool tst() = demo("Capture") == experiments::Compiler::Examples::Capture::main([]);
+test bool tst() = demo("ConcreteMatching") == experiments::Compiler::Examples::ConcreteMatching::main([]);
 test bool tst() = demo("E1E2") == experiments::Compiler::Examples::E1E2::main([]);
 test bool tst() = demo("Fac") == experiments::Compiler::Examples::Fac::main([]);
 test bool tst() = demo("Fib") == experiments::Compiler::Examples::Fib::main([]);
@@ -84,10 +95,9 @@ test bool tst() = demo("SetMatch") == experiments::Compiler::Examples::SetMatch:
 test bool tst() = demo("SetMatchMix") == experiments::Compiler::Examples::SetMatchMix::main([]);
 test bool tst() = demo("Descent") == experiments::Compiler::Examples::Descent::main([]);
 test bool tst() = demo("Odd") == experiments::Compiler::Examples::Odd::main([]);
-/*fails*/ //test bool tst() = demo("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
+test bool tst() = demo("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
 
-// String templates generate a too large indent for nested templates.
-/*fails*/ // test bool tst() = demo("Template") == experiments::Compiler::Examples::Template::main([]);
+test bool tst() = demo("Template") == experiments::Compiler::Examples::Template::main([]);
 test bool tst() = demo("Overloading1") == experiments::Compiler::Examples::Overloading1::main([]);
 test bool tst() = demo("Overloading2") == experiments::Compiler::Examples::Overloading2::main([]) && demo("Overloading1") == demo("Overloading2");
 test bool tst() = demo("Overloading3") == experiments::Compiler::Examples::Overloading3::main([]);
@@ -100,6 +110,7 @@ test bool tst() = demo("OverloadingPlusVarArgsSpecialCase") == experiments::Comp
 test bool tst() = demo("ExceptionHandling1") == experiments::Compiler::Examples::ExceptionHandling1::main([]);
 test bool tst() = demo("ExceptionHandling2") == experiments::Compiler::Examples::ExceptionHandling2::main([]);
 test bool tst() = demo("ExceptionHandling3") == experiments::Compiler::Examples::ExceptionHandling3::main([]);
+test bool tst() = demo("ExceptionHandling4") == experiments::Compiler::Examples::ExceptionHandling4::main([]);
 test bool tst() = demo("ExceptionHandlingFinally1") == experiments::Compiler::Examples::ExceptionHandlingFinally1::main([]);
 test bool tst() = demo("ExceptionHandlingFinally2") == experiments::Compiler::Examples::ExceptionHandlingFinally2::main([]);
 test bool tst() = demo("ExceptionHandlingFinally3") == experiments::Compiler::Examples::ExceptionHandlingFinally3::main([]);
@@ -139,3 +150,14 @@ test bool tst() = demo("IMP3") == experiments::Compiler::Examples::IMP3::main([]
 // Fail with labels
 test bool tst() = demo("FailWithLabel1") == experiments::Compiler::Examples::FailWithLabel1::main([]);
 test bool tst() = demo("FailWithLabel2") == experiments::Compiler::Examples::FailWithLabel2::main([]);
+
+// Keyword parameters
+test bool tst() = demo("KWP1") == experiments::Compiler::Examples::KWP1::main([]);
+test bool tst() = demo("KWP2") == experiments::Compiler::Examples::KWP2::main([]);
+test bool tst() = demo("KWP3") == experiments::Compiler::Examples::KWP3::main([]);
+test bool tst1001() = demo("KWP4") == experiments::Compiler::Examples::KWP4::expectedResult;
+
+// Nested functions
+test bool tst() = demo("NestedFunctions1") == experiments::Compiler::Examples::NestedFunctions1::main([]);
+test bool tst() = demo("NestedFunctions2") == experiments::Compiler::Examples::NestedFunctions2::main([]);
+test bool tst() = demo("NestedFunctions3") == experiments::Compiler::Examples::NestedFunctions3::main([]);

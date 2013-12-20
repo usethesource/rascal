@@ -21,11 +21,12 @@ import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+import experiments::Compiler::RVM::Interpreter::ParsingTools;
 
 
 int size_exps({Expression ","}* es) = size([e | e <- es]);		     // TODO: should become library function
 int size_exps({Expression ","}+ es) = size([e | e <- es]);		     // TODO: should become library function
-int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	// TODO: should become library function
+int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: should become library function
 
 // Create (and flatten) a muAll
 
@@ -93,7 +94,7 @@ set[str] numeric = {"int", "real", "rat", "num"};
 MuExp comparison(str op, Expression e) {
   lot = getOuterType(e.lhs);
   rot = getOuterType(e.rhs);
-  println("comparison: op = <op>, lot = <lot>, rot = <rot>");
+  //println("comparison: op = <op>, lot = <lot>, rot = <rot>");
   if(lot == "value" || rot == "value"){
      lot = ""; rot = "";
   } else {
@@ -192,19 +193,30 @@ syntax ConcreteHole
   ;
 */
 
-MuExp translateConcrete(e:(ConcreteHole) `\< <Sym symbol> <Name name> \>`){
-  println("***** ConcreteHole, name: <name>");
-  iprint(e);
-  return muCallPrim("list_subscript_int", [muCallPrim("adt_field_access", [mkVar("<name>", name@\loc), muCon("args")]), muCon(7)]);
-}
+//MuExp translateConcrete(e:(ConcreteHole) `\< <Sym symbol> <Name name> \>`){
+//  println("***** ConcreteHole, name: <name>");
+//  iprint(e);
+//  return muCallPrim("list_subscript_int", [muCallPrim("adt_field_access", [mkVar("<name>", name@\loc), muCon("args")]), muCon(7)]);
+//}
 
-default MuExp translateConcrete(e: appl(Production prod, list[Tree] args)){
-   //MuExp receiver =  getConstructor("appl");
-   //return muCall(receiver, [muCon(prod), muCallPrim("list_create",  [ translateConcrete(a) | a <- args ])]);
-    return muCallPrim("parse_fragment", [muCon(getModuleName()), muCon(e), muCon(e@\loc)]);
+default MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){   
+    Tree parsedFragment = parseFragment(getModuleName(), e, e@\loc, getGrammar(config));
+    return translateConcreteParsed(parsedFragment);
 }
 
 default MuExp translateConcrete(t) = muCon(t);
+
+MuExp translateConcreteParsed(e: appl(Production prod, list[Tree] args)){
+   if(prod.def == label("hole", lex("ConcretePart"))){
+       varloc = args[0].args[4].args[0]@\loc;		// TODO: refactor (see concrete patterns)
+       <fuid, pos> = getVariableScope("ConcreteVar", varloc);
+       return muVar("ConcreteVar", fuid, pos);
+    }    
+    return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
+                   [muCon(prod), muCallPrim("list_create", [translateConcreteParsed(arg) | arg <- args])]);
+}
+
+default MuExp translateConcreteParsed(Tree t) = muCon(t);
 
 // Block
 MuExp translate(e:(Expression) `{ <Statement+ statements> }`) = muBlock([translate(stat) | stat <- statements]);
@@ -263,14 +275,7 @@ MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <
       muWhile(loopname, makeMuAll([rangecode]), [ muCallPrim("listwriter_add", [muTmp(writer), muTmp(var)])]),
       muCallPrim("listwriter_close", [muTmp(writer)]) 
     ]);
-    
 }
-
-
-//MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]`) {
-//   kind = (getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int") ? "int" : "real";
-//   return muCallPrim("range_step_create_<kind>", [translate(first),  translate(second), translate(last)]);
-//}
 
 // Visit
 MuExp translate (e:(Expression) `<Label label> <Visit visitItself>`) = translateVisit(label, visitItself);
@@ -284,7 +289,9 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 
 // Call
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`){
-   // ignore kw arguments for the moment
+
+   MuExp kwargs = translateKeywordArguments(keywordArguments);
+      
    MuExp receiver = translate(expression);
    list[MuExp] args = [ translate(a) | a <- arguments ];
    if(getOuterType(expression) == "str") {
@@ -296,7 +303,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    }
    
    if(muFun(str _) := receiver || muFun(str _, str _) := receiver || muConstr(str _) := receiver) {
-       return muCall(receiver, args);
+       return muCall(receiver, args); // keyword arguments
    }
    
    // Now overloading resolution...
@@ -386,7 +393,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
        overloadingResolver[ofqname] = i;
-       return muOCall(muOFun(ofqname), args);
+       return muOCall(muOFun(ofqname), args + [ kwargs ]);
    }
    if(isOverloadedFunction(receiver) && receiver.fuid notin overloadingResolver) {
       throw "The use of a function has to be managed via overloading resolver!";
@@ -394,14 +401,23 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    // Push down additional information if the overloading resolution needs to be done at runtime
    return muOCall(receiver, 
    				  isFunctionType(ftype) ? Symbol::\tuple([ ftype ]) : Symbol::\tuple([ t | Symbol t <- getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype) ]), 
-   				  args);
+   				  args + [ kwargs ]);
 }
 
 // Any
 MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = makeMuOne([translate(g) | g <- generators ]);
 
 // All
-MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) = makeMuAll([translate(g) | g <- generators ]);
+
+MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
+  // First split generators with a top-level && operator
+  generators1 = [*(((Expression) `<Expression e1> && <Expression e2>` := g) ? [e1, e2] : [g]) | g <- generators];
+  isGen = [!backtrackFree(g) | g <- generators1];
+  generators2 = [g | g <- generators1]; // TODO: artefact of concrete syntax
+  gens = [isGen[i] ? translate(generators2[i]).exp // Unwraps muMulti 
+                   : translateBoolClosure(generators2[i]) | i <- index(generators1)];
+  return muCall(mkCallToLibFun("Library", "RASCAL_ALL", 2), [ muCallMuPrim("make_array", gens), muCallMuPrim("make_array", [ muBool(b) | bool b <- isGen ]) ]);
+}
 
 // Comprehension
 MuExp translate (e:(Expression) `<Comprehension comprehension>`) = translateComprehension(comprehension);
@@ -725,14 +741,12 @@ default MuExp translateBool(Expression e) {
 
 MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
   if(backtrackFree(lhs) && backtrackFree(rhs)) {
-     lcode = translateBool(lhs);
-     rcode = translateBool(rhs);
      switch(fun){
-     	case "and": 		return muIfelse(nextLabel("L_AND"), lcode, [rcode], [muCon(false)]);
+     	case "and": 		return muIfelse(nextLabel("L_AND"),  translateBool(lhs), [translateBool(rhs)], [muCon(false)]);
      						//return makeMuAll([translate(lhs), translate(rhs)]);
-     	case "or":			return muIfelse(nextLabel("L_OR"), lcode, [muCon(true)], [rcode]);
-     	case "implies":		return muIfelse(nextLabel("L_IMPLIES"), lcode, [rcode], [muCon(true)]);
-     	case "equivalent":	return muIfelse(nextLabel("L_EQUIVALENT"), lcode, [rcode], [muCallMuPrim("not_mbool", [rcode])]);
+     	case "or":			return muIfelse(nextLabel("L_OR"),  translateBool(lhs), [muCon(true)], [translateBool(rhs)]);
+     	case "implies":		return muIfelse(nextLabel("L_IMPLIES"),  translateBool(lhs), [translateBool(rhs)], [muCon(true)]);
+     	case "equivalent":	return muIfelse(nextLabel("L_EQUIVALENT"),  translateBool(lhs), [translateBool(rhs)], [muCallMuPrim("not_mbool", [translateBool(rhs)])]);
      	default:
     		throw "translateBoolBinary: unknown operator <fun>";
      }
@@ -791,25 +805,31 @@ lexical PostStringChars
 
 MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <StringTemplate template> <StringTail tail>`) {
 	preResult = nextTmp();
-	return muBlock( [ muAssignTmp(preResult, translatePre(pre)),
-                      muCallPrim("template_addunindented", [ translateTemplate(template, preResult), *translateTail(tail)])
+	return muBlock( [ muAssignTmp(preResult, translateChars("<pre>")),
+                      muCallPrim("template_addunindented", [ translateTemplate(template, computeIndent(pre), preResult), *translateTail(tail)])
                     ]);
 }
     
 MuExp translateStringLiteral((StringLiteral) `<PreStringChars pre> <Expression expression> <StringTail tail>`) {
     preResult = nextTmp();
-    return muBlock( [ muAssignTmp(preResult, translatePre(pre)),
-					  muCallPrim("template_addunindented", [ translateTemplate(expression, preResult), *translateTail(tail)])
+    return muBlock( [ muAssignTmp(preResult, translateChars("<pre>")),
+					  muCallPrim("template_addunindented", [ translateTemplate(expression, computeIndent(pre), preResult), *translateTail(tail)])
 					]   );
 }
                     
 MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString("<constant>"));
-//muCon("<constant>"[1..-1]);
 
-MuExp translatePre(PreStringChars pre) {
-  content = "<pre>"[1..-1];
-  return muCon(content);  //[muCallPrim("str_remove_margins", [muCon(content)])];
-}
+str removeMargins(str s)  = visit(s) { case /^[ \t]*'/m => "" };
+
+str computeIndent(str s) {
+   lines = split("\n", removeMargins(s)); 
+   return isEmpty(lines) ? "" : left("", size(lines[-1]));
+} 
+
+str computeIndent(PreStringChars pre) = computeIndent(removeMargins("<pre>"[1..-1]));
+str computeIndent(MidStringChars mid) = computeIndent(removeMargins("<mid>"[1..-1]));
+
+MuExp translateChars(str s) = muCon(removeMargins(s[1..-1]));
 
 /*
 syntax StringTemplate
@@ -828,26 +848,22 @@ syntax StringTemplate
 	| interpolated: MidStringChars mid Expression expression StringMiddle tail ;
 */
 
-MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`)  =  muCon("<mid>"[1..-1]); // muCallPrim("str_remove_margins", [muCon("<mid>"[1..-1])]);
+MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`) = muCon(removeMargins("<mid>"[1..-1]));
 
 MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) {
     midResult = nextTmp();
-    return muBlock( [ muAssignTmp(midResult, translateMid(mid)),
-   			          muCallPrim("template_addunindented", [ translateTemplate(template, midResult), translateMiddle(tail) ])
+    return muBlock( [ muAssignTmp(midResult, translateChars("<mid>")),
+   			          muCallPrim("template_addunindented", [ translateTemplate(template,  computeIndent(mid), midResult), translateMiddle(tail) ])
    			        ]);
    	}
 
 MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <Expression expression> <StringMiddle tail>`) {
     midResult = nextTmp();
-    return muBlock( [ muAssignTmp(midResult, translateMid(mid)),
-                      muCallPrim("template_addunindented", [ translateTemplate(expression, midResult), translateMiddle(tail) ])
+    return muBlock( [ muAssignTmp(midResult, translateChars("<mid>")),
+                      muCallPrim("template_addunindented", [ translateTemplate(expression, computeIndent(mid), midResult), translateMiddle(tail) ])
                     ]);
 }
-
-MuExp translateMid(MidStringChars mid) {
-  content = "<mid>"[1..-1];
-  return muCon(content);
-}    
+  
 /*
 syntax StringTail
 	= midInterpolated: MidStringChars mid Expression expression StringTail tail 
@@ -857,28 +873,28 @@ syntax StringTail
 
 list[MuExp] translateTail((StringTail) `<MidStringChars mid> <Expression expression> <StringTail tail>`) {
     midResult = nextTmp();
-    return [ muBlock( [ muAssignTmp(midResult, translateMid(mid)),
-                      muCallPrim("template_addunindented", [ translateTemplate(expression, midResult), *translateTail(tail)])
+    return [ muBlock( [ muAssignTmp(midResult, translateChars("<mid>")),
+                      muCallPrim("template_addunindented", [ translateTemplate(expression, computeIndent(mid), midResult), *translateTail(tail)])
                     ])
            ];
 }
 	
 list[MuExp] translateTail((StringTail) `<PostStringChars post>`) {
-  content = "<post>"[1..-1];
-  return size(content) == 0 ? [] : [muCon(content)]; //[muCallPrim("str_remove_margins", [muCon(content)])];
+  content = removeMargins("<post>"[1..-1]);
+  return size(content) == 0 ? [] : [muCon(content)];
 }
 
 list[MuExp] translateTail((StringTail) `<MidStringChars mid> <StringTemplate template> <StringTail tail>`) {
     midResult = nextTmp();
-    return [ muBlock( [ muAssignTmp(midResult, translateMid(mid)),
-                        muCallPrim("template_addunindented", [ translateTemplate(template, midResult), *translateTail(tail) ])
+    return [ muBlock( [ muAssignTmp(midResult, translateChars("<mid>")),
+                        muCallPrim("template_addunindented", [ translateTemplate(template, computeIndent(mid), midResult), *translateTail(tail) ])
                     ])
            ];
  }  
  
- MuExp translateTemplate(Expression e, str pre){
+ MuExp translateTemplate(Expression e, str indent, str preResult){
     result = nextTmp();
-    return muBlock([ muAssignTmp(result, muCallPrim("template_open", [muTmp(pre)])),
+    return muBlock([ muAssignTmp(result, muCallPrim("template_open", [muCon(indent), muTmp(preResult)])),
     				 muAssignTmp(result, muCallPrim("template_add", [ muTmp(result), muCallPrim("value_to_string", [translate(e)]) ])),
                      muCallPrim("template_close", [muTmp(result)])
                    ]);
@@ -970,18 +986,44 @@ MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-
 	
     ftype = getClosureType(e@\loc);
 	nformals = size(ftype.parameters);
-	nlocals = getScopeSize(fuid);
 	bool isVarArgs = (varArgs(_,_) := parameters);
-  	// TODO: keyword parameters
+  	
+  	// Keyword parameters
+    list[MuExp] kwps = translateKeywordParameters(parameters, getFormals(uid), e@\loc);
     
-    MuExp body = translateFunction(parameters.formals.formals, isVarArgs, cbody, []);
+    // TODO: we plan to introduce keyword patterns as formal parameters
+    MuExp body = translateFunction(parameters.formals.formals, isVarArgs, kwps, cbody, []);
+    
     tuple[str fuid,int pos] addr = uid2addr[uid];
     functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									  nformals, nlocals, isVarArgs, e@\loc, [], (), body);
+  									  getFormals(uid), getScopeSize(fuid), 
+  									  isVarArgs, e@\loc, [], (), 
+  									  body);
   	
   	leaveFunctionScope();								  
   	
 	return (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid); // closures are not overloaded
+}
+
+MuExp translateBoolClosure(Expression e){
+    tuple[str fuid,int pos] addr = <topFunctionScope(),-1>;
+	fuid = addr.fuid + "/non_gen_at_<e@\loc>()";
+	
+	enterFunctionScope(fuid);
+	
+    ftype = Symbol::func(Symbol::\bool(),[]);
+	nformals = 0;
+	nlocals = 0;
+	bool isVarArgs = false;
+  	
+    MuExp body = muReturn(translate(e));
+    functions_in_module += muFunction(fuid, ftype, addr.fuid, 
+  									  nformals, nlocals, isVarArgs, e@\loc, [], (), body);
+  	
+  	leaveFunctionScope();								  
+  	
+	return muFun(fuid, addr.fuid); // closures are not overloaded
+
 }
 
 // Translate comprehensions
@@ -1212,4 +1254,15 @@ private bool hasTopLevelInsert(Case c) {
 	}
 	println("Insert has not been found, non-rebuilding visit!");
 	return false;
+}
+
+MuExp translateKeywordArguments(KeywordArguments keywordArguments) {
+   // Keyword arguments
+   list[MuExp] kwargs = [ muAssignTmp("map_of_keyword_arguments", muCallPrim("mapwriter_open",[])) ];
+   if(keywordArguments is \default) {
+       for(KeywordArgument kwarg <- keywordArguments.keywordArgumentList) {
+           kwargs += muCallPrim("mapwriter_add",[ muTmp("map_of_keyword_arguments"), muCon("<kwarg.name>"), translate(kwarg.expression) ]);           
+       }
+   }
+   return muBlock([ *kwargs, muCallPrim("mapwriter_close", [ muTmp("map_of_keyword_arguments") ]) ]);
 }

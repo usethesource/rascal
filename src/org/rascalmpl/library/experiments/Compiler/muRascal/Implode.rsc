@@ -104,7 +104,7 @@ MuFunction preprocess(Function f, str modName){
    
    scopeIn = (!isEmpty(f.funNames)) ? getUID(modName,f.funNames) : ""; // if not a function scope, then the root one
    // Generate a very generic function type
-   ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..f.nformals + 1] ]);
+   ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..f.nformals] ]);
    
    body = preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body);
    return (f is preCoroutine) ? muCoroutine(uid, scopeIn, f.nformals, size(vardefs[uid]), refs, muBlock(insertGuard ? [ muGuard(muBool(true)), *body, muExhaust() ] : [ *body, muExhaust() ]))
@@ -181,7 +181,9 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("mset2list")), [exp1])									=> muCallMuPrim("mset2list", [exp1])
                case muCall(preVar(mvar("equal")), [exp1, exp2])									=> muCallMuPrim("equal", [exp1, exp2])
                case muCall(preVar(mvar("equal_set_mset")), [exp1, exp2])						=> muCallMuPrim("equal_set_mset", [exp1, exp2])
-               case muCall(preVar(mvar("get_name_and_children")), [exp1])						=> muCallMuPrim("get_name_and_children", [exp1])
+			   case muCall(preVar(mvar("get_children")), [exp1])								=> muCallMuPrim("get_children", [exp1])
+			   case muCall(preVar(mvar("get_name")), [exp1])									=> muCallMuPrim("get_name", [exp1])
+			   case muCall(preVar(mvar("get_name_and_children")), [exp1])						=> muCallMuPrim("get_name_and_children", [exp1])
                case muCall(preVar(mvar("typeOf")), [exp1])										=> muCallPrim("typeOf", [exp1])
                case muCall(preVar(mvar("subtype")), [exp1, exp2])         						=> muCallPrim("subtype", [exp1, exp2])
                case muCall(preVar(mvar("make_iarray")), [exp1])									=> muCallMuPrim("make_iarray_of_size", [exp1])
