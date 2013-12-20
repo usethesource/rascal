@@ -757,7 +757,7 @@ MuExp translateFunction({Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps
 	  };
 	  conditions += [ translate(cond) | cond <- when_conditions];
 
-	  mubody = muIfelse(ifname,makeMuMulti("All",conditions), [ *kwps, muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
+	  mubody = muIfelse(ifname,makeMuMulti("ALL",conditions), [ *kwps, muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	  leaveBacktrackingScope();
 	  return mubody;
   }
