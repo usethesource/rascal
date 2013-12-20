@@ -1116,6 +1116,7 @@ public class RVM {
 							for(Frame f = cf; f != null; f = f.previousCallFrame) {
 								if (f.scopeId == fun.scopeIn) {
 									previousScope = f;
+									break;
 								}
 							}
 							if(previousScope == null) {
