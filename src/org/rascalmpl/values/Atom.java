@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.IString;
 
 public abstract class Atom extends OrgString {
 	protected final IString value;
+	private Integer hashcode = null;
 	
 	public Atom(String s) {
 		value = vf.baseString(s);
@@ -28,12 +29,15 @@ public abstract class Atom extends OrgString {
 	
 	@Override
 	public int hashCode() {
-		int h = 0;
-		String s = getValue();
-		for (int i = 0; i < length(); i++) {
-			h += s.charAt(i);
+		if (hashcode == null) {
+			hashcode = 0;
+			String s = getValue();
+			for (int i = 0; i < length(); i++) {
+				hashcode += s.charAt(i);
+			}
+			return hashcode;
 		}
-		return h;
+		return hashcode;
 	}
 	
 	@Override

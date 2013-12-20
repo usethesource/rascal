@@ -9,12 +9,11 @@ public class Concat extends OrgString {
 
 	private final OrgString lhs;
 	private final OrgString rhs;
-	private final int length;
+	private Integer length = null;
 
 	public Concat(OrgString lhs, OrgString rhs) {
 		this.lhs = lhs;
 		this.rhs = rhs;
-		this.length = lhs.length() + rhs.length();
 	}
 	
 	public OrgString getLhs() {
@@ -27,6 +26,9 @@ public class Concat extends OrgString {
 
 	@Override
 	public int length() {
+		if (length == null) {
+		  length = lhs.length() + rhs.length();
+		}
 		return length;
 	}
 

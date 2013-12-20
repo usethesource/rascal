@@ -47,7 +47,7 @@ public class StringResult extends ElementResult<IString> {
 	}
 	
 	protected int length() {
-		return string.getValue().length();
+		return string.length(); 
 	}
 	
 	protected void yield(StringBuilder b) {
