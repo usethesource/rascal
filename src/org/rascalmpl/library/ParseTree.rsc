@@ -93,6 +93,7 @@ module ParseTree
 
 extend Type;
 extend Message;
+import util::Maybe;
 
 @doc{
 Synopsis: The Tree data type as produced by the parser.
@@ -241,6 +242,11 @@ public Production associativity(Symbol s, Associativity as, {*Production a, prio
 Synopsis: Annotate a parse tree node with a source location.
 }
 anno loc Tree@\loc;
+
+@doc{
+Synopsis: Annotate a parse tree node with the string origins of the text that produced that tree.
+}
+anno lrel[Maybe[loc],str] Tree@origins;
 
 @doc{
 Synopsis: Parse input text (from a string or a location) and return a parse tree.

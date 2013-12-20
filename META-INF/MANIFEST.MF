@@ -35,6 +35,7 @@ Export-Package:
  org.rascalmpl.library.lang.rascal.syntax,
  org.rascalmpl.library.lang.rsf,
  org.rascalmpl.library.lang.xml,
+ org.rascalmpl.library.util,
  org.rascalmpl.library.util.tasks,
  org.rascalmpl.library.vis,
  org.rascalmpl.library.vis.swt,
