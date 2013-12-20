@@ -615,6 +615,9 @@ list[loc] originsOf(lrel[Maybe[loc], str] orgs, loc subject) {
   return [ l | <just(loc l), _> <- found ];	
 }
 
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool originsAreEnabled();
+
 
 data OrgString
   = chunk(str val, loc origin)

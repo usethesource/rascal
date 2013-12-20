@@ -115,6 +115,7 @@ import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.Insincere;
 import org.rascalmpl.values.NoOrg;
 import org.rascalmpl.values.OrgString;
+import org.rascalmpl.values.OriginValueFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -3477,6 +3478,10 @@ public class Prelude {
 		return values.list();
 	}
 	
+	
+	public IBool originsAreEnabled() {
+		return values.bool(values instanceof OriginValueFactory);
+	}
 	
 	public IConstructor toOrgString(IString x) {
 		if (x instanceof OrgString) {
