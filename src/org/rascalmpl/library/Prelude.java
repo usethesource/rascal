@@ -2906,7 +2906,7 @@ public class Prelude {
 	
 	public IList split(IString sep, IString src) {
 		if (src instanceof OrgString) {
-			return ((OrgString)src).split(sep.getValue());
+			return ((OrgString)src).split(sep);
 		}
 		String[] lst = src.getValue().split(Pattern.quote(sep.getValue()));
 		IListWriter lw = values.listWriter();
@@ -3105,7 +3105,7 @@ public class Prelude {
 	
 	public IValue replaceAll(IString str, IString find, IString replacement) {
 		if (str instanceof OrgString) {
-			return ((OrgString)str).replaceAll(find.getValue(), replacement);
+			return ((OrgString)str).replaceAll(find, replacement);
 		}
 		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
 		char [] input = str.getValue().toCharArray();
@@ -3192,7 +3192,7 @@ public class Prelude {
 	
 	public IValue contains(IString str, IString find){
 		if (str instanceof OrgString) {
-			return values.bool(((OrgString)str).indexOf(find.getValue()) >= 0);
+			return values.bool(((OrgString)str).indexOf(find) >= 0);
 		}
 		return values.bool(str.getValue().indexOf(find.getValue()) >= 0);
 	}

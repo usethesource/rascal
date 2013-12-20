@@ -119,7 +119,7 @@ public class StringTemplateConverter {
 				v = convertToString(v);
 				java.lang.String fill = __eval.getCurrentIndent();
 				if (v instanceof OrgString) {
-					v = ((OrgString)v).replaceAll("\n", vf.string(src, "\n" + fill));
+					v = ((OrgString)v).replaceAll(vf.string("\n"), vf.string(src, "\n" + fill));
 				}
 				else {
 					java.lang.String content = ((IString)v).getValue();
@@ -193,14 +193,17 @@ public class StringTemplateConverter {
 			private IString makeValue(String arg) {
 				IRascalValueFactory vf = ValueFactoryFactory.getValueFactory();
 				// Consts always have " <, or > ", or > <.
-				URI uri;
-				String frag = uniqueFragment(); 
+				ISourceLocation newLoc;
 				try {
-					uri = URIUtil.changeFragment(src.getURI(), frag);
+					newLoc = vf.sourceLocation(src.getScheme(), 
+						src.hasAuthority() ? src.getAuthority() : null, 
+						src.hasPath() ? src.getPath() : null, 
+						src.hasQuery() ? src.getQuery() : null, 
+						uniqueFragment());
 				} catch (URISyntaxException e) {
-					throw new ImplementationError("invalid fragment " + frag);
+					throw new ImplementationError("invalid fragment " + e);
 				}
-				ISourceLocation loc = vf.sourceLocation(uri, src.getOffset() + 1, 
+				ISourceLocation loc = vf.sourceLocation(newLoc, src.getOffset() + 1, 
 						src.getLength() - 2, 
 						src.getBeginLine(), 
 						src.getEndLine(), 
