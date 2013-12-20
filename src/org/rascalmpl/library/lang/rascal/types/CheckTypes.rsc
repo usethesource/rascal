@@ -684,7 +684,7 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
 	        } else {
 	        	itemTypes += rt;
 	        }
-	        c.store[c.nextLoc] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded(itemTypes,defaults));
+	        c.store[c.nextLoc] = overload({ c.fcvEnv[n], functionId }, overloaded(itemTypes,defaults));
 			c.fcvEnv[n] = c.nextLoc;
 	        c.nextLoc = c.nextLoc + 1;
 	    } else if ((\module(_,_) := c.store[c.store[c.fcvEnv[n]].containedIn] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) {
