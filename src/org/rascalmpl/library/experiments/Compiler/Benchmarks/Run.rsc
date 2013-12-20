@@ -204,7 +204,7 @@ void main_paper(){
 
 void main_paper1(){
   measurements = ();
-  nsamples = 4;
+  nsamples = 3;
   run("BCompareFor", experiments::Compiler::Benchmarks::BCompareFor::main);
   run("BCompareIf", experiments::Compiler::Benchmarks::BCompareIf::main);
   run("BCompareComprehension", experiments::Compiler::Benchmarks::BCompareComprehension::main);
@@ -240,7 +240,7 @@ void main_paper1(){
 
 void main_paper2(){
   measurements = ();
-  nsamples = 4;
+  nsamples = 3;
   run("BBottles", experiments::Compiler::Benchmarks::BBottles::main);
   run("BFac", experiments::Compiler::Benchmarks::BFac::main);
   run("BFib", experiments::Compiler::Benchmarks::BFib::main);

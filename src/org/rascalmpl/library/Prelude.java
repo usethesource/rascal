@@ -1087,8 +1087,8 @@ public class Prelude {
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
-		try {
-			return consumeInputStream(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI(), charset.getValue()), ctx);
+		try (Reader reader = ctx.getResolverRegistry().getCharacterReader(sloc.getURI(), charset.getValue())){
+			return consumeInputStream(sloc, reader, ctx);
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		} catch (IOException e) {
@@ -1097,21 +1097,63 @@ public class Prelude {
 	}
 
 	private IValue consumeInputStream(ISourceLocation sloc, Reader in, IEvaluatorContext ctx) {
-		StringBuilder result = new StringBuilder(1024 * 1024);
 		try{
-			char[] buf = new char[4096];
-			int count;
-
-			while((count = in.read(buf)) != -1) {
-				result.append(new java.lang.String(buf, 0, count));
+			java.lang.String str = null;
+			if(!sloc.hasOffsetLength() || sloc.getOffset() == -1){
+				StringBuilder result = new StringBuilder(1024 * 1024);
+				char[] buf = new char[4096];
+				int count;
+	
+				while((count = in.read(buf)) != -1) {
+					result.append(new java.lang.String(buf, 0, count));
+				}
+				str = result.toString();
 			}
-			
-			java.lang.String str = result.toString();
-			
-			if(sloc.hasOffsetLength() && sloc.getOffset() != -1){
-				str = str.substring(sloc.getOffset(), sloc.getOffset() + sloc.getLength());
+			else {
+				BufferedReader buffer = new BufferedReader(in, 4096);
+				try {
+					// first scan for offset
+					int offset = sloc.getOffset();
+					int seen = 0 ;
+					while (seen < offset) {
+						char c = (char)buffer.read();
+						if (Character.isHighSurrogate(c)) {
+							buffer.read();
+						}
+						seen++;
+					}
+	
+					// offset reached, start reading and possibly merging
+					int targetLength = sloc.getLength();
+					StringBuilder result = new StringBuilder(targetLength);
+					int charsRead = 0;
+					while (charsRead < targetLength) {
+						int c = buffer.read();
+						if (c == -1) {
+							break; // EOF
+						}
+						charsRead++;
+						result.append((char)c);
+						if (Character.isHighSurrogate((char)c)) {
+							c = buffer.read();
+							if (c == -1) {
+								break; // EOF
+							}
+							result.append((char)buffer.read());
+							if (!Character.isLowSurrogate((char)c)) {
+								// strange but in case of incorrect unicode stream
+								// let's not eat the next character
+								charsRead++;
+							}
+						}
+					}
+					str = result.toString();
+				}
+				finally {
+					buffer.close();
+				}
+				
 			}
-			
 			return values.string(str);
 		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);

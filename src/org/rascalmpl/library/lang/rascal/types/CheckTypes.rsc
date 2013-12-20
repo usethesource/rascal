@@ -147,7 +147,7 @@ import lang::rascal::\syntax::Rascal;
 // 31. addition on functions
 
 @doc{The source of a label (visit, block, etc).}
-data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel() | switchLabel() | caseLabel() ;
+data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel() | switchLabel() | caseLabel() | functionLabel() ;
 
 @doc{Function modifiers.}
 data Modifier = javaModifier() | testModifier() | defaultModifier();
@@ -278,6 +278,7 @@ public Configuration addLabel(Configuration c, RName n, loc l, LabelSource ls) {
 public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
 
 public int definingContainer(Configuration c, int i) {
+	if (c.store[i] is overload) return definingContainer(c, getOneFrom(c.store[i].items));
     cid = c.store[i].containedIn;
     if (\module(_,_) := c.store[cid]) return cid;
     if (\function(_,_,_,_,_,_,_) := c.store[cid]) return cid;
@@ -323,7 +324,7 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
         } else if (atRootOfModule && \module(_,_) := c.store[getContainedIn(c,c.store[c.fcvEnv[n]])] && getContainedIn(c,c.store[c.fcvEnv[n]]) == moduleId) {
             // In this case, we are adding a global variable that shadows another global item
             // from the same module, which is not allowed.
-            c = addScopeError(c, "Cannot re-declare global name", l);
+            c = addScopeError(c, "Cannot re-declare global name: <prettyPrintName(n)>", l);
             c.uses = c.uses + < c.fcvEnv[n], l >;
             c.usedIn[l] = head(c.stack);
         } else {
@@ -331,7 +332,7 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
             conflictIds = (overload(ids,_) := c.store[c.fcvEnv[n]]) ? ids : { c.fcvEnv[n] };
             containingIds = { definingContainer(c,i) | i <- conflictIds };
             if (size(toSet(containingScopes) & containingIds) > 0) {
-                c = addScopeError(c, "Cannot re-declare name that is already declared in the current function or closure", l);
+                c = addScopeError(c, "Cannot re-declare name that is already declared in the current function or closure: <prettyPrintName(n)>", l);
                 c.uses = c.uses + < c.fcvEnv[n], l >;
                 c.usedIn[l] = head(c.stack);
             } else {
@@ -479,55 +480,18 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
     }
     
     // Add the constructor. This also performs an overlap check if this is not the first
-    // constructor with this name -- note that we only check for overlaps with constructors
-    // defined in the same ADT, since there is no language mechanism to distinguish them
-    // when used in a program (we cannot prefix the constructor with the ADT name, for
-    // instance).
-    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-    if (n notin c.fcvEnv) {
-        // On the initial add, we create three versions of the constructor name:
-        // * the bare name
-        // * the name, qualified with the ADT name
-        // * the name, qualified with the name of the module
-        // This ensures that all valid lookups of the name are successful.
-        c.fcvEnv[n] = c.nextLoc;
-        c.fcvEnv[appendName(adtName,n)] = c.nextLoc;
-        c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
-        c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
-        c.nextLoc = c.nextLoc + 1;
-    } else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-        // If the same constructor definitions comes in along multiple paths, this is fine.
-        // The only thing we do then is make sure the names are correct, since, given module
-        // B extending module A, we could call the constructor A::cons or B::cons.
-        existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
-        c.fcvEnv[appendName(adtName,n)] = c.fcvEnv[n];
-        c.fcvEnv[appendName(moduleName,n)] = c.fcvEnv[n];
-        if (!existsAlready) {
-            c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-            c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes,defaults + rt));
-            c.definitions = c.definitions + < c.nextLoc, l >;
-            overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt)}; //, !equivalent(c.store[i].rtype,rt)};
-            if (size(overlaps) > 0)
-                c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <c.nextLoc>, <overlaps>",l);
-            c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
-            c.nextLoc = c.nextLoc + 1;
-        }
-    } else if (constructor(_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
-        // If the same constructor definitions comes in along multiple paths, this is fine.
-        // The only thing we do then is make sure the names are correct, since, given module
-        // B extending module A, we could call the constructor A::cons or B::cons.
-        existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
-        c.fcvEnv[appendName(adtName,n)] = c.fcvEnv[n];
-        c.fcvEnv[appendName(moduleName,n)] = c.fcvEnv[n];
-        if (!existsAlready) {
-            c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-            c.definitions = c.definitions + < c.nextLoc, l >;
-            overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt) };
-            if (size(overlaps) > 0)
-                c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <c.nextLoc>, <overlaps>",l);
-            c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
+    // constructor with this name to ensure the constructor is distinguishable within
+    // the same ADT (we can add the ADT name to distinguish constructors from different
+    // ADTs).
+    void addConstructorItem(RName n, int constructorItemId) {
+	    if (n notin c.fcvEnv) {
+	    	// Case 1: This is the first occurrence of this name.
+	        c.fcvEnv[n] = constructorItemId;
+	    } else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
+	    	// Case 2: The name is already overloaded. Add this as one more overload.
+	    	// TODO: If we are annotating overload items, we need to copy annotations here
+            c.store[c.fcvEnv[n]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + rt));
+	    } else if (constructor(_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
             nonDefaults = {};
             defaults = { rt };
             if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
@@ -539,14 +503,37 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
             		nonDefaults += c.store[c.fcvEnv[n]].rtype;
             	}
             }
-            c.store[c.nextLoc+1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded(nonDefaults,defaults));
-            for (cname <- invert(c.fcvEnv)[c.fcvEnv[n]])
-                c.fcvEnv[cname] = c.nextLoc+1;
-            c.nextLoc = c.nextLoc + 2;
-        }
-    } else {
-        throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
-    }
+            c.store[c.nextLoc] = overload({ c.fcvEnv[n], constructorItemId }, overloaded(nonDefaults,defaults));
+            c.fcvEnv[n] = c.nextLoc;
+            c.nextLoc = c.nextLoc + 1;
+	    } else {
+	        throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
+	    }
+	}
+
+    existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
+    if (!existsAlready) {
+	    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+	    nameWithAdt = appendName(adtName,n);
+	    nameWithModule = appendName(moduleName,n);
+    
+        overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt)}; //, !equivalent(c.store[i].rtype,rt)};
+        if (size(overlaps) > 0)
+            c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
+
+	    constructorItemId = c.nextLoc;
+	    c.nextLoc = c.nextLoc + 1;
+
+	    constructorItem = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
+	    c.store[constructorItemId] = constructorItem;
+	    c.definitions = c.definitions + < constructorItemId, l >;
+	    c.adtConstructors = c.adtConstructors + < adtId, constructorItemId >;
+	    
+	    addConstructorItem(n, constructorItemId);
+	    addConstructorItem(nameWithAdt, constructorItemId);
+	    addConstructorItem(nameWithModule, constructorItemId);
+	}    
+	
     return c;
 }
 
@@ -634,6 +621,8 @@ public Configuration addClosure(Configuration c, Symbol rt, KeywordParamMap keyw
     return c;
 }
 
+// TODO: This requires the same overload logic just added to constructor to keep
+// name and module qualified name separate
 public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordParamMap keywordParams, set[Modifier] modifiers, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l) {
     // TODO: Handle the visibility properly. The main point is that we should not have variants
     // for the same function that are given different visibilities.
@@ -649,85 +638,78 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
     rt@isVarArgs = isVarArgs;
     currentModuleId = head([i | i <- c.stack, \module(_,_) := c.store[i]]);
 
-    if (n notin c.fcvEnv) {
-        c.fcvEnv[n] = c.nextLoc;
-        if (\module(_,_) := c.store[head(c.stack)]) {
-            // If this function is module-level, also make it referenceable through
-            // the qualified name module::function.
-            moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-            c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
-        }
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        } 
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        c.nextLoc = c.nextLoc + 1;
-    } else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        }
-        if(hasDefaultModifier(modifiers)) {
-        	defaults += rt;
-        } else {
-        	itemTypes += rt;
-        }
-        c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes,defaults));
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        c.nextLoc = c.nextLoc + 1;
-    } else if (function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        }
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        itemTypes = {};
-        defaults = {};
-        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
-        	defaults += c.store[c.fcvEnv[n]].rtype;
-        } else {
-        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-        		defaults += c.store[c.fcvEnv[n]].rtype;
-        	} else {
-        		itemTypes += c.store[c.fcvEnv[n]].rtype;
-        	}
-        }
-        if(hasDefaultModifier(modifiers)) {
-        	defaults += rt;
-        } else {
-        	itemTypes += rt;
-        }
-        c.store[c.nextLoc + 1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded(itemTypes,defaults));
-        for (fname <- invert(c.fcvEnv)[c.fcvEnv[n]])
-            c.fcvEnv[fname] = c.nextLoc+1;
-        c.nextLoc = c.nextLoc + 2;
-    } else if ((\module(_,_) := c.store[c.fcvEnv[n]] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) { // ???
-        c = addScopeWarning(c, "Function declaration masks imported variable or constructor definition", l);
-        c.fcvEnv[n] = c.nextLoc;
-        if (\module(_,_) := c.store[head(c.stack)]) {
-            // If this function is module-level, also make it referenceable through
-            // the qualified name module::function.
-            moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-            c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
-        }
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        }
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        c.nextLoc = c.nextLoc + 1;
-    } else {
-        c = addScopeError(c, "Cannot add function <prettyPrintName(n)>, non-function items of that name have already been defined in the current scope",l);
+	// Create the new function item and insert it into the store; also keep track of
+	// the item Id. This also handles other bookkeeping information, such as the
+	// information on definitions and visibilities.
+	functionItem = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
+	functionId = c.nextLoc;
+	c.nextLoc = c.nextLoc + 1;
+	c.store[functionId] = functionItem;
+    c.definitions = c.definitions + < functionId, l >;
+    c.visibilities[functionId] = visibility;
+    for(Modifier modifier <- modifiers) c.functionModifiers = c.functionModifiers + <functionId,modifier>;
+
+	// This actually links in the function item with a name in the proper manner. This is handled name by
+	// name so we can keep separate overload sets for different versions of a name (if we qualify the name,
+	// it should not refer to other names with different qualifiers).
+	void addFunctionItem(RName n, int functionId) {	
+	    if (n notin c.fcvEnv) {
+	    	// Case 1: The name does not appear at all, so insert it and link it to the function item.
+	        c.fcvEnv[n] = functionId;
+	    } else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
+	    	// Case 2: The name is already overloaded, so link in the Id as one of the overloads.
+	        if(hasDefaultModifier(modifiers)) {
+	        	defaults += rt;
+	        } else {
+	        	itemTypes += rt;
+	        }
+	        c.store[c.fcvEnv[n]] = overload(items + functionId, overloaded(itemTypes,defaults));
+	    } else if (function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
+	    	// Case 3: The name is not overloaded yet, but this will make it overloaded. So, create the
+	    	// overloading entry. We also then point the current name to this overload item, which will
+	    	// then point (using the overload set) to the item currently referenced by the name.
+	        itemTypes = {};
+	        defaults = {};
+	        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
+	        	defaults += c.store[c.fcvEnv[n]].rtype;
+	        } else {
+	        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+	        		defaults += c.store[c.fcvEnv[n]].rtype;
+	        	} else {
+	        		itemTypes += c.store[c.fcvEnv[n]].rtype;
+	        	}
+	        }
+	        if(hasDefaultModifier(modifiers)) {
+	        	defaults += rt;
+	        } else {
+	        	itemTypes += rt;
+	        }
+	        c.store[c.nextLoc] = overload({ c.fcvEnv[n], functionId }, overloaded(itemTypes,defaults));
+			c.fcvEnv[n] = c.nextLoc;
+	        c.nextLoc = c.nextLoc + 1;
+	    } else if ((\module(_,_) := c.store[c.store[c.fcvEnv[n]].containedIn] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) {
+	    	// Case 4: This function has the same name as a variable defined in another module. We still add
+	    	// it, but we also issue a warning, since reuse of the name may be accidental.
+	        c = addScopeWarning(c, "Function declaration masks imported variable definition", l);
+	        c.fcvEnv[n] = functionId;
+	    } else {
+	    	// Case 5: This function has the same name as a variable defined in the same module. We don't allow
+	    	// functions to shadow variables in this case.
+	    	// TODO: Verify that we don't want a looser rule.
+	        c = addScopeError(c, "Cannot add function <prettyPrintName(n)>, a variable of the same name has already been defined in the current scope",l);
+	    }
+	}
+
+	// Now, link up the names. We always link up the unqualified name. If we are at the top of the module,
+	// we also link up a version of the name qualified with the module name.
+	addFunctionItem(n, functionId);
+    if (\module(_,_) := c.store[head(c.stack)]) {
+        // If this function is module-level, also make it referenceable through
+        // the qualified name module::function.
+        moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+        addFunctionItem(appendName(moduleName,n), functionId);
     }
+	
     return c;
 }
 
@@ -1068,7 +1050,7 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
 }
 
 @doc{Check the types of Rascal expressions: CallOrTree}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expression ","}* eps> )`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expression ","}* eps> <KeywordArguments keywordArguments> )`, Configuration c) {
     // check for failures
     set[Symbol] failures = { };
     
@@ -1644,7 +1626,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("For a relation with arity <size(getRelFields(t1))> you can have at most <size(getRelFields(t1))-1> subscripts",exp@\loc));
         else {
             relFields = getRelFields(t1);
-            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), !comparable(tl[idx],relFields[idx]) };
+            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],\set(relFields[idx]))) };
             if (size(failures) > 0)
                 return markLocationFailed(c,exp@\loc,failures);
             else if ((size(relFields) - size(tl)) == 1)
@@ -1657,7 +1639,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("For a list relation with arity <size(getListRelFields(t1))> you can have at most <size(getListRelFields(t1))-1> subscripts",exp@\loc));
         else {
             relFields = getListRelFields(t1);
-            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to list relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), !comparable(tl[idx],relFields[idx]) };
+            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],\set(relFields[idx]))) };
             if (size(failures) > 0)
                 return markLocationFailed(c,exp@\loc,failures);
             else if ((size(relFields) - size(tl)) == 1)
@@ -2224,6 +2206,34 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> o <Expre
 		rt = Symbol::\func(compositeRet, compositeArgs);
 		return markLocationType(c, exp@\loc, rt);         
     }
+    
+    // Here, one or both types are overloaded functions, with at most one a normal function.
+    if ((isOverloadedType(t1) || isFunctionType(t1)) && (isOverloadedType(t2) || isFunctionType(t2))) {
+    	// Step 1: get back all the type possibilities on the left and right
+    	leftFuns = (isFunctionType(t1)) ? { t1 } : (getNonDefaultOverloadOptions(t1) + getDefaultOverloadOptions(t1));
+    	rightFuns = (isFunctionType(t2)) ? { t2 } : (getNonDefaultOverloadOptions(t2) + getDefaultOverloadOptions(t2));
+    	
+    	// Step 2: filter out leftmost functions that cannot be used in compositions
+    	leftFuns = { f | f <- leftFuns, size(getFunctionArgumentTypes(f)) == 1 };
+    	
+    	// Step 3: combine the ones we can -- the return of the rightmost type has to be allowed
+    	// as the parameter for the leftmost type
+    	newFunTypes = { Symbol::\func(getFunctionReturnType(lf), getFunctionArgumentTypes(rf)) |
+    		rf <- rightFuns, lf <- leftFuns, subtype(getFunctionReturnType(rf),getFunctionArgumentTypes(lf)[0]) };
+    		
+    	// Step 4: If we get an empty set, fail; if we get just 1, return that; if we get multiple possibilities,
+    	// return an overloaded type
+    	if (size(newFunTypes) == 0) {
+    		ft = makeFailType("The functions cannot be composed", exp@\loc);
+    		return markLocationFailed(c, exp@\loc, ft);
+    	} else if (size(newFunTypes) == 1) {
+    		return markLocationType(c, exp@\loc, getOneFrom(newFunTypes));
+    	} else {
+    		// TODO: Do we need to keep track of defaults through all this? If so, do we compose default
+    		// and non-default functions?
+    		return markLocationType(c, exp@\loc, \overloaded(newFunTypes,{}));
+    	}
+    }
 
     return markLocationFailed(c, exp@\loc, makeFailType("Composition not defined for <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
 }
@@ -2425,6 +2435,22 @@ Symbol computeAdditionType(Symbol t1, Symbol t2, loc l) {
     if (isBagType(t1))
         return \bag(lub(getBagElementType(t1),t2));
         
+	// If we are adding together two functions, this creates an overloaded
+	// type with the two items as non-defaults.
+	// TODO: If we need to track default status here as well, we will need
+	// to special case plus to handle f + g, where f and g are both function
+	// names, and catch this before evaluating them both and retrieving their
+	// types.
+	// TODO: Can we also add together constructor types?
+	if (isFunctionType(t1) && isFunctionType(t2))
+		return \overloaded({t1,t2},{});
+	else if (\overloaded(nd1,d1) := t1 && \overloaded(nd2,d2) := t2)
+		return \overloaded(nd1+nd2,d1+d2);
+	else if (\overloaded(nd1,d1) := t1 && isFunctionType(t2))
+		return \overloaded(nd1+t2,d1);
+	else if (isFunctionType(t1) && \overloaded(nd2,d2) := t2)
+		return \overloaded(nd2+t1,d2);
+		
     return makeFailType("Addition not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
 }
 
@@ -3549,7 +3575,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     }
     
     if (size(failures) > 0) {
-        return < cbak, collapseFailTypes(failures) >;
+    	// TODO: Allowing the "bad" config to go back, change back to
+    	// cbak if this causes chaos...
+        return < c, collapseFailTypes(failures) >;
     }
         
     bool modified = true;
@@ -3630,7 +3658,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                         }
                     } else {
                         if (!subtype(cp@rtype, rt))
-                            failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable of type <prettyPrintType(rt)>", ptn@at);
+                            failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn@at);
                     }
                 }
             }
@@ -3639,7 +3667,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
                     Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[c.fcvEnv[n]].rtype;
                     if (!subtype(cp@rtype, rt))
-                        failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable of type <prettyPrintType(rt)>", ptn@at);
+                        failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn@at);
                 }
             }
             
@@ -3743,7 +3771,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         }
         
         if (size(failures) > 0) {
-            return < cbak, collapseFailTypes(failures) >;
+	    	// TODO: Allowing the "bad" config to go back, change back to
+	    	// cbak if this causes chaos...
+            return < c, collapseFailTypes(failures) >;
         }
         
         if (size(subjects) == 1) {
@@ -3767,7 +3797,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     }
     
     if (size(failures) > 0) {
-        return < cbak, collapseFailTypes(failures) >;
+    	// TODO: Allowing the "bad" config to go back, change back to
+    	// cbak if this causes chaos...
+        return < c, collapseFailTypes(failures) >;
     }
 
     set[PatternTree] unknownConstructorFailures(PatternTree pt) {
@@ -4039,10 +4071,13 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         }
         
         case literalNode(nt) : {
-            if (!isInferredType(rt) && !comparable(pt@rtype,rt))
+        	if (\sort(_) := rt && isStrType(pt@rtype)) {
+        		return < c, pt >;
+        	} else if (!isInferredType(rt) && !comparable(pt@rtype,rt)) {
                 throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
-            else
+            } else {
                 return < c, pt >;
+			}
         }
         
         case literalNode(list[LiteralNodeInfo] names) : {
@@ -5398,7 +5433,7 @@ public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree
         < c, receiver > = bindAssignable(receiver, \list(lub(st,getListElementType(receiver@atype))), c);
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=getListElementType(receiver@atype)] >;
     } else if (isNodeType(receiver@atype)) {
-        < c, receiver > = bindAssignable(receiver, \node());
+        < c, receiver > = bindAssignable(receiver, \node(), c);
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\value()] >;
     } else if (isTupleType(receiver@atype)) {
         tupleFields = getTupleFields(receiver@atype);
@@ -5406,7 +5441,7 @@ public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree
         // in range, all we can infer about the resulting type is that, since
         // we could assign to each field, each field could have a type based
         // on the lub of the existing field type and the subject type.
-        < c, receiver > = bindAssignable(receiver, \tuple([lub(tupleFields[idx],st) | idx <- index(tupleFields)]));
+        < c, receiver > = bindAssignable(receiver, \tuple([lub(tupleFields[idx],st) | idx <- index(tupleFields)]), c);
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\value()] >;
     } else if (isMapType(receiver@atype)) {
         < c, receiver > = bindAssignable(receiver, \map(getMapDomainType(receiver@atype), lub(st,getMapRangeType(receiver@atype))), c);
@@ -5814,7 +5849,10 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+        cFun = addLabel(cFun,rn,fd@\loc,functionLabel());
+        cFun.labelStack = labelStackItem(rn, functionLabel(), \void()) + cFun.labelStack;
         < cFun, tExp > = checkExp(exp, cFun);
+        cFun.labelStack = tail(cFun.labelStack);
         if (!isFailType(tExp) && !subtype(tExp, cFun.expectedReturnType))
             cFun = addScopeMessage(cFun,error("Unexpected type: type of body expression, <prettyPrintType(tExp)>, must be a subtype of the function return type, <prettyPrintType(cFun.expectedReturnType)>", exp@\loc));
         c = recoverEnvironmentsAfterCall(cFun, c);
@@ -5882,7 +5920,11 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
                 cWhen = addScopeMessage(cWhen,error("Unexpected type: condition should be of type bool, not type <prettyPrintType(tCond)>", cond@\loc));
         }
         
+        cWhen = addLabel(cWhen,rn,fd@\loc,functionLabel());
+        cWhen.labelStack = labelStackItem(rn, functionLabel(), \void()) + cWhen.labelStack;
         < cWhen, tExp > = checkExp(exp, cWhen);
+        cWhen.labelStack = tail(cWhen.labelStack);
+
         if (!isFailType(tExp) && !subtype(tExp, cWhen.expectedReturnType))
             cWhen = addScopeMessage(cWhen,error("Unexpected type: type of body expression, <prettyPrintType(tExp)>, must be a subtype of the function return type, <prettyPrintType(cFun.expectedReturnType)>", exp@\loc));
             
@@ -5941,9 +5983,14 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);        
+        cFun = addLabel(cFun,rn,fd@\loc,functionLabel());
+        cFun.labelStack = labelStackItem(rn, functionLabel(), \void()) + cFun.labelStack;
+
         if ((FunctionBody)`{ <Statement* ss> }` := body) {
 			< cFun, tStmt > = checkStatementSequence([ssi | ssi <- ss], cFun);
         }
+
+        cFun.labelStack = tail(cFun.labelStack);
         c = recoverEnvironmentsAfterCall(cFun, c);
     }
 
