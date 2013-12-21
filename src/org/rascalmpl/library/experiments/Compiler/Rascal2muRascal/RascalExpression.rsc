@@ -1176,7 +1176,7 @@ MuExp translateVisit(label,\visit) {
 		list[MuExp] body = [];
 		body += muAssign("changed", phi_fixpoint_fuid, 3, muBool(true));
 		body += muWhile(nextLabel(), muVar("changed",phi_fixpoint_fuid,3), 
-						[ muAssignLoc("val", 4, muCall(muFun(phi_fuid,scopeId), [ muVar("iSubject",phi_fixpoint_fuid,0), muVar("matched",phi_fixpoint_fuid,1), muVar("hasInsert",phi_fixpoint_fuid,2) ])),
+						[ muAssign("val", phi_fixpoint_fuid, 4, muCall(muFun(phi_fuid,scopeId), [ muVar("iSubject",phi_fixpoint_fuid,0), muVar("matched",phi_fixpoint_fuid,1), muVar("hasInsert",phi_fixpoint_fuid,2) ])),
 						  muIfelse(nextLabel(), makeMuMulti(muCallPrim("equal",[ muVar("val",phi_fixpoint_fuid,4), muVar("iSubject",phi_fixpoint_fuid,0) ])),
 						  						[ muAssign("changed",phi_fixpoint_fuid,3,muBool(false)) ], 
 						  						[ muAssign("iSubject",phi_fixpoint_fuid,0,muVar("val",phi_fixpoint_fuid,4)) ] )]);

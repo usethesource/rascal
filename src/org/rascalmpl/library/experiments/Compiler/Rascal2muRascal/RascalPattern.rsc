@@ -752,7 +752,7 @@ MuExp translateFunction({Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps
       enterBacktrackingScope(ifname);
       // TODO: account for a variable number of arguments
 	  for(Pattern pat <- formals) {
-	      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
+	      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muVar("<i>",topFunctionScope(),i) ]));
 	      i += 1;
 	  };
 	  conditions += [ translate(cond) | cond <- when_conditions];
