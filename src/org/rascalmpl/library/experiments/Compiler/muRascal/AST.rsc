@@ -63,14 +63,14 @@ public data MuExp =
           	// Variables
           | muLoc(str name, int pos)							// Local variable, with position in current scope
           | muVar(str name, str fuid, int pos)					// Variable: retrieve its value
-          | muTmp(str name)										// Temporary variable introduced by front-end
+          | muTmp(str name, str fuid)							// Temporary variable introduced by front-end
           
           | muLocDeref(str name, int pos) 				        // Call-by-reference: a variable that refers to a value location
           | muVarDeref(str name, str fuid, int pos)
           
           | muLocRef(str name, int pos) 				        // Call-by-reference: expression that returns a value location
           | muVarRef(str name, str fuid, int pos)
-          | muTmpRef(str name)
+          | muTmpRef(str name, str fuid)
           
           // Keyword parameters
           | muLocKwp(str name)                                  // Local keyword parameter
@@ -106,7 +106,7 @@ public data MuExp =
               
           | muAssignLoc(str name, int pos, MuExp exp)			// Assign a value to a local variable
           | muAssign(str name, str fuid, int pos, MuExp exp)	// Assign a value to a variable
-          | muAssignTmp(str name, MuExp exp)					// Assign to temporary variable introduced by front-end
+          | muAssignTmp(str name, str fuid, MuExp exp)			// Assign to temporary variable introduced by front-end
           
           // Keyword parameters
           | muAssignLocKwp(str name, MuExp exp)

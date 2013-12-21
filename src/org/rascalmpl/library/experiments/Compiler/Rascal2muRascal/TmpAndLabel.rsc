@@ -87,17 +87,17 @@ str asUnwrapedThrown(str name) = name + "_unwraped";
 
 // Keep track of possibly nested "it" variables in reducers
 
-private list[str] itVariables = [];				// *** state
+private rel[str name,str fuid] itVariables = [];				// *** state
 
-void pushIt(str name){
-  itVariables = name + itVariables;
+void pushIt(str name, str fuid){
+  itVariables = <name,fuid> + itVariables;
 }
 
 void popIt(){
   itVariables = tail(itVariables);
 }
 
-str topIt() = top(itVariables);
+tuple[str name,str fuid] topIt() = top(itVariables);
 
 // Administration for possibly nested list/set writers related to splicing list/set elements
 
