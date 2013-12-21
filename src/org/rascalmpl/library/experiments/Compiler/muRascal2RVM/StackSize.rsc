@@ -108,6 +108,7 @@ private int estimate(muHasNext(MuExp coro)) = estimate(coro);
 private int estimate(muMulti(MuExp exp)) = estimate(exp);
     
 private int estimate(e:muOne(list[MuExp] exps)) = estimate_arg_list(exps) + 1;
+private int estimate(e:muOne(MuExp exp)) = estimate(exp) + 1;
 
 private int estimate(e:muAll(list[MuExp] exps)) = estimate_arg_list(exps) + 2;
 private int estimate(e:muOr(list[MuExp] exps)) = estimate_arg_list(exps) + 2;
