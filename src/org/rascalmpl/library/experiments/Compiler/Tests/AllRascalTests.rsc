@@ -22,9 +22,12 @@ list[str] functionalityTests = [
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(985,1,<31,18>,<31,19>))
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1071,1,<35,14>,<35,15>))
 							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1167,1,<39,24>,<39,25>))
+//"ProjectionTests" 		// OK
 //"RangeTests"				// OK, 4 tests fail but this is due to false 1. == 1.0 comparisons.
 //"RegExpTests"				// OK
  							// Commented out 6: Treatment of redeclared local variables
+//"ScopeTests"				// OK
+							// Commented out several tests: no shadowing allowed
 //"SubscriptTests"			// OK
 //"TryCatchTests"			// OK
 
@@ -41,22 +44,16 @@ list[str] functionalityTests = [
 							//error("Initializer type &T \<: value not assignable to variable of type str",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5061,12,<89,68>,<89,80>))
 							// Issue posted
 //"FunctionCompositionTests"	//[6]
-							// TC does not support function composition, issue #431
+							// |rascal://experiments::Compiler::Rascal2muRascal::TypeUtils|(16295,4,<389,28>,<389,32>): NoSuchKey(31)
 							
 //"PatternTests"			// [420]
 							// Uses keyword parameters
 							// Checking function matchADTwithKeywords4
 							// |rascal://lang::rascal::types::CheckTypes|(140533,19,<2772,21>,<2772,40>): The called signature: checkExp(sort("Expression"), Configuration),
 							// does not match the declared signature:	CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  
-
-
-//"StatementTests"			// [64] Fail in overloaded constructor gives problem ==> Issue posted
+//"StatementTests"			// Fail in overloaded constructor gives problem ==> Issue posted
 						
 
-
-//"ProjectionTests" 		// [4]
-							//	Issue #432
-//"ScopeTests"				// [14]
 
 //"VisitTests"				// 13 fail [98]
 ];
@@ -108,7 +105,7 @@ list[str] rascalTests = [
 						// |rascal://experiments::Compiler::RVM::Run|(217,715,<12,0>,<23,28>): Java("RuntimeException","PANIC: (instruction execution): null")
 						//	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM.executeProgram(|file:///RVM.java|(0,0,<1381,0>,<1381,0>))
 
-//"ListRelations"		// [19]
+"ListRelations"		// [19]
 						// error("Name b is not in scope",|project://rascal-test/src/tests/ListRelations.rsc|(1014,1,<29,57>,<29,58>))
 						//error("Multiple functions found which could be applied",|project://rascal-test/src/tests/ListRelations.rsc|(2163,9,<68,20>,<68,29>))
 						//error("Name a is not in scope",|project://rascal-test/src/tests/ListRelations.rsc|(2385,1,<72,81>,<72,82>))
@@ -130,20 +127,11 @@ list[str] rascalTests = [
 						//error("Name a is not in scope",|project://rascal-test/src/tests/ListRelations.rsc|(441,1,<16,39>,<16,40>))
 						//error("Name c is not in scope",|project://rascal-test/src/tests/ListRelations.rsc|(1017,1,<29,60>,<29,61>))
 
-//"Lists"				// [101]
-						// error("Could not instantiate type variables in type fun list[&U \<: value](list[&T \<: value], fun &U \<: value(&T \<: value)) with argument types (list[int],fun int(int))",|project://rascal-test/src/tests/Lists.rsc|(11493,15,<340,9>,<340,24>))
-						//error("Could not instantiate type variables in type fun set[&U \<: value](set[&T \<: value], fun &U \<: value(&T \<: value)) with argument types (list[int],fun int(int))",|project://rascal-test/src/tests/Lists.rsc|(11493,15,<340,9>,<340,24>))
-						//error("set[int] and list[value] incomparable",|project://rascal-test/src/tests/Lists.rsc|(14053,17,<425,2>,<425,19>))
-						//error("Unexpected type: type of body expression, int, must be a subtype of the function return type, bool",|project://rascal-test/src/tests/Lists.rsc|(1742,35,<50,30>,<50,65>))
-
+//"Lists"					// Issue #448
 //"Maps"				// [23] Compilation of ListRelation
 
 
-//"Matching"			// [4]
-						// Checking function fT2
-						// getFUID: fT2, failure({error("Type of pattern could not be computed",|rascal:///experiments/Compiler/Examples/Tst.rsc|(529,10,<21,9>,<21,19>)),error("Could not calculate function type because of errors calculating the parameter types",|rascal:///experiments/Compiler/Examples/Tst.rsc|(520,20,<21,0>,<21,20>)),error("Multiple constructors match this pattern, add additional type annotations",|rascal:///experiments/Compiler/Examples/Tst.rsc|(529,10,<21,9>,<21,19>))})
-						// |rascal://experiments::Compiler::Rascal2muRascal::TypeUtils|(14990,5,<374,27>,<374,32>): NoSuchField("parameters")
-						// Issue #430
+//"Matching"				// #450
 	
 //"Relations"			// [19]
 						//error("Name a is not in scope",|project://rascal-test/src/tests/Relations.rsc|(226,1,<11,39>,<11,40>))
@@ -158,27 +146,11 @@ list[str] rascalTests = [
 						//error("rel[&A \<: value, &B \<: value, &B \<: value, &C \<: value, &D \<: value] and rel[&B \<: value, &C \<: value, &D \<: value] incomparable",|project://rascal-test/src/tests/Relations.rsc|(654,13,<22,17>,<22,30>))
 						//error("Could not instantiate type variables in type fun set[&T1 \<: value](rel[&T0 \<: value, &T1 \<: value]) with argument types (set[&A \<: value])",|project://rascal-test/src/tests/Relations.rsc|(215,8,<11,28>,<11,36>))
 						//error("Type EmptySet not declared",|project://rascal/src/org/rascalmpl/library/Set.rsc|(2157,8,<76,45>,<76,53>))
-						//error("Type EmptySet not declared",|project://rascal/src/org/rascalmpl/library/Set.rsc|(10000,8,<495,62>,<495,70>))
-						//error("Could not instantiate type variables in type fun rel[&T1 \<: value, &T2 \<: value, &T3 \<: value, &T4 \<: value](rel[&T0 \<: value, &T1 \<: value, &T2 \<: value, &T3 \<: value, &T4 \<: value]) with argument types (set[&A \<: value])",|project://rascal-test/src/tests/Relations.rsc|(215,8,<11,28>,<11,36>))
+						//error("Type EmptySet not declared",|project://rascal/src/org/rascalmpl/library/Set.rsc|(10000,8,<495,62>,<495,70>))					//error("Could not instantiate type variables in type fun rel[&T1 \<: value, &T2 \<: value, &T3 \<: value, &T4 \<: value](rel[&T0 \<: value, &T1 \<: value, &T2 \<: value, &T3 \<: value, &T4 \<: value]) with argument types (set[&A \<: value])",|project://rascal-test/src/tests/Relations.rsc|(215,8,<11,28>,<11,36>))
 
 
-//"Sets"				//[35]
-						//error("Name c is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2401,1,<75,55>,<75,56>))
-						//error("Name c is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2313,1,<74,32>,<74,33>))
-						//error("Name classes is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2383,7,<75,37>,<75,44>))
-						//error("Name classes is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2335,7,<74,54>,<74,61>))
-						//error("Name classes is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2305,7,<74,24>,<74,31>))
-						//error("Name classes is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2291,7,<74,10>,<74,17>))
-						//error("Name e is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2441,1,<75,95>,<75,96>))
-						//error("Name classes is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2247,7,<70,29>,<70,36>))
-						//error("Name c is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2190,1,<69,16>,<69,17>))
-						//error("Name e is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2426,1,<75,80>,<75,81>))
-						//error("Name e is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2412,1,<75,66>,<75,67>))
-						//error("Name e is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2326,1,<74,45>,<74,46>))
-						//error("Could not instantiate type variables in type fun map[&K \<: value, set[&V \<: value]](set[&V \<: value], fun &K \<: value(&V \<: value)) with argument types (set[int],fun int(int))",|project://rascal-test/src/tests/Sets.rsc|(2149,21,<67,11>,<67,32>))
-						//error("Name classes is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2182,7,<69,8>,<69,15>))
-						//error("Name classes is not in scope",|project://rascal-test/src/tests/Sets.rsc|(2200,7,<69,26>,<69,33>))
-						// Posted issue
+//"Sets"					//[35]
+						// Overloading
 ];
 
 list[str] libraryTests = [
@@ -187,7 +159,7 @@ list[str] libraryTests = [
 
 //"BooleanTests"		// OK
 //"IntegerTests"		// OK
-"MathTests"				// OK
+//"MathTests"				// OK
 //"NumberTests"			// OK
 //"StringTests"			// OK
 
@@ -246,8 +218,8 @@ void runTests(list[str] names, loc base){
 value main(list[value] args){
   nsuccess = 0;
   nfail = 0;
-  runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
-  //runTests(rascalTests, |project://rascal-test/src/tests|);
+  //runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
+  runTests(rascalTests, |project://rascal-test/src/tests|);
   //runTests(libraryTests, |project://rascal-test/src/tests/library|);
   println("Overall summary: <nsuccess + nfail> tests executed, <nsuccess> succeeded, <nfail> failed");
   return nfail == 0;
