@@ -383,10 +383,12 @@ void extractScopes(){
     // Fill in uid2addr for overloaded functions;
     for(int fuid <- ofunctions) {
     	set[int] funs = config.store[fuid].items;
+    	if(int fuid <- funs, production(rname,_,_,_) := config.store[fuid] && isEmpty(getSimpleName(rname)))
+    	    break;
     	set[str] scopes = {};
     	str scopeIn = uid2str(0);
     	for(int fuid <- funs) {
-    		funScopeIn = uid2addr[fuid].fuid;
+    	    funScopeIn = uid2addr[fuid].fuid;
     		if(funScopeIn notin moduleNames) {
     			scopes += funScopeIn;
     		}
