@@ -5635,8 +5635,8 @@ public enum RascalPrimitive {
 	public static int value_to_string(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		IValue val = (IValue) stack[sp -1];
-		
-		if(val.getType().isList()){
+		Type tp = val.getType();
+		if(tp.isList() && tp.getElementType().isAbstractData() && tp.getName().equals("Tree")){
 			IList lst = (IList) val;
 			StringWriter w = new StringWriter();
 			for(int i = 0; i < lst.length(); i++){
