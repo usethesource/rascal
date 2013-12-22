@@ -19,12 +19,21 @@ private map[Symbol,Production] grammar = ();
 private set[Symbol] starts = {};
 private Symbol activeLayout = Symbol::\layouts("$default$");
 
+void resetTypeReifier() {
+    typeMap = ();
+    constructors = {};
+    productions = {};
+    grammar = ();
+    starts = {};
+    activeLayout = Symbol::\layouts("$default$");
+}
+
 public map[Symbol,Production] getGrammar(Configuration config) {
 
 	// Collect all the types that are in the type environment
 	typeMap = ( getSimpleName(rname) : config.store[config.typeEnv[rname]].rtype | rname <- config.typeEnv );
 	// Collect all the constructors of the adt types in the type environment
-	types = range(typeMap);
+	set[Symbol] types = range(typeMap);
 	constructors = { <\type.\adt, \type> | int uid <- config.store, 
 												constructor(_, Symbol \type, _, _) := config.store[uid],
 												\type.\adt in types };
@@ -51,6 +60,8 @@ public map[Symbol,Production] getGrammar(Configuration config) {
  	}
  	definitions = definitions + (Symbol::\layouts("$default$"):Production::choice(Symbol::\layouts("$default$"),{Production::prod(Symbol::\layouts("$default$"),[],{})}));
  	definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
+ 	
+ 	resetTypeReifier();
  	
  	return definitions;
 }
