@@ -67,7 +67,7 @@ public class RVM {
 	
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
-	private IMap grammars;
+//	private IMap grammars;
 	
 	
 	private final Map<IValue, IValue> moduleVariables;
@@ -179,13 +179,13 @@ public class RVM {
 		}
 	}
 	
-	public void setGrammars(IMap grammer){
-		this.grammars = grammars;
-	}
-	
-	public IMap getGrammars(){
-		return grammars;
-	}
+//	public void setGrammars(IMap grammer){
+//		this.grammars = grammars;
+//	}
+//	
+//	public IMap getGrammars(){
+//		return grammars;
+//	}
 	
 	/**
 	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned.
