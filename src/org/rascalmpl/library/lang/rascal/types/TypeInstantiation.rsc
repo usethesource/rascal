@@ -14,6 +14,7 @@ import Set;
 import IO;
 import Node;
 import Type;
+import ParseTree;
 
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
@@ -67,6 +68,10 @@ public Bindings match(Symbol r, Symbol s, Bindings b) {
 	if ( isMapType(r) && isMapType(s) )
 		return match(getMapFieldsAsTuple(r), getMapFieldsAsTuple(s), b);
 	
+	// For reified types, match the type being reified
+	if ( isReifiedType(r) && isReifiedType(s) )
+		return match(getReifiedType(r), getReifiedType(s), b);
+
 	// For ADTs, try to match parameters when the ADTs are the same
 	if ( isADTType(r) && isADTType(s) && getADTName(r) == getADTName(s) && size(getADTTypeParameters(r)) == size(getADTTypeParameters(s))) {
 		rparams = getADTTypeParameters(r);
@@ -74,11 +79,7 @@ public Bindings match(Symbol r, Symbol s, Bindings b) {
 		for (idx <- index(rparams)) b = match(rparams[idx], sparams[idx], b);
 		return b;
 	}
-	
-	// For reified types, match the type being reified
-	if ( isReifiedType(r) && isReifiedType(s) )
-		return match(getReifiedType(r), getReifiedType(s), b);
-		
+			
 	// For constructors, match when the constructor name, ADT name, and arity are the same, then we can check params
 	if ( isConstructorType(r) && isConstructorType(s) && getADTName(r) == getADTName(s)) {
 		b = match(getConstructorArgumentTypesAsTuple(r), getConstructorArgumentTypesAsTuple(s), b);

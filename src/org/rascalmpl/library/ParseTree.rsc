@@ -157,6 +157,8 @@ data Symbol
      | \parameterized-lex(str name, list[Symbol] parameters)  
      ; 
 
+public bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", _)) = true;
+
 // These are the terminal symbols.
 data Symbol 
      = \lit(str string) /*10*/

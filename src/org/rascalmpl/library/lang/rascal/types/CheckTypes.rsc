@@ -145,7 +145,7 @@ import lang::rascal::\syntax::Rascal;
 //     These do not follow the same rules as other inferred vars.
 //
 // 31. addition on functions
-
+//
 @doc{The source of a label (visit, block, etc).}
 data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel() | switchLabel() | caseLabel() | functionLabel() ;
 
@@ -517,12 +517,12 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
 	    nameWithAdt = appendName(adtName,n);
 	    nameWithModule = appendName(moduleName,n);
     
+	    constructorItemId = c.nextLoc;
+	    c.nextLoc = c.nextLoc + 1;
+
         overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt)}; //, !equivalent(c.store[i].rtype,rt)};
         if (size(overlaps) > 0)
             c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
-
-	    constructorItemId = c.nextLoc;
-	    c.nextLoc = c.nextLoc + 1;
 
 	    constructorItem = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
 	    c.store[constructorItemId] = constructorItem;
@@ -537,6 +537,8 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
     return c;
 }
 
+// TODO: We need to catch the case where we are trying to create productions and constructors
+// with the same name, we should only allow this if the name is qualified to prevent conflicts.
 public Configuration addProduction(Configuration c, RName n, loc l, Production prod) {
 	assert ( (prod.def is label && prod.def.symbol has name) 
 				|| ( !(prod.def is label) && prod.def has name ) );
@@ -548,14 +550,60 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
     sortId = c.typeEnv[sortName];
     
     args = prod.symbols;
-    
     moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
     // TODO: think about production overload when we start to create ability to construct concrete trees from abstract names
     Symbol rtype = Symbol::\prod( (prod.def is label) ? prod.def.symbol : prod.def, getSimpleName(n), prod.symbols, prod.attributes );
-    c.store[c.nextLoc] = production(n, rtype, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
-    c.definitions = c.definitions + < c.nextLoc, l >;
-    c.nonterminalConstructors = c.nonterminalConstructors + < sortId, c.nextLoc >;
-    c.nextLoc = c.nextLoc + 1;
+    
+    void addProductionItem(RName n, int productionItemId) {
+	    if (n notin c.fcvEnv) {
+	    	// Case 1: This is the first occurrence of this name.
+	        c.fcvEnv[n] = productionItemId;
+	    } else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
+	    	// Case 2: The name is already overloaded. Add this as one more overload.
+	    	// TODO: If we are annotating overload items, we need to copy annotations here
+            c.store[c.fcvEnv[n]] = overload(items + productionItemId, overloaded(itemTypes,defaults + rtype));
+	    } else if (production(_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
+            nonDefaults = {};
+            defaults = { rtype };
+            if(isProductionType(c.store[c.fcvEnv[n]].rtype)) {
+            	defaults += c.store[c.fcvEnv[n]].rtype; 
+            } else {
+            	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+            		defaults += c.store[c.fcvEnv[n]].rtype;
+            	} else {
+            		nonDefaults += c.store[c.fcvEnv[n]].rtype;
+            	}
+            }
+            c.store[c.nextLoc] = overload({ c.fcvEnv[n], productionItemId }, overloaded(nonDefaults,defaults));
+            c.fcvEnv[n] = c.nextLoc;
+            c.nextLoc = c.nextLoc + 1;
+	    } else {
+	        throw "Invalid addition: cannot add production into scope, it clashes with non-constructor variable or function names";
+	    }
+	}
+    
+    existsAlready = size({ i | i <- c.nonterminalConstructors[sortId], c.store[i].at == l}) > 0;
+    if (!existsAlready) {
+	    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+	    nameWithSort = appendName(sortName,n);
+	    nameWithModule = appendName(moduleName,n);
+    
+  	    productionItemId = c.nextLoc;
+	    c.nextLoc = c.nextLoc + 1;
+	    
+		overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, comparable(c.store[i].rtype,rtype)}; //, !equivalent(c.store[i].rtype,rt)};
+        if (size(overlaps) > 0)
+            c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);
+
+	    productionItem = production(n, rtype, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
+	    c.store[productionItemId] = productionItem;
+	    c.definitions = c.definitions + < productionItemId, l >;
+	    c.nonterminalConstructors = c.nonterminalConstructors + < sortId, productionItemId >;
+	    
+	    addProductionItem(n, productionItemId);
+	    addProductionItem(nameWithSort, productionItemId);
+	    addProductionItem(nameWithModule, productionItemId);
+	}    
     
     // Add non-terminal fields
     alreadySeen = {};
@@ -621,8 +669,6 @@ public Configuration addClosure(Configuration c, Symbol rt, KeywordParamMap keyw
     return c;
 }
 
-// TODO: This requires the same overload logic just added to constructor to keep
-// name and module qualified name separate
 public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordParamMap keywordParams, set[Modifier] modifiers, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l) {
     // TODO: Handle the visibility properly. The main point is that we should not have variants
     // for the same function that are given different visibilities.
@@ -664,13 +710,15 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
 	        	itemTypes += rt;
 	        }
 	        c.store[c.fcvEnv[n]] = overload(items + functionId, overloaded(itemTypes,defaults));
-	    } else if (function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
+	    } else if (function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]] || production(_,_,_,_) := c.store[c.fcvEnv[n]]) {
 	    	// Case 3: The name is not overloaded yet, but this will make it overloaded. So, create the
 	    	// overloading entry. We also then point the current name to this overload item, which will
 	    	// then point (using the overload set) to the item currently referenced by the name.
 	        itemTypes = {};
 	        defaults = {};
 	        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
+	        	defaults += c.store[c.fcvEnv[n]].rtype;
+	        } else if (isProductionType(c.store[c.fcvEnv[n]].rtype)) {
 	        	defaults += c.store[c.fcvEnv[n]].rtype;
 	        } else {
 	        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
@@ -1227,26 +1275,53 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         // need to keep track there of possible matching IDs so we can link things up correctly.
         return < c, matches, failureReasons >;
     }
+
+   tuple[Configuration c, set[Symbol] matches, set[str] failures] matchProductionAlts(Configuration c, set[Symbol] alts) {
+        set[Symbol] matches = { };
+        set[str] failureReasons = { };
+        for (a <- alts, isProductionType(a)) {
+            list[Symbol] args = getProductionArgumentTypes(a);
+            if (size(epsList) == size(args) && size(epsList) == 0) {
+                matches += a;
+            } else if (size(epsList) == size(args) && false notin { subtype(tl[idx],args[idx]) | idx <- index(epsList) }) {
+                matches += a;
+            } else {
+                failureReasons += "Production of type <prettyPrintType(a)> cannot be built with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+            }
+        }
+        // TODO: Here would be a good place to filter out productions that are "masked" by functions with the
+        // same name and signature. We already naturally mask function declarations by using a set, but we do
+        // need to keep track there of possible matching IDs so we can link things up correctly.
+        return < c, matches, failureReasons >;
+    }
         
-    // e was either a name or an expression that evaluated to a function, a constructor,
+    // e was either a name or an expression that evaluated to a function, a constructor, a production,
     // a source location, or a string
-    if (isFunctionType(t1) || isConstructorType(t1) || isOverloadedType(t1)) {
-        set[Symbol] alts     = isFunctionType(t1) ? {t1} : ( isConstructorType(t1) ? {  } : getNonDefaultOverloadOptions(t1) );
-        set[Symbol] defaults = isFunctionType(t1) ? {  } : ( isConstructorType(t1) ? {t1} : getDefaultOverloadOptions(t1) );
+    if (isFunctionType(t1) || isConstructorType(t1) || isOverloadedType(t1) || isProductionType(t1)) {
+        set[Symbol] alts     = isFunctionType(t1) ? {t1} : ( (isConstructorType(t1) || isProductionType(t1)) ? {  } : getNonDefaultOverloadOptions(t1) );
+        set[Symbol] defaults = isFunctionType(t1) ? {  } : ( (isConstructorType(t1) || isProductionType(t1)) ? {t1} : getDefaultOverloadOptions(t1) );
         
         < c, nonDefaultFunctionMatches, nonDefaultFunctionFailureReasons > = matchFunctionAlts(c, alts);
         < c, defaultFunctionMatches, defaultFunctionFailureReasons > = matchFunctionAlts(c, defaults);
         < c, constructorMatches, constructorFailureReasons > = matchConstructorAlts(c, defaults);
+        < c, productionMatches, productionFailureReasons > = matchProductionAlts(c, defaults);
         
-        if (size(nonDefaultFunctionMatches) == 0 && size(defaultFunctionMatches) == 0 && size(constructorMatches) == 0) {
-            return markLocationFailed(c,exp@\loc,{makeFailType(reason,exp@\loc) | reason <- (nonDefaultFunctionFailureReasons + defaultFunctionFailureReasons + constructorFailureReasons)});
+        if (size(nonDefaultFunctionMatches + defaultFunctionMatches + constructorMatches + productionMatches) == 0) {
+            return markLocationFailed(c,exp@\loc,{makeFailType(reason,exp@\loc) | reason <- (nonDefaultFunctionFailureReasons + defaultFunctionFailureReasons + constructorFailureReasons + productionFailureReasons)});
+        } else if ( (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) && size(constructorMatches) > 1 && size(productionMatches) > 1) {
+            return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions, constructors, and productions found which could be applied",exp@\loc));
         } else if ( (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) && size(constructorMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions and constructors found which could be applied",exp@\loc));
+        } else if ( (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) && size(productionMatches) > 1) {
+            return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions and productions found which could be applied",exp@\loc));
         } else if (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions found which could be applied",exp@\loc));
         } else if (size(constructorMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple constructors found which could be applied",exp@\loc));
-        } 
+        } else if (size(productionMatches) > 1) {
+        	return markLocationFailed(c,exp@\loc,makeFailType("Multiple productions found which could be applied",exp@\loc));
+        } else if (size(productionMatches) > 1 && size(constructorMatches) > 1)
+        	return markLocationFailed(c,exp@\loc,makeFailType("Both a constructor and a concrete syntax production could be applied",exp@\loc));
         
         set[Symbol] finalNonDefaultMatches = {};
         set[Symbol] finalDefaultMatches = {};
@@ -1307,6 +1382,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             	finalDefaultMatches += rt;
             }
         }
+
+		if (size(productionMatches) == 1) {
+            finalDefaultMatches += getOneFrom(productionMatches);
+        }
         
         if (cannotInstantiateFunction && cannotInstantiateConstructor) {
         	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in function invocation and constructor", exp@\loc));
@@ -1323,14 +1402,19 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				} else if (isConstructorType(finalMatch)) {
 			        < c, rtp > = markLocationType(c,e@\loc,finalMatch);
 			        return markLocationType(c,exp@\loc,getConstructorResultType(finalMatch));
+				} else if (isProductionType(finalMatch)) {
+					< c, rtp > = markLocationType(c,e@\loc,finalMatch);
+					return markLocationType(c,exp@\loc,getProductionSortType(finalMatch));
 				}
 			} else if (size(finalNonDefaultMatches) == 0 && size(finalDefaultMatches) == 2) {
-				// Make sure the default function and constructor variants have the same return type, else we
+				// Make sure the defaults function, constructor, and production variants have the same return type, else we
 				// have a conflict.
 				functionVariant = getOneFrom(filterSet(finalDefaultMatches, isFunctionType));
-				constructorVariant = getOneFrom(filterSet(finalDefaultMatches, isConstructorType));
+				constructorMatches = filterSet(finalDefaultMatches, isConstructorType);
+				productionMatches = filterSet(finalDefaultMatches, isProductionType);
+				nonFunctionResult = (size(constructorMatches) > 0) ? getConstructorResultType(getOneFrom(constructorMatches)) : getProductionSortType(getOneFrom(productionMatches));
 				
-				if (!equivalent(getFunctionReturnType(functionVariant),getConstructorResultType(constructorVariant))) {
+				if (!equivalent(getFunctionReturnType(functionVariant),nonFunctionResult)) {
 					// TODO: This should also result in an error on the function
 					// declaration, since we should not have a function with the same name
 					// and parameters but a different return type
@@ -1343,7 +1427,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				// have a conflict.
 				functionVariant = getOneFrom(filterSet(finalNonDefaultMatches, isFunctionType));
 				defaultVariant = getOneFrom(finalDefaultMatches);
-				defaultResultType = isConstructorType(defaultVariant) ? getConstructorResultType(defaultVariant) : getFunctionReturnType(defaultVariant);
+				defaultResultType = isConstructorType(defaultVariant) ? getConstructorResultType(defaultVariant) : (isFunctionType(defaultVariant) ? getFunctionReturnType(defaultVariant) : getProductionSortType(defaultVariant));
 				
 				if (equivalent(getFunctionReturnType(functionVariant),defaultResultType)) {
 					finalType = makeOverloadedType(finalNonDefaultMatches,finalDefaultMatches);
@@ -1362,10 +1446,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				// have a conflict.
 				functionVariant = getOneFrom(filterSet(finalNonDefaultMatches, isFunctionType));
 				defaultVariant = getOneFrom(filterSet(finalDefaultMatches, isFunctionType));
-				constructorVariant = getOneFrom(filterSet(finalDefaultMatches, isConstructorType));
+				constructorMatches = filterSet(finalDefaultMatches, isConstructorType);
+				productionMatches = filterSet(finalDefaultMatches, isProductionType);
+				nonFunctionResult = (size(constructorMatches) > 0) ? getConstructorResultType(getOneFrom(constructorMatches)) : getProductionSortType(getOneFrom(productionMatches));
 				
 				if ( equivalent(getFunctionReturnType(functionVariant),getFunctionReturnType(defaultVariant))
-						&& equivalent(getFunctionReturnType(functionVariant),getConstructorResultType(constructorVariant)) ) {
+						&& equivalent(getFunctionReturnType(functionVariant),nonFunctionResult) ) {
 					finalType = makeOverloadedType(finalNonDefaultMatches,{ defaultVariant });
 				    < c, rtp > = markLocationType(c,e@\loc,finalType);
 				    return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
@@ -1837,6 +1923,16 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 	    } else {
 	    	return makeFailType("Cannot compute type of field <fAsString>, user type <prettyPrintType(t1)> has not been declared", l); 
 	    }  
+    } else if (isNonTerminalType(t1)) {
+        nonterminalName = RSimpleName(getNonTerminalName(t1));
+        if (nonterminalName in c.typeEnv) {
+	        if (<c.typeEnv[nonterminalName],fAsString> notin c.nonterminalFields)
+	            return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+	        else
+	            return c.nonterminalFields[<c.typeEnv[nonterminalName],fAsString>];
+	    } else {
+	    	return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l); 
+	    }  
     } else if (isTupleType(t1)) {
         if (tupleHasField(t1, fAsString))
             return getTupleFieldType(t1, fAsString);
@@ -1995,7 +2091,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> is <Name 
     < cIs, t1 > = checkExp(e, cIs);
     c = needNewScope ? exitBooleanScope(cIs, c) : cIs;
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
-    if (isNodeType(t1) || isADTType(t1)) return markLocationType(c,exp@\loc,\bool());
+    if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) return markLocationType(c,exp@\loc,\bool());
     return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected node or ADT types, found <prettyPrintType(t1)>", e@\loc));
 }
 
@@ -3495,7 +3591,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 c.usedIn[ptn@at] = head(c.stack);
                 if ( !((ptn@headPosition)?) || ((ptn@headPosition)? && !ptn@headPosition)) {
                     if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
-                        c = addScopeWarning(c, "<prettyPrintName(n)> is a function or constructor name", ptn@at);
+                        c = addScopeWarning(c, "<prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
                     } else {
                         c = addNameWarning(c,n,ptn@at);
                     }
@@ -3547,7 +3643,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
                 c.usedIn[ptn@at] = head(c.stack);
                 if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
-                    c = addScopeWarning(c, "Name <prettyPrintName(n)> is a function or constructor name", ptn@at);
+                    c = addScopeWarning(c, "Name <prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
                 } else {
                     c = addNameWarning(c,n,ptn@at);
                 }
@@ -3676,9 +3772,13 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     
             case ptn:callOrTreeNode(ph,pargs) : {
             	if ( (ph@rtype)? && concreteType(ph@rtype) ) {
-                    if (isConstructorType(ph@rtype) || isOverloadedType(ph@rtype)) {
+                    if (isConstructorType(ph@rtype) || isOverloadedType(ph@rtype) || isProductionType(ph@rtype)) {
+                    	if (isProductionType(ph@rtype)) {
+                    		int mytemp = 5;
+                    		mytemp = mytemp + 2;
+                    	}
                         // default alternatives contain all possible constructors of this name
-                        set[Symbol] alts = (isOverloadedType(ph@rtype)) ? filterSet(getDefaultOverloadOptions(ph@rtype), isConstructorType) : {ph@rtype};
+                        set[Symbol] alts = (isOverloadedType(ph@rtype)) ? (filterSet(getDefaultOverloadOptions(ph@rtype), isConstructorType) + filterSet(getDefaultOverloadOptions(ph@rtype), isProductionType)) : {ph@rtype};
                         // matches holds all the constructors that match the arity and types in the pattern
                         set[Symbol] matches = { };
                         set[Symbol] nonMatches = { };
@@ -3692,10 +3792,17 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                         //} else {
                             // filter first based on the arity of the constructor
                             for (a <- alts) {
-                            	if (size(getConstructorArgumentTypes(a)) == size(pargs)) {
+                            	if (isConstructorType(a) && size(getConstructorArgumentTypes(a)) == size(pargs)) {
 	                                // next, find the bad matches, which are those argument positions where we have concrete
 	                                // type information and that information does not match the alternative
 	                                badMatches = { idx | idx <- index(pargs), (pargs[idx]@rtype)?, concreteType(pargs[idx]@rtype), !subtype(pargs[idx]@rtype, getConstructorArgumentTypes(a)[idx]) };
+	                                if (size(badMatches) == 0) 
+	                                    // if we had no bad matches, this is a valid alternative
+	                                    matches += a;
+                            	} else if (isProductionType(a) && size(getProductionArgumentTypes(a)) == size(pargs)) {
+	                                // next, find the bad matches, which are those argument positions where we have concrete
+	                                // type information and that information does not match the alternative
+	                                badMatches = { idx | idx <- index(pargs), (pargs[idx]@rtype)?, concreteType(pargs[idx]@rtype), !subtype(pargs[idx]@rtype, getProductionArgumentTypes(a)[idx]) };
 	                                if (size(badMatches) == 0) 
 	                                    // if we had no bad matches, this is a valid alternative
 	                                    matches += a;
@@ -3718,7 +3825,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 // parameters and make sure they fall within the proper bounds. Note that we can only
                                 // do this when the match type is concrete and when we either have no pargs or we have
                                 // pargs that all have concrete types associated with them.
-                                formalArgs = getConstructorArgumentTypes(matchType);
+                                formalArgs = isConstructorType(matchType) ? getConstructorArgumentTypes(matchType) : getProductionArgumentTypes(matchType);
                                 set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
                                 map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
                                 for (idx <- index(formalArgs)) {
@@ -3744,13 +3851,13 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 try {
                                     for (idx <- index(pargs)) {
                                         //println("<ptn@at>: pushing down <getConstructorArgumentTypes(matchType)[idx]> for arg <pargs[idx]>");  
-                                        < c, newarg > = bind(pargs[idx],getConstructorArgumentTypes(matchType)[idx],c);
+                                        < c, newarg > = bind(pargs[idx],(isConstructorType(matchType)?(getConstructorArgumentTypes(matchType)[idx]):(getProductionArgumentTypes(matchType)[idx])),c);
                                         newChildren += newarg;
                                     }
                                 } catch v : {
                                     newChildren = pargs;
                                 }
-                                insert updateRT(ptn[head=ph[@rtype=matchType]][args=newChildren], getConstructorResultType(matchType));
+                                insert updateRT(ptn[head=ph[@rtype=matchType]][args=newChildren], isConstructorType(matchType)?getConstructorResultType(matchType):getProductionSortType(matchType));
                             }
                         } else {
                         	insert updateBindProblems(ptn, nonMatches, matches);
@@ -3828,13 +3935,13 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             return < c, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;
         } else {
     		for (PatternTree pt <- tooManyMatches)
-    			failures += makeFailType("Multiple constructors match this pattern, add additional type annotations", pt@at);
+    			failures += makeFailType("Multiple constructors and/or productions match this pattern, add additional type annotations", pt@at);
         	
     		for (PatternTree pt <- arityProblems)
-    			failures += makeFailType("Only constructors with a different arity are available", pt@at);
+    			failures += makeFailType("Only constructors or productions with a different arity are available", pt@at);
 
             for (unk <- unknowns)
-            	failures += makeFailType("Constructor name is not in scope", unk@at);
+            	failures += makeFailType("Constructor or production name is not in scope", unk@at);
         	
         	failures += makeFailType("Type of pattern could not be computed", pat@\loc);
             return < c, collapseFailTypes(failures) >;
@@ -4928,7 +5035,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName 
         } else {
             c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
             c.usedIn[assn@\loc] = head(c.stack);
-            return < c, variableNode(n)[@atype=makeFailType("Cannot assign to an existing constructor or function name",assn@\loc)][@at=assn@\loc] >;
+            return < c, variableNode(n)[@atype=makeFailType("Cannot assign to an existing constructor, production, or function name",assn@\loc)][@at=assn@\loc] >;
         }
     } else {
         rt = \inferred(c.uniqueify);
@@ -6101,6 +6208,7 @@ public Configuration importFunction(RName functionName, Signature sig, loc at, V
     }
     set[Modifier] modifiers = getModifiers(sig);
     cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]]
+    																	|| production(_,_,_,_) := c.store[c.fcvEnv[ename]]
     																	// constructor names may be overloaded 
     																	|| overload(_,_) := c.store[c.fcvEnv[ename]] )];
     cFun = addFunction(cFun, functionName, Symbol::\func(\void(),[]), ( ), modifiers, isVarArgs(sig), vis, throwsTypes, at);
@@ -7184,8 +7292,12 @@ public anno map[loc,set[loc]] Tree@docLinks;
 public Configuration checkAndReturnConfig(str mpath) {
     c = newConfiguration();
 	t = getModuleParseTree(mpath);    
-	if (t has top && Module m := t.top)
-		c = checkModule(m, c);
+    try {
+		if (t has top && Module m := t.top)
+			c = checkModule(m, c);
+	} catch : {
+		c.messages = {error("Encountered error checking module <mpath>", t@\loc)};
+	}
 	return c;
 }
 
