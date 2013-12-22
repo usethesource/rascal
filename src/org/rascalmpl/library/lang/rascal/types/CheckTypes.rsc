@@ -1360,7 +1360,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                 // If the constructor is parametric, we need to calculate the actual types of the
                 // parameters and make sure they fall within the proper bounds.
                 formalArgs = getConstructorArgumentTypes(rt);
-                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
+                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- (formalArgs+rt) };
                 map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
                 for (idx <- index(tl)) {
                     try {
