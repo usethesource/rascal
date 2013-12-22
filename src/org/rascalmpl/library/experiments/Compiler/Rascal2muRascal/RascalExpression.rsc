@@ -325,14 +325,16 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                        if(isConstructorType(t) && isConstructorType(ftype)) {
                            bindings = match(\tuple([ a | Symbol arg <- getConstructorArgumentTypes(t),     label(_,Symbol a) := arg || Symbol a := arg ]),
                                             \tuple([ a | Symbol arg <- getConstructorArgumentTypes(ftype), label(_,Symbol a) := arg || Symbol a := arg ]),());
+                           bindings = bindings + ( name : \void() | /parameter(str name,_) := t, name notin bindings );
                            return instantiate(t.\adt,bindings) == ftype.\adt;
                        }
                        if(isFunctionType(t) && isFunctionType(ftype)) {
                            bindings = match(getFunctionArgumentTypesAsTuple(t),getFunctionArgumentTypesAsTuple(ftype),());
+                           bindings = bindings + ( name : \void() | /parameter(str name,_) := t, name notin bindings );
                            return instantiate(t.ret,bindings) == ftype.ret;
                        }
                        return false;
-                   } catch invalidMatch(_,_,_): { 
+                   } catch invalidMatch(_,_,_): {
                        return false;
                    } catch invalidMatch(_,_): {
                        return false; 
@@ -349,10 +351,12 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
            	               if(isConstructorType(t) && isConstructorType(alt)) {
            	                   bindings = match(\tuple([ a | Symbol arg <- getConstructorArgumentTypes(t),   label(_,Symbol a) := arg || Symbol a := arg ]),
            	                                    \tuple([ a | Symbol arg <- getConstructorArgumentTypes(alt), label(_,Symbol a) := arg || Symbol a := arg ]),());
+           	                   bindings = bindings + ( name : \void() | /parameter(str name,_) := t, name notin bindings );
            	                   return instantiate(t.\adt,bindings) == alt.\adt;
            	               }
            	               if(isFunctionType(t) && isFunctionType(alt)) {
            	                   bindings = match(getFunctionArgumentTypesAsTuple(t),getFunctionArgumentTypesAsTuple(alt),());
+           	                   bindings = bindings + ( name : \void() | /parameter(str name,_) := t, name notin bindings );
            	                   return instantiate(t.ret,bindings) == alt.ret;
            	               }
            	               return false;
@@ -380,7 +384,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        if(isEmpty(resolved)) {
            for(int alt <- of.alts) {
                t = fuid2type[alt];
-               println("ALT: <t>");
+               matches(t);
+               println("ALT: <t> ftype: <ftype>");
            }
            throw "ERROR in overloading resolution: <ftype>; <expression@\loc>";
        }
