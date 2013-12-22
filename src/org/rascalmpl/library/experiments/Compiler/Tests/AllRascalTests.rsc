@@ -33,7 +33,7 @@ list[str] functionalityTests = [
 
 // Not yet OK
 
-//"AccumulatingTests"		// [15] 2 tests fail: append that crosses function boundary: make tmp scope dependent?
+"AccumulatingTests"		// [15] 2 tests fail: append that crosses function boundary: make tmp scope dependent?
 
 //"CallTests"				// [58] keyword parameters
 
@@ -43,6 +43,7 @@ list[str] functionalityTests = [
 							//error("Initializer type &T \<: value not assignable to variable of type str",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5535,12,<95,68>,<95,80>))
 							//error("Initializer type &T \<: value not assignable to variable of type str",|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|(5061,12,<89,68>,<89,80>))
 							// Issue posted
+							
 //"FunctionCompositionTests"	//[6]
 							// |rascal://experiments::Compiler::Rascal2muRascal::TypeUtils|(16295,4,<389,28>,<389,32>): NoSuchKey(31)
 							
@@ -51,9 +52,9 @@ list[str] functionalityTests = [
 							// Checking function matchADTwithKeywords4
 							// |rascal://lang::rascal::types::CheckTypes|(140533,19,<2772,21>,<2772,40>): The called signature: checkExp(sort("Expression"), Configuration),
 							// does not match the declared signature:	CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  CheckResult checkExp(sort("Expression"), Configuration); (concrete pattern);  
-//"StatementTests"			// Fail in overloaded constructor gives problem ==> Issue posted
-						
 
+//"StatementTests"			// Fail in overloaded constructor gives problem ==> Issue posted
+				
 
 //"VisitTests"				// 13 fail [98]
 ];
@@ -105,7 +106,7 @@ list[str] rascalTests = [
 						// |rascal://experiments::Compiler::RVM::Run|(217,715,<12,0>,<23,28>): Java("RuntimeException","PANIC: (instruction execution): null")
 						//	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM.executeProgram(|file:///RVM.java|(0,0,<1381,0>,<1381,0>))
 
-"ListRelations"		// [19]
+//"ListRelations"		// [19]
 						// error("Name b is not in scope",|project://rascal-test/src/tests/ListRelations.rsc|(1014,1,<29,57>,<29,58>))
 						//error("Multiple functions found which could be applied",|project://rascal-test/src/tests/ListRelations.rsc|(2163,9,<68,20>,<68,29>))
 						//error("Name a is not in scope",|project://rascal-test/src/tests/ListRelations.rsc|(2385,1,<72,81>,<72,82>))
@@ -127,7 +128,7 @@ list[str] rascalTests = [
 						//error("Name a is not in scope",|project://rascal-test/src/tests/ListRelations.rsc|(441,1,<16,39>,<16,40>))
 						//error("Name c is not in scope",|project://rascal-test/src/tests/ListRelations.rsc|(1017,1,<29,60>,<29,61>))
 
-//"Lists"					// Issue #448
+"Lists"					// 4 tests fail
 //"Maps"				// [23] Compilation of ListRelation
 
 
