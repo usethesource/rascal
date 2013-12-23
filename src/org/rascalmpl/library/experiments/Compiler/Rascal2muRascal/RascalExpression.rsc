@@ -582,9 +582,9 @@ MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS) {
 	cond2 = muCallMuPrim("equal", [ muCon("NoSuchAnnotation"),
 									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children", [ muTmp(asUnwrapedThrown(varname),fuid) ]), muInt(0) ] ) ]);
 	
-	elsePart3 = muIfelse(nextLabel(), makeMuMulti(cond3), [ muRHS ], [ muThrow(muTmp(varname,fuid)) ]);
-	elsePart2 = muIfelse(nextLabel(), makeMuMulti(cond2), [ muRHS ], [ elsePart3 ]);
-	catchBody = muIfelse(nextLabel(), makeMuMulti(cond1), [ muRHS ], [ elsePart2 ]);
+	elsePart3 = muIfelse(nextLabel(), cond3, [ muRHS ], [ muThrow(muTmp(varname,fuid)) ]);
+	elsePart2 = muIfelse(nextLabel(), cond2, [ muRHS ], [ elsePart3 ]);
+	catchBody = muIfelse(nextLabel(), cond1, [ muRHS ], [ elsePart2 ]);
 	return muTry(muLHS, muCatch(varname, fuid, Symbol::\adt("RuntimeException",[]), catchBody), 
 			  		 	muBlock([]));
 }
@@ -699,8 +699,9 @@ MuExp translate(e:(Expression) `<Expression lhs> || <Expression rhs>`)  = transl
  
 // Conditional Expression
 MuExp translate(e:(Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) =
-	// Label (used to backtrack) here is not important as it is not allowed to have 'fail' in conditional expressions
-	muIfelse(nextLabel(),makeMuMulti(translate(condition)), [translate(thenExp)],  [translate(elseExp)]);
+	// ***Note that the label (used to backtrack) here is not important (no backtracking scope is pushed) 
+	// as it is not allowed to have 'fail' in conditional expressions
+	muIfelse(nextLabel(),translate(condition), [translate(thenExp)],  [translate(elseExp)]);
 
 // Default: should not happen
 default MuExp translate(Expression e) {
