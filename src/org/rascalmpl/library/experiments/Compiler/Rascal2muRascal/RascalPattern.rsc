@@ -68,6 +68,7 @@ map[str,str] regexpEscapes = (
 );
 
 MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
+   str fuid = topFunctionScope();
    swriter = nextTmp();
    fragmentCode = [];
    varrefs = [];
@@ -122,9 +123,9 @@ MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier m
    if(size(fragment) > 0){
       fragmentCode += muCon(fragment);
    }
-   buildRegExp = muBlock(muAssignTmp(swriter, muCallPrim("stringwriter_open", [])) + 
-                       [ muCallPrim("stringwriter_add", [muTmp(swriter), exp]) | exp <- fragmentCode ] +
-                       muCallPrim("stringwriter_close", [muTmp(swriter)]));
+   buildRegExp = muBlock(muAssignTmp(swriter, fuid, muCallPrim("stringwriter_open", [])) + 
+                       [ muCallPrim("stringwriter_add", [muTmp(swriter,fuid), exp]) | exp <- fragmentCode ] +
+                       muCallPrim("stringwriter_close", [muTmp(swriter,fuid)]));
  
    return muCreate(mkCallToLibFun("Library", "MATCH_REGEXP", 3), 
                  [ buildRegExp,

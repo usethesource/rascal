@@ -172,7 +172,7 @@ public data MuExp =
 public MuExp muMulti(muOne(MuExp exp)) = muOne(exp);
 public MuExp muOne(muMulti(MuExp exp)) = muOne(exp);
  
-data MuCatch = muCatch(str id, Symbol \type, MuExp body);    
+data MuCatch = muCatch(str id, str fuid, Symbol \type, MuExp body);    
 
 data MuTypeCase = muTypeCase(str name, MuExp exp);	  
        	  
