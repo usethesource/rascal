@@ -354,9 +354,12 @@ public Configuration addUnnamedVariable(Configuration c, loc l, Symbol rt) {
 }
 
 public Configuration addVariable(Configuration c, RName n, bool inf, Vis visibility, loc l, Symbol rt) {
-    c = addVariable(c,n,inf,l,rt);
-    c.visibilities[c.nextLoc-1] = visibility;
-    return c;
+    cret = addVariable(c,n,inf,l,rt);
+    // This check ensures we actually added the variable; if we didn't, we don't want to set
+    // visibility information for whatever random entry comes before.
+    if (cret.nextLoc == (c.nextLoc+1))
+    	cret.visibilities[cret.nextLoc-1] = visibility;
+    return cret;
 }
 
 public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol rtOn, Vis visibility, loc l) {
@@ -1918,8 +1921,26 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
         if (adtName in c.typeEnv) {
 	        if (<c.typeEnv[adtName],fAsString> notin c.adtFields)
 	            return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
-	        else
-	            return c.adtFields[<c.typeEnv[adtName],fAsString>];
+	        else {
+				adtId = c.typeEnv[adtName];
+				originalType = c.store[adtId].rtype;
+				originalParams = getADTTypeParameters(originalType);
+				fieldType = c.adtFields[<c.typeEnv[adtName],fAsString>];
+				if (size(originalParams) > 0) {
+					actualParams = getADTTypeParameters(t1);
+					if (size(originalParams) != size(actualParams)) {
+						return makeFailType("Invalid ADT type, the number of type parameters is inconsistent", l);
+					} else {
+						bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
+	                    try {
+	                        fieldType = instantiate(fieldType, bindings);
+	                    } catch : {
+	                        return makeFailType("Failed to instantiate type parameters in field type", l);
+	                    }						
+					}
+				}									        	
+	            return fieldType;
+			}
 	    } else {
 	    	return makeFailType("Cannot compute type of field <fAsString>, user type <prettyPrintType(t1)> has not been declared", l); 
 	    }  
