@@ -43,21 +43,33 @@ public str nextLabel(str prefix){
 
 bool inBacktrackingScope() = !isEmpty(backtrackingScopes);
 
-private list[str] loops = [];					// *** state
+private lrel[str label,str fuid] loops = []; // *** state
 
-void enterLoop(str name){
-  loops = name + loops;
+void enterLoop(str name, str fuid){
+  loops = <name,fuid> + loops;
 }
 
 str currentLoop(){
-  return top(loops);
+  return top(loops).label;
 }
 
 str currentLoop(DataTarget target){
   if(target is empty)
-     return currentLoop();
+     return currentLoop().label;
   else
      return "<target.label>";
+}
+
+str getCurrentLoopScope() {
+  return top(loops).fuid;
+}
+
+str getCurrentLoopScope(DataTarget target) {
+  if(target is empty) {
+      return getCurrentLoopScope();
+  } else {
+      return topFunctionScope();
+  }
 }
 
 void leaveLoop(){
@@ -87,7 +99,7 @@ str asUnwrapedThrown(str name) = name + "_unwraped";
 
 // Keep track of possibly nested "it" variables in reducers
 
-private rel[str name,str fuid] itVariables = [];				// *** state
+private lrel[str name,str fuid] itVariables = []; // *** state
 
 void pushIt(str name, str fuid){
   itVariables = <name,fuid> + itVariables;

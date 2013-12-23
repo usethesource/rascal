@@ -31,7 +31,7 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
     str fuid = topFunctionScope();
     whilename = getLabel(label);
     tmp = asTmp(whilename);
-    enterLoop(whilename);
+    enterLoop(whilename,fuid);
     enterBacktrackingScope(whilename);
     code = [ muAssignTmp(tmp,fuid,muCallPrim("listwriter_open", [])), 
              muWhile(whilename, makeMuOne("ALL", [ translate(c) | c <- conditions ]), [translate(body)]),
@@ -46,7 +46,7 @@ MuExp translateTemplate((StringTemplate) `while ( <Expression condition> ) { <St
     str fuid = topFunctionScope();
     whilename = nextLabel();
     result = asTmp(whilename);
-    enterLoop(whilename);
+    enterLoop(whilename,fuid);
     enterBacktrackingScope(whilename);
     code = [ muAssignTmp(result,fuid,muCallPrim("template_open", [muCon(""), muTmp(pre,prefuid)])), 
              muWhile(whilename, makeMuOne("ALL", [ translate(condition) ]), 
@@ -65,7 +65,7 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
     str fuid = topFunctionScope();
     doname = getLabel(label);
     tmp = asTmp(doname);
-    enterLoop(doname);
+    enterLoop(doname,fuid);
     enterBacktrackingScope(doname);
     code = [ muAssignTmp(tmp,fuid,muCallPrim("listwriter_open", [])), 
              muDo(doname,  [translate(body)], makeMuOne("ALL",[ translate(condition) ])),
@@ -80,7 +80,7 @@ MuExp translateTemplate(s: (StringTemplate) `do { < Statement* preStats> <String
     str fuid = topFunctionScope();  
     doname = nextLabel();
     result = asTmp(doname);
-    enterLoop(doname);
+    enterLoop(doname,fuid);
     enterBacktrackingScope(doname);
     code = [ muAssignTmp(result,fuid,muCallPrim("template_open", [muCon(""), muTmp(pre,prefuid)])),
              muDo(doname,  [ translateStats(preStats),
@@ -88,7 +88,7 @@ MuExp translateTemplate(s: (StringTemplate) `do { < Statement* preStats> <String
                              translateStats(postStats)], 
                   makeMuOne("ALL",[ translate(condition) ])
                  ),
-             muCallPrim("template_close", [muTmp(result)])
+             muCallPrim("template_close", [muTmp(result,fuid)])
            ];
     leaveBacktrackingScope();
     leaveLoop();
@@ -99,7 +99,7 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
     str fuid = topFunctionScope();
     forname = getLabel(label);
     tmp = asTmp(forname);
-    enterLoop(forname);
+    enterLoop(forname,fuid);
     enterBacktrackingScope(forname);
     code = [ muAssignTmp(tmp,fuid,muCallPrim("listwriter_open", [])),
              muWhile(forname, makeMuMulti("ALL",[ translate(c) | c <-generators ]), [ translate(body) ]),
@@ -114,7 +114,7 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
     str fuid = topFunctionScope();
     forname = nextLabel();
     result = asTmp(forname);
-    enterLoop(forname);
+    enterLoop(forname,fuid);
     enterBacktrackingScope(forname);
     code = [ muAssignTmp(result,fuid,muCallPrim("template_open", [muCon(""), muTmp(pre,prefuid)])),
              muWhile(forname, makeMuMulti("ALL",[ translate(c) | c <-generators ]), 
@@ -284,8 +284,9 @@ MuExp translate(s: (Statement) `return <Statement statement>`) {
 	// If the 'return' is used in the scope of a try-catch-finally block,
 	// the respective 'finally' block must be executed before the function returns
 	if(hasFinally()) {
+	    str fuid = topFunctionScope();
 		str varname = asTmp(nextLabel());
-		return muBlock([ muAssignTmp(varname, translate(statement)), muReturn(muTmp(varname)) ]);
+		return muBlock([ muAssignTmp(varname, fuid, translate(statement)), muReturn(muTmp(varname,fuid)) ]);
 	} 
 	return muReturn(translate(statement));
 }
@@ -294,11 +295,11 @@ MuExp translate(s: (Statement) `throw <Statement statement>`) = muThrow(translat
 
 MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) // TODO: handle dataTarget
 	= { fillCaseType(getType(statement@\loc)); 
-		muBlock([ muAssignLocDeref("hasInsert",2,muBool(true)), 
+		muBlock([ muAssignDeref("hasInsert",topFunctionScope(),2,muBool(true)), 
 				  muReturn(translate(statement)) ]); };
 
 MuExp translate(s: (Statement) `append <DataTarget dataTarget> <Statement statement>`) =
-   muCallPrim("listwriter_add", [muTmp(asTmp(currentLoop(dataTarget))), translate(statement)]);
+   muCallPrim("listwriter_add", [muTmp(asTmp(currentLoop(dataTarget)),getCurrentLoopScope(dataTarget)), translate(statement)]);
 
 MuExp translate(s: (Statement) `<FunctionDeclaration functionDeclaration>`) { translate(functionDeclaration); return muBlock([]); }
 
@@ -323,12 +324,13 @@ default MuExp translate(Statement s){
 // Switch statement
 
 MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) {
+    str fuid = topFunctionScope();
     switchname = getLabel(label);
     switchval = asTmp(switchname);
-    return muBlock([ muAssignTmp(switchval, translate(expression)), translateSwitchCases(switchval, [c | c <- cases]) ]);
+    return muBlock([ muAssignTmp(switchval,fuid,translate(expression)), translateSwitchCases(switchval,fuid,[c | c <- cases]) ]);
 }
 
-MuExp translateSwitchCases(str switchval, list[Case] cases) {
+MuExp translateSwitchCases(str switchval, str fuid, list[Case] cases) {
   if(size(cases) == 0)
       return muBlock([]);
   c = head(cases);
@@ -338,8 +340,8 @@ MuExp translateSwitchCases(str switchval, list[Case] cases) {
      if(pwa is arbitrary){
      	ifname = nextLabel();
      	enterBacktrackingScope(ifname);
-        cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pwa.pattern), muTmp(switchval)]));
-        exp = muIfelse(ifname, makeMuMulti(cond), [translate(pwa.statement)], [translateSwitchCases(switchval, tail(cases))]);
+        cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pwa.pattern), muTmp(switchval,fuid)]));
+        exp = muIfelse(ifname, makeMuMulti(cond), [translate(pwa.statement)], [translateSwitchCases(switchval,fuid,tail(cases))]);
         leaveBacktrackingScope();
         return exp; 
      } else {
@@ -353,6 +355,7 @@ MuExp translateSwitchCases(str switchval, list[Case] cases) {
 // Solve statement
 
 MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`) {
+   str fuid = topFunctionScope();
    iterations = nextTmp();  // count number of iterations
    change = nextTmp();		// keep track of any changed value
    result = nextTmp();		// result of body computation
@@ -360,19 +363,19 @@ MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <B
    varCode = [ translate(var) | var <- variables ];
    tmps = [ nextTmp() | var <- variables ];
 // TODO: check that given bound is positive
-   return muBlock([ muAssignTmp(iterations,  (bound is empty) ? muCon(1000000) : translate(bound.expression)),
-                    muAssignTmp(change, muCon(true)),
-                    *[ muAssignTmp(tmps[i], varCode[i]) | i <- index(varCode) ],
+   return muBlock([ muAssignTmp(iterations, fuid, (bound is empty) ? muCon(1000000) : translate(bound.expression)),
+                    muAssignTmp(change, fuid, muCon(true)),
+                    *[ muAssignTmp(tmps[i], fuid, varCode[i]) | i <- index(varCode) ],
                     muWhile(nextLabel(),
-                            muCallMuPrim("and_mbool_mbool", [muTmp(change), muCallPrim("int_greater_int", [muTmp(iterations), muCon(0)]) ]), 
-                            [ muAssignTmp(change, muCon(false)),
-                              muAssignTmp(result, translate(body)),
-                              *[ muIfelse(nextLabel(), muCallPrim("notequal", [muTmp(tmps[i]), varCode[i]]), [muAssignTmp(change, muCon(true))], []) 
+                            muCallMuPrim("and_mbool_mbool", [muTmp(change,fuid), muCallPrim("int_greater_int", [muTmp(iterations,fuid), muCon(0)]) ]), 
+                            [ muAssignTmp(change, fuid, muCon(false)),
+                              muAssignTmp(result, fuid, translate(body)),
+                              *[ muIfelse(nextLabel(), muCallPrim("notequal", [muTmp(tmps[i],fuid), varCode[i]]), [muAssignTmp(change,fuid,muCon(true))], []) 
                  			   | i <- index(varCode)
                  			   ],
-                              muAssignTmp(iterations, muCallPrim("int_subtract_int", [muTmp(iterations), muCon(1)])) 
+                              muAssignTmp(iterations, fuid, muCallPrim("int_subtract_int", [muTmp(iterations,fuid), muCon(1)])) 
                             ]),
-                    muTmp(result)
+                    muTmp(result,fuid)
            ]);
 }
 
@@ -429,23 +432,25 @@ MuExp assignTo(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpre
 	assignTo(receiver,  rhs);
 
 MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, MuExp rhs) {
+    str fuid = topFunctionScope();
 	nelems = size_assignables(elements);
     name = nextTmp();
     elems = [ e | e <- elements];	// hack since elements[i] yields a value result;
     return muBlock(
-              muAssignTmp(name, rhs) + 
-              [ assignTo(elems[i], muCallPrim("tuple_subscript_int", [muTmp(name), muCon(i)]) )
+              muAssignTmp(name, fuid, rhs) + 
+              [ assignTo(elems[i], muCallPrim("tuple_subscript_int", [muTmp(name,fuid), muCon(i)]) )
               | i <- [0 .. nelems]
               ]);
 }
 
 MuExp assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, MuExp rhs) { 
+    str fuid = topFunctionScope();
     nelems = size_assignables(elements);
     name = nextTmp();
     elems = [ e | e <- elements];	// hack since elements[i] yields a value result;
     return muBlock(
-              muAssignTmp(name, rhs) + 
-              [ assignTo(elems[i], muCalla("adt_subscript_int", [muTmp(name), muCon(i)]) )
+              muAssignTmp(name, fuid, rhs) + 
+              [ assignTo(elems[i], muCalla("adt_subscript_int", [muTmp(name,fuid), muCon(i)]) )
               | i <- [0 .. nelems]
               ]);
 }

@@ -23,12 +23,12 @@ int nlabel = -1;
 str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 
 str functionScope = "";
-int nlocal = 0;
+map[str,int] nlocal = ();
 
-int get_nlocals() = nlocal;
+int get_nlocals() = nlocal[functionScope];
 
 void set_nlocals(int n) {
-	nlocal = n;
+	nlocal[functionScope] = n;
 }
 
 // Systematic label generation related to loops
@@ -49,19 +49,25 @@ str mkFinallyTo(str label) = "FINALLY_TO_<label>";
 //int defaultStackSize = 25;
 
 int newLocal() {
-    n = nlocal;
-    nlocal += 1;
+    n = nlocal[functionScope];
+    nlocal[functionScope] = n + 1;
     return n;
 }
 
-map[str,int] temporaries = ();
+int newLocal(str fuid) {
+    n = nlocal[fuid];
+    nlocal[fuid] = n + 1;
+    return n;
+}
+
+map[tuple[str,str],int] temporaries = ();
 str asUnwrapedThrown(str name) = name + "_unwraped";
 
-int getTmp(str name){
-   if(temporaries[name]?)
-   		return temporaries[name];
-   n = newLocal();
-   temporaries[name] = n;
+int getTmp(str name, str fuid){
+   if(temporaries[<name,fuid>]?)
+   		return temporaries[<name,fuid>];
+   n = newLocal(fuid);
+   temporaries[<name,fuid>] = n;
    return n;		
 }
 
@@ -133,14 +139,20 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
                   bool listing=false){
   funMap = ();
   nlabel = -1;
+  nlocal = ( fun.qname : fun.nlocals | MuFunction fun <- functions );
   temporaries = ();
+  
+  // Due to nesting, pre-compute positions of temporaries
+  visit(functions) {
+      case muTmp(str id, str fuid): getTmp(id,fuid);
+      case muTmpRef(str id, str fuid): getTmp(id,fuid);
+      case muAssignTmp(str id, str fuid, _): getTmp(id,fuid);
+  }
   
   println("mu2rvm: Compiling module <module_name>");
  
   for(fun <- functions){
     functionScope = fun.qname;
-    nlocal = fun.nlocals;
-    temporaries = ();
     exceptionTable = [];
     catchBlocks = [[]];
     if(listing){
@@ -161,11 +173,11 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     //	 println("	<entry>");
     // }
     
-    required_frame_size = nlocal + estimate_stack_size(fun.body);
+    required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body);
     lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
     																			  tuple[str from, str to] range <- entry.ranges ];
-    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.scopeIn, fun.nformals, nlocal, fun.refs, required_frame_size, code))
-    							   : (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, fun.isVarArgs, required_frame_size, code, exceptions));
+    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.scopeIn, fun.nformals, nlocal[functionScope], fun.refs, required_frame_size, code))
+    							   : (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal[functionScope], fun.isVarArgs, required_frame_size, code, exceptions));
   }
   
   main_fun = getUID(module_name,[],"MAIN",1);
@@ -259,7 +271,7 @@ INS tr(muConstr(str fuid)) = [LOADCONSTR(fuid)];
 
 INS tr(muVar(str id, str fuid, int pos)) = [fuid == functionScope ? LOADLOC(pos) : LOADVAR(fuid, pos)];
 INS tr(muLoc(str id, int pos)) = [LOADLOC(pos)];
-INS tr(muTmp(str id)) = [LOADLOC(getTmp(id))];
+INS tr(muTmp(str id,str fuid)) = [fuid == functionScope ? LOADLOC(getTmp(id,fuid)) : LOADVAR(fuid,getTmp(id,fuid))];
 
 INS tr(muLocKwp(str name)) = [ LOADLOCKWP(name) ];
 INS tr(muVarKwp(str fuid, str name)) = [ fuid == functionScope ? LOADLOCKWP(name) : LOADVARKWP(fuid, name) ];
@@ -269,14 +281,14 @@ INS tr(muVarDeref(str name, str fuid, int pos)) = [ fuid == functionScope ? LOAD
 
 INS tr(muLocRef(str name, int pos)) = [ LOADLOCREF(pos) ];
 INS tr(muVarRef(str name, str fuid, int pos)) = [ fuid == functionScope ? LOADLOCREF(pos) : LOADVARREF(fuid, pos) ];
-INS tr(muTmpRef(str name)) = [ LOADLOCREF(getTmp(name)) ];
+INS tr(muTmpRef(str name, str fuid)) = [ fuid == functionScope ? LOADLOCREF(getTmp(name,fuid)) : LOADVARREF(fuid,getTmp(name,fuid)) ];
 
 INS tr(muAssignLocDeref(str id, int pos, MuExp exp)) = [ *tr(exp), STORELOCDEREF(pos) ];
 INS tr(muAssignVarDeref(str id, str fuid, int pos, MuExp exp)) = [ *tr(exp), fuid == functionScope ? STORELOCDEREF(pos) : STOREVARDEREF(fuid, pos) ];
 
 INS tr(muAssign(str id, str fuid, int pos, MuExp exp)) = [*tr(exp), fuid == functionScope ? STORELOC(pos) : STOREVAR(fuid, pos)];
 INS tr(muAssignLoc(str id, int pos, MuExp exp)) = [*tr(exp), STORELOC(pos) ];
-INS tr(muAssignTmp(str id, MuExp exp)) = [*tr(exp), STORELOC(getTmp(id)) ];
+INS tr(muAssignTmp(str id, str fuid, MuExp exp)) = [*tr(exp), fuid == functionScope ? STORELOC(getTmp(id,fuid)) : STOREVAR(fuid,getTmp(id,fuid)) ];
 
 INS tr(muAssignLocKwp(str name, MuExp exp)) = [ *tr(exp), STORELOCKWP(name) ];
 INS tr(muAssignKwp(str fuid, str name, MuExp exp)) = [ *tr(exp), fuid == functionScope ? STORELOCKWP(name) : STOREVARKWP(fuid,name) ];
@@ -434,7 +446,10 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	return code;
 }
 
-void trMuCatch(muCatch(str id, Symbol \type, MuExp exp), str from, str fromAsPartOfTryBlock, str to, str jmpto) {
+void trMuCatch(muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, str fromAsPartOfTryBlock, str to, str jmpto) {
+    
+    // TODO:
+    assert fuid == functionScope;
 	
 	oldCatchBlocks = catchBlocks;
 	oldCurrentCatchBlock = currentCatchBlock;
@@ -455,9 +470,9 @@ void trMuCatch(muCatch(str id, Symbol \type, MuExp exp), str from, str fromAsPar
 	} else {
 		catchBlock = [ LABEL(from), 
 					   // store a thrown value
-					   STORELOC(getTmp(id)), POP(),
+					   STORELOC(getTmp(id,fuid)), POP(),
 					   // load a thrown value, unwrap it and store the unwrapped one in a separate local variable
-					   LOADLOC(getTmp(id)), UNWRAPTHROWN(getTmp(asUnwrapedThrown(id))),
+					   LOADLOC(getTmp(id,fuid)), UNWRAPTHROWN(getTmp(asUnwrapedThrown(id),fuid)),
 					   *tr(exp), LABEL(to), JMP(jmpto) ];
 	}
 	

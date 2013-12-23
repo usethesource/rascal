@@ -585,7 +585,7 @@ MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS) {
 	elsePart3 = muIfelse(nextLabel(), makeMuMulti(cond3), [ muRHS ], [ muThrow(muTmp(varname,fuid)) ]);
 	elsePart2 = muIfelse(nextLabel(), makeMuMulti(cond2), [ muRHS ], [ elsePart3 ]);
 	catchBody = muIfelse(nextLabel(), makeMuMulti(cond1), [ muRHS ], [ elsePart2 ]);
-	return muTry(muLHS, muCatch(varname, Symbol::\adt("RuntimeException",[]), catchBody), 
+	return muTry(muLHS, muCatch(varname, fuid, Symbol::\adt("RuntimeException",[]), catchBody), 
 			  		 	muBlock([]));
 }
 
@@ -1188,14 +1188,21 @@ MuExp translateVisit(label,\visit) {
 	str phi_fuid = scopeId + "/" + "PHI_<i>";
 	Symbol phi_ftype = Symbol::func(Symbol::\value(), [Symbol::\value(),Symbol::\value()]);
 	
-	enterVisit();	
+	enterVisit();
+	enterFunctionScope(phi_fuid);
+	
 	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 3, 3, false, \visit@\loc, [], (), 
 										translateVisitCases([ c | Case c <- \visit.cases ],phi_fuid));
+	
+	leaveFunctionScope();
 	leaveVisit();
 	
 	if(fixpoint) {
 		str phi_fixpoint_fuid = scopeId + "/" + "PHI_FIXPOINT_<i>";
 		
+		enterFunctionScope(phi_fixpoint_fuid);
+		
+		// Local variables of 'phi_fixpoint_fuid': 'iSubject', 'matched', 'hasInsert', 'changed', 'val'
 		list[MuExp] body = [];
 		body += muAssign("changed", phi_fixpoint_fuid, 3, muBool(true));
 		body += muWhile(nextLabel(), muVar("changed",phi_fixpoint_fuid,3), 
@@ -1205,8 +1212,11 @@ MuExp translateVisit(label,\visit) {
 						  						[ muAssign("iSubject",phi_fixpoint_fuid,0,muVar("val",phi_fixpoint_fuid,4)) ] )]);
 		body += muReturn(muVar("iSubject",phi_fixpoint_fuid,0));
 		
+		leaveFunctionScope();
+		
 		functions_in_module += muFunction(phi_fixpoint_fuid, phi_ftype, scopeId, 3, 5, false, \visit@\loc, [], (), muBlock(body));
 	
+	    // Local variables of the surrounding function
 		str hasMatch = asTmp(nextLabel());
 		str beenChanged = asTmp(nextLabel());
 		return muBlock([ muAssignTmp(hasMatch,scopeId,muBool(false)),
@@ -1215,6 +1225,7 @@ MuExp translateVisit(label,\visit) {
 				   	   ]);
 	}
 	
+	// Local variables of the surrounding function
 	str hasMatch = asTmp(nextLabel());
 	str beenChanged = asTmp(nextLabel());
 	return muBlock([ muAssignTmp(hasMatch,scopeId,muBool(false)), 
