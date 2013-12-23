@@ -42,7 +42,7 @@ public class Execute {
 								 IList imported_functions,
 								 IList imported_overloaded_functions,
 								 IMap imported_overloading_resolvers,
-								 IMap imported_grammars, IList argumentsAsList,
+								 IList argumentsAsList,
 								 IBool debug, IBool testsuite, IBool profile, IEvaluatorContext ctx) {
 		
 		boolean isTestSuite = testsuite.getValue();
@@ -127,9 +127,6 @@ public class Execute {
 		// Overloading resolution
 		rvm.addResolver((IMap) program.get("resolver"));
 		rvm.fillOverloadedStore((IList) program.get("overloaded_functions"));
-		
-		// Grammars
-		rvm.setGrammars(imported_grammars);
 		
 		IValue[] arguments = new IValue[argumentsAsList.length()];
 		for(int i = 0; i < argumentsAsList.length(); i++){

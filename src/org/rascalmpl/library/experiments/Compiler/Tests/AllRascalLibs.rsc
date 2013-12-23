@@ -11,39 +11,39 @@ list[str] libs = [
 
 /***** OK *****/
 
-//"Boolean" 			// OK
-//"DateTime"			// OK
-//"Exception" 			// OK
-//"Grammar" 			// OK
-//"IO"					// OK
-//"List" 				// OK
-//"ListRelation"		// OK
-//"Map" 				// OK
-//"Message", 			// OK
-//"Node"				// OK
-//"Origins",			// OK
-//"ParseTree" 			// OK
-//"Prelude"				// OK	
-//"Relation",			// OK
-//"Set",				// OK
-//"String",				// OK
-//"Time", 				// OK
-//"Type", 				// OK
-//"ToString", 			// OK
-//"Traversal",			// OK
-//"Tuple", 				// OK
-//"ValueIO", 			// OK
-//"util::Benchmark"		// OK
-//"util::Eval"			// OK
-//"util::FileSystem" 	// OK
-//"util::Highlight"		// OK
-//"util::Math" 			// OK
-//"util::Maybe"			// OK
-//"util::Monitor",		// OK
-//"util::PriorityQueue"	// OK
-//"util/Reflective" 	// OK
-//"util::ShellExec",	// OK
-//"util::Webserver"		// OK
+"Boolean", 			// OK
+"DateTime",			// OK
+"Exception", 		// OK
+//"Grammar", 			// OK <== Issue #455
+"IO",				// OK
+"List", 			// OK
+"ListRelation",		// OK
+"Map", 				// OK
+"Message", 			// OK
+"Node",				// OK
+"Origins",			// OK
+"ParseTree", 		// OK		
+"Prelude",			// OK	
+"Relation",			// OK
+"Set",				// OK
+"String",			// OK
+"Time", 			// OK
+"Type", 			// OK
+"ToString", 		// OK
+"Traversal",		// OK
+"Tuple", 			// OK
+"ValueIO", 			// OK
+"util::Benchmark",	// OK
+"util::Eval",		// OK
+"util::FileSystem", // OK
+"util::Highlight",	// OK
+"util::Math",		// OK
+"util::Maybe",		// OK
+"util::Monitor",	// OK
+"util::PriorityQueue",// OK
+//"util/Reflective", 	// OK <== Grammar.rsc
+"util::ShellExec",	// OK
+"util::Webserver"		// OK
 
 /***** Not yet OK *****/
 
@@ -62,11 +62,13 @@ list[str] libs = [
 						// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal/src/org/rascalmpl/library/Ambiguity.rsc|(8058,1,<195,20>,<195,21>))
                     	
 //"APIGen" 				// reifiedTypeNodes |rascal://lang::rascal::types::CheckTypes|(178871,21,<3518,22>,<3518,43>): "Not yet implemented" 
+						// Issue #318
 
 // "Number"				// DEPRECATED: TC gives errors
 
 
 //"util::LOC"			// error("Field top does not exist on type Tree",|std:///util/LOC.rsc|(943,5,<44,8>,<44,13>))
+					// Issue #394
 						
 ];
 

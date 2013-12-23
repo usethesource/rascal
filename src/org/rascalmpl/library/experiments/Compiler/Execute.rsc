@@ -45,7 +45,6 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    list[Declaration] imported_functions = [];
    lrel[str,list[str],list[str]] imported_overloaded_functions = [];
    map[str,int] imported_overloading_resolvers = ();
-   map[str,map[Symbol,Production]] imported_grammars = ();
    
     if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
      try {
@@ -76,8 +75,6 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
   	           imported_overloaded_functions = imported_overloaded_functions + importedRvmProgram.overloaded_functions;
   	           imported_overloading_resolvers = imported_overloading_resolvers + ( ofname : (importedRvmProgram.resolver[ofname] + pos_delta) | str ofname <- importedRvmProgram.resolver );
   	       
-  	           imported_grammars[importedRvmProgram.name] = importedRvmProgram.grammar;
-  	           println("adding grammar for <importedRvmProgram.name>");
   	       } catch x: println("rascal2rvm: Reading <importedLoc> did not succeed: <x>");      
        }
    }
@@ -89,7 +86,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    <v, t> = executeProgram(rvmProgram, imported_types,
    									   imported_functions, 
    									   imported_overloaded_functions, imported_overloading_resolvers, 
-   									   imported_grammars, arguments, debug, testsuite, profile);
+   									   arguments, debug, testsuite, profile);
    println("Result = <v>, [<t> msec]");
    return <v, t>;
 }

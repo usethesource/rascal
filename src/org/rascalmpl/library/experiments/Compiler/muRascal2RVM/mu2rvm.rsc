@@ -191,7 +191,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   	 module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
   }
   
-  res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions, grammar);
+  res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions);
   if(listing){
     for(fname <- funMap)
   		iprintln(funMap[fname]);
