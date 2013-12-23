@@ -55,7 +55,7 @@ str currentLoop(){
 
 str currentLoop(DataTarget target){
   if(target is empty)
-     return currentLoop().label;
+     return currentLoop();
   else
      return "<target.label>";
 }
