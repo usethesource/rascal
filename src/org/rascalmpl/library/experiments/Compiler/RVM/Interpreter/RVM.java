@@ -424,16 +424,20 @@ public class RVM {
 	int pc;				                                      		// current program counter
 	int postOp;
 	int pos;
+	int op;
+	int instruction;
 	ArrayList<Frame> stacktrace;
 	Thrown thrown;
 	int arity;
 	String last_function_name;
+	Frame cf;
+	Frame root;
 	
 	// Overloading specific
 	Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
 	OverloadedFunctionInstanceCall c_ofun_call = null;
 	
-	private Object executeProgram(Frame root, Frame cf) {
+	private Object executeProgram(Frame root_frame, Frame current_frame) {
 //		Object[] stack = cf.stack;		                              	// current stack
 //		int sp = cf.function.nlocals;				                  	// current stack pointer
 //		int [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
@@ -449,6 +453,8 @@ public class RVM {
 //		Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
 //		OverloadedFunctionInstanceCall c_ofun_call = null;
 		
+		root = root_frame;
+		cf = current_frame;
 		stack = cf.stack;		                              	// current stack
 		sp = cf.function.nlocals;				                  	// current stack pointer
 		instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
@@ -466,8 +472,8 @@ public class RVM {
 //				if(pc < 0 || pc >= instructions.length){
 //					throw new RuntimeException(cf.function.name + " illegal pc: " + pc);
 //				}
-				int instruction = instructions[pc++];
-				int op = CodeBlock.fetchOp(instruction);
+				instruction = instructions[pc++];
+				op = CodeBlock.fetchOp(instruction);
 
 				if (debug) {
 					int startpc = pc - 1;
@@ -482,6 +488,8 @@ public class RVM {
 				
 				Opcode.use(instruction);
 				
+				Function fun;
+				Frame previousScope;
 				switch (op) {
 					
 				case Opcode.OP_POP:
@@ -629,7 +637,7 @@ public class RVM {
 				case Opcode.OP_LOAD_NESTED_FUN: { 
 					// Loads nested functions and closures (anonymous nested functions):
 					// First, get the function code
-					Function fun = functionStore.get(CodeBlock.fetchArg1(instruction));
+					fun = functionStore.get(CodeBlock.fetchArg1(instruction));
 					int scopeIn = CodeBlock.fetchArg2(instruction);
 					// Second, look up the function environment frame into the stack of caller frames
 					for(Frame env = cf; env != null; env = env.previousCallFrame) {
@@ -801,51 +809,53 @@ public class RVM {
 					
 				case Opcode.OP_CALLDYN:				
 				case Opcode.OP_CALL:
-					
-					// In case of CALLDYN, the stack top value of type 'Type' leads to a constructor call
-					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Type) {
-						Type constr = (Type) stack[--sp];
-						arity = constr.getArity();
-						args = new IValue[arity]; 
-						for(int i = arity - 1; i >=0; i--) {
-							args[i] = (IValue) stack[sp - arity + i];
-						}
-						sp = sp - arity;
-						stack[sp++] = vf.constructor(constr, args);
-						continue NEXT_INSTRUCTION;
-					}
-					
-					Function fun = null;
-					Frame previousScope = null;
-					
-					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof FunctionInstance){
-						FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
-						arity = CodeBlock.fetchArg1(instruction); // TODO: add assert
-						fun = fun_instance.function;
-						previousScope = fun_instance.env;
-					} else if(op == Opcode.OP_CALL) {
-						fun = functionStore.get(CodeBlock.fetchArg1(instruction));
-						arity = CodeBlock.fetchArg2(instruction);						
-						assert arity == fun.nformals;
-						previousScope = cf;
-					} else {
-						throw new RuntimeException("unexpected argument type for CALLDYN: " + asString(stack[sp - 1]));
-					}
-						
-					instructions = fun.codeblock.getInstructions();
-					
-					Frame nextFrame = new Frame(fun.scopeId, cf, previousScope, fun.maxstack, fun);
-					
-					for (int i = fun.nformals - 1; i >= 0; i--) {
-						nextFrame.stack[i] = stack[sp - fun.nformals + i];
-					}
-					cf.pc = pc;
-					cf.sp = sp - fun.nformals;
-					cf = nextFrame;
-					stack = cf.stack;
-					sp = fun.nlocals;
-					pc = 0;
+					OP_CALL();
 					continue NEXT_INSTRUCTION;
+					
+//					// In case of CALLDYN, the stack top value of type 'Type' leads to a constructor call
+//					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Type) {
+//						Type constr = (Type) stack[--sp];
+//						arity = constr.getArity();
+//						args = new IValue[arity]; 
+//						for(int i = arity - 1; i >=0; i--) {
+//							args[i] = (IValue) stack[sp - arity + i];
+//						}
+//						sp = sp - arity;
+//						stack[sp++] = vf.constructor(constr, args);
+//						continue NEXT_INSTRUCTION;
+//					}
+//					
+//					Function fun = null;
+//					Frame previousScope = null;
+//					
+//					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof FunctionInstance){
+//						FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
+//						arity = CodeBlock.fetchArg1(instruction); // TODO: add assert
+//						fun = fun_instance.function;
+//						previousScope = fun_instance.env;
+//					} else if(op == Opcode.OP_CALL) {
+//						fun = functionStore.get(CodeBlock.fetchArg1(instruction));
+//						arity = CodeBlock.fetchArg2(instruction);						
+//						assert arity == fun.nformals;
+//						previousScope = cf;
+//					} else {
+//						throw new RuntimeException("unexpected argument type for CALLDYN: " + asString(stack[sp - 1]));
+//					}
+//						
+//					instructions = fun.codeblock.getInstructions();
+//					
+//					Frame nextFrame = new Frame(fun.scopeId, cf, previousScope, fun.maxstack, fun);
+//					
+//					for (int i = fun.nformals - 1; i >= 0; i--) {
+//						nextFrame.stack[i] = stack[sp - fun.nformals + i];
+//					}
+//					cf.pc = pc;
+//					cf.sp = sp - fun.nformals;
+//					cf = nextFrame;
+//					stack = cf.stack;
+//					sp = fun.nlocals;
+//					pc = 0;
+//					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_OCALLDYN:
 				case Opcode.OP_OCALL:					
@@ -1472,8 +1482,6 @@ public class RVM {
 					// If a handler has not been found in the caller functions...
 					return thrown;
 				}
-				
-				
 			}
 		} catch (Exception e) {
 			e.printStackTrace(stderr);
@@ -1484,6 +1492,60 @@ public class RVM {
 		}
 	}
 	
+	/********************************************
+	 * Methods for specific RVM instructions    *
+	 *******************************************/
+	
+	void OP_CALL(){
+		// In case of CALLDYN, the stack top value of type 'Type' leads to a constructor call
+		if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Type) {
+			Type constr = (Type) stack[--sp];
+			arity = constr.getArity();
+			IValue[] args = new IValue[arity]; 
+			for(int i = arity - 1; i >=0; i--) {
+				args[i] = (IValue) stack[sp - arity + i];
+			}
+			sp = sp - arity;
+			stack[sp++] = vf.constructor(constr, args);
+			return;
+		}
+		
+		Function fun = null;
+		Frame previousScope = null;
+		
+		if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof FunctionInstance){
+			FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
+			arity = CodeBlock.fetchArg1(instruction); // TODO: add assert
+			fun = fun_instance.function;
+			previousScope = fun_instance.env;
+		} else if(op == Opcode.OP_CALL) {
+			fun = functionStore.get(CodeBlock.fetchArg1(instruction));
+			arity = CodeBlock.fetchArg2(instruction);						
+			assert arity == fun.nformals;
+			previousScope = cf;
+		} else {
+			throw new RuntimeException("unexpected argument type for CALLDYN: " + asString(stack[sp - 1]));
+		}
+			
+		instructions = fun.codeblock.getInstructions();
+		
+		Frame nextFrame = new Frame(fun.scopeId, cf, previousScope, fun.maxstack, fun);
+		
+		for (int i = fun.nformals - 1; i >= 0; i--) {
+			nextFrame.stack[i] = stack[sp - fun.nformals + i];
+		}
+		cf.pc = pc;
+		cf.sp = sp - fun.nformals;
+		cf = nextFrame;
+		stack = cf.stack;
+		sp = fun.nlocals;
+		pc = 0;
+		return;
+	}
+	
+	/*
+	 * Handling of Java Methods
+	 */
 	int callJavaMethod(String methodName, String className, Type parameterTypes, int reflect, Object[] stack, int sp) throws Throw {
 		Class<?> clazz = null;
 		try {
