@@ -49,7 +49,6 @@ public class RVM {
 	private final IBool Rascal_TRUE;
 	private final IBool Rascal_FALSE;
 	private final IString NONE; 
-	private final Failure FAILURE = Failure.getInstance();
 	
 	private boolean debug = true;
 	private boolean listing = false;
@@ -645,12 +644,12 @@ public class RVM {
 				case Opcode.OP_LOADOFUN:
 					OverloadedFunction of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
 					if(of.scopeIn == -1) {
-						stack[sp++] = new OverloadedFunctionInstance(of.functions, of.constructors, root);
+						stack[sp++] = new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore);
 						continue NEXT_INSTRUCTION;
 					}
 					for(Frame env = cf; env != null; env = env.previousCallFrame) {
 						if (env.scopeId == of.scopeIn) {
-							stack[sp++] = new OverloadedFunctionInstance(of.functions, of.constructors, env);
+							stack[sp++] = new OverloadedFunctionInstance(of.functions, of.constructors, env, functionStore, constructorStore);
 							continue NEXT_INSTRUCTION;
 						}
 					}
