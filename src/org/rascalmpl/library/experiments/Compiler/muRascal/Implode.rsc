@@ -232,11 +232,11 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preFunNN(str modName,  str name, int nformals)                  			=> muFun(getUID(modName,[],name,nformals))
       	       case preFunN(lrel[str,int] funNames,  str name, int nformals)        			=> muFun(getUID(modName,funNames,name,nformals), getUID(modName,funNames))
       	       
-      	       case muAll([ MuExp exp ])                                                        => muMulti(exp)
+      	       case muAll([ MuExp exp ])                                                        => makeMuMulti(exp,uid)
       	       case muAll(list[MuExp] exps)                                                     => makeMu("ALL",exps,uid)
-      	       case muOr([ MuExp exp ])                                                         => muMulti(exp)
+      	       case muOr([ MuExp exp ])                                                         => makeMuMulti(exp,uid)
       	       case muOr(list[MuExp] exps)                                                      => makeMu("OR",exps,uid)
-      	       case muOne([ MuExp exp ])                                                        => muOne(exp)
+      	       case muOne([ MuExp exp ])                                                        => muNext(muInit(exp))
       	       case muOne(list[MuExp] exps)                                                     => makeMuOne("ALL",exps,uid)
       	       
             };
@@ -244,26 +244,23 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
     }    
 }
 
-MuExp makeMu(str muAllOrMuOr, list[MuExp] exps, str fuid) {
-    list[MuExp] tasks = [];
-    for(MuExp exp <- exps) {
-        if(muMulti(e) := exp) {
-            tasks += e; // coroutines
-        } else if(muOne(e) := exp) {
-            str gen_uid = "<fuid>/GEN_<nextLabel()>(0)";
-            functions_in_module += muCoroutine(gen_uid, fuid, 0, 0, [], muBlock([ muGuard(muCon(true)), muIfelse(nextLabel(), muNext(muInit(e)), [ muReturn() ], [ muExhaust() ]) ]));
-            tasks += muCreate(muFun(gen_uid));
-        } else {
-            // Note: this works because mkVar and mkAssign produce muVar and muAssign, i.e., specify explicitly function scopes
-            str gen_uid = "<fuid>/<nextLabel("GEN_")>(0)";
-            functions_in_module += muCoroutine(gen_uid, fuid, 0, 0, [], muBlock([ muGuard(exp), muReturn() ]));
-            tasks += muCreate(muFun(gen_uid));
-        }
-    }
-    return muMulti(muCreate(muFun("Library/<muAllOrMuOr>(1)"),[ muCallMuPrim(" make_array ",tasks) ]));
+MuExp makeMuMulti(e:muMulti(_), str fuid) = e;
+MuExp makeMuMulti(e:muOne(MuExp exp), str fuid) {
+    str gen_uid = "<fuid>/<nextLabel("GEN_")>(0)";
+    functions_in_module += muCoroutine(gen_uid, fuid, 0, 0, [], muBlock([ muGuard(muCon(true)), muIfelse(nextLabel(), muNext(muInit(exp)), [ muReturn() ], [ muExhaust() ]) ]));
+    return muMulti(muCreate(muFun(gen_uid)));
+}
+default MuExp makeMuMulti(MuExp exp, str fuid) {
+    // Works because mkVar and mkAssign produce muVar and muAssign, i.e., specify explicitly function scopes
+    str gen_uid = "<fuid>/<nextLabel("GEN_")>(0)";
+    functions_in_module += muCoroutine(gen_uid, fuid, 0, 0, [], muBlock([ muGuard(exp), muReturn() ]));
+    return muMulti(muCreate(muFun(gen_uid)));
 }
 
-MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps, str fuid) = muOne(makeMu(muAllOrMuOr,exps,fuid).exp);
+MuExp makeMuMulti(str muAllOrMuOr, list[MuExp] exps, str fuid)
+    = muMulti(muCreate("Library/<muAllOrMuOr>(1)",[ muCallMuPrim("make_array",[ makeMuMulti(exp,fuid).exp | MuExp exp <- exps ]) ]));
+
+MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps, str fuid) = muNext(muInit((makeMu(muAllOrMuOr,exps,fuid).exp)));
 
 MuModule parse(loc s) {
   pt = parse( #start[Module], s);
