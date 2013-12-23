@@ -430,6 +430,10 @@ public enum RascalPrimitive {
 	node_subscript_int,
 	node_slice,
 	
+	// nonterminal
+	
+	nonterminal_field_access,
+	
 	// notequal
 	
 	notequal,
@@ -2462,8 +2466,28 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		IConstructor reified = (IConstructor) stack[sp - 2];
 		String field = ((IString) stack[sp - 1]).getValue();
-		stack[sp - 1] = reified.get(field);
+		stack[sp - 2] = reified.get(field);
 		return sp - 1;
+	}
+	
+	public static int nonterminal_field_access(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IConstructor appl = (IConstructor) stack[sp - 2];
+		IList appl_args = (IList) appl.get("args");
+		IConstructor prod = (IConstructor) appl.get("prod");
+		IList prod_symbols = (IList) prod.get("symbols");
+		IString field = ((IString) stack[sp - 1]);
+		
+		for(int i = 0; i < prod_symbols.length(); i++){
+			IConstructor arg = (IConstructor) prod_symbols.get(i);
+			if(arg.getName().equals("label")){
+				if(((IString) arg.get(0)).equals(field)){
+					stack[sp - 2] = appl_args.get(i);
+					return sp - 1;
+				}
+			}
+		}
+		throw RuntimeExceptions.noSuchField(field.getValue(), null, new ArrayList<Frame>());
 	}
 	
 	
@@ -5635,8 +5659,8 @@ public enum RascalPrimitive {
 	public static int value_to_string(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		IValue val = (IValue) stack[sp -1];
-		
-		if(val.getType().isList()){
+		Type tp = val.getType();
+		if(tp.isList() && tp.getElementType().isAbstractData() && tp.getName().equals("Tree")){
 			IList lst = (IList) val;
 			StringWriter w = new StringWriter();
 			for(int i = 0; i < lst.length(); i++){

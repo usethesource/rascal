@@ -66,8 +66,6 @@ public class RVM {
 	
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
-//	private IMap grammars;
-	
 	
 	private final Map<IValue, IValue> moduleVariables;
 	PrintWriter stdout;
@@ -177,14 +175,6 @@ public class RVM {
 			this.overloadedStore.add(new OverloadedFunction(funs, constrs, scopeIn));
 		}
 	}
-	
-//	public void setGrammars(IMap grammer){
-//		this.grammars = grammars;
-//	}
-//	
-//	public IMap getGrammars(){
-//		return grammars;
-//	}
 	
 	/**
 	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned.
@@ -425,17 +415,47 @@ public class RVM {
 		return res;
 	}
 	
+	/*
+	 * The following instance variables are only used by executeProgram
+	 */
+	Object[] stack ;		                              			// current stack
+	int sp;				                  							// current stack pointer
+	int [] instructions ; 											// current instruction sequence
+	int pc;				                                      		// current program counter
+	int postOp;
+	int pos;
+	ArrayList<Frame> stacktrace;
+	Thrown thrown;
+	int arity;
+	String last_function_name;
+	
+	// Overloading specific
+	Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
+	OverloadedFunctionInstanceCall c_ofun_call = null;
+	
 	private Object executeProgram(Frame root, Frame cf) {
-		Object[] stack = cf.stack;		                              	// current stack
-		int sp = cf.function.nlocals;				                  	// current stack pointer
-		int [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
-		int pc = 0;				                                      	// current program counter
-		int postOp = 0;
-		int pos = 0;
-		ArrayList<Frame> stacktrace;
-		Thrown thrown;
-		int arity;
-		String last_function_name = "";
+//		Object[] stack = cf.stack;		                              	// current stack
+//		int sp = cf.function.nlocals;				                  	// current stack pointer
+//		int [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
+//		int pc = 0;				                                      	// current program counter
+//		int postOp = 0;
+//		int pos = 0;
+//		ArrayList<Frame> stacktrace;
+//		Thrown thrown;
+//		int arity;
+//		String last_function_name = "";
+//		
+//		// Overloading specific
+//		Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
+//		OverloadedFunctionInstanceCall c_ofun_call = null;
+		
+		stack = cf.stack;		                              	// current stack
+		sp = cf.function.nlocals;				                  	// current stack pointer
+		instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
+		pc = 0;				                                      	// current program counter
+		postOp = 0;
+		pos = 0;
+		last_function_name = "";
 		
 		// Overloading specific
 		Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();

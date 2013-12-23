@@ -484,7 +484,8 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
    if(isTupleType(tp) || isRelType(tp) || isListRelType(tp) || isMapType(tp)) {
        return translate((Expression)`<Expression expression> \< <Name field> \>`);
    }
-   return muCallPrim("<getOuterType(expression)>_field_access", [ translate(expression), muCon("<field>") ]);
+   op = isNonTerminalType(tp) ? "nonterminal" : getOuterType(expression);
+   return muCallPrim("<op>_field_access", [ translate(expression), muCon("<field>") ]);
 }
 
 // Field update
