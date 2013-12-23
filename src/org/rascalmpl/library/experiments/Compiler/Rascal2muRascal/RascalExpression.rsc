@@ -490,7 +490,8 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
 
 // Field update
 MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Expression replacement> ]`) {
-    tp = getType(expression@\loc);   
+    tp = getType(expression@\loc);  
+ 
     list[str] fieldNames = [];
     if(isRelType(tp)){
        tp = getSetElementType(tp);
@@ -498,12 +499,14 @@ MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Express
        tp = getListElementType(tp);
     } else if(isMapType(tp)){
        tp = getMapFieldsAsTuple(tp);
+    } else if(isADTType(tp)){
+       println("tp = <tp>"); 
+        return muCallPrim("adt_field_update", [ translate(expression), muCon("<key>"), translate(replacement) ]);
     }
     if(tupleHasFieldNames(tp)){
-    	fieldNames = getTupleFieldNames(tp);
+    	  fieldNames = getTupleFieldNames(tp);
     }	
     return muCallPrim("<getOuterType(expression)>_update", [ translate(expression), muCon(indexOf(fieldNames, "<key>")), translate(replacement) ]);
-        //muCallPrim("<getOuterType(expression)>_field_update", [ translate(expression), muCon("<key>"), translate(replacement) ]);
 }
 
 // Field project
@@ -518,7 +521,7 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
        tp = getMapFieldsAsTuple(tp);
     }
     if(tupleHasFieldNames(tp)){
-    	fieldNames = getTupleFieldNames(tp);
+       	fieldNames = getTupleFieldNames(tp);
     }	
     fcode = [(f is index) ? muCon(toInt("<f>")) : muCon(indexOf(fieldNames, "<f>")) | f <- fields];
     //fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<f>") | f <- fields];
