@@ -584,6 +584,7 @@ INS tr(muWhile(str label, MuExp cond, list[MuExp] body)) {
     continueLab = mkContinue(label);
     failLab = mkFail(label);
     breakLab = mkBreak(label);
+    println("While cond: <cond>");
     return [ *tr_cond(cond, { continueLab, failLab }, breakLab), 	 					
     		 *trvoidblock(body),			
     		 JMP(continueLab),
@@ -627,12 +628,14 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)){
 
 // Multi/One/All/Or outside conditional context
     
-INS tr(e:muMulti(MuExp exp)) = 
+INS tr(e:muMulti(MuExp exp)) = {
+     println("UPS...<e>");
 	 [ *tr(exp),
        INIT(0),
        NEXT0()
      ];
-    
+};
+
 INS tr(e:muOne(MuExp exp)) =
     [ *tr(exp),
        INIT(0),
@@ -696,5 +699,5 @@ INS tr_cond(e: muMulti(MuExp exp), set[str] continueLabs, str failLab) {
 }
 
 default INS tr_cond(MuExp exp, set[str] continueLabs, str failLab) 
-	= [ *[ LABEL(continueLab) | str continueLab <- continueLabs ], *tr(exp), JMPFALSE(failLab) ];
+	= { println("Cond: <exp>"); [ *[ LABEL(continueLab) | str continueLab <- continueLabs ], *tr(exp), JMPFALSE(failLab) ]; };
     
