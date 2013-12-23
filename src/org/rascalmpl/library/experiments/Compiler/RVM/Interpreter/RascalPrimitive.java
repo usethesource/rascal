@@ -5660,13 +5660,14 @@ public enum RascalPrimitive {
 		assert arity == 1;
 		IValue val = (IValue) stack[sp -1];
 		Type tp = val.getType();
-		if(tp.isList() && tp.getElementType().isAbstractData() && tp.getName().equals("Tree")){
+		if(tp.isList() && tp.getElementType().isAbstractData() && tp.getElementType().getName().equals("Tree")){
 			IList lst = (IList) val;
 			StringWriter w = new StringWriter();
 			for(int i = 0; i < lst.length(); i++){
 				w.write($value2string(lst.get(i)));
 			}
 			stack[sp - 1] = vf.string(w.toString());
+			
 		} else {
 			stack[sp - 1] = vf.string($value2string(val));
 		}
