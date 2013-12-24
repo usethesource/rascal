@@ -119,30 +119,20 @@ list[str] rascalTests = [
 						//error("Name a is not in scope",|project://rascal-test/src/tests/ListRelations.rsc|(441,1,<16,39>,<16,40>))
 						//error("Name c is not in scope",|project://rascal-test/src/tests/ListRelations.rsc|(1017,1,<29,60>,<29,61>))
 
-"Lists"					// 4 tests fail
+//"Lists"					// 4 tests fail
 //"Maps"				// [23] Compilation of ListRelation
 
 
 //"Matching"				// #450
 	
 //"Relations"			// [19]
-						//error("Name a is not in scope",|project://rascal-test/src/tests/Relations.rsc|(226,1,<11,39>,<11,40>))
-						//error("Name z is not in scope",|project://rascal-test/src/tests/Relations.rsc|(239,1,<11,52>,<11,53>))
-						//error("Name z is not in scope",|project://rascal-test/src/tests/Relations.rsc|(229,1,<11,42>,<11,43>))
-						//error("Type EmptySet not declared",|project://rascal/src/org/rascalmpl/library/Set.rsc|(9490,8,<477,45>,<477,53>))
-						//error("rel[&A \<: value, &B \<: value, &B \<: value, &C \<: value, &D \<: value] and rel[&A \<: value, &B \<: value] incomparable",|project://rascal-test/src/tests/Relations.rsc|(688,13,<23,17>,<23,30>))
-						//error("Could not instantiate type variables in type fun rel[&T1 \<: value, &T2 \<: value](rel[&T0 \<: value, &T1 \<: value, &T2 \<: value]) with argument types (set[&A \<: value])",|project://rascal-test/src/tests/Relations.rsc|(215,8,<11,28>,<11,36>))
-						//error("Name a is not in scope",|project://rascal-test/src/tests/Relations.rsc|(424,1,<16,39>,<16,40>))
-						//error("Could not instantiate type variables in type fun rel[&T1 \<: value, &T2 \<: value, &T3 \<: value](rel[&T0 \<: value, &T1 \<: value, &T2 \<: value, &T3 \<: value]) with argument types (set[&A \<: value])",|project://rascal-test/src/tests/Relations.rsc|(215,8,<11,28>,<11,36>))
-						//error("Type MultipleKey not declared",|project://rascal/src/org/rascalmpl/library/Set.rsc|(12267,11,<601,58>,<601,69>))
-						//error("rel[&A \<: value, &B \<: value, &B \<: value, &C \<: value, &D \<: value] and rel[&B \<: value, &C \<: value, &D \<: value] incomparable",|project://rascal-test/src/tests/Relations.rsc|(654,13,<22,17>,<22,30>))
-						//error("Could not instantiate type variables in type fun set[&T1 \<: value](rel[&T0 \<: value, &T1 \<: value]) with argument types (set[&A \<: value])",|project://rascal-test/src/tests/Relations.rsc|(215,8,<11,28>,<11,36>))
-						//error("Type EmptySet not declared",|project://rascal/src/org/rascalmpl/library/Set.rsc|(2157,8,<76,45>,<76,53>))
-						//error("Type EmptySet not declared",|project://rascal/src/org/rascalmpl/library/Set.rsc|(10000,8,<495,62>,<495,70>))					//error("Could not instantiate type variables in type fun rel[&T1 \<: value, &T2 \<: value, &T3 \<: value, &T4 \<: value](rel[&T0 \<: value, &T1 \<: value, &T2 \<: value, &T3 \<: value, &T4 \<: value]) with argument types (set[&A \<: value])",|project://rascal-test/src/tests/Relations.rsc|(215,8,<11,28>,<11,36>))
-
+									// error("Could not instantiate type variables in type fun map[&A \<: value, set[&B \<: value]](rel[&A \<: value, &B \<: value]) with argument types (set[void])",|rascal:///experiments/Compiler/Examples/Tst.rsc|(304,9,<13,31>,<13,40>))
+// Issue #459
 
 //"Sets"					//[35]
-						// Overloading
+						// error("Could not instantiate type variables in type fun map[&A \<: value, set[&B \<: value]](rel[&A \<: value, &B \<: value]) with argument types (set[void])",|rascal:///experiments/Compiler/Examples/Tst.rsc|(304,9,<13,31>,<13,40>))
+// Issue #459
+// Issue #460
 ];
 
 list[str] libraryTests = [
@@ -180,7 +170,7 @@ list[str] libraryTests = [
 
 //"RelationTests"		// [50]
 
-//"SetTests"			// [54]
+"SetTests"			// [54]
 						// error("Could not instantiate type variables in type fun map[&A \<: value, set[&B \<: value]](rel[&A \<: value, &B \<: value]) with argument types (set[void])",|project://rascal-test/src/tests/library/SetTests.rsc|(3902,14,<91,32>,<91,46>))
 						//error("Could not instantiate type variables in type fun map[&A \<: value, set[&B \<: value]](rel[&A \<: value, &B \<: value]) with argument types (set[void])",|project://rascal-test/src/tests/library/SetTests.rsc|(3956,9,<92,32>,<92,41>))
 						//error("Could not instantiate type variables in type fun set[&U \<: value](set[&T \<: value], fun &U \<: value(&T \<: value)) with argument types (set[int],fun int(int))",|project://rascal-test/src/tests/library/SetTests.rsc|(1800,22,<38,70>,<38,92>))
