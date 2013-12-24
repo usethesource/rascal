@@ -28,8 +28,21 @@ int size_exps({Expression ","}* es) = size([e | e <- es]);		     // TODO: should
 int size_exps({Expression ","}+ es) = size([e | e <- es]);		     // TODO: should become library function
 int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: should become library function
 
-MuExp makeMuMulti(str muAllOrMuOr, list[MuExp] exps) =
-    muMulti(muCreate(mkCallToLibFun("Library",muAllOrMuOr,1),[ muCallMuPrim("make_array",[ makeMuMulti(exp).exp | MuExp exp <- exps ]) ]));
+// Produces multi- or backtrack-free expressions
+MuExp makeMu(str muAllOrMuOr, [ e:muMulti(_) ]) = e;
+MuExp makeMu(str muAllOrMuOr, [ e:muOne(MuExp exp) ]) = muNext(muInit(exp));
+MuExp makeMu(str muAllOrMuOr, [ MuExp e ]) = exp when !(muMulti(_) := e || muOne(_) := e);
+default MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) {
+    if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
+        return muMulti(muCreate(mkCallToLibFun("Library",muAllOrMuOr,1),[ muCallMuPrim("make_array",[ makeMuMulti(exp).exp | MuExp exp <- exps ]) ]));
+    }
+    if(muAllOrMuOr == "ALL") {
+        return ( true | muCallPrim("and_bool_bool", it, exp) | MuExp exp <- exp );
+    } 
+    if(muAllOrMuOr == "OR"){
+        return ( false | muCallPrim("or_bool_bool", it, exp) | MuExp exp <- exp );
+    }
+}
 
 MuExp makeMuMulti(e:muMulti(_)) = e;
 MuExp makeMuMulti(e:muOne(MuExp exp)) {
@@ -42,11 +55,14 @@ default MuExp makeMuMulti(MuExp exp) {
     // Works because mkVar and mkAssign produce muVar and muAssign, i.e., specify explicitly function scopes computed by the type checker
     str fuid = topFunctionScope();
     str gen_uid = "<fuid>/GEN_<nextLabel()>(0)";
-    functions_in_module += muCoroutine(gen_uid, fuid, 0, 0, [], muBlock([ muGuard(exp), muReturn() ]));
+    functions_in_module += muCoroutine(gen_uid, fuid, 0, 0, [], muBlock([ muGuard(muCon(true)), muIfelse(nextLabel(), exp, [ muReturn() ], [ muExhaust() ]) ]));
     return muMulti(muCreate(muFun(gen_uid)));
 }
 
 MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps) = muOne(makeMuMulti(muAllOrMuOr,exps).exp);
+
+bool isMulti(muMulti(_)) = true;
+default bool isMulti(MuExp _) = false;
 
 // Generate code for completely type-resolved operators
 

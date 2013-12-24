@@ -68,7 +68,7 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
     enterLoop(doname,fuid);
     enterBacktrackingScope(doname);
     code = [ muAssignTmp(tmp,fuid,muCallPrim("listwriter_open", [])), 
-             muDo(doname,  [translate(body)], makeMuOne("ALL",[ translate(condition) ])),
+             muDo(doname,  [translate(body)], translate(condition)),
              muCallPrim("listwriter_close", [muTmp(tmp,fuid)])
            ];
     leaveBacktrackingScope();
@@ -86,7 +86,7 @@ MuExp translateTemplate(s: (StringTemplate) `do { < Statement* preStats> <String
              muDo(doname,  [ translateStats(preStats),
                              muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(body)])),
                              translateStats(postStats)], 
-                  makeMuOne("ALL",[ translate(condition) ])
+                  translate(condition)
                  ),
              muCallPrim("template_close", [muTmp(result,fuid)])
            ];
@@ -102,7 +102,7 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
     enterLoop(forname,fuid);
     enterBacktrackingScope(forname);
     code = [ muAssignTmp(tmp,fuid,muCallPrim("listwriter_open", [])),
-             muWhile(forname, makeMuMulti("ALL",[ translate(c) | c <-generators ]), [ translate(body) ]),
+             muWhile(forname, makeMu("ALL",[ translate(c) | c <-generators ]), [ translate(body) ]),
              muCallPrim("listwriter_close", [muTmp(tmp,fuid)])
            ];
     leaveBacktrackingScope();
@@ -117,7 +117,7 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
     enterLoop(forname,fuid);
     enterBacktrackingScope(forname);
     code = [ muAssignTmp(result,fuid,muCallPrim("template_open", [muCon(""), muTmp(pre,prefuid)])),
-             muWhile(forname, makeMuMulti("ALL",[ translate(c) | c <-generators ]), 
+             muWhile(forname, makeMu("ALL",[ translate(c) | c <-generators ]), 
                      [ translateStats(preStats),  
                        muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(body)])),
                        translateStats(postStats)
@@ -131,9 +131,10 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
 
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) {
     ifname = getLabel(label);
-	enterBacktrackingScope(ifname);
-	code = muIfelse(ifname, makeMuMulti("ALL", [ translate(c) | c <- conditions ]), [translate(thenStatement)], []);
-    leaveBacktrackingScope();
+    cond = makeMu("ALL", [ translate(c) | c <- conditions ]);
+	if(isMulti(cond)) enterBacktrackingScope(ifname);
+	code = muIfelse(ifname, conds, [translate(thenStatement)], []);
+    if(isMulti(cond)) leaveBacktrackingScope();
     return code;
 }
     
@@ -143,7 +144,7 @@ MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) {
     result = asTmp(ifname);
     enterBacktrackingScope(ifname);
     code = [ muAssignTmp(result,fuid,muCallPrim("template_open", [muCon(""), muTmp(pre,prefuid)])),
-             muIfelse(ifname, makeMuMulti("ALL", [ translate(c) | c <- conditions ]), 
+             muIfelse(ifname, makeMu("ALL", [ translate(c) | c <- conditions ]), 
                       [ translateStats(preStats),
                         muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(body)])),
                         translateStats(postStats)],
@@ -157,7 +158,7 @@ MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) {
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`) {
 	ifname = getLabel(label);
 	enterBacktrackingScope(ifname);
-	code = muIfelse(ifname, makeMuMulti("ALL",[ translate(c) | c <- conditions ]), [translate(thenStatement)], [translate(elseStatement)]);
+	code = muIfelse(ifname, makeMu("ALL",[ translate(c) | c <- conditions ]), [translate(thenStatement)], [translate(elseStatement)]);
     leaveBacktrackingScope();
     return code;
 }
@@ -168,7 +169,7 @@ MuExp translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) 
     result = asTmp(ifname);
     enterBacktrackingScope(ifname);
     code = [ muAssignTmp(result,fuid,muCallPrim("template_open", [muCon(""), muTmp(pre,prefuid)])),
-             muIfelse(ifname, makeMuMulti("ALL",[ translate(c) | c <- conditions ]), 
+             muIfelse(ifname, makeMu("ALL",[ translate(c) | c <- conditions ]), 
                       [ translateStats(preStatsThen), 
                         muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(thenString)])),
                         translateStats(postStatsThen)
@@ -260,7 +261,7 @@ MuExp translateCatches(str varname, str varfuid, list[Catch] catches, bool hasDe
           conds = [ muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(c.pattern), muTmp(asUnwrapedThrown(varname),varfuid)])) ];
           then = [ translate(c.body) ];
       }
-      exp = muIfelse(ifname, makeMuMulti("ALL",conds), then, [translateCatches(varname, varfuid, tail(catches), hasDefault)]);
+      exp = muIfelse(ifname, makeMu("ALL",conds), then, [translateCatches(varname, varfuid, tail(catches), hasDefault)]);
       leaveBacktrackingScope();
       return exp;
   }
@@ -341,7 +342,7 @@ MuExp translateSwitchCases(str switchval, str fuid, list[Case] cases) {
      	ifname = nextLabel();
      	enterBacktrackingScope(ifname);
         cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pwa.pattern), muTmp(switchval,fuid)]));
-        exp = muIfelse(ifname, makeMuMulti(cond), [translate(pwa.statement)], [translateSwitchCases(switchval,fuid,tail(cases))]);
+        exp = muIfelse(ifname, cond, [translate(pwa.statement)], [translateSwitchCases(switchval,fuid,tail(cases))]);
         leaveBacktrackingScope();
         return exp; 
      } else {

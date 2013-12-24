@@ -449,6 +449,9 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 void trMuCatch(muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, str fromAsPartOfTryBlock, str to, str jmpto) {
     
     // TODO:
+    if(fuid != functionScope) {
+        println("Catch: <fuid> <functionScope>");
+    }
     assert fuid == functionScope;
 	
 	oldCatchBlocks = catchBlocks;
