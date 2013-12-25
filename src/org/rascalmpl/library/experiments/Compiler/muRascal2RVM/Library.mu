@@ -786,7 +786,7 @@ coroutine MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
 }
 
 coroutine MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRenaming, gen, elm]{
-	guard size_set(available) > 0;
+	guard size_mset(available) > 0;
     
     gen = init(create(ENUM_MSET, available, ref elm));
     while(next(gen)) { 
