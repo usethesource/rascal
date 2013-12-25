@@ -171,9 +171,7 @@ MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) {
 
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`) {
 	ifname = getLabel(label);
-	enterBacktrackingScope(ifname);
-	code = muIfelse(ifname, makeMu("ALL",[ translate(c) | c <- conditions ]), [translate(thenStatement)], [translate(elseStatement)]);
-    leaveBacktrackingScope();
+	code = muIfelse(ifname, makeMu("ALL",[ translate(c) | c <- conditions ]), { enterBacktrackingScope(ifname); [ translate(thenStatement) ]; }, { leaveBacktrackingScope(); [ translate(elseStatement)]; });
     return code;
 }
     
@@ -181,17 +179,20 @@ MuExp translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) 
     str fuid = topFunctionScope();                    
     ifname = nextLabel();
     result = asTmp(ifname);
-    enterBacktrackingScope(ifname);
     code = [ muAssignTmp(result,fuid,muCallPrim("template_open", [muCon(""), muTmp(pre,prefuid)])),
              muIfelse(ifname, makeMu("ALL",[ translate(c) | c <- conditions ]), 
-                      [ translateStats(preStatsThen), 
-                        muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(thenString)])),
-                        translateStats(postStatsThen)
-                      ],
-                      [ translateStats(preStatsElse), 
-                        muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(elseString)])),
-                        translateStats(postStatsElse)
-                      ]),
+                      { enterBacktrackingScope(ifname);
+                        [ translateStats(preStatsThen), 
+                          muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(thenString)])),
+                          translateStats(postStatsThen)
+                        ];
+                      },
+                      { enterBacktrackingScope(ifname);
+                        [ translateStats(preStatsElse), 
+                          muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(elseString)])),
+                          translateStats(postStatsElse)
+                        ];
+                      }),
               muCallPrim("template_close", [muTmp(result,fuid)])
            ];
     leaveBacktrackingScope();
@@ -354,10 +355,8 @@ MuExp translateSwitchCases(str switchval, str fuid, list[Case] cases) {
      pwa = c.patternWithAction;
      if(pwa is arbitrary){
      	ifname = nextLabel();
-     	enterBacktrackingScope(ifname);
         cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pwa.pattern), muTmp(switchval,fuid)]));
-        exp = muIfelse(ifname, cond, [translate(pwa.statement)], [translateSwitchCases(switchval,fuid,tail(cases))]);
-        leaveBacktrackingScope();
+        exp = muIfelse(ifname, cond, { enterBacktrackingScope(ifname); [ translate(pwa.statement) ]; }, { leaveBacktrackingScope(); [ translateSwitchCases(switchval,fuid,tail(cases)) ]; });
         return exp; 
      } else {
         throw "Replacement not allowed in switch statement";
