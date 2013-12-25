@@ -14,7 +14,7 @@ list[str] libs = [
 "Boolean", 			// OK
 "DateTime",			// OK
 "Exception", 		// OK
-//"Grammar", 			// OK <== Issue #455
+"Grammar", 			// OK
 "IO",				// OK
 "List", 			// OK
 "ListRelation",		// OK
@@ -41,7 +41,7 @@ list[str] libs = [
 "util::Maybe",		// OK
 "util::Monitor",	// OK
 "util::PriorityQueue",// OK
-//"util/Reflective", 	// OK <== Grammar.rsc
+"util/Reflective", 	// OK
 "util::ShellExec",	// OK
 "util::Webserver"		// OK
 
