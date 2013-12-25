@@ -7,14 +7,14 @@ coroutine ALL[1,tasks,len,p,workers] {
     guard len > 0;
     workers = make_array(len);
     p = 0;
-    put_array(workers,p,init(get_array(tasks,p)));
+    put_array(workers,p,init(get_array(tasks,p)()));
     while(true) {
         while(next(get_array(workers,p))) {
             if(p == len - 1) {
                 yield;
             } else {
                 p = p + 1;
-                put_array(workers,p,init(get_array(tasks,p)));
+                put_array(workers,p,init(get_array(tasks,p)()));
             };
         };
         if(p > 0){

@@ -35,7 +35,12 @@ MuExp makeMu(str muAllOrMuOr, [ MuExp e ]) = e when !(muMulti(_) := e || muOne(_
 default MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) {
     assert(size(exps) >= 1);
     if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
-        return muMulti(muCreate(mkCallToLibFun("Library",muAllOrMuOr,1),[ muCallMuPrim("make_array",[ makeMuMulti(exp).exp | MuExp exp <- exps ]) ]));
+        return muMulti(muCreate(mkCallToLibFun("Library",muAllOrMuOr,1),
+                                [ muCallMuPrim("make_array",[ { str fuid = topFunctionScope();
+    															str gen_uid = "<fuid>/LAZY_EVAL_GEN_<nextLabel()>(0)";
+                                                                functions_in_module += muFunction(gen_uid, Symbol::\func(Symbol::\value(),[]), fuid, 0, 0, false, |rascal:///|, [], (), muReturn(makeMuMulti(exp).exp));
+                                                                muFun(gen_uid,fuid);
+                                                              } | MuExp exp <- exps ]) ]));
     }
     if(muAllOrMuOr == "ALL") {
         return ( exps[0] | muIfelse(nextLabel(), it, [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ], [ muCon(false) ]) | int i <- [ 1..size(exps) ] );

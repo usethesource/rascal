@@ -8,6 +8,7 @@ import Ambiguity;
 
 rel[str,str] global_functions = {};
 map[str,map[str,int]] vardefs = ();
+list[MuFunction] functions_in_module = [];
 
 int nLabel = 0;
 
@@ -19,6 +20,7 @@ str nextLabel(str prefix) {
 MuModule preprocess(Module pmod){
    global_functions = {};
    vardefs = ();
+   functions_in_module = [];
    global_functions = { <f.name, getUID(pmod.name,f.funNames,f.name,f.nformals)> | f <- pmod.functions };
    println(global_functions);
    for(f <- pmod.functions) {
@@ -39,7 +41,7 @@ MuModule preprocess(Module pmod){
    }
    resolver = ();
    overloaded_functions = [];
-   return muModule(pmod.name, [], types, [ preprocess(f, pmod.name) | f <- pmod.functions ], [], [], resolver, overloaded_functions, ());
+   return muModule(pmod.name, [], types, [ preprocess(f, pmod.name) | f <- pmod.functions ] + functions_in_module, [], [], resolver, overloaded_functions, ());
 }
 
 bool isGlobalNonOverloadedFunction(str name) {
@@ -111,7 +113,10 @@ MuFunction preprocess(Function f, str modName){
                               : muFunction(uid, ftype, scopeIn, f.nformals, size(vardefs[uid]), false, |rascal:///|, [], (), muBlock(body));
 }
 
+str fuid = "";
+
 list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] exps){
+   fuid = uid;
    println("Pre-processing a function: <uid>");
    return
       for(exp <- exps){
@@ -232,35 +237,56 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preFunNN(str modName,  str name, int nformals)                  			=> muFun(getUID(modName,[],name,nformals))
       	       case preFunN(lrel[str,int] funNames,  str name, int nformals)        			=> muFun(getUID(modName,funNames,name,nformals), getUID(modName,funNames))
       	       
-      	       case muAll([ MuExp exp ])                                                        => makeMuMulti(exp,uid)
-      	       case muAll(list[MuExp] exps)                                                     => makeMu("ALL",exps,uid)
-      	       case muOr([ MuExp exp ])                                                         => makeMuMulti(exp,uid)
-      	       case muOr(list[MuExp] exps)                                                      => makeMu("OR",exps,uid)
-      	       case muOne([ MuExp exp ])                                                        => muNext(muInit(exp))
-      	       case muOne(list[MuExp] exps)                                                     => makeMuOne("ALL",exps,uid)
+      	       case muAll(list[MuExp] exps)                                                     => makeMu("ALL",exps)
+      	       case muOr(list[MuExp] exps)                                                      => makeMu("OR",exps)
+      	       case muOne(list[MuExp] exps)                                                     => makeMuOne("ALL",exps)
       	       
             };
       } catch e: throw "In muRascal function <modName>::<for(<f,n> <- funNames){><f>::<n>::<}><fname>::<nformals> (uid = <uid>) : <e>";   
     }    
 }
 
-MuExp makeMuMulti(e:muMulti(_), str fuid) = e;
-MuExp makeMuMulti(e:muOne(MuExp exp), str fuid) {
-    str gen_uid = "<fuid>/<nextLabel("GEN_")>(0)";
-    functions_in_module += muCoroutine(gen_uid, fuid, 0, 0, [], muBlock([ muGuard(muCon(true)), muIfelse(nextLabel(), muNext(muInit(exp)), [ muReturn() ], [ muExhaust() ]) ]));
-    return muMulti(muCreate(muFun(gen_uid)));
+// Produces multi- or backtrack-free expressions
+MuExp makeMu(str muAllOrMuOr, [ e:muMulti(_) ]) = e;
+MuExp makeMu(str muAllOrMuOr, [ e:muOne(MuExp exp) ]) = makeMuMulti(e);
+MuExp makeMu(str muAllOrMuOr, [ MuExp e ]) = e when !(muMulti(_) := e || muOne(_) := e);
+default MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) {
+    assert(size(exps) >= 1);
+    if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
+        return muMulti(muCreate("Library/<muAllOrMuOr>(1)",
+                                [ muCallMuPrim("make_array",[ { str gen_uid = "<fuid>/LAZY_EVAL_GEN_<nextLabel()>(0)";
+                                                                functions_in_module += muFunction(gen_uid, Symbol::\func(Symbol::\value(),[]), fuid, 0, 0, false, |rascal:///|, [], (), muReturn(makeMuMulti(exp).exp));
+                                                                muFun(gen_uid,fuid);
+                                                              } | MuExp exp <- exps ]) ]));
+    }
+    if(muAllOrMuOr == "ALL") {
+        return ( exps[0] | muIfelse(nextLabel(), it, [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ], [ muCon(false) ]) | int i <- [ 1..size(exps) ] );
+    } 
+    if(muAllOrMuOr == "OR"){
+        return ( exps[0] | muIfelse(nextLabel(), it, [ muCon(true) ], [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] );
+    }
 }
-default MuExp makeMuMulti(MuExp exp, str fuid) {
-    // Works because mkVar and mkAssign produce muVar and muAssign, i.e., specify explicitly function scopes
-    str gen_uid = "<fuid>/<nextLabel("GEN_")>(0)";
-    functions_in_module += muCoroutine(gen_uid, fuid, 0, 0, [], muBlock([ muGuard(exp), muReturn() ]));
+
+MuExp makeMuMulti(e:muMulti(_)) = e;
+MuExp makeMuMulti(e:muOne(MuExp exp)) = muMulti(muCreate("Library/ONE(1)"),[ exp ]); // ***Note: multi expression that produces at most one solution
+default MuExp makeMuMulti(MuExp exp) {
+    // Works because mkVar and mkAssign produce muVar and muAssign, i.e., specify explicitly function scopes computed by the type checker
+    str gen_uid = "<fuid>/GEN_<nextLabel()>(0)";
+    functions_in_module += muCoroutine(gen_uid, fuid, 0, 0, [], muBlock([ muGuard(muCon(true)), muIfelse(nextLabel(), exp, [ muReturn() ], [ muExhaust() ]) ]));
     return muMulti(muCreate(muFun(gen_uid)));
 }
 
-MuExp makeMuMulti(str muAllOrMuOr, list[MuExp] exps, str fuid)
-    = muMulti(muCreate("Library/<muAllOrMuOr>(1)",[ muCallMuPrim("make_array",[ makeMuMulti(exp,fuid).exp | MuExp exp <- exps ]) ]));
+MuExp makeMuOne(str muAllOrMuOr, [ e:muMulti(MuExp exp) ]) = muOne(exp);
+MuExp makeMuOne(str muAllOrMuOr, [ e:muOne(MuExp exp) ]) = e;
+MuExp makeMuOne(str muAllOrMuOr, [ MuExp e ]) = e when !(muMulti(_) := e || muOne(_) := e);
+default MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps) {
+    MuExp e = makeMu(muAllOrMuOr,exps);
+    if(muMulti(exp) := e) {
+        return muOne(exp);
+    }
+    return e;
+}
 
-MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps, str fuid) = muNext(muInit((makeMu(muAllOrMuOr,exps,fuid).exp)));
 
 MuModule parse(loc s) {
   pt = parse( #start[Module], s);
