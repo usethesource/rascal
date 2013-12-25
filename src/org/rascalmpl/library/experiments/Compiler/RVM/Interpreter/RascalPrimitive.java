@@ -4812,7 +4812,7 @@ public enum RascalPrimitive {
 		String fun = ((IString) stack[sp - 4]).getValue();
 		String expected =  ((IString) stack[sp - 3]).getValue();
 		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
-		//stdout.println("testreport_add: " + src);
+		stdout.println("testreport_add: " + fun);
 		Type argType = (Type) stack[sp - 1];
 		//IConstructor type_cons = ((IConstructor) stack[sp - 1]);
 		//Type argType = typeReifier.valueToType(type_cons);
@@ -4832,7 +4832,7 @@ public enum RascalPrimitive {
 		int tries = nargs == 0 ? 1 : TRIES;
 		boolean passed = true;
 		String message = "";
-		for(int i = 0; i < tries && passed; i++){
+		for(int i = 0; i < tries; i++){
 			if(nargs > 0){
 				message = " with arguments: ";
 				ITuple tup = (ITuple) randomValue.generate(argType);
@@ -4853,11 +4853,13 @@ public enum RascalPrimitive {
 				if(!cons.getName().equals(expected)){
 					message = e.toString() + message;
 					passed = false;
+					break;
 				}
 			}
 			catch (Exception e){
 				message = e.getMessage() + message;
 				passed = false;
+				break;
 			}
 		}
 		test_results.append(vf.tuple(src,  vf.bool(passed), vf.string(message == null ? "" : message)));
