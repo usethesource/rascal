@@ -30,7 +30,7 @@ MuExp translate(s: (Statement) `<Label label> <Visit visitItself>`) = translateV
 MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditions> ) <Statement body>`) {
     str fuid = topFunctionScope();
     whilename = getLabel(label);
-    ifname = getLabel(label);
+    ifname = nextLabel();
     tmp = asTmp(whilename);
     enterLoop(whilename,fuid);
     enterBacktrackingScope(whilename);
