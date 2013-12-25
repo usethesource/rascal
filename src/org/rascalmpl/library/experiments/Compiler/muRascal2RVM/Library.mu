@@ -504,7 +504,7 @@ coroutine MATCH_PAT_IN_LIST[4, pat, iSubject, rNext, available, start, cpat]{
     cpat = init(pat, get_list(iSubject, start));
     
     while(next(cpat)) {
-       yield start + 1;   
+       yield (start + 1);   
     };
 } 
 
@@ -562,7 +562,7 @@ coroutine MATCH_VAR_IN_LIST[4, rVar, iSubject, rNext, available, start, iVal, iE
 
 coroutine MATCH_ANONYMOUS_VAR_IN_LIST[3, iSubject, rNext, available]{
    guard available > 0;
-   return deref rNext + 1;
+   return (deref rNext + 1);
 }
 
 
@@ -610,7 +610,7 @@ coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[4, iLookahead, iSubject, rNext, avail
     len = 0;
     available = available - mint(iLookahead);
     while(len <= available){
-        yield start + len;
+        yield (start + len);
         len = len + 1;
      };
 }
@@ -620,7 +620,7 @@ coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST[4, iLookahead, iSubject, rNext, 
     guard(len >= 0);
     start = deref rNext;
     while(len <= available){
-        yield start + len;
+        yield (start + len);
         len = len + 1;
      };
 }
@@ -654,7 +654,7 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iLookahead, iSubject, r
     len = 0;
     available = available - mint(iLookahead);
     while(len <= available){
-        yield start + len;
+        yield (start + len);
         len = len + 1;
     };
 }
@@ -664,7 +664,7 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iLookahead, iSubje
     guard subtype(typeOf(iSubject), typ) && len >= 0;
     start = deref rNext;
     while(len <= available){
-        yield start + len;
+        yield (start + len);
         len = len + 1;
     };
 }
