@@ -311,7 +311,7 @@ MuExp translate(s: (Statement) `throw <Statement statement>`) = muThrow(translat
 
 MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) // TODO: handle dataTarget
 	= { fillCaseType(getType(statement@\loc)); 
-		muBlock([ muAssignDeref("hasInsert",topFunctionScope(),2,muBool(true)), 
+		muBlock([ muAssignVarDeref("hasInsert",topFunctionScope(),2,muBool(true)), 
 				  muReturn(translate(statement)) ]); };
 
 MuExp translate(s: (Statement) `append <DataTarget dataTarget> <Statement statement>`) =
