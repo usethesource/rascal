@@ -33,14 +33,15 @@ MuExp makeMu(str muAllOrMuOr, [ e:muMulti(_) ]) = e;
 MuExp makeMu(str muAllOrMuOr, [ e:muOne(MuExp exp) ]) = makeMuMulti(e);
 MuExp makeMu(str muAllOrMuOr, [ MuExp e ]) = e when !(muMulti(_) := e || muOne(_) := e);
 default MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) {
+    assert(size(exps) >= 1);
     if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
         return muMulti(muCreate(mkCallToLibFun("Library",muAllOrMuOr,1),[ muCallMuPrim("make_array",[ makeMuMulti(exp).exp | MuExp exp <- exps ]) ]));
     }
     if(muAllOrMuOr == "ALL") {
-        return ( true | muCallPrim("and_bool_bool", [ it, exp is muOne ? muNext(muInit(exp)) : exp ]) | MuExp exp <- exp );
+        return ( exps[0] | muIfelse(nextLabel(), it, [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ], [ muCon(false) ]) | int i <- [ 1..size(exps) ] );
     } 
     if(muAllOrMuOr == "OR"){
-        return ( false | muCallPrim("or_bool_bool", [ it, exp is muOne ? muNext(muInit(exp)) : exp ]) | MuExp exp <- exp );
+        return ( exps[0] | muIfelse(nextLabel(), it, [ muCon(true) ], [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] );
     }
 }
 
