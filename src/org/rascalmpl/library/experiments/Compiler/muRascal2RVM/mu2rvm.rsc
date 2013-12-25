@@ -137,18 +137,29 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
                            list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations,
                            map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions, map[Symbol, Production] grammar), 
                   bool listing=false){
+  
+  main_fun = getUID(module_name,[],"MAIN",1);
+  module_init_fun = getUID(module_name,[],"#<module_name>_init",1);
+  ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
+  fun_names = { fun.qname | MuFunction fun <- functions };
+  if(main_fun notin fun_names) {
+  	 main_fun = getFUID(module_name,"main",ftype,0);
+  	 module_init_fun = getFUID(module_name,"#<module_name>_init",ftype,0);
+  }
+  
   funMap = ();
   nlabel = -1;
-  nlocal = ( fun.qname : fun.nlocals | MuFunction fun <- functions );
+  nlocal = ( fun.qname : fun.nlocals | MuFunction fun <- functions ) 
+             + ( module_init_fun : size(variables) + 2 ); // Initialization function
   temporaries = ();
   
   // Due to nesting, pre-compute positions of temporaries
-  visit(functions) {
+  visit(<initializations,functions>) {
       case muTmp(str id, str fuid): getTmp(id,fuid);
       case muTmpRef(str id, str fuid): getTmp(id,fuid);
       case muAssignTmp(str id, str fuid, _): getTmp(id,fuid);
   }
-  
+    
   println("mu2rvm: Compiling module <module_name>");
  
   for(fun <- functions){
@@ -180,21 +191,13 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     							   : (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal[functionScope], fun.isVarArgs, required_frame_size, code, exceptions));
   }
   
-  main_fun = getUID(module_name,[],"MAIN",1);
-  module_init_fun = getUID(module_name,[],"#<module_name>_init",1);
-  ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
-  if(!funMap[main_fun]?) {
-  	 main_fun = getFUID(module_name,"main",ftype,0);
-  	 module_init_fun = getFUID(module_name,"#<module_name>_init",ftype,0);
-  }
-  
-  funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 2, size(variables) + 2, false, estimate_stack_size(initializations) + size(variables) + 1,
-  									[*trvoidblock(initializations), 
-  									 LOADCON(true),
-  									 RETURN1(1),
-  									 HALT()
-  									],
-  									[]));
+  funMap += ( module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 2, nlocal[module_init_fun], false, estimate_stack_size(initializations) + size(variables) + 2,
+  								    [*trvoidblock(initializations), 
+  								     LOADCON(true),
+  								     RETURN1(1),
+  								     HALT()
+  								    ],
+  								    []));
  
   main_testsuite = getUID(module_name,[],"TESTSUITE",1);
   module_init_testsuite = getUID(module_name,[],"#module_init_testsuite",1);
@@ -341,7 +344,7 @@ INS tr(muCallJava(str name, str class, Symbol types, int reflect, list[MuExp] ar
 
 INS tr(muReturn()) = [RETURN0()];
 INS tr(muReturn(MuExp exp)) {
-	if(muTmp(str varname) := exp) {
+	if(muTmp(_,_) := exp) {
 		inlineMuFinally();
 		return [*finallyBlock, *tr(exp), RETURN1(1)];
 	}

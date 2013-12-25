@@ -155,11 +155,14 @@ void translate(t: (Toplevel) `<Declaration decl>`) = translate(decl);
 // Toplevel Declaration: variable
 
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) {
+    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
+    enterFunctionScope(getFUID(module_name,"#<module_name>_init",ftype,0));
    	for(var <- variables){
    		variables_in_module += [muVariable("<var.name>")];
    		if(var is initialized) 
    		   variable_initializations +=  mkAssign("<var.name>", var@\loc, translate(var.initial));
    	}
+   	leaveFunctionScope();
 }   	
 
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`) { /*skip: translation has nothing to do here */ }
