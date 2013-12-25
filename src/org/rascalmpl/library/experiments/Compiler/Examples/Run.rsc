@@ -72,6 +72,7 @@ import experiments::Compiler::Examples::FailWithinElse;
 import experiments::Compiler::Examples::WhilePlusBacktracking;
 import experiments::Compiler::Examples::IsTrio;
 import experiments::Compiler::Examples::Or;
+import experiments::Compiler::Examples::WeirdAppend;
 
 import experiments::Compiler::Examples::IMP3;
 
@@ -158,6 +159,7 @@ test bool tst() = demo("FailWithinElse") == experiments::Compiler::Examples::Fai
 test bool tst() = demo("WhilePlusBacktracking") == experiments::Compiler::Examples::WhilePlusBacktracking::main([]);
 test bool tst() = demo("IsTrio") == experiments::Compiler::Examples::IsTrio::main([]);
 test bool tst() = demo("Or") == experiments::Compiler::Examples::Or::main([]);
+test bool tst() = demo("WeirdAppend") == experiments::Compiler::Examples::WeirdAppend::main([]);
 
 // Keyword parameters
 test bool tst() = demo("KWP1") == experiments::Compiler::Examples::KWP1::main([]);
