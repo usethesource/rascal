@@ -457,6 +457,13 @@ coroutine MATCH_LIST[2,
      patlen   = size_array(pats);
      matchers = make_array(patlen);
      sublen   = size_list(iSubject);
+     if(patlen == 0){
+        if(sublen == 0){
+           return;
+        } else {
+          exhaust;
+        };
+     };
      p        = 0; 
      cursor   = 0;
      put_array(matchers, p, 
