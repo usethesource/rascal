@@ -30,27 +30,22 @@ int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: shou
 
 // Produces multi- or backtrack-free expressions
 MuExp makeMu(str muAllOrMuOr, [ e:muMulti(_) ]) = e;
-MuExp makeMu(str muAllOrMuOr, [ e:muOne(MuExp exp) ]) = muNext(muInit(exp));
-MuExp makeMu(str muAllOrMuOr, [ MuExp e ]) = exp when !(muMulti(_) := e || muOne(_) := e);
+MuExp makeMu(str muAllOrMuOr, [ e:muOne(MuExp exp) ]) = makeMuMulti(e);
+MuExp makeMu(str muAllOrMuOr, [ MuExp e ]) = e when !(muMulti(_) := e || muOne(_) := e);
 default MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) {
     if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
         return muMulti(muCreate(mkCallToLibFun("Library",muAllOrMuOr,1),[ muCallMuPrim("make_array",[ makeMuMulti(exp).exp | MuExp exp <- exps ]) ]));
     }
     if(muAllOrMuOr == "ALL") {
-        return ( true | muCallPrim("and_bool_bool", it, exp) | MuExp exp <- exp );
+        return ( true | muCallPrim("and_bool_bool", [ it, exp is muOne ? muNext(muInit(exp)) : exp ]) | MuExp exp <- exp );
     } 
     if(muAllOrMuOr == "OR"){
-        return ( false | muCallPrim("or_bool_bool", it, exp) | MuExp exp <- exp );
+        return ( false | muCallPrim("or_bool_bool", [ it, exp is muOne ? muNext(muInit(exp)) : exp ]) | MuExp exp <- exp );
     }
 }
 
 MuExp makeMuMulti(e:muMulti(_)) = e;
-MuExp makeMuMulti(e:muOne(MuExp exp)) {
-    str fuid = topFunctionScope();
-    str gen_uid = "<fuid>/GEN_<nextLabel()>(0)";
-    functions_in_module += muCoroutine(gen_uid, fuid, 0, 0, [], muBlock([ muGuard(muCon(true)), muIfelse(nextLabel(), muNext(muInit(exp)), [ muReturn() ], [ muExhaust() ]) ]));
-    return muMulti(muCreate(muFun(gen_uid)));
-}
+MuExp makeMuMulti(e:muOne(MuExp exp)) = muMulti(muCreate(mkCallToLibFun("Library","ONE",1),[ exp ])); // ***Note: multi expression that produces at most one solution
 default MuExp makeMuMulti(MuExp exp) {
     // Works because mkVar and mkAssign produce muVar and muAssign, i.e., specify explicitly function scopes computed by the type checker
     str fuid = topFunctionScope();
@@ -59,7 +54,16 @@ default MuExp makeMuMulti(MuExp exp) {
     return muMulti(muCreate(muFun(gen_uid)));
 }
 
-MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps) = muOne(makeMuMulti(muAllOrMuOr,exps).exp);
+MuExp makeMuOne(str muAllOrMuOr, [ e:muMulti(MuExp exp) ]) = muOne(exp);
+MuExp makeMuOne(str muAllOrMuOr, [ e:muOne(MuExp exp) ]) = e;
+MuExp makeMuOne(str muAllOrMuOr, [ MuExp e ]) = e when !(muMulti(_) := e || muOne(_) := e);
+default MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps) {
+    MuExp e = makeMu(muAllOrMuOr,exps);
+    if(muMulti(exp) := e) {
+        return muOne(exp);
+    }
+    return e;
+}
 
 bool isMulti(muMulti(_)) = true;
 default bool isMulti(MuExp _) = false;
@@ -281,7 +285,7 @@ MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) {
   return
     muBlock(
     [ muAssignTmp(writer, fuid, muCallPrim("listwriter_open", [])),
-      muWhile(loopname, makeMuMulti(rangecode), [ muCallPrim("listwriter_add", [muTmp(writer,fuid), muTmp(var,fuid)])]),
+      muWhile(loopname, makeMu("ALL", [ rangecode ]), [ muCallPrim("listwriter_add", [muTmp(writer,fuid), muTmp(var,fuid)])]),
       muCallPrim("listwriter_close", [muTmp(writer,fuid)]) 
     ]);
     
@@ -300,7 +304,7 @@ MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <
   return
     muBlock(
     [ muAssignTmp(writer, fuid, muCallPrim("listwriter_open", [])),
-      muWhile(loopname, makeMuMulti(rangecode), [ muCallPrim("listwriter_add", [muTmp(writer,fuid), muTmp(var,fuid)])]),
+      muWhile(loopname, makeMu("ALL", [ rangecode ]), [ muCallPrim("listwriter_add", [muTmp(writer,fuid), muTmp(var,fuid)])]),
       muCallPrim("listwriter_close", [muTmp(writer,fuid)]) 
     ]);
 }
@@ -788,15 +792,15 @@ MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
   } else {
     switch(fun){
     // TODO: Review short-cut semantics
-    	case "and": return makeMuMulti("ALL",[translate(lhs), translate(rhs)]);
+    	case "and": return makeMu("ALL",[translate(lhs), translate(rhs)]);
     	case "or":  // a or b == !(!a and !b)
-    	            return makeMuMulti("OR",[translate(lhs), translate(rhs)]);
+    	            return makeMu("OR",[translate(lhs), translate(rhs)]);
     	case "implies":
     				// a ==> b
-    	            return makeMuMulti("ALL",[muIfelse(nextLabel("L_IMPLIES"), translate(lhs), [translate(rhs)], [muCon(true)])]);
+    	            return makeMu("ALL",[muIfelse(nextLabel("L_IMPLIES"), translate(lhs), [translate(rhs)], [muCon(true)])]);
     	case "equivalent":
     				// a <==> b
-    				return makeMuMulti("ALL",[muIfelse(nextLabel("L_EQUIVALENCE"), translate(lhs), [translate(rhs)], [muCallMuPrim("not_mbool", [translate(rhs)])])]);
+    				return makeMu("ALL",[muIfelse(nextLabel("L_EQUIVALENCE"), translate(lhs), [translate(rhs)], [muCallMuPrim("not_mbool", [translate(rhs)])])]);
     	default:
     		throw "translateBoolBinary: unknown operator <fun>";
     }
@@ -807,7 +811,7 @@ MuExp translateBoolNot(Expression lhs){
   if(backtrackFree(lhs)){
   	  return muCallMuPrim("not_mbool", [translateBool(lhs)]);
   	} else {
-  	  return muCallMuPrim("not_mbool", [ makeMuMulti("ALL",[translate(lhs)]) ]);
+  	  return muCallMuPrim("not_mbool", [ makeMu("ALL",[translate(lhs)]) ]);
   	}
 }
 
@@ -1068,9 +1072,9 @@ MuExp translateBoolClosure(Expression e){
 
 MuExp translateGenerators({Expression ","}+ generators){
    if(all(gen <- generators, backtrackFree(gen))){
-      return makeMuMulti("ALL",[translate(g) | g <-generators]);
+      return makeMu("ALL",[translate(g) | g <-generators]);
    } else {
-     return makeMuMulti("ALL",[muCallPrim("rbool", [translate(g)]) | g <-generators]);
+     return makeMu("ALL",[muCallPrim("rbool", [translate(g)]) | g <-generators]);
    }
 }
 
@@ -1092,7 +1096,7 @@ MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ results> |
     return
     muBlock(
     [ muAssignTmp(tmp, fuid, muCallPrim("listwriter_open", [])),
-      muWhile(loopname, makeMuMulti("ALL",[ translate(g) | g <- generators ]), translateComprehensionContribution("list", tmp, fuid, [r | r <- results])),
+      muWhile(loopname, makeMu("ALL",[ translate(g) | g <- generators ]), translateComprehensionContribution("list", tmp, fuid, [r | r <- results])),
       muCallPrim("listwriter_close", [muTmp(tmp,fuid)]) 
     ]);
 }
@@ -1104,7 +1108,7 @@ MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ results> |
     return
     muBlock(
     [ muAssignTmp(tmp, fuid, muCallPrim("setwriter_open", [])),
-      muWhile(loopname, makeMuMulti("ALL",[ translate(g) | g <- generators ]), translateComprehensionContribution("set", tmp, fuid, [r | r <- results])),
+      muWhile(loopname, makeMu("ALL",[ translate(g) | g <- generators ]), translateComprehensionContribution("set", tmp, fuid, [r | r <- results])),
       muCallPrim("setwriter_close", [muTmp(tmp,fuid)]) 
     ]);
 }
@@ -1116,7 +1120,7 @@ MuExp translateComprehension(c: (Comprehension) `(<Expression from> : <Expressio
     return
     muBlock(
     [ muAssignTmp(tmp, fuid, muCallPrim("mapwriter_open", [])),
-      muWhile(loopname, makeMuMulti("ALL",[ translate(g) | g <- generators ]), [muCallPrim("mapwriter_add", [muTmp(tmp,fuid)] + [ translate(from), translate(to)])]), 
+      muWhile(loopname, makeMu("ALL",[ translate(g) | g <- generators ]), [muCallPrim("mapwriter_add", [muTmp(tmp,fuid)] + [ translate(from), translate(to)])]), 
       muCallPrim("mapwriter_close", [muTmp(tmp,fuid)]) 
     ]);
 }
@@ -1128,7 +1132,7 @@ MuExp translateReducer(init, result, generators){
     loopname = nextLabel(); 
     tmp = asTmp(loopname); 
     pushIt(tmp,fuid);
-    code = [ muAssignTmp(tmp, fuid, translate(init)), muWhile(loopname, makeMuMulti("ALL", [ translate(g) | g <- generators ]), [muAssignTmp(tmp,fuid,translate(result))]), muTmp(tmp,fuid)];
+    code = [ muAssignTmp(tmp, fuid, translate(init)), muWhile(loopname, makeMu("ALL", [ translate(g) | g <- generators ]), [muAssignTmp(tmp,fuid,translate(result))]), muTmp(tmp,fuid)];
     popIt();
     return muBlock(code);
 }
@@ -1224,7 +1228,7 @@ MuExp translateVisit(label,\visit) {
 		body += muAssign("changed", phi_fixpoint_fuid, 3, muBool(true));
 		body += muWhile(nextLabel(), muVar("changed",phi_fixpoint_fuid,3), 
 						[ muAssign("val", phi_fixpoint_fuid, 4, muCall(muFun(phi_fuid,scopeId), [ muVar("iSubject",phi_fixpoint_fuid,0), muVar("matched",phi_fixpoint_fuid,1), muVar("hasInsert",phi_fixpoint_fuid,2) ])),
-						  muIfelse(nextLabel(), makeMuMulti(muCallPrim("equal",[ muVar("val",phi_fixpoint_fuid,4), muVar("iSubject",phi_fixpoint_fuid,0) ])),
+						  muIfelse(nextLabel(), makeMu(muCallPrim("equal",[ muVar("val",phi_fixpoint_fuid,4), muVar("iSubject",phi_fixpoint_fuid,0) ])),
 						  						[ muAssign("changed",phi_fixpoint_fuid,3,muBool(false)) ], 
 						  						[ muAssign("iSubject",phi_fixpoint_fuid,0,muVar("val",phi_fixpoint_fuid,4)) ] )]);
 		body += muReturn(muVar("iSubject",phi_fixpoint_fuid,0));
@@ -1275,7 +1279,7 @@ MuExp translateVisitCases(list[Case] cases,str fuid) {
 			replacementType = getType(c.patternWithAction.replacement.replacementExpression@\loc);
 			tcond = muCallPrim("subtype", [ muTypeCon(replacementType), muCallPrim("typeOf", [ muVar("iSubject",fuid,0) ]) ]);
 			list[MuExp] cbody = [ muAssignVarDeref("matched",fuid,1,muBool(true)), muAssignVarDeref("hasInsert",fuid,2,muBool(true)), replacement ];
-        	exp = muIfelse(ifname, makeMuMulti("ALL",[ cond,tcond,*conditions ]), [ muReturn(muBlock(cbody)) ], [ translateVisitCases(tail(cases),fuid) ]);
+        	exp = muIfelse(ifname, makeMu("ALL",[ cond,tcond,*conditions ]), [ muReturn(muBlock(cbody)) ], [ translateVisitCases(tail(cases),fuid) ]);
         	leaveBacktrackingScope();
         	return exp;
 		} else {
@@ -1290,7 +1294,7 @@ MuExp translateVisitCases(list[Case] cases,str fuid) {
 				cbody += \case;
 			}
 			cbody += muReturn(muVar("subject",fuid,0));
-			exp = muIfelse(ifname, makeMuMulti("ALL",[ cond,tcond ]), cbody, [ translateVisitCases(tail(cases),fuid) ]);
+			exp = muIfelse(ifname, makeMu("ALL",[ cond,tcond ]), cbody, [ translateVisitCases(tail(cases),fuid) ]);
         	leaveBacktrackingScope();
 			return exp;
 		}

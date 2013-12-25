@@ -38,6 +38,10 @@ coroutine OR[1,tasks,len,p,worker] {
     };
 }
 
+coroutine ONE[1,task] {
+    return next(init(task));
+}
+
 function RASCAL_ALL[2, genArray, generators, 
                         len, j, gen, genInits, forward] {
     len = size_array(genArray);
