@@ -30,7 +30,7 @@ coroutine OR[1,tasks,len,p,worker] {
     guard len > 0;
     p = 0;
     while(p < len) {
-        worker = init(get_array(tasks,p));
+        worker = init(get_array(tasks,p)());
         while(next(worker)) {
             yield;
         };
