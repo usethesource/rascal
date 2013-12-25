@@ -636,8 +636,14 @@ MuExp translateMatch(p:(Pattern) `{<{Pattern ","}* pats>}`, Expression exp){
 }
 */
 
+private set[str] addName(set[str] s, str n) {
+  println("addName: <n>");
+  return (n == "_") ? s : (s + n);
+}
+
 MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
    literals = [];
+   seenVars = {};
    compiledVars = [];
    compiledMultiVars = [];
    otherPats = [];
@@ -653,10 +659,28 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
       pat = lpats[i];
       if(pat is literal){
          literals += pat.literal;
-      } else if(pat is splice || pat is multiVariable){
-         compiledMultiVars += translatePatAsSetElem(pat, i == lastMulti);
-      } else if(pat is qualifiedName || pat is typedVariable){
-         compiledVars += translatePatAsSetElem(pat, false);
+      } else if(pat is splice){
+         arg = pat.argument;
+         name = arg is qualifiedName ? "<arg>" : "<arg.name>";
+         if(name notin seenVars){
+            compiledMultiVars += translatePatAsSetElem(pat, i == lastMulti);
+            seenVars = addName(seenVars, name);
+          }
+      } else if(pat is multiVariable){
+         if("<pat.qualifiedName>" notin seenVars){
+            compiledMultiVars += translatePatAsSetElem(pat, i == lastMulti);
+            seenVars = addName(seenVars, "<pat.qualifiedName>");
+          }
+      } else if(pat is qualifiedName){
+          if("<pat>" notin seenVars){
+            compiledVars += translatePatAsSetElem(pat, false);
+            seenVars = addName(seenVars, "<pat>");
+          }
+      } else if(pat is typedVariable){
+        if("<pat.name>" notin seenVars){
+           compiledVars += translatePatAsSetElem(pat, false);
+           seenVars = addName(seenVars, "<pat.name>");
+         }
       } else {
         otherPats +=  muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(pat)]);
       }
