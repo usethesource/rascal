@@ -78,7 +78,7 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
     enterBacktrackingScope(doname);
     enterBacktrackingScope(ifname);
     code = [ muAssignTmp(tmp,fuid,muCallPrim("listwriter_open", [])), 
-             muDo(doname, [ visit(translate(body)) { case muFail(doname) => muFail(ifname) }, muIfelse(ifname, makeMu("ALL", [ translate(condition) ]), [ muContinue(doname) ], [ muBreak(doname) ]) ], muCon(true)),
+             muWhile(doname, muCon(true), [ visit(translate(body)) { case muFail(doname) => muFail(ifname) }, muIfelse(ifname, makeMu("ALL", [ translate(condition) ]), [ muContinue(doname) ], [ muBreak(doname) ]) ]),
              muCallPrim("listwriter_close", [muTmp(tmp,fuid)])
            ];
     leaveBacktrackingScope();
@@ -96,12 +96,11 @@ MuExp translateTemplate(s: (StringTemplate) `do { < Statement* preStats> <String
     enterBacktrackingScope(doname);
     enterBacktrackingScope(ifname);
     code = [ muAssignTmp(result,fuid,muCallPrim("template_open", [muCon(""), muTmp(pre,prefuid)])),
-             muDo(doname, [ translateStats(preStats),
-                            muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(body)])),
-                            translateStats(postStats),
-                            muIfelse(ifname, makeMu("ALL", [ translate(condition) ]), [ muContinue(doname) ], [ muBreak(doname) ])], 
-                  muCon(true)
-                 ),
+             muWhile(doname, muCon(true),
+                             [ translateStats(preStats),
+                               muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(body)])),
+                               translateStats(postStats),
+                               muIfelse(ifname, makeMu("ALL", [ translate(condition) ]), [ muContinue(doname) ], [ muBreak(doname) ])]),
              muCallPrim("template_close", [muTmp(result,fuid)])
            ];
     leaveBacktrackingScope();
