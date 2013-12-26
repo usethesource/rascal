@@ -85,8 +85,8 @@ test bool tst() = run("(x \<- [1,2] && x == 2) ==\> (y \<- [5,6] && y == 7)") ==
 test bool tst() = run("(x \<- [1,2] && x == 3) ==\> (y \<- [5,6] && y == 6)") == ((x <- [1,2] && x == 3) ==> (y <- [5,6] && y == 6));
 test bool tst() = run("(x \<- [1,2] && x == 3) ==\> (y \<- [5,6] && y == 7)") == ((x <- [1,2] && x == 3) ==> (y <- [5,6] && y == 7));
 
-test bool tst() = run("{for( ([*int x,*int y] := [1,2,3]) ==\> ([*int x,*int y] := [4,5,6]) ) {append \<x, y\>;}}") ==
-    	               {for( ([*int x,*int y] := [1,2,3]) ==> ([*int x,*int y] := [4,5,6]) ) {append <x, y>; }};
+//test bool tst() = run("{for( ([*int x,*int y] := [1,2,3]) ==\> ([*int x,*int y] := [4,5,6]) ) {append \<x, y\>;}}") ==
+//    	               {for( ([*int x,*int y] := [1,2,3]) ==> ([*int x,*int y] := [4,5,6]) ) {append <x, y>; }};
 
 // <==> with backtrackable arguments
 
