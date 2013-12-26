@@ -47,8 +47,14 @@ bool areCompatibleContainerTypes({"set", "rel"}) = true;
 bool areCompatibleContainerTypes({str c}) = true;
 default bool areCompatibleContainerTypes(set[str] s) = false;
 
+str reduceContainerType("lrel") = "list";
+str reduceContainerType("rel") = "set";
+default str reduceContainerType(str c) = c;
+
 
 str typedBinaryOp(str lot, str op, str rot) {
+  lot = reduceContainerType(lot);
+  rot = reduceContainerType(rot);
   if(lot == "value" || rot == "value" || lot == "parameter" || rot == "parameter"){
      return op;
   }
@@ -63,7 +69,7 @@ MuExp infix(str op, Expression e) =
              [*translate(e.lhs), *translate(e.rhs)]);
 
 MuExp infix_elm_left(str op, Expression e){
-   rot = getOuterType(e.rhs);
+   rot = reduceContainerType(getOuterType(e.rhs));
    return muCallPrim("elm_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
 }
 
@@ -92,9 +98,9 @@ MuExp postfix_rel_lrel(str op, Expression arg) {
 set[str] numeric = {"int", "real", "rat", "num"};
 
 MuExp comparison(str op, Expression e) {
-  lot = getOuterType(e.lhs);
-  rot = getOuterType(e.rhs);
-  //println("comparison: op = <op>, lot = <lot>, rot = <rot>");
+  lot = reduceContainerType(getOuterType(e.lhs));
+  rot = reduceContainerType(getOuterType(e.rhs));
+  println("comparison: op = <op>, lot = <lot>, rot = <rot>");
   if(lot == "value" || rot == "value"){
      lot = ""; rot = "";
   } else {
@@ -102,7 +108,8 @@ MuExp comparison(str op, Expression e) {
  
     if(rot in numeric) rot = "_" + rot; else rot = "";
   }
-  
+  lot = reduceContainerType(lot);
+  rot = reduceContainerType(rot);
   return muCallPrim("<lot><op><rot>", [*translate(e.lhs), *translate(e.rhs)]);
 }
 
