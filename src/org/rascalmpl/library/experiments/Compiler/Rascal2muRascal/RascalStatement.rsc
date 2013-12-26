@@ -99,7 +99,7 @@ MuExp translateTemplate(s: (StringTemplate) `do { < Statement* preStats> <String
              muDo(doname, [ translateStats(preStats),
                             muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(body)])),
                             translateStats(postStats),
-                            muIfelse(ifname, makeMu("ALL", [ translate(condition) ]), [ muContinue(doname) ], [ mkBreak(doname) ])], 
+                            muIfelse(ifname, makeMu("ALL", [ translate(condition) ]), [ muContinue(doname) ], [ muBreak(doname) ])], 
                   muCon(true)
                  ),
              muCallPrim("template_close", [muTmp(result,fuid)])
