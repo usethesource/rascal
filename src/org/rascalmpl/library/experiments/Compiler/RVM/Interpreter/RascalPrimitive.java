@@ -211,6 +211,7 @@ public enum RascalPrimitive {
 	node_greater_node,
 	map_greater_map,
 	set_greater_set,
+	
 	str_greater_str,
 	tuple_greater_tuple,
 	
@@ -2768,7 +2769,7 @@ public enum RascalPrimitive {
 		IMap right = (IMap) stack[sp - 1];
 		
 		stack[sp - 2] = right.isSubMap(left) && !left.isSubMap(right);
-		return arity - 1;
+		return sp - 1;
 	}
 	
 	public static int node_greater_node(Object[] stack, int sp, int arity) {
