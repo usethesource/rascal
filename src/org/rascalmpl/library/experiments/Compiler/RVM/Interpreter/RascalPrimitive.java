@@ -5151,6 +5151,10 @@ public enum RascalPrimitive {
 	public static int rel_subscript(Object[] stack, int sp, int arity) {
 		assert arity >= 2;
 		ISet rel = ((ISet) stack[sp - arity]);
+		if(rel.isEmpty()){
+			stack[sp - arity] = rel;
+			return sp - arity + 1;
+		}
 		int indexArity = arity - 1;
 		int relArity = rel.getElementType().getArity();
 		assert indexArity < relArity ;
@@ -5196,6 +5200,10 @@ public enum RascalPrimitive {
 	public static int lrel_subscript(Object[] stack, int sp, int arity) {
 		assert arity >= 2;
 		IList lrel = ((IList) stack[sp - arity]);
+		if(lrel.isEmpty()){
+			stack[sp - arity] = lrel;
+			return sp - arity + 1;
+		}
 		int indexArity = arity - 1;
 		int lrelArity = lrel.getElementType().getArity();
 		assert indexArity < lrelArity;
