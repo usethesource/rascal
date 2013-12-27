@@ -53,8 +53,8 @@ default str reduceContainerType(str c) = c;
 
 
 str typedBinaryOp(str lot, str op, str rot) {
-  lot = reduceContainerType(lot);
-  rot = reduceContainerType(rot);
+  //lot = reduceContainerType(lot);
+  //rot = reduceContainerType(rot);
   if(lot == "value" || rot == "value" || lot == "parameter" || rot == "parameter"){
      return op;
   }
@@ -69,7 +69,8 @@ MuExp infix(str op, Expression e) =
              [*translate(e.lhs), *translate(e.rhs)]);
 
 MuExp infix_elm_left(str op, Expression e){
-   rot = reduceContainerType(getOuterType(e.rhs));
+   rot = getOuterType(e.rhs);
+   //rot = reduceContainerType(rot);
    return muCallPrim("elm_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
 }
 
