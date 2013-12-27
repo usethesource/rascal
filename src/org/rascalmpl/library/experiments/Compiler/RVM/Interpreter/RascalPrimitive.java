@@ -2610,19 +2610,20 @@ public enum RascalPrimitive {
 	public static int map_field_project(Object[] stack, int sp, int arity) {
 		assert arity >= 2;
 		IMap map = (IMap) stack[sp - arity];
-		int[] fields = new int[arity - 1];
+		int indexArity = arity - 1;
+		int[] fields = new int[indexArity];
 		for(int i = 1; i < arity; i++){
 			fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
 		}
 		ISetWriter w = vf.setWriter();
-		IValue[] elems = new IValue[arity - 1];
+		IValue[] elems = new IValue[indexArity];
 		Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
 		while (iter.hasNext()) {
 			Entry<IValue,IValue> entry = iter.next();
 			for(int j = 0; j < fields.length; j++){
 				elems[j] = fields[j] == 0 ? entry.getKey() : entry.getValue();
 			}
-			w.insert(vf.tuple(elems));
+			w.insert((indexArity > 1) ? vf.tuple(elems) : elems[0]);
 		}
 		stack[sp - arity] = w.done();
 		return sp - arity + 1;
