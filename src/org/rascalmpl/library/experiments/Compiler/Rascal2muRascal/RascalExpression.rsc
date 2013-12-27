@@ -425,16 +425,23 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
   // First split generators with a top-level && operator
   generators1 = [*(((Expression) `<Expression e1> && <Expression e2>` := g) ? [e1, e2] : [g]) | g <- generators];
   isGen = [!backtrackFree(g) | g <- generators1];
-  generators2 = [g | g <- generators1]; // TODO: artefact of concrete syntax
-  for(i <- index(generators2)) {
-     gen = generators2[i];
-  		   println("<i>: <gen>");
-  		   //println("exp: <gen.exp>");
-  		   println(translate(generators2[i]));
-  		}
-  gens = [isGen[i] ? translate(generators2[i]).exp // Unwraps muMulti 
-                   : translateBoolClosure(generators2[i]) | i <- index(generators1)];
-  return muCall(mkCallToLibFun("Library", "RASCAL_ALL", 2), [ muCallMuPrim("make_array", gens), muCallMuPrim("make_array", [ muBool(b) | bool b <- isGen ]) ]);
+  tgens = [];
+  for(i <- index(generators1)) {
+     gen = generators1[i];
+     println("all <i>: <gen>");
+     if(isGen[i]){
+	 	tgen = translate(gen);
+	 	if(muMulti(exp) := tgen){ // Unwraps muMulti, if any
+	 	   tgen = exp;
+	 	}
+	 	tgens += tgen;
+	 } else {
+	    tgens += translateBoolClosure(gen);
+	 }
+  }
+  //gens = [isGen[i] ? translate(generators2[i]).exp // Unwraps muMulti 
+  //                 : translateBoolClosure(generators2[i]) | i <- index(generators1)];
+  return muCall(mkCallToLibFun("Library", "RASCAL_ALL", 2), [ muCallMuPrim("make_array", tgens), muCallMuPrim("make_array", [ muBool(b) | bool b <- isGen ]) ]);
 }
 
 // Comprehension
