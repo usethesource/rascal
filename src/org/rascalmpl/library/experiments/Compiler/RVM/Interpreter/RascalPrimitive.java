@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -208,8 +207,10 @@ public enum RascalPrimitive {
 	datetime_greater_datetime,
 	list_greater_list,
 	loc_greater_loc,
+	lrel_greater_lrel,
 	node_greater_node,
 	map_greater_map,
+	rel_greater_rel,
 	set_greater_set,
 	
 	str_greater_str,
@@ -244,8 +245,10 @@ public enum RascalPrimitive {
 	datetime_greaterequal_datetime,
 	list_greaterequal_list,
 	loc_greaterequal_loc,
+	lrel_greaterequal_lrel,
 	node_greaterequal_node,
 	map_greaterequal_map,
+	rel_greaterequal_rel,
 	set_greaterequal_set,
 	str_greaterequal_str,
 	tuple_greaterequal_tuple,
@@ -335,9 +338,11 @@ public enum RascalPrimitive {
 	bool_less_bool,
 	datetime_less_datetime,
 	list_less_list,
+	lrel_less_lrel,
 	loc_less_loc,
 	map_less_map,
 	node_less_node,
+	rel_less_rel,
 	set_less_set,
 	str_less_str,
 	tuple_less_tuple,
@@ -371,8 +376,10 @@ public enum RascalPrimitive {
 	datetime_lessequal_datetime,
 	list_lessequal_list,
 	loc_lessequal_loc,
+	lrel_lessequal_lrel,
 	map_lessequal_map,
 	node_lessequal_node,
+	rel_lessequal_rel,
 	set_lessequal_set,
 	str_lessequal_str,
 	tuple_lessequal_tuple,
@@ -2758,6 +2765,12 @@ public enum RascalPrimitive {
 		return spnew;
 	}
 	
+	public static int lrel_greater_lrel(Object[] stack, int sp, int arity) {
+		int spnew = list_lessequal_list(stack, sp, arity);
+		stack[sp - 2] = ! (Boolean) stack[sp - 2];
+		return spnew;
+	}
+	
 	public static int loc_greater_loc(Object[] stack, int sp, int arity) {
 		int spnew = loc_lessequal_loc(stack, sp, arity);
 		stack[sp - 2] = ! (Boolean) stack[sp - 2];
@@ -2780,6 +2793,12 @@ public enum RascalPrimitive {
 	}
 	
 	public static int set_greater_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]);
+		return sp - 1;
+	}
+	
+	public static int rel_greater_rel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]);
 		return sp - 1;
@@ -2918,6 +2937,12 @@ public enum RascalPrimitive {
 		return spnew;
 	}
 	
+	public static int lrel_greaterequal_lrel(Object[] stack, int sp, int arity) {
+		int spnew = list_less_list(stack, sp, arity);
+		stack[sp - 2] = !(Boolean)stack[sp - 2];
+		return spnew;
+	}
+	
 	public static int loc_greaterequal_loc(Object[] stack, int sp, int arity) {
 		int spnew = loc_less_loc(stack, sp, arity);
 		stack[sp - 2] = !(Boolean)stack[sp - 2];
@@ -2939,6 +2964,14 @@ public enum RascalPrimitive {
 	}
 	
 	public static int set_greaterequal_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet left = (ISet) stack[sp - 2];
+		ISet right = (ISet) stack[sp - 1];
+		stack[sp - 2] = left.isEqual(right) || right.isSubsetOf(left);
+		return sp - 1;
+	}
+	
+	public static int rel_greaterequal_rel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		ISet left = (ISet) stack[sp - 2];
 		ISet right = (ISet) stack[sp - 1];
@@ -3660,14 +3693,11 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-	public static int list_less_list(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		IList left = (IList) stack[sp - 2];
-		IList right = (IList) stack[sp - 1];
-		stack[sp - 2] = false;
+	private static boolean $list_less_list(IList left, IList right) {
+		boolean res = false;
 
 		if(left.length() > right.length()){
-			return sp - 1;
+			return res;
 		}
 		OUTER:for (int l = 0, r = 0; l < left.length(); l++) {
 			for (r = Math.max(l, r) ; r < right.length(); r++) {
@@ -3676,9 +3706,24 @@ public enum RascalPrimitive {
 					continue OUTER;
 				}
 			}
-			return sp - 1;
+			return res;
 		}
-		stack[sp - 2] = left.length() != right.length();
+		return left.length() != right.length();
+	}
+	
+	public static int list_less_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IList left = (IList) stack[sp - 2];
+		IList right = (IList) stack[sp - 1];
+		stack[sp - 2] = $list_less_list(left, right);
+		return sp - 1;
+	}
+	
+	public static int lrel_less_lrel(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IList left = (IList) stack[sp - 2];
+		IList right = (IList) stack[sp - 1];
+		stack[sp - 2] = $list_less_list(left, right);
 		return sp - 1;
 	}
 	
@@ -3783,6 +3828,14 @@ public enum RascalPrimitive {
 	}
 	
 	public static int set_less_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet lhs = (ISet) stack[sp - 2];
+		ISet rhs = (ISet) stack[sp - 1];
+		stack[sp - 2] = !lhs.isEqual(rhs) && lhs.isSubsetOf(rhs);
+		return sp - 1;
+	}
+	
+	public static int rel_less_rel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		ISet lhs = (ISet) stack[sp - 2];
 		ISet rhs = (ISet) stack[sp - 1];
@@ -3994,17 +4047,14 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-	public static int list_lessequal_list(Object[] stack, int sp, int arity) {
-		IList left = (IList) stack[sp - 2];
-		IList right = (IList) stack[sp - 1];
+	private static boolean $list_lessequal_list(IList left, IList right) {
 
-		stack[sp - 2] = false;
+		boolean res = false;
 		if (left.length() == 0) {
-			stack[sp - 2] = true;
-			return sp - 1;
+			return true;
 		}
 		else if (left.length() > right.length()) {
-			return sp - 1;
+			return false;
 		}
 
 		OUTER:for (int l = 0, r = 0; l < left.length(); l++) {
@@ -4013,10 +4063,27 @@ public enum RascalPrimitive {
 					continue OUTER;
 				}
 			}
-			return sp - 1;
+			return res;
 		}
 
-		stack[sp - 2] = left.length() <= right.length();
+		return left.length() <= right.length();
+	}
+	
+	public static int list_lessequal_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IList left = (IList) stack[sp - 2];
+		IList right = (IList) stack[sp - 1];
+
+		stack[sp - 2] = $list_lessequal_list(left, right);
+		return sp - 1;
+	}
+	
+	public static int lrel_lessequal_lrel(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IList left = (IList) stack[sp - 2];
+		IList right = (IList) stack[sp - 1];
+
+		stack[sp - 2] = $list_lessequal_list(left, right);
 		return sp - 1;
 	}
 	
@@ -4110,6 +4177,14 @@ public enum RascalPrimitive {
 	}
 	
 	public static int set_lessequal_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet left = (ISet) stack[sp - 2];
+		ISet right = (ISet) stack[sp - 1];
+		stack[sp - 2] = left.isEqual(right) || left.isSubsetOf(right);
+		return sp - 1;
+	}	
+	
+	public static int rel_lessequal_rel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		ISet left = (ISet) stack[sp - 2];
 		ISet right = (ISet) stack[sp - 1];
