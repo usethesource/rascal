@@ -581,7 +581,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
             c.fcvEnv[n] = c.nextLoc;
             c.nextLoc = c.nextLoc + 1;
 	    } else {
-	        throw "Invalid addition: cannot add production into scope, it clashes with non-constructor variable or function names";
+	        throw "Invalid addition: cannot add production \"<prettyPrintName(n)>\" into scope, it clashes with non-constructor variable or function names";
 	    }
 	}
     

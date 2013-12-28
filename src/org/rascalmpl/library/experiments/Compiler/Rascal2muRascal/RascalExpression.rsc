@@ -83,8 +83,14 @@ bool areCompatibleContainerTypes({"set", "rel"}) = true;
 bool areCompatibleContainerTypes({str c}) = true;
 default bool areCompatibleContainerTypes(set[str] s) = false;
 
+str reduceContainerType("lrel") = "list";
+str reduceContainerType("rel") = "set";
+default str reduceContainerType(str c) = c;
+
 
 str typedBinaryOp(str lot, str op, str rot) {
+  //lot = reduceContainerType(lot);
+  //rot = reduceContainerType(rot);
   if(lot == "value" || rot == "value" || lot == "parameter" || rot == "parameter"){
      return op;
   }
@@ -100,6 +106,7 @@ MuExp infix(str op, Expression e) =
 
 MuExp infix_elm_left(str op, Expression e){
    rot = getOuterType(e.rhs);
+   //rot = reduceContainerType(rot);
    return muCallPrim("elm_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
 }
 
@@ -128,9 +135,9 @@ MuExp postfix_rel_lrel(str op, Expression arg) {
 set[str] numeric = {"int", "real", "rat", "num"};
 
 MuExp comparison(str op, Expression e) {
-  lot = getOuterType(e.lhs);
-  rot = getOuterType(e.rhs);
-  //println("comparison: op = <op>, lot = <lot>, rot = <rot>");
+  lot = reduceContainerType(getOuterType(e.lhs));
+  rot = reduceContainerType(getOuterType(e.rhs));
+  println("comparison: op = <op>, lot = <lot>, rot = <rot>");
   if(lot == "value" || rot == "value"){
      lot = ""; rot = "";
   } else {
@@ -138,7 +145,8 @@ MuExp comparison(str op, Expression e) {
  
     if(rot in numeric) rot = "_" + rot; else rot = "";
   }
-  
+  lot = reduceContainerType(lot);
+  rot = reduceContainerType(rot);
   return muCallPrim("<lot><op><rot>", [*translate(e.lhs), *translate(e.rhs)]);
 }
 
@@ -456,16 +464,23 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
   // First split generators with a top-level && operator
   generators1 = [*(((Expression) `<Expression e1> && <Expression e2>` := g) ? [e1, e2] : [g]) | g <- generators];
   isGen = [!backtrackFree(g) | g <- generators1];
-  generators2 = [g | g <- generators1]; // TODO: artefact of concrete syntax
-  for(i <- index(generators2)) {
-     gen = generators2[i];
-  		   println("<i>: <gen>");
-  		   //println("exp: <gen.exp>");
-  		   println(translate(generators2[i]));
-  		}
-  gens = [isGen[i] ? translate(generators2[i]).exp // Unwraps muMulti 
-                   : translateBoolClosure(generators2[i]) | i <- index(generators1)];
-  return muCall(mkCallToLibFun("Library", "RASCAL_ALL", 2), [ muCallMuPrim("make_array", gens), muCallMuPrim("make_array", [ muBool(b) | bool b <- isGen ]) ]);
+  tgens = [];
+  for(i <- index(generators1)) {
+     gen = generators1[i];
+     println("all <i>: <gen>");
+     if(isGen[i]){
+	 	tgen = translate(gen);
+	 	if(muMulti(exp) := tgen){ // Unwraps muMulti, if any
+	 	   tgen = exp;
+	 	}
+	 	tgens += tgen;
+	 } else {
+	    tgens += translateBoolClosure(gen);
+	 }
+  }
+  //gens = [isGen[i] ? translate(generators2[i]).exp // Unwraps muMulti 
+  //                 : translateBoolClosure(generators2[i]) | i <- index(generators1)];
+  return muCall(mkCallToLibFun("Library", "RASCAL_ALL", 2), [ muCallMuPrim("make_array", tgens), muCallMuPrim("make_array", [ muBool(b) | bool b <- isGen ]) ]);
 }
 
 // Comprehension
