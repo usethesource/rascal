@@ -388,7 +388,7 @@ coroutine MATCH_VAR[2, rVar, iSubject, iVal]{
    //println("MATCH_VAR", rVar, iSubject);
    if(is_defined(rVar)){
       iVal = deref rVar;
-      println("Match_var, iVal =", iVal);
+      //println("MATCH_VAR, iVal =", iVal);
       if(subtype(typeOf(iSubject), typeOf(iVal)) && equal(iSubject, iVal)){
          return iSubject;
       };
@@ -406,14 +406,14 @@ coroutine MATCH_ANONYMOUS_VAR[1, iSubject]{
 coroutine MATCH_TYPED_VAR[3, typ, rVar, iSubject, iVal]{
    //println("MATCH_TYPED_VAR", typ, rVar, iSubject);
    guard subtype(typeOf(iSubject), typ);
-   if(is_defined(rVar)){
-      iVal = deref rVar;
-      println("MATCH_TYPED_VAR, iVal =", iVal);
-      if(subtype(typeOf(iSubject), typ) && equal(iSubject, iVal)){
-         return iSubject;
-      };
-      exhaust;
-   };
+   //if(is_defined(rVar)){
+   //    iVal = deref rVar;
+   //   //println("MATCH_TYPED_VAR, iVal =", iVal);
+   //    if(subtype(typeOf(iSubject), typ) && equal(iSubject, iVal)){
+   //       return iSubject;
+   //    };
+   //   exhaust;
+   //};
    yield iSubject;
    undefine(rVar);
    exhaust; 
