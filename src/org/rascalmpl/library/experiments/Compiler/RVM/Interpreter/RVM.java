@@ -343,6 +343,21 @@ public class RVM {
 		return narrow(o); 
 	}
 	
+	public IValue executeFunction(FunctionInstance func, IValue[] args){
+		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
+		Frame cf = root;
+		
+		// Pass the program arguments to main
+		for(int i = 0; i < args.length; i++) {
+			cf.stack[i] = args[i]; 
+		}
+		Object o = executeProgram(root, cf);
+		if(o instanceof Thrown){
+			throw (Thrown) o;
+		}
+		return narrow(o); 
+	}
+	
 	private Frame pushArguments(Frame cf, Function func, Frame env, IValue[] args) {
 		cf = new Frame(func.scopeId, cf, env, func.maxstack, func);
 		
@@ -623,7 +638,7 @@ public class RVM {
 				
 				case Opcode.OP_LOADFUN:
 					// Loads functions that are defined at the root
-					stack[sp++] = new FunctionInstance(functionStore.get(CodeBlock.fetchArg1(instruction)), root);
+					stack[sp++] = new FunctionInstance(functionStore.get(CodeBlock.fetchArg1(instruction)), root, this);
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOAD_NESTED_FUN: { 
@@ -634,7 +649,7 @@ public class RVM {
 					// Second, look up the function environment frame into the stack of caller frames
 					for(Frame env = cf; env != null; env = env.previousCallFrame) {
 						if (env.scopeId == scopeIn) {
-							stack[sp++] = new FunctionInstance(fun, env);
+							stack[sp++] = new FunctionInstance(fun, env, this);
 							continue NEXT_INSTRUCTION;
 						}
 					}
@@ -644,12 +659,12 @@ public class RVM {
 				case Opcode.OP_LOADOFUN:
 					OverloadedFunction of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
 					if(of.scopeIn == -1) {
-						stack[sp++] = new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore);
+						stack[sp++] = new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this);
 						continue NEXT_INSTRUCTION;
 					}
 					for(Frame env = cf; env != null; env = env.previousCallFrame) {
 						if (env.scopeId == of.scopeIn) {
-							stack[sp++] = new OverloadedFunctionInstance(of.functions, of.constructors, env, functionStore, constructorStore);
+							stack[sp++] = new OverloadedFunctionInstance(of.functions, of.constructors, env, functionStore, constructorStore, this);
 							continue NEXT_INSTRUCTION;
 						}
 					}
@@ -1477,7 +1492,7 @@ public class RVM {
 			}
 		} catch (Exception e) {
 			e.printStackTrace(stderr);
-			throw new RuntimeException("PANIC: (instruction execution): instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: "+ e.getMessage() );
+			throw new RuntimeException("PANIC: (instruction execution): instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: "+ e.getMessage(), e.getCause() );
 			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
 			//e.printStackTrace();
 			//stderr.println(e.getStackTrace());
