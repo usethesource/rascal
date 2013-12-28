@@ -32,6 +32,8 @@ import experiments::Compiler::Examples::OverloadingPlusBacktracking2;
 import experiments::Compiler::Examples::OverloadingDynamicCall;
 import experiments::Compiler::Examples::OverloadingPlusVarArgs;
 import experiments::Compiler::Examples::OverloadingPlusVarArgsSpecialCase;
+import experiments::Compiler::Examples::OverloadingPlusPolymorphism1;
+import experiments::Compiler::Examples::OverloadingPlusPolymorphism2;
 import experiments::Compiler::Examples::ExceptionHandling1;
 import experiments::Compiler::Examples::ExceptionHandling2;
 import experiments::Compiler::Examples::ExceptionHandling3;
@@ -107,6 +109,9 @@ test bool tst() = demo("OverloadingPlusBacktracking2") == experiments::Compiler:
 test bool tst() = demo("OverloadingDynamicCall") == experiments::Compiler::Examples::OverloadingDynamicCall::main([]);
 test bool tst() = demo("OverloadingPlusVarArgs") == experiments::Compiler::Examples::OverloadingPlusVarArgs::main([]);
 test bool tst() = demo("OverloadingPlusVarArgsSpecialCase") == experiments::Compiler::Examples::OverloadingPlusVarArgsSpecialCase::main([]);
+test bool tst() = demo("OverloadingPlusPolymorphism1") == experiments::Compiler::Examples::OverloadingPlusPolymorphism1::main([]);
+// The following test seems to fail due to the reason reported in issue #464 
+test bool tst() = demo("OverloadingPlusPolymorphism2") == experiments::Compiler::Examples::OverloadingPlusPolymorphism2::main([]);
 test bool tst() = demo("ExceptionHandling1") == experiments::Compiler::Examples::ExceptionHandling1::main([]);
 test bool tst() = demo("ExceptionHandling2") == experiments::Compiler::Examples::ExceptionHandling2::main([]);
 test bool tst() = demo("ExceptionHandling3") == experiments::Compiler::Examples::ExceptionHandling3::main([]);
@@ -155,7 +160,7 @@ test bool tst() = demo("FailWithLabel2") == experiments::Compiler::Examples::Fai
 test bool tst() = demo("KWP1") == experiments::Compiler::Examples::KWP1::main([]);
 test bool tst() = demo("KWP2") == experiments::Compiler::Examples::KWP2::main([]);
 test bool tst() = demo("KWP3") == experiments::Compiler::Examples::KWP3::main([]);
-test bool tst1001() = demo("KWP4") == experiments::Compiler::Examples::KWP4::expectedResult;
+test bool tst() = demo("KWP4") == experiments::Compiler::Examples::KWP4::expectedResult;
 
 // Nested functions
 test bool tst() = demo("NestedFunctions1") == experiments::Compiler::Examples::NestedFunctions1::main([]);
