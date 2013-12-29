@@ -897,6 +897,10 @@ public enum RascalPrimitive {
 				return int_add_real(stack, sp, arity);
 			case RAT:
 				return int_add_rat(stack, sp, arity);
+			case LIST:
+				return elm_add_list(stack, sp, arity);
+			case SET:
+				return elm_add_list(stack, sp, arity);
 			default:
 				throw new RuntimeException("Illegal type combination: "
 						+ lhsType + " and " + rhsType);
@@ -911,6 +915,10 @@ public enum RascalPrimitive {
 				return num_add_real(stack, sp, arity);
 			case RAT:
 				return num_add_rat(stack, sp, arity);
+			case LIST:
+				return elm_add_list(stack, sp, arity);
+			case SET:
+				return elm_add_list(stack, sp, arity);
 			default:
 				throw new RuntimeException("Illegal type combination: "
 						+ lhsType + " and " + rhsType);
@@ -925,6 +933,10 @@ public enum RascalPrimitive {
 				return real_add_real(stack, sp, arity);
 			case RAT:
 				return real_add_rat(stack, sp, arity);
+			case LIST:
+				return elm_add_list(stack, sp, arity);
+			case SET:
+				return elm_add_list(stack, sp, arity);
 			default:
 				throw new RuntimeException("Illegal type combination: "
 						+ lhsType + " and " + rhsType);
@@ -939,6 +951,10 @@ public enum RascalPrimitive {
 				return rat_add_real(stack, sp, arity);
 			case RAT:
 				return rat_add_rat(stack, sp, arity);
+			case LIST:
+				return elm_add_list(stack, sp, arity);
+			case SET:
+				return elm_add_list(stack, sp, arity);
 			default:
 				throw new RuntimeException("Illegal type combination: "
 						+ lhsType + " and " + rhsType);
