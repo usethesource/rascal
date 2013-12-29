@@ -648,6 +648,7 @@ public enum RascalPrimitive {
 	tuple_update,
 
 	// type
+	elementTypeOf,
 	type_equal_type,
 	subtype,
 	typeOf,
@@ -5632,13 +5633,24 @@ public enum RascalPrimitive {
 			if(mset.isEmpty()){
 				stack[sp - 1] = tf.setType(tf.voidType());
 			} else {
-				IValue v = mset.iterator().next();
+				IValue v = mset.iterator().next();		// TODO: this is incorrect for set[value]!
 				stack[sp - 1] =tf.setType(v.getType());
 			}
 			
 		} else {
 			stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
 		}
+		return sp;
+	}
+	
+	/*
+	 * elementTypeOf
+	 */
+	
+	public static int elementTypeOf(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		Type tp = (Type) stack[sp - 1];
+		stack[sp - 1] = tp.getElementType();
 		return sp;
 	}
 	
