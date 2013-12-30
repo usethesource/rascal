@@ -880,13 +880,14 @@ coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining]{
     return mset_empty();
 }
 
-coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, subset]{
-	guard subtype(typeOf(available), typ);
-    
+coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, subset, iSubset]{    
     gen = init(create(ENUM_SUBSETS, available, ref subset));
     while(next(gen)) {
-	      yield(set(subset), mset_destructive_subtract_mset(available, subset));
-	      available = mset_destructive_add_mset(available, subset);
+          iSubset = set(subset);
+          if(subtype(typeOf(iSubset), typ)){
+	         yield(iSubset, mset_destructive_subtract_mset(available, subset));
+	         available = mset_destructive_add_mset(available, subset);
+	      };
    };
 }
 
