@@ -4901,13 +4901,19 @@ public enum RascalPrimitive {
 	}
 	
 	public static int testreport_add(Object[] stack, int sp, int arity) {
-		assert arity == 4; 
+		assert arity == 5; 
 
-		String fun = ((IString) stack[sp - 4]).getValue();
+		String fun = ((IString) stack[sp - 5]).getValue();
+		boolean ignore =  ((IBool) stack[sp - 4]).getValue();
 		String expected =  ((IString) stack[sp - 3]).getValue();
 		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
 		stdout.println("testreport_add: " + fun);
 		Type argType = (Type) stack[sp - 1];
+		
+		if(ignore){
+			test_results.append(vf.tuple(src,  vf.integer(2), vf.string("")));
+			return sp - 4;
+		}
 		//IConstructor type_cons = ((IConstructor) stack[sp - 1]);
 		//Type argType = typeReifier.valueToType(type_cons);
 		//IMap definitions = (IMap) type_cons.get("definitions");
@@ -4956,8 +4962,8 @@ public enum RascalPrimitive {
 				break;
 			}
 		}
-		test_results.append(vf.tuple(src,  vf.bool(passed), vf.string(message == null ? "" : message)));
-		return sp - 3;
+		test_results.append(vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message == null ? "" : message)));
+		return sp - 4;
 	}
 
 	/*
