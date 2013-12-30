@@ -36,11 +36,11 @@ list[str] functionalityTests = [
 
 //"AccumulatingTests"		// [15] 2 tests fail: append that crosses function boundary: make tmp scope dependent?
 
-"CallTests"				// [58] keyword parameters Issue #456
+//"CallTests"				// [58] keyword parameters Issue #456
                      
 //"FunctionCompositionTests"	// Issue #468						
 							
-//"PatternTests"			// [420] Issue #458
+"PatternTests"			// [420] Issue #458
 							
 //"StatementTests"			// Fail in overloaded constructor gives problem ==> Issue posted
 				
@@ -128,13 +128,15 @@ list[str] libraryTests = [
 loc base = |rascal-test:///tests/library|;
 int nsuccess = 0;
 int nfail = 0;
+int nignore = 0;
 
 void runTests(list[str] names, loc base){
  for(tst <- names){
       println("***** <tst> ***** <base>");
-      if(<s, f> := execute(base + (tst + ".rsc"), [], recompile=true, testsuite=true, listing=false, debug=false)){
+      if(<s, f, i> := execute(base + (tst + ".rsc"), [], recompile=true, testsuite=true, listing=false, debug=false)){
          nsuccess += s;
          nfail += f;
+         nignore += i;
       } else {
          println("testsuite did not return a tuple");
       }
@@ -147,6 +149,6 @@ value main(list[value] args){
   runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
   //runTests(rascalTests, |project://rascal-test/src/tests|);
   //runTests(libraryTests, |project://rascal-test/src/tests/library|);
-  println("Overall summary: <nsuccess + nfail> tests executed, <nsuccess> succeeded, <nfail> failed");
+  println("Overall summary: <nsuccess + nfail + nignore> tests executed, <nsuccess> succeeded, <nfail> failed, <nignore> ignored");
   return nfail == 0;
 }
