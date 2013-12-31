@@ -40,11 +40,13 @@ list[str] functionalityTests = [
                      
 //"FunctionCompositionTests"	// Issue #468						
 							
-"PatternTests"			// [420] Issue #458
+//"PatternTests"			// [420] Issue #458
+//"PatternTestsList3"
+//"PatternTestsDescendant"
 							
 //"StatementTests"			// Fail in overloaded constructor gives problem ==> Issue posted
 				
-//"VisitTests"				// 13 fail [98]
+"VisitTests"				// 13 fail [98]
 ];
 
 
@@ -67,7 +69,7 @@ list[str] rascalTests = [
 //"Equality"				// OK
 							// Added parentheses for ? operator
 
-//"BacktrackingTests"		// [12]
+"BacktrackingTests"		// [12]
 							// error("Name s is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8573,1,<223,10>,<223,11>))
 							//error("Name L is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8246,1,<218,13>,<218,14>))
 							//error("Name s is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8315,1,<219,9>,<219,10>))
@@ -101,7 +103,7 @@ list[str] rascalTests = [
 
 //"Matching"			// TC, #450
 	
-"Relations"			// 1 test fails, nested any
+//"Relations"			// 1 test fails, nested any
 									
 
 //"Sets"					// 4 tests fails
@@ -146,8 +148,8 @@ void runTests(list[str] names, loc base){
 value main(list[value] args){
   nsuccess = 0;
   nfail = 0;
-  runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
-  //runTests(rascalTests, |project://rascal-test/src/tests|);
+  //runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
+  runTests(rascalTests, |project://rascal-test/src/tests|);
   //runTests(libraryTests, |project://rascal-test/src/tests/library|);
   println("Overall summary: <nsuccess + nfail + nignore> tests executed, <nsuccess> succeeded, <nfail> failed, <nignore> ignored");
   return nfail == 0;
