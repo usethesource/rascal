@@ -378,7 +378,7 @@ coroutine MATCH_TUPLE[2, pats, iSubject, cpats]{
 }
 
 coroutine MATCH_LITERAL[2, pat, iSubject]{
-    println("MATCH_LITERAL", pat, " and ", iSubject);
+    //println("MATCH_LITERAL", pat, " and ", iSubject);
     guard (equal(typeOf(pat),typeOf(iSubject)) 
     		&& equal(pat, iSubject));
     return;
@@ -420,9 +420,9 @@ coroutine MATCH_TYPED_VAR[3, typ, rVar, iSubject, iVal]{
 }
 
 coroutine MATCH_TYPED_ANONYMOUS_VAR[2, typ, iSubject]{
-   println("MATCH_TYPED_ANONYMOUS_VAR", typ, iSubject, typeOf(iSubject));
+   //println("MATCH_TYPED_ANONYMOUS_VAR", typ, iSubject, typeOf(iSubject));
    guard subtype(typeOf(iSubject), typ);
-   println("MATCH_TYPED_ANONYMOUS_VAR return true");
+   //println("MATCH_TYPED_ANONYMOUS_VAR return true");
    return;
 }
 
@@ -658,7 +658,7 @@ coroutine MATCH_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iLookahead, iSubject, rNext
 }
 
 coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iLookahead, iSubject, rNext, available, start, len, elmType]{
-    println("MATCH_LAST_TYPED_MULTIVAR_IN_LIST", typ, iSubject, available, typeOf(iSubject));
+    //println("MATCH_LAST_TYPED_MULTIVAR_IN_LIST", typ, iSubject, available, typeOf(iSubject));
     start = deref rNext;
     available = available - mint(iLookahead);
     elmType = elementTypeOf(typ);
@@ -683,7 +683,7 @@ coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iLookahead, iSubject, 
 }
 
 coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iLookahead, iSubject, rNext, available, start, len, sub]{
-    println("MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST", typ, iSubject, available, typeOf(iSubject));
+    //println("MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST", typ, iSubject, available, typeOf(iSubject));
     start = deref rNext;
     len = 0;
     available = available - mint(iLookahead);
@@ -699,7 +699,7 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iLookahead, iSubject, r
 }
 
 coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iLookahead, iSubject, rNext, available, start, len, elmType]{
-    println("MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST", typ, iSubject, available, typeOf(iSubject));
+    //println("MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST", typ, iSubject, available, typeOf(iSubject));
     start = deref rNext;
     available = available - mint(iLookahead);
     elmType = elementTypeOf(typ);
