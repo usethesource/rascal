@@ -662,14 +662,21 @@ coroutine MATCH_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iLookahead, iSubject, rNext
 	start = deref rNext;
     len = 0;
     available = available - mint(iLookahead);
-    while(len <= available){
-        sub = sublist(iSubject, start, len);
-        if(subtype(typeOf(sub), typ)){
-           yield(sub , start + len);
-           len = len + 1;
-        } else {
-           exhaust;
-        };
+    if(subtype(typeOf(iSubject), typ)){
+       while(len <= available){
+             yield(sublist(iSubject, start, len) , start + len);
+             len = len + 1;
+       };
+    } else {
+      while(len <= available){
+            sub = sublist(iSubject, start, len);
+            if(subtype(typeOf(sub), typ)){
+               yield(sub , start + len);
+               len = len + 1;
+            } else {
+              exhaust;
+            };
+      };
     };
 }
 
@@ -677,40 +684,46 @@ coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iLookahead, iSubject, 
     //println("MATCH_LAST_TYPED_MULTIVAR_IN_LIST", typ, iSubject, available, typeOf(iSubject));
     start = deref rNext;
     available = available - mint(iLookahead);
-    elmType = elementTypeOf(typ);
     len = 0;
-    while(len < available){
-       if(subtype(typeOf(get_list(iSubject, start + len)), elmType)){
-         len = len + 1;
-       } else {
-         return (sublist(iSubject, start, len), start + len);
+    
+    if(subtype(typeOf(iSubject), typ)){
+       while(len <= available){
+             yield(sublist(iSubject, start, len), start + len);
+             len = len + 1;
        };
+    } else {
+      elmType = elementTypeOf(typ);
+      while(len < available){
+            if(subtype(typeOf(get_list(iSubject, start + len)), elmType)){
+               len = len + 1;
+            } else {
+               return (sublist(iSubject, start, len), start + len);
+            };
+      };
+      return (sublist(iSubject, start, len), start + len);
     };
-    return (sublist(iSubject, start, len), start + len);
-//    while(len <= available){
-//        sub = sublist(iSubject, start, len);
-//        if(subtype(typeOf(sub), typ)){
-//           yield(sub, start + len);
-//           len = len + 1;
-//         } else {
-//           exhaust;
-//         };
-//    };
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iLookahead, iSubject, rNext, available, start, len, sub]{
+coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iLookahead, iSubject, rNext, available, start, len]{
     //println("MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST", typ, iSubject, available, typeOf(iSubject));
     start = deref rNext;
     len = 0;
     available = available - mint(iLookahead);
-    while(len <= available){
-        sub = sublist(iSubject, start, len);
-        if(subtype(typeOf(sub), typ)){
-           yield (start + len);
-           len = len + 1;
-        } else {
-          exhaust;
-        };
+    
+    if(subtype(typeOf(iSubject), typ)){
+       while(len <= available){
+             yield(start + len);
+             len = len + 1;
+       };
+    } else {
+      while(len <= available){
+            if(subtype(typeOf(sublist(iSubject, start, len)), typ)){
+               yield (start + len);
+               len = len + 1;
+            } else {
+              exhaust;
+            };
+      };
     };
 }
 
@@ -718,16 +731,24 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iLookahead, iSubje
     //println("MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST", typ, iSubject, available, typeOf(iSubject));
     start = deref rNext;
     available = available - mint(iLookahead);
-    elmType = elementTypeOf(typ);
+   
     len = 0;
-     while(len < available){
-       if(subtype(typeOf(get_list(iSubject, start + len)), elmType)){
-         len = len + 1;
-       } else {
-         return (start + len);
+    if(subtype(typeOf(iSubject), typ)){
+       while(len <= available){
+             yield(start + len);
+             len = len + 1;
        };
+    } else {
+      elmType = elementTypeOf(typ);
+      while(len < available){
+            if(subtype(typeOf(get_list(iSubject, start + len)), elmType)){
+               len = len + 1;
+            } else {
+              return (start + len);
+            };
+      };
+      return (start + len);
     };
-    return (start + len);
 }
 
 // ***** SET matching *****
