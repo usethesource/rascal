@@ -291,12 +291,12 @@ void extractScopes(){
         								     containment += {<inScope, uid>}; 
         									 loc2uid[src] = uid;
         									 // Fill in uid2name
-        									 if(bscopes[uid]?) {
-        									    bscopes[uid] = bscopes[uid] + 1;
+        									 if(bscopes[inScope]?) {
+        									    bscopes[inScope] = bscopes[inScope] + 1;
         									 } else {
-        									    bscopes[uid] = 0;
+        									    bscopes[inScope] = 0;
         									 }
-        									 uid2name[uid] = "bscope#<bscopes[uid]>";
+        									 uid2name[uid] = "bscope#<bscopes[inScope]>";
         								   }
         case closure(rtype,keywordParams,
                        inScope,src):       {
@@ -304,12 +304,12 @@ void extractScopes(){
                                              declares += {<inScope, uid>};
         									 loc2uid[src] = uid;
         									 // Fill in uid2name
-        									 if(closures[uid]?) {
-        									    closures[uid] = closures[uid] + 1;
+        									 if(closures[inScope]?) {
+        									    closures[inScope] = closures[inScope] + 1;
         									 } else {
-        									    closures[uid] = 0;
+        									    closures[inScope] = 0;
         									 }
-        									 uid2name[uid] = "closure#<closures[uid]>";
+        									 uid2name[uid] = "closure#<closures[inScope]>";
         									 fuid2type[uid] = rtype;
         								   }
         case \module(RName rname, loc at):  {
