@@ -239,7 +239,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   
   if("test" in tmods){
      params = ftype.parameters;
-     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
+     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(ttags["ignore"]?), muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
      // Maybe we should still transfer the reified type
      //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
@@ -275,7 +275,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   
   if("test" in tmods){
      params = ftype.parameters;
-     tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
+     tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ttags["ignore"]?), muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
      // Maybe we should still transfer the reified type
      //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
@@ -312,7 +312,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   					
    if("test" in tmods){
      params = ftype.parameters;
-     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
+     tests += muCallPrim("testreport_add", [muCon(fuid), muCon(ttags["ignore"]?), muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
      // Maybe we should still transfer the reified type
      //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }

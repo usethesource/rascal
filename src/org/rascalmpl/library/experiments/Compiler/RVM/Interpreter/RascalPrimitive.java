@@ -648,6 +648,7 @@ public enum RascalPrimitive {
 	tuple_update,
 
 	// type
+	elementTypeOf,
 	type_equal_type,
 	subtype,
 	typeOf,
@@ -896,6 +897,10 @@ public enum RascalPrimitive {
 				return int_add_real(stack, sp, arity);
 			case RAT:
 				return int_add_rat(stack, sp, arity);
+			case LIST:
+				return elm_add_list(stack, sp, arity);
+			case SET:
+				return elm_add_list(stack, sp, arity);
 			default:
 				throw new RuntimeException("Illegal type combination: "
 						+ lhsType + " and " + rhsType);
@@ -910,6 +915,10 @@ public enum RascalPrimitive {
 				return num_add_real(stack, sp, arity);
 			case RAT:
 				return num_add_rat(stack, sp, arity);
+			case LIST:
+				return elm_add_list(stack, sp, arity);
+			case SET:
+				return elm_add_list(stack, sp, arity);
 			default:
 				throw new RuntimeException("Illegal type combination: "
 						+ lhsType + " and " + rhsType);
@@ -924,6 +933,10 @@ public enum RascalPrimitive {
 				return real_add_real(stack, sp, arity);
 			case RAT:
 				return real_add_rat(stack, sp, arity);
+			case LIST:
+				return elm_add_list(stack, sp, arity);
+			case SET:
+				return elm_add_list(stack, sp, arity);
 			default:
 				throw new RuntimeException("Illegal type combination: "
 						+ lhsType + " and " + rhsType);
@@ -938,6 +951,10 @@ public enum RascalPrimitive {
 				return rat_add_real(stack, sp, arity);
 			case RAT:
 				return rat_add_rat(stack, sp, arity);
+			case LIST:
+				return elm_add_list(stack, sp, arity);
+			case SET:
+				return elm_add_list(stack, sp, arity);
 			default:
 				throw new RuntimeException("Illegal type combination: "
 						+ lhsType + " and " + rhsType);
@@ -4884,13 +4901,19 @@ public enum RascalPrimitive {
 	}
 	
 	public static int testreport_add(Object[] stack, int sp, int arity) {
-		assert arity == 4; 
+		assert arity == 5; 
 
-		String fun = ((IString) stack[sp - 4]).getValue();
+		String fun = ((IString) stack[sp - 5]).getValue();
+		boolean ignore =  ((IBool) stack[sp - 4]).getValue();
 		String expected =  ((IString) stack[sp - 3]).getValue();
 		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
 		stdout.println("testreport_add: " + fun);
 		Type argType = (Type) stack[sp - 1];
+		
+		if(ignore){
+			test_results.append(vf.tuple(src,  vf.integer(2), vf.string("")));
+			return sp - 4;
+		}
 		//IConstructor type_cons = ((IConstructor) stack[sp - 1]);
 		//Type argType = typeReifier.valueToType(type_cons);
 		//IMap definitions = (IMap) type_cons.get("definitions");
@@ -4939,8 +4962,8 @@ public enum RascalPrimitive {
 				break;
 			}
 		}
-		test_results.append(vf.tuple(src,  vf.bool(passed), vf.string(message == null ? "" : message)));
-		return sp - 3;
+		test_results.append(vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message == null ? "" : message)));
+		return sp - 4;
 	}
 
 	/*
@@ -5632,13 +5655,24 @@ public enum RascalPrimitive {
 			if(mset.isEmpty()){
 				stack[sp - 1] = tf.setType(tf.voidType());
 			} else {
-				IValue v = mset.iterator().next();
+				IValue v = mset.iterator().next();		// TODO: this is incorrect for set[value]!
 				stack[sp - 1] =tf.setType(v.getType());
 			}
 			
 		} else {
 			stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
 		}
+		return sp;
+	}
+	
+	/*
+	 * elementTypeOf
+	 */
+	
+	public static int elementTypeOf(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		Type tp = (Type) stack[sp - 1];
+		stack[sp - 1] = tp.getElementType();
 		return sp;
 	}
 	

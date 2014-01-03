@@ -391,6 +391,14 @@ MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead looka
    return muCreate(mkCallToLibFun("Library","MATCH_VAR_IN_LIST",4), [muVarRef("<name>", fuid, pos)]);
 } 
 
+MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead lookahead) {
+   if("<name>" == "_"){
+       return muCreate(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_VAR_IN_LIST",4), [muTypeCon(translateType(tp))]);
+   }
+   <fuid, pos> = getVariableScope("<name>", name@\loc);
+   return muCreate(mkCallToLibFun("Library","MATCH_TYPED_VAR_IN_LIST",5), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos)]);
+} 
+
 
 MuExp translatePatAsListElem(p:(Pattern) `<Literal lit>`, Lookahead lookahead) {
   return muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST",4), [translate(lit)]);
