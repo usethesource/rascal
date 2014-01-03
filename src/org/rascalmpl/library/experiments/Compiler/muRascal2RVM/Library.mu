@@ -379,8 +379,7 @@ coroutine MATCH_TUPLE[2, pats, iSubject, cpats]{
 
 coroutine MATCH_LITERAL[2, pat, iSubject]{
     //println("MATCH_LITERAL", pat, " and ", iSubject);
-    guard (equal(typeOf(pat),typeOf(iSubject)) 
-    		&& equal(pat, iSubject));
+    guard (/*equal(typeOf(pat),typeOf(iSubject)) && */equal(pat, iSubject));
     return;
 }
 
@@ -389,7 +388,7 @@ coroutine MATCH_VAR[2, rVar, iSubject, iVal]{
    if(is_defined(rVar)){
       iVal = deref rVar;
       //println("MATCH_VAR, iVal =", iVal);
-      if(subtype(typeOf(iSubject), typeOf(iVal)) && equal(iSubject, iVal)){
+      if(/*subtype(typeOf(iSubject), typeOf(iVal)) && */ equal(iSubject, iVal)){
          return iSubject;
       };
       exhaust;
@@ -528,7 +527,7 @@ coroutine MATCH_LITERAL_IN_LIST[4, pat, iSubject, rNext, available, start, elm]{
 	guard available > 0;
 	start = deref rNext;
 	elm =  get_list(iSubject, start);
-    if(equal(typeOf(pat),typeOf(elm)) && equal(pat, elm)){
+    if(/*equal(typeOf(pat),typeOf(elm)) && */ equal(pat, elm)){
        //println("MATCH_LITERAL_IN_LIST: true", pat, start, elm);
        return(start + 1);
     };
@@ -567,7 +566,7 @@ coroutine MATCH_VAR_IN_LIST[4, rVar, iSubject, rNext, available, start, iVal, iE
    iElem = get_list(iSubject, start);
    if(is_defined(rVar)){
       iVal = deref rVar;
-      if(subtype(typeOf(iElem), typeOf(iVal)) && equal(iElem, iVal)){
+      if(/*subtype(typeOf(iElem), typeOf(iVal)) && */ equal(iElem, iVal)){
          return(iElem, start + 1);
       };
       exhaust;
@@ -607,7 +606,7 @@ coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iLookahead, iSubject, rNext, available
     available = available - mint(iLookahead);
     if(is_defined(rVar)){
       iVal = deref rVar;
-      if(/*subtype(typeOf(iElem), typeOf(iVal)) && */ occurs(iVal, iSubject, start)){
+      if(occurs(iVal, iSubject, start)){
          yield(iVal, start + size_list(iVal));
          undefine(rVar);
       };
@@ -626,7 +625,7 @@ coroutine MATCH_LAST_MULTIVAR_IN_LIST[5, rVar, iLookahead, iSubject, rNext, avai
     start = deref rNext;
     if(is_defined(rVar)){
       iVal = deref rVar;
-      if(/*subtype(typeOf(iElem), typeOf(iVal)) &&*/ occurs(iVal, iSubject, start)){
+      if(occurs(iVal, iSubject, start)){
          yield(iVal, start + size_list(iVal));
          undefine(rVar);
       };
@@ -983,7 +982,7 @@ coroutine MATCH_AND_DESCENT[2, pat, iVal]{
 }
 
 coroutine MATCH_AND_DESCENT_LITERAL[2, pat, iSubject, res]{
-  if(equal(typeOf(pat), typeOf(iSubject)) && equal(pat, iSubject)){
+  if(/*equal(typeOf(pat), typeOf(iSubject)) && */ equal(pat, iSubject)){
       return;
   };
   
