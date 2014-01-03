@@ -151,6 +151,7 @@ public class Execute {
 				rvm.executeProgram(uid_module_init, arguments);
 				int number_of_successes = 0;
 				int number_of_failures = 0;
+				int number_of_ignored = 0;
 			
 				stdout.println("\nTEST REPORT\n");
 				for(String uid_testsuite: testsuites){
@@ -161,26 +162,25 @@ public class Execute {
 						//tst_name = tst_name.substring(1, tst_name.length()); // remove leading /
 						//tst_name = tst_name.replaceAll("/", "::");
 					
-						boolean passed = ((IBool) outcome.get(1)).getValue();
+						int passed = ((IInteger) outcome.get(1)).intValue();
 						String exception = ((IString) outcome.get(2)).getValue();
 						if(!exception.isEmpty()){
 							exception = "; Unexpected exception: " + exception;
 						}
-					
-						if(passed){
-							number_of_successes++;
-						} else {
-							number_of_failures++;
-						}
-						if(!passed)
-							stdout.println(tst_name + ": FALSE" + exception);
+						
+					    switch(passed){
+					    case 0: number_of_failures++; stdout.println(tst_name + ": FALSE" + exception); break;
+					    case 1: number_of_successes++; break;
+					    case 2: number_of_ignored++; stdout.println(tst_name + ": IGNORED"); break;
+					    }
 					}
 				}
-				int number_of_tests = number_of_successes + number_of_failures;
+				int number_of_tests = number_of_successes + number_of_failures + number_of_ignored;
 				stdout.println("\nExecuted " + number_of_tests + " tests: "  
 						+ number_of_successes + " succeeded; "
-						+ number_of_failures + " failed.\n");
-				result = vf.tuple(vf.integer(number_of_successes), vf.integer(number_of_failures));
+						+ number_of_failures + " failed; "
+						+ number_of_ignored + " ignored.\n");
+				result = vf.tuple(vf.integer(number_of_successes), vf.integer(number_of_failures), vf.integer(number_of_ignored));
 			} else {
 				/*
 				 * Standard execution of main function

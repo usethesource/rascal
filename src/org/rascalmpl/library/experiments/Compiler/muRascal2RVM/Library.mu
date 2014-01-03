@@ -398,9 +398,8 @@ coroutine MATCH_TUPLE[2, pats, iSubject, cpats]{
 }
 
 coroutine MATCH_LITERAL[2, pat, iSubject]{
-    //("MATCH_LITERAL", pat, " and ", iSubject);
-    guard (equal(typeOf(pat),typeOf(iSubject)) 
-    		&& equal(pat, iSubject));
+    //println("MATCH_LITERAL", pat, " and ", iSubject);
+    guard (/*equal(typeOf(pat),typeOf(iSubject)) && */equal(pat, iSubject));
     return;
 }
 
@@ -409,7 +408,7 @@ coroutine MATCH_VAR[2, rVar, iSubject, iVal]{
    if(is_defined(rVar)){
       iVal = deref rVar;
       //println("MATCH_VAR, iVal =", iVal);
-      if(subtype(typeOf(iSubject), typeOf(iVal)) && equal(iSubject, iVal)){
+      if(/*subtype(typeOf(iSubject), typeOf(iVal)) && */ equal(iSubject, iVal)){
          return iSubject;
       };
       exhaust;
@@ -440,7 +439,9 @@ coroutine MATCH_TYPED_VAR[3, typ, rVar, iSubject, iVal]{
 }
 
 coroutine MATCH_TYPED_ANONYMOUS_VAR[2, typ, iSubject]{
+   //println("MATCH_TYPED_ANONYMOUS_VAR", typ, iSubject, typeOf(iSubject));
    guard subtype(typeOf(iSubject), typ);
+   //println("MATCH_TYPED_ANONYMOUS_VAR return true");
    return;
 }
 
@@ -546,7 +547,7 @@ coroutine MATCH_LITERAL_IN_LIST[4, pat, iSubject, rNext, available, start, elm]{
 	guard available > 0;
 	start = deref rNext;
 	elm =  get_list(iSubject, start);
-    if(equal(typeOf(pat),typeOf(elm)) && equal(pat, elm)){
+    if(/*equal(typeOf(pat),typeOf(elm)) && */ equal(pat, elm)){
        //println("MATCH_LITERAL_IN_LIST: true", pat, start, elm);
        return(start + 1);
     };
@@ -585,7 +586,7 @@ coroutine MATCH_VAR_IN_LIST[4, rVar, iSubject, rNext, available, start, iVal, iE
    iElem = get_list(iSubject, start);
    if(is_defined(rVar)){
       iVal = deref rVar;
-      if(subtype(typeOf(iElem), typeOf(iVal)) && equal(iElem, iVal)){
+      if(/*subtype(typeOf(iElem), typeOf(iVal)) && */ equal(iElem, iVal)){
          return(iElem, start + 1);
       };
       exhaust;
@@ -593,11 +594,31 @@ coroutine MATCH_VAR_IN_LIST[4, rVar, iSubject, rNext, available, start, iVal, iE
    return(iElem, start + 1);
 }
 
+coroutine MATCH_TYPED_VAR_IN_LIST[5, typ, rVar, iSubject, rNext, available, start, iVal, iElem]{
+   start = deref rNext;
+   //println("MATCH_TYPED_VAR_IN_LIST", iSubject, start, available);
+   guard available > 0;
+   
+   iElem = get_list(iSubject, start);
+   if(subtype(typeOf(iElem), typ)){
+      return(iElem, start + 1);
+   };
+}
+
 coroutine MATCH_ANONYMOUS_VAR_IN_LIST[3, iSubject, rNext, available]{
    guard available > 0;
    return (deref rNext + 1);
 }
 
+coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_LIST[4, typ, iSubject, rNext, available, start, iElem]{
+   guard available > 0;
+   start = deref rNext;
+   
+   iElem = get_list(iSubject, start);
+   if(subtype(typeOf(iElem), typ)){
+      return(start + 1);
+   };
+}
 
 coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iLookahead, iSubject, rNext, available, start, len, iVal]{
     start = deref rNext;
@@ -605,13 +626,13 @@ coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iLookahead, iSubject, rNext, available
     available = available - mint(iLookahead);
     if(is_defined(rVar)){
       iVal = deref rVar;
-      if(/*subtype(typeOf(iElem), typeOf(iVal)) && */ occurs(iVal, iSubject, start)){
+      if(occurs(iVal, iSubject, start)){
          yield(iVal, start + size_list(iVal));
          undefine(rVar);
       };
       exhaust;
     };
-    // Note: an example of multi argument 'yield'! (could not have been replaced with one reference due to the create-init design)
+    
     while(len <= available) {
         yield(sublist(iSubject, start, len), start + len);
         len = len + 1;
@@ -624,14 +645,13 @@ coroutine MATCH_LAST_MULTIVAR_IN_LIST[5, rVar, iLookahead, iSubject, rNext, avai
     start = deref rNext;
     if(is_defined(rVar)){
       iVal = deref rVar;
-      if(/*subtype(typeOf(iElem), typeOf(iVal)) &&*/ occurs(iVal, iSubject, start)){
+      if(occurs(iVal, iSubject, start)){
          yield(iVal, start + size_list(iVal));
          undefine(rVar);
       };
       exhaust;
     };
     
-    // Note: an example of multi argument 'yield'! (could not have been replaced with one reference due to the create-init design)
     while(len <= available) {
         yield(sublist(iSubject, start, len), start + len);
         len = len + 1;
@@ -655,50 +675,99 @@ coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST[4, iLookahead, iSubject, rNext, 
     while(len <= available){
         yield (start + len);
         len = len + 1;
-     };
-}
-
-coroutine MATCH_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iLookahead, iSubject, rNext, available, start, len]{
-	guard subtype(typeOf(iSubject), typ);
-	start = deref rNext;
-    len = 0;
-    available = available - mint(iLookahead);
-    // Note: an example of multi argument 'yield'! (could not have been replaced with one reference due to the create-init design)
-    while(len <= available){
-        yield(sublist(iSubject, start, len), start + len);
-        len = len + 1;
     };
 }
 
-coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iLookahead, iSubject, rNext, available, start, len]{
-    len = available - mint(iLookahead);
-	guard subtype(typeOf(iSubject), typ) && len >= 0;
+coroutine MATCH_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iLookahead, iSubject, rNext, available, start, len, sub]{
 	start = deref rNext;
-    // Note: an example of multi argument 'yield'! (could not have been replaced with one reference due to the create-init design)
-    while(len <= available){
-        yield(sublist(iSubject, start, len), start + len);
-        len = len + 1;
+    len = 0;
+    available = available - mint(iLookahead);
+    if(subtype(typeOf(iSubject), typ)){
+       while(len <= available){
+             yield(sublist(iSubject, start, len) , start + len);
+             len = len + 1;
+       };
+    } else {
+      while(len <= available){
+            sub = sublist(iSubject, start, len);
+            if(subtype(typeOf(sub), typ)){
+               yield(sub , start + len);
+               len = len + 1;
+            } else {
+              exhaust;
+            };
+      };
+    };
+}
+
+coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iLookahead, iSubject, rNext, available, start, len, elmType]{
+    //println("MATCH_LAST_TYPED_MULTIVAR_IN_LIST", typ, iSubject, available, typeOf(iSubject));
+    start = deref rNext;
+    available = available - mint(iLookahead);
+    len = 0;
+    
+    if(subtype(typeOf(iSubject), typ)){
+       while(len <= available){
+             yield(sublist(iSubject, start, len), start + len);
+             len = len + 1;
+       };
+    } else {
+      elmType = elementTypeOf(typ);
+      while(len < available){
+            if(subtype(typeOf(get_list(iSubject, start + len)), elmType)){
+               len = len + 1;
+            } else {
+               return (sublist(iSubject, start, len), start + len);
+            };
+      };
+      return (sublist(iSubject, start, len), start + len);
     };
 }
 
 coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iLookahead, iSubject, rNext, available, start, len]{
-    guard subtype(typeOf(iSubject), typ);
+    //println("MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST", typ, iSubject, available, typeOf(iSubject));
     start = deref rNext;
     len = 0;
     available = available - mint(iLookahead);
-    while(len <= available){
-        yield (start + len);
-        len = len + 1;
+    
+    if(subtype(typeOf(iSubject), typ)){
+       while(len <= available){
+             yield(start + len);
+             len = len + 1;
+       };
+    } else {
+      while(len <= available){
+            if(subtype(typeOf(sublist(iSubject, start, len)), typ)){
+               yield (start + len);
+               len = len + 1;
+            } else {
+              exhaust;
+            };
+      };
     };
 }
 
-coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iLookahead, iSubject, rNext, available, start, len]{
-    len = available - mint(iLookahead);
-    guard subtype(typeOf(iSubject), typ) && len >= 0;
+coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iLookahead, iSubject, rNext, available, start, len, elmType]{
+    //println("MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST", typ, iSubject, available, typeOf(iSubject));
     start = deref rNext;
-    while(len <= available){
-        yield (start + len);
-        len = len + 1;
+    available = available - mint(iLookahead);
+   
+    len = 0;
+    if(subtype(typeOf(iSubject), typ)){
+       while(len <= available){
+             yield(start + len);
+             len = len + 1;
+       };
+    } else {
+      elmType = elementTypeOf(typ);
+      while(len < available){
+            if(subtype(typeOf(get_list(iSubject, start + len)), elmType)){
+               len = len + 1;
+            } else {
+              return (start + len);
+            };
+      };
+      return (start + len);
     };
 }
 
@@ -859,8 +928,8 @@ coroutine MATCH_LAST_MULTIVAR_IN_SET[3, rVar, available, rRemaining, subset]{
 coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining, gen, subset]{
     gen = init(create(ENUM_SUBSETS, available, ref subset));
     while(next(gen)) {
-	          yield mset_destructive_subtract_mset(available, subset);
-	          available = mset_destructive_add_mset(available, subset);
+	      yield mset_destructive_subtract_mset(available, subset);
+	      available = mset_destructive_add_mset(available, subset);
     };
 }
 
@@ -868,25 +937,26 @@ coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining]{
     return mset_empty();
 }
 
-coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, subset]{
-	    guard subtype(typeOf(available), typ);
-    
+coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, subset, iSubset]{    
     gen = init(create(ENUM_SUBSETS, available, ref subset));
-    	while(next(gen)) {
-	          yield(set(subset), mset_destructive_subtract_mset(available, subset));
-	          available = mset_destructive_add_mset(available, subset);
-    	};
+    while(next(gen)) {
+          iSubset = set(subset);
+          if(subtype(typeOf(iSubset), typ)){
+	         yield(iSubset, mset_destructive_subtract_mset(available, subset));
+	         available = mset_destructive_add_mset(available, subset);
+	      };
+   };
 }
 
 coroutine MATCH_LAST_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining]{
-	    guard subtype(typeOf(available), typ);
+	guard subtype(typeOf(available), typ);
     return(set(available), mset_empty());
 }
 
 coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
-    	guard subtype(typeOf(available), typ);
+    guard subtype(typeOf(available), typ);
     
-    gen = init(create(ENUM_SUBSETS, available));
+    gen = init(create(ENUM_SUBSETS, available, ref subset));
     while(next(gen)) {
           yield mset_destructive_subtract_mset(available, subset);
 	          available = mset_destructive_add_mset(available, subset);
@@ -894,7 +964,7 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, g
 }
 
 coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
-    	guard subtype(typeOf(available), typ);
+    guard subtype(typeOf(available), typ);
     return mset_empty();
 }
 
@@ -953,7 +1023,7 @@ coroutine MATCH_AND_DESCENT[2, pat, iVal]{
 }
 
 coroutine MATCH_AND_DESCENT_LITERAL[2, pat, iSubject, res]{
-  if(equal(typeOf(pat), typeOf(iSubject)) && equal(pat, iSubject)){
+  if(/*equal(typeOf(pat), typeOf(iSubject)) && */ equal(pat, iSubject)){
       return;
   };
   
