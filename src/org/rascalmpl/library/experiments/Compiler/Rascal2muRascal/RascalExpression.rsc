@@ -349,7 +349,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    }
    
    if(muFun(str _) := receiver || muFun(str _, str _) := receiver || muConstr(str _) := receiver) {
-       return muCall(receiver, args); // keyword arguments
+       return muCall(receiver, args + [ kwargs ]);
    }
    
    // Now overloading resolution...
