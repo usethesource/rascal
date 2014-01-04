@@ -867,6 +867,18 @@ coroutine MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
     };
 }
 
+coroutine MATCH_TYPED_VAR_IN_SET[4, typ, rVar, available, rRemaining, gen, elm]{
+	guard size_mset(available) > 0;
+
+    gen = init(create(ENUM_MSET, available, ref elm));
+    while(next(gen)) {
+             if(subtype(typeOf(elm), typ)){
+	            yield(elm, mset_destructive_subtract_elm(available, elm));
+	            available = mset_destructive_add_elm(available, elm);
+	         };
+    };
+}
+
 coroutine MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRenaming, gen, elm]{
 	guard size_mset(available) > 0;
     
@@ -874,6 +886,18 @@ coroutine MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRenaming, gen, elm]{
     while(next(gen)) { 
           yield mset_destructive_subtract_elm(available, elm);
           available = mset_destructive_add_elm(available, elm);
+   };
+}
+
+coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET[3, typ, available, rRenaming, gen, elm]{
+	guard size_mset(available) > 0;
+    
+    gen = init(create(ENUM_MSET, available, ref elm));
+    while(next(gen)) { 
+          if(subtype(typeOf(elm), typ)){
+             yield mset_destructive_subtract_elm(available, elm);
+             available = mset_destructive_add_elm(available, elm);
+          };
    };
 }
 

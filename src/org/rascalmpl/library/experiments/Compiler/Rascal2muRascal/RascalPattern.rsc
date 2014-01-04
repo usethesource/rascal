@@ -449,7 +449,15 @@ MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>`, bool last) {
    }
    <fuid, pos> = getVariableScope("<name>", name@\loc);
    return muCreate(mkCallToLibFun("Library","MATCH_VAR_IN_SET",3), [muVarRef("<name>", fuid, pos)]);
-} 
+}
+
+MuExp translatePatAsSetElem(p:(Pattern) `<Type tp> <Name name>`, bool last) {
+   if("<name>" == "_"){
+       return muCreate(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_VAR_IN_SET",3), [muTypeCon(translateType(tp))]);
+   }
+   <fuid, pos> = getVariableScope("<name>", name@\loc);
+   return muCreate(mkCallToLibFun("Library","MATCH_TYPED_VAR_IN_SET",4), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos)]);
+}  
 
 MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`, bool last) {
    if("<name>" == "_"){
