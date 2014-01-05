@@ -30,7 +30,7 @@ int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: shou
 
 MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
     str fuid = topFunctionScope();
-    str all_uid = "Library/<fuid>/ALL_<getNextAll()>";
+    str all_uid = "Library/<fuid>/ALL_<getNextAll()>(0)";
     localvars = [ muVar("c_<i>", all_uid, i)| int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     for(int i <- index(exps)) {
@@ -48,7 +48,7 @@ MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
 
 MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
     str fuid = topFunctionScope();
-    str or_uid = "Library/<fuid>/Or_<getNextOr()>";
+    str or_uid = "Library/<fuid>/Or_<getNextOr()>(0)";
     localvars = [ muVar("c_<i>", or_uid, i)| int i <- index(exps) ];
     list[MuExp] body = [];
     for(int i <- index(exps)) {
@@ -99,7 +99,21 @@ MuExp makeMu(str muAllOrMuOr, [ MuExp e ]) = e when !(muMulti(_) := e || muOne(_
 default MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) {
     assert(size(exps) >= 1);
     if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
-        return generateMu(muAllOrMuOr, [], []);
+        list[MuExp] expressions = [];
+        list[bool] backtrackfree = [];
+        for(MuExp e <- exps) {
+            if(muMulti(_) := e) {
+                expressions += e.exp;
+                backtrackfree += false;
+            } else if(muOne(_) := e) {
+                expressions += muNext(muInit(e.exp));
+                backtrackfree += true;
+            } else {
+                expressions += e;
+                backtrackfree += true;
+            }
+        }
+        return generateMu(muAllOrMuOr, expressions, backtrackfree);
     }
     if(muAllOrMuOr == "ALL") {
         return ( exps[0] | muIfelse(nextLabel(), it, [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ], [ muCon(false) ]) | int i <- [ 1..size(exps) ] );

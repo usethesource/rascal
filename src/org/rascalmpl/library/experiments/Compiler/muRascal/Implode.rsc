@@ -247,7 +247,45 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
     }    
 }
 
+MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
+    str all_uid = "Library/<fuid>/ALL_<getNextAll()>(0)";
+    localvars = [ muVar("c_<i>", all_uid, i)| int i <- index(exps) ];
+    list[MuExp] body = [ muYield() ];
+    for(int i <- index(exps)) {
+        int j = size(exps) - 1 + i;
+        if(backtrackfree[j]) {
+            body = muIfelse(nextLabel(), exps[j], body, [  ]);
+        } else {
+            body = [ muAssign("c_<j>", all_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body) ];
+        }
+    }
+    body = body + [ muExhaust() ];
+    functions_in_module = muCoroutine(all_uid, fuid, 0, size(localvars), muBlock(body));
+    return muMulti(muCreate(muFun(all_uid)));
+}
+
+MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
+    str or_uid = "Library/<fuid>/Or_<getNextOr()>(0)";
+    localvars = [ muVar("c_<i>", or_uid, i)| int i <- index(exps) ];
+    list[MuExp] body = [];
+    for(int i <- index(exps)) {
+        int j = size(exps) - 1 + i;
+        if(backtrackfree[j]) {
+            body += muIfelse(nextLabel(), exps[j], [ muYield() ], [  ]);
+        } else {
+            body += [ muAssign("c_<j>", or_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), [ muYield() ]) ];
+        }
+    }
+    body = body + [ muExhaust() ];
+    functions_in_module = muCoroutine(or_uid, fuid, 0, size(localvars), muBlock(body));
+    return muMulti(muCreate(muFun(or_uid)));
+}
+
 // Produces multi- or backtrack-free expressions
+/*
+ * Reference implementation that uses the generic definitions of ALL and OR  
+ */
+/*
 MuExp makeMu(str muAllOrMuOr, [ e:muMulti(_) ]) = e;
 MuExp makeMu(str muAllOrMuOr, [ e:muOne(MuExp exp) ]) = makeMuMulti(e);
 MuExp makeMu(str muAllOrMuOr, [ MuExp e ]) = e when !(muMulti(_) := e || muOne(_) := e);
@@ -259,6 +297,39 @@ default MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) {
                                                                 functions_in_module += muFunction(gen_uid, Symbol::\func(Symbol::\value(),[]), fuid, 0, 0, false, |rascal:///|, [], (), muReturn(makeMuMulti(exp).exp));
                                                                 muFun(gen_uid,fuid);
                                                               } | MuExp exp <- exps ]) ]));
+    }
+    if(muAllOrMuOr == "ALL") {
+        return ( exps[0] | muIfelse(nextLabel(), it, [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ], [ muCon(false) ]) | int i <- [ 1..size(exps) ] );
+    } 
+    if(muAllOrMuOr == "OR"){
+        return ( exps[0] | muIfelse(nextLabel(), it, [ muCon(true) ], [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] );
+    }
+}
+*/
+/*
+ * Alternative, fast implementation that generates a specialized definitions of ALL and OR
+ */
+MuExp makeMu(str muAllOrMuOr, [ e:muMulti(_) ]) = e;
+MuExp makeMu(str muAllOrMuOr, [ e:muOne(MuExp exp) ]) = makeMuMulti(e);
+MuExp makeMu(str muAllOrMuOr, [ MuExp e ]) = e when !(muMulti(_) := e || muOne(_) := e);
+default MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) {
+    assert(size(exps) >= 1);
+    if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
+        list[MuExp] expressions = [];
+        list[bool] backtrackfree = [];
+        for(MuExp e <- exps) {
+            if(muMulti(_) := e) {
+                expressions += e.exp;
+                backtrackfree += false;
+            } else if(muOne(_) := e) {
+                expressions += muNext(muInit(e.exp));
+                backtrackfree += true;
+            } else {
+                expressions += e;
+                backtrackfree += true;
+            }
+        }
+        return generateMu(muAllOrMuOr, expressions, backtrackfree);
     }
     if(muAllOrMuOr == "ALL") {
         return ( exps[0] | muIfelse(nextLabel(), it, [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ], [ muCon(false) ]) | int i <- [ 1..size(exps) ] );
