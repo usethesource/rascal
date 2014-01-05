@@ -356,7 +356,7 @@ coroutine MATCH_CALL_OR_TREE[2, pats, iSubject, cpats]{
     while(next(cpats)) {
         yield;
     };
-    println("MATCH_CALL_OR_TREE fails", pats, " AND ", iSubject);
+    //println("MATCH_CALL_OR_TREE fails", pats, " AND ", iSubject);
 }
 
 coroutine MATCH_REIFIED_TYPE[2, pat, iSubject, nc, konstructor, symbol]{
@@ -519,7 +519,7 @@ coroutine MATCH_LITERAL_IN_LIST[4, pat, iSubject, rNext, available, start, elm]{
 	guard available > 0;
 	start = deref rNext;
 	elm =  get_list(iSubject, start);
-    if(/*equal(typeOf(pat),typeOf(elm)) && */ equal(pat, elm)){
+    if(equal(pat, elm)){
        //println("MATCH_LITERAL_IN_LIST: true", pat, start, elm);
        return(start + 1);
     };
@@ -829,8 +829,7 @@ coroutine ENUM_MSET[2, set, rElm, iLst, len, j]{
 // - rRemaining: reference parameter to return remaining set elements
 
 coroutine MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
-
-	    guard size_mset(available) > 0;
+	guard size_mset(available) > 0;
     
     gen = init(create(ENUM_MSET, available, ref elm));
     while(next(gen)) {
@@ -839,6 +838,14 @@ coroutine MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
             yield mset_destructive_subtract_elm(available, elm);
             available = mset_destructive_add_elm(available, elm);
         };
+    };
+}
+
+coroutine MATCH_LITERAL_IN_SET[3, pat, available, rRemaining, gen, elm]{
+	guard size_mset(available) > 0;
+	
+	if(is_element_mset(elm, available)){
+       return(mset_destructive_subtract_elm(available, elm));
     };
 }
 
