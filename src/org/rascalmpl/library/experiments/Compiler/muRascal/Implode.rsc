@@ -252,15 +252,15 @@ MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
     localvars = [ muVar("c_<i>", all_uid, i)| int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     for(int i <- index(exps)) {
-        int j = size(exps) - 1 + i;
+        int j = size(exps) - 1 - i;
         if(backtrackfree[j]) {
-            body = muIfelse(nextLabel(), exps[j], body, [  ]);
+            body = muIfelse(nextLabel(), exps[j], body, [ muCon(222) ]);
         } else {
-            body = [ muAssign("c_<j>", all_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body) ];
+            body = [ muAssign("c_<j>", all_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body), muCon(222) ];
         }
     }
-    body = body + [ muExhaust() ];
-    functions_in_module = muCoroutine(all_uid, fuid, 0, size(localvars), muBlock(body));
+    body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
+    functions_in_module += muCoroutine(all_uid, fuid, 0, size(localvars), [], muBlock(body));
     return muMulti(muCreate(muFun(all_uid)));
 }
 
@@ -269,15 +269,15 @@ MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
     localvars = [ muVar("c_<i>", or_uid, i)| int i <- index(exps) ];
     list[MuExp] body = [];
     for(int i <- index(exps)) {
-        int j = size(exps) - 1 + i;
+        int j = size(exps) - 1 - i;
         if(backtrackfree[j]) {
-            body += muIfelse(nextLabel(), exps[j], [ muYield() ], [  ]);
+            body += muIfelse(nextLabel(), exps[j], [ muYield() ], [ muCon(222) ]);
         } else {
-            body += [ muAssign("c_<j>", or_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), [ muYield() ]) ];
+            body += [ muAssign("c_<j>", or_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), [ muYield() ]), muCon(222) ];
         }
     }
-    body = body + [ muExhaust() ];
-    functions_in_module = muCoroutine(or_uid, fuid, 0, size(localvars), muBlock(body));
+    body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
+    functions_in_module += muCoroutine(or_uid, fuid, 0, size(localvars), [], muBlock(body));
     return muMulti(muCreate(muFun(or_uid)));
 }
 
