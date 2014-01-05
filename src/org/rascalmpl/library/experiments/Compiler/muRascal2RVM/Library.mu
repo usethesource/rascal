@@ -370,13 +370,13 @@ coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
 }
 
 coroutine MATCH_CALL_OR_TREE[2, pats, iSubject, cpats]{
-    //("MATCH_CALL_OR_TREE", pats, " AND ", iSubject, iSubject is node);
+    //println("MATCH_CALL_OR_TREE", pats, " AND ", iSubject, iSubject is node);
     guard iSubject is node;
     cpats = init(create(MATCH_N, pats, get_name_and_children(iSubject)));
     while(next(cpats)) {
         yield;
     };
-    //("MATCH_CALL_OR_TREE fails", pats, " AND ", iSubject);
+    //println("MATCH_CALL_OR_TREE fails", pats, " AND ", iSubject);
 }
 
 coroutine MATCH_REIFIED_TYPE[2, pat, iSubject, nc, konstructor, symbol]{
@@ -399,7 +399,7 @@ coroutine MATCH_TUPLE[2, pats, iSubject, cpats]{
 
 coroutine MATCH_LITERAL[2, pat, iSubject]{
     //println("MATCH_LITERAL", pat, " and ", iSubject);
-    guard (/*equal(typeOf(pat),typeOf(iSubject)) && */equal(pat, iSubject));
+    guard (equal(pat, iSubject));
     return;
 }
 
@@ -407,8 +407,8 @@ coroutine MATCH_VAR[2, rVar, iSubject, iVal]{
    //println("MATCH_VAR", rVar, iSubject);
    if(is_defined(rVar)){
       iVal = deref rVar;
-      //println("MATCH_VAR, iVal =", iVal);
-      if(/*subtype(typeOf(iSubject), typeOf(iVal)) && */ equal(iSubject, iVal)){
+      println("MATCH_VAR, iVal =", iVal);
+      if(equal(iSubject, iVal)){
          return iSubject;
       };
       exhaust;
@@ -425,14 +425,6 @@ coroutine MATCH_ANONYMOUS_VAR[1, iSubject]{
 coroutine MATCH_TYPED_VAR[3, typ, rVar, iSubject, iVal]{
    //println("MATCH_TYPED_VAR", typ, rVar, iSubject);
    guard subtype(typeOf(iSubject), typ);
-   //if(is_defined(rVar)){
-   //    iVal = deref rVar;
-   //   //println("MATCH_TYPED_VAR, iVal =", iVal);
-   //    if(subtype(typeOf(iSubject), typ) && equal(iSubject, iVal)){
-   //       return iSubject;
-   //    };
-   //   exhaust;
-   //};
    yield iSubject;
    undefine(rVar);
    exhaust; 
@@ -547,7 +539,7 @@ coroutine MATCH_LITERAL_IN_LIST[4, pat, iSubject, rNext, available, start, elm]{
 	guard available > 0;
 	start = deref rNext;
 	elm =  get_list(iSubject, start);
-    if(/*equal(typeOf(pat),typeOf(elm)) && */ equal(pat, elm)){
+    if(equal(pat, elm)){
        //println("MATCH_LITERAL_IN_LIST: true", pat, start, elm);
        return(start + 1);
     };
@@ -857,8 +849,7 @@ coroutine ENUM_MSET[2, set, rElm, iLst, len, j]{
 // - rRemaining: reference parameter to return remaining set elements
 
 coroutine MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
-
-	    guard size_mset(available) > 0;
+	guard size_mset(available) > 0;
     
     gen = init(create(ENUM_MSET, available, ref elm));
     while(next(gen)) {
@@ -867,6 +858,14 @@ coroutine MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
             yield mset_destructive_subtract_elm(available, elm);
             available = mset_destructive_add_elm(available, elm);
         };
+    };
+}
+
+coroutine MATCH_LITERAL_IN_SET[3, pat, available, rRemaining, gen, elm]{
+	guard size_mset(available) > 0;
+	
+	if(is_element_mset(elm, available)){
+       return(mset_destructive_subtract_elm(available, elm));
     };
 }
 
@@ -887,6 +886,18 @@ coroutine MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
     };
 }
 
+coroutine MATCH_TYPED_VAR_IN_SET[4, typ, rVar, available, rRemaining, gen, elm]{
+	guard size_mset(available) > 0;
+
+    gen = init(create(ENUM_MSET, available, ref elm));
+    while(next(gen)) {
+             if(subtype(typeOf(elm), typ)){
+	            yield(elm, mset_destructive_subtract_elm(available, elm));
+	            available = mset_destructive_add_elm(available, elm);
+	         };
+    };
+}
+
 coroutine MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRenaming, gen, elm]{
 	guard size_mset(available) > 0;
     
@@ -894,6 +905,18 @@ coroutine MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRenaming, gen, elm]{
     while(next(gen)) { 
           yield mset_destructive_subtract_elm(available, elm);
           available = mset_destructive_add_elm(available, elm);
+   };
+}
+
+coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET[3, typ, available, rRenaming, gen, elm]{
+	guard size_mset(available) > 0;
+    
+    gen = init(create(ENUM_MSET, available, ref elm));
+    while(next(gen)) { 
+          if(subtype(typeOf(elm), typ)){
+             yield mset_destructive_subtract_elm(available, elm);
+             available = mset_destructive_add_elm(available, elm);
+          };
    };
 }
 
