@@ -36,7 +36,7 @@ MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
     for(int i <- index(exps)) {
         int j = size(exps) - 1 - i;
         if(backtrackfree[j]) {
-            body = muIfelse(nextLabel(), exps[j], body, [ muCon(222) ]);
+            body = [ muIfelse(nextLabel(), exps[j], body, [ muCon(222) ]) ];
         } else {
             body = [ muAssign("c_<j>", all_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body), muCon(222) ];
         }
@@ -56,7 +56,7 @@ MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
         if(backtrackfree[j]) {
             body += muIfelse(nextLabel(), exps[j], [ muYield() ], [ muCon(222) ]);
         } else {
-            body += [ muAssign("c_<j>", or_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), [ muYield() ]), muCon(222) ];
+            body = body + [ muAssign("c_<j>", or_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), [ muYield() ]), muCon(222) ];
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
