@@ -52,11 +52,10 @@ MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
     localvars = [ muVar("c_<i>", or_uid, i)| int i <- index(exps) ];
     list[MuExp] body = [];
     for(int i <- index(exps)) {
-        int j = size(exps) - 1 - i;
-        if(backtrackfree[j]) {
-            body += muIfelse(nextLabel(), exps[j], [ muYield() ], [ muCon(222) ]);
+        if(backtrackfree[i]) {
+            body += muIfelse(nextLabel(), exps[i], [ muYield() ], [ muCon(222) ]);
         } else {
-            body = body + [ muAssign("c_<j>", or_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), [ muYield() ]), muCon(222) ];
+            body = body + [ muAssign("c_<i>", or_uid, i, muInit(exps[i])), muWhile(nextLabel(), muNext(localvars[i]), [ muYield() ]), muCon(222) ];
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
