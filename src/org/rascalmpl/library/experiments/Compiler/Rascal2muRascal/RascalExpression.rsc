@@ -28,6 +28,42 @@ int size_exps({Expression ","}* es) = size([e | e <- es]);		     // TODO: should
 int size_exps({Expression ","}+ es) = size([e | e <- es]);		     // TODO: should become library function
 int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: should become library function
 
+MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
+    str fuid = topFunctionScope();
+    str all_uid = "Library/<fuid>/ALL_<getNextAll()>";
+    localvars = [ muVar("c_<i>", all_uid, i)| int i <- index(exps) ];
+    list[MuExp] body = [ muYield() ];
+    for(int i <- index(exps)) {
+        int j = size(exps) - 1 + i;
+        if(backtrackfree[j]) {
+            body = muIfelse(nextLabel(), exps[j], body, [  ]);
+        } else {
+            body = [ muAssign("c_<j>", all_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body) ];
+        }
+    }
+    body = body + [ muExhaust() ];
+    functions_in_module = muCoroutine(all_uid, fuid, 0, size(localvars), muBlock(body));
+    return muMulti(muCreate(muFun(all_uid)));
+}
+
+MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
+    str fuid = topFunctionScope();
+    str or_uid = "Library/<fuid>/Or_<getNextOr()>";
+    localvars = [ muVar("c_<i>", or_uid, i)| int i <- index(exps) ];
+    list[MuExp] body = [];
+    for(int i <- index(exps)) {
+        int j = size(exps) - 1 + i;
+        if(backtrackfree[j]) {
+            body += muIfelse(nextLabel(), exps[j], [ muYield() ], [  ]);
+        } else {
+            body += [ muAssign("c_<j>", or_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), [ muYield() ]) ];
+        }
+    }
+    body = body + [ muExhaust() ];
+    functions_in_module = muCoroutine(or_uid, fuid, 0, size(localvars), muBlock(body));
+    return muMulti(muCreate(muFun(or_uid)));
+}
+
 // Produces multi- or backtrack-free expressions
 MuExp makeMu(str muAllOrMuOr, [ e:muMulti(_) ]) = e;
 MuExp makeMu(str muAllOrMuOr, [ e:muOne(MuExp exp) ]) = makeMuMulti(e);

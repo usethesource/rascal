@@ -14,6 +14,8 @@ public void resetTmpAndLabel(){
 	itVariables = [];
 	writerVariables = [];
 	tryCatchFinally = [];
+	resetAllCounter();
+	resetOrCounter();
 }
 
 // Generation of temporary variables and labels
@@ -179,3 +181,28 @@ void fillCaseType(Symbol t) {
 void clearCaseType() {
 	visits = Symbol::\void() + tail(visits);
 }
+
+int allCounter = 0;
+
+int getNextAll() {
+    int counter = allCounter;
+    allCounter = allCounter + 1;
+    return counter;
+}
+
+void resetAllCounter() {
+    allCounter = 0;
+}
+
+int orCounter = 0;
+
+int getNextOr() {
+    int counter = orCounter;
+    orCounter = orCounter + 1;
+    return counter;
+}
+
+void resetOrCounter() {
+    orCounter = 0;
+}
+
