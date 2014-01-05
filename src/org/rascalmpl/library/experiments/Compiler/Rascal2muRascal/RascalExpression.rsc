@@ -65,6 +65,10 @@ MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
 }
 
 // Produces multi- or backtrack-free expressions
+/*
+ * Reference implementation that uses the generic definitions of ALL and OR  
+ */
+/*
 MuExp makeMu(str muAllOrMuOr, [ e:muMulti(_) ]) = e;
 MuExp makeMu(str muAllOrMuOr, [ e:muOne(MuExp exp) ]) = makeMuMulti(e);
 MuExp makeMu(str muAllOrMuOr, [ MuExp e ]) = e when !(muMulti(_) := e || muOne(_) := e);
@@ -85,8 +89,28 @@ default MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) {
         return ( exps[0] | muIfelse(nextLabel(), it, [ muCon(true) ], [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] );
     }
 }
+*/
+/*
+ * Alternative, fast implementation that generates a specialized definitions of ALL and OR
+ */
+MuExp makeMu(str muAllOrMuOr, [ e:muMulti(_) ]) = e;
+MuExp makeMu(str muAllOrMuOr, [ e:muOne(MuExp exp) ]) = makeMuMulti(e);
+MuExp makeMu(str muAllOrMuOr, [ MuExp e ]) = e when !(muMulti(_) := e || muOne(_) := e);
+default MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) {
+    assert(size(exps) >= 1);
+    if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
+        return generateMu(muAllOrMuOr, [], []);
+    }
+    if(muAllOrMuOr == "ALL") {
+        return ( exps[0] | muIfelse(nextLabel(), it, [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ], [ muCon(false) ]) | int i <- [ 1..size(exps) ] );
+    } 
+    if(muAllOrMuOr == "OR"){
+        return ( exps[0] | muIfelse(nextLabel(), it, [ muCon(true) ], [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] );
+    }
+}
 
 MuExp makeMuMulti(e:muMulti(_)) = e;
+// TODO: should it (ONE) be also passed a closure? I would say yes
 MuExp makeMuMulti(e:muOne(MuExp exp)) = muMulti(muCreate(mkCallToLibFun("Library","ONE",1),[ exp ])); // ***Note: multi expression that produces at most one solution
 default MuExp makeMuMulti(MuExp exp) {
     // Works because mkVar and mkAssign produce muVar and muAssign, i.e., specify explicitly function scopes computed by the type checker
