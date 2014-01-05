@@ -651,66 +651,76 @@ MuExp translateMatch(p:(Pattern) `{<{Pattern ","}* pats>}`, Expression exp){
 }
 */
 
-private set[str] addName(set[str] s, str n) {
-  println("addName: <n>");
-  return (n == "_") ? s : (s + n);
+/*
+ * Get the name of a pattern at position k, when no name, return "_<k>".
+ */
+private str getName(Pattern pat, int k){
+  if(pat is splice){
+     arg = pat.argument;
+     return arg is qualifiedName ? "<arg>" : "<arg.name>";
+  } else if(pat is multiVariable){
+    return "<pat.qualifiedName>"; 
+  } else if(pat is qualifiedName){
+    return "<pat>";  
+  } else if(pat is typedVariable){
+    return "<pat.name>";
+  } else {
+    return "_<k>";
+  } 
 }
+
+/*
+ * Translate a set pattern: 
+ * - since this is a set, for patterns with the same name, duplicates are removed.
+ * - all literal patterns are separated
+ * - all other patterns are compiled in order
+ * - if the last pattern is a multi-variable it is treated specially.
+ * Note: there is an unused optimization here: if the last multi-var in the pattern is followed by other patterns
+ * AND these patterns do not refer to that variable, then the multi-var can be moved to the end of the pattern.
+*/
 
 MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
    literals = [];
-   seenVars = {};
-   compiledVars = [];
-   compiledMultiVars = [];
-   otherPats = [];
-   int lastMulti = -1;
+   compiledPats = [];
    lpats = [pat | pat <- pats]; // TODO: unnnecessary
-   for(i <- [size(lpats) - 1 .. -1]){
-       if(lpats[i] is splice || lpats[i] is multiVariable){
-          lastMulti = i;
-          break;
-       }
-    }   
-   for(i <- index(lpats)){
+   
+   /* remove patterns with duplicate names */
+   uniquePats = [];
+   outer: for(i <- index(lpats)){
       pat = lpats[i];
+      name = getName(pat, i);
+      if(name != "_"){
+	      for(j <- [0 .. i]){
+	          if(getName(lpats[j], j) == name){
+	             continue outer;
+	          }
+	      }
+      }
+      uniquePats += pat;
+   }   
+    
+   lastPat = size(uniquePats);
+   for(i <- index(uniquePats)){
+      pat = uniquePats[i];
       if(pat is literal){
          literals += pat.literal;
       } else if(pat is splice){
-         arg = pat.argument;
-         name = arg is qualifiedName ? "<arg>" : "<arg.name>";
-         if(name notin seenVars){
-            compiledMultiVars += translatePatAsSetElem(pat, i == lastMulti);
-            seenVars = addName(seenVars, name);
-          }
+        compiledPats += translatePatAsSetElem(pat, i == lastPat);
       } else if(pat is multiVariable){
-         if("<pat.qualifiedName>" notin seenVars){
-            compiledMultiVars += translatePatAsSetElem(pat, i == lastMulti);
-            seenVars = addName(seenVars, "<pat.qualifiedName>");
-          }
+        compiledPats += translatePatAsSetElem(pat, i == lastPat);
       } else if(pat is qualifiedName){
-          if("<pat>" notin seenVars){
-            compiledVars += translatePatAsSetElem(pat, false);
-            seenVars = addName(seenVars, "<pat>");
-          }
+        compiledPats += translatePatAsSetElem(pat, false);
       } else if(pat is typedVariable){
-        if("<pat.name>" notin seenVars){
-           compiledVars += translatePatAsSetElem(pat, false);
-           seenVars = addName(seenVars, "<pat.name>");
-         }
+        compiledPats += translatePatAsSetElem(pat, false);   
       } else {
-        otherPats +=  muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(pat)]);
+        compiledPats +=  muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(pat)]);
       }
    }
-   MuExp litCode;
-   if(all(lit <- literals, isConstant(lit))){
-   		   litCode = muCon({ getLiteralValue(lit) | lit <- literals });
-   } else {
-   		   litCode = muCallPrim("set_create", [ translate(lit) | lit <- literals] );
-   }
-   
-   translatedPatterns = otherPats + compiledVars + compiledMultiVars;
+   MuExp litCode = (all(lit <- literals, isConstant(lit))) ? muCon({ getLiteralValue(lit) | lit <- literals })
+   		           										   : muCallPrim("set_create", [ translate(lit) | lit <- literals] );
    
    return muCreate(mkCallToLibFun("Library","MATCH_SET",2), [ muCallMuPrim("make_array", [ litCode, 
-                                                                                           muCallMuPrim("make_array", translatedPatterns) ]) ] );
+                                                                                           muCallMuPrim("make_array", compiledPats) ]) ] );
 }
 
 

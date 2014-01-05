@@ -350,13 +350,13 @@ coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
 }
 
 coroutine MATCH_CALL_OR_TREE[2, pats, iSubject, cpats]{
-    //("MATCH_CALL_OR_TREE", pats, " AND ", iSubject, iSubject is node);
+    //println("MATCH_CALL_OR_TREE", pats, " AND ", iSubject, iSubject is node);
     guard iSubject is node;
     cpats = init(create(MATCH_N, pats, get_name_and_children(iSubject)));
     while(next(cpats)) {
         yield;
     };
-    //("MATCH_CALL_OR_TREE fails", pats, " AND ", iSubject);
+    println("MATCH_CALL_OR_TREE fails", pats, " AND ", iSubject);
 }
 
 coroutine MATCH_REIFIED_TYPE[2, pat, iSubject, nc, konstructor, symbol]{
@@ -379,7 +379,7 @@ coroutine MATCH_TUPLE[2, pats, iSubject, cpats]{
 
 coroutine MATCH_LITERAL[2, pat, iSubject]{
     //println("MATCH_LITERAL", pat, " and ", iSubject);
-    guard (/*equal(typeOf(pat),typeOf(iSubject)) && */equal(pat, iSubject));
+    guard (equal(pat, iSubject));
     return;
 }
 
@@ -387,8 +387,8 @@ coroutine MATCH_VAR[2, rVar, iSubject, iVal]{
    //println("MATCH_VAR", rVar, iSubject);
    if(is_defined(rVar)){
       iVal = deref rVar;
-      //println("MATCH_VAR, iVal =", iVal);
-      if(/*subtype(typeOf(iSubject), typeOf(iVal)) && */ equal(iSubject, iVal)){
+      println("MATCH_VAR, iVal =", iVal);
+      if(equal(iSubject, iVal)){
          return iSubject;
       };
       exhaust;
@@ -405,14 +405,6 @@ coroutine MATCH_ANONYMOUS_VAR[1, iSubject]{
 coroutine MATCH_TYPED_VAR[3, typ, rVar, iSubject, iVal]{
    //println("MATCH_TYPED_VAR", typ, rVar, iSubject);
    guard subtype(typeOf(iSubject), typ);
-   //if(is_defined(rVar)){
-   //    iVal = deref rVar;
-   //   //println("MATCH_TYPED_VAR, iVal =", iVal);
-   //    if(subtype(typeOf(iSubject), typ) && equal(iSubject, iVal)){
-   //       return iSubject;
-   //    };
-   //   exhaust;
-   //};
    yield iSubject;
    undefine(rVar);
    exhaust; 
