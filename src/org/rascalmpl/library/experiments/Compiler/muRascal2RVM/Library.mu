@@ -407,7 +407,7 @@ coroutine MATCH_VAR[2, rVar, iSubject, iVal]{
    //println("MATCH_VAR", rVar, iSubject);
    if(is_defined(rVar)){
       iVal = deref rVar;
-      println("MATCH_VAR, iVal =", iVal);
+      //println("MATCH_VAR, iVal =", iVal);
       if(equal(iSubject, iVal)){
          return iSubject;
       };
