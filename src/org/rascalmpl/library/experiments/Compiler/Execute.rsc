@@ -65,6 +65,9 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
            try {
   	           importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
   	           
+  	           // Temporary work around related to issue #343
+  	           importedRvmProgram = visit(importedRvmProgram) { case type[value] t => type(t.symbol,t.definitions) }
+  	           
   	           processImports(importedRvmProgram);
   	          
   	           imported_types = imported_types + importedRvmProgram.types;
