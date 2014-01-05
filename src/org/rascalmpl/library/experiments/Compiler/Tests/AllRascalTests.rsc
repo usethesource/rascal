@@ -40,13 +40,13 @@ list[str] functionalityTests = [
                      
 //"FunctionCompositionTests"	// Issue #468						
 							
-//"PatternTests"			// [420] Issue #458
+"PatternTests"			// [420] Issue #458
 //"PatternTestsList3"
 //"PatternTestsDescendant"
 							
 //"StatementTests"			// Fail in overloaded constructor gives problem ==> Issue posted
 				
-"VisitTests"				// 13 fail [98]
+//"VisitTests"				// 13 fail [98]
 ];
 
 
@@ -148,8 +148,8 @@ void runTests(list[str] names, loc base){
 value main(list[value] args){
   nsuccess = 0;
   nfail = 0;
-  //runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
-  runTests(rascalTests, |project://rascal-test/src/tests|);
+  runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
+  //runTests(rascalTests, |project://rascal-test/src/tests|);
   //runTests(libraryTests, |project://rascal-test/src/tests/library|);
   println("Overall summary: <nsuccess + nfail + nignore> tests executed, <nsuccess> succeeded, <nfail> failed, <nignore> ignored");
   return nfail == 0;

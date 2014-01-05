@@ -240,6 +240,29 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) {
 
 default MuExp translatePat(Pattern p) { throw "Pattern <p> cannot be translated"; }
 
+/**********************************************************************/
+/*                 Constant Patterns                                  */
+/**********************************************************************/
+
+value translatePatternAsConstant(p:(Pattern) `<Literal lit>`) = getLiteralValue(lit);
+
+value translatePatternAsConstant(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
+  return makeNode("<expression>", [ translatePatternAsConstant(pat) | pat <- arguments ]);
+}
+
+value translatePatternAsConstant(p:(Pattern) `{<{Pattern ","}* pats>}`) = { translatePatternAsConstant(pat) | pat <- pats };
+
+value translatePatternAsConstant(p:(Pattern) `[<{Pattern ","}* pats>]`) = [ translatePatternAsConstant(pat) | pat <- pats ];
+
+value translatePatternAsConstant(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
+  lpats = [ pat | pat <- pats]; // TODO
+  return ( <translatePatternAsConstant(lpats[0])> | it + <translatePatternAsConstant(lpats[i])> | i <- [1 .. size(lpats)] );
+}
+ 
+default value translatePatternAsConstant(Pattern p){
+  throw "not-constant";
+}
+
 /*********************************************************************/
 /*                  Concrete Pattern                                */
 /*********************************************************************/
@@ -432,7 +455,10 @@ MuExp translatePatAsListElem(p:(Pattern) `+<Pattern argument>`, Lookahead lookah
 }   
 
 default MuExp translatePatAsListElem(Pattern p, Lookahead lookahead) {
-  return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_LIST",4), [translatePat(p)]);
+  try {
+     return  muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST",4), [muCon(translatePatternAsConstant(p))]);
+  } catch:
+    return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_LIST",4), [translatePat(p)]);
 }
 
 /*********************************************************************/
@@ -488,7 +514,11 @@ MuExp translatePatAsSetElem(p:(Pattern) `+<Pattern argument>`, bool last) {
 }   
 
 default MuExp translatePatAsSetElem(Pattern p, bool last) {
-  return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(p)]);
+  try {
+     return  muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_SET",3), [muCon(translatePatternAsConstant(p))]);
+  } catch:
+    return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(p)]);
+  //return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(p)]);
 }
 
 value getLiteralValue((Literal) `<Literal s>`) =  readTextValueString("<s>"); // TODO interpolation
