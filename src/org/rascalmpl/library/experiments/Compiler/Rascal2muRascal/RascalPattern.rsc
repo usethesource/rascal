@@ -730,7 +730,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
       uniquePats += pat;
    }   
     
-   lastPat = size(uniquePats);
+   lastPat = size(uniquePats) - 1;
    for(i <- index(uniquePats)){
       pat = uniquePats[i];
       if(pat is literal){
