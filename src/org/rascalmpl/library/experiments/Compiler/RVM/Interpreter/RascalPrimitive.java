@@ -4908,18 +4908,18 @@ public enum RascalPrimitive {
 		String expected =  ((IString) stack[sp - 3]).getValue();
 		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
 		stdout.println("testreport_add: " + fun);
-		Type argType = (Type) stack[sp - 1];
+		//Type argType = (Type) stack[sp - 1];
 		
 		if(ignore){
 			test_results.append(vf.tuple(src,  vf.integer(2), vf.string("")));
 			return sp - 4;
 		}
-		//IConstructor type_cons = ((IConstructor) stack[sp - 1]);
-		//Type argType = typeReifier.valueToType(type_cons);
-		//IMap definitions = (IMap) type_cons.get("definitions");
+		IConstructor type_cons = ((IConstructor) stack[sp - 1]);
+		Type argType = typeReifier.valueToType(type_cons);
+		IMap definitions = (IMap) type_cons.get("definitions");
 
 		TypeStore store = new TypeStore();
-		//typeReifier.declareAbstractDataTypes(definitions, store);
+		typeReifier.declareAbstractDataTypes(definitions, store);
 
 		int nargs = argType.getArity();
 		IValue[] args = new IValue[nargs];
