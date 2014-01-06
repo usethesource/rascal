@@ -513,9 +513,9 @@ public class Execute {
 				codeblock.STOREVARKWP(getStrField(instruction, "fuid"), getStrField(instruction, "name"));
 				break;
 				
-//			case "UNWRAPTHROWNVAR":
-//				codeblock.UNWRAPTHROWNVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
-//				break;
+			case "UNWRAPTHROWNVAR":
+				codeblock.UNWRAPTHROWNVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				break;
 				
 			default:
 				throw new RuntimeException("PANIC: In function " + name + ", nknown instruction: " + opcode);
