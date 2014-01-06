@@ -234,7 +234,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
      // Switched from type constant
      //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(ttags["ignore"]?), muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
      // to reified type
-     tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ttags["ignore"]?), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
+     tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ttags["ignore"] ?), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
   
   leaveFunctionScope();

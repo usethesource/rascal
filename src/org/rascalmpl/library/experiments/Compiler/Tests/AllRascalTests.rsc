@@ -1,6 +1,8 @@
 module experiments::Compiler::Tests::AllRascalTests
 
 import IO;
+import Type;
+import List;
 import experiments::Compiler::Execute;
 
 loc base1 = |project:///rascal-test/tests/functionality|;
@@ -9,28 +11,28 @@ loc base1 = |project:///rascal-test/tests/functionality|;
 
 list[str] functionalityTests = [
 
-// OK
-//"AliasTests"				// OK
-//"AnnotationTests"			// OK
-//"AssignmentTests"			// OK
-//"BackTrackingTests"		// OK
-//"ComprehensionTests"		// OK
-							// 3 tests fail that correspond to empty enumerations: interpreter gives false, compiler gives true.
-//"DataTypeTests"			// OK
-//"ReducerTests"			// OK
-//"DataDeclarationTests"	// OK
-//"DeclarationTests"		// OK, these are conscious changes in the scoping rules
-							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(985,1,<31,18>,<31,19>))
-							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1071,1,<35,14>,<35,15>))
-							// error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1167,1,<39,24>,<39,25>))
-//"ProjectionTests" 		// OK
-//"RangeTests"				// OK, 4 tests fail but this is due to false 1. == 1.0 comparisons.
-//"RegExpTests"				// OK
- 							// Commented out 6: Treatment of redeclared local variables
-//"ScopeTests"				// OK
-							// Commented out several tests: no shadowing allowed
-//"SubscriptTests"			// OK
-//"TryCatchTests"			// OK
+ // OK
+"AliasTests",				// OK
+"AnnotationTests",			// OK
+"AssignmentTests",			// OK
+"BackTrackingTests",		// OK
+"ComprehensionTests",		// OK
+							 //3 tests fail that correspond to empty enumerations: interpreter gives false, compiler gives true.
+"DataTypeTests",			// OK
+"ReducerTests",			// OK
+"DataDeclarationTests",	// OK
+"DeclarationTests",		// OK, these are conscious changes in the scoping rules
+							 //error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(985,1,<31,18>,<31,19>))
+							 //error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1071,1,<35,14>,<35,15>))
+							 //error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1167,1,<39,24>,<39,25>))
+"ProjectionTests", 		// OK
+"RangeTests",				// OK, 4 tests fail but this is due to false 1. == 1.0 comparisons.
+"RegExpTests",				// OK
+ 							 //Commented out 6: Treatment of redeclared local variables
+"ScopeTests",				// OK
+							 //Commented out several tests: no shadowing allowed
+"SubscriptTests",			// OK
+"TryCatchTests"			// OK
 
 // Not yet OK
 
@@ -40,7 +42,7 @@ list[str] functionalityTests = [
                      
 //"FunctionCompositionTests"	// Issue #468						
 							
-"PatternTests"			// [420] Issue #458
+//"PatternTestsexe"			// [420] Issue #458
 //"PatternTestsList3"
 //"PatternTestsDescendant"
 							
@@ -128,29 +130,43 @@ list[str] libraryTests = [
 ];
 
 loc base = |rascal-test:///tests/library|;
-int nsuccess = 0;
-int nfail = 0;
-int nignore = 0;
 
-void runTests(list[str] names, loc base){
+str summary(lrel[loc,int,str] test_results) = "<size(test_results)> tests executed; < size(test_results[_,0])> failed; < size(test_results[_,2])> ignored";
+
+lrel[loc,int,str] runTests(list[str] names, loc base){
+ all_test_results = [];
  for(tst <- names){
-      println("***** <tst> ***** <base>");
-      if(<s, f, i> := execute(base + (tst + ".rsc"), [], recompile=true, testsuite=true, listing=false, debug=false)){
-         nsuccess += s;
-         nfail += f;
-         nignore += i;
+      if(lrel[loc,int,str] test_results := execute(base + (tst + ".rsc"), [], recompile=false, testsuite=true, listing=false, debug=false)){
+         println("TEST REPORT ***** <tst> ***** <base>");
+         println(summary(test_results));
+         all_test_results += test_results;
       } else {
-         println("testsuite did not return a tuple");
+         println("testsuite did not return a list of test results");
       }
   }
+ 
+  return all_test_results;
 }
   
 value main(list[value] args){
-  nsuccess = 0;
-  nfail = 0;
-  runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
-  //runTests(rascalTests, |project://rascal-test/src/tests|);
-  //runTests(libraryTests, |project://rascal-test/src/tests/library|);
-  println("Overall summary: <nsuccess + nfail + nignore> tests executed, <nsuccess> succeeded, <nfail> failed, <nignore> ignored");
-  return nfail == 0;
+  all_results = [];
+  all_results += runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
+  //all_results += runTests(rascalTests, |project://rascal-test/src/tests|);
+  //all_results += runTests(libraryTests, |project://rascal-test/src/tests/library|);
+  failed = all_results[_,0];
+  if(size(failed) > 0){
+	  println("FAILED TESTS:");
+	  for(<l, 0, msg> <- all_results){
+	      println("<l>: FALSE <msg>");
+	  }
+  }
+  ignored = all_results[_,2];
+  if(size(ignored) > 0){
+	  println("IGNORED TESTS:");
+	  for(<l, 2, msg> <- all_results){
+	      println("<l>: IGNORED");
+	  }
+  }
+  println("\nSUMMARY ALL TEST REPORTSY: " + summary(all_results));
+  return size(failed) == 0;
 }
