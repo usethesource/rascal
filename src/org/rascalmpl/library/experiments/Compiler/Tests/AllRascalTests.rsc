@@ -19,8 +19,8 @@ list[str] functionalityTests = [
 "ComprehensionTests",		// OK
 							 //3 tests fail that correspond to empty enumerations: interpreter gives false, compiler gives true.
 "DataTypeTests",			// OK
-"ReducerTests",			// OK
-"DataDeclarationTests",	// OK
+"ReducerTests",				// OK
+"DataDeclarationTests",		// OK
 "DeclarationTests",		// OK, these are conscious changes in the scoping rules
 							 //error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(985,1,<31,18>,<31,19>))
 							 //error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1071,1,<35,14>,<35,15>))
@@ -54,24 +54,24 @@ list[str] functionalityTests = [
 
 list[str] rascalTests = [
 
-//"Booleans"				// OK
+"Booleans",					// OK
 							// Commented out fromInt test
 
-//"Integers"				// OK
-//"Tuples"					// OK
-//"SolvedIssues"			// OK
-//"Lists"					// OK
-//"Maps"					// OK
-//"Nodes"					// OK
-//"Strings"  				// OK
-//"StringTests"				// OK
+"Integers",					// OK
+"Tuples",					// OK
+"SolvedIssues",				// OK
+"Lists",					// OK
+"Maps",						// OK
+"Nodes",					// OK
+"Strings" , 				// OK
+"StringTests"				// OK
 
 // Not yet OK
 
 //"Equality"				// OK
 							// Added parentheses for ? operator
 
-"BacktrackingTests"		// [12]
+//"BacktrackingTests"		// [12]
 							// error("Name s is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8573,1,<223,10>,<223,11>))
 							//error("Name L is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8246,1,<218,13>,<218,14>))
 							//error("Name s is not in scope",|project://rascal-test/src/tests/BacktrackingTests.rsc|(8315,1,<219,9>,<219,10>))
@@ -117,16 +117,16 @@ list[str] libraryTests = [
 
 // OK
 
-//"BooleanTests"		// OK
-//"GraphTests"			// OK
-//"IntegerTests"		// OK
-//"ListTests" 			// OK
-///"MapTests"			// OK
-//"MathTests"			// OK
-//"NumberTests"			// OK
-//"RelationTests"		// OK
-//"SetTests"			// OK
-//"StringTests"			// OK
+"BooleanTests",			// OK
+"GraphTests",			// OK
+"IntegerTests",			// OK
+"ListTests" ,			// OK
+"MapTests",				// OK
+"MathTests"	,			// OK
+"NumberTests",			// OK
+"RelationTests",		// OK
+"SetTests",				// OK
+"StringTests"			// OK
 ];
 
 loc base = |rascal-test:///tests/library|;
@@ -136,7 +136,7 @@ str summary(lrel[loc,int,str] test_results) = "<size(test_results)> tests execut
 lrel[loc,int,str] runTests(list[str] names, loc base){
  all_test_results = [];
  for(tst <- names){
-      if(lrel[loc,int,str] test_results := execute(base + (tst + ".rsc"), [], recompile=false, testsuite=true, listing=false, debug=false)){
+      if(lrel[loc,int,str] test_results := execute(base + (tst + ".rsc"), [], recompile=true, testsuite=true, listing=false, debug=false)){
          println("TEST REPORT ***** <tst> ***** <base>");
          println(summary(test_results));
          all_test_results += test_results;
@@ -151,8 +151,8 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
 value main(list[value] args){
   all_results = [];
   all_results += runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
-  //all_results += runTests(rascalTests, |project://rascal-test/src/tests|);
-  //all_results += runTests(libraryTests, |project://rascal-test/src/tests/library|);
+  all_results += runTests(rascalTests, |project://rascal-test/src/tests|);
+  all_results += runTests(libraryTests, |project://rascal-test/src/tests/library|);
   failed = all_results[_,0];
   if(size(failed) > 0){
 	  println("FAILED TESTS:");
@@ -167,6 +167,6 @@ value main(list[value] args){
 	      println("<l>: IGNORED");
 	  }
   }
-  println("\nSUMMARY ALL TEST REPORTSY: " + summary(all_results));
+  println("\nSUMMARY ALL TEST REPORTS: " + summary(all_results));
   return size(failed) == 0;
 }
