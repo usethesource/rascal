@@ -451,12 +451,6 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 
 void trMuCatch(muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, str fromAsPartOfTryBlock, str to, str jmpto) {
     
-    // TODO:
-    if(fuid != functionScope) {
-        println("Catch: <fuid> <functionScope>");
-    }
-    assert fuid == functionScope;
-	
 	oldCatchBlocks = catchBlocks;
 	oldCurrentCatchBlock = currentCatchBlock;
 	currentCatchBlock = size(catchBlocks);
@@ -476,9 +470,11 @@ void trMuCatch(muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, str
 	} else {
 		catchBlock = [ LABEL(from), 
 					   // store a thrown value
-					   STORELOC(getTmp(id,fuid)), POP(),
-					   // load a thrown value, unwrap it and store the unwrapped one in a separate local variable
-					   LOADLOC(getTmp(id,fuid)), UNWRAPTHROWN(getTmp(asUnwrapedThrown(id),fuid)),
+					   fuid == functionScope ? STORELOC(getTmp(id,fuid)) : STOREVAR(fuid,getTmp(id,fuid)), POP(),
+					   // load a thrown value,
+					   fuid == functionScope ? LOADLOC(getTmp(id,fuid))  : LOADVAR(fuid,getTmp(id,fuid)),
+					   // unwrap it and store the unwrapped one in a separate local variable 
+					   fuid == functionScope ? UNWRAPTHROWNLOC(getTmp(asUnwrapedThrown(id),fuid)) : UNWRAPTHROWNVAR(fuid,getTmp(asUnwrapedThrown(id),fuid)),
 					   *tr(exp), LABEL(to), JMP(jmpto) ];
 	}
 	

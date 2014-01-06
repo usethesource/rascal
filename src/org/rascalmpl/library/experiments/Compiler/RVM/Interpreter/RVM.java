@@ -621,13 +621,9 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 				}
 				
-				case Opcode.OP_STORELOC: {
-					stack[CodeBlock.fetchArg1(instruction)] = stack[sp - 1];
-					continue NEXT_INSTRUCTION;
-				}
-				
-				case Opcode.OP_UNWRAPTHROWN: {
-					stack[CodeBlock.fetchArg1(instruction)] = ((Thrown) stack[--sp]).value;
+				case Opcode.OP_STORELOC:
+				case Opcode.OP_UNWRAPTHROWNLOC: {
+					stack[CodeBlock.fetchArg1(instruction)] = (op == Opcode.OP_STORELOC) ? stack[sp - 1] : ((Thrown) stack[--sp]).value;
 					continue NEXT_INSTRUCTION;
 				}
 				
@@ -770,6 +766,7 @@ public class RVM {
 				}
 				
 				case Opcode.OP_STOREVAR:
+				case Opcode.OP_UNWRAPTHROWNVAR:
 					int s = CodeBlock.fetchArg1(instruction);
 					pos = CodeBlock.fetchArg2(instruction);
 					
@@ -781,13 +778,14 @@ public class RVM {
 
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
-							fr.stack[pos] = stack[sp - 1];	// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
+							// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
+							fr.stack[pos] = (op == Opcode.OP_STOREVAR) ? stack[sp - 1] : ((Thrown) stack[--sp]).value;
 							continue NEXT_INSTRUCTION;
 						}
 					}
 
-					throw new RuntimeException("STOREVAR cannot find matching scope: " + s);
-	
+					throw new RuntimeException(((op == Opcode.OP_STOREVAR) ? "STOREVAR" : "UNWRAPTHROWNVAR") + " cannot find matching scope: " + s);
+				
 				case Opcode.OP_STOREVARDEREF:
 					s = CodeBlock.fetchArg1(instruction);
 					pos = CodeBlock.fetchArg2(instruction);
