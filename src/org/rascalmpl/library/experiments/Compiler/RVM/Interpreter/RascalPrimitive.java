@@ -601,6 +601,7 @@ public enum RascalPrimitive {
 	lrel_subtract_lrel,
 	lrel_subtract_list,
 	map_subtract_map,
+	rel_subtract_elm,
 	rel_subtract_rel,
 	rel_subtract_set,
 	set_subtract_elm,
@@ -5548,6 +5549,10 @@ public enum RascalPrimitive {
 	
 	public static int rel_subtract_set(Object[] stack, int sp, int arity) {
 		return set_subtract_set(stack, sp, arity);
+	}
+	
+	public static int rel_subtract_elm(Object[] stack, int sp, int arity) {
+		return set_subtract_elm(stack, sp, arity);
 	}
 	
 	public static int set_subtract_elm(Object[] stack, int sp, int arity) {
