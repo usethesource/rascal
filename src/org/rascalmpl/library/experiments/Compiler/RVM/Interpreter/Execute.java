@@ -9,6 +9,7 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -149,38 +150,45 @@ public class Execute {
 				 * Execute as testsuite
 				 */
 				rvm.executeProgram(uid_module_init, arguments);
-				int number_of_successes = 0;
-				int number_of_failures = 0;
-				int number_of_ignored = 0;
+//				int number_of_successes = 0;
+//				int number_of_failures = 0;
+//				int number_of_ignored = 0;
 			
-				stdout.println("\nTEST REPORT\n");
+//				stdout.println("\nTEST REPORT\n");
+				IListWriter w = vf.listWriter();
 				for(String uid_testsuite: testsuites){
 					IList test_results = (IList)rvm.executeProgram(uid_testsuite, arguments);
 					for(IValue voutcome : test_results){
 						ITuple outcome = (ITuple) voutcome;
-						String tst_name = ((ISourceLocation) outcome.get(0)).toString();
-						//tst_name = tst_name.substring(1, tst_name.length()); // remove leading /
-						//tst_name = tst_name.replaceAll("/", "::");
-					
-						int passed = ((IInteger) outcome.get(1)).intValue();
-						String exception = ((IString) outcome.get(2)).getValue();
-						if(!exception.isEmpty()){
-							exception = "; Unexpected exception: " + exception;
-						}
-						
-					    switch(passed){
-					    case 0: number_of_failures++; stdout.println(tst_name + ": FALSE" + exception); break;
-					    case 1: number_of_successes++; break;
-					    case 2: number_of_ignored++; stdout.println(tst_name + ": IGNORED"); break;
-					    }
+						w.append(outcome);
 					}
+					w.insertAll(test_results);
+//					for(IValue voutcome : test_results){
+//						ITuple outcome = (ITuple) voutcome;
+//						String tst_name = ((ISourceLocation) outcome.get(0)).toString();
+//						//tst_name = tst_name.substring(1, tst_name.length()); // remove leading /
+//						//tst_name = tst_name.replaceAll("/", "::");
+//					
+//						int passed = ((IInteger) outcome.get(1)).intValue();
+//						String exception = ((IString) outcome.get(2)).getValue();
+//						if(!exception.isEmpty()){
+//							exception = "; Unexpected exception: " + exception;
+//						}
+//						
+//					    switch(passed){
+//					    case 0: number_of_failures++; stdout.println(tst_name + ": FALSE" + exception); break;
+//					    case 1: number_of_successes++; break;
+//					    case 2: number_of_ignored++; stdout.println(tst_name + ": IGNORED"); break;
+//					    }
+//					}
 				}
-				int number_of_tests = number_of_successes + number_of_failures + number_of_ignored;
-				stdout.println("\nExecuted " + number_of_tests + " tests: "  
-						+ number_of_successes + " succeeded; "
-						+ number_of_failures + " failed; "
-						+ number_of_ignored + " ignored.\n");
-				result = vf.tuple(vf.integer(number_of_successes), vf.integer(number_of_failures), vf.integer(number_of_ignored));
+//				int number_of_tests = number_of_successes + number_of_failures + number_of_ignored;
+//				stdout.println("\nExecuted " + number_of_tests + " tests: "  
+//						+ number_of_successes + " succeeded; "
+//						+ number_of_failures + " failed; "
+//						+ number_of_ignored + " ignored.\n");
+//				result = vf.tuple(vf.integer(number_of_successes), vf.integer(number_of_failures), vf.integer(number_of_ignored));
+				result = w.done();
 			} else {
 				/*
 				 * Standard execution of main function
