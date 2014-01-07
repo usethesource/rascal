@@ -113,3 +113,27 @@ tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
    return execute_and_time(rvmProgram, arguments, debug=debug, testsuite=testsuite, profile=profile);
 }
+
+str makeTestSummary(lrel[loc,int,str] test_results) = "<size(test_results)> tests executed; < size(test_results[_,0])> failed; < size(test_results[_,2])> ignored";
+
+void printTestReport(value results){
+  if(lrel[loc,int,str] test_results := results){
+	  failed = test_results[_,0];
+	  if(size(failed) > 0){
+		  println("\nFAILED TESTS:");
+		  for(<l, 0, msg> <- test_results){
+		      println("<l>: FALSE <msg>");
+		  }
+	  }
+	  ignored = test_results[_,2];
+	  if(size(ignored) > 0){
+		  println("\nIGNORED TESTS:");
+		  for(<l, 2, msg> <- test_results){
+		      println("<l>: IGNORED");
+		  }
+	  }
+	  println("\nSUMMARY: " + makeTestSummary(test_results));
+  } else {
+    throw "cannot create report for test results: <resuls>";
+  }
+}
