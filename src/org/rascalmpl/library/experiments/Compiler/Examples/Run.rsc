@@ -87,6 +87,8 @@ import experiments::Compiler::Examples::KWP4;
 
 import experiments::Compiler::Examples::Closures;
 
+import experiments::Compiler::Examples::AnotherFor;
+
 loc base = |rascal:///experiments/Compiler/Examples/|;
 
 
@@ -184,3 +186,5 @@ test bool tst() = demo("NestedFunctions2") == experiments::Compiler::Examples::N
 test bool tst() = demo("NestedFunctions3") == experiments::Compiler::Examples::NestedFunctions3::main([]);
 
 test bool tst() = demo("Closures") == experiments::Compiler::Examples::Closures::main([]);
+
+test bool tst() = demo("AnotherFor") == experiments::Compiler::Examples::AnotherFor::main([]);
