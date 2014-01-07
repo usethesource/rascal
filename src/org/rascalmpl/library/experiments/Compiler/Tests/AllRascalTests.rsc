@@ -42,7 +42,7 @@ list[str] functionalityTests = [
                      
 //"FunctionCompositionTests"	// Issue #468						
 							
-//"PatternTestsexe"			// [420] Issue #458
+//"PatternTests"			// [420] Issue #458
 //"PatternTestsList3"
 //"PatternTestsDescendant"
 							
@@ -136,7 +136,7 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
  for(tst <- names){
       prog = base + (tst + ".rsc");
       if(lrel[loc,int,str] test_results := execute(prog, [], recompile=false, testsuite=true, listing=false, debug=false)){
-         println("TESTING <prog>");
+         println("TESTING <prog>:");
          println(makeTestSummary(test_results));
          all_test_results += test_results;
       } else {
