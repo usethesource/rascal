@@ -50,6 +50,7 @@ import experiments::Compiler::Examples::ExceptionHandlingNotHandled;
 import experiments::Compiler::Examples::ExceptionHandlingNotHandledSimple;
 import experiments::Compiler::Examples::RascalRuntimeExceptions;
 import experiments::Compiler::Examples::IsDefined;
+import experiments::Compiler::Examples::UninitializedVariable;
 import experiments::Compiler::Examples::UninitializedVariables;
 import experiments::Compiler::Examples::IfDefinedOtherwise;
 import experiments::Compiler::Examples::IfDefinedOtherwise2;
@@ -135,6 +136,7 @@ test bool tst() = demo("ExceptionHandlingNotHandled") == experiments::Compiler::
 test bool tst() = demo("ExceptionHandlingNotHandledSimple") == experiments::Compiler::Examples::ExceptionHandlingNotHandledSimple::expectedResult;
 test bool tst() = demo("RascalRuntimeExceptions") == experiments::Compiler::Examples::RascalRuntimeExceptions::main([]);
 test bool tst() = demo("IsDefined") == experiments::Compiler::Examples::IsDefined::main([]);
+test bool tst() = demo("UninitializedVariable") == experiments::Compiler::Examples::UninitializedVariable::expectedResult;
 test bool tst() = demo("UninitializedVariables") == experiments::Compiler::Examples::UninitializedVariables::expectedResult;
 test bool tst() = demo("IfDefinedOtherwise") == experiments::Compiler::Examples::IfDefinedOtherwise::expectedResult;
 test bool tst() = demo("IfDefinedOtherwise2") == experiments::Compiler::Examples::IfDefinedOtherwise2::main([]);
