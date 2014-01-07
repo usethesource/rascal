@@ -76,7 +76,7 @@ public type[value] symbolToValue(Symbol symbol, Configuration config) {
 	// Collect all the constructors of the adt types in the type environment
 	types = range(typeMap);
 	constructors = { <\type.\adt, \type> | int uid <- config.store, 
-												constructor(_, Symbol \type, _, _) := config.store[uid],
+												constructor(_, Symbol \type, _, _, _) := config.store[uid],
 												\type.\adt in types };
 	// Collects all the productions of the non-terminal types in the type environment
 	productions = { <\type.\sort, \type> | int uid <- config.store,

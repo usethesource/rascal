@@ -91,7 +91,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  variables_in_module = [];
    	  variable_initializations = [];
    	  map[str,Symbol] types = ( fuid2str[uid] : \type | int uid <- config.store, 
-   	  									   					( constructor(name, Symbol \type, containedIn, at) := config.store[uid]
+   	  									   					( constructor(name, Symbol \type, keywordParams, containedIn, at) := config.store[uid]
    	  									   				      || production(name, Symbol \type, containedIn, at) := config.store[uid] ),
    	  									   				    !isEmpty(getSimpleName(name)),
    	  									   				    containedIn == 0

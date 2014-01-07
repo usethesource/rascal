@@ -65,7 +65,7 @@ data RSignatureItem
 	| FunctionSigItem(RName functionName, Signature sig, loc at)
 	| VariableSigItem(RName variableName, Type variableType, loc at)
 	| ADTSigItem(RName adtName, UserType adtType, loc at)
-	| ConstructorSigItem(RName conName, UserType adtType, list[TypeArg] argTypes, loc adtAt, loc at)
+	| ConstructorSigItem(RName conName, UserType adtType, list[TypeArg] argTypes, list[KeywordFormal] commonParams, list[KeywordFormal] keywordParams, loc adtAt, loc at)
 	| ProductionSigItem(Production prod, loc sortAt, loc at)
 	| AnnotationSigItem(RName annName, Type annType, Type onType, loc at)
 	| TagSigItem(RName tagName, TagKind tagKind, list[Symbol] taggedTypes, loc at)
@@ -274,11 +274,15 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
 				}
 
 				// ADT with variants
-				case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> = <{Variant "|"}+ vars> ;` : {
+				case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> <CommonKeywordParameters params> = <{Variant "|"}+ vars> ;` : {
+					commonParamList = [ ];
+					if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := params) commonParamList = [ kfi | kfi <- kfs ];
 					sig.datatypes = sig.datatypes + ADTSigItem(convertName(getUserTypeRawName(typ)), typ, t@\loc);
 					for (var <- vars) {
-						if ((Variant) `<Name n> ( <{TypeArg ","}* args> )` := var) {
-							sig.publicConstructors = sig.publicConstructors + ConstructorSigItem(convertName(n), typ, [ targ | targ <- args ], t@\loc, var@\loc);
+						if ((Variant) `<Name n> ( <{TypeArg ","}* args> <KeywordFormals kfs>)` := var) {
+							paramlist = [ ];
+							if ((KeywordFormals)`<OptionalComma _> <{KeywordFormal ","}+ kfs>` := kfs) paramlist = [ kfi | kfi <- kfs];
+							sig.publicConstructors = sig.publicConstructors + ConstructorSigItem(convertName(n), typ, [ targ | targ <- args ], commonParamList, paramlist, t@\loc, var@\loc);
 						}
 					}
 				}
