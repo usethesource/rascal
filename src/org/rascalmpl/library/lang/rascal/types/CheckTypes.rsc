@@ -6940,7 +6940,7 @@ public CheckResult convertAndExpandUserType(UserType t, Configuration c) {
 public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c) {
     rt = bottom-up visit(rt) {
         case utc:\user(rn,pl) : {
-            if (rn in c.typeEnv && !(c.store[c.typeEnv] is conflict)) {
+            if (rn in c.typeEnv && !(c.store[c.typeEnv[rn]] is conflict)) {
                 ut = c.store[c.typeEnv[rn]].rtype;
                 if ((utc@at)?) {
                     c.uses = c.uses + < c.typeEnv[rn], utc@at >;
