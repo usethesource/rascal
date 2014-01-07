@@ -3793,7 +3793,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     // Step 1: Do an initial assignment of types to the names present
     // in the tree and to nodes with invariant types (such as int
     // literals and guarded patterns).
-    pt = top-down visit(pt) {
+    pt = bottom-up visit(pt) {
         case ptn:setNode(ptns) : {
             for (idx <- index(ptns), spliceNodePlus(n) := ptns[idx] || spliceNodeStar(n) := ptns[idx] || 
                                      spliceNodePlus(n,_,_) := ptns[idx] || spliceNodeStar(n,_,_) := ptns[idx] ||
@@ -4098,7 +4098,30 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             	if (isConstructorType(a) && size(getConstructorArgumentTypes(a)) == size(pargs)) {
 	                                // next, find the bad matches, which are those argument positions where we have concrete
 	                                // type information and that information does not match the alternative
-	                                badMatches = { idx | idx <- index(pargs), (pargs[idx]@rtype)?, concreteType(pargs[idx]@rtype), !subtype(pargs[idx]@rtype, getConstructorArgumentTypes(a)[idx]) };
+	                                badMatches = { };
+	                                for (idx <- index(pargs)) {
+	                                	bool pseudoMatch = false;
+	                                	argType = getConstructorArgumentTypes(a)[idx];
+	                                	if ((pargs[idx]@rtype)?) {
+	                                		if (concreteType(pargs[idx]@rtype)) {
+	                                			if (!subtype(pargs[idx]@rtype, argType)) {
+	                                				badMatches = badMatches + idx;
+	                                			}
+	                                		} else {
+	                                			pseudoMatch = true;
+	                                		}
+	                                	} else {
+	                                		pseudoMatch = true;
+	                                	}
+	                                	
+	                                	if (pseudoMatch) {
+	                                		if (! ( (isListType(argType) && pargs[idx] is listNode) ||
+	                                			    (isSetType(argType) && pargs[idx] is setNode) ||
+	                                			    (isMapType(argType) && pargs[idx] is mapNode))) {
+	                                			badMatches = badMatches + idx;
+	                                		}
+	                                	}
+	                                }
 	                                if (size(badMatches) == 0) 
 	                                    // if we had no bad matches, this is a valid alternative
 	                                    matches += a;
