@@ -116,7 +116,7 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
     enterLoop(forname,fuid);
     enterBacktrackingScope(forname);
     code = [ muAssignTmp(tmp,fuid,muCallPrim("listwriter_open", [])),
-             muWhile(forname, makeMu("ALL",[ translate(c) | c <-generators ]), [ translate(body) ]),
+             muWhile(forname, makeMuMulti(makeMu("ALL",[ translate(c) | c <-generators ])), [ translate(body) ]),
              muCallPrim("listwriter_close", [muTmp(tmp,fuid)])
            ];
     leaveBacktrackingScope();
@@ -131,7 +131,7 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
     enterLoop(forname,fuid);
     enterBacktrackingScope(forname);
     code = [ muAssignTmp(result,fuid,muCallPrim("template_open", [muCon(""), muTmp(pre,prefuid)])),
-             muWhile(forname, makeMu("ALL",[ translate(c) | c <-generators ]), 
+             muWhile(forname, makeMuMulti(makeMu("ALL",[ translate(c) | c <-generators ])), 
                      [ translateStats(preStats),  
                        muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(body)])),
                        translateStats(postStats)
