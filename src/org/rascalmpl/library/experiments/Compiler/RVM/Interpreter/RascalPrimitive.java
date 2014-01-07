@@ -601,6 +601,7 @@ public enum RascalPrimitive {
 	lrel_subtract_lrel,
 	lrel_subtract_list,
 	map_subtract_map,
+	rel_subtract_elm,
 	rel_subtract_rel,
 	rel_subtract_set,
 	set_subtract_elm,
@@ -4907,19 +4908,19 @@ public enum RascalPrimitive {
 		boolean ignore =  ((IBool) stack[sp - 4]).getValue();
 		String expected =  ((IString) stack[sp - 3]).getValue();
 		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
-		stdout.println("testreport_add: " + fun);
-		Type argType = (Type) stack[sp - 1];
+		//stdout.println("testreport_add: " + fun);
+		//Type argType = (Type) stack[sp - 1];
 		
 		if(ignore){
 			test_results.append(vf.tuple(src,  vf.integer(2), vf.string("")));
 			return sp - 4;
 		}
-		//IConstructor type_cons = ((IConstructor) stack[sp - 1]);
-		//Type argType = typeReifier.valueToType(type_cons);
-		//IMap definitions = (IMap) type_cons.get("definitions");
+		IConstructor type_cons = ((IConstructor) stack[sp - 1]);
+		Type argType = typeReifier.valueToType(type_cons);
+		IMap definitions = (IMap) type_cons.get("definitions");
 
 		TypeStore store = new TypeStore();
-		//typeReifier.declareAbstractDataTypes(definitions, store);
+		typeReifier.declareAbstractDataTypes(definitions, store);
 
 		int nargs = argType.getArity();
 		IValue[] args = new IValue[nargs];
@@ -5548,6 +5549,10 @@ public enum RascalPrimitive {
 	
 	public static int rel_subtract_set(Object[] stack, int sp, int arity) {
 		return set_subtract_set(stack, sp, arity);
+	}
+	
+	public static int rel_subtract_elm(Object[] stack, int sp, int arity) {
+		return set_subtract_elm(stack, sp, arity);
 	}
 	
 	public static int set_subtract_elm(Object[] stack, int sp, int arity) {

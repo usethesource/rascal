@@ -228,8 +228,8 @@ void extractScopes(){
                                              // Fill in fuid2type to enable more precise overloading resolution
                                              fuid2type[uid] = rtype;
                                              // Check if the function is default
-                                             println(config.store[uid]);
-                                             println(config.functionModifiers[uid]);
+                                             //println(config.store[uid]);
+                                             //println(config.functionModifiers[uid]);
                                              if(defaultModifier() in config.functionModifiers[uid]) {
                                              	defaultFunctions += {uid};
                                              }
@@ -382,9 +382,9 @@ void extractScopes(){
     
     // Fill in uid2addr for overloaded functions;
     for(int fuid <- ofunctions) {
-    	set[int] funs = config.store[fuid].items;
+        set[int] funs = config.store[fuid].items;
     	if(int fuid <- funs, production(rname,_,_,_) := config.store[fuid] && isEmpty(getSimpleName(rname)))
-    	    break;
+    	    continue;
     	set[str] scopes = {};
     	str scopeIn = uid2str(0);
     	for(int fuid <- funs) {
@@ -402,7 +402,7 @@ void extractScopes(){
 }
 
 str getFUID(str fname, Symbol \type) { 
-    println("getFUID: <fname>, <\type>");
+    //println("getFUID: <fname>, <\type>");
     return "<fname>(<for(p<-\type.parameters){><p>;<}>)";
 }
 
