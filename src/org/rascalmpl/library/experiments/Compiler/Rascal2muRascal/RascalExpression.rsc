@@ -1204,7 +1204,7 @@ MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ results> |
     return
     muBlock(
     [ muAssignTmp(tmp, fuid, muCallPrim("listwriter_open", [])),
-      muWhile(loopname, makeMu("ALL",[ translate(g) | g <- generators ]), translateComprehensionContribution("list", tmp, fuid, [r | r <- results])),
+      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ])), translateComprehensionContribution("list", tmp, fuid, [r | r <- results])),
       muCallPrim("listwriter_close", [muTmp(tmp,fuid)]) 
     ]);
 }
@@ -1216,7 +1216,7 @@ MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ results> |
     return
     muBlock(
     [ muAssignTmp(tmp, fuid, muCallPrim("setwriter_open", [])),
-      muWhile(loopname, makeMu("ALL",[ translate(g) | g <- generators ]), translateComprehensionContribution("set", tmp, fuid, [r | r <- results])),
+      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ])), translateComprehensionContribution("set", tmp, fuid, [r | r <- results])),
       muCallPrim("setwriter_close", [muTmp(tmp,fuid)]) 
     ]);
 }
@@ -1228,7 +1228,7 @@ MuExp translateComprehension(c: (Comprehension) `(<Expression from> : <Expressio
     return
     muBlock(
     [ muAssignTmp(tmp, fuid, muCallPrim("mapwriter_open", [])),
-      muWhile(loopname, makeMu("ALL",[ translate(g) | g <- generators ]), [muCallPrim("mapwriter_add", [muTmp(tmp,fuid)] + [ translate(from), translate(to)])]), 
+      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ])), [muCallPrim("mapwriter_add", [muTmp(tmp,fuid)] + [ translate(from), translate(to)])]), 
       muCallPrim("mapwriter_close", [muTmp(tmp,fuid)]) 
     ]);
 }
@@ -1240,7 +1240,7 @@ MuExp translateReducer(init, result, generators){
     loopname = nextLabel(); 
     tmp = asTmp(loopname); 
     pushIt(tmp,fuid);
-    code = [ muAssignTmp(tmp, fuid, translate(init)), muWhile(loopname, makeMu("ALL", [ translate(g) | g <- generators ]), [muAssignTmp(tmp,fuid,translate(result))]), muTmp(tmp,fuid)];
+    code = [ muAssignTmp(tmp, fuid, translate(init)), muWhile(loopname, makeMuMulti(makeMu("ALL", [ translate(g) | g <- generators ])), [muAssignTmp(tmp,fuid,translate(result))]), muTmp(tmp,fuid)];
     popIt();
     return muBlock(code);
 }
