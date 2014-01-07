@@ -80,7 +80,11 @@ test bool tst() = run("[1, *int x, 5] := [1,2,3,4,5]") == [1, *int x, 5] := [1,2
 test bool tst() = run("[str _, *int _] := [\"a\", 1, 2]") == [str _, *int _] := ["a", 1, 2];
 test bool tst() = run("[str _, *int _, *value _] := [\"a\", 1, 2, \"b\"]") == [str _, *int _,*value _] := ["a", 1, 2, "b"];
 
-test bool tst() = run("{ res = for([*x,*y] := [1,2,3]) append \<x,y\>; res; }") == { res = for([*x,*y] := [1,2,3]) append <x,y>; res; };
+test bool tst() = run("{ res = for([*x,*y,*z] := [1,2,3]) append \<x,y,z\>; res; }") == { res = for([*x,*y,*z] := [1,2,3]) append <x,y,z>; res; };
+test bool tst() = run("{ res = for([*x,*y,*int z] := [1,2,3]) append \<x,y,z\>; res; }") == { res = for([*x,*y,*int z] := [1,2,3]) append <x,y,z>; res; };
+test bool tst() = run("{ res = for([*x,*int y,*int z] := [1,2,3]) append \<x,y,z\>; res; }") == { res = for([*x,*int y,*int z] := [1,2,3]) append <x,y,z>; res; };
+test bool tst() = run("{ res = for([*int x,*int y,*int z] := [1,2,3]) append \<x,y,z\>; res; }") == { res = for([*int x,*int y,*int z] := [1,2,3]) append <x,y,z>; res; };
+
 
 // Set matching
 
@@ -114,7 +118,11 @@ test bool tst() = run("{str _, *int _} := {\"a\", 1, 2}") == {str _, *int _} := 
 test bool tst() = run("{str _, *int _, *value _} := {\"a\", 1, 2, \"b\"}") == {str _, *int _,*value _} := {"a", 1, 2, "b"};
 test bool tst() = run("{for({str S, *int N, *value V} := {\"a\", 1, 2, \"b\"}){ append \<S,N,V\>;}}") == {for({str S, *int N, *value V} := {"a", 1, 2, "b"}){ append <S,N,V>;}};
 
-test bool tst() = run("{ res = for({*x,*y} := {1,2,3}) append \<x,y\>; res; }") == { res = for({*x,*y} := {1,2,3}) append <x,y>; res; };
+test bool tst() = run("{ res = for({*x,*y, *z} := {1,2,3}) append \<x,y,z\>; res; }") == { res = for({*x,*y,*z} := {1,2,3}) append <x,y,z>; res; };
+test bool tst() = run("{ res = for({*x,*y, *int z} := {1,2,3}) append \<x,y,z\>; res; }") == { res = for({*x,*y,*int z} := {1,2,3}) append <x,y,z>; res; };
+test bool tst() = run("{ res = for({*x,*int y, *int z} := {1,2,3}) append \<x,y,z\>; res; }") == { res = for({*x,*int y,*int z} := {1,2,3}) append <x,y,z>; res; };
+test bool tst() = run("{ res = for({*int x,*int y, *int z} := {1,2,3}) append \<x,y,z\>; res; }") == { res = for({*int x,*int y,*int z} := {1,2,3}) append <x,y,z>; res; };
+
 
 // Node/Constructor matching
 
