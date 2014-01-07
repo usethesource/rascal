@@ -497,7 +497,7 @@ public class RVM {
 				
 				Opcode.use(instruction);
 				
-				switch (op) {
+				INSTRUCTION: switch (op) {
 					
 				case Opcode.OP_POP:
 					sp--;
@@ -679,71 +679,18 @@ public class RVM {
 					if(CodeBlock.isMaxArg2(pos)){
 						rval = moduleVariables.get(cf.function.constantStore[s]);
 						if(op == Opcode.OP_LOADVAR && rval == null) {
-							// EXCEPTION HANDLING
-							stacktrace = new ArrayList<Frame>();
-							stacktrace.add(cf);
-							thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
-							cf.pc = pc;
-							for(Frame f = cf; f != null; f = f.previousCallFrame) {
-								int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
-								if(handler != -1) {
-									if(f != cf) {
-										cf = f;
-										instructions = cf.function.codeblock.getInstructions();
-										stack = cf.stack;
-										sp = cf.sp;
-										pc = cf.pc;
-									}
-									pc = handler;
-									stack[sp++] = thrown;
-									continue NEXT_INSTRUCTION;
-								}
-								if(c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
-									ocalls.pop();
-									c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
-								}
-							}
-							// If a handler has not been found in the caller functions...
-							return thrown;
-						}
-						
+							postOp = Opcode.POSTOP_CHECKUNDEF; break INSTRUCTION;
+						}					
 						stack[sp++] = rval;
 						continue NEXT_INSTRUCTION;
 					}
 					
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
-							rval = (op == Opcode.OP_LOADVAR) ? fr.stack[pos] 
-																	: new Reference(fr.stack, pos);
-							if(op == Opcode.OP_LOADLOC && rval == null) {
-								// EXCEPTION HANDLING
-								stacktrace = new ArrayList<Frame>();
-								stacktrace.add(cf);
-								thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
-								cf.pc = pc;
-								for(Frame f = cf; f != null; f = f.previousCallFrame) {
-									int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
-									if(handler != -1) {
-										if(f != cf) {
-											cf = f;
-											instructions = cf.function.codeblock.getInstructions();
-											stack = cf.stack;
-											sp = cf.sp;
-											pc = cf.pc;
-										}
-										pc = handler;
-										stack[sp++] = thrown;
-										continue NEXT_INSTRUCTION;
-									}
-									if(c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
-										ocalls.pop();
-										c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
-									}
-								}
-								// If a handler has not been found in the caller functions...
-								return thrown;
-							}
-							
+							rval = (op == Opcode.OP_LOADVAR) ? fr.stack[pos] : new Reference(fr.stack, pos);
+							if(op == Opcode.OP_LOADVAR && rval == null) {
+								postOp = Opcode.POSTOP_CHECKUNDEF; break INSTRUCTION;
+							}						
 							stack[sp++] = rval;
 							continue NEXT_INSTRUCTION;
 						}
@@ -1496,7 +1443,6 @@ public class RVM {
 					// If a handler has not been found in the caller functions...
 					return thrown;
 				}
-				
 				
 			}
 		} catch (Exception e) {
