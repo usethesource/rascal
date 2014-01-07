@@ -648,6 +648,7 @@ coroutine MATCH_LAST_MULTIVAR_IN_LIST[5, rVar, iLookahead, iSubject, rNext, avai
         yield(sublist(iSubject, start, len), start + len);
         len = len + 1;
     };
+    undefine(rVar);
 }
 
 coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[4, iLookahead, iSubject, rNext, available, start, len]{
@@ -945,7 +946,8 @@ coroutine MATCH_LAST_MULTIVAR_IN_SET[3, rVar, available, rRemaining, subset]{
       exhaust;
     };
 
-    return(set(available), mset_empty());
+    yield(set(available), mset_empty());
+    undefine(rVar);
 }
 
 coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining, gen, subset]{
