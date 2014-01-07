@@ -210,7 +210,7 @@ set[str] numeric = {"int", "real", "rat", "num"};
 MuExp comparison(str op, Expression e) {
   lot = reduceContainerType(getOuterType(e.lhs));
   rot = reduceContainerType(getOuterType(e.rhs));
-  println("comparison: op = <op>, lot = <lot>, rot = <rot>");
+  //println("comparison: op = <op>, lot = <lot>, rot = <rot>");
   if(lot == "value" || rot == "value"){
      lot = ""; rot = "";
   } else {
@@ -540,7 +540,7 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
   tgens = [];
   for(i <- index(generators1)) {
      gen = generators1[i];
-     println("all <i>: <gen>");
+     //println("all <i>: <gen>");
      if(isGen[i]){
 	 	tgen = translate(gen);
 	 	if(muMulti(exp) := tgen){ // Unwraps muMulti, if any
@@ -879,7 +879,7 @@ MuExp translateBool(e: (Expression) `<Pattern pat> !:= <Expression exp>`) = tran
 // All other expressions are translated as ordinary expression
 
 default MuExp translateBool(Expression e) {
-   println("translateBool, default: <e>");
+   //println("translateBool, default: <e>");
    return translate(e);
 }
    
