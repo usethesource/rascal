@@ -131,14 +131,13 @@ list[str] libraryTests = [
 
 loc base = |rascal-test:///tests/library|;
 
-str summary(lrel[loc,int,str] test_results) = "<size(test_results)> tests executed; < size(test_results[_,0])> failed; < size(test_results[_,2])> ignored";
-
 lrel[loc,int,str] runTests(list[str] names, loc base){
  all_test_results = [];
  for(tst <- names){
-      if(lrel[loc,int,str] test_results := execute(base + (tst + ".rsc"), [], recompile=true, testsuite=true, listing=false, debug=false)){
-         println("TEST REPORT ***** <tst> ***** <base>");
-         println(summary(test_results));
+      prog = base + (tst + ".rsc");
+      if(lrel[loc,int,str] test_results := execute(prog, [], recompile=false, testsuite=true, listing=false, debug=false)){
+         println("TESTING <prog>");
+         println(makeTestSummary(test_results));
          all_test_results += test_results;
       } else {
          println("testsuite did not return a list of test results");
@@ -153,20 +152,7 @@ value main(list[value] args){
   all_results += runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
   all_results += runTests(rascalTests, |project://rascal-test/src/tests|);
   all_results += runTests(libraryTests, |project://rascal-test/src/tests/library|);
-  failed = all_results[_,0];
-  if(size(failed) > 0){
-	  println("FAILED TESTS:");
-	  for(<l, 0, msg> <- all_results){
-	      println("<l>: FALSE <msg>");
-	  }
-  }
-  ignored = all_results[_,2];
-  if(size(ignored) > 0){
-	  println("IGNORED TESTS:");
-	  for(<l, 2, msg> <- all_results){
-	      println("<l>: IGNORED");
-	  }
-  }
-  println("\nSUMMARY ALL TEST REPORTS: " + summary(all_results));
-  return size(failed) == 0;
+  
+  printTestReport(all_results);
+  return size(all_results[_,0]) == 0;
 }
