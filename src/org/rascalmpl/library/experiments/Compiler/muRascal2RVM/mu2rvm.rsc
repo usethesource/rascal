@@ -592,22 +592,6 @@ INS tr(muWhile(str label, MuExp cond, list[MuExp] body)) {
     		 LABEL(breakLab)		
     		];
 }
-// Do
-
-INS tr(muDo(str label, list[MuExp] body, MuExp cond)) {
-    if(label == ""){
-    	label = nextLabel();
-    }
-    continueLab = mkContinue(label);
-    breakLab = mkBreak(label);
-    failLab = mkFail(label);
-    return [ LABEL(continueLab),
-     		 *trvoidblock(body),	
-             *tr_cond_do(cond, continueLab, failLab, breakLab),	
-    		 JMP(continueLab),
-    		 LABEL(breakLab)		
-           ];
-}
 
 INS tr(muBreak(str label)) = [ JMP(mkBreak(label)) ];
 INS tr(muContinue(str label)) = [ JMP(mkContinue(label)) ];
@@ -675,16 +659,6 @@ INS tr_cond(muOne(MuExp exp), str continueLab, str failLab, str falseLab) =
         NEXT0(), 
         JMPFALSE(falseLab)
       ];
-
-// Special case for do_while:
-// - continueLab is inserted by caller.
-
-INS tr_cond_do(muOne(MuExp exp), str continueLab, str failLab, str falseLab) =
-    [ *tr(exp), 
-      INIT(0), 
-      NEXT0(), 
-      JMPFALSE(falseLab)
-    ];
 
 INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
     co = newLocal();
