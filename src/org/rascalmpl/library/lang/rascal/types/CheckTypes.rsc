@@ -4076,10 +4076,6 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             case ptn:callOrTreeNode(ph,pargs) : {
             	if ( (ph@rtype)? && concreteType(ph@rtype) ) {
                     if (isConstructorType(ph@rtype) || isOverloadedType(ph@rtype) || isProductionType(ph@rtype)) {
-                    	if (isProductionType(ph@rtype)) {
-                    		int mytemp = 5;
-                    		mytemp = mytemp + 2;
-                    	}
                         // default alternatives contain all possible constructors of this name
                         set[Symbol] alts = (isOverloadedType(ph@rtype)) ? (filterSet(getDefaultOverloadOptions(ph@rtype), isConstructorType) + filterSet(getDefaultOverloadOptions(ph@rtype), isProductionType)) : {ph@rtype};
                         // matches holds all the constructors that match the arity and types in the pattern
@@ -4117,7 +4113,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                                	if (pseudoMatch) {
 	                                		if (! ( (isListType(argType) && pargs[idx] is listNode) ||
 	                                			    (isSetType(argType) && pargs[idx] is setNode) ||
-	                                			    (isMapType(argType) && pargs[idx] is mapNode))) {
+	                                			    (isMapType(argType) && pargs[idx] is mapNode) ||
+	                                			    ( !(pargs[idx] is listNode || pargs[idx] is setNode || pargs[idx] is mapNode) && (!((pargs[idx]@rtype)?) || !(concreteType(pargs[idx]@rtype)))))) {
 	                                			badMatches = badMatches + idx;
 	                                		}
 	                                	}
