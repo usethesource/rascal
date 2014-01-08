@@ -41,7 +41,7 @@ list[str] libs = [
 "util::Maybe",		// OK
 "util::Monitor",	// OK
 "util::PriorityQueue",// OK
-"util/Reflective", 	// OK
+"util::Reflective", 	// OK
 "util::ShellExec",	// OK
 "util::Webserver"		// OK
 
