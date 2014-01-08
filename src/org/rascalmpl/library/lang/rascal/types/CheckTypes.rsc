@@ -3953,12 +3953,24 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
             }
         }
-        
+
+		case ptn:deepNode(_) : {
+			rt = \inferred(c.uniqueify);
+			c.uniqueify = c.uniqueify + 1;
+			insert(ptn[@rtype = rt]);
+		}
+		
         case ptn:asTypeNode(rt, _) => ptn[@rtype = rt]
         
+		case ptn:antiNode(_) : {
+			rt = \inferred(c.uniqueify);
+			c.uniqueify = c.uniqueify + 1;
+			insert(ptn[@rtype = rt]);
+		}
+		
         // TODO: Not sure if this is the best choice, but it is the choice
         // the current interpreter makes...
-        case ptn:antiNode(_) => ptn[@rtype = \value()]
+        //case ptn:antiNode(_) => ptn[@rtype = \value()]
         
         case ptn:tvarBecomesNode(rt, n, l, _) : { 
             if (RSimpleName("_") == n) {
@@ -4028,9 +4040,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             case ptn:mapNode(ptns) => updateRT(ptn,\map(lubList([d@rtype|mapNodeInfo(d,_) <- ptns]),lubList([r@rtype|mapNodeInfo(_,r)<-ptns])))
                                       when all(idx <- index(ptns), mapNodeInfo(d,r) := ptns[idx], (d@rtype)?, (r@rtype)?, concreteType(d@rtype), concreteType(r@rtype))
                                       
-            case ptn:deepNode(cp) => updateRT(ptn, \value()) when (cp@rtype)? && concreteType(cp@rtype)
+            //case ptn:deepNode(cp) => updateRT(ptn, \void()) when (cp@rtype)? && concreteType(cp@rtype)
 
-            case ptn:antiNode(cp) => updateRT(ptn, cp@rtype) when (cp@rtype)? && concreteType(cp@rtype)
+            //case ptn:antiNode(cp) => updateRT(ptn, cp@rtype) when (cp@rtype)? && concreteType(cp@rtype)
             
             case ptn:varBecomesNode(n,l,cp) : {
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
@@ -4577,13 +4589,18 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         }
         
         case deepNode(cp) : {
+            Symbol currentType = pt@rtype;
             < c, cpNew > = bind(cp, \value(), c);
-            return < c, pt[child = cpNew] >;
+            return < c, pt[child = cpNew][@rtype=rt] >;
         }
-        
+
+		// TODO: Is this right? Technically, the type of the antinode
+		// can be anything, since we are saying this isn't the thing we
+		// are matching, but we may still want a sharper check to give
+		// good warnings when things cannot happen                
         case antiNode(cp) : {
             < c, cpNew > = bind(cp, rt, c);
-            return < c, pt[child = cpNew] >;
+            return < c, pt[child = cpNew][@rtype=rt] >;
         }
         
         case tvarBecomesNode(nt, n, l, cp) : {
