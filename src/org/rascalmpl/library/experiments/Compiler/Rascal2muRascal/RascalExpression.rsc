@@ -885,8 +885,6 @@ default MuExp translateBool(Expression e) {
    
 // Translate Boolean operators
 
-// TODO: WORK IN PROGRESS HERE!
-
 MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
     switch(fun){
     	case "and": return makeMu("ALL",[translate(lhs), translate(rhs)]);
@@ -894,18 +892,13 @@ MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
     	case "implies": {
     	    lhs_tr = translate(lhs);
     	    rhs_tr = translate(rhs);
-    	    if(muMulti(_) := lhs_tr && muMulti(_) := rhs_tr) {
-    	        return makeMu("OR",[ makeMu("ALL", [ muCallPrim("not_bool", [ lhs_tr ]), rhs_tr ]), makeMu("ALL", [ lhs_tr, rhs_tr ]) ]);
-    	    }
-    	    if(muMulti(_) := lhs_tr) {
-    	        return makeMu("OR",[ makeMu("ALL", [ muCallPrim("not_bool", [ lhs_tr ]) ]), makeMu("ALL", [ lhs_tr, rhs_tr ]) ]);
-    	    }
-    	    if(muMulti(_) := rhs_tr) {
-    	        return makeMu("OR",[ makeMu("ALL", [ muCallPrim("not_bool", [ lhs_tr ]), rhs_tr ]), makeMu("ALL", [ rhs_tr ]) ]);
-    	    }
-    	    
+    	    return makeMu("OR",[ makeMu("ALL", [ muCallPrim("not_bool", [ lhs_tr ])]), makeMu("ALL", [ lhs_tr, rhs_tr ]) ]);
     	}
-    	case "equivalent": return makeMu("OR",[ makeMu("ALL", []), makeMu("ALL", []) ]);
+    	case "equivalent": {
+    	    lhs_tr = translate(lhs);
+    	    rhs_tr = translate(rhs);
+    	    return makeMu("OR",[ makeMu("ALL", [ muCallPrim("not_bool", [ lhs_tr ]), muCallPrim("not_bool", [ rhs_tr ]) ]), makeMu("ALL", [ lhs_tr, rhs_tr ]) ]);
+    	}
     	default:
     		throw "translateBoolBinary: unknown operator <fun>";
     }
