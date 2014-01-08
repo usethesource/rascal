@@ -56,13 +56,23 @@ public Bindings match(Symbol r, Symbol s, Bindings b) {
 		
 	// For sets and relations, check to see if the "contents" are
 	// able to be matched to one another
-	if ( isSetType(r) && isSetType(s) )
-		return match(getSetElementType(r), getSetElementType(s), b);
+	if ( isSetType(r) && isSetType(s) ) {
+		if ( isRelType(r) && isVoidType(getSetElementType(s)) ) {
+			return match(getSetElementType(r), \tuple([\void() | idx <- index(getRelFields(r))]), b);
+		} else {	
+			return match(getSetElementType(r), getSetElementType(s), b);
+		}
+	}
 		
 	// For lists and list relations, check to see if the "contents" are
 	// able to be matched to one another
-	if ( isListType(r) && isListType(s) )
-		return match(getListElementType(r), getListElementType(s), b);
+	if ( isListType(r) && isListType(s) ) {
+		if ( isListRelType(r) && isVoidType(getListElementType(s)) ) {
+			return match(getListElementType(r), \tuple([\void() | idx <- index(getListRelFields(r))]), b);
+		} else {
+			return match(getListElementType(r), getListElementType(s), b);
+		}
+	}
 		
 	// For maps, match the domains and ranges
 	if ( isMapType(r) && isMapType(s) )
