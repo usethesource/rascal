@@ -888,31 +888,27 @@ default MuExp translateBool(Expression e) {
 // TODO: WORK IN PROGRESS HERE!
 
 MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
-  if(backtrackFree(lhs) && backtrackFree(rhs)) {
-     switch(fun){
-     	case "and": 		return muIfelse(nextLabel("L_AND"), translateBool(lhs), [translateBool(rhs)], [muCon(false)]);
-     	case "or":			return muIfelse(nextLabel("L_OR"), translateBool(lhs), [muCon(true)], [translateBool(rhs)]);
-     	case "implies":		return muIfelse(nextLabel("L_IMPLIES"), translateBool(lhs), [translateBool(rhs)], [muCon(true)]);
-     	case "equivalent":	return muIfelse(nextLabel("L_EQUIVALENT"), translateBool(lhs), [translateBool(rhs)], [muCallMuPrim("not_mbool", [translateBool(rhs)])]);
-     	default:
-    		throw "translateBoolBinary: unknown operator <fun>";
-     }
-  } else {
     switch(fun){
-    // TODO: Review short-cut semantics
     	case "and": return makeMu("ALL",[translate(lhs), translate(rhs)]);
-    	case "or":  // a or b == !(!a and !b)
-    	            return makeMu("OR",[translate(lhs), translate(rhs)]);
-    	case "implies":
-    				// a ==> b
-    	            return makeMu("ALL",[muIfelse(nextLabel("L_IMPLIES"), translate(lhs), [translate(rhs)], [muCon(true)])]);
-    	case "equivalent":
-    				// a <==> b
-    				return makeMu("ALL",[muIfelse(nextLabel("L_EQUIVALENCE"), translate(lhs), [translate(rhs)], [muCallMuPrim("not_mbool", [translate(rhs)])])]);
+    	case "or":  return makeMu("OR",[translate(lhs), translate(rhs)]);
+    	case "implies": {
+    	    lhs_tr = translate(lhs);
+    	    rhs_tr = translate(rhs);
+    	    if(muMulti(_) := lhs_tr && muMulti(_) := rhs_tr) {
+    	        return makeMu("OR",[ makeMu("ALL", [ muCallPrim("not_bool", [ lhs_tr ]), rhs_tr ]), makeMu("ALL", [ lhs_tr, rhs_tr ]) ]);
+    	    }
+    	    if(muMulti(_) := lhs_tr) {
+    	        return makeMu("OR",[ makeMu("ALL", [ muCallPrim("not_bool", [ lhs_tr ]) ]), makeMu("ALL", [ lhs_tr, rhs_tr ]) ]);
+    	    }
+    	    if(muMulti(_) := rhs_tr) {
+    	        return makeMu("OR",[ makeMu("ALL", [ muCallPrim("not_bool", [ lhs_tr ]), rhs_tr ]), makeMu("ALL", [ rhs_tr ]) ]);
+    	    }
+    	    
+    	}
+    	case "equivalent": return makeMu("OR",[ makeMu("ALL", []), makeMu("ALL", []) ]);
     	default:
     		throw "translateBoolBinary: unknown operator <fun>";
     }
-  }
 }
 
 MuExp translateBoolNot(Expression lhs){
