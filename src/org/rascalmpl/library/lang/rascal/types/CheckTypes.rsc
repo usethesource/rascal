@@ -3953,12 +3953,27 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
             }
         }
-        
+
+		case ptn:deepNode(_) : {
+			rt = \inferred(c.uniqueify);
+			c.uniqueify = c.uniqueify + 1;
+			insert(ptn[@rtype = rt]);
+		}
+		
         case ptn:asTypeNode(rt, _) => ptn[@rtype = rt]
         
+		case ptn:antiNode(_) : {
+			rt = \inferred(c.uniqueify);
+			c.uniqueify = c.uniqueify + 1;
+			insert(ptn[@rtype = rt]);
+		}
+		
+		case ptn:reifiedTypeNode(tSymbol,pDefs) => 
+			ptn[@rtype = makeReifiedType(makeValueType())]
+		
         // TODO: Not sure if this is the best choice, but it is the choice
         // the current interpreter makes...
-        case ptn:antiNode(_) => ptn[@rtype = \value()]
+        //case ptn:antiNode(_) => ptn[@rtype = \value()]
         
         case ptn:tvarBecomesNode(rt, n, l, _) : { 
             if (RSimpleName("_") == n) {
@@ -4028,9 +4043,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             case ptn:mapNode(ptns) => updateRT(ptn,\map(lubList([d@rtype|mapNodeInfo(d,_) <- ptns]),lubList([r@rtype|mapNodeInfo(_,r)<-ptns])))
                                       when all(idx <- index(ptns), mapNodeInfo(d,r) := ptns[idx], (d@rtype)?, (r@rtype)?, concreteType(d@rtype), concreteType(r@rtype))
                                       
-            case ptn:deepNode(cp) => updateRT(ptn, \value()) when (cp@rtype)? && concreteType(cp@rtype)
+            //case ptn:deepNode(cp) => updateRT(ptn, \void()) when (cp@rtype)? && concreteType(cp@rtype)
 
-            case ptn:antiNode(cp) => updateRT(ptn, cp@rtype) when (cp@rtype)? && concreteType(cp@rtype)
+            //case ptn:antiNode(cp) => updateRT(ptn, cp@rtype) when (cp@rtype)? && concreteType(cp@rtype)
             
             case ptn:varBecomesNode(n,l,cp) : {
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
@@ -4070,8 +4085,15 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 }
             }
             
-            case ptn:reifiedTypeNode(sp,dp) :
-                throw "Not yet implemented";
+            case ptn:reifiedTypeNode(sp,dp) : {
+                if ( (sp@rtype)? && concreteType(sp@rtype) && !subtype(sp@rtype,\adt("Symbol",[])) ) {
+                	failures += makeFailType("The first pattern parameter in a reified type parameter must be of type Symbol, not <prettyPrintType(sp@rtype)>", ptn@at);
+                }
+                if ( (dp@rtype)? && concreteType(dp@rtype) && !subtype(dp@rtype,\map(\adt("Symbol",[]), \adt("Production",[]))) ) { 
+                	failures += makeFailType("The second pattern parameter in a reified type parameter must be of type map[Symbol,Production], not <prettyPrintType(dp@rtype)>", ptn@at);
+                }
+			}
+                
     
             case ptn:callOrTreeNode(ph,pargs) : {
             	if ( (ph@rtype)? && concreteType(ph@rtype) ) {
@@ -4555,8 +4577,12 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         }
         
         case reifiedTypeNode(ps,pd) : {
-            // TODO: What else do we need to do here?
-            throw "Not yet implemented";
+        	// The subject type has no influence on the types of the children of a reified type
+        	// node, so we can't push a type down through the node, we instead always insist
+        	// that the types are Symbol and map[Symbol,Production]
+        	< c, psnew > = bind(ps, \adt("Symbol",[]), c);
+        	< c, pdnew > = bind(pd, \map(\adt("Symbol",[]),\adt("Production",[])), c);
+        	return < c, pt[s=psnew][d=pdnew] >; 
         }
         
         case callOrTreeNode(ph, cs) : {
@@ -4577,13 +4603,18 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         }
         
         case deepNode(cp) : {
+            Symbol currentType = pt@rtype;
             < c, cpNew > = bind(cp, \value(), c);
-            return < c, pt[child = cpNew] >;
+            return < c, pt[child = cpNew][@rtype=rt] >;
         }
-        
+
+		// TODO: Is this right? Technically, the type of the antinode
+		// can be anything, since we are saying this isn't the thing we
+		// are matching, but we may still want a sharper check to give
+		// good warnings when things cannot happen                
         case antiNode(cp) : {
             < c, cpNew > = bind(cp, rt, c);
-            return < c, pt[child = cpNew] >;
+            return < c, pt[child = cpNew][@rtype=rt] >;
         }
         
         case tvarBecomesNode(nt, n, l, cp) : {
@@ -6673,11 +6704,29 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     map[RName,bool] isExtends = ( );
     map[RName,int] moduleIds = ( );
     map[RName,loc] moduleLocs = ( );
+    lrel[RName,bool] defaultImports = [ ]; // [ < RSimpleName("Exception"), false > ];
     list[RName] importOrder = [ ];
     
     c = addModule(c, moduleName, md@\loc);
     currentModuleId = head(c.stack);
             
+    for (< modName, defaultExtends > <- defaultImports) {
+        try {
+            dt1 = now();
+            modTree = getModuleParseTree(prettyPrintName(modName));
+            sigMap[modName] = getModuleSignature(modTree);
+            moduleLocs[modName] = modTree@\loc;
+            importOrder = importOrder + modName;
+            c = addModule(c,modName,modTree@\loc);
+            moduleIds[modName] = head(c.stack);
+            c = popModule(c);
+            isExtends[modName] = defaultExtends;
+            c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
+        } catch perror : {
+            c = addScopeError(c, "Cannot calculate signature for default module <prettyPrintName(modName)>", md@\loc);
+        }
+    }
+
     // Get the information about each import, including the module signature
     for (importItem <- importList) {
         if ((Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem) {
