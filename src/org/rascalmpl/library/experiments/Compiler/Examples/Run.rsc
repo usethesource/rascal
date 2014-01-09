@@ -143,8 +143,7 @@ test bool tst() = demo("UninitializedVariables") == experiments::Compiler::Examp
 test bool tst() = demo("IfDefinedOtherwise") == experiments::Compiler::Examples::IfDefinedOtherwise::expectedResult;
 test bool tst() = demo("IfDefinedOtherwise2") == experiments::Compiler::Examples::IfDefinedOtherwise2::main([]);
 
-// under investigation
-/*fails*/ //test bool tst1() = demo("UseLibrary") == experiments::Compiler::Examples::UseLibrary::main([]);
+test bool tst() = demo("UseLibrary") == experiments::Compiler::Examples::UseLibrary::main([]);
 
 test bool tst1()  = demo("Visit1")  == experiments::Compiler::Examples::Visit1::main([]);
 test bool tst1a() = demo("Visit1a") == experiments::Compiler::Examples::Visit1::main([]);
