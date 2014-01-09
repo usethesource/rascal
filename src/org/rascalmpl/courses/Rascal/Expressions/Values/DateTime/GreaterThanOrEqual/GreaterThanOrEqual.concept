@@ -20,8 +20,8 @@ of $Exp_2$ or if both values are equal, and `false` otherwise.
 
 Examples:
 <screen>
-$2011-07-15 >= $2010-07-15;
-$2010-07-15 >= $2010-07-14;
+$2011-07-15$ >= $2010-07-15$;
+$2010-07-15$ >= $2010-07-14$;
 </screen>
 
 Benefits:

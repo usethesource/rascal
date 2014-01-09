@@ -4,8 +4,17 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 
 public class Yield1 extends Instruction {
 	
-	public Yield1(CodeBlock ins) {
+	final int arity;
+	
+	public Yield1(CodeBlock ins, int arity) {
 		super(ins, Opcode.YIELD1);
+		this.arity = arity;
+	}
+	
+	public String toString() { return "YIELD1 " + arity; }
+	
+	public void generate(){
+		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
 
 }

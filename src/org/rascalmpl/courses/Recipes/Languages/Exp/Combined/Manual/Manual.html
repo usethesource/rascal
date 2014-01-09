@@ -64,7 +64,7 @@ public Exp parse(str txt) = parse(#Exp, txt);
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Combined::Manual::Parse;
 ok
 <span class="prompt">rascal></span>parse(&quot;2+3&quot;);
-Exp: `2+3`
+sort("Exp"): `2+3`
 Tree: appl(prod(sort("Exp"),[sort("Exp"),layouts("Whitespace"),lit("+"),layouts("Whitespace"),sort("Exp")],{assoc(left())}),[appl(prod(sort("Exp"),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(50)])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)],appl(prod(layouts("Whitespace"),[\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],{}),[appl(regular(\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))),[])[@loc=|file://-|(1,0,&lt;1,1>,&lt;1,1>)]])[@loc=|file://-|(1,0,&lt;1,1>,&lt;1,1>)],appl(prod(lit("+"),[\char-class([range(43,43)])],{}),[char(43)]),appl(prod(layouts("Whitespace"),[\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],{}),[appl(regular(\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))),[])[@loc=|file://-|(2,0,&lt;1,2>,&lt;1,2>)]])[@loc=|file://-|(2,0,&lt;1,2>,&lt;1,2>)],appl(prod(sort("Exp"),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(0,3,&lt;1,0>,&lt;1,3>)]</pre> Next, we define a <code>load</code> function:
  <pre class="listing">module demo::lang::Exp::Combined::Manual::Load
 
@@ -77,11 +77,11 @@ public Exp load(str txt) = load(parse(txt));           <img src="/images/4.png">
      
 public Exp load((Exp)`&lt;IntegerLiteral l>`)             <img src="/images/5.png">
        = con(toInt("&lt;l>"));       
-public Exp load((Exp)`&lt;demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e1> * &lt;demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e2>`) 
+public Exp load((Exp)`&lt;Exp e1> * &lt;Exp e2>`) 
        = mul(load(e1), load(e2));  
-public Exp load((Exp)`&lt;demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e1> + &lt;demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e2>`)
+public Exp load((Exp)`&lt;Exp e1> + &lt;Exp e2>`)
        = add(load(e1), load(e2)); 
-public Exp load((Exp)`( &lt;demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e> )`) 
+public Exp load((Exp)`( &lt;Exp e> )`) 
        = load(e);                    
 </pre> Some comments:
  <ul><li> <img src="/images/1.png"> We reuse the previously defined concrete syntax with layout.</li>

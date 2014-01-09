@@ -82,7 +82,7 @@ set[int]: {1}
   	                       
   	                       
 <div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  <ul><li> if both operands of <code>+</code> are a set then it acts as <a href="/Rascal/Expressions/Values/Set/Union/Union.html">Set/Union</a>.</li>
+<span class="sectionHead">Pitfalls</span>  <ul><li> if both operands of <code>+</code> are a set then it acts as <span class="inlineError">ambiguous: Rascal:Set/Union</span>.</li>
 </ul>
 </div>
 
@@ -110,13 +110,13 @@ set[int]: {1}
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Set_Insert_1:answer" id="Rascal/Expressions/Values/Set/Insert_1_0" value="0@0@[0,2,3]">
-<label for="Rascal/Expressions/Values/Set/Insert_1_0">Greater than or equal to the number of elements in the original set. </label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_Set_Insert_1:answer" id="Rascal/Expressions/Values/Set/Insert_1_2" value="1@2@[0,2,3]">
+<input type="radio" name="Rascal_Expressions_Values_Set_Insert_1:answer" id="Rascal/Expressions/Values/Set/Insert_1_2" value="0@2@[2,0,3]">
 <label for="Rascal/Expressions/Values/Set/Insert_1_2">Smaller than the number of elements in the original set. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Set_Insert_1:answer" id="Rascal/Expressions/Values/Set/Insert_1_3" value="2@3@[0,2,3]">
+<input type="radio" name="Rascal_Expressions_Values_Set_Insert_1:answer" id="Rascal/Expressions/Values/Set/Insert_1_0" value="1@0@[2,0,3]">
+<label for="Rascal/Expressions/Values/Set/Insert_1_0">Greater than or equal to the number of elements in the original set. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Set_Insert_1:answer" id="Rascal/Expressions/Values/Set/Insert_1_3" value="2@3@[2,0,3]">
 <label for="Rascal/Expressions/Values/Set/Insert_1_3">One smaller than the number of elements in the original set. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
@@ -141,9 +141,9 @@ set[int]: {1}
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Insert_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_2:A" value="98">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Insert_2:B" value="{53, 2, 45, 47}">
-The type of <tt>98 + {53, 2, 45, 47}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Insert_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_2:A" value="&quot;Wasabi&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Insert_2:B" value="{&quot;Mumford the Magician&quot;, &quot;K&quot;, &quot;Mango&quot;, &quot;Slimey the Worm&quot;}">
+The type of <tt>&quot;Wasabi&quot; + {&quot;Mumford the Magician&quot;, &quot;K&quot;, &quot;Mango&quot;, &quot;Slimey the Worm&quot;}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Insert_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -167,9 +167,9 @@ The type of <tt>98 + {53, 2, 45, 47}</tt> is <input type="text" size="30" name="
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Insert_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_3:A" value="70">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Insert_3:B" value="{82, 7, 8}">
-<pre class="prequestion">70 + {82, 7, 8} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Insert_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_3:A" value="&quot;B&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Insert_3:B" value="{&quot;Raspberry&quot;, &quot;Peppermint&quot;, &quot;Little Bird&quot;, &quot;Fig&quot;}">
+<pre class="prequestion">&quot;B&quot; + {&quot;Raspberry&quot;, &quot;Peppermint&quot;, &quot;Little Bird&quot;, &quot;Fig&quot;} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Insert_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_3:another" value="yes">
@@ -192,9 +192,9 @@ The type of <tt>98 + {53, 2, 45, 47}</tt> is <input type="text" size="30" name="
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Insert_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_4:A" value="59">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Insert_4:B" value="{4, 6, 25}">
-<pre class="prequestion">{4, 6, 25} + 59 == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Insert_4:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_4:A" value="53">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Insert_4:B" value="{45, 47, 70}">
+<pre class="prequestion">{45, 47, 70} + 53 == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Insert_4:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_4:another" value="yes">
@@ -212,7 +212,7 @@ The type of <tt>98 + {53, 2, 45, 47}</tt> is <input type="text" size="30" name="
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Set/Insert&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Set/Insert&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

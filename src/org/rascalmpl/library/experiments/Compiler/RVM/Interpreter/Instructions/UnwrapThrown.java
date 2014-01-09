@@ -14,8 +14,7 @@ public class UnwrapThrown extends Instruction {
 	public String toString() { return "UNWRAPTHROWN " + pos; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(pos);
+		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
 	
 }

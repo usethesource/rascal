@@ -17,7 +17,7 @@ What you need to know about Rascal is this:
 * Which problems can Rascal help you to solve? Check out the [Motivation] for Rascal and the [EASY:EASY] paradigm.
 * How to get started? Read [InstallingAndRunning].
 * What are the basic constructs in Rascal? Learn about its basic [Concepts].
-* What is the complete reference to Rascal? Read or search through the documentation for [Expressions], [Statements] or [Declarations].
+* What is the complete reference to Rascal? Read or search through the documentation for [Expressions], [Statements] or [$Rascal/Declarations].
 * What standard functions does Rascal provide? Read or search through [Libraries].
 
 
@@ -28,6 +28,7 @@ What are the key distinguishing features of Rascal?
 * [ConcreteSyntax] to analyse and transform source code using patterns in the programming language that is manipulated.
 * Rapid [$Concepts/IDEConstruction] using Eclipse [IMP](http://www.eclipse.org/imp/) and other reusable aspects of meta-programming can be found
   in the [Libraries].
+* Simple value based [CodeModels] to represent any kind of fact about source code using either hierarchical or graph-like modeling constructs.
 
 Examples:
 Read simple examples of Rascal code in [Recipes:Basic]. The Rascal [Libraries] contain many examples of Rascal code. 

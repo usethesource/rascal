@@ -104,7 +104,7 @@ list[void]: []
 </pre>  3. Already declared set variable:
 <pre class="screen"><span class="prompt">rascal></span>set[int] S;
 ok
-<span class="prompt">rascal></span>if({10, S, 50} := {10, 20, 30, 40, 50})
+<span class="prompt">rascal></span>if({10, *S, 50} := {10, 20, 30, 40, 50})
 <span class="continuation">>>>>>>></span>   println("Match succeeded, S = &lt;S>");
 Match succeeded, S = {30,40,20}
 ok

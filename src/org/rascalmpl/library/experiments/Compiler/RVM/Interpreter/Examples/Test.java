@@ -27,7 +27,7 @@ public class Test {
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main", 1)
-					.RETURN1()
+					.RETURN1(1)
 					.HALT()));
 		
 		rvm.executeProgram("main", new IValue[] {});

@@ -4,7 +4,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: CWI
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.6.1.qualifier
+Bundle-Version: 0.6.2.qualifier
 Export-Package: 
  org.rascalmpl.ast,
  org.rascalmpl.checker,
@@ -74,7 +74,7 @@ Export-Package:
 Require-Bundle: org.eclipse.imp.pdb.values,
  org.eclipse.swt,
  org.jdom,
- org.objectweb.asm,
+ org.objectweb.asm;bundle-version="4.0.0",
  org.apache.commons.math,
  org.apache.commons.lang,
  org.eclipse.jetty.http,
@@ -99,6 +99,7 @@ Import-Package: javax.servlet,
  org.eclipse.core.runtime.jobs,
  org.eclipse.swt,
  org.objectweb.asm,
+ org.objectweb.asm.tree,
  org.osgi.framework,
  org.osgi.service.prefs,
  org.rascalmpl.library.vis,

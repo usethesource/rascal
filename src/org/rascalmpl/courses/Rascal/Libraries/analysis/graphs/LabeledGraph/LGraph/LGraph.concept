@@ -1,9 +1,0 @@
-<AUTOINSERTED>
-Name: LGraph
-Types: 
-<listing>
-alias LGraph[&T,&L] = rel[&T from, &L label, &T to];
-</listing>
-Usage: `import analysis::graphs::LabeledGraph;`
-</AUTOINSERTED>
-Synopsis: A labelled graph is an alias for a ternary relation.

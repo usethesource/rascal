@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.jar.Attributes.Name;
 
 /**
  * The META-INF/RASCAL.MF file contains information about 
@@ -29,6 +30,7 @@ public class RascalManifest {
   public Manifest getDefaultManifest() {
     Manifest manifest = new Manifest();
     Attributes mainAttributes = manifest.getMainAttributes();
+    mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "0.0.1");
     mainAttributes.put(new Attributes.Name(SOURCE), DEFAULT_SRC);
     mainAttributes.put(new Attributes.Name(MAIN_MODULE), DEFAULT_MAIN_MODULE);
     mainAttributes.put(new Attributes.Name(MAIN_FUNCTION), DEFAULT_MAIN_FUNCTION);

@@ -21,7 +21,7 @@ public abstract class Instruction {
 	}
 	
 	public void generate(){
-		 codeblock.addCode(opcode.getOpcode());
+		 codeblock.addCode0(opcode.getOpcode());
 	}
    
 }

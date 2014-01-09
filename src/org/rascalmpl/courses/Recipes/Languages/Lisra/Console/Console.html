@@ -54,31 +54,10 @@
                            
 <div id="Description">
 <span class="sectionHead">Description</span>  The final step is to tie everything together and to create an interactive Lisp console.
-  <pre class="listing">module demo::lang::Lisra::Console
+  <warning>PathNotFound(|std:///demo/lang/Lisra/Console.rsc|): L = |std:///demo/lang/Lisra/Console.rsc|, File demo/lang/Lisra/Console.rsc.</warning> <br/>
+<br/>
 
-import Prelude;
-import demo::lang::Lisra::Runtime;
-import demo::lang::Lisra::Syntax;
-import demo::lang::Lisra::Parse;
-import demo::lang::Lisra::Eval;
-import demo::lang::Lisra::Pretty;
-import util::IDE;
-
-// Parse and evaluate an expression.
-
-public Result eval(str txt, Env env) = eval(parse(txt), env); <img src="/images/1.png">
-
-// Create an interactive console.
-
-public void console(){                                        <img src="/images/2.png">
-   env = emptyEnv;
-   createConsole("Lisra Console",                             <img src="/images/3.png">
-                 "Welcome to the Awesome Lisra Interpreter\nLisra\> ", 
-                 str (str inp) { &lt;val, env> = eval(inp, env); 
-                                 return "&lt;pretty(val)>\nLisra\> ";
-                               });
-}
-</pre> At <img src="/images/1.png"> we define an <code>eval</code> function connects parsing and evaluation:
+ At <img src="/images/1.png"> we define an <code>eval</code> function connects parsing and evaluation:
  <ul><li> First the input text is parsed (see <a href="/Recipes/Languages/Lisra/Parse/Parse.html">Parse</a>) result is an <code>Lval</code>.</li>
 <li> Next, this <code>Lval</code> is evaluated by the <code>eval</code> function defined in <a href="/Recipes/Languages/Lisra/Eval/Eval.html">Eval</a>.<br/>
 <br/>
@@ -113,7 +92,7 @@ public void console(){                                        <img src="/images/
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Lisra/Console&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Lisra/Console&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

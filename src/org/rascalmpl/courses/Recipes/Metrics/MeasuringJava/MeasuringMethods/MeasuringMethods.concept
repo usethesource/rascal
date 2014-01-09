@@ -1,0 +1,51 @@
+Name: MeasuringMethods
+
+Synopsis:
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+Examples:
+
+<screen>
+import lang::java::m3::Core;
+import lang::java::jdt::m3::Core;
+import lang::java::jdt::m3::AST;
+// First extract our overview model
+myModel = createM3FromEclipseProject(|project://HelloWorld|);
+// Now let's focus on the methods
+myMethods = methods(myModel);
+// What is the source code for a method?
+import IO;
+methodSrc = readFile(|java+method:///HelloWorld/main(java.lang.String%5B%5D)|);
+// let's print it:
+println(methodSrc)
+// how many words in this method?
+(0 | it + 1 | /\W+/ := methodSrc)
+// let's get its AST
+methodAST = getMethodASTEclipse(|java+method:///HelloWorld/main(java.lang.String%5B%5D)|, model=myModel);
+// Now we count the number of expressions:
+(0 | it + 1 | /Expression _ := methodAST)
+// or give us the locations of all expressions:
+[m@src | /Expression m := methodAST]
+// the size should be the same, right?
+import List;
+size([m@src | /Expression m := methodAST]) == (0 | it + 1 | /Expression _ := methodAST)
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

@@ -69,7 +69,7 @@
  <pre class="screen"><span class="prompt">rascal></span>rel[str day, int daynum, int length] Traffic = 
 <span class="continuation">>>>>>>></span>{&lt;"mon", 1, 100>, &lt;"tue", 2, 150>, &lt;"wed", 3, 125>, 
 <span class="continuation">>>>>>>></span> &lt;"thur", 4, 110>, &lt;"fri", 5, 90>};
-rel[str day, int daynum, int length]: {
+rel[str day,int daynum,int length]: {
   &lt;"mon",1,100>,
   &lt;"wed",3,125>,
   &lt;"thur",4,110>,
@@ -77,7 +77,7 @@ rel[str day, int daynum, int length]: {
   &lt;"tue",2,150>
 }
 <span class="prompt">rascal></span>Traffic&lt;length,daynum&gt;;
-rel[int length, int daynum]: {
+rel[int length,int daynum]: {
   &lt;100,1>,
   &lt;90,5>,
   &lt;110,4>,
@@ -85,7 +85,7 @@ rel[int length, int daynum]: {
   &lt;150,2>
 }
 <span class="prompt">rascal></span>Traffic&lt;2,day&gt;;
-rel[int length, str day]: {
+rel[int length,str day]: {
   &lt;125,"wed">,
   &lt;150,"tue">,
   &lt;110,"thur">,

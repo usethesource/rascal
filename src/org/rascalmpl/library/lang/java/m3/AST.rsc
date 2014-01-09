@@ -1,7 +1,12 @@
+@doc{
+Synopsis: defines AST node types for Java
+}
 module lang::java::m3::AST
 
 extend analysis::m3::AST;
-import lang::java::m3::Core;
+import util::FileSystem;
+import lang::java::m3::TypeSymbol;
+import IO;
  
 data Declaration
     = \compilationUnit(list[Declaration] imports, list[Declaration] types)
@@ -16,7 +21,7 @@ data Declaration
     | \initializer(Statement initializerBody)
     | \method(Type \return, str name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
     | \method(Type \return, str name, list[Declaration] parameters, list[Expression] exceptions)
-    | \method(str name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
+    | \constructor(str name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
     | \import(str name)
     | \package(str name)
     | \package(Declaration parentPackage, str name)
@@ -38,12 +43,12 @@ data Expression
     | \arrayInitializer(list[Expression] elements)
     | \assignment(Expression lhs, str operator, Expression rhs)
     | \cast(Type \type, Expression expression)
-    | \char(str charValue)
+    | \characterLiteral(str charValue)
     | \newObject(Expression expr, Type \type, list[Expression] args, Declaration class)
     | \newObject(Expression expr, Type \type, list[Expression] args)
     | \newObject(Type \type, list[Expression] args, Declaration class)
     | \newObject(Type \type, list[Expression] args)
-    | \qualifier(Expression qualifier, Expression expression)
+    | \qualifiedName(Expression qualifier, Expression expression)
     | \conditional(Expression expression, Expression thenBranch, Expression elseBranch)
     | \fieldAccess(bool isSuper, Expression expression, str name)
     | \fieldAccess(bool isSuper, str name)
@@ -52,8 +57,8 @@ data Expression
     | \methodCall(bool isSuper, Expression receiver, str name, list[Expression] arguments)
     | \null()
     | \number(str numberValue)
-    | \boolean(bool boolValue)
-    | \string(str stringValue)
+    | \booleanLiteral(bool boolValue)
+    | \stringLiteral(str stringValue)
     | \type(Type \type)
     | \variable(str name, int extraDimensions)
     | \variable(str name, int extraDimensions, Expression \initializer)
@@ -61,7 +66,7 @@ data Expression
     | \this()
     | \this(Expression thisExpression)
     | \super()
-    | \declaration(Declaration decl)
+    | \declarationExpression(Declaration decl)
     | \infix(Expression lhs, str operator, Expression rhs, list[Expression] extendedOperands)
     | \postfix(Expression operand, str operator)
     | \prefix(str operator, Expression operand)
@@ -93,14 +98,14 @@ data Statement
     | \switch(Expression expression, list[Statement] statements)
     | \case(Expression expression)
     | \defaultCase()
-    | \synchronized(Expression lock, Statement body)
+    | \synchronizedStatement(Expression lock, Statement body)
     | \throw(Expression expression)
     | \try(Statement body, list[Statement] catchClauses)
     | \try(Statement body, list[Statement] catchClauses, Statement \finally)                                        
     | \catch(Declaration exception, Statement body)
-    | \declaration(Declaration declaration)
+    | \declarationStatement(Declaration declaration)
     | \while(Expression condition, Statement body)
-    | \expression(Expression stmt)
+    | \expressionStatement(Expression stmt)
     | \constructorCall(bool isSuper, Expression expr, list[Expression] arguments)
     | \constructorCall(bool isSuper, list[Expression] arguments)
     ;           
@@ -108,9 +113,8 @@ data Statement
 data Type 
     = arrayType(Type \type)
     | parameterizedType(Type \type)
-    // just str or expression?
-    | qualifier(Type qualifier, Expression simpleName)
-    | simpleType(str name)
+    | qualifiedType(Type qualifier, Expression simpleName)
+    | simpleType(Expression name)
     | unionType(list[Type] types)
     | wildcard()
     | upperbound(Type \type)
@@ -140,12 +144,28 @@ data Modifier
     | \native()
     | \volatile()
     | \strictfp()
-    | \deprecated()
     | \annotation(Expression \anno)
     | \onDemand()
     ;
+
+set[loc] getPaths(loc dir, str suffix) { 
+   bool containsFile(loc d) = isDirectory(d) ? (x <- d.ls && x.extension == suffix) : false;
+   return find(dir, containsFile);
+}
+
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
+@reflect
+java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
+
+void setEnvironmentOptions(loc directory) {
+    setEnvironmentOptions(getPaths(directory, "class") + find(directory, "jar"), getPaths(directory, "java"));
+}
       
-@doc{Creates AST from a file}
+@doc{
+Synopsis: Creates AST from a file
+
+Description: useful for analyzing raw source code on disk, but if you have an Eclipse project you should have a look at [lang/java/jdt/m3] instead.
+}
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
 public java Declaration createAstFromFile(loc file, bool collectBindings, str javaVersion = "1.7");
@@ -153,5 +173,5 @@ public java Declaration createAstFromFile(loc file, bool collectBindings, str ja
 @doc{Creates ASTs from a project}
 public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, str javaVersion = "1.7" ) {
    setEnvironmentOptions(project);
-   return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | loc f <- find(project, ".java") };
+   return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | loc f <- find(project, "java") };
 }

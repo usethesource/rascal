@@ -66,7 +66,7 @@
 </div>
 
 <div id="Details">
-<span class="sectionHead">Details</span> <a href="/Rascal/Libraries/util/Resources/dependencies/dependencies.html">dependencies</a> &#032 <a href="/Rascal/Libraries/util/Resources/getProject/getProject.html">getProject</a> &#032 <a href="/Rascal/Libraries/util/Resources/projects/projects.html">projects</a> &#032 <a href="/Rascal/Libraries/util/Resources/references/references.html">references</a> &#032 <a href="/Rascal/Libraries/util/Resources/root/root.html">root</a> &#032 
+<span class="sectionHead">Details</span> <a href="/Rascal/Libraries/util/Resources/dependencies/dependencies.html">dependencies</a> &#032 <a href="/Rascal/Libraries/util/Resources/getProject/getProject.html">getProject</a> &#032 <a href="/Rascal/Libraries/util/Resources/projects/projects.html">projects</a> &#032 <a href="/Rascal/Libraries/util/Resources/references/references.html">references</a> &#032 <a href="/Rascal/Libraries/util/Resources/Resource/Resource.html">Resource</a> &#032 <a href="/Rascal/Libraries/util/Resources/root/root.html">root</a> &#032 
 </div>
 
 <div id="Description">
@@ -96,6 +96,7 @@
 <li><a href="/Rascal/Libraries/util/Resources/getProject/getProject.html">getProject</a>: Retrieve the hierarchical representation of a single named project.</li>
 <li><a href="/Rascal/Libraries/util/Resources/projects/projects.html">projects</a>: Retrieve the set of project locations of the current Eclipse workspace.</li>
 <li><a href="/Rascal/Libraries/util/Resources/references/references.html">references</a>: The set of projects that are referenced by a project.</li>
+<li><a href="/Rascal/Libraries/util/Resources/Resource/Resource.html">Resource</a>: </li>
 <li><a href="/Rascal/Libraries/util/Resources/root/root.html">root</a>: Retrieve a full hierarchical representation of all resources in the Eclipse workspace.</li>
 </ul>
 </div>
@@ -116,7 +117,144 @@ ok
 <span class="prompt">rascal></span>getProject(|project://org.eclipse.imp.pdb.values|);
 Resource: project(
   |project://org.eclipse.imp.pdb.values|,
-  {})
+  {
+    folder(
+      |project://org.eclipse.imp.pdb.values/.settings|,
+      {
+        file(|project://org.eclipse.imp.pdb.values/.settings/org.eclipse.core.resources.prefs|),
+        file(|project://org.eclipse.imp.pdb.values/.settings/org.eclipse.jdt.core.prefs|)
+      }),
+    file(|project://org.eclipse.imp.pdb.values/pom.xml|),
+    folder(
+      |project://org.eclipse.imp.pdb.values/test|,
+      {folder(
+          |project://org.eclipse.imp.pdb.values/test/org|,
+          {folder(
+              |project://org.eclipse.imp.pdb.values/test/org/eclipse|,
+              {folder(
+                  |project://org.eclipse.imp.pdb.values/test/org/eclipse/imp|,
+                  {folder(
+                      |project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb|,
+                      {folder(
+                          |project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test|,
+                          {
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/BaseTestAnnotations.java|),
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/BaseTestSet.java|),
+                            folder(
+                              |project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/fast|,
+                              {
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/fast/TestRelation.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/fast/TestListRelation.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/fast/TestEquality.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/fast/TestAnnotations.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/fast/TestList.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/fast/TestRandomValues.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/fast/TestMap.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/fast/TestValueFactory.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/fast/TestSet.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/fast/TestBasicValues.java|)
+                              }),
+                            folder(
+                              |project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/random|,
+                              {
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/random/RandomRealGenerator.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/random/RandomRationalGenerator.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/random/RandomIntegerGenerator.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/random/RandomGenerator.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/random/RandomTypeGenerator.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/random/DataGenerator.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/random/RandomNumberGenerator.java|)
+                              }),
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/BaseTestMap.java|),
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/BaseTestRandomValues.java|),
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/TestTypeFactory.java|),
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/TestType.java|),
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/BaseTestList.java|),
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/AllTests.java|),
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/BaseTestRelation.java|),
+                            folder(
+                              |project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/reference|,
+                              {
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/reference/TestRelation.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/reference/TestListRelation.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/reference/TestEquality.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/reference/TestValueFactory.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/reference/TestMap.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/reference/TestList.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/reference/TestBasicValues.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/reference/TestAnnotations.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/reference/TestSet.java|),
+                                file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/reference/TestRandomValues.java|)
+                              }),
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/TestBinaryIO.java|),
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/TestIO.java|),
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/BaseTestListRelation.java|),
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/BaseTestEquality.java|),
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/BaseTestBasicValues.java|),
+                            file(|project://org.eclipse.imp.pdb.values/test/org/eclipse/imp/pdb/test/BaseTestValueFactory.java|)
+                          })})})})})}),
+    file(|project://org.eclipse.imp.pdb.values/build.properties|),
+    folder(
+      |project://org.eclipse.imp.pdb.values/bin|,
+      {
+        folder(
+          |project://org.eclipse.imp.pdb.values/bin/org|,
+          {folder(
+              |project://org.eclipse.imp.pdb.values/bin/org/eclipse|,
+              {folder(
+                  |project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp|,
+                  {folder(
+                      |project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb|,
+                      {
+                        folder(
+                          |project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test|,
+                          {
+                            folder(
+                              |project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/fast|,
+                              {
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/fast/TestSet.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/fast/TestAnnotations.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/fast/TestValueFactory.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/fast/TestBasicValues.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/fast/TestRandomValues.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/fast/TestList.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/fast/TestMap.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/fast/TestListRelation.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/fast/TestEquality.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/fast/TestRelation.class|)
+                              }),
+                            file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/BaseTestBasicValues.class|),
+                            file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/TestType.class|),
+                            file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/BaseTestMap$TestValue.class|),
+                            file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/BaseTestMap$StringPair.class|),
+                            file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/TestIO.class|),
+                            file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/BaseTestListRelation.class|),
+                            file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/BaseTestEquality.class|),
+                            file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/BaseTestMap$Kind.class|),
+                            file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/BaseTestRelation.class|),
+                            file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/TestTypeFactory.class|),
+                            file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/AllTests.class|),
+                            folder(
+                              |project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/reference|,
+                              {
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/reference/TestSet.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/reference/TestValueFactory.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/reference/TestListRelation.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/reference/TestEquality.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/reference/TestAnnotations.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/reference/TestRandomValues.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/reference/TestBasicValues.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/reference/TestMap.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/reference/TestRelation.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/reference/TestList.class|)
+                              }),
+                            file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/TestBinaryIO.class|),
+                            folder(
+                              |project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/random|,
+                              {
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/random/DataGenerator.class|),
+                                file(|project://org.eclipse.imp.pdb.values/bin/org/eclipse/imp/pdb/test/random/RandomTypeGenerator.class|),
+          ...
 </pre>
 </div>
 

@@ -57,12 +57,21 @@ test bool tst() = run("(x \<- [1,2] && x == 2) && (y \<- [5,6] && y == 7)") == (
 test bool tst() = run("(x \<- [1,2] && x == 3) && (y \<- [5,6] && y == 6)") == ((x <- [1,2] && x == 3) && (y <- [5,6] && y == 6));
 test bool tst() = run("(x \<- [1,2] && x == 3) && (y \<- [5,6] && y == 7)") == ((x <- [1,2] && x == 3) && (y <- [5,6] && y == 7));
 
+test bool tst() = run("{for( ([*int x,*int y] := [1,2,3]) && ([*int p, *int q] := [4,5,6]) ) {append \<x, y, p, q\>;}}") ==
+    	               {for( ([*int x,*int y] := [1,2,3]) && ([*int p,*int q] := [4,5,6]) ) {append <x, y, p, q>; }};
+    	               
+test bool tst() = run("{for( ([*int x,*int y] := [1,2,3]) , ([*int p, *int q] := [4,5,6]) ) {append \<x, y, p, q\>;}}") ==
+    	               {for( ([*int x,*int y] := [1,2,3]) , ([*int p,*int q] := [4,5,6]) ) {append <x, y, p, q>; }};
+
 // || with backtrackable arguments
 
-/*fails*/ // test bool tst() = run("(x \<- [1,2] && x == 2) || (y \<- [5,6] && y == 6)") == ((x <- [1,2] && x == 2) || (y <- [5,6] && y == 6));
-/*fails*/ // test bool tst() = run("(x \<- [1,2] && x == 2) || (y \<- [5,6] && y == 7)") == ((x <- [1,2] && x == 2) || (y <- [5,6] && y == 7));
-/*fails*/ // test bool tst() = run("(x \<- [1,2] && x == 3) || (y \<- [5,6] && y == 6)") == ((x <- [1,2] && x == 3) || (y <- [5,6] && y == 6));
-/*fails*/ // test bool tst() = run("(x \<- [1,2] && x == 3) || (y \<- [5,6] && y == 7)") == ((x <- [1,2] && x == 3) || (y <- [5,6] && y == 7));
+test bool tst() = run("(x \<- [1,2] && x == 2) || (y \<- [5,6] && y == 6)") == ((x <- [1,2] && x == 2) || (y <- [5,6] && y == 6));
+test bool tst() = run("(x \<- [1,2] && x == 2) || (y \<- [5,6] && y == 7)") == ((x <- [1,2] && x == 2) || (y <- [5,6] && y == 7));
+test bool tst() = run("(x \<- [1,2] && x == 3) || (y \<- [5,6] && y == 6)") == ((x <- [1,2] && x == 3) || (y <- [5,6] && y == 6));
+test bool tst() = run("(x \<- [1,2] && x == 3) || (y \<- [5,6] && y == 7)") == ((x <- [1,2] && x == 3) || (y <- [5,6] && y == 7));
+
+test bool tst() = run("{for( ([*int x,*int y] := [1,2,3]) || ([*int x,*int y] := [4,5,6]) ) {append \<x, y\>;}}") == 
+                       {for( ([*int x,*int y] := [1,2,3]) || ([*int x,*int y] := [4,5,6]) ) {append <x, y>; }};
 
 // ! with backtrackable argument
 
@@ -76,6 +85,9 @@ test bool tst() = run("(x \<- [1,2] && x == 2) ==\> (y \<- [5,6] && y == 7)") ==
 test bool tst() = run("(x \<- [1,2] && x == 3) ==\> (y \<- [5,6] && y == 6)") == ((x <- [1,2] && x == 3) ==> (y <- [5,6] && y == 6));
 test bool tst() = run("(x \<- [1,2] && x == 3) ==\> (y \<- [5,6] && y == 7)") == ((x <- [1,2] && x == 3) ==> (y <- [5,6] && y == 7));
 
+test bool tst() = run("{for( ([*int x,*int y] := [1,2,3]) ==\> ([*int x,*int y] := [4,5,6]) ) {append \<x, y\>;}}") ==
+    	               {for( ([*int x,*int y] := [1,2,3]) ==> ([*int x,*int y] := [4,5,6]) ) {append <x, y>; }};
+
 // <==> with backtrackable arguments
 
 test bool tst() = run("(x \<- [1,2] && x == 2) \<==\> (y \<- [5,6] && y == 6)") == (x <- [1,2] && x == 2) <==> (y <- [5,6] && y == 6);
@@ -83,6 +95,37 @@ test bool tst() = run("(x \<- [1,2] && x == 2) \<==\> (y \<- [5,6] && y == 7)") 
 test bool tst() = run("(x \<- [1,2] && x == 3) \<==\> (y \<- [5,6] && y == 6)") == (x <- [1,2] && x == 3) <==> (y <- [5,6] && y == 6);
 test bool tst() = run("(x \<- [1,2] && x == 3) \<==\> (y \<- [5,6] && y == 7)") == (x <- [1,2] && x == 3) <==> (y <- [5,6] && y == 7);
 
+
+// The interpreter complains about undefined variable "x"
+/*fails*/ //test bool tst() = run("{for( ([*int x,*int y] := [1,2,3]) \<==\> ([*int x,*int y] := [4,5,6]) ) {append \<x, y\>;}}") ==
+    	  //             {for( ([*int x,*int y] := [1,2,3]) <==> ([*int x,*int y] := [4,5,6]) ) {append <x, y>; }};
+
 // Miscellaneous
 
 test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2] && x == [1, 2]") == [*int x, 3, x] := [1,2,3,1,2] && x == [1, 2];
+
+// Shortcut evaluation
+
+test bool tst() = run("{int n = 0; bool b(bool x) { n += 1; return x;}; b(true) && b(true); n;}") == 
+                       {int n = 0; bool b(bool x) { n += 1; return x;}; b(true) && b(true); n;};
+                       
+test bool tst() = run("{int n = 0; bool b(bool x) { n += 1; return x;}; b(false) && b(true); n;}") == 
+                       {int n = 0; bool b(bool x) { n += 1; return x;}; b(false) && b(true); n;};
+                       
+test bool tst() = run("{int n = 0; bool b(bool x) { n += 1; return x;}; b(true) || b(true); n;}") == 
+                       {int n = 0; bool b(bool x) { n += 1; return x;}; b(true) || b(true); n;};
+                       
+test bool tst() = run("{int n = 0; bool b(bool x) { n += 1; return x;}; b(false) || b(true); n;}") == 
+                       {int n = 0; bool b(bool x) { n += 1; return x;}; b(false) || b(true); n;};
+                       
+test bool tst() = run("{int n = 0; bool b(bool x) { n += 1; return x;}; b(true) ==\> b(true); n;}") == 
+                       {int n = 0; bool b(bool x) { n += 1; return x;}; b(true) ==> b(true); n;};
+                       
+test bool tst() = run("{int n = 0; bool b(bool x) { n += 1; return x;}; b(false) ==\> b(true); n;}") == 
+                       {int n = 0; bool b(bool x) { n += 1; return x;}; b(false) ==> b(true); n;};
+                       
+test bool tst() = run("{int n = 0; bool b(bool x) { n += 1; return x;}; b(true) \<==\> b(true); n;}") == 
+                       {int n = 0; bool b(bool x) { n += 1; return x;}; b(true) <==> b(true); n;};
+                       
+test bool tst() = run("{int n = 0; bool b(bool x) { n += 1; return x;}; b(false) \<==\> b(true); n;}") == 
+                       {int n = 0; bool b(bool x) { n += 1; return x;}; b(false) <==> b(true); n;};

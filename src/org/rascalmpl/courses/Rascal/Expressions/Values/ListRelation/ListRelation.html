@@ -120,7 +120,7 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>[&lt;1,10&gt;, &lt;2,20&gt;, &lt;3,30&gt;]
-lrel[int, int]: [
+lrel[int,int]: [
   &lt;1,10>,
   &lt;2,20>,
   &lt;3,30>
@@ -128,13 +128,13 @@ lrel[int, int]: [
 </pre>  instead of lrel[int,int] we can also give <code>list[tuple[int,int]]</code> as type of the above expression
   remember that these types are interchangeable.
 <pre class="screen"><span class="prompt">rascal></span>[&lt;&quot;a&quot;,10&gt;, &lt;&quot;b&quot;,20&gt;, &lt;&quot;c&quot;,30&gt;]
-lrel[str, int]: [
+lrel[str,int]: [
   &lt;"a",10>,
   &lt;"b",20>,
   &lt;"c",30>
 ]
 <span class="prompt">rascal></span>[&lt;&quot;a&quot;, 1, &quot;b&quot;&gt;, &lt;&quot;c&quot;, 2, &quot;d&quot;&gt;]
-lrel[str, int, str]: [
+lrel[str,int,str]: [
   &lt;"a",1,"b">,
   &lt;"c",2,"d">
 ]
@@ -167,14 +167,14 @@ lrel[str, int, str]: [
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_ListRelation_1:answer" id="Rascal/Expressions/Values/ListRelation_1_3" value="0@3@[3,5,0]">
-<label for="Rascal/Expressions/Values/ListRelation_1_3">Has ordered elements. </label><br/>
+<input type="radio" name="Rascal_Expressions_Values_ListRelation_1:answer" id="Rascal/Expressions/Values/ListRelation_1_4" value="0@4@[4,0,3]">
+<label for="Rascal/Expressions/Values/ListRelation_1_4">Can contain duplicates. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_ListRelation_1:answer" id="Rascal/Expressions/Values/ListRelation_1_5" value="1@5@[3,5,0]">
-<label for="Rascal/Expressions/Values/ListRelation_1_5">Has a fixed length. </label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_ListRelation_1:answer" id="Rascal/Expressions/Values/ListRelation_1_0" value="2@0@[3,5,0]">
+<input type="radio" name="Rascal_Expressions_Values_ListRelation_1:answer" id="Rascal/Expressions/Values/ListRelation_1_0" value="1@0@[4,0,3]">
 <label for="Rascal/Expressions/Values/ListRelation_1_0">Is a set of tuples. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_ListRelation_1:answer" id="Rascal/Expressions/Values/ListRelation_1_3" value="2@3@[4,0,3]">
+<label for="Rascal/Expressions/Values/ListRelation_1_3">Has ordered elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

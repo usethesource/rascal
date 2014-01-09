@@ -26,7 +26,7 @@ public class Closure {
 		rvm.declare(new Function("g", tf.valueType(), "f", 0, 0, 6,
 				new CodeBlock(vf).
 					LOADVAR("f",0).          // <<-
-					RETURN1()
+					RETURN1(1)
 		));
 		
 		rvm.declare(new Function("f", tf.valueType(), null, 0, 1, 6,
@@ -34,14 +34,14 @@ public class Closure {
 					LOADCON(1).
 					STORELOC(0).
 					LOADNESTEDFUN("g", "f"). // <<-
-					RETURN1()
+					RETURN1(1)
 		));
 		
 		rvm.declare(new Function("main", tf.valueType(), null, 1, 1, 6,
 					new CodeBlock(vf).
 						CALL("f", 0).
 						CALLDYN(1).
-						RETURN1().
+						RETURN1(1).
 						HALT()));
 	
 		rvm.declare(new Function("#module_init", tf.valueType(), null, 1, 1, 6, 

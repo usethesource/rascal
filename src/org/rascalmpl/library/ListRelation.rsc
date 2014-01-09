@@ -379,8 +379,8 @@ legs = [<"bird", 2>, <"dog", 4>, <"human", 2>, <"spider", 8>, <"millepede", 1000
 groupDomainByRange(legs);
 </screen>
 }
-public set[set[&U]] groupDomainByRange(lrel[&U dom, &T ran] input) {
-   return ( i : (input<ran, dom>)[i] | i <- input.ran )<1>;
+public set[list[&U]] groupDomainByRange(lrel[&U dom, &T ran] input) {
+   return ( i : (input<ran, dom>)[{i}] | i <- input.ran )<1>;
 }
 
 @doc{
@@ -388,12 +388,12 @@ Synopsis: Make sets of elements in the range that relate to the same element in 
 
 Description:
 <screen>
-import Relation;
+import ListRelation;
 skins = [<"bird", "feather">, <"dog", "fur">, <"tortoise", "shell">, <"human", "skin">, <"fish", "scale">, <"lizard", "scale">, <"crab", "shell">, <"cat", "fur">];
 groupRangeByDomain(skins);
 </screen>
 }
-public set[set[&T]] groupRangeByDomain(lrel[&U dom, &T ran] input) {
+public set[list[&T]] groupRangeByDomain(lrel[&U dom, &T ran] input) {
    return ( i : input[i] | i <- input.dom )<1>;
 }
 

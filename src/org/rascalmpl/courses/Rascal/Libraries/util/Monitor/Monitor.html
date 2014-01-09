@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/util/Monitor</title>
 
-<meta name="description" content="Rascal/Libraries/util/Monitor:  Monitor the progress of a job.">
+<meta name="description" content="Rascal/Libraries/util/Monitor:  Monitor the progress of a task/job">
 
 <meta name="keywords" content="Rascal/Libraries/util/Monitor, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Monitor the progress of a job.
+<span class="sectionHead">Synopsis</span>  Monitor the progress of a task/job
 
 </div>
 
@@ -59,27 +59,7 @@
 </div>
 
 <div id="Details">
-<span class="sectionHead">Details</span> <a href="/Rascal/Libraries/util/Monitor/startJob/startJob.html">startJob</a> &#032 <a href="/Rascal/Libraries/util/Monitor/event/event.html">event</a> &#032 <a href="/Rascal/Libraries/util/Monitor/todo/todo.html">todo</a> &#032 <a href="/Rascal/Libraries/util/Monitor/endJob/endJob.html">endJob</a> &#032 
-</div>
-
-<div id="Description">
-<span class="sectionHead">Description</span>  The Monitor library provides functionality to show the progress of a <i>job</i>.
- A job is an amount of work that has a <i>name</i>, is explicitly started (using <a href="/Rascal/Libraries/util/Monitor/startJob/startJob.html">startJob</a>)
- and continues until it is explicitly ended (using <a href="/Rascal/Libraries/util/Monitor/endJob/endJob.html">endJob</a>).
- <br/>
-<br/>
-
- Optionally, the amount of work to be done or that has been completed can be specified
- in order to give better progress estimations to the user.
- <br/>
-<br/>
-
- The following functions are provided:
- <ul><li><a href="/Rascal/Libraries/util/Monitor/startJob/startJob.html">startJob</a>: Log the <b>start</b> of a job.</li>
-<li><a href="/Rascal/Libraries/util/Monitor/event/event.html">event</a>: Log the <b>start</b> of an event (it is ended by another <code>event</code> or by <code>endJob</code>).</li>
-<li><a href="/Rascal/Libraries/util/Monitor/todo/todo.html">todo</a>: Set the estimated remaining work for the current (sub)job.</li>
-<li><a href="/Rascal/Libraries/util/Monitor/endJob/endJob.html">endJob</a>: Log the <b>end</b> of a job.</li>
-</ul>
+<span class="sectionHead">Details</span> <a href="/Rascal/Libraries/util/Monitor/endJob/endJob.html">endJob</a> &#032 <a href="/Rascal/Libraries/util/Monitor/event/event.html">event</a> &#032 <a href="/Rascal/Libraries/util/Monitor/startJob/startJob.html">startJob</a> &#032 <a href="/Rascal/Libraries/util/Monitor/todo/todo.html">todo</a> &#032 
 </div>
 
   	                       

@@ -12,7 +12,7 @@ Details:
 
 Description:
 [Bubble sort](http://en.wikipedia.org/wiki/Bubble_sort) is a classical (albeit not the most efficient) technique to sort lists of values.
-We present here several styles to implement bubble sort. Also see [Rascal:sort] for a more efficient library function for sorting.
+We present here several styles to implement bubble sort. Also see [Rascal:Libraries/Prelude/Set/sort] for a more efficient library function for sorting.
 
 Examples:
 <listing demo/basic/Bubble.rsc>

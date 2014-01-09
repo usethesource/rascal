@@ -1,5 +1,0 @@
-<AUTOINSERTED>
-Name: LabeledGraph
-Usage: `import analysis::graphs::LabeledGraph;`
-</AUTOINSERTED>
-Synopsis: Labelled graphs with associated functions.

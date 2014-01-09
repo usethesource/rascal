@@ -79,13 +79,13 @@
 ok
 </pre>  Declare <code>R</code> and compute corresponding <code>U</code>:
 <pre class="screen"><span class="prompt">rascal></span>R = [&lt;1,10&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;];
-lrel[int, int]: [
+lrel[int,int]: [
   &lt;1,10>,
   &lt;2,20>,
   &lt;3,30>
 ]
 <span class="prompt">rascal></span>U = domain(R) * range(R);
-lrel[int, int]: [
+lrel[int,int]: [
   &lt;1,10>,
   &lt;1,20>,
   &lt;1,30>,
@@ -98,7 +98,7 @@ lrel[int, int]: [
 ]
 </pre>  Here is the complement of <code>R</code> computed in two ways:
 <pre class="screen"><span class="prompt">rascal></span>U - R;
-lrel[int, int]: [
+lrel[int,int]: [
   &lt;1,20>,
   &lt;1,30>,
   &lt;2,10>,
@@ -107,7 +107,7 @@ lrel[int, int]: [
   &lt;3,20>
 ]
 <span class="prompt">rascal></span>complement([&lt;1,10&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;]);
-lrel[int, int]: [
+lrel[int,int]: [
   &lt;1,20>,
   &lt;1,30>,
   &lt;2,10>,
@@ -142,8 +142,8 @@ lrel[int, int]: [
 <span id="answerFeedback_Rascal_Libraries_Prelude_ListRelation_complement_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_ListRelation_complement_1:R" value="[&lt;&quot;E&quot;, -14&gt;, &lt;&quot;Wasabi&quot;, -2&gt;]">
-The type of <tt>complement([&lt;&quot;E&quot;, -14&gt;, &lt;&quot;Wasabi&quot;, -2&gt;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_ListRelation_complement_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_ListRelation_complement_1:R" value="[&lt;&quot;Sy Snootles&quot;, 6&gt;, &lt;&quot;Rosemary&quot;, -15&gt;]">
+The type of <tt>complement([&lt;&quot;Sy Snootles&quot;, 6&gt;, &lt;&quot;Rosemary&quot;, -15&gt;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_ListRelation_complement_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -167,8 +167,8 @@ The type of <tt>complement([&lt;&quot;E&quot;, -14&gt;, &lt;&quot;Wasabi&quot;, 
 <span id="answerFeedback_Rascal_Libraries_Prelude_ListRelation_complement_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_ListRelation_complement_2:R" value="[&lt;&quot;Guava&quot;, -4&gt;, &lt;&quot;Grover&quot;, 17&gt;]">
-<pre class="prequestion">complement([&lt;&quot;Guava&quot;, -4&gt;, &lt;&quot;Grover&quot;, 17&gt;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_ListRelation_complement_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_ListRelation_complement_2:R" value="[&lt;&quot;G&quot;, -2&gt;, &lt;&quot;Darth Sidious&quot;, -17&gt;, &lt;&quot;Zekk&quot;, -14&gt;]">
+<pre class="prequestion">complement([&lt;&quot;G&quot;, -2&gt;, &lt;&quot;Darth Sidious&quot;, -17&gt;, &lt;&quot;Zekk&quot;, -14&gt;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_ListRelation_complement_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_ListRelation_complement_2:another" value="yes">

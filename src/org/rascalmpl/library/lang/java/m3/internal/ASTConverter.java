@@ -177,7 +177,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	public boolean visit(BooleanLiteral node) {
 		IValue booleanValue = values.bool(node.booleanValue());
 		
-		ownValue = constructExpressionNode("boolean", booleanValue);
+		ownValue = constructExpressionNode("booleanLiteral", booleanValue);
 		
 		return false;
 	}
@@ -210,7 +210,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	public boolean visit(CharacterLiteral node) {
 		IValue value = values.string(node.getEscapedValue()); 
 		
-		ownValue = constructExpressionNode("char", value);
+		ownValue = constructExpressionNode("characterLiteral", value);
 		
 		return false;
 	}
@@ -391,7 +391,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	public boolean visit(ExpressionStatement node) {
 		
 		IValue expression = visitChild(node.getExpression());
-		ownValue = constructStatementNode("expression", expression);
+		ownValue = constructStatementNode("expressionStatement", expression);
 		
 		return false;
 	}
@@ -557,7 +557,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(MethodDeclaration node) {
-		
+		String constructorName = "method";
 		IValueList extendedModifiers = parseExtendedModifiers(node);
 		
 		IValueList genericTypes = new IValueList(values);
@@ -581,6 +581,8 @@ public class ASTConverter extends JavaToRascalConverter {
 				
 				returnType = constructTypeNode("void");
 			}
+		} else {
+			constructorName = "constructor";
 		}
 		
 		IValue name = values.string(node.getName().getFullyQualifiedName());
@@ -602,7 +604,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	
 		IValue body = node.getBody() == null ? null : visitChild(node.getBody()); 
 	
-		ownValue = constructDeclarationNode("method", returnType, name, parameters.asList(), possibleExceptions.asList(), body);
+		ownValue = constructDeclarationNode(constructorName, returnType, name, parameters.asList(), possibleExceptions.asList(), body);
 		setAnnotation("modifiers", extendedModifiers);
 		setAnnotation("typeParameters", genericTypes);
 		return false;
@@ -690,11 +692,11 @@ public class ASTConverter extends JavaToRascalConverter {
 		for (String component: node.getName().getFullyQualifiedName().split("\\.")) {
 			if (ownValue == null) {
 				ownValue = constructDeclarationNode("package", values.string(component));
-				setAnnotation("binding", resolveBinding(component));
+				setAnnotation("decl", resolveBinding(component));
 				continue;
 			}
 			ownValue = constructDeclarationNode("package", ownValue, values.string(component));
-			setAnnotation("binding", resolveBinding(component));
+			setAnnotation("decl", resolveBinding(component));
 		}
 		
 		setAnnotation("modifiers", annotations);
@@ -757,7 +759,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		
 		IValue name = visitChild(node.getName());
 		
-		ownValue = constructExpressionNode("qualifier", qualifier, name);
+		ownValue = constructExpressionNode("qualifiedName", qualifier, name);
 		
 		return false;
 	}
@@ -769,7 +771,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		
 		IValue name = visitChild(node.getName());
 		
-		ownValue = constructTypeNode("qualifier", qualifier, name);
+		ownValue = constructTypeNode("qualifiedType", qualifier, name);
 		
 		return false;
 	}
@@ -792,9 +794,8 @@ public class ASTConverter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(SimpleType node) {
-		
-		String name = node.getName().toString();
-		ownValue = constructTypeNode("simpleType", values.string(name));
+		IValue value = visitChild(node.getName());
+		ownValue = constructTypeNode("simpleType", value);
 		
 		return false;
 	}
@@ -830,7 +831,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	public boolean visit(StringLiteral node) {
 		
 		IValue value = values.string(node.getEscapedValue());		
-		ownValue = constructExpressionNode("string", value);
+		ownValue = constructExpressionNode("stringLiteral", value);
 		
 		return false;
 	}
@@ -931,7 +932,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue expression = visitChild(node.getExpression());
 		IValue body = visitChild(node.getBody());
 		
-		ownValue = constructStatementNode("synchronized", expression, body);
+		ownValue = constructStatementNode("synchronizedStatement", expression, body);
 		
 		return false;
 	}
@@ -1044,7 +1045,7 @@ public class ASTConverter extends JavaToRascalConverter {
 			typeDeclaration = visitChild(node.getDeclaration());
 		}
 		
-		ownValue = constructStatementNode("declaration", typeDeclaration);
+		ownValue = constructStatementNode("declarationStatement", typeDeclaration);
 		
 		return false;
 	}
@@ -1104,7 +1105,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		ownValue = constructDeclarationNode("variables", type, fragments.asList());
 		setAnnotation("modifiers", extendedModifiers);
 		
-		ownValue = constructExpressionNode("declaration", ownValue);
+		ownValue = constructExpressionNode("declarationExpression", ownValue);
 		
 		
 		return false;
@@ -1138,7 +1139,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		ownValue = constructDeclarationNode("variables", type, fragments.asList());
 		setAnnotation("modifiers", extendedModifiers);
 		
-		ownValue = constructStatementNode("declaration", ownValue);
+		ownValue = constructStatementNode("declarationStatement", ownValue);
 		
 		return false;
 	}

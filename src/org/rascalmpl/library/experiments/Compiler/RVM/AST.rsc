@@ -7,10 +7,18 @@ public data Declaration =
 		  		   Symbol ftype, 
 		  		   str scopeIn, 
 		  		   int nformals, 
-		  		   int nlocals, 
-		  		   int maxStack, 
+		  		   int nlocals,
+		  		   bool isVarArgs,
+		  		   int maxStack,
 		  		   list[Instruction] instructions,
 		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
+	    | COROUTINE(str qname, 
+		  		    str scopeIn, 
+		  		    int nformals, 
+		  		    int nlocals, 
+		  		    list[int] refs,
+		  		    int maxStack, 
+		  		    list[Instruction] instructions)
 		;
 
 public data RVMProgram = rvm(str name,
@@ -19,8 +27,9 @@ public data RVMProgram = rvm(str name,
                              map[str, Declaration] declarations, 
                              list[Instruction] initialization, 
                              map[str,int] resolver, 
-                             lrel[str,list[str],list[str]] overloaded_functions,
-                             map[Symbol, Production] grammar);
+                             lrel[str,list[str],list[str]] overloaded_functions
+                             //,map[Symbol, Production] grammar
+                             );
 
 data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
@@ -37,10 +46,16 @@ data Instruction =
 		| LOADLOC(int pos)							// Push value of local variable
 		| STORELOC(int pos)							// Store value on top-of-stack in the local variable (value remains on stack)
 		
-		| UNWRAPTHROWN(int pos)                    // Unwrap a thrown value on top-of-stack, and store the unwrapped value in the local variable (value removed from the stack)
+		| LOADLOCKWP(str name)                        // Load value of a keyword parameter
+		| STORELOCKWP(str name)                       // Store value on top-of-stack in the keyword parameter (value remains on stack)
+		
+		| UNWRAPTHROWN(int pos)                     // Unwrap a thrown value on top-of-stack, and store the unwrapped value in the local variable (value removed from the stack)
 	   	
 		| LOADVAR(str fuid, int pos)                // Push a variable from an outer scope
-		| STOREVAR(str fuid, int pos)               // Store value on  top-of-stack in variable in surrounding scope (value remains on stack)
+		| STOREVAR(str fuid, int pos)               // Store value on top-of-stack in variable in surrounding scope (value remains on stack)
+		
+		| LOADVARKWP(str fuid, str name)              // Load a keyword parameter from an outer scope
+		| STOREVARKWP(str fuid, str name)             // Store value on top-of-stack in the keyword parameter of a surrounding scope (value remains on stack)
 
 		| LOADMODULEVAR(str fuid)          			// Push a variable from a global module scope
 		| STOREMODULEVAR(str fuid)         			// Store value on  top-of-stack in variable in global module scope (value remains on stack)
@@ -63,10 +78,11 @@ data Instruction =
 		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive)
 		| CALLPRIM(str name, int arity)				// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
 		| CALLJAVA(str name, str class, 
-		           Symbol parameterTypes)			// Call a Java method
+		           Symbol parameterTypes,
+		           int reflect)			            // Call a Java method
 		
 		| RETURN0()									// Return from function without value
-		| RETURN1()									// Return from function with value
+		| RETURN1(int arity)						// Return from function with value
 		| FAILRETURN()								// Failure return from function
 		| FILTERRETURN()							// Return for filter statement
 		
@@ -77,7 +93,8 @@ data Instruction =
 		| JMPTRUE(str label)						// Jump to labelled instruction when top-of-stack is true (stack is popped)
 		| JMPFALSE(str label)						// Jump to labelled instruction when top-of-stack is false (stack is popped)
 													// TODO: JMPTRUE and JMPFALSE currently act on Java booleans and Rascal booleans; this has to be split
-		| JMPSWITCH(list[str] labels)				// Computed jump. Takes an integer i from the stack and jumps to the i-th label in the list
+		| TYPESWITCH(list[str] labels)				// Switch on type. Takes the type of the value on the stack and  jumps to the corresponding label in the list
+		| JMPINDEXED(list[str] labels)				// Computed jump. Takes an integer i from the stack and jumps to the i-th label in the list
 		
 		| CREATE(str fuid, int arity)				// Create a co-routine from a named function
 		| CREATEDYN(int arity)						// Create a co-routine from a function on the stack
@@ -86,12 +103,26 @@ data Instruction =
 		| NEXT0()									// Next operation (without argument) on co-routine on top-of-stack
 		| NEXT1()									// Next operation (with argument) on co-routine on top-of-stack
 		| YIELD0()									// Yield from co-routine without value
-		| YIELD1()									// Yield from co-routine with value
+		| YIELD1(int arity)							// Yield from co-routine with value
+		| EXHAUST()                                 // Return from a coroutine disallowing further resumption;
+		| GUARD()                                   // Suspends the current coroutine instance during initialization if true,
+		                                            // or terminates it returning false;
 		
 		| PRINTLN(int arity)						// Print arity values on the stack (TODO: may disappear)
 		
 		| POP()										// Pop one value from the stack
 		
 		| HALT()									// Halt execution of the RVM program
+		| SUBSCRIPTARRAY()							// Fetch array element with given index (mint)
+		| SUBSCRIPTLIST()							// Fetch list element with given index (mint)
+		| LESSINT()									// Less between two mints
+		| GREATEREQUALINT()							// Greater-equal between two mints
+		| ADDINT()									// Add two mints
+		| SUBTRACTINT()								// Subtract two mints
+		| ANDBOOL()									// and between two mbools.
+		
+		| TYPEOF()									// Get type of top element
+		| SUBTYPE()									// Subtype between top two IValues
+		| CHECKARGTYPE()							// Check the type of an argument
 ;
 	

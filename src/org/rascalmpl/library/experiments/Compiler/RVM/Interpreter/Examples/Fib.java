@@ -29,14 +29,14 @@ public static void main(String[] args) {
 					CALLPRIM(RascalPrimitive.equal, 2).
 					JMPFALSE("L").
 					LOADCON(0).
-					RETURN1().
+					RETURN1(1).
 					LABEL("L").
 					LOADLOC(0).
 					LOADCON(1).
 					CALLPRIM(RascalPrimitive.equal, 2).
 					JMPFALSE("M").
 					LOADCON(1).
-					RETURN1().
+					RETURN1(1).
 					LABEL("M").
 					LOADLOC(0).
 					LOADCON(1).
@@ -47,7 +47,7 @@ public static void main(String[] args) {
 					CALLPRIM(RascalPrimitive.num_subtract_num, 2).
 					CALL("fib", 1).
 					CALLPRIM(RascalPrimitive.num_add_num, 2).
-					RETURN1()));
+					RETURN1(1)));
 					
 		rvm.declare(new Function("main", tf.valueType(), null, 1, 1, 6,
 					new CodeBlock(vf).
@@ -59,7 +59,7 @@ public static void main(String[] args) {
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main", 1)
-					.RETURN1()
+					.RETURN1(1)
 					.HALT()));
 		
 		long start = System.currentTimeMillis();

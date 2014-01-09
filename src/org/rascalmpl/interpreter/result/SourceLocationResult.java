@@ -36,6 +36,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -122,69 +123,149 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		IValueFactory vf = getValueFactory();
+		TypeFactory tf = getTypeFactory();
+
 		ISourceLocation value = getValue();
-		if (name.equals("scheme")) {
-			return makeResult(getTypeFactory().stringType(), vf.string(value.getScheme()), ctx);
-		}
-		else if (name.equals("authority")) {
-			String authority = value.hasAuthority() ? value.getAuthority() : "";
-			return makeResult(getTypeFactory().stringType(), vf.string(authority != null ? authority : ""), ctx);
-		}
-		else if (name.equals("host")) {
+		String stringResult = null;
+		Integer intResult = null;
+		Integer tupleA = null;
+		Integer tupleB = null;
+		switch (name) {
+		case "scheme": 
+			stringResult = value.getScheme();
+			break;
+
+		case "authority": 
+			stringResult = value.hasAuthority() ? value.getAuthority() : "";
+			break;
+
+		case "host": 
+		case "user": 
+		case "port": 
 			URI uri = value.getURI();
 			if (!ctx.getResolverRegistry().supportsHost(uri)) {
-				throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the " + name + " field, use authority instead.", tf.sourceLocationType(), ctx.getCurrentAST());
 			}
-			String host = uri.getHost();
-			return makeResult(getTypeFactory().stringType(), vf.string(host != null ? host : ""), ctx);
-		}
-		else if (name.equals("path")) {
+			if (name.equals("host")) {
+				stringResult = uri.getHost();
+			}
+			else if (name.equals("user")) {
+				stringResult = uri.getUserInfo();
+			}
+			else {
+				intResult = uri.getPort();
+			}
+			if (stringResult == null && intResult == null) {
+				stringResult = "";
+			}
+			break;
+
+		case "path":
+			stringResult = value.hasPath() ? value.getPath() : "";
+			break;
+
+		case "query":
+			stringResult = value.hasQuery() ? value.getQuery() : "";
+			break;
+
+		case "fragment":
+			stringResult = value.hasFragment() ? value.getFragment() : "";
+			break;
+
+		case "length":
+			if (value.hasOffsetLength()) {
+				intResult = value.getLength();
+				break;
+			}
+			throw RuntimeExceptionFactory.unavailableInformation(ctx.getCurrentAST(), ctx.getStackTrace());
+
+		case "offset":
+			if (value.hasOffsetLength()) {
+				intResult = value.getOffset();
+				break;
+			}
+			throw RuntimeExceptionFactory.unavailableInformation(ctx.getCurrentAST(), ctx.getStackTrace());
+
+		case "begin":
+			if (value.hasLineColumn()) {
+				tupleA = value.getBeginLine();
+				tupleB = value.getBeginColumn();
+				break;
+			}
+			throw RuntimeExceptionFactory.unavailableInformation(ctx.getCurrentAST(), ctx.getStackTrace());
+
+		case "end":
+			if (value.hasLineColumn()) {
+				tupleA = value.getEndLine();
+				tupleB = value.getEndColumn();
+				break;
+			}
+			throw RuntimeExceptionFactory.unavailableInformation(ctx.getCurrentAST(), ctx.getStackTrace());
+		
+		case "uri":
+			stringResult = value.getURI().toString();
+			break;
+
+		case "top":
+			return makeResult(tf.sourceLocationType(), vf.sourceLocation(value.getURI()), ctx);
+
+		// now the calculated fields
+		case "parent": {
 			String path = value.hasPath() ? value.getPath() : "";
-			return makeResult(getTypeFactory().stringType(), vf.string(path != null ? path : ""), ctx);
-		}
-		else if (name.equals("parent")) {
-			URI uri = value.getURI();
-			String path = uri.getPath();
-			if (path.equals("")) {
+			if (path.equals("") || path.equals("/")) {
 				throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 			}
-			int i = path.lastIndexOf("/");
-			
+			// remove one or more /'s at the end
+			if (path.endsWith("/")) {
+				path = path.substring(0, path.length() -1);
+			}
+			int i = path.lastIndexOf((int)'/');
 			if (i != -1) {
 				path = path.substring(0, i);
-				return fieldUpdate("path", makeResult(getTypeFactory().stringType(), vf.string(path), ctx), store);
-//				return makeResult(getTypeFactory().stringType(), vf.string(path), ctx);
+				if (value.getScheme().equalsIgnoreCase("file")) {
+					// there is a special case for file references to windows paths.
+					// the root path should end with a / (c:/ not c:)
+					if (path.lastIndexOf((int)'/') == 0 && path.endsWith(":")) {
+						path += "/";
+					}
+				}
+				return fieldUpdate("path", makeResult(tf.stringType(), vf.string(path), ctx), store);
 			}
-			
 			throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		else if (name.equals("file")) {
+
+		case "file": {
 			String path = value.hasPath() ? value.getPath() : "";
 			
 			if (path.equals("")) {
 				throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 			}
-			int i = path.lastIndexOf("/");
+			int i = path.lastIndexOf((int)'/');
 			
 			if (i != -1) {
-				path = path.substring(i+1);
-				return makeResult(getTypeFactory().stringType(), vf.string(path), ctx); 
+				stringResult = path.substring(i+1);
 			}
-			
-			return makeResult(getTypeFactory().stringType(), vf.string(path), ctx);
+			else {
+				stringResult = path;
+			}
+			break;
 		}
-		else if (name.equals("ls")) {
+
+		case "ls": {
 			try {
-			  ISourceLocation resolved = ctx.getHeap().resolveSourceLocation(value);
-			  Result<IValue> resRes = makeResult(getType(), resolved, ctx);
-			  
+				ISourceLocation resolved = ctx.getHeap().resolveSourceLocation(value);
+				if (!ctx.getResolverRegistry().isDirectory(resolved.getURI())) {
+					throw RuntimeExceptionFactory.io(vf.string("You can only access ls on a directory, or a container."), ctx.getCurrentAST(), ctx.getStackTrace());
+				}
+				Result<IValue> resRes = makeResult(getType(), resolved, ctx);
+
 				IListWriter w = ctx.getValueFactory().listWriter();
-				Type stringType = getTypeFactory().stringType();
-				
+				Type stringType = tf.stringType();
+
 				for (String elem : ctx.getResolverRegistry().listEntries(resolved.getURI())) {
 					w.append(resRes.add(makeResult(stringType, vf.string(elem), ctx)).getValue());
 				}
-				
+
 				IList result = w.done();
 				// a list of loc's
 				return makeResult(result.getType(), result, ctx);
@@ -192,26 +273,24 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			} catch (IOException e) {
 				throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
 			}
+			
 		}
-		else if (name.equals("extension")) {
+
+		case "extension" : {
 			String path = value.hasPath() ? value.getPath() : "";
-			int i = path.lastIndexOf('.');
+			int i = path.lastIndexOf((int)'.');
 			if (i != -1) {
-				return makeResult(getTypeFactory().stringType(), vf.string(path.substring(i + 1)), ctx);
+				stringResult = path.substring(i + 1);
 			}
-			return makeResult(getTypeFactory().stringType(), vf.string(""), ctx);
+			else {
+				stringResult = "";
+			}
+			break;
 		}
-		else if (name.equals("fragment")) {
-			String fragment = value.hasFragment() ? value.getFragment() : "";
-			return makeResult(getTypeFactory().stringType(), vf.string(fragment != null ? fragment : ""), ctx);
-		}
-		else if (name.equals("query")) {
+		
+		case "params" : {
 			String query = value.hasQuery() ? value.getQuery() : "";
-			return makeResult(getTypeFactory().stringType(), vf.string(query != null ? query : ""), ctx);
-		}
-		else if (name.equals("params")) {
-			String query = value.hasQuery() ? value.getQuery() : "";
-			IMapWriter res = vf.mapWriter(getTypeFactory().stringType(), getTypeFactory().stringType());
+			IMapWriter res = vf.mapWriter(tf.stringType(), tf.stringType());
 			
 			if (query != null && query.length() > 0) {
 				String[] params = query.split("&");
@@ -224,68 +303,21 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			IMap map = res.done();
 			return makeResult(map.getType(), map, ctx);
 		}
-		else if (name.equals("user")) {
-			URI uri = value.getURI();
-			if (!ctx.getResolverRegistry().supportsHost(uri)) {
-				throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
-			}
-			String user = uri.getUserInfo();
-			return makeResult(getTypeFactory().stringType(), vf.string(user != null ? user : ""), ctx);
-		}
-		else if (name.equals("port")) {
-			URI uri = value.getURI();
-			if (!ctx.getResolverRegistry().supportsHost(uri)) {
-				throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
-			}
-			return makeResult(getTypeFactory().integerType(), vf.integer(uri.getPort()), ctx);
-		}
-		else if (name.equals("length")) {
-			if (getValue().hasOffsetLength()) {
-				return makeResult(getTypeFactory().integerType(), vf
-						.integer(getValue().getLength()), ctx);
-			}
-			else {
-				throw RuntimeExceptionFactory.unavailableInformation(ctx.getCurrentAST(), ctx.getStackTrace());
-			}
-		} 
-		else if (name.equals("offset")) {
-			if (getValue().hasOffsetLength()) {
-				return makeResult(getTypeFactory().integerType(), vf
-						.integer(getValue().getOffset()), ctx);
-			}
-			else {
-				throw RuntimeExceptionFactory.unavailableInformation(ctx.getCurrentAST(), ctx.getStackTrace());
-			}
-		} 
-		else if (name.equals("begin")) {
-			if (getValue().hasLineColumn()) {
-				return makeResult(intTuple, vf.tuple(vf.integer(getValue().getBeginLine()), vf.integer(getValue().getBeginColumn())), ctx);
-			}
-			else {
-				throw RuntimeExceptionFactory.unavailableInformation(ctx.getCurrentAST(), ctx.getStackTrace());
-			}
-		}
-		else if (name.equals("end")) {
-			if (getValue().hasLineColumn()) {
-				return makeResult(intTuple, vf.tuple(vf.integer(getValue().getEndLine()), vf.integer(getValue().getEndColumn())), ctx);
-			}
-			else {
-				throw RuntimeExceptionFactory.unavailableInformation(ctx.getCurrentAST(), ctx.getStackTrace());
-			}
-		}
-		else if (name.equals("uri")) {
-			URI uri = value.getURI();
-			return makeResult(getTypeFactory().stringType(), vf
-					.string(uri.toString()), ctx);
-		} 
-		else if (name.equals("top")) {
-			// FIXME we should have a way to strip the source location from offset etc
-			URI uri = value.getURI();
-			return makeResult(getTypeFactory().sourceLocationType(), vf.sourceLocation(uri), ctx);
-		} 
-		else {
+
+		default: 
 			throw new UndeclaredField(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 		}
+
+		if (stringResult != null) {
+			return makeResult(tf.stringType(), vf.string(stringResult), ctx);
+		}
+		if (intResult != null) {
+			return makeResult(tf.integerType(), vf.integer(intResult), ctx);
+		}
+		if (tupleA != null && tupleB != null) {
+			return makeResult(intTuple, vf.tuple(vf.integer(tupleA), vf.integer(tupleB)), ctx);
+		}
+		throw new RuntimeException("A case not handled? " + name);
 	}
 
 	@Override
@@ -311,8 +343,8 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
 		try {
 			String newStringValue = null;
-			if (repl.getValue() instanceof IString) {
-				newStringValue = ((IString) repl.getValue()).getValue();
+			if (replType.isString()) {
+				newStringValue = ((IString)replValue).getValue();
 			}
 			if (name.equals("uri")) {
 				if (!replType.isString()) {

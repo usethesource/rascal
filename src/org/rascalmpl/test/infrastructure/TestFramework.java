@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.uri.ClassResourceInputOutput;
+import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -142,7 +142,7 @@ public class TestFramework {
 		resolverRegistry.registerInput(modules);
 		
 		evaluator.addRascalSearchPath(URIUtil.rootScheme("benchmarks"));
-		resolverRegistry.registerInput(new ClassResourceInputOutput(resolverRegistry, "benchmarks", Evaluator.class, "/org/rascalmpl/benchmark"));
+		resolverRegistry.registerInput(new ClassResourceInput(resolverRegistry, "benchmarks", Evaluator.class, "/org/rascalmpl/benchmark"));
 		try {
 			assert (false);
 			throw new RuntimeException("Make sure you enable the assert statement in your run configuration ( add -ea )");

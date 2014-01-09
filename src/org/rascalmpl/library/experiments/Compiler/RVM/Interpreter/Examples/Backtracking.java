@@ -21,7 +21,7 @@ public class Backtracking {
 		rvm.declare(new Function("TRUE", tf.valueType(), null, 0, 0, 6,
 				new CodeBlock(vf)
 				.LOADCON(true)
-				.RETURN1()
+				.RETURN1(1)
 				.HALT()
 				));
 		
@@ -32,7 +32,7 @@ public class Backtracking {
 		rvm.declare(new Function("FALSE", tf.valueType(), null, 0, 0, 6,
 				new CodeBlock(vf)
 				.LOADCON(false)
-				.RETURN1()	
+				.RETURN1(1)	
 				.HALT()
 				));
 		/* 
@@ -61,7 +61,7 @@ public class Backtracking {
 				.HASNEXT()
 				.JMPTRUE("BODY1")
 				.LOADCON(false)
-				.RETURN1()
+				.RETURN1(1)
 			.LABEL("BODY1")
 				.LOADLOC(0)
 				.NEXT0()
@@ -75,7 +75,7 @@ public class Backtracking {
 				.NEXT0()
 				.JMPFALSE("WHILE2")
 				.LOADCON(true)
-				.YIELD1()
+				.YIELD1(1)
 				.POP()
 				.JMP("WHILE2")
 		));
@@ -149,7 +149,7 @@ public class Backtracking {
 				
 			.LABEL("RETURN")
 				.LOADCON(false)
-				.RETURN1()
+				.RETURN1(1)
 				
 			.LABEL("L")
 				.LOADLOC(1)
@@ -169,7 +169,7 @@ public class Backtracking {
 				.NEXT0()
 				.JMPFALSE("RETURN")
 				.LOADCON(true)
-				.YIELD1()
+				.YIELD1(1)
 				.POP()
 				.JMP("WHILE")
 		));
@@ -221,7 +221,7 @@ public class Backtracking {
 				new CodeBlock(vf)
 					.LOADLOC(0)
 					.CALL("main", 1)
-					.RETURN1()
+					.RETURN1(1)
 					.HALT()));
 
 		rvm.executeProgram("main", new IValue[] {});

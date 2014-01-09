@@ -33,6 +33,7 @@ test bool tst() = run("\"a\" := \"b\"") == "a" := "b";
 /*fails*/ //test bool tst() = run("$2012-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$") == ($2012-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$);
 /*fails*/ //test bool tst() = run("$2013-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$") == ($2013-01-01T08:15:30.055+0100$ := $2012-01-01T08:15:30.055+0100$);
 
+
 // Location
 
 test bool tst() = run("|http://www.rascal-mpl.org| := |http://www.rascal-mpl.org|") == (|http://www.rascal-mpl.org| == |http://www.rascal-mpl.org|);
@@ -76,13 +77,14 @@ test bool tst() = run("[1, *int x, 5] := [1,2,3,4,5]") == [1, *int x, 5] := [1,2
 test bool tst() = run("[1, *int _, 5] := [1,2,3,4,5]") == [1, *int _, 5] := [1,2,3,4,5];
 test bool tst() = run("[1, *int x, 5] := [1,2,3,4,5]") == [1, *int x, 5] := [1,2,3,4,5] && x == [2,3,4];
 
+test bool tst() = run("[str _, *int _] := [\"a\", 1, 2]") == [str _, *int _] := ["a", 1, 2];
+test bool tst() = run("[str _, *int _, *value _] := [\"a\", 1, 2, \"b\"]") == [str _, *int _,*value _] := ["a", 1, 2, "b"];
 
-test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2]") == [*int x, 3, x] := [1,2,3,1,2] && x == [1, 2];
-test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2] && x == [1, 2]") == [*int x, 3, x] := [1,2,3,1,2] && x == [1, 2];
+test bool tst() = run("{ res = for([*x,*y,*z] := [1,2,3]) append \<x,y,z\>; res; }") == { res = for([*x,*y,*z] := [1,2,3]) append <x,y,z>; res; };
+test bool tst() = run("{ res = for([*x,*y,*int z] := [1,2,3]) append \<x,y,z\>; res; }") == { res = for([*x,*y,*int z] := [1,2,3]) append <x,y,z>; res; };
+test bool tst() = run("{ res = for([*x,*int y,*int z] := [1,2,3]) append \<x,y,z\>; res; }") == { res = for([*x,*int y,*int z] := [1,2,3]) append <x,y,z>; res; };
+test bool tst() = run("{ res = for([*int x,*int y,*int z] := [1,2,3]) append \<x,y,z\>; res; }") == { res = for([*int x,*int y,*int z] := [1,2,3]) append <x,y,z>; res; };
 
-// Non-linear pattern not implemented
-/*fails*/ // test bool tst() = run("[*int x, *x, 3] := [1,2,1,2,3] && x == [1, 2]") == [*int x, *x, 3] := [1,2,1,2, 3] && x == [1, 2];
-test bool tst() = run("[*int x, *x, 3] := [1,2,3,1,2]") == [*int x, *x, 3] := [1,2,3,1,2];
 
 // Set matching
 
@@ -111,6 +113,16 @@ test bool tst() = run("{*_,1} := {}") == {*_,1} := {};
 /*fails*/ // test bool tst() = run("!{*_,1} := {}") == !{*_,1} := {};
 test bool tst() = run("{*_,1} := {2}") == {*_,1} := {2};
 /*fails*/ //test bool tst() = run("!{*_,1} := {2}") == !{*_,1} := {2};
+
+test bool tst() = run("{str _, *int _} := {\"a\", 1, 2}") == {str _, *int _} := {"a", 1, 2};
+test bool tst() = run("{str _, *int _, *value _} := {\"a\", 1, 2, \"b\"}") == {str _, *int _,*value _} := {"a", 1, 2, "b"};
+test bool tst() = run("{for({str S, *int N, *value V} := {\"a\", 1, 2, \"b\"}){ append \<S,N,V\>;}}") == {for({str S, *int N, *value V} := {"a", 1, 2, "b"}){ append <S,N,V>;}};
+
+test bool tst() = run("{ res = for({*x,*y, *z} := {1,2,3}) append \<x,y,z\>; res; }") == { res = for({*x,*y,*z} := {1,2,3}) append <x,y,z>; res; };
+test bool tst() = run("{ res = for({*x,*y, *int z} := {1,2,3}) append \<x,y,z\>; res; }") == { res = for({*x,*y,*int z} := {1,2,3}) append <x,y,z>; res; };
+test bool tst() = run("{ res = for({*x,*int y, *int z} := {1,2,3}) append \<x,y,z\>; res; }") == { res = for({*x,*int y,*int z} := {1,2,3}) append <x,y,z>; res; };
+test bool tst() = run("{ res = for({*int x,*int y, *int z} := {1,2,3}) append \<x,y,z\>; res; }") == { res = for({*int x,*int y,*int z} := {1,2,3}) append <x,y,z>; res; };
+
 
 // Node/Constructor matching
 
@@ -183,4 +195,49 @@ test bool tst() = run("[1, x*, 5] !:= [1,2,3,4,6]") == [1, x*, 5] !:= [1,2,3,4,6
 test bool tst() = run("{ value v = { [1,2] }; [1,2] := v; }") == { value v = { [1,2] }; [1,2] := v; };
 test bool tst() = run("{ value v = \<1,2\>; {1,2} := v; }") == { value v = <1,2>; {1,2} := v; };
 test bool tst() = run("{ value v = \<1,2\>; \"nd\"(1,2) := v; }") == { value v = <1,2>; "nd"(1,2) := v; };
+
+
+// Variables defined outside a pattern 
+
+test bool tst() = run("{int x = 2; x := 2;}") == {int x = 2; x := 2;};
+test bool tst() = run("{int x = 3; x := 2;}") == {int x = 3; x := 2;};
+test bool tst() = run("{int x; x := 2;}") == {int x; x := 2;};
+
+// Here x should actually be undefined
+/*fails*/ // test bool tst() = run("{int x; x := 2; x;}") == {int x; x := 2; x;};
+
+test bool tst() = run("{int x = 3; [1, x] := [1,3];}") == {int x = 3; [1, x] := [1,3];};
+test bool tst() = run("{int x = 7; [1, x] := [1,3];}") == {int x = 7; [1, x] := [1,3];};
+
+test bool tst() = run("{list[int] x = [10,20]; [1, x*] := [1,10,20];}") == {list[int] x = [10,20]; [1, x*] := [1,10,20];};
+test bool tst() = run("{list[int] x = [10,20]; [1, x*] := [1,10,70];}") == {list[int] x = [10,20]; [1, x*] := [1,10,70];};
+
+test bool tst() = run("{int x = 3; {1, x} := {1,3};}") == {int x = 3; {1, x} := {1,3};};
+test bool tst() = run("{int x = 7; {1, x} := {1,3};}") == {int x = 7; {1, x} := {1,3};};
+
+test bool tst() = run("{set[int] x = {10,20}; {1, x*} := {1,10,20};}") == {set[int] x = {10,20}; {1, x*} := {1,10,20};};
+test bool tst() = run("{set[int] x = {10,20}; {1, x*} := {1,10,70};}") == {set[int] x = {10,20}; {1, x*} := {1,10,70};};
+
+
+// non-linear patterns
+
+test bool tst() = run("\<x, x\> := \<1, 1\>") == <x, x> := <1, 1>;
+test bool tst() = run("\<x, x\> := \<1, 2\>") == <x, x> := <1, 2>;
+
+test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2]") == [*int x, 3, x] := [1,2,3,1,2] && x == [1, 2];
+test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2] && x == [1, 2]") == [*int x, 3, x] := [1,2,3,1,2] && x == [1, 2];
+
+test bool tst() = run("[*int x, *x, 3] := [1,2,1,2,3] && x == [1, 2]") == [*int x, *x, 3] := [1,2,1,2, 3] && x == [1, 2];
+test bool tst() = run("[*int x, *x, 3] := [1,2,3,1,2]") == [*int x, *x, 3] := [1,2,3,1,2];
+
+// Note: non-lineair set patterns are a bit weird, what to do about them?
+
+// Variable interaction i Boolean expressions
+
+test bool tst() = run("[x, 2] := [1,2] || [x, 3] := [1, 3]") == [x, 2] := [1,2] || [x, 3] := [1, 3];
+test bool tst() = run("{int x = 1; [x, 2] := [10,2] || [x, 3] := [1, 3];}") == {int x = 1; [x, 2] := [10,2] || [x, 3] := [1, 3];};
+test bool tst() = run("{int x = 1; [x, 2] := [10,2] || [x, 3] := [20, 3];}") == {int x = 1; [x, 2] := [10,2] || [x, 3] := [20, 3];};
+
+test bool tst() = run("[x, 2] := [10,2] && [x, 3] := [10, 3]") == [x, 2] := [10,2] && [x, 3] := [10, 3];
+
 

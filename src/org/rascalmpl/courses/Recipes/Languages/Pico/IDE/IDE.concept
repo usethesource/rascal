@@ -15,7 +15,7 @@ Details:
 Description:
 
 Examples:
-<listing demo/lang/Pico/Pico.rsc>
+<listing demo/lang/Pico/Plugin.rsc>
 
 * First the name of the language and its file name extension are defined (/*1*/).
 * Next the connection with the parser (/*2*/), checkers (/*3*/), evaluator (/*4*/),

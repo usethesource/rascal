@@ -30,29 +30,9 @@ Benefits:
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool arbBool();
 
-@deprecated{Useless function that will be removed}
-@doc{
-Synopsis: Convert from integer to Boolean.
-
-Description:
-Convert an integer to a Boolean value: all non-zero integers are mapped to `true`, zero is mapped to `false`.
-
-Examples:
-<screen>
-import Boolean;
-fromInt(13);
-fromInt(0);
-</screen>
-}
-public bool fromInt(int i)
-{
-  return i != 0;
-}
-
 @doc{
 Synopsis: Convert the strings "true" or "false" to a bool.
 }
-
 public bool fromString(str s)
 { 
   if (s == "true") {

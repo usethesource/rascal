@@ -179,7 +179,7 @@ public list[tuple[loc l, str msg]] checkProgram(str txt) = checkProgram(load(txt
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Pico::Typecheck;
 ok
 <span class="prompt">rascal></span>checkProgram(&quot;begin declare  x : natural; x := \&quot;abc\&quot; end&quot;);
-list[tuple[loc l,str msg]]: [&lt;|file://-|(33,5,&lt;1,33>,&lt;1,38>),"Required natural, got string">]
+lrel[loc l,str msg]: [&lt;|file://-|(33,5,&lt;1,33>,&lt;1,38>),"Required natural, got string">]
 </pre> The error location will be use later to give specific messages in the IDE.
 
 </div>

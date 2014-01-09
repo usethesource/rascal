@@ -78,18 +78,23 @@ PROGRAM: program(
   [decl(
       "x",
       natural()[
-        @location=|file://-|(18,7,&lt;1,18>,&lt;1,25>)
+        @location=|file://-|(18,7,&lt;1,18>,&lt;1,25>),
+        @comments=()
       ])[
-      @location=|file://-|(14,11,&lt;1,14>,&lt;1,25>)
+      @location=|file://-|(14,11,&lt;1,14>,&lt;1,25>),
+      @comments=()
     ]],
   [asgStat(
       "x",
       natCon(3)[
-        @location=|file://-|(32,1,&lt;1,32>,&lt;1,33>)
+        @location=|file://-|(32,1,&lt;1,32>,&lt;1,33>),
+        @comments=()
       ])[
-      @location=|file://-|(27,6,&lt;1,27>,&lt;1,33>)
+      @location=|file://-|(27,6,&lt;1,27>,&lt;1,33>),
+      @comments=()
     ]])[
-  @location=|file://-|(0,37,&lt;1,0>,&lt;1,37>)
+  @location=|file://-|(0,37,&lt;1,0>,&lt;1,37>),
+  @comments=()
 ]
 </pre> Observe how the various parts of the abstract syntax tree are annotated with location attributes.
 

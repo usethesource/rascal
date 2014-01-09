@@ -69,7 +69,7 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>{1, 2, 3} * {4, 5, 6};
-rel[int, int]: {
+rel[int,int]: {
   &lt;1,5>,
   &lt;2,4>,
   &lt;3,4>,
@@ -82,7 +82,7 @@ rel[int, int]: {
 }
 </pre> A card deck can be created as follows:
  <pre class="screen"><span class="prompt">rascal></span>{&quot;clubs&quot;, &quot;hearts&quot;, &quot;diamonds&quot;, &quot;spades&quot;} * {1,2,3,4,5,6,7,8,9,10,11,12,13};
-rel[str, int]: {
+rel[str,int]: {
   &lt;"diamonds",11>,
   &lt;"diamonds",8>,
   &lt;"diamonds",9>,
@@ -163,9 +163,9 @@ rel[str, int]: {
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Product_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Product_1:A" value="[&quot;Little Bird&quot;, &quot;Guava&quot;, &quot;Emperor Palpatine&quot;, &quot;Eggplant&quot;]">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Product_1:B" value="[&quot;Pineapple&quot;]">
-The type of <tt>[&quot;Little Bird&quot;, &quot;Guava&quot;, &quot;Emperor Palpatine&quot;, &quot;Eggplant&quot;] * [&quot;Pineapple&quot;]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Product_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Product_1:A" value="[true, false, true]">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Product_1:B" value="[true, true]">
+The type of <tt>[true, false, true] * [true, true]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Product_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -189,9 +189,9 @@ The type of <tt>[&quot;Little Bird&quot;, &quot;Guava&quot;, &quot;Emperor Palpa
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Product_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Product_2:A" value="{3, 13}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Product_2:B" value="48">
-<pre class="prequestion">{3, 13} * {48} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Product_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Product_2:A" value="{35, 46}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Product_2:B" value="38">
+<pre class="prequestion">{35, 46} * {38} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Product_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Product_2:another" value="yes">
@@ -214,10 +214,10 @@ The type of <tt>[&quot;Little Bird&quot;, &quot;Guava&quot;, &quot;Emperor Palpa
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Product_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Product_3:A" value="{5, 32}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Product_3:B" value="33">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Product_3:C" value="31">
-<pre class="prequestion">{5, 32} * {33, 31} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Product_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Product_3:A" value="{3, 28, 7, 43, 27}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Product_3:B" value="26">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Product_3:C" value="21">
+<pre class="prequestion">{3, 28, 7, 43, 27} * {26, 21} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Product_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Product_3:another" value="yes">
@@ -240,9 +240,9 @@ The type of <tt>[&quot;Little Bird&quot;, &quot;Guava&quot;, &quot;Emperor Palpa
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Product_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Product_4:A" value="{37, 16, 20}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Product_4:B" value="{41, 47, 33, 14}">
-<pre class="prequestion">size({37, 16, 20} * {41, 47, 33, 14}) == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Product_4:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Product_4:A" value="{40, 1, 3, 13}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Product_4:B" value="{21, 5, 32, 33}">
+<pre class="prequestion">size({40, 1, 3, 13} * {21, 5, 32, 33}) == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Product_4:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Product_4:another" value="yes">

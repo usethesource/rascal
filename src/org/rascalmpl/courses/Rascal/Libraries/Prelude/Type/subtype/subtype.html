@@ -52,12 +52,12 @@
 <li> <code>default bool subtype(Symbol s, Symbol t)</code></li>
 <li> <code>bool subtype(Symbol _, \value())</code></li>
 <li> <code>bool subtype(\void(), Symbol _)</code></li>
-<li> <code>bool subtype(Symbol::\cons(Symbol a, list[Symbol] _), a)</code></li>
-<li> <code>bool subtype(Symbol::\cons(Symbol a, list[Symbol] ap), Symbol::\cons(a,list[Symbol] bp))</code></li>
+<li> <code>bool subtype(Symbol::\cons(Symbol a, _, list[Symbol] _), a)</code></li>
+<li> <code>bool subtype(Symbol::\cons(Symbol a, str name, list[Symbol] ap), Symbol::\cons(a,name,list[Symbol] bp))</code></li>
 <li> <code>bool subtype(\adt(str _, list[Symbol] _), \node())</code></li>
 <li> <code>bool subtype(\adt(str n, list[Symbol] l), \adt(n, list[Symbol] r))</code></li>
 <li> <code>bool subtype(\alias(str _, list[Symbol] _, Symbol aliased), Symbol r)</code></li>
-<li> <code>bool subtype(Symbol l, \alias(str _, Symbol aliased))</code></li>
+<li> <code>bool subtype(Symbol l, \alias(str _, list[Symbol] _, Symbol aliased))</code></li>
 <li> <code>bool subtype(\int(), \num())</code></li>
 <li> <code>bool subtype(\rat(), \num())</code></li>
 <li> <code>bool subtype(\real(), \num())</code></li>

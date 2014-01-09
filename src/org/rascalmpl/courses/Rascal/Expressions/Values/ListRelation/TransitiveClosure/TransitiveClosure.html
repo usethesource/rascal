@@ -77,7 +77,7 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>[&lt;1,2&gt;, &lt;2,3&gt;, &lt;3,4&gt;]+;
-lrel[int, int]: [
+lrel[int,int]: [
   &lt;1,2>,
   &lt;2,3>,
   &lt;3,4>,
@@ -95,7 +95,7 @@ lrel[int, int]: [
 <span class="continuation">>>>>>>></span>         return tc;
 <span class="continuation">>>>>>>></span>   }
 <span class="continuation">>>>>>>></span>}
-lrel[int, int] (lrel[int, int]): lrel[int, int] tclosure(lrel[int, int]);
+lrel[int,int] (lrel[int,int]): lrel[int,int] tclosure(lrel[int,int]);
 <span class="prompt">rascal></span>tclosure([&lt;1,2&gt;, &lt;2,3&gt;, &lt;3,4&gt;]);
 interrupted:
 	at tclosure(/:6,6)
@@ -128,8 +128,8 @@ interrupted:
 <span id="answerFeedback_Rascal_Expressions_Values_ListRelation_TransitiveClosure_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_ListRelation_TransitiveClosure_1:A" value="[&lt;3, 2&gt;, &lt;2, 1&gt;]">
-The type of <tt>[&lt;1,2&gt;,&lt;2,3&gt;,&lt;3,2&gt;,&lt;2,1&gt;]+</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_ListRelation_TransitiveClosure_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_ListRelation_TransitiveClosure_1:A" value="[&lt;3, 4&gt;]">
+The type of <tt>[&lt;3,4&gt;,&lt;1,2&gt;,&lt;2,3&gt;]+</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_ListRelation_TransitiveClosure_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -153,8 +153,8 @@ The type of <tt>[&lt;1,2&gt;,&lt;2,3&gt;,&lt;3,2&gt;,&lt;2,1&gt;]+</tt> is <inpu
 <span id="answerFeedback_Rascal_Expressions_Values_ListRelation_TransitiveClosure_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_ListRelation_TransitiveClosure_2:A" value="[&lt;4, 3&gt;, &lt;4, 3&gt;]">
-<pre class="prequestion">[&lt;1,2&gt;,&lt;2,3&gt;,&lt;3,4&gt;,&lt;4,3&gt;,&lt;4,3&gt;]+ == <input type="text" size="30" name="Rascal_Expressions_Values_ListRelation_TransitiveClosure_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_ListRelation_TransitiveClosure_2:A" value="[&lt;3, 1&gt;, &lt;1, 0&gt;]">
+<pre class="prequestion">[&lt;3,1&gt;,&lt;1,0&gt;,&lt;1,2&gt;,&lt;2,3&gt;,&lt;3,4&gt;]+ == <input type="text" size="30" name="Rascal_Expressions_Values_ListRelation_TransitiveClosure_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_ListRelation_TransitiveClosure_2:another" value="yes">

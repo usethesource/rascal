@@ -85,6 +85,7 @@
 <ul></ul><li><a href="/Rascal/Concepts/SyntaxDefinitionAndParsing/SyntaxDefinitionAndParsing.html">SyntaxDefinitionAndParsing</a>: Syntax definition and parser generation for new languages.</li>
 <ul></ul><li><a href="/Rascal/Concepts/RewriteRules/RewriteRules.html">RewriteRules</a>: Rewrite rules (deprecated)</li>
 <ul></ul><li><a href="/Rascal/Concepts/IDEConstruction/IDEConstruction.html">IDEConstruction</a>: Extend an IDE with interactive, language-specific, features (Eclipse only).</li>
+<ul></ul><li><a href="/Rascal/Concepts/CodeModels/CodeModels.html">CodeModels</a>: code models are abstract representations of source code</li>
 <ul></ul></ul><li><a href="/Rascal/Declarations/Declarations.html">Declarations</a>: The entities that can be declared in Rascal programs.</li>
 <ul><li><a href="/Rascal/Declarations/Module/Module.html">Module</a>: Declare a module.</li>
 <ul></ul><li><a href="/Rascal/Declarations/Import/Import.html">Import</a>: Declare the import a module.</li>
@@ -115,7 +116,7 @@
 <ul><li><a href="/Rascal/Patterns/Abstract/Abstract.html">Abstract</a>: Abstract patterns.</li>
 <ul><li><a href="/Rascal/Patterns/Abstract/Literal/Literal.html">Literal</a>: Literal in abstract pattern.</li>
 <ul></ul><li><a href="/Rascal/Patterns/Abstract/VariableDeclaration/VariableDeclaration.html">VariableDeclaration</a>: Variable declaration in abstract pattern.</li>
-<ul></ul><li><a href="/Rascal/Patterns/Abstract/MultiVariable/MultiVariable.html">MultiVariable</a>: Multi-variable in abstract pattern.</li>
+<ul></ul><li><a href="/Rascal/Patterns/Abstract/MultiVariable/MultiVariable.html">MultiVariable</a>: Multi-variable (also known as Splice-variable) in abstract pattern.</li>
 <ul></ul><li><a href="/Rascal/Patterns/Abstract/Variable/Variable.html">Variable</a>: Variable in abstract pattern.</li>
 <ul></ul><li><a href="/Rascal/Patterns/Abstract/List/List.html">List</a>: List in abstract pattern.</li>
 <ul></ul><li><a href="/Rascal/Patterns/Abstract/Set/Set.html">Set</a>: Set in abstract pattern.</li>
@@ -165,6 +166,7 @@
 <ul></ul><li><a href="/Rascal/Expressions/Values/List/notin/notin.html">notin</a>: Negated membership test on lists.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/List/Product/Product.html">Product</a>: Compute the product of two lists.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/List/Slice/Slice.html">Slice</a>: Retrieve a slice of a list.</li>
+<ul></ul><li><a href="/Rascal/Expressions/Values/List/Splice/Splice.html">Splice</a>: Splice the elements of a list in an enclosing list.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/List/StrictSubList/StrictSubList.html">StrictSubList</a>: The strict sublist operator on lists.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/List/StrictSuperList/StrictSuperList.html">StrictSuperList</a>: The strict super list operator on lists.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/List/SubList/SubList.html">SubList</a>: The sublist operator on lists.</li>
@@ -245,6 +247,7 @@
 <ul></ul><li><a href="/Rascal/Expressions/Values/Set/NotEqual/NotEqual.html">NotEqual</a>: Not equal operator on set values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Set/notin/notin.html">notin</a>: Negated membership test on set values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Set/Product/Product.html">Product</a>: The product of two set values.</li>
+<ul></ul><li><a href="/Rascal/Expressions/Values/Set/Splice/Splice.html">Splice</a>: Splice the elements of a set in an enclosing set.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Set/StrictSubSet/StrictSubSet.html">StrictSubSet</a>: Strict subset operator on set values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Set/StrictSuperSet/StrictSuperSet.html">StrictSuperSet</a>: Strict superset operator on set values.</li>
 <ul></ul><li><a href="/Rascal/Expressions/Values/Set/SubSet/SubSet.html">SubSet</a>: Subset operator on set values.</li>
@@ -321,14 +324,14 @@
 <ul></ul><li><a href="/Rascal/Statements/While/While.html">While</a>: While loop.</li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/Libraries.html">Libraries</a>: The available Rascal libraries.</li>
 <ul><li><a href="/Rascal/Libraries/Prelude/Prelude.html">Prelude</a>: The Rascal standard prelude.</li>
-<ul><li><a href="/Rascal/Libraries/Prelude/Boolean/Boolean.html">Boolean</a>: Library functions on booleans.</li>
+<ul><li><a href="/Rascal/Libraries/Prelude/Boolean/Boolean.html">Boolean</a>: </li>
 <ul><li><a href="/Rascal/Libraries/Prelude/Boolean/arbBool/arbBool.html">arbBool</a>: Return an arbitrary Boolean value.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Boolean/fromInt/fromInt.html">fromInt</a>: Convert from integer to Boolean.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Boolean/fromString/fromString.html">fromString</a>: Convert the strings "true" or "false" to a bool.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Boolean/toInt/toInt.html">toInt</a>: Convert a Boolean value to integer.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Boolean/toReal/toReal.html">toReal</a>: Convert Boolean value to real.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Boolean/toString/toString.html">toString</a>: Convert Boolean value to string.</li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/DateTime/DateTime.html">DateTime</a>: Library functions on DateTime.</li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/DateTime/DateTime.html">DateTime</a>: </li>
 <ul><li><a href="/Rascal/Libraries/Prelude/DateTime/createDate/createDate.html">createDate</a>: Create a new date.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/DateTime/createDateTime/createDateTime.html">createDateTime</a>: Create a new datetime (with optional timezone offset).</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/DateTime/createDuration/createDuration.html">createDuration</a>: Create a new duration representing the duration between the begin and end dates.</li>
@@ -368,9 +371,9 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/DateTime/printTime/printTime.html">printTime</a>: Print an input time using the given format string.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/DateTime/printTimeInLocale/printTimeInLocale.html">printTimeInLocale</a>: Print an input time using a specific locale and format string.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/DateTime/splitDateTime/splitDateTime.html">splitDateTime</a>: Split an existing datetime into a tuple with the date and the time.</li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/Exception/Exception.html">Exception</a>: Library functions for exceptions.</li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/Exception/Exception.html">Exception</a>: </li>
 <ul><li><a href="/Rascal/Libraries/Prelude/Exception/RuntimeException/RuntimeException.html">RuntimeException</a>: The <code>Exception</code> datatype used in all Rascal exceptions.</li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/IO.html">IO</a>: Library functions for input/output.</li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/IO.html">IO</a>: </li>
 <ul><li><a href="/Rascal/Libraries/Prelude/IO/appendToFile/appendToFile.html">appendToFile</a>: Append a value to a file.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/appendToFileEnc/appendToFileEnc.html">appendToFileEnc</a>: Append a value to a file.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/bprintln/bprintln.html">bprintln</a>: Print a value and return true.</li>
@@ -382,6 +385,7 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/iprintExp/iprintExp.html">iprintExp</a>: Print an indented representation of a value and returns the value as result.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/iprintln/iprintln.html">iprintln</a>: Print a indented representation of a value and add a newline at the end.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/iprintlnExp/iprintlnExp.html">iprintlnExp</a>: Print an indented representation of a value followed by a newline and returns the value as result.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/iprintToFile/iprintToFile.html">iprintToFile</a>: Print an indented representation of a value to the specified location.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/isDirectory/isDirectory.html">isDirectory</a>: Check whether a given location is a directory.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/isFile/isFile.html">isFile</a>: Check whether a given location is actually a file (and not a directory).</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/IO/lastModified/lastModified.html">lastModified</a>: Last modification date of a location.</li>
@@ -447,7 +451,7 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/List/unzip/unzip.html">unzip</a>: Make a pair (triple) of lists from a list of pairs (triples).</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/List/upTill/upTill.html">upTill</a>: Returns the list 0,1..n-1.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/List/zip/zip.html">zip</a>: Make a list of pairs from two (three) lists of the same length.</li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/ListRelation/ListRelation.html">ListRelation</a>: Library functions for list relations.</li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/ListRelation/ListRelation.html">ListRelation</a>: </li>
 <ul><li><a href="/Rascal/Libraries/Prelude/ListRelation/carrier/carrier.html">carrier</a>: Return the set of all elements in any tuple in a list relation.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ListRelation/carrierR/carrierR.html">carrierR</a>: A list relation restricted to certain element values in tuples.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ListRelation/carrierX/carrierX.html">carrierX</a>: A list relation excluding tuples that contain certain element values.</li>
@@ -463,8 +467,9 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ListRelation/range/range.html">range</a>: The range (i.e., all but the first element of each tuple) of a list relation.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ListRelation/rangeR/rangeR.html">rangeR</a>: List relation restricted to certain range values.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ListRelation/rangeX/rangeX.html">rangeX</a>: List relation excluding certain range values.</li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/Map/Map.html">Map</a>: Library functions for maps.</li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/Map/Map.html">Map</a>: </li>
 <ul><li><a href="/Rascal/Libraries/Prelude/Map/delete/delete.html">delete</a>: Delete a key from a map.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Map/distribution/distribution.html">distribution</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Map/domain/domain.html">domain</a>: Determine the domain (set of keys) of a map.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Map/domainR/domainR.html">domainR</a>: Map restricted to certain keys.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Map/domainX/domainX.html">domainX</a>: Map with certain keys excluded.</li>
@@ -482,7 +487,7 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Map/toString/toString.html">toString</a>: Convert a map to a string.</li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/Message/Message.html">Message</a>: A <code>Message</code> datatype that represents messages in the IDE.</li>
 <ul><li><a href="/Rascal/Libraries/Prelude/Message/Message/Message.html">Message</a>: </li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/Node/Node.html">Node</a>: Library functions for nodes.</li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/Node/Node.html">Node</a>: </li>
 <ul><li><a href="/Rascal/Libraries/Prelude/Node/arity/arity.html">arity</a>: Determine the number of children of a node.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Node/delAnnotation/delAnnotation.html">delAnnotation</a>: Delete a specific annotation from a node.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Node/delAnnotations/delAnnotations.html">delAnnotations</a>: Delete all annotations from a node.</li>
@@ -498,6 +503,7 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/doc/doc.html">doc</a>: Annotate a parse tree node with a documentation string.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/docs/docs.html">docs</a>: Annotate a parse tree node with documentation strings for several locations.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/implode/implode.html">implode</a>: Implode a parse tree according to a given (ADT) type.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/isNonTerminalType/isNonTerminalType.html">isNonTerminalType</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/link/link.html">link</a>: Annotate a parse tree node with the target of a reference.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/links/links.html">links</a>: Annotate a parse tree node with multiple targets for a reference.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/loc/loc.html">loc</a>: Annotate a parse tree node with a source location.</li>
@@ -505,12 +511,13 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/messages/messages.html">messages</a>: Annotate a parse tree node with a list of (error) messages.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/parse/parse.html">parse</a>: Parse input text (from a string or a location) and return a parse tree.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/priority/priority.html">priority</a>: Nested priority is flattened.</li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/Production/Production.html">Production</a>: Productions for priority and associativity.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/Production/Production.html">Production</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/saveParser/saveParser.html">saveParser</a>: Save the current object parser to a file.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/Tree/Tree.html">Tree</a>: The Tree data type as produced by the parser.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/treeAt/treeAt.html">treeAt</a>: Select the innermost Tree of a given type which is enclosed by a given location.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/TreeSearchResult/TreeSearchResult.html">TreeSearchResult</a>: Tree search result type for <a href="/Rascal/Libraries/Prelude/ParseTree/treeAt/treeAt.html">treeAt</a>.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/unparse/unparse.html">unparse</a>: Yield the string of characters that form the leafs of the given parse tree.</li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/Relation/Relation.html">Relation</a>: Library functions for relations.</li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/Relation/Relation.html">Relation</a>: </li>
 <ul><li><a href="/Rascal/Libraries/Prelude/Relation/carrier/carrier.html">carrier</a>: Return the set of all elements in any tuple in a relation.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Relation/carrierR/carrierR.html">carrierR</a>: A relation restricted to certain element values in tuples.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Relation/carrierX/carrierX.html">carrierX</a>: A relation excluding tuples that contain certain element values.</li>
@@ -539,14 +546,15 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Set/power1/power1.html">power1</a>: The powerset (excluding the empty set) of a set value.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Set/reducer/reducer.html">reducer</a>: Apply a function to successive elements of a set and combine the results (<b>deprecated</b>).</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Set/size/size.html">size</a>: Determine the number of elements in a set.</li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Set/sort/sort.html">sort</a>: Sort the elements of a set.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Set/sort/sort.html">sort</a>: Sort the elements of a set.  Sort the elements of a set: # Use the built-in ordering on values to compare list elements. # Give an additional <code>lessThan</code> function that will be used to compare elements.   This function <code>lessThan</code> (&lt;) function should implement a strict partial order, meaning:    # that it is not reflexive, i.e. never <code>a &lt; a</code>    # is anti-symmetric, i.e. never <code>a &lt; b &amp;&amp; b &lt; a</code>.    # is transitive, i.e. if <code>a &lt; b</code> and <code>b &lt; c</code> then <code>a &lt; c</code>.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Set/sum/sum.html">sum</a>: Sum the elements of a set.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Set/takeOneFrom/takeOneFrom.html">takeOneFrom</a>: Remove an arbitrary element from a set, returns the element and a set without that element.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Set/toList/toList.html">toList</a>: Convert a set to a list.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Set/toMap/toMap.html">toMap</a>: Convert a set of tuples to a map; each key is associated with a set of values.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Set/toMapUnique/toMapUnique.html">toMapUnique</a>: Convert a set of tuples to a map (provided that there are no multiple keys).</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Set/toString/toString.html">toString</a>: Convert a set to a string.</li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/String/String.html">String</a>: Library functions for strings.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Set/union/union.html">union</a>: flatten a set of sets into a single set.  </li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/String/String.html">String</a>: </li>
 <ul><li><a href="/Rascal/Libraries/Prelude/String/center/center.html">center</a>: Center a string in given space.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/String/charAt/charAt.html">charAt</a>: Return character in a string by its index position.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/String/chars/chars.html">chars</a>: Return characters of a string.</li>
@@ -573,6 +581,7 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/String/stringChars/stringChars.html">stringChars</a>: Convert a list of character codes into a string.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/String/substring/substring.html">substring</a>: Extract a substring from a string value.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/String/toInt/toInt.html">toInt</a>: Convert a string value to integer.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/String/toLocation/toLocation.html">toLocation</a>: Convert a string value to a (source code) location.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/String/toLowerCase/toLowerCase.html">toLowerCase</a>: Convert the characters in a string value to lower case.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/String/toReal/toReal.html">toReal</a>: Convert a string value to real.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/String/toUpperCase/toUpperCase.html">toUpperCase</a>: Convert the characters in a string value to upper case.</li>
@@ -582,8 +591,9 @@
 <ul><li><a href="/Rascal/Libraries/Prelude/Type/Attr/Attr.html">Attr</a>: Attributes register additional semantics annotations of a definition. </li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/choice/choice.html">choice</a>: Choice between alternative productions.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/comparable/comparable.html">comparable</a>: Check if two types are comparable, i.e., have a common supertype.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/eq/eq.html">eq</a>: structural equality between values. </li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/equivalent/equivalent.html">equivalent</a>: Check if two types are equivalent.</li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/Exception/Exception.html">Exception</a>: An exception that represents type cast violations.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/Exception/Exception.html">Exception</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isADTType/isADTType.html">isADTType</a>: Determine if the given type is an Abstract Data Type (ADT).</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isAliasType/isAliasType.html">isAliasType</a>: Determine if the given type is an alias.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isBagType/isBagType.html">isBagType</a>: Determine if the given type is a bag (bags are not yet implemented).</li>
@@ -613,7 +623,7 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/subtype/subtype.html">subtype</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/Symbol/Symbol.html">Symbol</a>: A Symbol represents a Rascal Type.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/typeOf/typeOf.html">typeOf</a>: returns the dynamic type of a value as a reified type</li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/var-func/var-func.html">var-func</a>: Functions with variable argument lists are normalized to a normal function.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/var-func/var-func.html">var-func</a>: </li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/ValueIO/ValueIO.html">ValueIO</a>: Library functions for reading and writing values in textual and binary format.</li>
 <ul><li><a href="/Rascal/Libraries/Prelude/ValueIO/readBinaryValueFile/readBinaryValueFile.html">readBinaryValueFile</a>: Read a value from a binary file.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ValueIO/readTextValueFile/readTextValueFile.html">readTextValueFile</a>: Read a value from a text file.</li>
@@ -630,8 +640,8 @@
 <ul></ul><li><a href="/Rascal/Libraries/util/Benchmark/systemTime/systemTime.html">systemTime</a>: System time in nanoseconds (10<code><i></i><sup>-9</sup></code> sec).</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Benchmark/userTime/userTime.html">userTime</a>: User time in nanoseconds (10<code><i></i><sup>-9</sup></code> sec).</li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/util/Clipboard/Clipboard.html">Clipboard</a>: </li>
-<ul><li><a href="/Rascal/Libraries/util/Clipboard/copy/copy.html">copy</a>: Copy a value to the clipboar</li>
-<ul></ul><li><a href="/Rascal/Libraries/util/Clipboard/paste/paste.html">paste</a>: Paste the current value on the clipboard</li>
+<ul><li><a href="/Rascal/Libraries/util/Clipboard/copy/copy.html">copy</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/util/Clipboard/paste/paste.html">paste</a>: </li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/util/ContentCompletion/ContentCompletion.html">ContentCompletion</a>: </li>
 <ul><li><a href="/Rascal/Libraries/util/ContentCompletion/CompletionProposal/CompletionProposal.html">CompletionProposal</a>: Completion datatype returned to the editor.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/ContentCompletion/createDefaultProposals/createDefaultProposals.html">createDefaultProposals</a>: </li>
@@ -657,10 +667,10 @@
 <ul></ul><li><a href="/Rascal/Libraries/util/Editors/provideDefaultLineDecorations/provideDefaultLineDecorations.html">provideDefaultLineDecorations</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Editors/setErrorColors/setErrorColors.html">setErrorColors</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Editors/setHighlightColors/setHighlightColors.html">setHighlightColors</a>: </li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/util/Eval/Eval.html">Eval</a>: Evaluate Rascal commands.</li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/util/Eval/Eval.html">Eval</a>: </li>
 <ul><li><a href="/Rascal/Libraries/util/Eval/eval/eval.html">eval</a>: Evaluate a (list of) Rascal commands and return the value of the last command.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Eval/evalType/evalType.html">evalType</a>: Evaluate a (list of) Rascal commands and return the type of the last command.</li>
-<ul></ul><li><a href="/Rascal/Libraries/util/Eval/Result/Result.html">Result</a>: Data type for representing the result of evaluation.</li>
+<ul></ul><li><a href="/Rascal/Libraries/util/Eval/Result/Result.html">Result</a>: </li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/util/IDE/IDE.html">IDE</a>: Extend an IDE with interactive, language-specific, features (Eclipse only).</li>
 <ul><li><a href="/Rascal/Libraries/util/IDE/clearLanguage/clearLanguage.html">clearLanguage</a>: Clear a registered language.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/IDE/clearLanguages/clearLanguages.html">clearLanguages</a>: Clear all registered languages.</li>
@@ -717,12 +727,13 @@
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/toRat/toRat.html">toRat</a>: Convert two numbers to a rational value (not supported on reals).</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/toReal/toReal.html">toReal</a>: Convert a numeric value to a real.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/toString/toString.html">toString</a>: Convert a numeric value to a string.</li>
+<ul></ul><li><a href="/Rascal/Libraries/util/Math/unscaled/unscaled.html">unscaled</a>: Return the unscaled integer of a real.</li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/util/Maybe/Maybe.html">Maybe</a>: Data type to represent an optional value.</li>
-<ul></ul><li><a href="/Rascal/Libraries/util/Monitor/Monitor.html">Monitor</a>: Monitor the progress of a job.</li>
-<ul><li><a href="/Rascal/Libraries/util/Monitor/startJob/startJob.html">startJob</a>: Log the <b>start</b> of a job.</li>
+<ul></ul><li><a href="/Rascal/Libraries/util/Monitor/Monitor.html">Monitor</a>: Monitor the progress of a task/job</li>
+<ul><li><a href="/Rascal/Libraries/util/Monitor/endJob/endJob.html">endJob</a>: Log the <b>end</b> of a job.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Monitor/event/event.html">event</a>: Log the <b>start</b> of an event (it is ended by another <code>event</code> or by <code>endJob</code>).</li>
+<ul></ul><li><a href="/Rascal/Libraries/util/Monitor/startJob/startJob.html">startJob</a>: Log the <b>start</b> of a job.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Monitor/todo/todo.html">todo</a>: Set the estimated remaining work for the current (sub)job.</li>
-<ul></ul><li><a href="/Rascal/Libraries/util/Monitor/endJob/endJob.html">endJob</a>: Log the <b>end</b> of a job.</li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/util/ParseTreeUI/ParseTreeUI.html">ParseTreeUI</a>: </li>
 <ul><li><a href="/Rascal/Libraries/util/ParseTreeUI/vertical/vertical.html">vertical</a>: </li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/util/PriorityQueue/PriorityQueue.html">PriorityQueue</a>: A <code>PriorityQueue</code> datatype and associated functions.</li>
@@ -740,6 +751,7 @@
 <ul></ul><li><a href="/Rascal/Libraries/util/Resources/getProject/getProject.html">getProject</a>: Retrieve the hierarchical representation of a single named project.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Resources/projects/projects.html">projects</a>: Retrieve the set of project locations of the current Eclipse workspace.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Resources/references/references.html">references</a>: The set of projects that are referenced by a project.</li>
+<ul></ul><li><a href="/Rascal/Libraries/util/Resources/Resource/Resource.html">Resource</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Resources/root/root.html">root</a>: Retrieve a full hierarchical representation of all resources in the Eclipse workspace.</li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/util/ShellExec/ShellExec.html">ShellExec</a>: Execute and manage external processes.</li>
 <ul><li><a href="/Rascal/Libraries/util/ShellExec/createProcess/createProcess.html">createProcess</a>: Start a new external process.</li>
@@ -761,26 +773,38 @@
 <ul></ul><li><a href="/Rascal/Libraries/lang/csv/IO/readCSV/readCSV.html">readCSV</a>: Read a relation from a CSV (Comma Separated Values) file.</li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/csv/IO/writeCSV/writeCSV.html">writeCSV</a>: Write a relation to a CSV (Comma Separated Values) file.</li>
 <ul></ul></ul></ul><li><a href="/Rascal/Libraries/lang/java/java.html">java</a>: Definitions and tools related to the Java language.</li>
-<ul><li><a href="/Rascal/Libraries/lang/java/jdt/jdt.html">jdt</a>: Tools related to the Eclipse Java Development ToolKit (JDT).</li>
-<ul><li><a href="/Rascal/Libraries/lang/java/jdt/Java/Java.html">Java</a>: An Entity datatype for representing facts about Java programs.</li>
-<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/JDT/JDT.html">JDT</a>: Datatypes for representing relations between parts of Java programs. See <a href="/Rascal/Libraries/lang/java/jdt/Java/Java.html">jdt/Java</a> for the basic data model for Java artifacts. </li>
-<ul><li><a href="/Rascal/Libraries/lang/java/jdt/JDT/createAstFromFile/createAstFromFile.html">createAstFromFile</a>: The Rascal function that generates the AST from a Java source file.</li>
-<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/JDT/createAstsFromProject/createAstsFromProject.html">createAstsFromProject</a>: The Rascal function that generates the ASTs from a Java project.</li>
-<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/JDT/extractClass/extractClass.html">extractClass</a>: Import facts from a Java file.</li>
-<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/JDT/extractFactsTransitive/extractFactsTransitive.html">extractFactsTransitive</a>: Extracts facts from a Java project and all projects it depends on.</li>
-<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/JDT/extractProject/extractProject.html">extractProject</a>: Import facts from a Java project.</li>
-<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/JDT/extractResource/extractResource.html">extractResource</a>: Extract Java facts from a project, file or folder</li>
-<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/JDT/extractResources/extractResources.html">extractResources</a>: Extract facts from a set of resources and merge them.</li>
-<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/JDT/isOnBuildPath/isOnBuildPath.html">isOnBuildPath</a>: Check if a Resource is on its project's build path.</li>
-<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/JDT/JavaADT/JavaADT.html">JavaADT</a>: Describes a flat representation of the Java abstract syntax trees (ASTs).</li>
-<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/JDT/matchLocations/matchLocations.html">matchLocations</a>: Match JDT locations with Rascal locations.</li>
+<ul><li><a href="/Rascal/Libraries/lang/java/jdt/jdt.html">jdt</a>: tools for Java provided via reusing the Eclipse JDT</li>
+<ul><li><a href="/Rascal/Libraries/lang/java/jdt/m3/m3.html">m3</a>: functions for generating M3 models starting from Eclipse projects</li>
+<ul><li><a href="/Rascal/Libraries/lang/java/jdt/m3/Core/Core.html">Core</a>: create M3 models for Eclipse projects</li>
+<ul><li><a href="/Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromEclipseFile/createM3FromEclipseFile.html">createM3FromEclipseFile</a>: Extract an M3 model for a file that is located in an eclipse project</li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromEclipseProject/createM3FromEclipseProject.html">createM3FromEclipseProject</a>: Extract a full m3 model from an Eclipse project</li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromProjectJars/createM3FromProjectJars.html">createM3FromProjectJars</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/jdt/m3/Core/getMethodASTEclipse/getMethodASTEclipse.html">getMethodASTEclipse</a>: Create an AST for the given logical method location</li>
+<ul></ul></ul></ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/m3.html">m3</a>: Java-specific version of the M3 model</li>
+<ul><li><a href="/Rascal/Libraries/lang/java/m3/AST/AST.html">AST</a>: defines AST node types for Java</li>
+<ul><li><a href="/Rascal/Libraries/lang/java/m3/AST/createAstFromFile/createAstFromFile.html">createAstFromFile</a>: Creates AST from a file</li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/AST/createAstsFromDirectory/createAstsFromDirectory.html">createAstsFromDirectory</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/AST/Declaration/Declaration.html">Declaration</a>: </li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/Core.html">Core</a>: extends the M3 <a href="/Rascal/Libraries/analysis/m3/Core/Core.html">Core</a> with Java specific concepts such as inheritance and overriding.</li>
+<ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/createM3FromDirectory/createM3FromDirectory.html">createM3FromDirectory</a>: globs for jars, class files and java files in a directory and tries to compile all source files into an <span class="inlineError">ambiguous: Rascal:M3</span> model</li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/extends/extends.html">extends</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/fieldAccess/fieldAccess.html">fieldAccess</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/implements/implements.html">implements</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/methodInvocation/methodInvocation.html">methodInvocation</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/methodOverrides/methodOverrides.html">methodOverrides</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/Modifier/Modifier.html">Modifier</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/typeDependency/typeDependency.html">typeDependency</a>: </li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/TypeHierarchy/TypeHierarchy.html">TypeHierarchy</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/TypeSymbol/TypeSymbol.html">TypeSymbol</a>: </li>
+<ul><li><a href="/Rascal/Libraries/lang/java/m3/TypeSymbol/Bound/Bound.html">Bound</a>: </li>
 <ul></ul></ul></ul></ul><li><a href="/Rascal/Libraries/lang/RSF/RSF.html">RSF</a>: Functions for reading/writing the Rigi Standard Format (RSF).</li>
 <ul><li><a href="/Rascal/Libraries/lang/RSF/readRSF/readRSF.html">readRSF</a>: Read a file in Rigi Standard Format (RSF). </li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/lang/xml/xml.html">xml</a>: XML utilities</li>
-<ul><li><a href="/Rascal/Libraries/lang/xml/DOM/DOM.html">DOM</a>: Functions for reading and writing XML files using DOM.</li>
-<ul><li><a href="/Rascal/Libraries/lang/xml/DOM/Node/Node.html">Node</a>: Datatypes for representing an instance of the DOM.</li>
-<ul></ul><li><a href="/Rascal/Libraries/lang/xml/DOM/attribute/attribute.html">attribute</a>: Auxiliary constructor for XML attribute without namespace.</li>
+<ul><li><a href="/Rascal/Libraries/lang/xml/DOM/DOM.html">DOM</a>: Functions for reading and writing XML files.</li>
+<ul><li><a href="/Rascal/Libraries/lang/xml/DOM/attribute/attribute.html">attribute</a>: Auxiliary constructor for XML attribute without namespace.</li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/xml/DOM/attrs/attrs.html">attrs</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/xml/DOM/element/element.html">element</a>: Auxiliary constructor for XML element without namespace.</li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/xml/DOM/Node/Node.html">Node</a>: Datatypes for representing an instance of the DOM.</li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/xml/DOM/parseXMLDOM/parseXMLDOM.html">parseXMLDOM</a>: Parse an XML document and return a DOM instance.</li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/xml/DOM/parseXMLDOMTrim/parseXMLDOMTrim.html">parseXMLDOMTrim</a>: Parse an XML document and trim it (remove layout).</li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/xml/DOM/xmlCompact/xmlCompact.html">xmlCompact</a>: Convert a DOM instance to a compact XML string (with minimal white space).</li>
@@ -926,9 +950,9 @@
 <ul></ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/FCA/FormalContext/FormalContext.html">FormalContext</a>: Data Types belonging to Formal Concept Analysis.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/formalconcepts/FCA/toDot/toDot.html">toDot</a>: Computes Dot Graph from Concept Lattice.</li>
 <ul></ul></ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/graphs.html">graphs</a>: Analyzing unlabeled and labelled graphs.</li>
-<ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph.html">Graph</a>: Graphs with associated functions.</li>
+<ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph.html">Graph</a>: A <code>Graph</code> datatype with associated functions.</li>
 <ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/bottom/bottom.html">bottom</a>: Determine the bottom nodes (leaves) of a graph.</li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph/Graph.html">Graph</a>: Graph is an alias for a binary relation.</li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph/Graph.html">Graph</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/order/order.html">order</a>: Compute topological order of the nodes in a graph.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/predecessors/predecessors.html">predecessors</a>: Determine the direct predecessors of a graph node.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/reach/reach.html">reach</a>: Determine the graph nodes reachable from a set of nodes.</li>
@@ -937,15 +961,36 @@
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/shortestPathPair/shortestPathPair.html">shortestPathPair</a>: Determine the shortest path between two graph nodes.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/successors/successors.html">successors</a>: Determine the direct successors of a graph node.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/top/top.html">top</a>: Determine the set of top nodes (roots) of a graph.</li>
-<ul></ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/LabeledGraph.html">LabeledGraph</a>: Labelled graphs with associated functions.</li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/LabeledGraph.html">LabeledGraph</a>: </li>
 <ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/bottom/bottom.html">bottom</a>: Return the bottom nodes of a LGraph.</li>
-<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/LGraph/LGraph.html">LGraph</a>: A labelled graph is an alias for a ternary relation.</li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/LGraph/LGraph.html">LGraph</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/predecessors/predecessors.html">predecessors</a>: The predecessors of a single node in a LGraph.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/reach/reach.html">reach</a>: Reachability from a given start set of nodes.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/reachR/reachR.html">reachR</a>: Reachability from given start set of nodes with restrictions.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/reachX/reachX.html">reachX</a>: Reachability from given start set of nodes with exclusions.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/successors/successors.html">successors</a>: The successors of a single node in a LGraph.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/top/top.html">top</a>: Return the top nodes of a LGraph.</li>
+<ul></ul></ul></ul><li><a href="/Rascal/Libraries/analysis/m3/m3.html">m3</a>: a language independent meta model for facts about source code, which is extensible to include language specific modeling elements</li>
+<ul><li><a href="/Rascal/Libraries/analysis/m3/AST/AST.html">AST</a>: a symbolic representation for abstract syntax trees of programming languages.</li>
+<ul><li><a href="/Rascal/Libraries/analysis/m3/AST/decl/decl.html">decl</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/AST/messages/messages.html">messages</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/AST/modifiers/modifiers.html">modifiers</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/AST/name/name.html">name</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/AST/src/src.html">src</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/AST/typ/typ.html">typ</a>: </li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/Core.html">Core</a>: M3 common source code model represent facts extracted from source code for use in downstream metrics or other analyses.</li>
+<ul><li><a href="/Rascal/Libraries/analysis/m3/Core/containment/containment.html">containment</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/declarations/declarations.html">declarations</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/documentation/documentation.html">documentation</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/M3/M3.html">M3</a>: the m3 constructor is identified by the name of a project encoded as a <a href="/Rascal/Expressions/Values/Location/Location.html">Location</a> and has annotations for each kind of fact extracted from a project.</li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/messages/messages.html">messages</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/modifiers/modifiers.html">modifiers</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/names/names.html">names</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/types/types.html">types</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/uses/uses.html">uses</a>: </li>
+<ul></ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Registry/Registry.html">Registry</a>: in memory database for <a href="/Rascal/Libraries/analysis/m3/Core/Core.html">analysis/m3/Core</a> models for resolving hyperlinks</li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/TypeSymbol/TypeSymbol.html">TypeSymbol</a>: a symbolic representation for types that occur in programming languages.</li>
+<ul><li><a href="/Rascal/Libraries/analysis/m3/TypeSymbol/TypeSymbol/TypeSymbol.html">TypeSymbol</a>: </li>
 <ul></ul></ul></ul><li><a href="/Rascal/Libraries/analysis/statistics/statistics.html">statistics</a>: Statistical functions.</li>
 <ul><li><a href="/Rascal/Libraries/analysis/statistics/Frequency/Frequency.html">Frequency</a>: Frequency distributions.</li>
 <ul><li><a href="/Rascal/Libraries/analysis/statistics/Frequency/cumFreq/cumFreq.html">cumFreq</a>: Cumulative frequency of values less than or equal to a given value.</li>
@@ -1005,7 +1050,7 @@
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Contents&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Contents&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 7 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

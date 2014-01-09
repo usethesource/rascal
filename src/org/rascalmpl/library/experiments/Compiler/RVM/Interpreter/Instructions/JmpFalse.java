@@ -14,7 +14,6 @@ public class JmpFalse extends Instruction {
 	public String toString() { return "JMPFALSE " + label + " [" + codeblock.getLabelPC(label) + "]"; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(codeblock.getLabelPC(label));
+		codeblock.addCode1(opcode.getOpcode(), codeblock.getLabelPC(label));
 	}
 }

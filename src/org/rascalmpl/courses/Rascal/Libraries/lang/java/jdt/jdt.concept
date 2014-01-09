@@ -1,9 +1,3 @@
 Name: jdt
 
-Synopsis: Tools related to the Eclipse Java Development ToolKit (JDT).
-
-Description:
-
-This library provides:
-
-<toc Rascal/Libraries/lang/java/jdt 1>
+Synopsis: tools for Java provided via reusing the Eclipse JDT

@@ -12,10 +12,8 @@ import analysis::linearprogramming::LLLinearProgramming;
 import List;
 import util::Maybe;
 import Set;
-import Number;
 import Map;
 import util::Math;
-import Real;
 
 alias Coefficients = map[str var,num coef];
 

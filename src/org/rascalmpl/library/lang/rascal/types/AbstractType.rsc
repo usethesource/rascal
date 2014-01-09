@@ -73,6 +73,7 @@ public str prettyPrintType(\inferred(int n)) = "inferred(<n>)";
 public str prettyPrintType(\overloaded(set[Symbol] os, set[Symbol] defaults)) = "overloaded:\n\t\t<intercalate("\n\t\t",[prettyPrintType(\o) | \o <- os + defaults])>";
 // named non-terminal symbols
 public str prettyPrintType(Symbol::\sort(str name)) = name;
+public str prettyPrintType(Symbol::\prod(Symbol s, str name, list[Symbol] fs, set[Attr] atrs)) = "<prettyPrintType(s)> <name> : (<intercalate(", ", [ prettyPrintType(f) | f <- fs ])>)";
 public str prettyPrintType(Symbol::\lex(str name)) = name;
 public str prettyPrintType(Symbol::\layouts(str name)) = name;
 public str prettyPrintType(Symbol::\keywords(str name)) = name;
@@ -679,3 +680,45 @@ public bool isElementType(Symbol t) =
 @doc{Is this type a container type?}
 public bool isContainerType(Symbol t) =
 	isSetType(t) || isListType(t) || isMapType(t) || isBagType(t);
+	
+@doc{Synopsis: Determine if the given type is a nonterminal.}
+public bool isNonTerminalType(\alias(_,_,Symbol at)) = isNonTerminalType(at);
+public bool isNonTerminalType(\parameter(_,Symbol tvb)) = isNonTerminalType(tvb);
+public bool isNonTerminalType(\label(_,Symbol lt)) = isNonTerminalType(lt);
+public bool isNonTerminalType(Symbol::\sort(_)) = true;
+public default bool isNonTerminalType(Symbol _) = false;	
+
+@doc{Get the name of the nonterminal.}
+public str getNonTerminalName(Symbol t) {
+	if (\sort(n) := unwrapType(t)) return n;
+	if (\parameterized-sort(n,_) := unwrapType(t)) return n;
+	if (Symbol::\prod(s,_,_,_) := unwrapType(t)) return getNonTerminalName(s);
+    throw "getNonTerminalName, invalid type given: <prettyPrintType(t)>";
+}
+
+@doc{Synopsis: Determine if the given type is a production.}
+public bool isProductionType(\alias(_,_,Symbol at)) = isProductionType(at);
+public bool isProductionType(\parameter(_,Symbol tvb)) = isProductionType(tvb);
+public bool isProductionType(\label(_,Symbol lt)) = isProductionType(lt);
+public bool isProductionType(Symbol::\prod(_,_,_,_)) = true;
+public default bool isProductionType(Symbol _) = false;	
+
+@doc{Get a list of the argument types in a production.}
+public list[Symbol] getProductionArgumentTypes(Symbol pr) {
+	if (Symbol::\prod(_,_,ps,_) := unwrapType(pr)) {
+		// TODO: Need to check to see if this is correct, it seems like the right thing to do...
+		return [psi | psi <- ps, Symbol::\sort(_) := psi || Symbol::\parameterized-sort(_,_) := psi] ;
+	}
+    throw "Cannot get production arguments from non-production type <prettyPrintType(pr)>";
+}
+
+@doc{Get a tuple with the argument types as the fields.}
+public Symbol getProductionArgumentTypesAsTuple(Symbol pr) {
+	return \tuple(getProductionArgumentTypes(pr));
+}
+
+@doc{Get the sort type of the production.}
+public Symbol getProductionSortType(Symbol pr) {
+	if (Symbol::\prod(s,_,_,_) := unwrapType(pr)) return s;
+    throw "Cannot get production sort type from non-production type <prettyPrintType(pr)>";
+}

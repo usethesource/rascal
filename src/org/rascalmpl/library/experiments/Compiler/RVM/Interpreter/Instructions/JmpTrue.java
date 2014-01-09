@@ -14,7 +14,6 @@ public class JmpTrue extends Instruction {
 	public String toString() { return "JMPTRUE " + label + " [" + codeblock.getLabelPC(label) + "]"; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(codeblock.getLabelPC(label));
+		codeblock.addCode1(opcode.getOpcode(), codeblock.getLabelPC(label));
 	}
 }

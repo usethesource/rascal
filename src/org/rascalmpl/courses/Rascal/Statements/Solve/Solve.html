@@ -84,13 +84,13 @@
 </pre> In other words, it is the union of successive <a href="/Rascal/Expressions/Values/Relation/Composition/Composition.html">Relation/Composition</a>s of <code>R</code> with itself. 
  Fo a given relation <code>R</code> this can be expressed as follows:
  <pre class="screen"><span class="prompt">rascal></span>rel[int,int] R = {&lt;1,2&gt;, &lt;2,3&gt;, &lt;3,4&gt;};
-rel[int, int]: {
+rel[int,int]: {
   &lt;2,3>,
   &lt;3,4>,
   &lt;1,2>
 }
 <span class="prompt">rascal></span>T = R;
-rel[int, int]: {
+rel[int,int]: {
   &lt;2,3>,
   &lt;3,4>,
   &lt;1,2>
@@ -98,7 +98,7 @@ rel[int, int]: {
 <span class="prompt">rascal></span>solve (T) {
 <span class="continuation">>>>>>>></span>          T = T + (T o R);
 <span class="continuation">>>>>>>></span>        }
-rel[int, int]: {
+rel[int,int]: {
   &lt;2,3>,
   &lt;1,3>,
   &lt;2,4>,

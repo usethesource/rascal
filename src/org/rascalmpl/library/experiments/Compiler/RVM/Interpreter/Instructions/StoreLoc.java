@@ -15,7 +15,6 @@ public class StoreLoc extends  Instruction {
 	public String toString() { return "STORELOC " + pos; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(pos);
+		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
 }

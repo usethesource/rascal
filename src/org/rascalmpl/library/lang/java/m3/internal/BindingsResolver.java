@@ -10,7 +10,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.lang.java.m3.internal;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,11 +51,9 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BindingsResolver {
-	private String project;
 	private TypeStore store;
 	private final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private final TypeFactory tf = TypeFactory.getInstance();
@@ -64,7 +61,9 @@ public class BindingsResolver {
 	
 	private final Map<String, Integer> anonymousClassCounter = new HashMap<String, Integer>();
 	private final Map<String, String> resolvedAnonymousClasses = new HashMap<String, String>();
-	private final Map<URI, Integer> initializerCounter = new HashMap<URI, Integer>();
+	private final Map<ISourceLocation, Integer> initializerCounter = new HashMap<ISourceLocation, Integer>();
+	private final Map<Initializer, ISourceLocation> initializerLookUp = new HashMap<>();
+	
   private org.eclipse.imp.pdb.facts.type.Type typeSymbol;
 	
 	BindingsResolver(final TypeStore store, boolean collectBindings) {
@@ -72,11 +71,7 @@ public class BindingsResolver {
 		this.store = store;
 	}
 	
-	public void setProject(String project) {
-		this.project = project;
-	}
-	
-	public URI resolveBinding(ASTNode node) {
+	public ISourceLocation resolveBinding(ASTNode node) {
 		if (collectBindings) {
 			if (node instanceof TypeDeclaration) {
         return resolveBinding(((TypeDeclaration) node).resolveBinding());
@@ -119,7 +114,13 @@ public class BindingsResolver {
       } else if (node instanceof TypeParameter) {
         return resolveBinding(((TypeParameter) node).resolveBinding());
       } else if (node instanceof VariableDeclaration) {
-        return resolveBinding(((VariableDeclaration) node).resolveBinding());
+    	VariableDeclaration n = (VariableDeclaration) node;
+        ISourceLocation result = resolveBinding(n.resolveBinding());
+        // Have to move towards parent to make the binding unique
+        if (result.getScheme() == "unresolved") {
+        	result = resolveBinding(n.getParent(), n.getName().getIdentifier());
+        }
+        return result;
       } else if (node instanceof ConstructorInvocation) {
         return resolveBinding(((ConstructorInvocation) node).resolveConstructorBinding());
       } else if (node instanceof SuperConstructorInvocation) {
@@ -130,69 +131,111 @@ public class BindingsResolver {
         return resolveInitializer((Initializer) node);
       }
 		}
-		return convertBinding("unknown", null, null, null);
+		return convertBinding("unknown", null, null);
 	}
 	
-	private URI resolveQualifiedName(QualifiedName node) {
-		URI parent = resolveBinding(node.getQualifier().resolveTypeBinding());
-		URI name = resolveBinding(node.getName());
+	private ISourceLocation resolveBinding(ASTNode parentNode, String childName) {
+		ISourceLocation parentBinding = resolveBinding(parentNode);
+		// Something has to declare it!!!
+		while(parentBinding.getScheme().equals("unknown") || parentBinding.getScheme().equals("unresolved")) {
+			if (parentNode == null) {
+				//truely unresolved/unknown
+				return convertBinding("unresolved", null, null);
+			}
+			parentNode = parentNode.getParent();
+			parentBinding = resolveBinding(parentNode);
+		}
+		String key = "";
+		for (String storedKey: EclipseJavaCompiler.cache.keySet()) {
+			if (EclipseJavaCompiler.cache.get(storedKey).equals(parentBinding)) {
+				key = storedKey;
+				break;
+			}
+		}
+		key += "#".concat(childName);
+		if (EclipseJavaCompiler.cache.containsKey(key)) {
+			return EclipseJavaCompiler.cache.get(key);
+		}
+		// FIXME: May not be variable only!!!
+		ISourceLocation childBinding = convertBinding("java+variable", null, parentBinding.getPath().concat("/").concat(childName));
+		EclipseJavaCompiler.cache.put(key, childBinding);
+		return childBinding;
+	}
+	
+	private ISourceLocation resolveQualifiedName(QualifiedName node) {
+		ISourceLocation parent = resolveBinding(node.getQualifier().resolveTypeBinding());
+		ISourceLocation name = resolveBinding(node.getName());
 		
 		if (parent.getScheme().equals("java+array") && name.getScheme().equals("unresolved")) {
-      return convertBinding("java+field", resolveBinding(node.getQualifier()).getPath() + "/" + node.getName().getIdentifier(), null, null);
-    }
+			return convertBinding("java+field", null, resolveBinding(node.getQualifier()).getPath() + "/" + node.getName().getIdentifier());
+		}
 		
 		return name;
 	}
 	
-	private URI resolveInitializer(Initializer node) {
+	private ISourceLocation resolveInitializer(Initializer node) {
+		if (initializerLookUp.containsKey(node)) {
+			return initializerLookUp.get(node); 
+		}
 		int initCounter = 1;
-		URI parent = resolveBinding(node.getParent());
+		ISourceLocation parent = resolveBinding(node.getParent());
 		if (initializerCounter.containsKey(parent)) {
-      initCounter = initializerCounter.get(parent) + 1;
-    }
+	      initCounter = initializerCounter.get(parent) + 1;
+	    }
 		initializerCounter.put(parent, initCounter);
-		
-		return convertBinding("java+initializer", parent.getPath() + "$initializer" + initCounter, null, null);
+		String key = "";
+		for (String storedKey: EclipseJavaCompiler.cache.keySet()) {
+			if (EclipseJavaCompiler.cache.get(storedKey).equals(parent)) {
+				key = storedKey;
+				break;
+			}
+		}
+		key += "$initializer" + initCounter;
+		ISourceLocation result = convertBinding("java+initializer", null, parent.getPath() + "$initializer" + initCounter);
+		EclipseJavaCompiler.cache.put(key, result);
+		initializerLookUp.put(node, result);
+		return result;
 	}
 	
-	public URI resolveBinding(IBinding binding) {
+	public ISourceLocation resolveBinding(IBinding binding) {
 		if (binding == null) {
-      return convertBinding("unresolved", null, null, null);
-    }
+	      return convertBinding("unresolved", null, null);
+	    }
 		if (binding instanceof ITypeBinding) {
-      return resolveBinding((ITypeBinding) binding);
-    } else if (binding instanceof IMethodBinding) {
-      return resolveBinding((IMethodBinding) binding);
-    } else if (binding instanceof IPackageBinding) {
-      return resolveBinding((IPackageBinding) binding);
-    } else if (binding instanceof IVariableBinding) {
-      return resolveBinding((IVariableBinding) binding);
-    }
-		return convertBinding("unknown", null, null, null);
+	      return resolveBinding((ITypeBinding) binding);
+	    } else if (binding instanceof IMethodBinding) {
+	      return resolveBinding((IMethodBinding) binding);
+	    } else if (binding instanceof IPackageBinding) {
+	      return resolveBinding((IPackageBinding) binding);
+	    } else if (binding instanceof IVariableBinding) {
+	      return resolveBinding((IVariableBinding) binding);
+	    }
+		return convertBinding("unknown", null, null);
 	}
 	
 	public IConstructor resolveType(ISourceLocation uri, IBinding binding, boolean isDeclaration) {
-		if (binding == null)
+		if (binding == null) {
 			return null;
-    if (binding instanceof ITypeBinding) {
-      return computeTypeSymbol(uri, (ITypeBinding) binding, isDeclaration);
-    } else if (binding instanceof IMethodBinding) {
-      return computeMethodTypeSymbol(uri, (IMethodBinding) binding, isDeclaration);
-    } else if (binding instanceof IVariableBinding) {
-      return resolveType(uri, ((IVariableBinding) binding).getType(), isDeclaration);
-    }
-    
-    return null;
+		}
+	    if (binding instanceof ITypeBinding) {
+	      return computeTypeSymbol(uri, (ITypeBinding) binding, isDeclaration);
+	    } else if (binding instanceof IMethodBinding) {
+	      return computeMethodTypeSymbol(uri, (IMethodBinding) binding, isDeclaration);
+	    } else if (binding instanceof IVariableBinding) {
+	      return resolveType(uri, ((IVariableBinding) binding).getType(), isDeclaration);
+	    }
+	    
+	    return null;
 	}
 	
 	public IConstructor computeMethodTypeSymbol(IMethodBinding binding, boolean isDeclaration) {
 		if (binding == null)
 			return null;
-	  ISourceLocation decl = values.sourceLocation(resolveBinding(binding));
-	  return computeMethodTypeSymbol(decl, binding, isDeclaration);
+		ISourceLocation decl = resolveBinding(binding);
+		return computeMethodTypeSymbol(decl, binding, isDeclaration);
 	}
 	
-	private IConstructor computeMethodTypeSymbol(ISourceLocation decl, IMethodBinding binding, boolean isDeclaration) {
+  private IConstructor computeMethodTypeSymbol(ISourceLocation decl, IMethodBinding binding, boolean isDeclaration) {
     IList parameters = computeTypes(binding.getParameterTypes(), false);
     
     if (binding.isConstructor()) {
@@ -255,9 +298,9 @@ public class BindingsResolver {
 
   public IConstructor computeTypeSymbol(ITypeBinding binding, boolean isDeclaration) {
 	  if (binding == null)
-			return null;
-    ISourceLocation decl = values.sourceLocation(resolveBinding(binding));
-    return computeTypeSymbol(decl, binding, isDeclaration);
+		  return null;
+	  ISourceLocation decl = resolveBinding(binding);
+	  return computeTypeSymbol(decl, binding, isDeclaration);
   }
 
    private IConstructor computeTypeSymbol(ISourceLocation decl, ITypeBinding binding, boolean isDeclaration) {
@@ -376,20 +419,22 @@ public class BindingsResolver {
     return values.constructor(cons, elem, values.integer(dimensions));
   }
 
-  private URI resolveBinding(IMethodBinding binding) {
+  private ISourceLocation resolveBinding(IMethodBinding binding) {
 		if (binding == null) {
-      return convertBinding("unresolved", null, null, null);
-    }
+			return convertBinding("unresolved", null, null);
+		}
+		if (EclipseJavaCompiler.cache.containsKey(binding.getKey()))
+			return EclipseJavaCompiler.cache.get(binding.getKey());
 		String signature = resolveBinding(binding.getDeclaringClass()).getPath();
 		if (!signature.isEmpty()) {
-      signature = signature.concat("/");
-    }
+	      signature = signature.concat("/");
+	    }
 		String params = "";
 		
 		for (ITypeBinding parameterType: binding.getMethodDeclaration().getParameterTypes()) {
 			if (!params.isEmpty()) {
-        params = params.concat(",");
-      }
+		        params = params.concat(",");
+		      }
 			
 			if (parameterType.isTypeVariable()) {
 			  params = params.concat(parameterType.getName()); 
@@ -401,25 +446,32 @@ public class BindingsResolver {
 		signature = signature.concat(binding.getName() + "(" + params + ")");
 		String scheme = "unknown";
 		if (binding.isConstructor()) {
-      scheme = "java+constructor";
-    } else {
-      scheme = "java+method";
-    }
-		
-		return convertBinding(scheme, signature, null, null);
+	      scheme = "java+constructor";
+	    } else {
+	      scheme = "java+method";
+	    }
+		ISourceLocation result = convertBinding(scheme, null, signature);
+		EclipseJavaCompiler.cache.put(binding.getKey(), result);
+		return result;
 	}
 	
-	private URI resolveBinding(IPackageBinding binding) {
+	private ISourceLocation resolveBinding(IPackageBinding binding) {
 		if (binding == null) {
-      return convertBinding("unresolved", null, null, null);
-    }
-		return convertBinding("java+package", binding.getName().replaceAll("\\.", "/"), null, null);
+	      return convertBinding("unresolved", null, null);
+	    }
+		if (EclipseJavaCompiler.cache.containsKey(binding.getKey()))
+			return EclipseJavaCompiler.cache.get(binding.getKey());
+		ISourceLocation result = convertBinding("java+package", null, binding.getName().replaceAll("\\.", "/"));
+		EclipseJavaCompiler.cache.put(binding.getKey(), result);
+		return result;
 	}
 	
-	private URI resolveBinding(ITypeBinding binding) {
+	private ISourceLocation resolveBinding(ITypeBinding binding) {
 		if (binding == null) {
-			return convertBinding("unresolved", null, null, null);
+			return convertBinding("unresolved", null, null);
 		}
+		if (EclipseJavaCompiler.cache.containsKey(binding.getKey()))
+			return EclipseJavaCompiler.cache.get(binding.getKey());
 		
 		String scheme = binding.isInterface() ? "java+interface" : "java+class";
 		String qualifiedName = binding.getTypeDeclaration().getQualifiedName();
@@ -432,8 +484,13 @@ public class BindingsResolver {
 				qualifiedName = resolveBinding(binding.getDeclaringClass()).getPath();
 			}
 			else {
-				System.err.println("Should not happen");
+				System.err.println("No defining class or method for " + binding.getClass().getCanonicalName());
+				System.err.println("Most probably anonymous class in initializer");
 			}
+		}
+		
+		if (binding.isEnum()) {
+			scheme = "java+enum";
 		}
 		
 		if (binding.isArray()) {
@@ -449,7 +506,7 @@ public class BindingsResolver {
 		}
 		
 		if (binding.isWildcardType()) {
-			return convertBinding("unknown", null, null, null);
+			return convertBinding("unknown", null, null);
 		}
 		
 		if (binding.isLocal()) {
@@ -475,16 +532,19 @@ public class BindingsResolver {
 			}
 			scheme = "java+anonymousClass";
 		}
-		
-		return convertBinding(scheme, qualifiedName.replaceAll("\\.", "/"), null, null);
+		ISourceLocation result = convertBinding(scheme, null, qualifiedName.replaceAll("\\.", "/"));
+		EclipseJavaCompiler.cache.put(binding.getKey(), result);
+		return result;
 	}
 	
-	private URI resolveBinding(IVariableBinding binding) {
+	private ISourceLocation resolveBinding(IVariableBinding binding) {
 		if (binding == null) {
-      return convertBinding("unresolved", null, null, null);
-    }
+	      return convertBinding("unresolved", null, null);
+	    }
+		if (EclipseJavaCompiler.cache.containsKey(binding.getKey()))
+			return EclipseJavaCompiler.cache.get(binding.getKey());
 		String qualifiedName = "";
-
+		
 		ITypeBinding declaringClass = binding.getDeclaringClass();
 		if (declaringClass != null) {
 			qualifiedName = getPath(resolveBinding(declaringClass));
@@ -496,40 +556,34 @@ public class BindingsResolver {
 		}
 		
 		if (!qualifiedName.isEmpty()) {
-      qualifiedName = qualifiedName.concat("/");
-    } else {
-      return convertBinding("unresolved", null, null, null);
-    }
+	      qualifiedName = qualifiedName.concat("/");
+	    } else {
+	    	return convertBinding("unresolved", null, null);
+	    }
 		
 		String scheme = "java+variable";
 		if (binding.isEnumConstant()) {
-      scheme = "java+enumConstant";
-    } else if (binding.isParameter()) {
-      scheme = "java+parameter";
-    } else if (binding.isField()) {
-      scheme = "java+field";
-    }
-		
-		return convertBinding(scheme, qualifiedName.concat(binding.getName()), null, null);
+	      scheme = "java+enumConstant";
+	    } else if (binding.isParameter()) {
+	      scheme = "java+parameter";
+	    } else if (binding.isField()) {
+	      scheme = "java+field";
+	    }
+		ISourceLocation result = convertBinding(scheme, null, qualifiedName.concat(binding.getName()));
+		EclipseJavaCompiler.cache.put(binding.getKey(), result);
+		return result;
 	}
 	
-	public URI convertBinding(String scheme, String path, String query, String fragment) {
-		URI binding = null;
-		if (path == null) {
-      path = "";
-    }
-		
+	protected ISourceLocation convertBinding(String scheme, String authority, String path) {
 		try {
-		  binding = URIUtil.create(scheme, this.project, !(path.startsWith("/")) ? "/" + path : path, query, fragment);
-		} catch (URISyntaxException e) {
-		  throw new RuntimeException("can not convert binding, which should never happen", e);
+			return values.sourceLocation(scheme, authority, path);
+		} catch (URISyntaxException | UnsupportedOperationException e) {
+			throw new RuntimeException("Should not happen", e);
 		}
-		
-		return binding;
 	}
 	
-	private String getPath(URI uri) {
-		String path = uri.getPath();
+	private String getPath(ISourceLocation iSourceLocation) {
+		String path = iSourceLocation.getPath();
 		return path.substring(1, path.length());
 	}
 }

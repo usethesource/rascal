@@ -18,6 +18,7 @@ package org.rascalmpl.library.lang.java.m3.internal;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +43,7 @@ public class EclipseJavaCompiler {
   protected final IValueFactory VF;
   private List<String> classPathEntries;
   private List<String> sourcePathEntries;
+  public static HashMap<String, ISourceLocation> cache = new HashMap<>();
 
   public EclipseJavaCompiler(IValueFactory vf) {
     this.VF = vf;
@@ -68,6 +70,17 @@ public class EclipseJavaCompiler {
       }
     }
   }
+  
+  public IValue createM3FromJarClass(ISourceLocation jarLoc, IEvaluatorContext eval) {
+      TypeStore store = new TypeStore();
+      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
+      store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
+      JarConverter converter = new JarConverter(store);
+      converter.set(jarLoc);
+      converter.convert(jarLoc, eval);
+
+      return converter.getModel(false);
+  }
 
   @SuppressWarnings("rawtypes")
   public IValue createM3FromFile(ISourceLocation loc, IString javaVersion, IEvaluatorContext eval) {
@@ -77,17 +90,19 @@ public class EclipseJavaCompiler {
       TypeStore store = new TypeStore();
       store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
       store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-      M3Converter converter = new M3Converter(store);
+      SourceConverter converter = new SourceConverter(store);
 
       converter.set(cu);
       converter.set(loc);
       cu.accept(converter);
       for (Iterator it = cu.getCommentList().iterator(); it.hasNext();) {
         Comment comment = (Comment) it.next();
+        if (comment.isDocComment())
+        	continue;
         comment.accept(converter);
       }
-
-      return converter.getModel();
+      
+      return converter.getModel(true);
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
     }
@@ -102,14 +117,15 @@ public class EclipseJavaCompiler {
       CompilationUnit cu = getCompilationUnit(loc, collectBindings.getValue(), javaVersion, eval);
 
       TypeStore store = new TypeStore();
-      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
+//      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
       store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
       ASTConverter converter = new ASTConverter(store, collectBindings.getValue());
 
       converter.set(cu);
       converter.set(loc);
       cu.accept(converter);
-      converter.insertCompilationUnitMessages();
+      
+      converter.insertCompilationUnitMessages(true);
       return converter.getValue();
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
@@ -129,6 +145,7 @@ public class EclipseJavaCompiler {
 
     options.put(JavaCore.COMPILER_SOURCE, javaVersion.getValue());
     options.put(JavaCore.COMPILER_COMPLIANCE, javaVersion.getValue());
+    options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, "enabled");
 
     parser.setCompilerOptions(options);
 

@@ -1,7 +1,4 @@
 module experiments::Compiler::Examples::Tst
 
-syntax AB = ("a" | "b")+ ;
+public value main(list[value] args) =  [ <s,r,L> | list[int] L:[*str s, *str r] <- [ [1,2], ["3","4"] ]];
 
-syntax CD = ("c" | "d")+ ;
-
-value main(list[value] args) = < [AB] "ababababab", [CD] "cdcdcdcdcdc" >;

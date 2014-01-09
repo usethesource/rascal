@@ -64,10 +64,10 @@
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  <pre class="screen"><span class="prompt">rascal></span>import ListRelation;
+<span class="sectionHead">Description</span>  <pre class="screen"><span class="prompt">rascal></span>import Relation;
 ok
 <span class="prompt">rascal></span>skins = [&lt;&quot;bird&quot;, &quot;feather&quot;&gt;, &lt;&quot;dog&quot;, &quot;fur&quot;&gt;, &lt;&quot;tortoise&quot;, &quot;shell&quot;&gt;, &lt;&quot;human&quot;, &quot;skin&quot;&gt;, &lt;&quot;fish&quot;, &quot;scale&quot;&gt;, &lt;&quot;lizard&quot;, &quot;scale&quot;&gt;, &lt;&quot;crab&quot;, &quot;shell&quot;&gt;, &lt;&quot;cat&quot;, &quot;fur&quot;&gt;];
-lrel[str, str]: [
+lrel[str,str]: [
   &lt;"bird","feather">,
   &lt;"dog","fur">,
   &lt;"tortoise","shell">,
@@ -78,13 +78,9 @@ lrel[str, str]: [
   &lt;"cat","fur">
 ]
 <span class="prompt">rascal></span>groupRangeByDomain(skins);
-set[list[str]]: {
-  ["skin"],
-  ["scale"],
-  ["fur"],
-  ["feather"],
-  ["shell"]
-}
+|stdin:///|(0,25,&lt;1,0>,&lt;1,25>): The called signature: groupRangeByDomain(lrel[str,str]),
+does not match the declared signature:	set[set[&amp;T]] groupRangeByDomain(rel[&amp;U dom,&amp;T ran]);
+
 </pre>
 </div>
 
@@ -95,7 +91,7 @@ set[list[str]]: {
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/ListRelation/groupRangeByDomain&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/ListRelation/groupRangeByDomain&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

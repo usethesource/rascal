@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/Prelude/Type/var-func</title>
 
-<meta name="description" content="Rascal/Libraries/Prelude/Type/var-func:  Functions with variable argument lists are normalized to a normal function.">
+<meta name="description" content="Rascal/Libraries/Prelude/Type/var-func: ">
 
 <meta name="keywords" content="Rascal/Libraries/Prelude/Type/var-func, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
@@ -43,16 +43,11 @@
 <span class="sectionHead">Name</span> <a href="/Rascal/Rascal.html">Rascal</a>/<a href="/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Rascal/Libraries/Prelude/Prelude.html">Prelude</a>/<a href="/Rascal/Libraries/Prelude/Type/Type.html">Type</a>/<a href="/Rascal/Libraries/Prelude/Type/var-func/var-func.html">var-func</a>
 </div>
 
-<div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Functions with variable argument lists are normalized to a normal function.
-
-</div>
-
 	                       
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>Production \var-func(Symbol ret, str name, list[tuple[Symbol typ, str label]] parameters, Symbol varArg, str varLabel)</code>
+<span class="sectionHead">Function</span>  <code>Symbol \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)</code>
 
 </div>
 
@@ -60,6 +55,7 @@
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Type;</code>
  </AUTOINSERTED>
+ Transformations to create canonical forms of some type
 
 </div>
 

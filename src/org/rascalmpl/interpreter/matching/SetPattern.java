@@ -490,7 +490,7 @@ public class SetPattern extends AbstractMatchingResult {
 			QualifiedNamePattern qualName = (QualifiedNamePattern) varPat[i];
 			String name = qualName.getName();
 			// Binding occurrence of this variable?
-			if(isBinding[i] || qualName.isAnonymous() || env.getVariable(name) == null){
+			if(isBinding[i] || qualName.isAnonymous() || env.getVariable(name) == null || env.getVariable(name).getValue() == null){
 				if(isSetVar(i)){
 					varGen[i] = new SubSetGenerator(elements, ctx);
 				} else {
@@ -502,18 +502,21 @@ public class SetPattern extends AbstractMatchingResult {
 				// Variable has been set before, use its dynamic type to distinguish set variables.
 				IValue val = env.getVariable(name).getValue();
 				
-				if(val.getType().isSet()){
-					isSetVar[i] = true;
-					if(elements.equals(val)){
-						varGen[i] = new SingleIValueIterator(val);
-						return true;
-					}
-					return false;
+				if (val != null) {
+				  if (val != null && val.getType().isSet()){
+				    isSetVar[i] = true;
+				    if(elements.equals(val)){
+				      varGen[i] = new SingleIValueIterator(val);
+				      return true;
+				    }
+				    return false;
+				  }
+				  if (elements.contains(val)){
+				    varGen[i] = new SingleIValueIterator(val);
+				  } else {
+				    return false;
+				  }
 				}
-				if(elements.contains(val)){
-					varGen[i] = new SingleIValueIterator(val);
-				} else
-					return false;
 			}
 			return true;
 		}

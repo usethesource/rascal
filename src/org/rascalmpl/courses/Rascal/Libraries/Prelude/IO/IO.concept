@@ -2,11 +2,3 @@
 Name: IO
 Usage: `import IO;`
 </AUTOINSERTED>
-Synopsis: Library functions for input/output.
-
-Description:
-
-The following functions are provided for input/output:
-
-<toc Rascal/Libraries/Prelude/IO 1>
-

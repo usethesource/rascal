@@ -70,13 +70,7 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>   Consider the following set in which the set <code>{10, 20, 30]</code> occurs as set element. It has as type <code>set[value]</code>:
 <pre class="screen"><span class="prompt">rascal></span>{1, 2, {10, 20, 30}, 3, 4};
-set[value]: {
-  4,
-  3,
-  2,
-  1,
-  {30,10,20}
-}
+set[value]: {4,3,2,1,{30,10,20}}
 </pre> The effect of splicing the same set element in the enclosing set gives a flat list of type <code>set[int]</code>:
 <pre class="screen"><span class="prompt">rascal></span>{1, 2, *{10, 20, 30}, 3, 4};
 set[int]: {30,10,4,20,3,2,1}

@@ -65,7 +65,7 @@
  <pre class="listing">module demo::lang::Pico::ControlFlow
 
 import Prelude;
-import Graph;
+import  analysis::graphs::Graph;
 import demo::lang::Pico::Abstract;
 import demo::lang::Pico::Load;
 
@@ -157,92 +157,61 @@ public CFGraph cflowProgram(str txt) = cflowProgram(load(txt));                 
 ok
 <span class="prompt">rascal></span>cflowProgram(&quot;begin declare n : natural, s : string; n := 10; s := \&quot;a\&quot;; while n do s := s + \&quot;a\&quot;; n := n - 1 od end&quot;);
 CFGraph: &lt;{entry(|file://-|(0,100,&lt;1,0>,&lt;1,100>))},{
+  &lt;statement(
+    |file://-|(39,7,&lt;1,39>,&lt;1,46>),
+    asgStat(
+      "n",
+      natCon(10)[
+        @location=|file://-|(44,2,&lt;1,44>,&lt;1,46>),
+        @comments=()
+      ])[
+      @location=|file://-|(39,7,&lt;1,39>,&lt;1,46>),
+      @comments=()
+    ]),statement(
+    |file://-|(48,8,&lt;1,48>,&lt;1,56>),
+    asgStat(
+      "s",
+      strCon("\"a\"")[
+        @location=|file://-|(53,3,&lt;1,53>,&lt;1,56>),
+        @comments=()
+      ])[
+      @location=|file://-|(48,8,&lt;1,48>,&lt;1,56>),
+      @comments=()
+    ])>,
   &lt;entry(|file://-|(0,100,&lt;1,0>,&lt;1,100>)),statement(
     |file://-|(39,7,&lt;1,39>,&lt;1,46>),
     asgStat(
       "n",
       natCon(10)[
-        @location=|file://-|(44,2,&lt;1,44>,&lt;1,46>)
+        @location=|file://-|(44,2,&lt;1,44>,&lt;1,46>),
+        @comments=()
       ])[
-      @location=|file://-|(39,7,&lt;1,39>,&lt;1,46>)
-    ])>,
-  &lt;statement(
-    |file://-|(39,7,&lt;1,39>,&lt;1,46>),
-    asgStat(
-      "n",
-      natCon(10)[
-        @location=|file://-|(44,2,&lt;1,44>,&lt;1,46>)
-      ])[
-      @location=|file://-|(39,7,&lt;1,39>,&lt;1,46>)
-    ]),statement(
-    |file://-|(48,8,&lt;1,48>,&lt;1,56>),
-    asgStat(
-      "s",
-      strCon("\"a\"")[
-        @location=|file://-|(53,3,&lt;1,53>,&lt;1,56>)
-      ])[
-      @location=|file://-|(48,8,&lt;1,48>,&lt;1,56>)
-    ])>,
-  &lt;statement(
-    |file://-|(48,8,&lt;1,48>,&lt;1,56>),
-    asgStat(
-      "s",
-      strCon("\"a\"")[
-        @location=|file://-|(53,3,&lt;1,53>,&lt;1,56>)
-      ])[
-      @location=|file://-|(48,8,&lt;1,48>,&lt;1,56>)
-    ]),choice(
-    |file://-|(64,1,&lt;1,64>,&lt;1,65>),
-    id("n")[
-      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>)
+      @location=|file://-|(39,7,&lt;1,39>,&lt;1,46>),
+      @comments=()
     ])>,
   &lt;choice(
     |file://-|(64,1,&lt;1,64>,&lt;1,65>),
     id("n")[
-      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>)
+      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>),
+      @comments=()
     ]),statement(
     |file://-|(69,12,&lt;1,69>,&lt;1,81>),
     asgStat(
       "s",
       add(
         id("s")[
-          @location=|file://-|(74,1,&lt;1,74>,&lt;1,75>)
+          @location=|file://-|(74,1,&lt;1,74>,&lt;1,75>),
+          @comments=()
         ],
         strCon("\"a\"")[
-          @location=|file://-|(78,3,&lt;1,78>,&lt;1,81>)
+          @location=|file://-|(78,3,&lt;1,78>,&lt;1,81>),
+          @comments=()
         ])[
-        @location=|file://-|(74,7,&lt;1,74>,&lt;1,81>)
+        @location=|file://-|(74,7,&lt;1,74>,&lt;1,81>),
+        @comments=()
       ])[
+      @comments=(),
       @location=|file://-|(69,12,&lt;1,69>,&lt;1,81>)
-    ])>,
-  &lt;statement(
-    |file://-|(69,12,&lt;1,69>,&lt;1,81>),
-    asgStat(
-      "s",
-      add(
-        id("s")[
-          @location=|file://-|(74,1,&lt;1,74>,&lt;1,75>)
-        ],
-        strCon("\"a\"")[
-          @location=|file://-|(78,3,&lt;1,78>,&lt;1,81>)
-        ])[
-        @location=|file://-|(74,7,&lt;1,74>,&lt;1,81>)
-      ])[
-      @location=|file://-|(69,12,&lt;1,69>,&lt;1,81>)
-    ]),statement(
-    |file://-|(83,10,&lt;1,83>,&lt;1,93>),
-    asgStat(
-      "n",
-      sub(
-        id("n")[
-          @location=|file://-|(88,1,&lt;1,88>,&lt;1,89>)
-        ],
-        natCon(1)[
-          @location=|file://-|(92,1,&lt;1,92>,&lt;1,93>)
-        ])[
-        @location=|file://-|(88,5,&lt;1,88>,&lt;1,93>)
-      ])[
-      @location=|file://-|(83,10,&lt;1,83>,&lt;1,93>)
     ])>,
   &lt;statement(
     |file://-|(83,10,&lt;1,83>,&lt;1,93>),
@@ -250,24 +219,83 @@ CFGraph: &lt;{entry(|file://-|(0,100,&lt;1,0>,&lt;1,100>))},{
       "n",
       sub(
         id("n")[
+          @comments=(),
           @location=|file://-|(88,1,&lt;1,88>,&lt;1,89>)
         ],
         natCon(1)[
-          @location=|file://-|(92,1,&lt;1,92>,&lt;1,93>)
+          @location=|file://-|(92,1,&lt;1,92>,&lt;1,93>),
+          @comments=()
         ])[
-        @location=|file://-|(88,5,&lt;1,88>,&lt;1,93>)
+        @location=|file://-|(88,5,&lt;1,88>,&lt;1,93>),
+        @comments=()
       ])[
-      @location=|file://-|(83,10,&lt;1,83>,&lt;1,93>)
+      @location=|file://-|(83,10,&lt;1,83>,&lt;1,93>),
+      @comments=()
     ]),choice(
     |file://-|(64,1,&lt;1,64>,&lt;1,65>),
     id("n")[
-      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>)
+      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>),
+      @comments=()
+    ])>,
+  &lt;statement(
+    |file://-|(69,12,&lt;1,69>,&lt;1,81>),
+    asgStat(
+      "s",
+      add(
+        id("s")[
+          @location=|file://-|(74,1,&lt;1,74>,&lt;1,75>),
+          @comments=()
+        ],
+        strCon("\"a\"")[
+          @location=|file://-|(78,3,&lt;1,78>,&lt;1,81>),
+          @comments=()
+        ])[
+        @location=|file://-|(74,7,&lt;1,74>,&lt;1,81>),
+        @comments=()
+      ])[
+      @comments=(),
+      @location=|file://-|(69,12,&lt;1,69>,&lt;1,81>)
+    ]),statement(
+    |file://-|(83,10,&lt;1,83>,&lt;1,93>),
+    asgStat(
+      "n",
+      sub(
+        id("n")[
+          @comments=(),
+          @location=|file://-|(88,1,&lt;1,88>,&lt;1,89>)
+        ],
+        natCon(1)[
+          @location=|file://-|(92,1,&lt;1,92>,&lt;1,93>),
+          @comments=()
+        ])[
+        @location=|file://-|(88,5,&lt;1,88>,&lt;1,93>),
+        @comments=()
+      ])[
+      @location=|file://-|(83,10,&lt;1,83>,&lt;1,93>),
+      @comments=()
     ])>,
   &lt;choice(
     |file://-|(64,1,&lt;1,64>,&lt;1,65>),
     id("n")[
-      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>)
-    ]),exit()>
+      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>),
+      @comments=()
+    ]),exit()>,
+  &lt;statement(
+    |file://-|(48,8,&lt;1,48>,&lt;1,56>),
+    asgStat(
+      "s",
+      strCon("\"a\"")[
+        @location=|file://-|(53,3,&lt;1,53>,&lt;1,56>),
+        @comments=()
+      ])[
+      @location=|file://-|(48,8,&lt;1,48>,&lt;1,56>),
+      @comments=()
+    ]),choice(
+    |file://-|(64,1,&lt;1,64>,&lt;1,65>),
+    id("n")[
+      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>),
+      @comments=()
+    ])>
 },{exit()}>
 </pre> Is the above not very motivating to move on to <a href="/Recipes/Languages/Pico/Visualize/Visualize.html">Pico/Visualize</a>?
 

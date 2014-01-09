@@ -16,9 +16,7 @@ public class Call extends Instruction {
 	public String toString() { return "CALL " + fuid + ", " + arity + " [ " + codeblock.getFunctionIndex(fuid) + " ]"; }
 		
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(codeblock.getFunctionIndex(fuid));
-		codeblock.addCode(arity);
+		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), arity);
 	}
 
 }

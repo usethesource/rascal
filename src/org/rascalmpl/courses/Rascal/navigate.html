@@ -28,6 +28,7 @@
   <li><a id="Rascal/Concepts/SyntaxDefinitionAndParsing" href="/Rascal/Concepts/SyntaxDefinitionAndParsing/SyntaxDefinitionAndParsing.html">SyntaxDefinitionAndParsing</a></li>
   <li><a id="Rascal/Concepts/RewriteRules" href="/Rascal/Concepts/RewriteRules/RewriteRules.html">RewriteRules</a></li>
   <li><a id="Rascal/Concepts/IDEConstruction" href="/Rascal/Concepts/IDEConstruction/IDEConstruction.html">IDEConstruction</a></li>
+  <li><a id="Rascal/Concepts/CodeModels" href="/Rascal/Concepts/CodeModels/CodeModels.html">CodeModels</a></li>
   </ul></li>
 
   <li><a id="Rascal/Declarations" href="/Rascal/Declarations/Declarations.html">Declarations</a>
@@ -385,6 +386,7 @@
       <li><a id="Rascal/Libraries/Prelude/IO/iprintExp" href="/Rascal/Libraries/Prelude/IO/iprintExp/iprintExp.html">iprintExp</a></li>
       <li><a id="Rascal/Libraries/Prelude/IO/iprintln" href="/Rascal/Libraries/Prelude/IO/iprintln/iprintln.html">iprintln</a></li>
       <li><a id="Rascal/Libraries/Prelude/IO/iprintlnExp" href="/Rascal/Libraries/Prelude/IO/iprintlnExp/iprintlnExp.html">iprintlnExp</a></li>
+      <li><a id="Rascal/Libraries/Prelude/IO/iprintToFile" href="/Rascal/Libraries/Prelude/IO/iprintToFile/iprintToFile.html">iprintToFile</a></li>
       <li><a id="Rascal/Libraries/Prelude/IO/isDirectory" href="/Rascal/Libraries/Prelude/IO/isDirectory/isDirectory.html">isDirectory</a></li>
       <li><a id="Rascal/Libraries/Prelude/IO/isFile" href="/Rascal/Libraries/Prelude/IO/isFile/isFile.html">isFile</a></li>
       <li><a id="Rascal/Libraries/Prelude/IO/lastModified" href="/Rascal/Libraries/Prelude/IO/lastModified/lastModified.html">lastModified</a></li>
@@ -407,7 +409,53 @@
       <li><a id="Rascal/Libraries/Prelude/IO/writeFileEnc" href="/Rascal/Libraries/Prelude/IO/writeFileEnc/writeFileEnc.html">writeFileEnc</a></li>
       </ul></li>
 
-    <li><a id="Rascal/Libraries/Prelude/List" href="/Rascal/Libraries/Prelude/List/List.html">List</a></li>
+          <li><a id="Rascal/Libraries/Prelude/List" href="/Rascal/Libraries/Prelude/List/List.html">List</a>
+      <ul>      <li><a id="Rascal/Libraries/Prelude/List/delete" href="/Rascal/Libraries/Prelude/List/delete/delete.html">delete</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/distribution" href="/Rascal/Libraries/Prelude/List/distribution/distribution.html">distribution</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/domain" href="/Rascal/Libraries/Prelude/List/domain/domain.html">domain</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/drop" href="/Rascal/Libraries/Prelude/List/drop/drop.html">drop</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/dup" href="/Rascal/Libraries/Prelude/List/dup/dup.html">dup</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/getOneFrom" href="/Rascal/Libraries/Prelude/List/getOneFrom/getOneFrom.html">getOneFrom</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/head" href="/Rascal/Libraries/Prelude/List/head/head.html">head</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/headTail" href="/Rascal/Libraries/Prelude/List/headTail/headTail.html">headTail</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/index" href="/Rascal/Libraries/Prelude/List/index/index.html">index</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/indexOf" href="/Rascal/Libraries/Prelude/List/indexOf/indexOf.html">indexOf</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/insertAt" href="/Rascal/Libraries/Prelude/List/insertAt/insertAt.html">insertAt</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/intercalate" href="/Rascal/Libraries/Prelude/List/intercalate/intercalate.html">intercalate</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/isEmpty" href="/Rascal/Libraries/Prelude/List/isEmpty/isEmpty.html">isEmpty</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/last" href="/Rascal/Libraries/Prelude/List/last/last.html">last</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/lastIndexOf" href="/Rascal/Libraries/Prelude/List/lastIndexOf/lastIndexOf.html">lastIndexOf</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/mapper" href="/Rascal/Libraries/Prelude/List/mapper/mapper.html">mapper</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/max" href="/Rascal/Libraries/Prelude/List/max/max.html">max</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/merge" href="/Rascal/Libraries/Prelude/List/merge/merge.html">merge</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/min" href="/Rascal/Libraries/Prelude/List/min/min.html">min</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/mix" href="/Rascal/Libraries/Prelude/List/mix/mix.html">mix</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/permutations" href="/Rascal/Libraries/Prelude/List/permutations/permutations.html">permutations</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/pop" href="/Rascal/Libraries/Prelude/List/pop/pop.html">pop</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/prefix" href="/Rascal/Libraries/Prelude/List/prefix/prefix.html">prefix</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/push" href="/Rascal/Libraries/Prelude/List/push/push.html">push</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/reducer" href="/Rascal/Libraries/Prelude/List/reducer/reducer.html">reducer</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/reverse" href="/Rascal/Libraries/Prelude/List/reverse/reverse.html">reverse</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/size" href="/Rascal/Libraries/Prelude/List/size/size.html">size</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/slice" href="/Rascal/Libraries/Prelude/List/slice/slice.html">slice</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/sort" href="/Rascal/Libraries/Prelude/List/sort/sort.html">sort</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/split" href="/Rascal/Libraries/Prelude/List/split/split.html">split</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/sum" href="/Rascal/Libraries/Prelude/List/sum/sum.html">sum</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/tail" href="/Rascal/Libraries/Prelude/List/tail/tail.html">tail</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/take" href="/Rascal/Libraries/Prelude/List/take/take.html">take</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/takeOneFrom" href="/Rascal/Libraries/Prelude/List/takeOneFrom/takeOneFrom.html">takeOneFrom</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/takeWhile" href="/Rascal/Libraries/Prelude/List/takeWhile/takeWhile.html">takeWhile</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/toMap" href="/Rascal/Libraries/Prelude/List/toMap/toMap.html">toMap</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/toMapUnique" href="/Rascal/Libraries/Prelude/List/toMapUnique/toMapUnique.html">toMapUnique</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/top" href="/Rascal/Libraries/Prelude/List/top/top.html">top</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/toRel" href="/Rascal/Libraries/Prelude/List/toRel/toRel.html">toRel</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/toSet" href="/Rascal/Libraries/Prelude/List/toSet/toSet.html">toSet</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/toString" href="/Rascal/Libraries/Prelude/List/toString/toString.html">toString</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/unzip" href="/Rascal/Libraries/Prelude/List/unzip/unzip.html">unzip</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/upTill" href="/Rascal/Libraries/Prelude/List/upTill/upTill.html">upTill</a></li>
+      <li><a id="Rascal/Libraries/Prelude/List/zip" href="/Rascal/Libraries/Prelude/List/zip/zip.html">zip</a></li>
+      </ul></li>
+
           <li><a id="Rascal/Libraries/Prelude/ListRelation" href="/Rascal/Libraries/Prelude/ListRelation/ListRelation.html">ListRelation</a>
       <ul>      <li><a id="Rascal/Libraries/Prelude/ListRelation/carrier" href="/Rascal/Libraries/Prelude/ListRelation/carrier/carrier.html">carrier</a></li>
       <li><a id="Rascal/Libraries/Prelude/ListRelation/carrierR" href="/Rascal/Libraries/Prelude/ListRelation/carrierR/carrierR.html">carrierR</a></li>
@@ -428,6 +476,7 @@
 
           <li><a id="Rascal/Libraries/Prelude/Map" href="/Rascal/Libraries/Prelude/Map/Map.html">Map</a>
       <ul>      <li><a id="Rascal/Libraries/Prelude/Map/delete" href="/Rascal/Libraries/Prelude/Map/delete/delete.html">delete</a></li>
+      <li><a id="Rascal/Libraries/Prelude/Map/distribution" href="/Rascal/Libraries/Prelude/Map/distribution/distribution.html">distribution</a></li>
       <li><a id="Rascal/Libraries/Prelude/Map/domain" href="/Rascal/Libraries/Prelude/Map/domain/domain.html">domain</a></li>
       <li><a id="Rascal/Libraries/Prelude/Map/domainR" href="/Rascal/Libraries/Prelude/Map/domainR/domainR.html">domainR</a></li>
       <li><a id="Rascal/Libraries/Prelude/Map/domainX" href="/Rascal/Libraries/Prelude/Map/domainX/domainX.html">domainX</a></li>
@@ -467,6 +516,7 @@
       <li><a id="Rascal/Libraries/Prelude/ParseTree/doc" href="/Rascal/Libraries/Prelude/ParseTree/doc/doc.html">doc</a></li>
       <li><a id="Rascal/Libraries/Prelude/ParseTree/docs" href="/Rascal/Libraries/Prelude/ParseTree/docs/docs.html">docs</a></li>
       <li><a id="Rascal/Libraries/Prelude/ParseTree/implode" href="/Rascal/Libraries/Prelude/ParseTree/implode/implode.html">implode</a></li>
+      <li><a id="Rascal/Libraries/Prelude/ParseTree/isNonTerminalType" href="/Rascal/Libraries/Prelude/ParseTree/isNonTerminalType/isNonTerminalType.html">isNonTerminalType</a></li>
       <li><a id="Rascal/Libraries/Prelude/ParseTree/link" href="/Rascal/Libraries/Prelude/ParseTree/link/link.html">link</a></li>
       <li><a id="Rascal/Libraries/Prelude/ParseTree/links" href="/Rascal/Libraries/Prelude/ParseTree/links/links.html">links</a></li>
       <li><a id="Rascal/Libraries/Prelude/ParseTree/loc" href="/Rascal/Libraries/Prelude/ParseTree/loc/loc.html">loc</a></li>
@@ -475,6 +525,7 @@
       <li><a id="Rascal/Libraries/Prelude/ParseTree/parse" href="/Rascal/Libraries/Prelude/ParseTree/parse/parse.html">parse</a></li>
       <li><a id="Rascal/Libraries/Prelude/ParseTree/priority" href="/Rascal/Libraries/Prelude/ParseTree/priority/priority.html">priority</a></li>
       <li><a id="Rascal/Libraries/Prelude/ParseTree/Production" href="/Rascal/Libraries/Prelude/ParseTree/Production/Production.html">Production</a></li>
+      <li><a id="Rascal/Libraries/Prelude/ParseTree/saveParser" href="/Rascal/Libraries/Prelude/ParseTree/saveParser/saveParser.html">saveParser</a></li>
       <li><a id="Rascal/Libraries/Prelude/ParseTree/Tree" href="/Rascal/Libraries/Prelude/ParseTree/Tree/Tree.html">Tree</a></li>
       <li><a id="Rascal/Libraries/Prelude/ParseTree/treeAt" href="/Rascal/Libraries/Prelude/ParseTree/treeAt/treeAt.html">treeAt</a></li>
       <li><a id="Rascal/Libraries/Prelude/ParseTree/TreeSearchResult" href="/Rascal/Libraries/Prelude/ParseTree/TreeSearchResult/TreeSearchResult.html">TreeSearchResult</a></li>
@@ -519,6 +570,7 @@
       <li><a id="Rascal/Libraries/Prelude/Set/toMap" href="/Rascal/Libraries/Prelude/Set/toMap/toMap.html">toMap</a></li>
       <li><a id="Rascal/Libraries/Prelude/Set/toMapUnique" href="/Rascal/Libraries/Prelude/Set/toMapUnique/toMapUnique.html">toMapUnique</a></li>
       <li><a id="Rascal/Libraries/Prelude/Set/toString" href="/Rascal/Libraries/Prelude/Set/toString/toString.html">toString</a></li>
+      <li><a id="Rascal/Libraries/Prelude/Set/union" href="/Rascal/Libraries/Prelude/Set/union/union.html">union</a></li>
       </ul></li>
 
           <li><a id="Rascal/Libraries/Prelude/String" href="/Rascal/Libraries/Prelude/String/String.html">String</a>
@@ -548,6 +600,7 @@
       <li><a id="Rascal/Libraries/Prelude/String/stringChars" href="/Rascal/Libraries/Prelude/String/stringChars/stringChars.html">stringChars</a></li>
       <li><a id="Rascal/Libraries/Prelude/String/substring" href="/Rascal/Libraries/Prelude/String/substring/substring.html">substring</a></li>
       <li><a id="Rascal/Libraries/Prelude/String/toInt" href="/Rascal/Libraries/Prelude/String/toInt/toInt.html">toInt</a></li>
+      <li><a id="Rascal/Libraries/Prelude/String/toLocation" href="/Rascal/Libraries/Prelude/String/toLocation/toLocation.html">toLocation</a></li>
       <li><a id="Rascal/Libraries/Prelude/String/toLowerCase" href="/Rascal/Libraries/Prelude/String/toLowerCase/toLowerCase.html">toLowerCase</a></li>
       <li><a id="Rascal/Libraries/Prelude/String/toReal" href="/Rascal/Libraries/Prelude/String/toReal/toReal.html">toReal</a></li>
       <li><a id="Rascal/Libraries/Prelude/String/toUpperCase" href="/Rascal/Libraries/Prelude/String/toUpperCase/toUpperCase.html">toUpperCase</a></li>
@@ -559,6 +612,7 @@
       <ul>      <li><a id="Rascal/Libraries/Prelude/Type/Attr" href="/Rascal/Libraries/Prelude/Type/Attr/Attr.html">Attr</a></li>
       <li><a id="Rascal/Libraries/Prelude/Type/choice" href="/Rascal/Libraries/Prelude/Type/choice/choice.html">choice</a></li>
       <li><a id="Rascal/Libraries/Prelude/Type/comparable" href="/Rascal/Libraries/Prelude/Type/comparable/comparable.html">comparable</a></li>
+      <li><a id="Rascal/Libraries/Prelude/Type/eq" href="/Rascal/Libraries/Prelude/Type/eq/eq.html">eq</a></li>
       <li><a id="Rascal/Libraries/Prelude/Type/equivalent" href="/Rascal/Libraries/Prelude/Type/equivalent/equivalent.html">equivalent</a></li>
       <li><a id="Rascal/Libraries/Prelude/Type/Exception" href="/Rascal/Libraries/Prelude/Type/Exception/Exception.html">Exception</a></li>
       <li><a id="Rascal/Libraries/Prelude/Type/isADTType" href="/Rascal/Libraries/Prelude/Type/isADTType/isADTType.html">isADTType</a></li>
@@ -712,20 +766,18 @@
       <li><a id="Rascal/Libraries/util/Math/toRat" href="/Rascal/Libraries/util/Math/toRat/toRat.html">toRat</a></li>
       <li><a id="Rascal/Libraries/util/Math/toReal" href="/Rascal/Libraries/util/Math/toReal/toReal.html">toReal</a></li>
       <li><a id="Rascal/Libraries/util/Math/toString" href="/Rascal/Libraries/util/Math/toString/toString.html">toString</a></li>
+      <li><a id="Rascal/Libraries/util/Math/unscaled" href="/Rascal/Libraries/util/Math/unscaled/unscaled.html">unscaled</a></li>
       </ul></li>
 
     <li><a id="Rascal/Libraries/util/Maybe" href="/Rascal/Libraries/util/Maybe/Maybe.html">Maybe</a></li>
           <li><a id="Rascal/Libraries/util/Monitor" href="/Rascal/Libraries/util/Monitor/Monitor.html">Monitor</a>
-      <ul>      <li><a id="Rascal/Libraries/util/Monitor/startJob" href="/Rascal/Libraries/util/Monitor/startJob/startJob.html">startJob</a></li>
+      <ul>      <li><a id="Rascal/Libraries/util/Monitor/endJob" href="/Rascal/Libraries/util/Monitor/endJob/endJob.html">endJob</a></li>
       <li><a id="Rascal/Libraries/util/Monitor/event" href="/Rascal/Libraries/util/Monitor/event/event.html">event</a></li>
+      <li><a id="Rascal/Libraries/util/Monitor/startJob" href="/Rascal/Libraries/util/Monitor/startJob/startJob.html">startJob</a></li>
       <li><a id="Rascal/Libraries/util/Monitor/todo" href="/Rascal/Libraries/util/Monitor/todo/todo.html">todo</a></li>
-      <li><a id="Rascal/Libraries/util/Monitor/endJob" href="/Rascal/Libraries/util/Monitor/endJob/endJob.html">endJob</a></li>
       </ul></li>
 
-          <li><a id="Rascal/Libraries/util/ParseTreeUI" href="/Rascal/Libraries/util/ParseTreeUI/ParseTreeUI.html">ParseTreeUI</a>
-      <ul>      <li><a id="Rascal/Libraries/util/ParseTreeUI/vertical" href="/Rascal/Libraries/util/ParseTreeUI/vertical/vertical.html">vertical</a></li>
-      </ul></li>
-
+    <li><a id="Rascal/Libraries/util/ParseTreeUI" href="/Rascal/Libraries/util/ParseTreeUI/ParseTreeUI.html">ParseTreeUI</a></li>
           <li><a id="Rascal/Libraries/util/PriorityQueue" href="/Rascal/Libraries/util/PriorityQueue/PriorityQueue.html">PriorityQueue</a>
       <ul>      <li><a id="Rascal/Libraries/util/PriorityQueue/extractMinimum" href="/Rascal/Libraries/util/PriorityQueue/extractMinimum/extractMinimum.html">extractMinimum</a></li>
       <li><a id="Rascal/Libraries/util/PriorityQueue/findMinimum" href="/Rascal/Libraries/util/PriorityQueue/findMinimum/findMinimum.html">findMinimum</a></li>
@@ -745,6 +797,7 @@
       <li><a id="Rascal/Libraries/util/Resources/getProject" href="/Rascal/Libraries/util/Resources/getProject/getProject.html">getProject</a></li>
       <li><a id="Rascal/Libraries/util/Resources/projects" href="/Rascal/Libraries/util/Resources/projects/projects.html">projects</a></li>
       <li><a id="Rascal/Libraries/util/Resources/references" href="/Rascal/Libraries/util/Resources/references/references.html">references</a></li>
+      <li><a id="Rascal/Libraries/util/Resources/Resource" href="/Rascal/Libraries/util/Resources/Resource/Resource.html">Resource</a></li>
       <li><a id="Rascal/Libraries/util/Resources/root" href="/Rascal/Libraries/util/Resources/root/root.html">root</a></li>
       </ul></li>
 
@@ -779,18 +832,39 @@
 
           <li><a id="Rascal/Libraries/lang/java" href="/Rascal/Libraries/lang/java/java.html">java</a>
       <ul>              <li><a id="Rascal/Libraries/lang/java/jdt" href="/Rascal/Libraries/lang/java/jdt/jdt.html">jdt</a>
-        <ul>        <li><a id="Rascal/Libraries/lang/java/jdt/Java" href="/Rascal/Libraries/lang/java/jdt/Java/Java.html">Java</a></li>
-                  <li><a id="Rascal/Libraries/lang/java/jdt/JDT" href="/Rascal/Libraries/lang/java/jdt/JDT/JDT.html">JDT</a>
-          <ul>          <li><a id="Rascal/Libraries/lang/java/jdt/JDT/createAstFromFile" href="/Rascal/Libraries/lang/java/jdt/JDT/createAstFromFile/createAstFromFile.html">createAstFromFile</a></li>
-          <li><a id="Rascal/Libraries/lang/java/jdt/JDT/createAstsFromProject" href="/Rascal/Libraries/lang/java/jdt/JDT/createAstsFromProject/createAstsFromProject.html">createAstsFromProject</a></li>
-          <li><a id="Rascal/Libraries/lang/java/jdt/JDT/extractClass" href="/Rascal/Libraries/lang/java/jdt/JDT/extractClass/extractClass.html">extractClass</a></li>
-          <li><a id="Rascal/Libraries/lang/java/jdt/JDT/extractFactsTransitive" href="/Rascal/Libraries/lang/java/jdt/JDT/extractFactsTransitive/extractFactsTransitive.html">extractFactsTransitive</a></li>
-          <li><a id="Rascal/Libraries/lang/java/jdt/JDT/extractProject" href="/Rascal/Libraries/lang/java/jdt/JDT/extractProject/extractProject.html">extractProject</a></li>
-          <li><a id="Rascal/Libraries/lang/java/jdt/JDT/extractResource" href="/Rascal/Libraries/lang/java/jdt/JDT/extractResource/extractResource.html">extractResource</a></li>
-          <li><a id="Rascal/Libraries/lang/java/jdt/JDT/extractResources" href="/Rascal/Libraries/lang/java/jdt/JDT/extractResources/extractResources.html">extractResources</a></li>
-          <li><a id="Rascal/Libraries/lang/java/jdt/JDT/isOnBuildPath" href="/Rascal/Libraries/lang/java/jdt/JDT/isOnBuildPath/isOnBuildPath.html">isOnBuildPath</a></li>
-          <li><a id="Rascal/Libraries/lang/java/jdt/JDT/JavaADT" href="/Rascal/Libraries/lang/java/jdt/JDT/JavaADT/JavaADT.html">JavaADT</a></li>
-          <li><a id="Rascal/Libraries/lang/java/jdt/JDT/matchLocations" href="/Rascal/Libraries/lang/java/jdt/JDT/matchLocations/matchLocations.html">matchLocations</a></li>
+        <ul>                  <li><a id="Rascal/Libraries/lang/java/jdt/m3" href="/Rascal/Libraries/lang/java/jdt/m3/m3.html">m3</a>
+          <ul>                      <li><a id="Rascal/Libraries/lang/java/jdt/m3/Core" href="/Rascal/Libraries/lang/java/jdt/m3/Core/Core.html">Core</a>
+            <ul>            <li><a id="Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromEclipseFile" href="/Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromEclipseFile/createM3FromEclipseFile.html">createM3FromEclipseFile</a></li>
+            <li><a id="Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromEclipseProject" href="/Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromEclipseProject/createM3FromEclipseProject.html">createM3FromEclipseProject</a></li>
+            <li><a id="Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromProjectJars" href="/Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromProjectJars/createM3FromProjectJars.html">createM3FromProjectJars</a></li>
+            <li><a id="Rascal/Libraries/lang/java/jdt/m3/Core/getMethodASTEclipse" href="/Rascal/Libraries/lang/java/jdt/m3/Core/getMethodASTEclipse/getMethodASTEclipse.html">getMethodASTEclipse</a></li>
+            </ul></li>
+
+          </ul></li>
+
+        </ul></li>
+
+              <li><a id="Rascal/Libraries/lang/java/m3" href="/Rascal/Libraries/lang/java/m3/m3.html">m3</a>
+        <ul>                  <li><a id="Rascal/Libraries/lang/java/m3/AST" href="/Rascal/Libraries/lang/java/m3/AST/AST.html">AST</a>
+          <ul>          <li><a id="Rascal/Libraries/lang/java/m3/AST/createAstFromFile" href="/Rascal/Libraries/lang/java/m3/AST/createAstFromFile/createAstFromFile.html">createAstFromFile</a></li>
+          <li><a id="Rascal/Libraries/lang/java/m3/AST/createAstsFromDirectory" href="/Rascal/Libraries/lang/java/m3/AST/createAstsFromDirectory/createAstsFromDirectory.html">createAstsFromDirectory</a></li>
+          <li><a id="Rascal/Libraries/lang/java/m3/AST/Declaration" href="/Rascal/Libraries/lang/java/m3/AST/Declaration/Declaration.html">Declaration</a></li>
+          </ul></li>
+
+                  <li><a id="Rascal/Libraries/lang/java/m3/Core" href="/Rascal/Libraries/lang/java/m3/Core/Core.html">Core</a>
+          <ul>          <li><a id="Rascal/Libraries/lang/java/m3/Core/createM3FromDirectory" href="/Rascal/Libraries/lang/java/m3/Core/createM3FromDirectory/createM3FromDirectory.html">createM3FromDirectory</a></li>
+          <li><a id="Rascal/Libraries/lang/java/m3/Core/extends" href="/Rascal/Libraries/lang/java/m3/Core/extends/extends.html">extends</a></li>
+          <li><a id="Rascal/Libraries/lang/java/m3/Core/fieldAccess" href="/Rascal/Libraries/lang/java/m3/Core/fieldAccess/fieldAccess.html">fieldAccess</a></li>
+          <li><a id="Rascal/Libraries/lang/java/m3/Core/implements" href="/Rascal/Libraries/lang/java/m3/Core/implements/implements.html">implements</a></li>
+          <li><a id="Rascal/Libraries/lang/java/m3/Core/methodInvocation" href="/Rascal/Libraries/lang/java/m3/Core/methodInvocation/methodInvocation.html">methodInvocation</a></li>
+          <li><a id="Rascal/Libraries/lang/java/m3/Core/methodOverrides" href="/Rascal/Libraries/lang/java/m3/Core/methodOverrides/methodOverrides.html">methodOverrides</a></li>
+          <li><a id="Rascal/Libraries/lang/java/m3/Core/Modifier" href="/Rascal/Libraries/lang/java/m3/Core/Modifier/Modifier.html">Modifier</a></li>
+          <li><a id="Rascal/Libraries/lang/java/m3/Core/typeDependency" href="/Rascal/Libraries/lang/java/m3/Core/typeDependency/typeDependency.html">typeDependency</a></li>
+          </ul></li>
+
+        <li><a id="Rascal/Libraries/lang/java/m3/TypeHierarchy" href="/Rascal/Libraries/lang/java/m3/TypeHierarchy/TypeHierarchy.html">TypeHierarchy</a></li>
+                  <li><a id="Rascal/Libraries/lang/java/m3/TypeSymbol" href="/Rascal/Libraries/lang/java/m3/TypeSymbol/TypeSymbol.html">TypeSymbol</a>
+          <ul>          <li><a id="Rascal/Libraries/lang/java/m3/TypeSymbol/Bound" href="/Rascal/Libraries/lang/java/m3/TypeSymbol/Bound/Bound.html">Bound</a></li>
           </ul></li>
 
         </ul></li>
@@ -803,9 +877,10 @@
 
           <li><a id="Rascal/Libraries/lang/xml" href="/Rascal/Libraries/lang/xml/xml.html">xml</a>
       <ul>              <li><a id="Rascal/Libraries/lang/xml/DOM" href="/Rascal/Libraries/lang/xml/DOM/DOM.html">DOM</a>
-        <ul>        <li><a id="Rascal/Libraries/lang/xml/DOM/Node" href="/Rascal/Libraries/lang/xml/DOM/Node/Node.html">Node</a></li>
-        <li><a id="Rascal/Libraries/lang/xml/DOM/attribute" href="/Rascal/Libraries/lang/xml/DOM/attribute/attribute.html">attribute</a></li>
+        <ul>        <li><a id="Rascal/Libraries/lang/xml/DOM/attribute" href="/Rascal/Libraries/lang/xml/DOM/attribute/attribute.html">attribute</a></li>
+        <li><a id="Rascal/Libraries/lang/xml/DOM/attrs" href="/Rascal/Libraries/lang/xml/DOM/attrs/attrs.html">attrs</a></li>
         <li><a id="Rascal/Libraries/lang/xml/DOM/element" href="/Rascal/Libraries/lang/xml/DOM/element/element.html">element</a></li>
+        <li><a id="Rascal/Libraries/lang/xml/DOM/Node" href="/Rascal/Libraries/lang/xml/DOM/Node/Node.html">Node</a></li>
         <li><a id="Rascal/Libraries/lang/xml/DOM/parseXMLDOM" href="/Rascal/Libraries/lang/xml/DOM/parseXMLDOM/parseXMLDOM.html">parseXMLDOM</a></li>
         <li><a id="Rascal/Libraries/lang/xml/DOM/parseXMLDOMTrim" href="/Rascal/Libraries/lang/xml/DOM/parseXMLDOMTrim/parseXMLDOMTrim.html">parseXMLDOMTrim</a></li>
         <li><a id="Rascal/Libraries/lang/xml/DOM/xmlCompact" href="/Rascal/Libraries/lang/xml/DOM/xmlCompact/xmlCompact.html">xmlCompact</a></li>
@@ -995,6 +1070,35 @@
         <li><a id="Rascal/Libraries/analysis/graphs/LabeledGraph/reachX" href="/Rascal/Libraries/analysis/graphs/LabeledGraph/reachX/reachX.html">reachX</a></li>
         <li><a id="Rascal/Libraries/analysis/graphs/LabeledGraph/successors" href="/Rascal/Libraries/analysis/graphs/LabeledGraph/successors/successors.html">successors</a></li>
         <li><a id="Rascal/Libraries/analysis/graphs/LabeledGraph/top" href="/Rascal/Libraries/analysis/graphs/LabeledGraph/top/top.html">top</a></li>
+        </ul></li>
+
+      </ul></li>
+
+          <li><a id="Rascal/Libraries/analysis/m3" href="/Rascal/Libraries/analysis/m3/m3.html">m3</a>
+      <ul>              <li><a id="Rascal/Libraries/analysis/m3/AST" href="/Rascal/Libraries/analysis/m3/AST/AST.html">AST</a>
+        <ul>        <li><a id="Rascal/Libraries/analysis/m3/AST/decl" href="/Rascal/Libraries/analysis/m3/AST/decl/decl.html">decl</a></li>
+        <li><a id="Rascal/Libraries/analysis/m3/AST/messages" href="/Rascal/Libraries/analysis/m3/AST/messages/messages.html">messages</a></li>
+        <li><a id="Rascal/Libraries/analysis/m3/AST/modifiers" href="/Rascal/Libraries/analysis/m3/AST/modifiers/modifiers.html">modifiers</a></li>
+        <li><a id="Rascal/Libraries/analysis/m3/AST/name" href="/Rascal/Libraries/analysis/m3/AST/name/name.html">name</a></li>
+        <li><a id="Rascal/Libraries/analysis/m3/AST/src" href="/Rascal/Libraries/analysis/m3/AST/src/src.html">src</a></li>
+        <li><a id="Rascal/Libraries/analysis/m3/AST/typ" href="/Rascal/Libraries/analysis/m3/AST/typ/typ.html">typ</a></li>
+        </ul></li>
+
+              <li><a id="Rascal/Libraries/analysis/m3/Core" href="/Rascal/Libraries/analysis/m3/Core/Core.html">Core</a>
+        <ul>        <li><a id="Rascal/Libraries/analysis/m3/Core/containment" href="/Rascal/Libraries/analysis/m3/Core/containment/containment.html">containment</a></li>
+        <li><a id="Rascal/Libraries/analysis/m3/Core/declarations" href="/Rascal/Libraries/analysis/m3/Core/declarations/declarations.html">declarations</a></li>
+        <li><a id="Rascal/Libraries/analysis/m3/Core/documentation" href="/Rascal/Libraries/analysis/m3/Core/documentation/documentation.html">documentation</a></li>
+        <li><a id="Rascal/Libraries/analysis/m3/Core/M3" href="/Rascal/Libraries/analysis/m3/Core/M3/M3.html">M3</a></li>
+        <li><a id="Rascal/Libraries/analysis/m3/Core/messages" href="/Rascal/Libraries/analysis/m3/Core/messages/messages.html">messages</a></li>
+        <li><a id="Rascal/Libraries/analysis/m3/Core/modifiers" href="/Rascal/Libraries/analysis/m3/Core/modifiers/modifiers.html">modifiers</a></li>
+        <li><a id="Rascal/Libraries/analysis/m3/Core/names" href="/Rascal/Libraries/analysis/m3/Core/names/names.html">names</a></li>
+        <li><a id="Rascal/Libraries/analysis/m3/Core/types" href="/Rascal/Libraries/analysis/m3/Core/types/types.html">types</a></li>
+        <li><a id="Rascal/Libraries/analysis/m3/Core/uses" href="/Rascal/Libraries/analysis/m3/Core/uses/uses.html">uses</a></li>
+        </ul></li>
+
+      <li><a id="Rascal/Libraries/analysis/m3/Registry" href="/Rascal/Libraries/analysis/m3/Registry/Registry.html">Registry</a></li>
+              <li><a id="Rascal/Libraries/analysis/m3/TypeSymbol" href="/Rascal/Libraries/analysis/m3/TypeSymbol/TypeSymbol.html">TypeSymbol</a>
+        <ul>        <li><a id="Rascal/Libraries/analysis/m3/TypeSymbol/TypeSymbol" href="/Rascal/Libraries/analysis/m3/TypeSymbol/TypeSymbol/TypeSymbol.html">TypeSymbol</a></li>
         </ul></li>
 
       </ul></li>

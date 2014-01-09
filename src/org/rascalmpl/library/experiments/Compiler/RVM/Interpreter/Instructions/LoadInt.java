@@ -14,8 +14,7 @@ public class LoadInt extends Instruction {
 	public String toString() { return "LOADINT " + nval; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(nval);
+		codeblock.addCode1(opcode.getOpcode(), nval);
 	}
 
 	

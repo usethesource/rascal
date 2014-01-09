@@ -128,23 +128,53 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Consider the following match of a list
- <pre class="listing">[1, list[int] L, 2, list[int] M] := [1,2,3,2,4]
+ <pre class="screen"><span class="prompt">rascal></span>[1, *int L, 2, *int M] := [1,2,3,2,4]
+bool: true
 </pre> By definition <code>list[int] L</code> and <code>list[int] M</code> match list elements that are part of the enclosing list in which they occur. If they should match a nested list each should be enclosed in list brackets.
  <br/>
 <br/>
 
  There are two solutions for the above match:
   <ul><li> <code>L</code> = <code>[]</code> and <code>M</code> =<code> [2, 3, 2, 4]</code>; and</li>
-<li> <code>L</code> = <code>[2,3]</code> and <code>M</code> =<code> [4]</code>.</li>
-</ul> Depending on the context, only the first solution of a match expression is used, respectively all solutions are used.
+<li> <code>L</code> = <code>[2,3]</code> and <code>M</code> =<code> [4]</code>.<br/>
+<br/>
+ <pre class="screen"><span class="prompt">rascal></span>import IO;
+ok
+<span class="prompt">rascal></span>for ([1, *int L, 2, *int M] := [1,2,3,2,4])
+<span class="continuation">>>>>>>></span>  println("L: &lt;L>, M: &lt;M>");
+L: [], M: [3,2,4]
+L: [2,3], M: [4]
+list[void]: []
+</pre> Depending on the context, only the first solution of a match expression is used, respectively all solutions are used.
  If a match expression occurs in a larger Boolean expression, a subsequent subexpression may yield false and -- depending on the actual operator -- evaluation backtracks to a previously evaluated match operator to try a next solution. Let's illustrate this by extending the above example:
-  <pre class="listing">[1, list[int] L, 2, list[int] M] := [1,2,3,2,4] &amp;&amp; size(L) > 0
+<br/>
+<br/>
+ <pre class="listing">[1, *int L, 2, *int M] := [1,2,3,2,4] &amp;&amp; size(L) > 0
 </pre> where we are looking for a solution in which L has a non-empty list as value. Evaluation proceeds as follows:
-  <ul><li> The left argument of the <code>&amp;&amp;</code> operator is evaluated: the match expression is evaluated resulting in the bindings <code>L = []</code> and <code>M = [2, 3, 2, 4]</code>;</li>
+</li>
+<li> The left argument of the <code>&amp;&amp;</code> operator is evaluated: the match expression is evaluated resulting in the bindings <code>L = []</code> and <code>M = [2, 3, 2, 4]</code>;</li>
 <li> The right argument of the <code>&amp;&amp;</code> operator is evaluated: <code>size(L) > 0</code> yields <code>false</code>;</li>
 <li> Backtrack to the left argument of the <code>&amp;&amp;</code> operator to check for more solutions: indeed there are more solutions resulting in the bindings <code>L = [2,3]</code> and <code>M = [4]</code>;</li>
 <li> Proceed to the right operator of <code>&amp;&amp;</code>: this time <code>size(L) > 0</code> yields <code>true</code>;</li>
-<li> The result of evaluating the complete expression is <code>true</code>.</li>
+<li> The result of evaluating the complete expression is <code>true</code>.<br/>
+<br/>
+ <pre class="screen"><span class="prompt">rascal></span>import IO;
+ok
+<span class="prompt">rascal></span>import List;
+ok
+</pre>  for prints them all:
+<pre class="screen"><span class="prompt">rascal></span>for ([1, *int L, 2, *int M] := [1,2,3,2,4] &amp;&amp; size(L) &gt; 0)
+<span class="continuation">>>>>>>></span>  println("L: &lt;L>, M: &lt;M>");
+L: [2,3], M: [4]
+list[void]: []
+<span class="prompt">rascal></span>
+cancelled
+</pre>  if prints the first
+<pre class="screen"><span class="prompt">rascal></span>if ([1, *int L, 2, *int M] := [1,2,3,2,4] &amp;&amp; size(L) &gt; 0)
+<span class="continuation">>>>>>>></span>  println("L: &lt;L>, M: &lt;M>");
+L: [2,3], M: [4]
+ok
+</pre></li>
 </ul>
 </div>
 

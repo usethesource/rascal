@@ -61,7 +61,7 @@
 <br/>
 
  This can be computed as follows:
- <pre class="listing">module demo::lang::Pico::Visualize
+ <pre class="listing">module demo::lang::Pico::Uninit
 
 import Prelude;
 import demo::lang::Pico::Abstract;
@@ -87,7 +87,7 @@ public set[Occurrence] uninitProgram(str txt) = uninitProgram(load(txt)); <img s
  Next we ask for every use (<img src="/images/3.png">) of a variable the question: can it be reached from the entries
  of the program without encountering a definition? This determined as follows:
  <ul><li> <code>rangeR(D, {occ.item})</code> is the set of definition for the variable were are looking at. See <a href="/Rascal/Libraries/Prelude/Relation/rangeR/rangeR.html">Rascal:Relation/rangeR</a>.</li>
-<li> <code>reachX</code> determines the reachability in a graph while excluding certain nodes, see <a href="/Rascal/Libraries/Prelude/Graph/reachX/reachX.html">Rascal:Graph/reachX</a>. Here   <code>reachX(CFG.graph, CFG.entry, rangeR(D, {occ.item}))</code> determines the nodes in the graph that can be reached from the
+<li> <code>reachX</code> determines the reachability in a graph while excluding certain nodes, see <a href="/Rascal/Libraries/analysis/graphs/Graph/reachX/reachX.html">Rascal:Graph/reachX</a>. Here   <code>reachX(CFG.graph, CFG.entry, rangeR(D, {occ.item}))</code> determines the nodes in the graph that can be reached from the
    entry point of the program without passing a definition of the current variable.
 </li>
 <li> <code>any(CFNode N &lt;- reachX( ... ), N has location &amp;&amp; occ.location &lt;= N.location)</code> yields true if there is such a reachable node   that covers the location of the current variable.
@@ -101,19 +101,7 @@ public set[Occurrence] uninitProgram(str txt) = uninitProgram(load(txt)); <img s
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Pico::Uninit;
 ok
 <span class="prompt">rascal></span>uninitProgram(&quot;begin declare n : natural, m : natural, p : natural; n := 10; m := n + p end&quot;);
-rel[loc location, PicoId name, STATEMENT stat]: {&lt;|file://-|(71,1,&lt;1,71>,&lt;1,72>),"p",asgStat(
-    "m",
-    add(
-      id("n")[
-        @location=|file://-|(67,1,&lt;1,67>,&lt;1,68>)
-      ],
-      id("p")[
-        @location=|file://-|(71,1,&lt;1,71>,&lt;1,72>)
-      ])[
-      @location=|file://-|(67,5,&lt;1,67>,&lt;1,72>)
-    ])[
-    @location=|file://-|(62,10,&lt;1,62>,&lt;1,72>)
-  ]>}
+|rascal://demo::lang::Pico::Uninit|(548,6,&lt;17,34>,&lt;17,40>): Undeclared variable: reachX
 </pre>
 </div>
 
@@ -123,7 +111,7 @@ rel[loc location, PicoId name, STATEMENT stat]: {&lt;|file://-|(71,1,&lt;1,71>,&
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Pico/Uninit&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Pico/Uninit&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
