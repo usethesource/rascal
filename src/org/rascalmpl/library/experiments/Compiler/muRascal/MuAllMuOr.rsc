@@ -123,7 +123,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exp
         if(backtrackfree[i]) {
             body += muIfelse(nextLabel(), exps[i], [ muYield() ], [ muCon(222) ]);
         } else {
-            body = body + [ muAssign("c_<i>", or_uid, i, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[i]), [ muYield() ]), muCon(222) ];
+            body = body + [ muAssign("c_<i>", or_uid, i, muInit(exps[i])), muWhile(nextLabel(), muNext(localvars[i]), [ muYield() ]), muCon(222) ];
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
