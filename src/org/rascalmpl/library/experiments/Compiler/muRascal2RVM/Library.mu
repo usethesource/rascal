@@ -583,7 +583,8 @@ coroutine MATCH_VAR_IN_LIST[4, rVar, iSubject, rNext, available, start, iVal, iE
       };
       exhaust;
    };
-   return(iElem, start + 1);
+   yield(iElem, start + 1);
+   undefine(rVar);
 }
 
 coroutine MATCH_TYPED_VAR_IN_LIST[5, typ, rVar, iSubject, rNext, available, start, iVal, iElem]{
@@ -620,7 +621,6 @@ coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iLookahead, iSubject, rNext, available
       iVal = deref rVar;
       if(occurs(iVal, iSubject, start)){
          yield(iVal, start + size_list(iVal));
-         undefine(rVar);
       };
       exhaust;
     };
@@ -629,6 +629,7 @@ coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iLookahead, iSubject, rNext, available
         yield(sublist(iSubject, start, len), start + len);
         len = len + 1;
     };
+    undefine(rVar);
 }
 
 coroutine MATCH_LAST_MULTIVAR_IN_LIST[5, rVar, iLookahead, iSubject, rNext, available, start, len, iVal]{
@@ -639,7 +640,6 @@ coroutine MATCH_LAST_MULTIVAR_IN_LIST[5, rVar, iLookahead, iSubject, rNext, avai
       iVal = deref rVar;
       if(occurs(iVal, iSubject, start)){
          yield(iVal, start + size_list(iVal));
-         undefine(rVar);
       };
       exhaust;
     };
@@ -876,15 +876,15 @@ coroutine MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
       elm = deref rVar;
       if(is_element_mset(elm, available)){
          yield(elm, mset_destructive_subtract_elm(available, elm));
-         undefine(rVar);
       };
       exhaust;
     };
     gen = init(create(ENUM_MSET, available, ref elm));
     while(next(gen)) {
-	          yield(elm, mset_destructive_subtract_elm(available, elm));
-	          available = mset_destructive_add_elm(available, elm);
+	      yield(elm, mset_destructive_subtract_elm(available, elm));
+	      available = mset_destructive_add_elm(available, elm);
     };
+    undefine(rVar);
 }
 
 coroutine MATCH_TYPED_VAR_IN_SET[4, typ, rVar, available, rRemaining, gen, elm]{
@@ -892,10 +892,10 @@ coroutine MATCH_TYPED_VAR_IN_SET[4, typ, rVar, available, rRemaining, gen, elm]{
 
     gen = init(create(ENUM_MSET, available, ref elm));
     while(next(gen)) {
-             if(subtype(typeOf(elm), typ)){
-	            yield(elm, mset_destructive_subtract_elm(available, elm));
-	            available = mset_destructive_add_elm(available, elm);
-	         };
+          if(subtype(typeOf(elm), typ)){
+	         yield(elm, mset_destructive_subtract_elm(available, elm));
+	         available = mset_destructive_add_elm(available, elm);
+	      };
     };
 }
 
@@ -926,7 +926,6 @@ coroutine MATCH_MULTIVAR_IN_SET[3, rVar, available, rRemaining, gen, subset]{
       subset = deref rVar;
       if(subset_set_mset(subset, available)){
          yield(subset, mset_destructive_subtract_set(available, subset));
-         undefine(rVar);
       };
       exhaust;
     };
@@ -935,6 +934,7 @@ coroutine MATCH_MULTIVAR_IN_SET[3, rVar, available, rRemaining, gen, subset]{
 	          yield(set(subset), mset_destructive_subtract_mset(available, subset));
 	          available = mset_destructive_add_mset(available, subset);
     };
+    undefine(rVar);
 }
 
 coroutine MATCH_LAST_MULTIVAR_IN_SET[3, rVar, available, rRemaining, subset]{
@@ -984,8 +984,8 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, g
     gen = init(create(ENUM_SUBSETS, available, ref subset));
     while(next(gen)) {
           yield mset_destructive_subtract_mset(available, subset);
-	          available = mset_destructive_add_mset(available, subset);
-	    };
+	      available = mset_destructive_add_mset(available, subset);
+    };
 }
 
 coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{

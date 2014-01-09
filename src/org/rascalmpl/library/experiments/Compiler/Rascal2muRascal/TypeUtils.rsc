@@ -248,7 +248,7 @@ void extractScopes(){
                                                  loc2uid[l] = uid;
                                              }
                                            }
-        case constructor(rname,rtype,
+        case constructor(rname,rtype,_,
                          inScope,src):     { 
         									 constructors += {uid};
         									 declares += {<inScope, uid>};
@@ -334,7 +334,7 @@ void extractScopes(){
     	// Then, functions
     	topdecls = [ uid | uid <- declares[muid], function(_,_,_,_,_,_,_) := config.store[uid] ||
     											  closure(_,_,_,_)        := config.store[uid] ||
-    											  constructor(_,_,_,_)  := config.store[uid] ||
+    											  constructor(_,_,_,_,_)  := config.store[uid] ||
     											  variable(_,_,_,_,_)   := config.store[uid] ];
     	for(i <- index(topdecls)) {
     		// functions and closures are identified by their qualified names, and they do not have a position in their scope

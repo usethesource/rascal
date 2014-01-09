@@ -4939,7 +4939,6 @@ public enum RascalPrimitive {
 				ITuple tup = (ITuple) randomValue.generate(argType);
 				for(int j = 0; j < args.length; j++){
 					args[j] = tup.get(j);
-					//stdout.println("args[" + j + "] = " + args[j]);
 					message = message + args[j].toString() + " ";
 				}
 			}
@@ -4963,7 +4962,9 @@ public enum RascalPrimitive {
 				break;
 			}
 		}
-		test_results.append(vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message == null ? "" : message)));
+		if(passed)
+			message = "";
+		test_results.append(vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message)));
 		return sp - 4;
 	}
 
