@@ -12,8 +12,9 @@
 @contributor{Vadim Zaytsev - vadim@grammarware.net - SWAT, CWI}
 module String
 
-import Exception;
+extend Exception;
 import Origins;
+import Message;
 
 @doc{
 Synopsis: Center a string in given space.

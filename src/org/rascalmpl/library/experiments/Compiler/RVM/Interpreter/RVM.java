@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -33,20 +32,23 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
 
 public class RVM {
 
 	public final IValueFactory vf;
+	private final TypeFactory tf;
 	private final Boolean TRUE;
 	private final Boolean FALSE;
 	private final IBool Rascal_TRUE;
 	private final IBool Rascal_FALSE;
 	private final IString NONE; 
-	private final Failure FAILURE = Failure.getInstance();
 	
 	private boolean debug = true;
 	private boolean listing = false;
@@ -64,8 +66,6 @@ public class RVM {
 	
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
-	private IMap grammars;
-	
 	
 	private final Map<IValue, IValue> moduleVariables;
 	PrintWriter stdout;
@@ -77,10 +77,11 @@ public class RVM {
 	IEvaluatorContext ctx;
 
 
-	public RVM(IValueFactory vf, IEvaluatorContext ctx, boolean debug) {
+	public RVM(IValueFactory vf, IEvaluatorContext ctx, boolean debug, boolean profile) {
 		super();
 
 		this.vf = vf;
+		tf = TypeFactory.getInstance();
 		
 		this.ctx = ctx;
 		this.stdout = ctx.getStdOut();
@@ -106,12 +107,13 @@ public class RVM {
 		
 		moduleVariables = new HashMap<IValue,IValue>();
 		
-		MuPrimitive.init(vf);
-		RascalPrimitive.init(vf, this);
+		MuPrimitive.init(vf, stdout, profile);
+		RascalPrimitive.init(vf, this, profile);
+		Opcode.init(stdout, profile);
 	}
 	
 	public RVM(IValueFactory vf){
-		this(vf, null, false);
+		this(vf, null, false, false);
 	}
 	
 	public void declare(Function f){
@@ -124,6 +126,9 @@ public class RVM {
 	
 	public void declareConstructor(String name, IConstructor symbol) {
 		Type constr = types.symbolToType(symbol, typeStore);
+		if(constructorMap.get(name) != null) {
+			throw new RuntimeException("PANIC: Double declaration of constructor: " + name);
+		}
 		constructorMap.put(name, constructorStore.size());
 		constructorStore.add(constr);
 	}
@@ -169,14 +174,6 @@ public class RVM {
 			}
 			this.overloadedStore.add(new OverloadedFunction(funs, constrs, scopeIn));
 		}
-	}
-	
-	public void setGrammars(IMap grammer){
-		this.grammars = grammars;
-	}
-	
-	public IMap getGrammars(){
-		return grammars;
 	}
 	
 	/**
@@ -346,20 +343,53 @@ public class RVM {
 		return narrow(o); 
 	}
 	
-	// Execute a function instance, i.e., a function in its environment
-	// Note: the root frame is the environment of the non-nested functions, which enables access to the global variables
-	// Note: the return type is 'Object' as this method is used to implement call to overloaded functions, its alternatives may fail
-	private Object executeFunction(Frame root, FunctionInstance func, IValue[] args){
-		Frame cf = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
+	public IValue executeFunction(FunctionInstance func, IValue[] args){
+		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
+		Frame cf = root;
 		
-		// Pass the program argument to main
-		for(int i = 0; i < args.length; i++){
+		// Pass the program arguments to main
+		for(int i = 0; i < args.length; i++) {
 			cf.stack[i] = args[i]; 
 		}
-		return executeProgram(root, cf);
+		Object o = executeProgram(root, cf);
+		if(o instanceof Thrown){
+			throw (Thrown) o;
+		}
+		return narrow(o); 
 	}
 	
+	private Frame pushArguments(Frame cf, Function func, Frame env, IValue[] args) {
+		cf = new Frame(func.scopeId, cf, env, func.maxstack, func);
+		
+		if(func.isVarArgs) { // VarArgs
+			for(int i = 0; i < func.nformals - 2; i++) {
+				cf.stack[i] = args[i];
+			}
+			Type argTypes = ((FunctionType) func.ftype).getArgumentTypes();
+			if(args.length == func.nformals
+					&& args[func.nformals - 2].getType().isSubtypeOf(argTypes.getFieldType(func.nformals - 2))) {
+				cf.stack[func.nformals - 2] = args[func.nformals - 2];
+			} else {
+				IListWriter writer = vf.listWriter();
+				for(int i = func.nformals - 2; i < args.length - 1; i++) {
+					writer.append((IValue) args[i]);
+				}
+				cf.stack[func.nformals - 2] = writer.done();
+			}
+			cf.stack[func.nformals - 1] = args[args.length - 1]; // Keyword arguments
+		} else {
+			for(int i = 0; i < args.length; i++){
+				cf.stack[i] = args[i]; 
+			}
+		}
+		
+		cf.sp = func.nlocals;
+		
+		return cf;
+	}
+		
 	private String trace = "";
+	
 	
 	public String getTrace() {
 		return trace;
@@ -380,13 +410,14 @@ public class RVM {
 			throw new RuntimeException("PANIC: No function " + uid_main + " found");
 		}
 		
-		if (main_function.nformals != 1) {
-			throw new RuntimeException("PANIC: function " + uid_main + " should have one argument");
+		if (main_function.nformals != 2) { // List of IValues and empty map of keyword parameters
+			throw new RuntimeException("PANIC: function " + uid_main + " should have two arguments");
 		}
 		
 		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
 		Frame cf = root;
 		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
+		cf.stack[1] = vf.mapWriter().done();
 		Object o = executeProgram(root, cf);
 		if(o != null && o instanceof Thrown){
 			throw (Thrown) o;
@@ -399,50 +430,169 @@ public class RVM {
 		return res;
 	}
 	
+//	/*
+//	 * The following instance variables are only used by executeProgram
+//	 */
+//	Object[] stack ;		                              			// current stack
+//	int sp;				                  							// current stack pointer
+//	int [] instructions ; 											// current instruction sequence
+//	int pc;				                                      		// current program counter
+//	int postOp;
+//	int pos;
+//	ArrayList<Frame> stacktrace;
+//	Thrown thrown;
+//	int arity;
+//	String last_function_name;
+//	
+//	// Overloading specific
+//	Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
+//	OverloadedFunctionInstanceCall c_ofun_call = null;
+	
 	private Object executeProgram(Frame root, Frame cf) {
-		Object[] stack = cf.stack;		                              		// current stack
+		Object[] stack = cf.stack;		                              	// current stack
 		int sp = cf.function.nlocals;				                  	// current stack pointer
 		int [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
 		int pc = 0;				                                      	// current program counter
+		int postOp = 0;
+		int pos = 0;
+		ArrayList<Frame> stacktrace;
+		Thrown thrown;
+		int arity;
+		String last_function_name = "";
+		
+		// Overloading specific
+		Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
+		OverloadedFunctionInstanceCall c_ofun_call = null;
+		
+		stack = cf.stack;		                              	// current stack
+		sp = cf.function.nlocals;				                  	// current stack pointer
+		instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
+		pc = 0;				                                      	// current program counter
+		postOp = 0;
+		pos = 0;
+		last_function_name = "";
+		
+		// Overloading specific
+//		Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
+//		OverloadedFunctionInstanceCall c_ofun_call = null;
 				
 		try {
 			NEXT_INSTRUCTION: while (true) {
 //				if(pc < 0 || pc >= instructions.length){
 //					throw new RuntimeException(cf.function.name + " illegal pc: " + pc);
 //				}
-				int op = instructions[pc++];
+				int instruction = instructions[pc++];
+				int op = CodeBlock.fetchOp(instruction);
 
 				if (debug) {
 					int startpc = pc - 1;
+					if(!last_function_name.equals(cf.function.name))
+						stdout.printf("[%03d] %s\n", startpc, cf.function.name);
+					
 					for (int i = 0; i < sp; i++) {
-						stdout.println("\t" + (i < cf.function.nlocals ? "*" : "") + i + ": " + asString(stack[i]));
+						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
 					}
-					stdout.println(cf.function.name + "[" + startpc + "] " + cf.function.codeblock.toString(startpc));
+					stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
 				}
-
+				
+				Opcode.use(instruction);
+				
 				switch (op) {
+					
+				case Opcode.OP_POP:
+					sp--;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_LOADLOC0:
+					if(stack[0] != null){ stack[sp++] = stack[0]; continue NEXT_INSTRUCTION; }
+					pos = 0; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					
+				case Opcode.OP_LOADLOC1:
+					if(stack[1] != null){ stack[sp++] = stack[1]; continue NEXT_INSTRUCTION; }
+					pos = 1; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					
+				case Opcode.OP_LOADLOC2:
+					if(stack[2] != null){ stack[sp++] = stack[2]; continue NEXT_INSTRUCTION; }
+					pos = 2; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					
+				case Opcode.OP_LOADLOC3:
+					if(stack[3] != null){ stack[sp++] = stack[3]; continue NEXT_INSTRUCTION; }
+					pos = 3; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					
+				case Opcode.OP_LOADLOC4:
+					if(stack[4] != null){ stack[sp++] = stack[4]; continue NEXT_INSTRUCTION; }
+					pos = 4; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					
+				case Opcode.OP_LOADLOC5:
+					if(stack[5] != null){ stack[sp++] = stack[5]; continue NEXT_INSTRUCTION; }
+					pos = 5; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					
+				case Opcode.OP_LOADLOC6:
+					if(stack[6] != null){ stack[sp++] = stack[6]; continue NEXT_INSTRUCTION; }
+					pos = 6; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					
+				case Opcode.OP_LOADLOC7:
+					if(stack[7] != null){ stack[sp++] = stack[7]; continue NEXT_INSTRUCTION; }
+					pos = 7; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					
+				case Opcode.OP_LOADLOC8:
+					if(stack[8] != null){ stack[sp++] = stack[8]; continue NEXT_INSTRUCTION; }
+					pos = 8; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					
+				case Opcode.OP_LOADLOC9:
+					if(stack[9] != null){ stack[sp++] = stack[9]; continue NEXT_INSTRUCTION; }
+					pos = 9; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+				
+				case Opcode.OP_LOADLOC:
+					pos = CodeBlock.fetchArg1(instruction);
+					Object rval = stack[pos];
+					if(rval != null){
+						stack[sp++] = rval;
+						continue NEXT_INSTRUCTION;
+					}
+					postOp = Opcode.POSTOP_CHECKUNDEF;	
+					break;
+					
+				case Opcode.OP_LOADBOOL:
+					stack[sp++] = CodeBlock.fetchArg1(instruction) == 1 ? true : false;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_LOADINT:
+					stack[sp++] = CodeBlock.fetchArg1(instruction);
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_LOADCON:
+					stack[sp++] = cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_LOADLOCREF:
+					stack[sp++] = new Reference(stack, CodeBlock.fetchArg1(instruction));
+					continue NEXT_INSTRUCTION;
+				
+				case Opcode.OP_CALLMUPRIM:
+					MuPrimitive muprim = MuPrimitive.fromInteger(CodeBlock.fetchArg1(instruction));
+					sp = muprim.invoke(stack, sp, CodeBlock.fetchArg2(instruction));
+					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_JMP:
-					pc = instructions[pc];
-					continue;
+					pc = CodeBlock.fetchArg1(instruction);
+					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_JMPTRUE:
 					if (stack[sp - 1].equals(TRUE) || stack[sp - 1].equals(Rascal_TRUE)) {
-						pc = instructions[pc];
-					} else
-						pc++;
+						pc = CodeBlock.fetchArg1(instruction);
+					}
 					sp--;
-					continue;
+					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_JMPFALSE:
 					if (stack[sp - 1].equals(FALSE) || stack[sp - 1].equals(Rascal_FALSE)) {
-						pc = instructions[pc];
-					} else
-						pc++;
+						pc = CodeBlock.fetchArg1(instruction);
+					}
 					sp--;
-					continue;
+					continue NEXT_INSTRUCTION;
 					
-				case Opcode.OP_JMPSWITCH:
+				case Opcode.OP_TYPESWITCH:
 					IValue val = (IValue) stack[--sp];
 					Type t = null;
 					if(val instanceof IConstructor) {
@@ -451,98 +601,55 @@ public class RVM {
 						t = val.getType();
 					}
 					int labelIndex = ToplevelType.getToplevelTypeAsInt(t);
-					IList labels = (IList) cf.function.constantStore[instructions[pc++]];
+					IList labels = (IList) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					pc = ((IInteger) labels.get(labelIndex)).intValue();
-					continue;
+					continue NEXT_INSTRUCTION;
 					
-				case Opcode.OP_POP:
-					sp--;
-					continue;
-
-				case Opcode.OP_LOADBOOL:
-					stack[sp++] = instructions[pc++] == 1 ? true : false;
-					continue;
-					
-				case Opcode.OP_LOADINT:
-					stack[sp++] = instructions[pc++];
-					continue;
-					
-				case Opcode.OP_LOADCON:
-					stack[sp++] = cf.function.constantStore[instructions[pc++]];
-					continue;
+				case Opcode.OP_JMPINDEXED:
+					labelIndex = ((IInteger) stack[--sp]).intValue();
+					labels = (IList) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
+					pc = ((IInteger) labels.get(labelIndex)).intValue();
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADTYPE:
-					stack[sp++] = cf.function.typeConstantStore[instructions[pc++]];
-					continue;
-					
-				case Opcode.OP_LOADLOC:
-				case Opcode.OP_LOADLOCREF:
-					int pos = instructions[pc++];
-					Object rval = (op == Opcode.OP_LOADLOC) ? stack[pos] 
-															: new Reference(stack, pos);
-					
-					if(op == Opcode.OP_LOADLOC && rval == null) {
-						// EXCEPTION HANDLING
-						List<Frame> stacktrace = new ArrayList<Frame>();
-						stacktrace.add(cf);
-						Thrown thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
-						for(Frame f = cf; f != null; f = f.previousCallFrame) {
-							int handler = f.function.getHandler(pc - 1, thrown.value.getType());
-							if(handler != -1) {
-								if(f != cf) {
-									cf = f;
-									instructions = cf.function.codeblock.getInstructions();
-									stack = cf.stack;
-									sp = cf.sp;
-									pc = cf.pc;
-								}
-								pc = handler;
-								stack[sp++] = thrown;
-								continue NEXT_INSTRUCTION;
-							}
-						}
-						// If a handler has not been found in the caller functions...
-						return thrown;
-					}
-					
-					stack[sp++] = rval;
-					continue;
-				
+					stack[sp++] = cf.function.typeConstantStore[CodeBlock.fetchArg1(instruction)];
+					continue NEXT_INSTRUCTION;
+					 
 				case Opcode.OP_LOADLOCDEREF: {
-					Reference ref = (Reference) stack[instructions[pc++]];
+					Reference ref = (Reference) stack[CodeBlock.fetchArg1(instruction)];
 					stack[sp++] = ref.stack[ref.pos];
-					continue;
+					continue NEXT_INSTRUCTION;
 				}
 				
 				case Opcode.OP_STORELOC: {
-					stack[instructions[pc++]] = stack[sp - 1];
-					continue;
+					stack[CodeBlock.fetchArg1(instruction)] = stack[sp - 1];
+					continue NEXT_INSTRUCTION;
 				}
 				
 				case Opcode.OP_UNWRAPTHROWN: {
-					stack[instructions[pc++]] = ((Thrown) stack[--sp]).value;
-					continue;
+					stack[CodeBlock.fetchArg1(instruction)] = ((Thrown) stack[--sp]).value;
+					continue NEXT_INSTRUCTION;
 				}
 				
 				case Opcode.OP_STORELOCDEREF:
-					Reference ref = (Reference) stack[instructions[pc++]];
+					Reference ref = (Reference) stack[CodeBlock.fetchArg1(instruction)];
 					ref.stack[ref.pos] = stack[sp - 1]; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
-					continue;
+					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_LOADFUN:
 					// Loads functions that are defined at the root
-					stack[sp++] = new FunctionInstance(functionStore.get(instructions[pc++]), root);
-					continue;
+					stack[sp++] = new FunctionInstance(functionStore.get(CodeBlock.fetchArg1(instruction)), root, this);
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOAD_NESTED_FUN: { 
 					// Loads nested functions and closures (anonymous nested functions):
-					// First, gets the function code
-					Function fun = functionStore.get(instructions[pc++]);
-					int scopeIn = instructions[pc++];
-					// Second, looks up the function environment frame into the stack of caller frames
+					// First, get the function code
+					Function fun = functionStore.get(CodeBlock.fetchArg1(instruction));
+					int scopeIn = CodeBlock.fetchArg2(instruction);
+					// Second, look up the function environment frame into the stack of caller frames
 					for(Frame env = cf; env != null; env = env.previousCallFrame) {
 						if (env.scopeId == scopeIn) {
-							stack[sp++] = new FunctionInstance(fun, env);
+							stack[sp++] = new FunctionInstance(fun, env, this);
 							continue NEXT_INSTRUCTION;
 						}
 					}
@@ -550,36 +657,39 @@ public class RVM {
 				}
 				
 				case Opcode.OP_LOADOFUN:
-					OverloadedFunction of = overloadedStore.get(instructions[pc++]);
+					OverloadedFunction of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
 					if(of.scopeIn == -1) {
-						stack[sp++] = new OverloadedFunctionInstance(of.functions, of.constructors, root);
-						continue;
+						stack[sp++] = new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this);
+						continue NEXT_INSTRUCTION;
 					}
 					for(Frame env = cf; env != null; env = env.previousCallFrame) {
 						if (env.scopeId == of.scopeIn) {
-							stack[sp++] = new OverloadedFunctionInstance(of.functions, of.constructors, env);
+							stack[sp++] = new OverloadedFunctionInstance(of.functions, of.constructors, env, functionStore, constructorStore, this);
 							continue NEXT_INSTRUCTION;
 						}
 					}
 					throw new RuntimeException("Could not find matching scope when loading a nested overloaded function: " + of.scopeIn);
 				
 				case Opcode.OP_LOADCONSTR:
-					Type constructor = constructorStore.get(instructions[pc++]);
+					Type constructor = constructorStore.get(CodeBlock.fetchArg1(instruction));  
+					stack[sp++] = constructor;
+					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_LOADVAR:
 				case Opcode.OP_LOADVARREF: {
-					int s = instructions[pc++];
-					pos = instructions[pc++];
+					int s = CodeBlock.fetchArg1(instruction);
+					pos = CodeBlock.fetchArg2(instruction);
 					
-					if(pos == -1){
+					if(CodeBlock.isMaxArg2(pos)){
 						rval = moduleVariables.get(cf.function.constantStore[s]);
 						if(op == Opcode.OP_LOADVAR && rval == null) {
 							// EXCEPTION HANDLING
-							List<Frame> stacktrace = new ArrayList<Frame>();
+							stacktrace = new ArrayList<Frame>();
 							stacktrace.add(cf);
-							Thrown thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
+							thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
+							cf.pc = pc;
 							for(Frame f = cf; f != null; f = f.previousCallFrame) {
-								int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+								int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 								if(handler != -1) {
 									if(f != cf) {
 										cf = f;
@@ -591,6 +701,10 @@ public class RVM {
 									pc = handler;
 									stack[sp++] = thrown;
 									continue NEXT_INSTRUCTION;
+								}
+								if(c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
+									ocalls.pop();
+									c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
 								}
 							}
 							// If a handler has not been found in the caller functions...
@@ -607,11 +721,12 @@ public class RVM {
 																	: new Reference(fr.stack, pos);
 							if(op == Opcode.OP_LOADLOC && rval == null) {
 								// EXCEPTION HANDLING
-								List<Frame> stacktrace = new ArrayList<Frame>();
+								stacktrace = new ArrayList<Frame>();
 								stacktrace.add(cf);
-								Thrown thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
+								thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
+								cf.pc = pc;
 								for(Frame f = cf; f != null; f = f.previousCallFrame) {
-									int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+									int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 									if(handler != -1) {
 										if(f != cf) {
 											cf = f;
@@ -623,6 +738,10 @@ public class RVM {
 										pc = handler;
 										stack[sp++] = thrown;
 										continue NEXT_INSTRUCTION;
+									}
+									if(c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
+										ocalls.pop();
+										c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
 									}
 								}
 								// If a handler has not been found in the caller functions...
@@ -637,9 +756,8 @@ public class RVM {
 				}
 				
 				case Opcode.OP_LOADVARDEREF: {
-					int s = instructions[pc++];
-					pos = instructions[pc++];
-					
+					int s = CodeBlock.fetchArg1(instruction);
+					pos = CodeBlock.fetchArg2(instruction);					
 					
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
@@ -652,10 +770,10 @@ public class RVM {
 				}
 				
 				case Opcode.OP_STOREVAR:
-					int s = instructions[pc++];
-					pos = instructions[pc++];
+					int s = CodeBlock.fetchArg1(instruction);
+					pos = CodeBlock.fetchArg2(instruction);
 					
-					if(pos == -1){
+					if(CodeBlock.isMaxArg2(pos)){
 						IValue mvar = cf.function.constantStore[s];
 						moduleVariables.put(mvar, (IValue)stack[sp -1]);
 						continue NEXT_INSTRUCTION;
@@ -671,13 +789,13 @@ public class RVM {
 					throw new RuntimeException("STOREVAR cannot find matching scope: " + s);
 	
 				case Opcode.OP_STOREVARDEREF:
-					s = instructions[pc++];
-					pos = instructions[pc++];
+					s = CodeBlock.fetchArg1(instruction);
+					pos = CodeBlock.fetchArg2(instruction);
 
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
 							ref = (Reference) fr.stack[pos];
-							ref.stack[ref.pos] = stack[sp - 1];	/* CHANGED: --sp to sp -1; value remains on stack */
+							ref.stack[ref.pos] = stack[sp - 1];
 							continue NEXT_INSTRUCTION;
 						}
 					}
@@ -685,15 +803,16 @@ public class RVM {
 					throw new RuntimeException("STOREVARDEREF cannot find matching scope: " + s);
 				
 				case Opcode.OP_CALLCONSTR:
-					constructor = constructorStore.get(instructions[pc++]);
-					int arity = instructions[pc++];
+					constructor = constructorStore.get(CodeBlock.fetchArg1(instruction));
+					arity = CodeBlock.fetchArg2(instruction);
+					
 					assert arity == constructor.getArity();
 					IValue[] args = new IValue[arity]; 
 					for(int i = 0; i < arity; i++) {
 						args[arity - 1 - i] = (IValue) stack[--sp];
 					}
 					stack[sp++] = vf.constructor(constructor, args);
-					continue;
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLDYN:				
 				case Opcode.OP_CALL:
@@ -716,12 +835,12 @@ public class RVM {
 					
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof FunctionInstance){
 						FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
-						arity = instructions[pc++]; // TODO: add assert
+						arity = CodeBlock.fetchArg1(instruction); // TODO: add assert
 						fun = fun_instance.function;
 						previousScope = fun_instance.env;
 					} else if(op == Opcode.OP_CALL) {
-						fun = functionStore.get(instructions[pc++]);
-						arity = instructions[pc++];
+						fun = functionStore.get(CodeBlock.fetchArg1(instruction));
+						arity = CodeBlock.fetchArg2(instruction);						
 						assert arity == fun.nformals;
 						previousScope = cf;
 					} else {
@@ -741,191 +860,129 @@ public class RVM {
 					stack = cf.stack;
 					sp = fun.nlocals;
 					pc = 0;
-					continue;
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_OCALLDYN:
-					// Get function types to perform a type-based dynamic resolution
-					Type types = cf.function.codeblock.getConstantType(instructions[pc++]);		
-					arity = instructions[pc++];
-					// Objects of three types may appear on the stack:
-					// 	1. FunctionInstance due to closures
-					// 	2. OverloadedFunctionInstance due to named Rascal functions
-					Object funcObject = stack[--sp];
-					// Get function arguments from the stack
-					args = new IValue[arity]; 
-					for(int i = arity - 1; i >= 0; i--) {
-						args[i] = (IValue) stack[sp - arity + i];
-					}			
-					sp = sp - arity;
-					
-					if(funcObject instanceof FunctionInstance) {
-						FunctionInstance fun_instance = (FunctionInstance) funcObject;
-						rval = executeFunction(root, fun_instance, args);
-						if(rval != NONE) {
-							stack[sp++] = rval;
-						}
-						continue NEXT_INSTRUCTION;
-					}
-					
-					OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
-					
-					if(debug) {
-						this.appendToTrace("OVERLOADED FUNCTION CALLDYN: ");
-						this.appendToTrace("	with alternatives:");
-						for(int index : of_instance.functions) {
-							this.appendToTrace("		" + getFunctionName(index));
-						}
-					}
-					
-					NEXT_FUNCTION: 
-					for(int index : of_instance.functions) {
-						fun = functionStore.get(index);
-						for(Type type : types) {
-							if(type == fun.ftype) {
-								FunctionInstance fun_instance = new FunctionInstance(fun, of_instance.env);
-										
-								if(debug) {
-									this.appendToTrace("		" + "try alternative: " + getFunctionName(index));
-								}
-										
-								rval = executeFunction(root, fun_instance, args);
-								if(rval == FAILURE) {
-									continue NEXT_FUNCTION;
-								} else {
-									if(rval != NONE) {
-										stack[sp++] = rval;
-									}
-									continue NEXT_INSTRUCTION;
-								}													
-							}
-						}
-					}
-					
-					for(int index : of_instance.constructors) {
-						constructor = constructorStore.get(index);
-						for(Type type : types) {
-							if(type == constructor) {
-								
-								if(debug) {
-									this.appendToTrace("		" + "try constructor alternative: " + getConstructorName(index));
-								}
-								
-								stack[sp++] = vf.constructor(constructor, args);
-								continue NEXT_INSTRUCTION;													
-							}
-						}
-					}
-					throw new RuntimeException("Call to an overloded function: either all functions have failed, or some function scope has not been found!");
-					
 				case Opcode.OP_OCALL:					
-					of = overloadedStore.get(instructions[pc++]);
-					arity = instructions[pc++];
-					
-					if(debug) {
-						this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(instructions[pc - 2]));
-						this.appendToTrace("	with alternatives:");
-						for(int index : of.functions) {
-							this.appendToTrace("		" + getFunctionName(index));
-						}
-					}
-					
-					// Get arguments from the stack
-					args = new IValue[arity]; 
+					Object funcObject = (op == Opcode.OP_OCALLDYN) ? stack[--sp] : null;
+					// Get function arguments from the stack
+					arity = CodeBlock.fetchArg2(instruction);
+					args = new IValue[arity];
 					for(int i = arity - 1; i >= 0; i--) {
 						args[i] = (IValue) stack[sp - arity + i];
 					}			
 					sp = sp - arity;
 					
-					Frame environment = root;				
-					if(of.scopeIn != -1) {
-						boolean found = false;
-						for(Frame env = cf; env != null; env = env.previousCallFrame) {
-							if (env.scopeId == of.scopeIn) {
-								environment = env;
-								found = true;
-								break;
-							}
-						}
-						if(!found) {
-							throw new RuntimeException("Could not find matching scope when loading a nested overloaded function: " + of.scopeIn);
-						}
-					}
-					
-					NEXT_FUNCTION: 
-					for(int index : of.functions) {
-						fun = functionStore.get(index);
-						FunctionInstance fun_instance = new FunctionInstance(fun, environment);
-						
-						if(debug) {
-							this.appendToTrace("		" + "try alternative: " + getFunctionName(index));
-						}
-								
-						rval = executeFunction(root, fun_instance, args);
-						if(rval == FAILURE) {
-							continue NEXT_FUNCTION;
-						} 
-						else if(rval instanceof Thrown) {
-							// EXCEPTION HANDLING
-							Thrown thrown = (Thrown) rval;
-							thrown.stacktrace.add(cf);
-							// First, try to find a handler in the current frame function,
-							// given the current instruction index and the value type,
-							// then, if not found, look up the caller function(s)
-							for(Frame f = cf; f != null; f = f.previousCallFrame) {
-								int handler = f.function.getHandler(pc - 1, thrown.value.getType());
-								if(handler != -1) {
-									if(f != cf) {
-										cf = f;
-										instructions = cf.function.codeblock.getInstructions();
-										stack = cf.stack;
-										sp = cf.sp;
-										pc = cf.pc;
-									}
-									pc = handler;
-									// Put the thrown value on the stack
-									stack[sp++] = thrown;
-									continue NEXT_INSTRUCTION;
-								}
-							}
-							// If a handler has not been found in the caller functions...
-							return (Thrown) rval;
-							
-						} else {
-							if(rval != NONE) {
-								stack[sp++] = rval;
-							}
+					if(op == Opcode.OP_OCALLDYN) {
+						// Get function types to perform a type-based dynamic resolution
+						Type types = cf.function.codeblock.getConstantType(CodeBlock.fetchArg1(instruction));
+						// Objects of three types may appear on the stack:
+						// 	1. FunctionInstance due to closures
+						// 	2. OverloadedFunctionInstance due to named Rascal functions
+						if(funcObject instanceof FunctionInstance) {
+							FunctionInstance fun_instance = (FunctionInstance) funcObject;
+							cf.sp = sp;
+							cf.pc = pc;
+							cf = pushArguments(cf, fun_instance.function, fun_instance.env, args);
+							instructions = cf.function.codeblock.getInstructions();
+							stack = cf.stack;
+							sp = cf.sp;
+							pc = cf.pc;
 							continue NEXT_INSTRUCTION;
-						}							
+						}
+						OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
+						c_ofun_call = new OverloadedFunctionInstanceCall(vf, cf, of_instance.functions, of_instance.constructors, of_instance.env, args, types);
+					} else {
+						of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
+						c_ofun_call = new OverloadedFunctionInstanceCall(vf, root, cf, of.functions, of.constructors, of.scopeIn, args, null);
 					}
-					
-					int index = of.constructors[0];
-					constructor = constructorStore.get(index);
+					ocalls.push(c_ofun_call);
 					
 					if(debug) {
-						this.appendToTrace("		" + "try constructor alternative: " + getConstructorName(index));
+						if(op == Opcode.OP_OCALL) {
+							this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
+						} else {
+							this.appendToTrace("OVERLOADED FUNCTION CALLDYN: ");
+						}
+						this.appendToTrace("	with alternatives:");
+						for(int index : c_ofun_call.functions) {
+							this.appendToTrace("		" + getFunctionName(index));
+						}
 					}
-									
-					stack[sp++] = vf.constructor(constructor, args);
-					continue NEXT_INSTRUCTION;
-				
-				case Opcode.OP_FAILRETURN:
-					rval = Failure.getInstance();
-					// TODO: Need to re-consider management of active coroutines
-					cf = cf.previousCallFrame;
-					if(cf == null) {
-						return rval;
+					
+					fun = c_ofun_call.nextFunction(functionStore);
+					
+					if(fun != null) {						
+						if(debug) {
+							this.appendToTrace("		" + "try alternative: " + fun.name);
+						}
+						cf.sp = sp;
+						cf.pc = pc;
+						cf = pushArguments(c_ofun_call.cf, fun, c_ofun_call.env, c_ofun_call.args);
+						instructions = fun.codeblock.getInstructions();
+						stack = cf.stack;
+						sp = cf.sp;
+						pc = cf.pc;
 					} else {
-						throw new RuntimeException("PANIC: FAILRETURN should return from the program execution given the current design!");
+						stack[sp++] = vf.constructor(c_ofun_call.nextConstructor(constructorStore), c_ofun_call.constr_args);
 					}
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_FAILRETURN:
+					assert cf.previousCallFrame == c_ofun_call.cf;
+					
+					fun = c_ofun_call.nextFunction(functionStore);
+					
+					if(fun != null) {						
+						if(debug) {
+							this.appendToTrace("		" + "try alternative: " + fun.name);
+						}
+						cf.sp = sp;
+						cf.pc = pc;
+						cf = pushArguments(c_ofun_call.cf, fun, c_ofun_call.env, c_ofun_call.args);
+						instructions = cf.function.codeblock.getInstructions();
+						stack = cf.stack;
+						sp = cf.sp;
+						pc = cf.pc;
+					} else {
+						cf = c_ofun_call.cf;
+						instructions = cf.function.codeblock.getInstructions();
+						stack = cf.stack;
+						sp = cf.sp;
+						pc = cf.pc;
+						stack[sp++] = vf.constructor(c_ofun_call.nextConstructor(constructorStore), c_ofun_call.constr_args);
+					}
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_FILTERRETURN:
 				case Opcode.OP_RETURN0:
 				case Opcode.OP_RETURN1:
+					
+					// Overloading specific
+					if(c_ofun_call != null && cf.previousCallFrame == c_ofun_call.cf) {
+						ocalls.pop();
+						c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
+					}
 				
 					rval = null;
-					boolean returns = (op == Opcode.OP_RETURN1) || (op == Opcode.OP_FILTERRETURN);
-					if(op == Opcode.OP_RETURN1) {
-						rval = stack[sp - 1];
+					boolean returns = cf.isCoroutine || op == Opcode.OP_RETURN1 || op == Opcode.OP_FILTERRETURN;
+					if(op == Opcode.OP_RETURN1 || cf.isCoroutine) {
+						if(cf.isCoroutine) {
+							rval = Rascal_TRUE;
+							if(op == Opcode.OP_RETURN1) {
+								arity = CodeBlock.fetchArg1(instruction);
+								int[] refs = cf.function.refs;
+								if(arity != refs.length) {
+									throw new RuntimeException("Coroutine " + cf.function.name + ": arity of return (" + arity  + ") unequal to number of reference parameters (" +  refs.length + ")");
+								}
+								for(int i = 0; i < arity; i++) {
+									ref = (Reference) stack[refs[arity - 1 - i]];
+									ref.stack[ref.pos] = stack[--sp];
+								}
+							}
+						} else {
+							rval = stack[sp - 1];
+						}
 					}
 					
 					// if the current frame is the frame of a top active coroutine, 
@@ -950,18 +1007,46 @@ public class RVM {
 					if(returns) {
 						stack[sp++] = rval;
 					}
-					continue;
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLJAVA:
 					String methodName =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
 					String className =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
 					Type parameterTypes = cf.function.typeConstantStore[instructions[pc++]];
+					int reflect = instructions[pc++];
 					arity = parameterTypes.getArity();
-					sp = callJavaMethod(methodName, className, parameterTypes, stack, sp);
-					continue;
+					try {
+					    sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
+					} catch(Throw e) {
+						thrown = Thrown.getInstance(e.getException(), e.getLocation(), new ArrayList<Frame>());
+						// EXCEPTION HANDLING
+						cf.pc = pc;
+						for(Frame f = cf; f != null; f = f.previousCallFrame) {
+							int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
+							if(handler != -1) {
+								if(f != cf) {
+									cf = f;
+									instructions = cf.function.codeblock.getInstructions();
+									stack = cf.stack;
+									sp = cf.sp;
+									pc = cf.pc;
+								}
+								pc = handler;
+								stack[sp++] = thrown;
+								continue NEXT_INSTRUCTION;
+							}
+							if(c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
+								ocalls.pop();
+								c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
+							}
+						}
+						// If a handler has not been found in the caller functions...
+						return thrown;
+					}
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_INIT:
-					arity = instructions[pc++];
+					arity = CodeBlock.fetchArg1(instruction);
 					Object src = stack[--sp];
 					Coroutine coroutine;
 					if(src instanceof Coroutine){
@@ -973,11 +1058,11 @@ public class RVM {
 						Frame frame = new Frame(fun.scopeId, null, fun_instance.env, fun.maxstack, fun);
 						coroutine = new Coroutine(frame);
 					} else {
-						throw new RuntimeException("unexpected argument type for INIT: " + src.getClass() + ", " + src);
+						throw new RuntimeException("Unexpected argument type for INIT: " + src.getClass() + ", " + src);
 					}
 					
 					if(coroutine.isInitialized()) {
-						throw new RuntimeException("Trying to initialize a coroutine, which has been already initialized: " + fun.getName() + " (corounine's main), called in " + cf.function.getName());
+						throw new RuntimeException("Trying to initialize a coroutine, which has already been initialized: " + fun.getName() + " (corounine's main), called in " + cf.function.getName());
 					}
 					// the main function of coroutine may have formal parameters,
 					// therefore, INIT may take a number of arguments == formal parameters - arguments already passed to CREATE
@@ -989,17 +1074,80 @@ public class RVM {
 						newCoroutine.frame.stack[coroutine.frame.sp + i] = stack[sp - arity + i];
 					}
 					newCoroutine.frame.sp = fun.nlocals;
-					newCoroutine.suspend(newCoroutine.frame);
 					sp = sp - arity;							/* Place coroutine back on stack */
 					stack[sp++] = newCoroutine;
-					continue;
+					
+					// Now, instead of simply suspending a coroutine during INIT, let it execute until GUARD, which has been delegated the INIT's suspension
+					newCoroutine.suspend(newCoroutine.frame);
+					// put the coroutine onto the stack of active coroutines
+					activeCoroutines.push(newCoroutine);
+					ccf = newCoroutine.start;
+					newCoroutine.next(cf);
+					
+					fun = newCoroutine.frame.function;
+					instructions = newCoroutine.frame.function.codeblock.getInstructions();
+				
+					cf.pc = pc;
+					cf.sp = sp;
+					
+					cf = newCoroutine.frame;
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
+					
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_GUARD:
+					rval = stack[sp - 1];
+					boolean precondition;
+					if(rval instanceof IBool) {
+						precondition = ((IBool) rval).getValue();
+					} else if(rval instanceof Boolean) {
+						precondition = (Boolean) rval;
+					} else {
+						throw new RuntimeException("Guard's expression has to be boolean!");
+					}
+					
+					if(cf == ccf) {
+						coroutine = activeCoroutines.pop();
+						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+						Frame prev = cf.previousCallFrame;
+						if(precondition) {
+							coroutine.suspend(cf);
+						}
+						--sp;
+						cf.pc = pc;
+						cf.sp = sp;
+						cf = prev;
+						instructions = cf.function.codeblock.getInstructions();
+						stack = cf.stack;
+						sp = cf.sp;
+						pc = cf.pc;	
+						continue NEXT_INSTRUCTION;
+					}
+					
+					if(!precondition) {
+						cf.pc = pc;
+						cf.sp = sp;
+						cf = cf.previousCallFrame;
+						instructions = cf.function.codeblock.getInstructions();
+						stack = cf.stack;
+						sp = cf.sp;
+						pc = cf.pc;
+						stack[sp++] = Rascal_FALSE;
+						continue NEXT_INSTRUCTION;
+					}
+					
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CREATE:
 				case Opcode.OP_CREATEDYN:
 					if(op == Opcode.OP_CREATE){
-						fun = functionStore.get(instructions[pc++]);
+						fun = functionStore.get(CodeBlock.fetchArg1(instruction));
+						arity = CodeBlock.fetchArg2(instruction);
 						previousScope = null;
 					} else {
+						arity = CodeBlock.fetchArg1(instruction);
 						src = stack[--sp];
 						if(src instanceof FunctionInstance) {
 							FunctionInstance fun_instance = (FunctionInstance) src;
@@ -1009,7 +1157,6 @@ public class RVM {
 							throw new RuntimeException("unexpected argument type for CREATEDYN: " + asString(src));
 						}
 					}
-					arity = instructions[pc++];
 					Frame frame = new Frame(fun.scopeId, null, previousScope, fun.maxstack, fun);
 					// the main function of coroutine may have formal parameters,
 					// therefore, CREATE may take a number of arguments <= formal parameters
@@ -1022,11 +1169,20 @@ public class RVM {
 					coroutine = new Coroutine(frame);
 					sp = sp - arity;
 					stack[sp++] = coroutine;
-					continue;
+					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_NEXT0:
 				case Opcode.OP_NEXT1:
 					coroutine = (Coroutine) stack[--sp];
+					
+					// Merged the hasNext and next semantics
+					if(!coroutine.hasNext()) {
+						if(op == Opcode.OP_NEXT1) {
+							--sp;
+						}
+						stack[sp++] = FALSE;
+						continue NEXT_INSTRUCTION;
+					}
 					// put the coroutine onto the stack of active coroutines
 					activeCoroutines.push(coroutine);
 					ccf = coroutine.start;
@@ -1045,35 +1201,69 @@ public class RVM {
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					continue;
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_YIELD0:	
 				case Opcode.OP_YIELD1:
 					coroutine = activeCoroutines.pop();
 					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 					Frame prev = coroutine.start.previousCallFrame;
-					rval = (op == Opcode.OP_YIELD1) ? stack[--sp] : null;
+					rval = Rascal_TRUE; // In fact, yield has to always return TRUE
+					if(op == Opcode.OP_YIELD1) {
+						arity = CodeBlock.fetchArg1(instruction);
+						int[] refs = coroutine.start.function.refs; // Takes the reference parameter positions of the top active coroutine instance 
+						
+						if(cf != coroutine.start && cf.function.refs.length != refs.length) {
+							throw new RuntimeException("The 'yield' from within a nested call has to take the same number of arguments as the number of the caller's reference parameters: " + cf.function.refs.length + "; " + refs.length);
+						}
+						
+						if(arity != refs.length) {
+							throw new RuntimeException("The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length);
+						}
+						
+						for(int i = 0; i < arity; i++) {
+							ref = (Reference) coroutine.start.stack[refs[arity - 1 - i]]; // Takes the reference parameters of the top active coroutine instance
+							ref.stack[ref.pos] = stack[--sp];
+						}
+					}
 					cf.pc = pc;
 					cf.sp = sp;
 					coroutine.suspend(cf);
 					cf = prev;
 					if(op == Opcode.OP_YIELD1 && cf == null)
-						return narrow(rval);
+						return rval;
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
 					stack[sp++] = rval;	 								// Corresponding next will always find an entry on the stack
-					continue;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_EXHAUST:
+					if(cf == ccf) {
+						activeCoroutines.pop();
+						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+					}
+					
+					cf = cf.previousCallFrame;
+					if(cf == null) {
+						return Rascal_FALSE;    // 'Exhaust' has to always return FALSE, i.e., signal a failure;
+					}
+					instructions = cf.function.codeblock.getInstructions();
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
+					stack[sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE, i.e., signal a failure;
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_HASNEXT:
 					coroutine = (Coroutine) stack[--sp];
 					stack[sp++] = coroutine.hasNext() ? TRUE : FALSE;
-					continue;
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLPRIM:
-					RascalPrimitive prim = RascalPrimitive.fromInteger(instructions[pc++]);
-					arity = instructions[pc++];
+					RascalPrimitive prim = RascalPrimitive.fromInteger(CodeBlock.fetchArg1(instruction));
+					arity = CodeBlock.fetchArg2(instruction);
 					try {
 						sp = prim.invoke(stack, sp, arity);
 					} catch(InvocationTargetException targetException) {
@@ -1081,11 +1271,12 @@ public class RVM {
 							throw targetException;
 						}
 						// EXCEPTION HANDLING
-						Thrown thrown = (Thrown) targetException.getTargetException();
+						thrown = (Thrown) targetException.getTargetException();
 						thrown.stacktrace.add(cf);
 						sp = sp - arity;
+						cf.pc = pc;
 						for(Frame f = cf; f != null; f = f.previousCallFrame) {
-							int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+							int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 							if(handler != -1) {
 								if(f != cf) {
 									cf = f;
@@ -1103,13 +1294,73 @@ public class RVM {
 						return thrown;
 					}
 					
-					continue;
+					continue NEXT_INSTRUCTION;
+				
+				// Some specialized MuPrimitives
 					
-				case Opcode.OP_CALLMUPRIM:
-					MuPrimitive muprim = MuPrimitive.fromInteger(instructions[pc++]);
-					arity = instructions[pc++];
-					sp = muprim.invoke(stack, sp, arity);
-					continue;
+				case Opcode.OP_SUBSCRIPTARRAY:
+					stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
+					sp--;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_SUBSCRIPTLIST:
+					stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
+					sp--;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_LESSINT:
+					stack[sp - 2] = ((Integer) stack[sp - 2]) < ((Integer) stack[sp - 1]);
+					sp--;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_GREATEREQUALINT:
+					stack[sp - 2] = ((Integer) stack[sp - 2]) >= ((Integer) stack[sp - 1]);
+					sp--;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_ADDINT:
+					stack[sp - 2] = ((Integer) stack[sp - 2]) + ((Integer) stack[sp - 1]);
+					sp--;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_SUBTRACTINT:
+					stack[sp - 2] = ((Integer) stack[sp - 2]) - ((Integer) stack[sp - 1]);
+					sp--;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_ANDBOOL:
+					boolean b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
+					boolean b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+					stack[sp - 2] = b1 && b2;
+					sp--;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_TYPEOF:
+					if(stack[sp - 1] instanceof HashSet<?>){	// For the benefit of set matching
+						@SuppressWarnings("unchecked")
+						HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+						if(mset.isEmpty()){
+							stack[sp - 1] = tf.setType(tf.voidType());
+						} else {
+							IValue v = mset.iterator().next();
+							stack[sp - 1] = tf.setType(v.getType());
+						}
+					} else {
+						stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+					}
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_SUBTYPE:
+					stack[sp - 2] = ((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]);
+					sp--;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CHECKARGTYPE:
+					Type argType =  ((IValue) stack[sp - 2]).getType();
+					Type paramType = ((Type) stack[sp - 1]);
+					stack[sp - 2] = argType.isSubtypeOf(paramType);
+					sp--;
+					continue NEXT_INSTRUCTION;
 								
 				case Opcode.OP_LABEL:
 					throw new RuntimeException("label instruction at runtime");
@@ -1124,7 +1375,7 @@ public class RVM {
 					return stack[sp - 1];
 
 				case Opcode.OP_PRINTLN:
-					arity = instructions[pc++];
+					arity = CodeBlock.fetchArg1(instruction);
 					StringBuilder w = new StringBuilder();
 					for(int i = arity - 1; i >= 0; i--){
 						String str = (stack[sp - 1 - i] instanceof IString) ? ((IString) stack[sp - 1 - i]).toString() : asString(stack[sp - 1 - i]);
@@ -1132,13 +1383,13 @@ public class RVM {
 					}
 					stdout.println(w.toString());
 					sp = sp - arity + 1;
-					continue;	
+					continue NEXT_INSTRUCTION;	
 					
 				case Opcode.OP_THROW:
 					Object obj = stack[--sp];
-					Thrown thrown = null;
+					thrown = null;
 					if(obj instanceof IValue) {
-						List<Frame> stacktrace = new ArrayList<Frame>();
+						stacktrace = new ArrayList<Frame>();
 						stacktrace.add(cf);
 						thrown = Thrown.getInstance((IValue) obj, null, stacktrace);
 					} else {
@@ -1148,8 +1399,9 @@ public class RVM {
 					// First, try to find a handler in the current frame function,
 					// given the current instruction index and the value type,
 					// then, if not found, look up the caller function(s)
+					cf.pc = pc;
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						int handler = f.function.getHandler(pc - 1, thrown.value.getType());
+						int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
 						if(handler != -1) {
 							if(f != cf) {
 								cf = f;
@@ -1161,44 +1413,132 @@ public class RVM {
 							pc = handler;
 							stack[sp++] = thrown;
 							continue NEXT_INSTRUCTION;
-						} 
+						}
+						if(c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
+							ocalls.pop();
+							c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
+						}
 					}
 					// If a handler has not been found in the caller functions...
 					return thrown;
+					
+				case Opcode.OP_LOADLOCKWP:
+					IString name = (IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction));
+					@SuppressWarnings("unchecked")
+					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
+					Map.Entry<Type, IValue> defaultValue = defaults.get(name.getValue());
+					for(Frame f = cf; f != null; f = f.previousCallFrame) {
+						IMap kargs = (IMap) f.stack[f.function.nformals - 1];
+						if(kargs.containsKey(name)) {
+							val = kargs.get(name);
+							if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+								stack[sp++] = val;
+								continue NEXT_INSTRUCTION;
+							}
+						}
+					}				
+					stack[sp++] = defaultValue.getValue();
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_LOADVARKWP:
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_STORELOCKWP:
+					val = (IValue) stack[sp - 1];
+					name = (IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction));
+					IMap kargs = (IMap) stack[cf.function.nformals - 1];
+					stack[cf.function.nformals - 1] = kargs.put(name, val);
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_STOREVARKWP:
+					continue NEXT_INSTRUCTION;
 								
 				default:
 					throw new RuntimeException("RVM main loop -- cannot decode instruction");
 				}
+				
+				switch(postOp){
+				
+				case Opcode.POSTOP_CHECKUNDEF:
+					// EXCEPTION HANDLING
+					stacktrace = new ArrayList<Frame>();
+					stacktrace.add(cf);
+					thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
+					cf.pc = pc;
+					for(Frame f = cf; f != null; f = f.previousCallFrame) {
+						int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
+						if(handler != -1) {
+							if(f != cf) {
+								cf = f;
+								instructions = cf.function.codeblock.getInstructions();
+								stack = cf.stack;
+								sp = cf.sp;
+								pc = cf.pc;
+							}
+							pc = handler;
+							stack[sp++] = thrown;
+							continue NEXT_INSTRUCTION;
+						}
+						if(c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
+							ocalls.pop();
+							c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
+						}
+					}
+					// If a handler has not been found in the caller functions...
+					return thrown;
+				}
+				
+				
 			}
 		} catch (Exception e) {
 			e.printStackTrace(stderr);
-			throw new RuntimeException("PANIC: (instruction execution): " + e.getMessage());
+			throw new RuntimeException("PANIC: (instruction execution): instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: "+ e.getMessage(), e.getCause() );
 			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
 			//e.printStackTrace();
 			//stderr.println(e.getStackTrace());
 		}
 	}
 	
-	int callJavaMethod(String methodName, String className, Type parameterTypes, Object[] stack, int sp){
-		Class<?> clazz;
+	int callJavaMethod(String methodName, String className, Type parameterTypes, int reflect, Object[] stack, int sp) throws Throw {
+		Class<?> clazz = null;
 		try {
-			clazz = this.getClass().getClassLoader().loadClass(className);
+			try {
+				clazz = this.getClass().getClassLoader().loadClass(className);
+			} catch(ClassNotFoundException e1) {
+				// If the class is not found, try other class loaders
+				for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
+					try {
+						clazz = loader.loadClass(className);
+						break;
+					} catch(ClassNotFoundException e2) {
+						;
+					}
+				}
+			}
+			
+			if(clazz == null) {
+				throw new RuntimeException("Class not found: " + className);
+			}
+			
 			Constructor<?> cons;
 			cons = clazz.getConstructor(IValueFactory.class);
 			Object instance = cons.newInstance(vf);
-
-			Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes));
+			Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes, reflect));
 			int nformals = parameterTypes.getArity();
-			Object[] parameters = new Object[nformals];
+			Object[] parameters = new Object[nformals + reflect];
 			for(int i = 0; i < nformals; i++){
 				parameters[i] = stack[sp - nformals + i];
 			}
+			if(reflect == 1) {
+				parameters[nformals] = this.ctx;
+			}
 			stack[sp - nformals] =  m.invoke(instance, parameters);
 			return sp - nformals + 1;
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
+//		catch (ClassNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		catch (NoSuchMethodException | SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1212,18 +1552,28 @@ public class RVM {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
+			if(e.getTargetException() instanceof Throw) {
+				throw (Throw) e.getTargetException();
+			}
 			e.printStackTrace();
 		}
 		return sp;
 	}
 	
-	Class<?>[] makeJavaTypes(Type parameterTypes){
+	Class<?>[] makeJavaTypes(Type parameterTypes, int reflect){
 		JavaClasses javaClasses = new JavaClasses();
-		Class<?>[] jtypes = new Class<?>[parameterTypes.getArity()];
+		int arity = parameterTypes.getArity() + reflect;
+		Class<?>[] jtypes = new Class<?>[arity];
 		
 		for(int i = 0; i < parameterTypes.getArity(); i++){
 			jtypes[i] = parameterTypes.getFieldType(i).accept(javaClasses);
+		}
+		if(reflect == 1) {
+			try {
+				jtypes[arity - 1] = this.getClass().getClassLoader().loadClass("org.rascalmpl.interpreter.IEvaluatorContext");
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 		}
 		return jtypes;
 	}

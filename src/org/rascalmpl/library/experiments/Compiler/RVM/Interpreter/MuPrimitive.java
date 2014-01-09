@@ -1,8 +1,13 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -33,7 +38,9 @@ public enum MuPrimitive {
 	division_mint_mint,
 	equal_mint_mint,
 	equal,
+	equal_set_mset,
 	equivalent_mbool_mbool,
+	get_children,
 	get_name,
 	get_name_and_children,
 	get_tuple_elements,
@@ -41,7 +48,7 @@ public enum MuPrimitive {
 	greater_mint_mint,
 	implies_mbool_mbool,
 	is_defined,
-	is_element,
+	is_element_mset,
 	is_bool,
 	is_datetime,
 	is_int,
@@ -56,6 +63,7 @@ public enum MuPrimitive {
 	is_rel,
 	is_set,
 	is_str,
+	
 	is_tuple,
 	keys_map,
 	values_map,
@@ -66,18 +74,24 @@ public enum MuPrimitive {
 	make_array,
 	make_array_of_size,
 	make_mset,
+	make_map_str_entry,     // kwp
+	make_map_str_ivalue,    // kwp
+	make_entry_type_ivalue, // kwp
 	mint,
 	modulo_mint_mint,
 	mset,
-//	mset_copy,
+	mset_empty(),
 	mset2list,
 	mset_destructive_add_elm,
 	mset_destructive_add_mset,
+	map_str_entry_add_entry_type_ivalue, // kwp
+	map_str_ivalue_add_ivalue,           // kwp
 	mset_destructive_subtract_mset,
 	mset_destructive_subtract_set,
 	mset_destructive_subtract_elm,
 	not_equal_mint_mint,
 	not_mbool,
+	occurs_list_list_mint,
 	or_mbool_mbool,
 	power_mint_mint,
 	rbool,
@@ -87,6 +101,7 @@ public enum MuPrimitive {
 	regexp_group,
 	set,
 	set2list,
+	set_is_subset_of_mset,
 	size_array,
 	size_list,
 	size_set,
@@ -102,6 +117,7 @@ public enum MuPrimitive {
 	subtraction_mint_mint,
 	subtype,
 	typeOf,
+	undefine,
 	product_mint_mint,
 	
 	typeOf_constructor
@@ -111,6 +127,12 @@ public enum MuPrimitive {
 	static Method [] methods;
 	
 	private static MuPrimitive[] values = MuPrimitive.values();
+	private static HashSet<IValue> emptyMset = new HashSet<IValue>(0);
+	
+	private static boolean profiling = false;
+	private static long timeSpent[] = new long[values.length];
+	
+	private static PrintWriter stdout;
 
 	public static MuPrimitive fromInteger(int muprim){
 		return values[muprim];
@@ -119,11 +141,14 @@ public enum MuPrimitive {
 	/**
 	 * Initialize the primitive methods.
 	 * @param fact value factory to be used
+	 * @param stdout TODO
+	 * @param doProfile TODO
 	 * @param stdout 
 	 */
-	public static void init(IValueFactory fact) {
+	public static void init(IValueFactory fact, PrintWriter stdoutWriter, boolean doProfile) {
 		vf = fact;
-	
+		stdout = stdoutWriter;
+		profiling = doProfile;
 		Method [] methods1 = MuPrimitive.class.getDeclaredMethods();
 		HashSet<String> implemented = new HashSet<String>();
 		methods = new Method[methods1.length];
@@ -133,11 +158,13 @@ public enum MuPrimitive {
 			if(!name.startsWith("$")){ // ignore all auxiliary functions that start with $.
 				switch(name){
 				case "init":
+				case "exit":
 				case "invoke":
 				case "fromInteger":
 				case "values":
 				case "valueOf":
 				case "main":
+				case "printProfile":
 					/* ignore all utility functions that do not implement some primitive */
 					break;
 				default:
@@ -153,6 +180,25 @@ public enum MuPrimitive {
 		}
 	}
 	
+	public static void exit(){
+		if(profiling)
+			printProfile();
+	}
+	private static void printProfile(){
+		stdout.println("\nMuPrimitive execution times (ms)");
+		long total = 0;
+		TreeMap<Long,String> data = new TreeMap<Long,String>();
+		for(int i = 0; i < values.length; i++){
+			if(timeSpent[i] > 0 ){
+				data.put(timeSpent[i], values[i].name());
+				total += timeSpent[i];
+			}
+		}
+		for(long t : data.descendingKeySet()){
+			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
+		}
+	}
+	
 	/**
 	 * Invoke the implementation of a muRascal primitive from the RVM main interpreter loop.
 	 * @param stack	stack in the current execution frame
@@ -161,7 +207,14 @@ public enum MuPrimitive {
 	 * @return		new stack pointer and (implicitly) modified stack contents
 	 */
 	int invoke(Object[] stack, int sp, int arity) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
-		return (int) methods[ordinal()].invoke(null, stack,  sp, arity);
+		if(!profiling){
+			return (int) methods[ordinal()].invoke(null, stack,  sp, arity);
+		} else {
+			long start = System.currentTimeMillis();
+			int res = (int) methods[ordinal()].invoke(null, stack,  sp, arity);
+			timeSpent[ordinal()] += System.currentTimeMillis() - start;
+			return res;
+		}
 	}
 	
 	/***************************************************************
@@ -262,7 +315,7 @@ public enum MuPrimitive {
 			throw new RuntimeException("equal -- not defined on " + stack[sp - 2].getClass() + " and " + stack[sp - 2].getClass());
 		return sp - 1;
 	}
-			
+	
 	public static int equivalent_mbool_mbool(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		boolean b1 = (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
@@ -275,6 +328,17 @@ public enum MuPrimitive {
 		assert arity == 1;
 		INode nd = (INode) stack[sp - 1];
 		stack[sp - 1] = vf.string(nd.getName());
+		return sp;
+	}
+	
+	public static int get_children(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		INode nd = (INode) stack[sp - 1];
+		Object[] elems = new Object[nd.arity()];
+		for(int i = 0; i < nd.arity(); i++){
+			elems[i] = nd.get(i);
+		}
+		stack[sp - 1] =  elems;
 		return sp;
 	}
 		
@@ -313,13 +377,29 @@ public enum MuPrimitive {
 		
 	public static int is_defined(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		stack[sp - 1] = stack[sp - 1] != null;
+		Reference ref = (Reference) stack[sp - 1];
+		stack[sp - 1] = ref.isDefined();
+		return sp;
+	}
+	
+	public static int undefine(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		Reference ref = (Reference) stack[sp - 1];
+		stack[sp - 1] = ref.getValue();
+		ref.undefine();
 		return sp;
 	}
 		
-	public static int is_element(Object[] stack, int sp, int arity) {
+//	public static int is_element(Object[] stack, int sp, int arity) {
+//		assert arity == 2;
+//		stack[sp - 2] = ((ISet) stack[sp - 1]).contains((ISet) stack[sp - 2]);
+//		return sp - 1;
+//	}
+	
+	@SuppressWarnings("unchecked")
+	public static int is_element_mset(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((ISet) stack[sp - 1]).contains((ISet) stack[sp - 2]);
+		stack[sp - 2] = ((HashSet<IValue>) stack[sp - 1]).contains((IValue) stack[sp - 2]);
 		return sp - 1;
 	}
 		
@@ -547,7 +627,7 @@ public enum MuPrimitive {
 	}
 		
 	/*
-	 * rint -- convert muRascal int (mint) to Rascal intt (rint)
+	 * rint -- convert muRascal int (mint) to Rascal int (rint)
 	 * 
 	 * 	
 	 */
@@ -724,15 +804,44 @@ public enum MuPrimitive {
 		return sp;
 	}
 	
+	public static int occurs_list_list_mint(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		IList sublist =  ((IList) stack[sp - 3]);
+		int nsub = sublist.length();
+		IList list =  ((IList) stack[sp - 2]);
+		Integer start = (Integer) stack[sp - 1];
+		int nlist = list.length();
+		stack[sp - 3] = false;
+		int newsp = sp - 2;
+		if(start + nsub <= nlist){
+			for(int i = 0; i < nsub; i++){
+				if(!sublist.get(i).isEqual(list.get(start + i)))
+					return newsp;
+			}
+		} else {
+			return newsp;
+		}
+		
+		stack[sp - 3] = true;
+		return newsp;
+	}
+	
 	public static int mset(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		ISet set =  ((ISet) stack[sp - 1]);
-		HashSet<IValue> mset = new HashSet<IValue>(set.size());
+		int n = set.size();
+		HashSet<IValue> mset = n > 0 ? new HashSet<IValue>(set.size()) : emptyMset;
 		for(IValue v : set){
 			mset.add(v);
 		}
 		stack[sp - 1] = mset;
 		return sp;
+	}
+	
+	public static int mset_empty(Object[] stack, int sp, int arity) {
+		assert arity == 0;
+		stack[sp] = emptyMset;
+		return sp + 1;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -745,6 +854,21 @@ public enum MuPrimitive {
 			mset.remove(v);
 		}
 		stack[sp - 2] = mset;
+		return sp - 1;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int set_is_subset_of_mset(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet subset = ((ISet) stack[sp - 2]);
+		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+		for(IValue v : subset){
+			if(!mset.contains(v)){
+				stack[sp - 2] = false;
+				return sp - 1;
+			}
+		}
+		stack[sp - 2] = true;
 		return sp - 1;
 	}
 	
@@ -811,6 +935,24 @@ public enum MuPrimitive {
 		return sp + 1;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static int equal_set_mset(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet set = (ISet) stack[sp - 2];
+		HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+		stack[sp - 2] = false;
+		if(set.size() != mset.size()){
+			return sp - 1;
+		}
+		for(IValue v : set){
+			if(!mset.contains(v)){
+				return sp - 1;
+			}
+		}
+		stack[sp - 2] = true;
+		return sp - 1;
+	}
+	
 //	@SuppressWarnings("unchecked")
 //	public static int mset_copy(Object[] stack, int sp, int arity) {
 //		assert arity == 1;
@@ -818,13 +960,45 @@ public enum MuPrimitive {
 //		stack[sp - 1] = mset.clone();
 //		return sp;
 //	}
+	
+	public static int make_map_str_entry(Object[] stack, int sp, int arity) {
+		assert arity == 0;
+		stack[sp] = new HashMap<String, Map.Entry<Type,IValue>>();
+		return sp + 1;
+	}
+	
+	public static int make_map_str_ivalue(Object[] stack, int sp, int arity) {
+		assert arity == 0;
+		stack[sp] = new HashMap<String, IValue>();
+		return sp + 1;
+	}
+	
+	public static int make_entry_type_ivalue(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = new AbstractMap.SimpleEntry<Type,IValue>((Type) stack[sp - 2], (IValue) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int map_str_entry_add_entry_type_ivalue(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		stack[sp - 3] = ((Map<String, Map.Entry<Type,IValue>>) stack[sp - 3]).put(((IString) stack[sp - 2]).getValue(), (Map.Entry<Type, IValue>) stack[sp - 1]);
+		return sp - 2;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int map_str_ivalue_add_ivalue(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		stack[sp - 3] = ((Map<String, IValue>) stack[sp - 3]).put(((IString) stack[sp - 2]).getValue(), (IValue) stack[sp - 1]);
+		return sp - 2;
+	}
 			
 	/*
 	 * Run this class as a Java program to compare the list of enumeration constants with the implemented methods in this class.
 	 */
 
 	public static void main(String[] args) {
-		init(ValueFactoryFactory.getValueFactory());
+		init(ValueFactoryFactory.getValueFactory(), null, false);
 		System.err.println("MuPrimitives have been validated!");
 	}
 }

@@ -75,6 +75,7 @@ public class HTMLGenerator {
 			err = new PrintWriter(errString);
 			out = new PrintWriter(outString);
 			this.evaluator = new Evaluator(values, err, out, root, heap, ctx.getEvaluator().getClassLoaders(), ctx.getEvaluator().getRascalResolver());
+			this.evaluator.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
 		}
 		
 		return this.evaluator;

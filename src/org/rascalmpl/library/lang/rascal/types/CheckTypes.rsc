@@ -145,9 +145,9 @@ import lang::rascal::\syntax::Rascal;
 //     These do not follow the same rules as other inferred vars.
 //
 // 31. addition on functions
-
+//
 @doc{The source of a label (visit, block, etc).}
-data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel() | switchLabel() | caseLabel() ;
+data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel() | switchLabel() | caseLabel() | functionLabel() ;
 
 @doc{Function modifiers.}
 data Modifier = javaModifier() | testModifier() | defaultModifier();
@@ -166,6 +166,7 @@ Vis getVis(Visibility v:(Visibility)`public`) = publicVis();
 default Vis getVis(Visibility v) = defaultVis();
 
 alias KeywordParamMap = map[RName kpName, Symbol kpType];
+alias KeywordParamRel = lrel[RName pname, Symbol ptype, Expression pinit];
 
 @doc{Abstract values manipulated by the semantics. We include special scopes here as well, such as the
      scopes used for blocks and boolean expressions.}
@@ -178,13 +179,14 @@ data AbstractValue
     | overload(set[int] items, Symbol rtype)
     | datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
     | sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats)
-    | constructor(RName name, Symbol rtype, int containedIn, loc at)
+    | constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at)
     | production(RName name, Symbol rtype, int containedIn, loc at)
     | annotation(RName name, Symbol rtype, set[Symbol] onTypes, int containedIn, loc at)
     | \tag(RName name, TagKind tkind, set[Symbol] onTypes, int containedIn, loc at)
     | \alias(RName name, Symbol rtype, int containedIn, loc at)
     | booleanScope(int containedIn, loc at)
-    | blockScope(int containedIn, loc at) 
+    | blockScope(int containedIn, loc at)
+    | conflict(set[int] items) 
     ;
 
 data LabelStackItem = labelStackItem(RName labelName, LabelSource labelSource, Symbol labelType);
@@ -217,10 +219,11 @@ data Configuration = config(set[Message] messages,
                             list[Timing] timings,
                             int nextLoc,
                             int uniqueify,
-                            map[int,Expression] keywordDefaults
+                            map[int,Expression] keywordDefaults,
+                            rel[int,RName,Expression] dataKeywordDefaults
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,());
+public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ });
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -278,6 +281,7 @@ public Configuration addLabel(Configuration c, RName n, loc l, LabelSource ls) {
 public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
 
 public int definingContainer(Configuration c, int i) {
+	if (c.store[i] is overload) return definingContainer(c, getOneFrom(c.store[i].items));
     cid = c.store[i].containedIn;
     if (\module(_,_) := c.store[cid]) return cid;
     if (\function(_,_,_,_,_,_,_) := c.store[cid]) return cid;
@@ -305,6 +309,8 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
     moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
     atRootOfModule = \module(_,_) := c.store[head(c.stack)];
     if (n notin c.fcvEnv) {
+    	// Case 1: This is the first appearance of the name. If we are at the module global
+    	// level, we also add a module-qualified version of the name into the environment.
         c.fcvEnv[n] = c.nextLoc;
         if (atRootOfModule) c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
         c.store[c.nextLoc] = variable(n,rt,inf,head(c.stack),l);
@@ -312,18 +318,18 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
         c.nextLoc = c.nextLoc + 1;
     } else {
         if (atRootOfModule && \module(_,_) := c.store[getContainedIn(c,c.store[c.fcvEnv[n]])] && getContainedIn(c,c.store[c.fcvEnv[n]]) != moduleId) {
-            // In this case, we are adding a global variable that shadows another global item
-            // from a different module. This is allowed, but:
-            // TODO: Add a warning indicating we are doing so.
+            // Case 2: We are adding a new global name, and this name has already been defined inside another module that
+            // we are importing. This is allowed, but we issue an informational message since it may be accidental.
             c.fcvEnv[n] = c.nextLoc;
             c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
             c.store[c.nextLoc] = variable(n,rt,inf,head(c.stack),l);
             c.definitions = c.definitions + < c.nextLoc, l >;
             c.nextLoc = c.nextLoc + 1;
+            c = addScopeInfo(c, "Declaration of variable <prettyPrintName(n)> shadows an imported name", l);
         } else if (atRootOfModule && \module(_,_) := c.store[getContainedIn(c,c.store[c.fcvEnv[n]])] && getContainedIn(c,c.store[c.fcvEnv[n]]) == moduleId) {
-            // In this case, we are adding a global variable that shadows another global item
-            // from the same module, which is not allowed.
-            c = addScopeError(c, "Cannot re-declare global name", l);
+            // Case 3: We are adding a new global name, but this name has already been declared inside this module.
+            // This is a scope error, so issue an error message and don't add the new variable.
+            c = addScopeError(c, "Cannot re-declare global name: <prettyPrintName(n)>", l);
             c.uses = c.uses + < c.fcvEnv[n], l >;
             c.usedIn[l] = head(c.stack);
         } else {
@@ -331,10 +337,15 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
             conflictIds = (overload(ids,_) := c.store[c.fcvEnv[n]]) ? ids : { c.fcvEnv[n] };
             containingIds = { definingContainer(c,i) | i <- conflictIds };
             if (size(toSet(containingScopes) & containingIds) > 0) {
-                c = addScopeError(c, "Cannot re-declare name that is already declared in the current function or closure", l);
+            	// Case 4: We are adding a new local name, but it is already declared inside this function or
+            	// closure. We do not allow redeclarations of names inside a function, so issue an error
+            	// message and don't add the new variable.
+                c = addScopeError(c, "Cannot re-declare name that is already declared in the current function or closure: <prettyPrintName(n)>", l);
                 c.uses = c.uses + < c.fcvEnv[n], l >;
                 c.usedIn[l] = head(c.stack);
             } else {
+            	// Case 5: We are adding a new local name which will shadow an existing declaration of the
+            	// name. This is allowed, so we add the new variable declaration here.
                 c.fcvEnv[n] = c.nextLoc;
                 c.store[c.nextLoc] = variable(n,rt,inf,head(c.stack),l);
                 c.definitions = c.definitions + < c.nextLoc, l >;
@@ -346,6 +357,8 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
 }
 
 public Configuration addUnnamedVariable(Configuration c, loc l, Symbol rt) {
+	// We can always add unnamed variables, and they are always distinct, so here we just add
+	// it into the store without all the checking done for a normal variable addition.
     c.store[c.nextLoc] = variable(RSimpleName("_"),rt,true,head(c.stack),l);
     c.definitions = c.definitions + < c.nextLoc, l >;
     c.nextLoc = c.nextLoc + 1;
@@ -353,111 +366,327 @@ public Configuration addUnnamedVariable(Configuration c, loc l, Symbol rt) {
 }
 
 public Configuration addVariable(Configuration c, RName n, bool inf, Vis visibility, loc l, Symbol rt) {
+	// Here we are adding a variable with a visibility marker (like a global that is public or
+	// private). Since addVariable may not actually add a new variable item, this checks to see if
+	// the nextLoc was increased by 1, which would happen if a new variable is added. If so, add
+	// the visibility info for the variable. If not, don't -- we don't want to tag whatever happened
+	// to be added last with erroneous visibility information.
+	expectedLoc = c.nextLoc + 1;
     c = addVariable(c,n,inf,l,rt);
-    c.visibilities[c.nextLoc-1] = visibility;
+    if (c.nextLoc == expectedLoc)
+    	c.visibilities[expectedLoc-1] = visibility;
     return c;
 }
 
 public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol rtOn, Vis visibility, loc l) {
-    // TODO: We currently always treat annotation declarations as public, so we just
-    // ignore the visibility here. If we decide to allow private annotation declarations,
-    // revisit this.
-    if (n notin c.annotationEnv) {
-        c.annotationEnv[n] = c.nextLoc;
-        c.store[c.nextLoc] = annotation(n,rt,{rtOn},head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.nextLoc = c.nextLoc + 1;
-    } else {
-        if (!equivalent(rt,c.store[c.annotationEnv[n]].rtype))
-            throw "All annotation types in an annotation set much be equivalent";
-        c.store[c.annotationEnv[n]].onTypes = c.store[c.annotationEnv[n]].onTypes + rtOn; 
-        c.definitions = c.definitions + < c.annotationEnv[n], l >;
-    }
-    return c;
+	// Add an annotation. We track the type of the annotation and the type being annotated. We enforce that
+	// all annotations of the same name must be declared to be of an equivalent type (e.g., an annotation
+	// of type int and an annotation of myint, an alias of int, would be allowed). There is no way to
+	// qualify annotation names.
+	// TODO: We currently always treat annotation declarations as public, so we just
+	// ignore the visibility here. If we decide to allow private annotation declarations,
+	// revisit this.
+	if (n notin c.annotationEnv) {
+		c.annotationEnv[n] = c.nextLoc;
+		c.store[c.nextLoc] = annotation(n,rt,{rtOn},head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
+		c.definitions = c.definitions + < c.nextLoc, l >;
+		c.nextLoc = c.nextLoc + 1;
+	} else {
+		if (!equivalent(rt,c.store[c.annotationEnv[n]].rtype)){
+			c = addScopeError(c, "Annotation <prettyPrintName(n)> has already been declared with type <c.store[c.annotationEnv[n]].rtype>", l);
+		}
+		// NOTE: Even though this annotation is incorrect, we add the information on the annotated
+		// type and the definition site into the configuration. This should help to reduce follow-on
+		// errors where attempts are made to use the annotation, although it may trigger type
+		// errors instead of missing annotation errors.
+		c.store[c.annotationEnv[n]].onTypes = c.store[c.annotationEnv[n]].onTypes + rtOn; 
+		c.definitions = c.definitions + < c.annotationEnv[n], l >;
+	}
+	return c;
 }
 
 public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Symbol rt) {
-    // TODO: We currently always treat datatype declarations as public, so we just
-    // ignore the visibility here. If we decide to allow private datatype declarations,
-    // revisit this.
-    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-    if (n notin c.typeEnv) {
-        // When we initially add the name, add it as:
-        // * the bare name
-        // * the name appended to the name of the module
-        // This ensures that all valid lookups will be successful.
-        c.typeEnv[n] = c.nextLoc;
-        c.typeEnv[appendName(moduleName,n)] = c.nextLoc;
-        c.store[c.nextLoc] = datatype(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),{ });
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.nextLoc = c.nextLoc + 1;
-    } else {
-        c.definitions = c.definitions + < c.typeEnv[n], l >;
-    }
-    c.store[c.typeEnv[n]].ats = c.store[c.typeEnv[n]].ats + l; 
-    return c;
+	// TODO: We currently always treat datatype declarations as public, so we just
+	// ignore the visibility here. If we decide to allow private datatype declarations,
+	// revisit this.
+	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	moduleName = c.store[moduleId].name;
+	fullName = appendName(moduleName, n);
+	
+	int addDataType() {
+		itemId = c.nextLoc;
+		c.nextLoc = c.nextLoc + 1;
+		c.store[itemId] = datatype(n,rt,moduleId,{ l });
+		c.definitions = c.definitions + < itemId, l >;
+		return itemId;
+	}
+
+	Configuration extendDataType(Configuration c, int existingId) {
+		c.store[existingId].ats = c.store[existingId].ats + l;
+		c.typeEnv[fullName] = existingId;
+		c.definitions = c.definitions + < existingId, l >;		
+		return c; 	
+	}
+		    
+	if (n notin c.typeEnv) {
+		// Case 1: No type of this name already exists. Add a new data type item, and link it in
+		// using both the qualified and unqualified names.
+		itemId = addDataType();
+		c.typeEnv[n] = itemId;
+		c.typeEnv[fullName] = itemId;
+	} else if (\datatype(_,_,_,_) := c.store[c.typeEnv[n]]) {
+		// Case 2: A datatype of this name already exists. Use this existing data type item, adding
+		// a link to it using the qualified name. NOTE: This means that the same type may be available
+		// using multiple qualified names, but all will point to the same instance.
+		existingId = c.typeEnv[n];
+		c = extendDataType(c, existingId);
+	} else if ((c.store[c.typeEnv[n]] is sorttype || c.store[c.typeEnv[n]] is \alias) && c.store[c.typeEnv[n]].containedIn != moduleId) {
+		// Case 3: A sort or alias already exists with the given name, imported from a different
+		// module. If this ADT is being added to the main module (the one we are actually checking),
+		// this takes precedence over the others. If not, we require that all the types be accessed
+		// just with qualified names, which we track by adding in a conflict item holding the IDs of
+		// the items that cause the conflict.
+		itemId = addDataType();
+		c.typeEnv[fullName] = itemId;
+		if (moduleId == mainModuleId) {
+			c.typeEnv[n] = itemId;
+		} else {
+			c.typeEnv[n] = conflict({c.typeEnv[n], itemId});
+		}
+		c = addScopeInfo(c, "The definition of type <prettyPrintName(n)> masks an existing imported nonterminal or alias definition", l);
+	} else if (c.store[c.typeEnv[n]] is conflict && moduleId notin { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
+		// Case 4: The unqualified name was removed because of a name conflict. We may be adding a new
+		// item to the conflict set, or this may be a valid item for an unqualified name if we are adding
+		// the name to the module being checked. NOTE: We check specially for data types in the conflict set;
+		// if one exists, we can extend it instead of adding a new one.
+		dtids = { itemid | itemid <- c.store[c.typeEnv[n]].items, c.store[itemid] is datatype };
+		if (size(dtids) == 0) {				
+			itemId = addDataType();
+			c.typeEnv[fullName] = itemId;
+			if (moduleId == mainModuleId) {
+				c.typeEnv[n] = itemId;
+			} else {
+				c.store[c.typeEnv[n]].items += itemId;
+			}
+		} else {
+			existingId = getOneFrom(dtids);
+			c = extendDataType(c, existingId);
+			if (moduleId == mainModuleId) {
+				c.typeEnv[n] = existingId;
+			}
+		}
+	} else if ((c.store[c.typeEnv[n]] is sorttype || c.store[c.typeEnv[n]] is \alias) && c.store[c.typeEnv[n]].containedIn == moduleId) {
+		// Case 5: A sort or alias with this name already exists in the same module. We cannot perform this
+		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
+		// to distinguish them.
+		c = addScoreError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
+	} else if (c.store[c.typeEnv[n]] is conflict && moduleId in { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
+		// Case 6: We have a conflict item which contains at least one item declared in the current module. If this is a datatype,
+		// we extend it, else this is an error just like in Case 5.
+		dtids = { itemid | itemid <- c.store[c.typeEnv[n]].items, c.store[itemid] is datatype, c.store[itemid].containedIn == moduleId };
+		if (size(dtids) == 0) {				
+			c = addScoreError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
+		} else {
+			existingId = getOneFrom(dtids);
+			c = extendDataType(c, existingId);
+			if (moduleId == mainModuleId) {
+				c.typeEnv[n] = existingId;
+			}
+		}
+	}
+	
+	return c;
 }
 
-// TODO: JV copied this from addADT, but I do not fully understand what is going on here
 public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort) {
-    // TODO: We currently always treat datatype declarations as public, so we just
-    // ignore the visibility here. If we decide to allow private datatype declarations,
-    // revisit this.
-    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-    if (n notin c.typeEnv) {
-        // When we initially add the name, add it as:
-        // * the bare name
-        // * the name appended to the name of the module
-        // This ensures that all valid lookups will be successful.
-        c.typeEnv[n] = c.nextLoc;
-        c.typeEnv[appendName(moduleName,n)] = c.nextLoc;
-        c.store[c.nextLoc] = sorttype(n,sort,head([i | i <- c.stack, \module(_,_) := c.store[i]]),{ });
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.nextLoc = c.nextLoc + 1;
-    } else {
-        c.definitions = c.definitions + < c.typeEnv[n], l >;
-    }
-    c.store[c.typeEnv[n]].ats = c.store[c.typeEnv[n]].ats + l; 
-    return c;
+	// TODO: We currently always treat nonterminal declarations as public, so we just
+	// ignore the visibility here. If we decide to allow private nonterminal declarations,
+	// revisit this.
+	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	moduleName = c.store[moduleId].name;
+	fullName = appendName(moduleName, n);
+	
+	int addNonTerminal() {
+		itemId = c.nextLoc;
+		c.nextLoc = c.nextLoc + 1;
+		c.store[itemId] = sorttype(n,sort,moduleId,{ l });
+		c.definitions = c.definitions + < itemId, l >;
+		return itemId;
+	}
+
+	Configuration extendNonTerminal(Configuration c, int existingId) {
+		c.store[existingId].ats = c.store[existingId].ats + l;
+		c.typeEnv[fullName] = existingId;
+		c.definitions = c.definitions + < existingId, l >;
+		
+		return c; 	
+	}
+		    
+	if (n notin c.typeEnv) {
+		// Case 1: No type of this name already exists. Add a new nonterminal item, and link it in
+		// using both the qualified and unqualified names.
+		itemId = addNonTerminal();
+		c.typeEnv[n] = itemId;
+		c.typeEnv[fullName] = itemId;
+	} else if (\sorttype(_,_,_,_) := c.store[c.typeEnv[n]]) {
+		// Case 2: A nonterminal of this name already exists. Use this existing nonterminal item, adding
+		// a link to it using the qualified name. NOTE: This means that the same type may be available
+		// using multiple qualified names, but all will point to the same instance.
+		existingId = c.typeEnv[n];
+		c = extendNonTerminal(c, existingId);
+	} else if ((c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is \alias) && c.store[c.typeEnv[n]].containedIn != moduleId) {
+		// Case 3: A adt or alias already exists with the given name, imported from a different
+		// module. If this nonterminal is being added to the main module (the one we are actually checking),
+		// this takes precedence over the others. If not, we require that all the types be accessed
+		// just with qualified names, which we track by adding in a conflict item holding the IDs of
+		// the items that cause the conflict.
+		itemId = addNonTerminal();
+		c.typeEnv[fullName] = itemId;
+		if (moduleId == mainModuleId) {
+			c.typeEnv[n] = itemId;
+		} else {
+			c.typeEnv[n] = conflict({c.typeEnv[n], itemId});
+		}
+		c = addScopeInfo(c, "The definition of nonterminal <prettyPrintName(n)> masks an existing imported adt or alias definition", l);
+	} else if (c.store[c.typeEnv[n]] is conflict && moduleId notin { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
+		// Case 4: The unqualified name was removed because of a name conflict. We may be adding a new
+		// item to the conflict set, or this may be a valid item for an unqualified name if we are adding
+		// the name to the module being checked. NOTE: We check specially for nonterminals in the conflict set;
+		// if one exists, we can extend it instead of adding a new one.
+		dtids = { itemid | itemid <- c.store[c.typeEnv[n]].items, c.store[itemid] is sorttype };
+		if (size(dtids) == 0) {				
+			itemId = addNonTerminal();
+			c.typeEnv[fullName] = itemId;
+			if (moduleId == mainModuleId) {
+				c.typeEnv[n] = itemId;
+			} else {
+				c.store[c.typeEnv[n]].items += itemId;
+			}
+		} else {
+			existingId = getOneFrom(dtids);
+			c = extendNonTerminal(c, existingId);
+			if (moduleId == mainModuleId) {
+				c.typeEnv[n] = existingId;
+			}
+		}
+	} else if ((c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is \alias) && c.store[c.typeEnv[n]].containedIn == moduleId) {
+		// Case 5: A adt or alias with this name already exists in the same module. We cannot perform this
+		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
+		// to distinguish them.
+		c = addScoreError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in this module", l);
+	} else if (c.store[c.typeEnv[n]] is conflict && moduleId in { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
+		// Case 6: We have a conflict item which contains at least one item declared in the current module. If this is a datatype,
+		// we extend it, else this is an error just like in Case 5.
+		dtids = { itemid | itemid <- c.store[c.typeEnv[n]].items, c.store[itemid] is sorttype, c.store[itemid].containedIn == moduleId };
+		if (size(dtids) == 0) {				
+			c = addScoreError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in this module", l);
+		} else {
+			existingId = getOneFrom(dtids);
+			c = extendNonTerminal(c, existingId);
+			if (moduleId == mainModuleId) {
+				c.typeEnv[n] = existingId;
+			}
+		}
+	}
+	
+	return c;
 }
 
 public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol rt) {
-    // TODO: We currently always treat datatype declarations as public, so we just
-    // ignore the visibility here. If we decide to allow private datatype declarations,
-    // revisit this.
-    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-    // When we initially add the name, add it as:
-    // * the bare name
-    // * the name appended to the name of the module
-    // This ensures that all valid lookups will be successful.
-    c.typeEnv[n] = c.nextLoc;
-    c.typeEnv[appendName(moduleName,n)] = c.nextLoc;
-    c.store[c.nextLoc] = \alias(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-    c.definitions = c.definitions + < c.nextLoc, l >;
-    c.nextLoc = c.nextLoc + 1;
-    return c;
+	// TODO: We currently always treat alias declarations as public, so we just
+	// ignore the visibility here. If we decide to allow private alias declarations,
+	// revisit this.
+	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	moduleName = c.store[moduleId].name;
+	fullName = appendName(moduleName, n);
+	
+	int addAlias() {
+		itemId = c.nextLoc;
+		c.nextLoc = c.nextLoc + 1;
+		c.store[itemId] = \alias(n,rt,moduleId,l);
+		c.definitions = c.definitions + < itemId, l >;
+		return itemId;
+	}
+
+	// NOTE: A working assumption of this code is that the names in the main module are
+	// processed LAST. If this changes, the code for determining how to use unqualified
+	// names in case of conflicts will need to be reworked.
+	if (n notin c.typeEnv) {
+		// Case 1: No type of this name already exists. Add a new alias item, and link it in
+		// using both the qualified and unqualified names.
+		itemId = addAlias();
+		c.typeEnv[n] = itemId;
+		c.typeEnv[fullName] = itemId;
+	} else if (c.store[c.typeEnv[n]].containedIn != moduleId) {
+		// Case 2: A type already exists with the given name, imported from a different module.
+		// If this alias is being added to the main module (the one we are actually checking),
+		// the unqualified version of the name will point to this. If not, we require that all
+		// the types be accessed just with qualified names, which we track by adding in a conflict
+		// item holding the IDs of the items that cause the conflict.
+		itemId = addAlias();
+		c.typeEnv[fullName] = itemId;
+		if (moduleId == mainModuleId) {
+			c.typeEnv[n] = itemId;
+		} else {
+			c.typeEnv[n] = conflict({c.typeEnv[n], itemId});
+		}
+	} else if (c.store[c.typeEnv[n]] is conflict && moduleId notin { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
+		// Case 3: The unqualified name was removed because of a name conflict. We may be adding a new
+		// item to the conflict set, or this may be a valid item for an unqualified name if we are adding
+		// the name to the module being checked. This name does not conflict with another name in the same
+		// module.
+		itemId = addAlias();
+		c.typeEnv[fullName] = itemId;
+		if (moduleId == mainModuleId) {
+			c.typeEnv[n] = itemId;
+		} else {
+			c.store[c.typeEnv[n]].items += itemId;
+		}
+	} else if ((c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is sorttype || c.store[c.typeEnv[n]] is \alias) && c.store[c.typeEnv[n]].containedIn == moduleId) {
+		// Case 4: A type with this name already exists in the same module. We cannot perform this
+		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
+		// to distinguish them. NOTE: We don't even allow this if the repeated definition is also an equivalent alias.
+		c = addScoreError(c, "An adt or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
+	} else if (c.store[c.typeEnv[n]] is conflict && moduleId in { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
+		// Case 5: We have a conflict item which contains at least one item declared in the current module. This is an error,
+		// even if it is another alias.
+		c = addScoreError(c, "An adt, alias, or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
+	}
+	
+	return c;
 }
 
-public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) {
-    // First, verify that the ADT is in the type environment. If not, this is an error
-    // (especially since the constructor should be defined in the same construct as
-    // the ADT!)
+// TODO: Enhance scoping as was done with ADTs, etc to allow for name clashes and qualified names
+public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, KeywordParamRel commonParams, KeywordParamRel keywordParams) {
+	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	moduleName = c.store[moduleId].name;
+
     adtName = RSimpleName(rt.\adt.name);
-    if (adtName notin c.typeEnv) throw "Unexpected error, adt <prettyPrintName(adtName)> not found!";
-    adtId = c.typeEnv[adtName];
+	fullAdtName = appendName(moduleName, adtName);
+    if (fullAdtName notin c.typeEnv) {
+    	c = addScopeError(c, "Could not add constructor, associated ADT is not in scope", l);
+    	return c;
+    }
+    
+    adtId = c.typeEnv[fullAdtName];
+	keywordParamMap = ( pn : pt | <pn,pt,_> <- keywordParams);
     
     // Now, process the arguments. This performs several consistency checks, namely:
     // * either all fields must have labels, or none should have labels
     // * labels should not be repeated in the same constructor
     // * labels shared between constructors should have matching types
     args = getConstructorArgumentTypes(rt);
+	set[str] seenAlready = { };
     if (size(args) > 0) {
         labeledArgs = [ arg | arg <- args, \label(_,_) := arg ];
         if (size(labeledArgs) > 0) {
             if (size(labeledArgs) != size(args)) {
                 c = addScopeError(c,"On constructor definitions, either all fields should be labeled or no fields should be labeled", l);
             } else {
-                set[str] seenAlready = { };
                 for (\label(fn,ft) <- args) {
                     if (fn in seenAlready) {
                         c = addScopeError(c,"Field name <fn> cannot be repeated in the same constructor", l);
@@ -475,57 +704,62 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
             }
         }
     }
-    
+
+	rel[RName pname, Symbol ptype, Expression pinit] consolidatedParams = { };
+	
+	set[str] paramsSeen = { };
+	for (kp:<pn,pt,pe> <- commonParams) {
+		pnAsString = prettyPrintName(pn);
+		if (pnAsString in seenAlready) {
+			c = addScopeError(c,"Common keyword parameter <pnAsString> has the same name as a regular field in the current constructor", l);
+		} else if (pnAsString in paramsSeen) {
+			c = addScopeError(c,"Common keyword parameter <pnAsString> occurs more than once in the same ADT definition", l); 
+		} else {
+			paramsSeen = paramsSeen + pnAsString;
+			consolidatedParams += kp;
+			if (<adtId,pnAsString> in c.adtFields) {
+				if (!equivalent(pt, c.adtFields[<adtId,pnAsString>])) {
+					c = addScopeError(c,"Field <pnAsString> already defined as type <prettyPrintType(c.adtFields[<adtId,pnAsString>])> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(pt)>",l);
+				}
+			} else {
+				c.adtFields[<adtId,pnAsString>] = pt;
+			}
+		}
+	}    
+	
+	paramsSeen = { };
+	for (kp:<pn,pt,pe> <- keywordParams) {
+		pnAsString = prettyPrintName(pn);
+		if (pnAsString in seenAlready) {
+			c = addScopeError(c,"Keyword parameter <pnAsString> has the same name as a regular field in the current constructor", l);
+		} else if (pnAsString in paramsSeen) {
+			c = addScopeError(c,"Keyword parameter <pnAsString> occurs more than once in the same ADT definition", l); 
+		} else {
+			paramsSeen = paramsSeen + pnAsString;
+			consolidatedParams = { kp2 | kp2:<pn2,pt2,pe2> <- consolidatedParams, pn2 != pn } + kp;
+			if (<adtId,pnAsString> in c.adtFields) {
+				if (!equivalent(pt, c.adtFields[<adtId,pnAsString>])) {
+					c = addScopeError(c,"Field <pnAsString> already defined as type <prettyPrintType(c.adtFields[<adtId,pnAsString>])> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(pt)>",l);
+				}
+			} else {
+				c.adtFields[<adtId,pnAsString>] = pt;
+			}
+		}
+	}    
+	
     // Add the constructor. This also performs an overlap check if this is not the first
-    // constructor with this name -- note that we only check for overlaps with constructors
-    // defined in the same ADT, since there is no language mechanism to distinguish them
-    // when used in a program (we cannot prefix the constructor with the ADT name, for
-    // instance).
-    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-    if (n notin c.fcvEnv) {
-        // On the initial add, we create three versions of the constructor name:
-        // * the bare name
-        // * the name, qualified with the ADT name
-        // * the name, qualified with the name of the module
-        // This ensures that all valid lookups of the name are successful.
-        c.fcvEnv[n] = c.nextLoc;
-        c.fcvEnv[appendName(adtName,n)] = c.nextLoc;
-        c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
-        c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
-        c.nextLoc = c.nextLoc + 1;
-    } else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-        // If the same constructor definitions comes in along multiple paths, this is fine.
-        // The only thing we do then is make sure the names are correct, since, given module
-        // B extending module A, we could call the constructor A::cons or B::cons.
-        existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
-        c.fcvEnv[appendName(adtName,n)] = c.fcvEnv[n];
-        c.fcvEnv[appendName(moduleName,n)] = c.fcvEnv[n];
-        if (!existsAlready) {
-            c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-            c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes,defaults + rt));
-            c.definitions = c.definitions + < c.nextLoc, l >;
-            overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt)}; //, !equivalent(c.store[i].rtype,rt)};
-            if (size(overlaps) > 0)
-                c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <c.nextLoc>, <overlaps>",l);
-            c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
-            c.nextLoc = c.nextLoc + 1;
-        }
-    } else if (constructor(_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
-        // If the same constructor definitions comes in along multiple paths, this is fine.
-        // The only thing we do then is make sure the names are correct, since, given module
-        // B extending module A, we could call the constructor A::cons or B::cons.
-        existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
-        c.fcvEnv[appendName(adtName,n)] = c.fcvEnv[n];
-        c.fcvEnv[appendName(moduleName,n)] = c.fcvEnv[n];
-        if (!existsAlready) {
-            c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-            c.definitions = c.definitions + < c.nextLoc, l >;
-            overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt) };
-            if (size(overlaps) > 0)
-                c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <c.nextLoc>, <overlaps>",l);
-            c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
+    // constructor with this name to ensure the constructor is distinguishable within
+    // the same ADT (we can add the ADT name to distinguish constructors from different
+    // ADTs).
+    void addConstructorItem(RName n, int constructorItemId) {
+	    if (n notin c.fcvEnv) {
+	    	// Case 1: This is the first occurrence of this name.
+	        c.fcvEnv[n] = constructorItemId;
+	    } else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
+	    	// Case 2: The name is already overloaded. Add this as one more overload.
+	    	// TODO: If we are annotating overload items, we need to copy annotations here
+            c.store[c.fcvEnv[n]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + rt));
+	    } else if (constructor(_,_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
             nonDefaults = {};
             defaults = { rt };
             if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
@@ -537,36 +771,113 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
             		nonDefaults += c.store[c.fcvEnv[n]].rtype;
             	}
             }
-            c.store[c.nextLoc+1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded(nonDefaults,defaults));
-            for (cname <- invert(c.fcvEnv)[c.fcvEnv[n]])
-                c.fcvEnv[cname] = c.nextLoc+1;
-            c.nextLoc = c.nextLoc + 2;
-        }
-    } else {
-        throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
-    }
+            c.store[c.nextLoc] = overload({ c.fcvEnv[n], constructorItemId }, overloaded(nonDefaults,defaults));
+            c.fcvEnv[n] = c.nextLoc;
+            c.nextLoc = c.nextLoc + 1;
+	    } else {
+	        throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
+	    }
+	}
+
+    existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
+    if (!existsAlready) {
+	    nameWithAdt = appendName(adtName,n);
+	    nameWithModule = appendName(moduleName,n);
+    
+	    constructorItemId = c.nextLoc;
+	    c.nextLoc = c.nextLoc + 1;
+
+        overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt)}; //, !equivalent(c.store[i].rtype,rt)};
+        if (size(overlaps) > 0)
+            c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
+
+	    constructorItem = constructor(n,rt,keywordParamMap,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
+	    c.store[constructorItemId] = constructorItem;
+	    c.definitions = c.definitions + < constructorItemId, l >;
+	    c.adtConstructors = c.adtConstructors + < adtId, constructorItemId >;
+	    
+	    c.dataKeywordDefaults = c.dataKeywordDefaults + { < constructorItemId, cp, pe > | <cp,pt,pe> <- consolidatedParams };
+	    
+	    addConstructorItem(n, constructorItemId);
+	    addConstructorItem(nameWithAdt, constructorItemId);
+	    addConstructorItem(nameWithModule, constructorItemId);
+	}    
+	
     return c;
 }
 
+// TODO: We need to catch the case where we are trying to create productions and constructors
+// with the same name, we should only allow this if the name is qualified to prevent conflicts.
 public Configuration addProduction(Configuration c, RName n, loc l, Production prod) {
 	assert ( (prod.def is label && prod.def.symbol has name) 
 				|| ( !(prod.def is label) && prod.def has name ) );
      
+	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	moduleName = c.store[moduleId].name;
+
     sortName = RSimpleName( (prod.def is label) ? prod.def.symbol.name : prod.def.name );
-    if (sortName notin c.typeEnv) { 
-      throw "Unexpected error, syntax nonterminal <prettyPrintName(sortName)> not found!";
+	fullSortName = appendName(moduleName, sortName);
+    if (fullSortName notin c.typeEnv) {
+    	c = addScopeError(c, "Could not add production, associated nonterminal is not in scope", l);
+    	return c;
     }
-    sortId = c.typeEnv[sortName];
+    sortId = c.typeEnv[fullSortName];
     
     args = prod.symbols;
-    
     moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
     // TODO: think about production overload when we start to create ability to construct concrete trees from abstract names
     Symbol rtype = Symbol::\prod( (prod.def is label) ? prod.def.symbol : prod.def, getSimpleName(n), prod.symbols, prod.attributes );
-    c.store[c.nextLoc] = production(n, rtype, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
-    c.definitions = c.definitions + < c.nextLoc, l >;
-    c.nonterminalConstructors = c.nonterminalConstructors + < sortId, c.nextLoc >;
-    c.nextLoc = c.nextLoc + 1;
+    
+    void addProductionItem(RName n, int productionItemId) {
+	    if (n notin c.fcvEnv) {
+	    	// Case 1: This is the first occurrence of this name.
+	        c.fcvEnv[n] = productionItemId;
+	    } else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
+	    	// Case 2: The name is already overloaded. Add this as one more overload.
+	    	// TODO: If we are annotating overload items, we need to copy annotations here
+            c.store[c.fcvEnv[n]] = overload(items + productionItemId, overloaded(itemTypes,defaults + rtype));
+	    } else if (production(_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
+            nonDefaults = {};
+            defaults = { rtype };
+            if(isProductionType(c.store[c.fcvEnv[n]].rtype)) {
+            	defaults += c.store[c.fcvEnv[n]].rtype; 
+            } else {
+            	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+            		defaults += c.store[c.fcvEnv[n]].rtype;
+            	} else {
+            		nonDefaults += c.store[c.fcvEnv[n]].rtype;
+            	}
+            }
+            c.store[c.nextLoc] = overload({ c.fcvEnv[n], productionItemId }, overloaded(nonDefaults,defaults));
+            c.fcvEnv[n] = c.nextLoc;
+            c.nextLoc = c.nextLoc + 1;
+	    } else {
+	        throw "Invalid addition: cannot add production into scope, it clashes with non-constructor variable or function names";
+	    }
+	}
+    
+    existsAlready = size({ i | i <- c.nonterminalConstructors[sortId], c.store[i].at == l}) > 0;
+    if (!existsAlready) {
+	    nameWithSort = appendName(sortName,n);
+	    nameWithModule = appendName(moduleName,n);
+    
+  	    productionItemId = c.nextLoc;
+	    c.nextLoc = c.nextLoc + 1;
+	    
+		overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, comparable(c.store[i].rtype,rtype)}; //, !equivalent(c.store[i].rtype,rt)};
+        if (size(overlaps) > 0)
+            c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);
+
+	    productionItem = production(n, rtype, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
+	    c.store[productionItemId] = productionItem;
+	    c.definitions = c.definitions + < productionItemId, l >;
+	    c.nonterminalConstructors = c.nonterminalConstructors + < sortId, productionItemId >;
+	    
+	    addProductionItem(n, productionItemId);
+	    addProductionItem(nameWithSort, productionItemId);
+	    addProductionItem(nameWithModule, productionItemId);
+	}    
     
     // Add non-terminal fields
     alreadySeen = {};
@@ -592,10 +903,17 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 }
 
 public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Production prod, bool isStart) {
-	if (rn notin c.typeEnv) { 
-      throw "Unexpected error, syntax nonterminal <prettyPrintName(rn)> not found!";
+	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	moduleName = c.store[moduleId].name;
+
+ 	fullSortName = appendName(moduleName, rn);
+    if (fullSortName notin c.typeEnv) {
+    	c = addScopeError(c, "Could not add syntax definition, associated nonterminal is not in scope", l);
+    	return c;
     }
-    sortId = c.typeEnv[rn];
+    sortId = c.typeEnv[fullSortName];
+
     if(isStart) {
     	c.starts = c.starts + sortId;
     	return c;
@@ -647,85 +965,80 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
     rt@isVarArgs = isVarArgs;
     currentModuleId = head([i | i <- c.stack, \module(_,_) := c.store[i]]);
 
-    if (n notin c.fcvEnv) {
-        c.fcvEnv[n] = c.nextLoc;
-        if (\module(_,_) := c.store[head(c.stack)]) {
-            // If this function is module-level, also make it referenceable through
-            // the qualified name module::function.
-            moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-            c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
-        }
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        } 
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        c.nextLoc = c.nextLoc + 1;
-    } else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        }
-        if(hasDefaultModifier(modifiers)) {
-        	defaults += rt;
-        } else {
-        	itemTypes += rt;
-        }
-        c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes,defaults));
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        c.nextLoc = c.nextLoc + 1;
-    } else if (function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        }
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        itemTypes = {};
-        defaults = {};
-        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
-        	defaults += c.store[c.fcvEnv[n]].rtype;
-        } else {
-        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-        		defaults += c.store[c.fcvEnv[n]].rtype;
-        	} else {
-        		itemTypes += c.store[c.fcvEnv[n]].rtype;
-        	}
-        }
-        if(hasDefaultModifier(modifiers)) {
-        	defaults += rt;
-        } else {
-        	itemTypes += rt;
-        }
-        c.store[c.nextLoc + 1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded(itemTypes,defaults));
-        for (fname <- invert(c.fcvEnv)[c.fcvEnv[n]])
-            c.fcvEnv[fname] = c.nextLoc+1;
-        c.nextLoc = c.nextLoc + 2;
-    } else if ((\module(_,_) := c.store[c.fcvEnv[n]] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) { // ???
-        c = addScopeWarning(c, "Function declaration masks imported variable or constructor definition", l);
-        c.fcvEnv[n] = c.nextLoc;
-        if (\module(_,_) := c.store[head(c.stack)]) {
-            // If this function is module-level, also make it referenceable through
-            // the qualified name module::function.
-            moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-            c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
-        }
-        c.store[c.nextLoc] = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-        for(Modifier modifier <- modifiers) {
-        	c.functionModifiers = c.functionModifiers + <c.nextLoc,modifier>;
-        }
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.visibilities[c.nextLoc] = visibility;
-        //c.stack = c.nextLoc + c.stack;
-        c.nextLoc = c.nextLoc + 1;
-    } else {
-        c = addScopeError(c, "Cannot add function <prettyPrintName(n)>, non-function items of that name have already been defined in the current scope",l);
+	// Create the new function item and insert it into the store; also keep track of
+	// the item Id. This also handles other bookkeeping information, such as the
+	// information on definitions and visibilities.
+	functionItem = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
+	functionId = c.nextLoc;
+	c.nextLoc = c.nextLoc + 1;
+	c.store[functionId] = functionItem;
+    c.definitions = c.definitions + < functionId, l >;
+    c.visibilities[functionId] = visibility;
+    for(Modifier modifier <- modifiers) c.functionModifiers = c.functionModifiers + <functionId,modifier>;
+
+	// This actually links in the function item with a name in the proper manner. This is handled name by
+	// name so we can keep separate overload sets for different versions of a name (if we qualify the name,
+	// it should not refer to other names with different qualifiers).
+	void addFunctionItem(RName n, int functionId) {	
+	    if (n notin c.fcvEnv) {
+	    	// Case 1: The name does not appear at all, so insert it and link it to the function item.
+	        c.fcvEnv[n] = functionId;
+	    } else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
+	    	// Case 2: The name is already overloaded, so link in the Id as one of the overloads.
+	        if(hasDefaultModifier(modifiers)) {
+	        	defaults += rt;
+	        } else {
+	        	itemTypes += rt;
+	        }
+	        c.store[c.fcvEnv[n]] = overload(items + functionId, overloaded(itemTypes,defaults));
+	    } else if (function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_,_) := c.store[c.fcvEnv[n]] || production(_,_,_,_) := c.store[c.fcvEnv[n]]) {
+	    	// Case 3: The name is not overloaded yet, but this will make it overloaded. So, create the
+	    	// overloading entry. We also then point the current name to this overload item, which will
+	    	// then point (using the overload set) to the item currently referenced by the name.
+	        itemTypes = {};
+	        defaults = {};
+	        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
+	        	defaults += c.store[c.fcvEnv[n]].rtype;
+	        } else if (isProductionType(c.store[c.fcvEnv[n]].rtype)) {
+	        	defaults += c.store[c.fcvEnv[n]].rtype;
+	        } else {
+	        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+	        		defaults += c.store[c.fcvEnv[n]].rtype;
+	        	} else {
+	        		itemTypes += c.store[c.fcvEnv[n]].rtype;
+	        	}
+	        }
+	        if(hasDefaultModifier(modifiers)) {
+	        	defaults += rt;
+	        } else {
+	        	itemTypes += rt;
+	        }
+	        c.store[c.nextLoc] = overload({ c.fcvEnv[n], functionId }, overloaded(itemTypes,defaults));
+			c.fcvEnv[n] = c.nextLoc;
+	        c.nextLoc = c.nextLoc + 1;
+	    } else if ((\module(_,_) := c.store[c.store[c.fcvEnv[n]].containedIn] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) {
+	    	// Case 4: This function has the same name as a variable defined in another module. We still add
+	    	// it, but we also issue a warning, since reuse of the name may be accidental.
+	        c = addScopeWarning(c, "Function declaration masks imported variable definition", l);
+	        c.fcvEnv[n] = functionId;
+	    } else {
+	    	// Case 5: This function has the same name as a variable defined in the same module. We don't allow
+	    	// functions to shadow variables in this case.
+	    	// TODO: Verify that we don't want a looser rule.
+	        c = addScopeError(c, "Cannot add function <prettyPrintName(n)>, a variable of the same name has already been defined in the current scope",l);
+	    }
+	}
+
+	// Now, link up the names. We always link up the unqualified name. If we are at the top of the module,
+	// we also link up a version of the name qualified with the module name.
+	addFunctionItem(n, functionId);
+    if (\module(_,_) := c.store[head(c.stack)]) {
+        // If this function is module-level, also make it referenceable through
+        // the qualified name module::function.
+        moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+        addFunctionItem(appendName(moduleName,n), functionId);
     }
+	
     return c;
 }
 
@@ -1040,27 +1353,33 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
   
   for (hole((ConcreteHole) `\<<Sym s> <Name n>\>`) <- concrete.parts) {
     <c, rt> = convertAndExpandSymbol(s, c);
-    if (isFailType(rt)) failures += t1;  
+    if(isFailType(rt)) { 
+        failures += rt; 
+    }  
     
     name = convertName(n)[@at = n@\loc];
     
     if (fcvExists(c, name)) {
-        c.uses = c.uses + < c.fcvEnv[name], exp@\loc >;
-        c.usedIn[exp@\loc] = head(c.stack);
-        return markLocationType(c, exp@\loc, c.store[c.fcvEnv[name]].rtype);
+        c.uses = c.uses + < c.fcvEnv[name], n@\loc >;
+        c.usedIn[n@\loc] = head(c.stack);
+        <c, rt> = markLocationType(c, n@\loc, c.store[c.fcvEnv[name]].rtype);
     } else {
-        return markLocationFailed(c, exp@\loc, makeFailType("Name <prettyPrintName(name)> is not in scope", exp@\loc));
+        <c, rt> = markLocationFailed(c, n@\loc, makeFailType("Name <prettyPrintName(name)> is not in scope", n@\loc));
+        failures += rt;
     }
   }
   
-  if (size(failures) > 0)
+  if(size(failures) > 0) {
     return markLocationFailed(c, exp@\loc, failures);
+  }
   
-  return convertAndExpandSymbol(concrete.symbol, c);  
+  <c, rt> = convertAndExpandSymbol(concrete.symbol, c);
+  
+  return markLocationType(c, exp@\loc, rt);
 }
 
 @doc{Check the types of Rascal expressions: CallOrTree}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expression ","}* eps> )`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expression ","}* eps> <KeywordArguments keywordArguments> )`, Configuration c) {
     // check for failures
     set[Symbol] failures = { };
     
@@ -1237,26 +1556,53 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         // need to keep track there of possible matching IDs so we can link things up correctly.
         return < c, matches, failureReasons >;
     }
+
+   tuple[Configuration c, set[Symbol] matches, set[str] failures] matchProductionAlts(Configuration c, set[Symbol] alts) {
+        set[Symbol] matches = { };
+        set[str] failureReasons = { };
+        for (a <- alts, isProductionType(a)) {
+            list[Symbol] args = getProductionArgumentTypes(a);
+            if (size(epsList) == size(args) && size(epsList) == 0) {
+                matches += a;
+            } else if (size(epsList) == size(args) && false notin { subtype(tl[idx],args[idx]) | idx <- index(epsList) }) {
+                matches += a;
+            } else {
+                failureReasons += "Production of type <prettyPrintType(a)> cannot be built with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+            }
+        }
+        // TODO: Here would be a good place to filter out productions that are "masked" by functions with the
+        // same name and signature. We already naturally mask function declarations by using a set, but we do
+        // need to keep track there of possible matching IDs so we can link things up correctly.
+        return < c, matches, failureReasons >;
+    }
         
-    // e was either a name or an expression that evaluated to a function, a constructor,
+    // e was either a name or an expression that evaluated to a function, a constructor, a production,
     // a source location, or a string
-    if (isFunctionType(t1) || isConstructorType(t1) || isOverloadedType(t1)) {
-        set[Symbol] alts     = isFunctionType(t1) ? {t1} : ( isConstructorType(t1) ? {  } : getNonDefaultOverloadOptions(t1) );
-        set[Symbol] defaults = isFunctionType(t1) ? {  } : ( isConstructorType(t1) ? {t1} : getDefaultOverloadOptions(t1) );
+    if (isFunctionType(t1) || isConstructorType(t1) || isOverloadedType(t1) || isProductionType(t1)) {
+        set[Symbol] alts     = isFunctionType(t1) ? {t1} : ( (isConstructorType(t1) || isProductionType(t1)) ? {  } : getNonDefaultOverloadOptions(t1) );
+        set[Symbol] defaults = isFunctionType(t1) ? {  } : ( (isConstructorType(t1) || isProductionType(t1)) ? {t1} : getDefaultOverloadOptions(t1) );
         
         < c, nonDefaultFunctionMatches, nonDefaultFunctionFailureReasons > = matchFunctionAlts(c, alts);
         < c, defaultFunctionMatches, defaultFunctionFailureReasons > = matchFunctionAlts(c, defaults);
         < c, constructorMatches, constructorFailureReasons > = matchConstructorAlts(c, defaults);
+        < c, productionMatches, productionFailureReasons > = matchProductionAlts(c, defaults);
         
-        if (size(nonDefaultFunctionMatches) == 0 && size(defaultFunctionMatches) == 0 && size(constructorMatches) == 0) {
-            return markLocationFailed(c,exp@\loc,{makeFailType(reason,exp@\loc) | reason <- (nonDefaultFunctionFailureReasons + defaultFunctionFailureReasons + constructorFailureReasons)});
+        if (size(nonDefaultFunctionMatches + defaultFunctionMatches + constructorMatches + productionMatches) == 0) {
+            return markLocationFailed(c,exp@\loc,{makeFailType(reason,exp@\loc) | reason <- (nonDefaultFunctionFailureReasons + defaultFunctionFailureReasons + constructorFailureReasons + productionFailureReasons)});
+        } else if ( (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) && size(constructorMatches) > 1 && size(productionMatches) > 1) {
+            return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions, constructors, and productions found which could be applied",exp@\loc));
         } else if ( (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) && size(constructorMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions and constructors found which could be applied",exp@\loc));
+        } else if ( (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) && size(productionMatches) > 1) {
+            return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions and productions found which could be applied",exp@\loc));
         } else if (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions found which could be applied",exp@\loc));
         } else if (size(constructorMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple constructors found which could be applied",exp@\loc));
-        } 
+        } else if (size(productionMatches) > 1) {
+        	return markLocationFailed(c,exp@\loc,makeFailType("Multiple productions found which could be applied",exp@\loc));
+        } else if (size(productionMatches) > 1 && size(constructorMatches) > 1)
+        	return markLocationFailed(c,exp@\loc,makeFailType("Both a constructor and a concrete syntax production could be applied",exp@\loc));
         
         set[Symbol] finalNonDefaultMatches = {};
         set[Symbol] finalDefaultMatches = {};
@@ -1295,7 +1641,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                 // If the constructor is parametric, we need to calculate the actual types of the
                 // parameters and make sure they fall within the proper bounds.
                 formalArgs = getConstructorArgumentTypes(rt);
-                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
+                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- (formalArgs+rt) };
                 map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
                 for (idx <- index(tl)) {
                     try {
@@ -1317,6 +1663,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             	finalDefaultMatches += rt;
             }
         }
+
+		if (size(productionMatches) == 1) {
+            finalDefaultMatches += getOneFrom(productionMatches);
+        }
         
         if (cannotInstantiateFunction && cannotInstantiateConstructor) {
         	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in function invocation and constructor", exp@\loc));
@@ -1333,14 +1683,19 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				} else if (isConstructorType(finalMatch)) {
 			        < c, rtp > = markLocationType(c,e@\loc,finalMatch);
 			        return markLocationType(c,exp@\loc,getConstructorResultType(finalMatch));
+				} else if (isProductionType(finalMatch)) {
+					< c, rtp > = markLocationType(c,e@\loc,finalMatch);
+					return markLocationType(c,exp@\loc,getProductionSortType(finalMatch));
 				}
 			} else if (size(finalNonDefaultMatches) == 0 && size(finalDefaultMatches) == 2) {
-				// Make sure the default function and constructor variants have the same return type, else we
+				// Make sure the defaults function, constructor, and production variants have the same return type, else we
 				// have a conflict.
 				functionVariant = getOneFrom(filterSet(finalDefaultMatches, isFunctionType));
-				constructorVariant = getOneFrom(filterSet(finalDefaultMatches, isConstructorType));
+				constructorMatches = filterSet(finalDefaultMatches, isConstructorType);
+				productionMatches = filterSet(finalDefaultMatches, isProductionType);
+				nonFunctionResult = (size(constructorMatches) > 0) ? getConstructorResultType(getOneFrom(constructorMatches)) : getProductionSortType(getOneFrom(productionMatches));
 				
-				if (!equivalent(getFunctionReturnType(functionVariant),getConstructorResultType(constructorVariant))) {
+				if (!equivalent(getFunctionReturnType(functionVariant),nonFunctionResult)) {
 					// TODO: This should also result in an error on the function
 					// declaration, since we should not have a function with the same name
 					// and parameters but a different return type
@@ -1353,7 +1708,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				// have a conflict.
 				functionVariant = getOneFrom(filterSet(finalNonDefaultMatches, isFunctionType));
 				defaultVariant = getOneFrom(finalDefaultMatches);
-				defaultResultType = isConstructorType(defaultVariant) ? getConstructorResultType(defaultVariant) : getFunctionReturnType(defaultVariant);
+				defaultResultType = isConstructorType(defaultVariant) ? getConstructorResultType(defaultVariant) : (isFunctionType(defaultVariant) ? getFunctionReturnType(defaultVariant) : getProductionSortType(defaultVariant));
 				
 				if (equivalent(getFunctionReturnType(functionVariant),defaultResultType)) {
 					finalType = makeOverloadedType(finalNonDefaultMatches,finalDefaultMatches);
@@ -1372,10 +1727,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				// have a conflict.
 				functionVariant = getOneFrom(filterSet(finalNonDefaultMatches, isFunctionType));
 				defaultVariant = getOneFrom(filterSet(finalDefaultMatches, isFunctionType));
-				constructorVariant = getOneFrom(filterSet(finalDefaultMatches, isConstructorType));
+				constructorMatches = filterSet(finalDefaultMatches, isConstructorType);
+				productionMatches = filterSet(finalDefaultMatches, isProductionType);
+				nonFunctionResult = (size(constructorMatches) > 0) ? getConstructorResultType(getOneFrom(constructorMatches)) : getProductionSortType(getOneFrom(productionMatches));
 				
 				if ( equivalent(getFunctionReturnType(functionVariant),getFunctionReturnType(defaultVariant))
-						&& equivalent(getFunctionReturnType(functionVariant),getConstructorResultType(constructorVariant)) ) {
+						&& equivalent(getFunctionReturnType(functionVariant),nonFunctionResult) ) {
 					finalType = makeOverloadedType(finalNonDefaultMatches,{ defaultVariant });
 				    < c, rtp > = markLocationType(c,e@\loc,finalType);
 				    return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
@@ -1636,7 +1993,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("For a relation with arity <size(getRelFields(t1))> you can have at most <size(getRelFields(t1))-1> subscripts",exp@\loc));
         else {
             relFields = getRelFields(t1);
-            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), !comparable(tl[idx],relFields[idx]) };
+            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],\set(relFields[idx]))) };
             if (size(failures) > 0)
                 return markLocationFailed(c,exp@\loc,failures);
             else if ((size(relFields) - size(tl)) == 1)
@@ -1649,11 +2006,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("For a list relation with arity <size(getListRelFields(t1))> you can have at most <size(getListRelFields(t1))-1> subscripts",exp@\loc));
         else {
             relFields = getListRelFields(t1);
-            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to list relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), !comparable(tl[idx],relFields[idx]) };
+            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],\set(relFields[idx]))) };
             if (size(failures) > 0)
                 return markLocationFailed(c,exp@\loc,failures);
             else if ((size(relFields) - size(tl)) == 1)
-                return markLocationType(c,exp@\loc,\set(last(relFields)));
+                return markLocationType(c,exp@\loc,\list(last(relFields)));
             else
                 return markLocationType(c,exp@\loc,\lrel(tail(relFields,size(relFields)-size(tl))));
         }
@@ -1722,7 +2079,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
 		res = \list(\value());
 	}
 	
-	if (isFailType(res))
+	if (isFailType(res) || size(failures) > 0)
 		return markLocationFailed(c, exp@\loc, failures + res);
 	else
 		return markLocationType(c, exp@\loc, res);
@@ -1757,7 +2114,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
 		res = \list(\value());
 	}
 	
-	if (isFailType(res))
+	if (isFailType(res) || size(failures) > 0)
 		return markLocationFailed(c, exp@\loc, failures + res);
 	else
 		return markLocationType(c, exp@\loc, res);
@@ -1829,7 +2186,7 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 	} else if (isReifiedType(t1)) {
 		if (fAsString == "symbol") {
 			typeName = RSimpleName("Symbol");
-			if (typeName in c.typeEnv && isADTType(c.store[c.typeEnv[typeName]].rtype)) {
+			if (typeName in c.typeEnv && c.store[c.typeEnv[typeName]] is datatype && isADTType(c.store[c.typeEnv[typeName]].rtype)) {
 				return c.store[c.typeEnv[typeName]].rtype;			
 			} else {
 				return makeFailType("The type of field <fAsString>, <prettyPrintName(typeName)>, is not in scope", l);
@@ -1839,13 +2196,41 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 		}
     } else if (isADTType(t1)) {
         adtName = RSimpleName(getADTName(t1));
-        if (adtName in c.typeEnv) {
+        if (adtName in c.typeEnv && c.store[c.typeEnv[adtName]] is datatype) {
 	        if (<c.typeEnv[adtName],fAsString> notin c.adtFields)
 	            return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
-	        else
-	            return c.adtFields[<c.typeEnv[adtName],fAsString>];
+	        else {
+				adtId = c.typeEnv[adtName];
+				originalType = c.store[adtId].rtype;
+				originalParams = getADTTypeParameters(originalType);
+				fieldType = c.adtFields[<c.typeEnv[adtName],fAsString>];
+				if (size(originalParams) > 0) {
+					actualParams = getADTTypeParameters(t1);
+					if (size(originalParams) != size(actualParams)) {
+						return makeFailType("Invalid ADT type, the number of type parameters is inconsistent", l);
+					} else {
+						bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
+	                    try {
+	                        fieldType = instantiate(fieldType, bindings);
+	                    } catch : {
+	                        return makeFailType("Failed to instantiate type parameters in field type", l);
+	                    }						
+					}
+				}									        	
+	            return fieldType;
+			}
 	    } else {
-	    	return makeFailType("Cannot compute type of field <fAsString>, user type <prettyPrintType(t1)> has not been declared", l); 
+	    	return makeFailType("Cannot compute type of field <fAsString>, user type <prettyPrintType(t1)> has not been declared or is out of scope", l); 
+	    }  
+    } else if (isNonTerminalType(t1)) {
+        nonterminalName = RSimpleName(getNonTerminalName(t1));
+        if (nonterminalName in c.typeEnv && c.store[c.typeEnv[nonterminalName]] is sorttype) {
+	        if (<c.typeEnv[nonterminalName],fAsString> notin c.nonterminalFields)
+	            return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+	        else
+	            return c.nonterminalFields[<c.typeEnv[nonterminalName],fAsString>];
+	    } else {
+	    	return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l); 
 	    }  
     } else if (isTupleType(t1)) {
         if (tupleHasField(t1, fAsString))
@@ -2005,7 +2390,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> is <Name 
     < cIs, t1 > = checkExp(e, cIs);
     c = needNewScope ? exitBooleanScope(cIs, c) : cIs;
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
-    if (isNodeType(t1) || isADTType(t1)) return markLocationType(c,exp@\loc,\bool());
+    if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) return markLocationType(c,exp@\loc,\bool());
     return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected node or ADT types, found <prettyPrintType(t1)>", e@\loc));
 }
 
@@ -2216,6 +2601,34 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> o <Expre
 		rt = Symbol::\func(compositeRet, compositeArgs);
 		return markLocationType(c, exp@\loc, rt);         
     }
+    
+    // Here, one or both types are overloaded functions, with at most one a normal function.
+    if ((isOverloadedType(t1) || isFunctionType(t1)) && (isOverloadedType(t2) || isFunctionType(t2))) {
+    	// Step 1: get back all the type possibilities on the left and right
+    	leftFuns = (isFunctionType(t1)) ? { t1 } : (getNonDefaultOverloadOptions(t1) + getDefaultOverloadOptions(t1));
+    	rightFuns = (isFunctionType(t2)) ? { t2 } : (getNonDefaultOverloadOptions(t2) + getDefaultOverloadOptions(t2));
+    	
+    	// Step 2: filter out leftmost functions that cannot be used in compositions
+    	leftFuns = { f | f <- leftFuns, size(getFunctionArgumentTypes(f)) == 1 };
+    	
+    	// Step 3: combine the ones we can -- the return of the rightmost type has to be allowed
+    	// as the parameter for the leftmost type
+    	newFunTypes = { Symbol::\func(getFunctionReturnType(lf), getFunctionArgumentTypes(rf)) |
+    		rf <- rightFuns, lf <- leftFuns, subtype(getFunctionReturnType(rf),getFunctionArgumentTypes(lf)[0]) };
+    		
+    	// Step 4: If we get an empty set, fail; if we get just 1, return that; if we get multiple possibilities,
+    	// return an overloaded type
+    	if (size(newFunTypes) == 0) {
+    		ft = makeFailType("The functions cannot be composed", exp@\loc);
+    		return markLocationFailed(c, exp@\loc, ft);
+    	} else if (size(newFunTypes) == 1) {
+    		return markLocationType(c, exp@\loc, getOneFrom(newFunTypes));
+    	} else {
+    		// TODO: Do we need to keep track of defaults through all this? If so, do we compose default
+    		// and non-default functions?
+    		return markLocationType(c, exp@\loc, \overloaded(newFunTypes,{}));
+    	}
+    }
 
     return markLocationFailed(c, exp@\loc, makeFailType("Composition not defined for <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
 }
@@ -2417,6 +2830,22 @@ Symbol computeAdditionType(Symbol t1, Symbol t2, loc l) {
     if (isBagType(t1))
         return \bag(lub(getBagElementType(t1),t2));
         
+	// If we are adding together two functions, this creates an overloaded
+	// type with the two items as non-defaults.
+	// TODO: If we need to track default status here as well, we will need
+	// to special case plus to handle f + g, where f and g are both function
+	// names, and catch this before evaluating them both and retrieving their
+	// types.
+	// TODO: Can we also add together constructor types?
+	if (isFunctionType(t1) && isFunctionType(t2))
+		return \overloaded({t1,t2},{});
+	else if (\overloaded(nd1,d1) := t1 && \overloaded(nd2,d2) := t2)
+		return \overloaded(nd1+nd2,d1+d2);
+	else if (\overloaded(nd1,d1) := t1 && isFunctionType(t2))
+		return \overloaded(nd1+t2,d1);
+	else if (isFunctionType(t1) && \overloaded(nd2,d2) := t2)
+		return \overloaded(nd2+t1,d2);
+		
     return makeFailType("Addition not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
 }
 
@@ -3145,15 +3574,19 @@ public default tuple[Configuration,KeywordParamMap] checkKeywordFormals(KeywordF
 
 @doc{Check the type of a single Rascal keyword formal}
 public tuple[Configuration,RName,Symbol] checkKeywordFormal(KeywordFormal kf: (KeywordFormal)`<Type t> <Name n> = <Expression e>`, Configuration c) {
+	// Note: We check the default expression first, since the name should NOT be visible inside it
+	< c, et > = checkExp(e, c);
+
     < c, rt > = convertAndExpandType(t,c);
 	currentNextLoc = c.nextLoc;
 	rn = convertName(n);
 	c = addVariable(c, rn, false, n@\loc, rt);
-	< c, et > = checkExp(e, c);
+	
 	if (!subtype(et, rt))
 		rt = makeFailType("The default is not compatible with the parameter type", kf@\loc);  
 	if (c.nextLoc > currentNextLoc)
 		c.keywordDefaults[currentNextLoc] = e;	  	
+	
 	return < c, rn, rt >;
 }
 
@@ -3301,7 +3734,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`,
   <c, sym> = resolveSorts(sym2symbol(concrete.symbol),concrete.symbol@\loc, c);
   return <c, concreteSyntaxNode(sym,psList)[@at = pat@\loc]>;
 }
-public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> )`, Configuration c) { 
+public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> <KeywordArguments keywordArguments>)`, Configuration c) { 
     < c, pti > = extractPatternTree(p,c);
     list[PatternTree] psList = [ ];
     for (psi <- ps) { < c, psit > = extractPatternTree(psi,c); psList = psList + psit; }
@@ -3360,7 +3793,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     // Step 1: Do an initial assignment of types to the names present
     // in the tree and to nodes with invariant types (such as int
     // literals and guarded patterns).
-    pt = top-down visit(pt) {
+    pt = bottom-up visit(pt) {
         case ptn:setNode(ptns) : {
             for (idx <- index(ptns), spliceNodePlus(n) := ptns[idx] || spliceNodeStar(n) := ptns[idx] || 
                                      spliceNodePlus(n,_,_) := ptns[idx] || spliceNodeStar(n,_,_) := ptns[idx] ||
@@ -3461,7 +3894,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 c.usedIn[ptn@at] = head(c.stack);
                 if ( !((ptn@headPosition)?) || ((ptn@headPosition)? && !ptn@headPosition)) {
                     if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
-                        c = addScopeWarning(c, "<prettyPrintName(n)> is a function or constructor name", ptn@at);
+                        c = addScopeWarning(c, "<prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
                     } else {
                         c = addNameWarning(c,n,ptn@at);
                     }
@@ -3513,19 +3946,34 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
                 c.usedIn[ptn@at] = head(c.stack);
                 if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
-                    c = addScopeWarning(c, "Name <prettyPrintName(n)> is a function or constructor name", ptn@at);
+                    c = addScopeWarning(c, "Name <prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
                 } else {
                     c = addNameWarning(c,n,ptn@at);
                 }
                 insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
             }
         }
-        
+
+		case ptn:deepNode(_) : {
+			rt = \inferred(c.uniqueify);
+			c.uniqueify = c.uniqueify + 1;
+			insert(ptn[@rtype = rt]);
+		}
+		
         case ptn:asTypeNode(rt, _) => ptn[@rtype = rt]
         
+		case ptn:antiNode(_) : {
+			rt = \inferred(c.uniqueify);
+			c.uniqueify = c.uniqueify + 1;
+			insert(ptn[@rtype = rt]);
+		}
+		
+		case ptn:reifiedTypeNode(tSymbol,pDefs) => 
+			ptn[@rtype = makeReifiedType(makeValueType())]
+		
         // TODO: Not sure if this is the best choice, but it is the choice
         // the current interpreter makes...
-        case ptn:antiNode(_) => ptn[@rtype = \value()]
+        //case ptn:antiNode(_) => ptn[@rtype = \value()]
         
         case ptn:tvarBecomesNode(rt, n, l, _) : { 
             if (RSimpleName("_") == n) {
@@ -3541,7 +3989,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     }
     
     if (size(failures) > 0) {
-        return < cbak, collapseFailTypes(failures) >;
+    	// TODO: Allowing the "bad" config to go back, change back to
+    	// cbak if this causes chaos...
+        return < c, collapseFailTypes(failures) >;
     }
         
     bool modified = true;
@@ -3593,9 +4043,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             case ptn:mapNode(ptns) => updateRT(ptn,\map(lubList([d@rtype|mapNodeInfo(d,_) <- ptns]),lubList([r@rtype|mapNodeInfo(_,r)<-ptns])))
                                       when all(idx <- index(ptns), mapNodeInfo(d,r) := ptns[idx], (d@rtype)?, (r@rtype)?, concreteType(d@rtype), concreteType(r@rtype))
                                       
-            case ptn:deepNode(cp) => updateRT(ptn, \value()) when (cp@rtype)? && concreteType(cp@rtype)
+            //case ptn:deepNode(cp) => updateRT(ptn, \void()) when (cp@rtype)? && concreteType(cp@rtype)
 
-            case ptn:antiNode(cp) => updateRT(ptn, cp@rtype) when (cp@rtype)? && concreteType(cp@rtype)
+            //case ptn:antiNode(cp) => updateRT(ptn, cp@rtype) when (cp@rtype)? && concreteType(cp@rtype)
             
             case ptn:varBecomesNode(n,l,cp) : {
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
@@ -3622,7 +4072,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                         }
                     } else {
                         if (!subtype(cp@rtype, rt))
-                            failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable of type <prettyPrintType(rt)>", ptn@at);
+                            failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn@at);
                     }
                 }
             }
@@ -3631,18 +4081,25 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
                     Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[c.fcvEnv[n]].rtype;
                     if (!subtype(cp@rtype, rt))
-                        failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable of type <prettyPrintType(rt)>", ptn@at);
+                        failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn@at);
                 }
             }
             
-            case ptn:reifiedTypeNode(sp,dp) :
-                throw "Not yet implemented";
+            case ptn:reifiedTypeNode(sp,dp) : {
+                if ( (sp@rtype)? && concreteType(sp@rtype) && !subtype(sp@rtype,\adt("Symbol",[])) ) {
+                	failures += makeFailType("The first pattern parameter in a reified type parameter must be of type Symbol, not <prettyPrintType(sp@rtype)>", ptn@at);
+                }
+                if ( (dp@rtype)? && concreteType(dp@rtype) && !subtype(dp@rtype,\map(\adt("Symbol",[]), \adt("Production",[]))) ) { 
+                	failures += makeFailType("The second pattern parameter in a reified type parameter must be of type map[Symbol,Production], not <prettyPrintType(dp@rtype)>", ptn@at);
+                }
+			}
+                
     
             case ptn:callOrTreeNode(ph,pargs) : {
             	if ( (ph@rtype)? && concreteType(ph@rtype) ) {
-                    if (isConstructorType(ph@rtype) || isOverloadedType(ph@rtype)) {
+                    if (isConstructorType(ph@rtype) || isOverloadedType(ph@rtype) || isProductionType(ph@rtype)) {
                         // default alternatives contain all possible constructors of this name
-                        set[Symbol] alts = (isOverloadedType(ph@rtype)) ? filterSet(getDefaultOverloadOptions(ph@rtype), isConstructorType) : {ph@rtype};
+                        set[Symbol] alts = (isOverloadedType(ph@rtype)) ? (filterSet(getDefaultOverloadOptions(ph@rtype), isConstructorType) + filterSet(getDefaultOverloadOptions(ph@rtype), isProductionType)) : {ph@rtype};
                         // matches holds all the constructors that match the arity and types in the pattern
                         set[Symbol] matches = { };
                         set[Symbol] nonMatches = { };
@@ -3656,10 +4113,41 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                         //} else {
                             // filter first based on the arity of the constructor
                             for (a <- alts) {
-                            	if (size(getConstructorArgumentTypes(a)) == size(pargs)) {
+                            	if (isConstructorType(a) && size(getConstructorArgumentTypes(a)) == size(pargs)) {
 	                                // next, find the bad matches, which are those argument positions where we have concrete
 	                                // type information and that information does not match the alternative
-	                                badMatches = { idx | idx <- index(pargs), (pargs[idx]@rtype)?, concreteType(pargs[idx]@rtype), !subtype(pargs[idx]@rtype, getConstructorArgumentTypes(a)[idx]) };
+	                                badMatches = { };
+	                                for (idx <- index(pargs)) {
+	                                	bool pseudoMatch = false;
+	                                	argType = getConstructorArgumentTypes(a)[idx];
+	                                	if ((pargs[idx]@rtype)?) {
+	                                		if (concreteType(pargs[idx]@rtype)) {
+	                                			if (!subtype(pargs[idx]@rtype, argType)) {
+	                                				badMatches = badMatches + idx;
+	                                			}
+	                                		} else {
+	                                			pseudoMatch = true;
+	                                		}
+	                                	} else {
+	                                		pseudoMatch = true;
+	                                	}
+	                                	
+	                                	if (pseudoMatch) {
+	                                		if (! ( (isListType(argType) && pargs[idx] is listNode) ||
+	                                			    (isSetType(argType) && pargs[idx] is setNode) ||
+	                                			    (isMapType(argType) && pargs[idx] is mapNode) ||
+	                                			    ( !(pargs[idx] is listNode || pargs[idx] is setNode || pargs[idx] is mapNode) && (!((pargs[idx]@rtype)?) || !(concreteType(pargs[idx]@rtype)))))) {
+	                                			badMatches = badMatches + idx;
+	                                		}
+	                                	}
+	                                }
+	                                if (size(badMatches) == 0) 
+	                                    // if we had no bad matches, this is a valid alternative
+	                                    matches += a;
+                            	} else if (isProductionType(a) && size(getProductionArgumentTypes(a)) == size(pargs)) {
+	                                // next, find the bad matches, which are those argument positions where we have concrete
+	                                // type information and that information does not match the alternative
+	                                badMatches = { idx | idx <- index(pargs), (pargs[idx]@rtype)?, concreteType(pargs[idx]@rtype), !subtype(pargs[idx]@rtype, getProductionArgumentTypes(a)[idx]) };
 	                                if (size(badMatches) == 0) 
 	                                    // if we had no bad matches, this is a valid alternative
 	                                    matches += a;
@@ -3682,7 +4170,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 // parameters and make sure they fall within the proper bounds. Note that we can only
                                 // do this when the match type is concrete and when we either have no pargs or we have
                                 // pargs that all have concrete types associated with them.
-                                formalArgs = getConstructorArgumentTypes(matchType);
+                                formalArgs = isConstructorType(matchType) ? getConstructorArgumentTypes(matchType) : getProductionArgumentTypes(matchType);
                                 set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
                                 map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
                                 for (idx <- index(formalArgs)) {
@@ -3708,13 +4196,13 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 try {
                                     for (idx <- index(pargs)) {
                                         //println("<ptn@at>: pushing down <getConstructorArgumentTypes(matchType)[idx]> for arg <pargs[idx]>");  
-                                        < c, newarg > = bind(pargs[idx],getConstructorArgumentTypes(matchType)[idx],c);
+                                        < c, newarg > = bind(pargs[idx],(isConstructorType(matchType)?(getConstructorArgumentTypes(matchType)[idx]):(getProductionArgumentTypes(matchType)[idx])),c);
                                         newChildren += newarg;
                                     }
                                 } catch v : {
                                     newChildren = pargs;
                                 }
-                                insert updateRT(ptn[head=ph[@rtype=matchType]][args=newChildren], getConstructorResultType(matchType));
+                                insert updateRT(ptn[head=ph[@rtype=matchType]][args=newChildren], isConstructorType(matchType)?getConstructorResultType(matchType):getProductionSortType(matchType));
                             }
                         } else {
                         	insert updateBindProblems(ptn, nonMatches, matches);
@@ -3735,7 +4223,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         }
         
         if (size(failures) > 0) {
-            return < cbak, collapseFailTypes(failures) >;
+	    	// TODO: Allowing the "bad" config to go back, change back to
+	    	// cbak if this causes chaos...
+            return < c, collapseFailTypes(failures) >;
         }
         
         if (size(subjects) == 1) {
@@ -3759,7 +4249,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     }
     
     if (size(failures) > 0) {
-        return < cbak, collapseFailTypes(failures) >;
+    	// TODO: Allowing the "bad" config to go back, change back to
+    	// cbak if this causes chaos...
+        return < c, collapseFailTypes(failures) >;
     }
 
     set[PatternTree] unknownConstructorFailures(PatternTree pt) {
@@ -3788,13 +4280,13 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             return < c, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;
         } else {
     		for (PatternTree pt <- tooManyMatches)
-    			failures += makeFailType("Multiple constructors match this pattern, add additional type annotations", pt@at);
+    			failures += makeFailType("Multiple constructors and/or productions match this pattern, add additional type annotations", pt@at);
         	
     		for (PatternTree pt <- arityProblems)
-    			failures += makeFailType("Only constructors with a different arity are available", pt@at);
+    			failures += makeFailType("Only constructors or productions with a different arity are available", pt@at);
 
             for (unk <- unknowns)
-            	failures += makeFailType("Constructor name is not in scope", unk@at);
+            	failures += makeFailType("Constructor or production name is not in scope", unk@at);
         	
         	failures += makeFailType("Type of pattern could not be computed", pat@\loc);
             return < c, collapseFailTypes(failures) >;
@@ -4031,10 +4523,13 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         }
         
         case literalNode(nt) : {
-            if (!isInferredType(rt) && !comparable(pt@rtype,rt))
+        	if (\sort(_) := rt && isStrType(pt@rtype)) {
+        		return < c, pt >;
+        	} else if (!isInferredType(rt) && !comparable(pt@rtype,rt)) {
                 throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
-            else
+            } else {
                 return < c, pt >;
+			}
         }
         
         case literalNode(list[LiteralNodeInfo] names) : {
@@ -4082,8 +4577,12 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         }
         
         case reifiedTypeNode(ps,pd) : {
-            // TODO: What else do we need to do here?
-            throw "Not yet implemented";
+        	// The subject type has no influence on the types of the children of a reified type
+        	// node, so we can't push a type down through the node, we instead always insist
+        	// that the types are Symbol and map[Symbol,Production]
+        	< c, psnew > = bind(ps, \adt("Symbol",[]), c);
+        	< c, pdnew > = bind(pd, \map(\adt("Symbol",[]),\adt("Production",[])), c);
+        	return < c, pt[s=psnew][d=pdnew] >; 
         }
         
         case callOrTreeNode(ph, cs) : {
@@ -4104,13 +4603,18 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         }
         
         case deepNode(cp) : {
+            Symbol currentType = pt@rtype;
             < c, cpNew > = bind(cp, \value(), c);
-            return < c, pt[child = cpNew] >;
+            return < c, pt[child = cpNew][@rtype=rt] >;
         }
-        
+
+		// TODO: Is this right? Technically, the type of the antinode
+		// can be anything, since we are saying this isn't the thing we
+		// are matching, but we may still want a sharper check to give
+		// good warnings when things cannot happen                
         case antiNode(cp) : {
             < c, cpNew > = bind(cp, rt, c);
-            return < c, pt[child = cpNew] >;
+            return < c, pt[child = cpNew][@rtype=rt] >;
         }
         
         case tvarBecomesNode(nt, n, l, cp) : {
@@ -4839,6 +5343,8 @@ data AssignableTree
     = bracketNode(AssignableTree child)
     | variableNode(RName name)
     | subscriptNode(AssignableTree receiver, Symbol subscriptType)
+    | sliceNode(AssignableTree receiver, Symbol firstType, Symbol lastType)
+    | sliceStepNode(AssignableTree receiver, Symbol firstType, Symbol secondType, Symbol lastType)
     | fieldAccessNode(AssignableTree receiver, RName name)
     | ifDefinedOrDefaultNode(AssignableTree receiver, Symbol defaultType)
     | constructorNode(RName name, list[AssignableTree] children)
@@ -4883,7 +5389,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName 
         } else {
             c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
             c.usedIn[assn@\loc] = head(c.stack);
-            return < c, variableNode(n)[@atype=makeFailType("Cannot assign to an existing constructor or function name",assn@\loc)][@at=assn@\loc] >;
+            return < c, variableNode(n)[@atype=makeFailType("Cannot assign to an existing constructor, production, or function name",assn@\loc)][@at=assn@\loc] >;
         }
     } else {
         rt = \inferred(c.uniqueify);
@@ -4936,6 +5442,79 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
         return < c, subscriptNode(atree,tsub)[@atype=getRelFields(atree@atype)[1]][@at=assn@\loc] >;
 
     return < c, subscriptNode(atree,tsub)[@atype=makeFailType("Cannot subscript assignable of type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
+}
+
+@doc{Extract a tree representation of the assignable and perform basic checks: Slice (DONE)}
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, bool top, Configuration c) {
+    < c, atree > = buildAssignableTree(ar, false, c);
+    
+    tFirst = makeIntType();
+    tLast = makeIntType();
+    
+    if ((OptionalExpression)`<Expression eFirst>` := optFirst)
+    	< c, tFirst > = checkExp(eFirst, c);
+    
+    if ((OptionalExpression)`<Expression eLast>` := optLast)
+    	< c, tLast > = checkExp(eLast, c);
+    
+    if (isFailType(atree@atype) || isFailType(tFirst) || isFailType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=collapseFailTypes({atree@atype,tFirst,tLast})][@at=assn@\loc] >;
+
+    if (!concreteType(atree@atype)) {
+        failtype = makeFailType("Assignable <ar> must have an actual type before subscripting", assn@\loc);
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=failtype][@at=assn@\loc] >;
+    }
+
+    if (isListType(atree@atype) && isIntType(tFirst) && isIntType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+    if (isNodeType(atree@atype) && isIntType(tFirst) && isIntType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+    if (isStrType(atree@atype) && isIntType(tFirst) && isIntType(tLast))
+        return < c, sliceNode(atree,tFirst,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+	if (!isIntType(tFirst) || !isIntType(tLast))
+		return < c, sliceNode(atree,tFirst,tLast)[@atype=makeFailType("Indexes must be of type int, given: <prettyPrintType(tFirst)>, <prettyPrintType(tLast)>",assn@\loc)][@at=assn@\loc] >;
+		
+    return < c, sliceNode(atree,tFirst,tLast)[@atype=makeFailType("Cannot use slicing to assign into type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
+}
+
+@doc{Extract a tree representation of the assignable and perform basic checks: Slice Step (DONE)}
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, bool top, Configuration c) {
+    < c, atree > = buildAssignableTree(ar, false, c);
+    
+    tFirst = makeIntType();
+    if ((OptionalExpression)`<Expression eFirst>` := optFirst)
+    	< c, tFirst > = checkExp(eFirst, c);
+    
+    < c, tSecond > = checkExp(second, c);
+        
+    tLast = makeIntType();
+    if ((OptionalExpression)`<Expression eLast>` := optLast)
+    	< c, tLast > = checkExp(eLast, c);
+    
+    if (isFailType(atree@atype) || isFailType(tFirst) || isFailType(tSecond) || isFailType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=collapseFailTypes({atree@atype,tFirst,tSecond,tLast})][@at=assn@\loc] >;
+
+    if (!concreteType(atree@atype)) {
+        failtype = makeFailType("Assignable <ar> must have an actual type before subscripting", assn@\loc);
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=failtype][@at=assn@\loc] >;
+    }
+
+    if (isListType(atree@atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+    if (isNodeType(atree@atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+    if (isStrType(atree@atype) && isIntType(tFirst) && isIntType(tSecond) && isIntType(tLast))
+        return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=atree@atype][@at=assn@\loc] >;
+
+	if (!isIntType(tFirst) || !isIntType(tSecond) || !isIntType(tLast))
+		return < c, sliceNode(atree,tFirst,tLast)[@atype=makeFailType("Indexes must be of type int, given: <prettyPrintType(tFirst)>, <prettyPrintType(tSecond)>, <prettyPrintType(tLast)>",assn@\loc)][@at=assn@\loc] >;
+		
+    return < c, sliceStepNode(atree,tFirst,tSecond,tLast)[@atype=makeFailType("Cannot use slicing to assign into type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: FieldAccess (DONE)}
@@ -5225,11 +5804,42 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable 
     }
 }
 
+@doc{General function to calculate the type of an append.}
+Symbol computeAppendType(Symbol t1, Symbol t2, loc l) {
+    if (isListType(t1)) return \list(lub(getListElementType(t1),t2));
+    return makeFailType("Append not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
+}
+
 @doc{Check the type of Rascal assignments: Append}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`\<\<=`, Assignable a, Symbol st, Configuration c) {
+	// TODO: This isn't implemented yet, so we need to verify this is actually the correct type.
+    cbak = c;
     < c, atree > = buildAssignableTree(a, true, c);
     if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
-    throw "Not yet implemented";
+
+    // If the assignment point is not concrete, we cannot do the assignment -- 
+    // the subject type cannot influence the type here.
+    if (!concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a \<\< operation", a@\loc));
+    
+    // Check to ensure the append is valid. If so, the resulting type is the overall
+    // type of the assignable, else it is the failure type generated by the operation.
+    rt = computeAppendType(atree@atype, st, l);
+    if (isFailType(rt)) return markLocationType(c, l, rt);
+
+    // Now, using the result type, try to bind it to the assignable tree
+    try {
+        < c, atree > = bindAssignable(atree, rt, c);
+    } catch : {
+        return markLocationFailed(cbak, l, makeFailType("Unable to bind result type <prettyPrintType(rt)> to assignable", l));
+    }
+
+    unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+    if (size(unresolved) > 0)
+        return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
+    else {
+        c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
+        return markLocationType(c, l, atree@otype);
+    }
 }
 
 @doc{Bind variable types to variables in assignables: Bracket}
@@ -5279,20 +5889,12 @@ public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Sy
 
 @doc{Bind variable types to variables in assignables: Subscript}
 public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree receiver, Symbol stype), Symbol st, Configuration c) {
-    // To bind the subscript, we push the subject type back through into the receiver
-    // after calculating the proper type. For instance, given x is a list[int], an
-    // assignable like x[5] was originally given an atype of int. To calculate
-    // the type we are trying to bind, we then take the lub of the list element
-    // type and the subject type and wrap those in a list. So, for x[5] = 3.4,
-    // this would be \list(\num()). NOTE: The expected subject type below is
-    // always the element type, never the container type -- we are assigning
-    // into a list, tuple, etc, not over one.
     
-    if (isListType(receiver@atype)) {
+    if (isListType(receiver@atype)) { 
         < c, receiver > = bindAssignable(receiver, \list(lub(st,getListElementType(receiver@atype))), c);
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=getListElementType(receiver@atype)] >;
     } else if (isNodeType(receiver@atype)) {
-        < c, receiver > = bindAssignable(receiver, \node());
+        < c, receiver > = bindAssignable(receiver, \node(), c);
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\value()] >;
     } else if (isTupleType(receiver@atype)) {
         tupleFields = getTupleFields(receiver@atype);
@@ -5300,7 +5902,7 @@ public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree
         // in range, all we can infer about the resulting type is that, since
         // we could assign to each field, each field could have a type based
         // on the lub of the existing field type and the subject type.
-        < c, receiver > = bindAssignable(receiver, \tuple([lub(tupleFields[idx],st) | idx <- index(tupleFields)]));
+        < c, receiver > = bindAssignable(receiver, \tuple([lub(tupleFields[idx],st) | idx <- index(tupleFields)]), c);
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\value()] >;
     } else if (isMapType(receiver@atype)) {
         < c, receiver > = bindAssignable(receiver, \map(getMapDomainType(receiver@atype), lub(st,getMapRangeType(receiver@atype))), c);
@@ -5309,6 +5911,45 @@ public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree
         relFields = getRelFields(receiver@atype);
         < c, receiver > = bindAssignable(receiver, \rel([relFields[0],lub(relFields[1],st)]), c);
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=getRelFields(receiver@atype)[1]] >;
+    } else {
+    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver@atype)>";
+    }
+}
+
+public default ATResult bindAssignable(AssignableTree atree, Symbol st, Configuration c) {
+	throw "Missing assignable!";
+	return < c, atree >;
+}
+
+@doc{Bind variable types to variables in assignables: Slice}
+public ATResult bindAssignable(AssignableTree atree:sliceNode(AssignableTree receiver, Symbol firstType, Symbol lastType), Symbol st, Configuration c) {    
+    if (isListType(receiver@atype) && isListType(st)) {
+        < c, receiver > = bindAssignable(receiver, lub(st,receiver@atype), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=receiver@atype] >;
+    } else if (isNodeType(receiver@atype) && isListType(st)) {
+        < c, receiver > = bindAssignable(receiver, \node(), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\node()] >;
+    } else if (isStrType(receiver@atype) && isStrType(st)) {
+        < c, receiver > = bindAssignable(receiver, \str(), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\str()] >;
+    } else {
+    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver@atype)>";
+    }
+}
+
+@doc{Bind variable types to variables in assignables: Slice Step}
+public ATResult bindAssignable(AssignableTree atree:sliceStepNode(AssignableTree receiver, Symbol firstType, Symbol secondType, Symbol lastType), Symbol st, Configuration c) {    
+    if (isListType(receiver@atype) && isListType(st)) {
+        < c, receiver > = bindAssignable(receiver, lub(st,receiver@atype), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=receiver@atype] >;
+    } else if (isNodeType(receiver@atype) && isListType(st)) {
+        < c, receiver > = bindAssignable(receiver, \node(), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\node()] >;
+    } else if (isStrType(receiver@atype) && isStrType(st)) {
+        < c, receiver > = bindAssignable(receiver, \str(), c);
+        return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\str()] >;
+    } else {
+    	throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(receiver@atype)>";
     }
 }
 
@@ -5492,48 +6133,76 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
         utypeParams = getUserTypeParameters(utype);
         
         // Add the ADT into the type environment
-        // TODO: Check to make sure this is possible
         c = addADT(c,RSimpleName(utypeName),getVis(vis),decl@\loc,\adt(utypeName,utypeParams));
     }
+
+	// TODO: We may need to descend here to properly handle parameters, although this may not
+	// be necessary since ADTs other than Tree cannot be used as bounds    
     return c;
 }
 
+public tuple[Configuration, KeywordParamRel] calculateKeywordParamRel(Configuration c, list[KeywordFormal] kfl) {
+	KeywordParamRel kprel = [ ];
+	for (KeywordFormal kf: (KeywordFormal)`<Type kt> <Name kn> = <Expression ke>` <- kfl) {
+		kfName = convertName(kn);
+		< c, kfType > = convertAndExpandType(kt,c);
+		< c, defType > = checkExp(ke, c);
+		if (!subtype(defType, kfType))
+			c = addScopeError(c, "The default for keyword parameter <prettyPrintName(kfName)> is of an invalid type", kf@\loc);
+		kprel += < kfName, kfType, ke >;
+	}
+	return < c, kprel >;
+}
+
 @doc{Check the type of the components of a declaration: Data}
-public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> data <UserType ut> = <{Variant "|"}+ vs>;`, bool descend, Configuration c) {
-    // Add the ADT definition, but only if we haven't already added the definition
-    // at this location. If we have, we can just use it if we need it.
-    if (decl@\loc notin c.definitions<1>) { 
-        // TODO: Check for convert errors
-        < c, utype > = convertAndExpandUserType(ut,c);
-        if (\user(_,_) !:= utype) throw "Conversion error: type for user type <ut> should be user type, not <prettyPrintType(utype)>";
-        
-        // Extract the name and parameters
-        utypeName = getUserTypeName(utype);
-        utypeParams = getUserTypeParameters(utype);
-        
-        // Add the ADT into the type environment
-        // TODO: Check to make sure this is possible
-        c = addADT(c,RSimpleName(utypeName),getVis(vis),decl@\loc,\adt(utypeName,utypeParams));
-    }
-    
-    if (descend) {
-        // If we descend, we also want to add the constructors; if not, we are just
-        // adding the ADT into the type environment. We get the adt type out of
-        // the store by looking up the definition from this location.
-        adtType = c.store[getOneFrom(invert(c.definitions)[decl@\loc])].rtype;
-    
-        // Now add all the constructors
-        // TODO: Check here for overlap problems
-        for (Variant vr:(Variant)`<Name vn> ( < {TypeArg ","}* vargs > )` <- vs) {
-            // TODO: Check for convert errors
-            list[Symbol] targs = [ ];
-            for (varg <- vargs) { < c, vargT > = convertAndExpandTypeArg(varg, c); targs = targs + vargT; } 
-            cn = convertName(vn);
-            c = addConstructor(c, cn, vr@\loc, Symbol::\cons(adtType,getSimpleName(cn),targs));       
-        }
-    }
-    
-    return c;
+public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> data <UserType ut> <CommonKeywordParameters commonParams> = <{Variant "|"}+ vs>;`, bool descend, Configuration c) {
+	// Add the ADT definition, but only if we haven't already added the definition
+	// at this location. If we have, we can just use it if we need it.
+	if (decl@\loc notin c.definitions<1>) { 
+		// TODO: Check for convert errors
+		< c, utype > = convertAndExpandUserType(ut,c);
+		if (\user(_,_) !:= utype) throw "Conversion error: type for user type <ut> should be user type, not <prettyPrintType(utype)>";
+
+		// Extract the name and parameters
+		utypeName = getUserTypeName(utype);
+		
+		// TODO: We may need to descend instead to properly handle parameters, although this may not
+		// be necessary since ADTs other than Tree cannot be used as bounds    
+		utypeParams = getUserTypeParameters(utype);
+
+		// Add the ADT into the type environment
+		c = addADT(c,RSimpleName(utypeName),getVis(vis),decl@\loc,\adt(utypeName,utypeParams));
+	}
+
+	// If we descend, we also want to add the constructors; if not, we are just adding the ADT into 
+	// the type environment. We get the adt type out of the store by looking up the definition from
+	// this location. Check to make sure it is there -- if there was an error adding the ADT, there
+	// may not be a datatype definition at this location.
+	if (descend && size(invert(c.definitions)[decl@\loc]) > 0 && c.store[getOneFrom(invert(c.definitions)[decl@\loc])] is datatype) {
+		adtId = getOneFrom(invert(c.definitions)[decl@\loc]);
+		adtType = c.store[adtId].rtype;
+
+		// Get back information on the common keyword parameters
+		commonParamList = [ ];
+		if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := commonParams) commonParamList = [ kfi | kfi <- kfs ];
+						
+		// Now add all the constructors
+		// TODO: Check here for overlap problems
+		for (Variant vr:(Variant)`<Name vn> ( < {TypeArg ","}* vargs > <KeywordFormals keywordArgs>)` <- vs) {
+			// TODO: Check for convert errors
+			list[Symbol] targs = [ ];
+			for (varg <- vargs) { < c, vargT > = convertAndExpandTypeArg(varg, c); targs = targs + vargT; } 
+			cn = convertName(vn);
+			kfl = [ ];
+			if ((KeywordFormals)`<OptionalComma _> <{KeywordFormal ","}+ keywordFormalList>` := keywordArgs)
+				kfl = [ ka | ka <- keywordFormalList ];
+			< c, ckfrel > = calculateKeywordParamRel(c, commonParamList);
+			< c, kfrel > = calculateKeywordParamRel(c, kfl);
+			c = addConstructor(c, cn, vr@\loc, Symbol::\cons(adtType,getSimpleName(cn),targs), ckfrel, kfrel);       
+		}
+	}
+
+	return c;
 }
 
 @doc{Check the type of the components of a declaration: Function}
@@ -5549,7 +6218,7 @@ private Configuration prepareSignatureEnv(Configuration c) {
     // existing variables and/or functions that are live in the current 
     // environment. Also, this way we can just get the type and drop all 
     // the changes that would be made to the environment.
-    return c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] || (overload(ids,_) := c.store[c.fcvEnv[ename]] && size({consid | consid <- ids, constructor(_,_,_,_) := c.store[consid]})>0) )];
+    return c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_,_) := c.store[c.fcvEnv[ename]] || (overload(ids,_) := c.store[c.fcvEnv[ename]] && size({consid | consid <- ids, constructor(_,_,_,_,_) := c.store[consid]})>0) )];
 }
 
 @doc{Prepare the various environments for checking the function body.}
@@ -5669,7 +6338,10 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+        cFun = addLabel(cFun,rn,fd@\loc,functionLabel());
+        cFun.labelStack = labelStackItem(rn, functionLabel(), \void()) + cFun.labelStack;
         < cFun, tExp > = checkExp(exp, cFun);
+        cFun.labelStack = tail(cFun.labelStack);
         if (!isFailType(tExp) && !subtype(tExp, cFun.expectedReturnType))
             cFun = addScopeMessage(cFun,error("Unexpected type: type of body expression, <prettyPrintType(tExp)>, must be a subtype of the function return type, <prettyPrintType(cFun.expectedReturnType)>", exp@\loc));
         c = recoverEnvironmentsAfterCall(cFun, c);
@@ -5737,7 +6409,11 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
                 cWhen = addScopeMessage(cWhen,error("Unexpected type: condition should be of type bool, not type <prettyPrintType(tCond)>", cond@\loc));
         }
         
+        cWhen = addLabel(cWhen,rn,fd@\loc,functionLabel());
+        cWhen.labelStack = labelStackItem(rn, functionLabel(), \void()) + cWhen.labelStack;
         < cWhen, tExp > = checkExp(exp, cWhen);
+        cWhen.labelStack = tail(cWhen.labelStack);
+
         if (!isFailType(tExp) && !subtype(tExp, cWhen.expectedReturnType))
             cWhen = addScopeMessage(cWhen,error("Unexpected type: type of body expression, <prettyPrintType(tExp)>, must be a subtype of the function return type, <prettyPrintType(cFun.expectedReturnType)>", exp@\loc));
             
@@ -5796,9 +6472,14 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);        
+        cFun = addLabel(cFun,rn,fd@\loc,functionLabel());
+        cFun.labelStack = labelStackItem(rn, functionLabel(), \void()) + cFun.labelStack;
+
         if ((FunctionBody)`{ <Statement* ss> }` := body) {
 			< cFun, tStmt > = checkStatementSequence([ssi | ssi <- ss], cFun);
         }
+
+        cFun.labelStack = tail(cFun.labelStack);
         c = recoverEnvironmentsAfterCall(cFun, c);
     }
 
@@ -5908,7 +6589,8 @@ public Configuration importFunction(RName functionName, Signature sig, loc at, V
         throwsTypes += ttypeC; 
     }
     set[Modifier] modifiers = getModifiers(sig);
-    cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]]
+    cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_,_) := c.store[c.fcvEnv[ename]]
+    																	|| production(_,_,_,_) := c.store[c.fcvEnv[ename]]
     																	// constructor names may be overloaded 
     																	|| overload(_,_) := c.store[c.fcvEnv[ename]] )];
     cFun = addFunction(cFun, functionName, Symbol::\func(\void(),[]), ( ), modifiers, isVarArgs(sig), vis, throwsTypes, at);
@@ -5929,10 +6611,10 @@ public Configuration importVariable(RName variableName, Type variableType, loc a
 @doc{Import a signature item: ADT}
 public Configuration importADT(RName adtName, UserType adtType, loc at, Vis vis, bool descend, Configuration c) {
     // If we are not descending, we just record the name in the type environment. If
-    // we are descending, we also process the type parameters.
+    // we are descending, we also process the type and keyword parameters.
     if (!descend) {
         c = addADT(c,adtName,vis,at,\adt(prettyPrintName(adtName),[]));
-    } else {
+    } else if (size(invert(c.definitions)[at]) > 0 && c.store[getOneFrom(invert(c.definitions)[at])] is datatype) {
         adtId = getOneFrom(invert(c.definitions)[at]);
         < c, utype > = convertAndExpandUserType(adtType,c);
         utypeParams = getUserTypeParameters(utype);
@@ -5949,14 +6631,16 @@ public Configuration importNonterminal(RName sort, Symbol sym, loc at, Configura
 }
 
 @doc{Import a signature item: Constructor}
-public Configuration importConstructor(RName conName, UserType adtType, list[TypeArg] argTypes, loc adtAt, loc at, Vis vis, Configuration c) {
+public Configuration importConstructor(RName conName, UserType adtType, list[TypeArg] argTypes, list[KeywordFormal] commonParams, list[KeywordFormal] keywordParams, loc adtAt, loc at, Vis vis, Configuration c) {
     // NOTE: We do not have a separate descend stage. Instead, we just add these after the types (aliases
     // and ADTs) have already been added. These are added before functions, though, since they may be
     // used in the function parameters.
     rt = c.store[getOneFrom(invert(c.definitions)[adtAt])].rtype;
     list[Symbol] targs = [ ];
     for (varg <- argTypes) { < c, vargT > = convertAndExpandTypeArg(varg, c); targs = targs + vargT; } 
-    return addConstructor(c, conName, at, Symbol::\cons(rt,getSimpleName(conName),targs));         
+	< c, ckfrel > = calculateKeywordParamRel(c, commonParams);	    
+	< c, kfrel > = calculateKeywordParamRel(c, keywordParams);	    
+    return addConstructor(c, conName, at, Symbol::\cons(rt,getSimpleName(conName),targs), ckfrel, kfrel);         
 }
 
 @doc{Import a signature item: Production}
@@ -6020,11 +6704,29 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     map[RName,bool] isExtends = ( );
     map[RName,int] moduleIds = ( );
     map[RName,loc] moduleLocs = ( );
+    lrel[RName,bool] defaultImports = [ ]; // [ < RSimpleName("Exception"), false > ];
     list[RName] importOrder = [ ];
     
     c = addModule(c, moduleName, md@\loc);
     currentModuleId = head(c.stack);
             
+    for (< modName, defaultExtends > <- defaultImports) {
+        try {
+            dt1 = now();
+            modTree = getModuleParseTree(prettyPrintName(modName));
+            sigMap[modName] = getModuleSignature(modTree);
+            moduleLocs[modName] = modTree@\loc;
+            importOrder = importOrder + modName;
+            c = addModule(c,modName,modTree@\loc);
+            moduleIds[modName] = head(c.stack);
+            c = popModule(c);
+            isExtends[modName] = defaultExtends;
+            c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
+        } catch perror : {
+            c = addScopeError(c, "Cannot calculate signature for default module <prettyPrintName(modName)>", md@\loc);
+        }
+    }
+
     // Get the information about each import, including the module signature
     for (importItem <- importList) {
         if ((Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem) {
@@ -6074,7 +6776,19 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
         sig = sigMap[modName];
         c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
         for (item <- sig.datatypes) c = importADT(item.adtName, item.adtType, item.at, publicVis(), true, c);
-        for (item <- sig.aliases) c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), true, c);
+        bool modified = true;
+        definitions = invert(c.definitions);
+        while(modified) {
+            modified = false;
+            for(item <- sig.aliases) {
+                int aliasId = getOneFrom(definitions[item.at]);
+                Symbol t = c.store[aliasId].rtype;
+                c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), true, c);
+                if(t != c.store[aliasId].rtype) {
+                    modified = true;
+                }
+            }
+        }
         for (item <- sig.tags) c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), true, c);
         c.stack = tail(c.stack);
     }
@@ -6088,7 +6802,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
         sig = sigMap[modName];
         c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
         for (item <- sig.publicConstructors) 
-          c = importConstructor(item.conName, item.adtType, item.argTypes, item.adtAt, item.at, publicVis(), c);
+          c = importConstructor(item.conName, item.adtType, item.argTypes, item.commonParams, item.keywordParams, item.adtAt, item.at, publicVis(), c);
         for (item <- sig.publicProductions) {
           // Firts, resolve names in the productions
           <p,c> = resolveProduction(item.prod, item.at, c, true);
@@ -6134,6 +6848,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     if ((Body)`<Toplevel* tls>` := body) {
         dt1 = now();
         list[Declaration] typesAndTags = [ ];
+        list[Declaration] aliases = [ ];
         list[Declaration] annotations = [ ];
         list[Declaration] names = [ ];
         
@@ -6143,16 +6858,32 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
             switch(decl) {
                 case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : names = names + decl;
                 case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : annotations = annotations + decl;
-                case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : typesAndTags = typesAndTags + decl;
+                case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : aliases = aliases + decl;
                 case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : typesAndTags = typesAndTags + decl;
                 case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : typesAndTags = typesAndTags + decl;
-                case (Declaration)`<Tags _> <Visibility _> data <UserType _> = <{Variant "|"}+ _> ;` : typesAndTags = typesAndTags + decl;
+                case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : typesAndTags = typesAndTags + decl;
                 case (Declaration)`<FunctionDeclaration _>` : names = names + decl;
             }
         }
 
         // Introduce the type names into the environment
         for (t <- typesAndTags) c = checkDeclaration(t,false,c);
+        for (t <- aliases) c = checkDeclaration(t,false,c);
+        
+        // Now, actually process the aliases
+        bool modified = true;
+        definitions = invert(c.definitions);
+        while(modified) {
+        	    modified = false;
+            for(t <- aliases) {
+                int aliasId = getOneFrom(definitions[t@\loc]);
+                Symbol aliasedType = c.store[aliasId].rtype;
+                c = checkDeclaration(t,true,c);
+                if(aliasedType != c.store[aliasId].rtype) {
+                    modified = true;
+                }
+            }
+        }
         
         // Now, actually process the type names
         for (t <- typesAndTags) c = checkDeclaration(t,true,c);
@@ -6216,7 +6947,7 @@ public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
     rt = convertType(t);
     if( utc:\user(rn,pl) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
         // Check if there is a value constructor with this name in the current environment
-        if(constructor(_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
+        if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
             // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
             c.uses = c.uses + <c.fcvEnv[rn], utc@at>;
             c.usedIn[utc@at] = head(c.stack);
@@ -6224,7 +6955,7 @@ public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
         }
     } else if (\func(utc:\user(rn,pl), ps) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
         // Check if there is a value constructor with this name in the current environment
-        if(constructor(_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
+        if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
             // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
             c.uses = c.uses + <c.fcvEnv[rn], utc@at>;
             c.usedIn[utc@at] = head(c.stack);
@@ -6278,7 +7009,7 @@ public CheckResult convertAndExpandUserType(UserType t, Configuration c) {
 public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c) {
     rt = bottom-up visit(rt) {
         case utc:\user(rn,pl) : {
-            if (rn in c.typeEnv) {
+            if (rn in c.typeEnv && !(c.store[c.typeEnv[rn]] is conflict)) {
                 ut = c.store[c.typeEnv[rn]].rtype;
                 if ((utc@at)?) {
                     c.uses = c.uses + < c.typeEnv[rn], utc@at >;
@@ -6963,8 +7694,12 @@ public anno map[loc,set[loc]] Tree@docLinks;
 public Configuration checkAndReturnConfig(str mpath) {
     c = newConfiguration();
 	t = getModuleParseTree(mpath);    
-	if (t has top && Module m := t.top)
-		c = checkModule(m, c);
+    try {
+		if (t has top && Module m := t.top)
+			c = checkModule(m, c);
+	} catch : {
+		c.messages = {error("Encountered error checking module <mpath>", t@\loc)};
+	}
 	return c;
 }
 
@@ -7012,7 +7747,7 @@ CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {
   sym = visit(sym) {
    case sort(str name) : {
      sname = RSimpleName(name);
-     if (sname notin c.typeEnv) {
+     if (sname notin c.typeEnv || !(c.store[c.typeEnv[sname]] is sorttype)) {
        c = addScopeMessage(c,error("Syntax type <name> is not defined", l));
      }
      else {
@@ -7032,7 +7767,7 @@ tuple[Production,Configuration] resolveProduction(Production prod, loc l, Config
 	prod = visit(prod) {
 		case \sort(n): {
 			name = RSimpleName(n);
-			if(typeEnv[name]?) {
+			if(typeEnv[name]? && c.store[typeEnv[name]] is sorttype) {
 				sym = c.store[typeEnv[name]].rtype;
 				if(\lex(n) := sym || \layouts(n) := sym || \keywords(n) := sym) {
 					insert sym;
@@ -7048,7 +7783,7 @@ tuple[Production,Configuration] resolveProduction(Production prod, loc l, Config
 		}
 		case \parameterized-sort(n,ps): {
 			name = RSimpleName(n);
-			if(typeEnv[name]?) {
+			if(typeEnv[name]? && c.store[typeEnv[name]] is sorttype) {
 				sym = c.store[typeEnv[name]].rtype;
 				if(\parameterized-lex(n,_) := sym) {
 					insert \parameterized-lex(n,ps);
@@ -7064,7 +7799,7 @@ tuple[Production,Configuration] resolveProduction(Production prod, loc l, Config
 		}
 		case \lex(n): {
 			name = RSimpleName(n);
-			if(typeEnv[name]?) {
+			if(typeEnv[name]? && c.store[typeEnv[name]] is sorttype) {
 				sym = c.store[typeEnv[name]].rtype;
 				if(\sort(n) := sym || \layouts(n) := sym || \keywords(n) := sym) {
 					insert sym;
@@ -7080,7 +7815,7 @@ tuple[Production,Configuration] resolveProduction(Production prod, loc l, Config
 		 }
 		case \parameterized-lex(n,ps): {
 			name = RSimpleName(n);
-			if(typeEnv[name]?) {
+			if(typeEnv[name]? && c.store[typeEnv[name]] is sorttype) {
 				sym = c.store[typeEnv[name]].rtype;
 				if(\parameterized-sort(n,_) := sym) {
 					insert \parameterized-sort(n,ps);

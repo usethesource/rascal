@@ -22,8 +22,6 @@ public test bool impl(bool b1, bool b2) = (b1 ==> b2) <==> !(b1 && !b2);
 
 public test bool tstArbBool() { b = arbBool() ; return b == true || b == false; }
 
-public test bool tstFromInt(int n) = fromInt(n) <==> (n != 0);
-
 public test bool fromString1() = fromString("true") == true && fromString("false") == false;
 
 @expected{IllegalArgument}

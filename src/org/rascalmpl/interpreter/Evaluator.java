@@ -105,7 +105,7 @@ import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.recovery.Recoverer;
 import org.rascalmpl.uri.CWDURIResolver;
-import org.rascalmpl.uri.ClassResourceInputOutput;
+import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
@@ -225,13 +225,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		CWDURIResolver cwd = new CWDURIResolver();
 		resolverRegistry.registerInputOutput(cwd);
 
-		ClassResourceInputOutput library = new ClassResourceInputOutput(resolverRegistry, "std", getClass(), "/org/rascalmpl/library");
-		resolverRegistry.registerInputOutput(library);
+		ClassResourceInput library = new ClassResourceInput(resolverRegistry, "std", getClass(), "/org/rascalmpl/library");
+		resolverRegistry.registerInput(library);
 
-		ClassResourceInputOutput testdata = new ClassResourceInputOutput(resolverRegistry, "testdata", getClass(), "/org/rascalmpl/test/data");
+		ClassResourceInput testdata = new ClassResourceInput(resolverRegistry, "testdata", getClass(), "/org/rascalmpl/test/data");
 		resolverRegistry.registerInput(testdata);
 		
-		ClassResourceInputOutput benchmarkdata = new ClassResourceInputOutput(resolverRegistry, "benchmarks", getClass(), "/org/rascalmpl/benchmark");
+		ClassResourceInput benchmarkdata = new ClassResourceInput(resolverRegistry, "benchmarks", getClass(), "/org/rascalmpl/benchmark");
 		resolverRegistry.registerInput(benchmarkdata);
 		
 		resolverRegistry.registerInput(new JarURIResolver());
@@ -241,10 +241,31 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		resolverRegistry.registerInputOutput(new HomeURIResolver());
 		resolverRegistry.registerInputOutput(new TempURIResolver());
 		
-		ClassResourceInputOutput courses = new ClassResourceInputOutput(resolverRegistry, "courses", getClass(), "/org/rascalmpl/courses");
-		resolverRegistry.registerInputOutput(courses);
-		ClassResourceInputOutput tutor = new ClassResourceInputOutput(resolverRegistry, "tutor", getClass(), "/org/rascalmpl/tutor");
-		resolverRegistry.registerInputOutput(tutor);
+		// here we have code that makes sure that courses can be edited by
+		// maintainers of Rascal, using the -Drascal.courses=/path/to/courses property.
+		final String courseSrc = System.getProperty("rascal.courses");
+		if (courseSrc != null) {
+		   FileURIResolver fileURIResolver = new FileURIResolver() {
+		    @Override
+		    public String scheme() {
+		      return "courses";
+		    }
+		    
+		    @Override
+		    protected String getPath(URI uri) {
+		      String path = uri.getPath();
+		      return courseSrc + (path.startsWith("/") ? path : ("/" + path));
+		    }
+		  };
+		  
+		  resolverRegistry.registerInputOutput(fileURIResolver);
+		}
+		else {
+		  resolverRegistry.registerInput(new ClassResourceInput(resolverRegistry, "courses", getClass(), "/org/rascalmpl/courses"));
+		}
+	
+		ClassResourceInput tutor = new ClassResourceInput(resolverRegistry, "tutor", getClass(), "/org/rascalmpl/tutor");
+		resolverRegistry.registerInput(tutor);
 		
 		// default event trigger to swallow events
 		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
@@ -1205,7 +1226,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 				monitor.startJob("Reloading modules", onHeap.size());
 				for (String mod : onHeap) {
 					if (!heap.existsModule(mod)) {
-						defStderr.print("Reloading module " + mod);
+						defStderr.println("Reloading module " + mod);
 						reloadModule(mod, errorLocation);
 					}
 					monitor.event("loaded " + mod, 1);

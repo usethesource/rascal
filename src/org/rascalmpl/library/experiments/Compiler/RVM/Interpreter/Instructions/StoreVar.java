@@ -16,9 +16,8 @@ public class StoreVar extends Instruction {
 	public String toString() { return "STOREVAR " + fuid + ", " + pos; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode((pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid))
-                                      : codeblock.getFunctionIndex(fuid));
-		codeblock.addCode(pos);
+		codeblock.addCode2(opcode.getOpcode(), (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid))
+                                      					   : codeblock.getFunctionIndex(fuid),
+                                      		   pos);
 	}
 }

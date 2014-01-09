@@ -100,7 +100,7 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 		sig = sigMap[modName];
 		c.stack = currentModuleId + c.stack;
 		for (item <- sig.publicConstructors)
-			c = importConstructor(item.conName, item.adtType, item.argTypes, item.adtAt, item.at, publicVis(), c);
+			c = importConstructor(item.conName, item.adtType, item.argTypes, item.commonParams, item.keywordParams, item.adtAt, item.at, publicVis(), c);
 		c.stack = tail(c.stack);
 	}
     

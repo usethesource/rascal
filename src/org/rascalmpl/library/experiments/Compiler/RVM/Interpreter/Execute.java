@@ -9,6 +9,7 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -17,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
 public class Execute {
 
@@ -36,18 +38,19 @@ public class Execute {
 	
 	// Library function to execute a RVM program from Rascal
 
-	public ITuple executeProgram(IConstructor program, 
+	public ITuple executeProgram(IConstructor program,
+								 IMap imported_types,
 								 IList imported_functions,
 								 IList imported_overloaded_functions,
 								 IMap imported_overloading_resolvers,
-								 IMap imported_grammars, IList argumentsAsList,
-								 IBool debug, IBool testsuite, IEvaluatorContext ctx) {
+								 IList argumentsAsList,
+								 IBool debug, IBool testsuite, IBool profile, IEvaluatorContext ctx) {
 		
 		boolean isTestSuite = testsuite.getValue();
 		String moduleName = ((IString) program.get("name")).getValue();
 		
 		String main = isTestSuite ? "/<moduleName>_testsuite(list(value());)#0" : "/main(list(value());)#0";
-		String mu_main = isTestSuite ? "/testsuite(1)" : "/main(1)";
+		String mu_main = isTestSuite ? "/TESTSUITE(1)" : "/MAIN(1)";
 		
 		String module_init = moduleInit(moduleName);
 		String mu_module_init = muModuleInit(moduleName);
@@ -57,10 +60,17 @@ public class Execute {
 		
 		PrintWriter stdout = ctx.getStdOut();
 		
-		RVM rvm = new RVM(vf, ctx, debug.getValue());
+		RVM rvm = new RVM(vf, ctx, debug.getValue(), profile.getValue());
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
+		
+		Iterator<Entry<IValue, IValue>> entries = imported_types.entryIterator();
+		while(entries.hasNext()) {
+			Entry<IValue, IValue> entry = entries.next();
+			rvm.declareConstructor(((IString) entry.getKey()).getValue(), (IConstructor) entry.getValue());
+		}
+		
 		for(IValue imp : imported_functions){
 			IConstructor declaration = (IConstructor) imp;
 			if (declaration.getName().contentEquals("FUNCTION")) {
@@ -72,7 +82,11 @@ public class Execute {
 				if(name.endsWith("_testsuite(list(value());)#0")){
 					testsuites.add(name);
 				}
-				loadInstructions(name, declaration, rvm);
+				loadInstructions(name, declaration, rvm, false);
+			}
+			if (declaration.getName().contentEquals("COROUTINE")) {
+				String name = ((IString) declaration.get("qname")).getValue();
+				loadInstructions(name, declaration, rvm, true);
 			}
 		}
 		
@@ -81,7 +95,7 @@ public class Execute {
 		rvm.fillOverloadedStore(imported_overloaded_functions);
 
 		IMap types = (IMap) program.get("types");
-		Iterator<Entry<IValue, IValue>> entries = types.entryIterator();
+		entries = types.entryIterator();
 		while(entries.hasNext()) {
 			Entry<IValue, IValue> entry = entries.next();
 			rvm.declareConstructor(((IString) entry.getKey()).getValue(), (IConstructor) entry.getValue());
@@ -102,16 +116,18 @@ public class Execute {
 				if(name.endsWith("_testsuite(list(value());)#0")){
 					testsuites.add(name);
 				}
-				loadInstructions(name, declaration, rvm);
+				loadInstructions(name, declaration, rvm, false);
+			}
+			
+			if(declaration.getName().contentEquals("COROUTINE")) {
+				String name = ((IString) declaration.get("qname")).getValue();
+				loadInstructions(name, declaration, rvm, true);
 			}
 		}
 		
 		// Overloading resolution
 		rvm.addResolver((IMap) program.get("resolver"));
 		rvm.fillOverloadedStore((IList) program.get("overloaded_functions"));
-		
-		// Grammars
-		rvm.setGrammars(imported_grammars);
 		
 		IValue[] arguments = new IValue[argumentsAsList.length()];
 		for(int i = 0; i < argumentsAsList.length(); i++){
@@ -134,38 +150,13 @@ public class Execute {
 				 * Execute as testsuite
 				 */
 				rvm.executeProgram(uid_module_init, arguments);
-				int number_of_successes = 0;
-				int number_of_failures = 0;
-			
-				stdout.println("\nTEST REPORT\n");
+
+				IListWriter w = vf.listWriter();
 				for(String uid_testsuite: testsuites){
 					IList test_results = (IList)rvm.executeProgram(uid_testsuite, arguments);
-					for(IValue voutcome : test_results){
-						ITuple outcome = (ITuple) voutcome;
-						String tst_name = ((ISourceLocation) outcome.get(0)).toString();
-						//tst_name = tst_name.substring(1, tst_name.length()); // remove leading /
-						//tst_name = tst_name.replaceAll("/", "::");
-					
-						boolean passed = ((IBool) outcome.get(1)).getValue();
-						String exception = ((IString) outcome.get(2)).getValue();
-						if(!exception.isEmpty()){
-							exception = "; Unexpected exception: " + exception;
-						}
-					
-						if(passed){
-							number_of_successes++;
-						} else {
-							number_of_failures++;
-						}
-						if(!passed)
-							stdout.println(tst_name + ": FALSE" + exception);
-					}
+					w.insertAll(test_results);
 				}
-				int number_of_tests = number_of_successes + number_of_failures;
-				stdout.println("\nExecuted " + number_of_tests + " tests: "  
-						+ number_of_successes + " succeeded; "
-						+ number_of_failures + " failed.\n");
-				result = vf.tuple(vf.integer(number_of_successes), vf.integer(number_of_failures));
+				result = w.done();
 			} else {
 				/*
 				 * Standard execution of main function
@@ -178,6 +169,9 @@ public class Execute {
 				result = rvm.executeProgram(uid_main, arguments);
 			}
 			long now = System.currentTimeMillis();
+			MuPrimitive.exit();
+			RascalPrimitive.exit();
+			Opcode.exit();
 			return vf.tuple((IValue) result, vf.integer(now - start));
 			
 		} catch(Thrown e) {
@@ -211,9 +205,9 @@ public class Execute {
 	 * @param declaration the declaration of that function
 	 * @param rvm in which function will be loaded
 	 */
-	private void loadInstructions(String name, IConstructor declaration, RVM rvm){
+	private void loadInstructions(String name, IConstructor declaration, RVM rvm, boolean isCoroutine){
 	
-		Type ftype = rvm.symbolToType((IConstructor) declaration.get("ftype"));
+		Type ftype = isCoroutine ? null : rvm.symbolToType((IConstructor) declaration.get("ftype"));
 		
 		//System.err.println("loadInstructions: " + name + ": ftype = " + ftype + ", declaration = " + declaration);
 		
@@ -283,7 +277,7 @@ public class Execute {
 				break;
 
 			case "RETURN1":
-				codeblock.RETURN1();
+				codeblock.RETURN1(getIntField(instruction, "arity"));
 				break;
 
 			case "JMP":
@@ -327,7 +321,7 @@ public class Execute {
 				break;
 
 			case "YIELD1":
-				codeblock.YIELD1();
+				codeblock.YIELD1(getIntField(instruction, "arity"));
 				break;
 
 			case "HASNEXT":
@@ -407,15 +401,16 @@ public class Execute {
 
 			case "CALLJAVA":
 				codeblock.CALLJAVA(getStrField(instruction, "name"), getStrField(instruction, "class"), 
-						 			rvm.symbolToType((IConstructor) instruction.get("parameterTypes")));
+						 			rvm.symbolToType((IConstructor) instruction.get("parameterTypes")), 
+						 			getIntField(instruction, "reflect"));
 				break;
 
 			case "THROW":
 				codeblock.THROW();
 				break;
 			
-			case "JMPSWITCH":
-				codeblock.JMPSWITCH((IList)instruction.get("labels"));
+			case "TYPESWITCH":
+				codeblock.TYPESWITCH((IList)instruction.get("labels"));
 				break;
 				
 			case "UNWRAPTHROWN":
@@ -424,6 +419,74 @@ public class Execute {
 				
 			case "FILTERRETURN":
 				codeblock.FILTERRETURN();
+				break;
+				
+			case "EXHAUST":
+				codeblock.EXHAUST();
+				break;
+				
+			case "GUARD":
+				codeblock.GUARD();
+				break;
+				
+			case "SUBSCRIPTARRAY":
+				codeblock.SUBSCRIPTARRAY();
+				break;
+				
+			case "SUBSCRIPTLIST":
+				codeblock.SUBSCRIPTLIST();
+				break;
+				
+			case "LESSINT":
+				codeblock.LESSINT();
+				break;
+				
+			case "GREATEREQUALINT":
+				codeblock.GREATEREQUALINT();
+				break;
+				
+			case "ADDINT":
+				codeblock.ADDINT();
+				break;
+				
+			case "SUBTRACTINT":
+				codeblock.SUBTRACTINT();
+				break;
+				
+			case "ANDBOOL":
+				codeblock.ANDBOOL();
+				break;
+				
+			case "TYPEOF":
+				codeblock.TYPEOF();
+				break;
+				
+			case "SUBTYPE":
+				codeblock.SUBTYPE();
+				break;
+				
+			case "CHECKARGTYPE":
+				codeblock.CHECKARGTYPE();
+				break;
+				
+			case "JMPINDEXED":
+				codeblock.JMPINDEXED((IList)instruction.get("labels"));
+				break;
+				
+			case "LOADLOCKWP":
+				codeblock.LOADLOCKWP(getStrField(instruction, "name"));
+				break;
+				
+			case "LOADVARKWP":
+				codeblock.LOADVARKWP(getStrField(instruction, "fuid"), getStrField(instruction, "name"));
+				break;
+				
+			case "STORELOCKWP":
+				codeblock.STORELOCKWP(getStrField(instruction, "name"));
+				break;
+				
+			case "STOREVARKWP":
+				codeblock.STOREVARKWP(getStrField(instruction, "fuid"), getStrField(instruction, "name"));
 				break;
 				
 			default:
@@ -435,9 +498,22 @@ public class Execute {
 			throw new RuntimeException("In function " + name + " : " + e.getMessage());
 		}
 		
-		IList exceptions = (IList) declaration.get("exceptions");
 		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, maxstack, codeblock);
-		function.attachExceptionTable(exceptions, rvm);
+		if(isCoroutine) {
+			function.isCoroutine = true;
+			IList refList = (IList) declaration.get("refs");
+			int[] refs = new int[refList.length()];
+			int i = 0;
+			for(IValue ref : refList) {
+				refs[i++] = ((IInteger) ref).intValue();
+			}
+			function.refs = refs;
+		} else {
+			IList exceptions = (IList) declaration.get("exceptions");
+			function.attachExceptionTable(exceptions, rvm);
+			boolean isVarArgs = ((IBool) declaration.get("isVarArgs")).getValue();
+			function.isVarArgs = isVarArgs;
+		}
 		rvm.declare(function);
 	}
 

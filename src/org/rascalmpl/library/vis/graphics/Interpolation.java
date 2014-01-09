@@ -29,8 +29,8 @@ import java.util.ArrayList;
 
 public class Interpolation {
 	final static boolean debug = false;
-	static double[] lD, uD, D, z, v, h, x, y;
-	static TypedPoint[] P0, P1, P2, P3;
+	public static double[] lD, uD, D, z, v, h, x, y;
+	public static TypedPoint[] P0, P1, P2, P3;
 
 	// Tridiagonal matrix algorithm Solve Av = c;
 	static void solveMatrix(double[] a, double[] b, double[] c, double[] v,
@@ -124,7 +124,7 @@ public class Interpolation {
 		return true;
 	}
 
-	static void solve(ArrayList<TypedPoint> r, boolean closed) {
+	public static void solve(ArrayList<TypedPoint> r, boolean closed) {
 		if (!computeMatrix(r))
 			return;
 		solveMatrix(lD, D, uD, v, z);

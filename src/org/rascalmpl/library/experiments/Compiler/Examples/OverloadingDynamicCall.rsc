@@ -8,6 +8,7 @@ default str f(str s) = "100 + <s>";
 
 value main(list[value] args) {
 	x = f;
-	y = f("arg");
+	y = x("arg");
+	y = y + "; <x(1)>";
 	return y;
 }

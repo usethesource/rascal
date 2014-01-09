@@ -45,7 +45,7 @@ str mkCatchTo(str label) = "CATCH_TO_<label>";
 str mkFinallyFrom(str label) = "FINALLY_FROM_<label>";
 str mkFinallyTo(str label) = "FINALLY_TO_<label>";
 
-int defaultStackSize = 25;
+//int defaultStackSize = 25;
 
 int newLocal() {
     n = nlocal;
@@ -139,12 +139,15 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   for(fun <- functions){
     functionScope = fun.qname;
     nlocal = fun.nlocals;
+    temporaries = ();
     exceptionTable = [];
     catchBlocks = [[]];
     if(listing){
     	iprintln(fun);
     }
+    
     // Append catch blocks to the end of the function body code
+    // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
     code = peephole(tr(fun.body)) + [ *catchBlock | INS catchBlock <- catchBlocks ];
     
     // Debugging exception handling
@@ -160,10 +163,11 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     required_frame_size = nlocal + estimate_stack_size(fun.body);
     lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
     																			  tuple[str from, str to] range <- entry.ranges ];
-    funMap += (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, required_frame_size, code, exceptions));
+    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.scopeIn, fun.nformals, nlocal, fun.refs, required_frame_size, code))
+    							   : (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal, fun.isVarArgs, required_frame_size, code, exceptions));
   }
   
-  main_fun = getUID(module_name,[],"main",1);
+  main_fun = getUID(module_name,[],"MAIN",1);
   module_init_fun = getUID(module_name,[],"#<module_name>_init",1);
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
   if(!funMap[main_fun]?) {
@@ -171,22 +175,22 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   	 module_init_fun = getFUID(module_name,"#<module_name>_init",ftype,0);
   }
   
-  funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 1, size(variables) + 1, defaultStackSize, 
-  									[*tr(initializations), 
+  funMap += (module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 2, size(variables) + 2, false, estimate_stack_size(initializations) + size(variables) + 1,
+  									[*trvoidblock(initializations), 
   									 LOADCON(true),
-  									 RETURN1(),
+  									 RETURN1(1),
   									 HALT()
   									],
   									[]));
  
-  main_testsuite = getUID(module_name,[],"testsuite",1);
+  main_testsuite = getUID(module_name,[],"TESTSUITE",1);
   module_init_testsuite = getUID(module_name,[],"#module_init_testsuite",1);
   if(!funMap[main_testsuite]?) { 						
   	 main_testsuite = getFUID(module_name,"testsuite",ftype,0);
   	 module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
   }
   
-  res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions, grammar);
+  res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions);
   if(listing){
     for(fname <- funMap)
   		iprintln(funMap[fname]);
@@ -199,7 +203,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
 /*********************************************************************/
 
 
-INS  tr(list[MuExp] exps) = [ *tr(exp) | exp <- exps ];
+INS tr(list[MuExp] exps) = [ *tr(exp) | exp <- exps ];
 
 INS tr_and_pop(muBlock([])) = [];
 
@@ -233,8 +237,6 @@ default INS tr(muBlock(list[MuExp] exps)) = trblock(exps);
 // Literals and type constants
 
 INS tr(muBool(bool b)) = [LOADBOOL(b)];
-INS tr(muCon("true")) = [LOADCON(true)];
-INS tr(muCon("false")) = [LOADCON(false)];
 
 INS tr(muInt(int n)) = [LOADINT(n)];
 default INS tr(muCon(value c)) = [LOADCON(c)];
@@ -258,6 +260,9 @@ INS tr(muVar(str id, str fuid, int pos)) = [fuid == functionScope ? LOADLOC(pos)
 INS tr(muLoc(str id, int pos)) = [LOADLOC(pos)];
 INS tr(muTmp(str id)) = [LOADLOC(getTmp(id))];
 
+INS tr(muLocKwp(str name)) = [ LOADLOCKWP(name) ];
+INS tr(muVarKwp(str fuid, str name)) = [ fuid == functionScope ? LOADLOCKWP(name) : LOADVARKWP(fuid, name) ];
+
 INS tr(muLocDeref(str name, int pos)) = [ LOADLOCDEREF(pos) ];
 INS tr(muVarDeref(str name, str fuid, int pos)) = [ fuid == functionScope ? LOADLOCDEREF(pos) : LOADVARDEREF(fuid, pos) ];
 
@@ -271,6 +276,9 @@ INS tr(muAssignVarDeref(str id, str fuid, int pos, MuExp exp)) = [ *tr(exp), fui
 INS tr(muAssign(str id, str fuid, int pos, MuExp exp)) = [*tr(exp), fuid == functionScope ? STORELOC(pos) : STOREVAR(fuid, pos)];
 INS tr(muAssignLoc(str id, int pos, MuExp exp)) = [*tr(exp), STORELOC(pos) ];
 INS tr(muAssignTmp(str id, MuExp exp)) = [*tr(exp), STORELOC(getTmp(id)) ];
+
+INS tr(muAssignLocKwp(str name, MuExp exp)) = [ *tr(exp), STORELOCKWP(name) ];
+INS tr(muAssignKwp(str fuid, str name, MuExp exp)) = [ *tr(exp), fuid == functionScope ? STORELOCKWP(name) : STOREVARKWP(fuid,name) ];
 
 // Calls
 
@@ -288,15 +296,33 @@ INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size
 
 INS tr(muOCall(muOFun(str fuid), list[MuExp] args)) = [*tr(args), OCALL(fuid, size(args))];
 INS tr(muOCall(MuExp fun, Symbol types, list[MuExp] args)) 
-	= [ *tr(args), 
-		*tr(fun), 
+	= [ *tr(args),
+	    *tr(fun), 
 		OCALLDYN(types, size(args))];
 
-INS tr(muCallPrim(str name, list[MuExp] args)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args))];
+// Calls to Rascal primitives
 
-INS tr(muCallMuPrim(str name, list[MuExp] args)) =  (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLMUPRIM(name, size(args))];
+INS tr(muCallPrim("println", list[MuExp] args)) = [*tr(args), PRINTLN(size(args))];
+INS tr(muCallPrim("subtype", list[MuExp] args)) = [*tr(args), SUBTYPE()];
+INS tr(muCallPrim("typeOf", list[MuExp] args)) = [*tr(args), TYPEOF()];
 
-INS tr(muCallJava(str name, str class, Symbol types, list[MuExp] args)) = [ *tr(args), CALLJAVA(name, class, types) ];
+default INS tr(muCallPrim(str name, list[MuExp] args)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args))];
+
+// Calls to MuRascal primitives
+
+INS tr(muCallMuPrim("println", list[MuExp] args)) = [*tr(args), PRINTLN(size(args))];
+INS tr(muCallMuPrim("subscript_array_mint", list[MuExp] args)) = [*tr(args), SUBSCRIPTARRAY()];
+INS tr(muCallMuPrim("subscript_list_mint", list[MuExp] args)) = [*tr(args), SUBSCRIPTLIST()];
+INS tr(muCallMuPrim("less_mint_mint", list[MuExp] args)) = [*tr(args), LESSINT()];
+INS tr(muCallMuPrim("greater_equal_mint_mint", list[MuExp] args)) = [*tr(args), GREATEREQUALINT()];
+INS tr(muCallMuPrim("addition_mint_mint", list[MuExp] args)) = [*tr(args), ADDINT()];
+INS tr(muCallMuPrim("subtraction_mint_mint", list[MuExp] args)) = [*tr(args), SUBTRACTINT()];
+INS tr(muCallMuPrim("and_mbool_mbool", list[MuExp] args)) = [*tr(args), ANDBOOL()];
+INS tr(muCallMuPrim("check_arg_type", list[MuExp] args)) = [*tr(args), CHECKARGTYPE()];
+
+default INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), CALLMUPRIM(name, size(args))];
+
+INS tr(muCallJava(str name, str class, Symbol types, int reflect, list[MuExp] args)) = [ *tr(args), CALLJAVA(name, class, types, reflect) ];
 
 // Return
 
@@ -304,10 +330,13 @@ INS tr(muReturn()) = [RETURN0()];
 INS tr(muReturn(MuExp exp)) {
 	if(muTmp(str varname) := exp) {
 		inlineMuFinally();
-		return [*finallyBlock, *tr(exp), RETURN1()];
+		return [*finallyBlock, *tr(exp), RETURN1(1)];
 	}
-	return [*tr(exp), RETURN1()];
+	return [*tr(exp), RETURN1(1)];
 }
+INS tr(muReturn(MuExp exp, list[MuExp] exps))
+	= [*tr(exp), *tr(exps), RETURN1(size(exps) + 1)];
+
 INS tr(muFailReturn()) = [ FAILRETURN() ];
 
 INS tr(muFilterReturn()) = [ FILTERRETURN() ];
@@ -322,13 +351,18 @@ INS tr(muCreate(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), CREATEDYN
 INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(0)];
 INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order!
 
-INS tr(muHasNext(MuExp coro)) = [*tr(coro), HASNEXT()];
+// INS tr(muHasNext(MuExp coro)) = [*tr(coro), HASNEXT()];
 
 INS tr(muNext(MuExp coro)) = [*tr(coro), NEXT0()];
 INS tr(muNext(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!
 
 INS tr(muYield()) = [YIELD0()];
-INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1()];
+INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1(1)];
+INS tr(muYield(MuExp exp, list[MuExp] exps)) = [ *tr(exp), *tr(exps), YIELD1(size(exps) + 1) ];
+
+INS tr(muExhaust()) = [ EXHAUST() ];
+
+INS tr(muGuard(MuExp exp)) = [ *tr(exp), GUARD() ];
 
 // Exceptions
 
@@ -516,10 +550,7 @@ INS tr(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[MuExp] elsePar
     };
     elseLab = mkElse(label);
     continueLab = mkContinue(label);
-    // Use the dummy label to backtrack in case of fail (continue-after-failure label);	
-    dummyLab = mkFail(label); //dummyLab = nextLabel();
-//  println("ifelse: elseLab = <elseLab>, continueLab = <continueLab>, dummyLab = <dummyLab>");
-    return [ *tr_cond(cond, dummyLab, elseLab), 
+    return [ *tr_cond(cond, { mkFail(label) }, elseLab), 
              *(isEmpty(thenPart) ? LOADCON(111) : trblock(thenPart)),
              JMP(continueLab), 
              LABEL(elseLab),
@@ -535,9 +566,9 @@ INS tr(muWhile(str label, MuExp cond, list[MuExp] body)) {
     	label = nextLabel();
     }	
     continueLab = mkContinue(label);
+    failLab = mkFail(label);
     breakLab = mkBreak(label);
-//    println("while: continueLab = <continueLab>, breakLab = <breakLab>");
-    return [ *tr_cond(cond, continueLab, breakLab), 	 					
+    return [ *tr_cond(cond, { continueLab, failLab }, breakLab), 	 					
     		 *trvoidblock(body),			
     		 JMP(continueLab),
     		 LABEL(breakLab)		
@@ -553,7 +584,7 @@ INS tr(muDo(str label, list[MuExp] body, MuExp cond)) {
     breakLab = mkBreak(label);
     return [ LABEL(continueLab),
      		 *trvoidblock(body),	
-             *tr_cond_do(cond, continueLab, breakLab),	
+             *tr_cond_do(cond, { continueLab }, breakLab),	
     		 JMP(continueLab),
     		 LABEL(breakLab)		
            ];
@@ -575,88 +606,41 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)){
 		caseCode += [ LABEL(caseLab), *tr(cs.exp), JMP(continueLab) ];
 	 };
    caseCode += [LABEL(defaultLab), *tr(defaultExp), JMP(continueLab) ];
-   return [ *tr(exp), JMPSWITCH(labels), *caseCode, LABEL(continueLab) ];
+   return [ *tr(exp), TYPESWITCH(labels), *caseCode, LABEL(continueLab) ];
 }
 
-// Multi/One/All outside conditional context
+// Multi/One/All/Or outside conditional context
     
 default INS tr(e: muMulti(MuExp exp)) = 
 	 [ *tr(exp),
        INIT(0),
        NEXT0()
     ];
-    //when bprintln("tr outer muMulti: <e>");
+   
     
 INS tr(e:muOne(list[MuExp] exps)) {
-  //bprintln("tr outer muOne: <e>");
-  dummyLab = nextLabel();
-  failLab = nextLabel();
-  afterLab = nextLabel();
-  return
-     [ *tr_cond(muAll(exps), dummyLab, failLab),
-       LOADCON(true),
-       JMP(afterLab),
-       LABEL(failLab),
-       LOADCON(false),
-       LABEL(afterLab)
-     ];
+   failLab = nextLabel("OneFail");
+   afterLab = nextLabel("OneAfter");
+   return [*tr_cond(muAll(exps), {}, failLab), LOADCON(true), JMP(afterLab), LABEL(failLab), LOADCON(false), LABEL(afterLab)];
 }
 
-INS tr(e:muAll(list[MuExp] exps)) { 
-    //println("tr outer muAll: <e>");
-    
-    startLab = nextLabel();
-    //continueLab = nextLabel();
-    failLab = nextLabel();
-    currentFail = failLab;
-    afterLab = nextLabel();
-    
-    lastMulti = -1;
-    for(i <- index(exps)){
-        if(muMulti(exp1) := exps[i]){
-           lastMulti = i;
-        }
-    }
-    
-    code = [ JMP(startLab),
-             LABEL(failLab),
-             LOADCON(false),
-             JMP(afterLab),
-             LABEL(startLab)
-           ];
-    for(i <- index(exps)){
-        exp = exps[i];
-        if(muMulti(exp1) := exp){
-           newFail = nextLabel();
-           co = newLocal();
-           code += [ *tr(exp1), 
-          		     INIT(0), 
-          		     STORELOC(co), 
-          		     POP(),
-          		     LABEL(newFail),
-          		     LOADLOC(co), 
-          		     HASNEXT(), 
-          		     JMPFALSE(currentFail), 
-          		     LOADLOC(co),
-          		     NEXT0(), 
-          		     JMPFALSE(currentFail)
-          		   ];
-          currentFail = newFail;
-        } else {
-          code += [ *tr(exp), 
-          		    JMPFALSE(currentFail)
-          		  ];
-        } 
-    }
-    code += [ LOADCON(true),
-              LABEL(afterLab)
-    		 ];
-    return code;   
+INS tr(e:muAll(list[MuExp] exps)) {
+    afterLab = nextLabel("AllAfter");
+    failLab = nextLabel("AllFail");
+    return [*tr_cond(e, {}, failLab), LOADCON(true), JMP(afterLab), LABEL(failLab), LOADCON(false), LABEL(afterLab)];
 }
+
+INS tr(e:muOr(list[MuExp] exps)){
+    continueLab = nextLabel("OrContinue");
+    failLab = nextLabel("OrFail");
+    afterLab = nextLabel("OrAfter");
+    return [*tr_cond(e, {continueLab}, failLab), LOADCON(true), JMP(afterLab), LABEL(failLab), LOADCON(false), LABEL(afterLab)];
+}
+
 
 // The above list of muExps is exhaustive, no other cases exist
 
-default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
+default INS tr(MuExp e) { throw "Unknown node in the muRascal AST: <e>"; }
 
 /*********************************************************************/
 /*      End of muRascal expressions                                  */
@@ -669,7 +653,7 @@ default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 
 /*
  * The contract of tr_cond is as follows:
- * - continueLab: continue searching for more solutions for this condition
+ * - continueLabs: continue searching for more solutions for this condition
  *   (is created by the caller, but inserted in the code generated by tr_cond)
  * - failLab: location ot jump to whe no more solutions exist.
  *   (is created by the caller and only jumped to by code generated by tr_cond.)
@@ -679,9 +663,8 @@ default INS tr(e) { throw "Unknown node in the muRascal AST: <e>"; }
 
 // muOne: explore one successfull evaluation
 
-INS tr_cond(e: muOne(list[MuExp] exps), str continueLab, str failLab){
-    //println("tr_cond: <e>");
-    code = [LABEL(continueLab)];
+INS tr_cond(e: muOne(list[MuExp] exps), set[str] continueLabs, str failLab){
+    code = [LABEL(continueLab) | str continueLab <- continueLabs];
     for(exp <- exps){
         if(muMulti(exp1) := exp){
           code += [*tr(exp1), 
@@ -690,8 +673,8 @@ INS tr_cond(e: muOne(list[MuExp] exps), str continueLab, str failLab){
           		   JMPFALSE(failLab)
           		  ];
         } else {
-          code += [*tr(exp), 
-          		   JMPFALSE(failLab)
+          code += [*tr_cond(exp, {}, failLab)
+          		   //JMPFALSE(failLab)
           		  ];
         } 
     } 
@@ -701,7 +684,7 @@ INS tr_cond(e: muOne(list[MuExp] exps), str continueLab, str failLab){
 // Special case for do_while:
 // - continueLab is inserted by caller.
 
-INS tr_cond_do(muOne(list[MuExp] exps), str continueLab, str failLab){
+INS tr_cond_do(muOne(list[MuExp] exps), set[str] continueLabs, str failLab){
     code = [];
     for(exp <- exps){
         if(muMulti(exp1) := exp){
@@ -711,9 +694,7 @@ INS tr_cond_do(muOne(list[MuExp] exps), str continueLab, str failLab){
           		   JMPFALSE(failLab)
           		  ];
         } else {
-          code += [*tr(exp), 
-          		   JMPFALSE(failLab)
-          		  ];
+          code += tr_cond(exp, {}, failLab);
         } 
     } 
     return code;   
@@ -721,22 +702,20 @@ INS tr_cond_do(muOne(list[MuExp] exps), str continueLab, str failLab){
 
 // muAll: explore all sucessfull evaluations
 
-INS tr_cond(e: muAll(list[MuExp] exps), str continueLab, str failLab){
-    //println("tr_cond : <e>");
+INS tr_cond(e: muAll(list[MuExp] exps), set[str] continueLabs, str failLab){
     code = [];
-    lastMulti = -1;
+    lastBacktrackingElm = -1;
     
     for(i <- index(exps)){
-        if(muMulti(exp1) := exps[i]){
-           lastMulti = i;
+        if(muMulti(exp1) := exps[i] || muOr(exp1) := exps[i]){
+           lastBacktrackingElm = i;
         }
     }
     startLab = nextLabel();
     currentFail = failLab;
-    
-    if(lastMulti == -1)
+    if(lastBacktrackingElm == -1)
        code = [ JMP(startLab),
-                LABEL(continueLab),
+                *[ LABEL(continueLab) | str continueLab <- continueLabs ],
                 JMP(failLab),
                 LABEL(startLab)
               ];
@@ -751,33 +730,84 @@ INS tr_cond(e: muAll(list[MuExp] exps), str continueLab, str failLab){
           		    STORELOC(co), 
           		    POP(),
            	        LABEL(newFail),
-          			*((i == lastMulti) ? [LABEL(continueLab)] :[]),
+          			*( (i == lastBacktrackingElm) ? [ LABEL(continueLab) | str continueLab <- continueLabs ] : [] ),
           		    LOADLOC(co), 
-          		    HASNEXT(), 
-          		    JMPFALSE(currentFail), 
-          		    LOADLOC(co),
           		    NEXT0(), 
           		    JMPFALSE(currentFail)
           		  ];
           currentFail = newFail;
+        } else if(muOr(exps1) := exp){
+           newFail = nextLabel();
+           code += tr_cond(exp, {newFail} + ((i == lastBacktrackingElm) ? continueLabs : {}), currentFail);
+           currentFail = newFail;
         } else {
-          code += [*tr(exp), 
-          		   JMPFALSE(currentFail)
-          		  ];
+           code += tr_cond(exp, {}, currentFail);
         } 
     }
     return code;
 }
 
-INS tr_cond(e: muMulti(MuExp exp), str continueLab, str failLab) =
-    [ LABEL(continueLab),
+INS tr_cond(e:muOr(list[MuExp] exps), set[str] continueLabs, str failLab) {    
+    argInitLabels = [ nextLabel("ARG_<i>_INIT") | i <- [0 .. size(exps) + 1] ];
+    argContLabels = [ nextLabel("ARG_<i>_CONT") | i <- [0 .. size(exps) + 1] ];
+    afterLab = nextLabel();
+    argId = newLocal();
+    
+    code = [
+    		 LOADCON(0),
+    		 STORELOC(argId)
+           ];
+    for(i <- index(exps)){
+        exp = exps[i];
+        if(muMulti(exp1) := exp){
+           co = newLocal();
+           code += [ LABEL(argInitLabels[i]),
+           			 LOADCON(i),
+          		     STORELOC(argId),
+                     *tr(exp1), 
+          		     INIT(0), 
+          		     STORELOC(co), 
+          		     POP(),
+          		     LABEL(argContLabels[i]),
+          		     LOADLOC(co), 
+          		     NEXT0(), 
+          		     JMPFALSE(argInitLabels[i + 1]),
+          		     JMP(afterLab)
+          		     
+          		   ];
+        } else {
+          code += [ LABEL(argInitLabels[i]),
+          			LABEL(argContLabels[i]),
+                    *tr(exp), 
+          		    JMPFALSE(argInitLabels[i + 1]),
+          		    LOADCON(i + 1),
+          		    STORELOC(argId),
+          		    JMP(afterLab)
+          		  ];
+        } 
+    }
+    code += [ 	*[ LABEL(continueLab) | str continueLab <- continueLabs ],
+    			LOADLOC(argId),
+                JMPINDEXED(argContLabels),
+   				LABEL(argInitLabels[size(exps)]),
+   				LABEL(argContLabels[size(exps)]),
+   				LOADCON(0),
+    		    STORELOC(argId),
+    			JMP(failLab),
+    			LABEL(afterLab)
+    		 ];
+    return code;   
+}
+
+
+INS tr_cond(e: muMulti(MuExp exp), set[str] continueLabs, str failLab) =
+    [ *[ LABEL(continueLab) | str continueLab <- continueLabs ],
       *tr(exp),
       INIT(0),
       NEXT0(),
       JMPFALSE(failLab)
     ];
-    //when bprintln("tr_cond: <e>");
 
-default INS tr_cond(MuExp exp, str continueLab, str failLab) = [ LABEL(continueLab), *tr(exp), JMPFALSE(failLab) ];
-    //when bprintln("default tr_cond: <exp>");
+default INS tr_cond(MuExp exp, set[str] continueLabs, str failLab) 
+	= [ * [ LABEL(continueLab) | str continueLab <- continueLabs ], *tr(exp), JMPFALSE(failLab) ];
     

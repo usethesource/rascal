@@ -16,9 +16,6 @@ public class OCallDyn extends Instruction {
 	public String toString() { return "OCALLDYN " + types + ", " + arity; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(types);
-		codeblock.addCode(arity);
+		codeblock.addCode2(opcode.getOpcode(), types, arity);
 	}
-
 }

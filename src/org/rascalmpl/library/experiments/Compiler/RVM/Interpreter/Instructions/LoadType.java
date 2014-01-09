@@ -11,11 +11,9 @@ public class LoadType extends Instruction {
 		this.type = type;
 	}
 	
-	public String toString() { return "LOADTYPE " + type + "[" + codeblock.getConstantValue(type) + "]"; }
+	public String toString() { return "LOADTYPE " + type + "[" + codeblock.getConstantType(type) + "]"; }
 	
 	public void generate(){
-		codeblock.addCode(opcode.getOpcode());
-		codeblock.addCode(type);
+		codeblock.addCode1(opcode.getOpcode(), type);
 	}
-
 }

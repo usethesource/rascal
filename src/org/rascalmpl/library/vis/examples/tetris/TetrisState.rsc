@@ -15,7 +15,6 @@ import vis::examples::tetris::Tetromino;
 import util::Maybe;
 import util::Math;
 import List;
-import Number;
 
 // my take on the infinte spin controversy (see wikipedia tetris):finite spin :)
 int defaultSpinMax = 25; 
