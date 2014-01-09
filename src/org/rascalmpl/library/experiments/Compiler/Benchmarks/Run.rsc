@@ -11,6 +11,7 @@ module experiments::Compiler::Benchmarks::Run
 import Prelude;
 import util::Benchmark;
 import util::Math;
+import experiments::Compiler::Compile;
 import experiments::Compiler::Execute;
 
 import experiments::Compiler::Benchmarks::BasType;
@@ -67,6 +68,7 @@ void run(str bm,  value(list[value]) bmain) {
   comp = 0;
   cexec = 0;
   iexec = 0;
+  compile(base + (bm + ".rsc"), recompile=true);
   for(int i <- [0 .. nsamples]){
 	  t1 = getMilliTime();
 	  <v, t2> = execute_and_time(base + (bm + ".rsc"), []);

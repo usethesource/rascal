@@ -67,10 +67,7 @@ MuModule r2mu(loc moduleLoc){
 MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    try {
    	Configuration c = newConfiguration();
-   	config = checkModule(M, c);
-   	// Extract scoping information available from the configuration returned by the type checker  
-   	extractScopes();  
-   	//text(config);	
+   	config = checkModule(M, c);  
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    	if(size(errors) > 0) {
@@ -85,13 +82,15 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  		println(w);
    	  	}
    	  }
+   	  // Extract scoping information available from the configuration returned by the type checker  
+   	  extractScopes();
    	  module_name = "<M.header.name>";
    	  imported_modules = [];
    	  functions_in_module = [];
    	  variables_in_module = [];
    	  variable_initializations = [];
    	  map[str,Symbol] types = ( fuid2str[uid] : \type | int uid <- config.store, 
-   	  									   					( constructor(name, Symbol \type, containedIn, at) := config.store[uid]
+   	  									   					( constructor(name, Symbol \type, keywordParams, containedIn, at) := config.store[uid]
    	  									   				      || production(name, Symbol \type, containedIn, at) := config.store[uid] ),
    	  									   				    !isEmpty(getSimpleName(name)),
    	  									   				    containedIn == 0
