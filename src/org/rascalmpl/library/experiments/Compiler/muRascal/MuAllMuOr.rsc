@@ -143,17 +143,25 @@ private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[M
     localvars = [ muVar("c_<i>", impl_uid, i) | int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     bool first = true;
+    int k = size(exps);
     for(int i <- index(exps)) {
         int j = size(exps) - 1 - i;
-        first = false;
         if(backtrackfree[j]) {
-            body = [ muIfelse(nextLabel(), exps[j], body, []), first ? muCon(222) : muYield() ];
+            body = [ muAssign("hasNext", impl_uid, k, muCon(false)),
+                     muIfelse(nextLabel(), exps[j], [ muAssign("hasNext", impl_uid, k, muCon(true)) ] + body, [ muCon(222) ]), 
+                     first ? muCon(222) : muIfelse(nextLabel(),muCallMuPrim("not_mbool",[ muVar("hasNext", impl_uid, k) ]),[ muYield() ],[ muCon(222) ]) 
+                   ];
         } else {
-            body = [ muAssign("c_<j>", impl_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body), first ? muCon(222) : muYield() ];
+            body = [ muAssign("hasNext", impl_uid, k, muCon(false)),
+                     muAssign("c_<j>", impl_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), [ muAssign("hasNext", impl_uid, k, muCon(true)) ] + body), 
+                     first ? muCon(222) : muIfelse(nextLabel(),muCallMuPrim("not_mbool",[ muVar("hasNext", impl_uid, k) ]),[ muYield() ],[ muCon(222) ])
+                   ];
         }
+        first = false;
+        k = k + 1;
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(impl_uid, fuid, 0, size(localvars), [], muBlock(body));
+    functions += muCoroutine(impl_uid, fuid, 0, k, [], muBlock(body));
     return <muMulti(muCreate(muFun(impl_uid))),functions>;
 }
 
@@ -163,18 +171,25 @@ private tuple[MuExp,list[MuFunction]] generateMu("EQUIVALENCE", str fuid, list[M
     localvars = [ muVar("c_<i>", equiv_uid, i) | int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     bool first = true;
+    int k = size(exps);
     for(int i <- index(exps)) {
         int j = size(exps) - 1 - i;
-        first = false;
         if(backtrackfree[j]) {
-            body = [ muIfelse(nextLabel(), exps[j], body, []), first ? muCon(222) : muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ backtrackfree[j - 1] ? newLabels(exps[j - 1]) : muNext(newLabels(exps[j - 1])) ]), [ muYield() ], []) ];
+            body = [ muAssign("hasNext", equiv_uid, k, muCon(false)),
+                     muIfelse(nextLabel(), exps[j], [ muAssign("hasNext", equiv_uid, k, muCon(true)) ] + body, [ muCon(222) ]), 
+                     first ? muCon(222) : muIfelse(nextLabel(),muCallMuPrim("not_mbool",[ muVar("hasNext", equiv_uid, k) ]),[ muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ backtrackfree[j + 1] ? newLabels(exps[j + 1]) : muNext(muInit(newLabels(exps[j + 1]))) ]), [ muYield() ], [ muCon(222) ]) ],[ muCon(222) ]) 
+                   ];
         } else {
-            body = [ muAssign("c_<j>", equiv_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body), 
-                     first ? muCon(222) : muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ backtrackfree[j - 1] ? newLabels(exps[j - 1]) : muNext(newLabels(exps[j - 1])) ]), [ muYield() ], []) ];
+            body = [ muAssign("hasNext", equiv_uid, k, muCon(false)),
+                     muAssign("c_<j>", equiv_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), [ muAssign("hasNext", equiv_uid, k, muCon(true)) ] + body), 
+                     first ? muCon(222) : muIfelse(nextLabel(),muCallMuPrim("not_mbool",[ muVar("hasNext", equiv_uid, k) ]),[ muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ backtrackfree[j + 1] ? newLabels(exps[j + 1]) : muNext(muInit(newLabels(exps[j + 1]))) ]), [ muYield() ], [ muCon(222) ]) ],[ muCon(222) ]) 
+                   ];
         }
+        first = false;
+        k = k + 1;
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(equiv_uid, fuid, 0, size(localvars), [], muBlock(body));
+    functions += muCoroutine(equiv_uid, fuid, 0, k, [], muBlock(body));
     return <muMulti(muCreate(muFun(equiv_uid))),functions>;
 }
 
