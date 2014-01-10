@@ -452,7 +452,9 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		if (moduleId == mainModuleId) {
 			c.typeEnv[n] = itemId;
 		} else {
-			c.typeEnv[n] = conflict({c.typeEnv[n], itemId});
+			c.store[c.nextLoc] = conflict({c.typeEnv[n], itemId});
+			c.typeEnv[n] = c.nextLoc;
+			c.nextLoc = c.nextLoc + 1;
 		}
 		c = addScopeInfo(c, "The definition of type <prettyPrintName(n)> masks an existing imported nonterminal or alias definition", l);
 	} else if (c.store[c.typeEnv[n]] is conflict && moduleId notin { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
@@ -547,7 +549,9 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 		if (moduleId == mainModuleId) {
 			c.typeEnv[n] = itemId;
 		} else {
-			c.typeEnv[n] = conflict({c.typeEnv[n], itemId});
+			c.store[c.nextLoc] = conflict({c.typeEnv[n], itemId});
+			c.typeEnv[n] = c.nextLoc;
+			c.nextLoc = c.nextLoc + 1;
 		}
 		c = addScopeInfo(c, "The definition of nonterminal <prettyPrintName(n)> masks an existing imported adt or alias definition", l);
 	} else if (c.store[c.typeEnv[n]] is conflict && moduleId notin { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
@@ -631,7 +635,9 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 		if (moduleId == mainModuleId) {
 			c.typeEnv[n] = itemId;
 		} else {
-			c.typeEnv[n] = conflict({c.typeEnv[n], itemId});
+			c.store[c.nextLoc] = conflict({c.typeEnv[n], itemId});
+			c.typeEnv[n] = c.nextLoc;
+			c.nextLoc = c.nextLoc + 1;
 		}
 	} else if (c.store[c.typeEnv[n]] is conflict && moduleId notin { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
 		// Case 3: The unqualified name was removed because of a name conflict. We may be adding a new
