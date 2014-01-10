@@ -471,8 +471,10 @@ public class GrammarToJigll {
 	}
 	
 	private boolean isRegularExpression(IConstructor symbol) {
-		
-		if(SymbolAdapter.isIterStar(symbol)) {
+		if(SymbolAdapter.isLex(symbol)) {
+			return regularExpressionsMap.containsKey(((IString)symbol.get("name")).getValue());
+		} 
+		else if(SymbolAdapter.isIterStar(symbol)) {
 			return isRegularExpression(getSymbolCons(symbol));
 		}
 		else if(SymbolAdapter.isIterStarSeps(symbol)) {
@@ -597,6 +599,9 @@ public class GrammarToJigll {
 	private RegularExpression getRegularExpression(IConstructor symbol) {
 		
 		switch (symbol.getName()) {
+			
+		case "lex":
+			 return regularExpressionsMap.get(((IString)symbol.get("name")).getValue());	
 			
 		case "conditional":
 //			return getRegularExpression(getSymbolCons(symbol)).addConditions(getConditions(symbol));
