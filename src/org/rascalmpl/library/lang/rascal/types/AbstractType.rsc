@@ -73,6 +73,7 @@ public str prettyPrintType(\inferred(int n)) = "inferred(<n>)";
 public str prettyPrintType(\overloaded(set[Symbol] os, set[Symbol] defaults)) = "overloaded:\n\t\t<intercalate("\n\t\t",[prettyPrintType(\o) | \o <- os + defaults])>";
 // named non-terminal symbols
 public str prettyPrintType(Symbol::\sort(str name)) = name;
+public str prettyPrintType(Symbol::\start(Symbol s)) = "start[<prettyPrintType(s)>]";
 public str prettyPrintType(Symbol::\prod(Symbol s, str name, list[Symbol] fs, set[Attr] atrs)) = "<prettyPrintType(s)> <name> : (<intercalate(", ", [ prettyPrintType(f) | f <- fs ])>)";
 public str prettyPrintType(Symbol::\lex(str name)) = name;
 public str prettyPrintType(Symbol::\layouts(str name)) = name;
@@ -258,10 +259,10 @@ public Symbol makeTypeVar(str varName) = \parameter(varName, \value());
 public Symbol makeTypeVarWithBound(str varName, Symbol varBound) = \parameter(varName, varBound);
 
 @doc{Unwraps aliases, parameters, and labels from around a type.}
-private Symbol unwrapType(\alias(_,_,at)) = unwrapType(at);
-private Symbol unwrapType(\parameter(_,tvb)) = unwrapType(tvb);
-private Symbol unwrapType(\label(_,lt)) = unwrapType(lt);
-private default Symbol unwrapType(Symbol t) = t;
+public Symbol unwrapType(\alias(_,_,at)) = unwrapType(at);
+public Symbol unwrapType(\parameter(_,tvb)) = unwrapType(tvb);
+public Symbol unwrapType(\label(_,lt)) = unwrapType(lt);
+public default Symbol unwrapType(Symbol t) = t;
 
 @doc{Get the type that has been reified and stored in the reified type.}
 public Symbol getReifiedType(Symbol t) {
@@ -681,11 +682,19 @@ public bool isNonTerminalType(\alias(_,_,Symbol at)) = isNonTerminalType(at);
 public bool isNonTerminalType(\parameter(_,Symbol tvb)) = isNonTerminalType(tvb);
 public bool isNonTerminalType(\label(_,Symbol lt)) = isNonTerminalType(lt);
 public bool isNonTerminalType(Symbol::\sort(_)) = true;
+
 public default bool isNonTerminalType(Symbol _) = false;	
+
+public bool isStartNonTerminalType(\alias(_,_,Symbol at)) = isNonTerminalType(at);
+public bool isStartNonTerminalType(\parameter(_,Symbol tvb)) = isNonTerminalType(tvb);
+public bool isStartNonTerminalType(\label(_,Symbol lt)) = isNonTerminalType(lt);
+public bool isStartNonTerminalType(Symbol::\start(_)) = true;
+public default bool isStartNonTerminalType(Symbol _) = false;    
 
 @doc{Get the name of the nonterminal.}
 public str getNonTerminalName(Symbol t) {
 	if (\sort(n) := unwrapType(t)) return n;
+	if (\start(s) := unwrapType(t)) return getNonTerminalName(s);
 	if (\parameterized-sort(n,_) := unwrapType(t)) return n;
 	if (Symbol::\prod(s,_,_,_) := unwrapType(t)) return getNonTerminalName(s);
     throw "getNonTerminalName, invalid type given: <prettyPrintType(t)>";
