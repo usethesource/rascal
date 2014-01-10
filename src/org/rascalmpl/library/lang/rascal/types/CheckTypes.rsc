@@ -4071,7 +4071,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             }
                         }
                     } else {
-                        if (!subtype(cp@rtype, rt))
+                        if (!comparable(cp@rtype, rt))
                             failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn@at);
                     }
                 }
@@ -4080,7 +4080,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             case ptn:tvarBecomesNode(rt,n,l,cp) : {
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
                     Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[c.fcvEnv[n]].rtype;
-                    if (!subtype(cp@rtype, rt))
+                    if (!comparable(cp@rtype, rt))
                         failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn@at);
                 }
             }
@@ -4173,9 +4173,10 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 formalArgs = isConstructorType(matchType) ? getConstructorArgumentTypes(matchType) : getProductionArgumentTypes(matchType);
                                 set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
                                 map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
+                                unlabeledArgs = [ (\label(_,v) := li) ? v : li | li <- formalArgs ];
                                 for (idx <- index(formalArgs)) {
                                     try {
-                                        bindings = match(formalArgs[idx],pargs[idx]@rtype,bindings);
+                                        bindings = match(unlabeledArgs[idx],pargs[idx]@rtype,bindings);
                                     } catch : {
                                         insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(pargs[idx]@rtype)> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", pargs[idx]@at));
                                         cannotInstantiate = true;  
@@ -4193,10 +4194,12 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             
                             if (!cannotInstantiate) {
                                 list[PatternTree] newChildren = [ ];
+                                formalArgs = isConstructorType(matchType) ? getConstructorArgumentTypes(matchType) : getProductionArgumentTypes(matchType);
+                                unlabeledArgs = [ (\label(_,v) := li) ? v : li | li <- formalArgs ];                                
                                 try {
                                     for (idx <- index(pargs)) {
                                         //println("<ptn@at>: pushing down <getConstructorArgumentTypes(matchType)[idx]> for arg <pargs[idx]>");  
-                                        < c, newarg > = bind(pargs[idx],(isConstructorType(matchType)?(getConstructorArgumentTypes(matchType)[idx]):(getProductionArgumentTypes(matchType)[idx])),c);
+                                        < c, newarg > = bind(pargs[idx],unlabeledArgs[idx],c);
                                         newChildren += newarg;
                                     }
                                 } catch v : {
