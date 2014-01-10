@@ -317,6 +317,7 @@ coroutine RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step, mixed]{
 // ***** Pattern matching *****
 
 coroutine MATCH[2, pat, iSubject, cpat]{
+   println("MATCH", pat, iSubject);
    cpat = init(pat, iSubject);
    while(next(cpat)){
       yield;
@@ -326,8 +327,8 @@ coroutine MATCH[2, pat, iSubject, cpat]{
 coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
    plen = size_array(pats);
    slen = size_array(subjects);
-   //println("MATCH_N: pats    ", plen, pats);
-   //println("MATCH_N: subjects", slen, subjects);
+   println("MATCH_N: pats    ", plen, pats);
+   println("MATCH_N: subjects", slen, subjects);
    guard plen == slen;
    p = 0;
    ipats = make_array(plen);
@@ -350,13 +351,13 @@ coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
 }
 
 coroutine MATCH_CALL_OR_TREE[2, pats, iSubject, cpats]{
-    //println("MATCH_CALL_OR_TREE", pats, " AND ", iSubject, iSubject is node);
+    println("MATCH_CALL_OR_TREE", pats, " AND ", iSubject, iSubject is node);
     guard iSubject is node;
     cpats = init(create(MATCH_N, pats, get_name_and_children(iSubject)));
     while(next(cpats)) {
         yield;
     };
-    //println("MATCH_CALL_OR_TREE fails", pats, " AND ", iSubject);
+    println("MATCH_CALL_OR_TREE fails", pats, " AND ", iSubject);
 }
 
 coroutine MATCH_REIFIED_TYPE[2, pat, iSubject, nc, konstructor, symbol]{
@@ -1003,6 +1004,33 @@ coroutine ENUM_SUBSETS[2, set, rSubset, lst, k, j, last, elIndex, sub]{
     };
 }
 
+// Map Pattern
+
+coroutine MATCH_MAP[3, keywords, pats, iSubject, len, subjects, j, kw, cpats]{
+   guard iSubject is map;
+   println("MATCH_MAP", keywords, pats);
+   len = size_array(keywords);
+   if(len == 0){
+      return;
+   };
+   subjects = make_array(len);
+   j = 0;
+   while(j < len){
+     kw = get_array(keywords, 0);
+     if(map_contains_key(iSubject, kw)){
+        put_array(subjects, j, get_map(iSubject, kw));
+     } else {
+       exhaust;
+     };
+     j = j + 1;
+   };
+   println("subjects", subjects);
+   cpats = init(create(MATCH_N, pats, subjects));
+   while(next(cpats)) {
+        yield;
+   };
+}
+
 // ***** Descendent pattern ***
 
 coroutine MATCH_DESCENDANT[2, pat, iSubject, gen, cpat]{
@@ -1028,7 +1056,7 @@ coroutine MATCH_AND_DESCENT[2, pat, iVal]{
 }
 
 coroutine MATCH_AND_DESCENT_LITERAL[2, pat, iSubject, res]{
-  if(/*equal(typeOf(pat), typeOf(iSubject)) && */ equal(pat, iSubject)){
+  if(equal(pat, iSubject)){
       return;
   };
   
