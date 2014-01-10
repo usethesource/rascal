@@ -171,7 +171,8 @@ public RSignature processSyntax(RName name, list[Import] defs) {
           sig.contextfreeNonterminals += [ContextfreeSigItem(RSimpleName(name), sym, sd.defined@\loc)];
         case \parameterized-lex(str name, list[Symbol] parameters) : 
           sig.lexicalNonterminals += [LexicalSigItem(RSimpleName(name), sym, sd.defined@\loc)];
-        case \start(_) : ; // TODO: add support for start non-terminals
+        case \start(_) : 
+          ; // TODO: add support for start non-terminals
         default: 
           throw "unexpected non-terminal definition <pr.def>"; 
       }
