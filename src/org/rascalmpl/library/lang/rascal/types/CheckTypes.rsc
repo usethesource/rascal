@@ -3315,6 +3315,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> \<- <Express
         < cEnum, t2 > = calculatePatternType(p, cEnum, getMapDomainType(t1));
     else if (isADTType(t1) || isTupleType(t1) || isNodeType(t1))
         < cEnum, t2 > = calculatePatternType(p, cEnum, \value());
+    else if (\iter(st:\sort(_)) := t1)
+    	< cEnum, t2 > = calculatePatternType(p, cEnum, st);
     else {
         t2 = makeFailType("Type <prettyPrintType(t1)> is not enumerable", exp@\loc);
     }
