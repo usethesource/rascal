@@ -258,7 +258,7 @@ public class JavaMethod extends NamedFunction {
 			  throw (ImplementationError) targetException;
 			}
 
-			if(true || ctx.getConfiguration().printErrors()) {
+			if (ctx.getConfiguration().printErrors()) {
 				targetException.printStackTrace();
 			}
 			
