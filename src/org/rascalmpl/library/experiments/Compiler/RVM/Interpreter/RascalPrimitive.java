@@ -3782,7 +3782,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 		else if (compare == 0) {
-			stack[sp - 2] = true;
+			stack[sp - 2] = false;
 			return sp - 1;
 		}
 
