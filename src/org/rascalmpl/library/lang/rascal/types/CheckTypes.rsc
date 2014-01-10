@@ -810,19 +810,30 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 // with the same name, we should only allow this if the name is qualified to prevent conflicts.
 public Configuration addProduction(Configuration c, RName n, loc l, Production prod) {
 	assert ( (prod.def is label && prod.def.symbol has name) 
-				|| ( !(prod.def is label) && prod.def has name ) );
+				|| ( !(prod.def is label) && prod.def has name ) || prod.def is \start);
      
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 
-    sortName = RSimpleName( (prod.def is label) ? prod.def.symbol.name : prod.def.name );
-	fullSortName = appendName(moduleName, sortName);
-    if (fullSortName notin c.typeEnv) {
+    sortId = -1;
+    sortName = RSimpleName("");
+    
+    if (unwrapType(prod.def) is \start) {
+      sortName = RSimpleName("start[<getNonTerminalName(prod.def)>]");
+      sortId = c.typeEnv[sortName];
+      fullSortName = sortName;
+    }
+    else {
+      sortName = RSimpleName( (prod.def is label) ? prod.def.symbol.name : prod.def.name );
+	  fullSortName = appendName(moduleName, sortName);
+      if (fullSortName notin c.typeEnv) {
     	c = addScopeError(c, "Could not add production, associated nonterminal is not in scope", l);
     	return c;
+      }
+      sortId = c.typeEnv[fullSortName];
     }
-    sortId = c.typeEnv[fullSortName];
+    
     
     args = prod.symbols;
     moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
@@ -916,8 +927,10 @@ public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Produ
 
     if(isStart) {
     	c.starts = c.starts + sortId;
+    	c = addNonterminal(c,RSimpleName("start[<getNonTerminalName(prod.def)>]"), l, prod.def);
     	return c;
     }
+    
     if(c.grammar[sortId]?) {
     	c.grammar[sortId] = choice(c.store[sortId].rtype, { c.grammar[sortId], prod });
     } else {
@@ -2232,7 +2245,19 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 	    } else {
 	    	return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l); 
 	    }  
-    } else if (isTupleType(t1)) {
+    } 
+    else if (isStartNonTerminalType(t1)) {
+        nonterminalName = RSimpleName("start[<getNonTerminalName(t1)>]");
+         if (nonterminalName in c.typeEnv && c.store[c.typeEnv[nonterminalName]] is sorttype) {
+        if (<c.typeEnv[nonterminalName],fAsString> notin c.nonterminalFields)
+                return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+            else
+                return c.nonterminalFields[<c.typeEnv[nonterminalName],fAsString>];
+        }
+        else {
+            return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l);
+        } 
+    }else if (isTupleType(t1)) {
         if (tupleHasField(t1, fAsString))
             return getTupleFieldType(t1, fAsString);
         else
@@ -6657,12 +6682,12 @@ public Configuration importProduction(RSignatureItem item, Configuration c) {
 		c = addSyntaxDefinition(c, RSimpleName(sortName), item.at, prod, prod.def is \start);
 	}
 	// Productions that end up in the store
-	for(/Production prod:prod(_,_,_) := prod) {
+	for(/Production p:prod(_,_,_) := prod) {
 		if(label(str l, Symbol _) := prod.def) {
-    		c = addProduction(c, RSimpleName(l), item.at, prod);
-    	} else if(prod.def has name) {
-    		c = addProduction(c, RSimpleName(""), item.at, prod);
-    	}
+    		c = addProduction(c, RSimpleName(l), item.at, p);
+    	} else {
+    		c = addProduction(c, RSimpleName(""), item.at, p);
+    	} 
     }
     return c;
 }
