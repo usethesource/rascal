@@ -188,8 +188,34 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    } else {
      fun_pat = translatePat(expression);
    }
-   return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", fun_pat + [ translatePat(pat) | pat <- arguments ])]);
+   return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", fun_pat + [ translatePat(pat) | pat <- arguments ] 
+                                                                                                 //+ translatePatKWArguments(keywordArguments)
+                                                                                  )]);
 }
+
+MuExp translatePatKWArguments((KeywordArguments) ``) = muCon(());
+
+MuExp translatePatKWArguments((KeywordArguments) `<OptionalComma optionalComma> <{KeywordArgument ","}+ keywordArgumentList>`) {
+   keyword_names = [];
+   pats = [];
+   for(kwarg <- keywordArgumentList){
+       keyword_names += muCon("<kwarg.name>");
+       pats += translatePatKWValue(kwarg.expression);
+   }
+   return muCreate(mkCallToLibFun("Library","MATCH_MAP",3), [muCallMuPrim("make_array", keyword_names), muCallMuPrim("make_array", pats)]);
+}
+
+MuExp translatePatKWValue(e: (Expression) `<Literal lit>`) = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [translate(lit)]);
+
+MuExp translatePatKWValue(e: (Expression) `<QualifiedName name>`) {
+  if("<name>" == "_"){
+      return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR",1), []);
+   }
+   <fuid, pos> = getVariableScope("<name>", name@\loc);
+   //println("transPattern: <fuid>, <pos>");
+   return muCreate(mkCallToLibFun("Library","MATCH_VAR",2), [muVarRef("<name>", fuid, pos)]);
+}
+
 
 // Set pattern
 

@@ -77,6 +77,7 @@ public enum MuPrimitive {
 	make_map_str_entry,     // kwp
 	make_map_str_ivalue,    // kwp
 	make_entry_type_ivalue, // kwp
+	map_contains_key,
 	mint,
 	modulo_mint_mint,
 	mset,
@@ -541,6 +542,14 @@ public enum MuPrimitive {
 		int len = ((Integer)stack[sp - 1]);
 		stack[sp - 1] = new Object[len];
 		return sp;
+	}
+	
+	public static int map_contains_key(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IMap m = ((IMap)stack[sp - 2]);
+		IString key = ((IString) stack[sp -1]);
+		stack[sp - 2] = m.containsKey(key);
+		return sp - 1;
 	}
 		
 	public static int mint(Object[] stack, int sp, int arity) {
