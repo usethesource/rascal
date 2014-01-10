@@ -72,6 +72,12 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
     if(muAllOrMuOr == "OR"){
         return <( exps[0] | muIfelse(nextLabel(), it, [ muCon(true) ], [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] ),[]>;
     }
+    if(muAllOrMuOr == "IMPLICATION") {
+        return <( exps[0] | muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ it ]), [ muCon(true) ], [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] ),[]>;
+    }
+    if(muAllOrMuOr == "EQUIVALENCE") {
+        return <( exps[0] | muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ it ]), [ muCallMuPrim("not_mbool", [ exp is muOne ? muNext(muInit(exp)) : exp ]) ], [ exp is muOne ? muNext(muInit(exp_copy)) : exp_copy ]) | int i <- [ 1..size(exps) ], MuExp exp := exps[i], MuExp exp_copy := newLabels(exp) ),[]>;
+    }
 }
 
 tuple[MuExp,list[MuFunction]] makeMuMulti(e:muMulti(_), str fuid) = <e,[]>;
@@ -129,4 +135,56 @@ private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exp
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     functions += muCoroutine(or_uid, fuid, 0, size(localvars), [], muBlock(body));
     return <muMulti(muCreate(muFun(or_uid))),functions>;
+}
+
+private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
+    list[MuFunction] functions = [];
+    str impl_uid = "Library/<fuid>/IMPLICATION_<getNextAll()>(0)";
+    localvars = [ muVar("c_<i>", impl_uid, i) | int i <- index(exps) ];
+    list[MuExp] body = [ muYield() ];
+    bool first = true;
+    for(int i <- index(exps)) {
+        int j = size(exps) - 1 - i;
+        first = false;
+        if(backtrackfree[j]) {
+            body = [ muIfelse(nextLabel(), exps[j], body, []), first ? muCon(222) : muYield() ];
+        } else {
+            body = [ muAssign("c_<j>", impl_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body), first ? muCon(222) : muYield() ];
+        }
+    }
+    body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
+    functions += muCoroutine(impl_uid, fuid, 0, size(localvars), [], muBlock(body));
+    return <muMulti(muCreate(muFun(impl_uid))),functions>;
+}
+
+private tuple[MuExp,list[MuFunction]] generateMu("EQUIVALENCE", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
+    list[MuFunction] functions = [];
+    str equiv_uid = "Library/<fuid>/EQUIVALENCE_<getNextAll()>(0)";
+    localvars = [ muVar("c_<i>", equiv_uid, i) | int i <- index(exps) ];
+    list[MuExp] body = [ muYield() ];
+    bool first = true;
+    for(int i <- index(exps)) {
+        int j = size(exps) - 1 - i;
+        first = false;
+        if(backtrackfree[j]) {
+            body = [ muIfelse(nextLabel(), exps[j], body, []), first ? muCon(222) : muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ backtrackfree[j - 1] ? newLabels(exps[j - 1]) : muNext(newLabels(exps[j - 1])) ]), [ muYield() ], []) ];
+        } else {
+            body = [ muAssign("c_<j>", equiv_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body), 
+                     first ? muCon(222) : muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ backtrackfree[j - 1] ? newLabels(exps[j - 1]) : muNext(newLabels(exps[j - 1])) ]), [ muYield() ], []) ];
+        }
+    }
+    body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
+    functions += muCoroutine(equiv_uid, fuid, 0, size(localvars), [], muBlock(body));
+    return <muMulti(muCreate(muFun(equiv_uid))),functions>;
+}
+
+private MuExp newLabels(MuExp exp) {
+    map[str,str] labels = ();
+    return top-down visit(exp) {
+                        case muIfelse(str label, cond, thenPart, elsePart): { labels[label] = nextLabel(); insert muIfelse(labels[label],cond,thenPart,elsePart); }
+                        case muWhile(str label, cond, whileBody): { labels[label] = nextLabel(); insert muWhile(labels[label],cond,whileBody); }
+                        case muBreak(str label): insert muBreak(labels[label]);
+                        case muContinue(str label): insert muContinue(labels[label]);
+                        case muFail(str label): insert muFail(labels[label]); 
+                    };
 }

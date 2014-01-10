@@ -793,10 +793,8 @@ MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
     switch(fun){
     	case "and": return makeMu("ALL",[translate(lhs), translate(rhs)]);
     	case "or":  return makeMu("OR",[translate(lhs), translate(rhs)]);
-    	case "implies": return makeMu("OR",[ makeMu("ALL", [ muCallMuPrim("not_mbool", [ translate(lhs) ])]), 
-    	                                     makeMu("ALL", [ translate(lhs), translate(rhs) ]) ]);
-    	case "equivalent": return makeMu("OR",[ makeMu("ALL", [ muCallMuPrim("not_mbool", [ translate(lhs) ]), muCallMuPrim("not_mbool", [ translate(rhs) ]) ]), 
-    	                                        makeMu("ALL", [ translate(lhs), translate(rhs) ]) ]);
+    	case "implies": return makeMu("IMPLICATION",[ translate(lhs), translate(rhs) ]);
+    	case "equivalent": return makeMu("EQUIVALENCE",[ translate(lhs), translate(rhs) ]);
     	default:
     		throw "translateBoolBinary: unknown operator <fun>";
     }
