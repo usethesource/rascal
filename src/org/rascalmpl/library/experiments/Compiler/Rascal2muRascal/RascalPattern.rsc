@@ -450,7 +450,7 @@ MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead look
 
 
 MuExp translatePatAsListElem(p:(Pattern) `<Literal lit>`, Lookahead lookahead) {
-  return muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST",4), [translate(lit)]);
+  return muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST",4), [translatePat(p)]);
 }
 
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`, Lookahead lookahead) {
