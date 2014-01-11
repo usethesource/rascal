@@ -43,15 +43,15 @@ list[str] libs = [
 "util::PriorityQueue",// OK
 "util::Reflective", 	// OK
 "util::ShellExec",	// OK
-"util::Webserver"		// OK
+"util::Webserver",		// OK
 
 /***** Not yet OK *****/
 
-//"Ambiguity"			// #483
+"Ambiguity",			// #483
 						//|rascal://lang::rascal::types::CheckTypes|(31671,1,<634,13>,<634,14>): Expected map[RName, int], but got map[RName, value]     	
 
 
-//"APIGen" 			 	// #482
+"APIGen", 			 	// #482
 						//error("Type of pattern could not be computed, please add additional type annotations",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(3641,16,<89,62>,<89,78>))
 						//error("Type of pattern could not be computed, please add additional type annotations",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(3281,33,<80,24>,<80,57>))
 						//error("Name cs is not in scope",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(7837,2,<207,39>,<207,41>))
@@ -74,15 +74,23 @@ list[str] libs = [
 // "Number"				// DEPRECATED: TC gives errors
 
 
-//"util::LOC"			// #394
+"util::LOC"			// #394
 						// error("Field top does not exist on type Tree",|std:///util/LOC.rsc|(943,5,<44,8>,<44,13>))
 						
 ];
 
 value main(list[value] args){
+  crashes = [];
   for(lib <- libs){
     println("**** Compiling <lib> ****");
-    compile(|project://rascal/src/org/rascalmpl/library/| + (replaceAll(lib, "::", "/") + ".rsc"));
+    try {
+    	compile(|project://rascal/src/org/rascalmpl/library/| + (replaceAll(lib, "::", "/") + ".rsc"), recompile=true);
+    } catch e: {
+      crashes += <lib, "<e>">;
+    }
+  }
+  if(size(crashes) > 0){
+     println("\nCRASHES:\n<crashes>");
   }
   return true;
 }
