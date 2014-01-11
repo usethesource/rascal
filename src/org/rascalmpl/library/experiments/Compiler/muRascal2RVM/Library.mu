@@ -405,10 +405,10 @@ coroutine MATCH_LITERAL[2, pat, iSubject]{
 }
 
 coroutine MATCH_VAR[2, rVar, iSubject, iVal]{
-   println("MATCH_VAR", rVar, iSubject);
+   //println("MATCH_VAR", rVar, iSubject);
    if(is_defined(rVar)){
       iVal = deref rVar;
-      println("MATCH_VAR, iVal =", iVal);
+      //println("MATCH_VAR, iVal =", iVal);
       if(equal(iSubject, iVal)){
          return iSubject;
       };
@@ -424,7 +424,7 @@ coroutine MATCH_ANONYMOUS_VAR[1, iSubject]{
 }
 
 coroutine MATCH_TYPED_VAR[3, typ, rVar, iSubject, iVal]{
-   println("MATCH_TYPED_VAR", typ, rVar, iSubject);
+   //println("MATCH_TYPED_VAR", typ, rVar, iSubject);
    guard subtype(typeOf(iSubject), typ);
    yield iSubject;
    undefine(rVar);
@@ -873,14 +873,14 @@ coroutine MATCH_LITERAL_IN_SET[3, pat, available, rRemaining, gen, elm]{
 }
 
 coroutine MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
-    println("MATCH_VAR_IN_SET", rVar, available);
+    //println("MATCH_VAR_IN_SET", rVar, available);
 	guard size_mset(available) > 0;
  	if(is_defined(rVar)){
       elm = deref rVar;
-      println("MATCH_VAR_IN_SET, is_defined", elm, available);
+      //println("MATCH_VAR_IN_SET, is_defined", elm, available);
       if(is_element_mset(elm, available)){
          yield(elm, mset_destructive_subtract_elm(available, elm));
-         println("MATCH_VAR_IN_SET, restoring");
+         //println("MATCH_VAR_IN_SET, restoring");
          deref rRemaining = mset_destructive_add_elm(available, elm); /**/
       };
       exhaust;
@@ -895,15 +895,15 @@ coroutine MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
 }
 
 coroutine MATCH_TYPED_VAR_IN_SET[4, typ, rVar, available, rRemaining, gen, elm]{
-    println("MATCH_TYPED_VAR_IN_SET", rVar, available);
+    //println("MATCH_TYPED_VAR_IN_SET", rVar, available);
 	guard size_mset(available) > 0;
 
     gen = init(create(ENUM_MSET, available, ref elm));
     while(next(gen)) {
           if(subtype(typeOf(elm), typ)){
-             println("MATCH_TYPED_VAR_IN_SET, assigning", rVar, elm);
+             //println("MATCH_TYPED_VAR_IN_SET, assigning", rVar, elm);
 	         yield(elm, mset_destructive_subtract_elm(available, elm));
-	         println("MATCH_TYPED_VAR_IN_SET, restoring", available, elm);
+	         //println("MATCH_TYPED_VAR_IN_SET, restoring", available, elm);
 	         available = mset_destructive_add_elm(available, elm);
 	      };
     };
@@ -953,16 +953,16 @@ coroutine MATCH_MULTIVAR_IN_SET[3, rVar, available, rRemaining, gen, subset]{
 }
 
 coroutine MATCH_LAST_MULTIVAR_IN_SET[3, rVar, available, rRemaining, subset]{
-    println("MATCH_LAST_MULTIVAR_IN_SET", rVar, available);
+    //println("MATCH_LAST_MULTIVAR_IN_SET", rVar, available);
     if(is_defined(rVar)){
       subset = deref rVar;
-      println("MATCH_LAST_MULTIVAR_IN_SET, is_defined", subset, available);
+      //println("MATCH_LAST_MULTIVAR_IN_SET, is_defined", subset, available);
       if(equal_set_mset(subset, available)){
          return(subset,  mset_empty());
       };
       exhaust;
     };
-    println("MATCH_LAST_MULTIVAR_IN_SET, undefined");
+    //println("MATCH_LAST_MULTIVAR_IN_SET, undefined");
     yield(set(available), mset_empty());
     deref rRemaining = available;   /**/
     undefine(rVar);
@@ -994,7 +994,7 @@ coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, 
 }
 
 coroutine MATCH_LAST_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining]{
-    println("MATCH_LAST_TYPED_MULTIVAR_IN_SET", rVar, available);
+    //println("MATCH_LAST_TYPED_MULTIVAR_IN_SET", rVar, available);
 	guard subtype(typeOf(available), typ);
     return(set(available), mset_empty());
 }
