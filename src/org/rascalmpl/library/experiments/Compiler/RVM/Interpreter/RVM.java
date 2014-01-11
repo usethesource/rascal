@@ -282,6 +282,12 @@ public class RVM {
 		if(o instanceof HashSet){
 			return "HashSet[" + ((HashSet) o).toString() + "]";
 		}
+		if(o instanceof HashMap){
+			return "HashMap[" + ((HashMap) o).toString() + "]";
+		}
+		if(o instanceof Map.Entry){
+			return "Map.Entry[" + ((Map.Entry) o).toString() + "]";
+		}
 		throw new RuntimeException("PANIC: asString cannot convert: " + o);
 	}
 	
