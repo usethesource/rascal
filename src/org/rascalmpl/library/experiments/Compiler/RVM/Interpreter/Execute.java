@@ -413,8 +413,8 @@ public class Execute {
 				codeblock.TYPESWITCH((IList)instruction.get("labels"));
 				break;
 				
-			case "UNWRAPTHROWN":
-				codeblock.UNWRAPTHROWN(getIntField(instruction, "pos"));
+			case "UNWRAPTHROWNLOC":
+				codeblock.UNWRAPTHROWNLOC(getIntField(instruction, "pos"));
 				break;
 				
 			case "FILTERRETURN":
@@ -487,6 +487,10 @@ public class Execute {
 				
 			case "STOREVARKWP":
 				codeblock.STOREVARKWP(getStrField(instruction, "fuid"), getStrField(instruction, "name"));
+				break;
+				
+			case "UNWRAPTHROWNVAR":
+				codeblock.UNWRAPTHROWNVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
 				break;
 				
 			default:

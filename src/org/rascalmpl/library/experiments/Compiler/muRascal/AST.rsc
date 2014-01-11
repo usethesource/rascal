@@ -63,14 +63,14 @@ public data MuExp =
           	// Variables
           | muLoc(str name, int pos)							// Local variable, with position in current scope
           | muVar(str name, str fuid, int pos)					// Variable: retrieve its value
-          | muTmp(str name)										// Temporary variable introduced by front-end
+          | muTmp(str name, str fuid)							// Temporary variable introduced by front-end
           
           | muLocDeref(str name, int pos) 				        // Call-by-reference: a variable that refers to a value location
           | muVarDeref(str name, str fuid, int pos)
           
           | muLocRef(str name, int pos) 				        // Call-by-reference: expression that returns a value location
           | muVarRef(str name, str fuid, int pos)
-          | muTmpRef(str name)
+          | muTmpRef(str name, str fuid)
           
           // Keyword parameters
           | muLocKwp(str name)                                  // Local keyword parameter
@@ -106,7 +106,7 @@ public data MuExp =
               
           | muAssignLoc(str name, int pos, MuExp exp)			// Assign a value to a local variable
           | muAssign(str name, str fuid, int pos, MuExp exp)	// Assign a value to a variable
-          | muAssignTmp(str name, MuExp exp)					// Assign to temporary variable introduced by front-end
+          | muAssignTmp(str name, str fuid, MuExp exp)			// Assign to temporary variable introduced by front-end
           
           // Keyword parameters
           | muAssignLocKwp(str name, MuExp exp)
@@ -155,6 +155,7 @@ public data MuExp =
           
           | muBlock(list[MuExp] exps)  							// A list of expressions, only last value remains
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
+          | muOne(MuExp exp)                                    // Expression that always produces only the first value
           | muOne(list[MuExp] exps)								// Compute one result for a list of boolean expressions
           | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
           | muOr(list[MuExp] exps)        						// Compute the or of a list of Boolean expressions.
@@ -167,8 +168,11 @@ public data MuExp =
           
           | muTry(MuExp exp, MuCatch \catch, MuExp \finally)
           ;
+          
+public MuExp muMulti(muOne(MuExp exp)) = muOne(exp);
+public MuExp muOne(muMulti(MuExp exp)) = muOne(exp);
  
-data MuCatch = muCatch(str id, Symbol \type, MuExp body);    
+data MuCatch = muCatch(str id, str fuid, Symbol \type, MuExp body);    
 
 data MuTypeCase = muTypeCase(str name, MuExp exp);	  
        	  
