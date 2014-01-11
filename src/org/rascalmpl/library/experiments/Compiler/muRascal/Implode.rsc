@@ -165,6 +165,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("get_array")), [ar, index])								=> muCallMuPrim("subscript_array_mint", [ar, index])
                case muCall(preVar(mvar("get_list")), [lst, index])								=> muCallMuPrim("subscript_list_mint", [lst, index])
                case muCall(preVar(mvar("get_tuple")), [tup, index])								=> muCallMuPrim("subscript_tuple_mint", [tup, index])
+               case muCall(preVar(mvar("get_map")), [m, key])									=> muCallPrim("map_subscript", [m, key])
                
                case muCall(preVar(mvar("put_array")), [ar, index, exp1])						=> muCallMuPrim("assign_subscript_array_mint", [ar, index, exp1])
                case muCall(preVar(mvar("put_list")), [lst, index, exp1])						=> muCallMuPrim("assign_subscript_list_mint", [lst, index, exp1])
@@ -183,6 +184,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("is_element")), [exp1, exp2])							=> muCallMuPrim("is_element", [exp1, exp2])
                case muCall(preVar(mvar("is_element_mset")), [exp1, exp2])						=> muCallMuPrim("is_element_mset", [exp1, exp2])
                case muCall(preVar(mvar("keys")), [exp1])										=> muCallMuPrim("keys_map", [exp1])
+               case muCall(preVar(mvar("map_contains_key")), [exp1, exp2])						=> muCallMuPrim("map_contains_key", [exp1, exp2])
                case muCall(preVar(mvar("values")), [exp1])										=> muCallMuPrim("values_map", [exp1])
                case muCall(preVar(mvar("set2list")), [exp1])									=> muCallMuPrim("set2list", [exp1])
                case muCall(preVar(mvar("mset2list")), [exp1])									=> muCallMuPrim("mset2list", [exp1])
