@@ -4923,7 +4923,7 @@ public enum RascalPrimitive {
 		typeReifier.declareAbstractDataTypes(definitions, store);
 
 		int nargs = argType.getArity();
-		IValue[] args = new IValue[nargs];
+		IValue[] args = new IValue[nargs + 1]; // '+1' kwargs
 
 		TypeParameterVisitor tpvisit = new TypeParameterVisitor();
 		Type requestedType = tf.tupleType(argType);
@@ -4937,12 +4937,13 @@ public enum RascalPrimitive {
 			if(nargs > 0){
 				message = " with arguments: ";
 				ITuple tup = (ITuple) randomValue.generate(argType);
-				for(int j = 0; j < args.length; j++){
+				for(int j = 0; j < nargs; j++){
 					args[j] = tup.get(j);
 					message = message + args[j].toString() + " ";
 				}
 			}
 			try {
+				args[nargs] = vf.mapWriter().done(); // kwargs
 				IValue res = rvm.executeFunction(fun, args); 
 				passed = ((IBool) res).getValue();
 				if(!passed){
