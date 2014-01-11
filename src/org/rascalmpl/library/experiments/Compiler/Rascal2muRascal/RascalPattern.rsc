@@ -24,7 +24,7 @@ import experiments::Compiler::RVM::Interpreter::ParsingTools;
 MuExp translateMatch((Expression) `<Pattern pat> := <Expression exp>`)  = translateMatch(pat, exp);
    
 MuExp translateMatch((Expression) `<Pattern pat> !:= <Expression exp>`) =
-    muCallMuPrim("not_mbool", [makeMuAll([ translateMatch(pat, exp) ]) ]);
+    muCallMuPrim("not_mbool", [ makeMu("ALL", [ translateMatch(pat, exp) ]) ]);
     
 default MuExp translateMatch(Pattern pat, Expression exp) =
     muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]));
@@ -68,6 +68,7 @@ map[str,str] regexpEscapes = (
 );
 
 MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
+   str fuid = topFunctionScope();
    swriter = nextTmp();
    fragmentCode = [];
    varrefs = [];
@@ -122,9 +123,9 @@ MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier m
    if(size(fragment) > 0){
       fragmentCode += muCon(fragment);
    }
-   buildRegExp = muBlock(muAssignTmp(swriter, muCallPrim("stringwriter_open", [])) + 
-                       [ muCallPrim("stringwriter_add", [muTmp(swriter), exp]) | exp <- fragmentCode ] +
-                       muCallPrim("stringwriter_close", [muTmp(swriter)]));
+   buildRegExp = muBlock(muAssignTmp(swriter, fuid, muCallPrim("stringwriter_open", [])) + 
+                       [ muCallPrim("stringwriter_add", [muTmp(swriter,fuid), exp]) | exp <- fragmentCode ] +
+                       muCallPrim("stringwriter_close", [muTmp(swriter,fuid)]));
  
    return muCreate(mkCallToLibFun("Library", "MATCH_REGEXP", 3), 
                  [ buildRegExp,
@@ -808,7 +809,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
    	  // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
   	  ifname = nextLabel();
       enterBacktrackingScope(ifname);
-      exp = muIfelse(ifname,muAll([ muCallMuPrim("equal", [muLoc("<i>",i), translate(pat.literal)]) ]),
+      exp = muIfelse(ifname,muCallMuPrim("equal", [ muVar("<i>",topFunctionScope(),i), translate(pat.literal) ]),
                    [ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body) ],
                    [ muFailReturn() ]
                   );
@@ -821,8 +822,8 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
       // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
   	  ifname = nextLabel();
       enterBacktrackingScope(ifname);
-      exp = muIfelse(ifname,muAll([ muCallMuPrim("check_arg_type", [ muLoc("<i>",i), muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ) ]) ]),
-                   [ muAssign("<name>", fuid, pos, muLoc("<i>", i)),
+      exp = muIfelse(ifname,muCallMuPrim("check_arg_type", [ muVar("<i>",topFunctionScope(),i), muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ) ]),
+                   [ muAssign("<name>", fuid, pos, muVar("<i>",topFunctionScope(),i)),
                      translateFormals(tail(formals), isVarArgs, i + 1, kwps, body) 
                    ],
                    [ muFailReturn() ]
@@ -846,7 +847,7 @@ MuExp translateFunction({Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps
   	    ifname = nextLabel();
         enterBacktrackingScope(ifname);
         conditions = [ translate(cond) | cond <- when_conditions];
-        mubody = muIfelse(ifname,muAll(conditions), [ *kwps, muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
+        mubody = muIfelse(ifname,makeMu("ALL",conditions), [ *kwps, muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	    leaveBacktrackingScope();
 	    return mubody;
   	  }
@@ -858,12 +859,12 @@ MuExp translateFunction({Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps
       enterBacktrackingScope(ifname);
       // TODO: account for a variable number of arguments
 	  for(Pattern pat <- formals) {
-	      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muLoc("<i>",i) ]));
+	      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muVar("<i>",topFunctionScope(),i) ]));
 	      i += 1;
 	  };
 	  conditions += [ translate(cond) | cond <- when_conditions];
 
-	  mubody = muIfelse(ifname,muAll(conditions), [ *kwps, muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
+	  mubody = muIfelse(ifname,makeMu("ALL",conditions), [ *kwps, muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	  leaveBacktrackingScope();
 	  return mubody;
   }
