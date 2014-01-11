@@ -537,6 +537,7 @@ coroutine MATCH_PAT_IN_LIST[4, pat, iSubject, rNext, available, start, cpat]{
 
 // A literal in a list
 coroutine MATCH_LITERAL_IN_LIST[4, pat, iSubject, rNext, available, start, elm]{
+    //println("MATCH_LITERAL_IN_LIST", pat, iSubject);
 	guard available > 0;
 	start = deref rNext;
 	elm =  get_list(iSubject, start);

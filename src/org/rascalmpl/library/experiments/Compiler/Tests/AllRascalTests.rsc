@@ -3,6 +3,7 @@ module experiments::Compiler::Tests::AllRascalTests
 import IO;
 import Type;
 import List;
+import DateTime;
 import experiments::Compiler::Execute;
 
 loc base1 = |project:///rascal-test/tests/functionality|;
@@ -109,6 +110,7 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
 }
   
 value main(list[value] args){
+  timestamp = now();
   crashes = [];
   partial_results = [];
   all_results = [];
@@ -116,6 +118,7 @@ value main(list[value] args){
   all_results += runTests(rascalTests, |project://rascal-test/src/tests|);
   all_results += runTests(libraryTests, |project://rascal-test/src/tests/library|);
   
+  println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");
   for(<prog, s> <- partial_results)
       println("<prog>: <s>");
