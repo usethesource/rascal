@@ -1205,8 +1205,39 @@ MuExp translateVisit(label,\visit) {
 	enterVisit();
 	enterFunctionScope(phi_fuid);
 	
-	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 3, 3, false, \visit@\loc, [], (), 
-										translateVisitCases([ c | Case c <- \visit.cases ],phi_fuid));
+	MuExp body = translateVisitCases([ c | Case c <- \visit.cases ],phi_fuid);
+	
+	// All the variables introduced in the visit scope become local variables of the phi function
+	rel[str fuid,int pos] decls = getAllVariablesAndFunctionsOfBlockScope(\visit@\loc);
+	int pos_in_phi = 3; // Starting from the number of formal parameters
+	map[tuple[str,int],tuple[str,int]] mapping = ();
+	println(decls);
+	for(<str fuid,int pos> <- decls, pos != -1) {
+	    assert fuid == scopeId;
+	    mapping[<scopeId,pos>] = <phi_fuid,pos_in_phi>;
+	    pos_in_phi = pos_in_phi + 1;
+	}
+	println(mapping);
+	for(<str fuid,int pos> <- decls, pos == -1) {
+	    // TODO: handling of nested functions
+	    throw "Nested function in a visit <\visit@\loc>";
+	}
+	// Map from <scopeId,pos> to <phi_fuid,newPos>
+	body = visit(body) {
+	    case muAssign(str name,scopeId,int pos,MuExp exp)    => muAssign(name,phi_fuid,newPos,exp) 
+	                                                              when <scopeId,pos> in mapping && <_,int newPos> := mapping[<scopeId,pos>]
+	    case muVar(str name,scopeId,int pos)                 => muVar(name,phi_fuid,newPos)
+	                                                              when <scopeId,pos> in mapping && <_,int newPos> := mapping[<scopeId,pos>]
+	    case muVarRef(str name,scopeId,int pos)              => muVarRef(name,phi_fuid,newPos)
+	                                                              when <scopeId,pos> in mapping && <_,int newPos> := mapping[<scopeId,pos>]
+        case muAssignVarDeref(str name,scopeId,int pos,
+                                                  MuExp exp) => muAssignVarDeref(name,phi_fuid,newPos,exp)
+                                                                  when <scopeId,pos> in mapping && <_,int newPos> := mapping[<scopeId,pos>]
+	    case muFun(str fuid,scopeId)                         => muFun(fuid,phi_fuid)
+	    case muCatch(str id,scopeId,Symbol \type,MuExp body) => muCatch(id,phi_fuid,\type,body)
+	}
+	iprintln(body);
+	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 3, pos_in_phi, false, \visit@\loc, [], (), body);
 	
 	leaveFunctionScope();
 	leaveVisit();
