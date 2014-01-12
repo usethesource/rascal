@@ -9,7 +9,6 @@ import experiments::Compiler::Compile;
 
 list[str] libs = [
 
-/***** OK *****/
 
 "Boolean", 			// OK
 "DateTime",			// OK
@@ -45,7 +44,7 @@ list[str] libs = [
 "util::ShellExec",	// OK
 "util::Webserver",		// OK
 
-/***** Not yet OK *****/
+// Not yet OK
 
 "Ambiguity",			// #483
 						//|rascal://lang::rascal::types::CheckTypes|(31671,1,<634,13>,<634,14>): Expected map[RName, int], but got map[RName, value]     	
@@ -76,7 +75,59 @@ list[str] libs = [
 
 "util::LOC"			// #394
 						// error("Field top does not exist on type Tree",|std:///util/LOC.rsc|(943,5,<44,8>,<44,13>))
-						
+/* Many fail since Exception is not imported.
+"analysis::formalconcepts::FCA",
+"analysis::graphs::Graph",				
+"analysis::graphs::LabeledGraph",
+"analysis::linearprogramming::LinearProgramming",
+"analysis::m3::Core",
+"analysis::m3::Registry",
+"analysis::statistics::Correlation",
+"analysis::statistics::Descriptive",
+"analysis::statistics::Frequency",
+"analysis::statistics::Inference",
+"analysis::statistics::SimpleRegression",
+"demo::basic::Ackermann",
+"demo::basic::Bottles",
+"demo::basic::Bubble",
+"demo::basic::BubbleTest",
+"demo::basic::Factorial",
+"demo::basic::FactorialTest",
+"demo::basic::FizzBuzz",
+"demo::basic::Hello",
+"demo::basic::Quine",
+"demo::basic::Squares",
+"demo::common::WordCount::CountInLine1",
+"demo::common::WordCount::CountInLine2",
+"demo::common::WordCount::CountInLine3",
+"demo::common::WordCount::WordCount",
+//"demo::common::Calls",
+"demo::common::ColoredTrees",
+"demo::common::ColoredTreesTest",
+"demo::common::CountConstructors",
+"demo::common::Crawl",
+"demo::common::Cycles",
+"demo::common::Derivative",
+"demo::common::Lift",
+"demo::common::LiftTest",
+"demo::common::StringTemplate",
+"demo::common::StringTemplateTest",
+"demo::common::Trans",
+"demo::common::WordReplacement",
+"demo::common::WordReplacementTest",
+"demo::lang::Exp::Abstract::Eval",
+"demo::lang::Exp::Combined::Automatic::Eval",
+"demo::lang::Exp::Combined::Manual::Eval",
+"demo::lang::Exp::Concrete::NoLayout::Eval",
+"demo::lang::Exp::Concrete::WithLayout::Eval",
+"demo::lang::Pico::Compile",
+"demo::lang::Pico::ControlFlow",
+"demo::lang::Pico::Eval",
+"demo::lang::Pico::Typecheck",
+"demo::lang::Pico::Uninit",
+"demo::lang::Pico::UseDef",
+"demo::lang::Pico::Visualize"
+*/
 ];
 
 value main(list[value] args){
@@ -84,13 +135,18 @@ value main(list[value] args){
   for(lib <- libs){
     println("**** Compiling <lib> ****");
     try {
-    	compile(|project://rascal/src/org/rascalmpl/library/| + (replaceAll(lib, "::", "/") + ".rsc"), recompile=true);
+	    compile("module TMP  extend Exception; extend <lib>;", recompile=true);
+	    
+    	//compile(|project://rascal/src/org/rascalmpl/library/| + (replaceAll(lib, "::", "/") + ".rsc"), recompile=true);
     } catch e: {
       crashes += <lib, "<e>">;
     }
   }
   if(size(crashes) > 0){
-     println("\nCRASHES:\n<crashes>");
+    println("\nERRORS:\n");
+     for(<lib, msg> <- crashes){
+       println("<lib>: <msg>");
+    }
   }
   return true;
 }
