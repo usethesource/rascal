@@ -21,7 +21,7 @@ Handle(){
   esac
 }
 
-for dir in Benchmarks Examples Tests ../..
+for dir in Benchmarks Examples Tests ../.. ../../../../../../rascal-test
 do 
 	 for f in `find $dir -name "*.rvm"`
          do

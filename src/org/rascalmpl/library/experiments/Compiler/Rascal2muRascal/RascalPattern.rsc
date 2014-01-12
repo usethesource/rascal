@@ -271,11 +271,10 @@ default MuExp translatePat(Pattern p) { throw "Pattern <p> cannot be translated"
 /*                 Constant Patterns                                  */
 /**********************************************************************/
 
-value translatePatternAsConstant(p:(Pattern) `<Literal lit>`) = getLiteralValue(lit);
+value translatePatternAsConstant(p:(Pattern) `<Literal lit>`) = getLiteralValue(lit) when !(lit is regExp);
 
-value translatePatternAsConstant(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
-  return makeNode("<expression>", [ translatePatternAsConstant(pat) | pat <- arguments ]);
-}
+value translatePatternAsConstant(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) =
+  makeNode("<expression>", [ translatePatternAsConstant(pat) | pat <- arguments ]);
 
 value translatePatternAsConstant(p:(Pattern) `{<{Pattern ","}* pats>}`) = { translatePatternAsConstant(pat) | pat <- pats };
 
@@ -287,7 +286,7 @@ value translatePatternAsConstant(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
 }
  
 default value translatePatternAsConstant(Pattern p){
-  throw "not-constant";
+  throw "Not a constant pattern: <p>";
 }
 
 /*********************************************************************/
@@ -449,9 +448,9 @@ MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead look
 } 
 
 
-MuExp translatePatAsListElem(p:(Pattern) `<Literal lit>`, Lookahead lookahead) {
-  return muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST",4), [translate(lit)]);
-}
+MuExp translatePatAsListElem(p:(Pattern) `<Literal lit>`, Lookahead lookahead) =
+   muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST",4), [translate(lit)])
+when !(lit is regExp);
 
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`, Lookahead lookahead) {
    if("<name>" == "_"){
