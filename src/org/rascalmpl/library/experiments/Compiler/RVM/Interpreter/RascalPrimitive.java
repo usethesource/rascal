@@ -1806,7 +1806,11 @@ public enum RascalPrimitive {
 	 */
 	public static int adt_field_access(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IConstructor) stack[sp - 2]).get(((IString) stack[sp - 1]).getValue());
+		IConstructor cons = (IConstructor) stack[sp - 2];
+		String fieldName = ((IString) stack[sp - 1]).getValue();
+		Type tp = cons.getConstructorType();
+		int fld_index = tp.getFieldIndex(fieldName);
+		stack[sp - 2] = cons.get(fld_index);
 		return sp - 1;
 	}
 	
