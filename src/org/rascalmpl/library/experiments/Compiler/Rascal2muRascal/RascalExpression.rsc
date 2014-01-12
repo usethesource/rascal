@@ -318,7 +318,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    MuExp receiver = translate(expression);
    list[MuExp] args = [ translate(a) | a <- arguments ];
    if(getOuterType(expression) == "str") {
-       return muCallPrim("node_create", [receiver, *args/*, kwargs*/]);
+       return muCallPrim("node_create", [receiver, *args, kwargs]);
    }
    
    if(getOuterType(expression) == "loc"){
@@ -1309,12 +1309,20 @@ private bool hasTopLevelInsert(Case c) {
 
 MuExp translateKeywordArguments(KeywordArguments keywordArguments) {
    // Keyword arguments
-   str fuid = topFunctionScope();
-   list[MuExp] kwargs = [ muAssignTmp("map_of_keyword_arguments", fuid, muCallPrim("mapwriter_open",[])) ];
-   if(keywordArguments is \default) {
-       for(KeywordArgument kwarg <- keywordArguments.keywordArgumentList) {
-           kwargs += muCallPrim("mapwriter_add",[ muTmp("map_of_keyword_arguments",fuid), muCon("<kwarg.name>"), translate(kwarg.expression) ]);           
-       }
+   if(keywordArguments is \default){
+      kwargs = [ muCon("<kwarg.name>"), translate(kwarg.expression)  | KeywordArgument kwarg <- keywordArguments.keywordArgumentList ];
+      if(size(kwargs) > 0){
+         return muCallPrim("map_create", kwargs);
+      }
    }
-   return muBlock([ *kwargs, muCallPrim("mapwriter_close", [ muTmp("map_of_keyword_arguments",fuid) ]) ]);
+   return muCon(());
+   
+   //str fuid = topFunctionScope();
+   //list[MuExp] kwargs = [ muAssignTmp("map_of_keyword_arguments", fuid, muCallPrim("mapwriter_open",[])) ];
+   //if(keywordArguments is \default) {
+   //    for(KeywordArgument kwarg <- keywordArguments.keywordArgumentList) {
+   //        kwargs += muCallPrim("mapwriter_add",[ muTmp("map_of_keyword_arguments",fuid), muCon("<kwarg.name>"), translate(kwarg.expression) ]);           
+   //    }
+   //}
+   //return muBlock([ *kwargs, muCallPrim("mapwriter_close", [ muTmp("map_of_keyword_arguments",fuid) ]) ]);
 }
