@@ -8,6 +8,7 @@ import util::ValueUI;
 import ParseTree;
 
 import lang::rascal::types::AbstractName;
+import lang::rascal::types::AbstractType;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
@@ -95,6 +96,31 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  									   				    !isEmpty(getSimpleName(name)),
    	  									   				    containedIn == 0
    	  						  );
+   	 
+   	 // Costructor functions are generated in case of constructors with keyword parameters
+   	 // (this enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments)						  
+   	 for(int uid <- config.store, constructor(name, Symbol \type, keywordParams, 0, _) := config.store[uid]) {
+   	     str fuid = fuid2str[uid] + "::companion";
+   	     Symbol ftype = Symbol::func(getConstructorResultType(\type),[ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ]);
+   	     tuple[str fuid,int pos] addr = uid2addr[uid];
+   	     int nformals = size(\type.parameters) + 1;
+   	     int defaults_pos = nformals;
+   	     list[MuExp] kwps = [ muAssign("map_of_default_values", fuid, defaults_pos, muCallMuPrim("make_map_str_entry",[])) ];
+   	     list[MuExp] kwargs = [];
+         for(RName kwf <- keywordParams) {
+             kwps += muCallMuPrim("map_str_entry_add_entry_type_ivalue", 
+                                  [ muVar("map_of_default_values",fuid,defaults_pos), 
+                                    muCon("<getSimpleName(kwf)>"), 
+                                    muCallMuPrim("make_entry_type_ivalue", [ muTypeCon(keywordParams[kwf]), 
+                                                                             translate(getOneFrom(config.dataKeywordDefaults[uid,kwf])) ]) ]);
+             kwargs = kwargs + [ muCon("<getSimpleName(kwf)>"), muVarKwp(fuid,getSimpleName(kwf)) ];
+         }
+         MuExp body = muBlock(kwps + kwargs + [ muReturn(muCall(muConstr(fuid2str[uid]),[ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
+                                            + [ muCallPrim("map_create", kwargs), 
+                                                muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),keywordParams[rname]) | rname <- keywordParams ])) ])) ]);
+         functions_in_module += muFunction(fuid,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body);   	                                       
+   	 }
+   	  						  
    	  translate(M);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
@@ -104,8 +130,10 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  // Overloading resolution...	  
    	  lrel[str,list[str],list[str]] overloaded_functions = [ < (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
    	  														   [ fuid2str[fuid] | int fuid <- of.fuids, (fuid in functions) && (fuid notin defaultFunctions) ] 
-   	  														   		+ [ fuid2str[fuid] | int fuid <- of.fuids, fuid in defaultFunctions ],
-   	  														   [ fuid2str[fuid] | int fuid <- of.fuids, fuid in constructors ]
+   	  														   		+ [ fuid2str[fuid] | int fuid <- of.fuids, fuid in defaultFunctions ]
+   	  														   		// Replace call to a constructor with call to the constructor function if the constructor has keyword parameters
+   	  														   		+ [ fuid2str[fuid] + "::companion" | int fuid <- of.fuids, fuid in constructors, !isEmpty(config.store[fuid].keywordParams) ],
+   	  														   [ fuid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.store[fuid].keywordParams) ]
    	  											  			 > 
    	  															| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions ];
    	  
