@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -50,6 +51,7 @@ public enum MuPrimitive {
 	is_defined,
 	is_element_mset,
 	is_bool,
+	is_constructor,
 	is_datetime,
 	is_int,
 	is_list,
@@ -345,7 +347,29 @@ public enum MuPrimitive {
 		
 	public static int get_name_and_children(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		INode nd = (INode) stack[sp - 1];
+		IValue v = (IValue) stack[sp - 1];
+		if(v.getType().isAbstractData()){
+			IConstructor cons = (IConstructor) v;
+			Type tp = cons.getConstructorType();
+			
+			int cons_arity = tp.getArity();
+			int pos_arity = tp.getPositionalArity();
+			IMapWriter writer = vf.mapWriter();
+			for(int i = pos_arity; i < cons_arity; i++){
+				String key = tp.getFieldName(i);
+				IValue val = cons.get(key);
+				writer.put(vf.string(key), val);
+			}
+			Object[] elems = new Object[pos_arity + 2];
+			elems[0] = vf.string(cons.getName());
+			for(int i = 0; i < pos_arity; i++){
+				elems[i + 1] = cons.get(i);
+			}
+			elems[pos_arity + 1] = writer.done();
+			stack[sp - 1] =  elems;
+			return sp;
+		}
+		INode nd = (INode) v;
 		String name = nd.getName();
 		Object[] elems = new Object[nd.arity() + 1];
 		elems[0] = vf.string(name);
@@ -407,6 +431,12 @@ public enum MuPrimitive {
 	public static int is_bool(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isBool();
+		return sp;
+	}
+	
+	public static int is_constructor(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isAbstractData();
 		return sp;
 	}
 		
