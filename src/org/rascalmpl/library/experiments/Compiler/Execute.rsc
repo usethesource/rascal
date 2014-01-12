@@ -134,6 +134,6 @@ void printTestReport(value results){
 	  }
 	  println("\nSUMMARY: " + makeTestSummary(test_results));
   } else {
-    throw "cannot create report for test results: <resuls>";
+    throw "cannot create report for test results: <results>";
   }
 }
