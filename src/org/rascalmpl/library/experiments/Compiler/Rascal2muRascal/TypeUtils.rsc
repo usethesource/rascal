@@ -460,3 +460,16 @@ public bool hasField(Symbol s, str fieldName){
 
 public int getTupleFieldIndex(Symbol s, str fieldName) = 
     indexOf(getTupleFieldNames(s), fieldName);
+
+public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
+     containmentPlus = containment+;
+     set[int] decls = {};
+     if(int uid <- config.store, blockScope(int _, l) := config.store[uid]) {
+         set[int] innerScopes = containmentPlus[uid];
+         for(int inScope <- innerScopes) {
+             decls = decls + declares[inScope];
+         }
+         return { addr | int decl <- decls, tuple[str fuid,int pos] addr := uid2addr[decl] };
+     }
+     throw "Block scope at <l> has not been found!";
+}
