@@ -105,6 +105,9 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	     tuple[str fuid,int pos] addr = uid2addr[uid];
    	     int nformals = size(\type.parameters) + 1;
    	     int defaults_pos = nformals;
+   	     
+   	     enterFunctionScope(fuid);
+   	     
    	     list[MuExp] kwps = [ muAssign("map_of_default_values", fuid, defaults_pos, muCallMuPrim("make_map_str_entry",[])) ];
    	     list[MuExp] kwargs = [];
          for(RName kwf <- keywordParams) {
@@ -118,6 +121,9 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
          MuExp body = muBlock(kwps + kwargs + [ muReturn(muCall(muConstr(fuid2str[uid]),[ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
                                             + [ muCallPrim("map_create", kwargs), 
                                                 muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),keywordParams[rname]) | rname <- keywordParams ])) ])) ]);
+                                                
+         leaveFunctionScope();
+         
          functions_in_module += muFunction(fuid,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body);   	                                       
    	 }
    	  						  
