@@ -371,21 +371,21 @@ coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
 }
 
 coroutine MATCH_CALL_OR_TREE[2, pats, iSubject, cpats, args]{
-    println("MATCH_CALL_OR_TREE", pats, " AND ", iSubject, typeOf(iSubject), iSubject is constructor);
+    //println("MATCH_CALL_OR_TREE", pats, " AND ", iSubject, typeOf(iSubject), iSubject is constructor);
     guard iSubject is node;   
     args = get_name_and_children(iSubject);
-    println("args", args);
+    //println("args", args);
     cpats = init(create(MATCH_N, pats, args));
     while(next(cpats)) {
           yield;
     };
    
-    println("MATCH_CALL_OR_TREE fails", pats, " AND ", iSubject);
+    //println("MATCH_CALL_OR_TREE fails", pats, " AND ", iSubject);
 }
 
 coroutine MATCH_KEYWORD_PARAMS[3, keywords, pats, iSubject, len, subjects, j, kw, cpats]{
    guard iSubject is map;
-   println("MATCH_KEYWORD_PARAMS", keywords, pats);
+   //println("MATCH_KEYWORD_PARAMS", keywords, pats);
    len = size_array(keywords);
    if(len == 0){
       return;
@@ -393,15 +393,17 @@ coroutine MATCH_KEYWORD_PARAMS[3, keywords, pats, iSubject, len, subjects, j, kw
    subjects = make_array(len);
    j = 0;
    while(j < len){
-     kw = get_array(keywords, 0);
+     kw = get_array(keywords, j);
      if(map_contains_key(iSubject, kw)){
         put_array(subjects, j, get_map(iSubject, kw));
+         //println("MATCH_KEYWORD_PARAMS put:", kw);
      } else {
+       //println("MATCH_KEYWORD_PARAMS does not occur:", kw);
        exhaust;
      };
      j = j + 1;
    };
-   println("subjects", subjects);
+   //println("subjects", subjects);
    cpats = init(create(MATCH_N, pats, subjects));
    while(next(cpats)) {
         yield;
