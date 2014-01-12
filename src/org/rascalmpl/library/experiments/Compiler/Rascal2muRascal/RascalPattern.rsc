@@ -183,6 +183,7 @@ MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> 
 // callOrTree pattern
 
 MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
+   println("CallOrTree Pattern: <expression>(<arguments> <keywordArguments>)");
    MuExp fun_pat;
    if(expression is qualifiedName){
       fun_pat = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(getType(expression@\loc).name)]);
@@ -190,20 +191,22 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
      fun_pat = translatePat(expression);
    }
    return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", fun_pat + [ translatePat(pat) | pat <- arguments ] 
-                                                                                                 //+ translatePatKWArguments(keywordArguments)
+                                                                                                 + translatePatKWArguments(keywordArguments)
                                                                                   )]);
 }
 
-MuExp translatePatKWArguments((KeywordArguments) ``) = muCon(());
+MuExp translatePatKWArguments((KeywordArguments) ``) =
+   muCreate(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS",3), [muCallMuPrim("make_array", []), muCallMuPrim("make_array", [])]);
 
 MuExp translatePatKWArguments((KeywordArguments) `<OptionalComma optionalComma> <{KeywordArgument ","}+ keywordArgumentList>`) {
+   println("translatePatKWArguments: <keywordArgumentList>");
    keyword_names = [];
    pats = [];
    for(kwarg <- keywordArgumentList){
        keyword_names += muCon("<kwarg.name>");
        pats += translatePatKWValue(kwarg.expression);
    }
-   return muCreate(mkCallToLibFun("Library","MATCH_MAP",3), [muCallMuPrim("make_array", keyword_names), muCallMuPrim("make_array", pats)]);
+   return muCreate(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS",3), [muCallMuPrim("make_array", keyword_names), muCallMuPrim("make_array", pats)]);
 }
 
 MuExp translatePatKWValue(e: (Expression) `<Literal lit>`) = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [translate(lit)]);
