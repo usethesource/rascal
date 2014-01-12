@@ -50,6 +50,7 @@ public enum MuPrimitive {
 	is_defined,
 	is_element_mset,
 	is_bool,
+	is_constructor,
 	is_datetime,
 	is_int,
 	is_list,
@@ -407,6 +408,12 @@ public enum MuPrimitive {
 	public static int is_bool(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isBool();
+		return sp;
+	}
+	
+	public static int is_constructor(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		stack[sp - 1] = ((IValue) stack[sp - 1]).getType().isConstructor();
 		return sp;
 	}
 		
