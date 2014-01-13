@@ -190,7 +190,9 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("mset2list")), [exp1])									=> muCallMuPrim("mset2list", [exp1])
                case muCall(preVar(mvar("equal")), [exp1, exp2])									=> muCallMuPrim("equal", [exp1, exp2])
                case muCall(preVar(mvar("equal_set_mset")), [exp1, exp2])						=> muCallMuPrim("equal_set_mset", [exp1, exp2])
-			   case muCall(preVar(mvar("get_children")), [exp1])								=> muCallMuPrim("get_children", [exp1])
+			  
+ 				case muCall(preVar(mvar("get_children")), [exp1])								=> muCallMuPrim("get_children", [exp1])
+  				case muCall(preVar(mvar("get_children_and_keyword_params")), [exp1])			=> muCallMuPrim("get_children_and_keyword_params", [exp1])
 			   //case muCall(preVar(mvar("get_keyword_params")), [exp1])							=> muCallMuPrim("get_keyword_params", [exp1])
 			   case muCall(preVar(mvar("get_name")), [exp1])									=> muCallMuPrim("get_name", [exp1])
 			   case muCall(preVar(mvar("get_name_and_children")), [exp1])						=> muCallMuPrim("get_name_and_children", [exp1])

@@ -42,6 +42,7 @@ public enum MuPrimitive {
 	equal_set_mset,
 	equivalent_mbool_mbool,
 	get_children,
+	get_children_and_keyword_params,
 	get_name,
 	get_name_and_children,
 	get_tuple_elements,
@@ -344,6 +345,41 @@ public enum MuPrimitive {
 		stack[sp - 1] =  elems;
 		return sp;
 	}
+	
+	public static int get_children_and_keyword_params(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		INode nd = (INode) stack[sp - 1];
+		int nd_arity = nd.arity();
+		IValue last = nd.get(nd_arity - 1);
+		Object[] elems;
+		
+		if(last.getType().isMap()){
+			IMap kwmap = (IMap) last;
+			int kw_arity = kwmap.size();
+			elems = new Object[nd_arity - 1 + kw_arity];
+			int j = nd_arity - 1;
+			for(int i = 0; i < nd_arity - 1; i++){
+				elems[i] = nd.get(i);
+			}
+			for(IValue v : kwmap){
+				elems[j++] = v;
+			}
+		} else {
+			elems = new Object[nd_arity];
+			for(int i = 0; i < nd_arity; i++){
+				elems[i] = nd.get(i);
+			}
+		}
+		stack[sp - 1] =  elems;
+		return sp;
+	}
+	
+	/*
+	 * Given a constructor or node get:
+	 * - its name
+	 * - positional arguments
+	 * - keyword parameters collected in a map
+	 */
 		
 	public static int get_name_and_children(Object[] stack, int sp, int arity) {
 		assert arity == 1;

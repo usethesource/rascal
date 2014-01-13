@@ -140,10 +140,10 @@ coroutine ENUM_MAP[2, iMap, rVal, iKlst, len, j]{
 }
 
 coroutine ENUM_NODE[2, iNd, rVal, len, j, array]{
-   array = get_name_and_children(iNd);
+   array = get_children_and_keyword_params(iNd);
    len = size_array(array);
    guard len > 1;
-   j = 1;  // skip name
+   j = 0;
    while(j < len) {
       yield get_array(array, j);
       j = j + 1;
