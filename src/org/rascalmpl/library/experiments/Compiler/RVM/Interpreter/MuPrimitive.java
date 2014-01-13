@@ -42,9 +42,9 @@ public enum MuPrimitive {
 	equal_set_mset,
 	equivalent_mbool_mbool,
 	get_children,
-	get_children_and_keyword_params,
+	get_children_and_keyword_params_as_values,
 	get_name,
-	get_name_and_children,
+	get_name_and_children_and_keyword_params_as_map,
 	get_tuple_elements,
 	greater_equal_mint_mint,
 	greater_mint_mint,
@@ -346,7 +346,7 @@ public enum MuPrimitive {
 		return sp;
 	}
 	
-	public static int get_children_and_keyword_params(Object[] stack, int sp, int arity) {
+	public static int get_children_and_keyword_params_as_values(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		INode nd = (INode) stack[sp - 1];
 		int nd_arity = nd.arity();
@@ -381,7 +381,7 @@ public enum MuPrimitive {
 	 * - keyword parameters collected in a map
 	 */
 		
-	public static int get_name_and_children(Object[] stack, int sp, int arity) {
+	public static int get_name_and_children_and_keyword_params_as_map(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		IValue v = (IValue) stack[sp - 1];
 		if(v.getType().isAbstractData()){
@@ -407,12 +407,28 @@ public enum MuPrimitive {
 		}
 		INode nd = (INode) v;
 		String name = nd.getName();
-		Object[] elems = new Object[nd.arity() + 1];
-		elems[0] = vf.string(name);
-		for(int i = 0; i < nd.arity(); i++){
-			elems[i + 1] = nd.get(i);
+		int nd_arity = nd.arity();
+		IValue last = nd.get(nd_arity - 1);
+		IMap map;
+		Object[] elems;
+		if(last.getType().isMap()){
+			elems = new Object[nd_arity + 1];				// account for function name
+			elems[0] = vf.string(name);
+			for(int i = 0; i < nd_arity; i++){
+				elems[i + 1] = nd.get(i);
+			}
+		} else {
+			TypeFactory tf = TypeFactory.getInstance();
+			map = vf.map(tf.voidType(), tf.voidType());
+			elems = new Object[nd_arity + 2];				// account for function name and keyword map
+		 
+			elems[0] = vf.string(name);
+			for(int i = 0; i < nd_arity; i++){
+				elems[i + 1] = nd.get(i);
+			}
+			elems[1 + nd_arity] = map;
 		}
-		stack[sp - 1] =  elems;
+		stack[sp - 1] = elems;
 		return sp;
 	}
 		
