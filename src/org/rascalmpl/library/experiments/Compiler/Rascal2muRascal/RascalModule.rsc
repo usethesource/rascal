@@ -100,6 +100,12 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	 // Costructor functions are generated in case of constructors with keyword parameters
    	 // (this enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments)						  
    	 for(int uid <- config.store, constructor(name, Symbol \type, keywordParams, 0, _) := config.store[uid]) {
+   	     // ***Note: the keywordParams field excludes the common keyword parameters 
+   	     map[RName,Symbol] keywordParams = ();
+   	     for(<RName rname, _> <- config.dataKeywordDefaults[uid]) { // All the keyword parameters
+   	         int adt = toMapUnique(invert(config.adtConstructors))[uid];
+   	         keywordParams[rname] = config.adtFields[<adt,getSimpleName(rname)>];
+   	     }
    	     str fuid = fuid2str[uid] + "::companion";
    	     Symbol ftype = Symbol::func(getConstructorResultType(\type),[ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ]);
    	     tuple[str fuid,int pos] addr = uid2addr[uid];
@@ -138,8 +144,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  														   [ fuid2str[fuid] | int fuid <- of.fuids, (fuid in functions) && (fuid notin defaultFunctions) ] 
    	  														   		+ [ fuid2str[fuid] | int fuid <- of.fuids, fuid in defaultFunctions ]
    	  														   		// Replace call to a constructor with call to the constructor function if the constructor has keyword parameters
-   	  														   		+ [ fuid2str[fuid] + "::companion" | int fuid <- of.fuids, fuid in constructors, !isEmpty(config.store[fuid].keywordParams) ],
-   	  														   [ fuid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.store[fuid].keywordParams) ]
+   	  														   		+ [ fuid2str[fuid] + "::companion" | int fuid <- of.fuids, fuid in constructors, !isEmpty(config.dataKeywordDefaults[fuid]) ],
+   	  														   [ fuid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.dataKeywordDefaults[fuid]) ]
    	  											  			 > 
    	  															| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions ];
    	  
