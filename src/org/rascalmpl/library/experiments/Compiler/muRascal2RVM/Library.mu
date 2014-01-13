@@ -140,7 +140,7 @@ coroutine ENUM_MAP[2, iMap, rVal, iKlst, len, j]{
 }
 
 coroutine ENUM_NODE[2, iNd, rVal, len, j, array]{
-   array = get_children_and_keyword_params(iNd);
+   array = get_children_and_keyword_params_as_values(iNd);
    len = size_array(array);
    guard len > 1;
    j = 0;
@@ -373,7 +373,7 @@ coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
 coroutine MATCH_CALL_OR_TREE[2, pats, iSubject, cpats, args]{
     //println("MATCH_CALL_OR_TREE", pats, " AND ", iSubject, typeOf(iSubject), iSubject is constructor);
     guard iSubject is node;   
-    args = get_name_and_children(iSubject);
+    args = get_name_and_children_and_keyword_params_as_map(iSubject);
     //println("args", args);
     cpats = init(create(MATCH_N, pats, args));
     while(next(cpats)) {
@@ -412,7 +412,7 @@ coroutine MATCH_KEYWORD_PARAMS[3, keywords, pats, iSubject, len, subjects, j, kw
 
 coroutine MATCH_REIFIED_TYPE[2, pat, iSubject, nc, konstructor, symbol]{
     guard iSubject is node;
-    nc = get_name_and_children(iSubject);
+    nc = get_name_and_children_and_keyword_params_as_map(iSubject);
     konstructor = get_array(nc, 0);
     symbol = get_array(nc, 1);
     if(equal(konstructor, "type") && equal(symbol, pat)) { // NOTE: the second equal? Should not it be a match?
@@ -1146,7 +1146,7 @@ coroutine MATCH_AND_DESCENT_MAP[2, pat, iMap, iKlst, iVlst, last, j]{
 }
 
 coroutine MATCH_AND_DESCENT_NODE[2, pat, iNd, last, j, ar]{
-   ar = get_name_and_children(iNd);
+   ar = get_name_and_children_and_keyword_params_as_map(iNd);
    last = size_array(ar);
    j = 1; 
    while(j < last){

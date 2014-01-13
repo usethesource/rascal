@@ -4426,7 +4426,11 @@ public enum RascalPrimitive {
 	public static int node_replace(Object[] stack, int sp, int arity) {
 		assert arity == 5;
 		INode node = (INode) stack[sp - 5];
-		SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), node.arity());
+		int nd_arity = node.arity();
+		if(node.get(nd_arity - 1).getType().isMap()){ // Take keyword map into consideration, when present
+			nd_arity--;
+		}
+		SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), nd_arity);
 		IList repl = (IList) stack[sp - 1];
 		stack[sp - 5] = node.replace(sd.first, sd.second, sd.end, repl);
 		return sp - 4;
@@ -4472,7 +4476,11 @@ public enum RascalPrimitive {
 		assert arity == 4;
 		
 		INode node = (INode) stack[sp - 4];
-		stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), node.arity()));
+		int nd_arity = node.arity();
+		if(node.get(nd_arity - 1).getType().isMap()){ // Take keyword map into consideration, when present
+				nd_arity--;
+		}
+		stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), nd_arity));
 		return sp - 3;
 	}
 
@@ -5200,7 +5208,12 @@ public enum RascalPrimitive {
 		INode node =  (INode) stack[sp - 2];
 		int idx = ((IInteger) stack[sp - 1]).intValue();
 		try {
-			stack[sp - 2] = node.get((idx >= 0) ? idx : (node.arity() - 1 + idx));  /* take keyword map into consideration */
+			if(idx < 0){
+				int nd_arity = node.arity();
+				/* take keyword map into consideration, when present */
+				idx =  (nd_arity + idx) + (node.get(nd_arity - 1).getType().isMap() ? - 1 : 0);
+			}
+			stack[sp - 2] = node.get(idx);  
 		} catch(IndexOutOfBoundsException e) {
 			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
 		}

@@ -29,6 +29,8 @@ import experiments::Compiler::muRascal::MuAllMuOr;
 int size_exps({Expression ","}* es) = size([e | e <- es]);		     // TODO: should become library function
 int size_exps({Expression ","}+ es) = size([e | e <- es]);		     // TODO: should become library function
 int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: should become library function
+int size_keywordArguments(KeywordArguments keywordArguments) = 
+    (keywordArguments is \default) ? size([kw | kw <- keywordArguments.keywordArgumentList]) : 0;
 
 
 // Produces multi- or backtrack-free expressions
@@ -318,7 +320,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    MuExp receiver = translate(expression);
    list[MuExp] args = [ translate(a) | a <- arguments ];
    if(getOuterType(expression) == "str") {
-       return muCallPrim("node_create", [receiver, *args, kwargs]);
+       return muCallPrim("node_create", [receiver, *args] + (size_keywordArguments(keywordArguments) > 0 ? [kwargs] : []));
    }
    
    if(getOuterType(expression) == "loc"){
