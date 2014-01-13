@@ -85,6 +85,7 @@ import experiments::Compiler::Examples::KWP2;
 import experiments::Compiler::Examples::KWP3;
 import experiments::Compiler::Examples::KWP4;
 import experiments::Compiler::Examples::KWP5;
+import experiments::Compiler::Examples::KWP6;
 
 import experiments::Compiler::Examples::Closures;
 
@@ -179,6 +180,7 @@ test bool tst() = demo("KWP2") == experiments::Compiler::Examples::KWP2::main([]
 test bool tst() = demo("KWP3") == experiments::Compiler::Examples::KWP3::main([]);
 test bool tst() = demo("KWP4") == experiments::Compiler::Examples::KWP4::expectedResult;
 test bool tst() = demo("KWP5") == experiments::Compiler::Examples::KWP5::expectedResult;
+test bool tst() = demo("KWP6") == experiments::Compiler::Examples::KWP6::main([]);
 
 // Nested functions
 test bool tst() = demo("NestedFunctions1") == experiments::Compiler::Examples::NestedFunctions1::main([]);
