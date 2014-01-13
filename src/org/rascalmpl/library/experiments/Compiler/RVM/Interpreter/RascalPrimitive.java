@@ -5200,7 +5200,7 @@ public enum RascalPrimitive {
 		INode node =  (INode) stack[sp - 2];
 		int idx = ((IInteger) stack[sp - 1]).intValue();
 		try {
-			stack[sp - 2] = node.get((idx >= 0) ? idx : (node.arity() + idx));
+			stack[sp - 2] = node.get((idx >= 0) ? idx : (node.arity() - 1 + idx));  /* take keyword map into consideration */
 		} catch(IndexOutOfBoundsException e) {
 			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
 		}
