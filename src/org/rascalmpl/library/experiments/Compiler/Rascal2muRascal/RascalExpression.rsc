@@ -1252,7 +1252,7 @@ MuExp translateVisit(label,\visit) {
 	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 3, pos_in_phi, false, \visit@\loc, [], (), body);
 	*/
 	
-	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 3, 3, \visit@\loc, [], (), body);
+	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 3, 3, false, \visit@\loc, [], (), body);
 	
 	leaveFunctionScope();
 	leaveVisit();
