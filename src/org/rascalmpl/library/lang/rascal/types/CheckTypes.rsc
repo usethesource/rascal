@@ -2067,6 +2067,15 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("Expected subscript of type int, not <prettyPrintType(tl[0])>",exp@\loc));
         else
             return markLocationType(c,exp@\loc,\str());
+	} else if (isNonTerminalType(t1)) {
+		if (size(tl) != 1)
+			return markLocationFailed(c,exp@\loc,makeFailType("Expected only 1 subscript for a nonterminal subscript expression, not <size(tl)>",exp@\loc));
+		else if (!isIntType(tl[0]))
+			return markLocationFailed(c,exp@\loc,makeFailType("Expected subscript of type int, not <prettyPrintType(tl[0])>",exp@\loc));
+		else if (isNonTerminalIterType(t1))
+			return markLocationType(c,exp@\loc,getNonTerminalIterElement(t1));
+		else
+			return markLocationType(c,exp@\loc,makeADTType("Tree"));	
     } else {
         return markLocationFailed(c,exp@\loc,makeFailType("Expressions of type <prettyPrintType(t1)> cannot be subscripted", exp@\loc));
     }
@@ -2544,7 +2553,7 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <Type t> ] <Expression
     < c, rt > = convertAndExpandType(t,c);
     
     set[Symbol] failures = { };
-    if (\sort(_) !:= rt) failures += makeFailType("Expected non-terminal type, instead found <prettyPrintType(rt)>", t@\loc);
+    if (!isNonTerminalType(rt)) failures += makeFailType("Expected non-terminal type, instead found <prettyPrintType(rt)>", t@\loc);
     if (!isFailType(t1) && !isStrType(t1)) failures += makeFailType("Expected str, instead found <prettyPrintType(t1)>", e@\loc);
     if (isFailType(t1)) failures += t1;
 
@@ -3315,8 +3324,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> \<- <Express
         < cEnum, t2 > = calculatePatternType(p, cEnum, getMapDomainType(t1));
     else if (isADTType(t1) || isTupleType(t1) || isNodeType(t1))
         < cEnum, t2 > = calculatePatternType(p, cEnum, \value());
-    else if (\iter(st:\sort(_)) := t1)
-    	< cEnum, t2 > = calculatePatternType(p, cEnum, st);
+    else if (isNonTerminalIterType(t1))
+    	< cEnum, t2 > = calculatePatternType(p, cEnum, getNonTerminalIterElement(t1));
     else {
         t2 = makeFailType("Type <prettyPrintType(t1)> is not enumerable", exp@\loc);
     }
@@ -4559,7 +4568,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         }
         
         case literalNode(nt) : {
-        	if (\sort(_) := rt && isStrType(pt@rtype)) {
+        	if (isNonTerminalType(rt) && isStrType(pt@rtype)) {
         		return < c, pt >;
         	} else if (!isInferredType(rt) && !comparable(pt@rtype,rt)) {
                 throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
