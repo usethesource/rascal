@@ -29,6 +29,8 @@ import experiments::Compiler::muRascal::MuAllMuOr;
 int size_exps({Expression ","}* es) = size([e | e <- es]);		     // TODO: should become library function
 int size_exps({Expression ","}+ es) = size([e | e <- es]);		     // TODO: should become library function
 int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: should become library function
+int size_keywordArguments(KeywordArguments keywordArguments) = 
+    (keywordArguments is \default) ? size([kw | kw <- keywordArguments.keywordArgumentList]) : 0;
 
 
 // Produces multi- or backtrack-free expressions
@@ -318,7 +320,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    MuExp receiver = translate(expression);
    list[MuExp] args = [ translate(a) | a <- arguments ];
    if(getOuterType(expression) == "str") {
-       return muCallPrim("node_create", [receiver, *args, kwargs]);
+       return muCallPrim("node_create", [receiver, *args] + (size_keywordArguments(keywordArguments) > 0 ? [kwargs] : []));
    }
    
    if(getOuterType(expression) == "loc"){
@@ -600,11 +602,11 @@ MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS) {
 	// Check if evaluation of the expression throws a 'NoSuchKey' or 'NoSuchAnnotation' exception;
 	// do this by checking equality of the value constructor names
 	cond1 = muCallMuPrim("equal", [ muCon("UninitializedVariable"),
-									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children", [ muTmp(asUnwrapedThrown(varname),fuid) ]), muInt(0) ] ) ]);
+									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children_and_keyword_params_as_map", [ muTmp(asUnwrapedThrown(varname),fuid) ]), muInt(0) ] ) ]);
 	cond3 = muCallMuPrim("equal", [ muCon("NoSuchKey"),
-									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children", [ muTmp(asUnwrapedThrown(varname),fuid) ]), muInt(0) ] ) ]);
+									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children_and_keyword_params_as_map", [ muTmp(asUnwrapedThrown(varname),fuid) ]), muInt(0) ] ) ]);
 	cond2 = muCallMuPrim("equal", [ muCon("NoSuchAnnotation"),
-									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children", [ muTmp(asUnwrapedThrown(varname),fuid) ]), muInt(0) ] ) ]);
+									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children_and_keyword_params_as_map", [ muTmp(asUnwrapedThrown(varname),fuid) ]), muInt(0) ] ) ]);
 	
 	elsePart3 = muIfelse(nextLabel(), cond3, [ muRHS ], [ muThrow(muTmp(varname,fuid)) ]);
 	elsePart2 = muIfelse(nextLabel(), cond2, [ muRHS ], [ elsePart3 ]);
