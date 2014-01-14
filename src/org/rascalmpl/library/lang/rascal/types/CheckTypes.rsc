@@ -6755,23 +6755,6 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     c = addModule(c, moduleName, md@\loc);
     currentModuleId = head(c.stack);
             
-    for (< modName, defaultExtends > <- defaultImports) {
-        try {
-            dt1 = now();
-            modTree = getModuleParseTree(prettyPrintName(modName));
-            sigMap[modName] = getModuleSignature(modTree);
-            moduleLocs[modName] = modTree@\loc;
-            importOrder = importOrder + modName;
-            c = addModule(c,modName,modTree@\loc);
-            moduleIds[modName] = head(c.stack);
-            c = popModule(c);
-            isExtends[modName] = defaultExtends;
-            c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
-        } catch perror : {
-            c = addScopeError(c, "Cannot calculate signature for default module <prettyPrintName(modName)>", md@\loc);
-        }
-    }
-
     // Get the information about each import, including the module signature
     for (importItem <- importList) {
         if ((Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem) {
@@ -6793,6 +6776,23 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
         } 
     }
     
+    for (< modName, defaultExtends > <- defaultImports, modName notin moduleIds) {
+        try {
+            dt1 = now();
+            modTree = getModuleParseTree(prettyPrintName(modName));
+            sigMap[modName] = getModuleSignature(modTree);
+            moduleLocs[modName] = modTree@\loc;
+            importOrder = importOrder + modName;
+            c = addModule(c,modName,modTree@\loc);
+            moduleIds[modName] = head(c.stack);
+            c = popModule(c);
+            isExtends[modName] = defaultExtends;
+            c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
+        } catch perror : {
+            c = addScopeError(c, "Cannot calculate signature for default module <prettyPrintName(modName)>", md@\loc);
+        }
+    }
+
     
     
     // Add all the aliases and ADTs from each module without descending. Do tags here to, although
