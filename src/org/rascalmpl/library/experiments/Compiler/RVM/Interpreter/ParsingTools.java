@@ -67,9 +67,6 @@ public class ParsingTools {
 	}
 	
 	public void setContext(IEvaluatorContext ctx){
-	
-//	ParsingTools(IValueFactory fact, IEvaluatorContext ctx){
-//		vf = fact;
 		this.ctx = ctx;
 		resolverRegistry = ctx.getResolverRegistry();
 		monitor = ctx.getEvaluator().getMonitor();
