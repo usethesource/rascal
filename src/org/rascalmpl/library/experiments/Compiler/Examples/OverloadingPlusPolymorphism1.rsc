@@ -1,6 +1,5 @@
 module experiments::Compiler::Examples::OverloadingPlusPolymorphism1
 
-import Exception;
 import List;
 
 int inc(int n) { return n + 1; } 
