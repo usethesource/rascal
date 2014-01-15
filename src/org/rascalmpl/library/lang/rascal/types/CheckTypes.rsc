@@ -6749,7 +6749,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     map[RName,bool] isExtends = ( );
     map[RName,int] moduleIds = ( );
     map[RName,loc] moduleLocs = ( );
-    lrel[RName,bool] defaultImports = (moduleName == RSimpleName("Exception")) ? [] : [ < RSimpleName("Exception"), false > ];
+    lrel[RName,bool] defaultImports = [ < RSimpleName("Exception"), false > ];
     list[RName] importOrder = [ ];
     
     c = addModule(c, moduleName, md@\loc);
@@ -6776,7 +6776,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
         } 
     }
     
-    for (< modName, defaultExtends > <- defaultImports, modName notin moduleIds) {
+    for (< modName, defaultExtends > <- defaultImports, modName notin moduleIds, modName != moduleName) {
         try {
             dt1 = now();
             modTree = getModuleParseTree(prettyPrintName(modName));
