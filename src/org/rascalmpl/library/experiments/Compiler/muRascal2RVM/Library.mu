@@ -371,16 +371,16 @@ coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
 }
 
 coroutine MATCH_CALL_OR_TREE[2, pats, iSubject, cpats, args]{
-    //println("MATCH_CALL_OR_TREE", pats, " AND ", iSubject, typeOf(iSubject), iSubject is constructor);
+    println("MATCH_CALL_OR_TREE", pats, " AND ", iSubject, typeOf(iSubject), iSubject is constructor);
     guard iSubject is node;   
     args = get_name_and_children_and_keyword_params_as_map(iSubject);
-    //println("args", args);
+    println("args", args);
     cpats = init(create(MATCH_N, pats, args));
     while(next(cpats)) {
           yield;
     };
    
-    //println("MATCH_CALL_OR_TREE fails", pats, " AND ", iSubject);
+    println("MATCH_CALL_OR_TREE fails", pats, " AND ", iSubject);
 }
 
 coroutine MATCH_KEYWORD_PARAMS[3, keywords, pats, iSubject, len, subjects, j, kw, cpats]{
@@ -567,20 +567,20 @@ coroutine MATCH_PAT_IN_LIST[4, pat, iSubject, rNext, available, start, cpat]{
 
 // A literal in a list
 coroutine MATCH_LITERAL_IN_LIST[4, pat, iSubject, rNext, available, start, elm]{
-    //println("MATCH_LITERAL_IN_LIST", pat, iSubject);
+    println("MATCH_LITERAL_IN_LIST", pat, iSubject);
 	guard available > 0;
 	start = deref rNext;
 	elm =  get_list(iSubject, start);
     if(equal(pat, elm)){
-       //println("MATCH_LITERAL_IN_LIST: true", pat, start, elm);
+       println("MATCH_LITERAL_IN_LIST: true", pat, start, elm);
        return(start + 1);
     };
-    //println("MATCH_LITERAL_IN_LIST: false", pat, start, elm);
+    println("MATCH_LITERAL_IN_LIST: false", pat, start, elm);
 }
 
 // Tree node in concrete pattern: appl(iProd, argspat), where argspat is a list pattern
 coroutine MATCH_APPL_IN_LIST[5, iProd, argspat, iSubject, rNext, available, start, iElem, children, cpats]{
-    //println("MATCH_APPL_IN_LIST", iProd, argspat, " AND ", iSubject, iSubject is node);
+    println("MATCH_APPL_IN_LIST", iProd, argspat, " AND ", iSubject, iSubject is node);
     start = deref rNext;
     iElem = get_list(iSubject, start);
     guard iElem is node;
@@ -610,7 +610,7 @@ coroutine MATCH_VAR_IN_LIST[4, rVar, iSubject, rNext, available, start, iVal, iE
    iElem = get_list(iSubject, start);
    if(is_defined(rVar)){
       iVal = deref rVar;
-      if(/*subtype(typeOf(iElem), typeOf(iVal)) && */ equal(iElem, iVal)){
+      if(equal(iElem, iVal)){
          return(iElem, start + 1);
       };
       exhaust;
