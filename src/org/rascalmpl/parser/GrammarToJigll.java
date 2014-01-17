@@ -27,7 +27,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.jgll.grammar.Grammar;
 import org.jgll.grammar.GrammarBuilder;
 import org.jgll.grammar.condition.Condition;
-import org.jgll.grammar.condition.ConditionFactory;
+import org.jgll.grammar.condition.ConditionType;
+import org.jgll.grammar.condition.ContextFreeCondition;
+import org.jgll.grammar.condition.PositionalCondition;
+import org.jgll.grammar.condition.RegularExpressionCondition;
 import org.jgll.grammar.symbol.CharacterClass;
 import org.jgll.grammar.symbol.Keyword;
 import org.jgll.grammar.symbol.Nonterminal;
@@ -165,7 +168,11 @@ public class GrammarToJigll {
 				symbols.add(getSymbol((IConstructor) v));
 			}
 			symbols.remove(1);
-			return ConditionFactory.notMatch(symbols.toArray(new Symbol[] {}));
+			if(isAllRegularExpression(symbols)) {
+				return RegularExpressionCondition.notMatch(new Sequence<RegularExpression>(conver(symbols)));				
+			} else {
+				return ContextFreeCondition.notMatch(symbols);
+			}
 
 		case "keywords":
 			List<Keyword> keywords = new ArrayList<>();
@@ -178,7 +185,7 @@ public class GrammarToJigll {
 				IConstructor s = (IConstructor) rhs.get(0);
 				keywords.add(getKeyword(s));
 			}
-			return ConditionFactory.notMatch(keywords.toArray(new Keyword[] {}));
+			return RegularExpressionCondition.notMatch(keywords.toArray(new Keyword[] {}));
 
 		default:
 			throw new RuntimeException(symbol.getName() + " is not a supported in delete set.");
@@ -199,10 +206,10 @@ public class GrammarToJigll {
 
 		case "char-class":
 			List<Range> targetRanges = buildRanges(symbol);
-			return ConditionFactory.notFollow(new CharacterClass(targetRanges));
+			return RegularExpressionCondition.notFollow(new CharacterClass(targetRanges));
 
 		case "lit":
-			return ConditionFactory.notFollow(getKeyword(symbol));
+			return RegularExpressionCondition.notFollow(getKeyword(symbol));
 
 		case "seq":
 			IList list = (IList) symbol.get("symbols");
@@ -211,7 +218,11 @@ public class GrammarToJigll {
 				symbols.add(getSymbol((IConstructor) v));
 			}
 			symbols.remove(1);
-			return ConditionFactory.notFollow(symbols);
+			if(isAllRegularExpression(symbols)) {
+				return RegularExpressionCondition.notMatch(new Sequence<RegularExpression>(conver(symbols)));				
+			} else {
+				return ContextFreeCondition.notMatch(symbols);
+			}
 
 		default:
 			throw new IllegalStateException("Should not be here!");
@@ -223,10 +234,10 @@ public class GrammarToJigll {
 
 		case "char-class":
 			List<Range> targetRanges = buildRanges(symbol);
-			return ConditionFactory.notPrecede(new CharacterClass(targetRanges));
+			return RegularExpressionCondition.notPrecede(new CharacterClass(targetRanges));
 
 		case "lit":
-			return ConditionFactory.notPrecede(getKeyword(symbol));
+			return RegularExpressionCondition.notPrecede(getKeyword(symbol));
 
 		default:
 			throw new IllegalStateException("Should not be here!");
@@ -670,9 +681,10 @@ public class GrammarToJigll {
 					break;
 	
 				case "end-of-line":
-					list.add(ConditionFactory.endOfLine());
+					list.add(new PositionalCondition(ConditionType.END_OF_LINE));
 	
 				case "start-of-line":
+					list.add(new PositionalCondition(ConditionType.START_OF_LINE));
 	
 				case "precede":
 					break;
@@ -714,4 +726,22 @@ public class GrammarToJigll {
 		}
 		return value;
 	}
+	
+	private static boolean isAllRegularExpression(List<Symbol> list) {
+		for(Symbol s : list) {
+			if(!(s instanceof RegularExpression)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private static List<RegularExpression> conver(List<Symbol> symbols) {
+		List<RegularExpression> regularExpressions = new ArrayList<>();
+		for(Symbol s : symbols) {
+			regularExpressions.add((RegularExpression) s);
+		}
+		return regularExpressions;
+	}
+	
 }
