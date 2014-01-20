@@ -25,7 +25,7 @@ public enum Opcode {
 	STORELOC 			(4, 	1), //2),
 	CALL 				(5, 	1), //3),
 	CALLPRIM	 		(6, 	1), //3),
-	RETURN1 			(7, 	1),//2),
+	RETURN1 			(7, 	1), //2),
 	JMP 				(8, 	1), //2),
 	JMPTRUE 			(9, 	1), //2),
 	JMPFALSE 			(10, 	1), //2),
@@ -64,7 +64,7 @@ public enum Opcode {
 	CALLJAVA        	(43,    5),
 	THROW           	(44,    1),
 	TYPESWITCH			(45,	1), //2),
-	UNWRAPTHROWN        (46,    1), //2),
+	UNWRAPTHROWNLOC     (46,    1), //2),
 	FILTERRETURN		(47, 	1),
 	EXHAUST             (48,    1),
 	GUARD               (49,    1),
@@ -88,7 +88,12 @@ public enum Opcode {
 	LOADLOC7			(67, 	1),
 	LOADLOC8			(68, 	1),
 	LOADLOC9			(69, 	1),
-	JMPINDEXED			(70, 	1)
+	JMPINDEXED			(70, 	1),
+	LOADLOCKWP          (71,    1), // 2
+	LOADVARKWP          (72,    1), // 3
+	STORELOCKWP         (73,    1), // 2
+	STOREVARKWP         (74,    1), // 3
+	UNWRAPTHROWNVAR     (75,    1), // 3
 	;
 	
 	
@@ -150,7 +155,7 @@ public enum Opcode {
 	static public final int OP_CALLJAVA = 43;
 	static public final int OP_THROW = 44;
 	static public final int OP_TYPESWITCH = 45;
-	static public final int OP_UNWRAPTHROWN = 46;
+	static public final int OP_UNWRAPTHROWNLOC = 46;
 	static public final int OP_FILTERRETURN = 47;
 	static public final int OP_EXHAUST = 48;
 	static public final int OP_GUARD = 49;
@@ -175,6 +180,11 @@ public enum Opcode {
 	static public final int OP_LOADLOC8 = 68;
 	static public final int OP_LOADLOC9 = 69;
 	static public final int OP_JMPINDEXED = 70;
+	static public final int OP_LOADLOCKWP = 71;
+	static public final int OP_LOADVARKWP = 72;
+	static public final int OP_STORELOCKWP = 73;
+	static public final int OP_STOREVARKWP = 74;
+	static public final int OP_UNWRAPTHROWNVAR = 75;
 	
 	
 	/*
@@ -357,10 +367,10 @@ public enum Opcode {
 			return "FAILRETURN";
 			
 		case LOADOFUN:
-			return "LOADOFUN " + cb.getFunctionName(arg1);
+			return "LOADOFUN " + cb.getOverloadedFunctionName(arg1);
 			
 		case OCALL:
-			return "OCALL " +  cb.getFunctionName(arg1)  + ", " + arg2;
+			return "OCALL " +  cb.getOverloadedFunctionName(arg1)  + ", " + arg2;
 			
 		case OCALLDYN:
 			return "OCALLDYN " + cb.getConstantType(arg1) + ", " + arg2;
@@ -374,8 +384,8 @@ public enum Opcode {
 		case TYPESWITCH:
 			return "TYPESWITCH " + cb.getConstantValue(arg1);
 			
-		case UNWRAPTHROWN:
-			return "UNWRAPTHROWN " + arg1;
+		case UNWRAPTHROWNLOC:
+			return "UNWRAPTHROWNLOC " + arg1;
 			
 		case FILTERRETURN:
 			return "FILTERRETURN";
@@ -437,6 +447,18 @@ public enum Opcode {
 			return "LOADLOC9";
 		case JMPINDEXED:
 			return "JMPINDEXED " + cb.getConstantValue(arg1);
+			
+		case LOADLOCKWP:
+			return "LOADLOCKWP " + cb.getConstantValue(arg1);		
+		case LOADVARKWP:
+			return "LOADVARKWP " + cb.getConstantValue(arg1) + ", " + cb.getConstantValue(arg2);
+		case STORELOCKWP:
+			return "STORELOCKWP " + cb.getConstantValue(arg1);
+		case STOREVARKWP:
+			return "STOREVARKWP " + cb.getConstantValue(arg1) + ", " + cb.getConstantValue(arg2);
+			
+		case UNWRAPTHROWNVAR:
+			return "UNWRAPTHROWNVAR " + arg1 + arg2;
 		
 		default:
 			break;

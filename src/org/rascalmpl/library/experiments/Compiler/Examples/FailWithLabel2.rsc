@@ -1,6 +1,5 @@
 module experiments::Compiler::Examples::FailWithLabel2
 
-import Exception;
 import IO;
 
 value main(list[value] args) {
