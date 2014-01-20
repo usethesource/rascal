@@ -31,6 +31,10 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.I
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Jmp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpFalse;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpIndexed;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocKwp;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarKwp;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocKwp;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Label;
@@ -63,7 +67,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.S
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptList;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubtractInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrown;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownLoc;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
@@ -553,8 +558,8 @@ public class CodeBlock {
 		return add(new TypeSwitch(this, labels));
 	}
 	
-	public CodeBlock UNWRAPTHROWN(int pos) {
-		return add(new UnwrapThrown(this, pos));
+	public CodeBlock UNWRAPTHROWNLOC(int pos) {
+		return add(new UnwrapThrownLoc(this, pos));
 	}
 	
 	public CodeBlock FILTERRETURN(){
@@ -611,6 +616,26 @@ public class CodeBlock {
 		
 	public CodeBlock JMPINDEXED(IList labels){
 		return add(new JmpIndexed(this, labels));
+	}
+	
+	public CodeBlock LOADLOCKWP(String name) {
+		return add(new LoadLocKwp(this, name));
+	}
+	
+	public CodeBlock LOADVARKWP(String fuid, String name) {
+		return add(new LoadVarKwp(this, fuid, name));
+	}
+	
+	public CodeBlock STORELOCKWP(String name) {
+		return add(new StoreLocKwp(this, name));
+	}
+	
+	public CodeBlock STOREVARKWP(String fuid, String name) {
+		return add(new StoreVarKwp(this, fuid, name));
+	}
+	
+	public CodeBlock UNWRAPTHROWNVAR(String fuid, int pos) {
+		return add(new UnwrapThrownVar(this, fuid, pos));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {

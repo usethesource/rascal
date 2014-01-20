@@ -23,12 +23,9 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.NonTerminalType;
@@ -64,8 +61,12 @@ public class ParsingTools {
 	private HashMap<String,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>> parsers;
 	private IEvaluatorContext ctx;
 	
-	ParsingTools(IValueFactory fact, IEvaluatorContext ctx){
+	public ParsingTools(IValueFactory fact){
+		super();
 		vf = fact;
+	}
+	
+	public void setContext(IEvaluatorContext ctx){
 		this.ctx = ctx;
 		resolverRegistry = ctx.getResolverRegistry();
 		monitor = ctx.getEvaluator().getMonitor();
@@ -112,7 +113,7 @@ public class ParsingTools {
 	 */
 	private Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getObjectParser(String moduleName) {
 		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = parsers.get(moduleName);
-		stderr.println("Retrieving parser for : " + moduleName + ((parser == null) ? "fails" : "succeeds"));
+		stderr.println("Retrieving parser for : " + moduleName + ((parser == null) ? " fails" : " succeeds"));
 		return parser;
 	}
 	
@@ -457,13 +458,21 @@ public class ParsingTools {
 	  }
 	  
 	  private boolean getBootstrap() { return false; }
+	  
+	// Rascal library function
+	public IConstructor parseFragment(IString name, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
+		if(this.ctx == null){
+			setContext(ctx);
+		}
+		return parseFragment(name, tree, loc.getURI(), grammar);
+	}
 
-	IConstructor parseFragment(IString name, IConstructor tree, URI uri) {
+	IConstructor parseFragment(IString name, IConstructor tree, URI uri, IMap grammar) {
 	    IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
 	    IConstructor lit = TreeAdapter.getArg(tree, "parts");
 	    Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
 	    
-	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getBootstrap() ? new RascalParser() : getParser(name.getValue(), TreeAdapter.getLocation(tree).getURI(), false, null);
+	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getBootstrap() ? new RascalParser() : getParser(name.getValue(), TreeAdapter.getLocation(tree).getURI(), false, grammar);
 	    
 	    try {
 	      String parserMethodName = getParserGenerator().getParserMethodName(symTree);
@@ -474,12 +483,13 @@ public class ParsingTools {
 	      
 	      IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri, input, converter, nodeFactory);
 	      fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
-
-	      IConstructor prod = TreeAdapter.getProduction(tree);
-	      IConstructor sym = ProductionAdapter.getDefined(prod);
-	      sym = SymbolAdapter.delabel(sym); 
-	      prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
-	      return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
+	      return fragment;
+	      
+//	      IConstructor prod = TreeAdapter.getProduction(tree);
+//	      IConstructor sym = ProductionAdapter.getDefined(prod);
+//	      sym = SymbolAdapter.delabel(sym); 
+//	      prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
+//	      return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
 	    }
 	    catch (ParseError e) {
 	      ISourceLocation loc = TreeAdapter.getLocation(tree);
@@ -542,52 +552,52 @@ public class ParsingTools {
 	  }
 
 	  private IConstructor replaceHolesByAntiQuotes(IConstructor fragment, final Map<String, IConstructor> antiquotes) {
-	      return (IConstructor) fragment.accept(new IdentityTreeVisitor<ImplementationError>() {
-	        
-	        @Override
-	        public IConstructor visitTreeAppl(IConstructor tree)  {
-	          String cons = TreeAdapter.getConstructorName(tree);
-	          if (cons == null || !cons.equals("$MetaHole") ) {
-	            IListWriter w = vf.listWriter();
-	            IList args = TreeAdapter.getArgs(tree);
-	            for (IValue elem : args) {
-	              w.append(elem.accept(this));
-	            }
-	            args = w.done();
-	            
-	            return TreeAdapter.setArgs(tree, args);
-	          }
-	          
-	          IConstructor type = retrieveHoleType(tree);
-	          return antiquotes.get(TreeAdapter.yield(tree)).asAnnotatable().setAnnotation("holeType", type);
-	        }
-	        
-	        private IConstructor retrieveHoleType(IConstructor tree) {
-	          IConstructor prod = TreeAdapter.getProduction(tree);
-	          ISet attrs = ProductionAdapter.getAttributes(prod);
+		  return (IConstructor) fragment.accept(new IdentityTreeVisitor<ImplementationError>() {
 
-	          for (IValue attr : attrs) {
-	            if (((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
-	              IValue arg = ((IConstructor) attr).get(0);
-	              
-	              if (arg.getType().isNode() && ((INode) arg).getName().equals("holeType")) {
-	                return (IConstructor) ((INode) arg).get(0);
-	              }
-	            }
-	          }
-	          
-	          throw new ImplementationError("expected to find a holeType, but did not: " + tree);
-	        }
+			  @Override
+			  public IConstructor visitTreeAppl(IConstructor tree)  {
+				  String cons = TreeAdapter.getConstructorName(tree);
+				  if (cons == null || !cons.equals("$MetaHole") ) {
+					  IListWriter w = vf.listWriter();
+					  IList args = TreeAdapter.getArgs(tree);
+					  for (IValue elem : args) {
+						  w.append(elem.accept(this));
+					  }
+					  args = w.done();
 
-	        @Override
-	        public IConstructor visitTreeAmb(IConstructor arg)  {
-	          ISetWriter w = vf.setWriter();
-	          for (IValue elem : TreeAdapter.getAlternatives(arg)) {
-	            w.insert(elem.accept(this));
-	          }
-	          return arg.set("alternatives", w.done());
-	        }
-	      });
+					  return TreeAdapter.setArgs(tree, args);
+				  }
+
+				  IConstructor type = retrieveHoleType(tree);
+				  return antiquotes.get(TreeAdapter.yield(tree)).asAnnotatable().setAnnotation("holeType", type);
+			  }
+
+			  private IConstructor retrieveHoleType(IConstructor tree) {
+				  IConstructor prod = TreeAdapter.getProduction(tree);
+				  ISet attrs = ProductionAdapter.getAttributes(prod);
+
+				  for (IValue attr : attrs) {
+					  if (((IConstructor) attr).getConstructorType() == Factory.Attr_Tag) {
+						  IValue arg = ((IConstructor) attr).get(0);
+
+						  if (arg.getType().isNode() && ((INode) arg).getName().equals("holeType")) {
+							  return (IConstructor) ((INode) arg).get(0);
+						  }
+					  }
+				  }
+
+				  throw new ImplementationError("expected to find a holeType, but did not: " + tree);
+			  }
+
+			  @Override
+			  public IConstructor visitTreeAmb(IConstructor arg)  {
+				  ISetWriter w = vf.setWriter();
+				  for (IValue elem : TreeAdapter.getAlternatives(arg)) {
+					  w.insert(elem.accept(this));
+				  }
+				  return arg.set("alternatives", w.done());
+			  }
+		  });
 	  }
 	 
 //	  private static boolean containsBackTick(char[] data, int offset) {

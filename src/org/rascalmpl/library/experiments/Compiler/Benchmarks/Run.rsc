@@ -11,6 +11,7 @@ module experiments::Compiler::Benchmarks::Run
 import Prelude;
 import util::Benchmark;
 import util::Math;
+import experiments::Compiler::Compile;
 import experiments::Compiler::Execute;
 
 import experiments::Compiler::Benchmarks::BasType;
@@ -29,6 +30,7 @@ import experiments::Compiler::Benchmarks::BListMatch1;
 import experiments::Compiler::Benchmarks::BListMatch2;
 import experiments::Compiler::Benchmarks::BListMatch3;
 import experiments::Compiler::Benchmarks::BMarriage;
+import experiments::Compiler::Benchmarks::BPatternMatchASTs;
 import experiments::Compiler::Benchmarks::BReverse1;
 import experiments::Compiler::Benchmarks::BRSFCalls;
 import experiments::Compiler::Benchmarks::BSet1;
@@ -67,6 +69,7 @@ void run(str bm,  value(list[value]) bmain) {
   comp = 0;
   cexec = 0;
   iexec = 0;
+  compile(base + (bm + ".rsc"), recompile=true);
   for(int i <- [0 .. nsamples]){
 	  t1 = getMilliTime();
 	  <v, t2> = execute_and_time(base + (bm + ".rsc"), []);
@@ -170,6 +173,7 @@ void main(){
   run("BListMatch2", experiments::Compiler::Benchmarks::BListMatch2::main);
   run("BListMatch3", experiments::Compiler::Benchmarks::BListMatch3::main);
   run("BMarriage", experiments::Compiler::Benchmarks::BMarriage::main);
+  run("BPatternMatchASTs", experiments::Compiler::Benchmarks::BPatternMatchASTs::main);
   run("BReverse1", experiments::Compiler::Benchmarks::BReverse1::main);
   //run("BRSFCalls", experiments::Compiler::Benchmarks::BRSFCalls::main);
   run("BSet1", experiments::Compiler::Benchmarks::BSet1::main);

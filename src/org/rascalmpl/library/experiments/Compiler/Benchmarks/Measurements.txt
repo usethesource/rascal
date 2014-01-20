@@ -1336,7 +1336,7 @@ BCompareComprehension: compiled: (compilation 220.67 msec, execution  7781. msec
           BSetMatch2: compiled: (compilation 131.67 msec, execution  1723. msec); interpreted: 27262. msec; speedup: 15.822 x; saved: 93.197 %
           BSetMatch3: compiled: (compilation   166. msec, execution  4657. msec); interpreted: 37982. msec; speedup: 8.1559 x; saved: 87.302 %
              BVisit1: compiled: (compilation 191.33 msec, execution  6987. msec); interpreted: 10128. msec; speedup: 1.4495 x; saved: 29.124 %
-             BVisit2: compiled: (compilation 372.33 msec, execution 18754. msec); interpreted: 11568. msec; speedup: 0.61683 x; saved: -65.338 %
+             BVisit2: compiled: (co mpilation 372.33 msec, execution 18754. msec); interpreted: 11568. msec; speedup: 0.61683 x; saved: -65.338 %
              BVisit3: compiled: (compilation   277. msec, execution 18703. msec); interpreted: 25055. msec; speedup: 1.3396 x; saved: 24.247 %
               BWhile: compiled: (compilation 140.67 msec, execution   698. msec); interpreted: 79788. msec; speedup: 114.31 x; saved: 98.949 %
 Average speedup: 15.688
@@ -1374,7 +1374,7 @@ Number of samples = 3
             BBottles: compiled: (compilation 215.33 msec, execution 13879. msec); interpreted: 16855. msec; speedup: 1.2144 x; saved: 16.379 %
                 BFac: compiled: (compilation 53.667 msec, execution  1711. msec); interpreted: 59798. msec; speedup: 34.949 x; saved: 97.049 %
                 BFib: compiled: (compilation   142. msec, execution  1777. msec); interpreted: 59756. msec; speedup: 33.627 x; saved: 96.789 %
-           BMarriage: compiled: (compilation 14097. msec, execution 17373. msec); interpreted: 10248. msec; speedup: 0.58988 x; saved: -207.08 %
+           BMarriage: compiled: (comp ilation 14097. msec, execution 17373. msec); interpreted: 10248. msec; speedup: 0.58988 x; saved: -207.08 %
       BSendMoreMoney: compiled: (compilation 198.67 msec, execution 12002. msec); interpreted: 1.2408E+5 msec; speedup: 10.338 x; saved: 90.167 %
              BSudoku: compiled: (compilation 4785.7 msec, execution  8761. msec); interpreted: 76433. msec; speedup: 8.7242 x; saved: 82.276 %
            BTemplate: compiled: (compilation 259.33 msec, execution  5114. msec); interpreted: 61568. msec; speedup: 12.039 x; saved: 91.273 %
@@ -1394,4 +1394,981 @@ Template & 5114 & 61568 & 12.0 \\ \hline
 \textbf{Average Speedup}&   &  & \textbf{14.5} \\ \hline
 \end{tabular}
 
+==================================================
+All debugging code is NOT commented out
 
+Summary of Measurements $2013-12-11T12:35:10.511+01:00$:
+
+Number of samples = 3
+BCompareComprehension: compiled: (compilation    46. msec, execution  8571. msec); interpreted: 1.1383E+5 msec; speedup: 13.280 x; saved: 92.430 %
+         BCompareFor: compiled: (compilation    47. msec, execution  7738. msec); interpreted: 17792. msec; speedup: 2.2993 x; saved: 56.244 %
+          BCompareIf: compiled: (compilation 45.333 msec, execution  7183. msec); interpreted: 1.1788E+5 msec; speedup: 16.412 x; saved: 93.868 %
+              BEmpty: compiled: (compilation    51. msec, execution    51. msec); interpreted:     0. msec; speedup:     0. x; saved: -10200. %
+         BExceptions: compiled: (compilation 48.333 msec, execution   887. msec); interpreted: 36951. msec; speedup: 41.658 x; saved: 97.469 %
+  BExceptionsFinally: compiled: (compilation 49.667 msec, execution   125. msec); interpreted:  8667. msec; speedup: 69.336 x; saved: 97.985 %
+                BFor: compiled: (compilation 44.333 msec, execution  2277. msec); interpreted: 41288. msec; speedup: 18.133 x; saved: 94.378 %
+            BForCond: compiled: (compilation 54.667 msec, execution  2921. msec); interpreted: 43486. msec; speedup: 14.887 x; saved: 93.157 %
+         BListMatch1: compiled: (compilation 44.667 msec, execution 11659. msec); interpreted: 1.1642E+5 msec; speedup: 9.9851 x; saved: 89.947 %
+         BListMatch2: compiled: (compilation 51.333 msec, execution  8700. msec); interpreted: 56110. msec; speedup: 6.4494 x; saved: 84.403 %
+         BListMatch3: compiled: (compilation 45.667 msec, execution 16299. msec); interpreted: 13469. msec; speedup: 0.82637 x; saved: -21.350 %
+           BReverse1: compiled: (compilation 47.333 msec, execution 13499. msec); interpreted: 52215. msec; speedup: 3.8681 x; saved: 74.057 %
+               BSet1: compiled: (compilation    48. msec, execution  2591. msec); interpreted: 1.0532E+5 msec; speedup: 40.650 x; saved: 97.494 %
+          BSetMatch1: compiled: (compilation 49.333 msec, execution  7934. msec); interpreted: 58795. msec; speedup: 7.4105 x; saved: 86.422 %
+          BSetMatch2: compiled: (compilation 46.333 msec, execution  1800. msec); interpreted: 25169. msec; speedup: 13.983 x; saved: 92.664 %
+          BSetMatch3: compiled: (compilation 152.67 msec, execution  5241. msec); interpreted: 35670. msec; speedup: 6.8060 x; saved: 84.879 %
+             BVisit1: compiled: (compilation 55.667 msec, execution  7867. msec); interpreted: 10818. msec; speedup: 1.3751 x; saved: 26.764 %
+             BVisit2: compiled: (compilation 61.333 msec, execution 19551. msec); interpreted: 11161. msec; speedup: 0.57087 x; saved: -75.722 %
+             BVisit3: compiled: (compilation 51.667 msec, execution 20433. msec); interpreted: 26179. msec; speedup: 1.2812 x; saved: 21.752 %
+              BWhile: compiled: (compilation 45.667 msec, execution   733. msec); interpreted: 80279. msec; speedup: 109.52 x; saved: 99.030 %
+Average speedup: 18.937
+Minimal speedup: 0.
+Maximal speedup: 109.52
+Total time: compiled: 147146.00000003; interpreted: 971499; saved: 84.854%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+CompareComprehension & 8571 & 113827 & 13.3 \\ \hline
+CompareFor & 7738 & 17792 & 2.3 \\ \hline
+CompareIf & 7183 & 117884 & 16.4 \\ \hline
+Empty & 51 & 0 & 0.0 \\ \hline
+Exceptions & 887 & 36951 & 41.7 \\ \hline
+ExceptionsFinally & 125 & 8667 & 69.3 \\ \hline
+For & 2277 & 41288 & 18.1 \\ \hline
+ForCond & 2921 & 43486 & 14.9 \\ \hline
+ListMatch1 & 11659 & 116416 & 10.0 \\ \hline
+ListMatch2 & 8700 & 56110 & 6.4 \\ \hline
+ListMatch3 & 16299 & 13469 & 0.8 \\ \hline
+Reverse1 & 13499 & 52215 & 3.9 \\ \hline
+Set1 & 2591 & 105323 & 40.6 \\ \hline
+SetMatch1 & 7934 & 58795 & 7.4 \\ \hline
+SetMatch2 & 1800 & 25169 & 14.0 \\ \hline
+SetMatch3 & 5241 & 35670 & 6.8 \\ \hline
+Visit1 & 7867 & 10818 & 1.4 \\ \hline
+Visit2 & 19551 & 11161 & 0.6 \\ \hline
+Visit3 & 20433 & 26179 & 1.3 \\ \hline
+While & 733 & 80279 & 109.5 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{18.9} \\ \hline
+\end{tabular}
+
+Summary of Measurements $2013-12-11T12:56:44.667+01:00$:
+
+Number of samples = 3
+            BBottles: compiled: (compilation 54.333 msec, execution  7989. msec); interpreted: 16669. msec; speedup: 2.0865 x; saved: 51.747 %
+                BFac: compiled: (compilation 153.67 msec, execution  2190. msec); interpreted: 58658. msec; speedup: 26.784 x; saved: 96.005 %
+                BFib: compiled: (compilation    48. msec, execution  2075. msec); interpreted: 59018. msec; speedup: 28.442 x; saved: 96.403 %
+           BMarriage: compiled: (compilation 277.67 msec, execution  3279. msec); interpreted:  9450. msec; speedup: 2.8820 x; saved: 62.363 %
+      BSendMoreMoney: compiled: (compilation 55.333 msec, execution 11984. msec); interpreted: 1.1902E+5 msec; speedup: 9.9312 x; saved: 89.884 %
+             BSudoku: compiled: (compilation 254.67 msec, execution  4748. msec); interpreted: 74419. msec; speedup: 15.674 x; saved: 93.278 %
+           BTemplate: compiled: (compilation 59.333 msec, execution  2198. msec); interpreted: 59640. msec; speedup: 27.134 x; saved: 96.215 %
+Average speedup: 16.133
+Minimal speedup: 2.0865
+Maximal speedup: 28.442
+Total time: compiled: 35366.00000009; interpreted: 396869; saved: 91.089%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+Bottles & 7989 & 16669 & 2.1 \\ \hline
+Fac & 2190 & 58658 & 26.8 \\ \hline
+Fib & 2075 & 59018 & 28.4 \\ \hline
+Marriage & 3279 & 9450 & 2.9 \\ \hline
+SendMoreMoney & 11984 & 119015 & 9.9 \\ \hline
+Sudoku & 4748 & 74419 & 15.7 \\ \hline
+Template & 2198 & 59640 & 27.1 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{16.1} \\ \hline
+\end{tabular}
+
+==================================================
+
+Implementation of keyword parameters
+Sokme optimizations to list patterns
+
+Summary of Measurements $2013-12-21T09:29:40.257+01:00$:
+
+Number of samples = 3
+BCompareComprehension: compiled: (compilation    88. msec, execution  8071. msec); interpreted: 1.1479E+5 msec; speedup: 14.223 x; saved: 92.892 %
+         BCompareFor: compiled: (compilation 737.67 msec, execution  7878. msec); interpreted: 17970. msec; speedup: 2.2810 x; saved: 52.055 %
+          BCompareIf: compiled: (compilation   110. msec, execution  6581. msec); interpreted: 1.1661E+5 msec; speedup: 17.718 x; saved: 94.262 %
+              BEmpty: compiled: (compilation 64.667 msec, execution    65. msec); interpreted:     0. msec; speedup:     0. x; saved: -12967. %
+         BExceptions: compiled: (compilation 271.33 msec, execution  1432. msec); interpreted: 35845. msec; speedup: 25.031 x; saved: 95.248 %
+  BExceptionsFinally: compiled: (compilation   245. msec, execution   363. msec); interpreted:  8342. msec; speedup: 22.981 x; saved: 92.712 %
+                BFor: compiled: (compilation 78.333 msec, execution  2021. msec); interpreted: 40243. msec; speedup: 19.912 x; saved: 94.783 %
+            BForCond: compiled: (compilation    75. msec, execution  2339. msec); interpreted: 42121. msec; speedup: 18.008 x; saved: 94.269 %
+         BListMatch1: compiled: (compilation 91.333 msec, execution 11121. msec); interpreted: 1.1340E+5 msec; speedup: 10.197 x; saved: 90.113 %
+         BListMatch2: compiled: (compilation 201.67 msec, execution  7823. msec); interpreted: 54585. msec; speedup: 6.9775 x; saved: 85.299 %
+         BListMatch3: compiled: (compilation   107. msec, execution 14261. msec); interpreted: 13283. msec; speedup: 0.93142 x; saved: -8.1683 %
+           BReverse1: compiled: (compilation 139.33 msec, execution 14735. msec); interpreted: 50749. msec; speedup: 3.4441 x; saved: 70.690 %
+               BSet1: compiled: (compilation    98. msec, execution  2562. msec); interpreted: 1.0311E+5 msec; speedup: 40.244 x; saved: 97.420 %
+          BSetMatch1: compiled: (compilation    88. msec, execution  7280. msec); interpreted: 57186. msec; speedup: 7.8552 x; saved: 87.116 %
+          BSetMatch2: compiled: (compilation    94. msec, execution  1793. msec); interpreted: 24882. msec; speedup: 13.877 x; saved: 92.416 %
+          BSetMatch3: compiled: (compilation 96.667 msec, execution  4787. msec); interpreted: 34777. msec; speedup: 7.2649 x; saved: 85.957 %
+             BVisit1: compiled: (compilation   168. msec, execution  7568. msec); interpreted:  9778. msec; speedup: 1.2920 x; saved: 20.884 %
+             BVisit2: compiled: (compilation 1872.3 msec, execution 58048. msec); interpreted: 12642. msec; speedup: 0.21779 x; saved: -373.98 %
+             BVisit3: compiled: (compilation   210. msec, execution 18460. msec); interpreted: 23882. msec; speedup: 1.2937 x; saved: 21.824 %
+              BWhile: compiled: (compilation 81.667 msec, execution   810. msec); interpreted: 78093. msec; speedup: 96.411 x; saved: 98.858 %
+Average speedup: 15.508
+Minimal speedup: 0.
+Maximal speedup: 96.411
+Total time: compiled: 182915.99999967; interpreted: 952286; saved: 80.792%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+CompareComprehension & 8071 & 114794 & 14.2 \\ \hline
+CompareFor & 7878 & 17970 & 2.3 \\ \hline
+CompareIf & 6581 & 116605 & 17.7 \\ \hline
+Empty & 65 & 0 & 0.0 \\ \hline
+Exceptions & 1432 & 35845 & 25.0 \\ \hline
+ExceptionsFinally & 363 & 8342 & 23.0 \\ \hline
+For & 2021 & 40243 & 19.9 \\ \hline
+ForCond & 2339 & 42121 & 18.0 \\ \hline
+ListMatch1 & 11121 & 113403 & 10.2 \\ \hline
+ListMatch2 & 7823 & 54585 & 7.0 \\ \hline
+ListMatch3 & 14261 & 13283 & 0.9 \\ \hline
+Reverse1 & 14735 & 50749 & 3.4 \\ \hline
+Set1 & 2562 & 103106 & 40.2 \\ \hline
+SetMatch1 & 7280 & 57186 & 7.9 \\ \hline
+SetMatch2 & 1793 & 24882 & 13.9 \\ \hline
+SetMatch3 & 4787 & 34777 & 7.3 \\ \hline
+Visit1 & 7568 & 9778 & 1.3 \\ \hline
+Visit2 & 58048 & 12642 & 0.2 \\ \hline
+Visit3 & 18460 & 23882 & 1.3 \\ \hline
+While & 810 & 78093 & 96.4 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{15.5} \\ \hline
+\end{tabular}
+
+Summary of Measurements $2013-12-21T09:51:23.826+01:00$:
+
+Number of samples = 3
+            BBottles: compiled: (compilation   179. msec, execution  8696. msec); interpreted: 16093. msec; speedup: 1.8506 x; saved: 44.852 %
+                BFac: compiled: (compilation   107. msec, execution  3172. msec); interpreted: 56105. msec; speedup: 17.688 x; saved: 94.156 %
+                BFib: compiled: (compilation 116.67 msec, execution  3153. msec); interpreted: 56174. msec; speedup: 17.816 x; saved: 94.179 %
+           BMarriage: compiled: (compilation  6978. msec, execution 10597. msec); interpreted:  9323. msec; speedup: 0.87978 x; saved: -88.512 %
+      BSendMoreMoney: compiled: (compilation 189.33 msec, execution 11293. msec); interpreted: 1.1637E+5 msec; speedup: 10.305 x; saved: 90.133 %
+             BSudoku: compiled: (compilation 4605.7 msec, execution  9463. msec); interpreted: 73191. msec; speedup: 7.7344 x; saved: 80.778 %
+           BTemplate: compiled: (compilation   256. msec, execution  2835. msec); interpreted: 58003. msec; speedup: 20.460 x; saved: 94.671 %
+Average speedup: 10.962
+Minimal speedup: 0.87978
+Maximal speedup: 20.460
+Total time: compiled: 61640.6666670; interpreted: 385260; saved: 84.000%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+Bottles & 8696 & 16093 & 1.9 \\ \hline
+Fac & 3172 & 56105 & 17.7 \\ \hline
+Fib & 3153 & 56174 & 17.8 \\ \hline
+Marriage & 10597 & 9323 & 0.9 \\ \hline
+SendMoreMoney & 11293 & 116371 & 10.3 \\ \hline
+Sudoku & 9463 & 73191 & 7.7 \\ \hline
+Template & 2835 & 58003 & 20.5 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{11.0} \\ \hline
+\end{tabular}
+
+==================================================
+
+RVM change: local variables of executeProgram are now class variables.
+**** NOTE **** These measurements cannot be reproduced!
+
+Summary of Measurements $2013-12-22T12:01:08.653+01:00$:
+
+Number of samples = 3
+BCompareComprehension: compiled: (compilation 236.33 msec, execution  8488. msec); interpreted: 1.3388E+5 msec; speedup: 15.772 x; saved: 93.483 %
+         BCompareFor: compiled: (compilation 1332.3 msec, execution  8710. msec); interpreted: 20389. msec; speedup: 2.3409 x; saved: 50.746 %
+          BCompareIf: compiled: (compilation 276.67 msec, execution  6806. msec); interpreted: 3.8804E+5 msec; speedup: 57.014 x; saved: 98.175 %
+              BEmpty: compiled: (compilation 219.33 msec, execution   220. msec); interpreted:     0. msec; speedup:     0. x; saved: -43933. %
+         BExceptions: compiled: (compilation 475.67 msec, execution  1673. msec); interpreted: 81237. msec; speedup: 48.558 x; saved: 97.355 %
+  BExceptionsFinally: compiled: (compilation 373.33 msec, execution   487. msec); interpreted: 15175. msec; speedup: 31.160 x; saved: 94.331 %
+                BFor: compiled: (compilation   134. msec, execution  1942. msec); interpreted: 47421. msec; speedup: 24.419 x; saved: 95.622 %
+            BForCond: compiled: (compilation 183.67 msec, execution  2430. msec); interpreted: 50464. msec; speedup: 20.767 x; saved: 94.821 %
+         BListMatch1: compiled: (compilation 247.33 msec, execution 13777. msec); interpreted: 1.5084E+5 msec; speedup: 10.948 x; saved: 90.702 %
+         BListMatch2: compiled: (compilation 442.33 msec, execution 10582. msec); interpreted: 77199. msec; speedup: 7.2953 x; saved: 85.720 %
+         BListMatch3: compiled: (compilation   572. msec, execution 16694. msec); interpreted: 15296. msec; speedup: 0.91626 x; saved: -12.879 %
+           BReverse1: compiled: (compilation 314.67 msec, execution 17370. msec); interpreted: 1.3946E+5 msec; speedup: 8.0288 x; saved: 87.319 %
+               BSet1: compiled: (compilation 243.33 msec, execution  3093. msec); interpreted: 1.2445E+5 msec; speedup: 40.235 x; saved: 97.319 %
+          BSetMatch1: compiled: (compilation   249. msec, execution  8240. msec); interpreted: 68063. msec; speedup: 8.2601 x; saved: 87.528 %
+          BSetMatch2: compiled: (compilation   227. msec, execution  2073. msec); interpreted: 30117. msec; speedup: 14.528 x; saved: 92.363 %
+          BSetMatch3: compiled: (compilation 246.33 msec, execution  5519. msec); interpreted: 42390. msec; speedup: 7.6807 x; saved: 86.399 %
+             BVisit1: compiled: (compilation   314. msec, execution  7891. msec); interpreted: 66748. msec; speedup: 8.4588 x; saved: 87.707 %
+             BVisit2: compiled: (compilation 1645.3 msec, execution 66361. msec); interpreted: 53840. msec; speedup: 0.81132 x; saved: -26.312 %
+             BVisit3: compiled: (compilation 474.67 msec, execution 19903. msec); interpreted: 66211. msec; speedup: 3.3267 x; saved: 69.223 %
+              BWhile: compiled: (compilation 167.33 msec, execution   859. msec); interpreted: 91879. msec; speedup: 106.96 x; saved: 98.883 %
+Average speedup: 20.874
+Minimal speedup: 0.
+Maximal speedup: 106.96
+Total time: compiled: 211492.6666659; interpreted: 1663085; saved: 87.283%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+CompareComprehension & 8488 & 133875 & 15.8 \\ \hline
+CompareFor & 8710 & 20389 & 2.3 \\ \hline
+CompareIf & 6806 & 388038 & 57.0 \\ \hline
+Empty & 220 & 0 & 0.0 \\ \hline
+Exceptions & 1673 & 81237 & 48.6 \\ \hline
+ExceptionsFinally & 487 & 15175 & 31.2 \\ \hline
+For & 1942 & 47421 & 24.4 \\ \hline
+ForCond & 2430 & 50464 & 20.8 \\ \hline
+ListMatch1 & 13777 & 150836 & 10.9 \\ \hline
+ListMatch2 & 10582 & 77199 & 7.3 \\ \hline
+ListMatch3 & 16694 & 15296 & 0.9 \\ \hline
+Reverse1 & 17370 & 139461 & 8.0 \\ \hline
+Set1 & 3093 & 124446 & 40.2 \\ \hline
+SetMatch1 & 8240 & 68063 & 8.3 \\ \hline
+SetMatch2 & 2073 & 30117 & 14.5 \\ \hline
+SetMatch3 & 5519 & 42390 & 7.7 \\ \hline
+Visit1 & 7891 & 66748 & 8.5 \\ \hline
+Visit2 & 66361 & 53840 & 0.8 \\ \hline
+Visit3 & 19903 & 66211 & 3.3 \\ \hline
+While & 859 & 91879 & 107.0 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{20.9} \\ \hline
+\end{tabular}
+
+
+Summary of Measurements $2013-12-22T12:43:29.232+01:00$:
+
+Number of samples = 3
+            BBottles: compiled: (compilation   366. msec, execution  8890. msec); interpreted: 63610. msec; speedup: 7.1552 x; saved: 85.449 %
+                BFac: compiled: (compilation 227.67 msec, execution  3500. msec); interpreted: 1.8262E+5 msec; speedup: 52.176 x; saved: 97.959 %
+                BFib: compiled: (compilation   250. msec, execution  3355. msec); interpreted: 1.9252E+5 msec; speedup: 57.384 x; saved: 98.128 %
+           BMarriage: compiled: (compilation 11645. msec, execution 15271. msec); interpreted: 20253. msec; speedup: 1.3262 x; saved: -32.900 %
+      BSendMoreMoney: compiled: (compilation 475.33 msec, execution 12014. msec); interpreted: 1.3700E+5 msec; speedup: 11.403 x; saved: 90.883 %
+             BSudoku: compiled: (compilation  7647. msec, execution 12600. msec); interpreted: 1.1553E+5 msec; speedup: 9.1690 x; saved: 82.475 %
+           BTemplate: compiled: (compilation 551.33 msec, execution  3199. msec); interpreted: 76417. msec; speedup: 23.888 x; saved: 95.092 %
+Average speedup: 23.215
+Minimal speedup: 1.3262
+Maximal speedup: 57.384
+Total time: compiled: 79991.6666633; interpreted: 787947; saved: 89.848%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+Bottles & 8890 & 63610 & 7.2 \\ \hline
+Fac & 3500 & 182617 & 52.2 \\ \hline
+Fib & 3355 & 192524 & 57.4 \\ \hline
+Marriage & 15271 & 20253 & 1.3 \\ \hline
+SendMoreMoney & 12014 & 136997 & 11.4 \\ \hline
+Sudoku & 12600 & 115529 & 9.2 \\ \hline
+Template & 3199 & 76417 & 23.9 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{23.2} \\ \hline
+\end{tabular}
+
+==================================================
+
+Undone previous RVM change: local variables of executeProgram are now class variables.
+
+Summary of Measurements $2013-12-23T23:15:25.783+01:00$:
+
+Number of samples = 3
+BCompareComprehension: compiled: (compilation 64.333 msec, execution  8629. msec); interpreted: 1.1091E+5 msec; speedup: 12.853 x; saved: 92.162 %
+         BCompareFor: compiled: (compilation 315.67 msec, execution  8609. msec); interpreted: 18268. msec; speedup: 2.1220 x; saved: 51.146 %
+          BCompareIf: compiled: (compilation 67.333 msec, execution  7435. msec); interpreted: 1.1604E+5 msec; speedup: 15.607 x; saved: 93.534 %
+              BEmpty: compiled: (compilation    82. msec, execution    84. msec); interpreted:     0. msec; speedup:     0. x; saved: -16600. %
+         BExceptions: compiled: (compilation 124.33 msec, execution  2383. msec); interpreted: 37838. msec; speedup: 15.878 x; saved: 93.374 %
+  BExceptionsFinally: compiled: (compilation 103.67 msec, execution   235. msec); interpreted:  8067. msec; speedup: 34.328 x; saved: 95.802 %
+                BFor: compiled: (compilation 58.667 msec, execution  2291. msec); interpreted: 39136. msec; speedup: 17.082 x; saved: 93.996 %
+            BForCond: compiled: (compilation 61.667 msec, execution  2540. msec); interpreted: 39827. msec; speedup: 15.680 x; saved: 93.468 %
+         BListMatch1: compiled: (compilation 63.333 msec, execution 10663. msec); interpreted: 1.1173E+5 msec; speedup: 10.479 x; saved: 90.400 %
+         BListMatch2: compiled: (compilation 81.333 msec, execution  7364. msec); interpreted: 54991. msec; speedup: 7.4675 x; saved: 86.461 %
+         BListMatch3: compiled: (compilation    61. msec, execution 16712. msec); interpreted: 12710. msec; speedup: 0.76053 x; saved: -31.967 %
+           BReverse1: compiled: (compilation    83. msec, execution 17325. msec); interpreted: 57216. msec; speedup: 3.3025 x; saved: 69.575 %
+               BSet1: compiled: (compilation 67.667 msec, execution  3020. msec); interpreted: 1.2308E+5 msec; speedup: 40.754 x; saved: 97.491 %
+          BSetMatch1: compiled: (compilation    82. msec, execution 10468. msec); interpreted: 60663. msec; speedup: 5.7951 x; saved: 82.609 %
+          BSetMatch2: compiled: (compilation    75. msec, execution  2181. msec); interpreted: 26797. msec; speedup: 12.287 x; saved: 91.581 %
+          BSetMatch3: compiled: (compilation    66. msec, execution  5954. msec); interpreted: 34974. msec; speedup: 5.8740 x; saved: 82.787 %
+             BVisit1: compiled: (compilation 76.333 msec, execution  9592. msec); interpreted:  9578. msec; speedup: 0.99854 x; saved: -0.94313 %
+             BVisit2: compiled: (compilation   171. msec, execution 51622. msec); interpreted: 13809. msec; speedup: 0.26750 x; saved: -275.07 %
+             BVisit3: compiled: (compilation  4001. msec, execution 28534. msec); interpreted: 27247. msec; speedup: 0.95490 x; saved: -19.408 %
+              BWhile: compiled: (compilation    52. msec, execution   853. msec); interpreted: 79474. msec; speedup: 93.170 x; saved: 98.861 %
+Average speedup: 14.783
+Minimal speedup: 0.
+Maximal speedup: 93.170
+Total time: compiled: 202251.33333336; interpreted: 982352; saved: 79.412%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+CompareComprehension & 8629 & 110912 & 12.9 \\ \hline
+CompareFor & 8609 & 18268 & 2.1 \\ \hline
+CompareIf & 7435 & 116035 & 15.6 \\ \hline
+Empty & 84 & 0 & 0.0 \\ \hline
+Exceptions & 2383 & 37838 & 15.9 \\ \hline
+ExceptionsFinally & 235 & 8067 & 34.3 \\ \hline
+For & 2291 & 39136 & 17.1 \\ \hline
+ForCond & 2540 & 39827 & 15.7 \\ \hline
+ListMatch1 & 10663 & 111733 & 10.5 \\ \hline
+ListMatch2 & 7364 & 54991 & 7.5 \\ \hline
+ListMatch3 & 16712 & 12710 & 0.8 \\ \hline
+Reverse1 & 17325 & 57216 & 3.3 \\ \hline
+Set1 & 3020 & 123077 & 40.8 \\ \hline
+SetMatch1 & 10468 & 60663 & 5.8 \\ \hline
+SetMatch2 & 2181 & 26797 & 12.3 \\ \hline
+SetMatch3 & 5954 & 34974 & 5.9 \\ \hline
+Visit1 & 9592 & 9578 & 1.0 \\ \hline
+Visit2 & 51622 & 13809 & 0.3 \\ \hline
+Visit3 & 28534 & 27247 & 1.0 \\ \hline
+While & 853 & 79474 & 93.2 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{14.8} \\ \hline
+\end{tabular}
+Summary of Measurements $2013-12-23T23:39:54.921+01:00$:
+
+Number of samples = 3
+            BBottles: compiled: (compilation 681.33 msec, execution 12097. msec); interpreted: 19007. msec; speedup: 1.5712 x; saved: 32.770 %
+                BFac: compiled: (compilation 242.67 msec, execution  3802. msec); interpreted: 61487. msec; speedup: 16.172 x; saved: 93.422 %
+                BFib: compiled: (compilation 226.33 msec, execution  3658. msec); interpreted: 61103. msec; speedup: 16.704 x; saved: 93.643 %
+           BMarriage: compiled: (compilation  4916. msec, execution  9155. msec); interpreted: 11467. msec; speedup: 1.2525 x; saved: -22.709 %
+      BSendMoreMoney: compiled: (compilation   396. msec, execution 12969. msec); interpreted: 1.2760E+5 msec; speedup: 9.8385 x; saved: 89.525 %
+             BSudoku: compiled: (compilation 4953.3 msec, execution 11259. msec); interpreted: 88359. msec; speedup: 7.8479 x; saved: 81.652 %
+           BTemplate: compiled: (compilation 427.33 msec, execution  3448. msec); interpreted: 64209. msec; speedup: 18.622 x; saved: 93.965 %
+Average speedup: 10.287
+Minimal speedup: 1.2525
+Maximal speedup: 18.622
+Total time: compiled: 68230.9999996; interpreted: 433227; saved: 84.251%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+Bottles & 12097 & 19007 & 1.6 \\ \hline
+Fac & 3802 & 61487 & 16.2 \\ \hline
+Fib & 3658 & 61103 & 16.7 \\ \hline
+Marriage & 9155 & 11467 & 1.3 \\ \hline
+SendMoreMoney & 12969 & 127595 & 9.8 \\ \hline
+Sudoku & 11259 & 88359 & 7.8 \\ \hline
+Template & 3448 & 64209 & 18.6 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{10.3} \\ \hline
+\end{tabular}
+
+==================================================
+Summary of Measurements $2013-12-26T13:10:53.675+01:00$:
+
+Number of samples = 3
+BCompareComprehension: compiled: (compilation 76.667 msec, execution  7969. msec); interpreted: 1.0600E+5 msec; speedup: 13.302 x; saved: 92.410 %
+         BCompareFor: compiled: (compilation 657.33 msec, execution  8410. msec); interpreted: 17553. msec; speedup: 2.0872 x; saved: 48.343 %
+          BCompareIf: compiled: (compilation    78. msec, execution  6676. msec); interpreted: 1.1114E+5 msec; speedup: 16.647 x; saved: 93.923 %
+              BEmpty: compiled: (compilation 78.333 msec, execution    78. msec); interpreted:     3. msec; speedup: 0.038462 x; saved: -5111.1 %
+         BExceptions: compiled: (compilation   241. msec, execution  1381. msec); interpreted: 33792. msec; speedup: 24.469 x; saved: 95.200 %
+  BExceptionsFinally: compiled: (compilation 342.33 msec, execution   489. msec); interpreted:  7670. msec; speedup: 15.685 x; saved: 89.161 %
+                BFor: compiled: (compilation 66.333 msec, execution  1968. msec); interpreted: 37542. msec; speedup: 19.076 x; saved: 94.581 %
+            BForCond: compiled: (compilation    74. msec, execution  2243. msec); interpreted: 40274. msec; speedup: 17.955 x; saved: 94.247 %
+         BListMatch1: compiled: (compilation    84. msec, execution 11297. msec); interpreted: 1.0810E+5 msec; speedup: 9.5686 x; saved: 89.471 %
+         BListMatch2: compiled: (compilation 90.333 msec, execution  8210. msec); interpreted: 51761. msec; speedup: 6.3046 x; saved: 83.964 %
+         BListMatch3: compiled: (compilation    90. msec, execution 14536. msec); interpreted: 12920. msec; speedup: 0.88883 x; saved: -13.204 %
+           BReverse1: compiled: (compilation   122. msec, execution 15464. msec); interpreted: 48607. msec; speedup: 3.1432 x; saved: 67.935 %
+               BSet1: compiled: (compilation 93.333 msec, execution  2555. msec); interpreted: 98122. msec; speedup: 38.404 x; saved: 97.301 %
+          BSetMatch1: compiled: (compilation 82.667 msec, execution  7316. msec); interpreted: 55179. msec; speedup: 7.5422 x; saved: 86.592 %
+          BSetMatch2: compiled: (compilation    83. msec, execution  1794. msec); interpreted: 24777. msec; speedup: 13.811 x; saved: 92.424 %
+          BSetMatch3: compiled: (compilation 88.333 msec, execution  5030. msec); interpreted: 34000. msec; speedup: 6.7594 x; saved: 84.946 %
+             BVisit1: compiled: (compilation 125.33 msec, execution  7405. msec); interpreted:  9144. msec; speedup: 1.2348 x; saved: 17.647 %
+             BVisit2: compiled: (compilation   312. msec, execution 49185. msec); interpreted: 11378. msec; speedup: 0.23133 x; saved: -335.02 %
+             BVisit3: compiled: (compilation 201.67 msec, execution 19723. msec); interpreted: 22713. msec; speedup: 1.1516 x; saved: 12.276 %
+              BWhile: compiled: (compilation 67.667 msec, execution   710. msec); interpreted: 72209. msec; speedup: 101.70 x; saved: 98.923 %
+Average speedup: 15.000
+Minimal speedup: 0.038462
+Maximal speedup: 101.70
+Total time: compiled: 175493.33333326; interpreted: 902878; saved: 80.563%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+CompareComprehension & 7969 & 106001 & 13.3 \\ \hline
+CompareFor & 8410 & 17553 & 2.1 \\ \hline
+CompareIf & 6676 & 111136 & 16.6 \\ \hline
+Empty & 78 & 3 & 0.0 \\ \hline
+Exceptions & 1381 & 33792 & 24.5 \\ \hline
+ExceptionsFinally & 489 & 7670 & 15.7 \\ \hline
+For & 1968 & 37542 & 19.1 \\ \hline
+ForCond & 2243 & 40274 & 18.0 \\ \hline
+ListMatch1 & 11297 & 108097 & 9.6 \\ \hline
+ListMatch2 & 8210 & 51761 & 6.3 \\ \hline
+ListMatch3 & 14536 & 12920 & 0.9 \\ \hline
+Reverse1 & 15464 & 48607 & 3.1 \\ \hline
+Set1 & 2555 & 98122 & 38.4 \\ \hline
+SetMatch1 & 7316 & 55179 & 7.5 \\ \hline
+SetMatch2 & 1794 & 24777 & 13.8 \\ \hline
+SetMatch3 & 5030 & 34000 & 6.8 \\ \hline
+Visit1 & 7405 & 9144 & 1.2 \\ \hline
+Visit2 & 49185 & 11378 & 0.2 \\ \hline
+Visit3 & 19723 & 22713 & 1.2 \\ \hline
+While & 710 & 72209 & 101.7 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{15.0} \\ \hline
+\end{tabular}
+
+Summary of Measurements $2013-12-26T13:31:45.877+01:00$:
+
+Number of samples = 3
+            BBottles: compiled: (compilation 161.67 msec, execution  8418. msec); interpreted: 15488. msec; speedup: 1.8399 x; saved: 44.604 %
+                BFac: compiled: (compilation 98.667 msec, execution  3280. msec); interpreted: 54430. msec; speedup: 16.595 x; saved: 93.793 %
+                BFib: compiled: (compilation 103.67 msec, execution  3178. msec); interpreted: 54433. msec; speedup: 17.128 x; saved: 93.971 %
+           BMarriage: compiled: (compilation 6441.7 msec, execution  9778. msec); interpreted:  8879. msec; speedup: 0.90806 x; saved: -82.674 %
+      BSendMoreMoney: compiled: (compilation   161. msec, execution 11406. msec); interpreted: 1.1262E+5 msec; speedup: 9.8736 x; saved: 89.729 %
+             BSudoku: compiled: (compilation 4460.3 msec, execution  9234. msec); interpreted: 69628. msec; speedup: 7.5404 x; saved: 80.332 %
+           BTemplate: compiled: (compilation   240. msec, execution  2744. msec); interpreted: 53840. msec; speedup: 19.621 x; saved: 94.458 %
+Average speedup: 10.501
+Minimal speedup: 0.90806
+Maximal speedup: 19.621
+Total time: compiled: 59705.00000007; interpreted: 369316; saved: 83.834%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+Bottles & 8418 & 15488 & 1.8 \\ \hline
+Fac & 3280 & 54430 & 16.6 \\ \hline
+Fib & 3178 & 54433 & 17.1 \\ \hline
+Marriage & 9778 & 8879 & 0.9 \\ \hline
+SendMoreMoney & 11406 & 112618 & 9.9 \\ \hline
+Sudoku & 9234 & 69628 & 7.5 \\ \hline
+Template & 2744 & 53840 & 19.6 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{10.5} \\ \hline
+\end{tabular}
+
+==================================================
+Summary of Measurements $2014-01-02T23:20:58.751+01:00$:
+
+Number of samples = 3
+BCompareComprehension: compiled: (compilation 134.33 msec, execution 11270. msec); interpreted: 1.7785E+5 msec; speedup: 15.781 x; saved: 93.588 %
+         BCompareFor: compiled: (compilation 994.33 msec, execution 12078. msec); interpreted: 18366. msec; speedup: 1.5206 x; saved: 28.823 %
+          BCompareIf: compiled: (compilation   152. msec, execution  8395. msec); interpreted: 1.2447E+5 msec; speedup: 14.826 x; saved: 93.133 %
+              BEmpty: compiled: (compilation 210.33 msec, execution   210. msec); interpreted:     0. msec; speedup:     0. x; saved: -42033. %
+         BExceptions: compiled: (compilation   354. msec, execution  2546. msec); interpreted: 45293. msec; speedup: 17.790 x; saved: 93.597 %
+  BExceptionsFinally: compiled: (compilation 358.67 msec, execution   564. msec); interpreted: 10770. msec; speedup: 19.096 x; saved: 91.433 %
+                BFor: compiled: (compilation 220.67 msec, execution  3588. msec); interpreted: 53676. msec; speedup: 14.960 x; saved: 92.904 %
+            BForCond: compiled: (compilation   108. msec, execution  3741. msec); interpreted: 53390. msec; speedup: 14.272 x; saved: 92.791 %
+         BListMatch1: compiled: (compilation 104.33 msec, execution 21873. msec); interpreted: 1.2770E+5 msec; speedup: 5.8382 x; saved: 82.790 %
+         BListMatch2: compiled: (compilation   109. msec, execution 14193. msec); interpreted: 60261. msec; speedup: 4.2458 x; saved: 76.267 %
+         BListMatch3: compiled: (compilation 116.67 msec, execution 20156. msec); interpreted: 15044. msec; speedup: 0.74638 x; saved: -34.756 %
+           BReverse1: compiled: (compilation 155.33 msec, execution 19351. msec); interpreted: 57674. msec; speedup: 2.9804 x; saved: 66.178 %
+               BSet1: compiled: (compilation   129. msec, execution  3546. msec); interpreted: 1.1302E+5 msec; speedup: 31.871 x; saved: 96.748 %
+          BSetMatch1: compiled: (compilation   113. msec, execution  9774. msec); interpreted: 63622. msec; speedup: 6.5093 x; saved: 84.460 %
+          BSetMatch2: compiled: (compilation 102.33 msec, execution  2658. msec); interpreted: 28627. msec; speedup: 10.770 x; saved: 90.358 %
+          BSetMatch3: compiled: (compilation   117. msec, execution  6977. msec); interpreted: 38817. msec; speedup: 5.5636 x; saved: 81.725 %
+             BVisit1: compiled: (compilation 155.67 msec, execution  9862. msec); interpreted: 10543. msec; speedup: 1.0691 x; saved: 4.9828 %
+             BVisit2: compiled: (compilation 367.67 msec, execution 38956. msec); interpreted: 13818. msec; speedup: 0.35471 x; saved: -184.58 %
+             BVisit3: compiled: (compilation 283.33 msec, execution 25769. msec); interpreted: 25519. msec; speedup: 0.99030 x; saved: -2.0899 %
+              BWhile: compiled: (compilation 94.667 msec, execution  1123. msec); interpreted: 83208. msec; speedup: 74.094 x; saved: 98.537 %
+Average speedup: 12.164
+Minimal speedup: 0.
+Maximal speedup: 74.094
+Total time: compiled: 221010.33333327; interpreted: 1121655; saved: 80.296%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+CompareComprehension & 11270 & 177847 & 15.8 \\ \hline
+CompareFor & 12078 & 18366 & 1.5 \\ \hline
+CompareIf & 8395 & 124465 & 14.8 \\ \hline
+Empty & 210 & 0 & 0.0 \\ \hline
+Exceptions & 2546 & 45293 & 17.8 \\ \hline
+ExceptionsFinally & 564 & 10770 & 19.1 \\ \hline
+For & 3588 & 53676 & 15.0 \\ \hline
+ForCond & 3741 & 53390 & 14.3 \\ \hline
+ListMatch1 & 21873 & 127700 & 5.8 \\ \hline
+ListMatch2 & 14193 & 60261 & 4.2 \\ \hline
+ListMatch3 & 20156 & 15044 & 0.7 \\ \hline
+Reverse1 & 19351 & 57674 & 3.0 \\ \hline
+Set1 & 3546 & 113015 & 31.9 \\ \hline
+SetMatch1 & 9774 & 63622 & 6.5 \\ \hline
+SetMatch2 & 2658 & 28627 & 10.8 \\ \hline
+SetMatch3 & 6977 & 38817 & 5.6 \\ \hline
+Visit1 & 9862 & 10543 & 1.1 \\ \hline
+Visit2 & 38956 & 13818 & 0.4 \\ \hline
+Visit3 & 25769 & 25519 & 1.0 \\ \hline
+While & 1123 & 83208 & 74.1 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{12.2} \\ \hline
+\end{tabular}
+
+Summary of Measurements $2014-01-02T23:45:16.737+01:00$:
+
+Number of samples = 3
+            BBottles: compiled: (compilation 178.67 msec, execution 10017. msec); interpreted: 16958. msec; speedup: 1.6929 x; saved: 39.877 %
+                BFac: compiled: (compilation 113.67 msec, execution  4424. msec); interpreted: 61798. msec; speedup: 13.969 x; saved: 92.657 %
+                BFib: compiled: (compilation 123.33 msec, execution  4440. msec); interpreted: 62532. msec; speedup: 14.084 x; saved: 92.702 %
+           BMarriage: compiled: (compilation 3440.7 msec, execution  8011. msec); interpreted: 10347. msec; speedup: 1.2916 x; saved: -10.676 %
+      BSendMoreMoney: compiled: (compilation   197. msec, execution 15510. msec); interpreted: 1.2784E+5 msec; speedup: 8.2425 x; saved: 87.714 %
+             BSudoku: compiled: (compilation  3848. msec, execution  9929. msec); interpreted: 82973. msec; speedup: 8.3566 x; saved: 83.396 %
+           BTemplate: compiled: (compilation 333.67 msec, execution  3809. msec); interpreted: 67350. msec; speedup: 17.682 x; saved: 93.849 %
+Average speedup: 9.3311
+Minimal speedup: 1.2916
+Maximal speedup: 17.682
+Total time: compiled: 64375.0000004; interpreted: 429799; saved: 85.022%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+Bottles & 10017 & 16958 & 1.7 \\ \hline
+Fac & 4424 & 61798 & 14.0 \\ \hline
+Fib & 4440 & 62532 & 14.1 \\ \hline
+Marriage & 8011 & 10347 & 1.3 \\ \hline
+SendMoreMoney & 15510 & 127841 & 8.2 \\ \hline
+Sudoku & 9929 & 82973 & 8.4 \\ \hline
+Template & 3809 & 67350 & 17.7 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{9.3} \\ \hline
+\end{tabular}
+
+
+==================================================
+Optimization of multivars in list patterns
+and removed some redundant typechecks in Library.mu
+
+Summary of Measurements $2014-01-03T12:45:54.653+01:00$:
+
+Number of samples = 3
+BCompareComprehension: compiled: (compilation    59. msec, execution  8306. msec); interpreted: 1.0324E+5 msec; speedup: 12.430 x; saved: 91.898 %
+         BCompareFor: compiled: (compilation 252.33 msec, execution  7892. msec); interpreted: 16996. msec; speedup: 2.1536 x; saved: 52.081 %
+          BCompareIf: compiled: (compilation    65. msec, execution  7233. msec); interpreted: 1.0639E+5 msec; speedup: 14.709 x; saved: 93.140 %
+              BEmpty: compiled: (compilation 81.667 msec, execution    83. msec); interpreted:     0. msec; speedup:     0. x; saved: -16467. %
+         BExceptions: compiled: (compilation 108.33 msec, execution  2029. msec); interpreted: 34102. msec; speedup: 16.807 x; saved: 93.733 %
+  BExceptionsFinally: compiled: (compilation 63.667 msec, execution   169. msec); interpreted:  7599. msec; speedup: 44.964 x; saved: 96.938 %
+                BFor: compiled: (compilation 82.333 msec, execution  2098. msec); interpreted: 36534. msec; speedup: 17.414 x; saved: 94.032 %
+            BForCond: compiled: (compilation    92. msec, execution  2416. msec); interpreted: 38135. msec; speedup: 15.784 x; saved: 93.423 %
+         BListMatch1: compiled: (compilation 54.667 msec, execution 26003. msec); interpreted: 1.1099E+5 msec; speedup: 4.2685 x; saved: 76.523 %
+         BListMatch2: compiled: (compilation 61.333 msec, execution 17710. msec); interpreted: 57444. msec; speedup: 3.2436 x; saved: 69.063 %
+         BListMatch3: compiled: (compilation 163.67 msec, execution 17326. msec); interpreted: 13235. msec; speedup: 0.76388 x; saved: -32.147 %
+           BReverse1: compiled: (compilation    70. msec, execution 17661. msec); interpreted: 50677. msec; speedup: 2.8694 x; saved: 65.012 %
+               BSet1: compiled: (compilation 82.333 msec, execution  2836. msec); interpreted: 1.0278E+5 msec; speedup: 36.241 x; saved: 97.161 %
+          BSetMatch1: compiled: (compilation    60. msec, execution  9394. msec); interpreted: 57335. msec; speedup: 6.1034 x; saved: 83.511 %
+          BSetMatch2: compiled: (compilation   230. msec, execution  2759. msec); interpreted: 25999. msec; speedup: 9.4233 x; saved: 88.503 %
+          BSetMatch3: compiled: (compilation    57. msec, execution  5134. msec); interpreted: 34796. msec; speedup: 6.7776 x; saved: 85.082 %
+             BVisit1: compiled: (compilation    66. msec, execution  9858. msec); interpreted:  9457. msec; speedup: 0.95932 x; saved: -4.9381 %
+             BVisit2: compiled: (compilation 74.333 msec, execution 63018. msec); interpreted: 13512. msec; speedup: 0.21441 x; saved: -366.94 %
+             BVisit3: compiled: (compilation 74.667 msec, execution 22735. msec); interpreted: 24263. msec; speedup: 1.0672 x; saved: 5.9899 %
+              BWhile: compiled: (compilation    57. msec, execution   755. msec); interpreted: 79074. msec; speedup: 104.73 x; saved: 98.973 %
+Average speedup: 15.046
+Minimal speedup: 0.
+Maximal speedup: 104.73
+Total time: compiled: 227270.33333330; interpreted: 922563; saved: 75.365%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+CompareComprehension & 8306 & 103240 & 12.4 \\ \hline
+CompareFor & 7892 & 16996 & 2.2 \\ \hline
+CompareIf & 7233 & 106392 & 14.7 \\ \hline
+Empty & 83 & 0 & 0.0 \\ \hline
+Exceptions & 2029 & 34102 & 16.8 \\ \hline
+ExceptionsFinally & 169 & 7599 & 45.0 \\ \hline
+For & 2098 & 36534 & 17.4 \\ \hline
+ForCond & 2416 & 38135 & 15.8 \\ \hline
+ListMatch1 & 26003 & 110994 & 4.3 \\ \hline
+ListMatch2 & 17710 & 57444 & 3.2 \\ \hline
+ListMatch3 & 17326 & 13235 & 0.8 \\ \hline
+Reverse1 & 17661 & 50677 & 2.9 \\ \hline
+Set1 & 2836 & 102779 & 36.2 \\ \hline
+SetMatch1 & 9394 & 57335 & 6.1 \\ \hline
+SetMatch2 & 2759 & 25999 & 9.4 \\ \hline
+SetMatch3 & 5134 & 34796 & 6.8 \\ \hline
+Visit1 & 9858 & 9457 & 1.0 \\ \hline
+Visit2 & 63018 & 13512 & 0.2 \\ \hline
+Visit3 & 22735 & 24263 & 1.1 \\ \hline
+While & 755 & 79074 & 104.7 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{15.0} \\ \hline
+\end{tabular}
+
+Summary of Measurements $2014-01-03T13:08:31.932+01:00$:
+
+Number of samples = 3
+            BBottles: compiled: (compilation    62. msec, execution 10043. msec); interpreted: 17436. msec; speedup: 1.7361 x; saved: 42.045 %
+                BFac: compiled: (compilation 121.33 msec, execution  4069. msec); interpreted: 58608. msec; speedup: 14.404 x; saved: 92.850 %
+                BFib: compiled: (compilation 65.667 msec, execution  3737. msec); interpreted: 58883. msec; speedup: 15.757 x; saved: 93.542 %
+           BMarriage: compiled: (compilation   577. msec, execution  4937. msec); interpreted: 10318. msec; speedup: 2.0899 x; saved: 46.559 %
+      BSendMoreMoney: compiled: (compilation 62.333 msec, execution 13558. msec); interpreted: 1.2362E+5 msec; speedup: 9.1179 x; saved: 88.982 %
+             BSudoku: compiled: (compilation 568.33 msec, execution  7295. msec); interpreted: 75763. msec; speedup: 10.386 x; saved: 89.621 %
+           BTemplate: compiled: (compilation 62.333 msec, execution  3105. msec); interpreted: 60985. msec; speedup: 19.641 x; saved: 94.806 %
+Average speedup: 10.447
+Minimal speedup: 1.7361
+Maximal speedup: 19.641
+Total time: compiled: 48262.99999993; interpreted: 405614; saved: 88.101%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+Bottles & 10043 & 17436 & 1.7 \\ \hline
+Fac & 4069 & 58608 & 14.4 \\ \hline
+Fib & 3737 & 58883 & 15.8 \\ \hline
+Marriage & 4937 & 10318 & 2.1 \\ \hline
+SendMoreMoney & 13558 & 123621 & 9.1 \\ \hline
+Sudoku & 7295 & 75763 & 10.4 \\ \hline
+Template & 3105 & 60985 & 19.6 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{10.4} \\ \hline
+\end{tabular}
+
+==================================================
+Optimizations to set matching and constant folding in patterns
+
+Summary of Measurements $2014-01-05T20:53:50.550+01:00$:
+
+Number of samples = 3
+BCompareComprehension: compiled: (compilation 57.667 msec, execution  9380. msec); interpreted: 1.1817E+5 msec; speedup: 12.598 x; saved: 92.013 %
+         BCompareFor: compiled: (compilation    54. msec, execution  7463. msec); interpreted: 17942. msec; speedup: 2.4041 x; saved: 58.104 %
+          BCompareIf: compiled: (compilation   147. msec, execution  7068. msec); interpreted: 1.2063E+5 msec; speedup: 17.067 x; saved: 94.019 %
+              BEmpty: compiled: (compilation 59.333 msec, execution    60. msec); interpreted:     0. msec; speedup:     0. x; saved: -11933. %
+         BExceptions: compiled: (compilation 65.667 msec, execution  1349. msec); interpreted: 37831. msec; speedup: 28.044 x; saved: 96.261 %
+  BExceptionsFinally: compiled: (compilation 56.333 msec, execution   184. msec); interpreted:  8661. msec; speedup: 47.071 x; saved: 97.225 %
+                BFor: compiled: (compilation 59.333 msec, execution  2353. msec); interpreted: 42176. msec; speedup: 17.924 x; saved: 94.280 %
+            BForCond: compiled: (compilation 70.667 msec, execution  2731. msec); interpreted: 44187. msec; speedup: 16.180 x; saved: 93.660 %
+         BListMatch1: compiled: (compilation    61. msec, execution 33288. msec); interpreted: 1.1991E+5 msec; speedup: 3.6023 x; saved: 72.189 %
+         BListMatch2: compiled: (compilation 55.333 msec, execution 20362. msec); interpreted: 59108. msec; speedup: 2.9029 x; saved: 65.458 %
+         BListMatch3: compiled: (compilation    54. msec, execution 17444. msec); interpreted: 14027. msec; speedup: 0.80412 x; saved: -24.745 %
+           BReverse1: compiled: (compilation 61.333 msec, execution 15154. msec); interpreted: 53739. msec; speedup: 3.5462 x; saved: 71.687 %
+               BSet1: compiled: (compilation 62.333 msec, execution  2890. msec); interpreted: 1.1007E+5 msec; speedup: 38.086 x; saved: 97.318 %
+          BSetMatch1: compiled: (compilation 59.667 msec, execution  8342. msec); interpreted: 60912. msec; speedup: 7.3018 x; saved: 86.207 %
+          BSetMatch2: compiled: (compilation 56.667 msec, execution  2041. msec); interpreted: 26155. msec; speedup: 12.815 x; saved: 91.980 %
+          BSetMatch3: compiled: (compilation 57.333 msec, execution  5751. msec); interpreted: 36801. msec; speedup: 6.3991 x; saved: 84.217 %
+             BVisit1: compiled: (compilation 71.667 msec, execution  8922. msec); interpreted: 10407. msec; speedup: 1.1664 x; saved: 13.581 %
+             BVisit2: compiled: (compilation 174.33 msec, execution 1.2894E+5 msec); interpreted: 12432. msec; speedup: 0.096418 x; saved: -938.56 %
+             BVisit3: compiled: (compilation 61.333 msec, execution 21219. msec); interpreted: 24744. msec; speedup: 1.1661 x; saved: 13.998 %
+              BWhile: compiled: (compilation 56.667 msec, execution   814. msec); interpreted: 84374. msec; speedup: 103.65 x; saved: 98.968 %
+Average speedup: 16.141
+Minimal speedup: 0.
+Maximal speedup: 103.65
+Total time: compiled: 297155.66666663; interpreted: 1002278; saved: 70.352%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+CompareComprehension & 9380 & 118168 & 12.6 \\ \hline
+CompareFor & 7463 & 17942 & 2.4 \\ \hline
+CompareIf & 7068 & 120632 & 17.1 \\ \hline
+Empty & 60 & 0 & 0.0 \\ \hline
+Exceptions & 1349 & 37831 & 28.0 \\ \hline
+ExceptionsFinally & 184 & 8661 & 47.1 \\ \hline
+For & 2353 & 42176 & 17.9 \\ \hline
+ForCond & 2731 & 44187 & 16.2 \\ \hline
+ListMatch1 & 33288 & 119914 & 3.6 \\ \hline
+ListMatch2 & 20362 & 59108 & 2.9 \\ \hline
+ListMatch3 & 17444 & 14027 & 0.8 \\ \hline
+Reverse1 & 15154 & 53739 & 3.5 \\ \hline
+Set1 & 2890 & 110068 & 38.1 \\ \hline
+SetMatch1 & 8342 & 60912 & 7.3 \\ \hline
+SetMatch2 & 2041 & 26155 & 12.8 \\ \hline
+SetMatch3 & 5751 & 36801 & 6.4 \\ \hline
+Visit1 & 8922 & 10407 & 1.2 \\ \hline
+Visit2 & 128939 & 12432 & 0.1 \\ \hline
+Visit3 & 21219 & 24744 & 1.2 \\ \hline
+While & 814 & 84374 & 103.7 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{16.1} \\ \hline
+\end{tabular}
+
+Summary of Measurements $2014-01-05T21:16:01.336+01:00$:
+
+Number of samples = 3
+            BBottles: compiled: (compilation    59. msec, execution  8451. msec); interpreted: 16899. msec; speedup: 1.9996 x; saved: 49.642 %
+                BFac: compiled: (compilation    57. msec, execution  3699. msec); interpreted: 60107. msec; speedup: 16.250 x; saved: 93.751 %
+                BFib: compiled: (compilation    76. msec, execution  3746. msec); interpreted: 58736. msec; speedup: 15.680 x; saved: 93.493 %
+           BMarriage: compiled: (compilation   296. msec, execution  3705. msec); interpreted:  9394. msec; speedup: 2.5355 x; saved: 57.409 %
+      BSendMoreMoney: compiled: (compilation 63.333 msec, execution 13191. msec); interpreted: 1.2260E+5 msec; speedup: 9.2942 x; saved: 89.189 %
+             BSudoku: compiled: (compilation 308.33 msec, execution  5548. msec); interpreted: 75567. msec; speedup: 13.621 x; saved: 92.250 %
+           BTemplate: compiled: (compilation    75. msec, execution  2793. msec); interpreted: 59109. msec; speedup: 21.163 x; saved: 95.148 %
+Average speedup: 11.506
+Minimal speedup: 1.9996
+Maximal speedup: 21.163
+Total time: compiled: 42067.66666663; interpreted: 402412; saved: 89.546%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+Bottles & 8451 & 16899 & 2.0 \\ \hline
+Fac & 3699 & 60107 & 16.2 \\ \hline
+Fib & 3746 & 58736 & 15.7 \\ \hline
+Marriage & 3705 & 9394 & 2.5 \\ \hline
+SendMoreMoney & 13191 & 122600 & 9.3 \\ \hline
+Sudoku & 5548 & 75567 & 13.6 \\ \hline
+Template & 2793 & 59109 & 21.2 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{11.5} \\ \hline
+\end{tabular}
+==================================================
+
+After merge with the muOr branch
+
+Summary of Measurements $2014-01-05T22:37:33.665+01:00$:
+
+Number of samples = 3
+BCompareComprehension: compiled: (compilation 179.33 msec, execution  8708. msec); interpreted: 1.2112E+5 msec; speedup: 13.909 x; saved: 92.662 %
+         BCompareFor: compiled: (compilation 11160. msec, execution 19232. msec); interpreted: 18072. msec; speedup: 0.93968 x; saved: -68.170 %
+          BCompareIf: compiled: (compilation 131.33 msec, execution  7149. msec); interpreted: 1.2337E+5 msec; speedup: 17.256 x; saved: 94.099 %
+              BEmpty: compiled: (compilation 174.67 msec, execution   176. msec); interpreted:     0. msec; speedup:     0. x; saved: -35067. %
+         BExceptions: compiled: (compilation 360.67 msec, execution  2279. msec); interpreted: 40195. msec; speedup: 17.637 x; saved: 93.433 %
+  BExceptionsFinally: compiled: (compilation 326.33 msec, execution   499. msec); interpreted:  9979. msec; speedup: 19.998 x; saved: 91.729 %
+                BFor: compiled: (compilation   115. msec, execution  2715. msec); interpreted: 46102. msec; speedup: 16.980 x; saved: 93.861 %
+            BForCond: compiled: (compilation   155. msec, execution  3332. msec); interpreted: 45053. msec; speedup: 13.521 x; saved: 92.260 %
+         BListMatch1: compiled: (compilation 216.67 msec, execution 32331. msec); interpreted: 1.4643E+5 msec; speedup: 4.5291 x; saved: 77.773 %
+         BListMatch2: compiled: (compilation 4089.3 msec, execution 23882. msec); interpreted: 72139. msec; speedup: 3.0206 x; saved: 61.226 %
+         BListMatch3: compiled: (compilation 583.67 msec, execution 20052. msec); interpreted: 15879. msec; speedup: 0.79189 x; saved: -29.956 %
+           BReverse1: compiled: (compilation 506.33 msec, execution 17503. msec); interpreted: 59557. msec; speedup: 3.4027 x; saved: 69.761 %
+               BSet1: compiled: (compilation 204.67 msec, execution  3495. msec); interpreted: 1.3541E+5 msec; speedup: 38.744 x; saved: 97.268 %
+          BSetMatch1: compiled: (compilation 323.67 msec, execution 10602. msec); interpreted: 75333. msec; speedup: 7.1055 x; saved: 85.497 %
+          BSetMatch2: compiled: (compilation 215.67 msec, execution  3602. msec); interpreted: 36114. msec; speedup: 10.026 x; saved: 89.429 %
+          BSetMatch3: compiled: (compilation   137. msec, execution  6321. msec); interpreted: 47683. msec; speedup: 7.5436 x; saved: 86.456 %
+             BVisit1: compiled: (compilation 328.33 msec, execution 12598. msec); interpreted: 12662. msec; speedup: 1.0051 x; saved: -2.0876 %
+             BVisit2: compiled: (compilation 513.33 msec, execution 57229. msec); interpreted: 12931. msec; speedup: 0.22595 x; saved: -346.54 %
+             BVisit3: compiled: (compilation   270. msec, execution 22900. msec); interpreted: 26255. msec; speedup: 1.1465 x; saved: 11.750 %
+              BWhile: compiled: (compilation 126.33 msec, execution  1017. msec); interpreted: 95376. msec; speedup: 93.782 x; saved: 98.801 %
+Average speedup: 13.578
+Minimal speedup: 0.
+Maximal speedup: 93.782
+Total time: compiled: 275739.0000030; interpreted: 1139657; saved: 75.805%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+CompareComprehension & 8708 & 121120 & 13.9 \\ \hline
+CompareFor & 19232 & 18072 & 0.9 \\ \hline
+CompareIf & 7149 & 123366 & 17.3 \\ \hline
+Empty & 176 & 0 & 0.0 \\ \hline
+Exceptions & 2279 & 40195 & 17.6 \\ \hline
+ExceptionsFinally & 499 & 9979 & 20.0 \\ \hline
+For & 2715 & 46102 & 17.0 \\ \hline
+ForCond & 3332 & 45053 & 13.5 \\ \hline
+ListMatch1 & 32331 & 146431 & 4.5 \\ \hline
+ListMatch2 & 23882 & 72139 & 3.0 \\ \hline
+ListMatch3 & 20052 & 15879 & 0.8 \\ \hline
+Reverse1 & 17503 & 59557 & 3.4 \\ \hline
+Set1 & 3495 & 135410 & 38.7 \\ \hline
+SetMatch1 & 10602 & 75333 & 7.1 \\ \hline
+SetMatch2 & 3602 & 36114 & 10.0 \\ \hline
+SetMatch3 & 6321 & 47683 & 7.5 \\ \hline
+Visit1 & 12598 & 12662 & 1.0 \\ \hline
+Visit2 & 57229 & 12931 & 0.2 \\ \hline
+Visit3 & 22900 & 26255 & 1.1 \\ \hline
+While & 1017 & 95376 & 93.8 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{13.6} \\ \hline
+\end{tabular}
+
+
+Summary of Measurements $2014-01-05T23:12:03.607+01:00$:
+
+Number of samples = 3
+            BBottles: compiled: (compilation 277.33 msec, execution 10193. msec); interpreted: 20103. msec; speedup: 1.9722 x; saved: 47.917 %
+                BFac: compiled: (compilation 174.67 msec, execution  4172. msec); interpreted: 66579. msec; speedup: 15.959 x; saved: 93.471 %
+                BFib: compiled: (compilation   188. msec, execution  4148. msec); interpreted: 92788. msec; speedup: 22.369 x; saved: 95.327 %
+           BMarriage: compiled: (compilation 33018. msec, execution 40180. msec); interpreted: 22756. msec; speedup: 0.56635 x; saved: -221.66 %
+      BSendMoreMoney: compiled: (compilation 449.33 msec, execution 21843. msec); interpreted: 1.8928E+5 msec; speedup: 8.6655 x; saved: 88.223 %
+             BSudoku: compiled: (compilation 10063. msec, execution 16677. msec); interpreted: 1.1397E+5 msec; speedup: 6.8338 x; saved: 76.538 %
+           BTemplate: compiled: (compilation 441.67 msec, execution  4000. msec); interpreted: 83224. msec; speedup: 20.806 x; saved: 94.663 %
+Average speedup: 11.025
+Minimal speedup: 0.56635
+Maximal speedup: 22.369
+Total time: compiled: 145824.3333400; interpreted: 588698; saved: 75.229%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+Bottles & 10193 & 20103 & 2.0 \\ \hline
+Fac & 4172 & 66579 & 16.0 \\ \hline
+Fib & 4148 & 92788 & 22.4 \\ \hline
+Marriage & 40180 & 22756 & 0.6 \\ \hline
+SendMoreMoney & 21843 & 189280 & 8.7 \\ \hline
+Sudoku & 16677 & 113968 & 6.8 \\ \hline
+Template & 4000 & 83224 & 20.8 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{11.0} \\ \hline
+\end{tabular}
+==================================================
+No significant changes to the master branch
+
+Summary of Measurements $2014-01-06T03:37:27.101+01:00$:
+
+Number of samples = 3
+BCompareComprehension: compiled: (compilation 34.667 msec, execution  7867. msec); interpreted: 69056. msec; speedup: 8.7779 x; saved: 88.558 %
+         BCompareFor: compiled: (compilation 31.333 msec, execution  6754. msec); interpreted: 11228. msec; speedup: 1.6624 x; saved: 39.568 %
+          BCompareIf: compiled: (compilation 31.667 msec, execution  6482. msec); interpreted: 71532. msec; speedup: 11.035 x; saved: 90.894 %
+              BEmpty: compiled: (compilation    29. msec, execution    29. msec); interpreted:     0. msec; speedup:     0. x; saved: -5800.0 %
+         BExceptions: compiled: (compilation 183.33 msec, execution  1433. msec); interpreted: 27381. msec; speedup: 19.107 x; saved: 94.097 %
+  BExceptionsFinally: compiled: (compilation    37. msec, execution   118. msec); interpreted:  5887. msec; speedup: 49.890 x; saved: 97.367 %
+                BFor: compiled: (compilation 29.333 msec, execution  1928. msec); interpreted: 24200. msec; speedup: 12.552 x; saved: 91.912 %
+            BForCond: compiled: (compilation 34.667 msec, execution  2092. msec); interpreted: 23636. msec; speedup: 11.298 x; saved: 91.002 %
+         BListMatch1: compiled: (compilation    31. msec, execution 26618. msec); interpreted: 69599. msec; speedup: 2.6147 x; saved: 61.711 %
+         BListMatch2: compiled: (compilation    32. msec, execution 16516. msec); interpreted: 34576. msec; speedup: 2.0935 x; saved: 52.140 %
+         BListMatch3: compiled: (compilation 32.667 msec, execution 13960. msec); interpreted:  9797. msec; speedup: 0.70179 x; saved: -42.826 %
+           BReverse1: compiled: (compilation 41.667 msec, execution 11816. msec); interpreted: 36751. msec; speedup: 3.1103 x; saved: 67.735 %
+               BSet1: compiled: (compilation 32.333 msec, execution  2182. msec); interpreted: 60067. msec; speedup: 27.528 x; saved: 96.314 %
+          BSetMatch1: compiled: (compilation 31.333 msec, execution  5956. msec); interpreted: 34844. msec; speedup: 5.8502 x; saved: 82.817 %
+          BSetMatch2: compiled: (compilation 29.667 msec, execution  1610. msec); interpreted: 16077. msec; speedup: 9.9857 x; saved: 89.801 %
+          BSetMatch3: compiled: (compilation    30. msec, execution  4655. msec); interpreted: 22455. msec; speedup: 4.8238 x; saved: 79.136 %
+             BVisit1: compiled: (compilation    31. msec, execution  6232. msec); interpreted:  7369. msec; speedup: 1.1824 x; saved: 15.009 %
+             BVisit2: compiled: (compilation    42. msec, execution 22859. msec); interpreted:  9023. msec; speedup: 0.39472 x; saved: -153.81 %
+             BVisit3: compiled: (compilation 35.333 msec, execution 15346. msec); interpreted: 18825. msec; speedup: 1.2267 x; saved: 18.293 %
+              BWhile: compiled: (compilation 33.667 msec, execution   614. msec); interpreted: 44819. msec; speedup: 72.995 x; saved: 98.555 %
+Average speedup: 12.342
+Minimal speedup: 0.
+Maximal speedup: 72.995
+Total time: compiled: 155880.66666664; interpreted: 597122; saved: 73.895%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+CompareComprehension & 7867 & 69056 & 8.8 \\ \hline
+CompareFor & 6754 & 11228 & 1.7 \\ \hline
+CompareIf & 6482 & 71532 & 11.0 \\ \hline
+Empty & 29 & 0 & 0.0 \\ \hline
+Exceptions & 1433 & 27381 & 19.1 \\ \hline
+ExceptionsFinally & 118 & 5887 & 49.9 \\ \hline
+For & 1928 & 24200 & 12.6 \\ \hline
+ForCond & 2092 & 23636 & 11.3 \\ \hline
+ListMatch1 & 26618 & 69599 & 2.6 \\ \hline
+ListMatch2 & 16516 & 34576 & 2.1 \\ \hline
+ListMatch3 & 13960 & 9797 & 0.7 \\ \hline
+Reverse1 & 11816 & 36751 & 3.1 \\ \hline
+Set1 & 2182 & 60067 & 27.5 \\ \hline
+SetMatch1 & 5956 & 34844 & 5.9 \\ \hline
+SetMatch2 & 1610 & 16077 & 10.0 \\ \hline
+SetMatch3 & 4655 & 22455 & 4.8 \\ \hline
+Visit1 & 6232 & 7369 & 1.2 \\ \hline
+Visit2 & 22859 & 9023 & 0.4 \\ \hline
+Visit3 & 15346 & 18825 & 1.2 \\ \hline
+While & 614 & 44819 & 73.0 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{12.3} \\ \hline
+\end{tabular}
+
+Summary of Measurements $2014-01-06T02:29:47.740+01:00$:
+
+Number of samples = 3
+
+            BBottles: compiled: (compilation 41.333 msec, execution  4028. msec); interpreted: 13030. msec; speedup: 3.2349 x; saved: 68.770 %
+                BFac: compiled: (compilation 30.667 msec, execution  2767. msec); interpreted: 34552. msec; speedup: 12.487 x; saved: 91.903 %
+                BFib: compiled: (compilation    34. msec, execution  2818. msec); interpreted: 35673. msec; speedup: 12.659 x; saved: 92.005 %
+           BMarriage: compiled: (compilation 280.67 msec, execution  3137. msec); interpreted:  6440. msec; speedup: 2.0529 x; saved: 46.931 %
+      BSendMoreMoney: compiled: (compilation 40.667 msec, execution 10061. msec); interpreted: 72657. msec; speedup: 7.2216 x; saved: 86.097 %
+             BSudoku: compiled: (compilation   323. msec, execution  4412. msec); interpreted: 45532. msec; speedup: 10.320 x; saved: 89.601 %
+           BTemplate: compiled: (compilation    42. msec, execution  1922. msec); interpreted: 41209. msec; speedup: 21.441 x; saved: 95.234 %
+Average speedup: 9.9166
+Minimal speedup: 2.0529
+Maximal speedup: 21.441
+Total time: compiled: 29937.33333337; interpreted: 249093; saved: 87.981%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+Bottles & 4028 & 13030 & 3.2 \\ \hline
+Fac & 2767 & 34552 & 12.5 \\ \hline
+Fib & 2818 & 35673 & 12.7 \\ \hline
+Marriage & 3137 & 6440 & 2.1 \\ \hline
+SendMoreMoney & 10061 & 72657 & 7.2 \\ \hline
+Sudoku & 4412 & 45532 & 10.3 \\ \hline
+Template & 1922 & 41209 & 21.4 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{9.9} \\ \hline
+\end{tabular}
+==================================================
+
+Each benchmark is now first compiled and the compilation time is not taken into account any more.
+("compilation" is now actually load time)
+
+Summary of Measurements $2014-01-07T19:08:53.174+01:00$:
+
+Number of samples = 3
+BCompareComprehension: compiled: (compilation    85. msec, execution  8858. msec); interpreted: 1.1380E+5 msec; speedup: 12.847 x; saved: 92.141 %
+         BCompareFor: compiled: (compilation 402.67 msec, execution  9264. msec); interpreted: 18798. msec; speedup: 2.0291 x; saved: 48.576 %
+          BCompareIf: compiled: (compilation   143. msec, execution  7660. msec); interpreted: 1.2133E+5 msec; speedup: 15.839 x; saved: 93.569 %
+              BEmpty: compiled: (compilation    79. msec, execution    95. msec); interpreted:     0. msec; speedup:     0. x; saved: -17400. %
+         BExceptions: compiled: (compilation 93.333 msec, execution  1903. msec); interpreted: 36139. msec; speedup: 18.991 x; saved: 94.476 %
+  BExceptionsFinally: compiled: (compilation 89.667 msec, execution   222. msec); interpreted:  8174. msec; speedup: 36.820 x; saved: 96.187 %
+                BFor: compiled: (compilation 62.667 msec, execution  2319. msec); interpreted: 38238. msec; speedup: 16.489 x; saved: 93.771 %
+            BForCond: compiled: (compilation    61. msec, execution  2631. msec); interpreted: 39793. msec; speedup: 15.125 x; saved: 93.235 %
+         BListMatch1: compiled: (compilation 89.333 msec, execution 28745. msec); interpreted: 1.1263E+5 msec; speedup: 3.9184 x; saved: 74.400 %
+         BListMatch2: compiled: (compilation 148.33 msec, execution 16709. msec); interpreted: 55178. msec; speedup: 3.3023 x; saved: 69.449 %
+         BListMatch3: compiled: (compilation 61.667 msec, execution 15505. msec); interpreted: 13921. msec; speedup: 0.89784 x; saved: -11.821 %
+           BReverse1: compiled: (compilation 59.667 msec, execution 14551. msec); interpreted: 49174. msec; speedup: 3.3794 x; saved: 70.288 %
+               BSet1: compiled: (compilation 71.667 msec, execution  2856. msec); interpreted: 1.0085E+5 msec; speedup: 35.313 x; saved: 97.097 %
+          BSetMatch1: compiled: (compilation    72. msec, execution  8368. msec); interpreted: 57234. msec; speedup: 6.8396 x; saved: 85.254 %
+          BSetMatch2: compiled: (compilation    69. msec, execution  2002. msec); interpreted: 25849. msec; speedup: 12.912 x; saved: 91.988 %
+          BSetMatch3: compiled: (compilation    55. msec, execution  5617. msec); interpreted: 35303. msec; speedup: 6.2850 x; saved: 83.933 %
+             BVisit1: compiled: (compilation 59.667 msec, execution  8546. msec); interpreted:  9626. msec; speedup: 1.1264 x; saved: 10.600 %
+             BVisit2: compiled: (compilation 161.33 msec, execution 45126. msec); interpreted: 12113. msec; speedup: 0.26843 x; saved: -273.87 %
+             BVisit3: compiled: (compilation 72.333 msec, execution 20030. msec); interpreted: 24624. msec; speedup: 1.2294 x; saved: 18.363 %
+              BWhile: compiled: (compilation    52. msec, execution   771. msec); interpreted: 76498. msec; speedup: 99.219 x; saved: 98.924 %
+Average speedup: 14.641
+Minimal speedup: 0.
+Maximal speedup: 99.219
+Total time: compiled: 203766.33333331; interpreted: 949273; saved: 78.534%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+CompareComprehension & 8858 & 113795 & 12.8 \\ \hline
+CompareFor & 9264 & 18798 & 2.0 \\ \hline
+CompareIf & 7660 & 121329 & 15.8 \\ \hline
+Empty & 95 & 0 & 0.0 \\ \hline
+Exceptions & 1903 & 36139 & 19.0 \\ \hline
+ExceptionsFinally & 222 & 8174 & 36.8 \\ \hline
+For & 2319 & 38238 & 16.5 \\ \hline
+ForCond & 2631 & 39793 & 15.1 \\ \hline
+ListMatch1 & 28745 & 112634 & 3.9 \\ \hline
+ListMatch2 & 16709 & 55178 & 3.3 \\ \hline
+ListMatch3 & 15505 & 13921 & 0.9 \\ \hline
+Reverse1 & 14551 & 49174 & 3.4 \\ \hline
+Set1 & 2856 & 100853 & 35.3 \\ \hline
+SetMatch1 & 8368 & 57234 & 6.8 \\ \hline
+SetMatch2 & 2002 & 25849 & 12.9 \\ \hline
+SetMatch3 & 5617 & 35303 & 6.3 \\ \hline
+Visit1 & 8546 & 9626 & 1.1 \\ \hline
+Visit2 & 45126 & 12113 & 0.3 \\ \hline
+Visit3 & 20030 & 24624 & 1.2 \\ \hline
+While & 771 & 76498 & 99.2 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{14.6} \\ \hline
+\end{tabular}
+
+Summary of Measurements $2014-01-07T19:30:46.362+01:00$:
+
+Number of samples = 3
+            BBottles: compiled: (compilation 87.667 msec, execution  9303. msec); interpreted: 17840. msec; speedup: 1.9177 x; saved: 47.362 %
+                BFac: compiled: (compilation 109.33 msec, execution  3713. msec); interpreted: 57329. msec; speedup: 15.440 x; saved: 93.333 %
+                BFib: compiled: (compilation 62.667 msec, execution  3425. msec); interpreted: 56494. msec; speedup: 16.495 x; saved: 93.826 %
+           BMarriage: compiled: (compilation 889.33 msec, execution  4577. msec); interpreted:  9488. msec; speedup: 2.0730 x; saved: 42.387 %
+      BSendMoreMoney: compiled: (compilation    55. msec, execution 12426. msec); interpreted: 1.1608E+5 msec; speedup: 9.3413 x; saved: 89.247 %
+             BSudoku: compiled: (compilation 614.33 msec, execution  6069. msec); interpreted: 71783. msec; speedup: 11.828 x; saved: 90.690 %
+           BTemplate: compiled: (compilation 64.333 msec, execution  2789. msec); interpreted: 58548. msec; speedup: 20.992 x; saved: 95.127 %
+Average speedup: 11.155
+Minimal speedup: 1.9177
+Maximal speedup: 20.992
+Total time: compiled: 44184.66666657; interpreted: 387557; saved: 88.599%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+Bottles & 9303 & 17840 & 1.9 \\ \hline
+Fac & 3713 & 57329 & 15.4 \\ \hline
+Fib & 3425 & 56494 & 16.5 \\ \hline
+Marriage & 4577 & 9488 & 2.1 \\ \hline
+SendMoreMoney & 12426 & 116075 & 9.3 \\ \hline
+Sudoku & 6069 & 71783 & 11.8 \\ \hline
+Template & 2789 & 58548 & 21.0 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{11.2} \\ \hline
+\end{tabular}
+
+==================================================
+
+After merge with muOr/muAnd branch
+
+Summary of Measurements $2014-01-11T20:38:58.947+01:00$:
+
+Number of samples = 3
+BCompareComprehension: compiled: (compilation 93.333 msec, execution  8868. msec); interpreted: 1.1258E+5 msec; speedup: 12.695 x; saved: 92.040 %
+         BCompareFor: compiled: (compilation 149.33 msec, execution  9654. msec); interpreted: 17857. msec; speedup: 1.8497 x; saved: 45.101 %
+          BCompareIf: compiled: (compilation    86. msec, execution  7308. msec); interpreted: 1.1586E+5 msec; speedup: 15.854 x; saved: 93.618 %
+              BEmpty: compiled: (compilation 137.33 msec, execution   140. msec); interpreted:     0. msec; speedup:     0. x; saved: -27733. %
+         BExceptions: compiled: (compilation 174.67 msec, execution  1981. msec); interpreted: 35247. msec; speedup: 17.793 x; saved: 93.884 %
+  BExceptionsFinally: compiled: (compilation 99.667 msec, execution   222. msec); interpreted:  8093. msec; speedup: 36.455 x; saved: 96.025 %
+                BFor: compiled: (compilation    70. msec, execution  2479. msec); interpreted: 39678. msec; speedup: 16.006 x; saved: 93.576 %
+            BForCond: compiled: (compilation    69. msec, execution  2947. msec); interpreted: 40596. msec; speedup: 13.775 x; saved: 92.571 %
+         BListMatch1: compiled: (compilation 70.667 msec, execution 31675. msec); interpreted: 1.1313E+5 msec; speedup: 3.5716 x; saved: 71.939 %
+         BListMatch2: compiled: (compilation   121. msec, execution 18702. msec); interpreted: 54376. msec; speedup: 2.9075 x; saved: 65.384 %
+         BListMatch3: compiled: (compilation 81.667 msec, execution 18216. msec); interpreted: 13089. msec; speedup: 0.71854 x; saved: -39.794 %
+           BReverse1: compiled: (compilation 72.333 msec, execution 15475. msec); interpreted: 49044. msec; speedup: 3.1692 x; saved: 68.299 %
+               BSet1: compiled: (compilation    62. msec, execution  2826. msec); interpreted: 1.0328E+5 msec; speedup: 36.545 x; saved: 97.204 %
+          BSetMatch1: compiled: (compilation    81. msec, execution  8486. msec); interpreted: 57155. msec; speedup: 6.7352 x; saved: 85.011 %
+          BSetMatch2: compiled: (compilation 67.667 msec, execution  3911. msec); interpreted: 26587. msec; speedup: 6.7980 x; saved: 85.035 %
+          BSetMatch3: compiled: (compilation   101. msec, execution  5218. msec); interpreted: 36267. msec; speedup: 6.9504 x; saved: 85.334 %
+             BVisit1: compiled: (compilation 69.333 msec, execution  9812. msec); interpreted:  9495. msec; speedup: 0.96769 x; saved: -4.0688 %
+             BVisit2: compiled: (compilation 995.33 msec, execution 76985. msec); interpreted: 11519. msec; speedup: 0.14963 x; saved: -576.97 %
+             BVisit3: compiled: (compilation 80.667 msec, execution 23475. msec); interpreted: 22618. msec; speedup: 0.96349 x; saved: -4.1457 %
+              BWhile: compiled: (compilation 62.333 msec, execution   828. msec); interpreted: 76287. msec; speedup: 92.134 x; saved: 98.833 %
+Average speedup: 13.802
+Minimal speedup: 0.
+Maximal speedup: 92.134
+Total time: compiled: 251952.33333327; interpreted: 942749; saved: 73.275%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+CompareComprehension & 8868 & 112575 & 12.7 \\ \hline
+CompareFor & 9654 & 17857 & 1.8 \\ \hline
+CompareIf & 7308 & 115859 & 15.9 \\ \hline
+Empty & 140 & 0 & 0.0 \\ \hline
+Exceptions & 1981 & 35247 & 17.8 \\ \hline
+ExceptionsFinally & 222 & 8093 & 36.5 \\ \hline
+For & 2479 & 39678 & 16.0 \\ \hline
+ForCond & 2947 & 40596 & 13.8 \\ \hline
+ListMatch1 & 31675 & 113131 & 3.6 \\ \hline
+ListMatch2 & 18702 & 54376 & 2.9 \\ \hline
+ListMatch3 & 18216 & 13089 & 0.7 \\ \hline
+Reverse1 & 15475 & 49044 & 3.2 \\ \hline
+Set1 & 2826 & 103276 & 36.5 \\ \hline
+SetMatch1 & 8486 & 57155 & 6.7 \\ \hline
+SetMatch2 & 3911 & 26587 & 6.8 \\ \hline
+SetMatch3 & 5218 & 36267 & 7.0 \\ \hline
+Visit1 & 9812 & 9495 & 1.0 \\ \hline
+Visit2 & 76985 & 11519 & 0.1 \\ \hline
+Visit3 & 23475 & 22618 & 1.0 \\ \hline
+While & 828 & 76287 & 92.1 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{13.8} \\ \hline
+\end{tabular}
+
+Summary of Measurements $2014-01-11T21:00:33.132+01:00$:
+
+Number of samples = 3
+            BBottles: compiled: (compilation 90.333 msec, execution  9316. msec); interpreted: 16012. msec; speedup: 1.7188 x; saved: 41.254 %
+                BFac: compiled: (compilation    66. msec, execution  3430. msec); interpreted: 55717. msec; speedup: 16.244 x; saved: 93.725 %
+                BFib: compiled: (compilation    70. msec, execution  3274. msec); interpreted: 55711. msec; speedup: 17.016 x; saved: 93.998 %
+           BMarriage: compiled: (compilation   847. msec, execution  4564. msec); interpreted:  9064. msec; speedup: 1.9860 x; saved: 40.302 %
+      BSendMoreMoney: compiled: (compilation    74. msec, execution 12885. msec); interpreted: 1.1711E+5 msec; speedup: 9.0890 x; saved: 88.935 %
+             BSudoku: compiled: (compilation   586. msec, execution  5751. msec); interpreted: 72932. msec; speedup: 12.682 x; saved: 91.311 %
+           BTemplate: compiled: (compilation    71. msec, execution  2667. msec); interpreted: 55595. msec; speedup: 20.846 x; saved: 95.075 %
+Average speedup: 11.369
+Minimal speedup: 1.7188
+Maximal speedup: 20.846
+Total time: compiled: 43691.33333333; interpreted: 382143; saved: 88.567%
+\begin{tabular}{| l | r | r | r |} \hline
+\textbf{Name} & \textbf{Compiled} & \textbf{Interpreted} & \textbf{Speedup} \\ \hline \hline
+Bottles & 9316 & 16012 & 1.7 \\ \hline
+Fac & 3430 & 55717 & 16.2 \\ \hline
+Fib & 3274 & 55711 & 17.0 \\ \hline
+Marriage & 4564 & 9064 & 2.0 \\ \hline
+SendMoreMoney & 12885 & 117112 & 9.1 \\ \hline
+Sudoku & 5751 & 72932 & 12.7 \\ \hline
+Template & 2667 & 55595 & 20.8 \\ \hline
+\textbf{Average Speedup}&   &  & \textbf{11.4} \\ \hline
+\end{tabular}
+==================================================

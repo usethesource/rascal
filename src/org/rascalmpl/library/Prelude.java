@@ -1087,8 +1087,8 @@ public class Prelude {
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
-		try {
-			return consumeInputStream(sloc, ctx.getResolverRegistry().getCharacterReader(sloc.getURI(), charset.getValue()), ctx);
+		try (Reader reader = ctx.getResolverRegistry().getCharacterReader(sloc.getURI(), charset.getValue())){
+			return consumeInputStream(sloc, reader, ctx);
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
 		} catch (IOException e) {

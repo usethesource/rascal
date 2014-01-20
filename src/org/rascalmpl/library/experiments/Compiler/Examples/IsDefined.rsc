@@ -1,6 +1,6 @@
 module experiments::Compiler::Examples::IsDefined
 
-import Exception;
+//import Exception;
 
 value main(list[value] args) {
 	str trace = "";
