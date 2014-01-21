@@ -12,7 +12,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module IO
 
-import Exception;
+//import Exception;
 
 @doc{
 Synopsis: Append a value to a file.
