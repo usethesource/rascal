@@ -101,7 +101,7 @@ public void initialize(loc project) {
 import util::HtmlDisplay;
 */
 public void main() {
-    initialize(|project://dotplugin|);
+    initialize(|project://ambidexter|);
     str body1 = barChart(
     title="First example" 
     ,x_axis = "src"
