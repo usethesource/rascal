@@ -139,9 +139,9 @@ public str barChart(
         ,
         expr(isNull(y_axis2[0])?"":"<mySeries2>.aggregate=dimple.aggregateMethod.<y_axis2[1]>")
         ,
-        expr("if (<y1>) <y1>.showPercent=<y_axis[4]>")
+        expr(y_axis[4]?"if (<y1>) <y1>.showPercent=<y_axis[4]>":"")
         ,
-        expr("if (<y2>) <y2>.showPercent=<y_axis2[4]>")
+        expr(y_axis[4]?"if (<y2>) <y2>.showPercent=<y_axis2[4]>":"")
         ,
         expr(chart.draw(myChart))
         );
