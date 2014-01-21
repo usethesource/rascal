@@ -130,7 +130,7 @@ int getFormals(loc l)    = size(fuid2type[loc2uid[l]].parameters) + 1; // '+ 1' 
 // Compute the scope size, excluding declared nested functions, closures and keyword parameters
 int getScopeSize(str fuid) =  // r2mu translation of functions introduces variables in place of formal parameter patterns
 							  // and uses patterns to match these variables 
-						      size(fuid2type[invertUnique(fuid2str)[fuid]].parameters)
+							  size(fuid2type[invertUnique(fuid2str)[fuid]].parameters)
 						    + size({ pos | int pos <- range(uid2addr)[fuid], pos != -1 })
 						    + 2 // '+ 2' accounts for keyword arguments and default values of keyword parameters 
 						    ;
@@ -228,8 +228,8 @@ void extractScopes(){
                                              // Fill in fuid2type to enable more precise overloading resolution
                                              fuid2type[uid] = rtype;
                                              // Check if the function is default
-                                             println(config.store[uid]);
-                                             println(config.functionModifiers[uid]);
+                                             //println(config.store[uid]);
+                                             //println(config.functionModifiers[uid]);
                                              if(defaultModifier() in config.functionModifiers[uid]) {
                                              	defaultFunctions += {uid};
                                              }
@@ -248,7 +248,7 @@ void extractScopes(){
                                                  loc2uid[l] = uid;
                                              }
                                            }
-        case constructor(rname,rtype,
+        case constructor(rname,rtype,_,
                          inScope,src):     { 
         									 constructors += {uid};
         									 declares += {<inScope, uid>};
@@ -263,16 +263,18 @@ void extractScopes(){
         								   }
         case production(rname,rtype,
                         inScope,src):      {
-                                             constructors += {uid};
-                                             declares += {<inScope, uid>};
-                                             loc2uid[src] = uid;
-                                             for(l <- config.uses[uid]) {
-                                                 loc2uid[l] = uid;
+                                             if(!isEmpty(getSimpleName(rname))) {
+                                             	constructors += {uid};
+                                             	declares += {<inScope, uid>};
+                                             	loc2uid[src] = uid;
+                                             	for(l <- config.uses[uid]) {
+                                                  loc2uid[l] = uid;
+                                             	}
+                                             	// Fill in uid2name
+                                             	uid2name[uid] = getPUID(getSimpleName(rname),rtype);
+                                             	// Fill in fuid2type to enable more precise overloading resolution
+                                             	fuid2type[uid] = rtype;
                                              }
-                                             // Fill in uid2name
-                                             uid2name[uid] = getPUID(getSimpleName(rname),rtype);
-                                             // Fill in fuid2type to enable more precise overloading resolution
-                                             fuid2type[uid] = rtype;
                                            }
         case blockScope(inScope,src):      { 
         								     containment += {<inScope, uid>};
@@ -289,12 +291,12 @@ void extractScopes(){
         								     containment += {<inScope, uid>}; 
         									 loc2uid[src] = uid;
         									 // Fill in uid2name
-        									 if(bscopes[uid]?) {
-        									    bscopes[uid] = bscopes[uid] + 1;
+        									 if(bscopes[inScope]?) {
+        									    bscopes[inScope] = bscopes[inScope] + 1;
         									 } else {
-        									    bscopes[uid] = 0;
+        									    bscopes[inScope] = 0;
         									 }
-        									 uid2name[uid] = "bscope#<bscopes[uid]>";
+        									 uid2name[uid] = "bscope#<bscopes[inScope]>";
         								   }
         case closure(rtype,keywordParams,
                        inScope,src):       {
@@ -302,12 +304,12 @@ void extractScopes(){
                                              declares += {<inScope, uid>};
         									 loc2uid[src] = uid;
         									 // Fill in uid2name
-        									 if(closures[uid]?) {
-        									    closures[uid] = closures[uid] + 1;
+        									 if(closures[inScope]?) {
+        									    closures[inScope] = closures[inScope] + 1;
         									 } else {
-        									    closures[uid] = 0;
+        									    closures[inScope] = 0;
         									 }
-        									 uid2name[uid] = "closure#<closures[uid]>";
+        									 uid2name[uid] = "closure#<closures[inScope]>";
         									 fuid2type[uid] = rtype;
         								   }
         case \module(RName rname, loc at):  {
@@ -332,7 +334,7 @@ void extractScopes(){
     	// Then, functions
     	topdecls = [ uid | uid <- declares[muid], function(_,_,_,_,_,_,_) := config.store[uid] ||
     											  closure(_,_,_,_)        := config.store[uid] ||
-    											  constructor(_,_,_,_)  := config.store[uid] ||
+    											  constructor(_,_,_,_,_)  := config.store[uid] ||
     											  variable(_,_,_,_,_)   := config.store[uid] ];
     	for(i <- index(topdecls)) {
     		// functions and closures are identified by their qualified names, and they do not have a position in their scope
@@ -380,11 +382,13 @@ void extractScopes(){
     
     // Fill in uid2addr for overloaded functions;
     for(int fuid <- ofunctions) {
-    	set[int] funs = config.store[fuid].items;
+        set[int] funs = config.store[fuid].items;
+    	if(int fuid <- funs, production(rname,_,_,_) := config.store[fuid] && isEmpty(getSimpleName(rname)))
+    	    continue;
     	set[str] scopes = {};
     	str scopeIn = uid2str(0);
     	for(int fuid <- funs) {
-    		funScopeIn = uid2addr[fuid].fuid;
+    	    funScopeIn = uid2addr[fuid].fuid;
     		if(funScopeIn notin moduleNames) {
     			scopes += funScopeIn;
     		}
@@ -398,7 +402,7 @@ void extractScopes(){
 }
 
 str getFUID(str fname, Symbol \type) { 
-    println("getFUID: <fname>, <\type>");
+    //println("getFUID: <fname>, <\type>");
     return "<fname>(<for(p<-\type.parameters){><p>;<}>)";
 }
 
@@ -456,3 +460,16 @@ public bool hasField(Symbol s, str fieldName){
 
 public int getTupleFieldIndex(Symbol s, str fieldName) = 
     indexOf(getTupleFieldNames(s), fieldName);
+
+public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
+     containmentPlus = containment+;
+     set[int] decls = {};
+     if(int uid <- config.store, blockScope(int _, l) := config.store[uid]) {
+         set[int] innerScopes = containmentPlus[uid];
+         for(int inScope <- innerScopes) {
+             decls = decls + declares[inScope];
+         }
+         return { addr | int decl <- decls, tuple[str fuid,int pos] addr := uid2addr[decl] };
+     }
+     throw "Block scope at <l> has not been found!";
+}

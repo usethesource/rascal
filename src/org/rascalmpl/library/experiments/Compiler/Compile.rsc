@@ -30,6 +30,10 @@ RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false){
     if(!recompile && exists(rvmProgramLoc) && lastModified(rvmProgramLoc) > lastModified(moduleLoc)){
        try {
   	       rvmProgram = readTextValueFile(#RVMProgram, rvmProgramLoc);
+  	       
+  	       // Temporary work around related to issue #343
+  	       rvmProgram = visit(rvmProgram) { case type[value] t => type(t.symbol,t.definitions) }
+  	       
   	       println("rascal2rvm: Using compiled version <rvmProgramLoc>");
   	       return rvmProgram;
   	   } catch x: println("rascal2rvm: Reading <rvmProgramLoc> did not succeed: <x>");
@@ -42,9 +46,8 @@ RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false){
    	}
    	rvmProgram = mu2rvm(muMod, listing=listing);                          
 
-   	println("rascal2rvm: about to write compiled version <rvmProgramLoc>");
-   	writeTextValueFile(rvmProgramLoc, rvmProgram);
    	println("rascal2rvm: Writing compiled version <rvmProgramLoc>");
+   	writeTextValueFile(rvmProgramLoc, rvmProgram);
    	
    	return rvmProgram;
 }

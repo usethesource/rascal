@@ -9,6 +9,7 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -42,7 +43,7 @@ public class Execute {
 								 IList imported_functions,
 								 IList imported_overloaded_functions,
 								 IMap imported_overloading_resolvers,
-								 IMap imported_grammars, IList argumentsAsList,
+								 IList argumentsAsList,
 								 IBool debug, IBool testsuite, IBool profile, IEvaluatorContext ctx) {
 		
 		boolean isTestSuite = testsuite.getValue();
@@ -128,9 +129,6 @@ public class Execute {
 		rvm.addResolver((IMap) program.get("resolver"));
 		rvm.fillOverloadedStore((IList) program.get("overloaded_functions"));
 		
-		// Grammars
-		rvm.setGrammars(imported_grammars);
-		
 		IValue[] arguments = new IValue[argumentsAsList.length()];
 		for(int i = 0; i < argumentsAsList.length(); i++){
 			arguments[i] = argumentsAsList.get(i);
@@ -152,38 +150,13 @@ public class Execute {
 				 * Execute as testsuite
 				 */
 				rvm.executeProgram(uid_module_init, arguments);
-				int number_of_successes = 0;
-				int number_of_failures = 0;
-			
-				stdout.println("\nTEST REPORT\n");
+
+				IListWriter w = vf.listWriter();
 				for(String uid_testsuite: testsuites){
 					IList test_results = (IList)rvm.executeProgram(uid_testsuite, arguments);
-					for(IValue voutcome : test_results){
-						ITuple outcome = (ITuple) voutcome;
-						String tst_name = ((ISourceLocation) outcome.get(0)).toString();
-						//tst_name = tst_name.substring(1, tst_name.length()); // remove leading /
-						//tst_name = tst_name.replaceAll("/", "::");
-					
-						boolean passed = ((IBool) outcome.get(1)).getValue();
-						String exception = ((IString) outcome.get(2)).getValue();
-						if(!exception.isEmpty()){
-							exception = "; Unexpected exception: " + exception;
-						}
-					
-						if(passed){
-							number_of_successes++;
-						} else {
-							number_of_failures++;
-						}
-						if(!passed)
-							stdout.println(tst_name + ": FALSE" + exception);
-					}
+					w.insertAll(test_results);
 				}
-				int number_of_tests = number_of_successes + number_of_failures;
-				stdout.println("\nExecuted " + number_of_tests + " tests: "  
-						+ number_of_successes + " succeeded; "
-						+ number_of_failures + " failed.\n");
-				result = vf.tuple(vf.integer(number_of_successes), vf.integer(number_of_failures));
+				result = w.done();
 			} else {
 				/*
 				 * Standard execution of main function
@@ -440,8 +413,8 @@ public class Execute {
 				codeblock.TYPESWITCH((IList)instruction.get("labels"));
 				break;
 				
-			case "UNWRAPTHROWN":
-				codeblock.UNWRAPTHROWN(getIntField(instruction, "pos"));
+			case "UNWRAPTHROWNLOC":
+				codeblock.UNWRAPTHROWNLOC(getIntField(instruction, "pos"));
 				break;
 				
 			case "FILTERRETURN":
@@ -514,6 +487,10 @@ public class Execute {
 				
 			case "STOREVARKWP":
 				codeblock.STOREVARKWP(getStrField(instruction, "fuid"), getStrField(instruction, "name"));
+				break;
+				
+			case "UNWRAPTHROWNVAR":
+				codeblock.UNWRAPTHROWNVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
 				break;
 				
 			default:

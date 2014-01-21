@@ -67,7 +67,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.S
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptList;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubtractInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrown;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownLoc;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
@@ -557,8 +558,8 @@ public class CodeBlock {
 		return add(new TypeSwitch(this, labels));
 	}
 	
-	public CodeBlock UNWRAPTHROWN(int pos) {
-		return add(new UnwrapThrown(this, pos));
+	public CodeBlock UNWRAPTHROWNLOC(int pos) {
+		return add(new UnwrapThrownLoc(this, pos));
 	}
 	
 	public CodeBlock FILTERRETURN(){
@@ -631,6 +632,10 @@ public class CodeBlock {
 	
 	public CodeBlock STOREVARKWP(String fuid, String name) {
 		return add(new StoreVarKwp(this, fuid, name));
+	}
+	
+	public CodeBlock UNWRAPTHROWNVAR(String fuid, int pos) {
+		return add(new UnwrapThrownVar(this, fuid, pos));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {

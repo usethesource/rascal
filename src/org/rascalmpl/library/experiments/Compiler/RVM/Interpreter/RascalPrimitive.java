@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -51,6 +50,7 @@ import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 /*
  * The primitives that can be called via the CALLPRIM instruction.
@@ -207,9 +207,12 @@ public enum RascalPrimitive {
 	datetime_greater_datetime,
 	list_greater_list,
 	loc_greater_loc,
+	lrel_greater_lrel,
 	node_greater_node,
 	map_greater_map,
+	rel_greater_rel,
 	set_greater_set,
+	
 	str_greater_str,
 	tuple_greater_tuple,
 	
@@ -242,8 +245,10 @@ public enum RascalPrimitive {
 	datetime_greaterequal_datetime,
 	list_greaterequal_list,
 	loc_greaterequal_loc,
+	lrel_greaterequal_lrel,
 	node_greaterequal_node,
 	map_greaterequal_map,
+	rel_greaterequal_rel,
 	set_greaterequal_set,
 	str_greaterequal_str,
 	tuple_greaterequal_tuple,
@@ -333,9 +338,11 @@ public enum RascalPrimitive {
 	bool_less_bool,
 	datetime_less_datetime,
 	list_less_list,
+	lrel_less_lrel,
 	loc_less_loc,
 	map_less_map,
 	node_less_node,
+	rel_less_rel,
 	set_less_set,
 	str_less_str,
 	tuple_less_tuple,
@@ -369,8 +376,10 @@ public enum RascalPrimitive {
 	datetime_lessequal_datetime,
 	list_lessequal_list,
 	loc_lessequal_loc,
+	lrel_lessequal_lrel,
 	map_lessequal_map,
 	node_lessequal_node,
+	rel_lessequal_rel,
 	set_lessequal_set,
 	str_lessequal_str,
 	tuple_lessequal_tuple,
@@ -428,6 +437,10 @@ public enum RascalPrimitive {
 	node_replace,
 	node_subscript_int,
 	node_slice,
+	
+	// nonterminal
+	
+	nonterminal_field_access,
 	
 	// notequal
 	
@@ -588,6 +601,7 @@ public enum RascalPrimitive {
 	lrel_subtract_lrel,
 	lrel_subtract_list,
 	map_subtract_map,
+	rel_subtract_elm,
 	rel_subtract_rel,
 	rel_subtract_set,
 	set_subtract_elm,
@@ -635,6 +649,7 @@ public enum RascalPrimitive {
 	tuple_update,
 
 	// type
+	elementTypeOf,
 	type_equal_type,
 	subtype,
 	typeOf,
@@ -883,6 +898,10 @@ public enum RascalPrimitive {
 				return int_add_real(stack, sp, arity);
 			case RAT:
 				return int_add_rat(stack, sp, arity);
+			case LIST:
+				return elm_add_list(stack, sp, arity);
+			case SET:
+				return elm_add_list(stack, sp, arity);
 			default:
 				throw new RuntimeException("Illegal type combination: "
 						+ lhsType + " and " + rhsType);
@@ -897,6 +916,10 @@ public enum RascalPrimitive {
 				return num_add_real(stack, sp, arity);
 			case RAT:
 				return num_add_rat(stack, sp, arity);
+			case LIST:
+				return elm_add_list(stack, sp, arity);
+			case SET:
+				return elm_add_list(stack, sp, arity);
 			default:
 				throw new RuntimeException("Illegal type combination: "
 						+ lhsType + " and " + rhsType);
@@ -911,6 +934,10 @@ public enum RascalPrimitive {
 				return real_add_real(stack, sp, arity);
 			case RAT:
 				return real_add_rat(stack, sp, arity);
+			case LIST:
+				return elm_add_list(stack, sp, arity);
+			case SET:
+				return elm_add_list(stack, sp, arity);
 			default:
 				throw new RuntimeException("Illegal type combination: "
 						+ lhsType + " and " + rhsType);
@@ -925,6 +952,10 @@ public enum RascalPrimitive {
 				return rat_add_real(stack, sp, arity);
 			case RAT:
 				return rat_add_rat(stack, sp, arity);
+			case LIST:
+				return elm_add_list(stack, sp, arity);
+			case SET:
+				return elm_add_list(stack, sp, arity);
 			default:
 				throw new RuntimeException("Illegal type combination: "
 						+ lhsType + " and " + rhsType);
@@ -1775,7 +1806,11 @@ public enum RascalPrimitive {
 	 */
 	public static int adt_field_access(Object[] stack, int sp, int arity) {
 		assert arity == 2;
-		stack[sp - 2] = ((IConstructor) stack[sp - 2]).get(((IString) stack[sp - 1]).getValue());
+		IConstructor cons = (IConstructor) stack[sp - 2];
+		String fieldName = ((IString) stack[sp - 1]).getValue();
+		Type tp = cons.getConstructorType();
+		int fld_index = tp.getFieldIndex(fieldName);
+		stack[sp - 2] = cons.get(fld_index);
 		return sp - 1;
 	}
 	
@@ -2461,8 +2496,28 @@ public enum RascalPrimitive {
 		assert arity == 2;
 		IConstructor reified = (IConstructor) stack[sp - 2];
 		String field = ((IString) stack[sp - 1]).getValue();
-		stack[sp - 1] = reified.get(field);
+		stack[sp - 2] = reified.get(field);
 		return sp - 1;
+	}
+	
+	public static int nonterminal_field_access(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IConstructor appl = (IConstructor) stack[sp - 2];
+		IList appl_args = (IList) appl.get("args");
+		IConstructor prod = (IConstructor) appl.get("prod");
+		IList prod_symbols = (IList) prod.get("symbols");
+		IString field = ((IString) stack[sp - 1]);
+		
+		for(int i = 0; i < prod_symbols.length(); i++){
+			IConstructor arg = (IConstructor) prod_symbols.get(i);
+			if(arg.getName().equals("label")){
+				if(((IString) arg.get(0)).equals(field)){
+					stack[sp - 2] = appl_args.get(i);
+					return sp - 1;
+				}
+			}
+		}
+		throw RuntimeExceptions.noSuchField(field.getValue(), null, new ArrayList<Frame>());
 	}
 	
 	
@@ -2584,19 +2639,20 @@ public enum RascalPrimitive {
 	public static int map_field_project(Object[] stack, int sp, int arity) {
 		assert arity >= 2;
 		IMap map = (IMap) stack[sp - arity];
-		int[] fields = new int[arity - 1];
+		int indexArity = arity - 1;
+		int[] fields = new int[indexArity];
 		for(int i = 1; i < arity; i++){
 			fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
 		}
 		ISetWriter w = vf.setWriter();
-		IValue[] elems = new IValue[arity - 1];
+		IValue[] elems = new IValue[indexArity];
 		Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
 		while (iter.hasNext()) {
 			Entry<IValue,IValue> entry = iter.next();
 			for(int j = 0; j < fields.length; j++){
 				elems[j] = fields[j] == 0 ? entry.getKey() : entry.getValue();
 			}
-			w.insert(vf.tuple(elems));
+			w.insert((indexArity > 1) ? vf.tuple(elems) : elems[0]);
 		}
 		stack[sp - arity] = w.done();
 		return sp - arity + 1;
@@ -2731,6 +2787,12 @@ public enum RascalPrimitive {
 		return spnew;
 	}
 	
+	public static int lrel_greater_lrel(Object[] stack, int sp, int arity) {
+		int spnew = list_lessequal_list(stack, sp, arity);
+		stack[sp - 2] = ! (Boolean) stack[sp - 2];
+		return spnew;
+	}
+	
 	public static int loc_greater_loc(Object[] stack, int sp, int arity) {
 		int spnew = loc_lessequal_loc(stack, sp, arity);
 		stack[sp - 2] = ! (Boolean) stack[sp - 2];
@@ -2743,7 +2805,7 @@ public enum RascalPrimitive {
 		IMap right = (IMap) stack[sp - 1];
 		
 		stack[sp - 2] = right.isSubMap(left) && !left.isSubMap(right);
-		return arity - 1;
+		return sp - 1;
 	}
 	
 	public static int node_greater_node(Object[] stack, int sp, int arity) {
@@ -2753,6 +2815,12 @@ public enum RascalPrimitive {
 	}
 	
 	public static int set_greater_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]);
+		return sp - 1;
+	}
+	
+	public static int rel_greater_rel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]);
 		return sp - 1;
@@ -2891,6 +2959,12 @@ public enum RascalPrimitive {
 		return spnew;
 	}
 	
+	public static int lrel_greaterequal_lrel(Object[] stack, int sp, int arity) {
+		int spnew = list_less_list(stack, sp, arity);
+		stack[sp - 2] = !(Boolean)stack[sp - 2];
+		return spnew;
+	}
+	
 	public static int loc_greaterequal_loc(Object[] stack, int sp, int arity) {
 		int spnew = loc_less_loc(stack, sp, arity);
 		stack[sp - 2] = !(Boolean)stack[sp - 2];
@@ -2912,6 +2986,14 @@ public enum RascalPrimitive {
 	}
 	
 	public static int set_greaterequal_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet left = (ISet) stack[sp - 2];
+		ISet right = (ISet) stack[sp - 1];
+		stack[sp - 2] = left.isEqual(right) || right.isSubsetOf(left);
+		return sp - 1;
+	}
+	
+	public static int rel_greaterequal_rel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		ISet left = (ISet) stack[sp - 2];
 		ISet right = (ISet) stack[sp - 1];
@@ -3633,14 +3715,11 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-	public static int list_less_list(Object[] stack, int sp, int arity) {
-		assert arity == 2;
-		IList left = (IList) stack[sp - 2];
-		IList right = (IList) stack[sp - 1];
-		stack[sp - 2] = false;
+	private static boolean $list_less_list(IList left, IList right) {
+		boolean res = false;
 
 		if(left.length() > right.length()){
-			return sp - 1;
+			return res;
 		}
 		OUTER:for (int l = 0, r = 0; l < left.length(); l++) {
 			for (r = Math.max(l, r) ; r < right.length(); r++) {
@@ -3649,9 +3728,24 @@ public enum RascalPrimitive {
 					continue OUTER;
 				}
 			}
-			return sp - 1;
+			return res;
 		}
-		stack[sp - 2] = left.length() != right.length();
+		return left.length() != right.length();
+	}
+	
+	public static int list_less_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IList left = (IList) stack[sp - 2];
+		IList right = (IList) stack[sp - 1];
+		stack[sp - 2] = $list_less_list(left, right);
+		return sp - 1;
+	}
+	
+	public static int lrel_less_lrel(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IList left = (IList) stack[sp - 2];
+		IList right = (IList) stack[sp - 1];
+		stack[sp - 2] = $list_less_list(left, right);
 		return sp - 1;
 	}
 	
@@ -3692,7 +3786,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 		else if (compare == 0) {
-			stack[sp - 2] = true;
+			stack[sp - 2] = false;
 			return sp - 1;
 		}
 
@@ -3756,6 +3850,14 @@ public enum RascalPrimitive {
 	}
 	
 	public static int set_less_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet lhs = (ISet) stack[sp - 2];
+		ISet rhs = (ISet) stack[sp - 1];
+		stack[sp - 2] = !lhs.isEqual(rhs) && lhs.isSubsetOf(rhs);
+		return sp - 1;
+	}
+	
+	public static int rel_less_rel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		ISet lhs = (ISet) stack[sp - 2];
 		ISet rhs = (ISet) stack[sp - 1];
@@ -3967,17 +4069,14 @@ public enum RascalPrimitive {
 		return sp - 1;
 	}
 	
-	public static int list_lessequal_list(Object[] stack, int sp, int arity) {
-		IList left = (IList) stack[sp - 2];
-		IList right = (IList) stack[sp - 1];
+	private static boolean $list_lessequal_list(IList left, IList right) {
 
-		stack[sp - 2] = false;
+		boolean res = false;
 		if (left.length() == 0) {
-			stack[sp - 2] = true;
-			return sp - 1;
+			return true;
 		}
 		else if (left.length() > right.length()) {
-			return sp - 1;
+			return false;
 		}
 
 		OUTER:for (int l = 0, r = 0; l < left.length(); l++) {
@@ -3986,10 +4085,27 @@ public enum RascalPrimitive {
 					continue OUTER;
 				}
 			}
-			return sp - 1;
+			return res;
 		}
 
-		stack[sp - 2] = left.length() <= right.length();
+		return left.length() <= right.length();
+	}
+	
+	public static int list_lessequal_list(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IList left = (IList) stack[sp - 2];
+		IList right = (IList) stack[sp - 1];
+
+		stack[sp - 2] = $list_lessequal_list(left, right);
+		return sp - 1;
+	}
+	
+	public static int lrel_lessequal_lrel(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IList left = (IList) stack[sp - 2];
+		IList right = (IList) stack[sp - 1];
+
+		stack[sp - 2] = $list_lessequal_list(left, right);
 		return sp - 1;
 	}
 	
@@ -4030,7 +4146,7 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 		else if (compare == 0) {
-			stack[sp - 2] = false;
+			stack[sp - 2] = true;
 			return sp - 1;
 		}
 
@@ -4083,6 +4199,14 @@ public enum RascalPrimitive {
 	}
 	
 	public static int set_lessequal_set(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		ISet left = (ISet) stack[sp - 2];
+		ISet right = (ISet) stack[sp - 1];
+		stack[sp - 2] = left.isEqual(right) || left.isSubsetOf(right);
+		return sp - 1;
+	}	
+	
+	public static int rel_lessequal_rel(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		ISet left = (ISet) stack[sp - 2];
 		ISet right = (ISet) stack[sp - 1];
@@ -4302,7 +4426,11 @@ public enum RascalPrimitive {
 	public static int node_replace(Object[] stack, int sp, int arity) {
 		assert arity == 5;
 		INode node = (INode) stack[sp - 5];
-		SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), node.arity());
+		int nd_arity = node.arity();
+		if(node.get(nd_arity - 1).getType().isMap()){ // Take keyword map into consideration, when present
+			nd_arity--;
+		}
+		SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), nd_arity);
 		IList repl = (IList) stack[sp - 1];
 		stack[sp - 5] = node.replace(sd.first, sd.second, sd.end, repl);
 		return sp - 4;
@@ -4348,7 +4476,11 @@ public enum RascalPrimitive {
 		assert arity == 4;
 		
 		INode node = (INode) stack[sp - 4];
-		stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), node.arity()));
+		int nd_arity = node.arity();
+		if(node.get(nd_arity - 1).getType().isMap()){ // Take keyword map into consideration, when present
+				nd_arity--;
+		}
+		stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), nd_arity));
 		return sp - 3;
 	}
 
@@ -4782,22 +4914,28 @@ public enum RascalPrimitive {
 	}
 	
 	public static int testreport_add(Object[] stack, int sp, int arity) {
-		assert arity == 4; 
+		assert arity == 5; 
 
-		String fun = ((IString) stack[sp - 4]).getValue();
+		String fun = ((IString) stack[sp - 5]).getValue();
+		boolean ignore =  ((IBool) stack[sp - 4]).getValue();
 		String expected =  ((IString) stack[sp - 3]).getValue();
 		ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
-		//stdout.println("testreport_add: " + src);
-		Type argType = (Type) stack[sp - 1];
-		//IConstructor type_cons = ((IConstructor) stack[sp - 1]);
-		//Type argType = typeReifier.valueToType(type_cons);
-		//IMap definitions = (IMap) type_cons.get("definitions");
+		//stdout.println("testreport_add: " + fun);
+		//Type argType = (Type) stack[sp - 1];
+		
+		if(ignore){
+			test_results.append(vf.tuple(src,  vf.integer(2), vf.string("")));
+			return sp - 4;
+		}
+		IConstructor type_cons = ((IConstructor) stack[sp - 1]);
+		Type argType = typeReifier.valueToType(type_cons);
+		IMap definitions = (IMap) type_cons.get("definitions");
 
 		TypeStore store = new TypeStore();
-		//typeReifier.declareAbstractDataTypes(definitions, store);
+		typeReifier.declareAbstractDataTypes(definitions, store);
 
 		int nargs = argType.getArity();
-		IValue[] args = new IValue[nargs];
+		IValue[] args = new IValue[nargs + 1]; // '+1' kwargs
 
 		TypeParameterVisitor tpvisit = new TypeParameterVisitor();
 		Type requestedType = tf.tupleType(argType);
@@ -4807,17 +4945,17 @@ public enum RascalPrimitive {
 		int tries = nargs == 0 ? 1 : TRIES;
 		boolean passed = true;
 		String message = "";
-		for(int i = 0; i < tries && passed; i++){
+		for(int i = 0; i < tries; i++){
 			if(nargs > 0){
 				message = " with arguments: ";
 				ITuple tup = (ITuple) randomValue.generate(argType);
-				for(int j = 0; j < args.length; j++){
+				for(int j = 0; j < nargs; j++){
 					args[j] = tup.get(j);
-					//stdout.println("args[" + j + "] = " + args[j]);
 					message = message + args[j].toString() + " ";
 				}
 			}
 			try {
+				args[nargs] = vf.mapWriter().done(); // kwargs
 				IValue res = rvm.executeFunction(fun, args); 
 				passed = ((IBool) res).getValue();
 				if(!passed){
@@ -4828,15 +4966,19 @@ public enum RascalPrimitive {
 				if(!cons.getName().equals(expected)){
 					message = e.toString() + message;
 					passed = false;
+					break;
 				}
 			}
 			catch (Exception e){
 				message = e.getMessage() + message;
 				passed = false;
+				break;
 			}
 		}
-		test_results.append(vf.tuple(src,  vf.bool(passed), vf.string(message == null ? "" : message)));
-		return sp - 3;
+		if(passed)
+			message = "";
+		test_results.append(vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message)));
+		return sp - 4;
 	}
 
 	/*
@@ -5024,16 +5166,16 @@ public enum RascalPrimitive {
 	}
 	
 	public static int parse_fragment(Object[] stack, int sp, int arity) {
-		assert arity == 3;
-		IString module_name = (IString) stack[sp - 3];
-		IConstructor ctree = (IConstructor) stack[sp - 2];
-		ISourceLocation loc = ((ISourceLocation) stack[sp - 1]);
+		assert arity == 4;
+		IString module_name = (IString) stack[sp - 4];
+		IConstructor ctree = (IConstructor) stack[sp - 3];
+		ISourceLocation loc = ((ISourceLocation) stack[sp - 2]);
+		IMap grammar = (IMap) stack[sp - 1];
 	
-		IValue tree = parsingTools.parseFragment(module_name, ctree, loc.getURI());
-		stack[sp - 3] = tree;
-		return sp - 2;
+		IValue tree = parsingTools.parseFragment(module_name, ctree, loc.getURI(), grammar);
+		stack[sp - 4] = tree;
+		return sp - 3;
 	}
-	
 	
 
 	/*
@@ -5066,7 +5208,12 @@ public enum RascalPrimitive {
 		INode node =  (INode) stack[sp - 2];
 		int idx = ((IInteger) stack[sp - 1]).intValue();
 		try {
-			stack[sp - 2] = node.get((idx >= 0) ? idx : (node.arity() + idx));
+			if(idx < 0){
+				int nd_arity = node.arity();
+				/* take keyword map into consideration, when present */
+				idx =  (nd_arity + idx) + (node.get(nd_arity - 1).getType().isMap() ? - 1 : 0);
+			}
+			stack[sp - 2] = node.get(idx);  
 		} catch(IndexOutOfBoundsException e) {
 			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
 		}
@@ -5122,9 +5269,13 @@ public enum RascalPrimitive {
 	public static int rel_subscript(Object[] stack, int sp, int arity) {
 		assert arity >= 2;
 		ISet rel = ((ISet) stack[sp - arity]);
+		if(rel.isEmpty()){
+			stack[sp - arity] = rel;
+			return sp - arity + 1;
+		}
 		int indexArity = arity - 1;
 		int relArity = rel.getElementType().getArity();
-		assert relArity < indexArity;
+		assert indexArity < relArity ;
 		int resArity = relArity - indexArity;
 		IValue[] indices = new IValue[indexArity];
 		for(int i = 0; i < indexArity; i++ ){
@@ -5138,14 +5289,22 @@ public enum RascalPrimitive {
 		IValue[] elems = new  IValue[resArity];
 		ISetWriter w = vf.setWriter();
 		NextTuple:
-		for(IValue vtup : rel){
-			ITuple tup = (ITuple) vtup;
-			for(int i = 0; i < indexArity; i++){
-				if(!tup.get(i).isEqual(indices[i])){
-					if(indices[i] != null)
-						continue NextTuple;
+			for(IValue vtup : rel){
+				ITuple tup = (ITuple) vtup;
+				for(int i = 0; i < indexArity; i++){
+					if(indices[i] != null){
+						IValue v = tup.get(i);
+						if(indices[i].getType().isSet()){
+							ISet s = (ISet) indices[i];
+							if(!s.contains(v)){
+								continue NextTuple;
+							}
+						} else
+							if(!v.isEqual(indices[i])){
+								continue NextTuple;
+							}
+					}
 				}
-			}
 			for(int i = 0; i < resArity; i++){
 				elems[i] = tup.get(indexArity + i);
 			}
@@ -5159,9 +5318,13 @@ public enum RascalPrimitive {
 	public static int lrel_subscript(Object[] stack, int sp, int arity) {
 		assert arity >= 2;
 		IList lrel = ((IList) stack[sp - arity]);
+		if(lrel.isEmpty()){
+			stack[sp - arity] = lrel;
+			return sp - arity + 1;
+		}
 		int indexArity = arity - 1;
 		int lrelArity = lrel.getElementType().getArity();
-		assert lrelArity < indexArity;
+		assert indexArity < lrelArity;
 		int resArity = lrelArity - indexArity;
 		IValue[] indices = new IValue[indexArity];
 		for(int i = 0; i < indexArity; i++ ){
@@ -5178,9 +5341,17 @@ public enum RascalPrimitive {
 		for(IValue vtup : lrel){
 			ITuple tup = (ITuple) vtup;
 			for(int i = 0; i < indexArity; i++){
-				if(!tup.get(i).isEqual(indices[i])){
-					if(indices[i] != null)
-						continue NextTuple;
+				if(indices[i] != null){
+					IValue v = tup.get(i);
+					if(indices[i].getType().isSet()){
+						ISet s = (ISet) indices[i];
+						if(!s.contains(v)){
+							continue NextTuple;
+						}
+					} else
+						if(!v.isEqual(indices[i])){
+							continue NextTuple;
+						}
 				}
 			}
 			for(int i = 0; i < resArity; i++){
@@ -5191,6 +5362,8 @@ public enum RascalPrimitive {
 		stack[sp - arity] = w.done();
 		return sp - arity + 1;
 	}
+	
+	
 
 	/*
 	 * subtraction
@@ -5397,6 +5570,10 @@ public enum RascalPrimitive {
 		return set_subtract_set(stack, sp, arity);
 	}
 	
+	public static int rel_subtract_elm(Object[] stack, int sp, int arity) {
+		return set_subtract_elm(stack, sp, arity);
+	}
+	
 	public static int set_subtract_elm(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((ISet) stack[sp - 2]).delete((IValue) stack[sp - 1]);
@@ -5502,13 +5679,24 @@ public enum RascalPrimitive {
 			if(mset.isEmpty()){
 				stack[sp - 1] = tf.setType(tf.voidType());
 			} else {
-				IValue v = mset.iterator().next();
+				IValue v = mset.iterator().next();		// TODO: this is incorrect for set[value]!
 				stack[sp - 1] =tf.setType(v.getType());
 			}
 			
 		} else {
 			stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
 		}
+		return sp;
+	}
+	
+	/*
+	 * elementTypeOf
+	 */
+	
+	public static int elementTypeOf(Object[] stack, int sp, int arity) {
+		assert arity == 1;
+		Type tp = (Type) stack[sp - 1];
+		stack[sp - 1] = tp.getElementType();
 		return sp;
 	}
 	
@@ -5528,8 +5716,12 @@ public enum RascalPrimitive {
 		assert arity == 3;
 		IList lst = (IList) stack[sp - 3];
 		int n = ((IInteger) stack[sp - 2]).intValue();
-		stack[sp - 3] = lst.put(n, (IValue) stack[sp - 1]);
-		return sp - 2;
+		try {
+			stack[sp - 3] = lst.put(n, (IValue) stack[sp - 1]);
+			return sp - 2;
+		} catch (IndexOutOfBoundsException e){
+			throw RuntimeExceptions.indexOutOfBounds(vf.integer(n), null, new ArrayList<Frame>());
+		}
 	}
 	
 	public static int map_update(Object[] stack, int sp, int arity) {
@@ -5544,8 +5736,12 @@ public enum RascalPrimitive {
 		assert arity == 3;
 		ITuple tup = (ITuple) stack[sp - 3];
 		int n = ((IInteger) stack[sp - 2]).intValue();
-		stack[sp - 3] = tup.set(n, (IValue) stack[sp - 1]);
-		return sp - 2;
+		try {
+			stack[sp - 3] = tup.set(n, (IValue) stack[sp - 1]);
+			return sp - 2;
+		} catch (IndexOutOfBoundsException e){
+			throw RuntimeExceptions.indexOutOfBounds(vf.integer(n), null, new ArrayList<Frame>());
+		}
 	}
 	
 	/*
@@ -5583,13 +5779,42 @@ public enum RascalPrimitive {
 		return sp - arity + 1;
 	}
 	
+	private static boolean $isTree(IValue v){
+		return v.getType().isAbstractData() && v.getType().getName().equals("Tree");
+	}
+	
+	private static String $value2string(IValue val){
+		if(val.getType().isString()){
+			return ((IString) val).getValue();
+		}
+		if($isTree(val)){
+			StringWriter w = new StringWriter();
+			try {
+				IConstructor c = (IConstructor) val;
+				TreeAdapter.unparse(c, w);
+				return w.toString();
+			} catch (FactTypeUseException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return val.toString();
+	}
+	
 	public static int value_to_string(Object[] stack, int sp, int arity) {
 		assert arity == 1;
 		IValue val = (IValue) stack[sp -1];
-		if(val.getType().isString()){
-			stack[sp - 1] = vf.string(((IString) val).getValue());
+		Type tp = val.getType();
+		if(tp.isList() && tp.getElementType().isAbstractData() && tp.getElementType().getName().equals("Tree")){
+			IList lst = (IList) val;
+			StringWriter w = new StringWriter();
+			for(int i = 0; i < lst.length(); i++){
+				w.write($value2string(lst.get(i)));
+			}
+			stack[sp - 1] = vf.string(w.toString());
+			
 		} else {
-			stack[sp - 1] = vf.string(val.toString());
+			stack[sp - 1] = vf.string($value2string(val));
 		}
 		return sp;
 	}
