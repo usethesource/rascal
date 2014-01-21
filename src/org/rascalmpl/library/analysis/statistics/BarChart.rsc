@@ -17,7 +17,7 @@ import analysis::statistics::markup::Dimple;
 import lang::json::IO;
 import IO;
 
-alias Axis = tuple[str varName, str aggregateMethod, str plotFunction,value series];
+alias YAxis = tuple[str varName, str aggregateMethod, str plotFunction,value series, bool showPercent];
 
 alias ColorAxis = tuple[str varName, value color];
 
@@ -47,80 +47,117 @@ public tuple[int x, int y, int width, int height, str align] legendBounds =
       for colNames ["Name", "Age", "Sex"], and 
       for relation {<"Piet", 25, "M">, <"Anne", 40, "V">}
     }
- 
-   
+
+public YAxis getYAxis(str varName="y", str aggregateMethod="count", str plotFunction="bar", value series="", bool showPercent=false) {
+    return <varName, aggregateMethod, plotFunction, series, showPercent>;
+    }
+
 private bool isNull(value v) {
     if (str w:=v) return isEmpty(w);
     if (list[value] w:=v) return isEmpty(w);
     return false;
     }
     
-public loc barChart(
-      loc location
-    , tuple[list[str] hd, list[list[value]] t] relation
-    , str title="title"
+list[list[value]] jn(rel[value , value] r) =  [[x[1], x[0]]|x<-r];
+
+list[list[value]] jn(list[list[value]] q, rel[value , value] r) {
+    if (isEmpty(q)) return jn(r);
+    return [L+[z, y1]| [*L, y1] <- q, <value y2,value z><-r, y1==y2];
+    }
+    
+list[list[value]] jn(rel[value , value] r...) {
+   list[list[value]] q= ([]|jn(it, p)|p<-r);
+   return [last(e)+head(e, size(e)-1)|e<-q];
+}
+
+public str barChartHeader(str title) {
+   return Z(title_, (), title)+Z(script_,(src_: "http://d3js.org/d3.v3.min.js"))+
+    Z(script_,(src_: "http:dimplejs.org/dist/dimple.v1.1.2.min.js"));
+   }
+   
+int ident = 0;
+    
+public str barChart(
+    str title="barChart"
     , value x_axis="x"
     , ColorAxis colorAxis = <"", "">
     , value orderRule = ""
     , value series=""
     , list[tagColor] assignColor=[]
-    , Axis y_axis =<"y","count", "bar","">
-    , Axis y_axis2=<"","max", "line","">
+    , YAxis y_axis =<"y","count", "bar","", false>
+    , YAxis y_axis2=<"","max", "line","", false>
     , bool legend = false
     , bool legend2 = false
     , list[dColor] defaultColors = []
    ) 
     {
-   list[map[str, value]] jsonData = [(relation.hd[i] : r[i]|i<-[0..size(relation.hd)])|
-          list[value] r<-relation.t];        
- str header  = Z(title_, (), title)+
- Z(script_,(src_: "http://d3js.org/d3.v3.min.js"))+
- Z(script_,(src_: "http:dimplejs.org/dist/dimple.v1.1.2.min.js"));
+ str  x =  "x<ident>";   
+ str y1 = "y1_<ident>";
+ str y2 = "y2_<ident>";
+ str mySeries1 = "mySeries1_<ident>";
+ str mySeries2 = "mySeries2_<ident>";
+ str svg = "svg<ident>";
+ str myChart = "myChart<ident>";
+ ident+=1;
  str body =  Z(h1_, (id_: "header"), title) +
-      JavaScript(var((svg_: expr(dimple.newSvg("body", svgDim.width, svgDim.height)))))+
+      JavaScript(var((svg: expr(dimple.newSvg("body", svgDim.width, svgDim.height)))))+
       JavaScriptJson("data.json", "error", "dat",
-        var(("myChart":expr("new <dimple.chart("svg", "dat")>")))
+        var((myChart:expr("new <dimple.chart(svg, "dat")>")))
         ,
-        expr(chart.setBounds("myChart", chartBounds.x, chartBounds.y, 
+        expr(chart.setBounds(myChart, chartBounds.x, chartBounds.y, 
                                          chartBounds.width, chartBounds.height ))
-                                         ,
-        expr(isNull(defaultColors)?"":chart.defaultColors("myChart", defaultColors))
+        ,                            
+        expr(isNull(defaultColors)?"":chart.defaultColors(myChart, defaultColors))
         ,
-        var(("x":expr(chart.addAxis("myChart", "x",x_axis, ""))))
+        var((x:expr(chart.addAxis(myChart, "x",x_axis, ""))))
         ,
-        expr(axis.addOrderRule("x", orderRule, "false"))
+        expr(axis.addOrderRule(x, orderRule, "false"))
         ,
-        var(("y1":expr(chart.addMeasureAxis("myChart", "y", y_axis[0]))))
+        var((y1:expr(chart.addMeasureAxis(myChart, "y", y_axis[0]))))
         , 
-        var(("y2":expr(isNull(y_axis2[0])?"null":chart.addMeasureAxis("myChart", "y", y_axis2[0]))))
+        var((y2:expr(isNull(y_axis2[0])?"null":chart.addMeasureAxis(myChart, "y", y_axis2[0]))))
         , 
-        var(("colorAxis":expr(isNull(colorAxis[0])?"null":chart.addColorAxis("myChart", 
+        var(("colorAxis":expr(isNull(colorAxis[0])?"null":chart.addColorAxis(myChart, 
               colorAxis[0],  colorAxis[1]))))
         ,
-        var(("mySeries":expr(chart.addSeries("myChart", y_axis[3],  "dimple.plot.<y_axis[2]>",  expr(
-                    isNull(colorAxis[0])?"[x, y1]":"[x, y1, colorAxis]")))))
+        var((mySeries1:expr(chart.addSeries(myChart, y_axis[3],  "dimple.plot.<y_axis[2]>",  expr(
+                    isNull(colorAxis[0])?"[<x>, <y1>]":"[<x>, <y1>, colorAxis]")))))
         ,
-        var(("mySeries2":expr(isNull(y_axis2[0])?"null":chart.addSeries("myChart", y_axis2[3],  "dimple.plot.<y_axis2[2]>", expr("[x, y2]")))))
+        var((mySeries2:expr(isNull(y_axis2[0])?"null":chart.addSeries(myChart, y_axis2[3],  "dimple.plot.<y_axis2[2]>", expr("[<x>, <y2>]")))))
         ,
-        expr(!legend || isNull(y_axis[3])?"":chart.addLegend("myChart", legendBounds.x, legendBounds.y, 
+        expr(!legend || isNull(y_axis[3])?"":chart.addLegend(myChart, legendBounds.x, legendBounds.y, 
                                          legendBounds.width, legendBounds.height, 
-                                         legendBounds.align, expr("mySeries")))
+                                         legendBounds.align, expr(mySeries1)))
         ,
-        expr(!legend2 || isNull(y_axis2[3])?"":chart.addLegend("myChart", legendBounds.x, legendBounds.y, 
+        expr(!legend2 || isNull(y_axis2[3])?"":chart.addLegend(myChart, legendBounds.x, legendBounds.y, 
                                          legendBounds.width, legendBounds.height, 
-                                         legendBounds.align, expr("mySeries2")))
+                                         legendBounds.align, expr(mySeries2)))
         ,
-        expr(isNull(y_axis[0])?"":"mySeries.aggregate=dimple.aggregateMethod.<y_axis[1]>")                                 
+        expr(isNull(y_axis[0])?"":"<mySeries1>.aggregate=dimple.aggregateMethod.<y_axis[1]>")                                 
         ,
-        expr(chart.assignColor("myChart", assignColor))
+        expr(chart.assignColor(myChart, assignColor))
         ,
-        expr(isNull(y_axis2[0])?"":"mySeries2.aggregate=dimple.aggregateMethod.<y_axis2[1]>")
+        expr(isNull(y_axis2[0])?"":"<mySeries2>.aggregate=dimple.aggregateMethod.<y_axis2[1]>")
         ,
-        expr(chart.draw("myChart"))
+        expr("if (<y1>) <y1>.showPercent=<y_axis[4]>")
+        ,
+        expr("if (<y2>) <y2>.showPercent=<y_axis2[4]>")
+        ,
+        expr(chart.draw(myChart))
         );
-        str h = html(header, body); 
-        writeTextJSonFile(location+"data.json", jsonData); 
-        writeFile(location+"index.html", h);    
+        return body;         
+      }
+      
+  public loc publish(loc location, str header, str body, 
+       str id   // record identifier
+       ,tuple[str name, rel[value, value] t] relation ... ) // data  {<rec.ident, value>...}
+      {
+      list[str] hd =  id + [r.name|r<-relation];
+      list[list[value]] g = jn([q.t|q<-relation]);
+      list[map[str, value]] jsonData = [(hd[i] : r[i]|i<-[0..size(hd)])|
+      list[value] r<-g]; 
+      writeTextJSonFile(location+"data.json", jsonData); 
+      writeFile(location+"index.html",  html(header, body));    
       return location;    
       }
       
