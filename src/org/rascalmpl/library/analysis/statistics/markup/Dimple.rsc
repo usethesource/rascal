@@ -108,7 +108,7 @@ str val(value field) {
            dColor p = head(fields);
            r += "new dimple.color(\"<p[0]>\",\"<p[1]>\",\"<p[2]>\")";
            for (f<-tail(fields)) {
-               p = head(f);
+               p = f;
                r += ",new dimple.color(\"<p[0]>\",\"<p[1]>\",\"<p[2]>\")";            
            }
            r += "]";
