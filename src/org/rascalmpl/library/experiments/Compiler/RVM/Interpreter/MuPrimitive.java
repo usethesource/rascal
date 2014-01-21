@@ -81,6 +81,8 @@ public enum MuPrimitive {
 	make_map_str_ivalue,    // kwp
 	make_entry_type_ivalue, // kwp
 	map_contains_key,
+	min_mint_mint,
+	max_mint_mint,
 	mint,
 	modulo_mint_mint,
 	mset,
@@ -90,6 +92,7 @@ public enum MuPrimitive {
 	mset_destructive_add_mset,
 	map_str_entry_add_entry_type_ivalue, // kwp
 	map_str_ivalue_add_ivalue,           // kwp
+	multiplication_mint_mint,
 	mset_destructive_subtract_mset,
 	mset_destructive_subtract_set,
 	mset_destructive_subtract_elm,
@@ -633,6 +636,22 @@ public enum MuPrimitive {
 		stack[sp - 2] = m.containsKey(key);
 		return sp - 1;
 	}
+	
+	public static int max_mint_mint(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		Integer x =  ((Integer) stack[sp - 2]);
+		Integer y =  ((Integer) stack[sp - 1]);
+		stack[sp - 2] = x > y ? x : y;
+		return sp - 1;
+	}
+	
+	public static int min_mint_mint(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		Integer x =  ((Integer) stack[sp - 2]);
+		Integer y =  ((Integer) stack[sp - 1]);
+		stack[sp - 2] = x < y ? x : y;
+		return sp - 1;
+	}
 		
 	public static int mint(Object[] stack, int sp, int arity) {
 		assert arity == 1;
@@ -643,6 +662,12 @@ public enum MuPrimitive {
 	public static int modulo_mint_mint(Object[] stack, int sp, int arity) {
 		assert arity == 2;
 		stack[sp - 2] = ((Integer) stack[sp - 2]) % ((Integer) stack[sp - 1]);
+		return sp - 1;
+	}
+	
+	public static int multiplication_mint_mint(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		stack[sp - 2] = ((Integer) stack[sp - 2]) * ((Integer) stack[sp - 1]);
 		return sp - 1;
 	}
 		
