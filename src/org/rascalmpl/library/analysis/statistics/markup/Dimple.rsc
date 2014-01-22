@@ -37,8 +37,10 @@ public tagColor getTagColor(str tg, str fill="white", str stroke="black", real o
     }
   
 public tuple[
+      str(str, list[value]) addColorAxis // (chart, position, field)
+      ,
       str(str, list[value]) addCategoryAxis // (chart, position, field)
-      , 
+      ,  
       str(str,list[value]) addMeasureAxis // (chart, position, field )
       ,
       str(str,list[value]) addAxis // (chart, position, cat_field, measure_field )
@@ -60,6 +62,7 @@ public tuple[
 chart=
 <
 // str(str chart, str position, value field) {return "<chart>.addCategoryAxis(\"<position>\",<val(field)>)";},
+str(str chart, value e...) {return "<chart>.addColorAxis(<vals(e)>)";},
 str(str chart, value e...) {return "<chart>.addCategoryAxis(<vals(e)>)";},
 str(str chart, value e...) {return "<chart>.addMeasureAxis(<vals(e)>)";},
 str(str chart, value e...) {return "<chart>.addAxis(<vals(e)>)";},
@@ -105,7 +108,7 @@ str val(value field) {
            dColor p = head(fields);
            r += "new dimple.color(\"<p[0]>\",\"<p[1]>\",\"<p[2]>\")";
            for (f<-tail(fields)) {
-               p = head(f);
+               p = f;
                r += ",new dimple.color(\"<p[0]>\",\"<p[1]>\",\"<p[2]>\")";            
            }
            r += "]";

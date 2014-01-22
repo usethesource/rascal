@@ -19,6 +19,7 @@ import experiments::Compiler::muRascal2RVM::PeepHole;
 
 public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/Library.mu|;
 public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/Library.rvm|;
+public list[loc] defaultImports = [|rascal:///Exception.rsc|];
 
 list[Declaration] parseMuLibrary(){
     println("rascal2rvm: Recompiling library.mu");
@@ -40,25 +41,38 @@ list[Declaration] parseMuLibrary(){
   	return functions; 
 }
 
+loc compiledVersion(loc src) = src.parent + (basename(src) + ".rvm");
+
 tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
    map[str,Symbol] imported_types = ();
    list[Declaration] imported_functions = [];
    lrel[str,list[str],list[str]] imported_overloaded_functions = [];
    map[str,int] imported_overloading_resolvers = ();
    
-    if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
-     try {
+   // Read the muLibrary, recompile if necessary
+   
+   if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
+      try {
   	       imported_functions = readTextValueFile(#list[Declaration], MuLibraryCompiled);
   	       println("rascal2rvm: Using compiled version of Library.mu");
-  	 } catch:
+  	  } catch:
   	       imported_functions = parseMuLibrary();
    } else {
      imported_functions = parseMuLibrary();
    }
    
+   // Recompile the default imports, if necessary
+   
+   for(def <- defaultImports){
+       compiledDef = compiledVersion(def);
+       if(!exists(compiledDef) || lastModified(compiledDef) < lastModified(def)){
+          compile(def);
+       }
+   }
+   
    set[loc] processed = {};
    void processImports(RVMProgram rvmProgram) {
-       for(imp <- rvmProgram.imports, imp notin processed) {
+       for(imp <- rvmProgram.imports + defaultImports, imp notin processed) {
            println("importing: <imp>");
            processed += imp;
            importedLoc = imp.parent + (basename(imp) + ".rvm");
