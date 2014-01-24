@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -124,7 +125,8 @@ public enum MuPrimitive {
 	undefine,
 	product_mint_mint,
 	
-	typeOf_constructor
+	typeOf_constructor,
+	subscript_str_mint,
 	;
 	
 	private static IValueFactory vf;
@@ -801,6 +803,8 @@ public enum MuPrimitive {
 			stack[sp - 1] = ((IMap) stack[sp - 1]).size();
 		} else if(stack[sp - 1] instanceof ITuple) {
 			stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
+		} else if(stack[sp - 1] instanceof IString) {
+			stack[sp - 1] = ((IString) stack[sp - 1]).length();
 		}
 		return sp;
 	}
@@ -1082,6 +1086,19 @@ public enum MuPrimitive {
 		assert arity == 3;
 		stack[sp - 3] = ((Map<String, IValue>) stack[sp - 3]).put(((IString) stack[sp - 2]).getValue(), (IValue) stack[sp - 1]);
 		return sp - 2;
+	}
+	
+	public static int subscript_str_mint(Object[] stack, int sp, int arity) {
+		assert arity == 2;
+		IString str = ((IString) stack[sp - 2]);
+		int idx = (Integer) stack[sp - 1];
+		try {
+			stack[sp - 2] = (idx >= 0) ? str.substring(idx, idx+1)
+								   	   : str.substring(str.length() + idx, str.length() + idx + 1);
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, new ArrayList<Frame>());
+		}
+		return sp - 1;
 	}
 			
 	/*
