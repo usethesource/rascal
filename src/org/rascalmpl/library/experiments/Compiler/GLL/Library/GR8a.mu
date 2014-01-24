@@ -8,13 +8,13 @@ module GR8A
  
 declares "cons(adt(\"A\",[]),\"A_1\",[label(\"child1_1\",adt(\"B\",[])),label(\"child2\",adt(\"LIT\",[]))])" // A = B "c"
 declares "cons(adt(\"A\",[]),\"A_2\",[label(\"child1_2\",adt(\"C\",[])),label(\"child2\",adt(\"LIT\",[]))])" // A = C "d"
-declares "cons(adt(\"A\",[]),\"A_3\",[label(\"child\",adt(\"LIT\",[]))])"                                  // A = "e"
-declares "cons(adt(\"B\",[]),\"B_\",[label(\"child1\",adt(\"A\",[])),label(\"child2\",adt(\"LIT\",[]))])" // B = A "f"
-declares "cons(adt(\"C\",[]),\"C_\",[label(\"child1\",adt(\"A\",[])),label(\"child2\",adt(\"LIT\",[]))])" // C = A "g"
+declares "cons(adt(\"A\",[]),\"A_3\",[label(\"child\",adt(\"LIT\",[]))])"                                    // A = "e"
+declares "cons(adt(\"B\",[]),\"B_\",[label(\"child1\",adt(\"A\",[])),label(\"child2\",adt(\"LIT\",[]))])"    // B = A "f"
+declares "cons(adt(\"C\",[]),\"C_\",[label(\"child1\",adt(\"A\",[])),label(\"child2\",adt(\"LIT\",[]))])"    // C = A "g"
 
-declares "cons(adt(\"LIT\",[]),\"LIT_\",[label(\"child\",str())])"                                        // terminals
+declares "cons(adt(\"LIT\",[]),\"LIT_\",[label(\"child\",str())])"                                           // terminals
 
-declares "cons(adt(\"Marker\",[]),\"RECUR\",[label(\"child\",str())])"                                    // Marker
+declares "cons(adt(\"Marker\",[]),\"RECUR\",[label(\"child\",str())])"                                       // Marker
 
 coroutine A[3,iSubject,rI,rTree,
               recurA,e_lit,tree,b,c_lit,tree1,tree2,break,c,d_lit] {
@@ -39,7 +39,6 @@ coroutine A[3,iSubject,rI,rTree,
             if(next(b)) { true; };
             if(muprim("equal",tree1,recurA)) {
                 break = true;
-                "";
             } else {
                 if(muprim("equal",muprim("get_name",tree1), "RECUR")) {
                     yield(deref rI,tree1); // propagate the marker upwards
@@ -48,7 +47,7 @@ coroutine A[3,iSubject,rI,rTree,
                     while(next(c_lit)) {
                         yield(deref rI,cons A_1(tree1,tree2));
                     };
-                    "";
+                    0;
                 };
             };
         };
@@ -58,7 +57,6 @@ coroutine A[3,iSubject,rI,rTree,
             if(next(c)) { true; };
             if(muprim("equal",tree1,recurA)) {
                 break = true;
-                "";
             } else {
                 if(muprim("equal",muprim("get_name",tree1), "RECUR")) {
                     yield(deref rI,tree1); // propagate the marker upwards
@@ -67,7 +65,7 @@ coroutine A[3,iSubject,rI,rTree,
                     while(next(d_lit)) {
                         yield(deref rI,cons A_2(tree1,tree2));
                     };
-                    "";
+                    0;
                 };
             };
         };
@@ -98,7 +96,7 @@ coroutine B[3,iSubject,rI,rTree,
             while(next(f_lit)) {
                 yield(deref rI,cons B_(tree1,tree2));
             };
-            "";
+            0;
         };
     };
     
@@ -123,7 +121,7 @@ coroutine C[3,iSubject,rI,rTree,
             while(next(g_lit)) {
                 yield(deref rI,cons C_(tree1,tree2));
             };
-            "";
+            0;
         };
     };
     
@@ -165,13 +163,11 @@ function MAIN[2,args,kwargs,
 	            return true;
 	        };
 	        has = false;
-	        "";
 	    } else {
 	        if(muprim("not_mbool",muprim("equal",muprim("get_name",tree),"RECUR"))) {
 	            has = true;
 	            if(index == size(iSubject)) {
 	                println("Recognized: ", tree);
-	                "";
 	            };
 	        };
 	    };
