@@ -108,10 +108,11 @@ coroutine LIT[4,iLit,iSubject,rI,rTree,
 
 function MAIN[2,args,kwargs,
               iSubject,e,index,tree,recurE,has] {
-    //iSubject = "a+a+a+a";
-    iSubject = "a+a-a+a";
-    //iSubject = "a-a+a-a";
-    //iSubject = "a+a";
+    //iSubject = "a+a+a+a"; // success
+    //iSubject = "a+a-a+a"; // success
+    //iSubject = "a-a+a-a"; // success
+    //iSubject = "a+a";     // success
+    //iSubject = "a+a-b+a"; // failure
     
     index = 0;
 	e = init(create(E,iSubject,ref index,ref tree));
