@@ -23,8 +23,7 @@ coroutine E[3,iSubject,rI,rTree,
     recurE = cons RECUR("E");
     yield(deref rI,recurE);
     
-    // Non-left recursive cases first: E = (); E = "a"
-    
+    // Non-left recursive cases first: E = (); E = "a"   
     epsilon = init(create(EPSILON,iSubject,rI,ref tree));
     while(next(epsilon)) {
         yield(deref rI,cons E_2(tree));
