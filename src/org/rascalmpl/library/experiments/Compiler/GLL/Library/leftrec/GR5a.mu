@@ -21,7 +21,6 @@ declares "cons(adt(\"E\",[]),\"E_5\",[label(\"child_e5\",adt(\"CHAR\",[]))])"   
 declares "cons(adt(\"CHAR\",[]),\"CHAR_\",[label(\"child\",adt(\"LIT\",[]))])"                                                                        // Char = "a"
 
 declares "cons(adt(\"LIT\",[]),\"LIT_\",[label(\"child\",str())])"                                                                                    // terminals
-declares "cons(adt(\"EPSILON\",[]),\"EPSILON_\",[])"                                                                                                  // epsilon
 
 declares "cons(adt(\"Marker\",[]),\"RECUR\",[label(\"child\",str())])"                                                                                // Marker
 

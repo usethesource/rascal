@@ -16,3 +16,5 @@ syntax D = "k" F;
 syntax F = E
          | "g"
          ;
+         
+str input = "ac+kac-kac+ka";
