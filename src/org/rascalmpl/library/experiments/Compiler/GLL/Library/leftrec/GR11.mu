@@ -33,7 +33,7 @@ declares "cons(adt(\"LIT\",[]),\"LIT_\",[label(\"child\",str())])"              
 declares "cons(adt(\"Marker\",[]),\"RECUR\",[label(\"child\",str())])"                                                                     // Marker
 
 coroutine E[3,iSubject,rI,rTree,
-            recurE,a_lit,tree,a,tree1,break,plus_lit,tree2,minus_lit,d,tree3] {
+            recurE,a_lit,tree,a,tree1,plus_lit,tree2,minus_lit,d,tree3] {
     // Marker for left recursive non-terminals
     recurE = cons RECUR("E");
     yield(deref rI,recurE);
@@ -46,44 +46,34 @@ coroutine E[3,iSubject,rI,rTree,
     
     // Left recursive (also indirect) cases in the end: E = A "+" D | A "-" D;
     a = init(create(A,iSubject,rI,ref tree1));
-    while(true) {
-        
-        // TODO: could be simplified, see GR8/B and GR8/C
-        break = false;
-        while(muprim("not_mbool",break)) {
-            if(next(a)) { true; };
-            if(muprim("equal",tree1,recurE)) {
-                break = true;
+    while(next(a)) {
+        if(muprim("equal",tree1,recurE)) {
+            yield(deref rI,tree1);
+        } else {
+            if(muprim("equal",muprim("get_name",tree1), "RECUR")) {
+                yield(deref rI,tree1); // propagate the marker upwards (indirect recursion)
             } else {
-                if(muprim("equal",muprim("get_name",tree1), "RECUR")) {
-                    yield(deref rI,tree1); // propagate the marker upwards (indirect recursion)
-                } else {
-                    
-                    plus_lit = init(create(LIT,"+",iSubject,rI,ref tree2));
-                    while(next(plus_lit)) {
-                        d = init(create(D,iSubject,rI,ref tree3));
-                        while(next(d)) {
-                            yield(deref rI, cons E_1(tree1,tree2,tree3));
-                        }; 
-                    };
-                    
-                    minus_lit = init(create(LIT,"-",iSubject,rI,ref tree2));
-                    while(next(minus_lit)) {
-                        d = init(create(D,iSubject,rI,ref tree3));
-                        while(next(d)) {
-                            yield(deref rI, cons E_1(tree1,tree2,tree3));
-                        }; 
-                    };
-                    0;
-                    
+                
+                plus_lit = init(create(LIT,"+",iSubject,rI,ref tree2));
+                while(next(plus_lit)) {
+                    d = init(create(D,iSubject,rI,ref tree3));
+                    while(next(d)) {
+                        yield(deref rI, cons E_1(tree1,tree2,tree3));
+                    }; 
                 };
+                
+                minus_lit = init(create(LIT,"-",iSubject,rI,ref tree2));
+                while(next(minus_lit)) {
+                    d = init(create(D,iSubject,rI,ref tree3));
+                    while(next(d)) {
+                        yield(deref rI, cons E_1(tree1,tree2,tree3));
+                    }; 
+                };
+                0;
+                    
             };
         };
-        
-        yield(deref rI,recurE);
-        
     };
-    
 }
 
 coroutine A[3,iSubject,rI,rTree,

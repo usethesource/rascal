@@ -25,7 +25,7 @@ declares "cons(adt(\"LIT\",[]),\"LIT_\",[label(\"child\",str())])"              
 declares "cons(adt(\"Marker\",[]),\"RECUR\",[label(\"child\",str())])"                                                                                // Marker
 
 coroutine E[3,iSubject,rI,rTree,
-            recurE,char,tree,minus_lit,e,tree1,tree2,has,break,lbracket,rbracket,tree3,e_lhs,e_rhs,plus_lit,mult_lit,divide_lit,break_rhs] {
+            recurE,char,tree,minus_lit,e,tree1,tree2,has,break,lbracket,rbracket,tree3,e_lhs,e_rhs,plus_lit,mult_lit,divide_lit] {
     // Marker for left recursive non-terminals
     recurE = cons RECUR("E");
     yield(deref rI,recurE);
@@ -88,120 +88,110 @@ coroutine E[3,iSubject,rI,rTree,
     
     // Left recursive (also indirect) cases in the end: E = E "+" E | E "-" E | E "*" E | E "/" E | E "+" ;
     e_lhs = init(create(E,iSubject,rI,ref tree1));
-    while(true) {
-        
-        // TODO: could be simplified, see GR8/B and GR8/C
-        break = false;
-        while(muprim("not_mbool",break)) {
-            if(next(e_lhs)) { true; };
-            if(muprim("equal",tree1,recurE)) {
-                break = true;
-            } else {
-                plus_lit = init(create(LIT,"+",iSubject,rI,ref tree2));
-                while(next(plus_lit)) {
-                    
-                    e_rhs = init(create(E,iSubject,rI,ref tree3));
-                    // The use of left (also indirect) recursive non-terminals
-                    has = false;
-                    break_rhs = false;
-	                if(next(e_rhs)) { true; }; // Eats the first, left-recursion specific, 'recurE'
-	                while(muprim("not_mbool",break_rhs)) {
-	                    if(next(e_rhs)) { true; };
-	                    if(muprim("equal",tree3,recurE)) {
-	                        if(muprim("not_mbool",has)) {
-	                            break_rhs = true;
-	                        };
-	                        has = false;
-	                    } else {
-	                        has = true;
-	                        yield(deref rI, cons E_1(tree1,tree2,tree3));
+    while(next(e_lhs)) {
+        if(muprim("equal",tree1,recurE)) {
+            yield(deref rI,tree1);
+        } else {
+            plus_lit = init(create(LIT,"+",iSubject,rI,ref tree2));
+            while(next(plus_lit)) {
+                
+                e_rhs = init(create(E,iSubject,rI,ref tree3));
+                // The use of left (also indirect) recursive non-terminals
+                has = false;
+                break = false;
+	            if(next(e_rhs)) { true; }; // Eats the first, left-recursion specific, 'recurE'
+	            while(muprim("not_mbool",break)) {
+	                if(next(e_rhs)) { true; };
+	                if(muprim("equal",tree3,recurE)) {
+	                    if(muprim("not_mbool",has)) {
+	                        break = true;
 	                    };
-	               };
+	                    has = false;
+	                } else {
+	                    has = true;
+	                    yield(deref rI, cons E_1(tree1,tree2,tree3));
+	                };
+	            };
                     
-                };
-                
-                minus_lit = init(create(LIT,"-",iSubject,rI,ref tree2));
-                while(next(minus_lit)) {
-                    
-                    e_rhs = init(create(E,iSubject,rI,ref tree3));
-                    // The use of left (also indirect) recursive non-terminals
-                    has = false;
-                    break_rhs = false;
-	                if(next(e_rhs)) { true; }; // Eats the first, left-recursion specific, 'recurE'
-	                while(muprim("not_mbool",break_rhs)) {
-	                    if(next(e_rhs)) { true; };
-	                    if(muprim("equal",tree3,recurE)) {
-	                        if(muprim("not_mbool",has)) {
-	                            break_rhs = true;
-	                        };
-	                        has = false;
-	                    } else {
-	                        has = true;
-	                        yield(deref rI, cons E_1(tree1,tree2,tree3));
-	                    };
-	               };
-                    
-                };
-                
-                mult_lit = init(create(LIT,"*",iSubject,rI,ref tree2));
-                while(next(mult_lit)) {
-                    
-                    e_rhs = init(create(E,iSubject,rI,ref tree3));
-                    // The use of left (also indirect) recursive non-terminals
-                    has = false;
-                    break_rhs = false;
-	                if(next(e_rhs)) { true; }; // Eats the first, left-recursion specific, 'recurE'
-	                while(muprim("not_mbool",break_rhs)) {
-	                    if(next(e_rhs)) { true; };
-	                    if(muprim("equal",tree3,recurE)) {
-	                        if(muprim("not_mbool",has)) {
-	                            break_rhs = true;
-	                        };
-	                        has = false;
-	                    } else {
-	                        has = true;
-	                        yield(deref rI, cons E_1(tree1,tree2,tree3));
-	                    };
-	               };
-                    
-                };
-                
-                divide_lit = init(create(LIT,"/",iSubject,rI,ref tree2));
-                while(next(divide_lit)) {
-                    
-                    e_rhs = init(create(E,iSubject,rI,ref tree3));
-                    // The use of left (also indirect) recursive non-terminals
-                    has = false;
-                    break_rhs = false;
-	                if(next(e_rhs)) { true; }; // Eats the first, left-recursion specific, 'recurE'
-	                while(muprim("not_mbool",break_rhs)) {
-	                    if(next(e_rhs)) { true; };
-	                    if(muprim("equal",tree3,recurE)) {
-	                        if(muprim("not_mbool",has)) {
-	                            break_rhs = true;
-	                        };
-	                        has = false;
-	                    } else {
-	                        has = true;
-	                        yield(deref rI, cons E_1(tree1,tree2,tree3));
-	                    };
-	               };
-                    
-                };
-                
-                plus_lit = init(create(LIT,"+",iSubject,rI,ref tree2));
-                while(next(plus_lit)) {
-                    yield(deref rI, cons E_3(tree1,tree2));
-                };
-                
-                0;
             };
+                
+            minus_lit = init(create(LIT,"-",iSubject,rI,ref tree2));
+            while(next(minus_lit)) {
+                
+                e_rhs = init(create(E,iSubject,rI,ref tree3));
+                // The use of left (also indirect) recursive non-terminals
+                has = false;
+                break = false;
+	            if(next(e_rhs)) { true; }; // Eats the first, left-recursion specific, 'recurE'
+	            while(muprim("not_mbool",break)) {
+	                if(next(e_rhs)) { true; };
+	                if(muprim("equal",tree3,recurE)) {
+	                    if(muprim("not_mbool",has)) {
+	                        break = true;
+	                    };
+	                    has = false;
+	                } else {
+	                    has = true;
+	                    yield(deref rI, cons E_1(tree1,tree2,tree3));
+	                };
+	            };
+                    
+            };
+                
+            mult_lit = init(create(LIT,"*",iSubject,rI,ref tree2));
+            while(next(mult_lit)) {
+                
+                e_rhs = init(create(E,iSubject,rI,ref tree3));
+                // The use of left (also indirect) recursive non-terminals
+                has = false;
+                break = false;
+	            if(next(e_rhs)) { true; }; // Eats the first, left-recursion specific, 'recurE'
+	            while(muprim("not_mbool",break)) {
+	                if(next(e_rhs)) { true; };
+	                if(muprim("equal",tree3,recurE)) {
+	                    if(muprim("not_mbool",has)) {
+	                        break = true;
+	                    };
+	                    has = false;
+	                } else {
+	                    has = true;
+	                    yield(deref rI, cons E_1(tree1,tree2,tree3));
+	                };
+	            };
+                    
+            };
+                
+            divide_lit = init(create(LIT,"/",iSubject,rI,ref tree2));
+            while(next(divide_lit)) {
+                
+                e_rhs = init(create(E,iSubject,rI,ref tree3));
+                // The use of left (also indirect) recursive non-terminals
+                has = false;
+                break = false;
+	            if(next(e_rhs)) { true; }; // Eats the first, left-recursion specific, 'recurE'
+	            while(muprim("not_mbool",break)) {
+	                if(next(e_rhs)) { true; };
+	                if(muprim("equal",tree3,recurE)) {
+	                    if(muprim("not_mbool",has)) {
+	                        break = true;
+	                    };
+	                    has = false;
+	                } else {
+	                    has = true;
+	                    yield(deref rI, cons E_1(tree1,tree2,tree3));
+	                };
+	            };
+                    
+            };
+                
+            plus_lit = init(create(LIT,"+",iSubject,rI,ref tree2));
+            while(next(plus_lit)) {
+                yield(deref rI, cons E_3(tree1,tree2));
+            };
+                
+            0;
         };
-        
-        yield(deref rI,recurE);
-        
     };
-
 }
 
 coroutine CHAR[3,iSubject,rI,rTree,
