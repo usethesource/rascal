@@ -3,6 +3,8 @@ module GR8
 /*
  * syntax A = B "c" | C "d" | "e" ;
  * syntax B = A "f";
+ *           // Variation
+ *          | "b"
  * syntax C = A "g";
  */
  
@@ -10,6 +12,9 @@ declares "cons(adt(\"A\",[]),\"A_1\",[label(\"child1_1\",adt(\"B\",[])),label(\"
 declares "cons(adt(\"A\",[]),\"A_2\",[label(\"child1_2\",adt(\"C\",[])),label(\"child2\",adt(\"LIT\",[]))])" // A = C "d"
 declares "cons(adt(\"A\",[]),\"A_3\",[label(\"child\",adt(\"LIT\",[]))])"                                    // A = "e"
 declares "cons(adt(\"B\",[]),\"B_\",[label(\"child1\",adt(\"A\",[])),label(\"child2\",adt(\"LIT\",[]))])"    // B = A "f"
+// Variation
+declares "cons(adt(\"B\",[]),\"B_2\",[label(\"child\",adt(\"LIT\",[]))])"                                    // B = "b"
+
 declares "cons(adt(\"C\",[]),\"C_\",[label(\"child1\",adt(\"A\",[])),label(\"child2\",adt(\"LIT\",[]))])"    // C = A "g"
 
 declares "cons(adt(\"LIT\",[]),\"LIT_\",[label(\"child\",str())])"                                           // terminals
@@ -79,12 +84,17 @@ coroutine A[3,iSubject,rI,rTree,
 }
 
 coroutine B[3,iSubject,rI,rTree,
-            recurB,a,tree1,f_lit,tree2] {
+            recurB,a,tree1,f_lit,tree2,b_lit,tree] {
     // Marker for left recursive non-terminals
     recurB = cons RECUR("B");
     yield(deref rI,recurB);
     
     // Non-left recursive cases first: none!
+    // Variation
+    b_lit = init(create(LIT,"b",iSubject,rI,ref tree));
+    while(next(b_lit)) {
+        yield(deref rI,cons B_2(tree));
+    };
     
     // Left recursive (also indirect) cases in the end: B = A "f"
     a = init(create(A,iSubject,rI,ref tree1));
@@ -143,13 +153,16 @@ coroutine LIT[4,iLit,iSubject,rI,rTree,
 
 function MAIN[2,args,kwargs,
               iSubject,a,index,tree,recurA,has] {
-    //iSubject = "efcfc";         // success
-    //iSubject = "egdgdgd";       // success
-    //iSubject = "egdfcgd";       // success
-    iSubject = "egdgdgdfcfcgd";   // success
-    //iSubject = "aegdfcgd";      // failure
-    //iSubject = "egdfcagd";      // failure
-    //iSubject = "egdfcgd";       // failure
+    //iSubject = "efcfc";          // success
+    //iSubject = "egdgdgd";        // success
+    //iSubject = "egdfcgd";        // success
+    //iSubject = "egdgdgdfcfcgd";  // success
+    //iSubject = "bcgdgdgdfcfcgd"; // success, variation
+    //iSubject = "bcgd";           // success, variation
+    iSubject = "bcgdfc";           // success, variation
+    //iSubject = "aegdfcgd";       // failure
+    //iSubject = "egdfcagd";       // failure
+    //iSubject = "egdfcgd";        // failure
     index = 0;
 	a = init(create(A,iSubject,ref index,ref tree));
 	recurA = cons RECUR("A");
