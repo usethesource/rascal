@@ -223,6 +223,9 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("mint")), list[MuExp] exps) 								=> muCallMuPrim("mint", exps)
                case muCall(preVar(mvar("undefine")), list[MuExp] exps) 							=> muCallMuPrim("undefine", exps)
                
+               case muCall(preVar(mvar("not")), list[MuExp] exps)                               => muCallMuPrim("not", exps)
+               case muCall(preVar(mvar("equal")), list[MuExp] exps)                             => muCallMuPrim("equal", exps)
+               
                // Syntactic constructs that are mapped to muPrimitives
       	       case preLess(MuExp lhs, MuExp rhs)												=> muCallMuPrim("less_mint_mint", [lhs, rhs])
       	       case preLessEqual(MuExp lhs, MuExp rhs)											=> muCallMuPrim("less_equal_mint_mint", [lhs, rhs])
