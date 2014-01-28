@@ -6,9 +6,9 @@ import analysis::m3::Core;
 import lang::java::m3::Registry;
 
 import lang::java::m3::AST;
-import Set;
-import List;
-// import Prelude;
+//import Set;
+// import List;
+import Prelude;
 
 import analysis::statistics::BarChart;
 import util::HtmlDisplay;
@@ -24,7 +24,7 @@ rel[str, str] methodSrc={},  methodReturn={};
 rel [str, int] methodSize={};
 
 str toString(Type typ) {
-    // rintln(typ);
+    // println(typ);
     switch (typ) {
                case \int() : return "int";
                case  short() : return "short";
@@ -77,7 +77,7 @@ public void initialize(loc project) {
                              if (\method(Type returnType, str procName, list[Declaration] parameters, _, Statement impl)  := g) {                       
                                   if (\block(list[Statement] statements):=impl)
                                        if (!isEmpty(statements)) {
-                                          str typ = ((\void():=returnType)?"void":"function");
+                                          str typ = ((Type::\void():=returnType)?"void":"function");
                                           str method = signature(procName, parameters);
                                           methodSrc += <method, name>;
                                           methodSize+=<method, size(statements)>;
@@ -102,7 +102,10 @@ public void main() {
     ,orderRule= [e[0]|e<-classes]
     );
     
-    htmlDisplay(publish(|project://chart/src/m3|,barChartHeader("barChart"), body,
+    htmlDisplay(publish(
+     |file:///tmp/codecut|
+     // |project://chart/src/m3|
+     ,barChartHeader("barChart"), body,
     "method"
     ,<"class", methodSrc>
     ,<"proc", methodReturn>

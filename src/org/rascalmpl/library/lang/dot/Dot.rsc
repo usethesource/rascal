@@ -113,7 +113,7 @@ DotGraph g1(int n) {
     }
 
 str reLabel(str prop, str val) {
-  println(prop);
+  // println(prop);
   if (prop=="label") {
       return "\"<replaceAll(val,"\"","\\\"")>\"";
       }
