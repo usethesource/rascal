@@ -118,7 +118,7 @@ public class BindingsResolver {
         ISourceLocation result = resolveBinding(n.resolveBinding());
         // Have to move towards parent to make the binding unique
         if (result.getScheme() == "unresolved") {
-        	result = resolveBinding(n.getParent(), n.getName().getIdentifier());
+        	result = resolveBinding(n.getParent(), n);
         }
         return result;
       } else if (node instanceof ConstructorInvocation) {
@@ -134,7 +134,7 @@ public class BindingsResolver {
 		return convertBinding("unknown", null, null);
 	}
 	
-	private ISourceLocation resolveBinding(ASTNode parentNode, String childName) {
+	private ISourceLocation resolveBinding(ASTNode parentNode, VariableDeclaration thisNode) {
 		ISourceLocation parentBinding = resolveBinding(parentNode);
 		// Something has to declare it!!!
 		while(parentBinding.getScheme().equals("unknown") || parentBinding.getScheme().equals("unresolved")) {
@@ -145,19 +145,32 @@ public class BindingsResolver {
 			parentNode = parentNode.getParent();
 			parentBinding = resolveBinding(parentNode);
 		}
-		String key = "";
-		for (String storedKey: EclipseJavaCompiler.cache.keySet()) {
-			if (EclipseJavaCompiler.cache.get(storedKey).equals(parentBinding)) {
-				key = storedKey;
-				break;
-			}
-		}
-		key += "#".concat(childName);
+//		String key = "";
+//		for (String storedKey: EclipseJavaCompiler.cache.keySet()) {
+//			if (EclipseJavaCompiler.cache.get(storedKey).equals(parentBinding)) {
+//				key = storedKey;
+//				break;
+//			}
+//		}
+		String key = thisNode.resolveBinding().getKey();
 		if (EclipseJavaCompiler.cache.containsKey(key)) {
 			return EclipseJavaCompiler.cache.get(key);
 		}
+		
+		String qualifiedName = parentBinding.getPath();
+		String[] bindingKeys = key.split("#");
+		
+		if (bindingKeys.length > 2) {
+			// scoped variable that may have the same name as some other scoped variable
+			for (int i = 1; i < bindingKeys.length - 1; i++) {
+				if (!qualifiedName.endsWith("/"))
+					qualifiedName += "/";
+				qualifiedName += "scope("+bindingKeys[i]+")/";
+			}
+		}
+		
 		// FIXME: May not be variable only!!!
-		ISourceLocation childBinding = convertBinding("java+variable", null, parentBinding.getPath().concat("/").concat(childName));
+		ISourceLocation childBinding = convertBinding("java+variable", null, qualifiedName.concat(thisNode.getName().getIdentifier()));
 		EclipseJavaCompiler.cache.put(key, childBinding);
 		return childBinding;
 	}
@@ -561,6 +574,18 @@ public class BindingsResolver {
 	    	return convertBinding("unresolved", null, null);
 	    }
 		
+		String bindingKey = binding.getKey();
+		String[] bindingKeys = bindingKey.split("#");
+		
+		if (bindingKeys.length > 2) {
+			// scoped variable that may have the same name as some other scoped variable
+			for (int i = 1; i < bindingKeys.length - 1; i++) {
+				if (!qualifiedName.endsWith("/"))
+					qualifiedName += "/";
+				qualifiedName += "scope("+bindingKeys[i]+")/";
+			}
+		}
+		
 		String scheme = "java+variable";
 		if (binding.isEnumConstant()) {
 	      scheme = "java+enumConstant";
@@ -569,6 +594,7 @@ public class BindingsResolver {
 	    } else if (binding.isField()) {
 	      scheme = "java+field";
 	    }
+		
 		ISourceLocation result = convertBinding(scheme, null, qualifiedName.concat(binding.getName()));
 		EclipseJavaCompiler.cache.put(binding.getKey(), result);
 		return result;
