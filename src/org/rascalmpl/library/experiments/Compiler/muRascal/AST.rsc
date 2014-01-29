@@ -215,6 +215,7 @@ public data MuExp =
             
             | preAddition(MuExp lhs, MuExp rhs)
             | preSubtraction(MuExp lhs, MuExp rhs)
+            | preMultiplication(MuExp lhs, MuExp rhs)
             | preDivision(MuExp lhs, MuExp rhs)
             | preModulo(MuExp lhs, MuExp rhs)
             | prePower(MuExp lhs, MuExp rhs)

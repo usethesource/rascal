@@ -157,5 +157,17 @@ toString(F);
 public java str toString(node T);
 
 
+@doc{
+Synopsis: Convert a node to an indented string.
+
+Examples:
+<screen>
+import Node;
+F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
+itoString(F);
+</screen>
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str itoString(node T);
 
 
