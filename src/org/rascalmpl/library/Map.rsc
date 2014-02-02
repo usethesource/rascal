@@ -297,3 +297,16 @@ toString(("apple": 1, "pear": 2, "orange": 3));
 public java str toString(map[&K, &V] M);
 
 
+@doc{
+Synopsis: Convert a map to a indented string.
+
+Examples:
+<screen>
+import Map;
+itoString(("apple": 1, "pear": 2, "orange": 3));
+</screen>
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str itoString(map[&K, &V] M);
+
+

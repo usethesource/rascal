@@ -1603,6 +1603,24 @@ test: toString(<L>) == <?>
 @javaClass{org.rascalmpl.library.Prelude}
 public java str toString(list[&T] lst);
 
+
+@doc{
+Synopsis: Convert a list to an indented string.
+
+Description:
+Convert `lst` to a indented string.
+
+Examples:
+<screen>
+import List;
+itoString([10, 20, 30]);
+itoString(["zebra", "elephant", "snake", "owl"]);
+</screen>
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str itoString(list[&T] lst);
+
+
 @doc{
 Synopsis: Make a pair (triple) of lists from a list of pairs (triples).
 
