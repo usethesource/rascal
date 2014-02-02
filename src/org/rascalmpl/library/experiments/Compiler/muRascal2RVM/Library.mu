@@ -580,35 +580,9 @@ coroutine MATCH_LITERAL_IN_LIST[4, pat, iSubject, rNext, available, start, elm]{
     println("MATCH_LITERAL_IN_LIST: false", pat, start, elm);
 }
 
-// Tree node in concrete pattern: appl(iProd, argspat), where argspat is a list pattern
-coroutine MATCH_APPL_IN_LIST[5, iProd, argspat, iSubject, rNext, available, start, iElem, children, cpats]{
-    println("MATCH_APPL_IN_LIST", iProd, argspat, " AND ", iSubject, iSubject is node);
-    start = deref rNext;
-    iElem = get_list(iSubject, start);
-    guard iElem is node;
-    children = get_children(iElem);
-    if(equal(get_name(iElem), "appl") && equal(iProd, get_array(children, 0))){
-       println("MATCH_APPL_IN_LIST match children", get_array(children, 1));
-       cpats = init(argspat, get_array(children, 1));
-       while(next(cpats)) {
-          println("MATCH_APPL_IN_LIST succeeds");
-          yield(start + 1);
-       };
-    };
-    println("MATCH_APPL_IN_LIST fails",  iProd, argspat, " AND ", iSubject);
-}
-
-// An arbitrary pattern in a list: used to skip layout in concrete patterns
-coroutine MATCH_ARB_IN_LIST[3, iSubject, rNext, available, start]{ 
-    guard available > 0;
-    start = deref rNext;
-    //println("MATCH_ARB_IN_LIST", start, get_list(iSubject, start));
-    return(start + 1);
-} 
-
 coroutine MATCH_VAR_IN_LIST[4, rVar, iSubject, rNext, available, start, iVal, iElem]{
    start = deref rNext;
-   //println("MATCH_VAR_IN_LIST", iSubject, start, available);
+   println("MATCH_VAR_IN_LIST", iSubject, start, available);
    guard available > 0;
    
    iElem = get_list(iSubject, start);
@@ -619,6 +593,7 @@ coroutine MATCH_VAR_IN_LIST[4, rVar, iSubject, rNext, available, start, iVal, iE
       };
       exhaust;
    };
+   println("MATCH_VAR_IN_LIST succeeds");
    yield(iElem, start + 1);
    undefine(rVar);
 }
@@ -686,81 +661,6 @@ coroutine MATCH_LAST_MULTIVAR_IN_LIST[7, rVar, iMinLen, iMaxLen, iLookahead, iSu
         yield(sublist(iSubject, start, len), start + len);
         len = len + 1;
     };
-    undefine(rVar);
-}
-
-coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[7, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, cavailable, extra, start, len, minLen, maxLen, iVal, sublen, end]{
-    println("MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST");
-    minLen = mint(iMinLen);
-    len =  minLen;
-    start = deref rNext;
-    cavailable = cavailable - mint(iLookahead);  // Remove
-    if((cavailable mod 4) > 0){
-       extra = 1;
-    } else {
-       extra = 0;
-    };
-    maxLen = min(mint(iMaxLen), (cavailable/4) + extra);
-    if(is_defined(rVar)){
-      iVal = deref rVar;
-      if(occurs(iVal, iSubject, start)){	// TODO: check length
-         yield(iVal, start + size_list(iVal));
-      };
-      exhaust;
-    };
-    
-    while(len <= maxLen) {
-        if(len == 0){
-           sublen = 0;
-        } else {
-          sublen = (4 * (len - 1)) + 1;
-        };
-        end = start + sublen;
-        println("MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST succeeds", end);
-        yield(sublist(iSubject, start, sublen), end);
-        len = len + 1;
-    };
-    undefine(rVar);
-}
-
-coroutine MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[7, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, cavailable, available, extra, start, clen, len, iVal, sublen, end]{
-    println("MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST", iLookahead, cavailable);
-   
-    cavailable = cavailable - mint(iLookahead);
-    if((cavailable mod 4) > 0){
-       extra = 1;
-    } else {
-       extra = 0;
-    };
-    len = min(mint(iMaxLen), (cavailable/4) + extra);
-    println("MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST", cavailable, len, extra);
-     
-    guard(len >= mint(iMinLen));
-    
-    start = deref rNext;
-    available = len;
-  
-    if(is_defined(rVar)){
-      iVal = deref rVar;
-      if(occurs(iVal, iSubject, start)){	// TODO: check length
-         yield(iVal, start + size_list(iVal));
-      };
-      exhaust;
-    };
-    
-   // while(len <= available) {
-    	
-        if(len == 0){
-           sublen = 0;
-        } else {
-          sublen = (4 * (len - 1)) + 1;
-        };
-        end = start + sublen;
-        println("MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST succeeds", len, sublen, end, cavailable);
-        //return (iSubject, cavailable);
-        yield(sublist(iSubject, start, sublen), end);
-   //   len = len + 1;
-  //  };
     undefine(rVar);
 }
 
@@ -875,6 +775,204 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[7, typ, iMinLen, iMaxLen, 
       };
       return (start + len);
     };
+}
+
+// Primitives for matching of concrete list patterns
+
+// Tree node in concrete pattern: appl(iProd, argspat), where argspat is a list pattern
+coroutine MATCH_APPL_IN_LIST[5, iProd, argspat, iSubject, rNext, available, start, iElem, children, cpats]{
+    start = deref rNext;
+    guard start < size_list(iSubject);
+    iElem = get_list(iSubject, start);
+    println("MATCH_APPL_IN_LIST", start, iProd, argspat, " AND ", iElem);
+   
+    //guard iElem is node;
+    children = get_children(iElem);
+    println("MATCH_APPL_IN_LIST, start:", start, "children:", size_array(children), children);
+    if(equal(get_name(iElem), "appl") && equal(iProd, get_array(children, 0))){
+       println("MATCH_APPL_IN_LIST match children", get_array(children, 1));
+       cpats = init(argspat, get_array(children, 1));
+       while(next(cpats)) {
+          println("MATCH_APPL_IN_LIST succeeds", start + 1);
+          yield(start + 1);
+       };
+    };
+    println("MATCH_APPL_IN_LIST fails",  iProd, argspat, " AND ", iSubject);
+}
+
+// Match appl(prod(lit(S),_,_), _) in a concrete list
+coroutine MATCH_LIT_IN_LIST[4, iProd, iSubject, rNext, available, start, iElem, children]{
+	start = deref rNext;
+	guard start < size_list(iSubject);
+	println("MATCH_LIT_IN_LIST", start, iProd, get_list(iSubject, start));
+    iElem = get_list(iSubject, start);
+    children = get_children(iElem);
+    if(equal(get_name(iElem), "appl") && equal(iProd, get_array(children, 0))){
+	   println("MATCH_LIT_IN_LIST succeeds", start, start + 1);
+	   return(start + 1);
+	};
+	println("MATCH_LIT_IN_LIST fails");
+}
+
+// Match and skip optional layout in concrete patterns
+coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST[3, iSubject, rNext, available, start, iElem, children, prod, prodchildren]{ 
+    start = deref rNext;
+    if(available > 0){
+       iElem = get_list(iSubject, start);
+       println("MATCH_OPTIONAL_LAYOUT_IN_LIST", start, iElem, available);
+       if(iElem is node && equal(get_name(iElem), "appl")){
+          children = get_children(iElem);
+          prod = get_array(children, 0);
+          prodchildren = get_children(prod);
+          if(equal(get_name(get_array(prodchildren, 0)), "layouts")){
+    			println("MATCH_OPTIONAL_LAYOUT_IN_LIST skips layout", start+1);
+    			return(start + 1);
+    	  };
+    	};
+    };
+    println("MATCH_OPTIONAL_LAYOUT_IN_LIST no layout found", start);
+    return start;
+} 
+
+
+coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST[7, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, cavailable, start, clen, maxLen, iVal, end]{
+    println("MATCH_CONCRETE_MULTIVAR_IN_LIST", iMinLen, iMaxLen, iLookahead, cavailable);
+    start = deref rNext;
+    clen = mint(iMinLen);
+    maxLen = min(mint(iMaxLen), max(cavailable - mint(iLookahead), 0));
+    if(is_defined(rVar)){
+      iVal = deref rVar;  						// TODO: check length
+      if(occurs(iVal, iSubject, start)){
+         yield(iVal, start + size_list(iVal));
+      };
+      exhaust;
+    };
+    
+    while(clen <= maxLen) {
+       end = start + clen;
+       println("MATCH_CONCRETE_MULTIVAR_IN_LIST yields", sublist(iSubject, start, clen), end);
+       yield(sublist(iSubject, start, clen), end);
+       clen = clen + 2;
+    };
+    undefine(rVar);
+}
+
+coroutine MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST[7, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, cavailable, start, clen, iVal, end]{
+    println("MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST", iMinLen, iMaxLen, iLookahead, cavailable);
+  
+    clen = min(mint(iMaxLen), max(cavailable - mint(iLookahead), 0));
+    println("MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST", cavailable, clen);
+   
+    guard(clen >= mint(iMinLen));
+    start = deref rNext;
+    if(is_defined(rVar)){
+      iVal = deref rVar;						// TODO: check length
+      if(occurs(iVal, iSubject, start)){
+         yield(iVal, start + size_list(iVal));
+      };
+      exhaust;
+    };
+    end = start + clen;
+
+    println("MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST yields", sublist(iSubject, start, clen), end);
+    yield(sublist(iSubject, start, clen), end);
+ 
+    undefine(rVar);
+}
+
+function SKIP_OPTIONAL_SEPARATOR[5,iSubject, start, offset, sep, available, elm, children, prod, prodchildren]{
+    if(available >= 2){
+       elm = get_list(iSubject, start + offset);
+       println("SKIP_OPTIONAL_SEPARATOR", start, offset, sep, elm);
+       if(elm is node){
+          children = get_children(elm);
+          prod = get_array(children, 0);
+          prodchildren = get_children(prod);
+          println("SKIP_OPTIONAL_SEPARATOR prod=", prod);
+          if(equal(get_array(prodchildren, 0), sep)){
+    	       return 2;
+    	  };
+    	};
+    };
+    println("SKIP_OPTIONAL_SEPARATOR no separator found", start, sep);
+    return 0;
+}
+
+coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[8, rVar, iMinLen, iMaxLen, iLookahead, sep, iSubject, rNext, 
+                                                          cavailable, start, len, maxLen, iVal, sublen, end, 
+                                                          skip_leading_separator, skip_trailing_separator]{
+    start = deref rNext;
+    println("MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST", iMinLen, iMaxLen, iLookahead, cavailable);
+    len =  mint(iMinLen);
+ 
+    skip_leading_separator = SKIP_OPTIONAL_SEPARATOR(iSubject, start, 0, sep, cavailable);
+    
+    skip_trailing_separator = 0;
+    maxLen = max(cavailable - (mint(iLookahead) + skip_leading_separator), 0);
+  
+    /*
+    if(mint(iLookahead) > 0 && maxLen >= 2){
+       println("MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST skip trailing separator");
+   	   maxLen = maxLen - 2;	// skip trailing separator;
+   	   skip_trailing_separator = 2;
+    };
+    */
+    
+    if(is_defined(rVar)){
+      iVal = deref rVar;
+      if(occurs(iVal, iSubject, start)){	// TODO: check length
+         yield(iVal, start + size_list(iVal));
+      };
+      exhaust;
+    };
+    
+    while(len <= maxLen) {
+        if(len == 0){
+           sublen = 0;
+        } else {
+          sublen = (4 * (len - 1)) + 1;
+        };
+        end = start + skip_leading_separator + sublen;
+        skip_trailing_separator = SKIP_OPTIONAL_SEPARATOR(iSubject, end, 1, sep, maxLen);
+        end = end + skip_trailing_separator;
+        
+        println("MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST yields", sublist(iSubject, start + skip_leading_separator, sublen), end);
+        yield(sublist(iSubject, start + skip_leading_separator, sublen), end);
+        len = len + 1;
+    };
+    undefine(rVar);
+}
+
+coroutine MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[8, rVar, iMinLen, iMaxLen, iLookahead, sep, iSubject, rNext, 
+                                                               cavailable, start, iVal, sublen, end, skip_leading_separator, skip_trailing_separator]{
+    start = deref rNext;
+    println("MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST start", start, "iLookahead", iLookahead, "cavailable", cavailable);
+    skip_leading_separator =  SKIP_OPTIONAL_SEPARATOR(iSubject, start, 0, sep, cavailable);
+    skip_trailing_separator = 0;
+    sublen = max(cavailable - (mint(iLookahead) + skip_leading_separator), 0);
+   
+    if(mint(iLookahead) > 0 && sublen >= 2){
+       println("MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST skip trailing separator");
+   	   sublen = sublen - 2;	// skip trailing separator;
+   	   skip_trailing_separator = 2;
+    };
+    
+    guard(sublen >= mint(iMinLen));
+    println("MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST", "sublen", sublen);
+  
+    if(is_defined(rVar)){
+       iVal = deref rVar;
+       if(occurs(iVal, iSubject, start)){	// TODO: check length
+          yield(iVal, start + size_list(iVal));
+       };
+       exhaust;
+    };
+
+    end = start + skip_leading_separator + sublen + skip_trailing_separator;
+    println("MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST succeeds", sublen, end);
+    yield(sublist(iSubject, start + skip_leading_separator, sublen), end);
+ 
+    undefine(rVar);
 }
 
 // ***** SET matching *****
