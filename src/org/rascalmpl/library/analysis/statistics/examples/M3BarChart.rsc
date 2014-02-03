@@ -126,7 +126,10 @@ public void main() {
     ]
     ,legend = true
     );
-    htmlDisplay(publish(|project://chart/src/m3|,barChartHeader("barChart"), body1+body2,
+    htmlDisplay(publish(
+        // |project://chart/src/m3|,
+        |file:///tmp/m3|,
+        barChartHeader("barChart"), body1+body2,
     "method"
     ,<"src", methodSrc>
     ,<"length", methodLength>

@@ -351,10 +351,32 @@ public enum MuPrimitive {
 	
 	public static int get_children_and_keyword_params_as_values(Object[] stack, int sp, int arity) {
 		assert arity == 1;
+		IValue v = (IValue) stack[sp - 1];
+		Object[] elems;
+		if(v.getType().isAbstractData()){
+			IConstructor cons = (IConstructor) v;
+			Type tp = cons.getConstructorType();
+			
+			int cons_arity = tp.getArity();
+			int pos_arity = tp.getPositionalArity();
+			
+			elems = new Object[cons_arity];
+			for(int i = 0; i < pos_arity; i++){
+				elems[i] = cons.get(i);
+			}
+			
+			for(int i = pos_arity; i < cons_arity; i++){
+				String key = tp.getFieldName(i);
+				IValue val = cons.get(key);
+				elems[i] = val;
+			}
+			stack[sp - 1] =  elems;
+			return sp;
+		}
+		
 		INode nd = (INode) stack[sp - 1];
 		int nd_arity = nd.arity();
 		IValue last = nd.get(nd_arity - 1);
-		Object[] elems;
 		
 		if(last.getType().isMap()){
 			IMap kwmap = (IMap) last;
@@ -364,8 +386,8 @@ public enum MuPrimitive {
 			for(int i = 0; i < nd_arity - 1; i++){
 				elems[i] = nd.get(i);
 			}
-			for(IValue v : kwmap){
-				elems[j++] = v;
+			for(IValue elm : kwmap){
+				elems[j++] = elm;
 			}
 		} else {
 			elems = new Object[nd_arity];
