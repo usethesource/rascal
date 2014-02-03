@@ -30,6 +30,24 @@ import ValueIO;
 //	}
 //	return result;
 //}
+//int countCCLikeMetric() {
+//	dt = getData();
+//	int result = 0;
+//	for (i <- [0..100]) {
+//		visit (dt) {
+//			case \do(_,_) : result += 1;	
+//			case \while(_,_) : result += 1;	
+//			case \foreach(_,_,_): result += 1;
+//			case \for(_,_,_): result += 1;
+//			case \for(_,_,_,_): result += 1;
+//			case \if(_,_): result += 1;
+//			case \if(_,_,_): result += 1;
+//			case \case(_): result += 1;
+//			case \catch(_,_): result += 1;
+//		}
+//	}
+//	return result;
+//}
 //
 //
 //set[str] getMethodsWhichThrow() {
@@ -71,5 +89,5 @@ import ValueIO;
 //}
 
 //public value main(list[value] args) {
-//  return [countReturnStatementsReducer()/*, countReturnStatementsVisit(), getMethodsWhichThrow(), getVariableNamesTwice(), getVariableNamesOnce(), countZeroes()*/];
+//  return [countReturnStatementsReducer()/*, countReturnStatementsVisit(), countCCLikeMetric(), getMethodsWhichThrow(), getVariableNamesTwice(), getVariableNamesOnce(), countZeroes()*/];
 //}
