@@ -46,10 +46,9 @@ public class JavaMethod extends NamedFunction {
 	private final Method method;
 	private final boolean hasReflectiveAccess;
 	private final JavaBridge javaBridge;
-	private final boolean hasMemoization;
 	
 	public JavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
-		this(eval, (FunctionType) func.getSignature().typeOf(env, true), func, varargs, env, javaBridge);
+		this(eval, (FunctionType) func.getSignature().typeOf(env, true), func,isDefault(func), hasTestMod(func.getSignature()), varargs, env, javaBridge);
 	}
 	
 	/*
@@ -59,11 +58,10 @@ public class JavaMethod extends NamedFunction {
 	 *  might not be finished yet, and hence not have all the
 	 *  require types.
 	 */
-	private JavaMethod(IEvaluator<Result<IValue>> eval, FunctionType type, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
-		super(func, eval, type , Names.name(func.getSignature().getName()), varargs, null, env);
+	private JavaMethod(IEvaluator<Result<IValue>> eval, FunctionType type, FunctionDeclaration func, boolean varargs, boolean isTest, boolean isDefault, Environment env, JavaBridge javaBridge){
+		super(func, eval, type , Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, null, env);
 		this.javaBridge = javaBridge;
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
-		this.hasMemoization = checkMemoization(func);
 		this.instance = javaBridge.getJavaClassInstance(func);
 		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
 	}
@@ -71,7 +69,7 @@ public class JavaMethod extends NamedFunction {
 
 	@Override
 	public JavaMethod cloneInto(Environment env) {
-		JavaMethod jm = new JavaMethod(getEval(), getFunctionType(), (FunctionDeclaration)getAst(), hasVarArgs, env, javaBridge);
+		JavaMethod jm = new JavaMethod(getEval(), getFunctionType(), (FunctionDeclaration)getAst(), isDefault, isTest, hasVarArgs, env, javaBridge);
 		jm.setPublic(isPublic());
 		return jm;
 	}
@@ -79,11 +77,6 @@ public class JavaMethod extends NamedFunction {
 	@Override
 	public boolean isStatic() {
 		return true;
-	}
-	
-	@Override
-	public boolean isDefault() {
-		return false;
 	}
 	
 	private boolean hasReflectiveAccess(FunctionDeclaration func) {
@@ -95,19 +88,6 @@ public class JavaMethod extends NamedFunction {
 		return false;
 	}
 	
-	private boolean checkMemoization(FunctionDeclaration func) {
-		for (Tag tag : func.getTags().getTags()) {
-			if (Names.name(tag.getName()).equals("memo")) {
-				return true;
-			}
-		}
-		return false;
-	}
-	@Override
-	protected boolean hasMemoization() {
-		return this.hasMemoization;
-	}
-
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 		Result<IValue> resultValue = getMemoizedResult(actuals, keyArgValues);
