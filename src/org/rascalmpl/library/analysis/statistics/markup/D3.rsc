@@ -8,7 +8,9 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module analysis::statistics::markup::D3
 import Prelude;
-import display::Display;
+import util::HtmlDisplay;
+import util::Math;
+import lang::json::IO;
 
 alias Att =  map[str, str];
 
@@ -41,7 +43,7 @@ public str html(str head, str body) {
             '  \<html xmlns=\"http://www.w3.org/1999/xhtml\"\>
             '
             '
-            '<head>\n<body>\n\</html\>"
+            '\<header\><head>\</header\>\n\<body\><body>\</body\>\n\</html\>"
            ;                     
 }
 
@@ -61,6 +63,7 @@ data JavaScript = program(list[ScriptElm scriptElm]);
 
 data Bundle = attr(map[str, value])|
               attr(map[str, value], Bundle bundle) |
+              svg()|svg(Bundle bundle)|
               enter()|enter(Bundle bundle)|
               exit()| exit(Bundle bundle)|
               dat(str d)| dat(str d, Bundle bundle)|
@@ -68,7 +71,7 @@ data Bundle = attr(map[str, value])|
               style(map[str, value] styl, Bundle bundle)|
               transition()| transition(Bundle bundle) |
               duration(int t)| duration(int t, Bundle bundle) |
-              add(str obj)| add(str obj, Bundle bundle) |
+              add(str obj)| add(str obj, Bundle bundle) | add(Bundle bundle) |
               remove(str obj)| remove(str obj, Bundle bundle) |
               on(str event, ScriptElm s)| on(str event, ScriptElm s, Bundle bundle) |
               selectAll(str obj, Bundle bundle) |
@@ -80,6 +83,27 @@ data Bundle = attr(map[str, value])|
               text(str file, ScriptElm callback) |
               csv_parse(str d) |
               csv_parse(str d, ScriptElm accessor) |
+              scale(ScriptElm scale, Bundle bundle) | scale(ScriptElm scale) |
+              linear(Bundle bundle) |
+              domain(ScriptElm domain, Bundle bundle) | domain(ScriptElm domain) |
+              range (ScriptElm range, Bundle bundle) |
+              range (ScriptElm range) |
+              orient (str pos, Bundle bundle) |
+              orient (str pos) |
+              ticks(ScriptElm domain, Bundle bundle) | ticks(ScriptElm domain) |
+              tickValues(ScriptElm domain, Bundle bundle) | tickValues(ScriptElm domain) |
+              tickFormat(ScriptElm domain, Bundle bundle) | tickFormat(ScriptElm domain) |
+              axis () |
+              axis (Bundle bundle) |
+              line () |
+              line (Bundle bundle) |
+              x (ScriptElm fun) |
+              x (ScriptElm fun, Bundle bundle) |
+              y(ScriptElm fun) |
+              y (ScriptElm fun, Bundle bundle) |
+              interpolate (str kind) |
+              interpolate (str kind, Bundle bundle) |
+              call (ScriptElm f) |
               json(str l, ScriptElm callback)           
               ;
              
@@ -114,6 +138,8 @@ str display(str key, map[str, value] m) {
 str toString(Bundle b) {
               str r = "";
               top-down visit(b) {
+                 case svg(): r+=".svg()";
+                 case svg(_): r+=".svg()";
                  case enter(): r+=".enter()";
                  case enter(_): r+=".enter()";
                  case exit(): r+=".exit()";
@@ -142,7 +168,33 @@ str toString(Bundle b) {
                  case csv(str l, ScriptElm callback) : return r+ ".csv(\"<l>\", <toString(callback)>)";
                  case csv(str l, ScriptElm acc, ScriptElm callback) : r+= ".csv(\"<l>\" , <toString(acc)>, <toString(callback)>)"; 
                  case tsv(str l, ScriptElm callback) : return r+ ".tsv(\"<l>\", <toString(callback)>)";
-                 case tsv(str l, ScriptElm acc, ScriptElm callback) : r+= ".tsv(\"<l>\" , <toString(acc)>, <toString(callback)>)";                   
+                 case tsv(str l, ScriptElm acc, ScriptElm callback) : return r+ ".tsv(\"<l>\" , <toString(acc)>, <toString(callback)>)";
+                 case scale(ScriptElm e): return r+ ".scale(<toString(e)>)";
+                 case scale(ScriptElm e, Bundle c): {r+=".scale(<toString(e)>)";return r+ toString(c);}
+                 case linear(_): r+= ".scale.linear()";  
+                 case domain(ScriptElm e): return r+".domain(<toString(e)>)";
+                 case domain(ScriptElm e, Bundle b): {r+=".domain(<toString(e)>)"; return r+ toString(b);}
+                 case range(ScriptElm e, Bundle b):  {r+=".range(<toString(e)>)"; return r+ toString(b);}
+                 case range(ScriptElm e):   return r+".range(<toString(e)>)";
+                 case orient (str pos, _): r+=".orient(\"<pos>\")";
+                 case orient (str pos):  r+=".orient(\"<pos>\")";
+                 case axis (): r+= ".svg.axis()";
+                 case axis (_): r+= ".svg.axis()";
+                 case line (): r+= ".svg.line()";
+                 case line (_): r+= ".svg.line()";
+                 case interpolate (str kind): r+= ".interpolate(\"<kind>\")";
+                 case interpolate (str kind, _): r+= ".interpolate(\"<kind>\")";
+                 case x(ScriptElm e): return r+ ".x(<toString(e)>)";
+                 case x(ScriptElm e, Bundle c): {r+=".x(<toString(e)>)";return r+ toString(c);}
+                 case y(ScriptElm e): return r+ ".y(<toString(e)>)";
+                 case y(ScriptElm e, Bundle c): {r+=".y(<toString(e)>)";return r+ toString(c);}
+                 case ticks(ScriptElm e): return r+".ticks(<toString(e)>)";
+                 case ticks(ScriptElm e, Bundle b): {r+=".ticks(<toString(e)>)"; return r+ toString(b);}
+                 case tickValues(ScriptElm e): return r+".tickValues(<toString(e)>)";
+                 case tickValues(ScriptElm e, Bundle b): {r+=".tickValues(<toString(e)>)"; return r+ toString(b);}
+                 case tickFormat(ScriptElm e): return r+".tickFormat(<toString(e)>)";
+                 case tickFormat(ScriptElm e, Bundle b): {r+=".tickFormat(<toString(e)>)"; return r+ toString(b);}
+                 case call(ScriptElm f):  return r+".call(<toString(f)>)";              
                  case csv_parse(str d, ScriptElm acc) : return r+".csv.parse(<d>, <toString(acc)>)";
                  case csv_parse(str d) : return r+".csv.parse(<d>)";  
                  case json(str l, ScriptElm callback) : return r+ ".json(\"<l>\", <toString(callback)>)";       
@@ -302,81 +354,106 @@ public str JavaScriptTsv(str file, str error, str dat, ScriptElm e ...) {
 public str JavaScriptJson(str file, str error, str dat, ScriptElm e ...) {
      return JavaScript(call(d3_, json("<file>", function(error, dat, program(e)))));
      }
-      
+ 
+public loc publish(loc location, list[tuple[num x, num y]]  d, str header, str body) { 
+     list[str] hd= ["x", "y"];
+     list[map[str, value]] jsonData = [(hd[i] : r[i]|i<-[0..2])|
+         tuple[num, num] r<-d];    
+      writeTextJSonFile(location+"data.json", jsonData); 
+      writeFile(location+"index.html",  html(header, body));    
+      return location;    
+      }
+
+
 public void main() {
- int r = 12;
- str header = Z(title_, (), "d3.js Three Little Circles")+
- Z(button_, "Run") +
- Z(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8"));
-  str body = Z(h1_, (id_: "three_little_circles"), "Three Little Circles") +
-  Z(script_, (type_:"text/javascript"), 
-       "function debug(obj) {
-       'var output = \'\';
-       ' for (property in obj) {
-       '   output += property + \': \' + obj[property]+\'; \';
-       '   }
-       '  alert(output);
-       ' }\n") + 
-   JavaScript([
-           var(
-           (
-            "w":360,
-            "h":580       
-           )) 
-           ,
-           call(d3_, selectAll(h1_, style(("color": "red")))),
-           var((svg_: 
-            call(d3_, select(body_, add(svg_, attr((width_: expr("w"), height_:expr("h")), style(("fill":"yellow"))
-              ))))))
-           ])
-  +JavaScriptCsv("aap.txt", "error", "dataset",
-             expr("debug(dataset[0])"),
-                
-                call(svg_, 
-                 selectAll(".main", dat("dataset", 
-                  enter(add(circle_,
-                   attr((class_:"main", 
-                         cx_:function("d", "return d.x;"), 
-                         cy_:function("d", "return d.y;"), 
-                         r_:r))  
-               )))))
-               ,    
-               var(("border": call(svg_, selectAll(".border", dat("dataset")))))
-               ,   
-               call(d3_, selectAll(button_, on("click", 
-               function(program([
-                  call(svg_, 
-                  selectAll(".main", 
-                     transition(duration( 5000, 
-                        style(("fill": "red"))
-                  ))))
-                  ,         
-                  call("border", enter(
-                      add(circle_,
-                         attr((class_:"border", 
-                               cx_:function("d", "return d.x;"), 
-                               cy_:function("d", "return d.y;"), 
-                               r_:r+20), 
-                            style(("fill":"none",
-                                   "stroke":"black"),
-                               transition(duration(1000, 
-                                   attr(("r":12))
-                               ))
-                            ))
-                      )))
-                  ]
-             ))     
-           )))                         
-          )
-  +Z(p_, 
-  "Once upon a time, there were three little circles. 
-  '    This tutorial shows you how to manipulate them using selections.")  
-      ;
+   int n= 100;
+
+   num r(num v) = round(v,0.0004);
+   list[tuple[num, num]] d = [<i*6.0/100, r(sin(r(2*i*PI()/n)))>|i<-[0..n+1]];
+   str header = Z(title_, (), "sincos")+
+      Z(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8"))+
+      toCss((
+            ".axis path":(fill_:"none", stroke_:"black"), 
+            ".line":(fill_:"none", stroke_:"RoyalBlue"),
+            ".axis": ("font-size":"8pt","font-family":"sans-serif"), 
+            ".tick":(fill_:"none", stroke_:"black")
+             ));
+      str body = Z(h1_, (id_: "sincos"), "Sinus Cosinus") 
       
-  println(header);
-   println(body);
-  htmlDisplay("dotplugin", "d3/index", html(
-         header
-    , body));
-}
+       + JavaScriptJson("data.json", "error", "dat",
+        var(
+          (
+           "width":800,
+           "height":400,
+           "margin":50      
+            )
+          )
+         ,  var((svg_: 
+            call(d3_, select(body_, add(svg_, attr((width_: expr("width"), height_:expr("height"))/*, style(("fill":"blue")) */
+              ))))))
+        
+        
+      ,
+      var (
+          ("x_scale":
+              call(d3_, linear(domain(expr("[0,6]")
+              , range(expr("[margin, width-margin]")))))))
+        , 
+      var (
+          ("y_scale":
+              call(d3_, linear(domain(expr("[-1,1]")
+              , range(expr("[height-margin, margin]")))))))
+        , 
+      var (("x_axis": call(d3_, axis(scale(expr("x_scale"), ticks(expr("7")
+         , tickFormat(expr("function(d){if (d==1) return \"1/6\";
+                            'if (d==2) return \"1/3\";
+                            'if (d==3) return \"1/2\";
+                            'if (d==4) return \"2/3\";
+                            'if (d==5) return \"5/6\";
+                            'if (d==6) return \"1\";
+                             return d;}"))
+       ))))))
+       ,
+       var (("y_axis": call(d3_, axis(scale(expr("y_scale")
+   //    , tickValues(expr("[-1,0,1]")
+       , orient("right")
+    //   )
+       )))))
+       ,
+       call(svg_, add("g", attr((
+           "class":"x axis", 
+          "transform": expr("\"translate(0, \" +height/2+ \")\"")
+           )
+           , call(expr("x_axis")))
+           ))
+           ,
+       call(svg_, add("g", attr((
+           "class":"y axis", 
+          "transform": expr("\"translate(\"+margin+\", 0)\"")
+           )
+           , call(expr("y_axis")))
+           ))
+           ,
+       var(("line": call(d3_, line(interpolate("monotone", x(expr("
+             function(d) {return x_scale(d.x);}
+             "
+             ),
+        y(expr("
+             function(d) {return y_scale(d.y);}
+             "
+             )
+           )))))))
+           ,
+           call(svg_, add("path", attr((
+           "class":"line", 
+            "d": expr("line(dat)")
+           )
+           )
+           ))
+         
+        );
+      
+      htmlDisplay(publish(|project://chart/src/aap|, d, 
+         header , body));
+    }
  

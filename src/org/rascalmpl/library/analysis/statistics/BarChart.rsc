@@ -17,7 +17,8 @@ import analysis::statistics::markup::Dimple;
 import lang::json::IO;
 import IO;
 
-alias YAxis = tuple[str varName, str aggregateMethod, str plotFunction,value series, bool showPercent];
+alias YAxis = tuple[str varName, str aggregateMethod, str plotFunction,value series, bool showPercent,
+num overrideMin, num overrideMax, bool hidden];
 
 alias ColorAxis = tuple[str varName, value color];
 
@@ -48,8 +49,9 @@ public tuple[int x, int y, int width, int height, str align] legendBounds =
       for relation {<"Piet", 25, "M">, <"Anne", 40, "V">}
     }
 
-public YAxis getYAxis(str varName="y", str aggregateMethod="count", str plotFunction="bar", value series="", bool showPercent=false) {
-    return <varName, aggregateMethod, plotFunction, series, showPercent>;
+public YAxis getYAxis(str varName="y", str aggregateMethod="count", str plotFunction="bar", value series="", bool showPercent=false,
+    num overrideMin=0, num overrideMax=0, bool hidden = false) {
+    return <varName, aggregateMethod, plotFunction, series, showPercent, overrideMin, overrideMax, hidden>;
     }
 
 private bool isNull(value v) {
@@ -84,8 +86,8 @@ public str barChart(
     , value orderRule = ""
     , value series=""
     , list[tagColor] assignColor=[]
-    , YAxis y_axis =<"y","count", "bar","", false>
-    , YAxis y_axis2=<"","max", "line","", false>
+    , YAxis y_axis =<"y","count", "bar","", false,0, 0, false>
+    , YAxis y_axis2=<"","max", "line","", false,0, 0, false >
     , bool legend = false
     , bool legend2 = false
     , list[dColor] defaultColors = []
@@ -141,9 +143,22 @@ public str barChart(
         ,
         expr(y_axis[4]?"if (<y1>) <y1>.showPercent=<y_axis[4]>":"")
         ,
-        expr(y_axis[4]?"if (<y2>) <y2>.showPercent=<y_axis2[4]>":"")
+        expr(y_axis2[4]?"if (<y2>) <y2>.showPercent=<y_axis2[4]>":"")
+        ,
+        expr(y_axis[5]!=y_axis[6]?"if (<y1>) <y1>.overrideMin=<y_axis[5]>":"")
+        ,
+        expr(y_axis[5]!=y_axis[6]?"if (<y1>) <y1>.overrideMax=<y_axis[6]>":"")
+        ,
+        expr(y_axis2[5]!=y_axis2[6]?"if (<y2>) <y2>.overrideMin=<y_axis2[5]>":"")
+        ,
+        expr(y_axis2[5]!=y_axis2[6]?"if (<y2>) <y2>.overrideMax=<y_axis2[6]>":"")
+        ,
+        expr(y_axis[7]?"if (<y1>) <y1>.hidden=<y_axis[7]>":"")
+        ,
+        expr(y_axis2[7]?"if (<y2>) <y2>.hidden=<y_axis2[7]>":"")
         ,
         expr(chart.draw(myChart))
+        
         );
         return body;         
       }
