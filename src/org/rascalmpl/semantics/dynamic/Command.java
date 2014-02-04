@@ -31,11 +31,14 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
-			__eval.setCurrentAST(this);
-			return this.getDeclaration().interpret(__eval);
-
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+		  eval.setCurrentAST(this);
+		  try {
+		    return this.getDeclaration().interpret(eval);
+		  } 
+		  finally {
+		    eval.setCurrentAST(this);
+		  }
 		}
 
 	}
@@ -57,6 +60,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 				return this.getExpression().interpret(__eval);
 			} finally {
 				__eval.unwind(old);
+				__eval.setCurrentAST(this.getExpression());
 			}
 
 		}
@@ -71,16 +75,21 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			__eval.setCurrentAST(this);
-			Result<IValue> res = this.getImported().interpret(__eval);
+		  try {
+		    __eval.setCurrentAST(this);
+		    Result<IValue> res = this.getImported().interpret(__eval);
 
-			// If we import a module from the command line, notify any
-			// expressions caching
-			// results that could be invalidated by a module load that we have
-			// loaded.
-			__eval.notifyConstructorDeclaredListeners();
+		    // If we import a module from the command line, notify any
+		    // expressions caching
+		    // results that could be invalidated by a module load that we have
+		    // loaded.
+		    __eval.notifyConstructorDeclaredListeners();
 
-			return res;
+		    return res;
+		  }
+		  finally {
+		    __eval.setCurrentAST(this);
+		  }
 
 		}
 
@@ -110,9 +119,13 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
-			__eval.setCurrentAST(this.getStatement());
-			return __eval.eval(this.getStatement());
+		  try {
+		    __eval.setCurrentAST(this.getStatement());
+		    return __eval.eval(this.getStatement());
+		  }
+		  finally {
+		    __eval.setCurrentAST(this.getStatement());
+		  }
 
 		}
 

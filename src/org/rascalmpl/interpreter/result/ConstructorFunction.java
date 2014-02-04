@@ -41,7 +41,7 @@ public class ConstructorFunction extends NamedFunction {
 	private final List<KeywordParameter> keyArgs;
 
 	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType, List<KeywordParameter> keyargs) {
-		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes()), constructorType.getName(), false, keyargs, env);
+		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes()), constructorType.getName(), false, true, false, keyargs, env);
 		this.keyArgs = keyargs;
 		this.constructorType = constructorType;
 	}
@@ -51,16 +51,6 @@ public class ConstructorFunction extends NamedFunction {
 		ConstructorFunction c = new ConstructorFunction(getAst(), getEval(), env, constructorType, keyArgs);
 		c.setPublic(isPublic());
 		return c;
-	}
-	
-	@Override
-	protected boolean hasMemoization() {
-		return false;
-	}
-	
-	@Override
-	public boolean isDefault() {
-		return true;
 	}
 	
 	@Override

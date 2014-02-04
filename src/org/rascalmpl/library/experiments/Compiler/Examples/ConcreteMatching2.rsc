@@ -21,23 +21,53 @@ syntax Stat
    
 value main(list[value] args){
    res = "";
-   if((Exp) `1` := [Exp] "1") res += "[A] 1;";
-
-   if((Exp) `<Exp e>` := [Exp] "1") res += "[B] e = <e>;";
+   if((Exp) `1` := [Exp] "1") 			
+   		res += "[10] 1 "; else res += "[10] FAIL ";
    
-   if((Stat) `a:=1` := [Stat] "a:=1") res += "[C] a:=1;";
+   if((Exp) `1*2` := [Exp] "1*2")
+   		res += "[11] 1*2 ";else res += "[11] FAIL ";
+   		 
+   if((Exp) `1 *2` := [Exp] "1* 2")
+    	res += "[12] 1*2 "; else res += "[12] FAIL ";
+   
+   if((Exp) `1==2` := [Exp] "1==2")
+    	res += "[13] 1==2 "; else res += "[13] FAIL ";
 
-   if((Stat) `<Identifier x> := <Exp e>` := [Stat] "a:=      1") res += "[D] <x>:=<e>;";
+   if((Exp) `<Exp e>` := [Exp] "1")
+    	res += "[14] e = <e> "; else res += "[14] FAIL ";
+   
+   if((Stat) `a:=1` := [Stat] "a:=1")
+   	 	res += "[15] a:=1 "; else res += "[15] FAIL ";
 
-   if((Stat) `<Identifier x> := <Exp e1> + <Exp e2>` := [Stat] "a:= 10 + 20") res += "[E] <x>:=<e1>+<e2>;";
+   if((Stat) `<Identifier x> := <Exp e>` := [Stat] "a:=      1") 
+   		res += "[16] <x>:=<e> "; else res += "[16] FAIL ";
 
-   if((Stat) `if x then a := 1 else b:=2 fi` := [Stat] "if x then a := 1 else b:=2 fi") res += "[F] if x then a := 1 else b:=2 fi;";
+   if((Stat) `<Identifier x> := <Exp e1> + <Exp e2>` := [Stat] "a:= 10 + 20") 
+   		res += "[17] <x>:=<e1>+<e2> "; else res += "[17] FAIL ";
 
-   if((Stat) `if <Exp c> then <{Stat ";"}* th> else <Identifier lhs>:=<Exp rhs> fi` := 
-      [Stat] "if x then a := 1;b:=2 else c:=3 fi") res += "[G] <c>, <th>, <lhs>, <rhs>;";
-      
-   //if((Stat) `if <Exp c> then <{Stat ";"}* th1>; a := 1; <{Stat ";"}* th2> else <Identifier lhs>:=<Exp rhs> fi` := 
-   //   [Stat] "if x then a := 1;b:=2 else c:=3 fi") res += "[H] <c>, <th1>, <th2>, <lhs>, <rhs>;";
+   if((Stat) `if x then a := 1 else b:=2 fi` := [Stat] "if x then a := 1 else b:=2 fi") 
+   		res += "[20] if x then a := 1 else b:=2 fi "; else res += "[20] FAIL ";
+   										
+   if((Stat) `if <Exp c> then <{Stat ";"}* th> else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2 else c:=3 fi") 
+      	res += "[21] <c>/<th>/<el> "; else res += "[21] FAIL ";
+
+   if((Stat) `if <Exp c> then <{Stat ";"}* th> else <Identifier lhs>:=<Exp rhs> fi` := [Stat] "if x then a := 1;b:=2 else c:=3 fi") 
+      	res += "[22] <c>/<th>/<lhs>/<rhs> "; else res += "[22] FAIL ";
+      									
+    if((Stat) `if <Exp c> then a:=1;<{Stat ";"}* th> else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2 else c:=3 fi") 
+      	res += "[23] <th>/<el> "; else res += "[23] FAIL ";
+    
+    if((Stat) `if <Exp c> then a:=1;<{Stat ";"}* th>;b:=2 else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2 else c:=3 fi") 
+    	res += "[24] <th>/<el> "; else res += "[24] FAIL ";
+    
+    if((Stat) `if <Exp c> then a:=1;b:=2;<{Stat ";"}* th> else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2 else c:=3 fi") 
+      	res += "[25] <th>/<el> "; else res += "[25] FAIL ";
+      									
+   if((Stat) `if <Exp c> then <{Stat ";"}* th1>;a := 1;<{Stat ";"}* th2> else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2 else c:=3 fi") 
+      	res += "[26] <c>/<th1>/<th2>/<el> "; else res += "[26] FAIL ";
+      	
+   if((Stat) `if <Exp c> then <{Stat ";"}* th1>;a := 1;<{Stat ";"}* th2>; d := 5 else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2;d:=5 else c:=3 fi") 
+      	res += "[26] <c>/<th1>/<th2>/<el> "; else res += "[26] FAIL ";
       
    return res;
 }
