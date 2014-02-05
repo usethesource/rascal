@@ -68,6 +68,7 @@ import experiments::Compiler::Examples::Visit8;
 import experiments::Compiler::Examples::Visit9;
 import experiments::Compiler::Examples::Visit10;
 import experiments::Compiler::Examples::Visit11;
+import experiments::Compiler::Examples::Visit12;
 import experiments::Compiler::Examples::VisitWithWhen;
 
 import experiments::Compiler::Examples::FailWithLabel1;
@@ -161,7 +162,8 @@ test bool tst8()  = demo("Visit8")  == experiments::Compiler::Examples::Visit8::
 test bool tst9()  = demo("Visit9")  == experiments::Compiler::Examples::Visit9::main([]);
 test bool tst10() = demo("Visit10") == experiments::Compiler::Examples::Visit10::expectedResult;
 test bool tst11() = demo("Visit11") == experiments::Compiler::Examples::Visit11::main([]);
-test bool tst12() = demo("VisitWithWhen") == experiments::Compiler::Examples::VisitWithWhen::main([]);
+test bool tst12() = demo("Visit12") == experiments::Compiler::Examples::Visit12::main([]);
+test bool tst13() = demo("VisitWithWhen") == experiments::Compiler::Examples::VisitWithWhen::main([]);
 
 // Overloading resolution & imports
 test bool tst() = demo("IMP3") == experiments::Compiler::Examples::IMP3::main([]);
