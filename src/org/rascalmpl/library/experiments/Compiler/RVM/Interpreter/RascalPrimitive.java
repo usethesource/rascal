@@ -113,6 +113,8 @@ public enum RascalPrimitive {
 	adt_subscript_int,
 	adt_update,
 	
+	appl_create,
+	
 	// annotation
 	
 	annotation_get,
@@ -4470,7 +4472,15 @@ public enum RascalPrimitive {
 		return sp - arity + 1;
 	}
 	
-
+	public static int appl_create(Object[] stack, int sp, int arity) {
+		assert arity == 3;
+		Type applConstrType = (Type) stack[sp - 3];
+		IValue prod = (IValue) stack[sp - 2];
+		IValue args = (IValue) stack[sp -1];
+			
+		stack[sp - 3] = vf.constructor(applConstrType, prod, args);
+		return sp - 2;
+	}
 	
 	public static int node_slice(Object[] stack, int sp, int arity) {
 		assert arity == 4;
@@ -5803,18 +5813,26 @@ public enum RascalPrimitive {
 	
 	public static int value_to_string(Object[] stack, int sp, int arity) {
 		assert arity == 1;
-		IValue val = (IValue) stack[sp -1];
-		Type tp = val.getType();
-		if(tp.isList() && tp.getElementType().isAbstractData() && tp.getElementType().getName().equals("Tree")){
-			IList lst = (IList) val;
-			StringWriter w = new StringWriter();
-			for(int i = 0; i < lst.length(); i++){
-				w.write($value2string(lst.get(i)));
+		if(stack[sp - 1] instanceof IValue){
+			IValue val = (IValue) stack[sp -1];
+			Type tp = val.getType();
+			if(tp.isList() && tp.getElementType().isAbstractData() && tp.getElementType().getName().equals("Tree")){
+				IList lst = (IList) val;
+				StringWriter w = new StringWriter();
+				for(int i = 0; i < lst.length(); i++){
+					w.write($value2string(lst.get(i)));
+				}
+				stack[sp - 1] = vf.string(w.toString());
+				
+			} else {
+				stack[sp - 1] = vf.string($value2string(val));
 			}
-			stack[sp - 1] = vf.string(w.toString());
-			
+		} else if(stack[sp - 1] instanceof Boolean){
+			stack[sp - 1] = vf.string(((Boolean) stack[sp - 1]).toString());
+		} else if(stack[sp - 1] instanceof Integer){
+			stack[sp - 1] = vf.string(((Integer) stack[sp - 1]).toString());
 		} else {
-			stack[sp - 1] = vf.string($value2string(val));
+			throw RuntimeExceptions.illegalArgument(vf.string(stack[sp -1].toString()), null, new ArrayList<Frame>());
 		}
 		return sp;
 	}

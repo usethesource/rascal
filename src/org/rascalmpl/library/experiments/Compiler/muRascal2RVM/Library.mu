@@ -834,8 +834,9 @@ coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST[3, iSubject, rNext, available, start, iE
     return start;
 } 
 
+// Match a (or last) multivar in a concrete list
 
-coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST[7, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, cavailable, start, clen, maxLen, iVal, end]{
+coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST[10, rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, iSubject, rNext, cavailable, start, clen, maxLen, iVal, end]{
     println("MATCH_CONCRETE_MULTIVAR_IN_LIST", iMinLen, iMaxLen, iLookahead, cavailable);
     start = deref rNext;
     clen = mint(iMinLen);
@@ -851,13 +852,13 @@ coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST[7, rVar, iMinLen, iMaxLen, iLookahead,
     while(clen <= maxLen) {
        end = start + clen;
        println("MATCH_CONCRETE_MULTIVAR_IN_LIST yields", sublist(iSubject, start, clen), end);
-       yield(sublist(iSubject, start, clen), end);
+       yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iSubject, start, clen)), end);
        clen = clen + 2;
     };
     undefine(rVar);
 }
 
-coroutine MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST[7, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, cavailable, start, clen, iVal, end]{
+coroutine MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST[10, rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, iSubject, rNext, cavailable, start, clen, iVal, end]{
     println("MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST", iMinLen, iMaxLen, iLookahead, cavailable);
   
     clen = min(mint(iMaxLen), max(cavailable - mint(iLookahead), 0));
@@ -875,13 +876,14 @@ coroutine MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST[7, rVar, iMinLen, iMaxLen, iLooka
     end = start + clen;
 
     println("MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST yields", sublist(iSubject, start, clen), end);
-    yield(sublist(iSubject, start, clen), end);
+    yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iSubject, start, clen)), end);
  
     undefine(rVar);
 }
 
+// Skip a separator that may be present before or after a matching multivar
 function SKIP_OPTIONAL_SEPARATOR[5,iSubject, start, offset, sep, available, elm, children, prod, prodchildren]{
-    if(available >= 2){
+    if(available >= offset + 2){
        elm = get_list(iSubject, start + offset);
        println("SKIP_OPTIONAL_SEPARATOR", start, offset, sep, elm);
        if(elm is node){
@@ -898,7 +900,7 @@ function SKIP_OPTIONAL_SEPARATOR[5,iSubject, start, offset, sep, available, elm,
     return 0;
 }
 
-coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[8, rVar, iMinLen, iMaxLen, iLookahead, sep, iSubject, rNext, 
+coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[11, rVar, iMinLen, iMaxLen, iLookahead, sep, applConstr, listProd, applProd, iSubject, rNext, 
                                                           cavailable, start, len, maxLen, iVal, sublen, end, 
                                                           skip_leading_separator, skip_trailing_separator]{
     start = deref rNext;
@@ -909,14 +911,6 @@ coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[8, rVar, iMinLen, iMax
     
     skip_trailing_separator = 0;
     maxLen = max(cavailable - (mint(iLookahead) + skip_leading_separator), 0);
-  
-    /*
-    if(mint(iLookahead) > 0 && maxLen >= 2){
-       println("MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST skip trailing separator");
-   	   maxLen = maxLen - 2;	// skip trailing separator;
-   	   skip_trailing_separator = 2;
-    };
-    */
     
     if(is_defined(rVar)){
       iVal = deref rVar;
@@ -937,13 +931,13 @@ coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[8, rVar, iMinLen, iMax
         end = end + skip_trailing_separator;
         
         println("MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST yields", sublist(iSubject, start + skip_leading_separator, sublen), end);
-        yield(sublist(iSubject, start + skip_leading_separator, sublen), end);
+        yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iSubject, start + skip_leading_separator, sublen)), end);
         len = len + 1;
     };
     undefine(rVar);
 }
 
-coroutine MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[8, rVar, iMinLen, iMaxLen, iLookahead, sep, iSubject, rNext, 
+coroutine MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[11, rVar, iMinLen, iMaxLen, iLookahead, sep, applConstr, listProd, applProd, iSubject, rNext, 
                                                                cavailable, start, iVal, sublen, end, skip_leading_separator, skip_trailing_separator]{
     start = deref rNext;
     println("MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST start", start, "iLookahead", iLookahead, "cavailable", cavailable);
@@ -970,9 +964,15 @@ coroutine MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[8, rVar, iMinLen,
 
     end = start + skip_leading_separator + sublen + skip_trailing_separator;
     println("MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST succeeds", sublen, end);
-    yield(sublist(iSubject, start + skip_leading_separator, sublen), end);
+    yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iSubject, start + skip_leading_separator, sublen)), end);
  
     undefine(rVar);
+}
+
+function MAKE_CONCRETE_LIST[4, applConstr, listProd, applProd, elms, listResult]{
+  listResult = prim("appl_create", applConstr, listProd, prim("list_create", prim("appl_create", applConstr, applProd, elms)));
+  println("MAKE_CONCRETE_LIST", listResult);
+  return listResult;
 }
 
 // ***** SET matching *****
