@@ -349,7 +349,7 @@ MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){
   
   applCode = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon("appl")]);
   prodCode = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(prod)]);
-  argsCode = translateConcreteListPattern(args);
+  argsCode = translateConcreteListPattern(prod, args);
   kwParams = muCreate(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS",3),  [muCallMuPrim("make_array", []), muCallMuPrim("make_array", [])]);
   return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", [applCode, prodCode, argsCode, kwParams] )]);
 }
@@ -410,14 +410,14 @@ list[Tree] removeSeparators(list[Tree] pats){
   return pats;
 }
 
-MuExp translateConcreteListPattern(list[Tree] pats){
+MuExp translateConcreteListPattern(Production listProd, list[Tree] pats){
  println("Before: <for(p <- pats){><p><}>");
  pats = removeSeparators(pats);
  println("After: <for(p <- pats){><p><}>");
  lookahead = computeConcreteLookahead(pats);  
  optionalLayoutPat = muCreate(mkCallToLibFun("Library","MATCH_OPTIONAL_LAYOUT_IN_LIST",3), []);
  return muCreate(mkCallToLibFun("Library","MATCH_LIST",2), [muCallMuPrim("make_array", 
-         [ (i % 2 == 0) ? translatePatAsConcreteListElem(pats[i], lookahead[i]) : optionalLayoutPat | i <- index(pats) ])]);
+         [ (i % 2 == 0) ? translatePatAsConcreteListElem(listProd, pats[i], lookahead[i]) : optionalLayoutPat | i <- index(pats) ])]);
 }
 
 // Is a symbol an iterator type?
@@ -458,46 +458,49 @@ int nIter(Tree pat){
   return 1;
 }
 
-MuExp translatePatAsConcreteListElem(t:appl(Production prod, list[Tree] args), Lookahead lookahead){
-  println("translatePatAsConcreteListElem: <prod>");
-    if(prod.def == label("hole", lex("ConcretePart"))){
+MuExp translatePatAsConcreteListElem(Production listProd, t:appl(Production applProd, list[Tree] args), Lookahead lookahead){
+  println("translatePatAsConcreteListElem: <listProd>, <applProd>");
+    if(applProd.def == label("hole", lex("ConcretePart"))){
      varloc = args[0].args[4].args[0]@\loc;
      <fuid, pos> = getVariableScope("ConcreteVar", varloc);
      holeType = getType(varloc);
      println("holeType = <holeType>");
+     println("appl = <getConstructor("appl")>");
      if(isIter(holeType)){
         if(isIterWithSeparator(holeType)){
            sep = getSeparator(holeType);
            libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST";
            println("libFun = <libFun>");
            println("lookahead = <lookahead>");
-           return muCreate(mkCallToLibFun("Library", libFun,8), [muVarRef("ConcreteListVar", fuid, pos), muCon(nIter(holeType)), muCon(1000000), muCon(lookahead.nElem), muCon(sep)]);
+           return muCreate(mkCallToLibFun("Library", libFun,11), [muVarRef("ConcreteListVar", fuid, pos), muCon(nIter(holeType)), muCon(1000000), muCon(lookahead.nElem), 
+                												  muCon(sep), getConstructor("appl"), muCon(listProd), muCon(regular(listProd.symbols[0]))]);
         } else {
            libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_IN_LIST";
            println("libFun = <libFun>");
            println("lookahead = <lookahead>");
-           return muCreate(mkCallToLibFun("Library", libFun,7), [muVarRef("ConcreteListVar", fuid, pos), muCon(nIter(holeType)), muCon(1000000), muCon(lookahead.nElem)]);
+           return muCreate(mkCallToLibFun("Library", libFun,10), [muVarRef("ConcreteListVar", fuid, pos), muCon(nIter(holeType)), muCon(1000000), muCon(lookahead.nElem), 
+           														 getConstructor("appl"), muCon(listProd), muCon(regular(listProd.symbols[0]))]);
        }
      }
      return muCreate(mkCallToLibFun("Library","MATCH_VAR_IN_LIST",4), [muVarRef("ConcreteVar", fuid, pos)]);
   }
-  return translateApplAsListElem(prod, args);
+  return translateApplAsListElem(listProd, applProd, args);
 }
 
-MuExp translatePatAsConcreteListElem(cc: char(int c), Lookahead lookahead){
+MuExp translatePatAsConcreteListElem(Production listProd, cc: char(int c), Lookahead lookahead){
   return muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST",4), [muCon(cc)]);
 }
 
-default MuExp translatePatAsConcreteListElem(Tree c, Lookahead lookahead){
+default MuExp translatePatAsConcreteListElem(Production listProd, Tree c, Lookahead lookahead){
   return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_LIST",4), [translateParsedConcretePattern(c)]);
 }
 
 // Translate an appl as element of a concrete list pattern
 
-MuExp translateApplAsListElem(p: prod(lit(str S), _, _), list[Tree] args) = 
+MuExp translateApplAsListElem(Production listProd, p: prod(lit(str S), _, _), list[Tree] args) = 
  	muCreate(mkCallToLibFun("Library","MATCH_LIT_IN_LIST",4), [muCon(p)]);
  
-default MuExp translateApplAsListElem(Production prod, list[Tree] args) = muCreate(mkCallToLibFun("Library","MATCH_APPL_IN_LIST",5), [muCon(prod), translateConcreteListPattern(args)]);
+default MuExp translateApplAsListElem(Production listProd, Production prod, list[Tree] args) = muCreate(mkCallToLibFun("Library","MATCH_APPL_IN_LIST",5), [muCon(prod), translateConcreteListPattern(listProd, args)]);
 
 // Is an appl node a concrete multivar?
 
