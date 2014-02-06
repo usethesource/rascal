@@ -57,6 +57,9 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
 
+	public static final int CHARACTER_LEVEL = 0;
+	public static final int TOKEN_BASED = 1;
+	
 	private static final LoggerWrapper log = LoggerWrapper.getLogger(GrammarToJigll.class);
 
 	private final IValueFactory vf;
@@ -76,6 +79,8 @@ public class GrammarToJigll {
 	private Input input;
 
 	private IConstructor rascalGrammar;
+	
+	private int mode = CHARACTER_LEVEL;
 	
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
@@ -264,17 +269,19 @@ public class GrammarToJigll {
 
 			Nonterminal head = getHead(constructor);
 			
-			// Don't create a rule body for regular expression heads.
-			if(regularExpressionsMap.containsKey(head.getName())) {
-				continue;
-			}
-
-			if(isKeyword(constructor)) {
-				continue;
-			}
-			
-			if(isRegularExpression(constructor)) {
-				continue;
+			if(mode == TOKEN_BASED) {
+				// Don't create a rule body for regular expression heads.
+				if(regularExpressionsMap.containsKey(head.getName())) {
+					continue;
+				}
+	
+				if(isKeyword(constructor)) {
+					continue;
+				}
+				
+				if(isRegularExpression(constructor)) {
+					continue;
+				}
 			}
 
 			IConstructor choice = (IConstructor) definitions.get(nonterminal);
@@ -550,14 +557,16 @@ public class GrammarToJigll {
 
 	private Symbol getSymbol(IConstructor symbol) {
 		
-		//TODO: do the same for keywords
-		RegularExpression regexp = regularExpressionsMap.get(symbol.getName());
-		if(regexp != null) {
-			return regexp;
-		}
-		
-		if(isRegularExpression(symbol)) {
-			return getRegularExpression(symbol);
+		if(mode == TOKEN_BASED) {
+			//TODO: do the same for keywords
+			RegularExpression regexp = regularExpressionsMap.get(symbol.getName());
+			if(regexp != null) {
+				return regexp;
+			}
+			
+			if(isRegularExpression(symbol)) {
+				return getRegularExpression(symbol);
+			}
 		}
 		
 		switch (symbol.getName()) {
