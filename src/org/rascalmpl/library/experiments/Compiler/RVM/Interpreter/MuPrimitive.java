@@ -376,26 +376,31 @@ public enum MuPrimitive {
 		
 		INode nd = (INode) stack[sp - 1];
 		int nd_arity = nd.arity();
-		IValue last = nd.get(nd_arity - 1);
-		
-		if(last.getType().isMap()){
-			IMap kwmap = (IMap) last;
-			int kw_arity = kwmap.size();
-			elems = new Object[nd_arity - 1 + kw_arity];
-			int j = nd_arity - 1;
-			for(int i = 0; i < nd_arity - 1; i++){
-				elems[i] = nd.get(i);
-			}
-			for(IValue elm : kwmap){
-				elems[j++] = elm;
-			}
+		if(nd_arity > 0){
+			IValue last = nd.get(nd_arity - 1);
+
+			if(last.getType().isMap()){
+				IMap kwmap = (IMap) last;
+				int kw_arity = kwmap.size();
+				elems = new Object[nd_arity - 1 + kw_arity];
+				int j = nd_arity - 1;
+				for(int i = 0; i < nd_arity - 1; i++){
+					elems[i] = nd.get(i);
+				}
+				for(IValue elm : kwmap){
+					elems[j++] = elm;
+				}
+			} else {
+				elems = new Object[nd_arity];
+				for(int i = 0; i < nd_arity; i++){
+					elems[i] = nd.get(i);
+				}
+			}	
 		} else {
-			elems = new Object[nd_arity];
-			for(int i = 0; i < nd_arity; i++){
-				elems[i] = nd.get(i);
-			}
+			elems = new Object[0];
 		}
 		stack[sp - 1] =  elems;
+		
 		return sp;
 	}
 	
@@ -433,25 +438,33 @@ public enum MuPrimitive {
 		INode nd = (INode) v;
 		String name = nd.getName();
 		int nd_arity = nd.arity();
-		IValue last = nd.get(nd_arity - 1);
-		IMap map;
 		Object[] elems;
-		if(last.getType().isMap()){
-			elems = new Object[nd_arity + 1];				// account for function name
-			elems[0] = vf.string(name);
-			for(int i = 0; i < nd_arity; i++){
-				elems[i + 1] = nd.get(i);
+		if(nd_arity > 0){
+			IValue last = nd.get(nd_arity - 1);
+			IMap map;
+			
+			if(last.getType().isMap()){
+				elems = new Object[nd_arity + 1];				// account for function name
+				elems[0] = vf.string(name);
+				for(int i = 0; i < nd_arity; i++){
+					elems[i + 1] = nd.get(i);
+				}
+			} else {
+				TypeFactory tf = TypeFactory.getInstance();
+				map = vf.map(tf.voidType(), tf.voidType());
+				elems = new Object[nd_arity + 2];				// account for function name and keyword map
+
+				elems[0] = vf.string(name);
+				for(int i = 0; i < nd_arity; i++){
+					elems[i + 1] = nd.get(i);
+				}
+				elems[1 + nd_arity] = map;
 			}
 		} else {
+			elems = new Object[2];
 			TypeFactory tf = TypeFactory.getInstance();
-			map = vf.map(tf.voidType(), tf.voidType());
-			elems = new Object[nd_arity + 2];				// account for function name and keyword map
-		 
 			elems[0] = vf.string(name);
-			for(int i = 0; i < nd_arity; i++){
-				elems[i + 1] = nd.get(i);
-			}
-			elems[1 + nd_arity] = map;
+			elems[1] = vf.map(tf.voidType(), tf.voidType());
 		}
 		stack[sp - 1] = elems;
 		return sp;
