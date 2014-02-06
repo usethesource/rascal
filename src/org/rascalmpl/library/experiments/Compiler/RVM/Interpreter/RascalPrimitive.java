@@ -3164,13 +3164,23 @@ public enum RascalPrimitive {
 		IValue val  = (IValue) stack[sp - 2];
 		Type tp = val.getType();
 		String name = ((IString) stack[sp - 1]).getValue();
+		stack[sp - 2] = false;
 		if(tp.isAbstractData()){
-			stack[sp - 2] = ((IConstructor)val).getConstructorType().getName().equals(name);
+			if(tp.getName().equals("Tree")){
+				IConstructor cons = (IConstructor) val;
+				if(cons.getName().equals("appl")){
+					IConstructor prod = (IConstructor) cons.get(0);
+					IConstructor def = (IConstructor) prod.get(0);
+					if(def.getName().equals("label")){
+						stack[sp - 2] = ((IString) def.get(0)).getValue().equals(name);
+					}
+				}
+			} else {
+				stack[sp - 2] = ((IConstructor)val).getConstructorType().getName().equals(name);
+			}
 		} else if(tp.isNode()){
 			stack[sp - 2] = ((INode) val).getName().equals(name);
-		} else {
-			stack[sp - 2] = false;
-		}
+		} 
 		return sp - 1;
 	}
 	
