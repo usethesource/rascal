@@ -1325,9 +1325,11 @@ coroutine MATCH_AND_DESCENT_MAP[2, pat, iMap, iKlst, iVlst, last, j]{
 }
 
 coroutine MATCH_AND_DESCENT_NODE[2, pat, iNd, last, j, ar]{
-   ar = get_name_and_children_and_keyword_params_as_map(iNd);
+   //ar = get_name_and_children_and_keyword_params_as_map(iNd);
+   ar = get_children_and_keyword_params_as_values(iNd);
+   println("MATCH_AND_DESCENT_NODE", ar);
    last = size_array(ar);
-   j = 1; 
+   j = 0; 
    while(j < last){
       //DO_ALL(pat, get_array(ar, j));
       DO_ALL(create(MATCH_AND_DESCENT, pat),  get_array(ar, j));
