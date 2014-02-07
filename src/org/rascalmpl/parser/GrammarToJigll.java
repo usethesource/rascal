@@ -479,6 +479,7 @@ public class GrammarToJigll {
 			assert chars != null;
 
 			keyword = new Keyword(name, chars);
+			keywordsMap.put(name,  keyword);
 		}
 
 		return keyword;
@@ -558,7 +559,6 @@ public class GrammarToJigll {
 	private Symbol getSymbol(IConstructor symbol) {
 		
 		if(mode == TOKEN_BASED) {
-			//TODO: do the same for keywords
 			RegularExpression regexp = regularExpressionsMap.get(symbol.getName());
 			if(regexp != null) {
 				return regexp;
@@ -566,6 +566,10 @@ public class GrammarToJigll {
 			
 			if(isRegularExpression(symbol)) {
 				return getRegularExpression(symbol);
+			}
+			
+			if(isKeyword(symbol)) {
+				return getKeyword(symbol);
 			}
 		}
 		
@@ -579,7 +583,7 @@ public class GrammarToJigll {
 				return getCharacterClass(symbol);
 	
 			case "lit":
-				return getKeyword(symbol);
+				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
 	
 			case "label":
 				return getSymbol(getSymbolCons(symbol));
