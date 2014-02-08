@@ -331,9 +331,13 @@ syntax ConcreteHole
 */
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
-  // println("**** Grammar");
+  // println("translateConcretePattern, **** Grammar");
   //iprintln(getGrammar(config));
-  parsedFragment = parseFragment(getModuleName(), concrete, p@\loc, getGrammar(config));
+  fragType = getType(p@\loc);
+  println("translateConcretePattern, fragType = <fragType>");
+  reifiedFragType = symbolToValue(fragType, config);
+  println("translateConcretePattern, reified: <reifiedFragType>");
+  parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar(config));
   //println("**** parsedFragment");
   iprintln(parsedFragment);
   return translateParsedConcretePattern(parsedFragment);

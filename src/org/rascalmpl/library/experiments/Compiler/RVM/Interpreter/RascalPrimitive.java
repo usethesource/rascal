@@ -677,6 +677,8 @@ public enum RascalPrimitive {
 	
 	private static boolean profiling = false;
 	private static long timeSpent[] = new long[values.length];
+	
+	public static ParsingTools getParsingTools() { return parsingTools; }
 
 	/**
 	 * Initialize the primitive methods.
@@ -708,6 +710,7 @@ public enum RascalPrimitive {
 			String name = m.getName();
 			if(!name.startsWith("$")){ // ignore all auxiliary functions that start with $.
 				switch(name){
+				case "getParsingTools":
 				case "init":
 				case "exit":
 				case "invoke":
@@ -5186,15 +5189,16 @@ public enum RascalPrimitive {
 	}
 	
 	public static int parse_fragment(Object[] stack, int sp, int arity) {
-		assert arity == 4;
-		IString module_name = (IString) stack[sp - 4];
+		assert arity == 5;
+		IString module_name = (IString) stack[sp - 5];
+		IValue start = (IValue) stack[sp - 4];
 		IConstructor ctree = (IConstructor) stack[sp - 3];
 		ISourceLocation loc = ((ISourceLocation) stack[sp - 2]);
 		IMap grammar = (IMap) stack[sp - 1];
 	
-		IValue tree = parsingTools.parseFragment(module_name, ctree, loc.getURI(), grammar);
-		stack[sp - 4] = tree;
-		return sp - 3;
+		IValue tree = parsingTools.parseFragment(module_name, start, ctree, loc.getURI(), grammar);
+		stack[sp - 5] = tree;
+		return sp - 4;
 	}
 	
 

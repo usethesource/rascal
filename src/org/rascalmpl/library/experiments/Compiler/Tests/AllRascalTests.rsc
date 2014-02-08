@@ -89,64 +89,9 @@ list[str] libraryTests = [
 ];
 
 /*
-TESTS RUN AT $2014-02-06T10:11:40.328+01:00$
+TESTS RUN AT $2014-02-08T00:22:48.163+01:00$
 
-RESULTS PER FILE:
-|project://rascal-test/src/tests/functionality/AccumulatingTests.rsc|: 13 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/AliasTests.rsc|: 16 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/AnnotationTests.rsc|: 13 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/AssignmentTests.rsc|: 45 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/BackTrackingTests.rsc|: 23 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/CallTests.rsc|: 31 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/ComprehensionTests.rsc|: 227 tests executed; 0 failed; 3 ignored
-|project://rascal-test/src/tests/functionality/ConcretePatternTests1.rsc|: 52 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/ConcretePatternTests2.rsc|: 16 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/DataDeclarationTests.rsc|: 43 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/DataTypeTests.rsc|: 670 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|: 3 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/PatternTests.rsc|: 327 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/PatternTestsList3.rsc|: 49 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/PatternTestsDescendant.rsc|: 9 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/ProjectionTests.rsc|: 2 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/RangeTests.rsc|: 25 tests executed; 0 failed; 4 ignored
-|project://rascal-test/src/tests/functionality/ReducerTests.rsc|: 4 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/RegExpTests.rsc|: 52 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/ScopeTests.rsc|: 2 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/StatementTests.rsc|: 47 tests executed; 1 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/SubscriptTests.rsc|: 42 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/TryCatchTests.rsc|: 19 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/functionality/VisitTests.rsc|: 97 tests executed; 10 failed; 0 ignored
-|project://rascal-test/src/tests/BacktrackingTests.rsc|: 12 tests executed; 5 failed; 0 ignored
-|project://rascal-test/src/tests/Booleans.rsc|: 14 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/Equality.rsc|: 52 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/Functions.rsc|: 3 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/Integers.rsc|: 20 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/IO.rsc|: 6 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/Lists.rsc|: 79 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/ListRelations.rsc|: 15 tests executed; 1 failed; 0 ignored
-|project://rascal-test/src/tests/Maps.rsc|: 23 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/Matching.rsc|: 2 tests executed; 1 failed; 0 ignored
-|project://rascal-test/src/tests/Nodes.rsc|: 32 tests executed; 3 failed; 0 ignored
-|project://rascal-test/src/tests/Relations.rsc|: 19 tests executed; 2 failed; 0 ignored
-|project://rascal-test/src/tests/Sets.rsc|: 35 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/SolvedIssues.rsc|: 2 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/Strings.rsc|: 61 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/StringTests.rsc|: 120 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/Tuples.rsc|: 6 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/library/BooleanTests.rsc|: 14 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/library/GraphTests.rsc|: 16 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/library/IntegerTests.rsc|: 11 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/library/ListTests.rsc|: 124 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/library/MapTests.rsc|: 36 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/library/MathTests.rsc|: 5 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/library/NumberTests.rsc|: 75 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/library/RelationTests.rsc|: 50 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/library/SetTests.rsc|: 48 tests executed; 0 failed; 0 ignored
-|project://rascal-test/src/tests/library/StringTests.rsc|: 125 tests executed; 0 failed; 0 ignored
-
-Failed/IGNORED TESTS:
-
-FAILED TESTS: 
+FAILED TESTS:
 |project://rascal-test/src/tests/functionality/VisitTests.rsc|(12253,115,<268,2>,<268,117>): FALSE 
 |project://rascal-test/src/tests/functionality/VisitTests.rsc|(12138,112,<267,2>,<267,114>): FALSE 
 |project://rascal-test/src/tests/functionality/VisitTests.rsc|(11658,119,<259,2>,<259,121>): FALSE 
@@ -162,13 +107,12 @@ FAILED TESTS:
 |project://rascal-test/src/tests/BacktrackingTests.rsc|(4881,826,<140,0>,<160,1>): FALSE UninitializedVariable(4)
 |project://rascal-test/src/tests/BacktrackingTests.rsc|(4013,866,<118,0>,<138,1>): FALSE UninitializedVariable(10)
 |project://rascal-test/src/tests/BacktrackingTests.rsc|(3177,834,<96,0>,<116,1>): FALSE 
-|project://rascal-test/src/tests/ListRelations.rsc|(2949,149,<94,0>,<96,83>): FALSE  with arguments: [<983741717,996184210>,<1488153233,1647989251>] 
-|project://rascal-test/src/tests/Matching.rsc|(162,77,<14,0>,<17,1>): FALSE 
-|project://rascal-test/src/tests/Nodes.rsc|(3238,180,<147,0>,<152,1>): FALSE  with arguments: "숤㙋"(|tmp:///qTU/Wk|,(():$3028-01-24T06:10:21.109+01:00$)) 
-|project://rascal-test/src/tests/Nodes.rsc|(2908,328,<136,0>,<145,1>): FALSE PANIC: (instruction execution): instruction: CALLPRIM node_slice, 4; message: null with arguments: ""(("":"\"\\\"\\\"ﺖ\"ᢤ")) 
-|project://rascal-test/src/tests/Nodes.rsc|(322,110,<19,0>,<25,1>): FALSE PANIC: (instruction execution): instruction: CALLMUPRIM get_name_and_children_and_keyword_params_as_map, 1; message: null
-|project://rascal-test/src/tests/Relations.rsc|(2817,148,<90,0>,<92,83>): FALSE  with arguments: {<1106902738,-381706083>,<-2087403009,931123457>,<1349642312,-612511423>,<654718091,-918309739>} 
-|project://rascal-test/src/tests/Relations.rsc|(871,185,<27,0>,<30,47>): FALSE  with arguments: {<{false,true},false,""({""},-1787359490,[],{})>} 
+|project://rascal-test/src/tests/ListRelations.rsc|(2949,149,<94,0>,<96,83>): FALSE  with arguments: [<-219637694,-221094360>,<-548755640,-1212156571>,<1324502974,773893189>] 
+|project://rascal-test/src/tests/Matching.rsc|(283,77,<20,0>,<23,1>): FALSE 
+|project://rascal-test/src/tests/Nodes.rsc|(2908,328,<136,0>,<145,1>): FALSE  with arguments: "鎃䬁"($1348-04-05T10:17:16.706+01:00$,{"\"\"⇼","\"\\\"\\\"괖\"農",""},({465151638,-1811667661}:|tmp:///wI|,{}:|tmp:///|)) 
+|project://rascal-test/src/tests/Nodes.rsc|(2536,182,<122,0>,<127,1>): FALSE  with arguments: "h9Bc"("7c"($0228-05-07T03:12:04.393+01:00$,""),$2015-06-02T05:44:42.155+01:00$,{-1620187633,-1831381091,-275570814},()) 
+|project://rascal-test/src/tests/Relations.rsc|(2201,151,<70,0>,<72,85>): FALSE  with arguments: {<1012834307,905272390>,<-1511508561,-1930750599>} 
+|project://rascal-test/src/tests/Relations.rsc|(871,185,<27,0>,<30,47>): FALSE  with arguments: {<{},0.24525990529456354,""()>} 
 
 IGNORED TESTS:
 |project://rascal-test/src/tests/functionality/ComprehensionTests.rsc|(7797,75,<162,4>,<163,48>): IGNORED
@@ -179,7 +123,7 @@ IGNORED TESTS:
 |project://rascal-test/src/tests/functionality/RangeTests.rsc|(2328,80,<49,4>,<49,84>): IGNORED
 |project://rascal-test/src/tests/functionality/RangeTests.rsc|(2247,75,<48,4>,<48,79>): IGNORED
 
-SUMMARY: 2832 tests executed; 23 failed; 7 ignored
+SUMMARY: 2835 tests executed; 21 failed; 7 ignored
 
 CRASHED TESTS:
 |project://rascal-test/src/tests/functionality/FunctionCompositionTests.rsc|: Java("RuntimeException","In function tests::functionality::FunctionCompositionTests/nonDeterministicChoiceAndNormalComposition2()#0 : No enum constant org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive.func_add_func")
