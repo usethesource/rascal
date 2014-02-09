@@ -1245,16 +1245,18 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLPRIM:
-					RascalPrimitive prim = RascalPrimitive.fromInteger(CodeBlock.fetchArg1(instruction));
+//					RascalPrimitive prim = RascalPrimitive.fromInteger(CodeBlock.fetchArg1(instruction));
 					arity = CodeBlock.fetchArg2(instruction);
 					try {
-						sp = prim.invoke(stack, sp, arity);
-					} catch(InvocationTargetException targetException) {
-						if(!(targetException.getTargetException() instanceof Thrown)) {
-							throw targetException;
+//						sp = prim.invoke(stack, sp, arity);
+						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, CodeBlock.fetchArg2(instruction));
+					} catch(Exception exception) {
+				
+						if(!(exception instanceof Thrown)){
+								throw exception;
 						}
 						// EXCEPTION HANDLING
-						thrown = (Thrown) targetException.getTargetException();
+						thrown = (Thrown) exception;
 						thrown.stacktrace.add(cf);
 						sp = sp - arity;
 						cf.pc = pc;
