@@ -185,14 +185,16 @@ MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> 
 MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
    println("CallOrTree Pattern: <expression>(<arguments> <keywordArguments>)");
    MuExp fun_pat;
+   MuExp fun_name;
+   argCode = [ translatePat(pat) | pat <- arguments ] + translatePatKWArguments(keywordArguments);
    if(expression is qualifiedName){
-      fun_pat = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(getType(expression@\loc).name)]);
+      fun_name = getType(expression@\loc).name;
+      fun_pat = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(fun_name)]);
+      return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", fun_pat + argCode)]);
    } else {
      fun_pat = translatePat(expression);
+     return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", fun_pat + argCode)]);
    }
-   return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", fun_pat + [ translatePat(pat) | pat <- arguments ] 
-                                                                                                 + translatePatKWArguments(keywordArguments)
-                                                                                  )]);
 }
 
 MuExp translatePatKWArguments((KeywordArguments) ``) =
@@ -355,7 +357,7 @@ MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){
   prodCode = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(prod)]);
   argsCode = translateConcreteListPattern(prod, args);
   kwParams = muCreate(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS",3),  [muCallMuPrim("make_array", []), muCallMuPrim("make_array", [])]);
-  return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", [applCode, prodCode, argsCode, kwParams] )]);
+  return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",3), [muCallMuPrim("make_array", [applCode, prodCode, argsCode, kwParams] )]);
 }
 
 MuExp translateParsedConcretePattern(cc: char(int c)) {

@@ -575,9 +575,11 @@ public class RVM {
 					stack[sp++] = new Reference(stack, CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
 				
-				case Opcode.OP_CALLMUPRIM:
+				case Opcode.OP_CALLMUPRIM:				
+					
 					MuPrimitive muprim = MuPrimitive.fromInteger(CodeBlock.fetchArg1(instruction));
 					sp = muprim.invoke(stack, sp, CodeBlock.fetchArg2(instruction));
+///* new */			sp = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_JMP:
