@@ -40,6 +40,8 @@ public void resetR2mu() {
 	variable_initializations = [];
 	tests = [];
 	resetTmpAndLabel();
+	overriddenLibs = {};
+    notOverriddenLibs = {};
 }
 
 public str getModuleName() = module_name;
@@ -373,13 +375,41 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
 //  return intercalate(", ", [(Pattern) `<Type tp> <Name nm>` := f ? "var(\"<nm>\", <tp>)" : "pattern" | f <- formals]);
 //}
 
+// Some library functions need special tratement when called from compiled code.
+// Therefore we provide special treatment for selected Java classes. A Java class X.java can be extended with a class XCompiled.java
+// and all calls are then first routed to XCompiled.java that can selectively override methods.
+// The compiler checks for the existence of a class XCompiled.java
+
+set[str] overriddenLibs = {};
+set[str] notOverriddenLibs = {};
+
+str resolveLibOverriding(str lib){
+   
+	if(lib in notOverriddenLibs) return lib;
+	
+	if(lib in overriddenLibs) return "<lib>Compiled";
+
+    rlib1 = replaceFirst(lib, "org.rascalmpl.library.", "");
+    rlib2 = |rascal:///| + "<replaceAll(rlib1, ".", "/")>Compiled.java";
+  
+	if(exists(rlib2)){
+	   overriddenLibs += lib;
+	   return "<lib>Compiled";
+	} else {
+		notOverriddenLibs += lib;
+		return lib;
+	}
+}
+
 map[str,str] translateTags(Tags tags){
    m = ();
    for(tg <- tags.tags){
      name = "<tg.name>";
-     if(tg is \default)
-        m[name] = "<tg.contents>"[1 .. -1];
-     else if (tg is empty)
+     if(tg is \default){
+        cont = "<tg.contents>"[1 .. -1];
+        m[name] = name == "javaClass" ? resolveLibOverriding(cont) : cont;
+        println("m[<name>] = <m[name]>");
+     } else if (tg is empty)
         m[name] = "";
      else
         m[name] = "<tg.expression>"[1 .. -1];

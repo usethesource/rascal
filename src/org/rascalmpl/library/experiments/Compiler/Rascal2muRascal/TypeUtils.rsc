@@ -473,3 +473,24 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
      }
      throw "Block scope at <l> has not been found!";
 }
+
+public list[MuFunction] lift(list[MuFunction] functions, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
+    return [ (func.scopeIn == fromScope || func.scopeIn == toScope) 
+	             ? { func.scopeIn = toScope; func.body = lift(func.body,fromScope,toScope,mapping); func; } 
+	             : func | func <- functions_in_module ];
+}
+public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
+    return visit(body) {
+	    case muAssign(str name,fromScope,int pos,MuExp exp)    => muAssign(name,toScope,newPos,exp) 
+	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
+	    case muVar(str name,fromScope,int pos)                 => muVar(name,toScope,newPos)
+	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
+	    case muVarRef(str name, fromScope,int pos)              => muVarRef(name,toScope,newPos)
+	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
+        case muAssignVarDeref(str name,fromScope,int pos,
+                                                  MuExp exp) => muAssignVarDeref(name,toScope,newPos,exp)
+                                                                  when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
+	    case muFun(str fuid,fromScope)                         => muFun(fuid,toScope)
+	    case muCatch(str id,fromScope,Symbol \type,MuExp body) => muCatch(id,toScope,\type,body)
+	}
+}

@@ -20,6 +20,9 @@ list[str] functionalityTests = [
 "CallTests",				// [58] keyword parameters Issue #456
 "ComprehensionTests",		// OK
 							 //3 tests fail that correspond to empty enumerations: interpreter gives false, compiler gives true.
+"ConcretePatternTests1",	//OK
+"ConcretePatternTests2",	//OK
+
 "DataDeclarationTests",		// OK
 "DataTypeTests",			// OK
 "DeclarationTests",			// OK, these are conscious changes in the scoping rules
@@ -84,6 +87,47 @@ list[str] libraryTests = [
 "SetTests",				// OK
 "StringTests"			// OK
 ];
+
+/*
+TESTS RUN AT $2014-02-08T00:22:48.163+01:00$
+
+FAILED TESTS:
+|project://rascal-test/src/tests/functionality/VisitTests.rsc|(12253,115,<268,2>,<268,117>): FALSE 
+|project://rascal-test/src/tests/functionality/VisitTests.rsc|(12138,112,<267,2>,<267,114>): FALSE 
+|project://rascal-test/src/tests/functionality/VisitTests.rsc|(11658,119,<259,2>,<259,121>): FALSE 
+|project://rascal-test/src/tests/functionality/VisitTests.rsc|(11539,116,<258,2>,<258,118>): FALSE 
+|project://rascal-test/src/tests/functionality/VisitTests.rsc|(11083,89,<250,2>,<250,91>): FALSE 
+|project://rascal-test/src/tests/functionality/VisitTests.rsc|(11000,80,<249,2>,<249,82>): FALSE 
+|project://rascal-test/src/tests/functionality/VisitTests.rsc|(10630,79,<241,2>,<241,81>): FALSE 
+|project://rascal-test/src/tests/functionality/VisitTests.rsc|(10553,74,<240,2>,<240,76>): FALSE 
+|project://rascal-test/src/tests/functionality/VisitTests.rsc|(10199,86,<233,2>,<233,88>): FALSE 
+|project://rascal-test/src/tests/functionality/VisitTests.rsc|(10116,80,<232,2>,<232,82>): FALSE 
+|project://rascal-test/src/tests/BacktrackingTests.rsc|(6715,940,<184,0>,<204,1>): FALSE UninitializedVariable(11)
+|project://rascal-test/src/tests/BacktrackingTests.rsc|(5709,1004,<162,0>,<182,1>): FALSE UninitializedVariable(11)
+|project://rascal-test/src/tests/BacktrackingTests.rsc|(4881,826,<140,0>,<160,1>): FALSE UninitializedVariable(4)
+|project://rascal-test/src/tests/BacktrackingTests.rsc|(4013,866,<118,0>,<138,1>): FALSE UninitializedVariable(10)
+|project://rascal-test/src/tests/BacktrackingTests.rsc|(3177,834,<96,0>,<116,1>): FALSE 
+|project://rascal-test/src/tests/ListRelations.rsc|(2949,149,<94,0>,<96,83>): FALSE  with arguments: [<-219637694,-221094360>,<-548755640,-1212156571>,<1324502974,773893189>] 
+|project://rascal-test/src/tests/Matching.rsc|(283,77,<20,0>,<23,1>): FALSE 
+|project://rascal-test/src/tests/Nodes.rsc|(2908,328,<136,0>,<145,1>): FALSE  with arguments: "鎃䬁"($1348-04-05T10:17:16.706+01:00$,{"\"\"⇼","\"\\\"\\\"괖\"農",""},({465151638,-1811667661}:|tmp:///wI|,{}:|tmp:///|)) 
+|project://rascal-test/src/tests/Nodes.rsc|(2536,182,<122,0>,<127,1>): FALSE  with arguments: "h9Bc"("7c"($0228-05-07T03:12:04.393+01:00$,""),$2015-06-02T05:44:42.155+01:00$,{-1620187633,-1831381091,-275570814},()) 
+|project://rascal-test/src/tests/Relations.rsc|(2201,151,<70,0>,<72,85>): FALSE  with arguments: {<1012834307,905272390>,<-1511508561,-1930750599>} 
+|project://rascal-test/src/tests/Relations.rsc|(871,185,<27,0>,<30,47>): FALSE  with arguments: {<{},0.24525990529456354,""()>} 
+
+IGNORED TESTS:
+|project://rascal-test/src/tests/functionality/ComprehensionTests.rsc|(7797,75,<162,4>,<163,48>): IGNORED
+|project://rascal-test/src/tests/functionality/ComprehensionTests.rsc|(7717,75,<160,4>,<161,48>): IGNORED
+|project://rascal-test/src/tests/functionality/ComprehensionTests.rsc|(7637,75,<158,4>,<159,48>): IGNORED
+|project://rascal-test/src/tests/functionality/RangeTests.rsc|(2492,80,<51,4>,<51,84>): IGNORED
+|project://rascal-test/src/tests/functionality/RangeTests.rsc|(2414,72,<50,4>,<50,76>): IGNORED
+|project://rascal-test/src/tests/functionality/RangeTests.rsc|(2328,80,<49,4>,<49,84>): IGNORED
+|project://rascal-test/src/tests/functionality/RangeTests.rsc|(2247,75,<48,4>,<48,79>): IGNORED
+
+SUMMARY: 2835 tests executed; 21 failed; 7 ignored
+
+CRASHED TESTS:
+|project://rascal-test/src/tests/functionality/FunctionCompositionTests.rsc|: Java("RuntimeException","In function tests::functionality::FunctionCompositionTests/nonDeterministicChoiceAndNormalComposition2()#0 : No enum constant org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive.func_add_func")
+*/
 
 lrel[loc,str] crashes = [];
 lrel[loc,str] partial_results = [];
