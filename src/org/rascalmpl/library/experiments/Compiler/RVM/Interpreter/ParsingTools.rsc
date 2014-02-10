@@ -5,4 +5,4 @@ import ParseTree;
 
 @javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools}
 @reflect{Uses ctx}
-public java Tree parseFragment(str name, Tree tree, loc uri, map[Symbol, Production] grammar);
+public java Tree parseFragment(str name, value startSort, Tree tree, loc uri, map[Symbol, Production] grammar);
