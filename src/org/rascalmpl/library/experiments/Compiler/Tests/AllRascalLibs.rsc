@@ -122,7 +122,6 @@ list[str] libs = [
 "demo::lang::Exp::Combined::Manual::Eval"	// ERROR
 "demo::lang::Exp::Concrete::NoLayout::Eval",	//OK
 "demo::lang::Exp::Concrete::WithLayout::Eval"	// OK
-*/
 "demo::lang::Func::AST",
 "demo::lang::Func::Eval0",
 "demo::lang::Func::Eval1",
@@ -130,10 +129,32 @@ list[str] libs = [
 "demo::lang::Func::Eval3",
 "demo::lang::Func::Func",
 "demo::lang::Func::Parse",
-"demo::lang::Func::Test"
+"demo::lang::Func::Test",
+
+"demo::lang::Lisra::Eval",
+"demo::lang::Lisra::Parse",
+"demo::lang::Lisra::Pretty",
+"demo::lang::Lisra::Runtime",
+"demo::lang::Lisra::Syntax",
+"demo::lang::Lisra::Test",
+
+"demo::lang::MissGrant::AST",
+"demo::lang::MissGrant::CheckController",
+"demo::lang::MissGrant::DesugarResetEvents",
+"demo::lang::MissGrant::Implode",
+"demo::lang::MissGrant::MissGrant",
+"demo::lang::MissGrant::Outline",
+"demo::lang::MissGrant::ParallelMerge",
+"demo::lang::MissGrant::Parse",
+"demo::lang::MissGrant::Step",
+"demo::lang::MissGrant::ToDot",
+"demo::lang::MissGrant::ToMethods",
+"demo::lang::MissGrant::ToObjects",
+"demo::lang::MissGrant::ToRelation",
+"demo::lang::MissGrant::ToSwitch"
 
 
-/*
+
 
 "demo::lang::Pico::Compile",
 "demo::lang::Pico::ControlFlow",
@@ -143,6 +164,29 @@ list[str] libs = [
 "demo::lang::Pico::UseDef",
 "demo::lang::Pico::Visualize"
 */
+
+"demo::lang::turing::l1::ast::Load",
+"demo::lang::turing::l1::ast::Turing",
+"demo::lang::turing::l1::cst::Parse",
+"demo::lang::turing::l1::cst::Syntax",
+"demo::lang::turing::l1::interpreter::Interpreter",
+"demo::lang::turing::l2::ast::Load",
+"demo::lang::turing::l2::ast::Turing",
+"demo::lang::turing::l2::check::Check",
+"demo::lang::turing::l2::cst::Parse",
+"demo::lang::turing::l2::cst::Syntax",
+"demo::lang::turing::l2::desugar::Desugar",
+"demo::lang::turing::l2::format::Format",
+
+"demo::vis::Higher",
+"demo::vis::Logo",
+"demo::vis::VisADT"
+
+
+
+
+
+
 ];
 
 value main(list[value] args){

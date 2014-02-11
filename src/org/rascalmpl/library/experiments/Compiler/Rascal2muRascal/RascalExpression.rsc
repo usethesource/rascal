@@ -532,8 +532,8 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
 
 // Field update
 MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Expression replacement> ]`) {
+   
     tp = getType(expression@\loc);  
- 
     list[str] fieldNames = [];
     if(isRelType(tp)){
        tp = getSetElementType(tp);
@@ -542,8 +542,9 @@ MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Express
     } else if(isMapType(tp)){
        tp = getMapFieldsAsTuple(tp);
     } else if(isADTType(tp)){
-       println("tp = <tp>"); 
         return muCallPrim("adt_field_update", [ translate(expression), muCon("<key>"), translate(replacement) ]);
+    } else if(isLocType(tp)){
+     	return muCallPrim("loc_field_update", [ translate(expression), muCon("<key>"), translate(replacement) ]);
     }
     if(tupleHasFieldNames(tp)){
     	  fieldNames = getTupleFieldNames(tp);
