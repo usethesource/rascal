@@ -1,4 +1,4 @@
-module analysis::statistics::examples::CodeCut
+module vis::web::examples::CodeCut
 
 import lang::java::jdt::m3::Core;
 import analysis::m3::Core;
@@ -10,16 +10,16 @@ import lang::java::m3::AST;
 // import List;
 import Prelude;
 
-import analysis::statistics::BarChart;
+import vis::web::BarChart;
 import util::HtmlDisplay;
-import analysis::statistics::markup::Dimple;
+import vis::web::markup::Dimple;
 import IO;
-
+ 
 M3 model;
 
 list[tuple[str, int]] classes = [];
 
-rel[str, str] methodSrc={},  methodReturn={};
+public rel[str, str] methodSrc={},  methodReturn={};
 
 rel [str, int] methodSize={};
 
@@ -94,7 +94,7 @@ public void initialize(loc project) {
         }
 
 public void main() {
-        initialize(|project://ambidexter|);
+        initialize(|project://dotplugin|);
     str body = barChart(
     title="CodeCut" 
     ,x_axis = "class"
@@ -103,7 +103,7 @@ public void main() {
     );
     
     htmlDisplay(publish(
-     |file:///tmp/codecut|
+     |tmp:///codecut2|
      // |project://chart/src/m3|
      ,barChartHeader("barChart"), body,
     "method"

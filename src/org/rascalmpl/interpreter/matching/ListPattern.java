@@ -48,6 +48,7 @@ public class ListPattern extends AbstractMatchingResult  {
   private int reducedSubjectSize;     // (subjectSize + delta - 1) / delta
   private boolean [] isListVar;       // Determine which elements are list or variables
   private boolean [] isBindingVar;    // Determine which elements are binding occurrences of variables
+  private boolean[] plusList;
   private String [] varName;          // Name of ith variable
   private HashSet<String> allVars;    // Names of list variables declared in this pattern
   private int [] listVarStart;        // Cursor start position list variable; indexed by pattern position
@@ -65,6 +66,7 @@ public class ListPattern extends AbstractMatchingResult  {
   private boolean debug = false;
   private Type staticListSubjectElementType;
   private Type staticListSubjectType;
+ 
 
 
   public ListPattern(IEvaluatorContext ctx, AbstractAST x, List<IMatchingResult> list){
@@ -153,6 +155,7 @@ public class ListPattern extends AbstractMatchingResult  {
     }
 
     isListVar = new boolean[patternSize]; 
+    plusList = new boolean[patternSize];
     isBindingVar = new boolean[patternSize];
     varName = new String[patternSize];
     allVars = new HashSet<String>();      
@@ -169,6 +172,7 @@ public class ListPattern extends AbstractMatchingResult  {
     for(int i = 0; i < patternSize; i += delta){
       IMatchingResult child = patternChildren.get(i);
       isListVar[i] = false;
+      plusList[i] = false;
       isBindingVar[i] = false;
       Environment env = ctx.getCurrentEnvt();
 
@@ -235,8 +239,10 @@ public class ListPattern extends AbstractMatchingResult  {
         String name = listVar.getName();
         varName[i] = name;
         isListVar[i] = true;
-        if(!listVar.isAnonymous())
+        if (!listVar.isAnonymous()) {
           allVars.add(name);
+        }
+        plusList[i] = listVar.isPlusList();
         isBindingVar[i] = true;
         listVarOccurrences[i] = 1;
         nListVar++;
@@ -320,9 +326,9 @@ public class ListPattern extends AbstractMatchingResult  {
     for(int i = 0; i < patternSize; i += delta){
       if(isListVar[i]){
         // TODO: reduce max length according to number of occurrences
+        listVarLength[i] = plusList[i] ? 1 : 0;
         listVarMaxLength[i] = delta * Math.max(reducedSubjectSize - (reducedPatternSize - nListVar), 0);
-        listVarLength[i] = 0;
-        listVarMinLength[i] = delta * ((nListVar == 1) ? Math.max(reducedSubjectSize - reducedPatternSize - 1, 0) : 0);
+        listVarMinLength[i] = delta * ((nListVar == 1) ? Math.max(reducedSubjectSize - reducedPatternSize - 1, listVarLength[i]) : listVarLength[i]);
 
         if (debug) {
           System.err.println("listvar " + i + " min= " + listVarMinLength[i] + " max=" + listVarMaxLength[i]);

@@ -7,7 +7,7 @@
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 // module M3BarChart
-module analysis::statistics::examples::M3BarChart
+module vis::web::examples::M3BarChart
 
 import lang::java::jdt::m3::Core;
 import analysis::m3::Core;
@@ -16,10 +16,10 @@ import lang::java::m3::Registry;
 import lang::java::m3::AST;
 import Prelude;
 
-import analysis::statistics::BarChart;
+import vis::web::BarChart;
 import util::HtmlDisplay;
 // import BarChart;
-import analysis::statistics::markup::Dimple;
+import vis::web::markup::Dimple;
 import IO;
 
 M3 model;
