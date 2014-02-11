@@ -222,8 +222,12 @@ syntax ConcreteHole
 //  return muCallPrim("list_subscript_int", [muCallPrim("adt_field_access", [mkVar("<name>", name@\loc), muCon("args")]), muCon(7)]);
 //}
 
-default MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){   
-    Tree parsedFragment = parseFragment(getModuleName(), e, e@\loc, getGrammar(config));
+default MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
+    fragType = getType(p@\loc);
+    println("translateConcrete, fragType = <fragType>");
+    reifiedFragType = symbolToValue(fragType, config);
+    println("translateConcrete, reified: <reifiedFragType>");
+    Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar(config));
     return translateConcreteParsed(parsedFragment);
 }
 
