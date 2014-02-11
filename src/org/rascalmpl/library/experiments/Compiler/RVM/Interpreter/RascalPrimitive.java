@@ -3,7 +3,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -12,7 +11,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Stack;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -48,7 +46,6 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /*
@@ -81,6 +78,7 @@ public enum RascalPrimitive {
 	/*
 	 * Value factory operations
 	 */
+	
 	constructor {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1133,7 +1131,6 @@ public enum RascalPrimitive {
 	/*
 	 * equal
 	 */
-
 	
 	// equal on int
 	
@@ -1534,6 +1531,7 @@ public enum RascalPrimitive {
 		}
 	},
 	loc_field_access {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 2;
@@ -2549,6 +2547,8 @@ public enum RascalPrimitive {
 	 * in
 	 */
 	
+	// Generic in
+	
 	in {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -2576,6 +2576,9 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	// elm_in_...: in for specific types
+	
 	elm_in_list {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -2622,6 +2625,8 @@ public enum RascalPrimitive {
 	 * 
 	 */
 	
+	// Generic is
+	
 	is {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -2651,7 +2656,7 @@ public enum RascalPrimitive {
 	},
 	
 	/*
-	 * is_*: check the type of an IValue
+	 * is_...: check the type of an IValue
 	 */
 	
 	is_bool {
@@ -2853,6 +2858,9 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	// join for specific types
+	
 	list_join_list {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -3081,10 +3089,11 @@ public enum RascalPrimitive {
 	},
 	
 	/*
-	 * lessThan
+	 * less
 	 */
 
 	// Generic less
+	
 	less {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -3939,6 +3948,9 @@ public enum RascalPrimitive {
 			return sp + 1;
 		}
 	},
+	
+	// ..._create: create values of various types
+	
 	map_create {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -4013,6 +4025,8 @@ public enum RascalPrimitive {
 	 *
 	 */
 	
+	// Generic notin
+	
 	notin {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -4040,6 +4054,9 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	// elm_notin_...: notin for specific types
+	
 	elm_notin_list {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -5723,15 +5740,11 @@ public enum RascalPrimitive {
 
 	private static IValueFactory vf;
 	private static TypeFactory tf;
-	static Method [] methods;
 	private static Type lineColumnType;
 
 	private static PrintWriter stdout;
 	private static RVM rvm;
 	private static ParsingTools parsingTools;
-
-	private static boolean profiling = false;
-	private static long timeSpent[] = new long[values.length];
 
 	public static ParsingTools getParsingTools() { return parsingTools; }
 
@@ -5751,44 +5764,10 @@ public enum RascalPrimitive {
 		} else {
 			System.err.println("No RVM found");
 		}
-		profiling = doProfile;
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 				new String[] {"line", "column"});
 		indentStack = new Stack<String>();
-
-		Method [] methods1 = RascalPrimitive.class.getDeclaredMethods();
-		HashSet<String> implemented = new HashSet<String>();
-//		methods = new Method[methods1.length];
-//		for(int i = 0; i < methods1.length; i++){
-//			Method m = methods1[i];
-//			String name = m.getName();
-//			System.err.println("method " + name);
-//			if(!(name.startsWith("$") || name.startsWith("access$"))){ // ignore all auxiliary functions that start with $.
-//				switch(name){
-//				case "getParsingTools":
-//				case "execute":
-//				case "init":
-//				case "exit":
-//				case "invoke":
-//				case "fromInteger":
-//				case "values":
-//				case "valueOf":
-//				case "main":
-//				case "printProfile":
-//					/* ignore all utility functions that do not implement some primitive */
-//					break;
-//				default:
-//					implemented.add(name);
-//					methods[valueOf(name).ordinal()] = m;
-//				}
-//			}
-//		}
-//		for(int i = 0; i < values.length; i++){
-//			if(!implemented.contains(values[i].toString())){
-//				throw new RuntimeException("PANIC: unimplemented primitive " + values[i] + " [add implementation to Primitives]");
-//			}
-//		}
 	}
 
 	public int execute(Object[] stack, int sp, int arity) {
@@ -5797,54 +5776,51 @@ public enum RascalPrimitive {
 	}
 
 	public static void exit(){
-		if(profiling)
-			printProfile();
+//		if(profiling)
+//			printProfile();
 	}
 
-	/**
-	 * Invoke the implementation of a primitive from the RVM main interpreter loop.
-	 * @param stack	stack in the current execution frame
-	 * @param sp	stack pointer
-	 * @param arity number of arguments on the stack
-	 * @return		new stack pointer and modified stack contents
-	 */
-	//	int invoke(Object[] stack, int sp, int arity) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-	//		if(!profiling){
-	//			return (int) methods[ordinal()].invoke(null, stack,  sp, arity);
-	//		} else {
-	//			long start = System.currentTimeMillis();
-	//			int res = (int) methods[ordinal()].invoke(null, stack,  sp, arity);
-	//			timeSpent[ordinal()] += System.currentTimeMillis() - start;
-	//			return res;
-	//		}
-	//	}
-
-	private static void printProfile(){
-		stdout.println("\nRascalPrimitive execution times (ms)");
-		long total = 0;
-		TreeMap<Long,String> data = new TreeMap<Long,String>();
-		for(int i = 0; i < values.length; i++){
-			if(timeSpent[i] > 0 ){
-				data.put(timeSpent[i], values[i].name());
-				total += timeSpent[i];
-			}
-		}
-		for(long t : data.descendingKeySet()){
-			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
-		}
-	}
+//	private static void printProfile(){
+//		stdout.println("\nRascalPrimitive execution times (ms)");
+//		long total = 0;
+//		TreeMap<Long,String> data = new TreeMap<Long,String>();
+//		for(int i = 0; i < values.length; i++){
+//			if(timeSpent[i] > 0 ){
+//				data.put(timeSpent[i], values[i].name());
+//				total += timeSpent[i];
+//			}
+//		}
+//		for(long t : data.descendingKeySet()){
+//			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
+//		}
+//	}
 
 	/************************************************************************************
-	 * 				AUXILIARY FUNCTIONS AND VARIABLES									*	
+	 * 					AUXILIARY VARIABLES USED BY AUXILIARY FUNCTIONS					*	
 	 ************************************************************************************/
-
+	
+	/* 
+	 * testreport_...
+	 */
+	static TypeReifier typeReifier;
+	static final int MAXDEPTH = 5;
+	static final int TRIES = 3;
+	static IListWriter test_results;
+	
 	/*
 	 * String templates
 	 */
 
 	private static final Pattern MARGIN = Pattern.compile("^[ \t]*'", Pattern.MULTILINE);
-
 	private static Stack<String> indentStack = new Stack<String>();
+	
+	/************************************************************************************
+	 * 					AUXILIARY FUNCTIONS	 (prefixed with $)							*	
+	 ************************************************************************************/
+
+	/*
+	 * String templates
+	 */
 
 	private static void $indent(String s){
 		//stdout.println("$indent: " + indentStack.size() + ", \"" + s + "\"");
@@ -5882,7 +5858,6 @@ public enum RascalPrimitive {
 		String fragment = sloc.hasFragment() ? sloc.getFragment() : null;
 
 		try {
-			IValue v;
 			String newStringValue = null;
 			if(replType.isString()){
 				newStringValue = ((IString)repl).getValue();
@@ -6155,7 +6130,6 @@ public enum RascalPrimitive {
 	}
 
 	private static boolean $list_lessequal_list(IList left, IList right) {
-
 		boolean res = false;
 		if (left.length() == 0) {
 			return true;
@@ -6301,25 +6275,11 @@ public enum RascalPrimitive {
 		}
 		return val.toString();
 	}
-
-	/* 
-	 * testreport_...
-	 */
-	static TypeReifier typeReifier;
-	static final int MAXDEPTH = 5;
-	static final int TRIES = 3;
-
-	static IListWriter test_results;
-
-	/*
-	 * Run this class as a Java program to compare the list of enumeration constants with the implemented methods in this class.
-	 */
-
-	public static void main(String[] args) {
-		init(ValueFactoryFactory.getValueFactory(), null, false);
-		System.err.println("RascalPrimitives have been validated!");
-	}
 }
+
+/*
+ * Internal class to describe slices
+ */
 
 class SliceDescriptor{
 

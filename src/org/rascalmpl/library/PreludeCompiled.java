@@ -20,12 +20,6 @@ public class PreludeCompiled extends Prelude {
 	}
 	
 	@Override
-	public void println(IValue v, IEvaluatorContext ctx){
-		System.err.println("OVERRIDE PRINTLN");
-		super.println(v, ctx);
-	}
-	
-	@Override
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 	public IValue parse(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
 		return RascalPrimitive.getParsingTools().parse(super.values.string("XXX"), start, input);

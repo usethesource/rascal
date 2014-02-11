@@ -372,18 +372,25 @@ coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
 
 // Match a call pattern with a simple string as function symbol
 
-coroutine MATCH_SIMPLE_CALL_OR_TREE[3, iName, pats, iSubject, cpats, fun_name, args]{
+coroutine MATCH_SIMPLE_CALL_OR_TREE[3, iName, pats, iSubject, cpats, args]{
     //println("MATCH_SIMPLE_CALL_OR_TREE", iName, pats, " AND ", iSubject, typeOf(iSubject), iSubject is constructor);
     guard iSubject is node;   
-    fun_name = get_name(iSubject);
-    if(equal(iName, fun_name)){
-       args = get_name_and_children_and_keyword_params_as_map(iSubject);
-       //println("args", args);
+    if(equal(iName, get_name(iSubject))){
+       args = get_children_and_keyword_params_as_map(iSubject);
+       println("args", args);
        cpats = init(create(MATCH_N, pats, args));
        while(next(cpats)) {
           yield;
        };
-     };
+       exhaust;
+    };
+    if(has_label(iSubject, iName)){
+       args = get_children_without_layout_or_separators(iSubject);
+       cpats = init(create(MATCH_N, pats, args));
+       while(next(cpats)) {
+          yield;
+       };
+    };
    
     //println("MATCH_SIMPLE_CALL_OR_TREE fails", pats, " AND ", iSubject);
 }
