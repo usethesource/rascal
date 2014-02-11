@@ -78,8 +78,9 @@ loc resolveM3(loc name) {
       }
     }
   } else {
-    if (<name, src> <- projects[project]@declarations) 
-       return src;
+    if (<name, src> <- projects[name[path=""]]@declarations) { 
+      return src;
+    }
   }
   throw "<name> not resolved";
 }
