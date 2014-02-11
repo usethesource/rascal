@@ -6,14 +6,11 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
-module analysis::statistics::BarChart
-// module BarChart
+module vis::web::BarChart
 
-// import Relation;
-// import Set;
 import Prelude;
-import analysis::statistics::markup::D3;
-import analysis::statistics::markup::Dimple;
+import vis::web::markup::D3;
+import vis::web::markup::Dimple;
 import lang::json::IO;
 import IO;
 
@@ -122,8 +119,9 @@ public str barChart(
         var(("colorAxis":expr(isNull(colorAxis[0])?"null":chart.addColorAxis(myChart, 
               colorAxis[0],  colorAxis[1]))))
         ,
-        var((mySeries1:expr(chart.addSeries(myChart, y_axis[3],  "dimple.plot.<y_axis[2]>",  expr(
-                    isNull(colorAxis[0])?"[<x>, <y1>]":"[<x>, <y1>, colorAxis]")))))
+        var((mySeries1:expr(chart.addSeries(myChart, y_axis[3],  "dimple.plot.<y_axis[2]>"  
+        , expr(isNull(colorAxis[0])?"[<x>, <y1>]":"[<x>, <y1>, colorAxis]")
+        ))))
         ,
         var((mySeries2:expr(isNull(y_axis2[0])?"null":chart.addSeries(myChart, y_axis2[3],  "dimple.plot.<y_axis2[2]>", expr("[<x>, <y2>]")))))
         ,
