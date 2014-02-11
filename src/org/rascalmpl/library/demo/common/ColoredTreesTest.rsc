@@ -9,6 +9,8 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 module demo::common::ColoredTreesTest
 
+import demo::common::ColoredTrees;
+
 // Tests
 
 public ColoredTree  rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
