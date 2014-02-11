@@ -32,13 +32,16 @@ public GrammarDefinition \layouts(GrammarDefinition def) {
      will just produce an arbitrary one if there are multiple definitions
 }
 public Symbol activeLayout(str name, set[str] deps, GrammarDefinition def) {
-  if (/prod(l:layouts(_),_,as) := def.modules[name], l != layouts("$default$"), !(\tag("manual"()) in as)) 
+  bool isManual(set[Attr] as) = (\tag("manual"()) in as);
+  bool isDefault(Symbol s) = (s == layouts("$default$"));
+  
+  if (/prod(l:layouts(_),_,as) := def.modules[name], !isDefault(l), !isManual(as)) 
     return l;
-  else if (/prod(label(_,l:layouts(_)),_,as) := def.modules[name], l != layouts("$default$"), !(\tag("manual"()) in as)) 
+  else if (/prod(label(_,l:layouts(_)),_,as) := def.modules[name], !isDefault(l), !isManual(as)) 
     return l;  
-  else if (i <- deps, /prod(l:layouts(_),_,as) := def.modules[i], l != layouts("$default$"), !(\tag("manual"()) in as)) 
+  else if (i <- deps, /prod(l:layouts(_),_,as) := def.modules[i], !isDefault(l), !isManual(as)) 
     return l;
-   else if (i <- deps, /prod(label(_,l:layouts(_)),_,as) := def.modules[i], l != layouts("$default$"), !(\tag("manual"()) in as)) 
+   else if (i <- deps, /prod(label(_,l:layouts(_)),_,as) := def.modules[i], !isDefault(l), !isManual(as)) 
     return l;  
   else 
     return layouts("$default$"); 
@@ -59,16 +62,16 @@ public Grammar \layouts(Grammar g, Symbol l) {
   if (syms == []) 
     return syms;
     
+  syms = [ sym is layouts ? sym : regulars(sym, l) | sym <- syms ];
+  
   // Note that if a user manually put a layouts symbol, then this code makes sure not to override it and
   // not to surround it with new layout symbols  
   while ([*pre, sym1, sym2, *post] := syms, !(sym1 is layouts), !(sym2 is layouts)) {
-      syms = [*pre, regulars(sym1, l), l, regulars(sym2,l), *post];
+      syms = [*pre, sym1, l, sym2, *post];
   }
   
   return syms;
 }
-
-
 
 private Symbol regulars(Symbol s, Symbol l) {
   return visit(s) {
