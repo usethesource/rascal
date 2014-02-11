@@ -7,9 +7,9 @@
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 
-module analysis::statistics::markup::Dimple
+module vis::web::markup::Dimple
 import Prelude;
-import analysis::statistics::markup::D3;
+import vis::web::markup::D3;
 import util::HtmlDisplay;
 
 public alias tagColor = tuple[str tg, str fill , str stroke , real opacity];
