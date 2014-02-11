@@ -6,9 +6,9 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
-module analysis::statistics::examples::Napoleon
+module vis::web::examples::Napoleon
 import Prelude;
-import analysis::statistics::markup::D3;
+import vis::web::markup::D3;
 import util::Math;
 import util::HtmlDisplay;
 
