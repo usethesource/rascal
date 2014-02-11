@@ -218,6 +218,118 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
+	get_children_and_keyword_params_as_map {
+		/*
+		 * Given a constructor or node get: 
+		 * - positional arguments 
+		 * - keyword parameters 
+		 * collected in a map
+		 */
+		@SuppressWarnings("deprecation")
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 1;
+			IValue v = (IValue) stack[sp - 1];
+			if (v.getType().isAbstractData()) {
+				IConstructor cons = (IConstructor) v;
+				Type tp = cons.getConstructorType();
+
+				int cons_arity = tp.getArity();
+				int pos_arity = tp.getPositionalArity();
+				IMapWriter writer = vf.mapWriter();
+				for (int i = pos_arity; i < cons_arity; i++) {
+					String key = tp.getFieldName(i);
+					IValue val = cons.get(key);
+					writer.put(vf.string(key), val);
+				}
+				Object[] elems = new Object[pos_arity + 1];
+				for (int i = 0; i < pos_arity; i++) {
+					elems[i] = cons.get(i);
+				}
+				elems[pos_arity] = writer.done();
+				stack[sp - 1] = elems;
+				return sp;
+			}
+			INode nd = (INode) v;
+			String name = nd.getName();
+			int nd_arity = nd.arity();
+			Object[] elems;
+			if(nd_arity > 0){
+				IValue last = nd.get(nd_arity - 1);
+				IMap map;
+				
+				if(last.getType().isMap()){
+					elems = new Object[nd_arity];
+					for(int i = 0; i < nd_arity; i++){
+						elems[i] = nd.get(i);
+					}
+				} else {
+					TypeFactory tf = TypeFactory.getInstance();
+					map = vf.map(tf.voidType(), tf.voidType());
+					elems = new Object[nd_arity + 1];				// account for keyword map
+
+					for(int i = 0; i < nd_arity; i++){
+						elems[i] = nd.get(i);
+					}
+					elems[nd_arity] = map;
+				}
+			} else {
+				elems = new Object[1];
+				TypeFactory tf = TypeFactory.getInstance();
+				elems[0] = vf.map(tf.voidType(), tf.voidType());
+			}
+			stack[sp - 1] = elems;
+			return sp;
+		};
+	},
+	
+	get_children_without_layout_or_separators {
+		@SuppressWarnings("deprecation")
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 1;
+			IConstructor cons = (IConstructor) stack[sp - 1];
+			IConstructor prod = (IConstructor) cons.get(0);
+			IList args = (IList) cons.get(1);
+			IConstructor symbol = (IConstructor) prod.get(0);
+
+			int step;
+
+			switch(symbol.getName()){
+
+			case "iter":
+			case "iter-star":
+				step = 2; break;
+			case "iter-seps":
+			case "iter-seps-star":
+				step = 4; break;
+			default:
+				step = 2;
+			}
+
+			int len = (args.length() / step) + 1;
+			int non_lit_len = 0;
+
+			
+			for(int i = 0; i < len; i += step){
+				if(!$is_literal(args.get(i * step))){
+					non_lit_len++;
+				}
+			}
+			IValue[] elems = new IValue[non_lit_len + 1];
+			int j = 0;
+			for(int i = 0; i < len; i += step){
+				if(!$is_literal(args.get(i * step))){
+					elems[j++] = args.get(i * step);
+				}
+			}
+			TypeFactory tf = TypeFactory.getInstance();
+			elems[non_lit_len] =vf.map(tf.voidType(), tf.voidType());
+			stack[sp - 1] = elems;
+			return sp;
+		}
+	},
 	get_name {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -322,6 +434,32 @@ public enum MuPrimitive {
 			stack[sp - 2] = ((Integer) stack[sp - 2]) > ((Integer) stack[sp - 1]);
 			return sp - 1;
 		};
+	},
+	// Has a concrete term a given label?
+	has_label {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			IValue v = (IValue) stack[sp - 2];
+			if(v.getType().isAbstractData()){
+				IConstructor cons = (IConstructor) v;
+				if(cons.getName().equals("appl")){
+					IConstructor prod = (IConstructor) cons.get(0);
+					IConstructor symbol = (IConstructor) prod.get(0);
+					
+					if(symbol.getName().equals("label")){
+						IString label_name = (IString) stack[sp - 1];
+						if(((IString) symbol.get(0)).equals(label_name)){
+							stack[sp - 2] = true;
+							return sp - 1;
+						}
+					}
+					
+				}
+			}
+			stack[sp - 2] = false;
+			return sp - 1;
+		}
 	},
 	implies_mbool_mbool {
 		@Override
@@ -1180,81 +1318,25 @@ public enum MuPrimitive {
 	public static void init(IValueFactory fact, PrintWriter stdoutWriter,
 			boolean doProfile) {
 		vf = fact;
-//		stdout = stdoutWriter;
-//		profiling = doProfile;
-//		Method[] methods1 = MuPrimitive.class.getDeclaredMethods();
-//		HashSet<String> implemented = new HashSet<String>();
-//		methods = new Method[methods1.length];
-//		for (int i = 0; i < methods1.length; i++) {
-//			Method m = methods1[i];
-//			String name = m.getName();
-//			if (!name.contains("$") ) { // ignore all auxiliary functions that
-//				
-//				// start with $.
-//				switch (name) {
-//				case "init":
-//				case "exit":
-//				case "invoke":
-//				case "fromInteger":
-//				case "values":
-//				case "valueOf":
-//				case "execute":
-//				case "main":
-//				case "printProfile":
-//					/*
-//					 * ignore all utility functions that do not implement some
-//					 * primitive
-//					 */
-//					break;
-//				default:
-//					implemented.add(name);
-//					methods[valueOf(name).ordinal()] = m;
-//				}
-//			}
-//		}
-//		for (int i = 0; i < values.length; i++) {
-//			if (!implemented.contains(values[i].toString())) {
-//				throw new RuntimeException("PANIC: unimplemented primitive "
-//						+ values[i]
-//						+ " [add implementation to MuPrimitive.java]");
-//			}
-//		}
+
 	}
 
 	public static void exit() {
-//		if (profiling)
-//			printProfile();
 	}
 
-//	private static void printProfile() {
-//		stdout.println("\nMuPrimitive execution times (ms)");
-//		long total = 0;
-//		TreeMap<Long, String> data = new TreeMap<Long, String>();
-//		for (int i = 0; i < values.length; i++) {
-//			if (timeSpent[i] > 0) {
-//				data.put(timeSpent[i], values[i].name());
-//				total += timeSpent[i];
-//			}
-//		}
-//		for (long t : data.descendingKeySet()) {
-//			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t),
-//					t * 100 / total, t);
-//		}
-//	}
-
-//	/*
-//	 * Run this class as a Java program to compare the list of enumeration
-//	 * constants with the implemented methods in this class.
-//	 */
-//
-//	public static void main(String[] args) {
-//
-//		MuPrimitive[] mus = MuPrimitive.values();
-//
-//		mus[0].execute(null, 0, 2);
-//		mus[1].execute(null, 0, 2);
-//
-//		// init(ValueFactoryFactory.getValueFactory(), null, false);
-//		// System.err.println("MuPrimitives have been validated!");
-//	}
+	/*******************************************************************
+	 *                 AUXILIARY FUNCTIONS                             *
+	 ******************************************************************/   
+	private static boolean $is_literal(IValue v){
+		if(v.getType().isAbstractData()){
+			IConstructor appl = (IConstructor) v;
+			if(appl.getName().equals("appl")){
+				IConstructor prod = (IConstructor) appl.get(0);
+				IConstructor symbol = (IConstructor) prod.get(0);
+				return symbol.getName().equals("lit");
+			}
+		}
+		return false;
+	}
+	 
 }
