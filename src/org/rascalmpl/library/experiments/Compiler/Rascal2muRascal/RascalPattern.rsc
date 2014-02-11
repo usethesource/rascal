@@ -185,14 +185,16 @@ MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> 
 MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
    println("CallOrTree Pattern: <expression>(<arguments> <keywordArguments>)");
    MuExp fun_pat;
+   MuExp fun_name;
+   argCode = [ translatePat(pat) | pat <- arguments ] + translatePatKWArguments(keywordArguments);
    if(expression is qualifiedName){
-      fun_pat = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(getType(expression@\loc).name)]);
+      fun_name = getType(expression@\loc).name;
+      //fun_pat = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [muCon(fun_name)]);
+      return muCreate(mkCallToLibFun("Library","MATCH_SIMPLE_CALL_OR_TREE",3), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
    } else {
      fun_pat = translatePat(expression);
+     return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", fun_pat + argCode)]);
    }
-   return muCreate(mkCallToLibFun("Library","MATCH_CALL_OR_TREE",2), [muCallMuPrim("make_array", fun_pat + [ translatePat(pat) | pat <- arguments ] 
-                                                                                                 + translatePatKWArguments(keywordArguments)
-                                                                                  )]);
 }
 
 MuExp translatePatKWArguments((KeywordArguments) ``) =
@@ -331,9 +333,13 @@ syntax ConcreteHole
 */
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
-  // println("**** Grammar");
+  // println("translateConcretePattern, **** Grammar");
   //iprintln(getGrammar(config));
-  parsedFragment = parseFragment(getModuleName(), concrete, p@\loc, getGrammar(config));
+  fragType = getType(p@\loc);
+  println("translateConcretePattern, fragType = <fragType>");
+  reifiedFragType = symbolToValue(fragType, config);
+  println("translateConcretePattern, reified: <reifiedFragType>");
+  parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar(config));
   //println("**** parsedFragment");
   iprintln(parsedFragment);
   return translateParsedConcretePattern(parsedFragment);

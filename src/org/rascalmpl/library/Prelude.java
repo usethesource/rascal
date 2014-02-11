@@ -120,7 +120,7 @@ import com.ibm.icu.util.ULocale;
 
 public class Prelude {
 	private final TypeFactory types ;
-	private final IValueFactory values;
+	protected final IValueFactory values;
 	private final Random random;
 	
 	public Prelude(IValueFactory values){
