@@ -595,7 +595,7 @@ Converts a binary list relation to a map of the domain to a set of the range.
 
 Examples:
 <screen>
-import Relation;
+import ListRelation;
 index([<1,10>, <2,20>, <3,30>, <30,10>]);
 </screen>
 }
