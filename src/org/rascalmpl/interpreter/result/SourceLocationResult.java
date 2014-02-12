@@ -353,7 +353,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				URI uri = URIUtil.createFromEncoded(newStringValue);
 				// now destruct it again
 				scheme = uri.getScheme();
-				authority = uri.getRawAuthority();
+				authority = uri.getAuthority();
 				path = uri.getPath();
 				query = uri.getQuery();
 				fragment = uri.getFragment();
@@ -382,7 +382,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					throw new UndeclaredField(name, "The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 				}
 				uri = URIUtil.changeHost(uri, newStringValue);
-				authority = uri.getRawAuthority();
+				authority = uri.getAuthority();
 				uriPartChanged = true;
 			}
 			else if (name.equals("path")) {
@@ -453,7 +453,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (replType.isString()) {
 					URI uri = URIUtil.assumeCorrect(newStringValue);
 					scheme = uri.getScheme();
-					authority = uri.getRawAuthority();
+					authority = uri.getAuthority();
 					path = uri.getPath();
 					query = uri.getQuery();
 					fragment = uri.getFragment();
@@ -496,7 +496,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (uri.getHost() != null) {
 					uri = URIUtil.changeUserInformation(uri, newStringValue);
 				}
-				authority = uri.getRawAuthority();
+				authority = uri.getAuthority();
 				uriPartChanged = true;
 			}
 			else if (name.equals("port")) {
@@ -512,7 +512,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					int port = Integer.parseInt(((IInteger) repl.getValue()).getStringRepresentation());
 					uri = URIUtil.changePort(uri, port);
 				}
-				authority = uri.getRawAuthority();
+				authority = uri.getAuthority();
 				uriPartChanged = true;
 			}
 			else if (name.equals("length")){
