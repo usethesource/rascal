@@ -226,12 +226,13 @@ public class RascalFunction extends NamedFunction {
 	if (result !=  null) 
 		return result;
     Environment old = ctx.getCurrentEnvt();
-    AbstractAST oldAST = ctx.getCurrentAST();
+    AbstractAST currentAST = ctx.getCurrentAST();
+    AbstractAST oldAST = currentAST;
     Stack<Accumulator> oldAccus = ctx.getAccumulators();
 
     try {
       String label = isAnonymous() ? "Anonymous Function" : name;
-      Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), ctx.getCurrentAST().getLocation(), ast.getLocation(), label);
+      Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), currentAST != null ? currentAST.getLocation() : null, ast.getLocation(), label);
       ctx.setCurrentEnvt(environment);
       
       IMatchingResult[] matchers = prepareFormals(ctx);
@@ -275,7 +276,7 @@ public class RascalFunction extends NamedFunction {
       
       while (i >= 0 && i < size) {
         if (ctx.isInterrupted()) { 
-          throw new InterruptException(ctx.getStackTrace(), ctx.getCurrentAST().getLocation());
+          throw new InterruptException(ctx.getStackTrace(), currentAST.getLocation());
         }
         if (matchers[i].hasNext() && matchers[i].next()) {
           if (i == size - 1) {
