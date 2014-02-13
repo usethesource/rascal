@@ -178,6 +178,10 @@ data Symbol
      | \seq(list[Symbol] symbols)
      ;
   
+public bool subtype(\list(Symbol symbol1), \iter(Symbol symbol2)) = symbol1 == symbol2;
+public bool subtype(\list(Symbol symbol1), \iter-star(Symbol symbol2)) = symbol1 == symbol2;
+public bool subtype(\list(Symbol symbol1), \iter-seps(Symbol symbol2, list[Symbol] separators)) = tsymbol1 == symbol2;
+public bool subtype(\list(Symbol symbol1), \iter-star-seps(Symbol symbol2, list[Symbol] separators)) = symbol1 == symbol2;
 
 data Symbol = \conditional(Symbol symbol, set[Condition] conditions) /*12*/;
 
