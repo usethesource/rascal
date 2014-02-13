@@ -507,9 +507,15 @@ MuExp translate((Name) `<Name name>`) = mkVar("<name>", name@\loc);
 MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`){
     ot = getOuterType(exp);
     op = "<ot>_subscript";
+    println("subscript: ot = <ot>, <getType(exp@\loc)>");
+    op_subscripts = intercalate("-", [getOuterType(s) | s <- subscripts]);
+    if(ot in {"sort", "iter", "iter-star", "iter-seps", "iter-star-seps"}){
+       op = "nonterminal_subscript_<op_subscripts>";
+    } else
     if(ot notin {"map", "rel", "lrel"}) {
-    	   op = "<getOuterType(exp)>_subscript_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
+       op += "_<op_subscripts>";
     }
+    
     return muCallPrim(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts]);
 }
 
