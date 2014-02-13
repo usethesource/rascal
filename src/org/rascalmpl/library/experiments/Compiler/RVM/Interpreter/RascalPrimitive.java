@@ -5162,6 +5162,33 @@ public enum RascalPrimitive {
 		}
 	},
 	
+	nonterminal_subscript_int {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			IConstructor appl = (IConstructor) stack[sp - 2];
+			IList appl_args = (IList) appl.get("args");
+			IConstructor prod = (IConstructor) appl.get("prod");
+			IConstructor symbol = $removeLabel((IConstructor) prod.get("def"));
+			int delta = $getIter(symbol);
+			if(delta < 0){
+				if(appl_args.length() == 1){
+					IConstructor child = (IConstructor) appl_args.get(0);
+					prod = (IConstructor) child.get("prod");
+					symbol = $removeLabel((IConstructor) prod.get("def"));
+					appl_args = (IList) child.get(1);
+					delta = $getIter(symbol);
+					if(delta < 0){
+					  throw new RuntimeException("subscript not supported on " + symbol);
+					}
+				}
+			}
+			int index = ((IInteger) stack[sp - 1]).intValue();
+			stack[sp - 2] = appl_args.get(index * delta);
+			return sp - 1;
+		}
+	},
+	
 	/*
 	 * subtraction
 	 * 
@@ -6256,6 +6283,22 @@ public enum RascalPrimitive {
 
 	private static boolean $isTree(IValue v){
 		return v.getType().isAbstractData() && v.getType().getName().equals("Tree");
+	}
+	
+	private static int $getIter(IConstructor cons){
+		switch(cons.getName()){
+		case "iter": case "iter-star":
+			return 2;
+		case "iter-seps": case "iter-star-seps":
+			return 4;
+		}
+		return -1;
+	}
+	
+	private static IConstructor $removeLabel(IConstructor cons){
+		if(cons.getName().equals("label"))
+			return (IConstructor) cons.get(1);
+		return cons;
 	}
 
 	private static String $value2string(IValue val){
