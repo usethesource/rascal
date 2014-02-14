@@ -367,7 +367,7 @@ bool isBlockLevel(str x) =
 str startTag(str n, str attrs)
   = "\<<n><attrs>\>";
 
-str endTag(str n) = "\<<n>/\>";
+str endTag(str n) = "\</<n>\>";
 
 str startTag(str n, {}) = startTag(n, "");
   
