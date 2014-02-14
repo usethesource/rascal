@@ -23,15 +23,15 @@ INS peephole(INS instructions){
 
 // Redundant_stores
 
-INS redundant_stores([ *Instruction ins1, STOREVAR(v), POP(), LOADVAR(v),  *Instruction ins2] ) {
+INS redundant_stores([ *Instruction ins1, STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction ins2] ) {
     n_redundant_stores += 1;
-    return redundant_stores([*ins1, STOREVAR(v), *ins2]);
+    return redundant_stores([*ins1, STOREVAR(v,p), *ins2]);
     
 }
 
-INS redundant_stores([ *Instruction ins1, STORELOC(v), POP(), LOADLOC(v),  *Instruction ins2] ) {
+INS redundant_stores([ *Instruction ins1, STORELOC(int p), POP(), LOADLOC(p),  *Instruction ins2] ) {
     n_redundant_stores += 1;
-    return redundant_stores([*ins1, STORELOC(v), *ins2]);
+    return redundant_stores([*ins1, STORELOC(p), *ins2]);
 }
 
 default INS redundant_stores(INS ins) = ins;
@@ -76,7 +76,7 @@ INS dead_code([ *Instruction ins ] ) {
     i = 0;
     while(i < size(ins)){
        result += ins[i];
-       if(JMP(lab) := ins[i] || RETURN0() := ins[i] || RETURN1() := ins[i], FAILRETURN() := ins[i]){
+       if(JMP(lab) := ins[i] || RETURN0() := ins[i] || RETURN1(a) := ins[i], FAILRETURN() := ins[i]){
           i += 1;
           while(i < size(ins) &&  LABEL(lab1) !:= ins[i]){
             println("remove: <ins[i]>");
