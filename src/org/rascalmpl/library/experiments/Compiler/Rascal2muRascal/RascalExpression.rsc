@@ -26,9 +26,9 @@ import experiments::Compiler::RVM::Interpreter::ParsingTools;
 import experiments::Compiler::muRascal::MuAllMuOr;
 
 
-int size_exps({Expression ","}* es) = size([e | e <- es]);		     // TODO: should become library function
-int size_exps({Expression ","}+ es) = size([e | e <- es]);		     // TODO: should become library function
-int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: should become library function
+//int size_exps({Expression ","}* es) = size([e | e <- es]);		     // TODO: should become library function
+//int size_exps({Expression ","}+ es) = size([e | e <- es]);		     // TODO: should become library function
+//int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: should become library function
 int size_keywordArguments(KeywordArguments keywordArguments) = 
     (keywordArguments is \default) ? size([kw | kw <- keywordArguments.keywordArgumentList]) : 0;
 
@@ -136,10 +136,11 @@ bool isConstantLiteral((Literal) `<StringLiteral n>`) = n is nonInterpolated;
 default bool isConstantLiteral(Literal l) = true;
 
 // TODO Add map constants
+// 3x size_exps
 
-bool isConstant(Expression e:(Expression)`{ <{Expression ","}* es> }`) = size_exps(es) == 0 || all(elm <- es, isConstant(elm));
-bool isConstant(Expression e:(Expression)`[ <{Expression ","}* es> ]`)  = size_exps(es) == 0 ||  all(elm <- es, isConstant(elm));
-bool isConstant(e:(Expression) `\< <{Expression ","}+ elements> \>`) = size_exps(elements) == 0 ||  all(elm <- elements, isConstant(elm));
+bool isConstant(Expression e:(Expression)`{ <{Expression ","}* es> }`) = size(es) == 0 || all(elm <- es, isConstant(elm));
+bool isConstant(Expression e:(Expression)`[ <{Expression ","}* es> ]`)  = size(es) == 0 ||  all(elm <- es, isConstant(elm));
+bool isConstant(e:(Expression) `\< <{Expression ","}+ elements> \>`) = size(elements) == 0 ||  all(elm <- elements, isConstant(elm));
 bool isConstant((Expression) `<Literal s>`) = isConstantLiteral(s);
 default bool isConstant(Expression e) = false;
 
@@ -223,7 +224,7 @@ syntax ConcreteHole
 //}
 
 default MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
-    fragType = getType(p@\loc);
+    fragType = getType(e@\loc);
     println("translateConcrete, fragType = <fragType>");
     reifiedFragType = symbolToValue(fragType, config);
     println("translateConcrete, reified: <reifiedFragType>");
@@ -508,12 +509,11 @@ MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+
     ot = getOuterType(exp);
     op = "<ot>_subscript";
     println("subscript: ot = <ot>, <getType(exp@\loc)>");
-    op_subscripts = intercalate("-", [getOuterType(s) | s <- subscripts]);
     if(ot in {"sort", "iter", "iter-star", "iter-seps", "iter-star-seps"}){
-       op = "nonterminal_subscript_<op_subscripts>";
+       op = "nonterminal_subscript_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     } else
     if(ot notin {"map", "rel", "lrel"}) {
-       op += "_<op_subscripts>";
+       op += "_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     }
     
     return muCallPrim(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts]);
