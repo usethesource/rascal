@@ -91,6 +91,7 @@ syntax Exp  =
 			
 			| left preSubtraction:		Exp lhs "-"   Exp rhs
 			| left preDivision:         Exp lhs "/"   Exp rhs
+			| left preMultiplication:   Exp lhs "*"   Exp rhs
 			| left preModulo:           Exp lhs "mod" Exp rhs
 		    | left prePower :           Exp lhs "pow" Exp rhs
 			> non-assoc preLess:		Exp lhs "\<"  Exp rhs

@@ -157,6 +157,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		Result<IValue> result = null;
 		try {
 			synchronized (ctx) {
+				ctx.getEvaluator().__setInterrupt(false);
 				result = ((ICallableValue) callback).call(argTypes, argVals, null);
 			}
 		} catch (Throw e) {

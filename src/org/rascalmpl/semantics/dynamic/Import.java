@@ -199,8 +199,14 @@ public abstract class Import {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			 importModule(Names.fullName(getModule().getName()), getLocation(), eval);
-			 return ResultFactory.nothing();
+		  try {
+		    importModule(Names.fullName(getModule().getName()), getLocation(), eval);
+		  }
+		  finally {
+		    eval.setCurrentAST(this);
+		  }
+		  
+		  return ResultFactory.nothing();
 		}
 	}
 
@@ -300,7 +306,7 @@ public abstract class Import {
     } catch (IOException e) {
       heap.removeModule(env);
       throw new ModuleImport(name, e.getMessage(), x);
-    }
+    } 
 
     heap.removeModule(env);
     throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x);

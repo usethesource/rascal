@@ -39,6 +39,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 
+@SuppressWarnings("rawtypes")
 public class EclipseJavaCompiler {
   protected final IValueFactory VF;
   private List<String> classPathEntries;
@@ -82,10 +83,9 @@ public class EclipseJavaCompiler {
       return converter.getModel(false);
   }
 
-  @SuppressWarnings("rawtypes")
   public IValue createM3FromFile(ISourceLocation loc, IString javaVersion, IEvaluatorContext eval) {
     try {
-      CompilationUnit cu = this.getCompilationUnit(loc, true, javaVersion, eval);
+      CompilationUnit cu = this.getCompilationUnit(loc.getPath(), getFileContents(loc, eval), true, javaVersion);
 
       TypeStore store = new TypeStore();
       store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
@@ -107,6 +107,31 @@ public class EclipseJavaCompiler {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
     }
   }
+  
+  public IValue createM3FromString(ISourceLocation loc, IString contents, IString javaVersion, IEvaluatorContext eval) {
+	  try {
+	      CompilationUnit cu = this.getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), true, javaVersion);
+
+	      TypeStore store = new TypeStore();
+	      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
+	      store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
+	      SourceConverter converter = new SourceConverter(store);
+
+	      converter.set(cu);
+	      converter.set(loc);
+	      cu.accept(converter);
+	      for (Iterator it = cu.getCommentList().iterator(); it.hasNext();) {
+	        Comment comment = (Comment) it.next();
+	        if (comment.isDocComment())
+	        	continue;
+	        comment.accept(converter);
+	      }
+	      
+	      return converter.getModel(true);
+	    } catch (IOException e) {
+	      throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
+	    }
+  }
 
   /*
    * Creates Rascal ASTs for Java source files
@@ -114,10 +139,9 @@ public class EclipseJavaCompiler {
   public IValue createAstFromFile(ISourceLocation loc, IBool collectBindings, IString javaVersion,
       IEvaluatorContext eval) {
     try {
-      CompilationUnit cu = getCompilationUnit(loc, collectBindings.getValue(), javaVersion, eval);
+      CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc, eval), collectBindings.getValue(), javaVersion);
 
       TypeStore store = new TypeStore();
-//      store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
       store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
       ASTConverter converter = new ASTConverter(store, collectBindings.getValue());
 
@@ -131,13 +155,33 @@ public class EclipseJavaCompiler {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
     }
   }
+  
+  public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IString javaVersion,
+		  IEvaluatorContext eval) {
+	  try {
+	      CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), collectBindings.getValue(), javaVersion);
 
-  protected CompilationUnit getCompilationUnit(ISourceLocation loc, boolean resolveBindings, IString javaVersion,
-      IEvaluatorContext ctx) throws IOException {
+	      TypeStore store = new TypeStore();
+	      store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
+	      ASTConverter converter = new ASTConverter(store, collectBindings.getValue());
+
+	      converter.set(cu);
+	      converter.set(loc);
+	      cu.accept(converter);
+	      
+	      converter.insertCompilationUnitMessages(true);
+	      return converter.getValue();
+	    } catch (IOException e) {
+	      throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
+	    }
+  }
+
+  protected CompilationUnit getCompilationUnit(String unitName, char[] contents, boolean resolveBindings, IString javaVersion) 
+		  throws IOException {
     ASTParser parser = ASTParser.newParser(AST.JLS4);
-    parser.setUnitName(loc.getURI().getPath());
+    parser.setUnitName(unitName);
     parser.setResolveBindings(resolveBindings);
-    parser.setSource(getFileContents(loc, ctx));
+    parser.setSource(contents);
     parser.setBindingsRecovery(true);
     parser.setStatementsRecovery(true);
 

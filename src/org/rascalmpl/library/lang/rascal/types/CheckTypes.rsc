@@ -452,7 +452,9 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		if (moduleId == mainModuleId) {
 			c.typeEnv[n] = itemId;
 		} else {
-			c.typeEnv[n] = conflict({c.typeEnv[n], itemId});
+			c.store[c.nextLoc] = conflict({c.typeEnv[n], itemId});
+			c.typeEnv[n] = c.nextLoc;
+			c.nextLoc = c.nextLoc + 1;
 		}
 		c = addScopeInfo(c, "The definition of type <prettyPrintName(n)> masks an existing imported nonterminal or alias definition", l);
 	} else if (c.store[c.typeEnv[n]] is conflict && moduleId notin { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
@@ -547,7 +549,9 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 		if (moduleId == mainModuleId) {
 			c.typeEnv[n] = itemId;
 		} else {
-			c.typeEnv[n] = conflict({c.typeEnv[n], itemId});
+			c.store[c.nextLoc] = conflict({c.typeEnv[n], itemId});
+			c.typeEnv[n] = c.nextLoc;
+			c.nextLoc = c.nextLoc + 1;
 		}
 		c = addScopeInfo(c, "The definition of nonterminal <prettyPrintName(n)> masks an existing imported adt or alias definition", l);
 	} else if (c.store[c.typeEnv[n]] is conflict && moduleId notin { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
@@ -631,7 +635,9 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 		if (moduleId == mainModuleId) {
 			c.typeEnv[n] = itemId;
 		} else {
-			c.typeEnv[n] = conflict({c.typeEnv[n], itemId});
+			c.store[c.nextLoc] = conflict({c.typeEnv[n], itemId});
+			c.typeEnv[n] = c.nextLoc;
+			c.nextLoc = c.nextLoc + 1;
 		}
 	} else if (c.store[c.typeEnv[n]] is conflict && moduleId notin { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
 		// Case 3: The unqualified name was removed because of a name conflict. We may be adding a new
@@ -810,19 +816,30 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 // with the same name, we should only allow this if the name is qualified to prevent conflicts.
 public Configuration addProduction(Configuration c, RName n, loc l, Production prod) {
 	assert ( (prod.def is label && prod.def.symbol has name) 
-				|| ( !(prod.def is label) && prod.def has name ) );
+				|| ( !(prod.def is label) && prod.def has name ) || prod.def is \start);
      
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 
-    sortName = RSimpleName( (prod.def is label) ? prod.def.symbol.name : prod.def.name );
-	fullSortName = appendName(moduleName, sortName);
-    if (fullSortName notin c.typeEnv) {
+    sortId = -1;
+    sortName = RSimpleName("");
+    
+    if (unwrapType(prod.def) is \start) {
+      sortName = RSimpleName("start[<getNonTerminalName(prod.def)>]");
+      sortId = c.typeEnv[sortName];
+      fullSortName = sortName;
+    }
+    else {
+      sortName = RSimpleName( (prod.def is label) ? prod.def.symbol.name : prod.def.name );
+	  fullSortName = appendName(moduleName, sortName);
+      if (fullSortName notin c.typeEnv) {
     	c = addScopeError(c, "Could not add production, associated nonterminal is not in scope", l);
     	return c;
+      }
+      sortId = c.typeEnv[fullSortName];
     }
-    sortId = c.typeEnv[fullSortName];
+    
     
     args = prod.symbols;
     moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
@@ -916,8 +933,10 @@ public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Produ
 
     if(isStart) {
     	c.starts = c.starts + sortId;
+    	c = addNonterminal(c,RSimpleName("start[<getNonTerminalName(prod.def)>]"), l, prod.def);
     	return c;
     }
+    
     if(c.grammar[sortId]?) {
     	c.grammar[sortId] = choice(c.store[sortId].rtype, { c.grammar[sortId], prod });
     } else {
@@ -2048,6 +2067,15 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("Expected subscript of type int, not <prettyPrintType(tl[0])>",exp@\loc));
         else
             return markLocationType(c,exp@\loc,\str());
+	} else if (isNonTerminalType(t1)) {
+		if (size(tl) != 1)
+			return markLocationFailed(c,exp@\loc,makeFailType("Expected only 1 subscript for a nonterminal subscript expression, not <size(tl)>",exp@\loc));
+		else if (!isIntType(tl[0]))
+			return markLocationFailed(c,exp@\loc,makeFailType("Expected subscript of type int, not <prettyPrintType(tl[0])>",exp@\loc));
+		else if (isNonTerminalIterType(t1))
+			return markLocationType(c,exp@\loc,getNonTerminalIterElement(t1));
+		else
+			return markLocationType(c,exp@\loc,makeADTType("Tree"));	
     } else {
         return markLocationFailed(c,exp@\loc,makeFailType("Expressions of type <prettyPrintType(t1)> cannot be subscripted", exp@\loc));
     }
@@ -2232,7 +2260,19 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 	    } else {
 	    	return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l); 
 	    }  
-    } else if (isTupleType(t1)) {
+    } 
+    else if (isStartNonTerminalType(t1)) {
+        nonterminalName = RSimpleName("start[<getNonTerminalName(t1)>]");
+         if (nonterminalName in c.typeEnv && c.store[c.typeEnv[nonterminalName]] is sorttype) {
+        if (<c.typeEnv[nonterminalName],fAsString> notin c.nonterminalFields)
+                return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+            else
+                return c.nonterminalFields[<c.typeEnv[nonterminalName],fAsString>];
+        }
+        else {
+            return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l);
+        } 
+    }else if (isTupleType(t1)) {
         if (tupleHasField(t1, fAsString))
             return getTupleFieldType(t1, fAsString);
         else
@@ -2513,7 +2553,7 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <Type t> ] <Expression
     < c, rt > = convertAndExpandType(t,c);
     
     set[Symbol] failures = { };
-    if (\sort(_) !:= rt) failures += makeFailType("Expected non-terminal type, instead found <prettyPrintType(rt)>", t@\loc);
+    if (!isNonTerminalType(rt)) failures += makeFailType("Expected non-terminal type, instead found <prettyPrintType(rt)>", t@\loc);
     if (!isFailType(t1) && !isStrType(t1)) failures += makeFailType("Expected str, instead found <prettyPrintType(t1)>", e@\loc);
     if (isFailType(t1)) failures += t1;
 
@@ -3284,6 +3324,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> \<- <Express
         < cEnum, t2 > = calculatePatternType(p, cEnum, getMapDomainType(t1));
     else if (isADTType(t1) || isTupleType(t1) || isNodeType(t1))
         < cEnum, t2 > = calculatePatternType(p, cEnum, \value());
+    else if (isNonTerminalIterType(t1))
+    	< cEnum, t2 > = calculatePatternType(p, cEnum, getNonTerminalIterElement(t1));
     else {
         t2 = makeFailType("Type <prettyPrintType(t1)> is not enumerable", exp@\loc);
     }
@@ -4071,7 +4113,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             }
                         }
                     } else {
-                        if (!subtype(cp@rtype, rt))
+                        if (!comparable(cp@rtype, rt))
                             failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn@at);
                     }
                 }
@@ -4080,7 +4122,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             case ptn:tvarBecomesNode(rt,n,l,cp) : {
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
                     Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[c.fcvEnv[n]].rtype;
-                    if (!subtype(cp@rtype, rt))
+                    if (!comparable(cp@rtype, rt))
                         failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn@at);
                 }
             }
@@ -4173,9 +4215,10 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 formalArgs = isConstructorType(matchType) ? getConstructorArgumentTypes(matchType) : getProductionArgumentTypes(matchType);
                                 set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
                                 map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
+                                unlabeledArgs = [ (\label(_,v) := li) ? v : li | li <- formalArgs ];
                                 for (idx <- index(formalArgs)) {
                                     try {
-                                        bindings = match(formalArgs[idx],pargs[idx]@rtype,bindings);
+                                        bindings = match(unlabeledArgs[idx],pargs[idx]@rtype,bindings);
                                     } catch : {
                                         insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(pargs[idx]@rtype)> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", pargs[idx]@at));
                                         cannotInstantiate = true;  
@@ -4193,10 +4236,12 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             
                             if (!cannotInstantiate) {
                                 list[PatternTree] newChildren = [ ];
+                                formalArgs = isConstructorType(matchType) ? getConstructorArgumentTypes(matchType) : getProductionArgumentTypes(matchType);
+                                unlabeledArgs = [ (\label(_,v) := li) ? v : li | li <- formalArgs ];                                
                                 try {
                                     for (idx <- index(pargs)) {
                                         //println("<ptn@at>: pushing down <getConstructorArgumentTypes(matchType)[idx]> for arg <pargs[idx]>");  
-                                        < c, newarg > = bind(pargs[idx],(isConstructorType(matchType)?(getConstructorArgumentTypes(matchType)[idx]):(getProductionArgumentTypes(matchType)[idx])),c);
+                                        < c, newarg > = bind(pargs[idx],unlabeledArgs[idx],c);
                                         newChildren += newarg;
                                     }
                                 } catch v : {
@@ -4523,7 +4568,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         }
         
         case literalNode(nt) : {
-        	if (\sort(_) := rt && isStrType(pt@rtype)) {
+        	if (isNonTerminalType(rt) && isStrType(pt@rtype)) {
         		return < c, pt >;
         	} else if (!isInferredType(rt) && !comparable(pt@rtype,rt)) {
                 throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
@@ -6654,12 +6699,12 @@ public Configuration importProduction(RSignatureItem item, Configuration c) {
 		c = addSyntaxDefinition(c, RSimpleName(sortName), item.at, prod, prod.def is \start);
 	}
 	// Productions that end up in the store
-	for(/Production prod:prod(_,_,_) := prod) {
+	for(/Production p:prod(_,_,_) := prod) {
 		if(label(str l, Symbol _) := prod.def) {
-    		c = addProduction(c, RSimpleName(l), item.at, prod);
-    	} else if(prod.def has name) {
-    		c = addProduction(c, RSimpleName(""), item.at, prod);
-    	}
+    		c = addProduction(c, RSimpleName(l), item.at, p);
+    	} else {
+    		c = addProduction(c, RSimpleName(""), item.at, p);
+    	} 
     }
     return c;
 }
@@ -6704,29 +6749,12 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
     map[RName,bool] isExtends = ( );
     map[RName,int] moduleIds = ( );
     map[RName,loc] moduleLocs = ( );
-    lrel[RName,bool] defaultImports = [ ]; // [ < RSimpleName("Exception"), false > ];
+    lrel[RName,bool] defaultImports = [ < RSimpleName("Exception"), false > ];
     list[RName] importOrder = [ ];
     
     c = addModule(c, moduleName, md@\loc);
     currentModuleId = head(c.stack);
             
-    for (< modName, defaultExtends > <- defaultImports) {
-        try {
-            dt1 = now();
-            modTree = getModuleParseTree(prettyPrintName(modName));
-            sigMap[modName] = getModuleSignature(modTree);
-            moduleLocs[modName] = modTree@\loc;
-            importOrder = importOrder + modName;
-            c = addModule(c,modName,modTree@\loc);
-            moduleIds[modName] = head(c.stack);
-            c = popModule(c);
-            isExtends[modName] = defaultExtends;
-            c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
-        } catch perror : {
-            c = addScopeError(c, "Cannot calculate signature for default module <prettyPrintName(modName)>", md@\loc);
-        }
-    }
-
     // Get the information about each import, including the module signature
     for (importItem <- importList) {
         if ((Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem) {
@@ -6748,6 +6776,23 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
         } 
     }
     
+    for (< modName, defaultExtends > <- defaultImports, modName notin moduleIds, modName != moduleName) {
+        try {
+            dt1 = now();
+            modTree = getModuleParseTree(prettyPrintName(modName));
+            sigMap[modName] = getModuleSignature(modTree);
+            moduleLocs[modName] = modTree@\loc;
+            importOrder = importOrder + modName;
+            c = addModule(c,modName,modTree@\loc);
+            moduleIds[modName] = head(c.stack);
+            c = popModule(c);
+            isExtends[modName] = defaultExtends;
+            c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
+        } catch perror : {
+            c = addScopeError(c, "Cannot calculate signature for default module <prettyPrintName(modName)>", md@\loc);
+        }
+    }
+
     
     
     // Add all the aliases and ADTs from each module without descending. Do tags here to, although

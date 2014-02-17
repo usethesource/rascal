@@ -630,6 +630,24 @@ test: toString(<?>) == <H>
 @javaClass{org.rascalmpl.library.Prelude}
 public java str toString(set[&T] st);
 
+@doc{
+Synopsis: Convert a set to an indented string.
+
+Examples:
+<screen>
+import Set;
+toString({1, 2, 3});
+toString({"elephant", "zebra", "snake"});
+</screen>
+
+Pitfalls:
+Recall that the elements of a set are unordered and that there is no guarantee in which order the set elements will be placed in the resulting string.
+
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str itoString(set[&T] st);
+
+
 @doc{ 
 Synopsis: Sort the elements of a set.
 

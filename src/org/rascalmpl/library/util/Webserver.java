@@ -42,7 +42,7 @@ public class Webserver {
   }
 
   public void serve(ISourceLocation url, final IValue callback, final IEvaluatorContext ctx) {
-    URI uri = url.getURI();
+        URI uri = url.getURI();
     int port = uri.getPort() != -1 ? uri.getPort() : 80;
     String host = uri.getHost() != null ? uri.getHost() : "localhost";
     final ICallableValue callee = (ICallableValue) callback; 
@@ -58,9 +58,10 @@ public class Webserver {
         IMap paramsVal= makeMap(parms);
         IMap filesVal= makeMap(files);
         ISourceLocation loc = vf.sourceLocation(URIUtil.assumeCorrect("request", "", uri));
-       
+       System.err.println("here: " + loc);
         try {
           synchronized (callee.getEval()) {
+            callee.getEval().__setInterrupt(false);
             Result<IValue> response = callee.call(argTypes, new IValue[] { loc, methodVal, headersVal, paramsVal, filesVal }, null);
             return translateResponse(method, response.getValue());  
           }
@@ -153,7 +154,7 @@ public class Webserver {
 
   private void initMethodAndStatusValues(final IEvaluatorContext ctx) {
     if (methodValues.isEmpty() || statusValues.isEmpty()) {
-      Environment env = ctx.getCurrentEnvt();
+      Environment env = ctx.getHeap().getModule("util::Webserver");
       Type methodType = env.getAbstractDataType("Method");
       TypeFactory tf = TypeFactory.getInstance();
       methodValues.put(Method.DELETE, vf.constructor(env.getConstructor(methodType, "delete", tf.voidType())));

@@ -58,6 +58,13 @@ test bool testFile(loc l, str s) {
 	return (l + s).file == s;
 }
 
+test bool supportSquareBraces(loc l) {
+	newAuth = l.authority + "]";
+	newL = l[authority = newAuth];
+	stringable = "<newL>";
+	return newL.authority == newAuth;
+}
+
 test bool testExtension(loc l, str s, str s2) {
 	s2 = replaceAll(s2, ".","_");
 	s2 = replaceAll(s2, "/","_");

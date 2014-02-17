@@ -58,7 +58,7 @@ public class ParsingTools {
 	private PrintWriter stderr;
 
 	private Configuration config;
-	private HashMap<String,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>> parsers;
+	private HashMap<IValue,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>> parsers;
 	private IEvaluatorContext ctx;
 	
 	public ParsingTools(IValueFactory fact){
@@ -67,15 +67,12 @@ public class ParsingTools {
 	}
 	
 	public void setContext(IEvaluatorContext ctx){
-	
-//	ParsingTools(IValueFactory fact, IEvaluatorContext ctx){
-//		vf = fact;
 		this.ctx = ctx;
 		resolverRegistry = ctx.getResolverRegistry();
 		monitor = ctx.getEvaluator().getMonitor();
 		stderr = ctx.getEvaluator().getStdErr();
 		config = ctx.getEvaluator().getConfiguration();
-		parsers = new HashMap<String,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>>();
+		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>>();
 		classLoaders = ctx.getEvaluator().getClassLoaders();
 	}
 	
@@ -102,26 +99,28 @@ public class ParsingTools {
 	/** 
 	 * Store a generated and compiled parser.
 	 * @param moduleName	Name of module in which grammar is defined
+	 * @param start TODO
 	 * @param parser		The generated parser class
 	 */
-	private void storeObjectParser(String moduleName, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
-		stderr.println("Storing parser for : " + moduleName);
-		parsers.put(moduleName, parser);
+	private void storeObjectParser(String moduleName, IValue start, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
+		stderr.println("Storing parser for : " + moduleName + "/" + start);
+		parsers.put(start, parser);
 	}
 
 	/**
 	 * Retrieve a generated and compiled parser
 	 * @param moduleName	Name of module in which grammar is defined
+	 * @param start TODO
 	 * @return				The generated parser class or NULL
 	 */
-	private Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getObjectParser(String moduleName) {
-		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = parsers.get(moduleName);
-		stderr.println("Retrieving parser for : " + moduleName + ((parser == null) ? " fails" : " succeeds"));
+	private Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getObjectParser(String moduleName, IValue start) {
+		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = parsers.get(start);
+		stderr.println("Retrieving parser for : " + moduleName + "/" + start + ((parser == null) ? " fails" : " succeeds"));
 		return parser;
 	}
 	
-	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(IString moduleName, URI loc, IMap syntax){
-		return getParser(moduleName.getValue(), loc, false, syntax);
+	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(IString moduleName, IValue start, URI loc, IMap syntax){
+		return getParser(moduleName.getValue(), start, loc, false, syntax);
 	}
 
 	private boolean isBootstrapper() { return false;  }
@@ -242,7 +241,7 @@ public class ParsingTools {
 	 */
 	@SuppressWarnings("unchecked")
 	public IConstructor parseObject(IString moduleName, IConstructor startSort, IMap robust, URI location, char[] input, IMap syntax){
-		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(moduleName, location, syntax);
+		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(moduleName, startSort, location, syntax);
 		String name = ""; moduleName.getValue();
 		if (SymbolAdapter.isStartSort(startSort)) {
 			name = "start__";
@@ -314,21 +313,7 @@ public class ParsingTools {
 		}
 	}
 	
-	
-//	public IValue diagnoseAmbiguity(IRascalMonitor monitor, IConstructor parseTree) {
-////		IRascalMonitor old = setMonitor(monitor);
-//		try {
-//			ParserGenerator pgen = getParserGenerator();
-//			return pgen.diagnoseAmbiguity(parseTree);
-//		}
-//		finally {
-////			setMonitor(old);
-//		}
-//	}
-	
-	
 	private ParserGenerator parserGenerator;
-  
 	
 	public ParserGenerator getParserGenerator() {
 		startJob("Loading parser generator", 40);
@@ -359,62 +344,8 @@ public class ParsingTools {
 		
 		return data;
 	}
-	
-	// From import.java
-	
-//	 /**
-//	   * This function will reconstruct a parse tree of a module, where all nested concrete syntax fragments
-//	   * have been parsed and their original flat literal strings replaced by fully structured parse trees.
-//	   * 
-//	   * @param module is a parse tree of a Rascal module containing flat concrete literals
-//	   * @param parser is the parser to use for the concrete literals
-//	   * @return parse tree of a module with structured concrete literals, or parse errors
-//	   */
-//	  public IConstructor parseFragments(final IEvaluator<Result<IValue>> eval, IConstructor module, final URI location, final ModuleEnvironment env) {
-//	    // TODO: update source code locations!!
-//	    
-//	     return (IConstructor) module.accept(new IdentityTreeVisitor<ImplementationError>() {
-//	       
-//	       @Override
-//	       public IConstructor visitTreeAppl(IConstructor tree)  {
-//	         IConstructor pattern = getConcretePattern(tree);
-//	         
-//	         if (pattern != null) {
-//	           IConstructor parsedFragment = parseFragment((IConstructor) TreeAdapter.getArgs(tree).get(0), location);
-//	           return TreeAdapter.setArgs(tree, vf.list(parsedFragment));
-//	         }
-//	         else {
-//	           IListWriter w = vf.listWriter();
-//	           IList args = TreeAdapter.getArgs(tree);
-//	           for (IValue arg : args) {
-//	             w.append(arg.accept(this));
-//	           }
-//	           args = w.done();
-//	           
-//	           return TreeAdapter.setArgs(tree, args);
-//	         }
-//	       }
-//
-//	       private IConstructor getConcretePattern(IConstructor tree) {
-//	         String sort = TreeAdapter.getSortName(tree);
-//	         if (sort.equals("Expression") || sort.equals("Pattern")) {
-//	           String cons = TreeAdapter.getConstructorName(tree);
-//	           if (cons.equals("concrete")) {
-//	             return (IConstructor) TreeAdapter.getArgs(tree).get(0);
-//	           }
-//	         }
-//	         return null;
-//	      }
-//
-//	      @Override
-//	       public IConstructor visitTreeAmb(IConstructor arg) {
-//	         throw new ImplementationError("unexpected ambiguity: " + arg);
-//	       }
-//	     });
-//	  }
 	  
-	  @SuppressWarnings("unchecked")
-	  public IGTD<IConstructor, IConstructor, ISourceLocation> getParser(String name, URI loc, boolean force, IMap syntax) {
+	  public IGTD<IConstructor, IConstructor, ISourceLocation> getParser(String name, IValue start, URI loc, boolean force, IMap syntax) {
 //	    if (currentModule.getBootstrap()) {
 //	      return new RascalParser();
 //	    }
@@ -440,13 +371,13 @@ public class ParsingTools {
 	    ParserGenerator pg = getParserGenerator();
 	    IMap definitions = syntax;
 	    
-	    Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = getObjectParser(name);
+	    Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = getObjectParser(name, start);
 
 	    if (parser == null || force) {
 	      String parserName = name; // .replaceAll("::", ".");
 	     //stderr.println("name = " + name);
 	      parser = pg.getNewParser(monitor, loc, parserName, definitions);
-	      storeObjectParser(name, parser);
+	      storeObjectParser(name, start, parser);
 	    }
 
 	    try {
@@ -463,19 +394,25 @@ public class ParsingTools {
 	  private boolean getBootstrap() { return false; }
 	  
 	// Rascal library function
-	public IConstructor parseFragment(IString name, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
+	public IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
 		if(this.ctx == null){
 			setContext(ctx);
 		}
-		return parseFragment(name, tree, loc.getURI(), grammar);
+		return parseFragment(name, start, tree, loc.getURI(), grammar);
 	}
+	
+	/**
+	 * This function will reconstruct a parse tree of a single nested concrete syntax fragment
+	 * that has been parsed and its original flat literal string is replaced by a fully structured parse tree.
+	 * 
+	 */
 
-	IConstructor parseFragment(IString name, IConstructor tree, URI uri, IMap grammar) {
+	IConstructor parseFragment(IString name, IValue start, IConstructor tree, URI uri, IMap grammar) {
 	    IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
 	    IConstructor lit = TreeAdapter.getArg(tree, "parts");
 	    Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
 	    
-	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getBootstrap() ? new RascalParser() : getParser(name.getValue(), TreeAdapter.getLocation(tree).getURI(), false, grammar);
+	    IGTD<IConstructor, IConstructor, ISourceLocation> parser = getBootstrap() ? new RascalParser() : getParser(name.getValue(), start, TreeAdapter.getLocation(tree).getURI(), false, grammar);
 	    
 	    try {
 	      String parserMethodName = getParserGenerator().getParserMethodName(symTree);
