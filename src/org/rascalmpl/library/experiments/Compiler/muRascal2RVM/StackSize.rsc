@@ -8,11 +8,11 @@ import experiments::Compiler::muRascal::AST;
 public int estimate_stack_size(MuExp exp) = estimate(exp) + 1;
 public int estimate_stack_size(list[MuExp] exps) = estimate_list(exps) + 1;
 
-private int estimate(muLab(bool b)) = 1;
+private int estimate(muLab(str name)) = 1;
 
-private int estimate(muBlock(list[MuExp] exps)) = ( 1 | max(it, estimate(exp)) | exp <- exps );
+private int estimate(muBlock(list[MuExp] exps)) = ( 1 | max(it, estimate(e)) | e <- exps );
 
-private int estimate_list(list[MuExp] exps) = ( 1 | max(it, estimate(exp))  | exp <- exps );
+private int estimate_list(list[MuExp] exps) = ( 1 | max(it, estimate(e))  | e <- exps );
 
 private int estimate_arg_list(list[MuExp] args) = ( 1 | max(it, i + estimate(args[i])) | i <- index(args) );
 
@@ -126,4 +126,4 @@ private int estimate(muAssignVarDeref(str id, str fuid, int pos, MuExp exp)) = e
 private int estimate(muThrow(MuExp exp)) = estimate(exp);
 private int estimate(muTry(MuExp tryBody, muCatch(str varname, str fuid, Symbol \type, MuExp catchBody), MuExp \finally)) = max(max(estimate(tryBody),1 + 1 + estimate(catchBody)),estimate(\finally));
 
-private default int estimate(e) { throw "Unknown node in the muRascal AST: <e>"; }
+private default int estimate(MuExp e) { throw "Unknown node in the muRascal AST: <e>"; }
