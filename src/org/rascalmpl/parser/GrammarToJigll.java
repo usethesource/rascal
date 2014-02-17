@@ -88,17 +88,18 @@ public class GrammarToJigll {
 
 	@SuppressWarnings("unchecked")
 	public IConstructor jparse(IConstructor symbol, IString str) {
+		
 		if (grammar == null) {
 			return null;
 		}
 
-		parser = ParserFactory.createRecursiveDescentParser(grammar);
+		input = Input.fromString(str.getValue());
+		parser = ParserFactory.newParser(grammar, input);
 
 		log.info("Iguana started.");
 
 		NonterminalSymbolNode sppf = null;
 
-		input = Input.fromString(str.getValue());
 		startSymbol = SymbolAdapter.toString(symbol, true);
 
 		try {
@@ -130,7 +131,7 @@ public class GrammarToJigll {
 
 		builder.rewritePatterns();
 
-		builder.leftFactorize();
+//		builder.leftFactorize();
 
 		grammar = builder.build();
 	}
@@ -150,7 +151,7 @@ public class GrammarToJigll {
 	}
 
 	public void generateGraph(IString path) {
-		parser = ParserFactory.createRecursiveDescentParser(grammar);
+		parser = ParserFactory.newParser(grammar, input);
 
 		NonterminalSymbolNode sppf;
 		try {
