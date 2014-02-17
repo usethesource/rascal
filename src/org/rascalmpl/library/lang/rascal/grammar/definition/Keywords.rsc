@@ -29,7 +29,7 @@ bool isFinite(Grammar g, \cilit(str _)) = true;
 bool isFinite(Grammar g, \char-class(list[CharRange] _)) = true;
 
 @memo default 
-bool isFinite(Grammar g, Symbol s) = all(/prod(_,[e],_) := g.rules[s], isFinite(g, e)); 
+bool isFinite(Grammar g, Symbol s) = (true | it && isFinite(g,e) | /prod(_,[e],_) := g.rules[s]); 
 
 public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
   names = {};
@@ -39,12 +39,11 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
   solve(todo) {  
     for (cond <- todo, !(cond in done)) {
       todo -= {cond};
-      
       if (cond has symbol, cond.symbol is lex || cond.symbol is sort || cond.symbol is keywords, isFinite(g, cond.symbol)) {
-        if (name in names) {
+        if (cond.symbol.name in names) {
           continue;
         }
-        names += {name};
+        names += {cond.symbol.name};
         todo += {cond[symbol=s] | choice(_, set[Production] alts) := g.rules[cond.symbol], prod(_,[s],_) <- alts};
       }
       else {

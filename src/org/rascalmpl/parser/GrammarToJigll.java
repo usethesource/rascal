@@ -163,47 +163,15 @@ public class GrammarToJigll {
 		Visualization.generateSPPFGraph(path.getValue(), sppf, input);
 	}
 
-	private Condition getDeleteSet(IConstructor symbol) {
+	private Condition getDeleteSet(ISet set) {
 
-		switch (symbol.getName()) {
-
-		case "seq":
-			IList list = (IList) symbol.get("sequence");
-			List<Symbol> symbols = new ArrayList<>();
-			for (IValue v : list) {
-				symbols.add(getSymbol((IConstructor) v));
-			}
-			symbols.remove(1);
-			if(isAllRegularExpression(symbols)) {
-				return RegularExpressionCondition.notMatch(new Sequence<RegularExpression>(conver(symbols)));				
-			} else {
-				return ContextFreeCondition.notMatch(symbols);
-			}
-
-		case "keywords":
-			List<Keyword> keywords = new ArrayList<>();
-			IMap definitions = (IMap) rascalGrammar.get("rules");
-			IConstructor choice = (IConstructor) definitions.get(symbol);
-			ISet alts = (ISet) choice.get("alternatives");
-			for (IValue alt : alts) {
-				IConstructor prod = (IConstructor) alt;
-				IList rhs = (IList) prod.get("symbols");
-				IConstructor s = (IConstructor) rhs.get(0);
-				keywords.add(getKeyword(s));
-			}
-			return RegularExpressionCondition.notMatch(keywords.toArray(new Keyword[] {}));
-
-		default:
-			throw new RuntimeException(symbol.getName() + " is not a supported in delete set.");
-
-			// default:
-			// return ConditionFactory.notMatch(new Symbol[] { getSymbol(symbol)
-			// });
-
-			// TODO: optimize for the case where symbol defines a finite set of
-			// strings
-			// TODO: keywords will disappear from Rascal
+		List<Keyword> keywords = new ArrayList<>();
+		
+		for(IValue v : set) {
+			keywords.add(getKeyword((IConstructor)v));			
 		}
+		
+		return RegularExpressionCondition.notMatch(keywords.toArray(new Keyword[] {}));
 	}
 
 	private Condition getFollowRestriction(IConstructor symbol) {
@@ -624,10 +592,13 @@ public class GrammarToJigll {
 	private RegularExpression getRegularExpression(IConstructor symbol) {
 		
 		switch (symbol.getName()) {
-			
+		
+		case "keywords":
+		case "sort":
+		case "layouts":
 		case "lex":
-			 return regularExpressionsMap.get(((IString)symbol.get("name")).getValue());	
-			
+			 return regularExpressionsMap.get(((IString)symbol.get("name")).getValue());
+			 
 		case "conditional":
 //			return getRegularExpression(getSymbolCons(symbol)).addConditions(getConditions(symbol));
 			return getRegularExpression(getSymbolCons(symbol));
@@ -671,7 +642,7 @@ public class GrammarToJigll {
 
 	private List<Condition> getConditions(IConstructor symbol) {
 		ISet conditions = (ISet) symbol.get("conditions");
-
+		List<Keyword> keywords = new ArrayList<>();
 		List<Condition> list = new ArrayList<>();
 
 		for (IValue condition : conditions) {
@@ -685,8 +656,7 @@ public class GrammarToJigll {
 					break;
 	
 				case "delete":
-					IConstructor delete = getSymbolCons((IConstructor) condition);
-					list.add(getDeleteSet(delete));
+					keywords.add(getKeyword(getSymbolCons((IConstructor) condition)));			
 					break;
 	
 				case "not-precede":
@@ -711,6 +681,9 @@ public class GrammarToJigll {
 				}
 		}
 
+		if(!keywords.isEmpty()) {
+			list.add(RegularExpressionCondition.notMatch(keywords.toArray(new Keyword[] {})));
+		}
 		return list;
 	}
 
