@@ -82,6 +82,7 @@ public str edit(ConceptName cn, bool newConcept){
 // *** called from servlet Edit in RascalTutor
 
 public str save(ConceptName cn, str text, bool newConcept){
+
   if(newConcept) {
      lines = splitLines(text);
      sections = getSections(lines);
