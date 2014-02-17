@@ -27,7 +27,19 @@ public class FunctionInstance implements ICallableValue {
 		this.env = env;
 		this.rvm = rvm;
 	}
-
+	
+	/**
+	 * Assumption: scopeIn != -1; 
+	 */
+	public static FunctionInstance computeFunctionInstance(Function function, Frame cf, int scopeIn, RVM rvm) {
+		for(Frame env = cf; env != null; env = env.previousCallFrame) {
+			if (env.scopeId == scopeIn) {
+				return new FunctionInstance(function, env, rvm);
+			}
+		}
+		throw new RuntimeException("Could not find a matching scope when computing a nested function instance: " + scopeIn);
+	}
+	
 	@Override
 	public Type getType() {
 		return function.ftype;
