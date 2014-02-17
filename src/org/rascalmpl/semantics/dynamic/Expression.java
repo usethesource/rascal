@@ -1390,7 +1390,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			return new ListPattern(eval, this, buildMatchers(getElements(), eval));
+			return new ListPattern(eval, this, buildMatchers(getElements0(), eval));
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1399,7 +1399,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 			
-			java.util.List<org.rascalmpl.ast.Expression> elements = getElements();
+			java.util.List<org.rascalmpl.ast.Expression> elements = getElements0();
 
 			Type elementType = TF.voidType();
 			java.util.List<IValue> results = new ArrayList<IValue>();
@@ -1450,7 +1450,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			Type elementType = TF.voidType();
 
-			for (org.rascalmpl.ast.Expression elt : getElements()) {
+			for (org.rascalmpl.ast.Expression elt : getElements0()) {
 				elementType = elementType.lub(elt.typeOf(env, instantiateTypeParameters));
 			}
 
@@ -2236,7 +2236,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			return new SetPattern(eval, this, buildMatchers(this.getElements(), eval));
+			return new SetPattern(eval, this, buildMatchers(this.getElements0(), eval));
 		}
 
 		@SuppressWarnings("unchecked")
@@ -2247,7 +2247,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.notifyAboutSuspension(this);			
 			
 			java.util.List<org.rascalmpl.ast.Expression> elements = this
-					.getElements();
+					.getElements0();
 
 			Type elementType = TF.voidType();
 			java.util.List<IValue> results = new ArrayList<IValue>();
@@ -2294,7 +2294,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
 			Type elementType = TF.voidType();
 
-			for (org.rascalmpl.ast.Expression elt : getElements()) {
+			for (org.rascalmpl.ast.Expression elt : getElements0()) {
 				Type eltType = elt.typeOf(env, instantiateTypeParameters);
 				
 				// TODO: here we need to properly deal with splicing operators!!!
@@ -2802,7 +2802,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					.getInstance();
 			return new RascalFunction(this, __eval, null, (FunctionType) RTF
 					.functionType(TF.voidType(), formals), this.getParameters()
-					.isVarArgs(), false, false, this.getStatements(), __eval
+					.isVarArgs(), false, false, this.getStatements0(), __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());
 
 		}

@@ -377,7 +377,7 @@ coroutine MATCH_SIMPLE_CALL_OR_TREE[3, iName, pats, iSubject, cpats, args]{
     guard iSubject is node;   
     if(equal(iName, get_name(iSubject))){
        args = get_children_and_keyword_params_as_map(iSubject);
-       println("args", args);
+       //println("args", args);
        cpats = init(create(MATCH_N, pats, args));
        while(next(cpats)) {
           yield;
