@@ -781,7 +781,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
             c.fcvEnv[n] = c.nextLoc;
             c.nextLoc = c.nextLoc + 1;
 	    } else {
-	        throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
+	    	c = addScopeError(c, "Invalid addition: cannot add constructor <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or production name in the same scope.", l);
 	    }
 	}
 
@@ -870,7 +870,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
             c.fcvEnv[n] = c.nextLoc;
             c.nextLoc = c.nextLoc + 1;
 	    } else {
-	        throw "Invalid addition: cannot add production into scope, it clashes with non-constructor variable or function names";
+	    	c = addScopeError(c, "Invalid addition: cannot add production <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or constructor name in the same scope.", l);
 	    }
 	}
     
