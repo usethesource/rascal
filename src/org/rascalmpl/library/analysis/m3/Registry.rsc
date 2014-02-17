@@ -10,6 +10,7 @@ module analysis::m3::Registry
 import analysis::m3::Core;
 import String;
 import IO;
+import Message;
 
 private map[loc project, M3 model] projects = ();
 
@@ -76,9 +77,22 @@ loc resolveM3(loc name) {
         return src;
       }
     }
+    // lets try again with our parent, maybe someone has been messing with the locations
+    name = name.parent;
+    for (proj <- projects) {
+      if (<name, src> <- projects[proj]@declarations) {
+        return src;
+      }
+    }
   } else {
-    if (<name, src> <- projects[project]@declarations) 
-       return src;
+    if (<name, src> <- projects[name[path=""]]@declarations) { 
+      return src;
+    }
+    // lets try again with our parent, maybe someone has been messing with the locations
+    name = name.parent;
+    if (<name, src> <- projects[name[path=""]]@declarations) { 
+      return src;
+    }
   }
   throw "<name> not resolved";
 }

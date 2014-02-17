@@ -64,7 +64,7 @@ public enum Opcode {
 	CALLJAVA        	(43,    5),
 	THROW           	(44,    1),
 	TYPESWITCH			(45,	1), //2),
-	UNWRAPTHROWN        (46,    1), //2),
+	UNWRAPTHROWNLOC     (46,    1), //2),
 	FILTERRETURN		(47, 	1),
 	EXHAUST             (48,    1),
 	GUARD               (49,    1),
@@ -92,7 +92,8 @@ public enum Opcode {
 	LOADLOCKWP          (71,    1), // 2
 	LOADVARKWP          (72,    1), // 3
 	STORELOCKWP         (73,    1), // 2
-	STOREVARKWP         (74,    1)  // 3
+	STOREVARKWP         (74,    1), // 3
+	UNWRAPTHROWNVAR     (75,    1), // 3
 	;
 	
 	
@@ -154,7 +155,7 @@ public enum Opcode {
 	static public final int OP_CALLJAVA = 43;
 	static public final int OP_THROW = 44;
 	static public final int OP_TYPESWITCH = 45;
-	static public final int OP_UNWRAPTHROWN = 46;
+	static public final int OP_UNWRAPTHROWNLOC = 46;
 	static public final int OP_FILTERRETURN = 47;
 	static public final int OP_EXHAUST = 48;
 	static public final int OP_GUARD = 49;
@@ -183,6 +184,7 @@ public enum Opcode {
 	static public final int OP_LOADVARKWP = 72;
 	static public final int OP_STORELOCKWP = 73;
 	static public final int OP_STOREVARKWP = 74;
+	static public final int OP_UNWRAPTHROWNVAR = 75;
 	
 	
 	/*
@@ -382,8 +384,8 @@ public enum Opcode {
 		case TYPESWITCH:
 			return "TYPESWITCH " + cb.getConstantValue(arg1);
 			
-		case UNWRAPTHROWN:
-			return "UNWRAPTHROWN " + arg1;
+		case UNWRAPTHROWNLOC:
+			return "UNWRAPTHROWNLOC " + arg1;
 			
 		case FILTERRETURN:
 			return "FILTERRETURN";
@@ -454,6 +456,9 @@ public enum Opcode {
 			return "STORELOCKWP " + cb.getConstantValue(arg1);
 		case STOREVARKWP:
 			return "STOREVARKWP " + cb.getConstantValue(arg1) + ", " + cb.getConstantValue(arg2);
+			
+		case UNWRAPTHROWNVAR:
+			return "UNWRAPTHROWNVAR " + arg1 + arg2;
 		
 		default:
 			break;

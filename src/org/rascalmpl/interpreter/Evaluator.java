@@ -1189,6 +1189,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 		finally {
 			setMonitor(old);
+			setCurrentAST(null);
 		}
 	}
 

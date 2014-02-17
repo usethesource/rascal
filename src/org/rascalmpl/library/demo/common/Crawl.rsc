@@ -27,19 +27,19 @@ public list[loc] crawl(loc dir, str suffix){
   return res;
 }
 
-public list[loc] crawl2(loc dir, str suffix){
-  return 
-	  for(str entry <- listEntries(dir)){
-	      loc sub = dir + entry;  
-	      if(isDirectory(sub)) {
-	          append crawl(sub, suffix);  /*2*/
-	      } else {
-		      if(endsWith(entry, suffix)) { 
-		         append [sub];           /*3*/
-		      }
-	      }
-	  };
-}
+//public list[loc] crawl2(loc dir, str suffix){
+//  return 
+//	  for(str entry <- listEntries(dir)){
+//	      loc sub = dir + entry;  
+//	      if(isDirectory(sub)) {
+//	          append crawl(sub, suffix);  /*2*/
+//	      } else {
+//		      if(endsWith(entry, suffix)) { 
+//		         append [sub];           /*3*/
+//		      }
+//	      }
+//	  };
+//}
 
 public list[loc] crawl3(loc dir, str suffix) =
-  isDirectory(dir) ? [crawl(e,ext) | e <- dir.ls] : (dir.extension == ext ? [dir] : []);
+  isDirectory(dir) ? [*crawl(e,suffix) | e <- dir.ls] : (dir.extension == suffix ? [dir] : []);

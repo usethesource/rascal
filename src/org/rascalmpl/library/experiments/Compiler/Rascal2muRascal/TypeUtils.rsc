@@ -17,6 +17,8 @@ import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
 import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getQualifiedFunctionName, need better structure
 
+//import util::ValueUI;
+
 public Configuration config = newConfiguration();
 
 /*
@@ -291,12 +293,12 @@ void extractScopes(){
         								     containment += {<inScope, uid>}; 
         									 loc2uid[src] = uid;
         									 // Fill in uid2name
-        									 if(bscopes[uid]?) {
-        									    bscopes[uid] = bscopes[uid] + 1;
+        									 if(bscopes[inScope]?) {
+        									    bscopes[inScope] = bscopes[inScope] + 1;
         									 } else {
-        									    bscopes[uid] = 0;
+        									    bscopes[inScope] = 0;
         									 }
-        									 uid2name[uid] = "bscope#<bscopes[uid]>";
+        									 uid2name[uid] = "bscope#<bscopes[inScope]>";
         								   }
         case closure(rtype,keywordParams,
                        inScope,src):       {
@@ -304,12 +306,12 @@ void extractScopes(){
                                              declares += {<inScope, uid>};
         									 loc2uid[src] = uid;
         									 // Fill in uid2name
-        									 if(closures[uid]?) {
-        									    closures[uid] = closures[uid] + 1;
+        									 if(closures[inScope]?) {
+        									    closures[inScope] = closures[inScope] + 1;
         									 } else {
-        									    closures[uid] = 0;
+        									    closures[inScope] = 0;
         									 }
-        									 uid2name[uid] = "closure#<closures[uid]>";
+        									 uid2name[uid] = "closure#<closures[inScope]>";
         									 fuid2type[uid] = rtype;
         								   }
         case \module(RName rname, loc at):  {
@@ -460,3 +462,37 @@ public bool hasField(Symbol s, str fieldName){
 
 public int getTupleFieldIndex(Symbol s, str fieldName) = 
     indexOf(getTupleFieldNames(s), fieldName);
+
+public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
+     containmentPlus = containment+;
+     set[int] decls = {};
+     if(int uid <- config.store, blockScope(int _, l) := config.store[uid]) {
+         set[int] innerScopes = containmentPlus[uid];
+         for(int inScope <- innerScopes) {
+             decls = decls + declares[inScope];
+         }
+         return { addr | int decl <- decls, tuple[str fuid,int pos] addr := uid2addr[decl] };
+     }
+     throw "Block scope at <l> has not been found!";
+}
+
+public list[MuFunction] lift(list[MuFunction] functions, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
+    return [ (func.scopeIn == fromScope || func.scopeIn == toScope) 
+	             ? { func.scopeIn = toScope; func.body = lift(func.body,fromScope,toScope,mapping); func; } 
+	             : func | func <- functions_in_module ];
+}
+public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
+    return visit(body) {
+	    case muAssign(str name,fromScope,int pos,MuExp exp)    => muAssign(name,toScope,newPos,exp) 
+	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
+	    case muVar(str name,fromScope,int pos)                 => muVar(name,toScope,newPos)
+	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
+	    case muVarRef(str name, fromScope,int pos)              => muVarRef(name,toScope,newPos)
+	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
+        case muAssignVarDeref(str name,fromScope,int pos,
+                                                  MuExp exp) => muAssignVarDeref(name,toScope,newPos,exp)
+                                                                  when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
+	    case muFun(str fuid,fromScope)                         => muFun(fuid,toScope)
+	    case muCatch(str id,fromScope,Symbol \type,MuExp body) => muCatch(id,toScope,\type,body)
+	}
+}

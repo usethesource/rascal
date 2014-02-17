@@ -32,13 +32,16 @@ public GrammarDefinition \layouts(GrammarDefinition def) {
      will just produce an arbitrary one if there are multiple definitions
 }
 public Symbol activeLayout(str name, set[str] deps, GrammarDefinition def) {
-  if (/prod(l:layouts(_),_,_) := def.modules[name], l != layouts("$default$")) 
+  bool isManual(set[Attr] as) = (\tag("manual"()) in as);
+  bool isDefault(Symbol s) = (s == layouts("$default$"));
+  
+  if (/prod(l:layouts(_),_,as) := def.modules[name], !isDefault(l), !isManual(as)) 
     return l;
-  else if (/prod(label(_,l:layouts(_)),_,_) := def.modules[name], l != layouts("$default$")) 
+  else if (/prod(label(_,l:layouts(_)),_,as) := def.modules[name], !isDefault(l), !isManual(as)) 
     return l;  
-  else if (i <- deps, /prod(l:layouts(_),_,_) := def.modules[i], l != layouts("$default$")) 
+  else if (i <- deps, /prod(l:layouts(_),_,as) := def.modules[i], !isDefault(l), !isManual(as)) 
     return l;
-   else if (i <- deps, /prod(label(_,l:layouts(_)),_,_) := def.modules[i], l != layouts("$default$")) 
+   else if (i <- deps, /prod(label(_,l:layouts(_)),_,as) := def.modules[i], !isDefault(l), !isManual(as)) 
     return l;  
   else 
     return layouts("$default$"); 
@@ -63,10 +66,19 @@ private &T removeFarRestrictions(&T x) = visit(x) {
   case \far-not-follow(s) => \not-follow(s)
 }; 
 
-private list[Symbol] intermix(list[Symbol] syms, Symbol l) {
+list[Symbol] intermix(list[Symbol] syms, Symbol l) {
   if (syms == []) 
     return syms;
-  return tail([l, regulars(s, l) | s <- syms]);
+    
+  syms = [ sym is layouts ? sym : regulars(sym, l) | sym <- syms ];
+  
+  // Note that if a user manually put a layouts symbol, then this code makes sure not to override it and
+  // not to surround it with new layout symbols  
+  while ([*pre, sym1, sym2, *post] := syms, !(sym1 is layouts), !(sym2 is layouts)) {
+      syms = [*pre, sym1, l, sym2, *post];
+  }
+  
+  return syms;
 }
 
 private Symbol regulars(Symbol s, Symbol l) {
@@ -80,5 +92,8 @@ private Symbol regulars(Symbol s, Symbol l) {
     case \conditional(s, {*other, \far-not-precede(c)}) => \conditional(s, {*other, \not-precede(seq[c,l])})
     case \conditional(s, {*other, \far-follow(c)}) => \conditional(s, {*other, \follow(seq[l,c])})
     case \conditional(s, {*other, \far-not-follow(c)}) => \conditional(s, {*other, \not-follow(seq[l,c])})
+    case \iter-seps(Symbol n, [Symbol sep]) => \iter-seps(n,[l,sep,l]) when layouts(_) !:= sep, seq([layouts(_),_,layouts(_)]) !:= sep
+    case \iter-star-seps(Symbol n,[Symbol sep]) => \iter-star-seps(n, [l, sep, l]) when layouts(_) !:= sep, seq([layouts(_),_,layouts(_)]) !:= sep
+    case \seq(list[Symbol] elems) => \seq(intermix(elems, l))
   }
 }

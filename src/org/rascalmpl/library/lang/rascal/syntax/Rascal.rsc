@@ -200,7 +200,7 @@ syntax Expression
 	| bracket \bracket: "(" Expression expression ")" 
 	| closure        : Type type Parameters parameters "{" Statement+ statements "}" 
 	| stepRange      : "[" Expression first "," Expression second ".." Expression last "]" 
-	| voidClosure    : Parameters parameters "{" Statement* statements "}" 
+	| voidClosure    : Parameters parameters "{" Statement* statements0 "}" 
 	| \visit          : Label label Visit visit 
 	| reducer        : "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
 	| reifiedType    : "type" "(" Expression symbol "," Expression definitions ")"  
@@ -209,8 +209,8 @@ syntax Expression
 	| \any            : "any" "(" {Expression ","}+ generators ")" 
 	| \all            : "all" "(" {Expression ","}+ generators ")" 
 	| comprehension  : Comprehension comprehension 
-	| \set            : "{" {Expression ","}* elements "}" 
-	| \list           : "[" {Expression ","}* elements "]"
+	| \set            : "{" {Expression ","}* elements0 "}" 
+	| \list           : "[" {Expression ","}* elements0 "]"
 	| reifyType      : "#" Type type !>> "[" !selector
 	| range          : "[" Expression first ".." Expression last "]"
 	| \tuple          : "\<" {Expression ","}+ elements "\>" 
@@ -854,8 +854,8 @@ lexical MidPathChars
   these two non-terminals will be fused just before AST generation.
 */
 syntax Pattern
-	= \set                 : "{" {Pattern ","}* elements "}" 
-	| \list                : "[" {Pattern ","}* elements "]" 
+	= \set                 : "{" {Pattern ","}* elements0 "}" 
+	| \list                : "[" {Pattern ","}* elements0 "]" 
 	| qualifiedName       : QualifiedName qualifiedName 
 	| multiVariable       : QualifiedName qualifiedName "*"
 	| splice              : "*" Pattern argument

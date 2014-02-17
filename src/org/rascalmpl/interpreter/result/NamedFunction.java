@@ -14,6 +14,7 @@
 package org.rascalmpl.interpreter.result;
 
 import java.lang.ref.SoftReference;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +25,13 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression.Closure;
 import org.rascalmpl.ast.Expression.VoidClosure;
 import org.rascalmpl.ast.FunctionDeclaration;
+import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Parameters;
+import org.rascalmpl.ast.Signature;
+import org.rascalmpl.ast.Tag;
+import org.rascalmpl.ast.TagString;
+import org.rascalmpl.ast.Tags;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -40,25 +46,56 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
 
 abstract public class NamedFunction extends AbstractFunction {
-	protected final String name;
+	private static final String RESOURCE_TAG = "resource";
+  private static final String RESOLVER_TAG = "resolver";
+  protected final String name;
+  protected final boolean isDefault;
+  protected final boolean isTest;
+  protected final boolean isStatic;
+  protected final String resourceScheme;
+  protected final String resolverScheme;
+  protected final Map<String, String> tags;
 	protected final Type[] keywordParameterTypes;
 	private SoftReference<MemoizationCache> memoization;
-	
+  protected final boolean hasMemoization;
+  
 	public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, String name,
-			boolean varargs, List<KeywordParameter> keyargs, Environment env) {
+			boolean varargs, boolean isDefault, boolean isTest, List<KeywordParameter> keyargs, Environment env) {
 		super(ast, eval, functionType, varargs, (keyargs == null) ? computeKeywordParameterDefaults(ast, eval) : keyargs, env);
 		this.name = name;
+		this.isDefault = isDefault;
+		this.isTest = isTest;
 		this.hasKeyArgs = keywordParameterDefaults != null && keywordParameterDefaults.size() > 0;
 		this.keywordParameterTypes = computeKeywordParameterTypes(ast, eval);
+	  this.isStatic = env.isRootScope() && eval.__getRootScope() != env;
+	  
+		if (ast instanceof FunctionDeclaration) {
+      tags = parseTags((FunctionDeclaration) ast);
+      this.resourceScheme = getResourceScheme((FunctionDeclaration) ast);
+      this.resolverScheme = getResolverScheme((FunctionDeclaration) ast);
+      this.hasMemoization = checkMemoization((FunctionDeclaration) ast);
+    } else {
+      tags = new HashMap<String, String>();
+      this.resourceScheme = null;
+      this.resolverScheme = null;
+      this.hasMemoization = false;
+    }
 	}
 
+	protected static boolean hasTestMod(Signature sig) {
+	  for (FunctionModifier m : sig.getModifiers().getModifiers()) {
+	    if (m.isTest()) {
+	      return true;
+	    }
+	  }
+
+	  return false;
+	}
+	 
 	@Override
 	public String getName() {
 		return name;
 	}
-	
-	protected abstract boolean hasMemoization();
-	
 	
 	protected Result<IValue> getMemoizedResult(IValue[] argValues, Map<String, IValue> keyArgValues) {
 		if (hasMemoization()) {
@@ -176,7 +213,85 @@ abstract public class NamedFunction extends AbstractFunction {
     return kwTypes;
   }
 	
-	protected void bindKeywordArgs(Map<String, IValue> keyArgValues){
+	protected static String getResourceScheme(FunctionDeclaration declaration) {
+  	return getScheme(RESOURCE_TAG, declaration);
+  }
+
+  protected static String getResolverScheme(FunctionDeclaration declaration) {
+  	return getScheme(RESOLVER_TAG, declaration);
+  }
+
+  protected boolean checkMemoization(FunctionDeclaration func) {
+  	for (Tag tag : func.getTags().getTags()) {
+  		if (Names.name(tag.getName()).equals("memo")) {
+  			return true;
+  		}
+  	}
+  	return false;
+  }
+
+  protected boolean hasMemoization() {
+    return hasMemoization;
+  }
+
+  protected Map<String, String> parseTags(FunctionDeclaration declaration) {
+  	Map<String, String> result = new HashMap<String, String>();
+  	Tags tags = declaration.getTags();
+  	if (tags.hasTags()) {
+  		for (Tag tag : tags.getTags()) {
+  			if(tag.hasContents()){
+  				String key = Names.name(tag.getName());
+  				String value = ((TagString.Lexical) tag.getContents()).getString();
+  				if (value.length() > 2 && value.startsWith("{")) {
+  					value = value.substring(1, value.length() - 1);
+  				}
+  				result.put(key, value);
+  			}
+  		}
+  	}
+  	return result;
+  }
+
+  @Override
+  public String getTag(String key) {
+  	return tags.get(key);
+  }
+
+  @Override
+  public boolean hasTag(String key) {
+  	return tags.containsKey(key);
+  }
+
+  private static String getScheme(String schemeTag, FunctionDeclaration declaration) {
+  	Tags tags = declaration.getTags();
+  	
+  	if (tags.hasTags()) {
+  		for (Tag tag : tags.getTags()) {
+  			if (Names.name(tag.getName()).equals(schemeTag)) {
+  				String contents = ((TagString.Lexical) tag.getContents()).getString();
+  				
+  				if (contents.length() > 2 && contents.startsWith("{")) {
+  					contents = contents.substring(1, contents.length() - 1);
+  				}
+  				return contents;
+  			}
+  		}
+  	}
+  	
+  	return null;
+  }
+
+  protected static boolean isDefault(FunctionDeclaration func) {
+  	List<FunctionModifier> mods = func.getSignature().getModifiers().getModifiers();
+  	for (FunctionModifier m : mods) {
+  		if (m.isDefault()) {
+  			return true;
+  		}
+  	}
+  	return false;
+  }
+
+  protected void bindKeywordArgs(Map<String, IValue> keyArgValues){
     Environment env = ctx.getCurrentEnvt();
     if(keyArgValues == null){
       if(keywordParameterDefaults != null){
@@ -223,7 +338,12 @@ abstract public class NamedFunction extends AbstractFunction {
     }
   }
 	
-	public String getHeader(){
+	@Override
+  public boolean isTest() {
+  	return isTest;
+  }
+
+  public String getHeader(){
 		String sep = "";
 		String strFormals = "";
 		for(Type tp : getFormals()){
@@ -251,5 +371,30 @@ abstract public class NamedFunction extends AbstractFunction {
 		
 		return getReturnType() + " " + name + "(" + strFormals + kwFormals + ")";
 	}
+
+  @Override
+  public boolean isDefault() {
+  	return isDefault;
+  }
+
+  @Override
+  public String getResourceScheme() {
+  	return this.resourceScheme;
+  }
+
+  @Override
+  public boolean hasResourceScheme() {
+  	return this.resourceScheme != null;
+  }
+
+  @Override
+  public boolean hasResolverScheme() {
+  	return this.resolverScheme != null;
+  }
+
+  @Override
+  public String getResolverScheme() {
+  	return this.resolverScheme;
+  }
 
 }

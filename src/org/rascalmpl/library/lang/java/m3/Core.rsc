@@ -62,6 +62,10 @@ public java M3 createM3FromFile(loc file, str javaVersion = "1.7");
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
+public java M3 createM3FromString(loc fileName, str contents, str javaVersion = "1.7");
+
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
+@reflect
 public java M3 createM3FromJarClass(loc jarClass);
 
 map[loc, map[loc, Declaration]] methodASTs = ();

@@ -73,6 +73,7 @@ public str prettyPrintType(\inferred(int n)) = "inferred(<n>)";
 public str prettyPrintType(\overloaded(set[Symbol] os, set[Symbol] defaults)) = "overloaded:\n\t\t<intercalate("\n\t\t",[prettyPrintType(\o) | \o <- os + defaults])>";
 // named non-terminal symbols
 public str prettyPrintType(Symbol::\sort(str name)) = name;
+public str prettyPrintType(Symbol::\start(Symbol s)) = "start[<prettyPrintType(s)>]";
 public str prettyPrintType(Symbol::\prod(Symbol s, str name, list[Symbol] fs, set[Attr] atrs)) = "<prettyPrintType(s)> <name> : (<intercalate(", ", [ prettyPrintType(f) | f <- fs ])>)";
 public str prettyPrintType(Symbol::\lex(str name)) = name;
 public str prettyPrintType(Symbol::\layouts(str name)) = name;
@@ -263,10 +264,10 @@ public Symbol makeTypeVar(str varName) = \parameter(varName, \value());
 public Symbol makeTypeVarWithBound(str varName, Symbol varBound) = \parameter(varName, varBound);
 
 @doc{Unwraps aliases, parameters, and labels from around a type.}
-private Symbol unwrapType(\alias(_,_,at)) = unwrapType(at);
-private Symbol unwrapType(\parameter(_,tvb)) = unwrapType(tvb);
-private Symbol unwrapType(\label(_,lt)) = unwrapType(lt);
-private default Symbol unwrapType(Symbol t) = t;
+public Symbol unwrapType(\alias(_,_,at)) = unwrapType(at);
+public Symbol unwrapType(\parameter(_,tvb)) = unwrapType(tvb);
+public Symbol unwrapType(\label(_,lt)) = unwrapType(lt);
+public default Symbol unwrapType(Symbol t) = t;
 
 @doc{Get the type that has been reified and stored in the reified type.}
 public Symbol getReifiedType(Symbol t) {
@@ -685,12 +686,55 @@ public bool isContainerType(Symbol t) =
 public bool isNonTerminalType(\alias(_,_,Symbol at)) = isNonTerminalType(at);
 public bool isNonTerminalType(\parameter(_,Symbol tvb)) = isNonTerminalType(tvb);
 public bool isNonTerminalType(\label(_,Symbol lt)) = isNonTerminalType(lt);
+public bool isNonTerminalType(Symbol::\start(Symbol ss)) = isNonTerminalType(ss);
 public bool isNonTerminalType(Symbol::\sort(_)) = true;
+public bool isNonTerminalType(Symbol::\lex(_)) = true;
+public bool isNonTerminalType(Symbol::\layouts(_)) = true;
+public bool isNonTerminalType(Symbol::\keywords(_)) = true;
+public bool isNonTerminalType(Symbol::\parameterized-sort(_,_)) = true;
+public bool isNonTerminalType(Symbol::\parameterized-lex(_,_)) = true;
+public bool isNonTerminalType(Symbol::\iter(_)) = true;
+public bool isNonTerminalType(Symbol::\iter-star(_)) = true;
+public bool isNonTerminalType(Symbol::\iter-seps(_,_)) = true;
+public bool isNonTerminalType(Symbol::\iter-star-seps(_,_)) = true;
+public bool isNonTerminalType(Symbol::\empty()) = true;
+public bool isNonTerminalType(Symbol::\opt(_)) = true;
+public bool isNonTerminalType(Symbol::\alt(_)) = true;
+public bool isNonTerminalType(Symbol::\seq(_)) = true;
+public bool isNonTerminalType(Symbol::\conditional(_,_)) = true;
 public default bool isNonTerminalType(Symbol _) = false;	
+
+public bool isNonTerminalIterType(\alias(_,_,Symbol at)) = isNonTerminalIterType(at);
+public bool isNonTerminalIterType(\parameter(_,Symbol tvb)) = isNonTerminalIterType(tvb);
+public bool isNonTerminalIterType(\label(_,Symbol lt)) = isNonTerminalIterType(lt);
+public bool isNonTerminalIterType(Symbol::\iter(_)) = true;
+public bool isNonTerminalIterType(Symbol::\iter-star(_)) = true;
+public bool isNonTerminalIterType(Symbol::\iter-seps(_,_)) = true;
+public bool isNonTerminalIterType(Symbol::\iter-star-seps(_,_)) = true;
+public default bool isNonTerminalIterType(Symbol _) = false;	
+
+public Symbol getNonTerminalIterElement(\alias(_,_,Symbol at)) = getNonTerminalIterElement(at);
+public Symbol getNonTerminalIterElement(\parameter(_,Symbol tvb)) = getNonTerminalIterElement(tvb);
+public Symbol getNonTerminalIterElement(\label(_,Symbol lt)) = getNonTerminalIterElement(lt);
+public Symbol getNonTerminalIterElement(Symbol::\iter(Symbol i)) = i;
+public Symbol getNonTerminalIterElement(Symbol::\iter-star(Symbol i)) = i;
+public Symbol getNonTerminalIterElement(Symbol::\iter-seps(Symbol i,_)) = i;
+public Symbol getNonTerminalIterElement(Symbol::\iter-star-seps(Symbol i,_)) = i;
+public default Symbol getNonTerminalIterElement(Symbol i) {
+	throw "<prettyPrintType(i)> is not an iterable non-terminal type";
+}	
+
+public bool isStartNonTerminalType(\alias(_,_,Symbol at)) = isNonTerminalType(at);
+public bool isStartNonTerminalType(\parameter(_,Symbol tvb)) = isNonTerminalType(tvb);
+public bool isStartNonTerminalType(\label(_,Symbol lt)) = isNonTerminalType(lt);
+public bool isStartNonTerminalType(Symbol::\start(_)) = true;
+public default bool isStartNonTerminalType(Symbol _) = false;    
 
 @doc{Get the name of the nonterminal.}
 public str getNonTerminalName(Symbol t) {
+	// TODO: I assume we need the cases for the other non-terminal types
 	if (\sort(n) := unwrapType(t)) return n;
+	if (\start(s) := unwrapType(t)) return getNonTerminalName(s);
 	if (\parameterized-sort(n,_) := unwrapType(t)) return n;
 	if (Symbol::\prod(s,_,_,_) := unwrapType(t)) return getNonTerminalName(s);
     throw "getNonTerminalName, invalid type given: <prettyPrintType(t)>";
@@ -706,8 +750,7 @@ public default bool isProductionType(Symbol _) = false;
 @doc{Get a list of the argument types in a production.}
 public list[Symbol] getProductionArgumentTypes(Symbol pr) {
 	if (Symbol::\prod(_,_,ps,_) := unwrapType(pr)) {
-		// TODO: Need to check to see if this is correct, it seems like the right thing to do...
-		return [psi | psi <- ps, Symbol::\sort(_) := psi || Symbol::\parameterized-sort(_,_) := psi] ;
+		return [ psi | psi <- ps, isNonTerminalType(psi) ] ;
 	}
     throw "Cannot get production arguments from non-production type <prettyPrintType(pr)>";
 }

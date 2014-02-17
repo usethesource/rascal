@@ -41,7 +41,6 @@ type(\int(),())
 
 module Type
 
-import Exception;
 import List;
 
 @doc{
