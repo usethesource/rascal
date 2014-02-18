@@ -48,6 +48,7 @@ import experiments::Compiler::Examples::ExceptionHandlingFinally8;
 import experiments::Compiler::Examples::ExceptionHandlingNotHandled;
 import experiments::Compiler::Examples::ExceptionHandlingNotHandledSimple;
 import experiments::Compiler::Examples::RascalRuntimeExceptions;
+import experiments::Compiler::Examples::RascalRuntimeExceptionsPlusOverloading;
 import experiments::Compiler::Examples::IsDefined;
 import experiments::Compiler::Examples::UninitializedVariable;
 import experiments::Compiler::Examples::UninitializedVariables;
@@ -138,6 +139,7 @@ test bool tst() = demo("ExceptionHandlingFinally8") == experiments::Compiler::Ex
 test bool tst() = demo("ExceptionHandlingNotHandled") == experiments::Compiler::Examples::ExceptionHandlingNotHandled::expectedResult;
 test bool tst() = demo("ExceptionHandlingNotHandledSimple") == experiments::Compiler::Examples::ExceptionHandlingNotHandledSimple::expectedResult;
 test bool tst() = demo("RascalRuntimeExceptions") == experiments::Compiler::Examples::RascalRuntimeExceptions::main([]);
+test bool tst() = demo("RascalRuntimeExceptionsPlusOverloading") == experiments::Compiler::Examples::RascalRuntimeExceptionsPlusOverloading::main([]);
 test bool tst() = demo("IsDefined") == experiments::Compiler::Examples::IsDefined::main([]);
 test bool tst() = demo("UninitializedVariable") == experiments::Compiler::Examples::UninitializedVariable::expectedResult;
 test bool tst() = demo("UninitializedVariables") == experiments::Compiler::Examples::UninitializedVariables::expectedResult;
