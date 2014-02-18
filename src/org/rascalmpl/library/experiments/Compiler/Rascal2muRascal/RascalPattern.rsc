@@ -33,9 +33,13 @@ default MuExp translateMatch(Pattern pat, Expression exp) =
 /*                  Patterns                                         */
 /*********************************************************************/
 
-MuExp translatePat(p:(Pattern) `<RegExpLiteral r>`) = translateRegExpLiteral(r);
+// -- literal pattern ------------------------------------------------
 
 default MuExp translatePat(p:(Pattern) `<Literal lit>`) = muCreate(mkCallToLibFun("Library","MATCH_LITERAL",2), [translate(lit)]);
+
+// -- regexp pattern -------------------------------------------------
+
+MuExp translatePat(p:(Pattern) `<RegExpLiteral r>`) = translateRegExpLiteral(r);
 
 /*
 lexical RegExpLiteral
@@ -155,8 +159,12 @@ tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegEx
    return <mkVarRef("<name>", name@\loc), exps>;
 }
 
+// -- concrete syntax pattern ----------------------------------------
+
 MuExp translatePat(p:(Pattern) `<Concrete concrete>`) = translateConcretePattern(p);
      
+// -- qualified name pattern -----------------------------------------
+
 MuExp translatePat(p:(Pattern) `<QualifiedName name>`) {
    if("<name>" == "_"){
       return muCreate(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR",1), []);
@@ -165,6 +173,8 @@ MuExp translatePat(p:(Pattern) `<QualifiedName name>`) {
    //println("transPattern: <fuid>, <pos>");
    return muCreate(mkCallToLibFun("Library","MATCH_VAR",2), [muVarRef("<name>", fuid, pos)]);
 } 
+
+// -- types name pattern ---------------------------------------------
      
 MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`){
    if("<name>" == "_"){
@@ -174,13 +184,13 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`){
    return muCreate(mkCallToLibFun("Library","MATCH_TYPED_VAR",3), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos)]);
 }  
 
-// reifiedType pattern
+// -- reified type pattern -------------------------------------------
 
 MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> )`) {    
     return muCreate(mkCallToLibFun("Library","MATCH_REIFIED_TYPE",2), [muCon(symbol)]);
 }
 
-// callOrTree pattern
+// -- call or tree pattern -------------------------------------------
 
 MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
    println("CallOrTree Pattern: <expression>(<arguments> <keywordArguments>)");
@@ -222,18 +232,17 @@ MuExp translatePatKWValue(e: (Expression) `<QualifiedName name>`) {
    return muCreate(mkCallToLibFun("Library","MATCH_VAR",2), [muVarRef("<name>", fuid, pos)]);
 }
 
-
-// Set pattern
+// -- set pattern ----------------------------------------------------
 
 MuExp translatePat(p:(Pattern) `{<{Pattern ","}* pats>}`) = translateSetPat(p);
 
-// Tuple pattern
+// -- tuple pattern --------------------------------------------------
 
 MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
     return muCreate(mkCallToLibFun("Library","MATCH_TUPLE",2), [muCallMuPrim("make_array", [ translatePat(pat) | pat <- pats ])]);
 }
 
-// List pattern 
+// -- list pattern ---------------------------------------------------
 
 MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
     lookahead = computeLookahead(p);  
@@ -241,34 +250,36 @@ MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`) {
     return muCreate(mkCallToLibFun("Library","MATCH_LIST",2), [muCallMuPrim("make_array", [ translatePatAsListElem(lpats[i], lookahead[i]) | i <- index(lpats) ])]);
 }
 
-// Variable becomes pattern
+// -- variable becomes pattern ---------------------------------------
 
 MuExp translatePat(p:(Pattern) `<Name name> : <Pattern pattern>`) {
     <fuid, pos> = getVariableScope("<name>", name@\loc);
     return muCreate(mkCallToLibFun("Library","MATCH_VAR_BECOMES",3), [muVarRef("<name>", fuid, pos), translatePat(pattern)]);
 }
 
-// asType pattern
+// -- as type pattern ------------------------------------------------
 
 MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) =
     muCreate(mkCallToLibFun("Library","MATCH_AS_TYPE",3), [muTypeCon(translateType(tp)), translatePat(argument)]);
 
-// Descendant pattern
+// -- descendant pattern ---------------------------------------------
 
 MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`) =
     muCreate(mkCallToLibFun("Library","MATCH_DESCENDANT",2), [translatePatinDescendant(pattern)]);
 
-// Anti-pattern
+// -- anti pattern ---------------------------------------------------
+
 MuExp translatePat(p:(Pattern) `! <Pattern pattern>`) =
     muCreate(mkCallToLibFun("Library","MATCH_ANTI",2), [translatePat(pattern)]);
 
-// typedVariableBecomes pattern
+// -- typed variable becomes pattern ---------------------------------
+
 MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) {
     <fuid, pos> = getVariableScope("<name>", name@\loc);
     return muCreate(mkCallToLibFun("Library","MATCH_TYPED_VAR_BECOMES",4), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translatePat(pattern)]);
 }
 
-// Default rule for pattern translation
+// -- default rule for pattern ---------------------------------------
 
 default MuExp translatePat(Pattern p) { throw "Pattern <p> cannot be translated"; }
 
