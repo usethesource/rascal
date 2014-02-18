@@ -71,7 +71,7 @@
 
  <ul><li><a href="/Rascal/Libraries/Prelude/Boolean/Boolean.html">Boolean</a>: </li>
 <ul><li><a href="/Rascal/Libraries/Prelude/Boolean/arbBool/arbBool.html">arbBool</a>: Return an arbitrary Boolean value.</li>
-<li><a href="/Rascal/Libraries/Prelude/Boolean/fromInt/fromInt.html">fromInt</a>: Convert from integer to Boolean.</li>
+<li><a href="/Rascal/Libraries/Prelude/Boolean/fromInt/fromInt.html">fromInt</a>: </li>
 <li><a href="/Rascal/Libraries/Prelude/Boolean/fromString/fromString.html">fromString</a>: Convert the strings "true" or "false" to a bool.</li>
 <li><a href="/Rascal/Libraries/Prelude/Boolean/toInt/toInt.html">toInt</a>: Convert a Boolean value to integer.</li>
 <li><a href="/Rascal/Libraries/Prelude/Boolean/toReal/toReal.html">toReal</a>: Convert Boolean value to real.</li>
@@ -150,6 +150,7 @@
 <li><a href="/Rascal/Libraries/Prelude/IO/rprintln/rprintln.html">rprintln</a>: Raw print of a value followed by newline.</li>
 <li><a href="/Rascal/Libraries/Prelude/IO/touch/touch.html">touch</a>: Changes the last modification date of a file.</li>
 <li><a href="/Rascal/Libraries/Prelude/IO/writeFile/writeFile.html">writeFile</a>: Write values to a file.</li>
+<li><a href="/Rascal/Libraries/Prelude/IO/writeFileBytes/writeFileBytes.html">writeFileBytes</a>: Write a list of bytes to a file.</li>
 <li><a href="/Rascal/Libraries/Prelude/IO/writeFileEnc/writeFileEnc.html">writeFileEnc</a>: Write values to a file.</li>
 </ul><li><a href="/Rascal/Libraries/Prelude/List/List.html">List</a>: Library functions for lists.</li>
 <ul><li><a href="/Rascal/Libraries/Prelude/List/delete/delete.html">delete</a>: Delete an element from a list.</li>
@@ -165,6 +166,7 @@
 <li><a href="/Rascal/Libraries/Prelude/List/insertAt/insertAt.html">insertAt</a>: Insert an element at a specific position in a list.</li>
 <li><a href="/Rascal/Libraries/Prelude/List/intercalate/intercalate.html">intercalate</a>: Join a list of values into a string separated by a separator.</li>
 <li><a href="/Rascal/Libraries/Prelude/List/isEmpty/isEmpty.html">isEmpty</a>: Test whether a list is empty.</li>
+<li><a href="/Rascal/Libraries/Prelude/List/itoString/itoString.html">itoString</a>: Convert a list to an indented string.</li>
 <li><a href="/Rascal/Libraries/Prelude/List/last/last.html">last</a>: Return the last element of a list, if any.</li>
 <li><a href="/Rascal/Libraries/Prelude/List/lastIndexOf/lastIndexOf.html">lastIndexOf</a>: Return index of last occurrence of elt in lst, or -1 if elt is not found.</li>
 <li><a href="/Rascal/Libraries/Prelude/List/mapper/mapper.html">mapper</a>: Apply a function to all list elements and return list of results.</li>
@@ -222,6 +224,7 @@
 <li><a href="/Rascal/Libraries/Prelude/Map/invert/invert.html">invert</a>: Invert the (key,value) pairs in a map.</li>
 <li><a href="/Rascal/Libraries/Prelude/Map/invertUnique/invertUnique.html">invertUnique</a>: Invert the (key,value) pairs in a map.</li>
 <li><a href="/Rascal/Libraries/Prelude/Map/isEmpty/isEmpty.html">isEmpty</a>: Test whether a map is empty.</li>
+<li><a href="/Rascal/Libraries/Prelude/Map/itoString/itoString.html">itoString</a>: Convert a map to a indented string.</li>
 <li><a href="/Rascal/Libraries/Prelude/Map/mapper/mapper.html">mapper</a>: Apply a function to all (key, value) pairs in a map.</li>
 <li><a href="/Rascal/Libraries/Prelude/Map/range/range.html">range</a>: The range (set of values that correspond to its keys) of a map.</li>
 <li><a href="/Rascal/Libraries/Prelude/Map/rangeR/rangeR.html">rangeR</a>: Map restricted to certain values in (key,values) pairs.</li>
@@ -240,11 +243,13 @@
 <li><a href="/Rascal/Libraries/Prelude/Node/getAnnotations/getAnnotations.html">getAnnotations</a>: Retrieve the annotations of a node value as a map.</li>
 <li><a href="/Rascal/Libraries/Prelude/Node/getChildren/getChildren.html">getChildren</a>: Get the children of a node.</li>
 <li><a href="/Rascal/Libraries/Prelude/Node/getName/getName.html">getName</a>: Determine the name of a node.</li>
+<li><a href="/Rascal/Libraries/Prelude/Node/itoString/itoString.html">itoString</a>: Convert a node to an indented string.</li>
 <li><a href="/Rascal/Libraries/Prelude/Node/makeNode/makeNode.html">makeNode</a>: Create a node given its function name and arguments.</li>
 <li><a href="/Rascal/Libraries/Prelude/Node/setAnnotations/setAnnotations.html">setAnnotations</a>: Add a map of annotations to a node value.</li>
 <li><a href="/Rascal/Libraries/Prelude/Node/toString/toString.html">toString</a>: Convert a node to a string.</li>
 </ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/ParseTree.html">ParseTree</a>: Library functions for parse trees.</li>
 <ul><li><a href="/Rascal/Libraries/Prelude/ParseTree/associativity/associativity.html">associativity</a>: Choice under associativity is flattened.</li>
+<li><a href="/Rascal/Libraries/Prelude/ParseTree/Condition/Condition.html">Condition</a>: </li>
 <li><a href="/Rascal/Libraries/Prelude/ParseTree/doc/doc.html">doc</a>: Annotate a parse tree node with a documentation string.</li>
 <li><a href="/Rascal/Libraries/Prelude/ParseTree/docs/docs.html">docs</a>: Annotate a parse tree node with documentation strings for several locations.</li>
 <li><a href="/Rascal/Libraries/Prelude/ParseTree/implode/implode.html">implode</a>: Implode a parse tree according to a given (ADT) type.</li>
@@ -258,6 +263,7 @@
 <li><a href="/Rascal/Libraries/Prelude/ParseTree/priority/priority.html">priority</a>: Nested priority is flattened.</li>
 <li><a href="/Rascal/Libraries/Prelude/ParseTree/Production/Production.html">Production</a>: </li>
 <li><a href="/Rascal/Libraries/Prelude/ParseTree/saveParser/saveParser.html">saveParser</a>: Save the current object parser to a file.</li>
+<li><a href="/Rascal/Libraries/Prelude/ParseTree/Symbol/Symbol.html">Symbol</a>: </li>
 <li><a href="/Rascal/Libraries/Prelude/ParseTree/Tree/Tree.html">Tree</a>: The Tree data type as produced by the parser.</li>
 <li><a href="/Rascal/Libraries/Prelude/ParseTree/treeAt/treeAt.html">treeAt</a>: Select the innermost Tree of a given type which is enclosed by a given location.</li>
 <li><a href="/Rascal/Libraries/Prelude/ParseTree/TreeSearchResult/TreeSearchResult.html">TreeSearchResult</a>: Tree search result type for <a href="/Rascal/Libraries/Prelude/ParseTree/treeAt/treeAt.html">treeAt</a>.</li>
@@ -284,6 +290,7 @@
 <li><a href="/Rascal/Libraries/Prelude/Set/group/group.html">group</a>: Group elements in a set given an equivalence function.</li>
 <li><a href="/Rascal/Libraries/Prelude/Set/index/index.html">index</a>: Map set elements to a fixed index.</li>
 <li><a href="/Rascal/Libraries/Prelude/Set/isEmpty/isEmpty.html">isEmpty</a>: Test whether a set is empty.</li>
+<li><a href="/Rascal/Libraries/Prelude/Set/itoString/itoString.html">itoString</a>: Convert a set to an indented string.</li>
 <li><a href="/Rascal/Libraries/Prelude/Set/mapper/mapper.html">mapper</a>: Apply a function to all set elements and return set of results.</li>
 <li><a href="/Rascal/Libraries/Prelude/Set/max/max.html">max</a>: Determine the largest element of a set.</li>
 <li><a href="/Rascal/Libraries/Prelude/Set/min/min.html">min</a>: Smallest element of a set.</li>
@@ -339,6 +346,7 @@
 <li><a href="/Rascal/Libraries/Prelude/Type/eq/eq.html">eq</a>: structural equality between values. </li>
 <li><a href="/Rascal/Libraries/Prelude/Type/equivalent/equivalent.html">equivalent</a>: Check if two types are equivalent.</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/Exception/Exception.html">Exception</a>: </li>
+<li><a href="/Rascal/Libraries/Prelude/Type/glb/glb.html">glb</a>: The greatest lower bound (glb) between two types.</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/isADTType/isADTType.html">isADTType</a>: Determine if the given type is an Abstract Data Type (ADT).</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/isAliasType/isAliasType.html">isAliasType</a>: Determine if the given type is an alias.</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/isBagType/isBagType.html">isBagType</a>: Determine if the given type is a bag (bags are not yet implemented).</li>
@@ -398,7 +406,7 @@
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

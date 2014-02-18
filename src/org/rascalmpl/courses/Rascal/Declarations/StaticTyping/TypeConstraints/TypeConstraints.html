@@ -73,11 +73,11 @@
 }
 </pre> The argument <code>N</code> is constrained to be at most of type <code>num</code>.
  <pre class="screen"><span class="prompt">rascal></span>import Number;
-ok
+|stdin:///|(0,14,&lt;1,0>,&lt;1,14>): Could not import module Number: File rascal://Number not found.
 <span class="prompt">rascal></span>abs(-3);
-int: 3
+|stdin:///|(0,3,&lt;1,0>,&lt;1,3>): Undeclared variable: abs
 <span class="prompt">rascal></span>abs(-3.5);
-real: 3.5
+|stdin:///|(0,3,&lt;1,0>,&lt;1,3>): Undeclared variable: abs
 </pre> Here is an example from the <a href="/Rascal/Expressions/Values/Node/Node.html">Node</a> library:
  <pre class="listing">&amp;T &lt;: node setAnnotations(&amp;T &lt;: node x, map[str, value] annotations);
 </pre> (we don't give the body of this function since it has been implemented in Java).
@@ -113,7 +113,7 @@ Suite: diamonds()[
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/StaticTyping/TypeConstraints&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Declarations/StaticTyping/TypeConstraints&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 3 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -19,8 +19,8 @@ Yields `true` if both arguments are different `datetime` values and `false` othe
 
 Examples:
 <screen>
-$2010-07-15 != $2010-07-14;
-$2010-07-15 != $2010-07-15;
+$2010-07-15$ != $2010-07-14$;
+$2010-07-15$ != $2010-07-15$;
 </screen>
 
 Benefits:
