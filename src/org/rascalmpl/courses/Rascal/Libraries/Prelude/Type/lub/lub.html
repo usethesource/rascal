@@ -79,18 +79,6 @@
 <li> <code>Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r))</code></li>
 <li> <code>Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r))</code></li>
 <li> <code>Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r))</code></li>
-<li> <code>Symbol lub(\lrel(list[Symbol] ts), \list(Symbol s))</code></li>
-<li> <code>Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r))</code></li>
-<li> <code>Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r))</code></li>
-<li> <code>Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r))</code></li>
-<li> <code>Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r))</code></li>
-<li> <code>Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r))</code></li>
-<li> <code>Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r))</code></li>
-<li> <code>Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r))</code></li>
-<li> <code>Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r))</code></li>
-<li> <code>Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r))</code></li>
-<li> <code>Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r))</code></li>
-<li> <code>Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r))</code></li>
 <li> <code>Symbol lub(\list(Symbol s), \list(Symbol t))</code></li>
 <li> <code>Symbol lub(\list(Symbol s), \lrel(list[Symbol] ts))</code></li>
 <li> <code>Symbol lub(\lrel(list[Symbol] ts), \list(Symbol s))</code></li>
@@ -100,6 +88,11 @@
 <li> <code>Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r))</code></li>
 <li> <code>Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r))</code></li>
 <li> <code>Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r))</code></li>
+<li> <code>Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r))</code></li>
+<li> <code>Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r))</code></li>
+<li> <code>Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r))</code></li>
+<li> <code>Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r))</code></li>
+<li> <code>Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r))</code></li>
 <li> <code>Symbol lub(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt)))</code></li>
 <li> <code>Symbol lub(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt)))</code></li>
 <li> <code>Symbol lub(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(Symbol rf, Symbol rt))</code></li>
@@ -108,6 +101,7 @@
 <li> <code>Symbol lub(\bag(Symbol s), \bag(Symbol t))</code></li>
 <li> <code>Symbol lub(\adt(str n, list[Symbol] _), \node())</code></li>
 <li> <code>Symbol lub(\node(), \adt(str n, list[Symbol] _))</code></li>
+<li> <code>Symbol lub(\adt(str n, list[Symbol] lp), \adt(n, list[Symbol] rp))</code></li>
 <li> <code>Symbol lub(\adt(str n, list[Symbol] lp), \adt(n, list[Symbol] rp))</code></li>
 <li> <code>Symbol lub(\adt(str n, list[Symbol] lp), \adt(str m, list[Symbol] rp))</code></li>
 <li> <code>Symbol lub(\adt(str ln, list[Symbol] lp), Symbol::\cons(Symbol b, _, list[Symbol] _))</code></li>
@@ -120,8 +114,6 @@
 <li> <code>Symbol lub(Symbol l, \parameter(str _, Symbol bound))</code></li>
 <li> <code>Symbol lub(\reified(Symbol l), \reified(Symbol r))</code></li>
 <li> <code>Symbol lub(\reified(Symbol l), \node())</code></li>
-<li> <code>Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp))</code></li>
-<li> <code>Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp))</code></li>
 <li> <code>Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp))</code></li>
 <li> <code>Symbol lub(\label(_,Symbol l), Symbol r)</code></li>
 <li> <code>Symbol lub(Symbol l, \label(_,Symbol r))</code></li>

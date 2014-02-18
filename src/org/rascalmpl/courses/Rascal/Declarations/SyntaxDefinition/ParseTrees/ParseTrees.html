@@ -171,7 +171,7 @@ Questions:
 module ParseTree
 
 extend Type;
-import Message;
+extend Message;
 
 @doc{
 Synopsis: The Tree data type as produced by the parser.
@@ -236,6 +236,8 @@ data Symbol
      | \parameterized-lex(str name, list[Symbol] parameters)  
      ; 
 
+public bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", _)) = true;
+
 // These are the terminal symbols.
 data Symbol 
      = \lit(str string) <img src="/images/10.png">
@@ -255,6 +257,10 @@ data Symbol
      | \seq(list[Symbol] symbols)
      ;
   
+public bool subtype(\list(Symbol symbol1), \iter(Symbol symbol2)) = symbol1 == symbol2;
+public bool subtype(\list(Symbol symbol1), \iter-star(Symbol symbol2)) = symbol1 == symbol2;
+public bool subtype(\list(Symbol symbol1), \iter-seps(Symbol symbol2, list[Symbol] separators)) = tsymbol1 == symbol2;
+public bool subtype(\list(Symbol symbol1), \iter-star-seps(Symbol symbol2, list[Symbol] separators)) = symbol1 == symbol2;
 
 data Symbol = \conditional(Symbol symbol, set[Condition] conditions) <img src="/images/12.png">;
 
@@ -587,7 +593,7 @@ Description: Select the innermost Tree of type `t` which is enclosed by location
 }
 public TreeSearchResult[&amp;T&lt;:Tree] treeAt(type[&amp;T&lt;:Tree] t, loc l, a:appl(_, _)) {
 	if ((a@\loc)?, al := a@\loc, al.offset &lt;= l.offset, al.offset + al.length >= l.offset + l.length) {
-		for (arg &lt;- a.args, r:treeFound(_) := treeAt(t, l, arg)) {
+		for (arg &lt;- a.args, TreeSearchResult[&amp;T&lt;:Tree] r:treeFound(&amp;T&lt;:Tree _) := treeAt(t, l, arg)) {
 			return r;
 		}
 		

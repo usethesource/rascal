@@ -8,9 +8,9 @@ import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -58,7 +58,6 @@ public class Webserver {
         IMap paramsVal= makeMap(parms);
         IMap filesVal= makeMap(files);
         ISourceLocation loc = vf.sourceLocation(URIUtil.assumeCorrect("request", "", uri));
-       System.err.println("here: " + loc);
         try {
           synchronized (callee.getEval()) {
             callee.getEval().__setInterrupt(false);
@@ -67,15 +66,46 @@ public class Webserver {
           }
         }
         catch (Throw rascalException) {
+          ctx.getStdErr().println(rascalException.getMessage());
           return new Response(Status.INTERNAL_ERROR, "text/plain", rascalException.getMessage());
         }
         catch (Throwable unexpected) {
+          ctx.getStdErr().println(unexpected.getMessage());
+          unexpected.printStackTrace(ctx.getStdErr());
           return new Response(Status.INTERNAL_ERROR, "text/plain", unexpected.getMessage());
         }
       }
 
       private Response translateResponse(Method method, IValue value) {
         IConstructor cons = (IConstructor) value;
+        initMethodAndStatusValues(ctx);
+        
+        if (cons.getName().equals("fileResponse")) {
+          return translateFileResponse(method, cons);
+        }
+        else {
+          return translateTextResponse(method, cons);
+        }
+      }
+      
+      private Response translateFileResponse(Method method, IConstructor cons) {
+        ISourceLocation l = (ISourceLocation) cons.get("file");
+        IString mimeType = (IString) cons.get("mimeType");
+        IMap header = (IMap) cons.get("header");
+        URI uri = l.getURI();
+        
+        Response response;
+        try {
+          response = new Response(Status.OK, mimeType.getValue(), ctx.getResolverRegistry().getInputStream(uri));
+          addHeaders(response, header);
+          return response;
+        } catch (IOException e) {
+          e.printStackTrace(ctx.getStdErr());
+          return new Response(Status.NOT_FOUND, "text/plain", l + " not found.\n" + e);
+        } 
+      }
+
+      private Response translateTextResponse(Method method, IConstructor cons) {
         IString mimeType = (IString) cons.get("mimeType");
         IMap header = (IMap) cons.get("header");
         IString data = (IString) cons.get("content");
@@ -92,6 +122,8 @@ public class Webserver {
             if (data.length() == 0) {
               data = vf.string(status.getDescription());
             }
+          default:
+            break;
           }
         }
         Response response = new Response(status, mimeType.getValue(), data.getValue());
@@ -100,6 +132,12 @@ public class Webserver {
       }
 
       private void addHeaders(Response response, IMap header) {
+        // TODO add first class support for cache control on the Rascal side. For
+        // now we prevent any form of client-side caching with this.. hopefully.
+        response.addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.addHeader("Pragma", "no-cache");
+        response.addHeader("Expires", "0");
+        
         for (IValue key : header) {
           response.addHeader(((IString) key).getValue(), ((IString) header.get(key)).getValue());
         }
@@ -148,7 +186,9 @@ public class Webserver {
   @Override
   protected void finalize() throws Throwable {
     for (NanoHTTPD server : servers.values()) {
-      server.stop();
+      if (server != null) {
+        server.stop();
+      }
     }
   }
 

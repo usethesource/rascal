@@ -84,33 +84,6 @@ data Symbol
      | \parameterized-sort(str name, list[Symbol] parameters)  
      | \parameterized-lex(str name, list[Symbol] parameters)  
      ;
-data Symbol 
-     = \lit(str string) <img src="/images/10.png">
-     | \cilit(str string)
-     | \char-class(list[CharRange] ranges)
-     ;
-data Symbol
-     = \empty() <img src="/images/11.png">
-     | \opt(Symbol symbol)  
-     | \iter(Symbol symbol)   
-     | \iter-star(Symbol symbol)   
-     | \iter-seps(Symbol symbol, list[Symbol] separators)   
-     | \iter-star-seps(Symbol symbol, list[Symbol] separators) 
-     | \alt(set[Symbol] alternatives)
-     | \seq(list[Symbol] symbols)
-     ;
-data Symbol = \conditional(Symbol symbol, set[Condition] conditions) <img src="/images/12.png">;
-data Condition
-     = \follow(Symbol symbol) <img src="/images/13.png">
-     | \not-follow(Symbol symbol)
-     | \precede(Symbol symbol)
-     | \not-precede(Symbol symbol)
-     | \delete(Symbol symbol)
-     | \at-column(int column) 
-     | \begin-of-line()  
-     | \end-of-line()  
-     | \except(str label)
-     ;
 </pre>
 </div>
 
