@@ -35,7 +35,7 @@ public map[&T, int] distribution(rel[&U event, &T bucket] input) {
 }
 
 public map[&T <: num, int] distribution(rel[&U event, &T <: num bucket] input, &T <: num bucketSize) {
-  map[&T,int] result = ();
+  map[&T <: num,int] result = ();
   for (<&U event, &T bucket> <- input) {
     result[round(bucket, bucketSize)]?0 += 1;
   }
@@ -52,7 +52,7 @@ public map[&T, int] distribution(map[&U event, &T bucket] input) {
 }
 
 public map[&T <: num, int] distribution(map[&U event, &T <: num bucket] input, &T <: num bucketSize) {
-  map[&T,int] result = ();
+  map[&T <: num,int] result = ();
   for (&U event <- input) {
     result[round(input[event], bucketSize)]?0 += 1;
   }
@@ -126,3 +126,4 @@ public java num pct(list[value] values, num n);
 
 @javaClass{org.rascalmpl.library.analysis.statistics.Frequencies}
 public java num pct(list[value] values, str s);
+
