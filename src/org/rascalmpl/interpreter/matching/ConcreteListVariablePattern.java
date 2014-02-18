@@ -182,6 +182,11 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 	public boolean isVarIntroducing() {
 		return iDeclaredItMyself;
 	}
+	
+	public boolean isPlusList() {
+	  IConstructor sym =declaredType.getSymbol();
+	  return SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterPlusSeps(sym);
+	}
 
 	@Override
 	public String name() {

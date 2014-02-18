@@ -446,7 +446,7 @@ MuExp assignTo(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpre
 
 MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, MuExp rhs) {
     str fuid = topFunctionScope();
-	nelems = size_assignables(elements);
+	nelems = size(elements); // size_assignables
     name = nextTmp();
     elems = [ e | e <- elements];	// hack since elements[i] yields a value result;
     return muBlock(
@@ -458,9 +458,9 @@ MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, MuExp rhs)
 
 MuExp assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, MuExp rhs) { 
     str fuid = topFunctionScope();
-    nelems = size_assignables(elements);
+    nelems = size(arguments);// size_assignables
     name = nextTmp();
-    elems = [ e | e <- elements];	// hack since elements[i] yields a value result;
+    elems = [ e | e <- arguments];	// hack since elements[i] yields a value result;
     return muBlock(
               muAssignTmp(name, fuid, rhs) + 
               [ assignTo(elems[i], muCalla("adt_subscript_int", [muTmp(name,fuid), muCon(i)]) )

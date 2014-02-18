@@ -229,7 +229,7 @@ public data MuExp =
             | preAnd(MuExp lhs, MuExp rhs)
             | preOr(MuExp lhs, MuExp rhs)
        
-            | preIs(MuExp, str typeName)
+            | preIs(MuExp exp, str typeName)
             
             | preLocDeref(Identifier id)
             | preVarDeref(lrel[str,int] funNames, Identifier id)
