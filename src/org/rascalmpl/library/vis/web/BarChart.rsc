@@ -15,9 +15,13 @@ import lang::json::IO;
 import IO;
 
 alias YAxis = tuple[str varName, str aggregateMethod, str plotFunction,value series, bool showPercent,
-num overrideMin, num overrideMax, bool hidden];
+num overrideMin, num overrideMax, bool hidden, bool category];
 
 alias ColorAxis = tuple[str varName, value color];
+
+public alias Table = list[tuple[str name, list[value] d]];
+
+public alias Key2Data = map[str name, list[value] d];
 
 public tuple[int width, int height] svgDim = <1200, 800>;
 
@@ -47,8 +51,8 @@ public tuple[int x, int y, int width, int height, str align] legendBounds =
     }
 
 public YAxis getYAxis(str varName="y", str aggregateMethod="count", str plotFunction="bar", value series="", bool showPercent=false,
-    num overrideMin=0, num overrideMax=0, bool hidden = false) {
-    return <varName, aggregateMethod, plotFunction, series, showPercent, overrideMin, overrideMax, hidden>;
+    num overrideMin=0, num overrideMax=0, bool hidden = false, bool category = false) {
+    return <varName, aggregateMethod, plotFunction, series, showPercent, overrideMin, overrideMax, hidden, category>;
     }
 
 private bool isNull(value v) {
@@ -83,8 +87,8 @@ public str barChart(
     , value orderRule = ""
     , value series=""
     , list[tagColor] assignColor=[]
-    , YAxis y_axis =<"y","count", "bar","", false,0, 0, false>
-    , YAxis y_axis2=<"","max", "line","", false,0, 0, false >
+    , YAxis y_axis =<"y","count", "bar","", false,0, 0, false, false>
+    , YAxis y_axis2=<"","max", "line","", false,0, 0, false, false >
     , bool legend = false
     , bool legend2 = false
     , list[dColor] defaultColors = []
@@ -108,13 +112,15 @@ public str barChart(
         ,                            
         expr(isNull(defaultColors)?"":chart.defaultColors(myChart, defaultColors))
         ,
-        var((x:expr(chart.addAxis(myChart, "x",x_axis, ""))))
+        var((x:expr(chart.addCategoryAxis(myChart, "x",x_axis))))
         ,
         expr(axis.addOrderRule(x, orderRule, "false"))
         ,
-        var((y1:expr(chart.addMeasureAxis(myChart, "y", y_axis[0]))))
+        var((y1:expr(y_axis[8]?chart.addCategoryAxis(myChart, "y",y_axis[0]):chart.addMeasureAxis(myChart, "y", y_axis[0]))))
         , 
-        var((y2:expr(isNull(y_axis2[0])?"null":chart.addMeasureAxis(myChart, "y", y_axis2[0]))))
+        var((y2:expr(isNull(y_axis2[0])?"null":
+              y_axis2[8]?chart.addCategoryAxis(myChart, "y",y_axis2[0]):
+              chart.addMeasureAxis(myChart, "y", y_axis2[0]))))
         , 
         var(("colorAxis":expr(isNull(colorAxis[0])?"null":chart.addColorAxis(myChart, 
               colorAxis[0],  colorAxis[1]))))
@@ -167,10 +173,45 @@ public str barChart(
       {
       list[str] hd =  id + [r.name|r<-relation];
       list[list[value]] g = jn([q.t|q<-relation]);
-      list[map[str, value]] jsonData = [(hd[i] : r[i]|i<-[0..size(hd)])|
-      list[value] r<-g]; 
-      writeTextJSonFile(location+"data.json", jsonData); 
-      writeFile(location+"index.html",  html(header, body));    
-      return location;    
+      list[list[value]] g1 = [[g[j][i]|j<-[0..size(g)]]|i<-[0..size(hd)]]; 
+      // println(g1);
+      Table table = [<hd[i], g1[i]>|i<-[0..size(hd)]];
+      // println(table);
+      return publish(location, header, body, table);
+      }
+  
+  list[map[str, value]] convert(Table table) {   
+      if (isEmpty(table)) return [];
+      int n = size(head(table).d);
+      //println(table);
+      // println(n);
+      list[map[str, value]] r =[];
+      for (i<-[0..n]) {
+          r+=(h:r[i]|<str h, list[value] r><-table);
+          }
+      return r;
       }
       
+ list[map[str, value]] convert(Key2Data table) {
+      if (isEmpty(table)) return [];
+      int n = size(table[getOneFrom(table)]);
+      list[map[str, value]] r =[];
+      for (i<-[0..n]) {
+          r+=(d:table[d][i]|d<-table);
+          }
+      return r;
+      }     
+      
+  public loc publish(loc location, str header, str body, Table table)  {
+     list[map[str, value]] jsonData = convert(table);
+     writeTextJSonFile(location+"data.json", jsonData); 
+     writeFile(location+"index.html",  html(header, body));    
+     return location; 
+     }
+     
+  public loc publish(loc location, str header, str body, Key2Data table)  {
+     list[map[str, value]] jsonData = convert(table);
+     writeTextJSonFile(location+"data.json", jsonData); 
+     writeFile(location+"index.html",  html(header, body));    
+     return location; 
+     }
