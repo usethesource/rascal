@@ -337,7 +337,9 @@ void extractScopes(){
     	topdecls = [ uid | uid <- declares[muid], function(_,_,_,_,_,_,_) := config.store[uid] ||
     											  closure(_,_,_,_)        := config.store[uid] ||
     											  constructor(_,_,_,_,_)  := config.store[uid] ||
-    											  variable(_,_,_,_,_)   := config.store[uid] ];
+    											( production(rname,_,_,_) := config.store[uid] 
+    											    && !isEmpty(getSimpleName(rname)) )        ||
+    											  variable(_,_,_,_,_)     := config.store[uid] ];
     	for(i <- index(topdecls)) {
     		// functions and closures are identified by their qualified names, and they do not have a position in their scope
     		// only the qualified name of their enclosing module or function is significant 
