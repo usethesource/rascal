@@ -15,6 +15,7 @@
 package org.rascalmpl.values;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
+//import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory1;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 
 public class ValueFactoryFactory{
