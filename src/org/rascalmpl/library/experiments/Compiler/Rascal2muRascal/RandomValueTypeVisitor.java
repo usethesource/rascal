@@ -380,7 +380,6 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		RandomValueTypeVisitor r = new RandomValueTypeVisitor(ValueFactoryFactory.getValueFactory(), 3, null, null);
 		
 	    Type intType = r.tf.integerType();
-	    Type strType = r.tf.stringType();
 	    
 		System.out.println(r.generate(r.tf.setType(intType)));
 	}
