@@ -22,6 +22,6 @@ data Exp = let(list[Binding] bindings, Exp exp)
          | leq(Exp lhs, Exp rhs)
          
          | seq(Exp lhs, Exp rhs)
-         | assign(Exp exp, Exp exp);
+         | assign(Exp lhs, Exp rhs);
 
 data Binding = binding(str var, Exp exp);

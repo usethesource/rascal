@@ -1,5 +1,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.types.FunctionType;
+
 public class Frame {
 	int scopeId;
     Frame previousCallFrame;
@@ -30,6 +36,94 @@ public class Frame {
 		this.isCoroutine = function.isCoroutine;
 	}
 	
+	/**
+	 * Assumption: scopeIn != -1; 
+	 */
+	public Frame getCoroutineFrame(Function f, int scopeIn, int arity, int sp) {
+		for(Frame env = this; env != null; env = env.previousCallFrame) {
+			if (env.scopeId == f.scopeIn) {
+				return getCoroutineFrame(f, env, arity, sp);
+			}
+		}
+		throw new RuntimeException("Could not find a matching scope when computing a nested coroutine instance: " + f.scopeIn);
+	}
+	
+	/**
+	 * Given a current frame (this), 
+	 * creates a new frame (frame) to be wrapped inside a coroutine object,
+	 * pushes arguments from the current frame's stack to the stack of the new frame (given an arity),
+	 * (re)setting the stack pointer of both the current and new frame, and
+	 * returns the new frame.
+	 */
+	public Frame getCoroutineFrame(Function f, Frame env, int arity, int sp) {
+		Frame frame = new Frame(f.scopeId, null, env, f.maxstack, f);
+		// The main function of a coroutine instance may have formal parameters;
+		// therefore, creation of a coroutine instance may take a number of arguments <= formal parameters
+		if(arity > f.nformals) {
+			throw new RuntimeException("Too many arguments have been passed to create a coroutine instance, expected <= " + f.nformals);
+		}
+		for (int i = arity - 1; i >= 0; i--) {
+			frame.stack[i] = stack[sp - arity + i];
+		}
+		frame.sp = arity;
+		this.sp = sp - arity;
+		return frame;
+	}
+	
+	/**
+	 * Given a current frame (this), 
+	 * creates a new frame (frame), 
+	 * pushes arguments from the current frame's stack to the stack of the new frame,
+	 * (re)setting the stack pointer of both the current and the new frame, and 
+	 * returns the new frame to the caller.
+	 */
+	public Frame getFrame(Function f, Frame env, int arity, int sp) {
+		Frame frame = new Frame(f.scopeId, this, env, f.maxstack, f);
+		this.sp = frame.pushFunctionArguments(arity, this.stack, sp);
+		return frame;
+	}
+		
+	public Frame getFrame(Function f, Frame env, Object[] args) {
+		Frame frame = new Frame(f.scopeId, this, env, f.maxstack, f);
+		this.sp = frame.pushFunctionArguments(args.length, args, args.length);
+		return frame;
+	}
+	
+	/**
+	 * Given a current frame (this), 
+	 * pushes arguments from a given stack (stack) to the current frame's stack (given an arity and the number of formal parameters of a function),
+	 * resetting the current frame's stack pointer to the number of local variables of its function, and
+	 * returns a new stack pointer for the given stack
+	 * (in case of the given stack being an array of arguments: stack.length == arity == sp && start == 0).
+	 */
+	private int pushFunctionArguments(int arity, Object[] stack, int sp) {
+		int start = sp - arity;
+		if(!function.isVarArgs) {
+			assert arity == function.nformals;
+			for(int i = 0; i < arity; i++){
+				this.stack[i] = stack[start + i]; 
+			}
+		} else {
+			int posArityMinusOne = function.nformals - 2; // The number of positional arguments minus one
+			for(int i = 0; i < posArityMinusOne; i++) {
+				this.stack[i] = stack[start + i];
+			}
+			Type argTypes = ((FunctionType) function.ftype).getArgumentTypes();
+			if(function.nformals == arity && ((IValue) stack[start + posArityMinusOne]).getType().isSubtypeOf(argTypes.getFieldType(posArityMinusOne))) {
+				this.stack[posArityMinusOne] = stack[start + posArityMinusOne];
+			} else {
+				IListWriter writer = ValueFactory.getInstance().listWriter();
+				for(int i = posArityMinusOne; i < arity - 1; i++) {
+					writer.append((IValue) stack[start + i]);
+				}
+				this.stack[posArityMinusOne] = writer.done();
+			}
+			this.stack[function.nformals - 1] = stack[start + arity - 1]; // The keyword arguments
+		}		
+		this.sp = function.nlocals;
+		return start;
+	}
+	
 	public Frame copy() {
 		if(pc != 0)
 			throw new RuntimeException("Copying the frame with certain instructions having been already executed.");
@@ -37,6 +131,5 @@ public class Frame {
 		newFrame.sp = sp; 
 		return newFrame;
 	}
-	
 	
 }
