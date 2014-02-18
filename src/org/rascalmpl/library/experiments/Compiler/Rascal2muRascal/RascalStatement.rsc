@@ -3,29 +3,39 @@ module experiments::Compiler::Rascal2muRascal::RascalStatement
 
 import Prelude;
 import lang::rascal::\syntax::Rascal;
-
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::Rascal2muRascal::RascalType;
-
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+
+/********************************************************************/
+/*                  Statements                                       */
+/********************************************************************/
 
 MuExp translateStats(Statement* statements) = muBlock([ translate(stat) | stat <- statements ]);
 
 /********************************************************************/
 /*                  Statement                                       */
 /********************************************************************/
+
+// -- assert statement -----------------------------------------------
 	
 MuExp translate(s: (Statement) `assert <Expression expression> ;`) = muCallPrim("assertreport", [translate(expression), muCon(""), muCon(s@\loc)]);
 
 MuExp translate(s: (Statement) `assert <Expression expression> : <Expression message>;`) = muCallPrim("assertreport", [translate(expression), translate(message), muCon(s@\loc)]);
 
+// -- single expression statement ------------------------------------
+
 MuExp translate(s: (Statement) `<Expression expression> ;`) = translate(expression);
 
+// -- visit statement ------------------------------------------------
+
 MuExp translate(s: (Statement) `<Label label> <Visit visitItself>`) = translateVisit(label, visitItself);
+
+// -- while do statement ---------------------------------------------
 
 MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditions> ) <Statement body>`) {
     str fuid = topFunctionScope();
@@ -44,6 +54,8 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
     leaveLoop();
     return muBlock(code);
 }
+
+// Due to the similarity of some statement and their template version, we present both version together
 
 MuExp translateTemplate((StringTemplate) `while ( <Expression condition> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, str indent, str pre, str prefuid){
     str fuid = topFunctionScope();
@@ -68,6 +80,8 @@ MuExp translateTemplate((StringTemplate) `while ( <Expression condition> ) { <St
     leaveLoop();
     return muBlock(code);
 }
+
+// -- do while statement ---------------------------------------------
 
 MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`) {
     str fuid = topFunctionScope();
@@ -109,6 +123,8 @@ MuExp translateTemplate(s: (StringTemplate) `do { < Statement* preStats> <String
     return muBlock(code);
 }
 
+// -- for statement --------------------------------------------------
+
 MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generators> ) <Statement body>`) {
     str fuid = topFunctionScope();
     forname = getLabel(label);
@@ -143,6 +159,8 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
     return muBlock(code);
 } 
 
+// -- if then statement ----------------------------------------------
+
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) {
     ifname = getLabel(label);
 	enterBacktrackingScope(ifname);
@@ -167,6 +185,8 @@ MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) {
     leaveBacktrackingScope();
     return muBlock(code);
 }    
+
+// -- if then else statement -----------------------------------------
 
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`) {
 	ifname = getLabel(label);
@@ -198,19 +218,85 @@ MuExp translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) 
     return muBlock(code);                                             
 } 
 
+// -- switch statement -----------------------------------------------
+
 MuExp translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) = translateSwitch(s);
+
+MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) {
+    str fuid = topFunctionScope();
+    switchname = getLabel(label);
+    switchval = asTmp(switchname);
+    return muBlock([ muAssignTmp(switchval,fuid,translate(expression)), translateSwitchCases(switchval,fuid,[c | c <- cases]) ]);
+}
+
+MuExp translateSwitchCases(str switchval, str fuid, list[Case] cases) {
+  if(size(cases) == 0)
+      return muBlock([]);
+  c = head(cases);
+  
+  if(c is patternWithAction){
+     pwa = c.patternWithAction;
+     if(pwa is arbitrary){
+     	ifname = nextLabel();
+        cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pwa.pattern), muTmp(switchval,fuid)]));
+        exp = muIfelse(ifname, cond, { enterBacktrackingScope(ifname); [ translate(pwa.statement) ]; }, { leaveBacktrackingScope(); [ translateSwitchCases(switchval,fuid,tail(cases)) ]; });
+        return exp; 
+     } else {
+        throw "Replacement not allowed in switch statement";
+     }
+  } else {
+        return translate(c.statement);
+  }
+}
+
+// -- fail statement -------------------------------------------------
 
 MuExp translate(s: (Statement) `fail <Target target> ;`) = 
      inBacktrackingScope() ? muFail(target is empty ? currentBacktrackingScope() : "<target.name>")
                            : muFailReturn();
+                          
+// -- break statement ------------------------------------------------
 
 MuExp translate(s: (Statement) `break <Target target> ;`) = muBreak(target is empty ? currentLoop() : "<target.name>");
+ 
+// -- continue statement ---------------------------------------------
 
 MuExp translate(s: (Statement) `continue <Target target> ;`) = muContinue(target is empty ? currentLoop() : "<target.name>");
 
+// -- filter statement -----------------------------------------------
+
 MuExp translate(s: (Statement) `filter ;`) = muFilterReturn();
 
+// -- solve statement ------------------------------------------------
+
 MuExp translate(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`) = translateSolve(s);
+
+MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`) {
+   str fuid = topFunctionScope();
+   iterations = nextTmp();  // count number of iterations
+   change = nextTmp();		// keep track of any changed value
+   result = nextTmp();		// result of body computation
+ 
+   varCode = [ translate(var) | var <- variables ];
+   tmps = [ nextTmp() | var <- variables ];
+// TODO: check that given bound is positive
+   return muBlock([ muAssignTmp(iterations, fuid, (bound is empty) ? muCon(1000000) : translate(bound.expression)),
+                    muAssignTmp(change, fuid, muCon(true)),
+                    *[ muAssignTmp(tmps[i], fuid, varCode[i]) | i <- index(varCode) ],
+                    muWhile(nextLabel(),
+                            muCallMuPrim("and_mbool_mbool", [muTmp(change,fuid), muCallPrim("int_greater_int", [muTmp(iterations,fuid), muCon(0)]) ]), 
+                            [ muAssignTmp(change, fuid, muCon(false)),
+                              muAssignTmp(result, fuid, translate(body)),
+                              *[ muIfelse(nextLabel(), muCallPrim("notequal", [muTmp(tmps[i],fuid), varCode[i]]), [muAssignTmp(change,fuid,muCon(true))], []) 
+                 			   | i <- index(varCode)
+                 			   ],
+                              muAssignTmp(iterations, fuid, muCallPrim("int_subtract_int", [muTmp(iterations,fuid), muCon(1)])) 
+                            ]),
+                    muTmp(result,fuid)
+           ]);
+}
+
+// -- try statement --------------------------------------------------
 
 MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers>`) {
     list[Catch] defaultCases = [ handler | Catch handler <- handlers, handler is \default ];
@@ -286,115 +372,14 @@ MuExp translateCatches(str varname, str varfuid, list[Catch] catches, bool hasDe
   return exp;
 }
 
+// -- labeled statement ----------------------------------------------
+
 MuExp translate(s: (Statement) `<Label label> { <Statement+ statements> }`) =
     muBlock([translate(stat) | stat <- statements]);
 
+// -- assignment statement -------------------------------------------    
+
 MuExp translate(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) = translateAssignment(s); 
-
-MuExp translate(s: (Statement) `;`) = muBlock([]);
-
-MuExp translate(s: (Statement) `global <Type \type> <{QualifiedName ","}+ names> ;`) { throw("globalDirective"); }
-
-MuExp translate(s: (Statement) `return <Statement statement>`) {
-	// If the 'return' is used in the scope of a try-catch-finally block,
-	// the respective 'finally' block must be executed before the function returns
-	if(hasFinally()) {
-	    str fuid = topFunctionScope();
-		str varname = asTmp(nextLabel());
-		return muBlock([ muAssignTmp(varname, fuid, translate(statement)), muReturn(muTmp(varname,fuid)) ]);
-	} 
-	return muReturn(translate(statement));
-}
-
-MuExp translate(s: (Statement) `throw <Statement statement>`) = muThrow(translate(statement));
-
-MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) // TODO: handle dataTarget
-	= { fillCaseType(getType(statement@\loc)); 
-		muBlock([ muAssignVarDeref("hasInsert",topFunctionScope(),2,muBool(true)), 
-				  muReturn(translate(statement)) ]); };
-
-MuExp translate(s: (Statement) `append <DataTarget dataTarget> <Statement statement>`) =
-   muCallPrim("listwriter_add", [muTmp(asTmp(currentLoop(dataTarget)),getCurrentLoopScope(dataTarget)), translate(statement)]);
-
-MuExp translate(s: (Statement) `<FunctionDeclaration functionDeclaration>`) { translate(functionDeclaration); return muBlock([]); }
-
-MuExp translate(s: (Statement) `<LocalVariableDeclaration declaration> ;`) { 
-    tp = declaration.declarator.\type;
-    {Variable ","}+ variables = declaration.declarator.variables;
-    code = for(var <- variables){
-    			if(var is initialized)
-    				append mkAssign("<var.name>", var.name@\loc, translate(var.initial));
-             }
-    return muBlock(code);
-}
-
-default MuExp translate(Statement s){
-   throw "MISSING CASE FOR STATEMENT: <s>";
-}
-
-/*********************************************************************/
-/*                  End of Statements                                */
-/*********************************************************************/
-
-// Switch statement
-
-MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) {
-    str fuid = topFunctionScope();
-    switchname = getLabel(label);
-    switchval = asTmp(switchname);
-    return muBlock([ muAssignTmp(switchval,fuid,translate(expression)), translateSwitchCases(switchval,fuid,[c | c <- cases]) ]);
-}
-
-MuExp translateSwitchCases(str switchval, str fuid, list[Case] cases) {
-  if(size(cases) == 0)
-      return muBlock([]);
-  c = head(cases);
-  
-  if(c is patternWithAction){
-     pwa = c.patternWithAction;
-     if(pwa is arbitrary){
-     	ifname = nextLabel();
-        cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pwa.pattern), muTmp(switchval,fuid)]));
-        exp = muIfelse(ifname, cond, { enterBacktrackingScope(ifname); [ translate(pwa.statement) ]; }, { leaveBacktrackingScope(); [ translateSwitchCases(switchval,fuid,tail(cases)) ]; });
-        return exp; 
-     } else {
-        throw "Replacement not allowed in switch statement";
-     }
-  } else {
-        return translate(c.statement);
-  }
-}
-
-// Solve statement
-
-MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`) {
-   str fuid = topFunctionScope();
-   iterations = nextTmp();  // count number of iterations
-   change = nextTmp();		// keep track of any changed value
-   result = nextTmp();		// result of body computation
- 
-   varCode = [ translate(var) | var <- variables ];
-   tmps = [ nextTmp() | var <- variables ];
-// TODO: check that given bound is positive
-   return muBlock([ muAssignTmp(iterations, fuid, (bound is empty) ? muCon(1000000) : translate(bound.expression)),
-                    muAssignTmp(change, fuid, muCon(true)),
-                    *[ muAssignTmp(tmps[i], fuid, varCode[i]) | i <- index(varCode) ],
-                    muWhile(nextLabel(),
-                            muCallMuPrim("and_mbool_mbool", [muTmp(change,fuid), muCallPrim("int_greater_int", [muTmp(iterations,fuid), muCon(0)]) ]), 
-                            [ muAssignTmp(change, fuid, muCon(false)),
-                              muAssignTmp(result, fuid, translate(body)),
-                              *[ muIfelse(nextLabel(), muCallPrim("notequal", [muTmp(tmps[i],fuid), varCode[i]]), [muAssignTmp(change,fuid,muCon(true))], []) 
-                 			   | i <- index(varCode)
-                 			   ],
-                              muAssignTmp(iterations, fuid, muCallPrim("int_subtract_int", [muTmp(iterations,fuid), muCon(1)])) 
-                            ]),
-                    muTmp(result,fuid)
-           ]);
-}
-
-
-  
-// Assignment statement
 
 MuExp translateAssignment(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) =
     assignTo(assignable, applyAssignmentOperator("<operator>", assignable, statement));
@@ -515,3 +500,63 @@ Assignable getReceiver(a: (Assignable) `<Assignable receiver> ? <Expression defa
 Assignable getReceiver(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`) = a;
 Assignable getReceiver(a: (Assignable) `\< <{Assignable ","}+ elements> \>`) =  a;
 Assignable getReceiver(a: (Assignable) `<Assignable receiver> @ <Name annotation>`) = getReceiver(receiver); 
+
+// -- empty statement ------------------------------------------------
+
+MuExp translate(s: (Statement) `;`) = muBlock([]);
+
+MuExp translate(s: (Statement) `global <Type \type> <{QualifiedName ","}+ names> ;`) { throw("globalDirective"); }
+
+// -- return statement -----------------------------------------------
+
+MuExp translate(s: (Statement) `return <Statement statement>`) {
+	// If the 'return' is used in the scope of a try-catch-finally block,
+	// the respective 'finally' block must be executed before the function returns
+	if(hasFinally()) {
+	    str fuid = topFunctionScope();
+		str varname = asTmp(nextLabel());
+		return muBlock([ muAssignTmp(varname, fuid, translate(statement)), muReturn(muTmp(varname,fuid)) ]);
+	} 
+	return muReturn(translate(statement));
+}
+
+// -- throw statement ------------------------------------------------
+
+MuExp translate(s: (Statement) `throw <Statement statement>`) = muThrow(translate(statement));
+
+MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) // TODO: handle dataTarget
+	= { fillCaseType(getType(statement@\loc)); 
+		muBlock([ muAssignVarDeref("hasInsert",topFunctionScope(),2,muBool(true)), 
+				  muReturn(translate(statement)) ]); };
+
+// -- append statement -----------------------------------------------
+
+MuExp translate(s: (Statement) `append <DataTarget dataTarget> <Statement statement>`) =
+   muCallPrim("listwriter_add", [muTmp(asTmp(currentLoop(dataTarget)),getCurrentLoopScope(dataTarget)), translate(statement)]);
+
+// -- function declaration statement ---------------------------------
+
+MuExp translate(s: (Statement) `<FunctionDeclaration functionDeclaration>`) { translate(functionDeclaration); return muBlock([]); }
+
+// -- local variable declaration statement ---------------------------
+
+MuExp translate(s: (Statement) `<LocalVariableDeclaration declaration> ;`) { 
+    tp = declaration.declarator.\type;
+    {Variable ","}+ variables = declaration.declarator.variables;
+    code = for(var <- variables){
+    			if(var is initialized)
+    				append mkAssign("<var.name>", var.name@\loc, translate(var.initial));
+             }
+    return muBlock(code);
+}
+
+// -- unknown statement ----------------------------------------------
+
+default MuExp translate(Statement s){
+   throw "MISSING CASE FOR STATEMENT: <s>";
+}
+
+/*********************************************************************/
+/*                  End of Statements                                */
+/*********************************************************************/
+  
