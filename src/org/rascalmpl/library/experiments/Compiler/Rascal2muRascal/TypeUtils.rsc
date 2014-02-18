@@ -337,7 +337,9 @@ void extractScopes(){
     	topdecls = [ uid | uid <- declares[muid], function(_,_,_,_,_,_,_) := config.store[uid] ||
     											  closure(_,_,_,_)        := config.store[uid] ||
     											  constructor(_,_,_,_,_)  := config.store[uid] ||
-    											  variable(_,_,_,_,_)   := config.store[uid] ];
+    											( production(rname,_,_,_) := config.store[uid] 
+    											    && !isEmpty(getSimpleName(rname)) )        ||
+    											  variable(_,_,_,_,_)     := config.store[uid] ];
     	for(i <- index(topdecls)) {
     		// functions and closures are identified by their qualified names, and they do not have a position in their scope
     		// only the qualified name of their enclosing module or function is significant 
@@ -496,3 +498,23 @@ public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tup
 	    case muCatch(str id,fromScope,Symbol \type,MuExp body) => muCatch(id,toScope,\type,body)
 	}
 }
+
+// TODO: these functions belong in ParseTree, but that gives "No definition for \"ParseTree/size(list(parameter(\\\"T\\\",value()));)#0\" in functionMap")
+
+@doc{Determine the size of a concrete list}
+int size(appl(regular(\iter(Symbol symbol)), list[Tree] args)) = size(args);
+int size(appl(regular(\iter-star(Symbol symbol)), list[Tree] args)) = size(args);
+
+int size(appl(regular(\iter-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
+int size(appl(regular(\iter-star-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
+
+int size(appl(prod(Symbol symbol, list[Symbol] symbols , attrs), list[Tree] args)) = 
+	\label(str label, Symbol symbol1) := symbol && [Symbol itersym] := symbols
+	? size(appl(prod(symbol1, symbols, attrs), args))
+	: size(args[0]);
+
+default int size(Tree t) {
+    throw "Size of tree not defined for \"<t>\"";
+}
+
+private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (lenseps + 1));
