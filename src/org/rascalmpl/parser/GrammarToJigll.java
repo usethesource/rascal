@@ -163,17 +163,6 @@ public class GrammarToJigll {
 		Visualization.generateSPPFGraph(path.getValue(), sppf, input);
 	}
 
-	private Condition getDeleteSet(ISet set) {
-
-		List<Keyword> keywords = new ArrayList<>();
-		
-		for(IValue v : set) {
-			keywords.add(getKeyword((IConstructor)v));			
-		}
-		
-		return RegularExpressionCondition.notMatch(keywords.toArray(new Keyword[] {}));
-	}
-
 	private Condition getFollowRestriction(IConstructor symbol) {
 
 		switch (symbol.getName()) {
@@ -281,7 +270,6 @@ public class GrammarToJigll {
 				}
 			}
 		}
-		
 		
 		return builder;
 	}
