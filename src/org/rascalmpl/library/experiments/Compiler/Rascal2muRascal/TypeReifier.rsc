@@ -1,7 +1,7 @@
 module experiments::Compiler::Rascal2muRascal::TypeReifier
 
 /*
-* This module defines two functions to be used:
+* This module defines two functions:
 *     (1) map[Symbol,Production] getGrammar(Configuration) (extracts only a syntax definition)
 *     (2) type[value]            symbolToValue(Symbol,Configuration) (extracts a type definition)
 */
@@ -25,7 +25,7 @@ private map[Symbol,Production] grammar = ();
 private set[Symbol] starts = {};
 private Symbol activeLayout = Symbol::\layouts("$default$");
 
-void resetTypeReifier() {
+private void resetTypeReifier() {
     typeMap = ();
     constructors = {};
     productions = {};
