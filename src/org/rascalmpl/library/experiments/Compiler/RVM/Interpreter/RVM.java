@@ -747,16 +747,33 @@ public class RVM {
 						continue NEXT_INSTRUCTION;
 					}
 					
-					cf.pc = pc;				
+					cf.pc = pc;
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof FunctionInstance){
 						FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
-						cf = cf.getFrame(fun_instance.function, fun_instance.env, CodeBlock.fetchArg1(instruction), sp);
+						arity = CodeBlock.fetchArg1(instruction);
+						// In case of partial parameter binding
+						if(fun_instance.next + arity < fun_instance.function.nformals) {
+							fun_instance = fun_instance.applyPartial(arity, stack, sp);
+							sp = sp - arity;
+						    stack[sp++] = fun_instance;
+						    continue NEXT_INSTRUCTION;
+						}
+						cf = cf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, arity, sp);
 					} else if(op == Opcode.OP_CALL) {
-						cf = cf.getFrame(functionStore.get(CodeBlock.fetchArg1(instruction)), root, CodeBlock.fetchArg2(instruction), sp);
+						Function fun = functionStore.get(CodeBlock.fetchArg1(instruction));
+						arity = CodeBlock.fetchArg2(instruction);
+						// In case of partial parameter binding
+						if(arity < fun.nformals) {
+							FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
+							sp = sp - arity;
+						    stack[sp++] = fun_instance;
+						    continue NEXT_INSTRUCTION;
+						}
+						cf = cf.getFrame(fun, root, arity, sp);
 					} else {
 						throw new RuntimeException("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]));
 					}
-						
+					
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
