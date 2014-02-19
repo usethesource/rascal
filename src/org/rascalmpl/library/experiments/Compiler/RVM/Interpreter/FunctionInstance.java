@@ -22,6 +22,12 @@ public class FunctionInstance implements ICallableValue {
 	final Frame env;
 	final RVM rvm;
 	
+	/*
+	 * Records arguments in case of partial parameter binding
+	 */
+	Object[] args;
+	int next = 0;
+	
 	public FunctionInstance(Function function, Frame env, RVM rvm) {
 		this.function = function;
 		this.env = env;
@@ -38,6 +44,42 @@ public class FunctionInstance implements ICallableValue {
 			}
 		}
 		throw new RuntimeException("Could not find a matching scope when computing a nested function instance: " + scopeIn);
+	}
+	
+	/**
+	 * Assumption: arity < function.nformals 
+	 */
+	public static FunctionInstance applyPartial(Function function, Frame env, RVM rvm, int arity, Object[] stack, int sp) {
+		FunctionInstance fun_instance = new FunctionInstance(function, env, rvm);
+		fun_instance.args = new Object[function.nformals];
+		int start = sp - arity;
+		for(int i = 0; i < arity; i++) {
+			fun_instance.args[fun_instance.next++] = stack[start + i];
+		}
+		return fun_instance;
+	}
+	
+	/**
+	 * Assumption: next + arity < function.nformals 
+	 */
+	public FunctionInstance applyPartial(int arity, Object[] stack, int sp) {
+		FunctionInstance fun_instance = this.copy();
+		int start = sp - arity;
+		for(int i = 0; i < arity; i++) {
+			fun_instance.args[fun_instance.next++] = stack[start + i];
+		}
+		return fun_instance;
+	}
+	
+	private FunctionInstance copy() {
+		FunctionInstance fun_instance = new FunctionInstance(function, env, rvm);
+		if(args != null) {
+			fun_instance.args = args.clone();
+			fun_instance.next = next;
+		} else {
+			fun_instance.args = new Object[function.nformals];
+		}
+		return fun_instance;
 	}
 	
 	@Override
