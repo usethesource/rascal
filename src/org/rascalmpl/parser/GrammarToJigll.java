@@ -532,10 +532,6 @@ public class GrammarToJigll {
 		
 		switch (symbol.getName()) {
 
-			case "lex":
-				// TODO: check if this is always the case
-				return regularExpressionsMap.get(((IString)symbol.get("name")).getValue());
-			
 			case "char-class":
 				return getCharacterClass(symbol);
 	
