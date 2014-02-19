@@ -40,6 +40,7 @@ Symbol translateType(t: (StructuredType) `tuple [ <{TypeArg ","}+ args> ]`)
 Symbol translateType(t: (StructuredType) `type [ < TypeArg arg> ]`)
 												= \reified(translateType(arg));      
 
+Symbol translateType(t : (Type) `(<Type tp>)`) = translateType(tp);
 Symbol translateType(t : (Type) `<UserType user>`) = translateType(user);
 Symbol translateType(t : (Type) `<FunctionType function>`) = translateType(function);
 Symbol translateType(t : (Type) `<StructuredType structured>`)  = translateType(structured);

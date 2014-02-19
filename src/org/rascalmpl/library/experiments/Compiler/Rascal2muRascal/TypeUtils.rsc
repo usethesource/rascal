@@ -498,3 +498,23 @@ public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tup
 	    case muCatch(str id,fromScope,Symbol \type,MuExp body) => muCatch(id,toScope,\type,body)
 	}
 }
+
+// TODO: these functions belong in ParseTree, but that gives "No definition for \"ParseTree/size(list(parameter(\\\"T\\\",value()));)#0\" in functionMap")
+
+@doc{Determine the size of a concrete list}
+int size(appl(regular(\iter(Symbol symbol)), list[Tree] args)) = size(args);
+int size(appl(regular(\iter-star(Symbol symbol)), list[Tree] args)) = size(args);
+
+int size(appl(regular(\iter-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
+int size(appl(regular(\iter-star-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
+
+int size(appl(prod(Symbol symbol, list[Symbol] symbols , attrs), list[Tree] args)) = 
+	\label(str label, Symbol symbol1) := symbol && [Symbol itersym] := symbols
+	? size(appl(prod(symbol1, symbols, attrs), args))
+	: size(args[0]);
+
+default int size(Tree t) {
+    throw "Size of tree not defined for \"<t>\"";
+}
+
+private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (lenseps + 1));
