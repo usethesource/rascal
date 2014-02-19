@@ -46,17 +46,20 @@ hello();
 The summit of hello-engineering can be reached by placing all the above in a separate module:
 
 <listing demo/basic/Hello.rsc>
-
-Note that we added a public modifier to the definition of hello, since we want it to be visible outside the Hello module. Using this Hello module is now simple:
+Using this Hello module is now simple:
 
 <screen>
 import demo::basic::Hello;
 hello();
 </screen>
 
+The `hello` function is by default visible outside the `Hello` module.
+We could stress this by adding writing `public void hello() { ... }`.
+Restricting visibility to the module itself can be achieved by adding the keyword `private`
+to the definition of `hello`.
+
 Benefits:
 
 Pitfalls:
 
 Questions:
-

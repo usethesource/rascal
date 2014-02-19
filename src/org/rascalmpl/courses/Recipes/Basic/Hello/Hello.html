@@ -91,13 +91,17 @@ import IO;
 public void hello() {
    println("Hello world, this is my first Rascal program");
 }
-</pre> Note that we added a public modifier to the definition of hello, since we want it to be visible outside the Hello module. Using this Hello module is now simple:
+</pre> Using this Hello module is now simple:
   <pre class="screen"><span class="prompt">rascal></span>import demo::basic::Hello;
 ok
 <span class="prompt">rascal></span>hello();
 Hello world, this is my first Rascal program
 ok
-</pre>
+</pre> The <code>hello</code> function is by default visible outside the <code>Hello</code> module.
+ We could stress this by adding writing <code>public void hello() { ... }</code>.
+ Restricting visibility to the module itself can be achieved by adding the keyword <code>private</code>
+ to the definition of <code>hello</code>.
+
 </div>
 
   	                       

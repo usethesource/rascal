@@ -1,6 +1,7 @@
 module lang::rascal::\syntax::tests::ConcreteSyntax
 
 import IO;
+import ParseTree;
 
 syntax A 
   = a:"a" 

@@ -43,6 +43,11 @@ import org.rascalmpl.library.cobra.RandomType;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+/**
+ * Generate random value for a given type.
+ * Used in random testing framework
+ *
+ */
 public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeException> {
 
 	private static final Random stRandom = new Random();
@@ -375,7 +380,6 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		RandomValueTypeVisitor r = new RandomValueTypeVisitor(ValueFactoryFactory.getValueFactory(), 3, null, null);
 		
 	    Type intType = r.tf.integerType();
-	    Type strType = r.tf.stringType();
 	    
 		System.out.println(r.generate(r.tf.setType(intType)));
 	}
