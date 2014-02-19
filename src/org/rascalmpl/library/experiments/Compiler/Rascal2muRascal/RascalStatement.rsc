@@ -11,14 +11,18 @@ import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
+/*
+ * Translate Rascal statements to muRascal using the function: MuExp translate(Statement s).
+ */
+
 /********************************************************************/
-/*                  Statements                                       */
+/*                  Translate statements                            */
 /********************************************************************/
 
 MuExp translateStats(Statement* statements) = muBlock([ translate(stat) | stat <- statements ]);
 
 /********************************************************************/
-/*                  Statement                                       */
+/*                  Translate one statement                         */
 /********************************************************************/
 
 // -- assert statement -----------------------------------------------
@@ -559,4 +563,3 @@ default MuExp translate(Statement s){
 /*********************************************************************/
 /*                  End of Statements                                */
 /*********************************************************************/
-  
