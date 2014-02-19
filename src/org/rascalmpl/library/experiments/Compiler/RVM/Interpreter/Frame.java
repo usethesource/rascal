@@ -89,6 +89,20 @@ public class Frame {
 		return frame;
 	}
 	
+	public Frame getFrame(Function f, Frame env, Object[] args, int arity, int sp) {
+		Frame frame = new Frame(f.scopeId, this, env, f.maxstack, f);
+		if(args != null) {
+			for(Object arg : args) {
+				if(arg == null) {
+					break;
+				}
+				frame.stack[frame.sp++] = arg;
+			}
+		}
+		this.sp = frame.pushFunctionArguments(arity, this.stack, sp);
+		return frame;
+	}
+	
 	/**
 	 * Given a current frame (this), 
 	 * pushes arguments from a given stack (stack) to the current frame's stack (given an arity and the number of formal parameters of a function),
@@ -99,26 +113,26 @@ public class Frame {
 	private int pushFunctionArguments(int arity, Object[] stack, int sp) {
 		int start = sp - arity;
 		if(!function.isVarArgs) {
-			assert arity == function.nformals;
+			assert this.sp + arity == function.nformals;
 			for(int i = 0; i < arity; i++){
-				this.stack[i] = stack[start + i]; 
+				this.stack[this.sp++] = stack[start + i]; 
 			}
 		} else {
 			int posArityMinusOne = function.nformals - 2; // The number of positional arguments minus one
 			for(int i = 0; i < posArityMinusOne; i++) {
-				this.stack[i] = stack[start + i];
+				this.stack[this.sp++] = stack[start + i];
 			}
 			Type argTypes = ((FunctionType) function.ftype).getArgumentTypes();
 			if(function.nformals == arity && ((IValue) stack[start + posArityMinusOne]).getType().isSubtypeOf(argTypes.getFieldType(posArityMinusOne))) {
-				this.stack[posArityMinusOne] = stack[start + posArityMinusOne];
+				this.stack[this.sp++] = stack[start + posArityMinusOne];
 			} else {
 				IListWriter writer = ValueFactory.getInstance().listWriter();
 				for(int i = posArityMinusOne; i < arity - 1; i++) {
 					writer.append((IValue) stack[start + i]);
 				}
-				this.stack[posArityMinusOne] = writer.done();
+				this.stack[this.sp++] = writer.done();
 			}
-			this.stack[function.nformals - 1] = stack[start + arity - 1]; // The keyword arguments
+			this.stack[this.sp++] = stack[start + arity - 1]; // The keyword arguments
 		}		
 		this.sp = function.nlocals;
 		return start;
