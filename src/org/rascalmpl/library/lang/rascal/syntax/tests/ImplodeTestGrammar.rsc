@@ -14,14 +14,14 @@ import Type;
 lexical Id = [a-z] !<< [a-z]+ !>> [a-z];
 layout W = [\ \t\n\r]*;
 
-lexical Num = \int1: [0-9]+;
+lexical Num = \int: [0-9]+;
 syntax Exp 
 	= id: Id name
 	| number: Num n
 	| non-assoc eq: Exp e1 "==" Exp e2;
 	
 
-lexical Number = \int2: [0-9]+;
+lexical Number = \int: [0-9]+;
 syntax Expr 
 	= id: Id name
 	| number: Number n
