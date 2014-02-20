@@ -226,9 +226,9 @@ syntax StringTemplate
 	| interpolated: MidStringChars mid Expression expression StringMiddle tail ;
 */
 
-private MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`) = muCon(removeMargins("<mid>"[1..-1]));
+public MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`) = muCon(removeMargins("<mid>"[1..-1]));
 
-private MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) {
+public MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) {
     str fuid = topFunctionScope();
     midResult = nextTmp();
     return muBlock( [ muAssignTmp(midResult, fuid, translateChars("<mid>")),
@@ -236,7 +236,7 @@ private MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <StringTempla
    			        ]);
    	}
 
-private MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <Expression expression> <StringMiddle tail>`) {
+public MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <Expression expression> <StringMiddle tail>`) {
     str fuid = topFunctionScope();
     midResult = nextTmp();
     return muBlock( [ muAssignTmp(midResult, fuid, translateChars("<mid>")),
