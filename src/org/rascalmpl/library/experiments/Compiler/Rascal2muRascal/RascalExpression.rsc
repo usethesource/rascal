@@ -446,7 +446,7 @@ MuExp translateConcreteParsed(e: appl(Production prod, list[Tree] args)){
 
 default MuExp translateConcreteParsed(Tree t) = muCon(t);
 
-// -- block xpression -----------------------------------------------
+// -- block expression ----------------------------------------------
 
 MuExp translate(e:(Expression) `{ <Statement+ statements> }`) = muBlock([translate(stat) | stat <- statements]);
 
