@@ -958,17 +958,18 @@ public class RVM {
 							coroutine.frame.stack[nargs + i] = stack[sp - arity + i];
 						}
 						sp = sp - arity;
+						coroutine.frame.sp = fun.nlocals;
 					} else if(src instanceof FunctionInstance) {
+						// In case of partial parameter binding
 						FunctionInstance fun_instance = (FunctionInstance) src;
 						fun = fun_instance.function;
-						assert arity == fun.nformals;
-						frame = cf.getCoroutineFrame(fun, fun_instance.env, arity, sp);
+						assert fun_instance.next + arity == fun.nformals;
+						frame = cf.getCoroutineFrame(fun_instance, arity, sp);
 						coroutine = new Coroutine(frame);
 						sp = cf.sp;
 					} else {
 						throw new RuntimeException("Unexpected argument type for INIT: " + src.getClass() + ", " + src);
-					}			
-					coroutine.frame.sp = fun.nlocals;
+					}
 					stack[sp++] = coroutine;
 					// Instead of simply suspending a coroutine during INIT, let it execute until GUARD, which has been delegated the INIT's suspension
 					coroutine.suspend(coroutine.frame);

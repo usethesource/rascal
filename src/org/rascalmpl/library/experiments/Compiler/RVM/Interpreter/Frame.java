@@ -71,6 +71,19 @@ public class Frame {
 	}
 	
 	/**
+	 * Accounts for the case of partial parameter binding,
+	 * creates a new frame (frame) (similar to the method above) to be wrapped inside a coroutine object,
+	 * that gives a coroutine instance to be immediately initialized (i.e., all the coroutine arguments are assumed to be provided)
+	 * 
+	 * Assumption: fun_instance.next + arity == fun_instance.function.nformals
+	 */
+	public Frame getCoroutineFrame(FunctionInstance fun_instance, int arity, int sp) {
+		Frame frame = getFrame(fun_instance.function, fun_instance.env, fun_instance.args, arity, sp);
+		frame.previousCallFrame = null;
+		return frame;
+	}
+	
+	/**
 	 * Given a current frame (this), 
 	 * creates a new frame (frame), 
 	 * pushes arguments from the current frame's stack to the stack of the new frame,
