@@ -64,12 +64,17 @@ int nsamples = 1;  // Number of samples per data point.
 
 map[str,Measurement] measurements = ();
 
+void precompile(list[str] bms) {
+  for(bm <- bms) {
+      compile(base + (bm + ".rsc"), recompile=true);
+  }
+}
+
 void run(str bm,  value(list[value]) bmain) {
   println("Benchmark: <bm>");
   comp = 0;
   cexec = 0;
   iexec = 0;
-  compile(base + (bm + ".rsc"), recompile=true);
   for(int i <- [0 .. nsamples]){
 	  t1 = getMilliTime();
 	  <v, t2> = execute_and_time(base + (bm + ".rsc"), []);
@@ -201,9 +206,20 @@ void main(){
   report_latex();
 }
 
+void precompile_paper() {
+   precompile_paper1();
+   precompile_paper2();
+}
+
 void main_paper(){
   main_paper1();
   main_paper2();
+}
+
+void precompile_paper1() {
+  precompile(["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty","BExceptionsFinally","BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
+              "BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
+              /*,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"*/]);
 }
 
 void main_paper1(){
@@ -241,6 +257,9 @@ void main_paper1(){
   report_latex();
 }
 
+void precompile_paper2() {
+  precompile(["BBottles","BFac","BFib","BMarriage",/*"BRSFCalls",*/"BSendMoreMoney","BSudoku","BTemplate"]);
+}
 
 void main_paper2(){
   measurements = ();
