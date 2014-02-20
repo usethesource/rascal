@@ -2,14 +2,16 @@
 module experiments::Compiler::Rascal2muRascal::RascalType
 
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
-
 import Prelude;
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Symbols;
-
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
+
+/*
+ * translateType: translate a concrete (textual) type description to a Symbol
+ */
 
 Symbol translateType((BasicType) `value`) 		= \value();
 Symbol translateType(t: (BasicType) `loc`) 		= \loc();

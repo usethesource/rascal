@@ -43,9 +43,8 @@ import org.rascalmpl.library.cobra.RandomType;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-/**
- * Generate random value for a given type.
- * Used in random testing framework
+/*
+ * Generate random value for a given type. Used in random testing framework
  *
  */
 public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeException> {
