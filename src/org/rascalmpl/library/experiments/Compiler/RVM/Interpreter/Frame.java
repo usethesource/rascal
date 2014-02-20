@@ -79,7 +79,6 @@ public class Frame {
 	 */
 	public Frame getCoroutineFrame(FunctionInstance fun_instance, int arity, int sp) {
 		Frame frame = getFrame(fun_instance.function, fun_instance.env, fun_instance.args, arity, sp);
-		frame.previousCallFrame = null;
 		return frame;
 	}
 	
