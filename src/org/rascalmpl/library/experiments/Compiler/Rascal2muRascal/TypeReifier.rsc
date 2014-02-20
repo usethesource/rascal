@@ -1,7 +1,7 @@
 module experiments::Compiler::Rascal2muRascal::TypeReifier
 
 /*
-* This module defines two functions:
+* This module handles the mapping between types and reified types. It defines two functions:
 *     (1) map[Symbol,Production] getGrammar(Configuration) (extracts only a syntax definition)
 *     (2) type[value]            symbolToValue(Symbol,Configuration) (extracts a type definition)
 */
