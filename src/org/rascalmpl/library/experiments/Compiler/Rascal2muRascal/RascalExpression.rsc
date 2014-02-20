@@ -134,19 +134,15 @@ bool isConstantLiteral((Literal) `<LocationLiteral src>`) = src.protocolPart is 
 bool isConstantLiteral((Literal) `<StringLiteral n>`) = n is nonInterpolated;
 default bool isConstantLiteral(Literal l) = true;
 
-// TODO Add map constants
-// 3x size_exps
-
 bool isConstant(Expression e:(Expression)`{ <{Expression ","}* es> }`) = size(es) == 0 || all(elm <- es, isConstant(elm));
 bool isConstant(Expression e:(Expression)`[ <{Expression ","}* es> ]`)  = size(es) == 0 ||  all(elm <- es, isConstant(elm));
+bool isConstant(Expression e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) = size(mappings) == 0 || all(m <- mappings, isConstant(m.from), isConstant(m.to));
+
 bool isConstant(e:(Expression) `\< <{Expression ","}+ elements> \>`) = size(elements) == 0 ||  all(elm <- elements, isConstant(elm));
 bool isConstant((Expression) `<Literal s>`) = isConstantLiteral(s);
 default bool isConstant(Expression e) = false;
 
-value getConstantValue(Expression e) {
-  //println("getConstant: <e>");
-  return readTextValueString("<e>");
-}
+value getConstantValue(Expression e) = readTextValueString("<e>");
 
 /*********************************************************************/
 /*                  Translate Literals                               */
@@ -230,9 +226,9 @@ syntax StringTemplate
 	| interpolated: MidStringChars mid Expression expression StringMiddle tail ;
 */
 
-private MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`) = muCon(removeMargins("<mid>"[1..-1]));
+public MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`) = muCon(removeMargins("<mid>"[1..-1]));
 
-private MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) {
+public MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) {
     str fuid = topFunctionScope();
     midResult = nextTmp();
     return muBlock( [ muAssignTmp(midResult, fuid, translateChars("<mid>")),
@@ -240,7 +236,7 @@ private MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <StringTempla
    			        ]);
    	}
 
-private MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <Expression expression> <StringMiddle tail>`) {
+public MuExp translateMiddle((StringMiddle) `<MidStringChars mid> <Expression expression> <StringMiddle tail>`) {
     str fuid = topFunctionScope();
     midResult = nextTmp();
     return muBlock( [ muAssignTmp(midResult, fuid, translateChars("<mid>")),
@@ -929,7 +925,6 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
 
 MuExp translate (e:(Expression) `<Comprehension comprehension>`) = translateComprehension(comprehension);
 
-
 private MuExp translateGenerators({Expression ","}+ generators){
    if(all(gen <- generators, backtrackFree(gen))){
       return makeMu("ALL",[translate(g) | g <-generators]);
@@ -1014,7 +1009,7 @@ private MuExp translateSetOrList(es, str kind){
        leaveWriter();
        return muBlock(code);
     } else {
-      if(all(elm <- es, isConstant(elm))){
+      if(size(es) == 0 || all(elm <- es, isConstant(elm))){
          return kind == "list" ? muCon([getConstantValue(elm) | elm <- es]) : muCon({getConstantValue(elm) | elm <- es});
       } else 
         return muCallPrim("<kind>_create", [ translate(elem) | elem <- es ]);
@@ -1028,16 +1023,20 @@ MuExp translate (e:(Expression) `# <Type tp>`) = muCon(symbolToValue(translateTy
 // -- tuple expression ----------------------------------------------
 
 MuExp translate (e:(Expression) `\< <{Expression ","}+ elements> \>`) {
-    if(all(elem <-elements, isConstant(elem))){
+    if(isConstant(e)){
       return muCon(readTextValueString("<e>"));
     } else
         return muCallPrim("tuple_create", [ translate(elem) | elem <- elements ]);
 }
 
 // -- map expression ------------------------------------------------
-// TODO: map constants
-MuExp translate (e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) =
-   muCallPrim("map_create", [ translate(m.from), translate(m.to) | m <- mappings ]);
+
+MuExp translate (e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) {
+   if(isConstant(e)){
+     return muCon(readTextValueString("<e>"));
+   } else 
+     return muCallPrim("map_create", [ translate(m.from), translate(m.to) | m <- mappings ]);
+}   
 
 // -- it expression (in reducer) ------------------------------------
 
