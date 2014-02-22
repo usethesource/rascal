@@ -2,7 +2,7 @@ module experiments::Compiler::Benchmarks::BVisit3
 
 value main(list[value] args) {
 	res = {};
-	for(j <- [1 .. 50000]) {
+	for(j <- [1 .. 5000]) {
 	
 		res = bottom-up-break visit({ [ "a"(1,1) ], [ "b"(2,2) ], [ "c"(3,3) ] }) {
 				case set[list[node]] s => s + { [ "d"(5,5) ] }
