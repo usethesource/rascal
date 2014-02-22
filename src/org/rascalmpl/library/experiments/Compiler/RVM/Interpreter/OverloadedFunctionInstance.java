@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,13 +31,26 @@ public class OverloadedFunctionInstance implements ICallableValue {
 	final RVM rvm;
 	
 	public OverloadedFunctionInstance(int[] functions, int[] constructors, Frame env, 
-										ArrayList<Function> functionStore, ArrayList<Type> constructorStore, RVM rvm) {
+										List<Function> functionStore, List<Type> constructorStore, RVM rvm) {
 		this.functions = functions;
 		this.constructors = constructors;
 		this.env = env;
 		this.functionStore = functionStore;
 		this.constructorStore = constructorStore;
 		this.rvm = rvm;
+	}
+	
+	/**
+	 * Assumption: scopeIn != -1  
+	 */
+	public static OverloadedFunctionInstance computeOverloadedFunctionInstance(int[] functions, int[] constructors, Frame cf, int scopeIn,
+			                                                                     List<Function> functionStore, List<Type> constructorStore, RVM rvm) {
+		for(Frame env = cf; env != null; env = env.previousCallFrame) {
+			if (env.scopeId == scopeIn) {
+				return new OverloadedFunctionInstance(functions, constructors, env, functionStore, constructorStore, rvm);
+			}
+		}
+		throw new RuntimeException("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn);
 	}
 
 	@Override

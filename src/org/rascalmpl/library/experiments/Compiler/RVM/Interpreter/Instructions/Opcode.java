@@ -192,6 +192,7 @@ public enum Opcode {
 	 * will never occur in generated code.
 	 */
 	static public final int POSTOP_CHECKUNDEF = 100;
+	static public final int POSTOP_HANDLEEXCEPTION = 101;
 	
 	 Opcode(int op, int pc_incr){
 		this.op = op;

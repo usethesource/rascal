@@ -3,6 +3,7 @@ module experiments::Compiler::Rascal2muRascal::TmpAndLabel
 
 import Prelude;
 import lang::rascal::\syntax::Rascal;
+
 /*
  * Management of temporaries and labels.
  */
@@ -182,7 +183,7 @@ void clearCaseType() {
 	visits = Symbol::\void() + tail(visits);
 }
 
-int allCounter = 0;
+int allCounter = 0;								// *** state
 
 int getNextAll() {
     int counter = allCounter;
@@ -194,7 +195,7 @@ void resetAllCounter() {
     allCounter = 0;
 }
 
-int orCounter = 0;
+int orCounter = 0;								// *** state
 
 int getNextOr() {
     int counter = orCounter;
