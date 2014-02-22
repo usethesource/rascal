@@ -143,7 +143,7 @@ public class Execute {
 		}
 		
 		try {
-			long start = System.currentTimeMillis();
+			long start = System.nanoTime();
 			IValue result = null;
 			if(isTestSuite){
 				/*
@@ -168,11 +168,11 @@ public class Execute {
 				rvm.executeProgram(uid_module_init, arguments);
 				result = rvm.executeProgram(uid_main, arguments);
 			}
-			long now = System.currentTimeMillis();
+			long now = System.nanoTime();
 			MuPrimitive.exit();
 			RascalPrimitive.exit();
 			Opcode.exit();
-			return vf.tuple((IValue) result, vf.integer(now - start));
+			return vf.tuple((IValue) result, vf.integer((now - start)/1000000));
 			
 		} catch(Thrown e) {
 			e.printStackTrace(stdout);
