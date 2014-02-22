@@ -615,7 +615,6 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 		return itemId;
 	}
 
-println("addAlias: <n>");
 	// NOTE: A working assumption of this code is that the names in the main module are
 	// processed LAST. If this changes, the code for determining how to use unqualified
 	// names in case of conflicts will need to be reworked.
@@ -7743,8 +7742,8 @@ public Configuration checkAndReturnConfig(str mpath) {
     try {
 		if (t has top && Module m := t.top)
 			c = checkModule(m, c);
-	} catch : {
-		c.messages = {error("Encountered error checking module <mpath>", t@\loc)};
+	} catch v : {
+		c.messages = {error("Encountered error checking module <mpath>:<v>", t@\loc)};
 	}
 	return c;
 }
