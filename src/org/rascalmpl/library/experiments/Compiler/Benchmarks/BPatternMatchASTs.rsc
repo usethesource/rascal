@@ -1,8 +1,8 @@
 module experiments::Compiler::Benchmarks::BPatternMatchASTs
 
+import Message;
 import lang::java::m3::AST;
 import analysis::m3::TypeSymbol;
-import Message;
 import ValueIO;
 
 //private set[Declaration] getData() 
@@ -87,7 +87,7 @@ import ValueIO;
 //	}
 //	return result;
 //}
-
+//
 //public value main(list[value] args) {
-//  return [countReturnStatementsReducer()/*, countReturnStatementsVisit(), countCCLikeMetric(), getMethodsWhichThrow(), getVariableNamesTwice(), getVariableNamesOnce(), countZeroes()*/];
+//  return [countReturnStatementsReducer(), countReturnStatementsVisit(), countCCLikeMetric(), getMethodsWhichThrow(), getVariableNamesTwice(), getVariableNamesOnce(), countZeroes()];
 //}
