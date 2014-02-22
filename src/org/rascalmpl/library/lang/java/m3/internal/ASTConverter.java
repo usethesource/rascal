@@ -29,6 +29,12 @@ public class ASTConverter extends JavaToRascalConverter {
 	
 	private IValue resolveType(ASTNode node) {
 	  if (node instanceof Expression) {
+		if (node instanceof SimpleName) {
+			IBinding b = ((SimpleName) node).resolveBinding();
+			if (b!= null && b instanceof IVariableBinding) {
+				return bindingsResolver.computeTypeSymbol(((IVariableBinding) b).getType(), ((SimpleName) node).isDeclaration());
+			}
+		}
 	    ITypeBinding binding = ((Expression) node).resolveTypeBinding();
 	    if (binding != null) {
 	      return bindingsResolver.computeTypeSymbol(binding, false);

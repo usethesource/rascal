@@ -58,7 +58,7 @@ value tryToCatchMe() {
 
 value main(list[value] args){
 	value x;
-    for(i <- [1 .. 10000]){
+    for(i <- [1 .. 100000]){
        x = tryToCatchMe();
     }
     return x;
