@@ -81,7 +81,9 @@ syntax Exp  =
 			| muOne:                    "one" "(" {Exp ","}+ exps ")"
 			| muAll:                    "all" "(" {Exp ","}+ exps ")"
 			
-			> muCall: 					Exp!muReturn!muYield!muExhaust exp1 "(" {Exp ","}* args ")"
+			// function call and partial function application
+			> muCall: 					Exp!muReturn!muYield!muExhaust exp     "(" {Exp ","}* args ")"
+			> muApply:                  Exp!muReturn!muYield!muExhaust exp "!" "(" {Exp ","}* args ")"
 			
 			> muReturn: 				"return"  Exp exp
 			| muReturn:                 "return" "(" Exp exp "," {Exp ","}+ exps ")"
@@ -137,6 +139,11 @@ syntax Exp  =
 			
 			| muGuard:                  "guard" Exp exp
 			
+			// delimited continuations (experimental feature)
+			| muCont:                   "cont"
+			| muReset:                  "reset" "(" Exp fun ")"
+			| muShift:                  "shift" "(" Exp body ")"
+			
 			// call-by-reference: expressions that return a value location
 			| preLocRef:     			"ref" Identifier!fvar!rvar id
 			| preVarRef:      			"ref" FunNamePart+ funNames Identifier!fvar!rvar id
@@ -155,7 +162,8 @@ keyword Keywords =
               "ref" | "deref" |
               "fun" | "cons" | "is" | "mod" | "pow" |
               "typeswitch" | "default" | "case" |
-              "multi" | "one" | "all"
+              "multi" | "one" | "all" |
+              "cont" | "reset" | "shift"
              ;
              
 // Syntactic features that will be removed by the preprocessor. 
