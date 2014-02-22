@@ -32,7 +32,7 @@ import demo::basic::Factorial;
 fac2(47);
 </screen>
 
-Number /*4*/ is a more imperative implementation.
+Definition /*4*/ is a more imperative implementation of factorial.
 Benefits:
 
 Pitfalls:

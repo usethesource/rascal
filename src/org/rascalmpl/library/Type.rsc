@@ -236,13 +236,14 @@ public bool equivalent(Symbol s, Symbol t) = subtype(s,t) && subtype(t,s);
 @doc{
 Synopsis: structural equality between values. 
 
-Description: this function provides the same semantics as the == operator ([Equality]), with a minor difference.
+Description: this function provides the same semantics as the == operator ([Rascal/Expressions/Values/Value/Equal]), with a minor difference.
 The difference is that no implicit coercions are done between values of incomparable types, such as == does for
 int, real and rat.
 
 Examples:
 
 <screen>
+import Type;
 1 == 1.0
 eq(1,1.0)
 </screen>

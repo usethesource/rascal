@@ -7,6 +7,8 @@
 }
 module lang::rascal::\syntax::tests::ExpressionGrammars
 
+import ParseTree;
+
 lexical Id = [a-z] !<< [a-z]+ !>> [a-z];
 lexical Num = [0-9]+;
 layout W = [\ \t\n\r]*;

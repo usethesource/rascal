@@ -32,7 +32,7 @@ Examples:
 Robert vam Liere and Wim de Leeuw have visualized liquid flows.
 There is also an [animated](http://homepages.cwi.nl/~robertl/movies/flow1.mpg) version.
 
-![flow](flow.png|400px)
+![flow](flow.jpg|400px)
 
 
 ===Information Visualization===
@@ -40,7 +40,7 @@ There is also an [animated](http://homepages.cwi.nl/~robertl/movies/flow1.mpg) v
 Facebook's [Friend Wheel](http://apps.facebook.com/friendwheel/) shows the connection between friends:
 
 
-![friends](friends.png|400px)
+![friends](friends.jpg|400px)
 
 ===Software Visualization===
 Stephen Eick [visualizes](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.67.962) the frequency of execution for each line
@@ -51,7 +51,7 @@ in all source files of a software system.
 
 Daniel Bierwirth [shows](http://www.danielbierwirth.de/index.php/reseachprojects/8-myresearch/mastercurriculumresearchcat/73-bundle-view-software-visualization) the connections (colored lines) between system components (at outer circle).
 
-![bundle](bundle.png|400px)
+![bundle](bundle.jpg|400px)
 
 Benefits:
 

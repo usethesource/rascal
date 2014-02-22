@@ -17,7 +17,7 @@ import IO;
 
 public data Num = \int(str n);
 public data Exp = id(str name) | eq(Exp e1, Exp e2) | number(Num n);
-public Exp number(Num::\int("0")) = Exp::number(Num::\int("01"));
+public Exp number(Num::\int("0")) = Exp::number(Num::\int1("01"));
 
 public anno loc Num@location;
 public anno loc Exp@location;
@@ -26,7 +26,7 @@ public anno map[int,list[str]] Exp@comments;
 
 public data Number = \int(str n);
 public data Expr = id(str name) | eq(Expr e1, Expr e2) | number(Number n);
-public Expr number(Number::\int("0")) = Expr::number(Number::\int("02"));
+public Expr number(Number::\int("0")) = Expr::number(Number::\int2("02"));
 
 public anno loc Number@location;
 public anno loc Expr@location;

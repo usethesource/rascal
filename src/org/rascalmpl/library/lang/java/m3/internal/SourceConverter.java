@@ -88,14 +88,16 @@ public class SourceConverter extends M3Converter {
 		ASTNode parent = node.getParent();
 		if (parent instanceof ClassInstanceCreation) {
 			insert(typeDependency, ownValue, resolveBinding(((ClassInstanceCreation) parent).getType()));
+			IConstructor type = bindingsResolver.computeTypeSymbol(((ClassInstanceCreation) parent).getType().resolveBinding(), false);
+		  	insert(types, ownValue, type);
 		}
 		else if (parent instanceof EnumConstantDeclaration) {
 			insert(typeDependency, ownValue, resolveBinding(((EnumConstantDeclaration) parent).resolveVariable()));
+			IConstructor type = bindingsResolver.computeTypeSymbol(((EnumConstantDeclaration) parent).resolveVariable().getType(), false);
+		  	insert(types, ownValue, type);
 		}
 		insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);
-		IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding(), false);
-	  	insert(types, ownValue, type);
 		return true;
 	}
 	
