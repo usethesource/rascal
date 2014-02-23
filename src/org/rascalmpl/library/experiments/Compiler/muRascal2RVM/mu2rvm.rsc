@@ -370,6 +370,10 @@ INS tr(muCreate(MuExp fun)) = [ *tr(fun), CREATEDYN(0) ];
 INS tr(muCreate(muFun(str fuid), list[MuExp] args)) = [ *tr(args), CREATE(fuid, size(args)) ];
 INS tr(muCreate(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), CREATEDYN(size(args)) ];
 
+// An alternative coroutine design that makes use of partial function application
+//INS tr(muCreate(MuExp fun)) = tr(muApply(fun, [])); // Could be optimized by simply loading a function (potentially nested) 
+//INS tr(muCreate(MuExp fun, list[MuExp] args)) = tr(muApply(fun, args));
+
 INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(0)];
 INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order!
 
