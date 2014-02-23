@@ -1065,8 +1065,9 @@ public class RVM {
 						Function fun = functionStore.get(CodeBlock.fetchArg1(instruction));
 						arity = CodeBlock.fetchArg2(instruction);
 						if(op == Opcode.OP_APPLY) {
-							FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
-							assert fun.nformals <= arity;
+							FunctionInstance fun_instance = fun.scopeIn == -1 ? FunctionInstance.applyPartial(fun, root, this, arity, stack, sp)
+									                                          : FunctionInstance.computeFunctionInstance(fun, cf, fun.scopeIn, this).applyPartial(arity, stack, sp);
+							assert arity <= fun.nformals;
 							sp = sp - arity;
 							stack[sp++] = fun_instance;
 							continue NEXT_INSTRUCTION;
