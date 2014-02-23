@@ -1059,15 +1059,33 @@ public class RVM {
 					
 				case Opcode.OP_CREATE:
 				case Opcode.OP_CREATEDYN:
-					if(op == Opcode.OP_CREATE){
+				case Opcode.OP_APPLY:
+				case Opcode.OP_APPLYDYN:
+					if(op == Opcode.OP_CREATE || op == Opcode.OP_APPLY) {
 						Function fun = functionStore.get(CodeBlock.fetchArg1(instruction));
-						frame = fun.scopeIn == -1 ? cf.getCoroutineFrame(fun, root, CodeBlock.fetchArg2(instruction), sp)
-									              : cf.getCoroutineFrame(fun, fun.scopeIn, CodeBlock.fetchArg2(instruction), sp);
+						arity = CodeBlock.fetchArg2(instruction);
+						if(op == Opcode.OP_APPLY) {
+							FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
+							assert fun.nformals <= arity;
+							sp = sp - arity;
+							stack[sp++] = fun_instance;
+							continue NEXT_INSTRUCTION;
+						}
+						frame = fun.scopeIn == -1 ? cf.getCoroutineFrame(fun, root, arity, sp)
+									              : cf.getCoroutineFrame(fun, fun.scopeIn, arity, sp);
 					} else {
 						src = stack[--sp];
 						if(src instanceof FunctionInstance) {
 							FunctionInstance fun_instance = (FunctionInstance) src;
-							frame = cf.getCoroutineFrame(fun_instance.function, fun_instance.env, CodeBlock.fetchArg1(instruction), sp);
+							arity = CodeBlock.fetchArg1(instruction);
+							if(op == Opcode.OP_APPLYDYN) {
+								assert arity + fun_instance.next <= fun_instance.function.nformals;
+								fun_instance = fun_instance.applyPartial(arity, stack, sp);
+								sp = sp - arity;
+								stack[sp++] = fun_instance;
+								continue NEXT_INSTRUCTION;
+							}
+							frame = cf.getCoroutineFrame(fun_instance.function, fun_instance.env, arity, sp);
 						} else {
 							throw new RuntimeException("Unexpected argument type for CREATEDYN: " + asString(src));
 						}
@@ -1075,7 +1093,7 @@ public class RVM {
 					sp = cf.sp;
 					stack[sp++] = new Coroutine(frame);
 					continue NEXT_INSTRUCTION;
-				
+					
 				case Opcode.OP_NEXT0:
 				case Opcode.OP_NEXT1:
 					Coroutine coroutine = (Coroutine) stack[--sp];
