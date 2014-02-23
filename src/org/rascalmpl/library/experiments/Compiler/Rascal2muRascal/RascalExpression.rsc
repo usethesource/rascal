@@ -37,19 +37,22 @@ int size_keywordArguments(KeywordArguments keywordArguments) =
 // Produces multi- or backtrack-free expressions
 MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) {
     tuple[MuExp e,list[MuFunction] functions] res = makeMu(muAllOrMuOr,topFunctionScope(),exps);
-    functions_in_module = functions_in_module + res.functions;
+    //functions_in_module = functions_in_module + res.functions;
+    addFunctionsToModule(res.functions);
     return res.e;
 }
 
 MuExp makeMuMulti(MuExp exp) {
     tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,topFunctionScope());
-    functions_in_module = functions_in_module + res.functions;
+    //functions_in_module = functions_in_module + res.functions;
+    addFunctionsToModule(res.functions);
     return res.e;
 }
 
 MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps) {
     tuple[MuExp e,list[MuFunction] functions] res = makeMuOne(muAllOrMuOr,topFunctionScope(),exps);
-    functions_in_module = functions_in_module + res.functions;
+    //functions_in_module = functions_in_module + res.functions;
+    addFunctionsToModule(res.functions);
     return res.e;
 }
 
@@ -479,10 +482,10 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
     MuExp body = translateFunction(parameters.formals.formals, isVarArgs, kwps, cbody, []);
     
     tuple[str fuid,int pos] addr = uid2addr[uid];
-    functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
+    addFunctionToModule(muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									  getFormals(uid), getScopeSize(fuid), 
   									  isVarArgs, e@\loc, [], (), 
-  									  body);
+  									  body));
   	
   	leaveFunctionScope();								  
   	
@@ -501,8 +504,7 @@ MuExp translateBoolClosure(Expression e){
 	bool isVarArgs = false;
   	
     MuExp body = muReturn(translate(e));
-    functions_in_module += muFunction(fuid, ftype, addr.fuid, 
-  									  nformals, nlocals, isVarArgs, e@\loc, [], (), body);
+    addFunctionToModule(muFunction(fuid, ftype, addr.fuid, nformals, nlocals, isVarArgs, e@\loc, [], (), body));
   	
   	leaveFunctionScope();								  
   	
@@ -624,9 +626,10 @@ MuExp translateVisit(label,\visit) {
 	    pos_in_phi = pos_in_phi + 1;
 	}
 	body = lift(body,scopeId,phi_fuid,mapping);
-	functions_in_module = lift(functions_in_module,scopeId,phi_fuid,mapping);
+	//functions_in_module = lift(functions_in_module,scopeId,phi_fuid,mapping);
+	setFunctionsInModule(lift(getFunctionsInModule(),scopeId,phi_fuid,mapping));
 	
-	functions_in_module += muFunction(phi_fuid, phi_ftype, scopeId, 3, pos_in_phi, false, \visit@\loc, [], (), body);
+	addFunctionToModule(muFunction(phi_fuid, phi_ftype, scopeId, 3, pos_in_phi, false, \visit@\loc, [], (), body));
 	
 	leaveFunctionScope();
 	leaveVisit();
@@ -648,7 +651,7 @@ MuExp translateVisit(label,\visit) {
 		
 		leaveFunctionScope();
 		
-		functions_in_module += muFunction(phi_fixpoint_fuid, phi_ftype, scopeId, 3, 5, false, \visit@\loc, [], (), muBlock(body));
+		addFunctionToModule(muFunction(phi_fixpoint_fuid, phi_ftype, scopeId, 3, 5, false, \visit@\loc, [], (), muBlock(body)));
 	
 	    // Local variables of the surrounding function
 		str hasMatch = asTmp(nextLabel());

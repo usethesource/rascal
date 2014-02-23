@@ -78,7 +78,7 @@ public class LinkifiedString {
 				String name =  "\u261E " + m.group(1) ;
 				String url = m.group(2);
 				linkTargets.add(url);
-				m.appendReplacement(sb, name);
+				m.appendReplacement(sb, escapeReplacement(name));
 				linkOffsets.add((sb.length() - name.length()) + 1);
 				linkLengths.add(name.length());
 			}
@@ -88,7 +88,7 @@ public class LinkifiedString {
 				linkTargets.add(loc);
 				if (sb != null) {
 					// we are re-appending
-					m.appendReplacement(sb, loc);
+					m.appendReplacement(sb, escapeReplacement(loc));
 					linkOffsets.add((sb.length() - loc.length()) + 1);
 				}
 				else {
@@ -101,6 +101,29 @@ public class LinkifiedString {
 			// we have a new string 
 			m.appendTail(sb);
 			linkedString = sb.toString();
+		}
+	}
+	
+	private static String escapeReplacement(String replacement) {
+		// the $ char should be escaped when we append it as a replacement,
+		// since it is used by the regular expression engine to reference a group
+		// the \ also needs to be escape, since it is used for escaping in the replacement string
+		if (replacement.length() < 20) {
+			return replacement.replace("\\", "\\\\").replace("$", "\\$");
+		}
+		else {
+			// okay, "larger" string, lets avoid double loop
+			int stringLength = replacement.length();
+			StringBuilder sb = new StringBuilder(stringLength);
+			for (int currentChar = 0; currentChar < stringLength; currentChar++) {
+				char c = replacement.charAt(currentChar);
+				if (c == '\\')
+					sb.append('\\');
+				else if (c == '$' )
+					sb.append('\\');
+				sb.append(c);
+			}
+			return sb.toString();
 		}
 	}
 }
