@@ -505,7 +505,7 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
 public list[MuFunction] lift(list[MuFunction] functions, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
     return [ (func.scopeIn == fromScope || func.scopeIn == toScope) 
 	             ? { func.scopeIn = toScope; func.body = lift(func.body,fromScope,toScope,mapping); func; } 
-	             : func | func <- functions_in_module ];
+	             : func | func <- getFunctionsInModule() ];
 }
 public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
     return visit(body) {
