@@ -6,7 +6,6 @@ import Prelude;
 import util::Reflective;
 import util::ValueUI;
 import ParseTree;
-
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 import lang::rascal::types::TestChecker;
@@ -17,22 +16,63 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::muRascal::AST;
-
 import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
-public str module_name;
-public str function_uid;
-public list[loc] imported_modules = [];
-public list[MuFunction] functions_in_module = [];
-public list[MuVariable] variables_in_module = [];
-public list[MuExp] variable_initializations = [];
-public list[MuExp] tests = [];
+/*
+ * Translate a Rascal module to muRascal.
+ * The essential functions are:
+ * - r2mu		translate Rascal module
+ * - translate	translate a declaration in a a Rascal module
+ * - translateFunctionDeclaration
+ */
+ 
+ // Global state maintained when translating a Rascal module
+ 
+private str module_name;								//  name of current module
+private str function_uid;							// uid of current function
+private list[loc] imported_modules = [];				// imported modules of current module
+private list[MuFunction] functions_in_module = [];	// functions declared in current module
+private list[MuVariable] variables_in_module = [];	// variables declared in current module
+private list[MuExp] variable_initializations = [];	// initialized variables declared in current module
+private list[MuExp] tests = [];						// tests declared in current module
 
-public loc Library = |rascal:///experiments/Compiler/muRascal2RVM/Library.mu|;
+													// location of the muRascal library
+//public loc Library = |rascal:///experiments/Compiler/muRascal2RVM/Library.mu|;
 
-public void resetR2mu() {
+private set[str] overriddenLibs = {};				// Java libraries overriden for compiler
+private set[str] notOverriddenLibs = {};			// Java libraries not overridden for compiler
+
+// Access functions
+
+public str getModuleName() = module_name;
+
+private void setFunctionUID(loc l) {
+   inverted = config.definitions<1,0>;
+   function_uid = toList(inverted[l])[0];
+   //println("function_uid = <function_uid>");
+}
+
+public int getFunctionUID() = function_uid;
+
+public list[MuFunction] getFunctionsInModule() = functions_in_module;
+
+public void addFunctionToModule(MuFunction fun) {
+   functions_in_module += fun;
+}
+
+public void addFunctionsToModule(list[MuFunction] funs) {
+   functions_in_module += funs;
+}
+
+public void setFunctionsInModule(list[MuFunction] funs) {
+   functions_in_module = funs;
+}
+
+// Reset global state
+
+private void resetR2mu() {
  	module_name = "** undefined **";
     imported_modules = [];
 	functions_in_module = [];
@@ -44,15 +84,9 @@ public void resetR2mu() {
     notOverriddenLibs = {};
 }
 
-public str getModuleName() = module_name;
-
-private void setFunctionUID(loc l) {
-   inverted = config.definitions<1,0>;
-   function_uid = toList(inverted[l])[0];
-   //println("function_uid = <function_uid>");
-}
-
-public int getFunctionUID() = function_uid;
+/********************************************************************/
+/*                  Translate one module                            */
+/********************************************************************/
 
 @doc{Compile a Rascal source module (given as string) to muRascal}
 MuModule r2mu(str moduleStr){
@@ -135,7 +169,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
          functions_in_module += muFunction(fuid,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body);   	                                       
    	 }
    	  						  
-   	  translate(M);
+   	  translateModule(M);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
    	 
@@ -164,12 +198,16 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    throw "r2mu: cannot come here!";
 }
 
-void translate(m: (Module) `<Header header> <Body body>`) {
+void translateModule(m: (Module) `<Header header> <Body body>`) {
     for(imp <- header.imports) importModule(imp);
 	for( tl <- body.toplevels) translate(tl);
 }
 
-void importModule((Import) `import <QualifiedName qname> ;`){
+/********************************************************************/
+/*                  Translate imports in a module                   */
+/********************************************************************/
+
+private void importModule((Import) `import <QualifiedName qname> ;`){
     name = replaceAll("<qname>", "::", "/");
     name = replaceAll(name, "\\","");
     //println("name = <name>");
@@ -177,7 +215,7 @@ void importModule((Import) `import <QualifiedName qname> ;`){
     //println("imported_modules = <imported_modules>");
 }
 
-void importModule((Import) `extend <QualifiedName qname> ;`){  // TODO implement extend properly
+private void importModule((Import) `extend <QualifiedName qname> ;`){  // TODO implement extend properly
     name = replaceAll("<qname>", "::", "/");
     name = replaceAll(name, "\\","");
     //println("name = <name>");
@@ -185,15 +223,19 @@ void importModule((Import) `extend <QualifiedName qname> ;`){  // TODO implement
     //println("imported_modules = <imported_modules>");
 }
 
-void importModule((Import) `<SyntaxDefinition syntaxdef>`){ /* nothing to do */ }
+private void importModule((Import) `<SyntaxDefinition syntaxdef>`){ /* nothing to do */ }
 
-default void importModule(Import imp){
+private default void importModule(Import imp){
     throw "Unimplemented import: <imp>";
 }
+
+/********************************************************************/
+/*                  Translate declarations in a module              */
+/********************************************************************/
 	
 void translate(t: (Toplevel) `<Declaration decl>`) = translate(decl);
 
-// Toplevel Declaration: variable
+// -- variable declaration ------------------------------------------
 
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) {
     ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
@@ -206,6 +248,8 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <
    	leaveFunctionScope();
 }   	
 
+// -- miscellaneous declarations that can be skipped ------------------
+
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`) { /*skip: translation has nothing to do here */ }
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType user> = <Type base> ;`)   { /* skip: translation has nothing to do here */ }
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> tag <Kind kind> <Name name> on <{Type ","}+ types> ;`)  { throw("tag"); }
@@ -214,47 +258,26 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserT
 
 void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = translate(functionDeclaration);
 
-// FunctionDeclaration
+// -- function declaration ------------------------------------------
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   {
-  println("r2mu: Compiling <signature.name>");
-  setFunctionUID(fd@\loc);
-  ftype = getFunctionType(fd@\loc);
-  nformals = size(ftype.parameters);
-  uid = loc2uid[fd@\loc];
-  fuid = uid2str(uid);
-  tuple[str fuid,int pos] addr = uid2addr[uid];
-  bool isVarArgs = (varArgs(_,_) := signature.parameters);
-  
-  enterFunctionScope(fuid);
-  
-  // Keyword parameters
-  list[MuExp] kwps = translateKeywordParameters(signature.parameters, fuid, getFormals(uid), fd@\loc);
- 
-  tmods = translateModifiers(signature.modifiers);
-  ttags =  translateTags(tags);
-  if(ttags["javaClass"]?){
-     paramTypes = \tuple([param | param <- ftype.parameters]);
-     params = [ muVar("<ftype.parameters[i]>", fuid, i) | i <- [ 0 .. nformals] ];
-     exp = muCallJava("<signature.name>", ttags["javaClass"], paramTypes, ("reflect" in ttags) ? 1 : 0, params);
-     
-     // TODO: we plan to introduce keyword patterns as formal parameters
-     tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, kwps, exp, []);
-    
-     functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									getFormals(uid), getScopeSize(fuid),
-  									isVarArgs, fd@\loc, tmods, ttags, 
-  									tbody);
-  	
-  	leaveFunctionScope();
-  	
-  } else {
-    println("r2mu: <fuid> ignored");
-  }
+  translateFunctionDeclaration(fd, muBlock([]), []);
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
-  println("r2mu: Compiling <signature.name>");
+  translateFunctionDeclaration(fd, expression, []);
+}
+
+void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions>;`){
+  translateFunctionDeclaration(fd, expression, [exp | exp <- conditions]);
+}
+
+void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
+  translateFunctionDeclaration(fd, body.statements, []);
+}
+
+private void translateFunctionDeclaration(FunctionDeclaration fd, node body, list[Expression] when_conditions){
+  println("r2mu: Compiling <fd.signature.name>");
   setFunctionUID(fd@\loc);
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
@@ -264,15 +287,23 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
   enterFunctionScope(fuid);
   
   tuple[str fuid,int pos] addr = uid2addr[uid];
-  bool isVarArgs = (varArgs(_,_) := signature.parameters);
+  bool isVarArgs = (varArgs(_,_) := fd.signature.parameters);
   
   // Keyword parameters
-  list[MuExp] kwps = translateKeywordParameters(signature.parameters, fuid, getFormals(uid), fd@\loc);
+  list[MuExp] kwps = translateKeywordParameters(fd.signature.parameters, fuid, getFormals(uid), fd@\loc);
+ 
+  tmods = translateModifiers(fd.signature.modifiers);
+  ttags =  translateTags(fd.tags);
   
-  // TODO: we plan to introduce keyword patterns as formal parameters
-  tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, kwps, translate(expression), []);
-  tmods = translateModifiers(signature.modifiers);
-  ttags =  translateTags(tags);
+  if(ttags["javaClass"]?){
+     paramTypes = \tuple([param | param <- ftype.parameters]);
+     params = [ muVar("<ftype.parameters[i]>", fuid, i) | i <- [ 0 .. nformals] ];
+     body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, ("reflect" in ttags) ? 1 : 0, params);
+     //tbody = translateFunction(fd.signature.parameters.formals.formals, isVarArgs, kwps, exp, when_conditions);
+  	
+  }
+  tbody = translateFunction(fd.signature.parameters.formals.formals, isVarArgs, kwps, body, when_conditions);
+  
   functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									getFormals(uid), getScopeSize(fuid), 
   									isVarArgs, fd@\loc, tmods, ttags, 
@@ -285,105 +316,41 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
      // to reified type
      tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ttags["ignore"] ?), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
-  
   leaveFunctionScope();
-  
 }
 
-void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions>;`){
-  println("r2mu: Compiling <signature.name>");
-  setFunctionUID(fd@\loc);
-  ftype = getFunctionType(fd@\loc);
-  nformals = size(ftype.parameters);
-  uid = loc2uid[fd@\loc];
-  fuid = uid2str(uid);
-  
-  enterFunctionScope(fuid);
-  
-  tuple[str fuid,int pos] addr = uid2addr[uid];
-  bool isVarArgs = (varArgs(_,_) := signature.parameters);
-  
-  // Keyword parameters
-  list[MuExp] kwps = translateKeywordParameters(signature.parameters, fuid, getFormals(uid), fd@\loc);
-  
-  // TODO: we plan to introduce keyword patterns as formal parameters
-  tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, kwps, translate(expression), [exp | exp <- conditions]);
-  tmods = translateModifiers(signature.modifiers);
-  ttags =  translateTags(tags);
-  functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									getFormals(uid), getScopeSize(fuid), 
-  									isVarArgs, fd@\loc, tmods, ttags, 
-  									tbody);
-  
-  if("test" in tmods){
-     params = ftype.parameters;
-     // Switched from type constant
-     // tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ttags["ignore"]?), muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
-     // to reified type
-     tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ttags["ignore"]?), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
+/********************************************************************/
+/*                  Translate keyword parameters                    */
+/********************************************************************/
+
+public list[MuExp] translateKeywordParameters(Parameters parameters, str fuid, int pos, loc l) {
+  list[MuExp] kwps = [];
+  KeywordFormals kwfs = parameters.keywordFormals;
+  if(kwfs is \default) {
+      keywordParamsMap = getKeywords(l);
+      kwps = [ muAssign("map_of_default_values", fuid, pos, muCallMuPrim("make_map_str_entry",[])) ];
+      for(KeywordFormal kwf <- kwfs.keywordFormalList) {
+          kwps += muCallMuPrim("map_str_entry_add_entry_type_ivalue", 
+                                  [ muVar("map_of_default_values",fuid,pos), 
+                                    muCon("<kwf.name>"), 
+                                    muCallMuPrim("make_entry_type_ivalue", [ muTypeCon(keywordParamsMap[convertName(kwf.name)]), 
+                                                                             translate(kwf.expression) ]) ]);
+      }
   }
-  
-  leaveFunctionScope();
-  
+  return kwps;
 }
 
-void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
-  println("r2mu: Compiling <signature.name>");
-  setFunctionUID(fd@\loc);
-  ftype = getFunctionType(fd@\loc);    
-  nformals = size(ftype.parameters);
-  bool isVarArgs = (varArgs(_,_) := signature.parameters);
-  
-  uid = loc2uid[fd@\loc];
-  fuid = uid2str(uid);
-  
-  enterFunctionScope(fuid);
-  
-  // Keyword parameters
-  list[MuExp] kwps = translateKeywordParameters(signature.parameters, fuid, getFormals(uid), fd@\loc);
-  
-  // TODO: we plan to introduce keyword patterns as formal parameters 
-  MuExp tbody = translateFunction(signature.parameters.formals.formals, isVarArgs, kwps, body.statements, []);
-  tmods = translateModifiers(signature.modifiers);
-  ttags =  translateTags(tags);
-  
-  tuple[str fuid,int pos] addr = uid2addr[uid];
-  functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  									getFormals(uid), getScopeSize(fuid),
-  									isVarArgs, fd@\loc, translateModifiers(signature.modifiers), translateTags(tags), 
-  									tbody);
-  					
-   if("test" in tmods){
-     params = ftype.parameters;
-      // Switched from type constant
-     // tests += muCallPrim("testreport_add", [muCon(fuid), muCon(ttags["ignore"]?), muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
-     // to reified type
-     tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ttags["ignore"]?), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
-  }
-  									
-  leaveFunctionScope();
-   
-}
-
-
-
-/* withThrows: FunctionModifiers modifiers Type type  Name name Parameters parameters "throws" {Type ","}+ exceptions */
-
-//str translate(Signature s:(Signature) `<FunctionModifiers modifiers> <Type \type> <Name name> <Parameters parameters>`){
-//  formals = parameters.formals.formals;
-//  //keywordFormals = parameters.keywordFormals;
-//  return intercalate(", ", [(Pattern) `<Type tp> <Name nm>` := f ? "var(\"<nm>\", <tp>)" : "pattern" | f <- formals]);
-//}
+/********************************************************************/
+/*                  Translate tags in a function declaration        */
+/********************************************************************/
 
 // Some library functions need special tratement when called from compiled code.
-// Therefore we provide special treatment for selected Java classes. A Java class X.java can be extended with a class XCompiled.java
+// Therefore we provide special treatment for selected Java classes. 
+// A Java class X.java can be extended with a class XCompiled.java
 // and all calls are then first routed to XCompiled.java that can selectively override methods.
 // The compiler checks for the existence of a class XCompiled.java
 
-set[str] overriddenLibs = {};
-set[str] notOverriddenLibs = {};
-
-str resolveLibOverriding(str lib){
+private str resolveLibOverriding(str lib){
    
 	if(lib in notOverriddenLibs) return lib;
 	
@@ -401,14 +368,13 @@ str resolveLibOverriding(str lib){
 	}
 }
 
-map[str,str] translateTags(Tags tags){
+private map[str,str] translateTags(Tags tags){
    m = ();
    for(tg <- tags.tags){
      name = "<tg.name>";
      if(tg is \default){
         cont = "<tg.contents>"[1 .. -1];
         m[name] = name == "javaClass" ? resolveLibOverriding(cont) : cont;
-        println("m[<name>] = <m[name]>");
      } else if (tg is empty)
         m[name] = "";
      else
@@ -417,7 +383,11 @@ map[str,str] translateTags(Tags tags){
    return m;
 }
 
-list[str] translateModifiers(FunctionModifiers modifiers){
+/********************************************************************/
+/*       Translate the modifiers in a function declaration          */
+/********************************************************************/
+
+private list[str] translateModifiers(FunctionModifiers modifiers){
    lst = [];
    for(m <- modifiers.modifiers){
      if(m is \java) 
@@ -430,24 +400,11 @@ list[str] translateModifiers(FunctionModifiers modifiers){
    return lst;
 }
 
-list[MuExp] translateKeywordParameters(Parameters parameters, str fuid, int pos, loc l) {
-  list[MuExp] kwps = [];
-  KeywordFormals kwfs = parameters.keywordFormals;
-  if(kwfs is \default) {
-      keywordParamsMap = getKeywords(l);
-      kwps = [ muAssign("map_of_default_values", fuid, pos, muCallMuPrim("make_map_str_entry",[])) ];
-      for(KeywordFormal kwf <- kwfs.keywordFormalList) {
-          kwps += muCallMuPrim("map_str_entry_add_entry_type_ivalue", 
-                                  [ muVar("map_of_default_values",fuid,pos), 
-                                    muCon("<kwf.name>"), 
-                                    muCallMuPrim("make_entry_type_ivalue", [ muTypeCon(keywordParamsMap[convertName(kwf.name)]), 
-                                                                             translate(kwf.expression) ]) ]);
-      }
-  }
-  return kwps;
-}
+/********************************************************************/
+/*                  Translate the tests in a module                 */
+/********************************************************************/
 
-void generate_tests(str module_name){
+private void generate_tests(str module_name){
    code = muBlock([ muCallPrim("testreport_open", []), *tests, muReturn(muCallPrim("testreport_close", [])) ]);
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
    name_testsuite = "<module_name>_testsuite";

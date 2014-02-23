@@ -40,7 +40,7 @@ public str nextLabel(str prefix){
 	return "<prefix><tmpLabel>";
 }
 
-// Keep track of loop nested. This is used for
+// Keep track of loop nesting. This is used for
 // - append
 // - break/continue/fail
 

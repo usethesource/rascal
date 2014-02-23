@@ -437,7 +437,6 @@ MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> 
 // -- call or tree pattern -------------------------------------------
 
 MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
-   println("CallOrTree Pattern: <expression>(<arguments> <keywordArguments>)");
    MuExp fun_pat;
    MuExp fun_name;
    argCode = [ translatePat(pat) | pat <- arguments ] + translatePatKWArguments(keywordArguments);
@@ -479,10 +478,6 @@ MuExp translatePatKWValue(e: (Expression) `<QualifiedName name>`) {
 // -- set pattern ----------------------------------------------------
 
 MuExp translatePat(p:(Pattern) `{<{Pattern ","}* pats>}`) = translateSetPat(p);
-
-/*********************************************************************/
-/*                  Set Pattern                                     */
-/*********************************************************************/
 
 // Translate patterns as element of a set pattern
 
@@ -866,3 +861,4 @@ MuExp translateFunctionBody(MuExp exp) = exp;
 // TODO: check the interpreter subtyping
 default MuExp translateFunctionBody(Statement* stats) = muBlock([ translate(stat) | stat <- stats ]);
 default MuExp translateFunctionBody(Statement+ stats) = muBlock([ translate(stat) | stat <- stats ]);
+
