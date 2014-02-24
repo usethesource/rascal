@@ -9,9 +9,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -45,66 +45,34 @@ public class IO {
 		header = true;
 	}
 	
-	/**
-	 * @param options	map with options may contain:
-	 * 					- "header" (Possible values "true" or "false", as string!)
-	 * 					- "separator" (Possible value a single character string)
-	 * 					When map is null, the defaults are reset.
-	 */
-	private void setOptions(IMap options){
-		
-		IString separatorKey = values.string("separator");
-		IString headerKey = values.string("header");
-		
-		IString iseparator = null;
-		IString iheader = null;
-		
-		if(options != null){
-			iseparator = (IString)options.get(separatorKey);
-			iheader = (IString)options.get(headerKey);
-		}
-			
-		separator = (iseparator == null) ? ',' : iseparator.getValue().charAt(0);
-		header = (iheader == null) ? true : iheader.toString().equals("true");
+	private void setOptions(IBool header, IString separator) {
+		this.separator = separator == null ? ',' : separator.charAt(0);
+		this.header = header == null ? true : header.getValue();
 	}
 	
 	/*
 	 * Read a CSV file
 	 */
-	
-	
-	public IValue readCSV(IValue resultType, ISourceLocation loc, IEvaluatorContext ctx){
-		return readCSV(resultType, loc, null, ctx);
-	}
-
-	public IValue readCSV(ISourceLocation loc, IEvaluatorContext ctx){
-		return read(null, loc, null, ctx);
-	}
-
-	public IValue readCSV(ISourceLocation loc, IMap options, IEvaluatorContext ctx){
-		return read(null, loc, options, ctx);
+	public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx){
+		return read(null, loc, header, separator, ctx);
 	}
 	
-	public IValue readCSV(IValue result, ISourceLocation loc, IMap options, IEvaluatorContext ctx){
-		return read(tr.valueToType((IConstructor) result, new TypeStore()), loc, options, ctx);
+	public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx){
+		return read(tr.valueToType((IConstructor) result, new TypeStore()), loc, header, separator, ctx);
 	}
 
 
 	/*
 	 * Calculate the type of a CSV file, returned as the string 
 	 */
-	public IValue getCSVType(ISourceLocation loc, IEvaluatorContext ctx){
-		return computeType(loc, null, ctx);
-	}
-
-	public IValue getCSVType(ISourceLocation loc, IMap options, IEvaluatorContext ctx){
-		return computeType(loc, options, ctx);
+	public IValue getCSVType(ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx){
+		return computeType(loc, header, separator, ctx);
 	}
 	
 	//////
 	
-	private IValue read(Type resultType, ISourceLocation loc, IMap options, IEvaluatorContext ctx) {
-		setOptions(options);
+	private IValue read(Type resultType, ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx) {
+		setOptions(header, separator);
 		Reader reader = null;
 		try {
 			reader = ctx.getResolverRegistry().getCharacterReader(loc.getURI());
@@ -114,7 +82,7 @@ public class IO {
 				ctx.getStdOut().println("readCSV inferred the relation type: " + resultType);
 				ctx.getStdOut().flush();
 			}
-			else if (header) {
+			else if (this.header) {
 				records.remove(0);
 			}
 			return buildCollection(resultType, records, ctx);
@@ -133,8 +101,8 @@ public class IO {
 		}
 	}
 
-	private IValue computeType(ISourceLocation loc, IMap options, IEvaluatorContext ctx) {
-		IValue csvResult = this.read(null, loc, options, ctx);
+	private IValue computeType(ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx) {
+		IValue csvResult = this.read(null, loc, header, separator, ctx);
 		return ((IConstructor) new TypeReifier(values).typeToValue(csvResult.getType(), ctx).getValue());
 	}
 
@@ -258,13 +226,8 @@ public class IO {
 	/*
 	 * Write a CSV file.
 	 */
-	public void writeCSV(IValue rel, ISourceLocation loc, IMap options, IEvaluatorContext ctx){
-		setOptions(options);
-		write(rel, loc, ctx);
-	}
-	
-	public void writeCSV(IValue rel, ISourceLocation loc, IEvaluatorContext ctx){
-		setOptions(null);
+	public void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx){
+		setOptions(header, separator);
 		write(rel, loc, ctx);
 	}
 	
