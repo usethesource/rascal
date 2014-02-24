@@ -9,7 +9,7 @@ import experiments::Compiler::Compile;
 
 list[str] libs = [
 
-/*
+
 "Boolean", 			// OK
 "DateTime",			// OK
 "Exception", 		// OK
@@ -75,7 +75,7 @@ list[str] libs = [
 
 "util::LOC"			// #394
 						// error("Field top does not exist on type Tree",|std:///util/LOC.rsc|(943,5,<44,8>,<44,13>))
-						*/
+						
 /*
 "analysis::formalconcepts::FCA",
 "analysis::graphs::Graph",				
@@ -156,8 +156,6 @@ list[str] libs = [
 "demo::lang::MissGrant::ToSwitch"
 
 
-
-
 "demo::lang::Pico::Compile",
 "demo::lang::Pico::ControlFlow",
 "demo::lang::Pico::Eval",
@@ -183,7 +181,7 @@ list[str] libs = [
 "demo::vis::Higher",
 "demo::vis::Logo",
 "demo::vis::VisADT"
-*/
+
 "experiments::Compiler::RVM::AST",
 "experiments::Compiler::muRascal::AST",
 
@@ -193,7 +191,7 @@ list[str] libs = [
 "experiments::Compiler::muRascal2RVM::StackSize",
 "experiments::Compiler::muRascal2RVM::ToplevelType",
 "experiments::Compiler::muRascal2RVM::mu2rvm"
-
+*/
 
 
 

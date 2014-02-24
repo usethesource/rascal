@@ -191,7 +191,7 @@ public class JavaMethod extends NamedFunction {
 				newActuals[posArity + i] = r;
 			} else {
 				Result<IValue> r = kw.getDefault();
-				newActuals[posArity + i] = r;
+				newActuals[posArity + i] = r.getValue();
 			}
 		}
 		if(nBoundKeywordArgs != keyArgValues.size()){
