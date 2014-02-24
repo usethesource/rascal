@@ -11,6 +11,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AddInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AndBool;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Apply;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ApplyDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Call;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallConstr;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallDyn;
@@ -636,6 +638,14 @@ public class CodeBlock {
 	
 	public CodeBlock UNWRAPTHROWNVAR(String fuid, int pos) {
 		return add(new UnwrapThrownVar(this, fuid, pos));
+	}
+	
+	public CodeBlock APPLY(String fuid, int arity) {
+		return add(new Apply(this, fuid, arity));
+	}
+	
+	public CodeBlock APPLYDYN(int arity) {
+		return add(new ApplyDyn(this, arity));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {

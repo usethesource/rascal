@@ -72,8 +72,38 @@ public class RVM {
 	
 	// Management of active coroutines
 	Stack<Coroutine> activeCoroutines = new Stack<>();
-	Frame ccf = null; // the start frame (of the coroutine's main function) of the current active coroutine
+	Frame ccf = null; // The start frame of the current active coroutine (coroutine's main function)
+	Frame cccf = null; // The candidate coroutine's start frame; used by the guard semantics 
 	IEvaluatorContext ctx;
+	
+	// An exhausted coroutine instance
+	public static Coroutine exhausted = new Coroutine(null) {
+
+		@Override
+		public void next(Frame previousCallFrame) {
+			throw new RuntimeException("Internal error: an attempt to activate an exhausted coroutine instance.");
+		}
+		
+		@Override
+		public void suspend(Frame current) {
+			throw new RuntimeException("Internal error: an attempt to suspend an exhausted coroutine instance.");
+		}
+		
+		@Override
+		public boolean isInitialized() {
+			return true;
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return false;
+		}
+
+		@Override
+		public Coroutine copy() {
+			throw new RuntimeException("Internal error: an attempt to copy an exhausted coroutine instance.");
+		}  
+	};
 
 
 	public RVM(IValueFactory vf, IEvaluatorContext ctx, boolean debug, boolean profile) {
@@ -747,16 +777,33 @@ public class RVM {
 						continue NEXT_INSTRUCTION;
 					}
 					
-					cf.pc = pc;				
+					cf.pc = pc;
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof FunctionInstance){
 						FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
-						cf = cf.getFrame(fun_instance.function, fun_instance.env, CodeBlock.fetchArg1(instruction), sp);
+						arity = CodeBlock.fetchArg1(instruction);
+						// In case of partial parameter binding
+						if(fun_instance.next + arity < fun_instance.function.nformals) {
+							fun_instance = fun_instance.applyPartial(arity, stack, sp);
+							sp = sp - arity;
+						    stack[sp++] = fun_instance;
+						    continue NEXT_INSTRUCTION;
+						}
+						cf = cf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, arity, sp);
 					} else if(op == Opcode.OP_CALL) {
-						cf = cf.getFrame(functionStore.get(CodeBlock.fetchArg1(instruction)), root, CodeBlock.fetchArg2(instruction), sp);
+						Function fun = functionStore.get(CodeBlock.fetchArg1(instruction));
+						arity = CodeBlock.fetchArg2(instruction);
+						// In case of partial parameter binding
+						if(arity < fun.nformals) {
+							FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
+							sp = sp - arity;
+						    stack[sp++] = fun_instance;
+						    continue NEXT_INSTRUCTION;
+						}
+						cf = cf.getFrame(fun, root, arity, sp);
 					} else {
 						throw new RuntimeException("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]));
 					}
-						
+					
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
@@ -923,11 +970,9 @@ public class RVM {
 				case Opcode.OP_INIT:
 					arity = CodeBlock.fetchArg1(instruction);
 					Object src = stack[--sp];
-					Coroutine coroutine;
-					Function fun;
 					if(src instanceof Coroutine){
-						coroutine = (Coroutine) src; 
-						fun = coroutine.frame.function;
+						Coroutine coroutine = (Coroutine) src; 
+						Function fun = coroutine.frame.function;
 						if(coroutine.isInitialized()) {
 							throw new RuntimeException("Trying to initialize a coroutine, which has already been initialized: " + fun.getName() + " (corounine's main), called in " + cf.function.getName());
 						}
@@ -936,34 +981,30 @@ public class RVM {
 							throw new RuntimeException("Too many or too few arguments to INIT, the expected number: " + (fun.nformals - coroutine.frame.sp) + "; coroutine's main: " + fun.getName() + ", called in " + cf.function.getName());
 						}
 						int nargs = coroutine.frame.sp;
-						coroutine = coroutine.copy();
+						cccf = coroutine.start.copy();
 						for (int i = arity - 1; i >= 0; i--) {
-							coroutine.frame.stack[nargs + i] = stack[sp - arity + i];
+							cccf.stack[nargs + i] = stack[sp - arity + i];
 						}
 						sp = sp - arity;
+						cccf.sp = fun.nlocals;
 					} else if(src instanceof FunctionInstance) {
+						// In case of partial parameter binding
 						FunctionInstance fun_instance = (FunctionInstance) src;
-						fun = fun_instance.function;
-						assert arity == fun.nformals;
-						frame = cf.getCoroutineFrame(fun, fun_instance.env, arity, sp);
-						coroutine = new Coroutine(frame);
+						Function fun = fun_instance.function;
+						assert fun_instance.next + arity == fun.nformals;
+						cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
 						sp = cf.sp;
 					} else {
 						throw new RuntimeException("Unexpected argument type for INIT: " + src.getClass() + ", " + src);
-					}			
-					coroutine.frame.sp = fun.nlocals;
-					stack[sp++] = coroutine;
-					// Instead of simply suspending a coroutine during INIT, let it execute until GUARD, which has been delegated the INIT's suspension
-					coroutine.suspend(coroutine.frame);
-					// Put the coroutine onto the stack of active coroutines
-					activeCoroutines.push(coroutine);
-					ccf = coroutine.start;
-					coroutine.next(cf);
+					}
+					// Instead of suspending a coroutine instance during INIT, execute it until GUARD;
+					// Let INIT postpone creation of an actual coroutine instance (delegated to GUARD), which also implies no stack management of active coroutines until GUARD;
+					cccf.previousCallFrame = cf;
 					
 					cf.sp = sp;
 					cf.pc = pc;
-					instructions = coroutine.frame.function.codeblock.getInstructions();
-					cf = coroutine.frame;
+					instructions = cccf.function.codeblock.getInstructions();
+					cf = cccf;
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
@@ -981,13 +1022,15 @@ public class RVM {
 						throw new RuntimeException("Guard's expression has to be boolean!");
 					}
 					
-					if(cf == ccf) {
-						coroutine = activeCoroutines.pop();
-						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+					if(cf == cccf) {
+						Coroutine coroutine = null;
 						Frame prev = cf.previousCallFrame;
 						if(precondition) {
+							coroutine = new Coroutine(cccf);
+							coroutine.isInitialized = true;
 							coroutine.suspend(cf);
 						}
+						cccf = null;
 						--sp;
 						cf.pc = pc;
 						cf.sp = sp;
@@ -995,7 +1038,8 @@ public class RVM {
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
-						pc = cf.pc;	
+						pc = cf.pc;
+						stack[sp++] = precondition ? coroutine : exhausted;
 						continue NEXT_INSTRUCTION;
 					}
 					
@@ -1015,15 +1059,34 @@ public class RVM {
 					
 				case Opcode.OP_CREATE:
 				case Opcode.OP_CREATEDYN:
-					if(op == Opcode.OP_CREATE){
-						fun = functionStore.get(CodeBlock.fetchArg1(instruction));
-						frame = fun.scopeIn == -1 ? cf.getCoroutineFrame(fun, root, CodeBlock.fetchArg2(instruction), sp)
-									              : cf.getCoroutineFrame(fun, fun.scopeIn, CodeBlock.fetchArg2(instruction), sp);
+				case Opcode.OP_APPLY:
+				case Opcode.OP_APPLYDYN:
+					if(op == Opcode.OP_CREATE || op == Opcode.OP_APPLY) {
+						Function fun = functionStore.get(CodeBlock.fetchArg1(instruction));
+						arity = CodeBlock.fetchArg2(instruction);
+						if(op == Opcode.OP_APPLY) {
+							FunctionInstance fun_instance = fun.scopeIn == -1 ? FunctionInstance.applyPartial(fun, root, this, arity, stack, sp)
+									                                          : FunctionInstance.computeFunctionInstance(fun, cf, fun.scopeIn, this).applyPartial(arity, stack, sp);
+							assert arity <= fun.nformals;
+							sp = sp - arity;
+							stack[sp++] = fun_instance;
+							continue NEXT_INSTRUCTION;
+						}
+						frame = fun.scopeIn == -1 ? cf.getCoroutineFrame(fun, root, arity, sp)
+									              : cf.getCoroutineFrame(fun, fun.scopeIn, arity, sp);
 					} else {
 						src = stack[--sp];
 						if(src instanceof FunctionInstance) {
 							FunctionInstance fun_instance = (FunctionInstance) src;
-							frame = cf.getCoroutineFrame(fun_instance.function, fun_instance.env, CodeBlock.fetchArg1(instruction), sp);
+							arity = CodeBlock.fetchArg1(instruction);
+							if(op == Opcode.OP_APPLYDYN) {
+								assert arity + fun_instance.next <= fun_instance.function.nformals;
+								fun_instance = fun_instance.applyPartial(arity, stack, sp);
+								sp = sp - arity;
+								stack[sp++] = fun_instance;
+								continue NEXT_INSTRUCTION;
+							}
+							frame = cf.getCoroutineFrame(fun_instance.function, fun_instance.env, arity, sp);
 						} else {
 							throw new RuntimeException("Unexpected argument type for CREATEDYN: " + asString(src));
 						}
@@ -1031,10 +1094,10 @@ public class RVM {
 					sp = cf.sp;
 					stack[sp++] = new Coroutine(frame);
 					continue NEXT_INSTRUCTION;
-				
+					
 				case Opcode.OP_NEXT0:
 				case Opcode.OP_NEXT1:
-					coroutine = (Coroutine) stack[--sp];
+					Coroutine coroutine = (Coroutine) stack[--sp];
 					
 					// Merged the hasNext and next semantics
 					if(!coroutine.hasNext()) {
@@ -1049,7 +1112,6 @@ public class RVM {
 					ccf = coroutine.start;
 					coroutine.next(cf);
 					
-					fun = coroutine.frame.function;
 					instructions = coroutine.frame.function.codeblock.getInstructions();
 				
 					coroutine.frame.stack[coroutine.frame.sp++] = 		// Always leave an entry on the stack

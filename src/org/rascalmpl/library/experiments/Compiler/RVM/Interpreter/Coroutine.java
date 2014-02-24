@@ -5,8 +5,8 @@ public class Coroutine {
 	final Frame start; // Stack frame of the main coroutine function 
 	Frame frame;       // Current active stack frame of the coroutine
 	
-	private boolean suspended = false;
-	private boolean isInitialized = false;
+	boolean suspended = false;
+	boolean isInitialized = false;
 	
 	public Coroutine(Frame frame) {
 		this.start = frame;
@@ -22,7 +22,6 @@ public class Coroutine {
 		this.start.previousCallFrame = null;
 		this.frame = current; // Sets the current stack frame of the active co-routine
 		this.suspended = true;
-		this.isInitialized = true;
 	}
 	
 	public boolean isInitialized() {

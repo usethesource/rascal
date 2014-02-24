@@ -104,7 +104,7 @@ public enum RascalPrimitive {
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
 			IValue[] args = (IValue[]) stack[sp - 1];
-			stack[sp - 1] = vf.list(args);
+			stack[sp - 1] = args.length == 0 ? emptyList : vf.list(args);
 			return sp;
 		}
 	},
@@ -113,7 +113,7 @@ public enum RascalPrimitive {
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
 			IValue[] args = (IValue[]) stack[sp - 1];
-			stack[sp - 1] = vf.set(args);
+			stack[sp - 1] = args.length == 0 ? emptySet : vf.set(args);
 			return sp;
 		}
 	},
@@ -1101,7 +1101,7 @@ public enum RascalPrimitive {
 	listwriter_close {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
-			assert arity == 0;
+			assert arity == 1;
 			IListWriter writer = (IListWriter) stack[sp - 1];
 			stack[sp - 1] = writer.done();
 			return sp;
@@ -1111,7 +1111,7 @@ public enum RascalPrimitive {
 	setwriter_close {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
-			assert arity == 0;
+			assert arity == 1;
 			ISetWriter writer = (ISetWriter) stack[sp - 1];
 			stack[sp - 1] = writer.done();
 			return sp;
@@ -1121,7 +1121,7 @@ public enum RascalPrimitive {
 	mapwriter_close {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
-			assert arity == 0;
+			assert arity == 1;
 			IMapWriter writer = (IMapWriter) stack[sp - 1];
 			stack[sp - 1] = writer.done();
 			return sp;
@@ -3903,6 +3903,12 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity >= 0;
+			
+			if(arity == 0){
+				stack[sp] = emptyList;
+				return sp + 1;
+			}
+			
 			IListWriter writer = vf.listWriter();
 
 			for (int i = arity - 1; i >= 0; i--) {
@@ -3955,6 +3961,12 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity >= 0;
+			
+			if(arity == 0){
+				stack[sp] = emptyMap;
+				return sp + 1;
+			}
+			
 			IMapWriter writer = vf.mapWriter();
 
 			for (int i = arity; i > 0; i -= 2) {
@@ -3970,6 +3982,12 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity >= 0;
+			
+			if(arity == 0){
+				stack[sp] = emptySet;
+				return sp + 1;
+			}
+			
 			ISetWriter writer = vf.setWriter();
 
 			for (int i = arity - 1; i >= 0; i--) {
@@ -5705,7 +5723,6 @@ public enum RascalPrimitive {
 			}
 
 		}
-
 	},
 	loc_with_offset_create {
 		@Override
@@ -5726,9 +5743,6 @@ public enum RascalPrimitive {
 			stack[sp - arity] = vf.sourceLocation(loc, offset, length, beginLine, endLine, beginCol, endCol);
 			return sp - arity + 1;
 		}
-
-
-
 	},
 	value_to_string {
 		@Override
@@ -5768,6 +5782,9 @@ public enum RascalPrimitive {
 	private static IValueFactory vf;
 	private static TypeFactory tf;
 	private static Type lineColumnType;
+	private static IMap emptyMap;
+	private static IList emptyList;
+	private static ISet emptySet;
 
 	private static PrintWriter stdout;
 	private static RVM rvm;
@@ -5794,6 +5811,9 @@ public enum RascalPrimitive {
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 				new String[] {"line", "column"});
+		emptyMap = vf.mapWriter().done();
+		emptyList = vf.listWriter().done();
+		emptySet = vf.setWriter().done();
 		indentStack = new Stack<String>();
 	}
 

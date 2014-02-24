@@ -81,8 +81,10 @@ list[str] libs = [
 "analysis::graphs::Graph",				
 "analysis::graphs::LabeledGraph",
 "analysis::linearprogramming::LinearProgramming",
+"analysis::m3::AST",
 "analysis::m3::Core",
 "analysis::m3::Registry",
+"analysis::m3::TypeSymbol",
 "analysis::statistics::Correlation",
 "analysis::statistics::Descriptive",
 "analysis::statistics::Frequency",
@@ -163,7 +165,7 @@ list[str] libs = [
 "demo::lang::Pico::Uninit",
 "demo::lang::Pico::UseDef",
 "demo::lang::Pico::Visualize"
-*/
+
 
 "demo::lang::turing::l1::ast::Load",
 "demo::lang::turing::l1::ast::Turing",
@@ -181,8 +183,16 @@ list[str] libs = [
 "demo::vis::Higher",
 "demo::vis::Logo",
 "demo::vis::VisADT"
+*/
+"experiments::Compiler::RVM::AST",
+"experiments::Compiler::muRascal::AST",
 
-
+"experiments::Compiler::muRascal2RVM::PeepHole",
+"experiments::Compiler::muRascal2RVM::RascalReifiedTypes",
+"experiments::Compiler::muRascal2RVM::ReifiedTypes",
+"experiments::Compiler::muRascal2RVM::StackSize",
+"experiments::Compiler::muRascal2RVM::ToplevelType",
+"experiments::Compiler::muRascal2RVM::mu2rvm"
 
 
 

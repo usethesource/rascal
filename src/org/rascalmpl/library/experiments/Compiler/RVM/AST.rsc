@@ -71,6 +71,11 @@ data Instruction =
 		
 		| CALL(str fuid, int arity)					// Call a named *muRascal* function
 		| CALLDYN(int arity)						// Call a *muRascal* function on stack
+		
+		// Partial function application
+		| APPLY(str fuid, int arity)                // Apply partially a named *muRascal* function
+		| APPLYDYN(int arity)                       // Apply partially a top-of-stack *muRascal* function 
+				
 		| CALLCONSTR(str fuid, int arity)			// Call a constructor
 		
 		| OCALL(str fuid, int arity)				// Call a named *Rascal* function
@@ -125,5 +130,10 @@ data Instruction =
 		| TYPEOF()									// Get type of top element
 		| SUBTYPE()									// Subtype between top two IValues
 		| CHECKARGTYPE()							// Check the type of an argument
+		
+		// Delimited continuations (experimental)
+		| LOADCONT()
+		| RESET()
+		| SHIFT()
 ;
 	
