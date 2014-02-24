@@ -317,8 +317,8 @@ abstract public class NamedFunction extends AbstractFunction {
         if(!r.getType().isSubtypeOf(keywordParameterTypes[k])){
           throw new UnexpectedKeywordArgumentType(kwparam, keywordParameterTypes[k], r.getType(), ctx.getCurrentAST());
         }
-        env.declareVariable(r.getType(), kwparam);
-        env.storeVariable(kwparam, ResultFactory.makeResult(kw.getType(), r, ctx));
+        env.declareVariable(keywordParameterTypes[k], kwparam);
+        env.storeVariable(kwparam, ResultFactory.makeResult(keywordParameterTypes[k], r, ctx));
       } else {
         Result<IValue> r = kw.getDefault();
         env.declareVariable(r.getType(), kwparam);
