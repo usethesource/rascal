@@ -14,7 +14,7 @@ Pitfalls:
 Questions:
 
 QValue:
-desc: Fill in the missing function name.
+desc: Fill in the missing function name!
 prep: import List;
 make: L = list[arb[int,str],0,5]
 expr: H =  reverse(<L>) 

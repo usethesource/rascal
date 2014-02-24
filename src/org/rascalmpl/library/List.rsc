@@ -1169,7 +1169,7 @@ import String;
 sort([10, 4, -2, 11, 100, 5]);
 fruits = ["mango", "strawberry", "pear", "pineapple", "banana", "grape", "kiwi"];
 sort(fruits);
-sort(fruits, bool(str a, str b){ return size(a) >= size(b); });
+sort(fruits, bool(str a, str b){ return size(a) > size(b); });
 </screen>
 
 Questions:

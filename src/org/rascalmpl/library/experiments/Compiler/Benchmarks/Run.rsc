@@ -11,6 +11,7 @@ module experiments::Compiler::Benchmarks::Run
 import Prelude;
 import util::Benchmark;
 import util::Math;
+import analysis::statistics::Descriptive;
 import experiments::Compiler::Compile;
 import experiments::Compiler::Execute;
 
@@ -58,45 +59,57 @@ import experiments::Compiler::Benchmarks::BSudoku;
 
 loc base = |rascal:///experiments/Compiler/Benchmarks/|;
 
-alias Measurement = tuple[str name, num compilationTime, num compiledExec, num interpretedExec];
+alias Measurement = tuple[str name, list[num] compiledExec, list[num] interpretedExec];
 
-int nsamples = 1;  // Number of samples per data point.
+int nsamples = 5;  // Number of samples per data point.
 
 map[str,Measurement] measurements = ();
 
+void precompile(list[str] bms) {
+  for(bm <- bms) {
+      compile(base + (bm + ".rsc"), recompile=true);
+  }
+}
+
 void run(str bm,  value(list[value]) bmain) {
   println("Benchmark: <bm>");
-  comp = 0;
-  cexec = 0;
-  iexec = 0;
-  compile(base + (bm + ".rsc"), recompile=true);
+  cexec = [];
+  iexec = [];
   for(int i <- [0 .. nsamples]){
-	  t1 = getMilliTime();
-	  <v, t2> = execute_and_time(base + (bm + ".rsc"), []);
-	  t3 = getMilliTime();
-	  comp += t3 - t1 - t2;
-	  cexec += t3 - t1;
+	  t1 = getNanoTime();
+	  v = execute(base + (bm + ".rsc"), []);
+	  t3 = getNanoTime();
+	  cexec += (t3 - t1)/1000000;
   }
   for(int i <- [0 .. nsamples]){  
-	  t3 = getMilliTime();
+	  t3 = getNanoTime();
 	  bmain([]);
-	  t4 = getMilliTime();
-	  iexec += t4 - t3;
+	  t4 = getNanoTime();
+	  iexec += (t4 - t3)/1000000;
   }
-  measurements[bm] =  m = <bm, comp/nsamples, cexec/nsamples, iexec/nsamples>;
+  measurements[bm] =  m = <bm, cexec, iexec>;
   report_one(m);
+}
+
+list[num] removeExtremes(list[num] results){
+   results = delete(results, indexOf(results, min(results)));
+   return delete(results, indexOf(results, max(results)));
 }
 
 str align(num n) = right(toString(precision(n,5)), 6);
 str align2(num n) = right(toString(precision(n,5)), 12);
 
 void report_one(Measurement m){
-  comp  = m.compilationTime;
-  cexec = m.compiledExec;
-  iexec = m.interpretedExec;
+  compiledExec = removeExtremes(m.compiledExec);
+  cexec = mean(compiledExec);
+  int var_cexec = toInt(standardDeviation(compiledExec));
+  
+  interpretedExec = removeExtremes(m.interpretedExec);
+  iexec = mean(interpretedExec);
+  int var_iexec = toInt(standardDeviation(interpretedExec));
+
   speedup = iexec/cexec;
-  saved = 100.0 * (iexec - (comp + cexec)) / max(1, iexec);
-  println("<right(m.name, 20)>: compiled: (compilation <align(comp)> msec, execution <align(cexec)> msec); interpreted: <align(iexec)> msec; speedup: <align(speedup)> x; saved: <align(saved)> %");
+  println("<right(m.name, 25)>: speedup: <right(toString(precision(speedup,3)), 5)> x; compiled: <m.compiledExec>; mean <align(cexec)> msec (+/-<var_cexec>); interpreted: <m.interpretedExec>; mean <align(iexec)> msec (+/-<var_iexec>)");
 }
 
 void report(){
@@ -110,17 +123,17 @@ void report(){
   for(bm <- sort(domain(measurements))){
       m = measurements[bm];
       report_one(m);
-      speedup =  m.interpretedExec/m.compiledExec;
+      speedup =  mean(removeExtremes(m.interpretedExec))/mean(removeExtremes(m.compiledExec));
       tot_speedup += speedup;  
       min_speedup = min(min_speedup, speedup);
       max_speedup = max(max_speedup, speedup);
-      tot_comp += m.compilationTime + m.compiledExec;
-      tot_inter += m.interpretedExec;
+      tot_comp += sum(removeExtremes(m.compiledExec));
+      tot_inter += sum(removeExtremes(m.interpretedExec));
   }
   println("Average speedup: <precision(tot_speedup/size(measurements), 5)>");
   println("Minimal speedup: <precision(min_speedup, 5)>");
   println("Maximal speedup: <precision(max_speedup, 5)>");
-  println("Total time: compiled: <tot_comp>; interpreted: <tot_inter>; saved: <precision(100 * (tot_inter - tot_comp) / tot_inter, 5)>%");
+  println("Total time: compiled: <tot_comp>; interpreted: <tot_inter>; speedup: <precision(tot_inter/tot_comp,5)>");
 }
 
 void report_one_latex(Measurement m){
@@ -198,7 +211,12 @@ void main(){
  
   
   report();
-  report_latex();
+  //report_latex();
+}
+
+void precompile_paper() {
+   precompile_paper1();
+   precompile_paper2();
 }
 
 void main_paper(){
@@ -206,9 +224,15 @@ void main_paper(){
   main_paper2();
 }
 
+void precompile_paper1() {
+  precompile(["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty","BExceptionsFinally","BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
+              "BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
+              /*,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"*/]);
+}
+
 void main_paper1(){
   measurements = ();
-  nsamples = 3;
+  nsamples = 10;
   run("BCompareFor", experiments::Compiler::Benchmarks::BCompareFor::main);
   run("BCompareIf", experiments::Compiler::Benchmarks::BCompareIf::main);
   run("BCompareComprehension", experiments::Compiler::Benchmarks::BCompareComprehension::main);
@@ -238,13 +262,16 @@ void main_paper1(){
   //run("BVisit6f", experiments::Compiler::Benchmarks::BVisit6f::main);
   //run("BVisit6g", experiments::Compiler::Benchmarks::BVisit6g::main);
   report();
-  report_latex();
+  //();
 }
 
+void precompile_paper2() {
+  precompile(["BBottles","BFac","BFib","BMarriage",/*"BRSFCalls",*/"BSendMoreMoney","BSudoku","BTemplate"]);
+}
 
 void main_paper2(){
   measurements = ();
-  nsamples = 3;
+  nsamples = 10;
   run("BBottles", experiments::Compiler::Benchmarks::BBottles::main);
   run("BFac", experiments::Compiler::Benchmarks::BFac::main);
   run("BFib", experiments::Compiler::Benchmarks::BFib::main);
@@ -254,5 +281,5 @@ void main_paper2(){
   run("BSudoku", experiments::Compiler::Benchmarks::BSudoku::main);
   run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
   report();
-  report_latex();
+  //report_latex();
 }

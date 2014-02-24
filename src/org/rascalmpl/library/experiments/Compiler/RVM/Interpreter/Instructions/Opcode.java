@@ -94,6 +94,8 @@ public enum Opcode {
 	STORELOCKWP         (73,    1), // 2
 	STOREVARKWP         (74,    1), // 3
 	UNWRAPTHROWNVAR     (75,    1), // 3
+	APPLY               (76,    1), // 3
+	APPLYDYN            (77,    1)  // 2
 	;
 	
 	
@@ -185,6 +187,8 @@ public enum Opcode {
 	static public final int OP_STORELOCKWP = 73;
 	static public final int OP_STOREVARKWP = 74;
 	static public final int OP_UNWRAPTHROWNVAR = 75;
+	static public final int OP_APPLY = 76;
+	static public final int OP_APPLYDYN = 77;
 	
 	
 	/*
@@ -192,6 +196,7 @@ public enum Opcode {
 	 * will never occur in generated code.
 	 */
 	static public final int POSTOP_CHECKUNDEF = 100;
+	static public final int POSTOP_HANDLEEXCEPTION = 101;
 	
 	 Opcode(int op, int pc_incr){
 		this.op = op;
@@ -459,6 +464,12 @@ public enum Opcode {
 			
 		case UNWRAPTHROWNVAR:
 			return "UNWRAPTHROWNVAR " + arg1 + arg2;
+			
+		case APPLY:
+			return "APPLY " + cb.getFunctionName(arg1) + ", " + arg2;
+			
+		case APPLYDYN:
+			return "APPLYDYN " + arg1;
 		
 		default:
 			break;

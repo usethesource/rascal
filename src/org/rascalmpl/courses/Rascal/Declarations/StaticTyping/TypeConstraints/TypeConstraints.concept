@@ -26,7 +26,7 @@ public &T <: num abs(&T <: num N)
 </listing>
 The argument `N` is constrained to be at most of type `num`.
 <screen>
-import Number;
+import util::Math;
 abs(-3);
 abs(-3.5);
 </screen>

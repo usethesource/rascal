@@ -2,43 +2,55 @@
 module experiments::Compiler::Rascal2muRascal::TypeUtils
 
 import Prelude;
-
 import lang::rascal::\syntax::Rascal;
-
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 import experiments::Compiler::Rascal2muRascal::RascalType;
-
 import experiments::Compiler::muRascal::AST;
-
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
-
 import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getQualifiedFunctionName, need better structure
 
-//import util::ValueUI;
+/*
+ * This module provides a bridge to the "Configuration" delivered by the type checker
+ * See declaration of Configuration in lang::rascal::types::CheckTypes.
+ * It contains (type, scope, use, def) information collected by the type checker.
+ * This module consists of three parts:
+ * Part I:		defines the function is extractScopes that extracts information from a configuration
+ * 				and transformations it in a representation that is suited for the compiler.
+ * Part II: 	defines other functions to access this type information.
+ * Part III:	Type-related code generation functions.
+ * 
+ * Some details:
+ * - the typechecker generates a unique identifier (uid, an integer) for every entity it encounters and this uid
+ *   is connected to all information about this entity.
+ */
+ 
+/********************************************************************/
+/*     Part I: Extract and convert Type checker Configuration       */
+/********************************************************************/
+
+// A set of global values to represent the extracted information
 
 public Configuration config = newConfiguration();
 
-/*
-* uid2addr maps now uids returned by the type checker to qualified function names and positions
-*/
-public map[int uid,tuple[str fuid,int pos] fuid2pos] uid2addr = ();
-public map[loc \loc,int uid] loc2uid = ();
+public map[int uid,tuple[str fuid,int pos] fuid2pos] uid2addr = ();	
+													// map uids to qualified function names and positions
+public map[loc \loc,int uid] loc2uid = ();			// map a source code location of an entity to its uid
 
 public set[int] modules = {};
-public set[int] functions = {};
-public set[int] defaultFunctions = {};
-public set[int] constructors = {};
-public set[int] variables = {};
-public set[int] keywordParameters = {};
-public set[int] ofunctions = {};
+public set[int] functions = {};						// declared functions
+public set[int] defaultFunctions = {};				// declared default functions
+public set[int] constructors = {};					// declared constructors
+public set[int] variables = {};						// declared variables
+public set[int] keywordParameters = {};				// declared keyword parameters
+public set[int] ofunctions = {};					// declared overloaded functions
 
-public set[str] moduleNames = {};
+public set[str] moduleNames = {};					// encountered module names
 
-@doc{Map from uid to simple names, used to recursively compute qualified names}
-public map[int uid,str name] uid2name = (); 
+
+public map[int uid,str name] uid2name = (); 		// map uid to simple names, used to recursively compute qualified names
 @doc{Counters for different scopes}
 public map[int uid,map[str,int] name2n] cases = (); // number of functions with the same type within a scope
 public map[int uid,int n] blocks = ();              // number of blocks within a scope
@@ -49,13 +61,15 @@ public map[int uid,int n] bscopes = ();             // number of boolean scopes 
 public rel[int,int] declares = {};
 public rel[int,int] containment = {};
 
-@doc{Enables mapping of qualified names back to uids}
-public map[int,str] fuid2str = ();
-@doc{We need to perform more precise overloading resolution than provided by the type checker}
-public map[int,Symbol] fuid2type = ();
 
-public map[str,int] overloadingResolver = ();
-public lrel[str,set[int]] overloadedFunctions = [];
+public map[int,str] fuid2str = ();					// map qualified names back to uids
+
+public map[int,Symbol] fuid2type = ();				// We need to perform more precise overloading resolution than provided by the type checker
+
+public map[str,int] overloadingResolver = ();		// map function name to overloading resolver
+public lrel[str,set[int]] overloadedFunctions = [];	// list of overloaded functions
+
+// Reset the above global variables, when compiling the next module.
 
 public void resetScopeExtraction() {
 	uid2addr = ();
@@ -85,47 +99,6 @@ public void resetScopeExtraction() {
 	overloadedFunctions = [];
 }
 
-// Get the type of an expression as Symbol
-Symbol getType(loc l) = config.locationTypes[l];
-
-// Get the type of an expression as string
-str getType(e) = "<getType(e@\loc)>";
-
-// Get the outermost type constructor of an expression as string
-str getOuterType(e) { 
-	if(parameter(str _, Symbol bound) := getType(e@\loc)) {
-		return "<getName(bound)>";
-	}
-	return "<getName(getType(e@\loc))>";
-}
-
-/* 
-* CHANGED: 
-* Getting a function type by name is problematic in case of nested functions,
-* given that 'fcvEnv' does not contain nested functions;
-* Additionally, it does not allow getting types of functions that are part of an overloaded function;
-* Alternatively, the type of a function can be looked up by @loc;   
-*/
-Symbol getFunctionType(loc l) { 
-   int uid = loc2uid[l];
-   fun = config.store[uid];
-   if(function(_,Symbol rtype,_,_,_,_,_) := fun) {
-       return rtype;
-   } else {
-       throw "Looked up a function, but got: <fun> instead";
-   }
-}
-
-Symbol getClosureType(loc l) {
-   int uid = loc2uid[l];
-   cls = config.store[uid];
-   if(closure(Symbol rtype,_,_,_) := cls) {
-       return rtype;
-   } else {
-       throw "Looked up a closure, but got: <cls> instead";
-   }
-}
-
 int getFormals(int fuid) = size(fuid2type[fuid].parameters) + 1;       // '+ 1' accounts for keyword arguments
 int getFormals(loc l)    = size(fuid2type[loc2uid[l]].parameters) + 1; // '+ 1' accounts for keyword arguments
 
@@ -136,71 +109,9 @@ int getScopeSize(str fuid) =  // r2mu translation of functions introduces variab
 						    + size({ pos | int pos <- range(uid2addr)[fuid], pos != -1 })
 						    + 2 // '+ 2' accounts for keyword arguments and default values of keyword parameters 
 						    ;
-							
-KeywordParamMap getKeywords(loc location) = config.store[loc2uid[location]].keywordParams;
 
-@doc{Make a call to a library function given its name, module's name and a number of its formal parameters}
-public MuExp mkCallToLibFun(str modName, str fname, int nformals)
-	= muFun("<modName>/<fname>(<nformals>)");
-
-
-//MuExp mkVar(str name, loc l) = mkVar(name, loc2uid[l]);
-
-MuExp mkVar(str name, loc l) {
-  uid = loc2uid[l];
-  tuple[str fuid,int pos] addr = uid2addr[uid];
-  
-  // Pass all the functions through the overloading resolution
-  if(uid in functions || uid in constructors || uid in ofunctions) {
-    // Get the function uids of an overloaded function
-    set[int] ofuids = (uid in functions || uid in constructors) ? { uid } : config.store[uid].items;
-    // Generate a unique name for an overloaded function resolved for this specific use
-    str ofuid = uid2str(config.usedIn[l]) + "/use:" + name;
-    
-    //str ofuid = uid2str(getFunctionUID()) + "/use:" + name;
-    
-    //if(config.usedIn[l] != getFunctionUID())
-    //	println("******* <name>: <config.usedIn[l]>, <getFunctionUID()>");
-    
-    bool exists = <addr.fuid,ofuids> in overloadedFunctions;
-    int i = size(overloadedFunctions);
-    if(!exists) {
-    	overloadedFunctions += <addr.fuid,ofuids>;
-    } else {
-    	i = indexOf(overloadedFunctions, <addr.fuid,ofuids>);
-    }   
-    overloadingResolver[ofuid] = i;
-  	return muOFun(ofuid);
-  }
-  
-  // Keyword parameters
-  if(uid in keywordParameters) {
-      return muVarKwp(addr.fuid,name);
-  }
-  
-  return muVar(name, addr.fuid, addr.pos);
-}
-
-tuple[str fuid,int pos] getVariableScope(str name, loc l) {
-  tuple[str fuid,int pos] addr = uid2addr[loc2uid[l]];
-  return addr;
-}
-
-MuExp mkVarRef(str name, loc l){
-  <fuid, pos> = getVariableScope("<name>", l);
-  return muVarRef("<name>", fuid, pos);
-}
-
-
-MuExp mkAssign(str name, loc l, MuExp exp) {
-  uid = loc2uid[l];
-  tuple[str fuid, int pos] addr = uid2addr[uid];
-  if(uid in keywordParameters) {
-      return muAssignKwp(addr.fuid,name,exp);
-  }
-  return muAssign(name, addr.fuid, addr.pos, exp);
-}
-
+// extractScopes: extract and convert type information from the Configuration delivered by the type checker.
+						    
 void extractScopes(){
    for(uid <- config.store){
       item = config.store[uid];
@@ -337,7 +248,9 @@ void extractScopes(){
     	topdecls = [ uid | uid <- declares[muid], function(_,_,_,_,_,_,_) := config.store[uid] ||
     											  closure(_,_,_,_)        := config.store[uid] ||
     											  constructor(_,_,_,_,_)  := config.store[uid] ||
-    											  variable(_,_,_,_,_)   := config.store[uid] ];
+    											( production(rname,_,_,_) := config.store[uid] 
+    											    && !isEmpty(getSimpleName(rname)) )        ||
+    											  variable(_,_,_,_,_)     := config.store[uid] ];
     	for(i <- index(topdecls)) {
     		// functions and closures are identified by their qualified names, and they do not have a position in their scope
     		// only the qualified name of their enclosing module or function is significant 
@@ -400,14 +313,64 @@ void extractScopes(){
     	assert size(scopes) == 0 || size(scopes) == 1;
     	uid2addr[fuid] = <scopeIn,-1>;
     }
+}
 
+/********************************************************************/
+/*     Part II: Retrieve type information                           */
+/********************************************************************/
+
+// Get the type of an expression as Symbol
+Symbol getType(loc l) = config.locationTypes[l];
+
+// Get the type of an expression as string
+str getType(e) = "<getType(e@\loc)>";
+
+// Get the outermost type constructor of an expression as string
+str getOuterType(e) { 
+	if(parameter(str _, Symbol bound) := getType(e@\loc)) {
+		return "<getName(bound)>";
+	}
+	return "<getName(getType(e@\loc))>";
+}
+
+/* 
+ * Get the type of a function.
+ * Getting a function type by name is problematic in case of nested functions,
+ * given that 'fcvEnv' does not contain nested functions;
+ * Additionally, it does not allow getting types of functions that are part of an overloaded function;
+ * Alternatively, the type of a function can be looked up by @loc;   
+ */
+Symbol getFunctionType(loc l) { 
+   int uid = loc2uid[l];
+   fun = config.store[uid];
+   if(function(_,Symbol rtype,_,_,_,_,_) := fun) {
+       return rtype;
+   } else {
+       throw "Looked up a function, but got: <fun> instead";
+   }
+}
+
+Symbol getClosureType(loc l) {
+   int uid = loc2uid[l];
+   cls = config.store[uid];
+   if(closure(Symbol rtype,_,_,_) := cls) {
+       return rtype;
+   } else {
+       throw "Looked up a closure, but got: <cls> instead";
+   }
+}
+					
+KeywordParamMap getKeywords(loc location) = config.store[loc2uid[location]].keywordParams;
+
+tuple[str fuid,int pos] getVariableScope(str name, loc l) {
+  tuple[str fuid,int pos] addr = uid2addr[loc2uid[l]];
+  return addr;
 }
 
 str getFUID(str fname, Symbol \type) { 
     //println("getFUID: <fname>, <\type>");
     return "<fname>(<for(p<-\type.parameters){><p>;<}>)";
 }
-
 
 str getFUID(str fname, Symbol \type, int case_num) = "<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
 str getFUID(str modName, str fname, Symbol \type, int case_num) = "<modName>/<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
@@ -476,10 +439,73 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
      throw "Block scope at <l> has not been found!";
 }
 
+/********************************************************************/
+/*     Part III: Type-related code generation functions             */
+/********************************************************************/
+
+@doc{Generate a MuExp that calls a library function given its name, module's name and number of formal parameters}
+public MuExp mkCallToLibFun(str modName, str fname, int nformals)
+	= muFun("<modName>/<fname>(<nformals>)");
+
+// Generate a MuExp to access a variable
+
+MuExp mkVar(str name, loc l) {
+  uid = loc2uid[l];
+  tuple[str fuid,int pos] addr = uid2addr[uid];
+  
+  // Pass all the functions through the overloading resolution
+  if(uid in functions || uid in constructors || uid in ofunctions) {
+    // Get the function uids of an overloaded function
+    set[int] ofuids = (uid in functions || uid in constructors) ? { uid } : config.store[uid].items;
+    // Generate a unique name for an overloaded function resolved for this specific use
+    str ofuid = uid2str(config.usedIn[l]) + "/use:" + name;
+    
+    //str ofuid = uid2str(getFunctionUID()) + "/use:" + name;
+    
+    //if(config.usedIn[l] != getFunctionUID())
+    //	println("******* <name>: <config.usedIn[l]>, <getFunctionUID()>");
+    
+    bool exists = <addr.fuid,ofuids> in overloadedFunctions;
+    int i = size(overloadedFunctions);
+    if(!exists) {
+    	overloadedFunctions += <addr.fuid,ofuids>;
+    } else {
+    	i = indexOf(overloadedFunctions, <addr.fuid,ofuids>);
+    }   
+    overloadingResolver[ofuid] = i;
+  	return muOFun(ofuid);
+  }
+  
+  // Keyword parameters
+  if(uid in keywordParameters) {
+      return muVarKwp(addr.fuid,name);
+  }
+  
+  return muVar(name, addr.fuid, addr.pos);
+}
+
+// Generate a MuExp to reference a variable
+
+MuExp mkVarRef(str name, loc l){
+  <fuid, pos> = getVariableScope("<name>", l);
+  return muVarRef("<name>", fuid, pos);
+}
+
+// Generate a MuExp for an assignment
+
+MuExp mkAssign(str name, loc l, MuExp exp) {
+  uid = loc2uid[l];
+  tuple[str fuid, int pos] addr = uid2addr[uid];
+  if(uid in keywordParameters) {
+      return muAssignKwp(addr.fuid,name,exp);
+  }
+  return muAssign(name, addr.fuid, addr.pos, exp);
+}
+
 public list[MuFunction] lift(list[MuFunction] functions, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
     return [ (func.scopeIn == fromScope || func.scopeIn == toScope) 
 	             ? { func.scopeIn = toScope; func.body = lift(func.body,fromScope,toScope,mapping); func; } 
-	             : func | func <- functions_in_module ];
+	             : func | func <- getFunctionsInModule() ];
 }
 public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
     return visit(body) {
@@ -496,3 +522,23 @@ public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tup
 	    case muCatch(str id,fromScope,Symbol \type,MuExp body) => muCatch(id,toScope,\type,body)
 	}
 }
+
+// TODO: these functions belong in ParseTree, but that gives "No definition for \"ParseTree/size(list(parameter(\\\"T\\\",value()));)#0\" in functionMap")
+
+@doc{Determine the size of a concrete list}
+int size(appl(regular(\iter(Symbol symbol)), list[Tree] args)) = size(args);
+int size(appl(regular(\iter-star(Symbol symbol)), list[Tree] args)) = size(args);
+
+int size(appl(regular(\iter-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
+int size(appl(regular(\iter-star-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
+
+int size(appl(prod(Symbol symbol, list[Symbol] symbols , attrs), list[Tree] args)) = 
+	\label(str label, Symbol symbol1) := symbol && [Symbol itersym] := symbols
+	? size(appl(prod(symbol1, symbols, attrs), args))
+	: size(args[0]);
+
+default int size(Tree t) {
+    throw "Size of tree not defined for \"<t>\"";
+}
+
+private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (lenseps + 1));

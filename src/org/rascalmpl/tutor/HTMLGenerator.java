@@ -136,7 +136,7 @@ public class HTMLGenerator {
 		catch (ParseError pe) {
 			content.append(parseErrorMessage(command.getValue(), "stdin", pe));
 			content.append('\n');
-			ISourceLocation sourceLocation = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation sourceLocation = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
 			throw new Throw(values.constructor(ShellParseError, values.string(content.toString()), sourceLocation), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch (QuitException q){
