@@ -112,6 +112,7 @@ public class Frame {
 			}
 		}
 		if(arity == 0) {
+			this.sp = sp;
 			frame.sp = frame.function.nlocals;
 			return frame;
 		}
