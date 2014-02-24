@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -87,7 +87,7 @@ public class GrammarToJigll {
 	}
 
 	@SuppressWarnings("unchecked")
-	public IConstructor jparse(IConstructor symbol, IString str) {
+	public IConstructor jparse(IConstructor symbol, IString str, ISourceLocation loc) {
 		
 		if (grammar == null) {
 			return null;
@@ -105,12 +105,17 @@ public class GrammarToJigll {
 		try {
 			sppf = parser.parse(input, this.grammar, startSymbol);
 		} catch (ParseError e) {
-			System.out.println(e);
-			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(URI.create("nothing:///"), 0, 1), null, null);
+			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(loc, 
+																	   e.getInputIndex(), 
+																	   1,
+																	   input.getLineNumber(e.getInputIndex()),
+																	   input.getLineNumber(e.getInputIndex()),
+																	   input.getColumnNumber(e.getInputIndex()) - 1,
+																	   input.getColumnNumber(e.getInputIndex()) - 1), null, null);
 		}
 
 		long start = System.nanoTime();
-		sppf.accept(new ModelBuilderVisitor<>(input, new ParsetreeBuilder()));
+		sppf.accept(new ModelBuilderVisitor<>(input, new ParsetreeBuilder(), grammar));
 		long end = System.nanoTime();
 		log.info("Flattening: %d ms ", (end - start) / 1000_000);
 
@@ -150,60 +155,110 @@ public class GrammarToJigll {
 		out.close();
 	}
 
-	public void generateGraph(IString path) {
+	public void generateGraph(IString path, ISourceLocation loc) {
 		parser = ParserFactory.newParser(grammar, input);
 
 		NonterminalSymbolNode sppf;
 		try {
 			sppf = parser.parse(input, this.grammar, startSymbol);
 		} catch (ParseError e) {
-			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(URI.create("nothing:///"), 0, 1), null, null);
+			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(loc, 
+					   e.getInputIndex(), 
+					   1,
+					   input.getLineNumber(e.getInputIndex()),
+					   input.getLineNumber(e.getInputIndex()),
+					   input.getColumnNumber(e.getInputIndex()) - 1,
+					   input.getColumnNumber(e.getInputIndex()) - 1), null, null);
 		}
 
 		Visualization.generateSPPFGraph(path.getValue(), sppf, input);
 	}
 
-	private Condition getFollowRestriction(IConstructor symbol) {
+	private Condition getNotFollow(IConstructor symbol) {
 
 		switch (symbol.getName()) {
 
-		case "char-class":
-			List<Range> targetRanges = buildRanges(symbol);
-			return RegularExpressionCondition.notFollow(new CharacterClass(targetRanges));
+			case "char-class":
+				List<Range> targetRanges = buildRanges(symbol);
+				return RegularExpressionCondition.notFollow(new CharacterClass(targetRanges));
+	
+			case "lit":
+				return RegularExpressionCondition.notFollow(getKeyword(symbol));
+	
+			case "seq":
+				IList list = (IList) symbol.get("symbols");
+				List<Symbol> symbols = new ArrayList<>();
+				for (IValue v : list) {
+					symbols.add(getSymbol((IConstructor) v));
+				}
+				symbols.remove(1);
+				if(isAllRegularExpression(symbols)) {
+					return RegularExpressionCondition.notFollow(new Sequence<RegularExpression>(conver(symbols)));				
+				} else {
+					return ContextFreeCondition.notFollow(symbols);
+				}
+	
+			default:
+				throw new IllegalStateException("Should not be here!");
+		}
+	}
+	
+	private Condition getFollow(IConstructor symbol) {
 
-		case "lit":
-			return RegularExpressionCondition.notFollow(getKeyword(symbol));
+		switch (symbol.getName()) {
 
-		case "seq":
-			IList list = (IList) symbol.get("symbols");
-			List<Symbol> symbols = new ArrayList<>();
-			for (IValue v : list) {
-				symbols.add(getSymbol((IConstructor) v));
-			}
-			symbols.remove(1);
-			if(isAllRegularExpression(symbols)) {
-				return RegularExpressionCondition.notMatch(new Sequence<RegularExpression>(conver(symbols)));				
-			} else {
-				return ContextFreeCondition.notMatch(symbols);
-			}
-
-		default:
-			throw new IllegalStateException("Should not be here!");
+			case "char-class":
+				List<Range> targetRanges = buildRanges(symbol);
+				return RegularExpressionCondition.follow(new CharacterClass(targetRanges));
+	
+			case "lit":
+				return RegularExpressionCondition.follow(getKeyword(symbol));
+	
+			case "seq":
+				IList list = (IList) symbol.get("symbols");
+				List<Symbol> symbols = new ArrayList<>();
+				for (IValue v : list) {
+					symbols.add(getSymbol((IConstructor) v));
+				}
+				symbols.remove(1);
+				if(isAllRegularExpression(symbols)) {
+					return RegularExpressionCondition.follow(new Sequence<RegularExpression>(conver(symbols)));				
+				} else {
+					return ContextFreeCondition.follow(symbols);
+				}
+	
+			default:
+				throw new IllegalStateException("Should not be here!");
 		}
 	}
 
 	private Condition getNotPrecede(IConstructor symbol) {
 		switch (symbol.getName()) {
-
-		case "char-class":
-			List<Range> targetRanges = buildRanges(symbol);
-			return RegularExpressionCondition.notPrecede(new CharacterClass(targetRanges));
-
-		case "lit":
-			return RegularExpressionCondition.notPrecede(getKeyword(symbol));
-
-		default:
-			throw new IllegalStateException("Should not be here!");
+			
+			case "char-class":
+				List<Range> targetRanges = buildRanges(symbol);
+				return RegularExpressionCondition.notPrecede(new CharacterClass(targetRanges));
+	
+			case "lit":
+				return RegularExpressionCondition.notPrecede(getKeyword(symbol));
+	
+			default:
+				throw new IllegalStateException("Should not be here!");
+		}
+	}
+	
+	private Condition getPrecede(IConstructor symbol) {
+		switch (symbol.getName()) {
+		
+			case "char-class":
+				List<Range> targetRanges = buildRanges(symbol);
+				return RegularExpressionCondition.precede(new CharacterClass(targetRanges));
+	
+			case "lit":
+				return RegularExpressionCondition.precede(getKeyword(symbol));
+	
+			default:
+				throw new IllegalStateException("Should not be here!");
 		}
 	}
 
@@ -216,8 +271,10 @@ public class GrammarToJigll {
 		keywordsMap = new HashMap<>();
 		regularExpressionsMap = new HashMap<>();
 		
-		IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
-		createRegularExpressions(regularExpressions);
+		if(mode == TOKEN_BASED) {
+			IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
+			createRegularExpressions(regularExpressions);
+		}
 
 		for (IValue nonterminal : definitions) {
 
@@ -369,7 +426,11 @@ public class GrammarToJigll {
 		
 		for(IValue val : rhs) {
 			IConstructor constructor = (IConstructor) val;
-			RegularExpression regex = getRegularExpression(constructor);				
+			RegularExpression regex = getRegularExpression(constructor);	
+			
+			if(!(regex instanceof CharacterClass)) {
+				System.out.println("WTF?");
+			}
 			
 			if (regex != null) {
 				result.add(regex);
@@ -631,30 +692,38 @@ public class GrammarToJigll {
 
 		for (IValue condition : conditions) {
 			switch (((IConstructor) condition).getName()) {
+			
 				case "not-follow":
-					IConstructor follow = getSymbolCons((IConstructor) condition);
-					list.add(getFollowRestriction(follow));
+					IConstructor notFollow = getSymbolCons((IConstructor) condition);
+					list.add(getNotFollow(notFollow));
 					break;
 	
 				case "follow":
+					IConstructor follow = getSymbolCons((IConstructor) condition);
+					list.add(getFollow(follow));
 					break;
 	
 				case "delete":
+					// delete sets are expanded, so here we encounter them one by one
 					keywords.add(getKeyword(getSymbolCons((IConstructor) condition)));			
 					break;
 	
 				case "not-precede":
-					IConstructor precede = getSymbolCons((IConstructor) condition);
-					list.add(getNotPrecede(precede));
+					IConstructor notPrecede = getSymbolCons((IConstructor) condition);
+					list.add(getNotPrecede(notPrecede));
 					break;
 	
 				case "end-of-line":
 					list.add(new PositionalCondition(ConditionType.END_OF_LINE));
+					break;
 	
 				case "start-of-line":
 					list.add(new PositionalCondition(ConditionType.START_OF_LINE));
+					break;
 	
 				case "precede":
+					IConstructor precede = getSymbolCons((IConstructor) condition);
+					list.add(getPrecede(precede));
 					break;
 	
 				case "except":
