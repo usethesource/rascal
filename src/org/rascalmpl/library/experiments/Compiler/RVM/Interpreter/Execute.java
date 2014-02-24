@@ -50,7 +50,7 @@ public class Execute {
 		String moduleName = ((IString) program.get("name")).getValue();
 		
 		String main = isTestSuite ? "/<moduleName>_testsuite(list(value());)#0" : "/main(list(value());)#0";
-		String mu_main = isTestSuite ? "/TESTSUITE(1)" : "/MAIN(1)";
+		String mu_main = isTestSuite ? "/TESTSUITE(2)" : "/MAIN(2)";
 		
 		String module_init = moduleInit(moduleName);
 		String mu_module_init = muModuleInit(moduleName);
@@ -143,7 +143,7 @@ public class Execute {
 		}
 		
 		try {
-			long start = System.currentTimeMillis();
+			long start = System.nanoTime();
 			IValue result = null;
 			if(isTestSuite){
 				/*
@@ -168,11 +168,11 @@ public class Execute {
 				rvm.executeProgram(uid_module_init, arguments);
 				result = rvm.executeProgram(uid_main, arguments);
 			}
-			long now = System.currentTimeMillis();
+			long now = System.nanoTime();
 			MuPrimitive.exit();
 			RascalPrimitive.exit();
 			Opcode.exit();
-			return vf.tuple((IValue) result, vf.integer(now - start));
+			return vf.tuple((IValue) result, vf.integer((now - start)/1000000));
 			
 		} catch(Thrown e) {
 			e.printStackTrace(stdout);
@@ -266,6 +266,14 @@ public class Execute {
 
 			case "CALLDYN":
 				codeblock.CALLDYN( getIntField(instruction, "arity"));
+				break;
+				
+			case "APPLY":
+				codeblock.APPLY(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				break;
+				
+			case "APPLYDYN":
+				codeblock.APPLYDYN(getIntField(instruction, "arity"));
 				break;
 
 			case "LOADFUN":

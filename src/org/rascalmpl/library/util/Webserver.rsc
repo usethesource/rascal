@@ -11,6 +11,7 @@ public map[str extension, str mimeType] mimeTypes = (
         "java" : "text/x-java-source, text/java",
         "txt" : "text/plain",
         "asc" : "text/plain",
+        "ico" : "image/x-icon",
         "gif" : "image/gif",
         "jpg" : "image/jpeg",
         "jpeg" : "image/jpeg",
@@ -47,7 +48,8 @@ data Status
   | internalError()
   ; 
                                           
-data Response = response(Status status, str mimeType, map[str,str] header, str content);
+data Response = response(Status status, str mimeType, map[str,str] header, str content)
+              | fileResponse(loc file, str mimeType, map[str,str] header);
 
 data Method = get() | put() | post() | head() | delete();
 
@@ -55,6 +57,7 @@ alias Handler = Response (loc uri, Method method, map[str, str] headers, map[str
 
 Response response(str content) = response(ok(), "text/html", (), content);
 Response response(Status status, str explanation) = response(status, "text/plain", (), explanation);
+Response response(loc f) = fileResponse(f, mimeTypes[f.extension]?"text/plain", ());
 
 @javaClass{org.rascalmpl.library.util.Webserver}
 @reflect{to get access to the data types}
@@ -68,19 +71,22 @@ Handler fileserver(loc root) =
     if (/\.\./ := "<uri>")
       return response(forbidden(), ".. is not allowed");
       
+    return response(root + uri.path);
+  };
+
+Handler dispatchserver(Response (Method, str, map[str,str]) router) =
+  Response (loc uri, Method method, map[str, str] headers, map[str, str] ps,  map[str, str] uploads) {
     try {
-      content = readFile(root + uri.path);
-      return response(ok(), mimeTypes[uri.extension], (), content);
-    }
-    catch value x: {
-      return response(notFound(), "");
+      return router(method, uri.path, ps);
+    } catch value e : {
+      return response(notFound(), "<uri.path> failed, due to <e>");
     }
   };
-  
+   
 Handler functionserver(map[str, str (map[str,str] parameters)] functions) =
   Response (loc uri, Method method, map[str, str] headers, map[str, str] parameters,  map[str, str] uploads) {
     try {
-      return response(ok(), "text/html", (), functions[uri.path](parameters));
+      return response(ok(),  mimeTypes[uri.extension]?"text/html", (), functions[uri.path](parameters));
     }
     catch value x: {
       return response(notFound(), "<uri.path> not found");

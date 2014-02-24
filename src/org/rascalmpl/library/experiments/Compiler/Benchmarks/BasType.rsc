@@ -7,7 +7,7 @@ syntax B = "b";
 syntax Bs = B+;
 
 value main(list[value] args) {
-    for(i <- [1 .. 1000]){
+    for(i <- [1 .. 100]){
 		<[As] "aaaa", [Bs] "bbb" >;
 	}
     return 0;

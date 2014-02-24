@@ -119,11 +119,12 @@ public int fac(int N) {
 
 public void measure()
 {
+    int n = 20;
 	begin = realTime();
 	for(int i <- [1 .. 10000])
-	    fac(500);
+	    fac(n);
 	used = (realTime() - begin)/1000;
 		
-	println("10000 x fac(500) <used> seconds)");
+	println("10000 x fac(<n>) <used> seconds)");
 }
 

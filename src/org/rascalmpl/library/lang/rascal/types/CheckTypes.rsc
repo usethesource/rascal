@@ -482,13 +482,13 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		// Case 5: A sort or alias with this name already exists in the same module. We cannot perform this
 		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
 		// to distinguish them.
-		c = addScoreError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
+		c = addScopeError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
 	} else if (c.store[c.typeEnv[n]] is conflict && moduleId in { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
 		// Case 6: We have a conflict item which contains at least one item declared in the current module. If this is a datatype,
 		// we extend it, else this is an error just like in Case 5.
 		dtids = { itemid | itemid <- c.store[c.typeEnv[n]].items, c.store[itemid] is datatype, c.store[itemid].containedIn == moduleId };
 		if (size(dtids) == 0) {				
-			c = addScoreError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
+			c = addScopeError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
 		} else {
 			existingId = getOneFrom(dtids);
 			c = extendDataType(c, existingId);
@@ -579,13 +579,13 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 		// Case 5: A adt or alias with this name already exists in the same module. We cannot perform this
 		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
 		// to distinguish them.
-		c = addScoreError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in this module", l);
+		c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in this module", l);
 	} else if (c.store[c.typeEnv[n]] is conflict && moduleId in { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
 		// Case 6: We have a conflict item which contains at least one item declared in the current module. If this is a datatype,
 		// we extend it, else this is an error just like in Case 5.
 		dtids = { itemid | itemid <- c.store[c.typeEnv[n]].items, c.store[itemid] is sorttype, c.store[itemid].containedIn == moduleId };
 		if (size(dtids) == 0) {				
-			c = addScoreError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in this module", l);
+			c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in this module", l);
 		} else {
 			existingId = getOneFrom(dtids);
 			c = extendNonTerminal(c, existingId);
@@ -615,6 +615,7 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 		return itemId;
 	}
 
+println("addAlias: <n>");
 	// NOTE: A working assumption of this code is that the names in the main module are
 	// processed LAST. If this changes, the code for determining how to use unqualified
 	// names in case of conflicts will need to be reworked.
@@ -655,11 +656,11 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 		// Case 4: A type with this name already exists in the same module. We cannot perform this
 		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
 		// to distinguish them. NOTE: We don't even allow this if the repeated definition is also an equivalent alias.
-		c = addScoreError(c, "An adt or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
+		c = addScopeError(c, "An adt or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
 	} else if (c.store[c.typeEnv[n]] is conflict && moduleId in { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
 		// Case 5: We have a conflict item which contains at least one item declared in the current module. This is an error,
 		// even if it is another alias.
-		c = addScoreError(c, "An adt, alias, or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
+		c = addScopeError(c, "An adt, alias, or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
 	}
 	
 	return c;
@@ -781,7 +782,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
             c.fcvEnv[n] = c.nextLoc;
             c.nextLoc = c.nextLoc + 1;
 	    } else {
-	        throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
+	    	c = addScopeError(c, "Invalid addition: cannot add constructor <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or production name in the same scope.", l);
 	    }
 	}
 
@@ -817,7 +818,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 public Configuration addProduction(Configuration c, RName n, loc l, Production prod) {
 	assert ( (prod.def is label && prod.def.symbol has name) 
 				|| ( !(prod.def is label) && prod.def has name ) || prod.def is \start);
-     
+ 
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
@@ -870,7 +871,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
             c.fcvEnv[n] = c.nextLoc;
             c.nextLoc = c.nextLoc + 1;
 	    } else {
-	        throw "Invalid addition: cannot add production into scope, it clashes with non-constructor variable or function names";
+	    	c = addScopeError(c, "Invalid addition: cannot add production <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or constructor name in the same scope.", l);
 	    }
 	}
     

@@ -9,7 +9,7 @@ import experiments::Compiler::Compile;
 
 list[str] libs = [
 
-/*
+
 "Boolean", 			// OK
 "DateTime",			// OK
 "Exception", 		// OK
@@ -75,14 +75,16 @@ list[str] libs = [
 
 "util::LOC"			// #394
 						// error("Field top does not exist on type Tree",|std:///util/LOC.rsc|(943,5,<44,8>,<44,13>))
-						*/
+						
 /*
 "analysis::formalconcepts::FCA",
 "analysis::graphs::Graph",				
 "analysis::graphs::LabeledGraph",
 "analysis::linearprogramming::LinearProgramming",
+"analysis::m3::AST",
 "analysis::m3::Core",
 "analysis::m3::Registry",
+"analysis::m3::TypeSymbol",
 "analysis::statistics::Correlation",
 "analysis::statistics::Descriptive",
 "analysis::statistics::Frequency",
@@ -154,8 +156,6 @@ list[str] libs = [
 "demo::lang::MissGrant::ToSwitch"
 
 
-
-
 "demo::lang::Pico::Compile",
 "demo::lang::Pico::ControlFlow",
 "demo::lang::Pico::Eval",
@@ -163,7 +163,7 @@ list[str] libs = [
 "demo::lang::Pico::Uninit",
 "demo::lang::Pico::UseDef",
 "demo::lang::Pico::Visualize"
-*/
+
 
 "demo::lang::turing::l1::ast::Load",
 "demo::lang::turing::l1::ast::Turing",
@@ -182,8 +182,16 @@ list[str] libs = [
 "demo::vis::Logo",
 "demo::vis::VisADT"
 
+"experiments::Compiler::RVM::AST",
+"experiments::Compiler::muRascal::AST",
 
-
+"experiments::Compiler::muRascal2RVM::PeepHole",
+"experiments::Compiler::muRascal2RVM::RascalReifiedTypes",
+"experiments::Compiler::muRascal2RVM::ReifiedTypes",
+"experiments::Compiler::muRascal2RVM::StackSize",
+"experiments::Compiler::muRascal2RVM::ToplevelType",
+"experiments::Compiler::muRascal2RVM::mu2rvm"
+*/
 
 
 

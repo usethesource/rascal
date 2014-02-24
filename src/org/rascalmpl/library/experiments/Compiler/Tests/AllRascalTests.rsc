@@ -79,6 +79,7 @@ list[str] libraryTests = [
 "BooleanTests",			// OK
 "GraphTests",			// OK
 "IntegerTests",			// OK
+//"ListRelationsTests",
 "ListTests" ,			// OK
 "MapTests",				// OK
 "MathTests"	,			// OK

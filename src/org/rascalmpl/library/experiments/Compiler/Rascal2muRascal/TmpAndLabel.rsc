@@ -3,6 +3,7 @@ module experiments::Compiler::Rascal2muRascal::TmpAndLabel
 
 import Prelude;
 import lang::rascal::\syntax::Rascal;
+
 /*
  * Management of temporaries and labels.
  */
@@ -39,7 +40,7 @@ public str nextLabel(str prefix){
 	return "<prefix><tmpLabel>";
 }
 
-// Keep track of loop nested. This is used for
+// Keep track of loop nesting. This is used for
 // - append
 // - break/continue/fail
 
@@ -182,7 +183,7 @@ void clearCaseType() {
 	visits = Symbol::\void() + tail(visits);
 }
 
-int allCounter = 0;
+int allCounter = 0;								// *** state
 
 int getNextAll() {
     int counter = allCounter;
@@ -194,7 +195,7 @@ void resetAllCounter() {
     allCounter = 0;
 }
 
-int orCounter = 0;
+int orCounter = 0;								// *** state
 
 int getNextOr() {
     int counter = orCounter;

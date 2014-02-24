@@ -1,17 +1,19 @@
 package org.rascalmpl.library.lang.csv;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -19,12 +21,17 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
+import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
+import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class IO {
@@ -45,76 +52,53 @@ public class IO {
 		header = true;
 	}
 	
-	/**
-	 * @param options	map with options may contain:
-	 * 					- "header" (Possible values "true" or "false", as string!)
-	 * 					- "separator" (Possible value a single character string)
-	 * 					When map is null, the defaults are reset.
-	 */
-	private void setOptions(IMap options){
-		
-		IString separatorKey = values.string("separator");
-		IString headerKey = values.string("header");
-		
-		IString iseparator = null;
-		IString iheader = null;
-		
-		if(options != null){
-			iseparator = (IString)options.get(separatorKey);
-			iheader = (IString)options.get(headerKey);
-		}
-			
-		separator = (iseparator == null) ? ',' : iseparator.getValue().charAt(0);
-		header = (iheader == null) ? true : iheader.toString().equals("true");
+	private void setOptions(IBool header, IString separator) {
+		this.separator = separator == null ? ',' : separator.charAt(0);
+		this.header = header == null ? true : header.getValue();
 	}
 	
 	/*
 	 * Read a CSV file
 	 */
-	
-	
-	public IValue readCSV(IValue resultType, ISourceLocation loc, IEvaluatorContext ctx){
-		return readCSV(resultType, loc, null, ctx);
-	}
-
-	public IValue readCSV(ISourceLocation loc, IEvaluatorContext ctx){
-		return read(null, loc, null, ctx);
-	}
-
-	public IValue readCSV(ISourceLocation loc, IMap options, IEvaluatorContext ctx){
-		return read(null, loc, options, ctx);
+	public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx){
+		return read(null, loc, header, separator, ctx);
 	}
 	
-	public IValue readCSV(IValue result, ISourceLocation loc, IMap options, IEvaluatorContext ctx){
-		return read(tr.valueToType((IConstructor) result, new TypeStore()), loc, options, ctx);
+	public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx){
+		return read(result, loc, header, separator, ctx);
 	}
 
 
 	/*
 	 * Calculate the type of a CSV file, returned as the string 
 	 */
-	public IValue getCSVType(ISourceLocation loc, IEvaluatorContext ctx){
-		return computeType(loc, null, ctx);
-	}
-
-	public IValue getCSVType(ISourceLocation loc, IMap options, IEvaluatorContext ctx){
-		return computeType(loc, options, ctx);
+	public IValue getCSVType(ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx){
+		return computeType(loc, header, separator, ctx);
 	}
 	
 	//////
 	
-	private IValue read(Type resultType, ISourceLocation loc, IMap options, IEvaluatorContext ctx) {
-		setOptions(options);
+	private IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx) {
+		setOptions(header, separator);
+		Type resultType = types.valueType();
+		TypeStore store = new TypeStore();
+		if (resultTypeConstructor != null && resultTypeConstructor instanceof IConstructor) {
+			resultType = tr.valueToType((IConstructor)resultTypeConstructor, store);
+		}
+		Type actualType = resultType;
+		while (actualType.isAliased()) {
+			actualType = actualType.getAliased();
+		}
 		Reader reader = null;
 		try {
-			reader = ctx.getResolverRegistry().getCharacterReader(loc.getURI());
-			List<Record> records = loadRecords(reader);
-			if (resultType == null) {
+			reader = ctx.getResolverRegistry().getCharacterReader(loc.getURI(), "UTF8");
+			List<Record> records = loadRecords(reader, this.header, actualType, store, ctx);
+			if (actualType.isTop()) {
 				resultType = inferType(records, ctx);
 				ctx.getStdOut().println("readCSV inferred the relation type: " + resultType);
 				ctx.getStdOut().flush();
 			}
-			else if (header) {
+			else if (this.header) {
 				records.remove(0);
 			}
 			return buildCollection(resultType, records, ctx);
@@ -133,17 +117,38 @@ public class IO {
 		}
 	}
 
-	private IValue computeType(ISourceLocation loc, IMap options, IEvaluatorContext ctx) {
-		IValue csvResult = this.read(null, loc, options, ctx);
+	private IValue computeType(ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx) {
+		IValue csvResult = this.read(null, loc, header, separator, ctx);
 		return ((IConstructor) new TypeReifier(values).typeToValue(csvResult.getType(), ctx).getValue());
 	}
+	
+	private Type getHeaderType(Type actualType) {
+		assert actualType.isRelation() || actualType.isListRelation();
+		Type elem = actualType.getElementType();
+		Type[] tps = new Type[elem.getArity()];
+		for (int i = 0; i < tps.length; i++) {
+			tps[i] = types.stringType();
+		}
+		Type newElem;
+		if (elem.hasFieldNames())
+			newElem = types.tupleType(tps, elem.getFieldNames());
+		else
+			newElem = types.tupleType(tps);
+		return types.setType(newElem);
+	}
 
-	private List<Record> loadRecords(Reader stream) throws IOException {
+	private List<Record> loadRecords(Reader stream, boolean expectHeader, Type actualResultType, TypeStore store, IEvaluatorContext ctx) throws IOException {
 		FieldReader reader = new FieldReader(stream, separator);
 		List<Record> records = new ArrayList<Record>();
+		boolean first = expectHeader && !actualResultType.isTop();
 		while (reader.hasRecord()) {
-			// TODO: Record should not read from reader.
-			records.add(new Record(reader));
+			if (first) {
+				first = false;
+				records.add(new Record(reader, getHeaderType(actualResultType), store, ctx));
+			}
+			else {
+				records.add(new Record(reader, actualResultType, store, ctx));
+			}
 		}
 		return records;
 	}
@@ -225,52 +230,23 @@ public class IO {
 		Type eltType = type.getElementType();
 		for (int i = records.size() - 1; i >= 0; i--) {
 			Record record = records.get(i);
-			checkRecord(eltType, record, ctx);
 			writer.insert(record.getTuple(eltType));
 		}
 		return writer.done();
-	}
-
-	private void checkRecord(Type eltType, Record record, IEvaluatorContext ctx) {
-		// TODO: not all inconsistencies are detected yet
-		// probably because absent values get type void
-		// but are nevertheless initialized eventually
-		// to 0, false, or "".
-		if (record.getType().isSubtypeOf(eltType)) {
-			return;
-		}
-		if (eltType.isTuple()) {
-			int expectedArity = eltType.getArity();
-			int actualArity = record.getType().getArity();
-			if (expectedArity == actualArity) {
-				return;
-			}
-			throw RuntimeExceptionFactory.illegalTypeArgument(
-					"Arities of actual type and requested type are different (" + actualArity + " vs " + expectedArity + ")", 
-					ctx.getCurrentAST(), ctx.getStackTrace());
-		}
-		throw RuntimeExceptionFactory.illegalTypeArgument(
-				"Invalid tuple " + record + " for requested field " + eltType, 
-				ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
 	
 	/*
 	 * Write a CSV file.
 	 */
-	public void writeCSV(IValue rel, ISourceLocation loc, IMap options, IEvaluatorContext ctx){
-		setOptions(options);
-		write(rel, loc, ctx);
-	}
-	
-	public void writeCSV(IValue rel, ISourceLocation loc, IEvaluatorContext ctx){
-		setOptions(null);
+	public void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx){
+		setOptions(header, separator);
 		write(rel, loc, ctx);
 	}
 	
 	public void write(IValue rel, ISourceLocation loc, IEvaluatorContext ctx){
 
-		OutputStream out = null;
+		Writer out = null;
 		
 		Type paramType = ctx.getCurrentEnvt().getTypeBindings().get(types.parameterType("T"));
 		if(!paramType.isRelation() && !paramType.isListRelation()){
@@ -280,7 +256,8 @@ public class IO {
 		
 		try{
 			boolean isListRel = rel instanceof IList;
-			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
+			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(loc.getURI(), false), "UTF8", false);
+			out = new BufferedWriter(out); // performance
 			ISet irel = null;
 			IList lrel = null;
 			if (isListRel) {
@@ -290,45 +267,46 @@ public class IO {
 				irel = (ISet) rel;
 			}
 			
+			String separatorAsString = new String(Character.toChars(separator));
+
 			int nfields = isListRel ? lrel.asRelation().arity() : irel.asRelation().arity();
 			if(header){
 				for(int i = 0; i < nfields; i++){
 					if(i > 0)
-						out.write(separator);
+						out.write(separatorAsString);
 					String label = paramType.getFieldName(i);
 					if(label == null || label.isEmpty())
 						label = "field" + i;
-					writeString(out, label);
+					out.write(label);
 				}
 				out.write('\n');
 			}
-			String separatorAsString = new String(Character.toChars(separator));
 			for(IValue v : (isListRel ? lrel : irel)){
 				ITuple tup = (ITuple) v;
-				int sep = 0;
+				boolean firstTime = true;
 				for(IValue w : tup){
-					if(sep == 0)
-						sep = separator;
+					if(firstTime)
+						firstTime = false;
 					else
-						out.write(sep);
+						out.write(separatorAsString);
+
+					String s;
 					if(w.getType().isString()){
-						String s = ((IString)w).getValue();
-						
-						if(s.contains(separatorAsString) || s.contains("\n") || s.contains("\r") || s.contains("\"")){
-							s = s.replaceAll("\"", "\"\"");
-							out.write('"');
-							writeString(out,s);
-							out.write('"');
-						} else
-							writeString(out, s);
-					} else {
-						writeString(out, w.toString());
+						s = ((IString)w).getValue();
 					}
+					else {
+						s = w.toString();
+					}
+					if(s.contains(separatorAsString) || s.contains("\n") || s.contains("\r") || s.contains("\"")){
+						s = s.replaceAll("\"", "\"\"");
+						out.write('"');
+						out.write(s);
+						out.write('"');
+					} else
+						out.write(s);
 				}
 				out.write('\n');
 			}
-			out.flush();
-			out.close();
 		}
 		catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -357,18 +335,6 @@ public class IO {
 			return "field" + pos;
 		else 
 		  return "\\" + label;
-	}
-	
-	/**
-	 * Write a string to the output stream.
-	 * @param out	The output stream.
-	 * @param txt	The string to be written.
-	 * @throws IOException
-	 */
-	private void writeString(OutputStream out, String txt) throws IOException{
-		for(char c : txt.toCharArray()){
-			out.write((byte)c);
-		}
 	}
 }
 
@@ -466,38 +432,98 @@ class Record implements Iterable<String> {
 	/**
 	 * Create a record by reader all its fields using reader
 	 * @param reader to be used.
+	 * @param store the type store to read the types from
+	 * @param resultType the expected field type
+	 * @param actualResultType 
 	 * @throws IOException
 	 */
-	Record(FieldReader reader) throws IOException{
-		
+	Record(FieldReader reader, Type actualResultType, TypeStore store, IEvaluatorContext ctx) throws IOException{
+		boolean infer = actualResultType.isTop();
+		Type tupleType = null;
+		int expectedFields = -1;
+		if (!infer) {
+			tupleType = actualResultType.getElementType();
+			expectedFields = tupleType.getArity();
+			fieldTypes = null;
+		}
+		int currentField = 0;
+		StandardTextReader pdbReader = new StandardTextReader();
 		while(reader.hasField()) {
-			String field = reader.getField();
-			//System.err.print("field = " + field);
-			
-			if(field.isEmpty()){
-				rfields.add(null);
-				fieldTypes.add(types.voidType());
-				//System.err.println(" void");
-			} else
-			if(field.matches("^[+-]?[0-9]+$")){
-				rfields.add(values.integer(field));
-				fieldTypes.add(types.integerType());
-				//System.err.println(" int");
-			} else
-			if(field.matches("[+-]?[0-9]+\\.[0-9]*")){
-				rfields.add(values.real(field));
-				fieldTypes.add(types.realType());
-				//System.err.println(" real");
-			} else
-			if(field.equals("true") || field.equals("false")){
-				rfields.add(values.bool(field.equals("true")));
-				fieldTypes.add(types.boolType());
-				//System.err.println(" bool");
-			} else {
-				rfields.add(values.string(field));
-				fieldTypes.add(types.stringType());
-				//System.err.println(" str");
+			if (!infer && currentField == expectedFields) {
+				throw RuntimeExceptionFactory.illegalTypeArgument(
+					"Arities of actual type and requested type are different (expected: " + expectedFields + ")", 
+					ctx.getCurrentAST(), ctx.getStackTrace());
 			}
+			String field = reader.getField();
+			if (field.isEmpty()) {
+				rfields.add(null);
+				if (infer) {
+					fieldTypes.add(types.valueType());
+				}
+			}
+			else {
+				Type currentType = infer ? actualResultType : tupleType.getFieldType(currentField);
+				IValue val = null;
+				if (currentType.isString()) {
+					val = values.string(field);
+				}
+				else if (currentType.isInteger()) {
+					try {
+						val = values.integer(field);
+					}
+					catch (NumberFormatException nfe) {
+						throw RuntimeExceptionFactory.illegalTypeArgument(
+							"Invalid int \"" + field + "\" for requested field " + currentType,
+							ctx.getCurrentAST(), ctx.getStackTrace());
+					}
+				}
+				else if (currentType.isReal()) {
+					try {
+						val = values.real(field);
+					}
+					catch (NumberFormatException nfe) {
+						throw RuntimeExceptionFactory.illegalTypeArgument(
+							"Invalid int \"" + field + "\" for requested field " + currentType,
+							ctx.getCurrentAST(), ctx.getStackTrace());
+					}
+				}
+				else {
+					// use pdb reader to deserialize the other types rest
+					StringReader in = new StringReader(field);
+					try {
+						val = pdbReader.read(values, store, currentType, in);
+						if (infer && (val.getType().isString() || val.getType().isNode())) {
+							// if a field is """xx""" this becomes "x" , which is still a valid pdb string, so we have to add the "" around it again
+							// also, we won't infer node types since they are amb with strings
+							val = values.string(field);
+						}
+					}
+					catch (UnexpectedTypeException ute) {
+						throw RuntimeExceptionFactory.illegalTypeArgument(
+							"Invalid field \"" + field + "\" (" + ute.getExpected() + ") for requested field " + ute.getGiven(),
+							ctx.getCurrentAST(), ctx.getStackTrace());
+					}
+					catch (FactParseError fpe) {
+						if (infer) {
+							// if nothing parses, it is a string
+							val = values.string(field);
+						}
+						else {
+							throw RuntimeExceptionFactory.illegalTypeArgument(
+								"Invalid field \"" + field + "\" is not a " + currentType,
+								ctx.getCurrentAST(), ctx.getStackTrace());
+						}
+					}
+					finally {
+						in.close();
+					}
+				}
+				rfields.add(val);
+				if (infer) {
+					fieldTypes.add(val.getType());
+				}
+			}
+			currentField++;
 		}
 	}
 	
@@ -538,20 +564,40 @@ class Record implements Iterable<String> {
 		IValue  fieldValues[] = new IValue[rfields.size()];
 		for(int i = 0; i < rfields.size(); i++){
 			if(rfields.get(i) == null){
-				if(fieldTypes.getFieldType(i).isBool())
-					rfields.set(i, values.bool(false));
-				else if(fieldTypes.getFieldType(i).isInteger())
-					rfields.set(i, values.integer(0));
-				else if(fieldTypes.getFieldType(i).isReal())
-					rfields.set(i, values.real(0));
-				else
-					rfields.set(i, values.string(""));
+				// lets fill in a default value in case the csv cell was empty
+				rfields.set(i, defaultValue(fieldTypes.getFieldType(i)));
 			}
 			if(fieldTypes.getFieldType(i).isString() && !rfields.get(i).getType().isString())
 				rfields.set(i, values.string(rfields.get(i).toString()));
 			fieldValues[i] = rfields.get(i);
 		}
 		return values.tuple(fieldValues);
+	}
+
+
+
+	private IValue defaultValue(Type targetType) {
+		if (targetType.isBool())
+			return values.bool(false);
+		if (targetType.isDateTime())
+			return values.datetime(-1);
+		if (targetType.isInteger())
+			return values.integer(0);
+		if (targetType.isReal())
+			return values.real(0);
+		if (targetType.isString())
+			return values.string("");
+		if (targetType.isList())
+			return values.list(targetType.getElementType());
+		if (targetType.isSet())
+			return values.set(targetType.getElementType());
+		if (targetType.isMap())
+			return values.map(targetType.getKeyType(), targetType.getValueType());
+		if (targetType.isNumber())
+			return values.integer(0);
+		if (targetType.isSourceLocation())
+			return values.sourceLocation(URIUtil.invalidURI());
+		throw RuntimeExceptionFactory.illegalTypeArgument("Cannot create a default value for an empty field of type " + targetType, null, null);
 	}
 
 

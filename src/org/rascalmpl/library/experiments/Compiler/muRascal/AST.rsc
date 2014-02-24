@@ -78,8 +78,9 @@ public data MuExp =
              
           | muTypeCon(Symbol tp)								// Type constant
           
-          // Call/return    		
+          // Call/Apply/return    		
           | muCall(MuExp fun, list[MuExp] args)                 // Call a *muRascal function
+          | muApply(MuExp fun, list[MuExp] args)                // Partial *muRascal function application
           
           | muOCall(MuExp fun, list[MuExp] args)                // Call a declared *Rascal function
 
@@ -167,6 +168,12 @@ public data MuExp =
           // Exception handling try/catch
           
           | muTry(MuExp exp, MuCatch \catch, MuExp \finally)
+          
+          // Delimited continuations (experimental)
+          
+          | muCont()
+          | muReset(MuExp fun)
+          | muShift(MuExp exp)
           ;
           
 public MuExp muMulti(muOne(MuExp exp)) = muOne(exp);

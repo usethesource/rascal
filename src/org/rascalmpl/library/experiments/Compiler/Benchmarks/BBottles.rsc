@@ -13,7 +13,7 @@ public str sing() =
   <}>";
   
 value main(list[value] args) {
-  for(int i <- [0 .. 1000]){
+  for(int i <- [0 .. 200]){
 	sing();
   }
   return 0;
