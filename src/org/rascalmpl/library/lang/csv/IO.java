@@ -1,10 +1,12 @@
 package org.rascalmpl.library.lang.csv;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -235,7 +237,7 @@ public class IO {
 	
 	public void write(IValue rel, ISourceLocation loc, IEvaluatorContext ctx){
 
-		OutputStreamWriter out = null;
+		Writer out = null;
 		
 		Type paramType = ctx.getCurrentEnvt().getTypeBindings().get(types.parameterType("T"));
 		if(!paramType.isRelation() && !paramType.isListRelation()){
@@ -246,6 +248,7 @@ public class IO {
 		try{
 			boolean isListRel = rel instanceof IList;
 			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(loc.getURI(), false), "UTF8", false);
+			out = new BufferedWriter(out); // performance
 			ISet irel = null;
 			IList lrel = null;
 			if (isListRel) {
@@ -255,11 +258,13 @@ public class IO {
 				irel = (ISet) rel;
 			}
 			
+			String separatorAsString = new String(Character.toChars(separator));
+
 			int nfields = isListRel ? lrel.asRelation().arity() : irel.asRelation().arity();
 			if(header){
 				for(int i = 0; i < nfields; i++){
 					if(i > 0)
-						out.write(separator);
+						out.write(separatorAsString);
 					String label = paramType.getFieldName(i);
 					if(label == null || label.isEmpty())
 						label = "field" + i;
@@ -267,18 +272,16 @@ public class IO {
 				}
 				out.write('\n');
 			}
-			String separatorAsString = new String(Character.toChars(separator));
 			for(IValue v : (isListRel ? lrel : irel)){
 				ITuple tup = (ITuple) v;
-				int sep = 0;
+				boolean firstTime = true;
 				for(IValue w : tup){
-					if(sep == 0)
-						sep = separator;
+					if(firstTime)
+						firstTime = false;
 					else
-						out.write(sep);
+						out.write(separatorAsString);
 					if(w.getType().isString()){
 						String s = ((IString)w).getValue();
-						
 						if(s.contains(separatorAsString) || s.contains("\n") || s.contains("\r") || s.contains("\"")){
 							s = s.replaceAll("\"", "\"\"");
 							out.write('"');
