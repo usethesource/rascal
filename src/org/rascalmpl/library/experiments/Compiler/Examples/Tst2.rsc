@@ -1,11 +1,25 @@
 module experiments::Compiler::Examples::Tst2
 
-import experiments::Compiler::Examples::Tst1;
+import Message;
+import analysis::m3::TypeSymbol;
 
-int m = 13;
+data Declaration;
+anno loc             Declaration@src;
+anno loc             Declaration@decl;
+anno TypeSymbol      Declaration@typ;
+anno list[Modifier]  Declaration@modifiers;
+anno list[Message]   Declaration@messages;
 
-test bool testM() = m == 13;
+data Statement;
+anno loc Statement@src;
 
-value main(list[value] args){
-   return n + m;
-}   
+data Expression;
+anno loc Expression@src;
+anno loc Expression@decl;
+anno TypeSymbol Expression@typ;
+
+data Type;
+anno loc Type@name;              
+anno TypeSymbol Type@typ;
+
+data Modifier;
