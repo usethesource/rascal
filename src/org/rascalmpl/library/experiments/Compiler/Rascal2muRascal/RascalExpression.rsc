@@ -1060,7 +1060,6 @@ MuExp translate((Name) `<Name name>`) = mkVar("<name>", name@\loc);
 MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`){
     ot = getOuterType(exp);
     op = "<ot>_subscript";
-    println("subscript: ot = <ot>, <getType(exp@\loc)>");
     if(ot in {"sort", "iter", "iter-star", "iter-seps", "iter-star-seps"}){
        op = "nonterminal_subscript_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     } else
