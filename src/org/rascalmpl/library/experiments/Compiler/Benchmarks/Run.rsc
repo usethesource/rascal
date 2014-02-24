@@ -61,7 +61,7 @@ loc base = |rascal:///experiments/Compiler/Benchmarks/|;
 
 alias Measurement = tuple[str name, list[num] compiledExec, list[num] interpretedExec];
 
-int nsamples = 1;  // Number of samples per data point.
+int nsamples = 5;  // Number of samples per data point.
 
 map[str,Measurement] measurements = ();
 
