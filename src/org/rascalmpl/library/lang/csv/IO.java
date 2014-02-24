@@ -280,18 +280,21 @@ public class IO {
 						firstTime = false;
 					else
 						out.write(separatorAsString);
+
+					String s;
 					if(w.getType().isString()){
-						String s = ((IString)w).getValue();
-						if(s.contains(separatorAsString) || s.contains("\n") || s.contains("\r") || s.contains("\"")){
-							s = s.replaceAll("\"", "\"\"");
-							out.write('"');
-							out.write(s);
-							out.write('"');
-						} else
-							out.write(s);
-					} else {
-						out.write(w.toString());
+						s = ((IString)w).getValue();
 					}
+					else {
+						s = w.toString();
+					}
+					if(s.contains(separatorAsString) || s.contains("\n") || s.contains("\r") || s.contains("\"")){
+						s = s.replaceAll("\"", "\"\"");
+						out.write('"');
+						out.write(s);
+						out.write('"');
+					} else
+						out.write(s);
 				}
 				out.write('\n');
 			}
