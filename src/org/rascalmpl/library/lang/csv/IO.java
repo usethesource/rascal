@@ -2,6 +2,7 @@ package org.rascalmpl.library.lang.csv;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class IO {
@@ -75,7 +77,7 @@ public class IO {
 		setOptions(header, separator);
 		Reader reader = null;
 		try {
-			reader = ctx.getResolverRegistry().getCharacterReader(loc.getURI());
+			reader = ctx.getResolverRegistry().getCharacterReader(loc.getURI(), "UTF8");
 			List<Record> records = loadRecords(reader);
 			if (resultType == null) {
 				resultType = inferType(records, ctx);
@@ -233,7 +235,7 @@ public class IO {
 	
 	public void write(IValue rel, ISourceLocation loc, IEvaluatorContext ctx){
 
-		OutputStream out = null;
+		OutputStreamWriter out = null;
 		
 		Type paramType = ctx.getCurrentEnvt().getTypeBindings().get(types.parameterType("T"));
 		if(!paramType.isRelation() && !paramType.isListRelation()){
@@ -243,7 +245,7 @@ public class IO {
 		
 		try{
 			boolean isListRel = rel instanceof IList;
-			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
+			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(loc.getURI(), false), "UTF8", false);
 			ISet irel = null;
 			IList lrel = null;
 			if (isListRel) {
@@ -261,7 +263,7 @@ public class IO {
 					String label = paramType.getFieldName(i);
 					if(label == null || label.isEmpty())
 						label = "field" + i;
-					writeString(out, label);
+					out.write(label);
 				}
 				out.write('\n');
 			}
@@ -280,18 +282,16 @@ public class IO {
 						if(s.contains(separatorAsString) || s.contains("\n") || s.contains("\r") || s.contains("\"")){
 							s = s.replaceAll("\"", "\"\"");
 							out.write('"');
-							writeString(out,s);
+							out.write(s);
 							out.write('"');
 						} else
-							writeString(out, s);
+							out.write(s);
 					} else {
-						writeString(out, w.toString());
+						out.write(w.toString());
 					}
 				}
 				out.write('\n');
 			}
-			out.flush();
-			out.close();
 		}
 		catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -320,18 +320,6 @@ public class IO {
 			return "field" + pos;
 		else 
 		  return "\\" + label;
-	}
-	
-	/**
-	 * Write a string to the output stream.
-	 * @param out	The output stream.
-	 * @param txt	The string to be written.
-	 * @throws IOException
-	 */
-	private void writeString(OutputStream out, String txt) throws IOException{
-		for(char c : txt.toCharArray()){
-			out.write((byte)c);
-		}
 	}
 }
 
