@@ -104,7 +104,7 @@ public value readCSV(loc location, map[str,str] options) {
 
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 @reflect{Uses URI Resolver Registry}
-public java &T readCSV(type[&T] result, loc location, bool header = true, str separator = ",");
+public java &T readCSV(type[&T] result, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
 @deprecated{use the readCSV with keyword parameters}
 public &T readCSV(type[&T] result, loc location, map[str,str] options) {
@@ -113,7 +113,7 @@ public &T readCSV(type[&T] result, loc location, map[str,str] options) {
 
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 @reflect{Uses URI Resolver Registry}
-public java type[value] getCSVType(loc location, bool header = true, str separator = ",");
+public java type[value] getCSVType(loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
 @deprecated{use the getCSVType with keyword parameters}
 public type[value] getCSVType(loc location, map[str,str] options) {
@@ -154,7 +154,7 @@ will produce the following files:
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 @reflect{Uses type parameter.}
-public java void writeCSV(&T relation, loc location, bool header = true, str separator = ",");
+public java void writeCSV(&T relation, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
 @deprecated{use writeCSV with optional parameters}
 public void writeCSV(&T relation, loc location, map[str,str] options) {
