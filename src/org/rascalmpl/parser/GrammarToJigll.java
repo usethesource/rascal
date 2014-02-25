@@ -93,7 +93,7 @@ public class GrammarToJigll {
 			return null;
 		}
 
-		input = Input.fromString(str.getValue());
+		input = Input.fromString(str.getValue(), loc.getURI());
 		parser = ParserFactory.newParser(grammar, input);
 
 		log.info("Iguana started.");
@@ -746,7 +746,7 @@ public class GrammarToJigll {
 
 	private boolean isEBNF(IConstructor value) {
 		return isEBNFList(value) || SymbolAdapter.isAlt(value)
-				|| SymbolAdapter.isSeq(value) || SymbolAdapter.isOpt(value);
+				|| SymbolAdapter.isSeq(value) || SymbolAdapter.isOpt(value) || SymbolAdapter.isEmpty(value);
 	}
 
 	private boolean isEBNFList(IConstructor value) {

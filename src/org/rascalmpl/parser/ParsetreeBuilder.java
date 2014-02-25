@@ -1,10 +1,9 @@
 package org.rascalmpl.parser;
 
-import java.net.URI;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.jgll.traversal.NodeListener;
 import org.jgll.traversal.PositionInfo;
@@ -24,7 +23,6 @@ public class ParsetreeBuilder implements NodeListener<IConstructor,IConstructor>
     // do nothing
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public Result<IConstructor> endNode(IConstructor type, Iterable<IConstructor> children, PositionInfo node) {
 	
@@ -38,7 +36,15 @@ public class ParsetreeBuilder implements NodeListener<IConstructor,IConstructor>
 	
     IListWriter args = vf.listWriter();
     args.appendAll(children);
-    return (Result<IConstructor>) Result.accept(vf.constructor(Factory.Tree_Appl, type, args.done()).asAnnotatable().setAnnotation("loc", vf.sourceLocation(URI.create("dunno:///"), 0, 1, 1, 1, 1, 1)));
+    ISourceLocation sourceLocation = vf.sourceLocation(vf.sourceLocation(node.getURI()), 
+    		 										   node.getOffset(), 
+    		 										   node.getLength(), 
+    		 										   node.getLineNumber(), 
+    		 										   node.getEndLineNumber(), 
+    		 										   node.getColumn() - 1, 
+    		 										   node.getEndColumnNumber() - 1);
+	IConstructor tree = vf.constructor(Factory.Tree_Appl, type, args.done()).asAnnotatable().setAnnotation("loc", sourceLocation);
+	return (Result<IConstructor>) Result.accept(tree);
   }
 
   @Override
