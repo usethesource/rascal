@@ -64,25 +64,25 @@ public class IO {
 	/*
 	 * Read a CSV file
 	 */
-	public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx){
-		return read(null, loc, header, separator, ctx);
+	public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
+		return read(null, loc, header, separator, encoding, ctx);
 	}
 	
-	public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx){
-		return read(result, loc, header, separator, ctx);
+	public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
+		return read(result, loc, header, separator, encoding, ctx);
 	}
 
 
 	/*
 	 * Calculate the type of a CSV file, returned as the string 
 	 */
-	public IValue getCSVType(ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx){
-		return computeType(loc, header, separator, ctx);
+	public IValue getCSVType(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
+		return computeType(loc, header, separator, encoding, ctx);
 	}
 	
 	//////
 	
-	private IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx) {
+	private IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx) {
 		setOptions(header, separator);
 		Type resultType = types.valueType();
 		TypeStore store = new TypeStore();
@@ -95,7 +95,7 @@ public class IO {
 		}
 		Reader reader = null;
 		try {
-			reader = ctx.getResolverRegistry().getCharacterReader(loc.getURI(), "UTF8");
+			reader = ctx.getResolverRegistry().getCharacterReader(loc.getURI(), encoding.getValue());
 			if (actualType.isTop()) {
 				return readInferAndBuild(reader, store, ctx);
 			}
@@ -118,8 +118,8 @@ public class IO {
 	}
 
 
-	private IValue computeType(ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx) {
-		IValue csvResult = this.read(null, loc, header, separator, ctx);
+	private IValue computeType(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx) {
+		IValue csvResult = this.read(null, loc, header, separator, encoding, ctx);
 		return ((IConstructor) new TypeReifier(values).typeToValue(csvResult.getType(), ctx).getValue());
 	}
 	
@@ -393,7 +393,7 @@ public class IO {
 	/*
 	 * Write a CSV file.
 	 */
-	public void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx){
+	public void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
 		String sep = separator != null ? separator.getValue() : ",";
 		Boolean head = header != null ? header.getValue() : true;
 		Writer out = null;
@@ -406,7 +406,7 @@ public class IO {
 		
 		try{
 			boolean isListRel = rel instanceof IList;
-			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(loc.getURI(), false), "UTF8", false);
+			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(loc.getURI(), false), encoding.getValue(), false);
 			out = new BufferedWriter(out); // performance
 			ISet irel = null;
 			IList lrel = null;
