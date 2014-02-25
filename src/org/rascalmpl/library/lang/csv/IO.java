@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -393,12 +394,8 @@ public class IO {
 	 * Write a CSV file.
 	 */
 	public void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IEvaluatorContext ctx){
-		setOptions(header, separator);
-		write(rel, loc, ctx);
-	}
-	
-	public void write(IValue rel, ISourceLocation loc, IEvaluatorContext ctx){
-
+		String sep = separator != null ? separator.getValue() : ",";
+		Boolean head = header != null ? header.getValue() : true;
 		Writer out = null;
 		
 		Type paramType = ctx.getCurrentEnvt().getTypeBindings().get(types.parameterType("T"));
@@ -420,13 +417,11 @@ public class IO {
 				irel = (ISet) rel;
 			}
 			
-			String separatorAsString = new String(Character.toChars(separator));
-
 			int nfields = isListRel ? lrel.asRelation().arity() : irel.asRelation().arity();
-			if(header){
+			if(head){
 				for(int i = 0; i < nfields; i++){
 					if(i > 0)
-						out.write(separatorAsString);
+						out.write(sep);
 					String label = paramType.getFieldName(i);
 					if(label == null || label.isEmpty())
 						label = "field" + i;
@@ -434,6 +429,9 @@ public class IO {
 				}
 				out.write('\n');
 			}
+			
+			Pattern escapingNeeded = Pattern.compile("[\\n\\r\"\\x" + Integer.toHexString(separator.charAt(0)) + "]");
+			
 			for(IValue v : (isListRel ? lrel : irel)){
 				ITuple tup = (ITuple) v;
 				boolean firstTime = true;
@@ -441,7 +439,7 @@ public class IO {
 					if(firstTime)
 						firstTime = false;
 					else
-						out.write(separatorAsString);
+						out.write(sep);
 
 					String s;
 					if(w.getType().isString()){
@@ -450,7 +448,7 @@ public class IO {
 					else {
 						s = w.toString();
 					}
-					if(s.contains(separatorAsString) || s.contains("\n") || s.contains("\r") || s.contains("\"")){
+					if(escapingNeeded.matcher(s).find()){
 						s = s.replaceAll("\"", "\"\"");
 						out.write('"');
 						out.write(s);
