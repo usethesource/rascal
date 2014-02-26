@@ -761,7 +761,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    MuExp receiver = translate(expression);
    list[MuExp] args = [ translate(a) | a <- arguments ];
    if(getOuterType(expression) == "str") {
-       return muCallPrim("node_create", [receiver, *args] + (size_keywordArguments(keywordArguments) > 0 ? [kwargs] : []));
+       return muCallPrim("node_create", [receiver, *args] + (size_keywordArguments(keywordArguments) > 0 ? [kwargs] : [/* muCon(()) */]));
    }
    
    if(getOuterType(expression) == "loc"){
