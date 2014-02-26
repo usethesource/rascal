@@ -1858,7 +1858,6 @@ public enum RascalPrimitive {
 			assert arity >= 2;
 			ISet rel = (ISet) stack[sp - arity];
 			int indexArity = arity - 1;
-//			assert indexArity <= rel.getElementType().getArity();
 			int[] fields = new int[arity - 1];
 			for(int i = 1; i < arity; i++){
 				fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
@@ -1882,7 +1881,6 @@ public enum RascalPrimitive {
 			assert arity >= 2;
 			IList lrel = (IList) stack[sp - arity];
 			int indexArity = arity - 1;
-//			assert indexArity <= lrel.getElementType().getArity();
 			int[] fields = new int[arity - 1];
 			for(int i = 1; i < arity; i++){
 				fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
