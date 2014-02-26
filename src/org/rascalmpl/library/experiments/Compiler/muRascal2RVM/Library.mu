@@ -1579,10 +1579,3 @@ function VISIT_MAP_VOID[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged,
 	};
 	return;
 }
-
-
-
-
-
-
-
