@@ -1134,18 +1134,14 @@ public class RVM {
 					rval = Rascal_TRUE; // In fact, yield has to always return TRUE
 					if(op == Opcode.OP_YIELD1) {
 						arity = CodeBlock.fetchArg1(instruction);
-						int[] refs = coroutine.start.function.refs; // Takes the reference parameter positions of the top active coroutine instance 
-						
-						if(cf != coroutine.start && cf.function.refs.length != refs.length) {
-							throw new RuntimeException("The 'yield' from within a nested call has to take the same number of arguments as the number of the caller's reference parameters: " + cf.function.refs.length + "; " + refs.length);
-						}
+						int[] refs = cf.function.refs; 
 						
 						if(arity != refs.length) {
 							throw new RuntimeException("The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length);
 						}
 						
 						for(int i = 0; i < arity; i++) {
-							ref = (Reference) coroutine.start.stack[refs[arity - 1 - i]]; // Takes the reference parameters of the top active coroutine instance
+							ref = (Reference) stack[refs[arity - 1 - i]]; // Takes the reference parameters of the top active coroutine instance
 							ref.stack[ref.pos] = stack[--sp];
 						}
 					}
@@ -1153,8 +1149,9 @@ public class RVM {
 					cf.sp = sp;
 					coroutine.suspend(cf);
 					cf = prev;
-					if(op == Opcode.OP_YIELD1 && cf == null)
+					if(op == Opcode.OP_YIELD1 && cf == null) {
 						return rval;
+					}
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
