@@ -156,7 +156,7 @@ public class JavaMethod extends NamedFunction {
 	
 	protected Object[] addKeywordActuals(Object[] oldActuals, Type formals, Map<String, IValue> keyArgValues){
 		if(keywordParameterDefaults == null){
-			if(keyArgValues != null){
+			if(!keyArgValues.isEmpty()){
 				throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
 			}
 			return oldActuals;
