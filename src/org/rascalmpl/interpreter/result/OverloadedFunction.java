@@ -29,6 +29,7 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -519,4 +520,14 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 				"Cannot be viewed as annotatable.", getType());
 	}
 	
+	 @Override
+   public boolean mayHaveKeywordParameters() {
+     return false;
+   }
+   
+   @Override
+   public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+     throw new IllegalOperationException(
+         "Cannot be viewed as with keyword parameters", getType());
+   }
 }
