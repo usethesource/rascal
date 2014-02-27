@@ -63,10 +63,9 @@ public class ConstructorFunction extends NamedFunction {
 		if (constructorType == Factory.Tree_Appl) {
 			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals, keyArgValues);
 		}
-		Type[] allArgumentTypes = addKeywordTypes(actualTypes, keyArgValues);
 		
 		Map<Type,Type> bindings = new HashMap<Type,Type>();
-		if (!constructorType.getFieldTypes().match(TF.tupleType(allArgumentTypes), bindings)) {
+		if (!constructorType.getFieldTypes().match(TF.tupleType(actualTypes), bindings)) {
 			throw new MatchFailed();
 		}
 		Type formalTypeParameters = constructorType.getAbstractDataType().getTypeParameters();
@@ -81,105 +80,7 @@ public class ConstructorFunction extends NamedFunction {
 			instantiated = constructorType.instantiate(bindings);
 		}
 
-		return makeResult(instantiated, ctx.getValueFactory().constructor(constructorType, addKeywordArgs(actuals, keyArgValues)), ctx);
-	}
-	
-	protected Type[] addKeywordTypes(Type[] actualTypes, Map<String, IValue> keyArgValues){
-		if(constructorType.getArity() == actualTypes.length && keywordParameterDefaults == null)
-			return actualTypes;
-		
-		if(constructorType.getPositionalArity() < actualTypes.length){
-			throw new ArgumentsMismatch("Too many arguments for constructor " + getName(), ctx.getCurrentAST());
-		}
-		if(constructorType.getPositionalArity() > actualTypes.length){
-			throw new ArgumentsMismatch("Too few arguments for constructor " + getName(), ctx.getCurrentAST());
-		}
-		
-		if(!constructorType.hasKeywordArguments() && keyArgValues != null)
-			throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
-
-		Type[] extendedActualTypes = new Type[constructorType.getArity()];
-	
-		for(int i = 0; i < actualTypes.length; i++){
-			extendedActualTypes[i] = actualTypes[i];
-		}
-		
-		int k = actualTypes.length;
-		
-		if(keyArgValues == null){
-			
-			for(KeywordParameter kw : keywordParameterDefaults){
-					extendedActualTypes[k++] = kw.getType();
-			}
-			return extendedActualTypes;
-		}
-	
-		int nBoundKeywordArgs = 0;
-		for(KeywordParameter kw : keywordParameterDefaults){
-			String kwparam = kw.getName();
-			if(keyArgValues.containsKey(kwparam)){
-				nBoundKeywordArgs++;
-				IValue r = keyArgValues.get(kwparam);
-				extendedActualTypes[k++] = r.getType();
-			} else {
-				extendedActualTypes[k++] = kw.getType();
-			}
-		}
-		if(nBoundKeywordArgs != keyArgValues.size()){
-			main:
-			for(String kwparam : keyArgValues.keySet())
-				for(KeywordParameter kw : keywordParameterDefaults){
-					if(kwparam.equals(kw.getName()))
-							continue main;
-					throw new UndeclaredKeywordParameter(getName(), kwparam, ctx.getCurrentAST());
-				}
-		}
-		return extendedActualTypes;
-	}
-	
-	protected IValue[] addKeywordArgs(IValue[] actuals, Map<String, IValue> keyArgValues){
-		if(constructorType.getArity() == actuals.length)
-			return actuals;
-		IValue[] extendedActuals = new IValue[actuals.length + keywordParameterDefaults.size()];
-		
-		for(int i = 0; i < actuals.length; i++){
-			extendedActuals[i] = actuals[i];
-		}
-		int k = actuals.length;
-		
-		if(keyArgValues == null){
-			if(keywordParameterDefaults != null){
-				for(KeywordParameter kw : keywordParameterDefaults){
-					extendedActuals[k++] = kw.getValue();
-				}
-			}
-			return extendedActuals;
-		}
-		
-//		if(keywordParameterDefaults == null)
-//			throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
-		
-//		int nBoundKeywordArgs = 0;
-		for(KeywordParameter kw : keywordParameterDefaults){
-			String kwparam = kw.getName();
-			if(keyArgValues.containsKey(kwparam)){
-//				nBoundKeywordArgs++;
-				IValue r = keyArgValues.get(kwparam);
-				extendedActuals[k++] = r;
-			} else {
-				extendedActuals[k++] = kw.getValue();
-			}
-		}
-//		if(nBoundKeywordArgs != keyArgValues.size()){
-//			main:
-//			for(String kwparam : keyArgValues.keySet())
-//				for(Pair<String, Result<IValue>> pair : keywordParameterDefaults){
-//					if(kwparam.equals(pair.getFirst()))
-//							continue main;
-//					throw new UndeclaredKeywordParameter(getName(), kwparam, ctx.getCurrentAST());
-//				}
-//		}
-		return extendedActuals;
+		return makeResult(instantiated, ctx.getValueFactory().constructor(constructorType, actuals, keyArgValues), ctx);
 	}
 	
 	@Override
