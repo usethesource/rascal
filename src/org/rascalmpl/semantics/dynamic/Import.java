@@ -35,6 +35,12 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.jgll.grammar.Grammar;
+import org.jgll.parser.GLLParser;
+import org.jgll.parser.ParserFactory;
+import org.jgll.sppf.NonterminalSymbolNode;
+import org.jgll.traversal.ModelBuilderVisitor;
+import org.jgll.util.Input;
 import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.LocationLiteral;
 import org.rascalmpl.ast.Module;
@@ -66,6 +72,7 @@ import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
+import org.rascalmpl.parser.ParsetreeBuilder;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
@@ -358,7 +365,14 @@ public abstract class Import {
       eval.startJob("Parsing " + location, 10);
       eval.event("initial parse");
 
-      IConstructor tree = new RascalParser().parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+      IConstructor tree;
+      
+      if (eval.useIguana()) {
+    	tree = new Parser(eval.getClassLoaders()).parseModule(data, location);
+      }
+      else {
+    	  tree = new RascalParser().parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+      }
 
       if (TreeAdapter.isAmb(tree)) {
         // Ambiguity is dealt with elsewhere

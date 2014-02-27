@@ -170,5 +170,10 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 
   public List<IRascalSuspendTriggerListener> getSuspendTriggerListeners();
 
+  /**
+   * temporary mode flag for bootstrapping into using iguana
+   */
+   public boolean useIguana();
+
  
 }

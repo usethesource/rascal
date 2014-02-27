@@ -10,6 +10,7 @@ import lang::rascal::grammar::definition::Parameters;
 import IO;
 import ValueIO;  
 import Grammar;
+import Jigll;
 import util::Monitor;
 
 private str package = "org.rascalmpl.library.lang.rascal.syntax";
@@ -27,13 +28,6 @@ public Grammar getRascalGrammar() {
   return modules2grammar("lang::rascal::syntax::Rascal", {\module});
 }
 
-void serializeRascalGrammar() {
-  gr = getRascalGrammar();
-  writeTextValueFile(inputFolder + "Rascal.grammar", gr);
-}
-
-// TODO: pdb serializer is failing because of overloading of Symbol.parameter
-Grammar deserializeRascalGrammar() = readTextValueFile(#Grammar, inputFolder + "Rascal.grammar");
 
 public void bootstrap() {
   gr = getRascalGrammar();
@@ -63,3 +57,7 @@ public void bootAST(Grammar g) {
   grammarToJavaAPI(astFolder, "org.rascalmpl.ast", g);
 }
 
+public void iguanaBootstrap() {
+  gr = getRascalGrammar();
+  
+}

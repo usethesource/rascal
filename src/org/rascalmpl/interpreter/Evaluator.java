@@ -300,6 +300,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 	}
 
+	
+	@Override
+	public boolean useIguana() {
+		return getConfiguration().getIguana();
+	}
+	
 	@Override
 	public IRascalMonitor setMonitor(IRascalMonitor monitor) {
 		if (monitor == this) {

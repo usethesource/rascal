@@ -126,6 +126,9 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			case Configuration.TRACING_PROPERTY:
 			  __eval.getConfiguration().setTracing(Boolean.parseBoolean(value));
 			  break;
+			case Configuration.IGUANA_PROPERTY: 
+				__eval.getConfiguration().setIguana(Boolean.parseBoolean(value));
+				break;
 			}
 
 			__eval.updateProperties();

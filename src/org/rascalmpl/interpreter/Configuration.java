@@ -17,6 +17,7 @@ package org.rascalmpl.interpreter;
 
 
 public class Configuration {
+	
 	public static final String RASCAL_FILE_EXT = ".rsc";
 	public static final String RASCAL_BIN_FILE_EXT = ".bin";
 	public static final String SDF_EXT = ".sdf";
@@ -27,11 +28,13 @@ public class Configuration {
 	public final static String PROFILING_PROPERTY = "rascal.profiling";
 	public final static String TRACING_PROPERTY = "rascal.tracing";
 	public final static String ERRORS_PROPERTY = "rascal.errors";
+	public static final String IGUANA_PROPERTY = "rascal.iguana";
 	
 	private String javaClassPath = getDefaultString(RASCAL_JAVA_COMPILER_CLASSPATH, System.getProperty("java.class.path"));
-  private boolean profiling = getDefaultBoolean(PROFILING_PROPERTY, false);
-  private boolean tracing = getDefaultBoolean(TRACING_PROPERTY, false);
-  private boolean errors = getDefaultBoolean(ERRORS_PROPERTY, false);
+	private boolean profiling = getDefaultBoolean(PROFILING_PROPERTY, false);
+	private boolean tracing = getDefaultBoolean(TRACING_PROPERTY, false);
+	private boolean errors = getDefaultBoolean(ERRORS_PROPERTY, false);
+	private boolean iguana = getDefaultBoolean(IGUANA_PROPERTY, false);
   
 	private static String getDefaultString(String property, String def) {
 	  String prop = System.getProperty(property);
@@ -83,5 +86,13 @@ public class Configuration {
 	
 	public void setTracing(boolean tracing) {
 	  this.tracing = tracing;
+	}
+
+	public boolean getIguana() {
+	  return this.iguana;
+	}
+	
+	public void setIguana(boolean iguana) {
+		this.iguana = iguana;
 	}
 }
