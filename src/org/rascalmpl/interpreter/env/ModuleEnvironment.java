@@ -232,8 +232,7 @@ public class ModuleEnvironment extends Environment {
 		todo.add(getName());
 		
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
-		Type DefSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) VF.constructor(Factory.Symbol_Sort, VF.string("SyntaxDefinition")));
-		IMapWriter result = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(TF.stringType()), TF.setType(DefSort)));
+		IMapWriter result = VF.mapWriter();
 		
 		while(!todo.isEmpty()){
 			String m = todo.get(0);
@@ -250,21 +249,21 @@ public class ModuleEnvironment extends Environment {
 			ModuleEnvironment env = m.equals(getName()) ? this : heap.getModule(m);
 			
 			if(env != null){
-				ISetWriter importWriter = VF.setWriter(TF.stringType());
+				ISetWriter importWriter = VF.setWriter();
 				for(String impname : env.getImports()){
 					if(!done.contains(impname)) todo.add(impname);
 					
 					importWriter.insert(VF.string(impname));
 				}
 				
-				ISetWriter extendWriter = VF.setWriter(TF.stringType());
+				ISetWriter extendWriter = VF.setWriter();
 				for(String impname : env.getExtends()){
 					if(!done.contains(impname)) todo.add(impname);
 					
 					extendWriter.insert(VF.string(impname));
 				}
 				
-				ISetWriter defWriter = VF.setWriter(DefSort);
+				ISetWriter defWriter = VF.setWriter();
 				for(IValue def : env.productions){
 					defWriter.insert(def);
 				}
@@ -272,21 +271,21 @@ public class ModuleEnvironment extends Environment {
 				ITuple t = VF.tuple(importWriter.done(), extendWriter.done(), defWriter.done());
 				result.put(VF.string(m), t);
 			}else if(m.equals(getName())) { // This is the root scope.
-				ISetWriter importWriter = VF.setWriter(TF.stringType());
+				ISetWriter importWriter = VF.setWriter();
 				for(String impname : importedModules){
 					if(!done.contains(impname)) todo.add(impname);
 					
 					importWriter.insert(VF.string(impname));
 				}
 				
-				ISetWriter extendWriter = VF.setWriter(TF.stringType());
+				ISetWriter extendWriter = VF.setWriter();
 				for(String impname : getExtends()){
 					if(!done.contains(impname)) todo.add(impname);
 					
 					extendWriter.insert(VF.string(impname));
 				}
 				
-				ISetWriter defWriter = VF.setWriter(DefSort);
+				ISetWriter defWriter = VF.setWriter();
 				for(IValue def : productions){
 					defWriter.insert(def);
 				}
@@ -578,10 +577,19 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	private Type makeTupleType(Type adt, String name, Type tupleType, List<KeywordParameter> keyargs){
-		if(keyargs == null){
+		if (keyargs == null){
 			return TF.constructorFromTuple(typeStore, adt, name, tupleType);
-		} else {
-			return TF.constructorFromTuple(typeStore, adt, name, tupleType, tupleType.getArity() - keyargs.size());
+		} 
+		else {
+		  Map<String, Type> params = new HashMap<>();
+		  Map<String, IValue> defaults = new HashMap<>();
+		  
+		  for (KeywordParameter p : keyargs) {
+		    params.put(p.getName(), p.getType());
+		    defaults.put(p.getName(), p.getDefault().getValue());
+		  }
+		  
+			return TF.constructorFromTuple(typeStore, adt, name, tupleType, params, defaults);
 		}
 	}
 	

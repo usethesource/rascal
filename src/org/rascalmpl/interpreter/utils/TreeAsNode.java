@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -76,44 +77,26 @@ public class TreeAsNode implements INode {
     throw new UnsupportedOperationException();
   }
 
-@Override
-public IValue getKeywordArgumentValue(String name) {
-	throw new UnsupportedOperationException();
-}
+  @Override
+  public boolean isAnnotatable() {
+    return false;
+  }
 
-@Override
-public boolean hasKeywordArguments() {
-	// TODO Auto-generated method stub
-	return false;
-}
+  @Override
+  public IAnnotatable<? extends INode> asAnnotatable() {
+    throw new IllegalOperationException(
+        "Facade cannot be viewed as annotatable.", getType());
+  }
 
-@Override
-public String[] getKeywordArgumentNames() {
-	// TODO Auto-generated method stub
-	return null;
-}
+  @Override
+  public boolean mayHaveKeywordParameters() {
+    return false;
+  }
 
-@Override
-public int getKeywordIndex(String name) {
-	// TODO Auto-generated method stub
-	return 0;
-}
-
-@Override
-public int positionalArity() {
-	// TODO Auto-generated method stub
-	return 0;
-}
-
-@Override
-public boolean isAnnotatable() {
-	return false;
-}
-
-@Override
-public IAnnotatable<? extends INode> asAnnotatable() {
-	throw new IllegalOperationException(
-			"Cannot be viewed as annotatable.", getType());
-}
+  @Override
+  public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
+    throw new IllegalOperationException(
+        "Facade cannot be viewed as with keyword parameters.", getType());
+  }
 
 }
