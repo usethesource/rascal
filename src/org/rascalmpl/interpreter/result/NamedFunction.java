@@ -293,7 +293,7 @@ abstract public class NamedFunction extends AbstractFunction {
 
   protected void bindKeywordArgs(Map<String, IValue> keyArgValues){
     Environment env = ctx.getCurrentEnvt();
-    if(keyArgValues == null){
+    if(keyArgValues.isEmpty()){
       if(keywordParameterDefaults != null){
         for(KeywordParameter pair : keywordParameterDefaults){
           String kwparam= pair.getName();

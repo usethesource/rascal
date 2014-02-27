@@ -18,6 +18,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -486,7 +487,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				}
 				
 				KeywordArguments keywordArgs = this.getKeywordArguments();
-				HashMap<String,IValue> kwActuals = null;
+				java.util.Map<String,IValue> kwActuals = Collections.<String,IValue>emptyMap();
 				if(keywordArgs.isDefault()){
 						kwActuals = new HashMap<String,IValue>();
 						
