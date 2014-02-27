@@ -528,11 +528,11 @@ MuExp translatePatAsSetElem(p:(Pattern) `+<Pattern argument>`, bool last) {
 }   
 
 default MuExp translatePatAsSetElem(Pattern p, bool last) {
+  println("translatePatAsSetElem, default: <p>");
   try {
      return  muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_SET",3), [muCon(translatePatternAsConstant(p))]);
   } catch:
     return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(p)]);
-  //return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(p)]);
 }
 
 value getLiteralValue((Literal) `<Literal s>`) =  readTextValueString("<s>"); // TODO interpolation
@@ -605,6 +605,8 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
         compiledPats += translatePatAsSetElem(pat, false);   
       } else {
         compiledPats +=  muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(pat)]);
+        // To enable constant elimination change to:
+        // compiledPats += translatePatAsSetElem(pat, false);
       }
    }
    MuExp litCode = (all(lit <- literals, isConstant(lit))) ? muCon({ getLiteralValue(lit) | lit <- literals })
@@ -709,9 +711,10 @@ MuExp translatePatAsListElem(p:(Pattern) `+<Pattern argument>`, Lookahead lookah
 }   
 
 default MuExp translatePatAsListElem(Pattern p, Lookahead lookahead) {
-  try {
-     return  muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST",3), [muCon(translatePatternAsConstant(p))]);
-  } catch:
+  println("translatePatAsListElem, default: <p>");
+  //try { // Gives error for nodes (~ kw params)
+  //   return  muCreate(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST",3), [muCon(translatePatternAsConstant(p))]);
+  //} catch:
     return muCreate(mkCallToLibFun("Library","MATCH_PAT_IN_LIST",3), [translatePat(p)]);
 }
 
@@ -755,7 +758,7 @@ default MuExp translatePat(Pattern p) { throw "Pattern <p> cannot be translated"
 value translatePatternAsConstant(p:(Pattern) `<Literal lit>`) = getLiteralValue(lit) when !(lit is regExp);
 
 value translatePatternAsConstant(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) =
-  makeNode("<expression>", [ translatePatternAsConstant(pat) | pat <- arguments ]);
+  makeNode("<expression>", [ translatePatternAsConstant(pat) | pat <- arguments ] + translatePatKWArguments(keywordArguments));
 
 value translatePatternAsConstant(p:(Pattern) `{<{Pattern ","}* pats>}`) = { translatePatternAsConstant(pat) | pat <- pats };
 
