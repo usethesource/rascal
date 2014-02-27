@@ -34,6 +34,8 @@ import org.jgll.grammar.condition.ConditionType;
 import org.jgll.grammar.condition.ContextFreeCondition;
 import org.jgll.grammar.condition.PositionalCondition;
 import org.jgll.grammar.condition.RegularExpressionCondition;
+import org.jgll.grammar.slot.factory.GrammarSlotFactory;
+import org.jgll.grammar.slot.factory.NoFirstFollowSetGrammarSlotFactory;
 import org.jgll.grammar.symbol.CharacterClass;
 import org.jgll.grammar.symbol.Keyword;
 import org.jgll.grammar.symbol.Nonterminal;
@@ -268,7 +270,8 @@ public class GrammarToJigll {
 
 	public GrammarBuilder convert(String name, IConstructor rascalGrammar) {
 
-		GrammarBuilder builder = new GrammarBuilder(name);
+		GrammarSlotFactory factory = new NoFirstFollowSetGrammarSlotFactory();
+		GrammarBuilder builder = new GrammarBuilder(name, factory);
 		
 		IMap definitions = (IMap) rascalGrammar.get("rules");
 		rulesMap = new HashMap<>();
