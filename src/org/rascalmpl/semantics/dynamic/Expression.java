@@ -353,13 +353,26 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					cachedConstructorType  = computeConstructorType(eval, nameExpr);
 				}
 				 
-				return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), cachedConstructorType, visitArguments(eval));
+				return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), cachedConstructorType, visitArguments(eval), visitKeywordArguments(eval));
 			}
 
-			return new NodePattern(eval, this, nameExpr.buildMatcher(eval), null, TF.nodeType(), visitArguments(eval));
+			return new NodePattern(eval, this, nameExpr.buildMatcher(eval), null, TF.nodeType(), visitArguments(eval), visitKeywordArguments(eval));
 		}
 
-		private Type computeConstructorType(IEvaluatorContext eval,
+		private java.util.Map<String, IMatchingResult> visitKeywordArguments(IEvaluatorContext eval) {
+		  java.util.Map<String,IMatchingResult> result = new HashMap<>();
+		  KeywordArguments keywordArgs;
+		  
+      if (hasKeywordArguments() && (keywordArgs = getKeywordArguments()).isDefault()) {
+        for (KeywordArgument kwa : keywordArgs.getKeywordArgumentList()) {
+          result.put(Names.name(kwa.getName()), kwa.getExpression().buildMatcher(eval));
+        }
+      }
+      
+      return result;
+    }
+
+    private Type computeConstructorType(IEvaluatorContext eval,
 				org.rascalmpl.ast.Expression nameExpr) {
 			java.util.List<AbstractFunction> functions = new LinkedList<AbstractFunction>();
 			String cons = Names.consName(nameExpr.getQualifiedName());

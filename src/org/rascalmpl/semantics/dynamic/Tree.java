@@ -11,6 +11,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -348,7 +349,7 @@ public abstract class Tree {
 		wrap.add(setMatcher);
 		
 		Result<IValue> ambCons = eval.getCurrentEnvt().getVariable("amb");
-		return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, Factory.Tree_Amb, wrap);
+		return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, Factory.Tree_Amb, wrap, Collections.<String,IMatchingResult>emptyMap());
 	} 
   }
   

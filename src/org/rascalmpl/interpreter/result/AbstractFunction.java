@@ -27,6 +27,7 @@ import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -281,7 +282,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			lub = lub.lub(actuals[j].getType());
 		}
 		
-		IListWriter list = vf.listWriter(lub);
+		IListWriter list = vf.listWriter();
 		list.insertAt(0, actuals, i, actuals.length - arity + 1);
 		newActuals[i] = list.done();
 		return newActuals;
@@ -488,5 +489,16 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		throw new IllegalOperationException(
 				"Cannot be viewed as annotatable.", getType());
 	}
+
+	@Override
+	public boolean mayHaveKeywordParameters() {
+	  return false; // this is not a data value
+	}
 	
+	@Override
+	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+	  // this is not a data value
+	  throw new IllegalOperationException(
+        "Facade cannot be viewed as with keyword parameters.", getType());
+	}
 }

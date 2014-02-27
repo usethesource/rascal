@@ -13,6 +13,7 @@
 package org.rascalmpl.interpreter.matching;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class ReifiedTypePattern extends AbstractMatchingResult {
 		List<IMatchingResult> arguments = new ArrayList<IMatchingResult>(2);
 		arguments.add(symbol);
 		arguments.add(def);
-        this.nodePattern = new NodePattern(ctx, x, new LiteralPattern(ctx, x, ctx.getValueFactory().string("type")), null, Factory.Type_Reified, arguments);
+        this.nodePattern = new NodePattern(ctx, x, new LiteralPattern(ctx, x, ctx.getValueFactory().string("type")), null, Factory.Type_Reified, arguments, Collections.<String,IMatchingResult>emptyMap());
 	}
 
 	@Override
