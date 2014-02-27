@@ -203,7 +203,7 @@ public enum MuPrimitive {
 						elems[i] = nd.get(i);
 					}
 					for(IValue elm : kwmap){
-						elems[j++] = elm;
+						elems[j++] = kwmap.get(elm);
 					}
 				} else {
 					elems = new Object[nd_arity];
