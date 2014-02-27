@@ -730,12 +730,7 @@ MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) =
 // -- descendant pattern ---------------------------------------------
 
 MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`) =
-    muCreate(mkCallToLibFun("Library","MATCH_DESCENDANT",2), [translatePatinDescendant(pattern)]);
-
-MuExp translatePatinDescendant(p:(Pattern) `<Literal lit>`) = muCreate(mkCallToLibFun("Library","MATCH_AND_DESCENT",2), [muCreate(mkCallToLibFun("Library","MATCH_AND_DESCENT_LITERAL",2), [translate(lit)])]);
-
-default MuExp translatePatinDescendant(Pattern p) = translatePat(p);
-    
+    muCreate(mkCallToLibFun("Library","MATCH_DESCENDANT",2), [translatePat(pattern)]);
 
 // -- anti pattern ---------------------------------------------------
 
