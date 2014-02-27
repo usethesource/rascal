@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -236,28 +237,29 @@ public enum MuPrimitive {
 				Type tp = cons.getConstructorType();
 
 				int cons_arity = tp.getArity();
-				int pos_arity = tp.getPositionalArity();
-				IMapWriter writer = vf.mapWriter();
-				for (int i = pos_arity; i < cons_arity; i++) {
+				Map<String,IValue> map = new HashMap<>();
+				for (int i = cons_arity; i < cons_arity; i++) {
 					String key = tp.getFieldName(i);
 					IValue val = cons.get(key);
-					writer.put(vf.string(key), val);
+					map.put(key, val);
 				}
-				Object[] elems = new Object[pos_arity + 1];
-				for (int i = 0; i < pos_arity; i++) {
+				
+				Object[] elems = new Object[cons_arity + 1];
+				for (int i = 0; i < cons_arity; i++) {
 					elems[i] = cons.get(i);
 				}
-				elems[pos_arity] = writer.done();
+				elems[cons_arity] = map;
 				stack[sp - 1] = elems;
 				return sp;
 			}
+			
 			INode nd = (INode) v;
 			String name = nd.getName();
 			int nd_arity = nd.arity();
 			Object[] elems;
 			if(nd_arity > 0){
 				IValue last = nd.get(nd_arity - 1);
-				IMap map;
+				java.util.Map<String,IValue> map;
 				
 				if(last.getType().isMap()){
 					elems = new Object[nd_arity];
@@ -265,8 +267,7 @@ public enum MuPrimitive {
 						elems[i] = nd.get(i);
 					}
 				} else {
-					TypeFactory tf = TypeFactory.getInstance();
-					map = vf.map(tf.voidType(), tf.voidType());
+					map = Collections.emptyMap();
 					elems = new Object[nd_arity + 1];				// account for keyword map
 
 					for(int i = 0; i < nd_arity; i++){
@@ -276,9 +277,9 @@ public enum MuPrimitive {
 				}
 			} else {
 				elems = new Object[1];
-				TypeFactory tf = TypeFactory.getInstance();
-				elems[0] = vf.map(tf.voidType(), tf.voidType());
+				elems[0] = Collections.emptyMap();
 			}
+			
 			stack[sp - 1] = elems;
 			return sp;
 		};

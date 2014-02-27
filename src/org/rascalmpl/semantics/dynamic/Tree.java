@@ -335,21 +335,21 @@ public abstract class Tree {
 	
 	@Override
 	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-		if (constant) {
-			return new LiteralPattern(eval, this,  node);
-		}
-		
-		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(alts.size());
-		for (org.rascalmpl.ast.Expression arg : alts) {
-			kids.add(arg.buildMatcher(eval));
-		}
-		
-		IMatchingResult setMatcher = new SetPattern(eval, this,  kids);
-		java.util.List<IMatchingResult> wrap = new ArrayList<IMatchingResult>(1);
-		wrap.add(setMatcher);
-		
-		Result<IValue> ambCons = eval.getCurrentEnvt().getVariable("amb");
-		return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, Factory.Tree_Amb, wrap, Collections.<String,IMatchingResult>emptyMap());
+	  if (constant) {
+	    return new LiteralPattern(eval, this,  node);
+	  }
+
+	  java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(alts.size());
+	  for (org.rascalmpl.ast.Expression arg : alts) {
+	    kids.add(arg.buildMatcher(eval));
+	  }
+
+	  IMatchingResult setMatcher = new SetPattern(eval, this,  kids);
+	  java.util.List<IMatchingResult> wrap = new ArrayList<IMatchingResult>(1);
+	  wrap.add(setMatcher);
+
+	  Result<IValue> ambCons = eval.getCurrentEnvt().getVariable("amb");
+	  return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, Factory.Tree_Amb, wrap, Collections.<String,IMatchingResult>emptyMap());
 	} 
   }
   
