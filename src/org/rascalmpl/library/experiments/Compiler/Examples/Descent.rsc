@@ -13,6 +13,9 @@ value main(list[value] args) {
 	cnd3 = nd(leaf(3),leaf(4));
 	cnd4 = nd(cnd2,cnd3);
 	
-	return    { v | /v:"nd"(node _, "leaf"(int _)) <- "nd"(nd4,"leaf"(0)) }
-			+ { v | /v: nd(NODE _, leaf(int _))    <-  nd(cnd4,leaf(0)) };
+	return <  { v | /v:"nd"(node _, "leaf"(int _)) <- "nd"(nd4,"leaf"(0)) }
+			+ { v | /v: nd(NODE _, leaf(int _))    <-  nd(cnd4,leaf(0)) },
+			  [ v | /v:"nd"(node _, "leaf"(int _)) <- "nd"(nd4,"leaf"(0)) ]
+			+ [ v | /v: nd(NODE _, leaf(int _))    <-  nd(cnd4,leaf(0)) ]
+		   >;
 }
