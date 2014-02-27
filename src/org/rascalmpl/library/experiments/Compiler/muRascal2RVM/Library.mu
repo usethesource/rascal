@@ -1217,7 +1217,6 @@ coroutine MATCH_AND_DESCENT_LIST[2, pat, iLst, last, j]{
    last = size_list(iLst);
    j = 0;
    while(j < last){
-      pat(get_list(iLst, j));
       MATCH_AND_DESCENT(pat, get_list(iLst, j));
       j = j + 1;
    };
@@ -1228,7 +1227,6 @@ coroutine MATCH_AND_DESCENT_SET[2, pat, iSet, iLst, last, j]{
    last = size_list(iLst);
    j = 0;
    while(j < last){
-      pat(get_list(iLst, j));
       MATCH_AND_DESCENT(pat, get_list(iLst, j));
       j = j + 1;
    };
@@ -1240,8 +1238,6 @@ coroutine MATCH_AND_DESCENT_MAP[2, pat, iMap, iKlst, iVlst, last, j]{
    last = size_list(iKlst);
    j = 0;
    while(j < last){
-      pat(get_list(iKlst, j));
-      pat(get_list(iVlst, j));
       MATCH_AND_DESCENT(pat, get_list(iKlst, j));
       MATCH_AND_DESCENT(pat, get_list(iVlst, j));
       j = j + 1;
@@ -1262,7 +1258,6 @@ coroutine MATCH_AND_DESCENT_TUPLE[2, pat, iTup, last, j]{
    last = size_tuple(iTup);
    j = 0;
    while(j < last){
-      pat(get_tuple(iTup, j));
       MATCH_AND_DESCENT(pat, get_tuple(iTup, j));
       j = j + 1;
    };
