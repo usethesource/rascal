@@ -85,6 +85,8 @@ test bool tst() = run("{ res = for([*x,*y,*int z] := [1,2,3]) append \<x,y,z\>; 
 test bool tst() = run("{ res = for([*x,*int y,*int z] := [1,2,3]) append \<x,y,z\>; res; }") == { res = for([*x,*int y,*int z] := [1,2,3]) append <x,y,z>; res; };
 test bool tst() = run("{ res = for([*int x,*int y,*int z] := [1,2,3]) append \<x,y,z\>; res; }") == { res = for([*int x,*int y,*int z] := [1,2,3]) append <x,y,z>; res; };
 
+test bool tst() = run("[ \"a\"(1) ] := [ \"a\"(1) ]") == [ "a"(1) ] := [ "a"(1) ];
+test bool tst() = run("[ d1(1,\"a\") ] := [ d1(1,\"a\") ]") == [ d1(1,"a") ] := [ d1(1,"a") ];
 
 // Set matching
 
@@ -123,6 +125,8 @@ test bool tst() = run("{ res = for({*x,*y, *int z} := {1,2,3}) append \<x,y,z\>;
 test bool tst() = run("{ res = for({*x,*int y, *int z} := {1,2,3}) append \<x,y,z\>; res; }") == { res = for({*x,*int y,*int z} := {1,2,3}) append <x,y,z>; res; };
 test bool tst() = run("{ res = for({*int x,*int y, *int z} := {1,2,3}) append \<x,y,z\>; res; }") == { res = for({*int x,*int y,*int z} := {1,2,3}) append <x,y,z>; res; };
 
+test bool tst() = run("{ \"a\"(1) } := { \"a\"(1) }") == { "a"(1) } := { "a"(1) };
+test bool tst() = run("{ d1(1,\"a\") } := { d1(1,\"a\") }") == { d1(1,"a") } := { d1(1,"a") };
 
 // Node/Constructor matching
 

@@ -123,17 +123,16 @@ private tuple[MuExp,list[MuFunction]] generateMu("ALL", str fuid, list[MuExp] ex
 private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
     list[MuFunction] functions = [];
     str or_uid = "Library/<fuid>/OR_<getNextOr()>(0)";
-    localvars = [ muVar("c_<i>", or_uid, i) | int i <- index(exps) ];
     list[MuExp] body = [];
     for(int i <- index(exps)) {
         if(backtrackfree[i]) {
             body += muIfelse(nextLabel(), exps[i], [ muYield() ], [ muCon(222) ]);
         } else {
-            body = body + [ muAssign("c_<i>", or_uid, i, muInit(exps[i])), muWhile(nextLabel(), muNext(localvars[i]), [ muYield() ]), muCon(222) ];
+            body = body + [ muCall(exps[i],[]) ];
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(or_uid, fuid, 0, size(localvars), [], muBlock(body));
+    functions += muCoroutine(or_uid, fuid, 0, 0, [], muBlock(body));
     return <muMulti(muCreate(muFun(or_uid))),functions>;
 }
 
