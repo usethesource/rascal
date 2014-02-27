@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,6 +26,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.jgll.grammar.Grammar;
 import org.jgll.grammar.GrammarBuilder;
 import org.jgll.grammar.condition.Condition;
@@ -53,6 +56,7 @@ import org.jgll.util.Input;
 import org.jgll.util.Visualization;
 import org.jgll.util.logging.LoggerWrapper;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
@@ -307,12 +311,12 @@ public class GrammarToJigll {
 
 				IConstructor prod = (IConstructor) alt;
 
-				Object object;
+				IConstructor object;
 
 				if (ebnf) {
 					object = getRegularDefinition(alts);
 				} else {
-					object = alt;
+					object = (IConstructor) alt;
 				}
 
 				if (!prod.getName().equals("regular")) {
@@ -321,7 +325,7 @@ public class GrammarToJigll {
 
 					List<Symbol> body = getSymbolList(rhs);
 					
-					Rule rule = new Rule(head, body, object);
+					Rule rule = new Rule(head, body, new SerializableValue(object));
 					rulesMap.put(prod, rule);
 					builder.addRule(rule);
 				}

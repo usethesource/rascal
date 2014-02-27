@@ -11,7 +11,8 @@ import org.jgll.traversal.Result;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
-public class ParsetreeBuilder implements NodeListener<IConstructor,IConstructor> {
+public class ParsetreeBuilder implements NodeListener<SerializableValue, IConstructor> {
+  
   private final IValueFactory vf;
 
   public ParsetreeBuilder() {
@@ -19,12 +20,12 @@ public class ParsetreeBuilder implements NodeListener<IConstructor,IConstructor>
   }
   
   @Override
-  public void startNode(IConstructor type) {
+  public void startNode(SerializableValue type) {
     // do nothing
   }
 
   @Override
-  public Result<IConstructor> endNode(IConstructor type, Iterable<IConstructor> children, PositionInfo node) {
+  public Result<IConstructor> endNode(SerializableValue type, Iterable<IConstructor> children, PositionInfo node) {
 	
 	if(type == null) {
 		throw new IllegalArgumentException("type cannot be null.");
@@ -43,7 +44,7 @@ public class ParsetreeBuilder implements NodeListener<IConstructor,IConstructor>
     		 										   node.getEndLineNumber(), 
     		 										   node.getColumn() - 1, 
     		 										   node.getEndColumnNumber() - 1);
-	IConstructor tree = vf.constructor(Factory.Tree_Appl, type, args.done()).asAnnotatable().setAnnotation("loc", sourceLocation);
+	IConstructor tree = vf.constructor(Factory.Tree_Appl, type.get(), args.done()).asAnnotatable().setAnnotation("loc", sourceLocation);
 	return (Result<IConstructor>) Result.accept(tree);
   }
 
