@@ -143,176 +143,175 @@ public final class DebugHandler implements IDebugHandler {
 				 *   eventually gets popped from the stack. As long the calls in deeper nesting levels 
 				 *   are executed, no action needs to be taken.
 				 */
-				switch (currentEnvironmentStackSize.compareTo(
-						getReferenceEnvironmentStackSize())) {
+				switch (currentEnvironmentStackSize.compareTo(getReferenceEnvironmentStackSize())) {
 				case 0:
-					/*
-					 * For the case that we are still within the same stack
-					 * frame, positions are compared to ensure that the
-					 * statement was finished executing.
-					 */
-					int referenceStart = getReferenceAST().getLocation().getOffset();
-					int referenceAfter = getReferenceAST().getLocation().getOffset() + getReferenceAST().getLocation().getLength();
-					int currentStart = location.getOffset();
-					int currentAfter = location.getOffset() + location.getLength();
+				  /*
+				   * For the case that we are still within the same stack
+				   * frame, positions are compared to ensure that the
+				   * statement was finished executing.
+				   */
+				  int referenceStart = getReferenceAST().getLocation().getOffset();
+				  int referenceAfter = getReferenceAST().getLocation().getOffset() + getReferenceAST().getLocation().getLength();
+				  int currentStart = location.getOffset();
+				  int currentAfter = location.getOffset() + location.getLength();
 
-					if (currentStart < referenceStart
-							|| currentStart >= referenceAfter
-							|| currentStart == referenceStart
-								&& currentAfter == referenceAfter) {
-						updateSuspensionState(evaluator, currentAST);
-						getEventTrigger().fireSuspendByStepEndEvent();
-					}
-					break;
+				  if (currentStart < referenceStart
+				      || currentStart >= referenceAfter
+				      || currentStart == referenceStart
+				      && currentAfter == referenceAfter) {
+				    updateSuspensionState(evaluator, currentAST);
+				    getEventTrigger().fireSuspendByStepEndEvent();
+				  }
+				  break;
 
 				case -1:
-					// lower stack size: left scope, thus over
-					updateSuspensionState(evaluator, currentAST);
-					getEventTrigger().fireSuspendByStepEndEvent();
-					break;
+				  // lower stack size: left scope, thus over
+				  updateSuspensionState(evaluator, currentAST);
+				  getEventTrigger().fireSuspendByStepEndEvent();
+				  break;
 
 				case +1:
-					// higher stack size: not over yet
-					break;
+				  // higher stack size: not over yet
+				  break;
 
 				default:
-					throw new RuntimeException(
-							"Requires compareTo() to return exactly either -1, 0, or +1.");
+				  throw new RuntimeException(
+				      "Requires compareTo() to return exactly either -1, 0, or +1.");
 				}
 				break;
 
 			case NO_STEP:
-				if (hasBreakpoint(location)) {
-					updateSuspensionState(evaluator, currentAST);
-					location = evaluator.getRascalResolver().resolve(location);
-					getEventTrigger().fireSuspendByBreakpointEvent(location);
-				}
-				break;
-				
-			}
+			  if (hasBreakpoint(location)) {
+			    updateSuspensionState(evaluator, currentAST);
+			    location = evaluator.getRascalResolver().resolve(location);
+			    getEventTrigger().fireSuspendByBreakpointEvent(location);
+			  }
+			  break;
+
+      }
 		}
-	
+
 		/*
 		 * Waiting until GUI triggers end of suspension.
 		 */
 		while (isSuspended()) {
-			try {
-				evaluator.wait(50);
-			} catch (InterruptedException e) {
-				// Ignore
-			}
+		  try {
+		    evaluator.wait(50);
+		  } catch (InterruptedException e) {
+		    // Ignore
+		  }
 		}		
-		
+
 	}
-	
+
 	protected AbstractAST getReferenceAST() {
-		return referenceAST;
+	  return referenceAST;
 	}
 
 	protected void setReferenceAST(AbstractAST referenceAST) {
-		this.referenceAST = referenceAST;
+	  this.referenceAST = referenceAST;
 	}
 
 	protected Integer getReferenceEnvironmentStackSize() {
-		return referenceEnvironmentStackSize;
+	  return referenceEnvironmentStackSize;
 	}
 
 	protected void setReferenceEnvironmentStackSize(Integer referenceEnvironmentStackSize) {
-		this.referenceEnvironmentStackSize = referenceEnvironmentStackSize;
+	  this.referenceEnvironmentStackSize = referenceEnvironmentStackSize;
 	}
 
 	protected boolean isSuspendRequested() {
-		return suspendRequested;
+	  return suspendRequested;
 	}
 
 	protected void setSuspendRequested(boolean suspendRequested) {
-		this.suspendRequested = suspendRequested;
+	  this.suspendRequested = suspendRequested;
 	}
 
 	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void processMessage(IDebugMessage message) {
-		switch (message.getSubject()) {
-		
-		case BREAKPOINT:
-			ISourceLocation breakpointLocation = (ISourceLocation) message.getPayload();
-			
-			switch (message.getAction()) {
-			case SET:
-				addBreakpoint(breakpointLocation);
-				break;
-				
-			case DELETE:
-				removeBreakpoint(breakpointLocation);
-				break;
-			}
-			break;
+	  switch (message.getSubject()) {
 
-		case INTERPRETER:	
-			switch (message.getAction()) {
-			case SUSPEND:
-				if (message.getDetail() == Detail.CLIENT_REQUEST) {
-					setSuspendRequested(true);
-				}
-				break;
+	  case BREAKPOINT:
+	    ISourceLocation breakpointLocation = (ISourceLocation) message.getPayload();
 
-			case RESUME:
-				setSuspended(false);
+	    switch (message.getAction()) {
+	    case SET:
+	      addBreakpoint(breakpointLocation);
+	      break;
 
-				switch (message.getDetail()) {
-				case STEP_INTO:
-					setStepMode(DebugStepMode.STEP_INTO);
-					getEventTrigger().fireResumeByStepIntoEvent();
-					break;
+	    case DELETE:
+	      removeBreakpoint(breakpointLocation);
+	      break;
+	    }
+	    break;
 
-				case STEP_OVER:
-					setStepMode(DebugStepMode.STEP_OVER);
-					getEventTrigger().fireResumeByStepOverEvent();
-					break;
+	  case INTERPRETER:	
+	    switch (message.getAction()) {
+	    case SUSPEND:
+	      if (message.getDetail() == Detail.CLIENT_REQUEST) {
+	        setSuspendRequested(true);
+	      }
+	      break;
 
-				case CLIENT_REQUEST:
-					setStepMode(DebugStepMode.NO_STEP);
-					getEventTrigger().fireResumeByClientRequestEvent();
-					break;
-				}
-				break;
+	    case RESUME:
+	      setSuspended(false);
 
-			case TERMINATE:
-				if (terminateAction != null) {
-					terminateAction.run();
-				}
-				break;
-			}
-			break;
-		}
+	      switch (message.getDetail()) {
+	      case STEP_INTO:
+	        setStepMode(DebugStepMode.STEP_INTO);
+	        getEventTrigger().fireResumeByStepIntoEvent();
+	        break;
+
+	      case STEP_OVER:
+	        setStepMode(DebugStepMode.STEP_OVER);
+	        getEventTrigger().fireResumeByStepOverEvent();
+	        break;
+
+	      case CLIENT_REQUEST:
+	        setStepMode(DebugStepMode.NO_STEP);
+	        getEventTrigger().fireResumeByClientRequestEvent();
+	        break;
+	      }
+	      break;
+
+	    case TERMINATE:
+	      if (terminateAction != null) {
+	        terminateAction.run();
+	      }
+	      break;
+	    }
+	    break;
+	  }
 	}
-		
+
 	public void setTerminateAction(Runnable terminateAction) {
-		this.terminateAction = terminateAction;
+	  this.terminateAction = terminateAction;
 	}
 
 	protected synchronized boolean isSuspended() {
-		return suspended;
+	  return suspended;
 	}
 
 	protected synchronized void setSuspended(boolean suspended) {
-		this.suspended = suspended;
+	  this.suspended = suspended;
 	}
 
 	protected DebugStepMode getStepMode() {
-		return stepMode;
+	  return stepMode;
 	}
 
 	protected void setStepMode(DebugStepMode stepMode) {
-		this.stepMode = stepMode;
+	  this.stepMode = stepMode;
 	}
 
 	public AbstractInterpreterEventTrigger getEventTrigger() {
-		return eventTrigger;
+	  return eventTrigger;
 	}
-	
+
 	public void setEventTrigger(AbstractInterpreterEventTrigger eventTrigger) {
-		this.eventTrigger = eventTrigger;
+	  this.eventTrigger = eventTrigger;
 	}	
-	
+
 }
