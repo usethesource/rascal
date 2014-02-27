@@ -30,6 +30,7 @@ import experiments::Compiler::Benchmarks::BForCond;
 import experiments::Compiler::Benchmarks::BListMatch1;
 import experiments::Compiler::Benchmarks::BListMatch2;
 import experiments::Compiler::Benchmarks::BListMatch3;
+import experiments::Compiler::Benchmarks::BOr;
 import experiments::Compiler::Benchmarks::BMarriage;
 import experiments::Compiler::Benchmarks::BPatternMatchASTs;
 import experiments::Compiler::Benchmarks::BReverse1;
@@ -39,6 +40,7 @@ import experiments::Compiler::Benchmarks::BSetMatch1;
 import experiments::Compiler::Benchmarks::BSetMatch2;
 import experiments::Compiler::Benchmarks::BSetMatch3;
 import experiments::Compiler::Benchmarks::BSendMoreMoney;
+import experiments::Compiler::Benchmarks::BSendMoreMoneyNotTyped;
 import experiments::Compiler::Benchmarks::BTemplate;
 import experiments::Compiler::Benchmarks::BWhile;
 import experiments::Compiler::Benchmarks::BVisit1;
@@ -185,6 +187,7 @@ void main(){
   run("BListMatch1", experiments::Compiler::Benchmarks::BListMatch1::main);
   run("BListMatch2", experiments::Compiler::Benchmarks::BListMatch2::main);
   run("BListMatch3", experiments::Compiler::Benchmarks::BListMatch3::main);
+  run("BOr", experiments::Compiler::Benchmarks::BOr::main);
   run("BMarriage", experiments::Compiler::Benchmarks::BMarriage::main);
   run("BPatternMatchASTs", experiments::Compiler::Benchmarks::BPatternMatchASTs::main);
   run("BReverse1", experiments::Compiler::Benchmarks::BReverse1::main);
@@ -194,6 +197,7 @@ void main(){
   run("BSetMatch2", experiments::Compiler::Benchmarks::BSetMatch2::main);
   run("BSetMatch3", experiments::Compiler::Benchmarks::BSetMatch3::main);
   run("BSendMoreMoney", experiments::Compiler::Benchmarks::BSendMoreMoney::main);
+  run("BSendMoreMoneyNotTyped", experiments::Compiler::Benchmarks::BSendMoreMoneyNotTyped::main);
   run("BSudoku", experiments::Compiler::Benchmarks::BSudoku::main);
   run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
   run("BVisit1", experiments::Compiler::Benchmarks::BVisit1::main);
@@ -226,7 +230,7 @@ void main_paper(){
 
 void precompile_paper1() {
   precompile(["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty","BExceptionsFinally","BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
-              "BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
+              "BOr","BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
               /*,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"*/]);
 }
 
@@ -244,6 +248,7 @@ void main_paper1(){
   run("BListMatch1", experiments::Compiler::Benchmarks::BListMatch1::main);
   run("BListMatch2", experiments::Compiler::Benchmarks::BListMatch2::main);
   run("BListMatch3", experiments::Compiler::Benchmarks::BListMatch3::main);
+  run("BOr", experiments::Compiler::Benchmarks::BOr::main);
   run("BReverse1", experiments::Compiler::Benchmarks::BReverse1::main);
   run("BSet1", experiments::Compiler::Benchmarks::BSet1::main);
   run("BSetMatch1", experiments::Compiler::Benchmarks::BSetMatch1::main);
@@ -266,7 +271,7 @@ void main_paper1(){
 }
 
 void precompile_paper2() {
-  precompile(["BBottles","BFac","BFib","BMarriage",/*"BRSFCalls",*/"BSendMoreMoney","BSudoku","BTemplate"]);
+  precompile(["BBottles","BFac","BFib","BMarriage",/*"BRSFCalls",*/"BSendMoreMoney","BSendMoreMoneyNotTyped","BSudoku","BTemplate"]);
 }
 
 void main_paper2(){
@@ -278,6 +283,7 @@ void main_paper2(){
   run("BMarriage", experiments::Compiler::Benchmarks::BMarriage::main);
   //run("BRSFCalls", experiments::Compiler::Benchmarks::BRSFCalls::main);
   run("BSendMoreMoney", experiments::Compiler::Benchmarks::BSendMoreMoney::main);
+  run("BSendMoreMoneyNotTyped", experiments::Compiler::Benchmarks::BSendMoreMoneyNotTyped::main);
   run("BSudoku", experiments::Compiler::Benchmarks::BSudoku::main);
   run("BTemplate", experiments::Compiler::Benchmarks::BTemplate::main);
   report();
