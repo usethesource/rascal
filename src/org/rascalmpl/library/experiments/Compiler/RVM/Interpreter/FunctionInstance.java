@@ -7,6 +7,8 @@ import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -168,5 +170,16 @@ public class FunctionInstance implements ICallableValue {
 	public IEvaluator<Result<IValue>> getEval() {
 		return rvm.ctx.getEvaluator();
 	}
+	
+	@Override
+  public boolean mayHaveKeywordParameters() {
+    return false;
+  }
+  
+  @Override
+  public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+    throw new IllegalOperationException(
+        "Cannot be viewed as with keyword parameters", getType());
+  }
 
 }
