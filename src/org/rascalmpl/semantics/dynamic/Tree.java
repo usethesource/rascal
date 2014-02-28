@@ -60,7 +60,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		return type;
 	}
 	
@@ -123,7 +123,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		return type;
 	}
 	
@@ -324,7 +324,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		return type;
 	}
 	
@@ -373,7 +373,7 @@ public abstract class Tree {
 	  }
 
 	  @Override
-	  public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	  public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		  return Factory.Tree;
 	  }
   }
@@ -399,7 +399,7 @@ public abstract class Tree {
 	  }
 
 	  @Override
-	  public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	  public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		  return Factory.Tree;
 	  }
   }

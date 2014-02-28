@@ -198,7 +198,7 @@ public class JavaBridge {
 	}
 	
 	private org.eclipse.imp.pdb.facts.type.Type toValueType(Expression formal, Environment env) {
-		return formal.typeOf(env, true);
+		return formal.typeOf(env, true, null);
 	}
 	
 	private static class JavaClasses implements ITypeVisitor<Class<?>, RuntimeException> {

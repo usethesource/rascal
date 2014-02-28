@@ -576,27 +576,14 @@ public class ModuleEnvironment extends Environment {
 		return sort;
 	}
 	
-	private Type makeTupleType(Type adt, String name, Type tupleType, List<KeywordParameter> keyargs){
-		if (keyargs == null){
-			return TF.constructorFromTuple(typeStore, adt, name, tupleType);
-		} 
-		else {
-		  Map<String, Type> params = new HashMap<>();
-		  Map<String, IValue> defaults = new HashMap<>();
-		  
-		  for (KeywordParameter p : keyargs) {
-		    params.put(p.getName(), p.getType());
-		    defaults.put(p.getName(), p.getDefault().getValue());
-		  }
-		  
-			return TF.constructorFromTuple(typeStore, adt, name, tupleType, params, defaults);
-		}
+	private Type makeTupleType(Type adt, String name, Type tupleType, Map<String,Type> keywordParams, Map<String,IValue> defaultParams) {
+	  return TF.constructorFromTuple(typeStore, adt, name, tupleType, keywordParams, defaultParams);
 	}
 	
 	@Override
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordParameter> keyargs) {
-		Type cons = makeTupleType(adt, name, tupleType, keyargs);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Map<String,Type> keywordParams, Map<String,IValue> defaultParams) {
+		Type cons = makeTupleType(adt, name, tupleType, keywordParams, defaultParams);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);
@@ -605,9 +592,9 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name,
-			List<KeywordParameter> keyargs, Object... childrenAndLabels) {
-		Type cons = TF.constructor(typeStore, nodeType, name, childrenAndLabels);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
+			Map<String, Type> kwArgs, Map<String, IValue> kwDefaults, Object... childrenAndLabels) {
+		Type cons = TF.constructor(typeStore, nodeType, name, childrenAndLabels, kwArgs, kwDefaults);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);
@@ -615,9 +602,9 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Type... children) {
-		Type cons = TF.constructor(typeStore, nodeType, name, children);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Map<String,Type> keywordParams, Map<String,IValue> defaultParams, Type... children) {
+		Type cons = TF.constructor(typeStore, nodeType, name, children, keywordParams, defaultParams);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);

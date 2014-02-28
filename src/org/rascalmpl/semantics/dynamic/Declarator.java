@@ -51,7 +51,7 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 					// that is used on the right hand side.
 					Result<IValue> v = var.getInitial().interpret(__eval);
 
-					Type declaredType = typeOf(__eval.getCurrentEnvt(), true);
+					Type declaredType = typeOf(__eval.getCurrentEnvt(), true, __eval);
 
 					if (!__eval.getCurrentEnvt().declareVariable(declaredType,
 							var.getName())) {
@@ -74,7 +74,7 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 								v.getType(), var);
 					}
 				} else {
-					Type declaredType = typeOf(__eval.getCurrentEnvt(), true);
+					Type declaredType = typeOf(__eval.getCurrentEnvt(), true, __eval);
 
 					if (!__eval.getCurrentEnvt().declareVariable(declaredType,
 							var.getName())) {
@@ -88,8 +88,8 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
-			return getType().typeOf(env, instantiateTypeParameters);
+		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+			return getType().typeOf(env, instantiateTypeParameters, eval);
 		}
 
 	}
