@@ -267,6 +267,14 @@ public class Execute {
 			case "CALLDYN":
 				codeblock.CALLDYN( getIntField(instruction, "arity"));
 				break;
+				
+			case "APPLY":
+				codeblock.APPLY(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				break;
+				
+			case "APPLYDYN":
+				codeblock.APPLYDYN(getIntField(instruction, "arity"));
+				break;
 
 			case "LOADFUN":
 				codeblock.LOADFUN(getStrField(instruction, "fuid"));

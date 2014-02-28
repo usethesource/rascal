@@ -51,6 +51,9 @@ public class FunctionInstance implements ICallableValue {
 	 */
 	public static FunctionInstance applyPartial(Function function, Frame env, RVM rvm, int arity, Object[] stack, int sp) {
 		FunctionInstance fun_instance = new FunctionInstance(function, env, rvm);
+		if(arity == 0) {
+			return fun_instance;
+		}
 		fun_instance.args = new Object[function.nformals];
 		int start = sp - arity;
 		for(int i = 0; i < arity; i++) {
@@ -63,6 +66,9 @@ public class FunctionInstance implements ICallableValue {
 	 * Assumption: next + arity < function.nformals 
 	 */
 	public FunctionInstance applyPartial(int arity, Object[] stack, int sp) {
+		if(arity == 0) {
+			return this;
+		}
 		FunctionInstance fun_instance = this.copy();
 		int start = sp - arity;
 		for(int i = 0; i < arity; i++) {

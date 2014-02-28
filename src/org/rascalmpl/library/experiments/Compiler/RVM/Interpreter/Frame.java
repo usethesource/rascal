@@ -111,6 +111,11 @@ public class Frame {
 				frame.stack[frame.sp++] = arg;
 			}
 		}
+		if(arity == 0) {
+			this.sp = sp;
+			frame.sp = frame.function.nlocals;
+			return frame;
+		}
 		this.sp = frame.pushFunctionArguments(arity, this.stack, sp);
 		return frame;
 	}

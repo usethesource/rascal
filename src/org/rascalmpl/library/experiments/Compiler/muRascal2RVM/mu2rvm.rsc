@@ -25,6 +25,8 @@ str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 str functionScope = "";
 map[str,int] nlocal = ();
 
+map[str,str] scopeIn = ();
+
 int get_nlocals() = nlocal[functionScope];
 
 void set_nlocals(int n) {
@@ -161,6 +163,10 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   }
     
   println("mu2rvm: Compiling module <module_name>");
+  
+  for(fun <- functions) {
+    scopeIn[fun.qname] = fun.scopeIn;
+  }
  
   for(fun <- functions){
     functionScope = fun.qname;
@@ -308,6 +314,12 @@ INS tr(muCall(muFun(str fuid), list[MuExp] args)) = [*tr(args), CALL(fuid, size(
 INS tr(muCall(muConstr(str fuid), list[MuExp] args)) = [*tr(args), CALLCONSTR(fuid, size(args))];
 INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size(args))];
 
+// Partial application of muRascal functions
+
+INS tr(muApply(muFun(str fuid), list[MuExp] args)) = [ *tr(args), APPLY(fuid, size(args)) ];
+INS tr(muApply(muConstr(str fuid), list[MuExp] args)) { throw "Partial application is not supported for constructor calls!"; }
+INS tr(muApply(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), APPLYDYN(size(args)) ];
+
 // Rascal functions
 
 INS tr(muOCall(muOFun(str fuid), list[MuExp] args)) = [*tr(args), OCALL(fuid, size(args))];
@@ -359,10 +371,15 @@ INS tr(muFilterReturn()) = [ FILTERRETURN() ];
 
 // Coroutines
 
-INS tr(muCreate(muFun(str fuid))) = [CREATE(fuid, 0)];
-INS tr(muCreate(MuExp fun)) = [ *tr(fun), CREATEDYN(0) ];
-INS tr(muCreate(muFun(str fuid), list[MuExp] args)) = [ *tr(args), CREATE(fuid, size(args)) ];
-INS tr(muCreate(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), CREATEDYN(size(args)) ];
+//INS tr(muCreate(muFun(str fuid))) = [CREATE(fuid, 0)];
+//INS tr(muCreate(MuExp fun)) = [ *tr(fun), CREATEDYN(0) ];
+//INS tr(muCreate(muFun(str fuid), list[MuExp] args)) = [ *tr(args), CREATE(fuid, size(args)) ];
+//INS tr(muCreate(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), CREATEDYN(size(args)) ];
+
+// An alternative coroutine design that makes use of partial function application
+INS tr(muCreate(muFun(str fuid))) = [ fuid == functionScope ? LOADFUN(fuid) : LOAD_NESTED_FUN(fuid, scopeIn[fuid]) ];
+INS tr(muCreate(MuExp fun)) = tr(fun); 
+INS tr(muCreate(MuExp fun, list[MuExp] args)) = tr(muApply(fun, args));
 
 INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(0)];
 INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order!
