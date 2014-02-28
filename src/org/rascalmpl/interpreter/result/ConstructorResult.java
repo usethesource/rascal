@@ -64,36 +64,53 @@ public class ConstructorResult extends NodeResult {
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		try {
-			if (!getType().hasField(name, store)) {
+			if (!getType().hasField(name, store) && !getType().hasKeywordParameter(name, store)) {
 				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
 		} catch (UndeclaredAbstractDataTypeException e) {
 			throw new UndeclaredType(getType().toString(), ctx.getCurrentAST());
 		}
 		Type nodeType = getValue().getConstructorType();
-		if (!nodeType.hasField(name)) {
+		if (!nodeType.hasField(name) && !nodeType.hasKeywordParameter(name)) {
 			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
-		}				
-		int index = nodeType.getFieldIndex(name);
-		return makeResult(nodeType.getFieldType(index), getValue().get(index), ctx);
+		}
+		
+		if (nodeType.hasKeywordParameter(name)) {
+		  return makeResult(nodeType.getKeywordParameterType(name), getValue().asWithKeywordParameters().getParameter(name), ctx);
+		}
+		else {
+		  int index = nodeType.getFieldIndex(name);
+		  return makeResult(nodeType.getFieldType(index), getValue().get(index), ctx);
+		}
 	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
-		if (!getType().hasField(name, store)) {
+		if (!getType().hasField(name, store) && !getType().hasKeywordParameter(name)) {
 			throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 		}
+		
 		Type nodeType = getValue().getConstructorType();
-		if (!nodeType.hasField(name)) {
+		if (!nodeType.hasField(name) && !nodeType.hasKeywordParameter(name)) {
 			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
 		}				
-		int index = nodeType.getFieldIndex(name);
-		Type fieldType = nodeType.getFieldType(index);
-		if (!repl.getType().isSubtypeOf(fieldType)) {
-			throw new UnexpectedType(fieldType, repl.getType(), ctx.getCurrentAST());
-		}
 		
-		return makeResult(getType(), getValue().set(index, repl.getValue()), ctx);
+		if (nodeType.hasKeywordParameter(name)) {
+		  Type fieldType = nodeType.getKeywordParameterType(name);
+      if (!repl.getType().isSubtypeOf(fieldType)) {
+        throw new UnexpectedType(fieldType, repl.getType(), ctx.getCurrentAST());
+      }
+		  return makeResult(getType(), getValue().asWithKeywordParameters().setParameter(name, repl.getValue()), ctx);
+		}
+		else {
+		  int index = nodeType.getFieldIndex(name);
+		  Type fieldType = nodeType.getFieldType(index);
+		  if (!repl.getType().isSubtypeOf(fieldType)) {
+		    throw new UnexpectedType(fieldType, repl.getType(), ctx.getCurrentAST());
+		  }
+
+		  return makeResult(getType(), getValue().set(index, repl.getValue()), ctx);
+		}
 	}
 
 	@Override

@@ -39,6 +39,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
@@ -348,25 +349,32 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			else if (receiverType.isExternalType() && receiverType instanceof NonTerminalType) {
 				return receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore());
 			}
-			else if (receiverType.isConstructor()
-					|| receiverType.isAbstractData()) {
+			else if (receiverType.isConstructor() || receiverType.isAbstractData()) {
 				IConstructor cons = (IConstructor) receiver.getValue();
 				Type node = cons.getConstructorType();
 
 				if (!receiverType.hasField(label, __eval.getCurrentEnvt()
-						.getStore())) {
+						.getStore())
+						&& !receiverType.hasKeywordParameter(label, __eval.getCurrentEnvt().getStore())) {
 					throw new UndeclaredField(label, receiverType, this);
 				}
 
-				if (!node.hasField(label)) {
+				if (!node.hasField(label) && ! node.hasKeywordParameter(label)) {
 					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
 							.noSuchField(label, this, __eval.getStackTrace());
 				}
 
-				int index = node.getFieldIndex(label);
-				return org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(node.getFieldType(index), cons.get(index),
-								__eval);
+				if (node.hasKeywordParameter(label)) {
+				  return ResultFactory
+              .makeResult(node.getKeywordParameterType(label), cons.asWithKeywordParameters().getParameter(label)
+                  ,__eval);
+				}
+				else {
+				  int index = node.getFieldIndex(label);
+				  return ResultFactory
+				      .makeResult(node.getFieldType(index), cons.get(index),
+				          __eval);
+				}
 			} else if (receiverType.isSourceLocation()) {
 				return receiver.fieldAccess(label, new TypeStore());
 			} else {

@@ -228,7 +228,10 @@ public class FunctionType extends RascalType {
 	public boolean equals(Object o) {
 		if (o instanceof FunctionType) {
 			FunctionType other = (FunctionType) o;
-			return returnType == other.returnType && argumentTypes == other.argumentTypes;
+			return returnType == other.returnType 
+			    && argumentTypes == other.argumentTypes
+			    && keywordParameters.equals(other.keywordParameters)
+			    && defaultParameters.values().equals(other.defaultParameters.values());
 		}
 		return false;
 	}
