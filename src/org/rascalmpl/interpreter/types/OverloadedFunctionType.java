@@ -150,13 +150,14 @@ public class OverloadedFunctionType extends RascalType {
 	  }
 	  
 	  Type returnType = getReturnType().glb(of.getReturnType());
-		  
+		
 	  for(FunctionType f : getAlternatives()) {
-	      newAlternatives.add((FunctionType)RTF.functionType(returnType, f.getArgumentTypes()));
+	    // TODO: what to do with kwparameters?
+	      newAlternatives.add((FunctionType)RTF.functionType(returnType, f.getArgumentTypes(), f.getKeywordParameterTypes(), f.getKeywordParameterDefaults()));
 	  }
 		  
 	  for(FunctionType f : of.getAlternatives()) {
-		  newAlternatives.add((FunctionType)RTF.functionType(returnType, f.getArgumentTypes()));
+		  newAlternatives.add((FunctionType)RTF.functionType(returnType, f.getArgumentTypes(), f.getKeywordParameterTypes(), f.getKeywordParameterDefaults()));
 	  }
 		  
 	  return RTF.overloadedFunctionType(newAlternatives);
@@ -203,14 +204,14 @@ public class OverloadedFunctionType extends RascalType {
 		if(right instanceof FunctionType) {
 			for(FunctionType ftype : this.alternatives) {
 				if(TF.tupleType(((FunctionType) right).getReturnType()).isSubtypeOf(ftype.getArgumentTypes())) {
-					newAlternatives.add((FunctionType) RTF.functionType(ftype.getReturnType(), ((FunctionType) right).getArgumentTypes()));
+					newAlternatives.add((FunctionType) RTF.functionType(ftype.getReturnType(), ((FunctionType) right).getArgumentTypes(), ((FunctionType) right).getKeywordParameterTypes(), ((FunctionType) right).getKeywordParameterDefaults()));
 				}
 			}
 		} else if(right instanceof OverloadedFunctionType) {
 			for(FunctionType ftype : ((OverloadedFunctionType) right).getAlternatives()) {
 				for(FunctionType gtype : this.alternatives) {
 					if(TF.tupleType(ftype.getReturnType()).isSubtypeOf(gtype.getArgumentTypes())) {
-						newAlternatives.add((FunctionType) RTF.functionType(gtype.getReturnType(), ftype.getArgumentTypes()));
+						newAlternatives.add((FunctionType) RTF.functionType(gtype.getReturnType(), ftype.getArgumentTypes(), ftype.getKeywordParameterTypes(), ftype.getKeywordParameterDefaults()));
 					}
 				}
 			}

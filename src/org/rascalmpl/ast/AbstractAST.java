@@ -33,8 +33,10 @@ import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class AbstractAST implements IVisitable {
@@ -87,7 +89,23 @@ public abstract class AbstractAST implements IVisitable {
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 	}
 	
-	public void _setType(Type nonterminalType) {
+	protected static void interpretKeywordParameters(java.util.List<KeywordFormal> parameters, java.util.Map<String, Type> types, java.util.Map<String, IValue> defaults, Environment env, IEvaluator<Result<IValue>> __eval) {
+    for(KeywordFormal kwf : parameters){
+      Type declaredType = kwf.getType().typeOf(env, true, __eval);
+      Result<IValue> r = kwf.getExpression().interpret(__eval);
+      String name = Names.name(kwf.getName());
+  
+      if(r.getType().isSubtypeOf(declaredType)) {
+        types.put(name, declaredType);
+        defaults.put(name, r.getValue());
+      }
+      else {
+        throw new UnexpectedType(declaredType, r.getType(), kwf);
+      }
+    }
+  }
+
+  public void _setType(Type nonterminalType) {
 		if (_type != null && (! _type.equals(nonterminalType))) {
 			// For debugging purposes
 			System.err.println("In _setType, found two unequal types: " + _type.toString() + " and " + nonterminalType.toString());
@@ -153,8 +171,9 @@ public abstract class AbstractAST implements IVisitable {
 	/**
 	 * Computes internal type representations for type literals and patterns. 
 	 * @param instantiateTypeParameters TODO
+	 * @param eval TODO
 	 */
-	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		throw new NotYetImplemented(this);
 	}
 

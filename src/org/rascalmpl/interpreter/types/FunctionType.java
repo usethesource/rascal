@@ -14,11 +14,13 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -30,13 +32,17 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 public class FunctionType extends RascalType {
 	private final Type returnType;
 	private final Type argumentTypes;
+	private final Map<String, Type> keywordParameters;
+	private final Map<String, IValue> defaultParameters;
 	
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	
-	/*package*/ FunctionType(Type returnType, Type argumentTypes) {
+	/*package*/ FunctionType(Type returnType, Type argumentTypes, Map<String, Type> keywordParameters, Map<String, IValue> defaultParameters) {
 		this.argumentTypes = argumentTypes.isTuple() ? argumentTypes : TF.tupleType(argumentTypes);
 		this.returnType = returnType;
+		this.keywordParameters = keywordParameters;
+		this.defaultParameters = defaultParameters;
 	}
 	
 	@Override
@@ -55,6 +61,40 @@ public class FunctionType extends RascalType {
 	@Override
 	public int getArity() {
 		return argumentTypes.getArity();
+	}
+	
+	@Override
+	public Map<String, IValue> getKeywordParameterDefaults() {
+	  return defaultParameters;
+	}
+
+	public Map<String, Type> getKeywordParameterTypes() {
+    return keywordParameters;
+  }
+	
+	@Override
+	public IValue getKeywordParameterDefault(String label) {
+	  return defaultParameters.get(label);
+	}
+	
+	@Override
+	public Set<String> getKeywordParameters() {
+	  return Collections.unmodifiableSet(keywordParameters.keySet());
+	}
+	
+	@Override
+	public Type getKeywordParameterType(String label) {
+	  return keywordParameters.get(label);
+	}
+	
+	@Override
+	public boolean hasKeywordParameter(String label) {
+	  return keywordParameters.containsKey(label);
+	}
+	
+	@Override
+	public boolean hasKeywordParameters() {
+	  return !keywordParameters.isEmpty();
 	}
 	
 	@Override
@@ -112,8 +152,9 @@ public class FunctionType extends RascalType {
 	  Type returnType = getReturnType().lub(f.getReturnType());
 	  Type argumentTypes = getArgumentTypes().glb(f.getArgumentTypes());
 	  
-	  if(argumentTypes.isTuple()) {
-	    return RTF.functionType(returnType, argumentTypes);
+	  if (argumentTypes.isTuple()) {
+	    // TODO: figure out what lub means for keyword parameters!
+	    return RTF.functionType(returnType, argumentTypes, Collections.<String,Type>emptyMap(), Collections.<String,IValue>emptyMap());
 	  }
 	  
 	  return TF.valueType();
@@ -131,7 +172,8 @@ public class FunctionType extends RascalType {
 	  Type argumentTypes = getArgumentTypes().lub(f.getArgumentTypes());
 		
 	  if(argumentTypes.isTuple()) {
-		return RTF.functionType(returnType, argumentTypes);
+	    // TODO: figure out what glb means for keyword parameters
+	    return RTF.functionType(returnType, argumentTypes,Collections.<String,Type>emptyMap(), Collections.<String,IValue>emptyMap());
 	  }
 		
 	  return TF.voidType();
@@ -193,7 +235,7 @@ public class FunctionType extends RascalType {
 	
 	@Override
 	public Type instantiate(Map<Type, Type> bindings) {
-		return RTF.functionType(returnType.instantiate(bindings), argumentTypes.instantiate(bindings));
+		return RTF.functionType(returnType.instantiate(bindings), argumentTypes.instantiate(bindings), keywordParameters, defaultParameters);
 	}
 	
 	@Override
@@ -236,14 +278,15 @@ public class FunctionType extends RascalType {
 			return right;
 		}
 		Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+		
 		if(right instanceof FunctionType) {
 			if(TF.tupleType(((FunctionType) right).returnType).isSubtypeOf(this.argumentTypes)) {
-				return RTF.functionType(this.returnType, ((FunctionType) right).getArgumentTypes());
+				return RTF.functionType(this.returnType, ((FunctionType) right).getArgumentTypes(), ((FunctionType) right).keywordParameters, ((FunctionType) right).defaultParameters);
 			}
 		} else if(right instanceof OverloadedFunctionType) {
 			for(FunctionType ftype : ((OverloadedFunctionType) right).getAlternatives()) {
 				if(TF.tupleType(ftype.getReturnType()).isSubtypeOf(this.argumentTypes)) {
-					newAlternatives.add((FunctionType) RTF.functionType(this.returnType, ftype.getArgumentTypes()));
+					newAlternatives.add((FunctionType) RTF.functionType(this.returnType, ftype.getArgumentTypes(), ftype.keywordParameters, ftype.defaultParameters));
 				}
 			}
 		} else {

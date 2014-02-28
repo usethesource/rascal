@@ -18,7 +18,6 @@
 package org.rascalmpl.interpreter.env;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -687,16 +686,16 @@ public class Environment {
 		return getRoot().concreteSyntaxType(name, symbol);
 	}
 
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordParameter> keyargs) {
-		return getRoot().constructorFromTuple(ast, eval, adt, name, tupleType, keyargs);
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Map<String,Type> keywordParams, Map<String,IValue> defaultParams) {
+		return getRoot().constructorFromTuple(ast, eval, adt, name, tupleType, keywordParams, defaultParams);
 	}
 
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Object... childrenAndLabels ) {
-		return getRoot().constructor(ast, eval, nodeType, name, keyargs, childrenAndLabels);
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Map<String,Type> keywordParams, Map<String,IValue> defaultParams, Object... childrenAndLabels ) {
+		return getRoot().constructor(ast, eval, nodeType, name, keywordParams, defaultParams, childrenAndLabels);
 	}
 
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Type... children ) {
-		return getRoot().constructor(ast, eval, nodeType, name, keyargs, children);
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Map<String,Type> keywordParams, Map<String,IValue> defaultParams, Type... children ) {
+		return getRoot().constructor(ast, eval, nodeType, name, keywordParams, defaultParams, children);
 	}
 
 	public Type aliasType(String name, Type aliased, Type...parameters) {

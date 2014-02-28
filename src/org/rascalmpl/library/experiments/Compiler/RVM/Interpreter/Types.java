@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -173,7 +174,8 @@ public class Types {
 	private Type funcToType(IConstructor symbol, TypeStore store) {
 		Type returnType = symbolToType((IConstructor) symbol.get("ret"), store);
 		Type parameters = symbolsToTupleType((IList) symbol.get("parameters"), store);
-		return RascalTypeFactory.getInstance().functionType(returnType, parameters);
+		// TODO: function types shouls also reify keyword parameters
+		return RascalTypeFactory.getInstance().functionType(returnType, parameters, Collections.<String,Type>emptyMap(), Collections.<String,IValue>emptyMap());
 	}
 
 	private Type consToType(IConstructor symbol, TypeStore store) {

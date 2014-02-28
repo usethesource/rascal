@@ -17,6 +17,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,14 +65,13 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected static boolean callTracing = false;
 	
 	// TODO: change arguments of these constructors to use EvaluatorContexts
-	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, boolean varargs, List<KeywordParameter> keyargs, Environment env) {
+	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, boolean varargs, Environment env) {
 		super(functionType, null, eval);
 		this.ast = ast;
 		this.functionType = functionType;
 		this.eval = eval;
 		this.hasVarArgs = varargs;
-		this.hasKeyArgs = keyargs != null && keyargs.size() > 0;
-		this.keywordParameterDefaults = keyargs;
+		this.hasKeyArgs = functionType.hasKeywordParameters();
 		this.declarationEnvironment = env;
 		this.vf = eval.getValueFactory();
 	}
@@ -431,7 +431,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	/* test if a function is of type T(T) for a given T */
 	public boolean isTypePreserving() {
 		Type t = getReturnType();
-		return getFunctionType().equivalent(RascalTypeFactory.getInstance().functionType(t,t));
+		return getFunctionType().equivalent(RascalTypeFactory.getInstance().functionType(t,t, Collections.<String,Type>emptyMap(), Collections.<String,IValue>emptyMap()));
 	}
 	
 	public String getName() {

@@ -15,32 +15,25 @@ package org.rascalmpl.interpreter.result;
 
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.Expression.Closure;
-import org.rascalmpl.ast.Expression.VoidClosure;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionModifier;
-import org.rascalmpl.ast.KeywordFormal;
-import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Tags;
-import org.rascalmpl.ast.Variant;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.staticErrors.NoKeywordParameters;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
@@ -55,18 +48,15 @@ abstract public class NamedFunction extends AbstractFunction {
   protected final String resourceScheme;
   protected final String resolverScheme;
   protected final Map<String, String> tags;
-	protected final Type[] keywordParameterTypes;
 	private SoftReference<MemoizationCache> memoization;
   protected final boolean hasMemoization;
   
 	public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, String name,
-			boolean varargs, boolean isDefault, boolean isTest, List<KeywordParameter> keyargs, Environment env) {
-		super(ast, eval, functionType, varargs, (keyargs == null) ? computeKeywordParameterDefaults(ast, eval) : keyargs, env);
+			boolean varargs, boolean isDefault, boolean isTest, Environment env) {
+		super(ast, eval, functionType, varargs, env);
 		this.name = name;
 		this.isDefault = isDefault;
 		this.isTest = isTest;
-		this.hasKeyArgs = keywordParameterDefaults != null && keywordParameterDefaults.size() > 0;
-		this.keywordParameterTypes = computeKeywordParameterTypes(ast, eval);
 	  this.isStatic = env.isRootScope() && eval.__getRootScope() != env;
 	  
 		if (ast instanceof FunctionDeclaration) {
@@ -143,75 +133,6 @@ abstract public class NamedFunction extends AbstractFunction {
 		}
 		return result;
 	}
-	
-	
-	private static List<KeywordFormal> getKeywordDefaults(AbstractAST ast){
-	 
-		//System.err.println(getName() + ast.getClass());
-		Parameters params = null;
-		if (ast instanceof FunctionDeclaration) {
-			params = ((FunctionDeclaration) ast).getSignature().getParameters();
-		}
-		else if(ast instanceof Variant){
-			Variant var = ((Variant) ast);
-			if(var.getKeywordArguments().isDefault()){
-				return var.getKeywordArguments().getKeywordFormalList();
-			}	
-		}
-		else if (ast instanceof Closure) {
-			params = ((Closure) ast).getParameters();
-		}
-		else if (ast instanceof VoidClosure) {
-			params = ((VoidClosure) ast).getParameters();
-		}
-		else {
-			throw new ImplementationError("Unexpected kind of Rascal function: " + ast);
-		}
-		if(params != null){
-			if(params.getKeywordFormals().isDefault())
-				return params.getKeywordFormals().getKeywordFormalList();
-		}
-		return null;
-	}
-	
-	private static List<KeywordParameter> computeKeywordParameterDefaults(AbstractAST ast, IEvaluator<Result<IValue>> eval){
-		LinkedList<KeywordParameter> kwdefaults = null;
-
-		List<KeywordFormal> kwformals = getKeywordDefaults(ast);
-		
-		if(kwformals != null && kwformals.size() > 0){
-			kwdefaults = new LinkedList<KeywordParameter>();
-			
-			for(int i = 0; i < kwformals.size(); i++){
-				KeywordFormal kwf = kwformals.get(i);
-				Result<IValue> r = kwf.getExpression().interpret(eval);
-				Type kwType = kwf.getType().typeOf(eval.getCurrentEnvt(), true);
-        if(!r.getType().isSubtypeOf(kwType)) {
-					throw new UnexpectedKeywordArgumentType(Names.name(kwf.getName()), kwType, r.getType(), ast);
-				}
-				kwdefaults.add(new KeywordParameter(Names.name(kwf.getName()), kwType, r));
-			}
-		}
-		return kwdefaults;
-	}
-	
-	private static Type[] computeKeywordParameterTypes(AbstractAST ast, IEvaluator<Result<IValue>> eval){
-    List<KeywordFormal> kwformals = getKeywordDefaults(ast);
-    
-    if (kwformals == null) {
-      return null;
-    }
-    
-    Type[] kwTypes = new Type[kwformals.size()];
-    
-    if(kwformals != null && kwformals.size() > 0){
-      for(int i = 0; i < kwformals.size(); i++){
-        KeywordFormal kwf = kwformals.get(i);
-        kwTypes[i] = kwf.getType().typeOf(eval.getCurrentEnvt(), true);
-      }
-    }
-    return kwTypes;
-  }
 	
 	protected static String getResourceScheme(FunctionDeclaration declaration) {
   	return getScheme(RESOURCE_TAG, declaration);
@@ -293,49 +214,28 @@ abstract public class NamedFunction extends AbstractFunction {
 
   protected void bindKeywordArgs(Map<String, IValue> keyArgValues){
     Environment env = ctx.getCurrentEnvt();
-    if(keyArgValues.isEmpty()){
-      if(keywordParameterDefaults != null){
-        for(KeywordParameter pair : keywordParameterDefaults){
-          String kwparam= pair.getName();
-          Result<IValue> r = pair.getDefault();
-          env.declareVariable(r.getType(), kwparam);
-          env.storeVariable(kwparam,r);
-        }
-      }
-      return;
-    }
-    if(keywordParameterDefaults == null)
-      throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
     
-    int nBoundKeywordArgs = 0;
-    int k = 0;
-    for(KeywordParameter kw: keywordParameterDefaults){
-      String kwparam = kw.getName();
-      if(keyArgValues.containsKey(kwparam)){
-        nBoundKeywordArgs++;
+    for (Entry<String,Type> param : functionType.getKeywordParameterTypes().entrySet()){
+      String kwparam = param.getKey();
+      
+      if (keyArgValues.containsKey(kwparam)){
         IValue r = keyArgValues.get(kwparam);
-        if(!r.getType().isSubtypeOf(keywordParameterTypes[k])){
-          throw new UnexpectedKeywordArgumentType(kwparam, keywordParameterTypes[k], r.getType(), ctx.getCurrentAST());
+        
+        if(!r.getType().isSubtypeOf(param.getValue())) {
+          throw new UnexpectedKeywordArgumentType(kwparam, param.getValue(), r.getType(), ctx.getCurrentAST());
         }
-        env.declareVariable(keywordParameterTypes[k], kwparam);
-        env.storeVariable(kwparam, ResultFactory.makeResult(keywordParameterTypes[k], r, ctx));
-      } else {
-        Result<IValue> r = kw.getDefault();
-        env.declareVariable(r.getType(), kwparam);
-        env.storeVariable(kwparam, r);
-      }
-      k++;
-    }
-    if(nBoundKeywordArgs != keyArgValues.size()){
-      main:for (String kwparam : keyArgValues.keySet()) {
-        for (KeywordParameter kw : keywordParameterDefaults){
-          if (kwparam.equals(kw.getName())) {
-              continue main;
-          }
-          throw new UndeclaredKeywordParameter(getName(), kwparam, ctx.getCurrentAST());
-        }
+        
+        env.declareVariable(param.getValue(), kwparam);
+        env.storeVariable(kwparam, ResultFactory.makeResult(param.getValue(), r, ctx));
+      } 
+      else {
+        env.declareVariable(param.getValue(), kwparam);
+        env.storeVariable(kwparam, ResultFactory.makeResult(param.getValue(), functionType.getKeywordParameterDefault(kwparam), ctx));
       }
     }
+    
+    // TODO: what if the caller provides more arguments then are declared? They are
+    // silently lost here.
   }
 	
 	@Override

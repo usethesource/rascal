@@ -16,12 +16,15 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.AmbiguousFunctionReference;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
@@ -37,7 +40,7 @@ public abstract class DataTypeSelector extends
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			Type adt;
 			QualifiedName sort = this.getSort();
 			String name = org.rascalmpl.interpreter.utils.Names.typeName(sort);

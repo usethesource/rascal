@@ -13,6 +13,7 @@ package org.rascalmpl.library.cobra;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class DynamicGenerator extends AbstractFunction {
 			HashMap<Type, ICallableValue> generators) {
 		super(null, eval, (FunctionType) RascalTypeFactory.getInstance()
 				.functionType(returnType,
-						TypeFactory.getInstance().integerType()), false, null, env);
+						TypeFactory.getInstance().integerType(), Collections.<String,Type>emptyMap(), Collections.<String,IValue>emptyMap()), false, env);
 		this.generators = generators;
 	}
 	
