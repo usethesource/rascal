@@ -84,11 +84,12 @@ public class NodePattern extends AbstractMatchingResult {
 	
 	@Override
 	public void initMatch(Result<IValue> subject){
-		boolean nodeSubject = false;
 		super.initMatch(subject);
 		hasNext = false;
-		if(subject.isVoid()) 
+		
+		if (subject.isVoid()) {
 			throw new UninitializedPatternMatch("Uninitialized pattern match: trying to match a value of the type 'void'", ctx.getCurrentAST());
+		}
 
 		if (!subject.getValue().getType().isNode()) {
 			return;
@@ -121,14 +122,12 @@ public class NodePattern extends AbstractMatchingResult {
 
 		if (subjectType.isAbstractData()) {
 			subjectType = ((IConstructor) this.subject).getConstructorType();
-		} else if (subjectType.isNode()){
-			nodeSubject = true;
-			INode node = ((INode) this.subject);
-			 
-			if (node.arity() != patternChildren.size()) {
-			  return; // that can never match
-			}
 		} 
+		
+		INode node = ((INode) this.subject);
+    if (node.arity() != patternChildren.size()) {
+      return; // that can never match
+    }
 		
 		if (patternType.comparable(subjectType)) {
 			hasNext = true;
@@ -138,7 +137,7 @@ public class NodePattern extends AbstractMatchingResult {
 		
 		for (int i = 0; i < patternChildren.size(); i++){
 			IValue subjectChild = this.subject.get(i);
-			IMatchingResult patternChild = patternChildren.get(0);
+			IMatchingResult patternChild = patternChildren.get(i);
 			
 			patternChild.initMatch(ResultFactory.makeResult(subjectChild.getType(), subjectChild, ctx));
 			hasNext = patternChild.hasNext();
@@ -161,7 +160,7 @@ public class NodePattern extends AbstractMatchingResult {
 		  }
 		  else {
 		    // TODO: here we are using the dynamic type, is that what we are supposed to do?
-		    subjectParamType = subject.getType().isNode() ? tf.valueType() : subjectParam.getType();
+		    subjectParamType = subject.getType().isConstructor() ? subjectParam.getType() : tf.valueType();
 		  }
 		  
       entry.getValue().initMatch(ResultFactory.makeResult(subjectParamType, subjectParam, ctx));
@@ -262,8 +261,8 @@ public class NodePattern extends AbstractMatchingResult {
 				}
 			}
 		}
-	    hasNext = false;
-	    return false;
+		hasNext = false;
+		return false;
 	}
 	
 	@Override
