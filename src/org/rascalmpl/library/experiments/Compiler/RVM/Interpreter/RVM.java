@@ -1059,15 +1059,34 @@ public class RVM {
 					
 				case Opcode.OP_CREATE:
 				case Opcode.OP_CREATEDYN:
-					if(op == Opcode.OP_CREATE){
+				case Opcode.OP_APPLY:
+				case Opcode.OP_APPLYDYN:
+					if(op == Opcode.OP_CREATE || op == Opcode.OP_APPLY) {
 						Function fun = functionStore.get(CodeBlock.fetchArg1(instruction));
-						frame = fun.scopeIn == -1 ? cf.getCoroutineFrame(fun, root, CodeBlock.fetchArg2(instruction), sp)
-									              : cf.getCoroutineFrame(fun, fun.scopeIn, CodeBlock.fetchArg2(instruction), sp);
+						arity = CodeBlock.fetchArg2(instruction);
+						if(op == Opcode.OP_APPLY) {
+							FunctionInstance fun_instance = fun.scopeIn == -1 ? FunctionInstance.applyPartial(fun, root, this, arity, stack, sp)
+									                                          : FunctionInstance.computeFunctionInstance(fun, cf, fun.scopeIn, this).applyPartial(arity, stack, sp);
+							assert arity <= fun.nformals;
+							sp = sp - arity;
+							stack[sp++] = fun_instance;
+							continue NEXT_INSTRUCTION;
+						}
+						frame = fun.scopeIn == -1 ? cf.getCoroutineFrame(fun, root, arity, sp)
+									              : cf.getCoroutineFrame(fun, fun.scopeIn, arity, sp);
 					} else {
 						src = stack[--sp];
 						if(src instanceof FunctionInstance) {
 							FunctionInstance fun_instance = (FunctionInstance) src;
-							frame = cf.getCoroutineFrame(fun_instance.function, fun_instance.env, CodeBlock.fetchArg1(instruction), sp);
+							arity = CodeBlock.fetchArg1(instruction);
+							if(op == Opcode.OP_APPLYDYN) {
+								assert arity + fun_instance.next <= fun_instance.function.nformals;
+								fun_instance = fun_instance.applyPartial(arity, stack, sp);
+								sp = sp - arity;
+								stack[sp++] = fun_instance;
+								continue NEXT_INSTRUCTION;
+							}
+							frame = cf.getCoroutineFrame(fun_instance.function, fun_instance.env, arity, sp);
 						} else {
 							throw new RuntimeException("Unexpected argument type for CREATEDYN: " + asString(src));
 						}
@@ -1075,7 +1094,7 @@ public class RVM {
 					sp = cf.sp;
 					stack[sp++] = new Coroutine(frame);
 					continue NEXT_INSTRUCTION;
-				
+					
 				case Opcode.OP_NEXT0:
 				case Opcode.OP_NEXT1:
 					Coroutine coroutine = (Coroutine) stack[--sp];
@@ -1115,18 +1134,14 @@ public class RVM {
 					rval = Rascal_TRUE; // In fact, yield has to always return TRUE
 					if(op == Opcode.OP_YIELD1) {
 						arity = CodeBlock.fetchArg1(instruction);
-						int[] refs = coroutine.start.function.refs; // Takes the reference parameter positions of the top active coroutine instance 
-						
-						if(cf != coroutine.start && cf.function.refs.length != refs.length) {
-							throw new RuntimeException("The 'yield' from within a nested call has to take the same number of arguments as the number of the caller's reference parameters: " + cf.function.refs.length + "; " + refs.length);
-						}
+						int[] refs = cf.function.refs; 
 						
 						if(arity != refs.length) {
 							throw new RuntimeException("The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length);
 						}
 						
 						for(int i = 0; i < arity; i++) {
-							ref = (Reference) coroutine.start.stack[refs[arity - 1 - i]]; // Takes the reference parameters of the top active coroutine instance
+							ref = (Reference) stack[refs[arity - 1 - i]]; // Takes the reference parameters of the top active coroutine instance
 							ref.stack[ref.pos] = stack[--sp];
 						}
 					}
@@ -1134,8 +1149,9 @@ public class RVM {
 					cf.sp = sp;
 					coroutine.suspend(cf);
 					cf = prev;
-					if(op == Opcode.OP_YIELD1 && cf == null)
+					if(op == Opcode.OP_YIELD1 && cf == null) {
 						return rval;
+					}
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;

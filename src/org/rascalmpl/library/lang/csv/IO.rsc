@@ -46,10 +46,10 @@ Read a CSV file and return a value of a required type.
 
 The `result` argument is the required type of the value that is produced by reading the CSV
 that is found at `location`.
-Optionally, a map of options can be given:
-* `"header" : "true"` specifies that a header is present (default).
-* `"header" : "false"` specifies that no header is present.
-* `"separator" : ","` specifies that `,` is the separator character between fields (default).
+Optionally, the following arguments can be supplied:
+* `header = true` specifies that a header is present (default).
+* `header = false` specifies that no header is present.
+* `separator = ","` specifies that `,` is the separator character between fields (default).
 
 The CSV data should conform to the specified type (if any).
 
@@ -84,38 +84,42 @@ Given is the follwing file `ex1.csv`:
 We can read it in various ways:
 <screen>
 import lang::csv::IO;
-R1 = readCSV(#rel[int position, str artist, str title, int year],  |courses:///Rascal/Libraries/lang/csv/ex1.csv|, ("separator" : ";"));
+R1 = readCSV(#rel[int position, str artist, str title, int year],  |courses:///Rascal/Libraries/lang/csv/ex1.csv|, separator = ";");
 //Now we can, for instance, select one of the fields of `R1`:
 R1.artist;
 //It is also possible to infer the type:
-R1 = readCSV(|courses:///Rascal/Libraries/lang/csv/ex1.csv|, ("separator" : ";"));
+R1 = readCSV(|courses:///Rascal/Libraries/lang/csv/ex1.csv|, separator = ";");
 </screen>
 
+}
+@javaClass{org.rascalmpl.library.lang.csv.IO}
+@reflect{Uses URI Resolver Registry}
+public java value readCSV(loc location, bool header = true, str separator = ",");
+
+@deprecated{use the readCSV with keyword parameters}
+public value readCSV(loc location, map[str,str] options) {
+	return readCSV(location, header = options["header"]?"true" == "true", separator = options["separator"]?",");
+}
+
+
+@javaClass{org.rascalmpl.library.lang.csv.IO}
+@reflect{Uses URI Resolver Registry}
+public java &T readCSV(type[&T] result, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
+
+@deprecated{use the readCSV with keyword parameters}
+public &T readCSV(type[&T] result, loc location, map[str,str] options) {
+	return readCSV(result, location, header = options["header"]?"true" == "true", separator = options["separator"]?",");
 }
 
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 @reflect{Uses URI Resolver Registry}
-public java value readCSV(loc location);
+public java type[value] getCSVType(loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
-@javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{Uses URI Resolver Registry}
-public java value readCSV(loc location, map[str,str] options);
+@deprecated{use the getCSVType with keyword parameters}
+public type[value] getCSVType(loc location, map[str,str] options) {
+	return getCSVType(location, header = options["header"]?"true" == "true", separator = options["separator"]?",");
+}
 
-@javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{Uses URI Resolver Registry}
-public java &T readCSV(type[&T] result, loc location);
-
-@javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{Uses URI Resolver Registry}
-public java &T readCSV(type[&T] result, loc location, map[str,str] options);
-
-@javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{Uses URI Resolver Registry}
-public java type[value] getCSVType(loc location);
-
-@javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{Uses URI Resolver Registry}
-public java type[value] getCSVType(loc location, map[str,str] options);
 
 @doc{
 Synopsis: Write a relation to a CSV (Comma Separated Values) file.
@@ -124,8 +128,8 @@ Description:
 Write `relation` to a CSV file at `location`.
 The options influence the way the actrual CSV file is written:
 
-* `"header"`: add (`"true"`) or omit (`"false"`) a header.
-* `"separator"`: defines the separator character between fields (default is `,`).
+* `header`: add or omit a header (based on the labels of the relation).
+* `separator`: defines the separator character between fields (default is `,`).
 
 
 
@@ -138,7 +142,7 @@ rel[int position, str artist, str title, int year] R1 = {
   <3,"Boudewijn de Groot","Avond",1997>
 };
 writeCSV(R1, |courses:///Rascal/Libraries/lang/csv/ex1a.csv|);
-writeCSV(R1, |courses:///Rascal/Libraries/lang/csv/ex1b.csv|, ("header" : "false", "separator" : ";"));
+writeCSV(R1, |courses:///Rascal/Libraries/lang/csv/ex1b.csv|, header = false, separator = ";");
 </screen>
 will produce the following files:
 
@@ -147,16 +151,15 @@ will produce the following files:
 `ex1b.csv` (without a header line with separator `;`):
 <listing Rascal/Libraries/lang/csv/ex1b.csv>
 
-
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 @reflect{Uses type parameter.}
-public java void writeCSV(&T relation, loc location);
+public java void writeCSV(&T relation, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
-@javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{Uses type parameter.}
-public java void writeCSV(&T relation, loc location, map[str,str] options);
-
+@deprecated{use writeCSV with optional parameters}
+public void writeCSV(&T relation, loc location, map[str,str] options) {
+	writeCSV(relation, location, header = options["header"]?"true" == "true", separator = options["separator"]?",");
+}
 
 public Table loadCSV(loc l) = implodeCSV(parseCSV(l));
 

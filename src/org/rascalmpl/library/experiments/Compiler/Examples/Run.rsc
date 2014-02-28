@@ -20,6 +20,9 @@ import experiments::Compiler::Examples::SendMoreMoney;
 import experiments::Compiler::Examples::SetMatch;
 import experiments::Compiler::Examples::SetMatchMix;
 import experiments::Compiler::Examples::Descent;
+import experiments::Compiler::Examples::DescentLiteral;
+import experiments::Compiler::Examples::DescentTuple;
+import experiments::Compiler::Examples::DescentList;
 import experiments::Compiler::Examples::TestSuite;
 import experiments::Compiler::Examples::Template;
 import experiments::Compiler::Examples::Overloading1;
@@ -109,6 +112,9 @@ test bool tst() = demo("ListMatch") == experiments::Compiler::Examples::ListMatc
 test bool tst() = demo("SetMatch") == experiments::Compiler::Examples::SetMatch::main([]);
 test bool tst() = demo("SetMatchMix") == experiments::Compiler::Examples::SetMatchMix::main([]);
 test bool tst() = demo("Descent") == experiments::Compiler::Examples::Descent::main([]);
+test bool tst() = demo("DescentLiteral") == experiments::Compiler::Examples::DescentLiteral::main([]);
+test bool tst() = demo("DescentTuple") == experiments::Compiler::Examples::DescentTuple::main([]);
+test bool tst() = demo("DescentList") == experiments::Compiler::Examples::DescentList::main([]);
 test bool tst() = demo("Odd") == experiments::Compiler::Examples::Odd::main([]);
 test bool tst() = demo("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main([]);
 

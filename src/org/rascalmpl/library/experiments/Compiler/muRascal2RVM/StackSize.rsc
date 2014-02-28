@@ -46,6 +46,10 @@ private int estimate(muCall(muFun(str fuid), list[MuExp] args)) = estimate_arg_l
 private int estimate(muCall(muConstr(str fuid), list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muCall(MuExp fun, list[MuExp] args)) = max(estimate(fun), 1 + estimate_arg_list(args));
 
+private int estimate(muApply(muFun(str fuid), list[MuExp] args)) = estimate_arg_list(args);
+private int estimate(muApply(muConstr(str fuid), list[MuExp] args)) { throw "Partial application is not supported for constructor calls!"; }
+private int estimate(muApply(MuExp fun, list[MuExp] args)) = max(estimate(fun), 1 + estimate_arg_list(args));
+
 private int estimate(muOCall(muOFun(str fuid), list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muOCall(MuExp fun, Symbol types, list[MuExp] args)) = max(estimate(fun), 1 + estimate_arg_list(args));
 
