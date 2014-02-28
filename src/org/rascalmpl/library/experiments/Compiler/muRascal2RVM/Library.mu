@@ -320,12 +320,6 @@ coroutine RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step, mixed]{
 /*					Pattern matching  												  	  */
 /******************************************************************************************/
 
-// Use one pattern to match one subject
-
-coroutine MATCH[2, pat, iSubject]{
-   pat(iSubject);
-}
-
 // Use N patterns to match N subjects
 
 coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
@@ -1181,10 +1175,6 @@ coroutine ENUM_SUBSETS[2, set, rSubset, lst, k, j, last, elIndex, sub]{
 /*					Descendant matching  												  */
 /******************************************************************************************/
 
-
-coroutine MATCH_DESCENDANT[2, pat, iSubject]{
-   MATCH_AND_DESCENT(pat, iSubject);
-}
 
 // ***** Match and descent for all types *****
 // Enforces the same left-most innermost traversal order as the interpreter
