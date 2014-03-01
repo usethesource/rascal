@@ -242,7 +242,7 @@ MuExp translateSwitchCases(str switchval, str fuid, list[Case] cases) {
      pwa = c.patternWithAction;
      if(pwa is arbitrary){
      	ifname = nextLabel();
-        cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pwa.pattern), muTmp(switchval,fuid)]));
+        cond = muMulti(muApply(translatePat(pwa.pattern), [ muTmp(switchval,fuid) ]));
         exp = muIfelse(ifname, cond, { enterBacktrackingScope(ifname); [ translate(pwa.statement) ]; }, { leaveBacktrackingScope(); [ translateSwitchCases(switchval,fuid,tail(cases)) ]; });
         return exp; 
      } else {
@@ -362,7 +362,7 @@ MuExp translateCatches(str varname, str varfuid, list[Catch] catches, bool hasDe
           <fuid,pos> = getVariableScope("<c.pattern.name>", c.pattern.name@\loc);
           then = [ muAssign("<c.pattern.name>", fuid, pos, muTmp(asUnwrapedThrown(varname),varfuid)), translate(c.body) ];
       } else {
-          conds = [ muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(c.pattern), muTmp(asUnwrapedThrown(varname),varfuid)])) ];
+          conds = [ muMulti(muApply(translatePat(c.pattern), [ muTmp(asUnwrapedThrown(varname),varfuid) ])) ];
           then = [ translate(c.body) ];
       }
       exp = muIfelse(ifname, makeMu("ALL",conds), then, [translateCatches(varname, varfuid, tail(catches), hasDefault)]);
