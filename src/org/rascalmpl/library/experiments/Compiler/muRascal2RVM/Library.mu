@@ -532,7 +532,7 @@ coroutine MATCH_COLLECTION[4,
 
 // List matching creates a specific instance of MATCH_COLLECTION
 
-coroutine MATCH_LIST[2, pats, iSubject, cpat, patlen]{
+coroutine MATCH_LIST[2, pats, iSubject]{
    guard iSubject is list;
    MATCH_COLLECTION(pats, Library::ACCEPT_LIST_MATCH::2, iSubject, 0);
 }
@@ -1007,6 +1007,8 @@ coroutine MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
 
 coroutine MATCH_LITERAL_IN_SET[3, pat, available, rRemaining, gen, elm]{
 	guard size_mset(available) > 0;
+	
+	// TODO where does elm get its value?
 	
 	if(is_element_mset(elm, available)){
        yield(mset_destructive_subtract_elm(available, elm));
