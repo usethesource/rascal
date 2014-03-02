@@ -59,7 +59,7 @@ import experiments::Compiler::Benchmarks::BVisit6g;
 import experiments::Compiler::Benchmarks::BSudoku;
 
 map[str name,  value(list[value]) job] jobs = (
-"BasType" : 				experiments::Compiler::Benchmarks::BasType::main,
+//"BasType" : 				experiments::Compiler::Benchmarks::BasType::main,
 "BBottles": 				experiments::Compiler::Benchmarks::BBottles::main,
 "BCompareFor":				experiments::Compiler::Benchmarks::BCompareFor::main,
 "BCompareIf":				experiments::Compiler::Benchmarks::BCompareIf::main,
@@ -118,11 +118,12 @@ alias Analysis = tuple[str job, num speedup, num cmean, num cdev, num imean, num
 
 list[Analysis] run_benchmarks(int n, list[str] jobs){
   initialize(n);
+  jobs = sort(jobs);
   precompile(jobs);
-  runAll(jobs);
+  time_msg = runAll(jobs);
   results = analyze_all(jobs);
-  report(results);
-  report_latex(results);
+  report(results, time_msg);
+  //report_latex(results);
   return results;
 }
 
@@ -138,15 +139,24 @@ void precompile(list[str] jobs) {
   }
 }
 
-void runAll(list[str] jobs){
-   for(job <- jobs)
+str runAll(list[str] jobs){
+   t1 = getNanoTime();
+   for(int i <- index(jobs)){
+       job = jobs[i];
+       println("**** Run compiled: <job> (<i+1>/<size(jobs)>)");
        runCompiled(job);
-   for(job <- jobs)
+   }
+   t2 = getNanoTime();
+   for(int i <- index(jobs)){
+       job = jobs[i];
+       println("**** Run interpreted: <job> (<i+1>/<size(jobs)>)");
        runInterpreted(job);
+   }
+   t3 = getNanoTime();
+   return "Total time, compiled: <1.0*(t2 - t1)/1000000000> sec, interpreted: <1.0*(t3 - t2)/1000000000> sec, ratio <1.0*(t3 - t2)/(t2 - t1)>";
 }
 
 void runCompiled(str job) {
-  println("**** Run compiled: <job>");
   measurementsCompiled[job] =
 	  for(int i <- [0 .. nsamples]){
 		  t1 = getNanoTime();
@@ -157,7 +167,6 @@ void runCompiled(str job) {
 }
 
 void runInterpreted(str job) {  
- println("**** Run interpreted: <job>");
   bmain = jobs[job];
   measurementsInterpreted[job] =
 	  for(int i <- [0 .. nsamples]){  
@@ -206,8 +215,9 @@ void report_one(Analysis a){
   println("<right(a.job, 25)>: speedup: <right(toString(precision(a.speedup,3)), 5)> x; compiled: <measurementsCompiled[a.job]>; mean <align(a.cmean)> msec (+/-<a.cdev>); interpreted: <measurementsInterpreted[a.job]>; mean <align(a.imean)> msec (+/-<a.idev>)");
 }
 
-void report(list[Analysis] results){
-  println("\nSummary of Measurements <now()>:\n");
+void report(list[Analysis] results, str time_msg){
+  sep = "==========================================================";
+  println("\n<sep>\nSummary of Measurements <now()>:\n");
   println("Number of samples = <nsamples>");
   for(a <- results){
      report_one(a);
@@ -215,7 +225,7 @@ void report(list[Analysis] results){
   println("Average speedup: <precision(mean(results.speedup), 5)>");
   println("Minimal speedup: <precision(min(results.speedup), 5)>");
   println("Maximal speedup: <precision(max(results.speedup), 5)>");
-  println("Total time: compiled: <sum(results.cmean)>; interpreted: <sum(results.imean)>; ratio: <precision(sum(results.imean)/sum(results.cmean),5)>");
+  println("<time_msg>\n<sep>");
 }
 
 void report_one_latex(Analysis a){
@@ -235,7 +245,7 @@ void report_latex(list[Analysis] results){
 // Various combinations of benchmarking jobs
 
 void main(){
-  run_benchmarks(5, toList(domain(jobs)));
+  run_benchmarks(10, toList(domain(jobs)));
 }
 
 void main_paper(){
@@ -244,12 +254,12 @@ void main_paper(){
 }
 
 void main_paper1(){
-   run_benchmarks(5, ["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty","BExceptionsFinally","BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
+   run_benchmarks(10, ["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty","BExceptionsFinally","BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
              		  "BOr","BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
              		 /*,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"*/
              	]);
 }
 
 void main_paper2(){
-   run_benchmarks(5, ["BBottles","BFac","BFib","BMarriage",/*"BRSFCalls",*/"BSendMoreMoney","BSendMoreMoneyNotTyped","BSudoku","BTemplate"]);
+   run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",/*"BRSFCalls",*/"BSendMoreMoney","BSendMoreMoneyNotTyped","BSudoku","BTemplate"]);
 }
