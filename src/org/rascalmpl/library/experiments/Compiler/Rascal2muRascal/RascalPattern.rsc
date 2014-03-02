@@ -31,7 +31,7 @@ MuExp translateMatch((Expression) `<Pattern pat> !:= <Expression exp>`) =
     muCallMuPrim("not_mbool", [ makeMu("ALL", [ translateMatch(pat, exp) ]) ]);
     
 default MuExp translateMatch(Pattern pat, Expression exp) =
-    muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [translatePat(pat), translate(exp)]));
+    muMulti(muApply(translatePat(pat), [ translate(exp) ]));
 
 /*********************************************************************/
 /*                  Patterns                                         */
@@ -733,7 +733,7 @@ MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`) =
 // -- descendant pattern ---------------------------------------------
 
 MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`) =
-    muCreate(mkCallToLibFun("Library","MATCH_DESCENDANT",2), [translatePat(pattern)]);
+    muCreate(mkCallToLibFun("Library","MATCH_AND_DESCENT",2), [translatePat(pattern)]);
 
 // -- anti pattern ---------------------------------------------------
 
@@ -846,7 +846,7 @@ MuExp translateFunction({Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps
       enterBacktrackingScope(ifname);
       // TODO: account for a variable number of arguments
 	  for(Pattern pat <- formals) {
-	      conditions += muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ *translatePat(pat), muVar("<i>",topFunctionScope(),i) ]));
+	      conditions += muMulti(muApply(translatePat(pat), [ muVar("<i>",topFunctionScope(),i) ]));
 	      i += 1;
 	  };
 	  conditions += [ translate(cond) | cond <- when_conditions];
