@@ -683,7 +683,7 @@ MuExp translateVisitCases(list[Case] cases,str fuid) {
 	if(c is patternWithAction) {
 		pattern = c.patternWithAction.pattern;
 		typePat = getType(pattern@\loc);
-		cond = muMulti(muCreate(mkCallToLibFun("Library","MATCH",2), [ translatePat(pattern), muVar("subject",fuid,0) ]));
+		cond = muMulti(muApply(translatePat(pattern), [ muVar("subject",fuid,0) ]));
 		ifname = nextLabel();
 		enterBacktrackingScope(ifname);
 		if(c.patternWithAction is replacing) {
