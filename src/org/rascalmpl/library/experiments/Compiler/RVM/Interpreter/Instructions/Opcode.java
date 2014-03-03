@@ -3,7 +3,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 import java.io.PrintWriter;
 import java.util.TreeMap;
 
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
