@@ -307,7 +307,7 @@ public class TraversalEvaluator {
 		  IConstructor rcons;
 		  
 		  try {
-		    rcons = (IConstructor) eval.call(cons.getType().getName(), cons.getName(), args);
+		    rcons = (IConstructor) eval.call(cons.getType().getName(), cons.getName(), cons.asWithKeywordParameters().getParameters(), args);
 		  }
 		  catch (UndeclaredFunction | UndeclaredModule | ArgumentsMismatch e) {
 		    // This may happen when visiting data constructors dynamically which are not 
@@ -316,15 +316,14 @@ public class TraversalEvaluator {
 		    // and normalizing "rewrite rules" will not trigger at all, but we can gracefully continue 
 		    // because we know what the tree looked like before we started visiting.
 		    eval.warning("In visit: " + e.getMessage(), eval.getCurrentAST().getLocation());
-		    rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(), args);
+		    rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(),  args, cons.asWithKeywordParameters().getParameters());
 		  }
 		  
 		  if (cons.asAnnotatable().hasAnnotations()) {
 		    rcons = rcons.asAnnotatable().setAnnotations(cons.asAnnotatable().getAnnotations());
 		  }
-		    
 
-		    return rcons;
+		  return rcons;
 		}
 		else {
 			return subject;
