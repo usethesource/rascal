@@ -140,7 +140,8 @@ syntax Exp  =
 			| muGuard:                  "guard" Exp exp
 			
 			// delimited continuations (experimental feature)
-			| muCont:                   "cont"
+			| preContLoc:               "cont"
+			| preContVar:               FunNamePart+ funNames "cont"
 			| muReset:                  "reset" "(" Exp fun ")"
 			| muShift:                  "shift" "(" Exp body ")"
 			

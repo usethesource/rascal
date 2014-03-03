@@ -406,7 +406,7 @@ INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size
 
 // Delimited continuations (experimental)
 
-INS tr(muCont()) = [ LOADCONT() ];
+INS tr(muContVar(str fuid)) = [ LOADCONT(fuid) ];
 INS tr(muReset(MuExp fun)) = [ *tr(fun), RESET() ];
 INS tr(muShift(MuExp body)) {
     str fuid = functionScope + "/anonymous_<getShiftCounter()>(1)";

@@ -95,7 +95,7 @@ public enum Opcode {
 	UNWRAPTHROWNVAR     (75,    1), // 3
 	APPLY               (76,    1), // 3
 	APPLYDYN            (77,    1), // 2
-	LOADCONT            (78,    1),
+	LOADCONT            (78,    1), // 2
 	RESET               (79,    1), // 2
 	SHIFT               (80,    1)  // 2
 	;
@@ -477,7 +477,7 @@ public enum Opcode {
 			return "APPLYDYN " + arg1;
 			
 		case LOADCONT:
-			return "LOADCONT";
+			return "LOADCONT " + arg1;
 		
 		case RESET:
 			return "RESET";
