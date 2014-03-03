@@ -1331,10 +1331,16 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADCONT:
+					s = CodeBlock.fetchArg1(instruction);
 					assert stack[0] instanceof Coroutine;
-					// TODO: unsafe in general case (the coroutine object should be copied)
-					stack[sp++] = stack[0];
-					continue NEXT_INSTRUCTION;
+					for(Frame fr = cf; fr != null; fr = fr.previousScope) {
+						if (fr.scopeId == s) {
+							// TODO: unsafe in general case (the coroutine object should be copied)
+							stack[sp++] = fr.stack[0];
+							continue NEXT_INSTRUCTION;
+						}
+					}
+					throw new RuntimeException("LOADCONT cannot find matching scope: " + s);
 				
 				case Opcode.OP_RESET:
 					FunctionInstance fun_instance = (FunctionInstance) stack[--sp]; // A fucntion of zero arguments

@@ -140,6 +140,9 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case preVar(fvar(str var))                                           			=> { if(!isGlobalNonOverloadedFunction(var)) { throw "Function or coroutine <var> has not been declared!"; } muFun(getUidOfGlobalNonOverloadedFunction(var)); }
      	       case preVar(Identifier id) 														=> muVar(id.var,uid,vardefs[uid][id.var])
      	       case preVar(lrel[str,int] funNames, Identifier id)        						=> muVar(name,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
+     	       // Specific to delimited continuations (experimental)
+     	       case preContLoc()                                                                => muContVar(uid)
+     	       case preContVar(lrel[str,int] funNames)                                          => muContVar(getUID(modName,funNames)) 
      	       case preAssignLocList(Identifier id1, Identifier id2, MuExp exp1) 				=> muCallMuPrim("assign_pair", [muInt(vardefs[uid][id1.var]), muInt(vardefs[uid][id2.var]), exp1])
      	       
      	       case preAssignLoc(Identifier id, MuExp exp) 										=> muAssign(id.var,uid,vardefs[uid][id.var], exp)

@@ -241,7 +241,7 @@ public class Execute {
 				break;
 				
 			case "LOADCONT":
-				codeblock.LOADCONT();
+				codeblock.LOADCONT(getStrField(instruction, "fuid"));
 				break;
 
 			case "STOREVAR":

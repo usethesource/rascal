@@ -651,8 +651,8 @@ public class CodeBlock {
 		return add(new ApplyDyn(this, arity));
 	}
 	
-	public CodeBlock LOADCONT() {
-		return add(new LoadCont(this));
+	public CodeBlock LOADCONT(String fuid) {
+		return add(new LoadCont(this, fuid));
 	}
 	
 	public CodeBlock RESET() {
