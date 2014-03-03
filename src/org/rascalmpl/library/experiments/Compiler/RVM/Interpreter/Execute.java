@@ -239,6 +239,10 @@ public class Execute {
 			case "LOADLOC":
 				codeblock.LOADLOC(getIntField(instruction, "pos"));
 				break;
+				
+			case "LOADCONT":
+				codeblock.LOADCONT();
+				break;
 
 			case "STOREVAR":
 				codeblock.STOREVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
@@ -315,6 +319,10 @@ public class Execute {
 			case "INIT":
 				codeblock.INIT(getIntField(instruction, "arity"));
 				break;
+				
+			case "RESET":
+				codeblock.RESET();
+				break;
 
 			case "NEXT0":
 				codeblock.NEXT0();
@@ -330,6 +338,10 @@ public class Execute {
 
 			case "YIELD1":
 				codeblock.YIELD1(getIntField(instruction, "arity"));
+				break;
+				
+			case "SHIFT":
+				codeblock.SHIFT();
 				break;
 
 			case "HASNEXT":

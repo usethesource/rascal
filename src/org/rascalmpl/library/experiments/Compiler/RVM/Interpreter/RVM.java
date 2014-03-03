@@ -1329,6 +1329,15 @@ public class RVM {
 					
 				case Opcode.OP_STOREVARKWP:
 					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_LOADCONT:
+					continue NEXT_INSTRUCTION;
+				
+				case Opcode.OP_RESET:
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_SHIFT:
+					continue NEXT_INSTRUCTION;
 								
 				default:
 					throw new RuntimeException("RVM main loop -- cannot decode instruction");
