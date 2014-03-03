@@ -1331,12 +1331,38 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADCONT:
+					assert stack[0] instanceof Coroutine;
+					// TODO: unsafe in general case (the coroutine object should be copied)
+					stack[sp++] = stack[0];
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_RESET:
+					cf.pc = pc;
+					FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
+					cf = cf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, 0, sp);
+					activeCoroutines.push(new Coroutine(cf));
+					ccf = cf;
+					instructions = cf.function.codeblock.getInstructions();
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_SHIFT:
+					fun_instance = (FunctionInstance) stack[--sp];
+					coroutine = activeCoroutines.pop();
+					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+					cf.pc = pc;
+					cf.sp = sp;
+					coroutine.suspend(cf);
+					cf = coroutine.start.previousCallFrame;
+					fun_instance.args = new Object[1];
+					fun_instance.args[0] = coroutine;
+					cf = cf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, 0, sp);
+					instructions = cf.function.codeblock.getInstructions();
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
 					continue NEXT_INSTRUCTION;
 								
 				default:
