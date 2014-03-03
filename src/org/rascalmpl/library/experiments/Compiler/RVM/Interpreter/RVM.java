@@ -1337,8 +1337,8 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_RESET:
+					FunctionInstance fun_instance = (FunctionInstance) stack[--sp]; // A fucntion of zero arguments
 					cf.pc = pc;
-					FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
 					cf = cf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, 0, sp);
 					activeCoroutines.push(new Coroutine(cf));
 					ccf = cf;
@@ -1349,12 +1349,12 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_SHIFT:
-					fun_instance = (FunctionInstance) stack[--sp];
+					fun_instance = (FunctionInstance) stack[--sp]; // A function of one argument (continuation)
 					coroutine = activeCoroutines.pop();
 					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+					coroutine.suspend(cf);
 					cf.pc = pc;
 					cf.sp = sp;
-					coroutine.suspend(cf);
 					cf = coroutine.start.previousCallFrame;
 					fun_instance.args = new Object[1];
 					fun_instance.args[0] = coroutine;

@@ -129,6 +129,20 @@ INS finallyBlock = [];
 // As we use label names to mark try blocks (excluding 'catch' clauses)
 list[EEntry] exceptionTable = [];
 
+// Specific to delimited continuations (experimental)
+map[str,Declaration] shiftClosures = ();
+
+private int shiftCounter = -1;
+
+int getShiftCounter() {
+    shiftCounter += 1;
+    return shiftCounter;
+}
+
+void resetShiftCounter() {
+    shiftCounter = -1;
+}
+
 /*********************************************************************/
 /*      Translate a muRascal module                                  */
 /*********************************************************************/
@@ -154,6 +168,9 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   nlocal = ( fun.qname : fun.nlocals | MuFunction fun <- functions ) 
              + ( module_init_fun : size(variables) + 2 ); // Initialization function
   temporaries = ();
+  
+  // Specific to delimited continuations (experimental)
+  resetShiftCounter();
   
   // Due to nesting, pre-compute positions of temporaries
   visit(<initializations,functions>) {
@@ -211,6 +228,9 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   	 main_testsuite = getFUID(module_name,"testsuite",ftype,0);
   	 module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
   }
+  
+  // Specific to delimited continuations (experimental)
+  funMap = funMap + shiftClosures;
   
   res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions);
   if(listing){
@@ -383,6 +403,16 @@ INS tr(muCreate(MuExp fun, list[MuExp] args)) = tr(muApply(fun, args));
 
 INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(0)];
 INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order!
+
+// Delimited continuations (experimental)
+
+INS tr(muCont()) = [ LOADCONT() ];
+INS tr(muReset(MuExp fun)) = [ *tr(fun), RESET() ];
+INS tr(muShift(MuExp body)) {
+    str fuid = functionScope + "/anonymous_<getShiftCounter()>(1)";
+    shiftClosures += ( fuid : FUNCTION(fuid, functionScope, 1, 1, |rascal:///|, tr(body)) ); 
+    return [ LOAD_NESTED_FUN(fuid, functionScope), SHIFT() ];
+}
 
 // INS tr(muHasNext(MuExp coro)) = [*tr(coro), HASNEXT()];
 
