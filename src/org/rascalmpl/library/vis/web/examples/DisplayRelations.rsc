@@ -53,7 +53,7 @@ public void main() {
     // chart(Sin);
     // chart(divisors);
     // chart(towns);
-    chart(qt);
+    chart(class2method);
     }
     
 str signature(str name, list[Declaration] parameters) {
