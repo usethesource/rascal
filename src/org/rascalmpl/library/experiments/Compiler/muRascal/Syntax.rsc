@@ -82,8 +82,8 @@ syntax Exp  =
 			| muAll:                    "all" "(" {Exp ","}+ exps ")"
 			
 			// function call and partial function application
-			> muCall: 					Exp!muReturn!muYield!muExhaust exp     "(" {Exp ","}* args ")"
-			> muApply:                  Exp!muReturn!muYield!muExhaust exp "!" "(" {Exp ","}* args ")"
+			> muCall: 					Exp!muReturn!muYield!muExhaust!muApply exp "(" {Exp ","}* args ")"
+			| muApply:                  "fun" Exp!muReturn!muYield!muExhaust exp "(" {Exp ","}* args ")"
 			
 			> left preAddition:			Exp lhs "+"   Exp rhs
 			
