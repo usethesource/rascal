@@ -85,11 +85,7 @@ syntax Exp  =
 			> muCall: 					Exp!muReturn!muYield!muExhaust exp     "(" {Exp ","}* args ")"
 			> muApply:                  Exp!muReturn!muYield!muExhaust exp "!" "(" {Exp ","}* args ")"
 			
-			> muReturn: 				"return"  Exp exp
-			| muReturn:                 "return" "(" Exp exp "," {Exp ","}+ exps ")"
-			> muReturn: 				"return" !>> "("
-			
-			| left preAddition:			Exp lhs "+"   Exp rhs
+			> left preAddition:			Exp lhs "+"   Exp rhs
 			
 			| left preSubtraction:		Exp lhs "-"   Exp rhs
 			| left preDivision:         Exp lhs "/"   Exp rhs
@@ -106,6 +102,10 @@ syntax Exp  =
 			> left preAnd:				Exp lhs "&&" Exp rhs
 			> left preOr:               Exp lhs "||" Exp rhs
 			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] TConst typeName
+			
+			> muReturn: 				"return"  Exp exp
+			| muReturn:                 "return" "(" Exp exp "," {Exp ","}+ exps ")"
+			> muReturn: 				"return" !>> "("
 			
 		 	> preAssignLoc:				Identifier!fvar id "=" Exp ex
 			> preAssign: 				FunNamePart+ funNames Identifier!fvar id "=" Exp exp
