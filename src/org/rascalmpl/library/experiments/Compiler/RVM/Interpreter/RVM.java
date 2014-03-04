@@ -777,6 +777,25 @@ public class RVM {
 						continue NEXT_INSTRUCTION;
 					}
 					
+					// Specific to delimited continuations (experimental)
+					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Coroutine) {
+						arity = CodeBlock.fetchArg1(instruction);
+						Coroutine coroutine = (Coroutine) stack[--sp];
+						// Merged the hasNext and next semantics
+						activeCoroutines.push(coroutine);
+						ccf = coroutine.start;
+						coroutine.next(cf);
+						instructions = coroutine.frame.function.codeblock.getInstructions();
+						coroutine.frame.stack[coroutine.frame.sp++] = (arity == 1) ? stack[--sp] : null;
+						cf.pc = pc;
+						cf.sp = sp;
+						cf = coroutine.frame;
+						stack = cf.stack;
+						sp = cf.sp;
+						pc = cf.pc;
+						continue NEXT_INSTRUCTION;
+					}
+					
 					cf.pc = pc;
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof FunctionInstance){
 						FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
@@ -1345,7 +1364,7 @@ public class RVM {
 				case Opcode.OP_RESET:
 					FunctionInstance fun_instance = (FunctionInstance) stack[--sp]; // A fucntion of zero arguments
 					cf.pc = pc;
-					cf = cf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, 0, sp);
+					cf = cf.getCoroutineFrame(fun_instance, 0, sp);
 					activeCoroutines.push(new Coroutine(cf));
 					ccf = cf;
 					instructions = cf.function.codeblock.getInstructions();
@@ -1358,12 +1377,12 @@ public class RVM {
 					fun_instance = (FunctionInstance) stack[--sp]; // A function of one argument (continuation)
 					coroutine = activeCoroutines.pop();
 					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
-					coroutine.suspend(cf);
 					cf.pc = pc;
 					cf.sp = sp;
-					cf = coroutine.start.previousCallFrame;
-					fun_instance.args = new Object[1];
-					fun_instance.args[0] = coroutine;
+					prev = coroutine.start.previousCallFrame;
+					coroutine.suspend(cf);
+					cf = prev;
+					fun_instance.args = new Object[] { coroutine };
 					cf = cf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, 0, sp);
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
