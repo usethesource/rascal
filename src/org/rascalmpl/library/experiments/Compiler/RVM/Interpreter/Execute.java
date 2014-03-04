@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.interpreter.utils.Timing;
 
 public class Execute {
 
@@ -143,7 +144,7 @@ public class Execute {
 		}
 		
 		try {
-			long start = System.nanoTime();
+			long start = Timing.getCpuTime();
 			IValue result = null;
 			if(isTestSuite){
 				/*
@@ -168,7 +169,7 @@ public class Execute {
 				rvm.executeProgram(uid_module_init, arguments);
 				result = rvm.executeProgram(uid_main, arguments);
 			}
-			long now = System.nanoTime();
+			long now = Timing.getCpuTime();
 			MuPrimitive.exit();
 			RascalPrimitive.exit();
 			Opcode.exit();
