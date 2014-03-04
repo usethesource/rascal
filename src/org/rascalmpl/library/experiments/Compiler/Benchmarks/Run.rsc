@@ -112,7 +112,7 @@ map[str, list[num]] measurementsInterpreted = ();	// and interpreted
 int nsamples = 5;  									// Number of samples per data point.
 
 // Analysis of the data of one job
-alias Analysis = tuple[str job, num speedup, num cmean, num cdev, num imean, num idev];
+alias Analysis = tuple[str job, num speedup, num sdev, num cmean, num cdev, num imean, num idev];
 
 // Run all benchmarks
 
@@ -140,28 +140,28 @@ void precompile(list[str] jobs) {
 }
 
 str runAll(list[str] jobs){
-   t1 = getNanoTime();
+   t1 = cpuTime();
    for(int i <- index(jobs)){
        job = jobs[i];
        println("**** Run compiled: <job> (<i+1>/<size(jobs)>)");
        runCompiled(job);
    }
-   t2 = getNanoTime();
+   t2 = cpuTime();
    for(int i <- index(jobs)){
        job = jobs[i];
        println("**** Run interpreted: <job> (<i+1>/<size(jobs)>)");
        runInterpreted(job);
    }
-   t3 = getNanoTime();
+   t3 = cpuTime();
    return "Total time, compiled: <1.0*(t2 - t1)/1000000000> sec, interpreted: <1.0*(t3 - t2)/1000000000> sec, ratio <1.0*(t3 - t2)/(t2 - t1)>";
 }
 
 void runCompiled(str job) {
   measurementsCompiled[job] =
 	  for(int i <- [0 .. nsamples]){
-		  t1 = getNanoTime();
+		  t1 = cpuTime();
 		  v = execute(base + (job + ".rsc"), []);
-		  t2 = getNanoTime();
+		  t2 = cpuTime();
 		  append (t2 - t1)/1000000;
 	  }
 }
@@ -170,9 +170,9 @@ void runInterpreted(str job) {
   bmain = jobs[job];
   measurementsInterpreted[job] =
 	  for(int i <- [0 .. nsamples]){  
-		  t1 = getNanoTime();
+		  t1 = cpuTime();
 		  bmain([]);
-		  t2 = getNanoTime();
+		  t2 = cpuTime();
 		  append (t2 - t1)/1000000;
 	  }
 }
@@ -195,9 +195,11 @@ Analysis analyze_one(str job){
   imean = mean(interpretedExec);
   int idev = toInt(standardDeviation(interpretedExec));
 
-  speedup = imean/cmean;
+  speedup = (cmean != 0) ? imean/cmean : 1000.0;
   
-  return <job, speedup, cmean, cdev, imean, idev>;
+  sdev = (cmean != 0 && imean != 0) ? standardDeviation([cdev/cmean, idev/imean]) : 0.0;
+  
+  return <job, speedup, sdev, cmean, cdev, imean, idev>;
 }
 
 list[Analysis] analyze_all(list[str] jobs){
@@ -212,7 +214,7 @@ str align(num n) = right(toString(precision(n,5)), 6);
 str align2(num n) = right(toString(precision(n,5)), 12);
 
 void report_one(Analysis a){  
-  println("<right(a.job, 25)>: speedup: <right(toString(precision(a.speedup,3)), 5)> x; compiled: <measurementsCompiled[a.job]>; mean <align(a.cmean)> msec (+/-<a.cdev>); interpreted: <measurementsInterpreted[a.job]>; mean <align(a.imean)> msec (+/-<a.idev>)");
+  println("<right(a.job, 25)>: speedup: <right(toString(precision(a.speedup,3)), 5)> x (+/-<precision(a.sdev,2)>); compiled: <measurementsCompiled[a.job]>; mean <align(a.cmean)> msec (+/-<a.cdev>); interpreted: <measurementsInterpreted[a.job]>; mean <align(a.imean)> msec (+/-<a.idev>)");
 }
 
 void report(list[Analysis] results, str time_msg){
