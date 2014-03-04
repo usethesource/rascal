@@ -171,6 +171,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   
   // Specific to delimited continuations (experimental)
   resetShiftCounter();
+  shiftClosures = ();
   
   // Due to nesting, pre-compute positions of temporaries
   visit(<initializations,functions>) {
@@ -410,7 +411,11 @@ INS tr(muContVar(str fuid)) = [ LOADCONT(fuid) ];
 INS tr(muReset(MuExp fun)) = [ *tr(fun), RESET() ];
 INS tr(muShift(MuExp body)) {
     str fuid = functionScope + "/anonymous_<getShiftCounter()>(1)";
-    shiftClosures += ( fuid : FUNCTION(fuid, functionScope, 1, 1, |rascal:///|, tr(body)) ); 
+    prevFunctionScope = functionScope;
+    functionScope = fuid;
+    shiftClosures += ( fuid : FUNCTION(fuid, Symbol::func(Symbol::\value(),[Symbol::\value()]), functionScope, 1, 1, false, estimate_stack_size(body), 
+                                       [ *tr(visit(body) { case muContVar(prevFunctionScope) => muContVar(fuid) }), RETURN1(1) ], []) );
+    functionScope = prevFunctionScope; 
     return [ LOAD_NESTED_FUN(fuid, functionScope), SHIFT() ];
 }
 
