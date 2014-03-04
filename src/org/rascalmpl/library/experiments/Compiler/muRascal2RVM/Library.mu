@@ -1,5 +1,17 @@
 module Library
 
+// Specific to delimited continuations (only experimental)
+
+declares "cons(adt(\"Gen\",[]),\"NEXT\",[ func(adt(\"Gen\",[]),[ \\void() ]) ])"
+declares "cons(adt(\"Gen\",[]),\"EXHAUSTED\",[])"
+
+function NEXT[1,gen] {
+    if(muprim("get_name",gen) == "next") {
+        return true;
+    };
+    return false;
+}
+
 // Semantics of the all operator
 
 coroutine ALL[1,tasks,len,p,workers] {

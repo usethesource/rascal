@@ -3,7 +3,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 import java.io.PrintWriter;
 import java.util.TreeMap;
 
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
@@ -95,7 +94,10 @@ public enum Opcode {
 	STOREVARKWP         (74,    1), // 3
 	UNWRAPTHROWNVAR     (75,    1), // 3
 	APPLY               (76,    1), // 3
-	APPLYDYN            (77,    1)  // 2
+	APPLYDYN            (77,    1), // 2
+	LOADCONT            (78,    1), // 2
+	RESET               (79,    1), // 2
+	SHIFT               (80,    1)  // 2
 	;
 	
 	
@@ -189,6 +191,9 @@ public enum Opcode {
 	static public final int OP_UNWRAPTHROWNVAR = 75;
 	static public final int OP_APPLY = 76;
 	static public final int OP_APPLYDYN = 77;
+	static public final int OP_LOADCONT = 78;
+	static public final int OP_RESET = 79;
+	static public final int OP_SHIFT = 80;
 	
 	
 	/*
@@ -470,6 +475,15 @@ public enum Opcode {
 			
 		case APPLYDYN:
 			return "APPLYDYN " + arg1;
+			
+		case LOADCONT:
+			return "LOADCONT " + arg1;
+		
+		case RESET:
+			return "RESET";
+			
+		case SHIFT:
+			return "SHIFT";
 		
 		default:
 			break;

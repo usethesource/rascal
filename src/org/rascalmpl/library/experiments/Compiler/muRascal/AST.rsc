@@ -171,7 +171,7 @@ public data MuExp =
           
           // Delimited continuations (experimental)
           
-          | muCont()
+          | muContVar(str fuid)
           | muReset(MuExp fun)
           | muShift(MuExp exp)
           ;
@@ -212,6 +212,9 @@ public data MuExp =
             | preTypeCon(str txt)
             | preVar(Identifier id)
             | preVar(lrel[str name,int formals] funNames, Identifier id)
+            // Specific to delimited continuations (experimental)
+            | preContLoc()
+            | preContVar(lrel[str,int] funNames)
             | preFunNN(str modName, str name, int nformals)
             | preFunN(lrel[str,int] funNames, str name, int nformals)
             | preList(list[MuExp] exps)
