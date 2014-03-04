@@ -108,6 +108,7 @@ loc base = |rascal:///experiments/Compiler/Benchmarks/|;
 
 map[str, list[num]] measurementsCompiled = ();		// list of timings of repeated runs per job, compiled
 map[str, list[num]] measurementsInterpreted = ();	// and interpreted
+map[str, list[num]] prevMeasurementsInterpreted = ();
 
 int nsamples = 5;  									// Number of samples per data point.
 
@@ -120,10 +121,12 @@ list[Analysis] run_benchmarks(int n, list[str] jobs){
   initialize(n);
   jobs = sort(jobs);
   precompile(jobs);
-  time_msg = runAll(jobs);
+  runAll(jobs);
   results = analyze_all(jobs);
-  report(results, time_msg);
+  report(results);
   //report_latex(results);
+  measurementsInterpreted += (prevMeasurementsInterpreted - measurementsInterpreted);
+  writeTextValueFile(base + "MeasurementsInterpreted.value", measurementsInterpreted);
   return results;
 }
 
@@ -131,6 +134,9 @@ void initialize(int n){
   measurementsInterpreted = ();
   measurementsCompiled = ();
   nsamples = n;
+  try {
+     prevMeasurementsInterpreted = readTextValueFile(#map[str, list[num]], base + "measurementsInterpreted.value");
+  } catch _: println("MeasurementsInterpreted.value not found, measurements will be repeated");
 }
 
 void precompile(list[str] jobs) {
@@ -139,21 +145,22 @@ void precompile(list[str] jobs) {
   }
 }
 
-str runAll(list[str] jobs){
-   t1 = cpuTime();
+void runAll(list[str] jobs){
    for(int i <- index(jobs)){
        job = jobs[i];
        println("**** Run compiled: <job> (<i+1>/<size(jobs)>)");
        runCompiled(job);
    }
-   t2 = cpuTime();
+  
    for(int i <- index(jobs)){
        job = jobs[i];
        println("**** Run interpreted: <job> (<i+1>/<size(jobs)>)");
-       runInterpreted(job);
+        if(prevMeasurementsInterpreted[job]?){
+           measurementsInterpreted[job] = prevMeasurementsInterpreted[job];
+        } else {
+           runInterpreted(job);
+       }
    }
-   t3 = cpuTime();
-   return "Total time, compiled: <1.0*(t2 - t1)/1000000000> sec, interpreted: <1.0*(t3 - t2)/1000000000> sec, ratio <1.0*(t3 - t2)/(t2 - t1)>";
 }
 
 void runCompiled(str job) {
@@ -196,8 +203,13 @@ Analysis analyze_one(str job){
   int idev = toInt(standardDeviation(interpretedExec));
 
   speedup = (cmean != 0) ? imean/cmean : 1000.0;
-  
-  sdev = (cmean != 0 && imean != 0) ? standardDeviation([cdev/cmean, idev/imean]) : 0.0;
+  // Standard deviation  of speedup
+  sdev = 0.0;
+  if(cmean != 0 && imean != 0){
+     x = cdev/cmean;
+     y = idev/imean;
+     sdev = speedup * sqrt(x * x + y * y);
+   }
   
   return <job, speedup, sdev, cmean, cdev, imean, idev>;
 }
@@ -217,7 +229,7 @@ void report_one(Analysis a){
   println("<right(a.job, 25)>: speedup: <right(toString(precision(a.speedup,3)), 5)> x (+/-<precision(a.sdev,2)>); compiled: <measurementsCompiled[a.job]>; mean <align(a.cmean)> msec (+/-<a.cdev>); interpreted: <measurementsInterpreted[a.job]>; mean <align(a.imean)> msec (+/-<a.idev>)");
 }
 
-void report(list[Analysis] results, str time_msg){
+void report(list[Analysis] results){
   sep = "==========================================================";
   println("\n<sep>\nSummary of Measurements <now()>:\n");
   println("Number of samples = <nsamples>");
@@ -227,7 +239,7 @@ void report(list[Analysis] results, str time_msg){
   println("Average speedup: <precision(mean(results.speedup), 5)>");
   println("Minimal speedup: <precision(min(results.speedup), 5)>");
   println("Maximal speedup: <precision(max(results.speedup), 5)>");
-  println("<time_msg>\n<sep>");
+  println("<sep>");
 }
 
 void report_one_latex(Analysis a){
@@ -263,5 +275,6 @@ void main_paper1(){
 }
 
 void main_paper2(){
-   run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",/*"BRSFCalls",*/"BSendMoreMoney","BSendMoreMoneyNotTyped","BSudoku","BTemplate"]);
+   run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",/*"BRSFCalls",*/"BSendMoreMoney","BSendMoreMoneyNotTyped","BSudoku","BTemplate"
+   					 ]);
 }
