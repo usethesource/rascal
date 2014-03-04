@@ -33,8 +33,11 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.I
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Jmp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpFalse;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpIndexed;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCont;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarKwp;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Reset;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Shift;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
@@ -646,6 +649,18 @@ public class CodeBlock {
 	
 	public CodeBlock APPLYDYN(int arity) {
 		return add(new ApplyDyn(this, arity));
+	}
+	
+	public CodeBlock LOADCONT(String fuid) {
+		return add(new LoadCont(this, fuid));
+	}
+	
+	public CodeBlock RESET() {
+		return add(new Reset(this));
+	}
+	
+	public CodeBlock SHIFT() {
+		return add(new Shift(this));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {

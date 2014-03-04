@@ -132,7 +132,7 @@ data Instruction =
 		| CHECKARGTYPE()							// Check the type of an argument
 		
 		// Delimited continuations (experimental)
-		| LOADCONT()
+		| LOADCONT(str fuid)
 		| RESET()
 		| SHIFT()
 ;
