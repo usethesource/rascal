@@ -2,11 +2,11 @@ module Library
 
 // Specific to delimited continuations (only experimental)
 
-declares "cons(adt(\"Gen\",[]),\"NEXT\",[ func(adt(\"Gen\",[]),[ \\void() ]) ])"
+declares "cons(adt(\"Gen\",[]),\"NEXT\",[ label(\"cont\",func(\\value(),[])) ])"
 declares "cons(adt(\"Gen\",[]),\"EXHAUSTED\",[])"
 
 function NEXT[1,gen] {
-    if(muprim("get_name",gen) == "next") {
+    if(muprim("equal",muprim("get_name",gen),"NEXT")) {
         return true;
     };
     return false;
