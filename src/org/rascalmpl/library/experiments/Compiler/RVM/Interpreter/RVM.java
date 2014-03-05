@@ -786,9 +786,7 @@ public class RVM {
 						ccf = coroutine.start;
 						coroutine.next(cf);
 						instructions = coroutine.frame.function.codeblock.getInstructions();
-						if(arity == 1) {
-							coroutine.frame.stack[coroutine.frame.sp++] = stack[--sp];
-						}
+						coroutine.frame.stack[coroutine.frame.sp++] = arity == 1 ? stack[--sp] : null;
 						cf.pc = pc;
 						cf.sp = sp;
 						cf = coroutine.frame;
