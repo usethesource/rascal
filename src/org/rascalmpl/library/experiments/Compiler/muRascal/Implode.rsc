@@ -139,7 +139,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case preVar(mvar("false")) 														=> muBool(false)
                case preVar(fvar(str var))                                           			=> { if(!isGlobalNonOverloadedFunction(var)) { throw "Function or coroutine <var> has not been declared!"; } muFun(getUidOfGlobalNonOverloadedFunction(var)); }
      	       case preVar(Identifier id) 														=> muVar(id.var,uid,vardefs[uid][id.var])
-     	       case preVar(lrel[str,int] funNames, Identifier id)        						=> muVar(name,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
+     	       case preVar(lrel[str,int] funNames, Identifier id)        						=> muVar(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
      	       // Specific to delimited continuations (experimental)
      	       case preContLoc()                                                                => muContVar(uid)
      	       case preContVar(lrel[str,int] funNames)                                          => muContVar(getUID(modName,funNames)) 
@@ -157,7 +157,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preLocRef(Identifier id)                     								=> muVarRef(id.var,uid,vardefs[uid][id.var])
       	       case preVarRef(lrel[str,int] funNames, Identifier id)     						=> muVarRef(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
       	       case preAssignLocDeref(Identifier id, MuExp exp)  								=> muAssignVarDeref(id.var,uid,vardefs[uid][id.var], exp)
-      	       case preAssignVarDeref(lrel[str,int] funNames, Identifier id, muExp exp)         => muAssignVarDeref(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var],exp)
+      	       case preAssignVarDeref(lrel[str,int] funNames, Identifier id, MuExp exp)         => muAssignVarDeref(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var],exp)
       	       
       	       case muCallPrim(str name)                                            			=> muCallPrim(name[1..-1], [])
                case muCallPrim(str name, list[MuExp] exps)										=> muCallPrim(name[1..-1], exps)			// strip surrounding quotes
