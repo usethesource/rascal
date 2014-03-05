@@ -45,7 +45,7 @@ public class OverloadedFunctionInstance implements ICallableValue {
 	 */
 	public static OverloadedFunctionInstance computeOverloadedFunctionInstance(int[] functions, int[] constructors, Frame cf, int scopeIn,
 			                                                                     List<Function> functionStore, List<Type> constructorStore, RVM rvm) {
-		for(Frame env = cf; env != null; env = env.previousCallFrame) {
+		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
 				return new OverloadedFunctionInstance(functions, constructors, env, functionStore, constructorStore, rvm);
 			}

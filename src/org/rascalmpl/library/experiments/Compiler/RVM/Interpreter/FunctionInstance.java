@@ -38,7 +38,7 @@ public class FunctionInstance implements ICallableValue {
 	 * Assumption: scopeIn != -1; 
 	 */
 	public static FunctionInstance computeFunctionInstance(Function function, Frame cf, int scopeIn, RVM rvm) {
-		for(Frame env = cf; env != null; env = env.previousCallFrame) {
+		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
 				return new FunctionInstance(function, env, rvm);
 			}
