@@ -786,7 +786,9 @@ public class RVM {
 						ccf = coroutine.start;
 						coroutine.next(cf);
 						instructions = coroutine.frame.function.codeblock.getInstructions();
-						coroutine.frame.stack[coroutine.frame.sp++] = (arity == 1) ? stack[--sp] : null;
+						if(arity == 1) {
+							coroutine.frame.stack[coroutine.frame.sp++] = stack[--sp];
+						}
 						cf.pc = pc;
 						cf.sp = sp;
 						cf = coroutine.frame;
@@ -1382,8 +1384,11 @@ public class RVM {
 					prev = coroutine.start.previousCallFrame;
 					coroutine.suspend(cf);
 					cf = prev;
+					sp = cf.sp;
 					fun_instance.args = new Object[] { coroutine };
-					cf = cf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, 0, sp);
+					cf = cf.getCoroutineFrame(fun_instance, 0, sp);
+					activeCoroutines.push(new Coroutine(cf));
+					ccf = cf;
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
