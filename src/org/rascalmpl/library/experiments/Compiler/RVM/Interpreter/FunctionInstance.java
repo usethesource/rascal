@@ -16,7 +16,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 
-public class FunctionInstance implements ICallableValue {
+public class FunctionInstance implements ICallableValue, IExternalValue {
 	
 	final Function function;
 	final Frame env;
