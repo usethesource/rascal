@@ -8,14 +8,14 @@ function GENNUM[4,start,end,step,rRes] {
          return cons EXHAUSTED();
      };
      while(start < (end + step)) {
-         shift(cons NEXT(fun GENNUM::4::SHIFT_CLOSURE::1(cont)));
+         shift(cons NEXT(fun GENNUM::4::SHIFT_CLOSURE::3(cont,rRes,start)));
          start = start + step;
      };
      return cons EXHAUSTED();
 }
 
-function GENNUM::4::SHIFT_CLOSURE[1,k] {
-    deref GENNUM::4::rRes = GENNUM::4::start;
+function GENNUM::4::SHIFT_CLOSURE[3,k,rRes,start] {
+    deref rRes = start;
     return k();
 }
 
