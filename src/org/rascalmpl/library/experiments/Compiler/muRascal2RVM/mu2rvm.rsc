@@ -337,8 +337,10 @@ INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size
 
 // Partial application of muRascal functions
 
+INS tr(muApply(muFun(str fuid), [])) = [ LOADFUN(fuid) ];
 INS tr(muApply(muFun(str fuid), list[MuExp] args)) = [ *tr(args), APPLY(fuid, size(args)) ];
 INS tr(muApply(muConstr(str fuid), list[MuExp] args)) { throw "Partial application is not supported for constructor calls!"; }
+INS tr(muApply(muFun(str fuid, str scopeIn), [])) = [ LOAD_NESTED_FUN(fuid, scopeIn) ];
 INS tr(muApply(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), APPLYDYN(size(args)) ];
 
 // Rascal functions
@@ -392,16 +394,6 @@ INS tr(muFilterReturn()) = [ FILTERRETURN() ];
 
 // Coroutines
 
-//INS tr(muCreate(muFun(str fuid))) = [CREATE(fuid, 0)];
-//INS tr(muCreate(MuExp fun)) = [ *tr(fun), CREATEDYN(0) ];
-//INS tr(muCreate(muFun(str fuid), list[MuExp] args)) = [ *tr(args), CREATE(fuid, size(args)) ];
-//INS tr(muCreate(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), CREATEDYN(size(args)) ];
-
-// An alternative coroutine design that makes use of partial function application
-INS tr(muCreate(muFun(str fuid))) = [ fuid == functionScope ? LOADFUN(fuid) : LOAD_NESTED_FUN(fuid, scopeIn[fuid]) ];
-INS tr(muCreate(MuExp fun)) = tr(fun); 
-INS tr(muCreate(MuExp fun, list[MuExp] args)) = tr(muApply(fun, args));
-
 INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(0)];
 INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order!
 
@@ -418,8 +410,6 @@ INS tr(muShift(MuExp body)) {
     functionScope = prevFunctionScope; 
     return [ LOAD_NESTED_FUN(fuid, functionScope), SHIFT() ];
 }
-
-// INS tr(muHasNext(MuExp coro)) = [*tr(coro), HASNEXT()];
 
 INS tr(muNext(MuExp coro)) = [*tr(coro), NEXT0()];
 INS tr(muNext(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!

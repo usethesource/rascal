@@ -1076,42 +1076,28 @@ public class RVM {
 					
 					continue NEXT_INSTRUCTION;
 					
-				case Opcode.OP_CREATE:
-				case Opcode.OP_CREATEDYN:
 				case Opcode.OP_APPLY:
 				case Opcode.OP_APPLYDYN:
-					if(op == Opcode.OP_CREATE || op == Opcode.OP_APPLY) {
+					FunctionInstance fun_instance;
+					if(op == Opcode.OP_APPLY) {
 						Function fun = functionStore.get(CodeBlock.fetchArg1(instruction));
 						arity = CodeBlock.fetchArg2(instruction);
-						if(op == Opcode.OP_APPLY) {
-							FunctionInstance fun_instance = fun.scopeIn == -1 ? FunctionInstance.applyPartial(fun, root, this, arity, stack, sp)
-									                                          : FunctionInstance.computeFunctionInstance(fun, cf, fun.scopeIn, this).applyPartial(arity, stack, sp);
-							assert arity <= fun.nformals;
-							sp = sp - arity;
-							stack[sp++] = fun_instance;
-							continue NEXT_INSTRUCTION;
-						}
-						frame = fun.scopeIn == -1 ? cf.getCoroutineFrame(fun, root, arity, sp)
-									              : cf.getCoroutineFrame(fun, fun.scopeIn, arity, sp);
+						assert arity <= fun.nformals;
+						assert fun.scopeIn == -1;
+						fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
 					} else {
 						src = stack[--sp];
 						if(src instanceof FunctionInstance) {
-							FunctionInstance fun_instance = (FunctionInstance) src;
+							fun_instance = (FunctionInstance) src;
 							arity = CodeBlock.fetchArg1(instruction);
-							if(op == Opcode.OP_APPLYDYN) {
-								assert arity + fun_instance.next <= fun_instance.function.nformals;
-								fun_instance = fun_instance.applyPartial(arity, stack, sp);
-								sp = sp - arity;
-								stack[sp++] = fun_instance;
-								continue NEXT_INSTRUCTION;
-							}
-							frame = cf.getCoroutineFrame(fun_instance.function, fun_instance.env, arity, sp);
+							assert arity + fun_instance.next <= fun_instance.function.nformals;
+							fun_instance = fun_instance.applyPartial(arity, stack, sp);
 						} else {
-							throw new RuntimeException("Unexpected argument type for CREATEDYN: " + asString(src));
+							throw new RuntimeException("Unexpected argument type for APPLYDYN: " + asString(src));
 						}
 					}
-					sp = cf.sp;
-					stack[sp++] = new Coroutine(frame);
+					sp = sp - arity;
+					stack[sp++] = fun_instance;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_NEXT0:
@@ -1193,11 +1179,6 @@ public class RVM {
 					sp = cf.sp;
 					pc = cf.pc;
 					stack[sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE, i.e., signal a failure;
-					continue NEXT_INSTRUCTION;
-					
-				case Opcode.OP_HASNEXT:
-					coroutine = (Coroutine) stack[--sp];
-					stack[sp++] = coroutine.hasNext() ? TRUE : FALSE;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLPRIM:
@@ -1362,7 +1343,7 @@ public class RVM {
 					throw new RuntimeException("LOADCONT cannot find matching scope: " + s);
 				
 				case Opcode.OP_RESET:
-					FunctionInstance fun_instance = (FunctionInstance) stack[--sp]; // A fucntion of zero arguments
+					fun_instance = (FunctionInstance) stack[--sp]; // A fucntion of zero arguments
 					cf.pc = pc;
 					cf = cf.getCoroutineFrame(fun_instance, 0, sp);
 					activeCoroutines.push(new Coroutine(cf));

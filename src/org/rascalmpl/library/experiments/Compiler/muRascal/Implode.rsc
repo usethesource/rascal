@@ -279,7 +279,7 @@ MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     functions_in_module += muCoroutine(all_uid, fuid, 0, size(localvars), [], muBlock(body));
-    return muMulti(muCreate(muFun(all_uid)));
+    return muMulti(muApply(muFun(all_uid, fuid), []));
 }
 
 MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
@@ -290,12 +290,12 @@ MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
         if(backtrackfree[i]) {
             body += muIfelse(nextLabel(), exps[i], [ muYield() ], [ muCon(222) ]);
         } else {
-            body = body + [ muAssign("c_<i>", or_uid, i, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[i]), [ muYield() ]), muCon(222) ];
+            body = body + [ muCall(exps[i],[]) ];
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     functions_in_module += muCoroutine(or_uid, fuid, 0, size(localvars), [], muBlock(body));
-    return muMulti(muCreate(muFun(or_uid)));
+    return muMulti(muApply(muFun(or_uid, fuid), []));
 }
 
 // Produces multi- or backtrack-free expressions
