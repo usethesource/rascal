@@ -132,14 +132,9 @@ public data MuExp =
 		  | muFailReturn()										// Failure from function body
           
             // Coroutines
-            
-          | muCreate(MuExp fun)									// Create a coroutine
-          | muCreate(MuExp fun, list[MuExp] args)
           
           | muInit(MuExp coro)									// Initialize a coroutine, no arguments
           | muInit(MuExp coro, list[MuExp] args)				// Initialize a coroutine, with arguments
-          
-          | muHasNext(MuExp exp)								// HasNext on a coroutine
           
           | muNext(MuExp exp)									// Next on coroutine, no arguments
           | muNext(MuExp exp1, list[MuExp] args)				// Next on coroutine, with arguments

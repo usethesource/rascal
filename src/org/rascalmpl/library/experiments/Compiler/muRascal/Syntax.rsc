@@ -120,16 +120,11 @@ syntax Exp  =
 			
 			| muTypeSwitch:				"typeswitch" "(" Exp exp ")" "{" (TypeCase ";")+ cases "default" ":" Exp default ";" "}"
 			
-			| muCreate:     			"create" "(" Exp fun  ")"
-			| muCreate: 				"create" "(" Exp fun "," {Exp ","}+ args ")"
-			
 			| muInit: 					"init" "(" Exp coro ")"
 			| muInit: 					"init" "(" Exp coro "," {Exp ","}+ args ")"
 			
 			| muNext:   				"next" "(" Exp coro ")"
 			| muNext:   				"next" "(" Exp coro "," {Exp ","}+ args ")"
-			
-			| muHasNext: 				"hasNext" "(" Exp coro ")"	
 			
 			| muYield: 					"yield"  Exp exp
 			| muYield:                  "yield" "(" Exp exp "," {Exp ","}+ exps ")"
@@ -157,7 +152,7 @@ syntax TypeCase = muTypeCase: 			"case" TConst id ":" Exp exp ;
 keyword Keywords = 
               "module" | "declares" | "function" | "coroutine" | "return" | 
 			  "prim" | "muprim" | "if" | "else" |  "while" |
-              "create" | "init" | "next" | "yield" | "exhaust" | "hasNext" |
+              "create" | "init" | "next" | "yield" | "exhaust" |
               "guard" |
               "type" |
               "ref" | "deref" |

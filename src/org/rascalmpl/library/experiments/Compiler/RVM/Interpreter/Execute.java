@@ -11,7 +11,6 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -309,14 +308,6 @@ public class Execute {
 				codeblock.HALT();
 				break;
 
-			case "CREATE":
-				codeblock.CREATE(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
-				break;
-
-			case "CREATEDYN":
-				codeblock.CREATEDYN(getIntField(instruction, "arity"));
-				break;
-
 			case "INIT":
 				codeblock.INIT(getIntField(instruction, "arity"));
 				break;
@@ -343,10 +334,6 @@ public class Execute {
 				
 			case "SHIFT":
 				codeblock.SHIFT();
-				break;
-
-			case "HASNEXT":
-				codeblock.HASNEXT();
 				break;
 
 			case "PRINTLN":
