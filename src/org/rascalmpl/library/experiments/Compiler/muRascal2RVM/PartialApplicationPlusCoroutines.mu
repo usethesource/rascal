@@ -27,8 +27,8 @@ function MAIN[2,args,kwargs,f,res1,res2,co1,co2,continue,f1,f2] {
     
     println("The same but using \"!\":");
     
-    f1 = f!(10, ref res1);
-    f2 = f!(20, ref res2);
+    f1 = fun f(10, ref res1);
+    f2 = fun f(20, ref res2);
     co1 = init(f1);
     co2 = init(f2);
     continue = true;
