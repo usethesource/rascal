@@ -26,19 +26,19 @@ public class Benchmark {
 	}
 
 	public IValue userTime()
-	// @doc{userTime -- User time spend by this thread in nanoseconds.}
+	// @doc{userTime -- User time spent by this thread in nanoseconds.}
 	{
 		return values.integer(Timing.getUserTime());
 	}
 	
 	public IValue systemTime()
-	// @doc{systemTime -- System time spend by this thread in nanoseconds.}
+	// @doc{systemTime -- System time spent by this thread in nanoseconds.}
 	{
 		return values.integer(Timing.getSystemTime());
 	}
 	
 	public IValue cpuTime()
-	// @doc{cpuTime -- Cpu time spend by this thread in nanoseconds.}
+	// @doc{cpuTime -- Cpu time (= system time + user time) spent by this thread in nanoseconds.}
 	{
 		return values.integer(Timing.getCpuTime());
 	}
@@ -55,5 +55,9 @@ public class Benchmark {
 	
 	public IValue getMilliTime(){
 		return values.integer(System.currentTimeMillis());
+	}
+	
+	public void gc() {
+		System.gc();
 	}
 }

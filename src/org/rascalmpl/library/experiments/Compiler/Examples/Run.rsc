@@ -10,6 +10,7 @@ import experiments::Compiler::Examples::Capture;
 import experiments::Compiler::Examples::NestedFunctions1;
 import experiments::Compiler::Examples::NestedFunctions2;
 import experiments::Compiler::Examples::NestedFunctions3;
+import experiments::Compiler::Examples::NestedFunctions4;
 import experiments::Compiler::Examples::E1E2;
 import experiments::Compiler::Examples::Fac;
 import experiments::Compiler::Examples::Fib;
@@ -194,6 +195,7 @@ test bool tst() = demo("KWP6") == experiments::Compiler::Examples::KWP6::main([]
 test bool tst() = demo("NestedFunctions1") == experiments::Compiler::Examples::NestedFunctions1::main([]);
 test bool tst() = demo("NestedFunctions2") == experiments::Compiler::Examples::NestedFunctions2::main([]);
 test bool tst() = demo("NestedFunctions3") == experiments::Compiler::Examples::NestedFunctions3::main([]);
+test bool tst() = demo("NestedFunctions4") == experiments::Compiler::Examples::NestedFunctions4::main([]);
 
 test bool tst() = demo("Closures") == experiments::Compiler::Examples::Closures::main([]);
 

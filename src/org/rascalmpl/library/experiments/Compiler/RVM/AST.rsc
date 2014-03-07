@@ -102,10 +102,7 @@ data Instruction =
 		| TYPESWITCH(list[str] labels)				// Switch on type. Takes the type of the value on the stack and  jumps to the corresponding label in the list
 		| JMPINDEXED(list[str] labels)				// Computed jump. Takes an integer i from the stack and jumps to the i-th label in the list
 		
-		| CREATE(str fuid, int arity)				// Create a co-routine from a named function
-		| CREATEDYN(int arity)						// Create a co-routine from a function on the stack
 		| INIT(int arity)							// Initialize co-routine on top-of-stack.
-		| HASNEXT()									// HasNext operation on co-routine on top-of-stack
 		| NEXT0()									// Next operation (without argument) on co-routine on top-of-stack
 		| NEXT1()									// Next operation (with argument) on co-routine on top-of-stack
 		| YIELD0()									// Yield from co-routine without value
@@ -132,7 +129,7 @@ data Instruction =
 		| CHECKARGTYPE()							// Check the type of an argument
 		
 		// Delimited continuations (experimental)
-		| LOADCONT()
+		| LOADCONT(str fuid)
 		| RESET()
 		| SHIFT()
 ;
