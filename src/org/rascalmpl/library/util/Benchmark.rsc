@@ -191,7 +191,7 @@ public map[str,num] benchmark(map[str, void()] Cases, int (void ()) duration)
 
 @doc{
 Synopsis: Current time in nanoseconds (10$^-9$ sec) since January 1, 1970 GMT.
-
+Description: Get the  wall clock time in nanoseconds.
 
 }
 @javaClass{org.rascalmpl.library.util.Benchmark}
@@ -201,10 +201,20 @@ public java int getNanoTime();
 Synopsis: Current time in milliseconds (10$^-3$ sec) since January 1, 1970 GMT.
 
 Description:
-This function is a synonym for [realTime].
+This function is a synonym for [realTime] and gives the wall clock time in milliseconds.
 }
 @javaClass{org.rascalmpl.library.util.Benchmark}
 public java int getMilliTime();
+
+@doc{
+Synopsis: Force a garbage collection.
+
+Description:
+This function forces a garbage collection and can, for instance, be used before running a benchmark.
+}
+@javaClass{org.rascalmpl.library.util.Benchmark}
+public java int gc();
+
 
 
 
