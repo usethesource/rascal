@@ -89,6 +89,7 @@ public class RascalShell {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap, classLoaders, uriResolver);
+	  evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		importPrelude();
 		running = true;
 	}
