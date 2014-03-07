@@ -83,12 +83,6 @@ private int estimate(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp \defa
 private int estimate(muFailReturn()) = 0;
 private int estimate(muFilterReturn()) = 0;
 
-private int estimate(muCreate(muFun(str fuid))) = 1;
-private int estimate(muCreate(MuExp fun)) = estimate(fun);
-private int estimate(muCreate(muFun(str fuid), list[MuExp] args)) = estimate_arg_list(args);
-
-private int estimate(muCreate(MuExp fun, list[MuExp] args)) = max(estimate(fun), 1 + estimate_arg_list(args));
-
 private int estimate(muInit(MuExp exp)) = estimate(exp);
 private int estimate(muInit(MuExp coro, list[MuExp] args)) = max(estimate(coro), 1 + estimate_arg_list(args));
 
@@ -106,8 +100,6 @@ private int estimate(muGuard(MuExp exp)) = estimate(exp);
 private int estimate(muReturn()) = 0;
 private int estimate(muReturn(MuExp exp)) = estimate(exp);
 private int estimate(muReturn(MuExp exp, list[MuExp] exps)) = estimate_arg_list([ exp, *exps ]);
-
-private int estimate(muHasNext(MuExp coro)) = estimate(coro);
 
 private int estimate(muMulti(MuExp exp)) = estimate(exp);
     
@@ -129,5 +121,9 @@ private int estimate(muAssignVarDeref(str id, str fuid, int pos, MuExp exp)) = e
 
 private int estimate(muThrow(MuExp exp)) = estimate(exp);
 private int estimate(muTry(MuExp tryBody, muCatch(str varname, str fuid, Symbol \type, MuExp catchBody), MuExp \finally)) = max(max(estimate(tryBody),1 + 1 + estimate(catchBody)),estimate(\finally));
+
+private int estimate(muContVar(str fuid)) = 1;
+private int estimate(muReset(MuExp fun)) = estimate(fun);
+private int estimate(muShift(MuExp body)) = estimate(body);
 
 private default int estimate(MuExp e) { throw "Unknown node in the muRascal AST: <e>"; }

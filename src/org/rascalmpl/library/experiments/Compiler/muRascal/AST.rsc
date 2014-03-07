@@ -132,14 +132,9 @@ public data MuExp =
 		  | muFailReturn()										// Failure from function body
           
             // Coroutines
-            
-          | muCreate(MuExp fun)									// Create a coroutine
-          | muCreate(MuExp fun, list[MuExp] args)
           
           | muInit(MuExp coro)									// Initialize a coroutine, no arguments
           | muInit(MuExp coro, list[MuExp] args)				// Initialize a coroutine, with arguments
-          
-          | muHasNext(MuExp exp)								// HasNext on a coroutine
           
           | muNext(MuExp exp)									// Next on coroutine, no arguments
           | muNext(MuExp exp1, list[MuExp] args)				// Next on coroutine, with arguments
@@ -171,7 +166,7 @@ public data MuExp =
           
           // Delimited continuations (experimental)
           
-          | muCont()
+          | muContVar(str fuid)
           | muReset(MuExp fun)
           | muShift(MuExp exp)
           ;
@@ -212,6 +207,9 @@ public data MuExp =
             | preTypeCon(str txt)
             | preVar(Identifier id)
             | preVar(lrel[str name,int formals] funNames, Identifier id)
+            // Specific to delimited continuations (experimental)
+            | preContLoc()
+            | preContVar(lrel[str,int] funNames)
             | preFunNN(str modName, str name, int nformals)
             | preFunN(lrel[str,int] funNames, str name, int nformals)
             | preList(list[MuExp] exps)

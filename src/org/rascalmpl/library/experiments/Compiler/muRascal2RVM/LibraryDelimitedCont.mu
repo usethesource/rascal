@@ -12,45 +12,18 @@ function NEXT[1,gen] {
     return false;
 }
 
-// Semantics of the all operator
-
-coroutine ALL[1,tasks,len,p,workers] {
-    len = size_array(tasks);
-    guard len > 0;
-    workers = make_array(len);
-    p = 0;
-    put_array(workers,p,init(get_array(tasks,p)()));
-    while(true) {
-        while(next(get_array(workers,p))) {
-            if(p == len - 1) {
-                yield;
-            } else {
-                p = p + 1;
-                put_array(workers,p,init(get_array(tasks,p)()));
-            };
-        };
-        if(p > 0){
-            p = p - 1;
-        } else {
-            exhaust;
-        };
+function SHIFT_CLOSURE[3,k,vars,vals,
+                       len,j,rVar] {
+    len = size_array(vars);
+    j = 0;
+    while(j < len) {
+        rVar = get_array(vars,j);
+        deref rVar = get_array(vals,j);
+        j = j + 1;
     };
+    return k();
 }
-
-coroutine OR[1,tasks,len,p,worker] {
-    len = size_array(tasks);
-    guard len > 0;
-    p = 0;
-    while(p < len) {
-        get_array(tasks,p)()();
-        p = p + 1;
-    };
-}
-
-coroutine ONE[1,task] {
-    return next(init(task));
-}
-
+/*
 function RASCAL_ALL[2, genArray, generators, 
                         len, j, gen, genInits, forward] {
     len = size_array(genArray);
@@ -94,7 +67,7 @@ function RASCAL_ALL[2, genArray, generators,
         };
     };
 }
-
+*/
 // Initialize a pattern with a given value and exhaust all its possibilities
 
 /******************************************************************************************/
@@ -108,71 +81,89 @@ function RASCAL_ALL[2, genArray, generators,
 // - ENUMERATE_CHECK_AND_ASSIGN
 // All ENUM declarations have a parameter 'rVal' that is used to yield their value
 
-coroutine ENUM_LITERAL[2, iLit, rVal]{
-   yield iLit;
+function ENUM_LITERAL[2, iLit, rVal]{
+   shift(cons NEXT(fun SHIFT_CLOSURE(cont, [ rVal ], [ iLit ])));
+   return cons EXHAUSTED();
 }
 
-coroutine ENUM_LIST[2, iLst, rVal, len, j]{
+function ENUM_LIST[2, iLst, rVal, len, j]{
    len = size_list(iLst);
-   guard len > 0;
+   if(len <= 0) {
+       return cons EXHAUSTED();
+   };
    j = 0;
    while(j < len) {
-      yield get_list(iLst, j);
+      shift(cons NEXT(fun SHIFT_CLOSURE(cont, [ rVal ], [ get_list(iLst, j) ])));
       j = j + 1;
    };
+   return cons EXHAUSTED();
 }
 
-coroutine ENUM_SET[2, iSet, rVal, iLst, len, j]{
+function ENUM_SET[2, iSet, rVal, iLst, len, j]{
    iLst = set2list(iSet);
    len = size_list(iLst);
-   guard len > 0;
+   if(len <= 0) {
+       return cons EXHAUSTED();
+   };
    j = 0;
    while(j < len) {
-      yield get_list(iLst, j);
+      shift(cons NEXT(fun SHIFT_CLOSURE(cont, [ rVal ], [ get_list(iLst, j) ])));
       j = j + 1;
    };
+   return cons EXHAUSTED();
 }
 
-coroutine ENUM_MAP[2, iMap, rVal, iKlst, len, j]{
+function ENUM_MAP[2, iMap, rVal, iKlst, len, j]{
    iKlst = keys(iMap);
    len = size_list(iKlst);
-   guard len > 0;
+   if(len <= 0) {
+       return cons EXHAUSTED();
+   };
    j = 0;
    while(j < len) {
-      yield get_list(iKlst, j);
+      shift(cons NEXT(fun SHIFT_CLOSURE(cont, [ rVal ], [ get_list(iKlst, j) ])));
       j = j + 1;
    };
+   return cons EXHAUSTED();
 }
 
-coroutine ENUM_NODE[2, iNd, rVal, len, j, array]{
+function ENUM_NODE[2, iNd, rVal, len, j, array]{
    array = get_children_and_keyword_params_as_values(iNd);
    len = size_array(array);
-   guard len > 0;
+   if(len <= 0) {
+       return cons EXHAUSTED();
+   };
    j = 0;
    while(j < len) {
-      yield get_array(array, j);
+      shift(cons NEXT(fun SHIFT_CLOSURE(cont, [ rVal ], [ get_array(array, j) ])));
       j = j + 1;
    };
+   return cons EXHAUSTED();
 }
 
-coroutine ENUM_TUPLE[2, iTup, rVal, len, j]{
+function ENUM_TUPLE[2, iTup, rVal, len, j]{
    len = size_tuple(iTup);
-   guard len > 0;
+   if(len <= 0) {
+       return cons EXHAUSTED();
+   };
    j = 0;
    while(j < len) {
-      yield get_tuple(iTup, j);
+      shift(cons NEXT(fun SHIFT_CLOSURE(cont, [ rVal ], [ get_tuple(iTup, j) ])));
       j = j + 1;
    };
+   return cons EXHAUSTED();
 }
 
-coroutine ENUMERATE_AND_MATCH1[2, enumerator, pat, iElm]{ 
-   enumerator = init(enumerator, ref iElm);
-   while(next(enumerator)) {
+function ENUMERATE_AND_MATCH1[2, enumerator, pat, iElm]{ 
+   enumerator = reset(fun enumerator(ref iElm));
+   while(NEXT(enumerator)) {
+     enumerator = prim("adt_field_access",enumerator,"cont")();
      pat(iElm);
    }; 
+   return cons EXHAUSTED();
 }
 
-coroutine ENUMERATE_AND_MATCH[2, pat, iVal]{ 
+function ENUMERATE_AND_MATCH[2, pat, iVal]{ 
   typeswitch(iVal) {
     case list:         ENUMERATE_AND_MATCH1(ENUM_LIST   (iVal), pat);
     case lrel:         ENUMERATE_AND_MATCH1(ENUM_LIST   (iVal), pat);
@@ -184,9 +175,10 @@ coroutine ENUMERATE_AND_MATCH[2, pat, iVal]{
     case tuple:        ENUMERATE_AND_MATCH1(ENUM_TUPLE  (iVal), pat);
     default:           ENUMERATE_AND_MATCH1(ENUM_LITERAL(iVal), pat);
   };
+  return cons EXHAUSTED();
 }
 
-coroutine ENUMERATE_AND_ASSIGN[2, rVar, iVal]{
+function ENUMERATE_AND_ASSIGN[2, rVar, iVal]{
   typeswitch(iVal) {
     case list:         ENUM_LIST   (iVal, rVar);
     case lrel:         ENUM_LIST   (iVal, rVar);
@@ -198,18 +190,21 @@ coroutine ENUMERATE_AND_ASSIGN[2, rVar, iVal]{
     case tuple:        ENUM_TUPLE  (iVal, rVar);
     default:           ENUM_LITERAL(iVal, rVar);
   };
+  return cons EXHAUSTED();
 }
 
-coroutine ENUMERATE_CHECK_AND_ASSIGN1[3, enumerator, typ, rVar, iElm]{
-   enumerator = init(enumerator, ref iElm); 
-   while(next(enumerator)){
+function ENUMERATE_CHECK_AND_ASSIGN1[3, enumerator, typ, rVar, iElm]{
+   enumerator = reset(enumerator(ref iElm)); 
+   while(NEXT(enumerator)){
+     enumerator = prim("adt_field_access",enumerator,"cont")();
      if(subtype(typeOf(iElm), typ)){
-     	yield iElm;
+     	shift(cons NEXT(fun SHIFT_CLOSURE(cont, [ rVar ], [ iElm ])));
      };
-   }; 
+   };
+   return cons EXHAUSTED();
 }
 
-coroutine ENUMERATE_CHECK_AND_ASSIGN[3, typ, rVar, iVal]{
+function ENUMERATE_CHECK_AND_ASSIGN[3, typ, rVar, iVal]{
   typeswitch(iVal){
     case list:         ENUMERATE_CHECK_AND_ASSIGN1(ENUM_LIST   (iVal), typ, rVar);
     case lrel:         ENUMERATE_CHECK_AND_ASSIGN1(ENUM_LIST   (iVal), typ, rVar);
@@ -221,13 +216,14 @@ coroutine ENUMERATE_CHECK_AND_ASSIGN[3, typ, rVar, iVal]{
     case tuple:        ENUMERATE_CHECK_AND_ASSIGN1(ENUM_TUPLE  (iVal), typ, rVar);
     default:           ENUMERATE_CHECK_AND_ASSIGN1(ENUM_LITERAL(iVal), typ, rVar);
   };
+  return cons EXHAUSTED();
 }
 
 /******************************************************************************************/
 /*					Ranges  												  		      */
 /******************************************************************************************/
 
-coroutine RANGE_INT[3, pat, iFirst, iEnd, j, n]{
+function RANGE_INT[3, pat, iFirst, iEnd, j, n]{
    j = mint(iFirst);
    n = mint(iEnd);
    if(j < n) {
@@ -243,7 +239,7 @@ coroutine RANGE_INT[3, pat, iFirst, iEnd, j, n]{
    };
 }
 
-coroutine RANGE[3, pat, iFirst, iEnd, j, n, rone]{
+function RANGE[3, pat, iFirst, iEnd, j, n, rone]{
    j = iFirst;
    n = iEnd;
    if(iFirst is int && iEnd is int){
@@ -264,7 +260,7 @@ coroutine RANGE[3, pat, iFirst, iEnd, j, n, rone]{
    };
 }
 
-coroutine RANGE_STEP_INT[4, pat, iFirst, iSecond, iEnd, j, n, step]{
+function RANGE_STEP_INT[4, pat, iFirst, iSecond, iEnd, j, n, step]{
    j = mint(iFirst);
    n = mint(iEnd);
    if(j < n) {
@@ -290,7 +286,7 @@ coroutine RANGE_STEP_INT[4, pat, iFirst, iSecond, iEnd, j, n, step]{
    };
 }
 
-coroutine RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step, mixed]{
+function RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step, mixed]{
    n = iEnd;
    if(iFirst is int && iSecond is int && iEnd is int){
      j = iFirst;
@@ -334,7 +330,7 @@ coroutine RANGE_STEP[4, pat, iFirst, iSecond, iEnd, j, n, step, mixed]{
 
 // Use N patterns to match N subjects
 
-coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
+function MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
    plen = size_array(pats);
    slen = size_array(subjects);
    guard plen == slen;
@@ -358,7 +354,7 @@ coroutine MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
 
 // Match a call pattern with a simple string as function symbol
 
-coroutine MATCH_SIMPLE_CALL_OR_TREE[3, iName, pats, iSubject, args]{
+function MATCH_SIMPLE_CALL_OR_TREE[3, iName, pats, iSubject, args]{
     guard iSubject is node;   
     if(equal(iName, get_name(iSubject))){
        args = get_children_and_keyword_params_as_map(iSubject);
@@ -373,13 +369,13 @@ coroutine MATCH_SIMPLE_CALL_OR_TREE[3, iName, pats, iSubject, args]{
 
 // Match a call pattern with an arbitrary pattern as function symbol
 
-coroutine MATCH_CALL_OR_TREE[2, pats, iSubject, args]{
+function MATCH_CALL_OR_TREE[2, pats, iSubject, args]{
     guard iSubject is node;   
     args = get_name_and_children_and_keyword_params_as_map(iSubject);
     MATCH_N(pats, args);
 }
 
-coroutine MATCH_KEYWORD_PARAMS[3, keywords, pats, iSubject, len, subjects, j, kw]{
+function MATCH_KEYWORD_PARAMS[3, keywords, pats, iSubject, len, subjects, j, kw]{
    guard iSubject is map;
    len = size_array(keywords);
    if(len == 0){
@@ -399,7 +395,7 @@ coroutine MATCH_KEYWORD_PARAMS[3, keywords, pats, iSubject, len, subjects, j, kw
    MATCH_N(pats, subjects);
 }
 
-coroutine MATCH_REIFIED_TYPE[2, pat, iSubject, nc, konstructor, symbol]{
+function MATCH_REIFIED_TYPE[2, pat, iSubject, nc, konstructor, symbol]{
     guard iSubject is node;
     nc = get_name_and_children_and_keyword_params_as_map(iSubject);
     konstructor = get_array(nc, 0);
@@ -409,17 +405,17 @@ coroutine MATCH_REIFIED_TYPE[2, pat, iSubject, nc, konstructor, symbol]{
     };
 }
 
-coroutine MATCH_TUPLE[2, pats, iSubject]{
+function MATCH_TUPLE[2, pats, iSubject]{
     guard iSubject is tuple;
     MATCH_N(pats, get_tuple_elements(iSubject));
 }
 
-coroutine MATCH_LITERAL[2, pat, iSubject]{
+function MATCH_LITERAL[2, pat, iSubject]{
     guard equal(pat, iSubject);
     yield;
 }
 
-coroutine MATCH_VAR[2, rVar, iSubject, iVal]{
+function MATCH_VAR[2, rVar, iSubject, iVal]{
    if(is_defined(rVar)){
       iVal = deref rVar;
       if(equal(iSubject, iVal)){
@@ -431,30 +427,30 @@ coroutine MATCH_VAR[2, rVar, iSubject, iVal]{
    undefine(rVar);
 }
 
-coroutine MATCH_ANONYMOUS_VAR[1, iSubject]{
+function MATCH_ANONYMOUS_VAR[1, iSubject]{
    yield;
 }
 
-coroutine MATCH_TYPED_VAR[3, typ, rVar, iSubject, iVal]{
+function MATCH_TYPED_VAR[3, typ, rVar, iSubject, iVal]{
    guard subtype(typeOf(iSubject), typ);
    yield iSubject;
    undefine(rVar);
    exhaust; 
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_VAR[2, typ, iSubject]{
+function MATCH_TYPED_ANONYMOUS_VAR[2, typ, iSubject]{
    guard subtype(typeOf(iSubject), typ);
    yield;
 }
 
-coroutine MATCH_VAR_BECOMES[3, rVar, pat, iSubject, cpat]{
+function MATCH_VAR_BECOMES[3, rVar, pat, iSubject, cpat]{
    cpat = init(pat, iSubject);
    while(next(cpat)) {
        yield iSubject;
    };
 }
 
-coroutine MATCH_TYPED_VAR_BECOMES[4, typ, rVar, pat, iSubject, cpat]{
+function MATCH_TYPED_VAR_BECOMES[4, typ, rVar, pat, iSubject, cpat]{
    guard subtype(typeOf(iSubject), typ);
    cpat = init(pat, iSubject);
    while(next(cpat)) {
@@ -462,12 +458,12 @@ coroutine MATCH_TYPED_VAR_BECOMES[4, typ, rVar, pat, iSubject, cpat]{
    };
 }
 
-coroutine MATCH_AS_TYPE[3, typ, pat, iSubject]{
+function MATCH_AS_TYPE[3, typ, pat, iSubject]{
    guard subtype(typeOf(iSubject), typ);
    pat(iSubject);
 }
 
-coroutine MATCH_ANTI[2, pat, iSubject, cpat]{
+function MATCH_ANTI[2, pat, iSubject, cpat]{
 	cpat = init(pat, iSubject);
    	if(next(cpat)) {
 	    exhaust;
@@ -488,7 +484,7 @@ coroutine MATCH_ANTI[2, pat, iSubject, cpat]{
 // - the subject "iSubject" itself
 // - a value "progress" that determines the progress of the match.
 
-coroutine MATCH_COLLECTION[4, 
+function MATCH_COLLECTION[4, 
      pats,		// Coroutines to match collection elements
      accept,	// Function that accepts a complete match
 	 iSubject,	// The subject (a collection like list or set)
@@ -538,7 +534,7 @@ coroutine MATCH_COLLECTION[4,
 
 // List matching creates a specific instance of MATCH_COLLECTION
 
-coroutine MATCH_LIST[2, pats, iSubject]{
+function MATCH_LIST[2, pats, iSubject]{
    guard iSubject is list;
    MATCH_COLLECTION(pats, Library::ACCEPT_LIST_MATCH::2, iSubject, 0);
 }
@@ -558,7 +554,7 @@ function ACCEPT_LIST_MATCH[2, iSubject, cursor]{
 
 // Any pattern in a list not handled by a special case
 
-coroutine MATCH_PAT_IN_LIST[3, pat, iSubject, rNext, start, cpat]{ 
+function MATCH_PAT_IN_LIST[3, pat, iSubject, rNext, start, cpat]{ 
     start = deref rNext;
     guard start < size_list(iSubject);
     
@@ -570,7 +566,7 @@ coroutine MATCH_PAT_IN_LIST[3, pat, iSubject, rNext, start, cpat]{
 
 // A literal in a list
 
-coroutine MATCH_LITERAL_IN_LIST[3, pat, iSubject, rNext, start, elm]{
+function MATCH_LITERAL_IN_LIST[3, pat, iSubject, rNext, start, elm]{
     start = deref rNext;
 	guard start < size_list(iSubject);
 	
@@ -580,7 +576,7 @@ coroutine MATCH_LITERAL_IN_LIST[3, pat, iSubject, rNext, start, elm]{
     };
 }
 
-coroutine MATCH_VAR_IN_LIST[3, rVar, iSubject, rNext, start, iVal, iElem]{
+function MATCH_VAR_IN_LIST[3, rVar, iSubject, rNext, start, iVal, iElem]{
    start = deref rNext;
    guard start < size_list(iSubject);
    
@@ -596,7 +592,7 @@ coroutine MATCH_VAR_IN_LIST[3, rVar, iSubject, rNext, start, iVal, iElem]{
    undefine(rVar);
 }
 
-coroutine MATCH_TYPED_VAR_IN_LIST[4, typ, rVar, iSubject, rNext, start, iVal, iElem]{
+function MATCH_TYPED_VAR_IN_LIST[4, typ, rVar, iSubject, rNext, start, iVal, iElem]{
    start = deref rNext;
    guard start < size_list(iSubject);
    
@@ -606,13 +602,13 @@ coroutine MATCH_TYPED_VAR_IN_LIST[4, typ, rVar, iSubject, rNext, start, iVal, iE
    };
 }
 
-coroutine MATCH_ANONYMOUS_VAR_IN_LIST[2, iSubject, rNext, start]{
+function MATCH_ANONYMOUS_VAR_IN_LIST[2, iSubject, rNext, start]{
    start = deref rNext;
    guard start < size_list(iSubject);
    yield(start + 1);
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_LIST[3, typ, iSubject, rNext, start, iElem]{
+function MATCH_TYPED_ANONYMOUS_VAR_IN_LIST[3, typ, iSubject, rNext, start, iElem]{
    start = deref rNext;
    guard start < size_list(iSubject);
    
@@ -622,7 +618,7 @@ coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_LIST[3, typ, iSubject, rNext, start, iEle
    };
 }
 
-coroutine MATCH_MULTIVAR_IN_LIST[6, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, maxLen, iVal]{
+function MATCH_MULTIVAR_IN_LIST[6, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, maxLen, iVal]{
     start = deref rNext;
     available = size_list(iSubject) - start;
     len = mint(iMinLen);
@@ -642,7 +638,7 @@ coroutine MATCH_MULTIVAR_IN_LIST[6, rVar, iMinLen, iMaxLen, iLookahead, iSubject
     undefine(rVar);
 }
 
-coroutine MATCH_LAST_MULTIVAR_IN_LIST[6, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, maxLen, iVal]{
+function MATCH_LAST_MULTIVAR_IN_LIST[6, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, maxLen, iVal]{
     start = deref rNext;
     available = size_list(iSubject) - start;
     len = min(mint(iMaxLen), max(available - mint(iLookahead), 0));
@@ -664,7 +660,7 @@ coroutine MATCH_LAST_MULTIVAR_IN_LIST[6, rVar, iMinLen, iMaxLen, iLookahead, iSu
     undefine(rVar);
 }
 
-coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[5, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len]{
+function MATCH_ANONYMOUS_MULTIVAR_IN_LIST[5, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len]{
     start = deref rNext;
     available = size_list(iSubject) - start;
     len = mint(iMinLen);
@@ -675,7 +671,7 @@ coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[5, iMinLen, iMaxLen, iLookahead, iSub
     };
 }
 
-coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST[5, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len]{
+function MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST[5, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len]{
     start = deref rNext;
     available = size_list(iSubject) - start;
     len = min(mint(iMaxLen), available - mint(iLookahead));
@@ -686,7 +682,7 @@ coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST[5, iMinLen, iMaxLen, iLookahead,
     };
 }
 
-coroutine MATCH_TYPED_MULTIVAR_IN_LIST[7, typ, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, sub]{
+function MATCH_TYPED_MULTIVAR_IN_LIST[7, typ, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, sub]{
 	start = deref rNext;
 	available = size_list(iSubject) - start;
     len = mint(iMinLen);
@@ -709,7 +705,7 @@ coroutine MATCH_TYPED_MULTIVAR_IN_LIST[7, typ, rVar, iMinLen, iMaxLen, iLookahea
     };
 }
 
-coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[7, typ, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, elmType]{
+function MATCH_LAST_TYPED_MULTIVAR_IN_LIST[7, typ, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, elmType]{
     start = deref rNext;
     available = size_list(iSubject) - start;
     len = mint(iMinLen);
@@ -734,7 +730,7 @@ coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[7, typ, rVar, iMinLen, iMaxLen, iLoo
     };
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[6, typ, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len]{
+function MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[6, typ, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len]{
     start = deref rNext;
     available = size_list(iSubject) - start;
     len = mint(iMinLen);
@@ -757,7 +753,7 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[6, typ, iMinLen, iMaxLen, iLook
    };
 }
 
-coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[6, typ, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, elmType]{
+function MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[6, typ, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, elmType]{
     start = deref rNext;
     available = size_list(iSubject) - start;
     len = mint(iMinLen);
@@ -785,7 +781,7 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[6, typ, iMinLen, iMaxLen, 
 // Primitives for matching of concrete list patterns
 
 // Tree node in concrete pattern: appl(iProd, argspat), where argspat is a list pattern
-coroutine MATCH_APPL_IN_LIST[4, iProd, argspat, iSubject, rNext, start, iElem, children, cpats]{
+function MATCH_APPL_IN_LIST[4, iProd, argspat, iSubject, rNext, start, iElem, children, cpats]{
     start = deref rNext;
     guard start < size_list(iSubject);
     iElem = get_list(iSubject, start);
@@ -800,7 +796,7 @@ coroutine MATCH_APPL_IN_LIST[4, iProd, argspat, iSubject, rNext, start, iElem, c
 }
 
 // Match appl(prod(lit(S),_,_), _) in a concrete list
-coroutine MATCH_LIT_IN_LIST[3, iProd, iSubject, rNext, start, iElem, children]{
+function MATCH_LIT_IN_LIST[3, iProd, iSubject, rNext, start, iElem, children]{
 	start = deref rNext;
 	guard start < size_list(iSubject);
 	iElem = get_list(iSubject, start);
@@ -811,7 +807,7 @@ coroutine MATCH_LIT_IN_LIST[3, iProd, iSubject, rNext, start, iElem, children]{
 }
 
 // Match and skip optional layout in concrete patterns
-coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST[2, iSubject, rNext, start, iElem, children, prod, prodchildren]{ 
+function MATCH_OPTIONAL_LAYOUT_IN_LIST[2, iSubject, rNext, start, iElem, children, prod, prodchildren]{ 
     start = deref rNext;
     if(start < size_list(iSubject)){
        iElem = get_list(iSubject, start);
@@ -830,7 +826,7 @@ coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST[2, iSubject, rNext, start, iElem, childr
 
 // Match a (or last) multivar in a concrete list
 
-coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST[9, rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, iSubject, rNext, cavailable, start, clen, maxLen, iVal, end]{
+function MATCH_CONCRETE_MULTIVAR_IN_LIST[9, rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, iSubject, rNext, cavailable, start, clen, maxLen, iVal, end]{
     start = deref rNext;
     cavailable = size(iSubject) - start;
     clen = mint(iMinLen);
@@ -851,7 +847,7 @@ coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST[9, rVar, iMinLen, iMaxLen, iLookahead,
     undefine(rVar);
 }
 
-coroutine MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST[9, rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, iSubject, rNext, cavailable, start, clen, iVal, end]{
+function MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST[9, rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, iSubject, rNext, cavailable, start, clen, iVal, end]{
     start = deref rNext;
     cavailable = size(iSubject) - start;
     clen = min(mint(iMaxLen), max(cavailable - mint(iLookahead), 0));
@@ -888,7 +884,7 @@ function SKIP_OPTIONAL_SEPARATOR[5,iSubject, start, offset, sep, available, elm,
     return 0;
 }
 
-coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[10, rVar, iMinLen, iMaxLen, iLookahead, sep, applConstr, listProd, applProd, iSubject, rNext, 
+function MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[10, rVar, iMinLen, iMaxLen, iLookahead, sep, applConstr, listProd, applProd, iSubject, rNext, 
                                                           cavailable, start, len, maxLen, iVal, sublen, end, 
                                                           skip_leading_separator, skip_trailing_separator]{
     start = deref rNext;
@@ -924,7 +920,7 @@ coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[10, rVar, iMinLen, iMa
     undefine(rVar);
 }
 
-coroutine MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[10, rVar, iMinLen, iMaxLen, iLookahead, sep, applConstr, listProd, applProd, iSubject, rNext, 
+function MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST[10, rVar, iMinLen, iMaxLen, iLookahead, sep, applConstr, listProd, applProd, iSubject, rNext, 
                                                                cavailable, start, iVal, sublen, end, skip_leading_separator, skip_trailing_separator]{
     start = deref rNext;
     cavailable = size(iSubject) - start;
@@ -964,7 +960,7 @@ function MAKE_CONCRETE_LIST[4, applConstr, listProd, applProd, elms, listResult]
 
 // Set matching creates a specific instance of MATCH_COLLECTION
 
-coroutine MATCH_SET[3, iLiterals, pats, iSubject, remaining]{
+function MATCH_SET[3, iLiterals, pats, iSubject, remaining]{
     guard iSubject is set;
     
     if(subset(iLiterals, iSubject)) {
@@ -981,7 +977,7 @@ function ACCEPT_SET_MATCH[2, iSubject, remaining]{
    return (size_mset(remaining) == 0);
 }
 
-coroutine ENUM_MSET[2, set, rElm, iLst, len, j]{
+function ENUM_MSET[2, set, rElm, iLst, len, j]{
     // NOTE: added an extra parameter
     iLst = mset2list(set);
     len = size_list(iLst);
@@ -997,7 +993,7 @@ coroutine ENUM_MSET[2, set, rElm, iLst, len, j]{
 // - available: the remaining, unmatched, elements in the subject set
 // - rRemaining: reference parameter to return remaining set elements
 
-coroutine MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
+function MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
 	guard size_mset(available) > 0;
     
     gen = init(ENUM_MSET, available, ref elm);
@@ -1011,7 +1007,7 @@ coroutine MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
     deref rRemaining = available;  /**/
 }
 
-coroutine MATCH_LITERAL_IN_SET[3, pat, available, rRemaining, gen, elm]{
+function MATCH_LITERAL_IN_SET[3, pat, available, rRemaining, gen, elm]{
 	guard size_mset(available) > 0;
 	
 	// TODO where does elm get its value?
@@ -1021,7 +1017,7 @@ coroutine MATCH_LITERAL_IN_SET[3, pat, available, rRemaining, gen, elm]{
     };
 }
 
-coroutine MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
+function MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
     guard size_mset(available) > 0;
  	if(is_defined(rVar)){
       elm = deref rVar;
@@ -1040,7 +1036,7 @@ coroutine MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
     deref rRemaining = available;   /**/
 }
 
-coroutine MATCH_TYPED_VAR_IN_SET[4, typ, rVar, available, rRemaining, gen, elm]{
+function MATCH_TYPED_VAR_IN_SET[4, typ, rVar, available, rRemaining, gen, elm]{
     guard size_mset(available) > 0;
 
     gen = init(ENUM_MSET, available, ref elm);
@@ -1053,7 +1049,7 @@ coroutine MATCH_TYPED_VAR_IN_SET[4, typ, rVar, available, rRemaining, gen, elm]{
     deref rRemaining = available;   /**/
 }
 
-coroutine MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRemaining, gen, elm]{
+function MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRemaining, gen, elm]{
 	guard size_mset(available) > 0;
     
     gen = init(ENUM_MSET, available, ref elm);
@@ -1064,7 +1060,7 @@ coroutine MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRemaining, gen, elm]{
    deref rRemaining = available;   /**/
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET[3, typ, available, rRemaining, gen, elm]{
+function MATCH_TYPED_ANONYMOUS_VAR_IN_SET[3, typ, available, rRemaining, gen, elm]{
 	guard size_mset(available) > 0;
     
     gen = init(ENUM_MSET, available, ref elm);
@@ -1077,7 +1073,7 @@ coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET[3, typ, available, rRemaining, gen, e
    deref rRemaining = available;   /**/
 }
 
-coroutine MATCH_MULTIVAR_IN_SET[3, rVar, available, rRemaining, gen, subset]{
+function MATCH_MULTIVAR_IN_SET[3, rVar, available, rRemaining, gen, subset]{
     if(is_defined(rVar)){
       subset = deref rVar;
       if(subset_set_mset(subset, available)){
@@ -1095,7 +1091,7 @@ coroutine MATCH_MULTIVAR_IN_SET[3, rVar, available, rRemaining, gen, subset]{
     undefine(rVar);
 }
 
-coroutine MATCH_LAST_MULTIVAR_IN_SET[3, rVar, available, rRemaining, subset]{
+function MATCH_LAST_MULTIVAR_IN_SET[3, rVar, available, rRemaining, subset]{
     if(is_defined(rVar)){
       subset = deref rVar;
       if(equal_set_mset(subset, available)){
@@ -1108,7 +1104,7 @@ coroutine MATCH_LAST_MULTIVAR_IN_SET[3, rVar, available, rRemaining, subset]{
     undefine(rVar);
 }
 
-coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining, gen, subset]{
+function MATCH_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining, gen, subset]{
     gen = init(ENUM_SUBSETS, available, ref subset);
     while(next(gen)) {
 	    yield mset_destructive_subtract_mset(available, subset);
@@ -1117,11 +1113,11 @@ coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining, gen, subset]
     deref rRemaining = available;   /**/
 }
 
-coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining]{
+function MATCH_LAST_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining]{
     yield mset_empty();
 }
 
-coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, subset, iSubset]{    
+function MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, subset, iSubset]{    
     gen = init(ENUM_SUBSETS, available, ref subset);
     while(next(gen)) {
         iSubset = set(subset);
@@ -1133,12 +1129,12 @@ coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, 
     deref rRemaining = available;   /**/
 }
 
-coroutine MATCH_LAST_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining]{
+function MATCH_LAST_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining]{
     guard subtype(typeOf(available), typ);
     yield(set(available), mset_empty());
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
+function MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
     guard subtype(typeOf(available), typ);
     
     gen = init(ENUM_SUBSETS, available, ref subset);
@@ -1149,7 +1145,7 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, g
     deref rRemaining = available;   /**/
 }
 
-coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
+function MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
     guard subtype(typeOf(available), typ);
     yield mset_empty();
 }
@@ -1160,7 +1156,7 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaini
 // the nth element of the set should be in the
 // ith subset 
  
-coroutine ENUM_SUBSETS[2, set, rSubset, lst, k, j, last, elIndex, sub]{
+function ENUM_SUBSETS[2, set, rSubset, lst, k, j, last, elIndex, sub]{
     lst = mset2list(set); 
     last = 2 pow size_mset(set);
     k = last - 1;
@@ -1193,7 +1189,7 @@ coroutine ENUM_SUBSETS[2, set, rSubset, lst, k, j, last, elIndex, sub]{
 // ***** Match and descent for all types *****
 // Enforces the same left-most innermost traversal order as the interpreter
 
-coroutine MATCH_AND_DESCENT[2, pat, iVal]{
+function MATCH_AND_DESCENT[2, pat, iVal]{
   typeswitch(iVal){
     case list:        MATCH_AND_DESCENT_LIST (pat, iVal);
     case lrel:        MATCH_AND_DESCENT_LIST (pat, iVal);
@@ -1208,7 +1204,7 @@ coroutine MATCH_AND_DESCENT[2, pat, iVal]{
   pat(iVal);
 }
 
-coroutine MATCH_AND_DESCENT_LITERAL[2, pat, iSubject, res]{
+function MATCH_AND_DESCENT_LITERAL[2, pat, iSubject, res]{
   if(equal(pat, iSubject)){
     yield;
     exhaust;
@@ -1217,7 +1213,7 @@ coroutine MATCH_AND_DESCENT_LITERAL[2, pat, iSubject, res]{
   MATCH_AND_DESCENT(MATCH_LITERAL(pat), iSubject);
 }
 
-coroutine MATCH_AND_DESCENT_LIST[2, pat, iLst, last, j]{
+function MATCH_AND_DESCENT_LIST[2, pat, iLst, last, j]{
    last = size_list(iLst);
    j = 0;
    while(j < last){
@@ -1226,7 +1222,7 @@ coroutine MATCH_AND_DESCENT_LIST[2, pat, iLst, last, j]{
    };
 }
 
-coroutine MATCH_AND_DESCENT_SET[2, pat, iSet, iLst, last, j]{
+function MATCH_AND_DESCENT_SET[2, pat, iSet, iLst, last, j]{
    iLst = set2list(iSet);
    last = size_list(iLst);
    j = 0;
@@ -1236,7 +1232,7 @@ coroutine MATCH_AND_DESCENT_SET[2, pat, iSet, iLst, last, j]{
    };
 }
 
-coroutine MATCH_AND_DESCENT_MAP[2, pat, iMap, iKlst, iVlst, last, j]{
+function MATCH_AND_DESCENT_MAP[2, pat, iMap, iKlst, iVlst, last, j]{
    iKlst = keys(iMap);
    iVlst = values(iMap);
    last = size_list(iKlst);
@@ -1248,7 +1244,7 @@ coroutine MATCH_AND_DESCENT_MAP[2, pat, iMap, iKlst, iVlst, last, j]{
    };
 }
 
-coroutine MATCH_AND_DESCENT_NODE[2, pat, iNd, last, j, ar]{
+function MATCH_AND_DESCENT_NODE[2, pat, iNd, last, j, ar]{
    ar = get_children_and_keyword_params_as_values(iNd);
    last = size_array(ar);
    j = 0; 
@@ -1258,7 +1254,7 @@ coroutine MATCH_AND_DESCENT_NODE[2, pat, iNd, last, j, ar]{
    };
 }
 
-coroutine MATCH_AND_DESCENT_TUPLE[2, pat, iTup, last, j]{
+function MATCH_AND_DESCENT_TUPLE[2, pat, iTup, last, j]{
    last = size_tuple(iTup);
    j = 0;
    while(j < last){
@@ -1269,7 +1265,7 @@ coroutine MATCH_AND_DESCENT_TUPLE[2, pat, iTup, last, j]{
 
 // ***** Regular expressions *****
 
-coroutine MATCH_REGEXP[3, iRegexp, varrefs, iSubject, matcher, j, rVar]{
+function MATCH_REGEXP[3, iRegexp, varrefs, iSubject, matcher, j, rVar]{
    matcher = muprim("regexp_compile", iRegexp, iSubject);
    while(muprim("regexp_find", matcher)){
      j = 0; 
