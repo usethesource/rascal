@@ -694,7 +694,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return call(qualifiedName, kwArgs, args);
 	}
 	
-  private IValue call(QualifiedName qualifiedName, Map<String,IValue> kwArgs, IValue... args) {
+  public IValue call(QualifiedName qualifiedName, Map<String,IValue> kwArgs, IValue... args) {
     OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(qualifiedName);
 		RascalTypeFactory rtf = RascalTypeFactory.getInstance();
     
