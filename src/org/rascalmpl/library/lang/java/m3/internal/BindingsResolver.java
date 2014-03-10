@@ -330,13 +330,15 @@ public class BindingsResolver {
       return enumSymbol(decl);
     }
     else if (binding.isTypeVariable()) {
-      ITypeBinding bound = binding.getBound();
+      ITypeBinding[] bound = binding.getTypeBounds();
       
       if (bound == null) {
         return parameterNode(decl);
       }
       else {
-        return parameterNode(decl, bound, isDeclaration);
+    	// JDT document says there can only be one element and it is in the first position.
+    	assert bound.length == 1;
+        return parameterNode(decl, bound[0], isDeclaration);
       } 
     }
     else if (binding.isWildcardType()) {
