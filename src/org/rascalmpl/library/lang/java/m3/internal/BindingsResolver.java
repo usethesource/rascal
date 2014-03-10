@@ -332,7 +332,7 @@ public class BindingsResolver {
     else if (binding.isTypeVariable()) {
       ITypeBinding[] bound = binding.getTypeBounds();
       
-      if (bound == null) {
+      if (bound.length == 0) {
         return parameterNode(decl);
       }
       else {
