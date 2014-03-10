@@ -33,9 +33,11 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.omg.CORBA.RepositoryIdHelper;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.KeywordArgument;
 import org.rascalmpl.ast.KeywordArguments;
+import org.rascalmpl.ast.KeywordFormals;
 import org.rascalmpl.ast.Label;
 import org.rascalmpl.ast.Mapping_Expression;
 import org.rascalmpl.ast.Name;
@@ -83,6 +85,7 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnguardedIt;
@@ -476,27 +479,52 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					}
 				}
 
-				java.util.List<org.rascalmpl.ast.Expression> args = this
-				.getArguments();
+				java.util.List<org.rascalmpl.ast.Expression> args = this.getArguments();
 
 				IValue[] actuals = new IValue[args.size()];
 				Type[] types = new Type[args.size()];
 				for (int i = 0; i < args.size(); i++) {
 					Result<IValue> resultElem = args.get(i).interpret(eval);
 					types[i] = resultElem.getType();
-					if(types[i].isBottom()) 
+					if (types[i].isBottom()) {
 						throw new UninitializedPatternMatch("The argument is of the type 'void'", args.get(i));
+					}
 					actuals[i] = resultElem.getValue();
 				}
 				
-				KeywordArguments keywordArgs = this.getKeywordArguments();
-				java.util.Map<String,IValue> kwActuals = Collections.<String,IValue>emptyMap();
-				if(keywordArgs.isDefault()){
-						kwActuals = new HashMap<String,IValue>();
-						
-						for(KeywordArgument kwa : keywordArgs.getKeywordArgumentList()){
-							kwActuals.put(Names.name(kwa.getName()), kwa.getExpression().interpret(eval).getValue());
-						}
+			  java.util.Map<String,IValue> kwActuals = Collections.<String,IValue>emptyMap();
+			  
+				if (hasKeywordArguments()) {
+				  KeywordArguments keywordArgs = this.getKeywordArguments();
+				  java.util.Map<String,Type> kwFormals = function.getKeywordArgumentTypes();
+				
+				  if (keywordArgs.isDefault()){
+				    kwActuals = new HashMap<String,IValue>();
+
+				    for (KeywordArgument kwa : keywordArgs.getKeywordArgumentList()){
+				      Result<IValue> val = kwa.getExpression().interpret(eval);
+				      String name = Names.name(kwa.getName());
+
+				      if (kwFormals != null) {
+				        // can typecheck something because keyword argument definitions exist
+
+//				        if (!kwFormals.containsKey(name)) {
+//				          throw new UndeclaredKeywordParameter(function.getType().toString(), name, this);
+//				        }
+
+				        if (kwFormals.containsKey(name)) {
+				          if (!val.getType().isSubtypeOf(kwFormals.get(name))) {
+				            throw new UnexpectedType(kwFormals.get(name), val.getType(), this);
+				          }
+				        }
+				        else {
+				          eval.getMonitor().warning("calling function with extra unknown keyword arguments", getLocation());
+				        }
+				      }
+
+				      kwActuals.put(name, val.getValue());
+				    }
+				  }
 				}
 				Result<IValue> res = null;
 				try {

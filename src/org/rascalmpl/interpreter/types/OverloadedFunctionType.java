@@ -13,7 +13,9 @@
 package org.rascalmpl.interpreter.types;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
@@ -30,6 +32,16 @@ public class OverloadedFunctionType extends RascalType {
 	/*package*/ OverloadedFunctionType(Set<FunctionType> alternatives) {
 		this.alternatives = alternatives;
 		this.returnType = alternatives.iterator().next().getReturnType();
+	}
+	
+	@Override
+	public Map<String, Type> getKeywordParameterTypes() {
+	  Map<String,Type> all = new HashMap<>();
+	  for (FunctionType f : alternatives) {
+	    all.putAll(f.getKeywordParameterTypes());
+	  }
+	  
+	  return all;
 	}
 	
 	public int size() {

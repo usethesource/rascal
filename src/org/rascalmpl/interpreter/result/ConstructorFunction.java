@@ -47,6 +47,11 @@ public class ConstructorFunction extends NamedFunction {
 	}
 	
 	@Override
+	public Map<String, Type> getKeywordArgumentTypes() {
+	  return constructorType.getKeywordParameterTypes();
+	}
+	
+	@Override
 	public boolean isStatic() {
 		return true;
 	}
