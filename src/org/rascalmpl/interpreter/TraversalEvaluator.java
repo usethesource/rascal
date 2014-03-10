@@ -37,6 +37,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.env.Environment;
@@ -50,6 +51,7 @@ import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -307,7 +309,8 @@ public class TraversalEvaluator {
 		  IConstructor rcons;
 		  
 		  try {
-		    rcons = (IConstructor) eval.call(cons.getType().getName(), cons.getName(), cons.asWithKeywordParameters().getParameters(), args);
+		    QualifiedName n = Names.toQualifiedName(cons.getType().getName(), cons.getName(), null);
+		    rcons = (IConstructor) eval.call(n, cons.asWithKeywordParameters().getParameters(), args);
 		  }
 		  catch (UndeclaredFunction | UndeclaredModule | ArgumentsMismatch e) {
 		    // This may happen when visiting data constructors dynamically which are not 
