@@ -81,6 +81,11 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
+	public Map<String, Type> getKeywordArgumentTypes() {
+	  return functionType.getKeywordParameterTypes();
+	}
+	
+	@Override
 	public int getArity() {
 		return functionType.getArgumentTypes().getArity();
 	}

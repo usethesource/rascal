@@ -21,6 +21,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -1069,9 +1070,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
 
-	
-	
-	
-
-	
+  public java.util.Map<String, Type> getKeywordArgumentTypes() {
+    return Collections.emptyMap();
+  }
 }

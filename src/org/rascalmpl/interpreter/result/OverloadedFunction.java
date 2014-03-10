@@ -16,6 +16,7 @@
 package org.rascalmpl.interpreter.result;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -70,6 +71,18 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		isStatic = checkStatic(primaryCandidates) && checkStatic(defaultCandidates);
 	}
 
+	@Override
+	public Map<String, Type> getKeywordArgumentTypes() {
+	  Map<String,Type> all = new HashMap<>();
+	  for (AbstractFunction c : primaryCandidates) {
+	    all.putAll(c.getKeywordArgumentTypes());
+	  }
+	  for (AbstractFunction c : defaultCandidates) {
+      all.putAll(c.getKeywordArgumentTypes());
+    }
+	  return all; 
+	}
+	
 	public OverloadedFunction(AbstractFunction function) {
 		super(function.getType(), null, function.getEval());
 		
