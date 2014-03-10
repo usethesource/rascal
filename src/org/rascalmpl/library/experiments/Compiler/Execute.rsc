@@ -19,12 +19,19 @@ import experiments::Compiler::muRascal2RVM::PeepHole;
 
 public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/Library.mu|;
 public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/Library.rvm|;
+
+// Specific for delimited continuations (experimental)
+// public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.mu|;
+// public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.rvm|;
+// map[str,Symbol] libTypes = ();
+
 public list[loc] defaultImports = [|rascal:///Exception.rsc|];
 
 list[Declaration] parseMuLibrary(){
     println("rascal2rvm: Recompiling library.mu");
  	libModule = parse(MuLibrary);
  	functions = [];
+// 	libTypes = libModule.types; 
  
   	for(fun <- libModule.functions) {
   		functionScope = fun.qname;
@@ -34,6 +41,9 @@ list[Declaration] parseMuLibrary(){
     	functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun.scopeIn, fun.nformals, get_nlocals(), fun.refs, required_frame_size, body)
     									  : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), false, required_frame_size, body,[]);
   	}
+  	// Specific to delimited continuations (experimental)
+//  	functions += [ shiftClosures[qname] | str qname <- shiftClosures ];
+//  	shiftClosures = ();
   
   	writeTextValueFile(MuLibraryCompiled, functions);
     println("rascal2rvm: Writing compiled version of Library.mu");
@@ -55,10 +65,13 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
       try {
   	       imported_functions = readTextValueFile(#list[Declaration], MuLibraryCompiled);
   	       println("rascal2rvm: Using compiled version of Library.mu");
-  	  } catch:
+  	  } catch: {
   	       imported_functions = parseMuLibrary();
+// 	       imported_types += libTypes;
+  	  }
    } else {
      imported_functions = parseMuLibrary();
+//   imported_types += libTypes;
    }
    
    // Recompile the default imports, if necessary
