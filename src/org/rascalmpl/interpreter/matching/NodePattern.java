@@ -244,6 +244,13 @@ public class NodePattern extends AbstractMatchingResult {
 						}
 					}
 					
+					// check kw params here@   
+					for (Entry<String,IMatchingResult> entry : keywordParameters.entrySet()) {
+			      if (!entry.getValue().next()) {
+			        return false;
+			      }
+			    }
+					
 					return true;
 				}
 				
