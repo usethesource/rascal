@@ -151,8 +151,8 @@ public class NodePattern extends AbstractMatchingResult {
 		  IWithKeywordParameters<? extends INode> wkw = this.subject.asWithKeywordParameters();
       IValue subjectParam = wkw.getParameter(entry.getKey());
 		  Type subjectParamType;
-		  
-		  if (subjectParam == null) {
+		   
+		  if (subjectParam == null && type.hasKeywordParameters()) {
 		    // this happens when a constructor matches, but the keyword parameters are not defined
 		    // for it, perhaps it came from a module where the parameters was not defined yet..
 		    subjectParam = type.getKeywordParameterDefault(entry.getKey());
@@ -165,7 +165,7 @@ public class NodePattern extends AbstractMatchingResult {
 		  
       entry.getValue().initMatch(ResultFactory.makeResult(subjectParamType, subjectParam, ctx));
       
-      hasNext = entry.getValue().hasNext();
+      hasNext = subjectParam != null && entry.getValue().hasNext();
       if (!hasNext) {
         break;
       }
@@ -219,7 +219,7 @@ public class NodePattern extends AbstractMatchingResult {
 
 		if (patternChildren.size() == 0) {
 			hasNext = false;
-			return true;
+			return nextKeywordParameters();
 		}
 		
 		while (nextChild >= 0) {
@@ -244,14 +244,7 @@ public class NodePattern extends AbstractMatchingResult {
 						}
 					}
 					
-					// check kw params here@   
-					for (Entry<String,IMatchingResult> entry : keywordParameters.entrySet()) {
-			      if (!entry.getValue().next()) {
-			        return false;
-			      }
-			    }
-					
-					return true;
+					return nextKeywordParameters();
 				}
 				
 				nextChild++;
@@ -271,6 +264,16 @@ public class NodePattern extends AbstractMatchingResult {
 		hasNext = false;
 		return false;
 	}
+
+  private boolean nextKeywordParameters() {
+    for (Entry<String,IMatchingResult> entry : keywordParameters.entrySet()) {
+      if (!entry.getValue().next()) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
 	
 	@Override
 	public String toString(){
