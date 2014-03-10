@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import java.util.jar.Attributes.Name;
 
 /**
  * The META-INF/RASCAL.MF file contains information about 
