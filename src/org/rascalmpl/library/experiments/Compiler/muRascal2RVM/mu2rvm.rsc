@@ -22,7 +22,7 @@ alias INS = list[Instruction];
 int nlabel = -1;
 str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 
-str functionScope = "";
+public str functionScope = "";
 map[str,int] nlocal = ();
 
 map[str,str] scopeIn = ();
@@ -130,7 +130,7 @@ INS finallyBlock = [];
 list[EEntry] exceptionTable = [];
 
 // Specific to delimited continuations (experimental)
-map[str,Declaration] shiftClosures = ();
+public map[str,Declaration] shiftClosures = ();
 
 private int shiftCounter = -1;
 
@@ -395,14 +395,16 @@ INS tr(muFilterReturn()) = [ FILTERRETURN() ];
 // Coroutines
 
 INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(0)];
-INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order!
+INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order! 
 
 // Delimited continuations (experimental)
+// INS tr(muInit(MuExp exp)) = tr(muReset(exp));
+// INS tr(muInit(MuExp coro, list[MuExp] args)) = tr(muReset(muApply(coro,args)));  // order!
 
 INS tr(muContVar(str fuid)) = [ LOADCONT(fuid) ];
 INS tr(muReset(MuExp fun)) = [ *tr(fun), RESET() ];
 INS tr(muShift(MuExp body)) {
-    str fuid = functionScope + "/anonymous_<getShiftCounter()>(1)";
+    str fuid = functionScope + "/shift_<getShiftCounter()>(1)";
     prevFunctionScope = functionScope;
     functionScope = fuid;
     shiftClosures += ( fuid : FUNCTION(fuid, Symbol::func(Symbol::\value(),[Symbol::\value()]), functionScope, 1, 1, false, estimate_stack_size(body), 
@@ -714,6 +716,26 @@ INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
              JMPFALSE(falseLab)
            ];
 }
+
+// Specific to delimited continuations (experimental)
+//INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
+//    co = newLocal();
+//    return [ *tr(exp),
+//             RESET(),
+//             STORELOC(co),
+//             POP(),
+//             *[ LABEL(continueLab), LABEL(failLab) ],
+//             LOADLOC(co),
+//             CALL("Library/NEXT(1)",1),
+//             JMPFALSE(falseLab),
+//             LOADLOC(co),
+//             LOADCON("cont"),
+//             CALLPRIM("adt_field_access",2),
+//             CALLDYN(0),
+//             STORELOC(co),
+//             POP()
+//           ];
+//}
 
 default INS tr_cond(MuExp exp, str continueLab, str failLab, str falseLab) 
 	= [ JMP(continueLab), LABEL(failLab), JMP(falseLab), LABEL(continueLab), *tr(exp), JMPFALSE(falseLab) ];
