@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.Manifest;
 
@@ -197,17 +199,20 @@ public class RascalShell {
 	}
 	
 	private static void printVersionNumber(){
-		InputStream is = RascalShell.class.getResourceAsStream("/" + META_INF_MANIFEST_MF);
 		try {
-			if(is != null){
-				Manifest manifest = new Manifest(is);
-				String result = manifest.getMainAttributes().getValue("Bundle-Version");
-				if(result != null){
-					System.out.println("Version: " + result);
-					return;
+			Enumeration<URL> resources = RascalShell.class.getClassLoader().getResources("/" + META_INF_MANIFEST_MF);
+			while (resources.hasMoreElements()) {
+				Manifest manifest = new Manifest(resources.nextElement().openStream());
+				String bundleName = manifest.getMainAttributes().getValue("Bundle-Name");
+				if (bundleName != null && bundleName.equals("rascal-shell")) {
+					String result = manifest.getMainAttributes().getValue("Bundle-Version");
+					if (result != null) {
+						System.out.println("Version: " + result);
+						return;
+					}
 				}
 			}
-		} catch (IOException e) {
+		} catch (IOException E) {
 		}
 		System.out.println("Version: unknown");
 	}
