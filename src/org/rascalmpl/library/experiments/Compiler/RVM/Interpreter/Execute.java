@@ -11,7 +11,6 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -19,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.interpreter.utils.Timing;
 
 public class Execute {
 
@@ -143,7 +143,7 @@ public class Execute {
 		}
 		
 		try {
-			long start = System.nanoTime();
+			long start = Timing.getCpuTime();
 			IValue result = null;
 			if(isTestSuite){
 				/*
@@ -168,7 +168,7 @@ public class Execute {
 				rvm.executeProgram(uid_module_init, arguments);
 				result = rvm.executeProgram(uid_main, arguments);
 			}
-			long now = System.nanoTime();
+			long now = Timing.getCpuTime();
 			MuPrimitive.exit();
 			RascalPrimitive.exit();
 			Opcode.exit();
@@ -239,6 +239,10 @@ public class Execute {
 			case "LOADLOC":
 				codeblock.LOADLOC(getIntField(instruction, "pos"));
 				break;
+				
+			case "LOADCONT":
+				codeblock.LOADCONT(getStrField(instruction, "fuid"));
+				break;
 
 			case "STOREVAR":
 				codeblock.STOREVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
@@ -304,16 +308,12 @@ public class Execute {
 				codeblock.HALT();
 				break;
 
-			case "CREATE":
-				codeblock.CREATE(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
-				break;
-
-			case "CREATEDYN":
-				codeblock.CREATEDYN(getIntField(instruction, "arity"));
-				break;
-
 			case "INIT":
 				codeblock.INIT(getIntField(instruction, "arity"));
+				break;
+				
+			case "RESET":
+				codeblock.RESET();
 				break;
 
 			case "NEXT0":
@@ -331,9 +331,9 @@ public class Execute {
 			case "YIELD1":
 				codeblock.YIELD1(getIntField(instruction, "arity"));
 				break;
-
-			case "HASNEXT":
-				codeblock.HASNEXT();
+				
+			case "SHIFT":
+				codeblock.SHIFT();
 				break;
 
 			case "PRINTLN":

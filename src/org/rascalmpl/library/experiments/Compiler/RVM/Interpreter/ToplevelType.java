@@ -2,7 +2,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public enum ToplevelType {
 	VOID			(0),

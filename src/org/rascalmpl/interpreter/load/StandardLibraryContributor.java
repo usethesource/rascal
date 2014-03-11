@@ -40,11 +40,6 @@ public class StandardLibraryContributor implements
 	}
 	
 	public void contributePaths(List<URI> l) {
-		l.add(URIUtil.rootScheme("cwd"));
-		l.add(URIUtil.rootScheme("std"));
-		l.add(URIUtil.rootScheme("testdata"));
-		l.add(URIUtil.rootScheme("benchmarks"));
-		
 		String property = java.lang.System.getProperty("rascal.path");
 
 		if (property != null) {
@@ -55,6 +50,10 @@ public class StandardLibraryContributor implements
 				}
 			}
 		}
+		l.add(URIUtil.rootScheme("cwd"));
+		l.add(URIUtil.rootScheme("std"));
+		l.add(URIUtil.rootScheme("testdata"));
+		l.add(URIUtil.rootScheme("benchmarks"));
 	}
 
 	@Override

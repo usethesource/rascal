@@ -12,7 +12,6 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 public class JarConverter extends M3Converter {
