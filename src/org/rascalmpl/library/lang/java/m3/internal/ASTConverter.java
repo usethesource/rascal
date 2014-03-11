@@ -1162,7 +1162,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(WildcardType node) {
-		
+		//FIXME: upperbound/lowerbound that should have been type annotation are replaced by TypeSymbol
 		IValue type = null;
 		String name = "wildcard";
 				
