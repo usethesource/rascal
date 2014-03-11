@@ -612,6 +612,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	
 		ownValue = constructDeclarationNode(constructorName, returnType, name, parameters.asList(), possibleExceptions.asList(), body);
 		setAnnotation("modifiers", extendedModifiers);
+		// FIXME: this doesn't seem to be in use anymore
 		setAnnotation("typeParameters", genericTypes);
 		return false;
 	}
