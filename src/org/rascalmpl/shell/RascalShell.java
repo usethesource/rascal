@@ -29,7 +29,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.jar.Manifest;
 
 import jline.ConsoleReader;
@@ -201,8 +200,8 @@ public class RascalShell {
 	
 	private static void printVersionNumber(){
 		try {
-			Enumeration<URL> resources = RascalShell.class.getClassLoader().getResources("/" + META_INF_MANIFEST_MF);
-			while (true) {
+			Enumeration<URL> resources = RascalShell.class.getClassLoader().getResources(META_INF_MANIFEST_MF);
+			while (resources.hasMoreElements()) {
 				Manifest manifest = new Manifest(resources.nextElement().openStream());
 				String bundleName = manifest.getMainAttributes().getValue("Bundle-Name");
 				if (bundleName != null && bundleName.equals("rascal-shell")) {
@@ -213,7 +212,7 @@ public class RascalShell {
 					}
 				}
 			}
-		} catch (IOException | NoSuchElementException E) {
+		} catch (IOException E) {
 		}
 		System.out.println("Version: unknown");
 	}
