@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.List;
+import java.util.jar.Manifest;
 
 import jline.ConsoleReader;
 
@@ -66,6 +67,9 @@ public class RascalShell {
 	private final static int LINE_LIMIT = 200;
 
 	private static final boolean PRINTCOMMANDTIME = false;
+	
+	 protected static final String META_INF = "META-INF";
+	 protected static final String META_INF_MANIFEST_MF = META_INF + "/MANIFEST.MF";
 	
 	private final ConsoleReader console;
 	private final Evaluator evaluator;
@@ -199,6 +203,7 @@ public class RascalShell {
 	}
 	
 	public static void main(String[] args) throws IOException {
+		printVersionNumber();
 		if (new RascalManifest().hasManifest(RascalShell.class)
 				&& new RascalManifest().hasMainModule(RascalShell.class)) {
 			runManifest(args); 
@@ -216,6 +221,22 @@ public class RascalShell {
 		} else {
 			runModule(args);
 		}
+	}
+	
+	private static void printVersionNumber(){
+		InputStream is = RascalShell.class.getResourceAsStream("/" + META_INF_MANIFEST_MF);
+		try {
+			if(is != null){
+				Manifest manifest = new Manifest(is);
+				String result = manifest.getMainAttributes().getValue("Bundle-Version");
+				if(result != null){
+					System.out.println("Version: " + result);
+					return;
+				}
+			}
+		} catch (IOException e) {
+		}
+		System.out.println("Version: unknown");
 	}
 
 	private static void runManifest(String[] args) {
