@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.apache.commons.lang.ClassUtils;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
@@ -30,6 +31,8 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.uri.ClassResourceInput;
+import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -59,6 +62,11 @@ public class RascalJUnitTestRunner extends Runner {
       Object instance = clazz.newInstance();
       if (instance instanceof IRascalJUnitTestSetup) {
         ((IRascalJUnitTestSetup) instance).setup(evaluator);
+      }
+      else {
+        IURIInputStreamResolver resolver = new ClassResourceInput(evaluator.getResolverRegistry(), "junit", clazz, "/");
+        evaluator.getResolverRegistry().registerInput(resolver);
+        evaluator.addRascalSearchPath(URIUtil.rootScheme("junit"));
       }
     } catch (InstantiationException e) {
       throw new ImplementationError("could not setup tests for: " + clazz.getCanonicalName(), e);
