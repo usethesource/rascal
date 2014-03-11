@@ -21,9 +21,21 @@ data Formula
   | \iff(Formula lhs, Formula rhs)
   ;
 
-public Formula or({Formula x}) = x;
-public Formula and({Formula x}) = x;
-public Formula and(Formula a, Formula b) = and({a,b});
-public Formula or(Formula a, Formula b) = or({a,b});
-public Formula and({*Formula a, and(set[Formula] b)}) = and(a + b);
-public Formula or({*Formula a, or(set[Formula] b)}) = or(a + b);
+Formula or({Formula x}) = x;
+Formula and({Formula x}) = x;
+Formula and(Formula a, Formula b) = and({a,b});
+Formula or(Formula a, Formula b) = or({a,b});
+Formula and({*Formula a, and(set[Formula] b)}) = and(a + b);
+Formula or({*Formula a, or(set[Formula] b)}) = or(a + b);
+
+Formula simplify(or({\true(), *Formula _}))   = \true();
+Formula simplify(and({\false(), *Formula _})) = \false();
+Formula simplify(not(not(Formula g))) = g;
+Formula simplify(not(\true()))        = \false();
+Formula simplify(not(\false()))       = \true();
+Formula simplify(\if(Formula l, Formula r))           = or(not(l),r);
+Formula simplify(\fi(Formula l, Formula r))           = \if(r, l);
+Formula simplify(\iff(Formula l, Formula r))          = and(\if(l,r),\fi(l,r));
+Formula simplify(and({Formula g,\not(g),*Formula r})) = \false();
+
+default Formula simplify(Formula f) = f;

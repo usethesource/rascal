@@ -24,7 +24,7 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
     list[MuFunction] functions = [];
     assert(size(exps) >= 1);
     if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
-        return <muMulti(muCreate("Library/<muAllOrMuOr>(1)",
+        return <muMulti(muApply("Library/<muAllOrMuOr>(1)",
                                 [ muCallMuPrim("make_array",[ { str gen_uid = "<fuid>/LAZY_EVAL_GEN_<nextLabel()>(0)";
                                                                 tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,fuid);
                                                                 functions = functions + res.functions;
@@ -82,13 +82,13 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
 
 tuple[MuExp,list[MuFunction]] makeMuMulti(e:muMulti(_), str fuid) = <e,[]>;
 // TODO: should ONE be also passed a closure? I would say yes
-tuple[MuExp,list[MuFunction]] makeMuMulti(e:muOne(MuExp exp), str fuid) = <muMulti(muCreate("Library/ONE(1)"),[ exp ]),[]>; // ***Note: multi expression that produces at most one solution
+tuple[MuExp,list[MuFunction]] makeMuMulti(e:muOne(MuExp exp), str fuid) = <muMulti(muApply("Library/ONE(1)"),[ exp ]),[]>; // ***Note: multi expression that produces at most one solution
 default tuple[MuExp,list[MuFunction]] makeMuMulti(MuExp exp, str fuid) {
     // Works because mkVar and mkAssign produce muVar and muAssign, i.e., specify explicitly function scopes computed by the type checker
     list[MuFunction] functions = [];
     str gen_uid = "<fuid>/GEN_<nextLabel()>(0)";
     functions += muCoroutine(gen_uid, fuid, 0, 0, [], muBlock([ muGuard(muCon(true)), muIfelse(nextLabel(), exp, [ muReturn() ], [ muExhaust() ]) ]));
-    return <muMulti(muCreate(muFun(gen_uid))),functions>;
+    return <muMulti(muApply(muFun(gen_uid, fuid),[])),functions>;
 }
 
 tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ e:muMulti(MuExp exp) ]) = <muOne(exp),[]>;
@@ -117,7 +117,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("ALL", str fuid, list[MuExp] ex
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     functions += muCoroutine(all_uid, fuid, 0, size(localvars), [], muBlock(body));
-    return <muMulti(muCreate(muFun(all_uid))),functions>;
+    return <muMulti(muApply(muFun(all_uid, fuid),[])),functions>;
 }
 
 private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
@@ -133,7 +133,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exp
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     functions += muCoroutine(or_uid, fuid, 0, 0, [], muBlock(body));
-    return <muMulti(muCreate(muFun(or_uid))),functions>;
+    return <muMulti(muApply(muFun(or_uid, fuid),[])),functions>;
 }
 
 private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
@@ -161,7 +161,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[M
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     functions += muCoroutine(impl_uid, fuid, 0, k, [], muBlock(body));
-    return <muMulti(muCreate(muFun(impl_uid))),functions>;
+    return <muMulti(muApply(muFun(impl_uid, fuid),[])),functions>;
 }
 
 private tuple[MuExp,list[MuFunction]] generateMu("EQUIVALENCE", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
@@ -189,7 +189,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("EQUIVALENCE", str fuid, list[M
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     functions += muCoroutine(equiv_uid, fuid, 0, k, [], muBlock(body));
-    return <muMulti(muCreate(muFun(equiv_uid))),functions>;
+    return <muMulti(muApply(muFun(equiv_uid, fuid), [])),functions>;
 }
 
 private MuExp newLabels(MuExp exp) {

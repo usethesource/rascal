@@ -22,7 +22,7 @@ alias INS = list[Instruction];
 int nlabel = -1;
 str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 
-str functionScope = "";
+public str functionScope = "";
 map[str,int] nlocal = ();
 
 map[str,str] scopeIn = ();
@@ -129,6 +129,20 @@ INS finallyBlock = [];
 // As we use label names to mark try blocks (excluding 'catch' clauses)
 list[EEntry] exceptionTable = [];
 
+// Specific to delimited continuations (experimental)
+public map[str,Declaration] shiftClosures = ();
+
+private int shiftCounter = -1;
+
+int getShiftCounter() {
+    shiftCounter += 1;
+    return shiftCounter;
+}
+
+void resetShiftCounter() {
+    shiftCounter = -1;
+}
+
 /*********************************************************************/
 /*      Translate a muRascal module                                  */
 /*********************************************************************/
@@ -154,6 +168,10 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   nlocal = ( fun.qname : fun.nlocals | MuFunction fun <- functions ) 
              + ( module_init_fun : size(variables) + 2 ); // Initialization function
   temporaries = ();
+  
+  // Specific to delimited continuations (experimental)
+  resetShiftCounter();
+  shiftClosures = ();
   
   // Due to nesting, pre-compute positions of temporaries
   visit(<initializations,functions>) {
@@ -211,6 +229,9 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   	 main_testsuite = getFUID(module_name,"testsuite",ftype,0);
   	 module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
   }
+  
+  // Specific to delimited continuations (experimental)
+  funMap = funMap + shiftClosures;
   
   res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions);
   if(listing){
@@ -316,8 +337,10 @@ INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size
 
 // Partial application of muRascal functions
 
+INS tr(muApply(muFun(str fuid), [])) = [ LOADFUN(fuid) ];
 INS tr(muApply(muFun(str fuid), list[MuExp] args)) = [ *tr(args), APPLY(fuid, size(args)) ];
 INS tr(muApply(muConstr(str fuid), list[MuExp] args)) { throw "Partial application is not supported for constructor calls!"; }
+INS tr(muApply(muFun(str fuid, str scopeIn), [])) = [ LOAD_NESTED_FUN(fuid, scopeIn) ];
 INS tr(muApply(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), APPLYDYN(size(args)) ];
 
 // Rascal functions
@@ -371,20 +394,24 @@ INS tr(muFilterReturn()) = [ FILTERRETURN() ];
 
 // Coroutines
 
-//INS tr(muCreate(muFun(str fuid))) = [CREATE(fuid, 0)];
-//INS tr(muCreate(MuExp fun)) = [ *tr(fun), CREATEDYN(0) ];
-//INS tr(muCreate(muFun(str fuid), list[MuExp] args)) = [ *tr(args), CREATE(fuid, size(args)) ];
-//INS tr(muCreate(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), CREATEDYN(size(args)) ];
-
-// An alternative coroutine design that makes use of partial function application
-INS tr(muCreate(muFun(str fuid))) = [ fuid == functionScope ? LOADFUN(fuid) : LOAD_NESTED_FUN(fuid, scopeIn[fuid]) ];
-INS tr(muCreate(MuExp fun)) = tr(fun); 
-INS tr(muCreate(MuExp fun, list[MuExp] args)) = tr(muApply(fun, args));
-
 INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(0)];
-INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order!
+INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order! 
 
-// INS tr(muHasNext(MuExp coro)) = [*tr(coro), HASNEXT()];
+// Delimited continuations (experimental)
+// INS tr(muInit(MuExp exp)) = tr(muReset(exp));
+// INS tr(muInit(MuExp coro, list[MuExp] args)) = tr(muReset(muApply(coro,args)));  // order!
+
+INS tr(muContVar(str fuid)) = [ LOADCONT(fuid) ];
+INS tr(muReset(MuExp fun)) = [ *tr(fun), RESET() ];
+INS tr(muShift(MuExp body)) {
+    str fuid = functionScope + "/shift_<getShiftCounter()>(1)";
+    prevFunctionScope = functionScope;
+    functionScope = fuid;
+    shiftClosures += ( fuid : FUNCTION(fuid, Symbol::func(Symbol::\value(),[Symbol::\value()]), functionScope, 1, 1, false, estimate_stack_size(body), 
+                                       [ *tr(visit(body) { case muContVar(prevFunctionScope) => muContVar(fuid) }), RETURN1(1) ], []) );
+    functionScope = prevFunctionScope; 
+    return [ LOAD_NESTED_FUN(fuid, functionScope), SHIFT() ];
+}
 
 INS tr(muNext(MuExp coro)) = [*tr(coro), NEXT0()];
 INS tr(muNext(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!
@@ -689,6 +716,26 @@ INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
              JMPFALSE(falseLab)
            ];
 }
+
+// Specific to delimited continuations (experimental)
+//INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
+//    co = newLocal();
+//    return [ *tr(exp),
+//             RESET(),
+//             STORELOC(co),
+//             POP(),
+//             *[ LABEL(continueLab), LABEL(failLab) ],
+//             LOADLOC(co),
+//             CALL("Library/NEXT(1)",1),
+//             JMPFALSE(falseLab),
+//             LOADLOC(co),
+//             LOADCON("cont"),
+//             CALLPRIM("adt_field_access",2),
+//             CALLDYN(0),
+//             STORELOC(co),
+//             POP()
+//           ];
+//}
 
 default INS tr_cond(MuExp exp, str continueLab, str failLab, str falseLab) 
 	= [ JMP(continueLab), LABEL(failLab), JMP(falseLab), LABEL(continueLab), *tr(exp), JMPFALSE(falseLab) ];
