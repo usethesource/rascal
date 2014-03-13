@@ -1,5 +1,6 @@
 package org.rascalmpl.library.util;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.HashMap;
@@ -12,16 +13,15 @@ import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 /**
- * Use this class to create OIL expressions from arbitrary Java objects.
+ * Use this class to create values from arbitrary Java objects.
  */
 public class ObjectReader {
+  private static final IValue[] EMPTY = new IValue[] { };
   private final IValueFactory vf;
 
   public ObjectReader(IValueFactory vf) {
@@ -44,7 +44,11 @@ public class ObjectReader {
           }
         } 
         catch (IllegalArgumentException | IllegalAccessException e) {
-          results.put(f.getName(), vf.node("error", vf.string(e.getMessage())));
+          // for robustness' sake we ignore the exceptions here.
+          // the model will be incomplete, but since we generate an untyped model
+          // this should not break any code. null values are ignored by the
+          // surrounding containers.
+          return null;
         } 
       }
 
@@ -64,27 +68,6 @@ public class ObjectReader {
       }
     }
 
-    included.add(Integer.class);
-    included.add(Boolean.class);
-    included.add(Character.class);
-    included.add(Byte.class);
-    included.add(Long.class);
-    included.add(Float.class);
-    included.add(Double.class);
-    included.add(int.class);
-    included.add(char.class);
-    included.add(byte.class);
-    included.add(long.class);
-    included.add(boolean.class);
-    included.add(float.class);
-    included.add(double.class);
-    included.add(String.class);
-    included.add(Map.class);
-    included.add(List.class);
-    included.add(Set.class);
-    included.add(URI.class);
-    included.add(IValue.class);
-
     return readObject(o, included, new HashMap<Object,IValue>(), new Stack<Object>());
   }
 
@@ -99,39 +82,24 @@ public class ObjectReader {
       return result;
     }
 
-    Class<?> clazz = o.getClass();
-    int i = -1;
-
-    if (!instanceOfCheck(o, includes)) {
+    if (stack.contains(o)) {
+      // detected a cycle
       return null;
     }
-
-    if (o == TypeFactory.getInstance()) {
-      INode err = vf.node("error", vf.string("Can not serialize the TypeFactory"));
-      cache.put(o, err);
-      return err;
-    }
-    else if ((i = stack.indexOf(o)) != -1) {
-      // detected a cycle
-      return vf.node("cycle", vf.string(clazz.getCanonicalName()), vf.integer(stack.size() - i));
+    else {
+      stack.push(o);
     }
 
-    stack.push(o);
-
+    Class<?> clazz = o.getClass();
+    
     if (clazz.isArray()) {
-      IListWriter w = vf.listWriter();
-      for (Object e : (Object[]) o) {
-        IValue elem = readObject(e, includes, cache, stack);
-
-        if (elem != null) {
-          w.insert(elem);
-        }
-      }
-
-      result = w.done();
+      result = readArray((Object[]) o, includes, cache, stack);
     }
     else if (clazz == URI.class) {
       result = vf.sourceLocation((URI) o);
+    }
+    else if (clazz == File.class){
+      result = vf.sourceLocation(((File) o).getAbsolutePath());
     }
     else if (clazz == int.class || clazz == Integer.class) {
       result = vf.integer((Integer) o);
@@ -161,22 +129,46 @@ public class ObjectReader {
       return (IValue) o;
     }
     else if (o instanceof Set<?>) {
-      ISetWriter w = vf.setWriter();
-
-      for (Object e : (Set<?>) o) {
-        IValue elem = readObject(e, includes, cache, stack);
-
-        if (elem != null) {
-          w.insert(elem);
-        }
-      }
-
-      result = w.done();
+      result = readSet((Set<?>) o, includes, cache, stack);
     }
-    else if (o instanceof Map) {
-      IMapWriter w = vf.mapWriter();
+    else if (o instanceof Map<?,?>) {
+      result = readMap((Map<?,?>) o, includes, cache, stack);
+    }
+    else if (o instanceof List<?>) {
+      result = readList((List<?>) o, includes, cache, stack);
+    }
+    else if (instanceOfCheck(o, includes)) {
+      Map<String, IValue> fields = getFields(o, o.getClass(), includes, cache, stack);
+      result = vf.node(clazz.getCanonicalName(), EMPTY, fields);
+    }
 
-      for (Entry<?,?> e : ((Map<?,?>) o).entrySet()) {
+    cache.put(o, result);
+    stack.pop();
+    return result;
+  }
+
+  private IValue readList(List<?> o, Set<Class<?>> includes, Map<Object, IValue> cache, Stack<Object> stack) {
+    IValue result;
+    IListWriter w = vf.listWriter();
+
+    for (Object e : o) {
+      IValue elem = readObject(e, includes, cache, stack);
+
+      if (elem != null) {
+        w.insert(elem);
+      }
+    }
+
+    result = w.done();
+    return result;
+  }
+
+  private IValue readMap(Map<?,?> o, Set<Class<?>> includes, Map<Object, IValue> cache, Stack<Object> stack) {
+    IValue result;
+    IMapWriter w = vf.mapWriter();
+
+    try {
+      for (Entry<?,?> e : o.entrySet()) {
         Object ok = e.getKey();
         IValue key = readObject(ok, includes, cache, stack);
 
@@ -196,27 +188,43 @@ public class ObjectReader {
 
       result = w.done();
     }
-    else if (o instanceof List) {
-      IListWriter w = vf.listWriter();
-
-      for (Object e : (List<?>) o) {
-        IValue elem = readObject(e, includes, cache, stack);
-
-        if (elem != null) {
-          w.insert(elem);
-        }
-      }
-
-      result = w.done();
-    }
-    else {
-      String name = clazz.getCanonicalName();
+    catch (UnsupportedOperationException e) {
+      // some maps don't support the full map interface, so we default to normal objects
+      String name = o.getClass().getCanonicalName();
       Map<String,IValue> fields = getFields(o, o.getClass(), includes, cache, stack);
-      result = vf.node(name, new IValue[] { }, fields);
+      result = vf.node(name, EMPTY, fields);
+    }
+    return result;
+  }
+
+  private IValue readSet(Set<?> o, Set<Class<?>> includes, Map<Object, IValue> cache, Stack<Object> stack) {
+    IValue result;
+    ISetWriter w = vf.setWriter();
+
+    for (Object e : o) {
+      IValue elem = readObject(e, includes, cache, stack);
+
+      if (elem != null) {
+        w.insert(elem);
+      }
     }
 
-    cache.put(o, result);
-    stack.pop();
+    result = w.done();
+    return result;
+  }
+
+  private IValue readArray(Object[] o, Set<Class<?>> includes, Map<Object, IValue> cache, Stack<Object> stack) {
+    IValue result;
+    IListWriter w = vf.listWriter();
+    for (Object e : o) {
+      IValue elem = readObject(e, includes, cache, stack);
+
+      if (elem != null) {
+        w.insert(elem);
+      }
+    }
+
+    result = w.done();
     return result;
   }
 
