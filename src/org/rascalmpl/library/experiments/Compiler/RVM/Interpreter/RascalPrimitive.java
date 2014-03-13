@@ -5785,7 +5785,7 @@ public enum RascalPrimitive {
 	private static ISet emptySet;
 
 	private static PrintWriter stdout;
-	private static RVM rvm;
+	private static RVMRun rvm;
 	private static ParsingTools parsingTools;
 
 	public static ParsingTools getParsingTools() { return parsingTools; }
@@ -5796,7 +5796,7 @@ public enum RascalPrimitive {
 	 * @param profiling TODO
 	 * @param stdout 
 	 */
-	public static void init(IValueFactory fact, RVM usedRVM, boolean doProfile) {
+	public static void init(IValueFactory fact, RVMRun usedRVM, boolean doProfile) {
 		vf = fact;
 		if(usedRVM != null){
 			stdout = usedRVM.stdout;
