@@ -79,8 +79,8 @@ public class RascalJUnitTestRunner extends Runner {
 		this.prefix = prefix;
 	}
 	
-	static protected String computeTestName(String name, ISourceLocation loc) {
-		return name + ":" + loc.getEndLine();
+	static protected String computeTestName(String module, String name, ISourceLocation loc) {
+		return module + "::" + name + ":" + loc.getEndLine();
 	}
 	
 	@Override
@@ -95,13 +95,13 @@ public class RascalJUnitTestRunner extends Runner {
 				if (!module.endsWith(".rsc")) {
 					continue;
 				}
-				String name = prefix + "::" + module.replaceFirst(".rsc", "");
-				evaluator.doImport(new NullRascalMonitor(), name);
-				Description modDesc = Description.createSuiteDescription(name);
+				String moduleName = prefix + "::" + module.replaceFirst(".rsc", "");
+				evaluator.doImport(new NullRascalMonitor(), moduleName);
+				Description modDesc = Description.createSuiteDescription(moduleName);
 				desc.addChild(modDesc);
 				
-				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
-					modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
+				for (AbstractFunction f : heap.getModule(moduleName.replaceAll("\\\\","")).getTests()) {
+					modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(moduleName, f.getName(), f.getAst().getLocation())));
 				}
 			}
 			
