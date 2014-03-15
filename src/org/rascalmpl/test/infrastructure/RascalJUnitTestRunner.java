@@ -101,7 +101,9 @@ public class RascalJUnitTestRunner extends Runner {
 				desc.addChild(modDesc);
 				
 				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
-					modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
+				  if (!f.hasTag("ignore")) {
+				    modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
+				  }
 				}
 			}
 			
@@ -162,7 +164,7 @@ public class RascalJUnitTestRunner extends Runner {
 			notifier.fireTestStarted(desc);
 			
 			if (!successful) {
-				notifier.fireTestFailure(new Failure(desc, t != null ? t : new Exception(message)));
+				notifier.fireTestFailure(new Failure(desc, t != null ? t : new Exception(message != null ? message : "no message")));
 			}
 			else {
 				notifier.fireTestFinished(desc);
