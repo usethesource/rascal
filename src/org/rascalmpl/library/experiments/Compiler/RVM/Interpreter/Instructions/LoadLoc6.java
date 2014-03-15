@@ -8,5 +8,8 @@ public class LoadLoc6 extends Instruction {
 	public LoadLoc6(CodeBlock ins){
 		super(ins, Opcode.LOADLOC6);
 	}
-
+	public void generate(){
+		System.out.println("LOADLOC6");
+		codeblock.addCode0(opcode.getOpcode());
+	}
 }

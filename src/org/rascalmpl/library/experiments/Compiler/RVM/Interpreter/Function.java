@@ -44,6 +44,7 @@ public class Function {
 	}
 	
 	public void  finalize(Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing){
+		System.out.println("public void "+ name + "() {  // id " + codeMap.get(name) );
 		codeblock.done(name, codeMap, constructorMap, resolver, listing);
 		this.scopeId = codeblock.getFunctionIndex(name);
 		if(funIn != null) {
@@ -51,6 +52,7 @@ public class Function {
 		}
 		this.constantStore = codeblock.getConstants();
 		this.typeConstantStore = codeblock.getTypeConstants();
+		System.out.println("}");
 	}
 	
 	public void attachExceptionTable(IList exceptions, RVM rvm) {

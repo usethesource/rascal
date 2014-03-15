@@ -14,6 +14,7 @@ public class Jmp extends Instruction {
 	public String toString() { return "JMP " + label + " [" + codeblock.getLabelPC(label) + "]"; }
 	
 	public void generate(){
+		System.out.println("\tJMP " + label + " [" + codeblock.getLabelPC(label) + "]");
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getLabelPC(label));
 	}
 }
