@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 
 public class StoreVarDeref extends Instruction {
 	
@@ -15,7 +16,7 @@ public class StoreVarDeref extends Instruction {
 
 	public String toString() { return "STOREVARDEREF " + fuid + " [ " + codeblock.getFunctionIndex(fuid) + " ] " + ", " + pos; }
 	
-	public void generate(){
+	public void generate(Generator codeEmittor){
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), pos);
 	}
 }

@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 
 public class Call extends Instruction {
 
@@ -15,7 +16,10 @@ public class Call extends Instruction {
 	
 	public String toString() { return "CALL " + fuid + ", " + arity + " [ " + codeblock.getFunctionIndex(fuid) + " ]"; }
 		
-	public void generate(){
+	public void generate(Generator codeEmittor){
+		// TODO this is wrong !!!
+		// Call function directly needs name demangling.
+		codeEmittor.emitCall("insnCALL", codeblock.getFunctionIndex(fuid), arity);
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), arity);
 	}
 

@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 
 public class LoadType extends Instruction {
 	
@@ -13,7 +14,8 @@ public class LoadType extends Instruction {
 	
 	public String toString() { return "LOADTYPE " + type + "[" + codeblock.getConstantType(type) + "]"; }
 	
-	public void generate(){
+	public void generate(Generator codeEmittor){
+		codeEmittor.emitCall("insnLOADTYPE", type);
 		codeblock.addCode1(opcode.getOpcode(), type);
 	}
 }

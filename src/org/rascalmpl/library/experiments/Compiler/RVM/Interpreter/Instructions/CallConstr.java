@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 
 public class CallConstr extends Instruction {
 	
@@ -13,9 +14,10 @@ public class CallConstr extends Instruction {
 		this.arity = arity;
 	}
 	
-	public String toString() { return "CALL " + fuid + ", " + arity + " [ " + codeblock.getConstructorIndex(fuid) + " ]"; }
+	public String toString() { return "CALLCONSTRUCTOR " + fuid + ", " + arity + " [ " + codeblock.getConstructorIndex(fuid) + " ]"; }
 	
-	public void generate(){
+	public void generate(Generator codeEmittor){
+		codeEmittor.emitCall("insnCALLCONSTR", codeblock.getConstructorIndex(fuid), arity);
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getConstructorIndex(fuid), arity);
 	}
 

@@ -43,15 +43,20 @@ public class Function {
 		this.codeblock = codeblock;
 	}
 	
-	public void  finalize(Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing){
+	public void  finalize(Generator codeEmittor, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing){
+
 		System.out.println("public void "+ name + "() {  // id " + codeMap.get(name) );
-		codeblock.done(name, codeMap, constructorMap, resolver, listing);
+		codeEmittor.emitMethod(name);
+		
+		codeblock.done(codeEmittor,name, codeMap, constructorMap, resolver, listing);
 		this.scopeId = codeblock.getFunctionIndex(name);
 		if(funIn != null) {
 			this.scopeIn = codeblock.getFunctionIndex(funIn);
 		}
 		this.constantStore = codeblock.getConstants();
 		this.typeConstantStore = codeblock.getTypeConstants();
+		codeEmittor.closeMethod();
+		
 		System.out.println("}");
 	}
 	

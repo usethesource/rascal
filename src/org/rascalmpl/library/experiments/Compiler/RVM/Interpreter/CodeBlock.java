@@ -648,7 +648,7 @@ public class CodeBlock {
 		return add(new Shift(this));
 	}
 			
-	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
+	public CodeBlock done(Generator codeEmittor, String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 		this.functionMap = codeMap;
 		this.constructorMap = constructorMap;
 		this.resolver = resolver;
@@ -656,7 +656,7 @@ public class CodeBlock {
 		pc = 0;
 		finalCode = new int[codeSize];
 		for(Instruction ins : insList){
-			ins.generate();
+			ins.generate(codeEmittor);
 		}
 		finalConstantStore = new IValue[constantStore.size()];
 		for(int i = 0; i < constantStore.size(); i++ ){

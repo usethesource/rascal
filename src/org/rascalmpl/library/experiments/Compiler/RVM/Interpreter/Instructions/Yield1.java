@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 
 public class Yield1 extends Instruction {
 	
@@ -13,8 +14,7 @@ public class Yield1 extends Instruction {
 	
 	public String toString() { return "YIELD1 " + arity; }
 	
-	public void generate(){
+	public void generate(Generator codeEmittor){
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
-
 }

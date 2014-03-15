@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 
 public class CallPrim extends Instruction {
@@ -16,8 +17,9 @@ public class CallPrim extends Instruction {
 	
 	public String toString() { return "CALLPRIM " + prim + ", " + arity; }
 	
-	public void generate(){
+	public void generate(Generator codeEmittor){
 		System.out.println("\tCALLPRIM " + prim + ", " + arity);
+		codeEmittor.emitCall("insnCALLPRIM", prim.ordinal(), arity);
 		codeblock.addCode2(opcode.getOpcode(), prim.ordinal(), arity);
 	}
 }

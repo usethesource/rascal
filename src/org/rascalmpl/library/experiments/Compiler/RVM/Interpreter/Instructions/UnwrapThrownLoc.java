@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 
 public class UnwrapThrownLoc extends Instruction {
 	
@@ -13,7 +14,7 @@ public class UnwrapThrownLoc extends Instruction {
 	
 	public String toString() { return "UNWRAPTHROWNOC " + pos; }
 	
-	public void generate(){
+	public void generate(Generator codeEmittor){
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
 	

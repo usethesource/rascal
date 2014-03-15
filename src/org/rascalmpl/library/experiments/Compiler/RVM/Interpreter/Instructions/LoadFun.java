@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 
 public class LoadFun extends Instruction {
 
@@ -13,7 +14,7 @@ public class LoadFun extends Instruction {
 	
 	public String toString() { return "LOADFUN " + fuid + "[" + codeblock.getFunctionIndex(fuid) + "]"; }
 	
-	public void generate(){
+	public void generate(Generator codeEmittor){
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getFunctionIndex(fuid));
 	}
 

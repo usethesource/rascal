@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 
 public class LoadVar extends Instruction {
 
@@ -17,7 +18,7 @@ public class LoadVar extends Instruction {
 		return "LOADVAR " + fuid + ", " + pos;
 	}
 	
-	public void generate(){
+	public void generate(Generator codeEmittor){
 		codeblock.addCode2(opcode.getOpcode(), (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid))
 				                      					   : codeblock.getFunctionIndex(fuid),
 				                      		   pos);

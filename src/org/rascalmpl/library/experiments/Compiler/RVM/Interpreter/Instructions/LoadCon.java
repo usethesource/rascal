@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 
 public class LoadCon extends Instruction {
 
@@ -13,8 +14,9 @@ public class LoadCon extends Instruction {
 	
 	public String toString() { return "LOADCON " + constant + "[" + codeblock.getConstantValue(constant) + "]"; }
 	
-	public void generate(){
+	public void generate(Generator codeEmittor){
 		System.out.println("\tLOADCON " + constant + "[" + codeblock.getConstantValue(constant) + "]");
+		codeEmittor.emitCall("insnLOADCON", constant);
 		codeblock.addCode1(opcode.getOpcode(), constant);
 	}
 

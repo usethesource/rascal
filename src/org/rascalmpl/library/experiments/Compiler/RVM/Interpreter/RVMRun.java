@@ -42,10 +42,10 @@ public class RVMRun {
 
 	public final IValueFactory vf;
 	private final TypeFactory tf;
-	private final Boolean TRUE;
-	private final Boolean FALSE;
-	private final IBool Rascal_TRUE;
-	private final IBool Rascal_FALSE;
+	protected final Boolean TRUE;
+	protected final Boolean FALSE;
+	protected final IBool Rascal_TRUE;
+	protected final IBool Rascal_FALSE;
 	private final IString NONE;
 
 	private boolean debug = true;
