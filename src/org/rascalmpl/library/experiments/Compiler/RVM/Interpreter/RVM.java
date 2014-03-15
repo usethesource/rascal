@@ -211,98 +211,16 @@ public class RVM {
 		throw new RuntimeException("PANIC: Cannot convert object back to IValue: " + result);
 	}
 
-	/**
-	 * Represent any object that can occur on the RVM stack stack as string
-	 * 
-	 * @param some
-	 *            stack object
-	 * @return its string representation
-	 */
-	// private String asString(Object o) {
-	// if (o == null)
-	// return "null";
-	// if (o instanceof Boolean)
-	// return ((Boolean) o).toString() + " [Java]";
-	// if (o instanceof Integer)
-	// return ((Integer) o).toString() + " [Java]";
-	// if (o instanceof IValue)
-	// return ((IValue) o).toString() + " [IValue]";
-	// if (o instanceof Type)
-	// return ((Type) o).toString() + " [Type]";
-	// if (o instanceof Object[]) {
-	// StringBuilder w = new StringBuilder();
-	// Object[] lst = (Object[]) o;
-	// w.append("[");
-	// for (int i = 0; i < lst.length; i++) {
-	// w.append(asString(lst[i]));
-	// if (i < lst.length - 1)
-	// w.append(", ");
-	// }
-	// w.append("]");
-	// return w.toString() + " [Object[]]";
-	// }
-	// if (o instanceof Coroutine) {
-	// return "Coroutine[" + ((Coroutine) o).frame.function.getName() + "]";
-	// }
-	// if (o instanceof Function) {
-	// return "Function[" + ((Function) o).getName() + "]";
-	// }
-	// if (o instanceof FunctionInstance) {
-	// return "Function[" + ((FunctionInstance) o).function.getName() + "]";
-	// }
-	// if (o instanceof OverloadedFunctionInstance) {
-	// OverloadedFunctionInstance of = (OverloadedFunctionInstance) o;
-	// String alts = "";
-	// for (Integer fun : of.functions) {
-	// alts = alts + functionStore.get(fun).getName() + "; ";
-	// }
-	// return "OverloadedFunction[ alts: " + alts + "]";
-	// }
-	// if (o instanceof Reference) {
-	// Reference ref = (Reference) o;
-	// return "Reference[" + ref.stack + ", " + ref.pos + "]";
-	// }
-	// if (o instanceof IListWriter) {
-	// return "ListWriter[" + ((IListWriter) o).toString() + "]";
-	// }
-	// if (o instanceof ISetWriter) {
-	// return "SetWriter[" + ((ISetWriter) o).toString() + "]";
-	// }
-	// if (o instanceof IMapWriter) {
-	// return "MapWriter[" + ((IMapWriter) o).toString() + "]";
-	// }
-	// if (o instanceof Matcher) {
-	// return "Matcher[" + ((Matcher) o).pattern() + "]";
-	// }
-	// if (o instanceof Thrown) {
-	// return "THROWN[ " + asString(((Thrown) o).value) + " ]";
-	// }
-	//
-	// if (o instanceof StringBuilder) {
-	// return "StringBuilder[" + ((StringBuilder) o).toString() + "]";
-	// }
-	// if (o instanceof HashSet) {
-	// return "HashSet[" + ((HashSet) o).toString() + "]";
-	// }
-	// if (o instanceof HashMap) {
-	// return "HashMap[" + ((HashMap) o).toString() + "]";
-	// }
-	// if (o instanceof Map.Entry) {
-	// return "Map.Entry[" + ((Map.Entry) o).toString() + "]";
-	// }
-	// throw new RuntimeException("PANIC: asString cannot convert: " + o);
-	// }
-
-	public void finalize() {
+	public void finalize(Generator codeEmittor) {
 		// Finalize the instruction generation of all functions, if needed
 		if (!finalized) {
 			finalized = true;
 			for (Function f : functionStore) {
-				f.finalize(functionMap, constructorMap, resolver, listing);
+				f.finalize(codeEmittor, functionMap, constructorMap, resolver, listing);
 			}
-			int oid = 0 ;
+			int oid = 0;
 			for (OverloadedFunction of : overloadedStore) {
-				of.finalize(functionMap,oid++);
+				of.finalize(functionMap, oid++);
 			}
 		}
 	}
@@ -342,6 +260,7 @@ public class RVM {
 		}
 		return narrow(o);
 	}
+
 	// Should never be called.
 	public IValue executeFunction(FunctionInstance func, IValue[] args) {
 		Object o = runner.executeFunction(func, args);
@@ -366,11 +285,16 @@ public class RVM {
 
 	public IValue executeProgram(String uid_main, IValue[] args) {
 		boolean profile = false;
+		
 
 		if (!finalized) {
+			Generator codeEmittor = new Generator() ;
 			runner = new RVMRun(vf, ctx, debug, profile);
-			finalize();
+			
+			codeEmittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter" , "Running");
+			finalize(codeEmittor);
 			runner.inject(functionStore, overloadedStore, constructorStore, typeStore);
+			codeEmittor.dump() ;
 		}
 
 		Function main_function = functionStore.get(functionMap.get(uid_main));
@@ -400,237 +324,4 @@ public class RVM {
 		}
 		return res;
 	}
-
-	// /*
-	// * The following instance variables are only used by executeProgram
-	// */
-	// Object[] stack; // current stack
-	// int sp; // current stack pointer
-	// int[] instructions; // current instruction sequence
-	// int pc; // current program counter
-	// int postOp;
-	// int pos;
-	// ArrayList<Frame> stacktrace;
-	// Thrown thrown;
-	// int arity;
-	// String last_function_name;
-	// //
-	// // Overloading specific
-	// Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
-	// OverloadedFunctionInstanceCall c_ofun_call = null;
-
-	// private Object executeProgram(Frame root, Frame cf) {
-	// // Object[] stack = cf.stack; // current stack
-	// // int sp = cf.function.nlocals; // current stack pointer
-	// // int [] instructions = cf.function.codeblock.getInstructions(); //
-	// // current instruction sequence
-	// // int pc = 0; // current program counter
-	// // int postOp = 0;
-	// // int pos = 0;
-	// // ArrayList<Frame> stacktrace;
-	// // Thrown thrown = null;
-	// // int arity;
-	// // String last_function_name = "";
-	//
-	// // Overloading specific
-	// // Stack<OverloadedFunctionInstanceCall> ocalls = new
-	// // Stack<OverloadedFunctionInstanceCall>();
-	// // OverloadedFunctionInstanceCall c_ofun_call = null;
-	//
-	// // stack = cf.stack; // current stack
-	// // sp = cf.function.nlocals; // current stack pointer
-	// // instructions = cf.function.codeblock.getInstructions(); // current
-	// // // instruction
-	// // // sequence
-	// // pc = 0; // current program counter
-	// // postOp = 0;
-	// // pos = 0;
-	// // last_function_name = "";
-	//
-	// return null;
-	// }
-
-	// int callJavaMethod(String methodName, String className, Type parameterTypes, int reflect, Object[] stack, int sp)
-	// throws Throw {
-	// Class<?> clazz = null;
-	// try {
-	// try {
-	// clazz = this.getClass().getClassLoader().loadClass(className);
-	// } catch (ClassNotFoundException e1) {
-	// // If the class is not found, try other class loaders
-	// for (ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
-	// try {
-	// clazz = loader.loadClass(className);
-	// break;
-	// } catch (ClassNotFoundException e2) {
-	// ;
-	// }
-	// }
-	// }
-	//
-	// if (clazz == null) {
-	// throw new RuntimeException("Class not found: " + className);
-	// }
-	//
-	// Constructor<?> cons;
-	// cons = clazz.getConstructor(IValueFactory.class);
-	// Object instance = cons.newInstance(vf);
-	// Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes, reflect));
-	// int nformals = parameterTypes.getArity();
-	// Object[] parameters = new Object[nformals + reflect];
-	// for (int i = 0; i < nformals; i++) {
-	// parameters[i] = stack[sp - nformals + i];
-	// }
-	// if (reflect == 1) {
-	// parameters[nformals] = this.ctx;
-	// }
-	// stack[sp - nformals] = m.invoke(instance, parameters);
-	// return sp - nformals + 1;
-	// }
-	// // catch (ClassNotFoundException e) {
-	// // // TODO Auto-generated catch block
-	// // e.printStackTrace();
-	// // }
-	// catch (NoSuchMethodException | SecurityException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// } catch (InstantiationException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// } catch (IllegalAccessException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// } catch (IllegalArgumentException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// } catch (InvocationTargetException e) {
-	// if (e.getTargetException() instanceof Throw) {
-	// throw (Throw) e.getTargetException();
-	// }
-	// e.printStackTrace();
-	// }
-	// return sp;
-	// }
-	//
-	// Class<?>[] makeJavaTypes(Type parameterTypes, int reflect) {
-	// JavaClasses javaClasses = new JavaClasses();
-	// int arity = parameterTypes.getArity() + reflect;
-	// Class<?>[] jtypes = new Class<?>[arity];
-	//
-	// for (int i = 0; i < parameterTypes.getArity(); i++) {
-	// jtypes[i] = parameterTypes.getFieldType(i).accept(javaClasses);
-	// }
-	// if (reflect == 1) {
-	// try {
-	// jtypes[arity - 1] = this.getClass().getClassLoader()
-	// .loadClass("org.rascalmpl.interpreter.IEvaluatorContext");
-	// } catch (ClassNotFoundException e) {
-	// e.printStackTrace();
-	// }
-	// }
-	// return jtypes;
-	// }
-	//
-	// private static class JavaClasses implements ITypeVisitor<Class<?>, RuntimeException> {
-	//
-	// @Override
-	// public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
-	// return IBool.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitReal(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return IReal.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitInteger(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return IInteger.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitRational(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return IRational.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitNumber(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return INumber.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitList(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return IList.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitMap(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return IMap.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitAlias(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return type.getAliased().accept(this);
-	// }
-	//
-	// @Override
-	// public Class<?> visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return IConstructor.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitSet(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return ISet.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitSourceLocation(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return ISourceLocation.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitString(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return IString.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitNode(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return INode.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitConstructor(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return IConstructor.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitTuple(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return ITuple.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitValue(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return IValue.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitVoid(org.eclipse.imp.pdb.facts.type.Type type) {
-	// return null;
-	// }
-	//
-	// @Override
-	// public Class<?> visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
-	// return parameterType.getBound().accept(this);
-	// }
-	//
-	// @Override
-	// public Class<?> visitExternal(org.eclipse.imp.pdb.facts.type.Type externalType) {
-	// return IValue.class;
-	// }
-	//
-	// @Override
-	// public Class<?> visitDateTime(Type type) {
-	// return IDateTime.class;
-	// }
-	// }
 }

@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
 
 public class CallMuPrim extends Instruction {
@@ -16,7 +17,8 @@ public class CallMuPrim extends Instruction {
 	
 	public String toString() { return "CALLMUPRIM " + muprim + ", " + arity; }
 	
-	public void generate(){
+	public void generate(Generator codeEmittor){
+		codeEmittor.emitCall("insnCALLMUPRIM", muprim.ordinal(), arity);
 		codeblock.addCode2(opcode.getOpcode(), muprim.ordinal(), arity);
 	}
 }

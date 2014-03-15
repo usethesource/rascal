@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 
 public class CallDyn extends Instruction {
 	
@@ -13,8 +14,8 @@ public class CallDyn extends Instruction {
 	
 	public String toString() { return "CALLDYN " + arity; }
 	
-	public void generate(){
+	public void generate(Generator codeEmittor){
+		codeEmittor.emitCall("insnCALLDYN", arity);
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
-
 }

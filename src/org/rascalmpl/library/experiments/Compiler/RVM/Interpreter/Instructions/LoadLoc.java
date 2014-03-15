@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 
 public class LoadLoc extends Instruction {
 
@@ -13,8 +14,9 @@ public class LoadLoc extends Instruction {
 	
 	public String toString() { return "LOADLOC " + pos; }
 	
-	public void generate(){
+	public void generate(Generator codeEmittor){
 		System.out.println("LOADLOC " + pos);
+		codeEmittor.emitCall("insnLOADLOC", pos) ;
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
 }

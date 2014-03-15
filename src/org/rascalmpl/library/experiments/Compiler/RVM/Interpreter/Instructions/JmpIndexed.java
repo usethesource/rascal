@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 
 public class JmpIndexed extends Instruction {
 
@@ -26,7 +27,7 @@ public class JmpIndexed extends Instruction {
 		return res;
 	}
 	
-	public void generate(){
+	public void generate(Generator codeEmittor){
 		IListWriter w = codeblock.vf.listWriter();
 		for(IValue vlabel : labels){
 			String label = ((IString) vlabel).getValue();
