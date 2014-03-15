@@ -7,5 +7,8 @@ public class CheckArgType extends Instruction {
 	public CheckArgType(CodeBlock ins) {
 		super(ins, Opcode.CHECKARGTYPE);
 	}
-
+	public void generate(){
+		System.out.println("\tCHECKARGTYPE");
+		codeblock.addCode0(opcode.getOpcode());
+	}
 }

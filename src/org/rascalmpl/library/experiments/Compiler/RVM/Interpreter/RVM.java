@@ -300,8 +300,9 @@ public class RVM {
 			for (Function f : functionStore) {
 				f.finalize(functionMap, constructorMap, resolver, listing);
 			}
+			int oid = 0 ;
 			for (OverloadedFunction of : overloadedStore) {
-				of.finalize(functionMap);
+				of.finalize(functionMap,oid++);
 			}
 		}
 	}

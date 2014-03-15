@@ -135,7 +135,7 @@ public class RVMRun {
 
 		MuPrimitive.init(vf, stdout, profile);
 		RascalPrimitive.init(vf, this, profile);
-		Opcode.init(stdout, profile);
+		Opcode.init(stdout, true);
 	}
 
 	public RVMRun(IValueFactory vf) {
@@ -1196,18 +1196,18 @@ public class RVMRun {
 
 	public void insnJMPTRUE(int target) {
 		// TODO will not return in the JVM version.
-		if (stack[sp - 1].equals(TRUE) || stack[sp - 1].equals(Rascal_TRUE)) {
+		sp--;
+		if (stack[sp].equals(TRUE) || stack[sp].equals(Rascal_TRUE)) {
 			pc = target;
 		}
-		sp--;
 	}
 
 	public void insnJMPFALSE(int target) {
+		sp--;
 		// TODO will not return in the JVM version.
-		if (stack[sp - 1].equals(FALSE) || stack[sp - 1].equals(Rascal_FALSE)) {
+		if (stack[sp].equals(FALSE) || stack[sp].equals(Rascal_FALSE)) {
 			pc = target;
 		}
-		sp--;
 	}
 
 	public void insnTYPESWITCH(Frame cf, int i) {

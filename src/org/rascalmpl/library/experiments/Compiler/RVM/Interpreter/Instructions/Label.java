@@ -15,5 +15,6 @@ public class Label extends Instruction {
 	public String toString() { return "LABEL " + label + " [" +  "]"; }
 	
 	public void generate(){
+		System.out.println("LABEL " + label + " [" +  "]");
 	}
 }
