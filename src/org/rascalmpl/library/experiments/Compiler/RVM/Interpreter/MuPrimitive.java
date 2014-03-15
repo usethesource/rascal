@@ -835,6 +835,9 @@ public enum MuPrimitive {
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 2;
 			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+			if(mset == emptyMset){
+				mset = (HashSet<IValue>) emptyMset.clone();
+			}
 			IValue elm = ((IValue) stack[sp - 1]);
 			mset.add(elm);
 			stack[sp - 2] = mset;
@@ -847,6 +850,9 @@ public enum MuPrimitive {
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 2;
 			HashSet<IValue> lhs = (HashSet<IValue>) stack[sp - 2];
+			if(lhs == emptyMset){
+				lhs = (HashSet<IValue>) emptyMset.clone();
+			}
 			// lhs = (HashSet<IValue>) lhs.clone();
 			HashSet<IValue> rhs = (HashSet<IValue>) stack[sp - 1];
 			lhs.addAll(rhs);
@@ -1245,6 +1251,22 @@ public enum MuPrimitive {
 				stack[sp - 1] = TypeFactory.getInstance().integerType();
 			} else {
 				stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+			}
+			return sp;
+		};
+	},
+	typeOfMset {
+		@SuppressWarnings("unchecked")
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 1;
+			if (stack[sp - 1] instanceof HashSet) {
+				HashSet<IValue> mset =  (HashSet<IValue>) stack[sp - 1];
+				Type elmType = TypeFactory.getInstance().voidType();
+				for (IValue elm : mset) {
+					elmType = elm.getType().lub(elmType);
+				}
+				stack[sp - 1] = TypeFactory.getInstance().setType(elmType);
 			}
 			return sp;
 		};
