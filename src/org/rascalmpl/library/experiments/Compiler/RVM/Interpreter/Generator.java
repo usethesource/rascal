@@ -173,21 +173,12 @@ public class Generator implements Opcodes {
 		return cw.toByteArray();
 	}
 
-	public static void main(String[] argv) {
-		byte[] result = null;
-		System.out.println("Getting started!\n");
-		Generator emittor = new Generator();
+	public void emitReturn() {
+		mv.visitInsn(RETURN); // TODO remove to keep decompiler happy.		
+	}
 
-		emittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter", "Runner");
-		emittor.emitMethod("main");
-		emittor.emitLabel("entrypoint");
-		emittor.emitCall("main");
-		emittor.emitCall("main", 10, 20);
-		emittor.emitJMPTRUE("entrypoint");
-		emittor.emitPOP();
-		emittor.emitJMP("entrypoint");
-		emittor.closeMethod();
-		result = emittor.finalizeCode();
+	public void dump() {
+		byte[] result = finalizeCode();
 
 		try {
 			FileOutputStream fos = new FileOutputStream("/Users/ferryrietveld/Runner.class");
@@ -198,9 +189,22 @@ public class Generator implements Opcodes {
 		}
 	}
 
-	public void dump() {
-		byte[] result = finalizeCode();
-
+	public static void main(String[] argv) {
+		byte[] result = null;
+		System.out.println("Getting started!\n");
+		Generator emittor = new Generator();
+		
+		emittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter", "Runner");
+		emittor.emitMethod("main");
+		emittor.emitLabel("entrypoint");
+		emittor.emitCall("main");
+		emittor.emitCall("main", 10, 20);
+		emittor.emitJMPTRUE("entrypoint");
+		emittor.emitPOP();
+		emittor.emitJMP("entrypoint");
+		emittor.closeMethod();
+		result = emittor.finalizeCode();
+		
 		try {
 			FileOutputStream fos = new FileOutputStream("/Users/ferryrietveld/Runner.class");
 			fos.write(result);

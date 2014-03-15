@@ -46,7 +46,7 @@ public class RVMRun {
 	protected final Boolean FALSE;
 	protected final IBool Rascal_TRUE;
 	protected final IBool Rascal_FALSE;
-	private final IString NONE;
+	protected final IString NONE;
 
 	private boolean debug = true;
 
