@@ -485,42 +485,42 @@ str isLast(bool b) = b ? "LAST_" : "";
 
 MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>`, bool last) {
    if("<name>" == "_"){
-      return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_SET",2), []);
+      return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_SET",1), []);
    }
    <fuid, pos> = getVariableScope("<name>", name@\loc);
-   return muApply(mkCallToLibFun("Library","MATCH_VAR_IN_SET",3), [muVarRef("<name>", fuid, pos)]);
+   return muApply(mkCallToLibFun("Library","MATCH_VAR_IN_SET",2), [muVarRef("<name>", fuid, pos)]);
 }
 
 MuExp translatePatAsSetElem(p:(Pattern) `<Type tp> <Name name>`, bool last) {
    if("<name>" == "_"){
-       return muApply(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_VAR_IN_SET",3), [muTypeCon(translateType(tp))]);
+       return muApply(mkCallToLibFun("Library","MATCH_TYPED_ANONYMOUS_VAR_IN_SET",2), [muTypeCon(translateType(tp))]);
    }
    <fuid, pos> = getVariableScope("<name>", name@\loc);
-   return muApply(mkCallToLibFun("Library","MATCH_TYPED_VAR_IN_SET",4), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos)]);
+   return muApply(mkCallToLibFun("Library","MATCH_TYPED_VAR_IN_SET",3), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos)]);
 }  
 
 MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`, bool last) {
    if("<name>" == "_"){
-      return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>ANONYMOUS_MULTIVAR_IN_SET",2), []);
+      return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>ANONYMOUS_MULTIVAR_IN_SET",1), []);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>MULTIVAR_IN_SET",3), [muVarRef("<name>", fuid, pos)]);
+   return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>MULTIVAR_IN_SET",2), [muVarRef("<name>", fuid, pos)]);
 }
 
 MuExp translatePatAsSetElem(p:(Pattern) `*<Type tp> <Name name>`, bool last) {
    if("<name>" == "_"){
-      return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>TYPED_ANONYMOUS_MULTIVAR_IN_SET",3), [muTypeCon(\set(translateType(tp)))]);
+      return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>TYPED_ANONYMOUS_MULTIVAR_IN_SET",2), [muTypeCon(\set(translateType(tp)))]);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>TYPED_MULTIVAR_IN_SET",4), [muTypeCon(\set(translateType(tp))), muVarRef("<name>", fuid, pos)]);
+   return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>TYPED_MULTIVAR_IN_SET",3), [muTypeCon(\set(translateType(tp))), muVarRef("<name>", fuid, pos)]);
 }
 
 MuExp translatePatAsSetElem(p:(Pattern) `*<Name name>`, bool last) {
    if("<name>" == "_"){
-      return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>ANONYMOUS_MULTIVAR_IN_SET",2), []);
+      return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>ANONYMOUS_MULTIVAR_IN_SET",1), []);
    }
    <fuid, pos> = getVariableScope("<name>", p@\loc);
-   return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>MULTIVAR_IN_SET",3), [muVarRef("<name>", fuid, pos)]);
+   return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>MULTIVAR_IN_SET",2), [muVarRef("<name>", fuid, pos)]);
 } 
 
 MuExp translatePatAsSetElem(p:(Pattern) `+<Pattern argument>`, bool last) {
@@ -530,9 +530,9 @@ MuExp translatePatAsSetElem(p:(Pattern) `+<Pattern argument>`, bool last) {
 default MuExp translatePatAsSetElem(Pattern p, bool last) {
   println("translatePatAsSetElem, default: <p>");
   try {
-     return  muApply(mkCallToLibFun("Library","MATCH_LITERAL_IN_SET",3), [muCon(translatePatternAsConstant(p))]);
+     return  muApply(mkCallToLibFun("Library","MATCH_LITERAL_IN_SET",2), [muCon(translatePatternAsConstant(p))]);
   } catch:
-    return muApply(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(p)]);
+    return muApply(mkCallToLibFun("Library","MATCH_PAT_IN_SET",2), [translatePat(p)]);
 }
 
 value getLiteralValue((Literal) `<Literal s>`) =  readTextValueString("<s>"); // TODO interpolation
@@ -604,7 +604,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
       } else if(pat is typedVariable){
         compiledPats += translatePatAsSetElem(pat, false);   
       } else {
-        compiledPats +=  muApply(mkCallToLibFun("Library","MATCH_PAT_IN_SET",3), [translatePat(pat)]);
+        compiledPats +=  muApply(mkCallToLibFun("Library","MATCH_PAT_IN_SET",2), [translatePat(pat)]);
         // To enable constant elimination change to:
         // compiledPats += translatePatAsSetElem(pat, false);
       }
@@ -663,7 +663,7 @@ str isLast(Lookahead lookahead) = lookahead.nMultiVar == 0 ? "LAST_" : "";
 
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead lookahead) {
    if("<name>" == "_"){
-       return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_LIST",2), []);
+       return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_LIST",1), []);
    }
    <fuid, pos> = getVariableScope("<name>", name@\loc);
    return muApply(mkCallToLibFun("Library","MATCH_VAR_IN_LIST",2), [muVarRef("<name>", fuid, pos)]);
