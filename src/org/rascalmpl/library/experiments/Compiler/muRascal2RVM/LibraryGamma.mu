@@ -1008,14 +1008,14 @@ coroutine MATCH_SET[3, iLiterals, pats, iSubject]{
     guard iSubject is set;
     if(subset(iLiterals, iSubject)) {
        iSubject = prim("set_subtract_set", iSubject, iLiterals);
-       MATCH_COLLECTION(pats, Library::ACCEPT_SET_MATCH::2, mset(iSubject));
+       MATCH_COLLECTION(pats, Library::ACCEPT_SET_MATCH::1, mset(iSubject));
     };
 }
 
 // A set match is acceptable when the set of remaining elements is empty
 
-function ACCEPT_SET_MATCH[2, iSubject, remaining]{
-   return (size_mset(remaining) == 0);
+function ACCEPT_SET_MATCH[1, subject]{
+   return size_mset(subject) == 0;
 }
 
 coroutine ENUM_MSET[2, set, rElm, iLst, len, j]{
@@ -1034,8 +1034,8 @@ coroutine ENUM_MSET[2, set, rElm, iLst, len, j]{
 // - available: the remaining, unmatched, elements in the subject set
 // - rRemaining: reference parameter to return remaining set elements
 
-coroutine MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
-    available = deref rRemaining;
+coroutine MATCH_PAT_IN_SET[2, pat, rSubject, available, gen, cpat, elm]{
+    available = deref rSubject;
 	guard size_mset(available) > 0;
     
     gen = init(ENUM_MSET, available, ref elm);
@@ -1043,149 +1043,149 @@ coroutine MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
         cpat = init(pat, elm);
         while(next(cpat)) {
             yield mset_subtract_elm(available, elm);
-            deref rRemaining = available;
+            deref rSubject = available;
         };
     };
 }
 
-coroutine MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
-    available = deref rRemaining;
+coroutine MATCH_VAR_IN_SET[2, rVar, rSubject, available, gen, elm]{
+    available = deref rSubject;
     guard size_mset(available) > 0;
  	if(is_defined(rVar)){
       elm = deref rVar;
       if(is_element_mset(elm, available)){
         yield(elm, mset_subtract_elm(available, elm));
-        deref rRemaining = available;
+        deref rSubject = available;
       };
       exhaust;
     };
     gen = init(ENUM_MSET, available, ref elm);
     while(next(gen)) {
 	  yield(elm, mset_subtract_elm(available, elm));
-	  deref rRemaining = available;
+	  deref rSubject = available;
     };
     undefine(rVar);
 }
 
-coroutine MATCH_TYPED_VAR_IN_SET[4, typ, rVar, available, rRemaining, gen, elm]{
-    available = deref rRemaining;
+coroutine MATCH_TYPED_VAR_IN_SET[3, typ, rVar, rSubject, available, gen, elm]{
+    available = deref rSubject;
     guard size_mset(available) > 0;
 
     gen = init(ENUM_MSET, available, ref elm);
     while(next(gen)) {
         if(subtype(typeOf(elm), typ)){
             yield(elm, mset_subtract_elm(available, elm));
-	        deref rRemaining = available;
+	        deref rSubject = available;
 	    };
     };
 }
 
-coroutine MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRemaining, gen, elm]{
-    available = deref rRemaining;
+coroutine MATCH_ANONYMOUS_VAR_IN_SET[1, rSubject, available, gen, elm]{
+    available = deref rSubject;
 	guard size_mset(available) > 0;
     
     gen = init(ENUM_MSET, available, ref elm);
     while(next(gen)) { 
         yield mset_subtract_elm(available, elm);
-        deref rRemaining = available;
+        deref rSubject = available;
    };
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET[3, typ, available, rRemaining, gen, elm]{
-    available = deref rRemaining; 
+coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET[2, typ, rSubject, available, gen, elm]{
+    available = deref rSubject; 
 	guard size_mset(available) > 0;
     
     gen = init(ENUM_MSET, available, ref elm);
     while(next(gen)) { 
         if(subtype(typeOf(elm), typ)){
             yield mset_subtract_elm(available, elm);
-            deref rRemaining = available;
+            deref rSubject = available;
         };
    };
 }
 
-coroutine MATCH_MULTIVAR_IN_SET[3, rVar, available, rRemaining, gen, subset]{
-    available = deref rRemaining;
+coroutine MATCH_MULTIVAR_IN_SET[2, rVar, rSubject, available, gen, subset]{
+    available = deref rSubject;
     if(is_defined(rVar)){
       subset = deref rVar;
       if(subset_set_mset(subset, available)){
          yield(subset, mset_subtract_set(available, subset));
-         deref rRemaining = available;
+         deref rSubject = available;
       };
       exhaust;
     };
     gen = init(ENUM_SUBSETS, available, ref subset);
     while(next(gen)) {
 	    yield(set(subset), mset_subtract_mset(available, subset));
-	    deref rRemaining = available;
+	    deref rSubject = available;
     };
     undefine(rVar);
 }
 
-coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining, gen, subset]{
-    available = deref rRemaining;
+coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET[1, rSubject, available, gen, subset]{
+    available = deref rSubject;
     gen = init(ENUM_SUBSETS, available, ref subset);
     while(next(gen)) {
 	    yield mset_subtract_mset(available, subset);
-	    deref rRemaining = available;
+	    deref rSubject = available;
     };
 }
 
-coroutine MATCH_LAST_MULTIVAR_IN_SET[3, rVar, available, rRemaining, subset]{
-    available = deref rRemaining;
+coroutine MATCH_LAST_MULTIVAR_IN_SET[2, rVar, rSubject, available, subset]{
+    available = deref rSubject;
     if(is_defined(rVar)){
       subset = deref rVar;
       if(equal_set_mset(subset, available)){
          yield(subset, mset_empty());
-         deref rRemaining = available;
+         deref rSubject = available;
       };
       exhaust;
     };
     yield(set(available), mset_empty());
-    deref rRemaining = available;
+    deref rSubject = available;
     undefine(rVar);
 }
 
-coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining]{
-    available = deref rRemaining;
+coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_SET[1, rSubject, available]{
+    available = deref rSubject;
     yield mset_empty();
-    deref rRemaining = available;
+    deref rSubject = available;
 }
 
-coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, subset]{ 
-    available = deref rRemaining;   
+coroutine MATCH_TYPED_MULTIVAR_IN_SET[3, typ, rVar, rSubject, available, gen, subset]{ 
+    available = deref rSubject;   
     gen = init(ENUM_SUBSETS, available, ref subset);
     while(next(gen)) {
         if(subtype(typeOfMset(subset), typ)){
            yield(set(subset), mset_subtract_mset(available, subset));
-	       deref rRemaining = available;
+	       deref rSubject = available;
 	    };
     };
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
-    available = deref rRemaining;
+coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[2, typ, rSubject, available, gen, subset]{
+    available = deref rSubject;
     gen = init(ENUM_SUBSETS, available, ref subset);
     while(next(gen)) {
         if(subtype(typeOfMset(subset), typ)){
            yield mset_subtract_mset(available, subset);
-	       deref rRemaining = available;
+	       deref rSubject = available;
 	    };
     };
 }
 
-coroutine MATCH_LAST_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining]{
-    available = deref rRemaining;
+coroutine MATCH_LAST_TYPED_MULTIVAR_IN_SET[3, typ, rVar, rSubject, available]{
+    available = deref rSubject;
     guard subtype(typeOfMset(available), typ);
     yield(set(available), mset_empty());
-    deref rRemaining = available;
+    deref rSubject = available;
 }
 
-coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
-    available = deref rRemaining;
+coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET[2, typ, rSubject, available, gen, subset]{
+    available = deref rSubject;
     guard subtype(typeOfMset(available), typ);
     yield mset_empty();
-    deref rRemaining = available;
+    deref rSubject = available;
 }
 
 // The power set of a set of size n has 2^n-1 elements 
