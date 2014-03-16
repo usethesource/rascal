@@ -31,7 +31,7 @@ public class Generator implements Opcodes {
 	}
 
 	public void emitMethod(String name) {
-		mv = cw.visitMethod(ACC_PUBLIC, name, "()V", null, null);
+		mv = cw.visitMethod(ACC_PUBLIC, name, "()Ljava/lang/Object;", null, null);
 		labelMap.clear();
 		mv.visitCode();
 	}
@@ -174,8 +174,22 @@ public class Generator implements Opcodes {
 		return cw.toByteArray();
 	}
 
-	public void emitReturn() {
-		mv.visitInsn(RETURN); // TODO remove to keep decompiler happy.		
+	public void emitReturn0() {
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitInsn(ARETURN);
+	}
+
+	public void emitReturn1() {
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitInsn(ARETURN);
+	}
+
+	public void emitFailreturn() {
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "FAILRETURN", "Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitInsn(ARETURN);
 	}
 
 	public void dump() {
@@ -190,6 +204,7 @@ public class Generator implements Opcodes {
 		}
 	}
 
+	
 	public static void main(String[] argv) {
 		byte[] result = null;
 		System.out.println("Getting started!\n");
