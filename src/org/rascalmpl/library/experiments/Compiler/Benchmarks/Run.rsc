@@ -39,6 +39,7 @@ import experiments::Compiler::Benchmarks::BSet1;
 import experiments::Compiler::Benchmarks::BSetMatch1;
 import experiments::Compiler::Benchmarks::BSetMatch2;
 import experiments::Compiler::Benchmarks::BSetMatch3;
+import experiments::Compiler::Benchmarks::BSetMatch4;
 import experiments::Compiler::Benchmarks::BSendMoreMoney;
 import experiments::Compiler::Benchmarks::BSendMoreMoneyNotTyped;
 import experiments::Compiler::Benchmarks::BTemplate;
@@ -84,6 +85,7 @@ map[str name,  value(list[value]) job] jobs = (
 "BSetMatch1":				experiments::Compiler::Benchmarks::BSetMatch1::main,
 "BSetMatch2":				experiments::Compiler::Benchmarks::BSetMatch2::main,
 "BSetMatch3":				experiments::Compiler::Benchmarks::BSetMatch3::main,
+"BSetMatch4":				experiments::Compiler::Benchmarks::BSetMatch4::main,
 "BSendMoreMoney":			experiments::Compiler::Benchmarks::BSendMoreMoney::main,
 "BSendMoreMoneyNotTyped":	experiments::Compiler::Benchmarks::BSendMoreMoneyNotTyped::main,
 "BTemplate":				experiments::Compiler::Benchmarks::BTemplate::main,
@@ -284,6 +286,6 @@ void main_paper2(){
 }
 
 void main_setmatch(){
-   run_benchmarks(10, ["BSetMatch1","BSetMatch2","BSetMatch3"]);
+   run_benchmarks(10, ["BSetMatch1","BSetMatch2","BSetMatch3","BSetMatch4"]);
 }
 
