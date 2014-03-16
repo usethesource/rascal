@@ -490,7 +490,7 @@ coroutine MATCH_ANTI[2, pat, iSubject, cpat]{
 coroutine MATCH_COLLECTION[3, 
      pats,		// Coroutines to match collection elements
      accept,	// Function that accepts a complete match
-	     subject,	// The subject (a collection like list or set, together with optional admin)
+	 subject,	// The subject (a collection like list or set, together with optional admin)
 
 	 patlen,	// Length of pattern array
 	 p,			// Cursor in patterns
@@ -537,7 +537,7 @@ coroutine MATCH_COLLECTION[3,
 
 coroutine MATCH_LIST[2, pats, iList, subject]{
    guard iList is list;
-   subject = make_tuple(iList, 0);
+   subject = MAKE_SUBJECT(iList, 0);
    MATCH_COLLECTION(pats, Library::ACCEPT_LIST_MATCH::1, subject);
 }
 
@@ -547,9 +547,16 @@ function ACCEPT_LIST_MATCH[1, subject]{
    return (size_list(GET_LIST(subject)) == GET_CURSOR(subject));
 }
 
-function GET_LIST[1, subject]{ return get_tuple(subject, 0); }
+function GET_LIST[1, subject]{ return get_array(subject, 0); }
 
-function GET_CURSOR[1, subject]{ return get_tuple(subject, 1); }
+function GET_CURSOR[1, subject]{ return get_array(subject, 1); }
+
+function MAKE_SUBJECT[2, iList, cursor, ar]{
+   ar = make_array(2);
+   put_array(ar, 0, iList);
+   put_array(ar, 1, cursor);
+   return ar;
+}
 
 
 // All coroutines that may occur in a list pattern have the following parameters:
@@ -562,28 +569,28 @@ function GET_CURSOR[1, subject]{ return get_tuple(subject, 1); }
 
 coroutine MATCH_PAT_IN_LIST[2, pat, rSubject, iList, start, cpat]{ 
     iList = GET_LIST(deref rSubject);
-    start =  GET_CURSOR(deref rSubject);
+    start = GET_CURSOR(deref rSubject);
     guard start < size_list(iList);
     
     cpat = init(pat, get_list(iList, start));
     while(next(cpat)) {
-       yield make_tuple(iList, start + 1);   
+       yield MAKE_SUBJECT(iList, start + 1);   
     };
-    deref rSubject = make_tuple(iList, start);
+    deref rSubject = MAKE_SUBJECT(iList, start);
 } 
 
 // A literal in a list
 
 coroutine MATCH_LITERAL_IN_LIST[2, pat, rSubject, iList, start, elm]{
     iList = GET_LIST(deref rSubject);
-    start =  GET_CURSOR(deref rSubject);
-	    guard start < size_list(iList);
+    start = GET_CURSOR(deref rSubject);
+	guard start < size_list(iList);
 	
-	    elm =  get_list(iList, start);
+	elm =  get_list(iList, start);
     if(equal(pat, elm)){
-       yield make_tuple(iList, start + 1);
+       yield MAKE_SUBJECT(iList, start + 1);
     };
-    deref rSubject = make_tuple(iList, start);
+    deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
 coroutine MATCH_VAR_IN_LIST[2, rVar, rSubject, iList, start, iVal, iElem]{
@@ -595,11 +602,11 @@ coroutine MATCH_VAR_IN_LIST[2, rVar, rSubject, iList, start, iVal, iElem]{
    if(is_defined(rVar)){
       iVal = deref rVar;
       if(equal(iElem, iVal)){
-         yield(iElem, make_tuple(iList, start + 1));
+         yield(iElem, MAKE_SUBJECT(iList, start + 1));
       };
       exhaust;
    };
-   yield(iElem, make_tuple(iList, start + 1));
+   yield(iElem, MAKE_SUBJECT(iList, start + 1));
    undefine(rVar);
 }
 
@@ -610,17 +617,17 @@ coroutine MATCH_TYPED_VAR_IN_LIST[3, typ, rVar, rSubject, iList, start, iVal, iE
    
    iElem = get_list(iList, start);
    if(subtype(typeOf(iElem), typ)){
-      yield(iElem, make_tuple(iList, start + 1));
+      yield(iElem, MAKE_SUBJECT(iList, start + 1));
    };
-   deref rSubject = make_tuple(iList, start);
+   deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
 coroutine MATCH_ANONYMOUS_VAR_IN_LIST[1, rSubject, iList, start]{
    iList = GET_LIST(deref rSubject);
    start =  GET_CURSOR(deref rSubject);
    guard start < size_list(iList);
-   yield make_tuple(iList, start + 1);
-   deref rSubject = make_tuple(iList, start);
+   yield MAKE_SUBJECT(iList, start + 1);
+   deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
 coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_LIST[2, typ, rSubject, iList, start, iElem]{
@@ -630,9 +637,9 @@ coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_LIST[2, typ, rSubject, iList, start, iEle
    
    iElem = get_list(iList, start);
    if(subtype(typeOf(iElem), typ)){
-      yield make_tuple(iList, start + 1);
+      yield MAKE_SUBJECT(iList, start + 1);
    };
-   deref rSubject = make_tuple(iList, start);
+   deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
 coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iMinLen, iMaxLen, iLookahead, rSubject, available, iList, start, len, maxLen, iVal]{
@@ -644,17 +651,17 @@ coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iMinLen, iMaxLen, iLookahead, rSubject
     if(is_defined(rVar)){
       iVal = deref rVar;  						// TODO: check length
       if(occurs(iVal, iList, start)){
-         yield(iVal, make_tuple(iList, start + size_list(iVal)));
+         yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)));
       };
-      deref rSubject = make_tuple(iList, start);
+      deref rSubject = MAKE_SUBJECT(iList, start);
       exhaust;
     };
     
     while(len <= maxLen) {
-      yield(sublist(iList, start, len), make_tuple(iList, start + len));
+      yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len));
       len = len + 1;
     };
-    deref rSubject = make_tuple(iList, start);
+    deref rSubject = MAKE_SUBJECT(iList, start);
     undefine(rVar);
 }
 
@@ -669,17 +676,17 @@ coroutine MATCH_LAST_MULTIVAR_IN_LIST[5, rVar, iMinLen, iMaxLen, iLookahead, rSu
     if(is_defined(rVar)){
       iVal = deref rVar;						// TODO: check length
       if(occurs(iVal, iList, start)){
-        yield(iVal, make_tuple(iList, start + size_list(iVal)));
+        yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)));
       };
-      deref rSubject = make_tuple(iList, start);
+      deref rSubject = MAKE_SUBJECT(iList, start);
       exhaust;
     };
     
     while(len <= maxLen) {						// TODO: loop?
-      yield(sublist(iList, start, len), make_tuple(iList, start + len));
+      yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len));
       len = len + 1;
     };
-    deref rSubject = make_tuple(iList, start);
+    deref rSubject = MAKE_SUBJECT(iList, start);
     undefine(rVar);
 }
 
@@ -690,10 +697,10 @@ coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[4, iMinLen, iMaxLen, iLookahead, rSub
     len = mint(iMinLen);
     available = min(mint(iMaxLen), available - mint(iLookahead));
     while(len <= available){
-        yield make_tuple(iList, start + len);
+        yield MAKE_SUBJECT(iList, start + len);
         len = len + 1;
     };
-    deref rSubject = make_tuple(iList, start);
+    deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
 coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST[4, iMinLen, iMaxLen, iLookahead, rSubject, available, iList, start, len]{
@@ -703,10 +710,10 @@ coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST[4, iMinLen, iMaxLen, iLookahead,
     len = min(mint(iMaxLen), available - mint(iLookahead));
     guard(len >= mint(iMinLen));
     while(len <= available){
-        yield make_tuple(iList, start + len);
+        yield MAKE_SUBJECT(iList, start + len);
         len = len + 1;
     };
-    deref rSubject = make_tuple(iList, start);
+    deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
 coroutine MATCH_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iMinLen, iMaxLen, iLookahead, rSubject, available, iList, start, len, sub]{
@@ -717,17 +724,17 @@ coroutine MATCH_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iMinLen, iMaxLen, iLookahea
     available = min(mint(iMaxLen), available - mint(iLookahead));
     if(subtype(typeOf(iList), typ)){
        while(len <= available){
-             yield(sublist(iList, start, len), make_tuple(iList, start + len));
+             yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len));
              len = len + 1;
        };
     } else {
       while(len <= available){
             sub = sublist(iList, start, len);
             if(subtype(typeOf(sub), typ)){
-               yield(sub, make_tuple(iList, start + len));
+               yield(sub, MAKE_SUBJECT(iList, start + len));
                len = len + 1;
             } else {
-              deref rSubject = make_tuple(iList, start);
+              deref rSubject = MAKE_SUBJECT(iList, start);
               exhaust;
             };
       };
@@ -743,7 +750,7 @@ coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iMinLen, iMaxLen, iLoo
     
     if(subtype(typeOf(iList), typ)){
        while(len <= available){
-             yield(sublist(iList, start, len), make_tuple(iList, start + len));
+             yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len));
              len = len + 1;
        };
     } else {
@@ -752,12 +759,12 @@ coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iMinLen, iMaxLen, iLoo
             if(subtype(typeOf(get_list(iList, start + len)), elmType)){
                len = len + 1;
             } else {
-               yield(sublist(iList, start, len), make_tuple(iList, start + len));
-               deref rSubject = make_tuple(iList, start);
+               yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len));
+               deref rSubject = MAKE_SUBJECT(iList, start);
                exhaust;
             };
       };
-      yield(sublist(iList, start, len), make_tuple(iList, start + len));
+      yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len));
     };
 }
 
@@ -770,21 +777,21 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iMinLen, iMaxLen, iLook
     
     if(subtype(typeOf(iList), typ)){
        while(len <= available){
-          yield make_tuple(iList, start + len);
+          yield MAKE_SUBJECT(iList, start + len);
           len = len + 1;
        };
     } else {
        while(len <= available){
           if(subtype(typeOf(sublist(iList, start, len)), typ)){
-             yield  make_tuple(iList, start + len);
+             yield  MAKE_SUBJECT(iList, start + len);
              len = len + 1;
           } else {
-             deref rSubject = make_tuple(iList, start);
+             deref rSubject = MAKE_SUBJECT(iList, start);
              exhaust;
           };
       };
    };
-   deref rSubject = make_tuple(iList, start);
+   deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
 coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iMinLen, iMaxLen, iLookahead, rSubject, available, iList, start, len, elmType]{
@@ -796,7 +803,7 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iMinLen, iMaxLen, 
    
     if(subtype(typeOf(iList), typ)){
        while(len <= available){
-          yield make_tuple(iList, start + len);
+          yield MAKE_SUBJECT(iList, start + len);
           len = len + 1;
        };
     } else {
@@ -805,14 +812,14 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iMinLen, iMaxLen, 
          if(subtype(typeOf(get_list(iList, start + len)), elmType)){
             len = len + 1;
          } else {
-            yield make_tuple(iList, start + len);
-            deref rSubject = make_tuple(iList, start);
+            yield MAKE_SUBJECT(iList, start + len);
+            deref rSubject = MAKE_SUBJECT(iList, start);
             exhaust;
          };
       };
-      yield make_tuple(iList, start + len);
+      yield MAKE_SUBJECT(iList, start + len);
     };
-    deref rSubject = make_tuple(iList, start);
+    deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
 // Primitives for matching of concrete list patterns
