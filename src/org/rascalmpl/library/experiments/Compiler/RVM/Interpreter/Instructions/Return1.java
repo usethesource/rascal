@@ -15,8 +15,8 @@ public class Return1 extends Instruction {
 	public String toString() { return "RETURN1 " + arity; }
 	
 	public void generate(Generator codeEmittor){
-		codeEmittor.emitCall("insnRETURN1", arity);
 		System.out.println("\tRETURN1 " + arity);
+		codeEmittor.emitReturn1();
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
 }

@@ -47,6 +47,9 @@ public class RVMRun {
 	protected final IBool Rascal_TRUE;
 	protected final IBool Rascal_FALSE;
 	protected final IString NONE;
+	protected final IString YIELD0;
+	protected final IString YIELD1;
+	protected final IString FAILRETURN;
 
 	private boolean debug = true;
 
@@ -121,7 +124,13 @@ public class RVMRun {
 		FALSE = false;
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
+
+		// Return types used in code generator
 		NONE = vf.string("$nothing$");
+		YIELD0 = vf.string("$yield0$");
+		YIELD1 = vf.string("$yield1$");
+		FAILRETURN = vf.string("$failreturn$");
+
 		functionStore = new ArrayList<Function>();
 		constructorStore = new ArrayList<Type>();
 

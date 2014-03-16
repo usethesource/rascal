@@ -9,11 +9,10 @@ public class FailReturn extends Instruction {
 		super(ins, Opcode.FAILRETURN);
 	}
 	public void generate(Generator codeEmittor){
-		// TODO 
+		// TODO version 1 done
 		// Implement return system.
-		System.out.println("FAILRETURN");
-		codeEmittor.emitCall("insnFAILRETURN");
+		// System.out.println("FAILRETURN");
+		codeEmittor.emitFailreturn();
 		codeblock.addCode0(opcode.getOpcode());
 	}
-
 }
