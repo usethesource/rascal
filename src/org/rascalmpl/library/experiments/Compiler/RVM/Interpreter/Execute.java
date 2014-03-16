@@ -206,6 +206,7 @@ public class Execute {
 	 * @param rvm in which function will be loaded
 	 */
 	private void loadInstructions(String name, IConstructor declaration, RVM rvm, boolean isCoroutine){
+		int continuationPoint = 0 ;
 	
 		Type ftype = isCoroutine ? null : rvm.symbolToType((IConstructor) declaration.get("ftype"));
 		
@@ -325,11 +326,11 @@ public class Execute {
 				break;
 
 			case "YIELD0":
-				codeblock.YIELD0();
+				codeblock.YIELD0(continuationPoint++);
 				break;
 
 			case "YIELD1":
-				codeblock.YIELD1(getIntField(instruction, "arity"));
+				codeblock.YIELD1(getIntField(instruction, "arity"),continuationPoint++);
 				break;
 				
 			case "SHIFT":
@@ -510,7 +511,7 @@ public class Execute {
 			throw new RuntimeException("In function " + name + " : " + e.getMessage());
 		}
 		
-		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, maxstack, codeblock);
+		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, maxstack, codeblock, continuationPoint);
 		if(isCoroutine) {
 			function.isCoroutine = true;
 			IList refList = (IList) declaration.get("refs");
