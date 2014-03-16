@@ -26,8 +26,8 @@ public class RVM {
 	private boolean listing = false;
 	private boolean finalized = false;
 
-	private final ArrayList<Function> functionStore;
-	private final Map<String, Integer> functionMap;
+	protected final ArrayList<Function> functionStore;
+	protected final Map<String, Integer> functionMap;
 
 	// Function overloading
 	private final Map<String, Integer> resolver;
@@ -218,6 +218,16 @@ public class RVM {
 			for (Function f : functionStore) {
 				f.finalize(codeEmittor, functionMap, constructorMap, resolver, listing);
 			}
+			// All functions are created
+			codeEmittor.emitDynPrelude() ;
+			codeEmittor.emitDynDispatch(functionMap.size()) ;
+			
+			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
+					String fname = e.getKey();
+					codeEmittor.emitDynCaLL(fname,e.getValue()) ;
+			}
+	
+			codeEmittor.emitDynFinalize() ;
 			int oid = 0;
 			for (OverloadedFunction of : overloadedStore) {
 				of.finalize(functionMap, oid++);
@@ -285,16 +295,14 @@ public class RVM {
 
 	public IValue executeProgram(String uid_main, IValue[] args) {
 		boolean profile = false;
-		
 
 		if (!finalized) {
-			Generator codeEmittor = new Generator() ;
+			Generator codeEmittor = new Generator();
 			runner = new RVMRun(vf, ctx, debug, profile);
-			
-			codeEmittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter" , "Running");
+			codeEmittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter", "Running");
 			finalize(codeEmittor);
 			runner.inject(functionStore, overloadedStore, constructorStore, typeStore);
-			codeEmittor.dump() ;
+			codeEmittor.dump();
 		}
 
 		Function main_function = functionStore.get(functionMap.get(uid_main));

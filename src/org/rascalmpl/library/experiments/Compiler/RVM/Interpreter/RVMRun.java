@@ -53,8 +53,8 @@ public class RVMRun {
 
 	private boolean debug = true;
 
-	private ArrayList<Function> functionStore;
-	private final Map<String, Integer> functionMap;
+	protected ArrayList<Function> functionStore;
+	protected final Map<String, Integer> functionMap;
 
 	// Function overloading
 	private final Map<String, Integer> resolver;

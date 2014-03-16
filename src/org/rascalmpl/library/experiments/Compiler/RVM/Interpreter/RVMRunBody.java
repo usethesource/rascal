@@ -5,7 +5,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.eclipse.imp.pdb.facts.IInteger;
 
-public class RVMRunBody extends RVMRun {
+public class RVMRunBody extends RVMRun implements IDynamicRun {
 
 	public RVMRunBody(IValueFactory vf, IEvaluatorContext ctx, boolean debug, boolean profile) {
 		super(vf, ctx, debug, profile);
@@ -90,5 +90,44 @@ public class RVMRunBody extends RVMRun {
 		nop();
 		IValue v = null  ;
 		return v;
+	}
+	
+	@Override
+	public Object dynRun(String fname, IValue[] args) {
+		// TODO BUILD Stack frame.
+		int n = functionMap.get(fname) ;
+		
+		Function func = functionStore.get(n);
+		
+		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
+		cf = root;
+
+		// Pass the program arguments to main
+		for (int i = 0; i < args.length; i++) {
+			cf.stack[i] = args[i];
+		}
+		
+		nop() ;
+		switch (n) {
+		case 1 :
+			return functionTemplate() ;
+		case 2 :
+			return fret() ;
+		case 3 :
+			return fret() ;
+		case 4 :
+			return fret() ;
+		case 5 :
+			return fret() ;
+		case 6 :
+			return fret() ;
+		case 7 :
+			return fret() ;
+		case 8 :
+			return fret() ;
+		case 12 :
+			return fret() ;
+		}
+		return vf.bool(false) ;
 	}
 }
