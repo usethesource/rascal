@@ -23,6 +23,8 @@ public class Function {
 	 IValue[] constantStore;
 	 Type[] typeConstantStore;
 	 
+	 int continuationPoints = 0 ;
+	 
 	 int[] froms;
 	 int[] tos;
 	 int[] types;
@@ -33,7 +35,7 @@ public class Function {
 	 
 	 boolean isVarArgs = false;
 	
-	public Function(String name, Type ftype, String funIn, int nformals, int nlocals, int maxstack, CodeBlock codeblock){
+	public Function(String name, Type ftype, String funIn, int nformals, int nlocals, int maxstack, CodeBlock codeblock, int continuationPoint){
 		this.name = name;
 		this.ftype = ftype;
 		this.funIn = funIn;
@@ -41,6 +43,14 @@ public class Function {
 		this.nlocals = nlocals;
 		this.maxstack = maxstack;
 		this.codeblock = codeblock;
+		this.continuationPoints = continuationPoint ;
+	}
+	
+	private String nameMangle(String name) {
+		return name;	
+	}
+	private String nameDeMangle(String name) {
+		return name;	
 	}
 	
 	public void  finalize(Generator codeEmittor, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing){

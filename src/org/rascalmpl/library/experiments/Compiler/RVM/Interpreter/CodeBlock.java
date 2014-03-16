@@ -465,12 +465,12 @@ public class CodeBlock {
 		return add(new Next1(this));
 	}
 	
-	public CodeBlock YIELD0() {
-		return add(new Yield0(this));
+	public CodeBlock YIELD0(int ep) {
+		return add(new Yield0(this,ep));
 	}
 	
-	public CodeBlock YIELD1(int arity) {
-		return add(new Yield1(this, arity));
+	public CodeBlock YIELD1(int arity, int ep) {
+		return add(new Yield1(this, arity,ep));
 	}
 	
 	public CodeBlock PRINTLN(int arity){
