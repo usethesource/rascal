@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.objectweb.asm.ClassWriter;
@@ -15,6 +16,7 @@ public class Generator implements Opcodes {
 	private String className = null;
 	private String packageName = null;
 	private String fullClassName = null;
+	private String[] funcArray = null ;
 
 	private HashMap<String, Label> labelMap = new HashMap<String, Label>();
 
@@ -27,7 +29,8 @@ public class Generator implements Opcodes {
 		this.packageName = pName;
 		this.fullClassName = packageName + "/" + className;
 		cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-		cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "Generator/RunnerBase", new String[] { "Generator/IRun" });
+		cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", 
+				 new String[] { "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/IDynamicRun" });
 	}
 
 	public void emitMethod(String name) {
@@ -204,12 +207,11 @@ public class Generator implements Opcodes {
 		}
 	}
 
-	
 	public static void main(String[] argv) {
 		byte[] result = null;
 		System.out.println("Getting started!\n");
 		Generator emittor = new Generator();
-		
+
 		emittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter", "Runner");
 		emittor.emitMethod("main");
 		emittor.emitLabel("entrypoint");
@@ -220,13 +222,32 @@ public class Generator implements Opcodes {
 		emittor.emitJMP("entrypoint");
 		emittor.closeMethod();
 		result = emittor.finalizeCode();
-		
+
 		try {
 			FileOutputStream fos = new FileOutputStream("/Users/ferryrietveld/Runner.class");
 			fos.write(result);
 			fos.close();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void emitDynPrelude() {
+		
+	}
+
+	public void emitDynDispatch(int numberOfFunctions) {
+		System.out.println("DYNCALL CASE count :" + numberOfFunctions  );	
+		funcArray = new String[numberOfFunctions] ;
+	}
+
+	public void emitDynCaLL(String fname, Integer value) {
+		funcArray[value] = fname ;
+	}
+
+	public void emitDynFinalize() {
+		for ( int i = 0 ; i < funcArray.length ; i++ ) {
+			//System.out.println("DUNCALL :" + i + " " + funcArray[i]);
 		}
 	}
 }
