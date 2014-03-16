@@ -32,6 +32,7 @@ public class Generator implements Opcodes {
 
 	public void emitMethod(String name) {
 		mv = cw.visitMethod(ACC_PUBLIC, name, "()V", null, null);
+		labelMap.clear();
 		mv.visitCode();
 	}
 
