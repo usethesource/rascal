@@ -905,7 +905,35 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	mset_subtract_mset {
+		@Override
+		@SuppressWarnings("unchecked")
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			HashSet<IValue> lhs = (HashSet<IValue>) stack[sp - 2];
+			lhs = (HashSet<IValue>) lhs.clone();
+			HashSet<IValue> rhs = (HashSet<IValue>) stack[sp - 1];
+			lhs.removeAll(rhs);
+			stack[sp - 2] = lhs;
+			return sp - 1;
+		};
+	},
 	mset_destructive_subtract_set {
+		@Override
+		@SuppressWarnings("unchecked")
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+			mset = (HashSet<IValue>) mset.clone();
+			ISet set = ((ISet) stack[sp - 1]);
+			for (IValue v : set) {
+				mset.remove(v);
+			}
+			stack[sp - 2] = mset;
+			return sp - 1;
+		};
+	},
+	mset_subtract_set {
 		@Override
 		@SuppressWarnings("unchecked")
 		public int execute(Object[] stack, int sp, int arity) {
@@ -927,6 +955,19 @@ public enum MuPrimitive {
 			assert arity == 2;
 			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
 			// mset = (HashSet<IValue>) mset.clone();
+			IValue elm = ((IValue) stack[sp - 1]);
+			mset.remove(elm);
+			stack[sp - 2] = mset;
+			return sp - 1;
+		};
+	},
+	mset_subtract_elm {
+		@Override
+		@SuppressWarnings("unchecked")
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+			mset = (HashSet<IValue>) mset.clone();
 			IValue elm = ((IValue) stack[sp - 1]);
 			mset.remove(elm);
 			stack[sp - 2] = mset;
