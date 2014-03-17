@@ -60,8 +60,7 @@ public class Function {
 
 	public void finalize(Generator codeEmittor, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 
-		System.out.println("public void " + name + "() {  // id " + codeMap.get(name));
-		codeEmittor.emitMethod(nameMangle(name));
+		codeEmittor.emitMethod(NameMangler.mangle(name));
 
 		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing);
 		this.scopeId = codeblock.getFunctionIndex(name);

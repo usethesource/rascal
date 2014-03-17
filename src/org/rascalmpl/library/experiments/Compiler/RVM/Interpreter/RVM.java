@@ -219,15 +219,15 @@ public class RVM {
 				f.finalize(codeEmittor, functionMap, constructorMap, resolver, listing);
 			}
 			// All functions are created
+
 			codeEmittor.emitDynPrelude() ;
 			codeEmittor.emitDynDispatch(functionMap.size()) ;
-			
 			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
 					String fname = e.getKey();
 					codeEmittor.emitDynCaLL(fname,e.getValue()) ;
 			}
-	
 			codeEmittor.emitDynFinalize() ;
+			
 			int oid = 0;
 			for (OverloadedFunction of : overloadedStore) {
 				of.finalize(functionMap, oid++);
