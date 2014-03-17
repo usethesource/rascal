@@ -16,7 +16,7 @@ public class Generator implements Opcodes {
 	private String className = null;
 	private String packageName = null;
 	private String fullClassName = null;
-	private String[] funcArray = null ;
+	private String[] funcArray = null;
 
 	private HashMap<String, Label> labelMap = new HashMap<String, Label>();
 
@@ -29,8 +29,8 @@ public class Generator implements Opcodes {
 		this.packageName = pName;
 		this.fullClassName = packageName + "/" + className;
 		cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-		cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", 
-				 new String[] { "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/IDynamicRun" });
+		cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun",
+				new String[] { "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/IDynamicRun" });
 	}
 
 	public void emitMethod(String name) {
@@ -40,7 +40,7 @@ public class Generator implements Opcodes {
 	}
 
 	public void closeMethod() {
-		mv.visitInsn(RETURN); // TODO remove to keep decompiler happy.
+		// mv.visitInsn(RETURN); // TODO remove to keep decompiler happy.
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 	}
@@ -233,21 +233,99 @@ public class Generator implements Opcodes {
 	}
 
 	public void emitDynPrelude() {
-		
+		mv = cw.visitMethod(ACC_PUBLIC, "dynRun", "(Ljava/lang/String;[Lorg/eclipse/imp/pdb/facts/IValue;)Ljava/lang/Object;", null, null);
+		mv.visitCode();
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "functionMap", "Ljava/util/Map;");
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;");
+		mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
+		mv.visitVarInsn(ISTORE, 3);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "functionStore", "Ljava/util/ArrayList;");
+		mv.visitVarInsn(ILOAD, 3);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/ArrayList", "get", "(I)Ljava/lang/Object;");
+		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function");
+		mv.visitVarInsn(ASTORE, 4);
+		mv.visitTypeInsn(NEW, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame");
+		mv.visitInsn(DUP);
+		mv.visitVarInsn(ALOAD, 4);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "scopeId", "I");
+		mv.visitInsn(ACONST_NULL);
+		mv.visitVarInsn(ALOAD, 4);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "maxstack", "I");
+		mv.visitVarInsn(ALOAD, 4);
+		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "<init>",
+				"(ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;)V");
+		mv.visitVarInsn(ASTORE, 5);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 5);
+		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRunBody", "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitInsn(ICONST_0);
+		mv.visitVarInsn(ISTORE, 6);
+		Label l0 = new Label();
+		mv.visitJumpInsn(GOTO, l0);
+		Label l1 = new Label();
+		mv.visitLabel(l1);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ILOAD, 6);
+		mv.visitVarInsn(ALOAD, 2);
+		mv.visitVarInsn(ILOAD, 6);
+		mv.visitInsn(AALOAD);
+		mv.visitInsn(AASTORE);
+		mv.visitIincInsn(6, 1);
+		mv.visitLabel(l0);
+		mv.visitVarInsn(ILOAD, 6);
+		mv.visitVarInsn(ALOAD, 2);
+		mv.visitInsn(ARRAYLENGTH);
+		mv.visitJumpInsn(IF_ICMPLT, l1);
 	}
 
 	public void emitDynDispatch(int numberOfFunctions) {
-		System.out.println("DYNCALL CASE count :" + numberOfFunctions  );	
-		funcArray = new String[numberOfFunctions] ;
+		System.out.println("DYNCALL CASE count :" + numberOfFunctions);
+		funcArray = new String[numberOfFunctions];
 	}
 
 	public void emitDynCaLL(String fname, Integer value) {
-		funcArray[value] = fname ;
+		funcArray[value] = fname;
 	}
 
 	public void emitDynFinalize() {
-		for ( int i = 0 ; i < funcArray.length ; i++ ) {
-			//System.out.println("DUNCALL :" + i + " " + funcArray[i]);
+		int nrFuncs = funcArray.length;
+		//nrFuncs = 4;
+		//
+		// for (int i = 0; i < nrFuncs ; i++) {
+		// System.out.println("DUNCALL :" + i + " " + funcArray[i]);
+		// }
+		
+		Label[] caseLabels = new Label[nrFuncs];
+	
+		for (int i = 0; i < nrFuncs ; i++) {
+			caseLabels[i] = new Label();
 		}
+		Label defaultlabel = new Label();
+
+		// Case switch on int at loc 3 (java stack)
+		mv.visitVarInsn(ILOAD, 3);
+		mv.visitTableSwitchInsn(0, nrFuncs-1, defaultlabel, caseLabels);
+		for (int i = 0; i < nrFuncs; i++) {
+			mv.visitLabel(caseLabels[i]);
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, NameMangler.mangle(funcArray[i]), "()Ljava/lang/Object;");
+			mv.visitInsn(ARETURN);
+		}
+		mv.visitLabel(defaultlabel);
+
+		// Function exit
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "vf", "Lorg/eclipse/imp/pdb/facts/IValueFactory;");
+		mv.visitInsn(ICONST_0);
+		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IValueFactory", "bool", "(Z)Lorg/eclipse/imp/pdb/facts/IBool;");
+		mv.visitInsn(ARETURN);
+		mv.visitMaxs(0, 0);
+		mv.visitEnd();
 	}
 }

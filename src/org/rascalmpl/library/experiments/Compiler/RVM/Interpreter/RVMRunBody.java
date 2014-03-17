@@ -107,25 +107,14 @@ public class RVMRunBody extends RVMRun implements IDynamicRun {
 			cf.stack[i] = args[i];
 		}
 		
-		nop() ;
 		switch (n) {
-		case 1 :
+		case 0 :
 			return functionTemplate() ;
+		case 1 :
+			return fret() ;
 		case 2 :
 			return fret() ;
 		case 3 :
-			return fret() ;
-		case 4 :
-			return fret() ;
-		case 5 :
-			return fret() ;
-		case 6 :
-			return fret() ;
-		case 7 :
-			return fret() ;
-		case 8 :
-			return fret() ;
-		case 12 :
 			return fret() ;
 		}
 		return vf.bool(false) ;
