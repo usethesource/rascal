@@ -2191,4 +2191,23 @@ public class RVMRun {
 		sp = cf.sp;
 		pc = cf.pc;
 	}
+	///  JVM Helper methods 
+	public Object return1Helper() {
+		Object rval = null;
+		if (cf.isCoroutine) {
+			rval = Rascal_TRUE;
+			int[] refs = cf.function.refs;
+			if (arity != refs.length) {
+				throw new RuntimeException("Coroutine " + cf.function.name + ": arity of return (" + arity + ") unequal to number of reference parameters (" + refs.length + ")");
+			}
+			for (int i = 0; i < arity; i++) {
+				Reference ref = (Reference) stack[refs[arity - 1 - i]];
+				ref.stack[ref.pos] = stack[--sp];
+			}
+		} else {
+			rval = stack[sp - 1];
+		}
+		return rval;
+	}
+
 }
