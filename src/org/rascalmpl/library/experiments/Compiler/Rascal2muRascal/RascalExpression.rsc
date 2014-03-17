@@ -516,14 +516,14 @@ MuExp translateBoolClosure(Expression e){
 
 MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> .. <Expression last> ]`) {
     kind = getOuterType(first) == "int" && getOuterType(last) == "int" ? "_INT" : "";
-    return muMulti(muCreate(mkCallToLibFun("Library", "RANGE<kind>", 3), [ translatePat(pat), translate(first), translate(last)]));
+    return muMulti(muApply(mkCallToLibFun("Library", "RANGE<kind>", 3), [ translatePat(pat), translate(first), translate(last)]));
  }
 
 // -- enumerator with range and step expression ---------------------
     
 MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) {
      kind = getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int" ? "_INT" : "";
-     return muMulti(muCreate(mkCallToLibFun("Library", "RANGE_STEP<kind>", 4), [ translatePat(pat), translate(first), translate(second), translate(last)]));
+     return muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>", 4), [ translatePat(pat), translate(first), translate(second), translate(last)]));
 }
 
 // -- range expression ----------------------------------------------
@@ -533,10 +533,10 @@ MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) {
   loopname = nextLabel(); 
   writer = asTmp(loopname);
   var = nextTmp();
-  patcode = muCreate(mkCallToLibFun("Library","MATCH_VAR",2), [muTmpRef(var,fuid)]);
+  patcode = muApply(mkCallToLibFun("Library","MATCH_VAR",2), [muTmpRef(var,fuid)]);
 
   kind = getOuterType(first) == "int" && getOuterType(last) == "int" ? "_INT" : "";
-  rangecode = muMulti(muCreate(mkCallToLibFun("Library", "RANGE<kind>", 3), [ patcode, translate(first), translate(last)]));
+  rangecode = muMulti(muApply(mkCallToLibFun("Library", "RANGE<kind>", 3), [ patcode, translate(first), translate(last)]));
   
   return
     muBlock(
@@ -554,10 +554,10 @@ MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <
   loopname = nextLabel(); 
   writer = asTmp(loopname);
   var = nextTmp();
-  patcode = muCreate(mkCallToLibFun("Library","MATCH_VAR",2), [muTmpRef(var,fuid)]);
+  patcode = muApply(mkCallToLibFun("Library","MATCH_VAR",2), [muTmpRef(var,fuid)]);
 
   kind = getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int" ? "_INT" : "";
-  rangecode = muMulti(muCreate(mkCallToLibFun("Library", "RANGE_STEP<kind>", 4), [ patcode, translate(first), translate(second), translate(last)]));
+  rangecode = muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>", 4), [ patcode, translate(first), translate(second), translate(last)]));
   
   return
     muBlock(
@@ -1306,16 +1306,16 @@ MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`)     = transl
 
 MuExp translate(e:(Expression) `<QualifiedName name> \<- <Expression exp>`) {
     <fuid, pos> = getVariableScope("<name>", name@\loc);
-    return muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [muVarRef("<name>", fuid, pos), translate(exp)]));
+    return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [muVarRef("<name>", fuid, pos), translate(exp)]));
 }
 
 MuExp translate(e:(Expression) `<Type tp> <Name name> \<- <Expression exp>`) {
     <fuid, pos> = getVariableScope("<name>", name@\loc);
-    return muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN", 3), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
+    return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN", 3), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
 }
 
 MuExp translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) =
-    muMulti(muCreate(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH", 2), [translatePat(pat), translate(exp)]));
+    muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH", 2), [translatePat(pat), translate(exp)]));
 
 // -- implies expression --------------------------------------------
 

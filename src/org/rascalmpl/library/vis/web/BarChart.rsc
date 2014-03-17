@@ -15,7 +15,7 @@ import lang::json::IO;
 import IO;
 
 alias YAxis = tuple[str varName, str aggregateMethod, str plotFunction,value series, bool showPercent,
-num overrideMin, num overrideMax, bool hidden, bool category];
+num overrideMin, num overrideMax, bool hidden, bool category, str orderRule];
 
 alias ColorAxis = tuple[str varName, value color];
 
@@ -51,8 +51,8 @@ public tuple[int x, int y, int width, int height, str align] legendBounds =
     }
 
 public YAxis getYAxis(str varName="y", str aggregateMethod="count", str plotFunction="bar", value series="", bool showPercent=false,
-    num overrideMin=0, num overrideMax=0, bool hidden = false, bool category = false) {
-    return <varName, aggregateMethod, plotFunction, series, showPercent, overrideMin, overrideMax, hidden, category>;
+    num overrideMin=0, num overrideMax=0, bool hidden = false, bool category = false, str orderRule="") {
+    return <varName, aggregateMethod, plotFunction, series, showPercent, overrideMin, overrideMax, hidden, category, orderRule>;
     }
 
 private bool isNull(value v) {
@@ -87,8 +87,8 @@ public str barChart(
     , value orderRule = ""
     , value series=""
     , list[tagColor] assignColor=[]
-    , YAxis y_axis =<"y","count", "bar","", false,0, 0, false, false>
-    , YAxis y_axis2=<"","max", "line","", false,0, 0, false, false >
+    , YAxis y_axis =<"y","count", "bar","", false,0, 0, false, false, "">
+    , YAxis y_axis2=<"","max", "line","", false,0, 0, false, false, "" >
     , bool legend = false
     , bool legend2 = false
     , list[dColor] defaultColors = []
@@ -124,6 +124,10 @@ public str barChart(
         , 
         var(("colorAxis":expr(isNull(colorAxis[0])?"null":chart.addColorAxis(myChart, 
               colorAxis[0],  colorAxis[1]))))
+        ,
+        expr(!isNull(y_axis[9])?axis.addOrderRule(y1, y_axis[9], "false"):"")
+        ,
+        expr(!isNull(y_axis2[9])?axis.addOrderRule(y2, y_axis2[9], "false"):"")
         ,
         var((mySeries1:expr(chart.addSeries(myChart, y_axis[3],  "dimple.plot.<y_axis[2]>"  
         , expr(isNull(colorAxis[0])?"[<x>, <y1>]":"[<x>, <y1>, colorAxis]")

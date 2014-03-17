@@ -38,7 +38,7 @@ public class OverloadedFunctionInstanceCall {
 	 * Assumption: scopeIn != -1; 
 	 */
 	public static OverloadedFunctionInstanceCall computeOverloadedFunctionInstanceCall(Frame cf, int[] functions, int[] constructors, int scopeIn, Type types, int arity) {
-		for(Frame env = cf; env != null; env = env.previousCallFrame) {
+		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
 				return new OverloadedFunctionInstanceCall(cf, functions, constructors, env, types, arity);
 			}

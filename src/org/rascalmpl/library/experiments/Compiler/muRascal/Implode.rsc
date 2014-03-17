@@ -139,7 +139,10 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case preVar(mvar("false")) 														=> muBool(false)
                case preVar(fvar(str var))                                           			=> { if(!isGlobalNonOverloadedFunction(var)) { throw "Function or coroutine <var> has not been declared!"; } muFun(getUidOfGlobalNonOverloadedFunction(var)); }
      	       case preVar(Identifier id) 														=> muVar(id.var,uid,vardefs[uid][id.var])
-     	       case preVar(lrel[str,int] funNames, Identifier id)        						=> muVar(name,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
+     	       case preVar(lrel[str,int] funNames, Identifier id)        						=> muVar(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
+     	       // Specific to delimited continuations (experimental)
+     	       case preContLoc()                                                                => muContVar(uid)
+     	       case preContVar(lrel[str,int] funNames)                                          => muContVar(getUID(modName,funNames)) 
      	       case preAssignLocList(Identifier id1, Identifier id2, MuExp exp1) 				=> muCallMuPrim("assign_pair", [muInt(vardefs[uid][id1.var]), muInt(vardefs[uid][id2.var]), exp1])
      	       
      	       case preAssignLoc(Identifier id, MuExp exp) 										=> muAssign(id.var,uid,vardefs[uid][id.var], exp)
@@ -154,7 +157,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preLocRef(Identifier id)                     								=> muVarRef(id.var,uid,vardefs[uid][id.var])
       	       case preVarRef(lrel[str,int] funNames, Identifier id)     						=> muVarRef(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
       	       case preAssignLocDeref(Identifier id, MuExp exp)  								=> muAssignVarDeref(id.var,uid,vardefs[uid][id.var], exp)
-      	       case preAssignVarDeref(lrel[str,int] funNames, Identifier id, muExp exp)         => muAssignVarDeref(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var],exp)
+      	       case preAssignVarDeref(lrel[str,int] funNames, Identifier id, MuExp exp)         => muAssignVarDeref(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var],exp)
       	       
       	       case muCallPrim(str name)                                            			=> muCallPrim(name[1..-1], [])
                case muCallPrim(str name, list[MuExp] exps)										=> muCallPrim(name[1..-1], exps)			// strip surrounding quotes
@@ -202,6 +205,8 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
  			   case muCall(preVar(mvar("has_label")), [exp1, exp2])								=> muCallMuPrim("has_label", [exp1, exp2])
 			 
                case muCall(preVar(mvar("typeOf")), [exp1])										=> muCallPrim("typeOf", [exp1])
+               case muCall(preVar(mvar("typeOfMset")), [exp1])									=> muCallMuPrim("typeOfMset", [exp1])
+               
                case muCall(preVar(mvar("elementTypeOf")), [exp1])										=> muCallPrim("elementTypeOf", [exp1])
                case muCall(preVar(mvar("subtype")), [exp1, exp2])         						=> muCallPrim("subtype", [exp1, exp2])
                case muCall(preVar(mvar("make_iarray")), [exp1])									=> muCallMuPrim("make_iarray_of_size", [exp1])
@@ -217,12 +222,18 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("mset_destructive_add_mset")), list[MuExp] exps)		 	=> muCallMuPrim("mset_destructive_add_mset", exps)
                case muCall(preVar(mvar("mset_destructive_add_elm")), list[MuExp] exps)		 	=> muCallMuPrim("mset_destructive_add_elm", exps)
                case muCall(preVar(mvar("mset_destructive_subtract_elm")), list[MuExp] exps)	 	=> muCallMuPrim("mset_destructive_subtract_elm", exps)
-               case muCall(preVar(mvar("mset_destructive_subtract_set")), list[MuExp] exps)	 	=> muCallMuPrim("mset_destructive_subtract_set", exps)		
+               case muCall(preVar(mvar("mset_destructive_subtract_set")), list[MuExp] exps)	 	=> muCallMuPrim("mset_destructive_subtract_set", exps)
+               
+               case muCall(preVar(mvar("mset_subtract_mset")), list[MuExp] exps)	            => muCallMuPrim("mset_subtract_mset", exps)
+               case muCall(preVar(mvar("mset_subtract_elm")), list[MuExp] exps)	 	            => muCallMuPrim("mset_subtract_elm", exps)
+               case muCall(preVar(mvar("mset_subtract_set")), list[MuExp] exps)	 	            => muCallMuPrim("mset_subtract_set", exps)
+               		
                case muCall(preVar(mvar("mset")), list[MuExp] exps) 								=> muCallMuPrim("mset", exps)
                case muCall(preVar(mvar("mset_empty")), list[MuExp] exps) 						=> muCallMuPrim("mset_empty", exps)
                case muCall(preVar(mvar("set")), list[MuExp] exps) 								=> muCallMuPrim("set", exps)
              
                case muCall(preVar(mvar("make_mset")), list[MuExp] exps)							=> muCallMuPrim("make_mset", exps)
+               case muCall(preVar(mvar("make_tuple")), list[MuExp] exps)							=> muCallPrim("tuple_create", exps)
                case muCall(preVar(mvar("get_tuple_elements")), [exp1])							=> muCallMuPrim("get_tuple_elements", [exp1])
                case muCall(preVar(mvar("println")), list[MuExp] exps)							=> muCallMuPrim("println", exps)
                												
@@ -276,7 +287,7 @@ MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     functions_in_module += muCoroutine(all_uid, fuid, 0, size(localvars), [], muBlock(body));
-    return muMulti(muCreate(muFun(all_uid)));
+    return muMulti(muApply(muFun(all_uid, fuid), []));
 }
 
 MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
@@ -287,12 +298,12 @@ MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
         if(backtrackfree[i]) {
             body += muIfelse(nextLabel(), exps[i], [ muYield() ], [ muCon(222) ]);
         } else {
-            body = body + [ muAssign("c_<i>", or_uid, i, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[i]), [ muYield() ]), muCon(222) ];
+            body = body + [ muCall(exps[i],[]) ];
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     functions_in_module += muCoroutine(or_uid, fuid, 0, size(localvars), [], muBlock(body));
-    return muMulti(muCreate(muFun(or_uid)));
+    return muMulti(muApply(muFun(or_uid, fuid), []));
 }
 
 // Produces multi- or backtrack-free expressions

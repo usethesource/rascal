@@ -39,6 +39,7 @@ import experiments::Compiler::Benchmarks::BSet1;
 import experiments::Compiler::Benchmarks::BSetMatch1;
 import experiments::Compiler::Benchmarks::BSetMatch2;
 import experiments::Compiler::Benchmarks::BSetMatch3;
+import experiments::Compiler::Benchmarks::BSetMatch4;
 import experiments::Compiler::Benchmarks::BSendMoreMoney;
 import experiments::Compiler::Benchmarks::BSendMoreMoneyNotTyped;
 import experiments::Compiler::Benchmarks::BTemplate;
@@ -79,11 +80,12 @@ map[str name,  value(list[value]) job] jobs = (
 "BMarriage":				experiments::Compiler::Benchmarks::BMarriage::main,
 //"BPatternMatchASTs":		experiments::Compiler::Benchmarks::BPatternMatchASTs::main,
 "BReverse1":				experiments::Compiler::Benchmarks::BReverse1::main,
-//"BRSFCalls":				experiments::Compiler::Benchmarks::BRSFCalls::main,
+"BRSFCalls":				experiments::Compiler::Benchmarks::BRSFCalls::main,
 "BSet1":					experiments::Compiler::Benchmarks::BSet1::main,
 "BSetMatch1":				experiments::Compiler::Benchmarks::BSetMatch1::main,
 "BSetMatch2":				experiments::Compiler::Benchmarks::BSetMatch2::main,
 "BSetMatch3":				experiments::Compiler::Benchmarks::BSetMatch3::main,
+"BSetMatch4":				experiments::Compiler::Benchmarks::BSetMatch4::main,
 "BSendMoreMoney":			experiments::Compiler::Benchmarks::BSendMoreMoney::main,
 "BSendMoreMoneyNotTyped":	experiments::Compiler::Benchmarks::BSendMoreMoneyNotTyped::main,
 "BTemplate":				experiments::Compiler::Benchmarks::BTemplate::main,
@@ -108,11 +110,12 @@ loc base = |rascal:///experiments/Compiler/Benchmarks/|;
 
 map[str, list[num]] measurementsCompiled = ();		// list of timings of repeated runs per job, compiled
 map[str, list[num]] measurementsInterpreted = ();	// and interpreted
+map[str, list[num]] prevMeasurementsInterpreted = ();
 
 int nsamples = 5;  									// Number of samples per data point.
 
 // Analysis of the data of one job
-alias Analysis = tuple[str job, num speedup, num cmean, num cdev, num imean, num idev];
+alias Analysis = tuple[str job, num speedup, num sdev, num cmean, num cdev, num imean, num idev];
 
 // Run all benchmarks
 
@@ -120,10 +123,12 @@ list[Analysis] run_benchmarks(int n, list[str] jobs){
   initialize(n);
   jobs = sort(jobs);
   precompile(jobs);
-  time_msg = runAll(jobs);
+  runAll(jobs);
   results = analyze_all(jobs);
-  report(results, time_msg);
-  //report_latex(results);
+  report(results);
+  report_latex(results);
+  measurementsInterpreted += (prevMeasurementsInterpreted - measurementsInterpreted);
+  writeTextValueFile(base + "MeasurementsInterpreted.value", measurementsInterpreted);
   return results;
 }
 
@@ -131,6 +136,9 @@ void initialize(int n){
   measurementsInterpreted = ();
   measurementsCompiled = ();
   nsamples = n;
+  try {
+     prevMeasurementsInterpreted = readTextValueFile(#map[str, list[num]], base + "measurementsInterpreted.value");
+  } catch _: println("MeasurementsInterpreted.value not found, measurements will be repeated");
 }
 
 void precompile(list[str] jobs) {
@@ -139,29 +147,30 @@ void precompile(list[str] jobs) {
   }
 }
 
-str runAll(list[str] jobs){
-   t1 = getNanoTime();
+void runAll(list[str] jobs){
    for(int i <- index(jobs)){
        job = jobs[i];
        println("**** Run compiled: <job> (<i+1>/<size(jobs)>)");
        runCompiled(job);
    }
-   t2 = getNanoTime();
+  
    for(int i <- index(jobs)){
        job = jobs[i];
        println("**** Run interpreted: <job> (<i+1>/<size(jobs)>)");
-       runInterpreted(job);
+        if(prevMeasurementsInterpreted[job]?){
+           measurementsInterpreted[job] = prevMeasurementsInterpreted[job];
+        } else {
+           runInterpreted(job);
+       }
    }
-   t3 = getNanoTime();
-   return "Total time, compiled: <1.0*(t2 - t1)/1000000000> sec, interpreted: <1.0*(t3 - t2)/1000000000> sec, ratio <1.0*(t3 - t2)/(t2 - t1)>";
 }
 
 void runCompiled(str job) {
   measurementsCompiled[job] =
 	  for(int i <- [0 .. nsamples]){
-		  t1 = getNanoTime();
+		  t1 = cpuTime();
 		  v = execute(base + (job + ".rsc"), []);
-		  t2 = getNanoTime();
+		  t2 = cpuTime();
 		  append (t2 - t1)/1000000;
 	  }
 }
@@ -170,9 +179,9 @@ void runInterpreted(str job) {
   bmain = jobs[job];
   measurementsInterpreted[job] =
 	  for(int i <- [0 .. nsamples]){  
-		  t1 = getNanoTime();
+		  t1 = cpuTime();
 		  bmain([]);
-		  t2 = getNanoTime();
+		  t2 = cpuTime();
 		  append (t2 - t1)/1000000;
 	  }
 }
@@ -195,9 +204,16 @@ Analysis analyze_one(str job){
   imean = mean(interpretedExec);
   int idev = toInt(standardDeviation(interpretedExec));
 
-  speedup = imean/cmean;
+  speedup = (cmean != 0) ? imean/cmean : 1000.0;
+  // Standard deviation  of speedup
+  sdev = 0.0;
+  if(cmean != 0 && imean != 0){
+     x = cdev/cmean;
+     y = idev/imean;
+     sdev = speedup * sqrt(x * x + y * y);
+   }
   
-  return <job, speedup, cmean, cdev, imean, idev>;
+  return <job, speedup, sdev, cmean, cdev, imean, idev>;
 }
 
 list[Analysis] analyze_all(list[str] jobs){
@@ -212,10 +228,10 @@ str align(num n) = right(toString(precision(n,5)), 6);
 str align2(num n) = right(toString(precision(n,5)), 12);
 
 void report_one(Analysis a){  
-  println("<right(a.job, 25)>: speedup: <right(toString(precision(a.speedup,3)), 5)> x; compiled: <measurementsCompiled[a.job]>; mean <align(a.cmean)> msec (+/-<a.cdev>); interpreted: <measurementsInterpreted[a.job]>; mean <align(a.imean)> msec (+/-<a.idev>)");
+  println("<right(a.job, 25)>: speedup: <right(toString(precision(a.speedup,3)), 5)> x (+/-<precision(a.sdev,2)>); compiled: <measurementsCompiled[a.job]>; mean <align(a.cmean)> msec (+/-<a.cdev>); interpreted: <measurementsInterpreted[a.job]>; mean <align(a.imean)> msec (+/-<a.idev>)");
 }
 
-void report(list[Analysis] results, str time_msg){
+void report(list[Analysis] results){
   sep = "==========================================================";
   println("\n<sep>\nSummary of Measurements <now()>:\n");
   println("Number of samples = <nsamples>");
@@ -225,7 +241,7 @@ void report(list[Analysis] results, str time_msg){
   println("Average speedup: <precision(mean(results.speedup), 5)>");
   println("Minimal speedup: <precision(min(results.speedup), 5)>");
   println("Maximal speedup: <precision(max(results.speedup), 5)>");
-  println("<time_msg>\n<sep>");
+  println("<sep>");
 }
 
 void report_one_latex(Analysis a){
@@ -261,5 +277,15 @@ void main_paper1(){
 }
 
 void main_paper2(){
-   run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",/*"BRSFCalls",*/"BSendMoreMoney","BSendMoreMoneyNotTyped","BSudoku","BTemplate"]);
+   run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",
+   						"BRSFCalls",
+   						"BSendMoreMoney",
+   						//"BSendMoreMoneyNotTyped",
+   						"BSudoku","BTemplate"
+   					 ]);
 }
+
+void main_setmatch(){
+   run_benchmarks(10, ["BSetMatch1","BSetMatch2","BSetMatch3","BSetMatch4"]);
+}
+
