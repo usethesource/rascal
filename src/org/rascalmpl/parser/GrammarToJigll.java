@@ -6,8 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,7 +24,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.jgll.grammar.Grammar;
 import org.jgll.grammar.GrammarBuilder;
 import org.jgll.grammar.condition.Condition;
@@ -34,8 +31,8 @@ import org.jgll.grammar.condition.ConditionType;
 import org.jgll.grammar.condition.ContextFreeCondition;
 import org.jgll.grammar.condition.PositionalCondition;
 import org.jgll.grammar.condition.RegularExpressionCondition;
+import org.jgll.grammar.slot.factory.FirstFollowSetGrammarSlotFactory;
 import org.jgll.grammar.slot.factory.GrammarSlotFactory;
-import org.jgll.grammar.slot.factory.NoFirstFollowSetGrammarSlotFactory;
 import org.jgll.grammar.symbol.CharacterClass;
 import org.jgll.grammar.symbol.Keyword;
 import org.jgll.grammar.symbol.Nonterminal;
@@ -58,7 +55,6 @@ import org.jgll.util.Input;
 import org.jgll.util.Visualization;
 import org.jgll.util.logging.LoggerWrapper;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
@@ -140,10 +136,6 @@ public class GrammarToJigll {
 		addExceptPatterns(builder, except);
 		addPrecedencePatterns(builder, notAllowed);
 
-		builder.rewritePatterns();
-
-//		builder.leftFactorize();
-
 		grammar = builder.build();
 	}
 
@@ -177,7 +169,7 @@ public class GrammarToJigll {
 					   input.getColumnNumber(e.getInputIndex()) - 1), null, null);
 		}
 
-		Visualization.generateSPPFGraph(path.getValue(), sppf, input);
+		Visualization.generateSPPFGraph(path.getValue(), sppf, grammar, input);
 	}
 
 	private Condition getNotFollow(IConstructor symbol) {
@@ -270,7 +262,7 @@ public class GrammarToJigll {
 
 	public GrammarBuilder convert(String name, IConstructor rascalGrammar) {
 
-		GrammarSlotFactory factory = new NoFirstFollowSetGrammarSlotFactory();
+		GrammarSlotFactory factory = new FirstFollowSetGrammarSlotFactory();
 		GrammarBuilder builder = new GrammarBuilder(name, factory);
 		
 		IMap definitions = (IMap) rascalGrammar.get("rules");
