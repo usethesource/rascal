@@ -20,21 +20,21 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgType;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FailReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FilterReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.GreaterEqualInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Guard;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Halt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.HasNext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Init;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Instruction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Jmp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpFalse;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpIndexed;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCont;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarKwp;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Reset;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Shift;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
@@ -457,10 +457,6 @@ public class CodeBlock {
 		return add(new Init(this, arity));
 	}
 	
-	public CodeBlock CREATE(String fuid, int arity) {
-		return add(new Create(this, fuid, arity));
-	}
-	
 	public CodeBlock NEXT0() {
 		return add(new Next0(this));
 	}
@@ -475,14 +471,6 @@ public class CodeBlock {
 	
 	public CodeBlock YIELD1(int arity) {
 		return add(new Yield1(this, arity));
-	}
-	
-	public CodeBlock CREATEDYN(int arity) {
-		return add(new CreateDyn(this, arity));
-	}
-	
-	public CodeBlock HASNEXT() {
-		return add(new HasNext(this));
 	}
 	
 	public CodeBlock PRINTLN(int arity){
@@ -646,6 +634,18 @@ public class CodeBlock {
 	
 	public CodeBlock APPLYDYN(int arity) {
 		return add(new ApplyDyn(this, arity));
+	}
+	
+	public CodeBlock LOADCONT(String fuid) {
+		return add(new LoadCont(this, fuid));
+	}
+	
+	public CodeBlock RESET() {
+		return add(new Reset(this));
+	}
+	
+	public CodeBlock SHIFT() {
+		return add(new Shift(this));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {

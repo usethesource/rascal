@@ -82,14 +82,10 @@ syntax Exp  =
 			| muAll:                    "all" "(" {Exp ","}+ exps ")"
 			
 			// function call and partial function application
-			> muCall: 					Exp!muReturn!muYield!muExhaust exp     "(" {Exp ","}* args ")"
-			> muApply:                  Exp!muReturn!muYield!muExhaust exp "!" "(" {Exp ","}* args ")"
+			> muCall: 					Exp!muReturn!muYield!muExhaust!muApply exp "(" {Exp ","}* args ")"
+			| muApply:                  "fun" Exp!muReturn!muYield!muExhaust exp "(" {Exp ","}* args ")"
 			
-			> muReturn: 				"return"  Exp exp
-			| muReturn:                 "return" "(" Exp exp "," {Exp ","}+ exps ")"
-			> muReturn: 				"return" !>> "("
-			
-			| left preAddition:			Exp lhs "+"   Exp rhs
+			> left preAddition:			Exp lhs "+"   Exp rhs
 			
 			| left preSubtraction:		Exp lhs "-"   Exp rhs
 			| left preDivision:         Exp lhs "/"   Exp rhs
@@ -107,6 +103,10 @@ syntax Exp  =
 			> left preOr:               Exp lhs "||" Exp rhs
 			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] TConst typeName
 			
+			> muReturn: 				"return"  Exp exp
+			| muReturn:                 "return" "(" Exp exp "," {Exp ","}+ exps ")"
+			> muReturn: 				"return" !>> "("
+			
 		 	> preAssignLoc:				Identifier!fvar id "=" Exp ex
 			> preAssign: 				FunNamePart+ funNames Identifier!fvar id "=" Exp exp
 			
@@ -120,16 +120,11 @@ syntax Exp  =
 			
 			| muTypeSwitch:				"typeswitch" "(" Exp exp ")" "{" (TypeCase ";")+ cases "default" ":" Exp default ";" "}"
 			
-			| muCreate:     			"create" "(" Exp fun  ")"
-			| muCreate: 				"create" "(" Exp fun "," {Exp ","}+ args ")"
-			
 			| muInit: 					"init" "(" Exp coro ")"
 			| muInit: 					"init" "(" Exp coro "," {Exp ","}+ args ")"
 			
 			| muNext:   				"next" "(" Exp coro ")"
 			| muNext:   				"next" "(" Exp coro "," {Exp ","}+ args ")"
-			
-			| muHasNext: 				"hasNext" "(" Exp coro ")"	
 			
 			| muYield: 					"yield"  Exp exp
 			| muYield:                  "yield" "(" Exp exp "," {Exp ","}+ exps ")"
@@ -140,7 +135,8 @@ syntax Exp  =
 			| muGuard:                  "guard" Exp exp
 			
 			// delimited continuations (experimental feature)
-			| muCont:                   "cont"
+			| preContLoc:               "cont"
+			| preContVar:               FunNamePart+ funNames "cont"
 			| muReset:                  "reset" "(" Exp fun ")"
 			| muShift:                  "shift" "(" Exp body ")"
 			
@@ -156,7 +152,7 @@ syntax TypeCase = muTypeCase: 			"case" TConst id ":" Exp exp ;
 keyword Keywords = 
               "module" | "declares" | "function" | "coroutine" | "return" | 
 			  "prim" | "muprim" | "if" | "else" |  "while" |
-              "create" | "init" | "next" | "yield" | "exhaust" | "hasNext" |
+              "create" | "init" | "next" | "yield" | "exhaust" |
               "guard" |
               "type" |
               "ref" | "deref" |
