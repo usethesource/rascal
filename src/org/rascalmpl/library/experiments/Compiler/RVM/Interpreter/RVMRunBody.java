@@ -9,33 +9,36 @@ public class RVMRunBody extends RVMRun implements IDynamicRun {
 
 	public RVMRunBody(IValueFactory vf, IEvaluatorContext ctx, boolean debug, boolean profile) {
 		super(vf, ctx, debug, profile);
-		// TODO Auto-generated constructor stub
 	}
+
 	void nop() {
-		
+
 	}
-	void POP( ) {
-		nop() ;
-		sp-- ;
-		nop() ;
+
+	void POP() {
+		nop();
+		sp--;
+		nop();
 	}
+
 	public void insnJMPTRUE(int target) {
-		nop() ;
+		nop();
 		sp--;
 		if (stack[sp].equals(TRUE) || stack[sp].equals(Rascal_TRUE)) {
 			pc = target;
 		}
-		nop() ;
+		nop();
 	}
 
 	public void insnJMPFALSE(int target) {
-		nop() ;
+		nop();
 		sp--;
 		if (stack[sp].equals(FALSE) || stack[sp].equals(Rascal_FALSE)) {
 			pc = target;
 		}
-		nop() ;
+		nop();
 	}
+
 	public void insnRETURN0() {
 		globalReturnValue = null;
 
@@ -81,24 +84,25 @@ public class RVMRunBody extends RVMRun implements IDynamicRun {
 	public Object fret() {
 		return NONE;
 	}
+
 	public Object failreturn() {
-		nop( );
-		return FAILRETURN ;
+		nop();
+		return FAILRETURN;
 	}
-	
+
 	public Object functionTemplate() {
 		nop();
-		IValue v = null  ;
+		IValue v = null;
 		return v;
 	}
-	
+
 	@Override
 	public Object dynRun(String fname, IValue[] args) {
 		// TODO BUILD Stack frame.
-		int n = functionMap.get(fname) ;
-		
+		int n = functionMap.get(fname);
+
 		Function func = functionStore.get(n);
-		
+
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
 		cf = root;
 
@@ -106,17 +110,47 @@ public class RVMRunBody extends RVMRun implements IDynamicRun {
 		for (int i = 0; i < args.length; i++) {
 			cf.stack[i] = args[i];
 		}
-		
+
 		switch (n) {
-		case 0 :
-			return functionTemplate() ;
-		case 1 :
-			return fret() ;
-		case 2 :
-			return fret() ;
-		case 3 :
-			return fret() ;
+		case 0:
+			return functionTemplate();
+		case 1:
+			return fret();
+		case 2:
+			return fret();
+		case 3:
+			return fret();
 		}
-		return vf.bool(false) ;
+		return vf.bool(false);
+	}
+
+	public Object return1Helper() {
+		Object rval = null;
+		if (cf.isCoroutine) {
+			rval = Rascal_TRUE;
+			int[] refs = cf.function.refs;
+			if (arity != refs.length) {
+				throw new RuntimeException("Coroutine " + cf.function.name + ": arity of return (" + arity + ") unequal to number of reference parameters (" + refs.length + ")");
+			}
+			for (int i = 0; i < arity; i++) {
+				Reference ref = (Reference) stack[refs[arity - 1 - i]];
+				ref.stack[ref.pos] = stack[--sp];
+			}
+		} else {
+			rval = stack[sp - 1];
+		}
+		return rval;
+	}
+
+	public Object doreturn1() {
+		Object rval = return1Helper();
+		cf = cf.previousCallFrame;
+		if (cf == null) {
+			return rval; // TODO rval;
+		}
+		stack = cf.stack;
+		sp = cf.sp;
+		stack[sp++] = rval;
+		return NONE;
 	}
 }

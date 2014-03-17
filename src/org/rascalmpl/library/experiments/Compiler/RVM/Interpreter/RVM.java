@@ -1,9 +1,12 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.print.DocFlavor.URL;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -18,7 +21,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
-public class RVM {
+public class RVM extends ClassLoader {
 
 	public final IValueFactory vf;
 
@@ -215,19 +218,22 @@ public class RVM {
 		// Finalize the instruction generation of all functions, if needed
 		if (!finalized) {
 			finalized = true;
+			codeEmittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter", "Running");
+
 			for (Function f : functionStore) {
 				f.finalize(codeEmittor, functionMap, constructorMap, resolver, listing);
 			}
 			// All functions are created
 
-			codeEmittor.emitDynPrelude() ;
-			codeEmittor.emitDynDispatch(functionMap.size()) ;
-			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
-					String fname = e.getKey();
-					codeEmittor.emitDynCaLL(fname,e.getValue()) ;
-			}
-			codeEmittor.emitDynFinalize() ;
+			codeEmittor.emitDynPrelude();
+			codeEmittor.emitDynDispatch(functionMap.size());
 			
+			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
+				String fname = e.getKey();
+				codeEmittor.emitDynCaLL(fname, e.getValue());
+			}
+			codeEmittor.emitDynFinalize();
+
 			int oid = 0;
 			for (OverloadedFunction of : overloadedStore) {
 				of.finalize(functionMap, oid++);
@@ -295,15 +301,49 @@ public class RVM {
 
 	public IValue executeProgram(String uid_main, IValue[] args) {
 		boolean profile = false;
-
+		byte[] rvmGenCode = null;
 		if (!finalized) {
 			Generator codeEmittor = new Generator();
 			runner = new RVMRun(vf, ctx, debug, profile);
-			codeEmittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter", "Running");
 			finalize(codeEmittor);
 			runner.inject(functionStore, overloadedStore, constructorStore, typeStore);
 			codeEmittor.dump();
+			rvmGenCode = codeEmittor.finalizeCode();
+
+			// Experimental
+
+			// ClassLoader cl = RVMRun.class.getClassLoader() ;
+
+			// try {
+			// Class<?> generatedClassV2 = cl.loadClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running") ;
+			// } catch (ClassNotFoundException e1) {
+			// e1.printStackTrace();
+			// }
+			ClassLoader cl = RVM.class.getClassLoader() ;
+			Class<?> generatedClassV2 = null;
+			try {
+				generatedClassV2 = cl.loadClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running");
+			} catch (ClassNotFoundException e1) {
+				e1.printStackTrace();
+			}
+			//java.net.URL u  = cl.getResource("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Runner.class") ;
+			try {	
+				Object doOIt;
+				// System.out.println(u); 
+				Constructor<?>[] cons = generatedClassV2.getConstructors();
+
+				doOIt = cons[0].newInstance(vf, ctx, debug, profile);
+
+				((RVMRun) doOIt).inject(functionStore, overloadedStore, constructorStore, typeStore);
+
+				System.out.println("Starting 	to execute!");
+				//((IDynamicRun) doOIt).dynRun(uid_main, args);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
+		// End
 
 		Function main_function = functionStore.get(functionMap.get(uid_main));
 

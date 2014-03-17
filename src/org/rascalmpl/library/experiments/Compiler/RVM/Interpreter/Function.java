@@ -45,19 +45,6 @@ public class Function {
 		this.continuationPoints = continuationPoint;
 	}
 
-	private String nameMangle(String name) {
-		String n = name.replace(":", "$c");
-		n = n.replace("/", "$s");
-		n = n.replace("(", "$l");
-		n = n.replace(")", "$r");
-		n = n.replace(";", "$e");
-		return n.replace("#", "$h");
-	}
-
-	private String nameDeMangle(String name) {
-		return name;
-	}
-
 	public void finalize(Generator codeEmittor, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 
 		codeEmittor.emitMethod(NameMangler.mangle(name));
