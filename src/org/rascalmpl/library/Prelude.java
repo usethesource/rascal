@@ -91,6 +91,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.ICallableValue;
@@ -2241,18 +2242,22 @@ public class Prelude {
 	}
 	
 	public IString saveParser(ISourceLocation outFile, IEvaluatorContext ctx) {
-		
-		IGTD<IConstructor, IConstructor, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), URIUtil.invalidURI(), false);
-		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, IConstructor, ISourceLocation>>) parser.getClass();
-		
-		
-		try(OutputStream outStream = ctx.getResolverRegistry().getOutputStream(outFile.getURI(), false)) {
-			ctx.getEvaluator().getParserGenerator().saveToJar(parserClass, outStream);
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(ctx.getValueFactory().string("Unable to save to output file '" + outFile.getURI() + "'"), ctx.getCurrentAST(), ctx.getStackTrace());
+		if (ctx.getConfiguration().getIguana()) {
+			 // TODO
+			throw new NotYetImplemented("iguana saving is not yet implemented");
 		}
-		return ctx.getValueFactory().string(parserClass.getName());
+		else {
+			IGTD<IConstructor, IConstructor, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), URIUtil.invalidURI(), false);
+			Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, IConstructor, ISourceLocation>>) parser.getClass();
 
+
+			try(OutputStream outStream = ctx.getResolverRegistry().getOutputStream(outFile.getURI(), false)) {
+				ctx.getEvaluator().getParserGenerator().saveToJar(parserClass, outStream);
+			} catch (IOException e) {
+				throw RuntimeExceptionFactory.io(ctx.getValueFactory().string("Unable to save to output file '" + outFile.getURI() + "'"), ctx.getCurrentAST(), ctx.getStackTrace());
+			}
+			return ctx.getValueFactory().string(parserClass.getName());
+		}
 	}
 	public IString unparse(IConstructor tree) {
 		return values.string(TreeAdapter.yield(tree));

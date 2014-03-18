@@ -51,6 +51,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.jgll.grammar.Grammar;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
@@ -723,25 +724,31 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	@Override	
 	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input){
-		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(location);
-		String name = "";
-		if (SymbolAdapter.isStartSort(startSort)) {
-			name = "start__";
-			startSort = SymbolAdapter.getStart(startSort);
+		if (getConfiguration().getIguana()) {
+			Grammar gr = org.rascalmpl.semantics.dynamic.Import.getIguanaParser(this, (ModuleEnvironment) getCurrentEnvt().getRoot(), location, false);
+			return new Parser(getClassLoaders()).parseObject(gr, SymbolAdapter.toString(startSort), input, location);
 		}
-		
-		if (SymbolAdapter.isSort(startSort) || SymbolAdapter.isLex(startSort) || SymbolAdapter.isLayouts(startSort)) {
-			name += SymbolAdapter.getName(startSort);
-		}
+		else {
+			IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(location);
+			String name = "";
+			if (SymbolAdapter.isStartSort(startSort)) {
+				name = "start__";
+				startSort = SymbolAdapter.getStart(startSort);
+			}
 
-		int[][] lookaheads = new int[robust.size()][];
-		IConstructor[] robustProds = new IConstructor[robust.size()];
-		initializeRecovery(robust, lookaheads, robustProds);
-		
-		__setInterrupt(false);
-		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(this);
-		
-		return (IConstructor) parser.parse(name, location, input, exec, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory(), robustProds.length == 0 ? null : new Recoverer(robustProds, lookaheads));
+			if (SymbolAdapter.isSort(startSort) || SymbolAdapter.isLex(startSort) || SymbolAdapter.isLayouts(startSort)) {
+				name += SymbolAdapter.getName(startSort);
+			}
+
+			int[][] lookaheads = new int[robust.size()][];
+			IConstructor[] robustProds = new IConstructor[robust.size()];
+			initializeRecovery(robust, lookaheads, robustProds);
+
+			__setInterrupt(false);
+			IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(this);
+
+			return (IConstructor) parser.parse(name, location, input, exec, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory(), robustProds.length == 0 ? null : new Recoverer(robustProds, lookaheads));
+		}
 	}
 	
 	/**

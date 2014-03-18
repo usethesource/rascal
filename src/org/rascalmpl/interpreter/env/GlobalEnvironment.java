@@ -28,6 +28,8 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.jgll.grammar.Grammar;
+import org.jgll.parser.GLLParser;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -60,8 +62,9 @@ public class GlobalEnvironment {
 	/** Keeping track of generated parsers */
 	private final HashMap<String,ParserTuple> objectParsersForModules = new HashMap<String,ParserTuple>();
 	private final HashMap<String,ParserTuple> rascalParsersForModules = new HashMap<String,ParserTuple>();
-
-  private boolean bootstrapper;
+    private final Map<String,IguanaParserTuple> iguanaGrammarForModules  = new HashMap<>();
+    
+    private boolean bootstrapper;
 	
 	public void clear() {
 		moduleEnvironment.clear();
@@ -70,6 +73,7 @@ public class GlobalEnvironment {
 		sourceResolvers.clear();
 		objectParsersForModules.clear();
 		rascalParsersForModules.clear();
+		iguanaGrammarForModules.clear();
 	}
 	
 	/**
@@ -206,6 +210,16 @@ public class GlobalEnvironment {
 		return getParser(rascalParsersForModules, module, productions);
 	}
 	
+	public Grammar getIguanaParser(String module, IMap productions) {
+		IguanaParserTuple parser = iguanaGrammarForModules.get(module);
+		if(parser != null && parser.getProductions().isEqual(productions)) {
+			return parser.getParser();
+		}
+		
+		return null;
+	}
+	
+	
 	/**
 	 * Retrieves a parser for a module.
 	 * 
@@ -227,6 +241,10 @@ public class GlobalEnvironment {
 	
 	public void storeRascalParser(String module, IMap productions, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
 		storeParser(rascalParsersForModules, module, productions, parser);
+	}
+	
+	public void storeIguanaParser(String module, IMap productions, Grammar grammar ) {
+		iguanaGrammarForModules.put(module, new IguanaParserTuple(productions, grammar));
 	}
 	
 	private static void storeParser(HashMap<String, ParserTuple> store, String module, IMap productions, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
@@ -284,6 +302,24 @@ public class GlobalEnvironment {
 		}
 		
 		public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getParser() {
+			return parser;
+		}
+	}
+	
+	private static class IguanaParserTuple {
+		private final IMap production;
+		private final Grammar parser;
+
+		public IguanaParserTuple(IMap productions, Grammar parser) {
+			this.production = productions;
+			this.parser = parser;
+		}
+		
+		public IMap getProductions() {
+			return production;
+		}
+		
+		public Grammar getParser() {
 			return parser;
 		}
 	}
