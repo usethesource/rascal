@@ -55,6 +55,7 @@ import org.jgll.regex.Sequence;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
@@ -102,6 +103,10 @@ public class IguanaParserGenerator {
 		finally {
 			monitor.endJob(true);
 		}
+	}
+	
+	public String getNonterminalName(IConstructor symbolTree) {
+		return SymbolAdapter.toString((IConstructor) evaluator.call(new NullRascalMonitor(), "sym2symbol", symbolTree));
 	}
 	
 	private IConstructor getPreprocessedGrammar(IRascalMonitor monitor, String main, IMap definition) {

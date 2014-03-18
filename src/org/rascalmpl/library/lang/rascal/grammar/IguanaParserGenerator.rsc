@@ -11,7 +11,6 @@ import lang::rascal::grammar::definition::Keywords;
 import lang::rascal::grammar::ConcreteSyntax;
 
 public Grammar preprocess(Grammar gr) {
-  gr = grammar({nont.symbol}, nont.definitions, ());
   gr = addHoles(gr);
   gr = literals(gr);
   gr = expandKeywords(gr);

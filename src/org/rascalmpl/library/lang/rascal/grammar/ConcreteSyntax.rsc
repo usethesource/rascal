@@ -24,7 +24,7 @@ import lang::rascal::grammar::definition::Regular;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::format::Escape;
 
-public Grammar addHoles(Grammar object) = compose(object, grammar({}, holes(object), ()));
+public Grammar addHoles(Grammar object) = compose(object, grammar({}, { *holes(object),  regular(iter(\char-class([range(48,57)])))}, ()));
 
 @doc{
   For every non-terminal in the grammar we create a rule that can recognize its hole syntax. Each hole
@@ -43,7 +43,7 @@ public Grammar addHoles(Grammar object) = compose(object, grammar({}, holes(obje
 }
 public set[Production] holes(Grammar object) {
   // syntax N = @holeType=<N> [-1] "N" ":" [0-9]+ [-1];
-  return  { regular(iter(\char-class([range(48,57)]))), 
+  return  { 
             prod(label("$MetaHole",getTargetSymbol(nont)),
                  [ \char-class([range(0,0)]),
                    lit("<denormalize(nont)>"),lit(":"),iter(\char-class([range(48,57)])),
