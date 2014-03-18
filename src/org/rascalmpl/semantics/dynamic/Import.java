@@ -604,7 +604,7 @@ public abstract class Import {
     	Grammar gr = env.getBootstrap() ? parser.getRascalGrammar() : getIguanaParser(eval, env, TreeAdapter.getLocation(tree).getURI(), false);
 
     	try {
-    		String nt = SymbolAdapter.toString(symTree, true);
+    		String nt = pg.getNonterminalName(symTree);
     		char[] input = replaceAntiQuotesByHoles(eval, lit, antiquotes);
     		IConstructor fragment = (IConstructor) parser.parseObject(gr, nt, input, uri);
     		fragment = replaceHolesByAntiQuotes(eval, fragment, antiquotes);
