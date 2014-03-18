@@ -364,7 +364,7 @@ public class RVM extends ClassLoader {
 		
 		Object o2 = null ;
 		if ( uid_main.contains("Simple/main")) {
-		//	o2 = runner.dynRun(uid_main, args) ;
+			o2 = runner.dynRun(uid_main, args) ;
 		}
 		
 		Object o = runner.executeProgram(root, cf);
