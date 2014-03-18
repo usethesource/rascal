@@ -98,11 +98,6 @@ public class RVM extends ClassLoader {
 
 		this.types = new Types(this.vf);
 
-		// TRUE = true;
-		// FALSE = false;
-		// Rascal_TRUE = vf.bool(true);
-		// Rascal_FALSE = vf.bool(false);
-		// NONE = vf.string("$nothing$");
 		functionStore = new ArrayList<Function>();
 		constructorStore = new ArrayList<Type>();
 
@@ -112,11 +107,6 @@ public class RVM extends ClassLoader {
 		resolver = new HashMap<String, Integer>();
 		overloadedStore = new ArrayList<OverloadedFunction>();
 
-		// moduleVariables = new HashMap<IValue, IValue>();
-
-		// MuPrimitive.init(vf, stdout, profile);
-		// RascalPrimitive.init(vf, this, profile);
-		// Opcode.init(stdout, profile);
 	}
 
 	public RVM(IValueFactory vf) {
@@ -344,9 +334,9 @@ public class RVM extends ClassLoader {
 
 				Constructor<?>[] cons = generatedClassV2.getConstructors();
 
-				//runner = (RVMRun) cons[0].newInstance(vf, ctx, debug, profile);
-				runner = new RVMRun(vf, ctx, profile, profile) ;
-				runner.inject(functionStore, overloadedStore, constructorStore, typeStore,functionMap);
+				runner = (RVMRun) cons[0].newInstance(vf, ctx, debug, profile);
+				//runner = new RVMRun(vf, ctx, profile, profile) ;
+				runner.inject(functionStore, overloadedStore, constructorStore, typeStore, functionMap);
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -372,12 +362,13 @@ public class RVM extends ClassLoader {
 										// main_function as a IList object
 		cf.stack[1] = vf.mapWriter().done();
 		
-//		Object o2 = null ;
-//		if ( uid_main.contains("Simple/main")) {
-//			o2 = runner.dynRun(uid_main, args) ;
-//		}
+		Object o2 = null ;
+		if ( uid_main.contains("Simple/main")) {
+		//	o2 = runner.dynRun(uid_main, args) ;
+		}
 		
 		Object o = runner.executeProgram(root, cf);
+		//Object o = o2 ;
 		if (o != null && o instanceof Thrown) {
 			throw (Thrown) o;
 		}

@@ -57,9 +57,9 @@ public class Function {
 		}
 		this.constantStore = codeblock.getConstants();
 		this.typeConstantStore = codeblock.getTypeConstants();
+		
 		codeEmittor.closeMethod();
-
-		codeEmittor.enableOutput(false);
+        codeEmittor.enableOutput(false);
 		System.out.println("}");
 	}
 
