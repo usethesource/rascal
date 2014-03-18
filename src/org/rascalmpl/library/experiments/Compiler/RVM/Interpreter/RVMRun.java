@@ -548,7 +548,7 @@ public class RVMRun {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADCON:
-					insnLOADCON(cf, CodeBlock.fetchArg1(instruction));
+					insnLOADCON(CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADLOCREF:
@@ -604,11 +604,11 @@ public class RVMRun {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOAD_NESTED_FUN:
-					insnLOAD_NESTED_FUN(cf, CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					insnLOAD_NESTED_FUN(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADOFUN:
-					insnLOADOFUN(cf, CodeBlock.fetchArg1(instruction));
+					insnLOADOFUN(CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADCONSTR:
@@ -616,28 +616,28 @@ public class RVMRun {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADVAR:
-					insnLOADVAR(cf, CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), CodeBlock.isMaxArg2(CodeBlock.fetchArg2(instruction)));
+					insnLOADVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), CodeBlock.isMaxArg2(CodeBlock.fetchArg2(instruction)));
 					if ( postOp == Opcode.POSTOP_CHECKUNDEF )  break INSTRUCTION ;
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADVARREF:
-					insnLOADVARREF(cf, CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), CodeBlock.isMaxArg2(CodeBlock.fetchArg2(instruction)));
+					insnLOADVARREF(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), CodeBlock.isMaxArg2(CodeBlock.fetchArg2(instruction)));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADVARDEREF:
-					insnLOADVARDEREF(cf, CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					insnLOADVARDEREF(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_STOREVAR:
-					insnSTOREVAR(cf, CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), CodeBlock.isMaxArg2(CodeBlock.fetchArg2(instruction)));
+					insnSTOREVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), CodeBlock.isMaxArg2(CodeBlock.fetchArg2(instruction)));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_UNWRAPTHROWNVAR:
-					insnUNWRAPTHROWNVAR(cf, CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), CodeBlock.isMaxArg2(CodeBlock.fetchArg2(instruction)));
+					insnUNWRAPTHROWNVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), CodeBlock.isMaxArg2(CodeBlock.fetchArg2(instruction)));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_STOREVARDEREF:
-					insnSTOREVARDEREF(cf, CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					insnSTOREVARDEREF(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
 	
 				case Opcode.OP_CALLCONSTR:
@@ -1187,7 +1187,7 @@ public class RVMRun {
 		stack[sp++] = i;
 	}
 
-	public void insnLOADCON(Frame cf, int arg1) {
+	public void insnLOADCON(int arg1) {
 		stack[sp++] = cf.function.constantStore[arg1];
 	}
 
@@ -1273,12 +1273,12 @@ public class RVMRun {
 		stack[sp++] = new FunctionInstance(functionStore.get(fun), root, this);
 	}
 
-	public void insnLOAD_NESTED_FUN(Frame cf, int fun, int scopeIn) {
+	public void insnLOAD_NESTED_FUN(int fun, int scopeIn) {
 		// Loads nested functions and closures (anonymous nested functions)
 		stack[sp++] = FunctionInstance.computeFunctionInstance(functionStore.get(fun), cf, scopeIn, this);
 	}
 
-	public void insnLOADOFUN(Frame cf, int ofun) {
+	public void insnLOADOFUN(int ofun) {
 		OverloadedFunction of = overloadedStore.get(ofun);
 		stack[sp++] = of.scopeIn == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this) : OverloadedFunctionInstance
 				.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.scopeIn, functionStore, constructorStore, this);
@@ -1289,7 +1289,7 @@ public class RVMRun {
 		stack[sp++] = constructor;
 	}
 
-	public void insnLOADVAR(Frame cf, int scopeid, int pos, boolean maxArg2) {
+	public void insnLOADVAR(int scopeid, int pos, boolean maxArg2) {
 		postOp = 0 ;
 		Object rval;
 
@@ -1317,7 +1317,7 @@ public class RVMRun {
 		throw new RuntimeException("LOADVAR cannot find matching scope: " + scopeid);
 	}
 
-	public void insnLOADVARREF(Frame cf, int scopeid, int pos, boolean maxarg2) {
+	public void insnLOADVARREF(int scopeid, int pos, boolean maxarg2) {
 		Object rval;
 		if (maxarg2) {
 			rval = moduleVariables.get(cf.function.constantStore[scopeid]);
@@ -1335,7 +1335,7 @@ public class RVMRun {
 		throw new RuntimeException("LOADVAR or LOADVARREF cannot find matching scope: " + scopeid);
 	}
 
-	public void insnLOADVARDEREF(Frame cf, int scopeid, int pos) {
+	public void insnLOADVARDEREF(int scopeid, int pos) {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
 				Reference ref = (Reference) fr.stack[pos];
@@ -1346,7 +1346,7 @@ public class RVMRun {
 		throw new RuntimeException("LOADVARDEREF cannot find matching scope: " + scopeid);
 	}
 
-	public void insnSTOREVAR(Frame cf, int scopeid, int pos, boolean maxarg2) {
+	public void insnSTOREVAR(int scopeid, int pos, boolean maxarg2) {
 		if (CodeBlock.isMaxArg2(pos)) {
 			IValue mvar = cf.function.constantStore[scopeid];
 			moduleVariables.put(mvar, (IValue) stack[sp - 1]);
@@ -1363,7 +1363,7 @@ public class RVMRun {
 		throw new RuntimeException("STOREVAR cannot find matching scope: " + scopeid);
 	}
 
-	public void insnUNWRAPTHROWNVAR(Frame cf, int scopeid, int pos, boolean maxarg2) {
+	public void insnUNWRAPTHROWNVAR(int scopeid, int pos, boolean maxarg2) {
 		if (maxarg2) {
 			IValue mvar = cf.function.constantStore[scopeid];
 			moduleVariables.put(mvar, (IValue) stack[sp - 1]);
@@ -1380,7 +1380,7 @@ public class RVMRun {
 		throw new RuntimeException("UNWRAPTHROWNVAR cannot find matching scope: " + scopeid);
 	}
 
-	public void insnSTOREVARDEREF(Frame cf, int scopeid, int pos) {
+	public void insnSTOREVARDEREF(int scopeid, int pos) {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
 				Reference ref = (Reference) fr.stack[pos];

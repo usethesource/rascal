@@ -96,7 +96,6 @@ public class RVMRunBody extends RVMRun {
 		return v;
 	}
 
-
 	public Object return1Helper() {
 		Object rval = null;
 		if (cf.isCoroutine) {
@@ -131,19 +130,30 @@ public class RVMRunBody extends RVMRun {
 	public Object dynRun(String fname, IValue[] args) {
 
 		System.out.println(fname);
-		
+
 		int n = functionMap.get(fname);
-		
+
 		Function func = functionStore.get(n);
-		
+
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
 		cf = root;
-		
+
 		// Pass the program arguments to main
 		for (int i = 0; i < args.length; i++) {
 			cf.stack[i] = args[i];
 		}
+
+		nop();
+
+		this.stack = cf.stack;
 		
+		cf.stack[0] = vf.list(args); // pass the program argument to
+		cf.stack[1] = vf.mapWriter().done();
+
+		cf.sp = 2;
+		this.sp = 2;
+
+		nop();
 		switch (n) {
 		case 0:
 			return functionTemplate();
