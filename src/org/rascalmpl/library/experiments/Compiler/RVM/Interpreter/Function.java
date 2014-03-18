@@ -47,6 +47,7 @@ public class Function {
 
 	public void finalize(Generator codeEmittor, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 
+		if ( name.contains("main")) codeEmittor.enableOutput(true); 
 		codeEmittor.emitMethod(NameMangler.mangle(name));
 
 		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing);
@@ -58,6 +59,7 @@ public class Function {
 		this.typeConstantStore = codeblock.getTypeConstants();
 		codeEmittor.closeMethod();
 
+		codeEmittor.enableOutput(false);
 		System.out.println("}");
 	}
 

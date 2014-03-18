@@ -2,6 +2,8 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -227,7 +229,7 @@ public class RVM extends ClassLoader {
 
 			codeEmittor.emitDynPrelude();
 			codeEmittor.emitDynDispatch(functionMap.size());
-			
+
 			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
 				String fname = e.getKey();
 				codeEmittor.emitDynCaLL(fname, e.getValue());
@@ -302,47 +304,55 @@ public class RVM extends ClassLoader {
 	public IValue executeProgram(String uid_main, IValue[] args) {
 		boolean profile = false;
 		byte[] rvmGenCode = null;
+
 		if (!finalized) {
-			Generator codeEmittor = new Generator();
-			runner = new RVMRun(vf, ctx, debug, profile);
-			finalize(codeEmittor);
-			runner.inject(functionStore, overloadedStore, constructorStore, typeStore);
-			codeEmittor.dump();
-			rvmGenCode = codeEmittor.finalizeCode();
-
-			// Experimental
-
-			// ClassLoader cl = RVMRun.class.getClassLoader() ;
-
-			// try {
-			// Class<?> generatedClassV2 = cl.loadClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running") ;
-			// } catch (ClassNotFoundException e1) {
-			// e1.printStackTrace();
-			// }
-			ClassLoader cl = RVM.class.getClassLoader() ;
-			Class<?> generatedClassV2 = null;
 			try {
+				// runner = new RVMRun(vf, ctx, debug, profile);
+				// runner.inject(functionStore, overloadedStore, constructorStore, typeStore);
+				String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter" ;
+				String className = "Running" ;
+				
+				Generator codeEmittor = new Generator(packageName,className);
+
+				finalize(codeEmittor);
+
+				codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
+
+				rvmGenCode = codeEmittor.finalizeCode();
+
+				// Experimental
+
+				ClassLoader cl = RVM.class.getClassLoader();
+				Class<?> generatedClassV2 = null;
+				
+				// Class<?> c = cl.getClass();
+				// Method def = c.getDeclaredMethod("defineClass", new Class[] { String.class, byte[].class, int.class, int.class });
+				// def.setAccessible(true);				
+				// Method[] allMethods = c.getDeclaredMethods();
+				// for (Method m : allMethods) {
+				// String mname = m.getName();
+				// if ( mname.equals("defineClass") ) {
+				// m.setAccessible(true);
+				// System.out.println(mname + " modified");
+				//
+				// Object[] argsv2 = new Object[] { "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running", rvmGenCode , null, null};
+				// generatedClassV2 = (Class<?>) m.invoke(cl, argsv2);
+				// }
+				// }
+
 				generatedClassV2 = cl.loadClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running");
-			} catch (ClassNotFoundException e1) {
-				e1.printStackTrace();
-			}
-			//java.net.URL u  = cl.getResource("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Runner.class") ;
-			try {	
-				Object doOIt;
-				// System.out.println(u); 
+
 				Constructor<?>[] cons = generatedClassV2.getConstructors();
 
-				doOIt = cons[0].newInstance(vf, ctx, debug, profile);
-
-				((RVMRun) doOIt).inject(functionStore, overloadedStore, constructorStore, typeStore);
-
-				System.out.println("Starting 	to execute!");
-				//((IDynamicRun) doOIt).dynRun(uid_main, args);
+				//runner = (RVMRun) cons[0].newInstance(vf, ctx, debug, profile);
+				runner = new RVMRun(vf, ctx, profile, profile) ;
+				runner.inject(functionStore, overloadedStore, constructorStore, typeStore,functionMap);
 
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+
 		// End
 
 		Function main_function = functionStore.get(functionMap.get(uid_main));
@@ -361,6 +371,12 @@ public class RVM extends ClassLoader {
 		cf.stack[0] = vf.list(args); // pass the program argument to
 										// main_function as a IList object
 		cf.stack[1] = vf.mapWriter().done();
+		
+//		Object o2 = null ;
+//		if ( uid_main.contains("Simple/main")) {
+//			o2 = runner.dynRun(uid_main, args) ;
+//		}
+		
 		Object o = runner.executeProgram(root, cf);
 		if (o != null && o instanceof Thrown) {
 			throw (Thrown) o;

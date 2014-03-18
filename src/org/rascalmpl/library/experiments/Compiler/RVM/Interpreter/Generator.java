@@ -11,17 +11,22 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 public class Generator implements Opcodes {
+	byte[] endCode = null;
 	private ClassWriter cw = null;
 	private MethodVisitor mv = null;
 	private String className = null;
 	private String packageName = null;
 	private String fullClassName = null;
 	private String[] funcArray = null;
-	private boolean emit = false;
+	private boolean emit = true;
 	private HashMap<String, Label> labelMap = new HashMap<String, Label>();
 
-	public Generator() {
+	public Generator(String packageName2, String className2) {
 
+	}
+
+	void enableOutput(boolean flag) {
+		emit = flag;
 	}
 
 	public void emitClass(String pName, String cName) {
@@ -31,8 +36,9 @@ public class Generator implements Opcodes {
 		this.fullClassName = "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running";
 		cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 
-		cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun",
-				new String[] { "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/IDynamicRun" });
+		// cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun",
+		// new String[] { "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/IDynamicRun" });
+		cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", null);
 
 		// Main constructor
 		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Lorg/eclipse/imp/pdb/facts/IValueFactory;Lorg/rascalmpl/interpreter/IEvaluatorContext;ZZ)V", null, null);
@@ -70,7 +76,6 @@ public class Generator implements Opcodes {
 	public void closeMethod() {
 		if (!emit)
 			return;
-		// mv.visitInsn(RETURN); // TODO remove to keep decompiler happy.
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 	}
@@ -124,7 +129,7 @@ public class Generator implements Opcodes {
 		mv.visitJumpInsn(IFEQ, l1);
 
 		mv.visitLabel(l0);
-		mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+		// mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 		mv.visitJumpInsn(GOTO, lb);
 		mv.visitLabel(l1);
 	}
@@ -167,7 +172,7 @@ public class Generator implements Opcodes {
 		mv.visitJumpInsn(IFEQ, l1);
 
 		mv.visitLabel(l0);
-		mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+		// mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 		mv.visitJumpInsn(GOTO, lb);
 		mv.visitLabel(l1);
 	}
@@ -194,6 +199,7 @@ public class Generator implements Opcodes {
 		mv.visitLabel(lb);
 	}
 
+	// A call to a RVM instruction not CALL or OCALL
 	public void emitCall(String fname) {
 		if (!emit)
 			return;
@@ -205,7 +211,12 @@ public class Generator implements Opcodes {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, 0); // Load this on stack.
-		mv.visitIntInsn(BIPUSH, arg1);
+
+		if (arg1 >= -128 && arg1 <= 127)
+			mv.visitIntInsn(BIPUSH, arg1);
+		else
+			mv.visitIntInsn(SIPUSH, arg1);
+
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(I)V");
 	}
 
@@ -213,14 +224,23 @@ public class Generator implements Opcodes {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, 0); // Load this on stack.
-		mv.visitIntInsn(BIPUSH, arg1);
-		mv.visitIntInsn(BIPUSH, arg2);
+		if (arg1 >= -128 && arg1 <= 127)
+			mv.visitIntInsn(BIPUSH, arg1);
+		else
+			mv.visitIntInsn(SIPUSH, arg1);
+		if (arg2 >= -128 && arg2 <= 127)
+			mv.visitIntInsn(BIPUSH, arg2);
+		else
+			mv.visitIntInsn(SIPUSH, arg2);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(II)V");
 	}
 
 	byte[] finalizeCode() {
-		cw.visitEnd();
-		return cw.toByteArray();
+		if (endCode == null) {
+			cw.visitEnd();
+			endCode = cw.toByteArray();
+		}
+		return endCode;
 	}
 
 	public void emitReturn0() {
@@ -284,18 +304,17 @@ public class Generator implements Opcodes {
 		mv.visitInsn(ARETURN);
 	}
 
-	public void dump() {
-		byte[] result = finalizeCode();
-
+	public void dump(String loc) {
+		if (endCode == null)
+			finalizeCode();
 		try {
-			FileOutputStream fos = new FileOutputStream("/Users/ferryrietveld/Running.class");
-			fos.write(result);
+			FileOutputStream fos = new FileOutputStream(loc);
+			fos.write(endCode);
 			fos.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
 
 	public void emitDynPrelude() {
 		mv = cw.visitMethod(ACC_PUBLIC, "dynRun", "(Ljava/lang/String;[Lorg/eclipse/imp/pdb/facts/IValue;)Ljava/lang/Object;", null, null);
@@ -326,7 +345,7 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ASTORE, 5);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 5);
-		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running", "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitInsn(ICONST_0);
 		mv.visitVarInsn(ISTORE, 6);
 		Label l0 = new Label();
@@ -350,7 +369,7 @@ public class Generator implements Opcodes {
 	}
 
 	public void emitDynDispatch(int numberOfFunctions) {
-		System.out.println("DYNCALL CASE count :" + numberOfFunctions);
+		// System.out.println("DYNCALL CASE count :" + numberOfFunctions);
 		funcArray = new String[numberOfFunctions];
 	}
 
@@ -360,12 +379,6 @@ public class Generator implements Opcodes {
 
 	public void emitDynFinalize() {
 		int nrFuncs = funcArray.length;
-		// nrFuncs = 4;
-		//
-		// for (int i = 0; i < nrFuncs ; i++) {
-		// System.out.println("DUNCALL :" + i + " " + funcArray[i]);
-		// }
-
 		Label[] caseLabels = new Label[nrFuncs];
 
 		for (int i = 0; i < nrFuncs; i++) {
@@ -373,16 +386,16 @@ public class Generator implements Opcodes {
 		}
 		Label defaultlabel = new Label();
 
-		// // Case switch on int at loc 3 (java stack)
-		// mv.visitVarInsn(ILOAD, 3);
-		// mv.visitTableSwitchInsn(0, nrFuncs - 1, defaultlabel, caseLabels);
-		// for (int i = 0; i < nrFuncs; i++) {
-		// mv.visitLabel(caseLabels[i]);
-		// mv.visitVarInsn(ALOAD, 0);
-		// mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, NameMangler.mangle(funcArray[i]), "()Ljava/lang/Object;");
-		// mv.visitInsn(ARETURN);
-		// }
-		// mv.visitLabel(defaultlabel);
+		// Case switch on int at loc 3 (java stack)
+		mv.visitVarInsn(ILOAD, 3);
+		mv.visitTableSwitchInsn(0, nrFuncs - 1, defaultlabel, caseLabels);
+		for (int i = 0; i < nrFuncs; i++) {
+			mv.visitLabel(caseLabels[i]);
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, NameMangler.mangle(funcArray[i]), "()Ljava/lang/Object;");
+			mv.visitInsn(ARETURN);
+		}
+		mv.visitLabel(defaultlabel);
 
 		// Function exit
 		mv.visitVarInsn(ALOAD, 0);
@@ -397,8 +410,8 @@ public class Generator implements Opcodes {
 	public static void main(String[] argv) {
 		byte[] result = null;
 		System.out.println("Getting started!\n");
-		Generator emittor = new Generator();
-		
+		Generator emittor = new Generator("packageName", "className");
+
 		emittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter", "Runner");
 		emittor.emitMethod("main");
 		emittor.emitLabel("entrypoint");
@@ -409,7 +422,7 @@ public class Generator implements Opcodes {
 		emittor.emitJMP("entrypoint");
 		emittor.closeMethod();
 		result = emittor.finalizeCode();
-		
+
 		try {
 			FileOutputStream fos = new FileOutputStream("/Users/ferryrietveld/Runner.class");
 			fos.write(result);

@@ -54,7 +54,7 @@ public class RVMRun {
 	private boolean debug = true;
 
 	protected ArrayList<Function> functionStore;
-	protected final Map<String, Integer> functionMap;
+	protected Map<String, Integer> functionMap;
 
 	// Function overloading
 	private final Map<String, Integer> resolver;
@@ -572,15 +572,15 @@ public class RVMRun {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_TYPESWITCH:
-					insnTYPESWITCH(cf, CodeBlock.fetchArg1(instruction));
+					insnTYPESWITCH(CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_JMPINDEXED:
-					insnJMPINDEXED(cf, CodeBlock.fetchArg1(instruction));
+					insnJMPINDEXED(CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADTYPE:
-					insnLOADTYPE(cf, CodeBlock.fetchArg1(instruction));
+					insnLOADTYPE(CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADLOCDEREF:
@@ -1065,12 +1065,13 @@ public class RVMRun {
 		}
 	}
 
-	public void inject(ArrayList<Function> functionStore2, ArrayList<OverloadedFunction> overloadedStore2, ArrayList<Type> constructorStore2, TypeStore typeStore2) {
+	public void inject(ArrayList<Function> functionStore2, ArrayList<OverloadedFunction> overloadedStore2, ArrayList<Type> constructorStore2, TypeStore typeStore2, Map<String, Integer> functionMap2) {
 		// TODO check if we can generate code for them.
 		this.functionStore = functionStore2;
 		this.overloadedStore = overloadedStore2;
 		this.constructorStore = constructorStore2;
 		this.typeStore = typeStore2;
+		this.functionMap = functionMap2 ;
 	}
 
 	public void insnPOP() {
@@ -1219,7 +1220,7 @@ public class RVMRun {
 		}
 	}
 
-	public void insnTYPESWITCH(Frame cf, int i) {
+	public void insnTYPESWITCH(int i) {
 		// TODO Will not return in this form
 		// implemnt tha JVM switchtable
 		IValue val = (IValue) stack[--sp];
@@ -1234,14 +1235,14 @@ public class RVMRun {
 		pc = ((IInteger) labels.get(labelIndex)).intValue();
 	}
 
-	public void insnJMPINDEXED(Frame cf, int i) {
+	public void insnJMPINDEXED(int i) {
 		int labelIndex = ((IInteger) stack[--sp]).intValue();
 		IList labels = (IList) cf.function.constantStore[i];
 		pc = ((IInteger) labels.get(labelIndex)).intValue();
 		return;
 	}
 
-	public void insnLOADTYPE(Frame cf, int i) {
+	public void insnLOADTYPE(int i) {
 		stack[sp++] = cf.function.typeConstantStore[i];
 		return;
 	}
@@ -2192,6 +2193,11 @@ public class RVMRun {
 		pc = cf.pc;
 	}
 	///  JVM Helper methods 
+	public Object dynRun(String paramString, IValue[] paramArrayOfIValue) {
+		System.out.println("Unimplemented Base called !");
+		return null;
+	}
+	
 	public Object return1Helper() {
 		Object rval = null;
 		if (cf.isCoroutine) {

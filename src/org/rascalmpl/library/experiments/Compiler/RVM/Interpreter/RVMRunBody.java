@@ -5,7 +5,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.eclipse.imp.pdb.facts.IInteger;
 
-public class RVMRunBody extends RVMRun implements IDynamicRun {
+public class RVMRunBody extends RVMRun {
 
 	public RVMRunBody(IValueFactory vf, IEvaluatorContext ctx, boolean debug, boolean profile) {
 		super(vf, ctx, debug, profile);
@@ -96,33 +96,6 @@ public class RVMRunBody extends RVMRun implements IDynamicRun {
 		return v;
 	}
 
-	@Override
-	public Object dynRun(String fname, IValue[] args) {
-		// TODO BUILD Stack frame.
-		int n = functionMap.get(fname);
-
-		Function func = functionStore.get(n);
-
-		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
-		cf = root;
-
-		// Pass the program arguments to main
-		for (int i = 0; i < args.length; i++) {
-			cf.stack[i] = args[i];
-		}
-
-		switch (n) {
-		case 0:
-			return functionTemplate();
-		case 1:
-			return fret();
-		case 2:
-			return fret();
-		case 3:
-			return fret();
-		}
-		return vf.bool(false);
-	}
 
 	public Object return1Helper() {
 		Object rval = null;
@@ -152,5 +125,35 @@ public class RVMRunBody extends RVMRun implements IDynamicRun {
 		sp = cf.sp;
 		stack[sp++] = rval;
 		return NONE;
+	}
+
+	@Override
+	public Object dynRun(String fname, IValue[] args) {
+
+		System.out.println(fname);
+		
+		int n = functionMap.get(fname);
+		
+		Function func = functionStore.get(n);
+		
+		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
+		cf = root;
+		
+		// Pass the program arguments to main
+		for (int i = 0; i < args.length; i++) {
+			cf.stack[i] = args[i];
+		}
+		
+		switch (n) {
+		case 0:
+			return functionTemplate();
+		case 1:
+			return fret();
+		case 2:
+			return fret();
+		case 3:
+			return fret();
+		}
+		return vf.bool(false);
 	}
 }
