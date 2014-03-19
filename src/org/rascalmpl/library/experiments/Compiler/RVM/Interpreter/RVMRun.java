@@ -414,7 +414,11 @@ public class RVMRun {
 	OverloadedFunctionInstanceCall c_ofun_call = null;
 
 	Object globalReturnValue = null;
-
+	
+	// Two fields for tracing only used by dummy dinsnXXX() 
+	public int jmpTarget = 0 ;
+	public int prevSP= 0 ;
+	
 	public Object executeProgram(Frame root, Frame cfinit) {
 		this.cf = cfinit;
 		stack = cf.stack; // current stack
@@ -2215,5 +2219,17 @@ public class RVMRun {
 		}
 		return rval;
 	}
-
+	// Next methods are for debug only.
+	public void dinsnJMPTRUE(int target) {
+		jmpTarget = target ;
+	}
+	public void dinsnJMPFALSE(int target) {
+		jmpTarget = target ;
+	}
+	public void dinsnJMP(int target) {
+		jmpTarget = target ;
+	}
+	public void dinsnPOP() {
+		prevSP = sp ;
+	}
 }

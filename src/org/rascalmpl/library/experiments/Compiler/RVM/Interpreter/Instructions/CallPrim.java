@@ -18,7 +18,6 @@ public class CallPrim extends Instruction {
 	public String toString() { return "CALLPRIM " + prim + ", " + arity; }
 	
 	public void generate(Generator codeEmittor){
-		System.out.println("\tCALLPRIM " + prim + ", " + arity);
 		codeEmittor.emitCall("insnCALLPRIM", prim.ordinal(), arity);
 		codeblock.addCode2(opcode.getOpcode(), prim.ordinal(), arity);
 	}

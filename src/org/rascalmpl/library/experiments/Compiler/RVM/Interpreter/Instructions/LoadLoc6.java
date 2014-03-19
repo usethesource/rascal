@@ -10,7 +10,6 @@ public class LoadLoc6 extends Instruction {
 		super(ins, Opcode.LOADLOC6);
 	}
 	public void generate(Generator codeEmittor){
-		System.out.println("LOADLOC6");
 		codeEmittor.emitCall("insnLOADLOC6");
 		codeblock.addCode0(opcode.getOpcode());
 	}
