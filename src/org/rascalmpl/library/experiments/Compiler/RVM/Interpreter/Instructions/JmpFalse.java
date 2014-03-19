@@ -16,6 +16,9 @@ public class JmpFalse extends Instruction {
 	
 	public void generate(Generator codeEmittor){
 		System.out.println("\tJMPFALSE " + label + " [" + codeblock.getLabelPC(label) + "]");
+
+		/* TODO debug */ codeEmittor.emitCall("dinsnJMPFALSE", codeblock.getLabelPC(label));
+
 		codeEmittor.emitJMPFALSE(label);
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getLabelPC(label));
 	}

@@ -17,6 +17,5 @@ public class Label extends Instruction {
 	
 	public void generate(Generator codeEmittor){
 		codeEmittor.emitLabel(label);
-		System.out.println("LABEL " + label + " [" +  "]");
 	}
 }

@@ -9,6 +9,7 @@ public class Pop extends Instruction {
 		super(ins, Opcode.POP);
 	}
 	public void generate(Generator codeEmittor){
+		 /* TODO debug */ codeEmittor.emitCall("dinsnPOP");
 		 codeEmittor.emitPOP();
 		 codeblock.addCode0(opcode.getOpcode());
 	}

@@ -16,6 +16,10 @@ public class JmpTrue extends Instruction {
 	
 	public void generate(Generator codeEmittor){
 		codeEmittor.emitJMPTRUE(label);
+
+		/* TODO debug */ codeEmittor.emitCall("dinsnJMPTRUE", codeblock.getLabelPC(label));
+
+		codeEmittor.emitJMPTRUE(label);
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getLabelPC(label));
 	}
 }

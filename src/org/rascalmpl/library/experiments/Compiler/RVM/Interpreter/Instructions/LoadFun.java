@@ -15,6 +15,8 @@ public class LoadFun extends Instruction {
 	public String toString() { return "LOADFUN " + fuid + "[" + codeblock.getFunctionIndex(fuid) + "]"; }
 	
 	public void generate(Generator codeEmittor){
+		codeEmittor.emitCall("insnLOADFUN", codeblock.getFunctionIndex(fuid));
+
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getFunctionIndex(fuid));
 	}
 

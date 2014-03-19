@@ -9,7 +9,6 @@ public class CheckArgType extends Instruction {
 		super(ins, Opcode.CHECKARGTYPE);
 	}
 	public void generate(Generator codeEmittor){
-		System.out.println("\tCHECKARGTYPE");
 		codeEmittor.emitCall("insnCHECKARGTYPE");
 		codeblock.addCode0(opcode.getOpcode());
 	}
