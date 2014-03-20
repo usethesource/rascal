@@ -133,8 +133,8 @@ public data MuExp =
           
             // Coroutines
           
-          | muInit(MuExp coro)									// Initialize a coroutine, no arguments
-          | muInit(MuExp coro, list[MuExp] args)				// Initialize a coroutine, with arguments
+          | muCreate(MuExp coro)								// Creates a coroutine instance, no arguments
+          | muCreate(MuExp coro, list[MuExp] args)				// Creates a coroutine instance, with arguments
           
           | muNext(MuExp exp)									// Next on coroutine, no arguments
           | muNext(MuExp exp1, list[MuExp] args)				// Next on coroutine, with arguments

@@ -394,12 +394,14 @@ INS tr(muFilterReturn()) = [ FILTERRETURN() ];
 
 // Coroutines
 
-INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(0)];
-INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order! 
+INS tr(muCreate(muFun(str fuid))) = [ CREATE(fuid, 0) ];
+INS tr(muCreate(MuExp exp)) = [ *tr(exp), CREATEDYN(0) ];
+INS tr(muCreate(muFun(str fuid), list[MuExp] args)) = [ *tr(args), CREATE(fuid, size(args)) ];
+INS tr(muCreate(MuExp coro, list[MuExp] args)) = [ *tr(args), *tr(coro),  CREATEDYN(size(args)) ];  // order! 
 
 // Delimited continuations (experimental)
-// INS tr(muInit(MuExp exp)) = tr(muReset(exp));
-// INS tr(muInit(MuExp coro, list[MuExp] args)) = tr(muReset(muApply(coro,args)));  // order!
+// INS tr(muCreate(MuExp exp)) = tr(muReset(exp));
+// INS tr(muCreate(MuExp coro, list[MuExp] args)) = tr(muReset(muApply(coro,args)));  // order!
 
 INS tr(muContVar(str fuid)) = [ LOADCONT(fuid) ];
 INS tr(muReset(MuExp fun)) = [ *tr(fun), RESET() ];
@@ -660,13 +662,13 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)){
     
 INS tr(e:muMulti(MuExp exp)) =
      [ *tr(exp),
-       INIT(0),
+       CREATEDYN(0),
        NEXT0()
      ];
 
 INS tr(e:muOne(MuExp exp)) =
     [ *tr(exp),
-       INIT(0),
+       CREATEDYN(0),
        NEXT0()
      ];
 
@@ -699,7 +701,7 @@ default INS tr(MuExp e) { throw "Unknown node in the muRascal AST: <e>"; }
 INS tr_cond(muOne(MuExp exp), str continueLab, str failLab, str falseLab) =
       [ LABEL(continueLab), LABEL(failLab) ]
     + [ *tr(exp), 
-        INIT(0), 
+        CREATEDYN(0), 
         NEXT0(), 
         JMPFALSE(falseLab)
       ];
@@ -707,7 +709,7 @@ INS tr_cond(muOne(MuExp exp), str continueLab, str failLab, str falseLab) =
 INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
     co = newLocal();
     return [ *tr(exp),
-             INIT(0),
+             CREATEDYN(0),
              STORELOC(co),
              POP(),
              *[ LABEL(continueLab), LABEL(failLab) ],

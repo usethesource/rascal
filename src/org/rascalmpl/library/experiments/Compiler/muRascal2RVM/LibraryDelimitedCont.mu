@@ -33,7 +33,7 @@ function RASCAL_ALL[2, genArray, generators,
     while(true){
         if(get_array(generators, j)){
            if(forward){
-              put_array(genInits,j,init(get_array(genArray,j)));
+              put_array(genInits,j,create(get_array(genArray,j)));
            };
            gen = get_array(genInits,j);
            if(next(gen)) {
@@ -336,13 +336,13 @@ function MATCH_N[2, pats, subjects, ipats, plen, slen, p, pat]{
    guard plen == slen;
    p = 0;
    ipats = make_array(plen);
-   put_array(ipats, p, init(get_array(pats, p), get_array(subjects, p)));
+   put_array(ipats, p, create(get_array(pats, p), get_array(subjects, p)));
    while((p >= 0) && (p < plen)) {
        pat = get_array(ipats, p);
        if(next(pat)) {
            if(p < (plen - 1)) {
                p = p + 1;
-               put_array(ipats, p, init(get_array(pats, p), get_array(subjects, p)));
+               put_array(ipats, p, create(get_array(pats, p), get_array(subjects, p)));
            } else {
                yield;
            };
@@ -444,7 +444,7 @@ function MATCH_TYPED_ANONYMOUS_VAR[2, typ, iSubject]{
 }
 
 function MATCH_VAR_BECOMES[3, rVar, pat, iSubject, cpat]{
-   cpat = init(pat, iSubject);
+   cpat = create(pat, iSubject);
    while(next(cpat)) {
        yield iSubject;
    };
@@ -452,7 +452,7 @@ function MATCH_VAR_BECOMES[3, rVar, pat, iSubject, cpat]{
 
 function MATCH_TYPED_VAR_BECOMES[4, typ, rVar, pat, iSubject, cpat]{
    guard subtype(typeOf(iSubject), typ);
-   cpat = init(pat, iSubject);
+   cpat = create(pat, iSubject);
    while(next(cpat)) {
        yield iSubject;
    };
@@ -464,7 +464,7 @@ function MATCH_AS_TYPE[3, typ, pat, iSubject]{
 }
 
 function MATCH_ANTI[2, pat, iSubject, cpat]{
-	cpat = init(pat, iSubject);
+	cpat = create(pat, iSubject);
    	if(next(cpat)) {
 	    exhaust;
 	} else {
@@ -507,7 +507,7 @@ function MATCH_COLLECTION[4,
      
      p        = 0; 
      matchers = make_array(patlen);
-     put_array(matchers, p, init(get_array(pats, p), iSubject, ref progress));
+     put_array(matchers, p, create(get_array(pats, p), iSubject, ref progress));
      while(true){
            while(next(get_array(matchers, p))) {   // Move forward
                  if((p == patlen - 1) && accept(iSubject, progress)) {
@@ -515,7 +515,7 @@ function MATCH_COLLECTION[4,
                  } else {
                    if(p < patlen - 1){
                       p = p + 1;
-                      put_array(matchers, p, init(get_array(pats, p), iSubject, ref progress));
+                      put_array(matchers, p, create(get_array(pats, p), iSubject, ref progress));
                 };  
            };
          }; 
@@ -558,7 +558,7 @@ function MATCH_PAT_IN_LIST[3, pat, iSubject, rNext, start, cpat]{
     start = deref rNext;
     guard start < size_list(iSubject);
     
-    cpat = init(pat, get_list(iSubject, start));
+    cpat = create(pat, get_list(iSubject, start));
     while(next(cpat)) {
        yield (start + 1);   
     };
@@ -788,7 +788,7 @@ function MATCH_APPL_IN_LIST[4, iProd, argspat, iSubject, rNext, start, iElem, ch
     
     children = get_children(iElem);
     if(equal(get_name(iElem), "appl") && equal(iProd, get_array(children, 0))){
-       cpats = init(argspat, get_array(children, 1));
+       cpats = create(argspat, get_array(children, 1));
        while(next(cpats)) {
           yield(start + 1);
        };
@@ -996,9 +996,9 @@ function ENUM_MSET[2, set, rElm, iLst, len, j]{
 function MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
 	guard size_mset(available) > 0;
     
-    gen = init(ENUM_MSET, available, ref elm);
+    gen = create(ENUM_MSET, available, ref elm);
     while(next(gen)) {
-        cpat = init(pat, elm);
+        cpat = create(pat, elm);
         while(next(cpat)) {
             yield mset_destructive_subtract_elm(available, elm);
             available = mset_destructive_add_elm(available, elm);
@@ -1027,7 +1027,7 @@ function MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
       };
       exhaust;
     };
-    gen = init(ENUM_MSET, available, ref elm);
+    gen = create(ENUM_MSET, available, ref elm);
     while(next(gen)) {
 	  yield(elm, mset_destructive_subtract_elm(available, elm));
 	  available = mset_destructive_add_elm(available, elm);
@@ -1039,7 +1039,7 @@ function MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
 function MATCH_TYPED_VAR_IN_SET[4, typ, rVar, available, rRemaining, gen, elm]{
     guard size_mset(available) > 0;
 
-    gen = init(ENUM_MSET, available, ref elm);
+    gen = create(ENUM_MSET, available, ref elm);
     while(next(gen)) {
         if(subtype(typeOf(elm), typ)){
             yield(elm, mset_destructive_subtract_elm(available, elm));
@@ -1052,7 +1052,7 @@ function MATCH_TYPED_VAR_IN_SET[4, typ, rVar, available, rRemaining, gen, elm]{
 function MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRemaining, gen, elm]{
 	guard size_mset(available) > 0;
     
-    gen = init(ENUM_MSET, available, ref elm);
+    gen = create(ENUM_MSET, available, ref elm);
     while(next(gen)) { 
         yield mset_destructive_subtract_elm(available, elm);
         available = mset_destructive_add_elm(available, elm);
@@ -1063,7 +1063,7 @@ function MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRemaining, gen, elm]{
 function MATCH_TYPED_ANONYMOUS_VAR_IN_SET[3, typ, available, rRemaining, gen, elm]{
 	guard size_mset(available) > 0;
     
-    gen = init(ENUM_MSET, available, ref elm);
+    gen = create(ENUM_MSET, available, ref elm);
     while(next(gen)) { 
         if(subtype(typeOf(elm), typ)){
             yield mset_destructive_subtract_elm(available, elm);
@@ -1082,7 +1082,7 @@ function MATCH_MULTIVAR_IN_SET[3, rVar, available, rRemaining, gen, subset]{
       };
       exhaust;
     };
-    gen = init(ENUM_SUBSETS, available, ref subset);
+    gen = create(ENUM_SUBSETS, available, ref subset);
     while(next(gen)) {
 	    yield(set(subset), mset_destructive_subtract_mset(available, subset));
 	    available = mset_destructive_add_mset(available, subset);
@@ -1105,7 +1105,7 @@ function MATCH_LAST_MULTIVAR_IN_SET[3, rVar, available, rRemaining, subset]{
 }
 
 function MATCH_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining, gen, subset]{
-    gen = init(ENUM_SUBSETS, available, ref subset);
+    gen = create(ENUM_SUBSETS, available, ref subset);
     while(next(gen)) {
 	    yield mset_destructive_subtract_mset(available, subset);
 	    available = mset_destructive_add_mset(available, subset);
@@ -1118,7 +1118,7 @@ function MATCH_LAST_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining]{
 }
 
 function MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, subset, iSubset]{    
-    gen = init(ENUM_SUBSETS, available, ref subset);
+    gen = create(ENUM_SUBSETS, available, ref subset);
     while(next(gen)) {
         iSubset = set(subset);
         if(subtype(typeOf(iSubset), typ)){
@@ -1137,7 +1137,7 @@ function MATCH_LAST_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining]{
 function MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
     guard subtype(typeOf(available), typ);
     
-    gen = init(ENUM_SUBSETS, available, ref subset);
+    gen = create(ENUM_SUBSETS, available, ref subset);
     while(next(gen)) {
         yield mset_destructive_subtract_mset(available, subset);
 	    available = mset_destructive_add_mset(available, subset);
@@ -1378,7 +1378,7 @@ function VISIT_CHILDREN[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged,
 function VISIT_NOT_MAP[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild,
 						  iarray, enumerator, iChild, j, childHasMatch, childBeenChanged] {
 	iarray = make_iarray(size(iSubject));
-	enumerator = init(ENUMERATE_AND_ASSIGN, ref iChild, iSubject);
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref iChild, iSubject);
 	j = 0;
 	while(next(enumerator)) {
 		childHasMatch = false;
@@ -1395,7 +1395,7 @@ function VISIT_NOT_MAP[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, 
 function VISIT_MAP[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild,
 					  writer, enumerator, iKey, iVal, childHasMatch, childBeenChanged] {
 	writer = prim("mapwriter_open");
-	enumerator = init(ENUMERATE_AND_ASSIGN, ref iKey, iSubject);
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref iKey, iSubject);
 	while(next(enumerator)) {
 		iVal = prim("map_subscript", iSubject, iKey);
 		
@@ -1429,7 +1429,7 @@ function VISIT_CHILDREN_VOID[6, iSubject, traverse_fun, phi, rHasMatch, rBeenCha
 
 function VISIT_NOT_MAP_VOID[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild,
 						       enumerator, iChild, childHasMatch, childBeenChanged] {
-	enumerator = init(ENUMERATE_AND_ASSIGN, ref iChild, iSubject);
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref iChild, iSubject);
 	childBeenChanged = false; // ignored
 	while(next(enumerator)) {
 		childHasMatch = false;
@@ -1441,7 +1441,7 @@ function VISIT_NOT_MAP_VOID[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChan
 
 function VISIT_MAP_VOID[6, iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild,
 					       enumerator, iKey, iVal, childHasMatch, childBeenChanged] {
-	enumerator = init(ENUMERATE_AND_ASSIGN, ref iKey, iSubject);
+	enumerator = create(ENUMERATE_AND_ASSIGN, ref iKey, iSubject);
 	childBeenChanged = false; // ignored  
 	while(next(enumerator)) {
 		childHasMatch = false;
