@@ -39,6 +39,7 @@ import experiments::Compiler::Benchmarks::BSet1;
 import experiments::Compiler::Benchmarks::BSetMatch1;
 import experiments::Compiler::Benchmarks::BSetMatch2;
 import experiments::Compiler::Benchmarks::BSetMatch3;
+import experiments::Compiler::Benchmarks::BSetMatch4;
 import experiments::Compiler::Benchmarks::BSendMoreMoney;
 import experiments::Compiler::Benchmarks::BSendMoreMoneyNotTyped;
 import experiments::Compiler::Benchmarks::BTemplate;
@@ -79,11 +80,12 @@ map[str name,  value(list[value]) job] jobs = (
 "BMarriage":				experiments::Compiler::Benchmarks::BMarriage::main,
 //"BPatternMatchASTs":		experiments::Compiler::Benchmarks::BPatternMatchASTs::main,
 "BReverse1":				experiments::Compiler::Benchmarks::BReverse1::main,
-//"BRSFCalls":				experiments::Compiler::Benchmarks::BRSFCalls::main,
+"BRSFCalls":				experiments::Compiler::Benchmarks::BRSFCalls::main,
 "BSet1":					experiments::Compiler::Benchmarks::BSet1::main,
 "BSetMatch1":				experiments::Compiler::Benchmarks::BSetMatch1::main,
 "BSetMatch2":				experiments::Compiler::Benchmarks::BSetMatch2::main,
 "BSetMatch3":				experiments::Compiler::Benchmarks::BSetMatch3::main,
+"BSetMatch4":				experiments::Compiler::Benchmarks::BSetMatch4::main,
 "BSendMoreMoney":			experiments::Compiler::Benchmarks::BSendMoreMoney::main,
 "BSendMoreMoneyNotTyped":	experiments::Compiler::Benchmarks::BSendMoreMoneyNotTyped::main,
 "BTemplate":				experiments::Compiler::Benchmarks::BTemplate::main,
@@ -124,7 +126,7 @@ list[Analysis] run_benchmarks(int n, list[str] jobs){
   runAll(jobs);
   results = analyze_all(jobs);
   report(results);
-  //report_latex(results);
+  report_latex(results);
   measurementsInterpreted += (prevMeasurementsInterpreted - measurementsInterpreted);
   writeTextValueFile(base + "MeasurementsInterpreted.value", measurementsInterpreted);
   return results;
@@ -275,6 +277,15 @@ void main_paper1(){
 }
 
 void main_paper2(){
-   run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",/*"BRSFCalls",*/"BSendMoreMoney","BSendMoreMoneyNotTyped","BSudoku","BTemplate"
+   run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",
+   						"BRSFCalls",
+   						"BSendMoreMoney",
+   						//"BSendMoreMoneyNotTyped",
+   						"BSudoku","BTemplate"
    					 ]);
 }
+
+void main_setmatch(){
+   run_benchmarks(10, ["BSetMatch1","BSetMatch2","BSetMatch3","BSetMatch4"]);
+}
+

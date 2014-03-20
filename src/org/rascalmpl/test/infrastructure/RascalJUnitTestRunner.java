@@ -15,7 +15,6 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import org.apache.commons.lang.ClassUtils;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
@@ -101,11 +100,18 @@ public class RascalJUnitTestRunner extends Runner {
 				Description modDesc = Description.createSuiteDescription(name);
 				desc.addChild(modDesc);
 				
+<<<<<<< HEAD
 				List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
 				
         for (int i = tests.size() - 1; i >= 0; i--) {
           AbstractFunction f = tests.get(i);
 					modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
+=======
+				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
+				  if (!f.hasTag("ignore")) {
+				    modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
+				  }
+>>>>>>> master
 				}
 			}
 			
@@ -121,7 +127,7 @@ public class RascalJUnitTestRunner extends Runner {
 	@Override
 	public void run(final RunNotifier notifier) {
 		if (desc == null) {
-			return;
+			desc = getDescription();
 		}
 		notifier.fireTestRunStarted(desc);
 
@@ -166,7 +172,7 @@ public class RascalJUnitTestRunner extends Runner {
 			notifier.fireTestStarted(desc);
 			
 			if (!successful) {
-				notifier.fireTestFailure(new Failure(desc, t != null ? t : new Exception(message)));
+				notifier.fireTestFailure(new Failure(desc, t != null ? t : new Exception(message != null ? message : "no message")));
 			}
 			else {
 				notifier.fireTestFinished(desc);
