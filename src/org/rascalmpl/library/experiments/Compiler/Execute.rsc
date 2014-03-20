@@ -17,8 +17,8 @@ import experiments::Compiler::muRascal2RVM::mu2rvm;
 import experiments::Compiler::muRascal2RVM::StackSize;
 import experiments::Compiler::muRascal2RVM::PeepHole;
 
-public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/Library.mu|;
-public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/Library.rvm|;
+public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/LibraryGamma.mu|;
+public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/LibraryGamma.rvm|;
 
 // Specific for delimited continuations (experimental)
 // public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.mu|;
@@ -28,7 +28,7 @@ public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/Libr
 public list[loc] defaultImports = [|rascal:///Exception.rsc|];
 
 list[Declaration] parseMuLibrary(){
-    println("rascal2rvm: Recompiling library.mu");
+    println("rascal2rvm: Recompiling library <basename(MuLibrary)>.mu");
  	libModule = parse(MuLibrary);
  	functions = [];
 // 	libTypes = libModule.types; 
@@ -46,7 +46,7 @@ list[Declaration] parseMuLibrary(){
 //  	shiftClosures = ();
   
   	writeTextValueFile(MuLibraryCompiled, functions);
-    println("rascal2rvm: Writing compiled version of Library.mu");
+    println("rascal2rvm: Writing compiled version of library <basename(MuLibraryCompiled)>.rvm");
   	
   	return functions; 
 }
@@ -64,7 +64,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
       try {
   	       imported_functions = readTextValueFile(#list[Declaration], MuLibraryCompiled);
-  	       println("rascal2rvm: Using compiled version of Library.mu");
+  	       println("rascal2rvm: Using compiled library version <basename(MuLibraryCompiled)>.rvm");
   	  } catch: {
   	       imported_functions = parseMuLibrary();
 // 	       imported_types += libTypes;

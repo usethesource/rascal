@@ -485,25 +485,20 @@ coroutine MATCH_ANTI[2, pat, iSubject, cpat]{
 // The algorithm has as parameters:
 // - a list of patterns "pats"
 // - a function "accept" that returns true when we have achieved a complete match of the subject
-// - the subject "iSubject" itself
-// - a value "progress" that determines the progress of the match.
+// - the subject "subject" itself
 
-coroutine MATCH_COLLECTION[4, 
+coroutine MATCH_COLLECTION[3, 
      pats,		// Coroutines to match collection elements
      accept,	// Function that accepts a complete match
-	 iSubject,	// The subject (a collection like list or set)
-	 progress,	// progress of the match
+	 subject,	// The subject (a collection like list or set, together with optional admin)
 
 	 patlen,	// Length of pattern array
 	 p,			// Cursor in patterns
 	 matchers	// Currently active pattern matchers
 	]{
-	
-	//println("MATCH_COLLECTION", pats, accept, iSubject, progress);
-   
      patlen   = size_array(pats);
      if(patlen == 0){
-        if(accept(iSubject, progress)){
+        if(accept(subject)){
            yield; 
            exhaust;
         } else {
@@ -513,15 +508,15 @@ coroutine MATCH_COLLECTION[4,
      
      p        = 0; 
      matchers = make_array(patlen);
-     put_array(matchers, p, init(get_array(pats, p), iSubject, ref progress));
+     put_array(matchers, p, init(get_array(pats, p), ref subject));
      while(true){
            while(next(get_array(matchers, p))) {   // Move forward
-                 if((p == patlen - 1) && accept(iSubject, progress)) {
+                 if((p == patlen - 1) && accept(subject)) {
                     yield; 
                  } else {
                    if(p < patlen - 1){
                       p = p + 1;
-                      put_array(matchers, p, init(get_array(pats, p), iSubject, ref progress));
+                      put_array(matchers, p, init(get_array(pats, p), ref subject));
                 };  
            };
          }; 
@@ -540,248 +535,291 @@ coroutine MATCH_COLLECTION[4,
 
 // List matching creates a specific instance of MATCH_COLLECTION
 
-coroutine MATCH_LIST[2, pats, iSubject]{
-   guard iSubject is list;
-   MATCH_COLLECTION(pats, Library::ACCEPT_LIST_MATCH::2, iSubject, 0);
+coroutine MATCH_LIST[2, pats, iList, subject]{
+   guard iList is list;
+   subject = MAKE_SUBJECT(iList, 0);
+   MATCH_COLLECTION(pats, Library::ACCEPT_LIST_MATCH::1, subject);
 }
 
 // A list match is acceptable when the cursor points at the end of the list
 
-function ACCEPT_LIST_MATCH[2, iSubject, cursor]{
-   return (size(iSubject) == cursor);
+function ACCEPT_LIST_MATCH[1, subject]{
+   return (size_list(GET_LIST(subject)) == GET_CURSOR(subject));
+}
+
+function GET_LIST[1, subject]{ return get_array(subject, 0); }
+
+function GET_CURSOR[1, subject]{ return get_array(subject, 1); }
+
+function MAKE_SUBJECT[2, iList, cursor, ar]{
+   ar = make_array(2);
+   put_array(ar, 0, iList);
+   put_array(ar, 1, cursor);
+   return ar;
 }
 
 
 // All coroutines that may occur in a list pattern have the following parameters:
 // - pat: the actual pattern to match one or more list elements
-// - iSubject: the subject list
-// - rNext: reference variable to return next cursor position
-// [- available: the number of remaining, unmatched, elements in the subject list <== has disappeared]
+// - subject: a tuple consiting of
+//   -- iSubject: the subject list
+//   -- cursor: current position in subject list
 
 // Any pattern in a list not handled by a special case
 
-coroutine MATCH_PAT_IN_LIST[3, pat, iSubject, rNext, start, cpat]{ 
-    start = deref rNext;
-    guard start < size_list(iSubject);
+coroutine MATCH_PAT_IN_LIST[2, pat, rSubject, iList, start, cpat]{ 
+    iList = GET_LIST(deref rSubject);
+    start = GET_CURSOR(deref rSubject);
+    guard start < size_list(iList);
     
-    cpat = init(pat, get_list(iSubject, start));
+    cpat = init(pat, get_list(iList, start));
     while(next(cpat)) {
-       yield (start + 1);   
+       yield MAKE_SUBJECT(iList, start + 1);   
     };
+    deref rSubject = MAKE_SUBJECT(iList, start);
 } 
 
 // A literal in a list
 
-coroutine MATCH_LITERAL_IN_LIST[3, pat, iSubject, rNext, start, elm]{
-    start = deref rNext;
-	guard start < size_list(iSubject);
+coroutine MATCH_LITERAL_IN_LIST[2, pat, rSubject, iList, start, elm]{
+    iList = GET_LIST(deref rSubject);
+    start = GET_CURSOR(deref rSubject);
+	guard start < size_list(iList);
 	
-	elm =  get_list(iSubject, start);
+	elm =  get_list(iList, start);
     if(equal(pat, elm)){
-       yield(start + 1);
+       yield MAKE_SUBJECT(iList, start + 1);
     };
+    deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
-coroutine MATCH_VAR_IN_LIST[3, rVar, iSubject, rNext, start, iVal, iElem]{
-   start = deref rNext;
-   guard start < size_list(iSubject);
+coroutine MATCH_VAR_IN_LIST[2, rVar, rSubject, iList, start, iVal, iElem]{
+   iList = GET_LIST(deref rSubject);
+   start =  GET_CURSOR(deref rSubject);
+   guard start < size_list(iList);
    
-   iElem = get_list(iSubject, start);
+   iElem = get_list(iList, start);
    if(is_defined(rVar)){
       iVal = deref rVar;
       if(equal(iElem, iVal)){
-         yield(iElem, start + 1);
+         yield(iElem, MAKE_SUBJECT(iList, start + 1));
       };
       exhaust;
    };
-   yield(iElem, start + 1);
+   yield(iElem, MAKE_SUBJECT(iList, start + 1));
    undefine(rVar);
 }
 
-coroutine MATCH_TYPED_VAR_IN_LIST[4, typ, rVar, iSubject, rNext, start, iVal, iElem]{
-   start = deref rNext;
-   guard start < size_list(iSubject);
+coroutine MATCH_TYPED_VAR_IN_LIST[3, typ, rVar, rSubject, iList, start, iVal, iElem]{
+   iList = GET_LIST(deref rSubject);
+   start =  GET_CURSOR(deref rSubject);
+   guard start < size_list(iList);
    
-   iElem = get_list(iSubject, start);
+   iElem = get_list(iList, start);
    if(subtype(typeOf(iElem), typ)){
-      yield(iElem, start + 1);
+      yield(iElem, MAKE_SUBJECT(iList, start + 1));
    };
+   deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
-coroutine MATCH_ANONYMOUS_VAR_IN_LIST[2, iSubject, rNext, start]{
-   start = deref rNext;
-   guard start < size_list(iSubject);
-   yield(start + 1);
+coroutine MATCH_ANONYMOUS_VAR_IN_LIST[1, rSubject, iList, start]{
+   iList = GET_LIST(deref rSubject);
+   start =  GET_CURSOR(deref rSubject);
+   guard start < size_list(iList);
+   yield MAKE_SUBJECT(iList, start + 1);
+   deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_LIST[3, typ, iSubject, rNext, start, iElem]{
-   start = deref rNext;
-   guard start < size_list(iSubject);
+coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_LIST[2, typ, rSubject, iList, start, iElem]{
+   iList = GET_LIST(deref rSubject);
+   start =  GET_CURSOR(deref rSubject);
+   guard start < size_list(iList);
    
-   iElem = get_list(iSubject, start);
+   iElem = get_list(iList, start);
    if(subtype(typeOf(iElem), typ)){
-      yield(start + 1);
+      yield MAKE_SUBJECT(iList, start + 1);
    };
+   deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
-coroutine MATCH_MULTIVAR_IN_LIST[6, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, maxLen, iVal]{
-    start = deref rNext;
-    available = size_list(iSubject) - start;
+coroutine MATCH_MULTIVAR_IN_LIST[5, rVar, iMinLen, iMaxLen, iLookahead, rSubject, available, iList, start, len, maxLen, iVal]{
+    iList = GET_LIST(deref rSubject);
+    start =  GET_CURSOR(deref rSubject);
+    available = size_list(iList) - start;
     len = mint(iMinLen);
     maxLen = min(mint(iMaxLen), available - mint(iLookahead));
     if(is_defined(rVar)){
       iVal = deref rVar;  						// TODO: check length
-      if(occurs(iVal, iSubject, start)){
-         yield(iVal, start + size_list(iVal));
+      if(occurs(iVal, iList, start)){
+         yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)));
       };
+      deref rSubject = MAKE_SUBJECT(iList, start);
       exhaust;
     };
     
     while(len <= maxLen) {
-      yield(sublist(iSubject, start, len), start + len);
+      yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len));
       len = len + 1;
     };
+    deref rSubject = MAKE_SUBJECT(iList, start);
     undefine(rVar);
 }
 
-coroutine MATCH_LAST_MULTIVAR_IN_LIST[6, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, maxLen, iVal]{
-    start = deref rNext;
-    available = size_list(iSubject) - start;
+coroutine MATCH_LAST_MULTIVAR_IN_LIST[5, rVar, iMinLen, iMaxLen, iLookahead, rSubject, available, iList, start, len, maxLen, iVal]{
+    iList = GET_LIST(deref rSubject);
+    start =  GET_CURSOR(deref rSubject);
+    available = size_list(iList) - start;
     len = min(mint(iMaxLen), max(available - mint(iLookahead), 0));
     maxLen = len;
     guard(len >= 0);
     
     if(is_defined(rVar)){
       iVal = deref rVar;						// TODO: check length
-      if(occurs(iVal, iSubject, start)){
-        yield(iVal, start + size_list(iVal));
+      if(occurs(iVal, iList, start)){
+        yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)));
       };
+      deref rSubject = MAKE_SUBJECT(iList, start);
       exhaust;
     };
     
     while(len <= maxLen) {						// TODO: loop?
-      yield(sublist(iSubject, start, len), start + len);
+      yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len));
       len = len + 1;
     };
+    deref rSubject = MAKE_SUBJECT(iList, start);
     undefine(rVar);
 }
 
-coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[5, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len]{
-    start = deref rNext;
-    available = size_list(iSubject) - start;
+coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST[4, iMinLen, iMaxLen, iLookahead, rSubject, available, iList, start, len]{
+    iList = GET_LIST(deref rSubject);
+    start =  GET_CURSOR(deref rSubject);
+    available = size_list(iList) - start;
     len = mint(iMinLen);
     available = min(mint(iMaxLen), available - mint(iLookahead));
     while(len <= available){
-        yield (start + len);
+        yield MAKE_SUBJECT(iList, start + len);
         len = len + 1;
     };
+    deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
-coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST[5, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len]{
-    start = deref rNext;
-    available = size_list(iSubject) - start;
+coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST[4, iMinLen, iMaxLen, iLookahead, rSubject, available, iList, start, len]{
+    iList = GET_LIST(deref rSubject);
+    start =  GET_CURSOR(deref rSubject);
+    available = size_list(iList) - start;
     len = min(mint(iMaxLen), available - mint(iLookahead));
     guard(len >= mint(iMinLen));
     while(len <= available){
-        yield (start + len);
+        yield MAKE_SUBJECT(iList, start + len);
         len = len + 1;
     };
+    deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
-coroutine MATCH_TYPED_MULTIVAR_IN_LIST[7, typ, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, sub]{
-	start = deref rNext;
-	available = size_list(iSubject) - start;
+coroutine MATCH_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iMinLen, iMaxLen, iLookahead, rSubject, available, iList, start, len, sub]{
+	    iList = GET_LIST(deref rSubject);
+    start =  GET_CURSOR(deref rSubject);
+	    available = size_list(iList) - start;
     len = mint(iMinLen);
     available = min(mint(iMaxLen), available - mint(iLookahead));
-    if(subtype(typeOf(iSubject), typ)){
+    if(subtype(typeOf(iList), typ)){
        while(len <= available){
-             yield(sublist(iSubject, start, len), start + len);
+             yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len));
              len = len + 1;
        };
     } else {
       while(len <= available){
-            sub = sublist(iSubject, start, len);
+            sub = sublist(iList, start, len);
             if(subtype(typeOf(sub), typ)){
-               yield(sub, start + len);
+               yield(sub, MAKE_SUBJECT(iList, start + len));
                len = len + 1;
             } else {
+              deref rSubject = MAKE_SUBJECT(iList, start);
               exhaust;
             };
       };
     };
 }
 
-coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[7, typ, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, elmType]{
-    start = deref rNext;
-    available = size_list(iSubject) - start;
+coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST[6, typ, rVar, iMinLen, iMaxLen, iLookahead, rSubject, available, iList, start, len, elmType]{
+    iList = GET_LIST(deref rSubject);
+    start =  GET_CURSOR(deref rSubject);
+    available = size_list(iList) - start;
     len = mint(iMinLen);
     available = min(mint(iMaxLen), available - mint(iLookahead));
     
-    if(subtype(typeOf(iSubject), typ)){
+    if(subtype(typeOf(iList), typ)){
        while(len <= available){
-             yield(sublist(iSubject, start, len), start + len);
+             yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len));
              len = len + 1;
        };
     } else {
       elmType = elementTypeOf(typ);
       while(len < available){
-            if(subtype(typeOf(get_list(iSubject, start + len)), elmType)){
+            if(subtype(typeOf(get_list(iList, start + len)), elmType)){
                len = len + 1;
             } else {
-               yield(sublist(iSubject, start, len), start + len);
+               yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len));
+               deref rSubject = MAKE_SUBJECT(iList, start);
                exhaust;
             };
       };
-      yield(sublist(iSubject, start, len), start + len);
+      yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len));
     };
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[6, typ, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len]{
-    start = deref rNext;
-    available = size_list(iSubject) - start;
+coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iMinLen, iMaxLen, iLookahead, rSubject, available, iList, start, len]{
+    iList = GET_LIST(deref rSubject);
+    start =  GET_CURSOR(deref rSubject);
+    available = size_list(iList) - start;
     len = mint(iMinLen);
     available = min(mint(iMaxLen), available - mint(iLookahead));
     
-    if(subtype(typeOf(iSubject), typ)){
+    if(subtype(typeOf(iList), typ)){
        while(len <= available){
-          yield(start + len);
+          yield MAKE_SUBJECT(iList, start + len);
           len = len + 1;
        };
     } else {
        while(len <= available){
-          if(subtype(typeOf(sublist(iSubject, start, len)), typ)){
-             yield (start + len);
+          if(subtype(typeOf(sublist(iList, start, len)), typ)){
+             yield  MAKE_SUBJECT(iList, start + len);
              len = len + 1;
           } else {
+             deref rSubject = MAKE_SUBJECT(iList, start);
              exhaust;
           };
       };
    };
+   deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
-coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[6, typ, iMinLen, iMaxLen, iLookahead, iSubject, rNext, available, start, len, elmType]{
-    start = deref rNext;
-    available = size_list(iSubject) - start;
+coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST[5, typ, iMinLen, iMaxLen, iLookahead, rSubject, available, iList, start, len, elmType]{
+    iList = GET_LIST(deref rSubject);
+    start =  GET_CURSOR(deref rSubject);
+    available = size_list(iList) - start;
     len = mint(iMinLen);
     available = min(mint(iMaxLen), available - mint(iLookahead));
    
-    if(subtype(typeOf(iSubject), typ)){
+    if(subtype(typeOf(iList), typ)){
        while(len <= available){
-          yield(start + len);
+          yield MAKE_SUBJECT(iList, start + len);
           len = len + 1;
        };
     } else {
       elmType = elementTypeOf(typ);
       while(len < available){
-         if(subtype(typeOf(get_list(iSubject, start + len)), elmType)){
+         if(subtype(typeOf(get_list(iList, start + len)), elmType)){
             len = len + 1;
          } else {
-            yield(start + len);
+            yield MAKE_SUBJECT(iList, start + len);
+            deref rSubject = MAKE_SUBJECT(iList, start);
             exhaust;
          };
       };
-      yield(start + len);
+      yield MAKE_SUBJECT(iList, start + len);
     };
+    deref rSubject = MAKE_SUBJECT(iList, start);
 }
 
 // Primitives for matching of concrete list patterns
@@ -968,17 +1006,16 @@ function MAKE_CONCRETE_LIST[4, applConstr, listProd, applProd, elms, listResult]
 
 coroutine MATCH_SET[3, iLiterals, pats, iSubject]{
     guard iSubject is set;
-    //println("MATCH_SET", iLiterals, pats, iSubject);
     if(subset(iLiterals, iSubject)) {
        iSubject = prim("set_subtract_set", iSubject, iLiterals);
-       MATCH_COLLECTION(pats, Library::ACCEPT_SET_MATCH::2, mset(iSubject), mset(iSubject));
+       MATCH_COLLECTION(pats, Library::ACCEPT_SET_MATCH::1, mset(iSubject));
     };
 }
 
 // A set match is acceptable when the set of remaining elements is empty
 
-function ACCEPT_SET_MATCH[2, iSubject, remaining]{
-   return (size_mset(remaining) == 0);
+function ACCEPT_SET_MATCH[1, subject]{
+   return size_mset(subject) == 0;
 }
 
 coroutine ENUM_MSET[2, set, rElm, iLst, len, j]{
@@ -997,177 +1034,158 @@ coroutine ENUM_MSET[2, set, rElm, iLst, len, j]{
 // - available: the remaining, unmatched, elements in the subject set
 // - rRemaining: reference parameter to return remaining set elements
 
-coroutine MATCH_PAT_IN_SET[3, pat, available, rRemaining, gen, cpat, elm]{
+coroutine MATCH_PAT_IN_SET[2, pat, rSubject, available, gen, cpat, elm]{
+    available = deref rSubject;
 	guard size_mset(available) > 0;
     
     gen = init(ENUM_MSET, available, ref elm);
     while(next(gen)) {
         cpat = init(pat, elm);
         while(next(cpat)) {
-            yield mset_destructive_subtract_elm(available, elm);
-            available = mset_destructive_add_elm(available, elm);
+            yield mset_subtract_elm(available, elm);
+            deref rSubject = available;
         };
     };
-   deref rRemaining = available;
 }
 
-/*
-coroutine MATCH_LITERAL_IN_SET[3, pat, available, rRemaining, gen, elm]{
-    println("MATCH_LITERAL_IN_SET", pat, iSubject, rRemaining);
-	guard size_mset(available) > 0;
-	
-	// TODO where does elm get its value?
-	
-	if(is_element_mset(elm, available)){
-       yield(mset_destructive_subtract_elm(available, elm));
-    };
-}
-*/
-
-coroutine MATCH_VAR_IN_SET[3, rVar, available, rRemaining, gen, elm]{
-    println("MATCH_VAR_IN_SET", rVar, available, rRemaining);
+coroutine MATCH_VAR_IN_SET[2, rVar, rSubject, available, gen, elm]{
+    available = deref rSubject;
     guard size_mset(available) > 0;
  	if(is_defined(rVar)){
       elm = deref rVar;
       if(is_element_mset(elm, available)){
-        yield(elm, mset_destructive_subtract_elm(available, elm));
-        available = mset_destructive_add_elm(available, elm); /**/
+        yield(elm, mset_subtract_elm(available, elm));
+        deref rSubject = available;
       };
       exhaust;
     };
     gen = init(ENUM_MSET, available, ref elm);
     while(next(gen)) {
-	  yield(elm, mset_destructive_subtract_elm(available, elm));
-	 available = mset_destructive_add_elm(available, elm);
+	  yield(elm, mset_subtract_elm(available, elm));
+	  deref rSubject = available;
     };
     undefine(rVar);
-   deref rRemaining = available;
 }
 
-coroutine MATCH_TYPED_VAR_IN_SET[4, typ, rVar, available, rRemaining, gen, elm]{
+coroutine MATCH_TYPED_VAR_IN_SET[3, typ, rVar, rSubject, available, gen, elm]{
+    available = deref rSubject;
     guard size_mset(available) > 0;
 
     gen = init(ENUM_MSET, available, ref elm);
     while(next(gen)) {
         if(subtype(typeOf(elm), typ)){
-            yield(elm, mset_destructive_subtract_elm(available, elm));
-	        available = mset_destructive_add_elm(available, elm);
+            yield(elm, mset_subtract_elm(available, elm));
+	        deref rSubject = available;
 	    };
     };
-    deref rRemaining = available;
 }
 
-coroutine MATCH_ANONYMOUS_VAR_IN_SET[2, available, rRemaining, gen, elm]{
+coroutine MATCH_ANONYMOUS_VAR_IN_SET[1, rSubject, available, gen, elm]{
+    available = deref rSubject;
 	guard size_mset(available) > 0;
     
     gen = init(ENUM_MSET, available, ref elm);
     while(next(gen)) { 
-        yield mset_destructive_subtract_elm(available, elm);
-        available = mset_destructive_add_elm(available, elm);
+        yield mset_subtract_elm(available, elm);
+        deref rSubject = available;
    };
-   deref rRemaining = available;
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET[3, typ, available, rRemaining, gen, elm]{
+coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET[2, typ, rSubject, available, gen, elm]{
+    available = deref rSubject; 
 	guard size_mset(available) > 0;
     
     gen = init(ENUM_MSET, available, ref elm);
     while(next(gen)) { 
         if(subtype(typeOf(elm), typ)){
-            yield mset_destructive_subtract_elm(available, elm);
-            available = mset_destructive_add_elm(available, elm);
+            yield mset_subtract_elm(available, elm);
+            deref rSubject = available;
         };
    };
-   deref rRemaining = available;
 }
 
-coroutine MATCH_MULTIVAR_IN_SET[3, rVar, available, rRemaining, gen, subset]{
+coroutine MATCH_MULTIVAR_IN_SET[2, rVar, rSubject, available, gen, subset]{
+    available = deref rSubject;
     if(is_defined(rVar)){
       subset = deref rVar;
       if(subset_set_mset(subset, available)){
-         yield(subset, mset_destructive_subtract_set(available, subset));
-         available = mset_destructive_add_mset(available, subset);
+         yield(subset, mset_subtract_set(available, subset));
+         deref rSubject = available;
       };
       exhaust;
     };
     gen = init(ENUM_SUBSETS, available, ref subset);
     while(next(gen)) {
-	    yield(set(subset), mset_destructive_subtract_mset(available, subset));
-	    available = mset_destructive_add_mset(available, subset);
+	    yield(set(subset), mset_subtract_mset(available, subset));
+	    deref rSubject = available;
     };
-    deref rRemaining = available;
     undefine(rVar);
 }
 
-coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining, gen, subset]{
-    println("MATCH_ANONYMOUS_MULTIVAR_IN_SET", available, rRemaining);
+coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET[1, rSubject, available, gen, subset]{
+    available = deref rSubject;
     gen = init(ENUM_SUBSETS, available, ref subset);
     while(next(gen)) {
-	    yield mset_destructive_subtract_mset(available, subset);
-	    available = mset_destructive_add_mset(available, subset);
+	    yield mset_subtract_mset(available, subset);
+	    deref rSubject = available;
     };
-    deref rRemaining = available;
 }
 
-coroutine MATCH_LAST_MULTIVAR_IN_SET[3, rVar, available, rRemaining, subset]{
+coroutine MATCH_LAST_MULTIVAR_IN_SET[2, rVar, rSubject, available, subset]{
+    available = deref rSubject;
     if(is_defined(rVar)){
       subset = deref rVar;
       if(equal_set_mset(subset, available)){
-         yield(subset,  mset_empty());
+         yield(subset, mset_empty());
+         deref rSubject = available;
       };
       exhaust;
     };
     yield(set(available), mset_empty());
-    deref rRemaining = available;
+    deref rSubject = available;
     undefine(rVar);
 }
 
-coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_SET[2, available, rRemaining]{
+coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_SET[1, rSubject, available]{
+    available = deref rSubject;
     yield mset_empty();
+    deref rSubject = available;
 }
 
-coroutine MATCH_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining, gen, subset, iSubset, tmp]{    
-    println("MATCH_TYPED_MULTIVAR_IN_SET", rVar, available, rRemaining);
-    gen = init(ENUM_SUBSETS, available, ref subset);
-    while(next(gen)) {
-        iSubset = set(subset);
-        println("MATCH_TYPED_MULTIVAR_IN_SET, subset", iSubset);
-        if(subtype(typeOf(iSubset), typ)){   // || subtype(typeOfMset(deref rRemaining), typ)){
-           tmp = mset_destructive_subtract_mset(available, subset);
-           println("MATCH_TYPED_MULTIVAR_IN_SET, subset passes", iSubset, tmp);
-	       yield(iSubset,tmp);
-	       available = mset_destructive_add_mset(available, subset);
-	       println("MATCH_TYPED_MULTIVAR_IN_SET,available becomes", available);
-	    };
-    };
-    deref rRemaining = available;
-}
-
-coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
-    println("MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET", typ, available, rRemaining);
-    //guard subtype(typeOfMset(deref rRemaining), typ);
-    
+coroutine MATCH_TYPED_MULTIVAR_IN_SET[3, typ, rVar, rSubject, available, gen, subset]{ 
+    available = deref rSubject;   
     gen = init(ENUM_SUBSETS, available, ref subset);
     while(next(gen)) {
         if(subtype(typeOfMset(subset), typ)){
-           yield mset_destructive_subtract_mset(available, subset);
-	       deref rRemaining = mset_destructive_add_mset(available, subset);
+           yield(set(subset), mset_subtract_mset(available, subset));
+	       deref rSubject = available;
 	    };
     };
-    deref rRemaining = available;
 }
 
-coroutine MATCH_LAST_TYPED_MULTIVAR_IN_SET[4, typ, rVar, available, rRemaining]{
-    println("MATCH_LAST_TYPED_MULTIVAR_IN_SET", typ, rVar, available, deref rRemaining);
-    guard /*subtype(typeOf(iSubject), typ) || */ subtype(typeOfMset(available), typ);
-    println("MATCH_LAST_TYPED_MULTIVAR_IN_SET, passes");
+coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET[2, typ, rSubject, available, gen, subset]{
+    available = deref rSubject;
+    gen = init(ENUM_SUBSETS, available, ref subset);
+    while(next(gen)) {
+        if(subtype(typeOfMset(subset), typ)){
+           yield mset_subtract_mset(available, subset);
+	       deref rSubject = available;
+	    };
+    };
+}
+
+coroutine MATCH_LAST_TYPED_MULTIVAR_IN_SET[3, typ, rVar, rSubject, available]{
+    available = deref rSubject;
+    guard subtype(typeOfMset(available), typ);
     yield(set(available), mset_empty());
+    deref rSubject = available;
 }
 
-coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET[3, typ, available, rRemaining, gen, subset]{
-    println("MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET", typ, available, deref rRemaining);
+coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET[2, typ, rSubject, available, gen, subset]{
+    available = deref rSubject;
     guard subtype(typeOfMset(available), typ);
     yield mset_empty();
+    deref rSubject = available;
 }
 
 // The power set of a set of size n has 2^n-1 elements 
