@@ -83,8 +83,8 @@ private int estimate(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp \defa
 private int estimate(muFailReturn()) = 0;
 private int estimate(muFilterReturn()) = 0;
 
-private int estimate(muInit(MuExp exp)) = estimate(exp);
-private int estimate(muInit(MuExp coro, list[MuExp] args)) = max(estimate(coro), 1 + estimate_arg_list(args));
+private int estimate(muCreate(MuExp exp)) = estimate(exp);
+private int estimate(muCreate(MuExp coro, list[MuExp] args)) = max(estimate(coro), 1 + estimate_arg_list(args));
 
 private int estimate(muNext(MuExp coro)) = estimate(coro);
 private int estimate(muNext(MuExp coro, list[MuExp] args)) = max(estimate(coro), 1 + estimate_arg_list(args));

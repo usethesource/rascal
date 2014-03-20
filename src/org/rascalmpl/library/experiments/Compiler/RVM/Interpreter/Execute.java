@@ -307,9 +307,13 @@ public class Execute {
 			case "HALT":
 				codeblock.HALT();
 				break;
+				
+			case "CREATE":
+				codeblock.CREATE(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				break;
 
-			case "INIT":
-				codeblock.INIT(getIntField(instruction, "arity"));
+			case "CREATEDYN":
+				codeblock.CREATEDYN(getIntField(instruction, "arity"));
 				break;
 				
 			case "RESET":

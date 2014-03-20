@@ -282,7 +282,7 @@ MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
         if(backtrackfree[j]) {
             body = [ muIfelse(nextLabel(), exps[j], body, [ muCon(222) ]) ];
         } else {
-            body = [ muAssign("c_<j>", all_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body), muCon(222) ];
+            body = [ muAssign("c_<j>", all_uid, j, muCreate(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body), muCon(222) ];
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
