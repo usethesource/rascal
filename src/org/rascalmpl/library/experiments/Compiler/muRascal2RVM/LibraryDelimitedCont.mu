@@ -82,7 +82,7 @@ function RASCAL_ALL[2, genArray, generators,
 // All ENUM declarations have a parameter 'rVal' that is used to yield their value
 
 function ENUM_LITERAL[2, iLit, rVal]{
-   shift(cons NEXT(fun SHIFT_CLOSURE(cont, [ rVal ], [ iLit ])));
+   shift(cons NEXT(bind(SHIFT_CLOSURE, cont, [ rVal ], [ iLit ])));
    return cons EXHAUSTED();
 }
 
@@ -93,7 +93,7 @@ function ENUM_LIST[2, iLst, rVal, len, j]{
    };
    j = 0;
    while(j < len) {
-      shift(cons NEXT(fun SHIFT_CLOSURE(cont, [ rVal ], [ get_list(iLst, j) ])));
+      shift(cons NEXT(bind(SHIFT_CLOSURE, cont, [ rVal ], [ get_list(iLst, j) ])));
       j = j + 1;
    };
    return cons EXHAUSTED();
@@ -107,7 +107,7 @@ function ENUM_SET[2, iSet, rVal, iLst, len, j]{
    };
    j = 0;
    while(j < len) {
-      shift(cons NEXT(fun SHIFT_CLOSURE(cont, [ rVal ], [ get_list(iLst, j) ])));
+      shift(cons NEXT(bind(SHIFT_CLOSURE, cont, [ rVal ], [ get_list(iLst, j) ])));
       j = j + 1;
    };
    return cons EXHAUSTED();
@@ -121,7 +121,7 @@ function ENUM_MAP[2, iMap, rVal, iKlst, len, j]{
    };
    j = 0;
    while(j < len) {
-      shift(cons NEXT(fun SHIFT_CLOSURE(cont, [ rVal ], [ get_list(iKlst, j) ])));
+      shift(cons NEXT(bind(SHIFT_CLOSURE, cont, [ rVal ], [ get_list(iKlst, j) ])));
       j = j + 1;
    };
    return cons EXHAUSTED();
@@ -135,7 +135,7 @@ function ENUM_NODE[2, iNd, rVal, len, j, array]{
    };
    j = 0;
    while(j < len) {
-      shift(cons NEXT(fun SHIFT_CLOSURE(cont, [ rVal ], [ get_array(array, j) ])));
+      shift(cons NEXT(bind(SHIFT_CLOSURE, cont, [ rVal ], [ get_array(array, j) ])));
       j = j + 1;
    };
    return cons EXHAUSTED();
@@ -148,14 +148,14 @@ function ENUM_TUPLE[2, iTup, rVal, len, j]{
    };
    j = 0;
    while(j < len) {
-      shift(cons NEXT(fun SHIFT_CLOSURE(cont, [ rVal ], [ get_tuple(iTup, j) ])));
+      shift(cons NEXT(bind(SHIFT_CLOSURE, cont, [ rVal ], [ get_tuple(iTup, j) ])));
       j = j + 1;
    };
    return cons EXHAUSTED();
 }
 
 function ENUMERATE_AND_MATCH1[2, enumerator, pat, iElm]{ 
-   enumerator = reset(fun enumerator(ref iElm));
+   enumerator = reset(bind(enumerator, ref iElm));
    while(NEXT(enumerator)) {
      enumerator = prim("adt_field_access",enumerator,"cont")();
      pat(iElm);
@@ -198,7 +198,7 @@ function ENUMERATE_CHECK_AND_ASSIGN1[3, enumerator, typ, rVar, iElm]{
    while(NEXT(enumerator)){
      enumerator = prim("adt_field_access",enumerator,"cont")();
      if(subtype(typeOf(iElm), typ)){
-     	shift(cons NEXT(fun SHIFT_CLOSURE(cont, [ rVar ], [ iElm ])));
+     	shift(cons NEXT(bind(SHIFT_CLOSURE, cont, [ rVar ], [ iElm ])));
      };
    };
    return cons EXHAUSTED();

@@ -25,10 +25,10 @@ function MAIN[2,args,kwargs,f,res1,res2,co1,co2,continue,f1,f2] {
         };
     };
     
-    println("The same but using \"!\":");
+    println("The same but using \"bind\":");
     
-    f1 = fun f(10, ref res1);
-    f2 = fun f(20, ref res2);
+    f1 = bind(f, 10, ref res1);
+    f2 = bind(f, 20, ref res2);
     co1 = create(f1);
     co2 = create(f2);
     continue = true;
