@@ -100,18 +100,13 @@ public class RascalJUnitTestRunner extends Runner {
 				Description modDesc = Description.createSuiteDescription(name);
 				desc.addChild(modDesc);
 				
-<<<<<<< HEAD
 				List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
 				
         for (int i = tests.size() - 1; i >= 0; i--) {
           AbstractFunction f = tests.get(i);
-					modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
-=======
-				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
-				  if (!f.hasTag("ignore")) {
-				    modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
-				  }
->>>>>>> master
+          if (!f.hasTag("ignore")) {
+            modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
+          }
 				}
 			}
 			
