@@ -69,7 +69,7 @@ public class Generator implements Opcodes {
 		if (!emit)
 			return;
 		mv = cw.visitMethod(ACC_PUBLIC, name, "()Ljava/lang/Object;", null, null);
-		labelMap.clear();
+		labelMap.clear(); // New set of labels.
 		mv.visitCode();
 	}
 
@@ -94,9 +94,6 @@ public class Generator implements Opcodes {
 	public void emitJMPTRUE(String targetLabel) {
 		if (!emit)
 			return;
-		Label l0 = new Label();
-		Label l1 = new Label();
-
 		Label lb = labelMap.get(targetLabel);
 		if (lb == null) {
 			lb = new Label();
@@ -113,9 +110,9 @@ public class Generator implements Opcodes {
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "TRUE", "Ljava/lang/Boolean;");
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
 
-		mv.visitJumpInsn(IFNE, l0); // Direct goto possible
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
+		mv.visitJumpInsn(IFNE, lb); // Direct goto possible
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
@@ -125,20 +122,15 @@ public class Generator implements Opcodes {
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "Rascal_TRUE", "Lorg/eclipse/imp/pdb/facts/IBool;");
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
-		mv.visitJumpInsn(IFEQ, l1);
 
-		mv.visitLabel(l0);
-		// mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-		mv.visitJumpInsn(GOTO, lb);
-		mv.visitLabel(l1);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
+		mv.visitJumpInsn(IFNE, lb);
+
 	}
 
 	public void emitJMPFALSE(String targetLabel) {
 		if (!emit)
 			return;
-		Label l0 = new Label();
-		Label l1 = new Label();
 
 		Label lb = labelMap.get(targetLabel);
 		if (lb == null) {
@@ -146,7 +138,7 @@ public class Generator implements Opcodes {
 			labelMap.put(targetLabel, lb);
 		}
 
-		emitPOP();
+		emitPOP(); // Decrement stack pointer first reduces the number of sp-1 calculations.
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
@@ -156,9 +148,9 @@ public class Generator implements Opcodes {
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "FALSE", "Ljava/lang/Boolean;");
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
 
-		mv.visitJumpInsn(IFNE, l0); // Direct goto possible
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
+		mv.visitJumpInsn(IFNE, lb); // Direct goto possible
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
@@ -168,13 +160,9 @@ public class Generator implements Opcodes {
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
-		mv.visitJumpInsn(IFEQ, l1);
 
-		mv.visitLabel(l0);
-		// mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-		mv.visitJumpInsn(GOTO, lb);
-		mv.visitLabel(l1);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
+		mv.visitJumpInsn(IFNE, lb);
 	}
 
 	public void emitPOP() {
@@ -246,6 +234,53 @@ public class Generator implements Opcodes {
 	public void emitReturn0() {
 		if (!emit)
 			return;
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitInsn(ARETURN);
+	}
+
+	public void emitExhaust() {
+		if (!emit)
+			return;
+		Label l0 = new Label();
+		
+		// Check for previousCallFrame if none return Rascal_False
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "previousCallFrame", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitJumpInsn(IFNONNULL, l0);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+		mv.visitInsn(ARETURN);
+
+		// TODO handle reentry on NEXT ?? 
+		mv.visitLabel(l0);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitInsn(DUP);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitInsn(DUP_X1);
+		mv.visitInsn(ICONST_1);
+		mv.visitInsn(IADD);
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+		mv.visitInsn(AASTORE);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
@@ -384,7 +419,7 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 2);
 		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IValueFactory", "list", "([Lorg/eclipse/imp/pdb/facts/IValue;)Lorg/eclipse/imp/pdb/facts/IList;");
 		mv.visitInsn(AASTORE);
-		
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
@@ -447,6 +482,74 @@ public class Generator implements Opcodes {
 		mv.visitEnd();
 	}
 
+	public void emitOCallHandler(String OCallName, String funIn, int scopeIn, int[] functions, int[] constructors) {
+		mv = cw.visitMethod(ACC_PUBLIC, OCallName, "()Ljava/lang/Object;", null, null);
+		mv.visitCode();
+
+		if (funIn == null)
+			funIn = new String("unknown_funIn");
+		System.out.println(funIn);
+		mv.visitLdcInsn(funIn);
+		mv.visitVarInsn(ASTORE, 1);
+
+		mv.visitLdcInsn(new Integer(scopeIn));
+		mv.visitVarInsn(ISTORE, 2);
+
+		mv.visitIntInsn(SIPUSH, functions.length);
+		mv.visitIntInsn(NEWARRAY, T_INT);
+		mv.visitVarInsn(ASTORE, 3);
+
+		for (int i = 0; i < functions.length; i++) {
+			mv.visitVarInsn(ALOAD, 3);
+			mv.visitIntInsn(SIPUSH, i);
+			mv.visitIntInsn(SIPUSH, functions[i]);
+			mv.visitInsn(IASTORE);
+		}
+
+		mv.visitIntInsn(SIPUSH, constructors.length);
+		mv.visitIntInsn(NEWARRAY, T_INT);
+		mv.visitVarInsn(ASTORE, 4);
+
+		for (int i = 0; i < constructors.length; i++) {
+			mv.visitVarInsn(ALOAD, 4);
+			mv.visitIntInsn(SIPUSH, i);
+			mv.visitIntInsn(SIPUSH, constructors[i]);
+			mv.visitInsn(IASTORE);
+		}
+	}
+
+	public void emitOCallCALL(String callFunc, int funcListIndex) {
+		Label noExit = new Label();
+		// First part make make frame based, the function is found in a local table
+		// index by funcListIndex
+
+		
+		// Call function and store return result 
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, callFunc, "()Ljava/lang/Object;");
+		mv.visitVarInsn(ASTORE, 4);
+
+		// Check return result
+		mv.visitVarInsn(ALOAD, 4);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
+		mv.visitJumpInsn(IFEQ, noExit);
+		mv.visitVarInsn(ALOAD, 4);
+		mv.visitInsn(ARETURN);
+		mv.visitLabel(noExit);   // FAIlRETURN try next alternative
+	}
+
+	public void emitOCallEnd() {
+		// This code handles the case that ALL alternatives fail
+		
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitInsn(ARETURN);
+		mv.visitMaxs(0, 0);
+		mv.visitEnd();
+	}
+
 	public static void main(String[] argv) {
 		byte[] result = null;
 		System.out.println("Getting started!\n");
@@ -471,4 +574,5 @@ public class Generator implements Opcodes {
 			e.printStackTrace();
 		}
 	}
+
 }

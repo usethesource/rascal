@@ -9,7 +9,7 @@ public class Exhaust extends Instruction {
 		super(ins, Opcode.EXHAUST);
 	}
 	public void generate(Generator codeEmittor){
-		codeEmittor.emitCall("insnEXHAUST");
+		codeEmittor.emitExhaust();
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

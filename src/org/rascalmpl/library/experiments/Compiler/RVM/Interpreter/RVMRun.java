@@ -58,12 +58,12 @@ public class RVMRun {
 
 	// Function overloading
 	private final Map<String, Integer> resolver;
-	private ArrayList<OverloadedFunction> overloadedStore;
+	protected ArrayList<OverloadedFunction> overloadedStore;
 
 	private TypeStore typeStore = new TypeStore();
 	private final Types types;
 
-	private ArrayList<Type> constructorStore;
+	protected ArrayList<Type> constructorStore;
 	private Map<String, Integer> constructorMap;
 
 	private final Map<IValue, IValue> moduleVariables;

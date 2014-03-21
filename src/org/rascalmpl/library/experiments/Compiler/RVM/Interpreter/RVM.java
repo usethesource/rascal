@@ -47,48 +47,12 @@ public class RVM extends ClassLoader {
 	PrintWriter stdout;
 	PrintWriter stderr;
 
-	// Management of active coroutines
-	// Stack<Coroutine> activeCoroutines = new Stack<>();
-	// Frame ccf = null; // The start frame of the current active coroutine
-	// // (coroutine's main function)
-	// Frame cccf = null; // The candidate coroutine's start frame; used by the
-	// // guard semantics
 	IEvaluatorContext ctx;
-
-	// // An exhausted coroutine instance
-	// public static Coroutine exhausted = new Coroutine(null) {
-	//
-	// @Override
-	// public void next(Frame previousCallFrame) {
-	// throw new RuntimeException("Internal error: an attempt to activate an exhausted coroutine instance.");
-	// }
-	//
-	// @Override
-	// public void suspend(Frame current) {
-	// throw new RuntimeException("Internal error: an attempt to suspend an exhausted coroutine instance.");
-	// }
-	//
-	// @Override
-	// public boolean isInitialized() {
-	// return true;
-	// }
-	//
-	// @Override
-	// public boolean hasNext() {
-	// return false;
-	// }
-	//
-	// @Override
-	// public Coroutine copy() {
-	// throw new RuntimeException("Internal error: an attempt to copy an exhausted coroutine instance.");
-	// }
-	// };
 
 	public RVM(IValueFactory vf, IEvaluatorContext ctx, boolean debug, boolean profile) {
 		super();
 
 		this.vf = vf;
-		// tf = TypeFactory.getInstance();
 
 		this.ctx = ctx;
 		this.stdout = ctx.getStdOut();
@@ -106,7 +70,6 @@ public class RVM extends ClassLoader {
 
 		resolver = new HashMap<String, Integer>();
 		overloadedStore = new ArrayList<OverloadedFunction>();
-
 	}
 
 	public RVM(IValueFactory vf) {
@@ -215,11 +178,10 @@ public class RVM extends ClassLoader {
 			for (Function f : functionStore) {
 				f.finalize(codeEmittor, functionMap, constructorMap, resolver, listing);
 			}
+			
 			// All functions are created
-
 			codeEmittor.emitDynPrelude();
 			codeEmittor.emitDynDispatch(functionMap.size());
-
 			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
 				String fname = e.getKey();
 				codeEmittor.emitDynCaLL(fname, e.getValue());
@@ -228,7 +190,7 @@ public class RVM extends ClassLoader {
 
 			int oid = 0;
 			for (OverloadedFunction of : overloadedStore) {
-				of.finalize(functionMap, oid++);
+				of.finalize(codeEmittor,functionMap, oid++);
 			}
 		}
 	}
@@ -306,11 +268,17 @@ public class RVM extends ClassLoader {
 
 				finalize(codeEmittor);
 
-				codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
+				codeEmittor.dump("/Users/ferryrietveld/Running.class");
 
 				rvmGenCode = codeEmittor.finalizeCode();
 
-				// Experimental
+                Class<?> generatedClassV1 = new ClassLoader(getClass().getClassLoader()) {
+                    public Class<?> defineClass(String name, byte[] bytes) {
+                        return super.defineClass(name, bytes, 0, bytes.length);
+                    }
+                }.defineClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running", rvmGenCode);
+
+                // Experimental
 
 				ClassLoader cl = RVM.class.getClassLoader();
 				Class<?> generatedClassV2 = null;
@@ -330,11 +298,12 @@ public class RVM extends ClassLoader {
 				// }
 				// }
 
-				generatedClassV2 = cl.loadClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running");
+				//generatedClassV2 = cl.loadClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running");
 
-				Constructor<?>[] cons = generatedClassV2.getConstructors();
+				Constructor<?>[] cons1 = generatedClassV1.getConstructors();
+				//Constructor<?>[] cons2 = generatedClassV2.getConstructors();
 
-				runner = (RVMRun) cons[0].newInstance(vf, ctx, debug, profile);
+				runner = (RVMRun) cons1[0].newInstance(vf, ctx, debug, profile);
 				//runner = new RVMRun(vf, ctx, profile, profile) ;
 				runner.inject(functionStore, overloadedStore, constructorStore, typeStore, functionMap);
 
@@ -364,7 +333,7 @@ public class RVM extends ClassLoader {
 		
 		Object o2 = null ;
 		if ( uid_main.contains("Simple/main")) {
-			o2 = runner.dynRun(uid_main, args) ;
+			//o2 = runner.dynRun(uid_main, args) ;
 		}
 		
 		Object o = runner.executeProgram(root, cf);

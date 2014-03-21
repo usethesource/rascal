@@ -15,11 +15,12 @@ public class OverloadedFunction {
 		this.funIn = funIn;
 	}
 
-	public void finalize(Map<String, Integer> functionMap, int oid) {
+	public void finalize(Generator codeEmittor, Map<String, Integer> functionMap, int oid) {
 		if (funIn != null) {
 			this.scopeIn = functionMap.get(funIn);
 		}
-		System.out.println("public void oid" + oid + "() {");
+		codeEmittor.emitOCallHandler("OverLoadedHanderIOD"+oid,funIn,scopeIn,functions,constructors);
+		int funcListIndex = 0 ;
 		for (int i : functions) {
 			String fname = null;
 			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
@@ -28,8 +29,10 @@ public class OverloadedFunction {
 					break;
 				}
 			}
+			codeEmittor.emitOCallCALL(NameMangler.mangle(fname),funcListIndex++) ;
 			System.out.println("\t" + fname + "  // id " + i);
 		}
+		codeEmittor.emitOCallEnd();
 		System.out.println("}");
 	}
 }
