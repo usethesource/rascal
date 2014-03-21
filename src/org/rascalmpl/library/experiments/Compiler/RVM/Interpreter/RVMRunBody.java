@@ -4,6 +4,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.type.Type;
 
 public class RVMRunBody extends RVMRun {
 
@@ -166,4 +167,60 @@ public class RVMRunBody extends RVMRun {
 		}
 		return vf.bool(false);
 	}
+	
+	int[]  dodo ;
+	public Object ocallOID() {
+		String p = "ehhd do maar" ;
+		int    scope = 120399393 ; 
+		
+		int[] cons = new int[0] ;
+		Object rval ;
+		
+		cons[800] = 19990 ;
+		cons[900] = 29999 ;
+		
+		nop() ;
+		
+		rval = fret() ;
+		if (rval.equals(NONE)) return rval ;
+		
+		nop() ;
+		
+		return p + scope  ;
+	}
+	public void insnOCALL(int ofun, int arity) {
+		cf.sp = sp;
+		cf.pc = pc;
+
+		OverloadedFunction of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
+		c_ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, root, null, arity) : 
+										 OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.functions, of.constructors, of.scopeIn, null, arity);
+
+		ocalls.push(c_ofun_call);
+
+		Frame frame = c_ofun_call.nextFrame(functionStore);
+
+		if (frame != null) {
+			cf = frame;
+			stack = cf.stack;
+			sp = cf.sp;
+			pc = cf.pc;
+		} else {
+			Type constructor = c_ofun_call.nextConstructor(constructorStore);
+			sp = sp - arity;
+			stack[sp++] = vf.constructor(constructor, c_ofun_call.getConstructorArguments(constructor.getArity()));
+		}
+		
+	}
+	public Object EXHAUST() {
+		cf = cf.previousCallFrame;
+		if (cf == null) {
+			return  Rascal_FALSE ; 
+		}
+		stack = cf.stack;
+		sp = cf.sp;
+		stack[sp++] = Rascal_FALSE; 
+		return NONE;
+	}
+
 }

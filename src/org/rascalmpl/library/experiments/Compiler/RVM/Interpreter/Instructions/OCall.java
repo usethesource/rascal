@@ -18,6 +18,9 @@ public class OCall extends Instruction {
 		
 	public void generate(Generator codeEmittor){
 		System.out.println("\tOCALL " + fuid + " // oid" +  codeblock.getOverloadedFunctionIndex(fuid));
+		
+		codeEmittor.emitCall("OverLoadedHanderIOD" + codeblock.getOverloadedFunctionIndex(fuid),arity);
+		
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getOverloadedFunctionIndex(fuid), arity);
 	}
 }
