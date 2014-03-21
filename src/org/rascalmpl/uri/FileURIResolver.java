@@ -47,6 +47,29 @@ public class FileURIResolver implements IURIInputOutputResolver {
 		throw new IOException("uri has no path: " + uri);
 	}
 	
+	@Override
+	public void remove(URI uri) throws IOException {
+	  String path = getPath(uri);
+	  File file = new File(uri);
+	  
+	  try {
+	    if (file.isFile()) { 
+	      file.delete();
+	    }
+	    else {
+	      for (String element : file.list()) {
+	        remove(URIUtil.changePath(uri, path + "/" + element));
+	      }
+	      
+	      file.delete();
+	    }
+	  } 
+	  catch (URISyntaxException e) {
+      throw new IOException("unexpected URI syntax error", e);
+    }
+	  finally { }
+	}
+	
 	public String scheme() {
 		return "file";
 	}
