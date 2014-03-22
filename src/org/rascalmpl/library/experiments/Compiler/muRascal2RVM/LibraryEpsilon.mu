@@ -847,6 +847,8 @@ coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, ap
 coroutine MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, iSubject, rNext) 
     guard { var start = deref rNext, cavailable = size(iSubject) - start, clen = min(mint(iMaxLen), max(cavailable - mint(iLookahead), 0)); clen >= mint(iMinLen) } 
 {
+    var iVal, end
+    
     if(is_defined(rVar)) {
         // TODO: check length
         iVal = deref rVar
