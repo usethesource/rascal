@@ -14,7 +14,7 @@ public class LoadLoc extends Instruction {
 	
 	public String toString() { return "LOADLOC " + pos; }
 	
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("insnLOADLOC", pos) ;
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}

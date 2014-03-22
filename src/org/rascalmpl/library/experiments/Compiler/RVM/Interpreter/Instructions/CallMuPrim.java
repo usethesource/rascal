@@ -17,7 +17,7 @@ public class CallMuPrim extends Instruction {
 	
 	public String toString() { return "CALLMUPRIM " + muprim + ", " + arity; }
 	
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("insnCALLMUPRIM", muprim.ordinal(), arity);
 		codeblock.addCode2(opcode.getOpcode(), muprim.ordinal(), arity);
 	}

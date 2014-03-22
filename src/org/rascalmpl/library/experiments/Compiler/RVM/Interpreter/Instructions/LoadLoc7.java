@@ -9,7 +9,7 @@ public class LoadLoc7 extends Instruction {
 		super(ins, Opcode.LOADLOC7);
 	}
 
-	public void generate(Generator codeEmittor) {
+	public void generate(Generator codeEmittor, boolean debug) {
 		codeEmittor.emitCall("insnLOADLOC7");
 		codeblock.addCode0(opcode.getOpcode());
 	}

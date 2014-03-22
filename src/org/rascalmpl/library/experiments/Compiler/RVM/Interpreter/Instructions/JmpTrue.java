@@ -14,10 +14,10 @@ public class JmpTrue extends Instruction {
 	
 	public String toString() { return "JMPTRUE " + label + " [" + codeblock.getLabelPC(label) + "]"; }
 	
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		codeEmittor.emitJMPTRUE(label);
 
-		/* TODO debug */ codeEmittor.emitCall("dinsnJMPTRUE", codeblock.getLabelPC(label));
+		if ( dcode ) codeEmittor.emitCall("dinsnJMPTRUE", codeblock.getLabelPC(label));
 
 		codeEmittor.emitJMPTRUE(label);
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getLabelPC(label));

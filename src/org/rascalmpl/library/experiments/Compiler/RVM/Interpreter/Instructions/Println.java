@@ -14,7 +14,7 @@ public class Println extends Instruction {
 	
 	public String toString() { return "PRINTLN " + arity; }
 	
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
 }

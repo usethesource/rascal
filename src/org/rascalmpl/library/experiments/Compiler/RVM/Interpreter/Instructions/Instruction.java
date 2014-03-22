@@ -21,7 +21,7 @@ public abstract class Instruction {
 		return opcode.toString();
 	}
 	
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		 codeblock.addCode0(opcode.getOpcode());
 	}
    

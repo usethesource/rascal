@@ -8,8 +8,8 @@ public class Return0 extends Instruction {
 	public Return0(CodeBlock ins) {
 		super(ins, Opcode.RETURN0);
 	}
-	public void generate(Generator codeEmittor){
-		System.out.println("RETURN0");
+	public void generate(Generator codeEmittor, boolean dcode){
+		//System.out.println("RETURN0");
 		codeEmittor.emitReturn0();
 		codeblock.addCode0(opcode.getOpcode());
 	}

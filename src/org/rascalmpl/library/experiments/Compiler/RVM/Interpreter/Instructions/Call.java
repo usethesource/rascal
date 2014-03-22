@@ -16,7 +16,7 @@ public class Call extends Instruction {
 	
 	public String toString() { return "CALL " + fuid + ", " + arity + " [ " + codeblock.getFunctionIndex(fuid) + " ]"; }
 		
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		// TODO this is wrong !!!
 		// Call function directly needs name demangling.
 		/* TODO debug */ codeEmittor.emitCall("dinsnCALL", codeblock.getFunctionIndex(fuid));

@@ -8,7 +8,7 @@ public class FailReturn extends Instruction {
 	public FailReturn(CodeBlock ins) {
 		super(ins, Opcode.FAILRETURN);
 	}
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		// TODO version 1 done
 		// Implement return system.
 		// System.out.println("FAILRETURN");

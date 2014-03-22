@@ -8,7 +8,7 @@ public class CheckArgType extends Instruction {
 	public CheckArgType(CodeBlock ins) {
 		super(ins, Opcode.CHECKARGTYPE);
 	}
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("insnCHECKARGTYPE");
 		codeblock.addCode0(opcode.getOpcode());
 	}

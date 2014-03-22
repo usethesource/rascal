@@ -8,7 +8,7 @@ public class Guard extends Instruction {
 	public Guard(CodeBlock ins) {
 		super(ins, Opcode.GUARD);
 	}
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("insnGUARD");
 		codeblock.addCode0(opcode.getOpcode());
 	}

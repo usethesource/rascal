@@ -14,7 +14,7 @@ public class CallDyn extends Instruction {
 	
 	public String toString() { return "CALLDYN " + arity; }
 	
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("insnCALLDYN", arity);
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}

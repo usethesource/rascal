@@ -14,7 +14,7 @@ public class ApplyDyn extends Instruction {
 	
 	public String toString() { return "APPLYDYN " + arity; }
 	
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("insnAPPLYDYN", arity);
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
