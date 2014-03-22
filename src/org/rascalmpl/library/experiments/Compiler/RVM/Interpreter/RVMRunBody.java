@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.type.Type;
 
@@ -264,4 +265,19 @@ public class RVMRunBody extends RVMRun {
 		
 		return p + scope  ;
 	}
+	public void insnLOADCON(int arg1) {
+		nop() ;
+		stack[sp++] = cf.function.constantStore[50];
+		nop() ;
+	}
+
+	public void insnLOADLOC3() {
+//		postOp = 0 ;
+//		if (stack[3] != null) {
+			stack[sp++] = stack[3];
+//		} else {
+//			postOp = Opcode.POSTOP_CHECKUNDEF;
+//		}
+	}
+
 }

@@ -19,7 +19,7 @@ public class Function {
 	public final int nlocals;
 	public final int maxstack;
 	final CodeBlock codeblock;
-	IValue[] constantStore;
+	public IValue[] constantStore;
 	Type[] typeConstantStore;
 
 	int continuationPoints = 0;
