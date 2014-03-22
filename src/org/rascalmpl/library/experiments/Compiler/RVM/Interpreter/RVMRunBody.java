@@ -119,16 +119,16 @@ public class RVMRunBody extends RVMRun {
 	@Override
 	public Object dynRun(String fname, IValue[] args) {
 		// 0 this
-		// 1 int n
-		// 2 Function Func
-		// 3 Frame root
+		// 1 fname
+		// 2 args
+		// 3 int n
+		// 4 Function Func
+		// 5 Frame root
 
 		int n ;
 		Function func ;
 		Frame root ;
 		
-		System.out.println(fname);
-
 		n = functionMap.get(fname);
 
 		func = functionStore.get(n);
@@ -196,51 +196,6 @@ public class RVMRunBody extends RVMRun {
 	}
 
 
-	public Object ocallOID() {
-		String p = "ehhd do maar" ;
-		int    scope = 120399393 ; 
-		int[] fnctions = new int[0];
-		int[] cons = new int[0] ;
-		Object rval ;
-		Function func ;
-		Frame root ;
-		
-		
-		cons[800] = 19990 ;
-		cons[900] = 29999 ;
-		
-		
-		nop() ;
-		
-		cf.sp = sp ;
-		
-		nop() ;
-		
-		func = functionStore.get(fnctions[777]);
-		
-		nop() ;
-		
-		root = new Frame(scope, cf, func.maxstack, func);
-		
-		cf = root;
-		
-		nop() ;
-		
-		stack = cf.stack ;
-		
-		nop() ;
-
-		sp = func.nlocals ; 
-		
-		nop() ;
-		
-		rval = fret() ;
-		if (rval.equals(NONE)) return rval ;
-		
-		nop() ;
-		
-		return p + scope  ;
-	}
 	
 	
 	public Object wat() {
@@ -263,5 +218,50 @@ public class RVMRunBody extends RVMRun {
 		sp = cf.sp;
 		stack[sp++] = rval;
 		return NONE;
+	}
+	public Object ocallOID() {
+		String p = "ehhd do maar" ;
+		int    scope = 120399393 ; 
+		int[] fnctions = new int[0];
+		int[] cons = new int[0] ;
+		Object rval ;
+		Function func ;
+		Frame root ;
+				
+		cons[800] = 19990 ;
+		cons[900] = 29999 ;
+		
+		nop() ;
+		
+		cf.sp = sp ;
+		
+		nop() ;
+		
+		func = functionStore.get(fnctions[777]);
+		
+		nop() ;
+		
+		root = cf.getFrame(func, null, func.nformals, sp) ;
+		
+		//root = new Frame(scope, cf, func.maxstack, func);
+		
+		cf = root;
+		
+		nop() ;
+		
+		stack = cf.stack ;
+		
+		nop() ;
+		
+		sp = func.nlocals ; 
+		
+		nop() ;
+		
+		rval = fret() ;
+		if (rval.equals(NONE)) return rval ;
+		
+		nop() ;
+		
+		return p + scope  ;
 	}
 }
