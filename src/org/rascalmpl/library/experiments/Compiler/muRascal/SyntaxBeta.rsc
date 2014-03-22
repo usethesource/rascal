@@ -65,8 +65,8 @@ start syntax Module =
 			
 syntax TypeDeclaration = preTypeDecl: "declares" String sym;
 
-syntax VarDecl = muVarDecl: Identifier!fvar id 
-               | muVarDecl: Identifier!fvar id "=" Exp initializer;
+syntax VarDecl = preVarDecl: Identifier!fvar id 
+               | preVarDecl: Identifier!fvar id "=" Exp initializer;
 
 syntax VarDecls = "var" {VarDecl ","}+;
 
@@ -142,12 +142,12 @@ syntax Exp  =
 			> preAssignVarDeref:  		"deref" FunNamePart+ funNames Identifier!fvar!ivar!mvar id "=" Exp exp
 			
 		
-			| muIfelse: 				"if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}" "else" "{" {Exp (NoNLList Sep NoNLList)}+ elsePart ";"? "}"
-		 	| muIfelse: 				Label label ":" "if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}" "else" "{" {Exp (NoNLList Sep NoNLList)}+ elsePart ";"? "}"
-			| muWhile: 					"while" "(" Exp cond ")" "{" {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
-			| muWhile: 					Label label ":" "while" "(" Exp cond ")" "{" {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
+			| preIfelse: 				"if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}" "else" "{" {Exp (NoNLList Sep NoNLList)}+ elsePart ";"? "}"
+		 	| preIfelse: 				Label label ":" "if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}" "else" "{" {Exp (NoNLList Sep NoNLList)}+ elsePart ";"? "}"
+			| preWhile: 				"while" "(" Exp cond ")" "{" {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
+			| preWhile: 				Label label ":" "while" "(" Exp cond ")" "{" {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
 			
-			| muTypeSwitch:				"typeswitch" "(" Exp exp ")" "{" (TypeCase ";"?)+ cases "default" ":" Exp default ";"? "}"
+			| preTypeSwitch:			"typeswitch" "(" Exp exp ")" "{" (TypeCase ";"?)+ cases "default" ":" Exp default ";"? "}"
 			
 			| muCreate: 				"create" "(" Exp coro ")"
 			| muCreate: 				"create" "(" Exp coro "," {Exp ","}+ args ")"
@@ -171,7 +171,7 @@ syntax Exp  =
 			| preLocRef:     			"ref" Identifier!fvar!rvar id
 			| preVarRef:      			"ref" FunNamePart+ funNames Identifier!fvar!rvar id
 			
-			| muBlock:                  "{" {Exp (NoNLList Sep NoNLList)}+ ";"? "}"
+			| preBlock:                 "{" {Exp (NoNLList Sep NoNLList)}+ exps ";"? "}"
 			
 			| bracket					"(" Exp exp ")"
 			;
