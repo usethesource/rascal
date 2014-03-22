@@ -51,7 +51,7 @@ public class Generator implements Opcodes {
 		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", "<init>",
 				"(Lorg/eclipse/imp/pdb/facts/IValueFactory;Lorg/rascalmpl/interpreter/IEvaluatorContext;ZZ)V");
 		mv.visitInsn(RETURN);
-		mv.visitMaxs(5, 5);
+		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 
 		// Add constructor initialzing super.
@@ -61,7 +61,7 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 1);
 		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", "<init>", "(Lorg/eclipse/imp/pdb/facts/IValueFactory;)V");
 		mv.visitInsn(RETURN);
-		mv.visitMaxs(2, 2);
+		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 	}
 
@@ -302,7 +302,7 @@ public class Generator implements Opcodes {
 		mv.visitJumpInsn(IFNONNULL, l0);
 		mv.visitVarInsn(ALOAD, 1);
 		mv.visitInsn(ARETURN);
-		
+
 		mv.visitLabel(l0);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 0);
@@ -325,7 +325,7 @@ public class Generator implements Opcodes {
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 		mv.visitVarInsn(ALOAD, 1);
 		mv.visitInsn(AASTORE);
-		
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
@@ -368,14 +368,14 @@ public class Generator implements Opcodes {
 		mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
 		mv.visitVarInsn(ISTORE, 3);
-		
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "functionStore", "Ljava/util/ArrayList;");
 		mv.visitVarInsn(ILOAD, 3);
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/ArrayList", "get", "(I)Ljava/lang/Object;");
 		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function");
 		mv.visitVarInsn(ASTORE, 4);
-		
+
 		mv.visitTypeInsn(NEW, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame");
 		mv.visitInsn(DUP);
 		mv.visitVarInsn(ALOAD, 4);
@@ -384,9 +384,10 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 4);
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "maxstack", "I");
 		mv.visitVarInsn(ALOAD, 4);
-		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "<init>", "(ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;)V");
+		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "<init>",
+				"(ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;)V");
 		mv.visitVarInsn(ASTORE, 5);
-		
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 5);
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
@@ -395,7 +396,7 @@ public class Generator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
-		
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
@@ -405,7 +406,7 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 2);
 		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IValueFactory", "list", "([Lorg/eclipse/imp/pdb/facts/IValue;)Lorg/eclipse/imp/pdb/facts/IList;");
 		mv.visitInsn(AASTORE);
-		
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
@@ -415,7 +416,7 @@ public class Generator implements Opcodes {
 		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IValueFactory", "mapWriter", "()Lorg/eclipse/imp/pdb/facts/IMapWriter;");
 		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IMapWriter", "done", "()Lorg/eclipse/imp/pdb/facts/IMap;");
 		mv.visitInsn(AASTORE);
-		
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 4);
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "nlocals", "I");
@@ -467,7 +468,7 @@ public class Generator implements Opcodes {
 	}
 
 	public void emitOCallHandler(String OCallName, String funIn, int scopeIn, int[] functions, int[] constructors) {
-		// 1 String name  ;
+		// 1 String name ;
 		// 2 int scope ;
 		// 3 int[] fnctions ;
 		// 4 int[] cons ;
@@ -514,7 +515,7 @@ public class Generator implements Opcodes {
 		Label noExit = new Label();
 
 		// 0 this
-		// 1 String name  ;
+		// 1 String name ;
 		// 2 int scope ;
 		// 3 int[] fnctions ;
 		// 4 int[] cons ;
@@ -542,7 +543,7 @@ public class Generator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/ArrayList", "get", "(I)Ljava/lang/Object;");
 		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function");
 		mv.visitVarInsn(ASTORE, 6);
-		
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitVarInsn(ALOAD, 6);
@@ -551,7 +552,11 @@ public class Generator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "nformals", "I");
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "getFrame", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;II)Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitMethodInsn(
+				INVOKEVIRTUAL,
+				"org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame",
+				"getFrame",
+				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;II)Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitVarInsn(ASTORE, 7);
 
 		mv.visitVarInsn(ALOAD, 0);
@@ -565,12 +570,12 @@ public class Generator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
 
-		// does : sp = func.nlocals ;  ;
+		// does : sp = func.nlocals ; ;
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 6);
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "nlocals", "I");
-		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");		
-		
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+
 		// Call function and store return result
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, callFunc, "()Ljava/lang/Object;");
@@ -628,4 +633,49 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ASTORE, 1);
 	}
 
+	public void emitInlineLoadCon(int arg) {
+		if (!emit)
+			return;
+
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitInsn(DUP);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitInsn(DUP_X1);
+		mv.visitInsn(ICONST_1);
+		mv.visitInsn(IADD);
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "function",
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;");
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "constantStore", "[Lorg/eclipse/imp/pdb/facts/IValue;");
+		// if (arg >= -128 && arg <= 127)
+		// mv.visitIntInsn(BIPUSH, arg);
+		// else
+		mv.visitIntInsn(SIPUSH, arg);
+		mv.visitInsn(AALOAD);
+		mv.visitInsn(AASTORE);
+	}
+
+	public void emitInlineLoadLoc3() {
+		if (!emit)
+			return;
+		mv.visitCode();
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitInsn(DUP);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitInsn(DUP_X1);
+		mv.visitInsn(ICONST_1);
+		mv.visitInsn(IADD);
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		mv.visitInsn(ICONST_3);
+		mv.visitInsn(AALOAD);
+		mv.visitInsn(AASTORE);
+	}
 }

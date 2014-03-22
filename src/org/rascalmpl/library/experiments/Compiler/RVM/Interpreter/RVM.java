@@ -326,7 +326,7 @@ public class RVM extends ClassLoader {
 		cf.stack[1] = vf.mapWriter().done();
 
 		Object o = null;
-		if (uid_main.contains("!Simple/main")) {
+		if (uid_main.contains("/Simple/main")) {
 			o = runner.dynRun(uid_main, args);
 		}
 		else { 

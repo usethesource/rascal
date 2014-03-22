@@ -14,5 +14,5 @@ value main(list[value] args){
  	//int j = fac(4) ;
  	//int p = pad() ;
  	//if ( j == 5 ) return p * j ;
- 	return fib(30) ;
+ 	return fib(25) ;
 }
