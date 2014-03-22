@@ -178,7 +178,7 @@ public class RVM extends ClassLoader {
 			for (Function f : functionStore) {
 				f.finalize(codeEmittor, functionMap, constructorMap, resolver, listing);
 			}
-			
+
 			// All functions are created
 			codeEmittor.emitDynPrelude();
 			codeEmittor.emitDynDispatch(functionMap.size());
@@ -190,7 +190,7 @@ public class RVM extends ClassLoader {
 
 			int oid = 0;
 			for (OverloadedFunction of : overloadedStore) {
-				of.finalize(codeEmittor,functionMap, oid++);
+				of.finalize(codeEmittor, functionMap, oid++);
 			}
 		}
 	}
@@ -261,50 +261,44 @@ public class RVM extends ClassLoader {
 			try {
 				// runner = new RVMRun(vf, ctx, debug, profile);
 				// runner.inject(functionStore, overloadedStore, constructorStore, typeStore);
-				String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter" ;
-				String className = "Running" ;
-				
-				Generator codeEmittor = new Generator(packageName,className);
+				String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter";
+				String className = "Running";
+
+				Generator codeEmittor = new Generator(packageName, className);
 
 				finalize(codeEmittor);
-
-				codeEmittor.dump("/Users/ferryrietveld/Running.class");
-
 				rvmGenCode = codeEmittor.finalizeCode();
 
-                Class<?> generatedClassV1 = new ClassLoader(getClass().getClassLoader()) {
-                    public Class<?> defineClass(String name, byte[] bytes) {
-                        return super.defineClass(name, bytes, 0, bytes.length);
-                    }
-                }.defineClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running", rvmGenCode);
+				codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
+				codeEmittor.dump("/Users/ferryrietveld/Running.class");
 
-                // Experimental
+				Class<?> generatedClassV1 = new ClassLoader(RVM.class.getClassLoader()) {
+					public Class<?> defineClass(String name, byte[] bytes) {
+						return super.defineClass(name, bytes, 0, bytes.length);
+					}
 
-				ClassLoader cl = RVM.class.getClassLoader();
-				Class<?> generatedClassV2 = null;
-				
-				// Class<?> c = cl.getClass();
-				// Method def = c.getDeclaredMethod("defineClass", new Class[] { String.class, byte[].class, int.class, int.class });
-				// def.setAccessible(true);				
-				// Method[] allMethods = c.getDeclaredMethods();
-				// for (Method m : allMethods) {
-				// String mname = m.getName();
-				// if ( mname.equals("defineClass") ) {
-				// m.setAccessible(true);
-				// System.out.println(mname + " modified");
-				//
-				// Object[] argsv2 = new Object[] { "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running", rvmGenCode , null, null};
-				// generatedClassV2 = (Class<?>) m.invoke(cl, argsv2);
-				// }
-				// }
+					public Class<?> loadClass(String name) {
+						try {
+							return super.loadClass(name);
+						} catch (ClassNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						return null;
+					}
+				}.defineClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running", rvmGenCode);
 
-				//generatedClassV2 = cl.loadClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running");
+				// Experimental
 
-				Constructor<?>[] cons1 = generatedClassV1.getConstructors();
-				//Constructor<?>[] cons2 = generatedClassV2.getConstructors();
+				// ClassLoader cl = RVM.class.getClassLoader();
+				// Class<?> generatedClassV2 = null;
+				// generatedClassV2 = cl.loadClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running");
 
-				runner = (RVMRun) cons1[0].newInstance(vf, ctx, debug, profile);
-				//runner = new RVMRun(vf, ctx, profile, profile) ;
+				// Constructor<?>[] cons1 = generatedClassV1.getConstructors();
+				Constructor<?>[] cons2 = generatedClassV1.getConstructors();
+
+				runner = (RVMRun) cons2[0].newInstance(vf, ctx, debug, profile);
+				// runner = new RVMRun(vf, ctx, profile, profile) ;
 				runner.inject(functionStore, overloadedStore, constructorStore, typeStore, functionMap);
 
 			} catch (Exception e) {
@@ -330,14 +324,14 @@ public class RVM extends ClassLoader {
 		cf.stack[0] = vf.list(args); // pass the program argument to
 										// main_function as a IList object
 		cf.stack[1] = vf.mapWriter().done();
-		
-		Object o2 = null ;
-		if ( uid_main.contains("Simple/main")) {
-			//o2 = runner.dynRun(uid_main, args) ;
+
+		Object o2 = null;
+		if (uid_main.contains("Simple/main")) {
+			o2 = runner.dynRun(uid_main, args);
 		}
-		
+
 		Object o = runner.executeProgram(root, cf);
-		//Object o = o2 ;
+		// Object o = o2 ;
 		if (o != null && o instanceof Thrown) {
 			throw (Thrown) o;
 		}
@@ -346,6 +340,7 @@ public class RVM extends ClassLoader {
 			stdout.println("TRACE:");
 			stdout.println(getTrace());
 		}
+		//runner = null ;
 		return res;
 	}
 }

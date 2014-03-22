@@ -115,46 +115,37 @@ public class RVMRunBody extends RVMRun {
 		return rval;
 	}
 
-	public Object doreturn1() {
-		Object rval = return1Helper();
-		cf = cf.previousCallFrame;
-		if (cf == null) {
-			return rval; // TODO rval;
-		}
-		stack = cf.stack;
-		sp = cf.sp;
-		stack[sp++] = rval;
-		return NONE;
-	}
 
 	@Override
 	public Object dynRun(String fname, IValue[] args) {
+		// 0 this
+		// 1 int n
+		// 2 Function Func
+		// 3 Frame root
 
+		int n ;
+		Function func ;
+		Frame root ;
+		
 		System.out.println(fname);
 
-		int n = functionMap.get(fname);
+		n = functionMap.get(fname);
 
-		Function func = functionStore.get(n);
+		func = functionStore.get(n);
 
-		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
+		root = new Frame(func.scopeId, null, func.maxstack, func);
 		cf = root;
-
-		// Pass the program arguments to main
-		for (int i = 0; i < args.length; i++) {
-			cf.stack[i] = args[i];
-		}
-
-		nop();
 
 		this.stack = cf.stack;
 		
 		cf.stack[0] = vf.list(args); // pass the program argument to
 		cf.stack[1] = vf.mapWriter().done();
-
-		cf.sp = 2;
-		this.sp = 2;
+		
+		this.sp = func.nlocals ;
+		cf.sp = this.sp  ;
 
 		nop();
+		
 		switch (n) {
 		case 0:
 			return functionTemplate();
@@ -169,25 +160,6 @@ public class RVMRunBody extends RVMRun {
 	}
 	
 	int[]  dodo ;
-	public Object ocallOID() {
-		String p = "ehhd do maar" ;
-		int    scope = 120399393 ; 
-		
-		int[] cons = new int[0] ;
-		Object rval ;
-		
-		cons[800] = 19990 ;
-		cons[900] = 29999 ;
-		
-		nop() ;
-		
-		rval = fret() ;
-		if (rval.equals(NONE)) return rval ;
-		
-		nop() ;
-		
-		return p + scope  ;
-	}
 	public void insnOCALL(int ofun, int arity) {
 		cf.sp = sp;
 		cf.pc = pc;
@@ -223,4 +195,73 @@ public class RVMRunBody extends RVMRun {
 		return NONE;
 	}
 
+
+	public Object ocallOID() {
+		String p = "ehhd do maar" ;
+		int    scope = 120399393 ; 
+		int[] fnctions = new int[0];
+		int[] cons = new int[0] ;
+		Object rval ;
+		Function func ;
+		Frame root ;
+		
+		
+		cons[800] = 19990 ;
+		cons[900] = 29999 ;
+		
+		
+		nop() ;
+		
+		cf.sp = sp ;
+		
+		nop() ;
+		
+		func = functionStore.get(fnctions[777]);
+		
+		nop() ;
+		
+		root = new Frame(scope, cf, func.maxstack, func);
+		
+		cf = root;
+		
+		nop() ;
+		
+		stack = cf.stack ;
+		
+		nop() ;
+
+		sp = func.nlocals ; 
+		
+		nop() ;
+		
+		rval = fret() ;
+		if (rval.equals(NONE)) return rval ;
+		
+		nop() ;
+		
+		return p + scope  ;
+	}
+	
+	
+	public Object wat() {
+		Object p ; 
+		
+		nop() ;
+		
+		p = fret() ;
+		
+		nop() ;
+		
+		return p ;
+	}
+	public Object doreturn1() {
+		Object rval = return1Helper();
+		if (cf == null) {
+			return rval; // TODO rval;
+		}
+		stack = cf.stack;
+		sp = cf.sp;
+		stack[sp++] = rval;
+		return NONE;
+	}
 }

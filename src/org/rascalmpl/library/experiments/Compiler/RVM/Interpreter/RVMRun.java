@@ -394,10 +394,10 @@ public class RVMRun {
 	 /*
 	 * The following instance variables are only used by executeProgram
 	 */
-	Object[] stack; // current stack
-	Frame cf; // current frame
-	Frame root; // Root frame of a program
-	int sp; // current stack pointer
+	public Object[] stack; // current stack
+	public Frame cf; // current frame
+	public Frame root; // Root frame of a program
+	public int sp; // current stack pointer
 	int[] instructions; // current instruction sequence
 	int instruction; // TODO current active instruction (remove)
 	int op; // TODO current opcode (remove)
@@ -2217,6 +2217,7 @@ public class RVMRun {
 		} else {
 			rval = stack[sp - 1];
 		}
+		cf = cf.previousCallFrame;
 		return rval;
 	}
 	// Next methods are for debug only.
@@ -2230,6 +2231,16 @@ public class RVMRun {
 		jmpTarget = target ;
 	}
 	public void dinsnPOP() {
+		//stack[sp] = null ;
 		prevSP = sp ;
+	}
+	public void dinsnEXHAUST() {
+		prevSP = sp ;
+	}
+	public void dinsnOCALL(int target) {
+		jmpTarget = target ;
+	}
+	public void dinsnCALL(int target) {
+		jmpTarget = target ;
 	}
 }
