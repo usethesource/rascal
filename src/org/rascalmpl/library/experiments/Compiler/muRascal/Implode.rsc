@@ -66,13 +66,17 @@ str getUidOfGlobalNonOverloadedFunction(str name) {
 }
 
 @doc{Generates a unique scope id: non-empty 'funNames' list implies a nested function}
+/*
+ * NOTE: Given that the muRascal language does not support overloading, the dependency of function uids 
+ *       on the number of formal parameters has been removed 
+ */
 str getUID(str modName, lrel[str,int] funNames, str funName, int nformals) {
 	// Due to the current semantics of the implode
 	modName = replaceAll(modName, "::", "");
-	return "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>(<nformals>)"; 
+	return "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>"; 
 }
 str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> ]) 
-	= "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>(<nformals>)";
+	= "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>";
 
 MuFunction preprocess(Function f, str modName){
    uid = getUID(modName,f.funNames,f.name,f.nformals);
