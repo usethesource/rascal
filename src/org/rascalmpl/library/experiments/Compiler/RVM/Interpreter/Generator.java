@@ -352,6 +352,13 @@ public class Generator implements Opcodes {
 	}
 
 	public void emitDynPrelude() {
+		// 0 this
+		// 1 fname
+		// 2 args
+		// 3 int n
+		// 4 Function Func
+		// 5 Frame root
+
 		mv = cw.visitMethod(ACC_PUBLIC, "dynRun", "(Ljava/lang/String;[Lorg/eclipse/imp/pdb/facts/IValue;)Ljava/lang/Object;", null, null);
 		mv.visitCode();
 		mv.visitVarInsn(ALOAD, 0);
@@ -361,12 +368,14 @@ public class Generator implements Opcodes {
 		mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
 		mv.visitVarInsn(ISTORE, 3);
+		
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "functionStore", "Ljava/util/ArrayList;");
 		mv.visitVarInsn(ILOAD, 3);
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/ArrayList", "get", "(I)Ljava/lang/Object;");
 		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function");
 		mv.visitVarInsn(ASTORE, 4);
+		
 		mv.visitTypeInsn(NEW, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame");
 		mv.visitInsn(DUP);
 		mv.visitVarInsn(ALOAD, 4);
@@ -375,41 +384,18 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 4);
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "maxstack", "I");
 		mv.visitVarInsn(ALOAD, 4);
-		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "<init>",
-				"(ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;)V");
+		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "<init>", "(ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;)V");
 		mv.visitVarInsn(ASTORE, 5);
+		
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 5);
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitInsn(ICONST_0);
-		mv.visitVarInsn(ISTORE, 6);
-		Label l0 = new Label();
-		mv.visitJumpInsn(GOTO, l0);
-		Label l1 = new Label();
-		mv.visitLabel(l1);
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
-		mv.visitVarInsn(ILOAD, 6);
-		mv.visitVarInsn(ALOAD, 2);
-		mv.visitVarInsn(ILOAD, 6);
-		mv.visitInsn(AALOAD);
-		mv.visitInsn(AASTORE);
-		mv.visitIincInsn(6, 1);
-		mv.visitLabel(l0);
-		mv.visitVarInsn(ILOAD, 6);
-		mv.visitVarInsn(ALOAD, 2);
-		mv.visitInsn(ARRAYLENGTH);
-		mv.visitJumpInsn(IF_ICMPLT, l1);
-
-		// Set stack
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
-
-		// Arguments to program.
+		
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
@@ -419,7 +405,7 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 2);
 		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IValueFactory", "list", "([Lorg/eclipse/imp/pdb/facts/IValue;)Lorg/eclipse/imp/pdb/facts/IList;");
 		mv.visitInsn(AASTORE);
-
+		
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
@@ -429,18 +415,16 @@ public class Generator implements Opcodes {
 		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IValueFactory", "mapWriter", "()Lorg/eclipse/imp/pdb/facts/IMapWriter;");
 		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IMapWriter", "done", "()Lorg/eclipse/imp/pdb/facts/IMap;");
 		mv.visitInsn(AASTORE);
-
-		// Set sp in frame on 2
+		
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 4);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "nlocals", "I");
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitInsn(ICONST_2);
-		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
-
-		// Set stack pointer on 2
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitInsn(ICONST_2);
-		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
 	}
 
 	public void emitDynDispatch(int numberOfFunctions) {
@@ -559,19 +543,17 @@ public class Generator implements Opcodes {
 		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function");
 		mv.visitVarInsn(ASTORE, 6);
 		
-		// does : Frame root = new Frame(scope, cf, func.maxstack, func);  TODO  modify Frame constructor to find named scope.
-		mv.visitTypeInsn(NEW, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame");
-		mv.visitInsn(DUP);
-		mv.visitVarInsn(ILOAD, 2);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitVarInsn(ALOAD, 6);
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "maxstack", "I");
+		mv.visitInsn(ACONST_NULL);
 		mv.visitVarInsn(ALOAD, 6);
-		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "<init>", "(ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;)V");
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "nformals", "I");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "getFrame", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;II)Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitVarInsn(ASTORE, 7);
-			
-		// does : cf = root;
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 7);
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
