@@ -14,7 +14,7 @@ public class LoadLocDeref extends Instruction {
 	
 	public String toString() { return "LOADLOCDEREF " + pos; }
 	
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
 }

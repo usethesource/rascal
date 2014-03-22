@@ -27,7 +27,7 @@ public class TypeSwitch extends Instruction {
 		return res;
 	}
 	
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		IListWriter w = codeblock.vf.listWriter();
 		for(IValue vlabel : labels){
 			String label = ((IString) vlabel).getValue();

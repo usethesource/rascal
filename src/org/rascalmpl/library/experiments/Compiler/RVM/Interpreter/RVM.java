@@ -325,12 +325,13 @@ public class RVM extends ClassLoader {
 										// main_function as a IList object
 		cf.stack[1] = vf.mapWriter().done();
 
-		Object o2 = null;
-		if (uid_main.contains("Simple/main")) {
-			o2 = runner.dynRun(uid_main, args);
+		Object o = null;
+		if (uid_main.contains("!Simple/main")) {
+			o = runner.dynRun(uid_main, args);
 		}
-
-		Object o = runner.executeProgram(root, cf);
+		else { 
+			o = runner.executeProgram(root, cf);
+		}
 		// Object o = o2 ;
 		if (o != null && o instanceof Thrown) {
 			throw (Thrown) o;

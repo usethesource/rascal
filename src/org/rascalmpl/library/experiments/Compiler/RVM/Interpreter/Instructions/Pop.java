@@ -8,8 +8,8 @@ public class Pop extends Instruction {
 	public Pop(CodeBlock ins){
 		super(ins, Opcode.POP);
 	}
-	public void generate(Generator codeEmittor){
-		 /* TODO debug */ codeEmittor.emitCall("dinsnPOP");
+	public void generate(Generator codeEmittor, boolean dcode){
+		 if ( dcode )  codeEmittor.emitCall("dinsnPOP");
 		 codeEmittor.emitPOP();
 		 codeblock.addCode0(opcode.getOpcode());
 	}

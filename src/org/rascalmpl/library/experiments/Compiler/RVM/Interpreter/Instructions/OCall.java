@@ -16,9 +16,9 @@ public class OCall extends Instruction {
 	
 	public String toString() { return "OCALL " + fuid + ", " + arity + " [ " + codeblock.getOverloadedFunctionIndex(fuid) + " ]"; }
 		
-	public void generate(Generator codeEmittor){
-		System.out.println("\tOCALL " + fuid + " // oid" +  codeblock.getOverloadedFunctionIndex(fuid));
-		/* TODO debug */ codeEmittor.emitCall("dinsnOCALL", codeblock.getOverloadedFunctionIndex(fuid));
+	public void generate(Generator codeEmittor, boolean dcode){
+		// System.out.println("\tOCALL " + fuid + " // oid" +  codeblock.getOverloadedFunctionIndex(fuid));
+		if ( dcode ) codeEmittor.emitCall("dinsnOCALL", codeblock.getOverloadedFunctionIndex(fuid));
 
 		codeEmittor.emitOCall("OverLoadedHandlerOID" + codeblock.getOverloadedFunctionIndex(fuid)) ; //    TODO ,arity);
 		

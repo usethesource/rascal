@@ -15,7 +15,7 @@ public class Label extends Instruction {
 	
 	public String toString() { return "LABEL " + label + " [" +  "]"; }
 	
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		codeEmittor.emitLabel(label);
 	}
 }

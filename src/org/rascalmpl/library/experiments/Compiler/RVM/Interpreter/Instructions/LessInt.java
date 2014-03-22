@@ -8,7 +8,7 @@ public class LessInt extends Instruction {
 	public LessInt(CodeBlock ins) {
 		super(ins, Opcode.LESSINT);
 	}
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		 codeEmittor.emitCall("insnLESSINT");
 		 codeblock.addCode0(opcode.getOpcode());
 	}

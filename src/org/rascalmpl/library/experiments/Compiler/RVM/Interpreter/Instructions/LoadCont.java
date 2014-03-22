@@ -14,7 +14,7 @@ public class LoadCont extends Instruction {
 	
 	public String toString() { return "LOADCONT " + fuid + "[" + codeblock.getFunctionIndex(fuid) + "]"; }
 	
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("insnLOADCONT", codeblock.getFunctionIndex(fuid));
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getFunctionIndex(fuid));
 	}

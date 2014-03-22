@@ -14,7 +14,7 @@ public class LoadBool extends Instruction {
 	
 	public String toString() { return "LOADBOOL " + bool; }
 	
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("insnLOADBOOL", bool ? 1 : 0);
 		codeblock.addCode1(opcode.getOpcode(), bool ? 1 : 0);
 	}

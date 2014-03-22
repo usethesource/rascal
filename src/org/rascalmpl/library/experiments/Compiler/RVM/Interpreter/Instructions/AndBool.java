@@ -8,7 +8,7 @@ public class AndBool extends Instruction {
 	public AndBool(CodeBlock ins) {
 		super(ins, Opcode.ANDBOOL);
 	}
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("insnANDBOOL");
 		codeblock.addCode0(opcode.getOpcode());
 	}

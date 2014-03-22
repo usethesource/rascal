@@ -8,7 +8,7 @@ public class GreaterEqualInt extends Instruction {
 	public GreaterEqualInt(CodeBlock ins) {
 		super(ins, Opcode.GREATEREQUALINT);
 	}
-	public void generate(Generator codeEmittor){
+	public void generate(Generator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("insnGREATEREQUALINT");
 		codeblock.addCode0(opcode.getOpcode());
 	}
