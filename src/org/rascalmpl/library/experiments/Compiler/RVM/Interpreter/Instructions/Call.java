@@ -19,6 +19,8 @@ public class Call extends Instruction {
 	public void generate(Generator codeEmittor){
 		// TODO this is wrong !!!
 		// Call function directly needs name demangling.
+		/* TODO debug */ codeEmittor.emitCall("dinsnCALL", codeblock.getFunctionIndex(fuid));
+
 		codeEmittor.emitCall("insnCALL", codeblock.getFunctionIndex(fuid), arity);
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), arity);
 	}

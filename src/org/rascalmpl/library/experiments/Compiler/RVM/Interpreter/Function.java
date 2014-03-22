@@ -10,14 +10,14 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 public class Function {
-	final String name;
+	final public String name;
 	final Type ftype;
-	int scopeId;
-	private String funIn;
-	int scopeIn = -1;
-	final int nformals;
-	final int nlocals;
-	final int maxstack;
+	public int scopeId;
+	public String funIn;
+	public int scopeIn = -1;
+	public final int nformals;
+	public final int nlocals;
+	public final int maxstack;
 	final CodeBlock codeblock;
 	IValue[] constantStore;
 	Type[] typeConstantStore;
@@ -47,7 +47,10 @@ public class Function {
 
 	public void finalize(Generator codeEmittor, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 
-		if ( name.contains("main")) codeEmittor.enableOutput(true); 
+		if ( name.contains("Library")) codeEmittor.enableOutput(false); 
+		if ( name.contains("init")) codeEmittor.enableOutput(false); 
+		if ( name.contains("Simple_testsuite")) codeEmittor.enableOutput(false); 
+		if ( name.contains("Exception")) codeEmittor.enableOutput(false); 
 		codeEmittor.emitMethod(NameMangler.mangle(name));
 
 		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing);
@@ -59,7 +62,7 @@ public class Function {
 		this.typeConstantStore = codeblock.getTypeConstants();
 		
 		codeEmittor.closeMethod();
-        codeEmittor.enableOutput(false);
+        codeEmittor.enableOutput(true);
 		System.out.println("}");
 	}
 

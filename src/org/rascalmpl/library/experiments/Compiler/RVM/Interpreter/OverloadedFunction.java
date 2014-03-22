@@ -19,7 +19,7 @@ public class OverloadedFunction {
 		if (funIn != null) {
 			this.scopeIn = functionMap.get(funIn);
 		}
-		codeEmittor.emitOCallHandler("OverLoadedHanderIOD"+oid,funIn,scopeIn,functions,constructors);
+		codeEmittor.emitOCallHandler("OverLoadedHandlerOID"+oid,funIn,scopeIn,functions,constructors);
 		int funcListIndex = 0 ;
 		for (int i : functions) {
 			String fname = null;

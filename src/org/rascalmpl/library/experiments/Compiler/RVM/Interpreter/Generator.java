@@ -243,12 +243,13 @@ public class Generator implements Opcodes {
 		if (!emit)
 			return;
 		Label l0 = new Label();
-		
+
 		// Check for previousCallFrame if none return Rascal_False
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "previousCallFrame", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "previousCallFrame",
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
@@ -257,7 +258,7 @@ public class Generator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
 		mv.visitInsn(ARETURN);
 
-		// TODO handle reentry on NEXT ?? 
+		// TODO handle reentry on NEXT ??
 		mv.visitLabel(l0);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 0);
@@ -290,20 +291,18 @@ public class Generator implements Opcodes {
 		Label l0 = new Label();
 		if (!emit)
 			return;
+		// 1 Object rval ;
+		// does : Object = return1Helper() ;
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "return1Helper", "()Ljava/lang/Object;");
 		mv.visitVarInsn(ASTORE, 1);
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "previousCallFrame",
-				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitFieldInsn(PUTFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitJumpInsn(IFNONNULL, l0);
 		mv.visitVarInsn(ALOAD, 1);
 		mv.visitInsn(ARETURN);
+		
 		mv.visitLabel(l0);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 0);
@@ -326,6 +325,7 @@ public class Generator implements Opcodes {
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 		mv.visitVarInsn(ALOAD, 1);
 		mv.visitInsn(AASTORE);
+		
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
@@ -483,6 +483,14 @@ public class Generator implements Opcodes {
 	}
 
 	public void emitOCallHandler(String OCallName, String funIn, int scopeIn, int[] functions, int[] constructors) {
+		// 1 String name  ;
+		// 2 int scope ;
+		// 3 int[] fnctions ;
+		// 4 int[] cons ;
+		// 5 Object rval ;
+		// 6 Function func ;
+		// 7 Frame root ;
+		//
 		mv = cw.visitMethod(ACC_PUBLIC, OCallName, "()Ljava/lang/Object;", null, null);
 		mv.visitCode();
 
@@ -520,29 +528,86 @@ public class Generator implements Opcodes {
 
 	public void emitOCallCALL(String callFunc, int funcListIndex) {
 		Label noExit = new Label();
+
+		// 0 this
+		// 1 String name  ;
+		// 2 int scope ;
+		// 3 int[] fnctions ;
+		// 4 int[] cons ;
+		// 5 Object rval ;
+		// 6 Function func ;
+		// 7 Frame root ;
+		//
+
+		// does : cf.sp = sp ;
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
+
 		// First part make make frame based, the function is found in a local table
 		// index by funcListIndex
 
+		// does : Function func = functionStore.get(function[funcListIndex]);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "functionStore", "Ljava/util/ArrayList;");
+		mv.visitVarInsn(ALOAD, 3);
+		mv.visitIntInsn(SIPUSH, funcListIndex);
+		mv.visitInsn(IALOAD);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/ArrayList", "get", "(I)Ljava/lang/Object;");
+		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function");
+		mv.visitVarInsn(ASTORE, 6);
 		
-		// Call function and store return result 
+		// does : Frame root = new Frame(scope, cf, func.maxstack, func);  TODO  modify Frame constructor to find named scope.
+		mv.visitTypeInsn(NEW, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame");
+		mv.visitInsn(DUP);
+		mv.visitVarInsn(ILOAD, 2);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitVarInsn(ALOAD, 6);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "maxstack", "I");
+		mv.visitVarInsn(ALOAD, 6);
+		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "<init>", "(ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;)V");
+		mv.visitVarInsn(ASTORE, 7);
+			
+		// does : cf = root;
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 7);
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+
+		// does : stack = cf.stack ;
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+
+		// does : sp = func.nlocals ;  ;
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 6);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "nlocals", "I");
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");		
+		
+		// Call function and store return result
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, callFunc, "()Ljava/lang/Object;");
-		mv.visitVarInsn(ASTORE, 4);
+		mv.visitVarInsn(ASTORE, 5);
 
 		// Check return result
-		mv.visitVarInsn(ALOAD, 4);
+		mv.visitVarInsn(ALOAD, 5);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
 		mv.visitJumpInsn(IFEQ, noExit);
-		mv.visitVarInsn(ALOAD, 4);
+		mv.visitVarInsn(ALOAD, 5);
 		mv.visitInsn(ARETURN);
-		mv.visitLabel(noExit);   // FAIlRETURN try next alternative
+		mv.visitLabel(noExit); // FAIlRETURN try next alternative
 	}
 
 	public void emitOCallEnd() {
 		// This code handles the case that ALL alternatives fail
-		
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
@@ -573,6 +638,12 @@ public class Generator implements Opcodes {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void emitOCall(String ocallFunc) {
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, ocallFunc, "()Ljava/lang/Object;");
+		mv.visitVarInsn(ASTORE, 1);
 	}
 
 }

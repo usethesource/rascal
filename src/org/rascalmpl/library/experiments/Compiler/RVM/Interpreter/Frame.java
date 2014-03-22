@@ -7,15 +7,15 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.types.FunctionType;
 
 public class Frame {
-	int scopeId;
-    Frame previousCallFrame;
-    final Frame previousScope;
-	final Object[] stack;
-	int sp;
+	public int scopeId;
+    public Frame previousCallFrame;
+    public final Frame previousScope;
+	public final Object[] stack;
+	public int sp;
 	int pc;
-	final Function function;
+	public final Function function;
 	
-	final boolean isCoroutine;
+	public final boolean isCoroutine;
 		
 	public Frame(int scopeId, Frame previousCallFrame, int stackSize, Function function){
 		this(scopeId, previousCallFrame, previousCallFrame, stackSize, function);
