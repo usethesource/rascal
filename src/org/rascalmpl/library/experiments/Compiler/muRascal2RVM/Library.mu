@@ -19,14 +19,14 @@ function NEXT(gen) {
 coroutine ALL(tasks) guard { var len = size_array(tasks); len > 0 } {
     var workers = make_array(len),
         j = 0  
-    put_array(workers, j, create(get_array(tasks, j)()))
+    workers[j] = create(tasks[j]())
     while(true) {
-        while(next(get_array(workers, j))) {
+        while(next(workers[j])) {
             if(j == len - 1) {
                 yield
             } else {
                 j = j + 1
-                put_array(workers, j, create(get_array(tasks, j)()))
+                workers[j] = create(tasks[j]())
             }
         }
         if(j > 0) {
@@ -40,7 +40,7 @@ coroutine ALL(tasks) guard { var len = size_array(tasks); len > 0 } {
 coroutine OR(tasks) guard { var len = size_array(tasks); len > 0 } {
     var j = 0 
     while(j < len) {
-        get_array(tasks, j)()()
+        tasks[j]()()
         j = j + 1
     }
 }
@@ -56,11 +56,11 @@ function RASCAL_ALL(genArray, generators) {
         forward = true, 
         gen   
     while(true) {
-        if(get_array(generators, j)) {
+        if(generators[j]) {
             if(forward) {
-                put_array(genInits, j, create(get_array(genArray, j)))
+                genInits[j] = create(genArray[j])
             }
-            gen = get_array(genInits, j)
+            gen = genInits[j]
             if(next(gen)) {
                 forward = true
                 j = j + 1
@@ -70,7 +70,7 @@ function RASCAL_ALL(genArray, generators) {
             }
         } else {
             if(forward) {
-                if(get_array(genArray, j)()) {
+                if(genArray[j]()) {
                     forward = true
                     j = j + 1
                 } else {
@@ -155,7 +155,7 @@ guard {
 {
 	var j = 0
 	while(j < len) {
-	    yield get_array(array, j)
+	    yield array[j]
 	    j = j + 1
 	}
 }
@@ -352,13 +352,13 @@ guard {
     var ipats = make_array(plen),
         j = 0, 
         pat
-    put_array(ipats, j, create(get_array(pats, j), get_array(subjects, j)))
+    ipats[j] = create(pats[j], subjects[j])
     while((j >= 0) && (j < plen)) {
-        pat = get_array(ipats, j)
+        pat = ipats[j]
         if(next(pat)) {
             if(j < (plen - 1)) {
                 j = j + 1
-                put_array(ipats, j, create(get_array(pats, j), get_array(subjects, j)))
+                ipats[j] = create(pats[j], subjects[j])
             } else {
                 yield
             }
@@ -399,9 +399,9 @@ coroutine MATCH_KEYWORD_PARAMS(keywords, pats, iSubject) guard iSubject is map {
     subjects = make_array(len)
     j = 0
     while(j < len) {
-        kw = get_array(keywords, j)
+        kw = keywords[j]
         if(map_contains_key(iSubject, kw)) {
-            put_array(subjects, j, get_map(iSubject, kw))
+            subjects[j] = get_map(iSubject, kw)
         } else {
             exhaust
         }
@@ -412,8 +412,8 @@ coroutine MATCH_KEYWORD_PARAMS(keywords, pats, iSubject) guard iSubject is map {
 
 coroutine MATCH_REIFIED_TYPE(pat, iSubject) guard iSubject is node { 
     var nc = get_name_and_children_and_keyword_params_as_map(iSubject), 
-        konstructor = get_array(nc, 0), 
-        symbol = get_array(nc, 1)
+        konstructor = nc[0], 
+        symbol = nc[1]
     if(equal(konstructor, "type") && equal(symbol, pat)) {
         yield
     }
@@ -509,19 +509,19 @@ coroutine MATCH_COLLECTION(pats,     // Coroutines to match collection elements
         exhaust
     }
      
-    put_array(matchers, j, create(get_array(pats, j), iSubject, ref progress))
+    matchers[j] = create(pats[j], iSubject, ref progress)
     while(true){
-        while(next(get_array(matchers, j))) {   // Move forward
+        while(next(matchers[j])) {   // Move forward
             if((j == patlen - 1) && accept(iSubject, progress)) {
                 yield 
             } else {
                 if(j < patlen - 1){
                     j = j + 1
-                    put_array(matchers, j, create(get_array(pats, j), iSubject, ref progress))
+                    matchers[j] = create(pats[j], iSubject, ref progress)
                 }  
             }
         } 
-        if(j > 0) {                             // If possible, move backward
+        if(j > 0) {                  // If possible, move backward
             j  = j - 1
         } else {
             exhaust
@@ -776,8 +776,8 @@ coroutine MATCH_APPL_IN_LIST(iProd, argspat, iSubject, rNext) guard { var start 
     var iElem = get_list(iSubject, start), 
         children = get_children(iElem), 
         cpats
-    if(equal(get_name(iElem), "appl") && equal(iProd, get_array(children, 0))) {
-        cpats = create(argspat, get_array(children, 1))
+    if(equal(get_name(iElem), "appl") && equal(iProd, children[0])) {
+        cpats = create(argspat, children[1])
         while(next(cpats)) {
             yield start + 1
         }
@@ -788,7 +788,7 @@ coroutine MATCH_APPL_IN_LIST(iProd, argspat, iSubject, rNext) guard { var start 
 coroutine MATCH_LIT_IN_LIST(iProd, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
     var iElem = get_list(iSubject, start), 
         children = get_children(iElem)
-    if(equal(get_name(iElem), "appl") && equal(iProd, get_array(children, 0))) {
+    if(equal(get_name(iElem), "appl") && equal(iProd, children[0])) {
 	    yield start + 1
     }
 }
@@ -801,9 +801,9 @@ coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(iSubject, rNext) {
         iElem = get_list(iSubject, start)
         if(iElem is node && equal(get_name(iElem), "appl")) {
             children = get_children(iElem)
-            prod = get_array(children, 0)
+            prod = children[0]
             prodchildren = get_children(prod)
-            if(equal(get_name(get_array(prodchildren, 0)), "layouts")) {
+            if(equal(get_name(prodchildren[0]), "layouts")) {
     	        yield start + 1
     		    exhaust
     	    }
@@ -863,9 +863,9 @@ function SKIP_OPTIONAL_SEPARATOR(iSubject, start, offset, sep, available) {
         elm = get_list(iSubject, start + offset)
         if(elm is node) {
             children = get_children(elm)
-            prod = get_array(children, 0)
+            prod = children[0]
             prodchildren = get_children(prod)
-            if(equal(get_array(prodchildren, 0), sep)) {
+            if(equal(prodchildren[0], sep)) {
     	        return 2
     	    }
         }
@@ -1218,7 +1218,7 @@ coroutine MATCH_AND_DESCENT_NODE(pat, iNd) {
         last = size_array(ar), 
         j = 0
     while(j < last) {
-        MATCH_AND_DESCENT(pat, get_array(ar, j))
+        MATCH_AND_DESCENT(pat, ar[j])
         j = j + 1
     }
 }
@@ -1240,7 +1240,7 @@ coroutine MATCH_REGEXP(iRegexp, varrefs, iSubject) {
     while(muprim("regexp_find", matcher)) {
         j = 0 
         while(j < size_array(varrefs)) {
-            rVar = get_array(varrefs, j)
+            rVar = varrefs[j]
             deref rVar = muprim("regexp_group", matcher, j + 1)
             j = j + 1;
         }
@@ -1350,7 +1350,7 @@ function VISIT_NOT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, reb
 		childHasMatch = false
 		childBeenChanged = false
 		iChild = traverse_fun(phi, iChild, ref childHasMatch, ref childBeenChanged, rebuild)
-		put_array(iarray, j, iChild)
+		iarray[j] = iChild
 		j = j + 1
 		deref rHasMatch = childHasMatch || deref rHasMatch
 		deref rBeenChanged = childBeenChanged || deref rBeenChanged
