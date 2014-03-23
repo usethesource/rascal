@@ -70,9 +70,6 @@ private int estimate(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[
 private int estimate(muWhile(str label, MuExp cond, list[MuExp] body)) = 
     max(estimate(cond), estimate_list(body));
  
-private int estimate(muDo(str label, list[MuExp] body, MuExp cond)) = 
-    max(estimate_list(body), estimate(cond));
-
 private int estimate(muBreak(str label)) = 0;
 private int estimate(muContinue(str label)) = 0;
 private int estimate(muFail(str label)) = 0;

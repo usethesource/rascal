@@ -751,7 +751,7 @@ coroutine MATCH_APPL_IN_LIST(iProd, argspat, iSubject, rNext) guard { var start 
 }
 
 // Match appl(prod(lit(S),_,_), _) in a concrete list
-coroutine MATCH_LIT_IN_LIS(iProd, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
+coroutine MATCH_LIT_IN_LIST(iProd, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
     var iElem = get_list(iSubject, start), children = get_children(iElem)
 	
     if(equal(get_name(iElem), "appl") && equal(iProd, get_array(children, 0))) {
