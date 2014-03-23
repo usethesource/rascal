@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 
-import org.apache.commons.lang.ClassUtils;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
