@@ -76,7 +76,6 @@ int getTmp(str name, str fuid){
 // Does an expression produce a value? (needed for cleaning up the stack)
 
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
-bool producesValue(muDo(str label, list[MuExp] body,  MuExp cond)) = false;
 bool producesValue(muReturn()) = false;
 bool producesValue(muNext(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;

@@ -122,7 +122,6 @@ public data MuExp =
           						list[MuExp] elsePart)
           						 
           | muWhile(str label, MuExp cond, list[MuExp] body)	// While-Do expression
-          | muDo(str label, list[MuExp] body, MuExp cond)		// Do-While expression
           
           | muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp \default)		// switch over cases for specific type
           
@@ -194,11 +193,22 @@ public data Module =
 
 public data TypeDeclaration = preTypeDecl(str \type);
 
+public data VarDecl = preVarDecl(Identifier id)
+                    | preVarDecl(Identifier id, MuExp initializer)
+                    ;
+                    
+public data Guard = preGuard(MuExp exp)
+                  | preGuard(list[VarDecl] locals, str sep, MuExp exp)
+                  ;
+
+/*
+ * The field 'comma' is a work around given the current semantics of implode 
+ */
 public data Function =				
-               preFunction(lrel[str,int] funNames, str name, int nformals, 
-                           list[Identifier] locals, list[MuExp] body)
-             | preCoroutine(lrel[str,int] funNames, str name, int nformals, 
-                            list[Identifier] locals, list[MuExp] body)
+               preFunction(lrel[str,int] funNames, str name, list[Identifier] formals, 
+                           lrel[list[VarDecl], str] locals, list[MuExp] body, bool comma)
+             | preCoroutine(lrel[str,int] funNames, str name, list[Identifier] formals, 
+                            list[Guard] guard, lrel[list[VarDecl], str] locals, list[MuExp] body, bool comma)
           ;
 
 public data MuExp =
@@ -216,7 +226,7 @@ public data MuExp =
             | preAssignLoc(Identifier id, MuExp exp)
             | preAssign(lrel[str,int] funNames, Identifier id, MuExp exp)
             | preAssignLocList(Identifier id1, Identifier id2, MuExp exp)
-            | preIfthen(MuExp cond, list[MuExp] thenPart)
+            | preIfthen(MuExp cond, list[MuExp] thenPart, bool comma)
             
             | preAddition(MuExp lhs, MuExp rhs)
             | preSubtraction(MuExp lhs, MuExp rhs)
@@ -243,6 +253,13 @@ public data MuExp =
             
             | preAssignLocDeref(Identifier id, MuExp exp)
             | preAssignVarDeref(lrel[str,int] funNames, Identifier id, MuExp exp)
+            
+            | preIfelse(MuExp cond, list[MuExp] thenPart, bool comma, list[MuExp] elsePart, bool comma)
+            | preWhile(MuExp cond, list[MuExp] body, bool comma)
+            | preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma, list[MuExp] elsePart, bool comma)
+            | preWhile(str label, MuExp cond, list[MuExp] body, bool comma)
+            | preTypeSwitch(MuExp exp, lrel[MuTypeCase,bool] sepCases, MuExp \default, bool comma)
+            | preBlock(list[MuExp] exps, bool comma)
            ;
            
 public bool isOverloadedFunction(muOFun(str _)) = true;

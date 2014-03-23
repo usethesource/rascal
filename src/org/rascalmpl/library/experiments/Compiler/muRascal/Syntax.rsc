@@ -1,8 +1,23 @@
 module experiments::Compiler::muRascal::Syntax
 
-layout LAYOUTLIST
-  = LAYOUT* !>> [\t-\n \r \ ] !>> "//" !>> "/*";
+/*
+ * Optional nonterminals at the beginning or end of productions are deprecated for this specific design of a grammar 
+ * because of the manual layout that can interfere with the default one
+ *
+ * Use of () to enable work around the "prefix-sharing" bug
+ * Use of () to enable work around the manual layout  
+ */
 
+layout LAYOUTLIST
+  = LAYOUT* !>> [\t \n \r \ ] !>> "//" !>> "/*";
+
+lexical NoNL
+  = Comment 
+  | [\t \ ];
+  
+layout NoNLList
+  = @manual NoNL* !>> [\t \ ] !>> "//" !>> "/*";
+  
 lexical LAYOUT
   = Comment 
   | [\t-\n \r \ ];
@@ -13,16 +28,15 @@ lexical Comment
 
 // lexical Identifier = id: ( [_^@]?[A-Za-z][A-Za-z0-9_]* ) \ Keywords;
 lexical Integer =  [0-9]+;
-lexical Label = label: [$][A-Za-z][A-Za-z0-9]+  \ Keywords;
-lexical FConst = ( [A-Z][A-Z0-9_]* )    \ Keywords;
-lexical MConst = ( [A-Z][A-Za-z0-9_]* ) \ Keywords;
-lexical TConst = @category = "IType" ( [a-z][a-z]* )        \ Keywords;
+lexical Label = label: ( [$][A-Za-z][A-Za-z0-9]+ !>> [A-Za-z0-9] ) \ Keywords;
+lexical FConst = ( [A-Z][A-Z0-9_]* !>> [A-Z0-9_] )                 \ Keywords;
+lexical MConst = ( [A-Z][A-Za-z0-9_]* !>> [A-Za-z0-9_] )           \ Keywords;
+lexical TConst = @category = "IType" ( [a-z][a-z]* !>> [a-z] )     \ Keywords;
 
-lexical IId = ( [i][A-Z][A-Za-z0-9_]* )      \ Keywords;
-lexical RId = ( [r][A-Z][A-Za-z0-9_]* )      \ Keywords;
-lexical MId = 
-			  ( [a-h j-q s-z][A-Za-z0-9_]* ) \ Keywords
-			| ( [ir][a-z][A-Za-z0-9_]* )    \ Keywords
+lexical IId = ( [i][A-Z][A-Za-z0-9_]* !>> [A-Za-z0-9_] )           \ Keywords;
+lexical RId = ( [r][A-Z][A-Za-z0-9_]* !>> [A-Za-z0-9_] )           \ Keywords;
+lexical MId = ( [a-h j-q s-z][A-Za-z0-9_]* !>> [A-Za-z0-9_] )      \ Keywords
+			| ( [ir][a-z][A-Za-z0-9_]* !>> [A-Za-z0-9_] )          \ Keywords
 			;
 
 lexical Identifier = 
@@ -43,17 +57,28 @@ lexical StrChar =
 
 lexical String = @category = "Constant" [\"] StrChar* [\"];
 
+syntax Sep = () ";" () | {[\n \r] NoNLList}+ ;			
+
 start syntax Module =
 			  preMod: 		"module" MConst name TypeDeclaration* types Function* functions
 			;
 			
 syntax TypeDeclaration = preTypeDecl: "declares" String sym;
 
+syntax VarDecl = preVarDecl: Identifier!fvar id 
+               | preVarDecl: Identifier!fvar id "=" Exp initializer;
+
+syntax VarDecls = "var" {VarDecl ","}+;
+
+syntax Guard = preGuard: "guard" Exp exp
+             | preGuard: "guard" "{" VarDecls locals NoNLList Sep NoNLList Exp exp "}";
+
 syntax Function =     
-                preFunction:  "function"  FunNamePart* funNames FConst name "[" Integer nformals "," {Identifier!fvar ","}* locals "]"
-                              "{" (Exp ";")+ body "}"
-              | preCoroutine: "coroutine" FunNamePart* funNames FConst name "[" Integer nformals "," {Identifier!fvar ","}* locals "]"
-                              "{" (Exp ";")+ body "}"
+                preFunction:  "function"  FunNamePart* funNames FConst name "(" {Identifier!fvar ","}* formals ")"
+                              "{" (VarDecls NoNLList Sep NoNLList () !>> [\n \r])? locals {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
+              | preCoroutine: "coroutine" FunNamePart* funNames FConst name "(" {Identifier!fvar ","}* formals ")"
+                              Guard? guard
+                              "{" (VarDecls NoNLList Sep NoNLList () !>> [\n \r])? locals {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
 			;
 			
 syntax FunNamePart = FConst id >> "::" "::" Integer nformals >> "::" "::";
@@ -73,16 +98,16 @@ syntax Exp  =
 			| preLocDeref:  			"deref" Identifier!fvar!ivar!mvar id
 			| preVarDeref:   			"deref" FunNamePart+ funNames Identifier!fvar!ivar!mvar id
 			
-			> muCallPrim: 				"prim" "(" String name ")"
-			| muCallPrim:               "prim" "(" String name "," {Exp ","}+ args ")"
-			| muCallMuPrim: 			"muprim" "(" String name "," {Exp ","}+ args ")"
+			> muCallPrim: 				"prim" NoNLList "(" String name ")"
+			| muCallPrim:               "prim" NoNLList "(" String name "," {Exp ","}+ args ")"
+			| muCallMuPrim: 			"muprim" NoNLList "(" String name "," {Exp ","}+ args ")"
 			
 			| muMulti:                  "multi" "(" Exp exp ")"
 			| muOne:                    "one" "(" {Exp ","}+ exps ")"
 			| muAll:                    "all" "(" {Exp ","}+ exps ")"
 			
 			// function call and partial function application
-			> muCall: 					Exp!muReturn!muYield!muExhaust exp "(" {Exp ","}* args ")"
+			> muCall: 					Exp!muReturn!muYield!muExhaust exp NoNLList "(" {Exp ","}* args ")"
 			| muApply:                  "bind" "(" Exp!muReturn!muYield!muExhaust exp "," {Exp ","}+ args ")"
 			
 			> left preAddition:			Exp lhs "+"   Exp rhs
@@ -92,6 +117,7 @@ syntax Exp  =
 			| left preMultiplication:   Exp lhs "*"   Exp rhs
 			| left preModulo:           Exp lhs "mod" Exp rhs
 		    | left prePower :           Exp lhs "pow" Exp rhs
+		    
 			> non-assoc preLess:		Exp lhs "\<"  Exp rhs
 			| non-assoc preLessEqual:	Exp lhs "\<=" Exp rhs
 			| non-assoc preEqual:		Exp lhs "=="  Exp rhs
@@ -103,22 +129,25 @@ syntax Exp  =
 			> left preOr:               Exp lhs "||" Exp rhs
 			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] TConst typeName
 			
-			> muReturn: 				"return"  Exp exp
-			| muReturn:                 "return" "(" Exp exp "," {Exp ","}+ exps ")"
-			> muReturn: 				"return" !>> "("
 			
-		 	> preAssignLoc:				Identifier!fvar id "=" Exp ex
-			> preAssign: 				FunNamePart+ funNames Identifier!fvar id "=" Exp exp
+			> muReturn: 				"return" NoNLList Exp exp
+			| muReturn:                 () "return" NoNLList "(" Exp exp "," {Exp ","}+ exps ")"
+			| muReturn: 				() () "return"
 			
-			// call-by-reference: assignment 
+			> preAssignLoc: 			Identifier!fvar id "=" Exp exp
+			| preAssign: 				FunNamePart+ funNames Identifier!fvar id "=" Exp exp
+			
+			// call-by-reference: assignment
 			| preAssignLocDeref: 		"deref" Identifier!fvar!ivar!mvar id "=" Exp exp
 			> preAssignVarDeref:  		"deref" FunNamePart+ funNames Identifier!fvar!ivar!mvar id "=" Exp exp
 			
 		
-			| muIfelse: 				(Label label ":")? "if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}" "else" "{" (Exp ";")* elsePart "}"
-			| muWhile: 					(Label label ":")? "while" "(" Exp cond ")" "{" (Exp ";")* body "}" 
+			| preIfelse: 				"if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}" "else" "{" {Exp (NoNLList Sep NoNLList)}+ elsePart ";"? "}"
+		 	| preIfelse: 				Label label ":" "if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}" "else" "{" {Exp (NoNLList Sep NoNLList)}+ elsePart ";"? "}"
+			| preWhile: 				"while" "(" Exp cond ")" "{" {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
+			| preWhile: 				Label label ":" "while" "(" Exp cond ")" "{" {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
 			
-			| muTypeSwitch:				"typeswitch" "(" Exp exp ")" "{" (TypeCase ";")+ cases "default" ":" Exp default ";" "}"
+			| preTypeSwitch:			"typeswitch" "(" Exp exp ")" "{" (TypeCase ";"?)+ cases "default" ":" Exp default ";"? "}"
 			
 			| muCreate: 				"create" "(" Exp coro ")"
 			| muCreate: 				"create" "(" Exp coro "," {Exp ","}+ args ")"
@@ -126,13 +155,11 @@ syntax Exp  =
 			| muNext:   				"next" "(" Exp coro ")"
 			| muNext:   				"next" "(" Exp coro "," {Exp ","}+ args ")"
 			
-			| muYield: 					"yield"  Exp exp
-			| muYield:                  "yield" "(" Exp exp "," {Exp ","}+ exps ")"
-			> muYield: 					"yield" !>> "("
+			| muYield: 					"yield" NoNLList Exp exp
+			| muYield:                  () "yield" NoNLList "(" Exp exp "," {Exp ","}+ exps ")"
+			> muYield: 					() () "yield"
 			
-			| muExhaust:                "exhaust" !>> "("
-			
-			| muGuard:                  "guard" Exp exp
+			| muExhaust:                "exhaust"
 			
 			// delimited continuations (experimental feature)
 			| preContLoc:               "cont"
@@ -144,13 +171,15 @@ syntax Exp  =
 			| preLocRef:     			"ref" Identifier!fvar!rvar id
 			| preVarRef:      			"ref" FunNamePart+ funNames Identifier!fvar!rvar id
 			
+			| preBlock:                 "{" {Exp (NoNLList Sep NoNLList)}+ exps ";"? "}"
+			
 			| bracket					"(" Exp exp ")"
 			;
-			
+						
 syntax TypeCase = muTypeCase: 			"case" TConst id ":" Exp exp ;		
 
 keyword Keywords = 
-              "module" | "declares" | "function" | "coroutine" | "return" | 
+              "module" | "declares" | "var" | "function" | "coroutine" | "return" | 
 			  "prim" | "muprim" | "if" | "else" |  "while" |
               "create" | "next" | "yield" | "exhaust" |
               "guard" |
@@ -172,7 +201,7 @@ syntax Exp =
 			// *local* variables of functions used inside their closures and nested functions
 			| preVar: 					FunNamePart+ funNames Identifier id 
 			
-			| preIfthen:    			"if" "(" Exp exp1 ")" "{" (Exp ";")* thenPart "}"
+			| preIfthen:    			"if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}"
 			| preAssignLocList:			"[" Identifier!fvar!rvar id1 "," Identifier!fvar!rvar id2 "]" "=" Exp exp
 			> preList:					"[" {Exp ","}* exps "]"
 			;
