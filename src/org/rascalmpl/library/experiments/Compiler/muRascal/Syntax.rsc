@@ -98,7 +98,7 @@ syntax Exp  =
 			| preLocDeref:  			"deref" Identifier!fvar!ivar!mvar id
 			| preVarDeref:   			"deref" FunNamePart+ funNames Identifier!fvar!ivar!mvar id
 			
-			> muCallPrim: 				"prim" NoNLList "(" String name ")"
+			| muCallPrim: 				"prim" NoNLList "(" String name ")"
 			| muCallPrim:               "prim" NoNLList "(" String name "," {Exp ","}+ args ")"
 			| muCallMuPrim: 			"muprim" NoNLList "(" String name "," {Exp ","}+ args ")"
 			
@@ -107,39 +107,46 @@ syntax Exp  =
 			| muAll:                    "all" "(" {Exp ","}+ exps ")"
 			
 			// function call and partial function application
-			> muCall: 					Exp!muReturn!muYield!muExhaust exp NoNLList "(" {Exp ","}* args ")"
+			| muCall: 					Exp!muReturn!muYield!muExhaust exp NoNLList "(" {Exp ","}* args ")"
 			| muApply:                  "bind" "(" Exp!muReturn!muYield!muExhaust exp "," {Exp ","}+ args ")"
 			
-			> left preAddition:			Exp lhs "+"   Exp rhs
+			| preSubscript:             Exp exp NoNLList "[" Exp index "]"
+			| preList:					"[" {Exp ","}* exps "]"
 			
-			| left preSubtraction:		Exp lhs "-"   Exp rhs
-			| left preDivision:         Exp lhs "/"   Exp rhs
-			| left preMultiplication:   Exp lhs "*"   Exp rhs
-			| left preModulo:           Exp lhs "mod" Exp rhs
+			> left ( preDivision:       Exp lhs "/"   Exp rhs
+			       | preMultiplication: Exp lhs "*"   Exp rhs
+			       )
+			
+			> left ( preAddition:		Exp lhs "+"   Exp rhs
+			       | preSubtraction:	Exp lhs "-"   Exp rhs
+			       )
+			
+			> left preModulo:           Exp lhs "mod" Exp rhs
 		    | left prePower :           Exp lhs "pow" Exp rhs
 		    
-			> non-assoc preLess:		Exp lhs "\<"  Exp rhs
-			| non-assoc preLessEqual:	Exp lhs "\<=" Exp rhs
-			| non-assoc preEqual:		Exp lhs "=="  Exp rhs
-			| non-assoc preNotEqual:	Exp lhs "!="  Exp rhs
-			| non-assoc preGreater:		Exp lhs "\>"  Exp rhs
-			| non-assoc preGreaterEqual:Exp lhs "\>=" Exp rhs
+			> non-assoc ( preLess:		   Exp lhs "\<"  Exp rhs
+			            | preLessEqual:	   Exp lhs "\<=" Exp rhs
+			            | preGreater:	   Exp lhs "\>"  Exp rhs
+			            | preGreaterEqual: Exp lhs "\>=" Exp rhs
+			            )
 			
+			> non-assoc ( preEqual:		Exp lhs "=="  Exp rhs
+			            | preNotEqual:	Exp lhs "!="  Exp rhs
+			            )
+				
 			> left preAnd:				Exp lhs "&&" Exp rhs
 			> left preOr:               Exp lhs "||" Exp rhs
 			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] TConst typeName
 			
+			> preAssignSubscript:       Exp exp NoNLList "[" Exp index "]" "=" Exp exp
+			| preAssignLocList:			"[" Identifier!fvar!rvar id1 "," Identifier!fvar!rvar id2 "]" "=" Exp exp
 			
-			> muReturn: 				"return" NoNLList Exp exp
-			| muReturn:                 () "return" NoNLList "(" Exp exp "," {Exp ","}+ exps ")"
-			| muReturn: 				() () "return"
-			
-			> preAssignLoc: 			Identifier!fvar id "=" Exp exp
+			| preAssignLoc: 			Identifier!fvar id "=" Exp exp
 			| preAssign: 				FunNamePart+ funNames Identifier!fvar id "=" Exp exp
 			
 			// call-by-reference: assignment
 			| preAssignLocDeref: 		"deref" Identifier!fvar!ivar!mvar id "=" Exp exp
-			> preAssignVarDeref:  		"deref" FunNamePart+ funNames Identifier!fvar!ivar!mvar id "=" Exp exp
+			| preAssignVarDeref:  		"deref" FunNamePart+ funNames Identifier!fvar!ivar!mvar id "=" Exp exp
 			
 		
 			| preIfelse: 				"if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}" "else" "{" {Exp (NoNLList Sep NoNLList)}+ elsePart ";"? "}"
@@ -155,9 +162,13 @@ syntax Exp  =
 			| muNext:   				"next" "(" Exp coro ")"
 			| muNext:   				"next" "(" Exp coro "," {Exp ","}+ args ")"
 			
+			> muReturn: 				"return" NoNLList Exp exp
+			| muReturn:                 () "return" NoNLList "(" Exp exp "," {Exp ","}+ exps ")"
+			| muReturn: 				() () "return"
+			
 			| muYield: 					"yield" NoNLList Exp exp
 			| muYield:                  () "yield" NoNLList "(" Exp exp "," {Exp ","}+ exps ")"
-			> muYield: 					() () "yield"
+			| muYield: 					() () "yield"
 			
 			| muExhaust:                "exhaust"
 			
@@ -202,6 +213,4 @@ syntax Exp =
 			| preVar: 					FunNamePart+ funNames Identifier id 
 			
 			| preIfthen:    			"if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}"
-			| preAssignLocList:			"[" Identifier!fvar!rvar id1 "," Identifier!fvar!rvar id2 "]" "=" Exp exp
-			> preList:					"[" {Exp ","}* exps "]"
 			;

@@ -260,6 +260,9 @@ public data MuExp =
             | preWhile(str label, MuExp cond, list[MuExp] body, bool comma)
             | preTypeSwitch(MuExp exp, lrel[MuTypeCase,bool] sepCases, MuExp \default, bool comma)
             | preBlock(list[MuExp] exps, bool comma)
+            
+            | preSubscript(MuExp arr, MuExp index)
+            | preAssignSubscript(MuExp arr, MuExp index, MuExp exp)
            ;
            
 public bool isOverloadedFunction(muOFun(str _)) = true;
