@@ -525,8 +525,8 @@ public class CodeBlock {
 		return add(new LoadOFun(this, fuid));
 	}
 	
-	public CodeBlock OCALL(String fuid, int arity) {
-		return add(new OCall(this, fuid, arity));
+	public CodeBlock OCALL(String fuid, int arity, int continuationPoint) {
+		return add(new OCall(this, fuid, arity,continuationPoint));
 	}
 	
 	public CodeBlock OCALLDYN(Type types, int arity) {

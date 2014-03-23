@@ -50,6 +50,7 @@ public class RVMRun {
 	protected final IString YIELD0;
 	protected final IString YIELD1;
 	protected final IString FAILRETURN;
+	protected final IString PANIC;
 
 	private boolean debug = true;
 
@@ -130,6 +131,7 @@ public class RVMRun {
 		YIELD0 = vf.string("$yield0$");
 		YIELD1 = vf.string("$yield1$");
 		FAILRETURN = vf.string("$failreturn$");
+		PANIC = vf.string("$panic$");
 
 		functionStore = new ArrayList<Function>();
 		constructorStore = new ArrayList<Type>();

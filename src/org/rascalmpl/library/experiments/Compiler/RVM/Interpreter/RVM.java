@@ -269,9 +269,9 @@ public class RVM extends ClassLoader {
 				finalize(codeEmittor);
 				rvmGenCode = codeEmittor.finalizeCode();
 
-				codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
+				// codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
 				codeEmittor.dump("/Users/ferryrietveld/Running.class");
-
+				// Oneshot classloader
 				Class<?> generatedClassV1 = new ClassLoader(RVM.class.getClassLoader()) {
 					public Class<?> defineClass(String name, byte[] bytes) {
 						return super.defineClass(name, bytes, 0, bytes.length);
@@ -281,7 +281,6 @@ public class RVM extends ClassLoader {
 						try {
 							return super.loadClass(name);
 						} catch (ClassNotFoundException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 						return null;
@@ -326,10 +325,9 @@ public class RVM extends ClassLoader {
 		cf.stack[1] = vf.mapWriter().done();
 
 		Object o = null;
-		if (uid_main.contains("Simple/main")) {
+		if (uid_main.contains("/Simple/main")) {
 			o = runner.dynRun(uid_main, args);
-		}
-		else { 
+		} else {
 			o = runner.executeProgram(root, cf);
 		}
 		// Object o = o2 ;
@@ -341,7 +339,7 @@ public class RVM extends ClassLoader {
 			stdout.println("TRACE:");
 			stdout.println(getTrace());
 		}
-		//runner = null ;
+		// runner = null ;
 		return res;
 	}
 }
