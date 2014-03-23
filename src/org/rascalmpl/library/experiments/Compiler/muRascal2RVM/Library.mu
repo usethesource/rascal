@@ -16,10 +16,9 @@ function NEXT(gen) {
 
 // Semantics of the all operator
 
-coroutine ALL(tasks) guard { var len = size_array(tasks); len > 0 } 
-{
-    var j = 0, workers = make_array(len)
-    
+coroutine ALL(tasks) guard { var len = size_array(tasks); len > 0 } {
+    var workers = make_array(len),
+        j = 0  
     put_array(workers, j, create(get_array(tasks, j)()))
     while(true) {
         while(next(get_array(workers, j))) {
@@ -39,12 +38,11 @@ coroutine ALL(tasks) guard { var len = size_array(tasks); len > 0 }
 }
 
 coroutine OR(tasks) guard { var len = size_array(tasks); len > 0 } {
-    var j = 0
-    
+    var j = 0 
     while(j < len) {
         get_array(tasks, j)()()
         j = j + 1
-    };
+    }
 }
 
 coroutine ONE(task) {
@@ -52,8 +50,11 @@ coroutine ONE(task) {
 }
 
 function RASCAL_ALL(genArray, generators) { 
-    var len = size_array(genArray), j = 0, genInits = make_array(len), forward = true, gen
-    
+    var len = size_array(genArray), 
+        genInits = make_array(len),
+        j = 0, 
+        forward = true, 
+        gen   
     while(true) {
         if(get_array(generators, j)) {
             if(forward) {
@@ -117,7 +118,13 @@ coroutine ENUM_LIST(iLst, rVal) guard { var len = size_list(iLst); len > 0 } {
     }
 }
 
-coroutine ENUM_SET(iSet, rVal) guard { var iLst = set2list(iSet), len = size_list(iLst); len > 0 } {
+coroutine ENUM_SET(iSet, rVal) 
+guard { 
+    var iLst = set2list(iSet), 
+        len = size_list(iLst)
+    len > 0 
+}
+{
     var j = 0
     while(j < len) {
         yield get_list(iLst, j)
@@ -125,7 +132,13 @@ coroutine ENUM_SET(iSet, rVal) guard { var iLst = set2list(iSet), len = size_lis
     }
 }
 
-coroutine ENUM_MAP(iMap, rVal) guard { var iKlst = keys(iMap), len = size_list(iKlst); len > 0 } {
+coroutine ENUM_MAP(iMap, rVal) 
+guard { 
+    var iKlst = keys(iMap), 
+        len = size_list(iKlst) 
+    len > 0 
+}
+{
     var j = 0
     while(j < len) {
         yield get_list(iKlst, j)
@@ -133,12 +146,18 @@ coroutine ENUM_MAP(iMap, rVal) guard { var iKlst = keys(iMap), len = size_list(i
     }
 }
 
-coroutine ENUM_NODE(iNd, rVal) guard { var array = get_children_and_keyword_params_as_values(iNd), len = size_array(array); len > 0 } {
-    var j = 0
-    while(j < len) {
-        yield get_array(array, j)
-        j = j + 1
-    }
+coroutine ENUM_NODE(iNd, rVal) 
+guard { 
+    var array = get_children_and_keyword_params_as_values(iNd),
+        len = size_array(array); 
+    len > 0 
+}
+{
+	var j = 0
+	while(j < len) {
+	    yield get_array(array, j)
+	    j = j + 1
+	}
 }
 
 coroutine ENUM_TUPLE(iTup, rVal) guard { var len = size_tuple(iTup); len > 0 } {
@@ -187,7 +206,6 @@ coroutine ENUMERATE_AND_ASSIGN(rVar, iVal) {
 
 coroutine ENUMERATE_CHECK_AND_ASSIGN1(enumerator, typ, rVar) {
     var iElm
-   
     enumerator = create(enumerator, ref iElm) 
     while(next(enumerator)) {
         if(subtype(typeOf(iElm), typ)) {
@@ -215,8 +233,8 @@ coroutine ENUMERATE_CHECK_AND_ASSIGN(typ, rVar, iVal) {
 /******************************************************************************************/
 
 coroutine RANGE_INT(pat, iFirst, iEnd) {
-    var j = mint(iFirst), n = mint(iEnd)
-   
+    var j = mint(iFirst), 
+        n = mint(iEnd)
     if(j < n) {
         while(j < n) {
             pat(rint(j))
@@ -231,8 +249,9 @@ coroutine RANGE_INT(pat, iFirst, iEnd) {
 }
 
 coroutine RANGE(pat, iFirst, iEnd) {
-    var j = iFirst, n = iEnd, rone
-   
+    var j = iFirst, 
+        n = iEnd, 
+        rone
     if(iFirst is int && iEnd is int) {
         rone = rint(1)
     } else {
@@ -252,8 +271,9 @@ coroutine RANGE(pat, iFirst, iEnd) {
 }
 
 coroutine RANGE_STEP_INT(pat, iFirst, iSecond, iEnd) {
-    var j = mint(iFirst), n = mint(iEnd), step
-   
+    var j = mint(iFirst), 
+        n = mint(iEnd), 
+        step
     if(j < n) {
         step = mint(iSecond) - j
         if(step <= 0) {
@@ -278,8 +298,8 @@ coroutine RANGE_STEP_INT(pat, iFirst, iSecond, iEnd) {
 }
 
 coroutine RANGE_STEP(pat, iFirst, iSecond, iEnd) {
-    var n = iEnd, j, step, mixed
-   
+    var n = iEnd, 
+        j, step, mixed
     if(iFirst is int && iSecond is int && iEnd is int) {
         j = iFirst
         mixed = false
@@ -322,9 +342,16 @@ coroutine RANGE_STEP(pat, iFirst, iSecond, iEnd) {
 
 // Use N patterns to match N subjects
 
-coroutine MATCH_N(pats, subjects) guard { var plen = size_array(pats), slen = size_array(subjects); plen == slen } {
-    var j = 0, ipats = make_array(plen), pat
-    
+coroutine MATCH_N(pats, subjects) 
+guard { 
+    var plen = size_array(pats), 
+        slen = size_array(subjects) 
+    plen == slen 
+} 
+{
+    var ipats = make_array(plen),
+        j = 0, 
+        pat
     put_array(ipats, j, create(get_array(pats, j), get_array(subjects, j)))
     while((j >= 0) && (j < plen)) {
         pat = get_array(ipats, j)
@@ -344,8 +371,7 @@ coroutine MATCH_N(pats, subjects) guard { var plen = size_array(pats), slen = si
 // Match a call pattern with a simple string as function symbol
 
 coroutine MATCH_SIMPLE_CALL_OR_TREE(iName, pats, iSubject) guard iSubject is node {
-    var args
-       
+    var args      
     if(equal(iName, get_name(iSubject))) {
         args = get_children_and_keyword_params_as_map(iSubject)
         MATCH_N(pats, args)
@@ -361,13 +387,12 @@ coroutine MATCH_SIMPLE_CALL_OR_TREE(iName, pats, iSubject) guard iSubject is nod
 
 coroutine MATCH_CALL_OR_TREE(pats, iSubject) guard iSubject is node {
     var args = get_name_and_children_and_keyword_params_as_map(iSubject)
-    
     MATCH_N(pats, args)
 }
 
 coroutine MATCH_KEYWORD_PARAMS(keywords, pats, iSubject) guard iSubject is map { 
-    var len = size_array(keywords), subjects, j, kw
-    
+    var len = size_array(keywords), 
+        subjects, j, kw
     if(len == 0) {
         return
     }
@@ -386,9 +411,10 @@ coroutine MATCH_KEYWORD_PARAMS(keywords, pats, iSubject) guard iSubject is map {
 }
 
 coroutine MATCH_REIFIED_TYPE(pat, iSubject) guard iSubject is node { 
-    var nc = get_name_and_children_and_keyword_params_as_map(iSubject), konstructor = get_array(nc, 0), symbol = get_array(nc, 1)
-    
-    if(equal(konstructor, "type") && equal(symbol, pat)) { // NOTE: the second equal? Should not it be a match?
+    var nc = get_name_and_children_and_keyword_params_as_map(iSubject), 
+        konstructor = get_array(nc, 0), 
+        symbol = get_array(nc, 1)
+    if(equal(konstructor, "type") && equal(symbol, pat)) {
         yield
     }
 }
@@ -402,8 +428,7 @@ coroutine MATCH_LITERAL(pat, iSubject) guard equal(pat, iSubject) {
 }
 
 coroutine MATCH_VAR(rVar, iSubject) {
-    var iVal
-   
+    var iVal 
     if(is_defined(rVar)) {
         iVal = deref rVar
         if(equal(iSubject, iVal)) {
@@ -431,7 +456,6 @@ coroutine MATCH_TYPED_ANONYMOUS_VAR(typ, iSubject) guard subtype(typeOf(iSubject
 
 coroutine MATCH_VAR_BECOMES(rVar, pat, iSubject) {
     var cpat = create(pat, iSubject)
-   
     while(next(cpat)) {
         yield iSubject
     }
@@ -439,7 +463,6 @@ coroutine MATCH_VAR_BECOMES(rVar, pat, iSubject) {
 
 coroutine MATCH_TYPED_VAR_BECOMES(typ, rVar, pat, iSubject) guard subtype(typeOf(iSubject), typ) {
     var cpat = create(pat, iSubject)
-   
     while(next(cpat)) {
         yield iSubject
     }
@@ -451,7 +474,6 @@ coroutine MATCH_AS_TYPE(typ, pat, iSubject) guard subtype(typeOf(iSubject), typ)
 
 coroutine MATCH_ANTI(pat, iSubject) {
     var cpat = create(pat, iSubject)
-	
    	if(next(cpat)) {
 	    exhaust
 	} else {
@@ -475,10 +497,11 @@ coroutine MATCH_COLLECTION(pats,     // Coroutines to match collection elements
                            accept,   // Function that accepts a complete match
 	                       iSubject, // The subject (a collection like list or set)
 	                       progress  // Progress of the match
-	                       ) {
-	
-    var patlen = size_array(pats), j = 0, matchers = make_array(patlen)
-	 
+	                       ) {	
+    var patlen = size_array(pats),  
+        matchers = make_array(patlen),
+        j = 0
+    
     if(patlen == 0) {
         if(accept(iSubject, progress)) {
             yield 
@@ -498,7 +521,7 @@ coroutine MATCH_COLLECTION(pats,     // Coroutines to match collection elements
                 }  
             }
         } 
-        if(j > 0) {  // If possible, move backward
+        if(j > 0) {                             // If possible, move backward
             j  = j - 1
         } else {
             exhaust
@@ -534,7 +557,6 @@ function ACCEPT_LIST_MATCH(iSubject, cursor) {
 
 coroutine MATCH_PAT_IN_LIST(pat, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } { 
     var cpat = create(pat, get_list(iSubject, start))
-    
     while(next(cpat)) {
        yield start + 1   
     }
@@ -543,16 +565,15 @@ coroutine MATCH_PAT_IN_LIST(pat, iSubject, rNext) guard { var start = deref rNex
 // A literal in a list
 
 coroutine MATCH_LITERAL_IN_LIST(pat, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
-    var elm =  get_list(iSubject, start)
-    
+    var elm =  get_list(iSubject, start)  
     if(equal(pat, elm)) {
         yield start + 1
     }
 }
 
 coroutine MATCH_VAR_IN_LIST(rVar, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
-    var iElem = get_list(iSubject, start), iVal
-   
+    var iElem = get_list(iSubject, start), 
+        iVal
     if(is_defined(rVar)) {
         iVal = deref rVar
         if(equal(iElem, iVal)) {
@@ -565,8 +586,8 @@ coroutine MATCH_VAR_IN_LIST(rVar, iSubject, rNext) guard { var start = deref rNe
 }
 
 coroutine MATCH_TYPED_VAR_IN_LIST(typ, rVar, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
-    var iElem = get_list(iSubject, start), iVal
-   
+    var iElem = get_list(iSubject, start), 
+        iVal
     if(subtype(typeOf(iElem), typ)) {
         yield(iElem, start + 1)
     }
@@ -577,25 +598,25 @@ coroutine MATCH_ANONYMOUS_VAR_IN_LIST(iSubject, rNext) guard { var start = deref
 }
 
 coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_LIST(typ, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
-    var iElem = get_list(iSubject, start)
-   
+    var iElem = get_list(iSubject, start) 
     if(subtype(typeOf(iElem), typ)) {
         yield start + 1
     }
 }
 
 coroutine MATCH_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext) {
-    var start = deref rNext, available = size_list(iSubject) - start, len = mint(iMinLen), maxLen = min(mint(iMaxLen), available - mint(iLookahead)), iVal
-    
-    if(is_defined(rVar)) {
-        // TODO: check length
-        iVal = deref rVar
+    var start = deref rNext, 
+        available = size_list(iSubject) - start, 
+        len = mint(iMinLen), 
+        maxLen = min(mint(iMaxLen), available - mint(iLookahead)), 
+        iVal
+    if(is_defined(rVar)) {  
+        iVal = deref rVar                        /* TODO: check length */
         if(occurs(iVal, iSubject, start)) {
             yield(iVal, start + size_list(iVal))
         }
         exhaust
-    }
-    
+    }    
     while(len <= maxLen) {
         yield(sublist(iSubject, start, len), start + len)
         len = len + 1
@@ -604,20 +625,23 @@ coroutine MATCH_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, iSubject, r
 }
 
 coroutine MATCH_LAST_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext) 
-   guard { var start = deref rNext, available = size_list(iSubject) - start, len = min(mint(iMaxLen), max(available - mint(iLookahead), 0)); len >= 0 } 
+guard { 
+    var start = deref rNext, 
+        available = size_list(iSubject) - start, 
+        len = min(mint(iMaxLen), max(available - mint(iLookahead), 0))
+    len >= 0 
+}
 {    
-    var maxLen = len, iVal
-    
+    var maxLen = len, 
+        iVal  
     if(is_defined(rVar)) {
-        // TODO: check length
-        iVal = deref rVar
+        iVal = deref rVar                        /* TODO: check length */
         if(occurs(iVal, iSubject, start)) {
             yield(iVal, start + size_list(iVal))
         }
         exhaust
-    }
-    
-    while(len <= maxLen) {	// TODO: loop?
+    }   
+    while(len <= maxLen) {	                     // TODO: loop?
         yield(sublist(iSubject, start, len), start + len)
         len = len + 1
     }
@@ -625,8 +649,9 @@ coroutine MATCH_LAST_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, iSubje
 }
 
 coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST(iMinLen, iMaxLen, iLookahead, iSubject, rNext) {
-    var start = deref rNext, available = size_list(iSubject) - start, len = mint(iMinLen)
-    
+    var start = deref rNext, 
+        available = size_list(iSubject) - start, 
+        len = mint(iMinLen)
     available = min(mint(iMaxLen), available - mint(iLookahead))
     while(len <= available) {
         yield start + len
@@ -635,7 +660,12 @@ coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST(iMinLen, iMaxLen, iLookahead, iSubjec
 }
 
 coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST(iMinLen, iMaxLen, iLookahead, iSubject, rNext) 
-    guard { var start = deref rNext, available = size_list(iSubject) - start, len = min(mint(iMaxLen), available - mint(iLookahead)); len >= mint(iMinLen) } 
+guard { 
+    var start = deref rNext, 
+        available = size_list(iSubject) - start, 
+        len = min(mint(iMaxLen), available - mint(iLookahead)) 
+    len >= mint(iMinLen) 
+} 
 {
     while(len <= available) {
         yield start + len
@@ -644,10 +674,11 @@ coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST(iMinLen, iMaxLen, iLookahead, iS
 }
 
 coroutine MATCH_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext) {
-   var start = deref rNext, available = size_list(iSubject) - start, len = mint(iMinLen), sub
-	 
+   var start = deref rNext, 
+       available = size_list(iSubject) - start, 
+       len = mint(iMinLen), 
+       sub 
     available = min(mint(iMaxLen), available - mint(iLookahead))
-	
     if(subtype(typeOf(iSubject), typ)) {
         while(len <= available) {
             yield(sublist(iSubject, start, len), start + len)
@@ -667,10 +698,11 @@ coroutine MATCH_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookahead, 
 }
 
 coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext) {
-    var start = deref rNext, available = size_list(iSubject) - start, len = mint(iMinLen), elmType
-    
+    var start = deref rNext, 
+        available = size_list(iSubject) - start, 
+        len = mint(iMinLen), 
+        elmType
     available = min(mint(iMaxLen), available - mint(iLookahead))
-    
     if(subtype(typeOf(iSubject), typ)) {
         while(len <= available) {
             yield(sublist(iSubject, start, len), start + len)
@@ -691,10 +723,10 @@ coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookah
 }
 
 coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLookahead, iSubject, rNext) {
-    var start = deref rNext, available = size_list(iSubject) - start, len = mint(iMinLen)
-    
+    var start = deref rNext, 
+        available = size_list(iSubject) - start, 
+        len = mint(iMinLen)  
     available = min(mint(iMaxLen), available - mint(iLookahead))
-    
     if(subtype(typeOf(iSubject), typ)) {
         while(len <= available) {
             yield start + len
@@ -713,10 +745,11 @@ coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLookahe
 }
 
 coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLookahead, iSubject, rNext) {
-    var start = deref rNext, available = size_list(iSubject) - start, len = mint(iMinLen), elmType
-    
+    var start = deref rNext, 
+        available = size_list(iSubject) - start, 
+        len = mint(iMinLen), 
+        elmType
     available = min(mint(iMaxLen), available - mint(iLookahead))
-   
     if(subtype(typeOf(iSubject), typ)) {
         while(len <= available) {
             yield start + len
@@ -740,8 +773,9 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLo
 
 // Tree node in concrete pattern: appl(iProd, argspat), where argspat is a list pattern
 coroutine MATCH_APPL_IN_LIST(iProd, argspat, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
-    var iElem = get_list(iSubject, start), children = get_children(iElem), cpats
-    
+    var iElem = get_list(iSubject, start), 
+        children = get_children(iElem), 
+        cpats
     if(equal(get_name(iElem), "appl") && equal(iProd, get_array(children, 0))) {
         cpats = create(argspat, get_array(children, 1))
         while(next(cpats)) {
@@ -752,8 +786,8 @@ coroutine MATCH_APPL_IN_LIST(iProd, argspat, iSubject, rNext) guard { var start 
 
 // Match appl(prod(lit(S),_,_), _) in a concrete list
 coroutine MATCH_LIT_IN_LIST(iProd, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
-    var iElem = get_list(iSubject, start), children = get_children(iElem)
-	
+    var iElem = get_list(iSubject, start), 
+        children = get_children(iElem)
     if(equal(get_name(iElem), "appl") && equal(iProd, get_array(children, 0))) {
 	    yield start + 1
     }
@@ -761,8 +795,8 @@ coroutine MATCH_LIT_IN_LIST(iProd, iSubject, rNext) guard { var start = deref rN
 
 // Match and skip optional layout in concrete patterns
 coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(iSubject, rNext) { 
-    var start = deref rNext, iElem, children, prod, prodchildren
-    
+    var start = deref rNext, 
+        iElem, children, prod, prodchildren
     if(start < size_list(iSubject)) {
         iElem = get_list(iSubject, start)
         if(iElem is node && equal(get_name(iElem), "appl")) {
@@ -781,17 +815,18 @@ coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(iSubject, rNext) {
 // Match a (or last) multivar in a concrete list
 
 coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, iSubject, rNext) {
-    var start = deref rNext, cavailable = size(iSubject) - start, clen = mint(iMinLen), maxLen = min(mint(iMaxLen), max(cavailable - mint(iLookahead), 0)), iVal, end
-    
+    var start = deref rNext, 
+        cavailable = size(iSubject) - start, 
+        clen = mint(iMinLen), 
+        maxLen = min(mint(iMaxLen), max(cavailable - mint(iLookahead), 0)), 
+        iVal, end
     if(is_defined(rVar)) {
-        // TODO: check length
-        iVal = deref rVar
+        iVal = deref rVar                        /* TODO: check length */
         if(occurs(iVal, iSubject, start)) {
             yield(iVal, start + size_list(iVal))
         }
         exhaust
     }
-    
     while(clen <= maxLen) {
         end = start + clen
         yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iSubject, start, clen)), end)
@@ -801,13 +836,16 @@ coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, ap
 }
 
 coroutine MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, iSubject, rNext) 
-    guard { var start = deref rNext, cavailable = size(iSubject) - start, clen = min(mint(iMaxLen), max(cavailable - mint(iLookahead), 0)); clen >= mint(iMinLen) } 
+guard { 
+    var start = deref rNext, 
+        cavailable = size(iSubject) - start, 
+        clen = min(mint(iMaxLen), max(cavailable - mint(iLookahead), 0))
+    clen >= mint(iMinLen) 
+} 
 {   
-    var iVal, end
-    
+    var iVal, end    
     if(is_defined(rVar)) {
-        // TODO: check length
-        iVal = deref rVar
+        iVal = deref rVar                         /* TODO: check length */
         if(occurs(iVal, iSubject, start)) {
              yield(iVal, start + size_list(iVal))
         }
@@ -820,8 +858,7 @@ coroutine MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahea
 
 // Skip a separator that may be present before or after a matching multivar
 function SKIP_OPTIONAL_SEPARATOR(iSubject, start, offset, sep, available) {
-    var elm, children, prod, prodchildren
-    
+    var elm, children, prod, prodchildren   
     if(available >= offset + 2) {
         elm = get_list(iSubject, start + offset)
         if(elm is node) {
@@ -837,19 +874,20 @@ function SKIP_OPTIONAL_SEPARATOR(iSubject, start, offset, sep, available) {
 }
 
 coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, sep, applConstr, listProd, applProd, iSubject, rNext) { 
-    var start = deref rNext, cavailable = size(iSubject) - start, len =  mint(iMinLen), 
-        skip_leading_separator = SKIP_OPTIONAL_SEPARATOR(iSubject, start, 0, sep, cavailable), skip_trailing_separator = 0, 
+    var start = deref rNext, 
+        cavailable = size(iSubject) - start, 
+        len =  mint(iMinLen), 
+        skip_leading_separator = SKIP_OPTIONAL_SEPARATOR(iSubject, start, 0, sep, cavailable), 
+        skip_trailing_separator = 0, 
         maxLen = max(cavailable - (mint(iLookahead) + skip_leading_separator), 0),
-        iVal, sublen, end	
-	 	
+        iVal, sublen, end	  	
     if(is_defined(rVar)) {
         iVal = deref rVar
-        if(occurs(iVal, iSubject, start)) {	   // TODO: check length
+        if(occurs(iVal, iSubject, start)) {	     // TODO: check length
             yield(iVal, start + size_list(iVal))
         }
         exhaust
-    }
-    
+    }  
     while(len <= maxLen) {
         if(len == 0) {
             sublen = 0
@@ -866,23 +904,23 @@ coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen
 }
 
 coroutine MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, sep, applConstr, listProd, applProd, iSubject, rNext) 
-    guard 
-    { var start = deref rNext, cavailable = size(iSubject) - start, 
-          skip_leading_separator =  SKIP_OPTIONAL_SEPARATOR(iSubject, start, 0, sep, cavailable), skip_trailing_separator = 0,
-          sublen = max(cavailable - (mint(iLookahead) + skip_leading_separator), 0)
-          
-      {
-          if(mint(iLookahead) > 0 && sublen >= 2) {
-              // skip trailing separator
-              sublen = sublen - 2
-   	          skip_trailing_separator = 2
-          }
-          sublen >= mint(iMinLen)
-      } 
-    }
+guard { 
+    var start = deref rNext, 
+        cavailable = size(iSubject) - start, 
+        skip_leading_separator =  SKIP_OPTIONAL_SEPARATOR(iSubject, start, 0, sep, cavailable), 
+        skip_trailing_separator = 0,
+        sublen = max(cavailable - (mint(iLookahead) + skip_leading_separator), 0)      
+    {
+        if(mint(iLookahead) > 0 && sublen >= 2) {
+            // skip trailing separator
+            sublen = sublen - 2
+   	        skip_trailing_separator = 2
+        }
+        sublen >= mint(iMinLen)
+    } 
+}
 {   
-    var iVal, end
-   
+    var iVal, end  
     if(is_defined(rVar)) {
         iVal = deref rVar
         if(occurs(iVal, iSubject, start)) {	     // TODO: check length
@@ -896,9 +934,8 @@ coroutine MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iM
 }
 
 function MAKE_CONCRETE_LIST(applConstr, listProd, applProd, elms) {
-  var listResult = prim("appl_create", applConstr, listProd, prim("list_create", prim("appl_create", applConstr, applProd, elms)))
-  
-  return listResult
+    var listResult = prim("appl_create", applConstr, listProd, prim("list_create", prim("appl_create", applConstr, applProd, elms)))
+    return listResult
 }
 
 /******************************************************************************************/
@@ -921,8 +958,9 @@ function ACCEPT_SET_MATCH(iSubject, remaining) {
 }
 
 coroutine ENUM_MSET(set, rElm) {
-    var iLst = mset2list(set), len = size_list(iLst), j = 0
-    
+    var iLst = mset2list(set), 
+        len = size_list(iLst), 
+        j = 0
     while(j < len) {
         yield get_list(iLst, j)
         j = j + 1
@@ -935,8 +973,8 @@ coroutine ENUM_MSET(set, rElm) {
 // - rRemaining: reference parameter to return remaining set elements
 
 coroutine MATCH_PAT_IN_SET(pat, available, rRemaining) guard size_mset(available) > 0 {
-    var gen = create(ENUM_MSET, available, ref elm), cpat, elm
-    
+    var gen = create(ENUM_MSET, available, ref elm), 
+        cpat, elm
     while(next(gen)) {
         cpat = create(pat, elm)
         while(next(cpat)) {
@@ -948,8 +986,7 @@ coroutine MATCH_PAT_IN_SET(pat, available, rRemaining) guard size_mset(available
 }
 
 coroutine MATCH_VAR_IN_SET(rVar, available, rRemaining) guard size_mset(available) > 0 {
-    var gen, elm
-    
+    var gen, elm  
     if(is_defined(rVar)) {
         elm = deref rVar
         if(is_element_mset(elm, available)) {
@@ -968,8 +1005,8 @@ coroutine MATCH_VAR_IN_SET(rVar, available, rRemaining) guard size_mset(availabl
 }
 
 coroutine MATCH_TYPED_VAR_IN_SET(typ, rVar, available, rRemaining) guard size_mset(available) > 0 {
-    var elm, gen = create(ENUM_MSET, available, ref elm)
-    
+    var gen = create(ENUM_MSET, available, ref elm),
+        elm
     while(next(gen)) {
         if(subtype(typeOf(elm), typ)) {
             yield(elm, mset_destructive_subtract_elm(available, elm))
@@ -980,8 +1017,8 @@ coroutine MATCH_TYPED_VAR_IN_SET(typ, rVar, available, rRemaining) guard size_ms
 }
 
 coroutine MATCH_ANONYMOUS_VAR_IN_SET(available, rRemaining) guard size_mset(available) > 0 { 
-    var elm, gen = create(ENUM_MSET, available, ref elm)
-    
+    var gen = create(ENUM_MSET, available, ref elm),
+        elm
     while(next(gen)) { 
         yield mset_destructive_subtract_elm(available, elm)
         available = mset_destructive_add_elm(available, elm)
@@ -990,8 +1027,8 @@ coroutine MATCH_ANONYMOUS_VAR_IN_SET(available, rRemaining) guard size_mset(avai
 }
 
 coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET(typ, available, rRemaining) guard size_mset(available) > 0 {
-	var elm, gen = create(ENUM_MSET, available, ref elm)
-	
+	var gen = create(ENUM_MSET, available, ref elm),
+	    elm
     while(next(gen)) { 
         if(subtype(typeOf(elm), typ)){
             yield mset_destructive_subtract_elm(available, elm)
@@ -1003,7 +1040,6 @@ coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET(typ, available, rRemaining) guard siz
 
 coroutine MATCH_MULTIVAR_IN_SET(rVar, available, rRemaining) {
     var gen, subset
-    
     if(is_defined(rVar)) {
         subset = deref rVar
         if(subset_set_mset(subset, available)){
@@ -1022,8 +1058,8 @@ coroutine MATCH_MULTIVAR_IN_SET(rVar, available, rRemaining) {
 }
 
 coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET(available, rRemaining) {
-    var subset, gen = create(ENUM_SUBSETS, available, ref subset)
-    
+    var gen = create(ENUM_SUBSETS, available, ref subset),
+        subset
     while(next(gen)) {
 	    yield mset_destructive_subtract_mset(available, subset)
 	    available = mset_destructive_add_mset(available, subset)
@@ -1033,7 +1069,6 @@ coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET(available, rRemaining) {
 
 coroutine MATCH_LAST_MULTIVAR_IN_SET(rVar, available, rRemaining) {
     var subset
-    
     if(is_defined(rVar)) {
         subset = deref rVar;
         if(equal_set_mset(subset, available)) {
@@ -1051,8 +1086,8 @@ coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_SET(available, rRemaining) {
 }
 
 coroutine MATCH_TYPED_MULTIVAR_IN_SET(typ, rVar, available, rRemaining) {    
-    var subset, gen = create(ENUM_SUBSETS, available, ref subset), iSubset, tmp
-    
+    var gen = create(ENUM_SUBSETS, available, ref subset), 
+        subset, iSubset, tmp
     while(next(gen)) {
         iSubset = set(subset)
         if(subtype(typeOf(iSubset), typ)) {
@@ -1065,8 +1100,8 @@ coroutine MATCH_TYPED_MULTIVAR_IN_SET(typ, rVar, available, rRemaining) {
 }
 
 coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET(typ, available, rRemaining) {
-    var subset, gen = create(ENUM_SUBSETS, available, ref subset)
-    
+    var gen = create(ENUM_SUBSETS, available, ref subset),
+        subset
     while(next(gen)) {
         if(subtype(typeOfMset(subset), typ)) {
             yield mset_destructive_subtract_mset(available, subset)
@@ -1091,8 +1126,10 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET(typ, available, rRemaining)
 // ith subset 
  
 coroutine ENUM_SUBSETS(set, rSubset) {
-    var lst = mset2list(set), last = 2 pow size_mset(set), k = last - 1, j, elIndex, sub
-    
+    var lst = mset2list(set), 
+        last = 2 pow size_mset(set), 
+        k = last - 1, 
+        j, elIndex, sub
     while(k >= 0) {
         j = k
         elIndex = 0 
@@ -1146,8 +1183,8 @@ coroutine MATCH_AND_DESCENT_LITERAL(pat, iSubject) {
 }
 
 coroutine MATCH_AND_DESCENT_LIST(pat, iLst) {
-    var last = size_list(iLst), j = 0
-    
+    var last = size_list(iLst), 
+        j = 0
     while(j < last) {
         MATCH_AND_DESCENT(pat, get_list(iLst, j))
         j = j + 1
@@ -1155,8 +1192,9 @@ coroutine MATCH_AND_DESCENT_LIST(pat, iLst) {
 }
 
 coroutine MATCH_AND_DESCENT_SET(pat, iSet) {
-    var iLst = set2list(iSet), last = size_list(iLst), j = 0
-    
+    var iLst = set2list(iSet), 
+        last = size_list(iLst), 
+        j = 0
     while(j < last) {
         MATCH_AND_DESCENT(pat, get_list(iLst, j))
         j = j + 1
@@ -1164,8 +1202,10 @@ coroutine MATCH_AND_DESCENT_SET(pat, iSet) {
 }
 
 coroutine MATCH_AND_DESCENT_MAP(pat, iMap) {
-    var iKlst = keys(iMap), iVlst = values(iMap), last = size_list(iKlst), j = 0
-    
+    var iKlst = keys(iMap), 
+        iVlst = values(iMap), 
+        last = size_list(iKlst), 
+        j = 0
     while(j < last) {
         MATCH_AND_DESCENT(pat, get_list(iKlst, j))
         MATCH_AND_DESCENT(pat, get_list(iVlst, j))
@@ -1174,8 +1214,9 @@ coroutine MATCH_AND_DESCENT_MAP(pat, iMap) {
 }
 
 coroutine MATCH_AND_DESCENT_NODE(pat, iNd) {
-    var ar = get_children_and_keyword_params_as_values(iNd), last = size_array(ar), j = 0
-     
+    var ar = get_children_and_keyword_params_as_values(iNd), 
+        last = size_array(ar), 
+        j = 0
     while(j < last) {
         MATCH_AND_DESCENT(pat, get_array(ar, j))
         j = j + 1
@@ -1183,8 +1224,8 @@ coroutine MATCH_AND_DESCENT_NODE(pat, iNd) {
 }
 
 coroutine MATCH_AND_DESCENT_TUPLE(pat, iTup) {
-    var last = size_tuple(iTup), j = 0
-    
+    var last = size_tuple(iTup), 
+        j = 0
     while(j < last) {
         MATCH_AND_DESCENT(pat, get_tuple(iTup, j))
         j = j + 1
@@ -1194,8 +1235,8 @@ coroutine MATCH_AND_DESCENT_TUPLE(pat, iTup) {
 // ***** Regular expressions *****
 
 coroutine MATCH_REGEXP(iRegexp, varrefs, iSubject) {
-    var matcher = muprim("regexp_compile", iRegexp, iSubject), j, rVar
-    
+    var matcher = muprim("regexp_compile", iRegexp, iSubject), 
+        j, rVar
     while(muprim("regexp_find", matcher)) {
         j = 0 
         while(j < size_array(varrefs)) {
@@ -1210,8 +1251,8 @@ coroutine MATCH_REGEXP(iRegexp, varrefs, iSubject) {
 // ***** Traverse functions *****
 
 function TRAVERSE_TOP_DOWN(phi, iSubject, rHasMatch, rBeenChanged, rebuild) {
-	var matched = false, changed = false
-	
+	var matched = false, 
+	    changed = false
 	iSubject = phi(iSubject, ref matched, ref changed)
 	if(rebuild) {
 		deref rBeenChanged = changed || deref rBeenChanged
@@ -1224,8 +1265,8 @@ function TRAVERSE_TOP_DOWN(phi, iSubject, rHasMatch, rBeenChanged, rebuild) {
 }
 
 function TRAVERSE_TOP_DOWN_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rebuild) {
-	var matched = false, changed = false
-	
+	var matched = false, 
+	    changed = false
 	iSubject = phi(iSubject, ref matched, ref changed)
 	deref rBeenChanged = changed || deref rBeenChanged	
 	if(deref rHasMatch = matched || deref rHasMatch) {	
@@ -1241,8 +1282,8 @@ function TRAVERSE_TOP_DOWN_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rebuild
 }
 
 function TRAVERSE_BOTTOM_UP(phi, iSubject, rHasMatch, rBeenChanged, rebuild) {
-	var matched = false, changed = false
-	
+	var matched = false, 
+	    changed = false
 	if(rebuild) {
 		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_BOTTOM_UP::5, phi, rHasMatch, ref changed, rebuild)
 		deref rBeenChanged = changed || deref rBeenChanged
@@ -1256,8 +1297,8 @@ function TRAVERSE_BOTTOM_UP(phi, iSubject, rHasMatch, rBeenChanged, rebuild) {
 }
 
 function TRAVERSE_BOTTOM_UP_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rebuild) { 
-	var matched = false, changed = false
-	
+	var matched = false, 
+	    changed = false
 	if(rebuild) {
 		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_BOTTOM_UP_BREAK::5, phi, rHasMatch, ref changed, rebuild)
 		deref rBeenChanged = changed || deref rBeenChanged
@@ -1276,7 +1317,6 @@ function TRAVERSE_BOTTOM_UP_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rebuil
 
 function VISIT_CHILDREN(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) { 
 	var children
-	
 	if((iSubject is list) || (iSubject is set) || (iSubject is tuple) || (iSubject is node)) {
 		children = VISIT_NOT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild)
 	} else {
@@ -1302,9 +1342,10 @@ function VISIT_CHILDREN(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, re
 }
 
 function VISIT_NOT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) {
-	var iarray = make_iarray(size(iSubject)), enumerator = create(ENUMERATE_AND_ASSIGN, ref iChild, iSubject), j = 0,
+	var iarray = make_iarray(size(iSubject)), 
+	    enumerator = create(ENUMERATE_AND_ASSIGN, ref iChild, iSubject), 
+	    j = 0,
 	    iChild, childHasMatch, childBeenChanged
-	
 	while(next(enumerator)) {
 		childHasMatch = false
 		childBeenChanged = false
@@ -1318,9 +1359,9 @@ function VISIT_NOT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, reb
 }
 
 function VISIT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) {
-	var writer = prim("mapwriter_open"), enumerator = create(ENUMERATE_AND_ASSIGN, ref iKey, iSubject),
-	    iKey, iVal, childHasMatch, childBeenChanged
-	    
+	var writer = prim("mapwriter_open"), 
+	    enumerator = create(ENUMERATE_AND_ASSIGN, ref iKey, iSubject),
+	    iKey, iVal, childHasMatch, childBeenChanged	    
 	while(next(enumerator)) {
 		iVal = prim("map_subscript", iSubject, iKey)
 		
@@ -1353,9 +1394,9 @@ function VISIT_CHILDREN_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChange
 }
 
 function VISIT_NOT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) {
-	var enumerator = create(ENUMERATE_AND_ASSIGN, ref iChild, iSubject), childBeenChanged = false,
-	    iChild, childHasMatch
-	
+	var enumerator = create(ENUMERATE_AND_ASSIGN, ref iChild, iSubject), 
+	    childBeenChanged = false,
+	    iChild, childHasMatch	
 	while(next(enumerator)) {
 		childHasMatch = false
 		traverse_fun(phi, iChild, ref childHasMatch, ref childBeenChanged, rebuild)
@@ -1365,9 +1406,9 @@ function VISIT_NOT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged
 }
 
 function VISIT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) {
-	var enumerator = create(ENUMERATE_AND_ASSIGN, ref iKey, iSubject), childBeenChanged = false,
+	var enumerator = create(ENUMERATE_AND_ASSIGN, ref iKey, iSubject), 
+	    childBeenChanged = false,
 	    iKey, iVal, childHasMatch
-	  
 	while(next(enumerator)) {
 		childHasMatch = false
 		traverse_fun(phi, iKey, ref childHasMatch, ref childBeenChanged, rebuild)
