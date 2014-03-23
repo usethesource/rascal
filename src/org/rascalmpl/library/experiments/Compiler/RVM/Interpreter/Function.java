@@ -20,9 +20,9 @@ public class Function {
 	public final int maxstack;
 	final CodeBlock codeblock;
 	public IValue[] constantStore;
-	Type[] typeConstantStore;
+	public Type[] typeConstantStore;
 
-	int continuationPoints = 0;
+	public int continuationPoints = 0;
 
 	int[] froms;
 	int[] tos;

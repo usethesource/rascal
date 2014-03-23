@@ -16,7 +16,7 @@ public class LoadCon extends Instruction {
 	
 	public void generate(Generator codeEmittor, boolean dcode){
 		
-		codeEmittor.emitInlineLoadCon(constant);
+		codeEmittor.emitInlineLoadCon(constant,dcode);
 		
 		//codeEmittor.emitCall("insnLOADCON", constant);
 		

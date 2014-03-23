@@ -633,7 +633,7 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ASTORE, 1);
 	}
 
-	public void emitInlineLoadCon(int arg) {
+	public void emitInlineLoadCon(int arg, boolean debug) {
 		if (!emit)
 			return;
 
@@ -651,15 +651,15 @@ public class Generator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "function",
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;");
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "constantStore", "[Lorg/eclipse/imp/pdb/facts/IValue;");
-		// if (arg >= -128 && arg <= 127)
-		// mv.visitIntInsn(BIPUSH, arg);
-		// else
-		mv.visitIntInsn(SIPUSH, arg);
+		if (arg >= -128 && arg <= 127)
+			mv.visitIntInsn(BIPUSH, arg);
+		else
+			mv.visitIntInsn(SIPUSH, arg);
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
 	}
 
-	public void emitInlineLoadLoc3() {
+	public void emitInlineLoadLoc3(boolean debug) {
 		if (!emit)
 			return;
 		mv.visitCode();
@@ -675,6 +675,64 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
 		mv.visitInsn(ICONST_3);
+		mv.visitInsn(AALOAD);
+		mv.visitInsn(AASTORE);
+	}
+
+	public void emitInlineStoreLoc(int loc, boolean debug) {
+		// Moves stack to stack
+		if (!emit)
+			return;
+		
+		if ( debug ) { // That we can trace the methodcall!
+			emitCall("insnSTORELOC", loc);
+			return ;
+		}
+
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+
+		if (loc >= -128 && loc <= 127)  // Can omit negetive test 
+			mv.visitIntInsn(BIPUSH, loc);
+		else
+			mv.visitIntInsn(SIPUSH, loc);
+
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitInsn(ICONST_1);
+		mv.visitInsn(ISUB);
+		mv.visitInsn(AALOAD);
+		mv.visitInsn(AASTORE);
+	}
+	
+	public void emitInlineLoadType(int t, boolean debug) {
+		if (!emit)
+			return;
+		
+		if ( debug ) { // That we can trace the methodcall!
+			emitCall("insnLOADTYPE", t);
+			return ;
+		}
+		
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitInsn(DUP);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitInsn(DUP_X1);
+		mv.visitInsn(ICONST_1);
+		mv.visitInsn(IADD);
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "function", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;");
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "typeConstantStore", "[Lorg/eclipse/imp/pdb/facts/type/Type;");
+		if (t >= -128 && t <= 127)  // Can omit negetive test 
+			mv.visitIntInsn(BIPUSH, t);
+		else
+			mv.visitIntInsn(SIPUSH, t);
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
 	}

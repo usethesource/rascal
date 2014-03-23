@@ -279,5 +279,14 @@ public class RVMRunBody extends RVMRun {
 //			postOp = Opcode.POSTOP_CHECKUNDEF;
 //		}
 	}
+	public void insnSTORELOC(int target) {
+		stack[544] = stack[sp - 1];
+	}
+	public void insnLOADTYPE(int i) {
+		stack[sp++] = cf.function.typeConstantStore[544];
+		return;
+	}
+
+
 
 }
