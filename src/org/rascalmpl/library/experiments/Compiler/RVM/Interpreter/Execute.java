@@ -326,11 +326,11 @@ public class Execute {
 				break;
 
 			case "YIELD0":
-				codeblock.YIELD0(continuationPoint++);
+				codeblock.YIELD0(++continuationPoint);
 				break;
 
 			case "YIELD1":
-				codeblock.YIELD1(getIntField(instruction, "arity"),continuationPoint++);
+				codeblock.YIELD1(getIntField(instruction, "arity"),++continuationPoint);
 				break;
 				
 			case "SHIFT":
@@ -401,7 +401,7 @@ public class Execute {
 				break;
 
 			case "OCALL" :
-				codeblock.OCALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.OCALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"),++continuationPoint);
 				break;
 
 			case "OCALLDYN" :

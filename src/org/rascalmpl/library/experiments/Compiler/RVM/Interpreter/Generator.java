@@ -20,6 +20,9 @@ public class Generator implements Opcodes {
 	private String[] funcArray = null;
 	private boolean emit = true;
 	private HashMap<String, Label> labelMap = new HashMap<String, Label>();
+	private Label[] hotEntryLabels = null;
+	private Label exitLabel = null;
+	private String currentName = null;
 
 	public Generator(String packageName2, String className2) {
 
@@ -65,17 +68,45 @@ public class Generator implements Opcodes {
 		mv.visitEnd();
 	}
 
-	public void emitMethod(String name) {
+	public void emitMethod(String name, int continuationPoints, boolean debug) {
 		if (!emit)
 			return;
 		mv = cw.visitMethod(ACC_PUBLIC, name, "()Ljava/lang/Object;", null, null);
 		labelMap.clear(); // New set of labels.
+
 		mv.visitCode();
+
+		currentName = name;
+
+		if (continuationPoints != 0) {
+			hotEntryLabels = new Label[continuationPoints + 1]; // Add entry 0
+			exitLabel = new Label();
+
+			for (int i = 0; i < hotEntryLabels.length; i++)
+				hotEntryLabels[i] = new Label();
+
+			mv.visitInsn(ICONST_0);
+			mv.visitTableSwitchInsn(0, hotEntryLabels.length - 1, exitLabel, hotEntryLabels);
+			System.out.println(currentName + " : entrypoint :" + 0);
+
+			mv.visitLabel(hotEntryLabels[0]); // Start at 'address' 0
+		} else {
+			exitLabel = null;
+			// hotEntryLabels = null ;
+		}
 	}
 
 	public void closeMethod() {
 		if (!emit)
 			return;
+		if (exitLabel != null) { // This label should never be reached placed to keep JVM verifier happy.
+			System.out.println(currentName + " : exitLabel");
+
+			mv.visitLabel(exitLabel);
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitFieldInsn(GETFIELD, fullClassName, "PANIC", "Lorg/eclipse/imp/pdb/facts/IString;");
+			mv.visitInsn(ARETURN);
+		}
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 	}
@@ -468,6 +499,8 @@ public class Generator implements Opcodes {
 	}
 
 	public void emitOCallHandler(String OCallName, String funIn, int scopeIn, int[] functions, int[] constructors) {
+		if (!emit)
+			return;
 		// 1 String name ;
 		// 2 int scope ;
 		// 3 int[] fnctions ;
@@ -512,6 +545,9 @@ public class Generator implements Opcodes {
 	}
 
 	public void emitOCallCALL(String callFunc, int funcListIndex) {
+		if (!emit)
+			return;
+
 		Label noExit = new Label();
 
 		// 0 this
@@ -593,6 +629,8 @@ public class Generator implements Opcodes {
 	}
 
 	public void emitOCallEnd() {
+		if (!emit)
+			return;
 		// This code handles the case that ALL alternatives fail
 
 		mv.visitVarInsn(ALOAD, 0);
@@ -602,13 +640,13 @@ public class Generator implements Opcodes {
 		mv.visitEnd();
 	}
 
-	public static void main(String[] argv) {
+	public static void Pain(String[] argv) {
 		byte[] result = null;
 		System.out.println("Getting started!\n");
 		Generator emittor = new Generator("packageName", "className");
 
 		emittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter", "Runner");
-		emittor.emitMethod("main");
+		emittor.emitMethod("main", 0, false);
 		emittor.emitLabel("entrypoint");
 		emittor.emitCall("main");
 		emittor.emitCall("main", 10, 20);
@@ -627,7 +665,13 @@ public class Generator implements Opcodes {
 		}
 	}
 
-	public void emitOCall(String ocallFunc) {
+	public void emitOCall(String ocallFunc, int hotEntryPoint) {
+		if (!emit)
+			return;
+		if (exitLabel != null) { // If there is an exit label there is a
+			System.out.println(currentName + " : entrypoint :" + hotEntryPoint);
+			mv.visitLabel(hotEntryLabels[hotEntryPoint]);
+		}
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, ocallFunc, "()Ljava/lang/Object;");
 		mv.visitVarInsn(ASTORE, 1);
@@ -683,16 +727,16 @@ public class Generator implements Opcodes {
 		// Moves stack to stack
 		if (!emit)
 			return;
-		
-		if ( debug ) { // That we can trace the methodcall!
+
+		if (debug) { // That we can trace the methodcall!
 			emitCall("insnSTORELOC", loc);
-			return ;
+			return;
 		}
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
 
-		if (loc >= -128 && loc <= 127)  // Can omit negetive test 
+		if (loc >= -128 && loc <= 127) // Can omit negetive test
 			mv.visitIntInsn(BIPUSH, loc);
 		else
 			mv.visitIntInsn(SIPUSH, loc);
@@ -706,16 +750,16 @@ public class Generator implements Opcodes {
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
 	}
-	
+
 	public void emitInlineLoadType(int t, boolean debug) {
 		if (!emit)
 			return;
-		
-		if ( debug ) { // That we can trace the methodcall!
+
+		if (debug) { // That we can trace the methodcall!
 			emitCall("insnLOADTYPE", t);
-			return ;
+			return;
 		}
-		
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
 		mv.visitVarInsn(ALOAD, 0);
@@ -727,13 +771,25 @@ public class Generator implements Opcodes {
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "function", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;");
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "function",
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;");
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "typeConstantStore", "[Lorg/eclipse/imp/pdb/facts/type/Type;");
-		if (t >= -128 && t <= 127)  // Can omit negetive test 
+		if (t >= -128 && t <= 127) // Can omit negetive test
 			mv.visitIntInsn(BIPUSH, t);
 		else
 			mv.visitIntInsn(SIPUSH, t);
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
+	}
+
+	public void emitHotEntryJumpTable(int continuationPoints, boolean debug) {
+		if (!emit)
+			return;
+
+		if (debug) { // That we can trace the methodcall!
+		}
+
+		hotEntryLabels = new Label[continuationPoints + 1]; // Add default 0 entry point.
+
 	}
 }

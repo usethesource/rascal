@@ -47,11 +47,18 @@ public class Function {
 
 	public void finalize(Generator codeEmittor, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 
-		if ( name.contains("Library")) codeEmittor.enableOutput(false); 
-		if ( name.contains("init")) codeEmittor.enableOutput(false); 
-		if ( name.contains("Simple_testsuite")) codeEmittor.enableOutput(false); 
-		if ( name.contains("Exception")) codeEmittor.enableOutput(false); 
-		codeEmittor.emitMethod(NameMangler.mangle(name));
+		codeEmittor.enableOutput(true);
+
+		if (name.contains("Library"))
+			codeEmittor.enableOutput(false);
+		if (name.contains("init"))
+			codeEmittor.enableOutput(false);
+		if (name.contains("Simple_testsuite"))
+			codeEmittor.enableOutput(false);
+		if (name.contains("Exception"))
+			codeEmittor.enableOutput(false);
+
+		codeEmittor.emitMethod(NameMangler.mangle(name),continuationPoints,false);
 
 		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing);
 		this.scopeId = codeblock.getFunctionIndex(name);
@@ -60,10 +67,9 @@ public class Function {
 		}
 		this.constantStore = codeblock.getConstants();
 		this.typeConstantStore = codeblock.getTypeConstants();
-		
+
 		codeEmittor.closeMethod();
-        codeEmittor.enableOutput(true);
-		System.out.println("}");
+		codeEmittor.enableOutput(true);
 	}
 
 	public void attachExceptionTable(IList exceptions, RVM rvm) {

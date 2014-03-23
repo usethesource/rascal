@@ -286,7 +286,12 @@ public class RVMRunBody extends RVMRun {
 		stack[sp++] = cf.function.typeConstantStore[544];
 		return;
 	}
-
+	public void entry() {
+		switch(0) {
+		case 0: fret() ;
+		case 1: fret() ;
+		}
+	}
 
 
 }
