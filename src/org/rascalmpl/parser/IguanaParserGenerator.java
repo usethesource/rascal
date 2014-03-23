@@ -38,7 +38,7 @@ import org.jgll.grammar.condition.ConditionType;
 import org.jgll.grammar.condition.ContextFreeCondition;
 import org.jgll.grammar.condition.PositionalCondition;
 import org.jgll.grammar.condition.RegularExpressionCondition;
-import org.jgll.grammar.slot.factory.FirstFollowSetGrammarSlotFactory;
+import org.jgll.grammar.slot.factory.GrammarSlotFactoryImpl;
 import org.jgll.grammar.slot.factory.GrammarSlotFactory;
 import org.jgll.grammar.symbol.CharacterClass;
 import org.jgll.grammar.symbol.Keyword;
@@ -133,7 +133,7 @@ public class IguanaParserGenerator {
 	
 	public GrammarBuilder convert(String name, IConstructor rascalGrammar) {
 
-		GrammarSlotFactory factory = new FirstFollowSetGrammarSlotFactory();
+		GrammarSlotFactory factory = new GrammarSlotFactoryImpl();
 		GrammarBuilder builder = new GrammarBuilder(name, factory);
 		
 		IMap definitions = (IMap) rascalGrammar.get("rules");
