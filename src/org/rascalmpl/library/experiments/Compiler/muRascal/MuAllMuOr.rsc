@@ -23,15 +23,35 @@ tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ MuExp e ]) = <
 default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuExp] exps) {
     list[MuFunction] functions = [];
     assert(size(exps) >= 1);
-    if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
-        return <muMulti(muApply("Library/<muAllOrMuOr>(1)",
-                                [ muCallMuPrim("make_array",[ { str gen_uid = "<fuid>/LAZY_EVAL_GEN_<nextLabel()>(0)";
-                                                                tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,fuid);
-                                                                functions = functions + res.functions;
-                                                                functions += muFunction(gen_uid, Symbol::\func(Symbol::\value(),[]), fuid, 0, 0, false, |rascal:///|, [], (), muReturn(res.e.exp));
-                                                                muFun(gen_uid,fuid);
-                                                              } | MuExp exp <- exps ]) ])),
-                functions>;
+    if(MuExp exp <- exps, muMulti(_) := exp) {
+        if(muAllOrMuOr == "ALL" || muAllOrMuOr == "OR") {
+            // Uses the generic definitions of ALL and OR
+        	return <muMulti(muApply(muFun("Library/<muAllOrMuOr>"),
+            	                    [ muCallMuPrim("make_array",[ { str gen_uid = "<fuid>/LAZY_EVAL_GEN_<nextLabel()>(0)";
+                	                                                tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,fuid);
+                    	                                            functions = functions + res.functions;
+                        	                                        functions += muFunction(gen_uid, Symbol::\func(Symbol::\value(),[]), fuid, 0, 0, false, |rascal:///|, [], (), muReturn(res.e.exp));
+                            	                                    muFun(gen_uid,fuid);
+                                	                              } | MuExp exp <- exps ]) ])),
+                	functions>;
+        } else if(muAllOrMuOr == "IMPLICATION" || muAllOrMuOr == "EQUIVALENCE") {
+            // Generates the specialized code; TODO: also define these two as library coroutines 
+            list[MuExp] expressions = [];
+        	list[bool] backtrackfree = [];
+        	for(MuExp e <- exps) {
+            	if(muMulti(_) := e) {
+                	expressions += e.exp;
+                	backtrackfree += false;
+            	} else if(muOne(_) := e) {
+                	expressions += muNext(muCreate(e.exp));
+                	backtrackfree += true;
+            	} else {
+                	expressions += e;
+                	backtrackfree += true;
+            	}
+        	}
+        	return generateMu(muAllOrMuOr, fuid, expressions, backtrackfree);;
+        }
     }
     if(muAllOrMuOr == "ALL") {
         return <( exps[0] | muIfelse(nextLabel(), it, [ exps[i] is muOne ? muNext(muCreate(exps[i])) : exps[i] ], [ muCon(false) ]) | int i <- [ 1..size(exps) ] ),functions>;
@@ -39,11 +59,19 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
     if(muAllOrMuOr == "OR"){
         return <( exps[0] | muIfelse(nextLabel(), it, [ muCon(true) ], [ exps[i] is muOne ? muNext(muCreate(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] ),functions>;
     }
+    if(muAllOrMuOr == "IMPLICATION") {
+        return <( exps[0] | muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ it ]), [ muCon(true) ], [ exps[i] is muOne ? muNext(muCreate(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] ),[]>;
+    }
+    if(muAllOrMuOr == "EQUIVALENCE") {
+        return <( exps[0] | muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ it ]), [ muCallMuPrim("not_mbool", [ exp is muOne ? muNext(muCreate(exp)) : exp ]) ], [ exp is muOne ? muNext(muCreate(exp_copy)) : exp_copy ]) | int i <- [ 1..size(exps) ], MuExp exp := exps[i], MuExp exp_copy := newLabels(exp) ),[]>;
+    }
+    
 }
 */
 /*
  * Alternative, fast implementation that generates a specialized definitions of ALL and OR
  */
+
 tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muMulti(_) ]) = <e,[]>;
 tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muOne(MuExp exp) ]) = <makeMuMulti(e),[]>;
 tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ MuExp e ]) = <e,[]> when !(muMulti(_) := e || muOne(_) := e);
