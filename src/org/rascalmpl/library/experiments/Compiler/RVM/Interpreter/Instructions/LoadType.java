@@ -15,7 +15,7 @@ public class LoadType extends Instruction {
 	public String toString() { return "LOADTYPE " + type + "[" + codeblock.getConstantType(type) + "]"; }
 	
 	public void generate(Generator codeEmittor, boolean dcode){
-		codeEmittor.emitCall("insnLOADTYPE", type);
+		codeEmittor.emitInlineLoadType(type, dcode);
 		codeblock.addCode1(opcode.getOpcode(), type);
 	}
 }

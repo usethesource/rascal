@@ -99,7 +99,7 @@ import experiments::Compiler::Examples::AnotherFor;
 loc base = |rascal:///experiments/Compiler/Examples/|;
 
 
-value demo(str example bool debug = false, bool listing=false, bool testsuite=false, bool recompile=true, bool profile=false) =
+value demo(str example, bool debug = false, bool listing=false, bool testsuite=false, bool recompile=true, bool profile=false) =
   execute(base + (example + ".rsc"), [], debug=debug, listing=listing, testsuite=testsuite, recompile=recompile, profile=profile);
 
 test bool tst() = demo("AsType1",recompile=true) == experiments::Compiler::Examples::AsType1::main([]);
