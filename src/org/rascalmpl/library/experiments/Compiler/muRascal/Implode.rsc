@@ -292,6 +292,9 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case preTypeSwitch(MuExp exp, lrel[MuTypeCase, bool] sepCases, 
                                   MuExp \default, bool comma)                                   => muTypeSwitch(exp, sepCases<0>, \default)
                case preBlock(list[MuExp] exps, bool comma)                                      => muBlock(exps)
+               
+               case preSubscript(MuExp arr, MuExp index)                                        => muCallMuPrim("subscript_array_mint", [arr, index])
+               case preAssignSubscript(MuExp arr, MuExp index, MuExp exp)						=> muCallMuPrim("assign_subscript_array_mint", [arr, index, exp])
       	       
             };
       } catch e: throw "In muRascal function <modName>::<for(<f,n> <- funNames){><f>::<n>::<}><fname>::<nformals> (uid = <uid>) : <e>";   
