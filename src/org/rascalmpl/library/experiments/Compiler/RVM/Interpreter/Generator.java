@@ -797,9 +797,10 @@ public class Generator implements Opcodes {
 
 	}
 
-	public void emitCallJava(int className2, int methodName, int parameterTypes, int reflect) {
+	public void emitCallJava(int className2, int methodName, int parameterTypes, int reflect, boolean debug) {
 		if (!emit)
 			return;
+
 		mv.visitVarInsn(ALOAD, 0); // Load this on stack.
 		
 		if (className2 >= -128 && className2 <= 127)
@@ -828,5 +829,10 @@ public class Generator implements Opcodes {
 	public void emitJmpIndex(IList labels, boolean dcode) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void emitTypeSwitch(IList labels, boolean dcode) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -17,6 +17,7 @@ public class Yield1 extends Instruction {
 	public String toString() { return "YIELD1 " + arity; }
 	
 	public void generate(Generator codeEmittor, boolean dcode){
+		codeEmittor.emitCall("insnYIELD1",arity);
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
 }

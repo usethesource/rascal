@@ -17,6 +17,9 @@ public class StoreVarDeref extends Instruction {
 	public String toString() { return "STOREVARDEREF " + fuid + " [ " + codeblock.getFunctionIndex(fuid) + " ] " + ", " + pos; }
 	
 	public void generate(Generator codeEmittor, boolean dcode){
+
+		codeEmittor.emitCall("insnSTOREVARDEREF", codeblock.getFunctionIndex(fuid), pos);
+
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), pos);
 	}
 }
