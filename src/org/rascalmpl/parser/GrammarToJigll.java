@@ -82,7 +82,7 @@ public class GrammarToJigll {
 
 	private IConstructor rascalGrammar;
 	
-	private int mode = CHARACTER_LEVEL;
+	private int mode = TOKEN_BASED;
 	
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
@@ -274,6 +274,10 @@ public class GrammarToJigll {
 			IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
 			createRegularExpressions(regularExpressions);
 		}
+		
+		for (Entry<String, RegularExpression> e : regularExpressionsMap.entrySet()) {
+			System.out.println(e.getKey() + ": " + e.getValue());
+		}
 
 		for (IValue nonterminal : definitions) {
 
@@ -293,9 +297,9 @@ public class GrammarToJigll {
 					continue;
 				}
 				
-				if(isRegularExpression(constructor)) {
-					continue;
-				}
+//				if(isRegularExpression(constructor)) {
+//					continue;
+//				}
 			}
 
 			IConstructor choice = (IConstructor) definitions.get(nonterminal);
@@ -427,9 +431,8 @@ public class GrammarToJigll {
 			IConstructor constructor = (IConstructor) val;
 			RegularExpression regex = getRegularExpression(constructor);	
 			
-			if(!(regex instanceof CharacterClass)) {
-				System.out.println("WTF?");
-			}
+			
+			assert regex instanceof CharacterClass;
 			
 			if (regex != null) {
 				result.add(regex);
@@ -575,15 +578,20 @@ public class GrammarToJigll {
 
 	private Symbol getSymbol(IConstructor symbol) {
 		
+
 		if(mode == TOKEN_BASED) {
-			RegularExpression regexp = regularExpressionsMap.get(symbol.getName());
-			if(regexp != null) {
-				return regexp;
+			
+			if(symbol.getName().equals("lex")) {
+				RegularExpression regularExpression = regularExpressionsMap.get(SymbolAdapter.toString(symbol, true));
+				if(regularExpression != null) {
+					return regularExpression;
+				}
 			}
 			
-			if(isRegularExpression(symbol)) {
-				return getRegularExpression(symbol);
-			}
+			// TODO: can be used later when I add the translation of {A sep}* to regular expressions.
+//			if(isRegularExpression(symbol)) {
+//				return getRegularExpression(symbol);
+//			}
 			
 			if(isKeyword(symbol)) {
 				return getKeyword(symbol);
