@@ -497,8 +497,8 @@ coroutine MATCH_COLLECTION(pats,       // Coroutines to match collection element
 	                       subject     // The subject (a collection like list or set, together with optional admin)
 	                       ) {
 	var patlen = size_array(pats),     // Length of pattern array
-        matchers = make_array(patlen), // Currently active pattern matchers
-        j = 0                          // Cursor in patterns
+        j = 0,                         // Cursor in patterns
+        matchers                       // Currently active pattern matchers
         
     if(patlen == 0) {
         if(accept(subject)) {
@@ -506,7 +506,8 @@ coroutine MATCH_COLLECTION(pats,       // Coroutines to match collection element
         }
         exhaust
     }
-     
+    
+    matchers = make_array(patlen)
     matchers[j] = create(pats[j], ref subject)   
     while(true) {
         while(next(matchers[j])) {                       // Move forward
