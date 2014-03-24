@@ -367,8 +367,12 @@ public class GrammarToJigll {
 			IValue prod = regularExpression.getValue();
 			IList rhs = (IList) ((IConstructor) prod).get("symbols");
 
-//			System.out.println(new RegularExpression(head.getName(), body));
-			regularExpressionsMap.put(head.getName(), new Sequence<>(getRegularExpressionList(rhs)));
+			List<RegularExpression> body = getRegularExpressionList(rhs);
+			if(body.size() == 1) {
+				regularExpressionsMap.put(head.getName(), body.get(0));				
+			} else {
+				regularExpressionsMap.put(head.getName(), new Sequence<>(body));
+			}
 		}
 	}
 	
@@ -431,9 +435,6 @@ public class GrammarToJigll {
 			IConstructor constructor = (IConstructor) val;
 			RegularExpression regex = getRegularExpression(constructor);	
 			
-			
-			assert regex instanceof CharacterClass;
-			
 			if (regex != null) {
 				result.add(regex);
 			}
@@ -451,59 +452,96 @@ public class GrammarToJigll {
 
 			IMap definitions = (IMap) rascalGrammar.get("rules");
 			IConstructor choice = (IConstructor) definitions.get(symbol);
-			
-			ISet alts = null;
-			try {
-				alts = (ISet) choice.get("alternatives");
-			} catch(Exception e) {
-				System.out.println(symbol);
-			}
 
-			assert alts.size() == 1;
-
-			int[] chars = null;
-			for (IValue alt : alts) {
-				IConstructor prod = (IConstructor) alt;
-
-				IList rhs = null;
+			// Keywords are already expanded into a sequence
+			if(choice == null) {
+				if (symbol.getName().equals("seq")) {
+					keyword = new Keyword(name, getChars((IList) symbol.get("symbols")));
+				} else if (symbol.getName().equals("char-class")) {
+						keyword = new Keyword(name, getChars(symbol));	
+				}
+			} else {
+				ISet alts = null;
 				try {
-					rhs = (IList) prod.get("symbols");
+					alts = (ISet) choice.get("alternatives");
 				} catch(Exception e) {
-					System.out.println(symbol);
+					throw e;
 				}
 
-				chars = new int[rhs.length()];
+				assert alts.size() == 1;
 
-				int i = 0;
-				for (IValue s : rhs) {
-
-					IList ranges = null;
-					try {
-						ranges = (IList) ((IConstructor) s).get("ranges");
-					} catch(Exception e) {
-						System.out.println(symbol);
-					}
-		
-					assert ranges.length() == 1;
+				for (IValue alt : alts) {
 					
-					for (IValue r : ranges) {
-						IConstructor range = (IConstructor) r;
-						int begin = ((IInteger) range.get("begin")).intValue();
-						int end = ((IInteger) range.get("end")).intValue();
-						assert begin == end;
-						chars[i++] = begin;
+					IConstructor prod = (IConstructor) alt;
+
+					IList rhs = null;
+					try {
+						rhs = (IList) prod.get("symbols");
+					} catch(Exception e) {
+						throw e;
 					}
-				}
+					
+					keyword = new Keyword(name, getChars(rhs));
+				}				
 			}
-
-			assert chars != null;
-
-			keyword = new Keyword(name, chars);
+			
 			keywordsMap.put(name,  keyword);
 		}
 
 		return keyword;
 	}
+	
+	private int[] getChars(IList rhs) {
+		int[] chars = new int[rhs.length()];
+
+		int i = 0;
+		for (IValue s : rhs) {
+
+			IList ranges = null;
+			try {
+				ranges = (IList) ((IConstructor) s).get("ranges");
+			} catch(Exception e) {
+				throw e;
+			}
+
+			assert ranges.length() == 1;
+			
+			for (IValue r : ranges) {
+				IConstructor range = (IConstructor) r;
+				int begin = ((IInteger) range.get("begin")).intValue();
+				int end = ((IInteger) range.get("end")).intValue();
+				assert begin == end;
+				chars[i++] = begin;
+			}
+		}
+		
+		return chars;
+	}
+	
+	/**
+	 * Transforms a charclas with a single char into an int array 
+	 */
+	private int[] getChars(IConstructor charClass) {
+		int[] chars = new int[1];
+
+		IList ranges = null;
+		try {
+			ranges = (IList) charClass.get("ranges");
+		} catch(Exception e) {
+			throw e;
+		}
+
+		assert ranges.length() == 1;
+		
+		IConstructor range = (IConstructor) ranges.get(0);
+		int begin = ((IInteger) range.get("begin")).intValue();
+		int end = ((IInteger) range.get("end")).intValue();
+		assert begin == end;
+		chars[0] = begin;
+		
+		return chars;
+	}
+	
 	
 	private boolean isKeyword(IConstructor symbol) {
 		return symbol.getName().equals("lit");
@@ -652,8 +690,7 @@ public class GrammarToJigll {
 			 return regularExpressionsMap.get(((IString)symbol.get("name")).getValue());
 			 
 		case "conditional":
-//			return getRegularExpression(getSymbolCons(symbol)).addConditions(getConditions(symbol));
-			return getRegularExpression(getSymbolCons(symbol));
+			return getRegularExpression(getSymbolCons(symbol)).addConditions(getConditions(symbol));
 		
 		case "label":
 			return getRegularExpression(getSymbolCons(symbol));
