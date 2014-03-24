@@ -15,6 +15,7 @@ public class Init extends Instruction {
 	public String toString() { return "INIT " + arity; }
 	
 	public void generate(Generator codeEmittor, boolean dcode){
+		codeEmittor.emitCall("insnINIT", arity);
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
 		

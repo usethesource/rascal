@@ -22,6 +22,8 @@ public class CallJava extends Instruction {
 			                                      ", " +  codeblock.getConstantType(parameterTypes) + ", " + reflect; }
 		
 	public void generate(Generator codeEmittor, boolean dcode){
+		codeEmittor.emitCallJava(className, methodName, parameterTypes, reflect) ;
+		
 		codeblock.addCode(opcode.getOpcode());
 		codeblock.addCode(methodName);
 		codeblock.addCode(className);

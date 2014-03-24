@@ -18,8 +18,6 @@ public class LoadCon extends Instruction {
 		
 		codeEmittor.emitInlineLoadCon(constant,dcode);
 		
-		//codeEmittor.emitCall("insnLOADCON", constant);
-		
 		codeblock.addCode1(opcode.getOpcode(), constant);
 	}
 }

@@ -1767,6 +1767,24 @@ public class RVMRun {
 		return;
 	}
 
+
+	public void insnCALLJAVA(int m, int c, int p, int r) {
+		postOp = 0;
+		String methodName = ((IString) cf.function.constantStore[m]).getValue();
+		String className = ((IString) cf.function.constantStore[c]).getValue();
+		Type parameterTypes = cf.function.typeConstantStore[p];
+		int reflect = instructions[r];
+		arity = parameterTypes.getArity();
+		try {
+			sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
+		} catch (Throw e) {
+			thrown = Thrown.getInstance(e.getException(), e.getLocation(), new ArrayList<Frame>());
+			postOp = Opcode.POSTOP_HANDLEEXCEPTION;
+			return; // TODO break INSTRUCTION;
+		}
+		return;
+	}
+
 	public void insnINIT(int arity) {
 		Object src = stack[--sp];
 		if (src instanceof Coroutine) {
