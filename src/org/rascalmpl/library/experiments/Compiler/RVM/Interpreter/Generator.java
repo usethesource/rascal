@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.eclipse.imp.pdb.facts.IList;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
@@ -85,7 +86,10 @@ public class Generator implements Opcodes {
 			for (int i = 0; i < hotEntryLabels.length; i++)
 				hotEntryLabels[i] = new Label();
 
-			mv.visitInsn(ICONST_0);
+			mv.visitCode();
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+			mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "hotEntryPoint", "I");
 			mv.visitTableSwitchInsn(0, hotEntryLabels.length - 1, exitLabel, hotEntryLabels);
 			System.out.println(currentName + " : entrypoint :" + 0);
 
@@ -790,6 +794,39 @@ public class Generator implements Opcodes {
 		}
 
 		hotEntryLabels = new Label[continuationPoints + 1]; // Add default 0 entry point.
+
+	}
+
+	public void emitCallJava(int className2, int methodName, int parameterTypes, int reflect) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, 0); // Load this on stack.
+		
+		if (className2 >= -128 && className2 <= 127)
+			mv.visitIntInsn(BIPUSH, className2);
+		else
+			mv.visitIntInsn(SIPUSH, className2);
+		
+		if (methodName >= -128 && methodName <= 127)
+			mv.visitIntInsn(BIPUSH, methodName);
+		else
+			mv.visitIntInsn(SIPUSH, methodName);
+		
+		if (parameterTypes >= -128 && parameterTypes <= 127)
+			mv.visitIntInsn(BIPUSH, parameterTypes);
+		else
+			mv.visitIntInsn(SIPUSH, parameterTypes);
+		
+		if (reflect >= -128 && reflect <= 127)
+			mv.visitIntInsn(BIPUSH, reflect);
+		else
+			mv.visitIntInsn(SIPUSH, reflect);
+		
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "insnCALLJAVA", "(IIII)V");
+	}
+
+	public void emitJmpIndex(IList labels, boolean dcode) {
+		// TODO Auto-generated method stub
 
 	}
 }

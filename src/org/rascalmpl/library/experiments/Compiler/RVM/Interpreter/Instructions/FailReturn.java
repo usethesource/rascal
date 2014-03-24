@@ -12,6 +12,9 @@ public class FailReturn extends Instruction {
 		// TODO version 1 done
 		// Implement return system.
 		// System.out.println("FAILRETURN");
+		if (dcode)
+			codeEmittor.emitCall("dinsnFAILRETURN");
+
 		codeEmittor.emitFailreturn();
 		codeblock.addCode0(opcode.getOpcode());
 	}

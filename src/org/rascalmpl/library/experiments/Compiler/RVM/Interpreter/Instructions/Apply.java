@@ -20,5 +20,4 @@ public class Apply extends Instruction {
 		codeEmittor.emitCall("insnAPPLY", codeblock.getFunctionIndex(fuid), arity);
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), arity);
 	}
-
 }

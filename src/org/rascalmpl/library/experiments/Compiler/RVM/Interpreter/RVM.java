@@ -2,13 +2,9 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.print.DocFlavor.URL;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -23,7 +19,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
-public class RVM extends ClassLoader {
+public class RVM {
 
 	public final IValueFactory vf;
 
@@ -173,6 +169,7 @@ public class RVM extends ClassLoader {
 		// Finalize the instruction generation of all functions, if needed
 		if (!finalized) {
 			finalized = true;
+			
 			codeEmittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter", "Running");
 
 			for (Function f : functionStore) {
@@ -325,12 +322,11 @@ public class RVM extends ClassLoader {
 		cf.stack[1] = vf.mapWriter().done();
 
 		Object o = null;
-		if (uid_main.contains("/Simple/main")) {
+		if (uid_main.contains("QSimple/main")) {
 			o = runner.dynRun(uid_main, args);
 		} else {
 			o = runner.executeProgram(root, cf);
 		}
-		// Object o = o2 ;
 		if (o != null && o instanceof Thrown) {
 			throw (Thrown) o;
 		}

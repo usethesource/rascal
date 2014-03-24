@@ -196,8 +196,9 @@ public class RVMRunBody extends RVMRun {
 		return NONE;
 	}
 
-
-	
+	public void name(int b, String g) {
+		name(b,g) ;
+	}
 	
 	public Object wat() {
 		Object p ; 
@@ -287,11 +288,9 @@ public class RVMRunBody extends RVMRun {
 		return;
 	}
 	public void entry() {
-		switch(0) {
+		switch(cf.hotEntryPoint) {
 		case 0: fret() ;
 		case 1: fret() ;
 		}
 	}
-
-
 }
