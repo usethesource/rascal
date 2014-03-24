@@ -19,7 +19,7 @@ public class UnwrapThrownVar extends Instruction {
 	}
 	
 	public void generate(Generator codeEmittor, boolean dcode){
+		codeEmittor.emitCall("insnUNWRAPTHROWNVAR", codeblock.getFunctionIndex(fuid), pos); 
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), pos);
 	}
-
 }

@@ -15,7 +15,7 @@ public class UnwrapThrownLoc extends Instruction {
 	public String toString() { return "UNWRAPTHROWNOC " + pos; }
 	
 	public void generate(Generator codeEmittor, boolean dcode){
+		codeEmittor.emitCall("insnUNWRAPTHROWNLOC", pos);
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
-	
 }

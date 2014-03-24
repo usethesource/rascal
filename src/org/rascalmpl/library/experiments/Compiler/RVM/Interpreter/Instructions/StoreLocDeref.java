@@ -15,6 +15,7 @@ public class StoreLocDeref extends Instruction {
 	public String toString() { return "STORELOCDEREF " + pos; }
 	
 	public void generate(Generator codeEmittor, boolean dcode){
+		codeEmittor.emitCall("insnSTORELOCDEREF", pos);
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
 }

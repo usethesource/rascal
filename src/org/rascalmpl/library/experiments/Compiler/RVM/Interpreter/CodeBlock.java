@@ -656,7 +656,7 @@ public class CodeBlock {
 		pc = 0;
 		finalCode = new int[codeSize];
 		for(Instruction ins : insList){
-			ins.generate(codeEmittor, false);
+			ins.generate(codeEmittor, true);
 		}
 		finalConstantStore = new IValue[constantStore.size()];
 		for(int i = 0; i < constantStore.size(); i++ ){
