@@ -46,18 +46,28 @@ public class SWTFontsAndColors {
 		}
 	}
 	
-	// TODO: how to execute this on the right thread?
-	
+
+	static IList res = null;
 	public static IList fontNames(){
 		System.err.println("fontNames");
-		Display display = Display.getDefault();
-		FontData[] fd = display.getFontList(null, true);
-		IListWriter w = vf.listWriter(tf.stringType());
-		for(int i = 0; i < fd.length; i++){
-			System.err.println("adding " + fd[i].getName());
-			w.append(vf.string(fd[i].getName()));
-		}
-		return w.done();
+		
+		 Display.getDefault().syncExec(new Runnable(){
+
+			@Override
+			public void run() {
+				FontData[] fd =  Display.getDefault().getFontList(null, true);
+				IListWriter w = vf.listWriter(tf.stringType());
+				for(int i = 0; i < fd.length; i++){
+					System.err.println("adding " + fd[i].getName());
+					w.append(vf.string(fd[i].getName()));
+				}
+				res= w.done();
+				
+			}
+			
+		});
+		 return res;
+	
 	}
 	
 	public static double textAscent(String fontName, int fontSize,

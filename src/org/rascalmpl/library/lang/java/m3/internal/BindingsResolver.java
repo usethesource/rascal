@@ -51,6 +51,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.junit.runner.Computer;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BindingsResolver {
@@ -286,9 +287,9 @@ public class BindingsResolver {
     return values.constructor(cons, decl, parameters);
   }
 
-  private IConstructor parameterNode(ISourceLocation decl, ITypeBinding bound, boolean isDeclaration) {
-    if (bound != null) {
-      IConstructor boundSym = boundSymbol(bound, isDeclaration);
+  private IConstructor parameterNode(ISourceLocation decl, ITypeBinding[] bound, boolean isDeclaration, boolean isUpperbound) {
+    if (bound.length > 0) {
+      IConstructor boundSym = boundSymbol(bound, isDeclaration, isUpperbound);
       org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeParameter", tf.tupleType(decl.getType(), boundSym.getType()));
       return values.constructor(cons, decl, boundSym);
     }
@@ -336,19 +337,24 @@ public class BindingsResolver {
         return parameterNode(decl);
       }
       else {
-    	// JDT document says there can only be one element and it is in the first position.
     	assert bound.length == 1;
-        return parameterNode(decl, bound[0], isDeclaration);
+    	// for type parameters it is always upperbound
+        return parameterNode(decl, bound, isDeclaration, true);
       } 
     }
     else if (binding.isWildcardType()) {
+      /*
+       * For wildcards the isUpperbound() information is only correct in the binding here.
+       * The previous implementation tried to look for that information in the type binding of the bounds,
+       * which wasn't correct.
+       */
       ITypeBinding bound = binding.getBound();
       
       if (bound == null) {
         return wildcardSymbol(unboundedSym());
       }
       else {
-        return wildcardSymbol(boundSymbol(binding.getBound(), isDeclaration));
+        return wildcardSymbol(boundSymbol(new ITypeBinding[] { bound }, isDeclaration, binding.isUpperbound()));
       }
     }  
     else if (binding.isClass()) {
@@ -362,7 +368,7 @@ public class BindingsResolver {
         return captureSymbol(unboundedSym(), computeTypeSymbol(wildcard, isDeclaration));
       }
       else {
-        return captureSymbol(boundSymbol(typeBounds[0], isDeclaration), computeTypeSymbol(wildcard, isDeclaration));
+        return captureSymbol(boundSymbol(typeBounds, isDeclaration, true), computeTypeSymbol(wildcard, isDeclaration));
       }
     }
     else if (binding.isInterface()) {
@@ -382,12 +388,12 @@ public class BindingsResolver {
     return values.constructor(cons, boundSymbol);
   }
 
-  private IConstructor boundSymbol(ITypeBinding bound, boolean isDeclaration) {
-    IConstructor boundSym = computeTypeSymbol(bound, isDeclaration);
+  private IConstructor boundSymbol(ITypeBinding[] bound, boolean isDeclaration, boolean isUpperbound) {
+    IList boundSym = computeTypes(bound, isDeclaration);
     
     org.eclipse.imp.pdb.facts.type.Type boundType = store.lookupAbstractDataType("Bound");
     
-    if (bound.isUpperbound()) {
+    if (!isUpperbound) {
       org.eclipse.imp.pdb.facts.type.Type sup = store.lookupConstructor(boundType, "super", tf.tupleType(boundSym.getType()));
       return values.constructor(sup, boundSym);
     }
