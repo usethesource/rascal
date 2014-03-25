@@ -40,8 +40,8 @@ int countSLOC(Tree t) {
   list[Output] output = [];
   
   // Ignore any layout before or after the main meat.
-  if (t has top) {
-    t = t.top;
+  if (t.prod.def is \start) {
+    t = t.args[1];
   }  
   
   void write(Output x) {

@@ -1,5 +1,11 @@
 module experiments::Compiler::Rascal2muRascal::TypeReifier
 
+/*
+* This module handles the mapping between types and reified types. It defines two functions:
+*     (1) map[Symbol,Production] getGrammar(Configuration) (extracts only a syntax definition)
+*     (2) type[value]            symbolToValue(Symbol,Configuration) (extracts a type definition)
+*/
+
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
@@ -19,15 +25,21 @@ private map[Symbol,Production] grammar = ();
 private set[Symbol] starts = {};
 private Symbol activeLayout = Symbol::\layouts("$default$");
 
+private void resetTypeReifier() {
+    typeMap = ();
+    constructors = {};
+    productions = {};
+    grammar = ();
+    starts = {};
+    activeLayout = Symbol::\layouts("$default$");
+}
+
 public map[Symbol,Production] getGrammar(Configuration config) {
 
 	// Collect all the types that are in the type environment
-	typeMap = ( getSimpleName(rname) : config.store[config.typeEnv[rname]].rtype | rname <- config.typeEnv );
-	// Collect all the constructors of the adt types in the type environment
-	types = range(typeMap);
-	constructors = { <\type.\adt, \type> | int uid <- config.store, 
-												constructor(_, Symbol \type, _, _) := config.store[uid],
-												\type.\adt in types };
+	typeMap = ( getSimpleName(rname) : rtype | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] );
+	set[Symbol] types = range(typeMap);
+	constructors = {};
 	// Collects all the productions of the non-terminal types in the type environment
 	productions = { <\type.\sort, \type> | int uid <- config.store,
 												production(_, Symbol \type, _, _) := config.store[uid],
@@ -52,6 +64,8 @@ public map[Symbol,Production] getGrammar(Configuration config) {
  	definitions = definitions + (Symbol::\layouts("$default$"):Production::choice(Symbol::\layouts("$default$"),{Production::prod(Symbol::\layouts("$default$"),[],{})}));
  	definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
  	
+ 	resetTypeReifier();
+ 	
  	return definitions;
 }
 
@@ -62,7 +76,7 @@ public type[value] symbolToValue(Symbol symbol, Configuration config) {
 	// Collect all the constructors of the adt types in the type environment
 	types = range(typeMap);
 	constructors = { <\type.\adt, \type> | int uid <- config.store, 
-												constructor(_, Symbol \type, _, _) := config.store[uid],
+												constructor(_, Symbol \type, _, _, _) := config.store[uid],
 												\type.\adt in types };
 	// Collects all the productions of the non-terminal types in the type environment
 	productions = { <\type.\sort, \type> | int uid <- config.store,
@@ -91,6 +105,9 @@ public type[value] symbolToValue(Symbol symbol, Configuration config) {
  			definitions = definitions + (Symbol::\layouts("$default$"):Production::choice(Symbol::\layouts("$default$"),{Production::prod(Symbol::\layouts("$default$"),[],{})}));
  			definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
  	}
+ 	
+ 	resetTypeReifier();
+ 	
  	return type(symbol, definitions);
 }
 

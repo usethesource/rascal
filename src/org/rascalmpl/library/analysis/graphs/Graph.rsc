@@ -95,10 +95,12 @@ in the set `Start`.
 public set[&T] reach(Graph[&T] G, set[&T] Start)
 {
     set[&T] R = Start;
+    set[&T] new = R;
 	
-	solve (R) {
-		R = R + G[R];
-    }
+	while (new != {}) {
+		new = G[new] - R;
+		R += new;
+	}
     
 	return R;
 }

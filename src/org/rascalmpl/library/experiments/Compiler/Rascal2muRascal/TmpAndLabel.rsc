@@ -3,6 +3,7 @@ module experiments::Compiler::Rascal2muRascal::TmpAndLabel
 
 import Prelude;
 import lang::rascal::\syntax::Rascal;
+
 /*
  * Management of temporaries and labels.
  */
@@ -14,6 +15,8 @@ public void resetTmpAndLabel(){
 	itVariables = [];
 	writerVariables = [];
 	tryCatchFinally = [];
+	resetAllCounter();
+	resetOrCounter();
 }
 
 // Generation of temporary variables and labels
@@ -37,20 +40,20 @@ public str nextLabel(str prefix){
 	return "<prefix><tmpLabel>";
 }
 
-// Keep track of loop nested. This is used for
+// Keep track of loop nesting. This is used for
 // - append
 // - break/continue/fail
 
 bool inBacktrackingScope() = !isEmpty(backtrackingScopes);
 
-private list[str] loops = [];					// *** state
+private lrel[str label,str fuid] loops = []; // *** state
 
-void enterLoop(str name){
-  loops = name + loops;
+void enterLoop(str name, str fuid){
+  loops = <name,fuid> + loops;
 }
 
 str currentLoop(){
-  return top(loops);
+  return top(loops).label;
 }
 
 str currentLoop(DataTarget target){
@@ -58,6 +61,18 @@ str currentLoop(DataTarget target){
      return currentLoop();
   else
      return "<target.label>";
+}
+
+str getCurrentLoopScope() {
+  return top(loops).fuid;
+}
+
+str getCurrentLoopScope(DataTarget target) {
+  if(target is empty) {
+      return getCurrentLoopScope();
+  } else {
+      return topFunctionScope();
+  }
 }
 
 void leaveLoop(){
@@ -87,17 +102,17 @@ str asUnwrapedThrown(str name) = name + "_unwraped";
 
 // Keep track of possibly nested "it" variables in reducers
 
-private list[str] itVariables = [];				// *** state
+private lrel[str name,str fuid] itVariables = []; // *** state
 
-void pushIt(str name){
-  itVariables = name + itVariables;
+void pushIt(str name, str fuid){
+  itVariables = <name,fuid> + itVariables;
 }
 
 void popIt(){
   itVariables = tail(itVariables);
 }
 
-str topIt() = top(itVariables);
+tuple[str name,str fuid] topIt() = top(itVariables);
 
 // Administration for possibly nested list/set writers related to splicing list/set elements
 
@@ -167,3 +182,28 @@ void fillCaseType(Symbol t) {
 void clearCaseType() {
 	visits = Symbol::\void() + tail(visits);
 }
+
+int allCounter = 0;								// *** state
+
+int getNextAll() {
+    int counter = allCounter;
+    allCounter = allCounter + 1;
+    return counter;
+}
+
+void resetAllCounter() {
+    allCounter = 0;
+}
+
+int orCounter = 0;								// *** state
+
+int getNextOr() {
+    int counter = orCounter;
+    orCounter = orCounter + 1;
+    return counter;
+}
+
+void resetOrCounter() {
+    orCounter = 0;
+}
+

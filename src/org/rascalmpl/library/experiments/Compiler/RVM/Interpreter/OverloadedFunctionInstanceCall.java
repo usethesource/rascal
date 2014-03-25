@@ -1,9 +1,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 public class OverloadedFunctionInstanceCall {
@@ -11,57 +13,45 @@ public class OverloadedFunctionInstanceCall {
 	final int[] functions;
 	final int[] constructors;
 	final Frame cf;
-	Frame env;
-	final IValue[] args;
-	final IValue[] constr_args;
+	
+	final Frame env;
 	final Type types;
+	
+	final int arity;
+	final Object[] stack;
+	final int sp;
+	
 	int i = 0;
 	
-	final IValueFactory vf;
-	
-	public OverloadedFunctionInstanceCall(IValueFactory vf, Frame root, Frame cf, int[] functions, int[] constructors, int scopeIn, IValue[] args, Type types) {
-		this.vf = vf;
-		this.cf = cf;
-		this.functions = functions;
-		this.constructors = constructors;
-		this.args = args;
-		// Temporary
-		this.constr_args = new IValue[args.length - 1];
-		for(int i = 0; i < args.length - 1; i++) {
-			this.constr_args[i] = args[i];
-		}
-		this.types = types;
-
-		this.env = root;
-		if(scopeIn != -1) {
-			boolean found = false;
-			for(Frame env = cf; env != null; env = env.previousCallFrame) {
-				if (env.scopeId == scopeIn) {
-					this.env = env;
-					found = true;
-					break;
-				}
-			}
-			if(!found) {
-				throw new RuntimeException("Could not find matching scope when loading a nested overloaded function: " + scopeIn);
-			}
-		}
-		
-	}
-	
-	public OverloadedFunctionInstanceCall(IValueFactory vf, Frame cf, int[] functions, int[] constructors, Frame env, IValue[] args, Type types) {
-		this.vf = vf;
+	public OverloadedFunctionInstanceCall(Frame cf, int[] functions, int[] constructors, Frame env, Type types, int arity) {
 		this.cf = cf;
 		this.functions = functions;
 		this.constructors = constructors;
 		this.env = env;
-		this.args = args;
-		// Temporary
-		this.constr_args = new IValue[args.length - 1];
-		for(int i = 0; i < args.length - 1; i++) {
-			this.constr_args[i] = args[i];
-		}
 		this.types = types;
+		this.arity = arity;
+		this.stack = cf.stack;
+		this.sp = cf.sp;
+	}
+	
+	/**
+	 * Assumption: scopeIn != -1; 
+	 */
+	public static OverloadedFunctionInstanceCall computeOverloadedFunctionInstanceCall(Frame cf, int[] functions, int[] constructors, int scopeIn, Type types, int arity) {
+		for(Frame env = cf; env != null; env = env.previousScope) {
+			if (env.scopeId == scopeIn) {
+				return new OverloadedFunctionInstanceCall(cf, functions, constructors, env, types, arity);
+			}
+		}
+		throw new RuntimeException("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn);
+	}
+	
+	public Frame nextFrame(List<Function> functionStore) {
+		Function f = this.nextFunction(functionStore);
+		if(f == null) {
+			return null;
+		}
+		return cf.getFrame(f, env, arity, sp);
 	}
 	
 	public Function nextFunction(List<Function> functionStore) {
@@ -70,11 +60,13 @@ public class OverloadedFunctionInstanceCall {
 		} else {
 			while(i < functions.length) {
 				Function fun = functionStore.get(functions[i++]);
-				// TODO: Re-think of the cases of polymorphic and varArgs function alternatives
-				// The most straightforward solution would be to check the arity and let pattern matching on formal parameters do the rest
 				for(Type type : types) {
-					if(fun.ftype == type) {
+					try {
+						Map<Type,Type> bindings = new HashMap<Type,Type>();
+						type.match(fun.ftype, bindings);
 						return fun;
+					} catch(FactTypeUseException e) {
+						;
 					}
 				}
 			}
@@ -88,16 +80,32 @@ public class OverloadedFunctionInstanceCall {
 		} else {
 			for(int index : constructors) {
 				Type constructor = constructorStore.get(index);
-				// TODO: Re-think of the cases of polymorphic and varArgs function alternatives
-				// The most straightforward solution would be to check the arity and let pattern matching on formal parameters do the rest
 				for(Type type : types) {
-					if(constructor == type) {
+					try {
+						Map<Type,Type> bindings = new HashMap<Type,Type>();
+						type.match(constructor, bindings);
 						return constructor;
+					} catch(FactTypeUseException e) {
+						;
 					}
 				}
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Assumptions: 
+	 * - constructors do not permit var args,
+	 * - only constructors without keyword parameters may be directly called within an overloaded function call, 
+	 * - constructors with keyword parameters are indirectly called via companion functions.
+	 */
+	public IValue[] getConstructorArguments(int arity) {
+		IValue[] args = new IValue[arity];
+		for(int i = 0; i < arity; i++) {
+			args[i] = (IValue) stack[sp - this.arity + i]; 
+		}
+		return args;
 	}
 	
 }

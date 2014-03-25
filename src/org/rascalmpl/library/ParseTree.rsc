@@ -93,6 +93,7 @@ module ParseTree
 
 extend Type;
 extend Message;
+extend List;
 
 @doc{
 Synopsis: The Tree data type as produced by the parser.
@@ -157,6 +158,8 @@ data Symbol
      | \parameterized-lex(str name, list[Symbol] parameters)  
      ; 
 
+public bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", _)) = true;
+
 // These are the terminal symbols.
 data Symbol 
      = \lit(str string) /*10*/
@@ -176,7 +179,6 @@ data Symbol
      | \seq(list[Symbol] symbols)
      ;
   
-
 data Symbol = \conditional(Symbol symbol, set[Condition] conditions) /*12*/;
 
 
@@ -537,3 +539,20 @@ public bool isNonTerminalType(Symbol::\parameterized-sort(str _, list[Symbol] _)
 public bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true;
 public default bool isNonTerminalType(Symbol s) = false;
 
+//@doc{Determine the size of a concrete list}
+//int size(appl(regular(\iter(Symbol symbol)), list[Tree] args)) = size(args);
+//int size(appl(regular(\iter-star(Symbol symbol)), list[Tree] args)) = size(args);
+//
+//int size(appl(regular(\iter-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
+//int size(appl(regular(\iter-star-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
+//
+//int size(appl(prod(Symbol symbol, list[Symbol] symbols , attrs), list[Tree] args)) = 
+//	\label(str label, Symbol symbol1) := symbol && [Symbol itersym] := symbols
+//	? size(appl(prod(symbol1, symbols, attrs), args))
+//	: size(args[0]);
+//
+//default int size(Tree t) {
+//    throw "Size of tree not defined for \"<t>\"";
+//}
+//
+//private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (lenseps + 1));

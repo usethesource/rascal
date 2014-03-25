@@ -13,7 +13,6 @@ module ValueGenerator
 import Boolean;
 import util::Math;
 import String;
-import Real;
 import List;
 import Set;
 import Map;

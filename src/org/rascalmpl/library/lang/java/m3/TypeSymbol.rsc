@@ -3,8 +3,8 @@ module lang::java::m3::TypeSymbol
 extend analysis::m3::TypeSymbol;
 
 data Bound 
-  = \super(TypeSymbol bound)
-  | \extends(TypeSymbol bound)
+  = \super(list[TypeSymbol] bound)
+  | \extends(list[TypeSymbol] bound)
   | \unbounded()
   ;
   

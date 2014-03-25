@@ -38,6 +38,13 @@ public abstract class Expression extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.Expression> getElements() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasElements0() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Expression> getElements0() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasGenerators() {
     return false;
   }
@@ -71,6 +78,13 @@ public abstract class Expression extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasStatements0() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Statement> getStatements0() {
     throw new UnsupportedOperationException();
   }
   public boolean hasComprehension() {
@@ -2009,15 +2023,15 @@ public abstract class Expression extends AbstractAST {
   }
 
   static public class List extends Expression {
-    // Production: sig("List",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements")])
+    // Production: sig("List",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements0")])
   
     
-    private final java.util.List<org.rascalmpl.ast.Expression> elements;
+    private final java.util.List<org.rascalmpl.ast.Expression> elements0;
   
-    public List(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements) {
+    public List(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements0) {
       super(node);
       
-      this.elements = elements;
+      this.elements0 = elements0;
     }
   
     @Override
@@ -2032,12 +2046,12 @@ public abstract class Expression extends AbstractAST {
   
     
     @Override
-    public java.util.List<org.rascalmpl.ast.Expression> getElements() {
-      return this.elements;
+    public java.util.List<org.rascalmpl.ast.Expression> getElements0() {
+      return this.elements0;
     }
   
     @Override
-    public boolean hasElements() {
+    public boolean hasElements0() {
       return true;
     }	
   }
@@ -2881,15 +2895,15 @@ public abstract class Expression extends AbstractAST {
   }
 
   static public class Set extends Expression {
-    // Production: sig("Set",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements")])
+    // Production: sig("Set",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements0")])
   
     
-    private final java.util.List<org.rascalmpl.ast.Expression> elements;
+    private final java.util.List<org.rascalmpl.ast.Expression> elements0;
   
-    public Set(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements) {
+    public Set(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements0) {
       super(node);
       
-      this.elements = elements;
+      this.elements0 = elements0;
     }
   
     @Override
@@ -2904,12 +2918,12 @@ public abstract class Expression extends AbstractAST {
   
     
     @Override
-    public java.util.List<org.rascalmpl.ast.Expression> getElements() {
-      return this.elements;
+    public java.util.List<org.rascalmpl.ast.Expression> getElements0() {
+      return this.elements0;
     }
   
     @Override
-    public boolean hasElements() {
+    public boolean hasElements0() {
       return true;
     }	
   }
@@ -3649,17 +3663,17 @@ public abstract class Expression extends AbstractAST {
   }
 
   static public class VoidClosure extends Expression {
-    // Production: sig("VoidClosure",[arg("org.rascalmpl.ast.Parameters","parameters"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","statements")])
+    // Production: sig("VoidClosure",[arg("org.rascalmpl.ast.Parameters","parameters"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","statements0")])
   
     
     private final org.rascalmpl.ast.Parameters parameters;
-    private final java.util.List<org.rascalmpl.ast.Statement> statements;
+    private final java.util.List<org.rascalmpl.ast.Statement> statements0;
   
-    public VoidClosure(IConstructor node , org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
+    public VoidClosure(IConstructor node , org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements0) {
       super(node);
       
       this.parameters = parameters;
-      this.statements = statements;
+      this.statements0 = statements0;
     }
   
     @Override
@@ -3683,12 +3697,12 @@ public abstract class Expression extends AbstractAST {
       return true;
     }
     @Override
-    public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
-      return this.statements;
+    public java.util.List<org.rascalmpl.ast.Statement> getStatements0() {
+      return this.statements0;
     }
   
     @Override
-    public boolean hasStatements() {
+    public boolean hasStatements0() {
       return true;
     }	
   }

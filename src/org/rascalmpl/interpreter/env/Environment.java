@@ -80,6 +80,69 @@ public class Environment {
 	protected final String name;
 	private Environment myRoot;
 
+	@Override
+	public boolean equals(Object obj) {
+	  if (obj instanceof Environment) {
+	    Environment o = (Environment) obj;
+	    
+	    if (callerScope != o.callerScope 
+          || !loc.equals(o.loc) 
+          || !name.equals(o.name)) {
+	      return false;
+	    }
+	    
+	    if (!equalMaps(variableEnvironment, o.variableEnvironment)) {
+	      return false;
+	    }
+	    
+	    if (!equalMaps(functionEnvironment, o.functionEnvironment)) {
+	      return false;
+	    }
+	    
+	    return true;
+	  }
+	  
+	  return false;
+  }
+
+	private <Key,Value> boolean equalMaps(Map<Key, Value> a, Map<Key, Value> b) {
+	  if (b == null && a == null) {
+	    return true;
+	  }
+	  
+	  if (b == null || a == null) {
+	    return false;
+	  }
+	  
+	  if (a.size() != b.size()) {
+	    return false;
+	  }
+	  
+	  for (Key k : a.keySet()) {
+	    if (!b.containsKey(k) || !a.get(k).equals(b.get(k))) {
+	      return false;
+	    }
+	  }
+	  
+	  return true;
+	}
+	
+	@Override
+	public int hashCode() {
+	  int code = 1331 * name.hashCode();
+	  
+	  if (variableEnvironment != null) {
+	    code += variableEnvironment.hashCode() * 13;
+	  }
+	  
+	  if (functionEnvironment != null) {
+	    code += functionEnvironment.hashCode();
+	  }
+	  
+	  return code;
+	}
+	
+	
 	public Environment(ISourceLocation loc, String name) {
 		this(null, null, null, loc, name);
 	}

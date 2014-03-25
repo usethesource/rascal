@@ -9,8 +9,8 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.interpreter.utils.Timing;
 
 public class Execute {
 
@@ -32,7 +33,7 @@ public class Execute {
 	}
 	
 	String muModuleInit(String moduleName){
-		return   "/#" + moduleName + "_init(1)";
+		return   "/#" + moduleName + "_init";
 	}
 	
 	// Library function to execute a RVM program from Rascal
@@ -42,14 +43,14 @@ public class Execute {
 								 IList imported_functions,
 								 IList imported_overloaded_functions,
 								 IMap imported_overloading_resolvers,
-								 IMap imported_grammars, IList argumentsAsList,
+								 IList argumentsAsList,
 								 IBool debug, IBool testsuite, IBool profile, IEvaluatorContext ctx) {
 		
 		boolean isTestSuite = testsuite.getValue();
 		String moduleName = ((IString) program.get("name")).getValue();
 		
 		String main = isTestSuite ? "/<moduleName>_testsuite(list(value());)#0" : "/main(list(value());)#0";
-		String mu_main = isTestSuite ? "/TESTSUITE(1)" : "/MAIN(1)";
+		String mu_main = isTestSuite ? "/TESTSUITE" : "/MAIN";
 		
 		String module_init = moduleInit(moduleName);
 		String mu_module_init = muModuleInit(moduleName);
@@ -128,9 +129,6 @@ public class Execute {
 		rvm.addResolver((IMap) program.get("resolver"));
 		rvm.fillOverloadedStore((IList) program.get("overloaded_functions"));
 		
-		// Grammars
-		rvm.setGrammars(imported_grammars);
-		
 		IValue[] arguments = new IValue[argumentsAsList.length()];
 		for(int i = 0; i < argumentsAsList.length(); i++){
 			arguments[i] = argumentsAsList.get(i);
@@ -145,45 +143,20 @@ public class Execute {
 		}
 		
 		try {
-			long start = System.currentTimeMillis();
+			long start = Timing.getCpuTime();
 			IValue result = null;
 			if(isTestSuite){
 				/*
 				 * Execute as testsuite
 				 */
 				rvm.executeProgram(uid_module_init, arguments);
-				int number_of_successes = 0;
-				int number_of_failures = 0;
-			
-				stdout.println("\nTEST REPORT\n");
+
+				IListWriter w = vf.listWriter();
 				for(String uid_testsuite: testsuites){
 					IList test_results = (IList)rvm.executeProgram(uid_testsuite, arguments);
-					for(IValue voutcome : test_results){
-						ITuple outcome = (ITuple) voutcome;
-						String tst_name = ((ISourceLocation) outcome.get(0)).toString();
-						//tst_name = tst_name.substring(1, tst_name.length()); // remove leading /
-						//tst_name = tst_name.replaceAll("/", "::");
-					
-						boolean passed = ((IBool) outcome.get(1)).getValue();
-						String exception = ((IString) outcome.get(2)).getValue();
-						if(!exception.isEmpty()){
-							exception = "; Unexpected exception: " + exception;
-						}
-					
-						if(passed){
-							number_of_successes++;
-						} else {
-							number_of_failures++;
-						}
-						if(!passed)
-							stdout.println(tst_name + ": FALSE" + exception);
-					}
+					w.insertAll(test_results);
 				}
-				int number_of_tests = number_of_successes + number_of_failures;
-				stdout.println("\nExecuted " + number_of_tests + " tests: "  
-						+ number_of_successes + " succeeded; "
-						+ number_of_failures + " failed.\n");
-				result = vf.tuple(vf.integer(number_of_successes), vf.integer(number_of_failures));
+				result = w.done();
 			} else {
 				/*
 				 * Standard execution of main function
@@ -195,11 +168,11 @@ public class Execute {
 				rvm.executeProgram(uid_module_init, arguments);
 				result = rvm.executeProgram(uid_main, arguments);
 			}
-			long now = System.currentTimeMillis();
+			long now = Timing.getCpuTime();
 			MuPrimitive.exit();
 			RascalPrimitive.exit();
 			Opcode.exit();
-			return vf.tuple((IValue) result, vf.integer(now - start));
+			return vf.tuple((IValue) result, vf.integer((now - start)/1000000));
 			
 		} catch(Thrown e) {
 			e.printStackTrace(stdout);
@@ -266,6 +239,10 @@ public class Execute {
 			case "LOADLOC":
 				codeblock.LOADLOC(getIntField(instruction, "pos"));
 				break;
+				
+			case "LOADCONT":
+				codeblock.LOADCONT(getStrField(instruction, "fuid"));
+				break;
 
 			case "STOREVAR":
 				codeblock.STOREVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
@@ -293,6 +270,14 @@ public class Execute {
 
 			case "CALLDYN":
 				codeblock.CALLDYN( getIntField(instruction, "arity"));
+				break;
+				
+			case "APPLY":
+				codeblock.APPLY(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				break;
+				
+			case "APPLYDYN":
+				codeblock.APPLYDYN(getIntField(instruction, "arity"));
 				break;
 
 			case "LOADFUN":
@@ -322,7 +307,7 @@ public class Execute {
 			case "HALT":
 				codeblock.HALT();
 				break;
-
+				
 			case "CREATE":
 				codeblock.CREATE(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
 				break;
@@ -330,9 +315,9 @@ public class Execute {
 			case "CREATEDYN":
 				codeblock.CREATEDYN(getIntField(instruction, "arity"));
 				break;
-
-			case "INIT":
-				codeblock.INIT(getIntField(instruction, "arity"));
+				
+			case "RESET":
+				codeblock.RESET();
 				break;
 
 			case "NEXT0":
@@ -350,9 +335,9 @@ public class Execute {
 			case "YIELD1":
 				codeblock.YIELD1(getIntField(instruction, "arity"));
 				break;
-
-			case "HASNEXT":
-				codeblock.HASNEXT();
+				
+			case "SHIFT":
+				codeblock.SHIFT();
 				break;
 
 			case "PRINTLN":
@@ -440,8 +425,8 @@ public class Execute {
 				codeblock.TYPESWITCH((IList)instruction.get("labels"));
 				break;
 				
-			case "UNWRAPTHROWN":
-				codeblock.UNWRAPTHROWN(getIntField(instruction, "pos"));
+			case "UNWRAPTHROWNLOC":
+				codeblock.UNWRAPTHROWNLOC(getIntField(instruction, "pos"));
 				break;
 				
 			case "FILTERRETURN":
@@ -514,6 +499,10 @@ public class Execute {
 				
 			case "STOREVARKWP":
 				codeblock.STOREVARKWP(getStrField(instruction, "fuid"), getStrField(instruction, "name"));
+				break;
+				
+			case "UNWRAPTHROWNVAR":
+				codeblock.UNWRAPTHROWNVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
 				break;
 				
 			default:
