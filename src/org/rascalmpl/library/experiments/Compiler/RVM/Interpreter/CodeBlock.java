@@ -560,8 +560,8 @@ public class CodeBlock {
 		return add(new Exhaust(this));
 	}
 	
-	public CodeBlock GUARD() {
-		return add(new Guard(this));
+	public CodeBlock GUARD(int continuationPoint) {
+		return add(new Guard(this,continuationPoint));
 	}
 	
 	public CodeBlock SUBSCRIPTARRAY() {

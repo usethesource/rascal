@@ -703,7 +703,11 @@ public class Generator implements Opcodes {
 	public void emitInlineLoadCon(int arg, boolean debug) {
 		if (!emit)
 			return;
-
+		
+		if ( debug )
+			emitCall("dinsnLOADCON", arg);
+		
+		
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
 		mv.visitVarInsn(ALOAD, 0);
@@ -899,5 +903,19 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "PANIC", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
+	}
+
+	public void emitInlineGuard(int hotEntryPoint, boolean dcode) {
+		if ( !emit ) 
+			return ;
+		emitCall("dinsnGUARD");
+		
+		
+		
+		
+		if (exitLabel != null) { // If there is an exit label there is a
+			System.out.println(currentName + " GU : entrypoint :" + hotEntryPoint);
+			mv.visitLabel(hotEntryLabels[hotEntryPoint]);
+		}
 	}
 }

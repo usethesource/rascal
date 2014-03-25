@@ -2307,10 +2307,20 @@ public class RVMRun {
 		dynRun(cccf.function.funId) ;
 	}
 
+	public boolean guardHelper() {
+		Object rval = stack[sp - 1];
+		boolean precondition;
+		if (rval instanceof IBool) {
+			precondition = ((IBool) rval).getValue();
+		} else if (rval instanceof Boolean) {
+			precondition = (Boolean) rval;
+		} else {
+			throw new RuntimeException("Guard's expression has to be boolean!");
+		}
+		return precondition ;
+	}
 	
-	
-	
-	// Next methods are for debug only.
+	// Next methods are for debug only. Single step..
 	public void dinsnJMPTRUE(int target) {
 		jmpTarget = target ;
 	}
@@ -2324,6 +2334,9 @@ public class RVMRun {
 		//stack[sp] = null ;
 		prevSP = sp ;
 	}
+	public void dinsnGUARD() {
+		prevSP = sp ;
+	}
 	public void dinsnEXHAUST() {
 		prevSP = sp ;
 	}
@@ -2331,6 +2344,9 @@ public class RVMRun {
 		jmpTarget = target ;
 	}
 	public void dinsnCALL(int target) {
+		jmpTarget = target ;
+	}
+	public void dinsnLOADCON(int target) {
 		jmpTarget = target ;
 	}
 }

@@ -435,7 +435,7 @@ public class Execute {
 				break;
 				
 			case "GUARD":
-				codeblock.GUARD();
+				codeblock.GUARD(++continuationPoint);
 				break;
 				
 			case "SUBSCRIPTARRAY":
