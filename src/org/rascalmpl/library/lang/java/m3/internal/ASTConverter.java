@@ -29,6 +29,12 @@ public class ASTConverter extends JavaToRascalConverter {
 	
 	private IValue resolveType(ASTNode node) {
 	  if (node instanceof Expression) {
+		if (node instanceof SimpleName) {
+			IBinding b = ((SimpleName) node).resolveBinding();
+			if (b!= null && b instanceof IVariableBinding) {
+				return bindingsResolver.computeTypeSymbol(((IVariableBinding) b).getType(), ((SimpleName) node).isDeclaration());
+			}
+		}
 	    ITypeBinding binding = ((Expression) node).resolveTypeBinding();
 	    if (binding != null) {
 	      return bindingsResolver.computeTypeSymbol(binding, false);
@@ -606,6 +612,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	
 		ownValue = constructDeclarationNode(constructorName, returnType, name, parameters.asList(), possibleExceptions.asList(), body);
 		setAnnotation("modifiers", extendedModifiers);
+		// FIXME: this doesn't seem to be in use anymore
 		setAnnotation("typeParameters", genericTypes);
 		return false;
 	}
@@ -1155,7 +1162,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	}
 	
 	public boolean visit(WildcardType node) {
-		
+		//FIXME: upperbound/lowerbound that should have been type annotation are replaced by TypeSymbol
 		IValue type = null;
 		String name = "wildcard";
 				

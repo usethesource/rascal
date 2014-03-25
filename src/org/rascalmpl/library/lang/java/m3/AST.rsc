@@ -170,6 +170,13 @@ Description: useful for analyzing raw source code on disk, but if you have an Ec
 @reflect
 public java Declaration createAstFromFile(loc file, bool collectBindings, str javaVersion = "1.7");
 
+@doc{
+  Creates ASTs from an input string
+}
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
+@reflect
+public java Declaration createAstFromString(loc fileName, str source, bool collectBinding, str javaVersion = "1.7");
+
 @doc{Creates ASTs from a project}
 public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, str javaVersion = "1.7" ) {
    setEnvironmentOptions(project);

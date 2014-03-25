@@ -1189,6 +1189,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 		finally {
 			setMonitor(old);
+			setCurrentAST(null);
 		}
 	}
 
@@ -1226,7 +1227,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 				monitor.startJob("Reloading modules", onHeap.size());
 				for (String mod : onHeap) {
 					if (!heap.existsModule(mod)) {
-						defStderr.print("Reloading module " + mod);
+						defStderr.println("Reloading module " + mod);
 						reloadModule(mod, errorLocation);
 					}
 					monitor.event("loaded " + mod, 1);

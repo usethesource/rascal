@@ -11,6 +11,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AddInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AndBool;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Apply;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ApplyDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Call;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallConstr;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallDyn;
@@ -19,20 +21,21 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FailReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FilterReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.GreaterEqualInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Guard;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Halt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.HasNext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Init;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Instruction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Jmp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpFalse;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpIndexed;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCont;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarKwp;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Reset;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Shift;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
@@ -67,7 +70,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.S
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptList;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubtractInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrown;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownLoc;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
@@ -450,12 +454,12 @@ public class CodeBlock {
 		return add(new CallDyn(this, arity));
 	}
 	
-	public CodeBlock INIT(int arity) {
-		return add(new Init(this, arity));
-	}
-	
 	public CodeBlock CREATE(String fuid, int arity) {
 		return add(new Create(this, fuid, arity));
+	}
+	
+	public CodeBlock CREATEDYN(int arity) {
+		return add(new CreateDyn(this, arity));
 	}
 	
 	public CodeBlock NEXT0() {
@@ -472,14 +476,6 @@ public class CodeBlock {
 	
 	public CodeBlock YIELD1(int arity) {
 		return add(new Yield1(this, arity));
-	}
-	
-	public CodeBlock CREATEDYN(int arity) {
-		return add(new CreateDyn(this, arity));
-	}
-	
-	public CodeBlock HASNEXT() {
-		return add(new HasNext(this));
 	}
 	
 	public CodeBlock PRINTLN(int arity){
@@ -557,8 +553,8 @@ public class CodeBlock {
 		return add(new TypeSwitch(this, labels));
 	}
 	
-	public CodeBlock UNWRAPTHROWN(int pos) {
-		return add(new UnwrapThrown(this, pos));
+	public CodeBlock UNWRAPTHROWNLOC(int pos) {
+		return add(new UnwrapThrownLoc(this, pos));
 	}
 	
 	public CodeBlock FILTERRETURN(){
@@ -631,6 +627,30 @@ public class CodeBlock {
 	
 	public CodeBlock STOREVARKWP(String fuid, String name) {
 		return add(new StoreVarKwp(this, fuid, name));
+	}
+	
+	public CodeBlock UNWRAPTHROWNVAR(String fuid, int pos) {
+		return add(new UnwrapThrownVar(this, fuid, pos));
+	}
+	
+	public CodeBlock APPLY(String fuid, int arity) {
+		return add(new Apply(this, fuid, arity));
+	}
+	
+	public CodeBlock APPLYDYN(int arity) {
+		return add(new ApplyDyn(this, arity));
+	}
+	
+	public CodeBlock LOADCONT(String fuid) {
+		return add(new LoadCont(this, fuid));
+	}
+	
+	public CodeBlock RESET() {
+		return add(new Reset(this));
+	}
+	
+	public CodeBlock SHIFT() {
+		return add(new Shift(this));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {

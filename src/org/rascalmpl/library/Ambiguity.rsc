@@ -192,7 +192,7 @@ public list[Message] deeperCauses(Tree x, Tree y, set[Production] pX, set[Produc
 }
 
 public list[int] yield(Tree x) {
-  return [i | /Tree x:char(int i) := x];
+  return [i | /Tree y:char(int i) := x, y == x];
 }
 
 public list[Message] reorderingCauses(Tree x, Tree y) {
@@ -240,12 +240,12 @@ list[Message] danglingCauses(Tree x, Tree y) {
 }
 
 list[Message] danglingFollowSolutions(Tree x, Tree y) {
-  if (prod(_, lhs, _) := x.prod, prod(_, [prefix*, _, l:lit(_), more*], _) := y.prod, lhs == prefix) {
+  if (prod(_, lhs, _) := x.prod, prod(_, [pref*, _, l:lit(_), more*], _) := y.prod, lhs == pref) {
     return [error("You might add a follow restriction for <symbol2rascal(l)> on:
                     ' <alt2rascal(x.prod)>", x@\loc?|dunno:///|)]; 
   }
   
-  if (prod(_, lhs, _) := y.prod, prod(_, [prefix*, _, l:lit(_), more*], _) := x.prod, lhs == prefix) {
+  if (prod(_, lhs, _) := y.prod, prod(_, [pref*, _, l:lit(_), more*], _) := x.prod, lhs == pref) {
     return [error("You might add a follow restriction for <symbol2rascal(l)> on:
                   '  <alt2rascal(y.prod)>", x@\loc?|dunno:///|)]; 
   }

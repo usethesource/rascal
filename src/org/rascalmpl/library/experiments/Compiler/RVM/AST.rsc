@@ -27,8 +27,9 @@ public data RVMProgram = rvm(str name,
                              map[str, Declaration] declarations, 
                              list[Instruction] initialization, 
                              map[str,int] resolver, 
-                             lrel[str,list[str],list[str]] overloaded_functions,
-                             map[Symbol, Production] grammar);
+                             lrel[str,list[str],list[str]] overloaded_functions
+                             //,map[Symbol, Production] grammar
+                             );
 
 data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
@@ -45,16 +46,17 @@ data Instruction =
 		| LOADLOC(int pos)							// Push value of local variable
 		| STORELOC(int pos)							// Store value on top-of-stack in the local variable (value remains on stack)
 		
-		| LOADLOCKWP(str name)                        // Load value of a keyword parameter
-		| STORELOCKWP(str name)                       // Store value on top-of-stack in the keyword parameter (value remains on stack)
+		| LOADLOCKWP(str name)                      // Load value of a keyword parameter
+		| STORELOCKWP(str name)                     // Store value on top-of-stack in the keyword parameter (value remains on stack)
 		
-		| UNWRAPTHROWN(int pos)                     // Unwrap a thrown value on top-of-stack, and store the unwrapped value in the local variable (value removed from the stack)
+		| UNWRAPTHROWNLOC(int pos)                  // Unwrap a thrown value on top-of-stack, and store the unwrapped value in the local variable (value removed from the stack)
+		| UNWRAPTHROWNVAR(str fuid, int pos)        // Unwrap a thrown value on top-of-stack, and store the unwrapped value in the variable (value removed from the stack)
 	   	
 		| LOADVAR(str fuid, int pos)                // Push a variable from an outer scope
 		| STOREVAR(str fuid, int pos)               // Store value on top-of-stack in variable in surrounding scope (value remains on stack)
 		
-		| LOADVARKWP(str fuid, str name)              // Load a keyword parameter from an outer scope
-		| STOREVARKWP(str fuid, str name)             // Store value on top-of-stack in the keyword parameter of a surrounding scope (value remains on stack)
+		| LOADVARKWP(str fuid, str name)            // Load a keyword parameter from an outer scope
+		| STOREVARKWP(str fuid, str name)           // Store value on top-of-stack in the keyword parameter of a surrounding scope (value remains on stack)
 
 		| LOADMODULEVAR(str fuid)          			// Push a variable from a global module scope
 		| STOREMODULEVAR(str fuid)         			// Store value on  top-of-stack in variable in global module scope (value remains on stack)
@@ -69,6 +71,11 @@ data Instruction =
 		
 		| CALL(str fuid, int arity)					// Call a named *muRascal* function
 		| CALLDYN(int arity)						// Call a *muRascal* function on stack
+		
+		// Partial function application
+		| APPLY(str fuid, int arity)                // Apply partially a named *muRascal* function
+		| APPLYDYN(int arity)                       // Apply partially a top-of-stack *muRascal* function 
+				
 		| CALLCONSTR(str fuid, int arity)			// Call a constructor
 		
 		| OCALL(str fuid, int arity)				// Call a named *Rascal* function
@@ -95,10 +102,8 @@ data Instruction =
 		| TYPESWITCH(list[str] labels)				// Switch on type. Takes the type of the value on the stack and  jumps to the corresponding label in the list
 		| JMPINDEXED(list[str] labels)				// Computed jump. Takes an integer i from the stack and jumps to the i-th label in the list
 		
-		| CREATE(str fuid, int arity)				// Create a co-routine from a named function
-		| CREATEDYN(int arity)						// Create a co-routine from a function on the stack
-		| INIT(int arity)							// Initialize co-routine on top-of-stack.
-		| HASNEXT()									// HasNext operation on co-routine on top-of-stack
+		| CREATE(str fuid, int arity)               // Creates a co-routine instance 
+		| CREATEDYN(int arity)					    // Creates a co-routine instance from the co-routine on top-of-stack.
 		| NEXT0()									// Next operation (without argument) on co-routine on top-of-stack
 		| NEXT1()									// Next operation (with argument) on co-routine on top-of-stack
 		| YIELD0()									// Yield from co-routine without value
@@ -123,5 +128,10 @@ data Instruction =
 		| TYPEOF()									// Get type of top element
 		| SUBTYPE()									// Subtype between top two IValues
 		| CHECKARGTYPE()							// Check the type of an argument
+		
+		// Delimited continuations (experimental)
+		| LOADCONT(str fuid)
+		| RESET()
+		| SHIFT()
 ;
 	

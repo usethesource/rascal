@@ -51,6 +51,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.junit.runner.Computer;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BindingsResolver {
@@ -118,7 +119,7 @@ public class BindingsResolver {
         ISourceLocation result = resolveBinding(n.resolveBinding());
         // Have to move towards parent to make the binding unique
         if (result.getScheme() == "unresolved") {
-        	result = resolveBinding(n.getParent(), n.getName().getIdentifier());
+        	result = resolveBinding(n.getParent(), n);
         }
         return result;
       } else if (node instanceof ConstructorInvocation) {
@@ -134,7 +135,7 @@ public class BindingsResolver {
 		return convertBinding("unknown", null, null);
 	}
 	
-	private ISourceLocation resolveBinding(ASTNode parentNode, String childName) {
+	private ISourceLocation resolveBinding(ASTNode parentNode, VariableDeclaration thisNode) {
 		ISourceLocation parentBinding = resolveBinding(parentNode);
 		// Something has to declare it!!!
 		while(parentBinding.getScheme().equals("unknown") || parentBinding.getScheme().equals("unresolved")) {
@@ -145,19 +146,32 @@ public class BindingsResolver {
 			parentNode = parentNode.getParent();
 			parentBinding = resolveBinding(parentNode);
 		}
-		String key = "";
-		for (String storedKey: EclipseJavaCompiler.cache.keySet()) {
-			if (EclipseJavaCompiler.cache.get(storedKey).equals(parentBinding)) {
-				key = storedKey;
-				break;
-			}
-		}
-		key += "#".concat(childName);
+//		String key = "";
+//		for (String storedKey: EclipseJavaCompiler.cache.keySet()) {
+//			if (EclipseJavaCompiler.cache.get(storedKey).equals(parentBinding)) {
+//				key = storedKey;
+//				break;
+//			}
+//		}
+		String key = thisNode.resolveBinding().getKey();
 		if (EclipseJavaCompiler.cache.containsKey(key)) {
 			return EclipseJavaCompiler.cache.get(key);
 		}
+		
+		String qualifiedName = parentBinding.getPath();
+		String[] bindingKeys = key.split("#");
+		
+		if (bindingKeys.length > 2) {
+			// scoped variable that may have the same name as some other scoped variable
+			for (int i = 1; i < bindingKeys.length - 1; i++) {
+				if (!qualifiedName.endsWith("/"))
+					qualifiedName += "/";
+				qualifiedName += "scope("+bindingKeys[i]+")/";
+			}
+		}
+		
 		// FIXME: May not be variable only!!!
-		ISourceLocation childBinding = convertBinding("java+variable", null, parentBinding.getPath().concat("/").concat(childName));
+		ISourceLocation childBinding = convertBinding("java+variable", null, qualifiedName.concat(thisNode.getName().getIdentifier()));
 		EclipseJavaCompiler.cache.put(key, childBinding);
 		return childBinding;
 	}
@@ -273,9 +287,9 @@ public class BindingsResolver {
     return values.constructor(cons, decl, parameters);
   }
 
-  private IConstructor parameterNode(ISourceLocation decl, ITypeBinding bound, boolean isDeclaration) {
-    if (bound != null) {
-      IConstructor boundSym = boundSymbol(bound, isDeclaration);
+  private IConstructor parameterNode(ISourceLocation decl, ITypeBinding[] bound, boolean isDeclaration, boolean isUpperbound) {
+    if (bound.length > 0) {
+      IConstructor boundSym = boundSymbol(bound, isDeclaration, isUpperbound);
       org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeParameter", tf.tupleType(decl.getType(), boundSym.getType()));
       return values.constructor(cons, decl, boundSym);
     }
@@ -317,23 +331,30 @@ public class BindingsResolver {
       return enumSymbol(decl);
     }
     else if (binding.isTypeVariable()) {
-      ITypeBinding bound = binding.getBound();
+      ITypeBinding[] bound = binding.getTypeBounds();
       
-      if (bound == null) {
+      if (bound.length == 0) {
         return parameterNode(decl);
       }
       else {
-        return parameterNode(decl, bound, isDeclaration);
+    	assert bound.length == 1;
+    	// for type parameters it is always upperbound
+        return parameterNode(decl, bound, isDeclaration, true);
       } 
     }
     else if (binding.isWildcardType()) {
+      /*
+       * For wildcards the isUpperbound() information is only correct in the binding here.
+       * The previous implementation tried to look for that information in the type binding of the bounds,
+       * which wasn't correct.
+       */
       ITypeBinding bound = binding.getBound();
       
       if (bound == null) {
         return wildcardSymbol(unboundedSym());
       }
       else {
-        return wildcardSymbol(boundSymbol(binding.getBound(), isDeclaration));
+        return wildcardSymbol(boundSymbol(new ITypeBinding[] { bound }, isDeclaration, binding.isUpperbound()));
       }
     }  
     else if (binding.isClass()) {
@@ -347,7 +368,7 @@ public class BindingsResolver {
         return captureSymbol(unboundedSym(), computeTypeSymbol(wildcard, isDeclaration));
       }
       else {
-        return captureSymbol(boundSymbol(typeBounds[0], isDeclaration), computeTypeSymbol(wildcard, isDeclaration));
+        return captureSymbol(boundSymbol(typeBounds, isDeclaration, true), computeTypeSymbol(wildcard, isDeclaration));
       }
     }
     else if (binding.isInterface()) {
@@ -367,12 +388,12 @@ public class BindingsResolver {
     return values.constructor(cons, boundSymbol);
   }
 
-  private IConstructor boundSymbol(ITypeBinding bound, boolean isDeclaration) {
-    IConstructor boundSym = computeTypeSymbol(bound, isDeclaration);
+  private IConstructor boundSymbol(ITypeBinding[] bound, boolean isDeclaration, boolean isUpperbound) {
+    IList boundSym = computeTypes(bound, isDeclaration);
     
     org.eclipse.imp.pdb.facts.type.Type boundType = store.lookupAbstractDataType("Bound");
     
-    if (bound.isUpperbound()) {
+    if (!isUpperbound) {
       org.eclipse.imp.pdb.facts.type.Type sup = store.lookupConstructor(boundType, "super", tf.tupleType(boundSym.getType()));
       return values.constructor(sup, boundSym);
     }
@@ -561,6 +582,18 @@ public class BindingsResolver {
 	    	return convertBinding("unresolved", null, null);
 	    }
 		
+		String bindingKey = binding.getKey();
+		String[] bindingKeys = bindingKey.split("#");
+		
+		if (bindingKeys.length > 2) {
+			// scoped variable that may have the same name as some other scoped variable
+			for (int i = 1; i < bindingKeys.length - 1; i++) {
+				if (!qualifiedName.endsWith("/"))
+					qualifiedName += "/";
+				qualifiedName += "scope("+bindingKeys[i]+")/";
+			}
+		}
+		
 		String scheme = "java+variable";
 		if (binding.isEnumConstant()) {
 	      scheme = "java+enumConstant";
@@ -569,6 +602,7 @@ public class BindingsResolver {
 	    } else if (binding.isField()) {
 	      scheme = "java+field";
 	    }
+		
 		ISourceLocation result = convertBinding(scheme, null, qualifiedName.concat(binding.getName()));
 		EclipseJavaCompiler.cache.put(binding.getKey(), result);
 		return result;

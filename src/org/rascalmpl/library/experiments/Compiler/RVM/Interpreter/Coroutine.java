@@ -2,11 +2,11 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 public class Coroutine {
 	
-	final Frame start; // stack frame of the main coroutine function 
-	Frame frame; // the current active stack frame of the coroutine
+	final Frame start; // Stack frame of the main coroutine function 
+	Frame frame;       // Current active stack frame of the coroutine
 	
-	private boolean suspended = false;
-	private boolean isInitialized = false;
+	boolean suspended = false;
+	boolean isInitialized = false;
 	
 	public Coroutine(Frame frame) {
 		this.start = frame;
@@ -20,9 +20,8 @@ public class Coroutine {
 	
 	public void suspend(Frame current) {
 		this.start.previousCallFrame = null;
-		this.frame = current; // sets the current stack frame of the active co-routine
+		this.frame = current; // Sets the current stack frame of the active co-routine
 		this.suspended = true;
-		this.isInitialized = true;
 	}
 	
 	public boolean isInitialized() {

@@ -22,7 +22,6 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -39,14 +38,9 @@ import org.rascalmpl.ast.Expression.VoidClosure;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionDeclaration.Conditional;
 import org.rascalmpl.ast.FunctionDeclaration.Default;
-import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Parameters;
-import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.ast.Tag;
-import org.rascalmpl.ast.TagString;
-import org.rascalmpl.ast.Tags;
 import org.rascalmpl.ast.Type.Structured;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -72,25 +66,16 @@ public class RascalFunction extends NamedFunction {
 	private final List<Statement> body;
 	private final boolean isVoidFunction;
 	private final Stack<Accumulator> accumulators;
-	private final boolean isDefault;
-	private final boolean isTest;
-	private final boolean isStatic;
-	private final String resourceScheme;
-	private final String resolverScheme;
 	private final List<Expression> formals;
 	private final String firstOutermostLabel;
 	private final IConstructor firstOutermostProduction;
-	private final Map<String, String> tags;
-	private static final String RESOURCE_TAG = "resource";
-	private static final String RESOLVER_TAG = "resolver";
-	private final boolean hasMemoization;
-
+	
 	public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
 				(FunctionType) func.getSignature().typeOf(env, true),
-				varargs, isDefault(func),hasTestMod(func.getSignature()),
+				varargs, isDefault(func), hasTestMod(func.getSignature()),
 				func.getBody().getStatements(), env, accumulators);
 	}
 
@@ -107,44 +92,15 @@ public class RascalFunction extends NamedFunction {
 	@SuppressWarnings("unchecked")
 	public RascalFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, String name, FunctionType functionType,
 			boolean varargs, boolean isDefault, boolean isTest, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
-		super(ast, eval, functionType, name, varargs, null, env);
+		super(ast, eval, functionType, name, varargs, isDefault, isTest, null, env);
 		this.body = body;
-		this.isDefault = isDefault;
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
 		this.accumulators = (Stack<Accumulator>) accumulators.clone();
 		this.formals = cacheFormals();
 		this.firstOutermostLabel = computeFirstOutermostLabel(ast);
 		this.firstOutermostProduction = computeFirstOutermostProduction(ast);
-		this.isStatic = env.isRootScope() && eval.__getRootScope() != env;
-		this.isTest = isTest;
-		
-		if (ast instanceof FunctionDeclaration) {
-			tags = parseTags((FunctionDeclaration) ast);
-			this.resourceScheme = getResourceScheme((FunctionDeclaration) ast);
-			this.resolverScheme = getResolverScheme((FunctionDeclaration) ast);
-			this.hasMemoization = checkMemoization((FunctionDeclaration) ast);
-		} else {
-			tags = new HashMap<String, String>();
-			this.resourceScheme = null;
-			this.resolverScheme = null;
-			this.hasMemoization = false;
-		}
 	}
 	
-	private boolean checkMemoization(FunctionDeclaration func) {
-		for (Tag tag : func.getTags().getTags()) {
-			if (Names.name(tag.getName()).equals("memo")) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	@Override
-	protected boolean hasMemoization() {
-		return hasMemoization;
-	}
-
 	@Override
 	public RascalFunction cloneInto(Environment env) {
 		RascalFunction rf = new RascalFunction(getAst(), getEval(), getName(), getFunctionType(), hasVarArgs(), isDefault(), isTest(), body, env, accumulators);
@@ -153,61 +109,6 @@ public class RascalFunction extends NamedFunction {
 	}
 	
 	
-	
-	private Map<String, String> parseTags(FunctionDeclaration declaration) {
-		Map<String, String> result = new HashMap<String, String>();
-		Tags tags = declaration.getTags();
-		if (tags.hasTags()) {
-			for (Tag tag : tags.getTags()) {
-				if(tag.hasContents()){
-					String key = Names.name(tag.getName());
-					String value = ((TagString.Lexical) tag.getContents()).getString();
-					if (value.length() > 2 && value.startsWith("{")) {
-						value = value.substring(1, value.length() - 1);
-					}
-					result.put(key, value);
-				}
-			}
-		}
-		return result;
-	}
-
-	@Override
-	public String getTag(String key) {
-		return tags.get(key);
-	}
-
-	@Override
-	public boolean hasTag(String key) {
-		return tags.containsKey(key);
-	}
-
-	private static String getResourceScheme(FunctionDeclaration declaration) {
-		return getScheme(RESOURCE_TAG, declaration);
-	}
-	
-	private static String getResolverScheme(FunctionDeclaration declaration) {
-		return getScheme(RESOLVER_TAG, declaration);
-	}
-	
-	private static String getScheme(String schemeTag, FunctionDeclaration declaration) {
-		Tags tags = declaration.getTags();
-		
-		if (tags.hasTags()) {
-			for (Tag tag : tags.getTags()) {
-				if (Names.name(tag.getName()).equals(schemeTag)) {
-					String contents = ((TagString.Lexical) tag.getContents()).getString();
-					
-					if (contents.length() > 2 && contents.startsWith("{")) {
-						contents = contents.substring(1, contents.length() - 1);
-					}
-					return contents;
-				}
-			}
-		}
-		
-		return null;
-	}
 	
 	private String computeFirstOutermostLabel(AbstractAST ast) {
 		return ast.accept(new NullASTVisitor<String>() {
@@ -313,53 +214,25 @@ public class RascalFunction extends NamedFunction {
 		return isStatic;
 	}
 	
-	@Override
-	public boolean isTest() {
-		return isTest;
-	}
-	
-	private static boolean hasTestMod(Signature sig) {
-		for (FunctionModifier m : sig.getModifiers().getModifiers()) {
-			if (m.isTest()) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
+
 
 	public boolean isAnonymous() {
 		return getName() == null;
 	}
 
-	private static boolean isDefault(FunctionDeclaration func) {
-		List<FunctionModifier> mods = func.getSignature().getModifiers().getModifiers();
-		for (FunctionModifier m : mods) {
-			if (m.isDefault()) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	@Override
-	public boolean isDefault() {
-		return isDefault;
-	}
-	
-	
 	@Override
   public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 	Result<IValue> result = getMemoizedResult(actuals, keyArgValues);
 	if (result !=  null) 
 		return result;
     Environment old = ctx.getCurrentEnvt();
-    AbstractAST oldAST = ctx.getCurrentAST();
+    AbstractAST currentAST = ctx.getCurrentAST();
+    AbstractAST oldAST = currentAST;
     Stack<Accumulator> oldAccus = ctx.getAccumulators();
 
     try {
       String label = isAnonymous() ? "Anonymous Function" : name;
-      Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), ctx.getCurrentAST().getLocation(), ast.getLocation(), label);
+      Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), currentAST != null ? currentAST.getLocation() : null, ast.getLocation(), label);
       ctx.setCurrentEnvt(environment);
       
       IMatchingResult[] matchers = prepareFormals(ctx);
@@ -403,7 +276,7 @@ public class RascalFunction extends NamedFunction {
       
       while (i >= 0 && i < size) {
         if (ctx.isInterrupted()) { 
-          throw new InterruptException(ctx.getStackTrace(), ctx.getCurrentAST().getLocation());
+          throw new InterruptException(ctx.getStackTrace(), currentAST.getLocation());
         }
         if (matchers[i].hasNext() && matchers[i].next()) {
           if (i == size - 1) {
@@ -596,26 +469,6 @@ public class RascalFunction extends NamedFunction {
 		types[i] = TF.listType(lub);
 		
 		return TF.tupleType(types);
-	}
-	
-	@Override
-	public String getResourceScheme() {
-		return this.resourceScheme;
-	}
-	
-	@Override
-	public boolean hasResourceScheme() {
-		return this.resourceScheme != null;
-	}
-	
-	@Override
-	public boolean hasResolverScheme() {
-		return this.resolverScheme != null;
-	}
-	
-	@Override
-	public String getResolverScheme() {
-		return this.resolverScheme;
 	}
 
  

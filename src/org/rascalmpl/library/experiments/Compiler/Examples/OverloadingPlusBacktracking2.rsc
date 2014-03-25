@@ -1,6 +1,5 @@
 module experiments::Compiler::Examples::OverloadingPlusBacktracking2
 
-import Exception;
 import List;
 import IO;
 

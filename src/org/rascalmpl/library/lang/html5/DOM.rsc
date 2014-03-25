@@ -367,7 +367,7 @@ bool isBlockLevel(str x) =
 str startTag(str n, str attrs)
   = "\<<n><attrs>\>";
 
-str endTag(str n) = "\<<n>/\>";
+str endTag(str n) = "\</<n>\>";
 
 str startTag(str n, {}) = startTag(n, "");
   
@@ -427,14 +427,7 @@ public HTML5Node example
           li("foo", 3, img(href("someref"))))));
   
 str toString(HTML5Node x) {
-  attrs = {};
-  kids = for (value k <- x.kids) {
-    if (HTML5Attr a := k) {
-      attrs += {a};
-    }
-    else {
-      append k;
-    }
-  }
+  attrs = {k | /HTML5Attr k <- x.kids};
+  kids = x.kids - attrs;
   return nodeToString(x.name, attrs, kids); 
 }

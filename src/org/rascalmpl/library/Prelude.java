@@ -27,7 +27,6 @@ package org.rascalmpl.library;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -96,9 +95,7 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
-import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.IGTD;
@@ -120,7 +117,7 @@ import com.ibm.icu.util.ULocale;
 
 public class Prelude {
 	private final TypeFactory types ;
-	private final IValueFactory values;
+	protected final IValueFactory values;
 	private final Random random;
 	
 	public Prelude(IValueFactory values){
@@ -1896,6 +1893,27 @@ public class Prelude {
 	{
 		return values.string(lst.toString());
 	}
+
+	public IValue itoString(IList lst)
+	//@doc{toString -- convert a list to a string}
+	{
+		return itoStringValue(lst);
+	}
+
+	private IValue itoStringValue(IValue T)
+	//@doc{toString -- convert a node to a string}
+	{
+		StandardTextWriter w = new StandardTextWriter(true, 2);
+		StringWriter result = new StringWriter();
+		try {
+			w.write(T, result);
+			return values.string(result.toString());
+		} 
+		catch (IOException e) {
+			RuntimeExceptionFactory.io(values.string("Could not convert list to indented value"), null, null);
+			throw new RuntimeException("previous command should always throw");
+		}
+	}
 	
 	/*
 	 * Map
@@ -2031,6 +2049,10 @@ public class Prelude {
 	  return values.string(M.toString());
 	}
 
+	public IValue itoString(IMap M)
+	{
+		return itoStringValue(M);
+	}
 	/*
 	 * Node
 	 */
@@ -2092,6 +2114,13 @@ public class Prelude {
 	//@doc{toString -- convert a node to a string}
 	{
 		return values.string(T.toString());
+
+	}
+
+	public IValue itoString(INode T)
+	//@doc{toString -- convert a node to a string}
+	{
+		return itoStringValue(T);
 	}
 	
 	public IMap getAnnotations(INode node) {
@@ -2821,6 +2850,11 @@ public class Prelude {
 	// @doc{toString -- convert a set to a string}
 	{
 		return values.string(st.toString());
+	}
+
+	public IValue itoString(ISet st)
+	{
+		return itoStringValue(st);
 	}
 	
 	/*
