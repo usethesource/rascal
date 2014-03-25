@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 
 public class Function {
 	final public String name;
+	public int   funId ;    // Id of function in functionMap, used for dynamic invocation.
 	final Type ftype;
 	public int scopeId;
 	public String funIn;
@@ -49,14 +50,14 @@ public class Function {
 
 		codeEmittor.enableOutput(true);
 
-		if (name.contains("Library"))
-			codeEmittor.enableOutput(false);
-		if (name.contains("init"))
-			codeEmittor.enableOutput(false);
-		if (name.contains("Simple_testsuite"))
-			codeEmittor.enableOutput(false);
-		if (name.contains("Exception"))
-			codeEmittor.enableOutput(false);
+//		if (name.contains("Library"))
+//			codeEmittor.enableOutput(false);
+//		if (name.contains("init"))
+//			codeEmittor.enableOutput(false);
+//		if (name.contains("Simple_testsuite"))
+//			codeEmittor.enableOutput(false);
+//		if (name.contains("Exception"))
+//			codeEmittor.enableOutput(false);
 
 		codeEmittor.emitMethod(NameMangler.mangle(name),continuationPoints,false);
 

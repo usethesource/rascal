@@ -76,7 +76,9 @@ public class RVM {
 		if (functionMap.get(f.getName()) != null) {
 			throw new RuntimeException("PANIC: Double declaration of function: " + f.getName());
 		}
-		functionMap.put(f.getName(), functionStore.size());
+		int fss = functionStore.size() ;
+		f.funId = fss ;   // ID of function to find entry in dynrun
+		functionMap.put(f.getName(), fss);
 		functionStore.add(f);
 	}
 
@@ -176,9 +178,9 @@ public class RVM {
 				f.finalize(codeEmittor, functionMap, constructorMap, resolver, listing);
 			}
 
-			// All functions are created
-			codeEmittor.emitDynPrelude();
+			// All functions are created create int based dispatcher
 			codeEmittor.emitDynDispatch(functionMap.size());
+			
 			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
 				String fname = e.getKey();
 				codeEmittor.emitDynCaLL(fname, e.getValue());
@@ -322,7 +324,7 @@ public class RVM {
 		cf.stack[1] = vf.mapWriter().done();
 
 		Object o = null;
-		if (uid_main.contains("QSimple/main")) {
+		if (uid_main.contains("!!Simple/main")) {
 			o = runner.dynRun(uid_main, args);
 		} else {
 			o = runner.executeProgram(root, cf);

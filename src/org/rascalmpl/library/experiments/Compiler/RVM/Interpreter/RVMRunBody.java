@@ -117,49 +117,7 @@ public class RVMRunBody extends RVMRun {
 	}
 
 
-	@Override
-	public Object dynRun(String fname, IValue[] args) {
-		// 0 this
-		// 1 fname
-		// 2 args
-		// 3 int n
-		// 4 Function Func
-		// 5 Frame root
 
-		int n ;
-		Function func ;
-		Frame root ;
-		
-		n = functionMap.get(fname);
-
-		func = functionStore.get(n);
-
-		root = new Frame(func.scopeId, null, func.maxstack, func);
-		cf = root;
-
-		this.stack = cf.stack;
-		
-		cf.stack[0] = vf.list(args); // pass the program argument to
-		cf.stack[1] = vf.mapWriter().done();
-		
-		this.sp = func.nlocals ;
-		cf.sp = this.sp  ;
-
-		nop();
-		
-		switch (n) {
-		case 0:
-			return functionTemplate();
-		case 1:
-			return fret();
-		case 2:
-			return fret();
-		case 3:
-			return fret();
-		}
-		return vf.bool(false);
-	}
-	
 	int[]  dodo ;
 	public void insnOCALL(int ofun, int arity) {
 		cf.sp = sp;
@@ -293,4 +251,32 @@ public class RVMRunBody extends RVMRun {
 		case 1: fret() ;
 		}
 	}
+	
+	public Object dynRun(String fname, IValue[] args) {
+		int n = functionMap.get(fname);
+		
+		Function func = functionStore.get(n);
+		
+		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
+		cf = root;
+		
+		stack = cf.stack;
+		
+		cf.stack[0] = vf.list(args); // pass the program argument to
+		cf.stack[1] = vf.mapWriter().done();
+		
+		sp = func.nlocals ;
+		cf.sp = this.sp  ;
+		
+		return dynRun(n);
+	}
+	
+	public Object dynRun(int n) {
+		switch(n) {
+		case 0 : return fret() ;
+		case 1 : return fret() ;
+		}
+		return vf.bool(false);
+	}
+
 }
