@@ -91,7 +91,10 @@ public class JSonWriter implements IValueTextWriter {
 		}
 
 		public IValue visitReal(IReal o) throws IOException {
-			append(o.getStringRepresentation());
+			// append(o.getStringRepresentation());
+			String s = o.toString();
+			if (s.endsWith(".")) s = s.substring(0, s.length()-1);
+			append(s); // JSon doesn't accept "1." it must be "1.0" or "1" 
 			return o;
 		}
 
