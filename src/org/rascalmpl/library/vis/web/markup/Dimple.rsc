@@ -114,8 +114,8 @@ str val(value field) {
            r += "]";
            return r;
        }
-       if (expr(str f):= field) {
-           return "<f>";
+       if (tuple[value] f:= field) {
+           return "<f[0]>";
            }
        if (str f := field) {return isEmpty(f)?"null":"\"<f>\"";}
        return "<field>";
@@ -142,23 +142,23 @@ public void main() {
  ;
  str body =  Z(h1_, (id_: "header"), "Dimple") +
   JavaScript(
-        var((svg_: expr(dimple.newSvg("body", 800, 600))))
+        <svg_, dimple.newSvg("body", 800, 600)>
         ,
-        var(("data":expr("[
+        <"data", "[
               {\"Word\":\"Hello\", \"Awesomeness\":2000},
               {\"Word\":\"World\", \"Awesomeness\":3000}
              ]"
-             )))
+             >
         ,
-        var(("chart":expr("new <dimple.chart("svg", "data")>")))
+        <"chart", "new <dimple.chart("svg", "data")>">
         ,
-        expr(chart.addCategoryAxis("chart","x","Word"))
+        <chart.addCategoryAxis("chart","x","Word")>
         ,
-        expr(chart.addMeasureAxis("chart","y", "Awesomeness"))
+        <chart.addMeasureAxis("chart","y", "Awesomeness")>
         ,
-        expr(chart.addSeries("chart", "", "dimple.plot.bar"))
+        <chart.addSeries("chart", "", "dimple.plot.bar")>
         ,
-        expr(chart.draw("chart"))
+        <chart.draw("chart")>
         );
       println(header);
       println(body);

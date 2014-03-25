@@ -14,7 +14,7 @@ import vis::web::BarChart;
 import util::HtmlDisplay;
 import vis::web::markup::Dimple;
 import IO;
- 
+
 M3 model;
 
 list[tuple[str, int]] classes = [];

@@ -1,20 +1,14 @@
-@license{
-  Copyright (c) 2009-2013 CWI
-  All rights reserved. This program and the accompanying materials
-  are made available under the terms of the Eclipse Public License v1.0
-  which accompanies this distribution, and is available at
-  http://www.eclipse.org/legal/epl-v10.html
-}
-@contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module vis::web::markup::D3
 import Prelude;
-import util::HtmlDisplay;
 import util::Math;
 import lang::json::IO;
+import util::HtmlDisplay;
 
 alias Att =  map[str, str];
 
 alias Css = map[str, Att];
+
+
 
 public str toCss(Css css) {
    str r = "\<style\>\n";
@@ -47,75 +41,66 @@ public str html(str head, str body) {
            ;                     
 }
 
-/* -------------------------------------------------------------------------- */
 
-data ScriptElm = var(map[str, value] m1)
-             |function(JavaScript p)
-             |function(str d, JavaScript p1)
-             |function(str d, str i, JavaScript p1)
-             |function(str p2)
-             |function(str d, str p2)
-             |function(str d, str i, str p2)
-             |expr(str d)
-             |call(str obj, Bundle bundle);
 
-data JavaScript = program(list[ScriptElm scriptElm]);
+str JavaScriptString(str e) {
+     return "<Z(script_, e+";")>";
+}
 
-data Bundle = attr(map[str, value])|
-              attr(map[str, value], Bundle bundle) |
-              svg()|svg(Bundle bundle)|
-              enter()|enter(Bundle bundle)|
-              exit()| exit(Bundle bundle)|
-              \data(str d)| \data(str d, Bundle bundle)|
-              style(map[str, value] styl)| 
-              style(map[str, value] styl, Bundle bundle)|
-              transition()| transition(Bundle bundle) |
-              duration(int t)| duration(int t, Bundle bundle) |
-              add(str obj)| add(str obj, Bundle bundle) | add(Bundle bundle) |
-              \append(str obj)| \append(str obj, Bundle bundle) | \append(Bundle bundle) |
-              remove(str obj)| remove(str obj, Bundle bundle) |
-              on(str event, ScriptElm s)| on(str event, ScriptElm s, Bundle bundle) |
-              selectAll(str obj, Bundle bundle) |
-              select(str obj, Bundle bundle) |
-              csv(str l, ScriptElm callback) |
-              csv(str l, ScriptElm accessor, ScriptElm callback) |
-              tsv(str l, ScriptElm callback) |
-              tsv(str l, ScriptElm accessor, ScriptElm callback) |
-              text(str file, ScriptElm callback) |
-              csv_parse(str d) |
-              csv_parse(str d, ScriptElm accessor) |
-              scale(ScriptElm scale, Bundle bundle) | scale(ScriptElm scale) |
-              linear(Bundle bundle) |
-              domain(ScriptElm domain, Bundle bundle) | domain(ScriptElm domain) |
-              range (ScriptElm range, Bundle bundle) |
-              range (ScriptElm range) |
-              orient (str pos, Bundle bundle) |
-              orient (str pos) |
-              ticks(ScriptElm domain, Bundle bundle) | ticks(ScriptElm domain) |
-              tickValues(ScriptElm domain, Bundle bundle) | tickValues(ScriptElm domain) |
-              tickFormat(ScriptElm domain, Bundle bundle) | tickFormat(ScriptElm domain) |
-              outerTickSize(ScriptElm domain, Bundle bundle) | outerTickSize(ScriptElm domain) |
-              axis () |
-              axis (Bundle bundle) |
-              line () |
-              line (Bundle bundle) |
-              x (ScriptElm fun) |
-              x (ScriptElm fun, Bundle bundle) |
-              y(ScriptElm fun) |
-              y (ScriptElm fun, Bundle bundle) |
-              interpolate (str kind) |
-              interpolate (str kind, Bundle bundle) |
-              call (ScriptElm f) |
-              \filter(ScriptElm sieve, Bundle bundle) | \filter(ScriptElm sieve) |
-              json(str l, ScriptElm callback)           
-              ;
-             
+str JavaScript(value e ...) {
+     return JavaScriptString(toString(e));
+}
+
+
+
+/*
+public str JavaScriptCsv(str file, str error, str dat, value e ...) {
+     return JavaScript(call(d3_, csv("<file>", e)));
+     }
+     
+public str JavaScriptTsv(str file, str error, str dat, value e ...) {
+     return JavaScript(call(d3_, tsv("<file>", e)));
+     }
+*/
+
+public str JavaScriptJson(str file, str err, str dat, value e ...) {
+ str s = "function(<err>, <dat>) {
+          ' <toString(e)> }\n";
+     return JavaScriptString("d3"+C(json(file, s)));
+     }
+ 
+public loc publish(loc location, list[tuple[str name, list[tuple[num x, num y]] d]]  d, str header, str body) { 
+     list[str] hd= [g.name|g<-d]; list[str] coord = ["x", "y"];
+     // println(d);
+     list[map[str path, /*list[map[str, value]]*/ value dt]] jsonData = [("name":name,
+         "path":[(coord[i] : r[i]|i<-[0..2])+("kind":name)|
+         tuple[num, num] r<-v])|<str name, list[tuple[num, num]] v> <-d]; 
+     println(jsonData);   
+      writeTextJSonFile(location+"data.json", jsonData); 
+      writeFile(location+"index.html",  html(header, body));    
+      return location;    
+      }
+
+str(str) f(int d) {
+    str g(str r) = ".f(<d>)"+".g<r>";
+    return g;
+    }
+
+str h(str s) = ".h<s>";
+
+str h() = ".h";
+
+
+/*
+public void main() {
+   println((d3 o f (4) o h ) ());
+   }
+*/  
+public str d3(str s)=  "d3<s>";
+
 value display(value v) {
-    if (ScriptElm e := v) {
-          return toString(e);
-          }
     if (str e := v) {
-          return "\"<e>\"";
+          return e;
           }
     if (list[value] e:= v) {
           if (isEmpty(e)) return "[]";
@@ -131,123 +116,352 @@ value display(value v) {
           for (t<-e) r+=",<t>:<display(e[t])>";
           return r+"}";
           }
+    if  (tuple[value g] d := v) {
+          return display(d.g);
+          } 
+    if  (tuple[str n, value v] d := v) {
+          return "var <d.n> = <display(d.v)>";
+          } 
+    // println("display:<v>");
     return v;
     }
               
 str display(str key, map[str, value] m) {
       return "<for(k<-m) {>.<key>(\"<k>\",<display(m[k])>)<}>";    
       }
-              
-str toString(Bundle b) {
-              str r = "";
-              top-down visit(b) {
-                 case svg(): r+=".svg()";
-                 case svg(_): r+=".svg()";
-                 case enter(): r+=".enter()";
-                 case enter(_): r+=".enter()";
-                 case exit(): r+=".exit()";
-                 case exit(_): r+=".exit()";
-                 case transition(): r+=".transition()";
-                 case transition(_): r+=".transition()";
-                 case \data(str d): r+=".data(<d>)";
-                 case \data(str d, _): r+=".data(<d>)";
-                 case attr(map[str, value] v): r+= display("attr", v);
-                 case attr(map[str, value] v, _): r+= display("attr", v);
-                 case style(map[str, value] v): r+= display("style", v);
-                 case style(map[str, value] v, _): r+= display("style", v);
-                 case add(str d): r+=".append(\"<d>\")";
-                 case add(str d, _): r+=".append(\"<d>\")";
-                 case \append(str d): r+=".append(\"<d>\")";
-                 case \append(str d, _): r+=".append(\"<d>\")";
-                 case remove(): r+=".exit()";
-                 case remove(_): r+=".exit()";
-                 case duration(int d): r+=".duration(<d>)";
-                 case duration(int d, _): r+=".duration(<d>)";
-                 case on(str event, str d): r+=".on(\"<event>\", <d>)";
-                 case on(str event, str d, _): r+=".on(\"<event>\", <d>)";
-                 case on(str event, ScriptElm e): {r+=".on(\"<event>\", <toString(e)>)"; return r;}
-                 case on(str event, ScriptElm e,  Bundle c): {r+=".on(\"<event>\", <toString(e)>)";return r+ toString(c);}
-                 case selectAll(str obj, _): r+=".selectAll(\"<obj>\")";
-                 case select(str obj, _): r+=".select(\"<obj>\")";
-                 case text(str l, ScriptElm callback) : return r+ ".text(\"<l>\", <toString(callback)>)";           
-                 case csv(str l, ScriptElm callback) : return r+ ".csv(\"<l>\", <toString(callback)>)";
-                 case csv(str l, ScriptElm acc, ScriptElm callback) : r+= ".csv(\"<l>\" , <toString(acc)>, <toString(callback)>)"; 
-                 case tsv(str l, ScriptElm callback) : return r+ ".tsv(\"<l>\", <toString(callback)>)";
-                 case tsv(str l, ScriptElm acc, ScriptElm callback) : return r+ ".tsv(\"<l>\" , <toString(acc)>, <toString(callback)>)";
-                 case scale(ScriptElm e): return r+ ".scale(<toString(e)>)";
-                 case scale(ScriptElm e, Bundle c): {r+=".scale(<toString(e)>)";return r+ toString(c);}
-                 case linear(_): r+= ".scale.linear()";  
-                 case domain(ScriptElm e): return r+".domain(<toString(e)>)";
-                 case domain(ScriptElm e, Bundle b): {r+=".domain(<toString(e)>)"; return r+ toString(b);}
-                 case range(ScriptElm e, Bundle b):  {r+=".range(<toString(e)>)"; return r+ toString(b);}
-                 case range(ScriptElm e):   return r+".range(<toString(e)>)";
-                 case orient (str pos, _): r+=".orient(\"<pos>\")";
-                 case orient (str pos):  r+=".orient(\"<pos>\")";
-                 case axis (): r+= ".svg.axis()";
-                 case axis (_): r+= ".svg.axis()";
-                 case line (): r+= ".svg.line()";
-                 case line (_): r+= ".svg.line()";
-                 case interpolate (str kind): r+= ".interpolate(\"<kind>\")";
-                 case interpolate (str kind, _): r+= ".interpolate(\"<kind>\")";
-                 case x(ScriptElm e): return r+ ".x(<toString(e)>)";
-                 case x(ScriptElm e, Bundle c): {r+=".x(<toString(e)>)";return r+ toString(c);}
-                 case y(ScriptElm e): return r+ ".y(<toString(e)>)";
-                 case y(ScriptElm e, Bundle c): {r+=".y(<toString(e)>)";return r+ toString(c);}
-                 case ticks(ScriptElm e): return r+".ticks(<toString(e)>)";
-                 case ticks(ScriptElm e, Bundle b): {r+=".ticks(<toString(e)>)"; return r+ toString(b);}
-                 case outerTickSize(ScriptElm e): return r+".outerTickSize(<toString(e)>)";
-                 case outerTickSize(ScriptElm e, Bundle b): {r+=".outerTickSize(<toString(e)>)"; return r+ toString(b);}
-                 case tickValues(ScriptElm e): return r+".tickValues(<toString(e)>)";
-                 case tickValues(ScriptElm e, Bundle b): {r+=".tickValues(<toString(e)>)"; return r+ toString(b);}
-                 case tickFormat(ScriptElm e): return r+".tickFormat(<toString(e)>)";
-                 case tickFormat(ScriptElm e, Bundle b): {r+=".tickFormat(<toString(e)>)"; return r+ toString(b);}
-                 case call(ScriptElm f):  return r+".call(<toString(f)>)";              
-                 case csv_parse(str d, ScriptElm acc) : return r+".csv.parse(<d>, <toString(acc)>)";
-                 case csv_parse(str d) : return r+".csv.parse(<d>)";  
-                 case json(str l, ScriptElm callback) : return r+ ".json(\"<l>\", <toString(callback)>)";  
-                 case \filter(ScriptElm e): return r+".filter(<toString(e)>)";
-                 case \filter(ScriptElm e, Bundle b): {r+=".filter(<toString(e)>)"; return r+ toString(b);}     
-                 }
-              return r;
-              }
-              
-str toString(ScriptElm s) {
-     str r = "";
-     switch(s) {
-          case var(map[str, value] m): return
-          "  var <for(k<-m) {><k>= <display(m[k])>,<}>"[..-1]+"\n";
-          case function(str s) : return "function() {
-          ' <s> }\n";
-          case function(str d, str s) : return "function(<d>) {
-          ' <s> }\n";
-          case function(str d, str i, str s) : return "function(<d>, <i>) {
-          ' <s> }\n";
-          case function(JavaScript p) : return "function() {
-          ' <toString(p)> }\n"; 
-          case function(str d, JavaScript p) : return "function(<d>) {
-          ' <toString(p)> }\n"; 
-           case function(str d, str i, JavaScript p) : return "function(<d>, <i>) {
-          ' <toString(p)> }\n"; 
-          case expr(str d) : return "<d>";
-          case call(str obj, Bundle b): return "<obj><toString(b)>";
-          }
-     return "Q";    
-     }
+      
+
+str toString(value js ...) {
+           return "<for(e<-js){> <display(e)>;\n<}>";
+    }
+    
+
+public str svg(str s) = ".svg()<s>";
+
+public str enter(str s) = ".enter()<s>";
+
+
+public  str(str) \append(str d) {
+    str g(str r) = ".append(\"<d>\")"+r;
+    return g;
+    }
+
+public str exit(str s) = ".exit()<s>";           
+
+public str transition(str s) =".transition()<s>";
+
+public str(str) \data(str d) {
+    str g(str r) = ".data(<d>)"+r;
+    return g;
+    }                 
+    
+public str(str) attr(map[str, value] v) {
+    str g(str r) = display("attr", v)+r;
+    return g;
+    }
+    
+    
+
+public str(str) style(map[str, value] v) {
+    str g(str r) = display("style", v)+r;
+    return g;
+    }
+
+public str(str) duration(int  d) {
+    str g(str r) = ".duration(<d>)"+r;
+    return g;
+    }
+    
+public str(str) selectAll(str  d) {
+    str g(str r) = ".selectAll(\"<d>\")"+r;
+    return g;
+    }
+    
+public str(str) select(str  d) {
+    str g(str r) = ".select(\"<d>\")"+r;
+    return g;
+    }
+
+public str(str) scale(value v) {
+    str g(str r) = ".scale(<display(v)>)"+r;
+    return g;
+    } 
+        
+public str(str) domain(value v) {
+    str g(str r) = ".domain(<display(v)>)"+r;
+    return g;
+    } 
+
+public str(str) range(value  v) {
+    str g(str r) = ".range(<display(v)>)"+r;
+    return g;
+    } 
+
+public str(str) orient(str s) {
+    str g(str r) = ".orient(\"<s>\")"+r;
+    return g;
+    }   
+         
+public str linear(str s)  = ".linear()"+s;
+
+public str axis(str s)  = ".axis()"+s;
+
+public str line(str s)  = ".line()"+s;
+public str line()  = ".line()";
+
+
+public str(str) interpolate(value v) {
+    str g(str r) = ".interpolate(<display(v)>)"+r;
+    return g;
+    }       
+
+public str(str) x(value v) {
+    str g(str r) = ".x(<display(v)>)"+r;
+    return g;
+    } 
+
+public str(str) y(value v) {
+    str g(str r) = ".y(<display(v)>)"+r;
+    return g;
+    } 
+
+public str(str) ticks(value v) {
+    str g(str r) = ".ticks(<display(v)>)"+r;
+    return g;
+    } 
+
+public str(str) tickFormat(value v) {
+    str g(str r) = ".tickFormat(<display(v)>)"+r;
+    return g;
+    } 
+    
+public str(str)  innerTickSize(value v) {
+    str g(str r) = ".innerTickSize(<display(v)>)"+r;
+    return g;
+    } 
+
+public str(str)  outerTickSize(value v) {
+    str g(str r) = ".outerTickSize(<display(v)>)"+r;
+    return g;
+    } 
+    
+public str(str)  call(str script) {
+    str g(str r) = ".call(<script>)"+r;
+    return g;
+    } 
+
+public str(str) json(str file, value script) {
+    str g(str r) = ".json(<file>, <display(script)>)"+r;
+    return g;
+    } 
+    
+public str(str) on(str event, value script) {
+    str g(str r) = ".on(<event>, <display(script)>)"+r;
+    return g;
+    }                    
+    /*                             
+                 text(str l, str callback) : return r+ ".text(\"<l>\", <toString(callback)>)";           
+                 csv(str l, str callback) : return r+ ".csv(\"<l>\", <toString(callback)>)";
+                 csv(str l, str acc, str callback) : = ".csv(\"<l>\" , <toString(acc)>, <toString(callback)>)"; 
+                 tsv(str l, str callback) : return r+ ".tsv(\"<l>\", <toString(callback)>)";
+                 tsv(str l, str acc, str callback) : return r+ ".tsv(\"<l>\" , <toString(acc)>, <toString(callback)>)";
+                 scale(str e): return r+ ".scale(<toString(e)>)";
+                 scale(str e, Bundle c): {=".scale(<toString(e)>)";return r+ toString(c);}
+                 linear(_): = ".scale.linear()";  
+                 call(str f):  return r+".call(<toString(f)>)";              
+                 csv_parse(str d, str acc) : return r+".csv.parse(<d>, <toString(acc)>)";
+                 csv_parse(str d) : return r+".csv.parse(<d>)";  
+                 json(str l, str callback) : return r+ ".json(\"<l>\", <toString(callback)>)";  
+                 \filter(str e): return r+".filter(<toString(e)>)";
+                 \filter(str e, B
+   */
+   
+   str C(str(str x) f) {
+       return f("");
+       }
+       
+  str labx(int d) {
+       switch(d) {
+        case 0: return "0";
+        case 1: return "\u03A0/6";
+        case 2: return "\u03A0/3";
+        case 3: return "\u03A0/2";
+        case 4: return "2\u03A0/3";
+        case 5: return "\u03A0/6";
+        case 6: return "\u03A0";
+        default: return "<d>";
+        }
+        return "";    
+    }
+    
+ str laby(int d) {
+       num r(num v) = round(v,0.01);
+       return "<r((d-5.0)/5.0)>";
+       }
  
-str toString(JavaScript js) {
-    if (program(list[ScriptElm] es):=js) {
-           return "<for(e<-es){> <toString(e)>;\n<}>";
-           }
-    }             
+ str labx(int d) {      
+       switch(d) {
+        case 0: return "0";
+        case 1: return "\u03A0/6";
+        case 2: return "\u03A0/3";
+        case 3: return "\u03A0/2";
+        case 4: return "2\u03A0/3";
+        case 5: return "\u03A0/6";
+        case 6: return "\u03A0";
+        default: return "<d>";
+        }
+        return "";    
+    }
 
-/*
-public str selectAll(str obj, Bundle bundle) {
-            return "d3.selectAll(\"<obj>\")"+toString(bundle)+";\n";
-            }
-*/
-          
 
-public str id_= "id";
+alias PlotData = tuple[str title, list[str] xticks, list[str] yticks, list[tuple[str name, str color, list[tuple[num, num]] d]] fs] ;
+
+public loc publish(loc location, PlotData  pd, str header, str body) { 
+     list[tuple[str name, str color, list[tuple[num , num ]] d]] d = pd.fs;
+     list[str] coord = ["x", "y"];
+     list[str] tx  = pd.xticks;
+     list[str] ty  = pd.yticks;
+     tuple[str, list[str], list[str], list[map[str key, /*list[map[str, value]]*/ value dt]]] 
+        jsonData = <pd.title , tx, ty, [("name":name, "color":cl,
+         "path":[(coord[i] : r[i]|i<-[0..2])+("kind":name)|
+         tuple[num, num] r<-v])|<str name, str cl, list[tuple[num, num]] v> <-d]>; 
+     println(jsonData);   
+      writeTextJSonFile(location+"data.json", jsonData); 
+      writeFile(location+"index.html",  html(header, body));    
+      return location;    
+      }
+   
+   
+
+  
+ public void plot(PlotData p, int width = 800, int height = 400, int margin = 50) {  
+   str header = Z(title_, p.title)+
+      Z(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8"))+
+      toCss((
+            ".tick line":(fill_:"none", stroke_:"antiquewhite"),
+            ".line":(fill_:"none"),
+            ".axis": ("font-size":"8pt","font-family":"sans-serif", fill_:"none"), 
+            // ".tick":(fill_:"none", stroke_:"green"),
+            ".frame":(stroke_:"black")
+            // ,".grid":(stroke_:"red")
+             ));
+      str body = Z(h1_,  p.title) 
+      
+       + JavaScriptJson("\"data.json\"", "error", "dat",
+        
+         <"width", width>,
+         <"height",height>,
+         <"margin",margin> ,   
+         <"svg",
+                "d3" + C(
+                 select(body_) o \append(svg_) o attr((
+                              width_: "width", height_:"height"
+                              ))
+                 )
+         >            
+      ,
+      < 
+          "x_scale",
+              "d3.scale"+ C(
+                 linear o domain([0,"dat[1].length-1"]) o range(["margin", "width-margin"])
+               )
+      >       
+       , 
+      <
+          "y_scale",
+              "d3.scale"+ C(
+                 linear o domain([0, "dat[2].length-1"]) o range(["height-margin", "margin"])
+                 )
+      >    
+      , 
+      <
+         "x_axis", "d3.svg" + C(
+                   axis o scale("x_scale") o ticks("dat[1].length")
+                   o tickFormat("function(d){
+                             return dat[1][d];}")
+                     )
+  
+       >
+       ,
+       <"y_axis", "d3.svg"+C(
+         axis o scale("y_scale") o orient("right") o ticks("dat[2].length")
+         o tickFormat("function(d){
+                             return dat[2][d];}")
+         )
+       >
+       ,
+       <
+        "svg"+C(\append("defs") o \append("clipPath") o attr((id_:"\"clippath\""))
+        o \append("rect") o attr((x_:"margin", y_:"margin", width_:"width-2*margin"
+           , height_:"height-2*margin")))
+       >
+       ,
+       <"svg"+C(
+              \append(g_) o attr((
+                 "class":"\"frame axis\"", 
+                  // "transform": "\"translate(0, \" +height/2+ \")\""
+                   "transform": "\"translate(0, \" +(height-margin)+ \")\""
+              ))
+            o  call("x_axis")
+        )
+        >
+        ,
+        <"svg"+C(\append(g_) o attr((
+           "class":"\"frame axis\"", 
+           "transform": "\"translate(\"+margin+\", 0)\""
+           ))
+            o  call("y_axis")
+         )
+       >
+       ,
+       <
+       "line", "d3.svg"+C(
+             line o interpolate("\"monotone\"") o 
+                x("
+                   function(d) {return x_scale(d.x);}
+                 ")
+             o
+                y("
+                  function(d) {return y_scale(d.y);}
+               ")
+             )
+        > 
+        ,
+        
+         <"svg"+ C(\append("g") o attr((transform_:"\"translate(0,\"+margin+\")\"")) o attr((
+          "class":"\"grid\""   
+          )) o \append("g") o call(
+                 "x_axis"+C(innerTickSize("height-2*margin") o tickFormat("\"\"") o outerTickSize(0)                       
+               )
+               )
+          )>  
+         ,
+         <"svg"+ C(\append("g") o attr((
+           "class":"\"grid\"" ,
+           transform_:"\"translate(\"+margin+\",0)\""
+            )) o call(
+             "y_axis"+ C(innerTickSize("width-2*margin")  o tickFormat("\"\"") o outerTickSize(0)
+             )
+             )   
+          )>
+          ,
+          <"svg"+C(
+           \append("g") o attr((style_: "\"clip-path:url(#clippath);\"")) o
+           selectAll(".line") o \data("dat[3]") o  enter o \append("path") o
+           attr((
+              "class":"\"line\"", 
+              "d": "function(q){return line(q.path);}",
+               "stroke":"function(q){return q.color;}"
+           ))
+         )>    
+              
+        );
+      
+      htmlDisplay(publish(|project://chart/src/aap|, p, 
+         header , body));
+    }
+ 
+ public str id_= "id";
 public str class_= "class";
 public str style_= "style"; 
 public str onerror_="onerror";
@@ -346,146 +560,24 @@ public str   symbol_= "symbol";
 public str   script_ = "script";
 public str   charset_ = "charset";
 public str   d3_ = "d3";
-
-
-public str JavaScript(ScriptElm e ...) {
-     return "<Z(script_, toString(program(e)))>";
-}
-
-public str JavaScriptCsv(str file, str error, str dat, ScriptElm e ...) {
-     return JavaScript(call(d3_, csv("<file>", function(error, dat, program(e)))));
-     }
-     
-public str JavaScriptTsv(str file, str error, str dat, ScriptElm e ...) {
-     return JavaScript(call(d3_, tsv("<file>", function(error, dat, program(e)))));
-     }
-
-public str JavaScriptJson(str file, str error, str dat, ScriptElm e ...) {
-     return JavaScript(call(d3_, json("<file>", function(error, dat, program(e)))));
-     }
  
-public loc publish(loc location, list[tuple[str name, list[tuple[num x, num y]] d]]  d, str header, str body) { 
-     list[str] hd= [g.name|g<-d]; list[str] coord = ["x", "y"];
-     println(d);
-     list[map[str path, /*list[map[str, value]]*/ value dt]] jsonData = [("name":name,
-         "path":[(coord[i] : r[i]|i<-[0..2])+("kind":name)|
-         tuple[num, num] r<-v])|<str name, list[tuple[num, num]] v> <-d]; 
-     println(jsonData);   
-      writeTextJSonFile(location+"data.json", jsonData); 
-      writeFile(location+"index.html",  html(header, body));    
-      return location;    
-      }
-
-
 public void main() {
-   int n= 100;
-
+   
    num r(num v) = round(v,0.0004);
-   tuple[str, list[tuple[num, num]]] dsin = <"sin", [<i*6.0/100, r(sin(r(2*i*PI()/n)))>|i<-[0..n+1]]>;
-   tuple[str, list[tuple[num, num]]] dcos = <"cos", [<i*6.0/100, r(cos(r(2*i*PI()/n)))>|i<-[0..n+1]]>;
-   list[tuple[str, list[tuple[num, num]]]] d = [dsin, dcos];
-   str header = Z(title_, (), "sincos")+
-      Z(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8"))+
-      toCss((
-            // ".axis":(fill_:"none", stroke_:"black"), 
-            ".line":(fill_:"none"),
-            ".axis": ("font-size":"8pt","font-family":"sans-serif", fill_:"none"), 
-            ".tick":(fill_:"none", stroke_:"black"),
-            ".frame":(stroke_:"black"),
-            ".grid":(stroke_:"antiquewhite")
-             ));
-      str body = Z(h1_, (id_: "sincos"), "Sinus Cosinus") 
-      
-       + JavaScriptJson("data.json", "error", "dat",
-        var(
-          (
-           "width":800,
-           "height":400,
-           "margin":50 ,
-           "cl":expr("[\"red\",\"RoyalBlue\"]")     
-            )
-          )
-         ,  var((svg_: 
-            call(d3_, select(body_, add(svg_, attr((width_: expr("width"), height_:expr("height"))/*, style(("fill":"blue")) */
-              ))))))
-        
-        
-      ,
-      var (
-          ("x_scale":
-              call(d3_, linear(domain(expr("[0,6]")
-              , range(expr("[margin, width-margin]")))))))
-        , 
-      var (
-          ("y_scale":
-              call(d3_, linear(domain(expr("[-1,1]")
-              , range(expr("[height-margin, margin]")))))))
-        , 
-      var (("x_axis": call(d3_, axis(scale(expr("x_scale"), ticks(expr("7")
-         , tickFormat(expr("function(d){if (d==1) return \"1/6\";
-                            'if (d==2) return \"1/3\";
-                            'if (d==3) return \"1/2\";
-                            'if (d==4) return \"2/3\";
-                            'if (d==5) return \"5/6\";
-                            'if (d==6) return \"1\";
-                             return d;}"))
-       ))))))
-       ,
-       var (("y_axis": call(d3_, axis(scale(expr("y_scale")
-   //    , tickValues(expr("[-1,0,1]")
-       , orient("right")
-    //   )
-       )))))
-       ,
-       call(svg_, add("g", attr((
-           "class":"frame axis", 
-          "transform": expr("\"translate(0, \" +height/2+ \")\"")
-           )
-           , call(expr("x_axis")))
-           ))
-           ,
-       call(svg_, add("g", attr((
-           "class":"frame axis", 
-          "transform": expr("\"translate(\"+margin+\", 0)\"")
-           )
-           , call(expr("y_axis")))
-           ))
-           ,
-       var(("line": call(d3_, line(interpolate("monotone", x(expr("
-             function(d) {return x_scale(d.x);}
-             "
-             ),
-        y(expr("
-             function(d) {return y_scale(d.y);}
-             "
-             )
-           )))))))
-    //       d3.select("svg").selectAll("path").data(dat).enter().append("path").attr("class","line").attr("d",line(dat));
-           ,
-           call(svg_, selectAll(".line", \data("dat",   
-           enter(add("path",
-           attr((
-           "class":"line", 
-            "d": expr("function(q){return line(q.path);}"),
-            "stroke":expr("function(q, i){return cl[i%2];}")
-           )
-           ))))))
-         ,
-          call(svg_, add("g", attr((
-          "class":"grid"   
-          ), call(expr("x_axis.innerTickSize(height).tickFormat(\"\").outerTickSize(0)")))
-         ))
-         ,
-          call(svg_, add("g", 
-            attr((
-                  "class":"grid"   
-          ), call(expr("y_axis.innerTickSize(width).tickFormat(\"\").outerTickSize(0)")))
-          
-         ))
-         
-        );
-      
-      htmlDisplay(publish(|project://chart/src/aap|, d, 
-         header , body));
-    }
- 
+   
+   int n= 100;
+   tuple[str, str, list[tuple[num, num]]] dsin = <"sin", "red", [<(i*6.0/100), 5*r(sin(r(2*i*PI()/n)))+5>|i<-[0..n+1]]>;
+   tuple[str, str, list[tuple[num, num]]] dcos = <"cos", "green", [<(i*6.0/100), 5*r(cos(r(2*i*PI()/n)))+5>|i<-[0..n+1]]>;
+   
+   list[tuple[str, str, list[tuple[num, num]]]] d = [dsin, dcos];
+
+   PlotData p = <"Sin and Cos", [labx(i)|i<-[0..7]], [laby(i)|i<-[0..11]], d>;
+   plot(p);
+   /*
+    list[list[tuple[num, num]]] d = [[<(i*step)*nTickx, (-y+f(x+(i*step)*width))*nTicky/height >| i<-[0..ub+1]]|f<-g];
+    list[tuple[str, str, list[tuple[num, num]]]] w =  [<"<i>","blue", d[i]>|i<-[0..size(d)]];
+    PlotData p = <"plot", xt, yt, w>;
+    plot(p, width = 600, height = 600); 
+    */ 
+   }   
+   
