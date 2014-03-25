@@ -278,5 +278,40 @@ public class RVMRunBody extends RVMRun {
 		}
 		return vf.bool(false);
 	}
+	public boolean guardHelper() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	public Object jvmGUARD() {
+		boolean precondition = guardHelper() ;
 
+		if (cf == cccf) {
+			Coroutine coroutine = null;
+			Frame prev = cf.previousCallFrame;
+			if (precondition) {
+				coroutine = new Coroutine(cccf);
+				coroutine.isInitialized = true;
+				coroutine.suspend(cf);
+			}
+			cccf = null;
+			--sp;
+			cf.sp = sp;
+			cf = prev;
+			stack = cf.stack;
+			sp = cf.sp;
+			stack[sp++] = precondition ? coroutine : exhausted;
+			return NONE ;
+		}
+
+		if (!precondition) {
+			cf.sp = sp;
+			cf = cf.previousCallFrame;
+			stack = cf.stack;
+			sp = cf.sp;
+			stack[sp++] = Rascal_FALSE;
+			return NONE ;
+		}
+		return NONE;
+	}
 }
