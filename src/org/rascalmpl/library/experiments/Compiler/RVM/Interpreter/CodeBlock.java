@@ -658,6 +658,15 @@ public class CodeBlock {
 		for(Instruction ins : insList){
 			ins.generate(codeEmittor, true);
 		}
+		// TODO: BUG  
+		if ( insList.get(insList.size()-1)  instanceof Label ) {
+			// The mu2rvm code generator emit faulty code and jumps outside existing space 
+			// put in a panic return, code is also generated on a not used label.  
+			// Activate the peephole optimizer :).
+			codeEmittor.emitPanicReturn() ;
+		}
+		
+		
 		finalConstantStore = new IValue[constantStore.size()];
 		for(int i = 0; i < constantStore.size(); i++ ){
 			finalConstantStore[i] = constantStore.get(i);

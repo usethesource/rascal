@@ -12,7 +12,8 @@ public class Yield0 extends Instruction {
 		this.hotEntryPoint = ep ;
 	}
 	public void generate(Generator codeEmittor, boolean dcode){
-		codeEmittor.emitCall("insnYIELD0");
+		// codeEmittor.emitCall("insnYIELD0");
+		codeEmittor.emitYield0(hotEntryPoint) ;
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }
