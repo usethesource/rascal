@@ -599,7 +599,7 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 }
 
 public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol rt) {
-	// TODO: We currently always treat alias declarations as public, so we just
+	// NOTE: We currently always treat alias declarations as public, so we just
 	// ignore the visibility here. If we decide to allow private alias declarations,
 	// revisit this.
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
@@ -652,13 +652,16 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 			c.store[c.typeEnv[n]].items += itemId;
 		}
 	} else if ((c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is sorttype || c.store[c.typeEnv[n]] is \alias) && c.store[c.typeEnv[n]].containedIn == moduleId) {
-		// Case 4: A type with this name already exists in the same module. We cannot perform this
-		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
-		// to distinguish them. NOTE: We don't even allow this if the repeated definition is also an equivalent alias.
+		// Case 4: A type with this name already exists in the same module. We still have to add the alias, since
+		// errors will occur in other parts of the code if we do not do so, but we do not add the ID in to the type
+		// environment or build a conflict item.
+		itemId = addAlias();
 		c = addScopeError(c, "An adt or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
 	} else if (c.store[c.typeEnv[n]] is conflict && moduleId in { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
 		// Case 5: We have a conflict item which contains at least one item declared in the current module. This is an error,
-		// even if it is another alias.
+		// even if it is another alias. We still have to add the alias, since errors will occur in other parts of the code 
+		// if we do not do so, but we do not add the ID in to the type environment or build a conflict item.
+		itemId = addAlias();
 		c = addScopeError(c, "An adt, alias, or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
 	}
 	
