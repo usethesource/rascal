@@ -516,14 +516,14 @@ MuExp translateBoolClosure(Expression e){
 
 MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> .. <Expression last> ]`) {
     kind = getOuterType(first) == "int" && getOuterType(last) == "int" ? "_INT" : "";
-    return muMulti(muApply(mkCallToLibFun("Library", "RANGE<kind>", 3), [ translatePat(pat), translate(first), translate(last)]));
+    return muMulti(muApply(mkCallToLibFun("Library", "RANGE<kind>"), [ translatePat(pat), translate(first), translate(last)]));
  }
 
 // -- enumerator with range and step expression ---------------------
     
 MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) {
      kind = getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int" ? "_INT" : "";
-     return muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>", 4), [ translatePat(pat), translate(first), translate(second), translate(last)]));
+     return muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>"), [ translatePat(pat), translate(first), translate(second), translate(last)]));
 }
 
 // -- range expression ----------------------------------------------
@@ -533,10 +533,10 @@ MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) {
   loopname = nextLabel(); 
   writer = asTmp(loopname);
   var = nextTmp();
-  patcode = muApply(mkCallToLibFun("Library","MATCH_VAR",2), [muTmpRef(var,fuid)]);
+  patcode = muApply(mkCallToLibFun("Library","MATCH_VAR"), [muTmpRef(var,fuid)]);
 
   kind = getOuterType(first) == "int" && getOuterType(last) == "int" ? "_INT" : "";
-  rangecode = muMulti(muApply(mkCallToLibFun("Library", "RANGE<kind>", 3), [ patcode, translate(first), translate(last)]));
+  rangecode = muMulti(muApply(mkCallToLibFun("Library", "RANGE<kind>"), [ patcode, translate(first), translate(last)]));
   
   return
     muBlock(
@@ -554,10 +554,10 @@ MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <
   loopname = nextLabel(); 
   writer = asTmp(loopname);
   var = nextTmp();
-  patcode = muApply(mkCallToLibFun("Library","MATCH_VAR",2), [muTmpRef(var,fuid)]);
+  patcode = muApply(mkCallToLibFun("Library","MATCH_VAR"), [muTmpRef(var,fuid)]);
 
   kind = getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int" ? "_INT" : "";
-  rangecode = muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>", 4), [ patcode, translate(first), translate(second), translate(last)]));
+  rangecode = muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>"), [ patcode, translate(first), translate(second), translate(last)]));
   
   return
     muBlock(
@@ -579,15 +579,15 @@ MuExp translateVisit(label,\visit) {
 	bool fixpoint = false;
 	
 	if(\visit is defaultStrategy) {
-		traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",5);
+		traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP");
 	} else {
 		switch("<\visit.strategy>") {
-			case "bottom-up"      :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",      5);
-			case "top-down"       :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN",       5);
-			case "bottom-up-break":   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP_BREAK",5);
-			case "top-down-break" :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN_BREAK", 5);
-			case "innermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP",      5); fixpoint = true; }
-			case "outermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN",       5); fixpoint = true; }
+			case "bottom-up"      :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP");
+			case "top-down"       :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN");
+			case "bottom-up-break":   traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP_BREAK");
+			case "top-down-break" :   traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN_BREAK");
+			case "innermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_BOTTOM_UP"); fixpoint = true; }
+			case "outermost"      : { traverse_fun = mkCallToLibFun("Library","TRAVERSE_TOP_DOWN"); fixpoint = true; }
 		}
 	}
 	
@@ -921,7 +921,7 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
   }
   //gens = [isGen[i] ? translate(generators2[i]).exp // Unwraps muMulti 
   //                 : translateBoolClosure(generators2[i]) | i <- index(generators1)];
-  return muCall(mkCallToLibFun("Library", "RASCAL_ALL", 2), [ muCallMuPrim("make_array", tgens), muCallMuPrim("make_array", [ muBool(b) | bool b <- isGen ]) ]);
+  return muCall(mkCallToLibFun("Library", "RASCAL_ALL"), [ muCallMuPrim("make_array", tgens), muCallMuPrim("make_array", [ muBool(b) | bool b <- isGen ]) ]);
 }
 
 // -- comprehension expression --------------------------------------
@@ -1306,16 +1306,16 @@ MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`)     = transl
 
 MuExp translate(e:(Expression) `<QualifiedName name> \<- <Expression exp>`) {
     <fuid, pos> = getVariableScope("<name>", name@\loc);
-    return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN", 2), [muVarRef("<name>", fuid, pos), translate(exp)]));
+    return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN"), [muVarRef("<name>", fuid, pos), translate(exp)]));
 }
 
 MuExp translate(e:(Expression) `<Type tp> <Name name> \<- <Expression exp>`) {
     <fuid, pos> = getVariableScope("<name>", name@\loc);
-    return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN", 3), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
+    return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN"), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
 }
 
 MuExp translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) =
-    muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH", 2), [translatePat(pat), translate(exp)]));
+    muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH"), [translatePat(pat), translate(exp)]));
 
 // -- implies expression --------------------------------------------
 
