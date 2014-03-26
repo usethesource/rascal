@@ -72,10 +72,10 @@ public class RVMRun {
 	PrintWriter stderr;
 
 	// Management of active coroutines
-	Stack<Coroutine> activeCoroutines = new Stack<>();
-	Frame ccf = null; // The start frame of the current active coroutine
+	protected Stack<Coroutine> activeCoroutines = new Stack<>();
+	protected Frame ccf = null; // The start frame of the current active coroutine
 						// (coroutine's main function)
-	Frame cccf = null; // The candidate coroutine's start frame; used by the
+	protected Frame cccf = null; // The candidate coroutine's start frame; used by the
 						// guard semantics
 	IEvaluatorContext ctx;
 
