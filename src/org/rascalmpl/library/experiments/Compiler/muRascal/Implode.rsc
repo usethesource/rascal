@@ -23,11 +23,24 @@ MuModule preprocess(Module pmod){
    global_functions = {};
    vardefs = ();
    functions_in_module = [];
-   global_functions = { <f.name, getUID(pmod.name,f.funNames,f.name,f.nformals)> | f <- pmod.functions };
+   global_functions = { <f.name, getUID(pmod.name,f.funNames,f.name,size(f.formals))> | f <- pmod.functions };
    println(global_functions);
    for(f <- pmod.functions) {
-       uid = getUID(pmod.name,f.funNames,f.name,f.nformals);
-       vdfs = ("<f.locals[i].var>" : i  | int i <- index(f.locals));
+       uid = getUID(pmod.name,f.funNames,f.name,size(f.formals));
+       /*
+        * Variable declarations may appear in:
+        *     (1) function/coroutine signatures (formals) 
+        *     (2) guard expressions
+        *     (3) function/coroutine bodies 
+        */
+       list[Identifier] locals = f.formals;
+       if(f is preCoroutine) {
+           locals = locals + ( isEmpty(f.guard) ? [] : (f.guard[0] has locals ? [ vdecl.id | VarDecl vdecl <- f.guard[0].locals ] : []) );
+       }
+       locals = locals + ( isEmpty(f.locals) ? [] : [ vdecl.id | VarDecl vdecl <- f.locals[0][0] ] );
+       assert size(locals) == size({ *locals });
+       
+       vdfs = ("<locals[i].var>" : i  | int i <- index(locals));
        vardefs =  vardefs + (uid : vdfs);
    }
    map[str,Symbol] types = ();
@@ -66,53 +79,52 @@ str getUidOfGlobalNonOverloadedFunction(str name) {
 }
 
 @doc{Generates a unique scope id: non-empty 'funNames' list implies a nested function}
+/*
+ * NOTE: Given that the muRascal language does not support overloading, the dependency of function uids 
+ *       on the number of formal parameters has been removed 
+ */
 str getUID(str modName, lrel[str,int] funNames, str funName, int nformals) {
 	// Due to the current semantics of the implode
 	modName = replaceAll(modName, "::", "");
-	return "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>(<nformals>)"; 
+	return "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>"; 
 }
 str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> ]) 
-	= "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>(<nformals>)";
+	= "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>";
 
-MuFunction preprocess(Function f, str modName){
-   uid = getUID(modName,f.funNames,f.name,f.nformals);
+MuFunction preprocess(Function f, str modName) {
+   uid = getUID(modName,f.funNames,f.name,size(f.formals));
    
+   // Collects all the declared reference parameters
    list[int] refs = [];
    if(f is preCoroutine) {
-       refs = [ vardefs[uid][name] | int i <- index(f.locals), i < f.nformals, rvar(str name) := f.locals[i] ];
+       refs = [ vardefs[uid][name] | rvar(str name) <- f.formals ];
    }
    // Guard specific check
-   insertGuard = false;
+   MuExp guard = muGuard(muBool(true));
    if(f is preCoroutine) {
-       guards = [];
-       visit(f.body) { case e:muGuard(_): guards += e; }
-       if(size(guards) > 1) {
-           throw "More than one guard expression has been found in <uid>!";
-       }
-       if(size(guards) == 1 && guards[0] notin f.body) {
-           throw "Guard expression has to be at top-level within the body of a coroutine: <uid>!";
-       }
-       if(size(guards) == 1) {
-           for(MuExp e <- f.body) {
-               if(e in guards) {
-                   break;
+       if(!isEmpty(f.guard)) {
+           if(f.guard[0] has locals) {
+               list[MuExp] block = [ preAssignLoc(vdecl.id, vdecl.initializer) | VarDecl vdecl <- f.guard[0].locals ];
+               if(preBlock(<list[MuExp] exps, _>) := f.guard[0].exp) {
+                   block = block + exps;
+               } else {
+                   block = block + [ f.guard[0].exp ];
                }
-               if(!isEmpty([ exp | /MuExp exp := e, exp is muReturn || exp is muYield ])) {
-                   throw "Yield or return has been found before a guard expression: <uid>";
-               }
+               guard = muGuard(muBlock(block));
+           } else {
+               guard = muGuard(f.guard[0].exp);
            }
-       } else {
-           insertGuard = true;
        }
    }
    
    scopeIn = (!isEmpty(f.funNames)) ? getUID(modName,f.funNames) : ""; // if not a function scope, then the root one
    // Generate a very generic function type
-   ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..f.nformals] ]);
+   ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..size(f.formals)] ]);
    
-   body = preprocess(modName, f.funNames, f.name, f.nformals, uid, f.body);   
-   return (f is preCoroutine) ? muCoroutine(uid, scopeIn, f.nformals, size(vardefs[uid]), refs, muBlock(insertGuard ? [ muGuard(muBool(true)), *body, muExhaust() ] : [ *body, muExhaust() ]))
-                              : muFunction(uid, ftype, scopeIn, f.nformals, size(vardefs[uid]), false, |rascal:///|, [], (), muBlock(body));
+   list[MuExp] initializers = isEmpty(f.locals) ? [] : [ preAssignLoc(vdecl.id, vdecl.initializer) | VarDecl vdecl <- f.locals[0][0], vdecl has initializer ];
+   body = preprocess(modName, f.funNames, f.name, size(f.formals), uid, (f is preCoroutine) ? [ guard, *initializers, *f.body, muExhaust() ] : initializers + f.body);   
+   return (f is preCoroutine) ? muCoroutine(uid, scopeIn, size(f.formals), size(vardefs[uid]), refs, muBlock(body))
+                              : muFunction(uid, ftype, scopeIn, size(f.formals), size(vardefs[uid]), false, |rascal:///|, [], (), muBlock(body));
 }
 
 str fuid = "";
@@ -150,7 +162,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
      	       				  Identifier id, MuExp exp)                  						=> muAssign(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var],exp)
      	       case preList(list[MuExp] exps)													=> muCallMuPrim("make_array", exps)
      	        
-      	       case preIfthen(cond,thenPart) 													=> muIfelse("", cond, thenPart, [])
+      	       case preIfthen(cond,thenPart,comma) 													=> muIfelse("", cond, thenPart, [])
       	       
       	       case preLocDeref(Identifier id)                   								=> muVarDeref(id.var,uid,vardefs[uid][id.var])
       	       case preVarDeref(lrel[str,int] funNames, Identifier id)   						=> muVarDeref(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
@@ -268,13 +280,29 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case muOr(list[MuExp] exps)                                                      => makeMu("OR",exps)
       	       case muOne(list[MuExp] exps)                                                     => makeMuOne("ALL",exps)
       	       
+      	       /*
+ 				* The field 'comma' is a work around given the current semantics of implode 
+ 				*/
+      	       case preIfelse(MuExp cond, list[MuExp] thenPart, bool comma, 
+      	                                  list[MuExp] elsePart, bool comma)                     => muIfelse("", cond, thenPart, elsePart)
+               case preWhile(MuExp cond, list[MuExp] body, bool comma)                          => muWhile("", cond, body)
+               case preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma, 
+                                                     list[MuExp] elsePart, bool comma)          => muIfelse(label, cond, thenPart, elsePart)
+               case preWhile(str label, MuExp cond, list[MuExp] body, bool comma)               => muWhile(label, cond, body)
+               case preTypeSwitch(MuExp exp, lrel[MuTypeCase, bool] sepCases, 
+                                  MuExp \default, bool comma)                                   => muTypeSwitch(exp, sepCases<0>, \default)
+               case preBlock(list[MuExp] exps, bool comma)                                      => muBlock(exps)
+               
+               case preSubscript(MuExp arr, MuExp index)                                        => muCallMuPrim("subscript_array_mint", [arr, index])
+               case preAssignSubscript(MuExp arr, MuExp index, MuExp exp)						=> muCallMuPrim("assign_subscript_array_mint", [arr, index, exp])
+      	       
             };
       } catch e: throw "In muRascal function <modName>::<for(<f,n> <- funNames){><f>::<n>::<}><fname>::<nformals> (uid = <uid>) : <e>";   
     }    
 }
 
 MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
-    str all_uid = "Library/<fuid>/ALL_<getNextAll()>(0)";
+    str all_uid = "Library/<fuid>/ALL_<getNextAll()>";
     localvars = [ muVar("c_<i>", all_uid, i)| int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     for(int i <- index(exps)) {
@@ -282,7 +310,7 @@ MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
         if(backtrackfree[j]) {
             body = [ muIfelse(nextLabel(), exps[j], body, [ muCon(222) ]) ];
         } else {
-            body = [ muAssign("c_<j>", all_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body), muCon(222) ];
+            body = [ muAssign("c_<j>", all_uid, j, muCreate(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body), muCon(222) ];
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
@@ -291,7 +319,7 @@ MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
 }
 
 MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
-    str or_uid = "Library/<fuid>/Or_<getNextOr()>(0)";
+    str or_uid = "Library/<fuid>/Or_<getNextOr()>";
     localvars = [ muVar("c_<i>", or_uid, i)| int i <- index(exps) ];
     list[MuExp] body = [];
     for(int i <- index(exps)) {
@@ -332,9 +360,10 @@ MuModule parse(loc s) {
   if(dia != []){
      iprintln(dia);
      throw  "*** Ambiguities in muRascal code, see above report";
-  }   
+  }
   ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
   ast2 = preprocess(ast);
+  // iprintln(ast2);
   return ast2;						   
 }
 

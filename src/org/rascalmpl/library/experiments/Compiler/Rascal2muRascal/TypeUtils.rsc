@@ -444,8 +444,12 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
 /********************************************************************/
 
 @doc{Generate a MuExp that calls a library function given its name, module's name and number of formal parameters}
-public MuExp mkCallToLibFun(str modName, str fname, int nformals)
-	= muFun("<modName>/<fname>(<nformals>)");
+/*
+ * NOTE: Given that the muRascal language does not support overloading, the dependency of function uids 
+ *       on the number of formal parameters has been removed 
+ */
+public MuExp mkCallToLibFun(str modName, str fname)
+	= muFun("<modName>/<fname>");
 
 // Generate a MuExp to access a variable
 

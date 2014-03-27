@@ -37,64 +37,65 @@ public enum Opcode {
 	NEXT1				(17,	1),
 	YIELD0				(18,	1),
 	YIELD1				(19,	1), //2),
-	INIT				(20,	1), //2),
-	PRINTLN				(21,	1), //2),
-	RETURN0				(22,	1),
-	LOADLOCREF			(23,	1), //2),
-	LOADVARREF			(24,	1), //3),
-	LOADLOCDEREF		(25,	1), //2),
-	LOADVARDEREF		(26,	1), //3),
-	STORELOCDEREF		(27,	1), //2),
-	STOREVARDEREF		(28,	1), //3),
-	LOADCONSTR			(29,	1), //2),
-	CALLCONSTR			(30,	1), //3), // TODO: plus number of formal parameters
-	LOAD_NESTED_FUN		(31, 	1), //3),
-	LOADTYPE			(32,	1), //2),
-	CALLMUPRIM			(33,	1), //3),
-	LOADBOOL			(34,	1), //2),
-	LOADINT				(35,	1), //2),
-	FAILRETURN			(36, 	1),
-	LOADOFUN        	(37,    1), //2),
-	OCALL           	(38,    1), //3),
-	OCALLDYN	    	(39,	1), //3),
-	CALLJAVA        	(40,    5),
-	THROW           	(41,    1),
-	TYPESWITCH			(42,	1), //2),
-	UNWRAPTHROWNLOC     (43,    1), //2),
-	FILTERRETURN		(44, 	1),
-	EXHAUST             (45,    1),
-	GUARD               (46,    1),
-	SUBSCRIPTARRAY		(47,    1),
-	SUBSCRIPTLIST		(48,    1),
-	LESSINT				(49,	1),
-	GREATEREQUALINT		(50,	1),
-	ADDINT				(51,	1),
-	SUBTRACTINT			(52,	1),
-	ANDBOOL				(53,	1),
-	TYPEOF				(54,	1),
-	SUBTYPE				(55,	1),
-	CHECKARGTYPE		(56,	1),
-	LOADLOC0			(57, 	1),
-	LOADLOC1			(58, 	1),
-	LOADLOC2			(59, 	1),
-	LOADLOC3			(60, 	1),
-	LOADLOC4			(61, 	1),
-	LOADLOC5			(62, 	1),
-	LOADLOC6			(63, 	1),
-	LOADLOC7			(64, 	1),
-	LOADLOC8			(65, 	1),
-	LOADLOC9			(66, 	1),
-	JMPINDEXED			(67, 	1),
-	LOADLOCKWP          (68,    1), // 2
-	LOADVARKWP          (69,    1), // 3
-	STORELOCKWP         (70,    1), // 2
-	STOREVARKWP         (71,    1), // 3
-	UNWRAPTHROWNVAR     (72,    1), // 3
-	APPLY               (73,    1), // 3
-	APPLYDYN            (74,    1), // 2
-	LOADCONT            (75,    1), // 2
-	RESET               (76,    1), // 2
-	SHIFT               (77,    1)  // 2
+	CREATE				(20,	1), //3),
+	CREATEDYN           (21,    1), //2),
+	PRINTLN				(22,	1), //2),
+	RETURN0				(23,	1),
+	LOADLOCREF			(24,	1), //2),
+	LOADVARREF			(25,	1), //3),
+	LOADLOCDEREF		(26,	1), //2),
+	LOADVARDEREF		(27,	1), //3),
+	STORELOCDEREF		(28,	1), //2),
+	STOREVARDEREF		(29,	1), //3),
+	LOADCONSTR			(30,	1), //2),
+	CALLCONSTR			(31,	1), //3), // TODO: plus number of formal parameters
+	LOAD_NESTED_FUN		(32, 	1), //3),
+	LOADTYPE			(33,	1), //2),
+	CALLMUPRIM			(34,	1), //3),
+	LOADBOOL			(35,	1), //2),
+	LOADINT				(36,	1), //2),
+	FAILRETURN			(37, 	1),
+	LOADOFUN        	(38,    1), //2),
+	OCALL           	(39,    1), //3),
+	OCALLDYN	    	(40,	1), //3),
+	CALLJAVA        	(41,    5),
+	THROW           	(42,    1),
+	TYPESWITCH			(43,	1), //2),
+	UNWRAPTHROWNLOC     (44,    1), //2),
+	FILTERRETURN		(45, 	1),
+	EXHAUST             (46,    1),
+	GUARD               (47,    1),
+	SUBSCRIPTARRAY		(48,    1),
+	SUBSCRIPTLIST		(49,    1),
+	LESSINT				(50,	1),
+	GREATEREQUALINT		(51,	1),
+	ADDINT				(52,	1),
+	SUBTRACTINT			(53,	1),
+	ANDBOOL				(54,	1),
+	TYPEOF				(55,	1),
+	SUBTYPE				(56,	1),
+	CHECKARGTYPE		(57,	1),
+	LOADLOC0			(58, 	1),
+	LOADLOC1			(59, 	1),
+	LOADLOC2			(60, 	1),
+	LOADLOC3			(61, 	1),
+	LOADLOC4			(62, 	1),
+	LOADLOC5			(63, 	1),
+	LOADLOC6			(64, 	1),
+	LOADLOC7			(65, 	1),
+	LOADLOC8			(66, 	1),
+	LOADLOC9			(67, 	1),
+	JMPINDEXED			(68, 	1),
+	LOADLOCKWP          (69,    1), // 2
+	LOADVARKWP          (70,    1), // 3
+	STORELOCKWP         (71,    1), // 2
+	STOREVARKWP         (72,    1), // 3
+	UNWRAPTHROWNVAR     (73,    1), // 3
+	APPLY               (74,    1), // 3
+	APPLYDYN            (75,    1), // 2
+	LOADCONT            (76,    1), // 2
+	RESET               (77,    1), // 2
+	SHIFT               (78,    1)  // 2
 	;
 	
 	
@@ -130,64 +131,65 @@ public enum Opcode {
 	static public final int OP_NEXT1 = 17;
 	static public final int OP_YIELD0 = 18;
 	static public final int OP_YIELD1 = 19;
-	static public final int OP_INIT = 20;
-	static public final int OP_PRINTLN = 21;
-	static public final int OP_RETURN0 = 22;
-	static public final int OP_LOADLOCREF = 23;
-	static public final int OP_LOADVARREF = 24;
-	static public final int OP_LOADLOCDEREF = 25;
-	static public final int OP_LOADVARDEREF = 26;
-	static public final int OP_STORELOCDEREF = 27;
-	static public final int OP_STOREVARDEREF = 28;
-	static public final int OP_LOADCONSTR = 29;
-	static public final int OP_CALLCONSTR = 30;
-	static public final int OP_LOAD_NESTED_FUN = 31;
-	static public final int OP_LOADTYPE = 32;
-	static public final int OP_CALLMUPRIM = 33;
-	static public final int OP_LOADBOOL = 34;
-	static public final int OP_LOADINT = 35;
-	static public final int OP_FAILRETURN = 36;
-	static public final int OP_LOADOFUN = 37;
-	static public final int OP_OCALL = 38;
-	static public final int OP_OCALLDYN = 39;
-	static public final int OP_CALLJAVA = 40;
-	static public final int OP_THROW = 41;
-	static public final int OP_TYPESWITCH = 42;
-	static public final int OP_UNWRAPTHROWNLOC = 43;
-	static public final int OP_FILTERRETURN = 44;
-	static public final int OP_EXHAUST = 45;
-	static public final int OP_GUARD = 46;
-	static public final int OP_SUBSCRIPTARRAY = 47;
-	static public final int OP_SUBSCRIPTLIST = 48;
-	static public final int OP_LESSINT = 49;
-	static public final int OP_GREATEREQUALINT = 50;
-	static public final int OP_ADDINT = 51;
-	static public final int OP_SUBTRACTINT = 52;
-	static public final int OP_ANDBOOL = 53;
-	static public final int OP_TYPEOF = 54;
-	static public final int OP_SUBTYPE = 55;
-	static public final int OP_CHECKARGTYPE = 56;
-	static public final int OP_LOADLOC0 = 57;
-	static public final int OP_LOADLOC1 = 58;
-	static public final int OP_LOADLOC2 = 59;
-	static public final int OP_LOADLOC3 = 60;
-	static public final int OP_LOADLOC4 = 61;
-	static public final int OP_LOADLOC5 = 62;
-	static public final int OP_LOADLOC6 = 63;
-	static public final int OP_LOADLOC7 = 64;
-	static public final int OP_LOADLOC8 = 65;
-	static public final int OP_LOADLOC9 = 66;
-	static public final int OP_JMPINDEXED = 67;
-	static public final int OP_LOADLOCKWP = 68;
-	static public final int OP_LOADVARKWP = 69;
-	static public final int OP_STORELOCKWP = 70;
-	static public final int OP_STOREVARKWP = 71;
-	static public final int OP_UNWRAPTHROWNVAR = 72;
-	static public final int OP_APPLY = 73;
-	static public final int OP_APPLYDYN = 74;
-	static public final int OP_LOADCONT = 75;
-	static public final int OP_RESET = 76;
-	static public final int OP_SHIFT = 77;
+	static public final int OP_CREATE = 20;
+	static public final int OP_CREATEDYN = 21;
+	static public final int OP_PRINTLN = 22;
+	static public final int OP_RETURN0 = 23;
+	static public final int OP_LOADLOCREF = 24;
+	static public final int OP_LOADVARREF = 25;
+	static public final int OP_LOADLOCDEREF = 26;
+	static public final int OP_LOADVARDEREF = 27;
+	static public final int OP_STORELOCDEREF = 28;
+	static public final int OP_STOREVARDEREF = 29;
+	static public final int OP_LOADCONSTR = 30;
+	static public final int OP_CALLCONSTR = 31;
+	static public final int OP_LOAD_NESTED_FUN = 32;
+	static public final int OP_LOADTYPE = 33;
+	static public final int OP_CALLMUPRIM = 34;
+	static public final int OP_LOADBOOL = 35;
+	static public final int OP_LOADINT = 36;
+	static public final int OP_FAILRETURN = 37;
+	static public final int OP_LOADOFUN = 38;
+	static public final int OP_OCALL = 39;
+	static public final int OP_OCALLDYN = 40;
+	static public final int OP_CALLJAVA = 41;
+	static public final int OP_THROW = 42;
+	static public final int OP_TYPESWITCH = 43;
+	static public final int OP_UNWRAPTHROWNLOC = 44;
+	static public final int OP_FILTERRETURN = 45;
+	static public final int OP_EXHAUST = 46;
+	static public final int OP_GUARD = 47;
+	static public final int OP_SUBSCRIPTARRAY = 48;
+	static public final int OP_SUBSCRIPTLIST = 49;
+	static public final int OP_LESSINT = 50;
+	static public final int OP_GREATEREQUALINT = 51;
+	static public final int OP_ADDINT = 52;
+	static public final int OP_SUBTRACTINT = 53;
+	static public final int OP_ANDBOOL = 54;
+	static public final int OP_TYPEOF = 55;
+	static public final int OP_SUBTYPE = 56;
+	static public final int OP_CHECKARGTYPE = 57;
+	static public final int OP_LOADLOC0 = 58;
+	static public final int OP_LOADLOC1 = 59;
+	static public final int OP_LOADLOC2 = 60;
+	static public final int OP_LOADLOC3 = 61;
+	static public final int OP_LOADLOC4 = 62;
+	static public final int OP_LOADLOC5 = 63;
+	static public final int OP_LOADLOC6 = 64;
+	static public final int OP_LOADLOC7 = 65;
+	static public final int OP_LOADLOC8 = 66;
+	static public final int OP_LOADLOC9 = 67;
+	static public final int OP_JMPINDEXED = 68;
+	static public final int OP_LOADLOCKWP = 69;
+	static public final int OP_LOADVARKWP = 70;
+	static public final int OP_STORELOCKWP = 71;
+	static public final int OP_STOREVARKWP = 72;
+	static public final int OP_UNWRAPTHROWNVAR = 73;
+	static public final int OP_APPLY = 74;
+	static public final int OP_APPLYDYN = 75;
+	static public final int OP_LOADCONT = 76;
+	static public final int OP_RESET = 77;
+	static public final int OP_SHIFT = 78;
 	
 	
 	/*
@@ -310,8 +312,11 @@ public enum Opcode {
 		case YIELD1:
 			return "YIELD1 " + arg1;
 		
-		case INIT:
-			return "INIT " + arg1;
+		case CREATE:
+			return "CREATE " + cb.getFunctionName(arg1) + ", " + arg2;
+			
+		case CREATEDYN:
+			return "CREATEDYN " + arg1;
 		
 		case PRINTLN:
 			return "PRINTLN " + arg1;
