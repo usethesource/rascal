@@ -55,7 +55,7 @@ M3 genericM3(loc file) {
     m@declarations = { <file[scheme="m3+unit"], file(0,chs,<1,0>,<lines - 1,lastline>)> }; 
   }
   catch IO(str msg) : {
-    m@messages += {error(msg, file)};
+    m@messages += [error(msg, file)];
   }
   
   return m;
