@@ -299,15 +299,15 @@ Create a directory at location `file`.
 public java void mkDirectory(loc file)
 throws PathNotFound(loc file), IO(str msg);
 
-@doc{
-Synopsis: Remove a file or a directory (recursively)
-
-Description:
-Removes the file or the directory indicated by _file_. The removal will be recursive.
-}
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses URI Resolver Registry}
-public java void remove(loc file) throws IO(str msg);
+//@doc{
+//Synopsis: Remove a file or a directory (recursively)
+//
+//Description:
+//Removes the file or the directory indicated by _file_. The removal will be recursive.
+//}
+//@javaClass{org.rascalmpl.library.Prelude}
+//@reflect{Uses URI Resolver Registry}
+//public java void remove(loc file) throws IO(str msg);
 
 
 @doc{
