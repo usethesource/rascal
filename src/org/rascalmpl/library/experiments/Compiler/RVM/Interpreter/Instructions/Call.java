@@ -24,7 +24,7 @@ public class Call extends Instruction {
 		if (dcode)
 			codeEmittor.emitCall("dinsnCALL", codeblock.getFunctionIndex(fuid));
 
-		codeEmittor.emitCall("insnCALL", codeblock.getFunctionIndex(fuid), arity);
+		codeEmittor.emitCall("jvmCALL", codeblock.getFunctionIndex(fuid), arity);
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), arity);
 	}
 

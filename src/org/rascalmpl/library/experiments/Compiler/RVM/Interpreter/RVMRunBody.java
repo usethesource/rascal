@@ -1,5 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -116,16 +118,15 @@ public class RVMRunBody extends RVMRun {
 		return rval;
 	}
 
+	int[] dodo;
 
-
-	int[]  dodo ;
 	public void insnOCALL(int ofun, int arity) {
 		cf.sp = sp;
 		cf.pc = pc;
 
 		OverloadedFunction of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
-		c_ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, root, null, arity) : 
-										 OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.functions, of.constructors, of.scopeIn, null, arity);
+		c_ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, root, null, arity) : OverloadedFunctionInstanceCall
+				.computeOverloadedFunctionInstanceCall(cf, of.functions, of.constructors, of.scopeIn, null, arity);
 
 		ocalls.push(c_ofun_call);
 
@@ -141,34 +142,36 @@ public class RVMRunBody extends RVMRun {
 			sp = sp - arity;
 			stack[sp++] = vf.constructor(constructor, c_ofun_call.getConstructorArguments(constructor.getArity()));
 		}
-		
+
 	}
+
 	public Object EXHAUST() {
 		cf = cf.previousCallFrame;
 		if (cf == null) {
-			return  Rascal_FALSE ; 
+			return Rascal_FALSE;
 		}
 		stack = cf.stack;
 		sp = cf.sp;
-		stack[sp++] = Rascal_FALSE; 
+		stack[sp++] = Rascal_FALSE;
 		return NONE;
 	}
 
 	public void name(int b, String g) {
-		name(b,g) ;
+		name(b, g);
 	}
-	
+
 	public Object wat() {
-		Object p ; 
-		
-		nop() ;
-		
-		p = fret() ;
-		
-		nop() ;
-		
-		return p ;
+		Object p;
+
+		nop();
+
+		p = fret();
+
+		nop();
+
+		return p;
 	}
+
 	public Object doreturn1() {
 		Object rval = return1Helper();
 		if (cf == null) {
@@ -179,112 +182,136 @@ public class RVMRunBody extends RVMRun {
 		stack[sp++] = rval;
 		return NONE;
 	}
+
 	public Object ocallOID() {
-		String p = "ehhd do maar" ;
-		int    scope = 120399393 ; 
+		String p = "ehhd do maar";
+		int scope = 120399393;
 		int[] fnctions = new int[0];
-		int[] cons = new int[0] ;
-		Object rval ;
-		Function func ;
-		Frame root ;
-				
-		cons[800] = 19990 ;
-		cons[900] = 29999 ;
-		
-		nop() ;
-		
-		cf.sp = sp ;
-		
-		nop() ;
-		
+		int[] cons = new int[0];
+		Object rval;
+		Function func;
+		Frame root;
+
+		cons[800] = 19990;
+		cons[900] = 29999;
+
+		nop();
+
+		cf.sp = sp;
+
+		nop();
+
 		func = functionStore.get(fnctions[777]);
-		
-		nop() ;
-		
-		root = cf.getFrame(func, null, func.nformals, sp) ;
-		
-		//root = new Frame(scope, cf, func.maxstack, func);
-		
+
+		nop();
+
+		root = cf.getFrame(func, null, func.nformals, sp);
+
+		// root = new Frame(scope, cf, func.maxstack, func);
+
 		cf = root;
-		
-		nop() ;
-		
-		stack = cf.stack ;
-		
-		nop() ;
-		
-		sp = func.nlocals ; 
-		
-		nop() ;
-		
-		rval = fret() ;
-		if (rval.equals(NONE)) return rval ;
-		
-		nop() ;
-		
-		return p + scope  ;
+
+		nop();
+
+		stack = cf.stack;
+
+		nop();
+
+		sp = func.nlocals;
+
+		nop();
+
+		rval = fret();
+		if (rval.equals(NONE))
+			return rval;
+
+		nop();
+
+		return p + scope;
 	}
+
 	public void insnLOADCON(int arg1) {
-		nop() ;
+		nop();
 		stack[sp++] = cf.function.constantStore[50];
-		nop() ;
+		nop();
 	}
 
 	public void insnLOADLOC3() {
-//		postOp = 0 ;
-//		if (stack[3] != null) {
-			stack[sp++] = stack[3];
-//		} else {
-//			postOp = Opcode.POSTOP_CHECKUNDEF;
-//		}
+		// postOp = 0 ;
+		// if (stack[3] != null) {
+		stack[sp++] = stack[3];
+		// } else {
+		// postOp = Opcode.POSTOP_CHECKUNDEF;
+		// }
 	}
+
 	public void insnSTORELOC(int target) {
 		stack[544] = stack[sp - 1];
 	}
+
 	public void insnLOADTYPE(int i) {
 		stack[sp++] = cf.function.typeConstantStore[544];
 		return;
 	}
+
 	public void entry() {
-		switch(cf.hotEntryPoint) {
-		case 0: fret() ;
-		case 1: fret() ;
+		switch (cf.hotEntryPoint) {
+		case 0:
+			fret();
+		case 1:
+			fret();
 		}
 	}
-	
+
 	public Object dynRun(String fname, IValue[] args) {
 		int n = functionMap.get(fname);
-		
+
 		Function func = functionStore.get(n);
-		
+
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
 		cf = root;
-		
+
 		stack = cf.stack;
-		
+
 		cf.stack[0] = vf.list(args); // pass the program argument to
 		cf.stack[1] = vf.mapWriter().done();
-		
-		sp = func.nlocals ;
-		cf.sp = this.sp  ;
-		
+
+		sp = func.nlocals;
+		cf.sp = this.sp;
+
 		return dynRun(n);
 	}
-	
+
 	public Object dynRun(int n) {
-		switch(n) {
-		case 0 : return fret() ;
-		case 1 : return fret() ;
+		switch (n) {
+		case 0:
+			return fret();
+		case 1:
+			return fret();
 		}
 		return vf.bool(false);
 	}
+
 	public boolean guardHelper() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 	
-	public Object jvmGUARD() {
-		boolean precondition = guardHelper() ;
+	public void insnTYPESWITCH(int i) {
+		switch (typeSwitchHelper()) {
+		case 0:
+			fret();
+			break;
+		case 1:
+			fret();
+			break;
+		default: return ;
+		}
+	}
+
+	public Object jvmGUARD(int ep) {
+		boolean precondition = guardHelper();
+		cf.hotEntryPoint = 909090990 ;
 
 		if (cf == cccf) {
 			Coroutine coroutine = null;
@@ -301,7 +328,9 @@ public class RVMRunBody extends RVMRun {
 			stack = cf.stack;
 			sp = cf.sp;
 			stack[sp++] = precondition ? coroutine : exhausted;
-			return NONE ;
+			
+			
+			return NONE;
 		}
 
 		if (!precondition) {
@@ -310,8 +339,10 @@ public class RVMRunBody extends RVMRun {
 			stack = cf.stack;
 			sp = cf.sp;
 			stack[sp++] = Rascal_FALSE;
-			return NONE ;
+			return NONE;
 		}
 		return NONE;
 	}
+
+
 }
