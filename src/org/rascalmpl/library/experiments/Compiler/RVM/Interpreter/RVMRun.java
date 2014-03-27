@@ -2307,6 +2307,17 @@ public class RVMRun {
 		dynRun(cccf.function.funId) ;
 	}
 
+	public int typeSwitchHelper() {
+		IValue val = (IValue) stack[--sp];
+		Type t = null;
+		if (val instanceof IConstructor) {
+			t = ((IConstructor) val).getConstructorType();
+		} else {
+			t = val.getType();
+		}
+		return ToplevelType.getToplevelTypeAsInt(t);
+	}
+
 	public boolean guardHelper() {
 		Object rval = stack[sp - 1];
 		boolean precondition;
@@ -2319,8 +2330,53 @@ public class RVMRun {
 		}
 		return precondition ;
 	}
+
+	public void jvmCALL(int funid, int arity) {
+		Frame tmp;
+		cf.pc = pc;
+		Function fun = functionStore.get(funid);
+		// In case of partial parameter binding
+		if (arity < fun.nformals) {
+			FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
+			sp = sp - arity;
+			stack[sp++] = fun_instance;
+			return;
+		}
+		tmp = cf.getFrame(fun, root, arity, sp);
+		this.cf = tmp;
+		this.stack = cf.stack;
+		this.sp = cf.sp;
+		dynRun(fun.funId) ;
+	}
 	
+	public void jvmNEXT0() {
+		Coroutine coroutine = (Coroutine) stack[--sp];
+
+		// Merged the hasNext and next semantics
+		if (!coroutine.hasNext()) {
+			stack[sp++] = FALSE;
+			return;
+		}
+		// put the coroutine onto the stack of active coroutines
+		activeCoroutines.push(coroutine);
+		ccf = coroutine.start;
+		coroutine.next(cf);
+
+		coroutine.frame.stack[coroutine.frame.sp++] = null;
+
+		cf.sp = sp;
+
+		cf = coroutine.frame;
+		stack = cf.stack;
+		sp = cf.sp;
+		dynRun(coroutine.frame.function.funId);
+	}
+
 	// Next methods are for debug only. Single step..
+	public void dinsnTYPESWITCH(int target) {
+		jmpTarget = target ;
+	}
+
 	public void dinsnJMPTRUE(int target) {
 		jmpTarget = target ;
 	}
@@ -2331,7 +2387,6 @@ public class RVMRun {
 		jmpTarget = target ;
 	}
 	public void dinsnPOP() {
-		//stack[sp] = null ;
 		prevSP = sp ;
 	}
 	public void dinsnGUARD() {
@@ -2349,4 +2404,8 @@ public class RVMRun {
 	public void dinsnLOADCON(int target) {
 		jmpTarget = target ;
 	}
+	public void dinsnLOADLOC3() {
+		jmpTarget = 3 ;
+	}
+
 }

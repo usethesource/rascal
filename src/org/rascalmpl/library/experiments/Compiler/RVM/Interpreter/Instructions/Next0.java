@@ -9,7 +9,7 @@ public class Next0 extends Instruction {
 		super(ins, Opcode.NEXT0);
 	}
 	public void generate(Generator codeEmittor, boolean dcode){
-		codeEmittor.emitCall("insnNEXT0");
+		codeEmittor.emitCall("jvmNEXT0");
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

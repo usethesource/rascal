@@ -22,11 +22,11 @@ value main(list[value] args){
     return res;
 }
 
-value dain(list[value] args){
+value nonomain(list[value] args){
  	return ocallStress(10) ; // Kills the jvm version with a stackoverflow.
 }
 
-value gain(list[value] args){
+value nononomain(list[value] args){
  	int j = 0 ;
  	j = fac(8) ;
  	int p = pad() ;
@@ -37,6 +37,6 @@ value gain(list[value] args){
 	return p ;
 }
 
-value fain(list[value] args){	
- 	return fib(5) ;
+value pppppmain(list[value] args){	
+ 	return fib(25) ;
 }
