@@ -16,6 +16,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
+import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -66,7 +67,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			}
 			if (!this.getDataTarget().isEmpty()) {
 				String label = org.rascalmpl.interpreter.utils.Names.name(this.getDataTarget().getLabel());
-				for (Accumulator accu : __eval.__getAccumulators()) {
+				Stack<Accumulator> accus = __eval.__getAccumulators();
+				
+				// Search backwards, to allow nested fors with same label.
+				for (int i = accus.size() - 1; i >= 0; i--) {
+					Accumulator accu = accus.get(i);
 					if (accu.hasLabel(label)) {
 						return accu;
 					}

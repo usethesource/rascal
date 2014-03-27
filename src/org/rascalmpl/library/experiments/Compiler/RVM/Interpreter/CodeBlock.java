@@ -20,12 +20,13 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgType;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FailReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FilterReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.GreaterEqualInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Guard;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Halt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Init;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Instruction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Jmp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpFalse;
@@ -453,8 +454,12 @@ public class CodeBlock {
 		return add(new CallDyn(this, arity));
 	}
 	
-	public CodeBlock INIT(int arity) {
-		return add(new Init(this, arity));
+	public CodeBlock CREATE(String fuid, int arity) {
+		return add(new Create(this, fuid, arity));
+	}
+	
+	public CodeBlock CREATEDYN(int arity) {
+		return add(new CreateDyn(this, arity));
 	}
 	
 	public CodeBlock NEXT0() {
