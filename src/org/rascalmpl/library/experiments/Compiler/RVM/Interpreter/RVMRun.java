@@ -74,9 +74,9 @@ public class RVMRun {
 	// Management of active coroutines
 	protected Stack<Coroutine> activeCoroutines = new Stack<>();
 	protected Frame ccf = null; // The start frame of the current active coroutine
-						// (coroutine's main function)
+	// (coroutine's main function)
 	protected Frame cccf = null; // The candidate coroutine's start frame; used by the
-						// guard semantics
+	// guard semantics
 	IEvaluatorContext ctx;
 
 	// An exhausted coroutine instance
@@ -392,8 +392,7 @@ public class RVMRun {
 		this.trace = this.trace + trace + "\n";
 	}
 
-	
-	 /*
+	/*
 	 * The following instance variables are only used by executeProgram
 	 */
 	public Object[] stack; // current stack
@@ -416,11 +415,11 @@ public class RVMRun {
 	OverloadedFunctionInstanceCall c_ofun_call = null;
 
 	Object globalReturnValue = null;
-	
-	// Two fields for tracing only used by dummy dinsnXXX() 
-	public int jmpTarget = 0 ;
-	public int prevSP= 0 ;
-	
+
+	// Two fields for tracing only used by dummy dinsnXXX()
+	public int jmpTarget = 0;
+	public int prevSP = 0;
+
 	public Object executeProgram(Frame root, Frame cfinit) {
 		this.cf = cfinit;
 		stack = cf.stack; // current stack
@@ -623,7 +622,8 @@ public class RVMRun {
 
 				case Opcode.OP_LOADVAR:
 					insnLOADVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), CodeBlock.isMaxArg2(CodeBlock.fetchArg2(instruction)));
-					if ( postOp == Opcode.POSTOP_CHECKUNDEF )  break INSTRUCTION ;
+					if (postOp == Opcode.POSTOP_CHECKUNDEF)
+						break INSTRUCTION;
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADVARREF:
@@ -645,19 +645,19 @@ public class RVMRun {
 				case Opcode.OP_STOREVARDEREF:
 					insnSTOREVARDEREF(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_CALLCONSTR:
 					insnCALLCONSTR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_CALLDYN:
 					insnCALLDYN(CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_CALL:
 					insnCALL(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_OCALL:
 					insnOCALL(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
@@ -665,11 +665,11 @@ public class RVMRun {
 				case Opcode.OP_OCALLDYN:
 					insnOCALLDYN(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_FAILRETURN:
 					insnFAILRETURN();
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_RETURN0:
 					insnRETURN0();
 					if (globalReturnValue != null)
@@ -687,21 +687,21 @@ public class RVMRun {
 					if (globalReturnValue != null)
 						return globalReturnValue; // Callers stack does not exist in RVM.
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_CALLJAVA:
 					insnCALLJAVA();
 					if (postOp == Opcode.POSTOP_HANDLEEXCEPTION)
 						break INSTRUCTION;
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_INIT:
 					insnINIT(CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_GUARD:
 					insnGUARD();
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_APPLY:
 					insnAPPLY(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
@@ -709,14 +709,14 @@ public class RVMRun {
 				case Opcode.OP_APPLYDYN:
 					insnAPPLYDYN(CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_NEXT0:
 					insnNEXT0();
 					continue NEXT_INSTRUCTION;
 				case Opcode.OP_NEXT1:
 					insnNEXT1(true);
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_YIELD0:
 					insnYIELD0();
 					continue NEXT_INSTRUCTION;
@@ -724,19 +724,19 @@ public class RVMRun {
 				case Opcode.OP_YIELD1:
 					insnYIELD1(CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_EXHAUST:
 					insnEXHAUST();
 					if (globalReturnValue != null)
 						return globalReturnValue;
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_CALLPRIM:
 					insnCALLPRIM(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
 					if (postOp == Opcode.POSTOP_HANDLEEXCEPTION)
 						break INSTRUCTION;
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_SUBSCRIPTARRAY:
 					insnSUBSCRIPTARRAY();
 					continue NEXT_INSTRUCTION;
@@ -811,29 +811,29 @@ public class RVMRun {
 				case Opcode.OP_LOADLOCKWP:
 					insnLOADLOCKWP(CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_LOADVARKWP:
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_STORELOCKWP:
 					insnSTORELOCKWP(CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_STOREVARKWP:
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADCONT:
 					insnLOADCONT(CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_RESET:
 					insnRESET();
 					continue NEXT_INSTRUCTION;
-	
+
 				case Opcode.OP_SHIFT:
 					insnSHIFT();
 					continue NEXT_INSTRUCTION;
-	
+
 				default:
 					throw new RuntimeException("RVM main loop -- cannot decode instruction");
 				}
@@ -1071,13 +1071,14 @@ public class RVMRun {
 		}
 	}
 
-	public void inject(ArrayList<Function> functionStore2, ArrayList<OverloadedFunction> overloadedStore2, ArrayList<Type> constructorStore2, TypeStore typeStore2, Map<String, Integer> functionMap2) {
+	public void inject(ArrayList<Function> functionStore2, ArrayList<OverloadedFunction> overloadedStore2, ArrayList<Type> constructorStore2, TypeStore typeStore2,
+			Map<String, Integer> functionMap2) {
 		// TODO check if we can generate code for them.
 		this.functionStore = functionStore2;
 		this.overloadedStore = overloadedStore2;
 		this.constructorStore = constructorStore2;
 		this.typeStore = typeStore2;
-		this.functionMap = functionMap2 ;
+		this.functionMap = functionMap2;
 	}
 
 	public void insnPOP() {
@@ -1085,7 +1086,7 @@ public class RVMRun {
 	}
 
 	public void insnLOADLOC0() {
-		postOp = 0 ;
+		postOp = 0;
 		if (stack[0] != null) {
 			stack[sp++] = stack[0];
 		} else {
@@ -1094,7 +1095,7 @@ public class RVMRun {
 	}
 
 	public void insnLOADLOC1() {
-		postOp = 0 ;
+		postOp = 0;
 		if (stack[1] != null) {
 			stack[sp++] = stack[1];
 		} else {
@@ -1103,7 +1104,7 @@ public class RVMRun {
 	}
 
 	public void insnLOADLOC2() {
-		postOp = 0 ;
+		postOp = 0;
 		if (stack[2] != null) {
 			stack[sp++] = stack[2];
 		} else {
@@ -1112,7 +1113,7 @@ public class RVMRun {
 	}
 
 	public void insnLOADLOC3() {
-		postOp = 0 ;
+		postOp = 0;
 		if (stack[3] != null) {
 			stack[sp++] = stack[3];
 		} else {
@@ -1121,7 +1122,7 @@ public class RVMRun {
 	}
 
 	public void insnLOADLOC4() {
-		postOp = 0 ;
+		postOp = 0;
 		if (stack[4] != null) {
 			stack[sp++] = stack[4];
 		} else {
@@ -1130,7 +1131,7 @@ public class RVMRun {
 	}
 
 	public void insnLOADLOC5() {
-		postOp = 0 ;
+		postOp = 0;
 		if (stack[5] != null) {
 			stack[sp++] = stack[5];
 		} else {
@@ -1139,7 +1140,7 @@ public class RVMRun {
 	}
 
 	public void insnLOADLOC6() {
-		postOp = 0 ;
+		postOp = 0;
 		if (stack[6] != null) {
 			stack[sp++] = stack[6];
 		} else {
@@ -1148,7 +1149,7 @@ public class RVMRun {
 	}
 
 	public void insnLOADLOC7() {
-		postOp = 0 ;
+		postOp = 0;
 		if (stack[7] != null) {
 			stack[sp++] = stack[7];
 		} else {
@@ -1157,7 +1158,7 @@ public class RVMRun {
 	}
 
 	public void insnLOADLOC8() {
-		postOp = 0 ;
+		postOp = 0;
 		if (stack[8] != null) {
 			stack[sp++] = stack[8];
 		} else {
@@ -1166,7 +1167,7 @@ public class RVMRun {
 	}
 
 	public void insnLOADLOC9() {
-		postOp = 0 ;
+		postOp = 0;
 		if (stack[9] != null) {
 			stack[sp++] = stack[9];
 		} else {
@@ -1175,7 +1176,7 @@ public class RVMRun {
 	}
 
 	public void insnLOADLOC(int i) {
-		postOp = 0 ;
+		postOp = 0;
 		if (stack[i] != null) {
 			stack[sp++] = stack[i];
 		} else {
@@ -1296,7 +1297,7 @@ public class RVMRun {
 	}
 
 	public void insnLOADVAR(int scopeid, int pos, boolean maxArg2) {
-		postOp = 0 ;
+		postOp = 0;
 		Object rval;
 
 		if (maxArg2) {
@@ -1767,7 +1768,6 @@ public class RVMRun {
 		return;
 	}
 
-
 	public void insnCALLJAVA(int m, int c, int p, int r) {
 		postOp = 0;
 		String methodName = ((IString) cf.function.constantStore[m]).getValue();
@@ -2216,31 +2216,32 @@ public class RVMRun {
 		sp = cf.sp;
 		pc = cf.pc;
 	}
-	///  JVM Helper methods 
+
+	// / JVM Helper methods
 	public Object dynRun(String fname, IValue[] args) {
 		int n = functionMap.get(fname);
-		
+
 		Function func = functionStore.get(n);
-		
+
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
 		cf = root;
-		
+
 		stack = cf.stack;
-		
+
 		cf.stack[0] = vf.list(args); // pass the program argument to
 		cf.stack[1] = vf.mapWriter().done();
-		
-		sp = func.nlocals ;
-		cf.sp = this.sp  ;
-		
+
+		sp = func.nlocals;
+		cf.sp = this.sp;
+
 		return dynRun(n);
 	}
-	
+
 	public Object dynRun(int n) {
 		System.out.println("Unimplemented Base called !");
 		return PANIC;
 	}
-	
+
 	public Object return1Helper() {
 		Object rval = null;
 		if (cf.isCoroutine) {
@@ -2259,7 +2260,7 @@ public class RVMRun {
 		cf = cf.previousCallFrame;
 		return rval;
 	}
-	
+
 	public void jvmINIT(int arity) {
 		Object src = stack[--sp];
 		if (src instanceof Coroutine) {
@@ -2304,7 +2305,7 @@ public class RVMRun {
 
 		stack = cf.stack;
 		sp = cf.sp;
-		dynRun(cccf.function.funId) ;
+		dynRun(cccf.function.funId);
 	}
 
 	public int typeSwitchHelper() {
@@ -2328,28 +2329,79 @@ public class RVMRun {
 		} else {
 			throw new RuntimeException("Guard's expression has to be boolean!");
 		}
-		return precondition ;
+		return precondition;
 	}
 
-	public void jvmCALL(int funid, int arity) {
-		Frame tmp;
-		cf.pc = pc;
-		Function fun = functionStore.get(funid);
-		// In case of partial parameter binding
-		if (arity < fun.nformals) {
-			FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
-			sp = sp - arity;
-			stack[sp++] = fun_instance;
-			return;
+	public void yieldHelper(int arity2, int ep) {
+		// Stores a Rascal_TRUE value in the stack of the NEXT? caller.
+		// The inline yield does the return
+		Coroutine coroutine = activeCoroutines.pop();
+		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+
+		coroutine.start.previousCallFrame.stack[coroutine.start.previousCallFrame.sp++] = Rascal_TRUE;
+
+		int[] refs = cf.function.refs;
+
+		for (int i = 0; i < arity2; i++) {
+			Reference ref = (Reference) stack[refs[arity2 - 1 - i]];
+			ref.stack[ref.pos] = stack[--sp];
 		}
-		tmp = cf.getFrame(fun, root, arity, sp);
+
+		cf.hotEntryPoint = ep;
+		cf.sp = sp;
+		
+		coroutine.frame     = cf ;
+		coroutine.suspended = true;
+				
+		cf = cf.previousCallFrame;
+		sp = cf.sp;
+		stack = cf.stack;
+	}
+
+	public Object callHelper(int funid, int arity, int ep) {
+		Frame tmp;
+		Function fun;
+		Object rval;
+
+		if (cf.hotEntryPoint != ep) {
+			fun = functionStore.get(funid);
+			// In case of partial parameter binding
+			if (arity < fun.nformals) {
+				FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
+				sp = sp - arity;
+				stack[sp++] = fun_instance;
+				return NONE;
+			}
+			tmp = cf.getFrame(fun, root, arity, sp);
+			cf.nextFrame = tmp;
+		} else {
+			tmp = cf.nextFrame;
+			fun = tmp.function;
+		}
 		this.cf = tmp;
 		this.stack = cf.stack;
 		this.sp = cf.sp;
-		dynRun(fun.funId) ;
+
+		rval = dynRun(fun.funId); // In a inline version we can call directly.
+
+		if (rval.equals(YIELD1)) {
+			// drop my stack
+			cf.hotEntryPoint = ep ;
+			cf.sp = sp ;
+			
+			cf = cf.previousCallFrame ;
+			sp = cf.sp ;
+			stack = cf.stack ;
+			return YIELD1;   // Will cause the inline call to return YIELD
+		} else {
+			cf.nextFrame = null ; // Allow GC to clean
+			return NONE;     // Inline call wil continue execution
+		}
 	}
-	
+
 	public void jvmNEXT0() {
+		Frame scf = cf ; // TODO: This is a hack to leave the interpreter working, and not changing the
+						 // working of coroutine.suspend().
 		Coroutine coroutine = (Coroutine) stack[--sp];
 
 		// Merged the hasNext and next semantics
@@ -2362,50 +2414,89 @@ public class RVMRun {
 		ccf = coroutine.start;
 		coroutine.next(cf);
 
+		// Push something on the stack of the prev yiellding function
 		coroutine.frame.stack[coroutine.frame.sp++] = null;
 
 		cf.sp = sp;
 
+		coroutine.frame.previousCallFrame = cf ;
+		
 		cf = coroutine.frame;
+		
 		stack = cf.stack;
 		sp = cf.sp;
-		dynRun(coroutine.frame.function.funId);
+		Object result = dynRun(coroutine.frame.function.funId);
+		if (!result.equals(YIELD1))
+			System.out.println("Next did not recieve yield!");
+		
+		cf = scf ;
+		sp = cf.sp ;
+		stack = cf.stack ;
 	}
+	
+	public Object exhaustHelper() {
+		if (cf == ccf) {
+			activeCoroutines.pop();
+			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+		}
 
+		cf = cf.previousCallFrame;
+		if (cf == null) {
+			return Rascal_FALSE ; 
+		}
+		stack = cf.stack;
+		sp = cf.sp;
+		stack[sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE,
+		
+		return NONE ;// i.e., signal a failure;
+	}
+	
 	// Next methods are for debug only. Single step..
 	public void dinsnTYPESWITCH(int target) {
-		jmpTarget = target ;
+		jmpTarget = target;
 	}
 
 	public void dinsnJMPTRUE(int target) {
-		jmpTarget = target ;
-	}
-	public void dinsnJMPFALSE(int target) {
-		jmpTarget = target ;
-	}
-	public void dinsnJMP(int target) {
-		jmpTarget = target ;
-	}
-	public void dinsnPOP() {
-		prevSP = sp ;
-	}
-	public void dinsnGUARD() {
-		prevSP = sp ;
-	}
-	public void dinsnEXHAUST() {
-		prevSP = sp ;
-	}
-	public void dinsnOCALL(int target) {
-		jmpTarget = target ;
-	}
-	public void dinsnCALL(int target) {
-		jmpTarget = target ;
-	}
-	public void dinsnLOADCON(int target) {
-		jmpTarget = target ;
-	}
-	public void dinsnLOADLOC3() {
-		jmpTarget = 3 ;
+		jmpTarget = target;
 	}
 
+	public void dinsnYIELD1(int target) {
+		jmpTarget = target;
+	}
+
+	public void dinsnJMPFALSE(int target) {
+		jmpTarget = target;
+	}
+
+	public void dinsnJMP(int target) {
+		jmpTarget = target;
+	}
+
+	public void dinsnPOP() {
+		prevSP = sp;
+	}
+
+	public void dinsnGUARD() {
+		prevSP = sp;
+	}
+
+	public void dinsnEXHAUST() {
+		prevSP = sp;
+	}
+
+	public void dinsnOCALL(int target) {
+		jmpTarget = target;
+	}
+
+	public void dinsnCALL(int target) {
+		jmpTarget = target;
+	}
+
+	public void dinsnLOADCON(int target) {
+		jmpTarget = target;
+	}
+
+	public void dinsnLOADLOC3() {
+		jmpTarget = 3;
+	}
 }

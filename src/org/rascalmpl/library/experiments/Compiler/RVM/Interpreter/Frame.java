@@ -10,8 +10,12 @@ public class Frame {
 	public int scopeId;
     public Frame previousCallFrame;
     public final Frame previousScope;
-	public final Object[] stack;
-	public int   hotEntryPoint = 0 ;
+    
+    // Coroutine reentry.
+    public Frame nextFrame ;
+    public int   hotEntryPoint = 0 ;
+	
+    public final Object[] stack;
 	public int sp;
 	int pc;
 	public final Function function;
