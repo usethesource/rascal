@@ -490,39 +490,37 @@ coroutine MATCH_ANTI(pat, iSubject) {
 // The algorithm has as parameters:
 // - a list of patterns "pats"
 // - a function "accept" that returns true when we have achieved a complete match of the subject
-// - the subject "iSubject" itself
-// - a value "progress" that determines the progress of the match.
+// - the subject "subject" itself
 
-coroutine MATCH_COLLECTION(pats,     // Coroutines to match collection elements
-                           accept,   // Function that accepts a complete match
-	                       iSubject, // The subject (a collection like list or set)
-	                       progress  // Progress of the match
-	                       ) {	
-    var patlen = size_array(pats),  
-        j = 0,
-        matchers
-    
+coroutine MATCH_COLLECTION(pats,       // Coroutines to match collection elements
+                           accept,     // Function that accepts a complete match
+	                       subject     // The subject (a collection like list or set, together with optional admin)
+	                       ) {
+	var patlen = size_array(pats),     // Length of pattern array
+        j = 0,                         // Cursor in patterns
+        matchers                       // Currently active pattern matchers
+        
     if(patlen == 0) {
-        if(accept(iSubject, progress)) {
+        if(accept(subject)) {
             yield 
         }
         exhaust
     }
     
-    matchers = make_array(patlen); 
-    matchers[j] = create(pats[j], iSubject, ref progress)
-    while(true){
-        while(next(matchers[j])) {   // Move forward
-            if((j == patlen - 1) && accept(iSubject, progress)) {
+    matchers = make_array(patlen)
+    matchers[j] = create(pats[j], ref subject)   
+    while(true) {
+        while(next(matchers[j])) {                       // Move forward
+            if((j == patlen - 1) && accept(subject)) {
                 yield 
             } else {
-                if(j < patlen - 1){
+                if(j < patlen - 1) {
                     j = j + 1
-                    matchers[j] = create(pats[j], iSubject, ref progress)
+                    matchers[j] = create(pats[j], ref subject)
                 }  
             }
         } 
-        if(j > 0) {                  // If possible, move backward
+        if(j > 0) {                                      // If possible, move backward
             j  = j - 1
         } else {
             exhaust
@@ -534,240 +532,313 @@ coroutine MATCH_COLLECTION(pats,     // Coroutines to match collection elements
 /*					List matching  												  		  */
 /******************************************************************************************/
 
-
 // List matching creates a specific instance of MATCH_COLLECTION
 
-coroutine MATCH_LIST(pats, iSubject) guard iSubject is list {
-    MATCH_COLLECTION(pats, Library::ACCEPT_LIST_MATCH::2, iSubject, 0)
+coroutine MATCH_LIST(pats, iList) guard iList is list {
+    var subject = MAKE_SUBJECT(iList, 0)
+    MATCH_COLLECTION(pats, Library::ACCEPT_LIST_MATCH::1, subject)
 }
 
 // A list match is acceptable when the cursor points at the end of the list
 
-function ACCEPT_LIST_MATCH(iSubject, cursor) {
-    return size(iSubject) == cursor
+function ACCEPT_LIST_MATCH(subject) {
+   return size_list(GET_LIST(subject)) == GET_CURSOR(subject)
 }
 
+function GET_LIST(subject) { 
+    return subject[0] 
+}
+
+function GET_CURSOR(subject) { 
+    return subject[1] 
+}
+
+function MAKE_SUBJECT(iList, cursor) {
+   var ar = make_array(2)
+   ar[0] = iList
+   ar[1] = cursor
+   return ar
+}
 
 // All coroutines that may occur in a list pattern have the following parameters:
 // - pat: the actual pattern to match one or more list elements
-// - iSubject: the subject list
-// - rNext: reference variable to return next cursor position
-// [- available: the number of remaining, unmatched, elements in the subject list <== has disappeared]
+// - subject: a tuple consiting of
+//   -- iSubject: the subject list
+//   -- cursor: current position in subject list
 
 // Any pattern in a list not handled by a special case
 
-coroutine MATCH_PAT_IN_LIST(pat, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } { 
-    var cpat = create(pat, get_list(iSubject, start))
+coroutine MATCH_PAT_IN_LIST(pat, rSubject) 
+guard { 
+    var iList = GET_LIST(deref rSubject), 
+        start = GET_CURSOR(deref rSubject)
+    start < size_list(iList) 
+} 
+{ 
+    var cpat = create(pat, get_list(iList, start))
     while(next(cpat)) {
-       yield start + 1   
+        yield MAKE_SUBJECT(iList, start + 1)   
     }
+    deref rSubject = MAKE_SUBJECT(iList, start)
 } 
 
 // A literal in a list
 
-coroutine MATCH_LITERAL_IN_LIST(pat, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
-    var elm =  get_list(iSubject, start)  
-    if(equal(pat, elm)) {
-        yield start + 1
+coroutine MATCH_LITERAL_IN_LIST(pat, rSubject) 
+guard { 
+    var iList = GET_LIST(deref rSubject), 
+        start = GET_CURSOR(deref rSubject) 
+    start < size_list(iList) 
+} 
+{
+    var elm = get_list(iList, start)
+    if(equal(pat, elm)){
+        yield MAKE_SUBJECT(iList, start + 1)
     }
+    deref rSubject = MAKE_SUBJECT(iList, start)
 }
 
-coroutine MATCH_VAR_IN_LIST(rVar, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
-    var iElem = get_list(iSubject, start), 
+coroutine MATCH_VAR_IN_LIST(rVar, rSubject) 
+guard { 
+    var iList = GET_LIST(deref rSubject), 
+        start = GET_CURSOR(deref rSubject) 
+    start < size_list(iList) 
+}
+{
+    var iElem = get_list(iList, start), 
         iVal
     if(is_defined(rVar)) {
         iVal = deref rVar
         if(equal(iElem, iVal)) {
-            yield(iElem, start + 1)
+            yield(iElem, MAKE_SUBJECT(iList, start + 1))
         }
         exhaust
     }
-    yield(iElem, start + 1)
+    yield(iElem, MAKE_SUBJECT(iList, start + 1))
     undefine(rVar)
 }
 
-coroutine MATCH_TYPED_VAR_IN_LIST(typ, rVar, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
-    var iElem = get_list(iSubject, start), 
-        iVal
-    if(subtype(typeOf(iElem), typ)) {
-        yield(iElem, start + 1)
-    }
-}
-
-coroutine MATCH_ANONYMOUS_VAR_IN_LIST(iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
-    yield start + 1
-}
-
-coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_LIST(typ, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
-    var iElem = get_list(iSubject, start) 
-    if(subtype(typeOf(iElem), typ)) {
-        yield start + 1
-    }
-}
-
-coroutine MATCH_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext) {
-    var start = deref rNext, 
-        available = size_list(iSubject) - start, 
-        len = mint(iMinLen), 
-        maxLen = min(mint(iMaxLen), available - mint(iLookahead)), 
-        iVal
-    if(is_defined(rVar)) {  
-        iVal = deref rVar                        /* TODO: check length */
-        if(occurs(iVal, iSubject, start)) {
-            yield(iVal, start + size_list(iVal))
-        }
-        exhaust
-    }    
-    while(len <= maxLen) {
-        yield(sublist(iSubject, start, len), start + len)
-        len = len + 1
-    }
-    undefine(rVar)
-}
-
-coroutine MATCH_LAST_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext) 
+coroutine MATCH_TYPED_VAR_IN_LIST(typ, rVar, rSubject) 
 guard { 
-    var start = deref rNext, 
-        available = size_list(iSubject) - start, 
-        len = min(mint(iMaxLen), max(available - mint(iLookahead), 0))
-    len >= 0 
+    var iList = GET_LIST(deref rSubject), 
+        start = GET_CURSOR(deref rSubject) 
+    start < size_list(iList) 
 }
-{    
-    var maxLen = len, 
-        iVal  
+{
+    var iElem = get_list(iList, start)
+    if(subtype(typeOf(iElem), typ)) {
+        yield(iElem, MAKE_SUBJECT(iList, start + 1))
+    }
+    deref rSubject = MAKE_SUBJECT(iList, start)
+}
+
+coroutine MATCH_ANONYMOUS_VAR_IN_LIST(rSubject) 
+guard { 
+    var iList = GET_LIST(deref rSubject), 
+        start = GET_CURSOR(deref rSubject)
+    start < size_list(iList) 
+}
+{
+    yield MAKE_SUBJECT(iList, start + 1)
+    deref rSubject = MAKE_SUBJECT(iList, start)
+}
+
+coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_LIST(typ, rSubject) 
+guard { 
+    var iList = GET_LIST(deref rSubject), 
+        start = GET_CURSOR(deref rSubject)
+    start < size_list(iList) 
+}
+{
+    var iElem = get_list(iList, start)
+    if(subtype(typeOf(iElem), typ)) {
+        yield MAKE_SUBJECT(iList, start + 1)
+    }
+    deref rSubject = MAKE_SUBJECT(iList, start)
+}
+
+coroutine MATCH_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, rSubject) {
+    var iList = GET_LIST(deref rSubject), 
+        start =  GET_CURSOR(deref rSubject), 
+        available = size_list(iList) - start, 
+        len = mint(iMinLen), 
+        maxLen = min(mint(iMaxLen), available - mint(iLookahead)),
+        iVal       
     if(is_defined(rVar)) {
-        iVal = deref rVar                        /* TODO: check length */
-        if(occurs(iVal, iSubject, start)) {
-            yield(iVal, start + size_list(iVal))
+        iVal = deref rVar                /* TODO: check length */
+        if(occurs(iVal, iList, start)) {
+            yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)))
         }
+        deref rSubject = MAKE_SUBJECT(iList, start)
         exhaust
-    }   
-    while(len <= maxLen) {	                     // TODO: loop?
-        yield(sublist(iSubject, start, len), start + len)
+    }  
+    while(len <= maxLen) {
+        yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len))
         len = len + 1
     }
+    deref rSubject = MAKE_SUBJECT(iList, start)
     undefine(rVar)
 }
 
-coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST(iMinLen, iMaxLen, iLookahead, iSubject, rNext) {
-    var start = deref rNext, 
-        available = size_list(iSubject) - start, 
-        len = mint(iMinLen)
+coroutine MATCH_LAST_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, rSubject) 
+guard { 
+    var iList = GET_LIST(deref rSubject), 
+        start =  GET_CURSOR(deref rSubject), 
+        available = size_list(iList) - start, 
+        len = min(mint(iMaxLen), max(available - mint(iLookahead), 0))
+    len >= 0
+}
+{
+    var maxLen = len, 
+        iVal
+    if(is_defined(rVar)) {
+        
+        iVal = deref rVar                /* TODO: check length */
+        if(occurs(iVal, iList, start)) {
+            yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)))
+        }
+        deref rSubject = MAKE_SUBJECT(iList, start)
+        exhaust
+    }  
+    while(len <= maxLen) {               // TODO: loop?
+        yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len))
+        len = len + 1
+    }
+    deref rSubject = MAKE_SUBJECT(iList, start)
+    undefine(rVar)
+}
+
+coroutine MATCH_ANONYMOUS_MULTIVAR_IN_LIST(iMinLen, iMaxLen, iLookahead, rSubject) {
+    var iList = GET_LIST(deref rSubject), 
+        start =  GET_CURSOR(deref rSubject), 
+        available = size_list(iList) - start, 
+        len = mint(iMinLen) 
     available = min(mint(iMaxLen), available - mint(iLookahead))
     while(len <= available) {
-        yield start + len
+        yield MAKE_SUBJECT(iList, start + len)
         len = len + 1
     }
+    deref rSubject = MAKE_SUBJECT(iList, start)
 }
 
-coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST(iMinLen, iMaxLen, iLookahead, iSubject, rNext) 
+coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_LIST(iMinLen, iMaxLen, iLookahead, rSubject) 
 guard { 
-    var start = deref rNext, 
-        available = size_list(iSubject) - start, 
-        len = min(mint(iMaxLen), available - mint(iLookahead)) 
-    len >= mint(iMinLen) 
-} 
+    var iList = GET_LIST(deref rSubject), 
+        start =  GET_CURSOR(deref rSubject), 
+        available = size_list(iList) - start,
+        len = min(mint(iMaxLen), available - mint(iLookahead))
+    len >= mint(iMinLen)
+}
 {
     while(len <= available) {
-        yield start + len
+        yield MAKE_SUBJECT(iList, start + len)
         len = len + 1
     }
+    deref rSubject = MAKE_SUBJECT(iList, start)
 }
 
-coroutine MATCH_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext) {
-   var start = deref rNext, 
-       available = size_list(iSubject) - start, 
-       len = mint(iMinLen), 
-       sub 
+coroutine MATCH_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookahead, rSubject) {
+	var iList = GET_LIST(deref rSubject), 
+	    start =  GET_CURSOR(deref rSubject), available = size_list(iList) - start,
+        len = mint(iMinLen), 
+        sub
     available = min(mint(iMaxLen), available - mint(iLookahead))
-    if(subtype(typeOf(iSubject), typ)) {
+    if(subtype(typeOf(iList), typ)) {
         while(len <= available) {
-            yield(sublist(iSubject, start, len), start + len)
+            yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len))
             len = len + 1
         }
     } else {
         while(len <= available) {
-            sub = sublist(iSubject, start, len);
+            sub = sublist(iList, start, len)
             if(subtype(typeOf(sub), typ)) {
-                yield(sub, start + len)
+                yield(sub, MAKE_SUBJECT(iList, start + len))
                 len = len + 1
             } else {
+                deref rSubject = MAKE_SUBJECT(iList, start)
                 exhaust
             }
         }
     }
 }
 
-coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookahead, iSubject, rNext) {
-    var start = deref rNext, 
-        available = size_list(iSubject) - start, 
+coroutine MATCH_LAST_TYPED_MULTIVAR_IN_LIST(typ, rVar, iMinLen, iMaxLen, iLookahead, rSubject) {
+    var iList = GET_LIST(deref rSubject), 
+        start =  GET_CURSOR(deref rSubject), 
+        available = size_list(iList) - start,
         len = mint(iMinLen), 
         elmType
     available = min(mint(iMaxLen), available - mint(iLookahead))
-    if(subtype(typeOf(iSubject), typ)) {
+    if(subtype(typeOf(iList), typ)) {
         while(len <= available) {
-            yield(sublist(iSubject, start, len), start + len)
+            yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len))
             len = len + 1
         }
     } else {
         elmType = elementTypeOf(typ)
         while(len < available) {
-            if(subtype(typeOf(get_list(iSubject, start + len)), elmType)) {
+            if(subtype(typeOf(get_list(iList, start + len)), elmType)) {
                 len = len + 1
             } else {
-                yield(sublist(iSubject, start, len), start + len)
+                yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len))
+                deref rSubject = MAKE_SUBJECT(iList, start)
                 exhaust
             }
         }
-        yield(sublist(iSubject, start, len), start + len)
+        yield(sublist(iList, start, len), MAKE_SUBJECT(iList, start + len))
     }
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLookahead, iSubject, rNext) {
-    var start = deref rNext, 
-        available = size_list(iSubject) - start, 
-        len = mint(iMinLen)  
+coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLookahead, rSubject) {
+    var iList = GET_LIST(deref rSubject), 
+        start =  GET_CURSOR(deref rSubject), 
+        available = size_list(iList) - start,
+        len = mint(iMinLen)
     available = min(mint(iMaxLen), available - mint(iLookahead))
-    if(subtype(typeOf(iSubject), typ)) {
+    if(subtype(typeOf(iList), typ)) {
         while(len <= available) {
-            yield start + len
+            yield MAKE_SUBJECT(iList, start + len)
             len = len + 1
         }
     } else {
         while(len <= available) {
-            if(subtype(typeOf(sublist(iSubject, start, len)), typ)) {
-                yield start + len
+            if(subtype(typeOf(sublist(iList, start, len)), typ)) {
+                yield  MAKE_SUBJECT(iList, start + len)
                 len = len + 1
             } else {
+                deref rSubject = MAKE_SUBJECT(iList, start)
                 exhaust
             }
         }
-    }
+   }
+   deref rSubject = MAKE_SUBJECT(iList, start)
 }
 
-coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLookahead, iSubject, rNext) {
-    var start = deref rNext, 
-        available = size_list(iSubject) - start, 
-        len = mint(iMinLen), 
-        elmType
+coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLookahead, rSubject) {
+    var iList = GET_LIST(deref rSubject), 
+        start =  GET_CURSOR(deref rSubject), 
+        available = size_list(iList) - start,
+        len = mint(iMinLen), elmType
     available = min(mint(iMaxLen), available - mint(iLookahead))
-    if(subtype(typeOf(iSubject), typ)) {
+    if(subtype(typeOf(iList), typ)) {
         while(len <= available) {
-            yield start + len
+            yield MAKE_SUBJECT(iList, start + len)
             len = len + 1
         }
     } else {
         elmType = elementTypeOf(typ)
         while(len < available) {
-            if(subtype(typeOf(get_list(iSubject, start + len)), elmType)) {
+            if(subtype(typeOf(get_list(iList, start + len)), elmType)) {
                 len = len + 1
             } else {
-                yield start + len
+                yield MAKE_SUBJECT(iList, start + len)
+                deref rSubject = MAKE_SUBJECT(iList, start)
                 exhaust
             }
         }
-        yield start + len
+        yield MAKE_SUBJECT(iList, start + len)
     }
+    deref rSubject = MAKE_SUBJECT(iList, start)
 }
 
 // Primitives for matching of concrete list patterns
@@ -827,7 +898,7 @@ coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, ap
             yield(iVal, start + size_list(iVal))
         }
         exhaust
-    }
+    }   
     while(clen <= maxLen) {
         end = start + clen
         yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iSubject, start, clen)), end)
@@ -843,8 +914,8 @@ guard {
         clen = min(mint(iMaxLen), max(cavailable - mint(iLookahead), 0))
     clen >= mint(iMinLen) 
 } 
-{   
-    var iVal, end    
+{
+    var iVal, end
     if(is_defined(rVar)) {
         iVal = deref rVar                         /* TODO: check length */
         if(occurs(iVal, iSubject, start)) {
@@ -859,7 +930,7 @@ guard {
 
 // Skip a separator that may be present before or after a matching multivar
 function SKIP_OPTIONAL_SEPARATOR(iSubject, start, offset, sep, available) {
-    var elm, children, prod, prodchildren   
+    var elm, children, prod, prodchildren
     if(available >= offset + 2) {
         elm = get_list(iSubject, start + offset)
         if(elm is node) {
@@ -881,14 +952,14 @@ coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen
         skip_leading_separator = SKIP_OPTIONAL_SEPARATOR(iSubject, start, 0, sep, cavailable), 
         skip_trailing_separator = 0, 
         maxLen = max(cavailable - (mint(iLookahead) + skip_leading_separator), 0),
-        iVal, sublen, end	  	
+        iVal, sublen, end		 	
     if(is_defined(rVar)) {
         iVal = deref rVar
         if(occurs(iVal, iSubject, start)) {	     // TODO: check length
             yield(iVal, start + size_list(iVal))
         }
         exhaust
-    }  
+    }
     while(len <= maxLen) {
         if(len == 0) {
             sublen = 0
@@ -910,7 +981,7 @@ guard {
         cavailable = size(iSubject) - start, 
         skip_leading_separator =  SKIP_OPTIONAL_SEPARATOR(iSubject, start, 0, sep, cavailable), 
         skip_trailing_separator = 0,
-        sublen = max(cavailable - (mint(iLookahead) + skip_leading_separator), 0)      
+        sublen = max(cavailable - (mint(iLookahead) + skip_leading_separator), 0)          
     {
         if(mint(iLookahead) > 0 && sublen >= 2) {
             // skip trailing separator
@@ -948,14 +1019,14 @@ function MAKE_CONCRETE_LIST(applConstr, listProd, applProd, elms) {
 coroutine MATCH_SET(iLiterals, pats, iSubject) guard iSubject is set {
     if(subset(iLiterals, iSubject)) {
         iSubject = prim("set_subtract_set", iSubject, iLiterals)
-        MATCH_COLLECTION(pats, Library::ACCEPT_SET_MATCH::2, mset(iSubject), mset(iSubject))
+        MATCH_COLLECTION(pats, Library::ACCEPT_SET_MATCH::1, mset(iSubject))
     }
 }
 
 // A set match is acceptable when the set of remaining elements is empty
 
-function ACCEPT_SET_MATCH(iSubject, remaining) {
-    return size_mset(remaining) == 0
+function ACCEPT_SET_MATCH(subject) {
+   return size_mset(subject) == 0
 }
 
 coroutine ENUM_MSET(set, rElm) {
@@ -973,151 +1044,150 @@ coroutine ENUM_MSET(set, rElm) {
 // - available: the remaining, unmatched, elements in the subject set
 // - rRemaining: reference parameter to return remaining set elements
 
-coroutine MATCH_PAT_IN_SET(pat, available, rRemaining) guard size_mset(available) > 0 {
+coroutine MATCH_PAT_IN_SET(pat, rSubject) guard { var available = deref rSubject; size_mset(available) > 0 } {
     var gen = create(ENUM_MSET, available, ref elm), 
         cpat, elm
     while(next(gen)) {
         cpat = create(pat, elm)
         while(next(cpat)) {
-            yield mset_destructive_subtract_elm(available, elm)
-            available = mset_destructive_add_elm(available, elm)
+            yield mset_subtract_elm(available, elm)
+            deref rSubject = available
         }
     }
-   deref rRemaining = available
 }
 
-coroutine MATCH_VAR_IN_SET(rVar, available, rRemaining) guard size_mset(available) > 0 {
-    var gen, elm  
+coroutine MATCH_VAR_IN_SET(rVar, rSubject) guard { var available = deref rSubject; size_mset(available) > 0 } {
+    var elm, gen  
     if(is_defined(rVar)) {
         elm = deref rVar
         if(is_element_mset(elm, available)) {
-            yield(elm, mset_destructive_subtract_elm(available, elm))
-            available = mset_destructive_add_elm(available, elm)
+            yield(elm, mset_subtract_elm(available, elm))
+            deref rSubject = available
         }
         exhaust
     }
     gen = create(ENUM_MSET, available, ref elm)
     while(next(gen)) {
-	    yield(elm, mset_destructive_subtract_elm(available, elm))
-	    available = mset_destructive_add_elm(available, elm)
+	    yield(elm, mset_subtract_elm(available, elm))
+	    deref rSubject = available
     }
     undefine(rVar)
-    deref rRemaining = available
 }
 
-coroutine MATCH_TYPED_VAR_IN_SET(typ, rVar, available, rRemaining) guard size_mset(available) > 0 {
+coroutine MATCH_TYPED_VAR_IN_SET(typ, rVar, rSubject) guard { var available = deref rSubject; size_mset(available) > 0 } {
     var gen = create(ENUM_MSET, available, ref elm),
         elm
     while(next(gen)) {
         if(subtype(typeOf(elm), typ)) {
-            yield(elm, mset_destructive_subtract_elm(available, elm))
-	        available = mset_destructive_add_elm(available, elm)
+            yield(elm, mset_subtract_elm(available, elm))
+	        deref rSubject = available
 	    }
     }
-    deref rRemaining = available
 }
 
-coroutine MATCH_ANONYMOUS_VAR_IN_SET(available, rRemaining) guard size_mset(available) > 0 { 
+coroutine MATCH_ANONYMOUS_VAR_IN_SET(rSubject) guard { var available = deref rSubject; size_mset(available) > 0 } {
     var gen = create(ENUM_MSET, available, ref elm),
         elm
     while(next(gen)) { 
-        yield mset_destructive_subtract_elm(available, elm)
-        available = mset_destructive_add_elm(available, elm)
+        yield mset_subtract_elm(available, elm)
+        deref rSubject = available
    }
-   deref rRemaining = available
 }
 
-coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET(typ, available, rRemaining) guard size_mset(available) > 0 {
-	var gen = create(ENUM_MSET, available, ref elm),
-	    elm
+coroutine MATCH_TYPED_ANONYMOUS_VAR_IN_SET(typ, rSubject) guard { var available = deref rSubject; size_mset(available) > 0 } {
+    var gen = create(ENUM_MSET, available, ref elm),
+        elm
     while(next(gen)) { 
-        if(subtype(typeOf(elm), typ)){
-            yield mset_destructive_subtract_elm(available, elm)
-            available = mset_destructive_add_elm(available, elm)
+        if(subtype(typeOf(elm), typ)) {
+            yield mset_subtract_elm(available, elm)
+            deref rSubject = available
         }
-   }
-   deref rRemaining = available
+    }
 }
 
-coroutine MATCH_MULTIVAR_IN_SET(rVar, available, rRemaining) {
-    var gen, subset
+coroutine MATCH_MULTIVAR_IN_SET(rVar, rSubject) {
+    var available = deref rSubject, 
+        gen, subset
     if(is_defined(rVar)) {
         subset = deref rVar
-        if(subset_set_mset(subset, available)){
-            yield(subset, mset_destructive_subtract_set(available, subset))
-            available = mset_destructive_add_mset(available, subset)
+        if(subset_set_mset(subset, available)) {
+            yield(subset, mset_subtract_set(available, subset))
+            deref rSubject = available
         }
         exhaust
     }
     gen = create(ENUM_SUBSETS, available, ref subset)
     while(next(gen)) {
-	    yield(set(subset), mset_destructive_subtract_mset(available, subset))
-	    available = mset_destructive_add_mset(available, subset)
+	    yield(set(subset), mset_subtract_mset(available, subset))
+	    deref rSubject = available
     }
-    deref rRemaining = available
     undefine(rVar)
 }
 
-coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET(available, rRemaining) {
-    var gen = create(ENUM_SUBSETS, available, ref subset),
+coroutine MATCH_ANONYMOUS_MULTIVAR_IN_SET(rSubject) {
+    var available = deref rSubject, 
+        gen = create(ENUM_SUBSETS, available, ref subset),
         subset
     while(next(gen)) {
-	    yield mset_destructive_subtract_mset(available, subset)
-	    available = mset_destructive_add_mset(available, subset)
+	    yield mset_subtract_mset(available, subset)
+	    deref rSubject = available
     }
-    deref rRemaining = available
 }
 
-coroutine MATCH_LAST_MULTIVAR_IN_SET(rVar, available, rRemaining) {
-    var subset
+coroutine MATCH_LAST_MULTIVAR_IN_SET(rVar, rSubject) {
+    var available = deref rSubject, 
+        subset
     if(is_defined(rVar)) {
-        subset = deref rVar;
+        subset = deref rVar
         if(equal_set_mset(subset, available)) {
-            yield(subset,  mset_empty());
+            yield(subset, mset_empty())
+            deref rSubject = available
         }
         exhaust
     }
     yield(set(available), mset_empty())
-    deref rRemaining = available
+    deref rSubject = available
     undefine(rVar)
 }
 
-coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_SET(available, rRemaining) {
+coroutine MATCH_LAST_ANONYMOUS_MULTIVAR_IN_SET(rSubject) {
+    var available = deref rSubject
     yield mset_empty()
+    deref rSubject = available
 }
 
-coroutine MATCH_TYPED_MULTIVAR_IN_SET(typ, rVar, available, rRemaining) {    
-    var gen = create(ENUM_SUBSETS, available, ref subset), 
-        subset, iSubset, tmp
-    while(next(gen)) {
-        iSubset = set(subset)
-        if(subtype(typeOf(iSubset), typ)) {
-            tmp = mset_destructive_subtract_mset(available, subset)
-	        yield(iSubset, tmp)
-	        available = mset_destructive_add_mset(available, subset)
-	    }
-    }
-    deref rRemaining = available
-}
-
-coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET(typ, available, rRemaining) {
-    var gen = create(ENUM_SUBSETS, available, ref subset),
+coroutine MATCH_TYPED_MULTIVAR_IN_SET(typ, rVar, rSubject) { 
+    var available = deref rSubject, 
+        gen = create(ENUM_SUBSETS, available, ref subset),
         subset
     while(next(gen)) {
         if(subtype(typeOfMset(subset), typ)) {
-            yield mset_destructive_subtract_mset(available, subset)
-	        deref rRemaining = mset_destructive_add_mset(available, subset)
+            yield(set(subset), mset_subtract_mset(available, subset))
+	        deref rSubject = available
 	    }
     }
-    deref rRemaining = available
 }
 
-coroutine MATCH_LAST_TYPED_MULTIVAR_IN_SET(typ, rVar, available, rRemaining) guard subtype(typeOfMset(available), typ) {
+coroutine MATCH_TYPED_ANONYMOUS_MULTIVAR_IN_SET(typ, rSubject) {
+    var available = deref rSubject, 
+        gen = create(ENUM_SUBSETS, available, ref subset),
+        subset
+    while(next(gen)) {
+        if(subtype(typeOfMset(subset), typ)) {
+            yield mset_subtract_mset(available, subset)
+	        deref rSubject = available
+	    }
+    }
+}
+
+coroutine MATCH_LAST_TYPED_MULTIVAR_IN_SET(typ, rVar, rSubject) guard { var available = deref rSubject; subtype(typeOfMset(available), typ) } {
     yield(set(available), mset_empty())
+    deref rSubject = available
 }
 
-coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET(typ, available, rRemaining) guard subtype(typeOfMset(available), typ) {
+coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET(typ, rSubject) guard { var available = deref rSubject; subtype(typeOfMset(available), typ) } {
     yield mset_empty()
+    deref rSubject = available
 }
 
 // The power set of a set of size n has 2^n-1 elements 
@@ -1129,7 +1199,7 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_SET(typ, available, rRemaining)
 coroutine ENUM_SUBSETS(set, rSubset) {
     var lst = mset2list(set), 
         last = 2 pow size_mset(set), 
-        k = last - 1, 
+        k = last - 1,
         j, elIndex, sub
     while(k >= 0) {
         j = k

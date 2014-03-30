@@ -19,7 +19,11 @@ import Message;
 import ParseTree;
 
 import lang::rascal::types::AbstractName;
+import lang::rascal::types::ConvertType;
 import lang::rascal::\syntax::Rascal;
+
+@doc{Annotation for parameterized types indicating whether the bound was explicitly given.}
+public anno bool Symbol@boundGiven;
 
 @doc{Extension to add new types used internally during name resolution and checking.}
 public data Symbol =
@@ -253,10 +257,10 @@ public Symbol makeFunctionTypeFromTuple(Symbol retType, bool isVarArgs, Symbol p
 public Symbol makeReifiedType(Symbol mainType) = \reified(mainType);
 
 @doc{Create a type representing a type parameter (type variable).}
-public Symbol makeTypeVar(str varName) = \parameter(varName, \value());
+public Symbol makeTypeVar(str varName) = \parameter(varName, \value())[@boundGiven=false];
 
 @doc{Create a type representing a type parameter (type variable) and bound.}
-public Symbol makeTypeVarWithBound(str varName, Symbol varBound) = \parameter(varName, varBound);
+public Symbol makeTypeVarWithBound(str varName, Symbol varBound) = \parameter(varName, varBound)[@boundGiven=true];
 
 @doc{Unwraps aliases, parameters, and labels from around a type.}
 public Symbol unwrapType(\alias(_,_,at)) = unwrapType(at);
@@ -334,7 +338,7 @@ public Symbol getTypeVarBound(Symbol t) {
 
 @doc{Get all the type variables inside a given type.}
 public set[Symbol] collectTypeVars(Symbol t) {
-    return { rt | / Symbol rt : \parameter(_,_) <- t };
+    return { rt | / Symbol rt : \parameter(_,_) := t };
 }
 
 @doc{Provide an initial type map from the variables in the type to void.}

@@ -102,7 +102,8 @@ data Instruction =
 		| TYPESWITCH(list[str] labels)				// Switch on type. Takes the type of the value on the stack and  jumps to the corresponding label in the list
 		| JMPINDEXED(list[str] labels)				// Computed jump. Takes an integer i from the stack and jumps to the i-th label in the list
 		
-		| INIT(int arity)							// Initialize co-routine on top-of-stack.
+		| CREATE(str fuid, int arity)               // Creates a co-routine instance 
+		| CREATEDYN(int arity)					    // Creates a co-routine instance from the co-routine on top-of-stack.
 		| NEXT0()									// Next operation (without argument) on co-routine on top-of-stack
 		| NEXT1()									// Next operation (with argument) on co-routine on top-of-stack
 		| YIELD0()									// Yield from co-routine without value

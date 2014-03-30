@@ -835,6 +835,9 @@ public enum MuPrimitive {
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 2;
 			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+			if(mset == emptyMset){
+				mset = (HashSet<IValue>) emptyMset.clone();
+			}
 			IValue elm = ((IValue) stack[sp - 1]);
 			mset.add(elm);
 			stack[sp - 2] = mset;
@@ -847,6 +850,9 @@ public enum MuPrimitive {
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 2;
 			HashSet<IValue> lhs = (HashSet<IValue>) stack[sp - 2];
+			if(lhs == emptyMset){
+				lhs = (HashSet<IValue>) emptyMset.clone();
+			}
 			// lhs = (HashSet<IValue>) lhs.clone();
 			HashSet<IValue> rhs = (HashSet<IValue>) stack[sp - 1];
 			lhs.addAll(rhs);
@@ -899,7 +905,35 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	mset_subtract_mset {
+		@Override
+		@SuppressWarnings("unchecked")
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			HashSet<IValue> lhs = (HashSet<IValue>) stack[sp - 2];
+			lhs = (HashSet<IValue>) lhs.clone();
+			HashSet<IValue> rhs = (HashSet<IValue>) stack[sp - 1];
+			lhs.removeAll(rhs);
+			stack[sp - 2] = lhs;
+			return sp - 1;
+		};
+	},
 	mset_destructive_subtract_set {
+		@Override
+		@SuppressWarnings("unchecked")
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+			mset = (HashSet<IValue>) mset.clone();
+			ISet set = ((ISet) stack[sp - 1]);
+			for (IValue v : set) {
+				mset.remove(v);
+			}
+			stack[sp - 2] = mset;
+			return sp - 1;
+		};
+	},
+	mset_subtract_set {
 		@Override
 		@SuppressWarnings("unchecked")
 		public int execute(Object[] stack, int sp, int arity) {
@@ -921,6 +955,19 @@ public enum MuPrimitive {
 			assert arity == 2;
 			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
 			// mset = (HashSet<IValue>) mset.clone();
+			IValue elm = ((IValue) stack[sp - 1]);
+			mset.remove(elm);
+			stack[sp - 2] = mset;
+			return sp - 1;
+		};
+	},
+	mset_subtract_elm {
+		@Override
+		@SuppressWarnings("unchecked")
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+			mset = (HashSet<IValue>) mset.clone();
 			IValue elm = ((IValue) stack[sp - 1]);
 			mset.remove(elm);
 			stack[sp - 2] = mset;
@@ -1245,6 +1292,22 @@ public enum MuPrimitive {
 				stack[sp - 1] = TypeFactory.getInstance().integerType();
 			} else {
 				stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+			}
+			return sp;
+		};
+	},
+	typeOfMset {
+		@SuppressWarnings("unchecked")
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 1;
+			if (stack[sp - 1] instanceof HashSet) {
+				HashSet<IValue> mset =  (HashSet<IValue>) stack[sp - 1];
+				Type elmType = TypeFactory.getInstance().voidType();
+				for (IValue elm : mset) {
+					elmType = elm.getType().lub(elmType);
+				}
+				stack[sp - 1] = TypeFactory.getInstance().setType(elmType);
 			}
 			return sp;
 		};

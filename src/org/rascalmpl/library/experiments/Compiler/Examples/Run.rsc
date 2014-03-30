@@ -81,6 +81,7 @@ import experiments::Compiler::Examples::WhilePlusBacktracking;
 import experiments::Compiler::Examples::IsTrio;
 import experiments::Compiler::Examples::Or;
 import experiments::Compiler::Examples::AnotherOr;
+import experiments::Compiler::Examples::NestedOr;
 import experiments::Compiler::Examples::WeirdAppend;
 
 import experiments::Compiler::Examples::IMP3;
@@ -181,6 +182,7 @@ test bool tst() = demo("WhilePlusBacktracking") == experiments::Compiler::Exampl
 test bool tst() = demo("IsTrio") == experiments::Compiler::Examples::IsTrio::main([]);
 test bool tst() = demo("Or") == experiments::Compiler::Examples::Or::main([]);
 test bool tst() = demo("AnotherOr") == experiments::Compiler::Examples::AnotherOr::main([]);
+test bool tst() = demo("NestedOr") == experiments::Compiler::Examples::NestedOr::main([]);
 test bool tst() = demo("WeirdAppend") == experiments::Compiler::Examples::WeirdAppend::main([]);
 
 // Keyword parameters
