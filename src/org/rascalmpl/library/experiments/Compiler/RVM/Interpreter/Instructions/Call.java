@@ -7,11 +7,13 @@ public class Call extends Instruction {
 
 	final String fuid;
 	final int arity;
+	int continuationPoint ; 
 
-	public Call(CodeBlock ins, String fuid, int arity) {
+	public Call(CodeBlock ins, String fuid, int arity, int continuationPoint) {
 		super(ins, Opcode.CALL);
 		this.fuid = fuid;
 		this.arity = arity;
+		this.continuationPoint = continuationPoint ;
 	}
 
 	public String toString() {
@@ -24,8 +26,7 @@ public class Call extends Instruction {
 		if (dcode)
 			codeEmittor.emitCall("dinsnCALL", codeblock.getFunctionIndex(fuid));
 
-		codeEmittor.emitCall("jvmCALL", codeblock.getFunctionIndex(fuid), arity);
+		codeEmittor.emitInlineCall(codeblock.getFunctionIndex(fuid), arity, continuationPoint,dcode) ;
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), arity);
 	}
-
 }

@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -145,16 +146,6 @@ public class RVMRunBody extends RVMRun {
 
 	}
 
-	public Object EXHAUST() {
-		cf = cf.previousCallFrame;
-		if (cf == null) {
-			return Rascal_FALSE;
-		}
-		stack = cf.stack;
-		sp = cf.sp;
-		stack[sp++] = Rascal_FALSE;
-		return NONE;
-	}
 
 	public void name(int b, String g) {
 		name(b, g);
@@ -175,7 +166,7 @@ public class RVMRunBody extends RVMRun {
 	public Object doreturn1() {
 		Object rval = return1Helper();
 		if (cf == null) {
-			return rval; // TODO rval;
+			return rval;
 		}
 		stack = cf.stack;
 		sp = cf.sp;
@@ -245,11 +236,11 @@ public class RVMRunBody extends RVMRun {
 		// }
 	}
 
-	public void insnSTORELOC(int target) {
+	public void insnSTORELOC(Object rval, boolean precondition, Coroutine coroutine, Frame prev) {
 		stack[544] = stack[sp - 1];
 	}
 
-	public void insnLOADTYPE(int i) {
+	public void insnLOADTYPE(Object rval, boolean precondition, Coroutine coroutine, Frame prev) {
 		stack[sp++] = cf.function.typeConstantStore[544];
 		return;
 	}
@@ -296,8 +287,8 @@ public class RVMRunBody extends RVMRun {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
-	public void insnTYPESWITCH(int i) {
+
+	public void insnTYPESWITCH(Object rval, boolean precondition, Coroutine coroutine, Frame prev) {
 		switch (typeSwitchHelper()) {
 		case 0:
 			fret();
@@ -305,17 +296,20 @@ public class RVMRunBody extends RVMRun {
 		case 1:
 			fret();
 			break;
-		default: return ;
+		default:
+			return;
 		}
 	}
 
-	public Object jvmGUARD(int ep) {
-		boolean precondition = guardHelper();
-		cf.hotEntryPoint = 909090990 ;
+
+	public Object jvmGUARD(Object rval, boolean precondition, Coroutine coroutine, Frame prev) {
+		precondition = guardHelper();
+		cf.hotEntryPoint = 909090990;
 
 		if (cf == cccf) {
-			Coroutine coroutine = null;
-			Frame prev = cf.previousCallFrame;
+			coroutine = null;
+
+			prev = cf.previousCallFrame;
 			if (precondition) {
 				coroutine = new Coroutine(cccf);
 				coroutine.isInitialized = true;
@@ -328,8 +322,7 @@ public class RVMRunBody extends RVMRun {
 			stack = cf.stack;
 			sp = cf.sp;
 			stack[sp++] = precondition ? coroutine : exhausted;
-			
-			
+
 			return NONE;
 		}
 
@@ -341,8 +334,34 @@ public class RVMRunBody extends RVMRun {
 			stack[sp++] = Rascal_FALSE;
 			return NONE;
 		}
+
+		// Skip nop and below nop.
+		nop();
 		return NONE;
 	}
 
 
+	public Object jvmCallTemplate(Object rval, boolean precondition, Coroutine coroutine, Frame prev, int[] refs) {
+		
+		
+		if ( callHelper(1111, 2222, 3333).equals(YIELD1) ) {
+			return YIELD1 ;
+		}
+
+		// Do not return ;
+		nop() ;
+		return NONE ;
+	}
+	public Object jvmYIELD1(Object rval, boolean precondition, Coroutine coroutine, Frame prev, int[] refs, int i) {
+		
+		yieldHelper(11111,9999) ;
+		if (cf == null) {
+			return Rascal_TRUE; // TODO rval;
+		}
+		return YIELD1;
+	}
+
+	public Object EXHAUST() {
+		return exhaustHelper() ;
+	}
 }

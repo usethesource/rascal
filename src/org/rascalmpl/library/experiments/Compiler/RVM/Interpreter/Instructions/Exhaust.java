@@ -13,7 +13,7 @@ public class Exhaust extends Instruction {
 		if (dcode)
 			codeEmittor.emitCall("dinsnEXHAUST");
 
-		codeEmittor.emitExhaust();
+		codeEmittor.emitInlineExhaust();
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

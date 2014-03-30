@@ -4,6 +4,7 @@ public class Coroutine {
 	
 	public final Frame start; // Stack frame of the main coroutine function 
 	public Frame frame;       // Current active stack frame of the coroutine
+	public Frame entryFrame ; // First stack of calltrace 
 	
 	public boolean suspended = false;
 	public boolean isInitialized = false;

@@ -386,8 +386,8 @@ public class CodeBlock {
 		return add(new LoadInt(this, n));
 	}
 	
-	public CodeBlock CALL(String fuid, int arity){
-		return add(new Call(this, fuid, arity));
+	public CodeBlock CALL(String fuid, int arity, int continuationPoint){
+		return add(new Call(this, fuid, arity, continuationPoint));
 	}
 	
 	public CodeBlock JMP(String arg){
