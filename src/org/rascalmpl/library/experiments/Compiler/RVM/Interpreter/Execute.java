@@ -33,7 +33,7 @@ public class Execute {
 	}
 	
 	String muModuleInit(String moduleName){
-		return   "/#" + moduleName + "_init(1)";
+		return   "/#" + moduleName + "_init";
 	}
 	
 	// Library function to execute a RVM program from Rascal
@@ -50,7 +50,7 @@ public class Execute {
 		String moduleName = ((IString) program.get("name")).getValue();
 		
 		String main = isTestSuite ? "/<moduleName>_testsuite(list(value());)#0" : "/main(list(value());)#0";
-		String mu_main = isTestSuite ? "/TESTSUITE(2)" : "/MAIN(2)";
+		String mu_main = isTestSuite ? "/TESTSUITE" : "/MAIN";
 		
 		String module_init = moduleInit(moduleName);
 		String mu_module_init = muModuleInit(moduleName);
@@ -308,9 +308,13 @@ public class Execute {
 			case "HALT":
 				codeblock.HALT();
 				break;
+				
+			case "CREATE":
+				codeblock.CREATE(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				break;
 
-			case "INIT":
-				codeblock.INIT(getIntField(instruction, "arity"));
+			case "CREATEDYN":
+				codeblock.CREATEDYN(getIntField(instruction, "arity"));
 				break;
 				
 			case "RESET":

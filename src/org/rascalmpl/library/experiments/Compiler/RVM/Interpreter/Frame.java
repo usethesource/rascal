@@ -62,28 +62,40 @@ public class Frame {
 	 */
 	public Frame getCoroutineFrame(Function f, Frame env, int arity, int sp) {
 		Frame frame = new Frame(f.scopeId, null, env, f.maxstack, f);
-		// The main function of a coroutine instance may have formal parameters;
-		// therefore, creation of a coroutine instance may take a number of arguments <= formal parameters
-		if(arity > f.nformals) {
-			throw new RuntimeException("Too many arguments have been passed to create a coroutine instance, expected <= " + f.nformals);
+		if(arity != f.nformals) {
+			throw new RuntimeException("Incorrect number of arguments has been passed to create a coroutine instance, expected: " + f.nformals);
 		}
-		for (int i = arity - 1; i >= 0; i--) {
+		for (int i = 0; i < arity; i++) {
 			frame.stack[i] = stack[sp - arity + i];
 		}
-		frame.sp = arity;
 		this.sp = sp - arity;
+		frame.sp = f.nlocals;
 		return frame;
 	}
 	
 	/**
-	 * Accounts for the case of partial parameter binding,
+	 * Accounts for cases of partial parameter binding,
 	 * creates a new frame (frame) (similar to the method above) to be wrapped inside a coroutine object,
 	 * that gives a coroutine instance to be immediately initialized (i.e., all the coroutine arguments are assumed to be provided)
-	 * 
-	 * Assumption: fun_instance.next + arity == fun_instance.function.nformals
 	 */
 	public Frame getCoroutineFrame(FunctionInstance fun_instance, int arity, int sp) {
-		Frame frame = getFrame(fun_instance.function, fun_instance.env, fun_instance.args, arity, sp);
+		Function f = fun_instance.function;
+		Object[] args = fun_instance.args;
+		Frame frame = new Frame(f.scopeId, this, fun_instance.env, f.maxstack, f);
+		assert fun_instance.next + arity == f.nformals;
+		if(args != null) {
+			for(Object arg : args) {
+				if(arg == null) {
+					break;
+				}
+				frame.stack[frame.sp++] = arg;
+			}
+		}
+		for(int i = 0; i < arity; i++) {
+			frame.stack[frame.sp++] = stack[sp - arity + i];
+		}
+		this.sp = sp - arity;
+		frame.sp = f.nlocals;
 		return frame;
 	}
 	

@@ -48,7 +48,6 @@ anno rel[loc definition, Modifier modifier] M3@modifiers;     // modifiers assoc
 
 M3 composeM3(loc id, set[M3] models) {
   m = m3(id);
-  
   m@declarations = {*model@declarations | model <- models};
   m@uses = {*model@uses | model <- models};
   m@containment = {*model@containment | model <- models};

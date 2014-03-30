@@ -4,7 +4,7 @@ import lang::xml::DOM;
   
 str XFORMS_NAMESPACE = "http://www.w3.org/2002/xforms";
 
-default str nameSpacePrefix() = "xforms";
+default str nameSpacePrefix() = "xf";
 
 Namespace NS = namespace(nameSpacePrefix(), XFORMS_NAMESPACE);
 
