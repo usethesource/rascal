@@ -3,7 +3,6 @@
 bin/**
 tmp/**
 tmp/**/*
-**/*.rvm
 *.tmp
 *.bak
 *.swp

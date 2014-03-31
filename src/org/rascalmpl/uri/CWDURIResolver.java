@@ -43,11 +43,6 @@ public class CWDURIResolver implements IURIInputOutputResolver {
 		return "cwd";
 	}
 
-	@Override
-	public void remove(URI uri) throws IOException {
-	  getAbsolutePath(uri).delete();
-	}
-	
 	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
 		return new FileOutputStream(getAbsolutePath(uri), append);
 	}
