@@ -22,8 +22,5 @@ public interface IURIOutputStreamResolver {
 	String scheme();
 	boolean supportsHost();
 	void mkDirectory(URI uri) throws IOException;
-	void remove(URI uri) throws IOException;
-	
-	@Deprecated
 	URI getResourceURI(URI uri) throws IOException;
 }
