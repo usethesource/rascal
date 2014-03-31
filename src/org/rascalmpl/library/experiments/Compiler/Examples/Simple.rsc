@@ -17,12 +17,12 @@ int fib(int n) = (n == 0) ? 0 : (n == 1) ? 1 : (fib(n-1) + fib(n-2));
 
 value main(list[value] args){
    res = 0;
-   for(i <- [444,555])
+   for(i <- [444,555,666])
       res = res + i;
     return res;
 }
 
-value nonomain(list[value] args){
+value ocallmain(list[value] args){
  	return ocallStress(10) ; // Kills the jvm version with a stackoverflow.
 }
 
@@ -37,6 +37,6 @@ value nononomain(list[value] args){
 	return p ;
 }
 
-value pppppmain(list[value] args){	
+value fibmain(list[value] args){	
  	return fib(25) ;
 }

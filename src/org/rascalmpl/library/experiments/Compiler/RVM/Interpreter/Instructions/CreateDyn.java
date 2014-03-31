@@ -15,7 +15,7 @@ public class CreateDyn extends Instruction {
 	public String toString() { return "CREATEDYN " + arity; }
 	
 	public void generate(Generator codeEmittor, boolean dcode){
-		codeEmittor.emitCall("jvmINIT", arity);
+		codeEmittor.emitCall("jvmCREATEDYN", arity);
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
 		

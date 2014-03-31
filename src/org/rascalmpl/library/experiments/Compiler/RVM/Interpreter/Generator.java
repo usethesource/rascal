@@ -300,7 +300,7 @@ public class Generator implements Opcodes {
 
 	public void emitReturn1() {
 		Label l0 = new Label();
-		
+
 		if (!emit)
 			return;
 		// 0 this
@@ -629,7 +629,8 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "cccf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitFieldInsn(GETFIELD, fullClassName, "cccf",
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 
 		mv.visitJumpInsn(IF_ACMPNE, l0);
 		mv.visitInsn(ACONST_NULL);
@@ -645,7 +646,8 @@ public class Generator implements Opcodes {
 		mv.visitTypeInsn(NEW, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine");
 		mv.visitInsn(DUP);
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "cccf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitFieldInsn(GETFIELD, fullClassName, "cccf",
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine", "<init>",
 				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)V");
 		mv.visitVarInsn(ASTORE, 3);
@@ -655,13 +657,19 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 3);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine", "entryFrame",
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitVarInsn(ALOAD, 3);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine", "suspend",
 				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)V");
 		mv.visitLabel(l1);
-		mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitInsn(ACONST_NULL);
-		mv.visitFieldInsn(PUTFIELD, fullClassName, "cccf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "cccf",
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitInsn(DUP);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
@@ -703,7 +711,8 @@ public class Generator implements Opcodes {
 		mv.visitJumpInsn(GOTO, l3);
 		mv.visitLabel(l2);
 
-		mv.visitFieldInsn(GETSTATIC, fullClassName, "exhausted", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine;");
+		mv.visitFieldInsn(GETSTATIC, fullClassName, "exhausted",
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Coroutine;");
 		mv.visitLabel(l3);
 
 		mv.visitInsn(AASTORE);
@@ -711,7 +720,7 @@ public class Generator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
 		mv.visitLabel(l0);
-
+		mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 		mv.visitVarInsn(ILOAD, 2);
 
 		mv.visitJumpInsn(IFNE, l4);
@@ -751,7 +760,6 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
-
 		mv.visitLabel(l4);
 
 		if (exitLabel != null) { // The label for the hot entry
@@ -979,7 +987,7 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD1", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
-		
+
 		if (exitLabel != null) { // The label for the hot entry
 			// Store reentry label in current frame.
 			System.out.println(currentName + " GU : entrypoint :" + hotEntryPoint);

@@ -304,6 +304,7 @@ public class RVMRunBody extends RVMRun {
 
 	public Object jvmGUARD(Object rval, boolean precondition, Coroutine coroutine, Frame prev) {
 		precondition = guardHelper();
+		
 		cf.hotEntryPoint = 909090990;
 
 		if (cf == cccf) {
@@ -313,6 +314,7 @@ public class RVMRunBody extends RVMRun {
 			if (precondition) {
 				coroutine = new Coroutine(cccf);
 				coroutine.isInitialized = true;
+				coroutine.entryFrame = cf ;
 				coroutine.suspend(cf);
 			}
 			cccf = null;

@@ -2256,51 +2256,41 @@ public class RVMRun {
 		return rval;
 	}
 
-	public void jvmINIT(int arity) {
-		Object src = stack[--sp];
-		if (src instanceof Coroutine) {
-			Coroutine coroutine = (Coroutine) src;
-			Function fun = coroutine.frame.function;
-			if (coroutine.isInitialized()) {
-				throw new RuntimeException("Trying to initialize a coroutine, which has already been initialized: " + fun.getName() + " (corounine's main), called in "
-						+ cf.function.getName());
-			}
-			// The main function of a coroutine may have formal parameters;
-			// therefore, INIT may take a number of arguments equal to formal
-			// parameters minus arguments already passed to CREATE
-			if (arity != fun.nformals - coroutine.frame.sp) {
-				throw new RuntimeException("Too many or too few arguments to INIT, the expected number: " + (fun.nformals - coroutine.frame.sp) + "; coroutine's main: "
-						+ fun.getName() + ", called in " + cf.function.getName());
-			}
-			int nargs = coroutine.frame.sp;
-			cccf = coroutine.start.copy();
-			for (int i = arity - 1; i >= 0; i--) {
-				cccf.stack[nargs + i] = stack[sp - arity + i];
-			}
-			sp = sp - arity;
-			cccf.sp = fun.nlocals;
-		} else if (src instanceof FunctionInstance) {
-			// In case of partial parameter binding
-			FunctionInstance fun_instance = (FunctionInstance) src;
-			Function fun = fun_instance.function;
-			assert fun_instance.next + arity == fun.nformals;
-			cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
-			sp = cf.sp;
-		} else {
-			throw new RuntimeException("Unexpected argument type for INIT: " + src.getClass() + ", " + src);
-		}
-		// Instead of suspending a coroutine instance during INIT, execute it
-		// until GUARD;
-		// Let INIT postpone creation of an actual coroutine instance (delegated
-		// to GUARD), which also implies no stack management of active
-		// coroutines until GUARD;
+	public void jvmCREATE(int fun, int arity) {
+		cccf = cf.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
+
+		sp = cf.sp;
 		cccf.previousCallFrame = cf;
+
 		cf.sp = sp;
+
 		cf = cccf;
 
 		stack = cf.stack;
 		sp = cf.sp;
-		dynRun(cccf.function.funId);
+		dynRun(fun); // Run untill guard, leaves coroutine instance in stack.
+	}
+
+	public void jvmCREATEDYN(int arity) {
+		FunctionInstance fun_instance;
+
+		Object src = stack[--sp];
+
+		if (src instanceof FunctionInstance) {
+			// In case of partial parameter binding
+			fun_instance = (FunctionInstance) src;
+			cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
+		} else {
+			throw new RuntimeException("Unexpected argument type for CREATEDYN: " + src.getClass() + ", " + src);
+		}
+		cf.sp = sp;
+		cccf.previousCallFrame = cf;
+		
+		cf = cccf;
+		stack = cf.stack;
+		sp = cf.sp;
+
+		dynRun(fun_instance.function.funId);
 	}
 
 	public int typeSwitchHelper() {
@@ -2373,6 +2363,8 @@ public class RVMRun {
 			tmp = cf.nextFrame;
 			fun = tmp.function;
 		}
+		tmp.previousCallFrame = cf ;
+		
 		this.cf = tmp;
 		this.stack = cf.stack;
 		this.sp = cf.sp;
@@ -2395,8 +2387,8 @@ public class RVMRun {
 	}
 
 	public void jvmNEXT0() {
-		Frame scf = cf; // TODO: This is a hack to leave the interpreter working, and not changing the
-						// working of coroutine.suspend().
+//		Frame scf = cf; // TODO: This is a hack to leave the interpreter working, and not changing the
+//						// working of coroutine.suspend().
 		Coroutine coroutine = (Coroutine) stack[--sp];
 
 		// Merged the hasNext and next semantics
@@ -2416,17 +2408,17 @@ public class RVMRun {
 
 		coroutine.frame.previousCallFrame = cf;
 
-		cf = coroutine.frame;
+		cf = coroutine.entryFrame;
 
 		stack = cf.stack;
 		sp = cf.sp;
-		Object result = dynRun(coroutine.frame.function.funId);
+		Object result = dynRun(coroutine.entryFrame.function.funId);
 		if (!result.equals(YIELD1))
 			System.out.println("Next did not recieve yield!");
 
-		cf = scf;
-		sp = cf.sp;
-		stack = cf.stack;
+//		cf = scf;
+//		sp = cf.sp;
+//		stack = cf.stack;
 	}
 
 	public Object exhaustHelper() {
