@@ -270,7 +270,7 @@ public class Execute {
 				break;
 
 			case "CALLDYN":
-				codeblock.CALLDYN( getIntField(instruction, "arity"));
+				codeblock.CALLDYN( getIntField(instruction, "arity"),++continuationPoint);
 				break;
 				
 			case "APPLY":

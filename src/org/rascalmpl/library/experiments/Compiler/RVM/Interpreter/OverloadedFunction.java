@@ -30,9 +30,7 @@ public class OverloadedFunction {
 				}
 			}
 			codeEmittor.emitOCallCALL(NameMangler.mangle(fname),funcListIndex++) ;
-			System.out.println("\t" + fname + "  // id " + i);
 		}
 		codeEmittor.emitOCallEnd();
-		System.out.println("}");
 	}
 }

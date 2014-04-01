@@ -73,9 +73,11 @@ public class RVMRun {
 
 	// Management of active coroutines
 	protected Stack<Coroutine> activeCoroutines = new Stack<>();
-	protected Frame ccf = null; // The start frame of the current active coroutine
+	protected Frame ccf = null; // The start frame of the current active
+								// coroutine
 	// (coroutine's main function)
-	protected Frame cccf = null; // The candidate coroutine's start frame; used by the
+	protected Frame cccf = null; // The candidate coroutine's start frame; used
+									// by the
 	// guard semantics
 	IEvaluatorContext ctx;
 
@@ -84,12 +86,14 @@ public class RVMRun {
 
 		@Override
 		public void next(Frame previousCallFrame) {
-			throw new RuntimeException("Internal error: an attempt to activate an exhausted coroutine instance.");
+			throw new RuntimeException(
+					"Internal error: an attempt to activate an exhausted coroutine instance.");
 		}
 
 		@Override
 		public void suspend(Frame current) {
-			throw new RuntimeException("Internal error: an attempt to suspend an exhausted coroutine instance.");
+			throw new RuntimeException(
+					"Internal error: an attempt to suspend an exhausted coroutine instance.");
 		}
 
 		@Override
@@ -104,11 +108,13 @@ public class RVMRun {
 
 		@Override
 		public Coroutine copy() {
-			throw new RuntimeException("Internal error: an attempt to copy an exhausted coroutine instance.");
+			throw new RuntimeException(
+					"Internal error: an attempt to copy an exhausted coroutine instance.");
 		}
 	};
 
-	public RVMRun(IValueFactory vf, IEvaluatorContext ctx, boolean debug, boolean profile) {
+	public RVMRun(IValueFactory vf, IEvaluatorContext ctx, boolean debug,
+			boolean profile) {
 		super();
 
 		this.vf = vf;
@@ -146,7 +152,7 @@ public class RVMRun {
 
 		MuPrimitive.init(vf, stdout, profile);
 		RascalPrimitive.init(vf, this, profile);
-		Opcode.init(stdout, true);
+		Opcode.init(stdout, false);
 	}
 
 	public RVMRun(IValueFactory vf) {
@@ -158,8 +164,9 @@ public class RVMRun {
 	}
 
 	/**
-	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned. Note that various non-IValues can occur: - Coroutine - Reference - FunctionInstance -
-	 * Object[] (is converted to an IList)
+	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that
+	 * can be returned. Note that various non-IValues can occur: - Coroutine -
+	 * Reference - FunctionInstance - Object[] (is converted to an IList)
 	 * 
 	 * @param result
 	 *            to be returned
@@ -187,7 +194,8 @@ public class RVMRun {
 			}
 			return w.done();
 		}
-		throw new RuntimeException("PANIC: Cannot convert object back to IValue: " + result);
+		throw new RuntimeException(
+				"PANIC: Cannot convert object back to IValue: " + result);
 	}
 
 	/**
@@ -221,13 +229,15 @@ public class RVMRun {
 			return w.toString() + " [Object[]]";
 		}
 		if (o instanceof Coroutine) {
-			return "Coroutine[" + ((Coroutine) o).frame.function.getName() + "]";
+			return "Coroutine[" + ((Coroutine) o).frame.function.getName()
+					+ "]";
 		}
 		if (o instanceof Function) {
 			return "Function[" + ((Function) o).getName() + "]";
 		}
 		if (o instanceof FunctionInstance) {
-			return "Function[" + ((FunctionInstance) o).function.getName() + "]";
+			return "Function[" + ((FunctionInstance) o).function.getName()
+					+ "]";
 		}
 		if (o instanceof OverloadedFunctionInstance) {
 			OverloadedFunctionInstance of = (OverloadedFunctionInstance) o;
@@ -296,7 +306,8 @@ public class RVMRun {
 				return ofname;
 			}
 		}
-		throw new RuntimeException("PANIC: undefined overloaded function index " + n);
+		throw new RuntimeException(
+				"PANIC: undefined overloaded function index " + n);
 	}
 
 	public IValue executeFunction(String uid_func, IValue[] args) {
@@ -355,7 +366,8 @@ public class RVMRun {
 		int oldarity = arity;
 		String oldlast_function_name = last_function_name;
 
-		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
+		Frame root = new Frame(func.function.scopeId, null, func.env,
+				func.function.maxstack, func.function);
 		cf = root;
 
 		// Pass the program arguments to main
@@ -443,9 +455,12 @@ public class RVMRun {
 						stdout.printf("[%03d] %s\n", startpc, cf.function.name);
 
 					for (int i = 0; i < sp; i++) {
-						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
+						stdout.println("\t   "
+								+ (i < cf.function.nlocals ? "*" : " ") + i
+								+ ": " + asString(stack[i]));
 					}
-					stdout.printf("%5s %s\n", "", cf.function.codeblock.toString(startpc));
+					stdout.printf("%5s %s\n", "",
+							cf.function.codeblock.toString(startpc));
 				}
 
 				Opcode.use(instruction);
@@ -561,7 +576,8 @@ public class RVMRun {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_CALLMUPRIM:
-					insnCALLMUPRIM(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					insnCALLMUPRIM(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_JMP:
@@ -609,7 +625,8 @@ public class RVMRun {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOAD_NESTED_FUN:
-					insnLOAD_NESTED_FUN(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					insnLOAD_NESTED_FUN(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADOFUN:
@@ -621,33 +638,48 @@ public class RVMRun {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADVAR:
-					insnLOADVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), CodeBlock.isMaxArg2(CodeBlock.fetchArg2(instruction)));
+					insnLOADVAR(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction),
+							CodeBlock.isMaxArg2(CodeBlock
+									.fetchArg2(instruction)));
 					if (postOp == Opcode.POSTOP_CHECKUNDEF)
 						break INSTRUCTION;
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADVARREF:
-					insnLOADVARREF(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), CodeBlock.isMaxArg2(CodeBlock.fetchArg2(instruction)));
+					insnLOADVARREF(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction),
+							CodeBlock.isMaxArg2(CodeBlock
+									.fetchArg2(instruction)));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_LOADVARDEREF:
-					insnLOADVARDEREF(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					insnLOADVARDEREF(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_STOREVAR:
-					insnSTOREVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), CodeBlock.isMaxArg2(CodeBlock.fetchArg2(instruction)));
+					insnSTOREVAR(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction),
+							CodeBlock.isMaxArg2(CodeBlock
+									.fetchArg2(instruction)));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_UNWRAPTHROWNVAR:
-					insnUNWRAPTHROWNVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), CodeBlock.isMaxArg2(CodeBlock.fetchArg2(instruction)));
+					insnUNWRAPTHROWNVAR(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction),
+							CodeBlock.isMaxArg2(CodeBlock
+									.fetchArg2(instruction)));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_STOREVARDEREF:
-					insnSTOREVARDEREF(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					insnSTOREVARDEREF(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_CALLCONSTR:
-					insnCALLCONSTR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					insnCALLCONSTR(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_CALLDYN:
@@ -655,15 +687,18 @@ public class RVMRun {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_CALL:
-					insnCALL(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					insnCALL(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_OCALL:
-					insnOCALL(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					insnOCALL(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_OCALLDYN:
-					insnOCALLDYN(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					insnOCALLDYN(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_FAILRETURN:
@@ -673,19 +708,22 @@ public class RVMRun {
 				case Opcode.OP_RETURN0:
 					insnRETURN0();
 					if (globalReturnValue != null)
-						return globalReturnValue; // Callers stack does not exist in RVM.
+						return globalReturnValue; // Callers stack does not
+													// exist in RVM.
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_RETURN1:
 					insnRETURN1(CodeBlock.fetchArg1(instruction));
 					if (globalReturnValue != null)
-						return globalReturnValue; // Callers stack does not exist in RVM.
+						return globalReturnValue; // Callers stack does not
+													// exist in RVM.
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_FILTERRETURN:
 					insnFILTERRETURN(CodeBlock.fetchArg1(instruction));
 					if (globalReturnValue != null)
-						return globalReturnValue; // Callers stack does not exist in RVM.
+						return globalReturnValue; // Callers stack does not
+													// exist in RVM.
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_CALLJAVA:
@@ -695,7 +733,8 @@ public class RVMRun {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_CREATE:
-					insnCREATE(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					insnCREATE(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_CREATEDYN:
@@ -707,7 +746,8 @@ public class RVMRun {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_APPLY:
-					insnAPPLY(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					insnAPPLY(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction));
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_APPLYDYN:
@@ -737,7 +777,8 @@ public class RVMRun {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_CALLPRIM:
-					insnCALLPRIM(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					insnCALLPRIM(CodeBlock.fetchArg1(instruction),
+							CodeBlock.fetchArg2(instruction));
 					if (postOp == Opcode.POSTOP_HANDLEEXCEPTION)
 						break INSTRUCTION;
 					continue NEXT_INSTRUCTION;
@@ -804,7 +845,8 @@ public class RVMRun {
 					if (obj instanceof IValue) {
 						stacktrace = new ArrayList<Frame>();
 						stacktrace.add(cf);
-						thrown = Thrown.getInstance((IValue) obj, null, stacktrace);
+						thrown = Thrown.getInstance((IValue) obj, null,
+								stacktrace);
 					} else {
 						// Then, an object of type 'Thrown' is on top of the
 						// stack
@@ -840,7 +882,8 @@ public class RVMRun {
 					continue NEXT_INSTRUCTION;
 
 				default:
-					throw new RuntimeException("RVM main loop -- cannot decode instruction");
+					throw new RuntimeException(
+							"RVM main loop -- cannot decode instruction");
 				}
 
 				switch (postOp) {
@@ -851,7 +894,8 @@ public class RVMRun {
 					if (postOp == Opcode.POSTOP_CHECKUNDEF) {
 						stacktrace = new ArrayList<Frame>();
 						stacktrace.add(cf);
-						thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
+						thrown = RuntimeExceptions.uninitializedVariable(pos,
+								null, stacktrace);
 					}
 					cf.pc = pc;
 					// First, try to find a handler in the current frame
@@ -859,11 +903,13 @@ public class RVMRun {
 					// given the current instruction index and the value type,
 					// then, if not found, look up the caller function(s)
 					for (Frame f = cf; f != null; f = f.previousCallFrame) {
-						int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
+						int handler = f.function.getHandler(f.pc - 1,
+								thrown.value.getType());
 						if (handler != -1) {
 							if (f != cf) {
 								cf = f;
-								instructions = cf.function.codeblock.getInstructions();
+								instructions = cf.function.codeblock
+										.getInstructions();
 								stack = cf.stack;
 								sp = cf.sp;
 								pc = cf.pc;
@@ -873,9 +919,11 @@ public class RVMRun {
 							thrown = null;
 							continue NEXT_INSTRUCTION;
 						}
-						if (c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
+						if (c_ofun_call != null
+								&& f.previousCallFrame == c_ofun_call.cf) {
 							ocalls.pop();
-							c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
+							c_ofun_call = ocalls.isEmpty() ? null : ocalls
+									.peek();
 						}
 					}
 					// If a handler has not been found in the caller
@@ -886,7 +934,10 @@ public class RVMRun {
 			}
 		} catch (Exception e) {
 			e.printStackTrace(stderr);
-			throw new RuntimeException("PANIC: (instruction execution): instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: " + e.getMessage(), e.getCause());
+			throw new RuntimeException(
+					"PANIC: (instruction execution): instruction: "
+							+ cf.function.codeblock.toString(pc - 1)
+							+ "; message: " + e.getMessage(), e.getCause());
 			// stdout.println("PANIC: (instruction execution): " +
 			// e.getMessage());
 			// e.printStackTrace();
@@ -901,11 +952,15 @@ public class RVMRun {
 			FunctionInstance fun_instance = (FunctionInstance) src;
 			cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
 		} else {
-			throw new RuntimeException("Unexpected argument type for INIT: " + src.getClass() + ", " + src);
+			throw new RuntimeException("Unexpected argument type for INIT: "
+					+ src.getClass() + ", " + src);
 		}
 		sp = cf.sp;
-		// Instead of suspending a coroutine instance during INIT, execute it until GUARD;
-		// Let INIT postpone creation of an actual coroutine instance (delegated to GUARD), which also implies no stack management of active coroutines until GUARD;
+		// Instead of suspending a coroutine instance during INIT, execute it
+		// until GUARD;
+		// Let INIT postpone creation of an actual coroutine instance (delegated
+		// to GUARD), which also implies no stack management of active
+		// coroutines until GUARD;
 		cccf.previousCallFrame = cf;
 
 		cf.sp = sp;
@@ -917,7 +972,9 @@ public class RVMRun {
 		pc = cf.pc;
 	}
 
-	int callJavaMethod(String methodName, String className, Type parameterTypes, int reflect, Object[] stack, int sp) throws Throw {
+	int callJavaMethod(String methodName, String className,
+			Type parameterTypes, int reflect, Object[] stack, int sp)
+			throws Throw {
 		Class<?> clazz = null;
 		try {
 			try {
@@ -941,7 +998,8 @@ public class RVMRun {
 			Constructor<?> cons;
 			cons = clazz.getConstructor(IValueFactory.class);
 			Object instance = cons.newInstance(vf);
-			Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes, reflect));
+			Method m = clazz.getMethod(methodName,
+					makeJavaTypes(parameterTypes, reflect));
 			int nformals = parameterTypes.getArity();
 			Object[] parameters = new Object[nformals + reflect];
 			for (int i = 0; i < nformals; i++) {
@@ -988,7 +1046,11 @@ public class RVMRun {
 		}
 		if (reflect == 1) {
 			try {
-				jtypes[arity - 1] = this.getClass().getClassLoader().loadClass("org.rascalmpl.interpreter.IEvaluatorContext");
+				jtypes[arity - 1] = this
+						.getClass()
+						.getClassLoader()
+						.loadClass(
+								"org.rascalmpl.interpreter.IEvaluatorContext");
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -996,7 +1058,8 @@ public class RVMRun {
 		return jtypes;
 	}
 
-	private static class JavaClasses implements ITypeVisitor<Class<?>, RuntimeException> {
+	private static class JavaClasses implements
+			ITypeVisitor<Class<?>, RuntimeException> {
 
 		@Override
 		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
@@ -1039,7 +1102,8 @@ public class RVMRun {
 		}
 
 		@Override
-		public Class<?> visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitAbstractData(
+				org.eclipse.imp.pdb.facts.type.Type type) {
 			return IConstructor.class;
 		}
 
@@ -1049,7 +1113,8 @@ public class RVMRun {
 		}
 
 		@Override
-		public Class<?> visitSourceLocation(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitSourceLocation(
+				org.eclipse.imp.pdb.facts.type.Type type) {
 			return ISourceLocation.class;
 		}
 
@@ -1064,7 +1129,8 @@ public class RVMRun {
 		}
 
 		@Override
-		public Class<?> visitConstructor(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitConstructor(
+				org.eclipse.imp.pdb.facts.type.Type type) {
 			return IConstructor.class;
 		}
 
@@ -1084,12 +1150,14 @@ public class RVMRun {
 		}
 
 		@Override
-		public Class<?> visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
+		public Class<?> visitParameter(
+				org.eclipse.imp.pdb.facts.type.Type parameterType) {
 			return parameterType.getBound().accept(this);
 		}
 
 		@Override
-		public Class<?> visitExternal(org.eclipse.imp.pdb.facts.type.Type externalType) {
+		public Class<?> visitExternal(
+				org.eclipse.imp.pdb.facts.type.Type externalType) {
 			return IValue.class;
 		}
 
@@ -1099,7 +1167,9 @@ public class RVMRun {
 		}
 	}
 
-	public void inject(ArrayList<Function> functionStore2, ArrayList<OverloadedFunction> overloadedStore2, ArrayList<Type> constructorStore2, TypeStore typeStore2,
+	public void inject(ArrayList<Function> functionStore2,
+			ArrayList<OverloadedFunction> overloadedStore2,
+			ArrayList<Type> constructorStore2, TypeStore typeStore2,
 			Map<String, Integer> functionMap2) {
 		// TODO check if we can generate code for them.
 		this.functionStore = functionStore2;
@@ -1310,13 +1380,18 @@ public class RVMRun {
 
 	public void insnLOAD_NESTED_FUN(int fun, int scopeIn) {
 		// Loads nested functions and closures (anonymous nested functions)
-		stack[sp++] = FunctionInstance.computeFunctionInstance(functionStore.get(fun), cf, scopeIn, this);
+		stack[sp++] = FunctionInstance.computeFunctionInstance(
+				functionStore.get(fun), cf, scopeIn, this);
 	}
 
 	public void insnLOADOFUN(int ofun) {
 		OverloadedFunction of = overloadedStore.get(ofun);
-		stack[sp++] = of.scopeIn == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this) : OverloadedFunctionInstance
-				.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.scopeIn, functionStore, constructorStore, this);
+		stack[sp++] = of.scopeIn == -1 ? new OverloadedFunctionInstance(
+				of.functions, of.constructors, root, functionStore,
+				constructorStore, this) : OverloadedFunctionInstance
+				.computeOverloadedFunctionInstance(of.functions,
+						of.constructors, cf, of.scopeIn, functionStore,
+						constructorStore, this);
 	}
 
 	public void insnLOADCONSTR(int construct) {
@@ -1349,7 +1424,8 @@ public class RVMRun {
 				return;
 			}
 		}
-		throw new RuntimeException("LOADVAR cannot find matching scope: " + scopeid);
+		throw new RuntimeException("LOADVAR cannot find matching scope: "
+				+ scopeid);
 	}
 
 	public void insnLOADVARREF(int scopeid, int pos, boolean maxarg2) {
@@ -1367,7 +1443,8 @@ public class RVMRun {
 				return;
 			}
 		}
-		throw new RuntimeException("LOADVAR or LOADVARREF cannot find matching scope: " + scopeid);
+		throw new RuntimeException(
+				"LOADVAR or LOADVARREF cannot find matching scope: " + scopeid);
 	}
 
 	public void insnLOADVARDEREF(int scopeid, int pos) {
@@ -1378,7 +1455,8 @@ public class RVMRun {
 				return;
 			}
 		}
-		throw new RuntimeException("LOADVARDEREF cannot find matching scope: " + scopeid);
+		throw new RuntimeException("LOADVARDEREF cannot find matching scope: "
+				+ scopeid);
 	}
 
 	public void insnSTOREVAR(int scopeid, int pos, boolean maxarg2) {
@@ -1395,7 +1473,8 @@ public class RVMRun {
 				return;
 			}
 		}
-		throw new RuntimeException("STOREVAR cannot find matching scope: " + scopeid);
+		throw new RuntimeException("STOREVAR cannot find matching scope: "
+				+ scopeid);
 	}
 
 	public void insnUNWRAPTHROWNVAR(int scopeid, int pos, boolean maxarg2) {
@@ -1412,7 +1491,8 @@ public class RVMRun {
 				return;
 			}
 		}
-		throw new RuntimeException("UNWRAPTHROWNVAR cannot find matching scope: " + scopeid);
+		throw new RuntimeException(
+				"UNWRAPTHROWNVAR cannot find matching scope: " + scopeid);
 	}
 
 	public void insnSTOREVARDEREF(int scopeid, int pos) {
@@ -1423,7 +1503,8 @@ public class RVMRun {
 				return;
 			}
 		}
-		throw new RuntimeException("STOREVARDEREF cannot find matching scope: " + scopeid);
+		throw new RuntimeException("STOREVARDEREF cannot find matching scope: "
+				+ scopeid);
 	}
 
 	public void insnCALLCONSTR(int constrctr, int arity) {
@@ -1436,7 +1517,8 @@ public class RVMRun {
 			// Constructors with keyword parameters
 			Type type = (Type) stack[--sp];
 			IMap kwargs = (IMap) stack[--sp];
-			Object[] types = new Object[2 * constructor.getArity() + 2 * kwargs.size()];
+			Object[] types = new Object[2 * constructor.getArity() + 2
+					* kwargs.size()];
 			int j = 0;
 			for (int i = 0; i < constructor.getArity(); i++) {
 				types[j++] = constructor.getFieldType(i);
@@ -1446,9 +1528,12 @@ public class RVMRun {
 			for (int i = 0; i < type.getArity(); i++) {
 				types[j++] = type.getFieldType(i);
 				types[j++] = type.getFieldName(i);
-				args[constructor.getArity() + i] = kwargs.get(vf.string(type.getFieldName(i)));
+				args[constructor.getArity() + i] = kwargs.get(vf.string(type
+						.getFieldName(i)));
 			}
-			constructor = tf.constructorFromTuple(typeStore, constructor.getAbstractDataType(), constructor.getName(), tf.tupleType(types), constructor.getArity());
+			constructor = tf.constructorFromTuple(typeStore,
+					constructor.getAbstractDataType(), constructor.getName(),
+					tf.tupleType(types), constructor.getArity());
 		}
 		for (int i = 0; i < constructor.getPositionalArity(); i++) {
 			args[constructor.getPositionalArity() - 1 - i] = (IValue) stack[--sp];
@@ -1479,7 +1564,8 @@ public class RVMRun {
 			ccf = coroutine.start;
 			coroutine.next(cf);
 			instructions = coroutine.frame.function.codeblock.getInstructions();
-			coroutine.frame.stack[coroutine.frame.sp++] = arity == 1 ? stack[--sp] : null;
+			coroutine.frame.stack[coroutine.frame.sp++] = arity == 1 ? stack[--sp]
+					: null;
 			cf.pc = pc;
 			cf.sp = sp;
 			cf = coroutine.frame;
@@ -1498,9 +1584,11 @@ public class RVMRun {
 				stack[sp++] = fun_instance;
 				return;
 			}
-			cf = cf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, arity, sp);
+			cf = cf.getFrame(fun_instance.function, fun_instance.env,
+					fun_instance.args, arity, sp);
 		} else {
-			throw new RuntimeException("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]));
+			throw new RuntimeException("Unexpected argument type for CALLDYN: "
+					+ asString(stack[sp - 1]));
 		}
 		instructions = cf.function.codeblock.getInstructions();
 		stack = cf.stack;
@@ -1514,7 +1602,8 @@ public class RVMRun {
 		Function fun = functionStore.get(funid);
 		// In case of partial parameter binding
 		if (arity < fun.nformals) {
-			FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
+			FunctionInstance fun_instance = FunctionInstance.applyPartial(fun,
+					root, this, arity, stack, sp);
 			sp = sp - arity;
 			stack[sp++] = fun_instance;
 			return;
@@ -1552,7 +1641,9 @@ public class RVMRun {
 		// 2. OverloadedFunctionInstance due to named Rascal
 		// functions
 		OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
-		c_ofun_call = new OverloadedFunctionInstanceCall(cf, of_instance.functions, of_instance.constructors, of_instance.env, types, arity);
+		c_ofun_call = new OverloadedFunctionInstanceCall(cf,
+				of_instance.functions, of_instance.constructors,
+				of_instance.env, types, arity);
 		ocalls.push(c_ofun_call);
 
 		if (debug) {
@@ -1566,7 +1657,8 @@ public class RVMRun {
 		Frame frame = c_ofun_call.nextFrame(functionStore);
 		if (frame != null) {
 			if (debug) {
-				this.appendToTrace("		" + "try alternative: " + frame.function.name);
+				this.appendToTrace("		" + "try alternative: "
+						+ frame.function.name);
 			}
 			cf = frame;
 			instructions = cf.function.codeblock.getInstructions();
@@ -1576,7 +1668,9 @@ public class RVMRun {
 		} else {
 			Type constructor = c_ofun_call.nextConstructor(constructorStore);
 			sp = sp - arity;
-			stack[sp++] = vf.constructor(constructor, c_ofun_call.getConstructorArguments(constructor.getArity()));
+			stack[sp++] = vf
+					.constructor(constructor, c_ofun_call
+							.getConstructorArguments(constructor.getArity()));
 		}
 	}
 
@@ -1584,14 +1678,21 @@ public class RVMRun {
 		cf.sp = sp;
 		cf.pc = pc;
 
-		OverloadedFunction of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
-		c_ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, root, null, arity) : OverloadedFunctionInstanceCall
-				.computeOverloadedFunctionInstanceCall(cf, of.functions, of.constructors, of.scopeIn, null, arity);
+		OverloadedFunction of = overloadedStore.get(CodeBlock
+				.fetchArg1(instruction));
+		c_ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf,
+				of.functions, of.constructors, root, null, arity)
+				: OverloadedFunctionInstanceCall
+						.computeOverloadedFunctionInstanceCall(cf,
+								of.functions, of.constructors, of.scopeIn,
+								null, arity);
 
 		ocalls.push(c_ofun_call);
 
 		if (debug) {
-			this.appendToTrace("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
+			this.appendToTrace("OVERLOADED FUNCTION CALL: "
+					+ getOverloadedFunctionName(CodeBlock
+							.fetchArg1(instruction)));
 			this.appendToTrace("	with alternatives:");
 			for (int index : c_ofun_call.functions) {
 				this.appendToTrace("		" + getFunctionName(index));
@@ -1602,7 +1703,8 @@ public class RVMRun {
 
 		if (frame != null) {
 			if (debug) {
-				this.appendToTrace("		" + "try alternative: " + frame.function.name);
+				this.appendToTrace("		" + "try alternative: "
+						+ frame.function.name);
 			}
 			cf = frame;
 			instructions = cf.function.codeblock.getInstructions();
@@ -1612,7 +1714,9 @@ public class RVMRun {
 		} else {
 			Type constructor = c_ofun_call.nextConstructor(constructorStore);
 			sp = sp - arity;
-			stack[sp++] = vf.constructor(constructor, c_ofun_call.getConstructorArguments(constructor.getArity()));
+			stack[sp++] = vf
+					.constructor(constructor, c_ofun_call
+							.getConstructorArguments(constructor.getArity()));
 		}
 	}
 
@@ -1622,7 +1726,8 @@ public class RVMRun {
 		Frame frame = c_ofun_call.nextFrame(functionStore);
 		if (frame != null) {
 			if (debug) {
-				this.appendToTrace("		" + "try alternative: " + frame.function.name);
+				this.appendToTrace("		" + "try alternative: "
+						+ frame.function.name);
 			}
 			cf = frame;
 			instructions = cf.function.codeblock.getInstructions();
@@ -1636,7 +1741,9 @@ public class RVMRun {
 			sp = cf.sp;
 			pc = cf.pc;
 			Type constructor = c_ofun_call.nextConstructor(constructorStore);
-			stack[sp++] = vf.constructor(constructor, c_ofun_call.getConstructorArguments(constructor.getArity()));
+			stack[sp++] = vf
+					.constructor(constructor, c_ofun_call
+							.getConstructorArguments(constructor.getArity()));
 		}
 	}
 
@@ -1649,7 +1756,8 @@ public class RVMRun {
 		}
 
 		Object rval = null;
-		boolean returns = cf.isCoroutine || op == Opcode.OP_RETURN1 || op == Opcode.OP_FILTERRETURN;
+		boolean returns = cf.isCoroutine || op == Opcode.OP_RETURN1
+				|| op == Opcode.OP_FILTERRETURN;
 		if (op == Opcode.OP_RETURN1 || cf.isCoroutine) {
 			if (cf.isCoroutine) {
 				rval = Rascal_TRUE;
@@ -1657,8 +1765,13 @@ public class RVMRun {
 					arity = CodeBlock.fetchArg1(instruction);
 					int[] refs = cf.function.refs;
 					if (arity != refs.length) {
-						throw new RuntimeException("Coroutine " + cf.function.name + ": arity of return (" + arity + ") unequal to number of reference parameters (" + refs.length
-								+ ")");
+						throw new RuntimeException(
+								"Coroutine "
+										+ cf.function.name
+										+ ": arity of return ("
+										+ arity
+										+ ") unequal to number of reference parameters ("
+										+ refs.length + ")");
 					}
 					for (int i1 = 0; i1 < arity; i1++) {
 						Reference ref = (Reference) stack[refs[arity - 1 - i1]];
@@ -1676,7 +1789,8 @@ public class RVMRun {
 		// coroutines
 		if (cf == ccf) {
 			activeCoroutines.pop();
-			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+			ccf = activeCoroutines.isEmpty() ? null
+					: activeCoroutines.peek().start;
 		}
 
 		cf = cf.previousCallFrame;
@@ -1714,7 +1828,8 @@ public class RVMRun {
 		// then pop this coroutine from the stack of active coroutines
 		if (cf == ccf) {
 			activeCoroutines.pop();
-			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+			ccf = activeCoroutines.isEmpty() ? null
+					: activeCoroutines.peek().start;
 		}
 		cf = cf.previousCallFrame;
 		if (cf == null) {
@@ -1745,12 +1860,16 @@ public class RVMRun {
 		}
 
 		Object rval = null;
-		// boolean returns = cf.isCoroutine || op == Opcode.OP_RETURN1 || op == Opcode.OP_FILTERRETURN;
+		// boolean returns = cf.isCoroutine || op == Opcode.OP_RETURN1 || op ==
+		// Opcode.OP_FILTERRETURN;
 		if (cf.isCoroutine) {
 			rval = Rascal_TRUE;
 			int[] refs = cf.function.refs;
 			if (arity != refs.length) {
-				throw new RuntimeException("Coroutine " + cf.function.name + ": arity of return (" + arity + ") unequal to number of reference parameters (" + refs.length + ")");
+				throw new RuntimeException("Coroutine " + cf.function.name
+						+ ": arity of return (" + arity
+						+ ") unequal to number of reference parameters ("
+						+ refs.length + ")");
 			}
 			for (int i = 0; i < arity; i++) {
 				Reference ref = (Reference) stack[refs[arity - 1 - i]];
@@ -1764,7 +1883,8 @@ public class RVMRun {
 		// then pop this coroutine from the stack of active coroutines
 		if (cf == ccf) {
 			activeCoroutines.pop();
-			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+			ccf = activeCoroutines.isEmpty() ? null
+					: activeCoroutines.peek().start;
 		}
 
 		cf = cf.previousCallFrame;
@@ -1781,15 +1901,19 @@ public class RVMRun {
 
 	public void insnCALLJAVA() {
 		postOp = 0;
-		String methodName = ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
-		String className = ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
+		String methodName = ((IString) cf.function.constantStore[instructions[pc++]])
+				.getValue();
+		String className = ((IString) cf.function.constantStore[instructions[pc++]])
+				.getValue();
 		Type parameterTypes = cf.function.typeConstantStore[instructions[pc++]];
 		int reflect = instructions[pc++];
 		arity = parameterTypes.getArity();
 		try {
-			sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
+			sp = callJavaMethod(methodName, className, parameterTypes, reflect,
+					stack, sp);
 		} catch (Throw e) {
-			thrown = Thrown.getInstance(e.getException(), e.getLocation(), new ArrayList<Frame>());
+			thrown = Thrown.getInstance(e.getException(), e.getLocation(),
+					new ArrayList<Frame>());
 			postOp = Opcode.POSTOP_HANDLEEXCEPTION;
 			return; // TODO break INSTRUCTION;
 		}
@@ -1804,9 +1928,11 @@ public class RVMRun {
 		int reflect = instructions[r];
 		arity = parameterTypes.getArity();
 		try {
-			sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
+			sp = callJavaMethod(methodName, className, parameterTypes, reflect,
+					stack, sp);
 		} catch (Throw e) {
-			thrown = Thrown.getInstance(e.getException(), e.getLocation(), new ArrayList<Frame>());
+			thrown = Thrown.getInstance(e.getException(), e.getLocation(),
+					new ArrayList<Frame>());
 			postOp = Opcode.POSTOP_HANDLEEXCEPTION;
 			return; // TODO break INSTRUCTION;
 		}
@@ -1879,7 +2005,8 @@ public class RVMRun {
 		Function fun = functionStore.get(function);
 		assert arity <= fun.nformals;
 		assert fun.scopeIn == -1;
-		fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
+		fun_instance = FunctionInstance.applyPartial(fun, root, this, arity,
+				stack, sp);
 		sp = sp - arity;
 		stack[sp++] = fun_instance;
 		return;
@@ -1893,7 +2020,8 @@ public class RVMRun {
 			assert arity + fun_instance.next <= fun_instance.function.nformals;
 			fun_instance = fun_instance.applyPartial(arity, stack, sp);
 		} else {
-			throw new RuntimeException("Unexpected argument type for APPLYDYN: " + asString(src));
+			throw new RuntimeException(
+					"Unexpected argument type for APPLYDYN: " + asString(src));
 		}
 		sp = sp - arity;
 		stack[sp++] = fun_instance;
@@ -1960,8 +2088,11 @@ public class RVMRun {
 		int[] refs = cf.function.refs;
 
 		if (arity != refs.length) {
-			throw new RuntimeException("The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity
-					+ "; reference parameter number: " + refs.length);
+			throw new RuntimeException(
+					"The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: "
+							+ arity
+							+ "; reference parameter number: "
+							+ refs.length);
 		}
 
 		for (int i = 0; i < arity; i++) {
@@ -1989,7 +2120,8 @@ public class RVMRun {
 		globalReturnValue = null;
 		if (cf == ccf) {
 			activeCoroutines.pop();
-			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+			ccf = activeCoroutines.isEmpty() ? null
+					: activeCoroutines.peek().start;
 		}
 
 		cf = cf.previousCallFrame;
@@ -2052,8 +2184,10 @@ public class RVMRun {
 	}
 
 	public void insnANDBOOL() {
-		boolean b1 = (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
-		boolean b2 = (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
+		boolean b1 = (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2])
+				: ((IBool) stack[sp - 2]).getValue();
+		boolean b2 = (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1])
+				: ((IBool) stack[sp - 1]).getValue();
 		stack[sp - 2] = b1 && b2;
 		sp--;
 	}
@@ -2075,7 +2209,8 @@ public class RVMRun {
 	}
 
 	public void insnSUBTYPE() {
-		stack[sp - 2] = ((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]);
+		stack[sp - 2] = ((Type) stack[sp - 2])
+				.isSubtypeOf((Type) stack[sp - 1]);
 		sp--;
 		return;
 
@@ -2109,7 +2244,9 @@ public class RVMRun {
 	public void insnPRINTLN(int arity) {
 		StringBuilder w = new StringBuilder();
 		for (int i = arity - 1; i >= 0; i--) {
-			String str = (stack[sp - 1 - i] instanceof IString) ? ((IString) stack[sp - 1 - i]).toString() : asString(stack[sp - 1 - i]);
+			String str = (stack[sp - 1 - i] instanceof IString) ? ((IString) stack[sp
+					- 1 - i]).toString()
+					: asString(stack[sp - 1 - i]);
 			w.append(str).append(" ");
 		}
 		stdout.println(w.toString());
@@ -2132,7 +2269,8 @@ public class RVMRun {
 	}
 
 	public void insnLOADLOCKWP(int constant) {
-		IString name = (IString) cf.function.codeblock.getConstantValue(constant);
+		IString name = (IString) cf.function.codeblock
+				.getConstantValue(constant);
 		@SuppressWarnings("unchecked")
 		Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
 		Map.Entry<Type, IValue> defaultValue = defaults.get(name.getValue());
@@ -2155,7 +2293,8 @@ public class RVMRun {
 
 	public void insnSTORELOCKWP(int constant) {
 		IValue val = (IValue) stack[sp - 1];
-		IString name = (IString) cf.function.codeblock.getConstantValue(constant);
+		IString name = (IString) cf.function.codeblock
+				.getConstantValue(constant);
 		IMap kargs = (IMap) stack[cf.function.nformals - 1];
 		stack[cf.function.nformals - 1] = kargs.put(name, val);
 	}
@@ -2174,7 +2313,8 @@ public class RVMRun {
 				return;
 			}
 		}
-		throw new RuntimeException("LOADCONT cannot find matching scope: " + scopeid);
+		throw new RuntimeException("LOADCONT cannot find matching scope: "
+				+ scopeid);
 	}
 
 	public void insnRESET() {
@@ -2243,7 +2383,10 @@ public class RVMRun {
 			rval = Rascal_TRUE;
 			int[] refs = cf.function.refs;
 			if (arity != refs.length) {
-				throw new RuntimeException("Coroutine " + cf.function.name + ": arity of return (" + arity + ") unequal to number of reference parameters (" + refs.length + ")");
+				throw new RuntimeException("Coroutine " + cf.function.name
+						+ ": arity of return (" + arity
+						+ ") unequal to number of reference parameters ("
+						+ refs.length + ")");
 			}
 			for (int i = 0; i < arity; i++) {
 				Reference ref = (Reference) stack[refs[arity - 1 - i]];
@@ -2281,11 +2424,13 @@ public class RVMRun {
 			fun_instance = (FunctionInstance) src;
 			cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
 		} else {
-			throw new RuntimeException("Unexpected argument type for CREATEDYN: " + src.getClass() + ", " + src);
+			throw new RuntimeException(
+					"Unexpected argument type for CREATEDYN: " + src.getClass()
+							+ ", " + src);
 		}
 		cf.sp = sp;
 		cccf.previousCallFrame = cf;
-		
+
 		cf = cccf;
 		stack = cf.stack;
 		sp = cf.sp;
@@ -2317,7 +2462,6 @@ public class RVMRun {
 		return precondition;
 	}
 
-	
 	public void yield1Helper(int arity2, int ep) {
 		// Stores a Rascal_TRUE value in the stack of the NEXT? caller.
 		// The inline yield1 does the return
@@ -2351,7 +2495,7 @@ public class RVMRun {
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 
 		coroutine.start.previousCallFrame.stack[coroutine.start.previousCallFrame.sp++] = Rascal_TRUE;
-		
+
 		cf.hotEntryPoint = ep;
 		cf.sp = sp;
 
@@ -2372,7 +2516,8 @@ public class RVMRun {
 			fun = functionStore.get(funid);
 			// In case of partial parameter binding
 			if (arity < fun.nformals) {
-				FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
+				FunctionInstance fun_instance = FunctionInstance.applyPartial(
+						fun, root, this, arity, stack, sp);
 				sp = sp - arity;
 				stack[sp++] = fun_instance;
 				return NONE;
@@ -2383,13 +2528,14 @@ public class RVMRun {
 			tmp = cf.nextFrame;
 			fun = tmp.function;
 		}
-		tmp.previousCallFrame = cf ;
-		
+		tmp.previousCallFrame = cf;
+
 		this.cf = tmp;
 		this.stack = cf.stack;
 		this.sp = cf.sp;
 
-		rval = dynRun(fun.funId); // In a inline version we can call directly.
+		rval = dynRun(fun.funId); // In a inline version we can call the
+									// function directly.
 
 		if (rval.equals(YIELD1)) {
 			// drop my stack
@@ -2401,14 +2547,13 @@ public class RVMRun {
 			stack = cf.stack;
 			return YIELD1; // Will cause the inline call to return YIELD
 		} else {
+			cf.hotEntryPoint = 0 ;
 			cf.nextFrame = null; // Allow GC to clean
 			return NONE; // Inline call wil continue execution
 		}
 	}
 
 	public void jvmNEXT0() {
-//		Frame scf = cf; // TODO: This is a hack to leave the interpreter working, and not changing the
-//						// working of coroutine.suspend().
 		Coroutine coroutine = (Coroutine) stack[--sp];
 
 		// Merged the hasNext and next semantics
@@ -2433,18 +2578,16 @@ public class RVMRun {
 		stack = cf.stack;
 		sp = cf.sp;
 		Object result = dynRun(coroutine.entryFrame.function.funId);
-		if (!result.equals(YIELD1))
-			System.out.println("Next did not recieve yield!");
+//		if (!result.equals(YIELD1))
+//			System.out.println("Next did not recieve yield!");
 
-//		cf = scf;
-//		sp = cf.sp;
-//		stack = cf.stack;
 	}
 
 	public Object exhaustHelper() {
 		if (cf == ccf) {
 			activeCoroutines.pop();
-			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+			ccf = activeCoroutines.isEmpty() ? null
+					: activeCoroutines.peek().start;
 		}
 
 		cf = cf.previousCallFrame;
@@ -2456,6 +2599,93 @@ public class RVMRun {
 		stack[sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE,
 
 		return NONE;// i.e., signal a failure;
+	}
+
+	public Object calldynHelper(int arity, int ep) {
+		// In case of CALLDYN, the stack top value of type 'Type'
+		// leads to a constructor call
+
+		// This instruction is a monstrosity it should be split in three.
+
+		Frame tmp;
+		Object rval;
+
+		if (cf.hotEntryPoint != ep) {
+			if (stack[sp - 1] instanceof Type) {
+				Type constr = (Type) stack[--sp];
+				arity = constr.getArity();
+				IValue[] args = new IValue[arity];
+				for (int i = arity - 1; i >= 0; i--) {
+					args[i] = (IValue) stack[sp - arity + i];
+				}
+				sp = sp - arity;
+				stack[sp++] = vf.constructor(constr, args);
+				return NONE; // DO not return continue execution
+			}
+
+			// Specific to delimited continuations (experimental)
+			if (stack[sp - 1] instanceof Coroutine) {
+				// Coroutine coroutine = (Coroutine) stack[--sp];
+				// // Merged the hasNext and next semantics
+				// activeCoroutines.push(coroutine);
+				// ccf = coroutine.start;
+				// coroutine.next(cf);
+				// instructions =
+				// coroutine.frame.function.codeblock.getInstructions();
+				// coroutine.frame.stack[coroutine.frame.sp++] = arity == 1 ?
+				// stack[--sp] : null;
+				// cf.pc = pc;
+				// cf.sp = sp;
+				// cf = coroutine.frame;
+				// stack = cf.stack;
+				// sp = cf.sp;
+				// pc = cf.pc;
+				return PANIC;
+			}
+			if (stack[sp - 1] instanceof FunctionInstance) {
+				FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
+				// In case of partial parameter binding
+				if (fun_instance.next + arity < fun_instance.function.nformals) {
+					fun_instance = fun_instance.applyPartial(arity, stack, sp);
+					sp = sp - arity;
+					stack[sp++] = fun_instance;
+					return NONE;
+				}
+				tmp = cf.getFrame(fun_instance.function, fun_instance.env,
+						fun_instance.args, arity, sp);
+				cf.nextFrame = tmp;
+			} else {
+				throw new RuntimeException(
+						"Unexpected argument type for CALLDYN: "
+								+ asString(stack[sp - 1]));
+			}
+		} else {
+			tmp = cf.nextFrame;
+		}
+
+		tmp.previousCallFrame = cf;
+
+		this.cf = tmp;
+		this.stack = cf.stack;
+		this.sp = cf.sp;
+
+		rval = dynRun(cf.function.funId); // In a inline version we can call the
+											// function directly.
+
+		if (rval.equals(YIELD1)) {
+			// drop my stack
+			cf.hotEntryPoint = ep;
+			cf.sp = sp;
+
+			cf = cf.previousCallFrame;
+			sp = cf.sp;
+			stack = cf.stack;
+			return YIELD1; // Will cause the inline call to return YIELD
+		} else {
+			cf.hotEntryPoint = 0 ;
+			cf.nextFrame = null; // Allow GC to clean
+			return NONE; // Inline call will continue execution
+		}
 	}
 
 	// Next methods are for debug only. Single step..
@@ -2500,6 +2730,10 @@ public class RVMRun {
 	}
 
 	public void dinsnCALL(int target) {
+		jmpTarget = target;
+	}
+
+	public void dinsnCALLDYN(int target) {
 		jmpTarget = target;
 	}
 
