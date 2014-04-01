@@ -22,7 +22,7 @@ public class LoadVarRef extends Instruction {
 
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid) ;
 		
-		codeEmittor.emitCall("insnLOADVARREF", what, pos);
+		codeEmittor.emitCall("insnLOADVARREF", what, pos, codeblock.isMaxArg2(pos));
 		
 		codeblock.addCode2(opcode.getOpcode(), what, pos);
 	}
