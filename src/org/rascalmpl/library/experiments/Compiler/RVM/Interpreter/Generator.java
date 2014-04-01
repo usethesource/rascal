@@ -259,6 +259,28 @@ public class Generator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(III)V");
 	}
 
+	public void emitCall(String fname, int arg1, int arg2, boolean arg3) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, 0); // Load this on stack.
+
+		if (arg1 >= -128 && arg1 <= 127)
+			mv.visitIntInsn(BIPUSH, arg1);
+		else
+			mv.visitIntInsn(SIPUSH, arg1);
+		if (arg2 >= -128 && arg2 <= 127)
+			mv.visitIntInsn(BIPUSH, arg2);
+		else
+			mv.visitIntInsn(SIPUSH, arg2);
+
+		if (arg3)
+			mv.visitInsn(ICONST_1);
+		else
+			mv.visitInsn(ICONST_0);
+		
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "insnLOADVARREF", "(IIZ)V");
+	}
+
 	public void emitCall(String fname, int arg1, int arg2) {
 		if (!emit)
 			return;

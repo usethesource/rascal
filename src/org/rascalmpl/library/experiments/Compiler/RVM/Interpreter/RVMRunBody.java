@@ -366,4 +366,9 @@ public class RVMRunBody extends RVMRun {
 	public Object EXHAUST() {
 		return exhaustHelper() ;
 	}
+	public void call(int a , int b , boolean g) {
+		insnLOADVARREF(1111, 2222, true);
+		insnLOADVARREF(1111, 2222, false);
+		
+	}
 }
