@@ -450,8 +450,8 @@ public class CodeBlock {
 		return add(new LoadFun(this, fuid));
 	}
 	
-	public CodeBlock CALLDYN(int arity){
-		return add(new CallDyn(this, arity));
+	public CodeBlock CALLDYN(int arity,int cp){
+		return add(new CallDyn(this, arity, cp));
 	}
 	
 	public CodeBlock CREATE(String fuid, int arity) {
@@ -659,9 +659,10 @@ public class CodeBlock {
 		this.resolver = resolver;
 		int codeSize = pc;
 		pc = 0;
+		
 		finalCode = new int[codeSize];
 		for(Instruction ins : insList){
-			ins.generate(codeEmittor, true);
+			ins.generate(codeEmittor, false);
 		}
 		// TODO: BUG  
 		if ( insList.get(insList.size()-1)  instanceof Label ) {

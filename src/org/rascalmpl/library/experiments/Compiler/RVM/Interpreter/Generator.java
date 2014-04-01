@@ -128,7 +128,7 @@ public class Generator implements Opcodes {
 					"hotEntryPoint", "I");
 			mv.visitTableSwitchInsn(0, hotEntryLabels.length - 1, exitLabel,
 					hotEntryLabels);
-			System.out.println(currentName + " 00 : entrypoint :" + 0);
+			// System.out.println(currentName + " 00 : entrypoint :" + 0);
 
 			mv.visitLabel(hotEntryLabels[0]); // Start at 'address' 0
 		} else {
@@ -142,7 +142,7 @@ public class Generator implements Opcodes {
 			return;
 		if (exitLabel != null) { // This label should never be reached placed to
 									// keep JVM verifier happy.
-			System.out.println(currentName + " : exitLabel");
+			// System.out.println(currentName + " : exitLabel");
 
 			mv.visitLabel(exitLabel);
 			mv.visitVarInsn(ALOAD, 0);
@@ -318,8 +318,7 @@ public class Generator implements Opcodes {
 		else
 			mv.visitInsn(ICONST_0);
 
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname,
-				"(IIZ)V");
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(IIZ)V");
 	}
 
 	public void emitCall(String fname, int arg1, int arg2) {
@@ -508,7 +507,7 @@ public class Generator implements Opcodes {
 
 		if (funIn == null)
 			funIn = new String("unknown_funIn");
-		System.out.println(funIn);
+		// System.out.println(funIn);
 		mv.visitLdcInsn(funIn);
 		mv.visitVarInsn(ASTORE, 1);
 
@@ -661,7 +660,7 @@ public class Generator implements Opcodes {
 
 	public static void Pain(String[] argv) {
 		byte[] result = null;
-		System.out.println("Getting started!\n");
+		// System.out.println("Getting started!\n");
 		Generator emittor = new Generator("packageName", "className");
 
 		emittor.emitClass(
@@ -691,8 +690,8 @@ public class Generator implements Opcodes {
 		if (!emit)
 			return;
 		if (exitLabel != null) { // If there is an exit label there is a
-			System.out.println(currentName + " OC : entrypoint :"
-					+ hotEntryPoint);
+			// System.out.println(currentName + " OC : entrypoint :" +
+			// hotEntryPoint);
 			mv.visitLabel(hotEntryLabels[hotEntryPoint]);
 		}
 		mv.visitVarInsn(ALOAD, 0);
@@ -701,21 +700,21 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ASTORE, 1);
 	}
 
-//	public void $emitYield0(int hotEntryPoint) {
-//		if (!emit)
-//			return;
-//
-//		// TODO: Implement real yield this stub is only needed to get the
-//		// generated
-//		// code past the JVM verifier.
-//
-//		mv.visitVarInsn(ALOAD, 0); // Load this on stack.
-//		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "insnYIELD0", "()V");
-//
-//		System.out.println(currentName + " Y0 : entrypoint :" + hotEntryPoint);
-//		mv.visitLabel(hotEntryLabels[hotEntryPoint]);
-//
-//	}
+	// public void $emitYield0(int hotEntryPoint) {
+	// if (!emit)
+	// return;
+	//
+	// // TODO: Implement real yield this stub is only needed to get the
+	// // generated
+	// // code past the JVM verifier.
+	//
+	// mv.visitVarInsn(ALOAD, 0); // Load this on stack.
+	// mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "insnYIELD0", "()V");
+	//
+	// System.out.println(currentName + " Y0 : entrypoint :" + hotEntryPoint);
+	// mv.visitLabel(hotEntryLabels[hotEntryPoint]);
+	//
+	// }
 
 	public void emitInlineGuard(int hotEntryPoint, boolean dcode) {
 		if (!emit)
@@ -942,8 +941,8 @@ public class Generator implements Opcodes {
 
 		if (exitLabel != null) { // The label for the hot entry
 			// Store reentry label in current frame.
-			System.out.println(currentName + " GU : entrypoint :"
-					+ hotEntryPoint);
+			// System.out.println(currentName + " GU : entrypoint :"
+			// + hotEntryPoint);
 			mv.visitLabel(hotEntryLabels[hotEntryPoint]);
 		} else {
 			System.err.println("Guard and no hotentry label!");
@@ -1168,6 +1167,7 @@ public class Generator implements Opcodes {
 		// TODO Auto-generated method stub
 
 	}
+
 	public void emitInlineYield1(int arity, int hotEntryPoint, boolean debug) {
 		Label l0 = new Label();
 		if (!emit)
@@ -1178,7 +1178,8 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitIntInsn(SIPUSH, arity);
 		mv.visitIntInsn(SIPUSH, hotEntryPoint);
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "yield1Helper", "(II)V");
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "yield1Helper",
+				"(II)V");
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf",
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
@@ -1195,8 +1196,8 @@ public class Generator implements Opcodes {
 
 		if (exitLabel != null) { // The label for the hot entry
 			// Store reentry label in current frame.
-			System.out.println(currentName + " GU : entrypoint :"
-					+ hotEntryPoint);
+			// System.out.println(currentName + " GU : entrypoint :"
+			// + hotEntryPoint);
 			mv.visitLabel(hotEntryLabels[hotEntryPoint]);
 		} else {
 			System.err.println("Yield1 and no hotentry label!");
@@ -1230,8 +1231,8 @@ public class Generator implements Opcodes {
 
 		if (exitLabel != null) { // The label for the hot entry
 			// Store reentry label in current frame.
-			System.out.println(currentName + " GU : entrypoint :"
-					+ hotEntryPoint);
+			// System.out.println(currentName + " GU : entrypoint :"
+			// + hotEntryPoint);
 			mv.visitLabel(hotEntryLabels[hotEntryPoint]);
 		} else {
 			System.err.println("Yield1 and no hotentry label!");
@@ -1268,6 +1269,36 @@ public class Generator implements Opcodes {
 		mv.visitIntInsn(SIPUSH, continuationPoint);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "callHelper",
 				"(III)Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD1",
+				"Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals",
+				"(Ljava/lang/Object;)Z");
+		mv.visitJumpInsn(IFEQ, l0);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD1",
+				"Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitInsn(ARETURN);
+
+		mv.visitLabel(l0);
+	}
+
+	public void emitInlineCalldyn(int arity, int continuationPoint,
+			boolean debug) {
+		if (!emit)
+			return;
+		if (debug)
+			emitCall("dinsnCALLDYN", 1);
+
+		Label l0 = new Label();
+
+		emitEntryLabel(continuationPoint);
+
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitIntInsn(SIPUSH, arity);
+		mv.visitIntInsn(SIPUSH, continuationPoint);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "calldynHelper",
+				"(II)Ljava/lang/Object;");
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD1",
 				"Lorg/eclipse/imp/pdb/facts/IString;");
