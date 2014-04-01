@@ -2317,9 +2317,10 @@ public class RVMRun {
 		return precondition;
 	}
 
-	public void yieldHelper(int arity2, int ep) {
+	
+	public void yield1Helper(int arity2, int ep) {
 		// Stores a Rascal_TRUE value in the stack of the NEXT? caller.
-		// The inline yield does the return
+		// The inline yield1 does the return
 		Coroutine coroutine = activeCoroutines.pop();
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 
@@ -2332,6 +2333,25 @@ public class RVMRun {
 			ref.stack[ref.pos] = stack[--sp];
 		}
 
+		cf.hotEntryPoint = ep;
+		cf.sp = sp;
+
+		coroutine.frame = cf;
+		coroutine.suspended = true;
+
+		cf = cf.previousCallFrame;
+		sp = cf.sp;
+		stack = cf.stack;
+	}
+
+	public void yield0Helper(int ep) {
+		// Stores a Rascal_TRUE value in the stack of the NEXT? caller.
+		// The inline yield0 does the return
+		Coroutine coroutine = activeCoroutines.pop();
+		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+
+		coroutine.start.previousCallFrame.stack[coroutine.start.previousCallFrame.sp++] = Rascal_TRUE;
+		
 		cf.hotEntryPoint = ep;
 		cf.sp = sp;
 
@@ -2448,6 +2468,10 @@ public class RVMRun {
 	}
 
 	public void dinsnYIELD1(int target) {
+		jmpTarget = target;
+	}
+
+	public void dinsnYIELD0(int target) {
 		jmpTarget = target;
 	}
 
