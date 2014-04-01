@@ -354,14 +354,7 @@ public class RVMRunBody extends RVMRun {
 		nop() ;
 		return NONE ;
 	}
-	public Object jvmYIELD1(Object rval, boolean precondition, Coroutine coroutine, Frame prev, int[] refs, int i) {
-		
-		yieldHelper(11111,9999) ;
-		if (cf == null) {
-			return Rascal_TRUE; // TODO rval;
-		}
-		return YIELD1;
-	}
+	
 
 	public Object EXHAUST() {
 		return exhaustHelper() ;
@@ -370,5 +363,23 @@ public class RVMRunBody extends RVMRun {
 		insnLOADVARREF(1111, 2222, true);
 		insnLOADVARREF(1111, 2222, false);
 		
+	}
+
+	public Object jvmYIELD1(Object rval, boolean precondition, Coroutine coroutine, Frame prev, int[] refs, int i) {
+		
+		yield1Helper(11111,9999) ;
+		if (cf == null) {
+			return Rascal_TRUE; // TODO rval;
+		}
+		return YIELD1;
+	}
+	
+	public Object jvmYIELD0(Object rval, boolean precondition, Coroutine coroutine, Frame prev, int[] refs, int i) {
+		
+		yield0Helper(11111) ;
+		if (cf == null) {
+			return Rascal_TRUE; // TODO rval;
+		}
+		return YIELD1;
 	}
 }

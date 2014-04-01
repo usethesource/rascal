@@ -269,7 +269,9 @@ public class RVM {
 				rvmGenCode = codeEmittor.finalizeCode();
 
 				// codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
-				codeEmittor.dump("/Users/ferryrietveld/Running.class");
+				// codeEmittor.dump("/Users/ferryrietveld/Running.class");
+				codeEmittor.dump("/Running.class");
+
 				// Oneshot classloader
 				Class<?> generatedClassV1 = new ClassLoader(RVM.class.getClassLoader()) {
 					public Class<?> defineClass(String name, byte[] bytes) {
