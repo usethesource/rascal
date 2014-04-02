@@ -71,6 +71,10 @@ public class GrammarToJigll {
 	private Map<String, Keyword> keywordsMap;
 	
 	private Map<String, RegularExpression> regularExpressionsMap;
+	
+	private Map<IConstructor, RegularExpression> regularExpressionsCache;
+	
+	private Map<List<IConstructor>, RegularExpression> deleteSetCache;
 
 	private Grammar grammar;
 
@@ -86,6 +90,8 @@ public class GrammarToJigll {
 	
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
+		deleteSetCache = new HashMap<>();
+		regularExpressionsCache = new HashMap<>();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -681,47 +687,70 @@ public class GrammarToJigll {
 	
 	private RegularExpression getRegularExpression(IConstructor symbol) {
 		
+		RegularExpression regex = regularExpressionsCache.get(symbol);
+		
+		if(regex != null) {
+			return regex;
+		}
+		
 		switch (symbol.getName()) {
 		
-		case "keywords":
-		case "sort":
-		case "layouts":
-		case "lex":
-			 return regularExpressionsMap.get(((IString)symbol.get("name")).getValue());
-			 
-		case "conditional":
-			return getRegularExpression(getSymbolCons(symbol)).addConditions(getConditions(symbol));
+			case "keywords":
+			case "sort":
+			case "layouts":
+			case "lex":
+				regex = regularExpressionsMap.get(((IString)symbol.get("name")).getValue());
+				break;
+				 
+			case "conditional":
+				regex = getRegularExpression(getSymbolCons(symbol)).addConditions(getConditions(symbol));
+				break;
+			
+			case "label":
+				regex = getRegularExpression(getSymbolCons(symbol));
+				break;
+				
+			case "char-class":
+				regex = getCharacterClass(symbol);
+				break;
+	
+			case "iter":
+				regex = new RegexPlus(getRegularExpression(getSymbolCons(symbol)));
+				break;
+	
+			case "iter-seps":
+				regex = new RegexPlus(getRegularExpression(getSymbolCons(symbol)));
+				break;
+	
+			case "iter-star":
+				regex = new RegexStar(getRegularExpression(getSymbolCons(symbol)));
+				break;
+	
+			case "iter-star-seps":
+				regex = new RegexStar(getRegularExpression(getSymbolCons(symbol)));
+				break;
+	
+			case "opt":
+				regex = new RegexOpt(getRegularExpression(getSymbolCons(symbol)));
+				break;
+	
+			case "alt":
+				regex = new RegexAlt<>(getRegularExpressionList((ISet) symbol.get("alternatives")));
+				break;
+	
+			case "seq":
+				regex = new Sequence<>(getRegularExpressionList((IList) symbol.get("symbols")));
+				break;
+				
+			default:
+				throw new IllegalStateException("Should not reach here. " + symbol);
+			}
 		
-		case "label":
-			return getRegularExpression(getSymbolCons(symbol));
-			
-		case "char-class":
-			return getCharacterClass(symbol);	
-
-		case "iter":
-			return new RegexPlus(getRegularExpression(getSymbolCons(symbol)));
-
-		case "iter-seps":
-			return new RegexPlus(getRegularExpression(getSymbolCons(symbol)));
-
-		case "iter-star":
-			return new RegexStar(getRegularExpression(getSymbolCons(symbol)));
-
-		case "iter-star-seps":
-			return new RegexStar(getRegularExpression(getSymbolCons(symbol)));
-
-		case "opt":
-			return new RegexOpt(getRegularExpression(getSymbolCons(symbol)));
-
-		case "alt":
-			return new RegexAlt<>(getRegularExpressionList((ISet) symbol.get("alternatives")));
-
-		case "seq":
-			return new Sequence<>(getRegularExpressionList((IList) symbol.get("symbols")));
-			
-		default:
-			throw new IllegalStateException("Should not reach here. " + symbol);
-		}
+		if(regex == null) return null;
+		
+		regex.toAutomaton().minimize();
+		regularExpressionsCache.put(symbol, regex);
+		return regex;
 	}
 
 	private CharacterClass getCharacterClass(IConstructor symbol) {
@@ -731,8 +760,9 @@ public class GrammarToJigll {
 
 	private List<Condition> getConditions(IConstructor symbol) {
 		ISet conditions = (ISet) symbol.get("conditions");
-		List<Keyword> keywords = new ArrayList<>();
 		List<Condition> list = new ArrayList<>();
+		
+		List<IConstructor> deleteList = new ArrayList<>();
 
 		for (IValue condition : conditions) {
 			switch (((IConstructor) condition).getName()) {
@@ -749,7 +779,7 @@ public class GrammarToJigll {
 	
 				case "delete":
 					// delete sets are expanded, so here we encounter them one by one
-					keywords.add(getKeyword(getSymbolCons((IConstructor) condition)));			
+					deleteList.add(getSymbolCons((IConstructor) condition));
 					break;
 	
 				case "not-precede":
@@ -778,8 +808,20 @@ public class GrammarToJigll {
 				}
 		}
 
-		if(!keywords.isEmpty()) {
-			list.add(RegularExpressionCondition.notMatch(keywords.toArray(new Keyword[] {})));
+		if(!deleteList.isEmpty()) {
+			
+			RegularExpression regex = deleteSetCache.get(deleteList);
+			
+			if(regex == null) {
+				List<Keyword> keywords = new ArrayList<>();
+				for(IConstructor c : deleteList) {
+					keywords.add(getKeyword(c));
+				}
+				regex = new RegexAlt<>(keywords);
+				deleteSetCache.put(deleteList, regex);
+			}
+			list.add(RegularExpressionCondition.notMatch(regex));
+
 		}
 		return list;
 	}
