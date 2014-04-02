@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -117,27 +116,6 @@ public class URIResolverRegistry {
 		mkParentDir(uri);
 		
 		resolver.mkDirectory(uri);
-	}
-	
-	public void remove(URI uri) throws IOException {
-	  IURIOutputStreamResolver out = outputResolvers.get(uri.getScheme());
-    
-	  if (out == null) {
-      throw new UnsupportedSchemeException(uri.getScheme());
-    }
-    
-    try {
-      if (isDirectory(uri)) { 
-        for (String element : listEntries(uri)) {
-          remove(URIUtil.changePath(uri, uri.getPath() + "/" + element));
-        }
-      }
-      
-      out.remove(uri);
-    } 
-    catch (URISyntaxException e) {
-      throw new IOException("unexpected URI syntax error", e);
-    }
 	}
 
 	public boolean isFile(URI uri) {
