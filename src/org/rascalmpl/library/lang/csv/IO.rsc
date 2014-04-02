@@ -108,7 +108,7 @@ public java &T readCSV(type[&T] result, loc location, bool header = true, str se
 
 @deprecated{use the readCSV with keyword parameters}
 public &T readCSV(type[&T] result, loc location, map[str,str] options) {
-	return readCSV(result, location, header = options["header"]?"true" == "true", separator = options["separator"]?",");
+	return readCSV(result, location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
 }
 
 @javaClass{org.rascalmpl.library.lang.csv.IO}
@@ -117,7 +117,7 @@ public java type[value] getCSVType(loc location, bool header = true, str separat
 
 @deprecated{use the getCSVType with keyword parameters}
 public type[value] getCSVType(loc location, map[str,str] options) {
-	return getCSVType(location, header = options["header"]?"true" == "true", separator = options["separator"]?",");
+	return getCSVType(location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
 }
 
 
@@ -158,7 +158,7 @@ public java void writeCSV(&T relation, loc location, bool header = true, str sep
 
 @deprecated{use writeCSV with optional parameters}
 public void writeCSV(&T relation, loc location, map[str,str] options) {
-	writeCSV(relation, location, header = options["header"]?"true" == "true", separator = options["separator"]?",");
+	writeCSV(relation, location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
 }
 
 public Table loadCSV(loc l) = implodeCSV(parseCSV(l));

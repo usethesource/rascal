@@ -6,11 +6,6 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 
-//
-// TODO:
-//
-// 1. Verify that parameterized types are being converted correctly
-//
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @bootstrapParser
 module lang::rascal::types::ConvertType
@@ -244,8 +239,8 @@ public Name getUserTypeRawName(UserType ut) {
 @doc{Convert Rascal type variables into their abstract representation.}
 public Symbol convertTypeVar(TypeVar tv) {
     switch(tv) {
-        case (TypeVar) `& <Name n>` : return \parameter(getSimpleName(convertName(n)),\value());
-        case (TypeVar) `& <Name n> \<: <Type tb>` : return \parameter(getSimpleName(convertName(n)),convertType(tb));
+        case (TypeVar) `& <Name n>` : return \parameter(getSimpleName(convertName(n)),\value())[@boundGiven=false];
+        case (TypeVar) `& <Name n> \<: <Type tb>` : return \parameter(getSimpleName(convertName(n)),convertType(tb))[@boundGiven=true];
     }
 }
 
