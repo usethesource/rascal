@@ -115,13 +115,17 @@ public class StringTemplateConverter {
 					v = vf.string(sb.toString());
 				}
 				java.lang.String fill = __eval.getCurrentIndent();
-				java.lang.String content = ((IString)v).getValue();
-				content = content.replaceAll("\n", "\n" + fill);
-				v = vf.string(content);
-//				__eval.unindent();
-
-				result = ResultFactory.makeResult(v.getType(), v, result.getEvaluatorContext());
-				target.append(result);
+				IString content = ((IString)v);
+				StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < content.length(); i++) {
+					int ch = content.charAt(i);
+					sb.appendCodePoint(ch);
+					if (ch == '\n') {
+						sb.append(fill);
+					}
+				}
+				v = vf.string(sb.toString());
+				target.appendString((IString) v);
 				return result;
 			}
 			
@@ -143,7 +147,6 @@ public class StringTemplateConverter {
 		}
 		
 		private static class ConstAppend extends org.rascalmpl.semantics.dynamic.Statement.Append {
-			private static final Pattern MARGIN = Pattern.compile("^[ \t]*'", Pattern.MULTILINE);
 			protected final IString str;
 
 			public ConstAppend(ISourceLocation __param1, DataTarget __param2, String arg) {
@@ -152,31 +155,65 @@ public class StringTemplateConverter {
 				str = initString(preprocess(arg));
 			}
 			
-			protected IString initString(String preprocessedString) {
-				return makeValue(removeMargins(preprocessedString));
+			protected IString initString(IString preprocessedString) {
+				return removeMargins(preprocessedString);
 			}
 			
-			private IString makeValue(String arg) {
-				IValueFactory vf = ValueFactoryFactory.getValueFactory();
-				return vf.string(arg);
+			
+			private IString removeMargins(IString s) {
+				// NB: ignored margin indents can only start *after* a new line.
+				// So atBeginning is initially false.
+				boolean atBeginning = false;
+				StringBuffer buf = new StringBuffer();
+				
+				StringBuilder sb = new StringBuilder(s.length());
+				for (int i = 0; i < s.length(); i++) {
+					int ch = s.charAt(i);
+					if (atBeginning && (ch == ' ' || ch == '\t')) {
+						buf.appendCodePoint(ch);
+						continue;
+					}
+					if (atBeginning && ch == '\'') {
+						// we've only seen ' ' and/or '\t' so we're about
+						// to reach real content, don't add buf.
+						buf = new StringBuffer();
+						atBeginning = false;
+						continue;
+					}
+					if (ch == '\n') { // atBeginning &&
+						sb.append(buf);
+						buf = new StringBuffer();
+						atBeginning = true;
+						sb.appendCodePoint(ch);
+						continue;
+					}
+					if (atBeginning) {
+						// we were in the margin, but found something other
+						// than ' ', '\t' and '\'', so anything in buf
+						// is actual content; add it.
+						sb.append(buf);
+						buf = new StringBuffer();
+						sb.appendCodePoint(ch);
+						atBeginning = false;
+						continue;
+					}
+					sb.appendCodePoint(ch);
+				}
+				// TODO: inline this to avoid another pass over the string.
+				return VF.string(org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(sb.toString()));
 			}
 			
-			private String removeMargins(String arg) {
-				arg = MARGIN.matcher(arg).replaceAll("");
-				return org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(arg);
-			}
-			
-			private String preprocess(String arg) {
+			private IString preprocess(String arg) {
 				arg = org.rascalmpl.interpreter.utils.StringUtils.unquote(arg);
 				// don't unescape ' yet
 				arg = org.rascalmpl.interpreter.utils.StringUtils.unescapeBase(arg);
-				return arg;
+				return VF.string(arg);
 			}
 			
 			@Override
 			public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 				Result<IValue> result = ResultFactory.makeResult(str.getType(), str, __eval);
-				getTarget(__eval).append(result);
+				getTarget(__eval).appendString(str);
 				return result;
 			}
 			
@@ -192,22 +229,33 @@ public class StringTemplateConverter {
 			}
 			
 			@Override
-			protected IString initString(String arg) {
+			protected IString initString(IString arg) {
 				indent = computeIndent(arg);
 				return super.initString(arg);
 			}
 
-			private String computeIndent(String arg) {
-				Matcher m = INDENT.matcher(arg);
+			private String computeIndent(IString arg) {
+				Matcher m = INDENT.matcher(arg.getValue());
 				if (m.find()) {
 					return m.group(1) + replaceEverythingBySpace(m.group(2));
 				}
 				return "";
 			}
 			
-			private static final Pattern NONSPACE = Pattern.compile("[^ \t]");
 			private String replaceEverythingBySpace(String input) {
-				return NONSPACE.matcher(input).replaceAll(" ");
+				StringBuilder sb = new StringBuilder();
+				IString is = VF.string(input);
+				for (int i = 0; i < is.length(); i++) {
+					int ch = is.charAt(i);
+					if (ch != ' ' && ch != '\t') {
+						sb.append(' ');
+					}
+					else {
+						sb.appendCodePoint(ch);
+					}
+				}
+				return sb.toString();
+//				return NONSPACE.matcher(input).replaceAll(" ");
 			}
 
 			protected String getIndent() {
