@@ -1,3 +1,11 @@
+@license{
+  Copyright (c) 2009-2013 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module vis::web::markup::D3
 import Prelude;
 import util::Math;
@@ -68,6 +76,18 @@ public str JavaScriptJson(str file, str err, str dat, value e ...) {
           ' <toString(e)> }\n";
      return JavaScriptString("d3"+C(json(file, s)));
      }
+     
+public str JavaScriptCsv(str file, str err, str dat, value e ...) {
+ str s = "function(<err>, <dat>) {
+          ' <toString(e)> }\n";
+     return JavaScriptString("d3"+C(csv(file, s)));
+     }
+     
+public str JavaScriptTsv(str file, str err, str dat, value e ...) {
+ str s = "function(<err>, <dat>) {
+          ' <toString(e)> }\n";
+     return JavaScriptString("d3"+C(tsv(file, s)));
+     }
  
 public loc publish(loc location, list[tuple[str name, list[tuple[num x, num y]] d]]  d, str header, str body) { 
      list[str] hd= [g.name|g<-d]; list[str] coord = ["x", "y"];
@@ -75,7 +95,7 @@ public loc publish(loc location, list[tuple[str name, list[tuple[num x, num y]] 
      list[map[str path, /*list[map[str, value]]*/ value dt]] jsonData = [("name":name,
          "path":[(coord[i] : r[i]|i<-[0..2])+("kind":name)|
          tuple[num, num] r<-v])|<str name, list[tuple[num, num]] v> <-d]; 
-     println(jsonData);   
+     // println(jsonData);   
       writeTextJSonFile(location+"data.json", jsonData); 
       writeFile(location+"index.html",  html(header, body));    
       return location;    
@@ -90,12 +110,7 @@ str h(str s) = ".h<s>";
 
 str h() = ".h";
 
-
-/*
-public void main() {
-   println((d3 o f (4) o h ) ());
-   }
-*/  
+ 
 public str d3(str s)=  "d3<s>";
 
 value display(value v) {
@@ -140,6 +155,11 @@ public str svg(str s) = ".svg()<s>";
 
 public str enter(str s) = ".enter()<s>";
 
+public str symbol(str s) = ".symbol()<s>";
+
+public str category10(str s) = ".category10()<s>";
+
+public str category20(str s) = ".category20()<s>";
 
 public  str(str) \append(str d) {
     str g(str r) = ".append(\"<d>\")"+r;
@@ -172,6 +192,11 @@ public str(str) duration(int  d) {
     return g;
     }
     
+public str(str) size(int  d) {
+    str g(str r) = ".size(<d>)"+r;
+    return g;
+    }
+    
 public str(str) selectAll(str  d) {
     str g(str r) = ".selectAll(\"<d>\")"+r;
     return g;
@@ -181,7 +206,7 @@ public str(str) select(str  d) {
     str g(str r) = ".select(\"<d>\")"+r;
     return g;
     }
-
+    
 public str(str) scale(value v) {
     str g(str r) = ".scale(<display(v)>)"+r;
     return g;
@@ -249,11 +274,26 @@ public str(str)  call(str script) {
     str g(str r) = ".call(<script>)"+r;
     return g;
     } 
+    
+public str(str)  \filter(str script) {
+    str g(str r) = ".filter(<script>)"+r;
+    return g;
+    } 
 
 public str(str) json(str file, value script) {
     str g(str r) = ".json(<file>, <display(script)>)"+r;
     return g;
+    }
+    
+public str(str) tsv(str file, value script) {
+    str g(str r) = ".tsv(<file>, <display(script)>)"+r;
+    return g;
     } 
+    
+public str(str) csv(str file, value script) {
+    str g(str r) = ".csv(<file>, <display(script)>)"+r;
+    return g;
+    }  
     
 public str(str) on(str event, value script) {
     str g(str r) = ".on(<event>, <display(script)>)"+r;
@@ -314,36 +354,82 @@ public str(str) on(str event, value script) {
     }
 
 
-alias PlotData = tuple[str title, list[str] xticks, list[str] yticks, list[tuple[str name, str color, list[tuple[num, num]] d]] fs] ;
+alias PlotData = tuple[str title, list[str] xticks, list[str] yticks, list[tuple[str name, str color, str style, list[tuple[num, num]] d]] fs] ;
 
 public loc publish(loc location, PlotData  pd, str header, str body) { 
-     list[tuple[str name, str color, list[tuple[num , num ]] d]] d = pd.fs;
+     list[tuple[str name, str color, str style, list[tuple[num , num ]] d]] d = pd.fs;
      list[str] coord = ["x", "y"];
      list[str] tx  = pd.xticks;
      list[str] ty  = pd.yticks;
      tuple[str, list[str], list[str], list[map[str key, /*list[map[str, value]]*/ value dt]]] 
-        jsonData = <pd.title , tx, ty, [("name":name, "color":cl,
+        jsonData = <pd.title , tx, ty, [("name":name, "color":cl, "style":st,
          "path":[(coord[i] : r[i]|i<-[0..2])+("kind":name)|
-         tuple[num, num] r<-v])|<str name, str cl, list[tuple[num, num]] v> <-d]>; 
-     println(jsonData);   
+         tuple[num, num] r<-v])|<str name, str cl, str st, list[tuple[num, num]] v> <-d]>; 
+     // println(jsonData);   
       writeTextJSonFile(location+"data.json", jsonData); 
       writeFile(location+"index.html",  html(header, body));    
       return location;    
       }
-   
-   
-
-  
- public void plot(PlotData p, int width = 800, int height = 400, int margin = 50) {  
+      
+str scatterFunction(int symbolSize, str style) {
+      str head =  "svg"+C(\append("g") o attr((style_: "\"clip-path:url(#clippath);\"")) o
+           selectAll(".line") o \data("dat[3]") o  enter o \append("g"));
+      str dots = head+C(\filter(
+      "function(d){return d.style == \"dots\" <style=="dots"? "|| d.style==\"default\"":"">
+         ;}"));
+      return dots+C(
+           attr(("fill":"function(q){return q.color==\"none\"?colormap(q.name):q.color;}")) o
+           selectAll("g.point") o \data("function(d, i){return d.path;}") o  enter o \append("path") o
+           attr((
+              "class":"\"point\"", 
+              "transform": "function(d, i){return \"translate(\"+x_scale(d.x) +\",\"+y_scale(d.y) + \")\";}",
+               //"d": "function(d, i, j) {return d3.svg.symbol()();}"
+               "d": "d3.svg"+C(symbol o size(symbolSize))
+           )));
+      }
+ 
+ str lineFunction(str style) {  
+    str head =  "svg"+C(\append("g") o attr((style_: "\"clip-path:url(#clippath);\"")) o
+           selectAll(".line") o \data("dat[3]") o  enter o \append("path"));
+    str lines = head+C(\filter(
+    "function(d){return d.style != \"dots\" <style!="dots"?"":"&& d.style!=\"default\"">
+        ;}"));
+    return lines+C(
+           attr((
+              "class":"\"line\"", 
+              "d": "function(q){return q.style==\"splines\"?lineMonotone(q.path):lineLinear(q.path);}\n",
+               "stroke":"function(q){return q.color==\"none\"?colormap(q.name):q.color;}\n"
+           ))
+         ) ;
+    } 
+/*
+str scatterFunction(int symbolSize) {  
+    return "svg"+C(
+           \append("g") o attr((style_: "\"clip-path:url(#clippath);\"")) o
+           selectAll(".line") o \data("dat[3]") o  enter o \append("g") o
+           attr(("fill":"function(q){return q.color==\"none\"?colormap(q.name):q.color;}")) o
+           selectAll("g.point") o \data("function(d, i){return d.path;}") o  enter o \append("path") o
+           attr((
+              "class":"\"point\"", 
+              "transform": "function(d, i){return \"translate(\"+x_scale(d.x) +\",\"+y_scale(d.y) + \")\";}",
+               //"d": "function(d, i, j) {return d3.svg.symbol()();}"
+               "d": "d3.svg"+C(symbol o size(symbolSize))
+           ))
+         ) ;
+    } 
+ */
+ public void plot(PlotData p, int width = 800, int height = 400, int margin = 50,
+   str style = "splines", int symbolSize = 32) {  
    str header = Z(title_, p.title)+
       Z(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8"))+
       toCss((
-            ".tick line":(fill_:"none", stroke_:"antiquewhite"),
-            ".line":(fill_:"none"),
-            ".axis": ("font-size":"8pt","font-family":"sans-serif", fill_:"none"), 
-            // ".tick":(fill_:"none", stroke_:"green"),
-            ".frame":(stroke_:"black")
-            // ,".grid":(stroke_:"red")
+            ".grid line":(fill_:"none", stroke_:"lightgrey"/*"antiquewhite"*/, "opacity":"0.7"),
+            ".axis line":(fill_:"green"),
+            ".axis": ("font-size":"8pt","font-family":"sans-serif", // fill_:"none",
+            "stroke-width":"0",stroke_:"black") 
+            ,".axis path":(fill_:"none")
+            , ".tick":(fill_:"black")
+            , ".line":(fill_:"none")
              ));
       str body = Z(h1_,  p.title) 
       
@@ -358,7 +444,15 @@ public loc publish(loc location, PlotData  pd, str header, str body) {
                               width_: "width", height_:"height"
                               ))
                  )
-         >            
+         > 
+      ,
+      <"names",  "new Array()">          
+      ,
+    <
+     "for (var i=0; i\<dat[3].length;i++) {names[i] = dat[3][i].name;}"
+    >
+      ,
+      <"colormap","d3.scale" + C(category10 o domain("names"))>
       ,
       < 
           "x_scale",
@@ -379,14 +473,15 @@ public loc publish(loc location, PlotData  pd, str header, str body) {
                    axis o scale("x_scale") o ticks("dat[1].length")
                    o tickFormat("function(d){
                              return dat[1][d];}")
-                     )
+                      )
   
        >
        ,
        <"y_axis", "d3.svg"+C(
-         axis o scale("y_scale") o orient("right") o ticks("dat[2].length")
+         axis o scale("y_scale") o orient("left") o ticks("dat[2].length")
          o tickFormat("function(d){
-                             return dat[2][d];}")
+                            return dat[2][d];}"
+                    )
          )
        >
        ,
@@ -398,16 +493,15 @@ public loc publish(loc location, PlotData  pd, str header, str body) {
        ,
        <"svg"+C(
               \append(g_) o attr((
-                 "class":"\"frame axis\"", 
-                  // "transform": "\"translate(0, \" +height/2+ \")\""
+                   "class":"\"axis\"", 
                    "transform": "\"translate(0, \" +(height-margin)+ \")\""
               ))
-            o  call("x_axis")
+            o  call("x_axis")                  
         )
         >
         ,
         <"svg"+C(\append(g_) o attr((
-           "class":"\"frame axis\"", 
+           "class":"\"axis\"", 
            "transform": "\"translate(\"+margin+\", 0)\""
            ))
             o  call("y_axis")
@@ -415,8 +509,21 @@ public loc publish(loc location, PlotData  pd, str header, str body) {
        >
        ,
        <
-       "line", "d3.svg"+C(
+       "lineMonotone", "d3.svg"+C(
              line o interpolate("\"monotone\"") o 
+                x("
+                   function(d) {return x_scale(d.x);}
+                 ")
+             o
+                y("
+                  function(d) {return y_scale(d.y);}
+               ")
+             )
+        > 
+        ,
+        <
+       "lineLinear", "d3.svg"+C(
+             line o interpolate("\"linear\"") o 
                 x("
                    function(d) {return x_scale(d.x);}
                  ")
@@ -440,24 +547,19 @@ public loc publish(loc location, PlotData  pd, str header, str body) {
            "class":"\"grid\"" ,
            transform_:"\"translate(\"+margin+\",0)\""
             )) o call(
-             "y_axis"+ C(innerTickSize("width-2*margin")  o tickFormat("\"\"") o outerTickSize(0)
+             "y_axis"+ C(innerTickSize("-width+2*margin")  o tickFormat("\"\"") o outerTickSize(0)
              )
              )   
           )>
           ,
-          <"svg"+C(
-           \append("g") o attr((style_: "\"clip-path:url(#clippath);\"")) o
-           selectAll(".line") o \data("dat[3]") o  enter o \append("path") o
-           attr((
-              "class":"\"line\"", 
-              "d": "function(q){return line(q.path);}",
-               "stroke":"function(q){return q.color;}"
-           ))
-         )>    
-              
+          <scatterFunction(symbolSize, style)>  
+          , 
+          <lineFunction(style)>            
         );
-      
-      htmlDisplay(publish(|project://chart/src/aap|, p, 
+      htmlDisplay(publish(
+            // |project://chart/src/aap|
+                |file:///tmp/d3|
+            , p, 
          header , body));
     }
  
@@ -565,14 +667,18 @@ public void main() {
    
    num r(num v) = round(v,0.0004);
    
-   int n= 100;
-   tuple[str, str, list[tuple[num, num]]] dsin = <"sin", "red", [<(i*6.0/100), 5*r(sin(r(2*i*PI()/n)))+5>|i<-[0..n+1]]>;
-   tuple[str, str, list[tuple[num, num]]] dcos = <"cos", "green", [<(i*6.0/100), 5*r(cos(r(2*i*PI()/n)))+5>|i<-[0..n+1]]>;
+   num r3(num v) = round(v*v*v,0.0004);
    
-   list[tuple[str, str, list[tuple[num, num]]]] d = [dsin, dcos];
+   int n= 10;
+   tuple[str, str, str, list[tuple[num, num]]] dsin = <"sin", "none", "default", [<(i*6.0/n), 5*r(sin(2*i*PI()/n))+5>|i<-[0..n+1]]>;
+   tuple[str, str, str, list[tuple[num, num]]] dcos = <"cos", "none", "lines", [<(i*6.0/n), 5*r(cos(2*i*PI()/n))+5>|i<-[0..n+1]]>;
+   tuple[str, str, str, list[tuple[num, num]]] dsin3 = <"sin3", "none", "splines", [<(i*6.0/n), 5*r3(sin(2*i*PI()/n))+5>|i<-[0..n+1]]>;
+   tuple[str, str, str, list[tuple[num, num]]] dcos3 = <"cos3", "none", "dots", [<(i*6.0/n), 5*r3(cos(2*i*PI()/n))+5>|i<-[0..n+1]]>;
+   
+   list[tuple[str, str, str, list[tuple[num, num]]]] d = [dsin, dcos, dsin3, dcos3];
 
    PlotData p = <"Sin and Cos", [labx(i)|i<-[0..7]], [laby(i)|i<-[0..11]], d>;
-   plot(p);
+   plot(p,  symbolSize = 20, style = "dots");
    /*
     list[list[tuple[num, num]]] d = [[<(i*step)*nTickx, (-y+f(x+(i*step)*width))*nTicky/height >| i<-[0..ub+1]]|f<-g];
     list[tuple[str, str, list[tuple[num, num]]]] w =  [<"<i>","blue", d[i]>|i<-[0..size(d)]];
