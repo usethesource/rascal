@@ -10,7 +10,8 @@ module vis::web::Chart
 
 import vis::web::BarChart;
 import util::HtmlDisplay;
-import vis::web::markup::D3;
+// import vis::web::markup::D3;
+import vis::web::PlotFunction;
 import Prelude;
 
 public int a = 4;
@@ -100,6 +101,8 @@ public void chart(rel[map[str, num] , str, str] r) {
        ));
     }
     
+   
+    
 rel[str , str] loc2str(rel[loc , loc] q) {
        return {
               < x.file, y.file > | <loc x, loc y> <- q  
@@ -123,6 +126,11 @@ rel[map[str, num] , str] loc2str(rel[map[loc, num] , loc] q) {
               <(getOneFrom(x).file:x[getOneFrom(x)]), 
                     (getOneFrom(y).file:y[getOneFrom(y)]) > | <map[loc, num] x,  map[loc, num] y> <- q  
               };
+    }
+    
+public void chart(list[num(num)] f) {
+    plotFunction(f, width = 1,   height = 1, nTickx = 10, nTicky = 10,
+    nStep=100, viewWidth = 600,viewHeight= 400);
     }
        
 public void chart(rel[map[loc, num] , loc, str] r) {
