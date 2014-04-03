@@ -37,6 +37,7 @@ import experiments::Compiler::Examples::OverloadingPlusVarArgs;
 import experiments::Compiler::Examples::OverloadingPlusVarArgsSpecialCase;
 import experiments::Compiler::Examples::OverloadingPlusPolymorphism1;
 import experiments::Compiler::Examples::OverloadingPlusPolymorphism2;
+import experiments::Compiler::Examples::FunctionWithWhen;
 import experiments::Compiler::Examples::ExceptionHandling1;
 import experiments::Compiler::Examples::ExceptionHandling2;
 import experiments::Compiler::Examples::ExceptionHandling3;
@@ -132,6 +133,7 @@ test bool tst() = demo("OverloadingPlusVarArgs") == experiments::Compiler::Examp
 test bool tst() = demo("OverloadingPlusVarArgsSpecialCase") == experiments::Compiler::Examples::OverloadingPlusVarArgsSpecialCase::main([]);
 test bool tst() = demo("OverloadingPlusPolymorphism1") == experiments::Compiler::Examples::OverloadingPlusPolymorphism1::main([]);
 test bool tst() = demo("OverloadingPlusPolymorphism2") == experiments::Compiler::Examples::OverloadingPlusPolymorphism2::main([]);
+test bool tst() = demo("FunctionWithWhen") == experiments::Compiler::Examples::FunctionWithWhen::main([]);
 test bool tst() = demo("ExceptionHandling1") == experiments::Compiler::Examples::ExceptionHandling1::main([]);
 test bool tst() = demo("ExceptionHandling2") == experiments::Compiler::Examples::ExceptionHandling2::main([]);
 test bool tst() = demo("ExceptionHandling3") == experiments::Compiler::Examples::ExceptionHandling3::main([]);
