@@ -18,7 +18,7 @@ public class JmpFalse extends Instruction {
 
 	public void generate(Generator codeEmittor, boolean dcode) {
 
-		codeEmittor.emitJMPFALSE(label, true);
+		codeEmittor.emitJMPFALSE(label, dcode);
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getLabelPC(label));
 	}
 }

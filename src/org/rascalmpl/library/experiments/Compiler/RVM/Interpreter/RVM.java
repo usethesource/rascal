@@ -258,8 +258,6 @@ public class RVM {
 
 		if (!finalized) {
 			try {
-				// runner = new RVMRun(vf, ctx, debug, profile);
-				// runner.inject(functionStore, overloadedStore, constructorStore, typeStore);
 				String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter";
 				String className = "Running";
 
@@ -268,9 +266,9 @@ public class RVM {
 				finalize(codeEmittor);
 				rvmGenCode = codeEmittor.finalizeCode();
 
-				// codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
-				// codeEmittor.dump("/Users/ferryrietveld/Running.class");
-				codeEmittor.dump("/Running.class");
+/* DEBUG */		codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
+/* DEBUG */		codeEmittor.dump("/Users/ferryrietveld/Running.class");
+				// codeEmittor.dump("/Running.class");
 
 				// Oneshot classloader
 				Class<?> generatedClassV1 = new ClassLoader(RVM.class.getClassLoader()) {
@@ -288,17 +286,10 @@ public class RVM {
 					}
 				}.defineClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running", rvmGenCode);
 
-				// Experimental
-
-				// ClassLoader cl = RVM.class.getClassLoader();
-				// Class<?> generatedClassV2 = null;
-				// generatedClassV2 = cl.loadClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running");
-
-				// Constructor<?>[] cons1 = generatedClassV1.getConstructors();
 				Constructor<?>[] cons2 = generatedClassV1.getConstructors();
 
 				runner = (RVMRun) cons2[0].newInstance(vf, ctx, debug, profile);
-				// runner = new RVMRun(vf, ctx, profile, profile) ;
+
 				runner.inject(functionStore, overloadedStore, constructorStore, typeStore, functionMap);
 
 			} catch (Exception e) {
@@ -328,18 +319,51 @@ public class RVM {
 		Object o = null;
 		if (uid_main.contains("Simple/main")) {
 			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
+			o = runner.dynRun(uid_main, args);
 		} else {
 			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
+			o = runner.executeProgram(root, cf);
 		}
+
 		if (o != null && o instanceof Thrown) {
 			throw (Thrown) o;
 		}
-		IValue res = narrow(o);
-		if (debug) {
-			stdout.println("TRACE:");
-			stdout.println(getTrace());
-		}
-		// runner = null ;
-		return res;
+		return narrow(o);
 	}
 }
