@@ -37,6 +37,7 @@ import experiments::Compiler::Examples::OverloadingPlusVarArgs;
 import experiments::Compiler::Examples::OverloadingPlusVarArgsSpecialCase;
 import experiments::Compiler::Examples::OverloadingPlusPolymorphism1;
 import experiments::Compiler::Examples::OverloadingPlusPolymorphism2;
+import experiments::Compiler::Examples::FunctionWithWhen;
 import experiments::Compiler::Examples::ExceptionHandling1;
 import experiments::Compiler::Examples::ExceptionHandling2;
 import experiments::Compiler::Examples::ExceptionHandling3;
@@ -93,6 +94,9 @@ import experiments::Compiler::Examples::KWP4;
 import experiments::Compiler::Examples::KWP5;
 import experiments::Compiler::Examples::KWP6;
 
+import experiments::Compiler::Examples::Template1;
+import experiments::Compiler::Examples::Template2;
+
 import experiments::Compiler::Examples::Closures;
 
 import experiments::Compiler::Examples::AnotherFor;
@@ -105,6 +109,7 @@ value demo(str example bool debug = false, bool listing=false, bool testsuite=fa
 
 test bool tst() = demo("AsType1",recompile=true) == experiments::Compiler::Examples::AsType1::main([]);
 test bool tst() = demo("AsType2",recompile=true) == experiments::Compiler::Examples::AsType2::main([]);
+// Bug in the interpreter, see issue #542
 test bool tst() = demo("Bottles") == experiments::Compiler::Examples::Bottles::main([]);
 test bool tst() = demo("Capture") == experiments::Compiler::Examples::Capture::main([]);
 test bool tst() = demo("E1E2") == experiments::Compiler::Examples::E1E2::main([]);
@@ -132,6 +137,7 @@ test bool tst() = demo("OverloadingPlusVarArgs") == experiments::Compiler::Examp
 test bool tst() = demo("OverloadingPlusVarArgsSpecialCase") == experiments::Compiler::Examples::OverloadingPlusVarArgsSpecialCase::main([]);
 test bool tst() = demo("OverloadingPlusPolymorphism1") == experiments::Compiler::Examples::OverloadingPlusPolymorphism1::main([]);
 test bool tst() = demo("OverloadingPlusPolymorphism2") == experiments::Compiler::Examples::OverloadingPlusPolymorphism2::main([]);
+test bool tst() = demo("FunctionWithWhen") == experiments::Compiler::Examples::FunctionWithWhen::main([]);
 test bool tst() = demo("ExceptionHandling1") == experiments::Compiler::Examples::ExceptionHandling1::main([]);
 test bool tst() = demo("ExceptionHandling2") == experiments::Compiler::Examples::ExceptionHandling2::main([]);
 test bool tst() = demo("ExceptionHandling3") == experiments::Compiler::Examples::ExceptionHandling3::main([]);
@@ -198,6 +204,10 @@ test bool tst() = demo("NestedFunctions1") == experiments::Compiler::Examples::N
 test bool tst() = demo("NestedFunctions2") == experiments::Compiler::Examples::NestedFunctions2::main([]);
 test bool tst() = demo("NestedFunctions3") == experiments::Compiler::Examples::NestedFunctions3::main([]);
 test bool tst() = demo("NestedFunctions4") == experiments::Compiler::Examples::NestedFunctions4::main([]);
+
+// Bug in the compiler, issue #543
+test bool tst() = demo("Template1") == experiments::Compiler::Examples::Template1::main([]);
+test bool tst() = demo("Template2") == experiments::Compiler::Examples::Template2::main([]);
 
 test bool tst() = demo("Closures") == experiments::Compiler::Examples::Closures::main([]);
 
