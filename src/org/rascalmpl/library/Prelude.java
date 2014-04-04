@@ -1022,9 +1022,24 @@ public class Prelude {
 		return values.bool(ctx.getResolverRegistry().isFile(sloc.getURI()));
 	}
 	
-	public void mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) throws IOException {
-	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
-		ctx.getResolverRegistry().mkDirectory(sloc.getURI());
+	public void remove(ISourceLocation sloc, IEvaluatorContext ctx) {
+	  try {
+      sloc = ctx.getHeap().resolveSourceLocation(sloc);
+      ctx.getResolverRegistry().remove(sloc.getURI());
+    }
+    catch (IOException e) {
+      RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+    }
+	}
+	
+	public void mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
+	  try {
+	    sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	    ctx.getResolverRegistry().mkDirectory(sloc.getURI());
+	  }
+	  catch (IOException e) {
+	    RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	  }
 	}
 	
 	public IValue listEntries(ISourceLocation sloc, IEvaluatorContext ctx) {
@@ -1038,9 +1053,9 @@ public class Prelude {
 			}
 			return w.done();
 		} catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		} 
 	}
 	

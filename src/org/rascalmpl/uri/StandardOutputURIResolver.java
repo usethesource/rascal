@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,23 +19,31 @@ import java.net.URI;
 
 public class StandardOutputURIResolver implements IURIOutputStreamResolver {
 
-	public OutputStream getOutputStream(URI uri, boolean append)
-			throws IOException {
+	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
 		return System.out;
 	}
 
+	@Override
 	public String scheme() {
 		return "stdout";
 	}
 
+	@Override
 	public void mkDirectory(URI uri) {
 		throw new UnsupportedOperationException("not supported by stdout");
 	}
+	
+	@Override
+	public void remove(URI uri) throws IOException {
+	  throw new UnsupportedOperationException("not supported by stdout");
+	}
 
+	@Override
 	public URI getResourceURI(URI uri) {
 		return URIUtil.invalidURI();
 	}
 
+	@Override
 	public boolean supportsHost() {
 		return false;
 	}
