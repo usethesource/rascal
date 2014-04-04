@@ -9,10 +9,10 @@
 module vis::web::PlotFunction
 import Prelude;
 import util::Math;
-import lang::json::IO;
-import util::HtmlDisplay;
 import vis::web::markup::D3;
 // import D3;
+
+public data PF = f(num(num) a) | p(lrel[num, num] b);
 
 str labx(int d, num x, num tickx) {
     return "<precision(x+d*tickx, 2)>";
@@ -32,7 +32,7 @@ str getStyle(map[str, str] styleMap, str name) {
    return "default";
    }   
 
-public void plotFunction(map[str, num(num)] g , list[tuple[num, num]] dots = [], num x = 0, num y = 0, num width = 10.0, num height =10, int nTickx = 10,
+public void plotFunction(map[str, num(num)] g , list[list[tuple[num, num]]] dots = [], num x = 0, num y = 0, num width = 10.0, num height =10, int nTickx = 10,
     int nTicky = 10, int nStep=100, int viewWidth= 600, int viewHeight = 600, 
     map[str, str] colorMap = (), map[str, str] styleMap = (),
     str style="splines", int symbolSize=20) {
@@ -44,41 +44,58 @@ public void plotFunction(map[str, num(num)] g , list[tuple[num, num]] dots = [],
     list[tuple[str, str, str, list[tuple[num, num]]]] w = 
     [<n, getColor(colorMap, n), getStyle(styleMap, n), 
        [<(i*step)*nTickx, (-y+g[n](x+(i*step)*width))*nTicky/height >| i<-[0..nStep+1]]>|n<-g]; 
-   tuple[str, str, str, list[tuple[num, num]]] d = 
-   <"dots", getColor(colorMap, "dots"), "dots", 
-       [<(-x+cx)*nTickx/width, (-y+cy)*nTicky/height >| <cx, cy> <- dots]>;  
+   list[tuple[str, str, str, list[tuple[num, num]]]] d = 
+   [<"p<i>", getColor(colorMap, "dots"), "dots", 
+       [<(-x+cx)*nTickx/width, (-y+cy)*nTicky/height >| <cx, cy> <- dots[i]]>|i<-[0..size(dots)]];  
     w += d;     
     PlotData p = <"plot", xt, yt, w>;
     plot(p, width=viewWidth, height=viewHeight, style=style, symbolSize = symbolSize);  
     }  
       
- public void plotFunction(num(num) g ...,  list[tuple[num, num]] dots = [], num x = 0, num y = 0, num width = 10.0, num height =10, int nTickx = 10,
+ public void plotFunction(num(num) g ...,  list[list[tuple[num, num]]] dots = [], num x = 0, num y = 0, num width = 10.0, num height =10, int nTickx = 10,
     int nTicky = 10, int nStep=100, int viewWidth= 600, int viewHeight = 600,
     map[str, str] colorMap = (), map[str, str] styleMap = (), str style="splines", int symbolSize=20) {
     list[str] names = [];
-    map[str, num(num)] r = ();
+    map[str, num(num)] rF = ();
     int i = 0;
     for (f<-g) {
-       r+=("<i>":f);
+       rF+=("f<i>":f);
        i = i+1;
        }
-    plotFunction(r, dots = dots, x  = x,  y = y, width = width, height = height, nTickx = nTickx,
+    plotFunction(rF, dots = dots, x  = x,  y = y, width = width, height = height, nTickx = nTickx,
+    nTicky = nTicky,  nStep=nStep, viewWidth= viewWidth, viewHeight = viewHeight,
+    colorMap = colorMap, styleMap = styleMap, style=style, symbolSize=symbolSize);
+    }
+    
+public void plotFunction(PF pf ...,   num x = 0, num y = 0, num width = 10.0, num height =10, int nTickx = 10,
+    int nTicky = 10, int nStep=100, int viewWidth= 600, int viewHeight = 600,
+    map[str, str] colorMap = (), map[str, str] styleMap = (), str style="splines", int symbolSize=20) {
+    list[num(num)] rF=[];
+    list[lrel[num, num]] dots=[];
+    for (f<-pf) {
+       switch(f) {
+          case f(num(num) q): rF+=[q];
+          case p(lrel[num, num]  q): dots+=[q];
+          }
+       }
+    plotFunction(rF, dots = dots, x  = x,  y = y, width = width, height = height, nTickx = nTickx,
     nTicky = nTicky,  nStep=nStep, viewWidth= viewWidth, viewHeight = viewHeight,
     colorMap = colorMap, styleMap = styleMap, style=style, symbolSize=symbolSize);
     }
 
 public void main() {
     
-    list[num(num)] g = [
-    	num (num x) (num ii) {
+    list[PF] g = [
+    	f(num (num x) (num ii) {
     	return num (num x) {return 0.05*ii*x*x;};
-    	}(i)
+    	}(i))
     |int i<-[1,5..20]]; 
     map[str, str] blue = ("<i>":i%2==0?"dots":"splines"|i<-[0..size(g)]);
     int n = 20;
-    list[tuple[num, num]] dots = [<arbReal(), arbReal()*2>|int i<-[0..n]];
-    plotFunction(g, x= -1, y=0, width = 2, nTickx = 10, height = 2, nTicky = 10, nStep=30, styleMap = blue, style="splines", symbolSize=40,
-    dots = dots);
+    lrel[num, num] dots1 = [<arbReal(), arbReal()*2>|int i<-[0..n]];
+    lrel[num, num] dots2 = [<arbReal(), arbReal()*2>|int i<-[0..n]];
+    plotFunction(g+p(dots1)+p(dots2), x= -1, y=0, width = 2, nTickx = 10, height = 2, nTicky = 10, nStep=30, styleMap = blue, style="splines", symbolSize=40
+    );
     // plotFunction(num(num x){return -1.00000001;}  , cos, width = 6, y = -1, height = 2, nTickx = 6, nTicky = 4
     // , nStep=100, viewWidth = 600,viewHeight= 400);
     }
