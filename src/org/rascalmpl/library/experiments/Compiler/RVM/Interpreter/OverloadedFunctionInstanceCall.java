@@ -56,7 +56,15 @@ public class OverloadedFunctionInstanceCall {
 	
 	public Function nextFunction(List<Function> functionStore) {
 		if(types == null) {
-			return (i < functions.length) ? functionStore.get(functions[i++]) : null;
+			while(i < functions.length) {
+				// TODO: this is a temporary workaround that can go when issue #507 is fixed; see also RVM;
+				if(functions[i] != -1) {
+					return functionStore.get(functions[i++]);	
+				} else {
+					i++;
+				}
+			}
+			return null;
 		} else {
 			while(i < functions.length) {
 				Function fun = functionStore.get(functions[i++]);

@@ -15,6 +15,7 @@ module String
 extend Exception;
 import Origins;
 import Message;
+import List;
 
 @doc{
 Synopsis: Center a string in given space.
@@ -566,3 +567,24 @@ toLocation("document.xml");
 </screen>
 }
 public loc toLocation(str s) = (/<car:.*>\:\/\/<cdr:.*>/ := s) ? |<car>://<cdr>| : |cwd:///<s>|;
+
+@doc{
+Synopsis: substitute substrings in a string based on a substitution map from location to string.
+
+Examples:
+<screen>
+import String;
+substitute("abc", (|file://-|(1,1): "d"))
+</screen>
+}
+str substitute(str src, map[loc,str] s) { 
+    int shift = 0;
+    str subst1(str src, loc x, str y) {
+        delta = size(y) - x.length;
+        src = src[0..x.offset+shift] + y + src[x.offset+x.length+shift..];
+        shift += delta;
+        return src; 
+    }
+    order = sort([ k | k <- s ], bool(loc a, loc b) { return a.offset < b.offset; });
+    return ( src | subst1(it, x, s[x]) | x <- order );
+}

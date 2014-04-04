@@ -41,14 +41,14 @@ public map[Symbol,Production] getGrammar(Configuration config) {
 	set[Symbol] types = range(typeMap);
 	constructors = {};
 	// Collects all the productions of the non-terminal types in the type environment
-	productions = { <\type.\sort, \type> | int uid <- config.store,
-												production(_, Symbol \type, _, _) := config.store[uid],
-												\type.\sort in types };
-	
 	grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
    	  																config.store[uid].rtype in types );
    	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
    	
+   	productions = { p.def is label ? <p.def.symbol, Symbol::prod(p.def.symbol, p.def.name, p.symbols, p.attributes)> 
+	                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 
+	                                     | /Production p:prod(_,_,_) := grammar };
+    
    	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
    	if(!isEmpty(activeLayouts)) {
    		activeLayout = getOneFrom(activeLayouts);
@@ -79,13 +79,13 @@ public type[value] symbolToValue(Symbol symbol, Configuration config) {
 												constructor(_, Symbol \type, _, _, _) := config.store[uid],
 												\type.\adt in types };
 	// Collects all the productions of the non-terminal types in the type environment
-	productions = { <\type.\sort, \type> | int uid <- config.store,
-												production(_, Symbol \type, _, _) := config.store[uid],
-												\type.\sort in types };
-	
 	grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
    	  																config.store[uid].rtype in types );
    	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
+   	
+   	productions = { p.def is label ? <p.def.symbol, Symbol::prod(p.def.symbol, p.def.name, p.symbols, p.attributes)> 
+	                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 
+	                                     | /Production p:prod(_,_,_) := grammar };
    	
    	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
    	if(!isEmpty(activeLayouts)) {
