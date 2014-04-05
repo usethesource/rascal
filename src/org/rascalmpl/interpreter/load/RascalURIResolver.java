@@ -323,6 +323,42 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		}
 	}
 
+	@Override
+	public void remove(URI uri) throws IOException {
+	  try {
+      if (uri.getScheme().equals(scheme())) {
+        String path = getPath(uri);
+        IOException lastException = null;
+        
+        for (URI dir : collect()) {
+          URI full = getFullURI(path, dir);
+          lastException = null;
+          try {
+            reg.remove(full);
+          }
+          catch (UnsupportedSchemeException e) {
+            // it happens
+          }
+          catch (IOException e) {
+            lastException = e;
+            // it happens
+          }
+        }
+        
+        if (lastException != null) {
+          throw lastException;
+        }
+      }
+      
+      
+      throw new FileNotFoundException("Parent of " + uri + " could not be found");
+    } 
+    catch (URISyntaxException e) {
+      throw new IOException(e.getMessage(), e);
+    }
+
+	}
+	
 	public void mkDirectory(URI uri) throws IOException {
 		try {
 			if (uri.getScheme().equals(scheme())) {
