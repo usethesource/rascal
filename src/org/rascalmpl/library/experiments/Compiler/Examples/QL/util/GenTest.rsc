@@ -16,7 +16,7 @@ import String;
 import ValueIO;
 import util::Math;
 
-private int MAXQ = 2001;
+private int MAXQ = 101;
 private int STEP = 10;
 
 void mergeCSVs() {
@@ -71,8 +71,8 @@ void benchmarkAll() {
     });
 
   benchmarkBind();
-  // benchmarkCheck();
-  // benchmarkCompile();
+  benchmarkCheck();
+  benchmarkCompile();
 }
 
 map[int,num] benchmarkCheck() =
