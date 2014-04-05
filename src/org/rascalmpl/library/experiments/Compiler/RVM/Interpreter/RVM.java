@@ -188,13 +188,7 @@ public class RVM {
 				String name = ((IString) fuid).getValue();
 				Integer index = functionMap.get(name);
 				if(index == null){
-					// TODO: this is a temporary workaround that can go when issue #507 is fixed; see also OverloadedFunctionInstanceCall;
-					if (name.startsWith("ParseTree")) {
-						funs[i++] = -1;
-						continue;
-					} else {
-						throw new RuntimeException("No definition for " + fuid + " in functionMap");
-					}
+					throw new RuntimeException("No definition for " + fuid + " in functionMap");
 				}
 				funs[i++] = index;
 			}
@@ -877,10 +871,7 @@ public class RVM {
 						}
 						this.appendToTrace("	with alternatives:");
 						for(int index : c_ofun_call.functions) {
-							// TODO: this is a temporary workaround that can go when issue #507 is fixed; see also OverloadedFunctionInstanceCall;
-							if(index != -1) {
-								this.appendToTrace("		" + getFunctionName(index));
-							}
+							this.appendToTrace("		" + getFunctionName(index));
 						}
 					}
 					
