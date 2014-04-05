@@ -101,6 +101,8 @@ import experiments::Compiler::Examples::Closures;
 
 import experiments::Compiler::Examples::AnotherFor;
 
+import experiments::Compiler::Examples::Extending;
+
 loc base = |rascal:///experiments/Compiler/Examples/|;
 
 
@@ -212,3 +214,5 @@ test bool tst() = demo("Template2") == experiments::Compiler::Examples::Template
 test bool tst() = demo("Closures") == experiments::Compiler::Examples::Closures::main([]);
 
 test bool tst() = demo("AnotherFor") == experiments::Compiler::Examples::AnotherFor::main([]);
+
+test bool tst() = demo("Extending") == experiments::Compiler::Examples::Extending::main([]);
