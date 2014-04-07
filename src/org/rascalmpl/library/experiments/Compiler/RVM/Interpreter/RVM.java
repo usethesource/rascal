@@ -221,35 +221,6 @@ public class RVM {
 		throw new RuntimeException("PANIC: undefined overloaded function index " + n);
 	}
 
-	// Should never be called.
-	public IValue executeFunction(String uid_func, IValue[] args) {
-		Object o = runner.executeFunction(uid_func, args);
-		if (o instanceof Thrown) {
-			throw (Thrown) o;
-		}
-		return narrow(o);
-	}
-
-	// Should never be called.
-	public IValue executeFunction(FunctionInstance func, IValue[] args) {
-		Object o = runner.executeFunction(func, args);
-
-		if (o instanceof Thrown) {
-			throw (Thrown) o;
-		}
-		return narrow(o);
-	}
-
-	private String trace = "";
-
-	public String getTrace() {
-		return trace;
-	}
-
-	public void appendToTrace(String trace) {
-		this.trace = this.trace + trace + "\n";
-	}
-
 	RVMRun runner = null;
 
 	public IValue executeProgram(String uid_main, IValue[] args) {
@@ -297,8 +268,6 @@ public class RVM {
 			}
 		}
 
-		// End
-
 		Function main_function = functionStore.get(functionMap.get(uid_main));
 
 		if (main_function == null) {
@@ -318,6 +287,7 @@ public class RVM {
 
 		Object o = null;
 		if (uid_main.contains("Simple/main")) {
+/*			o = runner.dynRun(uid_main, args);
 			o = runner.dynRun(uid_main, args);
 			o = runner.dynRun(uid_main, args);
 			o = runner.dynRun(uid_main, args);
@@ -336,9 +306,10 @@ public class RVM {
 			o = runner.dynRun(uid_main, args);
 			o = runner.dynRun(uid_main, args);
 			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
+*/
 			o = runner.dynRun(uid_main, args);
 		} else {
+/*			o = runner.executeProgram(root, cf);
 			o = runner.executeProgram(root, cf);
 			o = runner.executeProgram(root, cf);
 			o = runner.executeProgram(root, cf);
@@ -357,7 +328,7 @@ public class RVM {
 			o = runner.executeProgram(root, cf);
 			o = runner.executeProgram(root, cf);
 			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
+*/
 			o = runner.executeProgram(root, cf);
 		}
 
