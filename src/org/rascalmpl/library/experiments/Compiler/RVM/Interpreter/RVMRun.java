@@ -2534,8 +2534,8 @@ public class RVMRun {
 		this.stack = cf.stack;
 		this.sp = cf.sp;
 
-		rval = dynRun(fun.funId); // In a inline version we can call the
-									// function directly.
+		rval = dynRun(fun.funId); // In a full inline version we can call the
+								  // function directly (name is known).
 
 		if (rval.equals(YIELD1)) {
 			// drop my stack
@@ -2578,8 +2578,6 @@ public class RVMRun {
 		stack = cf.stack;
 		sp = cf.sp;
 		Object result = dynRun(coroutine.entryFrame.function.funId);
-//		if (!result.equals(YIELD1))
-//			System.out.println("Next did not recieve yield!");
 
 	}
 
