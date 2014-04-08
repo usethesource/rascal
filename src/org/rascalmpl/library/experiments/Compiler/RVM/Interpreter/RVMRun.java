@@ -2680,7 +2680,7 @@ public class RVMRun {
 			stack = cf.stack;
 			return YIELD1; // Will cause the inline call to return YIELD
 		} else {
-			cf.hotEntryPoint = 0 ;
+			cf.hotEntryPoint = 0;
 			cf.nextFrame = null; // Allow GC to clean
 			return NONE; // Inline call will continue execution
 		}
