@@ -5,18 +5,18 @@ import util::Math;
 import vis::web::markup::D3;
 import analysis::statistics::SimpleRegression;
 
-list[PF] getReg(lrel[num, num] v) {
+tuple[str name, lrel[num,num] t] getReg(lrel[num, num] v) {
       num c = intercept(v);
       num a = slope(v);
       num q(num x) = c + a*x;
-      return [f(q), p(v)];
+      return pf(<"reg", [0,0.1..1.1], q>);
       }
       
-int n = 1000;
+int n = 100;
 
 void main() {
-     lrel[num, num] dots = [<arbReal(), arbReal()>|int i<-[0..n]];
-     list[PF] z = getReg(dots);
-     plotFunction(z, x= 0, y=0, width = 1, nTickx = 10, height = 1, nTicky = 10, nStep=30,  style="splines", 
-     symbolSize=40);
+     tuple[str name, lrel[num, num] dots] d  = <"dots", [<arbReal(), arbReal()>|int i<-[0..n]]>;
+     tuple[str name, lrel[num,num] t]  z = getReg(d.dots);
+     plot([z,d], x= 0, y=0, width = 1, nTickx = 10, height = 1, nTicky = 10, nStep=30,  style="splines", 
+     symbolSize=40, styleMap=("dots":"dots"));
      }
