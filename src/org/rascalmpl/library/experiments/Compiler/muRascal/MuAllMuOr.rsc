@@ -132,7 +132,7 @@ default tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, list[
 
 private tuple[MuExp,list[MuFunction]] generateMu("ALL", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
     list[MuFunction] functions = [];
-    str all_uid = "Library/<fuid>/ALL_<getNextAll()>(0)";
+    str all_uid = "<fuid>/ALL_<getNextAll()>(0)";
     localvars = [ muVar("c_<i>", all_uid, i) | int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     for(int i <- index(exps)) {
@@ -150,7 +150,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("ALL", str fuid, list[MuExp] ex
 
 private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
     list[MuFunction] functions = [];
-    str or_uid = "Library/<fuid>/OR_<getNextOr()>(0)";
+    str or_uid = "<fuid>/OR_<getNextOr()>(0)";
     list[MuExp] body = [];
     for(int i <- index(exps)) {
         if(backtrackfree[i]) {
@@ -166,7 +166,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exp
 
 private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
     list[MuFunction] functions = [];
-    str impl_uid = "Library/<fuid>/IMPLICATION_<getNextAll()>(0)";
+    str impl_uid = "<fuid>/IMPLICATION_<getNextAll()>(0)";
     localvars = [ muVar("c_<i>", impl_uid, i) | int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     bool first = true;
@@ -194,7 +194,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[M
 
 private tuple[MuExp,list[MuFunction]] generateMu("EQUIVALENCE", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
     list[MuFunction] functions = [];
-    str equiv_uid = "Library/<fuid>/EQUIVALENCE_<getNextAll()>(0)";
+    str equiv_uid = "<fuid>/EQUIVALENCE_<getNextAll()>(0)";
     localvars = [ muVar("c_<i>", equiv_uid, i) | int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     bool first = true;
