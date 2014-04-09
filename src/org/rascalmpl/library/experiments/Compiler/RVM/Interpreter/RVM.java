@@ -185,7 +185,8 @@ public class RVM {
 			int[] funs = new int[fuids.length()];
 			int i = 0;
 			for(IValue fuid : fuids) {
-				Integer index = functionMap.get(((IString) fuid).getValue());
+				String name = ((IString) fuid).getValue();
+				Integer index = functionMap.get(name);
 				if(index == null){
 					throw new RuntimeException("No definition for " + fuid + " in functionMap");
 				}
