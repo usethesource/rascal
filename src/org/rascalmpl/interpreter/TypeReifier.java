@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -73,7 +72,7 @@ public class TypeReifier {
 		bindings.put(Factory.TypeParam, t);
 		Type typeType = Factory.Type.instantiate(bindings);
 		
-		IMapWriter defs = vf.mapWriter(Factory.Symbol, Factory.Production);
+		IMapWriter defs = vf.mapWriter();
 		for (Map.Entry<IConstructor, IConstructor> entry : definitions.entrySet()) {
 			defs.put(entry.getKey(), entry.getValue());
 		}
@@ -306,8 +305,22 @@ public class TypeReifier {
 	private Type funcToType(IConstructor symbol, TypeStore store) {
 		Type returnType = symbolToType((IConstructor) symbol.get("ret"), store);
 		Type parameters = symbolsToTupleType((IList) symbol.get("parameters"), store);
-		// TODO: add support for reifying keyword parameters!
-		return RascalTypeFactory.getInstance().functionType(returnType, parameters, Collections.<String,Type>emptyMap(), Collections.<String,IValue>emptyMap());
+		
+		IMap kwTypeMap = (IMap) symbol.get("kwTypes");
+		Map<String,Type> kwTypes = new HashMap<>();
+		
+		for (IValue key : kwTypeMap) {
+			kwTypes.put(((IString) key).getValue(), symbolToType((IConstructor) kwTypeMap.get(key), store)); 
+		}
+		
+		IMap kwDefaultMap = (IMap) symbol.get("kwDefaults");
+		Map<String,IValue> kwDefaults = new HashMap<>();
+		
+		for (IValue key : kwDefaultMap) {
+			kwDefaults.put(((IString) key).getValue(), kwDefaultMap.get(key));
+		}
+		
+		return RascalTypeFactory.getInstance().functionType(returnType, parameters, kwTypes, kwDefaults);
 	}
 
 	private Type consToType(IConstructor symbol, TypeStore store) {
