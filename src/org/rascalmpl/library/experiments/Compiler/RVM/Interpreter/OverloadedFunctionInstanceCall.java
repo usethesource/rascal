@@ -56,7 +56,7 @@ public class OverloadedFunctionInstanceCall {
 	
 	public Function nextFunction(List<Function> functionStore) {
 		if(types == null) {
-			return (i < functions.length) ? functionStore.get(functions[i++]) : null;
+			return i < functions.length ? functionStore.get(functions[i++]) : null;
 		} else {
 			while(i < functions.length) {
 				Function fun = functionStore.get(functions[i++]);

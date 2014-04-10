@@ -76,7 +76,6 @@ int getTmp(str name, str fuid){
 // Does an expression produce a value? (needed for cleaning up the stack)
 
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
-bool producesValue(muDo(str label, list[MuExp] body,  MuExp cond)) = false;
 bool producesValue(muReturn()) = false;
 bool producesValue(muNext(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;
@@ -154,8 +153,8 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
                            map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions, map[Symbol, Production] grammar), 
                   bool listing=false){
   
-  main_fun = getUID(module_name,[],"MAIN",1);
-  module_init_fun = getUID(module_name,[],"#<module_name>_init",1);
+  main_fun = getUID(module_name,[],"MAIN",2);
+  module_init_fun = getUID(module_name,[],"#<module_name>_init",2);
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
   fun_names = { fun.qname | MuFunction fun <- functions };
   if(main_fun notin fun_names) {
@@ -394,12 +393,14 @@ INS tr(muFilterReturn()) = [ FILTERRETURN() ];
 
 // Coroutines
 
-INS tr(muInit(MuExp exp)) = [*tr(exp), INIT(0)];
-INS tr(muInit(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  INIT(size(args))];  // order! 
+INS tr(muCreate(muFun(str fuid))) = [ CREATE(fuid, 0) ];
+INS tr(muCreate(MuExp exp)) = [ *tr(exp), CREATEDYN(0) ];
+INS tr(muCreate(muFun(str fuid), list[MuExp] args)) = [ *tr(args), CREATE(fuid, size(args)) ];
+INS tr(muCreate(MuExp coro, list[MuExp] args)) = [ *tr(args), *tr(coro),  CREATEDYN(size(args)) ];  // order! 
 
 // Delimited continuations (experimental)
-// INS tr(muInit(MuExp exp)) = tr(muReset(exp));
-// INS tr(muInit(MuExp coro, list[MuExp] args)) = tr(muReset(muApply(coro,args)));  // order!
+// INS tr(muCreate(MuExp exp)) = tr(muReset(exp));
+// INS tr(muCreate(MuExp coro, list[MuExp] args)) = tr(muReset(muApply(coro,args)));  // order!
 
 INS tr(muContVar(str fuid)) = [ LOADCONT(fuid) ];
 INS tr(muReset(MuExp fun)) = [ *tr(fun), RESET() ];
@@ -660,13 +661,13 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp)){
     
 INS tr(e:muMulti(MuExp exp)) =
      [ *tr(exp),
-       INIT(0),
+       CREATEDYN(0),
        NEXT0()
      ];
 
 INS tr(e:muOne(MuExp exp)) =
     [ *tr(exp),
-       INIT(0),
+       CREATEDYN(0),
        NEXT0()
      ];
 
@@ -699,7 +700,7 @@ default INS tr(MuExp e) { throw "Unknown node in the muRascal AST: <e>"; }
 INS tr_cond(muOne(MuExp exp), str continueLab, str failLab, str falseLab) =
       [ LABEL(continueLab), LABEL(failLab) ]
     + [ *tr(exp), 
-        INIT(0), 
+        CREATEDYN(0), 
         NEXT0(), 
         JMPFALSE(falseLab)
       ];
@@ -707,7 +708,7 @@ INS tr_cond(muOne(MuExp exp), str continueLab, str failLab, str falseLab) =
 INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
     co = newLocal();
     return [ *tr(exp),
-             INIT(0),
+             CREATEDYN(0),
              STORELOC(co),
              POP(),
              *[ LABEL(continueLab), LABEL(failLab) ],
