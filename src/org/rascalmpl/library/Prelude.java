@@ -1022,9 +1022,24 @@ public class Prelude {
 		return values.bool(ctx.getResolverRegistry().isFile(sloc.getURI()));
 	}
 	
-	public void mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) throws IOException {
-	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
-		ctx.getResolverRegistry().mkDirectory(sloc.getURI());
+	public void remove(ISourceLocation sloc, IEvaluatorContext ctx) {
+	  try {
+      sloc = ctx.getHeap().resolveSourceLocation(sloc);
+      ctx.getResolverRegistry().remove(sloc.getURI());
+    }
+    catch (IOException e) {
+      RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+    }
+	}
+	
+	public void mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
+	  try {
+	    sloc = ctx.getHeap().resolveSourceLocation(sloc);
+	    ctx.getResolverRegistry().mkDirectory(sloc.getURI());
+	  }
+	  catch (IOException e) {
+	    RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	  }
 	}
 	
 	public IValue listEntries(ISourceLocation sloc, IEvaluatorContext ctx) {
@@ -1038,9 +1053,9 @@ public class Prelude {
 			}
 			return w.done();
 		} catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		} 
 	}
 	
@@ -2157,7 +2172,7 @@ public class Prelude {
 	 * ParseTree
 	 */
 	
-	private final TypeReifier tr;
+	protected final TypeReifier tr;
 
 	public IValue parse(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
 		return parse(start, values.mapWriter().done(), input, ctx);
@@ -2258,7 +2273,7 @@ public class Prelude {
 		return values.string(TreeAdapter.yield(tree));
 	}
 	
-	private IConstructor makeConstructor(Type returnType, String name, IEvaluatorContext ctx,  IValue ...args) {
+	protected IConstructor makeConstructor(Type returnType, String name, IEvaluatorContext ctx,  IValue ...args) {
 		IValue value = ctx.getEvaluator().call(returnType.getName(), name, args);
 		Type type = value.getType();
 		if (type.isAbstractData()) {
@@ -2316,7 +2331,7 @@ public class Prelude {
 	}
 
 	@SuppressWarnings("serial")
-	private static class Backtrack extends RuntimeException {
+	protected static class Backtrack extends RuntimeException {
 		Throw exception;
 		public Backtrack(Throw exception) {
 			this.exception = exception;
@@ -2338,7 +2353,7 @@ public class Prelude {
 	}
 	
 	
-	private IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing, IEvaluatorContext ctx) {
+	protected IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing, IEvaluatorContext ctx) {
 
 		// always yield if expected type is str, except if regular 
 		if (type.isString() && !splicing) {
@@ -2635,7 +2650,7 @@ public class Prelude {
 		return comments.done();
 	}
 
-	private boolean isUntypedNodeType(Type type) {
+	protected boolean isUntypedNodeType(Type type) {
 		return (type.isNode() && !type.isConstructor() && !type.isAbstractData()) 
 				|| type.isTop();
 	}

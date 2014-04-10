@@ -103,12 +103,19 @@ int getFormals(int fuid) = size(fuid2type[fuid].parameters) + 1;       // '+ 1' 
 int getFormals(loc l)    = size(fuid2type[loc2uid[l]].parameters) + 1; // '+ 1' accounts for keyword arguments
 
 // Compute the scope size, excluding declared nested functions, closures and keyword parameters
-int getScopeSize(str fuid) =  // r2mu translation of functions introduces variables in place of formal parameter patterns
-							  // and uses patterns to match these variables 
-							  size(fuid2type[invertUnique(fuid2str)[fuid]].parameters)
-						    + size({ pos | int pos <- range(uid2addr)[fuid], pos != -1 })
-						    + 2 // '+ 2' accounts for keyword arguments and default values of keyword parameters 
-						    ;
+int getScopeSize(str fuid) =  
+    // r2mu translation of functions introduces variables in place of formal parameter patterns
+    // and uses patterns to match these variables 
+    { 
+      // TODO: invertUnique is a proper choice; 
+      //       the following is a workaround to the current handling of 'extend' by the type checker
+      set[int] uids = invert(fuid2str)[fuid];
+      assert size({ config.store[uid] | int uid <- uids }) == 1;
+      size(fuid2type[getOneFrom(uids)].parameters); 
+    }
+    + size({ pos | int pos <- range(uid2addr)[fuid], pos != -1 })
+    + 2 // '+ 2' accounts for keyword arguments and default values of keyword parameters 
+    ;
 
 // extractScopes: extract and convert type information from the Configuration delivered by the type checker.
 						    
@@ -120,7 +127,7 @@ void extractScopes(){
                       keywordParams,_,
         			  inScope,_,src):      { 
         							         functions += {uid};
-                                             declares += {<inScope, uid>}; 
+        							         declares += {<inScope, uid>}; 
                                              loc2uid[src] = uid;
                                              for(l <- config.uses[uid]) {
                                                  loc2uid[l] = uid;
@@ -381,9 +388,6 @@ str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cn
 str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
 str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
 
-str uid2str(int uid, str name) = uid2str(uid) + "/" + name;
-str uid2str(int uid, str name, int \case) = uid2str(uid) + "/" + name + "#<\case>";
-
 str uid2str(int uid) {
 	if(!uid2name[uid]?) {
 		throw "uid2str is not applicable!";
@@ -393,8 +397,21 @@ str uid2str(int uid) {
 	containedIn = toMapUnique(invert(containment));
 	if(containedIn[uid]?) {
 		name = uid2str(containedIn[uid]) + "/" + name;
-	} 
-	else if(declaredIn[uid]?) {
+	} else if(declaredIn[uid]?) {
+	    val = config.store[uid];
+	    if( (function(_,_,_,_,inScope,_,src) := val || constructor(_,_,_,inScope,src) := val || production(_,_,inScope,src) := val ), 
+	        \module(value _,loc at) := config.store[inScope]) {
+        	if(at.path != src.path) {
+        	    str path = replaceAll(src.path, ".rsc", "");
+        	    path = replaceFirst(path, "/", "");
+        	    if(src.authority != "") {
+        	        path = substring(path, findFirst(path, "/") + 1);
+        	    }
+        	    name = replaceAll(path, "/", "::") + "/" + name;
+        	    // println("QUALIFIED NAME IN CASE OF EXTEND: inScope: <at>; src: <src>; qname: <name>");
+        	    return name;
+			}
+        }
 		name = uid2str(declaredIn[uid]) + "/" + name;
 	}
 	return name;
@@ -444,8 +461,12 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
 /********************************************************************/
 
 @doc{Generate a MuExp that calls a library function given its name, module's name and number of formal parameters}
-public MuExp mkCallToLibFun(str modName, str fname, int nformals)
-	= muFun("<modName>/<fname>(<nformals>)");
+/*
+ * NOTE: Given that the muRascal language does not support overloading, the dependency of function uids 
+ *       on the number of formal parameters has been removed 
+ */
+public MuExp mkCallToLibFun(str modName, str fname)
+	= muFun("<modName>/<fname>");
 
 // Generate a MuExp to access a variable
 
@@ -459,11 +480,6 @@ MuExp mkVar(str name, loc l) {
     set[int] ofuids = (uid in functions || uid in constructors) ? { uid } : config.store[uid].items;
     // Generate a unique name for an overloaded function resolved for this specific use
     str ofuid = uid2str(config.usedIn[l]) + "/use:" + name;
-    
-    //str ofuid = uid2str(getFunctionUID()) + "/use:" + name;
-    
-    //if(config.usedIn[l] != getFunctionUID())
-    //	println("******* <name>: <config.usedIn[l]>, <getFunctionUID()>");
     
     bool exists = <addr.fuid,ofuids> in overloadedFunctions;
     int i = size(overloadedFunctions);

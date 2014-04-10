@@ -220,8 +220,11 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 	static public class String extends org.rascalmpl.ast.Literal.String {
 
+		private final Statement stat;
+
 		public String(IConstructor __param1, StringLiteral __param2) {
 			super(__param1, __param2);
+			this.stat = new StringTemplateConverter().convert(this.getStringLiteral());
 		}
 
 		@Override
@@ -231,27 +234,35 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			StringLiteral lit = this.getStringLiteral();
-
-			Statement stat = new StringTemplateConverter().convert(lit);
 			Result<IValue> value = stat.interpret(__eval);
 			if (!value.getType().isList()) {
 				throw new ImplementationError(
 						"template eval returns non-list");
 			}
 			IList list = (IList) value.getValue();
-
-			// list is always non-empty
-			Result<IValue> s = ResultFactory.makeResult(TF.stringType(),
-					list.get(0), __eval);
-
-			// lazy concat!
-			for (int i = 1; i < list.length(); i++) {
-				IString str = (IString) list.get(i);
-				s = s.add(ResultFactory.makeResult(TF.stringType(), str, __eval));
+			if (list.length() == 0) {
+				System.out.println("bla");
 			}
 
-			return s;
+			if (!list.get(0).getType().isString()) {
+				throw new ImplementationError(
+						"template eval returns list with non-string");
+			}
+			
+			return ResultFactory.makeResult(TF.stringType(), list.get(0), __eval);
+			
+//			// todo: concat not needed anymore, because of appendString in Accumulator.
+//			// list is always non-empty
+//			Result<IValue> s = ResultFactory.makeResult(TF.stringType(),
+//					list.get(0), __eval);
+//
+//			// lazy concat! 
+//			for (int i = 1; i < list.length(); i++) {
+//				IString str = (IString) list.get(i);
+//				s = s.add(ResultFactory.makeResult(TF.stringType(), str, __eval));
+//			}
+
+//			return s;
 		}
 
 		@Override

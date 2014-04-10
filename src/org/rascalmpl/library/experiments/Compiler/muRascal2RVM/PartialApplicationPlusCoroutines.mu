@@ -10,8 +10,8 @@ coroutine GENNUM[4,start,end,step,rRes] {
 
 function MAIN[2,args,kwargs,f,res1,res2,co1,co2,continue,f1,f2] {
     f = GENNUM(0,100);
-    co1 = init(f, 10, ref res1);
-    co2 = init(f, 20, ref res2);
+    co1 = create(f, 10, ref res1);
+    co2 = create(f, 20, ref res2);
     continue = true;
     while(continue) {
         if(next(co1)) {
@@ -25,12 +25,12 @@ function MAIN[2,args,kwargs,f,res1,res2,co1,co2,continue,f1,f2] {
         };
     };
     
-    println("The same but using \"!\":");
+    println("The same but using \"bind\":");
     
-    f1 = fun f(10, ref res1);
-    f2 = fun f(20, ref res2);
-    co1 = init(f1);
-    co2 = init(f2);
+    f1 = bind(f, 10, ref res1);
+    f2 = bind(f, 20, ref res2);
+    co1 = create(f1);
+    co2 = create(f2);
     continue = true;
     while(continue) {
         if(next(co1)) {

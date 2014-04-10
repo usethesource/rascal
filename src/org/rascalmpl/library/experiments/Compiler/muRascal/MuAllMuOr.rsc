@@ -23,27 +23,55 @@ tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ MuExp e ]) = <
 default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuExp] exps) {
     list[MuFunction] functions = [];
     assert(size(exps) >= 1);
-    if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
-        return <muMulti(muApply("Library/<muAllOrMuOr>(1)",
-                                [ muCallMuPrim("make_array",[ { str gen_uid = "<fuid>/LAZY_EVAL_GEN_<nextLabel()>(0)";
-                                                                tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,fuid);
-                                                                functions = functions + res.functions;
-                                                                functions += muFunction(gen_uid, Symbol::\func(Symbol::\value(),[]), fuid, 0, 0, false, |rascal:///|, [], (), muReturn(res.e.exp));
-                                                                muFun(gen_uid,fuid);
-                                                              } | MuExp exp <- exps ]) ])),
-                functions>;
+    if(MuExp exp <- exps, muMulti(_) := exp) {
+        if(muAllOrMuOr == "ALL" || muAllOrMuOr == "OR") {
+            // Uses the generic definitions of ALL and OR
+        	return <muMulti(muApply(muFun("Library/<muAllOrMuOr>"),
+            	                    [ muCallMuPrim("make_array",[ { str gen_uid = "<fuid>/LAZY_EVAL_GEN_<nextLabel()>(0)";
+                	                                                tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,fuid);
+                    	                                            functions = functions + res.functions;
+                        	                                        functions += muFunction(gen_uid, Symbol::\func(Symbol::\value(),[]), fuid, 0, 0, false, |rascal:///|, [], (), muReturn(res.e.exp));
+                            	                                    muFun(gen_uid,fuid);
+                                	                              } | MuExp exp <- exps ]) ])),
+                	functions>;
+        } else if(muAllOrMuOr == "IMPLICATION" || muAllOrMuOr == "EQUIVALENCE") {
+            // Generates the specialized code; TODO: also define these two as library coroutines 
+            list[MuExp] expressions = [];
+        	list[bool] backtrackfree = [];
+        	for(MuExp e <- exps) {
+            	if(muMulti(_) := e) {
+                	expressions += e.exp;
+                	backtrackfree += false;
+            	} else if(muOne(_) := e) {
+                	expressions += muNext(muCreate(e.exp));
+                	backtrackfree += true;
+            	} else {
+                	expressions += e;
+                	backtrackfree += true;
+            	}
+        	}
+        	return generateMu(muAllOrMuOr, fuid, expressions, backtrackfree);;
+        }
     }
     if(muAllOrMuOr == "ALL") {
-        return <( exps[0] | muIfelse(nextLabel(), it, [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ], [ muCon(false) ]) | int i <- [ 1..size(exps) ] ),functions>;
+        return <( exps[0] | muIfelse(nextLabel(), it, [ exps[i] is muOne ? muNext(muCreate(exps[i])) : exps[i] ], [ muCon(false) ]) | int i <- [ 1..size(exps) ] ),functions>;
     } 
     if(muAllOrMuOr == "OR"){
-        return <( exps[0] | muIfelse(nextLabel(), it, [ muCon(true) ], [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] ),functions>;
+        return <( exps[0] | muIfelse(nextLabel(), it, [ muCon(true) ], [ exps[i] is muOne ? muNext(muCreate(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] ),functions>;
     }
+    if(muAllOrMuOr == "IMPLICATION") {
+        return <( exps[0] | muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ it ]), [ muCon(true) ], [ exps[i] is muOne ? muNext(muCreate(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] ),[]>;
+    }
+    if(muAllOrMuOr == "EQUIVALENCE") {
+        return <( exps[0] | muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ it ]), [ muCallMuPrim("not_mbool", [ exp is muOne ? muNext(muCreate(exp)) : exp ]) ], [ exp is muOne ? muNext(muCreate(exp_copy)) : exp_copy ]) | int i <- [ 1..size(exps) ], MuExp exp := exps[i], MuExp exp_copy := newLabels(exp) ),[]>;
+    }
+    
 }
 */
 /*
  * Alternative, fast implementation that generates a specialized definitions of ALL and OR
  */
+
 tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muMulti(_) ]) = <e,[]>;
 tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muOne(MuExp exp) ]) = <makeMuMulti(e),[]>;
 tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ MuExp e ]) = <e,[]> when !(muMulti(_) := e || muOne(_) := e);
@@ -57,7 +85,7 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
                 expressions += e.exp;
                 backtrackfree += false;
             } else if(muOne(_) := e) {
-                expressions += muNext(muInit(e.exp));
+                expressions += muNext(muCreate(e.exp));
                 backtrackfree += true;
             } else {
                 expressions += e;
@@ -67,16 +95,16 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
         return generateMu(muAllOrMuOr, fuid, expressions, backtrackfree);
     }
     if(muAllOrMuOr == "ALL") {
-        return <( exps[0] | muIfelse(nextLabel(), it, [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ], [ muCon(false) ]) | int i <- [ 1..size(exps) ] ),[]>;
+        return <( exps[0] | muIfelse(nextLabel(), it, [ exps[i] is muOne ? muNext(muCreate(exps[i])) : exps[i] ], [ muCon(false) ]) | int i <- [ 1..size(exps) ] ),[]>;
     } 
     if(muAllOrMuOr == "OR"){
-        return <( exps[0] | muIfelse(nextLabel(), it, [ muCon(true) ], [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] ),[]>;
+        return <( exps[0] | muIfelse(nextLabel(), it, [ muCon(true) ], [ exps[i] is muOne ? muNext(muCreate(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] ),[]>;
     }
     if(muAllOrMuOr == "IMPLICATION") {
-        return <( exps[0] | muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ it ]), [ muCon(true) ], [ exps[i] is muOne ? muNext(muInit(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] ),[]>;
+        return <( exps[0] | muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ it ]), [ muCon(true) ], [ exps[i] is muOne ? muNext(muCreate(exps[i])) : exps[i] ]) | int i <- [ 1..size(exps) ] ),[]>;
     }
     if(muAllOrMuOr == "EQUIVALENCE") {
-        return <( exps[0] | muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ it ]), [ muCallMuPrim("not_mbool", [ exp is muOne ? muNext(muInit(exp)) : exp ]) ], [ exp is muOne ? muNext(muInit(exp_copy)) : exp_copy ]) | int i <- [ 1..size(exps) ], MuExp exp := exps[i], MuExp exp_copy := newLabels(exp) ),[]>;
+        return <( exps[0] | muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ it ]), [ muCallMuPrim("not_mbool", [ exp is muOne ? muNext(muCreate(exp)) : exp ]) ], [ exp is muOne ? muNext(muCreate(exp_copy)) : exp_copy ]) | int i <- [ 1..size(exps) ], MuExp exp := exps[i], MuExp exp_copy := newLabels(exp) ),[]>;
     }
 }
 
@@ -104,7 +132,7 @@ default tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, list[
 
 private tuple[MuExp,list[MuFunction]] generateMu("ALL", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
     list[MuFunction] functions = [];
-    str all_uid = "Library/<fuid>/ALL_<getNextAll()>(0)";
+    str all_uid = "<fuid>/ALL_<getNextAll()>(0)";
     localvars = [ muVar("c_<i>", all_uid, i) | int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     for(int i <- index(exps)) {
@@ -112,7 +140,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("ALL", str fuid, list[MuExp] ex
         if(backtrackfree[j]) {
             body = [ muIfelse(nextLabel(), exps[j], body, [ muCon(222) ]) ];
         } else {
-            body = [ muAssign("c_<j>", all_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body), muCon(222) ];
+            body = [ muAssign("c_<j>", all_uid, j, muCreate(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body), muCon(222) ];
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
@@ -122,7 +150,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("ALL", str fuid, list[MuExp] ex
 
 private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
     list[MuFunction] functions = [];
-    str or_uid = "Library/<fuid>/OR_<getNextOr()>(0)";
+    str or_uid = "<fuid>/OR_<getNextOr()>(0)";
     list[MuExp] body = [];
     for(int i <- index(exps)) {
         if(backtrackfree[i]) {
@@ -138,7 +166,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exp
 
 private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
     list[MuFunction] functions = [];
-    str impl_uid = "Library/<fuid>/IMPLICATION_<getNextAll()>(0)";
+    str impl_uid = "<fuid>/IMPLICATION_<getNextAll()>(0)";
     localvars = [ muVar("c_<i>", impl_uid, i) | int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     bool first = true;
@@ -152,7 +180,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[M
                    ];
         } else {
             body = [ muAssign("hasNext", impl_uid, k, muCon(false)),
-                     muAssign("c_<j>", impl_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), [ muAssign("hasNext", impl_uid, k, muCon(true)) ] + body), 
+                     muAssign("c_<j>", impl_uid, j, muCreate(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), [ muAssign("hasNext", impl_uid, k, muCon(true)) ] + body), 
                      first ? muCon(222) : muIfelse(nextLabel(),muCallMuPrim("not_mbool",[ muVar("hasNext", impl_uid, k) ]),[ muYield() ],[ muCon(222) ])
                    ];
         }
@@ -166,7 +194,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[M
 
 private tuple[MuExp,list[MuFunction]] generateMu("EQUIVALENCE", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
     list[MuFunction] functions = [];
-    str equiv_uid = "Library/<fuid>/EQUIVALENCE_<getNextAll()>(0)";
+    str equiv_uid = "<fuid>/EQUIVALENCE_<getNextAll()>(0)";
     localvars = [ muVar("c_<i>", equiv_uid, i) | int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     bool first = true;
@@ -176,12 +204,12 @@ private tuple[MuExp,list[MuFunction]] generateMu("EQUIVALENCE", str fuid, list[M
         if(backtrackfree[j]) {
             body = [ muAssign("hasNext", equiv_uid, k, muCon(false)),
                      muIfelse(nextLabel(), exps[j], [ muAssign("hasNext", equiv_uid, k, muCon(true)) ] + body, [ muCon(222) ]), 
-                     first ? muCon(222) : muIfelse(nextLabel(),muCallMuPrim("not_mbool",[ muVar("hasNext", equiv_uid, k) ]),[ muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ backtrackfree[j + 1] ? newLabels(exps[j + 1]) : muNext(muInit(newLabels(exps[j + 1]))) ]), [ muYield() ], [ muCon(222) ]) ],[ muCon(222) ]) 
+                     first ? muCon(222) : muIfelse(nextLabel(),muCallMuPrim("not_mbool",[ muVar("hasNext", equiv_uid, k) ]),[ muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ backtrackfree[j + 1] ? newLabels(exps[j + 1]) : muNext(muCreate(newLabels(exps[j + 1]))) ]), [ muYield() ], [ muCon(222) ]) ],[ muCon(222) ]) 
                    ];
         } else {
             body = [ muAssign("hasNext", equiv_uid, k, muCon(false)),
-                     muAssign("c_<j>", equiv_uid, j, muInit(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), [ muAssign("hasNext", equiv_uid, k, muCon(true)) ] + body), 
-                     first ? muCon(222) : muIfelse(nextLabel(),muCallMuPrim("not_mbool",[ muVar("hasNext", equiv_uid, k) ]),[ muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ backtrackfree[j + 1] ? newLabels(exps[j + 1]) : muNext(muInit(newLabels(exps[j + 1]))) ]), [ muYield() ], [ muCon(222) ]) ],[ muCon(222) ]) 
+                     muAssign("c_<j>", equiv_uid, j, muCreate(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), [ muAssign("hasNext", equiv_uid, k, muCon(true)) ] + body), 
+                     first ? muCon(222) : muIfelse(nextLabel(),muCallMuPrim("not_mbool",[ muVar("hasNext", equiv_uid, k) ]),[ muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ backtrackfree[j + 1] ? newLabels(exps[j + 1]) : muNext(muCreate(newLabels(exps[j + 1]))) ]), [ muYield() ], [ muCon(222) ]) ],[ muCon(222) ]) 
                    ];
         }
         first = false;

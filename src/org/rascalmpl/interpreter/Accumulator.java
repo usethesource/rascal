@@ -14,6 +14,7 @@ package org.rascalmpl.interpreter;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.result.Result;
@@ -22,6 +23,7 @@ public class Accumulator {
 
 	private String label = null;
 	private IListWriter writer = null;
+	private StringBuilder builder = null;
 	private IValueFactory factory;
 	
 	public Accumulator(IValueFactory factory, String label) {
@@ -46,12 +48,28 @@ public class Accumulator {
 		}
 		writer.append(value.getValue());
 	}
+
+	// For string templates.
+	public void appendString(IString s) {
+		if (builder == null) {
+			builder = new StringBuilder(); 
+		}
+		builder.append(s.getValue());
+	}
+
 	
 	public IList done() {
+		if (builder != null) {
+			return factory.list(factory.string(builder.toString()));
+		}
 		if (writer == null) {
 			return factory.list();
 		}
 		return writer.done();
+	}
+	
+	protected IValueFactory getFactory() {
+		return factory;
 	}
 	
 	

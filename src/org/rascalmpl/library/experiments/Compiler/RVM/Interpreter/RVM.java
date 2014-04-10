@@ -185,7 +185,8 @@ public class RVM {
 			int[] funs = new int[fuids.length()];
 			int i = 0;
 			for(IValue fuid : fuids) {
-				Integer index = functionMap.get(((IString) fuid).getValue());
+				String name = ((IString) fuid).getValue();
+				Integer index = functionMap.get(name);
 				if(index == null){
 					throw new RuntimeException("No definition for " + fuid + " in functionMap");
 				}
@@ -970,37 +971,23 @@ public class RVM {
 					}
 					
 					continue NEXT_INSTRUCTION;
-					
-				case Opcode.OP_INIT:
-					arity = CodeBlock.fetchArg1(instruction);
-					Object src = stack[--sp];
-					if(src instanceof Coroutine){
-						Coroutine coroutine = (Coroutine) src; 
-						Function fun = coroutine.frame.function;
-						if(coroutine.isInitialized()) {
-							throw new RuntimeException("Trying to initialize a coroutine, which has already been initialized: " + fun.getName() + " (corounine's main), called in " + cf.function.getName());
-						}
-						// The main function of a coroutine may have formal parameters; therefore, INIT may take a number of arguments equal to formal parameters minus arguments already passed to CREATE
-						if(arity != fun.nformals - coroutine.frame.sp) {
-							throw new RuntimeException("Too many or too few arguments to INIT, the expected number: " + (fun.nformals - coroutine.frame.sp) + "; coroutine's main: " + fun.getName() + ", called in " + cf.function.getName());
-						}
-						int nargs = coroutine.frame.sp;
-						cccf = coroutine.start.copy();
-						for (int i = arity - 1; i >= 0; i--) {
-							cccf.stack[nargs + i] = stack[sp - arity + i];
-						}
-						sp = sp - arity;
-						cccf.sp = fun.nlocals;
-					} else if(src instanceof FunctionInstance) {
-						// In case of partial parameter binding
-						FunctionInstance fun_instance = (FunctionInstance) src;
-						Function fun = fun_instance.function;
-						assert fun_instance.next + arity == fun.nformals;
-						cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
-						sp = cf.sp;
+				
+				case Opcode.OP_CREATE:
+				case Opcode.OP_CREATEDYN:
+					if(op == Opcode.OP_CREATE) {
+						cccf = cf.getCoroutineFrame(functionStore.get(CodeBlock.fetchArg1(instruction)), root, CodeBlock.fetchArg2(instruction), sp);
 					} else {
-						throw new RuntimeException("Unexpected argument type for INIT: " + src.getClass() + ", " + src);
+						arity = CodeBlock.fetchArg1(instruction);
+						Object src = stack[--sp];
+						if(src instanceof FunctionInstance) {
+							// In case of partial parameter binding
+							FunctionInstance fun_instance = (FunctionInstance) src;
+							cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
+						} else {
+							throw new RuntimeException("Unexpected argument type for INIT: " + src.getClass() + ", " + src);
+						}
 					}
+					sp = cf.sp;
 					// Instead of suspending a coroutine instance during INIT, execute it until GUARD;
 					// Let INIT postpone creation of an actual coroutine instance (delegated to GUARD), which also implies no stack management of active coroutines until GUARD;
 					cccf.previousCallFrame = cf;
@@ -1071,7 +1058,7 @@ public class RVM {
 						assert fun.scopeIn == -1;
 						fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
 					} else {
-						src = stack[--sp];
+						Object src = stack[--sp];
 						if(src instanceof FunctionInstance) {
 							fun_instance = (FunctionInstance) src;
 							arity = CodeBlock.fetchArg1(instruction);
