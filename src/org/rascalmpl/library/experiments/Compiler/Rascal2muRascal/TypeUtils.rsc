@@ -406,6 +406,8 @@ str uid2str(int uid) {
         	    path = replaceFirst(path, "/", "");
         	    if(src.authority != "") {
         	        path = substring(path, findFirst(path, "/") + 1);
+        	        // Taking care of a special case 
+        	        path = replaceFirst(path, "org/rascalmpl/library/", "");
         	    }
         	    name = replaceAll(path, "/", "::") + "/" + name;
         	    // println("QUALIFIED NAME IN CASE OF EXTEND: inScope: <at>; src: <src>; qname: <name>");
