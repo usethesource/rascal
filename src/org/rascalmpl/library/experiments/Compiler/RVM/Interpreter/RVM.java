@@ -839,6 +839,8 @@ public class RVM {
 					cf.sp = sp;
 					cf.pc = pc;
 					
+					OverloadedFunctionInstanceCall c_ofun_call_next = null;
+					
 					if(op == Opcode.OP_OCALLDYN) {
 						// Get function types to perform a type-based dynamic resolution
 						Type types = cf.function.codeblock.getConstantType(CodeBlock.fetchArg1(instruction));
@@ -855,13 +857,12 @@ public class RVM {
 						}
 					 	// 2. OverloadedFunctionInstance due to named Rascal functions
 						OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
-						c_ofun_call = new OverloadedFunctionInstanceCall(cf, of_instance.functions, of_instance.constructors, of_instance.env, types, arity);
+						c_ofun_call_next = new OverloadedFunctionInstanceCall(cf, of_instance.functions, of_instance.constructors, of_instance.env, types, arity);
 					} else {
 						of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
-						c_ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, root, null, arity)
-								                       : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.functions, of.constructors, of.scopeIn, null, arity);
+						c_ofun_call_next = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, root, null, arity)
+								                            : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.functions, of.constructors, of.scopeIn, null, arity);
 					}
-					ocalls.push(c_ofun_call);
 					
 					if(debug) {
 						if(op == Opcode.OP_OCALL) {
@@ -870,14 +871,16 @@ public class RVM {
 							this.appendToTrace("OVERLOADED FUNCTION CALLDYN: ");
 						}
 						this.appendToTrace("	with alternatives:");
-						for(int index : c_ofun_call.functions) {
+						for(int index : c_ofun_call_next.functions) {
 							this.appendToTrace("		" + getFunctionName(index));
 						}
 					}
 					
-					Frame frame = c_ofun_call.nextFrame(functionStore);
+					Frame frame = c_ofun_call_next.nextFrame(functionStore);
 					
-					if(frame != null) {						
+					if(frame != null) {
+						c_ofun_call = c_ofun_call_next;
+						ocalls.push(c_ofun_call);
 						if(debug) {
 							this.appendToTrace("		" + "try alternative: " + frame.function.name);
 						}
@@ -887,9 +890,9 @@ public class RVM {
 						sp = cf.sp;
 						pc = cf.pc;
 					} else {
-						constructor = c_ofun_call.nextConstructor(constructorStore);
+						constructor = c_ofun_call_next.nextConstructor(constructorStore);
 						sp = sp - arity;
-						stack[sp++] = vf.constructor(constructor, c_ofun_call.getConstructorArguments(constructor.getArity()));
+						stack[sp++] = vf.constructor(constructor, c_ofun_call_next.getConstructorArguments(constructor.getArity()));
 					}
 					continue NEXT_INSTRUCTION;
 					
@@ -914,6 +917,8 @@ public class RVM {
 						pc = cf.pc;
 						constructor = c_ofun_call.nextConstructor(constructorStore);
 						stack[sp++] = vf.constructor(constructor, c_ofun_call.getConstructorArguments(constructor.getArity()));
+						ocalls.pop();
+						c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
 					}
 					continue NEXT_INSTRUCTION;
 					
