@@ -537,10 +537,12 @@ public class Generator implements Opcodes {
 		}
 	}
 
-	public void emitOCallCALL(String callFunc, int funcListIndex) {
+	public void emitOCallCALL(String callFunc, int funcListIndex, Boolean debug) {
 		if (!emit)
 			return;
 
+		if ( debug ) 
+			emitCall("dinsnOCALALT", 1);
 		Label noExit = new Label();
 
 		// 0 this
@@ -697,6 +699,25 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, ocallFunc,
 				"()Ljava/lang/Object;");
+		mv.visitVarInsn(ASTORE, 1);
+	}
+
+	public void emitOCallV2(int ofun, int arity) {
+		if (!emit)
+			return;
+
+		mv.visitVarInsn(ALOAD, 0);
+		if (ofun >= -128 && ofun <= 127)
+			mv.visitIntInsn(BIPUSH, ofun);
+		else
+			mv.visitIntInsn(SIPUSH, ofun);
+
+		if (arity >= -128 && arity <= 127)
+			mv.visitIntInsn(BIPUSH, arity);
+		else
+			mv.visitIntInsn(SIPUSH, arity);
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "jvmOCALL","(II)Ljava/lang/Object;");
 		mv.visitVarInsn(ASTORE, 1);
 	}
 
@@ -1078,7 +1099,7 @@ public class Generator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, fullClassName, "stack",
 				"[Ljava/lang/Object;");
 
-		if (loc >= -128 && loc <= 127) // Can omit negetive test
+		if (loc >= -128 && loc <= 127) // Can omit negative test
 			mv.visitIntInsn(BIPUSH, loc);
 		else
 			mv.visitIntInsn(SIPUSH, loc);

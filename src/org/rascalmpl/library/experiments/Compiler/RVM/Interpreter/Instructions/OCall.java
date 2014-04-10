@@ -7,12 +7,12 @@ public class OCall extends Instruction {
 	
 	final String fuid;
 	final int arity;
-	final int continuationPoint ;
-	public OCall(CodeBlock ins, String fuid, int arity, int continuationPoint) {
+//	final int continuationPoint ;
+	public OCall(CodeBlock ins, String fuid, int arity) {
 		super(ins, Opcode.OCALL);
 		this.fuid = fuid;
 		this.arity = arity;
-		this.continuationPoint = continuationPoint ;
+//		this.continuationPoint = continuationPoint ;
 	}
 	
 	public String toString() { return "OCALL " + fuid + ", " + arity + " [ " + codeblock.getOverloadedFunctionIndex(fuid) + " ]"; }
@@ -21,8 +21,9 @@ public class OCall extends Instruction {
 
 		if ( dcode ) codeEmittor.emitCall("dinsnOCALL", codeblock.getOverloadedFunctionIndex(fuid));
 
-		codeEmittor.emitOCall("OverLoadedHandlerOID" + codeblock.getOverloadedFunctionIndex(fuid),continuationPoint) ; //    TODO ,arity);
-		
+		//codeEmittor.emitOCall("OverLoadedHandlerOID" + codeblock.getOverloadedFunctionIndex(fuid),continuationPoint) ; //    TODO ,arity);
+		codeEmittor.emitOCallV2(codeblock.getOverloadedFunctionIndex(fuid), arity);
+
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getOverloadedFunctionIndex(fuid), arity);
 	}
 }

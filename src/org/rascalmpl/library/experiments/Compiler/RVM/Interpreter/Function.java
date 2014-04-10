@@ -48,8 +48,6 @@ public class Function {
 
 	public void finalize(Generator codeEmittor, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
 
-		codeEmittor.enableOutput(true);
-		
 		codeEmittor.emitMethod(NameMangler.mangle(name),continuationPoints,false);
 
 		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing);
@@ -62,7 +60,6 @@ public class Function {
 		this.typeConstantStore = codeblock.getTypeConstants();
 
 		codeEmittor.closeMethod();
-		codeEmittor.enableOutput(true);
 	}
 
 	public void attachExceptionTable(IList exceptions, RVM rvm) {
