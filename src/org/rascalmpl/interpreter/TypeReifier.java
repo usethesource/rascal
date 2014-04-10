@@ -146,7 +146,22 @@ public class TypeReifier {
 	private Type declareConstructor(Type adt, IConstructor alt, TypeStore store) {
 		IConstructor defined = (IConstructor) alt.get("def");
 		String name = ((IString) defined.get("name")).getValue();
-		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
+		
+		IMap kwTypeMap = (IMap) alt.get("kwTypes");
+		Map<String,Type> kwTypes = new HashMap<>();
+		
+		for (IValue key : kwTypeMap) {
+			kwTypes.put(((IString) key).getValue(), symbolToType((IConstructor) kwTypeMap.get(key), store)); 
+		}
+		
+		IMap kwDefaultMap = (IMap) alt.get("kwDefaults");
+		Map<String,IValue> kwDefaults = new HashMap<>();
+		
+		for (IValue key : kwDefaultMap) {
+			kwDefaults.put(((IString) key).getValue(), kwDefaultMap.get(key));
+		}
+		
+		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store), kwTypes, kwDefaults);
 	}
 
 	private Type symbolToType(IConstructor symbol, TypeStore store) {
@@ -472,6 +487,9 @@ public class TypeReifier {
 							w.append(field.accept(this));
 						}
 					}
+					
+					
+					
 					result = vf.constructor(Factory.Symbol_Cons, vf.constructor(Factory.Symbol_Label, vf.string(type.getName()), adt), w.done());
 
 					cache.put(type, result);
@@ -503,7 +521,15 @@ public class TypeReifier {
 					}
 				}
 				
-				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), vf.set()));
+				IMapWriter kwTypes = vf.mapWriter();
+				IMapWriter kwDefaults = vf.mapWriter();
+				
+				for (String key : type.getKeywordParameters()) {
+					kwTypes.put(vf.string(key), type.getKeywordParameterType(key).accept(this));
+					kwDefaults.put(vf.string(key), type.getKeywordParameterDefault(key));
+				}
+				
+				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), kwDefaults.done(), vf.set()));
 				choice = vf.constructor(Factory.Production_Choice, adt, alts.done());
 				definitions.put(adt, choice);
 			}
