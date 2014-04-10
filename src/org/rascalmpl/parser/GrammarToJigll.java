@@ -48,6 +48,8 @@ import org.jgll.regex.RegexPlus;
 import org.jgll.regex.RegexStar;
 import org.jgll.regex.RegularExpression;
 import org.jgll.regex.Sequence;
+import org.jgll.regex.automaton.Automaton;
+import org.jgll.regex.matcher.Matcher;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
@@ -287,6 +289,7 @@ public class GrammarToJigll {
 
 		for (IValue nonterminal : definitions) {
 
+			System.out.println(nonterminal);
 			IConstructor constructor = (IConstructor) nonterminal;
 			
 			boolean ebnf = isEBNF(constructor);
@@ -416,6 +419,9 @@ public class GrammarToJigll {
 		return targetRanges;
 	}
 	
+	CharacterClass c = new CharacterClass(Range.in('a', 'z'), Range.in('A', 'Z'), Range.in('_', '_'));
+	Matcher test = new RegexPlus(c).toAutomaton().getMatcher();
+	
 	private List<Symbol> getSymbolList(IList rhs) {
 		
 		List<Symbol> result = new ArrayList<>();
@@ -424,6 +430,14 @@ public class GrammarToJigll {
 			IConstructor current = (IConstructor) rhs.get(i);
 			
 			Symbol symbol = getSymbol(current);				
+			
+			// TODO: get a list of keywords later from the grammar instead of this hack.
+			if(symbol instanceof Keyword) {
+				// Keywords cannot be followed by [a-z A-Z _] by default.
+				if(test.match(Input.fromString(symbol.getName().substring(1, symbol.getName().length() - 1)))) {
+					symbol = symbol.addCondition(RegularExpressionCondition.notFollow(c));
+				}
+			}
 			
 			if (symbol != null) {
 				result.add(symbol);
@@ -491,7 +505,7 @@ public class GrammarToJigll {
 				}				
 			}
 			
-			keywordsMap.put(name,  keyword);
+			keywordsMap.put(name, keyword);
 		}
 
 		return keyword;
@@ -748,7 +762,7 @@ public class GrammarToJigll {
 		
 		if(regex == null) return null;
 		
-		regex.toAutomaton().minimize();
+//		regex.toAutomaton().minimize();
 		regularExpressionsCache.put(symbol, regex);
 		return regex;
 	}
