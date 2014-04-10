@@ -530,8 +530,8 @@ public class CodeBlock {
 		return add(new LoadOFun(this, fuid));
 	}
 	
-	public CodeBlock OCALL(String fuid, int arity, int continuationPoint) {
-		return add(new OCall(this, fuid, arity,continuationPoint));
+	public CodeBlock OCALL(String fuid, int arity) {
+		return add(new OCall(this, fuid, arity));
 	}
 	
 	public CodeBlock OCALLDYN(Type types, int arity) {
@@ -662,7 +662,7 @@ public class CodeBlock {
 		
 		finalCode = new int[codeSize];
 		for(Instruction ins : insList){
-			ins.generate(codeEmittor, false);
+			ins.generate(codeEmittor, true);
 		}
 		// TODO: BUG  
 		if ( insList.get(insList.size()-1)  instanceof Label ) {

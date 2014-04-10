@@ -13,7 +13,12 @@ module experiments::Compiler::Examples::Simple
 //}
 //
 //int fac(int n) = (n <= 1) ? 1 : n * fac(n-1);
+
 //int fib(int n) = (n == 0) ? 0 : (n == 1) ? 1 : (fib(n-1) + fib(n-2));
+//value main(list[value] args){	
+// 	return fib(25) ;
+//}
+
 //
 //value main(list[value] args){
 //   res = [];
@@ -42,6 +47,7 @@ module experiments::Compiler::Examples::Simple
 //}
 //
 //value main(list[value] args)  = sendMoreMoney();
+
 //
 //
 //value main(list[value] args){
@@ -63,7 +69,7 @@ public str sing() =
   'Go to the store and buy some more, 99 bottles of beer on the wall.
   <}>";
   
-value main(list[value] args) = sing();
+value main(list[value] args) = bottles(9);
 
 
 //value main(list[value] args){
@@ -88,9 +94,6 @@ value main(list[value] args) = sing();
 //	return p ;
 //}
 //
-//value main(list[value] args){	
-// 	return fib(25) ;
-//}
 //value main(list[value] args){	
 // 	return fac(24) ;
 //}

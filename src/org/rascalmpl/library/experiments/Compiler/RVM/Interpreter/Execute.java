@@ -405,7 +405,7 @@ public class Execute {
 				break;
 
 			case "OCALL" :
-				codeblock.OCALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"),++continuationPoint);
+				codeblock.OCALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
 				break;
 
 			case "OCALLDYN" :
