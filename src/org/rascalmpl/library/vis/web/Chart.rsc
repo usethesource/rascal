@@ -10,8 +10,9 @@ module vis::web::Chart
 
 import vis::web::BarChart;
 import util::HtmlDisplay;
-// import vis::web::markup::D3;
+import vis::web::markup::D3;
 import vis::web::PlotFunction;
+
 import Prelude;
 
 public int a = 4;
@@ -128,8 +129,13 @@ rel[map[str, num] , str] loc2str(rel[map[loc, num] , loc] q) {
               };
     }
     
-public void chart(list[num(num)] f) {
-    plotFunction(f, width = 1,   height = 1, nTickx = 10, nTicky = 10,
+public void chart(list[tuple[str name, list[num] ticks, num(num) g]] f) {
+    plotFunction(f, width = -1,   height = -1, nTickx = 10, nTicky = 10,
+    nStep=100, viewWidth = 600,viewHeight= 400);
+    }
+    
+public void chart(list[tuple[str name, lrel[num, num] r]] f) {
+    plot(f, width = -1,   height = -1, nTickx = 10, nTicky = 10,
     nStep=100, viewWidth = 600,viewHeight= 400);
     }
        
@@ -211,14 +217,4 @@ public void chart(map[num, list[num]] ml) {
      
 public void chartDefault(str s) {htmlDisplay(|tmp:///dimple|, html("","<s>"));}
 
- 
-public void main() {
-     // chart({<1,2>, <1,3>, <2,4>});
-     // r =  initialize(|project://dotplugin|);
-     // chart({<|file:///a|, |file:///b|>, <|file:///a|, |file:///d|>});
-     
-     
-     // chart(r);
-     // chart((1:[3,4], 2:[4,2], 3:[9,1]));
-     // println(loc2str({<(|file:///a|:1), |file:///b|, "aap">,<(|file:///a|:1), |file:///d|,"noot">}));
-     }
+
