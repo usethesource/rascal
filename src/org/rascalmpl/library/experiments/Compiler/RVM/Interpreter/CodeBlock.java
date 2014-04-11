@@ -653,7 +653,7 @@ public class CodeBlock {
 		return add(new Shift(this));
 	}
 			
-	public CodeBlock done(Generator codeEmittor, String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
+	public CodeBlock done(Generator codeEmittor, String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing, boolean debug) {
 		this.functionMap = codeMap;
 		this.constructorMap = constructorMap;
 		this.resolver = resolver;
@@ -662,7 +662,7 @@ public class CodeBlock {
 		
 		finalCode = new int[codeSize];
 		for(Instruction ins : insList){
-			ins.generate(codeEmittor, true);
+			ins.generate(codeEmittor, debug);
 		}
 		// TODO: BUG  
 		if ( insList.get(insList.size()-1)  instanceof Label ) {

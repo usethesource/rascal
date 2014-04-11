@@ -26,7 +26,16 @@ module experiments::Compiler::Examples::Simple
 //      res = res + [i];
 //    return res;
 //}
+value main(list[value] args) {
+	res = [];
+	for(j <- [1 .. 50000]) {
+		[ i | int i <- [1,2,3,4,5,6,7,8,9] ];
+	}
+	return res;
+}
 
+//
+//
 //public set[list[int]] sendMoreMoney(){
 //   ds = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 //
@@ -57,20 +66,20 @@ module experiments::Compiler::Examples::Simple
 //    return res;
 //}
 
-str bottles(0)     = "no more bottles"; 
-str bottles(1)     = "1 bottle";
-default str bottles(int n) = "<n> bottles"; 
-
-public str sing() =
-  "<for(n <- [99 .. 1]){>
-  '<bottles(n)> of beer on the wall, <bottles(n)> of beer.
-  'Take one down, pass it around, <bottles(n-1)> of beer on the wall
-  'No more bottles of beer on the wall, no more bottles of beer.
-  'Go to the store and buy some more, 99 bottles of beer on the wall.
-  <}>";
-  
-value main(list[value] args) = bottles(9);
-
+//str bottles(0)     = "no more bottles"; 
+//str bottles(1)     = "1 bottle";
+//default str bottles(int n) = "<n> bottles"; 
+//
+//public str sing() =
+//  "<for(n <- [99 .. 1]){>
+//  '<bottles(n)> of beer on the wall, <bottles(n)> of beer.
+//  'Take one down, pass it around, <bottles(n-1)> of beer on the wall
+//  'No more bottles of beer on the wall, no more bottles of beer.
+//  'Go to the store and buy some more, 99 bottles of beer on the wall.
+//  <}>";
+//  
+//value main(list[value] args) = bottles(9);
+//
 
 //value main(list[value] args){
 //   res = 0;
