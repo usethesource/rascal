@@ -382,4 +382,95 @@ public class RVMRunBody extends RVMRun {
 		}
 		return YIELD1;
 	}
+	public void dopop() {
+		insnSTORELOC(1) ;
+	}
+	public void ainsnLOADCON(int arg1) {
+		stack[sp++] = cf.function.constantStore[arg1];
+	}
+
+	public Object calldynHelper(int arity, int ep) {
+		// In case of CALLDYN, the stack top value of type 'Type'
+		// leads to a constructor call
+
+		// This instruction is a monstrosity it should be split in three.
+
+		Frame tmp = null;
+		Object rval;
+
+		if (cf.hotEntryPoint != ep) {
+			if (stack[sp - 1] instanceof Type) {
+				Type constr = (Type) stack[--sp];
+				arity = constr.getArity();
+				IValue[] args = new IValue[arity];
+				for (int i = arity - 1; i >= 0; i--) {
+					args[i] = (IValue) stack[sp - arity + i];
+				}
+				sp = sp - arity;
+				stack[sp++] = vf.constructor(constr, args);
+				return NONE; // DO not return continue execution
+			}
+
+			// Specific to delimited continuations (experimental)
+			if (stack[sp - 1] instanceof Coroutine) {
+				// Coroutine coroutine = (Coroutine) stack[--sp];
+				// // Merged the hasNext and next semantics
+				// activeCoroutines.push(coroutine);
+				// ccf = coroutine.start;
+				// coroutine.next(cf);
+				// instructions =
+				// coroutine.frame.function.codeblock.getInstructions();
+				// coroutine.frame.stack[coroutine.frame.sp++] = arity == 1 ?
+				// stack[--sp] : null;
+				// cf.pc = pc;
+				// cf.sp = sp;
+				// cf = coroutine.frame;
+				// stack = cf.stack;
+				// sp = cf.sp;
+				// pc = cf.pc;
+				return PANIC;
+			}
+			if (stack[sp - 1] instanceof FunctionInstance) {
+				FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
+				// In case of partial parameter binding
+				if (fun_instance.next + arity < fun_instance.function.nformals) {
+					fun_instance = fun_instance.applyPartial(arity, stack, sp);
+					sp = sp - arity;
+					stack[sp++] = fun_instance;
+					return NONE;
+				}
+				tmp = cf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, arity, sp);
+				cf.nextFrame = tmp;
+			} else {
+//				throw new RuntimeException("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]));
+			}
+		} else {
+			tmp = cf.nextFrame;
+		}
+
+		tmp.previousCallFrame = cf;
+
+		this.cf = tmp;
+		this.stack = cf.stack;
+		this.sp = cf.sp;
+
+		rval = dynRun(cf.function.funId); // In a inline version we can call the
+											// function directly.
+
+		if (rval.equals(YIELD1)) {
+			// drop my stack
+			cf.hotEntryPoint = ep;
+			cf.sp = sp;
+
+			cf = cf.previousCallFrame;
+			sp = cf.sp;
+			stack = cf.stack;
+			return YIELD1; // Will cause the inline call to return YIELD
+		} else {
+			cf.hotEntryPoint = 0;
+			cf.nextFrame = null; // Allow GC to clean
+			return NONE; // Inline call will continue execution
+		}
+	}
+
 }

@@ -1224,6 +1224,12 @@ public class RVMRun {
 		// TODO solve loading of the right value in compile time
 		stack[sp++] = i == 1 ? true : false;
 	}
+	public void insnLOADBOOLTRUE() {
+		stack[sp++] = true ;
+	}
+	public void insnLOADBOOLFALSE() {
+		stack[sp++] = false ;
+	}
 
 	public void insnLOADINT(int i) {
 		// TODO solve loading of the right value in compile time

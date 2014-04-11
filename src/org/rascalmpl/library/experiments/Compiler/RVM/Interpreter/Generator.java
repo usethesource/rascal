@@ -1278,7 +1278,7 @@ public class Generator implements Opcodes {
 		if (!emit)
 			return;
 		if (debug)
-			emitCall("dinsnCALL", 1);
+			emitCall("dinsnCALL", functionIndex);
 
 		Label l0 = new Label();
 
