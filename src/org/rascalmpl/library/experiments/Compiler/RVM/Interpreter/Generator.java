@@ -717,8 +717,7 @@ public class Generator implements Opcodes {
 		else
 			mv.visitIntInsn(SIPUSH, arity);
 
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "jvmOCALL","(II)Ljava/lang/Object;");
-		mv.visitVarInsn(ASTORE, 1);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "jvmOCALL","(II)V");
 	}
 
 	// public void $emitYield0(int hotEntryPoint) {

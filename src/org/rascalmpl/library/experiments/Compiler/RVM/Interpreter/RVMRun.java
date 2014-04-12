@@ -2467,7 +2467,7 @@ public class RVMRun {
 		return NONE;// i.e., signal a failure;
 	}
 
-	public Object jvmOCALL(int ofun, int arity) {
+	public void jvmOCALL(int ofun, int arity) {
 		cf.sp = sp;
 		cf.pc = pc;
 
@@ -2485,16 +2485,13 @@ public class RVMRun {
 			sp = cf.sp;
 			pc = cf.pc;
 			Object rsult = dynRun(cf.function.funId);
-			if (rsult.equals(NONE))
-				return NONE;
+			if (rsult.equals(NONE)) return ;   // Alternative matched.
 			frame = ofun_call.nextFrame(functionStore);
 		}
 
 		Type constructor = ofun_call.nextConstructor(constructorStore);
 		sp = sp - arity;
 		stack[sp++] = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
-
-		return NONE;
 	}
 
 	public Object calldynHelper(int arity, int ep) {
