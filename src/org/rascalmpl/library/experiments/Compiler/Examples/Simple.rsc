@@ -26,13 +26,13 @@ module experiments::Compiler::Examples::Simple
 //      res = res + [i];
 //    return res;
 //}
-value main(list[value] args) {
-	res = [];
-	for(j <- [1 .. 50000]) {
-		[ i | int i <- [1,2,3,4,5,6,7,8,9] ];
-	}
-	return res;
-}
+//value main(list[value] args) {
+//	res = [];
+//	for(j <- [1 .. 50000]) {
+//		[ i | int i <- [1,2,3,4,5,6,7,8,9] ];
+//	}
+//	return res;
+//}
 
 //
 //
@@ -78,8 +78,8 @@ value main(list[value] args) {
 //  'Go to the store and buy some more, 99 bottles of beer on the wall.
 //  <}>";
 //  
-//value main(list[value] args) = bottles(9);
-//
+//value main(list[value] args) = sing();
+
 
 //value main(list[value] args){
 //   res = 0;
