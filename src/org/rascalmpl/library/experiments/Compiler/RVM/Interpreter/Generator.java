@@ -1183,8 +1183,40 @@ public class Generator implements Opcodes {
 				"(IIII)V");
 	}
 
-	public void emitJmpIndex(IList labels, boolean dcode) {
-		// TODO Auto-generated method stub
+	public void emitInlineJmpIndexed(IList labels, boolean dcode) {
+		if (!emit)
+			return;
+		if (dcode)
+			emitCall("dinsnJMPINDEXED", 1);
+
+		Label defaultLabel = new Label();
+		Label[] switchTable;
+
+		int nrLabels = labels.length();
+		switchTable = new Label[nrLabels];
+
+		int lcount = 0;
+		for (IValue vlabel : labels) {
+			String label = ((IString) vlabel).getValue();
+			switchTable[lcount++] = getNamedLabel(label);
+		}
+
+		if (exitLabel == null) exitLabel = new Label();
+
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitInsn(DUP);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitInsn(ICONST_1);
+		mv.visitInsn(ISUB);
+		mv.visitInsn(DUP_X1);
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+		mv.visitInsn(AALOAD);
+		mv.visitTypeInsn(CHECKCAST, "org/eclipse/imp/pdb/facts/IInteger");
+		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IInteger", "intValue", "()I");
+
+		mv.visitTableSwitchInsn(0, nrLabels - 1, exitLabel, switchTable);
 
 	}
 

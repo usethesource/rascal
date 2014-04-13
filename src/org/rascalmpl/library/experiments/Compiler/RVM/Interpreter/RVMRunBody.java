@@ -472,5 +472,16 @@ public class RVMRunBody extends RVMRun {
 			return NONE; // Inline call will continue execution
 		}
 	}
-
+	public void insnJMPINDEXED(int i) {
+		int labelIndex = ((IInteger) stack[--sp]).intValue();
+		IList labels = (IList) cf.function.constantStore[i];
+		pc = ((IInteger) labels.get(labelIndex)).intValue();
+		return;
+	}
+	public void jvmJMPINDEXED(int i) {
+		switch(  ((IInteger) stack[--sp]).intValue()) {
+		case 0 : fret() ;
+		case 2 : fret() ;
+		};
+	}
 }

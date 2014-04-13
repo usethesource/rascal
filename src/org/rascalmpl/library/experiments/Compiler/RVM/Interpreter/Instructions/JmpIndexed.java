@@ -34,7 +34,7 @@ public class JmpIndexed extends Instruction {
 			w.append(codeblock.vf.integer(codeblock.getLabelPC(label)));
 		}
 		
-		codeEmittor.emitJmpIndex(labels , dcode);
+		codeEmittor.emitInlineJmpIndexed(labels , dcode);
 		
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(w.done()));
 	}

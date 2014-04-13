@@ -14,10 +14,20 @@ module experiments::Compiler::Examples::Simple
 //
 //int fac(int n) = (n <= 1) ? 1 : n * fac(n-1);
 
-//int fib(int n) = (n == 0) ? 0 : (n == 1) ? 1 : (fib(n-1) + fib(n-2));
-//value main(list[value] args){	
-// 	return fib(25) ;
-//}
+int fib(int n) = (n == 0) ? 0 : (n == 1) ? 1 : (fib(n-1) + fib(n-2));
+
+value main(list[value] args){	
+ 	int p = 25 ;
+ 	
+ 	switch (p) {
+ 		case 1:  p = fib(1) ;
+ 		case 2:  p = fib(2) ;
+ 		case 3:  p = fib(3) ;
+ 		case 25:  p = fib(25) ;
+ 	}
+ 	
+ 	return p ;
+}
 
 //
 //value main(list[value] args){
