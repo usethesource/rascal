@@ -283,11 +283,11 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       /*
  				* The field 'comma' is a work around given the current semantics of implode 
  				*/
-      	       case preIfelse(MuExp cond, list[MuExp] thenPart, bool comma, 
-      	                                  list[MuExp] elsePart, bool comma)                     => muIfelse("", cond, thenPart, elsePart)
+      	       case preIfelse(MuExp cond, list[MuExp] thenPart, bool comma1, 
+      	                                  list[MuExp] elsePart, bool comma2)                     => muIfelse("", cond, thenPart, elsePart)
                case preWhile(MuExp cond, list[MuExp] body, bool comma)                          => muWhile("", cond, body)
-               case preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma, 
-                                                     list[MuExp] elsePart, bool comma)          => muIfelse(label, cond, thenPart, elsePart)
+               case preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma1, 
+                                                     list[MuExp] elsePart, bool comma2)          => muIfelse(label, cond, thenPart, elsePart)
                case preWhile(str label, MuExp cond, list[MuExp] body, bool comma)               => muWhile(label, cond, body)
                case preTypeSwitch(MuExp exp, lrel[MuTypeCase, bool] sepCases, 
                                   MuExp \default, bool comma)                                   => muTypeSwitch(exp, sepCases<0>, \default)
