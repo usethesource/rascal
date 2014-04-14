@@ -330,10 +330,10 @@ void extractScopes(){
 Symbol getType(loc l) = config.locationTypes[l];
 
 // Get the type of an expression as string
-str getType(e) = "<getType(e@\loc)>";
+str getType(Tree e) = "<getType(e@\loc)>";
 
 // Get the outermost type constructor of an expression as string
-str getOuterType(e) { 
+str getOuterType(Tree e) { 
 	if(parameter(str _, Symbol bound) := getType(e@\loc)) {
 		return "<getName(bound)>";
 	}
