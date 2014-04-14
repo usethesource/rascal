@@ -51,7 +51,6 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.junit.runner.Computer;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BindingsResolver {
@@ -250,7 +249,7 @@ public class BindingsResolver {
 	}
 	
   private IConstructor computeMethodTypeSymbol(ISourceLocation decl, IMethodBinding binding, boolean isDeclaration) {
-    IList parameters = computeTypes(binding.getParameterTypes(), false);
+    IList parameters = computeTypes(isDeclaration ? binding.getParameterTypes() : binding.getTypeArguments(), false);
     
     if (binding.isConstructor()) {
       return constructorSymbol(decl, parameters);
@@ -289,9 +288,13 @@ public class BindingsResolver {
 
   private IConstructor parameterNode(ISourceLocation decl, ITypeBinding[] bound, boolean isDeclaration, boolean isUpperbound) {
     if (bound.length > 0) {
-      IConstructor boundSym = boundSymbol(bound, isDeclaration, isUpperbound);
-      org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeParameter", tf.tupleType(decl.getType(), boundSym.getType()));
-      return values.constructor(cons, decl, boundSym);
+      if (isDeclaration) {
+	    IConstructor boundSym = boundSymbol(bound, isDeclaration, isUpperbound);
+	    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeParameter", tf.tupleType(decl.getType(), boundSym.getType()));
+	    return values.constructor(cons, decl, boundSym);
+      }
+      org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeArgument", tf.tupleType(decl.getType()));
+      return values.constructor(cons, decl);
     }
     else {
       return parameterNode(decl);
@@ -337,7 +340,6 @@ public class BindingsResolver {
         return parameterNode(decl);
       }
       else {
-    	assert bound.length == 1;
     	// for type parameters it is always upperbound
         return parameterNode(decl, bound, isDeclaration, true);
       } 
@@ -372,7 +374,7 @@ public class BindingsResolver {
       }
     }
     else if (binding.isInterface()) {
-      return interfaceSymbol(decl, computeTypes(binding.getTypeArguments(), isDeclaration));
+      return interfaceSymbol(decl, computeTypes(isDeclaration ? binding.getTypeParameters() : binding.getTypeArguments(), isDeclaration));
     }
     
     return null;
@@ -389,7 +391,8 @@ public class BindingsResolver {
   }
 
   private IConstructor boundSymbol(ITypeBinding[] bound, boolean isDeclaration, boolean isUpperbound) {
-    IList boundSym = computeTypes(bound, isDeclaration);
+	// Assumption: Anything appearing in a bound symbol is not a declaration
+    IList boundSym = computeTypes(bound, false);
     
     org.eclipse.imp.pdb.facts.type.Type boundType = store.lookupAbstractDataType("Bound");
     
@@ -520,6 +523,11 @@ public class BindingsResolver {
 		
 		if (binding.isTypeVariable()) {
 		  scheme = "java+typeVariable";
+		  if (binding.getDeclaringMethod() != null) {
+			  qualifiedName = resolveBinding(binding.getDeclaringMethod()).getPath() + "/" + qualifiedName;
+		  } else if (binding.getDeclaringClass() != null) {
+			  qualifiedName = resolveBinding(binding.getDeclaringClass()).getPath() + "/" + qualifiedName;
+		  }
 		}
 		
 		if (binding.isPrimitive()) {
