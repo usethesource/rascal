@@ -467,7 +467,7 @@ public class BindingsResolver {
 			  params = params.concat(getPath(resolveBinding(parameterType)).replaceAll("/", "."));
 			}
 		}
-		signature = signature.concat(binding.getName() + "(" + params + ")");
+		signature = signature.concat(binding.getMethodDeclaration().getName() + "(" + params + ")");
 		String scheme = "unknown";
 		if (binding.isConstructor()) {
 	      scheme = "java+constructor";
