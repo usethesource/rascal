@@ -484,4 +484,7 @@ public class RVMRunBody extends RVMRun {
 		case 2 : fret() ;
 		};
 	}
+	public void insnLOADINT(int i) {
+		stack[sp++] = 1000000;
+	}
 }

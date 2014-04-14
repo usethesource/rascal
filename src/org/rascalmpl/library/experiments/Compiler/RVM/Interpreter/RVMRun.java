@@ -2469,7 +2469,6 @@ public class RVMRun {
 
 	public void jvmOCALL(int ofun, int arity) {
 		cf.sp = sp;
-		cf.pc = pc;
 
 		OverloadedFunctionInstanceCall ofun_call = null;
 		OverloadedFunction of = overloadedStore.get(ofun);
@@ -2483,7 +2482,6 @@ public class RVMRun {
 			cf = frame;
 			stack = cf.stack;
 			sp = cf.sp;
-			pc = cf.pc;
 			Object rsult = dynRun(cf.function.funId);
 			if (rsult.equals(NONE)) return ;   // Alternative matched.
 			frame = ofun_call.nextFrame(functionStore);

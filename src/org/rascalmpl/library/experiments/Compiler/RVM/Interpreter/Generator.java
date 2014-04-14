@@ -44,6 +44,16 @@ public class Generator implements Opcodes {
 		emit = flag;
 	}
 
+	private void emitIntValue(int value) {
+		if (value >= -128 && value <= 127)
+			mv.visitIntInsn(BIPUSH, value); // 8 bit
+		else
+			if (value >= -32768 && value <= 32767)
+				mv.visitIntInsn(SIPUSH, value);  // 16 bit
+			else
+				mv.visitLdcInsn(new Integer(value)); // REST
+	}
+	
 	public void emitClass(String pName, String cName) {
 		this.className = cName;
 		this.packageName = pName;
@@ -268,34 +278,26 @@ public class Generator implements Opcodes {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, 0); // Load this on stack.
-
-		if (arg1 >= -128 && arg1 <= 127)
-			mv.visitIntInsn(BIPUSH, arg1);
-		else
-			mv.visitIntInsn(SIPUSH, arg1);
-
+		emitIntValue(arg1) ;
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(I)V");
+	}
+
+	public void emitCall(String fname, int arg1, int arg2) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, 0); // Load this on stack.
+		emitIntValue(arg1) ;
+		emitIntValue(arg2) ;
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(II)V");
 	}
 
 	public void emitCall(String fname, int arg1, int arg2, int arg3) {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, 0); // Load this on stack.
-
-		if (arg1 >= -128 && arg1 <= 127)
-			mv.visitIntInsn(BIPUSH, arg1);
-		else
-			mv.visitIntInsn(SIPUSH, arg1);
-		if (arg2 >= -128 && arg2 <= 127)
-			mv.visitIntInsn(BIPUSH, arg2);
-		else
-			mv.visitIntInsn(SIPUSH, arg2);
-
-		if (arg3 >= -128 && arg3 <= 127)
-			mv.visitIntInsn(BIPUSH, arg3);
-		else
-			mv.visitIntInsn(SIPUSH, arg3);
-
+		emitIntValue(arg1) ;
+		emitIntValue(arg2) ;
+		emitIntValue(arg3) ;
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(III)V");
 	}
 
@@ -304,14 +306,8 @@ public class Generator implements Opcodes {
 			return;
 		mv.visitVarInsn(ALOAD, 0); // Load this on stack.
 
-		if (arg1 >= -128 && arg1 <= 127)
-			mv.visitIntInsn(BIPUSH, arg1);
-		else
-			mv.visitIntInsn(SIPUSH, arg1);
-		if (arg2 >= -128 && arg2 <= 127)
-			mv.visitIntInsn(BIPUSH, arg2);
-		else
-			mv.visitIntInsn(SIPUSH, arg2);
+		emitIntValue(arg1) ;
+		emitIntValue(arg2) ;
 
 		if (arg3)
 			mv.visitInsn(ICONST_1);
@@ -321,20 +317,6 @@ public class Generator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(IIZ)V");
 	}
 
-	public void emitCall(String fname, int arg1, int arg2) {
-		if (!emit)
-			return;
-		mv.visitVarInsn(ALOAD, 0); // Load this on stack.
-		if (arg1 >= -128 && arg1 <= 127)
-			mv.visitIntInsn(BIPUSH, arg1);
-		else
-			mv.visitIntInsn(SIPUSH, arg1);
-		if (arg2 >= -128 && arg2 <= 127)
-			mv.visitIntInsn(BIPUSH, arg2);
-		else
-			mv.visitIntInsn(SIPUSH, arg2);
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(II)V");
-	}
 
 	byte[] finalizeCode() {
 		if (endCode == null) {
