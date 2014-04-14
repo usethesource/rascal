@@ -15,6 +15,7 @@ data TypeSymbol
   | \method(loc decl, list[TypeSymbol] typeParameters, TypeSymbol returnType, list[TypeSymbol] parameters)
   | \constructor(loc decl, list[TypeSymbol] parameters)
   | \typeParameter(loc decl, Bound upperbound) 
+  | \typeArgument(loc decl)
   | \wildcard(Bound bound)
   | \capture(Bound bound, TypeSymbol wildcard)
   | \intersection(list[TypeSymbol] types)
