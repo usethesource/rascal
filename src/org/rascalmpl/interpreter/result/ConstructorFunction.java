@@ -78,7 +78,28 @@ public class ConstructorFunction extends NamedFunction {
 			instantiated = constructorType.instantiate(bindings);
 		}
 
-		return makeResult(instantiated, ctx.getValueFactory().constructor(constructorType, actuals, keyArgValues), ctx);
+		Environment old = ctx.getCurrentEnvt();
+		Environment init = new Environment(old.getLocation(), "initializer");
+		
+		try {
+			ctx.setCurrentEnvt(init);
+			
+			// make sure the children and the given kw params are set in the scope, such that
+			// the other kwParameters can be initialized accordingly.
+			
+			for (String key : keyArgValues.keySet()) {
+				init.storeVariable(key, ResultFactory.makeResult(constructorType.getKeywordParameterType(key), keyArgValues.get(key), ctx));
+			}
+			
+			for (int i = 0; i < constructorType.getArity(); i++) {
+				init.storeVariable(constructorType.getFieldName(i), ResultFactory.makeResult(constructorType.getFieldType(i), actuals[i], ctx));
+			}
+			
+			return makeResult(instantiated, ctx.getValueFactory().constructor(constructorType, actuals), ctx);
+		}
+		finally {
+			ctx.unwind(old);
+		}
 	}
 	
 	@Override

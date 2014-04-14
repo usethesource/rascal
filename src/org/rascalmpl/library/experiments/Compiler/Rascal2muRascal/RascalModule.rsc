@@ -161,7 +161,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
              kwargs = kwargs + [ muCon("<getSimpleName(kwf)>"), muVarKwp(fuid,getSimpleName(kwf)) ];
          }
          MuExp body = muBlock(kwps + kwargs + [ muReturn(muCall(muConstr(fuid2str[uid]),[ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
-                                            + [ muCallPrim("map_create", kwargs), 
+                                            + [ muCallMuPrim("map_create", kwargs), 
                                                 muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),keywordParams[rname]) | rname <- keywordParams ])) ])) ]);
                                                 
          leaveFunctionScope();
