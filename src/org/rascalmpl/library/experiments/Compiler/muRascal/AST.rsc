@@ -254,9 +254,9 @@ public data MuExp =
             | preAssignLocDeref(Identifier id, MuExp exp)
             | preAssignVarDeref(lrel[str,int] funNames, Identifier id, MuExp exp)
             
-            | preIfelse(MuExp cond, list[MuExp] thenPart, bool comma, list[MuExp] elsePart, bool comma)
+            | preIfelse(MuExp cond, list[MuExp] thenPart, bool comma1, list[MuExp] elsePart, bool comma2)
             | preWhile(MuExp cond, list[MuExp] body, bool comma)
-            | preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma, list[MuExp] elsePart, bool comma)
+            | preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma1, list[MuExp] elsePart, bool comma2)
             | preWhile(str label, MuExp cond, list[MuExp] body, bool comma)
             | preTypeSwitch(MuExp exp, lrel[MuTypeCase,bool] sepCases, MuExp \default, bool comma)
             | preBlock(list[MuExp] exps, bool comma)
