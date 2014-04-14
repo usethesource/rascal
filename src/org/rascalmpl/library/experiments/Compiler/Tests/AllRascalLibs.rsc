@@ -77,7 +77,6 @@ list[str] libs = [
 				
 				// error("Could not calculate function type because of errors calculating the parameter types",|project://rascal/src/org/rascalmpl/library/ParseTree.rsc|(11024,119,<278,7>,<278,126>))
 				// error("Type of pattern could not be computed, please add additional type annotations",|project://rascal/src/org/rascalmpl/library/ParseTree.rsc|(11066,53,<278,49>,<278,102>))					
-						
 
 "analysis::formalconcepts::FCA",
 //error("Name object is not in scope",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(2841,6,<75,13>,<75,19>))
@@ -117,6 +116,8 @@ list[str] libs = [
 "analysis::statistics::Frequency",			// OK
 "analysis::statistics::Inference",			// OK
 "analysis::statistics::SimpleRegression"	// OK
+
+// DEMO
 
 "demo::basic::Ackermann",					// OK
 "demo::basic::Bottles",						// OK
@@ -177,7 +178,7 @@ list[str] libs = [
 "demo::lang::Lisra::Runtime",
 "demo::lang::Lisra::Syntax",
 "demo::lang::Lisra::Test",
-*/
+
 "demo::lang::MissGrant::AST",
 "demo::lang::MissGrant::CheckController",
 "demo::lang::MissGrant::DesugarResetEvents",
@@ -219,20 +220,48 @@ list[str] libs = [
 "demo::vis::Higher",
 "demo::vis::Logo",
 "demo::vis::VisADT",
+*/
 
-"experiments::Compiler::RVM::AST",
-"experiments::Compiler::muRascal::AST",
+// COMPILER
 
-"experiments::Compiler::muRascal2RVM::PeepHole",
+// RVM
+"experiments::Compiler::RVM::AST",							// OK
+"experiments::Compiler::RVM::Syntax",						// OK
+"experiments::Compiler::RVM::Load",							// OK
+"experiments::Compiler::RVM::Parse"							// OK
+
+/*
+"experiments::Compiler::muRascal::AST",						// OK
+
+"experiments::Compiler::muRascal2RVM::PeepHole",			// OK
 "experiments::Compiler::muRascal2RVM::RascalReifiedTypes",
 "experiments::Compiler::muRascal2RVM::ReifiedTypes",
-"experiments::Compiler::muRascal2RVM::StackSize",
-"experiments::Compiler::muRascal2RVM::ToplevelType",
+"experiments::Compiler::muRascal2RVM::StackSize",			// OK
+"experiments::Compiler::muRascal2RVM::ToplevelType",		// OK
 "experiments::Compiler::muRascal2RVM::mu2rvm"
+*/
 
 
+];
 
-
+list[str] eclipse_libs =
+[
+/*
+// Eclipse library
+"util::Clipboard",						// OK				
+"util::ContentCompletion",				// ERROR
+"util::Editors",						// ERROR
+"util::FastPrint",						// OK
+"util::HtmlDisplay",					// OK
+"util::IDE",							// ERROR
+"util::NonRascalMenuContributionItem",	// ERROR
+"util::ParseTreeUI",					// ERROR
+"util::Prompt",							// OK
+"util::ResourceMarkers",				// OK
+"util::Resources",						// ERROR
+"util::SyntaxHighligthingTemplates",	// ERROR
+"util::ValueUI"							// ERROR
+*/
 ];
 
 value main(list[value] args){
@@ -247,6 +276,19 @@ value main(list[value] args){
       crashes += <lib, "<e>">;
     }
   }
+  
+   for(lib <- eclipse_libs){
+    println("**** Compiling <lib> ****");
+    try {
+	    //compile("module TMP  extend Exception; extend <lib>;", recompile=true);
+	    
+    	compile(|project://rascal-eclipse/src/org/rascalmpl/eclipse/library/| + (replaceAll(lib, "::", "/") + ".rsc"), recompile=true);
+    } catch e: {
+      crashes += <lib, "<e>">;
+    }
+  }
+  
+
   if(size(crashes) > 0){
     println("\nERRORS:\n");
      for(<lib, msg> <- crashes){

@@ -1,7 +1,7 @@
 module experiments::Compiler::RVM::Syntax
 
 import ParseTree;
-import util::IDE;
+//import util::IDE;
 
 layout LAYOUTLIST
   = LAYOUT* !>> [\t-\n \r \ ] !>> "//" !>> "/*";
