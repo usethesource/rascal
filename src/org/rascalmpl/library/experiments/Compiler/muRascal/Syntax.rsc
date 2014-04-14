@@ -40,10 +40,10 @@ lexical MId = ( [a-h j-q s-z][A-Za-z0-9_]* !>> [A-Za-z0-9_] )      \ Keywords
 			;
 
 lexical Identifier = 
-			    fvar: FConst var
-			  |	@category = "IValue" ivar: IId var
-              | @category = "Reference" rvar: RId var
-              | mvar: MId var
+			    fvar: FConst var1
+			  |	@category = "IValue" ivar: IId var2
+              | @category = "Reference" rvar: RId var3
+              | mvar: MId var4
               ; 
 
 lexical StrChar = 
@@ -85,14 +85,14 @@ syntax FunNamePart = FConst id >> "::" "::" Integer nformals >> "::" "::";
 syntax ModNamePart = MConst id >> "::" "::";
 
 syntax Exp  =
-			  muLab: 					Label id
+			  muLab: 					Label lid
 			
 			// non-nested, named functions inside or ouside a given module
 			| preFunNN:             	ModNamePart modName FConst id >> "::" "::" Integer nformals
 			// nested functions inside a current module
 			| preFunN:              	FunNamePart+ funNames FConst id >> "::" "::" Integer nformals
 			
-			| muConstr: 				"cons" FConst id
+			| muConstr: 				"cons" FConst cid
 			
 			// call-by-reference: uses of variables that refer to a value location in contrast to a value
 			| preLocDeref:  			"deref" Identifier!fvar!ivar!mvar id
@@ -111,7 +111,7 @@ syntax Exp  =
 			| muApply:                  "bind" "(" Exp!muReturn!muYield!muExhaust exp "," {Exp ","}+ args ")"
 			
 			| preSubscript:             Exp exp NoNLList "[" Exp index "]"
-			| preList:					"[" {Exp ","}* exps "]"
+			| preList:					"[" {Exp ","}* exps0 "]"
 			
 			> left ( preDivision:       Exp lhs "/"   Exp rhs
 			       | preMultiplication: Exp lhs "*"   Exp rhs
@@ -138,7 +138,7 @@ syntax Exp  =
 			> left preOr:               Exp lhs "||" Exp rhs
 			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] TConst typeName
 			
-			> preAssignSubscript:       Exp exp NoNLList "[" Exp index "]" "=" Exp exp
+			> preAssignSubscript:       Exp exp1 NoNLList "[" Exp index "]" "=" Exp exp2
 			| preAssignLocList:			"[" Identifier!fvar!rvar id1 "," Identifier!fvar!rvar id2 "]" "=" Exp exp
 			
 			| preAssignLoc: 			Identifier!fvar id "=" Exp exp
@@ -163,11 +163,11 @@ syntax Exp  =
 			| muNext:   				"next" "(" Exp coro "," {Exp ","}+ args ")"
 			
 			> muReturn: 				"return" NoNLList Exp exp
-			| muReturn:                 () "return" NoNLList "(" Exp exp "," {Exp ","}+ exps ")"
+			| muReturn:                 () "return" NoNLList "(" Exp exp "," {Exp ","}+ exps1 ")"
 			| muReturn: 				() () "return"
 			
 			| muYield: 					"yield" NoNLList Exp exp
-			| muYield:                  () "yield" NoNLList "(" Exp exp "," {Exp ","}+ exps ")"
+			| muYield:                  () "yield" NoNLList "(" Exp exp "," {Exp ","}+ exps1 ")"
 			| muYield: 					() () "yield"
 			
 			| muExhaust:                "exhaust"
@@ -176,7 +176,7 @@ syntax Exp  =
 			| preContLoc:               "cont"
 			| preContVar:               FunNamePart+ funNames "cont"
 			| muReset:                  "reset" "(" Exp fun ")"
-			| muShift:                  "shift" "(" Exp body ")"
+			| muShift:                  "shift" "(" Exp ebody ")"
 			
 			// call-by-reference: expressions that return a value location
 			| preLocRef:     			"ref" Identifier!fvar!rvar id
@@ -205,9 +205,9 @@ keyword Keywords =
 // Syntactic features that will be removed by the preprocessor. 
             
 syntax Exp =
-              preIntCon:				Integer txt
-            | preStrCon:				String txt
-            | preTypeCon:   			"type" String txt
+              preIntCon:				Integer txt1
+            | preStrCon:				String txt2
+            | preTypeCon:   			"type" String txt3
 			| preVar: 					Identifier id
 			// *local* variables of functions used inside their closures and nested functions
 			| preVar: 					FunNamePart+ funNames Identifier id 
