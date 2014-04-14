@@ -112,6 +112,7 @@ public class SourceConverter extends M3Converter {
 	
 	public boolean visit(ClassInstanceCreation node) {
 		insert(methodInvocation, getParent(), ownValue);
+	  	insert(uses, getSourceLocation(node), ownValue);
 		return true;
 	}
 	
@@ -309,12 +310,6 @@ public class SourceConverter extends M3Converter {
 	public boolean visit(SimpleName node) {
 		insert(names, values.string(node.getIdentifier()), ownValue);
 		
-		if (((ISourceLocation)ownValue).getScheme().equals("java+field")) {
-			if (!getParent().isEqual((ISourceLocation) ownValue)) {
-				insert(fieldAccess, getParent(), ownValue);
-			}
-		}
-		
 		if (!simpleNameIsConstructorDecl(node)) {
 			addTypeDependency(resolveBinding(node.resolveTypeBinding()));
 			if (!node.isDeclaration()) {
@@ -331,6 +326,9 @@ public class SourceConverter extends M3Converter {
 		}
 		else {
 			insert(uses, getSourceLocation(node), ownValue);
+			if (((ISourceLocation) ownValue).getScheme().equals("java+field")) {
+			  insert(fieldAccess, getParent(), ownValue);
+			}
 		}
 	}
 
@@ -426,7 +424,6 @@ public class SourceConverter extends M3Converter {
 	public boolean visit(VariableDeclarationFragment node) {
 		insert(containment, getParent(), ownValue);
 		
-		scopeManager.push((ISourceLocation) ownValue);
 		ASTNode parentASTNode = node.getParent();
 		if (parentASTNode instanceof FieldDeclaration) {
 			FieldDeclaration parent = (FieldDeclaration)parentASTNode;
@@ -448,7 +445,6 @@ public class SourceConverter extends M3Converter {
 	}
 	
 	public void endVisit(VariableDeclarationFragment node) {
-	  ownValue = scopeManager.pop();
 		IVariableBinding binding = node.resolveBinding();
 		
 		if (binding != null) {
