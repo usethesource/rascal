@@ -112,6 +112,7 @@ public class SourceConverter extends M3Converter {
 	
 	public boolean visit(ClassInstanceCreation node) {
 		insert(methodInvocation, getParent(), ownValue);
+	  	insert(uses, getSourceLocation(node), ownValue);
 		return true;
 	}
 	
