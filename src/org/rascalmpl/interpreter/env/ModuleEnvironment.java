@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -576,12 +577,12 @@ public class ModuleEnvironment extends Environment {
 		return sort;
 	}
 	
-	private Type makeTupleType(Type adt, String name, Type tupleType, Map<String,Type> keywordParams, Map<String,IValue> defaultParams) {
+	private Type makeTupleType(Type adt, String name, Type tupleType, Type keywordParams, Map<String,IKeywordParameterInitializer> defaultParams) {
 	  return TF.constructorFromTuple(typeStore, adt, name, tupleType, keywordParams, defaultParams);
 	}
 	
 	@Override
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Map<String,Type> keywordParams, Map<String,IValue> defaultParams) {
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Type keywordParams, Map<String,IKeywordParameterInitializer> defaultParams) {
 		Type cons = makeTupleType(adt, name, tupleType, keywordParams, defaultParams);
 		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
 		storeFunction(name, function);

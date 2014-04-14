@@ -612,6 +612,25 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	}, // kwp
+	map_create {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity >= 0;
+			
+			if(arity == 0){
+				stack[sp] = new HashMap<String, IValue>();
+				return sp + 1;
+			}
+			Map<String, IValue> writer = new HashMap<String, IValue>();
+			for (int i = arity; i > 0; i -= 2) {
+				writer.put(((IString) stack[sp - i]).getValue(), (IValue) stack[sp - i + 1]);
+			}
+			sp = sp - arity + 1;
+			stack[sp - 1] = writer;
+
+			return sp;
+		}
+	},
 	map_contains_key {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {

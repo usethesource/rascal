@@ -13,7 +13,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
-*******************************************************************************/
+ *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
 import java.util.HashMap;
@@ -33,6 +33,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.QualifiedName;
@@ -57,36 +58,36 @@ public class NodePattern extends AbstractMatchingResult {
 	private final IMatchingResult namePattern;
 	private final Map<String, IMatchingResult> keywordParameters;
 	private final boolean matchUPTR;
-	
+
 	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, Type constructorType, List<IMatchingResult> list, Map<String,IMatchingResult> keywordParameters){
 		super(ctx, x);
 		this.patternConstructorType = constructorType;
 		this.patternChildren = list;
 		this.keywordParameters = keywordParameters;
-		
+
 		if (matchPattern != null) {
 			namePattern = matchPattern;
 			matchUPTR = false;
 			qName = null;
 		}
 		else if (name != null) {
-		  namePattern = null;
+			namePattern = null;
 			qName = name;
 			matchUPTR = Cases.IUPTR_NAMES.contains(Names.fullName(qName));
 		}
 		else {
-		  namePattern = null;
-		  qName = null;
+			namePattern = null;
+			qName = null;
 			matchUPTR = false;
 		}
-		
+
 	}
-	
+
 	@Override
 	public void initMatch(Result<IValue> subject){
 		super.initMatch(subject);
 		hasNext = false;
-		
+
 		if (subject.isVoid()) {
 			throw new UninitializedPatternMatch("Uninitialized pattern match: trying to match a value of the type 'void'", ctx.getCurrentAST());
 		}
@@ -94,14 +95,14 @@ public class NodePattern extends AbstractMatchingResult {
 		if (!subject.getValue().getType().isNode()) {
 			return;
 		}
-		
+
 		if (!matchUPTR && subject.getType().isSubtypeOf(Factory.Tree) && TreeAdapter.isAppl((IConstructor) subject.getValue())) {
-		  this.subject = new TreeAsNode((IConstructor) subject.getValue());
+			this.subject = new TreeAsNode((IConstructor) subject.getValue());
 		}
 		else {
-		  this.subject = (INode) subject.getValue();
+			this.subject = (INode) subject.getValue();
 		}
-		
+
 		String sname = this.subject.getName();
 		if(qName != null){
 			if(!((org.rascalmpl.semantics.dynamic.QualifiedName.Default) qName).lastName().equals(sname)){
@@ -115,7 +116,7 @@ public class NodePattern extends AbstractMatchingResult {
 				return; // TODO What if the name has alternatives?
 			}	
 		}
-		
+
 		// Determine type compatibility between pattern and subject
 		Type patternType = getType(ctx.getCurrentEnvt(), null);
 		Type subjectType = this.subject.getType();
@@ -123,54 +124,56 @@ public class NodePattern extends AbstractMatchingResult {
 		if (subjectType.isAbstractData()) {
 			subjectType = ((IConstructor) this.subject).getConstructorType();
 		} 
-		
+
 		INode node = ((INode) this.subject);
-    if (node.arity() != patternChildren.size()) {
-      return; // that can never match
-    }
-		
+		if (node.arity() != patternChildren.size()) {
+			return; // that can never match
+		}
+
 		if (patternType.comparable(subjectType)) {
 			hasNext = true;
 		} else {
 			return;
 		}
-		
+
 		for (int i = 0; i < patternChildren.size(); i++){
 			IValue subjectChild = this.subject.get(i);
 			IMatchingResult patternChild = patternChildren.get(i);
-			
+
 			patternChild.initMatch(ResultFactory.makeResult(subjectChild.getType(), subjectChild, ctx));
 			hasNext = patternChild.hasNext();
-			
+
 			if (!hasNext) {
 				break; // saves time!
 			}
 		}
+
+		ImmutableMap<String, IValue> defaults = type.getKeywordParameterDefaults().initialize();
 		
 		for (Entry<String,IMatchingResult> entry : keywordParameters.entrySet()) {
-		  IWithKeywordParameters<? extends INode> wkw = this.subject.asWithKeywordParameters();
-      IValue subjectParam = wkw.getParameter(entry.getKey());
-		  Type subjectParamType;
-		   
-		  if (subjectParam == null && type.hasKeywordParameters()) {
-		    // this happens when a constructor matches, but the keyword parameters are not defined
-		    // for it, perhaps it came from a module where the parameters was not defined yet..
-		    subjectParam = type.getKeywordParameterDefault(entry.getKey());
-		    subjectParamType = type.getKeywordParameterType(entry.getKey());
-		  }
-		  else {
-		    // TODO: here we are using the dynamic type, is that what we are supposed to do?
-		    subjectParamType = subject.getType().isConstructor() ? subjectParam.getType() : tf.valueType();
-		  }
-		  
-      entry.getValue().initMatch(ResultFactory.makeResult(subjectParamType, subjectParam, ctx));
-      
-      hasNext = subjectParam != null && entry.getValue().hasNext();
-      if (!hasNext) {
-        break;
-      }
+			IWithKeywordParameters<? extends INode> wkw = this.subject.asWithKeywordParameters();
+			IValue subjectParam = wkw.getParameter(entry.getKey());
+			Type subjectParamType;
+
+			if (subjectParam == null && type.hasKeywordParameters()) {
+				// this happens when a constructor matches, but the keyword parameters are not defined
+				// for it, perhaps it came from a module where the parameters was not defined yet..
+				subjectParam = defaults.get(entry.getKey());
+				subjectParamType = type.getKeywordParameterType(entry.getKey());
+			}
+			else {
+				// TODO: here we are using the dynamic type, is that what we are supposed to do?
+				subjectParamType = subject.getType().isConstructor() ? subjectParam.getType() : tf.valueType();
+			}
+
+			entry.getValue().initMatch(ResultFactory.makeResult(subjectParamType, subjectParam, ctx));
+
+			hasNext = subjectParam != null && entry.getValue().hasNext();
+			if (!hasNext) {
+				break;
+			}
 		}
-		
+
 		nextChild = 0;
 	}
 
@@ -182,18 +185,18 @@ public class NodePattern extends AbstractMatchingResult {
 			if (type != null && type.isConstructor()) {
 				type = getConstructorType(env).getAbstractDataType();
 			}
-			
+
 			if (type == null) {
-			  type = TypeFactory.getInstance().nodeType();
+				type = TypeFactory.getInstance().nodeType();
 			}
 		}
 		return type;
 	}
 
 	public Type getConstructorType(Environment env) {
-		 return patternConstructorType;
+		return patternConstructorType;
 	}
-	
+
 	@Override
 	public List<IVarPattern> getVariables(){
 		java.util.LinkedList<IVarPattern> res = new java.util.LinkedList<IVarPattern> ();
@@ -201,11 +204,11 @@ public class NodePattern extends AbstractMatchingResult {
 		for (IMatchingResult c : patternChildren) {
 			res.addAll(c.getVariables());
 		}
-		
+
 		for (IMatchingResult v : keywordParameters.values()) {
-		  res.addAll(v.getVariables());
+			res.addAll(v.getVariables());
 		}
-		
+
 		return res;
 	}
 
@@ -221,7 +224,7 @@ public class NodePattern extends AbstractMatchingResult {
 			hasNext = false;
 			return nextKeywordParameters();
 		}
-		
+
 		while (nextChild >= 0) {
 			IMatchingResult nextPattern = patternChildren.get(nextChild);
 
@@ -233,20 +236,20 @@ public class NodePattern extends AbstractMatchingResult {
 					hasNext = false;
 					for (int i = nextChild; i >= 0; i--) {
 						IMatchingResult child = patternChildren.get(i);
-            hasNext |= child.hasNext();
+						hasNext |= child.hasNext();
 						if (patternConstructorType != null && !patternConstructorType.isNode() && hasNext) {
-						  // This code should disappear as soon as we have a type checker. 
-						  // Since constructors give us specific type contexts, an inferred type
-						  // for a child pattern variable should get this specific type. A type
-						  // checker would have inferred that already, but now we just push
-						  // the information down to all children of the constructor.
-						  child.updateType(patternConstructorType.getFieldType(i++));
+							// This code should disappear as soon as we have a type checker. 
+							// Since constructors give us specific type contexts, an inferred type
+							// for a child pattern variable should get this specific type. A type
+							// checker would have inferred that already, but now we just push
+							// the information down to all children of the constructor.
+							child.updateType(patternConstructorType.getFieldType(i++));
 						}
 					}
-					
+
 					return nextKeywordParameters();
 				}
-				
+
 				nextChild++;
 			}
 			else {
@@ -265,16 +268,16 @@ public class NodePattern extends AbstractMatchingResult {
 		return false;
 	}
 
-  private boolean nextKeywordParameters() {
-    for (Entry<String,IMatchingResult> entry : keywordParameters.entrySet()) {
-      if (!entry.getValue().next()) {
-        return false;
-      }
-    }
-    
-    return true;
-  }
-	
+	private boolean nextKeywordParameters() {
+		for (Entry<String,IMatchingResult> entry : keywordParameters.entrySet()) {
+			if (!entry.getValue().next()) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	@Override
 	public String toString(){
 		int n = patternChildren.size();
@@ -284,13 +287,13 @@ public class NodePattern extends AbstractMatchingResult {
 		StringBuilder res = new StringBuilder(Names.fullName(qName));
 		res.append("(");
 		String sep = "";
-		
+
 		for (IMatchingResult c : patternChildren){
 			res.append(sep);
 			sep = ", ";
 			res.append(c.toString());
 		}
-		
+
 		for (Entry<String,IMatchingResult> e : keywordParameters.entrySet()) {
 			res.append(sep);
 			sep = ", ";
@@ -299,95 +302,95 @@ public class NodePattern extends AbstractMatchingResult {
 			res.append(e.getValue().toString());
 		}
 		res.append(")");
-		
+
 		return res.toString();
 	}
-	
+
 	private class TreeAsNode implements INode {
-	  private final String name;
-    private final IList args;
+		private final String name;
+		private final IList args;
 
-    public TreeAsNode(IConstructor tree) {
-	    this.name = TreeAdapter.getConstructorName(tree);
-	    this.args = TreeAdapter.isContextFree(tree) ? TreeAdapter.getASTArgs(tree) : TreeAdapter.getArgs(tree);
-    }
-    
-    @Override
-    public Type getType() {
-      return TypeFactory.getInstance().nodeType();
-    }
+		public TreeAsNode(IConstructor tree) {
+			this.name = TreeAdapter.getConstructorName(tree);
+			this.args = TreeAdapter.isContextFree(tree) ? TreeAdapter.getASTArgs(tree) : TreeAdapter.getArgs(tree);
+		}
 
-    @Override
-    public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-      throw new UnsupportedOperationException();
-    }
+		@Override
+		public Type getType() {
+			return TypeFactory.getInstance().nodeType();
+		}
 
-    @Override
-    public boolean isEqual(IValue other) {
-      throw new UnsupportedOperationException();
-    }
+		@Override
+		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
+			throw new UnsupportedOperationException();
+		}
 
-    @Override
-    public IValue get(int i) throws IndexOutOfBoundsException {
-      // TODO: this should deal with regular expressions in the "right" way, such as skipping 
-      // over optionals and alternatives.
-      return args.get(i);
-    }
+		@Override
+		public boolean isEqual(IValue other) {
+			throw new UnsupportedOperationException();
+		}
 
-    @Override
-    public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
-      throw new UnsupportedOperationException();
-    }
+		@Override
+		public IValue get(int i) throws IndexOutOfBoundsException {
+			// TODO: this should deal with regular expressions in the "right" way, such as skipping 
+			// over optionals and alternatives.
+			return args.get(i);
+		}
 
-    @Override
-    public int arity() {
-      return args.length();
-    }
+		@Override
+		public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
+			throw new UnsupportedOperationException();
+		}
 
-    @Override
-    public String getName() {
-      return name;
-    }
+		@Override
+		public int arity() {
+			return args.length();
+		}
 
-    @Override
-    public Iterable<IValue> getChildren() {
-      return args;
-    }
+		@Override
+		public String getName() {
+			return name;
+		}
 
-    @Override
-    public Iterator<IValue> iterator() {
-      return args.iterator();
-    }
+		@Override
+		public Iterable<IValue> getChildren() {
+			return args;
+		}
 
-    @Override
-    public INode replace(int first, int second, int end, IList repl) throws FactTypeUseException,
-        IndexOutOfBoundsException {
-      throw new UnsupportedOperationException();
-    }
+		@Override
+		public Iterator<IValue> iterator() {
+			return args.iterator();
+		}
 
-    @Override
-    public boolean isAnnotatable() {
-      return false;
-    }
+		@Override
+		public INode replace(int first, int second, int end, IList repl) throws FactTypeUseException,
+		IndexOutOfBoundsException {
+			throw new UnsupportedOperationException();
+		}
 
-    @Override
-    public IAnnotatable<? extends INode> asAnnotatable() {
-      throw new IllegalOperationException(
-          "Facade cannot be viewed as annotatable.", getType());
-    }
+		@Override
+		public boolean isAnnotatable() {
+			return false;
+		}
 
-    @Override
-    public boolean mayHaveKeywordParameters() {
-      return false;
-    }
+		@Override
+		public IAnnotatable<? extends INode> asAnnotatable() {
+			throw new IllegalOperationException(
+					"Facade cannot be viewed as annotatable.", getType());
+		}
 
-    @Override
-    public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
-      throw new IllegalOperationException(
-          "Facade cannot be viewed as with keyword parameters.", getType());
-    }		
+		@Override
+		public boolean mayHaveKeywordParameters() {
+			return false;
+		}
+
+		@Override
+		public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
+			throw new IllegalOperationException(
+					"Facade cannot be viewed as with keyword parameters.", getType());
+		}		
 	}
-	
+
 }
 
 
