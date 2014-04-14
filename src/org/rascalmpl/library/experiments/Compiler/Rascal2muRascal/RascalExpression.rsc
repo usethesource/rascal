@@ -748,7 +748,7 @@ private bool hasTopLevelInsert(Case c) {
 
 MuExp translate (e:(Expression) `( <Expression init> | <Expression result> | <{Expression ","}+ generators> )`) = translateReducer(init, result, generators);
 
-MuExp translateReducer(init, result, generators){
+MuExp translateReducer(Expression init, Expression result, {Expression ","}+ generators){
     str fuid = topFunctionScope();
     loopname = nextLabel(); 
     tmp = asTmp(loopname); 
