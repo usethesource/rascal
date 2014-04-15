@@ -4,7 +4,7 @@ import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
 import Prelude;
 import ParseTree;
-import Ambiguity;
+//import Ambiguity;
 
 import experiments::Compiler::muRascal::MuAllMuOr;
 
@@ -187,7 +187,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                
                
                case muCall(preVar(mvar("size_array")), [exp1])									=> muCallMuPrim("size_array", [exp1])
-               case muCall(preVar(mvar("size_list")), [exp1])									=> muCallMuPrim("size_list", [exp1])
+               case muCall(preVar(mvar("size_list")), [MuExp exp1])									=> muCallMuPrim("size_list", [exp1])
                case muCall(preVar(mvar("size_set")), [exp1])									=> muCallMuPrim("size_set", [exp1])
                case muCall(preVar(mvar("size_mset")), [exp1])									=> muCallMuPrim("size_mset", [exp1])
                case muCall(preVar(mvar("size_map")), [exp1])									=> muCallMuPrim("size_map", [exp1])
@@ -214,7 +214,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
 			   case muCall(preVar(mvar("get_name_and_children_and_keyword_params_as_map")), [exp1])	
 			   																					=> muCallMuPrim("get_name_and_children_and_keyword_params_as_map", [exp1])
  			   case muCall(preVar(mvar("get_children_without_layout_or_separators")), [exp1])	=> muCallMuPrim("get_children_without_layout_or_separators", [exp1])
- 			   case muCall(preVar(mvar("has_label")), [exp1, exp2])								=> muCallMuPrim("has_label", [exp1, exp2])
+ 			   case muCall(preVar(mvar("has_label")), [list[MuExp]] [exp1, exp2])					=> muCallMuPrim("has_label", [exp1, exp2])
 			 
                case muCall(preVar(mvar("typeOf")), [exp1])										=> muCallPrim("typeOf", [exp1])
                case muCall(preVar(mvar("typeOfMset")), [exp1])									=> muCallMuPrim("typeOfMset", [exp1])
@@ -273,8 +273,8 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preIs(MuExp lhs, str typeName)												=> muCallMuPrim("is_<typeName>", [lhs])
       	       
       	       // Overloading
-      	       case preFunNN(str modName,  str name, int nformals)                  			=> muFun(getUID(modName,[],name,nformals))
-      	       case preFunN(lrel[str,int] funNames,  str name, int nformals)        			=> muFun(getUID(modName,funNames,name,nformals), getUID(modName,funNames))
+      	       case preFunNN(str modName,  str name, int nformals1)                  			=> muFun(getUID(modName,[],name,nformals1))
+      	       case preFunN(lrel[str,int] funNames,  str name, int nformals1)        			=> muFun(getUID(modName,funNames,name,nformals1), getUID(modName,funNames))
       	       
       	       case muAll(list[MuExp] exps)                                                     => makeMu("ALL",exps)
       	       case muOr(list[MuExp] exps)                                                      => makeMu("OR",exps)
@@ -356,11 +356,12 @@ MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps) {
 
 MuModule parse(loc s) {
   pt = parse( #start[Module], s);
-  dia = diagnose(pt);
-  if(dia != []){
-     iprintln(dia);
-     throw  "*** Ambiguities in muRascal code, see above report";
-  }
+  // Tmp, PK
+  //dia = diagnose(pt);
+  //if(dia != []){
+  //   iprintln(dia);
+  //   throw  "*** Ambiguities in muRascal code, see above report";
+  //}
   ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
   ast2 = preprocess(ast);
   // iprintln(ast2);
@@ -369,11 +370,12 @@ MuModule parse(loc s) {
 
 MuModule parse(str s) {
   pt = parse( #start[Module], s);
-  dia = diagnose(pt);
-  if(dia != []){
-     iprintln(dia);
-     throw  "*** Ambiguities in muRascal code, see above report";
-  }   
+  //Tmp, PK
+  //dia = diagnose(pt);
+  //if(dia != []){
+  //   iprintln(dia);
+  //   throw  "*** Ambiguities in muRascal code, see above report";
+  //}   
   ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
   ast2 = preprocess(ast);
   return ast2;							   
