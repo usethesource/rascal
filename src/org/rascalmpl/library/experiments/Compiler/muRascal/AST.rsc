@@ -180,7 +180,7 @@ data MuTypeCase = muTypeCase(str name, MuExp exp);
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.
 
-public data Identifier =
+data Identifier =
 				  fvar(str var)
 				| ivar(str var)
 				| rvar(str var)
@@ -207,8 +207,8 @@ public data Guard = preGuard(MuExp exp)
 public data Function =				
                preFunction(lrel[str,int] funNames, str name, list[Identifier] formals, 
                            lrel[list[VarDecl], str] locals, list[MuExp] body, bool comma)
-             | preCoroutine(lrel[str,int] funNames, str name, list[Identifier] formals, 
-                            list[Guard] guard, lrel[list[VarDecl], str] locals, list[MuExp] body, bool comma)
+             | preCoroutine(lrel[str s,int i] funNames, str name, list[Identifier] formals, 
+                            list[Guard] guard, lrel[list[VarDecl] lv, str s] locals, list[MuExp] body, bool comma)
           ;
 
 public data MuExp =
@@ -247,7 +247,7 @@ public data MuExp =
             | preIs(MuExp exp, str typeName)
             
             | preLocDeref(Identifier id)
-            | preVarDeref(lrel[str,int] funNames, Identifier id)
+            | preVarDeref(lrel[str s,int i] funNames, Identifier id)
             | preLocRef(Identifier id)
             | preVarRef(lrel[str,int] funNames, Identifier id)
             
