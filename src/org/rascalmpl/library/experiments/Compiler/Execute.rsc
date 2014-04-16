@@ -2,9 +2,9 @@ module experiments::Compiler::Execute
 
 import Prelude;
 
-import experiments::Compiler::muRascal::Syntax;
+//import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
-import experiments::Compiler::muRascal::Implode;
+import experiments::Compiler::muRascal::Load;
 
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::RVM::Run;
@@ -29,7 +29,7 @@ public list[loc] defaultImports = [|rascal:///Exception.rsc|];
 
 list[Declaration] parseMuLibrary(){
     println("rascal2rvm: Recompiling library <basename(MuLibrary)>.mu");
- 	libModule = parse(MuLibrary);
+ 	libModule = load(MuLibrary);
  	functions = [];
 // 	libTypes = libModule.types; 
  
