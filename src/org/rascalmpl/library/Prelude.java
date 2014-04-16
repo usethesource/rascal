@@ -3436,7 +3436,22 @@ public class Prelude {
 
 				@Override
 				public void visit(Insincere insincere) {
-					s.push(insincere);
+					IList locs = insincere.getOrigins();
+					IListWriter lw = values.listWriter();
+					Iterator<IValue> i = locs.iterator();
+					while (i.hasNext()){
+						ISourceLocation loc = (ISourceLocation) i.next();
+						URI newUri;
+						try {
+							newUri = URIUtil.changeQuery(loc.getURI(), tg.getValue()+"="+val.getValue());
+						} catch (URISyntaxException e) {
+							newUri = loc.getURI();
+						}
+						ISourceLocation newLoc = values.sourceLocation(newUri, 
+									loc.getOffset(), loc.getLength());
+						lw.append(newLoc);
+					}
+					s.push(new Insincere(insincere.getValue(), lw.done()));
 				}
 			});
 			return s.pop();
