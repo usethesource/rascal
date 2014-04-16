@@ -1,11 +1,3 @@
-@license{
-  Copyright (c) 2009-2013 CWI
-  All rights reserved. This program and the accompanying materials
-  are made available under the terms of the Eclipse Public License v1.0
-  which accompanies this distribution, and is available at
-  http://www.eclipse.org/legal/epl-v10.html
-}
-@contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module vis::web::BarChart
 
 import Prelude;
@@ -13,6 +5,7 @@ import vis::web::markup::D3;
 import vis::web::markup::Dimple;
 import lang::json::IO;
 import IO;
+
 
 alias YAxis = tuple[str varName, str aggregateMethod, str plotFunction,value series, bool showPercent,
 num overrideMin, num overrideMax, bool hidden, bool category, str orderRule];
@@ -102,71 +95,105 @@ public str barChart(
  str svg = "svg<ident>";
  str myChart = "myChart<ident>";
  ident+=1;
- str body =  Z(h1_, (id_: "header"), title) +
-      JavaScript(var((svg: expr(dimple.newSvg("body", svgDim.width, svgDim.height)))))+
-      JavaScriptJson("data.json", "error", "dat",
-        var((myChart:expr("new <dimple.chart(svg, "dat")>")))
-        ,
-        expr(chart.setBounds(myChart, chartBounds.x, chartBounds.y, 
-                                         chartBounds.width, chartBounds.height ))
-        ,                            
-        expr(isNull(defaultColors)?"":chart.defaultColors(myChart, defaultColors))
-        ,
-        var((x:expr(chart.addCategoryAxis(myChart, "x",x_axis))))
-        ,
-        expr(axis.addOrderRule(x, orderRule, "false"))
-        ,
-        var((y1:expr(y_axis[8]?chart.addCategoryAxis(myChart, "y",y_axis[0]):chart.addMeasureAxis(myChart, "y", y_axis[0]))))
-        , 
-        var((y2:expr(isNull(y_axis2[0])?"null":
-              y_axis2[8]?chart.addCategoryAxis(myChart, "y",y_axis2[0]):
-              chart.addMeasureAxis(myChart, "y", y_axis2[0]))))
-        , 
-        var(("colorAxis":expr(isNull(colorAxis[0])?"null":chart.addColorAxis(myChart, 
-              colorAxis[0],  colorAxis[1]))))
-        ,
-        expr(!isNull(y_axis[9])?axis.addOrderRule(y1, y_axis[9], "false"):"")
-        ,
-        expr(!isNull(y_axis2[9])?axis.addOrderRule(y2, y_axis2[9], "false"):"")
-        ,
-        var((mySeries1:expr(chart.addSeries(myChart, y_axis[3],  "dimple.plot.<y_axis[2]>"  
-        , expr(isNull(colorAxis[0])?"[<x>, <y1>]":"[<x>, <y1>, colorAxis]")
-        ))))
-        ,
-        var((mySeries2:expr(isNull(y_axis2[0])?"null":chart.addSeries(myChart, y_axis2[3],  "dimple.plot.<y_axis2[2]>", expr("[<x>, <y2>]")))))
-        ,
-        expr(!legend || isNull(y_axis[3])?"":chart.addLegend(myChart, legendBounds.x, legendBounds.y, 
-                                         legendBounds.width, legendBounds.height, 
-                                         legendBounds.align, expr(mySeries1)))
-        ,
-        expr(!legend2 || isNull(y_axis2[3])?"":chart.addLegend(myChart, legendBounds.x, legendBounds.y, 
-                                         legendBounds.width, legendBounds.height, 
-                                         legendBounds.align, expr(mySeries2)))
-        ,
-        expr(isNull(y_axis[0])?"":"<mySeries1>.aggregate=dimple.aggregateMethod.<y_axis[1]>")                                 
-        ,
-        expr(chart.assignColor(myChart, assignColor))
-        ,
-        expr(isNull(y_axis2[0])?"":"<mySeries2>.aggregate=dimple.aggregateMethod.<y_axis2[1]>")
-        ,
-        expr(y_axis[4]?"if (<y1>) <y1>.showPercent=<y_axis[4]>":"")
-        ,
-        expr(y_axis2[4]?"if (<y2>) <y2>.showPercent=<y_axis2[4]>":"")
-        ,
-        expr(y_axis[5]!=y_axis[6]?"if (<y1>) <y1>.overrideMin=<y_axis[5]>":"")
-        ,
-        expr(y_axis[5]!=y_axis[6]?"if (<y1>) <y1>.overrideMax=<y_axis[6]>":"")
-        ,
-        expr(y_axis2[5]!=y_axis2[6]?"if (<y2>) <y2>.overrideMin=<y_axis2[5]>":"")
-        ,
-        expr(y_axis2[5]!=y_axis2[6]?"if (<y2>) <y2>.overrideMax=<y_axis2[6]>":"")
-        ,
-        expr(y_axis[7]?"if (<y1>) <y1>.hidden=<y_axis[7]>":"")
-        ,
-        expr(y_axis2[7]?"if (<y2>) <y2>.hidden=<y_axis2[7]>":"")
-        ,
-        expr(chart.draw(myChart))
+ /*
+ str body = Z(h1_,  p.title) 
+      
+       + JavaScriptJson("\"data.json\"", "error", "dat",
         
+         <"width", width>,
+         <"height",height>,
+         <"margin",margin> ,   
+         <"svg",
+                "d3" + C(
+                 select(body_) o \append(svg_) o attr((
+                              width_: "width", height_:"height"
+                              ))
+                 )
+         >            
+      ,
+      < 
+          "x_scale",
+              "d3.scale"+ C(
+                 linear o domain([0,"dat[1].length-1"]) o range(["margin", "width-margin"])
+               )
+      >       
+       , 
+      <
+          "y_scale",
+              "d3.scale"+ C(
+                 linear o domain([0, "dat[2].length-1"]) o range(["height-margin", "margin"])
+                 )
+      > 
+      */   
+ str body =  Z(h1_, (id_: "header"), title) +
+      JavaScript(<svg, dimple.newSvg("body", svgDim.width, svgDim.height)>)+
+      JavaScriptJson("\"data.json\"", "error", "dat"
+         ,
+        <myChart, "new <dimple.chart(svg, "dat")>">
+        ,
+        <chart.setBounds(myChart, chartBounds.x, chartBounds.y, 
+                                         chartBounds.width, chartBounds.height)>                                    
+        ,                            
+        <isNull(defaultColors)?"":chart.defaultColors(myChart, defaultColors)>
+        ,
+        <x, chart.addCategoryAxis(myChart, "x",x_axis)>
+        ,
+        <axis.addOrderRule(x, orderRule, "false")>
+  
+        ,
+        <y1,y_axis[8]?chart.addCategoryAxis(myChart, "y",y_axis[0]):chart.addMeasureAxis(myChart, "y", y_axis[0])>
+        , 
+        <y2, isNull(y_axis2[0])?"null":
+              y_axis2[8]?chart.addCategoryAxis(myChart, "y",y_axis2[0]):
+              chart.addMeasureAxis(myChart, "y", y_axis2[0])>
+        , 
+        <"colorAxis", isNull(colorAxis[0])?"null":chart.addColorAxis(myChart, 
+              colorAxis[0],  colorAxis[1])>
+             
+        ,
+        <!isNull(y_axis[9])?axis.addOrderRule(y1, y_axis[9], "false"):"">
+        ,
+        <!isNull(y_axis2[9])?axis.addOrderRule(y2, y_axis2[9], "false"):"">
+        ,
+        <mySeries1,chart.addSeries(myChart, y_axis[3],  "dimple.plot.<y_axis[2]>"  
+        , isNull(colorAxis[0])?<"[<x>, <y1>]">:<"[<x>, <y1>, colorAxis]">)
+        >
+        ,
+        <mySeries2, isNull(y_axis2[0])?"null":chart.addSeries(myChart, y_axis2[3],  
+              "dimple.plot.<y_axis2[2]>", <"[<x>, <y2>]">)
+        >
+        ,
+        <!legend || isNull(y_axis[3])?"":chart.addLegend(myChart, legendBounds.x, legendBounds.y, 
+                                         legendBounds.width, legendBounds.height, 
+                                         legendBounds.align, <mySeries1>)>
+        ,
+        <!legend2 || isNull(y_axis2[3])?"":chart.addLegend(myChart, legendBounds.x, legendBounds.y, 
+                                         legendBounds.width, legendBounds.height, 
+                                         legendBounds.align, <mySeries2>)>
+        ,
+        <isNull(y_axis[0])?"":"<mySeries1>.aggregate=dimple.aggregateMethod.<y_axis[1]>">                                 
+        ,
+        <chart.assignColor(myChart, assignColor)>
+        ,
+        <isNull(y_axis2[0])?"":"<mySeries2>.aggregate=dimple.aggregateMethod.<y_axis2[1]>">
+        ,
+        <y_axis[4]?"if (<y1>) <y1>.showPercent=<y_axis[4]>":"">
+        ,
+        <y_axis2[4]?"if (<y2>) <y2>.showPercent=<y_axis2[4]>":"">
+        ,
+        <y_axis[5]!=y_axis[6]?"if (<y1>) <y1>.overrideMin=<y_axis[5]>":"">
+        ,
+        <y_axis[5]!=y_axis[6]?"if (<y1>) <y1>.overrideMax=<y_axis[6]>":"">
+        ,
+        <y_axis2[5]!=y_axis2[6]?"if (<y2>) <y2>.overrideMin=<y_axis2[5]>":"">
+        ,
+        <y_axis2[5]!=y_axis2[6]?"if (<y2>) <y2>.overrideMax=<y_axis2[6]>":"">
+        ,
+        <y_axis[7]?"if (<y1>) <y1>.hidden=<y_axis[7]>":"">
+        ,
+        <y_axis2[7]?"if (<y2>) <y2>.hidden=<y_axis2[7]>":"">
+        ,
+        <chart.draw(myChart)>
         );
         return body;         
       }

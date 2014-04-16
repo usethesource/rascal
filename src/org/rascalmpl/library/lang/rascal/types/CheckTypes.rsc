@@ -220,10 +220,11 @@ data Configuration = config(set[Message] messages,
                             int nextLoc,
                             int uniqueify,
                             map[int,Expression] keywordDefaults,
-                            rel[int,RName,Expression] dataKeywordDefaults
+                            rel[int,RName,Expression] dataKeywordDefaults,
+                            map[str,Symbol] tvarBounds
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ });
+public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },());
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -253,6 +254,7 @@ public Configuration recoverEnvironments(Configuration cNew, Configuration cOld)
     cNew.modEnv = cOld.modEnv;
     cNew.annotationEnv = cOld.annotationEnv;
     cNew.tagEnv = cOld.tagEnv;
+    cNew.tvarBounds = cOld.tvarBounds;
     return cNew;
 }
 
@@ -304,10 +306,63 @@ private int getContainedIn(Configuration c, AbstractValue av) {
 	return head(c.stack);
 }
 
+public tuple[Configuration,Symbol] checkTVarBound(Configuration c, loc l, Symbol rt) {
+	// Get all the type vars out of the type rt
+	tvars = collectTypeVars(rt);
+	
+    if (size(tvars) > 0) {
+    	// Get back a relation from names to bounds to the var
+    	tvrel = { < getTypeVarName(tv), getTypeVarBound(tv), tv > | tv <- tvars };
+    	
+    	for (n <- tvrel<0>) {
+    		tvn = tvrel[n];
+    		
+    		// Filter the relation down to just those vars where the bound was actually given
+    		wBounds = { < b, tv > | < b, tv > <- tvn, (tv@boundGiven)? && tv@boundGiven };
+    		
+    		if (size(wBounds) > 0 && n in c.tvarBounds) {
+    			// If bounds were given and the type var was already in the config, make sure the new
+    			// bounds are equivalent to the old bounds
+    			for (bnd <- wBounds<0>) {
+		    		if (!equivalent(bnd,c.tvarBounds[n])) {
+		    			c = addScopeError(c, "The bound given for the type, <prettyPrintType(bnd)>, does not match the bound declared earlier for &<n>, <prettyPrintType(c.tvarBounds[n])>", l);
+		    		}
+		    	}
+    		} else if (size(wBounds) > 0) {
+    			// If bounds were given but this type var isn't in the config yet, make sure the bounds
+    			// are internally consistent
+    			nonequiv = { < bnd1, bnd2 > | bnd1 <- wBounds<0>, bnd2 <- wBounds<0>, !equivalent(bnd1,bnd2) };
+    			if (size(nonequiv) > 0) {
+    				< bnd1, bnd2 > = getOneFrom(nonequiv);
+    				c = addScopeError(c, "Non-equivalent bounds are given for &<n>, e.g. <prettyPrintType(bnd1)> and <prettyPrintType(bnd2)>", l);
+    				
+    				// We had non-equivalent bounds; we just lub them all and set that as the bound to use going forward, which
+    				// hopefully will cut down on extra error reports because of this
+    				tolub = toList(wBounds<0>);
+    				lubbed = ( tolub[0] | lub(it,elem) | elem <- tolub[1..] );
+    				c.tvarBounds[n] = lubbed;
+	    		} else {
+	    			// All the bounds were equivalent; we just pick one at random and save it
+	    			c.tvarBounds[n] = getOneFrom(wBounds<0>);
+	    		}
+    		}
+    	}
+    	
+    	// Now that we have bounds, make sure they are consistent in the actual type
+    	rt = bottom-up visit(rt) {
+    		case tp:\parameter(tvn,tvb) => tp[bound=c.tvarBounds[tvn]][@boundGiven=true] when tvn in c.tvarBounds
+    	}
+    }
+    
+    return < c, rt >;
+}
+
 public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symbol rt) {
     moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
     moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
     atRootOfModule = \module(_,_) := c.store[head(c.stack)];
+    < c, rt > = checkTVarBound(c, l, rt);
+
     if (n notin c.fcvEnv) {
     	// Case 1: This is the first appearance of the name. If we are at the module global
     	// level, we also add a module-qualified version of the name into the environment.
@@ -353,15 +408,18 @@ public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symb
             }
         }
     }
+        
     return c;
 }
 
 public Configuration addUnnamedVariable(Configuration c, loc l, Symbol rt) {
 	// We can always add unnamed variables, and they are always distinct, so here we just add
 	// it into the store without all the checking done for a normal variable addition.
+    < c, rt > = checkTVarBound(c, l, rt);
     c.store[c.nextLoc] = variable(RSimpleName("_"),rt,true,head(c.stack),l);
     c.definitions = c.definitions + < c.nextLoc, l >;
     c.nextLoc = c.nextLoc + 1;
+
     return c;
 }
 
@@ -599,23 +657,22 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 }
 
 public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol rt) {
-	// TODO: We currently always treat alias declarations as public, so we just
+	// NOTE: We currently always treat alias declarations as public, so we just
 	// ignore the visibility here. If we decide to allow private alias declarations,
 	// revisit this.
-	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	currentModuleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-	moduleName = c.store[moduleId].name;
+	moduleName = c.store[currentModuleId].name;
 	fullName = appendName(moduleName, n);
 	
 	int addAlias() {
 		itemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
-		c.store[itemId] = \alias(n,rt,moduleId,l);
+		c.store[itemId] = \alias(n,rt,currentModuleId,l);
 		c.definitions = c.definitions + < itemId, l >;
 		return itemId;
 	}
 
-println("addAlias: <n>");
 	// NOTE: A working assumption of this code is that the names in the main module are
 	// processed LAST. If this changes, the code for determining how to use unqualified
 	// names in case of conflicts will need to be reworked.
@@ -625,7 +682,7 @@ println("addAlias: <n>");
 		itemId = addAlias();
 		c.typeEnv[n] = itemId;
 		c.typeEnv[fullName] = itemId;
-	} else if (c.store[c.typeEnv[n]].containedIn != moduleId) {
+	} else if (c.store[c.typeEnv[n]].containedIn != currentModuleId) {
 		// Case 2: A type already exists with the given name, imported from a different module.
 		// If this alias is being added to the main module (the one we are actually checking),
 		// the unqualified version of the name will point to this. If not, we require that all
@@ -633,33 +690,36 @@ println("addAlias: <n>");
 		// item holding the IDs of the items that cause the conflict.
 		itemId = addAlias();
 		c.typeEnv[fullName] = itemId;
-		if (moduleId == mainModuleId) {
+		if (currentModuleId == mainModuleId) {
 			c.typeEnv[n] = itemId;
 		} else {
 			c.store[c.nextLoc] = conflict({c.typeEnv[n], itemId});
 			c.typeEnv[n] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		}
-	} else if (c.store[c.typeEnv[n]] is conflict && moduleId notin { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
+	} else if (c.store[c.typeEnv[n]] is conflict && currentModuleId notin { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
 		// Case 3: The unqualified name was removed because of a name conflict. We may be adding a new
 		// item to the conflict set, or this may be a valid item for an unqualified name if we are adding
 		// the name to the module being checked. This name does not conflict with another name in the same
 		// module.
 		itemId = addAlias();
 		c.typeEnv[fullName] = itemId;
-		if (moduleId == mainModuleId) {
+		if (currentModuleId == mainModuleId) {
 			c.typeEnv[n] = itemId;
 		} else {
 			c.store[c.typeEnv[n]].items += itemId;
 		}
-	} else if ((c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is sorttype || c.store[c.typeEnv[n]] is \alias) && c.store[c.typeEnv[n]].containedIn == moduleId) {
-		// Case 4: A type with this name already exists in the same module. We cannot perform this
-		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
-		// to distinguish them. NOTE: We don't even allow this if the repeated definition is also an equivalent alias.
+	} else if ((c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is sorttype || c.store[c.typeEnv[n]] is \alias) && c.store[c.typeEnv[n]].containedIn == currentModuleId) {
+		// Case 4: A type with this name already exists in the same module. We still have to add the alias, since
+		// errors will occur in other parts of the code if we do not do so, but we do not add the ID in to the type
+		// environment or build a conflict item.
+		itemId = addAlias();
 		c = addScopeError(c, "An adt or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
-	} else if (c.store[c.typeEnv[n]] is conflict && moduleId in { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
+	} else if (c.store[c.typeEnv[n]] is conflict && currentModuleId in { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
 		// Case 5: We have a conflict item which contains at least one item declared in the current module. This is an error,
-		// even if it is another alias.
+		// even if it is another alias. We still have to add the alias, since errors will occur in other parts of the code 
+		// if we do not do so, but we do not add the ID in to the type environment or build a conflict item.
+		itemId = addAlias();
 		c = addScopeError(c, "An adt, alias, or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
 	}
 	
@@ -6536,8 +6596,8 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 @doc{Process function signatures: WithThrows}
 public CheckResult processSignature(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ exs>`, Configuration c) {
     // TODO: Do something with the exception information
-    < c, rType > = convertAndExpandType(t,c);
     < c, ptTuple > = checkParameters(ps, c);
+    < c, rType > = convertAndExpandType(t,c);
     list[Symbol] parameterTypes = getTupleFields(ptTuple);
     paramFailures = { pt | pt <- parameterTypes, isFailType(pt) };
     funType = \void();
@@ -6552,8 +6612,8 @@ public CheckResult processSignature(Signature sig:(Signature)`<FunctionModifiers
 
 @doc{Process function signatures: NoThrows}
 public CheckResult processSignature(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps>`, Configuration c) {
-    < c, rType > = convertAndExpandType(t,c);
     < c, ptTuple > = checkParameters(ps, c);
+    < c, rType > = convertAndExpandType(t,c);
     list[Symbol] parameterTypes = getTupleFields(ptTuple);
     paramFailures = { pt | pt <- parameterTypes, isFailType(pt) };
     funType = \void();
@@ -7743,8 +7803,8 @@ public Configuration checkAndReturnConfig(str mpath) {
     try {
 		if (t has top && Module m := t.top)
 			c = checkModule(m, c);
-	} catch : {
-		c.messages = {error("Encountered error checking module <mpath>", t@\loc)};
+	} catch v : {
+		c.messages = {error("Encountered error checking module <mpath>:<v>", t@\loc)};
 	}
 	return c;
 }

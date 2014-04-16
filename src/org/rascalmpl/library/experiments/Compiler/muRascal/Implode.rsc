@@ -302,7 +302,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
 }
 
 MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
-    str all_uid = "Library/<fuid>/ALL_<getNextAll()>(0)";
+    str all_uid = "<fuid>/ALL_<getNextAll()>";
     localvars = [ muVar("c_<i>", all_uid, i)| int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     for(int i <- index(exps)) {
@@ -319,7 +319,7 @@ MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
 }
 
 MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
-    str or_uid = "Library/<fuid>/Or_<getNextOr()>(0)";
+    str or_uid = "<fuid>/Or_<getNextOr()>";
     localvars = [ muVar("c_<i>", or_uid, i)| int i <- index(exps) ];
     list[MuExp] body = [];
     for(int i <- index(exps)) {

@@ -153,8 +153,8 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
                            map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions, map[Symbol, Production] grammar), 
                   bool listing=false){
   
-  main_fun = getUID(module_name,[],"MAIN",1);
-  module_init_fun = getUID(module_name,[],"#<module_name>_init",1);
+  main_fun = getUID(module_name,[],"MAIN",2);
+  module_init_fun = getUID(module_name,[],"#<module_name>_init",2);
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
   fun_names = { fun.qname | MuFunction fun <- functions };
   if(main_fun notin fun_names) {

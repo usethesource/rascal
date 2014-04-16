@@ -86,6 +86,11 @@ public class FunctionURIResolver implements IURIInputOutputResolver {
 	public void mkDirectory(URI uri) throws IOException {
 		reg.mkDirectory(resolve(uri));
 	}
+	
+	@Override
+	public void remove(URI uri) throws IOException {
+	  reg.remove(resolve(uri));
+	}
 
 	@Override
 	public URI getResourceURI(URI uri) throws IOException {
