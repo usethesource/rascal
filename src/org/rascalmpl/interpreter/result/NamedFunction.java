@@ -17,10 +17,11 @@ import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionModifier;
@@ -33,7 +34,6 @@ import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
-import org.rascalmpl.interpreter.staticErrors.NoKeywordParameters;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
@@ -214,23 +214,27 @@ abstract public class NamedFunction extends AbstractFunction {
 
   protected void bindKeywordArgs(Map<String, IValue> keyArgValues){
     Environment env = ctx.getCurrentEnvt();
+    ImmutableMap<String,IValue> args = AbstractSpecialisedImmutableMap.mapOf();
     
-    for (Entry<String,Type> param : functionType.getKeywordParameterTypes().entrySet()){
-      String kwparam = param.getKey();
+    for (String kwparam : functionType.getKeywordParameterTypes().getFieldNames()){
+      Type kwType = functionType.getKeywordParameterType(kwparam);
       
       if (keyArgValues.containsKey(kwparam)){
         IValue r = keyArgValues.get(kwparam);
         
-        if(!r.getType().isSubtypeOf(param.getValue())) {
-          throw new UnexpectedKeywordArgumentType(kwparam, param.getValue(), r.getType(), ctx.getCurrentAST());
+        if(!r.getType().isSubtypeOf(kwType)) {
+          throw new UnexpectedKeywordArgumentType(kwparam, kwType, r.getType(), ctx.getCurrentAST());
         }
         
-        env.declareVariable(param.getValue(), kwparam);
-        env.storeVariable(kwparam, ResultFactory.makeResult(param.getValue(), r, ctx));
+        args = args.__put(kwparam, r);
+        env.declareVariable(kwType, kwparam);
+        env.storeVariable(kwparam, ResultFactory.makeResult(kwType, r, ctx));
       } 
       else {
-        env.declareVariable(param.getValue(), kwparam);
-        env.storeVariable(kwparam, ResultFactory.makeResult(param.getValue(), functionType.getKeywordParameterDefault(kwparam), ctx));
+        env.declareVariable(kwType, kwparam);
+        IValue def = functionType.getKeywordParameterInitializer(kwparam).initialize(args);
+        args = args.__put(kwparam, def);
+		env.storeVariable(kwparam, ResultFactory.makeResult(kwType, def, ctx));
       }
     }
     

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.ConstantKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
@@ -33,14 +32,12 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeRedeclaredException;
 import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Declaration.Alias;
 import org.rascalmpl.ast.Declaration.Data;
 import org.rascalmpl.ast.Declaration.DataAbstract;
 import org.rascalmpl.ast.KeywordFormal;
-import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Toplevel;
@@ -90,6 +87,19 @@ public class TypeDeclarationEvaluator {
 		}
 	}
 
+	public static Type computeKeywordParametersType(List<KeywordFormal> kws, IEvaluator<Result<IValue>> eval) {
+		Type[] kwTypes = new Type[kws.size()];
+		String[] kwLabels = new String[kws.size()];
+		
+		int i = 0;
+		for (KeywordFormal kw : kws) {
+			kwLabels[i] = Names.name(kw.getName());
+			kwTypes[i++] = kw.getType().typeOf(null, false, eval);
+		}
+		
+		return TypeFactory.getInstance().tupleType(kwTypes, kwLabels);
+	}
+	
 	public void declareConstructor(Data x, Environment env) {
 		TypeFactory tf = TypeFactory.getInstance();
 
@@ -113,17 +123,8 @@ public class TypeDeclarationEvaluator {
 					List<KeywordFormal> kws = new ArrayList<>(common.size() + local.size());
 					kws.addAll(common);
 					kws.addAll(local);
-					Type[] kwTypes = new Type[kws.size()];
-					String[] kwLabels = new String[kws.size()];
 					
-					int i = 0;
-					for (KeywordFormal kw : kws) {
-						kwLabels[i] = Names.name(kw.getName());
-						kwTypes[i++] = kw.getType().typeOf(null, false, eval);
-					}
-					
-					kwType = tf.tupleType(kwTypes, kwLabels);
-					
+					kwType = computeKeywordParametersType(kws, eval);
 					init = interpretKeywordParameters(kws, kwType, this.eval);
 				}
 
@@ -162,7 +163,7 @@ public class TypeDeclarationEvaluator {
 		}
 	}
 
-	public static Map<String,IKeywordParameterInitializer> interpretKeywordParameters(final List<KeywordFormal> ps, final Type kwType, final Evaluator eval) {
+	public static Map<String,IKeywordParameterInitializer> interpretKeywordParameters(final List<KeywordFormal> ps, final Type kwType, final IEvaluator<Result<IValue>> eval) {
 		Map<String,IKeywordParameterInitializer> results = new HashMap<>();
 		
 		

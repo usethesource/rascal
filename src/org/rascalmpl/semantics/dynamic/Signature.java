@@ -16,12 +16,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.FunctionModifiers;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.TypeDeclarationEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -40,14 +43,16 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory
 					.getInstance();
 			Parameters parameters = getParameters();
-			java.util.Map<String,Type> kwParams = new HashMap<>();
-      java.util.Map<String,IValue> kwDefaults = new HashMap<>();
-      
-      if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
-        interpretKeywordParameters(parameters.getKeywordFormals().getKeywordFormalList(), kwParams, kwDefaults, env, eval);
-      }
-      
-      return RTF.functionType(getType().typeOf(env, instantiateTypeParameters, eval), parameters
+			Type kwParams = TF.voidType();
+			java.util.Map<String,IKeywordParameterInitializer> kwDefaults = new HashMap<>();
+
+			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
+				List<KeywordFormal> kwd = parameters.getKeywordFormals().getKeywordFormalList();
+				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kwd, eval);
+				kwDefaults = TypeDeclarationEvaluator.interpretKeywordParameters(kwd, kwParams, eval);
+			}
+
+			return RTF.functionType(getType().typeOf(env, instantiateTypeParameters, eval), parameters
 					.typeOf(env, instantiateTypeParameters, eval), kwParams, kwDefaults);
 		}
 	}

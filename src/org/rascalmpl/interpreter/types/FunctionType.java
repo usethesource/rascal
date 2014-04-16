@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -32,13 +32,13 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 public class FunctionType extends RascalType {
 	private final Type returnType;
 	private final Type argumentTypes;
-	private final Map<String, Type> keywordParameters;
-	private final Map<String, IValue> defaultParameters;
+	private final Type keywordParameters;
+	private final Map<String, IKeywordParameterInitializer> defaultParameters;
 	
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	
-	/*package*/ FunctionType(Type returnType, Type argumentTypes, Map<String, Type> keywordParameters, Map<String, IValue> defaultParameters) {
+	/*package*/ FunctionType(Type returnType, Type argumentTypes, Type keywordParameters, Map<String, IKeywordParameterInitializer> defaultParameters) {
 		this.argumentTypes = argumentTypes.isTuple() ? argumentTypes : TF.tupleType(argumentTypes);
 		this.returnType = returnType;
 		this.keywordParameters = keywordParameters;
@@ -64,37 +64,33 @@ public class FunctionType extends RascalType {
 	}
 	
 	@Override
-	public Map<String, IValue> getKeywordParameterDefaults() {
-	  return defaultParameters;
-	}
-
-	public Map<String, Type> getKeywordParameterTypes() {
-    return keywordParameters;
-  }
-	
-	@Override
-	public IValue getKeywordParameterDefault(String label) {
-	  return defaultParameters.get(label);
+	public IKeywordParameterInitializer getKeywordParameterInitializer(
+			String label) {
+		return defaultParameters.get(label);
 	}
 	
 	@Override
-	public Set<String> getKeywordParameters() {
-	  return Collections.unmodifiableSet(keywordParameters.keySet());
+	public Map<String, IKeywordParameterInitializer> getKeywordParameterInitializers() {
+		return defaultParameters;
+	}
+	
+	public Type getKeywordParameterTypes() {
+		return keywordParameters;
 	}
 	
 	@Override
 	public Type getKeywordParameterType(String label) {
-	  return keywordParameters.get(label);
+	  return keywordParameters.getFieldType(label);
 	}
 	
 	@Override
 	public boolean hasKeywordParameter(String label) {
-	  return keywordParameters.containsKey(label);
+	  return keywordParameters.hasField(label);
 	}
 	
 	@Override
 	public boolean hasKeywordParameters() {
-	  return !keywordParameters.isEmpty();
+	  return keywordParameters != null && !keywordParameters.isBottom();
 	}
 	
 	@Override
@@ -154,7 +150,7 @@ public class FunctionType extends RascalType {
 	  
 	  if (argumentTypes.isTuple()) {
 	    // TODO: figure out what lub means for keyword parameters!
-	    return RTF.functionType(returnType, argumentTypes, Collections.<String,Type>emptyMap(), Collections.<String,IValue>emptyMap());
+	    return RTF.functionType(returnType, argumentTypes, TF.voidType(), Collections.<String,IKeywordParameterInitializer>emptyMap());
 	  }
 	  
 	  return TF.valueType();
@@ -173,7 +169,7 @@ public class FunctionType extends RascalType {
 		
 	  if(argumentTypes.isTuple()) {
 	    // TODO: figure out what glb means for keyword parameters
-	    return RTF.functionType(returnType, argumentTypes,Collections.<String,Type>emptyMap(), Collections.<String,IValue>emptyMap());
+	    return RTF.functionType(returnType, argumentTypes, TF.voidType(), Collections.<String,IKeywordParameterInitializer>emptyMap());
 	  }
 		
 	  return TF.voidType();
