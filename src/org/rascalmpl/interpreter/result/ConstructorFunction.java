@@ -35,7 +35,7 @@ public class ConstructorFunction extends NamedFunction {
 	private Type constructorType;
 
 	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType) {
-		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), constructorType.getKeywordParameterTypes(), constructorType.getKeywordParameterDefaults()), constructorType.getName(), false, true, false, env);
+		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), constructorType.getKeywordParameterTypes(), constructorType.getKeywordParameterInitializers()), constructorType.getName(), false, true, false, env);
 		this.constructorType = constructorType;
 	}
 
@@ -47,7 +47,7 @@ public class ConstructorFunction extends NamedFunction {
 	}
 	
 	@Override
-	public Map<String, Type> getKeywordArgumentTypes() {
+	public Type getKeywordArgumentTypes() {
 	  return constructorType.getKeywordParameterTypes();
 	}
 	
@@ -78,28 +78,7 @@ public class ConstructorFunction extends NamedFunction {
 			instantiated = constructorType.instantiate(bindings);
 		}
 
-		Environment old = ctx.getCurrentEnvt();
-		Environment init = new Environment(old.getLocation(), "initializer");
-		
-		try {
-			ctx.setCurrentEnvt(init);
-			
-			// make sure the children and the given kw params are set in the scope, such that
-			// the other kwParameters can be initialized accordingly.
-			
-			for (String key : keyArgValues.keySet()) {
-				init.storeVariable(key, ResultFactory.makeResult(constructorType.getKeywordParameterType(key), keyArgValues.get(key), ctx));
-			}
-			
-			for (int i = 0; i < constructorType.getArity(); i++) {
-				init.storeVariable(constructorType.getFieldName(i), ResultFactory.makeResult(constructorType.getFieldType(i), actuals[i], ctx));
-			}
-			
-			return makeResult(instantiated, ctx.getValueFactory().constructor(constructorType, actuals), ctx);
-		}
-		finally {
-			ctx.unwind(old);
-		}
+		return makeResult(instantiated, ctx.getValueFactory().constructor(constructorType, actuals, keyArgValues), ctx);
 	}
 	
 	@Override

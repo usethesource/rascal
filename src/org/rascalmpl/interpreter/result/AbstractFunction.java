@@ -25,6 +25,7 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IExternalValue;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -81,7 +82,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public Map<String, Type> getKeywordArgumentTypes() {
+	public Type getKeywordArgumentTypes() {
 	  return functionType.getKeywordParameterTypes();
 	}
 	
@@ -436,7 +437,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	/* test if a function is of type T(T) for a given T */
 	public boolean isTypePreserving() {
 		Type t = getReturnType();
-		return getFunctionType().equivalent(RascalTypeFactory.getInstance().functionType(t,t, Collections.<String,Type>emptyMap(), Collections.<String,IValue>emptyMap()));
+		return getFunctionType().equivalent(RascalTypeFactory.getInstance().functionType(t,t, TF.voidType(), Collections.<String,IKeywordParameterInitializer>emptyMap()));
 	}
 	
 	public String getName() {

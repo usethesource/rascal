@@ -18,9 +18,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -38,7 +38,7 @@ public class DynamicGenerator extends AbstractFunction {
 			HashMap<Type, ICallableValue> generators) {
 		super(null, eval, (FunctionType) RascalTypeFactory.getInstance()
 				.functionType(returnType,
-						TypeFactory.getInstance().integerType(), Collections.<String,Type>emptyMap(), Collections.<String,IValue>emptyMap()), false, env);
+						TF.integerType(), TF.voidType(), Collections.<String,IKeywordParameterInitializer>emptyMap()), false, env);
 		this.generators = generators;
 	}
 	

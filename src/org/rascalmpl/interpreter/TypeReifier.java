@@ -539,7 +539,7 @@ public class TypeReifier {
 				
 				for (String key : type.getKeywordParameters()) {
 					kwTypes.put(vf.string(key), type.getKeywordParameterType(key).accept(this));
-					kwDefaults.put(vf.string(key), type.getKeywordParameterDefault(key));
+					kwDefaults.put(vf.string(key), type.getKeywordParameterIn(key));
 				}
 				
 				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), kwDefaults.done(), vf.set()));

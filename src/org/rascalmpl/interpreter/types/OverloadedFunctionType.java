@@ -12,10 +12,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
@@ -35,15 +34,24 @@ public class OverloadedFunctionType extends RascalType {
 	}
 	
 	@Override
-	public Map<String, Type> getKeywordParameterTypes() {
-	  Map<String,Type> all = new HashMap<>();
-	  for (FunctionType f : alternatives) {
-	    all.putAll(f.getKeywordParameterTypes());
-	  }
-	  
-	  return all;
+	public Type getKeywordParameterTypes() {
+		// TODO: what does this union mean in case of overlapping names?
+		ArrayList<String> labels = new ArrayList<>();
+		ArrayList<Type> types  = new ArrayList<>();
+
+		for (FunctionType f : alternatives) {
+			for (String label : f.getKeywordParameterTypes().getFieldNames()) {
+				if (!labels.contains(label)) {
+					labels.add(label);
+					types.add(f.getKeywordParameterType(label));
+				}
+				// TODO: a clash, but we silently ignore it here?
+			}
+		}
+
+		return TF.tupleType(types.toArray(new Type[types.size()]), labels.toArray(new String[labels.size()]));
 	}
-	
+
 	public int size() {
 		return alternatives.size();
 	}
@@ -165,11 +173,11 @@ public class OverloadedFunctionType extends RascalType {
 		
 	  for(FunctionType f : getAlternatives()) {
 	    // TODO: what to do with kwparameters?
-	      newAlternatives.add((FunctionType)RTF.functionType(returnType, f.getArgumentTypes(), f.getKeywordParameterTypes(), f.getKeywordParameterDefaults()));
+	      newAlternatives.add((FunctionType)RTF.functionType(returnType, f.getArgumentTypes(), f.getKeywordParameterTypes(), f.getKeywordParameterInitializers()));
 	  }
 		  
 	  for(FunctionType f : of.getAlternatives()) {
-		  newAlternatives.add((FunctionType)RTF.functionType(returnType, f.getArgumentTypes(), f.getKeywordParameterTypes(), f.getKeywordParameterDefaults()));
+		  newAlternatives.add((FunctionType)RTF.functionType(returnType, f.getArgumentTypes(), f.getKeywordParameterTypes(), f.getKeywordParameterInitializers()));
 	  }
 		  
 	  return RTF.overloadedFunctionType(newAlternatives);
@@ -216,14 +224,14 @@ public class OverloadedFunctionType extends RascalType {
 		if(right instanceof FunctionType) {
 			for(FunctionType ftype : this.alternatives) {
 				if(TF.tupleType(((FunctionType) right).getReturnType()).isSubtypeOf(ftype.getArgumentTypes())) {
-					newAlternatives.add((FunctionType) RTF.functionType(ftype.getReturnType(), ((FunctionType) right).getArgumentTypes(), ((FunctionType) right).getKeywordParameterTypes(), ((FunctionType) right).getKeywordParameterDefaults()));
+					newAlternatives.add((FunctionType) RTF.functionType(ftype.getReturnType(), ((FunctionType) right).getArgumentTypes(), ((FunctionType) right).getKeywordParameterTypes(), ((FunctionType) right).getKeywordParameterInitializers()));
 				}
 			}
 		} else if(right instanceof OverloadedFunctionType) {
 			for(FunctionType ftype : ((OverloadedFunctionType) right).getAlternatives()) {
 				for(FunctionType gtype : this.alternatives) {
 					if(TF.tupleType(ftype.getReturnType()).isSubtypeOf(gtype.getArgumentTypes())) {
-						newAlternatives.add((FunctionType) RTF.functionType(gtype.getReturnType(), ftype.getArgumentTypes(), ftype.getKeywordParameterTypes(), ftype.getKeywordParameterDefaults()));
+						newAlternatives.add((FunctionType) RTF.functionType(gtype.getReturnType(), ftype.getArgumentTypes(), ftype.getKeywordParameterTypes(), ftype.getKeywordParameterInitializers()));
 					}
 				}
 			}

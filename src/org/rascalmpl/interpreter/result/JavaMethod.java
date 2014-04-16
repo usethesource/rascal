@@ -22,9 +22,11 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -159,8 +161,16 @@ public class JavaMethod extends NamedFunction {
 	    // TODO: this code used to do some typechecking on the keyword parameters,
 	    // but that made little sense since the static types are not available here.
 	    Map<String,IValue> params = new HashMap<>();
-	    params.putAll(getFunctionType().getKeywordParameterDefaults());
-	    params.putAll(keyArgValues);
+	    for (String label : getFunctionType().getKeywordParameterInitializers().keySet()) {
+	    	if (!keyArgValues.containsKey(label)) {
+	    		IKeywordParameterInitializer init =  getFunctionType().getKeywordParameterInitializer(label);
+	    		params.put(label, init.initialize(AbstractSpecialisedImmutableMap.mapOf(params)));
+	    	}
+	    	else {
+	    		params.put(label, keyArgValues.get(label));
+	    	}
+	    }
+
 	    newActuals[formals.getArity()] = params;
 	    return newActuals;
 	  }
