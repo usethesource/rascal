@@ -499,8 +499,8 @@ coroutine MATCH_COLLECTION(pats,     // Coroutines to match collection elements
 	                       progress  // Progress of the match
 	                       ) {	
     var patlen = size_array(pats),  
-        matchers = make_array(patlen),
-        j = 0
+        j = 0,
+        matchers
     
     if(patlen == 0) {
         if(accept(iSubject, progress)) {
@@ -508,7 +508,8 @@ coroutine MATCH_COLLECTION(pats,     // Coroutines to match collection elements
         }
         exhaust
     }
-     
+    
+    matchers = make_array(patlen); 
     matchers[j] = create(pats[j], iSubject, ref progress)
     while(true){
         while(next(matchers[j])) {   // Move forward

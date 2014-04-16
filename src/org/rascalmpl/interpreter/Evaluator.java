@@ -1254,7 +1254,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			dependingImports.addAll(getImportingModules(names));
 			dependingExtends.addAll(getExtendingModules(names));
 
-			monitor.event("Reconnecting importers of affected modules");
+			monitor.startJob("Reconnecting importers of affected modules");
 			for (String mod : dependingImports) {
 			  ModuleEnvironment env = heap.getModule(mod);
 			  Set<String> todo = new HashSet<String>(env.getImports());

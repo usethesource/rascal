@@ -424,7 +424,7 @@ str nodeToString(str n, set[HTML5Attr] attrs, list[value] kids) {
 public HTML5Node example 
   = html(head(title("something")), body(
       ul(li("bla"), 
-          li("foo", img(href("someref"))))));
+          li("foo", 3, img(href("someref"))))));
   
 str toString(HTML5Node x) {
   attrs = {k | /HTML5Attr k <- x.kids};
