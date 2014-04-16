@@ -32,6 +32,6 @@ set[Contribution] contributions =
 
 @doc{Registers the muRascalVM language, .rvm}
 public void registerLanguage() {
-	registerLanguage("muRascalVM", "rvm", experiments::Compiler::RVM::Syntax::RascalVM (str src, loc l) { return parse(#experiments::Compiler::RVM::Syntax::RascalVM, src, l); });
+	registerLanguage("muRascalVM", "rvm", experiments::Compiler::RVM::Syntax::RascalVM (str src, loc l) { return parseRVM(src, l); });
 	registerContributions("muRascalVM", contributions);
 }

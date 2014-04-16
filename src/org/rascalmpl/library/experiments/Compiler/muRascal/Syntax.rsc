@@ -107,7 +107,7 @@ syntax Exp  =
 			| muAll:                    "all" "(" {Exp ","}+ exps ")"
 			
 			// function call and partial function application
-			| muCall: 					Exp!muReturn!muYield!muExhaust exp NoNLList "(" {Exp ","}* args ")"
+			| muCall: 					Exp!muReturn!muYield!muExhaust exp NoNLList "(" {Exp ","}* args0 ")"
 			| muApply:                  "bind" "(" Exp!muReturn!muYield!muExhaust exp "," {Exp ","}+ args ")"
 			
 			| preSubscript:             Exp exp NoNLList "[" Exp index "]"
@@ -182,7 +182,7 @@ syntax Exp  =
 			| preLocRef:     			"ref" Identifier!fvar!rvar id
 			| preVarRef:      			"ref" FunNamePart+ funNames Identifier!fvar!rvar id
 			
-			| preBlock:                 "{" {Exp (NoNLList Sep NoNLList)}+ exps ";"? "}"
+			| preBlock:                 "{" {Exp (NoNLList Sep NoNLList)}+ bexps ";"? "}"
 			
 			| bracket					"(" Exp exp ")"
 			;

@@ -31,7 +31,7 @@ public data RVMProgram = rvm(str name,
                              //,map[Symbol, Production] grammar
                              );
 
-data Instruction =
+public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
         | LOADINT(int nval)  						// Push a (Java) integer
 	   	| LOADCON(value val)						// Push an IValue
