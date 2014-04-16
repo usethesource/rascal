@@ -424,6 +424,16 @@ public class SourceConverter extends M3Converter {
 	public boolean visit(VariableDeclarationFragment node) {
 		insert(containment, getParent(), ownValue);
 		
+		IVariableBinding binding = node.resolveBinding();
+		
+		if (binding != null) {
+		  IConstructor type = bindingsResolver.computeTypeSymbol(binding.getType(), false);
+		  insert(types, ownValue, type);
+		}
+		else {
+		  System.err.println("no binding for " + node);
+		}
+		
 		ASTNode parentASTNode = node.getParent();
 		if (parentASTNode instanceof FieldDeclaration) {
 			FieldDeclaration parent = (FieldDeclaration)parentASTNode;
@@ -442,18 +452,6 @@ public class SourceConverter extends M3Converter {
 		}
 		
 		return true;
-	}
-	
-	public void endVisit(VariableDeclarationFragment node) {
-		IVariableBinding binding = node.resolveBinding();
-		
-		if (binding != null) {
-		  IConstructor type = bindingsResolver.computeTypeSymbol(binding.getType(), false);
-		  insert(types, ownValue, type);
-		}
-		else {
-		  System.err.println("no binding for " + node);
-		}
 	}
 
 	public boolean visit(VariableDeclarationStatement node) {
