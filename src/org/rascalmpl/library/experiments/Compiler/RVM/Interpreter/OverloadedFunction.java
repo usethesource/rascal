@@ -29,7 +29,7 @@ public class OverloadedFunction {
 					break;
 				}
 			}
-			codeEmittor.emitOCallCALL(NameMangler.mangle(fname),funcListIndex++,true) ;
+			codeEmittor.emitOCallCALL(NameMangler.mangle(fname),funcListIndex++,false) ;
 		}
 		codeEmittor.emitOCallEnd();
 	}

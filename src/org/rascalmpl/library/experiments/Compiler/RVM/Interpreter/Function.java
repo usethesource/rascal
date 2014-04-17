@@ -50,7 +50,7 @@ public class Function {
 
 		codeEmittor.emitMethod(NameMangler.mangle(name),continuationPoints,false);
 
-		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing,false);
+		codeblock.done(codeEmittor, name, codeMap, constructorMap, resolver, listing,true);
 		
 		this.scopeId = codeblock.getFunctionIndex(name);
 		if (funIn != null) {

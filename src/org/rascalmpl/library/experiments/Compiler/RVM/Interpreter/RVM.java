@@ -1,10 +1,18 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
+import java.text.NumberFormat;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -76,8 +84,8 @@ public class RVM {
 		if (functionMap.get(f.getName()) != null) {
 			throw new RuntimeException("PANIC: Double declaration of function: " + f.getName());
 		}
-		int fss = functionStore.size() ;
-		f.funId = fss ;   // ID of function to find entry in dynrun
+		int fss = functionStore.size();
+		f.funId = fss; // ID of function to find entry in dynrun
 		functionMap.put(f.getName(), fss);
 		functionStore.add(f);
 	}
@@ -171,7 +179,7 @@ public class RVM {
 		// Finalize the instruction generation of all functions, if needed
 		if (!finalized) {
 			finalized = true;
-			
+
 			codeEmittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter", "Running");
 
 			for (Function f : functionStore) {
@@ -180,7 +188,7 @@ public class RVM {
 
 			// All functions are created create int based dispatcher
 			codeEmittor.emitDynDispatch(functionMap.size());
-			
+
 			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
 				String fname = e.getKey();
 				codeEmittor.emitDynCaLL(fname, e.getValue());
@@ -223,10 +231,8 @@ public class RVM {
 
 	RVMRun runner = null;
 
-	public IValue executeProgram(String uid_main, IValue[] args) {
-		boolean profile = false;
+	public void buildRunner(boolean profile) {
 		byte[] rvmGenCode = null;
-
 		if (!finalized) {
 			try {
 				String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter";
@@ -237,8 +243,8 @@ public class RVM {
 				finalize(codeEmittor);
 				rvmGenCode = codeEmittor.finalizeCode();
 
-/* DEBUG */		codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
-/* DEBUG */		codeEmittor.dump("/Users/ferryrietveld/Running.class");
+				/* DEBUG */codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
+				/* DEBUG */codeEmittor.dump("/Users/ferryrietveld/Running.class");
 				// codeEmittor.dump("/Running.class");
 
 				// Oneshot classloader
@@ -267,6 +273,46 @@ public class RVM {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public IValue executeProgram(String uid_main, IValue[] args) {
+		boolean profile = false;
+
+		buildRunner(profile);
+
+		Function main_function = functionStore.get(functionMap.get(uid_main));
+
+		if (main_function == null) {
+			throw new RuntimeException("PANIC: No function " + uid_main + " found");
+		}
+
+		if (main_function.nformals != 2) { // List of IValues and empty map of
+											// keyword parameters
+			throw new RuntimeException("PANIC: function " + uid_main + " should have two arguments");
+		}
+
+		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
+		Frame cf = root;
+		cf.stack[0] = vf.list(args); // pass the program argument to
+									 // main_function as a IList object
+		cf.stack[1] = vf.mapWriter().done();
+
+		Object o = null;
+		//o = runner.dynRun(uid_main, args);
+		o = runner.executeProgram(root, cf);
+
+		if (o != null && o instanceof Thrown) {
+			throw (Thrown) o;
+		}
+		return narrow(o);
+	}
+
+	public IValue executeProgramVSTAT(String uid_main, IValue[] args) {
+		Object o = null;
+		boolean profile = false;
+		long[] runTiming = new long[50];
+
+		buildRunner(profile);
 
 		Function main_function = functionStore.get(functionMap.get(uid_main));
 
@@ -285,51 +331,47 @@ public class RVM {
 										// main_function as a IList object
 		cf.stack[1] = vf.mapWriter().done();
 
-		Object o = null;
-		if (uid_main.contains("Simple/main")) {
-/*			o = runner.dynRun(uid_main, args);
+		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+
+		for (int i = 0; i < 50; i++) {
+			long startTime = bean.getCurrentThreadUserTime();
+			// o = runner.executeProgram(root, cf);
 			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-			o = runner.dynRun(uid_main, args);
-*/
-			o = runner.dynRun(uid_main, args);
-		} else {
-/*			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-			o = runner.executeProgram(root, cf);
-*/
-			o = runner.executeProgram(root, cf);
+			runTiming[i] = bean.getCurrentThreadUserTime() - startTime;
+		}
+
+		for (int i = 0; i < 50; i++) {
+			runTiming[i] = runTiming[i] / 1000000;
+		}
+
+		long sum = 0;
+		try {
+			File file = new File("/Users/ferryrietveld/measurements.csv");
+			if (!file.exists()) {
+				file.createNewFile();
+				FileWriter fileWriter = new FileWriter("/Users/ferryrietveld/measurements.csv", true);
+				fileWriter.write("Name;runtype;firstrun");
+				for (int i = 1; i < 50; i++)
+					fileWriter.write(";" + i);
+				fileWriter.write(";average last 40;stdev last 40\n");
+				fileWriter.close();
+			}
+
+			FileWriter fileWritter = new FileWriter("/Users/ferryrietveld/measurements.csv", true);
+			fileWritter.write(uid_main);
+			fileWritter.write(";(JVM)");
+
+			for (int i = 0; i < 50; i++) {
+				fileWritter.write(";" + runTiming[i]);
+			}
+			
+			fileWritter.write(";" + mean(runTiming,10,49));
+			fileWritter.write(";" + stddev(runTiming,10,49));
+			fileWritter.write("\n");
+
+			fileWritter.close();
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
 		}
 
 		if (o != null && o instanceof Thrown) {
@@ -337,4 +379,42 @@ public class RVM {
 		}
 		return narrow(o);
 	}
+
+	// A poor mans statistics, Stolen and modified.
+	public float sum(long[] a, int lo, int hi) {
+		if (lo < 0 || hi >= a.length || lo > hi)
+			throw new RuntimeException("Subarray indices out of bounds");
+		float sum = 0;
+		for (int i = lo; i <= hi; i++) {
+			sum += a[i];
+		}
+		return sum;
+	}
+
+	public float mean(long[] a, int lo, int hi) {
+		int length = hi - lo + 1;
+		if (lo < 0 || hi >= a.length || lo > hi)
+			throw new RuntimeException("Subarray indices out of bounds");
+		if (length == 0)
+			return Float.NaN;
+		float sum = sum(a, lo, hi);
+		return sum / length;
+	}
+
+	public float var(long[] a, int lo, int hi) {
+		int length = hi - lo + 1;
+		if (lo < 0 || hi >= a.length || lo > hi)
+			throw new RuntimeException("Subarray indices out of bounds");
+		if (length == 0)
+			return Float.NaN;
+		float avg = mean(a, lo, hi);
+		float sum = 0;
+		for (int i = lo; i <= hi; i++) {
+			sum += (a[i] - avg) * (a[i] - avg);
+		}
+		return sum / (length - 1);
+	}
+	 public float stddev(long[] a, int lo, int hi) {
+	        return (float) Math.sqrt(var(a, lo, hi));
+	 }
 }
