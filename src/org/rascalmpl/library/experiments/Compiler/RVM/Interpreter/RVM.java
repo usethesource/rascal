@@ -243,8 +243,8 @@ public class RVM {
 				finalize(codeEmittor);
 				rvmGenCode = codeEmittor.finalizeCode();
 
-				/* DEBUG */codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
-				/* DEBUG */codeEmittor.dump("/Users/ferryrietveld/Running.class");
+				///* DEBUG */codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
+				///* DEBUG */codeEmittor.dump("/Users/ferryrietveld/Running.class");
 				// codeEmittor.dump("/Running.class");
 
 				// Oneshot classloader
@@ -298,8 +298,8 @@ public class RVM {
 		cf.stack[1] = vf.mapWriter().done();
 
 		Object o = null;
-		//o = runner.dynRun(uid_main, args);
-		o = runner.executeProgram(root, cf);
+		o = runner.dynRun(uid_main, args);
+		//o = runner.executeProgram(root, cf);
 
 		if (o != null && o instanceof Thrown) {
 			throw (Thrown) o;
