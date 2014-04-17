@@ -2298,7 +2298,6 @@ public class RVMRun {
 		} else {
 			throw new RuntimeException("Unexpected argument type for CREATEDYN: " + src.getClass() + ", " + src);
 		}
-		cf.sp = sp;
 		cccf.previousCallFrame = cf;
 
 		cf = cccf;
