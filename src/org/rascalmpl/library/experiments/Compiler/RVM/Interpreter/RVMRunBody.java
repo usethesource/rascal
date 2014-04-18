@@ -487,4 +487,13 @@ public class RVMRunBody extends RVMRun {
 	public void insnLOADINT(int i) {
 		stack[sp++] = 1000000;
 	}
+	
+	public Object doreturn0() {
+		Object rval = return0Helper();
+		if (cf == null) {
+			return rval;
+		}
+		return NONE;
+	}
+	
 }

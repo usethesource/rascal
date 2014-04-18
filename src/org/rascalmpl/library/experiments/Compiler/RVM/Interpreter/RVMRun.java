@@ -2490,7 +2490,33 @@ public class RVMRun {
 		sp = sp - arity;
 		stack[sp++] = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
 	}
+	
+	public Object return0Helper() {
+		
+		Object rval = null;
+		
+		boolean returns = cf.isCoroutine ;
+		if (returns) {
+			rval = Rascal_TRUE;
+		}	
+		
+		if (cf == ccf) {
+			activeCoroutines.pop();
+			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+		}
+		
+		cf = cf.previousCallFrame;
+		
+		stack = cf.stack;
+		sp = cf.sp;
+		
+		if (returns) {
+			stack[sp++] = rval;
+		}
+		return rval ;
+	}
 
+	
 	public Object calldynHelper(int arity, int ep) {
 		// In case of CALLDYN, the stack top value of type 'Type'
 		// leads to a constructor call

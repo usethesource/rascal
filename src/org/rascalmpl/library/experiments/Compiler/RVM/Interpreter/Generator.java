@@ -326,12 +326,21 @@ public class Generator implements Opcodes {
 		return endCode;
 	}
 
-	public void emitReturn0() {
+	public void emitReturn0(boolean debug) {
 		if (!emit)
 			return;
+		Label l0 = new Label();
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE",
-				"Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "return0Helper", "()Ljava/lang/Object;");
+		mv.visitVarInsn(ASTORE, 1);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitJumpInsn(IFNONNULL, l0);
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitInsn(ARETURN);
+		mv.visitLabel(l0);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName , "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
 	}
 
