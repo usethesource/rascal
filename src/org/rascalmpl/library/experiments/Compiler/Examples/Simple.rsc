@@ -16,7 +16,7 @@ module experiments::Compiler::Examples::Simple
 
 //int fib(int n) = (n == 0) ? 0 : (n == 1) ? 1 : (fib(n-1) + fib(n-2));
 value main(list[value] args){	
- 	return [1] := [2];
+ 	return [ "a"(1) ] := [ "a"(1) ];
 }
 
 //
