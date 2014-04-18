@@ -38,7 +38,8 @@ public class NameMangler {
 			case '$': case ':':	case '/': case '(':
 			case ')': case '[':	case ']': case ',':
 			case '{': case '}': case '"': case '\\':
-			case ' ': case ';':	
+			case ' ': case ';': case '<': case '>':
+			case '|': case '-': case '.': case '_':
 				toAdd++;
 			}
 		}
@@ -75,6 +76,18 @@ public class NameMangler {
 				resarr[o++] = '$'; resarr[o++] = 'B'; break;
 			case ';':
 				resarr[o++] = '$'; resarr[o++] = 'C'; break;
+			case '<':
+				resarr[o++] = '$'; resarr[o++] = 'L'; break;
+			case '>':
+				resarr[o++] = '$'; resarr[o++] = 'G'; break;
+			case '|':
+				resarr[o++] = '$'; resarr[o++] = 'P'; break;
+			case '-':
+				resarr[o++] = '$'; resarr[o++] = 'M'; break;
+			case '.':
+				resarr[o++] = '$'; resarr[o++] = 'D'; break;
+			case '_':
+				resarr[o++] = '$'; resarr[o++] = 'U'; break;
 			default:
 				resarr[o++] = b[i];
 			}
