@@ -245,7 +245,7 @@ public class RVM {
 
 				///* DEBUG */codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
 				///* DEBUG */codeEmittor.dump("/Users/ferryrietveld/Running.class");
-				// codeEmittor.dump("/Running.class");
+			    codeEmittor.dump("/Running.class");
 
 				// Oneshot classloader
 				Class<?> generatedClassV1 = new ClassLoader(RVM.class.getClassLoader()) {
