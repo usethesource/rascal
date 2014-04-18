@@ -1396,7 +1396,7 @@ public class RVMRun {
 	}
 
 	public void insnSTOREVAR(int scopeid, int pos, boolean maxarg2) {
-		if (CodeBlock.isMaxArg2(pos)) {
+		if (maxarg2) {
 			IValue mvar = cf.function.constantStore[scopeid];
 			moduleVariables.put(mvar, (IValue) stack[sp - 1]);
 			return;
