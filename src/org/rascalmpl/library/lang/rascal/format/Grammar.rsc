@@ -205,8 +205,9 @@ public str symbol2rascal(Symbol sym) {
     	return "<symbol2rascal(x)> <l>";  
     case sort(x) :
     	return x;
-    case \parameter(x) :
-        return "&" + replaceAll(x, "-", "_");
+    // Type incorrect, PK
+    //case \parameter(x) :
+    //    return "&" + replaceAll(x, "-", "_");
     case lit(x) :
     	return "\"<escape(x)>\"";
     case cilit(x) :
@@ -250,14 +251,15 @@ public str symbol2rascal(Symbol sym) {
     	return "";
     case \start(x):
     	return symbol2rascal(x);
-    case intersection(lhs, rhs):
-        return "<symbol2rascal(lhs)> && <symbol2rascal(rhs)>";
-    case union(lhs,rhs):
-     	return "<symbol2rascal(lhs)> || <symbol2rascal(rhs)>";
-    case difference(lhs,rhs):
-     	return "<symbol2rascal(lhs)> -  <symbol2rascal(rhs)>";
-    case complement(lhs):
-     	return "!<symbol2rascal(lhs)>";
+    // Following are type-incorrect, PK.
+    //case intersection(lhs, rhs):
+    //    return "<symbol2rascal(lhs)> && <symbol2rascal(rhs)>";
+    //case union(lhs, rhs):
+    // 	return "<symbol2rascal(lhs)> || <symbol2rascal(rhs)>";
+    //case difference(Class lhs, Class rhs):
+    // 	return "<symbol2rascal(lhs)> -  <symbol2rascal(rhs)>";
+    //case complement(Class lhs):
+    // 	return "!<symbol2rascal(lhs)>";
     case conditional(Symbol s, {Condition c, Condition d, *Condition r}):
         return symbol2rascal(conditional(conditional(s, {c}), {d, *r})); 
     case conditional(s, {delete(t)}) :

@@ -330,10 +330,10 @@ void extractScopes(){
 Symbol getType(loc l) = config.locationTypes[l];
 
 // Get the type of an expression as string
-str getType(e) = "<getType(e@\loc)>";
+str getType(Tree e) = "<getType(e@\loc)>";
 
 // Get the outermost type constructor of an expression as string
-str getOuterType(e) { 
+str getOuterType(Tree e) { 
 	if(parameter(str _, Symbol bound) := getType(e@\loc)) {
 		return "<getName(bound)>";
 	}
@@ -406,6 +406,8 @@ str uid2str(int uid) {
         	    path = replaceFirst(path, "/", "");
         	    if(src.authority != "") {
         	        path = substring(path, findFirst(path, "/") + 1);
+        	        // Taking care of a special case 
+        	        path = replaceFirst(path, "org/rascalmpl/library/", "");
         	    }
         	    name = replaceAll(path, "/", "::") + "/" + name;
         	    // println("QUALIFIED NAME IN CASE OF EXTEND: inScope: <at>; src: <src>; qname: <name>");

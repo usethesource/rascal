@@ -287,6 +287,7 @@ test bool tst() = run("all(int x \<- [1,2,3], x \<= 2 )") == all(int x <- [1,2,3
 // Incompatibilities interpreter/compiler:
 test bool tst() = run("all(int x \<- [])") == !all(int x <- []);
 test bool tst() = run("all(i \<- [1,2,3], (i % 2 == 0 || i % 2 == 1))") == !all(i <- [1,2,3], (i % 2 == 0 || i % 2 == 1));
+test bool tst() = run("all([*x, *y] := [1,2,3], true)") == !all([*x, *y] := [1,2,3], true);
 
 
 // Range

@@ -135,7 +135,7 @@ public interface IASTVisitor<T> {
 
   public T visitCommandStatement(Command.Statement x);
 
-  public T visitCommandsList(Commands.List x);
+  public T visitCommandsCommandlist(Commands.Commandlist x);
 
   public T visitCommonKeywordParametersAbsent(CommonKeywordParameters.Absent x);
 
@@ -353,7 +353,7 @@ public interface IASTVisitor<T> {
 
   public T visitFunctionModifierTest(FunctionModifier.Test x);
 
-  public T visitFunctionModifiersList(FunctionModifiers.List x);
+  public T visitFunctionModifiersModifierlist(FunctionModifiers.Modifierlist x);
 
   public T visitFunctionTypeTypeArguments(FunctionType.TypeArguments x);
 
