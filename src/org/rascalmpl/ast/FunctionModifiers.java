@@ -35,30 +35,30 @@ public abstract class FunctionModifiers extends AbstractAST {
   
 
   
-  public boolean isList() {
+  public boolean isModifierlist() {
     return false;
   }
 
-  static public class List extends FunctionModifiers {
-    // Production: sig("List",[arg("java.util.List\<org.rascalmpl.ast.FunctionModifier\>","modifiers")])
+  static public class Modifierlist extends FunctionModifiers {
+    // Production: sig("Modifierlist",[arg("java.util.List\<org.rascalmpl.ast.FunctionModifier\>","modifiers")])
   
     
     private final java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers;
   
-    public List(IConstructor node , java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers) {
+    public Modifierlist(IConstructor node , java.util.List<org.rascalmpl.ast.FunctionModifier> modifiers) {
       super(node);
       
       this.modifiers = modifiers;
     }
   
     @Override
-    public boolean isList() { 
+    public boolean isModifierlist() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitFunctionModifiersList(this);
+      return visitor.visitFunctionModifiersModifierlist(this);
     }
   
     

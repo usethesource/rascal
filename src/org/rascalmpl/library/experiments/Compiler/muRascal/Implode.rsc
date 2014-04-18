@@ -1,22 +1,28 @@
 module experiments::Compiler::muRascal::Implode
 
-import experiments::Compiler::muRascal::Syntax;
+//import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
 import Prelude;
 import ParseTree;
-import Ambiguity;
+//import Ambiguity;
 
 import experiments::Compiler::muRascal::MuAllMuOr;
+//import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 
 rel[str,str] global_functions = {};
 map[str,map[str,int]] vardefs = ();
 list[MuFunction] functions_in_module = [];
 
-int nLabel = 0;
+private int nLabel = 0;
 
-str nextLabel(str prefix) {
+private str nextLabel(str prefix) {
   nLabel += 1;
   return "<prefix><nLabel>";
+}
+
+private str nextLabel() {
+  nLabel += 1;
+  return "<nLabel>";
 }
 
 MuModule preprocess(Module pmod){
@@ -37,7 +43,8 @@ MuModule preprocess(Module pmod){
        if(f is preCoroutine) {
            locals = locals + ( isEmpty(f.guard) ? [] : (f.guard[0] has locals ? [ vdecl.id | VarDecl vdecl <- f.guard[0].locals ] : []) );
        }
-       locals = locals + ( isEmpty(f.locals) ? [] : [ vdecl.id | VarDecl vdecl <- f.locals[0][0] ] );
+       locals = locals + ( isEmpty(f.locals) ? [] : [ vdecl.id | VarDecl vdecl <- f.locals.vardecls[0] ] );
+       //locals = locals + ( isEmpty(f.locals) ? [] : [ vdecl.id | VarDecl vdecl <- f.locals[0][0] ] );
        assert size(locals) == size({ *locals });
        
        vdfs = ("<locals[i].var>" : i  | int i <- index(locals));
@@ -105,7 +112,7 @@ MuFunction preprocess(Function f, str modName) {
        if(!isEmpty(f.guard)) {
            if(f.guard[0] has locals) {
                list[MuExp] block = [ preAssignLoc(vdecl.id, vdecl.initializer) | VarDecl vdecl <- f.guard[0].locals ];
-               if(preBlock(<list[MuExp] exps, _>) := f.guard[0].exp) {
+               if(preBlock(list[MuExp] exps, _) := f.guard[0].exp) {
                    block = block + exps;
                } else {
                    block = block + [ f.guard[0].exp ];
@@ -121,7 +128,8 @@ MuFunction preprocess(Function f, str modName) {
    // Generate a very generic function type
    ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..size(f.formals)] ]);
    
-   list[MuExp] initializers = isEmpty(f.locals) ? [] : [ preAssignLoc(vdecl.id, vdecl.initializer) | VarDecl vdecl <- f.locals[0][0], vdecl has initializer ];
+   list[MuExp] initializers = isEmpty(f.locals) ? [] : [ preAssignLoc(vdecl.id, vdecl.initializer) | VarDecl vdecl <- f.locals.vardecls[0], vdecl has initializer ];
+   //list[MuExp] initializers = isEmpty(f.locals) ? [] : [ preAssignLoc(vdecl.id, vdecl.initializer) | VarDecl vdecl <- f.locals[0][0], vdecl has initializer ];
    body = preprocess(modName, f.funNames, f.name, size(f.formals), uid, (f is preCoroutine) ? [ guard, *initializers, *f.body, muExhaust() ] : initializers + f.body);   
    return (f is preCoroutine) ? muCoroutine(uid, scopeIn, size(f.formals), size(vardefs[uid]), refs, muBlock(body))
                               : muFunction(uid, ftype, scopeIn, size(f.formals), size(vardefs[uid]), false, |rascal:///|, [], (), muBlock(body));
@@ -129,11 +137,11 @@ MuFunction preprocess(Function f, str modName) {
 
 str fuid = "";
 
-list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] exps){
+list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] body_exps){
    fuid = uid;
    println("Pre-processing a function: <uid>");
    return
-      for(exp <- exps){
+      for(exp <- body_exps){
         try {
           append
             top-down visit(exp){
@@ -177,13 +185,13 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                
                // Calls that are directly mapped to muPrimitives
                
-               case muCall(preVar(mvar("get_array")), [ar, index])								=> muCallMuPrim("subscript_array_mint", [ar, index])
-               case muCall(preVar(mvar("get_list")), [lst, index])								=> muCallMuPrim("subscript_list_mint", [lst, index])
-               case muCall(preVar(mvar("get_tuple")), [tup, index])								=> muCallMuPrim("subscript_tuple_mint", [tup, index])
-               case muCall(preVar(mvar("get_map")), [m, key])									=> muCallPrim("map_subscript", [m, key])
+               case muCall(preVar(mvar("get_array")), [ar, index1])					=> muCallMuPrim("subscript_array_mint", [ar, index1])
+               case muCall(preVar(mvar("get_list")), [lst, index1])					=> muCallMuPrim("subscript_list_mint", [lst, index1])
+               case muCall(preVar(mvar("get_tuple")), [tup, index1])				=> muCallMuPrim("subscript_tuple_mint", [tup, index1])
+               case muCall(preVar(mvar("get_map")), [m, key])						=> muCallPrim("map_subscript", [m, key])
                
-               case muCall(preVar(mvar("put_array")), [ar, index, exp1])						=> muCallMuPrim("assign_subscript_array_mint", [ar, index, exp1])
-               case muCall(preVar(mvar("put_list")), [lst, index, exp1])						=> muCallMuPrim("assign_subscript_list_mint", [lst, index, exp1])
+               case muCall(preVar(mvar("put_array")), [ar, index1, exp1])			=> muCallMuPrim("assign_subscript_array_mint", [ar, index1, exp1])
+               case muCall(preVar(mvar("put_list")),  [lst, index1, exp1])			=> muCallMuPrim("assign_subscript_list_mint", [lst, index1, exp1])
                
                
                case muCall(preVar(mvar("size_array")), [exp1])									=> muCallMuPrim("size_array", [exp1])
@@ -273,8 +281,8 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preIs(MuExp lhs, str typeName)												=> muCallMuPrim("is_<typeName>", [lhs])
       	       
       	       // Overloading
-      	       case preFunNN(str modName,  str name, int nformals)                  			=> muFun(getUID(modName,[],name,nformals))
-      	       case preFunN(lrel[str,int] funNames,  str name, int nformals)        			=> muFun(getUID(modName,funNames,name,nformals), getUID(modName,funNames))
+      	       case preFunNN(str modName1,  str name1, int nformals1)                  			=> muFun(getUID(modName1,[],name1,nformals1))
+      	       case preFunN(lrel[str,int] funNames,  str name1, int nformals1)        					=> muFun(getUID(modName,funNames,name1,nformals1), getUID(modName,funNames))
       	       
       	       case muAll(list[MuExp] exps)                                                     => makeMu("ALL",exps)
       	       case muOr(list[MuExp] exps)                                                      => makeMu("OR",exps)
@@ -283,11 +291,11 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       /*
  				* The field 'comma' is a work around given the current semantics of implode 
  				*/
-      	       case preIfelse(MuExp cond, list[MuExp] thenPart, bool comma, 
-      	                                  list[MuExp] elsePart, bool comma)                     => muIfelse("", cond, thenPart, elsePart)
+      	       case preIfelse(MuExp cond, list[MuExp] thenPart, bool comma1, 
+      	                                  list[MuExp] elsePart, bool comma2)                     => muIfelse("", cond, thenPart, elsePart)
                case preWhile(MuExp cond, list[MuExp] body, bool comma)                          => muWhile("", cond, body)
-               case preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma, 
-                                                     list[MuExp] elsePart, bool comma)          => muIfelse(label, cond, thenPart, elsePart)
+               case preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma1, 
+                                                     list[MuExp] elsePart, bool comma2)          => muIfelse(label, cond, thenPart, elsePart)
                case preWhile(str label, MuExp cond, list[MuExp] body, bool comma)               => muWhile(label, cond, body)
                case preTypeSwitch(MuExp exp, lrel[MuTypeCase, bool] sepCases, 
                                   MuExp \default, bool comma)                                   => muTypeSwitch(exp, sepCases<0>, \default)
@@ -353,28 +361,31 @@ MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps) {
     return res.e;
 }
 
+// Temporary copy of TmpAndLabel.rsc
 
-MuModule parse(loc s) {
-  pt = parse( #start[Module], s);
-  dia = diagnose(pt);
-  if(dia != []){
-     iprintln(dia);
-     throw  "*** Ambiguities in muRascal code, see above report";
-  }
-  ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
-  ast2 = preprocess(ast);
-  // iprintln(ast2);
-  return ast2;						   
+private int allCounter = 0;								// *** state
+
+private int getNextAll() {
+    int counter = allCounter;
+    allCounter = allCounter + 1;
+    return counter;
 }
 
-MuModule parse(str s) {
-  pt = parse( #start[Module], s);
-  dia = diagnose(pt);
-  if(dia != []){
-     iprintln(dia);
-     throw  "*** Ambiguities in muRascal code, see above report";
-  }   
-  ast = implode(#experiments::Compiler::muRascal::AST::Module, pt);
-  ast2 = preprocess(ast);
-  return ast2;							   
+private void resetAllCounter() {
+    allCounter = 0;
 }
+
+private int orCounter = 0;								// *** state
+
+private int getNextOr() {
+    int counter = orCounter;
+    orCounter = orCounter + 1;
+    return counter;
+}
+
+private void resetOrCounter() {
+    orCounter = 0;
+}
+
+
+

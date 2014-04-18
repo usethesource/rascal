@@ -528,7 +528,7 @@ syntax Visit
 	| defaultStrategy: "visit" "(" Expression subject ")" "{" Case+ cases "}" ;
 
 start syntax Commands
-	= \list: EvalCommand+ commands
+	= \commandlist: EvalCommand+ commands
 	;
 
 start syntax EvalCommand
@@ -750,7 +750,7 @@ lexical RegExpLiteral
 	= "/" RegExp* "/" RegExpModifier ;
 
 syntax FunctionModifiers
-	= \list: FunctionModifier* modifiers ;
+	= \modifierlist: FunctionModifier* modifiers ;
 
 syntax Comprehension
 	= @breakable{results,generators} \set: "{" {Expression ","}+ results "|" {Expression ","}+ generators "}" 
