@@ -48,8 +48,7 @@ import org.jgll.regex.RegexPlus;
 import org.jgll.regex.RegexStar;
 import org.jgll.regex.RegularExpression;
 import org.jgll.regex.Sequence;
-import org.jgll.regex.automaton.Automaton;
-import org.jgll.regex.matcher.Matcher;
+import org.jgll.regex.automaton.RunnableAutomaton;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
@@ -90,8 +89,10 @@ public class GrammarToJigll {
 	
 	private int mode = TOKEN_BASED;
 	
+	
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
+		System.out.println();
 		deleteSetCache = new HashMap<>();
 		regularExpressionsCache = new HashMap<>();
 	}
@@ -189,7 +190,9 @@ public class GrammarToJigll {
 				return RegularExpressionCondition.notFollow(new CharacterClass(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.notFollow(getKeyword(symbol));
+				Keyword keyword = getKeyword(symbol).clone();
+				keyword.getConditions().clear();
+				return RegularExpressionCondition.notFollow(keyword);
 	
 			case "seq":
 				IList list = (IList) symbol.get("symbols");
@@ -218,7 +221,9 @@ public class GrammarToJigll {
 				return RegularExpressionCondition.follow(new CharacterClass(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.follow(getKeyword(symbol));
+				Keyword keyword = getKeyword(symbol).clone();
+				keyword.getConditions().clear();
+				return RegularExpressionCondition.follow(keyword);
 	
 			case "seq":
 				IList list = (IList) symbol.get("symbols");
@@ -246,7 +251,9 @@ public class GrammarToJigll {
 				return RegularExpressionCondition.notPrecede(new CharacterClass(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.notPrecede(getKeyword(symbol));
+				Keyword keyword = getKeyword(symbol).clone();
+				keyword.getConditions().clear();
+				return RegularExpressionCondition.notPrecede(keyword);
 	
 			default:
 				throw new IllegalStateException("Should not be here!");
@@ -261,7 +268,9 @@ public class GrammarToJigll {
 				return RegularExpressionCondition.precede(new CharacterClass(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.precede(getKeyword(symbol));
+				Keyword keyword = getKeyword(symbol).clone();
+				keyword.getConditions().clear();
+				return RegularExpressionCondition.precede(keyword);
 	
 			default:
 				throw new IllegalStateException("Should not be here!");
@@ -420,7 +429,7 @@ public class GrammarToJigll {
 	}
 	
 	CharacterClass c = new CharacterClass(Range.in('a', 'z'), Range.in('A', 'Z'), Range.in('_', '_'));
-	Matcher test = new RegexPlus(c).toAutomaton().getMatcher();
+	RunnableAutomaton test = new RegexPlus(c).toAutomaton().getRunnableAutomaton();
 	
 	private List<Symbol> getSymbolList(IList rhs) {
 		
@@ -692,7 +701,7 @@ public class GrammarToJigll {
 				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
 	
 			case "conditional":
-				return getSymbol(getSymbolCons(symbol)).addConditions(getConditions(symbol));
+				return getSymbol(getSymbolCons(symbol)).clone().addConditions(getConditions(symbol));
 	
 			default:
 				return new Nonterminal(SymbolAdapter.toString(symbol, true));
@@ -717,7 +726,7 @@ public class GrammarToJigll {
 				break;
 				 
 			case "conditional":
-				regex = getRegularExpression(getSymbolCons(symbol)).addConditions(getConditions(symbol));
+				regex = getRegularExpression(getSymbolCons(symbol)).clone().addConditions(getConditions(symbol));
 				break;
 			
 			case "label":
@@ -763,6 +772,7 @@ public class GrammarToJigll {
 		if(regex == null) return null;
 		
 //		regex.toAutomaton().minimize();
+		regex.toAutomaton();
 		regularExpressionsCache.put(symbol, regex);
 		return regex;
 	}
@@ -855,6 +865,7 @@ public class GrammarToJigll {
 				|| SymbolAdapter.isIterPlus(value)
 				|| SymbolAdapter.isIterPlusSeps(value);
 	}
+	
 
 	private IConstructor getRegularDefinition(ISet alts) {
 		IConstructor value = null;
