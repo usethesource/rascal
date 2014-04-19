@@ -163,16 +163,7 @@ public class RVMRunBody extends RVMRun {
 		return p;
 	}
 
-	public Object doreturn1() {
-		Object rval = return1Helper();
-		if (cf == null) {
-			return rval;
-		}
-		stack = cf.stack;
-		sp = cf.sp;
-		stack[sp++] = rval;
-		return NONE;
-	}
+	
 
 	public Object ocallOID() {
 		String p = "ehhd do maar";
@@ -495,5 +486,11 @@ public class RVMRunBody extends RVMRun {
 		}
 		return NONE;
 	}
-	
+	public Object doreturn1() {
+		Object rval = return1Helper();
+		if (cf == null) {
+			return rval;
+		}
+		return NONE;
+	}
 }
