@@ -13,19 +13,36 @@ module experiments::Compiler::Examples::Simple
 //}
 //
 //int fac(int n) = (n <= 1) ? 1 : n * fac(n-1);
-
 //int fib(int n) = (n == 0) ? 0 : (n == 1) ? 1 : (fib(n-1) + fib(n-2));
-value main(list[value] args){	
-  M = (1:10); 
-  M[2] ? 0 += 100; 
-  
-  return M;
-}
+
+
+//
+//public int (int) f() { int n = 100; return int (int i) { return i + n; }; }
+//
+//public int (int) h(int n1) { int n2 = 50; int k(int i) { return n1 + n2 + i; } return k; } 
+//
+//public value main(list[value] args) {
+//	g = f();
+//	res1 = g(11);
+//	
+//	l = h(1);
+//	res2 = l(2);
+//	
+//	return res1 + res2; // 111 + 53 == 164
+//}
+//
+
+//value main(list[value] args){	
+//  M = (1:10); 
+//  M[2] ? 0 += 100; 
+//  
+//  return M;
+//}
 
 //
 //value main(list[value] args){
 //   res = [];
-//   for(i <- [0,1,2,3,4,5,6,7,8,9,10,11,12,13], i % 2 == 1)
+//   for(i <- [0,1,2,3,4,5,6,7,8,9,10,11,12,13], i % 2 == 1)s
 //      res = res + [i];
 //    return res;
 //}
@@ -109,3 +126,26 @@ value main(list[value] args){
 //value main(list[value] args){	
 // 	return fac(24) ;
 //}
+
+//public int d3 = 1;
+//
+////public int inc(int n) = n + 1;
+////public int fac(int n) = (n <= 1) ? 1 : n * fac(n - 1);
+//
+//public data EDATA = e1(int i) | e2(str s);
+//		
+//public EDATA main(list[value] args) {	
+//	type[EDATA] t = #EDATA;
+//	EDATA v = e1(10  + 100 + d3);
+//	
+//	return v;
+//}
+//
+//bool testE1E2() = main([]) == e1(3628812);
+
+data D = d1(int n, str s) ;
+
+public value main(list[value] args) {
+	return d1(3, "a") >= d1(2, "a") ; // <d(-1), d("-1"), d(1), d("1")>
+	//return k ; // <d(-1), d("-1"), d(1), d("1")>
+}

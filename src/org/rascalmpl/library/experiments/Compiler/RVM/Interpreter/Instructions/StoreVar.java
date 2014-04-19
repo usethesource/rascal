@@ -22,7 +22,7 @@ public class StoreVar extends Instruction {
 
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
 		
-		codeEmittor.emitCall("insnSTOREVAR", what, pos, CodeBlock.isMaxArg2(pos));
+		codeEmittor.emitCall("insnSTOREVAR", what, pos, pos == -1 );
 		
 		codeblock.addCode2(opcode.getOpcode(), what, pos);
 	}

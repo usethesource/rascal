@@ -2243,8 +2243,9 @@ public class RVMRun {
 
 		sp = func.nlocals;
 		cf.sp = this.sp;
-
-		return dynRun(n);
+		
+		Object result = dynRun(n) ;
+		return result;
 	}
 
 	public Object dynRun(int n) {
@@ -2268,6 +2269,11 @@ public class RVMRun {
 			rval = stack[sp - 1];
 		}
 		cf = cf.previousCallFrame;
+		if ( cf != null ) {
+			stack = cf.stack;
+			sp = cf.sp;
+			stack[sp++] = rval;
+		}
 		return rval;
 	}
 
@@ -2482,15 +2488,54 @@ public class RVMRun {
 			stack = cf.stack;
 			sp = cf.sp;
 			Object rsult = dynRun(cf.function.funId);
-			if (rsult.equals(NONE)) return ;   // Alternative matched.
+			if (rsult.equals(NONE)) {
+				return ;   // Alternative matched.
+			}
 			frame = ofun_call.nextFrame(functionStore);
 		}
-
 		Type constructor = ofun_call.nextConstructor(constructorStore);
-		sp = sp - arity;
+		//sp = sp - arity;
 		stack[sp++] = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
 	}
-	
+		
+	public void jvmOCALLDYN(int typesel, int arity) {
+		Object funcObject = stack[--sp];
+		OverloadedFunctionInstanceCall ofunCall = null ;
+		cf.sp = sp;
+
+		// Get function types to perform a type-based dynamic
+		// resolution
+		Type types = cf.function.codeblock.getConstantType(typesel);
+		// Objects of two types may appear on the stack:
+		// 1. FunctionInstance due to closures whom will have no overloading
+		if (funcObject instanceof FunctionInstance) {
+			FunctionInstance fun_instance = (FunctionInstance) funcObject;
+			cf = cf.getFrame(fun_instance.function, fun_instance.env, arity, sp);
+			instructions = cf.function.codeblock.getInstructions();
+			stack = cf.stack;
+			sp = cf.sp;
+			dynRun(cf.function.funId) ;
+			return;
+		}
+		// 2. OverloadedFunctionInstance due to named Rascal
+		// functions
+		OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
+		ofunCall = new OverloadedFunctionInstanceCall(cf, of_instance.functions, of_instance.constructors, of_instance.env, types, arity);
+
+		Frame frame = ofunCall.nextFrame(functionStore);
+		while (frame != null) {
+			cf = frame;
+			stack = cf.stack;
+			sp = cf.sp;
+			Object rsult = dynRun(cf.function.funId);
+			if (rsult.equals(NONE)) return ;   // Alternative matched.
+			frame = ofunCall.nextFrame(functionStore);
+		}
+		Type constructor = ofunCall.nextConstructor(constructorStore);
+		sp = sp - arity;
+		stack[sp++] = vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
+	}
+
 	public Object return0Helper() {
 		
 		Object rval = null;
@@ -2601,6 +2646,15 @@ public class RVMRun {
 		}
 	}
 
+	public void failReturnHelper() {
+		// repair stack after failreturn;
+		// Small helper can be inlined ?
+		// The inline part returns the fail .
+		cf = cf.previousCallFrame ;
+		stack = cf.stack ;
+		sp = cf.sp ;
+	}
+	
 	// Next methods are for debug only. Single step..
 	public void dinsnTYPESWITCH(int target) {
 		jmpTarget = target;

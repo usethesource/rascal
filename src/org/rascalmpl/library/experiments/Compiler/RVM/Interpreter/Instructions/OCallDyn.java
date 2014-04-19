@@ -17,7 +17,7 @@ public class OCallDyn extends Instruction {
 	public String toString() { return "OCALLDYN " + types + ", " + arity; }
 	
 	public void generate(Generator codeEmittor, boolean dcode){
-		codeEmittor.emitCall("insnOCALLDYN", types, arity);
+		codeEmittor.emitCall("jvmOCALLDYN", types, arity);
 		
 		codeblock.addCode2(opcode.getOpcode(), types, arity);
 	}
