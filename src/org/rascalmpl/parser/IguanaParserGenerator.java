@@ -584,7 +584,7 @@ public class IguanaParserGenerator {
 				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
 	
 			case "conditional":
-				return getSymbol(getSymbolCons(symbol), definitions).addConditions(getConditions(symbol, definitions));
+//				return getSymbol(getSymbolCons(symbol), definitions).withConditions(getConditions(symbol, definitions));
 	
 			default:
 				return new Nonterminal(SymbolAdapter.toString(symbol, true));
@@ -692,7 +692,7 @@ public class IguanaParserGenerator {
 		}
 
 		if(!keywords.isEmpty()) {
-			list.add(RegularExpressionCondition.notMatch(keywords.toArray(new Keyword[] {})));
+			list.add(RegularExpressionCondition.notMatch(new RegexAlt<>(keywords)));
 		}
 		return list;
 	}
