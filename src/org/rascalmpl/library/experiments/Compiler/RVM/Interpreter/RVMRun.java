@@ -1811,12 +1811,12 @@ public class RVMRun {
 		return;
 	}
 
-	public void insnCALLJAVA(int m, int c, int p, int r) {
+	public void insnCALLJAVA(int m, int c, int p, int reflect) {
 		postOp = 0;
 		String methodName = ((IString) cf.function.constantStore[m]).getValue();
 		String className = ((IString) cf.function.constantStore[c]).getValue();
 		Type parameterTypes = cf.function.typeConstantStore[p];
-		int reflect = instructions[r];
+		//int reflect = instructions[r];
 		arity = parameterTypes.getArity();
 		try {
 			sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
@@ -2472,7 +2472,15 @@ public class RVMRun {
 		return NONE;// i.e., signal a failure;
 	}
 
+	
+	// jvmOCALL has an issue
+	// There are 3 possible ways to reset the stack pointer sp
+	// 1:  Done by nextFrame 
+	// 2:  Not done by nextFrame (there is no frame)
+	// 3:  todo after the constructor call.
+	// Problem there was 1 frame and the function failed.
 	public void jvmOCALL(int ofun, int arity) {
+		boolean stackPointerAdjusted = false ;
 		cf.sp = sp;
 
 		OverloadedFunctionInstanceCall ofun_call = null;
@@ -2484,6 +2492,7 @@ public class RVMRun {
 		Frame frame = ofun_call.nextFrame(functionStore);
 
 		while (frame != null) {
+			stackPointerAdjusted = true ; // See text 
 			cf = frame;
 			stack = cf.stack;
 			sp = cf.sp;
@@ -2494,7 +2503,7 @@ public class RVMRun {
 			frame = ofun_call.nextFrame(functionStore);
 		}
 		Type constructor = ofun_call.nextConstructor(constructorStore);
-		//sp = sp - arity;
+		if ( stackPointerAdjusted == false ) sp = sp - arity;
 		stack[sp++] = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
 	}
 		
@@ -2522,8 +2531,10 @@ public class RVMRun {
 		OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
 		ofunCall = new OverloadedFunctionInstanceCall(cf, of_instance.functions, of_instance.constructors, of_instance.env, types, arity);
 
+		boolean stackPointerAdjusted = false ;
 		Frame frame = ofunCall.nextFrame(functionStore);
 		while (frame != null) {
+			stackPointerAdjusted = true ; // See text at OCALL 
 			cf = frame;
 			stack = cf.stack;
 			sp = cf.sp;
@@ -2532,7 +2543,7 @@ public class RVMRun {
 			frame = ofunCall.nextFrame(functionStore);
 		}
 		Type constructor = ofunCall.nextConstructor(constructorStore);
-		sp = sp - arity;
+		if ( stackPointerAdjusted == false ) sp = sp - arity;
 		stack[sp++] = vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
 	}
 
