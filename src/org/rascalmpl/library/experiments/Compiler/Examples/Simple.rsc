@@ -143,9 +143,71 @@ module experiments::Compiler::Examples::Simple
 //
 //bool testE1E2() = main([]) == e1(3628812);
 
-data D = d1(int n, str s) ;
+//data D = d1(int n, str s) ;
+//
+//public value main(list[value] args) {
+//	return d1(3, "a") >= d1(2, "a") ; // <d(-1), d("-1"), d(1), d("1")>
+//	//return k ; // <d(-1), d("-1"), d(1), d("1")>
+//}
+//
 
-public value main(list[value] args) {
-	return d1(3, "a") >= d1(2, "a") ; // <d(-1), d("-1"), d(1), d("1")>
-	//return k ; // <d(-1), d("-1"), d(1), d("1")>
+//@javaClass{org.rascalmpl.library.Prelude}
+//public java int size(list[int] lst);
+//
+//public int f([*int x,*int y]) {
+//	if(size(x) == size(y)) {
+//		return -1000;
+//	}
+//	fail;
+//}
+//public default int f(list[int] l) = 0;
+//
+//public int g([1,2,3,4,5,6]) {
+//	return -2000;
+//}
+//public default int g(list[int] l) = -3000;
+//
+//public int h(list[int] _) {
+//	fail;
+//}
+//public default int h(list[int] l) = -3000;
+//
+//public value main(list[value] args) {
+//	return f([1,2,3,4,5,6]) 
+//		   + g([1,2,3,4,5,6]) 
+//		   + g([1,2,3,4,5]) 
+//		   + h([1,2,3,4,5,6]);
+//}
+//
+
+
+int globalVar;
+
+str () f() {
+    int localVar;
+    str trace = "";
+    return str () {
+    	if(localVar?) {
+			trace += " local var is defined: !";
+		} else {
+			localVar = 0;
+			trace += " local var is not defined! And now: !";
+		}
+		
+		if(globalVar?) {
+			trace += " global var is defined: !";
+		} else {
+			globalVar = 1;
+			trace += " global var is not defined! And now: !";
+		}
+		return trace;
+	};
+}
+
+value main(list[value] args) {
+    int i;
+    i = 100;
+    str s = f()();
+    i = i + 1;
+    return s + "; <i>";
 }
