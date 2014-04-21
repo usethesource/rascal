@@ -1,14 +1,12 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.FileOutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -25,7 +23,6 @@ public class Generator implements Opcodes {
 	private HashMap<String, Label> labelMap = new HashMap<String, Label>();
 	private Label[] hotEntryLabels = null;
 	private Label exitLabel = null;
-	private String currentName = null;
 
 	private Label getNamedLabel(String targetLabel) {
 		Label lb = labelMap.get(targetLabel);
@@ -61,11 +58,6 @@ public class Generator implements Opcodes {
 		this.fullClassName = "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running";
 		cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 
-		// cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, fullClassName, null,
-		// "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun",
-		// new String[] {
-		// "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/IDynamicRun"
-		// });
 		cw.visit(
 				V1_7,
 				ACC_PUBLIC + ACC_SUPER,
@@ -118,8 +110,6 @@ public class Generator implements Opcodes {
 		labelMap.clear(); // New set of labels.
 
 		mv.visitCode();
-
-		currentName = name;
 
 		if (continuationPoints != 0) {
 			hotEntryLabels = new Label[continuationPoints + 1]; // Add entry 0
@@ -1310,8 +1300,13 @@ public class Generator implements Opcodes {
 		emitEntryLabel(continuationPoint);
 
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitIntInsn(SIPUSH, arity);
-		mv.visitIntInsn(SIPUSH, continuationPoint);
+		
+		emitIntValue(arity);
+		emitIntValue(continuationPoint);
+		
+//		mv.visitIntInsn(SIPUSH, arity);
+//		mv.visitIntInsn(SIPUSH, continuationPoint);
+				
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "calldynHelper",
 				"(II)Ljava/lang/Object;");
 		mv.visitVarInsn(ALOAD, 0);
