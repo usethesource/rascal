@@ -2172,7 +2172,7 @@ public class Prelude {
 	 * ParseTree
 	 */
 	
-	private final TypeReifier tr;
+	protected final TypeReifier tr;
 
 	public IValue parse(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
 		return parse(start, values.mapWriter().done(), input, ctx);
@@ -2273,7 +2273,7 @@ public class Prelude {
 		return values.string(TreeAdapter.yield(tree));
 	}
 	
-	private IConstructor makeConstructor(Type returnType, String name, IEvaluatorContext ctx,  IValue ...args) {
+	protected IConstructor makeConstructor(Type returnType, String name, IEvaluatorContext ctx,  IValue ...args) {
 		IValue value = ctx.getEvaluator().call(returnType.getName(), name, args);
 		Type type = value.getType();
 		if (type.isAbstractData()) {
@@ -2331,7 +2331,7 @@ public class Prelude {
 	}
 
 	@SuppressWarnings("serial")
-	private static class Backtrack extends RuntimeException {
+	protected static class Backtrack extends RuntimeException {
 		Throw exception;
 		public Backtrack(Throw exception) {
 			this.exception = exception;
@@ -2353,7 +2353,7 @@ public class Prelude {
 	}
 	
 	
-	private IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing, IEvaluatorContext ctx) {
+	protected IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing, IEvaluatorContext ctx) {
 
 		// always yield if expected type is str, except if regular 
 		if (type.isString() && !splicing) {
@@ -2650,7 +2650,7 @@ public class Prelude {
 		return comments.done();
 	}
 
-	private boolean isUntypedNodeType(Type type) {
+	protected boolean isUntypedNodeType(Type type) {
 		return (type.isNode() && !type.isConstructor() && !type.isAbstractData()) 
 				|| type.isTop();
 	}

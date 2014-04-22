@@ -2,6 +2,7 @@ module experiments::Compiler::muRascal::MuAllMuOr
 
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
+import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import Prelude;
 
 
@@ -73,8 +74,8 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
  */
 
 tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muMulti(_) ]) = <e,[]>;
-tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muOne(MuExp exp) ]) = <makeMuMulti(e),[]>;
-tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ MuExp e ]) = <e,[]> when !(muMulti(_) := e || muOne(_) := e);
+tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muOne(MuExp exp) ]) = <makeMuMulti(e, fuid),[]>;
+tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ MuExp e ]) = <e,[]> when !(muMulti(_) := e || muOne(MuExp _) := e);
 default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuExp] exps) {
     assert(size(exps) >= 1);
     if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
@@ -84,7 +85,7 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
             if(muMulti(_) := e) {
                 expressions += e.exp;
                 backtrackfree += false;
-            } else if(muOne(_) := e) {
+            } else if(muOne(MuExp _) := e) {
                 expressions += muNext(muCreate(e.exp));
                 backtrackfree += true;
             } else {
@@ -109,8 +110,11 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
 }
 
 tuple[MuExp,list[MuFunction]] makeMuMulti(e:muMulti(_), str fuid) = <e,[]>;
+
 // TODO: should ONE be also passed a closure? I would say yes
-tuple[MuExp,list[MuFunction]] makeMuMulti(e:muOne(MuExp exp), str fuid) = <muMulti(muApply("Library/ONE(1)"),[ exp ]),[]>; // ***Note: multi expression that produces at most one solution
+tuple[MuExp,list[MuFunction]] makeMuMulti(e:muOne(MuExp exp), str fuid) = <muMulti(muApply(mkCallToLibFun("Library", "ONE"),[ exp ])),[]>; // ***Note: multi expression that produces at most one solution
+
+
 default tuple[MuExp,list[MuFunction]] makeMuMulti(MuExp exp, str fuid) {
     // Works because mkVar and mkAssign produce muVar and muAssign, i.e., specify explicitly function scopes computed by the type checker
     list[MuFunction] functions = [];
@@ -120,8 +124,11 @@ default tuple[MuExp,list[MuFunction]] makeMuMulti(MuExp exp, str fuid) {
 }
 
 tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ e:muMulti(MuExp exp) ]) = <muOne(exp),[]>;
+
 tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ e:muOne(MuExp exp) ]) = <e,[]>;
-tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ MuExp e ]) = <e,[]> when !(muMulti(_) := e || muOne(_) := e);
+
+tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ MuExp e ]) = <e,[]> when !(muMulti(_) := e || muOne(MuExp _) := e);
+
 default tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, list[MuExp] exps) {
     tuple[MuExp e,list[MuFunction] functions] res = makeMu(muAllOrMuOr,fuid,exps);
     if(muMulti(exp) := res.e) {
@@ -132,7 +139,7 @@ default tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, list[
 
 private tuple[MuExp,list[MuFunction]] generateMu("ALL", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
     list[MuFunction] functions = [];
-    str all_uid = "Library/<fuid>/ALL_<getNextAll()>(0)";
+    str all_uid = "<fuid>/ALL_<getNextAll()>(0)";
     localvars = [ muVar("c_<i>", all_uid, i) | int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     for(int i <- index(exps)) {
@@ -150,7 +157,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("ALL", str fuid, list[MuExp] ex
 
 private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
     list[MuFunction] functions = [];
-    str or_uid = "Library/<fuid>/OR_<getNextOr()>(0)";
+    str or_uid = "<fuid>/OR_<getNextOr()>(0)";
     list[MuExp] body = [];
     for(int i <- index(exps)) {
         if(backtrackfree[i]) {
@@ -166,7 +173,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exp
 
 private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
     list[MuFunction] functions = [];
-    str impl_uid = "Library/<fuid>/IMPLICATION_<getNextAll()>(0)";
+    str impl_uid = "<fuid>/IMPLICATION_<getNextAll()>(0)";
     localvars = [ muVar("c_<i>", impl_uid, i) | int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     bool first = true;
@@ -194,7 +201,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[M
 
 private tuple[MuExp,list[MuFunction]] generateMu("EQUIVALENCE", str fuid, list[MuExp] exps, list[bool] backtrackfree) {
     list[MuFunction] functions = [];
-    str equiv_uid = "Library/<fuid>/EQUIVALENCE_<getNextAll()>(0)";
+    str equiv_uid = "<fuid>/EQUIVALENCE_<getNextAll()>(0)";
     localvars = [ muVar("c_<i>", equiv_uid, i) | int i <- index(exps) ];
     list[MuExp] body = [ muYield() ];
     bool first = true;

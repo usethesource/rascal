@@ -535,6 +535,12 @@ public enum RascalPrimitive {
 			return list_add_list.execute(stack, sp, arity);
 		}
 	},
+	lrel_add_elm {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			return list_add_elm.execute(stack, sp, arity);
+		}
+	},
 	loc_add_str {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -5466,6 +5472,13 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			return list_subtract_list.execute(stack, sp, arity);
+		}
+
+	},
+	lrel_subtract_elm {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			return list_subtract_elm.execute(stack, sp, arity);
 		}
 
 	},
