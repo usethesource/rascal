@@ -74,7 +74,7 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
  */
 
 tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muMulti(_) ]) = <e,[]>;
-tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muOne(MuExp exp) ]) = <makeMuMulti(e, fuid),[]>;
+tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muOne(MuExp exp) ]) = makeMuMulti(e, fuid);
 tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ MuExp e ]) = <e,[]> when !(muMulti(_) := e || muOne(MuExp _) := e);
 default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuExp] exps) {
     assert(size(exps) >= 1);
