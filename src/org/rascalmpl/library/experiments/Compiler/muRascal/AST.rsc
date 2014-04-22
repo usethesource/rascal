@@ -180,7 +180,7 @@ data MuTypeCase = muTypeCase(str name, MuExp exp);
 // Auxiliary constructors that are removed by the preprocessor: parse tree -> AST.
 // They will never be seen by later stages of the compiler.
 
-public data Identifier =
+data Identifier =
 				  fvar(str var)
 				| ivar(str var)
 				| rvar(str var)
@@ -206,9 +206,9 @@ public data Guard = preGuard(MuExp exp)
  */
 public data Function =				
                preFunction(lrel[str,int] funNames, str name, list[Identifier] formals, 
-                           lrel[list[VarDecl], str] locals, list[MuExp] body, bool comma)
-             | preCoroutine(lrel[str,int] funNames, str name, list[Identifier] formals, 
-                            list[Guard] guard, lrel[list[VarDecl], str] locals, list[MuExp] body, bool comma)
+                           lrel[list[VarDecl] vardecls, str s] locals, list[MuExp] body, bool comma)
+             | preCoroutine(lrel[str s,int i] funNames, str name, list[Identifier] formals, 
+                            list[Guard] guard, lrel[list[VarDecl] vardecls, str s] locals, list[MuExp] body, bool comma)
           ;
 
 public data MuExp =
@@ -247,16 +247,16 @@ public data MuExp =
             | preIs(MuExp exp, str typeName)
             
             | preLocDeref(Identifier id)
-            | preVarDeref(lrel[str,int] funNames, Identifier id)
+            | preVarDeref(lrel[str s,int i] funNames, Identifier id)
             | preLocRef(Identifier id)
             | preVarRef(lrel[str,int] funNames, Identifier id)
             
             | preAssignLocDeref(Identifier id, MuExp exp)
             | preAssignVarDeref(lrel[str,int] funNames, Identifier id, MuExp exp)
             
-            | preIfelse(MuExp cond, list[MuExp] thenPart, bool comma, list[MuExp] elsePart, bool comma)
+            | preIfelse(MuExp cond, list[MuExp] thenPart, bool comma1, list[MuExp] elsePart, bool comma2)
             | preWhile(MuExp cond, list[MuExp] body, bool comma)
-            | preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma, list[MuExp] elsePart, bool comma)
+            | preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma1, list[MuExp] elsePart, bool comma2)
             | preWhile(str label, MuExp cond, list[MuExp] body, bool comma)
             | preTypeSwitch(MuExp exp, lrel[MuTypeCase,bool] sepCases, MuExp \default, bool comma)
             | preBlock(list[MuExp] exps, bool comma)
