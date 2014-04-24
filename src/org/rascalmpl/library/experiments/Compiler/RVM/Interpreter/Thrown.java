@@ -35,10 +35,11 @@ public class Thrown extends RuntimeException {
 	}
 	
 	public void printStackTrace(PrintWriter stdout) {
-		stdout.println("Runtime exception: throw " + this.toString() + ((loc !=null) ? loc : "") );
+		stdout.println(this.toString() + ((loc !=null) ? loc : "") );
 		for(Frame cf : stacktrace) {
 			for(Frame f = cf; f != null; f = f.previousCallFrame) {
-				stdout.println("at " + f.function.name);
+				//stdout.println("at " + f.function.name);
+				stdout.println(f);
 			}
 		}
 	}

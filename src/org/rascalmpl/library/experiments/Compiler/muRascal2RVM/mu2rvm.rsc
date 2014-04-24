@@ -326,12 +326,12 @@ INS tr(muAssignKwp(str fuid, str name, MuExp exp)) = [ *tr(exp), fuid == functio
 
 // Constructor
 
-INS tr(muCallConstr(str fuid, list[MuExp] args)) = [ *tr(args), CALLCONSTR(fuid, size(args)) ];
+INS tr(muCallConstr(str fuid, list[MuExp] args/*, loc src*/)) = [ *tr(args), CALLCONSTR(fuid, size(args) /*, src*/) ];
 
 // muRascal functions
 
 INS tr(muCall(muFun(str fuid), list[MuExp] args)) = [*tr(args), CALL(fuid, size(args))];
-INS tr(muCall(muConstr(str fuid), list[MuExp] args)) = [*tr(args), CALLCONSTR(fuid, size(args))];
+INS tr(muCall(muConstr(str fuid), list[MuExp] args, loc src)) = [*tr(args), CALLCONSTR(fuid, size(args)/*, src*/)];
 INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size(args))];
 
 // Partial application of muRascal functions
@@ -344,21 +344,21 @@ INS tr(muApply(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), APPLYDYN(s
 
 // Rascal functions
 
-INS tr(muOCall(muOFun(str fuid), list[MuExp] args)) = [*tr(args), OCALL(fuid, size(args))];
-INS tr(muOCall(MuExp fun, Symbol types, list[MuExp] args)) 
+INS tr(muOCall(muOFun(str fuid), list[MuExp] args, loc src)) = [*tr(args), OCALL(fuid, size(args), src)];
+INS tr(muOCall(MuExp fun, Symbol types, list[MuExp] args, loc src)) 
 	= [ *tr(args),
 	    *tr(fun), 
-		OCALLDYN(types, size(args))];
+		OCALLDYN(types, size(args), src)];
 
 // Calls to Rascal primitives
 
-INS tr(muCallPrim("println", list[MuExp] args)) = [*tr(args), PRINTLN(size(args))];
-INS tr(muCallPrim("subtype", list[MuExp] args)) = [*tr(args), SUBTYPE()];
-INS tr(muCallPrim("typeOf", list[MuExp] args)) = [*tr(args), TYPEOF()];
+INS tr(muCallPrim("println", list[MuExp] args, loc src)) = [*tr(args), PRINTLN(size(args))];
+INS tr(muCallPrim("subtype", list[MuExp] args, loc src)) = [*tr(args), SUBTYPE()];
+INS tr(muCallPrim("typeOf", list[MuExp] args, loc src)) = [*tr(args), TYPEOF()];
 
-default INS tr(muCallPrim(str name, list[MuExp] args)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args))];
+default INS tr(muCallPrim(str name, list[MuExp] args, loc src)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args), src)];
 
-// Calls to MuRascal primitives
+// Calls to MuRascal primitives that are directly translated to RVM instructions
 
 INS tr(muCallMuPrim("println", list[MuExp] args)) = [*tr(args), PRINTLN(size(args))];
 INS tr(muCallMuPrim("subscript_array_mint", list[MuExp] args)) = [*tr(args), SUBSCRIPTARRAY()];

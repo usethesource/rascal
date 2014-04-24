@@ -179,8 +179,12 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preAssignLocDeref(Identifier id, MuExp exp1)  								=> muAssignVarDeref(id.var,uid,vardefs[uid][id.var], exp1)
       	       case preAssignVarDeref(lrel[str,int] funNames1, Identifier id, MuExp exp1)         => muAssignVarDeref(id.var,getUID(modName,funNames1),vardefs[getUID(modName,funNames1)][id.var],exp1)
       	       
-      	       case muCallPrim(str name)                                            			=> muCallPrim(name[1..-1], [])
-               case muCallPrim(str name, list[MuExp] exps)										=> muCallPrim(name[1..-1], exps)			// strip surrounding quotes
+      	       case muCallPrim(str name, loc src)                                            	=> muCallPrim(name[1..-1], [], src)
+               case muCallPrim(str name, list[MuExp] exps, loc src)								=> muCallPrim(name[1..-1], exps, src)			// strip surrounding quotes
+               
+               case preMuCallPrim(str name)                                            			=> muCallPrim(name[1..-1], [],   |unknown:///a-location-in-library|)
+               case preMuCallPrim(str name, list[MuExp] exps)									=> muCallPrim(name[1..-1], exps, |unknown:///a-location-in-library|)
+               
                case muCallMuPrim(str name, list[MuExp] exps)									=> muCallMuPrim(name[1..-1], exps)			// strip surrounding quotes
                
                // Calls that are directly mapped to muPrimitives

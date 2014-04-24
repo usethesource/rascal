@@ -76,13 +76,13 @@ public data Instruction =
 		| APPLY(str fuid, int arity)                // Apply partially a named *muRascal* function
 		| APPLYDYN(int arity)                       // Apply partially a top-of-stack *muRascal* function 
 				
-		| CALLCONSTR(str fuid, int arity)			// Call a constructor
+		| CALLCONSTR(str fuid, int arity /*, loc src*/)	// Call a constructor
 		
-		| OCALL(str fuid, int arity)				// Call a named *Rascal* function
-		| OCALLDYN(Symbol types, int arity)			// Call a *Rascal* function on stack
+		| OCALL(str fuid, int arity, loc src)		// Call a named *Rascal* function
+		| OCALLDYN(Symbol types, int arity, loc src)// Call a *Rascal* function on stack
 		
 		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive)
-		| CALLPRIM(str name, int arity)				// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
+		| CALLPRIM(str name, int arity, loc src)	// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
 		| CALLJAVA(str name, str class, 
 		           Symbol parameterTypes,
 		           int reflect)			            // Call a Java method

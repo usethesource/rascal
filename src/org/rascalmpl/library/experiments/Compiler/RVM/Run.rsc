@@ -2,7 +2,7 @@ module experiments::Compiler::RVM::Run
 
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::RVM::Syntax;
-import experiments::Compiler::RVM::Implode;
+import experiments::Compiler::RVM::Load;
 
 import ParseTree;
 import util::IDE;

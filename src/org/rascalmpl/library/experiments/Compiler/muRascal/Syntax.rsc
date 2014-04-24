@@ -98,8 +98,8 @@ syntax Exp  =
 			| preLocDeref:  			"deref" Identifier!fvar!ivar!mvar id
 			| preVarDeref:   			"deref" FunNamePart+ funNames Identifier!fvar!ivar!mvar id
 			
-			| muCallPrim: 				"prim" NoNLList "(" String name ")"
-			| muCallPrim:               "prim" NoNLList "(" String name "," {Exp ","}+ args ")"
+			| preMuCallPrim: 			"prim" NoNLList "(" String name ")"
+			| preMuCallPrim:            "prim" NoNLList "(" String name "," {Exp ","}+ args ")"
 			| muCallMuPrim: 			"muprim" NoNLList "(" String name "," {Exp ","}+ args ")"
 			
 			| muMulti:                  "multi" "(" Exp exp ")"

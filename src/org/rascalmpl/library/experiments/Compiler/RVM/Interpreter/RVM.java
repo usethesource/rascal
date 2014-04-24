@@ -246,6 +246,7 @@ public class RVM {
 	 * @param some stack object
 	 * @return its string representation
 	 */
+	@SuppressWarnings("rawtypes")
 	private String asString(Object o){
 		if(o == null)
 			return "null";
@@ -310,10 +311,10 @@ public class RVM {
 			return "StringBuilder[" + ((StringBuilder) o).toString() + "]";
 		}
 		if(o instanceof HashSet){
-			return "HashSet[" + ((HashSet) o).toString() + "]";
+			return "HashSet[" + ((HashSet<?>) o).toString() + "]";
 		}
 		if(o instanceof HashMap){
-			return "HashMap[" + ((HashMap) o).toString() + "]";
+			return "HashMap[" + ((HashMap<?, ?>) o).toString() + "]";
 		}
 		if(o instanceof Map.Entry){
 			return "Map.Entry[" + ((Map.Entry) o).toString() + "]";
@@ -497,7 +498,7 @@ public class RVM {
 					stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
 				}
 				
-				Opcode.use(instruction);
+				//Opcode.use(instruction);
 				
 				INSTRUCTION: switch (op) {
 					
@@ -734,6 +735,7 @@ public class RVM {
 				case Opcode.OP_CALLCONSTR:
 					constructor = constructorStore.get(CodeBlock.fetchArg1(instruction));
 					arity = CodeBlock.fetchArg2(instruction);
+					//cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
 					
 					IValue[] args = null;
 					if(arity == constructor.getArity()) {
@@ -836,6 +838,7 @@ public class RVM {
 					// Get function arguments from the stack
 					arity = CodeBlock.fetchArg2(instruction);
 					
+					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
 					cf.sp = sp;
 					cf.pc = pc;
 					
@@ -1175,6 +1178,7 @@ public class RVM {
 					
 				case Opcode.OP_CALLPRIM:
 					arity = CodeBlock.fetchArg2(instruction);
+					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
 					try {
 						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity, stacktrace);
 					} catch(Exception exception) {

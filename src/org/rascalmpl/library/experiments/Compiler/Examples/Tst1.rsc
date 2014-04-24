@@ -1,2 +1,7 @@
 module experiments::Compiler::Examples::Tst1
-import experiments::Compiler::Examples::Tst;
+
+data Point = point(int i, str color = "red");
+
+value main(list[value] args) {
+    return point(3);
+}

@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -197,6 +198,12 @@ public class Execute {
 	private String getStrField(IConstructor instruction, String field) {
 		return ((IString) instruction.get(field)).getValue();
 	}
+	
+	// Get Location field from an instruction
+
+	private ISourceLocation getLocField(IConstructor instruction, String field) {
+		return ((ISourceLocation) instruction.get(field));
+	}
 
 	/**
 	 * Load the instructions of a function in a RVM.
@@ -257,7 +264,7 @@ public class Execute {
 				break;
 
 			case "CALLPRIM":
-				codeblock.CALLPRIM(RascalPrimitive.valueOf(getStrField(instruction, "name")), getIntField(instruction, "arity"));
+				codeblock.CALLPRIM(RascalPrimitive.valueOf(getStrField(instruction, "name")), getIntField(instruction, "arity"), getLocField(instruction, "src"));
 				break;
 
 			case "CALLMUPRIM":
@@ -381,7 +388,7 @@ public class Execute {
 				break;
 
 			case "CALLCONSTR":
-				codeblock.CALLCONSTR(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.CALLCONSTR(getStrField(instruction, "fuid"), getIntField(instruction, "arity")/*, getLocField(instruction, "src")*/);
 				break;
 
 			case "LOADTYPE":
@@ -404,11 +411,11 @@ public class Execute {
 				break;
 
 			case "OCALL" :
-				codeblock.OCALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.OCALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"), getLocField(instruction, "src"));
 				break;
 
 			case "OCALLDYN" :
-				codeblock.OCALLDYN(rvm.symbolToType((IConstructor) instruction.get("types")), getIntField(instruction, "arity"));
+				codeblock.OCALLDYN(rvm.symbolToType((IConstructor) instruction.get("types")), getIntField(instruction, "arity"), getLocField(instruction, "src"));
 				break;
 
 			case "CALLJAVA":

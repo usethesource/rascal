@@ -23,7 +23,7 @@ public enum Opcode {
 	STOREVAR 			(3, 	1), //3),
 	STORELOC 			(4, 	1), //2),
 	CALL 				(5, 	1), //3),
-	CALLPRIM	 		(6, 	1), //3),
+	CALLPRIM	 		(6, 	2), //3),
 	RETURN1 			(7, 	1), //2),
 	JMP 				(8, 	1), //2),
 	JMPTRUE 			(9, 	1), //2),
@@ -48,7 +48,7 @@ public enum Opcode {
 	STORELOCDEREF		(28,	1), //2),
 	STOREVARDEREF		(29,	1), //3),
 	LOADCONSTR			(30,	1), //2),
-	CALLCONSTR			(31,	1), //3), // TODO: plus number of formal parameters
+	CALLCONSTR			(31,	1/*2*/), //3), // TODO: plus number of formal parameters
 	LOAD_NESTED_FUN		(32, 	1), //3),
 	LOADTYPE			(33,	1), //2),
 	CALLMUPRIM			(34,	1), //3),
@@ -56,8 +56,8 @@ public enum Opcode {
 	LOADINT				(36,	1), //2),
 	FAILRETURN			(37, 	1),
 	LOADOFUN        	(38,    1), //2),
-	OCALL           	(39,    1), //3),
-	OCALLDYN	    	(40,	1), //3),
+	OCALL           	(39,    2), //3),
+	OCALLDYN	    	(40,	2), //3),
 	CALLJAVA        	(41,    5),
 	THROW           	(42,    1),
 	TYPESWITCH			(43,	1), //2),
@@ -271,7 +271,7 @@ public enum Opcode {
 			return "CALL " + cb.getFunctionName(arg1)  + ", " + arg2;
 			
 		case CALLPRIM:
-			return "CALLPRIM " + RascalPrimitive.fromInteger(arg1).name() +  ", " + arg2;
+			return "CALLPRIM " + RascalPrimitive.fromInteger(arg1).name() +  ", " + arg2 + ", " + cb.getConstantValue(cb.finalCode[pc + 1]);
 			
 		case RETURN1:
 			return "RETURN1 " + arg1;
@@ -346,7 +346,7 @@ public enum Opcode {
 			return "LOADCONSTR " + arg1;
 		
 		case CALLCONSTR:
-			return "CALLCONSTR " + arg1 + ", " + arg2;
+			return "CALLCONSTR " + arg1 + ", " + arg2  /*+ ", " + cb.getConstantValue(cb.finalCode[pc + 1])*/ ;
 		
 		case LOAD_NESTED_FUN:
 			return "LOAD_NESTED_FUN " + arg1 + ", " + arg2;
@@ -370,10 +370,10 @@ public enum Opcode {
 			return "LOADOFUN " + cb.getOverloadedFunctionName(arg1);
 			
 		case OCALL:
-			return "OCALL " +  cb.getOverloadedFunctionName(arg1)  + ", " + arg2;
+			return "OCALL " +  cb.getOverloadedFunctionName(arg1)  + ", " + arg2 + ", " + cb.getConstantValue(cb.finalCode[pc + 1]);
 			
 		case OCALLDYN:
-			return "OCALLDYN " + cb.getConstantType(arg1) + ", " + arg2;
+			return "OCALLDYN " + cb.getConstantType(arg1) + ", " + arg2 + ", " + cb.getConstantValue(cb.finalCode[pc + 1]);
 			
 		case CALLJAVA:	
 			return "CALLJAVA " + cb.getConstantValue(cb.finalCode[pc + 1]) + ", " + cb.getConstantValue(cb.finalCode[pc + 2]) + ", " + cb.getConstantType(cb.finalCode[pc + 3]) + "," + cb.finalCode[pc + 4] ;
