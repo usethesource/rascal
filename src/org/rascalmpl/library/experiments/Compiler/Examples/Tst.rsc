@@ -1,8 +1,9 @@
 module experiments::Compiler::Examples::Tst
+import ParseTree;
 
-data A = a();
+syntax A = "a";
+syntax As = A+;
 
+public bool main(list[value] args) = (As) `aa` := [As] "aa";
 
-value main(list[value] args) = { "abc" } := { "abc" };
-
-//value main(list[value] args) = [e | e <- "f"(1,kw=2)];
+//public bool main(list[value] args) = (As) `<A+ as>` := [As] "a" && "<as>" == "a";

@@ -2,6 +2,7 @@ module experiments::Compiler::muRascal::MuAllMuOr
 
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
+import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import Prelude;
 
 
@@ -73,8 +74,8 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
  */
 
 tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muMulti(_) ]) = <e,[]>;
-tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muOne(MuExp exp) ]) = <makeMuMulti(e),[]>;
-tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ MuExp e ]) = <e,[]> when !(muMulti(_) := e || muOne(_) := e);
+tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ e:muOne(MuExp exp) ]) = makeMuMulti(e, fuid);
+tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, [ MuExp e ]) = <e,[]> when !(muMulti(_) := e || muOne(MuExp _) := e);
 default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuExp] exps) {
     assert(size(exps) >= 1);
     if(MuExp exp <- exps, muMulti(_) := exp) { // Multi expression
@@ -84,7 +85,7 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
             if(muMulti(_) := e) {
                 expressions += e.exp;
                 backtrackfree += false;
-            } else if(muOne(_) := e) {
+            } else if(muOne(MuExp _) := e) {
                 expressions += muNext(muCreate(e.exp));
                 backtrackfree += true;
             } else {
@@ -109,8 +110,11 @@ default tuple[MuExp,list[MuFunction]] makeMu(str muAllOrMuOr, str fuid, list[MuE
 }
 
 tuple[MuExp,list[MuFunction]] makeMuMulti(e:muMulti(_), str fuid) = <e,[]>;
+
 // TODO: should ONE be also passed a closure? I would say yes
-tuple[MuExp,list[MuFunction]] makeMuMulti(e:muOne(MuExp exp), str fuid) = <muMulti(muApply("Library/ONE(1)"),[ exp ]),[]>; // ***Note: multi expression that produces at most one solution
+tuple[MuExp,list[MuFunction]] makeMuMulti(e:muOne(MuExp exp), str fuid) = <muMulti(muApply(mkCallToLibFun("Library", "ONE"),[ exp ])),[]>; // ***Note: multi expression that produces at most one solution
+
+
 default tuple[MuExp,list[MuFunction]] makeMuMulti(MuExp exp, str fuid) {
     // Works because mkVar and mkAssign produce muVar and muAssign, i.e., specify explicitly function scopes computed by the type checker
     list[MuFunction] functions = [];
@@ -120,8 +124,11 @@ default tuple[MuExp,list[MuFunction]] makeMuMulti(MuExp exp, str fuid) {
 }
 
 tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ e:muMulti(MuExp exp) ]) = <muOne(exp),[]>;
+
 tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ e:muOne(MuExp exp) ]) = <e,[]>;
-tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ MuExp e ]) = <e,[]> when !(muMulti(_) := e || muOne(_) := e);
+
+tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, [ MuExp e ]) = <e,[]> when !(muMulti(_) := e || muOne(MuExp _) := e);
+
 default tuple[MuExp,list[MuFunction]] makeMuOne(str muAllOrMuOr, str fuid, list[MuExp] exps) {
     tuple[MuExp e,list[MuFunction] functions] res = makeMu(muAllOrMuOr,fuid,exps);
     if(muMulti(exp) := res.e) {
