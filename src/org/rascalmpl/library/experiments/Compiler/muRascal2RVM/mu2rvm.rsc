@@ -326,12 +326,12 @@ INS tr(muAssignKwp(str fuid, str name, MuExp exp)) = [ *tr(exp), fuid == functio
 
 // Constructor
 
-INS tr(muCallConstr(str fuid, list[MuExp] args/*, loc src*/)) = [ *tr(args), CALLCONSTR(fuid, size(args) /*, src*/) ];
+INS tr(muCallConstr(str fuid, list[MuExp] args)) = [ *tr(args), CALLCONSTR(fuid, size(args)) ];
 
 // muRascal functions
 
 INS tr(muCall(muFun(str fuid), list[MuExp] args)) = [*tr(args), CALL(fuid, size(args))];
-INS tr(muCall(muConstr(str fuid), list[MuExp] args, loc src)) = [*tr(args), CALLCONSTR(fuid, size(args)/*, src*/)];
+INS tr(muCall(muConstr(str fuid), list[MuExp] args)) = [*tr(args), CALLCONSTR(fuid, size(args))];
 INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size(args))];
 
 // Partial application of muRascal functions
