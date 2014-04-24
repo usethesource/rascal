@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -72,7 +73,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.S
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownLoc;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
-
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next0;
@@ -438,8 +438,8 @@ public class CodeBlock {
 		return add(new StoreVar(this, fuid, pos));
 	}
 	
-	public CodeBlock CALLPRIM (RascalPrimitive prim, int arity){
-		return add(new CallPrim(this, prim, arity));
+	public CodeBlock CALLPRIM (RascalPrimitive prim, int arity, ISourceLocation src){
+		return add(new CallPrim(this, prim, arity, src));
 	}
 	
 	public CodeBlock CALLMUPRIM (MuPrimitive muprim, int arity){
@@ -510,8 +510,8 @@ public class CodeBlock {
 		return add(new LoadConstr(this, name));
 	}
 	
-	public CodeBlock CALLCONSTR(String name, int arity) {
-		return add(new CallConstr(this, name, arity));
+	public CodeBlock CALLCONSTR(String name, int arity/*, ISourceLocation src*/) {
+		return add(new CallConstr(this, name, arity/*, src*/));
 	}
 	
 	public CodeBlock LOADNESTEDFUN(String fuid, String scopeIn) {
@@ -530,12 +530,12 @@ public class CodeBlock {
 		return add(new LoadOFun(this, fuid));
 	}
 	
-	public CodeBlock OCALL(String fuid, int arity) {
-		return add(new OCall(this, fuid, arity));
+	public CodeBlock OCALL(String fuid, int arity, ISourceLocation src) {
+		return add(new OCall(this, fuid, arity, src));
 	}
 	
-	public CodeBlock OCALLDYN(Type types, int arity) {
-		return add(new OCallDyn(this, getTypeConstantIndex(types), arity));
+	public CodeBlock OCALLDYN(Type types, int arity, ISourceLocation src) {
+		return add(new OCallDyn(this, getTypeConstantIndex(types), arity, src));
 	}
 	
 	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes, int reflect){

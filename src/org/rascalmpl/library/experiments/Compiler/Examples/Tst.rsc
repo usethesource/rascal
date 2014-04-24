@@ -1,9 +1,7 @@
 module experiments::Compiler::Examples::Tst
-import ParseTree;
 
-syntax A = "a";
-syntax As = A+;
+value g(int a, int b) = a / b;
 
-public bool main(list[value] args) = (As) `aa` := [As] "aa";
+value f(int a, str x = "x") = true ? g(a, 0) : 7;
 
-//public bool main(list[value] args) = (As) `<A+ as>` := [As] "a" && "<as>" == "a";
+public value main(list[value] args) = f(5, x = "XXXX");

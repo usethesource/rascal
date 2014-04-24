@@ -83,12 +83,13 @@ str typedBinaryOp(str lot, str op, str rot) {
 
 MuExp infix(str op, Expression e) = 
   muCallPrim(typedBinaryOp(getOuterType(e.lhs), op, getOuterType(e.rhs)), 
-             [*translate(e.lhs), *translate(e.rhs)]);
+             [*translate(e.lhs), *translate(e.rhs)],
+             e@\loc);
 
 MuExp infix_elm_left(str op, Expression e){
    rot = getOuterType(e.rhs);
    //rot = reduceContainerType(rot);
-   return muCallPrim("elm_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
+   return muCallPrim("elm_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)], e@\loc);
 }
 
 MuExp infix_rel_lrel(str op, Expression e){
@@ -96,21 +97,21 @@ MuExp infix_rel_lrel(str op, Expression e){
   if(lot == "set") lot = "rel"; else if (lot == "list") lot = "lrel";
   rot = getOuterType(e.rhs);
   if(rot == "set") rot = "rel"; else if (rot == "list") rot = "lrel";
-  return muCallPrim("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)]);
+  return muCallPrim("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)], e@\loc);
 }
 
 str typedUnaryOp(str ot, str op) = (ot == "value" || ot == "parameter") ? op : "<op>_<ot>";
  
 MuExp prefix(str op, Expression arg) {
-  return muCallPrim(typedUnaryOp(getOuterType(arg), op), [translate(arg)]);
+  return muCallPrim(typedUnaryOp(getOuterType(arg), op), [translate(arg)], arg@\loc);
 }
 
-MuExp postfix(str op, Expression arg) = muCallPrim(typedUnaryOp(getOuterType(arg), op), [translate(arg)]);
+MuExp postfix(str op, Expression arg) = muCallPrim(typedUnaryOp(getOuterType(arg), op), [translate(arg)], arg@\loc);
 
 MuExp postfix_rel_lrel(str op, Expression arg) {
   ot = getOuterType(arg);
   if(ot == "set" ) ot = "rel"; else if(ot == "list") ot = "lrel";
-  return muCallPrim("<ot>_<op>", [translate(arg)]);
+  return muCallPrim("<ot>_<op>", [translate(arg)], arg@\loc);
 }
 
 set[str] numeric = {"int", "real", "rat", "num"};
@@ -128,7 +129,7 @@ MuExp comparison(str op, Expression e) {
   }
   lot = reduceContainerType(lot);
   rot = reduceContainerType(rot);
-  return muCallPrim("<lot><op><rot>", [*translate(e.lhs), *translate(e.rhs)]);
+  return muCallPrim("<lot><op><rot>", [*translate(e.lhs), *translate(e.rhs)], e@\loc);
 }
 
 // Determine constant expressions
@@ -875,7 +876,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
        overloadingResolver[ofqname] = i;
-       return muOCall(muOFun(ofqname), args + [ kwargs ]);
+       return muOCall(muOFun(ofqname), args + [ kwargs ], e@\loc);
    }
    if(isOverloadedFunction(receiver) && receiver.fuid notin overloadingResolver) {
       throw "The use of a function has to be managed via overloading resolver!";
@@ -883,7 +884,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    // Push down additional information if the overloading resolution needs to be done at runtime
    return muOCall(receiver, 
    				  isFunctionType(ftype) ? Symbol::\tuple([ ftype ]) : Symbol::\tuple([ t | Symbol t <- getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype) ]), 
-   				  args + [ kwargs ]);
+   				  args + [ kwargs ],
+   				  e@\loc);
 }
 
 MuExp translateKeywordArguments(KeywordArguments keywordArguments) {

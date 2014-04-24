@@ -1,6 +1,9 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -13,6 +16,7 @@ public class Frame {
 	final Object[] stack;
 	int sp;
 	int pc;
+	ISourceLocation src;
 	final Function function;
 	
 	final boolean isCoroutine;
@@ -32,6 +36,7 @@ public class Frame {
 		this.stack = stack;
 		this.pc = 0;
 		this.sp = 0;
+		this.src = null;
 		this.function = function;
 		this.isCoroutine = function.isCoroutine;
 	}
@@ -173,6 +178,24 @@ public class Frame {
 		Frame newFrame = new Frame(scopeId, previousCallFrame, previousScope, function, stack.clone());
 		newFrame.sp = sp; 
 		return newFrame;
+	}
+	
+	public String toString(){
+		StringBuilder s = new StringBuilder("\tin ");
+		s.append(this.function.getPrintableName()).append("(");
+		for(int i = 0; i < function.nformals-1; i++){
+			if(i > 0) s.append(", ");
+			s.append(stack[i]);
+		}
+		IMap m = (IMap) stack[function.nformals-1];
+		if(m.size() > 0){
+			for(IValue key : m){
+				s.append(", ").append(((IString) key).getValue()).append("=").append(m.get(key));
+			}
+		}
+		
+		s.append(") at ").append(src);
+		return s.toString();
 	}
 	
 }
