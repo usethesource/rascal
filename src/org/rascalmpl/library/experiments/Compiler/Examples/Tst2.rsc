@@ -1,3 +1,5 @@
 module experiments::Compiler::Examples::Tst2
 
-extend ParseTree;
+import List;
+
+value main(list[value] args) = head([]);
