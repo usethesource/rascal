@@ -461,7 +461,7 @@ public class RVM {
 		int pc = 0;				                                      	// current program counter
 		int postOp = 0;
 		int pos = 0;
-		ArrayList<Frame> stacktrace;
+		ArrayList<Frame> stacktrace = new ArrayList<Frame>();
 		Thrown thrown = null;
 		int arity;
 		String last_function_name = "";
@@ -1176,7 +1176,7 @@ public class RVM {
 				case Opcode.OP_CALLPRIM:
 					arity = CodeBlock.fetchArg2(instruction);
 					try {
-						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity);
+						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity, stacktrace);
 					} catch(Exception exception) {
 						if(!(exception instanceof Thrown)){
 							throw exception;

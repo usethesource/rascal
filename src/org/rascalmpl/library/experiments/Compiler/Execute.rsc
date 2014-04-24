@@ -2,9 +2,9 @@ module experiments::Compiler::Execute
 
 import Prelude;
 
-import experiments::Compiler::muRascal::Syntax;
+//import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
-import experiments::Compiler::muRascal::Implode;
+import experiments::Compiler::muRascal::Load;
 
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::RVM::Run;
@@ -17,8 +17,8 @@ import experiments::Compiler::muRascal2RVM::mu2rvm;
 import experiments::Compiler::muRascal2RVM::StackSize;
 import experiments::Compiler::muRascal2RVM::PeepHole;
 
-public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/Library.mu|;
-public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/Library.rvm|;
+public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/LibraryGamma.mu|;
+public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/LibraryGamma.rvm|;
 
 // Specific for delimited continuations (experimental)
 // public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.mu|;
@@ -29,7 +29,7 @@ public list[loc] defaultImports = [|rascal:///Exception.rsc|];
 
 list[Declaration] parseMuLibrary(){
     println("rascal2rvm: Recompiling library <basename(MuLibrary)>.mu");
- 	libModule = parse(MuLibrary);
+ 	libModule = load(MuLibrary);
  	functions = [];
 // 	libTypes = libModule.types; 
  
