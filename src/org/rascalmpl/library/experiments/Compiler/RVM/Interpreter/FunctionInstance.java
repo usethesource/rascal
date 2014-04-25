@@ -43,7 +43,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 				return new FunctionInstance(function, env, rvm);
 			}
 		}
-		throw new RuntimeException("Could not find a matching scope when computing a nested function instance: " + scopeIn);
+		throw new CompilerError("Could not find a matching scope when computing a nested function instance: " + scopeIn);
 	}
 	
 	/**

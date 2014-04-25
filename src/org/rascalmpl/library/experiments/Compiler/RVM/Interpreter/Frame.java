@@ -50,7 +50,7 @@ public class Frame {
 				return getCoroutineFrame(f, env, arity, sp);
 			}
 		}
-		throw new RuntimeException("Could not find a matching scope when computing a nested coroutine instance: " + f.scopeIn);
+		throw new CompilerError("Could not find a matching scope when computing a nested coroutine instance: " + f.scopeIn);
 	}
 	
 	/**
@@ -63,7 +63,7 @@ public class Frame {
 	public Frame getCoroutineFrame(Function f, Frame env, int arity, int sp) {
 		Frame frame = new Frame(f.scopeId, null, env, f.maxstack, f);
 		if(arity != f.nformals) {
-			throw new RuntimeException("Incorrect number of arguments has been passed to create a coroutine instance, expected: " + f.nformals);
+			throw new CompilerError("Incorrect number of arguments has been passed to create a coroutine instance, expected: " + f.nformals);
 		}
 		for (int i = 0; i < arity; i++) {
 			frame.stack[i] = stack[sp - arity + i];
@@ -174,7 +174,7 @@ public class Frame {
 	
 	public Frame copy() {
 		if(pc != 0)
-			throw new RuntimeException("Copying the frame with certain instructions having been already executed.");
+			throw new CompilerError("Copying the frame with certain instructions having been already executed.");
 		Frame newFrame = new Frame(scopeId, previousCallFrame, previousScope, function, stack.clone());
 		newFrame.sp = sp; 
 		return newFrame;
@@ -194,7 +194,10 @@ public class Frame {
 			}
 		}
 		
-		s.append(") at ").append(src);
+		s.append(")");
+		if(src != null){
+				s.append(" at ").append(src);
+		}
 		return s.toString();
 	}
 	

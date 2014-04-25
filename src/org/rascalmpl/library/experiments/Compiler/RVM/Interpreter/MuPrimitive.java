@@ -111,7 +111,7 @@ public enum MuPrimitive {
 					&& (stack[sp - 2] instanceof Type)) {
 				stack[sp - 2] = ((Type) stack[sp - 2]) == ((Type) stack[sp - 1]);
 			} else
-				throw new RuntimeException("equal -- not defined on "
+				throw new CompilerError("equal -- not defined on "
 						+ stack[sp - 2].getClass() + " and "
 						+ stack[sp - 2].getClass());
 			return sp - 1;
@@ -1073,7 +1073,7 @@ public enum MuPrimitive {
 				stack[sp - 2] = pat.matcher(subject);
 				return sp - 1;
 			} catch (PatternSyntaxException e) {
-				throw new RuntimeException("Syntax error in Regexp: "
+				throw new CompilerError("Syntax error in Regexp: "
 						+ RegExpAsString);
 			}
 		};

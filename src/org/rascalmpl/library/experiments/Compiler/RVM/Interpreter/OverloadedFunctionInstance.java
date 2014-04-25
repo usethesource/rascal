@@ -50,7 +50,7 @@ public class OverloadedFunctionInstance implements ICallableValue, IExternalValu
 				return new OverloadedFunctionInstance(functions, constructors, env, functionStore, constructorStore, rvm);
 			}
 		}
-		throw new RuntimeException("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn);
+		throw new CompilerError("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn);
 	}
 
 	@Override
