@@ -210,7 +210,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			case NUM:
@@ -228,7 +228,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			case REAL:
@@ -246,7 +246,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			case RAT:
@@ -264,7 +264,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			case SET:
@@ -290,7 +290,7 @@ public enum RascalPrimitive {
 				case STR:
 					return loc_add_str.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			case LREL:
@@ -300,7 +300,7 @@ public enum RascalPrimitive {
 				case LREL:
 					return lrel_add_lrel.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			case MAP:
@@ -308,7 +308,7 @@ public enum RascalPrimitive {
 				case MAP:
 					return map_add_map.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			case REL:
@@ -318,7 +318,7 @@ public enum RascalPrimitive {
 				case REL:
 					return rel_add_rel.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			case STR:
@@ -326,7 +326,7 @@ public enum RascalPrimitive {
 				case STR:
 					return str_add_str.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			case TUPLE:
@@ -334,7 +334,7 @@ public enum RascalPrimitive {
 				case TUPLE:
 					return tuple_add_tuple.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			default:
@@ -344,7 +344,7 @@ public enum RascalPrimitive {
 				case LIST:
 					return elm_add_list.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			}
@@ -758,7 +758,7 @@ public enum RascalPrimitive {
 			case MAP:
 				return map_compose_map.execute(stack, sp, arity, stacktrace);
 			default:
-				throw new RuntimeException("compose: unexpected type " + leftType);
+				throw new CompilerError("compose: unexpected type " + leftType);
 			}
 		}
 	},
@@ -804,7 +804,7 @@ public enum RascalPrimitive {
 			if(lhs.getType().isInteger() && rhs.getType().isInteger()){
 				return int_mod_int.execute(stack, sp, arity, stacktrace);
 			}
-			throw new RuntimeException("mod: unexpected type combination" + lhs.getType() + " and " + rhs.getType());
+			throw new CompilerError("mod: unexpected type combination" + lhs.getType() + " and " + rhs.getType());
 		}
 	},
 	int_mod_int {
@@ -844,7 +844,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return int_divide_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			case NUM:
@@ -858,7 +858,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return num_divide_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			case REAL:
@@ -872,7 +872,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return real_divide_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			case RAT:
@@ -886,11 +886,11 @@ public enum RascalPrimitive {
 				case RAT:
 					return rat_divide_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
+					throw new CompilerError("Illegal type combination: "
 							+ lhsType + " and " + rhsType);
 				}
 			default:
-				throw new RuntimeException("Illegal type combination: "
+				throw new CompilerError("Illegal type combination: "
 						+ lhsType + " and " + rhsType);
 			}
 		}

@@ -140,7 +140,7 @@ public class Execute {
 		}
 		
 		if((uid_module_init == null)) {
-			throw new RuntimeException("No module_init function found when loading RVM code!");
+			throw new CompilerError("No module_init function found when loading RVM code!");
 		}
 		
 		try {
@@ -163,7 +163,7 @@ public class Execute {
 				 * Standard execution of main function
 				 */
 				if((uid_main == null)) {
-					throw new RuntimeException("No main function found when loading RVM code!");
+					throw new CompilerError("No main function found when loading RVM code!");
 				}
 			
 				rvm.executeProgram(uid_module_init, arguments);
@@ -513,12 +513,12 @@ public class Execute {
 				break;
 				
 			default:
-				throw new RuntimeException("PANIC: In function " + name + ", nknown instruction: " + opcode);
+				throw new CompilerError("In function " + name + ", nknown instruction: " + opcode);
 			}
 
 		}
 		} catch (Exception e){
-			throw new RuntimeException("In function " + name + " : " + e.getMessage());
+			throw new CompilerError("In function " + name + " : " + e.getMessage());
 		}
 		
 		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, maxstack, codeblock);
