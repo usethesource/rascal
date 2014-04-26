@@ -1384,7 +1384,7 @@ public class RVM {
 					if(postOp == Opcode.POSTOP_CHECKUNDEF) {
 						stacktrace = new ArrayList<Frame>();
 						stacktrace.add(cf);
-						thrown = RascalProgramException.uninitializedVariable(pos, null, stacktrace);
+						thrown = RascalProgramException.uninitializedVariable(pos, stacktrace);
 					}
 					cf.pc = pc;
 					// First, try to find a handler in the current frame function,
