@@ -6,4 +6,4 @@ value main(list[value] args) {
 	return divide();
 }
 
-public str expectedResult = "Runtime exception \<currently unknown location\>: ArithmeticException(\"/ by zero\")";
+public str expectedResult = "Runtime exception: ArithmeticException(\"/ by zero\")";

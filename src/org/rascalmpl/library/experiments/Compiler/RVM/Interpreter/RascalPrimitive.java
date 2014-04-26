@@ -42,7 +42,6 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
-//import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIUtil;
@@ -1342,69 +1341,69 @@ public enum RascalPrimitive {
 						v = vf.integer(dt.getCentury());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the century on a time value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the century on a time value", stacktrace);
 				case "year":
 					if (!dt.isTime()) {
 						v = vf.integer(dt.getYear());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the year on a time value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the year on a time value", stacktrace);
 
 				case "month":
 					if (!dt.isTime()) {
 						v = vf.integer(dt.getMonthOfYear());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the month on a time value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the month on a time value", stacktrace);
 				case "day":
 					if (!dt.isTime()) {
 						v = vf.integer(dt.getDayOfMonth());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the day on a time value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the day on a time value", stacktrace);
 				case "hour":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getHourOfDay());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the hour on a date value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the hour on a date value", stacktrace);
 				case "minute":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getMinuteOfHour());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the minute on a date value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the minute on a date value", stacktrace);
 				case "second":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getSecondOfMinute());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the second on a date value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the second on a date value", stacktrace);
 				case "millisecond":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getMillisecondsOfSecond());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the millisecond on a date value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the millisecond on a date value", stacktrace);
 				case "timezoneOffsetHours":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getTimezoneOffsetHours());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the timezone offset hours on a date value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the timezone offset hours on a date value", stacktrace);
 				case "timezoneOffsetMinutes":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getTimezoneOffsetMinutes());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the timezone offset minutes on a date value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the timezone offset minutes on a date value", stacktrace);
 
 				case "justDate":
 					if (!dt.isTime()) {
 						v = vf.date(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the date component of a time value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the date component of a time value", stacktrace);
 				case "justTime":
 					if (!dt.isDate()) {
 						v = vf.time(dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute(), 
@@ -1412,7 +1411,7 @@ public enum RascalPrimitive {
 								dt.getTimezoneOffsetMinutes());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the time component of a date value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the time component of a date value", stacktrace);
 				default:
 					throw RascalRuntimeException.noSuchField(field, stacktrace);
 				}
@@ -1452,63 +1451,63 @@ public enum RascalPrimitive {
 
 				case "year":
 					if (dt.isTime()) {
-						throw new UnsupportedOperation("Can not update the year on a time value", null);
+						throw RascalRuntimeException.invalidUseOfTimeException("Can not update the year on a time value", stacktrace);
 					}
 					year = ((IInteger)repl).intValue();
 					break;
 
 				case "month":
 					if (dt.isTime()) {
-						throw new UnsupportedOperation("Can not update the month on a time value", null);
+						throw RascalRuntimeException.invalidUseOfTimeException("Can not update the month on a time value", stacktrace);
 					}
 					month = ((IInteger)repl).intValue();
 					break;
 
 				case "day":
 					if (dt.isTime()) {
-						throw new UnsupportedOperation("Can not update the day on a time value", null);
+						throw RascalRuntimeException.invalidUseOfTimeException("Can not update the day on a time value", stacktrace);
 					}	
 					day = ((IInteger)repl).intValue();
 					break;
 
 				case "hour":
 					if (dt.isDate()) {
-						throw new UnsupportedOperation("Can not update the hour on a date value", null);
+						throw RascalRuntimeException.invalidUseOfDateException("Can not update the hour on a date value", stacktrace);
 					}	
 					hour = ((IInteger)repl).intValue();
 					break;
 
 				case "minute":
 					if (dt.isDate()) {
-						throw new UnsupportedOperation("Can not update the minute on a date value", null);
+						throw RascalRuntimeException.invalidUseOfDateException("Can not update the minute on a date value", stacktrace);
 					}
 					minute = ((IInteger)repl).intValue();
 					break;
 
 				case "second":
 					if (dt.isDate()) {
-						throw new UnsupportedOperation("Can not update the second on a date value", null);
+						throw RascalRuntimeException.invalidUseOfDateException("Can not update the second on a date value", stacktrace);
 					}
 					second = ((IInteger)repl).intValue();
 					break;
 
 				case "millisecond":
 					if (dt.isDate()) {
-						throw new UnsupportedOperation("Can not update the millisecond on a date value", null);
+						throw RascalRuntimeException.invalidUseOfDateException("Can not update the millisecond on a date value", stacktrace);
 					}
 					milli = ((IInteger)repl).intValue();
 					break;
 
 				case "timezoneOffsetHours":
 					if (dt.isDate()) {
-						throw new UnsupportedOperation("Can not update the timezone offset hours on a date value", null);
+						throw RascalRuntimeException.invalidUseOfDateException("Can not update the timezone offset hours on a date value", stacktrace);
 					}
 					tzOffsetHour = ((IInteger)repl).intValue();
 					break;
 
 				case "timezoneOffsetMinutes":
 					if (dt.isDate()) {
-						throw new UnsupportedOperation("Can not update the timezone offset minutes on a date value", null);
+						throw RascalRuntimeException.invalidUseOfDateException("Can not update the timezone offset minutes on a date value", stacktrace);
 					}
 					tzOffsetMin = ((IInteger)repl).intValue();
 					break;			
@@ -1529,7 +1528,7 @@ public enum RascalPrimitive {
 				return sp - 2;
 			}
 			catch (IllegalArgumentException e) {
-				throw RascalRuntimeException.illegalArgument(repl, null, "Cannot update field " + field + ", this would generate an invalid datetime value");
+				throw RascalRuntimeException.illegalArgument(repl, stacktrace, "Cannot update field " + field + ", this would generate an invalid datetime value");
 			}
 			catch (InvalidDateTimeException e) {
 				throw RascalRuntimeException.illegalArgument(dt, stacktrace, e.getMessage());
@@ -1588,7 +1587,7 @@ public enum RascalPrimitive {
 				path = sloc.hasPath() ? sloc.getPath() : "";
 
 				if (path.equals("")) {
-					throw RascalRuntimeException.noParent(sloc,null);
+					throw RascalRuntimeException.noParent(sloc, stacktrace);
 				}
 				i = path.lastIndexOf("/");
 
@@ -1614,7 +1613,7 @@ public enum RascalPrimitive {
 					v = w.done();
 					break;
 				} catch (IOException e) {
-					throw RascalRuntimeException.io(vf.string(e.getMessage()), null);
+					throw RascalRuntimeException.io(vf.string(e.getMessage()), stacktrace);
 				}
 
 			case "extension":
@@ -1672,7 +1671,7 @@ public enum RascalPrimitive {
 					v = vf.integer(sloc.getLength());
 					break;
 				} else {
-					throw RascalRuntimeException.unavailableInformation(stacktrace);
+					throw RascalRuntimeException.unavailableInformation("length", stacktrace);
 				}
 
 			case "offset":
@@ -1680,7 +1679,7 @@ public enum RascalPrimitive {
 					v = vf.integer(sloc.getOffset());
 					break;
 				} else {
-					throw RascalRuntimeException.unavailableInformation(stacktrace);
+					throw RascalRuntimeException.unavailableInformation("offset", stacktrace);
 				}
 
 			case "begin":
@@ -1688,14 +1687,14 @@ public enum RascalPrimitive {
 					v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), vf.integer(sloc.getBeginColumn()));
 					break;
 				} else {
-					throw RascalRuntimeException.unavailableInformation(stacktrace);
+					throw RascalRuntimeException.unavailableInformation("begin", stacktrace);
 				}
 			case "end":
 				if(sloc.hasLineColumn()){
 					v = vf.tuple(lineColumnType, vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
 					break;
 				} else {
-					throw RascalRuntimeException.unavailableInformation(stacktrace);
+					throw RascalRuntimeException.unavailableInformation("end", stacktrace);
 				}
 
 			case "uri":
@@ -1707,7 +1706,7 @@ public enum RascalPrimitive {
 				break;
 
 			default:
-				throw new RuntimeException("Access to non-existing field " + field + " in location");
+				throw RascalRuntimeException.noSuchField(field, stacktrace);
 			}
 
 			stack[sp - 2] = v;
@@ -6157,7 +6156,7 @@ public enum RascalPrimitive {
 		} catch (IllegalArgumentException e) {
 			throw RascalRuntimeException.illegalArgument(stacktrace);
 		} catch (URISyntaxException e) {
-			throw RascalRuntimeException.parseError(null, null, stacktrace);
+			throw RascalRuntimeException.malformedURI(e.getMessage(), stacktrace);
 		}
 	}
 
