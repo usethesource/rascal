@@ -185,6 +185,8 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case preMuCallPrim(str name)                                            			=> muCallPrim(name[1..-1], [],   |unknown:///a-location-in-library|)
                case preMuCallPrim(str name, list[MuExp] exps)									=> muCallPrim(name[1..-1], exps, |unknown:///a-location-in-library|)
                
+               case preThrow(MuExp exp1)														=> muTrow(exp1, |unknown:///a-location-in-library|)
+               
                case muCallMuPrim(str name, list[MuExp] exps)									=> muCallMuPrim(name[1..-1], exps)			// strip surrounding quotes
                
                // Calls that are directly mapped to muPrimitives

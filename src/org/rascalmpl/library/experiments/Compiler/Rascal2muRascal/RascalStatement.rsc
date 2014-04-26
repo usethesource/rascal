@@ -336,7 +336,7 @@ MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <
 	str fuid = topFunctionScope();
 	str varname = asTmp(nextLabel());
 	return muTry(muTry(tryCatch.exp, tryCatch.\catch, muBlock([])), 
-				 muCatch(varname, fuid, Symbol::\value(), muBlock([finallyExp, muThrow(muTmp(varname,fuid))])), 
+				 muCatch(varname, fuid, Symbol::\value(), muBlock([finallyExp, muThrow(muTmp(varname,fuid), finallyBody@\loc)])), 
 				 finallyExp); 
 }
 
@@ -344,7 +344,7 @@ MuExp translateCatches(str varname, str varfuid, list[Catch] catches, bool hasDe
   // Translate a list of catch blocks into one catch block
   if(size(catches) == 0) {
   	  // In case there is no default catch provided, re-throw the value from the catch block
-      return muThrow(muTmp(varname,varfuid));
+      return muThrow(muTmp(varname,varfuid), |unknown:///|);
   }
   
   c = head(catches);
@@ -526,7 +526,7 @@ MuExp translate(s: (Statement) `return <Statement statement>`) {
 
 // -- throw statement ------------------------------------------------
 
-MuExp translate(s: (Statement) `throw <Statement statement>`) = muThrow(translate(statement));
+MuExp translate(s: (Statement) `throw <Statement statement>`) = muThrow(translate(statement),s@\loc);
 
 MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) // TODO: handle dataTarget
 	= { fillCaseType(getType(statement@\loc)); 

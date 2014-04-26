@@ -1287,6 +1287,7 @@ public class RVM {
 				case Opcode.OP_THROW:
 					Object obj = stack[--sp];
 					thrown = null;
+					cf.src = (ISourceLocation) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					if(obj instanceof IValue) {
 						stacktrace = new ArrayList<Frame>();
 						stacktrace.add(cf);
@@ -1384,7 +1385,7 @@ public class RVM {
 					if(postOp == Opcode.POSTOP_CHECKUNDEF) {
 						stacktrace = new ArrayList<Frame>();
 						stacktrace.add(cf);
-						thrown = RascalProgramException.uninitializedVariable(pos, stacktrace);
+						thrown = RascalRuntimeException.uninitializedVariable(pos, stacktrace);
 					}
 					cf.pc = pc;
 					// First, try to find a handler in the current frame function,
