@@ -4960,7 +4960,7 @@ public enum RascalPrimitive {
 			IConstructor type = (IConstructor) stack[sp - 2];
 			IString s = ((IString) stack[sp - 1]);
 
-			stack[sp - 3] = parsingTools.parse(module_name, type, s);
+			stack[sp - 3] = parsingTools.parse(module_name, type, s, stacktrace);
 			return sp - 2;
 		}
 

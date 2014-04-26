@@ -129,10 +129,11 @@ public class ParsingTools {
 	 * Parse text from a string
 	 * @param start		Start symbol
 	 * @param input		Text to be parsed as string
+	 * @param stacktrace TODO
 	 * @return ParseTree or Exception
 	 */
-	public IValue parse(IString moduleName, IValue start, IString input) {
-		return parse(moduleName, start, vf.mapWriter().done(), URIUtil.invalidURI(), input.getValue().toCharArray());
+	public IValue parse(IString moduleName, IValue start, IString input, List<Frame> stacktrace) {
+		return parse(moduleName, start, vf.mapWriter().done(), URIUtil.invalidURI(), input.getValue().toCharArray(), stacktrace);
 	}
 	
 	/**
@@ -147,7 +148,7 @@ public class ParsingTools {
 		
 		try{
 			char[] input = getResourceContent(location.getURI());
-			return parse(moduleName, start,  vf.mapWriter().done(), location.getURI(), input);
+			return parse(moduleName, start,  vf.mapWriter().done(), location.getURI(), input, null);
 		}catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), null, null);
 		} finally{
@@ -162,9 +163,10 @@ public class ParsingTools {
 	 * @param robust		Error recovery map
 	 * @param location		Location where input text comes from
 	 * @param input			Input text as char array
+	 * @param stacktrace 	Stacktrace of calling context
 	 * @return
 	 */
-	public IValue parse(IString moduleName, IValue start, IMap robust, URI location, char[] input) {
+	public IValue parse(IString moduleName, IValue start, IMap robust, URI location, char[] input, List<Frame> stacktrace) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
@@ -181,10 +183,10 @@ public class ParsingTools {
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = vf.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
-			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
+			throw RascalRuntimeException.parseError(errorLoc, stacktrace);
 		}
 		catch (UndeclaredNonTerminalException e){
-			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), null);
+			throw new CompilerError("Undeclared non-terminal: " + e.getName() + ", " + e.getClassName());
 		}
 	}
 	
