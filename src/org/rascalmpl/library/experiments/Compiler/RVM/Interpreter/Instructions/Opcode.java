@@ -379,7 +379,7 @@ public enum Opcode {
 			return "CALLJAVA " + cb.getConstantValue(cb.finalCode[pc + 1]) + ", " + cb.getConstantValue(cb.finalCode[pc + 2]) + ", " + cb.getConstantType(cb.finalCode[pc + 3]) + "," + cb.finalCode[pc + 4] ;
 			
 		case THROW:
-			return "THROW";
+			return "THROW " +  cb.getConstantValue(arg1);
 			
 		case TYPESWITCH:
 			return "TYPESWITCH " + cb.getConstantValue(arg1);

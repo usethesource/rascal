@@ -427,7 +427,7 @@ INS tr(muGuard(MuExp exp)) = [ *tr(exp), GUARD() ];
 
 // Exceptions
 
-INS tr(muThrow(MuExp exp)) = [ *tr(exp), THROW() ];
+INS tr(muThrow(MuExp exp, loc src)) = [ *tr(exp), THROW(src) ];
 
 INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	// Mark the begin and end of the 'try' and 'catch' blocks

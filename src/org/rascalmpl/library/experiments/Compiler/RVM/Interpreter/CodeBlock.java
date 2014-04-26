@@ -545,8 +545,8 @@ public class CodeBlock {
 								      reflect));
 	}
 	
-	public CodeBlock THROW() {
-		return add(new Throw(this));
+	public CodeBlock THROW(ISourceLocation src) {
+		return add(new Throw(this, src));
 	}
 	
 	public CodeBlock TYPESWITCH(IList labels){

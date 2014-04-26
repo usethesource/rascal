@@ -158,7 +158,7 @@ public data MuExp =
           
           // Exceptions
           
-          | muThrow(MuExp exp)
+          | muThrow(MuExp exp, loc src)
           
           // Exception handling try/catch
           
@@ -234,6 +234,7 @@ public data MuExp =
             
             | preMuCallPrim(str name)                                // Call a Rascal primitive function (with empty list of arguments)
             | preMuCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
+            | preThrow(MuExp exp)
             
             | preAddition(MuExp lhs, MuExp rhs)
             | preSubtraction(MuExp lhs, MuExp rhs)

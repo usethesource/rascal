@@ -4,4 +4,4 @@ import List;
 
 int x;
 
-value main(list[value] args) { head([]); } //x = 1; throw "abc"; } //x; //head([]);
+value main(list[value] args) { x = 1; throw "abc"; x = 2; } //x; //head([]);

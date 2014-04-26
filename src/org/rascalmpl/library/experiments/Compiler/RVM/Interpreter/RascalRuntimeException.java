@@ -15,7 +15,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class RascalProgramException {
+public class RascalRuntimeException {
 	
 	private static TypeFactory TF = TypeFactory.getInstance();
 	private static IValueFactory VF = ValueFactoryFactory.getValueFactory();

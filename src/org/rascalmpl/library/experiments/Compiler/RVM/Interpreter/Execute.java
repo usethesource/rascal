@@ -177,7 +177,7 @@ public class Execute {
 			
 		} catch(Thrown e) {
 			e.printStackTrace(stdout);
-			return vf.tuple(vf.string("Runtime exception <currently unknown location>: " + e.value), vf.integer(0));
+			return vf.tuple(vf.string("Runtime exception: " + e.value), vf.integer(0));
 		}
 	}
 	
@@ -426,7 +426,7 @@ public class Execute {
 				break;
 
 			case "THROW":
-				codeblock.THROW();
+				codeblock.THROW(getLocField(instruction, "src"));
 				break;
 			
 			case "TYPESWITCH":
