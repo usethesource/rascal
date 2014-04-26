@@ -31,7 +31,7 @@ public class RascalRuntimeException {
 	public static final Type EmptySet = TF.constructor(TS,Exception,"EmptySet");
 	public static final Type EmptyMap = TF.constructor(TS,Exception,"EmptyMap");
 	public static final Type NoSuchElement = TF.constructor(TS,Exception,"NoSuchElement",TF.valueType(), "v");
-	public static final Type UnavailableInformation = TF.constructor(TS,Exception, "UnavailableInformation");
+	public static final Type UnavailableInformation = TF.constructor(TS,Exception, "UnavailableInformation", TF.stringType(), "message");
 	public static final Type IllegalArgument = TF.constructor(TS,Exception,"IllegalArgument",TF.valueType(), "v", TF.stringType(), "message");
 	public static final Type IllegalTypeArgument = TF.constructor(TS,Exception,"IllegalTypeArgument",TF.stringType(), "type", TF.stringType(), "message");
 
@@ -79,7 +79,7 @@ public class RascalRuntimeException {
 
 	
 	public static Thrown arithmeticException(String msg, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(ArithmeticException, VF.string(msg)), null, stacktrace);
+		return Thrown.getInstance(VF.constructor(ArithmeticException, VF.string(msg)), stacktrace);
 	}
 	
 	public static Thrown assertionFailed(ISourceLocation loc, List<Frame> stacktrace) {
@@ -254,21 +254,21 @@ public class RascalRuntimeException {
 		return Thrown.getInstance(VF.constructor(InvalidUseOfLocation, VF.string(msg)),  stacktrace);
 	}	
 	
-//	public static Thrown invalidUseOfDateException(String message, ISourceLocation loc, List<Frame> stacktrace) {
-//		return Thrown.getInstance(VF.constructor(InvalidUseOfDate, VF.string(message)), loc, stacktrace);
-//	}
+	public static Thrown invalidUseOfDateException(String message, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(InvalidUseOfDate, VF.string(message)), stacktrace);
+	}
 	
-//	public static Thrown invalidUseOfTimeException(String message, ISourceLocation loc, List<Frame> stacktrace) {
-//		return Thrown.getInstance(VF.constructor(InvalidUseOfTime, VF.string(message)), loc, stacktrace);
-//	}
+	public static Thrown invalidUseOfTimeException(String message, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(InvalidUseOfTime, VF.string(message)),  stacktrace);
+	}
 	
-//	public static Thrown invalidUseOfDateTimeException(String message, ISourceLocation loc, List<Frame> stacktrace) {
-//		return Thrown.getInstance(VF.constructor(InvalidUseOfDateTime, VF.string(message)), loc, stacktrace);
-//	}
+	public static Thrown invalidUseOfDateTimeException(String message, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(InvalidUseOfDateTime, VF.string(message)),  stacktrace);
+	}
 	
-//	public static Thrown malformedURI(String uri, ISourceLocation loc, List<Frame> stacktrace) {
-//		return Thrown.getInstance(VF.constructor(MalFormedURI, VF.string(uri)), loc, stacktrace);
-//	}
+	public static Thrown malformedURI(String uri, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(MalFormedURI, VF.string(uri)), stacktrace);
+	}
 	
 //	public static Thrown MultipleKey(IValue v, ISourceLocation loc, List<Frame> stacktrace) {
 //		return Thrown.getInstance(VF.constructor(MultipleKey, v), loc, stacktrace);
@@ -298,8 +298,8 @@ public class RascalRuntimeException {
 //		return Thrown.getInstance(VF.constructor(PermissionDenied, msg), loc, stacktrace);
 //	}
 
-	public static Thrown unavailableInformation(List<Frame> stacktrace){
-		return Thrown.getInstance(VF.constructor(UnavailableInformation),  stacktrace);	
+	public static Thrown unavailableInformation(String message, List<Frame> stacktrace){
+		return Thrown.getInstance(VF.constructor(UnavailableInformation, VF.string(message)),  stacktrace);	
 	}
 
 //	public static Thrown schemeNotSupported(ISourceLocation file, ISourceLocation loc, List<Frame> stacktrace) {
