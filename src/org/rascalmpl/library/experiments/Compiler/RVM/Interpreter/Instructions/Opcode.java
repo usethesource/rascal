@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.TreeMap;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
 
@@ -479,6 +480,6 @@ public enum Opcode {
 			break;
 		}	
 		
-		throw new RuntimeException("PANIC: unrecognized opcode " + opc);
+		throw new CompilerError("unrecognized opcode " + opc);
 	}
 }
