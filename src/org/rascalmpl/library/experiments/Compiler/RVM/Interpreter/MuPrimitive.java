@@ -111,7 +111,7 @@ public enum MuPrimitive {
 					&& (stack[sp - 2] instanceof Type)) {
 				stack[sp - 2] = ((Type) stack[sp - 2]) == ((Type) stack[sp - 1]);
 			} else
-				throw new CompilerError("equal -- not defined on "
+				throw new CompilerError("MuPrimitive equal -- not defined on "
 						+ stack[sp - 2].getClass() + " and "
 						+ stack[sp - 2].getClass());
 			return sp - 1;

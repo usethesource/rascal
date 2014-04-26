@@ -81,12 +81,12 @@ public class RVM {
 
 		@Override
 		public void next(Frame previousCallFrame) {
-			throw new CompilerError("attempt to activate an exhausted coroutine instance.");
+			throw new CompilerError("Attempt to activate an exhausted coroutine instance.");
 		}
 		
 		@Override
 		public void suspend(Frame current) {
-			throw new CompilerError("attempt to suspend an exhausted coroutine instance.");
+			throw new CompilerError("Attempt to suspend an exhausted coroutine instance.");
 		}
 		
 		@Override
@@ -101,7 +101,7 @@ public class RVM {
 
 		@Override
 		public Coroutine copy() {
-			throw new CompilerError("attempt to copy an exhausted coroutine instance.");
+			throw new CompilerError("Attempt to copy an exhausted coroutine instance.");
 		}  
 	};
 
@@ -238,7 +238,7 @@ public class RVM {
 			}
 			return w.done();
 		}
-		throw new CompilerError("PANIC: Cannot convert object back to IValue: " + result);
+		throw new CompilerError("Cannot convert object back to IValue: " + result);
 	}
 	
 	/**
@@ -341,7 +341,7 @@ public class RVM {
 				return fname;
 			}
 		}
-		throw new CompilerError("undefined function index " + n);
+		throw new CompilerError("Undefined function index " + n);
 	}
 
 	public String getConstructorName(int n) {
@@ -350,7 +350,7 @@ public class RVM {
 				return cname;
 			}
 		}
-		throw new CompilerError("undefined constructor index " + n);
+		throw new CompilerError("Undefined constructor index " + n);
 	}
 	
 	public String getOverloadedFunctionName(int n) {
@@ -359,7 +359,7 @@ public class RVM {
 				return ofname;
 			}
 		}
-		throw new CompilerError("undefined overloaded function index " + n);
+		throw new CompilerError("Undefined overloaded function index " + n);
 	}
 	
 	public IValue executeFunction(String uid_func, IValue[] args){
@@ -418,7 +418,7 @@ public class RVM {
 		}
 		
 		if (main_function.nformals != 2) { // List of IValues and empty map of keyword parameters
-			throw new CompilerError("function " + uid_main + " should have two arguments");
+			throw new CompilerError("Function " + uid_main + " should have two arguments");
 		}
 		
 		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
@@ -1261,7 +1261,7 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 								
 				case Opcode.OP_LABEL:
-					throw new CompilerError("label instruction at runtime");
+					throw new CompilerError("LABEL instruction at runtime");
 					
 				case Opcode.OP_HALT:
 					if (debug) {
@@ -1383,7 +1383,7 @@ public class RVM {
 					if(postOp == Opcode.POSTOP_CHECKUNDEF) {
 						stacktrace = new ArrayList<Frame>();
 						stacktrace.add(cf);
-						thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
+						thrown = RascalProgramException.uninitializedVariable(pos, null, stacktrace);
 					}
 					cf.pc = pc;
 					// First, try to find a handler in the current frame function,
