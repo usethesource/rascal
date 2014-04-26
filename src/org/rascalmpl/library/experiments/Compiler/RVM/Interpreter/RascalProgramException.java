@@ -90,36 +90,36 @@ public class RascalProgramException {
     	return Thrown.getInstance(VF.constructor(LabeledAssertionFailed, msg), loc, stacktrace);
     }
 	
-	public static Thrown emptyList(ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(EmptyList), loc, stacktrace);
+	public static Thrown emptyList(List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(EmptyList), stacktrace);
 	}
 	
-	public static Thrown emptySet(ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(EmptySet), loc, stacktrace);
+	public static Thrown emptySet(List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(EmptySet), stacktrace);
 	}
 	
-	public static Thrown emptyMap(ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(EmptyMap), loc, stacktrace);
+	public static Thrown emptyMap(List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(EmptyMap), stacktrace);
 	}
 	
-	public static Thrown illegalArgument(ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(AnonymousIllegalArgument), loc, stacktrace);	
+	public static Thrown illegalArgument(List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(AnonymousIllegalArgument), stacktrace);	
 	}
 	
-	public static Thrown illegalArgument(IValue v, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(IllegalArgument), loc, stacktrace);	
+	public static Thrown illegalArgument(IValue v, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(IllegalArgument), stacktrace);	
 	}
 	
-	public static Thrown illegalArgument(IValue v, ISourceLocation loc, List<Frame> stacktrace, String message) {
-		return Thrown.getInstance(VF.constructor(IllegalArgument, v, VF.string(message)), loc, stacktrace);	
+	public static Thrown illegalArgument(IValue v, List<Frame> stacktrace, String message) {
+		return Thrown.getInstance(VF.constructor(IllegalArgument, v, VF.string(message)), stacktrace);	
 	}
 	
-	public static Thrown indexOutOfBounds(IInteger i, ISourceLocation loc, List<Frame> stacktrace) {
-    	return Thrown.getInstance(VF.constructor(IndexOutOfBounds, i), loc, stacktrace);
+	public static Thrown indexOutOfBounds(IInteger i, List<Frame> stacktrace) {
+    	return Thrown.getInstance(VF.constructor(IndexOutOfBounds, i), stacktrace);
     }
 	
-	public static Thrown io(IString msg, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(IO, msg), loc, stacktrace);
+	public static Thrown io(IString msg, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(IO, msg), stacktrace);
 	}
 	
 	private static Thrown javaException(String clazz, String message, IValue cause, ISourceLocation loc, List<Frame> stacktrace) {
@@ -194,124 +194,124 @@ public class RascalProgramException {
 //		return VF.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
 //    }
 	
-	public static Thrown moduleNotFound(IString module, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(ModuleNotFound, module), loc, stacktrace);
-	}
+//	public static Thrown moduleNotFound(IString module, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(ModuleNotFound, module), loc, stacktrace);
+//	}
 	
-	public static Thrown noSuchAnnotation(String label, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(NoSuchAnnotation, VF.string(label)), loc, stacktrace);
+	public static Thrown noSuchAnnotation(String label, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(NoSuchAnnotation, VF.string(label)), stacktrace);
 	}
 
-	public static Thrown noSuchKey(IValue v, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(NoSuchKey, v), loc, stacktrace);
+	public static Thrown noSuchKey(IValue v, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(NoSuchKey, v),  stacktrace);
 	}
 	
 	public static Thrown parseError(ISourceLocation parseloc, ISourceLocation loc, List<Frame> stacktrace) {
 		return Thrown.getInstance(VF.constructor(ParseError, parseloc), loc, stacktrace);
 	}
 	
-	public static Thrown pathNotFound(ISourceLocation parseloc, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(PathNotFound, parseloc), loc, stacktrace);
-	}
+//	public static Thrown pathNotFound(ISourceLocation parseloc, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(PathNotFound, parseloc), loc, stacktrace);
+//	}
 	
-	public static Thrown stackOverflow(ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(StackOverflow), loc, stacktrace);
-	}
+//	public static Thrown stackOverflow(ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(StackOverflow), loc, stacktrace);
+//	}
 	
-	public static Thrown arityMismatch(int expected, int got, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(ArityMismatch, VF.integer(expected), VF.integer(got)), loc, stacktrace);
-	}
+//	public static Thrown arityMismatch(int expected, int got, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(ArityMismatch, VF.integer(expected), VF.integer(got)), loc, stacktrace);
+//	}
 	
-	public static Thrown dateTimeParsingError(String message, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(DateTimeParsingError, VF.string(message)), loc, stacktrace);
-	}
+//	public static Thrown dateTimeParsingError(String message, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(DateTimeParsingError, VF.string(message)), loc, stacktrace);
+//	}
 	
-	public static Thrown dateTimePrintingError(String message, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(DateTimePrintingError, VF.string(message)), loc, stacktrace);
+//	public static Thrown dateTimePrintingError(String message, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(DateTimePrintingError, VF.string(message)), loc, stacktrace);
+//	}	
+	
+//	public static Thrown figureException(String message, IValue v, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(Figure, VF.string(message), v), loc, stacktrace);
+//	}
+	
+//	public static Thrown illegalCharacter(IInteger i, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(IllegalChar, i), loc, stacktrace);
+//	}
+	
+//	public static Thrown illegalTypeArgument(String type, String message, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(IllegalTypeArgument,VF.string(type),VF.string(message)), loc, stacktrace);	
+//	}
+	
+//	public static Thrown illegalTypeArgument(String type, ISourceLocation loc, List<Frame> stacktrace){
+//		return Thrown.getInstance(VF.constructor(IllegalTypeArgument,VF.string(type)), loc, stacktrace);	
+//	}
+	
+//	public static Thrown implodeError(String msg, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(ImplodeError, VF.string(msg)), loc, stacktrace);
+//	}
+
+	public static Thrown invalidUseOfLocation(String msg, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(InvalidUseOfLocation, VF.string(msg)),  stacktrace);
 	}	
 	
-	public static Thrown figureException(String message, IValue v, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(Figure, VF.string(message), v), loc, stacktrace);
+//	public static Thrown invalidUseOfDateException(String message, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(InvalidUseOfDate, VF.string(message)), loc, stacktrace);
+//	}
+	
+//	public static Thrown invalidUseOfTimeException(String message, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(InvalidUseOfTime, VF.string(message)), loc, stacktrace);
+//	}
+	
+//	public static Thrown invalidUseOfDateTimeException(String message, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(InvalidUseOfDateTime, VF.string(message)), loc, stacktrace);
+//	}
+	
+//	public static Thrown malformedURI(String uri, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(MalFormedURI, VF.string(uri)), loc, stacktrace);
+//	}
+	
+//	public static Thrown MultipleKey(IValue v, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(MultipleKey, v), loc, stacktrace);
+//	}
+	
+//	public static Thrown nameMismatch(String expected, String got, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(NameMismatch, VF.string(expected), VF.string(got)), loc, stacktrace);
+//	}
+	
+	public static Thrown noParent(ISourceLocation noparentloc, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(NoParent, noparentloc), stacktrace);
 	}
 	
-	public static Thrown illegalCharacter(IInteger i, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(IllegalChar, i), loc, stacktrace);
+//	public static Thrown noSuchElement(IValue v, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(NoSuchElement,v), loc, stacktrace);	
+//	}
+
+	public static Thrown noSuchField(String name, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(NoSuchField, VF.string(name)), stacktrace);
 	}
 	
-	public static Thrown illegalTypeArgument(String type, String message, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(IllegalTypeArgument,VF.string(type),VF.string(message)), loc, stacktrace);	
-	}
+//	public static Thrown permissionDenied(ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(AnonymousPermissionDenied), loc, stacktrace);
+//	}
 	
-	public static Thrown illegalTypeArgument(String type, ISourceLocation loc, List<Frame> stacktrace){
-		return Thrown.getInstance(VF.constructor(IllegalTypeArgument,VF.string(type)), loc, stacktrace);	
-	}
-	
-	public static Thrown implodeError(String msg, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(ImplodeError, VF.string(msg)), loc, stacktrace);
+//	public static Thrown permissionDenied(IString msg, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(PermissionDenied, msg), loc, stacktrace);
+//	}
+
+	public static Thrown unavailableInformation(List<Frame> stacktrace){
+		return Thrown.getInstance(VF.constructor(UnavailableInformation),  stacktrace);	
 	}
 
-	public static Thrown invalidUseOfLocation(String msg, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(InvalidUseOfLocation, VF.string(msg)), loc, stacktrace);
-	}	
+//	public static Thrown schemeNotSupported(ISourceLocation file, ISourceLocation loc, List<Frame> stacktrace) {
+//		return Thrown.getInstance(VF.constructor(SchemeNotSupported, file), loc, stacktrace);
+//	}
 	
-	public static Thrown invalidUseOfDateException(String message, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(InvalidUseOfDate, VF.string(message)), loc, stacktrace);
-	}
+//	public static Thrown timeout(ISourceLocation loc, List<Frame> stacktrace) {
+//    	return Thrown.getInstance(VF.constructor(Timeout), loc, stacktrace);
+//    }
 	
-	public static Thrown invalidUseOfTimeException(String message, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(InvalidUseOfTime, VF.string(message)), loc, stacktrace);
-	}
-	
-	public static Thrown invalidUseOfDateTimeException(String message, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(InvalidUseOfDateTime, VF.string(message)), loc, stacktrace);
-	}
-	
-	public static Thrown malformedURI(String uri, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(MalFormedURI, VF.string(uri)), loc, stacktrace);
-	}
-	
-	public static Thrown MultipleKey(IValue v, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(MultipleKey, v), loc, stacktrace);
-	}
-	
-	public static Thrown nameMismatch(String expected, String got, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(NameMismatch, VF.string(expected), VF.string(got)), loc, stacktrace);
-	}
-	
-	public static Thrown noParent(ISourceLocation noparentloc, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(NoParent, noparentloc), loc, stacktrace);
-	}
-	
-	public static Thrown noSuchElement(IValue v, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(NoSuchElement,v), loc, stacktrace);	
-	}
-
-	public static Thrown noSuchField(String name, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(NoSuchField, VF.string(name)), loc, stacktrace);
-	}
-	
-	public static Thrown permissionDenied(ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(AnonymousPermissionDenied), loc, stacktrace);
-	}
-	
-	public static Thrown permissionDenied(IString msg, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(PermissionDenied, msg), loc, stacktrace);
-	}
-
-	public static Thrown unavailableInformation(ISourceLocation loc, List<Frame> stacktrace){
-		return Thrown.getInstance(VF.constructor(UnavailableInformation), loc, stacktrace);	
-	}
-
-	public static Thrown schemeNotSupported(ISourceLocation file, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(SchemeNotSupported, file), loc, stacktrace);
-	}
-	
-	public static Thrown timeout(ISourceLocation loc, List<Frame> stacktrace) {
-    	return Thrown.getInstance(VF.constructor(Timeout), loc, stacktrace);
-    }
-	
-	public static Thrown uninitializedVariable(int pos, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(UninitializedVariable, VF.integer(pos)), loc, stacktrace);
+	public static Thrown uninitializedVariable(int pos, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(UninitializedVariable, VF.integer(pos)), stacktrace);
 	}
 
 }

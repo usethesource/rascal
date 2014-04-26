@@ -1414,13 +1414,13 @@ public enum RascalPrimitive {
 					}
 					throw new UnsupportedOperation("Can not retrieve the time component of a date value", null);
 				default:
-					throw RascalProgramException.noSuchField(field, null,  stacktrace);
+					throw RascalProgramException.noSuchField(field, stacktrace);
 				}
 				stack[sp - 2] = v;
 				return sp - 1;
 
 			} catch (InvalidDateTimeException e) {
-				throw RascalProgramException.illegalArgument(dt, null, stacktrace, e.getMessage());
+				throw RascalProgramException.illegalArgument(dt, stacktrace, e.getMessage());
 			}
 		}
 
@@ -1514,7 +1514,7 @@ public enum RascalPrimitive {
 					break;			
 
 				default:
-					throw RascalProgramException.noSuchField(field, null,  stacktrace);
+					throw RascalProgramException.noSuchField(field, stacktrace);
 				}
 				IDateTime newdt = null;
 				if (dt.isDate()) {
@@ -1529,10 +1529,10 @@ public enum RascalPrimitive {
 				return sp - 2;
 			}
 			catch (IllegalArgumentException e) {
-				throw RascalProgramException.illegalArgument(repl, null, null, "Cannot update field " + field + ", this would generate an invalid datetime value");
+				throw RascalProgramException.illegalArgument(repl, null, "Cannot update field " + field + ", this would generate an invalid datetime value");
 			}
 			catch (InvalidDateTimeException e) {
-				throw RascalProgramException.illegalArgument(dt, null, stacktrace, e.getMessage());
+				throw RascalProgramException.illegalArgument(dt, stacktrace, e.getMessage());
 			}
 		}
 	},
@@ -1559,7 +1559,7 @@ public enum RascalPrimitive {
 			case "host":
 				uri = sloc.getURI();
 				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
-					throw RascalProgramException.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", null,  stacktrace);
+					throw RascalProgramException.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", stacktrace);
 				}
 				s = uri.getHost();
 				v = vf.string(s == null ? "" : s);
@@ -1572,7 +1572,7 @@ public enum RascalPrimitive {
 			case "parent":
 				String path = sloc.getPath();
 				if (path.equals("")) {
-					throw RascalProgramException.noParent(sloc, null, stacktrace);
+					throw RascalProgramException.noParent(sloc, stacktrace);
 				}
 				int i = path.lastIndexOf("/");
 
@@ -1580,7 +1580,7 @@ public enum RascalPrimitive {
 					path = path.substring(0, i);
 					v = $loc_field_update(sloc, "path", vf.string(path), stacktrace);
 				} else {
-					throw RascalProgramException.noParent(sloc, null, stacktrace);
+					throw RascalProgramException.noParent(sloc, stacktrace);
 				}
 				break;	
 
@@ -1588,7 +1588,7 @@ public enum RascalPrimitive {
 				path = sloc.hasPath() ? sloc.getPath() : "";
 
 				if (path.equals("")) {
-					throw RascalProgramException.noParent(sloc,null,null);
+					throw RascalProgramException.noParent(sloc,null);
 				}
 				i = path.lastIndexOf("/");
 
@@ -1614,7 +1614,7 @@ public enum RascalPrimitive {
 					v = w.done();
 					break;
 				} catch (IOException e) {
-					throw RascalProgramException.io(vf.string(e.getMessage()), null,null);
+					throw RascalProgramException.io(vf.string(e.getMessage()), null);
 				}
 
 			case "extension":
@@ -1652,7 +1652,7 @@ public enum RascalPrimitive {
 			case "user":
 				uri = sloc.getURI();
 				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
-					throw RascalProgramException.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", null,  stacktrace);
+					throw RascalProgramException.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", stacktrace);
 				}
 				s = uri.getUserInfo();
 				v = vf.string(s == null ? "" : s);
@@ -1661,7 +1661,7 @@ public enum RascalPrimitive {
 			case "port":
 				uri = sloc.getURI();
 				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
-					throw RascalProgramException.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", null,  stacktrace);
+					throw RascalProgramException.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", stacktrace);
 				}
 				int n = uri.getPort();
 				v = vf.integer(n);
@@ -1672,7 +1672,7 @@ public enum RascalPrimitive {
 					v = vf.integer(sloc.getLength());
 					break;
 				} else {
-					throw RascalProgramException.unavailableInformation(sloc, stacktrace);
+					throw RascalProgramException.unavailableInformation(stacktrace);
 				}
 
 			case "offset":
@@ -1680,7 +1680,7 @@ public enum RascalPrimitive {
 					v = vf.integer(sloc.getOffset());
 					break;
 				} else {
-					throw RascalProgramException.unavailableInformation(sloc, stacktrace);
+					throw RascalProgramException.unavailableInformation(stacktrace);
 				}
 
 			case "begin":
@@ -1688,14 +1688,14 @@ public enum RascalPrimitive {
 					v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), vf.integer(sloc.getBeginColumn()));
 					break;
 				} else {
-					throw RascalProgramException.unavailableInformation(sloc, stacktrace);
+					throw RascalProgramException.unavailableInformation(stacktrace);
 				}
 			case "end":
 				if(sloc.hasLineColumn()){
 					v = vf.tuple(lineColumnType, vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
 					break;
 				} else {
-					throw RascalProgramException.unavailableInformation(sloc, stacktrace);
+					throw RascalProgramException.unavailableInformation(stacktrace);
 				}
 
 			case "uri":
@@ -1772,7 +1772,7 @@ public enum RascalPrimitive {
 					}
 				}
 			}
-			throw RascalProgramException.noSuchField(field.getValue(), null, stacktrace);
+			throw RascalProgramException.noSuchField(field.getValue(), stacktrace);
 		}
 	},
 	
@@ -1789,11 +1789,11 @@ public enum RascalPrimitive {
 			try {
 				stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
 				if(stack[sp - 2] == null) {
-					throw RascalProgramException.noSuchAnnotation(label, null, stacktrace);
+					throw RascalProgramException.noSuchAnnotation(label, stacktrace);
 				}
 				return sp - 1;
 			} catch (FactTypeUseException e) {
-				throw RascalProgramException.noSuchAnnotation(label, null, stacktrace);
+				throw RascalProgramException.noSuchAnnotation(label, stacktrace);
 			}
 		}
 	},
@@ -5002,7 +5002,7 @@ public enum RascalPrimitive {
 			try {
 				stack[sp - 2] = cons.get((idx >= 0) ? idx : (cons.arity() + idx));
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalProgramException.indexOutOfBounds((IInteger) stack[sp - 1], null, stacktrace);
+				throw RascalProgramException.indexOutOfBounds((IInteger) stack[sp - 1], stacktrace);
 			}
 			return sp - 1;
 		}
@@ -5022,7 +5022,7 @@ public enum RascalPrimitive {
 				}
 				stack[sp - 2] = node.get(idx);  
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalProgramException.indexOutOfBounds((IInteger) stack[sp - 1], null, stacktrace);
+				throw RascalProgramException.indexOutOfBounds((IInteger) stack[sp - 1], stacktrace);
 			}
 			return sp - 1;
 		}
@@ -5037,7 +5037,7 @@ public enum RascalPrimitive {
 			try {
 				stack[sp - 2] = lst.get((idx >= 0) ? idx : (lst.length() + idx));
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalProgramException.indexOutOfBounds((IInteger) stack[sp - 1], null, stacktrace);
+				throw RascalProgramException.indexOutOfBounds((IInteger) stack[sp - 1], stacktrace);
 			}
 			return sp - 1;
 		}
@@ -5048,7 +5048,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			stack[sp - 2] = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
 			if(stack[sp - 2] == null) {
-				throw RascalProgramException.noSuchKey((IValue) stack[sp - 1], null, stacktrace);
+				throw RascalProgramException.noSuchKey((IValue) stack[sp - 1], stacktrace);
 			}
 			return sp - 1;
 		}
@@ -5063,7 +5063,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = (idx >= 0) ? str.substring(idx, idx+1)
 						: str.substring(str.length() + idx, str.length() + idx + 1);
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalProgramException.indexOutOfBounds((IInteger) stack[sp - 1], null, stacktrace);
+				throw RascalProgramException.indexOutOfBounds((IInteger) stack[sp - 1], stacktrace);
 			}
 			return sp - 1;
 		}
@@ -5078,7 +5078,7 @@ public enum RascalPrimitive {
 			try {
 				stack[sp - 2] = tup.get((idx >= 0) ? idx : tup.arity() + idx);
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalProgramException.indexOutOfBounds((IInteger) stack[sp - 1], null, stacktrace);
+				throw RascalProgramException.indexOutOfBounds((IInteger) stack[sp - 1], stacktrace);
 			}
 			return sp - 1;
 		}
@@ -5685,7 +5685,7 @@ public enum RascalPrimitive {
 				stack[sp - 3] = lst.put(n, (IValue) stack[sp - 1]);
 				return sp - 2;
 			} catch (IndexOutOfBoundsException e){
-				throw RascalProgramException.indexOutOfBounds(vf.integer(n), null, stacktrace);
+				throw RascalProgramException.indexOutOfBounds(vf.integer(n), stacktrace);
 			}
 		}
 
@@ -5711,7 +5711,7 @@ public enum RascalPrimitive {
 				stack[sp - 3] = tup.set(n, (IValue) stack[sp - 1]);
 				return sp - 2;
 			} catch (IndexOutOfBoundsException e){
-				throw RascalProgramException.indexOutOfBounds(vf.integer(n), null, stacktrace);
+				throw RascalProgramException.indexOutOfBounds(vf.integer(n), stacktrace);
 			}
 		}
 
@@ -5730,7 +5730,7 @@ public enum RascalPrimitive {
 				stack[sp - 1] =vf.sourceLocation(new URI(uri.getValue()));
 				return sp;
 			} catch (URISyntaxException e) {
-				throw RascalProgramException.illegalArgument(uri, null, stacktrace);
+				throw RascalProgramException.illegalArgument(uri, stacktrace);
 			}
 
 		}
@@ -5778,7 +5778,7 @@ public enum RascalPrimitive {
 			} else if(stack[sp - 1] instanceof Integer){
 				stack[sp - 1] = vf.string(((Integer) stack[sp - 1]).toString());
 			} else {
-				throw RascalProgramException.illegalArgument(vf.string(stack[sp -1].toString()), null, stacktrace);
+				throw RascalProgramException.illegalArgument(vf.string(stack[sp -1].toString()), stacktrace);
 			}
 			return sp;
 		}
@@ -5947,7 +5947,7 @@ public enum RascalPrimitive {
 			case "host":
 				uri = sloc.getURI();
 				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
-					throw RascalProgramException.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", null,  stacktrace);
+					throw RascalProgramException.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", stacktrace);
 				}
 				uri = URIUtil.changeHost(uri, newStringValue);
 				authority = uri.getAuthority();
@@ -5984,7 +5984,7 @@ public enum RascalPrimitive {
 				break;	
 
 			case "ls":
-				throw RascalProgramException.noSuchField("Cannot update the children of a location", null, stacktrace);
+				throw RascalProgramException.noSuchField("Cannot update the children of a location", stacktrace);
 
 			case "extension":
 				String ext = newStringValue;
@@ -6038,7 +6038,7 @@ public enum RascalPrimitive {
 			case "user":
 				uri = sloc.getURI();
 				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
-					throw RascalProgramException.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", null,  stacktrace);
+					throw RascalProgramException.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", stacktrace);
 				}
 				if (uri.getHost() != null) {
 					uri = URIUtil.changeUserInformation(uri, newStringValue);
@@ -6049,7 +6049,7 @@ public enum RascalPrimitive {
 			case "port":
 				uri = sloc.getURI();
 				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
-					throw RascalProgramException.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", null,  stacktrace);
+					throw RascalProgramException.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", stacktrace);
 				}
 				if (uri.getHost() != null) {
 					int port = Integer.parseInt(((IInteger) repl).getStringRepresentation());
@@ -6062,14 +6062,14 @@ public enum RascalPrimitive {
 			case "length":
 				iLength = ((IInteger) repl).intValue();
 				if (iLength < 0) {
-					throw RascalProgramException.illegalArgument(repl, null, stacktrace);
+					throw RascalProgramException.illegalArgument(repl, stacktrace);
 				}
 				break;
 
 			case "offset":
 				iOffset = ((IInteger) repl).intValue();
 				if (iOffset < 0) {
-					throw RascalProgramException.illegalArgument(repl, null, stacktrace);
+					throw RascalProgramException.illegalArgument(repl, stacktrace);
 				}
 				break;
 
@@ -6078,7 +6078,7 @@ public enum RascalPrimitive {
 				iBeginColumn = ((IInteger) ((ITuple) repl).get(1)).intValue();
 
 				if (iBeginColumn < 0 || iBeginLine < 0) {
-					throw RascalProgramException.illegalArgument(repl, null,  stacktrace);
+					throw RascalProgramException.illegalArgument(repl, stacktrace);
 				}
 				break;
 			case "end":
@@ -6086,12 +6086,12 @@ public enum RascalPrimitive {
 				iEndColumn = ((IInteger) ((ITuple) repl).get(1)).intValue();
 
 				if (iEndColumn < 0 || iEndLine < 0) {
-					throw RascalProgramException.illegalArgument(repl, null,  stacktrace);
+					throw RascalProgramException.illegalArgument(repl, stacktrace);
 				}
 				break;			
 
 			default:
-				throw RascalProgramException.noSuchField("Modification of field " + field + " in location not allowed", null, stacktrace);
+				throw RascalProgramException.noSuchField("Modification of field " + field + " in location not allowed", stacktrace);
 			}
 
 			ISourceLocation newLoc = sloc;
@@ -6129,7 +6129,7 @@ public enum RascalPrimitive {
 
 			if (iBeginColumn != -1 || iEndColumn != -1 || iBeginLine != -1 || iBeginColumn != -1) {
 				// trying to add line/column info to a uri that has no offset length
-				throw RascalProgramException.invalidUseOfLocation("Can not add line/column information without offset/length", null,  stacktrace);
+				throw RascalProgramException.invalidUseOfLocation("Can not add line/column information without offset/length", stacktrace);
 			}
 
 			// trying to set offset that was not there before, adding length automatically
@@ -6155,7 +6155,7 @@ public enum RascalPrimitive {
 			return newLoc;
 
 		} catch (IllegalArgumentException e) {
-			throw RascalProgramException.illegalArgument(null, stacktrace);
+			throw RascalProgramException.illegalArgument(stacktrace);
 		} catch (URISyntaxException e) {
 			throw RascalProgramException.parseError(null, null, stacktrace);
 		}
@@ -6245,13 +6245,13 @@ public enum RascalPrimitive {
 		}
 
 		if (len == 0) {
-			throw RascalProgramException.emptyList(null, stacktrace);
+			throw RascalProgramException.emptyList(stacktrace);
 		}
 		if (firstIndex >= len) {
-			throw RascalProgramException.indexOutOfBounds(vf.integer(firstIndex), null, stacktrace);
+			throw RascalProgramException.indexOutOfBounds(vf.integer(firstIndex), stacktrace);
 		}
 		if (endIndex > len ) {
-			throw RascalProgramException.indexOutOfBounds(vf.integer(endIndex), null, stacktrace);
+			throw RascalProgramException.indexOutOfBounds(vf.integer(endIndex), stacktrace);
 		}
 
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
