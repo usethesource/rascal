@@ -28,15 +28,15 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IRascalMonitor;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
-import org.rascalmpl.interpreter.utils.JavaBridge;
+import org.rascalmpl.interpreter.Configuration;						// TODO: remove import?
+import org.rascalmpl.interpreter.Evaluator;							// TODO: remove import?
+import org.rascalmpl.interpreter.IRascalMonitor;					// TODO: remove import?
+import org.rascalmpl.interpreter.asserts.ImplementationError;		// TODO: remove import?
+import org.rascalmpl.interpreter.control_exceptions.Throw;			// TODO: remove import?
+import org.rascalmpl.interpreter.env.GlobalEnvironment;				// TODO: remove import?
+import org.rascalmpl.interpreter.env.ModuleEnvironment;				// TODO: remove import?
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;	// TODO: remove import?
+import org.rascalmpl.interpreter.utils.JavaBridge;					// TODO: remove import?
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.values.ValueFactoryFactory;
 

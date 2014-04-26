@@ -7,7 +7,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import?
 
 public class Frame {
 	int scopeId;

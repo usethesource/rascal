@@ -39,9 +39,7 @@ import org.eclipse.imp.pdb.facts.exceptions.InvalidDateTimeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
+import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import?
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIUtil;
@@ -3349,7 +3347,7 @@ public enum RascalPrimitive {
 			}
 
 			if (!right.hasOffsetLength()) {
-				throw new ImplementationError("assertion failed");
+				throw new CompilerError("offset length missing");
 			}
 			stack[sp - 2] = false;
 			return sp - 1;

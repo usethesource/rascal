@@ -38,7 +38,7 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.control_exceptions.Throw; // TODO: remove import?
 import org.rascalmpl.library.cobra.RandomType;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;

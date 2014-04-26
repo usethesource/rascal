@@ -13,12 +13,12 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.asserts.NotYetImplemented;
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.interpreter.asserts.ImplementationError;	// TODO: remove import?
+import org.rascalmpl.interpreter.asserts.NotYetImplemented;		// TODO: remove import?
+import org.rascalmpl.interpreter.types.FunctionType;			// TODO: remove import?
+import org.rascalmpl.interpreter.types.NonTerminalType;			// TODO: remove import?
+import org.rascalmpl.interpreter.types.RascalTypeFactory;		// TODO: remove import?
+import org.rascalmpl.interpreter.types.ReifiedType;				// TODO: remove import?
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
