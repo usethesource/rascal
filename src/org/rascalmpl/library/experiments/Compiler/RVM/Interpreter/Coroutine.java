@@ -34,7 +34,7 @@ public class Coroutine {
 	
 	public Coroutine copy() {
 		if(suspended || start.pc != 0) {
-			throw new CompilerError("Copying suspended or active coroutine is not allowed.");
+			throw new CompilerError("copying suspended or active coroutine is not allowed.");
 		}
 		return new Coroutine(start.copy());
 	}

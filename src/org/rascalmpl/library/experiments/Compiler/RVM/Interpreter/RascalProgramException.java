@@ -15,7 +15,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class RuntimeExceptions {
+public class RascalProgramException {
 	
 	private static TypeFactory TF = TypeFactory.getInstance();
 	private static IValueFactory VF = ValueFactoryFactory.getValueFactory();
@@ -78,8 +78,8 @@ public class RuntimeExceptions {
 	public static final Type UninitializedVariable = TF.constructor(TS, Exception, "UninitializedVariable", TF.stringType(), "name");
 
 	
-	public static Thrown arithmeticException(String msg, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(ArithmeticException, VF.string(msg)), loc, stacktrace);
+	public static Thrown arithmeticException(String msg, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(ArithmeticException, VF.string(msg)), null, stacktrace);
 	}
 	
 	public static Thrown assertionFailed(ISourceLocation loc, List<Frame> stacktrace) {

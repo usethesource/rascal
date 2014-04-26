@@ -134,7 +134,7 @@ public class CodeBlock {
 			labelInfo.put(label, new LabelInfo(ins, labelIndex++, pc));
 		} else {
 			if(info.isResolved()){
-				throw new CompilerError("double declaration of label " + label);
+				throw new CompilerError("Double declaration of label " + label);
 			}
 			info.instruction = ins;
 			info.PC = pc;
@@ -153,7 +153,7 @@ public class CodeBlock {
 	public int getLabelPC(String label){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
-			throw new CompilerError("undefined label " + label);
+			throw new CompilerError("Undefined label " + label);
 		}
 		return info.PC;
 	}
@@ -161,7 +161,7 @@ public class CodeBlock {
 	public Instruction getLabelInstruction(String label){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
-			throw new CompilerError("undefined label " + label);
+			throw new CompilerError("Undefined label " + label);
 		}
 		return info.instruction;
 	}
@@ -172,7 +172,7 @@ public class CodeBlock {
 				return constant;
 			}
 		}
-		throw new CompilerError("undefined constant index " + n);
+		throw new CompilerError("Undefined constant index " + n);
 	}
 	
 	public int getConstantIndex(IValue v){
@@ -191,7 +191,7 @@ public class CodeBlock {
 				return type;
 			}
 		}
-		throw new CompilerError("undefined type constant index " + n);
+		throw new CompilerError("Undefined type constant index " + n);
 	}
 	
 	public int getTypeConstantIndex(Type type){
@@ -210,13 +210,13 @@ public class CodeBlock {
 				return fname;
 			}
 		}
-		throw new CompilerError("undefined function index " + n);
+		throw new CompilerError("Undefined function index " + n);
 	}
 	
 	public int getFunctionIndex(String name){
 		Integer n = functionMap.get(name);
 		if(n == null){
-			throw new CompilerError("undefined function name " + name);
+			throw new CompilerError("Undefined function name " + name);
 		}
 		return n;
 	}
@@ -227,13 +227,13 @@ public class CodeBlock {
 				return fname;
 			}
 		}
-		throw new CompilerError("undefined overloaded function index " + n);
+		throw new CompilerError("Undefined overloaded function index " + n);
 	}
 	
 	public int getOverloadedFunctionIndex(String name){
 		Integer n = resolver.get(name);
 		if(n == null){
-			throw new CompilerError("undefined overloaded function name " + name);
+			throw new CompilerError("Undefined overloaded function name " + name);
 		}
 		return n;
 	}
@@ -243,13 +243,13 @@ public class CodeBlock {
 			if(constructorMap.get(cname) == n)
 				return cname;
 		}
-		throw new CompilerError("undefined constructor index " + n);
+		throw new CompilerError("Undefined constructor index " + n);
 	}
 	
 	public int getConstructorIndex(String name) {
 		Integer n = constructorMap.get(name);
 		if(n == null)
-			throw new CompilerError("undefined constructor name " + name);
+			throw new CompilerError("Undefined constructor name " + name);
 		return n;
 	}
 	

@@ -29,13 +29,21 @@ public class Thrown extends RuntimeException {
 		instance.stacktrace = stacktrace;
 		return instance;
 	}
+	
+	public static Thrown getInstance(IValue value, List<Frame> stacktrace) {
+		return getInstance(value, null, stacktrace);
+//		instance.value = value;
+//		instance.loc = null;
+//		instance.stacktrace = stacktrace;
+//		return instance;
+	}
 
 	public String toString() {
 		return value.toString();
 	}
 	
 	public void printStackTrace(PrintWriter stdout) {
-		stdout.println(this.toString() + ((loc !=null) ? loc : "") );
+		stdout.println(this.toString() + ((loc !=null) ? " at " + loc : "") );
 		for(Frame cf : stacktrace) {
 			for(Frame f = cf; f != null; f = f.previousCallFrame) {
 				//stdout.println("at " + f.function.name);
