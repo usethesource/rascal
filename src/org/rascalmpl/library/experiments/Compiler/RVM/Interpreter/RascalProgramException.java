@@ -156,7 +156,7 @@ public class RascalProgramException {
 			if(elem.getMethodName().equals("invoke")) {
 				break;
 			}
-			Function function = new Function(elem.getClassName() + "." + elem.getMethodName(), null, null, -1, -1, -1, null);
+			Function function = new Function(elem.getClassName() + "." + elem.getMethodName(), null, null, -1, -1, -1, null, null);
 			trace.add(new Frame(-1, null, -1, function));
 		}
 		trace.addAll(stacktrace);

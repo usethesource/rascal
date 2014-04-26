@@ -26,9 +26,9 @@ public data MuModule =
          
 public data MuFunction =					
                 muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, 
-                           loc source, list[str] modifiers, map[str,str] tags,
+                           loc src, list[str] modifiers, map[str,str] tags,
                            MuExp body)
-              | muCoroutine(str qname, str scopeIn, int nformals, int nlocals, list[int] refs, MuExp body)
+              | muCoroutine(str qname, str scopeIn, int nformals, int nlocals, loc src, list[int] refs, MuExp body)
           ;
           
 // A global (module level) variable.
@@ -213,6 +213,7 @@ public data Function =
              | preCoroutine(lrel[str s,int i] funNames, str name, list[Identifier] formals, 
                             list[Guard] guard, lrel[list[VarDecl] vardecls, str s] locals, list[MuExp] body, bool comma)
           ;
+
 
 public data MuExp =
               preIntCon(str txt)

@@ -210,11 +210,11 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body);
     lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
     																			  tuple[str from, str to] range <- entry.ranges ];
-    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.scopeIn, fun.nformals, nlocal[functionScope], fun.refs, required_frame_size, code))
-    							   : (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal[functionScope], fun.isVarArgs, required_frame_size, code, exceptions));
+    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.scopeIn, fun.nformals, nlocal[functionScope], fun.refs, |unknown:///|, required_frame_size, code))
+    							   : (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal[functionScope], fun.isVarArgs, fun.src, required_frame_size, code, exceptions));
   }
   
-  funMap += ( module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 2, nlocal[module_init_fun], false, estimate_stack_size(initializations) + size(variables) + 2,
+  funMap += ( module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 2, nlocal[module_init_fun], false, |unknown:///|, estimate_stack_size(initializations) + size(variables) + 2,
   								    [*trvoidblock(initializations), 
   								     LOADCON(true),
   								     RETURN1(1),
@@ -408,7 +408,7 @@ INS tr(muShift(MuExp body)) {
     str fuid = functionScope + "/shift_<getShiftCounter()>(1)";
     prevFunctionScope = functionScope;
     functionScope = fuid;
-    shiftClosures += ( fuid : FUNCTION(fuid, Symbol::func(Symbol::\value(),[Symbol::\value()]), functionScope, 1, 1, false, estimate_stack_size(body), 
+    shiftClosures += ( fuid : FUNCTION(fuid, Symbol::func(Symbol::\value(),[Symbol::\value()]), functionScope, 1, 1, false, |unknown:///|, estimate_stack_size(body), 
                                        [ *tr(visit(body) { case muContVar(prevFunctionScope) => muContVar(fuid) }), RETURN1(1) ], []) );
     functionScope = prevFunctionScope; 
     return [ LOAD_NESTED_FUN(fuid, functionScope), SHIFT() ];

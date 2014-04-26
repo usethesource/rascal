@@ -27,9 +27,9 @@ MuExp translateStats(Statement* statements) = muBlock([ translate(stat) | stat <
 
 // -- assert statement -----------------------------------------------
 	
-MuExp translate(s: (Statement) `assert <Expression expression> ;`) = muCallPrim("assertreport", [translate(expression), muCon(""), muCon(s@\loc)]);
+MuExp translate(s: (Statement) `assert <Expression expression> ;`) = muCallPrim("assertreport", [translate(expression), muCon(""), muCon(s@\loc)], s@\loc);
 
-MuExp translate(s: (Statement) `assert <Expression expression> : <Expression message>;`) = muCallPrim("assertreport", [translate(expression), translate(message), muCon(s@\loc)]);
+MuExp translate(s: (Statement) `assert <Expression expression> : <Expression message>;`) = muCallPrim("assertreport", [translate(expression), translate(message), muCon(s@\loc)], s@\loc);
 
 // -- single expression statement ------------------------------------
 

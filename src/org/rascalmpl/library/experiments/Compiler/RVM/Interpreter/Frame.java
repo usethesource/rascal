@@ -36,7 +36,7 @@ public class Frame {
 		this.stack = stack;
 		this.pc = 0;
 		this.sp = 0;
-		this.src = null;
+		this.src = function.src;
 		this.function = function;
 		this.isCoroutine = function.isCoroutine;
 	}
