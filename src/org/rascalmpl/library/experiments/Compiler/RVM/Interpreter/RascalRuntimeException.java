@@ -206,8 +206,8 @@ public class RascalRuntimeException {
 		return Thrown.getInstance(VF.constructor(NoSuchKey, v),  stacktrace);
 	}
 	
-	public static Thrown parseError(ISourceLocation parseloc, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(ParseError, parseloc), loc, stacktrace);
+	public static Thrown parseError(ISourceLocation parseloc, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(ParseError, parseloc), stacktrace);
 	}
 	
 //	public static Thrown pathNotFound(ISourceLocation parseloc, ISourceLocation loc, List<Frame> stacktrace) {
