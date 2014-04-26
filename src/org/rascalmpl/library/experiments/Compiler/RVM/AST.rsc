@@ -9,6 +9,7 @@ public data Declaration =
 		  		   int nformals, 
 		  		   int nlocals,
 		  		   bool isVarArgs,
+		  		   loc src,
 		  		   int maxStack,
 		  		   list[Instruction] instructions,
 		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
@@ -17,6 +18,7 @@ public data Declaration =
 		  		    int nformals, 
 		  		    int nlocals, 
 		  		    list[int] refs,
+		  		    loc src,
 		  		    int maxStack, 
 		  		    list[Instruction] instructions)
 		;

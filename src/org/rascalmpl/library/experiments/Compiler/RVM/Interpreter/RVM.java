@@ -425,6 +425,7 @@ public class RVM {
 		Frame cf = root;
 		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
 		cf.stack[1] = vf.mapWriter().done();
+		cf.src = main_function.src;
 		Object o = executeProgram(root, cf);
 		if(o != null && o instanceof Thrown){
 			throw (Thrown) o;
