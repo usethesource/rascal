@@ -10,13 +10,13 @@ import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.IRascalMonitor;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.IEvaluator;				// TODO: remove import?
+import org.rascalmpl.interpreter.IRascalMonitor;			// TODO: remove import?
+import org.rascalmpl.interpreter.env.Environment;			// TODO: remove import?
+import org.rascalmpl.interpreter.result.ICallableValue;		// TODO: remove import?
+import org.rascalmpl.interpreter.result.Result;				// TODO: remove import?
+import org.rascalmpl.interpreter.types.FunctionType;		// TODO: remove import?
+import org.rascalmpl.interpreter.types.RascalTypeFactory;	// TODO: remove import?
 
 public class OverloadedFunctionInstance implements ICallableValue, IExternalValue {
 	

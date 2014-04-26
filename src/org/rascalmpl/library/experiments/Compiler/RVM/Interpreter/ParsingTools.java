@@ -22,15 +22,14 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.IRascalMonitor;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.ReifiedType;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.interpreter.Configuration;					// TODO: remove import?
+import org.rascalmpl.interpreter.IEvaluatorContext;				// TODO: remove import?
+import org.rascalmpl.interpreter.IRascalMonitor;				// TODO: remove import?
+import org.rascalmpl.interpreter.asserts.ImplementationError;	// TODO: remove import?
+import org.rascalmpl.interpreter.staticErrors.StaticError;		// TODO: remove import?
+import org.rascalmpl.interpreter.types.NonTerminalType;			// TODO: remove import?
+import org.rascalmpl.interpreter.types.ReifiedType;				// TODO: remove import?
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;	// TODO: remove import?
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
