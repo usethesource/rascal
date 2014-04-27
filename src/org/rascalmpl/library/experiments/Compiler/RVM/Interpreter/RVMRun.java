@@ -2338,7 +2338,7 @@ public class RVMRun {
 	}
 
 	public void yield1Helper(int arity2, int ep) {
-		// Stores a Rascal_TRUE value in the stack of the NEXT? caller.
+		// Stores a Rascal_TRUE value into the stack of the NEXT? caller.
 		// The inline yield1 does the return
 		Coroutine coroutine = activeCoroutines.pop();
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
@@ -2364,7 +2364,7 @@ public class RVMRun {
 	}
 
 	public void yield0Helper(int ep) {
-		// Stores a Rascal_TRUE value in the stack of the NEXT? caller.
+		// Stores a Rascal_TRUE value into the stack of the NEXT? caller.
 		// The inline yield0 does the return
 		Coroutine coroutine = activeCoroutines.pop();
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;

@@ -1,18 +1,15 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
-import java.text.NumberFormat;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -245,7 +242,7 @@ public class RVM {
 
 				///* DEBUG */codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
 				///* DEBUG */codeEmittor.dump("/Users/ferryrietveld/Running.class");
-			    codeEmittor.dump("/Running.class");
+			    //codeEmittor.dump("/Running.class");
 
 				// Oneshot classloader
 				Class<?> generatedClassV1 = new ClassLoader(RVM.class.getClassLoader()) {
