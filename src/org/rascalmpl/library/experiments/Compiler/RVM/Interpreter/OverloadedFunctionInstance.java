@@ -134,7 +134,7 @@ public class OverloadedFunctionInstance implements ICallableValue, IExternalValu
 
 	@Override
 	public IEvaluator<Result<IValue>> getEval() {
-		return rvm.ctx.getEvaluator();
+		return rvm.getEvaluatorContext().getEvaluator();
 	}
 
 }

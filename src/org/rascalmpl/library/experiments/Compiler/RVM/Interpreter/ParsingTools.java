@@ -75,6 +75,16 @@ public class ParsingTools {
 		classLoaders = ctx.getEvaluator().getClassLoaders();
 	}
 	
+	public void setContext(RascalExecutionContext rex){
+		this.ctx = rex.getEvaluatorContext();
+		resolverRegistry = rex.getResolverRegistry();
+		monitor = rex.getMonitor();
+		stderr = rex.getStdErr();
+		config = rex.getConfiguration();
+		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>>();
+		classLoaders = rex.getClassLoaders();
+	}
+	
 	private IRascalMonitor getMonitor() {
 		return monitor;
 	}
