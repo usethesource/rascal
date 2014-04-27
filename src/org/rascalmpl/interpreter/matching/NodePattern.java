@@ -21,9 +21,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
@@ -148,9 +150,10 @@ public class NodePattern extends AbstractMatchingResult {
 			}
 		}
 
-		ImmutableMap<String, IValue> defaults = type.getKeywordParameterDefaults().initialize();
+		Map<String, IKeywordParameterInitializer> defaults = type.getKeywordParameterInitializers();
+		Set<Entry<String, IMatchingResult>> kwParamsSet = keywordParameters.entrySet();
 		
-		for (Entry<String,IMatchingResult> entry : keywordParameters.entrySet()) {
+		for (Entry<String,IMatchingResult> entry : kwParamsSet) {
 			IWithKeywordParameters<? extends INode> wkw = this.subject.asWithKeywordParameters();
 			IValue subjectParam = wkw.getParameter(entry.getKey());
 			Type subjectParamType;
@@ -158,6 +161,7 @@ public class NodePattern extends AbstractMatchingResult {
 			if (subjectParam == null && type.hasKeywordParameters()) {
 				// this happens when a constructor matches, but the keyword parameters are not defined
 				// for it, perhaps it came from a module where the parameters was not defined yet..
+				// we now have to initialize keyword parameters in order 
 				subjectParam = defaults.get(entry.getKey());
 				subjectParamType = type.getKeywordParameterType(entry.getKey());
 			}

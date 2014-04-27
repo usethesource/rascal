@@ -57,10 +57,9 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 		}
 	}
 
-	static public class WithThrows extends
-			org.rascalmpl.ast.Signature.WithThrows {
+	static public class WithThrows extends org.rascalmpl.ast.Signature.WithThrows {
 		public WithThrows(IConstructor __param1, FunctionModifiers __param3, org.rascalmpl.ast.Type __param2,
-				 Name __param4, Parameters __param5,
+				Name __param4, Parameters __param5,
 				List<org.rascalmpl.ast.Type> __param6) {
 			super(__param1, __param3, __param2, __param4, __param5, __param6);
 		}
@@ -68,16 +67,18 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 		@Override
 		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-			
-			java.util.Map<String,Type> kwParams = new HashMap<>();
-      java.util.Map<String,IValue> kwDefaults = new HashMap<>();
-      
-      Parameters parameters = getParameters();
-      
-      if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
-        interpretKeywordParameters(parameters.getKeywordFormals().getKeywordFormalList(), kwParams, kwDefaults, env, eval);
-      }
-      
+
+			Type kwParams = TF.voidType();
+			java.util.Map<String,IKeywordParameterInitializer> kwDefaults = new HashMap<>();
+
+			Parameters parameters = getParameters();
+
+			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
+				List<KeywordFormal> kwd = parameters.getKeywordFormals().getKeywordFormalList();
+				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kwd, eval);
+				kwDefaults = TypeDeclarationEvaluator.interpretKeywordParameters(kwd, kwParams, eval);
+			}
+
 			return RTF.functionType(getType().typeOf(env, instantiateTypeParameters, eval), getParameters()
 					.typeOf(env, instantiateTypeParameters, eval), kwParams, kwDefaults);
 		}

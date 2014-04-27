@@ -66,7 +66,7 @@ public class OverloadedFunctionInstance implements ICallableValue, IExternalValu
 		}
 		for(int constr : this.constructors) {
 			Type type = constructorStore.get(constr);
-			types.add((FunctionType) RascalTypeFactory.getInstance().functionType(type.getAbstractDataType(), type.getFieldTypes(), type.getKeywordParameterTypes(), type.getKeywordParameterDefaults()));
+			types.add((FunctionType) RascalTypeFactory.getInstance().functionType(type.getAbstractDataType(), type.getFieldTypes(), type.getKeywordParameterTypes(), type.getKeywordParameterInitializers()));
 		}
 		this.type = RascalTypeFactory.getInstance().overloadedFunctionType(types);
 		return this.type;
