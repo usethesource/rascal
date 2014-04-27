@@ -62,7 +62,7 @@ data RuntimeException =
      | Java(str class, str message, RuntimeException cause)
      | ModuleNotFound(str name)
      | NoSuchAnnotation(str label)
- 
+     | NoMainFunction()
      | NoSuchKey(value key)
      | MultipleKey(value key)
      | ParseError(loc location)
