@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -34,9 +35,13 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.IEvaluatorContext;			// TODO: remove import?
+import org.rascalmpl.interpreter.Configuration;
+import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.IRascalMonitor;
+//import org.rascalmpl.interpreter.IEvaluatorContext;			// TODO: remove import?
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import?
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 
 public class RVM {
@@ -74,7 +79,9 @@ public class RVM {
 	Stack<Coroutine> activeCoroutines = new Stack<>();
 	Frame ccf = null; // The start frame of the current active coroutine (coroutine's main function)
 	Frame cccf = null; // The candidate coroutine's start frame; used by the guard semantics 
-	IEvaluatorContext ctx;
+	//IEvaluatorContext ctx;
+	RascalExecutionContext rex;
+	List<ClassLoader> classLoaders;
 	
 	// An exhausted coroutine instance
 	public static Coroutine exhausted = new Coroutine(null) {
@@ -106,15 +113,17 @@ public class RVM {
 	};
 
 
-	public RVM(IValueFactory vf, IEvaluatorContext ctx, boolean debug, boolean profile) {
+	public RVM(IValueFactory vf, RascalExecutionContext rex, boolean debug, boolean profile) {
 		super();
 
 		this.vf = vf;
 		tf = TypeFactory.getInstance();
 		
-		this.ctx = ctx;
-		this.stdout = ctx.getStdOut();
-		this.stderr = ctx.getStdErr();
+		this.rex = rex;
+		//this.ctx = ctx;
+		this.classLoaders = rex.getClassLoaders();
+		this.stdout = rex.getStdOut();
+		this.stderr = rex.getStdErr();
 		this.debug = debug;
 		this.finalized = false;
 		
@@ -141,9 +150,14 @@ public class RVM {
 		Opcode.init(stdout, profile);
 	}
 	
-	public RVM(IValueFactory vf){
-		this(vf, null, false, false);
-	}
+	URIResolverRegistry getResolverRegistry() { return rex.getResolverRegistry(); }
+	IRascalMonitor getMonitor() {return rex.getMonitor();}
+	PrintWriter getStdErr() { return rex.getStdErr(); }
+	PrintWriter getStdOut() { return rex.getStdOut(); }
+	Configuration getConfiguration() { return rex.getConfiguration(); }
+	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
+	IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
+
 	
 	public void declare(Function f){
 		if(functionMap.get(f.getName()) != null){
@@ -414,7 +428,7 @@ public class RVM {
 		Function main_function = functionStore.get(functionMap.get(uid_main));
 
 		if (main_function == null) {
-			throw new CompilerError("No function " + uid_main + " found");
+			throw RascalRuntimeException.noMainFunction(null);
 		}
 		
 		if (main_function.nformals != 2) { // List of IValues and empty map of keyword parameters
@@ -1432,7 +1446,8 @@ public class RVM {
 				clazz = this.getClass().getClassLoader().loadClass(className);
 			} catch(ClassNotFoundException e1) {
 				// If the class is not found, try other class loaders
-				for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
+				for(ClassLoader loader : this.classLoaders) {
+					//for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
 					try {
 						clazz = loader.loadClass(className);
 						break;
@@ -1456,7 +1471,7 @@ public class RVM {
 				parameters[i] = stack[sp - nformals + i];
 			}
 			if(reflect == 1) {
-				parameters[nformals] = this.ctx;
+				parameters[nformals] = this.getEvaluatorContext();
 			}
 			stack[sp - nformals] =  m.invoke(instance, parameters);
 			return sp - nformals + 1;

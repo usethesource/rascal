@@ -44,10 +44,12 @@ public class Thrown extends RuntimeException {
 	
 	public void printStackTrace(PrintWriter stdout) {
 		stdout.println(this.toString() + ((loc !=null) ? " at " + loc : "") );
-		for(Frame cf : stacktrace) {
-			for(Frame f = cf; f != null; f = f.previousCallFrame) {
-				//stdout.println("at " + f.function.name);
-				stdout.println(f);
+		if(stacktrace != null){
+			for(Frame cf : stacktrace) {
+				for(Frame f = cf; f != null; f = f.previousCallFrame) {
+					//stdout.println("at " + f.function.name);
+					stdout.println(f);
+				}
 			}
 		}
 	}

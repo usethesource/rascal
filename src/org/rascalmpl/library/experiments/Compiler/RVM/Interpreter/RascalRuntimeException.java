@@ -77,6 +77,7 @@ public class RascalRuntimeException {
 	
 	public static final Type UninitializedVariable = TF.constructor(TS, Exception, "UninitializedVariable", TF.stringType(), "name");
 
+	public static final Type NoMainFunction = TF.constructor(TS, Exception, "NoMainFunction");
 	
 	public static Thrown arithmeticException(String msg, List<Frame> stacktrace) {
 		return Thrown.getInstance(VF.constructor(ArithmeticException, VF.string(msg)), stacktrace);
@@ -197,6 +198,10 @@ public class RascalRuntimeException {
 //	public static Thrown moduleNotFound(IString module, ISourceLocation loc, List<Frame> stacktrace) {
 //		return Thrown.getInstance(VF.constructor(ModuleNotFound, module), loc, stacktrace);
 //	}
+	
+	public static Thrown noMainFunction(List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(NoMainFunction), stacktrace);
+	}
 	
 	public static Thrown noSuchAnnotation(String label, List<Frame> stacktrace) {
 		return Thrown.getInstance(VF.constructor(NoSuchAnnotation, VF.string(label)), stacktrace);

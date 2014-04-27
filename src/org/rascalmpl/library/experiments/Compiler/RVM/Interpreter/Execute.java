@@ -17,7 +17,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.interpreter.IEvaluatorContext;  // TODO: remove import?
+import org.rascalmpl.interpreter.IEvaluatorContext;  // TODO: remove import? Only used as argument of reclective library function
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.interpreter.utils.Timing;
 
@@ -61,7 +61,7 @@ public class Execute {
 		
 		PrintWriter stdout = ctx.getStdOut();
 		
-		RVM rvm = new RVM(vf, ctx, debug.getValue(), profile.getValue());
+		RVM rvm = new RVM(vf, new RascalExecutionContext(ctx), debug.getValue(), profile.getValue());
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
@@ -163,7 +163,7 @@ public class Execute {
 				 * Standard execution of main function
 				 */
 				if((uid_main == null)) {
-					throw new CompilerError("No main function found when loading RVM code!");
+					throw RascalRuntimeException.noMainFunction(null);
 				}
 			
 				rvm.executeProgram(uid_module_init, arguments);
