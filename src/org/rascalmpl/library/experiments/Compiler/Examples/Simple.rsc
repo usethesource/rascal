@@ -181,33 +181,60 @@ module experiments::Compiler::Examples::Simple
 //
 
 
-int globalVar;
 
-str () f() {
-    int localVar;
-    str trace = "";
-    return str () {
-    	if(localVar?) {
-			trace += " local var is defined: !";
-		} else {
-			localVar = 0;
-			trace += " local var is not defined! And now: !";
-		}
-		
-		if(globalVar?) {
-			trace += " global var is defined: !";
-		} else {
-			globalVar = 1;
-			trace += " global var is not defined! And now: !";
-		}
-		return trace;
-	};
-}
+//int globalVar;
+//
+//str () f() {
+//    int localVar;
+//    str trace = "";
+//    return str () {
+//    	if(localVar?) {
+//			trace += " local var is defined: !";
+//		} else {
+//			localVar = 0;
+//			trace += " local var is not defined! And now: !";
+//		}
+//		
+//		if(globalVar?) {
+//			trace += " global var is defined: !";
+//		} else {
+//			globalVar = 1;
+//			trace += " global var is not defined! And now: !";
+//		}
+//		return trace;
+//	};
+//}
+//
+//value main(list[value] args) {
+//    int i;
+//    i = 100;
+//    str s = f()();
+//    i = i + 1;
+//    return s + "; <i>";
+//}
+//
+
+
+//int fib(int n) = (n == 0) ? 0 : (n == 1) ? 1 : (fib(n-1) + fib(n-2));
+//
+//value main(list[value] args){
+//	int x = 0 ;
+//    for(i <- [1 .. 100]){
+//       x = x +  fib(20);
+//    }
+//    return x;
+//}
 
 value main(list[value] args) {
-    int i;
-    i = 100;
-    str s = f()();
-    i = i + 1;
-    return s + "; <i>";
+	int i = 0 ;
+	int y = 0 ;
+	
+	wlist = while ( i < 10000 ) {
+		y = y + i ;
+		i = i + 1 ;
+		append i ;
+	}
+	return wlist ;
 }
+		
+

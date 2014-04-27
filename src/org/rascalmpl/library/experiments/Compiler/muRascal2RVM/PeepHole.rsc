@@ -10,23 +10,54 @@ int n_redundant_stores = 0;
 int n_jumps_to_jumps = 0;
 
 INS peephole(INS instructions){
-  return instructions;							// Not (yet) used, due to lack of impact.
+  //return instructions;  // Not (yet) used, due to lack of impact. (not when youre debugging)
   result1 = redundant_stores(instructions);
   result2 = jumps_to_jumps(result1);
   result3 = unused_labels(result2);
-  result4 = dead_code(result3);
-  println("**** peephole removed <size(instructions) - size(result4)> instructions");
-  iprintln(instructions);
-  iprintln(result4);
-  return result4;
+  result4 = redundant_stores(result3) ;
+  result5 = dead_code(result4);
+  result5 = unused_labels(result5);
+//  println("**** peephole removed <size(instructions) - size(result5)> instructions");
+//  iprintln(instructions);
+//  iprintln(result4);
+  return result5;
 }
 
 // Redundant_stores
 
+INS redundant_stores([ *Instruction ins1, JMP(p), JMP(_),  *Instruction ins2] ) {
+    n_redundant_stores += 1;
+    return redundant_stores([*ins1, JMP(p), *ins2]);
+}
+
+INS redundant_stores([ *Instruction ins1, LOADCON(222), POP(),  *Instruction ins2] ) {
+    n_redundant_stores += 1;
+    return redundant_stores([*ins1, *ins2]);
+}
+
+INS redundant_stores([ *Instruction ins1, JMP(p), LABEL(p),  *Instruction ins2] ) {
+    n_redundant_stores += 1;
+    return redundant_stores([*ins1, LABEL(p), *ins2]);
+}
+
+INS redundant_stores([ *Instruction ins1, RETURN1(1), JMP(_),  *Instruction ins2] ) {
+    n_redundant_stores += 1;
+    return redundant_stores([*ins1, RETURN1(1), *ins2]);
+}
+
+INS redundant_stores([ *Instruction ins1, RETURN1(1), RETURN1(1),  *Instruction ins2] ) {
+    n_redundant_stores += 1;
+    return redundant_stores([*ins1, RETURN1(1), *ins2]);
+}
+
+INS redundant_stores([ *Instruction ins1, LOADCON(true), JMPFALSE(_),  *Instruction ins2] ) {
+    n_redundant_stores += 1;
+    return redundant_stores([*ins1, *ins2]);
+}
+
 INS redundant_stores([ *Instruction ins1, STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction ins2] ) {
     n_redundant_stores += 1;
-    return redundant_stores([*ins1, STOREVAR(v,p), *ins2]);
-    
+    return redundant_stores([*ins1, STOREVAR(v,p), *ins2]);   
 }
 
 INS redundant_stores([ *Instruction ins1, STORELOC(int p), POP(), LOADLOC(p),  *Instruction ins2] ) {
