@@ -364,17 +364,17 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		private java.util.Map<String, IMatchingResult> visitKeywordArguments(IEvaluatorContext eval) {
-		  java.util.Map<String,IMatchingResult> result = new HashMap<>();
-		  KeywordArguments keywordArgs;
-		  
-      if (hasKeywordArguments() && (keywordArgs = getKeywordArguments()).isDefault()) {
-        for (KeywordArgument kwa : keywordArgs.getKeywordArgumentList()) {
-          result.put(Names.name(kwa.getName()), kwa.getExpression().buildMatcher(eval));
-        }
-      }
-      
-      return result;
-    }
+			java.util.Map<String,IMatchingResult> result = new HashMap<>();
+			KeywordArguments keywordArgs;
+
+			if (hasKeywordArguments() && (keywordArgs = getKeywordArguments()).isDefault()) {
+				for (KeywordArgument kwa : keywordArgs.getKeywordArgumentList()) {
+					result.put(Names.name(kwa.getName()), kwa.getExpression().buildMatcher(eval));
+				}
+			}
+
+			return result;
+		}
 
     private Type computeConstructorType(IEvaluatorContext eval,
 				org.rascalmpl.ast.Expression nameExpr) {

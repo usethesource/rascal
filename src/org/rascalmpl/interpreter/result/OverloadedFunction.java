@@ -72,15 +72,30 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override
-	public Map<String, Type> getKeywordArgumentTypes() {
-	  Map<String,Type> all = new HashMap<>();
+	public Type getKeywordArgumentTypes() {
+	  ArrayList<String> labels = new ArrayList<>();
+	  ArrayList<Type> types = new ArrayList<>();
+	  // TODO: I am not sure this is what we want. Double names will end up twice in the tuple type...
+	  
 	  for (AbstractFunction c : primaryCandidates) {
-	    all.putAll(c.getKeywordArgumentTypes());
+	    Type args = c.getKeywordArgumentTypes();
+	    
+	    for (String label : args.getFieldNames()) {
+	    	labels.add(label);
+	    	types.add(args.getFieldType(label));
+	    }
 	  }
+	  
 	  for (AbstractFunction c : defaultCandidates) {
-      all.putAll(c.getKeywordArgumentTypes());
-    }
-	  return all; 
+		  Type args = c.getKeywordArgumentTypes();
+
+		  for (String label : args.getFieldNames()) {
+			  labels.add(label);
+			  types.add(args.getFieldType(label));
+		  }  
+	  }
+	  
+	  return TF.tupleType(types, labels); 
 	}
 	
 	public OverloadedFunction(AbstractFunction function) {
