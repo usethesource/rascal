@@ -13,12 +13,10 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.asserts.ImplementationError;	// TODO: remove import?
-import org.rascalmpl.interpreter.asserts.NotYetImplemented;		// TODO: remove import?
-import org.rascalmpl.interpreter.types.FunctionType;			// TODO: remove import?
-import org.rascalmpl.interpreter.types.NonTerminalType;			// TODO: remove import?
-import org.rascalmpl.interpreter.types.RascalTypeFactory;		// TODO: remove import?
-import org.rascalmpl.interpreter.types.ReifiedType;				// TODO: remove import?
+import org.rascalmpl.interpreter.types.FunctionType;			// remove import: NO
+import org.rascalmpl.interpreter.types.NonTerminalType;			// remove import: NO
+import org.rascalmpl.interpreter.types.RascalTypeFactory;		// remove import: NO
+import org.rascalmpl.interpreter.types.ReifiedType;				// remove import: NO
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -62,7 +60,7 @@ public class Types {
 			return aliasToType(symbol, store);
 		}
 		else if (cons == Factory.Symbol_Bag) {
-			throw new NotYetImplemented("bags are not implemented yet");
+			throw new CompilerError("bags are not implemented yet");
 		}
 		else if (cons == Factory.Symbol_Cons) {
 			return consToType(symbol, store);
@@ -432,7 +430,7 @@ public class Types {
 					return visitFunctionType((FunctionType) externalType);
 				}
 				
-				throw new ImplementationError("unable to reify " + externalType);
+				throw new CompilerError("unable to reify " + externalType);
 			}
 
 			private IValue visitFunctionType(FunctionType externalType) {

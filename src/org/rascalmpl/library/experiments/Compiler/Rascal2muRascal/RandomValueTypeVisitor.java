@@ -38,8 +38,8 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.control_exceptions.Throw; // TODO: remove import?
 import org.rascalmpl.library.cobra.RandomType;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -203,8 +203,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
 	@Override
 	public IValue visitExternal(Type externalType) {
-		throw new Throw(vf.string("Can't handle ExternalType."),
-				(ISourceLocation) null, null);
+		throw new CompilerError("Can't handle ExternalType.");
 	}
 
 	@Override
@@ -371,8 +370,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
 	@Override
 	public IValue visitVoid(Type type) {
-		throw new Throw(vf.string("void has no values."),
-				(ISourceLocation) null, null);
+		throw new CompilerError("void has no values.");
 	}
 	
 	public static void main(String[] args) {
