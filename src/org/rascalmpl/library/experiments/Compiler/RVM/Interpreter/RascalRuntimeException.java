@@ -12,7 +12,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.asserts.ImplementationError; // TODO: remove import?
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalRuntimeException {
@@ -131,7 +130,7 @@ public class RascalRuntimeException {
 		return Thrown.getInstance(VF.constructor(Java, VF.string(clazz), VF.string(message)), loc, stacktrace);
 	}
 	
-	public static Thrown javaException(Throwable targetException, ISourceLocation loc, List<Frame> stacktrace) throws ImplementationError {
+	public static Thrown javaException(Throwable targetException, ISourceLocation loc, List<Frame> stacktrace) throws CompilerError {
 		try {
 			String clazz = targetException.getClass().getSimpleName();
 			String msg = targetException.getMessage();
@@ -146,7 +145,7 @@ public class RascalRuntimeException {
 				return javaException(clazz, msg != null ? msg : "", loc, trace);
 			}
 		} catch (IOException e) {
-			throw new ImplementationError("Could not create stack trace", e);
+			throw new CompilerError("Could not create stack trace: " + e);
 		}
 	}
 

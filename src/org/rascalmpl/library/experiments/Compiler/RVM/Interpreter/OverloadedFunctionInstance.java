@@ -2,7 +2,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
@@ -10,15 +9,10 @@ import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.rascalmpl.interpreter.IEvaluator;				// TODO: remove import?
-import org.rascalmpl.interpreter.IRascalMonitor;			// TODO: remove import?
-import org.rascalmpl.interpreter.env.Environment;			// TODO: remove import?
-import org.rascalmpl.interpreter.result.ICallableValue;		// TODO: remove import?
-import org.rascalmpl.interpreter.result.Result;				// TODO: remove import?
-import org.rascalmpl.interpreter.types.FunctionType;		// TODO: remove import?
-import org.rascalmpl.interpreter.types.RascalTypeFactory;	// TODO: remove import?
+import org.rascalmpl.interpreter.types.FunctionType;		// TODO: remove import: NO, harmless
+import org.rascalmpl.interpreter.types.RascalTypeFactory;	// TODO: remove import: NO harmless
 
-public class OverloadedFunctionInstance implements ICallableValue, IExternalValue {
+public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternalValue {
 	
 	final int[] functions;
 	final int[] constructors;
@@ -91,50 +85,50 @@ public class OverloadedFunctionInstance implements ICallableValue, IExternalValu
 		return null;
 	}
 
-	@Override
-	public int getArity() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public boolean hasVarArgs() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean hasKeywordArgs() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
-		// TODO: 
-		return null;
-	}
-
-	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
-		return this.call(null, argTypes, argValues, keyArgValues);
-	}
-
-	@Override
-	public ICallableValue cloneInto(Environment env) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean isStatic() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public IEvaluator<Result<IValue>> getEval() {
-		return rvm.getEvaluatorContext().getEvaluator();
-	}
+//	@Override
+//	public int getArity() {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	@Override
+//	public boolean hasVarArgs() {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
+//
+//	@Override
+//	public boolean hasKeywordArgs() {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
+//
+//	@Override
+//	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
+//		// TODO: 
+//		return null;
+//	}
+//
+//	@Override
+//	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
+//		return this.call(null, argTypes, argValues, keyArgValues);
+//	}
+//
+//	@Override
+//	public ICallableValue cloneInto(Environment env) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public boolean isStatic() {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
+//
+//	@Override
+//	public IEvaluator<Result<IValue>> getEval() {
+//		return rvm.getEvaluatorContext().getEvaluator();
+//	}
 
 }
