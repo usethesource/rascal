@@ -28,15 +28,14 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.Configuration;						// TODO: remove import?
-import org.rascalmpl.interpreter.Evaluator;							// TODO: remove import?
-import org.rascalmpl.interpreter.IRascalMonitor;					// TODO: remove import?
-import org.rascalmpl.interpreter.asserts.ImplementationError;		// TODO: remove import?
-import org.rascalmpl.interpreter.control_exceptions.Throw;			// TODO: remove import?
-import org.rascalmpl.interpreter.env.GlobalEnvironment;				// TODO: remove import?
-import org.rascalmpl.interpreter.env.ModuleEnvironment;				// TODO: remove import?
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;	// TODO: remove import?
-import org.rascalmpl.interpreter.utils.JavaBridge;					// TODO: remove import?
+import org.rascalmpl.interpreter.Configuration;						// remove import: NO
+import org.rascalmpl.interpreter.Evaluator;							// TODO: remove import: YES
+import org.rascalmpl.interpreter.IRascalMonitor;					// remove import: NO
+import org.rascalmpl.interpreter.control_exceptions.Throw;			// TODO: remove import: LATER
+import org.rascalmpl.interpreter.env.GlobalEnvironment;				// TODO: remove import: YES
+import org.rascalmpl.interpreter.env.ModuleEnvironment;				// TODO: remove import: YES
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;	// remove import: NO
+import org.rascalmpl.interpreter.utils.JavaBridge;					// remove import: NO
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -111,17 +110,17 @@ public class ParserGenerator {
 				} catch (ClassNotFoundException e) {
 					continue;
 				} catch (InstantiationException e) {
-					throw new ImplementationError("could not instantiate " + className + " to valid IGTD parser", e);
+					throw new CompilerError("could not instantiate " + className + " to valid IGTD parser: " + e.getMessage());
 				} catch (IllegalAccessException e) {
-					throw new ImplementationError("not allowed to instantiate " + className + " to valid IGTD parser", e);
+					throw new CompilerError("not allowed to instantiate " + className + " to valid IGTD parser: " + e.getMessage());
 				}
 			}
-			throw new ImplementationError("class for cached parser " + className + " could not be found");
+			throw new CompilerError("class for cached parser " + className + " could not be found");
 
 		}  catch (ClassCastException e) {
-			throw new ImplementationError("parser generator:" + e.getMessage(), e);
+			throw new CompilerError("parser generator:" + e.getMessage() + ", " + e);
 		} catch (Throw e) {
-			throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
+			throw new CompilerError("parser generator: " + e.getMessage() + e.getTrace());
 		} finally {
 			monitor.endJob(true);
 		}
@@ -145,9 +144,9 @@ public class ParserGenerator {
 			monitor.event("compiling generated java code: " + name, 10);
 			return bridge.compileJava(loc, packageName + ".$Rascal_" + normName, objectParser.getClass(), classString.getValue());
 		}  catch (ClassCastException e) {
-			throw new ImplementationError("meta parser generator:" + e.getMessage(), e);
+			throw new CompilerError("meta parser generator:" + e.getMessage() + e);
 		} catch (Throw e) {
-			throw new ImplementationError("meta parser generator: " + e.getMessage() + e.getTrace());
+			throw new CompilerError("meta parser generator: " + e.getMessage() + e.getTrace());
 		}
 	}
 
@@ -253,9 +252,9 @@ public class ParserGenerator {
   		monitor.event("Compiling generated java code: " + name, 30);
   		return bridge.compileJava(loc, packageName + "." + normName, this.getClass(), classString.getValue());
   	}  catch (ClassCastException e) {
-  		throw new ImplementationError("parser generator:" + e.getMessage(), e);
+  		throw new CompilerError("parser generator:" + e.getMessage() + e);
   	} catch (Throw e) {
-  		throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
+  		throw new CompilerError("parser generator: " + e.getMessage() + e.getTrace());
   	} finally {
   		monitor.endJob(true);
   	}
