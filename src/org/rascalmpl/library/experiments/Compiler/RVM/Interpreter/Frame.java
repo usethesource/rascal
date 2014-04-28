@@ -5,9 +5,9 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import?
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Frame {
 	int scopeId;
@@ -160,7 +160,7 @@ public class Frame {
 			if(function.nformals == arity && ((IValue) stack[start + posArityMinusOne]).getType().isSubtypeOf(argTypes.getFieldType(posArityMinusOne))) {
 				this.stack[this.sp++] = stack[start + posArityMinusOne];
 			} else {
-				IListWriter writer = ValueFactory.getInstance().listWriter();
+				IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
 				for(int i = posArityMinusOne; i < arity - 1; i++) {
 					writer.append((IValue) stack[start + i]);
 				}
