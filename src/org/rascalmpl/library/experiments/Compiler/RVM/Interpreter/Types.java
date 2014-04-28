@@ -13,10 +13,10 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.types.FunctionType;			// remove import: NO
-import org.rascalmpl.interpreter.types.NonTerminalType;			// remove import: NO
-import org.rascalmpl.interpreter.types.RascalTypeFactory;		// remove import: NO
-import org.rascalmpl.interpreter.types.ReifiedType;				// remove import: NO
+import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
