@@ -9,12 +9,12 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.rascalmpl.interpreter.IEvaluator;				// TODO: remove import?
-import org.rascalmpl.interpreter.IRascalMonitor;			// TODO: remove import?
-import org.rascalmpl.interpreter.env.Environment;			// TODO: remove import?
-import org.rascalmpl.interpreter.result.ICallableValue;		// TODO: remove import?
-import org.rascalmpl.interpreter.result.Result;				// TODO: remove import?
-import org.rascalmpl.interpreter.result.ResultFactory;		// TODO: remove import?
+import org.rascalmpl.interpreter.IEvaluator;				// TODO: remove import: NOT YET
+import org.rascalmpl.interpreter.IRascalMonitor;			// TODO: remove import: NOT YET
+import org.rascalmpl.interpreter.env.Environment;			// TODO: remove import: NOT YET
+import org.rascalmpl.interpreter.result.ICallableValue;		// TODO: remove import: NOT YET
+import org.rascalmpl.interpreter.result.Result;				// TODO: remove import: NOT YET
+import org.rascalmpl.interpreter.result.ResultFactory;		// TODO: remove import: NOT YET
 
 public class FunctionInstance implements ICallableValue, IExternalValue {
 	
