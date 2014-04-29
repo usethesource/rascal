@@ -419,6 +419,20 @@ public class RVM {
 		this.trace = this.trace + trace + "\n";
 	}
 	
+	public String findVarName(Frame cf, int s, int pos){
+		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+			if (fr.scopeId == s) {
+				return findLocalName(fr, pos);
+			}
+		}
+		return "** unknown variable **";
+	}
+	
+	public String findLocalName(Frame cf, int pos){
+		IString name =  ((IString) cf.function.localNames.get(vf.integer(pos)));
+		return (name != null) ? name.getValue() : "** unknown variable **";
+	}
+	
 	
 	public IValue executeProgram(String uid_main, IValue[] args) {
 		
@@ -476,10 +490,12 @@ public class RVM {
 		int pc = 0;				                                      	// current program counter
 		int postOp = 0;
 		int pos = 0;
+		int varScope = -1;
 		ArrayList<Frame> stacktrace = new ArrayList<Frame>();
 		Thrown thrown = null;
 		int arity;
 		String last_function_name = "";
+		String last_var_name = "unknown";
 		
 		// Overloading specific
 		Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
@@ -522,43 +538,43 @@ public class RVM {
 					
 				case Opcode.OP_LOADLOC0:
 					if(stack[0] != null){ stack[sp++] = stack[0]; continue NEXT_INSTRUCTION; }
-					pos = 0; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					last_var_name = findLocalName(cf, 0); postOp = Opcode.POSTOP_CHECKUNDEF;	break;
 					
 				case Opcode.OP_LOADLOC1:
 					if(stack[1] != null){ stack[sp++] = stack[1]; continue NEXT_INSTRUCTION; }
-					pos = 1; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					last_var_name = findLocalName(cf, 1); postOp = Opcode.POSTOP_CHECKUNDEF;	break;
 					
 				case Opcode.OP_LOADLOC2:
 					if(stack[2] != null){ stack[sp++] = stack[2]; continue NEXT_INSTRUCTION; }
-					pos = 2; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					last_var_name = findLocalName(cf, 2); postOp = Opcode.POSTOP_CHECKUNDEF;	break;
 					
 				case Opcode.OP_LOADLOC3:
 					if(stack[3] != null){ stack[sp++] = stack[3]; continue NEXT_INSTRUCTION; }
-					pos = 3; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					last_var_name = findLocalName(cf, 3); postOp = Opcode.POSTOP_CHECKUNDEF;	break;
 					
 				case Opcode.OP_LOADLOC4:
 					if(stack[4] != null){ stack[sp++] = stack[4]; continue NEXT_INSTRUCTION; }
-					pos = 4; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					last_var_name = findLocalName(cf, 4); postOp = Opcode.POSTOP_CHECKUNDEF;	break;
 					
 				case Opcode.OP_LOADLOC5:
 					if(stack[5] != null){ stack[sp++] = stack[5]; continue NEXT_INSTRUCTION; }
-					pos = 5; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					last_var_name = findLocalName(cf, 5); postOp = Opcode.POSTOP_CHECKUNDEF;	break;
 					
 				case Opcode.OP_LOADLOC6:
 					if(stack[6] != null){ stack[sp++] = stack[6]; continue NEXT_INSTRUCTION; }
-					pos = 6; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					last_var_name = findLocalName(cf, 6); postOp = Opcode.POSTOP_CHECKUNDEF;	break;
 					
 				case Opcode.OP_LOADLOC7:
 					if(stack[7] != null){ stack[sp++] = stack[7]; continue NEXT_INSTRUCTION; }
-					pos = 7; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					last_var_name = findLocalName(cf, 7); postOp = Opcode.POSTOP_CHECKUNDEF;	break;
 					
 				case Opcode.OP_LOADLOC8:
 					if(stack[8] != null){ stack[sp++] = stack[8]; continue NEXT_INSTRUCTION; }
-					pos = 8; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					last_var_name = findLocalName(cf, 8); postOp = Opcode.POSTOP_CHECKUNDEF;	break;
 					
 				case Opcode.OP_LOADLOC9:
 					if(stack[9] != null){ stack[sp++] = stack[9]; continue NEXT_INSTRUCTION; }
-					pos = 9; postOp = Opcode.POSTOP_CHECKUNDEF;	break;
+					last_var_name = findLocalName(cf, 9); postOp = Opcode.POSTOP_CHECKUNDEF;	break;
 				
 				case Opcode.OP_LOADLOC:
 					pos = CodeBlock.fetchArg1(instruction);
@@ -567,6 +583,7 @@ public class RVM {
 						stack[sp++] = rval;
 						continue NEXT_INSTRUCTION;
 					}
+					last_var_name = findLocalName(cf, pos);
 					postOp = Opcode.POSTOP_CHECKUNDEF;	
 					break;
 					
@@ -672,12 +689,13 @@ public class RVM {
 				
 				case Opcode.OP_LOADVAR:
 				case Opcode.OP_LOADVARREF: {
-					int s = CodeBlock.fetchArg1(instruction);
+					varScope = CodeBlock.fetchArg1(instruction);
 					pos = CodeBlock.fetchArg2(instruction);
 					
 					if(CodeBlock.isMaxArg2(pos)){
-						rval = moduleVariables.get(cf.function.constantStore[s]);
+						rval = moduleVariables.get(cf.function.constantStore[varScope]);
 						if(op == Opcode.OP_LOADVAR && rval == null) {
+							last_var_name = ((IString) cf.function.constantStore[varScope]).getValue();
 							postOp = Opcode.POSTOP_CHECKUNDEF; break INSTRUCTION;
 						}					
 						stack[sp++] = rval;
@@ -685,16 +703,17 @@ public class RVM {
 					}
 					
 					for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-						if (fr.scopeId == s) {
+						if (fr.scopeId == varScope) {
 							rval = (op == Opcode.OP_LOADVAR) ? fr.stack[pos] : new Reference(fr.stack, pos);
 							if(op == Opcode.OP_LOADVAR && rval == null) {
+								last_var_name = findVarName(fr, varScope, pos);
 								postOp = Opcode.POSTOP_CHECKUNDEF; break INSTRUCTION;
 							}						
 							stack[sp++] = rval;
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new CompilerError("LOADVAR or LOADVARREF cannot find matching scope: " + s);
+					throw new CompilerError("LOADVAR or LOADVARREF cannot find matching scope: " + varScope);
 				}
 				
 				case Opcode.OP_LOADVARDEREF: {
@@ -1398,7 +1417,7 @@ public class RVM {
 					if(postOp == Opcode.POSTOP_CHECKUNDEF) {
 						stacktrace = new ArrayList<Frame>();
 						stacktrace.add(cf);
-						thrown = RascalRuntimeException.uninitializedVariable(pos, stacktrace);
+						thrown = RascalRuntimeException.uninitializedVariable(last_var_name, stacktrace);
 					}
 					cf.pc = pc;
 					// First, try to find a handler in the current frame function,

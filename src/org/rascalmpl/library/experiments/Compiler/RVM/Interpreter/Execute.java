@@ -224,6 +224,7 @@ public class Execute {
 		}
 		
 		Integer nlocals = ((IInteger) declaration.get("nlocals")).intValue();
+		IMap localNames = ((IMap) declaration.get("localNames"));
 		Integer nformals = ((IInteger) declaration.get("nformals")).intValue();
 		Integer maxstack = ((IInteger) declaration.get("maxStack")).intValue();
 		IList code = (IList) declaration.get("instructions");
@@ -522,7 +523,7 @@ public class Execute {
 			throw new CompilerError("In function " + name + " : " + e.getMessage());
 		}
 		
-		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, maxstack, codeblock, src);
+		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src);
 		if(isCoroutine) {
 			function.isCoroutine = true;
 			IList refList = (IList) declaration.get("refs");

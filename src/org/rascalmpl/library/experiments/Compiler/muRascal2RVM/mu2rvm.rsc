@@ -33,6 +33,10 @@ void set_nlocals(int n) {
 	nlocal[functionScope] = n;
 }
 
+// Map names of <fuid, pos> pairs to local variable names ; Note this info could also be collected in Rascal2muRascal
+
+map[int, str] localNames = ();
+
 // Systematic label generation related to loops
 
 str mkContinue(str loopname) = "CONTINUE_<loopname>";
@@ -187,6 +191,7 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
  
   for(fun <- functions){
     functionScope = fun.qname;
+    localNames = ();
     exceptionTable = [];
     catchBlocks = [[]];
     if(listing){
@@ -196,6 +201,8 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     // Append catch blocks to the end of the function body code
     // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
     code = peephole(tr(fun.body)) + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    
+    println("mu2rvm: <fun.qname>: <localNames>");
     
     // Debugging exception handling
     // println("FUNCTION BODY:");
@@ -210,11 +217,11 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body);
     lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
     																			  tuple[str from, str to] range <- entry.ranges ];
-    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.scopeIn, fun.nformals, nlocal[functionScope], fun.refs, |unknown:///|, required_frame_size, code))
-    							   : (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal[functionScope], fun.isVarArgs, fun.src, required_frame_size, code, exceptions));
+    funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.refs, |unknown:///|, required_frame_size, code))
+    							   : (fun.qname : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.isVarArgs, fun.src, required_frame_size, code, exceptions));
   }
   
-  funMap += ( module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 2, nlocal[module_init_fun], false, |unknown:///|, estimate_stack_size(initializations) + size(variables) + 2,
+  funMap += ( module_init_fun : FUNCTION(module_init_fun, ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, |unknown:///|, estimate_stack_size(initializations) + size(variables) + 2,
   								    [*trvoidblock(initializations), 
   								     LOADCON(true),
   								     RETURN1(1),
@@ -298,8 +305,17 @@ INS tr(muConstr(str fuid)) = [LOADCONSTR(fuid)];
 
 // Variables and assignment
 
-INS tr(muVar(str id, str fuid, int pos)) = [fuid == functionScope ? LOADLOC(pos) : LOADVAR(fuid, pos)];
-INS tr(muLoc(str id, int pos)) = [LOADLOC(pos)];
+INS tr(muVar(str id, str fuid, int pos)) {
+    if(fuid == functionScope){
+       localNames[pos] = id;
+       return [ LOADLOC(pos) ];
+    } else {
+       return [ LOADVAR(fuid, pos) ];
+    }
+}
+
+INS tr(muLoc(str id, int pos)) { localNames[pos] = id; return [LOADLOC(pos)];}
+
 INS tr(muTmp(str id,str fuid)) = [fuid == functionScope ? LOADLOC(getTmp(id,fuid)) : LOADVAR(fuid,getTmp(id,fuid))];
 
 INS tr(muLocKwp(str name)) = [ LOADLOCKWP(name) ];
@@ -315,8 +331,18 @@ INS tr(muTmpRef(str name, str fuid)) = [ fuid == functionScope ? LOADLOCREF(getT
 INS tr(muAssignLocDeref(str id, int pos, MuExp exp)) = [ *tr(exp), STORELOCDEREF(pos) ];
 INS tr(muAssignVarDeref(str id, str fuid, int pos, MuExp exp)) = [ *tr(exp), fuid == functionScope ? STORELOCDEREF(pos) : STOREVARDEREF(fuid, pos) ];
 
-INS tr(muAssign(str id, str fuid, int pos, MuExp exp)) = [*tr(exp), fuid == functionScope ? STORELOC(pos) : STOREVAR(fuid, pos)];
-INS tr(muAssignLoc(str id, int pos, MuExp exp)) = [*tr(exp), STORELOC(pos) ];
+INS tr(muAssign(str id, str fuid, int pos, MuExp exp)) { 
+     if(fuid == functionScope){
+        localNames[pos] = id; 
+        return [ *tr(exp), STORELOC(pos) ];
+     } else {
+        return [*tr(exp), STOREVAR(fuid, pos)];
+     }
+}     
+INS tr(muAssignLoc(str id, int pos, MuExp exp)) { 
+    localNames[pos] = id;
+    return [*tr(exp), STORELOC(pos) ];
+}
 INS tr(muAssignTmp(str id, str fuid, MuExp exp)) = [*tr(exp), fuid == functionScope ? STORELOC(getTmp(id,fuid)) : STOREVAR(fuid,getTmp(id,fuid)) ];
 
 INS tr(muAssignLocKwp(str name, MuExp exp)) = [ *tr(exp), STORELOCKWP(name) ];
