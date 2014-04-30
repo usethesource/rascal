@@ -19,6 +19,7 @@ public GrammarDefinition resolve(GrammarDefinition d) {
   cd = {n | m <- d.modules, \sort(n) <- d.modules[m].grammar.rules};
   pcd = {n | m <- d.modules, \parameterized-sort(n,_) <- d.modules[m].grammar.rules};
   lx = {n | m <- d.modules, \lex(n) <- d.modules[m].grammar.rules};
+  tk = {n | m <- d.modules, \token(n) <- d.modules[m].grammar.rules};
   plx = {n | m <- d.modules, \parameterized-lex(n,_) <- d.modules[m].grammar.rules};
   ks = {n | m <- d.modules, \keywords(n) <- d.modules[m].grammar.rules};
   ls = {n | m <- d.modules, \layouts(n) <- d.modules[m].grammar.rules};
@@ -28,6 +29,7 @@ public GrammarDefinition resolve(GrammarDefinition d) {
       if (n in lx) insert \lex(n);
       if (n in ks) insert \keywords(n);
       if (n in ls) insert \layouts(n);
+      if (n in tk) insert \token(n);
       fail;
     }
     case \parameterized-sort(n,ps) : {
@@ -38,10 +40,18 @@ public GrammarDefinition resolve(GrammarDefinition d) {
       if (n in cd) insert \sort(n);
       if (n in ks) insert \keywords(n);
       if (n in ls) insert \layouts(n);
+      if (n in tk) insert \token(n);
       fail;
     }
     case \parameterized-lex(n,ps) : {
       if (n in pcd) insert \parameterized-sort(n,ps);
+      fail;
+    }
+    case token(n) : {
+      if (n in cd) insert \sort(n);
+      if (n in ks) insert \keywords(n);
+      if (n in ls) insert \layouts(n);
+      if (n in lx) insert \lex(n);
       fail;
     }
   }
