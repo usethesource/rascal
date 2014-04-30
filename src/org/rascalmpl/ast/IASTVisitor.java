@@ -701,6 +701,8 @@ public interface IASTVisitor<T> {
 
   public T visitSyntaxDefinitionLexical(SyntaxDefinition.Lexical x);
 
+  public T visitSyntaxDefinitionToken(SyntaxDefinition.Token x);
+
   public T visitTagDefault(Tag.Default x);
 
   public T visitTagEmpty(Tag.Empty x);

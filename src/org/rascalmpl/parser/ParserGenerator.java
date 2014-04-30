@@ -97,6 +97,7 @@ public class ParserGenerator {
 			debugOutput(grammar.toString(), System.getProperty("java.io.tmpdir") + "/grammar.trm");
 			String normName = name.replaceAll("::", "_");
 			monitor.event("Generating java source code for parser: " + name,30);
+			// TODO: Ali look here
 			IString classString = (IString) evaluator.call(monitor, "generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
 			debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
 			monitor.event("Compiling generated java code: " + name, 30);

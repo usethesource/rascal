@@ -1385,6 +1385,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitSyntaxDefinitionToken(SyntaxDefinition.Token x) { 
+    return null; 
+  }
+
   public T visitTagDefault(Tag.Default x) { 
     return null; 
   }

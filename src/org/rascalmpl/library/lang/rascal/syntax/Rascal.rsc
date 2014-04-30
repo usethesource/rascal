@@ -712,6 +712,7 @@ keyword RascalKeywords
 	| "public" 
 	| "one" 
 	| "throw" 
+	| "token"
 	| "set" 
 	| "start"
 	| "datetime" 
