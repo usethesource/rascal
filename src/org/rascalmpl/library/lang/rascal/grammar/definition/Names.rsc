@@ -47,7 +47,7 @@ public GrammarDefinition resolve(GrammarDefinition d) {
       if (n in pcd) insert \parameterized-sort(n,ps);
       fail;
     }
-    case token(n) : {
+    case \token(n) : {
       if (n in cd) insert \sort(n);
       if (n in ks) insert \keywords(n);
       if (n in ls) insert \layouts(n);
