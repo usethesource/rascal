@@ -35,6 +35,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.ast.Expression;
@@ -150,31 +151,61 @@ public class NodePattern extends AbstractMatchingResult {
 			}
 		}
 
-		Map<String, IKeywordParameterInitializer> defaults = type.getKeywordParameterInitializers();
-		Set<Entry<String, IMatchingResult>> kwParamsSet = keywordParameters.entrySet();
-		
-		for (Entry<String,IMatchingResult> entry : kwParamsSet) {
+		if (type.hasKeywordParameters()) {
+			ImmutableMap<String, IValue> kwEnv = AbstractSpecialisedImmutableMap.mapOf();
+			
+			// We have to be careful to match the keyword parameters in order of their declaration in the constructor
+			// because the default values may have data dependencies going from right to left in the declaration, at the 
+			// same time the concrete value may override default values.
+			for (String kwLabel : type.getKeywordParameterTypes().getFieldNames()) {
+				IWithKeywordParameters<? extends INode> wkw = this.subject.asWithKeywordParameters();
+				IValue subjectParam = wkw.getParameter(kwLabel);
+				
+				if (subjectParam == null) { 
+					// the subject does not have the keyword parameter, but we know how to get a default value
+					// note that wkw.getParameter could return a default value as well, but this is not guaranteed because
+					// its value could have been generated in a context where the default is not defined, yet the constructor
+					// name and the arity matches. So here, we find a default from the declaring context of the pattern.
+					subjectParam = type.getKeywordParameterInitializer(kwLabel).initialize(kwEnv);
+				}
+				
+				kwEnv = kwEnv.__put(kwLabel, subjectParam);
+				
+				if (keywordParameters.containsKey(kwLabel)) {
+					IMatchingResult matcher = keywordParameters.get(kwLabel);
+					matcher.initMatch(ResultFactory.makeResult(type.getKeywordParameterType(kwLabel), subjectParam, ctx));
+					
+					if (!matcher.hasNext()) {
+						// the matcher can never work, so we can skip initializing the rest
+						hasNext = false;
+						break;
+					}
+				}
+			}
+		}
+		else {
+			// the matching side has no declared keyword parameters (an untyped node), so we do not have default values to take care of
 			IWithKeywordParameters<? extends INode> wkw = this.subject.asWithKeywordParameters();
-			IValue subjectParam = wkw.getParameter(entry.getKey());
-			Type subjectParamType;
-
-			if (subjectParam == null && type.hasKeywordParameters()) {
-				// this happens when a constructor matches, but the keyword parameters are not defined
-				// for it, perhaps it came from a module where the parameters was not defined yet..
-				// we now have to initialize keyword parameters in order 
-				subjectParam = defaults.get(entry.getKey());
-				subjectParamType = type.getKeywordParameterType(entry.getKey());
-			}
-			else {
-				// TODO: here we are using the dynamic type, is that what we are supposed to do?
-				subjectParamType = subject.getType().isConstructor() ? subjectParam.getType() : tf.valueType();
-			}
-
-			entry.getValue().initMatch(ResultFactory.makeResult(subjectParamType, subjectParam, ctx));
-
-			hasNext = subjectParam != null && entry.getValue().hasNext();
-			if (!hasNext) {
-				break;
+			
+			for (Entry<String,IMatchingResult> entry : keywordParameters.entrySet()) {
+				IValue subjectParam = wkw.getParameter(entry.getKey());
+				
+				if (subjectParam != null) {
+					// we are matching a keyword parameter, and indeed the subject has one
+					IMatchingResult matcher = entry.getValue();
+					matcher.initMatch(ResultFactory.makeResult(tf.valueType(), subjectParam, ctx));
+					
+					if (!matcher.hasNext()) {
+						// the subject parameter can never match so we bail out early
+						hasNext = false;
+						break;
+					}
+				}
+				else {
+					// we are matching a keyword parameter, but the subject has none.
+					hasNext = false;
+					break;
+				}
 			}
 		}
 
