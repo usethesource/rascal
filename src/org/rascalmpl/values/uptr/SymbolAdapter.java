@@ -586,6 +586,10 @@ public class SymbolAdapter {
 		return rhs.getConstructorType() == Factory.Symbol_Lex;
 	}
 	
+	public static boolean isToken(IConstructor rhs) {
+		return rhs.getConstructorType() == Factory.Symbol_Token;
+	}
+	
 	public static boolean isKeyword(IConstructor rhs) {
 		return rhs.getConstructorType() == Factory.Symbol_Keyword;
 	}

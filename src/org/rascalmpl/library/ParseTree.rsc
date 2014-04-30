@@ -154,6 +154,7 @@ data Symbol
      | \lex(str name) 
      | \layouts(str name) 
      | \keywords(str name)
+     | \token(str name)
      | \parameterized-sort(str name, list[Symbol] parameters)  
      | \parameterized-lex(str name, list[Symbol] parameters)  
      ; 

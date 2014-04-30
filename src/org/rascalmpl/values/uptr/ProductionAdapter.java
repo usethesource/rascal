@@ -109,7 +109,8 @@ public class ProductionAdapter {
 				|| SymbolAdapter.isLex(rhs) 
 				|| SymbolAdapter.isLayouts(rhs) 
 				|| SymbolAdapter.isParameterizedSort(rhs)
-				|| SymbolAdapter.isKeyword(rhs)) {
+				|| SymbolAdapter.isKeyword(rhs)
+				|| SymbolAdapter.isToken(rhs)) {
 			return SymbolAdapter.getName(rhs);
 		} 
 		
@@ -158,7 +159,11 @@ public class ProductionAdapter {
 	public static boolean isLexical(IConstructor tree) {
 		return SymbolAdapter.isLex(getType(tree));
 	}
-	
+
+	public static boolean isToken(IConstructor tree) {
+		return SymbolAdapter.isToken(getType(tree));
+	}
+
 	public static boolean isSort(IConstructor tree) {
 		return SymbolAdapter.isSort(getType(tree));
 	}
