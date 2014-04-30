@@ -193,9 +193,10 @@ public class TypeDeclarationEvaluator {
 					return new Environment(eval.getCurrentEnvt().getLocation(), "init") {
 						@Override
 						public Result<IValue> getVariable(String name) {
-							// TODO: make sure the values and types of the positional parameters are also available
 							if (environment.containsKey(name)) {
-								return ResultFactory.makeResult(kwType.getFieldType(name), environment.get(name), eval);
+								IValue v = environment.get(name);
+								// we loose static type information for the variables used in the initializers here.
+								return ResultFactory.makeResult(/*kwType.getFieldType(name)*/ v.getType(), v, eval);
 							}
 							else {
 								return super.getVariable(name);
