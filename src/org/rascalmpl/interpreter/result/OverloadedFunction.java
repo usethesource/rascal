@@ -80,19 +80,23 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	  for (AbstractFunction c : primaryCandidates) {
 	    Type args = c.getKeywordArgumentTypes();
 	    
-	    for (String label : args.getFieldNames()) {
-	    	labels.add(label);
-	    	types.add(args.getFieldType(label));
+	    if (args != null && args.hasKeywordParameters()) {
+	    	for (String label : args.getFieldNames()) {
+	    		labels.add(label);
+	    		types.add(args.getFieldType(label));
+	    	}
 	    }
 	  }
 	  
 	  for (AbstractFunction c : defaultCandidates) {
 		  Type args = c.getKeywordArgumentTypes();
 
-		  for (String label : args.getFieldNames()) {
-			  labels.add(label);
-			  types.add(args.getFieldType(label));
-		  }  
+		  if (args != null && args.hasKeywordParameters()) {
+			  for (String label : args.getFieldNames()) {
+				  labels.add(label);
+				  types.add(args.getFieldType(label));
+			  }  
+		  }
 	  }
 	  
 	  return TF.tupleType(types.toArray(new Type[types.size()]), labels.toArray(new String[labels.size()])); 

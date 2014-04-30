@@ -216,26 +216,28 @@ abstract public class NamedFunction extends AbstractFunction {
     Environment env = ctx.getCurrentEnvt();
     ImmutableMap<String,IValue> args = AbstractSpecialisedImmutableMap.mapOf();
     
-    for (String kwparam : functionType.getKeywordParameterTypes().getFieldNames()){
-      Type kwType = functionType.getKeywordParameterType(kwparam);
-      
-      if (keyArgValues.containsKey(kwparam)){
-        IValue r = keyArgValues.get(kwparam);
-        
-        if(!r.getType().isSubtypeOf(kwType)) {
-          throw new UnexpectedKeywordArgumentType(kwparam, kwType, r.getType(), ctx.getCurrentAST());
-        }
-        
-        args = args.__put(kwparam, r);
-        env.declareVariable(kwType, kwparam);
-        env.storeVariable(kwparam, ResultFactory.makeResult(kwType, r, ctx));
-      } 
-      else {
-        env.declareVariable(kwType, kwparam);
-        IValue def = functionType.getKeywordParameterInitializer(kwparam).initialize(args);
-        args = args.__put(kwparam, def);
-		env.storeVariable(kwparam, ResultFactory.makeResult(kwType, def, ctx));
-      }
+    if (functionType.hasKeywordParameters()) {
+    	for (String kwparam : functionType.getKeywordParameterTypes().getFieldNames()){
+    		Type kwType = functionType.getKeywordParameterType(kwparam);
+
+    		if (keyArgValues.containsKey(kwparam)){
+    			IValue r = keyArgValues.get(kwparam);
+
+    			if(!r.getType().isSubtypeOf(kwType)) {
+    				throw new UnexpectedKeywordArgumentType(kwparam, kwType, r.getType(), ctx.getCurrentAST());
+    			}
+
+    			args = args.__put(kwparam, r);
+    			env.declareVariable(kwType, kwparam);
+    			env.storeVariable(kwparam, ResultFactory.makeResult(kwType, r, ctx));
+    		} 
+    		else {
+    			env.declareVariable(kwType, kwparam);
+    			IValue def = functionType.getKeywordParameterInitializer(kwparam).initialize(args);
+    			args = args.__put(kwparam, def);
+    			env.storeVariable(kwparam, ResultFactory.makeResult(kwType, def, ctx));
+    		}
+    	}
     }
     
     // TODO: what if the caller provides more arguments then are declared? They are
