@@ -64,19 +64,47 @@ public abstract class SyntaxDefinition extends
 		public IConstructor getTree() {
 			return node;
 		}
-		
+
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-		  Sym type = getDefined();
-      IValueFactory vf = eval.getValueFactory();
-      
-      if (type.isNonterminal()) {
-        String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-        eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(Factory.Symbol_Sort, vf.string(nt)));
-      }
-      
-      eval.getCurrentModuleEnvironment().declareProduction(getTree());
-      return null;
+			Sym type = getDefined();
+			IValueFactory vf = eval.getValueFactory();
+
+			if (type.isNonterminal()) {
+				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
+				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(Factory.Symbol_Lex, vf.string(nt)));
+			}
+
+			eval.getCurrentModuleEnvironment().declareProduction(getTree());
+			return null;
+		}
+	}
+	
+	public static class Token extends org.rascalmpl.ast.SyntaxDefinition.Token {
+		private final IConstructor node;
+
+		public Token(IConstructor node, Sym defined, Prod production) {
+			super(node, defined, production);
+			this.node = node;
+		}
+
+		@Override
+		public IConstructor getTree() {
+			return node;
+		}
+
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+			Sym type = getDefined();
+			IValueFactory vf = eval.getValueFactory();
+
+			if (type.isNonterminal()) {
+				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
+				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(Factory.Symbol_Token, vf.string(nt)));
+			}
+
+			eval.getCurrentModuleEnvironment().declareProduction(getTree());
+			return null;
 		}
 	}
 	
