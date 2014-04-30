@@ -14,8 +14,8 @@ public Grammar preprocess(Grammar gr) {
   gr = addHoles(gr);
   gr = literals(gr);
   gr = expandKeywords(gr);
-  gr = flattenTokens(gr);
   gr = makeRegularStubs(expandRegularSymbols(makeRegularStubs(gr)));
+  gr = flattenTokens(gr);
   gr = expandParameterizedSymbols(gr);
   gr = addNotAllowedSets(gr);
   gr = prioAssocToChoice(gr);

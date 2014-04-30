@@ -16,7 +16,7 @@ Grammar flattenTokens(Grammar g) {
   return inlineProductions(flattenChoices(g));
 }
 
-Production inlineProductions(Grammar g) = innermost visit(g) {
+Grammar inlineProductions(Grammar g) = innermost visit(g) {
   case prod(\token(n), ss:/Symbol def,at)  => prod(\token(n), replaceDefinitions(ss, g), at)  when (def is \token || def is lit || def is cilit)
 };
 
@@ -32,6 +32,8 @@ Production removeSeq(Production p) = visit(p) {
 
 Grammar flattenChoices(g) = innermost visit(g) {
   case choice(\token(n), alts)    => prod(\token(n), [alt({alt is prod ? seq(alt.symbols) : alt.def | alt <- alts})], {})
+  case choice(\lit(n), alts)      => prod(\lit(n), [alt({alt is prod ? seq(alt.symbols) : alt.def | alt <- alts})], {})
+  case choice(\cilit(n), alts)    => prod(\cilit(n), [alt({alt is prod ? seq(alt.symbols) : alt.def | alt <- alts})], {})
   case priority(def, choices)     : throw "priority not supported in lexical definition for <def>";
   case associativity(def, _,alts) : throw "associativity not supported in lexical definition for <def>";
 };
