@@ -169,6 +169,7 @@ public class NodePattern extends AbstractMatchingResult {
 					subjectParam = type.getKeywordParameterInitializer(kwLabel).initialize(kwEnv);
 				}
 				
+				// update the initialization environment which is shared from left to right between the initializers
 				kwEnv = kwEnv.__put(kwLabel, subjectParam);
 				
 				if (keywordParameters.containsKey(kwLabel)) {
