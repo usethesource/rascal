@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.PrintWriter;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 
@@ -42,6 +43,12 @@ public class Thrown extends RuntimeException {
 		return value.toString();
 	}
 	
+	public String getAdvice(){
+		String prefix = "http://tutor.rascal-mpl.org/Errors/Dynamic/";
+		String cn = ((IConstructor) value).getName();
+		return "\uE007[Advice](" + prefix + cn + "/" + cn + ".html)";
+	}
+	
 	public void printStackTrace(PrintWriter stdout) {
 		stdout.println(this.toString() + ((loc !=null) ? " at " + loc : "") );
 		if(stacktrace != null){
@@ -52,6 +59,8 @@ public class Thrown extends RuntimeException {
 				}
 			}
 		}
+		stdout.println(getAdvice());
+		
 	}
 	
 }
