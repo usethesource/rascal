@@ -182,6 +182,9 @@ public class NodePattern extends AbstractMatchingResult {
 						break;
 					}
 				}
+				
+				// note if there is no matcher for the current parameter, still we have initialized it because the next
+				// keyword parameter that who do match on may depend on its dynamic value.
 			}
 		}
 		else {
