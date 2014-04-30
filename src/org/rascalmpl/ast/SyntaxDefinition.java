@@ -270,4 +270,52 @@ public abstract class SyntaxDefinition extends AbstractAST {
       return true;
     }	
   }
+  public boolean isToken() {
+    return false;
+  }
+
+  static public class Token extends SyntaxDefinition {
+    // Production: sig("Token",[arg("org.rascalmpl.ast.Sym","defined"),arg("org.rascalmpl.ast.Prod","production")])
+  
+    
+    private final org.rascalmpl.ast.Sym defined;
+    private final org.rascalmpl.ast.Prod production;
+  
+    public Token(IConstructor node , org.rascalmpl.ast.Sym defined,  org.rascalmpl.ast.Prod production) {
+      super(node);
+      
+      this.defined = defined;
+      this.production = production;
+    }
+  
+    @Override
+    public boolean isToken() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSyntaxDefinitionToken(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getDefined() {
+      return this.defined;
+    }
+  
+    @Override
+    public boolean hasDefined() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Prod getProduction() {
+      return this.production;
+    }
+  
+    @Override
+    public boolean hasProduction() {
+      return true;
+    }	
+  }
 }

@@ -17,8 +17,8 @@ private str package = "org.rascalmpl.library.lang.rascal.syntax";
 private loc inputFolder = |rascal:///lang/rascal/syntax|;
 //private loc outputFolder = |boot:///src/org/rascalmpl/library/lang/rascal/syntax|;
 //private loc astFolder = |boot:///src/org/rascalmpl/ast|;
-private loc outputFolder = |home:///git/rascal/src/org/rascalmpl/library/lang/rascal/syntax|;
-private loc astFolder = |home:///git/rascal/src/org/rascalmpl/ast|;
+private loc outputFolder = |home:///Workspaces/Rascal/rascal/src/org/rascalmpl/library/lang/rascal/syntax|;
+private loc astFolder = |home:///Workspaces/Rascal/rascal/src/org/rascalmpl/ast|;
 
 private str grammarName = "Rascal";
 private str rootName = "RascalParser";
