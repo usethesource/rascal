@@ -95,7 +95,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		  }  
 	  }
 	  
-	  return TF.tupleType(types, labels); 
+	  return TF.tupleType(types.toArray(new Type[types.size()]), labels.toArray(new String[labels.size()])); 
 	}
 	
 	public OverloadedFunction(AbstractFunction function) {
