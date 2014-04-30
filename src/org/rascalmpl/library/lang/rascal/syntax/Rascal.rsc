@@ -163,6 +163,7 @@ syntax SyntaxDefinition
 	=  @Foldable \layout  : Visibility vis "layout"  Sym defined "=" Prod production ";" 
 	|  @Foldable \lexical : "lexical" Sym defined "=" Prod production ";" 
 	|  @Foldable \keyword : "keyword" Sym defined "=" Prod production ";"
+	|  @Foldable \token   : "token" Sym defined "=" Prod production ";"
 	|  @Foldable language: Start start "syntax" Sym defined "=" Prod production ";" ;
 
 syntax Kind
