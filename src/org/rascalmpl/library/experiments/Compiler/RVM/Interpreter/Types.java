@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
@@ -175,7 +176,7 @@ public class Types {
 		Type returnType = symbolToType((IConstructor) symbol.get("ret"), store);
 		Type parameters = symbolsToTupleType((IList) symbol.get("parameters"), store);
 		// TODO: function types shouls also reify keyword parameters
-		return RascalTypeFactory.getInstance().functionType(returnType, parameters, Collections.<String,Type>emptyMap(), Collections.<String,IValue>emptyMap());
+		return RascalTypeFactory.getInstance().functionType(returnType, parameters, tf.voidType(), Collections.<String,IKeywordParameterInitializer>emptyMap());
 	}
 
 	private Type consToType(IConstructor symbol, TypeStore store) {
