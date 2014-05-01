@@ -1,5 +1,4 @@
 module experiments::Compiler::Examples::Tst1
 
-int x;
 
- value main(list[value] args) { x;}
+public value main(list[value] args) = |http://www.rascal-mpl.org|.host;

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Configuration;
@@ -27,8 +28,16 @@ public class RascalExecutionContext {
 	private final List<ClassLoader> classLoaders;
 	private final PrintWriter stdout;
 	private final IEvaluatorContext ctx;
-
-	RascalExecutionContext(IEvaluatorContext ctx){
+	private final IValueFactory vf;
+	private final boolean debug;
+	private final boolean profile;
+	
+	RascalExecutionContext(IValueFactory vf, boolean debug, boolean profile, IEvaluatorContext ctx){
+		
+		this.vf = vf;
+		this.debug = debug;
+		this.profile = profile;
+		
 		resolverRegistry = ctx.getResolverRegistry();
 		monitor = ctx.getEvaluator().getMonitor();
 		stdout = ctx.getEvaluator().getStdOut();
@@ -38,6 +47,9 @@ public class RascalExecutionContext {
 		this.ctx = ctx;
 	}
 
+	IValueFactory getValueFactory(){ return vf; }
+	boolean getDebug() { return debug; }
+	boolean getProfile(){ return profile; }
 	URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
 	IRascalMonitor getMonitor() {return monitor;}
 	PrintWriter getStdErr() { return stderr; }

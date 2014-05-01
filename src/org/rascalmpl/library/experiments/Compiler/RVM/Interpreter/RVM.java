@@ -112,10 +112,10 @@ public class RVM {
 	};
 
 
-	public RVM(IValueFactory vf, RascalExecutionContext rex, boolean debug, boolean profile) {
+	public RVM(RascalExecutionContext rex) {
 		super();
 
-		this.vf = vf;
+		this.vf = rex.getValueFactory();
 		tf = TypeFactory.getInstance();
 		
 		this.rex = rex;
@@ -123,7 +123,7 @@ public class RVM {
 		this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
-		this.debug = debug;
+		this.debug = rex.getDebug();
 		this.finalized = false;
 		
 		this.types = new Types(this.vf);
@@ -144,10 +144,9 @@ public class RVM {
 		
 		moduleVariables = new HashMap<IValue,IValue>();
 		
-		MuPrimitive.init(vf, stdout, profile);
-		RascalPrimitive.init(vf, this, profile);
-		//ParsingTools.setContext(rex);
-		Opcode.init(stdout, profile);
+		MuPrimitive.init(vf, stdout, rex.getProfile());
+		RascalPrimitive.init(this, rex);
+		Opcode.init(stdout, rex.getProfile());
 	}
 	
 	URIResolverRegistry getResolverRegistry() { return rex.getResolverRegistry(); }
