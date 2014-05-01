@@ -202,8 +202,6 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
     code = peephole(tr(fun.body)) + [ *catchBlock | INS catchBlock <- catchBlocks ];
     
-    println("mu2rvm: <fun.qname>: <localNames>");
-    
     // Debugging exception handling
     // println("FUNCTION BODY:");
     // for(ins <- code) {

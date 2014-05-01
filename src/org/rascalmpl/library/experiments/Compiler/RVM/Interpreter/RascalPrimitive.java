@@ -61,7 +61,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 3;
-			boolean succeeded = (stack[sp - 3] instanceof Boolean) ? (Boolean) stack[sp - 3] : ((IBool) stack[sp - 3]).getValue();
+			boolean succeeded = ((IBool) stack[sp - 3]).getValue();
 			IString message = (IString) stack[sp - 2];
 			ISourceLocation src = ((ISourceLocation) stack[sp - 1]);
 			if(!succeeded){
@@ -1125,7 +1125,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1133,7 +1133,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1141,7 +1141,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1149,7 +1149,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1160,7 +1160,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1168,7 +1168,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1176,7 +1176,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1184,7 +1184,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1195,7 +1195,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1203,7 +1203,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1211,7 +1211,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1219,7 +1219,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1230,7 +1230,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1238,7 +1238,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1246,7 +1246,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1254,7 +1254,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1265,12 +1265,12 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			IValue left = (stack[sp - 2] instanceof Boolean) ? vf.bool((Boolean)stack[sp - 2]) : (IValue)stack[sp - 2];
-			IValue right = (stack[sp - 1] instanceof Boolean) ? vf.bool((Boolean)stack[sp - 1]) : (IValue)stack[sp - 1];
+			IValue left = (IValue)stack[sp - 2];
+			IValue right = (IValue)stack[sp - 1];
 			if(left.getType().isNumber() && right.getType().isNumber()){
 				return num_equal_num.execute(stack, sp, arity, stacktrace);
 			} else {
-				stack[sp - 2] = left.isEqual(right);
+				stack[sp - 2] = vf.bool(left.isEqual(right));
 				return sp - 1;
 			}
 		}
@@ -1913,7 +1913,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1921,7 +1921,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1929,7 +1929,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1937,7 +1937,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1948,7 +1948,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1956,7 +1956,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1964,7 +1964,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1972,7 +1972,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1983,7 +1983,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1991,7 +1991,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -1999,7 +1999,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2007,7 +2007,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2018,7 +2018,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2026,7 +2026,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2034,7 +2034,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2042,7 +2042,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2053,7 +2053,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			int spnew = lessequal.execute(stack, sp, arity, stacktrace);
-			stack[sp - 2] = ! (Boolean) stack[sp - 2];
+			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
 			return spnew;
 		}
 	},
@@ -2068,10 +2068,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			boolean left = (stack[sp - 2] instanceof Boolean) ? (Boolean) stack[sp - 2] : ((IBool) stack[sp - 2]).getValue();
-			boolean right = (stack[sp - 1] instanceof Boolean) ? (Boolean) stack[sp - 1] : ((IBool) stack[sp - 1]).getValue();
-
-			stack[sp - 2] = left && !right;
+			stack[sp - 2] = ((IBool) stack[sp - 2]).and(((IBool) stack[sp - 1]).not());
 			return sp - 1;
 		}
 	},
@@ -2079,7 +2076,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == 1;
+			stack[sp - 2] = vf.bool(((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == 1);
 			return sp - 1;
 		}
 	},
@@ -2087,7 +2084,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			int spnew = list_lessequal_list.execute(stack, sp, arity, stacktrace);
-			stack[sp - 2] = ! (Boolean) stack[sp - 2];
+			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
 			return spnew;
 		}
 	},
@@ -2095,7 +2092,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			int spnew = list_lessequal_list.execute(stack, sp, arity, stacktrace);
-			stack[sp - 2] = ! (Boolean) stack[sp - 2];
+			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
 			return spnew;
 		}
 	},
@@ -2103,7 +2100,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			int spnew = loc_lessequal_loc.execute(stack, sp, arity, stacktrace);
-			stack[sp - 2] = ! (Boolean) stack[sp - 2];
+			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
 			return spnew;
 		}
 	},
@@ -2114,7 +2111,7 @@ public enum RascalPrimitive {
 			IMap left = (IMap) stack[sp - 2];
 			IMap right = (IMap) stack[sp - 1];
 
-			stack[sp - 2] = right.isSubMap(left) && !left.isSubMap(right);
+			stack[sp - 2] = vf.bool(right.isSubMap(left) && !left.isSubMap(right));
 			return sp - 1;
 		}
 	},
@@ -2122,7 +2119,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			int newsp = node_lessequal_node.execute(stack, sp, arity, stacktrace);
-			stack[newsp - 1] = !(Boolean)stack[newsp - 1];
+			stack[newsp - 1] = ((IBool)stack[newsp - 1]).not();
 			return newsp;
 		}
 	},
@@ -2130,7 +2127,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]);
+			stack[sp - 2] = vf.bool(((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]));
 			return sp - 1;
 		}
 	},
@@ -2138,7 +2135,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]);
+			stack[sp - 2] = vf.bool(((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]));
 			return sp - 1;
 		}
 	},
@@ -2146,7 +2143,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]) == 1;
+			stack[sp - 2] = vf.bool(((IString) stack[sp - 2]).compare((IString) stack[sp - 1]) == 1);
 			return sp - 1;
 		}
 	},
@@ -2154,7 +2151,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			int spnew = tuple_lessequal_tuple.execute(stack, sp, arity, stacktrace);
-			stack[sp - 2] = ! (Boolean) stack[sp - 2];
+			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
 			return spnew;
 		}
 	},
@@ -2165,7 +2162,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2173,7 +2170,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2181,7 +2178,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2189,7 +2186,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2200,7 +2197,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2208,7 +2205,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2216,7 +2213,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2224,7 +2221,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2235,7 +2232,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2243,7 +2240,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2251,7 +2248,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2259,7 +2256,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2270,7 +2267,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2278,7 +2275,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2286,7 +2283,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2294,7 +2291,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -2305,7 +2302,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			int spnew = less.execute(stack, sp, arity, stacktrace);
-			stack[sp - 2] = ! (Boolean) stack[sp - 2];
+			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
 			return spnew;
 		}
 	},
@@ -2320,9 +2317,9 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			boolean left = (stack[sp - 2] instanceof Boolean) ? (Boolean) stack[sp - 2] : ((IBool) stack[sp - 2]).getValue();
-			boolean right = (stack[sp - 1] instanceof Boolean) ? (Boolean) stack[sp - 1] : ((IBool) stack[sp - 1]).getValue();
-			stack[sp - 2] = (left && !right) || (left == right);
+			boolean left = ((IBool) stack[sp - 2]).getValue();
+			boolean right = ((IBool) stack[sp - 1]).getValue();
+			stack[sp - 2] = vf.bool((left && !right) || (left == right));
 			return sp - 1;
 		}
 	},
@@ -2330,7 +2327,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == 1;
+			stack[sp - 2] = vf.bool(((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == 1);
 			return sp - 1;
 		}
 	},
@@ -2338,7 +2335,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			int spnew = list_less_list.execute(stack, sp, arity, stacktrace);
-			stack[sp - 2] = !(Boolean)stack[sp - 2];
+			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
 			return spnew;
 		}
 	},
@@ -2346,7 +2343,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			int spnew = list_less_list.execute(stack, sp, arity, stacktrace);
-			stack[sp - 2] = !(Boolean)stack[sp - 2];
+			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
 			return spnew;
 		}
 	},
@@ -2354,7 +2351,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			int spnew = loc_less_loc.execute(stack, sp, arity, stacktrace);
-			stack[sp - 2] = !(Boolean)stack[sp - 2];
+			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
 			return spnew;
 		}
 	},
@@ -2362,7 +2359,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			int newsp = node_less_node.execute(stack, sp, arity, stacktrace);
-			stack[newsp - 1] = !(Boolean)stack[newsp - 1];
+			stack[newsp - 1] = ((IBool)stack[newsp - 1]).not();
 			return newsp;
 		}
 	},
@@ -2372,7 +2369,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			IMap left = (IMap) stack[sp - 2];
 			IMap right = (IMap) stack[sp - 1];
-			stack[sp - 2] = right.isSubMap(left);
+			stack[sp - 2] = vf.bool(right.isSubMap(left));
 			return sp - 1;
 		}
 	},
@@ -2382,7 +2379,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			ISet left = (ISet) stack[sp - 2];
 			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = left.isEqual(right) || right.isSubsetOf(left);
+			stack[sp - 2] = vf.bool(left.isEqual(right) || right.isSubsetOf(left));
 			return sp - 1;
 		}
 	},
@@ -2392,7 +2389,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			ISet left = (ISet) stack[sp - 2];
 			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = left.isEqual(right) || right.isSubsetOf(left);
+			stack[sp - 2] = vf.bool(left.isEqual(right) || right.isSubsetOf(left));
 			return sp - 1;
 		}
 	},
@@ -2401,7 +2398,7 @@ public enum RascalPrimitive {
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
 			int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
-			stack[sp - 2] = c == 0 || c == 1;
+			stack[sp - 2] = vf.bool(c == 0 || c == 1);
 			return sp - 1;
 		}
 	},
@@ -2409,7 +2406,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			int spnew = tuple_less_tuple.execute(stack, sp, arity, stacktrace);
-			stack[sp - 2] = !(Boolean)stack[sp - 2];
+			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
 			return spnew;
 		}
 	},
@@ -2561,7 +2558,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]);
+			stack[sp - 2] = vf.bool(((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]));
 			return sp - 1;
 		}
 
@@ -2577,7 +2574,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]);
+			stack[sp - 2] = vf.bool(((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]));
 			return sp - 1;
 		}
 
@@ -2593,7 +2590,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IMap) stack[sp - 1]).containsKey((IValue) stack[sp - 2]);
+			stack[sp - 2] = vf.bool(((IMap) stack[sp - 1]).containsKey((IValue) stack[sp - 2]));
 			return sp - 1;
 		}
 	},
@@ -2612,7 +2609,7 @@ public enum RascalPrimitive {
 			IValue val  = (IValue) stack[sp - 2];
 			Type tp = val.getType();
 			String name = ((IString) stack[sp - 1]).getValue();
-			stack[sp - 2] = false;
+			stack[sp - 2] = Rascal_FALSE;
 			if(tp.isAbstractData()){
 				if(tp.getName().equals("Tree")){
 					IConstructor cons = (IConstructor) val;
@@ -2620,14 +2617,14 @@ public enum RascalPrimitive {
 						IConstructor prod = (IConstructor) cons.get(0);
 						IConstructor def = (IConstructor) prod.get(0);
 						if(def.getName().equals("label")){
-							stack[sp - 2] = ((IString) def.get(0)).getValue().equals(name);
+							stack[sp - 2] = vf.bool(((IString) def.get(0)).getValue().equals(name));
 						}
 					}
 				} else {
-					stack[sp - 2] = ((IConstructor)val).getConstructorType().getName().equals(name);
+					stack[sp - 2] = vf.bool(((IConstructor)val).getConstructorType().getName().equals(name));
 				}
 			} else if(tp.isNode()){
-				stack[sp - 2] = ((INode) val).getName().equals(name);
+				stack[sp - 2] = vf.bool(((INode) val).getName().equals(name));
 			} 
 			return sp - 1;
 		}
@@ -3080,7 +3077,7 @@ public enum RascalPrimitive {
 			}
 
 			if(!leftType.comparable(rightType)){
-				stack[sp - 2] = false;
+				stack[sp - 2] = Rascal_FALSE;
 				return sp - 1;
 			}
 
@@ -3122,7 +3119,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3130,7 +3127,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3138,7 +3135,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3146,7 +3143,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3157,7 +3154,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3165,7 +3162,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).less((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).less((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3173,7 +3170,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3181,7 +3178,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3192,7 +3189,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3200,7 +3197,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).less((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).less((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3208,7 +3205,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3216,7 +3213,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3227,7 +3224,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).less((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).less((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3235,7 +3232,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3243,7 +3240,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3251,7 +3248,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3269,10 +3266,10 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			boolean left = (stack[sp - 2] instanceof Boolean) ? (Boolean) stack[sp - 2] : ((IBool) stack[sp - 2]).getValue();
-			boolean right = (stack[sp - 1] instanceof Boolean) ? (Boolean) stack[sp - 1] : ((IBool) stack[sp - 1]).getValue();
+			boolean left =((IBool) stack[sp - 2]).getValue();
+			boolean right = ((IBool) stack[sp - 1]).getValue();
 
-			stack[sp - 2] = !left && right;
+			stack[sp - 2] = vf.bool(!left && right);
 			return sp - 1;
 		}
 	},
@@ -3280,7 +3277,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == -1;
+			stack[sp - 2] = vf.bool(((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == -1);
 			return sp - 1;
 		}
 	},
@@ -3313,11 +3310,11 @@ public enum RascalPrimitive {
 
 			int compare = left.getURI().toString().compareTo(right.getURI().toString());
 			if (compare < 0) {
-				stack[sp - 2] = true;
+				stack[sp - 2] = Rascal_TRUE;
 				return sp - 1;
 			}
 			else if (compare > 0) {
-				stack[sp - 2] = false;
+				stack[sp - 2] = Rascal_FALSE;
 				return sp - 1;
 			}
 
@@ -3326,7 +3323,7 @@ public enum RascalPrimitive {
 
 			if (left.hasOffsetLength()) {
 				if (!right.hasOffsetLength()) {
-					stack[sp - 2] = false;
+					stack[sp - 2] = Rascal_FALSE;
 					return sp - 1;
 				}
 
@@ -3336,21 +3333,21 @@ public enum RascalPrimitive {
 				int llen = left.getLength();
 
 				if (loffset == roffset) {
-					stack[sp - 2] = (llen < rlen);
+					stack[sp - 2] = vf.bool(llen < rlen);
 					return sp - 1;
 				}
-				stack[sp - 2] = false;
+				stack[sp - 2] = Rascal_FALSE;
 				return sp - 1;
 			}
 			else if (compare == 0) {
-				stack[sp - 2] = false;
+				stack[sp - 2] = Rascal_FALSE;
 				return sp - 1;
 			}
 
 			if (!right.hasOffsetLength()) {
 				throw new CompilerError("offset length missing");
 			}
-			stack[sp - 2] = false;
+			stack[sp - 2] = Rascal_FALSE;
 			return sp - 1;
 		}
 	},
@@ -3361,7 +3358,7 @@ public enum RascalPrimitive {
 			IMap left = ((IMap) stack[sp - 2]);
 			IMap right = ((IMap) stack[sp - 1]);
 
-			stack[sp - 2] = left.isSubMap(right) && !right.isSubMap(left);
+			stack[sp - 2] = vf.bool(left.isSubMap(right) && !right.isSubMap(left));
 			return sp - 1;
 		}
 	},
@@ -3375,12 +3372,12 @@ public enum RascalPrimitive {
 			int compare = left.getName().compareTo(right.getName());
 
 			if (compare <= -1) {
-				stack[sp - 2] = true;
+				stack[sp - 2] = Rascal_TRUE;
 				return sp - 1;
 			}
 
 			if (compare >= 1){
-				stack[sp - 2] = false;
+				stack[sp - 2] = Rascal_FALSE;
 				return sp - 1;
 			}
 
@@ -3390,7 +3387,7 @@ public enum RascalPrimitive {
 			int rightArity = right.arity();
 
 			Object[] fakeStack = new Object[2];
-			fakeStack[0] = false;
+			fakeStack[0] = Rascal_FALSE;
 			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
 
 				fakeStack[0] = left.get(i);
@@ -3400,12 +3397,12 @@ public enum RascalPrimitive {
 				else
 					less.execute(fakeStack, 2, 2, stacktrace);
 
-				if(!((Boolean)fakeStack[0])){
-					stack[sp - 2] = false;
+				if(!((IBool)fakeStack[0]).getValue()){
+					stack[sp - 2] = Rascal_FALSE;
 					return sp - 1;
 				}
 			}
-			stack[sp - 2] = (leftArity < rightArity) || (Boolean)fakeStack[0];
+			stack[sp - 2] = vf.bool((leftArity < rightArity) || ((IBool)fakeStack[0]).getValue());
 			return sp - 1;
 		}
 	},
@@ -3415,7 +3412,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			ISet lhs = (ISet) stack[sp - 2];
 			ISet rhs = (ISet) stack[sp - 1];
-			stack[sp - 2] = !lhs.isEqual(rhs) && lhs.isSubsetOf(rhs);
+			stack[sp - 2] = vf.bool(!lhs.isEqual(rhs) && lhs.isSubsetOf(rhs));
 			return sp - 1;
 		}
 	},
@@ -3425,7 +3422,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			ISet lhs = (ISet) stack[sp - 2];
 			ISet rhs = (ISet) stack[sp - 1];
-			stack[sp - 2] = !lhs.isEqual(rhs) && lhs.isSubsetOf(rhs);
+			stack[sp - 2] = vf.bool(!lhs.isEqual(rhs) && lhs.isSubsetOf(rhs));
 			return sp - 1;
 		}
 	},
@@ -3434,7 +3431,7 @@ public enum RascalPrimitive {
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
 			int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
-			stack[sp - 2] = c == -1;
+			stack[sp - 2] = vf.bool(c == -1);
 			return sp - 1;
 		}
 	},
@@ -3455,13 +3452,13 @@ public enum RascalPrimitive {
 				else
 					less.execute(fakeStack, 2, 2, stacktrace);
 
-				if(!((Boolean)fakeStack[0])){
-					stack[sp - 2] = false;
+				if(!((IBool)fakeStack[0]).getValue()){
+					stack[sp - 2] = Rascal_FALSE;
 					return sp - 1;
 				}
 			}
 
-			stack[sp - 2] = leftArity <= rightArity;
+			stack[sp - 2] = vf.bool(leftArity <= rightArity);
 			return sp - 1;
 		}
 	},
@@ -3485,7 +3482,7 @@ public enum RascalPrimitive {
 			}
 
 			if(!leftType.comparable(rightType)){
-				stack[sp - 2] = false;
+				stack[sp - 2] = Rascal_FALSE;
 				return sp - 1;
 			}
 
@@ -3530,7 +3527,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3538,7 +3535,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3546,7 +3543,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3554,7 +3551,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3565,7 +3562,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3573,7 +3570,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3581,7 +3578,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3589,7 +3586,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3600,7 +3597,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3608,7 +3605,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3616,7 +3613,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3624,7 +3621,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3635,7 +3632,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3643,7 +3640,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3651,7 +3648,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3659,7 +3656,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
 			return sp - 1;
 		}
 	},
@@ -3678,10 +3675,10 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			boolean left = (stack[sp - 2] instanceof Boolean) ? (Boolean) stack[sp - 2] : ((IBool) stack[sp - 2]).getValue();
-			boolean right = (stack[sp - 1] instanceof Boolean) ? (Boolean) stack[sp - 1] : ((IBool) stack[sp - 1]).getValue();
+			boolean left = ((IBool) stack[sp - 2]).getValue();
+			boolean right = ((IBool) stack[sp - 1]).getValue();
 
-			stack[sp - 2] = (!left && right) || (left == right);
+			stack[sp - 2] = vf.bool((!left && right) || (left == right));
 			return sp - 1;
 
 		}
@@ -3692,7 +3689,7 @@ public enum RascalPrimitive {
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
 			int c = ((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]);
-			stack[sp - 2] =  c == -1 || c == 0;
+			stack[sp - 2] =  vf.bool(c == -1 || c == 0);
 			return sp - 1;
 		}
 
@@ -3732,11 +3729,11 @@ public enum RascalPrimitive {
 
 			int compare = left.getURI().toString().compareTo(right.getURI().toString());
 			if (compare < 0) {
-				stack[sp - 2] = true;
+				stack[sp - 2] = Rascal_TRUE;
 				return sp - 1;
 			}
 			else if (compare > 0) {
-				stack[sp - 2] = false;
+				stack[sp - 2] = Rascal_FALSE;
 				return sp - 1;
 			}
 
@@ -3745,7 +3742,7 @@ public enum RascalPrimitive {
 
 			if (left.hasOffsetLength()) {
 				if (!right.hasOffsetLength()) {
-					stack[sp - 2] = false;
+					stack[sp - 2] = Rascal_FALSE;
 					return sp - 1;
 				}
 
@@ -3755,21 +3752,21 @@ public enum RascalPrimitive {
 				int llen = left.getLength();
 
 				if (loffset == roffset) {
-					stack[sp - 2] = (llen <= rlen);
+					stack[sp - 2] = vf.bool(llen <= rlen);
 					return sp - 1;
 				}
-				stack[sp - 2] = roffset < loffset && roffset + rlen >= loffset + llen;
+				stack[sp - 2] = vf.bool(roffset < loffset && roffset + rlen >= loffset + llen);
 				return sp - 1;
 			}
 			else if (compare == 0) {
-				stack[sp - 2] = true;
+				stack[sp - 2] = Rascal_TRUE;
 				return sp - 1;
 			}
 
 			if (!right.hasOffsetLength()) {
 				throw new CompilerError("missing offset length");
 			}
-			stack[sp - 2] = false;
+			stack[sp - 2] = Rascal_FALSE;
 			return sp - 1;
 
 		}
@@ -3781,7 +3778,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			IMap left = (IMap) stack[sp - 2];
 			IMap right = (IMap) stack[sp - 1];
-			stack[sp - 2] = left.isSubMap(right);
+			stack[sp - 2] = vf.bool(left.isSubMap(right));
 			return sp - 1;
 		}
 
@@ -3796,12 +3793,12 @@ public enum RascalPrimitive {
 			int compare = left.getName().compareTo(right.getName());
 
 			if (compare <= -1) {
-				stack[sp - 2] = true;
+				stack[sp - 2] = Rascal_TRUE;
 				return sp - 1;
 			}
 
 			if (compare >= 1){
-				stack[sp - 2] = false;
+				stack[sp - 2] = Rascal_FALSE;
 				return sp - 1;
 			}
 
@@ -3811,12 +3808,12 @@ public enum RascalPrimitive {
 			int rightArity = right.arity();
 
 			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
-				if(!$lessequal(left.get(i), right.get(i), null)){
-					stack[sp - 2] = false;
+				if(!$lessequal(left.get(i), right.get(i), null).getValue()){
+					stack[sp - 2] = Rascal_FALSE;
 					return sp - 1;
 				}
 			}
-			stack[sp - 2] = leftArity <= rightArity;
+			stack[sp - 2] = vf.bool(leftArity <= rightArity);
 			return sp - 1;
 		}
 
@@ -3827,7 +3824,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			ISet left = (ISet) stack[sp - 2];
 			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = left.isEqual(right) || left.isSubsetOf(right);
+			stack[sp - 2] = vf.bool(left.isEqual(right) || left.isSubsetOf(right));
 			return sp - 1;
 		}	
 
@@ -3838,7 +3835,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			ISet left = (ISet) stack[sp - 2];
 			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = left.isEqual(right) || left.isSubsetOf(right);
+			stack[sp - 2] = vf.bool(left.isEqual(right) || left.isSubsetOf(right));
 			return sp - 1;
 		}	
 
@@ -3848,7 +3845,7 @@ public enum RascalPrimitive {
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
 			int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
-			stack[sp - 2] = c == -1 || c == 0;
+			stack[sp - 2] = vf.bool(c == -1 || c == 0);
 			return sp - 1;
 		}
 
@@ -3862,13 +3859,13 @@ public enum RascalPrimitive {
 			int rightArity = right.arity();
 
 			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {			
-				if(!$lessequal(left.get(i), right.get(i), null)){
-					stack[sp - 2] = false;
+				if(!$lessequal(left.get(i), right.get(i), null).getValue()){
+					stack[sp - 2] = Rascal_FALSE;
 					return sp - 1;
 				}
 			}
 
-			stack[sp - 2] = leftArity <= rightArity;
+			stack[sp - 2] = vf.bool(leftArity <= rightArity);
 			return sp - 1;
 		}
 	},
@@ -4051,7 +4048,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]);
+			stack[sp - 2] = vf.bool(!((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]));
 			return sp - 1;
 		}
 
@@ -4067,7 +4064,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]);
+			stack[sp - 2] = vf.bool(!((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]));
 			return sp - 1;
 		}
 
@@ -4083,7 +4080,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IMap) stack[sp - 1]).containsKey((IValue) stack[sp - 2]);
+			stack[sp - 2] = vf.bool(!((IMap) stack[sp - 1]).containsKey((IValue) stack[sp - 2]));
 			return sp - 1;
 		}
 	},
@@ -4692,7 +4689,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
 			return sp - 1;
 		}
 
@@ -4701,7 +4698,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IInteger) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
 			return sp - 1;
 		}
 
@@ -4710,7 +4707,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IInteger) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
 			return sp - 1;
 		}
 
@@ -4719,7 +4716,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IInteger) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
 			return sp - 1;
 		}
 	},
@@ -4730,7 +4727,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((INumber) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
 			return sp - 1;
 		}
 
@@ -4739,7 +4736,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
 			return sp - 1;
 		}
 
@@ -4748,7 +4745,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((INumber) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
 			return sp - 1;
 		}
 
@@ -4757,7 +4754,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((INumber) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
 			return sp - 1;
 		}
 	},
@@ -4768,7 +4765,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IReal) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
 			return sp - 1;
 		}
 
@@ -4777,7 +4774,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IReal) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
 			return sp - 1;
 		}
 
@@ -4786,7 +4783,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IReal) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
 			return sp - 1;
 		}
 
@@ -4795,7 +4792,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IReal) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
 			return sp - 1;
 		}
 	},
@@ -4806,7 +4803,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IRational) stack[sp - 2]).equal((IInteger) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
 			return sp - 1;
 		}
 
@@ -4815,7 +4812,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IRational) stack[sp - 2]).equal((INumber) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
 			return sp - 1;
 		}
 
@@ -4824,7 +4821,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IRational) stack[sp - 2]).equal((IRational) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
 			return sp - 1;
 		}
 
@@ -4833,7 +4830,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IRational) stack[sp - 2]).equal((IReal) stack[sp - 1]).getValue();
+			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
 			return sp - 1;
 		}
 	},
@@ -4844,7 +4841,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			stack[sp - 2] = !((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]);
+			stack[sp - 2] = vf.bool(!((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]));
 			return sp - 1;
 		}
 	},
@@ -5731,8 +5728,8 @@ public enum RascalPrimitive {
 				} else {
 					stack[sp - 1] = vf.string($value2string(val));
 				}
-			} else if(stack[sp - 1] instanceof Boolean){
-				stack[sp - 1] = vf.string(((Boolean) stack[sp - 1]).toString());
+//			} else if(stack[sp - 1] instanceof Boolean){
+//				stack[sp - 1] = vf.string(((Boolean) stack[sp - 1]).toString());
 			} else if(stack[sp - 1] instanceof Integer){
 				stack[sp - 1] = vf.string(((Integer) stack[sp - 1]).toString());
 			} else {
@@ -5758,6 +5755,9 @@ public enum RascalPrimitive {
 	private static PrintWriter stdout;
 	private static RVM rvm;
 	private static ParsingTools parsingTools;
+	
+	private static IBool Rascal_TRUE;
+	private static IBool Rascal_FALSE;
 
 	public static ParsingTools getParsingTools() { return parsingTools; }
 
@@ -5784,6 +5784,8 @@ public enum RascalPrimitive {
 		emptyList = vf.listWriter().done();
 		emptySet = vf.setWriter().done();
 		indentStack = new Stack<String>();
+		Rascal_TRUE = vf.bool(true);
+		Rascal_FALSE = vf.bool(false);
 	}
 
 	public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
@@ -6119,8 +6121,8 @@ public enum RascalPrimitive {
 		}
 	}
 
-	private static boolean $list_less_list(IList left, IList right) {
-		boolean res = false;
+	private static IBool $list_less_list(IList left, IList right) {
+		IBool res = Rascal_FALSE;
 
 		if(left.length() > right.length()){
 			return res;
@@ -6134,24 +6136,24 @@ public enum RascalPrimitive {
 			}
 			return res;
 		}
-		return left.length() != right.length();
+		return vf.bool(left.length() != right.length());
 	}
 
-	private static boolean $lessequal(IValue left, IValue right,List<Frame> stacktrace){
+	private static IBool $lessequal(IValue left, IValue right,List<Frame> stacktrace){
 		Object[] fakeStack = new Object[2];
 		fakeStack[0] = left;
 		fakeStack[1] = right;
 		lessequal.execute(fakeStack, 2, 2, stacktrace);
-		return (Boolean)fakeStack[0];
+		return (IBool)fakeStack[0];
 	}
 
-	private static boolean $list_lessequal_list(IList left, IList right) {
-		boolean res = false;
+	private static IBool $list_lessequal_list(IList left, IList right) {
+		IBool res = Rascal_FALSE;
 		if (left.length() == 0) {
-			return true;
+			return Rascal_TRUE;
 		}
 		else if (left.length() > right.length()) {
-			return false;
+			return Rascal_FALSE;
 		}
 
 		OUTER:for (int l = 0, r = 0; l < left.length(); l++) {
@@ -6163,7 +6165,7 @@ public enum RascalPrimitive {
 			return res;
 		}
 
-		return left.length() <= right.length();
+		return vf.bool(left.length() <= right.length());
 	}
 
 	private static Integer $getInt(IValue v){
