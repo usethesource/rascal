@@ -61,7 +61,7 @@ public class Execute {
 		
 		PrintWriter stdout = ctx.getStdOut();
 		
-		RVM rvm = new RVM(vf, new RascalExecutionContext(ctx), debug.getValue(), profile.getValue());
+		RVM rvm = new RVM(new RascalExecutionContext(vf, debug.getValue(), profile.getValue(), ctx));
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules

@@ -5767,16 +5767,12 @@ public enum RascalPrimitive {
 	 * @param profiling TODO
 	 * @param stdout 
 	 */
-	public static void init(IValueFactory fact, RVM usedRVM, boolean doProfile) {
-		vf = fact;
-		if(usedRVM != null){
-			stdout = usedRVM.stdout;
-			rvm = usedRVM;
-			parsingTools = new ParsingTools(fact);
-			parsingTools.setContext(rvm.rex);
-		} else {
-			System.err.println("No RVM found");
-		}
+	public static void init(RVM usedRvm, RascalExecutionContext rex){
+		rvm = usedRvm;
+		vf = rex.getValueFactory();
+		stdout = rex.getStdOut();
+		parsingTools = new ParsingTools(vf);
+		parsingTools.setContext(rex);
 		tf = TypeFactory.getInstance();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 				new String[] {"line", "column"});

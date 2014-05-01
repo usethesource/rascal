@@ -52,9 +52,11 @@ public class ParsingTools {
 	private HashMap<IValue,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>> parsers;
 	private RascalExecutionContext rex;
 	
-	public ParsingTools(IValueFactory fact){
+	public ParsingTools(IValueFactory vf){
 		super();
-		vf = fact;
+		this.vf = vf; 
+		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>>();
+		stderr = new PrintWriter(System.err);
 	}
 	
 	public void setContext(RascalExecutionContext rex){
@@ -367,7 +369,7 @@ public class ParsingTools {
 	    if (parser == null || force) {
 	      String parserName = name; // .replaceAll("::", ".");
 	     //stderr.println("name = " + name);
-	      parser = pg.getNewParser(monitor, loc, parserName, definitions);
+	      parser = pg.getNewParser(rex.getMonitor(), loc, parserName, definitions);
 	      storeObjectParser(name, start, parser);
 	    }
 
@@ -386,9 +388,9 @@ public class ParsingTools {
 	  
 	// Rascal library function
 	public IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
-		//if(rex == null){
-			rex = new RascalExecutionContext(ctx);
-		//}
+		if(rex == null){
+			rex = new RascalExecutionContext(vf, false, false, ctx);
+		}
 		return parseFragment(name, start, tree, loc.getURI(), grammar);
 	}
 	
