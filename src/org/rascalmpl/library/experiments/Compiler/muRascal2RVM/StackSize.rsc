@@ -116,7 +116,7 @@ private int estimate(muTmpRef(str name, str fuid)) = 1;
 private int estimate(muAssignLocDeref(str id, int pos, MuExp exp)) = estimate(exp);
 private int estimate(muAssignVarDeref(str id, str fuid, int pos, MuExp exp)) = estimate(exp);
 
-private int estimate(muThrow(MuExp exp)) = estimate(exp);
+private int estimate(muThrow(MuExp exp, loc src)) = estimate(exp);
 private int estimate(muTry(MuExp tryBody, muCatch(str varname, str fuid, Symbol \type, MuExp catchBody), MuExp \finally)) = max(max(estimate(tryBody),1 + 1 + estimate(catchBody)),estimate(\finally));
 
 private int estimate(muContVar(str fuid)) = 1;
