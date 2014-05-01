@@ -43,8 +43,8 @@ Production simplify(Production p) = innermost visit(p) {
 
 Grammar flattenChoices(g) = innermost visit(g) {
   case choice(\token(n), alts)    => prod(\token(n), [alt({alt is prod ? seq(alt.symbols) : alt.def | alt <- alts})], {})
-  case choice(\lit(n), alts)      => prod(\lit(n), [alt({alt is prod ? seq(alt.symbols) : alt.def | alt <- alts})], {})
-  case choice(\cilit(n), alts)    => prod(\cilit(n), [alt({alt is prod ? seq(alt.symbols) : alt.def | alt <- alts})], {})
+  case choice(\lit(n), {a})       => a // there is only one
+  case choice(\cilit(n), {a})     => a // there is only one
   case priority(\token(n), choices)     : throw "priority not supported in token definition of <n>";
   case associativity(\token(n), _,alts) : throw "associativity not supported in token definition of <n>";
 };
