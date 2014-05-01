@@ -6,7 +6,7 @@ import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Priorities;
 import lang::rascal::grammar::definition::Regular;
 import lang::rascal::grammar::definition::Parameters;
-import lang::rascal::grammar::analyze::Lexicals;
+import lang::rascal::grammar::definition::Tokens;
 import lang::rascal::grammar::definition::Keywords;
 import IO;
 import Node;
@@ -29,13 +29,13 @@ public java void generateGraph(str f, loc l);
 public void generate(type[&T <: Tree] nont) {
   gr = grammar({nont.symbol}, nont.definitions, ());
   gr = literals(gr);
-  gr = expandKeywords(gr);
-  gr.about["regularExpressions"] = getRegularLexicals(gr);
+  gr = flattenTokens(gr);
+  //gr = expandKeywords(gr);
   gr = makeRegularStubs(expandRegularSymbols(makeRegularStubs(gr)));
   gr = expandParameterizedSymbols(gr);
   gr = addNotAllowedSets(gr);
   gr = prioAssocToChoice(gr);
- 
+  
   generateGrammar(gr);
 }
 

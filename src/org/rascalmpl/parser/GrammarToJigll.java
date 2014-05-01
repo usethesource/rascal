@@ -89,9 +89,6 @@ public class GrammarToJigll {
 
 	private IConstructor rascalGrammar;
 	
-	private int mode = TOKEN_BASED;
-	
-	
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
 		deleteSetCache = new HashMap<>();
@@ -283,16 +280,7 @@ public class GrammarToJigll {
 		regularExpressionsMap = new HashMap<>();
 		regularExpressionsCache = new HashMap<>();
 		deleteSetCache = new HashMap<>();
-		
-		if(mode == TOKEN_BASED) {
-			IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
-			createRegularExpressions(regularExpressions);
-		}
-		
-		for (Entry<String, RegularExpression> e : regularExpressionsMap.entrySet()) {
-			System.out.println(e.getKey() + ": " + e.getValue());
-		}
-
+				
 		for (IValue nonterminal : definitions) {
 
 			System.out.println(nonterminal);
@@ -302,20 +290,20 @@ public class GrammarToJigll {
 
 			Nonterminal head = getHead(constructor);
 			
-			if(mode == TOKEN_BASED) {
-				// Don't create a rule body for regular expression heads.
-				if(regularExpressionsMap.containsKey(head.getName())) {
-					continue;
-				}
-	
-				if(isKeyword(constructor)) {
-					continue;
-				}
-				
-//				if(isRegularExpression(constructor)) {
+//			if(mode == TOKEN_BASED) {
+//				// Don't create a rule body for regular expression heads.
+//				if(regularExpressionsMap.containsKey(head.getName())) {
 //					continue;
 //				}
-			}
+//	
+//				if(isKeyword(constructor)) {
+//					continue;
+//				}
+//				
+////				if(isRegularExpression(constructor)) {
+////					continue;
+////				}
+//			}
 
 			IConstructor choice = (IConstructor) definitions.get(nonterminal);
 			assert choice.getName().equals("choice");
@@ -642,31 +630,31 @@ public class GrammarToJigll {
 
 	private Symbol getSymbol(IConstructor symbol) {
 		
-
-		if(mode == TOKEN_BASED) {
-			
-			if(symbol.getName().equals("lex")) {
-				RegularExpression regularExpression = regularExpressionsMap.get(SymbolAdapter.toString(symbol, true));
-				if(regularExpression != null) {
-					return regularExpression;
-				}
-			}
-			
-			// TODO: can be used later when I add the translation of {A sep}* to regular expressions.
-//			if(isRegularExpression(symbol)) {
-//				return getRegularExpression(symbol);
+//
+//		if(mode == TOKEN_BASED) {
+//			
+//			if(symbol.getName().equals("lex")) {
+//				RegularExpression regularExpression = regularExpressionsMap.get(SymbolAdapter.toString(symbol, true));
+//				if(regularExpression != null) {
+//					return regularExpression;
+//				}
 //			}
-			
-			if(isKeyword(symbol)) {
-				return getKeyword(symbol);
-			}
-		}
+//			
+//			// TODO: can be used later when I add the translation of {A sep}* to regular expressions.
+////			if(isRegularExpression(symbol)) {
+////				return getRegularExpression(symbol);
+////			}
+//			
+//			if(isKeyword(symbol)) {
+//				return getKeyword(symbol);
+//			}
+//		}
 		
 		switch (symbol.getName()) {
 
 			case "char-class":
 				return getCharacterClass(symbol);
-	
+				
 			case "lit":
 				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
 	
@@ -699,6 +687,9 @@ public class GrammarToJigll {
 	
 			case "conditional":
 				return getSymbol(getSymbolCons(symbol)).withConditions(getConditions(symbol));
+				
+			case "token":
+				return getRegularExpression(symbol);
 	
 			default:
 				return new Nonterminal(SymbolAdapter.toString(symbol, true));
