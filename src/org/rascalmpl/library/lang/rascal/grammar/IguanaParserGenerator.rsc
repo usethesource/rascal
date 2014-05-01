@@ -11,11 +11,12 @@ import lang::rascal::grammar::definition::Keywords;
 import lang::rascal::grammar::ConcreteSyntax;
   
 public Grammar preprocess(Grammar gr) {
-  gr = addHoles(gr);
   gr = literals(gr);
+  gr = flattenTokens(gr);
+  gr = addHoles(gr);
   gr = expandKeywords(gr);
   gr = makeRegularStubs(expandRegularSymbols(makeRegularStubs(gr)));
-  gr = flattenTokens(gr);
+ 
   gr = expandParameterizedSymbols(gr);
   gr = addNotAllowedSets(gr);
   gr = prioAssocToChoice(gr);
