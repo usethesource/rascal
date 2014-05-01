@@ -313,7 +313,7 @@ public class ParsingTools {
 		    throw new CompilerError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
 		  }
 		 
-		  parserGenerator = new ParserGenerator(monitor, stderr, classLoaders, vf, rex.getConfiguration());
+		  parserGenerator = new ParserGenerator(rex.getMonitor(), rex.getStdErr(), classLoaders, vf, rex.getConfiguration());
 		}
 		endJob(true);
 		return parserGenerator;
@@ -386,9 +386,9 @@ public class ParsingTools {
 	  
 	// Rascal library function
 	public IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
-//		if(this.ctx == null){
-//			setContext(ctx);
-//		}
+		//if(rex == null){
+			rex = new RascalExecutionContext(ctx);
+		//}
 		return parseFragment(name, start, tree, loc.getURI(), grammar);
 	}
 	

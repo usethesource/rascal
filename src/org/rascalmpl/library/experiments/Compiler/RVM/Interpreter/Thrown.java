@@ -44,9 +44,12 @@ public class Thrown extends RuntimeException {
 	}
 	
 	public String getAdvice(){
-		String prefix = "http://tutor.rascal-mpl.org/Errors/Dynamic/";
-		String cn = ((IConstructor) value).getName();
-		return "\uE007[Advice](" + prefix + cn + "/" + cn + ".html)";
+		if(value.getType().isConstructor()){
+			String prefix = "http://tutor.rascal-mpl.org/Errors/Dynamic/";
+			String cn = ((IConstructor) value).getName();
+			return "\uE007[Advice](" + prefix + cn + "/" + cn + ".html)";
+		}
+		return "";
 	}
 	
 	public void printStackTrace(PrintWriter stdout) {

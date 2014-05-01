@@ -47,8 +47,8 @@ public class RVM {
 
 	public final IValueFactory vf;
 	private final TypeFactory tf;
-	private final Boolean TRUE;
-	private final Boolean FALSE;
+//	private final Boolean TRUE;
+//	private final Boolean FALSE;
 	private final IBool Rascal_TRUE;
 	private final IBool Rascal_FALSE;
 	private final IString NONE; 
@@ -128,8 +128,8 @@ public class RVM {
 		
 		this.types = new Types(this.vf);
 		
-		TRUE = true;
-		FALSE = false;
+//		TRUE = true;
+//		FALSE = false;
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
 		NONE = vf.string("$nothing$");
@@ -146,6 +146,7 @@ public class RVM {
 		
 		MuPrimitive.init(vf, stdout, profile);
 		RascalPrimitive.init(vf, this, profile);
+		//ParsingTools.setContext(rex);
 		Opcode.init(stdout, profile);
 	}
 	
@@ -230,9 +231,9 @@ public class RVM {
 	 * @return converted result or an exception
 	 */
 	private IValue narrow(Object result){
-		if(result instanceof Boolean) {
-			return vf.bool((Boolean) result);
-		}
+//		if(result instanceof Boolean) {
+//			return vf.bool((Boolean) result);
+//		}
 		if(result instanceof Integer) {
 			return vf.integer((Integer)result);
 		}
@@ -263,8 +264,8 @@ public class RVM {
 	private String asString(Object o){
 		if(o == null)
 			return "null";
-		if(o instanceof Boolean)
-			return ((Boolean) o).toString() + " [Java]";
+//		if(o instanceof Boolean)
+//			return ((Boolean) o).toString() + " [Java]";
 		if(o instanceof Integer)
 			return ((Integer)o).toString() + " [Java]";
 		if(o instanceof IValue)
@@ -588,7 +589,7 @@ public class RVM {
 					break;
 					
 				case Opcode.OP_LOADBOOL:
-					stack[sp++] = CodeBlock.fetchArg1(instruction) == 1 ? true : false;
+					stack[sp++] = CodeBlock.fetchArg1(instruction) == 1 ? Rascal_TRUE : Rascal_FALSE;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADINT:
@@ -612,14 +613,14 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_JMPTRUE:
-					if (stack[sp - 1].equals(TRUE) || stack[sp - 1].equals(Rascal_TRUE)) {
+					if (((IBool) stack[sp - 1]).getValue()) {
 						pc = CodeBlock.fetchArg1(instruction);
 					}
 					sp--;
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_JMPFALSE:
-					if (stack[sp - 1].equals(FALSE) || stack[sp - 1].equals(Rascal_FALSE)) {
+					if (!((IBool) stack[sp - 1]).getValue()) {
 						pc = CodeBlock.fetchArg1(instruction);
 					}
 					sp--;
@@ -1064,8 +1065,8 @@ public class RVM {
 					boolean precondition;
 					if(rval instanceof IBool) {
 						precondition = ((IBool) rval).getValue();
-					} else if(rval instanceof Boolean) {
-						precondition = (Boolean) rval;
+//					} else if(rval instanceof Boolean) {
+//						precondition = (Boolean) rval;
 					} else {
 						throw new CompilerError("Guard's expression has to be boolean!");
 					}
@@ -1138,7 +1139,7 @@ public class RVM {
 						if(op == Opcode.OP_NEXT1) {
 							--sp;
 						}
-						stack[sp++] = FALSE;
+						stack[sp++] = Rascal_FALSE;
 						continue NEXT_INSTRUCTION;
 					}
 					// put the coroutine onto the stack of active coroutines
@@ -1240,12 +1241,12 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LESSINT:
-					stack[sp - 2] = ((Integer) stack[sp - 2]) < ((Integer) stack[sp - 1]);
+					stack[sp - 2] = vf.bool(((Integer) stack[sp - 2]) < ((Integer) stack[sp - 1]));
 					sp--;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_GREATEREQUALINT:
-					stack[sp - 2] = ((Integer) stack[sp - 2]) >= ((Integer) stack[sp - 1]);
+					stack[sp - 2] = vf.bool(((Integer) stack[sp - 2]) >= ((Integer) stack[sp - 1]));
 					sp--;
 					continue NEXT_INSTRUCTION;
 					
@@ -1260,9 +1261,7 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_ANDBOOL:
-					boolean b1 =  (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
-					boolean b2 =  (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
-					stack[sp - 2] = b1 && b2;
+					stack[sp - 2] = ((IBool) stack[sp - 2]).and((IBool) stack[sp - 1]);
 					sp--;
 					continue NEXT_INSTRUCTION;
 					
@@ -1282,14 +1281,14 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_SUBTYPE:
-					stack[sp - 2] = ((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]);
+					stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
 					sp--;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CHECKARGTYPE:
 					Type argType =  ((IValue) stack[sp - 2]).getType();
 					Type paramType = ((Type) stack[sp - 1]);
-					stack[sp - 2] = argType.isSubtypeOf(paramType);
+					stack[sp - 2] = vf.bool(argType.isSubtypeOf(paramType));
 					sp--;
 					continue NEXT_INSTRUCTION;
 								
