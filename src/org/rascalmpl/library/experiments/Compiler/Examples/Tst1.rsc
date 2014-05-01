@@ -1,7 +1,5 @@
 module experiments::Compiler::Examples::Tst1
 
-data Point = point(int i, str color = "red");
+int x;
 
-value main(list[value] args) {
-    return point(3);
-}
+ value main(list[value] args) { x;}

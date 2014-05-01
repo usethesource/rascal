@@ -131,8 +131,8 @@ MuFunction preprocess(Function f, str modName) {
    list[MuExp] initializers = isEmpty(f.locals) ? [] : [ preAssignLoc(vdecl.id, vdecl.initializer) | VarDecl vdecl <- f.locals.vardecls[0], vdecl has initializer ];
    //list[MuExp] initializers = isEmpty(f.locals) ? [] : [ preAssignLoc(vdecl.id, vdecl.initializer) | VarDecl vdecl <- f.locals[0][0], vdecl has initializer ];
    body = preprocess(modName, f.funNames, f.name, size(f.formals), uid, (f is preCoroutine) ? [ guard, *initializers, *f.body, muExhaust() ] : initializers + f.body);   
-   return (f is preCoroutine) ? muCoroutine(uid, scopeIn, size(f.formals), size(vardefs[uid]), refs, muBlock(body))
-                              : muFunction(uid, ftype, scopeIn, size(f.formals), size(vardefs[uid]), false, |rascal:///|, [], (), muBlock(body));
+   return (f is preCoroutine) ? muCoroutine(uid, scopeIn, size(f.formals), size(vardefs[uid]), |unkown:///|, refs,  muBlock(body))
+                              : muFunction(uid, ftype, scopeIn, size(f.formals), size(vardefs[uid]), false, |unkown:///|, [], (), muBlock(body));
 }
 
 str fuid = "";
@@ -184,6 +184,8 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                
                case preMuCallPrim(str name)                                            			=> muCallPrim(name[1..-1], [],   |unknown:///a-location-in-library|)
                case preMuCallPrim(str name, list[MuExp] exps)									=> muCallPrim(name[1..-1], exps, |unknown:///a-location-in-library|)
+               
+               case preThrow(MuExp exp1)														=> muTrow(exp1, |unknown:///a-location-in-library|)
                
                case muCallMuPrim(str name, list[MuExp] exps)									=> muCallMuPrim(name[1..-1], exps)			// strip surrounding quotes
                

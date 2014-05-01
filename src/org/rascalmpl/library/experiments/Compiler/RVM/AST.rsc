@@ -8,7 +8,9 @@ public data Declaration =
 		  		   str scopeIn, 
 		  		   int nformals, 
 		  		   int nlocals,
+		  		   map[int, str] localNames,
 		  		   bool isVarArgs,
+		  		   loc src,
 		  		   int maxStack,
 		  		   list[Instruction] instructions,
 		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
@@ -16,7 +18,9 @@ public data Declaration =
 		  		    str scopeIn, 
 		  		    int nformals, 
 		  		    int nlocals, 
+		  		    map[int, str] localNames,
 		  		    list[int] refs,
+		  		    loc src,
 		  		    int maxStack, 
 		  		    list[Instruction] instructions)
 		;
@@ -92,7 +96,7 @@ public data Instruction =
 		| FAILRETURN()								// Failure return from function
 		| FILTERRETURN()							// Return for filter statement
 		
-		| THROW()                                   // Throws a value
+		| THROW(loc src)                            // Throws a value
 		
 		| LABEL(str label)							// Define a label (is associated with next instruction)
 		| JMP(str label)							// Jump to a labelled instruction

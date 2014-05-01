@@ -118,12 +118,23 @@ test bool tst() = run("{*_,1} := {2}") == {*_,1} := {2};
 
 test bool tst() = run("{str _, *int _} := {\"a\", 1, 2}") == {str _, *int _} := {"a", 1, 2};
 test bool tst() = run("{str _, *int _, *value _} := {\"a\", 1, 2, \"b\"}") == {str _, *int _,*value _} := {"a", 1, 2, "b"};
-test bool tst() = run("{for({str S, *int N, *value V} := {\"a\", 1, 2, \"b\"}){ append \<S,N,V\>;}}") == {for({str S, *int N, *value V} := {"a", 1, 2, "b"}){ append <S,N,V>;}};
 
-test bool tst() = run("{ res = for({*x,*y, *z} := {1,2,3}) append \<x,y,z\>; res; }") == { res = for({*x,*y,*z} := {1,2,3}) append <x,y,z>; res; };
-test bool tst() = run("{ res = for({*x,*y, *int z} := {1,2,3}) append \<x,y,z\>; res; }") == { res = for({*x,*y,*int z} := {1,2,3}) append <x,y,z>; res; };
-test bool tst() = run("{ res = for({*x,*int y, *int z} := {1,2,3}) append \<x,y,z\>; res; }") == { res = for({*x,*int y,*int z} := {1,2,3}) append <x,y,z>; res; };
-test bool tst() = run("{ res = for({*int x,*int y, *int z} := {1,2,3}) append \<x,y,z\>; res; }") == { res = for({*int x,*int y,*int z} := {1,2,3}) append <x,y,z>; res; };
+
+test bool tst() = run("{ res1 = {}; res2 = for({str S, *int N, *value V} := {\"a\", 1, 2, \"b\"}){ append 1; res1 += \<S,N,V\>;}; \<res1, res2\>;}") == 
+                       { res1 = {}; res2 = for({str S, *int N, *value V} := {"a", 1, 2, "b"}){ append 1; res1 += <S,N,V>;}; <res1, res2>;};
+
+test bool tst() = run("{ res1 = {}; res2 = for({*x,*y,*z} := {1,2,3}){ append 1; res1 += \<x,y,z\>;}; \<res1, res2\>; }") == 
+                       { res1 = {}; res2 = for({*x,*y,*z} := {1,2,3}){ append 1; res1 += <x,y,z>;}; <res1, res2>; };
+                       
+test bool tst() = run("{ res1 = {}; res2 = for({*x,*y,*int z} := {1,2,3}){ append 1;  res1 += \<x,y,z\>;}; \<res1, res2\>; }") == 
+                       { res1 = {}; res2 = for({*x,*y,*int z} := {1,2,3}){ append 1; res1 += <x,y,z>;}; <res1, res2>; };
+                       
+test bool tst() = run("{ res1 = {}; res2 = for({*x,*int y,*int z} := {1,2,3}){ append 1; res1 += \<x,y,z\>;}; \<res1, res2\>; }") ==
+                       { res1 = {}; res2 = for({*x,*int y,*int z} := {1,2,3}){ append 1; res1 += <x,y,z>;}; <res1, res2>; };
+
+test bool tst() = run("{ res1 = {}; res2 = for({*int x,*int y,*int z} := {1,2,3}){ append 1; res1 += \<x,y,z\>;}; \<res1, res2\>; }") == 
+                       { res1 = {}; res2 = for({*int x,*int y,*int z} := {1,2,3}){ append 1; res1 += <x,y,z>;}; <res1, res2>; };
+
 
 test bool tst() = run("{ \"a\"(1) } := { \"a\"(1) }") == { "a"(1) } := { "a"(1) };
 test bool tst() = run("{ d1(1,\"a\") } := { d1(1,\"a\") }") == { d1(1,"a") } := { d1(1,"a") };

@@ -26,9 +26,9 @@ public data MuModule =
          
 public data MuFunction =					
                 muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, 
-                           loc source, list[str] modifiers, map[str,str] tags,
+                           loc src, list[str] modifiers, map[str,str] tags,
                            MuExp body)
-              | muCoroutine(str qname, str scopeIn, int nformals, int nlocals, list[int] refs, MuExp body)
+              | muCoroutine(str qname, str scopeIn, int nformals, int nlocals, loc src, list[int] refs, MuExp body)
           ;
           
 // A global (module level) variable.
@@ -158,7 +158,7 @@ public data MuExp =
           
           // Exceptions
           
-          | muThrow(MuExp exp)
+          | muThrow(MuExp exp, loc src)
           
           // Exception handling try/catch
           
@@ -214,6 +214,7 @@ public data Function =
                             list[Guard] guard, lrel[list[VarDecl] vardecls, str s] locals, list[MuExp] body, bool comma)
           ;
 
+
 public data MuExp =
               preIntCon(str txt)
             | preStrCon(str txt)  
@@ -233,6 +234,7 @@ public data MuExp =
             
             | preMuCallPrim(str name)                                // Call a Rascal primitive function (with empty list of arguments)
             | preMuCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
+            | preThrow(MuExp exp)
             
             | preAddition(MuExp lhs, MuExp rhs)
             | preSubtraction(MuExp lhs, MuExp rhs)

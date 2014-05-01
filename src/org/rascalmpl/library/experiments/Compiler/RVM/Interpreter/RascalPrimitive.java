@@ -39,10 +39,7 @@ import org.eclipse.imp.pdb.facts.exceptions.InvalidDateTimeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
-//import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIUtil;
@@ -69,7 +66,7 @@ public enum RascalPrimitive {
 			ISourceLocation src = ((ISourceLocation) stack[sp - 1]);
 			if(!succeeded){
 				stdout.println("Assertion failed" + message + " at " + src);
-				throw RuntimeExceptions.assertionFailed(message, src,  stacktrace);
+				throw RascalRuntimeException.assertionFailed(message, src,  stacktrace);
 			}
 			return sp - 2;
 		}
@@ -210,8 +207,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case NUM:
 				switch (rhsType) {
@@ -228,8 +224,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case REAL:
 				switch (rhsType) {
@@ -246,8 +241,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case RAT:
 				switch (rhsType) {
@@ -264,8 +258,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case SET:
 				//			switch (rhsType) {
@@ -290,8 +283,7 @@ public enum RascalPrimitive {
 				case STR:
 					return loc_add_str.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case LREL:
 				switch (rhsType) {
@@ -300,16 +292,14 @@ public enum RascalPrimitive {
 				case LREL:
 					return lrel_add_lrel.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case MAP:
 				switch (rhsType) {
 				case MAP:
 					return map_add_map.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case REL:
 				switch (rhsType) {
@@ -318,24 +308,21 @@ public enum RascalPrimitive {
 				case REL:
 					return rel_add_rel.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case STR:
 				switch (rhsType) {
 				case STR:
 					return str_add_str.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case TUPLE:
 				switch (rhsType) {
 				case TUPLE:
 					return tuple_add_tuple.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			default:
 				switch (rhsType) {
@@ -344,8 +331,7 @@ public enum RascalPrimitive {
 				case LIST:
 					return elm_add_list.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			}
 		}
@@ -758,7 +744,7 @@ public enum RascalPrimitive {
 			case MAP:
 				return map_compose_map.execute(stack, sp, arity, stacktrace);
 			default:
-				throw new RuntimeException("compose: unexpected type " + leftType);
+				throw new CompilerError("RascalPrimtive compose: unexpected type " + leftType);
 			}
 		}
 	},
@@ -804,7 +790,7 @@ public enum RascalPrimitive {
 			if(lhs.getType().isInteger() && rhs.getType().isInteger()){
 				return int_mod_int.execute(stack, sp, arity, stacktrace);
 			}
-			throw new RuntimeException("mod: unexpected type combination" + lhs.getType() + " and " + rhs.getType());
+			throw new CompilerError("RascalPrimitive mod: unexpected type combination" + lhs.getType() + " and " + rhs.getType());
 		}
 	},
 	int_mod_int {
@@ -844,8 +830,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return int_divide_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case NUM:
 				switch (rhsType) {
@@ -858,8 +843,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return num_divide_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case REAL:
 				switch (rhsType) {
@@ -872,8 +856,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return real_divide_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case RAT:
 				switch (rhsType) {
@@ -886,12 +869,10 @@ public enum RascalPrimitive {
 				case RAT:
 					return rat_divide_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			default:
-				throw new RuntimeException("Illegal type combination: "
-						+ lhsType + " and " + rhsType);
+				throw new CompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType);
 			}
 		}
 	},
@@ -906,7 +887,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IInteger) stack[sp - 1]);
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -918,7 +899,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -930,7 +911,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IRational) stack[sp - 1]);
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -942,7 +923,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -957,7 +938,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IInteger) stack[sp - 1], vf.getPrecision());
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -969,7 +950,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((INumber) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -981,7 +962,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -993,7 +974,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -1008,7 +989,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IInteger) stack[sp - 1]);
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -1020,7 +1001,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((IRational) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -1032,7 +1013,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IRational) stack[sp - 1]);
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -1044,7 +1025,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -1059,7 +1040,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((IReal) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -1071,7 +1052,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IInteger) stack[sp - 1], vf.getPrecision());
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -1083,7 +1064,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -1095,7 +1076,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
 				return sp - 1;
 			} catch(ArithmeticException e) {
-				throw RuntimeExceptions.arithmeticException("/ by zero", null, stacktrace);
+				throw RascalRuntimeException.arithmeticException("/ by zero", stacktrace);
 			}
 		}
 	},
@@ -1342,69 +1323,69 @@ public enum RascalPrimitive {
 						v = vf.integer(dt.getCentury());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the century on a time value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the century on a time value", stacktrace);
 				case "year":
 					if (!dt.isTime()) {
 						v = vf.integer(dt.getYear());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the year on a time value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the year on a time value", stacktrace);
 
 				case "month":
 					if (!dt.isTime()) {
 						v = vf.integer(dt.getMonthOfYear());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the month on a time value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the month on a time value", stacktrace);
 				case "day":
 					if (!dt.isTime()) {
 						v = vf.integer(dt.getDayOfMonth());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the day on a time value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the day on a time value", stacktrace);
 				case "hour":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getHourOfDay());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the hour on a date value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the hour on a date value", stacktrace);
 				case "minute":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getMinuteOfHour());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the minute on a date value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the minute on a date value", stacktrace);
 				case "second":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getSecondOfMinute());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the second on a date value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the second on a date value", stacktrace);
 				case "millisecond":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getMillisecondsOfSecond());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the millisecond on a date value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the millisecond on a date value", stacktrace);
 				case "timezoneOffsetHours":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getTimezoneOffsetHours());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the timezone offset hours on a date value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the timezone offset hours on a date value", stacktrace);
 				case "timezoneOffsetMinutes":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getTimezoneOffsetMinutes());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the timezone offset minutes on a date value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the timezone offset minutes on a date value", stacktrace);
 
 				case "justDate":
 					if (!dt.isTime()) {
 						v = vf.date(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the date component of a time value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the date component of a time value", stacktrace);
 				case "justTime":
 					if (!dt.isDate()) {
 						v = vf.time(dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute(), 
@@ -1412,21 +1393,17 @@ public enum RascalPrimitive {
 								dt.getTimezoneOffsetMinutes());
 						break;
 					}
-					throw new UnsupportedOperation("Can not retrieve the time component of a date value", null);
+					throw RascalRuntimeException.unavailableInformation("Can not retrieve the time component of a date value", stacktrace);
 				default:
-					throw RuntimeExceptions.noSuchField(field, null,  stacktrace);
+					throw RascalRuntimeException.noSuchField(field, stacktrace);
 				}
 				stack[sp - 2] = v;
 				return sp - 1;
 
 			} catch (InvalidDateTimeException e) {
-				throw RuntimeExceptions.illegalArgument(dt, null, stacktrace, e.getMessage());
+				throw RascalRuntimeException.illegalArgument(dt, stacktrace, e.getMessage());
 			}
 		}
-
-		/* TODO: In both implementations UnsupportedOperation is thrown. 
-		 * I guess this has to be replaced by something better, e.g., UnavailableInformation
-		 */
 	},
 	datetime_field_update {
 		@Override
@@ -1452,69 +1429,69 @@ public enum RascalPrimitive {
 
 				case "year":
 					if (dt.isTime()) {
-						throw new UnsupportedOperation("Can not update the year on a time value", null);
+						throw RascalRuntimeException.invalidUseOfTimeException("Can not update the year on a time value", stacktrace);
 					}
 					year = ((IInteger)repl).intValue();
 					break;
 
 				case "month":
 					if (dt.isTime()) {
-						throw new UnsupportedOperation("Can not update the month on a time value", null);
+						throw RascalRuntimeException.invalidUseOfTimeException("Can not update the month on a time value", stacktrace);
 					}
 					month = ((IInteger)repl).intValue();
 					break;
 
 				case "day":
 					if (dt.isTime()) {
-						throw new UnsupportedOperation("Can not update the day on a time value", null);
+						throw RascalRuntimeException.invalidUseOfTimeException("Can not update the day on a time value", stacktrace);
 					}	
 					day = ((IInteger)repl).intValue();
 					break;
 
 				case "hour":
 					if (dt.isDate()) {
-						throw new UnsupportedOperation("Can not update the hour on a date value", null);
+						throw RascalRuntimeException.invalidUseOfDateException("Can not update the hour on a date value", stacktrace);
 					}	
 					hour = ((IInteger)repl).intValue();
 					break;
 
 				case "minute":
 					if (dt.isDate()) {
-						throw new UnsupportedOperation("Can not update the minute on a date value", null);
+						throw RascalRuntimeException.invalidUseOfDateException("Can not update the minute on a date value", stacktrace);
 					}
 					minute = ((IInteger)repl).intValue();
 					break;
 
 				case "second":
 					if (dt.isDate()) {
-						throw new UnsupportedOperation("Can not update the second on a date value", null);
+						throw RascalRuntimeException.invalidUseOfDateException("Can not update the second on a date value", stacktrace);
 					}
 					second = ((IInteger)repl).intValue();
 					break;
 
 				case "millisecond":
 					if (dt.isDate()) {
-						throw new UnsupportedOperation("Can not update the millisecond on a date value", null);
+						throw RascalRuntimeException.invalidUseOfDateException("Can not update the millisecond on a date value", stacktrace);
 					}
 					milli = ((IInteger)repl).intValue();
 					break;
 
 				case "timezoneOffsetHours":
 					if (dt.isDate()) {
-						throw new UnsupportedOperation("Can not update the timezone offset hours on a date value", null);
+						throw RascalRuntimeException.invalidUseOfDateException("Can not update the timezone offset hours on a date value", stacktrace);
 					}
 					tzOffsetHour = ((IInteger)repl).intValue();
 					break;
 
 				case "timezoneOffsetMinutes":
 					if (dt.isDate()) {
-						throw new UnsupportedOperation("Can not update the timezone offset minutes on a date value", null);
+						throw RascalRuntimeException.invalidUseOfDateException("Can not update the timezone offset minutes on a date value", stacktrace);
 					}
 					tzOffsetMin = ((IInteger)repl).intValue();
 					break;			
 
 				default:
-					throw RuntimeExceptions.noSuchField(field, null,  stacktrace);
+					throw RascalRuntimeException.noSuchField(field, stacktrace);
 				}
 				IDateTime newdt = null;
 				if (dt.isDate()) {
@@ -1529,10 +1506,10 @@ public enum RascalPrimitive {
 				return sp - 2;
 			}
 			catch (IllegalArgumentException e) {
-				throw RuntimeExceptions.illegalArgument(repl, null, null, "Cannot update field " + field + ", this would generate an invalid datetime value");
+				throw RascalRuntimeException.illegalArgument(repl, stacktrace, "Cannot update field " + field + ", this would generate an invalid datetime value");
 			}
 			catch (InvalidDateTimeException e) {
-				throw RuntimeExceptions.illegalArgument(dt, null, stacktrace, e.getMessage());
+				throw RascalRuntimeException.illegalArgument(dt, stacktrace, e.getMessage());
 			}
 		}
 	},
@@ -1558,8 +1535,8 @@ public enum RascalPrimitive {
 
 			case "host":
 				uri = sloc.getURI();
-				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
-					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", null,  stacktrace);
+				if (!rvm.rex.getResolverRegistry().supportsHost(uri)) {
+					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", stacktrace);
 				}
 				s = uri.getHost();
 				v = vf.string(s == null ? "" : s);
@@ -1572,7 +1549,7 @@ public enum RascalPrimitive {
 			case "parent":
 				String path = sloc.getPath();
 				if (path.equals("")) {
-					throw RuntimeExceptions.noParent(sloc, null, stacktrace);
+					throw RascalRuntimeException.noParent(sloc, stacktrace);
 				}
 				int i = path.lastIndexOf("/");
 
@@ -1580,7 +1557,7 @@ public enum RascalPrimitive {
 					path = path.substring(0, i);
 					v = $loc_field_update(sloc, "path", vf.string(path), stacktrace);
 				} else {
-					throw RuntimeExceptions.noParent(sloc, null, stacktrace);
+					throw RascalRuntimeException.noParent(sloc, stacktrace);
 				}
 				break;	
 
@@ -1588,7 +1565,7 @@ public enum RascalPrimitive {
 				path = sloc.hasPath() ? sloc.getPath() : "";
 
 				if (path.equals("")) {
-					throw RuntimeExceptions.noParent(sloc,null,null);
+					throw RascalRuntimeException.noParent(sloc, stacktrace);
 				}
 				i = path.lastIndexOf("/");
 
@@ -1600,11 +1577,12 @@ public enum RascalPrimitive {
 
 			case "ls":
 				try {
-					ISourceLocation resolved = rvm.ctx.getHeap().resolveSourceLocation(sloc);
+					ISourceLocation resolved = rvm.rex.resolveSourceLocation(sloc);
+					//ISourceLocation resolved = rvm.ctx.getHeap().resolveSourceLocation(sloc);
 					IListWriter w = vf.listWriter();
 
 					Object[] fakeStack = new Object[2];
-					for (String elem : rvm.ctx.getResolverRegistry().listEntries(resolved.getURI())) {
+					for (String elem : rvm.rex.getResolverRegistry().listEntries(resolved.getURI())) {
 						fakeStack[0] = resolved;	// TODO
 						fakeStack[1] = vf.string(elem);
 						loc_add_str.execute(fakeStack, 2, 2, stacktrace);
@@ -1614,7 +1592,7 @@ public enum RascalPrimitive {
 					v = w.done();
 					break;
 				} catch (IOException e) {
-					throw RuntimeExceptions.io(vf.string(e.getMessage()), null,null);
+					throw RascalRuntimeException.io(vf.string(e.getMessage()), stacktrace);
 				}
 
 			case "extension":
@@ -1651,8 +1629,8 @@ public enum RascalPrimitive {
 
 			case "user":
 				uri = sloc.getURI();
-				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
-					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", null,  stacktrace);
+				if (!rvm.rex.getResolverRegistry().supportsHost(uri)) {
+					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", stacktrace);
 				}
 				s = uri.getUserInfo();
 				v = vf.string(s == null ? "" : s);
@@ -1660,8 +1638,8 @@ public enum RascalPrimitive {
 
 			case "port":
 				uri = sloc.getURI();
-				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
-					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", null,  stacktrace);
+				if (!rvm.rex.getResolverRegistry().supportsHost(uri)) {
+					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", stacktrace);
 				}
 				int n = uri.getPort();
 				v = vf.integer(n);
@@ -1672,7 +1650,7 @@ public enum RascalPrimitive {
 					v = vf.integer(sloc.getLength());
 					break;
 				} else {
-					throw RuntimeExceptions.unavailableInformation(sloc, stacktrace);
+					throw RascalRuntimeException.unavailableInformation("length", stacktrace);
 				}
 
 			case "offset":
@@ -1680,7 +1658,7 @@ public enum RascalPrimitive {
 					v = vf.integer(sloc.getOffset());
 					break;
 				} else {
-					throw RuntimeExceptions.unavailableInformation(sloc, stacktrace);
+					throw RascalRuntimeException.unavailableInformation("offset", stacktrace);
 				}
 
 			case "begin":
@@ -1688,14 +1666,14 @@ public enum RascalPrimitive {
 					v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), vf.integer(sloc.getBeginColumn()));
 					break;
 				} else {
-					throw RuntimeExceptions.unavailableInformation(sloc, stacktrace);
+					throw RascalRuntimeException.unavailableInformation("begin", stacktrace);
 				}
 			case "end":
 				if(sloc.hasLineColumn()){
 					v = vf.tuple(lineColumnType, vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
 					break;
 				} else {
-					throw RuntimeExceptions.unavailableInformation(sloc, stacktrace);
+					throw RascalRuntimeException.unavailableInformation("end", stacktrace);
 				}
 
 			case "uri":
@@ -1707,7 +1685,7 @@ public enum RascalPrimitive {
 				break;
 
 			default:
-				throw new RuntimeException("Access to non-existing field " + field + " in location");
+				throw RascalRuntimeException.noSuchField(field, stacktrace);
 			}
 
 			stack[sp - 2] = v;
@@ -1772,7 +1750,7 @@ public enum RascalPrimitive {
 					}
 				}
 			}
-			throw RuntimeExceptions.noSuchField(field.getValue(), null, stacktrace);
+			throw RascalRuntimeException.noSuchField(field.getValue(), stacktrace);
 		}
 	},
 	
@@ -1789,11 +1767,11 @@ public enum RascalPrimitive {
 			try {
 				stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
 				if(stack[sp - 2] == null) {
-					throw RuntimeExceptions.noSuchAnnotation(label, null, stacktrace);
+					throw RascalRuntimeException.noSuchAnnotation(label, stacktrace);
 				}
 				return sp - 1;
 			} catch (FactTypeUseException e) {
-				throw RuntimeExceptions.noSuchAnnotation(label, null, stacktrace);
+				throw RascalRuntimeException.noSuchAnnotation(label, stacktrace);
 			}
 		}
 	},
@@ -2464,8 +2442,7 @@ public enum RascalPrimitive {
 				case LREL:
 					return list_intersect_lrel.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("intersect: illegal combination "
-							+ leftType + " and " + rightType);
+					throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType);
 				}
 			case SET:
 				switch (ToplevelType.getToplevelType(rightType)) {
@@ -2474,15 +2451,13 @@ public enum RascalPrimitive {
 				case REL:
 					return set_intersect_rel.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("intersect: illegal combination "
-							+ leftType + " and " + rightType);
+					throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType);
 				}
 			case MAP:
 				return map_intersect_map.execute(stack, sp, arity, stacktrace);
 
 			default:
-				throw new RuntimeException("intersect: illegal combination "
-						+ leftType + " and " + rightType);
+				throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType);
 			}
 		}
 	},
@@ -2575,8 +2550,7 @@ public enum RascalPrimitive {
 			case MAP:
 				return elm_in_map.execute(stack, sp, arity, stacktrace);
 			default:
-				throw new RuntimeException("in: illegal combination " + leftType
-						+ " and " + rightType);
+				throw new CompilerError("in: illegal combination " + leftType + " and " + rightType);
 			}
 		}
 	},
@@ -2821,8 +2795,7 @@ public enum RascalPrimitive {
 				case LREL:
 					return list_join_lrel.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("join: illegal combination "
-							+ leftType + " and " + rightType);
+					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType);
 				}
 			case LREL:
 				switch (ToplevelType.getToplevelType(rightType)) {
@@ -2831,8 +2804,7 @@ public enum RascalPrimitive {
 				case LREL:
 					return lrel_join_lrel.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("join: illegal combination "
-							+ leftType + " and " + rightType);
+					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType);
 				}
 			case SET:
 				switch (ToplevelType.getToplevelType(rightType)) {
@@ -2841,8 +2813,7 @@ public enum RascalPrimitive {
 				case REL:
 					return set_join_rel.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("join: illegal combination "
-							+ leftType + " and " + rightType);
+					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType);
 				}
 
 			case REL:
@@ -2852,13 +2823,11 @@ public enum RascalPrimitive {
 				case REL:
 					return rel_join_rel.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("join: illegal combination "
-							+ leftType + " and " + rightType);
+					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType);
 				}
 
 			default:
-				throw new RuntimeException("join: illegal combination "
-						+ leftType + " and " + rightType);
+				throw new CompilerError("join: illegal combination " + leftType + " and " + rightType);
 			}
 		}
 	},
@@ -3142,7 +3111,7 @@ public enum RascalPrimitive {
 			case TUPLE:
 				return tuple_less_tuple.execute(stack, sp, arity, stacktrace);
 			default:
-				throw new RuntimeException("less: unexpected type " + leftType);
+				throw new CompilerError("less: unexpected type " + leftType);
 			}
 		}
 	},
@@ -3379,7 +3348,7 @@ public enum RascalPrimitive {
 			}
 
 			if (!right.hasOffsetLength()) {
-				throw new ImplementationError("assertion failed");
+				throw new CompilerError("offset length missing");
 			}
 			stack[sp - 2] = false;
 			return sp - 1;
@@ -3550,7 +3519,7 @@ public enum RascalPrimitive {
 			case TUPLE:
 				return tuple_lessequal_tuple.execute(stack, sp, arity, stacktrace);
 			default:
-				throw new RuntimeException("lessequal: unexpected type " + leftType);
+				throw new CompilerError("lessequal: unexpected type " + leftType);
 			}
 		}
 	},
@@ -3798,7 +3767,7 @@ public enum RascalPrimitive {
 			}
 
 			if (!right.hasOffsetLength()) {
-				throw new ImplementationError("assertion failed");
+				throw new CompilerError("missing offset length");
 			}
 			stack[sp - 2] = false;
 			return sp - 1;
@@ -4010,7 +3979,7 @@ public enum RascalPrimitive {
 			assert arity == 1;
 			ISet set = (ISet) stack[sp - 1];
 			if(set.size() != 1)
-				throw new RuntimeException("set2elm: set should have a single element");
+				throw new CompilerError("set2elm: set should have a single element");
 			IValue elm = set.iterator().next();
 			stack[sp - 1] = elm;
 			return sp;
@@ -4071,8 +4040,7 @@ public enum RascalPrimitive {
 			case MAP:
 				return elm_notin_map.execute(stack, sp, arity, stacktrace);
 			default:
-				throw new RuntimeException("notin: illegal combination " + leftType
-						+ " and " + rightType);
+				throw new CompilerError("notin: illegal combination " + leftType + " and " + rightType);
 			}
 		}
 	},
@@ -4362,8 +4330,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return int_product_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case NUM:
 				switch (rhsType) {
@@ -4376,8 +4343,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return num_product_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case REAL:
 				switch (rhsType) {
@@ -4390,8 +4356,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return real_product_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case RAT:
 				switch (rhsType) {
@@ -4404,12 +4369,10 @@ public enum RascalPrimitive {
 				case RAT:
 					return rat_product_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			default:
-				throw new RuntimeException("Illegal type combination: "
-						+ lhsType + " and " + rhsType);
+				throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
 			}
 		}
 	},
@@ -4616,7 +4579,7 @@ public enum RascalPrimitive {
 			if(lhs.getType().isInteger() && rhs.getType().isInteger()){
 				return int_remainder_int.execute(stack, sp, arity, stacktrace);
 			}
-			throw new RuntimeException("remainder: unexpected type combination" + lhs.getType() + " and " + rhs.getType());
+			throw new CompilerError("remainder: unexpected type combination" + lhs.getType() + " and " + rhs.getType());
 		}
 
 	},
@@ -4906,7 +4869,7 @@ public enum RascalPrimitive {
 			case REAL: return negative_real.execute(stack, sp, arity, stacktrace);
 			case RAT: return negative_rat.execute(stack, sp, arity, stacktrace);
 			default:
-				throw new RuntimeException("negative: unexpected type " + leftType);
+				throw new CompilerError("negative: unexpected type " + leftType);
 
 			}
 		}
@@ -4961,7 +4924,7 @@ public enum RascalPrimitive {
 			IConstructor type = (IConstructor) stack[sp - 2];
 			IString s = ((IString) stack[sp - 1]);
 
-			stack[sp - 3] = parsingTools.parse(module_name, type, s);
+			stack[sp - 3] = parsingTools.parse(module_name, type, s, stacktrace);
 			return sp - 2;
 		}
 
@@ -5002,7 +4965,7 @@ public enum RascalPrimitive {
 			try {
 				stack[sp - 2] = cons.get((idx >= 0) ? idx : (cons.arity() + idx));
 			} catch(IndexOutOfBoundsException e) {
-				throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, stacktrace);
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], stacktrace);
 			}
 			return sp - 1;
 		}
@@ -5022,7 +4985,7 @@ public enum RascalPrimitive {
 				}
 				stack[sp - 2] = node.get(idx);  
 			} catch(IndexOutOfBoundsException e) {
-				throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, stacktrace);
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], stacktrace);
 			}
 			return sp - 1;
 		}
@@ -5037,7 +5000,7 @@ public enum RascalPrimitive {
 			try {
 				stack[sp - 2] = lst.get((idx >= 0) ? idx : (lst.length() + idx));
 			} catch(IndexOutOfBoundsException e) {
-				throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, stacktrace);
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], stacktrace);
 			}
 			return sp - 1;
 		}
@@ -5048,7 +5011,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			stack[sp - 2] = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
 			if(stack[sp - 2] == null) {
-				throw RuntimeExceptions.noSuchKey((IValue) stack[sp - 1], null, stacktrace);
+				throw RascalRuntimeException.noSuchKey((IValue) stack[sp - 1], stacktrace);
 			}
 			return sp - 1;
 		}
@@ -5063,7 +5026,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = (idx >= 0) ? str.substring(idx, idx+1)
 						: str.substring(str.length() + idx, str.length() + idx + 1);
 			} catch(IndexOutOfBoundsException e) {
-				throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, stacktrace);
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], stacktrace);
 			}
 			return sp - 1;
 		}
@@ -5078,7 +5041,7 @@ public enum RascalPrimitive {
 			try {
 				stack[sp - 2] = tup.get((idx >= 0) ? idx : tup.arity() + idx);
 			} catch(IndexOutOfBoundsException e) {
-				throw RuntimeExceptions.indexOutOfBounds((IInteger) stack[sp - 1], null, stacktrace);
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], stacktrace);
 			}
 			return sp - 1;
 		}
@@ -5201,7 +5164,7 @@ public enum RascalPrimitive {
 					appl_args = (IList) child.get(1);
 					delta = $getIter(symbol);
 					if(delta < 0){
-					  throw new RuntimeException("subscript not supported on " + symbol);
+					  throw new CompilerError("subscript not supported on " + symbol);
 					}
 				}
 			}
@@ -5242,8 +5205,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return int_subtract_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case NUM:
 				switch (rhsType) {
@@ -5256,8 +5218,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return num_subtract_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case REAL:
 				switch (rhsType) {
@@ -5270,8 +5231,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return real_subtract_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			case RAT:
 				switch (rhsType) {
@@ -5284,12 +5244,10 @@ public enum RascalPrimitive {
 				case RAT:
 					return rat_subtract_rat.execute(stack, sp, arity, stacktrace);
 				default:
-					throw new RuntimeException("Illegal type combination: "
-							+ lhsType + " and " + rhsType);
+					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
 				}
 			default:
-				throw new RuntimeException("Illegal type combination: "
-						+ lhsType + " and " + rhsType);
+				throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
 			}
 		}
 	},
@@ -5566,7 +5524,7 @@ public enum RascalPrimitive {
 			if(lhsType.isRelation()){
 				return rel_transitive_closure.execute(stack, sp, arity, stacktrace);
 			}
-			throw new RuntimeException("transitive_closure: unexpectetype " + lhsType);
+			throw new CompilerError("transitive_closure: unexpected type " + lhsType);
 		}
 
 	},
@@ -5606,7 +5564,7 @@ public enum RascalPrimitive {
 			if(lhsType.isRelation()){
 				return rel_transitive_reflexive_closure.execute(stack, sp, arity, stacktrace);
 			}
-			throw new RuntimeException("transitive_closure: unexpectetype " + lhsType);
+			throw new CompilerError("transitive_closure: unexpected type " + lhsType);
 		}
 	},
 	lrel_transitive_reflexive_closure {
@@ -5685,7 +5643,7 @@ public enum RascalPrimitive {
 				stack[sp - 3] = lst.put(n, (IValue) stack[sp - 1]);
 				return sp - 2;
 			} catch (IndexOutOfBoundsException e){
-				throw RuntimeExceptions.indexOutOfBounds(vf.integer(n), null, stacktrace);
+				throw RascalRuntimeException.indexOutOfBounds(vf.integer(n), stacktrace);
 			}
 		}
 
@@ -5711,7 +5669,7 @@ public enum RascalPrimitive {
 				stack[sp - 3] = tup.set(n, (IValue) stack[sp - 1]);
 				return sp - 2;
 			} catch (IndexOutOfBoundsException e){
-				throw RuntimeExceptions.indexOutOfBounds(vf.integer(n), null, stacktrace);
+				throw RascalRuntimeException.indexOutOfBounds(vf.integer(n), stacktrace);
 			}
 		}
 
@@ -5730,7 +5688,7 @@ public enum RascalPrimitive {
 				stack[sp - 1] =vf.sourceLocation(new URI(uri.getValue()));
 				return sp;
 			} catch (URISyntaxException e) {
-				throw RuntimeExceptions.illegalArgument(uri, null, stacktrace);
+				throw RascalRuntimeException.illegalArgument(uri, stacktrace);
 			}
 
 		}
@@ -5778,7 +5736,7 @@ public enum RascalPrimitive {
 			} else if(stack[sp - 1] instanceof Integer){
 				stack[sp - 1] = vf.string(((Integer) stack[sp - 1]).toString());
 			} else {
-				throw RuntimeExceptions.illegalArgument(vf.string(stack[sp -1].toString()), null, stacktrace);
+				throw RascalRuntimeException.illegalArgument(vf.string(stack[sp -1].toString()), stacktrace);
 			}
 			return sp;
 		}
@@ -5815,7 +5773,7 @@ public enum RascalPrimitive {
 			stdout = usedRVM.stdout;
 			rvm = usedRVM;
 			parsingTools = new ParsingTools(fact);
-			parsingTools.setContext(rvm.ctx);
+			parsingTools.setContext(rvm.rex);
 		} else {
 			System.err.println("No RVM found");
 		}
@@ -5946,8 +5904,8 @@ public enum RascalPrimitive {
 
 			case "host":
 				uri = sloc.getURI();
-				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
-					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", null,  stacktrace);
+				if (!rvm.rex.getResolverRegistry().supportsHost(uri)) {
+					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", stacktrace);
 				}
 				uri = URIUtil.changeHost(uri, newStringValue);
 				authority = uri.getAuthority();
@@ -5984,7 +5942,7 @@ public enum RascalPrimitive {
 				break;	
 
 			case "ls":
-				throw RuntimeExceptions.noSuchField("Cannot update the children of a location", null, stacktrace);
+				throw RascalRuntimeException.noSuchField("Cannot update the children of a location", stacktrace);
 
 			case "extension":
 				String ext = newStringValue;
@@ -6037,8 +5995,8 @@ public enum RascalPrimitive {
 
 			case "user":
 				uri = sloc.getURI();
-				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
-					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", null,  stacktrace);
+				if (!rvm.rex.getResolverRegistry().supportsHost(uri)) {
+					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", stacktrace);
 				}
 				if (uri.getHost() != null) {
 					uri = URIUtil.changeUserInformation(uri, newStringValue);
@@ -6048,8 +6006,8 @@ public enum RascalPrimitive {
 
 			case "port":
 				uri = sloc.getURI();
-				if (!rvm.ctx.getResolverRegistry().supportsHost(uri)) {
-					throw RuntimeExceptions.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", null,  stacktrace);
+				if (!rvm.rex.getResolverRegistry().supportsHost(uri)) {
+					throw RascalRuntimeException.noSuchField("The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", stacktrace);
 				}
 				if (uri.getHost() != null) {
 					int port = Integer.parseInt(((IInteger) repl).getStringRepresentation());
@@ -6062,14 +6020,14 @@ public enum RascalPrimitive {
 			case "length":
 				iLength = ((IInteger) repl).intValue();
 				if (iLength < 0) {
-					throw RuntimeExceptions.illegalArgument(repl, null, stacktrace);
+					throw RascalRuntimeException.illegalArgument(repl, stacktrace);
 				}
 				break;
 
 			case "offset":
 				iOffset = ((IInteger) repl).intValue();
 				if (iOffset < 0) {
-					throw RuntimeExceptions.illegalArgument(repl, null, stacktrace);
+					throw RascalRuntimeException.illegalArgument(repl, stacktrace);
 				}
 				break;
 
@@ -6078,7 +6036,7 @@ public enum RascalPrimitive {
 				iBeginColumn = ((IInteger) ((ITuple) repl).get(1)).intValue();
 
 				if (iBeginColumn < 0 || iBeginLine < 0) {
-					throw RuntimeExceptions.illegalArgument(repl, null,  stacktrace);
+					throw RascalRuntimeException.illegalArgument(repl, stacktrace);
 				}
 				break;
 			case "end":
@@ -6086,12 +6044,12 @@ public enum RascalPrimitive {
 				iEndColumn = ((IInteger) ((ITuple) repl).get(1)).intValue();
 
 				if (iEndColumn < 0 || iEndLine < 0) {
-					throw RuntimeExceptions.illegalArgument(repl, null,  stacktrace);
+					throw RascalRuntimeException.illegalArgument(repl, stacktrace);
 				}
 				break;			
 
 			default:
-				throw RuntimeExceptions.noSuchField("Modification of field " + field + " in location not allowed", null, stacktrace);
+				throw RascalRuntimeException.noSuchField("Modification of field " + field + " in location not allowed", stacktrace);
 			}
 
 			ISourceLocation newLoc = sloc;
@@ -6129,7 +6087,7 @@ public enum RascalPrimitive {
 
 			if (iBeginColumn != -1 || iEndColumn != -1 || iBeginLine != -1 || iBeginColumn != -1) {
 				// trying to add line/column info to a uri that has no offset length
-				throw RuntimeExceptions.invalidUseOfLocation("Can not add line/column information without offset/length", null,  stacktrace);
+				throw RascalRuntimeException.invalidUseOfLocation("Can not add line/column information without offset/length", stacktrace);
 			}
 
 			// trying to set offset that was not there before, adding length automatically
@@ -6155,9 +6113,9 @@ public enum RascalPrimitive {
 			return newLoc;
 
 		} catch (IllegalArgumentException e) {
-			throw RuntimeExceptions.illegalArgument(null, stacktrace);
+			throw RascalRuntimeException.illegalArgument(stacktrace);
 		} catch (URISyntaxException e) {
-			throw RuntimeExceptions.parseError(null, null, stacktrace);
+			throw RascalRuntimeException.malformedURI(e.getMessage(), stacktrace);
 		}
 	}
 
@@ -6245,13 +6203,13 @@ public enum RascalPrimitive {
 		}
 
 		if (len == 0) {
-			throw RuntimeExceptions.emptyList(null, stacktrace);
+			throw RascalRuntimeException.emptyList(stacktrace);
 		}
 		if (firstIndex >= len) {
-			throw RuntimeExceptions.indexOutOfBounds(vf.integer(firstIndex), null, stacktrace);
+			throw RascalRuntimeException.indexOutOfBounds(vf.integer(firstIndex), stacktrace);
 		}
 		if (endIndex > len ) {
-			throw RuntimeExceptions.indexOutOfBounds(vf.integer(endIndex), null, stacktrace);
+			throw RascalRuntimeException.indexOutOfBounds(vf.integer(endIndex), stacktrace);
 		}
 
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
@@ -6349,6 +6307,7 @@ public enum RascalPrimitive {
 		}
 		return val.toString();
 	}
+
 }
 
 /*
