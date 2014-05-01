@@ -9,17 +9,17 @@ import lang::rascal::grammar::definition::Parameters;
 import lang::rascal::grammar::definition::Tokens;  
 import lang::rascal::grammar::definition::Keywords;
 import lang::rascal::grammar::ConcreteSyntax;
+import IO;
   
 public Grammar preprocess(Grammar gr) {
+iprintln("gr before: <gr.rules<0>>");
   gr = literals(gr);
   gr = flattenTokens(gr);
   gr = addHoles(gr);
-  gr = expandKeywords(gr);
-  gr = makeRegularStubs(expandRegularSymbols(makeRegularStubs(gr)));
- 
+  //gr = expandKeywords(gr);
+  gr = expandRegularSymbols(makeRegularStubs(gr));
   gr = expandParameterizedSymbols(gr);
   gr = addNotAllowedSets(gr);
   gr = prioAssocToChoice(gr);
-
   return gr;
 } 
