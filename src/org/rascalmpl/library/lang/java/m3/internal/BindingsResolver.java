@@ -145,18 +145,14 @@ public class BindingsResolver {
 			parentNode = parentNode.getParent();
 			parentBinding = resolveBinding(parentNode);
 		}
-//		String key = "";
-//		for (String storedKey: EclipseJavaCompiler.cache.keySet()) {
-//			if (EclipseJavaCompiler.cache.get(storedKey).equals(parentBinding)) {
-//				key = storedKey;
-//				break;
-//			}
-//		}
+
 		String key = thisNode.resolveBinding().getKey();
-		if (EclipseJavaCompiler.cache.containsKey(key)) {
-			return EclipseJavaCompiler.cache.get(key);
+		// Binding keys for initializers are not unique so we always force them to be recomputed
+		if (!(parentNode instanceof Initializer)) {
+			if (EclipseJavaCompiler.cache.containsKey(key)) {
+				return EclipseJavaCompiler.cache.get(key);
+			}
 		}
-		
 		String qualifiedName = parentBinding.getPath();
 		String[] bindingKeys = key.split("#");
 		
@@ -570,8 +566,7 @@ public class BindingsResolver {
 		if (binding == null) {
 	      return convertBinding("unresolved", null, null);
 	    }
-		if (EclipseJavaCompiler.cache.containsKey(binding.getKey()))
-			return EclipseJavaCompiler.cache.get(binding.getKey());
+		
 		String qualifiedName = "";
 		
 		ITypeBinding declaringClass = binding.getDeclaringClass();
@@ -589,6 +584,9 @@ public class BindingsResolver {
 	    } else {
 	    	return convertBinding("unresolved", null, null);
 	    }
+		
+		if (EclipseJavaCompiler.cache.containsKey(binding.getKey()))
+			return EclipseJavaCompiler.cache.get(binding.getKey());
 		
 		String bindingKey = binding.getKey();
 		String[] bindingKeys = bindingKey.split("#");
