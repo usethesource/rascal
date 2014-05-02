@@ -19,7 +19,7 @@ import IO;
 public GrammarDefinition \layouts(GrammarDefinition def) {
   deps = extends(def) + imports(def);
   for (str name <- def.modules) {
-    def.modules[name].iguana = layouts(def.modules[name].iguana, activeLayout(name, deps[name], def));
+    def.modules[name].grammar = layouts(def.modules[name].grammar, activeLayout(name, deps[name], def));
   }
   return def;
 }

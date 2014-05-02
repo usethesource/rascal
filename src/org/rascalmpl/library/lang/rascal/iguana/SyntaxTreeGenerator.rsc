@@ -47,7 +47,7 @@ data Sig
 data Arg 
   = arg(str typ, str name);
 
-public set[AST] iguanaToASTModel(str pkg, Grammar g) {
+public set[AST] grammarToASTModel(str pkg, Grammar g) {
   map[str, set[Sig]] m = ();
   set[Sig] sigs = {};
   set[AST] asts = {};
@@ -77,13 +77,13 @@ public set[AST] iguanaToASTModel(str pkg, Grammar g) {
   return asts;
 }
 
-public void iguanaToJavaAPI(loc outdir, str pkg, Grammar g) {
-  model = iguanaToASTModel(pkg, g);
-  iguanaToVisitor(outdir, pkg, model);
-  iguanaToASTClasses(outdir, pkg, model);
+public void grammarToJavaAPI(loc outdir, str pkg, Grammar g) {
+  model = grammarToASTModel(pkg, g);
+  grammarToVisitor(outdir, pkg, model);
+  grammarToASTClasses(outdir, pkg, model);
 }
 
-public void iguanaToVisitor(loc outdir, str pkg, set[AST] asts) {
+public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
   ivisit = "package <pkg>;
            '
            'public interface IASTVisitor\<T\> {
@@ -115,7 +115,7 @@ public void iguanaToVisitor(loc outdir, str pkg, set[AST] asts) {
    loggedWriteFile(outdir + "/NullASTVisitor.java", nullVisit);
 }
 
-public void iguanaToASTClasses(loc outdir, str pkg, set[AST] asts) {
+public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
   for (a <- sort(asts)) {
      class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.IConstructor"], a); 
      loggedWriteFile(outdir + "/<a.name>.java", class); 

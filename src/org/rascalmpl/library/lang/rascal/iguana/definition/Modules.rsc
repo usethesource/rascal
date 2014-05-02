@@ -17,28 +17,28 @@ import Grammar;
 import Set;
 
 @memo
-@doc{Converts internal module representation of Rascal interpreter to single iguana definition}
-public Grammar modules2iguana(str main, map[str name, tuple[set[str] imports, set[str] extends, set[SyntaxDefinition] defs] \mod] mods) {
+@doc{Converts internal module representation of Rascal interpreter to single grammar definition}
+public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, set[str] extends, set[SyntaxDefinition] defs] \mod] mods) {
   // note that we ignore extends here because they're resolved by the interpreter at the moment by 
   // cloning definitions into the module that extends.
   def = \definition(main, (m:\module(m, 
                                     mods[m].imports, 
                                     mods[m].extends, 
-                                    syntax2iguana(mods[m].defs)
+                                    syntax2grammar(mods[m].defs)
                                     ) 
                           | m <- mods));
   return fuse(layouts(resolve(def)));
 }
 
 @memo
-@doc{Converts concrete syntax definitions and fuses them into one single iguana definition}     
-public Grammar modules2iguana(str main, set[Module] modules) {
+@doc{Converts concrete syntax definitions and fuses them into one single grammar definition}     
+public Grammar modules2grammar(str main, set[Module] modules) {
   return fuse(layouts(resolve(modules2definition(main, modules))));
 }
 
-@doc{Converts concrete syntax definitions to abstract iguana definitions}
+@doc{Converts concrete syntax definitions to abstract grammar definitions}
 public GrammarDefinition modules2definition(str main, set[Module] modules) {
-  return \definition(main, (\mod.name:\mod | m <- modules, \mod := module2iguana(m)));
+  return \definition(main, (\mod.name:\mod | m <- modules, \mod := module2grammar(m)));
 }
 
 @doc{
@@ -46,7 +46,7 @@ public GrammarDefinition modules2definition(str main, set[Module] modules) {
   are visible locally, or via import and extend.
 }
 public Grammar fuse(GrammarDefinition def) {
-  result = iguana({},(),());
+  result = grammar({},(),());
   todo = {def.main};
   done = {};
   
@@ -54,7 +54,7 @@ public Grammar fuse(GrammarDefinition def) {
     <name,todo> = takeOneFrom(todo);
     \mod = def.modules[name];
     done += name; 
-    result = (compose(result, \mod.iguana) | compose(it, def.modules[i].iguana) | i <- \mod.imports + \mod.extends);
+    result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- \mod.imports + \mod.extends);
     todo += (\mod.extends - done);
   }
   
@@ -63,9 +63,9 @@ public Grammar fuse(GrammarDefinition def) {
  
 
 
-public GrammarModule module2iguana(Module \mod) {
+public GrammarModule module2grammar(Module \mod) {
   <name, imps, exts> = getModuleMetaInf(\mod);
-  return \module(name, imps, exts, syntax2iguana(collect(\mod)));
+  return \module(name, imps, exts, syntax2grammar(collect(\mod)));
 } 
 
 public tuple[str, set[str], set[str]] getModuleMetaInf(Module \mod) {
@@ -91,8 +91,8 @@ str deslash(str input) {
   }
 }
 
-public Grammar imports2iguana(set[Import] imports) {
-  return syntax2iguana({ s | \syntax(SyntaxDefinition s) <- imports});
+public Grammar imports2grammar(set[Import] imports) {
+  return syntax2grammar({ s | \syntax(SyntaxDefinition s) <- imports});
 }
  
 private set[SyntaxDefinition] collect(Module \mod) {

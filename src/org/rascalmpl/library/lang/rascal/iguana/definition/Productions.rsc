@@ -26,7 +26,7 @@ import util::Maybe;
 
 // conversion functions
 
-public Grammar syntax2iguana(set[SyntaxDefinition] defs) {
+public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
   set[Production] prods = {prod(empty(),[],{}), prod(layouts("$default$"),[],{})};
   set[Symbol] starts = {};
   
@@ -37,7 +37,7 @@ public Grammar syntax2iguana(set[SyntaxDefinition] defs) {
       starts += st.val;
   }
   
-  return iguana(starts, prods, ());
+  return grammar(starts, prods, ());
 }
 
 public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefinition sd) {  

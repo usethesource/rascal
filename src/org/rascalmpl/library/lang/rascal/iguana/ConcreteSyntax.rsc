@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @doc{
-  This module provides functionality for merging the Rascal iguana and arbitrary user-defined iguanas
+  This module provides functionality for merging the Rascal grammar and arbitrary user-defined grammars
 }
 module lang::rascal::iguana::ConcreteSyntax
 
@@ -24,10 +24,10 @@ import lang::rascal::iguana::definition::Regular;
 import lang::rascal::iguana::definition::Symbols;
 import lang::rascal::format::Escape;
 
-public Grammar addHoles(Grammar object) = compose(object, iguana({}, { *holes(object),  regular(iter(\char-class([range(48,57)])))}, ()));
+public Grammar addHoles(Grammar object) = compose(object, grammar({}, { *holes(object),  regular(iter(\char-class([range(48,57)])))}, ()));
 
 @doc{
-  For every non-terminal in the iguana we create a rule that can recognize its hole syntax. Each hole
+  For every non-terminal in the grammar we create a rule that can recognize its hole syntax. Each hole
   is specific for a non-terminal (using its name as a literal), such that no ambiguity can arise. When parsing
   a fragment, the Rascal evaluator will generate a string that matches this generated syntax. It does so based on
   knowing the type of the variable, which is either declared internally in the '<...>' syntax, or derived by the 
@@ -87,7 +87,7 @@ private Symbol getTargetSymbol(Symbol sym) {
   } 
 }
 
-@doc{This decides for which part of the iguana we can write anti-quotes}
+@doc{This decides for which part of the grammar we can write anti-quotes}
 private bool quotable(Symbol x) { 
     return \lit(_) !:= x 
        && \empty() !:= x
