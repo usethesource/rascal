@@ -5,7 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-module lang::rascal::grammar::definition::Names
+module lang::rascal::iguana::definition::Names
 
 import ParseTree;
 import Grammar;
@@ -23,13 +23,13 @@ mark all uses accordingly such that the proper interpretation can be done
 by semantic processing of parse trees
 }
 public GrammarDefinition resolve(GrammarDefinition d) {
-  cd = {n | m <- d.modules, \sort(n) <- d.modules[m].grammar.rules};
-  pcd = {n | m <- d.modules, \parameterized-sort(n,_) <- d.modules[m].grammar.rules};
-  lx = {n | m <- d.modules, \lex(n) <- d.modules[m].grammar.rules};
-  tk = {n | m <- d.modules, \token(n) <- d.modules[m].grammar.rules};
-  plx = {n | m <- d.modules, \parameterized-lex(n,_) <- d.modules[m].grammar.rules};
-  ks = {n | m <- d.modules, \keywords(n) <- d.modules[m].grammar.rules};
-  ls = {n | m <- d.modules, \layouts(n) <- d.modules[m].grammar.rules};
+  cd = {n | m <- d.modules, \sort(n) <- d.modules[m].iguana.rules};
+  pcd = {n | m <- d.modules, \parameterized-sort(n,_) <- d.modules[m].iguana.rules};
+  lx = {n | m <- d.modules, \lex(n) <- d.modules[m].iguana.rules};
+  tk = {n | m <- d.modules, \token(n) <- d.modules[m].iguana.rules};
+  plx = {n | m <- d.modules, \parameterized-lex(n,_) <- d.modules[m].iguana.rules};
+  ks = {n | m <- d.modules, \keywords(n) <- d.modules[m].iguana.rules};
+  ls = {n | m <- d.modules, \layouts(n) <- d.modules[m].iguana.rules};
   
   println("tk: <tk>");
   return visit(d) {
