@@ -52,8 +52,8 @@ public map[int, int] divisors = (i:nDiv(i)|i<-[2..50]);
 public void main() {
     // chart(Sin);
     // chart(divisors);
-    // chart(towns);
-    chart(class2method);
+    chart(towns);
+    // chart(class2method);
     }
     
 str signature(str name, list[Declaration] parameters) {

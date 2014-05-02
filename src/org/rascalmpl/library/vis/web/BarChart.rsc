@@ -67,8 +67,8 @@ list[list[value]] jn(rel[value , value] r...) {
 }
 
 public str barChartHeader(str title) {
-   return Z(title_, (), title)+Z(script_,(src_: "http://d3js.org/d3.v3.min.js"))+
-    Z(script_,(src_: "http:dimplejs.org/dist/dimple.v1.1.2.min.js"));
+   return W3(title_, (), title)+W3(script_,(src_: "http://d3js.org/d3.v3.min.js"))+
+    W3(script_,(src_: "http:dimplejs.org/dist/dimple.v1.1.2.min.js"));
    }
    
 int ident = 0;
@@ -95,37 +95,8 @@ public str barChart(
  str svg = "svg<ident>";
  str myChart = "myChart<ident>";
  ident+=1;
- /*
- str body = Z(h1_,  p.title) 
-      
-       + JavaScriptJson("\"data.json\"", "error", "dat",
-        
-         <"width", width>,
-         <"height",height>,
-         <"margin",margin> ,   
-         <"svg",
-                "d3" + C(
-                 select(body_) o \append(svg_) o attr((
-                              width_: "width", height_:"height"
-                              ))
-                 )
-         >            
-      ,
-      < 
-          "x_scale",
-              "d3.scale"+ C(
-                 linear o domain([0,"dat[1].length-1"]) o range(["margin", "width-margin"])
-               )
-      >       
-       , 
-      <
-          "y_scale",
-              "d3.scale"+ C(
-                 linear o domain([0, "dat[2].length-1"]) o range(["height-margin", "margin"])
-                 )
-      > 
-      */   
- str body =  Z(h1_, (id_: "header"), title) +
+ 
+ str body =  W3(h1_, (id_: "header"), title) +
       JavaScript(<svg, dimple.newSvg("body", svgDim.width, svgDim.height)>)+
       JavaScriptJson("\"data.json\"", "error", "dat"
          ,

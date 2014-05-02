@@ -12,9 +12,11 @@ import util::Math;
 import lang::json::IO;
 import util::HtmlDisplay;
 
-alias Att =  map[str, str];
+alias Att =  map[str, value];
 
 alias Css = map[str, Att];
+
+alias PlotData = tuple[str title, list[str] xticks, list[str] yticks, list[tuple[str name, str color, str style, list[tuple[num, num]] d]] fs] ;
 
 
 
@@ -26,16 +28,21 @@ public str toCss(Css css) {
    r+="\</style\>\n";
    return r;
    }
+   
+str translate(value v) {
+   if (str e := v) return "\"<e>\"";
+   return "<display(v)>";
+   }
 
-public str Z(str tg, Att att, str txt) {
-   return "\<<tg><for(str d<-att) {> <d>=\"<att[d]>\"<}>\>\n<txt>\</<tg>\>";
+public str W3(str tg, Att att, str txt) {
+   return "\<<tg><for(str d<-att) {> <d>=<translate(att[d])><}>\>\n<txt>\</<tg>\>";
    }
    
-public str Z(str tg, Att att) {
-   return "\<<tg><for(str d<-att) {> <d>=\"<att[d]>\"<}>\>\</<tg>\>";
+public str W3(str tg, Att att) {
+   return "\<<tg><for(str d<-att) {> <d>=<translate(att[d])><}>\>\</<tg>\>";
    }
 
-public str Z(str tg, str txt) {
+public str W3(str tg, str txt) {
     return "\<<tg>\><txt>\</<tg>\>";
    }
    
@@ -52,11 +59,11 @@ public str html(str head, str body) {
 
 
 str JavaScriptString(str e) {
-     return "<Z(script_, e+";")>";
+     return "<W3(script_, e+";")>";
 }
 
 str JavaScript(value e ...) {
-     return JavaScriptString(toString(e));
+     return JavaScriptString(toStr(e));
 }
 
 
@@ -72,21 +79,19 @@ public str JavaScriptTsv(str file, str error, str dat, value e ...) {
 */
 
 public str JavaScriptJson(str file, str err, str dat, value e ...) {
- str s = "function(<err>, <dat>) {
-          ' <toString(e)> }\n";
-     return JavaScriptString("d3"+C(json(file, s)));
+     return JavaScriptString("d3"+D3(json(file, <[err, dat], e>)));
      }
      
 public str JavaScriptCsv(str file, str err, str dat, value e ...) {
  str s = "function(<err>, <dat>) {
-          ' <toString(e)> }\n";
-     return JavaScriptString("d3"+C(csv(file, s)));
+          ' <toStr(e)> }\n";
+     return JavaScriptString("d3"+D3(csv(file, s)));
      }
      
 public str JavaScriptTsv(str file, str err, str dat, value e ...) {
  str s = "function(<err>, <dat>) {
-          ' <toString(e)> }\n";
-     return JavaScriptString("d3"+C(tsv(file, s)));
+          ' <toStr(e)> }\n";
+     return JavaScriptString("d3"+D3(tsv(file, s)));
      }
  
 public loc publish(loc location, list[tuple[str name, list[tuple[num x, num y]] d]]  d, str header, str body) { 
@@ -113,29 +118,54 @@ str h() = ".h";
  
 public str d3(str s)=  "d3<s>";
 
+str row (list[value] e) {
+     if (isEmpty(e)) return "";
+     str r = "<_display(head(e))>";
+     for (t<-tail(e)) r+=", <_display(t)>";
+     return r;
+     }
+
+str row (list[str] e) {
+     if (isEmpty(e)) return "";
+     str r = "<display(head(e))>";
+     for (str t<-tail(e)) r+=", <_display(t)>";
+     return r;
+     }
+
 value display(value v) {
+       if (str e := v) {
+         return "\"<e>\"";
+       }
+       return _display(v);
+     }
+     
+value _display(value v) {
     if (str e := v) {
           return e;
           }
     if (list[value] e:= v) {
-          if (isEmpty(e)) return "[]";
-          str r = "[<display(head(e))>";
-          for (t<-tail(e)) r+=", <display(t)>";
-          return r+"]";
+          return "[<row(e)>]";
           }
-    if (map[str, value] e := v) {
+    if (map[str, value] e := v) {   // Java Script Object
           if (isEmpty(e)) return "{}";
           str key = getOneFrom(e);
           r = "{<key>:<display(e[key])>";
           e = delete(e, key);
-          for (t<-e) r+=",<t>:<display(e[t])>";
+          for (t<-e) r+=",<t>:<_display(e[t])>";
           return r+"}";
           }
-    if  (tuple[value g] d := v) {
-          return display(d.g);
+    if  (tuple[value g] d := v) {  // Java Script Statement
+          return _display(d.g);
           } 
-    if  (tuple[str n, value v] d := v) {
-          return "var <d.n> = <display(d.v)>";
+    if  (tuple[str varname, value v] d := v) {  // Java Script Variable
+          if (contains(d.varname,".")) return "<d.varname> = <_display(d.v)>";
+          return "var <d.varname> = <_display(d.v)>";
+          } 
+    if  (tuple[list[str] parameters, value body] d := v) {  // Java Script Function
+          return "function(<row(d.parameters)>) {<toStr(d.body)>}";
+          } 
+    if  (tuple[str fname, list[str] parameters, value body] d := v) {  // Java Script Function
+          return "function <d.fname>(<row(d.parameters)>) {<toStr(d.body)>}";
           } 
     // println("display:<v>");
     return v;
@@ -146,10 +176,15 @@ str display(str key, map[str, value] m) {
       }
       
 
-str toString(value js ...) {
+str toStr(value js ...) {
            return "<for(e<-js){> <display(e)>;\n<}>";
     }
-    
+
+public str JS(value statement ...) = toStr(statement);
+
+str toStr(list[value] js) {
+           return "<for(e<-js){> <display(e)>;\n<}>";
+    }   
 
 public str svg(str s) = ".svg()<s>";
 
@@ -166,12 +201,14 @@ public  str(str) \append(str d) {
     return g;
     }
 
-public str exit(str s) = ".exit()<s>";           
+public str \exit(str s) = ".exit()<s>";  
+
+public str _remove(str s) = ".remove()<s>";            
 
 public str transition(str s) =".transition()<s>";
 
-public str(str) \data(str d) {
-    str g(str r) = ".data(<d>)"+r;
+public str(str) \data(value d) {
+    str g(str r) = ".data(<display(d)>)"+r;
     return g;
     }                 
     
@@ -180,7 +217,10 @@ public str(str) attr(map[str, value] v) {
     return g;
     }
     
-    
+public str(str)  text(value v) {
+    str g(str r) = ".text(<display(v)>)"+r;
+    return g;
+    }     
 
 public str(str) style(map[str, value] v) {
     str g(str r) = display("style", v)+r;
@@ -197,13 +237,13 @@ public str(str) size(int  d) {
     return g;
     }
     
-public str(str) selectAll(str  d) {
-    str g(str r) = ".selectAll(\"<d>\")"+r;
+public str(str) selectAll(value  d) {
+    str g(str r) = ".selectAll(<display(d)>)"+r;
     return g;
     }
     
-public str(str) select(str  d) {
-    str g(str r) = ".select(\"<d>\")"+r;
+public str(str) select(value  d) {
+    str g(str r) = ".select(<display(d)>)"+r;
     return g;
     }
     
@@ -232,7 +272,7 @@ public str linear(str s)  = ".linear()"+s;
 public str axis(str s)  = ".axis()"+s;
 
 public str line(str s)  = ".line()"+s;
-public str line()  = ".line()";
+// public str line()  = ".line()";
 
 
 public str(str) interpolate(value v) {
@@ -270,13 +310,13 @@ public str(str)  outerTickSize(value v) {
     return g;
     } 
     
-public str(str)  call(str script) {
-    str g(str r) = ".call(<script>)"+r;
+public str(str)  call(value script) {
+    str g(str r) = ".call(<display(script)>)"+r;
     return g;
     } 
     
-public str(str)  \filter(str script) {
-    str g(str r) = ".filter(<script>)"+r;
+public str(str)  \filter(value script) {
+    str g(str r) = ".filter(<display(script)>)"+r;
     return g;
     } 
 
@@ -296,27 +336,12 @@ public str(str) csv(str file, value script) {
     }  
     
 public str(str) on(str event, value script) {
-    str g(str r) = ".on(<event>, <display(script)>)"+r;
+    str g(str r) = ".on(\'<event>\', <display(script)>)"+r;
     return g;
     }                    
-    /*                             
-                 text(str l, str callback) : return r+ ".text(\"<l>\", <toString(callback)>)";           
-                 csv(str l, str callback) : return r+ ".csv(\"<l>\", <toString(callback)>)";
-                 csv(str l, str acc, str callback) : = ".csv(\"<l>\" , <toString(acc)>, <toString(callback)>)"; 
-                 tsv(str l, str callback) : return r+ ".tsv(\"<l>\", <toString(callback)>)";
-                 tsv(str l, str acc, str callback) : return r+ ".tsv(\"<l>\" , <toString(acc)>, <toString(callback)>)";
-                 scale(str e): return r+ ".scale(<toString(e)>)";
-                 scale(str e, Bundle c): {=".scale(<toString(e)>)";return r+ toString(c);}
-                 linear(_): = ".scale.linear()";  
-                 call(str f):  return r+".call(<toString(f)>)";              
-                 csv_parse(str d, str acc) : return r+".csv.parse(<d>, <toString(acc)>)";
-                 csv_parse(str d) : return r+".csv.parse(<d>)";  
-                 json(str l, str callback) : return r+ ".json(\"<l>\", <toString(callback)>)";  
-                 \filter(str e): return r+".filter(<toString(e)>)";
-                 \filter(str e, B
-   */
+    
    
-   str C(str(str x) f) {
+   str D3(str(str x) f) {
        return f("");
        }
        
@@ -354,7 +379,7 @@ public str(str) on(str event, value script) {
     }
 
 
-alias PlotData = tuple[str title, list[str] xticks, list[str] yticks, list[tuple[str name, str color, str style, list[tuple[num, num]] d]] fs] ;
+
 
 public loc publish(loc location, PlotData  pd, str header, str body) { 
      list[tuple[str name, str color, str style, list[tuple[num , num ]] d]] d = pd.fs;
@@ -364,64 +389,142 @@ public loc publish(loc location, PlotData  pd, str header, str body) {
      tuple[str, list[str], list[str], list[map[str key, /*list[map[str, value]]*/ value dt]]] 
         jsonData = <pd.title , tx, ty, [("name":name, "color":cl, "style":st,
          "path":[(coord[i] : r[i]|i<-[0..2])+("kind":name)|
-         tuple[num, num] r<-v])|<str name, str cl, str st, list[tuple[num, num]] v> <-d]>; 
-     // println(jsonData);   
+         tuple[num, num] r<-v])|<str name, str cl, str st, list[tuple[num, num]] v> <-d]>;  
       writeTextJSonFile(location+"data.json", jsonData); 
       writeFile(location+"index.html",  html(header, body));    
       return location;    
       }
       
+ public loc publish(loc location, PlotData  pd, str header, str body, str buttons, int width, int height) { 
+     list[tuple[str name, str color, str style, list[tuple[num , num ]] d]] d = pd.fs;
+     list[str] coord = ["x", "y"];
+     list[str] tx  = pd.xticks;
+     list[str] ty  = pd.yticks;
+     str header0 =toCss((
+            "td":
+            ("border-collapse":"collapse", "vertical-align":"top")  
+            ,"table":
+            ("border":"1px solid green")      
+             ));
+     tuple[str, list[str], list[str], list[map[str key, /*list[map[str, value]]*/ value dt]]] 
+        jsonData = <pd.title , tx, ty, [("name":name, "color":cl, "style":st,
+         "path":[(coord[i] : r[i]|i<-[0..2])+("kind":name)|
+         tuple[num, num] r<-v])|<str name, str cl, str st, list[tuple[num, num]] v> <-d]>; 
+     // println(jsonData);
+      writeTextJSonFile(location+"data.json", jsonData); 
+      writeFile(location+"graph.html",  html(header, body));  
+      writeFile(location+"index.html", html(header0, 
+      W3(table_, W3(tr_, W3(td_,
+      W3(iframe_,
+           (src_:"graph.html", id_:"graph", width_:width, height_:height+150)
+      ))
+      + W3(td_, buttons)
+      ) 
+      )));        
+      return location;    
+      }
+      
 str scatterFunction(int symbolSize, str style) {
-      str head =  "svg"+C(\append("g") o attr((style_: "\"clip-path:url(#clippath);\"")) o
-           selectAll(".line") o \data("dat[3]") o  enter o \append("g"));
-      str dots = head+C(\filter(
-      "function(d){return d.style == \"dots\" <style=="dots"? "|| d.style==\"default\"":"">
-         ;}"));
-      return dots+C(
-           attr(("fill":"function(q){return q.color==\"none\"?colormap(q.name):q.color;}")) o
-           selectAll("g.point") o \data("function(d, i){return d.path;}") o  enter o \append("path") o
+      str head =  "svg"+D3(\append("g") o attr((style_: "clip-path:url(#clippath);")) o
+           selectAll(".line") o \data(<"dat[3]">) o  enter o \append("g"));
+      str dots = head+D3(\filter(
+      <["d"], [<"return d.style == \"dots\" <style=="dots"? "|| d.style==\"default\"":""> ">]>));
+      return dots+D3(
+           attr(("fill":<["q"],[<"return q.color==\"none\"?colormap(q.name):q.color">]>)) o
+           selectAll("g.point") o \data(<["d", "i"], [<"return d.path">]>) o  enter o \append("path") o
            attr((
-              "class":"\"point\"", 
-              "transform": "function(d, i){return \"translate(\"+x_scale(d.x) +\",\"+y_scale(d.y) + \")\";}",
+              "class": <["q"], [<"return \"point \"+q.name">]>, 
+              "transform": <["d", "i"], [<"return \"translate(\"+x_scale(d.x) +\",\"+y_scale(d.y) + \")\"">]>,
                //"d": "function(d, i, j) {return d3.svg.symbol()();}"
-               "d": "d3.svg"+C(symbol o size(symbolSize))
-           )));
+               "d": <"d3.svg"+D3(symbol o size(symbolSize))>
+           ))o \append("title") o text(<["d", "i"],  [<"return d.name">]>));
+      }
+
+      
+ str dotFunction(int symbolSize, str style) {
+      str head =  "svg"+D3(\append("g") o attr((style_: "clip-path:url(#clippath);")) o
+           selectAll(".line") o \data(<"dat[3]">) o  enter o \append("g"));
+      str dots = head+D3(\filter(
+      <["d"], [<
+        "return d.style != \"dots\" 
+              <style!="dots"? "|| d.style==\"default\"":"">
+         ">]>) o \filter(
+      <["d"],[<"return choice==\"all\" || choice == d.name">]>));
+      return dots+D3( 
+           selectAll(".dot") o \data(<["d", "i"], [<"return d.path">]>)  
+           o  enter o \append("circle") o
+           attr((
+              "class": <["q"], [<"return \"dot \"+q.name">]>, 
+              "cx": <"qline.x()">, 
+              "cy": <"qline.y()">, 
+               "r": "2px"
+           )) // o \append("title") o text("function(d, i) {return d.name;}")
+           
+             );
       }
  
+ 
  str lineFunction(str style) {  
-    str head =  "svg"+C(\append("g") o attr((style_: "\"clip-path:url(#clippath);\"")) o
-           selectAll(".line") o \data("dat[3]") o  enter o \append("path"));
-    str lines = head+C(\filter(
-    "function(d){return d.style != \"dots\" <style!="dots"?"":"&& d.style!=\"default\"">
-        ;}"));
-    return lines+C(
+    str head =  "svg"+D3(\append("g") o attr((style_: "clip-path:url(#clippath);")) o
+           selectAll(".line") o \data(<"dat[3]">) o  enter o \append("path"));
+    str lines = head+D3(\filter(
+    <["d"],[<"return d.style != \"dots\" <style!="dots"?"":"&& d.style!=\"default\"">
+        ">]>));
+    return lines+D3(
            attr((
-              "class":"\"line\"", 
-              "d": "function(q){return q.style==\"splines\"?lineMonotone(q.path):lineLinear(q.path);}\n",
-               "stroke":"function(q){return q.color==\"none\"?colormap(q.name):q.color;}\n"
-           ))
+              "class": <["q"], [<"return \"line \"+q.name">]>,
+              "d": <["q"], [<"return mainLine(q.style)(q.path)">]>,
+              "stroke":<["q"], [<"return q.color==\"none\"?colormap(q.name):q.color">]>
+           ) )  o \append("title") o text(<["d", "i"], [<"return d.name">]>)
          ) ;
-    } 
-/*
-str scatterFunction(int symbolSize) {  
-    return "svg"+C(
-           \append("g") o attr((style_: "\"clip-path:url(#clippath);\"")) o
-           selectAll(".line") o \data("dat[3]") o  enter o \append("g") o
-           attr(("fill":"function(q){return q.color==\"none\"?colormap(q.name):q.color;}")) o
-           selectAll("g.point") o \data("function(d, i){return d.path;}") o  enter o \append("path") o
-           attr((
-              "class":"\"point\"", 
-              "transform": "function(d, i){return \"translate(\"+x_scale(d.x) +\",\"+y_scale(d.y) + \")\";}",
-               //"d": "function(d, i, j) {return d3.svg.symbol()();}"
-               "d": "d3.svg"+C(symbol o size(symbolSize))
-           ))
-         ) ;
-    } 
- */
- public void plot(PlotData p, int width = 800, int height = 400, int margin = 50,
-   str style = "splines", int symbolSize = 32) {  
-   str header = Z(title_, p.title)+
-      Z(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8"))+
+    }
+    
+public str buttons(str title, str class, tuple[list[str] names,  list[tuple[value val, str lab]] vs] t,
+   bool mark) {
+   str radioButton = radioButton(title, class, t, mark);
+   str textButton =  labelNames();
+   return W3(table_,
+      W3(tr_, W3(td_, textButton))+
+      W3(tr_, W3(td_, radioButton)));
+   }
+     
+    
+public str radioButton(str title, str class, tuple[list[str] names,  list[tuple[value val, str lab]] vs] t,
+   bool mark) {
+   str s = "";
+   for (str name<-t.names) s+=W3(tr_, W3(td_, W3(b_, name))+  
+   "<for(v<-t.vs){>
+      <W3(td_, W3(label_, ("for":"<v.val>"),  v.lab)
+      +
+      W3("<mark>"=="<v.val>"?input_checked:input_
+    , ("type":"radio", "name": "<name>",  class_: "<class> <name>", "value" :v.val
+     , "onclick":
+       JS(
+         <"window.frames[\'graph\'].dotting(this)">
+     ,   <"x", "document.getElementsByClassName(\'<class>\')">
+     ,   <"if( this.name==\'all\'){for (var i = 0;i\<x.length;i++) {if (x[i].value==this.value) x[i].checked = true;}} ">
+     ) 
+   ) 
+        )) 
+      >
+   <}>");
+   return W3(h4_, title)+W3(table_, s
+   );     
+   }
+
+public str labelNames() {
+   str xl = W3(tr_, W3(td_, W3(input_, ("type":"text", id_: "xlabel", "placeholder":"x axis", "onkeydown":JS(
+     <"if (event.keyCode==13) window.frames[\'graph\'].labelingX(this)">)))));
+    str yl = W3(tr_, W3(td_, W3(input_, ("type":"text", id_: "ylabel", "placeholder":"y axis", "onkeydown":JS(
+     <"if (event.keyCode==13) window.frames[\'graph\'].labelingY(this)">)))));
+   return W3(h4_, "axe labels")+W3(table_, xl+yl);
+   }
+ 
+ public void plot(PlotData p, int width = 800, int height = 400, int margin = 60,
+   str style = "splines", int symbolSize = 32, bool mark = false) {  
+   list[str] names = [d.name|d<-p.fs, d.style!="dots"];
+   str header = W3(title_, p.title)+
+      W3(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8"))+
       toCss((
             ".grid line":(fill_:"none", stroke_:"lightgrey"/*"antiquewhite"*/, "opacity":"0.7"),
             ".axis line":(fill_:"green"),
@@ -430,18 +533,28 @@ str scatterFunction(int symbolSize) {
             ,".axis path":(fill_:"none")
             , ".tick":(fill_:"black")
             , ".line":(fill_:"none")
+            , ".dot":("stroke-width":"0", stroke_:"none", fill_:"black")
+            , ".tx":("fill":"black","stroke":"none", "font-family":"sans-serif", "font-size":"10pt", "stroke-width":"1"
+            , "text-anchor":"middle")
+            , "td":("border-style":"solid", "padding":"4px", "border-width":"1px", "border-color":"light-grey"
+                 , "border-collapse":"collapse", "vertical-align":"top")
+            
+            , "table":("border":"1px solid green")
+            , ".label": ("font-size":"10pt","font-family":"sans-serif", "font-style":"italic")
+            
              ));
-      str body = Z(h1_,  p.title) 
+      str body =  W3(h1_,  p.title)  +
       
-       + JavaScriptJson("\"data.json\"", "error", "dat",
+      
+       JavaScriptJson("\"data.json\"", "error", "dat",
         
          <"width", width>,
          <"height",height>,
          <"margin",margin> ,   
          <"svg",
-                "d3" + C(
+                "d3" + D3(
                  select(body_) o \append(svg_) o attr((
-                              width_: "width", height_:"height"
+                              width_: <"width">, height_:<"height">
                               ))
                  )
          > 
@@ -452,118 +565,165 @@ str scatterFunction(int symbolSize) {
      "for (var i=0; i\<dat[3].length;i++) {names[i] = dat[3][i].name;}"
     >
       ,
-      <"colormap","d3.scale" + C(category10 o domain("names"))>
+      <"colormap","d3.scale" + D3(category10 o domain(<"names">))>
+      ,
+      <"choice", "\"all\"">
       ,
       < 
           "x_scale",
-              "d3.scale"+ C(
-                 linear o domain([0,"dat[1].length-1"]) o range(["margin", "width-margin"])
+              "d3.scale"+ D3(
+                 linear o domain([0,<"dat[1].length-1">]) o range(<["margin", "width-margin"]>)
                )
       >       
        , 
       <
           "y_scale",
-              "d3.scale"+ C(
-                 linear o domain([0, "dat[2].length-1"]) o range(["height-margin", "margin"])
+              "d3.scale"+ D3(
+                 linear o domain([0, <"dat[2].length-1">]) o range(<["height-margin", "margin"]>)
                  )
       >    
       , 
       <
-         "x_axis", "d3.svg" + C(
-                   axis o scale("x_scale") o ticks("dat[1].length")
-                   o tickFormat("function(d){
-                             return dat[1][d];}")
+         "x_axis", "d3.svg" + D3(
+                   axis o scale(<"x_scale">) o ticks(<"dat[1].length">)
+                   o tickFormat(<["d"], [<"return dat[1][d]">]>)
                       )
   
        >
        ,
-       <"y_axis", "d3.svg"+C(
-         axis o scale("y_scale") o orient("left") o ticks("dat[2].length")
-         o tickFormat("function(d){
-                            return dat[2][d];}"
+       <"y_axis", "d3.svg"+D3(
+         axis o scale(<"y_scale">) o orient("left") o ticks(<"dat[2].length">)
+         o tickFormat(<["d"],[<"return dat[2][d]">]>
                     )
          )
        >
        ,
        <
-        "svg"+C(\append("defs") o \append("clipPath") o attr((id_:"\"clippath\""))
-        o \append("rect") o attr((x_:"margin", y_:"margin", width_:"width-2*margin"
-           , height_:"height-2*margin")))
+        "svg"+D3(\append("defs") o \append("clipPath") o attr((id_:"clippath"))
+        o \append("rect") o attr((x_:<"margin">, y_:<"margin">, width_:<"width-2*margin">
+           , height_:<"height-2*margin">)))
        >
        ,
-       <"svg"+C(
+       <"qline", "d3.svg"+D3(line o
+               x(<["d"], [<"return x_scale(d.x)">]>)
+             o y(<["d"], [<"return y_scale(d.y)">]>)
+            ) >
+        ,   
+       <
+       "lineMonotone", "d3.svg.line()"+D3(
+             interpolate("monotone") o 
+               x(<["d"], [<"return x_scale(d.x)">]>)
+             o y(<["d"], [<"return y_scale(d.y)">]>)
+             )
+        >
+        ,      
+        <
+       "lineLinear", "d3.svg.line()"+D3(
+             interpolate("linear")  o 
+               x(<["d"], [<"return x_scale(d.x)">]>)
+             o y(<["d"], [<"return y_scale(d.y)">]>)           
+             ) 
+        > 
+        ,
+        <"mainLine", ["style"], 
+           [
+            < "return style == \"splines\" || (style == \"default\" && <
+                  style=="splines">) ? lineMonotone : lineLinear">
+      
+           ] 
+        > 
+        /* */
+        ,     
+       <"svg"+D3(
               \append(g_) o attr((
-                   "class":"\"axis\"", 
-                   "transform": "\"translate(0, \" +(height-margin)+ \")\""
+                   "class":"axis", 
+                   "transform": <"\"translate(0, \" +(height-margin)+ \")\"">
               ))
-            o  call("x_axis")                  
+            o  call(<"x_axis">)                  
         )
         >
         ,
-        <"svg"+C(\append(g_) o attr((
-           "class":"\"axis\"", 
-           "transform": "\"translate(\"+margin+\", 0)\""
+        <"svg"+D3(\append(g_) o attr((
+           "class":"axis", 
+           "transform": <"\"translate(\"+margin+\", 0)\"">
            ))
-            o  call("y_axis")
+            o  call(<"y_axis">)
          )
-       >
-       ,
-       <
-       "lineMonotone", "d3.svg"+C(
-             line o interpolate("\"monotone\"") o 
-                x("
-                   function(d) {return x_scale(d.x);}
-                 ")
-             o
-                y("
-                  function(d) {return y_scale(d.y);}
-               ")
-             )
-        > 
-        ,
-        <
-       "lineLinear", "d3.svg"+C(
-             line o interpolate("\"linear\"") o 
-                x("
-                   function(d) {return x_scale(d.x);}
-                 ")
-             o
-                y("
-                  function(d) {return y_scale(d.y);}
-               ")
-             )
-        > 
-        ,
-        
-         <"svg"+ C(\append("g") o attr((transform_:"\"translate(0,\"+margin+\")\"")) o attr((
-          "class":"\"grid\""   
+       > 
+               
+        ,       
+         <"svg"+ D3(\append("g") o attr((transform_:<"\"translate(0,\"+margin+\")\"">)) o attr((
+          "class":"grid"   
           )) o \append("g") o call(
-                 "x_axis"+C(innerTickSize("height-2*margin") o tickFormat("\"\"") o outerTickSize(0)                       
-               )
+                 <"x_axis"+D3(innerTickSize(<"height-2*margin">) o tickFormat("") o outerTickSize(0)                       
+               )>
                )
           )>  
          ,
-         <"svg"+ C(\append("g") o attr((
-           "class":"\"grid\"" ,
-           transform_:"\"translate(\"+margin+\",0)\""
+         <"svg"+ D3(\append("g") o attr((
+           "class":"grid" ,
+           transform_:<"\"translate(\"+margin+\",0)\"">
             )) o call(
-             "y_axis"+ C(innerTickSize("-width+2*margin")  o tickFormat("\"\"") o outerTickSize(0)
-             )
+             <"y_axis"+ D3(innerTickSize(<"-width+2*margin">)  o tickFormat("") o outerTickSize(0)
+             )>
              )   
           )>
           ,
-          <scatterFunction(symbolSize, style)>  
-          , 
-          <lineFunction(style)>            
+       <
+       "svg"+D3(\append(text_) o attr((class_: "labelX label", text_anchor_:"end",
+           x_:width/2, y_: height-20)) o text("x"))
+       > 
+       ,
+       <
+       "svg"+D3(\append(text_) o attr((class_: "labelY label", text_anchor_:"end",
+           y_: 0, x_:-height/2, "dy":".75em", "transform":"rotate(-90)")) o text("hallo"))
+       >   
+          /* */
+          ,
+           <scatterFunction(symbolSize, style)>
+           , 
+          <lineFunction(style)>
+          ,
+          mark? <dotFunction(symbolSize, style)> : "" 
+          ,
+          
+          <"window.dotting", <["e"], [
+                     <"choice","e.name">
+                     ,
+                     <"if (e.checked && e.value==\"false\") {       
+                      svg"+D3(selectAll(".dot")  
+                      o 
+                      \filter(<["d"],[ < "return choice==\"all\" || choice == d.kind">]>)
+                      o \data([])
+                      o \exit o _remove )+"}"
+                      >
+                    ,
+                     <"if (e.checked && e.value==\"true\") { 
+                          <dotFunction(symbolSize, style)>} ">                    
+                   ] >>
+        ,
+        <"window.labelingX",<["e"], [    
+           <"text", "svg"+D3(selectAll(".labelX"))>,
+           <"text.text(e.value)">    
+           ]>>
+        ,
+        <"window.labelingY",<["e"], [    
+           <"text", "svg"+D3(selectAll(".labelY"))>,
+           <"text.text(e.value)">    
+           ]>>  
+                               
         );
+      str radio = buttons("Points", "markerButton", <["all"]+names,  [<true,"yes">, <false, "no">]>, mark);
+      
+      
       htmlDisplay(publish(
             // |project://chart/src/aap|
                 |file:///tmp/d3|
             , p, 
-         header , body));
+         header , body, radio, width, height));
     }
- 
- public str id_= "id";
+
+public str id_= "id";
 public str class_= "class";
 public str style_= "style"; 
 public str onerror_="onerror";
@@ -645,6 +805,7 @@ public str   form_= "form";
 public str   fieldset_= "fieldset";
 public str   label_= "label";
 public str   input_= "input";
+public str   input_checked = "input checked";
 public str   svg_= "svg";
 public str   circle_= "circle";
 public str   ellipse_= "ellipse";
@@ -653,6 +814,7 @@ public str   line_= "line";
 public str   polyline_= "polyline";
 public str   polygon_= "polygon";
 public str   text_= "text";
+public str   text_anchor_= "text-anchor";
 public str   path_= "path";
 public str   transform_ = "transform";
 public str   g_= "g";
@@ -671,14 +833,14 @@ public void main() {
    
    int n= 10;
    tuple[str, str, str, list[tuple[num, num]]] dsin = <"sin", "none", "default", [<(i*6.0/n), 5*r(sin(2*i*PI()/n))+5>|i<-[0..n+1]]>;
-   tuple[str, str, str, list[tuple[num, num]]] dcos = <"cos", "none", "lines", [<(i*6.0/n), 5*r(cos(2*i*PI()/n))+5>|i<-[0..n+1]]>;
+   tuple[str, str, str, list[tuple[num, num]]] dcos = <"cos", "none", "dots", [<(i*6.0/n), 5*r(cos(2*i*PI()/n))+5>|i<-[0..n+1]]>;
    tuple[str, str, str, list[tuple[num, num]]] dsin3 = <"sin3", "none", "splines", [<(i*6.0/n), 5*r3(sin(2*i*PI()/n))+5>|i<-[0..n+1]]>;
-   tuple[str, str, str, list[tuple[num, num]]] dcos3 = <"cos3", "none", "dots", [<(i*6.0/n), 5*r3(cos(2*i*PI()/n))+5>|i<-[0..n+1]]>;
+   tuple[str, str, str, list[tuple[num, num]]] dcos3 = <"cos3", "none", "splines", [<(i*6.0/n), 5*r3(cos(2*i*PI()/n))+5>|i<-[0..n+1]]>;
    
    list[tuple[str, str, str, list[tuple[num, num]]]] d = [dsin, dcos, dsin3, dcos3];
 
    PlotData p = <"Sin and Cos", [labx(i)|i<-[0..7]], [laby(i)|i<-[0..11]], d>;
-   plot(p,  symbolSize = 20, style = "dots");
+   plot(p,  symbolSize = 20, style = "splines", mark = true);
    /*
     list[list[tuple[num, num]]] d = [[<(i*step)*nTickx, (-y+f(x+(i*step)*width))*nTicky/height >| i<-[0..ub+1]]|f<-g];
     list[tuple[str, str, list[tuple[num, num]]]] w =  [<"<i>","blue", d[i]>|i<-[0..size(d)]];

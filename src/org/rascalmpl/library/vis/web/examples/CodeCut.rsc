@@ -15,7 +15,6 @@ import util::HtmlDisplay;
 import vis::web::markup::Dimple;
 import IO;
 
-M3 model;
 
 list[tuple[str, int]] classes = [];
 
@@ -61,7 +60,7 @@ str signature(str name, list[Declaration] parameters) {
 
 
 public void initialize(loc project) { 
-        model = createM3FromEclipseProject(project);
+        M3 model = createM3FromEclipseProject(project);
         set[Declaration] decls = createAstsFromDirectory(project, false, javaVersion = "1.7" );
         println(size(decls));
         // compilationUnit(package("dotplugin"),[import("org.eclipse.swt.events.ModifyEvent")][]
