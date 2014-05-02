@@ -199,6 +199,15 @@ public void chart(map[num, num] m) {
        ));
      }
      
+public void chart(rel[str, num] m) {
+     str body = barChart(y_axis = getYAxis(aggregateMethod="avg"), orderRule="x");
+     list[str] d = [x|str x<-domain(m)];
+     htmlDisplay(publish(
+     |tmp:///dimple|
+     ,barChartHeader("barChart"), body, ("x": d,"y":[getOneFrom(m[i])|str i<-d])
+       ));
+     }
+          
 public void chart(map[num, list[num]] ml) {
      str body = barChart(y_axis = getYAxis(aggregateMethod="avg", series= "kind"),
      orderRule="x"); 
