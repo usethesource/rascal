@@ -217,7 +217,7 @@ Production setHead(Symbol nt, Production p) = visit (p) {
 alias InvGrammar = map[set[Production] alts, Symbol nt];
 
 @doc{
-  This function rewrites a iguana to introduce one new non-terminal. It takes an existing non-terminal, and removes
+  This function rewrites a grammar to introduce one new non-terminal. It takes an existing non-terminal, and removes
   one rule. Then it changes the use site of the old non-terminal in a specific rule at at a specific position to use this
   new non-terminal. The function reuses existing definitions if they already define the same set of rules. 
 }
@@ -244,7 +244,7 @@ tuple[Grammar, InvGrammar, Symbol] factorOne(Symbol (Symbol) new, Grammar g, Inv
    alternative.symbols[pos] = nt;
    g.rules[def].alternatives += {alternative};
    
-   // add the new definition to the iguana 
+   // add the new definition to the grammar 
    g.rules[nt] = setHead(nt, choice(nt, ex));
    
    return <g, done, nt>;
@@ -267,7 +267,7 @@ Grammar factor(Grammar g, DoNotNest patterns) {
     // in every iteration we apply all patterns to the current definitions,
     // this generates new definitions that may need patterns applied to
     // we stop when no more filters can be applied 
-    for (def <- g.rules, alternative <- g.rules[def].alternatives                    // loop over the iguana
+    for (def <- g.rules, alternative <- g.rules[def].alternatives                    // loop over the grammar
        , pattern:<parent, int pos, child> <- patterns                                // loop over all patterns
        , parent == nolabels(alternative)                                             // found a match 
        , nolabels(child) in nolabels(g.rules[alternative.symbols[pos]]).alternatives // stop condition: do not apply if not necessary

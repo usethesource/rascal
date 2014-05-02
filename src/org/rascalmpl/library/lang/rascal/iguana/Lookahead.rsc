@@ -225,7 +225,7 @@ public set[Symbol] first(list[Symbol] symbols, SymbolUse FIRST){
   return result;
 }
 
-// First set of a iguana
+// First set of a grammar
 
 public SymbolUse first(Grammar G) {
   defSymbols = definedSymbols(G);

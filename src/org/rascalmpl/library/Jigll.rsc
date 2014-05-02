@@ -2,13 +2,14 @@ module Jigll
 
 import Grammar;
 import ParseTree;
-import lang::rascal::grammar::definition::Literals;
-import lang::rascal::grammar::definition::Priorities;
-import lang::rascal::grammar::definition::Regular;
-import lang::rascal::grammar::definition::Parameters;
-import lang::rascal::grammar::definition::Tokens;
-import lang::rascal::grammar::definition::Keywords;
-import lang::rascal::grammar::definition::Names;
+import lang::rascal::iguana::definition::Literals;
+import lang::rascal::iguana::definition::Priorities;
+import lang::rascal::iguana::definition::Regular;
+import lang::rascal::iguana::definition::Parameters;
+import lang::rascal::iguana::definition::Tokens;
+import lang::rascal::iguana::definition::Keywords;
+import lang::rascal::iguana::definition::Names;
+import lang::rascal::iguana::definition::Modules;
 import IO;
 import Node;
 import util::FileSystem;
@@ -20,6 +21,18 @@ import util::Reflective;
 import Ambiguity;
 
 list[loc] ignoreList = [|std:///lang/rascal/types/CheckTypes.rsc|];  
+
+public void generate(loc mo) {
+rprintln(parseModule(mo));
+   if (start[Module] m := parseModule(mo)) {
+     g = modules2grammar("xx", { m.top });
+     iprintln(g);
+     generate(g);
+     return;
+   }
+   
+   throw "could not parse <mo>";
+}
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
 public java void generateGrammar(Grammar grammar);

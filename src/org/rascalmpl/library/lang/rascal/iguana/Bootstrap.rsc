@@ -20,14 +20,14 @@ private loc inputFolder = |rascal:///lang/rascal/syntax|;
 private loc outputFolder = |home:///Workspaces/Rascal/rascal/src/org/rascalmpl/library/lang/rascal/syntax|;
 private loc astFolder = |home:///Workspaces/Rascal/rascal/src/org/rascalmpl/ast|;
 
-private str iguanaName = "Rascal";
+private str grammarName = "Rascal";
 private str rootName = "RascalParser";
 
 public Grammar getRascalGrammar() {
   event("parsing the rascal definition of rascal");
   Module \module = parse(#start[Module], inputFolder + "/Rascal.rsc").top;
   event("imploding the syntax definition and normalizing and desugaring it");
-  return modules2iguana("lang::rascal::syntax::Rascal", {\module});
+  return modules2grammar("lang::rascal::syntax::Rascal", {\module});
 }
 
 
@@ -56,7 +56,7 @@ public void bootAST(Grammar g) {
   // make sure all uses of Pattern have been replaced by Expression
   g = visit(g) { case sort("Pattern") => sort("Expression") }
   
-  iguanaToJavaAPI(astFolder, "org.rascalmpl.ast", g);
+  grammarToJavaAPI(astFolder, "org.rascalmpl.ast", g);
 }
 
 public void iguanaBootstrap() {
