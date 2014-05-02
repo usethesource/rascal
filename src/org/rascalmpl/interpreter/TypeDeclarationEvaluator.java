@@ -192,6 +192,11 @@ public class TypeDeclarationEvaluator {
 				private Environment computeEnvironment(final ImmutableMap<String, IValue> environment) {
 					return new Environment(eval.getCurrentEnvt().getLocation(), "init") {
 						@Override
+						public boolean isRootScope() {
+							return true;
+						}
+						
+						@Override
 						public Result<IValue> getVariable(String name) {
 							if (environment.containsKey(name)) {
 								IValue v = environment.get(name);

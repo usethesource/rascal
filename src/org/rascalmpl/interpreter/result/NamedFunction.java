@@ -17,6 +17,7 @@ import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -215,6 +216,10 @@ abstract public class NamedFunction extends AbstractFunction {
   protected void bindKeywordArgs(Map<String, IValue> keyArgValues){
     Environment env = ctx.getCurrentEnvt();
     ImmutableMap<String,IValue> args = AbstractSpecialisedImmutableMap.mapOf();
+    
+    for (Entry<String, Result<IValue>> var : env.getVariables().entrySet()) {
+    	args = args.__put(var.getKey(), var.getValue().getValue());
+    }
     
     if (functionType.hasKeywordParameters()) {
     	for (String kwparam : functionType.getKeywordParameterTypes().getFieldNames()){
