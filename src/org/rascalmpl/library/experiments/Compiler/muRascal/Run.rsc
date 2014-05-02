@@ -2,7 +2,8 @@ module experiments::Compiler::muRascal::Run
 
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Syntax;
-import experiments::Compiler::muRascal::Implode;
+import experiments::Compiler::muRascal::Parse;
+import experiments::Compiler::muRascal::Load;
 
 import ParseTree;
 import util::IDE;
@@ -11,7 +12,7 @@ import vis::Figure;
 import IO;
 
 public void execute(experiments::Compiler::muRascal::Syntax::Module tree, loc selection) {
-	ast = implode(#experiments::Compiler::muRascal::AST::Module, tree);
+	ast = implodeMuRascal(tree);
 	out = executeProgram(ast.directives);
 	println(out);	
 }
@@ -22,6 +23,6 @@ set[Contribution] contributions =
 
 @doc{Registers the muRascal language, .mu}
 public void registerMuRascal() {
-	registerLanguage("muRascal", "mu", experiments::Compiler::muRascal::Syntax::Module (str src, loc l) { return parse(#experiments::Compiler::muRascal::Syntax::Module, src, l); });
+	registerLanguage("muRascal", "mu", experiments::Compiler::muRascal::Syntax::Module (str src, loc l) { return parseMuRascal(src, l); });
 	registerContributions("muRascal", contributions);
 }

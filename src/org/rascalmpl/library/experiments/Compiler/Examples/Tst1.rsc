@@ -1,5 +1,4 @@
 module experiments::Compiler::Examples::Tst1
 
-import experiments::Compiler::Examples::Tst2;
-//import lang::java::m3::AST;
 
+public value main(list[value] args) = |http://www.rascal-mpl.org|.host;

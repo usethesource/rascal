@@ -50,7 +50,7 @@ public class FileURIResolver implements IURIInputOutputResolver {
 	@Override
 	public void remove(URI uri) throws IOException {
 	  String path = getPath(uri);
-	  File file = new File(uri);
+	  File file = new File(path);
 	  
 	  try {
 	    if (file.isFile()) { 

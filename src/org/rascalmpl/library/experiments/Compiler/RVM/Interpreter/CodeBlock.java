@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -72,7 +73,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.S
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownLoc;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
-
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next0;
@@ -134,7 +134,7 @@ public class CodeBlock {
 			labelInfo.put(label, new LabelInfo(ins, labelIndex++, pc));
 		} else {
 			if(info.isResolved()){
-				throw new RuntimeException("PANIC: double declaration of label " + label);
+				throw new CompilerError("Double declaration of label " + label);
 			}
 			info.instruction = ins;
 			info.PC = pc;
@@ -153,7 +153,7 @@ public class CodeBlock {
 	public int getLabelPC(String label){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
-			throw new RuntimeException("PANIC: undefined label " + label);
+			throw new CompilerError("Undefined label " + label);
 		}
 		return info.PC;
 	}
@@ -161,7 +161,7 @@ public class CodeBlock {
 	public Instruction getLabelInstruction(String label){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
-			throw new RuntimeException("PANIC: undefined label " + label);
+			throw new CompilerError("Undefined label " + label);
 		}
 		return info.instruction;
 	}
@@ -172,7 +172,7 @@ public class CodeBlock {
 				return constant;
 			}
 		}
-		throw new RuntimeException("PANIC: undefined constant index " + n);
+		throw new CompilerError("Undefined constant index " + n);
 	}
 	
 	public int getConstantIndex(IValue v){
@@ -191,7 +191,7 @@ public class CodeBlock {
 				return type;
 			}
 		}
-		throw new RuntimeException("PANIC: undefined type constant index " + n);
+		throw new CompilerError("Undefined type constant index " + n);
 	}
 	
 	public int getTypeConstantIndex(Type type){
@@ -210,13 +210,13 @@ public class CodeBlock {
 				return fname;
 			}
 		}
-		throw new RuntimeException("PANIC: undefined function index " + n);
+		throw new CompilerError("Undefined function index " + n);
 	}
 	
 	public int getFunctionIndex(String name){
 		Integer n = functionMap.get(name);
 		if(n == null){
-			throw new RuntimeException("PANIC: undefined function name " + name);
+			throw new CompilerError("Undefined function name " + name);
 		}
 		return n;
 	}
@@ -227,13 +227,13 @@ public class CodeBlock {
 				return fname;
 			}
 		}
-		throw new RuntimeException("PANIC: undefined overloaded function index " + n);
+		throw new CompilerError("Undefined overloaded function index " + n);
 	}
 	
 	public int getOverloadedFunctionIndex(String name){
 		Integer n = resolver.get(name);
 		if(n == null){
-			throw new RuntimeException("PANIC: undefined overloaded function name " + name);
+			throw new CompilerError("Undefined overloaded function name " + name);
 		}
 		return n;
 	}
@@ -243,13 +243,13 @@ public class CodeBlock {
 			if(constructorMap.get(cname) == n)
 				return cname;
 		}
-		throw new RuntimeException("PANIC: undefined constructor index " + n);
+		throw new CompilerError("Undefined constructor index " + n);
 	}
 	
 	public int getConstructorIndex(String name) {
 		Integer n = constructorMap.get(name);
 		if(n == null)
-			throw new RuntimeException("PANIC: undefined constructor name " + name);
+			throw new CompilerError("Undefined constructor name " + name);
 		return n;
 	}
 	
@@ -438,8 +438,8 @@ public class CodeBlock {
 		return add(new StoreVar(this, fuid, pos));
 	}
 	
-	public CodeBlock CALLPRIM (RascalPrimitive prim, int arity){
-		return add(new CallPrim(this, prim, arity));
+	public CodeBlock CALLPRIM (RascalPrimitive prim, int arity, ISourceLocation src){
+		return add(new CallPrim(this, prim, arity, src));
 	}
 	
 	public CodeBlock CALLMUPRIM (MuPrimitive muprim, int arity){
@@ -510,8 +510,8 @@ public class CodeBlock {
 		return add(new LoadConstr(this, name));
 	}
 	
-	public CodeBlock CALLCONSTR(String name, int arity) {
-		return add(new CallConstr(this, name, arity));
+	public CodeBlock CALLCONSTR(String name, int arity/*, ISourceLocation src*/) {
+		return add(new CallConstr(this, name, arity/*, src*/));
 	}
 	
 	public CodeBlock LOADNESTEDFUN(String fuid, String scopeIn) {
@@ -530,12 +530,12 @@ public class CodeBlock {
 		return add(new LoadOFun(this, fuid));
 	}
 	
-	public CodeBlock OCALL(String fuid, int arity) {
-		return add(new OCall(this, fuid, arity));
+	public CodeBlock OCALL(String fuid, int arity, ISourceLocation src) {
+		return add(new OCall(this, fuid, arity, src));
 	}
 	
-	public CodeBlock OCALLDYN(Type types, int arity) {
-		return add(new OCallDyn(this, getTypeConstantIndex(types), arity));
+	public CodeBlock OCALLDYN(Type types, int arity, ISourceLocation src) {
+		return add(new OCallDyn(this, getTypeConstantIndex(types), arity, src));
 	}
 	
 	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes, int reflect){
@@ -545,8 +545,8 @@ public class CodeBlock {
 								      reflect));
 	}
 	
-	public CodeBlock THROW() {
-		return add(new Throw(this));
+	public CodeBlock THROW(ISourceLocation src) {
+		return add(new Throw(this, src));
 	}
 	
 	public CodeBlock TYPESWITCH(IList labels){

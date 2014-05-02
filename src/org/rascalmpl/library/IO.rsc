@@ -523,6 +523,11 @@ Also see [readFileLines].
 public java list[str] readFileLinesEnc(loc file, str charset)
 throws PathNotFound(loc file), IO(str msg);
 
+
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses URI Resolver Registry}
+public java void remove(loc file) throws IO(str msg);
+
 @doc{
 Synopsis: Write values to a file.
 
