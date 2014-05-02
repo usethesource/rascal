@@ -23,11 +23,20 @@ import Ambiguity;
 list[loc] ignoreList = [|std:///lang/rascal/types/CheckTypes.rsc|];  
 
 public void generate(loc mo) {
-rprintln(parseModule(mo));
    if (start[Module] m := parseModule(mo)) {
-     g = modules2grammar("xx", { m.top });
-     iprintln(g);
-     generate(g);
+     gr = modules2grammar("<m.top.header.name>", { m.top });
+    
+     gr = resolve(gr);
+     gr = literals(gr);
+     gr = flattenTokens(gr);
+     //gr = expandKeywords(gr);
+     gr = makeRegularStubs(expandRegularSymbols(makeRegularStubs(gr)));
+     gr = expandParameterizedSymbols(gr);
+     gr = addNotAllowedSets(gr);
+     gr = prioAssocToChoice(gr);
+
+	 iprintln(gr);  
+     generateGrammar(gr);
      return;
    }
    
