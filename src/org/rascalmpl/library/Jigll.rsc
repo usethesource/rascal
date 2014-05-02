@@ -8,6 +8,7 @@ import lang::rascal::grammar::definition::Regular;
 import lang::rascal::grammar::definition::Parameters;
 import lang::rascal::grammar::definition::Tokens;
 import lang::rascal::grammar::definition::Keywords;
+import lang::rascal::grammar::definition::Names;
 import IO;
 import Node;
 import util::FileSystem;
@@ -27,13 +28,21 @@ public java void generateGrammar(Grammar grammar);
 public java void generateGraph(str f, loc l);
 
 public void generate(type[&T <: Tree] nont) {
+ //if (/lex("Name") := nont.definitions) throw "WTF? <nont>";
   gr = grammar({nont.symbol}, nont.definitions, ());
+  gr = resolve(gr);
+  if (/lex("Name") := gr) throw "WTF? <gr>";
   gr = literals(gr);
+  if (/lex("Name") := gr) throw "WTF? <gr>";
   gr = flattenTokens(gr);
+  if (/lex("Name") := gr) throw "WTF? <gr>";
   //gr = expandKeywords(gr);
   gr = makeRegularStubs(expandRegularSymbols(makeRegularStubs(gr)));
+  if (/lex("Name") := gr) throw "WTF? <gr>";
   gr = expandParameterizedSymbols(gr);
+  if (/lex("Name") := gr) throw "WTF? <gr>";
   gr = addNotAllowedSets(gr);
+  if (/lex("Name") := gr) throw "WTF? <gr>";
   gr = prioAssocToChoice(gr);
   
   generateGrammar(gr);
