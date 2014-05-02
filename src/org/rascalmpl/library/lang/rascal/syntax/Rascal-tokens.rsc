@@ -13,7 +13,7 @@
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
 module lang::rascal::\syntax::Rascal
 
-lexical BooleanLiteral
+token BooleanLiteral
 	= "true" 
 	| "false" ;
 
@@ -31,18 +31,22 @@ syntax Literal
 syntax Expression = concrete: Concrete concrete;
 syntax Pattern    = concrete: Concrete concrete;
 
-lexical Concrete 
-  = typed: "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`";
+syntax Concrete 
+  = typed: "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" EMPTYLAYOUT ConcretePart* parts EMPTYLAYOUT "`";
 
-lexical ConcretePart
-  = @category="MetaSkipped" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
-  | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'"
+syntax ConcretePart
+  = @category="MetaSkipped" text   : Text
+  | newline: Continuation
   | @category="MetaVariable" hole : ConcreteHole hole
   | @category="MetaSkipped" lt: "\\\<"
   | @category="MetaSkipped" gt: "\\\>"
   | @category="MetaSkipped" bq: "\\`"
   | @category="MetaSkipped" bs: "\\\\"
   ;
+  
+token Text = ![`\<\>\\\n]+;
+
+token Continuation = "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'";
   
 syntax ConcreteHole 
   = \one: "\<" Sym symbol Name name "\>"
@@ -54,8 +58,8 @@ start syntax Module
 syntax ModuleParameters
 	= \default: "[" {TypeVar ","}+ parameters "]" ;
 
-lexical DateAndTime
-	= "$" DatePart "T" TimePartNoTZ !>> [+\-] "$"
+token DateAndTime
+	= "$" DatePart "T" TimePartNoTZ "$"
 	| "$" DatePart "T" TimePartNoTZ TimeZonePart "$";
 
 syntax Strategy
@@ -66,18 +70,24 @@ syntax Strategy
 	| outermost: "outermost" 
 	| innermost: "innermost" ;
 
-lexical UnicodeEscape
-	  = utf16: "\\" [u] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] 
-    | utf32: "\\" [U] (("0" [0-9 A-F a-f]) | "10") [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] // 24 bits 
-    | ascii: "\\" [a] [0-7] [0-9A-Fa-f]
+token UnicodeEscape
+	  = utf16: UTF16
+    | utf32: UTF32 
+    | ascii: ASCII
     ;
+    
+token UTF16 =  "\\" [u] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f];   
+
+token UTF32 = "\\" [U] (("0" [0-9 A-F a-f]) | "10") [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f]; // 24 bits
+
+token ASCII = "\\" [a] [0-7] [0-9A-Fa-f];
     
 syntax Variable
 	= initialized: Name name "=" Expression initial 
 	| unInitialized: Name name ;
 
-lexical OctalIntegerLiteral
-	= [0] [0-7]+ !>> [0-9 A-Z _ a-z] ;
+token OctalIntegerLiteral
+	= [0] [0-7]+; //!>> [0-9 A-Z _ a-z] ;
 
 syntax TypeArg
 	= \default: Type type 
@@ -90,7 +100,7 @@ syntax Catch
 	= \default: "catch" ":" Statement body 
 	| binding: "catch" Pattern pattern ":" Statement body ;
 
-lexical PathChars
+token PathChars
 	= URLChars [|] ;
 
 syntax Signature
@@ -144,7 +154,7 @@ syntax Sym
 	left unequal:  Sym symbol "\\" Sym match
 	;
 
-lexical TimePartNoTZ
+token TimePartNoTZ
 	= [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] ([, .] [0-9] ([0-9] [0-9]?)?)? 
 	| [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] ([, .] [0-9] ([0-9] [0-9]?)?)? 
 	;
@@ -155,8 +165,8 @@ syntax Header
 
 token Name
     // Names are surrounded by non-alphabetical characters, i.e. we want longest match.
-	=  ([A-Z a-z _] !<< [A-Z _ a-z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z]) \ RascalKeywords 
-	| [\\] [A-Z _ a-z] [\- 0-9 A-Z _ a-z]* !>> [\- 0-9 A-Z _ a-z] 
+	=  ( [A-Z _ a-z] [0-9 A-Z _ a-z]*) \ RascalKeywords 
+	| [\\] [A-Z _ a-z] [\- 0-9 A-Z _ a-z]*  
 	;
 
 syntax SyntaxDefinition
@@ -290,10 +300,10 @@ syntax Import
 syntax Body
 	= toplevels: Toplevel* toplevels ;
 
-lexical URLChars
+token URLChars
 	= ![\t-\n \r \  \< |]* ;
 
-lexical TimeZonePart
+token TimeZonePart
 	= [+ \-] [0-1] [0-9] ":" [0-5] [0-9] 
 	| "Z" 
 	| [+ \-] [0-1] [0-9] 
@@ -311,40 +321,40 @@ syntax StringTemplate
 	| doWhile   : "do"    "{" Statement* preStats StringMiddle body Statement* postStats "}" "while" "(" Expression condition ")" 
 	| \while     : "while" "(" Expression condition ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" ;
 
-lexical PreStringChars
+token PreStringChars
 	= @category="Constant" [\"] StringCharacter* [\<] ;
 
-lexical CaseInsensitiveStringConstant
+token CaseInsensitiveStringConstant
 	= @category="Constant" "\'" StringCharacter* chars "\'" ;
 
-lexical Backslash
-	= [\\] !>> [/ \< \> \\] ;
+token Backslash
+	= [\\]; // !>> [/ \< \> \\] ;
 
 syntax Label
 	= \default: Name name ":" 
 	| empty: ;
 
-lexical MidProtocolChars
+token MidProtocolChars
 	= "\>" URLChars "\<" ;
 
-lexical NamedBackslash
-	= [\\] !>> [\< \> \\] ;
+token NamedBackslash
+	= [\\]; // !>> [\< \> \\] ;
 
 syntax Field
 	= index: IntegerLiteral fieldIndex 
 	| name: Name fieldName ;
 
-lexical JustDate
+token JustDate
 	= "$" DatePart "$";
 
-lexical PostPathChars
+token PostPathChars
 	=  "\>" URLChars "|" ;
 
 syntax PathPart
 	= nonInterpolated: PathChars pathChars 
 	| interpolated: PrePathChars pre Expression expression PathTail tail ;
 
-lexical DatePart
+token DatePart
 	= [0-9] [0-9] [0-9] [0-9] "-" [0-1] [0-9] "-" [0-3] [0-9] 
 	| [0-9] [0-9] [0-9] [0-9] [0-1] [0-9] [0-3] [0-9] ;
 
@@ -376,7 +386,7 @@ syntax Assignable
 	| \tuple             : "\<" {Assignable ","}+ elements "\>" 
 	| annotation        : Assignable receiver "@" Name annotation  ;
 
-lexical StringConstant
+token StringConstant
 	= @category="Constant" "\"" StringCharacter* chars "\"" ;
 
 
@@ -395,25 +405,25 @@ syntax DataTarget
 	= empty: 
 	| labeled: Name label ":" ;
 
-lexical StringCharacter
+token StringCharacter
 	= "\\" [\" \' \< \> \\ b f n r t] 
 	| UnicodeEscape 
 	| ![\" \' \< \> \\]
 	| [\n][\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* [\'] // margin 
 	;
 
-lexical JustTime
-	= "$T" TimePartNoTZ !>> [+\-] "$"
+token JustTime
+	= "$T" TimePartNoTZ "$"
 	| "$T" TimePartNoTZ TimeZonePart "$"
 	;
 
-lexical MidStringChars
+token MidStringChars
 	= @category="Constant" [\>] StringCharacter* [\<] ;
 
-lexical ProtocolChars
-	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000];
+token ProtocolChars
+	= [|] URLChars "://"; // !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000];
 
-lexical RegExpModifier
+token RegExpModifier
 	= [d i m s]* ;
 
 syntax CommonKeywordParameters 
@@ -425,7 +435,7 @@ syntax Parameters
 	= \default: "(" Formals formals KeywordFormals keywordFormals ")" 
 	| varArgs: "(" Formals formals "..." KeywordFormals keywordFormals ")" ;
 
-lexical OptionalComma = \default: ","? ;
+token OptionalComma = \default: ","? ;
 
 syntax KeywordFormals
     = \default: OptionalComma optionalComma {KeywordFormal ","}+ keywordFormalList
@@ -443,15 +453,17 @@ syntax KeywordArguments
     
 syntax KeywordArgument = \default: Name name "=" Expression expression ;
 
-lexical RegExp
+syntax RegExp
 	= ![/ \< \> \\] 
 	| "\<" Name "\>" 
-	| [\\] [/ \< \> \\] 
+	| [\\] NOLAYOUT [/ \< \> \\] 
 	| "\<" Name ":" NamedRegExp* "\>" 
 	| Backslash 
 	// | @category="MetaVariable" [\<]  Expression expression [\>] TODO: find out why this production existed 
 	;
 	
+
+
 
 layout LAYOUTLIST
 	= LAYOUT* !>> [\u0009-\u000D \u0020 \u0085 \u00A0 \u1680 \u180E \u2000-\u200A \u2028 \u2029 \u202F \u205F \u3000] !>> "//" !>> "/*";
@@ -460,13 +472,13 @@ syntax LocalVariableDeclaration
 	= \default: Declarator declarator 
 	| \dynamic: "dynamic" Declarator declarator ;
 
-lexical RealLiteral
+token RealLiteral
 	= [0-9]+ [D F d f] 
 	| [0-9]+ [E e] [+ \-]? [0-9]+ [D F d f]?
-	| [0-9]+ "." !>> "." [0-9]* [D F d f]?  
+	| [0-9]+ "." [0-9]* [D F d f]? // [0-9]+ "." !>> "." [0-9]* [D F d f]?  
 	| [0-9]+ "." [0-9]* [E e] [+ \-]? [0-9]+ [D F d f]? 
-	| [.] !<< "." [0-9]+ [D F d f]? 
-	| [.] !<< "." [0-9]+ [E e] [+ \-]? [0-9]+ [D F d f]? 
+	| "." [0-9]+ [D F d f]? //[.] !<< "." [0-9]+ [D F d f]? 
+	| "." [0-9]+ [E e] [+ \-]? [0-9]+ [D F d f]? //[.] !<< "." [0-9]+ [E e] [+ \-]? [0-9]+ [D F d f]? 
 	;
 
 syntax Range
@@ -497,14 +509,15 @@ syntax StringMiddle
 syntax QualifiedName
 	= \default: {Name "::"}+ names !>> "::" ;
 
-lexical RationalLiteral
+token RationalLiteral
    = [0-9][0-9]* [r]
-   | [1-9][0-9]* [r] [0-9][0-9]* !>> [0-9 A-Z _ a-z]
+   | [1-9][0-9]* [r] [0-9][0-9]* // !>> [0-9 A-Z _ a-z]
    ;
 
-lexical DecimalIntegerLiteral
-	= "0" !>> [0-9 A-Z _ a-z] 
-	| [1-9] [0-9]* !>> [0-9 A-Z _ a-z] ;
+token DecimalIntegerLiteral
+	= "0" //!>> [0-9 A-Z _ a-z] 
+	| [1-9] [0-9]* //!>> [0-9 A-Z _ a-z] 
+	;
 
 syntax DataTypeSelector
 	= selector: QualifiedName sort "." Name production ;
@@ -518,11 +531,13 @@ syntax PatternWithAction
 	= replacing: Pattern pattern "=\>" Replacement replacement 
 	| arbitrary: Pattern pattern ":" Statement statement ;
 
-lexical LAYOUT
+token LAYOUT
 	= Comment 
 	// all the white space chars defined in Unicode 6.0 
 	| [\u0009-\u000D \u0020 \u0085 \u00A0 \u1680 \u180E \u2000-\u200A \u2028 \u2029 \u202F \u205F \u3000] 
 	;
+	
+layout EMPTYLAYOUT = @manual;	
 
 syntax Visit
 	= givenStrategy: Strategy strategy "visit" "(" Expression subject ")" "{" Case+ cases "}" 
@@ -544,15 +559,16 @@ start syntax Command
 	| statement: Statement!variableDeclaration!functionDeclaration!visit statement 
 	| \import: Import imported ;
 
-lexical TagString
+// TODO: Ambiguous because ![{}] overlaps with layout. Check follow restrictions!
+syntax TagString
 	= "\\" !<< "{" ( ![{}] | ("\\" [{}]) | TagString)* contents "\\" !<< "}";
 
 syntax ProtocolTail
 	= mid: MidProtocolChars mid Expression expression ProtocolTail tail 
 	| post: PostProtocolChars post ;
 
-lexical Nonterminal
-	= ([A-Z] !<< [A-Z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z]) \ RascalKeywords;
+token Nonterminal
+	= ([A-Z] [0-9 A-Z _ a-z]*) \ RascalKeywords;
 
 syntax PathTail
 	= mid: MidPathChars mid Expression expression PathTail tail 
@@ -568,11 +584,12 @@ syntax StringLiteral
 	| interpolated: PreStringChars pre Expression expression StringTail tail 
 	| nonInterpolated: StringConstant constant ;
 
-lexical Comment
+// TODO: Copy paste from that website!
+// TODO: single line comment: check for the EOF
+token Comment
 	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
-	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
+	| @category="Comment" "//" ![\n]* $ //!>> [\ \t\r \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
 	;
-	
 
 syntax Renamings
 	= \default: "renaming" {Renaming ","}+ renamings ;
@@ -583,7 +600,7 @@ syntax Tags
 syntax Formals
 	= \default: {Pattern ","}* formals ;
 
-lexical PostProtocolChars
+token PostProtocolChars
 	= "\>" URLChars "://" ;
 
 syntax Start
@@ -626,8 +643,8 @@ syntax Statement
 syntax StructuredType
 	= \default: BasicType basicType "[" {TypeArg ","}+ arguments "]" ;
 
-lexical NonterminalLabel
-	= [a-z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z] ;
+token NonterminalLabel
+	= [a-z] [0-9 A-Z _ a-z]*;
 
 syntax FunctionType
 	= typeArguments: Type type "(" {TypeArg ","}* arguments ")" ;
@@ -643,7 +660,7 @@ syntax Bound
 	= \default: ";" Expression expression 
 	| empty: ;
 
-keyword RascalKeywords
+token RascalKeywords
 	= "o"
 	| "syntax"
 	| "keyword"
@@ -664,7 +681,6 @@ keyword RascalKeywords
 	| "filter" 
 	| "if" 
 	| "tag" 
-	| BasicType
 	| "extend" 
 	| "append" 
 	| "rel" 
@@ -748,7 +764,7 @@ syntax Class
 	> left union: Class lhs "||" Class rhs 
 	| bracket \bracket: "(" Class charclass ")" ;
 
-lexical RegExpLiteral
+syntax RegExpLiteral
 	= "/" RegExp* "/" RegExpModifier ;
 
 syntax FunctionModifiers
@@ -768,12 +784,12 @@ syntax FunctionDeclaration
 	| @Foldable @breakable{expression,conditions} conditional: Tags tags Visibility visibility Signature signature "=" Expression expression "when" {Expression ","}+ conditions ";"
 	| @Foldable \default: Tags tags Visibility visibility Signature signature FunctionBody body ;
 
-lexical PreProtocolChars
+token PreProtocolChars
 	= "|" URLChars "\<" ;
 
-lexical NamedRegExp
+syntax NamedRegExp
 	= "\<" Name "\>" 
-	| [\\] [/ \< \> \\] 
+	| [\\] NOLAYOUT [/ \< \> \\] 
 	| NamedBackslash 
 	| ![/ \< \> \\] ;
 
@@ -785,11 +801,11 @@ syntax ProdModifier
 syntax Toplevel
 	= givenVisibility: Declaration declaration ;
 
-lexical PostStringChars
+token PostStringChars
 	= @category="Constant" [\>] StringCharacter* [\"] ;
 
-lexical HexIntegerLiteral
-	= [0] [X x] [0-9 A-F a-f]+ !>> [0-9 A-Z _ a-z] ;
+token HexIntegerLiteral
+	= [0] [X x] [0-9 A-F a-f]+; // !>> [0-9 A-Z _ a-z] ;
 
 syntax TypeVar
 	= free: "&" Name name 
@@ -817,7 +833,7 @@ syntax BasicType
 	| \list: "list" 
 	;
 
-lexical Char
+token Char
 	= @category="Constant" "\\" [\  \" \' \- \< \> \[ \\ \] b f n r t] 
 	| @category="Constant" ![\  \" \' \- \< \> \[ \\ \]] 
 	| @category="Constant" UnicodeEscape 
@@ -839,14 +855,14 @@ syntax DateTimeLiteral
 	| /*prefer()*/ timeLiteral: JustTime time 
 	| /*prefer()*/ dateAndTimeLiteral: DateAndTime dateAndTime ;
 
-lexical PrePathChars
+token PrePathChars
 	= URLChars "\<" ;
 
 syntax Mapping[&T]
 	= \default: &T!ifDefinedOtherwise from ":" &T to 
 	;
 
-lexical MidPathChars
+token MidPathChars
 	= "\>" URLChars "\<" ;
 
 /*
@@ -881,3 +897,5 @@ syntax Tag
 
 syntax ModuleActuals
 	= \default: "[" {Type ","}+ types "]" ;
+
+	
