@@ -50,4 +50,4 @@ value main(list[value] args) {
 	
 }
 
-public str expectedResult = "Runtime exception \<currently unknown location\>: \"Try to catch: start, then 1, then 2, then 8, then 9!\"";
+public str expectedResult = "Runtime exception: \"Try to catch: start, then 1, then 2, then 8, then 9!\"";

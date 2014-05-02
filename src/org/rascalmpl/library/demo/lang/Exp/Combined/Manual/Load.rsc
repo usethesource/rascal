@@ -4,8 +4,9 @@ import demo::lang::Exp::Concrete::WithLayout::Syntax;  /*1*/
 import demo::lang::Exp::Abstract::Syntax;              /*2*/
 import demo::lang::Exp::Combined::Manual::Parse;       /*3*/
 import String;
+import ParseTree;
 
-public Exp load(str txt) = load(parse(txt));           /*4*/
+public Exp loadExp(str txt) = load(parseExp(txt));        /*4*/
      
 public Exp load((Exp)`<IntegerLiteral l>`)             /*5*/
        = con(toInt("<l>"));       
