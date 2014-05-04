@@ -240,10 +240,6 @@ public class RVM {
 				finalize(codeEmittor);
 				rvmGenCode = codeEmittor.finalizeCode();
 
-				///* DEBUG */codeEmittor.dump("/Users/ferryrietveld/rasdev/rascal/bin/org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running.class");
-				///* DEBUG */codeEmittor.dump("/Users/ferryrietveld/Running.class");
-			    //codeEmittor.dump("/Running.class");
-
 				// Oneshot classloader
 				Class<?> generatedClassV1 = new ClassLoader(RVM.class.getClassLoader()) {
 					public Class<?> defineClass(String name, byte[] bytes) {
@@ -272,42 +268,8 @@ public class RVM {
 		}
 	}
 
-	public IValue executeProgram(String uid_main, IValue[] args) {
+	public IValue executeProgramNO(String uid_main, IValue[] args) {
 		boolean profile = false;
-
-		buildRunner(profile);
-
-		Function main_function = functionStore.get(functionMap.get(uid_main));
-
-		if (main_function == null) {
-			throw new RuntimeException("PANIC: No function " + uid_main + " found");
-		}
-
-		if (main_function.nformals != 2) { // List of IValues and empty map of
-											// keyword parameters
-			throw new RuntimeException("PANIC: function " + uid_main + " should have two arguments");
-		}
-
-		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
-		Frame cf = root;
-		cf.stack[0] = vf.list(args); // pass the program argument to
-									 // main_function as a IList object
-		cf.stack[1] = vf.mapWriter().done();
-
-		Object o = null;
-		o = runner.dynRun(uid_main, args);
-		//o = runner.executeProgram(root, cf);
-
-		if (o != null && o instanceof Thrown) {
-			throw (Thrown) o;
-		}
-		return narrow(o);
-	}
-
-	public IValue executeProgramVSTAT(String uid_main, IValue[] args) {
-		Object o = null;
-		boolean profile = false;
-		long[] runTiming = new long[50];
 
 		buildRunner(profile);
 
@@ -328,45 +290,104 @@ public class RVM {
 										// main_function as a IList object
 		cf.stack[1] = vf.mapWriter().done();
 
+		Object o = null;
+		o = runner.dynRun(uid_main, args);
+		// o = runner.executeProgram(root, cf);
+		// o = new Integer(10) ;
+		if (o != null && o instanceof Thrown) {
+			throw (Thrown) o;
+		}
+		return narrow(o);
+	}
+
+	long buildTime = 0;
+
+	public IValue executeProgram(String uid_main, IValue[] args) {
 		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+		Object o = null;
+		boolean profile = false;
+		long[] runTimingJVM = new long[35];
+		long[] runTimingINT = new long[35];
 
-		for (int i = 0; i < 50; i++) {
+		if (runner == null) {
+			buildTime = bean.getCurrentThreadUserTime();
+			buildRunner(profile);
+			buildTime = (bean.getCurrentThreadUserTime() - buildTime) / 1000000;
+		}
+
+		Function main_function = functionStore.get(functionMap.get(uid_main));
+
+		if (main_function == null) {
+			throw new RuntimeException("PANIC: No function " + uid_main + " found");
+		}
+
+		if (main_function.nformals != 2) { // List of IValues and empty map of
+											// keyword parameters
+			throw new RuntimeException("PANIC: function " + uid_main + " should have two arguments");
+		}
+
+		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
+		Frame cf = root;
+		cf.stack[0] = vf.list(args); // pass the program argument to
+										// main_function as a IList object
+		cf.stack[1] = vf.mapWriter().done();
+
+		for (int i = 0; i < 35; i++) {
 			long startTime = bean.getCurrentThreadUserTime();
-			// o = runner.executeProgram(root, cf);
 			o = runner.dynRun(uid_main, args);
-			runTiming[i] = bean.getCurrentThreadUserTime() - startTime;
+			runTimingJVM[i] = bean.getCurrentThreadUserTime() - startTime;
+
+			startTime = bean.getCurrentThreadUserTime();
+			o = runner.executeProgram(root, cf);
+			runTimingINT[i] = bean.getCurrentThreadUserTime() - startTime;
 		}
 
-		for (int i = 0; i < 50; i++) {
-			runTiming[i] = runTiming[i] / 1000000;
+		for (int i = 0; i < 35; i++) {
+			runTimingJVM[i] = runTimingJVM[i] / 1000000;
+			runTimingINT[i] = runTimingINT[i] / 1000000;
 		}
 
-		long sum = 0;
 		try {
-			File file = new File("/Users/ferryrietveld/measurements.csv");
-			if (!file.exists()) {
-				file.createNewFile();
-				FileWriter fileWriter = new FileWriter("/Users/ferryrietveld/measurements.csv", true);
-				fileWriter.write("Name;runtype;firstrun");
-				for (int i = 1; i < 50; i++)
-					fileWriter.write(";" + i);
-				fileWriter.write(";average last 40;stdev last 40\n");
-				fileWriter.close();
+			if (uid_main.contains("main")) {
+				File file = new File("/Users/ferryrietveld/measurements.csv");
+				if (!file.exists()) {
+					file.createNewFile();
+					FileWriter fileWriter = new FileWriter("/Users/ferryrietveld/measurements.csv", true);
+					fileWriter.write("Name;runType;buildTime;firstRun");
+					for (int i = 1; i < 35; i++)
+						fileWriter.write(";" + i);
+					fileWriter.write(";average last 30;stdev last 30\n");
+					fileWriter.close();
+				}
+
+				FileWriter fileWritter = new FileWriter("/Users/ferryrietveld/measurements.csv", true);
+
+				fileWritter.write(uid_main.replace(';','|'));
+				fileWritter.write(";(JVM)");
+				fileWritter.write(";" + buildTime);
+
+				for (int i = 0; i < 35; i++) {
+					fileWritter.write(";" + runTimingJVM[i]);
+				}
+
+				fileWritter.write(";" + mean(runTimingJVM, 5, 34));
+				fileWritter.write(";" + stddev(runTimingJVM, 5, 34));
+				fileWritter.write("\n");
+
+				fileWritter.write(uid_main.replace(';', '|'));
+				fileWritter.write(";(INT)");
+				fileWritter.write(";" + buildTime);
+
+				for (int i = 0; i < 35; i++) {
+					fileWritter.write(";" + runTimingINT[i]);
+				}
+
+				fileWritter.write(";" + mean(runTimingINT, 5, 34));
+				fileWritter.write(";" + stddev(runTimingINT, 5, 34));
+				fileWritter.write("\n");
+
+				fileWritter.close();
 			}
-
-			FileWriter fileWritter = new FileWriter("/Users/ferryrietveld/measurements.csv", true);
-			fileWritter.write(uid_main);
-			fileWritter.write(";(JVM)");
-
-			for (int i = 0; i < 50; i++) {
-				fileWritter.write(";" + runTiming[i]);
-			}
-			
-			fileWritter.write(";" + mean(runTiming,10,49));
-			fileWritter.write(";" + stddev(runTiming,10,49));
-			fileWritter.write("\n");
-
-			fileWritter.close();
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 		}
@@ -411,7 +432,8 @@ public class RVM {
 		}
 		return sum / (length - 1);
 	}
-	 public float stddev(long[] a, int lo, int hi) {
-	        return (float) Math.sqrt(var(a, lo, hi));
-	 }
+
+	public float stddev(long[] a, int lo, int hi) {
+		return (float) Math.sqrt(var(a, lo, hi));
+	}
 }
