@@ -10,22 +10,25 @@ int n_redundant_stores = 0;
 int n_jumps_to_jumps = 0;
 
 INS peephole(INS instructions){
-  //return instructions;  
+  // return instructions;  
   // Not (yet) used, due to lack of impact. 
   // (not when youre debugging)
   
-  // Peephole-ing a fixed point problem 7 steps for debugging.
-  result = redundant_stores(instructions);
-  result = jumps_to_jumps(result);
-  result = unused_labels(result);
-  result = dead_code(result);
-  result = redundant_stores(result) ;
-  result = unused_labels(result);
-  result = redundant_stores(result) ;
-//  println("**** peephole removed <size(instructions) - size(result)> instructions");
+  // Peephole-ing a fixed point problem multiple steps for debugging.
+  // -- Maybe disable could be slow --
+	INS result = instructions ;
+	int loopcount = 0 ;
+	solve (result) {
+		loopcount = loopcount + 1 ;
+  		result = dead_code(result);
+  		result = unused_labels(result);
+ 	 	result = redundant_stores(result);
+  		result = jumps_to_jumps(result);
+  	}
+  	println("**** peephole removed <size(instructions) - size(result)> instructions in <loopcount> iterations");
 //  iprintln(instructions);
 //  iprintln(result4);
-  return result;
+  	return result;
 }
 
 // Redundant_stores, loads and jmps
