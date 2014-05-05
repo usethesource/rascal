@@ -55,7 +55,7 @@ public class Generator implements Opcodes {
 		this.className = cName;
 		this.packageName = pName;
 		this.fullClassName = packageName + "/" + className;
-		this.fullClassName = "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Running";
+		this.fullClassName = "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRunner";
 		cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 
 		cw.visit(
@@ -141,7 +141,7 @@ public class Generator implements Opcodes {
 		if (!emit)
 			return;
 		if (exitLabel != null) { // This label should never be reached placed to
-									// keep JVM verifier happy.
+								 // keep JVM verifier happy.
 			// System.out.println(currentName + " : exitLabel");
 
 			mv.visitLabel(exitLabel);
