@@ -233,7 +233,9 @@ public class RVM {
 		if (!finalized) {
 			try {
 				String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter";
-				String className = "Running";
+				
+				// TODO; in the future create classes with the same name of a Rascal module
+				String className = "RVMRunner";
 
 				Generator codeEmittor = new Generator(packageName, className);
 
@@ -241,7 +243,7 @@ public class RVM {
 				rvmGenCode = codeEmittor.finalizeCode();
 
 				// Oneshot classloader
-				Class<?> generatedClassV1 = new ClassLoader(RVM.class.getClassLoader()) {
+				Class<?> generatedClass = new ClassLoader(RVM.class.getClassLoader()) {
 					public Class<?> defineClass(String name, byte[] bytes) {
 						return super.defineClass(name, bytes, 0, bytes.length);
 					}
@@ -254,11 +256,11 @@ public class RVM {
 						}
 						return null;
 					}
-				}.defineClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Running", rvmGenCode);
+				}.defineClass("org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMRunner", rvmGenCode);
 
-				Constructor<?>[] cons2 = generatedClassV1.getConstructors();
+				Constructor<?>[] cons = generatedClass.getConstructors();
 
-				runner = (RVMRun) cons2[0].newInstance(vf, ctx, debug, profile);
+				runner = (RVMRun) cons[0].newInstance(vf, ctx, debug, profile);
 
 				runner.inject(functionStore, overloadedStore, constructorStore, typeStore, functionMap);
 
