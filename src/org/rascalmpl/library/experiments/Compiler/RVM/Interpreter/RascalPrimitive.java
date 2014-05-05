@@ -5759,7 +5759,7 @@ public enum RascalPrimitive {
 	private static IBool Rascal_TRUE;
 	private static IBool Rascal_FALSE;
 
-	public static ParsingTools getParsingTools() { return parsingTools; }
+	public static ParsingTools getParsingTools() { assert parsingTools != null; return parsingTools; }
 
 	/**
 	 * Initialize the primitive methods.
