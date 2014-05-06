@@ -309,7 +309,7 @@ public Configuration addImportedVariable(Configuration c, RName n, int varId, bo
 			c.fcvEnv[appendName(moduleName,n)] = varId;
 		}
     } else {
-		c = addScopeError(c, "Attempted redeclaration of imported name <prettyPrintName(n)> in module <prettyPrintName(moduleName)>", l);
+		c = addScopeError(c, "Attempted redeclaration of imported name <prettyPrintName(n)> in module <prettyPrintName(moduleName)>", c.store[varId].at);
     }
     return c;
 }
@@ -405,7 +405,7 @@ public Configuration addImportedAnnotation(Configuration c, RName n, int annId) 
 	} else if (!equivalent(c.store[annId].rtype,c.store[c.annotationEnv[n]].rtype)){
 		moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 		moduleName = c.store[moduleId].name;
-		c = addScopeError(c, "Annotation <prettyPrintName(n)> has already been declared with type <c.store[c.annotationEnv[n]].rtype> in module <prettyPrintName(moduleName)>", l);
+		c = addScopeError(c, "Annotation <prettyPrintName(n)> has already been declared with type <c.store[c.annotationEnv[n]].rtype> in module <prettyPrintName(moduleName)>", c.store[annId].at);
 	}
 	return c;
 }
@@ -474,7 +474,7 @@ public Configuration addImportedADT(Configuration c, RName n, int itemId, bool a
 			c.typeEnv[appendName(moduleName,n)] = itemId;
 		}
 	} else if (c.store[c.typeEnv[n]] is sorttype || c.store[c.typeEnv[n]] is \alias) {
-		c = addScopeError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+		c = addScopeError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", c.store[itemId].at);
 	}
 	
 	return c;
@@ -544,7 +544,7 @@ public Configuration addImportedNonterminal(Configuration c, RName n, int itemId
 			c.typeEnv[appendName(moduleName, n)] = itemId;
 		}
 	} else if (c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is \alias) {
-		c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+		c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", c.store[itemId].at);
 	}
 	
 	return c;
@@ -592,7 +592,7 @@ public Configuration addImportedAlias(Configuration c, RName n, int itemId, bool
 			c.typeEnv[appendName(moduleName, n)] = itemId;
 		}
 	} else if (n in c.typeEnv) {
-		c = addScopeError(c, "An adt, alias, or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+		c = addScopeError(c, "An adt, alias, or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", c.store[itemId].at);
 	}
 	
 	return c;
@@ -769,7 +769,7 @@ public Configuration addImportedConstructor(Configuration c, RName n, int itemId
 			c.fcvEnv[n] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
-			c = addScopeError(c, "Invalid addition: cannot add constructor <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or production name in the same scope.", l);
+			c = addScopeError(c, "Invalid addition: cannot add constructor <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or production name in the same scope.", c.store[itemId].at);
 		}
 	}
 
@@ -835,7 +835,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 		}
 	}
 
-	existsAlready = size({ i | i <- c.nonterminalConstructors[sortId], c.store[i].at == l}) > 0;
+	existsAlready = size({ i | i <- c.nonterminalConstructors[sortId], c.store[i].at == l, c.store[i].name == n}) > 0;
 	if (!existsAlready) {
 		nameWithSort = appendName(sortName,n);
 		nameWithModule = appendName(moduleName,n);
@@ -907,7 +907,7 @@ public Configuration addImportedProduction(Configuration c, RName n, int itemId,
 			c.fcvEnv[n] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
-			c = addScopeError(c, "Invalid addition: cannot add production <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or constructor name in the same scope.", l);
+			c = addScopeError(c, "Invalid addition: cannot add production <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or constructor name in the same scope.", c.store[itemId].at);
 		}
 	}
 
@@ -1097,7 +1097,7 @@ public Configuration addImportedFunction(Configuration c, RName n, int itemId, b
 			c.fcvEnv[n] = c.nextLoc;
 	        c.nextLoc = c.nextLoc + 1;
 	    } else {
-	        c = addScopeError(c, "Cannot add function <prettyPrintName(n)>, a variable of the same name has already been defined in the current scope",l);
+	        c = addScopeError(c, "Cannot add function <prettyPrintName(n)>, a variable of the same name has already been defined in the current scope",c.store[itemId].at);
 	    }
 	}
 
