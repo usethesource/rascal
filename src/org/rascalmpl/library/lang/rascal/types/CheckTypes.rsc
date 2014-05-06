@@ -40,74 +40,24 @@ import lang::rascal::\syntax::Rascal;
 
 //
 // TODOs
-// 1. Add scoping information for boolean operations (and, or, etc) and surrounding
-//    constructs (comprehensions, matches, conditionals, etc) DONE
-//
 // 1a. Make sure that names propagate correctly with boolean operators. For instance,
 //     in a boolean or, a name needs to occur along both branches for it to be
 //     visible outside the or, but for and the name can occur along only one
 //     branch (since both need to be true, meaning both have been processed).
 //
-// 2. Add support for _ in subscripts DONE: This is only allowed in subscripts
-//    in expressions, not in assignables.
-//
-// 3. Add support for _ in patterns, to ensure we don't accidentally bind _ as a name DONE
-//
 // 4. Filter out bad assignables? For instance, we cannot have <x,y>.f, but it does
 //    parse, so we may be handed an example such as this.
 //
-// 5. Expand out uses of user types, including those with parameters DONE
-//
 // 6. Check tags to make sure they are declared
-//
-// 7. Make sure add errors are encoded as exceptions. This way we don't need
-//    to always encode checks to see if we can add the given item, we can just
-//    try and catch any errors. REMOVED: We now generate scope errors in the add
-//    routines, which allows us to handle the add logic (including whether add
-//    is allowed in some cases) in one place. Throws are too disruptive, since
-//    they can stop the checker from running if not handled properly, while
-//    registering errors provides a better UI experience.
-//
-// 8. Make sure that, when we have a declaration (even one with a type), we
-//    check shadowing! This is done in statements, but is not always done
-//    now in patterns. DONE: This is handled by now having the logic to mark
-//    scope errors in the functions used to add variables.
-//
-// 9. Make sure that varargs parameters are properly given list types. Also make sure
-//    they are just names (not varargs of a tuple pattern, for instance) DONE
 //
 // 10. Make sure we always instantiate type parameters when we use a constructor. NOTE: This
 //     is partially done -- it has been done for call or tree expressions, but not yet for
 //     call or tree patterns.
 //
-// 11. For ADT types, the user type could have other types for bounds which have
-//     not yet been introduced (although this would be odd), so we need to
-//     ignore those when we are not descending
-//
-// 12. Remember to pop the function when we exit!!! DONE: We already were doing this
-//     by just resetting to the old stack.
-//
 // 13. Check values created by append NOTE: This is partially done, in that we are gathering
 //     the types. Additional checking may still be needed.
 //
-// 14. Instantiate types in parametric function calls. DONE.
-//
 // 15. Make sure type var bounds are consistent.
-//
-// 16. Change shadowing rules to allow shadowing of imported items by items
-//     in the current module. Note that functions do not shadow, but are
-//     instead added into the overloaded cases. DONE.
-//
-// 17. Support _ in assignables DONE
-//
-// 18. Provide support for insert DONE
-//
-// 19. Refactor out code in statements with labels. DONE
-//
-// 20. Ensure environments are proper for nested functions and for closures.
-//     For instance, we should not see labels from outside a closure while
-//     we are inside the closure (especially since we could pass or return
-//     the closure!) DONE
 //
 // 21. Ensure that inferred types are handled appropriately in situations
 //     where we have control flow iteration: loops, visits, calls, solve
@@ -131,10 +81,6 @@ import lang::rascal::\syntax::Rascal;
 // 26. Need to pre-populate the type and name environments with the constructors for
 //     reified types, since we get these back if someone uses #type.
 //
-// 27. Finish the binders for assignables, we still need to modify these for more complex
-//     binders that push information back through multiple levels of field accesses, etc
-//     DONE
-//
 // 28. In statement blocks, segregate out function defs, these see the scope of the
 //     entire block, not just what came before; however, closures are still just
 //     expressions, so we still need the ability to capture an environment for them
@@ -147,6 +93,7 @@ import lang::rascal::\syntax::Rascal;
 //
 // 31. addition on functions
 //
+// 32. resolve deferred names in field accesses and updates
 
 public CheckResult checkStatementSequence(list[Statement] ss, Configuration c) {
 	// Introduce any functions in the statement list into the current scope, but
@@ -994,7 +941,20 @@ public CheckResult checkExp(Expression exp:(Expression)`<QualifiedName qn>`, Con
     n = convertName(qn);
     if (fcvExists(c, n)) {
         c.uses = c.uses + < c.fcvEnv[n], exp@\loc >;
-        c.usedIn[exp@\loc] = head(c.stack); 
+        c.usedIn[exp@\loc] = head(c.stack);
+		startingType = c.store[c.fcvEnv[n]].rtype;
+		
+        if (isFailType(c.store[c.fcvEnv[n]].rtype)) {
+        	return markLocationFailed(c, exp@\loc, c.store[c.fcvEnv[n]].rtype);
+        }
+
+        if (hasDeferredTypes(c.store[c.fcvEnv[n]].rtype)) {
+        	c = resolveDeferredTypes(c, c.fcvEnv[n]);
+	        if (isFailType(c.store[c.fcvEnv[n]].rtype)) {
+	        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in <prettyPrintType(startingType)>", exp@\loc));
+	        }
+        }
+        
         return markLocationType(c, exp@\loc, c.store[c.fcvEnv[n]].rtype);
     } else {
         return markLocationFailed(c, exp@\loc, makeFailType("Name <prettyPrintName(n)> is not in scope", exp@\loc));
@@ -1409,6 +1369,14 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ @ <Name
     if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
     if (isNodeType(t1) || isADTType(t1)) {
         aname = convertName(n);
+        
+        if (aname in c.annotationEnv, true in { hasDeferredTypes(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
+        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
+	        if (true in { isFailType(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
+	        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", exp@\loc));
+	        }
+        }
+        
         if (aname in c.annotationEnv, true in { subtype(t1,ot) | ot <- c.store[c.annotationEnv[aname]].onTypes }) {
             aType = c.store[c.annotationEnv[aname]].rtype;
             if (isFailType(aType)) {
@@ -1434,6 +1402,14 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> @ <Name n
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
     if (isNodeType(t1) || isADTType(t1)) {
         aname = convertName(n);
+
+        if (aname in c.annotationEnv, true in { hasDeferredTypes(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
+        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
+	        if (true in { isFailType(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
+	        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", exp@\loc));
+	        }
+        }
+
         if (aname in c.annotationEnv, true in { subtype(t1,ot) | ot <- c.store[c.annotationEnv[aname]].onTypes }) {
             aType = c.store[c.annotationEnv[aname]].rtype;
             if (isFailType(aType))
@@ -4453,6 +4429,14 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName 
         if (variable(_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
             c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
             c.usedIn[assn@\loc] = head(c.stack);
+
+	        if (hasDeferredTypes(c.store[c.fcvEnv[n]].rtype)) {
+	        	c = resolveDeferredTypes(c, c.fcvEnv[n]);
+		        if (isFailType(c.store[c.fcvEnv[n]].rtype)) {
+		        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in <prettyPrintType(startingType)>", exp@\loc));
+		        }
+	        }
+
             rt = c.store[c.fcvEnv[n]].rtype;
             c = addNameWarning(c,n,assn@\loc);
             return < c, variableNode(n)[@atype=rt][@at=assn@\loc] >;
@@ -4662,6 +4646,13 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
         // the current type is a subtype of one of these.
         // TODO: Make sure all annotations of the same name are given equivalent types. This
         // requirement is implicit in the code below, but I'm not sure it's being checked.
+        if (aname in c.annotationEnv, true in { hasDeferredTypes(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
+        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
+	        if (true in { isFailType(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
+	        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", exp@\loc));
+	        }
+        }
+
         if (aname in c.annotationEnv, true in { subtype(atree@atype,ot) | ot <- c.store[c.annotationEnv[aname]].onTypes }) {
             aType = c.store[c.annotationEnv[aname]].rtype;
             return < c, annotationNode(atree,aname)[@atype=aType][@at=assn@\loc] >;
@@ -5827,7 +5818,8 @@ public Configuration processModuleImportAndReset(Configuration c, RSignature sig
 
 public Configuration processModuleImport(Configuration c, RSignature sig, RName modName, int moduleId, bool extendingImport) {
 	c.stack = moduleId + c.stack;
-
+	c.importing = true;
+	
 	// We first import type information without descending into the declarations, to
 	// ensure it is globally visible (since one type could be used inside another)
 	for (item <- sig.datatypes) 
@@ -5890,6 +5882,7 @@ public Configuration processModuleImport(Configuration c, RSignature sig, RName 
 	}
 
 	c.stack = tail(c.stack);
+	c.importing = false;
 	
 	// Save the info for the module and then reset the various environments back to how they
 	// started. We will use this info later in a merge process to determine what is actually
@@ -6339,63 +6332,68 @@ public CheckResult convertAndExpandUserType(UserType t, Configuration c) {
     }
 }
 
+@doc{Replace any uses of type names with the actual types they represent.}
 public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c) {
-    rt = bottom-up visit(rt) {
-        case utc:\user(rn,pl) : {
-            if (rn in c.typeEnv && !(c.store[c.typeEnv[rn]] is conflict)) {
-                ut = c.store[c.typeEnv[rn]].rtype;
-                if ((utc@at)?) {
-                    c.uses = c.uses + < c.typeEnv[rn], utc@at >;
-                    c.usedIn[utc@at] = head(c.stack);
-                } 
-                if (isAliasType(ut)) {
-                    atps = getAliasTypeParameters(ut);
-                    if (size(pl) == size(atps)) {
-                        failures = { };
-                        for (idx <- index(pl), !subtype(pl[idx],getTypeVarBound(atps[idx]))) 
-                            failures = failures + makeFailType("Cannot instantiate parameter <idx> with type <prettyPrintType(pl[idx])>, parameter has bound <prettyPrintType(getTypeVarBound(atps[idx]))>", l);
-                        if (size(failures) == 0) {
-                            if (size(pl) > 0) {
-                                bindings = ( getTypeVarName(atps[idx]) : pl[idx] | idx <- index(pl) );
-                                insert(instantiate(getAliasedType(ut),bindings));
-                            } else {
-                                insert(getAliasedType(ut));
-                            }
-                        } else {
-                            return < c, collapseFailTypes(failures) >;
-                        } 
-                    } else {
-                        return < c, makeFailType("Alias <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
-                    }
-                } else if (isADTType(ut)) {
-                    atps = getADTTypeParameters(ut);
-                    if (size(pl) == size(atps)) {
-                        failures = { };
-                        for (idx <- index(pl), !subtype(pl[idx],getTypeVarBound(atps[idx]))) 
-                            failures = failures + makeFailType("Cannot instantiate parameter <idx> with type <prettyPrintType(pl[idx])>, parameter has bound <prettyPrintType(getTypeVarBound(atps[idx]))>", l);
-                        if (size(failures) == 0) {
-                            if (size(pl) > 0) {
-                                insert(\adt(getADTName(ut),pl));
-                            } else {
-                                insert(ut);
-                            }
-                        } else {
-                            return < c, collapseFailTypes(failures) >;
-                        } 
-                    } else {
-                        return < c, makeFailType("Data type <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
-                    }
-                } else if (ut is \lex || ut is \sort || ut is \keyword || ut is \layout) {
-                  return < c, ut >;
-                } else {
-                    throw "User type should not refer to type <prettyPrintType(ut)>";
-                }
-            } else {
-                return < c, makeFailType("Type <prettyPrintName(rn)> not declared", l) >;
-            }
-        }
-    }
-    return < c, rt >;
+	rt = bottom-up visit(rt) {
+		case utc:\user(rn,pl) : {
+			if (rn in c.typeEnv) {
+				ut = c.store[c.typeEnv[rn]].rtype;
+				if ((utc@at)?) {
+					c.uses = c.uses + < c.typeEnv[rn], utc@at >;
+					c.usedIn[utc@at] = head(c.stack);
+				} 
+				if (isAliasType(ut)) {
+					atps = getAliasTypeParameters(ut);
+					if (size(pl) == size(atps)) {
+						failures = { };
+						for (idx <- index(pl), !subtype(pl[idx],getTypeVarBound(atps[idx]))) 
+							failures = failures + makeFailType("Cannot instantiate parameter <idx> with type <prettyPrintType(pl[idx])>, parameter has bound <prettyPrintType(getTypeVarBound(atps[idx]))>", l);
+						if (size(failures) == 0) {
+							if (size(pl) > 0) {
+								bindings = ( getTypeVarName(atps[idx]) : pl[idx] | idx <- index(pl) );
+								insert(instantiate(getAliasedType(ut),bindings));
+							} else {
+								insert(getAliasedType(ut));
+							}
+						} else {
+							return < c, collapseFailTypes(failures) >;
+						} 
+					} else {
+						return < c, makeFailType("Alias <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
+					}
+				} else if (isADTType(ut)) {
+					atps = getADTTypeParameters(ut);
+					if (size(pl) == size(atps)) {
+						failures = { };
+						for (idx <- index(pl), !subtype(pl[idx],getTypeVarBound(atps[idx]))) 
+							failures = failures + makeFailType("Cannot instantiate parameter <idx> with type <prettyPrintType(pl[idx])>, parameter has bound <prettyPrintType(getTypeVarBound(atps[idx]))>", l);
+						if (size(failures) == 0) {
+							if (size(pl) > 0) {
+								insert(\adt(getADTName(ut),pl));
+							} else {
+								insert(ut);
+							}
+						} else {
+							return < c, collapseFailTypes(failures) >;
+						} 
+					} else {
+						return < c, makeFailType("Data type <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
+					}
+				} else if (ut is \lex || ut is \sort || ut is \keyword || ut is \layout) {
+					insert(ut);
+				} else {
+					throw "User type should not refer to type <prettyPrintType(ut)>";
+				}
+			} else {
+				if (c.importing) {
+					insert(deferred(utc));
+				} else {
+					return < c, makeFailType("Type <prettyPrintName(rn)> not declared", l) >;
+				}
+			}
+		}
+	}
+	return < c, rt >;
 }
 
 @doc{Check the types of Rascal comprehensions: Set (DONE)}
@@ -7180,4 +7178,89 @@ public bool comparableOrNum(Symbol l, Symbol r) {
 	};
 	
 	return comparable(l, r) || comparable(leftAsNum,rightAsNum);
+}
+
+@doc{Undefer deferred types -- this puts them back the way they were so they can be expanded.}
+public Symbol undefer(Symbol t) {
+	return bottom-up visit(t) {
+		case deferred(dt) => dt
+	};
+}
+
+@doc{Resolve any user types that were given on imported items; these types may have relied on imports themselves.}
+public Configuration resolveDeferredTypes(Configuration c, int itemId) {
+	av = c.store[itemId];
+	if (av is variable) {
+		if (hasDeferredTypes(av.rtype)) {
+			< c, rt > = expandType(undefer(av.rtype), av.at, c);
+			c.store[itemId].rtype = rt;
+		}
+	} else if (av is function) {
+		if (hasDeferredTypes(av.rtype)) {
+			< c, rt > = expandType(undefer(av.rtype), av.at, c);
+			c.store[itemId].rtype = rt;
+		}
+				
+		ttypes = c.store[itemId].throwsTypes;
+		for (idx <- index(ttypes)) {
+			if (hasDeferredTypes(ttypes[idx])) {
+				< c, tt > = expandType(undefer(ttypes[idx]), av.at, c);
+				ttypes[idx] = tt;
+			}
+		}
+		if (c.store[itemId].throwsTypes != ttypes) {
+			c.store[itemId].throwsTypes = ttypes;
+		}
+		
+		for (kp <- av.keywordParams) {
+			if (hasDeferredTypes(av.keywordParams[kp])) {
+				< c, kpt > = expandType(undefer(av.keywordParams[kp]), av.at, c);
+				av.keywordParams[kp] = kpt;
+			}
+		}
+	} else if (av is overload) {
+		for (oi <- av.items) {
+			c = resolveDeferredTypes(c, oi);
+		}
+		if (hasDeferredTypes(av.rtype)) {
+			< c, rt > = expandType(undefer(av.rtype), av.at, c);
+			c.store[itemId].rtype = rt;
+		}
+	} else if (av is constructor) {
+		if (hasDeferredTypes(av.rtype)) {
+			< c, rt > = expandType(undefer(av.rtype), av.at, c);
+			c.store[itemId].rtype = rt;
+		}
+		
+		for (kp <- av.keywordParams) {
+			if (hasDeferredTypes(av.keywordParams[kp])) {
+				< c, kpt > = expandType(undefer(av.keywordParams[kp]), av.at, c);
+				av.keywordParams[kp] = kpt;
+			}
+		}
+	} else if (av is production) {
+		if (hasDeferredTypes(av.rtype)) {
+			< c, rt > = expandType(undefer(av.rtype), av.at, c);
+			c.store[itemId].rtype = rt;
+		}
+	} else if (av is annotation) {
+		if (hasDeferredTypes(av.rtype)) {
+			< c, rt > = expandType(undefer(av.rtype), av.at, c);
+			c.store[itemId].rtype = rt;
+		}
+
+		set[Symbol] otres = { };
+		for (ot <- c.store[itemId].onTypes) {
+			if (hasDeferredTypes(ot)) {
+				< c, ott > = expandType(undefer(ot), av.at, c);
+				otres = otres + ott;
+			} else {
+				otres = otres + ot;
+			}
+		}
+		if (c.store[itemId].onTypes != otres) {
+			c.store[itemId].onTypes = otres;
+		}
+	}
+	return c;
 }

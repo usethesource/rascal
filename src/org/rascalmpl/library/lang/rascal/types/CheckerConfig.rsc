@@ -125,10 +125,11 @@ data Configuration = config(set[Message] messages,
                             rel[int,RName,Expression] dataKeywordDefaults,
                             map[str,Symbol] tvarBounds,
                             map[RName,ModuleInfo] moduleInfo,
-                            map[RName,int] globalAdtMap
+                            map[RName,int] globalAdtMap,
+                            bool importing
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),());
+public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),false);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
