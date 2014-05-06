@@ -735,6 +735,7 @@ public default bool isStartNonTerminalType(Symbol _) = false;
 public str getNonTerminalName(Symbol t) {
 	// TODO: I assume we need the cases for the other non-terminal types
 	if (\sort(n) := unwrapType(t)) return n;
+	if (\lex(n) := unwrapType(t)) return n;
 	if (\start(s) := unwrapType(t)) return getNonTerminalName(s);
 	if (\parameterized-sort(n,_) := unwrapType(t)) return n;
 	if (Symbol::\prod(s,_,_,_) := unwrapType(t)) return getNonTerminalName(s);

@@ -5717,7 +5717,7 @@ public Configuration importProduction(RSignatureItem item, Configuration c) {
 	}
 	// Productions that end up in the store
 	for(/Production p:prod(_,_,_) := prod) {
-		if(label(str l, Symbol _) := prod.def) {
+		if(label(str l, Symbol _) := p.def) {
     		c = addProduction(c, RSimpleName(l), item.at, p);
     	} else {
     		c = addProduction(c, RSimpleName(""), item.at, p);
@@ -7223,7 +7223,7 @@ public Configuration resolveDeferredTypes(Configuration c, int itemId) {
 			c = resolveDeferredTypes(c, oi);
 		}
 		if (hasDeferredTypes(av.rtype)) {
-			< c, rt > = expandType(undefer(av.rtype), av.at, c);
+			< c, rt > = expandType(undefer(av.rtype), c.store[getOneFrom(av.items)].at, c);
 			c.store[itemId].rtype = rt;
 		}
 	} else if (av is constructor) {
