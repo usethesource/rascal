@@ -98,7 +98,7 @@ data RSignature = rsignature(
 private RSignature emptySignature(RName forName) = rsignature([],[],[],[],[],[],[],[],[],[],[],[],[],[],forName,{}); 
 
 @doc{Add the items from one signature into another}
-private RSignature mergeSignatures(RSignature target, RSignature source) {
+private RSignature mergeSignatures(RSignature target, RSignature source, bool extending) {
 	return target[datatypes = target.datatypes + source.datatypes]
 	             [aliases = target.aliases + source.aliases]
 	             [tags = target.tags + source.tags]
@@ -113,14 +113,14 @@ private RSignature mergeSignatures(RSignature target, RSignature source) {
 	             [keywordNonterminals = target.keywordNonterminals + source.keywordNonterminals]
 	             [layoutNonterminals = target.layoutNonterminals + source.layoutNonterminals]
 	             [publicProductions = target.publicProductions + source.publicProductions]
+	             [imports = target.imports + (extending ? source.imports : { })]
 	             ;
 }
 
 @doc{Given a tree, representing a module, create the signature for the module.}
 private RSignature createRSignature(Tree t, set[RName] visitedAlready) {
-	RSignature processModule(RName mn, Import* i, Body b) {
+	RSignature processModule(RName mn, RSignature sig, Import* i, Body b) {
 		visitedAlready = visitedAlready + mn;
-		RSignature sig = emptySignature(mn);
 		sig = addImports(i,sig,visitedAlready);
 		sig = createModuleBodySignature(b,sig,b@\loc);
 		return sig;
@@ -128,11 +128,15 @@ private RSignature createRSignature(Tree t, set[RName] visitedAlready) {
 	if (t has top && Module m := t.top) t = m;
 	if ((Module) `<Header h> <Body b>` := t) {
 		switch(h) {
-			case (Header)`<Tags t> module <QualifiedName n> <Import* i>` :
-				return mergeSignatures(processSyntax(convertName(n),[imp | Import imp <- i]), processModule(convertName(n),i,b));
+			case (Header)`<Tags t> module <QualifiedName n> <Import* i>` : {
+				sig = emptySignature(convertName(n));
+				return processModule(convertName(n),processSyntax(convertName(n),sig,[imp | Import imp <- i]),i,b);
+			}
 
-			case (Header)`<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` :
-				return mergeSignatures(processSyntax(convertName(n),[imp | Import imp <- i]), processModule(convertName(n),i,b));
+			case (Header)`<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
+				sig = emptySignature(convertName(n));
+				return processModule(convertName(n),processSyntax(convertName(n),sig,[imp | Import imp <- i]),i,b);
+			}
 
 			default : throw "createRSignature: unexpected module syntax <t>";
 		}
@@ -142,7 +146,11 @@ private RSignature createRSignature(Tree t, set[RName] visitedAlready) {
 }
 
 public RSignature processSyntax(RName name, list[Import] defs) {
-  sig = emptySignature(name);
+	sig = emptySignature(name);
+	return processSyntax(name, sig, defs);
+}
+
+public RSignature processSyntax(RName name, RSignature sig, list[Import] defs) {
   prods = [];
   
   for ((Import) `<SyntaxDefinition sd>` <- defs) {
@@ -187,11 +195,12 @@ public RSignature processSyntax(RName name, list[Import] defs) {
 
 @doc{Add any imports that are needed, specifically imports for extended modules.}
 private RSignature addImports(Import* imports, RSignature sig, set[RName] visitedAlready) {
+	sig.imports = { getNameOfImportedModule(im) | (Import)`import <ImportedModule im> ;` <- imports };
 	for ((Import)`extend <ImportedModule im> ;` <- imports) {
 		mn = getNameOfImportedModule(im);
 		if (mn notin visitedAlready) {
 			visitedAlready = visitedAlready + mn;
-			sig = mergeSignatures(sig, getModuleSignature(getModuleParseTree(prettyPrintName(mn)), visitedAlready));
+			sig = mergeSignatures(sig, getModuleSignature(getModuleParseTree(prettyPrintName(mn)), visitedAlready), true);
 		}
 	}
 	return sig;
