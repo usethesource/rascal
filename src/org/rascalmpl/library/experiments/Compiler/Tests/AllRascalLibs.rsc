@@ -233,7 +233,7 @@ list[str] libs = [
 
 // MuRascal
 "experiments::Compiler::muRascal::AST",						// OK
-"experiments::Compiler::muRascal::Parse",					// OK
+"experiments::Compiler::muRascal::Parse",					// ERROR was OK
 "experiments::Compiler::muRascal::Load",					// OK
 "experiments::Compiler::muRascal::Implode",					// ERROR
 "experiments::Compiler::muRascal::MuAllMuOr",				// ERROR
