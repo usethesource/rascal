@@ -93,7 +93,7 @@ public void initialize(loc project) {
         }
 
 public void main() {
-        initialize(|project://dotplugin|);
+        initialize(|project://ambidexter|);
     str body = barChart(
     title="CodeCut" 
     ,x_axis = "class"

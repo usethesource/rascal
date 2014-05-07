@@ -4,7 +4,6 @@ import Prelude;
 import util::Math;
 import vis::web::PlotFunction;
 import util::Math;
-import analysis::statistics::SimpleRegression;
 
      
 public num(num) f(num sigma) = num(num x) {return exp(-0.5*x*x /(sigma*sigma) )/(sqrt(2*PI())*sigma);};
