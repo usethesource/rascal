@@ -89,7 +89,7 @@ public class GrammarToJigll {
 
 	private IConstructor rascalGrammar;
 	
-	private int mode = TOKEN_BASED;
+	private int mode = CHARACTER_LEVEL;
 	
 	
 	public GrammarToJigll(IValueFactory vf) {
