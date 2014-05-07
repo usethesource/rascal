@@ -73,7 +73,7 @@ str signature(str name, list[Declaration] parameters) {
 
 
       
-public rel[map[str,int], str, str] initialize(loc project) { 
+public rel[map[str,int] procname2size, str modul, str kind] initialize(loc project) { 
         model = createM3FromEclipseProject(project);
         set[Declaration] decls = createAstsFromDirectory(project, false, javaVersion = "1.7" );
         // println(size(decls));  

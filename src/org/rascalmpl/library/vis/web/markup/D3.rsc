@@ -161,6 +161,15 @@ value _display(value v) {
           if (contains(d.varname,".")) return "<d.varname> = <_display(d.v)>";
           return "var <d.varname> = <_display(d.v)>";
           } 
+    if  (tuple[bool defined, value condition, value v] d := v) {  // Java Script Variable
+          // if (contains(d.varname,".")) return "<d.varname> = <_display(d.v)>";
+          return d.defined ? "if (<_display(condition)>) 
+              {<JS(d.v)>}" 
+          :
+          "if ( ! (<_display(condition)>)) 
+              {<JS(d.v)>}"
+          ;
+          } 
     if  (tuple[list[str] parameters, value body] d := v) {  // Java Script Function
           return "function(<row(d.parameters)>) {<toStr(d.body)>}";
           } 
@@ -395,7 +404,8 @@ public loc publish(loc location, PlotData  pd, str header, str body) {
       return location;    
       }
       
- public loc publish(loc location, PlotData  pd, str header, str body, str buttons, int width, int height) { 
+ public loc publish(loc location, PlotData  pd, str header, str body, str buttons, int width, int height
+   ) { 
      list[tuple[str name, str color, str style, list[tuple[num , num ]] d]] d = pd.fs;
      list[str] coord = ["x", "y"];
      list[str] tx  = pd.xticks;
@@ -433,8 +443,8 @@ str scatterFunction(int symbolSize, str style) {
            attr(("fill":<["q"],[<"return q.color==\"none\"?colormap(q.name):q.color">]>)) o
            selectAll("g.point") o \data(<["d", "i"], [<"return d.path">]>) o  enter o \append("path") o
            attr((
-              "class": <["q"], [<"return \"point \"+q.name">]>, 
-              "transform": <["d", "i"], [<"return \"translate(\"+x_scale(d.x) +\",\"+y_scale(d.y) + \")\"">]>,
+              class_: <["q"], [<"return \"point \"+q.name">]>, 
+              transform_: <["d", "i"], [<"return \"translate(\"+x_scale(d.x) +\",\"+y_scale(d.y) + \")\"">]>,
                //"d": "function(d, i, j) {return d3.svg.symbol()();}"
                "d": <"d3.svg"+D3(symbol o size(symbolSize))>
            ))o \append("title") o text(<["d", "i"],  [<"return d.name">]>));
@@ -454,7 +464,7 @@ str scatterFunction(int symbolSize, str style) {
            selectAll(".dot") o \data(<["d", "i"], [<"return d.path">]>)  
            o  enter o \append("circle") o
            attr((
-              "class": <["q"], [<"return \"dot \"+q.name">]>, 
+              class_: <["q"], [<"return \"dot \"+q.name">]>, 
               "cx": <"qline.x()">, 
               "cy": <"qline.y()">, 
                "r": "2px"
@@ -472,7 +482,7 @@ str scatterFunction(int symbolSize, str style) {
         ">]>));
     return lines+D3(
            attr((
-              "class": <["q"], [<"return \"line \"+q.name">]>,
+              class_: <["q"], [<"return \"line \"+q.name">]>,
               "d": <["q"], [<"return mainLine(q.style)(q.path)">]>,
               "stroke":<["q"], [<"return q.color==\"none\"?colormap(q.name):q.color">]>
            ) )  o \append("title") o text(<["d", "i"], [<"return d.name">]>)
@@ -500,7 +510,7 @@ public str radioButton(str title, str class, tuple[list[str] names,  list[tuple[
     , ("type":"radio", "name": "<name>",  class_: "<class> <name>", "value" :v.val
      , "onclick":
        JS(
-         <"window.frames[\'graph\'].dotting(this)">
+         <"window.frames[0].dotting(this)">
      ,   <"x", "document.getElementsByClassName(\'<class>\')">
      ,   <"if( this.name==\'all\'){for (var i = 0;i\<x.length;i++) {if (x[i].value==this.value) x[i].checked = true;}} ">
      ) 
@@ -514,14 +524,15 @@ public str radioButton(str title, str class, tuple[list[str] names,  list[tuple[
 
 public str labelNames() {
    str xl = W3(tr_, W3(td_, W3(input_, ("type":"text", id_: "xlabel", "placeholder":"x axis", "onkeydown":JS(
-     <"if (event.keyCode==13) window.frames[\'graph\'].labelingX(this)">)))));
+     <"if (event.keyCode==13) window.frames[0].labelingX(this)">)))));
     str yl = W3(tr_, W3(td_, W3(input_, ("type":"text", id_: "ylabel", "placeholder":"y axis", "onkeydown":JS(
-     <"if (event.keyCode==13) window.frames[\'graph\'].labelingY(this)">)))));
+     <"if (event.keyCode==13) window.frames[0].labelingY(this)">)))));
    return W3(h4_, "axe labels")+W3(table_, xl+yl);
    }
  
  public void plot(PlotData p, int width = 800, int height = 400, int margin = 60,
-   str style = "splines", int symbolSize = 32, bool mark = false) {  
+   str style = "splines", int symbolSize = 32, bool mark = false, str xLabel = "x",
+   str yLabel = "y") {  
    list[str] names = [d.name|d<-p.fs, d.style!="dots"];
    str header = W3(title_, p.title)+
       W3(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8"))+
@@ -636,16 +647,16 @@ public str labelNames() {
         ,     
        <"svg"+D3(
               \append(g_) o attr((
-                   "class":"axis", 
-                   "transform": <"\"translate(0, \" +(height-margin)+ \")\"">
+                   class_:"axis", 
+                   transform_: <"\"translate(0, \" +(height-margin)+ \")\"">
               ))
             o  call(<"x_axis">)                  
         )
         >
         ,
         <"svg"+D3(\append(g_) o attr((
-           "class":"axis", 
-           "transform": <"\"translate(\"+margin+\", 0)\"">
+           class_:"axis", 
+           transform_: <"\"translate(\"+margin+\", 0)\"">
            ))
             o  call(<"y_axis">)
          )
@@ -653,7 +664,7 @@ public str labelNames() {
                
         ,       
          <"svg"+ D3(\append("g") o attr((transform_:<"\"translate(0,\"+margin+\")\"">)) o attr((
-          "class":"grid"   
+          class_:"grid"   
           )) o \append("g") o call(
                  <"x_axis"+D3(innerTickSize(<"height-2*margin">) o tickFormat("") o outerTickSize(0)                       
                )>
@@ -661,7 +672,7 @@ public str labelNames() {
           )>  
          ,
          <"svg"+ D3(\append("g") o attr((
-           "class":"grid" ,
+           class_:"grid" ,
            transform_:<"\"translate(\"+margin+\",0)\"">
             )) o call(
              <"y_axis"+ D3(innerTickSize(<"-width+2*margin">)  o tickFormat("") o outerTickSize(0)
@@ -669,14 +680,20 @@ public str labelNames() {
              )   
           )>
           ,
+       <"xLabel",   <"\"<xLabel>\"">>
+       ,
+       <"yLabel",   <"\"<yLabel>\"">>
+       ,
+       <"getLabel",["s", "v"], [<"return sessionStorage.getItem(s)?sessionStorage.getItem(s):v">]>
+       ,
        <
        "svg"+D3(\append(text_) o attr((class_: "labelX label", text_anchor_:"end",
-           x_:width/2, y_: height-20)) o text("x"))
+           x_:width/2, y_: height-20)) o text(<"getLabel(\"xLabel\", xLabel)">))
        > 
        ,
        <
        "svg"+D3(\append(text_) o attr((class_: "labelY label", text_anchor_:"end",
-           y_: 0, x_:-height/2, "dy":".75em", "transform":"rotate(-90)")) o text("hallo"))
+           y_: 0, x_:-height/2, "dy":".75em", transform_:"rotate(-90)")) o text(<"getLabel(\"yLabel\", yLabel)">))
        >   
           /* */
           ,
@@ -703,15 +720,27 @@ public str labelNames() {
                    ] >>
         ,
         <"window.labelingX",<["e"], [    
-           <"text", "svg"+D3(selectAll(".labelX"))>,
-           <"text.text(e.value)">    
+           <"text", "svg"+D3(select(".labelX"))>
+           ,<"xLabel=e.value">
+           ,<"text.text(xLabel)"> 
+           ,<"sessionStorage.setItem(\"xLabel\",xLabel)">   
            ]>>
         ,
         <"window.labelingY",<["e"], [    
-           <"text", "svg"+D3(selectAll(".labelY"))>,
-           <"text.text(e.value)">    
+           <"text", "svg"+D3(select(".labelY"))>
+           ,<"yLabel=e.value">
+           ,<"text.text(yLabel)"> 
+           ,<"sessionStorage.setItem(\"yLabel\",yLabel)">    
            ]>>  
-                               
+        ,
+        <"window.loadLabel",<[],  [ 
+              <"text", "svg"+D3(select(".labelY"))>
+             ,<"text.text(getLabel(\"yLabel\", yLabel))">
+             , <"text", "svg"+D3(select(".labelX"))>
+             ,<"text.text(getLabel(\"xLabel\", xLabel))">
+            ] >>
+        ,
+       <"window.onload", <"window.loadLabel()">>                    
         );
       str radio = buttons("Points", "markerButton", <["all"]+names,  [<true,"yes">, <false, "no">]>, mark);
       
@@ -721,8 +750,10 @@ public str labelNames() {
                 |file:///tmp/d3|
             , p, 
          header , body, radio, width, height));
-    }
+ 
 
+  }
+ 
 public str id_= "id";
 public str class_= "class";
 public str style_= "style"; 
@@ -840,7 +871,7 @@ public void main() {
    list[tuple[str, str, str, list[tuple[num, num]]]] d = [dsin, dcos, dsin3, dcos3];
 
    PlotData p = <"Sin and Cos", [labx(i)|i<-[0..7]], [laby(i)|i<-[0..11]], d>;
-   plot(p,  symbolSize = 20, style = "splines", mark = true);
+   plot(p,  symbolSize = 20, style = "splines", mark = false);
    /*
     list[list[tuple[num, num]]] d = [[<(i*step)*nTickx, (-y+f(x+(i*step)*width))*nTicky/height >| i<-[0..ub+1]]|f<-g];
     list[tuple[str, str, list[tuple[num, num]]]] w =  [<"<i>","blue", d[i]>|i<-[0..size(d)]];
