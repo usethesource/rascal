@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -32,15 +34,20 @@ public class Function {
 	 int[] refs;
 	 
 	 boolean isVarArgs = false;
+	 
+	 final ISourceLocation src;		
+	 final IMap localNames;
 	
-	public Function(String name, Type ftype, String funIn, int nformals, int nlocals, int maxstack, CodeBlock codeblock){
+	public Function(String name, Type ftype, String funIn, int nformals, int nlocals, IMap localNames, int maxstack, CodeBlock codeblock, ISourceLocation src){
 		this.name = name;
 		this.ftype = ftype;
 		this.funIn = funIn;
 		this.nformals = nformals;
 		this.nlocals = nlocals;
+		this.localNames = localNames;
 		this.maxstack = maxstack;
 		this.codeblock = codeblock;
+		this.src = src;
 	}
 	
 	public void  finalize(Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing){
@@ -93,6 +100,10 @@ public class Function {
 	
 	public String getName() {
 		return name;
+	}
+	
+	public String getPrintableName(){
+		return name.substring(name.indexOf("/")+1, name.indexOf("("));
 	}
 	
 }

@@ -1,8 +1,7 @@
 module experiments::Compiler::Examples::Tst
 
-data A = a();
+value g(int a, int b) = a / b;
 
+value f(int a, str x = "x") = true ? g(a, 0) : 7;
 
-value main(list[value] args) = { "abc" } := { "abc" };
-
-//value main(list[value] args) = [e | e <- "f"(1,kw=2)];
+public value main(list[value] args) { int x = 3; assert 3 == 4 : "abc"; }//f(5, x = "XXXX");

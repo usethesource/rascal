@@ -541,7 +541,7 @@ public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tup
 	}
 }
 
-// TODO: these functions belong in ParseTree, but that gives "No definition for \"ParseTree/size(list(parameter(\\\"T\\\",value()));)#0\" in functionMap")
+// TODO: the following functions belong in ParseTree, but that gives "No definition for \"ParseTree/size(list(parameter(\\\"T\\\",value()));)#0\" in functionMap")
 
 @doc{Determine the size of a concrete list}
 int size(appl(regular(\iter(Symbol symbol)), list[Tree] args)) = size(args);

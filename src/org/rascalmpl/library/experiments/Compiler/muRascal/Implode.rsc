@@ -131,8 +131,8 @@ MuFunction preprocess(Function f, str modName) {
    list[MuExp] initializers = isEmpty(f.locals) ? [] : [ preAssignLoc(vdecl.id, vdecl.initializer) | VarDecl vdecl <- f.locals.vardecls[0], vdecl has initializer ];
    //list[MuExp] initializers = isEmpty(f.locals) ? [] : [ preAssignLoc(vdecl.id, vdecl.initializer) | VarDecl vdecl <- f.locals[0][0], vdecl has initializer ];
    body = preprocess(modName, f.funNames, f.name, size(f.formals), uid, (f is preCoroutine) ? [ guard, *initializers, *f.body, muExhaust() ] : initializers + f.body);   
-   return (f is preCoroutine) ? muCoroutine(uid, scopeIn, size(f.formals), size(vardefs[uid]), refs, muBlock(body))
-                              : muFunction(uid, ftype, scopeIn, size(f.formals), size(vardefs[uid]), false, |rascal:///|, [], (), muBlock(body));
+   return (f is preCoroutine) ? muCoroutine(uid, scopeIn, size(f.formals), size(vardefs[uid]), |unkown:///|, refs,  muBlock(body))
+                              : muFunction(uid, ftype, scopeIn, size(f.formals), size(vardefs[uid]), false, |unkown:///|, [], (), muBlock(body));
 }
 
 str fuid = "";
@@ -159,28 +159,34 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case preVar(mvar("false")) 														=> muBool(false)
                case preVar(fvar(str var))                                           			=> { if(!isGlobalNonOverloadedFunction(var)) { throw "Function or coroutine <var> has not been declared!"; } muFun(getUidOfGlobalNonOverloadedFunction(var)); }
      	       case preVar(Identifier id) 														=> muVar(id.var,uid,vardefs[uid][id.var])
-     	       case preVar(lrel[str,int] funNames, Identifier id)        						=> muVar(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
+     	       case preVar(lrel[str,int] funNames1, Identifier id)        						=> muVar(id.var,getUID(modName,funNames1),vardefs[getUID(modName,funNames1)][id.var])
      	       // Specific to delimited continuations (experimental)
      	       case preContLoc()                                                                => muContVar(uid)
-     	       case preContVar(lrel[str,int] funNames)                                          => muContVar(getUID(modName,funNames)) 
+     	       case preContVar(lrel[str,int] funNames1)                                          => muContVar(getUID(modName,funNames1)) 
      	       case preAssignLocList(Identifier id1, Identifier id2, MuExp exp1) 				=> muCallMuPrim("assign_pair", [muInt(vardefs[uid][id1.var]), muInt(vardefs[uid][id2.var]), exp1])
      	       
-     	       case preAssignLoc(Identifier id, MuExp exp) 										=> muAssign(id.var,uid,vardefs[uid][id.var], exp)
-     	       case preAssign(lrel[str,int] funNames, 
-     	       				  Identifier id, MuExp exp)                  						=> muAssign(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var],exp)
+     	       case preAssignLoc(Identifier id, MuExp exp1) 										=> muAssign(id.var,uid,vardefs[uid][id.var], exp1)
+     	       case preAssign(lrel[str,int] funNames1, 
+     	       				  Identifier id, MuExp exp1)                  						=> muAssign(id.var,getUID(modName,funNames1),vardefs[getUID(modName,funNames1)][id.var],exp1)
      	       case preList(list[MuExp] exps)													=> muCallMuPrim("make_array", exps)
      	        
       	       case preIfthen(cond,thenPart,comma) 													=> muIfelse("", cond, thenPart, [])
       	       
       	       case preLocDeref(Identifier id)                   								=> muVarDeref(id.var,uid,vardefs[uid][id.var])
-      	       case preVarDeref(lrel[str,int] funNames, Identifier id)   						=> muVarDeref(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
+      	       case preVarDeref(lrel[str,int] funNames1, Identifier id)   						=> muVarDeref(id.var,getUID(modName,funNames1),vardefs[getUID(modName,funNames1)][id.var])
       	       case preLocRef(Identifier id)                     								=> muVarRef(id.var,uid,vardefs[uid][id.var])
-      	       case preVarRef(lrel[str,int] funNames, Identifier id)     						=> muVarRef(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var])
-      	       case preAssignLocDeref(Identifier id, MuExp exp)  								=> muAssignVarDeref(id.var,uid,vardefs[uid][id.var], exp)
-      	       case preAssignVarDeref(lrel[str,int] funNames, Identifier id, MuExp exp)         => muAssignVarDeref(id.var,getUID(modName,funNames),vardefs[getUID(modName,funNames)][id.var],exp)
+      	       case preVarRef(lrel[str,int] funNames1, Identifier id)     						=> muVarRef(id.var,getUID(modName,funNames1),vardefs[getUID(modName,funNames1)][id.var])
+      	       case preAssignLocDeref(Identifier id, MuExp exp1)  								=> muAssignVarDeref(id.var,uid,vardefs[uid][id.var], exp1)
+      	       case preAssignVarDeref(lrel[str,int] funNames1, Identifier id, MuExp exp1)         => muAssignVarDeref(id.var,getUID(modName,funNames1),vardefs[getUID(modName,funNames1)][id.var],exp1)
       	       
-      	       case muCallPrim(str name)                                            			=> muCallPrim(name[1..-1], [])
-               case muCallPrim(str name, list[MuExp] exps)										=> muCallPrim(name[1..-1], exps)			// strip surrounding quotes
+      	       case muCallPrim(str name, loc src)                                            	=> muCallPrim(name[1..-1], [], src)
+               case muCallPrim(str name, list[MuExp] exps, loc src)								=> muCallPrim(name[1..-1], exps, src)			// strip surrounding quotes
+               
+               case preMuCallPrim(str name)                                            			=> muCallPrim(name[1..-1], [],   |unknown:///a-location-in-library|)
+               case preMuCallPrim(str name, list[MuExp] exps)									=> muCallPrim(name[1..-1], exps, |unknown:///a-location-in-library|)
+               
+               case preThrow(MuExp exp1)														=> muTrow(exp1, |unknown:///a-location-in-library|)
+               
                case muCallMuPrim(str name, list[MuExp] exps)									=> muCallMuPrim(name[1..-1], exps)			// strip surrounding quotes
                
                // Calls that are directly mapped to muPrimitives
@@ -282,7 +288,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       
       	       // Overloading
       	       case preFunNN(str modName1,  str name1, int nformals1)                  			=> muFun(getUID(modName1,[],name1,nformals1))
-      	       case preFunN(lrel[str,int] funNames,  str name1, int nformals1)        					=> muFun(getUID(modName,funNames,name1,nformals1), getUID(modName,funNames))
+      	       case preFunN(lrel[str,int] funNames1,  str name1, int nformals1)        			=> muFun(getUID(modName,funNames1,name1,nformals1), getUID(modName,funNames1))
       	       
       	       case muAll(list[MuExp] exps)                                                     => makeMu("ALL",exps)
       	       case muOr(list[MuExp] exps)                                                      => makeMu("OR",exps)
@@ -297,12 +303,12 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case preIfelse(str label, MuExp cond, list[MuExp] thenPart, bool comma1, 
                                                      list[MuExp] elsePart, bool comma2)          => muIfelse(label, cond, thenPart, elsePart)
                case preWhile(str label, MuExp cond, list[MuExp] body, bool comma)               => muWhile(label, cond, body)
-               case preTypeSwitch(MuExp exp, lrel[MuTypeCase, bool] sepCases, 
-                                  MuExp \default, bool comma)                                   => muTypeSwitch(exp, sepCases<0>, \default)
+               case preTypeSwitch(MuExp exp1, lrel[MuTypeCase, bool] sepCases, 
+                                  MuExp \default, bool comma)                                   => muTypeSwitch(exp1, sepCases<0>, \default)
                case preBlock(list[MuExp] exps, bool comma)                                      => muBlock(exps)
                
                case preSubscript(MuExp arr, MuExp index)                                        => muCallMuPrim("subscript_array_mint", [arr, index])
-               case preAssignSubscript(MuExp arr, MuExp index, MuExp exp)						=> muCallMuPrim("assign_subscript_array_mint", [arr, index, exp])
+               case preAssignSubscript(MuExp arr, MuExp index1, MuExp exp1)						=> muCallMuPrim("assign_subscript_array_mint", [arr, index1, exp1])
       	       
             };
       } catch e: throw "In muRascal function <modName>::<for(<f,n> <- funNames){><f>::<n>::<}><fname>::<nformals> (uid = <uid>) : <e>";   

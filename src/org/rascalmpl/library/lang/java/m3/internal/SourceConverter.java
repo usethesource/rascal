@@ -423,7 +423,7 @@ public class SourceConverter extends M3Converter {
 	
 	public boolean visit(VariableDeclarationFragment node) {
 		insert(containment, getParent(), ownValue);
-		
+		scopeManager.push((ISourceLocation) ownValue);
 		IVariableBinding binding = node.resolveBinding();
 		
 		if (binding != null) {
@@ -450,7 +450,7 @@ public class SourceConverter extends M3Converter {
 			parent.getType().accept(this);
 			visitListOfModifiers(parent.modifiers());
 		}
-		
+		scopeManager.pop();
 		return true;
 	}
 
