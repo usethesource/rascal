@@ -19,17 +19,18 @@ import Type;
 import util::ValueUI;
 import util::Reflective;
 import Ambiguity;
+import String;
 
 list[loc] ignoreList = [|std:///lang/rascal/types/CheckTypes.rsc|];  
 
 public void generate(loc mo) {
    if (start[Module] m := parseModule(mo)) {
-     gr = modules2grammar("<m.top.header.name>", { m.top });
+     gr = modules2grammar(replaceAll("<m.top.header.name>","\\",""), { m.top });
     
      gr = resolve(gr);
      gr = literals(gr);
      gr = flattenTokens(gr);
-     //gr = expandKeywords(gr);
+     gr = expandKeywords(gr);
      gr = makeRegularStubs(expandRegularSymbols(makeRegularStubs(gr)));
      gr = expandParameterizedSymbols(gr);
      gr = addNotAllowedSets(gr);

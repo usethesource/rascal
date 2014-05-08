@@ -36,6 +36,7 @@ Production simplify(Production p) = innermost visit(p) {
 };
 
 &T replaceDefinitions(&T v, Grammar g)  = innermost visit(v) {
+  case keywords(l) => seq(g.rules[\keywords(l)].symbols)
   case \token(l) => seq(g.rules[\token(l)].symbols)
   case lit(s) => seq(g.rules[lit(s)].symbols)
   case cilit(s) => seq(g.rules[cilit(s)].symbols) 
