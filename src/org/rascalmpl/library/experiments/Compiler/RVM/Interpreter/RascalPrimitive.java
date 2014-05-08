@@ -5717,6 +5717,17 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}
 	},
+	
+	non_negative {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			assert arity == 1;
+			if(((IInteger)stack[sp -1]).intValue() < 0){
+				throw RascalRuntimeException.indexOutOfBounds(((IInteger)stack[sp -1]), stacktrace);
+			}
+			return sp  - 1;
+		}
+	},
 	value_to_string {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
