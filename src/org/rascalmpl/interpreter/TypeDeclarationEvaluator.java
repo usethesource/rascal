@@ -125,11 +125,11 @@ public class TypeDeclarationEvaluator {
 					kws.addAll(local);
 					
 					kwType = computeKeywordParametersType(kws, eval);
-					init = interpretKeywordParameters(kws, kwType, this.eval);
+					init = interpretKeywordParameters(kws, kwType, env, this.eval);
 				}
 				else if (!common.isEmpty()) {
 					kwType = computeKeywordParametersType(common, eval);
-					init = interpretKeywordParameters(common, kwType, this.eval);
+					init = interpretKeywordParameters(common, kwType, env, this.eval);
 				}
 
 				List<TypeArg> args = var.getArguments();
@@ -167,7 +167,7 @@ public class TypeDeclarationEvaluator {
 		}
 	}
 
-	public static Map<String,IKeywordParameterInitializer> interpretKeywordParameters(final List<KeywordFormal> ps, final Type kwType, final IEvaluator<Result<IValue>> eval) {
+	public static Map<String,IKeywordParameterInitializer> interpretKeywordParameters(final List<KeywordFormal> ps, final Type kwType, final Environment declContext, final IEvaluator<Result<IValue>> eval) {
 		Map<String,IKeywordParameterInitializer> results = new HashMap<>();
 		
 		
@@ -176,7 +176,7 @@ public class TypeDeclarationEvaluator {
 			results.put(name, new IKeywordParameterInitializer() {
 				@Override
 				public IValue initialize(ImmutableMap<String, IValue> environment) {
-					Environment env = computeEnvironment(environment);
+					Environment env = computeEnvironment(declContext, environment);
 					Environment old = eval.getCurrentEnvt();
 					
 					try {
@@ -193,8 +193,8 @@ public class TypeDeclarationEvaluator {
 					}
 				}
 
-				private Environment computeEnvironment(final ImmutableMap<String, IValue> environment) {
-					return new Environment(eval.getCurrentEnvt().getLocation(), "init") {
+				private Environment computeEnvironment(Environment declContext, final ImmutableMap<String, IValue> environment) {
+					return new Environment(declContext, eval.getCurrentEnvt().getLocation(), "init") {
 						@Override
 						public boolean isRootScope() {
 							return true;

@@ -49,7 +49,7 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
 				List<KeywordFormal> kwd = parameters.getKeywordFormals().getKeywordFormalList();
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kwd, eval);
-				kwDefaults = TypeDeclarationEvaluator.interpretKeywordParameters(kwd, kwParams, eval);
+				kwDefaults = TypeDeclarationEvaluator.interpretKeywordParameters(kwd, kwParams, eval.getCurrentEnvt(), eval);
 			}
 
 			return RTF.functionType(getType().typeOf(env, instantiateTypeParameters, eval), parameters
@@ -76,7 +76,7 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
 				List<KeywordFormal> kwd = parameters.getKeywordFormals().getKeywordFormalList();
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kwd, eval);
-				kwDefaults = TypeDeclarationEvaluator.interpretKeywordParameters(kwd, kwParams, eval);
+				kwDefaults = TypeDeclarationEvaluator.interpretKeywordParameters(kwd, kwParams, eval.getCurrentEnvt(), eval);
 			}
 
 			return RTF.functionType(getType().typeOf(env, instantiateTypeParameters, eval), getParameters()

@@ -599,7 +599,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
 				java.util.List<KeywordFormal> kwd = parameters.getKeywordFormals().getKeywordFormalList();
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kwd, __eval);
-				kwDefaults = TypeDeclarationEvaluator.interpretKeywordParameters(kwd, kwParams, __eval);
+				kwDefaults = TypeDeclarationEvaluator.interpretKeywordParameters(kwd, kwParams, env, __eval);
 			}
 
 			return new RascalFunction(this, __eval, null,
@@ -2847,13 +2847,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 
-			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			eval.setCurrentAST(this);
+			eval.notifyAboutSuspension(this);			
 
 			Parameters parameters = getParameters();
-			Type formals = parameters.typeOf(__eval.getCurrentEnvt(), true, __eval);
+			Type formals = parameters.typeOf(eval.getCurrentEnvt(), true, eval);
 			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory
 					.getInstance();
 
@@ -2862,14 +2862,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
 				java.util.List<KeywordFormal> kws = parameters.getKeywordFormals().getKeywordFormalList();
-				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kws, __eval);
-				kwDefaults = TypeDeclarationEvaluator.interpretKeywordParameters(kws, kwParams, __eval);
+				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kws, eval);
+				kwDefaults = TypeDeclarationEvaluator.interpretKeywordParameters(kws, kwParams, eval.getCurrentEnvt(), eval);
 			}
 
-			return new RascalFunction(this, __eval, null, (FunctionType) RTF
+			return new RascalFunction(this, eval, null, (FunctionType) RTF
 					.functionType(TF.voidType(), formals, kwParams, kwDefaults), this.getParameters()
-					.isVarArgs(), false, false, this.getStatements0(), __eval
-					.getCurrentEnvt(), __eval.__getAccumulators());
+					.isVarArgs(), false, false, this.getStatements0(), eval
+					.getCurrentEnvt(), eval.__getAccumulators());
 
 		}
 
