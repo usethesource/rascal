@@ -58,6 +58,7 @@ import org.jgll.util.Input;
 import org.jgll.util.Visualization;
 import org.jgll.util.logging.LoggerWrapper;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
@@ -274,12 +275,15 @@ public class GrammarToJigll {
 		GrammarBuilder builder = new GrammarBuilder(name, factory);
 		
 		IMap definitions = (IMap) rascalGrammar.get("rules");
-
+		
 		rulesMap = new HashMap<>();
 		keywordsMap = new HashMap<>();
 		regularExpressionsMap = new HashMap<>();
 		regularExpressionsCache = new HashMap<>();
 		deleteSetCache = new HashMap<>();
+		
+		createRegularExpressions(definitions);
+
 				
 		for (IValue nonterminal : definitions) {
 
@@ -359,22 +363,31 @@ public class GrammarToJigll {
 		}
 	}
 
-	private void createRegularExpressions(IMap regularExpressions) {
+	private void createRegularExpressions(IMap definitions) {
 		
-		Iterator<Entry<IValue, IValue>> it = regularExpressions.entryIterator();
+		Iterator<Entry<IValue, IValue>> it = definitions.entryIterator();
 
 		while (it.hasNext()) {
 			Entry<IValue, IValue> regularExpression = it.next();
+			IConstructor nont = (IConstructor) regularExpression.getKey();
+			
+			if (SymbolAdapter.isToken(nont) || SymbolAdapter.isKeyword(nont) || SymbolAdapter.isLiteral(nont) || SymbolAdapter.isCILiteral(nont) ) {
+				IConstructor prod = (IConstructor) regularExpression.getValue();
+				
+				if (prod.getName().equals("choice")) {
+					ISet alts = (ISet) prod.get("alternatives");
+					assert alts.size() == 1;
+					prod = (IConstructor) alts.iterator().next();
+				}
+				
+				IList rhs = (IList) ((IConstructor) prod).get("symbols");
 
-			Nonterminal head = getHead((IConstructor) regularExpression.getKey());
-			IValue prod = regularExpression.getValue();
-			IList rhs = (IList) ((IConstructor) prod).get("symbols");
-
-			List<RegularExpression> body = getRegularExpressionList(rhs);
-			if(body.size() == 1) {
-				regularExpressionsMap.put(head.getName(), body.get(0));				
-			} else {
-				regularExpressionsMap.put(head.getName(), new Sequence<>(body));
+				List<RegularExpression> body = getRegularExpressionList(rhs);
+				if(body.size() == 1) {
+					regularExpressionsMap.put(SymbolAdapter.getName(nont), body.get(0));				
+				} else {
+					regularExpressionsMap.put(SymbolAdapter.getName(nont), new Sequence<>(body));
+				}
 			}
 		}
 	}
@@ -712,7 +725,9 @@ public class GrammarToJigll {
 			case "lex":
 				regex = regularExpressionsMap.get(((IString)symbol.get("name")).getValue());
 				break;
-				 
+				
+			case "token":
+				
 			case "conditional":
 				regex = getRegularExpression(getSymbolCons(symbol)).withConditions(getConditions(symbol));
 				break;
@@ -757,7 +772,9 @@ public class GrammarToJigll {
 				throw new IllegalStateException("Should not reach here. " + symbol);
 			}
 		
-		if(regex == null) return null;
+		if(regex == null) {
+			return null;
+		}
 
 		// Initialize the automaton field
 		regex.getAutomaton().determinize();
@@ -825,11 +842,11 @@ public class GrammarToJigll {
 			RegularExpression regex = deleteSetCache.get(deleteList);
 			
 			if(regex == null) {
-				List<Keyword> keywords = new ArrayList<>();
+				List<RegularExpression> list = new ArrayList<>();
 				for(IConstructor c : deleteList) {
-					keywords.add(getKeyword(c));
+					list.add(getRegularExpression(c));
 				}
-				regex = new RegexAlt<>(keywords);
+				regex = new RegexAlt<>(list);
 				
 				deleteSetCache.put(deleteList, regex);
 			}
