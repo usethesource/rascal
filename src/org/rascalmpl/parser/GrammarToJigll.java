@@ -50,7 +50,6 @@ import org.jgll.regex.RegexPlus;
 import org.jgll.regex.RegexStar;
 import org.jgll.regex.RegularExpression;
 import org.jgll.regex.Sequence;
-import org.jgll.regex.automaton.RunnableAutomaton;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
@@ -425,9 +424,6 @@ public class GrammarToJigll {
 		return targetRanges;
 	}
 	
-	CharacterClass c = new CharacterClass(Range.in('a', 'z'), Range.in('A', 'Z'), Range.in('_', '_'));
-	RunnableAutomaton test = new RegexPlus(c).getAutomaton().getRunnableAutomaton();
-	
 	private List<Symbol> getSymbolList(IList rhs) {
 		
 		List<Symbol> result = new ArrayList<>();
@@ -436,14 +432,6 @@ public class GrammarToJigll {
 			IConstructor current = (IConstructor) rhs.get(i);
 			
 			Symbol symbol = getSymbol(current);				
-			
-			// TODO: get a list of keywords later from the grammar instead of this hack.
-			if(symbol instanceof Keyword) {
-				// Keywords cannot be followed by [a-z A-Z _] by default.
-				if(test.match(Input.fromString(symbol.getName().substring(1, symbol.getName().length() - 1)))) {
-					symbol = symbol.withCondition(RegularExpressionCondition.notFollow(c));
-				}
-			}
 			
 			if (symbol != null) {
 				result.add(symbol);
