@@ -371,6 +371,8 @@ public class GrammarToJigll {
 			Entry<IValue, IValue> regularExpression = it.next();
 			IConstructor nont = (IConstructor) regularExpression.getKey();
 			
+			Nonterminal head = getHead(nont);
+			
 			if (SymbolAdapter.isToken(nont) || SymbolAdapter.isKeyword(nont) || SymbolAdapter.isLiteral(nont) || SymbolAdapter.isCILiteral(nont) ) {
 				IConstructor prod = (IConstructor) regularExpression.getValue();
 				
@@ -384,14 +386,14 @@ public class GrammarToJigll {
 
 				List<RegularExpression> body = getRegularExpressionList(rhs);
 				if(body.size() == 1) {
-					regularExpressionsMap.put(SymbolAdapter.getName(nont), body.get(0));				
+					regularExpressionsMap.put(head.getName(), body.get(0));				
 				} else {
-					regularExpressionsMap.put(SymbolAdapter.getName(nont), new Sequence<>(body));
+					regularExpressionsMap.put(head.getName(), new Sequence<>(body));
 				}
 			}
 		}
 	}
-	
+
 	private void addExceptPatterns(GrammarBuilder builder, IMap map) {
 
 		Iterator<Entry<IValue, IValue>> it = map.entryIterator();
@@ -623,6 +625,9 @@ public class GrammarToJigll {
 
 			case "lit":
 				return new Nonterminal(SymbolAdapter.toString(symbol, true));
+				
+			case "token":
+				return new Nonterminal(SymbolAdapter.toString(symbol, true));
 	
 			case "iter":
 				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
@@ -723,10 +728,9 @@ public class GrammarToJigll {
 			case "sort":
 			case "layouts":
 			case "lex":
+			case "token":
 				regex = regularExpressionsMap.get(((IString)symbol.get("name")).getValue());
 				break;
-				
-			case "token":
 				
 			case "conditional":
 				regex = getRegularExpression(getSymbolCons(symbol)).withConditions(getConditions(symbol));
@@ -773,7 +777,7 @@ public class GrammarToJigll {
 			}
 		
 		if(regex == null) {
-			return null;
+			throw new RuntimeException("Regex cannot be null.");
 		}
 
 		// Initialize the automaton field
