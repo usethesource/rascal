@@ -94,7 +94,7 @@ public class TypeDeclarationEvaluator {
 		int i = 0;
 		for (KeywordFormal kw : kws) {
 			kwLabels[i] = Names.name(kw.getName());
-			kwTypes[i++] = kw.getType().typeOf(null, false, eval);
+			kwTypes[i++] = kw.getType().typeOf(eval.getCurrentEnvt(), false, eval);
 		}
 		
 		return TypeFactory.getInstance().tupleType(kwTypes, kwLabels);
@@ -126,6 +126,10 @@ public class TypeDeclarationEvaluator {
 					
 					kwType = computeKeywordParametersType(kws, eval);
 					init = interpretKeywordParameters(kws, kwType, this.eval);
+				}
+				else if (!common.isEmpty()) {
+					kwType = computeKeywordParametersType(common, eval);
+					init = interpretKeywordParameters(common, kwType, this.eval);
 				}
 
 				List<TypeArg> args = var.getArguments();
