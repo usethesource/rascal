@@ -1295,9 +1295,13 @@ public enum RascalPrimitive {
 			IConstructor cons = (IConstructor) stack[sp - 2];
 			String fieldName = ((IString) stack[sp - 1]).getValue();
 			Type tp = cons.getConstructorType();
-			int fld_index = tp.getFieldIndex(fieldName);
-			stack[sp - 2] = cons.get(fld_index);
-			return sp - 1;
+			try {
+				int fld_index = tp.getFieldIndex(fieldName);
+				stack[sp - 2] = cons.get(fld_index);
+				return sp - 1;
+			} catch(FactTypeUseException e) {
+				throw RascalRuntimeException.noSuchField(fieldName, stacktrace);
+			}
 		}
 	},
 	datetime_field_access {
@@ -1826,8 +1830,11 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 3;
-			stack[sp - 3] = ((IConstructor) stack[sp - 3]).set(((IString) stack[sp - 2]).getValue(),
-					(IValue) stack[sp -1]);
+			try {
+				stack[sp - 3] = ((IConstructor) stack[sp - 3]).set(((IString) stack[sp - 2]).getValue(), (IValue) stack[sp -1]);
+			} catch(FactTypeUseException e) {
+				throw RascalRuntimeException.noSuchField(((IString) stack[sp - 2]).getValue(), stacktrace);
+			}
 			return sp - 2;
 		}
 	},
