@@ -49,7 +49,6 @@ import org.jgll.regex.RegexPlus;
 import org.jgll.regex.RegexStar;
 import org.jgll.regex.RegularExpression;
 import org.jgll.regex.Sequence;
-import org.jgll.regex.automaton.RunnableAutomaton;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
@@ -141,7 +140,6 @@ public class GrammarToJigll {
 		addExceptPatterns(op, except);
 		addPrecedencePatterns(op, notAllowed);
 //		grammar = op.rewrite(grammar);
-		System.out.println(grammar);
 
 		grammarGraph = grammar.toGrammarGraph();
 	}
@@ -284,12 +282,16 @@ public class GrammarToJigll {
 				
 		for (IValue nonterminal : definitions) {
 
-			System.out.println(nonterminal);
 			IConstructor constructor = (IConstructor) nonterminal;
 			
 			boolean ebnf = isEBNF(constructor);
 
 			Nonterminal head = getHead(constructor);
+			
+			
+			if(regularExpressionsMap.containsKey(head.getName())) {
+				continue;
+			}
 			
 //			if(mode == TOKEN_BASED) {
 //				// Don't create a rule body for regular expression heads.
@@ -426,9 +428,6 @@ public class GrammarToJigll {
 		return targetRanges;
 	}
 	
-	CharacterClass c = new CharacterClass(Range.in('a', 'z'), Range.in('A', 'Z'), Range.in('_', '_'));
-	RunnableAutomaton test = new RegexPlus(c).getAutomaton().getRunnableAutomaton();
-	
 	private List<Symbol> getSymbolList(IList rhs) {
 		
 		List<Symbol> result = new ArrayList<>();
@@ -436,15 +435,7 @@ public class GrammarToJigll {
 		for(int i = 0; i < rhs.length(); i++) {
 			IConstructor current = (IConstructor) rhs.get(i);
 			
-			Symbol symbol = getSymbol(current);				
-			
-			// TODO: get a list of keywords later from the grammar instead of this hack.
-			if(symbol instanceof Keyword) {
-				// Keywords cannot be followed by [a-z A-Z _] by default.
-				if(test.match(Input.fromString(symbol.getName().substring(1, symbol.getName().length() - 1)))) {
-					symbol = symbol.withCondition(RegularExpressionCondition.notFollow(c));
-				}
-			}
+			Symbol symbol = getSymbol(current);
 			
 			if (symbol != null) {
 				result.add(symbol);
@@ -638,26 +629,11 @@ public class GrammarToJigll {
 
 	private Symbol getSymbol(IConstructor symbol) {
 		
-//
-//		if(mode == TOKEN_BASED) {
-//			
-//			if(symbol.getName().equals("lex")) {
-//				RegularExpression regularExpression = regularExpressionsMap.get(SymbolAdapter.toString(symbol, true));
-//				if(regularExpression != null) {
-//					return regularExpression;
-//				}
-//			}
-//			
-//			// TODO: can be used later when I add the translation of {A sep}* to regular expressions.
-////			if(isRegularExpression(symbol)) {
-////				return getRegularExpression(symbol);
-////			}
-//			
-//			if(isKeyword(symbol)) {
-//				return getKeyword(symbol);
-//			}
-//		}
-		
+		RegularExpression regularExpression = regularExpressionsMap.get(SymbolAdapter.toString(symbol, true));
+		if(regularExpression != null) {
+			return regularExpression;
+		}
+
 		switch (symbol.getName()) {
 
 			case "char-class":
