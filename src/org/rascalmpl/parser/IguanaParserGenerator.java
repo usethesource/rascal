@@ -31,7 +31,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.jgll.grammar.Grammar;
+import org.jgll.grammar.GrammarGraph;
 import org.jgll.grammar.GrammarBuilder;
 import org.jgll.grammar.condition.Condition;
 import org.jgll.grammar.condition.ConditionType;
@@ -115,7 +115,7 @@ public class IguanaParserGenerator {
 		return gr;
 	}
 	
-	public Grammar generateGrammar(IRascalMonitor monitor, String main, IMap definitions) {
+	public GrammarGraph generateGrammar(IRascalMonitor monitor, String main, IMap definitions) {
 		IConstructor gr = getPreprocessedGrammar(monitor, main, definitions);
 	
 		GrammarBuilder builder = convert("inmemory", gr);
