@@ -28,7 +28,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.jgll.grammar.Grammar;
+import org.jgll.grammar.GrammarGraph;
 import org.jgll.parser.GLLParser;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
@@ -210,7 +210,7 @@ public class GlobalEnvironment {
 		return getParser(rascalParsersForModules, module, productions);
 	}
 	
-	public Grammar getIguanaParser(String module, IMap productions) {
+	public GrammarGraph getIguanaParser(String module, IMap productions) {
 		IguanaParserTuple parser = iguanaGrammarForModules.get(module);
 		if(parser != null && parser.getProductions().isEqual(productions)) {
 			return parser.getParser();
@@ -243,7 +243,7 @@ public class GlobalEnvironment {
 		storeParser(rascalParsersForModules, module, productions, parser);
 	}
 	
-	public void storeIguanaParser(String module, IMap productions, Grammar grammar ) {
+	public void storeIguanaParser(String module, IMap productions, GrammarGraph grammar ) {
 		iguanaGrammarForModules.put(module, new IguanaParserTuple(productions, grammar));
 	}
 	
@@ -308,9 +308,9 @@ public class GlobalEnvironment {
 	
 	private static class IguanaParserTuple {
 		private final IMap production;
-		private final Grammar parser;
+		private final GrammarGraph parser;
 
-		public IguanaParserTuple(IMap productions, Grammar parser) {
+		public IguanaParserTuple(IMap productions, GrammarGraph parser) {
 			this.production = productions;
 			this.parser = parser;
 		}
@@ -319,7 +319,7 @@ public class GlobalEnvironment {
 			return production;
 		}
 		
-		public Grammar getParser() {
+		public GrammarGraph getParser() {
 			return parser;
 		}
 	}
