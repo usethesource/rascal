@@ -145,7 +145,8 @@ public class GrammarToJigll {
 		OperatorPrecedence op = new OperatorPrecedence();
 		addExceptPatterns(op, except);
 		addPrecedencePatterns(op, notAllowed);
-		System.out.println(grammar);
+		grammar = op.rewrite(grammar);
+//		System.out.println(grammar);
 
 		grammarGraph = grammar.toGrammarGraph();
 	}
