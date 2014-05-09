@@ -456,7 +456,7 @@ syntax KeywordArgument = \default: Name name "=" Expression expression ;
 syntax RegExp
 	= ![/ \< \> \\] 
 	| "\<" Name "\>" 
-	| [\\] NOLAYOUT [/ \< \> \\] 
+	| [\\] EMPTYLAYOUT [/ \< \> \\] 
 	| "\<" Name ":" NamedRegExp* "\>" 
 	| Backslash 
 	// | @category="MetaVariable" [\<]  Expression expression [\>] TODO: find out why this production existed 
@@ -789,7 +789,7 @@ token PreProtocolChars
 
 syntax NamedRegExp
 	= "\<" Name "\>" 
-	| [\\] NOLAYOUT [/ \< \> \\] 
+	| [\\] EMPTYLAYOUT [/ \< \> \\] 
 	| NamedBackslash 
 	| ![/ \< \> \\] ;
 
