@@ -370,7 +370,8 @@ public class GrammarToJigll {
 			
 			Nonterminal head = getHead(nont);
 			
-			if (SymbolAdapter.isToken(nont) || SymbolAdapter.isKeyword(nont) || SymbolAdapter.isLiteral(nont) || SymbolAdapter.isCILiteral(nont) ) {
+			if (SymbolAdapter.isToken(nont) || SymbolAdapter.isLiteral(nont) || SymbolAdapter.isCILiteral(nont) ) {
+				
 				IConstructor prod = (IConstructor) regularExpression.getValue();
 				
 				if (prod.getName().equals("choice")) {
@@ -719,6 +720,10 @@ public class GrammarToJigll {
 			case "lex":
 			case "token":
 				regex = regularExpressionsMap.get(((IString)symbol.get("name")).getValue());
+				break;
+				
+			case "lit":
+				regex = getKeyword(symbol);
 				break;
 				
 			case "conditional":
