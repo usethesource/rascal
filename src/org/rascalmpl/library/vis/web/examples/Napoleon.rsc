@@ -49,7 +49,7 @@ num xc, num yc, str color) {
    }
  
 str drawTriangle(num xa, num ya, num xb, num yb,list[num] xC, Pos pos) {
-   str r=Z(path_, (id_:"a", d_:"M <xa> <ya> L <xC[0]> <xC[1]> L <xb> <yb> Z"
+   str r=W3(path_, (id_:"a", d_:"M <xa> <ya> L <xC[0]> <xC[1]> L <xb> <yb> W3"
        ));
    return r;
    } 
@@ -87,7 +87,7 @@ str drawTriangle(num xa, num ya, num xb, num yb,list[num] xC, Pos pos) {
                 equi(xa, ya, xc, yc,  ac(), false)];
       
       str coord = "<xa> <ya>, <xb> <yb>, <xc> <yc>";
-      str r =   Z(polygon_, 
+      str r =   W3(polygon_, 
            (fill_:"<color>",
             stroke_:"black", stroke_width_:"1px" ,
             points_:"<coord>"
@@ -103,17 +103,17 @@ str drawTriangle(num xa, num ya, num xb, num yb,list[num] xC, Pos pos) {
           for (l<-[0..25]) {
               list[num] q = [p[0]+l*y[0], p[1]+l*y[1]];
               int color2 = nextY(color1, l);    
-              r+=Z(g_,(transform_:"translate(<round(q[0]-nA[2*color2],0.0001)>, <round(q[1]-nA[2*color2+1],0.0001)>)"), equiTriangle[color2]);   
-              r+= Z(circle_, (r_:"2", cx_:"<q[0]>",
+              r+=W3(g_,(transform_:"translate(<round(q[0]-nA[2*color2],0.0001)>, <round(q[1]-nA[2*color2+1],0.0001)>)"), equiTriangle[color2]);   
+              r+= W3(circle_, (r_:"2", cx_:"<q[0]>",
                       cy_:"<q[1]>",fill_:fColor(color2))); 
               }
        }
-       return  Z(rect_,(height_:"100%", width_:"100%", fill_:"pink"))+Z(g_,(transform_:"translate(50, -400)"), r);
+       return  W3(rect_,(height_:"100%", width_:"100%", fill_:"pink"))+W3(g_,(transform_:"translate(50, -400)"), r);
     }
     
 public void main() {
     int x = 50, y = 50;
-    r = Z(svg_, (width_:"400", height_:"400",id_:"panel"),  triangle(50+x, 50+y, 135+x, 75+y, 125+x, 150+y, "pink"));   
+    r = W3(svg_, (width_:"400", height_:"400",id_:"panel"),  triangle(50+x, 50+y, 135+x, 75+y, 125+x, 150+y, "pink"));   
      htmlDisplay(|file:///tmp/napoleon|, 
      // htmlDisplay(|project://chart/src/napoleon|,  
       html(

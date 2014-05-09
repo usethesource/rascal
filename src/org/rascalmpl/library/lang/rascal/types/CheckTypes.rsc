@@ -6079,19 +6079,21 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	c = addModule(c, moduleName, md@\loc);
 	currentModuleId = head(c.stack);
 
-	// A map from imported module names to bool, with true meaning this is an extending import
-	modulesToImport = ( getNameOfImportedModule(im) : (Import)`extend <ImportedModule im>;` := importItem | 
+	// A relation from imported module names to bool, with true meaning this is an extending import
+	rel[RName mname, bool isext] modulesToImport = 
+		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule im>;` := importItem > | 
 		importItem <- importList, 
-		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem );
-	defaultModules = { RSimpleName("Exception") };
+		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
+	rel[RName mname, bool isext] defaultModules = { < RSimpleName("Exception"), false > };
 	
 	// Now, for each module being imported, create a module in the configuration
 	// and generate a signature. This also brings in extra imports via the extends
 	// mechanism (if we extend module A, we also import everything A imports).
-	worklist = modulesToImport<0> + defaultModules;
+	worklist = modulesToImport + defaultModules;
 	while (! isEmpty(worklist)) {
-		modName = getOneFrom(worklist);
-		worklist = worklist - modName;
+		wlitem = getOneFrom(worklist);
+		modName = wlitem.mname;
+		worklist = worklist - wlitem;
 		
 		try {
 			dt1 = now();
@@ -6104,10 +6106,10 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 			
 			// If we extend a module, add all the imports for this module into
 			// our local list of imports. 
-			if (modName in modulesToImport && modulesToImport[modName]) {
-				for (exti <- sigMap[modName].imports, exti notin modulesToImport) {
-					modulesToImport[exti] = false;
-					worklist = worklist + exti;
+			if (wlitem.isext) {
+				for (exti <- sigMap[modName].imports, true notin modulesToImport[exti]) {
+					modulesToImport = modulesToImport + < exti, false >;
+					worklist = worklist + < exti, false >;
 				}
 			}
 			c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
@@ -6119,22 +6121,22 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	// Now that we have a signature for each module, actually perform the import for each, creating
 	// a configuration for each with just the items from that module signature.
 	dt1 = now();
-	for (modName <- defaultModules) {
+	for (< modName, isExt > <- defaultModules) {
 		// This loads a default module. In this case, the defaults should stay in the
 		// configuration, since each module can "see" these definitions.
-		c = processModuleImport(c, sigMap[modName], modName, moduleIds[modName], false);
+		c = processModuleImport(c, sigMap[modName], modName, moduleIds[modName], isExt);
 	}
-	for (modName <- modulesToImport<0>) {
+	for (< modName, isExt > <- modulesToImport) {
 		// This loads a non-default module. We start each time with the environment we
 		// had after all the defaults loaded.
-		c = processModuleImportAndReset(c, sigMap[modName], modName, moduleIds[modName], modulesToImport[modName]);
+		c = processModuleImportAndReset(c, sigMap[modName], modName, moduleIds[modName], isExt);
 	}
 	c = pushTiming(c, "Imported module signatures", dt1, now());
             
 	// Process the current module. We start by merging in everything from the modules we are
 	// extending to give an initial "seed" for our environment. We will just use the standard
 	// add functions for this.
-	c = loadExtendedModules(c, { mn | mn <- modulesToImport, modulesToImport[mn] });
+	c = loadExtendedModules(c, { mn | < mn, true > <- modulesToImport });
 
 	// Now process all the syntax in the current module. We first "extract" information about all
 	// the syntax (using the existing functionality for extracting module signatures), then add
@@ -6202,7 +6204,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 
 		// Bring in type names from the imported modules as long as they don't
 		// conflict with the type names just added.
-		c = loadImportedTypesAndTags(c, { mn | mn <- modulesToImport, !modulesToImport[mn] });
+		c = loadImportedTypesAndTags(c, { mn | < mn, false > <- modulesToImport });
 		
 		// Now, actually process the type names
 		for (t <- typesAndTags) c = checkDeclaration(t,true,c);
@@ -6212,14 +6214,14 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 
 		// Bring in annotations from the imported modules as long as they don't
 		// conflict with the annotations just added.
-		c = loadImportedAnnotations(c, { mn | mn <- modulesToImport, !modulesToImport[mn] });
+		c = loadImportedAnnotations(c, { mn | < mn, false > <- modulesToImport });
 				
 		// Next, introduce names into the environment
 		for (t <- names) c = checkDeclaration(t,false,c);
 
 		// Bring in names from the imported modules as long as they don't
 		// conflict with the names just added.
-		c = loadImportedNames(c,  { mn | mn <- modulesToImport, !modulesToImport[mn] });
+		c = loadImportedNames(c,  { mn | < mn, false > <- modulesToImport });
 		
 		// Process the names
 		for (t <- names) c = checkDeclaration(t,true,c);
