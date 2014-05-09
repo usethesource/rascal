@@ -283,8 +283,8 @@ MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <B
  
    varCode = [ translate(var) | var <- variables ];
    tmps = [ nextTmp() | var <- variables ];
-// TODO: check that given bound is positive
    return muBlock([ muAssignTmp(iterations, fuid, (bound is empty) ? muCon(1000000) : translate(bound.expression)),
+    				muCallPrim("non_negative", [muTmp(iterations,fuid)]),
                     muAssignTmp(change, fuid, muCon(true)),
                     *[ muAssignTmp(tmps[i], fuid, varCode[i]) | i <- index(varCode) ],
                     muWhile(nextLabel(),
