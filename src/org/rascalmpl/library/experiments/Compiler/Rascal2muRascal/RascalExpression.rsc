@@ -202,6 +202,9 @@ private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <E
                     
 private MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString("<constant>"));
 
+//private MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) { tr = muCon(readTextValueString("<constant>")); println("translateStringLiteral: <constant>, <tr>"); return tr;}
+
+
 private str removeMargins(str s)  = visit(s) { case /^[ \t]*'/m => "" };
 
 private str computeIndent(str s) {
