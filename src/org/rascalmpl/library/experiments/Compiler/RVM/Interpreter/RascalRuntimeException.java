@@ -78,6 +78,9 @@ public class RascalRuntimeException {
 
 	public static final Type NoMainFunction = TF.constructor(TS, Exception, "NoMainFunction");
 	
+	public static final Type RegExpParsingError = TF.constructor(TS, Exception, "RegExpParsingError", TF.stringType(), "message");
+
+	
 	public static Thrown arithmeticException(String msg, List<Frame> stacktrace) {
 		return Thrown.getInstance(VF.constructor(ArithmeticException, VF.string(msg)), stacktrace);
 	}
@@ -317,5 +320,8 @@ public class RascalRuntimeException {
 	public static Thrown uninitializedVariable(String name, List<Frame> stacktrace) {
 		return Thrown.getInstance(VF.constructor(UninitializedVariable, VF.string(name)), stacktrace);
 	}
-
+	
+	public static Thrown RegExpParsingError(String message, List<Frame> stacktrace) {
+		return Thrown.getInstance(VF.constructor(RegExpParsingError, VF.string(message)), stacktrace);
+	}
 }
