@@ -266,7 +266,9 @@ public test bool tstDelete(list[&T] L) {
    
 // TODO: distribution
 
+/* Removedfrom library
 public test bool tstDomain(list[&T] L) = domain(L) == toSet([0..size(L)]);
+*/
 
 public test bool tstDrop(list[&T] L) {
  if(size(L) > 1){
@@ -314,8 +316,8 @@ public test bool tstInsertAt(list[&T] L, &T e){
   return insertAt(L, n, e) == L[..n] + [e] + L[n..];
 }
 
-// sep = "\"\\\"\\\"Â≠Ø\"Ë¨©";
-// L = [<({-113949296r42589197}:797878609r38010066)>,$4551-10-12T12:45:25.024+01:00,"òÖÇÔß∏"({|tmp:///|})];
+// sep = "\"\\\"\\\"�������\"������";
+// L = [<({-113949296r42589197}:797878609r38010066)>,$4551-10-12T12:45:25.024+01:00,"����������������"({|tmp:///|})];
 
 public test bool tstIntercalate(str sep, list[value] L) = 
        intercalate(sep, L) == (isEmpty(L) ? ""
