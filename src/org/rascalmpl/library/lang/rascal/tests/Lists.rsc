@@ -2,6 +2,7 @@ module lang::rascal::tests::Lists
 
 import IO;
 import List;
+import ListRelation;
 import Set;
 import String;
 import Boolean;
