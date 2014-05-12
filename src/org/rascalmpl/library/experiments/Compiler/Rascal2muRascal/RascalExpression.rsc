@@ -202,9 +202,6 @@ private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <E
                     
 private MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString("<constant>"));
 
-//private MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) { tr = muCon(readTextValueString("<constant>")); println("translateStringLiteral: <constant>, <tr>"); return tr;}
-
-
 private str removeMargins(str s)  = visit(s) { case /^[ \t]*'/m => "" };
 
 private str computeIndent(str s) {
@@ -460,7 +457,7 @@ MuExp translateConcreteParsed(e: appl(Production prod, list[Tree] args)){
        return muVar("ConcreteVar", fuid, pos);
     }    
     return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
-                   [muCon(prod), muCallPrim("list_create", [translateConcreteParsed(arg) | arg <- args], e@\loc)]);
+                   [muCon(prod), muCallPrim("list_create", [translateConcreteParsed(arg) | arg <- args], |unknown:///|)]);
 }
 
 default MuExp translateConcreteParsed(Tree t) = muCon(t);

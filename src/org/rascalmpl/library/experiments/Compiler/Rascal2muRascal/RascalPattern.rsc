@@ -39,7 +39,9 @@ default MuExp translateMatch(Pattern pat, Expression exp) =
 
 // -- literal pattern ------------------------------------------------
 
-default MuExp translatePat(p:(Pattern) `<Literal lit>`) = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [translate(lit)]);
+default MuExp translatePat(p:(Pattern) `<Literal lit>`) = translateLitPat(lit);
+
+MuExp translateLitPat(Literal lit) = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [translate(lit)]);
 
 // -- regexp pattern -------------------------------------------------
 
@@ -405,11 +407,13 @@ list[Lookahead] computeConcreteLookahead(list[Tree] pats){
     println("result = <reverse(rprops)>");
     return reverse(rprops);
 }
-
      
 // -- qualified name pattern -----------------------------------------
 
-MuExp translatePat(p:(Pattern) `<QualifiedName name>`) {
+MuExp translatePat(p:(Pattern) `<QualifiedName name>`) = translateQualifiedNamePat(name);
+
+MuExp translateQualifiedNamePat(QualifiedName name)
+{
    if("<name>" == "_"){
       return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR"), []);
    }
@@ -458,22 +462,28 @@ MuExp translatePatKWArguments((KeywordArguments) `<OptionalComma optionalComma> 
    keyword_names = [];
    pats = [];
    for(kwarg <- keywordArgumentList){
+       println("kwarg = <kwarg>");
        keyword_names += muCon("<kwarg.name>");
        pats += translatePatKWValue(kwarg.expression);
    }
    return muApply(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS"), [muCallMuPrim("make_array", keyword_names), muCallMuPrim("make_array", pats)]);
 }
 
-MuExp translatePatKWValue(e: (Expression) `<Literal lit>`) = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [translate(lit)]);
+// TODO: extend the following with all pattern cases, however this requires translating 
+// from expression to pattern!
 
-MuExp translatePatKWValue(e: (Expression) `<QualifiedName name>`) {
-  if("<name>" == "_"){
-      return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR"), []);
-   }
-   <fuid, pos> = getVariableScope("<name>", name@\loc);
-   //println("transPattern: <fuid>, <pos>");
-   return muApply(mkCallToLibFun("Library","MATCH_VAR"), [muVarRef("<name>", fuid, pos)]);
+MuExp translatePatKWValue(e: (Expression) `<Literal lit>`) = translateLitPat(lit);
+
+MuExp translatePatKWValue(e: (Expression) `<QualifiedName name>`) = translateQualifiedNamePat(name);
+
+default MuExp translatePatKWValue(e: (Expression) `<Expression exp>`) {
+  if(isConstant(exp)){
+     return muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(getConstantValue(exp))]);
+  } else {
+    throw "Non-constant expressions in keyword parameters not yet supported";
+  }
 }
+
 
 // -- set pattern ----------------------------------------------------
 
