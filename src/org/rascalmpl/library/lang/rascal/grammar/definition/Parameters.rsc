@@ -45,7 +45,7 @@ set[Production] expand(set[Production] prods) {
        actuals = u.parameters;
        formals = def.def.parameters;
        instantiated += {u};
-       substs = (formals[i]:actuals[i] | int i <- index(actuals) & domain(formals));
+       substs = (formals[i]:actuals[i] | int i <- index(actuals) & index(formals));
        instances = {*instances, visit (def) {
          case Symbol par:\parameter(_,_) => substs[par]?par
        }}; 
