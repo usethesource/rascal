@@ -11,6 +11,7 @@ public class LoadLoc0 extends Instruction {
 	}
 	public void generate(Generator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("insnLOADLOC0");
+		//codeEmittor.emitInlineLoadLocN(0,dcode);
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

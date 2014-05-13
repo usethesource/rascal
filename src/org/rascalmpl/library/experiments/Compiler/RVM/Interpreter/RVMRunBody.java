@@ -8,7 +8,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 // This file isonly a tool to aid the writing
-// of jvm bytecode id is not used in the program 
+// of jvm bytecode and is not used in the program 
 // DELETE PROJECT 
 
 
@@ -494,5 +494,22 @@ public class RVMRunBody extends RVMRun {
 			return rval;
 		}
 		return NONE;
+	}
+	public int intint(int val) {
+		int p ;
+		switch(val) {
+		case 0: p = 0 ; 
+		case 1: p = 1 ;
+		case 2: p = 2 ;
+		case 3: p = 3 ;
+		case 4: p = 4 ;
+		case 5: p = 5 ;
+		case 6: p = 6 ;
+		case 7: p = 7 ;
+		case 8: p = 8 ;
+		case 9: p = 9 ;
+		default : p = 10 ;
+		}
+		return p;
 	}
 }

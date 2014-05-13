@@ -241,6 +241,8 @@ public class RVM {
 
 				finalize(codeEmittor);
 				rvmGenCode = codeEmittor.finalizeCode();
+				
+				/* DEBUG */	codeEmittor.dump("/Users/ferryrietveld/Running.class");
 
 				// Oneshot classloader
 				Class<?> generatedClass = new ClassLoader(RVM.class.getClassLoader()) {
@@ -294,8 +296,6 @@ public class RVM {
 
 		Object o = null;
 		o = runner.dynRun(uid_main, args);
-		// o = runner.executeProgram(root, cf);
-		// o = new Integer(10) ;
 		if (o != null && o instanceof Thrown) {
 			throw (Thrown) o;
 		}

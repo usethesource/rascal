@@ -10,8 +10,8 @@ public class LoadLoc3 extends Instruction {
 		super(ins, Opcode.LOADLOC3);
 	}
 	public void generate(Generator codeEmittor, boolean dcode){
-		codeEmittor.emitInlineLoadLoc3(dcode);
-		//codeEmittor.emitCall("insnLOADLOC3");
+		//codeEmittor.emitInlineLoadLoc3(dcode);
+		codeEmittor.emitCall("insnLOADLOC3");
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }
