@@ -52,8 +52,8 @@ public map[int, int] divisors = (i:nDiv(i)|i<-[2..50]);
 public void main() {
     // chart(Sin);
     // chart(divisors);
-    // chart(towns);
-    chart(class2method);
+    chart(towns);
+    // chart(class2method);
     }
     
 str signature(str name, list[Declaration] parameters) {
@@ -73,7 +73,7 @@ str signature(str name, list[Declaration] parameters) {
 
 
       
-public rel[map[str,int], str, str] initialize(loc project) { 
+public rel[map[str,int] procname2size, str modul, str kind] initialize(loc project) { 
         model = createM3FromEclipseProject(project);
         set[Declaration] decls = createAstsFromDirectory(project, false, javaVersion = "1.7" );
         // println(size(decls));  

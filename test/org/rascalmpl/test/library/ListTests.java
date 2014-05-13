@@ -32,15 +32,16 @@ public class ListTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{delete([0,1,2], 2) == [0,1];}"));
 	}
 
-	@Test
-	public void domain() {
-
-		prepare("import List;");
-
-		assertTrue(runTestInSameEvaluator("{domain([]) == {};}"));
-		assertTrue(runTestInSameEvaluator("{domain([1]) == {0};}"));
-		assertTrue(runTestInSameEvaluator("{domain([1, 2]) == {0, 1};}"));
-	}
+// domain has been removed from the library 
+//	@Test
+//	public void domain() {
+//
+//		prepare("import List;");
+//
+//		assertTrue(runTestInSameEvaluator("{domain([]) == {};}"));
+//		assertTrue(runTestInSameEvaluator("{domain([1]) == {0};}"));
+//		assertTrue(runTestInSameEvaluator("{domain([1, 2]) == {0, 1};}"));
+//	}
 
 	@Test
 	public void getOneFrom() {

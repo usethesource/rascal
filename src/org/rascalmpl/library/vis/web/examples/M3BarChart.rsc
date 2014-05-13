@@ -22,7 +22,7 @@ import util::HtmlDisplay;
 import vis::web::markup::Dimple;
 import IO;
 
-M3 model;
+
 
 /*
 list[list[value]] jn(rel[value , value] r) =  [[x[1], x[0]]|x<-r];
@@ -40,7 +40,7 @@ list[list[value]] jn(rel[value , value] r...) {
 
 /* Print number of statements */
 
-rel[str, int] methodSize() {
+rel[str, int] methodSizeF(M3 model) {
     rel[str, int] r={};
     for (e<-declaredMethods(model)) { 
         Declaration ast = getMethodASTEclipse(e[1], model = model);
@@ -59,43 +59,43 @@ rel[str, int] methodSize() {
     }
 // \constructor(str name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
 // \method(Type \return, str name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
-public rel[str method, str src] methodSrcF() {
+public rel[str method, str src] methodSrcF(M3 model) {
      return  {<e[1].path, resolveJava(e[0]).file>|e<-declaredMethods(model)};
      }
 
-list[str] sortSrc() {
+list[str] sortSrc(M3 model) {
      list[tuple[str, int]] t = [<resolveJava(e).file, getFileLength(resolveJava(e))> | e<-classes(model)];
      t = sort(t, bool(tuple[str, int] a, tuple[str, int] b) { return a[1]<b[1];});
      // println(t);
      return [e[0]|e<-t];
      }
   
- rel[int, str] lengthSource() {
+ rel[int, str] lengthSource(M3 model) {
      return {<getFileLength(resolveJava(e)), resolveJava(e).file> | e<-classes(model)};
      }
      
-rel[str method, str src] methodSrc;
-rel[str method, int len] methodLength;
-rel[str method, value proc ] methodProc;
+rel[str method, str src] methodSrc ={};
+rel[str method, int len] methodLength = {};
+rel[str method, value proc ] methodProc = {};
+rel[str, int] methodSize = {};
+list[str] orderRule = [];
 
 
 // \method(loc decl, list[TypeSymbol] typeParameters, TypeSymbol returnType, list[TypeSymbol] parameters)
 public void initialize(loc project) { 
-        model = createM3FromEclipseProject(project);
+        M3 model = createM3FromEclipseProject(project);
         rel[loc name, TypeSymbol typ] methodReturntype = { d| m <- declaredMethods(model), d<-model@types};
         methodProc = 
            {<n.path, \void()==r?"void":"function">|<n, t> <- methodReturntype, \method(_,_, r,_):=t}
            +
            {<n.path, "constructor" >|<n, t> <- methodReturntype, \constructor(_,_):=t}
            ; 
-        methodSrc =  methodSrcF();
-        rel[int len, str src] lengthSrc =  lengthSource();
+        methodSrc =  methodSrcF(model);
+        methodSize = methodSizeF(model);
+        rel[int len, str src] lengthSrc =  lengthSource(model);
         methodLength = invert(lengthSrc o invert(methodSrc)); 
+        orderRule= sortSrc(model);
 }
-
-
- 
-
 
 /* Use this by entering
 import util::HtmlDisplay;
@@ -106,7 +106,7 @@ public void main() {
     title="First example" 
     ,x_axis = "src"
     ,y_axis =getYAxis(varName="methodSize",aggregateMethod="max", plotFunction="bubble",series=["method","proc"])  
-    ,orderRule= sortSrc()  
+    ,orderRule= orderRule  
     ,legend=true
     // ,colorAxis=<"methodSize","">
     // ,defaultColors=[getColor(fill="blue")]
@@ -116,7 +116,7 @@ public void main() {
     ,x_axis = "src"
     ,y_axis = getYAxis(varName="method",series= "proc")
     ,y_axis2 =getYAxis(varName="methodSize",aggregateMethod="max", plotFunction= "line")
-    ,orderRule= sortSrc()
+    ,orderRule= orderRule
     ,assignColor=[getTagColor("constructor", fill="green", stroke="green")]
     ,defaultColors=[
     getColor(fill="blue", stroke="blue"), 
@@ -134,7 +134,7 @@ public void main() {
     ,<"src", methodSrc>
     ,<"length", methodLength>
     ,<"proc", methodProc>
-    ,<"methodSize", methodSize()>));
+    ,<"methodSize", methodSize>));
     }
 
 

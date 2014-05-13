@@ -1,25 +1,14 @@
 module experiments::Compiler::Examples::Tst2
 
-import Message;
-import analysis::m3::TypeSymbol;
+import util::Eval;
+//import List;
+//syntax A = "a";
+//
+//int x;
 
-data Declaration;
-anno loc             Declaration@src;
-anno loc             Declaration@decl;
-anno TypeSymbol      Declaration@typ;
-anno list[Modifier]  Declaration@modifiers;
-anno list[Message]   Declaration@messages;
 
-data Statement;
-anno loc Statement@src;
 
-data Expression;
-anno loc Expression@src;
-anno loc Expression@decl;
-anno TypeSymbol Expression@typ;
+//value main(list[value] args) { [A] "b"; |unknown:///|.begin; [1,2,3][4]; throw "abc"; x = 2; } //x; //head([]);
+//value main(list[value] args) { $2014-04-26$.hour; } //|unknown:///|.ls; [1,2,3][4]; throw "abc"; x = 2; } //x; //head([]);
 
-data Type;
-anno loc Type@name;              
-anno TypeSymbol Type@typ;
-
-data Modifier;
+value main(list[value] args) = eval("1+1;");
