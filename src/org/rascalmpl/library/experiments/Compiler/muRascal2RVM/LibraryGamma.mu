@@ -147,16 +147,40 @@ guard {
 }
 
 coroutine ENUM_NODE(iNd, rVal) 
-guard { 
-    var array = get_children_and_keyword_params_as_values(iNd),
-        len = size_array(array); 
-    len > 0 
-}
 {
-	var j = 0
-	while(j < len) {
-	    yield array[j]
-	    j = j + 1
+   var array, iLst, len, children, j = 0, prod, op, delta = 2, opname
+   
+   if(equal(get_name(iNd), "appl")){			// A concrete list?
+      children = get_children(iNd)
+      prod = children[0]
+      if(equal(get_name(prod), "regular")){ 	// regular(opname(), ...)
+         op = get_children(prod)[0]
+         opname = get_name(op)
+         // Consider layout and separators
+         if(equal(opname, "iter-seps") || equal(opname, "iter-start-seps")){
+            delta = 1 + size_list(get_children(op)[1]);
+         }
+         iLst = children[1]
+         len = size_list(iLst)
+         if(len > 0){
+		    while(j < len) {
+	    	   yield muprim("subscript_list_mint", iLst, j)
+	    	   j = j + delta
+		    }
+		 }
+	  } else {									
+	    return iNd;								// Concrete node, but not a concrete list
+	  }
+   } else {										// Not a concrete list
+      array = get_children_and_keyword_params_as_values(iNd)
+      len = size_array(array)
+  
+   	  if(len > 0){
+		 while(j < len) {
+	    	yield array[j]
+	    	j = j + 1
+		 }
+	   }
 	}
 }
 
@@ -844,73 +868,84 @@ coroutine MATCH_LAST_TYPED_ANONYMOUS_MULTIVAR_IN_LIST(typ, iMinLen, iMaxLen, iLo
 // Primitives for matching of concrete list patterns
 
 // Tree node in concrete pattern: appl(iProd, argspat), where argspat is a list pattern
-coroutine MATCH_APPL_IN_LIST(iProd, argspat, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
-    var iElem = get_list(iSubject, start), 
+coroutine MATCH_APPL_IN_LIST(iProd, argspat, rSubject)  guard { 
+	var iList = GET_LIST(deref rSubject),
+	    start = GET_CURSOR(deref rSubject);
+	    start < size_list(iList) 
+	} {
+    var iElem = get_list(iList, start), 
         children = get_children(iElem), 
         cpats
     if(equal(get_name(iElem), "appl") && equal(iProd, children[0])) {
         cpats = create(argspat, children[1])
         while(next(cpats)) {
-            yield start + 1
+            yield MAKE_SUBJECT(iList, start+1)
         }
     }
 }
 
 // Match appl(prod(lit(S),_,_), _) in a concrete list
-coroutine MATCH_LIT_IN_LIST(iProd, iSubject, rNext) guard { var start = deref rNext; start < size_list(iSubject) } {
-    var iElem = get_list(iSubject, start), 
+coroutine MATCH_LIT_IN_LIST(iProd, rSubject)  guard { 
+	var iList = GET_LIST(deref rSubject),
+	    start = GET_CURSOR(deref rSubject); 
+	    start < size_list(iList) 
+	} {
+    var iElem = get_list(iList, start), 
         children = get_children(iElem)
     if(equal(get_name(iElem), "appl") && equal(iProd, children[0])) {
-	    yield start + 1
+	    yield MAKE_SUBJECT(iList, start + 1)
     }
 }
 
 // Match and skip optional layout in concrete patterns
-coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(iSubject, rNext) { 
-    var start = deref rNext, 
-        iElem, children, prod, prodchildren
-    if(start < size_list(iSubject)) {
-        iElem = get_list(iSubject, start)
+coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(rSubject) { 
+    var iList = GET_LIST(deref rSubject),
+	    start = GET_CURSOR(deref rSubject), 
+        iElem, children, prod, prodchildren;
+    if(start < size_list(iList)) {
+        iElem = get_list(iList, start)
         if(iElem is node && equal(get_name(iElem), "appl")) {
             children = get_children(iElem)
             prod = children[0]
             prodchildren = get_children(prod)
             if(equal(get_name(prodchildren[0]), "layouts")) {
-    	        yield start + 1
+    	        yield MAKE_SUBJECT(iList, start + 1)
     		    exhaust
     	    }
     	}
     }
-    yield start
+    yield MAKE_SUBJECT(iList, start)
 } 
 
 // Match a (or last) multivar in a concrete list
 
-coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, iSubject, rNext) {
-    var start = deref rNext, 
-        cavailable = size(iSubject) - start, 
+coroutine MATCH_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, rSubject) {
+    var iList = GET_LIST(deref rSubject),
+	    start = GET_CURSOR(deref rSubject),
+        cavailable = size(iList) - start, 
         clen = mint(iMinLen), 
         maxLen = min(mint(iMaxLen), max(cavailable - mint(iLookahead), 0)), 
         iVal, end
     if(is_defined(rVar)) {
         iVal = deref rVar                        /* TODO: check length */
-        if(occurs(iVal, iSubject, start)) {
-            yield(iVal, start + size_list(iVal))
+        if(occurs(iVal, iList, start)) {
+            yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)))
         }
         exhaust
     }   
     while(clen <= maxLen) {
         end = start + clen
-        yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iSubject, start, clen)), end)
+        yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iList, start, clen)), MAKE_SUBJECT(iList,end))
         clen = clen + 2
     }
     undefine(rVar)
 }
 
-coroutine MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, iSubject, rNext) 
+coroutine MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, applConstr, listProd, applProd, rSubject) 
 guard { 
-    var start = deref rNext, 
-        cavailable = size(iSubject) - start, 
+    var iList = GET_LIST(deref rSubject),
+	    start = GET_CURSOR(deref rSubject), 
+        cavailable = size(iList) - start, 
         clen = min(mint(iMaxLen), max(cavailable - mint(iLookahead), 0))
     clen >= mint(iMinLen) 
 } 
@@ -918,21 +953,21 @@ guard {
     var iVal, end
     if(is_defined(rVar)) {
         iVal = deref rVar                         /* TODO: check length */
-        if(occurs(iVal, iSubject, start)) {
-             yield(iVal, start + size_list(iVal))
+        if(occurs(iVal, iList, start)) {
+             yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)))
         }
         exhaust
     }
     end = start + clen
-    yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iSubject, start, clen)), end)
+    yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iList, start, clen)), MAKE_SUBJECT(iList,end))
     undefine(rVar)
 }
 
 // Skip a separator that may be present before or after a matching multivar
-function SKIP_OPTIONAL_SEPARATOR(iSubject, start, offset, sep, available) {
+function SKIP_OPTIONAL_SEPARATOR(iList, start, offset, sep, available) {
     var elm, children, prod, prodchildren
     if(available >= offset + 2) {
-        elm = get_list(iSubject, start + offset)
+        elm = get_list(iList, start + offset)
         if(elm is node) {
             children = get_children(elm)
             prod = children[0]
@@ -945,18 +980,19 @@ function SKIP_OPTIONAL_SEPARATOR(iSubject, start, offset, sep, available) {
     return 0
 }
 
-coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, sep, applConstr, listProd, applProd, iSubject, rNext) { 
-    var start = deref rNext, 
-        cavailable = size(iSubject) - start, 
+coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, sep, applConstr, listProd, applProd, rSubject) { 
+    var iList = GET_LIST(deref rSubject),
+	    start = GET_CURSOR(deref rSubject), 
+        cavailable = size(iList) - start, 
         len =  mint(iMinLen), 
-        skip_leading_separator = SKIP_OPTIONAL_SEPARATOR(iSubject, start, 0, sep, cavailable), 
+        skip_leading_separator = SKIP_OPTIONAL_SEPARATOR(iList, start, 0, sep, cavailable), 
         skip_trailing_separator = 0, 
         maxLen = max(cavailable - (mint(iLookahead) + skip_leading_separator), 0),
         iVal, sublen, end		 	
     if(is_defined(rVar)) {
         iVal = deref rVar
-        if(occurs(iVal, iSubject, start)) {	     // TODO: check length
-            yield(iVal, start + size_list(iVal))
+        if(occurs(iVal, iList, start)) {	     // TODO: check length
+            yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)))
         }
         exhaust
     }
@@ -967,19 +1003,20 @@ coroutine MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen
            sublen = (4 * (len - 1)) + 1
         }
         end = start + skip_leading_separator + sublen
-        skip_trailing_separator = SKIP_OPTIONAL_SEPARATOR(iSubject, end, 1, sep, maxLen)
+        skip_trailing_separator = SKIP_OPTIONAL_SEPARATOR(iList, end, 1, sep, maxLen)
         end = end + skip_trailing_separator
-        yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iSubject, start + skip_leading_separator, sublen)), end)
+        yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iList, start + skip_leading_separator, sublen)), MAKE_SUBJECT(iList,end))
         len = len + 1
     }
     undefine(rVar)
 }
 
-coroutine MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, sep, applConstr, listProd, applProd, iSubject, rNext) 
+coroutine MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST(rVar, iMinLen, iMaxLen, iLookahead, sep, applConstr, listProd, applProd, rSubject) 
 guard { 
-    var start = deref rNext, 
-        cavailable = size(iSubject) - start, 
-        skip_leading_separator =  SKIP_OPTIONAL_SEPARATOR(iSubject, start, 0, sep, cavailable), 
+    var iList = GET_LIST(deref rSubject),
+	    start = GET_CURSOR(deref rSubject), 
+        cavailable = size(iList) - start, 
+        skip_leading_separator =  SKIP_OPTIONAL_SEPARATOR(iList, start, 0, sep, cavailable), 
         skip_trailing_separator = 0,
         sublen = max(cavailable - (mint(iLookahead) + skip_leading_separator), 0)          
     {
@@ -995,13 +1032,13 @@ guard {
     var iVal, end  
     if(is_defined(rVar)) {
         iVal = deref rVar
-        if(occurs(iVal, iSubject, start)) {	     // TODO: check length
-            yield(iVal, start + size_list(iVal))
+        if(occurs(iVal, iList, start)) {	     // TODO: check length
+            yield(iVal, MAKE_SUBJECT(iList, start + size_list(iVal)))
         }
         exhaust
     }
     end = start + skip_leading_separator + sublen + skip_trailing_separator
-    yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iSubject, start + skip_leading_separator, sublen)), end)
+    yield(MAKE_CONCRETE_LIST(applConstr, listProd, applProd, sublist(iList, start + skip_leading_separator, sublen)), MAKE_SUBJECT(iList,end))
     undefine(rVar)
 }
 
