@@ -31,6 +31,7 @@ public data Symbol =
 	| failure(set[Message] messages)
 	| \inferred(int uniqueId)
 	| \overloaded(set[Symbol] overloads, set[Symbol] defaults)
+	| deferred(Symbol givenType)
 	;
 
 @doc{Extension to add a production type.}
@@ -75,6 +76,7 @@ public str prettyPrintType(\user(RName rn, list[Symbol] ps)) = "<prettyPrintName
 public str prettyPrintType(failure(set[Message] ms)) = "fail"; // TODO: Add more detail?
 public str prettyPrintType(\inferred(int n)) = "inferred(<n>)";
 public str prettyPrintType(\overloaded(set[Symbol] os, set[Symbol] defaults)) = "overloaded:\n\t\t<intercalate("\n\t\t",[prettyPrintType(\o) | \o <- os + defaults])>";
+public str prettyPrintType(deferred(Symbol givenType)) = "deferred(<prettyPrintType(givenType)>)";
 // named non-terminal symbols
 public str prettyPrintType(Symbol::\sort(str name)) = name;
 public str prettyPrintType(Symbol::\start(Symbol s)) = "start[<prettyPrintType(s)>]";
@@ -733,6 +735,7 @@ public default bool isStartNonTerminalType(Symbol _) = false;
 public str getNonTerminalName(Symbol t) {
 	// TODO: I assume we need the cases for the other non-terminal types
 	if (\sort(n) := unwrapType(t)) return n;
+	if (\lex(n) := unwrapType(t)) return n;
 	if (\start(s) := unwrapType(t)) return getNonTerminalName(s);
 	if (\parameterized-sort(n,_) := unwrapType(t)) return n;
 	if (Symbol::\prod(s,_,_,_) := unwrapType(t)) return getNonTerminalName(s);
@@ -764,3 +767,5 @@ public Symbol getProductionSortType(Symbol pr) {
 	if (Symbol::\prod(s,_,_,_) := unwrapType(pr)) return s;
     throw "Cannot get production sort type from non-production type <prettyPrintType(pr)>";
 }
+
+public bool hasDeferredTypes(Symbol t) = size({d | /d:deferred(_) := t}) > 0;

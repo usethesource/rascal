@@ -330,10 +330,10 @@ void extractScopes(){
 Symbol getType(loc l) = config.locationTypes[l];
 
 // Get the type of an expression as string
-str getType(e) = "<getType(e@\loc)>";
+str getType(Tree e) = "<getType(e@\loc)>";
 
 // Get the outermost type constructor of an expression as string
-str getOuterType(e) { 
+str getOuterType(Tree e) { 
 	if(parameter(str _, Symbol bound) := getType(e@\loc)) {
 		return "<getName(bound)>";
 	}
@@ -541,7 +541,7 @@ public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tup
 	}
 }
 
-// TODO: these functions belong in ParseTree, but that gives "No definition for \"ParseTree/size(list(parameter(\\\"T\\\",value()));)#0\" in functionMap")
+// TODO: the following functions belong in ParseTree, but that gives "No definition for \"ParseTree/size(list(parameter(\\\"T\\\",value()));)#0\" in functionMap")
 
 @doc{Determine the size of a concrete list}
 int size(appl(regular(\iter(Symbol symbol)), list[Tree] args)) = size(args);

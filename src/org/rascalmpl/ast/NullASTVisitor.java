@@ -253,7 +253,7 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitCommandsList(Commands.List x) { 
+  public T visitCommandsCommandlist(Commands.Commandlist x) { 
     return null; 
   }
 
@@ -689,7 +689,7 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitFunctionModifiersList(FunctionModifiers.List x) { 
+  public T visitFunctionModifiersModifierlist(FunctionModifiers.Modifierlist x) { 
     return null; 
   }
 

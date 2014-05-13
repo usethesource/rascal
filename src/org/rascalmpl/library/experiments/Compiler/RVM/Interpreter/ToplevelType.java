@@ -76,7 +76,7 @@ public enum ToplevelType {
 
 			@Override
 			public ToplevelType visitAlias(Type type) throws RuntimeException {
-				throw new RuntimeException("Alias cannot occur as toplevel type");
+				throw new CompilerError("Alias cannot occur as toplevel type");
 			}
 
 			@Override
@@ -135,13 +135,13 @@ public enum ToplevelType {
 			@Override
 			public ToplevelType visitParameter(Type type)
 					throws RuntimeException {
-				throw new RuntimeException("Parameter cannot occur as toplevel type");
+				throw new CompilerError("Parameter cannot occur as toplevel type");
 			}
 
 			@Override
 			public ToplevelType visitExternal(Type type)
 					throws RuntimeException {
-				throw new RuntimeException("External cannot occur as toplevel type");
+				throw new CompilerError("External cannot occur as toplevel type");
 			}
 
 			@Override

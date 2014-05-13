@@ -11,12 +11,12 @@ import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.IRascalMonitor;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.IEvaluator;				// TODO: remove import: NOT YET
+import org.rascalmpl.interpreter.IRascalMonitor;			// TODO: remove import: NOT YET
+import org.rascalmpl.interpreter.env.Environment;			// TODO: remove import: NOT YET
+import org.rascalmpl.interpreter.result.ICallableValue;		// TODO: remove import: NOT YET
+import org.rascalmpl.interpreter.result.Result;				// TODO: remove import: NOT YET
+import org.rascalmpl.interpreter.result.ResultFactory;		// TODO: remove import: NOT YET
 
 public class FunctionInstance implements ICallableValue, IExternalValue {
 	
@@ -45,7 +45,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 				return new FunctionInstance(function, env, rvm);
 			}
 		}
-		throw new RuntimeException("Could not find a matching scope when computing a nested function instance: " + scopeIn);
+		throw new CompilerError("Could not find a matching scope when computing a nested function instance: " + scopeIn);
 	}
 	
 	/**
@@ -146,7 +146,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 		}
 		args[i] = kwargs.done();
 		IValue rval = rvm.executeFunction(this, args);
-		return ResultFactory.makeResult(rval.getType(), rval, rvm.ctx);
+		return ResultFactory.makeResult(rval.getType(), rval, rvm.getEvaluatorContext());
 	}
 
 	@Override
@@ -168,7 +168,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 
 	@Override
 	public IEvaluator<Result<IValue>> getEval() {
-		return rvm.ctx.getEvaluator();
+		return rvm.getEvaluatorContext().getEvaluator();
 	}
 	
 	@Override

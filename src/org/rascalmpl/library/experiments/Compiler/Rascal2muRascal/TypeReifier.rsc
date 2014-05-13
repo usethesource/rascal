@@ -72,7 +72,7 @@ public map[Symbol,Production] getGrammar(Configuration config) {
 public type[value] symbolToValue(Symbol symbol, Configuration config) {
 	
 	// Collect all the types that are in the type environment
-	typeMap = ( getSimpleName(rname) : config.store[config.typeEnv[rname]].rtype | rname <- config.typeEnv );
+	typeMap = ( getSimpleName(rname) : config.store[config.typeEnv[rname]].rtype | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype );
 	// Collect all the constructors of the adt types in the type environment
 	types = range(typeMap);
 	constructors = { <\type.\adt, \type> | int uid <- config.store, 

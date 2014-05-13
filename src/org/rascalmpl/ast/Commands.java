@@ -35,30 +35,30 @@ public abstract class Commands extends AbstractAST {
   
 
   
-  public boolean isList() {
+  public boolean isCommandlist() {
     return false;
   }
 
-  static public class List extends Commands {
-    // Production: sig("List",[arg("java.util.List\<org.rascalmpl.ast.EvalCommand\>","commands")])
+  static public class Commandlist extends Commands {
+    // Production: sig("Commandlist",[arg("java.util.List\<org.rascalmpl.ast.EvalCommand\>","commands")])
   
     
     private final java.util.List<org.rascalmpl.ast.EvalCommand> commands;
   
-    public List(IConstructor node , java.util.List<org.rascalmpl.ast.EvalCommand> commands) {
+    public Commandlist(IConstructor node , java.util.List<org.rascalmpl.ast.EvalCommand> commands) {
       super(node);
       
       this.commands = commands;
     }
   
     @Override
-    public boolean isList() { 
+    public boolean isCommandlist() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitCommandsList(this);
+      return visitor.visitCommandsCommandlist(this);
     }
   
     

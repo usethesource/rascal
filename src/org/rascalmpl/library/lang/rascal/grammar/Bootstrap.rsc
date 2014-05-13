@@ -13,33 +13,29 @@ import Grammar;
 import util::Monitor;
 
 private str package = "org.rascalmpl.library.lang.rascal.syntax";
-private loc inputFolder = |rascal:///lang/rascal/syntax|;
-private loc outputFolder = |boot:///src/org/rascalmpl/library/lang/rascal/syntax|;
-private loc astFolder = |boot:///src/org/rascalmpl/ast|;
-
 private str grammarName = "Rascal";
 private str rootName = "RascalParser";
 
-public Grammar getRascalGrammar() {
+public Grammar getRascalGrammar(loc grammarFile) {
   event("parsing the rascal definition of rascal");
-  Module \module = parse(#start[Module], inputFolder + "/Rascal.rsc").top;
+  Module \module = parse(#start[Module], grammarFile).top;
   event("imploding the syntax definition and normalizing and desugaring it");
   return modules2grammar("lang::rascal::syntax::Rascal", {\module});
 }
 
-public void bootstrap() {
-  gr = getRascalGrammar();
-  bootParser(gr);
-  bootAST(gr);
+public void bootstrap(loc rascalHome) {
+  gr = getRascalGrammar(rascalHome + "src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc");
+  bootParser(gr, rascalHome);
+  bootAST(gr, rascalHome);
 }
 
-public void bootParser(Grammar gr) {
+public void bootParser(Grammar gr, loc rascalHome) {
   event("generating new Rascal parser");
   source = newGenerate(package, rootName, gr);
-  writeFile(outputFolder + "/<rootName>.java", source);
+  writeFile(rascalHome + "src/org/rascalmpl/library/lang/rascal/syntax/<rootName>.java", source);
 }
 
-public void bootAST(Grammar g) {
+public void bootAST(Grammar g, loc rascalHome) {
   g = expandParameterizedSymbols(g);
   
   patterns = g.rules[sort("Pattern")];
@@ -52,6 +48,6 @@ public void bootAST(Grammar g) {
   // make sure all uses of Pattern have been replaced by Expression
   g = visit(g) { case sort("Pattern") => sort("Expression") }
   
-  grammarToJavaAPI(astFolder, "org.rascalmpl.ast", g);
+  grammarToJavaAPI(rascalHome + "src/org/rascalmpl/ast", "org.rascalmpl.ast", g);
 }
 

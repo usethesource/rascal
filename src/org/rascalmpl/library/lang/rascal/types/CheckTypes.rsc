@@ -34,79 +34,30 @@ import lang::rascal::types::TypeSignature;
 import lang::rascal::types::TypeInstantiation;
 import lang::rascal::checker::ParserHelper;
 import lang::rascal::grammar::definition::Symbols;
+extend lang::rascal::types::CheckerConfig;
 
 import lang::rascal::\syntax::Rascal;
 
 //
 // TODOs
-// 1. Add scoping information for boolean operations (and, or, etc) and surrounding
-//    constructs (comprehensions, matches, conditionals, etc) DONE
-//
 // 1a. Make sure that names propagate correctly with boolean operators. For instance,
 //     in a boolean or, a name needs to occur along both branches for it to be
 //     visible outside the or, but for and the name can occur along only one
 //     branch (since both need to be true, meaning both have been processed).
 //
-// 2. Add support for _ in subscripts DONE: This is only allowed in subscripts
-//    in expressions, not in assignables.
-//
-// 3. Add support for _ in patterns, to ensure we don't accidentally bind _ as a name DONE
-//
 // 4. Filter out bad assignables? For instance, we cannot have <x,y>.f, but it does
 //    parse, so we may be handed an example such as this.
 //
-// 5. Expand out uses of user types, including those with parameters DONE
-//
 // 6. Check tags to make sure they are declared
-//
-// 7. Make sure add errors are encoded as exceptions. This way we don't need
-//    to always encode checks to see if we can add the given item, we can just
-//    try and catch any errors. REMOVED: We now generate scope errors in the add
-//    routines, which allows us to handle the add logic (including whether add
-//    is allowed in some cases) in one place. Throws are too disruptive, since
-//    they can stop the checker from running if not handled properly, while
-//    registering errors provides a better UI experience.
-//
-// 8. Make sure that, when we have a declaration (even one with a type), we
-//    check shadowing! This is done in statements, but is not always done
-//    now in patterns. DONE: This is handled by now having the logic to mark
-//    scope errors in the functions used to add variables.
-//
-// 9. Make sure that varargs parameters are properly given list types. Also make sure
-//    they are just names (not varargs of a tuple pattern, for instance) DONE
 //
 // 10. Make sure we always instantiate type parameters when we use a constructor. NOTE: This
 //     is partially done -- it has been done for call or tree expressions, but not yet for
 //     call or tree patterns.
 //
-// 11. For ADT types, the user type could have other types for bounds which have
-//     not yet been introduced (although this would be odd), so we need to
-//     ignore those when we are not descending
-//
-// 12. Remember to pop the function when we exit!!! DONE: We already were doing this
-//     by just resetting to the old stack.
-//
 // 13. Check values created by append NOTE: This is partially done, in that we are gathering
 //     the types. Additional checking may still be needed.
 //
-// 14. Instantiate types in parametric function calls. DONE.
-//
 // 15. Make sure type var bounds are consistent.
-//
-// 16. Change shadowing rules to allow shadowing of imported items by items
-//     in the current module. Note that functions do not shadow, but are
-//     instead added into the overloaded cases. DONE.
-//
-// 17. Support _ in assignables DONE
-//
-// 18. Provide support for insert DONE
-//
-// 19. Refactor out code in statements with labels. DONE
-//
-// 20. Ensure environments are proper for nested functions and for closures.
-//     For instance, we should not see labels from outside a closure while
-//     we are inside the closure (especially since we could pass or return
-//     the closure!) DONE
 //
 // 21. Ensure that inferred types are handled appropriately in situations
 //     where we have control flow iteration: loops, visits, calls, solve
@@ -130,10 +81,6 @@ import lang::rascal::\syntax::Rascal;
 // 26. Need to pre-populate the type and name environments with the constructors for
 //     reified types, since we get these back if someone uses #type.
 //
-// 27. Finish the binders for assignables, we still need to modify these for more complex
-//     binders that push information back through multiple levels of field accesses, etc
-//     DONE
-//
 // 28. In statement blocks, segregate out function defs, these see the scope of the
 //     entire block, not just what came before; however, closures are still just
 //     expressions, so we still need the ability to capture an environment for them
@@ -146,1043 +93,7 @@ import lang::rascal::\syntax::Rascal;
 //
 // 31. addition on functions
 //
-@doc{The source of a label (visit, block, etc).}
-data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel() | switchLabel() | caseLabel() | functionLabel() ;
-
-@doc{Function modifiers.}
-data Modifier = javaModifier() | testModifier() | defaultModifier();
-
-@doc{Convert from the concrete to the abstract representation of modifiers.}
-Modifier getModifier(FunctionModifier fmod:(FunctionModifier)`java`) = javaModifier();
-Modifier getModifier(FunctionModifier fmod:(FunctionModifier)`test`) = testModifier();
-Modifier getModifier(FunctionModifier fmod:(FunctionModifier)`default`) = defaultModifier();
-
-@doc{Visibility of declarations.}
-data Vis = publicVis() | privateVis() | defaultVis();
-
-@doc{Convert from the concrete to the abstract representation of visibilities.}
-Vis getVis(Visibility v:(Visibility)`private`) = privateVis();
-Vis getVis(Visibility v:(Visibility)`public`) = publicVis();
-default Vis getVis(Visibility v) = defaultVis();
-
-alias KeywordParamMap = map[RName kpName, Symbol kpType];
-alias KeywordParamRel = lrel[RName pname, Symbol ptype, Expression pinit];
-
-@doc{Abstract values manipulated by the semantics. We include special scopes here as well, such as the
-     scopes used for blocks and boolean expressions.}
-data AbstractValue 
-    = label(RName name, LabelSource source, int containedIn, loc at) 
-    | variable(RName name, Symbol rtype, bool inferred, int containedIn, loc at)
-    | function(RName name, Symbol rtype, KeywordParamMap keywordParams, bool isVarArgs, int containedIn, list[Symbol] throwsTypes, loc at)
-    | closure(Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at)
-    | \module(RName name, loc at)
-    | overload(set[int] items, Symbol rtype)
-    | datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
-    | sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats)
-    | constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at)
-    | production(RName name, Symbol rtype, int containedIn, loc at)
-    | annotation(RName name, Symbol rtype, set[Symbol] onTypes, int containedIn, loc at)
-    | \tag(RName name, TagKind tkind, set[Symbol] onTypes, int containedIn, loc at)
-    | \alias(RName name, Symbol rtype, int containedIn, loc at)
-    | booleanScope(int containedIn, loc at)
-    | blockScope(int containedIn, loc at)
-    | conflict(set[int] items) 
-    ;
-
-data LabelStackItem = labelStackItem(RName labelName, LabelSource labelSource, Symbol labelType);
-data Timing = timing(str tmsg,datetime tstart,datetime tend);
-
-@doc{Configurations provide the state used during evaluation.}
-data Configuration = config(set[Message] messages, 
-                            map[loc,Symbol] locationTypes, 
-                            Symbol expectedReturnType, 
-                            map[RName,int] labelEnv,
-                            map[RName,int] fcvEnv,
-                            map[RName,int] typeEnv,
-                            map[RName,int] modEnv,
-                            map[RName,int] annotationEnv,
-                            map[RName,int] tagEnv,
-                            map[int,Vis] visibilities,
-                            map[int,AbstractValue] store,
-                            map[int,Production] grammar,
-                            set[int] starts,
-                            map[tuple[int,str],Symbol] adtFields,
-                            map[tuple[int,str],Symbol] nonterminalFields,
-                            rel[int,Modifier] functionModifiers,
-                            rel[int,loc] definitions,
-                            rel[int,loc] uses,
-                            map[loc,int] usedIn,
-                            rel[int,int] adtConstructors,
-                            rel[int,int] nonterminalConstructors,
-                            list[int] stack,
-                            list[LabelStackItem] labelStack,
-                            list[Timing] timings,
-                            int nextLoc,
-                            int uniqueify,
-                            map[int,Expression] keywordDefaults,
-                            rel[int,RName,Expression] dataKeywordDefaults,
-                            map[str,Symbol] tvarBounds
-                           );
-
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },());
-
-public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
-
-public set[&T] filterSet(set[&T] xs, bool (&T) f) = { x | x <- xs, f(x) };
-
-@doc{Add a new location type.}
-public CheckResult markLocationType(Configuration c, loc l, Symbol t) {
-    if (isFailType(t)) return markLocationFailed(c, l, t);
-    c.locationTypes[l] = t;
-    return < c, t >;
-}
-
-@doc{Mark that a location has type fail.}
-public CheckResult markLocationFailed(Configuration c, loc l, set[Symbol] ts) {
-    res = collapseFailTypes(ts);
-    c.locationTypes[l] = res;
-    c.messages += getFailures(res);
-    return < c, res >;
-}
-
-public CheckResult markLocationFailed(Configuration c, loc l, Symbol t) = markLocationFailed(c,l,{t});
-
-public Configuration recoverEnvironments(Configuration cNew, Configuration cOld) {
-    cNew.labelEnv = cOld.labelEnv;
-    cNew.fcvEnv = cOld.fcvEnv;
-    cNew.typeEnv = cOld.typeEnv;
-    cNew.modEnv = cOld.modEnv;
-    cNew.annotationEnv = cOld.annotationEnv;
-    cNew.tagEnv = cOld.tagEnv;
-    cNew.tvarBounds = cOld.tvarBounds;
-    return cNew;
-}
-
-public Configuration recoverEnvironmentsAfterCall(Configuration cNew, Configuration cOld) {
-    cNew = recoverEnvironments(cNew,cOld);
-    cNew.expectedReturnType = cOld.expectedReturnType;
-    cNew.stack = cOld.stack;
-    cNew.labelStack = cOld.labelStack;
-    return cNew;
-}
-
-public Configuration setExpectedReturn(Configuration c, Symbol t) {
-    return c[expectedReturnType = t];
-}
-
-public bool labelExists(Configuration c, RName n) = n in c.labelEnv;
-
-public Configuration addLabel(Configuration c, RName n, loc l, LabelSource ls) {
-    c.labelEnv[n] = c.nextLoc;
-    c.store[c.nextLoc] = label(n,ls,head(c.stack),l);
-    c.definitions = c.definitions + < c.nextLoc, l >;
-    c.nextLoc = c.nextLoc + 1;
-    return c;
-}
-
-public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
-
-public int definingContainer(Configuration c, int i) {
-	if (c.store[i] is overload) return definingContainer(c, getOneFrom(c.store[i].items));
-    cid = c.store[i].containedIn;
-    if (\module(_,_) := c.store[cid]) return cid;
-    if (\function(_,_,_,_,_,_,_) := c.store[cid]) return cid;
-    if (\closure(_,_,_,_) := c.store[cid]) return cid;
-    return definingContainer(c,cid);
-}
-
-public list[int] upToContainer(Configuration c, int i) {
-    if (\module(_,_) := c.store[i]) return [i];
-    if (\function(_,_,_,_,_,_,_) := c.store[i]) return [i];
-    if (\closure(_,_,_,_) := c.store[i]) return [i];
-    return [i] + upToContainer(c,c.store[i].containedIn);
-}
-
-private int getContainedIn(Configuration c, AbstractValue av) {
-	if (av has containedIn) return av.containedIn;
-	// NOTE: This assumes that overloads are all defined at the same level (all at the top
-	// of a module, for instance), or this won't work properly at the calling site.
-	if (av is overload) return getContainedIn(c, c.store[getOneFrom(av.items)]);
-	return head(c.stack);
-}
-
-public tuple[Configuration,Symbol] checkTVarBound(Configuration c, loc l, Symbol rt) {
-	// Get all the type vars out of the type rt
-	tvars = collectTypeVars(rt);
-	
-    if (size(tvars) > 0) {
-    	// Get back a relation from names to bounds to the var
-    	tvrel = { < getTypeVarName(tv), getTypeVarBound(tv), tv > | tv <- tvars };
-    	
-    	for (n <- tvrel<0>) {
-    		tvn = tvrel[n];
-    		
-    		// Filter the relation down to just those vars where the bound was actually given
-    		wBounds = { < b, tv > | < b, tv > <- tvn, (tv@boundGiven)? && tv@boundGiven };
-    		
-    		if (size(wBounds) > 0 && n in c.tvarBounds) {
-    			// If bounds were given and the type var was already in the config, make sure the new
-    			// bounds are equivalent to the old bounds
-    			for (bnd <- wBounds<0>) {
-		    		if (!equivalent(bnd,c.tvarBounds[n])) {
-		    			c = addScopeError(c, "The bound given for the type, <prettyPrintType(bnd)>, does not match the bound declared earlier for &<n>, <prettyPrintType(c.tvarBounds[n])>", l);
-		    		}
-		    	}
-    		} else if (size(wBounds) > 0) {
-    			// If bounds were given but this type var isn't in the config yet, make sure the bounds
-    			// are internally consistent
-    			nonequiv = { < bnd1, bnd2 > | bnd1 <- wBounds<0>, bnd2 <- wBounds<0>, !equivalent(bnd1,bnd2) };
-    			if (size(nonequiv) > 0) {
-    				< bnd1, bnd2 > = getOneFrom(nonequiv);
-    				c = addScopeError(c, "Non-equivalent bounds are given for &<n>, e.g. <prettyPrintType(bnd1)> and <prettyPrintType(bnd2)>", l);
-    				
-    				// We had non-equivalent bounds; we just lub them all and set that as the bound to use going forward, which
-    				// hopefully will cut down on extra error reports because of this
-    				tolub = toList(wBounds<0>);
-    				lubbed = ( tolub[0] | lub(it,elem) | elem <- tolub[1..] );
-    				c.tvarBounds[n] = lubbed;
-	    		} else {
-	    			// All the bounds were equivalent; we just pick one at random and save it
-	    			c.tvarBounds[n] = getOneFrom(wBounds<0>);
-	    		}
-    		}
-    	}
-    	
-    	// Now that we have bounds, make sure they are consistent in the actual type
-    	rt = bottom-up visit(rt) {
-    		case tp:\parameter(tvn,tvb) => tp[bound=c.tvarBounds[tvn]][@boundGiven=true] when tvn in c.tvarBounds
-    	}
-    }
-    
-    return < c, rt >;
-}
-
-public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symbol rt) {
-    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-    moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-    atRootOfModule = \module(_,_) := c.store[head(c.stack)];
-    < c, rt > = checkTVarBound(c, l, rt);
-
-    if (n notin c.fcvEnv) {
-    	// Case 1: This is the first appearance of the name. If we are at the module global
-    	// level, we also add a module-qualified version of the name into the environment.
-        c.fcvEnv[n] = c.nextLoc;
-        if (atRootOfModule) c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
-        c.store[c.nextLoc] = variable(n,rt,inf,head(c.stack),l);
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.nextLoc = c.nextLoc + 1;
-    } else {
-        if (atRootOfModule && \module(_,_) := c.store[getContainedIn(c,c.store[c.fcvEnv[n]])] && getContainedIn(c,c.store[c.fcvEnv[n]]) != moduleId) {
-            // Case 2: We are adding a new global name, and this name has already been defined inside another module that
-            // we are importing. This is allowed, but we issue an informational message since it may be accidental.
-            c.fcvEnv[n] = c.nextLoc;
-            c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
-            c.store[c.nextLoc] = variable(n,rt,inf,head(c.stack),l);
-            c.definitions = c.definitions + < c.nextLoc, l >;
-            c.nextLoc = c.nextLoc + 1;
-            c = addScopeInfo(c, "Declaration of variable <prettyPrintName(n)> shadows an imported name", l);
-        } else if (atRootOfModule && \module(_,_) := c.store[getContainedIn(c,c.store[c.fcvEnv[n]])] && getContainedIn(c,c.store[c.fcvEnv[n]]) == moduleId) {
-            // Case 3: We are adding a new global name, but this name has already been declared inside this module.
-            // This is a scope error, so issue an error message and don't add the new variable.
-            c = addScopeError(c, "Cannot re-declare global name: <prettyPrintName(n)>", l);
-            c.uses = c.uses + < c.fcvEnv[n], l >;
-            c.usedIn[l] = head(c.stack);
-        } else {
-            containingScopes = upToContainer(c,head(c.stack));
-            conflictIds = (overload(ids,_) := c.store[c.fcvEnv[n]]) ? ids : { c.fcvEnv[n] };
-            containingIds = { definingContainer(c,i) | i <- conflictIds };
-            if (size(toSet(containingScopes) & containingIds) > 0) {
-            	// Case 4: We are adding a new local name, but it is already declared inside this function or
-            	// closure. We do not allow redeclarations of names inside a function, so issue an error
-            	// message and don't add the new variable.
-                c = addScopeError(c, "Cannot re-declare name that is already declared in the current function or closure: <prettyPrintName(n)>", l);
-                c.uses = c.uses + < c.fcvEnv[n], l >;
-                c.usedIn[l] = head(c.stack);
-            } else {
-            	// Case 5: We are adding a new local name which will shadow an existing declaration of the
-            	// name. This is allowed, so we add the new variable declaration here.
-                c.fcvEnv[n] = c.nextLoc;
-                c.store[c.nextLoc] = variable(n,rt,inf,head(c.stack),l);
-                c.definitions = c.definitions + < c.nextLoc, l >;
-                c.nextLoc = c.nextLoc + 1;
-            }
-        }
-    }
-        
-    return c;
-}
-
-public Configuration addUnnamedVariable(Configuration c, loc l, Symbol rt) {
-	// We can always add unnamed variables, and they are always distinct, so here we just add
-	// it into the store without all the checking done for a normal variable addition.
-    < c, rt > = checkTVarBound(c, l, rt);
-    c.store[c.nextLoc] = variable(RSimpleName("_"),rt,true,head(c.stack),l);
-    c.definitions = c.definitions + < c.nextLoc, l >;
-    c.nextLoc = c.nextLoc + 1;
-
-    return c;
-}
-
-public Configuration addVariable(Configuration c, RName n, bool inf, Vis visibility, loc l, Symbol rt) {
-	// Here we are adding a variable with a visibility marker (like a global that is public or
-	// private). Since addVariable may not actually add a new variable item, this checks to see if
-	// the nextLoc was increased by 1, which would happen if a new variable is added. If so, add
-	// the visibility info for the variable. If not, don't -- we don't want to tag whatever happened
-	// to be added last with erroneous visibility information.
-	expectedLoc = c.nextLoc + 1;
-    c = addVariable(c,n,inf,l,rt);
-    if (c.nextLoc == expectedLoc)
-    	c.visibilities[expectedLoc-1] = visibility;
-    return c;
-}
-
-public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol rtOn, Vis visibility, loc l) {
-	// Add an annotation. We track the type of the annotation and the type being annotated. We enforce that
-	// all annotations of the same name must be declared to be of an equivalent type (e.g., an annotation
-	// of type int and an annotation of myint, an alias of int, would be allowed). There is no way to
-	// qualify annotation names.
-	// TODO: We currently always treat annotation declarations as public, so we just
-	// ignore the visibility here. If we decide to allow private annotation declarations,
-	// revisit this.
-	if (n notin c.annotationEnv) {
-		c.annotationEnv[n] = c.nextLoc;
-		c.store[c.nextLoc] = annotation(n,rt,{rtOn},head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-		c.definitions = c.definitions + < c.nextLoc, l >;
-		c.nextLoc = c.nextLoc + 1;
-	} else {
-		if (!equivalent(rt,c.store[c.annotationEnv[n]].rtype)){
-			c = addScopeError(c, "Annotation <prettyPrintName(n)> has already been declared with type <c.store[c.annotationEnv[n]].rtype>", l);
-		}
-		// NOTE: Even though this annotation is incorrect, we add the information on the annotated
-		// type and the definition site into the configuration. This should help to reduce follow-on
-		// errors where attempts are made to use the annotation, although it may trigger type
-		// errors instead of missing annotation errors.
-		c.store[c.annotationEnv[n]].onTypes = c.store[c.annotationEnv[n]].onTypes + rtOn; 
-		c.definitions = c.definitions + < c.annotationEnv[n], l >;
-	}
-	return c;
-}
-
-public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Symbol rt) {
-	// TODO: We currently always treat datatype declarations as public, so we just
-	// ignore the visibility here. If we decide to allow private datatype declarations,
-	// revisit this.
-	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-	moduleName = c.store[moduleId].name;
-	fullName = appendName(moduleName, n);
-	
-	int addDataType() {
-		itemId = c.nextLoc;
-		c.nextLoc = c.nextLoc + 1;
-		c.store[itemId] = datatype(n,rt,moduleId,{ l });
-		c.definitions = c.definitions + < itemId, l >;
-		return itemId;
-	}
-
-	Configuration extendDataType(Configuration c, int existingId) {
-		c.store[existingId].ats = c.store[existingId].ats + l;
-		c.typeEnv[fullName] = existingId;
-		c.definitions = c.definitions + < existingId, l >;		
-		return c; 	
-	}
-		    
-	if (n notin c.typeEnv) {
-		// Case 1: No type of this name already exists. Add a new data type item, and link it in
-		// using both the qualified and unqualified names.
-		itemId = addDataType();
-		c.typeEnv[n] = itemId;
-		c.typeEnv[fullName] = itemId;
-	} else if (\datatype(_,_,_,_) := c.store[c.typeEnv[n]]) {
-		// Case 2: A datatype of this name already exists. Use this existing data type item, adding
-		// a link to it using the qualified name. NOTE: This means that the same type may be available
-		// using multiple qualified names, but all will point to the same instance.
-		existingId = c.typeEnv[n];
-		c = extendDataType(c, existingId);
-	} else if ((c.store[c.typeEnv[n]] is sorttype || c.store[c.typeEnv[n]] is \alias) && c.store[c.typeEnv[n]].containedIn != moduleId) {
-		// Case 3: A sort or alias already exists with the given name, imported from a different
-		// module. If this ADT is being added to the main module (the one we are actually checking),
-		// this takes precedence over the others. If not, we require that all the types be accessed
-		// just with qualified names, which we track by adding in a conflict item holding the IDs of
-		// the items that cause the conflict.
-		itemId = addDataType();
-		c.typeEnv[fullName] = itemId;
-		if (moduleId == mainModuleId) {
-			c.typeEnv[n] = itemId;
-		} else {
-			c.store[c.nextLoc] = conflict({c.typeEnv[n], itemId});
-			c.typeEnv[n] = c.nextLoc;
-			c.nextLoc = c.nextLoc + 1;
-		}
-		c = addScopeInfo(c, "The definition of type <prettyPrintName(n)> masks an existing imported nonterminal or alias definition", l);
-	} else if (c.store[c.typeEnv[n]] is conflict && moduleId notin { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
-		// Case 4: The unqualified name was removed because of a name conflict. We may be adding a new
-		// item to the conflict set, or this may be a valid item for an unqualified name if we are adding
-		// the name to the module being checked. NOTE: We check specially for data types in the conflict set;
-		// if one exists, we can extend it instead of adding a new one.
-		dtids = { itemid | itemid <- c.store[c.typeEnv[n]].items, c.store[itemid] is datatype };
-		if (size(dtids) == 0) {				
-			itemId = addDataType();
-			c.typeEnv[fullName] = itemId;
-			if (moduleId == mainModuleId) {
-				c.typeEnv[n] = itemId;
-			} else {
-				c.store[c.typeEnv[n]].items += itemId;
-			}
-		} else {
-			existingId = getOneFrom(dtids);
-			c = extendDataType(c, existingId);
-			if (moduleId == mainModuleId) {
-				c.typeEnv[n] = existingId;
-			}
-		}
-	} else if ((c.store[c.typeEnv[n]] is sorttype || c.store[c.typeEnv[n]] is \alias) && c.store[c.typeEnv[n]].containedIn == moduleId) {
-		// Case 5: A sort or alias with this name already exists in the same module. We cannot perform this
-		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
-		// to distinguish them.
-		c = addScopeError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
-	} else if (c.store[c.typeEnv[n]] is conflict && moduleId in { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
-		// Case 6: We have a conflict item which contains at least one item declared in the current module. If this is a datatype,
-		// we extend it, else this is an error just like in Case 5.
-		dtids = { itemid | itemid <- c.store[c.typeEnv[n]].items, c.store[itemid] is datatype, c.store[itemid].containedIn == moduleId };
-		if (size(dtids) == 0) {				
-			c = addScopeError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
-		} else {
-			existingId = getOneFrom(dtids);
-			c = extendDataType(c, existingId);
-			if (moduleId == mainModuleId) {
-				c.typeEnv[n] = existingId;
-			}
-		}
-	}
-	
-	return c;
-}
-
-public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort) {
-	// TODO: We currently always treat nonterminal declarations as public, so we just
-	// ignore the visibility here. If we decide to allow private nonterminal declarations,
-	// revisit this.
-	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-	moduleName = c.store[moduleId].name;
-	fullName = appendName(moduleName, n);
-	
-	int addNonTerminal() {
-		itemId = c.nextLoc;
-		c.nextLoc = c.nextLoc + 1;
-		c.store[itemId] = sorttype(n,sort,moduleId,{ l });
-		c.definitions = c.definitions + < itemId, l >;
-		return itemId;
-	}
-
-	Configuration extendNonTerminal(Configuration c, int existingId) {
-		c.store[existingId].ats = c.store[existingId].ats + l;
-		c.typeEnv[fullName] = existingId;
-		c.definitions = c.definitions + < existingId, l >;
-		
-		return c; 	
-	}
-		    
-	if (n notin c.typeEnv) {
-		// Case 1: No type of this name already exists. Add a new nonterminal item, and link it in
-		// using both the qualified and unqualified names.
-		itemId = addNonTerminal();
-		c.typeEnv[n] = itemId;
-		c.typeEnv[fullName] = itemId;
-	} else if (\sorttype(_,_,_,_) := c.store[c.typeEnv[n]]) {
-		// Case 2: A nonterminal of this name already exists. Use this existing nonterminal item, adding
-		// a link to it using the qualified name. NOTE: This means that the same type may be available
-		// using multiple qualified names, but all will point to the same instance.
-		existingId = c.typeEnv[n];
-		c = extendNonTerminal(c, existingId);
-	} else if ((c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is \alias) && c.store[c.typeEnv[n]].containedIn != moduleId) {
-		// Case 3: A adt or alias already exists with the given name, imported from a different
-		// module. If this nonterminal is being added to the main module (the one we are actually checking),
-		// this takes precedence over the others. If not, we require that all the types be accessed
-		// just with qualified names, which we track by adding in a conflict item holding the IDs of
-		// the items that cause the conflict.
-		itemId = addNonTerminal();
-		c.typeEnv[fullName] = itemId;
-		if (moduleId == mainModuleId) {
-			c.typeEnv[n] = itemId;
-		} else {
-			c.store[c.nextLoc] = conflict({c.typeEnv[n], itemId});
-			c.typeEnv[n] = c.nextLoc;
-			c.nextLoc = c.nextLoc + 1;
-		}
-		c = addScopeInfo(c, "The definition of nonterminal <prettyPrintName(n)> masks an existing imported adt or alias definition", l);
-	} else if (c.store[c.typeEnv[n]] is conflict && moduleId notin { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
-		// Case 4: The unqualified name was removed because of a name conflict. We may be adding a new
-		// item to the conflict set, or this may be a valid item for an unqualified name if we are adding
-		// the name to the module being checked. NOTE: We check specially for nonterminals in the conflict set;
-		// if one exists, we can extend it instead of adding a new one.
-		dtids = { itemid | itemid <- c.store[c.typeEnv[n]].items, c.store[itemid] is sorttype };
-		if (size(dtids) == 0) {				
-			itemId = addNonTerminal();
-			c.typeEnv[fullName] = itemId;
-			if (moduleId == mainModuleId) {
-				c.typeEnv[n] = itemId;
-			} else {
-				c.store[c.typeEnv[n]].items += itemId;
-			}
-		} else {
-			existingId = getOneFrom(dtids);
-			c = extendNonTerminal(c, existingId);
-			if (moduleId == mainModuleId) {
-				c.typeEnv[n] = existingId;
-			}
-		}
-	} else if ((c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is \alias) && c.store[c.typeEnv[n]].containedIn == moduleId) {
-		// Case 5: A adt or alias with this name already exists in the same module. We cannot perform this
-		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
-		// to distinguish them.
-		c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in this module", l);
-	} else if (c.store[c.typeEnv[n]] is conflict && moduleId in { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
-		// Case 6: We have a conflict item which contains at least one item declared in the current module. If this is a datatype,
-		// we extend it, else this is an error just like in Case 5.
-		dtids = { itemid | itemid <- c.store[c.typeEnv[n]].items, c.store[itemid] is sorttype, c.store[itemid].containedIn == moduleId };
-		if (size(dtids) == 0) {				
-			c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in this module", l);
-		} else {
-			existingId = getOneFrom(dtids);
-			c = extendNonTerminal(c, existingId);
-			if (moduleId == mainModuleId) {
-				c.typeEnv[n] = existingId;
-			}
-		}
-	}
-	
-	return c;
-}
-
-public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol rt) {
-	// NOTE: We currently always treat alias declarations as public, so we just
-	// ignore the visibility here. If we decide to allow private alias declarations,
-	// revisit this.
-	currentModuleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-	moduleName = c.store[currentModuleId].name;
-	fullName = appendName(moduleName, n);
-	
-	int addAlias() {
-		itemId = c.nextLoc;
-		c.nextLoc = c.nextLoc + 1;
-		c.store[itemId] = \alias(n,rt,currentModuleId,l);
-		c.definitions = c.definitions + < itemId, l >;
-		return itemId;
-	}
-
-	// NOTE: A working assumption of this code is that the names in the main module are
-	// processed LAST. If this changes, the code for determining how to use unqualified
-	// names in case of conflicts will need to be reworked.
-	if (n notin c.typeEnv) {
-		// Case 1: No type of this name already exists. Add a new alias item, and link it in
-		// using both the qualified and unqualified names.
-		itemId = addAlias();
-		c.typeEnv[n] = itemId;
-		c.typeEnv[fullName] = itemId;
-	} else if (c.store[c.typeEnv[n]].containedIn != currentModuleId) {
-		// Case 2: A type already exists with the given name, imported from a different module.
-		// If this alias is being added to the main module (the one we are actually checking),
-		// the unqualified version of the name will point to this. If not, we require that all
-		// the types be accessed just with qualified names, which we track by adding in a conflict
-		// item holding the IDs of the items that cause the conflict.
-		itemId = addAlias();
-		c.typeEnv[fullName] = itemId;
-		if (currentModuleId == mainModuleId) {
-			c.typeEnv[n] = itemId;
-		} else {
-			c.store[c.nextLoc] = conflict({c.typeEnv[n], itemId});
-			c.typeEnv[n] = c.nextLoc;
-			c.nextLoc = c.nextLoc + 1;
-		}
-	} else if (c.store[c.typeEnv[n]] is conflict && currentModuleId notin { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
-		// Case 3: The unqualified name was removed because of a name conflict. We may be adding a new
-		// item to the conflict set, or this may be a valid item for an unqualified name if we are adding
-		// the name to the module being checked. This name does not conflict with another name in the same
-		// module.
-		itemId = addAlias();
-		c.typeEnv[fullName] = itemId;
-		if (currentModuleId == mainModuleId) {
-			c.typeEnv[n] = itemId;
-		} else {
-			c.store[c.typeEnv[n]].items += itemId;
-		}
-	} else if ((c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is sorttype || c.store[c.typeEnv[n]] is \alias) && c.store[c.typeEnv[n]].containedIn == currentModuleId) {
-		// Case 4: A type with this name already exists in the same module. We still have to add the alias, since
-		// errors will occur in other parts of the code if we do not do so, but we do not add the ID in to the type
-		// environment or build a conflict item.
-		itemId = addAlias();
-		c = addScopeError(c, "An adt or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
-	} else if (c.store[c.typeEnv[n]] is conflict && currentModuleId in { c.store[itemid].containedIn | itemid <- c.store[c.typeEnv[n]].items }) {
-		// Case 5: We have a conflict item which contains at least one item declared in the current module. This is an error,
-		// even if it is another alias. We still have to add the alias, since errors will occur in other parts of the code 
-		// if we do not do so, but we do not add the ID in to the type environment or build a conflict item.
-		itemId = addAlias();
-		c = addScopeError(c, "An adt, alias, or nonterminal named <prettyPrintName(n)> has already been declared in this module", l);
-	}
-	
-	return c;
-}
-
-// TODO: Enhance scoping as was done with ADTs, etc to allow for name clashes and qualified names
-public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, KeywordParamRel commonParams, KeywordParamRel keywordParams) {
-	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-	moduleName = c.store[moduleId].name;
-
-    adtName = RSimpleName(rt.\adt.name);
-	fullAdtName = appendName(moduleName, adtName);
-    if (fullAdtName notin c.typeEnv) {
-    	c = addScopeError(c, "Could not add constructor, associated ADT is not in scope", l);
-    	return c;
-    }
-    
-    adtId = c.typeEnv[fullAdtName];
-	keywordParamMap = ( pn : pt | <pn,pt,_> <- keywordParams);
-    
-    // Now, process the arguments. This performs several consistency checks, namely:
-    // * either all fields must have labels, or none should have labels
-    // * labels should not be repeated in the same constructor
-    // * labels shared between constructors should have matching types
-    args = getConstructorArgumentTypes(rt);
-	set[str] seenAlready = { };
-    if (size(args) > 0) {
-        labeledArgs = [ arg | arg <- args, \label(_,_) := arg ];
-        if (size(labeledArgs) > 0) {
-            if (size(labeledArgs) != size(args)) {
-                c = addScopeError(c,"On constructor definitions, either all fields should be labeled or no fields should be labeled", l);
-            } else {
-                for (\label(fn,ft) <- args) {
-                    if (fn in seenAlready) {
-                        c = addScopeError(c,"Field name <fn> cannot be repeated in the same constructor", l);
-                    } else {
-                        seenAlready = seenAlready + fn;
-                        if (<adtId,fn> in c.adtFields) {
-                            if (!equivalent(ft, c.adtFields[<adtId,fn>])) {
-                                c = addScopeError(c,"Field <fn> already defined as type <prettyPrintType(c.adtFields[<adtId,fn>])> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(ft)>",l);
-                            }
-                        } else {
-                            c.adtFields[<adtId,fn>] = ft;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-	rel[RName pname, Symbol ptype, Expression pinit] consolidatedParams = { };
-	
-	set[str] paramsSeen = { };
-	for (kp:<pn,pt,pe> <- commonParams) {
-		pnAsString = prettyPrintName(pn);
-		if (pnAsString in seenAlready) {
-			c = addScopeError(c,"Common keyword parameter <pnAsString> has the same name as a regular field in the current constructor", l);
-		} else if (pnAsString in paramsSeen) {
-			c = addScopeError(c,"Common keyword parameter <pnAsString> occurs more than once in the same ADT definition", l); 
-		} else {
-			paramsSeen = paramsSeen + pnAsString;
-			consolidatedParams += kp;
-			if (<adtId,pnAsString> in c.adtFields) {
-				if (!equivalent(pt, c.adtFields[<adtId,pnAsString>])) {
-					c = addScopeError(c,"Field <pnAsString> already defined as type <prettyPrintType(c.adtFields[<adtId,pnAsString>])> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(pt)>",l);
-				}
-			} else {
-				c.adtFields[<adtId,pnAsString>] = pt;
-			}
-		}
-	}    
-	
-	paramsSeen = { };
-	for (kp:<pn,pt,pe> <- keywordParams) {
-		pnAsString = prettyPrintName(pn);
-		if (pnAsString in seenAlready) {
-			c = addScopeError(c,"Keyword parameter <pnAsString> has the same name as a regular field in the current constructor", l);
-		} else if (pnAsString in paramsSeen) {
-			c = addScopeError(c,"Keyword parameter <pnAsString> occurs more than once in the same ADT definition", l); 
-		} else {
-			paramsSeen = paramsSeen + pnAsString;
-			consolidatedParams = { kp2 | kp2:<pn2,pt2,pe2> <- consolidatedParams, pn2 != pn } + kp;
-			if (<adtId,pnAsString> in c.adtFields) {
-				if (!equivalent(pt, c.adtFields[<adtId,pnAsString>])) {
-					c = addScopeError(c,"Field <pnAsString> already defined as type <prettyPrintType(c.adtFields[<adtId,pnAsString>])> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(pt)>",l);
-				}
-			} else {
-				c.adtFields[<adtId,pnAsString>] = pt;
-			}
-		}
-	}    
-	
-    // Add the constructor. This also performs an overlap check if this is not the first
-    // constructor with this name to ensure the constructor is distinguishable within
-    // the same ADT (we can add the ADT name to distinguish constructors from different
-    // ADTs).
-    void addConstructorItem(RName n, int constructorItemId) {
-	    if (n notin c.fcvEnv) {
-	    	// Case 1: This is the first occurrence of this name.
-	        c.fcvEnv[n] = constructorItemId;
-	    } else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-	    	// Case 2: The name is already overloaded. Add this as one more overload.
-	    	// TODO: If we are annotating overload items, we need to copy annotations here
-            c.store[c.fcvEnv[n]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + rt));
-	    } else if (constructor(_,_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
-            nonDefaults = {};
-            defaults = { rt };
-            if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
-            	defaults += c.store[c.fcvEnv[n]].rtype; 
-            } else {
-            	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-            		defaults += c.store[c.fcvEnv[n]].rtype;
-            	} else {
-            		nonDefaults += c.store[c.fcvEnv[n]].rtype;
-            	}
-            }
-            c.store[c.nextLoc] = overload({ c.fcvEnv[n], constructorItemId }, overloaded(nonDefaults,defaults));
-            c.fcvEnv[n] = c.nextLoc;
-            c.nextLoc = c.nextLoc + 1;
-	    } else {
-	    	c = addScopeError(c, "Invalid addition: cannot add constructor <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or production name in the same scope.", l);
-	    }
-	}
-
-    existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
-    if (!existsAlready) {
-	    nameWithAdt = appendName(adtName,n);
-	    nameWithModule = appendName(moduleName,n);
-    
-	    constructorItemId = c.nextLoc;
-	    c.nextLoc = c.nextLoc + 1;
-
-        overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt)}; //, !equivalent(c.store[i].rtype,rt)};
-        if (size(overlaps) > 0)
-            c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
-
-	    constructorItem = constructor(n,rt,keywordParamMap,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-	    c.store[constructorItemId] = constructorItem;
-	    c.definitions = c.definitions + < constructorItemId, l >;
-	    c.adtConstructors = c.adtConstructors + < adtId, constructorItemId >;
-	    
-	    c.dataKeywordDefaults = c.dataKeywordDefaults + { < constructorItemId, cp, pe > | <cp,pt,pe> <- consolidatedParams };
-	    
-	    addConstructorItem(n, constructorItemId);
-	    addConstructorItem(nameWithAdt, constructorItemId);
-	    addConstructorItem(nameWithModule, constructorItemId);
-	}    
-	
-    return c;
-}
-
-// TODO: We need to catch the case where we are trying to create productions and constructors
-// with the same name, we should only allow this if the name is qualified to prevent conflicts.
-public Configuration addProduction(Configuration c, RName n, loc l, Production prod) {
-	assert ( (prod.def is label && prod.def.symbol has name) 
-				|| ( !(prod.def is label) && prod.def has name ) || prod.def is \start);
- 
-	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-	moduleName = c.store[moduleId].name;
-
-    sortId = -1;
-    sortName = RSimpleName("");
-    
-    if (unwrapType(prod.def) is \start) {
-      sortName = RSimpleName("start[<getNonTerminalName(prod.def)>]");
-      sortId = c.typeEnv[sortName];
-      fullSortName = sortName;
-    }
-    else {
-      sortName = RSimpleName( (prod.def is label) ? prod.def.symbol.name : prod.def.name );
-	  fullSortName = appendName(moduleName, sortName);
-      if (fullSortName notin c.typeEnv) {
-    	c = addScopeError(c, "Could not add production, associated nonterminal is not in scope", l);
-    	return c;
-      }
-      sortId = c.typeEnv[fullSortName];
-    }
-    
-    
-    args = prod.symbols;
-    moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-    // TODO: think about production overload when we start to create ability to construct concrete trees from abstract names
-    Symbol rtype = Symbol::\prod( (prod.def is label) ? prod.def.symbol : prod.def, getSimpleName(n), prod.symbols, prod.attributes );
-    
-    void addProductionItem(RName n, int productionItemId) {
-	    if (n notin c.fcvEnv) {
-	    	// Case 1: This is the first occurrence of this name.
-	        c.fcvEnv[n] = productionItemId;
-	    } else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-	    	// Case 2: The name is already overloaded. Add this as one more overload.
-	    	// TODO: If we are annotating overload items, we need to copy annotations here
-            c.store[c.fcvEnv[n]] = overload(items + productionItemId, overloaded(itemTypes,defaults + rtype));
-	    } else if (production(_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
-            nonDefaults = {};
-            defaults = { rtype };
-            if(isProductionType(c.store[c.fcvEnv[n]].rtype)) {
-            	defaults += c.store[c.fcvEnv[n]].rtype; 
-            } else {
-            	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-            		defaults += c.store[c.fcvEnv[n]].rtype;
-            	} else {
-            		nonDefaults += c.store[c.fcvEnv[n]].rtype;
-            	}
-            }
-            c.store[c.nextLoc] = overload({ c.fcvEnv[n], productionItemId }, overloaded(nonDefaults,defaults));
-            c.fcvEnv[n] = c.nextLoc;
-            c.nextLoc = c.nextLoc + 1;
-	    } else {
-	    	c = addScopeError(c, "Invalid addition: cannot add production <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or constructor name in the same scope.", l);
-	    }
-	}
-    
-    existsAlready = size({ i | i <- c.nonterminalConstructors[sortId], c.store[i].at == l}) > 0;
-    if (!existsAlready) {
-	    nameWithSort = appendName(sortName,n);
-	    nameWithModule = appendName(moduleName,n);
-    
-  	    productionItemId = c.nextLoc;
-	    c.nextLoc = c.nextLoc + 1;
-	    
-		overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, comparable(c.store[i].rtype,rtype)}; //, !equivalent(c.store[i].rtype,rt)};
-        if (size(overlaps) > 0)
-            c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);
-
-	    productionItem = production(n, rtype, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
-	    c.store[productionItemId] = productionItem;
-	    c.definitions = c.definitions + < productionItemId, l >;
-	    c.nonterminalConstructors = c.nonterminalConstructors + < sortId, productionItemId >;
-	    
-	    addProductionItem(n, productionItemId);
-	    addProductionItem(nameWithSort, productionItemId);
-	    addProductionItem(nameWithModule, productionItemId);
-	}    
-    
-    // Add non-terminal fields
-    alreadySeen = {};
-    for(\label(str fn, Symbol ft) <- prod.symbols) {
-    	if(fn notin alreadySeen) {
-    		if(c.nonterminalFields[<sortId,fn>]?) {
-    			t = c.nonterminalFields[<sortId,fn>];
-    			// TODO: respective functions, e.g., equivalent etc., need to be defined on non-terminal and regular symbols
-    			if(!equivalent( (Symbol::\conditional(_,_) := ft) ? ft.symbol : ft, 
-    							(Symbol::\conditional(_,_) := t)  ? t.symbol  : t  )) {
-    				c = addScopeError(c,"Field <fn> already defined as type <prettyPrintType(c.nonterminalFields[<sortId,fn>])> on non-terminal type <prettyPrintName(sortName)>, cannot redefine to type <prettyPrintType(ft)>",l);
-    			}
-    		} else {
-    			c.nonterminalFields[<sortId,fn>] = ft;
-    		}
-    	} else {
-    		c = addScopeError(c,"Field name <fn> cannot be repeated in the same production", l);
-    	}
-    	alreadySeen += fn;
-    }
-    
-    return c;
-}
-
-public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Production prod, bool isStart) {
-	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-	mainModuleId = last([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-	moduleName = c.store[moduleId].name;
-
- 	fullSortName = appendName(moduleName, rn);
-    if (fullSortName notin c.typeEnv) {
-    	c = addScopeError(c, "Could not add syntax definition, associated nonterminal is not in scope", l);
-    	return c;
-    }
-    sortId = c.typeEnv[fullSortName];
-
-    if(isStart) {
-    	c.starts = c.starts + sortId;
-    	c = addNonterminal(c,RSimpleName("start[<getNonTerminalName(prod.def)>]"), l, prod.def);
-    	return c;
-    }
-    
-    if(c.grammar[sortId]?) {
-    	c.grammar[sortId] = choice(c.store[sortId].rtype, { c.grammar[sortId], prod });
-    } else {
-    	c.grammar[sortId] = choice(c.store[sortId].rtype, { prod });
-    }
-    return c;
-}
-
-public Configuration addModule(Configuration c, RName n, loc l) {
-    c.modEnv[n] = c.nextLoc;
-    c.store[c.nextLoc] = \module(n,l);
-    c.definitions = c.definitions + < c.nextLoc, l >;
-    c.stack = c.nextLoc + c.stack;
-    c.nextLoc = c.nextLoc + 1;
-    return c;
-}
-
-public Configuration popModule(Configuration c) {
-    if (\module(_,_) !:= c.store[head(c.stack)]) throw "Error, can only be called when a module is the top item on the stack";
-    c.stack = tail(c.stack);
-    return c;
-}
-
-public Configuration addClosure(Configuration c, Symbol rt, KeywordParamMap keywordParams, loc l) {
-    c.store[c.nextLoc] = closure(rt,keywordParams, head(c.stack),l);
-    c.definitions = c.definitions + < c.nextLoc, l >;
-    c.stack = c.nextLoc + c.stack;
-    c.nextLoc = c.nextLoc + 1;
-    c.expectedReturnType = getFunctionReturnType(rt);
-    return c;
-}
-
-public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordParamMap keywordParams, set[Modifier] modifiers, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l) {
-    // TODO: Handle the visibility properly. The main point is that we should not have variants
-    // for the same function that are given different visibilities.
-    // TODO: Verify the scoping is working properly for the second and third cases. It should be the
-    // case that, if we cannot shadow, this means the name exists within the same function or
-    // module. We may want to be stricter, though, and say that functions can only be defined within
-    // a module or function scope, not (for instance) inside control flow.
-    // TODO: Check for overlaps. But, we need to figure out if this is even possible anymore, we naturally
-    // have overlaps because of the pattern-based dispatch.
-    // TODO: Along with the overlaps, see if we are bringing the same function in along multiple paths
-    // and, if so, don't add a new entry for it. For now, we just get back multiple entries, which
-    // is fine.
-    rt@isVarArgs = isVarArgs;
-    currentModuleId = head([i | i <- c.stack, \module(_,_) := c.store[i]]);
-
-	// Create the new function item and insert it into the store; also keep track of
-	// the item Id. This also handles other bookkeeping information, such as the
-	// information on definitions and visibilities.
-	functionItem = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
-	functionId = c.nextLoc;
-	c.nextLoc = c.nextLoc + 1;
-	c.store[functionId] = functionItem;
-    c.definitions = c.definitions + < functionId, l >;
-    c.visibilities[functionId] = visibility;
-    for(Modifier modifier <- modifiers) c.functionModifiers = c.functionModifiers + <functionId,modifier>;
-
-	// This actually links in the function item with a name in the proper manner. This is handled name by
-	// name so we can keep separate overload sets for different versions of a name (if we qualify the name,
-	// it should not refer to other names with different qualifiers).
-	void addFunctionItem(RName n, int functionId) {	
-	    if (n notin c.fcvEnv) {
-	    	// Case 1: The name does not appear at all, so insert it and link it to the function item.
-	        c.fcvEnv[n] = functionId;
-	    } else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-	    	// Case 2: The name is already overloaded, so link in the Id as one of the overloads.
-	        if(hasDefaultModifier(modifiers)) {
-	        	defaults += rt;
-	        } else {
-	        	itemTypes += rt;
-	        }
-	        c.store[c.fcvEnv[n]] = overload(items + functionId, overloaded(itemTypes,defaults));
-	    } else if (function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_,_) := c.store[c.fcvEnv[n]] || production(_,_,_,_) := c.store[c.fcvEnv[n]]) {
-	    	// Case 3: The name is not overloaded yet, but this will make it overloaded. So, create the
-	    	// overloading entry. We also then point the current name to this overload item, which will
-	    	// then point (using the overload set) to the item currently referenced by the name.
-	        itemTypes = {};
-	        defaults = {};
-	        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
-	        	defaults += c.store[c.fcvEnv[n]].rtype;
-	        } else if (isProductionType(c.store[c.fcvEnv[n]].rtype)) {
-	        	defaults += c.store[c.fcvEnv[n]].rtype;
-	        } else {
-	        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-	        		defaults += c.store[c.fcvEnv[n]].rtype;
-	        	} else {
-	        		itemTypes += c.store[c.fcvEnv[n]].rtype;
-	        	}
-	        }
-	        if(hasDefaultModifier(modifiers)) {
-	        	defaults += rt;
-	        } else {
-	        	itemTypes += rt;
-	        }
-	        c.store[c.nextLoc] = overload({ c.fcvEnv[n], functionId }, overloaded(itemTypes,defaults));
-			c.fcvEnv[n] = c.nextLoc;
-	        c.nextLoc = c.nextLoc + 1;
-	    } else if ((\module(_,_) := c.store[c.store[c.fcvEnv[n]].containedIn] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) {
-	    	// Case 4: This function has the same name as a variable defined in another module. We still add
-	    	// it, but we also issue a warning, since reuse of the name may be accidental.
-	        c = addScopeWarning(c, "Function declaration masks imported variable definition", l);
-	        c.fcvEnv[n] = functionId;
-	    } else {
-	    	// Case 5: This function has the same name as a variable defined in the same module. We don't allow
-	    	// functions to shadow variables in this case.
-	    	// TODO: Verify that we don't want a looser rule.
-	        c = addScopeError(c, "Cannot add function <prettyPrintName(n)>, a variable of the same name has already been defined in the current scope",l);
-	    }
-	}
-
-	// Now, link up the names. We always link up the unqualified name. If we are at the top of the module,
-	// we also link up a version of the name qualified with the module name.
-	addFunctionItem(n, functionId);
-    if (\module(_,_) := c.store[head(c.stack)]) {
-        // If this function is module-level, also make it referenceable through
-        // the qualified name module::function.
-        moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-        addFunctionItem(appendName(moduleName,n), functionId);
-    }
-	
-    return c;
-}
-
-public Configuration addTag(Configuration c, TagKind tk, RName n, set[Symbol] onTypes, Vis visibility, loc l) {
-    // TODO: We currently always treat datatype declarations as public, so we just
-    // ignore the visibility here. If we decide to allow private datatype declarations,
-    // revisit this.
-    if (rn in c.tagEnv) {
-        currentVal = c.store[c.tagEnv[n]];
-        if (tk != currentVal.tkind) throw "Cannot add tag with same name but different kind into environment!";
-        c.store[c.tagEnv[n]].onTypes = c.store[c.tagEnv[n]].onTypes + onTypes;
-        c.definitions[c.tagEnv[n]] = c.definitions + < c.tagEnv[n], l >; 
-    } else {
-        c.tagEnv[n] = c.nextLoc;
-        c.store[c.nextLoc] = \tag(n, tk, onTypes, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
-        c.definitions = c.definitions + < c.nextLoc, l >;
-        c.nextLoc = c.nextLoc + 1;
-    }
-    
-    return c;
-}
-
-public Configuration addScopeMessage(Configuration c, Message m) = c[messages = c.messages + m];
-
-public Configuration addScopeError(Configuration c, str s, loc l) = addScopeMessage(c,error(s,l));
-public Configuration addScopeWarning(Configuration c, str s, loc l) = addScopeMessage(c,warning(s,l));
-public Configuration addScopeInfo(Configuration c, str s, loc l) = addScopeMessage(c,info(s,l));
-
-@doc{Represents the result of checking an expression.}
-alias CheckResult = tuple[Configuration conf, Symbol res];
-
-@doc{Marks if a function is a var-args function.}
-public anno bool Symbol@isVarArgs;
-
-@doc{Marks the location(s) where a defined type (function, constructor, etc) is defined.}
-public anno set[loc] Symbol@definedAt;
-
-@doc{Strip the label off a symbol, if it has one at the top.}
-private Symbol stripLabel(Symbol::\label(str s, Symbol t)) = stripLabel(t);
-private default Symbol stripLabel(Symbol t) = t;
-
-public Configuration enterBlock(Configuration c, loc l) {
-    c.store[c.nextLoc] = blockScope(head(c.stack), l);
-    c.stack = c.nextLoc + c.stack;
-    c.nextLoc = c.nextLoc + 1;
-    return c;
-}
-
-public Configuration exitBlock(Configuration c, Configuration cOrig) {
-    c.stack = tail(c.stack);
-    return recoverEnvironments(c,cOrig);
-}
-
-public Configuration enterBooleanScope(Configuration c, loc l) {
-    c.store[c.nextLoc] = booleanScope(head(c.stack), l);
-    c.stack = c.nextLoc + c.stack;
-    c.nextLoc = c.nextLoc + 1;
-    return c;
-}
-
-public Configuration exitBooleanScope(Configuration c, Configuration cOrig) {
-    c.stack = tail(c.stack);
-    return recoverEnvironments(c,cOrig);
-}
+// 32. resolve deferred names in field accesses and updates
 
 public CheckResult checkStatementSequence(list[Statement] ss, Configuration c) {
 	// Introduce any functions in the statement list into the current scope, but
@@ -1369,7 +280,7 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Exp
     // "it", since we have no information on which to base a reasonable assumption. 
     Symbol erType = t1;
     if (!isFailType(t1)) {
-        cRed = addVariable(cRed, RSimpleName("it"), true, exp@\loc, erType);
+        cRed = addLocalVariable(cRed, RSimpleName("it"), true, exp@\loc, erType);
         < cRed, t3 > = checkExp(er, cRed);
         if (!isFailType(t3)) {
             if (!equivalent(erType,t3) && lub(erType,t3) == t3) {
@@ -2030,7 +941,20 @@ public CheckResult checkExp(Expression exp:(Expression)`<QualifiedName qn>`, Con
     n = convertName(qn);
     if (fcvExists(c, n)) {
         c.uses = c.uses + < c.fcvEnv[n], exp@\loc >;
-        c.usedIn[exp@\loc] = head(c.stack); 
+        c.usedIn[exp@\loc] = head(c.stack);
+		startingType = c.store[c.fcvEnv[n]].rtype;
+		
+        if (isFailType(c.store[c.fcvEnv[n]].rtype)) {
+        	return markLocationFailed(c, exp@\loc, c.store[c.fcvEnv[n]].rtype);
+        }
+
+        if (hasDeferredTypes(c.store[c.fcvEnv[n]].rtype)) {
+        	c = resolveDeferredTypes(c, c.fcvEnv[n]);
+	        if (isFailType(c.store[c.fcvEnv[n]].rtype)) {
+	        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in <prettyPrintType(startingType)>", exp@\loc));
+	        }
+        }
+        
         return markLocationType(c, exp@\loc, c.store[c.fcvEnv[n]].rtype);
     } else {
         return markLocationFailed(c, exp@\loc, makeFailType("Name <prettyPrintName(n)> is not in scope", exp@\loc));
@@ -2445,6 +1369,14 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ @ <Name
     if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
     if (isNodeType(t1) || isADTType(t1)) {
         aname = convertName(n);
+        
+        if (aname in c.annotationEnv, true in { hasDeferredTypes(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
+        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
+	        if (true in { isFailType(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
+	        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", exp@\loc));
+	        }
+        }
+        
         if (aname in c.annotationEnv, true in { subtype(t1,ot) | ot <- c.store[c.annotationEnv[aname]].onTypes }) {
             aType = c.store[c.annotationEnv[aname]].rtype;
             if (isFailType(aType)) {
@@ -2470,6 +1402,14 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> @ <Name n
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
     if (isNodeType(t1) || isADTType(t1)) {
         aname = convertName(n);
+
+        if (aname in c.annotationEnv, true in { hasDeferredTypes(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
+        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
+	        if (true in { isFailType(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
+	        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", exp@\loc));
+	        }
+        }
+
         if (aname in c.annotationEnv, true in { subtype(t1,ot) | ot <- c.store[c.annotationEnv[aname]].onTypes }) {
             aType = c.store[c.annotationEnv[aname]].rtype;
             if (isFailType(aType))
@@ -3595,7 +2535,7 @@ public CheckResult checkLiteral(Literal l:(Literal)`<RegExpLiteral rl>`, Configu
                 }
             } else {
                 // If this is a definition, add it into scope.
-                c = addVariable(c, rn, false, n@\loc, \str());
+                c = addLocalVariable(c, rn, false, n@\loc, \str());
                 
                 // Then process names used in the def part.
                 for (cn <- defUses[n]) {
@@ -3683,7 +2623,7 @@ public tuple[Configuration,RName,Symbol] checkKeywordFormal(KeywordFormal kf: (K
     < c, rt > = convertAndExpandType(t,c);
 	currentNextLoc = c.nextLoc;
 	rn = convertName(n);
-	c = addVariable(c, rn, false, n@\loc, rt);
+	c = addLocalVariable(c, rn, false, n@\loc, rt);
 	
 	if (!subtype(et, rt))
 		rt = makeFailType("The default is not compatible with the parameter type", kf@\loc);  
@@ -3910,7 +2850,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                	// TODO: Do we want to issue a warning here if the same name is used multiple times? Probably, although a pass
 	                	// over the pattern tree may be a better way to do this (this would only catch cases at the same level of
 	                	// a set pattern or, below, a list pattern)
-	                    c = addVariable(c, n, false, ptns[idx]@at, \set(rt));
+	                    c = addLocalVariable(c, n, false, ptns[idx]@at, \set(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt];
 	                } 
             	} else {
@@ -3922,7 +2862,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                } else if (!fcvExists(c, n)) {
 	                    rt = \inferred(c.uniqueify);
 	                    c.uniqueify = c.uniqueify + 1;
-	                    c = addVariable(c, n, true, ptns[idx]@at, \set(rt));
+	                    c = addLocalVariable(c, n, true, ptns[idx]@at, \set(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt];
 	                } else {
 	                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
@@ -3951,7 +2891,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                         c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
 	                } else {
-	                    c = addVariable(c, n, false, ptns[idx]@at, \list(rt));
+	                    c = addLocalVariable(c, n, false, ptns[idx]@at, \list(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt];
 	                } 
             	} else {
@@ -3963,7 +2903,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                } else if (!fcvExists(c, n)) {
 	                    rt = \inferred(c.uniqueify);
 	                    c.uniqueify = c.uniqueify + 1;
-	                    c = addVariable(c, n, true, ptns[idx]@at, \list(rt));
+	                    c = addLocalVariable(c, n, true, ptns[idx]@at, \list(rt));
 	                    ptns[idx] = ptns[idx][@rtype = rt];
 	                } else {
 	                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
@@ -3990,7 +2930,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             } else if (!fcvExists(c, n)) {
                 rt = \inferred(c.uniqueify);
                 c.uniqueify = c.uniqueify + 1;
-                c = addVariable(c, n, true, ptn@at, rt);
+                c = addLocalVariable(c, n, true, ptn@at, rt);
                 insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
             } else {
                 c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
@@ -4011,7 +2951,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         case ptn:literalNode(list[LiteralNodeInfo] names) : {
             for ( literalNodeInfo(d, l) <- names ) {
                 if (def(n) := d) {
-                    c = addVariable(c, n, false, l, \str());
+                    c = addLocalVariable(c, n, false, l, \str());
                 } else if (use(n) := d) {
                     if (!fcvExists(c, n)) {
                         failures += makeFailType("Name <prettyPrintName(n)> not yet defined", ptn@at);
@@ -4029,7 +2969,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 c = addUnnamedVariable(c, l, rt);
                 insert(ptn[@rtype = rt][@defs = { c.nextLoc - 1 }]);
             } else {
-                c = addVariable(c, n, false, l, rt);
+                c = addLocalVariable(c, n, false, l, rt);
                 insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
             }
         }
@@ -4043,7 +2983,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             } else if (!fcvExists(c, n)) {
                 rt = \inferred(c.uniqueify);
                 c.uniqueify = c.uniqueify + 1;
-                c = addVariable(c, n, true, l, rt);
+                c = addLocalVariable(c, n, true, l, rt);
                 insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
             }  else {
                 c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
@@ -4083,7 +3023,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 c = addUnnamedVariable(c, l, rt);
                 insert(ptn[@rtype = rt][@defs = { c.nextLoc - 1 }]);
             } else {
-                c = addVariable(c, n, false, l, rt);
+                c = addLocalVariable(c, n, false, l, rt);
                 insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
             }
         }
@@ -5391,7 +4331,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<LocalVariableDeclaratio
                     }
                                         
                     RName rn = convertName(n);
-                    c = addVariable(c, rn, false, n@\loc, rt);
+                    c = addLocalVariable(c, rn, false, n@\loc, rt);
                 } 
             }
         }
@@ -5489,6 +4429,14 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName 
         if (variable(_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
             c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
             c.usedIn[assn@\loc] = head(c.stack);
+
+	        if (hasDeferredTypes(c.store[c.fcvEnv[n]].rtype)) {
+	        	c = resolveDeferredTypes(c, c.fcvEnv[n]);
+		        if (isFailType(c.store[c.fcvEnv[n]].rtype)) {
+		        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in <prettyPrintType(startingType)>", exp@\loc));
+		        }
+	        }
+
             rt = c.store[c.fcvEnv[n]].rtype;
             c = addNameWarning(c,n,assn@\loc);
             return < c, variableNode(n)[@atype=rt][@at=assn@\loc] >;
@@ -5500,7 +4448,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName 
     } else {
         rt = \inferred(c.uniqueify);
         c.uniqueify = c.uniqueify + 1;  
-        c = addVariable(c, n, true, qn@\loc, rt);
+        c = addLocalVariable(c, n, true, qn@\loc, rt);
         return < c, variableNode(n)[@atype=rt][@at=assn@\loc] >;
     }
 }
@@ -5698,6 +4646,13 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
         // the current type is a subtype of one of these.
         // TODO: Make sure all annotations of the same name are given equivalent types. This
         // requirement is implicit in the code below, but I'm not sure it's being checked.
+        if (aname in c.annotationEnv, true in { hasDeferredTypes(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
+        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
+	        if (true in { isFailType(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
+	        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", exp@\loc));
+	        }
+        }
+
         if (aname in c.annotationEnv, true in { subtype(atree@atype,ot) | ot <- c.store[c.annotationEnv[aname]].onTypes }) {
             aType = c.store[c.annotationEnv[aname]].rtype;
             return < c, annotationNode(atree,aname)[@atype=aType][@at=assn@\loc] >;
@@ -6132,6 +5087,10 @@ public ATResult bindAssignable(AssignableTree atree:annotationNode(AssignableTre
 
 @doc{Check the type of the components of a declaration: Variable}
 public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> <Type t> <{Variable ","}+ vars>;`, bool descend, Configuration c) {
+	// This ignores descend. We assume this happens after all the types are introduced into the environment,
+	// and the order of variable definitions matters -- all the variables are visible inside every function,
+	// but a later variable cannot be used in the definition of an earlier variable. So, we have no need to
+	// introduce the variable names into the environment in stages like we do with the types.
     < c, rt > = convertAndExpandType(t,c);
 
     for (v <- vars, v@\loc notin c.definitions<1>, v@\loc notin {l | error(_,l) <- c.messages}) {
@@ -6146,7 +5105,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
             }
                                 
             RName rn = convertName(n);
-            c = addVariable(c, rn, false, getVis(vis), v@\loc, rt);
+            c = addTopLevelVariable(c, rn, false, getVis(vis), v@\loc, rt);
         } 
     }
     
@@ -6635,9 +5594,6 @@ set[Modifier] getModifiers(FunctionModifiers fmods:(FunctionModifiers)`<Function
     return { getModifier(m) | m <- fms };
 }
 
-@doc{Check if a set of function modifiers has the default modifier}
-public bool hasDefaultModifier(set[Modifier] modifiers) = defaultModifier() in modifiers;
-
 @doc{Extract the function name from the signature.}
 public RName getFunctionName(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ exs>`) = convertName(n);
 public RName getFunctionName(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps>`) = convertName(n);
@@ -6711,7 +5667,7 @@ public Configuration importFunction(RName functionName, Signature sig, loc at, V
 @doc{Import a signature item: Variable}
 public Configuration importVariable(RName variableName, Type variableType, loc at, Vis vis, Configuration c) {
     < c, rt > = convertAndExpandType(variableType,c);
-    return addVariable(c, variableName, false, vis, at, rt);                        
+    return addTopLevelVariable(c, variableName, false, vis, at, rt);                        
 }
 
 @doc{Import a signature item: ADT}
@@ -6761,7 +5717,7 @@ public Configuration importProduction(RSignatureItem item, Configuration c) {
 	}
 	// Productions that end up in the store
 	for(/Production p:prod(_,_,_) := prod) {
-		if(label(str l, Symbol _) := prod.def) {
+		if(label(str l, Symbol _) := p.def) {
     		c = addProduction(c, RSimpleName(l), item.at, p);
     	} else {
     		c = addProduction(c, RSimpleName(""), item.at, p);
@@ -6802,216 +5758,482 @@ public Configuration importTag(RName tagName, TagKind tagKind, list[Symbol] tagg
     return c;
 }
 
+@doc{Get the names declared using this declaration.}
+public set[RName] getDeclarationNames(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> <Type t> <{Variable ","}+ vars>;`) {
+	set[RName] res = { };
+	for (v <- vars, (Variable)`<Name n> = <Expression init>` := v || (Variable)`<Name n>` := v) {
+		res = res + convertName(n);
+	}
+	return res;
+}
+
+@doc{Get the names declared using this declaration.}
+public set[RName] getDeclarationNames(Declaration decl:(Declaration)`<FunctionDeclaration fd>`) {
+	RName getNameFromSignature(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ exs>`) = convertName(n);
+	RName getNameFromSignature(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps>`) = convertName(n);
+	
+	switch(fd) {
+		case (FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig>;` : {
+			return { getNameFromSignature(sig); }
+		}
+
+		case (FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;` : {
+			return { getNameFromSignature(sig); }
+		}
+
+		case (FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> = <Expression exp> when <{Expression ","}+ conds>;` : {
+			return { getNameFromSignature(sig); }
+		}
+
+		case (FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> <FunctionBody body>` : {
+			return { getNameFromSignature(sig); }
+		}
+	}
+}
+
+public set[RName] getDeclarationNames(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> data <UserType ut> <CommonKeywordParameters commonParams> = <{Variant "|"}+ vs>;`) {
+	set[RName] res = { };
+	for (Variant vr:(Variant)`<Name vn> ( < {TypeArg ","}* vargs > <KeywordFormals keywordArgs>)` <- vs) {
+		res = res + convertName(vn);
+	}
+	return res;
+	
+}
+
+public default set[RName] getDeclarationNames(Declaration d) = { };
+
+public Configuration processModuleImportAndReset(Configuration c, RSignature sig, RName modName, int moduleId, bool extendingImport) {
+	cOrig = c;
+
+	c = processModuleImport(c, sig, modName, moduleId, extendingImport);
+	
+	c.labelEnv = cOrig.labelEnv; 
+	c.fcvEnv = cOrig.fcvEnv; 
+	c.typeEnv = cOrig.typeEnv; 
+	c.annotationEnv = cOrig.annotationEnv; 
+	c.tagEnv = cOrig.tagEnv;
+	
+	return c;
+}
+
+public Configuration processModuleImport(Configuration c, RSignature sig, RName modName, int moduleId, bool extendingImport) {
+	c.stack = moduleId + c.stack;
+	c.importing = true;
+	
+	// We first import type information without descending into the declarations, to
+	// ensure it is globally visible (since one type could be used inside another)
+	for (item <- sig.datatypes) 
+		c = importADT(item.adtName, item.adtType, item.at, publicVis(), false, c);
+	for (item <- sig.aliases) 
+		c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), false, c);
+	for (item <- sig.tags) 
+		c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), false, c);
+	for (item <- sig.lexicalNonterminals + sig.contextfreeNonterminals + sig.layoutNonterminals + sig.keywordNonterminals)
+		c = importNonterminal(item.sortName, item.sort, item.at, c);
+
+	// Now we start descending into the various declarations, using the type information
+	// we already added into the environments.
+	for (item <- sig.datatypes)
+		c = importADT(item.adtName, item.adtType, item.at, publicVis(), true, c);
+
+	// TODO: Do we still need to do this? This is done in case we have aliases defined in
+	// terms of other aliases, defined in terms of other aliases, etc, but I think this is
+	// now handled in the logic in importAlias for working with the aliased type.
+	bool modified = true;
+	definitions = invert(c.definitions);
+	while(modified) {
+		modified = false;
+		for(item <- sig.aliases) {
+			int aliasId = getOneFrom(definitions[item.at]);
+			Symbol t = c.store[aliasId].rtype;
+			c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), true, c);
+			if(t != c.store[aliasId].rtype) {
+				modified = true;
+			}
+		}
+	}
+
+	for (item <- sig.tags)
+		c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), true, c);
+
+	for (item <- sig.publicConstructors) 
+		c = importConstructor(item.conName, item.adtType, item.argTypes, item.commonParams, item.keywordParams, item.adtAt, item.at, publicVis(), c);
+
+	for (item <- sig.publicProductions) {
+		<p,c> = resolveProduction(item.prod, item.at, c, true);
+		item.prod = p;
+		c = importProduction(item, c);
+	}
+
+	for (item <- sig.publicVariables)
+		c = importVariable(item.variableName, item.variableType, item.at, publicVis(), c);
+	for (item <- sig.publicFunctions)
+		c = importFunction(item.functionName, item.sig, item.at, publicVis(), c);
+	for (item <- sig.annotations)
+		c = importAnnotation(item.annName, item.annType, item.onType, item.at, publicVis(), c);
+
+	// If we extend a module we also can bring in private variables and functions. If not don't
+	// bother, since they aren't visible anyway.
+	if (extendingImport) {
+		for (item <- sig.privateVariables)
+			c = importVariable(item.variableName, item.variableType, item.at, privateVis(), c);
+		for (item <- sig.privateFunctions)
+			c = importFunction(item.functionName, item.sig, item.at, privateVis(), c);
+	}
+
+	c.stack = tail(c.stack);
+	c.importing = false;
+	
+	// Save the info for the module and then reset the various environments back to how they
+	// started. We will use this info later in a merge process to determine what is actually
+	// visible in the current module.
+	minfo = modInfo(modName, c.labelEnv, c.fcvEnv, c.typeEnv, c.annotationEnv, c.tagEnv);
+	c.moduleInfo[modName] = minfo;
+
+	return c;
+}
+
+public Configuration loadExtendedModules(Configuration c, set[RName] extendedModules) {
+	// Skipping tags and labels for now; we don't use the former, the latter shouldn't
+	// matter from one module to the next
+	for (mn <- extendedModules) {
+		for (tn <- c.moduleInfo[mn].typeEnv) {
+			tid = c.moduleInfo[mn].typeEnv[tn];
+			if (c.store[tid] is datatype) {
+				c = addImportedADT(c, tn, tid, addFullName = true);
+			} else if (c.store[tid] is sorttype) {
+				c = addImportedNonterminal(c, tn, tid, addFullName = true);
+			} else if (c.store[tid] is \alias) {
+				c = addImportedAlias(c, tn, tid, addFullName = true);
+			} else {
+				println("WARNING: Trying to load <getName(c.store[tid])> as a type");
+				; // TODO: this is an error, add something here
+			}
+		}
+
+		for (fn <- c.moduleInfo[mn].fcvEnv) {
+			ids = (c.store[c.moduleInfo[mn].fcvEnv[fn]] is overload) ? c.store[c.moduleInfo[mn].fcvEnv[fn]].items : { c.moduleInfo[mn].fcvEnv[fn] };
+			for (fid <- ids) {
+				if (c.store[fid] is constructor) {
+					c = addImportedConstructor(c, fn, fid, addFullName = true);
+				} else if (c.store[fid] is production) {
+					c = addImportedProduction(c, fn, fid, addFullName = true);
+				} else if (c.store[fid] is function) {
+					c = addImportedFunction(c, fn, fid, addFullName = true);
+				} else if (c.store[fid] is variable) {
+					c = addImportedVariable(c, fn, fid, addFullName = true);
+				} else {
+					println("WARNING: Trying to load <getName(c.store[fid])> as a name");
+					; // TODO: this is an error, add something here
+				}
+			}
+		}
+		
+		for (an <- c.moduleInfo[mn].annotationEnv) {
+			aid = c.moduleInfo[mn].annotationEnv[an];
+			c = addImportedAnnotation(c, an, aid);
+		}
+	}
+	return c;
+}
+
+public Configuration loadImportedTypesAndTags(Configuration c, set[RName] importedModules) {
+	// TODO: Add info messages about names that were not imported into scope?
+
+	// Build relations with info on all types, sorts, and aliases; ignore tags for now since we
+	// don't use them anyway, but TODO: if we start using tags, add support here... 
+	name2id = { < tn, c.moduleInfo[mn].typeEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].typeEnv };
+	
+	justTypes = { < tn, ti > | < tn, ti > <- name2id, c.store[ti] is datatype };
+	typeNames = justTypes<0>;
+	
+	justSorts = { < tn, ti > | < tn, ti > <- name2id, c.store[ti] is sorttype };
+	sortNames = justSorts<0>;
+	
+	justAliases = { < tn, ti > | < tn, ti > <- name2id, c.store[ti] is \alias };
+	aliasNames = justAliases<0>;
+	
+	// We can import data declarations for name `tn` when `tn` is not yet in the type environment, 
+	// and, in all imports, `tn` is always a data type name
+	for (tn <- typeNames, (tn notin c.typeEnv && tn notin sortNames && tn notin aliasNames), ti <- justTypes[tn]) {
+		c = addImportedADT(c, tn, ti);
+	}
+	
+	// This follows the same rules as for data declarations, but for sort declarations
+	for (tn <- sortNames, (tn notin c.typeEnv && tn notin typeNames && tn notin aliasNames), ti <- justSorts[tn]) {
+		c = addImportedNonterminal(c, tn, ti);
+	}
+	
+	// Here, we are stricter -- we only import when only one item exists and `an` is not already
+	// in the type environment
+	for (an <- aliasNames, an notin typeNames, an notin sortNames, an notin c.typeEnv) {
+		aliasIds = justAliases[an];
+		if (size(aliasIds) == 1) {
+			c = addImportedAlias(c, an, getOneFrom(aliasIds));
+		} 
+	}
+	
+	return c;
+}
+
+public Configuration loadImportedAnnotations(Configuration c, set[RName] importedModules) {
+	// TODO: Add info messages about names that were not imported into scope?
+
+	// Build relation with info on all annotations 
+	name2id = { < an, c.moduleInfo[mn].annotationEnv[an] > | mn <- importedModules, an <- c.moduleInfo[mn].annotationEnv };
+
+	// We try to bring in all annotations, since they should all come in; this may
+	// generate error messages if annotations conflict, but we should report those
+	// (this is different than other names, since here we don't have qualified names,
+	// the expectation is that all imported annotations should come in unless there is
+	// some sort of error)
+	for (an <- name2id<0>, aid <- name2id[an]) {
+		c = addImportedAnnotation(c, an, aid);
+	}
+	
+	return c;
+}
+
+public Configuration loadImportedNames(Configuration c, set[RName] importedModules) {
+	// TODO: Add info messages about names that were not imported into scope?
+
+	// Build relations with info on all functions, constructors, productions, and vars 
+	name2id = { < tn, c.moduleInfo[mn].fcvEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].fcvEnv };
+	overloadIds = { < tn, oid > | < tn, tid > <- name2id, c.store[tid] is overload, oid <- c.store[tid].items };
+	
+	justVars = { < tn, ti > | < tn, ti > <- name2id, c.store[ti] is variable };
+	varNames = justVars<0>;
+	
+	justFunctions = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is function };
+	functionNames = justFunctions<0>;
+	
+	justConstructors = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is constructor };
+	constructorNames = justConstructors<0>;
+	
+	justProductions = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is production };
+	productionNames = justProductions<0>;
+	
+	// We can add a production into the environment if either a) the name isn't added yet and it doesn't
+	// conflict with the name of a constructor we could add, or b) the name is added, but isn't used for
+	// constructors, and (like with the prior option) no constructors of the same name can be added
+	for (tn <- productionNames) {
+		if (tn notin c.fcvEnv && tn notin constructorNames) {
+			for (ti <- justProductions[tn]) {
+				c = addImportedProduction(c, tn, ti);
+			}
+		} else if (tn in c.fcvEnv && !(c.store[c.fcvEnv[tn]] is variable)) {
+			tnIds = (c.store[c.fcvEnv[tn]] is overload) ? c.store[c.fcvEnv[tn]].items : { c.fcvEnv[tn] };
+			containsCons = size({ ti | ti <- tnIds, c.store[ti] is constructor}) > 0;
+			if (!containsCons && tn notin constructorNames) {
+				for (ti <- justProductions[tn]) {
+					c = addImportedProduction(c, tn, ti);
+				}
+			}
+		}
+	}
+
+	// We can add a constructor into the environment if either a) the name isn't added yet and it doesn't
+	// conflict with the name of a production we could add, or b) the name is added, but isn't used for
+	// productions, and (like with the prior option) no productions of the same name can be added
+	for (tn <- constructorNames) {
+		if (tn notin c.fcvEnv && tn notin productionNames) {
+			for (ti <- justConstructors[tn]) {
+				c = addImportedConstructor(c, tn, ti);
+			}
+		} else if (tn in c.fcvEnv && !(c.store[c.fcvEnv[tn]] is variable)) {
+			tnIds = (c.store[c.fcvEnv[tn]] is overload) ? c.store[c.fcvEnv[tn]].items : { c.fcvEnv[tn] };
+			containsProds = size({ ti | ti <- tnIds, c.store[ti] is production}) > 0;
+			if (!containsProds && tn notin productionNames) {
+				for (ti <- justConstructors[tn]) {
+					c = addImportedConstructor(c, tn, ti);
+				}
+			}
+		}
+	}
+	
+	// We can always add functions -- it's fine if they overlap with constructors or productions. The one
+	// exception is that we cannot add a function if it would clash with a module-level variable that is
+	// already in scope.
+	for (tn <- functionNames, (tn notin c.fcvEnv || (! (c.store[c.fcvEnv[tn]] is variable))), tid <- justFunctions[tn]) {
+		c = addImportedFunction(c, tn, tid); 
+	}
+	
+	// Add variables. We can only do so if they are not already in the environment and if there is only
+	// one var with this name.
+	for (tn <- varNames, tn notin c.fcvEnv, size(justVars[tn]) == 1, tid <- justVars[tn]) {
+		c = addImportedVariable(c, tn, tid);
+	}	
+	
+	return c;
+}
+
 @doc{Check a given module, including loading the imports and extends items for the module.}
 public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`, Configuration c) {
-    moduleName = getHeaderName(header);
-    importList = getHeaderImports(header);
-    map[RName,RSignature] sigMap = ( );
-    map[RName,bool] isExtends = ( );
-    map[RName,int] moduleIds = ( );
-    map[RName,loc] moduleLocs = ( );
-    lrel[RName,bool] defaultImports = [ < RSimpleName("Exception"), false > ];
-    list[RName] importOrder = [ ];
-    
-    c = addModule(c, moduleName, md@\loc);
-    currentModuleId = head(c.stack);
+	moduleName = getHeaderName(header);
+	importList = getHeaderImports(header);
+
+	map[RName,RSignature] sigMap = ( );
+	map[RName,int] moduleIds = ( );
+	map[RName,loc] moduleLocs = ( );
+
+	c = addModule(c, moduleName, md@\loc);
+	currentModuleId = head(c.stack);
+
+	// A relation from imported module names to bool, with true meaning this is an extending import
+	rel[RName mname, bool isext] modulesToImport = 
+		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule im>;` := importItem > | 
+		importItem <- importList, 
+		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
+	rel[RName mname, bool isext] defaultModules = { < RSimpleName("Exception"), false > };
+	
+	// Now, for each module being imported, create a module in the configuration
+	// and generate a signature. This also brings in extra imports via the extends
+	// mechanism (if we extend module A, we also import everything A imports).
+	worklist = modulesToImport + defaultModules;
+	while (! isEmpty(worklist)) {
+		wlitem = getOneFrom(worklist);
+		modName = wlitem.mname;
+		worklist = worklist - wlitem;
+		
+		try {
+			dt1 = now();
+			modTree = getModuleParseTree(prettyPrintName(modName));
+			sigMap[modName] = getModuleSignature(modTree);
+			moduleLocs[modName] = modTree@\loc;
+			c = addModule(c,modName,modTree@\loc);
+			moduleIds[modName] = head(c.stack);
+			c = popModule(c);
+			
+			// If we extend a module, add all the imports for this module into
+			// our local list of imports. 
+			if (wlitem.isext) {
+				for (exti <- sigMap[modName].imports, true notin modulesToImport[exti]) {
+					modulesToImport = modulesToImport + < exti, false >;
+					worklist = worklist + < exti, false >;
+				}
+			}
+			c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
+		} catch perror : {
+			c = addScopeError(c, "Cannot calculate signature for imported module <prettyPrintName(modName)>", md@\loc);
+		}
+	}
+
+	// Now that we have a signature for each module, actually perform the import for each, creating
+	// a configuration for each with just the items from that module signature.
+	dt1 = now();
+	for (< modName, isExt > <- defaultModules) {
+		// This loads a default module. In this case, the defaults should stay in the
+		// configuration, since each module can "see" these definitions.
+		c = processModuleImport(c, sigMap[modName], modName, moduleIds[modName], isExt);
+	}
+	for (< modName, isExt > <- modulesToImport) {
+		// This loads a non-default module. We start each time with the environment we
+		// had after all the defaults loaded.
+		c = processModuleImportAndReset(c, sigMap[modName], modName, moduleIds[modName], isExt);
+	}
+	c = pushTiming(c, "Imported module signatures", dt1, now());
             
-    // Get the information about each import, including the module signature
-    for (importItem <- importList) {
-        if ((Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem) {
-            try {
-                dt1 = now();
-                modName = getNameOfImportedModule(im);
-                modTree = getModuleParseTree(prettyPrintName(modName));
-                sigMap[modName] = getModuleSignature(modTree);
-                moduleLocs[modName] = modTree@\loc;
-                importOrder = importOrder + modName;
-                c = addModule(c,modName,modTree@\loc);
-                moduleIds[modName] = head(c.stack);
-                c = popModule(c);
-                isExtends[modName] = (Import)`extend <ImportedModule im>;` := importItem;
-                c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
-            } catch perror : {
-                c = addScopeError(c, "Cannot calculate signature for imported module", importItem@\loc);
-            }
-        } 
-    }
-    
-    for (< modName, defaultExtends > <- defaultImports, modName notin moduleIds, modName != moduleName) {
-        try {
-            dt1 = now();
-            modTree = getModuleParseTree(prettyPrintName(modName));
-            sigMap[modName] = getModuleSignature(modTree);
-            moduleLocs[modName] = modTree@\loc;
-            importOrder = importOrder + modName;
-            c = addModule(c,modName,modTree@\loc);
-            moduleIds[modName] = head(c.stack);
-            c = popModule(c);
-            isExtends[modName] = defaultExtends;
-            c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
-        } catch perror : {
-            c = addScopeError(c, "Cannot calculate signature for default module <prettyPrintName(modName)>", md@\loc);
-        }
-    }
+	// Process the current module. We start by merging in everything from the modules we are
+	// extending to give an initial "seed" for our environment. We will just use the standard
+	// add functions for this.
+	c = loadExtendedModules(c, { mn | < mn, true > <- modulesToImport });
 
-    
-    
-    // Add all the aliases and ADTs from each module without descending. Do tags here to, although
-    // (when they are really used) we need to add them in a reasonable order. Right now we just
-    // ignore them. So, TODO: Handle tags appropriately.
-    dt1 = now();
-    for (modName <- importOrder) {
-        sig = sigMap[modName];
-        c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
-        
-        for (item <- sig.datatypes) 
-          c = importADT(item.adtName, item.adtType, item.at, publicVis(), false, c);
-        for (item <- sig.aliases) 
-          c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), false, c);
-        for (item <- sig.tags) 
-          c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), false, c);
-        for (item <- sig.lexicalNonterminals + sig.contextfreeNonterminals + sig.layoutNonterminals + sig.keywordNonterminals)
-          c = importNonterminal(item.sortName, item.sort, item.at, c);
-          
-        c.stack = tail(c.stack);
-    }
+	// Now process all the syntax in the current module. We first "extract" information about all
+	// the syntax (using the existing functionality for extracting module signatures), then add
+	// this into the configuration and check it.	
+	syntaxConfig = processSyntax(moduleName, importList);
+	for (item <- syntaxConfig.lexicalNonterminals + syntaxConfig.contextfreeNonterminals + syntaxConfig.layoutNonterminals + syntaxConfig.keywordNonterminals)
+		c = importNonterminal(item.sortName, item.sort, item.at, c);
+	for (prodItem <- syntaxConfig.publicProductions) {
+		// First, resolve names in the productions
+		<p,c> = resolveProduction(prodItem.prod, prodItem.at, c, false);
+		prodItem.prod = p;
+		c = importProduction(prodItem, c);
+	}
+	c = checkSyntax(importList, c);  
 
-    // Now, descend into each alias and ADT, ensuring all parameters are correctly added and the
-    // aliased type is handled correctly. As above, we do tags here as well.
-    for (modName <- importOrder) {
-        sig = sigMap[modName];
-        c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
-        for (item <- sig.datatypes) c = importADT(item.adtName, item.adtType, item.at, publicVis(), true, c);
-        bool modified = true;
-        definitions = invert(c.definitions);
-        while(modified) {
-            modified = false;
-            for(item <- sig.aliases) {
-                int aliasId = getOneFrom(definitions[item.at]);
-                Symbol t = c.store[aliasId].rtype;
-                c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), true, c);
-                if(t != c.store[aliasId].rtype) {
-                    modified = true;
-                }
-            }
-        }
-        for (item <- sig.tags) c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), true, c);
-        c.stack = tail(c.stack);
-    }
+	// Now process the non-syntax module contents. This also loads imported information at
+	// various points, once we know what definitions in this module would shadow imported
+	// definitions.
+	if ((Body)`<Toplevel* tls>` := body) {
+		dt1 = now();
+		list[Declaration] typesAndTags = [ ];
+		list[Declaration] aliases = [ ];
+		list[Declaration] annotations = [ ];
+		list[Declaration] names = [ ];
 
-    // Add constructors next, ensuring they are visible for the imported functions.
-    // NOTE: This is one area where we could have problems. Once the checker is working
-    // correctly, TODO: calculate the types in the signature, so we don't risk clashes
-    // over constructor names (or inadvertent visibility of constructor names) that would
-    // not have been an issue before, when we did not have parameters with patterns.
-    for (modName <- importOrder) {
-        sig = sigMap[modName];
-        c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
-        for (item <- sig.publicConstructors) 
-          c = importConstructor(item.conName, item.adtType, item.argTypes, item.commonParams, item.keywordParams, item.adtAt, item.at, publicVis(), c);
-        for (item <- sig.publicProductions) {
-          // Firts, resolve names in the productions
-          <p,c> = resolveProduction(item.prod, item.at, c, true);
-          item.prod = p;
-          c = importProduction(item, c);
-        }
-        c.stack = tail(c.stack);
-    }
-    
-    // Now, bring in all public names, including annotations, public vars, and public functions.
-    for (modName <- importOrder) {
-        sig = sigMap[modName];
-        c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
-        for (item <- sig.publicVariables) c = importVariable(item.variableName, item.variableType, item.at, publicVis(), c);
-        for (item <- sig.publicFunctions) c = importFunction(item.functionName, item.sig, item.at, publicVis(), c);
-        for (item <- sig.annotations) c = importAnnotation(item.annName, item.annType, item.onType, item.at, publicVis(), c);
-        c.stack = tail(c.stack);
-    }
-    
-    // Now, bring in the private names, but only for modules that are imported using extends
-    for (modName <- importOrder, isExtends[modName]) {
-        sig = sigMap[modName];
-        c.stack = currentModuleId + c.stack;
-        for (item <- sig.privateVariables) c = importVariable(item.variableName, item.variableType, item.at, privateVis(), c);
-        for (item <- sig.privateFunctions) c = importFunction(item.functionName, item.sig, item.at, privateVis(), c);
-        c.stack = tail(c.stack);
-    }
-    c = pushTiming(c, "Imported module signatures", dt1, now());
-            
-    // Process the current module
-    syntaxConfig = processSyntax(moduleName, importList);
-    for (item <- syntaxConfig.lexicalNonterminals + syntaxConfig.contextfreeNonterminals + syntaxConfig.layoutNonterminals + syntaxConfig.keywordNonterminals)
-      c = importNonterminal(item.sortName, item.sort, item.at, c);
-    for (prodItem <- syntaxConfig.publicProductions) {
-      // First, resolve names in the productions
-      <p,c> = resolveProduction(prodItem.prod, prodItem.at, c, false);
-      prodItem.prod = p;
-      c = importProduction(prodItem, c);
-    }
-    
-    c = checkSyntax(importList, c);  
-  
-    if ((Body)`<Toplevel* tls>` := body) {
-        dt1 = now();
-        list[Declaration] typesAndTags = [ ];
-        list[Declaration] aliases = [ ];
-        list[Declaration] annotations = [ ];
-        list[Declaration] names = [ ];
-        
-        c.stack = currentModuleId + c.stack;
-        
-        for ((Toplevel)`<Declaration decl>` <- tls) {
-            switch(decl) {
-                case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : names = names + decl;
-                case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : annotations = annotations + decl;
-                case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : aliases = aliases + decl;
-                case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : typesAndTags = typesAndTags + decl;
-                case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : typesAndTags = typesAndTags + decl;
-                case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : typesAndTags = typesAndTags + decl;
-                case (Declaration)`<FunctionDeclaration _>` : names = names + decl;
-            }
-        }
+		c.stack = currentModuleId + c.stack;
 
-        // Introduce the type names into the environment
-        for (t <- typesAndTags) c = checkDeclaration(t,false,c);
-        for (t <- aliases) c = checkDeclaration(t,false,c);
-        
-        // Now, actually process the aliases
-        bool modified = true;
-        definitions = invert(c.definitions);
-        while(modified) {
-        	    modified = false;
-            for(t <- aliases) {
-                int aliasId = getOneFrom(definitions[t@\loc]);
-                Symbol aliasedType = c.store[aliasId].rtype;
-                c = checkDeclaration(t,true,c);
-                if(aliasedType != c.store[aliasId].rtype) {
-                    modified = true;
-                }
-            }
-        }
-        
-        // Now, actually process the type names
-        for (t <- typesAndTags) c = checkDeclaration(t,true,c);
-        
-        // Next, process the annotations
-        for (t <- annotations) c = checkDeclaration(t,true,c);
-        
-        // Next, introduce names into the environment
-        for (t <- names) c = checkDeclaration(t,false,c);
-        
-        // Finally, process the names
-        for (t <- names) c = checkDeclaration(t,true,c);
-        
-        c.stack = tail(c.stack);
-        
-        c = pushTiming(c, "Checked current module", dt1, now());
-    }
+		for ((Toplevel)`<Declaration decl>` <- tls) {
+			switch(decl) {
+				case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : 
+					names = names + decl;
+				case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
+					annotations = annotations + decl;
+				case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
+					aliases = aliases + decl;
+				case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
+					typesAndTags = typesAndTags + decl;
+				case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+					typesAndTags = typesAndTags + decl;
+				case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
+					typesAndTags = typesAndTags + decl;
+				case (Declaration)`<FunctionDeclaration _>` : 
+					names = names + decl;
+			}
+		}
 
-    // TODO: We currently leave the environment "dirty" by not removing the items
-    // added in this scope. If we ever want to call this as part of a multi-module
-    // checker we need to do so.    
-    return c;
+		// Introduce the type names into the environment
+		for (t <- typesAndTags) c = checkDeclaration(t,false,c);
+		for (t <- aliases) c = checkDeclaration(t,false,c);
+
+		// Now, actually process the aliases
+		bool modified = true;
+		definitions = invert(c.definitions);
+		while(modified) {
+			modified = false;
+			for(t <- aliases) {
+				int aliasId = getOneFrom(definitions[t@\loc]);
+				Symbol aliasedType = c.store[aliasId].rtype;
+				c = checkDeclaration(t,true,c);
+				if(aliasedType != c.store[aliasId].rtype) {
+					modified = true;
+				}
+			}
+		}
+
+		// Bring in type names from the imported modules as long as they don't
+		// conflict with the type names just added.
+		c = loadImportedTypesAndTags(c, { mn | < mn, false > <- modulesToImport });
+		
+		// Now, actually process the type names
+		for (t <- typesAndTags) c = checkDeclaration(t,true,c);
+
+		// Next, process the annotations
+		for (t <- annotations) c = checkDeclaration(t,true,c);
+
+		// Bring in annotations from the imported modules as long as they don't
+		// conflict with the annotations just added.
+		c = loadImportedAnnotations(c, { mn | < mn, false > <- modulesToImport });
+				
+		// Next, introduce names into the environment
+		for (t <- names) c = checkDeclaration(t,false,c);
+
+		// Bring in names from the imported modules as long as they don't
+		// conflict with the names just added.
+		c = loadImportedNames(c,  { mn | < mn, false > <- modulesToImport });
+		
+		// Process the names
+		for (t <- names) c = checkDeclaration(t,true,c);
+
+		c.stack = tail(c.stack);
+		c = pushTiming(c, "Checked current module", dt1, now());
+	}
+
+	// TODO: We currently leave the environment "dirty" by not removing the items
+	// added in this scope. If we ever want to call this as part of a multi-module
+	// checker we need to do so.    
+	return c;
 }
 
 public Configuration checkSyntax(list[Import] defs, Configuration c) {
@@ -7112,63 +6334,68 @@ public CheckResult convertAndExpandUserType(UserType t, Configuration c) {
     }
 }
 
+@doc{Replace any uses of type names with the actual types they represent.}
 public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c) {
-    rt = bottom-up visit(rt) {
-        case utc:\user(rn,pl) : {
-            if (rn in c.typeEnv && !(c.store[c.typeEnv[rn]] is conflict)) {
-                ut = c.store[c.typeEnv[rn]].rtype;
-                if ((utc@at)?) {
-                    c.uses = c.uses + < c.typeEnv[rn], utc@at >;
-                    c.usedIn[utc@at] = head(c.stack);
-                } 
-                if (isAliasType(ut)) {
-                    atps = getAliasTypeParameters(ut);
-                    if (size(pl) == size(atps)) {
-                        failures = { };
-                        for (idx <- index(pl), !subtype(pl[idx],getTypeVarBound(atps[idx]))) 
-                            failures = failures + makeFailType("Cannot instantiate parameter <idx> with type <prettyPrintType(pl[idx])>, parameter has bound <prettyPrintType(getTypeVarBound(atps[idx]))>", l);
-                        if (size(failures) == 0) {
-                            if (size(pl) > 0) {
-                                bindings = ( getTypeVarName(atps[idx]) : pl[idx] | idx <- index(pl) );
-                                insert(instantiate(getAliasedType(ut),bindings));
-                            } else {
-                                insert(getAliasedType(ut));
-                            }
-                        } else {
-                            return < c, collapseFailTypes(failures) >;
-                        } 
-                    } else {
-                        return < c, makeFailType("Alias <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
-                    }
-                } else if (isADTType(ut)) {
-                    atps = getADTTypeParameters(ut);
-                    if (size(pl) == size(atps)) {
-                        failures = { };
-                        for (idx <- index(pl), !subtype(pl[idx],getTypeVarBound(atps[idx]))) 
-                            failures = failures + makeFailType("Cannot instantiate parameter <idx> with type <prettyPrintType(pl[idx])>, parameter has bound <prettyPrintType(getTypeVarBound(atps[idx]))>", l);
-                        if (size(failures) == 0) {
-                            if (size(pl) > 0) {
-                                insert(\adt(getADTName(ut),pl));
-                            } else {
-                                insert(ut);
-                            }
-                        } else {
-                            return < c, collapseFailTypes(failures) >;
-                        } 
-                    } else {
-                        return < c, makeFailType("Data type <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
-                    }
-                } else if (ut is \lex || ut is \sort || ut is \keyword || ut is \layout) {
-                  return < c, ut >;
-                } else {
-                    throw "User type should not refer to type <prettyPrintType(ut)>";
-                }
-            } else {
-                return < c, makeFailType("Type <prettyPrintName(rn)> not declared", l) >;
-            }
-        }
-    }
-    return < c, rt >;
+	rt = bottom-up visit(rt) {
+		case utc:\user(rn,pl) : {
+			if (rn in c.typeEnv) {
+				ut = c.store[c.typeEnv[rn]].rtype;
+				if ((utc@at)?) {
+					c.uses = c.uses + < c.typeEnv[rn], utc@at >;
+					c.usedIn[utc@at] = head(c.stack);
+				} 
+				if (isAliasType(ut)) {
+					atps = getAliasTypeParameters(ut);
+					if (size(pl) == size(atps)) {
+						failures = { };
+						for (idx <- index(pl), !subtype(pl[idx],getTypeVarBound(atps[idx]))) 
+							failures = failures + makeFailType("Cannot instantiate parameter <idx> with type <prettyPrintType(pl[idx])>, parameter has bound <prettyPrintType(getTypeVarBound(atps[idx]))>", l);
+						if (size(failures) == 0) {
+							if (size(pl) > 0) {
+								bindings = ( getTypeVarName(atps[idx]) : pl[idx] | idx <- index(pl) );
+								insert(instantiate(getAliasedType(ut),bindings));
+							} else {
+								insert(getAliasedType(ut));
+							}
+						} else {
+							return < c, collapseFailTypes(failures) >;
+						} 
+					} else {
+						return < c, makeFailType("Alias <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
+					}
+				} else if (isADTType(ut)) {
+					atps = getADTTypeParameters(ut);
+					if (size(pl) == size(atps)) {
+						failures = { };
+						for (idx <- index(pl), !subtype(pl[idx],getTypeVarBound(atps[idx]))) 
+							failures = failures + makeFailType("Cannot instantiate parameter <idx> with type <prettyPrintType(pl[idx])>, parameter has bound <prettyPrintType(getTypeVarBound(atps[idx]))>", l);
+						if (size(failures) == 0) {
+							if (size(pl) > 0) {
+								insert(\adt(getADTName(ut),pl));
+							} else {
+								insert(ut);
+							}
+						} else {
+							return < c, collapseFailTypes(failures) >;
+						} 
+					} else {
+						return < c, makeFailType("Data type <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
+					}
+				} else if (ut is \lex || ut is \sort || ut is \keyword || ut is \layout) {
+					insert(ut);
+				} else {
+					throw "User type should not refer to type <prettyPrintType(ut)>";
+				}
+			} else {
+				if (c.importing) {
+					insert(deferred(utc));
+				} else {
+					return < c, makeFailType("Type <prettyPrintName(rn)> not declared", l) >;
+				}
+			}
+		}
+	}
+	return < c, rt >;
 }
 
 @doc{Check the types of Rascal comprehensions: Set (DONE)}
@@ -7953,4 +7180,89 @@ public bool comparableOrNum(Symbol l, Symbol r) {
 	};
 	
 	return comparable(l, r) || comparable(leftAsNum,rightAsNum);
+}
+
+@doc{Undefer deferred types -- this puts them back the way they were so they can be expanded.}
+public Symbol undefer(Symbol t) {
+	return bottom-up visit(t) {
+		case deferred(dt) => dt
+	};
+}
+
+@doc{Resolve any user types that were given on imported items; these types may have relied on imports themselves.}
+public Configuration resolveDeferredTypes(Configuration c, int itemId) {
+	av = c.store[itemId];
+	if (av is variable) {
+		if (hasDeferredTypes(av.rtype)) {
+			< c, rt > = expandType(undefer(av.rtype), av.at, c);
+			c.store[itemId].rtype = rt;
+		}
+	} else if (av is function) {
+		if (hasDeferredTypes(av.rtype)) {
+			< c, rt > = expandType(undefer(av.rtype), av.at, c);
+			c.store[itemId].rtype = rt;
+		}
+				
+		ttypes = c.store[itemId].throwsTypes;
+		for (idx <- index(ttypes)) {
+			if (hasDeferredTypes(ttypes[idx])) {
+				< c, tt > = expandType(undefer(ttypes[idx]), av.at, c);
+				ttypes[idx] = tt;
+			}
+		}
+		if (c.store[itemId].throwsTypes != ttypes) {
+			c.store[itemId].throwsTypes = ttypes;
+		}
+		
+		for (kp <- av.keywordParams) {
+			if (hasDeferredTypes(av.keywordParams[kp])) {
+				< c, kpt > = expandType(undefer(av.keywordParams[kp]), av.at, c);
+				av.keywordParams[kp] = kpt;
+			}
+		}
+	} else if (av is overload) {
+		for (oi <- av.items) {
+			c = resolveDeferredTypes(c, oi);
+		}
+		if (hasDeferredTypes(av.rtype)) {
+			< c, rt > = expandType(undefer(av.rtype), c.store[getOneFrom(av.items)].at, c);
+			c.store[itemId].rtype = rt;
+		}
+	} else if (av is constructor) {
+		if (hasDeferredTypes(av.rtype)) {
+			< c, rt > = expandType(undefer(av.rtype), av.at, c);
+			c.store[itemId].rtype = rt;
+		}
+		
+		for (kp <- av.keywordParams) {
+			if (hasDeferredTypes(av.keywordParams[kp])) {
+				< c, kpt > = expandType(undefer(av.keywordParams[kp]), av.at, c);
+				av.keywordParams[kp] = kpt;
+			}
+		}
+	} else if (av is production) {
+		if (hasDeferredTypes(av.rtype)) {
+			< c, rt > = expandType(undefer(av.rtype), av.at, c);
+			c.store[itemId].rtype = rt;
+		}
+	} else if (av is annotation) {
+		if (hasDeferredTypes(av.rtype)) {
+			< c, rt > = expandType(undefer(av.rtype), av.at, c);
+			c.store[itemId].rtype = rt;
+		}
+
+		set[Symbol] otres = { };
+		for (ot <- c.store[itemId].onTypes) {
+			if (hasDeferredTypes(ot)) {
+				< c, ott > = expandType(undefer(ot), av.at, c);
+				otres = otres + ott;
+			} else {
+				otres = otres + ot;
+			}
+		}
+		if (c.store[itemId].onTypes != otres) {
+			c.store[itemId].onTypes = otres;
+		}
+	}
+	return c;
 }
