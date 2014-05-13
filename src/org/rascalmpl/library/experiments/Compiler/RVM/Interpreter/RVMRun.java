@@ -42,8 +42,8 @@ public class RVMRun {
 
 	public final IValueFactory vf;
 	private final TypeFactory tf;
-	protected final Boolean TRUE;
-	protected final Boolean FALSE;
+	//protected final Boolean TRUE;
+	//protected final Boolean FALSE;
 	protected final IBool Rascal_TRUE;
 	protected final IBool Rascal_FALSE;
 	protected final IString NONE;
@@ -66,6 +66,8 @@ public class RVMRun {
 
 	protected ArrayList<Type> constructorStore;
 	private Map<String, Integer> constructorMap;
+	ArrayList<Frame> stacktrace = new ArrayList<Frame>();
+	
 
 	private final Map<IValue, IValue> moduleVariables;
 	PrintWriter stdout;
@@ -80,7 +82,12 @@ public class RVMRun {
 									// by the
 	// guard semantics
 	IEvaluatorContext ctx;
+	
+	
+	public RascalExecutionContext rex ;
 
+	IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
+	
 	// An exhausted coroutine instance
 	public static Coroutine exhausted = new Coroutine(null) {
 
@@ -123,8 +130,8 @@ public class RVMRun {
 
 		this.types = new Types(this.vf);
 
-		TRUE = true;
-		FALSE = false;
+		//TRUE = true;
+		//FALSE = false;
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
 
@@ -147,7 +154,7 @@ public class RVMRun {
 		moduleVariables = new HashMap<IValue, IValue>();
 
 		MuPrimitive.init(vf, stdout, profile);
-		RascalPrimitive.init(vf, this, profile);
+		RascalPrimitive.init(this, rex);
 		Opcode.init(stdout, false);
 	}
 
@@ -407,7 +414,7 @@ public class RVMRun {
 	int pc; // current program counter
 	int postOp;
 	int pos;
-	ArrayList<Frame> stacktrace;
+	//ArrayList<Frame> stacktrace;
 	Thrown thrown;
 	int arity;
 	String last_function_name;
@@ -423,6 +430,8 @@ public class RVMRun {
 	public int prevSP = 0;
 
 	public Object executeProgram(Frame root, Frame cfinit) {
+		String last_function_name = "";
+		String last_var_name = "unknown";
 		this.cf = cfinit;
 		stack = cf.stack; // current stack
 		sp = cf.function.nlocals; // current stack pointer
@@ -853,20 +862,19 @@ public class RVMRun {
 				case Opcode.POSTOP_CHECKUNDEF:
 				case Opcode.POSTOP_HANDLEEXCEPTION:
 					// EXCEPTION HANDLING
-					if (postOp == Opcode.POSTOP_CHECKUNDEF) {
+					if(postOp == Opcode.POSTOP_CHECKUNDEF) {
 						stacktrace = new ArrayList<Frame>();
 						stacktrace.add(cf);
-						thrown = RuntimeExceptions.uninitializedVariable(pos, null, stacktrace);
+						thrown = RascalRuntimeException.uninitializedVariable(last_var_name, stacktrace);
 					}
 					cf.pc = pc;
-					// First, try to find a handler in the current frame
-					// function,
+					// First, try to find a handler in the current frame function,
 					// given the current instruction index and the value type,
 					// then, if not found, look up the caller function(s)
-					for (Frame f = cf; f != null; f = f.previousCallFrame) {
+					for(Frame f = cf; f != null; f = f.previousCallFrame) {
 						int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
-						if (handler != -1) {
-							if (f != cf) {
+						if(handler != -1) {
+							if(f != cf) {
 								cf = f;
 								instructions = cf.function.codeblock.getInstructions();
 								stack = cf.stack;
@@ -878,13 +886,12 @@ public class RVMRun {
 							thrown = null;
 							continue NEXT_INSTRUCTION;
 						}
-						if (c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
+						if(c_ofun_call != null && f.previousCallFrame == c_ofun_call.cf) {
 							ocalls.pop();
 							c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
 						}
 					}
-					// If a handler has not been found in the caller
-					// functions...
+					// If a handler has not been found in the caller functions...
 					return thrown;
 				}
 
@@ -1222,13 +1229,13 @@ public class RVMRun {
 
 	public void insnLOADBOOL(int i) {
 		// TODO solve loading of the right value in compile time
-		stack[sp++] = i == 1 ? true : false;
+		stack[sp++] = i == 1 ? Rascal_TRUE : Rascal_FALSE;
 	}
 	public void insnLOADBOOLTRUE() {
-		stack[sp++] = true ;
+		stack[sp++] = Rascal_TRUE ;
 	}
 	public void insnLOADBOOLFALSE() {
-		stack[sp++] = false ;
+		stack[sp++] = Rascal_FALSE ;
 	}
 
 	public void insnLOADINT(int i) {
@@ -1254,19 +1261,17 @@ public class RVMRun {
 	}
 
 	public void insnJMPTRUE(int target) {
-		// TODO will not return in the JVM version.
-		sp--;
-		if (stack[sp].equals(TRUE) || stack[sp].equals(Rascal_TRUE)) {
+		if (((IBool) stack[sp - 1]).getValue()) {
 			pc = target;
 		}
+		sp--;
 	}
 
 	public void insnJMPFALSE(int target) {
-		sp--;
-		// TODO will not return in the JVM version.
-		if (stack[sp].equals(FALSE) || stack[sp].equals(Rascal_FALSE)) {
+		if (!((IBool) stack[sp - 1]).getValue()) {
 			pc = target;
 		}
+		sp--;	
 	}
 
 	public void insnTYPESWITCH(int i) {
@@ -1926,7 +1931,7 @@ public class RVMRun {
 			if (rets) {
 				--sp;
 			}
-			stack[sp++] = FALSE;
+			stack[sp++] = Rascal_FALSE;
 			return;
 		}
 		// put the coroutine onto the stack of active coroutines
@@ -2024,7 +2029,7 @@ public class RVMRun {
 	public void insnCALLPRIM(int muprim, int arity) {
 		postOp = 0;
 		try {
-			sp = RascalPrimitive.values[muprim].execute(stack, sp, arity);
+			sp = RascalPrimitive.values[muprim].execute(stack, sp, arity,stacktrace);
 		} catch (Exception exception) {
 			if (!(exception instanceof Thrown)) {
 				throw exception;
@@ -2432,7 +2437,7 @@ public class RVMRun {
 
 		// Merged the hasNext and next semantics
 		if (!coroutine.hasNext()) {
-			stack[sp++] = FALSE;
+			stack[sp++] = Rascal_FALSE;
 			return;
 		}
 		// put the coroutine onto the stack of active coroutines
