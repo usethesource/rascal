@@ -172,41 +172,19 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		mv.visitInsn(AALOAD);
-
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "TRUE", "Ljava/lang/Boolean;");
-
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
-		mv.visitJumpInsn(IFNE, lb); // Direct goto possible
-
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-		mv.visitInsn(AALOAD);
-
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "Rascal_TRUE", "Lorg/eclipse/imp/pdb/facts/IBool;");
-
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
-		mv.visitJumpInsn(IFNE, lb);
-
+		mv.visitTypeInsn(CHECKCAST, "org/eclipse/imp/pdb/facts/IBool");
+		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IBool", "getValue", "()Z");
+		mv.visitJumpInsn(IFEQ, lb);
 	}
 
 	public void emitJMPFALSE(String targetLabel, boolean debug) {
 		if (!emit)
 			return;
-
-		Label lb = labelMap.get(targetLabel);
-		if (lb == null) {
-			lb = new Label();
-			labelMap.put(targetLabel, lb);
-		}
-
 		if (debug)
 			emitCall("dinsnJMPFALSE", 2);
 
-		// TODO: emitInlinePop(false); // pop part of jmp...
+		Label lb = getNamedLabel(targetLabel);
+
 		emitCall("insnPOP");
 
 		mv.visitVarInsn(ALOAD, 0);
@@ -214,23 +192,8 @@ public class Generator implements Opcodes {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		mv.visitInsn(AALOAD);
-
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "FALSE", "Ljava/lang/Boolean;");
-
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
-		mv.visitJumpInsn(IFNE, lb); // Direct goto possible
-
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-		mv.visitInsn(AALOAD);
-
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
-
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
+		mv.visitTypeInsn(CHECKCAST, "org/eclipse/imp/pdb/facts/IBool");
+		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IBool", "getValue", "()Z");
 		mv.visitJumpInsn(IFNE, lb);
 	}
 

@@ -9,6 +9,7 @@ import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -75,6 +76,33 @@ public class RVM {
 
 	public RVM(IValueFactory vf) {
 		this(vf, null, false, false);
+	}
+	RascalExecutionContext rex ;
+
+	private List<ClassLoader> classLoaders;
+	
+	public RVM(RascalExecutionContext rascalExecutionContext) {
+		super();
+
+		rex = rascalExecutionContext ;	
+		this.vf = rex.getValueFactory() ;
+		
+		this.classLoaders = rex.getClassLoaders();
+		this.stdout = rex.getStdOut();
+		this.stderr = rex.getStdErr();
+		this.debug = rex.getDebug();
+		this.finalized = false;
+
+		this.types = new Types(this.vf);
+
+		functionStore = new ArrayList<Function>();
+		constructorStore = new ArrayList<Type>();
+
+		functionMap = new HashMap<String, Integer>();
+		constructorMap = new HashMap<String, Integer>();
+
+		resolver = new HashMap<String,Integer>();
+		overloadedStore = new ArrayList<OverloadedFunction>();
 	}
 
 	public void declare(Function f) {
@@ -272,7 +300,7 @@ public class RVM {
 		}
 	}
 
-	public IValue executeProgramNO(String uid_main, IValue[] args) {
+	public IValue executeProgram(String uid_main, IValue[] args) {
 		boolean profile = false;
 
 		buildRunner(profile);
@@ -304,7 +332,7 @@ public class RVM {
 
 	long buildTime = 0;
 
-	public IValue executeProgram(String uid_main, IValue[] args) {
+	public IValue executeProgramNO(String uid_main, IValue[] args) {
 		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
 		Object o = null;
 		boolean profile = false;

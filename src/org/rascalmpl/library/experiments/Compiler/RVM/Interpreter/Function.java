@@ -12,7 +12,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 public class Function {
-<<<<<<< HEAD
 	final public String name;
 	public int   funId ;    // Id of function in functionMap, used for dynamic invocation.
 	final Type ftype;

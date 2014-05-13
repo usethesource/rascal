@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -28,23 +29,6 @@ public class RVMRunBody extends RVMRun {
 		nop();
 	}
 
-	public void insnJMPTRUE(int target) {
-		nop();
-		sp--;
-		if (stack[sp].equals(TRUE) || stack[sp].equals(Rascal_TRUE)) {
-			pc = target;
-		}
-		nop();
-	}
-
-	public void insnJMPFALSE(int target) {
-		nop();
-		sp--;
-		if (stack[sp].equals(FALSE) || stack[sp].equals(Rascal_FALSE)) {
-			pc = target;
-		}
-		nop();
-	}
 
 	public void insnRETURN0() {
 		globalReturnValue = null;
@@ -511,5 +495,22 @@ public class RVMRunBody extends RVMRun {
 		default : p = 10 ;
 		}
 		return p;
+	}
+	public void insnJMPFALSE(int target) {
+		nop();
+		sp--;
+		if (!((IBool) stack[sp - 1]).getValue()) {
+			pc = target;
+		}
+		nop();
+	}
+
+	public void insnJMPTRUE(int target) {
+		nop();
+		sp--;
+		if (((IBool) stack[sp]).getValue()) {
+			pc = target;
+		}
+		nop();
 	}
 }
