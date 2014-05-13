@@ -11,12 +11,13 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.IEvaluatorContext;  // TODO: remove import? NOT YET: Only used as argument of reclective library function
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.interpreter.utils.Timing;
 
@@ -60,7 +61,7 @@ public class Execute {
 		
 		PrintWriter stdout = ctx.getStdOut();
 		
-		RVM rvm = new RVM(vf, ctx, debug.getValue(), profile.getValue());
+		RVM rvm = new RVM(new RascalExecutionContext(vf, debug.getValue(), profile.getValue(), ctx));
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
@@ -139,7 +140,7 @@ public class Execute {
 		}
 		
 		if((uid_module_init == null)) {
-			throw new RuntimeException("No module_init function found when loading RVM code!");
+			throw new CompilerError("No module_init function found when loading RVM code!");
 		}
 		
 		try {
@@ -162,7 +163,7 @@ public class Execute {
 				 * Standard execution of main function
 				 */
 				if((uid_main == null)) {
-					throw new RuntimeException("No main function found when loading RVM code!");
+					throw RascalRuntimeException.noMainFunction(null);
 				}
 			
 				rvm.executeProgram(uid_module_init, arguments);
@@ -176,7 +177,7 @@ public class Execute {
 			
 		} catch(Thrown e) {
 			e.printStackTrace(stdout);
-			return vf.tuple(vf.string("Runtime exception <currently unknown location>: " + e.value), vf.integer(0));
+			return vf.tuple(vf.string("Runtime exception: " + e.value), vf.integer(0));
 		}
 	}
 	
@@ -196,6 +197,12 @@ public class Execute {
 
 	private String getStrField(IConstructor instruction, String field) {
 		return ((IString) instruction.get(field)).getValue();
+	}
+	
+	// Get Location field from an instruction
+
+	private ISourceLocation getLocField(IConstructor instruction, String field) {
+		return ((ISourceLocation) instruction.get(field));
 	}
 
 	/**
@@ -218,9 +225,11 @@ public class Execute {
 		}
 		
 		Integer nlocals = ((IInteger) declaration.get("nlocals")).intValue();
+		IMap localNames = ((IMap) declaration.get("localNames"));
 		Integer nformals = ((IInteger) declaration.get("nformals")).intValue();
 		Integer maxstack = ((IInteger) declaration.get("maxStack")).intValue();
 		IList code = (IList) declaration.get("instructions");
+		ISourceLocation src = (ISourceLocation) declaration.get("src");
 		CodeBlock codeblock = new CodeBlock(vf);
 		// Loading instructions
 		try {
@@ -258,7 +267,7 @@ public class Execute {
 				break;
 
 			case "CALLPRIM":
-				codeblock.CALLPRIM(RascalPrimitive.valueOf(getStrField(instruction, "name")), getIntField(instruction, "arity"));
+				codeblock.CALLPRIM(RascalPrimitive.valueOf(getStrField(instruction, "name")), getIntField(instruction, "arity"), getLocField(instruction, "src"));
 				break;
 
 			case "CALLMUPRIM":
@@ -382,7 +391,7 @@ public class Execute {
 				break;
 
 			case "CALLCONSTR":
-				codeblock.CALLCONSTR(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.CALLCONSTR(getStrField(instruction, "fuid"), getIntField(instruction, "arity")/*, getLocField(instruction, "src")*/);
 				break;
 
 			case "LOADTYPE":
@@ -405,11 +414,11 @@ public class Execute {
 				break;
 
 			case "OCALL" :
-				codeblock.OCALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.OCALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"), getLocField(instruction, "src"));
 				break;
 
 			case "OCALLDYN" :
-				codeblock.OCALLDYN(rvm.symbolToType((IConstructor) instruction.get("types")), getIntField(instruction, "arity"));
+				codeblock.OCALLDYN(rvm.symbolToType((IConstructor) instruction.get("types")), getIntField(instruction, "arity"), getLocField(instruction, "src"));
 				break;
 
 			case "CALLJAVA":
@@ -419,7 +428,7 @@ public class Execute {
 				break;
 
 			case "THROW":
-				codeblock.THROW();
+				codeblock.THROW(getLocField(instruction, "src"));
 				break;
 			
 			case "TYPESWITCH":
@@ -507,15 +516,15 @@ public class Execute {
 				break;
 				
 			default:
-				throw new RuntimeException("PANIC: In function " + name + ", nknown instruction: " + opcode);
+				throw new CompilerError("In function " + name + ", nknown instruction: " + opcode);
 			}
 
 		}
 		} catch (Exception e){
-			throw new RuntimeException("In function " + name + " : " + e.getMessage());
+			throw new CompilerError("In function " + name + " : " + e.getMessage());
 		}
 		
-		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, maxstack, codeblock, continuationPoint);
+		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src, continuationPoint);
 		if(isCoroutine) {
 			function.isCoroutine = true;
 			IList refList = (IList) declaration.get("refs");

@@ -17,7 +17,7 @@ import Prelude;
 
 public int a = 4;
 
-public void chart(rel[num , num] r) {
+public void chart(rel[num x, num y] r) {
  int n = size(r);
  list[int] d = [i|int i<-[0..n]];
  str body = barChart(y_axis = getYAxis(aggregateMethod="avg", plotFunction="bubble", series="i")
@@ -34,7 +34,7 @@ public void chart(rel[num , num] r) {
        ));
     }
     
- public void chart(rel[num , num, str] r) {
+ public void chart(rel[num x, num y, str kind] r) {
  int n = size(r);
  list[int] d = [i|int i<-[0..n]];
  str body = barChart(y_axis = getYAxis(aggregateMethod="avg", plotFunction="bubble", series="i")
@@ -47,8 +47,9 @@ public void chart(rel[num , num] r) {
      |tmp:///dimple|
      ,barChartHeader("barChart"), body, q
        ));
-    }   
- public void chart(rel[loc , loc] r) {
+    } 
+    
+public void chart(rel[str , str] r) {
  int n = size(r);
  list[int] d = [i|int i<-[0..n]];
  str body = barChart(y_axis = getYAxis(aggregateMethod="max", plotFunction="bubble", series="i",
@@ -56,7 +57,7 @@ public void chart(rel[num , num] r) {
  Key2Data q = ("i":[], "x":[],"y":[]);
  int i = 0;
  for (<x, y><-r) {
-        q["i"]=q["i"]+i; q["x"]=q["x"]+x.file; q["y"]=q["y"]+y.file;
+        q["i"]=q["i"]+i; q["x"]=q["x"]+x; q["y"]=q["y"]+y;
         i+=1;
         }
   htmlDisplay(publish(
@@ -65,16 +66,65 @@ public void chart(rel[num , num] r) {
        ));
     }
     
-
+public void chart(map[str, num] m) {
+     str body = barChart(y_axis = getYAxis(aggregateMethod="avg"), orderRule="x");
+     list[str] d = [x|str x<-domain(m)];
+     htmlDisplay(publish(
+     |tmp:///dimple|
+     ,barChartHeader("barChart"), body, ("x": d,"y":[m[i]|str i<-d])
+       ));
+     }
     
-public void chart(rel[map[str, num] , str] r) {
+public void chart(map[num, num] m) {
+     str body = barChart(y_axis = getYAxis(aggregateMethod="avg"), orderRule="x");
+     list[int] d = [x|int x<-domain(m)];
+     htmlDisplay(publish(
+     |tmp:///dimple|
+     ,barChartHeader("barChart"), body, ("x": d,"y":[m[i]|int i<-d])
+       ));
+     }
+ 
+ public void chart(map[num, list[num]] ml) {
+     str body = barChart(y_axis = getYAxis(aggregateMethod="avg", series= "kind"),
+     orderRule="x"); 
+     if (isEmpty(ml)) return;
+     int n = size(ml[getOneFrom(ml)]);
+     list[int] d = [x|int x<-domain(ml)];
+     htmlDisplay(publish(
+     |tmp:///dimple|
+     ,barChartHeader("barChart"), body, [
+        <"x", [*[i|i<-d]|g<-[0..n]]>
+       ,<"y", [*[ml[i][g]|i<-d]|g<-[0..n]]>
+       ,<"kind", [*[g|i<-d]|g<-[0..n]]>
+        ]
+       ));
+     }
+     
+ public void chart(map[str, list[num]] ml) {
+     str body = barChart(y_axis = getYAxis(aggregateMethod="avg", series= "kind"),
+     orderRule="x"); 
+     if (isEmpty(ml)) return;
+     int n = size(ml[getOneFrom(domain(ml))]);
+     list[str] d = [x|str x<-domain(ml)];
+     htmlDisplay(publish(
+     |tmp:///dimple|
+     ,barChartHeader("barChart"), body, [
+        <"x", [*[i|i<-d]|g<-[0..n]]>
+       ,<"y", [*[ml[i][g]|i<-d]|g<-[0..n]]>
+       ,<"kind", [*[g|i<-d]|g<-[0..n]]>
+        ]
+       ));
+     }     
+
+      
+public void chart(rel[map[str, num] xlabel2rank, str ylabel] r) {
  int n = size(r);
  list[int] d = [i|int i<-[0..n]];
  str body = barChart(y_axis = getYAxis(aggregateMethod="count", plotFunction="bar", series=""), orderRule="n");
  Key2Data q = ("i":[], "x":[],"y":[], "n":[]);
  int i = 0;
  for (<x, y><-r) {
-        q["i"]=q["i"]+i; q["x"]=q["x"]+"<getOneFrom(x)>:<x[getOneFrom(x)]>"; q["y"]=q["y"]+y;
+        q["i"]=q["i"]+i; q["x"]=q["x"]+"<getOneFrom(x)>_<x[getOneFrom(x)]>"; q["y"]=q["y"]+y;
         q["n"]=q["n"]+x[getOneFrom(x)];
         i+=1;
         }
@@ -84,7 +134,7 @@ public void chart(rel[map[str, num] , str] r) {
        ));
     }
     
-public void chart(rel[map[str, num] , str, str] r) {
+public void chart(rel[map[str, num] xlabel2rank, str ylabel, str kind] r) {
  int n = size(r);
  list[int] d = [i|int i<-[0..n]];
  str body = barChart(y_axis = getYAxis(aggregateMethod="count", plotFunction="bar", series="kind"), orderRule="n");
@@ -101,9 +151,7 @@ public void chart(rel[map[str, num] , str, str] r) {
      ,barChartHeader("barChart"), body, q
        ));
     }
-    
-   
-    
+      
 rel[str , str] loc2str(rel[loc , loc] q) {
        return {
               < x.file, y.file > | <loc x, loc y> <- q  
@@ -122,7 +170,7 @@ rel[map[str, num] , str] loc2str(rel[map[loc, num] , loc] q) {
               };
     }
     
- rel[map[str, num] , map[str,num]] loc2str(rel[map[loc, num] ,map[loc, num]] q) {
+rel[map[str, num] , map[str,num]] loc2str(rel[map[loc, num] ,map[loc, num]] q) {
        return {
               <(getOneFrom(x).file:x[getOneFrom(x)]), 
                     (getOneFrom(y).file:y[getOneFrom(y)]) > | <map[loc, num] x,  map[loc, num] y> <- q  
@@ -140,18 +188,18 @@ public void chart(list[tuple[str name, lrel[num, num] r]] f) {
     }
        
 public void chart(rel[map[loc, num] , loc, str] r) {
-    return loc2str(r);
+    return chart(loc2str(r));
     }
     
  public void chart(rel[map[loc, num] , loc] r) {
-    return loc2str(r);
+    return chart(loc2str(r));
     } 
       
  public void chart(rel[map[loc, num] , map[loc, num]] r) {
-    return loc2str(r);
+    return chart(loc2str(r));
     }
       
- public void chart(rel[map[str, num] , map[str, num]] r) {
+ public void chart(rel[map[str labelx, num rangx] , map[str labely, num rangy]] r) {
  int n = size(r);
  list[int] d = [i|int i<-[0..n]];
  str body = barChart(y_axis = getYAxis(aggregateMethod="max", plotFunction="bubble", series=["i","xn","yn"],
@@ -168,52 +216,14 @@ public void chart(rel[map[loc, num] , loc, str] r) {
      ,barChartHeader("barChart"), body, q
        ));
     }
-    
+
 public void chart(rel[loc , loc] r) {
-    return loc2str(r);
+    return chart(loc2str(r));
     }
 
-public void chart(rel[str , str] r) {
- int n = size(r);
- list[int] d = [i|int i<-[0..n]];
- str body = barChart(y_axis = getYAxis(aggregateMethod="max", plotFunction="bubble", series="i",
- category=true));
- Key2Data q = ("i":[], "x":[],"y":[]);
- int i = 0;
- for (<x, y><-r) {
-        q["i"]=q["i"]+i; q["x"]=q["x"]+x; q["y"]=q["y"]+y;
-        i+=1;
-        }
-  htmlDisplay(publish(
-     |tmp:///dimple|
-     ,barChartHeader("barChart"), body, q
-       ));
-    }
-    
-public void chart(map[num, num] m) {
-     str body = barChart(y_axis = getYAxis(aggregateMethod="avg"), orderRule="x");
-     list[int] d = [x|int x<-domain(m)];
-     htmlDisplay(publish(
-     |tmp:///dimple|
-     ,barChartHeader("barChart"), body, ("x": d,"y":[m[i]|int i<-d])
-       ));
-     }
-     
-public void chart(map[num, list[num]] ml) {
-     str body = barChart(y_axis = getYAxis(aggregateMethod="avg", series= "kind"),
-     orderRule="x"); 
-     if (isEmpty(ml)) return;
-     int n = size(ml[getOneFrom(ml)]);
-     list[int] d = [x|int x<-domain(ml)];
-     htmlDisplay(publish(
-     |tmp:///dimple|
-     ,barChartHeader("barChart"), body, [
-        <"x", [*[i|i<-d]|g<-[0..n]]>
-       ,<"y", [*[ml[i][g]|i<-d]|g<-[0..n]]>
-       ,<"kind", [*[g|i<-d]|g<-[0..n]]>
-        ]
-       ));
-     }
+
+          
+
      
 public void chartDefault(str s) {htmlDisplay(|tmp:///dimple|, html("","<s>"));}
 

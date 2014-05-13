@@ -36,7 +36,7 @@ public class PreludeCompiled extends Prelude {
 	@Override
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
 	public IValue parse(IValue start, IString input, IEvaluatorContext ctx) {
-		return RascalPrimitive.getParsingTools().parse(super.values.string("XXX"), start, input);
+		return RascalPrimitive.getParsingTools().parse(super.values.string("XXX"), start, input, null);
 	}
 	
 	private TypeStore typeStore = new TypeStore();

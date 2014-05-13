@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
 
@@ -7,15 +8,16 @@ public class OCall extends Instruction {
 	
 	final String fuid;
 	final int arity;
-//	final int continuationPoint ;
-	public OCall(CodeBlock ins, String fuid, int arity) {
+	ISourceLocation src;
+	
+	public OCall(CodeBlock ins, String fuid, int arity, ISourceLocation src) {
 		super(ins, Opcode.OCALL);
 		this.fuid = fuid;
 		this.arity = arity;
-//		this.continuationPoint = continuationPoint ;
+		this.src = src;
 	}
 	
-	public String toString() { return "OCALL " + fuid + ", " + arity + " [ " + codeblock.getOverloadedFunctionIndex(fuid) + " ]"; }
+	public String toString() { return "OCALL " + fuid + ", " + arity + " [ " + codeblock.getOverloadedFunctionIndex(fuid) + " ]" + ", " + src; }
 		
 	public void generate(Generator codeEmittor, boolean dcode){
 
@@ -25,5 +27,6 @@ public class OCall extends Instruction {
 		codeEmittor.emitOCallV2(codeblock.getOverloadedFunctionIndex(fuid), arity);
 
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getOverloadedFunctionIndex(fuid), arity);
+		codeblock.addCode(codeblock.getConstantIndex(src));
 	}
 }
