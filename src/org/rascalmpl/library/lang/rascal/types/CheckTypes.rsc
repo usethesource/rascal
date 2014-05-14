@@ -5684,7 +5684,10 @@ public Configuration finalizeFunctionImport(Configuration c, RName functionName)
 		item = c.store[itemId];
 		if (item is function) {
 			sig = c.deferredSignatures[itemId]; 
-			cFun = c;
+			// We process the signature in a restricted name environment with constructors, productions, and overloads, but no
+			// variables; this makes sure we don't have conflicts with variables already in scope
+		    cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, 
+		    	c.store[c.fcvEnv[ename]] is constructor || c.store[c.fcvEnv[ename]] is production || c.store[c.fcvEnv[ename]] is overload )];
 		    < cFun, tFun > = processSignature(sig, cFun);
 		    if(isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
 			< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
