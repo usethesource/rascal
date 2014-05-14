@@ -40,6 +40,8 @@ list[str] functionalityTests = [
  							 //Commented out 6: Treatment of redeclared local variables
 "ScopeTests",				// OK
 							 //Commented out several tests: no shadowing allowed
+"SetMatchTests1",
+"SetMatchTests2",           // TC
 "StatementTests",			// Fail in overloaded constructor gives problem ==> Issue posted
 "SubscriptTests",			// OK
 "TryCatchTests",			// OK    				
@@ -110,7 +112,7 @@ FAILED TESTS:
 |project://rascal-test/src/tests/BacktrackingTests.rsc|(3177,834,<96,0>,<116,1>): FALSE 
 |project://rascal-test/src/tests/ListRelations.rsc|(2949,149,<94,0>,<96,83>): FALSE  with arguments: [<-219637694,-221094360>,<-548755640,-1212156571>,<1324502974,773893189>] 
 |project://rascal-test/src/tests/Matching.rsc|(283,77,<20,0>,<23,1>): FALSE 
-|project://rascal-test/src/tests/Nodes.rsc|(2908,328,<136,0>,<145,1>): FALSE  with arguments: "鎃䬁"($1348-04-05T10:17:16.706+01:00$,{"\"\"⇼","\"\\\"\\\"괖\"農",""},({465151638,-1811667661}:|tmp:///wI|,{}:|tmp:///|)) 
+|project://rascal-test/src/tests/Nodes.rsc|(2908,328,<136,0>,<145,1>): FALSE  with arguments: "������"($1348-04-05T10:17:16.706+01:00$,{"\"\"���","\"\\\"\\\"���\"���",""},({465151638,-1811667661}:|tmp:///wI|,{}:|tmp:///|)) 
 |project://rascal-test/src/tests/Nodes.rsc|(2536,182,<122,0>,<127,1>): FALSE  with arguments: "h9Bc"("7c"($0228-05-07T03:12:04.393+01:00$,""),$2015-06-02T05:44:42.155+01:00$,{-1620187633,-1831381091,-275570814},()) 
 |project://rascal-test/src/tests/Relations.rsc|(2201,151,<70,0>,<72,85>): FALSE  with arguments: {<1012834307,905272390>,<-1511508561,-1930750599>} 
 |project://rascal-test/src/tests/Relations.rsc|(871,185,<27,0>,<30,47>): FALSE  with arguments: {<{},0.24525990529456354,""()>} 
