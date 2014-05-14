@@ -18,8 +18,8 @@ package org.rascalmpl.ast;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 
-public abstract class KeywordArgument extends AbstractAST {
-  public KeywordArgument(IConstructor node) {
+public abstract class KeywordArgument_Expression extends AbstractAST {
+  public KeywordArgument_Expression(IConstructor node) {
     super();
   }
 
@@ -46,7 +46,7 @@ public abstract class KeywordArgument extends AbstractAST {
     return false;
   }
 
-  static public class Default extends KeywordArgument {
+  static public class Default extends KeywordArgument_Expression {
     // Production: sig("Default",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Expression","expression")])
   
     
@@ -67,7 +67,7 @@ public abstract class KeywordArgument extends AbstractAST {
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKeywordArgumentDefault(this);
+      return visitor.visitKeywordArgument_ExpressionDefault(this);
     }
   
     
