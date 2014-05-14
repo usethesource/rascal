@@ -18,8 +18,8 @@ package org.rascalmpl.ast;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 
-public abstract class KeywordArguments extends AbstractAST {
-  public KeywordArguments(IConstructor node) {
+public abstract class KeywordArguments_Expression extends AbstractAST {
+  public KeywordArguments_Expression(IConstructor node) {
     super();
   }
 
@@ -28,7 +28,7 @@ public abstract class KeywordArguments extends AbstractAST {
     return false;
   }
 
-  public java.util.List<org.rascalmpl.ast.KeywordArgument> getKeywordArgumentList() {
+  public java.util.List<org.rascalmpl.ast.KeywordArgument_Expression> getKeywordArgumentList() {
     throw new UnsupportedOperationException();
   }
   public boolean hasOptionalComma() {
@@ -46,14 +46,14 @@ public abstract class KeywordArguments extends AbstractAST {
     return false;
   }
 
-  static public class Default extends KeywordArguments {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeywordArgument\>","keywordArgumentList")])
+  static public class Default extends KeywordArguments_Expression {
+    // Production: sig("Default",[arg("org.rascalmpl.ast.OptionalComma","optionalComma"),arg("java.util.List\<org.rascalmpl.ast.KeywordArgument_Expression\>","keywordArgumentList")])
   
     
     private final org.rascalmpl.ast.OptionalComma optionalComma;
-    private final java.util.List<org.rascalmpl.ast.KeywordArgument> keywordArgumentList;
+    private final java.util.List<org.rascalmpl.ast.KeywordArgument_Expression> keywordArgumentList;
   
-    public Default(IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeywordArgument> keywordArgumentList) {
+    public Default(IConstructor node , org.rascalmpl.ast.OptionalComma optionalComma,  java.util.List<org.rascalmpl.ast.KeywordArgument_Expression> keywordArgumentList) {
       super(node);
       
       this.optionalComma = optionalComma;
@@ -67,7 +67,7 @@ public abstract class KeywordArguments extends AbstractAST {
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKeywordArgumentsDefault(this);
+      return visitor.visitKeywordArguments_ExpressionDefault(this);
     }
   
     
@@ -81,7 +81,7 @@ public abstract class KeywordArguments extends AbstractAST {
       return true;
     }
     @Override
-    public java.util.List<org.rascalmpl.ast.KeywordArgument> getKeywordArgumentList() {
+    public java.util.List<org.rascalmpl.ast.KeywordArgument_Expression> getKeywordArgumentList() {
       return this.keywordArgumentList;
     }
   
@@ -94,7 +94,7 @@ public abstract class KeywordArguments extends AbstractAST {
     return false;
   }
 
-  static public class None extends KeywordArguments {
+  static public class None extends KeywordArguments_Expression {
     // Production: sig("None",[])
   
     
@@ -111,7 +111,7 @@ public abstract class KeywordArguments extends AbstractAST {
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKeywordArgumentsNone(this);
+      return visitor.visitKeywordArguments_ExpressionNone(this);
     }
   
     	
