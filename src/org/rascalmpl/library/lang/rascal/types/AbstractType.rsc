@@ -769,3 +769,6 @@ public Symbol getProductionSortType(Symbol pr) {
 }
 
 public bool hasDeferredTypes(Symbol t) = size({d | /d:deferred(_) := t}) > 0;
+
+public bool subtype(deferred(Symbol t), Symbol s) = subtype(t,s);
+public bool subtype(Symbol t, deferred(Symbol s)) = subtype(t,s); 
