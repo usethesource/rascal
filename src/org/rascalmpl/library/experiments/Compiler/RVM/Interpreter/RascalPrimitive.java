@@ -4148,7 +4148,7 @@ public enum RascalPrimitive {
 			return $list_slice_operator(stack, sp, arity, SliceOperator.intersect(), stacktrace);
 		}
 	},
-	str_replace {
+	str_slice_replace {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 5;
@@ -4160,7 +4160,7 @@ public enum RascalPrimitive {
 		}
 
 	},
-	node_replace {
+	node_slice_replace {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 5;
