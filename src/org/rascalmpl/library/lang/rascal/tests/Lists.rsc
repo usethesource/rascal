@@ -424,7 +424,7 @@ public test bool tstTakeWhile(list[int] L){
 public test bool tstToMap(list[tuple[&A, &B]] L) = toMap(L) == toMap(toSet(L));
 
 public test bool tstToMapUnique(list[tuple[&A, &B]] L) =
-  (toSet(domain(L)) == toSet(L<0>)) ==> (toMapUnique(L) == toMapUnique(toSet(L)));
+  (size(domain(L)) == size(toSet(domain(L)))) ==> (toMapUnique(L) == toMapUnique(toSet(L)));
 
 public test bool tstTop(list[&T] L) = isEmpty(L) || top(L) == elementAt(L,0);
 
