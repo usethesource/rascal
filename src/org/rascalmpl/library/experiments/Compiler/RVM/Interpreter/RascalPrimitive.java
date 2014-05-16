@@ -5872,7 +5872,7 @@ public enum RascalPrimitive {
 	 */
 	static TypeReifier typeReifier;
 	static final int MAXDEPTH = 5;
-	static final int TRIES = 3;
+	static final int TRIES = 500;
 	static IListWriter test_results;
 	
 	/*
