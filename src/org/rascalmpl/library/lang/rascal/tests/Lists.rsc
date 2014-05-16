@@ -8,6 +8,7 @@ import String;
 import Boolean;
 import util::Math;
 import Type;
+import ValueIO;
 
 // is A + B == C?
 bool isConcat(list[&T] A, list[&T] B, list[&T] C) =
@@ -101,7 +102,7 @@ public test bool greater(list[int] A, list[int] B)  = isEmpty(B) || mergeOrdered
    
 public test bool splicing(list[&T] A, list[&T] B) = [*A, *B] == A + B && [A, *B] == [A] + B && [*A, B] == A + [B];
 
-public test bool subscription(list[&T] L){
+public test bool subscription(list[int] L){
   R = L;
   for(int i <- index(L)){
       if(head(R) != L[i])
@@ -111,7 +112,7 @@ public test bool subscription(list[&T] L){
   return true;  
 }
 
-public test bool subscriptionWrapped(list[&T] L){
+public test bool subscriptionWrapped(list[int] L){
   for(int i <- index(L)){
       if(L[i] != L[i - size(L)]){
       	 return false;
@@ -299,7 +300,7 @@ public test bool tstHeadN(list[&T] L) {
 
 public test bool tstHeadTail(list[&T] L) = isEmpty(L) || headTail(L) == <elementAt(L,0), size(L) == 1 ? [] : L[1..]>;
    
-public test bool tstIndex(list[&T] L) = index(L) == [0..size(L)];
+public test bool tstIndex(list[int] L) = index(L) == [0..size(L)];
 
 public test bool tstIndexOf(list[int] L) {
   int n = -1;
@@ -432,7 +433,7 @@ public test bool tstToRel(list[&T] L) = isEmpty(L) || toRel(L) == {<elementAt(L,
 
 public test bool tstToSet(list[&T] L) = toSet(L) == {x | x <- L};
 
-// TODO public test bool tstToString(list[&T] L) = toString(L) == "[" + intercalate(",", L) + "]";
+public test bool tstToString(list[&T] L) = (readTextValueString(#list[&T], toString(L)) == L);
 
 public test bool tstUnzip2(list[tuple[&A, &B]] L) = unzip(L) == <[a | <a,b> <- L], [b | <a,b> <- L]>;
 
