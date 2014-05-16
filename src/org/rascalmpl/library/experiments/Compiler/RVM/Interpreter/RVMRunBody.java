@@ -15,12 +15,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 
 public class RVMRunBody extends RVMRun {
 
-	public RVMRunBody(IValueFactory vf, IEvaluatorContext ctx, boolean debug, boolean profile) {
-		super(vf, ctx, debug, profile);
-	}
 
 	void nop() {
-
 	}
 
 	void POP() {
@@ -513,4 +509,8 @@ public class RVMRunBody extends RVMRun {
 		}
 		nop();
 	}
+	public RVMRunBody(RascalExecutionContext rascalExecutionContext) {
+		super(rascalExecutionContext);
+	}
+
 }
