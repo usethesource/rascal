@@ -116,7 +116,7 @@ public class QuickCheck {
 				IValue result = function.call(actualTypes, values, null).getValue();
 				function.getEval().getStdOut().flush();
 				if (!((IBool) result).getValue()) {
-					reportFailed(fname, "Test returns false", tpbindings, formals, values, out);
+					reportFailed(fname, "test returns false", tpbindings, formals, values, out);
 					return false;
 				} else if (verbose && formals.getArity() > 0) {
 					out.println((i + 1) + ": Checked with " + Arrays.toString(values) + ": true");
