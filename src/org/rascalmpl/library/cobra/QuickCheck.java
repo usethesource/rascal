@@ -76,6 +76,7 @@ public class QuickCheck {
 			int tries, boolean verbose, PrintWriter out) {
 
 		String fname = function.getName();
+	
 		Environment declEnv = function.getEnv();
 		IValueFactory vf = function.getEval().getValueFactory();
 		Type formals = function.getFormals();
@@ -133,15 +134,14 @@ public class QuickCheck {
 				expectedThrown = true;
 			}
 			if(expected != null && !expectedThrown){
-				return reportMissingException(expected, out);
+				return reportMissingException(fname, expected, out);
 			}
 		}
 
-		out.println(formals.getArity() > 0 ? "Not refuted after " + tries + " tries with maximum depth " + maxDepth
-				: "succeeded");
+		out.println("Test " + fname + (formals.getArity() > 0 ? " not refuted after " + tries + " tries with maximum depth " + maxDepth
+				: " succeeded"));
 
 		return true;
-
 	}
 	
 	private boolean reportFailed(String name, String msg, HashMap<Type, Type> tpbindings, Type formals, IValue[] values, PrintWriter out){
@@ -161,8 +161,8 @@ public class QuickCheck {
 		return false;
 	}
 	
-	private boolean reportMissingException(String msg, PrintWriter out){
-		out.println("Failed due to\n\tmissing exception: " + msg + "\n");
+	private boolean reportMissingException(String name, String msg, PrintWriter out){
+		out.println("Test " + name + " failed due to\n\tmissing exception: " + msg + "\n");
 		return false;
 	}
 
