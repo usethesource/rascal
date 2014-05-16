@@ -45,6 +45,12 @@ public test bool strAntiSymmetricLTE(str x, str y) = (x <= y && y <= x) ==> (x =
 public test bool strTransLTE(str x, str y, str z) = (x <= y && y <= z) ==> x <= z;
 public test bool strValueReflex(rat x) { value y = x; return x == y && y == x; }
 
+// lists are partially ordered
+public test bool listReflexLTE(list[value] x) = (x <= x);
+public test bool listAntiSymmetricLTE(list[value] x, list[value] y) = (x <= y && y <= x) ==> (x == y);
+public test bool listTransLTE(list[value] x, list[value] y, list[value] z) = (x <= y && y <= z) ==> x <= z;
+
+
 // sets are ordered via sub-set relation
 public test bool subsetOrdering1(set[value] x, set[value] y) = x <= x + y; 
 public test bool subsetOrdering2(set[value] x, set[value] y) = (x <= y) <==> (x == {} || all(e <- x, e in y));
