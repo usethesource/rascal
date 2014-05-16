@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -83,7 +84,8 @@ public class RVMRun {
 	// guard semantics
 	IEvaluatorContext ctx;
 	
-	
+	private List<ClassLoader> classLoaders;
+
 	public RascalExecutionContext rex ;
 
 	IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
@@ -117,21 +119,19 @@ public class RVMRun {
 		}
 	};
 
-	public RVMRun(IValueFactory vf, IEvaluatorContext ctx, boolean debug, boolean profile) {
+	public RVMRun(RascalExecutionContext rascalExecutionContext) {
 		super();
-
-		this.vf = vf;
-		tf = TypeFactory.getInstance();
-
-		this.ctx = ctx;
-		this.stdout = ctx.getStdOut();
-		this.stderr = ctx.getStdErr();
-		this.debug = debug;
-
+		
+		rex = rascalExecutionContext ;	
+		this.vf = rex.getValueFactory() ;
+		
+		this.classLoaders = rex.getClassLoaders();
+		this.stdout = rex.getStdOut();
+		this.stderr = rex.getStdErr();
+		this.debug = rex.getDebug();
+		
 		this.types = new Types(this.vf);
 
-		//TRUE = true;
-		//FALSE = false;
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
 
@@ -142,25 +142,64 @@ public class RVMRun {
 		FAILRETURN = vf.string("$failreturn$");
 		PANIC = vf.string("$panic$");
 
+		tf = TypeFactory.getInstance();
+		
+		moduleVariables = new HashMap<IValue, IValue>();
+		
 		functionStore = new ArrayList<Function>();
 		constructorStore = new ArrayList<Type>();
-
+		
 		functionMap = new HashMap<String, Integer>();
 		constructorMap = new HashMap<String, Integer>();
-
-		resolver = new HashMap<String, Integer>();
+		
+		resolver = new HashMap<String,Integer>();
 		overloadedStore = new ArrayList<OverloadedFunction>();
-
-		moduleVariables = new HashMap<IValue, IValue>();
-
-		MuPrimitive.init(vf, stdout, profile);
+		
+		MuPrimitive.init(vf, stdout, rex.getProfile());
 		RascalPrimitive.init(this, rex);
-		Opcode.init(stdout, false);
+		Opcode.init(stdout, rex.getProfile());
 	}
-
-	public RVMRun(IValueFactory vf) {
-		this(vf, null, false, false);
-	}
+	
+//	public RVMRun(IValueFactory vf, IEvaluatorContext ctx, boolean debug, boolean profile) {
+//		super();
+//
+//		this.vf = vf;
+//		tf = TypeFactory.getInstance();
+//
+//		this.ctx = ctx;
+//		this.stdout = ctx.getStdOut();
+//		this.stderr = ctx.getStdErr();
+//		this.debug = debug;
+//
+//		this.types = new Types(this.vf);
+//
+//		//TRUE = true;
+//		//FALSE = false;
+//		Rascal_TRUE = vf.bool(true);
+//		Rascal_FALSE = vf.bool(false);
+//
+//		// Return types used in code generator
+//		NONE = vf.string("$nothing$");
+//		YIELD0 = vf.string("$yield0$");
+//		YIELD1 = vf.string("$yield1$");
+//		FAILRETURN = vf.string("$failreturn$");
+//		PANIC = vf.string("$panic$");
+//
+//		functionStore = new ArrayList<Function>();
+//		constructorStore = new ArrayList<Type>();
+//
+//		functionMap = new HashMap<String, Integer>();
+//		constructorMap = new HashMap<String, Integer>();
+//
+//		resolver = new HashMap<String, Integer>();
+//		overloadedStore = new ArrayList<OverloadedFunction>();
+//
+//		moduleVariables = new HashMap<IValue, IValue>();
+//
+//		MuPrimitive.init(vf, stdout, profile);
+//		RascalPrimitive.init(this, rex);
+//		Opcode.init(stdout, false);
+//	}
 
 	public Type symbolToType(IConstructor symbol) {
 		return types.symbolToType(symbol, typeStore);
@@ -1317,7 +1356,8 @@ public class RVMRun {
 
 	public void insnSTORELOCDEREF(int loc) {
 		Reference ref = (Reference) stack[loc];
-		ref.stack[ref.pos] = stack[sp - 1]; // TODO: We need to re-consider how
+		ref.stack[ref.pos] = stack[sp - 1]; 
+			// TODO: We need to re-consider how
 											// to guarantee safe use of both
 											// Java objects and IValues
 	}
@@ -2052,12 +2092,12 @@ public class RVMRun {
 	}
 
 	public void insnLESSINT() {
-		stack[sp - 2] = ((Integer) stack[sp - 2]) < ((Integer) stack[sp - 1]);
+		stack[sp - 2] = ((Integer) stack[sp - 2]) < ((Integer) stack[sp - 1]) ? Rascal_TRUE : Rascal_FALSE ;
 		sp--;
 	}
 
 	public void insnGREATEREQUALINT() {
-		stack[sp - 2] = ((Integer) stack[sp - 2]) >= ((Integer) stack[sp - 1]);
+		stack[sp - 2] = ((Integer) stack[sp - 2]) >= ((Integer) stack[sp - 1]) ? Rascal_TRUE : Rascal_FALSE ;
 		sp--;
 	}
 
@@ -2072,9 +2112,7 @@ public class RVMRun {
 	}
 
 	public void insnANDBOOL() {
-		boolean b1 = (stack[sp - 2] instanceof Boolean) ? ((Boolean) stack[sp - 2]) : ((IBool) stack[sp - 2]).getValue();
-		boolean b2 = (stack[sp - 1] instanceof Boolean) ? ((Boolean) stack[sp - 1]) : ((IBool) stack[sp - 1]).getValue();
-		stack[sp - 2] = b1 && b2;
+		stack[sp - 2] = ((IBool) stack[sp - 2]).and((IBool) stack[sp - 1]);;
 		sp--;
 	}
 
@@ -2095,19 +2133,17 @@ public class RVMRun {
 	}
 
 	public void insnSUBTYPE() {
-		stack[sp - 2] = ((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]);
+		stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
 		sp--;
 		return;
-
 	}
 
 	public void insnCHECKARGTYPE() {
 		Type argType = ((IValue) stack[sp - 2]).getType();
 		Type paramType = ((Type) stack[sp - 1]);
-		stack[sp - 2] = argType.isSubtypeOf(paramType);
+		stack[sp - 2] =  argType.isSubtypeOf(paramType) ?  Rascal_TRUE : Rascal_FALSE ;	
 		sp--;
 		return;
-
 	}
 
 	public void insnLABEL() {

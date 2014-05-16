@@ -51,6 +51,32 @@ public class RVM {
 
 	IEvaluatorContext ctx;
 
+	private List<ClassLoader> classLoaders;
+	
+	public RVM(RascalExecutionContext rascalExecutionContext) {
+		super();
+		
+		rex = rascalExecutionContext ;	
+		this.vf = rex.getValueFactory() ;
+		
+		this.classLoaders = rex.getClassLoaders();
+		this.stdout = rex.getStdOut();
+		this.stderr = rex.getStdErr();
+		this.debug = rex.getDebug();
+		this.finalized = false;
+		
+		this.types = new Types(this.vf);
+		
+		functionStore = new ArrayList<Function>();
+		constructorStore = new ArrayList<Type>();
+		
+		functionMap = new HashMap<String, Integer>();
+		constructorMap = new HashMap<String, Integer>();
+		
+		resolver = new HashMap<String,Integer>();
+		overloadedStore = new ArrayList<OverloadedFunction>();
+	}
+
 	public RVM(IValueFactory vf, IEvaluatorContext ctx, boolean debug, boolean profile) {
 		super();
 
@@ -79,31 +105,6 @@ public class RVM {
 	}
 	RascalExecutionContext rex ;
 
-	private List<ClassLoader> classLoaders;
-	
-	public RVM(RascalExecutionContext rascalExecutionContext) {
-		super();
-
-		rex = rascalExecutionContext ;	
-		this.vf = rex.getValueFactory() ;
-		
-		this.classLoaders = rex.getClassLoaders();
-		this.stdout = rex.getStdOut();
-		this.stderr = rex.getStdErr();
-		this.debug = rex.getDebug();
-		this.finalized = false;
-
-		this.types = new Types(this.vf);
-
-		functionStore = new ArrayList<Function>();
-		constructorStore = new ArrayList<Type>();
-
-		functionMap = new HashMap<String, Integer>();
-		constructorMap = new HashMap<String, Integer>();
-
-		resolver = new HashMap<String,Integer>();
-		overloadedStore = new ArrayList<OverloadedFunction>();
-	}
 
 	public void declare(Function f) {
 		if (functionMap.get(f.getName()) != null) {
@@ -290,7 +291,8 @@ public class RVM {
 
 				Constructor<?>[] cons = generatedClass.getConstructors();
 
-				runner = (RVMRun) cons[0].newInstance(vf, ctx, debug, profile);
+				//runner = (RVMRun) cons[0].newInstance(vf, ctx, debug, profile);
+				runner = (RVMRun) cons[0].newInstance(rex);
 
 				runner.inject(functionStore, overloadedStore, constructorStore, typeStore, functionMap);
 

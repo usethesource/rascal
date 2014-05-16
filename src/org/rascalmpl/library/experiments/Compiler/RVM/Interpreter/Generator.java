@@ -80,25 +80,36 @@ public class Generator implements Opcodes {
 		cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", null);
 
 		// Main constructor
-		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Lorg/eclipse/imp/pdb/facts/IValueFactory;Lorg/rascalmpl/interpreter/IEvaluatorContext;ZZ)V", null, null);
-		mv.visitCode();
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitVarInsn(ALOAD, 1);
-		mv.visitVarInsn(ALOAD, 2);
-		mv.visitVarInsn(ILOAD, 3);
-		mv.visitVarInsn(ILOAD, 4);
-		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", "<init>",
-				"(Lorg/eclipse/imp/pdb/facts/IValueFactory;Lorg/rascalmpl/interpreter/IEvaluatorContext;ZZ)V");
-		mv.visitInsn(RETURN);
-		mv.visitMaxs(0, 0);
-		mv.visitEnd();
+//		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Lorg/eclipse/imp/pdb/facts/IValueFactory;Lorg/rascalmpl/interpreter/IEvaluatorContext;ZZ)V", null, null);
+//		mv.visitCode();
+//		mv.visitVarInsn(ALOAD, 0);
+//		mv.visitVarInsn(ALOAD, 1);
+//		mv.visitVarInsn(ALOAD, 2);
+//		mv.visitVarInsn(ILOAD, 3);
+//		mv.visitVarInsn(ILOAD, 4);
+//		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", "<init>",
+//				"(Lorg/eclipse/imp/pdb/facts/IValueFactory;Lorg/rascalmpl/interpreter/IEvaluatorContext;ZZ)V");
+//		mv.visitInsn(RETURN);
+//		mv.visitMaxs(0, 0);
+//		mv.visitEnd();
 
 		// Add constructor initialzing super.
-		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Lorg/eclipse/imp/pdb/facts/IValueFactory;)V", null, null);
+//		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Lorg/eclipse/imp/pdb/facts/IValueFactory;)V", null, null);
+//		mv.visitCode();
+//		mv.visitVarInsn(ALOAD, 0);
+//		mv.visitVarInsn(ALOAD, 1);
+//		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", "<init>", "(Lorg/eclipse/imp/pdb/facts/IValueFactory;)V");
+//		mv.visitInsn(RETURN);
+//		mv.visitMaxs(0, 0);
+//		mv.visitEnd();
+		
+		// Add constructor initialzing super. 
+		// Give it REX 15-5-2014
+		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)V", null, null);
 		mv.visitCode();
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 1);
-		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", "<init>", "(Lorg/eclipse/imp/pdb/facts/IValueFactory;)V");
+		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", "<init>", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)V");
 		mv.visitInsn(RETURN);
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
@@ -174,7 +185,7 @@ public class Generator implements Opcodes {
 		mv.visitInsn(AALOAD);
 		mv.visitTypeInsn(CHECKCAST, "org/eclipse/imp/pdb/facts/IBool");
 		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IBool", "getValue", "()Z");
-		mv.visitJumpInsn(IFEQ, lb);
+		mv.visitJumpInsn(IFNE, lb);
 	}
 
 	public void emitJMPFALSE(String targetLabel, boolean debug) {
@@ -194,7 +205,7 @@ public class Generator implements Opcodes {
 		mv.visitInsn(AALOAD);
 		mv.visitTypeInsn(CHECKCAST, "org/eclipse/imp/pdb/facts/IBool");
 		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IBool", "getValue", "()Z");
-		mv.visitJumpInsn(IFNE, lb);
+		mv.visitJumpInsn(IFEQ, lb);
 	}
 
 	public void emitLabel(String targetLabel) {
