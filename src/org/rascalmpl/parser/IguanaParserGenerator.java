@@ -32,7 +32,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.jgll.grammar.GrammarGraph;
-import org.jgll.grammar.GrammarBuilder;
+import org.jgll.grammar.GrammarGraphBuilder;
 import org.jgll.grammar.condition.Condition;
 import org.jgll.grammar.condition.ConditionType;
 import org.jgll.grammar.condition.ContextFreeCondition;
@@ -118,7 +118,7 @@ public class IguanaParserGenerator {
 	public GrammarGraph generateGrammar(IRascalMonitor monitor, String main, IMap definitions) {
 		IConstructor gr = getPreprocessedGrammar(monitor, main, definitions);
 	
-		GrammarBuilder builder = convert("inmemory", gr);
+		GrammarGraphBuilder builder = convert("inmemory", gr);
 		IMap notAllowed = (IMap) ((IMap) gr.get("about")).get(vf.string("notAllowed"));
 		IMap except = (IMap) ((IMap) gr.get("about")).get(vf.string("excepts"));
 
@@ -131,10 +131,10 @@ public class IguanaParserGenerator {
 		return builder.build();
 	}
 	
-	public GrammarBuilder convert(String name, IConstructor rascalGrammar) {
+	public GrammarGraphBuilder convert(String name, IConstructor rascalGrammar) {
 
 		GrammarSlotFactory factory = new GrammarSlotFactoryImpl();
-		GrammarBuilder builder = new GrammarBuilder(name, factory);
+		GrammarGraphBuilder builder = new GrammarGraphBuilder(name, factory);
 		
 		IMap definitions = (IMap) rascalGrammar.get("rules");
 		rulesMap = new HashMap<>();
@@ -289,7 +289,7 @@ public class IguanaParserGenerator {
 		}
 	}
 
-	private void addPrecedencePatterns(GrammarBuilder builder, IMap notAllowed) {
+	private void addPrecedencePatterns(GrammarGraphBuilder builder, IMap notAllowed) {
 
 		Iterator<Entry<IValue, IValue>> it = notAllowed.entryIterator();
 
@@ -327,7 +327,7 @@ public class IguanaParserGenerator {
 		}
 	}
 	
-	private void addExceptPatterns(GrammarBuilder builder, IMap map) {
+	private void addExceptPatterns(GrammarGraphBuilder builder, IMap map) {
 
 		Iterator<Entry<IValue, IValue>> it = map.entryIterator();
 

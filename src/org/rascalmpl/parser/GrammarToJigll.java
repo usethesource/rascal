@@ -140,6 +140,8 @@ public class GrammarToJigll {
 		addExceptPatterns(op, except);
 		addPrecedencePatterns(op, notAllowed);
 //		grammar = op.rewrite(grammar);
+		
+		System.out.println(grammar);
 
 		grammarGraph = grammar.toGrammarGraph();
 	}
@@ -183,7 +185,7 @@ public class GrammarToJigll {
 
 			case "char-class":
 				List<Range> targetRanges = buildRanges(symbol);
-				return RegularExpressionCondition.notFollow(new CharacterClass(targetRanges));
+				return RegularExpressionCondition.notFollow(CharacterClass.from(targetRanges));
 	
 			case "lit":
 				return RegularExpressionCondition.notFollow(getKeyword(symbol));
@@ -196,7 +198,7 @@ public class GrammarToJigll {
 				}
 				symbols.remove(1);
 				if(isAllRegularExpression(symbols)) {
-					return RegularExpressionCondition.notFollow(new Sequence<RegularExpression>(conver(symbols)));				
+					return RegularExpressionCondition.notFollow(Sequence.from(conver(symbols)));				
 				} else {
 					return ContextFreeCondition.notFollow(symbols);
 				}
@@ -212,7 +214,7 @@ public class GrammarToJigll {
 
 			case "char-class":
 				List<Range> targetRanges = buildRanges(symbol);
-				return RegularExpressionCondition.follow(new CharacterClass(targetRanges));
+				return RegularExpressionCondition.follow(CharacterClass.from(targetRanges));
 	
 			case "lit":
 				return RegularExpressionCondition.follow(getKeyword(symbol));
@@ -225,7 +227,7 @@ public class GrammarToJigll {
 				}
 				symbols.remove(1);
 				if(isAllRegularExpression(symbols)) {
-					return RegularExpressionCondition.follow(new Sequence<RegularExpression>(conver(symbols)));				
+					return RegularExpressionCondition.follow(Sequence.from(conver(symbols)));				
 				} else {
 					return ContextFreeCondition.follow(symbols);
 				}
@@ -240,7 +242,7 @@ public class GrammarToJigll {
 			
 			case "char-class":
 				List<Range> targetRanges = buildRanges(symbol);
-				return RegularExpressionCondition.notPrecede(new CharacterClass(targetRanges));
+				return RegularExpressionCondition.notPrecede(CharacterClass.from(targetRanges));
 	
 			case "lit":
 				return RegularExpressionCondition.notPrecede(getKeyword(symbol));
@@ -255,7 +257,7 @@ public class GrammarToJigll {
 		
 			case "char-class":
 				List<Range> targetRanges = buildRanges(symbol);
-				return RegularExpressionCondition.precede(new CharacterClass(targetRanges));
+				return RegularExpressionCondition.precede(CharacterClass.from(targetRanges));
 	
 			case "lit":
 				return RegularExpressionCondition.precede(getKeyword(symbol));
@@ -287,7 +289,6 @@ public class GrammarToJigll {
 			boolean ebnf = isEBNF(constructor);
 
 			Nonterminal head = getHead(constructor);
-			
 			
 			if(regularExpressionsMap.containsKey(head.getName())) {
 				continue;
@@ -385,10 +386,11 @@ public class GrammarToJigll {
 				IList rhs = (IList) ((IConstructor) prod).get("symbols");
 
 				List<RegularExpression> body = getRegularExpressionList(rhs);
+				
 				if(body.size() == 1) {
 					regularExpressionsMap.put(head.getName(), body.get(0));				
 				} else {
-					regularExpressionsMap.put(head.getName(), new Sequence<>(body));
+					regularExpressionsMap.put(head.getName(), Sequence.from(body));
 				}
 			}
 		}
@@ -423,7 +425,7 @@ public class GrammarToJigll {
 			IConstructor range = (IConstructor) r;
 			int begin = ((IInteger) range.get("begin")).intValue();
 			int end = ((IInteger) range.get("end")).intValue();
-			targetRanges.add(new Range(begin, end));
+			targetRanges.add(Range.in(begin, end));
 		}
 		return targetRanges;
 	}
@@ -474,9 +476,9 @@ public class GrammarToJigll {
 			// Keywords are already expanded into a sequence
 			if(choice == null) {
 				if (symbol.getName().equals("seq")) {
-					keyword = new Keyword(name, getChars((IList) symbol.get("symbols")));
+					keyword = Keyword.from(getChars((IList) symbol.get("symbols")));
 				} else if (symbol.getName().equals("char-class")) {
-						keyword = new Keyword(name, getChars(symbol));	
+						keyword = Keyword.from(getChars(symbol));	
 				}
 			} else {
 				ISet alts = null;
@@ -499,7 +501,7 @@ public class GrammarToJigll {
 						throw e;
 					}
 					
-					keyword = new Keyword(name, getChars(rhs));
+					keyword = Keyword.from(getChars(rhs));
 				}				
 			}
 			
@@ -715,31 +717,31 @@ public class GrammarToJigll {
 				break;
 	
 			case "iter":
-				regex = new RegexPlus(getRegularExpression(getSymbolCons(symbol)));
+				regex = new RegexPlus.Builder(getRegularExpression(getSymbolCons(symbol))).addObject(symbol).build();
 				break;
 	
 			case "iter-seps":
-				regex = new RegexPlus(getRegularExpression(getSymbolCons(symbol)));
+				regex = new RegexPlus.Builder(getRegularExpression(getSymbolCons(symbol))).addObject(symbol).build();
 				break;
 	
 			case "iter-star":
-				regex = new RegexStar(getRegularExpression(getSymbolCons(symbol)));
+				regex = new RegexStar.Builder(getRegularExpression(getSymbolCons(symbol))).addObject(symbol).build();
 				break;
 	
 			case "iter-star-seps":
-				regex = new RegexStar(getRegularExpression(getSymbolCons(symbol)));
+				regex = new RegexStar.Builder(getRegularExpression(getSymbolCons(symbol))).addObject(symbol).build();
 				break;
 	
 			case "opt":
-				regex = new RegexOpt(getRegularExpression(getSymbolCons(symbol)));
+				regex = new RegexOpt.Builder(getRegularExpression(getSymbolCons(symbol))).build();
 				break;
 	
 			case "alt":
-				regex = new RegexAlt<>(getRegularExpressionList((ISet) symbol.get("alternatives")));
+				regex = new RegexAlt.Builder<>(getRegularExpressionList((ISet) symbol.get("alternatives"))).addObject(symbol).build();
 				break;
 	
 			case "seq":
-				regex = new Sequence<>(getRegularExpressionList((IList) symbol.get("symbols")));
+				regex = new Sequence.Builder<>(getRegularExpressionList((IList) symbol.get("symbols"))).addObject(symbol).build();
 				break;
 				
 			default:
@@ -758,7 +760,7 @@ public class GrammarToJigll {
 
 	private CharacterClass getCharacterClass(IConstructor symbol) {
 		List<Range> targetRanges = buildRanges(symbol);
-		return new CharacterClass(targetRanges);
+		return CharacterClass.from(targetRanges);
 	}
 
 	private Set<Condition> getConditions(IConstructor symbol) {
@@ -820,7 +822,7 @@ public class GrammarToJigll {
 				for(IConstructor c : deleteList) {
 					list.add(getRegularExpression(c));
 				}
-				regex = new RegexAlt<>(list);
+				regex = RegexAlt.from(list);
 				
 				deleteSetCache.put(deleteList, regex);
 			}
