@@ -307,7 +307,8 @@ syntax ArraySubscript =
 
 syntax FloatLiteral =
    float: HexaFloatLiteral !>> [D F d f] 
-  |  float: DeciFloatLiteral \ DeciFloatLiteralKeywords !>> [D F d f] 
+  //|  float: DeciFloatLiteral \ DeciFloatLiteralKeywords !>> [D F d f]
+  |float: DeciFloatLiteral !>> [D F d f]  
   ;
 
 
@@ -991,10 +992,3 @@ syntax ClassOrInterfaceType =
    classOrInterfaceType: TypeDecSpec TypeArgs? 
   ;
 
-
-extend lang::sdf2::filters::DirectThenCountPreferAvoid;
-
-bool expectedAmb({(Expr)`(<RefType t>) <Expr e>`, appl(_,[(Expr)`(<ExprName n>)`,_*])}) = true; // (A) + 1
-bool expectedAmb({appl(_,[_*,(Expr)`(<RefType t>) <Expr e>`]), appl(_,[appl(_,[_*,(Expr)`(<ExprName n>)`]),_*])}) = true; // 1 + (A) + 1
-default bool expectedAmb(set[Tree] t) = false;
-          

@@ -34,13 +34,18 @@ public set[Production] expand(Symbol s) {
       return {choice(s,{prod(label("absent",s),[],{}),prod(label("present",s),[t],{})})};
     case \iter(t) : 
       return {choice(s,{prod(label("single",s),[t],{}),prod(label("multiple",s),[s,t],{})})};
+    //case \iter-star(t) : 
+    //  return {choice(s,{prod(label("empty",s),[],{}),prod(label("nonEmpty",s),[\iter(t)],{})})} + expand(\iter(t));
     case \iter-star(t) : 
-      return {choice(s,{prod(label("empty",s),[],{}),prod(label("nonEmpty",s),[\iter(t)],{})})} + expand(\iter(t));
+    				   return {choice(s,{prod(label("empty",s),[],{}),prod(label("nonEmpty",s),[\iter-star(t), t],{})})};
     case \iter-seps(t,list[Symbol] seps) : 
       return {choice(s, {prod(label("single",s),[t],{}),prod(label("multiple",s),[s,*seps,t],{})})};
+    //case \iter-star-seps(t, list[Symbol] seps) : 
+    //  return {choice(s,{prod(label("empty",s),[],{}),prod(label("nonEmpty",s),[\iter-seps(t,seps)],{})})} 
+    //         + expand(\iter-seps(t,seps));
     case \iter-star-seps(t, list[Symbol] seps) : 
-      return {choice(s,{prod(label("empty",s),[],{}),prod(label("nonEmpty",s),[\iter-seps(t,seps)],{})})} 
-             + expand(\iter-seps(t,seps));
+      return {choice(s,{prod(label("empty",s),[],{}),prod(label("nonEmpty",s),[\iter-star-seps(t,seps), *seps, t],{})})};
+    
     case \alt(set[Symbol] alts) :
       return {choice(s, {prod(s,[a],{}) | a <- alts})};
     case \seq(list[Symbol] elems) :
