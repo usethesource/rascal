@@ -39,6 +39,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.library.cobra.RandomType;
+import org.rascalmpl.library.cobra.util.RandomUtil;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -310,11 +311,11 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 	  }
 	  else {
       try {
-        String path = Math.random() < 0.9 ? RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5)) : RandomStringUtils.random(stRandom.nextInt(5));
+        String path = stRandom.nextDouble() < 0.9 ? RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5)) : RandomUtil.string(stRandom, stRandom.nextInt(5));
         String nested = "";
         URI uri = URIUtil.assumeCorrect("tmp:///");
         
-        if (Math.random() > 0.5) {
+        if (stRandom.nextBoolean()) {
           RandomValueTypeVisitor visitor = descend();
           ISourceLocation loc = (ISourceLocation) visitor.generate(type);
           uri = loc.getURI();
@@ -334,16 +335,13 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
 	@Override
 	public IValue visitString(Type type) {
-		if (maxDepth <= 0 || (stRandom.nextInt(2) == 0)) {
+		if (stRandom.nextBoolean() || maxDepth <= 0) {
 			return vf.string("");
-		} else {
-			RandomValueTypeVisitor visitor = descend();
-			IString str = vf.string(visitor.generate(type).toString());
-			IString result = str.concat(vf.string(RandomStringUtils.random(1)));
-			// make sure we are not generating very strange sequences
-			String normalized = Normalizer.normalize(result.getValue(), Form.NFC);
-			return vf.string(normalized);
 		}
+		String result = RandomUtil.string(stRandom, maxDepth);
+		// make sure we are not generating very strange sequences
+		result = Normalizer.normalize(result, Form.NFC);
+		return vf.string(result);
 	}
 
 	@Override
