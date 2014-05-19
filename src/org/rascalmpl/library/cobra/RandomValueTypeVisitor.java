@@ -328,7 +328,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 	  }
 	  else {
       try {
-        String path = stRandom.nextDouble() < 0.9 ? RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5)) : RandomUtil.string(stRandom, stRandom.nextInt(5));
+        String path = stRandom.nextDouble() < 0.9 ? RandomUtil.stringAlphaNumeric(stRandom, stRandom.nextInt(5)) : RandomUtil.string(stRandom, stRandom.nextInt(5));
         String nested = "";
         URI uri = URIUtil.assumeCorrect("tmp:///");
         
