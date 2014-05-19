@@ -4,11 +4,11 @@ import java.util.Random;
 
 public class RandomUtil {
 	
-	private static abstract class StringGen {
-		public abstract String generate(Random rand, int length);
+	private interface StringGen {
+		public String generate(Random rand, int length);
 	}
 	
-	private static class CharRanges extends StringGen {
+	private static class CharRanges implements StringGen {
 		private int[] start;
 		private int[] stop;
 
@@ -40,14 +40,7 @@ public class RandomUtil {
 		}
 	}
 
-	private static boolean validCodePoint(int cp) {
-		return Character.isDefined(cp) 
-			&& Character.isValidCodePoint(cp) 
-			&& Character.getType(cp) != Character.UNASSIGNED
-			;
-	}
-
-	private static class CharSets extends StringGen {
+	private static class CharSets implements StringGen {
 		private int[] chars;
 
 		public CharSets(int... chars) {
@@ -63,7 +56,7 @@ public class RandomUtil {
 		}
 	}
 	
-	private static class MixGenerators extends StringGen {
+	private static class MixGenerators implements StringGen {
 		private StringGen[] generators;
 
 		public MixGenerators(StringGen... generators) {
@@ -81,82 +74,12 @@ public class RandomUtil {
 			return result.toString();
 		}
 	}
-	
-	
-	
-	private static class NormalStrings extends CharRanges {
-		public NormalStrings() {
-			super(new int[]{'a','A','0'}, new int[]{'z','Z','9'});
-		}
-	}
-	
-	private static class NormalUnicode extends CharRanges {
-		public NormalUnicode() {
-			super(new int[]{0x0100,0x3400,0xD000}, new int[]{0x0200,0x4D00,0xD7000});
-		}
-	}
-	private static class StrangeUnicode extends CharRanges {
-		public StrangeUnicode() {
-			super(new int[]{0x12000, 0x20000}, new int[]{0x1247F, 0x215FF});
-		}
-	}
-	private static class WhiteSpace extends CharSets {
-		public WhiteSpace() {
-			super(new int[]{' ','\t','\n','\t'});
-		}
-	}
-	private static class StrangeWhiteSpace extends CharSets {
-		public StrangeWhiteSpace() {
-			super(new int[]{0x85, 0xA0, 0x1680, 0x2000, 0x2028, 0x2029,0x205F,0x3000});
-		}
-	}
-	private static class GeneralStrangeChars extends CharRanges {
-		public GeneralStrangeChars() {
-			super(new int[]{0x00, 0x21,0xA1}, new int[]{0x09,0x2F,0xAC});
-		}
-	}
-	private static class RascalEscapes extends CharSets {
-		public RascalEscapes() {
-			super(new int[]{'\"','\'','>','\\','<','@','`'});
-		}
-	}
 
-	public static String string(Random rand, int depth) {
-		StringGen generator = null;
-		switch (rand.nextInt(10)) {
-		case 0:
-			generator = new RandomUtil.MixGenerators(new RandomUtil.NormalStrings(), new RandomUtil.GeneralStrangeChars());
-			break;
-		case 1:
-			generator = new RandomUtil.MixGenerators(new RandomUtil.NormalStrings(), new RandomUtil.WhiteSpace());
-			break;
-		case 2:
-			generator = new RandomUtil.MixGenerators(new RandomUtil.StrangeWhiteSpace(), new RandomUtil.WhiteSpace());
-			break;
-		case 3:
-			generator = new RandomUtil.NormalUnicode();
-			break;
-		case 4:
-			generator = new RandomUtil.MixGenerators(new RandomUtil.NormalUnicode(), new RandomUtil.StrangeUnicode());
-			break;
-		case 5:
-			generator = new RandomUtil.MixGenerators(new RandomUtil.NormalStrings(), new RandomUtil.RascalEscapes());
-			break;
-		case 6:
-			// all of them
-			generator = new RandomUtil.MixGenerators(
-					new RandomUtil.NormalStrings(), 
-					new RandomUtil.GeneralStrangeChars(), 
-					new RandomUtil.NormalUnicode(), 
-					new RandomUtil.WhiteSpace(), 
-					new RandomUtil.RascalEscapes()
-					);
-			break;
-		default:
-			generator = new RandomUtil.NormalStrings();
-			break;
-		}
-		return sanitize(generator.generate(rand, depth));
+	private static boolean validCodePoint(int cp) {
+		return Character.isDefined(cp) 
+			&& Character.isValidCodePoint(cp) 
+			&& Character.getType(cp) != Character.UNASSIGNED
+			;
 	}
 
 	private static String sanitize(String unclean) {
@@ -169,7 +92,7 @@ public class RandomUtil {
 				i++;
 				if (i < chars.length) {
 					int cp = Character.toCodePoint(c, chars[i]);
-					if (!validCodePoint(cp)) {
+					if (!validCodePoint(cp) || !Character.isSurrogatePair(c, chars[i])) {
 						chars[i-1]	= '_';
 						chars[i]	= '_';
 					}
@@ -178,6 +101,10 @@ public class RandomUtil {
 					chars[i-1] = '_';
 				}
 			}
+			else if (Character.isLowSurrogate(c)) {
+				// this means the previous was not high
+				chars[i] = '_';
+			}
 			else if (!validCodePoint(c)) {
 				chars[i] = '_';
 			}
@@ -185,4 +112,34 @@ public class RandomUtil {
 		}
 		return new String(chars);
 	}
+
+	
+	private final static StringGen normalStrings = new CharRanges(new int[]{'a','A','0'}, new int[]{'z','Z','9'});
+	private final static StringGen generalStrangeChars = new CharRanges(new int[]{0x00, 0x21,0xA1}, new int[]{0x09,0x2F,0xAC});
+	private final static StringGen normalUnicode = new CharRanges(new int[]{0x0100,0x3400,0xD000}, new int[]{0x0200,0x4D00,0xD7000});
+	private final static StringGen strangeUnicode = new CharRanges(new int[]{0x12000, 0x20000}, new int[]{0x1247F, 0x215FF});
+	private final static StringGen whiteSpace = new CharSets(' ','\t','\n','\t');
+	private final static StringGen strangeWhiteSpace = new CharSets(0x85, 0xA0, 0x1680, 0x2000, 0x2028, 0x2029,0x205F,0x3000);
+	private final static StringGen rascalEscapes = new CharSets('\"','\'','>','\\','<','@','`');
+	
+	private final static StringGen[] generators = new StringGen[] {
+		normalStrings,
+		normalStrings,
+		normalUnicode,
+		new MixGenerators(normalStrings, generalStrangeChars),
+		new MixGenerators(normalStrings, whiteSpace),
+		new MixGenerators(strangeWhiteSpace, whiteSpace),
+		new MixGenerators(normalUnicode, strangeUnicode),
+		new MixGenerators(normalStrings, rascalEscapes),
+		new MixGenerators(normalStrings, generalStrangeChars, normalUnicode, whiteSpace, rascalEscapes)
+	};
+	
+	public static String string(Random rand, int depth) {
+		StringGen randomGenerator = generators[rand.nextInt(generators.length)];
+		return sanitize(randomGenerator.generate(rand, depth));
+	}
+	public static String stringAlphaNumeric(Random rand, int depth) {
+		return sanitize(normalStrings.generate(rand, depth));
+	}
+
 }
