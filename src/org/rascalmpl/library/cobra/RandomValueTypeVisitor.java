@@ -42,6 +42,7 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.library.cobra.util.RandomUtil;
 import org.rascalmpl.uri.URIUtil;
 
 public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeException> {
@@ -272,7 +273,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
 	@Override
 	public IValue visitNode(Type type) {
-	  String str =  Math.random() > 0.5 ? RandomStringUtils.random(stRandom.nextInt(5)) : RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5));
+	  String str = stRandom.nextBoolean() ? RandomStringUtils.random(stRandom.nextInt(5)) : RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5));
 
 	  int arity = maxDepth <= 0 ? 0: stRandom.nextInt(5);
 		IValue[] args = new IValue[arity];
@@ -327,11 +328,11 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 	  }
 	  else {
       try {
-        String path = Math.random() < 0.9 ? RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5)) : RandomStringUtils.random(stRandom.nextInt(5));
+        String path = stRandom.nextDouble() < 0.9 ? RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5)) : RandomUtil.string(stRandom, stRandom.nextInt(5));
         String nested = "";
         URI uri = URIUtil.assumeCorrect("tmp:///");
         
-        if (Math.random() > 0.5) {
+        if (stRandom.nextDouble() > 0.5) {
           RandomValueTypeVisitor visitor = descend();
           ISourceLocation loc = (ISourceLocation) visitor.generate(type);
           uri = loc.getURI();
@@ -349,76 +350,27 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 	  }
 	}
 	
-	private static boolean validCodePoint(int cp) {
-		return Character.isDefined(cp) 
-			&& Character.isValidCodePoint(cp) 
-			&& Character.getType(cp) != Character.UNASSIGNED
-			;
-	}
-	
-	private int[] generateCodePoints(int start, int stop, int count) {
-		int[] result =new int[count];
-		int range = stop - start;
-		for (int i =0 ; i < count; i++) {
-			int newPoint = 0;
-			while (!validCodePoint(newPoint)) {
-				newPoint = start + stRandom.nextInt(range);
-			}
-			result[i] = newPoint;
-
-		}
-		return result;
-	}
-	private String randomString(int count) {
-		if (stRandom.nextBoolean()) {
-			return RandomStringUtils.random(count);
-		}
-		else {
-			return new String(generateCodePoints(0x10000, 0x2FFFF, count), 0 , count);
-		}
-	}
 
 	@Override
 	public IValue visitString(Type type) {
-		if (maxDepth <= 0 || (stRandom.nextInt(2) == 0)) {
+		if (stRandom.nextBoolean() || maxDepth <= 0) {
 			return vf.string("");
-		} else {
-			RandomValueTypeVisitor visitor = descend();
-			IString str = vf.string(visitor.generate(type).toString());
-			IString result = str.concat(vf.string(randomString(1)));
-			String sanitized = sanitize(result.getValue());
-			// make sure we are not generating very strange sequences
-			String normalized = Normalizer.normalize(sanitized, Form.NFC);
-			return vf.string(normalized);
 		}
+		String result = null;
+		if (generators.containsKey(type)) {
+			// we have a custom string generator,  call that.
+			RandomValueTypeVisitor visitor = descend();
+			result = visitor.generate(type).toString();
+		}
+		else {
+			// no custom generator so lets generate a string
+			result = RandomUtil.string(stRandom, maxDepth);
+		}
+		// make sure we are not generating very strange sequences
+		result = Normalizer.normalize(result, Form.NFC);
+		return vf.string(result);
 	}
 
-	private static String sanitize(String unclean) {
-		// let's avoid testing with invalid codepoints
-		int i = 0;
-		char [] chars = unclean.toCharArray();
-		while (i < chars.length) {
-			char c = chars[i];
-			if (Character.isHighSurrogate(c)) {
-				i++;
-				if (i < chars.length) {
-					int cp = Character.toCodePoint(c, chars[i]);
-					if (!validCodePoint(cp)) {
-						chars[i-1]	= '_';
-						chars[i]	= '_';
-					}
-				}
-				else {
-					chars[i] = '_';
-				}
-			}
-			else if (!validCodePoint(c)) {
-				chars[i] = '_';
-			}
-			i++;
-		}
-		return new String(chars);
-	}
 
 	@Override
 	public IValue visitTuple(Type type) {
