@@ -2,6 +2,7 @@ module lang::rascal::tests::Matching
 
 import List;
 import IO;
+import ParseTree;
 
 syntax A = a: "a";
 
@@ -9,21 +10,53 @@ syntax As = as: A+ alist;
 
 syntax C = c: A a "x" As as;
 
-test bool tstA(){
+syntax D = d: "d";
+
+syntax Ds = ds: {D ","}+ dlist;
+
+test bool testIs(){
     pt = parse(#A, "a");
     return a() := pt && pt is a;
 }
 
-test bool tstAs(){
+test bool testAs(){
     pt = parse(#As, "aaa");
     return as(al) := pt && pt is as && pt.alist == al;
 }
 
-test bool tstC(){
+test bool testMatchC(){
     pt = parse(#C, "axaaa");
-    return c(A a, As as) := pt && pt.a == a && pt.as == as && size([x | x <- as.alist]) == 3;
+    return c(A a, As as) := pt;
 }
 
+test bool testFieldSelectC(){
+    pt = parse(#C, "axaaa");
+    return c(A a, As as) := pt && pt.a == a;
+}
+test bool testFieldSelectC2(){
+    pt = parse(#C, "axaaa");
+    return c(A a, As as) := pt && pt.as == as;
+}
+
+test bool testConcreteListC1(){
+    pt = parse(#C, "axaaa");
+    return c(A a, As as) := pt && as.alist[0] == [A]"a";
+}
+
+test bool testConcreteListC2(){
+    pt = parse(#C, "axaaa");
+    return c(A a, As as) := pt && size([x | x <- as.alist]) == 3;
+}
+
+test bool testConcreteListD1(){
+    pt = parse(#Ds, "d,d");
+    return Ds ds := pt && ds.dlist[0] == [D]"d";
+}
+
+test bool testConcreteListD2(){
+    pt = parse(#Ds, "d,d");
+    return Ds ds := pt && size([x | x <- ds.dlist]) == 2;
+}
 
 data T1 = \int() | \void() | string(str s);
 data T2 = \int() | \void() | string(str s);

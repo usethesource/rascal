@@ -18,4 +18,3 @@ private void kwp(value x = 1) {
   // this is a regression test for a bug;
   x = "node"(); // if the static type of the kwp is value, then we should be allowed to assign a node into it.
 }
-  

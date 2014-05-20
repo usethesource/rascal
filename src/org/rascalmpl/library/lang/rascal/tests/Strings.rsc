@@ -208,6 +208,8 @@ public test bool tstIsValidCharacter(str S) = isEmpty(S) || all(i <- [0 .. size(
 
 public test bool tstLeft1(str S) { l = left(S, size(S) + 5); return startsWith(l, S) && endsWith(l, " "); }
 public test bool tstLeft2(str S) { l = left(S, size(S) + 5, "x"); return startsWith(l, S) && endsWith(l, "x"); }
+public test bool tstLeft1_s(str S) { l = left(S, size(S) + 1); return startsWith(l, S) && endsWith(l, " "); }
+public test bool tstLeft2_s(str S) { l = left(S, size(S) + 1, "x"); return startsWith(l, S) && endsWith(l, "x"); }
 
 
 public test bool tstReplaceAll(str S1, str S2, str S3) {
@@ -237,7 +239,7 @@ public test bool tstRight2(str S) { r = right(S, size(S) + 5, "x"); return endsW
 
 public test bool tstSize(str S) = size(S) == size(chars(S));
 
-public test bool tstSplit(str S1, str S2) = isEmpty(S1) || isEmpty(S2) || contains(S2, S1) || split(S1, S2 + S1 + S2 + S1) == [S2, S2];
+public test bool tstSplit(str S1, str S2) = isEmpty(S1) || isEmpty(S2) || contains(S2, S1) || S1[-1] == S2[0] || S1[0] == S2[-1] || split(S1, S2 + S1 + S2 + S1) == [S2, S2];
 
 // squeeze
 
