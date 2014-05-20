@@ -338,7 +338,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		if (stRandom.nextBoolean() || maxDepth <= 0) {
 			return vf.string("");
 		}
-		String result = RandomUtil.string(stRandom, maxDepth);
+		String result = RandomUtil.string(stRandom, 1 + stRandom.nextInt(maxDepth + 3));
 		// make sure we are not generating very strange sequences
 		result = Normalizer.normalize(result, Form.NFC);
 		return vf.string(result);
