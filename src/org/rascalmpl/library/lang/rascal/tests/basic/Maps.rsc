@@ -1,4 +1,4 @@
-module lang::rascal::tests::Maps
+module lang::rascal::tests::basic::Maps
 
 import Map;
 import Set;

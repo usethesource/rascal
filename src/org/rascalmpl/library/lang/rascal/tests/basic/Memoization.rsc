@@ -1,7 +1,7 @@
 @doc{
 This module test the memoization feature
 }
-module lang::rascal::tests::Memoization
+module lang::rascal::tests::basic::Memoization
 
 import Set;
 

@@ -1,4 +1,4 @@
-module lang::rascal::tests::Tuples
+module lang::rascal::tests::basic::Tuples
 
 import Tuple;
 

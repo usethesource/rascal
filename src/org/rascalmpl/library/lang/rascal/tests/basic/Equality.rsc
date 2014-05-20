@@ -1,4 +1,4 @@
-module lang::rascal::tests::Equality
+module lang::rascal::tests::basic::Equality
 
 import util::Math;
 import Set;

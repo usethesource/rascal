@@ -1,5 +1,5 @@
-module tests::functionality::AliasTCTests
+module lang::rascal::tests::functionality::AliasTCTests
 
-import StaticTestingUtils;
+import lang::rascal::tests::static::StaticTestingUtils;
 
 public test bool outofOrderDeclaration() = declarationError("INTEGER0 x = 0; x == 0;", initialDecls=["alias INTEGER0 = INTEGER1;", "alias INTEGER1 = int;"]);

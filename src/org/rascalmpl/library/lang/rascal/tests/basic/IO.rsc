@@ -1,4 +1,4 @@
-module lang::rascal::tests::IO
+module lang::rascal::tests::basic::IO
 
 import String;
 

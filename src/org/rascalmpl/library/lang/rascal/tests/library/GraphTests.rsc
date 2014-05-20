@@ -1,4 +1,4 @@
- module tests::library::GraphTests
+ module lang::rascal::tests::library::GraphTests
   /*******************************************************************************
    * Copyright (c) 2009-2011 CWI
    * All rights reserved. This program and the accompanying materials

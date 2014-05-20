@@ -1,4 +1,4 @@
-module tests::functionality::FunctionCompositionTests
+module lang::rascal::tests::functionality::FunctionCompositionTests
 /*******************************************************************************
  * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials

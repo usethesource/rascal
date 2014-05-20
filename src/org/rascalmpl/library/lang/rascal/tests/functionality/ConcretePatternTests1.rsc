@@ -1,4 +1,4 @@
-module tests::functionality::ConcretePatternTests1
+module lang::rascal::tests::functionality::ConcretePatternTests1
 
 import ParseTree;
 

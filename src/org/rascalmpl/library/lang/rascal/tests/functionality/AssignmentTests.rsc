@@ -1,4 +1,4 @@
- module tests::functionality::AssignmentTests
+ module lang::rascal::tests::functionality::AssignmentTests
   
   	
   // testSimple

@@ -1,4 +1,4 @@
-module tests::library::ListRelationsTests
+module lang::rascal::tests::library::ListRelationsTests
 
 import List;
 

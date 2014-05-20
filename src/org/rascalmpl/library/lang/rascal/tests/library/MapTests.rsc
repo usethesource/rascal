@@ -1,4 +1,4 @@
- module tests::library::MapTests
+ module lang::rascal::tests::library::MapTests
   /*******************************************************************************
    * Copyright (c) 2009-2013 CWI
    * All rights reserved. This program and the accompanying materials

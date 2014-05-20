@@ -1,4 +1,4 @@
-module lang::rascal::tests::Relations
+module lang::rascal::tests::basic::Relations
 
 import Set;
 import Relation;

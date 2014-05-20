@@ -1,6 +1,6 @@
-module tests::functionality::DataDeclarationTCTests
+module lang::rascal::tests::functionality::DataDeclarationTCTests
 
-import StaticTestingUtils;
+import lang::rascal::tests::static::StaticTestingUtils;
 
 public test bool UndefinedValue1() = 
 	uninitialized("Bool b; b.left;", initialDecls=["data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);"]);  

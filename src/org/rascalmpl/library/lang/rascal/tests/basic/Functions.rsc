@@ -1,4 +1,4 @@
-module lang::rascal::tests::Functions
+module lang::rascal::tests::basic::Functions
 
 data B = and(B lhs, B rhs) | or(B lhs, B rhs) | t() | f();
 

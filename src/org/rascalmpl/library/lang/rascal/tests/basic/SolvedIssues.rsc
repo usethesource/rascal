@@ -3,7 +3,7 @@
 In this test module we collect test cases that are associated with bugs from the past.
 This is just to make sure the bugs are not re-introduced accidentally.
 }
-module lang::rascal::tests::SolvedIssues
+module lang::rascal::tests::basic::SolvedIssues
 
 import List;
 

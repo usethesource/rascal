@@ -1,6 +1,6 @@
-module tests::functionality::ProjectionTCTests
+module lang::rascal::tests::functionality::ProjectionTCTests
 
-import StaticTestingUtils;
+import lang::rascal::tests::static::StaticTestingUtils;
 
 public test bool empty1() = unexpectedType("{}\<0\> ;");
 

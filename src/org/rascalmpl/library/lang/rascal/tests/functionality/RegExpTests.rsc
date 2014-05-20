@@ -1,4 +1,4 @@
-module tests::functionality::RegExpTests
+module lang::rascal::tests::functionality::RegExpTests
 
 //	match 
 

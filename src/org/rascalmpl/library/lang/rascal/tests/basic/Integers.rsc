@@ -1,4 +1,4 @@
-module lang::rascal::tests::Integers
+module lang::rascal::tests::basic::Integers
 
 public test bool commAdd(int i, int j) = i + j == j + i;
 

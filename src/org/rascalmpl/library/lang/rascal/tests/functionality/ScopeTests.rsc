@@ -1,4 +1,4 @@
-module tests::functionality::ScopeTests
+module lang::rascal::tests::functionality::ScopeTests
 
 	/* The following tests have been removed since we no longer support shadowing
 	

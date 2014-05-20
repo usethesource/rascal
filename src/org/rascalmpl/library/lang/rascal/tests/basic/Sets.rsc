@@ -1,4 +1,4 @@
-module lang::rascal::tests::Sets
+module lang::rascal::tests::basic::Sets
 
 import Set;
 import List;

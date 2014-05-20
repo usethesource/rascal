@@ -1,4 +1,4 @@
-  module tests::functionality::PatternTests
+  module lang::rascal::tests::functionality::PatternTests
   /*******************************************************************************
    * Copyright (c) 2009-2011 CWI
    * All rights reserved. This program and the accompanying materials
