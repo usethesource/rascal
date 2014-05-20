@@ -2956,12 +2956,12 @@ public class Prelude {
 	//@doc{format -- return string of length n, with s placed according to dir (left/center/right) and padded with pad}
 	{
 	    StringBuffer res = new StringBuffer();
-	    int sLen = s.getValue().length();
+	    int sLen = s.length();
 	    int nVal = n.intValue();
 	    if(sLen > nVal){
 	       return s;
 	    }
-	    int padLen = pad.getValue().length();
+	    int padLen = pad.length();
 	    java.lang.String dirVal = dir.getValue();
 	    int start;
 	    
@@ -2978,8 +2978,8 @@ public class Prelude {
 	         	res.append(pad.getValue());
 	         	i+= padLen;
 	         } else {
-	         	res.append(pad.getValue().substring(0, start - i));
-	         	i += start -i;
+	         	res.append(pad.substring(0, start - i).getValue());
+	         	i += start - i;
 	         }
 	    }
 	    res.append(s.getValue());
@@ -2989,7 +2989,7 @@ public class Prelude {
 	         	res.append(pad.getValue());
 	         	i += padLen;
 	         } else {
-	         	res.append(pad.getValue().substring(0, nVal - i));
+	         	res.append(pad.substring(0, nVal - i).getValue());
 	         	i += nVal - i;
 	         }
 	    }
@@ -3017,6 +3017,9 @@ public class Prelude {
 	public IValue startsWith(IString s, IString prefix)
 	//@doc{startsWith -- return true if string s starts with the string prefix.}
 	{
+		if (prefix.length() == 0) {
+			return values.bool(true);
+		}
 	  return values.bool(s.getValue().startsWith(prefix.getValue()));
 	}
 
