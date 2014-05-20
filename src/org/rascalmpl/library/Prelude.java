@@ -1129,7 +1129,10 @@ public class Prelude {
 					while (seen < offset) {
 						char c = (char)buffer.read();
 						if (Character.isHighSurrogate(c)) {
-							buffer.read();
+							c = (char)buffer.read();
+							if (!Character.isLowSurrogate(c))
+								seen++;// strange string but it is possible
+
 						}
 						seen++;
 					}
@@ -1150,7 +1153,7 @@ public class Prelude {
 							if (c == -1) {
 								break; // EOF
 							}
-							result.append((char)buffer.read());
+							result.append((char)c);
 							if (!Character.isLowSurrogate((char)c)) {
 								// strange but in case of incorrect unicode stream
 								// let's not eat the next character
