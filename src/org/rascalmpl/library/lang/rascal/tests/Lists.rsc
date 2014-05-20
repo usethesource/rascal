@@ -4,6 +4,7 @@ import IO;
 import List;
 import ListRelation;
 import Set;
+import Map;
 import String;
 import Boolean;
 import util::Math;
@@ -32,9 +33,8 @@ public test bool diff(list[&T] A, list[&T] B) = isDiff(A, B, A - B);
 bool isEqual(list[&T] A, list[&T] B) = 
      size(A) == size(B) ? (true | (it && (elementAt(A,i) == elementAt(B,i))) | int i <- index(A)) : false;
 
-// Its seems that a reducer cannot  be nested in a boolean expression.
-//bool isEqual(list[&T] A, list[&T] B) = 
-//     size(A) == size(B) && (true | (it && (A[i] == B[i])) | int i <- index(A));
+bool isEqual(list[&T] A, list[&T] B) = 
+     size(A) == size(B) && (true | (it && (A[i] == B[i])) | int i <- index(A));
 
 public test bool equal1(list[&T] A) = A == A;
 public test bool equal2(list[&T] A, list[&T] B) = (A == B) ? isEqual(A,B) : !isEqual(A, B);
@@ -49,7 +49,7 @@ bool isIn(&T x, list[&T] L) = (false | it || (x == e) | e <- L);
 public bool isSorted(list[int] L) = !any(int i <- index(L), int j <- index(L), i < j && elementAt(L,i) > elementAt(L,j));
 
 // Frequency of x in L
-bool freq(&T x, list[&T] L) = (0 | e == x ? it + 1 : it | e <- L);
+int freq(&T x, list[&T] L) = (0 | e == x ? it + 1 : it | e <- L);
 
 // Merge two lists, keeping their order
 public list[&T] mergeOrdered(list[&T] A, list[&T] B) {
@@ -144,6 +144,7 @@ public test bool sliceFirst(list[&T] L) {
 //      append L[i];
 //}
 
+
 public list[int] makeSlice(list[int] L, int f, int s, int e){
   res = [];
   int i = f;
@@ -229,32 +230,46 @@ public test bool sliceSecondNegative(list[int] L) {
   return S == makeSlice(L, 0, size(L) - incr, size(L));
 }
 
-public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] = [10,20]; return L == [10,20,10,20,10,20,10,20,10,20];}
-public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] = [10,20]; return   L == [0,1,10,20,10,20,10,20,10,20];}
-public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] = [10,20]; return L == [0,1,10,20,10,20,6,7,8,9];}
-public test bool assignSlice() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] = [10,20]; return L == [0,1,2,3,10,20,10,20,10,9];}
+public test bool assignSlice1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] = [10,20]; return L == [10,20,10,20,10,20,10,20,10,20];}
+public test bool assignSlice2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] = [10,20]; return   L == [0,1,10,20,10,20,10,20,10,20];}
+public test bool assignSlice3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] = [10,20]; return L == [0,1,10,20,10,20,6,7,8,9];}
+public test bool assignSlice4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] = [10,20]; return L == [0,1,2,3,10,20,10,20,10,9];}
 
-public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10]; return L == [10,1,10,3,10,5,10,7,10,9];}
-public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20]; return L == [10,1,20,3,10,5,20,7,10,9];}
-public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10]; return L == [10,1,10,3,10,5,10,7,10,9];}
-public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20]; return L == [10,1,20,3,10,5,20,7,10,9];}
-public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20,30]; return L == [10,1,20,3,30,5,10,7,20,9];}
-public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20,30,40,50,60,70]; return L == [10,1,20,3,30,5,40,7,50,9,60,70];}
+public test bool assignStep1() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10]; return L == [10,1,10,3,10,5,10,7,10,9];}
+public test bool assignStep2() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20]; return L == [10,1,20,3,10,5,20,7,10,9];}
+public test bool assignStep3() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10]; return L == [10,1,10,3,10,5,10,7,10,9];}
+public test bool assignStep4() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20]; return L == [10,1,20,3,10,5,20,7,10,9];}
+public test bool assignStep5() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20,30]; return L == [10,1,20,3,30,5,10,7,20,9];}
+public test bool assignStep6() { L = [0,1,2,3,4,5,6,7,8,9]; L[,2..] = [10,20,30,40,50,60,70]; return L == [10,1,20,3,30,5,40,7,50,9,60,70];}
 
-public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[2,4..] = [10]; return L == [0,1,10,3,10,5,10,7,10,9];}
-public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[2,4..6] = [10]; return L == [0,1,10,3,10,5,6,7,8,9];}
+public test bool assignStep7() { L = [0,1,2,3,4,5,6,7,8,9]; L[2,4..] = [10]; return L == [0,1,10,3,10,5,10,7,10,9];}
+public test bool assignStep8() { L = [0,1,2,3,4,5,6,7,8,9]; L[2,4..6] = [10]; return L == [0,1,10,3,10,5,6,7,8,9];}
 
-public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[,6..1] = [10]; return L == [0,1,2,10,4,5,10,7,8,10];}
-public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[8,6..] = [10]; return L == [10,1,10,3,10,5,10,7,10,9];}
-public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[8,6..3] = [10]; return L == [0,1,2,3,10,5,10,7,10,9];}
+public test bool assignStep9() { L = [0,1,2,3,4,5,6,7,8,9]; L[,6..1] = [10]; return L == [0,1,2,10,4,5,10,7,8,10];}
+public test bool assignStep10() { L = [0,1,2,3,4,5,6,7,8,9]; L[8,6..] = [10]; return L == [10,1,10,3,10,5,10,7,10,9];}
+public test bool assignStep11() { L = [0,1,2,3,4,5,6,7,8,9]; L[8,6..3] = [10]; return L == [0,1,2,3,10,5,10,7,10,9];}
 
-public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-2..] = [10,20,30,40,50]; return L == [50,40,30,20,10,50,40,30,20,10];}
-public test bool assignStep() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-3..] = [10,20,30,40,50]; return L == [0,50,2,40,4,30,6,20,8,10];}
+public test bool assignStep12() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-2..] = [10,20,30,40,50]; return L == [50,40,30,20,10,50,40,30,20,10];}
+public test bool assignStep13() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-3..] = [10,20,30,40,50]; return L == [0,50,2,40,4,30,6,20,8,10];}
 
-//public test bool assignAdd() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] += [10]; return L == [10,11,12,13,14,15,16,17,18,19]; }
-//public test bool assignAdd() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] += [10]; return L == [0,1,12,13,14,15,16,17,18,19]; }
-//public test bool assignAdd() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] += [10]; return L == [0,1,12,13,14,15,6,7,8,9];}
-//public test bool assignAdd() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] += [10]; return L == [0,1,2,3,14,15,16,17,18,9];}
+// The following tests fail in the interpreter
+
+public test bool assignAdd1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] += [10]; return L == [10,11,12,13,14,15,16,17,18,19]; }
+public test bool assignAdd2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] += [10]; return L == [0,1,12,13,14,15,16,17,18,19]; }
+public test bool assignAdd3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] += [10]; return L == [0,1,12,13,14,15,6,7,8,9];}
+public test bool assignAdd4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] += [10]; return L == [0,1,2,3,14,15,16,17,18,9];}
+
+public test bool assignSub1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] -= [10]; return L == [-10,1-10,2-10,3-10,4-10,5-10,6-10,7-10,8-10,9-10]; }
+public test bool assignSub2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] -= [10]; return L == [0,1,2-10,3-10,4-10,5-10,6-10,7-10,8-10,9-10]; }
+public test bool assignSub3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] -= [10]; return L == [0,1,2-10,3-10,4-10,5-10,6,7,8,9];}
+public test bool assignSub4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] -= [10]; return L == [0,1,2,3,4-10,5-10,6-10,7-10,8-10,9];}
+
+public test bool assignProd1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] *= [10]; return L == [0,10,20,30,40,50,60,70,80,90]; }
+public test bool assignProd2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] *= [10]; return L == [0,1,20,30,40,50,60,70,80,90]; }
+public test bool assignProd3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] *= [10]; return L == [0,1,20,30,40,50,6,7,8,9];}
+public test bool assignProd4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] *= [10]; return L == [0,1,2,3,40,50,60,70,80,9];}
+
+// TODO: add tests for /= and &= 
 
 // Library functions
 
@@ -268,7 +283,7 @@ public test bool tstDelete(list[&T] L) {
    
 // TODO: distribution
 
-/* Removedfrom library
+/* domain has been removed from List
 public test bool tstDomain(list[&T] L) = domain(L) == toSet([0..size(L)]);
 */
 
@@ -300,7 +315,7 @@ public test bool tstHeadN(list[&T] L) {
 
 public test bool tstHeadTail(list[&T] L) = isEmpty(L) || headTail(L) == <elementAt(L,0), size(L) == 1 ? [] : L[1..]>;
    
-public test bool tstIndex(list[int] L) = index(L) == [0..size(L)];
+public test bool tstIndex(list[int] L) = (index(L) == [0..size(L)]);
 
 public test bool tstIndexOf(list[int] L) {
   int n = -1;
@@ -317,9 +332,6 @@ public test bool tstInsertAt(list[&T] L, &T e){
   n = arbInt(size(L));
   return insertAt(L, n, e) == L[..n] + [e] + L[n..];
 }
-
-// sep = "\"\\\"\\\"�������\"������";
-// L = [<({-113949296r42589197}:797878609r38010066)>,$4551-10-12T12:45:25.024+01:00,"����������������"({|tmp:///|})];
 
 public test bool tstIntercalate(str sep, list[value] L) = 
        intercalate(sep, L) == (isEmpty(L) ? ""
@@ -435,6 +447,7 @@ public test bool tstToSet(list[&T] L) = toSet(L) == {x | x <- L};
 
 public test bool tstToString(list[&T] L) = (readTextValueString(#list[&T], toString(L)) == L);
 
+
 public test bool tstUnzip2(list[tuple[&A, &B]] L) = unzip(L) == <[a | <a,b> <- L], [b | <a,b> <- L]>;
 
 public test bool tstUnzip3(list[tuple[&A, &B, &C]] L) = 
@@ -448,60 +461,60 @@ public test bool tstZip(list[&T] L) = zip(L, L) == [<x, x> | x <- L];
 // incorrect dynamic types make pattern matching fail;
 
 public test bool dtstSlice(list[&T] lst) {
-if(isEmpty(lst)) return true;
-int b = 0;
-if(size(lst) != 1) b = arbInt(size(lst) - 1);
-int len = arbInt(size(lst) - b);
-if(len == 0) return true;
-lhs = slice(lst, b, len);
-rhs = lst[b..(len + b)];
-return lhs == rhs && typeOf(lhs) == typeOf(rhs);
+	if(isEmpty(lst)) return true;
+	int b = 0;
+	if(size(lst) != 1) b = arbInt(size(lst) - 1);
+	int len = arbInt(size(lst) - b);
+	if(len == 0) return true;
+	lhs = slice(lst, b, len);
+	rhs = lst[b..(len + b)];
+	return lhs == rhs && typeOf(lhs) == typeOf(rhs);
 }
 
 public test bool dtstDelete(list[&T] lst) {
-if(isEmpty(lst)) return true;
-int index = 0;
-if(size(lst) != 1) index = arbInt(size(lst) - 1);
-lhs = delete(lst, index);
-rhs = [ lst[i] | int i <- [0..size(lst)], i != index ];
-return lhs == rhs && typeOf(lhs) == typeOf(rhs);
+	if(isEmpty(lst)) return true;
+	int index = 0;
+	if(size(lst) != 1) index = arbInt(size(lst) - 1);
+	lhs = delete(lst, index);
+	rhs = [ lst[i] | int i <- [0..size(lst)], i != index ];
+	return lhs == rhs && typeOf(lhs) == typeOf(rhs);
 }
 
 public test bool dtstDrop(list[&T] lst) {
-if(isEmpty(lst)) return true;
-int n = 0;
-if(size(lst) != 1) n = arbInt(size(lst) - 1);
-lhs = drop(n, lst);
-rhs = [ lst[i] | int i <- [n..size(lst)] ];
-return lhs == rhs && typeOf(lhs) == typeOf(rhs);
+	if(isEmpty(lst)) return true;
+	int n = 0;
+	if(size(lst) != 1) n = arbInt(size(lst) - 1);
+	lhs = drop(n, lst);
+	rhs = [ lst[i] | int i <- [n..size(lst)] ];
+	return lhs == rhs && typeOf(lhs) == typeOf(rhs);
 }
 
 public test bool dtstHead(list[&T] lst) {
-if(isEmpty(lst)) return true;
-int n = 0;
-if(size(lst) != 1) n = arbInt(size(lst) - 1);
-if(n == 0) return true;
-lhs = head(lst, n);
-rhs1 = [ lst[i] | int i <- [0..n] ];
-rhs2 = take(n, lst);
-return lhs == rhs1 && lhs == rhs2 && typeOf(lhs) == typeOf(rhs1) && typeOf(lhs) == typeOf(rhs2);
+	if(isEmpty(lst)) return true;
+	int n = 0;
+	if(size(lst) != 1) n = arbInt(size(lst) - 1);
+	if(n == 0) return true;
+	lhs = head(lst, n);
+	rhs1 = [ lst[i] | int i <- [0..n] ];
+	rhs2 = take(n, lst);
+	return lhs == rhs1 && lhs == rhs2 && typeOf(lhs) == typeOf(rhs1) && typeOf(lhs) == typeOf(rhs2);
 }
 
 public test bool dtstTail(list[&T] lst) {
-if(isEmpty(lst)) return true;
-int n = 0;
-if(size(lst) != 1) n = arbInt(size(lst) - 1);
-if(n == 0) return true;
-lhs = tail(lst, n);
-rhs = [ lst[i] | int i <- [(size(lst) - n)..size(lst)] ];
-return lhs == rhs && typeOf(lhs) == typeOf(rhs);
+	if(isEmpty(lst)) return true;
+	int n = 0;
+	if(size(lst) != 1) n = arbInt(size(lst) - 1);
+	if(n == 0) return true;
+	lhs = tail(lst, n);
+	rhs = [ lst[i] | int i <- [(size(lst) - n)..size(lst)] ];
+	return lhs == rhs && typeOf(lhs) == typeOf(rhs);
 }
 
 public test bool dtstPrefix(list[&T] lst) {
-if(isEmpty(lst) || size(lst) == 1) return true;
-lhs = prefix(lst);
-rhs = [ lst[i] | int i <- [0..(size(lst) - 1)] ];
-return lhs == rhs && typeOf(lhs) == typeOf(rhs);
+	if(isEmpty(lst) || size(lst) == 1) return true;
+	lhs = prefix(lst);
+	rhs = [ lst[i] | int i <- [0..(size(lst) - 1)] ];
+	return lhs == rhs && typeOf(lhs) == typeOf(rhs);
 }
 
 public test bool dtstDifference(list[&T] lst) {
@@ -520,11 +533,12 @@ public test bool dtstIntersection(list[&T] lst) {
 	if(isEmpty(lst)) return true;
 	bool check = true;
 	for([*l1, *l2] := lst) {
-	lhs1 = lst & l1;
-	rhs1 = [ el | &T el <- lst, el in l1 ];
-	lhs2 = lst & l2;
-	rhs2 = [ el | &T el <- lst, el in l2 ];
-check = check && lhs1 == rhs1 && typeOf(lhs1) == typeOf(rhs1) && lhs2 == rhs2 && typeOf(lhs2) == typeOf(rhs2);
-}
+	    lhs1 = lst & l1;
+	    rhs1 = [ el | &T el <- lst, el in l1 ];
+	    lhs2 = lst & l2;
+	    rhs2 = [ el | &T el <- lst, el in l2 ];
+        check = check && lhs1 == rhs1 && typeOf(lhs1) == typeOf(rhs1) && lhs2 == rhs2 && typeOf(lhs2) == typeOf(rhs2);
+    }
 	return check;
 }
+

@@ -8,19 +8,19 @@ import ListRelation;
 public test bool product(list[&A]X, list[&B] Y) =
   isEmpty(X) ==> isEmpty(X * Y) ||
   isEmpty(Y) ==> isEmpty(X * Y) ||
-  all(<x, y> <- X * Y, z <- range(X), <a, z> in X, <z, y> in Y);
+  all(<x, y> <- X * Y, z <- range(X * Y), <x, z> in X, <z, y> in Y);
   
 public test bool composition(lrel[int, str]X, lrel[str, int] Y) =
   isEmpty(X) ==> isEmpty(X o Y) ||
   isEmpty(Y) ==> isEmpty(X o Y) ||
-  all(<x, y> <- X o Y, z <- range(X), <a, z> in X, <z, y> in Y);
-  
+  all(<x, y> <- X o Y, z <- range(X), <x, z> in X, <z, y> in Y);
+
 public test bool selection(lrel[&A fa, &B fb] X) =
   X.fa == domain(X) && X.fb == range(X) && X.fa == X<0> && X.fb == X<1>;
   
 public test bool \join(lrel[&A, &B]X, lrel[&B, &C, &D] Y) =
-  isEmpty(X) ==> X join Y == Y ||
-  isEmpty(Y) ==> X join Y == X ||
+  isEmpty(X) ==> size(X join Y) == size(Y) ||
+  isEmpty(Y) ==> size(X join Y) == size(X) ||
   (X join Y)<0, 1> == X && (X join Y)<2,3,4> == Y;  
   
 // Note that all subscriptions are of the form X[{a}] to avoid that a is interpreted as an integer index.  
@@ -29,7 +29,7 @@ public test bool subscription(lrel[&A, &B, &C] X) =
   all(&A a <- domain(X), any(<&B b, &C c> <- X[{a}], <a, b, c> in X)) &&
   all(<&A a, &B b, &C c> <- X, <b, c> in X[{a}]);
   
-public test bool tclosure(lrel[int, int] X) =   // TODO: Fix test framework to handle type parameters
+public test bool tclosure(lrel[int, int] X) = 
   isEmpty(X) ||
   X <= (X+) && (X+) + (X+) o X == (X+);
   
@@ -69,7 +69,7 @@ public test bool tst_complement(lrel[int, int] X) =
    
 public test bool tst_domain(lrel[int, int] X) = 
    isEmpty(X) || 
-   all(<a, b> <- X, a in domain(X)) && all(a <- domain(X), any(<x, y> <- X, x == a));
+   all(<a, b> <- X, a in domain(X)) && all(c <- domain(X), any(<int x, int y> <- X, x == c));
    
 public test bool tst_domainR(lrel[int, int] X) {
    s = sample(X);
@@ -89,7 +89,7 @@ public test bool tst_invert(lrel[int, int] X) = invert(invert(X)) == X;
 
 public test bool tst_range(lrel[int, int] X) = 
    isEmpty(X) || 
-   all(<a, b> <- X, b in range(X)) && all(a <- range(X), any(<x, y> <- X, y == a));
+   all(<int a, int b> <- X, b in range(X)) && all(int c <- range(X), any(<int x, int y> <- X, y == c));
    
 public test bool tst_rangeR(lrel[int, int] X) {
    s = sample(X);
