@@ -364,7 +364,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		}
 		else {
 			// no custom generator so lets generate a string
-			result = RandomUtil.string(stRandom, maxDepth);
+			result = RandomUtil.string(stRandom, 1 + stRandom.nextInt(maxDepth + 3));
 		}
 		// make sure we are not generating very strange sequences
 		result = Normalizer.normalize(result, Form.NFC);
