@@ -107,7 +107,7 @@ public class RandomUtil {
 	
 	private final static StringGen normalStrings = new CharRanges(new int[]{'a','A','0'}, new int[]{'z','Z','9'});
 	private final static StringGen generalStrangeChars = new CharRanges(new int[]{0x00, 0x21,0xA1}, new int[]{0x09,0x2F,0xAC});
-	private final static StringGen normalUnicode = new CharRanges(new int[]{0x0100,0x3400,0xD000}, new int[]{0x0200,0x4D00,0xD7000});
+	private final static StringGen normalUnicode = new CharRanges(new int[]{0x0100,0x3400,0xD000}, new int[]{0x0200,0x4D00,0xD700});
 	private final static StringGen strangeUnicode = new CharRanges(new int[]{0x12000, 0x20000}, new int[]{0x1247F, 0x215FF});
 	private final static StringGen whiteSpace = new CharSets(' ','\t','\n','\t');
 	private final static StringGen strangeWhiteSpace = new CharSets(0x85, 0xA0, 0x1680, 0x2000, 0x2028, 0x2029,0x205F,0x3000);
