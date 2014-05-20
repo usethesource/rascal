@@ -3125,11 +3125,11 @@ public class Prelude {
 	  return values.string(s.getValue().toUpperCase());
 	}
 	
-	private boolean match(char[] subject, int i, char [] pattern){
-		if(i + pattern.length > subject.length)
+	private boolean match(IString subject, int i, IString pattern){
+		if(i + pattern.length() > subject.length())
 			return false;
-		for(int k = 0; k < pattern.length; k++){
-			if(subject[i] != pattern[k])
+		for(int k = 0; k < pattern.length(); k++){
+			if(subject.charAt(i) != pattern.charAt(k))
 				return false;
 			i++;
 		}
@@ -3137,20 +3137,19 @@ public class Prelude {
 	}
 	
 	public IValue replaceAll(IString str, IString find, IString replacement){
-		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
-		char [] input = str.getValue().toCharArray();
-		char [] findChars = find.getValue().toCharArray();
-		char [] replChars = replacement.getValue().toCharArray();
+		StringBuilder b = new StringBuilder(str.length() * 2); 
 		
+		int iLength = str.length();
+		int fLength = find.length();
 		int i = 0;
 		boolean matched = false;
-		while(i < input.length){
-			if(match(input,i,findChars)){
+		while(i < iLength){
+			if(match(str,i,find)){
 				matched = true;
-				b.append(replChars);
-				i += findChars.length;
+				b.append(replacement.getValue());
+				i += fLength;
 			} else {
-				b.append(input[i]);
+				b.appendCodePoint(str.charAt(i));
 				i++;
 			}
 		}
@@ -3158,21 +3157,21 @@ public class Prelude {
 	}
 	
 	public IValue replaceFirst(IString str, IString find, IString replacement){
-		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
-		char [] input = str.getValue().toCharArray();
-		char [] findChars = find.getValue().toCharArray();
-		char [] replChars = replacement.getValue().toCharArray();
+		StringBuilder b = new StringBuilder(str.length() * 2); 
+
+		int iLength = str.length();
+		int fLength = find.length();
 		
 		int i = 0;
 		boolean matched = false;
-		while(i < input.length){
-			if(!matched && match(input,i,findChars)){
+		while(i < iLength){
+			if(!matched && match(str,i,find)){
 				matched = true;
-				b.append(replChars);
-				i += findChars.length;
+				b.append(replacement.getValue());
+				i += fLength;
 				
 			} else {
-				b.append(input[i]);
+				b.appendCodePoint(str.charAt(i));
 				i++;
 			}
 		}
@@ -3180,19 +3179,17 @@ public class Prelude {
 	}
 	
 	public IValue replaceLast(IString str, IString find, IString replacement){
-		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
-		char [] input = str.getValue().toCharArray();
-		char [] findChars = find.getValue().toCharArray();
-		char [] replChars = replacement.getValue().toCharArray();
+		StringBuilder b = new StringBuilder(str.length() * 2); 
+
+		int iLength = str.length();
+		int fLength = find.length();
 		
-		int i = input.length - findChars.length;
+		int i = iLength - fLength;
 		while(i >= 0){
-			if(match(input,i,findChars)){
-				for(int j = 0; j < i; j++)
-					b.append(input[j]);
-				b.append(replChars);
-				for(int j = i + findChars.length; j < input.length; j++)
-					b.append(input[j]);
+			if(match(str,i,find)){
+				b.append(str.substring(0, i).getValue());
+				b.append(replacement.getValue());
+				b.append(str.substring(i + fLength).getValue());
 				return values.string(b.toString());
 			}
 			i--;
@@ -3222,12 +3219,12 @@ public class Prelude {
 	}
 	
 	public IValue findAll(IString str, IString find){
-		char[] input = str.getValue().toCharArray();
-		char [] findChars = find.getValue().toCharArray();
+		int iLength = str.length();
+		int fLength = find.length();
 		IListWriter w = values.listWriter();
 		
-		for(int i = 0; i <= input.length - findChars.length; i++){
-			if(match(input, i, findChars)){
+		for(int i = 0; i <= iLength - fLength; i++){
+			if(match(str, i, find)){
 				w.append(values.integer(i));
 			}
 		}
@@ -3235,11 +3232,11 @@ public class Prelude {
 	}
 	
 	public IValue findFirst(IString str, IString find){
-		char[] input = str.getValue().toCharArray();
-		char [] findChars = find.getValue().toCharArray();
+		int iLength = str.length();
+		int fLength = find.length();
 		
-		for(int i = 0; i <= input.length - findChars.length; i++){
-			if(match(input, i, findChars)){
+		for(int i = 0; i <= iLength - fLength; i++){
+			if(match(str, i, find)){
 				 return values.integer(i);
 			}
 		}
@@ -3247,11 +3244,11 @@ public class Prelude {
 	}
 	
 	public IValue findLast(IString str, IString find){
-		char[] input = str.getValue().toCharArray();
-		char [] findChars = find.getValue().toCharArray();
+		int iLength = str.length();
+		int fLength = find.length();
 		
-		for(int i = input.length - findChars.length; i >= 0; i--){
-			if(match(input, i, findChars)){
+		for(int i = iLength - fLength; i >= 0; i--){
+			if(match(str, i, find)){
 				 return values.integer(i);
 			}
 		}
