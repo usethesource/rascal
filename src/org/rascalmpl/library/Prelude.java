@@ -2948,8 +2948,49 @@ public class Prelude {
 	}
 	
 	public IString wrap(IString src, IInteger wrapLength) {
-		String s = WordUtils.wrap(src.getValue(), wrapLength.intValue());
-		return values.string(s);
+		int wrapAt = wrapLength.intValue();
+		if (wrapAt < 1) {
+			wrapAt = 1;
+		}
+		final int iLength = src.length(); 
+
+		final StringBuilder result = new StringBuilder(iLength + (iLength / wrapAt));
+		
+		int lineBegin = 0;
+		while (iLength - lineBegin > wrapAt) {
+			while (lineBegin < iLength && src.charAt(lineBegin) == ' ') {
+				// skip over leading spaces
+				lineBegin++;
+			}
+			// find wrapping point closest to border
+			int nextWrap = lineBegin + wrapAt;
+			while (nextWrap > lineBegin && nextWrap < iLength && src.charAt(nextWrap) != ' ') {
+				nextWrap--;
+			}
+			if (nextWrap > lineBegin) {
+				// we found a wrap point
+				result.append(src.substring(lineBegin, nextWrap).getValue());
+				result.append(System.lineSeparator());
+				lineBegin = nextWrap + 1;
+			}
+			else {
+				// long word, not breakable, lets search for the end
+				nextWrap = lineBegin + wrapAt;
+				while (nextWrap < iLength && src.charAt(nextWrap) != ' ') {
+					nextWrap++;
+				}
+				result.append(src.substring(lineBegin, nextWrap).getValue());
+				if (nextWrap < iLength) {
+					result.append(System.lineSeparator());
+				}
+				lineBegin = nextWrap + 1;
+			}
+		}
+		// the last part we add if there is something left
+		if (lineBegin < iLength) {
+			result.append(src.substring(lineBegin).getValue());
+		}
+		return values.string(result.toString());
 	}
 
 	public IValue format(IString s, IString dir, IInteger n, IString pad)
@@ -3199,16 +3240,18 @@ public class Prelude {
 	
 	
 	public IValue escape(IString str, IMap substitutions) {
-		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
-		char[] input = str.getValue().toCharArray();
+		StringBuilder b = new StringBuilder(str.length() * 2); 
 		
-		for (char c : input) {
-			IString sub = (IString) substitutions.get(values.string(Character.toString(c)));
+		int sLength = str.length();
+		for (int c = 0; c < sLength; c++) {
+			IString chr = str.substring(c, c+1);
+			IString sub = (IString)substitutions.get(chr);
+
 			if (sub != null) {
 				b.append(sub.getValue());
 			}
 			else {
-				b.append(c);
+				b.append(chr.getValue());
 			}
 		}
 		return values.string(b.toString());
