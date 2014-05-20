@@ -2931,11 +2931,37 @@ public class Prelude {
 	}
 	
 	public IString capitalize(IString src) {
-		return values.string(WordUtils.capitalize(src.getValue()));
+		StringBuilder result = new StringBuilder(src.length());
+		boolean lastWhitespace= true;
+		for (int cIndex =0; cIndex < src.length(); cIndex ++) {
+			int cp = src.charAt(cIndex);
+			if (Character.isWhitespace(cp)) {
+				lastWhitespace = true;
+			}
+			else if (lastWhitespace) {
+				lastWhitespace = false;
+				cp = Character.toUpperCase(cp);
+			}
+			result.appendCodePoint(cp);
+		}
+		return values.string(result.toString());
 	}
 	
 	public IString uncapitalize(IString src) {
-		return values.string(WordUtils.uncapitalize(src.getValue()));
+		StringBuilder result = new StringBuilder(src.length());
+		boolean lastWhitespace= true;
+		for (int cIndex =0; cIndex < src.length(); cIndex ++) {
+			int cp = src.charAt(cIndex);
+			if (Character.isWhitespace(cp)) {
+				lastWhitespace = true;
+			}
+			else if (lastWhitespace) {
+				lastWhitespace = false;
+				cp = Character.toLowerCase(cp);
+			}
+			result.appendCodePoint(cp);
+		}
+		return values.string(result.toString());
 	}
 	
 	public IList split(IString sep, IString src) {
