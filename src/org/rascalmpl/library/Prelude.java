@@ -2989,27 +2989,27 @@ public class Prelude {
 				lineBegin++;
 			}
 			// find wrapping point closest to border
-			int nextWrap = lineBegin + wrapAt;
-			while (nextWrap > lineBegin && nextWrap < iLength && src.charAt(nextWrap) != ' ') {
-				nextWrap--;
+			int lineEnd = lineBegin + wrapAt;
+			while (lineEnd > lineBegin && lineEnd < iLength && src.charAt(lineEnd) != ' ') {
+				lineEnd--;
 			}
-			if (nextWrap > lineBegin) {
+			if (lineEnd > lineBegin) {
 				// we found a wrap point
-				result.append(src.substring(lineBegin, nextWrap).getValue());
+				result.append(src.substring(lineBegin, lineEnd).getValue());
 				result.append(System.lineSeparator());
-				lineBegin = nextWrap + 1;
+				lineBegin = lineEnd + 1;
 			}
 			else {
 				// long word, not breakable, lets search for the end
-				nextWrap = lineBegin + wrapAt;
-				while (nextWrap < iLength && src.charAt(nextWrap) != ' ') {
-					nextWrap++;
+				lineEnd = lineBegin + wrapAt;
+				while (lineEnd < iLength && src.charAt(lineEnd) != ' ') {
+					lineEnd++;
 				}
-				result.append(src.substring(lineBegin, nextWrap).getValue());
-				if (nextWrap < iLength) {
+				result.append(src.substring(lineBegin, lineEnd).getValue());
+				if (lineEnd < iLength) {
 					result.append(System.lineSeparator());
 				}
-				lineBegin = nextWrap + 1;
+				lineBegin = lineEnd + 1;
 			}
 		}
 		// the last part we add if there is something left
