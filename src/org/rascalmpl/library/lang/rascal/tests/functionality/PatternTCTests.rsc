@@ -1,6 +1,6 @@
-module tests::functionality::PatternTCTests
+module lang::rascal::tests::functionality::PatternTCTests
 
-import StaticTestingUtils;
+import lang::rascal::tests::static::StaticTestingUtils;
 
 public test bool matchNestedList2() = !([[1]] := []);
 

@@ -1,4 +1,4 @@
- module tests::functionality::StatementTests
+ module lang::rascal::tests::functionality::StatementTests
  /*******************************************************************************
  * Copyright (c) 2009-2011 CWI
  * All rights reserved. This program and the accompanying materials

@@ -1,4 +1,4 @@
-module tests::functionality::SetMatchTests1
+module lang::rascal::tests::functionality::SetMatchTests1
 
 data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);
             

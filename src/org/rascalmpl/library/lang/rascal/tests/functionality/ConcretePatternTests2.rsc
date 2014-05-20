@@ -1,4 +1,4 @@
-module tests::functionality::ConcretePatternTests2
+module lang::rascal::tests::functionality::ConcretePatternTests2
 
 import ParseTree;
 layout Whitespace = [\ ]*;

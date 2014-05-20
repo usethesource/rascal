@@ -1,4 +1,4 @@
-  module tests::functionality::DataTypeTests
+  module lang::rascal::tests::functionality::DataTypeTests
    /*******************************************************************************
      * Copyright (c) 2009-2011 CWI
      * All rights reserved. This program and the accompanying materials
@@ -329,8 +329,8 @@
     		public test bool testStringEscapes10() = "\"\>" == "\"\>";
     		
     		public test bool testStringEscapes11() = "\a20" == " ";
-    		public test bool testStringEscapes12() = "\U01F35D" == "🍝";
-    		public test bool testStringEscapes13() = "\u2713" == "✓";
+    		public test bool testStringEscapes12() = "\U01F35D" == "����";
+    		public test bool testStringEscapes13() = "\u2713" == "���";
     	
     //	stringInterpolation
     

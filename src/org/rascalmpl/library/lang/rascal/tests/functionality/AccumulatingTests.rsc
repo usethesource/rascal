@@ -1,4 +1,4 @@
-module tests::functionality::AccumulatingTests
+module lang::rascal::tests::functionality::AccumulatingTests
 	
 	public test bool testForWithAppend() {
 		return {for (x <- [1,2,3]) append x; } == [1,2,3];

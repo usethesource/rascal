@@ -1,6 +1,6 @@
-module tests::functionality::DeclarationTCTests
+module lang::rascal::tests::functionality::DeclarationTCTests
 
-import StaticTestingUtils;
+import lang::rascal::tests::static::StaticTestingUtils;
  
 public test bool localTypeInferenceNoEscape2() = undeclaredVariable("{ x = 1; x == 1; } x;");
 

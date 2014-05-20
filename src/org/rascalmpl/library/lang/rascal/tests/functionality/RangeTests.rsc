@@ -1,4 +1,4 @@
- module tests::functionality::RangeTests
+ module lang::rascal::tests::functionality::RangeTests
   
   /*******************************************************************************
    * Copyright (c) 2009-2011 CWI

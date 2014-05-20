@@ -1,6 +1,6 @@
-module tests::functionality::AnnotationTCTests
+module lang::rascal::tests::functionality::AnnotationTCTests
 
-import StaticTestingUtils;
+import lang::rascal::tests::static::StaticTestingUtils;
  
 public test bool annotationNotAllowed1() = unexpectedType("1 [@an=3];");
 

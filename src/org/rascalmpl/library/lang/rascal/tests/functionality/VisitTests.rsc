@@ -1,4 +1,4 @@
-module tests::functionality::VisitTests
+module lang::rascal::tests::functionality::VisitTests
 
 /*******************************************************************************
  * Copyright (c) 2009-2011 CWI

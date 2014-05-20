@@ -1,4 +1,4 @@
- module tests::library::StringTests
+ module lang::rascal::tests::library::StringTests
   /*******************************************************************************
        * Copyright (c) 2009-2011 CWI
        * All rights reserved. This program and the accompanying materials

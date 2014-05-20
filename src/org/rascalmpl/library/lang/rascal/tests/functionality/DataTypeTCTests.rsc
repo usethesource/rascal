@@ -1,6 +1,6 @@
-module tests::functionality::DataTypeTCTests
+module lang::rascal::tests::functionality::DataTypeTCTests
 
-import StaticTestingUtils;
+import lang::rascal::tests::static::StaticTestingUtils;
 
 data D = d(int ival);
 

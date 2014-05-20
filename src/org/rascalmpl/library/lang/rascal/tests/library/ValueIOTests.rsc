@@ -1,4 +1,4 @@
-module tests::library::ValueIOTests
+module lang::rascal::tests::library::ValueIOTests
 /*******************************************************************************
  * Copyright (c) 2009-2011 CWI
  * All rights reserved. This program and the accompanying materials

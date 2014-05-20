@@ -1,6 +1,6 @@
-module tests::functionality::CallTCTests
+module lang::rascal::tests::functionality::CallTCTests
 
-import StaticTestingUtils;
+import lang::rascal::tests::static::StaticTestingUtils;
 
 public test bool testUninit1() = undeclaredVariable("zap(1,2);");
 

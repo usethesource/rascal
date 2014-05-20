@@ -1,6 +1,6 @@
-module tests::functionality::SetMatchTests2
+module lang::rascal::tests::functionality::SetMatchTests2
 
-import tests::functionality::SetMatchTests1;
+import lang::rascal::tests::functionality::SetMatchTests1;
 
 // Anastassija's type constraint examples
 

@@ -1,4 +1,4 @@
-module lang::rascal::tests::Locations
+module lang::rascal::tests::basic::Locations
 
 import String;
 import List;

@@ -1,4 +1,4 @@
- module tests::functionality::DataDeclarationTests
+ module lang::rascal::tests::functionality::DataDeclarationTests
   /*******************************************************************************
    * Copyright (c) 2009-2011 CWI
    * All rights reserved. This program and the accompanying materials

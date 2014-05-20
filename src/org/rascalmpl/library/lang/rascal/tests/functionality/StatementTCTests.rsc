@@ -1,4 +1,4 @@
-module tests::functionality::StatementTCTests
+module lang::rascal::tests::functionality::StatementTCTests
 /*******************************************************************************
  * Copyright (c) 2009-2011 CWI
  * All rights reserved. This program and the accompanying materials
@@ -13,7 +13,7 @@ module tests::functionality::StatementTCTests
  *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
 *******************************************************************************/
 
-import StaticTestingUtils;
+import lang::rascal::tests::static::StaticTestingUtils;
 
 public test bool assertError2() = unexpectedType("assert 3.5;");
 

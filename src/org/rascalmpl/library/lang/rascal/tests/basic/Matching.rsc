@@ -1,4 +1,4 @@
-module lang::rascal::tests::Matching
+module lang::rascal::tests::basic::Matching
 
 import List;
 import IO;

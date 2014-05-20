@@ -1,4 +1,4 @@
-module tests::functionality::ProjectionTests
+module lang::rascal::tests::functionality::ProjectionTests
 /*******************************************************************************
  * Copyright (c) 2009-2011 CWI
  * All rights reserved. This program and the accompanying materials

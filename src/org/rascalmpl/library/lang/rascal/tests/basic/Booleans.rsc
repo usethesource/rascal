@@ -1,4 +1,4 @@
-module tests::Booleans
+module lang::rascal::tests::basic::Booleans
 
 import Boolean;
 import Exception;

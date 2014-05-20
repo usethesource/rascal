@@ -1,4 +1,4 @@
-module lang::rascal::tests::Nodes
+module lang::rascal::tests::basic::Nodes
 
 import Node;
 import List;

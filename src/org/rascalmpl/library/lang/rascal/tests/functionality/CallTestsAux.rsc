@@ -1,4 +1,4 @@
-module tests::functionality::CallTestsAux
+module lang::rascal::tests::functionality::CallTestsAux
      
 bool() x = bool() { return false; } ;
 
