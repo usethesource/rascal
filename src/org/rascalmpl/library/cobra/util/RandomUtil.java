@@ -5,7 +5,7 @@ import java.util.Random;
 public class RandomUtil {
 	
 	private interface StringGen {
-		public String generate(Random rand, int length);
+		public void generate(Random rand, int length, StringBuilder result);
 	}
 	
 	private static class CharRanges implements StringGen {
@@ -18,17 +18,12 @@ public class RandomUtil {
 			this.stop = stop;
 		}
 		
-		public String generate(Random rand, int length) {
-			StringBuilder result = new StringBuilder(length);
-			for (int c = 0, r = 0; c < length; c++, r++) {
-				if (r >= start.length) {
-					r = 0;
-				}
+		public void generate(Random rand, int length, StringBuilder result) {
+			for (int c = 0; c < length; c++) {
+				int r = rand.nextInt(start.length);
 				result.appendCodePoint(generateCodePoint(rand, start[r], stop[r]));
 			}
-			return result.toString();
 		}
-
 
 		private int generateCodePoint(Random rand, int start, int stop) {
 			int range = stop - start;
@@ -48,11 +43,9 @@ public class RandomUtil {
 		}
 
 		@Override
-		public String generate(Random rand, int length) {
-			StringBuilder result = new StringBuilder(length);
+		public void generate(Random rand, int length, StringBuilder result) {
 			for (int c = 0; c < length; c++)
 				result.appendCodePoint(chars[rand.nextInt(chars.length)]);
-			return result.toString();
 		}
 	}
 	
@@ -63,15 +56,13 @@ public class RandomUtil {
 			this.generators = generators;
 		}
 		@Override
-		public String generate(Random rand, int length) {
-			StringBuilder result = new StringBuilder(length);
+		public void generate(Random rand, int length, StringBuilder result) {
 			int left = length;
 			while (left > 0) {
 				int chunk = 1 + rand.nextInt(left);
-				result.append(generators[rand.nextInt(generators.length)].generate(rand, chunk));
+				generators[rand.nextInt(generators.length)].generate(rand, chunk, result);
 				left -= chunk;
 			}
-			return result.toString();
 		}
 	}
 
@@ -136,10 +127,14 @@ public class RandomUtil {
 	
 	public static String string(Random rand, int depth) {
 		StringGen randomGenerator = generators[rand.nextInt(generators.length)];
-		return sanitize(randomGenerator.generate(rand, depth));
+		StringBuilder result = new StringBuilder(depth * 2);
+		randomGenerator.generate(rand, depth, result);
+		return sanitize(result.toString());
 	}
 	public static String stringAlphaNumeric(Random rand, int depth) {
-		return sanitize(normalStrings.generate(rand, depth));
+		StringBuilder result = new StringBuilder(depth);
+		normalStrings.generate(rand, depth, result);
+		return sanitize(result.toString());
 	}
 
 }
