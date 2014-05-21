@@ -4100,19 +4100,55 @@ public enum RascalPrimitive {
 		}
 
 	},
-	list_replace {
+	list_slice_replace {
 		@Override
+		
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
-			assert arity == 5;
-			IList lst = (IList) stack[sp - 5];
-			SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), lst.length(), stacktrace);
-			IList repl = (IList) stack[sp - 1];
-			stack[sp - 5] = lst.replace(sd.first, sd.second, sd.end, repl);
-			return sp - 4;
+			return $list_slice_operator(stack, sp, arity, SliceOperator.replace(), stacktrace);
 		}
+		
+//		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+//			assert arity == 5;
+//			IList lst = (IList) stack[sp - 5];
+//			SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), lst.length(), stacktrace);
+//			IList repl = (IList) stack[sp - 1];
+//			stack[sp - 5] = $updateListSlice(lst, sd, SliceOperator.replace(), repl, stacktrace);
+//			return sp - 4;
+//		}
 
 	},
-	str_replace {
+	
+	list_slice_add {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			return $list_slice_operator(stack, sp, arity, SliceOperator.add(), stacktrace);
+		}
+	},
+	list_slice_subtract {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			return $list_slice_operator(stack, sp, arity, SliceOperator.subtract(), stacktrace);
+		}
+	},
+	list_slice_product {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			return $list_slice_operator(stack, sp, arity, SliceOperator.product(), stacktrace);
+		}
+	},
+	list_slice_divide {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			return $list_slice_operator(stack, sp, arity, SliceOperator.divide(), stacktrace);
+		}
+	},
+	list_slice_intersect {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			return $list_slice_operator(stack, sp, arity, SliceOperator.intersect(), stacktrace);
+		}
+	},
+	str_slice_replace {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 5;
@@ -4124,7 +4160,7 @@ public enum RascalPrimitive {
 		}
 
 	},
-	node_replace {
+	node_slice_replace {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 5;
@@ -5836,7 +5872,7 @@ public enum RascalPrimitive {
 	 */
 	static TypeReifier typeReifier;
 	static final int MAXDEPTH = 5;
-	static final int TRIES = 3;
+	static final int TRIES = 500;
 	static IListWriter test_results;
 	
 	/*
@@ -6152,6 +6188,47 @@ public enum RascalPrimitive {
 		}
 		return vf.bool(left.length() != right.length());
 	}
+	
+	static IValue $add(IValue left, IValue right,List<Frame> stacktrace){
+		Object[] fakeStack = new Object[2];
+		fakeStack[0] = left;
+		fakeStack[1] = right;
+		add.execute(fakeStack, 2, 2, stacktrace);
+		return (IValue)fakeStack[0];
+	}
+	
+	static IValue $subtract(IValue left, IValue right,List<Frame> stacktrace){
+		Object[] fakeStack = new Object[2];
+		fakeStack[0] = left;
+		fakeStack[1] = right;
+		subtract.execute(fakeStack, 2, 2, stacktrace);
+		return (IValue)fakeStack[0];
+	}
+	
+	static IValue $product(IValue left, IValue right,List<Frame> stacktrace){
+		Object[] fakeStack = new Object[2];
+		fakeStack[0] = left;
+		fakeStack[1] = right;
+		product.execute(fakeStack, 2, 2, stacktrace);
+		return (IValue)fakeStack[0];
+	}
+	
+	static IValue $divide(IValue left, IValue right,List<Frame> stacktrace){
+		Object[] fakeStack = new Object[2];
+		fakeStack[0] = left;
+		fakeStack[1] = right;
+		divide.execute(fakeStack, 2, 2, stacktrace);
+		return (IValue)fakeStack[0];
+	}
+	
+	static IValue $intersect(IValue left, IValue right,List<Frame> stacktrace){
+		Object[] fakeStack = new Object[2];
+		fakeStack[0] = left;
+		fakeStack[1] = right;
+		intersect.execute(fakeStack, 2, 2, stacktrace);
+		return (IValue)fakeStack[0];
+	}
+
 
 	private static IBool $lessequal(IValue left, IValue right,List<Frame> stacktrace){
 		Object[] fakeStack = new Object[2];
@@ -6186,7 +6263,7 @@ public enum RascalPrimitive {
 		return v instanceof IInteger ? ((IInteger) v).intValue() : null;
 	}
 
-	public static SliceDescriptor $makeSliceDescriptor(Integer first, Integer second, Integer end, int len,List<Frame> stacktrace) {
+	public static SliceDescriptor $makeSliceDescriptor(Integer first, Integer second, Integer end, int len, List<Frame> stacktrace) {
 
 		int firstIndex = 0;
 		int secondIndex = 1;
@@ -6230,6 +6307,8 @@ public enum RascalPrimitive {
 
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
 	}
+	
+	// Slices on list
 
 	public static IList $makeSlice(IList lst, SliceDescriptor sd){
 		IListWriter w = vf.listWriter();
@@ -6245,6 +6324,82 @@ public enum RascalPrimitive {
 				for(int j = sd.first; j >= 0 && j > sd.end && j < lst.length(); j += increment){
 					w.append(lst.get(j));
 				}
+			}
+		return w.done();
+	}
+	
+	public static int $list_slice_operator(Object[] stack, int sp,  int arity, SliceOperator op, List<Frame> stacktrace) {
+		assert arity == 5;
+		IList lst = (IList) stack[sp - 5];
+		SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), lst.length(), stacktrace);
+		IList repl = (IList) stack[sp - 1];
+		stack[sp - 5] = $updateListSlice(lst, sd, op, repl, stacktrace);
+		return sp - 4;
+	}
+	
+	public static IList $updateListSlice(IList lst, SliceDescriptor sd, SliceOperator op, IList repl, List<Frame> stacktrace){
+		IListWriter w = vf.listWriter();
+		int increment = sd.second - sd.first;
+		int replIndex = 0;
+		int rlen = repl.length();
+		boolean wrapped = false;
+		if(sd.first == sd.end || increment == 0){
+			// nothing to be done
+		} else
+			if(sd.first <= sd.end){
+				assert increment > 0;
+				int listIndex = 0;
+				while(listIndex < sd.first){
+					w.append(lst.get(listIndex++));
+				}
+				while(listIndex >= 0 && listIndex < sd.end){
+					w.append(op.execute(lst.get(listIndex), repl.get(replIndex++), stacktrace));
+					if(replIndex == rlen){
+						replIndex = 0;
+						wrapped = true;
+					}
+					for(int q = 1; q < increment && listIndex + q < sd.end; q++){
+						w.append(lst.get(listIndex + q));
+					}
+					listIndex += increment;
+				}
+				listIndex = sd.end;
+				if(!wrapped){
+					while(replIndex < rlen){
+						w.append(repl.get(replIndex++));
+					}
+				}
+				while(listIndex < lst.length()){
+					w.append(lst.get(listIndex++));
+				}
+			} else {
+				assert increment < 0;
+				int j = lst.length() - 1;
+				while(j > sd.first){
+					w.insert(lst.get(j--));
+				}
+				while(j >= 0 && j > sd.end && j < lst.length()){
+					w.insert(op.execute(lst.get(j), repl.get(replIndex++), stacktrace));
+					if(replIndex == rlen){
+						replIndex = 0;
+						wrapped = true;
+					}
+					for(int q = -1; q > increment && j + q > sd.end; q--){
+						w.insert(lst.get(j + q));
+					}
+					j += increment;
+				}
+				j = sd.end;
+				if(!wrapped){
+					while(replIndex < rlen){
+						w.insert(repl.get(replIndex++));
+					}
+				}
+				
+				while(j >= 0){
+					w.insert(lst.get(j--));
+				}
+				
 			}
 		return w.done();
 	}
@@ -6341,4 +6496,87 @@ class SliceDescriptor{
 		this.second = second;
 		this.end = end;
 	}
+}
+
+enum SliceOperator {
+	replace(0) {
+		@Override
+		public IValue execute(IValue left, IValue right, List<Frame> stacktrace) {
+			return right;
+		}
+	},
+	add(1) {
+		@Override
+		public IValue execute(IValue left, IValue right, List<Frame> stacktrace) {
+			return RascalPrimitive.$add(left, right, stacktrace);
+		}
+	},
+	subtract(2){
+		@Override
+		public IValue execute(IValue left, IValue right, List<Frame> stacktrace) {
+			return RascalPrimitive.$subtract(left, right, stacktrace);
+		}
+	}, 
+	product(3){
+		@Override
+		public IValue execute(IValue left, IValue right, List<Frame> stacktrace) {
+			return RascalPrimitive.$product(left, right, stacktrace);
+		}
+	}, 
+	
+	divide(4){
+		@Override
+		public IValue execute(IValue left, IValue right, List<Frame> stacktrace) {
+			return RascalPrimitive.$divide(left, right, stacktrace);
+		}
+	}, 
+	
+	intersect(5){
+		@Override
+		public IValue execute(IValue left, IValue right, List<Frame> stacktrace) {
+			return RascalPrimitive.$intersect(left, right, stacktrace);
+		}
+	};
+
+	final int operator;
+
+	public final static SliceOperator[] values = SliceOperator.values();
+
+	public static SliceOperator fromInteger(int n) {
+		return values[n];
+	}
+
+	public static SliceOperator replace() {
+		return values[0];
+	}
+
+	public static SliceOperator add() {
+		return values[1];
+	}
+
+	public static SliceOperator subtract() {
+		return values[2];
+	}
+
+	public static SliceOperator product() {
+		return values[3];
+	}
+
+	public static SliceOperator divide() {
+		return values[4];
+	}
+
+	public static SliceOperator intersect() {
+		return values[5];
+	}
+
+	SliceOperator(int op) {
+		this.operator = op;
+	}
+
+	public IValue execute(IValue left, IValue right, List<Frame> stacktrace) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

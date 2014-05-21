@@ -440,7 +440,7 @@ MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> 
 
 // -- call or tree pattern -------------------------------------------
 
-MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) {
+MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) {
    MuExp fun_pat;
    MuExp fun_name;
    argCode = [ translatePat(pat) | pat <- arguments ] + translatePatKWArguments(keywordArguments);
@@ -454,17 +454,17 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    }
 }
 
-MuExp translatePatKWArguments((KeywordArguments) ``) =
+MuExp translatePatKWArguments((KeywordArguments[Pattern]) ``) =
    muApply(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS"), [muCallMuPrim("make_array", []), muCallMuPrim("make_array", [])]);
 
-MuExp translatePatKWArguments((KeywordArguments) `<OptionalComma optionalComma> <{KeywordArgument ","}+ keywordArgumentList>`) {
+MuExp translatePatKWArguments((KeywordArguments[Pattern]) `<OptionalComma optionalComma> <{KeywordArgument[Pattern] ","}+ keywordArgumentList>`) {
    println("translatePatKWArguments: <keywordArgumentList>");
    keyword_names = [];
    pats = [];
    for(kwarg <- keywordArgumentList){
        println("kwarg = <kwarg>");
        keyword_names += muCon("<kwarg.name>");
-       pats += translatePatKWValue(kwarg.expression);
+       pats += translatePat(kwarg.expression);
    }
    return muApply(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS"), [muCallMuPrim("make_array", keyword_names), muCallMuPrim("make_array", pats)]);
 }
@@ -472,17 +472,17 @@ MuExp translatePatKWArguments((KeywordArguments) `<OptionalComma optionalComma> 
 // TODO: extend the following with all pattern cases, however this requires translating 
 // from expression to pattern!
 
-MuExp translatePatKWValue(e: (Expression) `<Literal lit>`) = translateLitPat(lit);
-
-MuExp translatePatKWValue(e: (Expression) `<QualifiedName name>`) = translateQualifiedNamePat(name);
-
-default MuExp translatePatKWValue(e: (Expression) `<Expression exp>`) {
-  if(isConstant(exp)){
-     return muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(getConstantValue(exp))]);
-  } else {
-    throw "Non-constant expressions in keyword parameters not yet supported";
-  }
-}
+//MuExp translatePatKWValue(e: (Expression) `<Literal lit>`) = translateLitPat(lit);
+//
+//MuExp translatePatKWValue(e: (Expression) `<QualifiedName name>`) = translateQualifiedNamePat(name);
+//
+//default MuExp translatePatKWValue(e: (Expression) `<Expression exp>`) {
+//  if(isConstant(exp)){
+//     return muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(getConstantValue(exp))]);
+//  } else {
+//    throw "Non-constant expressions in keyword parameters not yet supported";
+//  }
+//}
 
 
 // -- set pattern ----------------------------------------------------
@@ -767,7 +767,7 @@ default MuExp translatePat(Pattern p) { throw "Pattern <p> cannot be translated"
 
 value translatePatternAsConstant(p:(Pattern) `<Literal lit>`) = getLiteralValue(lit) when !(lit is regExp);
 
-value translatePatternAsConstant(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments keywordArguments> )`) =
+value translatePatternAsConstant(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) =
   makeNode("<expression>", [ translatePatternAsConstant(pat) | pat <- arguments ] + translatePatKWArguments(keywordArguments));
 
 value translatePatternAsConstant(p:(Pattern) `{<{Pattern ","}* pats>}`) = { translatePatternAsConstant(pat) | pat <- pats };
