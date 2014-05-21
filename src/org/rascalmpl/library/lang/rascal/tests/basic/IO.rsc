@@ -51,7 +51,7 @@ public test bool appendWorksCorrectlyImplicit(Encoding enc, str a, str b) {
 
 public test bool readOffsetStart(str a, str b) {
 	if (size(a) + size(b) == size(a + b)) {
-		writeFile(aFile, a + b, "utf8");
+		writeFileEnc(aFile, "UTF8", a + b);
 		return readFileEnc(aFile[offset=0][length=size(a)], "utf8") == a;
 	}
 	return true;
@@ -59,7 +59,7 @@ public test bool readOffsetStart(str a, str b) {
 
 public test bool readOffsetEnd(str a, str b) {
 	if (size(a) + size(b) == size(a + b)) {
-		writeFile(aFile, a + b, "utf8");
+		writeFileEnc(aFile, "UTF8", a + b);
 		return readFileEnc(aFile[offset=size(a)][length=size(b)], "utf8") == b;
 	}
 	return true;
@@ -67,7 +67,7 @@ public test bool readOffsetEnd(str a, str b) {
 
 public test bool readOffsetMiddle(str a, str b, str c) {
 	if (size(a) + size(b) + size(c) == size(a + b + c)) {
-		writeFile(aFile, a + b + c, "utf8");
+		writeFileEnc(aFile, "UTF8", a + b + c);
 		return readFileEnc(aFile[offset=size(a)][length=size(b)], "utf8") == b;
 	}
 	return true;
