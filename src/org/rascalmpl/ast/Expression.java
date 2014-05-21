@@ -224,7 +224,7 @@ public abstract class Expression extends AbstractAST {
     return false;
   }
 
-  public org.rascalmpl.ast.KeywordArguments getKeywordArguments() {
+  public org.rascalmpl.ast.KeywordArguments_Expression getKeywordArguments() {
     throw new UnsupportedOperationException();
   }
   public boolean hasLabel() {
@@ -653,14 +653,14 @@ public abstract class Expression extends AbstractAST {
   }
 
   static public class CallOrTree extends Expression {
-    // Production: sig("CallOrTree",[arg("org.rascalmpl.ast.Expression","expression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","arguments"),arg("org.rascalmpl.ast.KeywordArguments","keywordArguments")])
+    // Production: sig("CallOrTree",[arg("org.rascalmpl.ast.Expression","expression"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","arguments"),arg("org.rascalmpl.ast.KeywordArguments_Expression","keywordArguments")])
   
     
     private final org.rascalmpl.ast.Expression expression;
     private final java.util.List<org.rascalmpl.ast.Expression> arguments;
-    private final org.rascalmpl.ast.KeywordArguments keywordArguments;
+    private final org.rascalmpl.ast.KeywordArguments_Expression keywordArguments;
   
-    public CallOrTree(IConstructor node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> arguments,  org.rascalmpl.ast.KeywordArguments keywordArguments) {
+    public CallOrTree(IConstructor node , org.rascalmpl.ast.Expression expression,  java.util.List<org.rascalmpl.ast.Expression> arguments,  org.rascalmpl.ast.KeywordArguments_Expression keywordArguments) {
       super(node);
       
       this.expression = expression;
@@ -698,7 +698,7 @@ public abstract class Expression extends AbstractAST {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.KeywordArguments getKeywordArguments() {
+    public org.rascalmpl.ast.KeywordArguments_Expression getKeywordArguments() {
       return this.keywordArguments;
     }
   

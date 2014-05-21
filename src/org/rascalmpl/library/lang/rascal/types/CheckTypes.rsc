@@ -93,7 +93,9 @@ import lang::rascal::\syntax::Rascal;
 //
 // 31. addition on functions
 //
-// 32. resolve deferred names in field accesses and updates
+// 32. resolve deferred names in field accesses and updates, maybe in throws clauses as well
+//
+// 33. make sure statement types are computed correctly (e.g., assign results of an if)
 
 public CheckResult checkStatementSequence(list[Statement] ss, Configuration c) {
 	// Introduce any functions in the statement list into the current scope, but
@@ -370,7 +372,7 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
 }
 
 @doc{Check the types of Rascal expressions: CallOrTree}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expression ","}* eps> <KeywordArguments keywordArguments> )`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expression ","}* eps> <KeywordArguments[Expression] keywordArguments> )`, Configuration c) {
     // check for failures
     set[Symbol] failures = { };
     
@@ -948,6 +950,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<QualifiedName qn>`, Con
         	return markLocationFailed(c, exp@\loc, c.store[c.fcvEnv[n]].rtype);
         }
 
+		if (c.store[c.fcvEnv[n]] is overload || c.store[c.fcvEnv[n]] is function) {
+			c = finalizeFunctionImport(c,n);
+		}
+		
         if (hasDeferredTypes(c.store[c.fcvEnv[n]].rtype)) {
         	c = resolveDeferredTypes(c, c.fcvEnv[n]);
 	        if (isFailType(c.store[c.fcvEnv[n]].rtype)) {
@@ -2777,7 +2783,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`,
   <c, sym> = resolveSorts(sym2symbol(concrete.symbol),concrete.symbol@\loc, c);
   return <c, concreteSyntaxNode(sym,psList)[@at = pat@\loc]>;
 }
-public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> <KeywordArguments keywordArguments>)`, Configuration c) { 
+public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> <KeywordArguments[Pattern] keywordArguments>)`, Configuration c) { 
     < c, pti > = extractPatternTree(p,c);
     list[PatternTree] psList = [ ];
     for (psi <- ps) { < c, psit > = extractPatternTree(psi,c); psList = psList + psit; }
@@ -5093,22 +5099,25 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 	// introduce the variable names into the environment in stages like we do with the types.
     < c, rt > = convertAndExpandType(t,c);
 
-    for (v <- vars, v@\loc notin c.definitions<1>, v@\loc notin {l | error(_,l) <- c.messages}) {
-        // If v@\loc is not in c.definitions and not in scope errors, we haven't processed
-        // it yet, so process it now. We process the expression now too, even if not descending,
-        // since we want to process the expressions in name order. 
-        if ((Variable)`<Name n> = <Expression init>` := v || (Variable)`<Name n>` := v) {
-            if ((Variable)`<Name n> = <Expression init>` := v) {
-                < c, t1 > = checkExp(init, c);
-                if (!isFailType(t1) && !subtype(t1,rt)) 
-                    c = addScopeMessage(c, error("Initializer type <prettyPrintType(t1)> not assignable to variable of type <prettyPrintType(rt)>", v@\loc));                       
-            }
-                                
-            RName rn = convertName(n);
-            c = addTopLevelVariable(c, rn, false, getVis(vis), v@\loc, rt);
-        } 
-    }
-    
+	if (!descend) {
+	    for (v <- vars, v@\loc notin c.definitions<1>, v@\loc notin {l | error(_,l) <- c.messages}) {
+	        if ((Variable)`<Name n> = <Expression init>` := v || (Variable)`<Name n>` := v) {
+	            RName rn = convertName(n);
+	            c = addTopLevelVariable(c, rn, false, getVis(vis), v@\loc, rt);
+	        } 
+	    }	
+	} else {
+	    for (v <- vars, v@\loc notin {l | error(_,l) <- c.messages}) {
+	        if ((Variable)`<Name n> = <Expression init>` := v || (Variable)`<Name n>` := v) {
+	            if ((Variable)`<Name n> = <Expression init>` := v) {
+	                < c, t1 > = checkExp(init, c);
+	                if (!isFailType(t1) && !subtype(t1,rt)) 
+	                    c = addScopeMessage(c, error("Initializer type <prettyPrintType(t1)> not assignable to variable of type <prettyPrintType(rt)>", v@\loc));                       
+	            }
+	        } 
+	    }
+	}
+	    
     return c;
 }
 
@@ -5283,7 +5292,7 @@ private Configuration prepareSignatureEnv(Configuration c) {
     // existing variables and/or functions that are live in the current 
     // environment. Also, this way we can just get the type and drop all 
     // the changes that would be made to the environment.
-    return c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_,_) := c.store[c.fcvEnv[ename]] || (overload(ids,_) := c.store[c.fcvEnv[ename]] && size({consid | consid <- ids, constructor(_,_,_,_,_) := c.store[consid]})>0) )];
+    return c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, (c.store[c.fcvEnv[ename]] is constructor) || (overload(ids,_) := c.store[c.fcvEnv[ename]] && size({consid | consid <- ids, c.store[consid] is constructor})>0) )];
 }
 
 @doc{Prepare the various environments for checking the function body.}
@@ -5651,17 +5660,67 @@ public Configuration importFunction(RName functionName, Signature sig, loc at, V
         throwsTypes += ttypeC; 
     }
     set[Modifier] modifiers = getModifiers(sig);
-    cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_,_) := c.store[c.fcvEnv[ename]]
-    																	|| production(_,_,_,_) := c.store[c.fcvEnv[ename]]
-    																	// constructor names may be overloaded 
-    																	|| overload(_,_) := c.store[c.fcvEnv[ename]] )];
-    cFun = addFunction(cFun, functionName, Symbol::\func(\void(),[]), ( ), modifiers, isVarArgs(sig), vis, throwsTypes, at);
-    < cFun, tFun > = processSignature(sig, cFun);
-    if(isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
-	< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
-	for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
-    c = addFunction(c, functionName, tFun, keywordParams, modifiers, isVarArgs(sig), vis, throwsTypes, at);
+    //cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_,_) := c.store[c.fcvEnv[ename]]
+    //																	|| production(_,_,_,_) := c.store[c.fcvEnv[ename]]
+    //																	// constructor names may be overloaded 
+    //																	|| overload(_,_) := c.store[c.fcvEnv[ename]] )];
+    c = addFunction(c, functionName, Symbol::\func(\void(),[]), ( ), modifiers, isVarArgs(sig), vis, throwsTypes, at, isDeferred=true);
+    definedId = getOneFrom(invert(c.definitions)[at]);
+    c.deferredSignatures[definedId] = sig;
+ //   < cFun, tFun > = processSignature(sig, cFun);
+ //   if(isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
+	//< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+	//for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
+ //   c = addFunction(c, functionName, tFun, keywordParams, modifiers, isVarArgs(sig), vis, throwsTypes, at);
     return c;
+}
+
+public Configuration finalizeFunctionImport(Configuration c, RName functionName) {
+	Configuration finalizeItem(Configuration c, int itemId) {
+		if (itemId notin c.deferredSignatures) {
+			println("Item ID not found: <itemId>");
+			return c;
+		}
+		item = c.store[itemId];
+		if (item is function) {
+			sig = c.deferredSignatures[itemId]; 
+			// We process the signature in a restricted name environment with constructors, productions, and overloads, but no
+			// variables; this makes sure we don't have conflicts with variables already in scope
+		    cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, 
+		    	c.store[c.fcvEnv[ename]] is constructor || c.store[c.fcvEnv[ename]] is production || c.store[c.fcvEnv[ename]] is overload )];
+		    < cFun, tFun > = processSignature(sig, cFun);
+		    if(isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
+			< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+			for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
+			item = item[rtype=tFun][keywordParams=keywordParams][isDeferred=false];
+			c.store[itemId] = item;
+		}
+		return c;	
+	}
+	
+	if (functionName in c.fcvEnv) {
+		itemId = c.fcvEnv[functionName];
+		if (c.store[itemId] is function, c.store[itemId].isDeferred) {
+			c = finalizeItem(c, itemId);
+		} else if (overload(items,overloaded(set[Symbol] nonDefaults, set[Symbol] defaults)) := c.store[itemId]) {
+			itemIds = c.store[itemId].items;
+			bool changed = false;
+			for (i <- itemIds, c.store[i] is function, c.store[i].isDeferred) {
+				c = finalizeItem(c, i);
+				changed = true;
+	        	if(hasDefaultModifier(c.functionModifiers[i])) {
+	        		defaults += c.store[i].rtype;
+	        	} else {
+	        		nonDefaults += c.store[i].rtype;
+	        	}
+			}
+			if (changed) {
+				c.store[itemId].rtype = overloaded(nonDefaults, defaults);
+			}
+		}
+	}
+	
+	return c;
 }
 
 @doc{Import a signature item: Variable}
@@ -5802,10 +5861,10 @@ public set[RName] getDeclarationNames(Declaration decl:(Declaration)`<Tags tags>
 
 public default set[RName] getDeclarationNames(Declaration d) = { };
 
-public Configuration processModuleImportAndReset(Configuration c, RSignature sig, RName modName, int moduleId, bool extendingImport) {
+public Configuration startModuleImportAndReset(Configuration c, RSignature sig, RName modName, int moduleId, bool extendingImport) {
 	cOrig = c;
 
-	c = processModuleImport(c, sig, modName, moduleId, extendingImport);
+	c = startModuleImport(c, sig, modName, moduleId, extendingImport);
 	
 	c.labelEnv = cOrig.labelEnv; 
 	c.fcvEnv = cOrig.fcvEnv; 
@@ -5816,7 +5875,7 @@ public Configuration processModuleImportAndReset(Configuration c, RSignature sig
 	return c;
 }
 
-public Configuration processModuleImport(Configuration c, RSignature sig, RName modName, int moduleId, bool extendingImport) {
+public Configuration startModuleImport(Configuration c, RSignature sig, RName modName, int moduleId, bool extendingImport) {
 	c.stack = moduleId + c.stack;
 	c.importing = true;
 	
@@ -5831,6 +5890,36 @@ public Configuration processModuleImport(Configuration c, RSignature sig, RName 
 	for (item <- sig.lexicalNonterminals + sig.contextfreeNonterminals + sig.layoutNonterminals + sig.keywordNonterminals)
 		c = importNonterminal(item.sortName, item.sort, item.at, c);
 
+	c.stack = tail(c.stack);
+	c.importing = false;
+	
+	// Save the info for the module and then reset the various environments back to how they
+	// started. We will use this info later in a merge process to determine what is actually
+	// visible in the current module.
+	minfo = modInfo(modName, c.labelEnv, c.fcvEnv, c.typeEnv, c.annotationEnv, c.tagEnv);
+	c.moduleInfo[modName] = minfo;
+
+	return c;
+}
+
+public Configuration resumeModuleImportAndReset(Configuration c, RSignature sig, RName modName, int moduleId, bool extendingImport) {
+	cOrig = c;
+
+	c = resumeModuleImport(c, sig, modName, moduleId, extendingImport);
+	
+	c.labelEnv = cOrig.labelEnv; 
+	c.fcvEnv = cOrig.fcvEnv; 
+	c.typeEnv = cOrig.typeEnv; 
+	c.annotationEnv = cOrig.annotationEnv; 
+	c.tagEnv = cOrig.tagEnv;
+	
+	return c;
+}
+
+public Configuration resumeModuleImport(Configuration c, RSignature sig, RName modName, int moduleId, bool extendingImport) {
+	c.stack = moduleId + c.stack;
+	c.importing = true;
+	
 	// Now we start descending into the various declarations, using the type information
 	// we already added into the environments.
 	for (item <- sig.datatypes)
@@ -5893,7 +5982,7 @@ public Configuration processModuleImport(Configuration c, RSignature sig, RName 
 	return c;
 }
 
-public Configuration loadExtendedModules(Configuration c, set[RName] extendedModules) {
+public Configuration loadExtendedModuleTypes(Configuration c, set[RName] extendedModules) {
 	// Skipping tags and labels for now; we don't use the former, the latter shouldn't
 	// matter from one module to the next
 	for (mn <- extendedModules) {
@@ -5910,7 +5999,14 @@ public Configuration loadExtendedModules(Configuration c, set[RName] extendedMod
 				; // TODO: this is an error, add something here
 			}
 		}
+	}
+	return c;
+}
 
+public Configuration loadExtendedModuleNames(Configuration c, set[RName] extendedModules) {
+	// Skipping tags and labels for now; we don't use the former, the latter shouldn't
+	// matter from one module to the next
+	for (mn <- extendedModules) {
 		for (fn <- c.moduleInfo[mn].fcvEnv) {
 			ids = (c.store[c.moduleInfo[mn].fcvEnv[fn]] is overload) ? c.store[c.moduleInfo[mn].fcvEnv[fn]].items : { c.moduleInfo[mn].fcvEnv[fn] };
 			for (fid <- ids) {
@@ -6124,19 +6220,19 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	for (< modName, isExt > <- defaultModules) {
 		// This loads a default module. In this case, the defaults should stay in the
 		// configuration, since each module can "see" these definitions.
-		c = processModuleImport(c, sigMap[modName], modName, moduleIds[modName], isExt);
+		c = startModuleImport(c, sigMap[modName], modName, moduleIds[modName], isExt);
 	}
 	for (< modName, isExt > <- modulesToImport) {
 		// This loads a non-default module. We start each time with the environment we
 		// had after all the defaults loaded.
-		c = processModuleImportAndReset(c, sigMap[modName], modName, moduleIds[modName], isExt);
+		c = startModuleImportAndReset(c, sigMap[modName], modName, moduleIds[modName], isExt);
 	}
-	c = pushTiming(c, "Imported module signatures", dt1, now());
+	c = pushTiming(c, "Imported module signatures, stage 1", dt1, now());
             
 	// Process the current module. We start by merging in everything from the modules we are
 	// extending to give an initial "seed" for our environment. We will just use the standard
 	// add functions for this.
-	c = loadExtendedModules(c, { mn | < mn, true > <- modulesToImport });
+	c = loadExtendedModuleTypes(c, { mn | < mn, true > <- modulesToImport });
 
 	// Now process all the syntax in the current module. We first "extract" information about all
 	// the syntax (using the existing functionality for extracting module signatures), then add
@@ -6208,6 +6304,26 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		
 		// Now, actually process the type names
 		for (t <- typesAndTags) c = checkDeclaration(t,true,c);
+
+		// Now that we have a signature for each module, actually perform the import for each, creating
+		// a configuration for each with just the items from that module signature.
+		dt1 = now();
+		for (< modName, isExt > <- defaultModules) {
+			// This loads a default module. In this case, the defaults should stay in the
+			// configuration, since each module can "see" these definitions.
+			c = resumeModuleImport(c, sigMap[modName], modName, moduleIds[modName], isExt);
+		}
+		for (< modName, isExt > <- modulesToImport) {
+			// This loads a non-default module. We start each time with the environment we
+			// had after all the defaults loaded.
+			c = resumeModuleImportAndReset(c, sigMap[modName], modName, moduleIds[modName], isExt);
+		}
+		c = pushTiming(c, "Imported module signatures, stage 1", dt1, now());
+	            
+		// Process the current module. We start by merging in everything from the modules we are
+		// extending to give an initial "seed" for our environment. We will just use the standard
+		// add functions for this.
+		c = loadExtendedModuleNames(c, { mn | < mn, true > <- modulesToImport });
 
 		// Next, process the annotations
 		for (t <- annotations) c = checkDeclaration(t,true,c);
@@ -7027,12 +7143,12 @@ public anno map[loc,set[loc]] Tree@docLinks;
 public Configuration checkAndReturnConfig(str mpath) {
     c = newConfiguration();
 	t = getModuleParseTree(mpath);    
-    try {
+    //try {
 		if (t has top && Module m := t.top)
 			c = checkModule(m, c);
-	} catch v : {
-		c.messages = {error("Encountered error checking module <mpath>:<v>", t@\loc)};
-	}
+	//} catch v : {
+	//	c.messages = {error("Encountered error checking module <mpath>:<v>", t@\loc)};
+	//}
 	return c;
 }
 
