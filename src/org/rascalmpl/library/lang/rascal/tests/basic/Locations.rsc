@@ -48,8 +48,10 @@ test bool validURIPath(loc l, str s) = l[path = s].uri != "";
 test bool validURIQuery(loc l, str s) = l[query = s].uri != "";
 test bool validURIFragment(loc l, str s) = l[fragment = s].uri != "";
 
-test bool pathAdditions(list[str] ss) = (|tmp:///ba| | it + s  | s <- ss, s != "" ).path == ("/ba" | it + "/" + s  | s <- ss, s != "" );
-test bool pathAdditions(loc l, str s) = (l + s).path == ((endsWith(l.path, "/") ? l.path : l.path + "/") + s) || s == "";
+str removeLeadingSlash(str s) = s[0] == "/" ? s[1..] : s;
+
+test bool pathAdditions(list[str] ss) = (|tmp:///ba| | it + s  | s <- ss, s != "" ).path == ("/ba" | it + "/" + removeLeadingSlash(s)  | s <- ss, s != "" );
+test bool pathAdditions(loc l, str s) = (l + s).path == ((endsWith(l.path, "/") ? l.path : l.path + "/") + removeLeadingSlash(s)) || s == "";
 
 test bool testParent(loc l, str s) = s == "" || ((l + replaceAll(s, "/","_")).parent + "/") == (l[path=l.path] + "/");
 test bool testWindowsParent(str s) = s == "" || (|file:///c:/| + replaceAll(s,"/","_")).parent == |file:///c:/|;
