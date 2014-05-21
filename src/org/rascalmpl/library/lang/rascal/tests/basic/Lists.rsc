@@ -30,11 +30,26 @@ bool isDiff(list[&T] A, list[&T] B, list[&T] C) =
 public test bool diff(list[&T] A, list[&T] B) = isDiff(A, B, A - B);
 
 // A == B?
-bool isEqual(list[&T] A, list[&T] B) = 
-     size(A) == size(B) ? (true | (it && (elementAt(A,i) == elementAt(B,i))) | int i <- index(A)) : false;
 
-bool isEqual(list[&T] A, list[&T] B) = 
-     size(A) == size(B) && (true | (it && (A[i] == B[i])) | int i <- index(A));
+/*TODO: reducer inside Boolean expression does not work in interpreter*/
+
+bool isEqual(list[&T] A, list[&T] B) { 
+    if(size(A) == size(B)){
+        for(int i <-[0 .. size(A)]){
+            if(A[i] != B[i])
+                return false;
+        }
+        return true;
+    }
+    return false;
+}    
+
+//bool isEqual(list[&T] A, list[&T] B) = 
+//     (size(A) == size(B)) ? (true | (it && (elementAt(A,i) == elementAt(B,i))) | int i <- index(A)) : false;
+
+
+//bool isEqual(list[&T] A, list[&T] B) = 
+//     size(A) == size(B) && (true | (it && (A[i] == B[i])) | int i <- index(A));
 
 public test bool equal1(list[&T] A) = A == A;
 public test bool equal2(list[&T] A, list[&T] B) = (A == B) ? isEqual(A,B) : !isEqual(A, B);
