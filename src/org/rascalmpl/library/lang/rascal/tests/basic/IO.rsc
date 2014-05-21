@@ -28,22 +28,35 @@ map[Encoding, str] encodingNames = (utf8() : "UTF-8", utf16le() : "UTF-16LE",
 );
 
 public test bool correctEncoding(Encoding enc, str content) {
+	content = removeZeroIAmbBOM(enc, content);
 		  writeFileEnc(aFile, encodingNames[enc], content);
   return readFileEnc(aFile, encodingNames[enc]) == content;
 }
 
 public test bool correctEncodingImplicit(Encoding enc, str content) {
+	content = removeZeroIAmbBOM(enc, content);
 		  writeFileEnc(aFile, encodingNames[enc], content);
   return readFile(aFile) == content;
 }
 
+public str removeZeroIAmbBOM(Encoding enc, str s) {
+	if (size(s)> 0 && s[0] == "\a00" && (enc == utf16() || enc == utf16le())) {
+		return "\a01" + s[1..];
+	}
+	return s;
+}
+
 public test bool appendWorksCorrectly(Encoding enc, str a, str b) {
+	a = removeZeroIAmbBOM(enc, a);
+	b = removeZeroIAmbBOM(enc, b);
 	  writeFileEnc(aFile, encodingNames[enc], a);
 	  appendToFileEnc(aFile, encodingNames[enc], b);
 	  return readFile(aFile) == a + b;
 }
 
 public test bool appendWorksCorrectlyImplicit(Encoding enc, str a, str b) {
+	a = removeZeroIAmbBOM(enc, a);
+	b = removeZeroIAmbBOM(enc, b);
 	  writeFileEnc(aFile, encodingNames[enc], a);
 	  appendToFile(aFile, b);
 	  return readFile(aFile) == a + b;
