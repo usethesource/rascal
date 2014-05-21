@@ -315,7 +315,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
      // Switched from type constant
      //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(ttags["ignore"]?), muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
      // to reified type
-     tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ttags["ignore"] ?), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
+     tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ignoreTest(ttags)), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
   }
   leaveFunctionScope();
 }
@@ -383,6 +383,8 @@ private map[str,str] translateTags(Tags tags){
    }
    return m;
 }
+
+private bool ignoreTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
 
 /********************************************************************/
 /*       Translate the modifiers in a function declaration          */
