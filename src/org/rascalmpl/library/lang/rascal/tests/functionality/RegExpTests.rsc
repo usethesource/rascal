@@ -121,8 +121,13 @@ module lang::rascal::tests::functionality::RegExpTests
 	}
 	*/
 
-	@expected{RegExpSyntaxError}
+@ignoreCompiler{Different exception}
+	@expected{SyntaxError}
 	public test bool RegExpSyntaxError1() = /[a-/ := "abc";
+	
+	@ignoreInterpreter{Different exception}
+	@expected{RegExpSyntaxError}
+public test bool RegExpSyntaxError1() = /[a-/ := "abc";
 
 // modifiers
 

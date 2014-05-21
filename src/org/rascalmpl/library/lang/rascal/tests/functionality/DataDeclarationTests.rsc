@@ -69,7 +69,7 @@
   		// if the parameter is not bound by a constructor, the instantiated type equals the bound of the parameter, 
   		// any smaller types, like Exp1[int] would result in a type error
   		public test bool parameterized4() {a = tval(1); return a == tval(1);}
-  		public test bool parameterized4a() {b = tval("abc"); b == tval("abc");}
+  		public test bool parameterized4a() {b = tval("abc"); return b == tval("abc");}
   		
   		public test bool parameterized5() {Exp1[int] e = tval(1); return e == tval(1);}
   		public test bool parameterized6(){Exp1[str] f = tval("abc"); return f == tval("abc");}
