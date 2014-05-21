@@ -105,7 +105,7 @@
   		public test bool toMap3() = Set::toMap({<1, "a">}) == (1 : {"a"});
   		public test bool toMap4() = Set::toMap({<1, "a">, <2, "b">, <1, "c">}) == (1 : {"a", "c"}, 2 : {"b"});
   	
-  // toMapUniassertTrue
+  // toMapUnique
   	
   		public test bool toMapUnique1() = Set::toMapUnique({}) == ();
   		public test bool toMapUnique2() = toMapUnique({}) == ();
