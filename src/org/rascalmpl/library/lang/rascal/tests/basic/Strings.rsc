@@ -217,19 +217,19 @@ bool areOverlapping(str s1, str s2)
 	;
 
 public test bool tstReplaceAll(str S1, str S2, str S3) {
-  if(contains(S1, S2) || areOverlapping(S1, S2)) return true;
+  if(contains(S1, S2) || contains(S2, S1) || areOverlapping(S1, S2)) return true;
   S = S1 + S2 + S1 + S2 + S1;
   return replaceAll(S, S2, S3) == S1 + S3 + S1 + S3 + S1;
 }
 
 public test bool tstReplaceFirst(str S1, str S2, str S3) {
-  if(contains(S1, S2) || areOverlapping(S1, S2)) return true;
+  if(contains(S1, S2) || contains(S2, S1) || areOverlapping(S1, S2)) return true;
   S = S1 + S2 + S1 + S2 + S1;
   return replaceFirst(S, S2, S3) == S1 + S3 + S1 + S2 + S1;
 }
 
 public test bool tstReplaceLast(str S1, str S2, str S3) {
-  if(contains(S1, S2) || areOverlapping(S1, S2)) return true;
+  if(contains(S1, S2)  || contains(S2, S1) || areOverlapping(S1, S2)) return true;
   S = S1 + S2 + S1 + S2 + S1;
   return replaceLast(S, S2, S3) == S1 + S2 + S1 + S3 + S1;
 }
