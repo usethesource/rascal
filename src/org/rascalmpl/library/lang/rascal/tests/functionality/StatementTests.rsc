@@ -56,7 +56,7 @@
   
   // testBreak
   
-  		 public test bool testBreak() {int n = 0; while(n < 10){ n = n + 1; break;}; n == 1;}
+  		 public test bool testBreak() {int n = 0; while(n < 10){ n = n + 1; break;}; return n == 1;}
   
   
   // testContinue
