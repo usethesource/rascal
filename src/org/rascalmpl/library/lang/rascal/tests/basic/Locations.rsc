@@ -34,7 +34,7 @@ list[int] validHostChars = (validSchemeChars - [singleChar("+"), singleChar(".")
 str createValidHost(str s) {
 	if (s == "")
 		return "a";
-	return ("a." | it + stringChar(validHostChars[c % size(validHostChars)]) | c <- chars(s)) + "a.com";
+	return ("a.a" | it + stringChar(validHostChars[c % size(validHostChars)]) | c <- chars(s)) + "a.com";
 }
 
 test bool canChangeHost(loc l, str s) = (l[scheme="http"][authority="a"][host = createValidHost(s)]).host ==  createValidHost(s);
