@@ -1,6 +1,6 @@
-module lang::rascal::tests::functionality::ScopeTCTests
+module lang::rascal::tests::types::ScopeTCTests
 
-import lang::rascal::tests::static::StaticTestingUtils;
+import lang::rascal::tests::types::StaticTestingUtils;
 
 public test bool noEscapeFromToplevelMatch() = undeclaredVariable("bool a := true; a;");	
 

@@ -1,5 +1,5 @@
 @bootstrapParser
-module lang::rascal::tests::static::StaticTestingUtils
+module lang::rascal::tests::types::StaticTestingUtils
 
 /*
  * Utilities for writing tests for the Rascal Type Checker:
@@ -143,5 +143,5 @@ bool declarationError(str stmts, list[str] importedModules = [], list[str] initi
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
 void makeModule(str name, str body){
-    writeFile(|project://rascal-test/src/<name>.rsc|, "module <name>\n<body>");
+    writeFile(|rascal://lang/rascal/tests/types/<name>.rsc|, "module <name>\n<body>");
 }

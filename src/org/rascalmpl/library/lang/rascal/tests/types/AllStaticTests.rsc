@@ -1,4 +1,4 @@
-module lang::rascal::tests::static::AllStaticTests
+module lang::rascal::tests::types::AllStaticTests
 
 /*
  * Tests for the Rascal Type Checker (To be executed using the Rascal interpreter -- for now).
@@ -9,41 +9,41 @@ module lang::rascal::tests::static::AllStaticTests
  *
  */
 
-import lang::rascal::tests::static::StaticTestingUtils;
+import lang::rascal::tests::types::StaticTestingUtils;
 
 extend Exception;
 
-extend lang::rascal::tests::functionality::AccumulatingTCTests;
+extend lang::rascal::tests::types::AccumulatingTCTests;
 
-extend lang::rascal::tests::functionality::AliasTCTests;
+extend lang::rascal::tests::types::AliasTCTests;
 
-extend lang::rascal::tests::functionality::AnnotationTCTests;
+extend lang::rascal::tests::types::AnnotationTCTests;
 
-extend lang::rascal::tests::functionality::AssignmentTCTests;
+extend lang::rascal::tests::types::AssignmentTCTests;
 
-extend lang::rascal::tests::functionality::CallTCTests;
+extend lang::rascal::tests::types::CallTCTests;
 
-extend lang::rascal::tests::functionality::ComprehensionTCTests;
+extend lang::rascal::tests::types::ComprehensionTCTests;
 
-extend lang::rascal::tests::functionality::DataDeclarationTCTests;
+extend lang::rascal::tests::types::DataDeclarationTCTests;
 
-extend lang::rascal::tests::functionality::DataTypeTCTests;
+extend lang::rascal::tests::types::DataTypeTCTests;
 
-extend lang::rascal::tests::functionality::DeclarationTCTests;
+extend lang::rascal::tests::types::DeclarationTCTests;
 
-extend lang::rascal::tests::functionality::PatternTCTests;
+extend lang::rascal::tests::types::PatternTCTests;
 
-extend lang::rascal::tests::functionality::ProjectionTCTests;
+extend lang::rascal::tests::types::ProjectionTCTests;
 
-extend lang::rascal::tests::functionality::RegExpTCTests;
+extend lang::rascal::tests::types::RegExpTCTests;
 
-extend lang::rascal::tests::functionality::ScopeTCTests;
+extend lang::rascal::tests::types::ScopeTCTests;
 
-extend lang::rascal::tests::functionality::StatementTCTests;
+extend lang::rascal::tests::types::StatementTCTests;
 
-extend lang::rascal::tests::functionality::SubscriptTCTests;
+extend lang::rascal::tests::types::SubscriptTCTests;
 
-extend lang::rascal::tests::functionality::VisitTCTests;
+extend lang::rascal::tests::types::VisitTCTests;
 
 extend AllStaticIssues;
 
