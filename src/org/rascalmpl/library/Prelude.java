@@ -27,6 +27,8 @@ package org.rascalmpl.library;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -43,6 +45,7 @@ import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -59,6 +62,7 @@ import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.CharSetUtils;
@@ -3485,7 +3489,29 @@ public class Prelude {
 		return ctx.getEvaluator().__getCurrentTraversalEvaluator().getContext();
 	}
 	
+	public ISourceLocation uuid() {
+		String uuid = UUID.randomUUID().toString();
+		
+		try {
+			return values.sourceLocation("uuid",uuid,"");
+		} catch (URISyntaxException e) {
+			assert false;
+			throw RuntimeExceptionFactory.malformedURI("uuid://" + uuid, null, null);
+		}
+	}
 	
+	public IInteger uuidi() {
+		UUID uuid = UUID.randomUUID();
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		DataOutputStream data = new DataOutputStream(bytes);
+		try {
+			data.writeLong(uuid.getMostSignificantBits());
+			data.writeLong(uuid.getLeastSignificantBits());
+			return values.integer(bytes.toByteArray());
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string("could not generate unique number " + uuid), null, null);
+		}
+	}
 }
 
 // Utilities used by Graph
