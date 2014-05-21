@@ -329,8 +329,8 @@
     		public test bool testStringEscapes10() = "\"\>" == "\"\>";
     		
     		public test bool testStringEscapes11() = "\a20" == " ";
-    		public test bool testStringEscapes12() = "\U01F35D" == "����";
-    		public test bool testStringEscapes13() = "\u2713" == "���";
+    		public test bool testStringEscapes12() = "\U01F35D" == "🍝";
+    		public test bool testStringEscapes13() = "\u2713" == "✓";
     	
     //	stringInterpolation
     
@@ -368,19 +368,19 @@
     		public test bool testLocationFieldUse8() = Loc.end.column == 5;
     		public test bool testLocationFieldUse9() = Loc.path == "/home/paulk/pico.trm";
     		
-    		public test bool testLocationFieldUpdate1() { loc l = Loc; l.uri = "file:///home/paulk/pico2.trm"; l.uri == "file:///home/paulk/pico2.trm";}
-    		public test bool testLocationFieldUpdate2() { loc l = Loc; l.offset = 10; l.offset == 10;}
-    		public test bool testLocationFieldUpdate3() { loc l = Loc; l.length = 11; l.length == 11;}
-    		public test bool testLocationFieldUpdate4() { loc l = Loc; l.end.line = 14; l.end.line == 14;}
-    		public test bool testLocationFieldUpdate5() { loc l = Loc; l.begin.line = 1; l.begin.line == 1;}
-    		public test bool testLocationFieldUpdate6() { loc l = Loc; l.begin.column = 13; l.begin.column == 13;}
-    		public test bool testLocationFieldUpdate7() { loc l = Loc; l.end.column = 15; l.end.column == 15;}
+    		public test bool testLocationFieldUpdate1() { loc l = Loc; l.uri = "file:///home/paulk/pico2.trm"; return l.uri == "file:///home/paulk/pico2.trm";}
+    		public test bool testLocationFieldUpdate2() { loc l = Loc; l.offset = 10; return l.offset == 10;}
+    		public test bool testLocationFieldUpdate3() { loc l = Loc; l.length = 11; return l.length == 11;}
+    		public test bool testLocationFieldUpdate4() { loc l = Loc; l.end.line = 14; return l.end.line == 14;}
+    		public test bool testLocationFieldUpdate5() { loc l = Loc; l.begin.line = 1; return l.begin.line == 1;}
+    		public test bool testLocationFieldUpdate6() { loc l = Loc; l.begin.column = 13; return l.begin.column == 13;}
+    		public test bool testLocationFieldUpdate7() { loc l = Loc; l.end.column = 15; return l.end.column == 15;}
     		
-    		public test bool testLocationFieldUpdate8() {loc l = Loc[uri= "file:///home/paulk/pico.trm"]; l == |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>);}
-    		public test bool testLocationFieldUpdate9() {loc l = Loc[offset = 10]; l == |file:///home/paulk/pico.trm|(10,1,<2,3>,<4,5>);}
-    		public test bool testLocationFieldUpdate10() {loc l = Loc[length = 11]; l ==  |file:///home/paulk/pico.trm|(0,11,<2,3>,<4,5>);}
-    		public test bool testLocationFieldUpdate12() {loc l = Loc[begin = <1,4>]; l == |file:///home/paulk/pico.trm|(0,1,<1,4>,<4,5>);}
-    		public test bool testLocationFieldUpdate13() {loc l = Loc[end = <14,38>]; l ==  |file:///home/paulk/pico.trm|(0,1,<2,3>,<14,38>);}
+    		public test bool testLocationFieldUpdate8() {loc l = Loc[uri= "file:///home/paulk/pico.trm"]; return l == |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>);}
+    		public test bool testLocationFieldUpdate9() {loc l = Loc[offset = 10]; return l == |file:///home/paulk/pico.trm|(10,1,<2,3>,<4,5>);}
+    		public test bool testLocationFieldUpdate10() {loc l = Loc[length = 11]; return l ==  |file:///home/paulk/pico.trm|(0,11,<2,3>,<4,5>);}
+    		public test bool testLocationFieldUpdate12() {loc l = Loc[begin = <1,4>]; return l == |file:///home/paulk/pico.trm|(0,1,<1,4>,<4,5>);}
+    		public test bool testLocationFieldUpdate13() {loc l = Loc[end = <14,38>]; return l ==  |file:///home/paulk/pico.trm|(0,1,<2,3>,<14,38>);}
     	
     		public test bool testLocation12() = |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>) == |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>);
     		public test bool testLocation13() = !(|file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>) == |file:///home/paulk/pico.trm|(0,2,<2,3>,<4,5>));
@@ -688,22 +688,22 @@
     		public test bool testSetMultiVariable3() = {*int S1, *int S2} := {100} && ((S1 == {100} && S2 == {}) || (S1 == {} && S2 == {100}));
     		public test bool testSetMultiVariable4() = {*S1, *S2} := {100} && ((S1 == {100} && S2 == {}) || (S1 == {} && S2 == {100}));
     		
-    		public test bool testSetMultiVariable5()  {R = for({*int S1, *int S2} := {100}) append <S1, S2>; R == [<{100}, {}>, <{}, {100}> ];}
-    		public test bool testSetMultiVariable6()  {R = for({*S1, *S2} := {100}) append <S1, S2>; R == [<{100}, {}>, <{}, {100}> ];}
+    		public test bool testSetMultiVariable5()  {R = for({*int S1, *int S2} := {100}) append <S1, S2>; return R == [<{100}, {}>, <{}, {100}> ];}
+    		public test bool testSetMultiVariable6()  {R = for({*S1, *S2} := {100}) append <S1, S2>; return R == [<{100}, {}>, <{}, {100}> ];}
     
-    		public test bool testSetMultiVariable7()  {R = for({*S1, *S2} := {100}) append <S1, S2>; R == [<{100}, {}>, <{}, {100}> ];}
+    		public test bool testSetMultiVariable7()  {R = for({*S1, *S2} := {100}) append <S1, S2>; return R == [<{100}, {}>, <{}, {100}> ];}
     		//
     		// TODO: the following test requires a specific implementation specific
     		// set representation and, thus, should be refactored. To check
     		// splicing, without taking order into account, the list 'R' is now
     		// converted to a set.
     		//
-    		public test bool testSetMultiVariable8()  {R = for({*S1, *S2} := {100, 200}) append <S1, S2>; {*R} == {<{200,100}, {}>, <{200}, {100}>, <{100}, {200}>, <{}, {200,100}>};}
-    		public test bool testSetMultiVariable9()  {R = for({*int S1, *S2} := {100, "a"})  append <S1, S2>; R == [<{100}, {"a"}>, <{},{100,"a"}>];}
-    		public test bool testSetMultiVariable10()  {R = for({*int S1, *str S2} := {100, "a"}) append <S1, S2>; R == [<{100}, {"a"}>];}
+    		public test bool testSetMultiVariable8()  {R = for({*S1, *S2} := {100, 200}) append <S1, S2>; return {*R} == {<{200,100}, {}>, <{200}, {100}>, <{100}, {200}>, <{}, {200,100}>};}
+    		public test bool testSetMultiVariable9()  {R = for({*int S1, *S2} := {100, "a"})  append <S1, S2>; return R == [<{100}, {"a"}>, <{},{100,"a"}>];}
+    		public test bool testSetMultiVariable10()  {R = for({*int S1, *str S2} := {100, "a"}) append <S1, S2>; return R == [<{100}, {"a"}>];}
     		
-    		public test bool testSetMultiVariable11()  {R = for({*str S1, *S2} := {100, "a"})  append <S1, S2>; R == [<{"a"},{100}>, <{},{100,"a"}>];}
-    		public test bool testSetMultiVariable12()  {R = for({*str S1, *int S2} := {100, "a"})  append <S1, S2>; R == [<{"a"},{100}>];}
+    		public test bool testSetMultiVariable11()  {R = for({*str S1, *S2} := {100, "a"})  append <S1, S2>; return R == [<{"a"},{100}>, <{},{100,"a"}>];}
+    		public test bool testSetMultiVariable12()  {R = for({*str S1, *int S2} := {100, "a"})  append <S1, S2>; return R == [<{"a"},{100}>];}
     		
     		public test bool testSetMultiVariable13() = !({*str S1, *str S2} := {100, "a"});
     		public test bool testSetMultiVariable14() = !({*int S1, *int S2} := {100, "a"});

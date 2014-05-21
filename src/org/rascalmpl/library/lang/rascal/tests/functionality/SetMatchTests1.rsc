@@ -155,19 +155,3 @@ test bool testSimp3N() = testSimplifyN(simp3);
 test bool testSimp3O() = testSimplifyO(simp3); 
 test bool testSimp3P() = testSimplifyP(simp3); 
 test bool testSimp3Q() = testSimplifyQ(simp3);     
-    
-        //
-        // Anastassija's type constraint examples
-        // Version 4; with overloaded constructor INTERSECT , and non-linear constraints (tset)
-        //
-    //  @Test
-    //  public void testSet()  {
-    //      prepare("data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);");
-    //      
-    //      prepareMore("public TYPESET INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, *TYPESET rest})), tset, *TYPESET rest1 }) {" +
-    //                     " return INTERSECT({ SUBTYPES(INTERSECT(rest)), tset, *rest1 });" +
-    //                  "}");
-    //
-    //      funTests();
-    //  }
-    

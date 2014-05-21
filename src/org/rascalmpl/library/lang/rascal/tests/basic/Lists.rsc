@@ -254,22 +254,20 @@ public test bool assignStep13() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-3..] = [10,20
 
 // TODO: The following tests fail in the interpreter
 
-/*
-public test bool assignAdd1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] += [10]; return L == [10,11,12,13,14,15,16,17,18,19]; }
-public test bool assignAdd2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] += [10]; return L == [0,1,12,13,14,15,16,17,18,19]; }
-public test bool assignAdd3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] += [10]; return L == [0,1,12,13,14,15,6,7,8,9];}
-public test bool assignAdd4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] += [10]; return L == [0,1,2,3,14,15,16,17,18,9];}
+@ignoreInterpreter{} public test bool assignAdd1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] += [10]; return L == [10,11,12,13,14,15,16,17,18,19]; }
+@ignoreInterpreter{} public test bool assignAdd2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] += [10]; return L == [0,1,12,13,14,15,16,17,18,19]; }
+@ignoreInterpreter{} public test bool assignAdd3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] += [10]; return L == [0,1,12,13,14,15,6,7,8,9];}
+@ignoreInterpreter{} public test bool assignAdd4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] += [10]; return L == [0,1,2,3,14,15,16,17,18,9];}
 
-public test bool assignSub1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] -= [10]; return L == [-10,1-10,2-10,3-10,4-10,5-10,6-10,7-10,8-10,9-10]; }
-public test bool assignSub2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] -= [10]; return L == [0,1,2-10,3-10,4-10,5-10,6-10,7-10,8-10,9-10]; }
-public test bool assignSub3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] -= [10]; return L == [0,1,2-10,3-10,4-10,5-10,6,7,8,9];}
-public test bool assignSub4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] -= [10]; return L == [0,1,2,3,4-10,5-10,6-10,7-10,8-10,9];}
+@ignoreInterpreter{} public test bool assignSub1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] -= [10]; return L == [-10,1-10,2-10,3-10,4-10,5-10,6-10,7-10,8-10,9-10]; }
+@ignoreInterpreter{} public test bool assignSub2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] -= [10]; return L == [0,1,2-10,3-10,4-10,5-10,6-10,7-10,8-10,9-10]; }
+@ignoreInterpreter{} public test bool assignSub3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] -= [10]; return L == [0,1,2-10,3-10,4-10,5-10,6,7,8,9];}
+@ignoreInterpreter{} public test bool assignSub4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] -= [10]; return L == [0,1,2,3,4-10,5-10,6-10,7-10,8-10,9];}
 
-public test bool assignProd1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] *= [10]; return L == [0,10,20,30,40,50,60,70,80,90]; }
-public test bool assignProd2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] *= [10]; return L == [0,1,20,30,40,50,60,70,80,90]; }
-public test bool assignProd3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] *= [10]; return L == [0,1,20,30,40,50,6,7,8,9];}
-public test bool assignProd4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] *= [10]; return L == [0,1,2,3,40,50,60,70,80,9];}
-*/
+@ignoreInterpreter{} public test bool assignProd1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] *= [10]; return L == [0,10,20,30,40,50,60,70,80,90]; }
+@ignoreInterpreter{} public test bool assignProd2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] *= [10]; return L == [0,1,20,30,40,50,60,70,80,90]; }
+@ignoreInterpreter{} public test bool assignProd3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] *= [10]; return L == [0,1,20,30,40,50,6,7,8,9];}
+@ignoreInterpreter{} public test bool assignProd4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] *= [10]; return L == [0,1,2,3,40,50,60,70,80,9];}
 
 // TODO: add tests for /= and &= 
 
