@@ -40,8 +40,8 @@ str createValidHost(str s) {
 test bool canChangeHost(loc l, str s) = (l[scheme="http"][authority="a"][host = createValidHost(s)]).host ==  createValidHost(s);
 test bool canChangeHost(loc l, str s) { l.scheme="http"; l.authority = "a"; l.host = createValidHost(s); return l.host ==  createValidHost(s); }
 
-test bool canChangeUser(loc l, str s) = (l[scheme="http"][authority="a@a.com"][user = s]).user ==  s;
-test bool canChangeUser(loc l, str s) { l.scheme="http"; l.authority = "a@a.com"; l.user = s; if ( l.user ==  s) { return true; } else {println("<l.user> != <s>"); return false; } }
+test bool canChangeUser(loc l, str s) = contains(s, "@") || (l[scheme="http"][authority="a@a.com"][user = s]).user ==  s;
+test bool canChangeUser(loc l, str s) { if (contains(s, "@")) return true; l.scheme="http"; l.authority = "a@a.com"; l.user = s; if ( l.user ==  s) { return true; } else {println("<l.user> != <s>"); return false; } }
 
 test bool validURIAuthority(loc l, str s) = l[authority = s].uri != "";
 test bool validURIPath(loc l, str s) = l[path = s].uri != "";
