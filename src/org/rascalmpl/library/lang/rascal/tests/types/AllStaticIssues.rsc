@@ -1,6 +1,6 @@
-module lang::rascal::tests::static::AllStaticIssues
+module lang::rascal::tests::types::AllStaticIssues
 
-import lang::rascal::tests::static::StaticTestingUtils;
+import lang::rascal::tests::types::StaticTestingUtils;
 
 //public test bool comma() = checkOK("or(true);", 
 //					initialDecls = ["test bool or(bool b) { if (true || b == true, b || true == true, false || false == false) return true; else return false; }"]); 

@@ -1,4 +1,4 @@
- module lang::rascal::tests::functionality::BackTrackingTests
+ module lang::rascal::tests::functionality::BacktrackingTests
   /*******************************************************************************
    * Copyright (c) 2009-2011 CWI
    * All rights reserved. This program and the accompanying materials

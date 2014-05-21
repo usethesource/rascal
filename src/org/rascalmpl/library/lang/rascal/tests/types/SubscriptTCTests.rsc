@@ -1,6 +1,6 @@
-module lang::rascal::tests::functionality::SubscriptTCTests
+module lang::rascal::tests::types::SubscriptTCTests
 
-import lang::rascal::tests::static::StaticTestingUtils; 
+import lang::rascal::tests::types::StaticTestingUtils; 
 
 public test bool WrongMapIndex1() = unexpectedType("map[int,int] M = (1:10,2:20); M[\"abc\"];");
 

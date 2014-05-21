@@ -6,8 +6,6 @@ import List;
 import DateTime;
 import experiments::Compiler::Execute;
 
-loc base1 = |project:///rascal-test/tests/functionality|;
-
 // Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
 list[str] functionalityTests = [
@@ -49,7 +47,7 @@ list[str] functionalityTests = [
 ];
 
 
-list[str] rascalTests = [
+list[str] basicTests = [
 "BacktrackingTests",		// OK
 "Booleans",					// OK
 							// Commented out fromInt test
@@ -161,9 +159,9 @@ value main(list[value] args){
   crashes = [];
   partial_results = [];
   all_results = [];
-  all_results += runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
-  all_results += runTests(rascalTests, |project://rascal-test/src/tests|);
-  all_results += runTests(libraryTests, |project://rascal-test/src/tests/library|);
+  all_results += runTests(functionalityTests, |rascal:///lang/rascal/tests/functionality|);
+  all_results += runTests(basicTests, |rascal:///lang/rascal/tests/basic|);
+  all_results += runTests(libraryTests, |rascal:///lang/rascal/tests/library|);
   
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");

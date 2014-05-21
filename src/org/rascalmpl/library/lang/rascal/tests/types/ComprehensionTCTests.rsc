@@ -1,6 +1,6 @@
-module lang::rascal::tests::functionality::TCTests
+module lang::rascal::tests::types::ComprehensionTCTests
 
-import lang::rascal::tests::static::StaticTestingUtils;
+import lang::rascal::tests::types::StaticTestingUtils;
 
 public test bool testGen1() = unexpectedType("{x | 5};");
 
