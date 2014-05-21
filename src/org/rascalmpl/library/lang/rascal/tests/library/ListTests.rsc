@@ -20,6 +20,14 @@
   		public test bool delete1() = delete([0,1,2], 0) == [1,2];
   		public test bool delete2() = delete([0,1,2], 1) == [0,2];
   		public test bool delete3() = delete([0,1,2], 2) == [0,1];
+  		
+  // distribution
+  
+        public test bool distribution1()  =distribution([]) == ();
+        public test bool distribution2()  =distribution([1]) == (1:1);
+        public test bool distribution3()  =distribution([1,2]) == (1:1, 2:1);
+        public test bool distribution4()  =distribution([1,2, 2]) == (1:1, 2:2);
+
   
   /*
   // domain on Lists has been removed
@@ -72,7 +80,7 @@
 	  		}	
 	  		
 	 	 @expected{IndexOutOfBounds}
-	  	public test bool head11() {
+	  	 public test bool head11() {
 	  		head([1,2,3], 4);
 	  		return false;
 	  		}
@@ -116,13 +124,7 @@
   		public test bool permutations3()  =permutations([1,2]) == {[1,2],[2,1]};
   		public test bool permutations4()  =permutations([1,2,3]) ==  {[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]};
   
-  // distribution
-  
-  		public test bool distribution1()  =distribution([]) == ();
-  		public test bool distribution2()  =distribution([1]) == (1:1);
-  		public test bool distribution3()  =distribution([1,2]) == (1:1, 2:1);
-  		public test bool distribution4()  =distribution([1,2, 2]) == (1:1, 2:2);
-  	
+    	
   // reducer
   
   		public test bool reducer1() {
@@ -172,14 +174,7 @@
   		public test bool sort10() =sort([1,1,1,1,1,1]) == [1,1,1,1,1,1];
   		public test bool sort11() =sort([1,1,0,1,1]) == [0,1,1,1,1];
   	
-  // sum
-  
-  		public test bool sum1() =sum([]) == 0;
-  		public test bool sum2() =sum([1]) == 1;
-  		public test bool sum3() =sum([1,2]) == 3;
-  		public test bool sum4() =sum([1,2,3]) == 6;
-  	
-  // sortWithCompareFunction 	
+    // sortWithCompareFunction 	
   
   		public test bool sortWithCompare1() = sort([1, 2, 3]) == [1,2,3];
   		public test bool sortWithCompare2() = sort([1, 2, 3], bool(int a, int b){return a < b;}) == [1,2,3];
@@ -191,6 +186,14 @@
   		@expected{IllegalArgument}
          public test bool sortWithCompare5() {sort([1, 0, 1], bool(int a, int b){return a <= b;});  return false;}
  
+   // sum
+  
+        public test bool sum1() =sum([]) == 0;
+        public test bool sum2() =sum([1]) == 1;
+        public test bool sum3() =sum([1,2]) == 3;
+        public test bool sum4() =sum([1,2,3]) == 6;
+    
+
   // tail
   
   		public test bool tail1() = List::tail([1]) == [];
@@ -230,7 +233,7 @@
 	  		return false;
 	  		}
   	
-  // toMap
+  // toMapUnique
   
   		public test bool toMapUnique1() = List::toMapUnique([]) == ();
   		public test bool toMapUnique2() = toMapUnique([]) == ();
@@ -252,16 +255,16 @@
   		public test bool toMap12() = toSet([1]) == {1};
   		public test bool toMap13() = List::toSet([1, 2, 1]) == {1, 2};
   	
-  // testToString
+  // toString
   
   		public test bool toString1() = List::toString([]) == "[]";
   		public test bool toString2() = toString([]) == "[]";
   		public test bool toString3() = List::toString([1]) == "[1]";
   		public test bool toString4() = List::toString([1, 2]) == "[1,2]";
   	
-  // listExpressions3
+  // listExpressions
   
-  	public test bool listExpressions1() { 
+  	public test bool listExpressions() { 
   		value n = 1; 
   		value s = "string"; 
   		return list[int] _ := [ n ] && 
