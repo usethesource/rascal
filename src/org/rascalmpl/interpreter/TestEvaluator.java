@@ -66,7 +66,7 @@ public class TestEvaluator {
 //		try {
 		for (int i = tests.size() - 1; i >= 0; i--) {
 		  AbstractFunction test = tests.get(i);
-		  if (test.hasTag("ignore")) {
+		  if (test.hasTag("ignore") || test.hasTag("Ignore") || test.hasTag("ignoreInterpreter") || test.hasTag("IgnoreInterpreter")) {
 			  continue;
 		  }
 
