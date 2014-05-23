@@ -7,12 +7,20 @@ public test bool UndefinedValue1() =
 
  
 public test bool UnitializedVariable21() = 
-	uninitialized("Bool b; b[left = btrue()];", initialDecls=["data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);"]);  
+	uninitialized("Bool b; b[left = btrue()];", 
+				  initialDecls=["data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);"]);  
   	
 public test bool UnitializedVariable21() = 
-	uninitialized("Bool b; b[left = btrue()];", initialDecls=["data Exp = let(str name, Exp exp1, Exp exp2) | var(str name) | \\int(int intVal);",
-															  "data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);",
-															  "alias Var2 = str;"]);  
+	uninitialized("Bool b; b[left = btrue()];", 
+				  initialDecls=["data Exp = let(str name, Exp exp1, Exp exp2) | var(str name) | \\int(int intVal);",
+								"data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);",
+								"alias Var2 = str;"]); 
+															  
+public test bool letWrongTypeViaAlias() =
+	unexpectedType("Var2 varx !:= let(\"a\",\\int(1),var(\"a\"));", 
+				    initialDecls=["alias Var2 = str;", 
+				    			  "data Exp2 = let(Var2 var, Exp2 exp1, Exp2 exp2) | var(Var2 var) | \\int(int intVal);"]); 
+														 
   
 public test bool doubleFieldError2() = 
 	declarationError("true;", initialDecls=["data D = d(int n) | d(value v);"]);   
