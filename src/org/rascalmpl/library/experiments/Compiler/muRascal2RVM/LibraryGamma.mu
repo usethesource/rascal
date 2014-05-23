@@ -147,16 +147,40 @@ guard {
 }
 
 coroutine ENUM_NODE(iNd, rVal) 
-guard { 
-    var array = get_children_and_keyword_params_as_values(iNd),
-        len = size_array(array); 
-    len > 0 
-}
 {
-	var j = 0
-	while(j < len) {
-	    yield array[j]
-	    j = j + 1
+   var array, iLst, len, children, j = 0, prod, op, delta = 2, opname
+   
+   if(equal(get_name(iNd), "appl")){			// A concrete list?
+      children = get_children(iNd)
+      prod = children[0]
+      if(equal(get_name(prod), "regular")){ 	// regular(opname(), ...)
+         op = get_children(prod)[0]
+         opname = get_name(op)
+         // Consider layout and separators
+         if(equal(opname, "iter-seps") || equal(opname, "iter-start-seps")){
+            delta = 1 + size_list(get_children(op)[1]);
+         }
+         iLst = children[1]
+         len = size_list(iLst)
+         if(len > 0){
+		    while(j < len) {
+	    	   yield muprim("subscript_list_mint", iLst, j)
+	    	   j = j + delta
+		    }
+		 }
+	  } else {									
+	    return iNd;								// Concrete node, but not a concrete list
+	  }
+   } else {										// Not a concrete list
+      array = get_children_and_keyword_params_as_values(iNd)
+      len = size_array(array)
+  
+   	  if(len > 0){
+		 while(j < len) {
+	    	yield array[j]
+	    	j = j + 1
+		 }
+	   }
 	}
 }
 

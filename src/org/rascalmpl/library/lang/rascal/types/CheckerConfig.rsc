@@ -65,7 +65,7 @@ alias KeywordParamRel = lrel[RName pname, Symbol ptype, Expression pinit];
 data AbstractValue 
     = label(RName name, LabelSource source, int containedIn, loc at) 
     | variable(RName name, Symbol rtype, bool inferred, int containedIn, loc at)
-    | function(RName name, Symbol rtype, KeywordParamMap keywordParams, bool isVarArgs, int containedIn, list[Symbol] throwsTypes, loc at)
+    | function(RName name, Symbol rtype, KeywordParamMap keywordParams, bool isVarArgs, int containedIn, list[Symbol] throwsTypes, bool isDeferred, loc at)
     | closure(Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at)
     | \module(RName name, loc at)
     | overload(set[int] items, Symbol rtype)
@@ -126,10 +126,11 @@ data Configuration = config(set[Message] messages,
                             map[str,Symbol] tvarBounds,
                             map[RName,ModuleInfo] moduleInfo,
                             map[RName,int] globalAdtMap,
+                            map[int,Signature] deferredSignatures,
                             bool importing
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),false);
+public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),false);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -190,16 +191,16 @@ public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
 public int definingContainer(Configuration c, int i) {
 	if (c.store[i] is overload) return definingContainer(c, getOneFrom(c.store[i].items));
     cid = c.store[i].containedIn;
-    if (\module(_,_) := c.store[cid]) return cid;
-    if (\function(_,_,_,_,_,_,_) := c.store[cid]) return cid;
-    if (\closure(_,_,_,_) := c.store[cid]) return cid;
+    if (c.store[cid] is \module) return cid;
+    if (c.store[cid] is function) return cid;
+    if (c.store[cid] is closure) return cid;
     return definingContainer(c,cid);
 }
 
 public list[int] upToContainer(Configuration c, int i) {
-    if (\module(_,_) := c.store[i]) return [i];
-    if (\function(_,_,_,_,_,_,_) := c.store[i]) return [i];
-    if (\closure(_,_,_,_) := c.store[i]) return [i];
+    if (c.store[i] is \module) return [i];
+    if (c.store[i] is function) return [i];
+    if (c.store[i] is closure) return [i];
     return [i] + upToContainer(c,c.store[i].containedIn);
 }
 
@@ -271,12 +272,19 @@ public Configuration addTopLevelVariable(Configuration c, RName n, bool inf, Vis
 
 	int insertVariable() {
 		varId = c.nextLoc;
-		c.store[varId] = variable(n,rt,inf,head(c.stack),l);
-		c.definitions = c.definitions + < varId, l >;
-		if (defaultVis() !:= visibility) {
-			c.visibilities[varId] = visibility;
+
+		existingDefs = invert(c.definitions)[l];
+		if (!isEmpty(existingDefs)) {
+			varId = getOneFrom(existingDefs);
+		} else {
+			c.nextLoc = varId + 1;
+			c.store[varId] = variable(n,rt,inf,head(c.stack),l);
+			c.definitions = c.definitions + < varId, l >;
+			if (defaultVis() !:= visibility) {
+				c.visibilities[varId] = visibility;
+			}
 		}
-		c.nextLoc = varId + 1;
+
 		return varId;
 	}
 		
@@ -370,6 +378,9 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
 	moduleName = c.store[moduleId].name;
 
 	int insertAnnotation() {
+		existingDefs = invert(c.definitions)[l];
+		if (!isEmpty(existingDefs)) return getOneFrom(existingDefs);
+
 		annId = c.nextLoc;
 		c.store[annId] = annotation(n,rt,{rtOn},moduleId,l);
 		c.definitions = c.definitions + < annId, l >;
@@ -420,6 +431,10 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		if (n in c.globalAdtMap) {
 			return c.globalAdtMap[n];
 		}
+		
+		existingDefs = invert(c.definitions)[l];
+		if (!isEmpty(existingDefs)) return getOneFrom(existingDefs);
+		
 		itemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
 		c.store[itemId] = datatype(n,rt,moduleId,{ l });
@@ -557,6 +572,9 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 	fullName = appendName(moduleName, n);
 	
 	int addAlias() {
+		existingDefs = invert(c.definitions)[l];
+		if (!isEmpty(existingDefs)) return getOneFrom(existingDefs);
+
 		itemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
 		c.store[itemId] = \alias(n,rt,moduleId,l);
@@ -628,8 +646,9 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 					} else {
 						seenAlready = seenAlready + fn;
 						if (<adtId,fn> in c.adtFields) {
-							if (!equivalent(ft, c.adtFields[<adtId,fn>])) {
-								c = addScopeError(c,"Field <fn> already defined as type <prettyPrintType(c.adtFields[<adtId,fn>])> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(ft)>",l);
+							aft = c.adtFields[<adtId,fn>];
+							if (!equivalent(ft, aft)) {
+								c = addScopeError(c,"Field <fn> already defined as type <prettyPrintType(aft)> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(ft)>",l);
 							}
 						} else {
 							c.adtFields[<adtId,fn>] = ft;
@@ -653,8 +672,9 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 			paramsSeen = paramsSeen + pnAsString;
 			consolidatedParams += kp;
 			if (<adtId,pnAsString> in c.adtFields) {
-				if (!equivalent(pt, c.adtFields[<adtId,pnAsString>])) {
-					c = addScopeError(c,"Field <pnAsString> already defined as type <prettyPrintType(c.adtFields[<adtId,pnAsString>])> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(pt)>",l);
+				aft = c.adtFields[<adtId,pnAsString>];
+				if (!equivalent(pt, aft)) {
+					c = addScopeError(c,"Field <pnAsString> already defined as type <prettyPrintType(aft)> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(pt)>",l);
 				}
 			} else {
 				c.adtFields[<adtId,pnAsString>] = pt;
@@ -673,8 +693,9 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 			paramsSeen = paramsSeen + pnAsString;
 			consolidatedParams = { kp2 | kp2:<pn2,pt2,pe2> <- consolidatedParams, pn2 != pn } + kp;
 			if (<adtId,pnAsString> in c.adtFields) {
-				if (!equivalent(pt, c.adtFields[<adtId,pnAsString>])) {
-					c = addScopeError(c,"Field <pnAsString> already defined as type <prettyPrintType(c.adtFields[<adtId,pnAsString>])> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(pt)>",l);
+				aft = c.adtFields[<adtId,pnAsString>];
+				if (!equivalent(pt, aft)) {
+					c = addScopeError(c,"Field <pnAsString> already defined as type <prettyPrintType(aft)> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(pt)>",l);
 				}
 			} else {
 				c.adtFields[<adtId,pnAsString>] = pt;
@@ -700,11 +721,13 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 			if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
-				if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-					defaults += c.store[c.fcvEnv[n]].rtype;
-				} else {
-					nonDefaults += c.store[c.fcvEnv[n]].rtype;
-				}
+	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
+		        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+		        		defaults += c.store[c.fcvEnv[n]].rtype;
+		        	} else {
+		        		nonDefaults += c.store[c.fcvEnv[n]].rtype;
+		        	}
+		        }
 			}
 			c.store[c.nextLoc] = overload({ c.fcvEnv[n], constructorItemId }, overloaded(nonDefaults,defaults));
 			c.fcvEnv[n] = c.nextLoc;
@@ -759,11 +782,13 @@ public Configuration addImportedConstructor(Configuration c, RName n, int itemId
 			if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
-				if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-					defaults += c.store[c.fcvEnv[n]].rtype;
-				} else {
-					nonDefaults += c.store[c.fcvEnv[n]].rtype;
-				}
+	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
+		        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+		        		defaults += c.store[c.fcvEnv[n]].rtype;
+		        	} else {
+		        		nonDefaults += c.store[c.fcvEnv[n]].rtype;
+		        	}
+		        }
 			}
 			c.store[c.nextLoc] = overload({ c.fcvEnv[n], constructorItemId }, overloaded(nonDefaults,defaults));
 			c.fcvEnv[n] = c.nextLoc;
@@ -821,11 +846,13 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 			if(isProductionType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
-				if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-					defaults += c.store[c.fcvEnv[n]].rtype;
-				} else {
-					nonDefaults += c.store[c.fcvEnv[n]].rtype;
-				}
+	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
+		        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+		        		defaults += c.store[c.fcvEnv[n]].rtype;
+		        	} else {
+		        		nonDefaults += c.store[c.fcvEnv[n]].rtype;
+		        	}
+		        }
 			}
 			c.store[c.nextLoc] = overload({ c.fcvEnv[n], productionItemId }, overloaded(nonDefaults,defaults));
 			c.fcvEnv[n] = c.nextLoc;
@@ -865,7 +892,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 				t = c.nonterminalFields[<sortId,fn>];
 				// TODO: respective functions, e.g., equivalent etc., need to be defined on non-terminal and regular symbols
 				if(!equivalent( (Symbol::\conditional(_,_) := ft) ? ft.symbol : ft, (Symbol::\conditional(_,_) := t)  ? t.symbol  : t  )) {
-					c = addScopeError(c,"Field <fn> already defined as type <prettyPrintType(c.nonterminalFields[<sortId,fn>])> on non-terminal type <prettyPrintName(sortName)>, cannot redefine to type <prettyPrintType(ft)>",l);
+					c = addScopeError(c,"Field <fn> already defined as type <prettyPrintType(t)> on non-terminal type <prettyPrintName(sortName)>, cannot redefine to type <prettyPrintType(ft)>",l);
 				}
 			} else {
 				c.nonterminalFields[<sortId,fn>] = ft;
@@ -897,11 +924,13 @@ public Configuration addImportedProduction(Configuration c, RName n, int itemId,
 			if(isProductionType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
-				if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-					defaults += c.store[c.fcvEnv[n]].rtype;
-				} else {
-					nonDefaults += c.store[c.fcvEnv[n]].rtype;
-				}
+	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
+		        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+		        		defaults += c.store[c.fcvEnv[n]].rtype;
+		        	} else {
+		        		nonDefaults += c.store[c.fcvEnv[n]].rtype;
+		        	}
+		        }
 			}
 			c.store[c.nextLoc] = overload({ c.fcvEnv[n], productionItemId }, overloaded(nonDefaults,defaults));
 			c.fcvEnv[n] = c.nextLoc;
@@ -973,7 +1002,7 @@ public Configuration addClosure(Configuration c, Symbol rt, KeywordParamMap keyw
 }
 
 @doc{Add a function into the configuration.}
-public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordParamMap keywordParams, set[Modifier] modifiers, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l) {
+public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordParamMap keywordParams, set[Modifier] modifiers, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l, bool isDeferred=false) {
     // TODO: Handle the visibility properly. The main point is that we should not have variants
     // for the same function that are given different visibilities.
     // TODO: Verify the scoping is working properly for the second and third cases. It should be the
@@ -991,13 +1020,18 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
 	// Create the new function item and insert it into the store; also keep track of
 	// the item Id. This also handles other bookkeeping information, such as the
 	// information on definitions and visibilities.
-	functionItem = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,l);
+	functionItem = function(n,rt,keywordParams,isVarArgs,head(c.stack),throwsTypes,isDeferred,l);
 	functionId = c.nextLoc;
-	c.nextLoc = c.nextLoc + 1;
-	c.store[functionId] = functionItem;
-    c.definitions = c.definitions + < functionId, l >;
-    c.visibilities[functionId] = visibility;
-    for(Modifier modifier <- modifiers) c.functionModifiers = c.functionModifiers + <functionId,modifier>;
+	existingDefs = invert(c.definitions)[l];
+	if (!isEmpty(existingDefs)) {
+		functionId = getOneFrom(existingDefs);
+	} else {
+		c.nextLoc = c.nextLoc + 1;
+		c.store[functionId] = functionItem;
+	    c.definitions = c.definitions + < functionId, l >;
+	    c.visibilities[functionId] = visibility;
+	    for(Modifier modifier <- modifiers) c.functionModifiers = c.functionModifiers + <functionId,modifier>;
+	}
 
 	// This actually links in the function item with a name in the proper manner. This is handled name by
 	// name so we can keep separate overload sets for different versions of a name (if we qualify the name,
@@ -1006,15 +1040,17 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
 	    if (n notin c.fcvEnv) {
 	    	// Case 1: The name does not appear at all, so insert it and link it to the function item.
 	        c.fcvEnv[n] = functionId;
-	    } else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-	    	// Case 2: The name is already overloaded, so link in the Id as one of the overloads.
-	        if(hasDefaultModifier(modifiers)) {
-	        	defaults += rt;
-	        } else {
-	        	itemTypes += rt;
-	        }
-	        c.store[c.fcvEnv[n]] = overload(items + functionId, overloaded(itemTypes,defaults));
-	    } else if (function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_,_) := c.store[c.fcvEnv[n]] || production(_,_,_,_) := c.store[c.fcvEnv[n]]) {
+		} else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
+			// Case 2: The name is already overloaded, so link in the Id as one of the overloads.
+			if (!isDeferred) {
+				if(hasDefaultModifier(modifiers)) {
+					defaults += rt;
+				} else {
+					itemTypes += rt;
+				}
+			}
+			c.store[c.fcvEnv[n]] = overload(items + functionId, overloaded(itemTypes,defaults));
+	    } else if (c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is production) {
 	    	// Case 3: The name is not overloaded yet, but this will make it overloaded. So, create the
 	    	// overloading entry. We also then point the current name to this overload item, which will
 	    	// then point (using the overload set) to the item currently referenced by the name.
@@ -1025,17 +1061,21 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
 	        } else if (isProductionType(c.store[c.fcvEnv[n]].rtype)) {
 	        	defaults += c.store[c.fcvEnv[n]].rtype;
 	        } else {
-	        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-	        		defaults += c.store[c.fcvEnv[n]].rtype;
-	        	} else {
-	        		itemTypes += c.store[c.fcvEnv[n]].rtype;
-	        	}
+	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
+		        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+		        		defaults += c.store[c.fcvEnv[n]].rtype;
+		        	} else {
+		        		itemTypes += c.store[c.fcvEnv[n]].rtype;
+		        	}
+		        }
 	        }
-	        if(hasDefaultModifier(modifiers)) {
-	        	defaults += rt;
-	        } else {
-	        	itemTypes += rt;
-	        }
+	        if (!isDeferred) {
+		        if(hasDefaultModifier(modifiers)) {
+		        	defaults += rt;
+		        } else {
+		        	itemTypes += rt;
+		        }
+			}
 	        c.store[c.nextLoc] = overload({ c.fcvEnv[n], functionId }, overloaded(itemTypes,defaults));
 			c.fcvEnv[n] = c.nextLoc;
 	        c.nextLoc = c.nextLoc + 1;
@@ -1068,13 +1108,15 @@ public Configuration addImportedFunction(Configuration c, RName n, int itemId, b
 	    if (n notin c.fcvEnv) {
 	        c.fcvEnv[n] = functionId;
 	    } else if (overload(items, overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
-	        if(hasDefaultModifier(c.functionModifiers[functionId])) {
-	        	defaults += c.store[functionId].rtype;
-	        } else {
-	        	itemTypes += c.store[functionId].rtype;
+        	if (!c.store[functionId].isDeferred) {
+		        if(hasDefaultModifier(c.functionModifiers[functionId])) {
+		        	defaults += c.store[functionId].rtype;
+		        } else {
+		        	itemTypes += c.store[functionId].rtype;
+		        }
 	        }
 	        c.store[c.fcvEnv[n]] = overload(items + functionId, overloaded(itemTypes,defaults));
-	    } else if (function(_,_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_,_) := c.store[c.fcvEnv[n]] || production(_,_,_,_) := c.store[c.fcvEnv[n]]) {
+	    } else if (c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is production) {
 	        itemTypes = {};
 	        defaults = {};
 	        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
@@ -1082,17 +1124,21 @@ public Configuration addImportedFunction(Configuration c, RName n, int itemId, b
 	        } else if (isProductionType(c.store[c.fcvEnv[n]].rtype)) {
 	        	defaults += c.store[c.fcvEnv[n]].rtype;
 	        } else {
-	        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
-	        		defaults += c.store[c.fcvEnv[n]].rtype;
-	        	} else {
-	        		itemTypes += c.store[c.fcvEnv[n]].rtype;
-	        	}
+	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
+		        	if(hasDefaultModifier(c.functionModifiers[c.fcvEnv[n]])) {
+		        		defaults += c.store[c.fcvEnv[n]].rtype;
+		        	} else {
+		        		itemTypes += c.store[c.fcvEnv[n]].rtype;
+		        	}
+		        }
 	        }
-	        if(hasDefaultModifier(c.functionModifiers[functionId])) {
-	        	defaults += c.store[functionId].rtype;
-	        } else {
-	        	itemTypes += c.store[functionId].rtype;
-	        }
+			if (!c.store[functionId].isDeferred) {
+				if(hasDefaultModifier(c.functionModifiers[functionId])) {
+					defaults += c.store[functionId].rtype;
+				} else {
+					itemTypes += c.store[functionId].rtype;
+				}
+			}
 	        c.store[c.nextLoc] = overload({ c.fcvEnv[n], functionId }, overloaded(itemTypes,defaults));
 			c.fcvEnv[n] = c.nextLoc;
 	        c.nextLoc = c.nextLoc + 1;
