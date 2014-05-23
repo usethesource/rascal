@@ -33,8 +33,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Field;
-import org.rascalmpl.ast.KeywordArgument;
-import org.rascalmpl.ast.KeywordArguments;
+import org.rascalmpl.ast.KeywordArgument_Expression;
+import org.rascalmpl.ast.KeywordArguments_Expression;
 import org.rascalmpl.ast.Label;
 import org.rascalmpl.ast.Mapping_Expression;
 import org.rascalmpl.ast.Name;
@@ -334,7 +334,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		public CallOrTree(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
-				java.util.List<org.rascalmpl.ast.Expression> __param3, KeywordArguments __param4) {
+				java.util.List<org.rascalmpl.ast.Expression> __param3, KeywordArguments_Expression __param4) {
 			super(__param1, __param2, __param3, __param4);
 		}
 
@@ -472,12 +472,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					actuals[i] = resultElem.getValue();
 				}
 				
-				KeywordArguments keywordArgs = this.getKeywordArguments();
+				KeywordArguments_Expression keywordArgs = this.getKeywordArguments();
 				HashMap<String,IValue> kwActuals = null;
 				if(keywordArgs.isDefault()){
 						kwActuals = new HashMap<String,IValue>();
 						
-						for(KeywordArgument kwa : keywordArgs.getKeywordArgumentList()){
+						for(KeywordArgument_Expression kwa : keywordArgs.getKeywordArgumentList()){
 							kwActuals.put(Names.name(kwa.getName()), kwa.getExpression().interpret(eval).getValue());
 						}
 				}

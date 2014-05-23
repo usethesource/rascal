@@ -749,15 +749,15 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitKeywordArgumentDefault(KeywordArgument.Default x) { 
+  public T visitKeywordArgument_ExpressionDefault(KeywordArgument_Expression.Default x) { 
     return null; 
   }
 
-  public T visitKeywordArgumentsDefault(KeywordArguments.Default x) { 
+  public T visitKeywordArguments_ExpressionDefault(KeywordArguments_Expression.Default x) { 
     return null; 
   }
 
-  public T visitKeywordArgumentsNone(KeywordArguments.None x) { 
+  public T visitKeywordArguments_ExpressionNone(KeywordArguments_Expression.None x) { 
     return null; 
   }
 

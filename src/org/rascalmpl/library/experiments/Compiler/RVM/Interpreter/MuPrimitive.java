@@ -1046,8 +1046,9 @@ public enum MuPrimitive {
 				stack[sp - 2] = pat.matcher(subject);
 				return sp - 1;
 			} catch (PatternSyntaxException e) {
-				throw new CompilerError("Syntax error in Regexp: "
-						+ RegExpAsString);
+				//throw new CompilerError("Syntax error in regular expression: " + RegExpAsString);
+				//TODO: change to something like:
+				throw RascalRuntimeException.RegExpSyntaxError(RegExpAsString, null);
 			}
 		};
 	},

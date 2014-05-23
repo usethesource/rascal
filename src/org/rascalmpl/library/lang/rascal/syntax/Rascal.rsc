@@ -200,7 +200,7 @@ syntax Expression
 	| \visit          : Label label Visit visit 
 	| reducer        : "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
 	| reifiedType    : "type" "(" Expression symbol "," Expression definitions ")"  
-	| callOrTree     : Expression!transitiveClosure!transitiveReflexiveClosure!isDefined expression "(" {Expression ","}* arguments KeywordArguments keywordArguments ")"
+	| callOrTree     : Expression!transitiveClosure!transitiveReflexiveClosure!isDefined expression "(" {Expression ","}* arguments KeywordArguments[Expression] keywordArguments ")"
 	| literal        : Literal literal 
 	| \any            : "any" "(" {Expression ","}+ generators ")" 
 	| \all            : "all" "(" {Expression ","}+ generators ")" 
@@ -431,12 +431,12 @@ syntax KeywordFormal
     = \default: Type type Name name "=" Expression expression
     ;
     
-syntax KeywordArguments
-    = \default:  OptionalComma optionalComma {KeywordArgument ","}+ keywordArgumentList
+syntax KeywordArguments[&T]
+    = \default:  OptionalComma optionalComma {KeywordArgument[&T] ","}+ keywordArgumentList
     | none: ()
     ;
     
-syntax KeywordArgument = \default: Name name "=" Expression expression ;
+syntax KeywordArgument[&T] = \default: Name name "=" &T expression ;
 
 lexical RegExp
 	= ![/ \< \> \\] 
@@ -862,7 +862,7 @@ syntax Pattern
 	| typedVariable       : Type type Name name 
 	| \map                 : "(" {Mapping[Pattern] ","}* mappings ")" 
 	| reifiedType         : "type" "(" Pattern symbol "," Pattern definitions ")" 
-	| callOrTree          : Pattern expression "(" {Pattern ","}* arguments KeywordArguments keywordArguments ")" 
+	| callOrTree          : Pattern expression "(" {Pattern ","}* arguments KeywordArguments[Pattern] keywordArguments ")" 
 	> variableBecomes     : Name name ":" Pattern pattern
 	| asType              : "[" Type type "]" Pattern argument 
 	| descendant          : "/" Pattern pattern 

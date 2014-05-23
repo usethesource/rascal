@@ -28,10 +28,11 @@ import experiments::Compiler::muRascal::MuAllMuOr;
 /*                  Auxiliary functions                              */
 /*********************************************************************/
 
-//int size_exps({Expression ","}* es) = size([e | e <- es]);		     // TODO: should become library function
-//int size_exps({Expression ","}+ es) = size([e | e <- es]);		     // TODO: should become library function
-//int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	 // TODO: should become library function
-int size_keywordArguments(KeywordArguments keywordArguments) = 
+//int size_exps({Expression ","}* es) = size([e | e <- es]);		    // TODO: should become library function
+//int size_exps({Expression ","}+ es) = size([e | e <- es]);		    // TODO: should become library function
+//int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	    // TODO: should become library function
+
+int size_keywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) = 
     (keywordArguments is \default) ? size([kw | kw <- keywordArguments.keywordArgumentList]) : 0;
 
 // Produces multi- or backtrack-free expressions
@@ -457,7 +458,7 @@ MuExp translateConcreteParsed(e: appl(Production prod, list[Tree] args)){
        return muVar("ConcreteVar", fuid, pos);
     }    
     return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
-                   [muCon(prod), muCallPrim("list_create", [translateConcreteParsed(arg) | arg <- args], e@\loc)]);
+                   [muCon(prod), muCallPrim("list_create", [translateConcreteParsed(arg) | arg <- args], |unknown:///|)]);
 }
 
 default MuExp translateConcreteParsed(Tree t) = muCon(t);
@@ -767,7 +768,7 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 
 // -- call expression -----------------------------------------------
 
-MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`){
+MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`){
 
    MuExp kwargs = translateKeywordArguments(keywordArguments);
       
@@ -889,10 +890,10 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    				  e@\loc);
 }
 
-MuExp translateKeywordArguments(KeywordArguments keywordArguments) {
+MuExp translateKeywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) {
    // Keyword arguments
    if(keywordArguments is \default){
-      kwargs = [ muCon("<kwarg.name>"), translate(kwarg.expression)  | KeywordArgument kwarg <- keywordArguments.keywordArgumentList ];
+      kwargs = [ muCon("<kwarg.name>"), translate(kwarg.expression)  | /*KeywordArgument[Expression]*/ kwarg <- keywordArguments.keywordArgumentList ];
       if(size(kwargs) > 0){
          return muCallPrim("map_create", kwargs);
       }
@@ -1371,7 +1372,7 @@ default MuExp translate(Expression e) {
 
 bool backtrackFree(Expression e){
     top-down visit(e){
-    //case (Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments keywordArguments>)`:
+    //case (Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`:
     //	return true;
     case (Expression) `all ( <{Expression ","}+ generators> )`: 
     	return true;
