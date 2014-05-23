@@ -71,48 +71,50 @@ test bool formalsAreLocal15(){
   		 return fac(4) == 24;
   	 	}
   
-  // higherOrder
+// higherOrder
   		
 test bool  higherOrder1() {
-            int add(int a, int b) { return a + b; };
-            int doSomething(int (int a, int b) F) { return F(1,2); }; 
-            int sub(int a, int b) { return a - b; }
-            if (doSomething(add) != 3) return false;
-            if (doSomething(sub) != -1) return false;
-            return true;
-  		}
+	int add(int a, int b) { return a + b; };
+	int doSomething(int (int a, int b) F) { return F(1,2); }; 
+	int sub(int a, int b) { return a - b; }
+	if (doSomething(add) != 3) return false;
+	if (doSomething(sub) != -1) return false;
+		return true;
+}
   	
-  // closures
+// closures
   
 test bool  closures1() {
-  		    int x = 1;
-  		    int f(int (int i) g, int j) { return g(j);}
-  		if (f(int (int i) { return i + 1; }, 0) != 1) return false;
-  	    if (f(int (int i) { x = x * 2; return i + x; }, 1) != 3 || (x != 2))
-  	       return false;
-  	    return true;
-  	    }
+	int x = 1;
+	int f(int (int i) g, int j) { return g(j);}
+	if (f(int (int i) { return i + 1; }, 0) != 1) return false;
+	if (f(int (int i) { x = x * 2; return i + x; }, 1) != 3 || (x != 2))
+		return false;
+	return true;
+}
   	    
-  // closuresVariables
+// closuresVariables
   
 test bool closureVariables1() = getX() == false;
    
 test bool closureVariables2() {
-  		    changeX(bool() { return true; });
-  		    return getX();
-  	     }
+	changeX(bool() { return true; });
+	return getX();
+}
   	
   
-   // varArgs0
+// varArgs0
    
 test bool varArgs01(){
-   			int add(int i...) { return 0; }
-   			return add() == 0;
-   		}
+	int add(int i...) { return 0; }
+	return add() == 0;
+}
+
 test bool varArgs02(){
-   			int add(int i...) { return 0; }
-   			return add([]) == 0;
-   		}
+	int add(int i...) { return 0; }
+	return add([]) == 0;
+}
+
 test bool varArgs02(){
    			int add(int i...) { return 0; }
    			return add(0) == 0;
