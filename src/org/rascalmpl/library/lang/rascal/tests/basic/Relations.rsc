@@ -28,6 +28,11 @@ public test bool subscription(rel[&A, &B, &C] X) =
   all(&A a <- domain(X), any(<&B b, &C c> <- X[a], <a, b, c> in X)) &&
   all(<&A a, &B b, &C c> <- X, <b, c> in X[a]);
   
+/*TODO:  
+  &A => set[list[list[loc]]]
+  rel[&A,&A] =>{<{[],[[]]},{[],[[]]}>,<{[],[[],[]]},{}>}
+*/
+
 public test bool tclosure(rel[&A, &A] X) = 
   isEmpty(X) ||
   X <= (X+) && (X+) + (X+) o X == (X+);
