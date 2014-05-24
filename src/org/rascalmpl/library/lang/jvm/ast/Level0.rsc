@@ -366,3 +366,36 @@ data LocalVariable = localVariable(str name, str description, str signature, int
   public int IFNONNULL = 199; // -
     // public int GOTO_W = 200; // -
     // public int JSR_W = 201; // -
+    
+  // experimental functions to generate JVM type signatures. caveat emptor.  
+  str byteSig() = "B";
+  str charSig() = "C";
+  str doubleSig() = "D";
+  str floatSig() = "F";
+  str intSig() = "I";
+  str longSig() = "J";
+  str shortSig() = "S";
+  str voidSig() = "V";
+  str boolSig() = "Z";
+  str typeVarSig(str id) = "T<id>;";
+  str arraySig(str sig) = "[<sig>";
+  str captureSig(str sig) = "!<sig>";
+  str intersectSig([str fst, *str sigs]) = "|<fst><for (sig <- sigs) {>:<sig><}>";
+
+  str objectSig() = classSig("java/lang/Object");
+  str classSig(str id) = "L<id>;";
+  str classSig(str id, [<str firstName, str firstSig>, *tuple[str id, str sig] typeArgs])   
+    = "L<id>.<firstName><firstSig><for (<par,sig> <- typeArgs) {>.<par><sig><}>;";
+ 
+  str methodSig(list[str] params, str ret) = "(<for (p <- params) {><p><}>)<ret>";
+  
+  str typeParamsSig([str sig, *str others]) = "\< <sig><for (m <- others) {><m><}>\>";
+  str wildcardParam() = "*";
+  str wildcardExtends(str sig) = "+<sig>";
+  str wildcardSuper(str sig) = "-<sig>";
+  
+  str typeArg(str name) = "<name>:";
+  str typeArg(str name, list[str] interfaces) = "<name>:";
+  str typeArg(str name, str classbound, [str fst, *str rest]) 
+    = "<name>:<classbound>:<fst><for (r <- rest) {>:<r><}>";
+  
