@@ -119,7 +119,7 @@ test bool When4()= walk(f(1,g(2,[3,4,5]))) == f(2, g(4, [6, 8, 10]));
 
 //	NewTreeVisibleBottomUp
 
-	public test bool NewTreeVisibleBottomUp() =
+	test bool NewTreeVisibleBottomUp() =
 		visit(knot(0,tip(0),tip(0))) { case tip(int i) => tip(i+1) case knot(int i, T l, T r) => knot(i + l.i + r.i, l, r) } == knot(2,tip(1),tip(1));
 	
 //	Drepl
@@ -131,7 +131,7 @@ test bool Drepl3()= drepl(g(1,f(g(2,3)))) == g(1,f(h(2,3)));
 		// Explanation: [g(2,3),4,5] has as type list[value] and the elements have static type value as well.
 		// In particular g(2,3) has type value.
 		// As a result the node pattern g(value T1, value T2) in the case does not match.
-		// public test bool Drepl()= + drepl + "drepl(g(1,f([g(2,3),4,5]))) == g(1,f([h(2,3),4,5]));}"));
+		// test bool Drepl()= + drepl + "drepl(g(1,f([g(2,3),4,5]))) == g(1,f([h(2,3),4,5]));}"));
 
 
 //	FrepA	

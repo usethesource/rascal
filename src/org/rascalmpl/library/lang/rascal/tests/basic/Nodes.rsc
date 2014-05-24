@@ -15,7 +15,7 @@ import IO;
 //      append L[i];
 //}
 
-public test bool visitNode() { 
+test bool visitNode() { 
   switch ("x"()) { 
     case "x"() :
       return true; 
@@ -23,7 +23,7 @@ public test bool visitNode() {
   return false;
 }
 
-public test bool subscription(node N){
+test bool subscription(node N){
   R = getChildren(N);
   for(int i <- [0..arity(N)]){
       if(head(R) != N[i])
@@ -33,7 +33,7 @@ public test bool subscription(node N){
   return true;  
 }
 
-public test bool subscriptionWrapped(node N){
+test bool subscriptionWrapped(node N){
   for(int i <- [0 .. arity(N)]){
       if(N[i] != N[i - arity(N)]){
       	 return false;
@@ -62,7 +62,7 @@ public list[value] makeSlice(list[value] L, int f, int s, int e){
   return res;
 }
 
-public test bool sliceFirst(node N) {
+test bool sliceFirst(node N) {
    L = getChildren(N);
    if(isEmpty(L)) return true;
    f = arbInt(size(L));
@@ -70,7 +70,7 @@ public test bool sliceFirst(node N) {
    return N[f .. e] == makeSlice(L, f, f + 1, e);
 }
 
-public test bool sliceFirst(node N) {
+test bool sliceFirst(node N) {
   L = getChildren(N);
   if(isEmpty(L)) return true;
   f = arbInt(size(L));
@@ -78,7 +78,7 @@ public test bool sliceFirst(node N) {
 }
 
 
-public test bool sliceFirstSecond(node N) {
+test bool sliceFirstSecond(node N) {
   L = getChildren(N);
   if(isEmpty(L)) return true;
   f = arbInt(size(L));
@@ -87,14 +87,14 @@ public test bool sliceFirstSecond(node N) {
 }
 
 
-public test bool sliceEnd(node N) {
+test bool sliceEnd(node N) {
   L = getChildren(N);
   if(isEmpty(L)) return true;
   e = arbInt(size(L));
   return N[..e] == makeSlice(L, 0, 1, e);
 }
 
-public test bool sliceSecondEnd(node N) {
+test bool sliceSecondEnd(node N) {
   L = getChildren(N);
   if(isEmpty(L)) return true;
   e = arbInt(size(L));
@@ -110,7 +110,7 @@ public tuple[int,int] arbFirstEnd(list[value] L){
   e = f + arbInt(size(L) - f);
   return <f, e>;
 }
-public test bool sliceFirstSecondEnd(node N) {
+test bool sliceFirstSecondEnd(node N) {
   L = getChildren(N);
   if(isEmpty(L)) return true;
   <f, e> = arbFirstEnd(L);
@@ -118,21 +118,21 @@ public test bool sliceFirstSecondEnd(node N) {
   return N[f, f + incr .. e] == makeSlice(L, f, f + incr, e);
 }
 
-public test bool sliceFirstNegative(node N) {
+test bool sliceFirstNegative(node N) {
   L = getChildren(N);
   if(isEmpty(L)) return true;
   f = 1;
   return N[-f..] == makeSlice(L, size(L) - f,  size(L) - f + 1, size(L));
 }
 
-public test bool sliceEndNegative(node N) {
+test bool sliceEndNegative(node N) {
   L = getChildren(N);
   if(isEmpty(L)) return true;
   e = arbInt(size(L));
   return N[..-e] == makeSlice(L, 0, 1, e == 0 ? e : size(L) - e);
 }
 
-public test bool sliceFirstNegativeSecondNegative(node N) {
+test bool sliceFirstNegativeSecondNegative(node N) {
   L = getChildren(N);
   if(isEmpty(L)) return true;
   f = arbInt(size(L));
@@ -143,40 +143,40 @@ public test bool sliceFirstNegativeSecondNegative(node N) {
      return N[-f, -(f + incr)..] == makeSlice(L, size(L) - f, size(L) - (f + incr), -1);
 }
 
-public test bool sliceSecondNegative(node N) {
+test bool sliceSecondNegative(node N) {
   L = getChildren(N);
   if(isEmpty(L)) return true;
   incr = 2;
   return N[, -incr ..] == makeSlice(L, 0, size(L) - incr, size(L));
 }
 
-public test bool assignSlice() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[..] = [10,20]; return L == "f"(10,20,10,20,10,20,10,20,10,20);}
-public test bool assignSlice() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[2..] = [10,20]; return   L == "f"(0,1,10,20,10,20,10,20,10,20);}
-public test bool assignSlice() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[2..6] = [10,20]; return L == "f"(0,1,10,20,10,20,6,7,8,9);}
-public test bool assignSlice() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[8..3] = [10,20]; return L == "f"(0,1,2,3,10,20,10,20,10,9);}
+test bool assignSlice() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[..] = [10,20]; return L == "f"(10,20,10,20,10,20,10,20,10,20);}
+test bool assignSlice() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[2..] = [10,20]; return   L == "f"(0,1,10,20,10,20,10,20,10,20);}
+test bool assignSlice() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[2..6] = [10,20]; return L == "f"(0,1,10,20,10,20,6,7,8,9);}
+test bool assignSlice() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[8..3] = [10,20]; return L == "f"(0,1,2,3,10,20,10,20,10,9);}
 
-public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[,2..] = [10]; return L == "f"(10,1,10,3,10,5,10,7,10,9);}
-public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[,2..] = [10,20]; return L == "f"(10,1,20,3,10,5,20,7,10,9);}
-public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[,2..] = [10]; return L == "f"(10,1,10,3,10,5,10,7,10,9);}
-public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[,2..] = [10,20]; return L == "f"(10,1,20,3,10,5,20,7,10,9);}
-public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[,2..] = [10,20,30]; return L == "f"(10,1,20,3,30,5,10,7,20,9);}
-public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[,2..] = [10,20,30,40,50,60,70]; return L == "f"(10,1,20,3,30,5,40,7,50,9,60,70);}
+test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[,2..] = [10]; return L == "f"(10,1,10,3,10,5,10,7,10,9);}
+test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[,2..] = [10,20]; return L == "f"(10,1,20,3,10,5,20,7,10,9);}
+test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[,2..] = [10]; return L == "f"(10,1,10,3,10,5,10,7,10,9);}
+test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[,2..] = [10,20]; return L == "f"(10,1,20,3,10,5,20,7,10,9);}
+test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[,2..] = [10,20,30]; return L == "f"(10,1,20,3,30,5,10,7,20,9);}
+test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[,2..] = [10,20,30,40,50,60,70]; return L == "f"(10,1,20,3,30,5,40,7,50,9,60,70);}
 
-public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[2,4..] = [10]; return L == "f"(0,1,10,3,10,5,10,7,10,9);}
-public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[2,4..6] = [10]; return L == "f"(0,1,10,3,10,5,6,7,8,9);}
+test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[2,4..] = [10]; return L == "f"(0,1,10,3,10,5,10,7,10,9);}
+test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[2,4..6] = [10]; return L == "f"(0,1,10,3,10,5,6,7,8,9);}
 
-public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[,6..1] = [10]; return L == "f"(0,1,2,10,4,5,10,7,8,10);}
-public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[8,6..] = [10]; return L == "f"(10,1,10,3,10,5,10,7,10,9);}
-public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[8,6..3] = [10]; return L == "f"(0,1,2,3,10,5,10,7,10,9);}
+test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[,6..1] = [10]; return L == "f"(0,1,2,10,4,5,10,7,8,10);}
+test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[8,6..] = [10]; return L == "f"(10,1,10,3,10,5,10,7,10,9);}
+test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[8,6..3] = [10]; return L == "f"(0,1,2,3,10,5,10,7,10,9);}
 
-public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[-1,-2..] = [10,20,30,40,50]; return L == "f"(50,40,30,20,10,50,40,30,20,10);}
-public test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[-1,-3..] = [10,20,30,40,50]; return L == "f"(0,50,2,40,4,30,6,20,8,10);}
+test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[-1,-2..] = [10,20,30,40,50]; return L == "f"(50,40,30,20,10,50,40,30,20,10);}
+test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[-1,-3..] = [10,20,30,40,50]; return L == "f"(0,50,2,40,4,30,6,20,8,10);}
 
 // Library functions
 
-public test bool tstNode1(node N) = N == makeNode(getName(N), getChildren(N));
+test bool tstNode1(node N) = N == makeNode(getName(N), getChildren(N));
 
-public test bool tstNode2(str name, list[value] children) = arity(makeNode(name, children)) == size(children) &&
+test bool tstNode2(str name, list[value] children) = arity(makeNode(name, children)) == size(children) &&
                                                                getName(makeNode(name, children)) == name &&
                                                                getChildren(makeNode(name, children)) == children;
                                                                
