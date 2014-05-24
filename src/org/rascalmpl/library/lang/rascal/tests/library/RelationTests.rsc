@@ -71,9 +71,9 @@
   	
   // ident
   
-  		//indent()=ident({}) == {};
-  		 public test bool indent1()=ident({1}) == {<1,1>};
-  		 public test bool indent2()=ident({1,2,3}) == {<1,1>,<2,2>,<3,3>};
+  		 public test bool ident1()= ident({}) == {};
+  		 public test bool ident2()= ident({1}) == {<1,1>};
+  		 public test bool ident3()= ident({1,2,3}) == {<1,1>,<2,2>,<3,3>};
   
   // invert
   

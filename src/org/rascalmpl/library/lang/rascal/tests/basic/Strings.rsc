@@ -211,21 +211,25 @@ public test bool tstLeft2(str S) { l = left(S, size(S) + 5, "x"); return startsW
 public test bool tstLeft1_s(str S) { l = left(S, size(S) + 1); return startsWith(l, S) && endsWith(l, " "); }
 public test bool tstLeft2_s(str S) { l = left(S, size(S) + 1, "x"); return startsWith(l, S) && endsWith(l, "x"); }
 
+bool areOverlapping(str s1, str s2) 
+	= size(s1) > 0 && size(s2) > 0
+	&& (s1[-1] == s2[0] || s1[0] == s2[-1])
+	;
 
 public test bool tstReplaceAll(str S1, str S2, str S3) {
-  if(contains(S1, S2)) return true;
+  if(contains(S1, S2) || contains(S2, S1) || areOverlapping(S1, S2)) return true;
   S = S1 + S2 + S1 + S2 + S1;
   return replaceAll(S, S2, S3) == S1 + S3 + S1 + S3 + S1;
 }
 
 public test bool tstReplaceFirst(str S1, str S2, str S3) {
-  if(contains(S1, S2)) return true;
+  if(contains(S1, S2) || contains(S2, S1) || areOverlapping(S1, S2)) return true;
   S = S1 + S2 + S1 + S2 + S1;
   return replaceFirst(S, S2, S3) == S1 + S3 + S1 + S2 + S1;
 }
 
 public test bool tstReplaceLast(str S1, str S2, str S3) {
-  if(contains(S1, S2)) return true;
+  if(contains(S1, S2)  || contains(S2, S1) || areOverlapping(S1, S2)) return true;
   S = S1 + S2 + S1 + S2 + S1;
   return replaceLast(S, S2, S3) == S1 + S2 + S1 + S3 + S1;
 }

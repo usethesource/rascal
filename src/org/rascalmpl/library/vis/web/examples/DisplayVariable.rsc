@@ -26,7 +26,7 @@ rel[map[str labelx, num rangx] , map[str labely, num rangy]] bubble = {<("a":10)
 
 tuple[str, list[num], num(num)] parabole = <"parabole", [-1,-0.9..1.1], (num(num x){return x*x;})>;
 
-tuple[str name, lrel[num, num] r] dots = <"dots", [<-1,-1>, <-1, 1>, <1, -1>, <1, 1>]>;
+tuple[str name, lrel[num, num] r] dots = <"dots", [<-1.5, -1.5>, <-1,-1>, <-1, 1>, <1, 1>, <1, -1>, <-1, -1>]>;
 
 
 

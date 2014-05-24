@@ -38,6 +38,7 @@ test bool testFieldSelectC2(){
     return c(A a, As as) := pt && pt.as == as;
 }
 
+@ignoreInterpreter{Feature is not implemented}
 test bool testConcreteListC1(){
     pt = parse(#C, "axaaa");
     return c(A a, As as) := pt && as.alist[0] == [A]"a";
@@ -48,6 +49,7 @@ test bool testConcreteListC2(){
     return c(A a, As as) := pt && size([x | x <- as.alist]) == 3;
 }
 
+@ignoreInterpreter{Feature is not implemented}
 test bool testConcreteListD1(){
     pt = parse(#Ds, "d,d");
     return Ds ds := pt && ds.dlist[0] == [D]"d";

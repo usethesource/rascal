@@ -12,31 +12,30 @@
    *   * Paul Klint - Paul.Klint@cwi.nl - CWI
   *******************************************************************************/
  
-     data F = f() | f(int n) | g(int n) | deep(F f);
-     anno int F @ pos;
-     data AN = an(int n);
+data F = f() | f(int n) | g(int n) | deep(F f);
+anno int F @ pos;
+data AN = an(int n);
   	
+// boolannotations
+  		
+test bool boolannotations1() = f() [@pos=1] == f();
+test bool boolannotations2() = f() [@pos=1] @ pos == 1;
+test bool boolannotations3() = f() [@pos=1] [@pos=2] @ pos == 2;
+  		
+test bool boolannotations4() = f(5) [@pos=1] == f(5);
+test bool boolannotations5() = f(5) [@pos=1] @ pos == 1;
+test bool boolannotations6() = f(5) [@pos=1] [@pos=2] @ pos == 2;
+  		
+test bool boolannotations7() = deep(f(5) [@pos=1]) == deep(f(5));
+test bool boolannotations8() = f(5) [@pos=1] == f(5) [@pos=2];	
   	
-  // boolannotations
-  		
-  		public test bool boolannotations1()=f() [@pos=1] == f();
-  		public test bool boolannotations2()=f() [@pos=1] @ pos == 1;
-  		public test bool boolannotations3()=f() [@pos=1] [@pos=2] @ pos == 2;
-  		
-  		public test bool boolannotations4()=f(5) [@pos=1] == f(5);
-  		public test bool boolannotations5()=f(5) [@pos=1] @ pos == 1;
-  		public test bool boolannotations6()=f(5) [@pos=1] [@pos=2] @ pos == 2;
-  		
-  		public test bool boolannotations7()=deep(f(5) [@pos=1]) == deep(f(5));
-  		public test bool boolannotations8()=f(5) [@pos=1] == f(5) [@pos=2];	
-  	
-  // annotationsInSets
+// annotationsInSets
   
-  		public test bool annotationsInSets1()={f() [@pos=1]} == {f()};
-  		public test bool annotationsInSets2()={f() [@pos=1], g(2) [@pos=2]} == {f(), g(2)};
-  		public test bool annotationsInSets3()={f() [@pos=1], g(2)} == {f(), g(2)[@pos=2]};		
-  		public test bool annotationsInSets4()={deep(f(5) [@pos=1])} == {deep(f(5))};
+test bool annotationsInSets1() = {f() [@pos=1]} == {f()};
+test bool annotationsInSets2() = {f() [@pos=1], g(2) [@pos=2]} == {f(), g(2)};
+test bool annotationsInSets3() = {f() [@pos=1], g(2)} == {f(), g(2)[@pos=2]};		
+test bool annotationsInSets4() = {deep(f(5) [@pos=1])} == {deep(f(5))};
   	
-  		public test bool annotationsInSets5()={f() [@pos=1]} + {g(2) [@pos=2]} == {f(), g(2)};
+test bool annotationsInSets5() = {f() [@pos=1]} + {g(2) [@pos=2]} == {f(), g(2)};
   		
- 		public test bool annotationsInSets6()={X = {f() [@pos=1]} + {f() [@pos=2]}; {F elem} := X && (elem@pos == 2 || elem@pos == 1);};
+test bool annotationsInSets6() = {X = {f() [@pos=1]} + {f() [@pos=2]}; {F elem} := X && (elem@pos == 2 || elem@pos == 1);};
