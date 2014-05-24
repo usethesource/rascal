@@ -6,8 +6,6 @@ import List;
 import DateTime;
 import experiments::Compiler::Execute;
 
-loc base1 = |project:///rascal-test/tests/functionality|;
-
 // Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
 list[str] functionalityTests = [
@@ -31,8 +29,8 @@ list[str] functionalityTests = [
 							 //error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1167,1,<39,24>,<39,25>))
 "FunctionCompositionTests",	// Issue #468	
 "PatternTests",				// [420] Issue #458
-"PatternTestsList3",
 "PatternTestsDescendant",
+"PatternTestsList3",
 "ProjectionTests", 			// OK
 "RangeTests",				// OK, 4 tests fail but this is due to false 1. == 1.0 comparisons.
 "ReducerTests",				// OK
@@ -41,7 +39,7 @@ list[str] functionalityTests = [
 "ScopeTests",				// OK
 							 //Commented out several tests: no shadowing allowed
 "SetMatchTests1",
-"SetMatchTests2",           // TC
+"SetMatchTests2",           // TC cannot handle overloaded constructor
 "StatementTests",			// Fail in overloaded constructor gives problem ==> Issue posted
 "SubscriptTests",			// OK
 "TryCatchTests",			// OK    				
@@ -49,28 +47,29 @@ list[str] functionalityTests = [
 ];
 
 
-list[str] rascalTests = [
-"BacktrackingTests",		// OK
+list[str] basicTests = [
 "Booleans",					// OK
 							// Commented out fromInt test
 "Equality",					// OK
 							// Added parentheses for ? operator
 "Functions",				// OK
-"Integers",					// OK
-"IO",						// OK
-"Lists",					// OK
+
+"IO",						// TC cannot handle ... arguments
+"Integers",                 // OK
 "ListRelations",			// TC tests commented out
-							// Issue #462
+							// Issue #462				
+"Lists",                    // OK
 "Maps",						// OK
 "Matching",					// TC, #450
+"Memoization",
 "Nodes",					// OK
 "Relations"	,				// 1 test fails, nested any
-"Sets",						// 4 tests fails
+"Sets",						// TC complains about tst_group2
+                            // 4 tests fails
 							// Issue #459
 							// Issue #460
 "SolvedIssues",				// OK
 "Strings" , 				// OK
-"StringTests",				// OK
 "Tuples"					// OK					
 ];
 
@@ -81,14 +80,15 @@ list[str] libraryTests = [
 "BooleanTests",			// OK
 "GraphTests",			// OK
 "IntegerTests",			// OK
-//"ListRelationsTests",
+"ListRelationsTests",
 "ListTests" ,			// OK
 "MapTests",				// OK
 "MathTests"	,			// OK
 "NumberTests",			// OK
 "RelationTests",		// OK
 "SetTests",				// OK
-"StringTests"			// OK
+"StringTests",			// OK
+"ValueIOTests"
 ];
 
 /*
@@ -161,9 +161,9 @@ value main(list[value] args){
   crashes = [];
   partial_results = [];
   all_results = [];
-  all_results += runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
-  all_results += runTests(rascalTests, |project://rascal-test/src/tests|);
-  all_results += runTests(libraryTests, |project://rascal-test/src/tests/library|);
+  all_results += runTests(functionalityTests, |rascal:///lang/rascal/tests/functionality|);
+  all_results += runTests(basicTests, |rascal:///lang/rascal/tests/basic|);
+  all_results += runTests(libraryTests, |rascal:///lang/rascal/tests/library|);
   
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");

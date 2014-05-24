@@ -1,6 +1,7 @@
 module lang::rascal::tests::functionality::ScopeTests
 
-	/* The following tests have been removed since we no longer support shadowing
+	/* TODO: inert interpreter test */
+	/*The following tests have been removed since we no longer support shadowing
 	
 	public test bool localShadowing(){
 		int n = 2; return int n := 3;
@@ -41,15 +42,14 @@ module lang::rascal::tests::functionality::ScopeTests
 
 	
 	
+test bool RedeclaredLocal(){
+	int n = 1; {int m = 2;}; int m = 3; return n == 1 && m == 3;
+}
 	
-	public test bool RedeclaredLocal(){
-		int n = 1; {int m = 2;}; int m = 3; return n == 1 && m == 3;
-	}
-	
-	
-	public test bool  formalsToGlobalsLeak() {
-		int x = 0;
-		void f(int x) { x += 1;}
-		f(1); return x == 0;
-	}
+test bool  formalsToGlobalsLeak() {
+	int x = 0;
+	void f(int x) { x += 1;v}
+	f(1); 
+	return x == 0;
+}
 
