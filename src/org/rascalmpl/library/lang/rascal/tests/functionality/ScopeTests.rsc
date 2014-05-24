@@ -48,7 +48,7 @@ test bool RedeclaredLocal(){
 	
 test bool  formalsToGlobalsLeak() {
 	int x = 0;
-	void f(int x) { x += 1;v}
+	void f(int x) { x += 1;}
 	f(1); 
 	return x == 0;
 }
