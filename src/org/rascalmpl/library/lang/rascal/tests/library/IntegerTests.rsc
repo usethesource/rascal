@@ -13,40 +13,41 @@
    *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
   *******************************************************************************/
   
-  import util::Math;
+import util::Math;
   
-  // abs
+// abs
   
-  		public test bool abs1() = abs(0) == 0;
-  		public test bool abs2() = abs(-1) == 1;
-  		public test bool abs3() = abs(1) == 1;
+test bool abs1() = abs(0) == 0;
+test bool abs2() = abs(-1) == 1;
+test bool abs3() = abs(1) == 1;
   
-  // arbInt
+// arbInt
   
-  		public test bool arbInt1() {
-  		    int N = arbInt(10); 
-  		    return (N >= 0) && (N < 10);
-  		    }
-  		public test bool arbInt2() {
-  		    int N = arbInt(); 
-  		    return true;
-  		    }
+test bool arbInt1() {
+	int N = arbInt(10); 
+  	return (N >= 0) && (N < 10);
+}
+
+test bool arbInt2() {
+	int N = arbInt(); 
+	return true;
+}
   
-  // max
+// max
   
-  		public test bool max1() = max(3, 10) == 10;
-  		public test bool max2() = max(10, 10) == 10;
+test bool max1() = max(3, 10) == 10;
+test bool max2() = max(10, 10) == 10;
   
-  // min
+// min
   
-  		public test bool min1() = min(3, 10) == 3;
-  		public test bool min2() = min(10, 10) == 10;
+test bool min1() = min(3, 10) == 3;
+test bool min2() = min(10, 10) == 10;
   
-  // toReal
+// toReal
   
-  		public test bool toReal1() =  toReal(3) == 3.0;
+test bool toReal1() =  toReal(3) == 3.0;
   
-  // testToString
+// testToString
   
-  		public test bool testToString1() = toString(314) == "314";
+test bool testToString1() = toString(314) == "314";
  

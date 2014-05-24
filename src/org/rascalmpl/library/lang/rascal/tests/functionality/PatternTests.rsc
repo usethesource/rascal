@@ -82,7 +82,7 @@ test bool matchList45() = [*int _] := [1];
 test bool matchList46() = [*int _] := [1,2];
 test bool matchList47() = ([1, *int _, 10, *int _, 20] := [1,2,10,20]);
   		
-@ignore{investigate} public test bool matchList() {([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] := [1, [10,100],1000]);}
+@ignore{investigate} test bool matchList() {([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] := [1, [10,100],1000]);}
   		
 test bool matchListFalse1() {list[value] l = [1,2,3]; return [1, str S, 2] !:= l; }
   
@@ -289,7 +289,7 @@ test bool matchADTwithKeywords2() = f1(1, M=10)             := f1(1);
 test bool matchADTwithKeywords3() = f1(1, B=false, M=10)    := f1(1);
 test bool matchADTwithKeywords4() = f1(1, M=20)             := f1(1, B=false, M=20);
   		
-/*TODO:TC*///public test bool matchADTwithKeywords5() = f1(1, M=X)             := f1(1, B=false, M=20) && X == 20;
+/*TODO:TC*///test bool matchADTwithKeywords5() = f1(1, M=X)             := f1(1, B=false, M=20) && X == 20;
   	
 //	matchNode
   		
@@ -326,7 +326,7 @@ test bool matchNodeWithKeywords13() ="f1"(1, M=10, B=false)!:= "f1"(1, B=false, 
 test bool matchNodeWithKeywords14() ="f1"(1, M=_, B=false)  := "f1"(1, B=false, M=20);
 test bool matchNodeWithKeywords15() ="f1"(_, M=20, B=false) := "f1"(1, B=false, M=20);
   		
-/*TODO:TC*///public test bool matchNodeWithKeywords16() = "f1"(1, M=X) := "f1"(1, B=false, M=20) && X == 20;
+/*TODO:TC*///test bool matchNodeWithKeywords16() = "f1"(1, M=X) := "f1"(1, B=false, M=20) && X == 20;
   	
 //	matchSet1
   		
@@ -359,10 +359,10 @@ test bool matchSet18() = {*Y} := {1,2} && Y == {1,2};
   
 // TODO: Test related to + multivariables are commented out since they are not yet supported by the Rascal syntax
   		
-//	public test bool assertTrue() = {Y+} := {1,2} && Y == {1,2};
+//	test bool assertTrue() = {Y+} := {1,2} && Y == {1,2};
 test bool matchSet19() = {*int _} := {1,2}; 
 test bool matchSet20() = {*_} := {1,2}; 
-//	public test bool matchSet() = {_+} := {1,2}; 
+//	test bool matchSet() = {_+} := {1,2}; 
 test bool matchSet21() = ({int N, 2, N} := {1,2}) && (N == 1);
   		
 test bool matchSet22() = !(({int N, 2, N} := {1,2,3}));
@@ -375,17 +375,17 @@ test bool matchSet25() {set[int] S = {2, 3}; return {*S, 1} := {1,2,3};}
 test bool matchSet26() = {1, *int X, 2} := {1,2} && X == {};
 test bool matchSet27() = {1, *X, 2} := {1,2} && X == {};
 test bool matchSet28() = {1, *_, 2} := {1,2};
-//	public test bool matchSet() = !({ {1, X+, 2} := {1,2});
-//	public test bool matchSet() = !({ {1, _+, 2} := {1,2};}) _+ does not exist yet
+//	test bool matchSet() = !({ {1, X+, 2} := {1,2});
+//	test bool matchSet() = !({ {1, _+, 2} := {1,2};}) _+ does not exist yet
 test bool matchSet29() = {1, *X, 2} := {1,2} && X == {};
 test bool matchSet30() = !({1, *X, 2} := {1,3});
 test bool matchSet31() = !({1, *_, 2} := {1,3});
   		
 test bool matchSet32() = {1, *int X, 2} := {1,2,3} && X == {3};
 test bool matchSet33() = {1, *X, 2} := {1,2,3} && X == {3};
-//	public test bool matchSet() = {1, X+, 2} := {1,2,3} && X == {3};
+//	test bool matchSet() = {1, X+, 2} := {1,2,3} && X == {3};
 test bool matchSet34() = {1, *_, 2} := {1,2,3};
-//	public test bool matchSet() = {1, _+, 2} := {1,2,3};
+//	test bool matchSet() = {1, _+, 2} := {1,2,3};
   		
 test bool matchSet35() = {1, *int X, 2} := {1,2,3,4} && X == {3,4};
   
@@ -408,11 +408,11 @@ test bool matchSet47() = {*X, *Y, *Z} := {1} && ((X == {1} && Y == {} && Z == {}
 test bool matchSet48() = {int X, *int Y} := {1} && X == 1 && Y == {};
 test bool matchSet49() = {*int X, int Y} := {1} && X == {} && Y == 1;
 test bool matchSet50() = {*X, int Y} := {1} && X == {} && Y == 1;
-//	public test bool matchSet() = !({ {X+, int Y} := {1};})
+//	test bool matchSet() = !({ {X+, int Y} := {1};})
 test bool matchSet51() = {*int _, int _} := {1}; 
 test bool matchSet52() = {*_, int _} := {1}; 
 test bool matchSet53() =  {*_, _} := {1}; 
-//	public test bool matchSet() = !({_+, _} := {1});
+//	test bool matchSet() = !({_+, _} := {1});
   
 test bool matchSet54() = {*int X, int Y} := {1, 2} && ((X == {1} && Y == 2) || (X == {2} && Y == 1));	/* added parentheses */
 test bool matchSet55() = {*X, int Y} := {1, 2} && ((X == {1} && Y == 2) || (X == {2} && Y == 1));		/* added parentheses */
@@ -495,11 +495,11 @@ test bool matchVariableBecomes5() = [1, L1: [*int L2, int N], L1] := [1,[2,3,4],
 // variableBecomesEquality
           
 //* NoSuchKey in TypeUtils
-/*TODO:COMP*///public test bool matchVariableBecomesEquality1() {int N = 5; return N : 3 !:= 3 && N != 3;}
-/*TODO:COMP*///public test bool matchVariableBecomesEquality2() {int N = 3; return N : 3 := 3 && N == 3;}
+/*TODO:COMP*///test bool matchVariableBecomesEquality1() {int N = 5; return N : 3 !:= 3 && N != 3;}
+/*TODO:COMP*///test bool matchVariableBecomesEquality2() {int N = 3; return N : 3 := 3 && N == 3;}
   		
-/*TODO:TC*///public test bool doubleVariableBecomes1() = !(([N : 3, N : 4] := [3,4]) && N == 3);
-/*TODO:TC*///public test bool doubleVariableBecomes2() = [N : 3, N : 3] := [3,3] && N == 3;
+/*TODO:TC*///test bool doubleVariableBecomes1() = !(([N : 3, N : 4] := [3,4]) && N == 3);
+/*TODO:TC*///test bool doubleVariableBecomes2() = [N : 3, N : 3] := [3,3] && N == 3;
   	
 // antiPattern
 
@@ -542,7 +542,7 @@ test bool descendant28() = {v | /value v <- {<1,"b",true>}} == {1,"b",true, <1,"
   	
 // listCount1
  
-   public test bool listCount1(list[int] L){
+   test bool listCount1(list[int] L){
 	   int cnt(list[int] L){
 	    int count = 0;
 	    while ([int N, *int Ns] := L) { 
@@ -556,7 +556,7 @@ test bool descendant28() = {v | /value v <- {<1,"b",true>}} == {1,"b",true, <1,"
   
  // listCount2
  
- public test bool listCount2(list[int] L){
+ test bool listCount2(list[int] L){
 	  int cnt(list[int] L){
 	    int count = 0;
 	    while ([int N, *int _] := L) {
@@ -570,7 +570,7 @@ test bool descendant28() = {v | /value v <- {<1,"b",true>}} == {1,"b",true, <1,"
 
 // listCount3
   
-  public test bool listCount3(list[int] L){  	
+  test bool listCount3(list[int] L){  	
   
       int cnt(list[int] L){
        int count = 0;
@@ -584,7 +584,7 @@ test bool descendant28() = {v | /value v <- {<1,"b",true>}} == {1,"b",true, <1,"
 	return cnt(L) == size(L);
   	}
   	
-  	public test bool setCount1(set[int] S){
+  	test bool setCount1(set[int] S){
   		      int cnt(set[int] S){ 
   		        int count = 0; 
   		        while ({int N, *int Ns} := S) {  
@@ -596,7 +596,7 @@ test bool descendant28() = {v | /value v <- {<1,"b",true>}} == {1,"b",true, <1,"
   	 return cnt(S) == size(S);
   	 }
   
-    public test bool setCount2(set[int] S){
+    test bool setCount2(set[int] S){
   		      int cnt(set[int] S){ 
   		        int count = 0; 
   		        while ({int N, *int _} := S) {  
@@ -608,7 +608,7 @@ test bool descendant28() = {v | /value v <- {<1,"b",true>}} == {1,"b",true, <1,"
   	return cnt(S) == size(S);
   	}
   	
-  	 public test bool setCount3(set[int] S){
+  	 test bool setCount3(set[int] S){
   		      int cnt(set[int] S){
   		        int count = 0;
   		        while ({int N, *int _} := S) {
@@ -621,21 +621,21 @@ test bool descendant28() = {v | /value v <- {<1,"b",true>}} == {1,"b",true, <1,"
   		return cnt(S) == size(S);
   	}
   	
-  	public test bool nodeMatchBacktracking() {
+  	test bool nodeMatchBacktracking() {
   	    y = for("f"({int a, int b, *int c}) := "f"({1,2,3,4})) append <a,b>; 
   	    return size(y) == 12;
   	}
   	
-  	public test bool tupleMatchBacktracking() {
+  	test bool tupleMatchBacktracking() {
   	    y = for(<{int a, int b, *int c}> := <{1,2,3,4}>) append <a,b>; 
   	    return size(y) == 12;
   	}
   	
-  	 public test bool switchListOnValue1() {
+  	 test bool switchListOnValue1() {
   	      value yy = []; switch(yy) { case [] : return true; default: return false; }
   	}
   	
-  	public test bool switchSetOnValue1() {
+  	test bool switchSetOnValue1() {
   		value yy = {}; switch(yy) { case {} : return true; default: return false; }
   	}
  

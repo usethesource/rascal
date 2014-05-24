@@ -8,18 +8,50 @@ import experiments::Compiler::Execute;
 
 // Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
+
+list[str] basicTests = [
+"Booleans",					// OK
+							// Commented out fromInt test
+"Equality",					// OK
+							// Added parentheses for ? operator
+"Functions",				// OK
+"Integers",                 // OK
+"IO",						// TC cannot handle ... arguments
+
+"ListRelations",			// TC tests commented out
+							// Issue #462	
+
+"Lists",                    // OK
+"Locations",			
+"Maps",						// OK
+"Matching",					// TC, #450
+"Memoization",
+"Nodes",					// OK
+"Relations"	,				// 1 test fails, nested any
+"Sets",						// TC complains about tst_group2
+                            // 4 tests fails
+							// Issue #459
+							// Issue #460
+"SolvedIssues",				// OK
+"Strings" , 				// OK
+"Tuples"					// OK					
+];
+
+
 list[str] functionalityTests = [
 
 "AccumulatingTests",		// [15] 2 tests fail: append that crosses function boundary: make tmp scope dependent?
 "AliasTests",				// OK
 "AnnotationTests",			// OK
 "AssignmentTests",			// OK
-"BackTrackingTests",		// OK
+"BacktrackingTests",		// OK
 "CallTests",				// [58] keyword parameters Issue #456
 "ComprehensionTests",		// OK
 							 //3 tests fail that correspond to empty enumerations: interpreter gives false, compiler gives true.
 "ConcretePatternTests1",	//OK
 "ConcretePatternTests2",	//OK
+"ConcreteSyntaxTests1",
+"ConcreteSyntaxTests2",
 
 "DataDeclarationTests",		// OK
 "DataTypeTests",			// OK
@@ -28,6 +60,7 @@ list[str] functionalityTests = [
 							 //error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1071,1,<35,14>,<35,15>))
 							 //error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1167,1,<39,24>,<39,25>))
 "FunctionCompositionTests",	// Issue #468	
+"InterpolationTests",
 "PatternTests",				// [420] Issue #458
 "PatternTestsDescendant",
 "PatternTestsList3",
@@ -47,32 +80,6 @@ list[str] functionalityTests = [
 ];
 
 
-list[str] basicTests = [
-"Booleans",					// OK
-							// Commented out fromInt test
-"Equality",					// OK
-							// Added parentheses for ? operator
-"Functions",				// OK
-
-"IO",						// TC cannot handle ... arguments
-"Integers",                 // OK
-"ListRelations",			// TC tests commented out
-							// Issue #462				
-"Lists",                    // OK
-"Maps",						// OK
-"Matching",					// TC, #450
-"Memoization",
-"Nodes",					// OK
-"Relations"	,				// 1 test fails, nested any
-"Sets",						// TC complains about tst_group2
-                            // 4 tests fails
-							// Issue #459
-							// Issue #460
-"SolvedIssues",				// OK
-"Strings" , 				// OK
-"Tuples"					// OK					
-];
-
 list[str] libraryTests = [
 
 // OK
@@ -84,6 +91,7 @@ list[str] libraryTests = [
 "ListTests" ,			// OK
 "MapTests",				// OK
 "MathTests"	,			// OK
+"NodeTests",
 "NumberTests",			// OK
 "RelationTests",		// OK
 "SetTests",				// OK

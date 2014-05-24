@@ -95,7 +95,7 @@ test bool testFor5() {int n = 0; loop:for(int i <- [1,2,3,4], n <= 3){ if (n == 
 // testAppend
 
 /*TODO:?*/
-//public test bool testAppend() for(int i <- [1,2,3,4]){ 3 * i; } == 12;));
+//test bool testAppend() for(int i <- [1,2,3,4]){ 3 * i; } == 12;));
 test bool testAppend1() { L = for(int i <- [1,2,3,4]){ append 3 * i; }; return L == [3,6,9,12];}
 test bool testAppend2() { L = for(int i <- [1,2,3,4]){ append 3 * i; append 4 *i;}; return L == [3,4,6,8,9,12,12,16];}
 
