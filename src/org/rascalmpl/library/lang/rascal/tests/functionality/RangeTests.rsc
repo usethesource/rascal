@@ -51,9 +51,9 @@ test bool rangeMixed7() = [1.0, -2 .. -10.0] == [1.0, -2.0, -5.0, -8.0];
   	
 alias nat = int;
   	
-	public test bool aliased1() {
-  	   nat x = 0; nat y = 3; return [i|int i <- [x..y]]==[0..3];
-	}
+public test bool aliased1() {
+    nat x = 0; nat y = 3; return [i|int i <- [x..y]]==[0..3];
+}
   
   
  
