@@ -16,7 +16,7 @@ import org.rascalmpl.test.infrastructure.RecursiveTest;
 import org.rascalmpl.test.infrastructure.RecursiveTestSuite;
 
 @RunWith(RecursiveTestSuite.class)
-@RecursiveTest({"basic", "functionality", "library"})
+@RecursiveTest({"types", "basic", "functionality", "library"})
 public class BasicAndFunctionalityAndLibrarySuite  {
 
 	
