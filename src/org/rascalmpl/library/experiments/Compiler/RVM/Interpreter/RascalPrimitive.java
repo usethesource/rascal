@@ -6172,10 +6172,8 @@ public enum RascalPrimitive {
 	}
 
 	private static IBool $list_less_list(IList left, IList right) {
-		IBool res = Rascal_FALSE;
-
 		if(left.length() > right.length()){
-			return res;
+			return Rascal_FALSE;
 		}
 		OUTER:for (int l = 0, r = 0; l < left.length(); l++) {
 			for (r = Math.max(l, r) ; r < right.length(); r++) {
@@ -6184,7 +6182,7 @@ public enum RascalPrimitive {
 					continue OUTER;
 				}
 			}
-			return res;
+			return Rascal_FALSE;
 		}
 		return vf.bool(left.length() != right.length());
 	}
@@ -6239,7 +6237,6 @@ public enum RascalPrimitive {
 	}
 
 	private static IBool $list_lessequal_list(IList left, IList right) {
-		IBool res = Rascal_FALSE;
 		if (left.length() == 0) {
 			return Rascal_TRUE;
 		}
@@ -6253,7 +6250,7 @@ public enum RascalPrimitive {
 					continue OUTER;
 				}
 			}
-			return res;
+			return Rascal_FALSE;
 		}
 
 		return vf.bool(left.length() <= right.length());
