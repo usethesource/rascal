@@ -35,6 +35,7 @@ test bool correctEncoding(Encoding enc, str content) {
   return readFileEnc(aFile, encodingNames[enc]) == content;
 }
 
+@ignore{Issue #580}
 test bool correctEncodingImplicit(Encoding enc, str content) {
 	content = removeZeroIAmbBOM(enc, content);
 		  writeFileEnc(aFile, encodingNames[enc], content);
