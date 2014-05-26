@@ -25,12 +25,6 @@ import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class ImportTests extends TestFramework {
 	
-
-	@Test(expected=ModuleImport.class)
-	public void importError() {
-		runTest("import zap;");
-	}
-	
 	@Test
 	public void testFun() {
 		
@@ -54,28 +48,6 @@ public class ImportTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("M::n == 3;"));
 		assertTrue(runTestInSameEvaluator("n == 3;"));
 		assertTrue(runTestInSameEvaluator("{ int n = 4; n == 4;}"));
-	}
-	
-	@Test(expected=UndeclaredVariable.class)
-	public void UndefinedPrivateVar1(){
-		prepareModule("M", "module M\n" +
-		         "private int m = 3;");
-		runTestInSameEvaluator("m != 3;");
-	}
-	
-	@Ignore @Test(expected=UninitializedVariable.class)
-	public void UndefinedPrivateVar2(){
-		prepareModule("M", "module M\n" +
-		         "private int m = 3;");
-		prepareMore("import M;");
-		runTestInSameEvaluator("int n = m;");
-	}
-	
-	@Test(expected=UndeclaredVariable.class)
-	public void UndefinedPrivateFunction(){
-		prepareModule("M", "module M\n" +
-		         "private int f() {return 3;}");
-		runTestInSameEvaluator("f();");
 	}
 	
 	@Test
