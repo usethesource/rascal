@@ -81,7 +81,7 @@ test bool tst_classify(set[int] S) {
 test bool tst_getOneFrom(set[&A] S) = isEmpty(S) || getOneFrom(S) in S;
 
 test bool tst_group1(set[int] S) = isEmpty(S) || { *g | g <- group(S, similar) } == S;
-test bool tst_group2(set[int] S) = isEmpty(S) || all(g <- group(S, similar), all(x <- g, y <- g, similar(x, y)));
+test bool tst_group2(set[int] S) = isEmpty(S) || all(g <- group(S, similar), all(int x <- g, int y <- g, similar(x, y)));
 
 test bool tst_index1(set[int] S) = isEmpty(S) || domain(index(S)) == S;
 test bool tst_index2(set[int] S) = isEmpty(S) || min(range(index(S))) == 0 ;

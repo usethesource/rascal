@@ -23,10 +23,10 @@ test bool delete3() = delete([0,1,2], 2) == [0,1];
   		
 // distribution
   
-test bool distribution1()  =distribution([]) == ();
-test bool distribution2()  =distribution([1]) == (1:1);
-test bool distribution3()  =distribution([1,2]) == (1:1, 2:1);
-test bool distribution4()  =distribution([1,2, 2]) == (1:1, 2:2);
+test bool distribution1()  = distribution([]) == ();
+test bool distribution2()  = distribution([1]) == (1:1);
+test bool distribution3()  = distribution([1,2]) == (1:1, 2:1);
+test bool distribution4()  = distribution([1,2, 2]) == (1:1, 2:2);
 
   
 /*
@@ -86,20 +86,20 @@ test bool head11() {
   		
 // insertAt
   
-test bool insertAt1() =List::insertAt([], 0, 1) == [1];
-test bool insertAt2() =insertAt([], 0, 1) == [1];
-test bool insertAt3() =List::insertAt([2,3], 1, 1) == [2,1, 3];
-test bool insertAt4() =insertAt([2,3], 1, 1) == [2, 1, 3];
-test bool insertAt5() =List::insertAt([2,3], 2, 1) == [2,3,1];
-test bool insertAt6() =insertAt([2,3], 2, 1) == [2, 3, 1];
+test bool insertAt1() = List::insertAt([], 0, 1) == [1];
+test bool insertAt2() = insertAt([], 0, 1) == [1];
+test bool insertAt3() = List::insertAt([2,3], 1, 1) == [2,1, 3];
+test bool insertAt4() = insertAt([2,3], 1, 1) == [2, 1, 3];
+test bool insertAt5() = List::insertAt([2,3], 2, 1) == [2,3,1];
+test bool insertAt6() = insertAt([2,3], 2, 1) == [2, 3, 1];
   	
 @expected{IndexOutOfBounds}
 test bool insertAt7() {insertAt([1,2,3], 4, 5); return false;}
   	
 // isEmpty
   
-test bool isEmpty1()  =isEmpty([]);
-test bool isEmpty2()  =isEmpty([1,2]) == false;
+test bool isEmpty1()  = isEmpty([]);
+test bool isEmpty2()  = isEmpty([1,2]) == false;
   	
 // mapper 
   
@@ -117,10 +117,10 @@ test bool min2() = min([1, 2, 3, 2, 1]) == 1;
   		
 // permutations
   
-test bool permutations1()  =permutations([]) == {[]};
-test bool permutations2()  =permutations([1]) == {[1]};
-test bool permutations3()  =permutations([1,2]) == {[1,2],[2,1]};
-test bool permutations4()  =permutations([1,2,3]) ==  {[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]};
+test bool permutations1()  = permutations([]) == {[]};
+test bool permutations2()  = permutations([1]) == {[1]};
+test bool permutations3()  = permutations([1,2]) == {[1,2],[2,1]};
+test bool permutations4()  = permutations([1,2,3]) ==  {[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]};
     	
 // reducer
   
@@ -149,7 +149,7 @@ test bool slice1() = slice([1,2,3,4], 0, 0) == [];
 test bool slice2() = slice([1,2,3,4], 0, 1) == [1];
 test bool slice3() = slice([1,2,3,4], 0, 2) == [1,2];
 test bool slice4() = slice([1,2,3,4], 0, 3) == [1,2,3];
-test bool slice5()  =slice([1,2,3,4], 0, 4) == [1,2,3,4];
+test bool slice5() = slice([1,2,3,4], 0, 4) == [1,2,3,4];
 test bool slice6() = slice([1,2,3,4], 1, 0) == [];
 test bool slice7() = slice([1,2,3,4], 1, 1) == [2];
 test bool slice8() = slice([1,2,3,4], 1, 2) == [2,3];
@@ -157,17 +157,17 @@ test bool slice9() = slice([1,2,3,4], 3, 0) == [];
 test bool slice10() = slice([1,2,3,4], 3, 1) == [4];
   
 // sort
-test bool sort1() =List::sort([]) == [];
-test bool sort2() =sort([]) == [];
-test bool sort3() =List::sort([1]) == [1];
-test bool sort4() =sort([1]) == [1];
-test bool sort5() =List::sort([2, 1]) == [1,2];
-test bool sort6() =sort([2, 1]) == [1,2];
-test bool sort7() =List::sort([2,-1,4,-2,3]) == [-2,-1,2,3, 4];
-test bool sort8() =sort([2,-1,4,-2,3]) == [-2,-1,2,3, 4];
-test bool sort9() =sort([1,2,3,4,5,6]) == [1,2,3,4,5,6];
-test bool sort10() =sort([1,1,1,1,1,1]) == [1,1,1,1,1,1];
-test bool sort11() =sort([1,1,0,1,1]) == [0,1,1,1,1];
+test bool sort1() = List::sort([]) == [];
+test bool sort2() = sort([]) == [];
+test bool sort3() = List::sort([1]) == [1];
+test bool sort4() = sort([1]) == [1];
+test bool sort5() = List::sort([2, 1]) == [1,2];
+test bool sort6() = sort([2, 1]) == [1,2];
+test bool sort7() = List::sort([2,-1,4,-2,3]) == [-2,-1,2,3, 4];
+test bool sort8() = sort([2,-1,4,-2,3]) == [-2,-1,2,3, 4];
+test bool sort9() = sort([1,2,3,4,5,6]) == [1,2,3,4,5,6];
+test bool sort10() = sort([1,1,1,1,1,1]) == [1,1,1,1,1,1];
+test bool sort11() = sort([1,1,0,1,1]) == [0,1,1,1,1];
   	
 // sortWithCompareFunction 	
   
@@ -183,10 +183,10 @@ test bool sortWithCompare5() {sort([1, 0, 1], bool(int a, int b){return a <= b;}
  
  // sum
   
-test bool sum1() =sum([]) == 0;
-test bool sum2() =sum([1]) == 1;
-test bool sum3() =sum([1,2]) == 3;
-test bool sum4() =sum([1,2,3]) == 6;
+test bool sum1() = sum([]) == 0;
+test bool sum2() = sum([1]) == 1;
+test bool sum3() = sum([1,2]) == 3;
+test bool sum4() = sum([1,2,3]) == 6;
 
 // tail
   
