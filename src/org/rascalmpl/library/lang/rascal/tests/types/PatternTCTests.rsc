@@ -2,6 +2,9 @@ module lang::rascal::tests::types::PatternTCTests
 
 import lang::rascal::tests::types::StaticTestingUtils;
 
+import ParseTree;
+import lang::pico::\syntax::Main;
+
 test bool matchNestedList2() = !([[1]] := []);
 
 test bool matchNestedSet2() = !({{1}} := {});
@@ -148,5 +151,23 @@ test bool listExpressions2() = unexpectedType("value n = 1; list[int] l = [ 1, *
 test bool setExpressions1() = unexpectedType("value n = 1; set[int] l = { *[n, n] };");  
 
 test bool setExpressions2() = unexpectedType("value n = 1; set[int] l = { 1, *[n, n], 2 };");  
- 
+
+test bool PicoQuoted1() = 
+	checkOK("Program program := t1;",
+			initialDecls = ["Tree t1 = (Program) `begin declare x: natural; x := 10 end`;"],
+			importedModules = ["ParseTree",  "lang::pico::\\syntax::Main;"]);
+
+test bool PicoQuoted2() = 
+	checkOK("(Program) `\<Program program\>` := t1;",
+			initialDecls = ["Tree t1 = (Program) `begin declare x: natural; x := 10 end`;"],
+			importedModules = ["ParseTree",  "lang::pico::\\syntax::Main;"]);
+  
+
+test bool PicoQuoted2() = 
+	checkOK(" (Program) `begin \<Declarations decls\> \<{Statement \";\"}* stats\> end` := t1; ",
+			initialDecls = ["Tree t1 = (Program) `begin declare x: natural; x := 10 end`;"],
+			importedModules = ["ParseTree",  "lang::pico::\\syntax::Main;"]);
+		
+  	
+  	
   		
