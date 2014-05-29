@@ -167,7 +167,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
                                                 
          leaveFunctionScope();
          
-         functions_in_module += muFunction(fuid,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body);   	                                       
+         functions_in_module += muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body);   	                                       
    	 }
    	  						  
    	  translateModule(M);
@@ -305,7 +305,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   }
   tbody = translateFunction(fd.signature.parameters.formals.formals, isVarArgs, kwps, body, when_conditions);
   
-  functions_in_module += muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
+  functions_in_module += muFunction(fuid, "<fd.signature.name>", ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									getFormals(uid), getScopeSize(fuid), 
   									isVarArgs, fd@\loc, tmods, ttags, 
   									tbody);
@@ -412,5 +412,5 @@ private void generate_tests(str module_name){
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
    name_testsuite = "<module_name>_testsuite";
    main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-   functions_in_module += muFunction(main_testsuite, ftype, "" /*in the root*/, 2, 2, false, |rascal:///|, [], (), code);
+   functions_in_module += muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, |rascal:///|, [], (), code);
 }
