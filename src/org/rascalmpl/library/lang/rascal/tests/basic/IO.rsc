@@ -8,7 +8,6 @@ import ValueIO;
 private loc aFile = |tmp:///rascal-test/wr.txt|;
 
 /*TODO:fix*/
-@ignore{Unicode bug}
 test bool writeReadFile(str content) {
   writeFile(aFile, content);
   return readFile(aFile) == content;
@@ -35,7 +34,6 @@ test bool correctEncoding(Encoding enc, str content) {
   return readFileEnc(aFile, encodingNames[enc]) == content;
 }
 
-@ignore{Issue #580}
 test bool correctEncodingImplicit(Encoding enc, str content) {
 	content = removeZeroIAmbBOM(enc, content);
 		  writeFileEnc(aFile, encodingNames[enc], content);
@@ -44,13 +42,12 @@ test bool correctEncodingImplicit(Encoding enc, str content) {
 
 public str removeZeroIAmbBOM(Encoding enc, str s) {
 	if (size(s)> 0 && s[0] == "\a00" && (enc == utf16() || enc == utf16le())) {
-		return "\a01" + s[1..];
+		return "\a01" + (size(s) > 1 ? s[1..] : "");
 	}
 	return s;
 }
 
 /*TODO:fix*/
-@ignore{Issue #580}
 test bool appendWorksCorrectly(Encoding enc, str a, str b) {
 	a = removeZeroIAmbBOM(enc, a);
 	b = removeZeroIAmbBOM(enc, b);
@@ -60,7 +57,6 @@ test bool appendWorksCorrectly(Encoding enc, str a, str b) {
 }
 
 /*TODO:fix*/
-@ignore{Issue #580}
 test bool appendWorksCorrectlyImplicit(Encoding enc, str a, str b) {
 	a = removeZeroIAmbBOM(enc, a);
 	b = removeZeroIAmbBOM(enc, b);
