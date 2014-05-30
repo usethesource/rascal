@@ -51,21 +51,14 @@ public java void generateGrammar(Grammar grammar);
 public java void generateGraph(str f, loc l);
 
 public void generate(type[&T <: Tree] nont) {
- //if (/lex("Name") := nont.definitions) throw "WTF? <nont>";
   gr = grammar({nont.symbol}, nont.definitions, ());
   gr = resolve(gr);
-  if (/lex("Name") := gr) throw "WTF? <gr>";
   gr = literals(gr);
-  if (/lex("Name") := gr) throw "WTF? <gr>";
   gr = flattenTokens(gr);
-  if (/lex("Name") := gr) throw "WTF? <gr>";
   //gr = expandKeywords(gr);
   gr = makeRegularStubs(expandRegularSymbols(makeRegularStubs(gr)));
-  if (/lex("Name") := gr) throw "WTF? <gr>";
   gr = expandParameterizedSymbols(gr);
-  if (/lex("Name") := gr) throw "WTF? <gr>";
   gr = addNotAllowedSets(gr);
-  if (/lex("Name") := gr) throw "WTF? <gr>";
   gr = prioAssocToChoice(gr);
   
   generateGrammar(gr);
@@ -102,7 +95,7 @@ public void compare(&T<:Tree old, &T<:Tree new) {
 }
 
 public bool testModules(list[loc] files, list[loc] path) {
-  generate(#start[Module]);
+  generate(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|);
   errors = [];
   for (f <- files) {
     println("parsing <f>");
