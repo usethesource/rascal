@@ -213,7 +213,7 @@ test bool tstLeft2_s(str S) { l = left(S, size(S) + 1, "x"); return startsWith(l
 
 bool areOverlapping(str s1, str s2) 
 	= size(s1) > 0 && size(s2) > 0
-	&& (s1[-1] == s2[0] || s1[0] == s2[-1])
+	&& (s1[-1] == s2[0] || s1[0] == s2[-1] || s1[0] == s2[0])
 	;
 
 test bool tstReplaceAll(str S1, str S2, str S3) {
