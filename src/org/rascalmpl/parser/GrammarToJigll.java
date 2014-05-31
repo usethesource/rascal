@@ -375,11 +375,11 @@ public class GrammarToJigll {
 
 				List<RegularExpression> body = getRegularExpressionList(rhs);
 				
-				if(body.size() == 1) {
-					regularExpressionsMap.put(head.getName(), body.get(0));				
-				} else {
-					regularExpressionsMap.put(head.getName(), Sequence.from(body));
-				}
+//				if(body.size() == 1) {
+//					regularExpressionsMap.put(head.getName(), body.get(0));				
+//				} else {
+				regularExpressionsMap.put(head.getName(), new Sequence.Builder<RegularExpression>(body).addObject(new SerializableValue(prod)).build());
+//				}
 			}
 		}
 	}
@@ -464,9 +464,9 @@ public class GrammarToJigll {
 			// Keywords are already expanded into a sequence
 			if(choice == null) {
 				if (symbol.getName().equals("seq")) {
-					keyword = new Keyword.Builder(getChars((IList) symbol.get("symbols"))).addObject(symbol).build();
+					keyword = new Keyword.Builder(getChars((IList) symbol.get("symbols"))).addObject(new SerializableValue(symbol)).build();
 				} else if (symbol.getName().equals("char-class")) {
-					keyword = new Keyword.Builder(getChars(symbol)).addObject(symbol).build();	
+					keyword = new Keyword.Builder(getChars(symbol)).addObject(new SerializableValue(symbol)).build();	
 				}
 			} else {
 				ISet alts = null;
@@ -489,7 +489,7 @@ public class GrammarToJigll {
 						throw e;
 					}
 					
-					keyword = new Keyword.Builder(getChars(rhs)).addObject(symbol).build();
+					keyword = new Keyword.Builder(getChars(rhs)).addObject(new SerializableValue(prod)).build();
 				}				
 			}
 			
@@ -664,19 +664,19 @@ public class GrammarToJigll {
 				break;
 	
 			case "iter":
-				regex = new RegexPlus.Builder(getRegularExpression(getSymbolCons(symbol))).addObject(symbol).build();
+				regex = new RegexPlus.Builder(getRegularExpression(getSymbolCons(symbol))).addObject(new SerializableValue(symbol)).build();
 				break;
 	
 			case "iter-seps":
-				regex = new RegexPlus.Builder(getRegularExpression(getSymbolCons(symbol))).addObject(symbol).build();
+				regex = new RegexPlus.Builder(getRegularExpression(getSymbolCons(symbol))).addObject(new SerializableValue(symbol)).build();
 				break;
 	
 			case "iter-star":
-				regex = new RegexStar.Builder(getRegularExpression(getSymbolCons(symbol))).addObject(symbol).build();
+				regex = new RegexStar.Builder(getRegularExpression(getSymbolCons(symbol))).addObject(new SerializableValue(symbol)).build();
 				break;
 	
 			case "iter-star-seps":
-				regex = new RegexStar.Builder(getRegularExpression(getSymbolCons(symbol))).addObject(symbol).build();
+				regex = new RegexStar.Builder(getRegularExpression(getSymbolCons(symbol))).addObject(new SerializableValue(symbol)).build();
 				break;
 	
 			case "opt":
@@ -684,11 +684,11 @@ public class GrammarToJigll {
 				break;
 	
 			case "alt":
-				regex = new RegexAlt.Builder<>(getRegularExpressionList((ISet) symbol.get("alternatives"))).addObject(symbol).build();
+				regex = new RegexAlt.Builder<>(getRegularExpressionList((ISet) symbol.get("alternatives"))).addObject(new SerializableValue(symbol)).build();
 				break;
 	
 			case "seq":
-				regex = new Sequence.Builder<>(getRegularExpressionList((IList) symbol.get("symbols"))).addObject(symbol).build();
+				regex = new Sequence.Builder<>(getRegularExpressionList((IList) symbol.get("symbols"))).addObject(new SerializableValue(symbol)).build();
 				break;
 				
 			default:
