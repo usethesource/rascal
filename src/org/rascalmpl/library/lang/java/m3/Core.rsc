@@ -80,10 +80,11 @@ public M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
     sourcePaths = getPaths(project, "java");
     //setEnvironmentOptions(project);
     setEnvironmentOptions(classPaths, sourcePaths);
-    M3 result = m3(project);
+    m3s = {};
     for (sp <- sourcePaths) {
-      result = composeJavaM3(project, { createM3FromFile(f, javaVersion = javaVersion) | loc f <- find(sp, "java") });
+      m3s += { createM3FromFile(f, javaVersion = javaVersion) | loc f <- find(sp, "java") };
     }
+    M3 result = composeJavaM3(project, m3s);
     registerProject(project, result);
     return result;
 }
