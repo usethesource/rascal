@@ -1,4 +1,4 @@
- package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -17,13 +17,16 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.DefaultTestResultListener;
 import org.rascalmpl.interpreter.IEvaluatorContext;  // TODO: remove import? NOT YET: Only used as argument of reclective library function
+import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.interpreter.utils.Timing;
 
 public class Execute {
 
 	private IValueFactory vf;
+	private static ITestResultListener testResultListener;
 
 	public Execute(IValueFactory vf) {
 		this.vf = vf;
@@ -37,6 +40,10 @@ public class Execute {
 		return   "/#" + moduleName + "_init";
 	}
 	
+	static void setTestResultListener(ITestResultListener trl){
+		testResultListener = trl;
+	}
+	
 	// Library function to execute a RVM program from Rascal
 
 	public ITuple executeProgram(IConstructor program,
@@ -45,6 +52,7 @@ public class Execute {
 								 IList imported_overloaded_functions,
 								 IMap imported_overloading_resolvers,
 								 IList argumentsAsList,
+								 IString test_name,
 								 IBool debug, IBool testsuite, IBool profile, IEvaluatorContext ctx) {
 		
 		boolean isTestSuite = testsuite.getValue();
@@ -60,8 +68,13 @@ public class Execute {
 		String uid_module_init = null;
 		
 		PrintWriter stdout = ctx.getStdOut();
+		PrintWriter stderr = ctx.getStdErr();
 		
-		RVM rvm = new RVM(new RascalExecutionContext(vf, debug.getValue(), profile.getValue(), ctx));
+		if(testResultListener == null){
+			testResultListener = (ITestResultListener) new DefaultTestResultListener(stderr);
+		}
+		
+		RVM rvm = new RVM(new RascalExecutionContext(vf, debug.getValue(), profile.getValue(), ctx, testResultListener));
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
