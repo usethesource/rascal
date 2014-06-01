@@ -60,6 +60,17 @@ test bool setAntiSymmetricLTE(set[value] x, set[value] y) = (x <= y && y <= x) =
 test bool setTransLTE(set[value] x, set[value] y, set[value] z) = (x <= y && y <= z) ==> x <= z;
 
 // map are ordered via sub-map relation
+
+/*TODO:
+
+java.lang.Exception: Test submapOrdering1 failed due to
+	org.eclipse.imp.pdb.facts.type.IntegerType cannot be cast to org.eclipse.imp.pdb.facts.util.TrieMap$CompactMapNode
+
+Actual parameters:
+	map[value, value] =>(true:("":[]))
+	map[value, value] =>("":0.5741726876359169,true:-405555075,639525932r165438573:233378841r1234953134,"M"(true,|tmp:///|):true,|tmp:///|:|tmp:///g7/J|)
+
+*/
 test bool submapOrdering1(map[value,value] x, map[value,value] y) = x <= y + x; // remember map join is not commutative
 test bool submapOrdering2(map[value,value]x, map[value,value] y) = (x <= y) <==> (x == () || all(e <- x, e in y, y[e] == x[e]));
 
