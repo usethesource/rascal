@@ -68,8 +68,6 @@ public class GrammarToJigll {
 
 	private Map<IValue, Rule> rulesMap;
 
-	private Map<String, Keyword> keywordsMap;
-	
 	private Map<String, RegularExpression> regularExpressionsMap;
 	
 	private Map<IConstructor, RegularExpression> regularExpressionsCache;
@@ -192,7 +190,7 @@ public class GrammarToJigll {
 				return RegularExpressionCondition.notFollow(CharacterClass.from(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.notFollow(getKeyword(symbol));
+				return RegularExpressionCondition.notFollow(getRegularExpression(symbol));
 	
 			case "seq":
 				IList list = (IList) symbol.get("symbols");
@@ -221,7 +219,7 @@ public class GrammarToJigll {
 				return RegularExpressionCondition.follow(CharacterClass.from(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.follow(getKeyword(symbol));
+				return RegularExpressionCondition.follow(getRegularExpression(symbol));
 	
 			case "seq":
 				IList list = (IList) symbol.get("symbols");
@@ -249,7 +247,7 @@ public class GrammarToJigll {
 				return RegularExpressionCondition.notPrecede(CharacterClass.from(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.notPrecede(getKeyword(symbol));
+				return RegularExpressionCondition.notPrecede(getRegularExpression(symbol));
 	
 			default:
 				throw new IllegalStateException("Should not be here!");
@@ -264,7 +262,7 @@ public class GrammarToJigll {
 				return RegularExpressionCondition.precede(CharacterClass.from(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.precede(getKeyword(symbol));
+				return RegularExpressionCondition.precede(getRegularExpression(symbol));
 	
 			default:
 				throw new IllegalStateException("Should not be here!");
@@ -278,7 +276,6 @@ public class GrammarToJigll {
 		IMap definitions = (IMap) rascalGrammar.get("rules");
 		
 		rulesMap = new HashMap<>();
-		keywordsMap = new HashMap<>();
 		regularExpressionsMap = new HashMap<>();
 		regularExpressionsCache = new HashMap<>();
 		deleteSetCache = new HashMap<>();
@@ -454,7 +451,7 @@ public class GrammarToJigll {
 	private Keyword getKeyword(IConstructor symbol) {
 
 		String name = SymbolAdapter.toString(symbol, true);
-		Keyword keyword = keywordsMap.get(name);
+		Keyword keyword = (Keyword) regularExpressionsMap.get(name);
 
 		if (keyword == null) {
 
@@ -493,7 +490,7 @@ public class GrammarToJigll {
 				}				
 			}
 			
-			keywordsMap.put(name, keyword);
+			regularExpressionsMap.put(name, keyword);
 		}
 
 		return keyword;
@@ -648,7 +645,7 @@ public class GrammarToJigll {
 				break;
 				
 			case "lit":
-				regex = getKeyword(symbol);
+				regex = regularExpressionsMap.get(SymbolAdapter.toString(symbol, true));
 				break;
 				
 			case "conditional":

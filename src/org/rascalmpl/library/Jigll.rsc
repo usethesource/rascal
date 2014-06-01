@@ -123,9 +123,10 @@ public bool testModules(list[loc] files, list[loc] path) {
         case 16777215 => 1114111 
       }
       
-      if (!eq(new, old)) {
+      if (new != old) {
         rnew = { p | /p:prod(_,_,_) := new};
         rold = { p | /p:prod(_,_,_) := old};
+        
         println("trees are different for <f>: <rold - rnew>, <rnew - rold>");
         //iprintln(findCauses(new, old));
         //text("new"(new));
