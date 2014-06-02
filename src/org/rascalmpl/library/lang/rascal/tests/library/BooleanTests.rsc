@@ -25,7 +25,7 @@ test bool arb1(){
 test bool arb2(){
     bool B = arbBool(); 
   	return (B == true) || (B == false);
- }
+}
   
 // toInt
   
