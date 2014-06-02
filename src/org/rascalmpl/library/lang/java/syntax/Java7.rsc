@@ -1,4 +1,4 @@
-// Rewriting the gramamr to conform to the langauge specification grammar  
+// Rewriting the grammar to conform to the language specification grammar version 7 
 
 
 module lang::java::\syntax::Java5
@@ -10,8 +10,8 @@ start syntax CompilationUnit =
 syntax PackageDeclaration =
    Annotations* "package"  QualifiedIdentifier ";" 
   ;
-  
-	syntax Annotation =
+
+syntax Annotation =
    "@" TypeName ("(" (Id "=")? ElementValue ")")? 
   ;
 
@@ -22,11 +22,11 @@ syntax ElementValue =
         ;
 
 syntax   ElementValueArrayInitializer =
-        { [ElementValues] [,] }
+        "{" ElementValues? ","? "}"
 
-syntax    ElementValues =
-        ElementValue [ElementValues];
-
+syntax 	ElementValues =
+        ElementValue ("," ElementValue)*
+        ;
 
 syntax ArrayInit =
    arrayInit: "{" {VarInit ","}* "," "}" 
