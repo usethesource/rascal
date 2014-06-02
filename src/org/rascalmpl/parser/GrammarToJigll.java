@@ -140,7 +140,7 @@ public class GrammarToJigll {
 		OperatorPrecedence op = new OperatorPrecedence();
 		addExceptPatterns(op, except);
 		addPrecedencePatterns(op, notAllowed);
-		grammar = op.rewrite(grammar);
+//		grammar = op.rewrite(grammar);
 		
 		System.out.println(grammar);
 
@@ -375,7 +375,7 @@ public class GrammarToJigll {
 //				if(body.size() == 1) {
 //					regularExpressionsMap.put(head.getName(), body.get(0));				
 //				} else {
-				regularExpressionsMap.put(head.getName(), new Sequence.Builder<RegularExpression>(body).setObject(new SerializableValue(prod)).build());
+				regularExpressionsMap.put(head.getName(), new Sequence.Builder<RegularExpression>(body).setLabel(head.getName()).setObject(new SerializableValue(prod)).build());
 //				}
 			}
 		}
@@ -704,7 +704,7 @@ public class GrammarToJigll {
 
 	private CharacterClass getCharacterClass(IConstructor symbol) {
 		List<Range> targetRanges = buildRanges(symbol);
-		return CharacterClass.from(targetRanges);
+		return new CharacterClass.Builder(targetRanges).setLabel(SymbolAdapter.toString(symbol, true)).build();
 	}
 
 	private Set<Condition> getConditions(IConstructor symbol) {
