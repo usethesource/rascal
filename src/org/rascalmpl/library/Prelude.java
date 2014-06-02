@@ -27,6 +27,8 @@ package org.rascalmpl.library;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -43,6 +45,7 @@ import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -59,10 +62,10 @@ import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.CharSetUtils;
-import org.apache.commons.lang.WordUtils;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
@@ -1130,7 +1133,10 @@ public class Prelude {
 					while (seen < offset) {
 						char c = (char)buffer.read();
 						if (Character.isHighSurrogate(c)) {
-							buffer.read();
+							c = (char)buffer.read();
+							if (!Character.isLowSurrogate(c))
+								seen++;// strange string but it is possible
+
 						}
 						seen++;
 					}
@@ -1151,7 +1157,7 @@ public class Prelude {
 							if (c == -1) {
 								break; // EOF
 							}
-							result.append((char)buffer.read());
+							result.append((char)c);
 							if (!Character.isLowSurrogate((char)c)) {
 								// strange but in case of incorrect unicode stream
 								// let's not eat the next character
@@ -2931,11 +2937,37 @@ public class Prelude {
 	}
 	
 	public IString capitalize(IString src) {
-		return values.string(WordUtils.capitalize(src.getValue()));
+		StringBuilder result = new StringBuilder(src.length());
+		boolean lastWhitespace= true;
+		for (int cIndex =0; cIndex < src.length(); cIndex ++) {
+			int cp = src.charAt(cIndex);
+			if (Character.isWhitespace(cp)) {
+				lastWhitespace = true;
+			}
+			else if (lastWhitespace) {
+				lastWhitespace = false;
+				cp = Character.toUpperCase(cp);
+			}
+			result.appendCodePoint(cp);
+		}
+		return values.string(result.toString());
 	}
 	
 	public IString uncapitalize(IString src) {
-		return values.string(WordUtils.uncapitalize(src.getValue()));
+		StringBuilder result = new StringBuilder(src.length());
+		boolean lastWhitespace= true;
+		for (int cIndex =0; cIndex < src.length(); cIndex ++) {
+			int cp = src.charAt(cIndex);
+			if (Character.isWhitespace(cp)) {
+				lastWhitespace = true;
+			}
+			else if (lastWhitespace) {
+				lastWhitespace = false;
+				cp = Character.toLowerCase(cp);
+			}
+			result.appendCodePoint(cp);
+		}
+		return values.string(result.toString());
 	}
 	
 	public IList split(IString sep, IString src) {
@@ -2948,20 +2980,61 @@ public class Prelude {
 	}
 	
 	public IString wrap(IString src, IInteger wrapLength) {
-		String s = WordUtils.wrap(src.getValue(), wrapLength.intValue());
-		return values.string(s);
+		int wrapAt = wrapLength.intValue();
+		if (wrapAt < 1) {
+			wrapAt = 1;
+		}
+		final int iLength = src.length(); 
+
+		final StringBuilder result = new StringBuilder(iLength + (iLength / wrapAt));
+		
+		int lineBegin = 0;
+		while (iLength - lineBegin > wrapAt) {
+			while (lineBegin < iLength && src.charAt(lineBegin) == ' ') {
+				// skip over leading spaces
+				lineBegin++;
+			}
+			// find wrapping point closest to border
+			int lineEnd = lineBegin + wrapAt;
+			while (lineEnd > lineBegin && lineEnd < iLength && src.charAt(lineEnd) != ' ') {
+				lineEnd--;
+			}
+			if (lineEnd > lineBegin) {
+				// we found a wrap point
+				result.append(src.substring(lineBegin, lineEnd).getValue());
+				result.append(System.lineSeparator());
+				lineBegin = lineEnd + 1;
+			}
+			else {
+				// long word, not breakable, lets search for the end
+				lineEnd = lineBegin + wrapAt;
+				while (lineEnd < iLength && src.charAt(lineEnd) != ' ') {
+					lineEnd++;
+				}
+				result.append(src.substring(lineBegin, lineEnd).getValue());
+				if (lineEnd < iLength) {
+					result.append(System.lineSeparator());
+				}
+				lineBegin = lineEnd + 1;
+			}
+		}
+		// the last part we add if there is something left
+		if (lineBegin < iLength) {
+			result.append(src.substring(lineBegin).getValue());
+		}
+		return values.string(result.toString());
 	}
 
 	public IValue format(IString s, IString dir, IInteger n, IString pad)
 	//@doc{format -- return string of length n, with s placed according to dir (left/center/right) and padded with pad}
 	{
 	    StringBuffer res = new StringBuffer();
-	    int sLen = s.getValue().length();
+	    int sLen = s.length();
 	    int nVal = n.intValue();
 	    if(sLen > nVal){
 	       return s;
 	    }
-	    int padLen = pad.getValue().length();
+	    int padLen = pad.length();
 	    java.lang.String dirVal = dir.getValue();
 	    int start;
 	    
@@ -2978,8 +3051,8 @@ public class Prelude {
 	         	res.append(pad.getValue());
 	         	i+= padLen;
 	         } else {
-	         	res.append(pad.getValue().substring(0, start - i));
-	         	i += start -i;
+	         	res.append(pad.substring(0, start - i).getValue());
+	         	i += start - i;
 	         }
 	    }
 	    res.append(s.getValue());
@@ -2989,7 +3062,7 @@ public class Prelude {
 	         	res.append(pad.getValue());
 	         	i += padLen;
 	         } else {
-	         	res.append(pad.getValue().substring(0, nVal - i));
+	         	res.append(pad.substring(0, nVal - i).getValue());
 	         	i += nVal - i;
 	         }
 	    }
@@ -3017,6 +3090,9 @@ public class Prelude {
 	public IValue startsWith(IString s, IString prefix)
 	//@doc{startsWith -- return true if string s starts with the string prefix.}
 	{
+		if (prefix.length() == 0) {
+			return values.bool(true);
+		}
 	  return values.bool(s.getValue().startsWith(prefix.getValue()));
 	}
 
@@ -3122,11 +3198,11 @@ public class Prelude {
 	  return values.string(s.getValue().toUpperCase());
 	}
 	
-	private boolean match(char[] subject, int i, char [] pattern){
-		if(i + pattern.length > subject.length)
+	private boolean match(IString subject, int i, IString pattern){
+		if(i + pattern.length() > subject.length())
 			return false;
-		for(int k = 0; k < pattern.length; k++){
-			if(subject[i] != pattern[k])
+		for(int k = 0; k < pattern.length(); k++){
+			if(subject.charAt(i) != pattern.charAt(k))
 				return false;
 			i++;
 		}
@@ -3134,20 +3210,19 @@ public class Prelude {
 	}
 	
 	public IValue replaceAll(IString str, IString find, IString replacement){
-		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
-		char [] input = str.getValue().toCharArray();
-		char [] findChars = find.getValue().toCharArray();
-		char [] replChars = replacement.getValue().toCharArray();
+		StringBuilder b = new StringBuilder(str.length() * 2); 
 		
+		int iLength = str.length();
+		int fLength = find.length();
 		int i = 0;
 		boolean matched = false;
-		while(i < input.length){
-			if(match(input,i,findChars)){
+		while(i < iLength){
+			if(match(str,i,find)){
 				matched = true;
-				b.append(replChars);
-				i += findChars.length;
+				b.append(replacement.getValue());
+				i += fLength;
 			} else {
-				b.append(input[i]);
+				b.appendCodePoint(str.charAt(i));
 				i++;
 			}
 		}
@@ -3155,21 +3230,21 @@ public class Prelude {
 	}
 	
 	public IValue replaceFirst(IString str, IString find, IString replacement){
-		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
-		char [] input = str.getValue().toCharArray();
-		char [] findChars = find.getValue().toCharArray();
-		char [] replChars = replacement.getValue().toCharArray();
+		StringBuilder b = new StringBuilder(str.length() * 2); 
+
+		int iLength = str.length();
+		int fLength = find.length();
 		
 		int i = 0;
 		boolean matched = false;
-		while(i < input.length){
-			if(!matched && match(input,i,findChars)){
+		while(i < iLength){
+			if(!matched && match(str,i,find)){
 				matched = true;
-				b.append(replChars);
-				i += findChars.length;
+				b.append(replacement.getValue());
+				i += fLength;
 				
 			} else {
-				b.append(input[i]);
+				b.appendCodePoint(str.charAt(i));
 				i++;
 			}
 		}
@@ -3177,19 +3252,17 @@ public class Prelude {
 	}
 	
 	public IValue replaceLast(IString str, IString find, IString replacement){
-		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
-		char [] input = str.getValue().toCharArray();
-		char [] findChars = find.getValue().toCharArray();
-		char [] replChars = replacement.getValue().toCharArray();
+		StringBuilder b = new StringBuilder(str.length() * 2); 
+
+		int iLength = str.length();
+		int fLength = find.length();
 		
-		int i = input.length - findChars.length;
+		int i = iLength - fLength;
 		while(i >= 0){
-			if(match(input,i,findChars)){
-				for(int j = 0; j < i; j++)
-					b.append(input[j]);
-				b.append(replChars);
-				for(int j = i + findChars.length; j < input.length; j++)
-					b.append(input[j]);
+			if(match(str,i,find)){
+				b.append(str.substring(0, i).getValue());
+				b.append(replacement.getValue());
+				b.append(str.substring(i + fLength).getValue());
 				return values.string(b.toString());
 			}
 			i--;
@@ -3199,16 +3272,18 @@ public class Prelude {
 	
 	
 	public IValue escape(IString str, IMap substitutions) {
-		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
-		char[] input = str.getValue().toCharArray();
+		StringBuilder b = new StringBuilder(str.length() * 2); 
 		
-		for (char c : input) {
-			IString sub = (IString) substitutions.get(values.string(Character.toString(c)));
+		int sLength = str.length();
+		for (int c = 0; c < sLength; c++) {
+			IString chr = str.substring(c, c+1);
+			IString sub = (IString)substitutions.get(chr);
+
 			if (sub != null) {
 				b.append(sub.getValue());
 			}
 			else {
-				b.append(c);
+				b.append(chr.getValue());
 			}
 		}
 		return values.string(b.toString());
@@ -3219,12 +3294,12 @@ public class Prelude {
 	}
 	
 	public IValue findAll(IString str, IString find){
-		char[] input = str.getValue().toCharArray();
-		char [] findChars = find.getValue().toCharArray();
+		int iLength = str.length();
+		int fLength = find.length();
 		IListWriter w = values.listWriter();
 		
-		for(int i = 0; i <= input.length - findChars.length; i++){
-			if(match(input, i, findChars)){
+		for(int i = 0; i <= iLength - fLength; i++){
+			if(match(str, i, find)){
 				w.append(values.integer(i));
 			}
 		}
@@ -3232,11 +3307,11 @@ public class Prelude {
 	}
 	
 	public IValue findFirst(IString str, IString find){
-		char[] input = str.getValue().toCharArray();
-		char [] findChars = find.getValue().toCharArray();
+		int iLength = str.length();
+		int fLength = find.length();
 		
-		for(int i = 0; i <= input.length - findChars.length; i++){
-			if(match(input, i, findChars)){
+		for(int i = 0; i <= iLength - fLength; i++){
+			if(match(str, i, find)){
 				 return values.integer(i);
 			}
 		}
@@ -3244,11 +3319,11 @@ public class Prelude {
 	}
 	
 	public IValue findLast(IString str, IString find){
-		char[] input = str.getValue().toCharArray();
-		char [] findChars = find.getValue().toCharArray();
+		int iLength = str.length();
+		int fLength = find.length();
 		
-		for(int i = input.length - findChars.length; i >= 0; i--){
-			if(match(input, i, findChars)){
+		for(int i = iLength - fLength; i >= 0; i--){
+			if(match(str, i, find)){
 				 return values.integer(i);
 			}
 		}
@@ -3414,7 +3489,29 @@ public class Prelude {
 		return ctx.getEvaluator().__getCurrentTraversalEvaluator().getContext();
 	}
 	
+	public ISourceLocation uuid() {
+		String uuid = UUID.randomUUID().toString();
+		
+		try {
+			return values.sourceLocation("uuid",uuid,"");
+		} catch (URISyntaxException e) {
+			assert false;
+			throw RuntimeExceptionFactory.malformedURI("uuid://" + uuid, null, null);
+		}
+	}
 	
+	public IInteger uuidi() {
+		UUID uuid = UUID.randomUUID();
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		DataOutputStream data = new DataOutputStream(bytes);
+		try {
+			data.writeLong(uuid.getMostSignificantBits());
+			data.writeLong(uuid.getLeastSignificantBits());
+			return values.integer(bytes.toByteArray());
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string("could not generate unique number " + uuid), null, null);
+		}
+	}
 }
 
 // Utilities used by Graph

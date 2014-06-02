@@ -34,8 +34,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.KeywordArgument;
-import org.rascalmpl.ast.KeywordArguments;
+import org.rascalmpl.ast.KeywordArgument_Expression;
+import org.rascalmpl.ast.KeywordArguments_Expression;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
@@ -81,12 +81,12 @@ public class NodePattern extends AbstractMatchingResult {
 		else {
 			matchUPTR = false;
 		}
-		KeywordArguments keywordArgs = x.getKeywordArguments();
+		KeywordArguments_Expression keywordArgs = x.getKeywordArguments();
 		this.patternOriginalKeywordChildren = new LinkedList<IMatchingResult>();
 		this.patternKeywordParameterNames = new LinkedList<String>();
 		this.patternOriginalKeywordChildren = new LinkedList<IMatchingResult>();
 		if(keywordArgs.isDefault()){
-				for(KeywordArgument kwa : keywordArgs.getKeywordArgumentList()){
+				for(KeywordArgument_Expression kwa : keywordArgs.getKeywordArgumentList()){
 					IMatchingResult mr = kwa.getExpression().buildMatcher(ctx.getEvaluator());
 					patternKeywordParameterNames.add(Names.name(kwa.getName()));
 					patternOriginalKeywordChildren.add(mr);

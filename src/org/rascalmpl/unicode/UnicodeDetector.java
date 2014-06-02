@@ -110,6 +110,14 @@ public class UnicodeDetector {
 		}
 		return null;
 	}
+	
+	public static boolean isAmbigiousBOM(Charset a, Charset b) {
+		boolean isUTF32LE = a.name().equals("UTF-32LE") || b.name().equals("UTF-32LE");
+		boolean isUTF16LE = a.name().equals("UTF-16LE") || b.name().equals("UTF-16LE");
+		boolean isUTF16 = a.name().equals("UTF-16") || b.name().equals("UTF-16");
+		return isUTF32LE && (isUTF16 || isUTF16LE);
+
+	}
 
 	public static int getMaximumBOMLength() {
 		return maximumBOMLength;

@@ -29,6 +29,10 @@ public str toCss(Css css) {
    return r;
    }
    
+public str CSS(Css css) {
+   return toCss(css);
+   }
+   
 str translate(value v) {
    if (str e := v) return "\"<e>\"";
    return "<display(v)>";
@@ -100,9 +104,15 @@ public loc publish(loc location, list[tuple[str name, list[tuple[num x, num y]] 
      list[map[str path, /*list[map[str, value]]*/ value dt]] jsonData = [("name":name,
          "path":[(coord[i] : r[i]|i<-[0..2])+("kind":name)|
          tuple[num, num] r<-v])|<str name, list[tuple[num, num]] v> <-d]; 
-     // println(jsonData);   
-      writeTextJSonFile(location+"data.json", jsonData); 
-      writeFile(location+"index.html",  html(header, body));    
+      publish(location, jsonData,  header, body);  
+      return location;    
+      }
+      
+public loc publish(loc location, list[map[str name, value v]] jsonData, str header, str body) {    
+      writeTextJSonFile(location+"data.json", jsonData);
+      publish(location, header 
+       + W3(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8"))
+      , body);     
       return location;    
       }
 
@@ -322,6 +332,11 @@ public str(str)  outerTickSize(value v) {
 public str(str)  call(value script) {
     str g(str r) = ".call(<display(script)>)"+r;
     return g;
+    }
+    
+public str(str)  each(value script) {
+    str g(str r) = ".each(<display(script)>)"+r;
+    return g;
     } 
     
 public str(str)  \filter(value script) {
@@ -372,23 +387,6 @@ public str(str) on(str event, value script) {
        num r(num v) = round(v,0.01);
        return "<r((d-5.0)/5.0)>";
        }
- 
- str labx(int d) {      
-       switch(d) {
-        case 0: return "0";
-        case 1: return "\u03A0/6";
-        case 2: return "\u03A0/3";
-        case 3: return "\u03A0/2";
-        case 4: return "2\u03A0/3";
-        case 5: return "\u03A0/6";
-        case 6: return "\u03A0";
-        default: return "<d>";
-        }
-        return "";    
-    }
-
-
-
 
 public loc publish(loc location, PlotData  pd, str header, str body) { 
      list[tuple[str name, str color, str style, list[tuple[num , num ]] d]] d = pd.fs;
@@ -399,17 +397,24 @@ public loc publish(loc location, PlotData  pd, str header, str body) {
         jsonData = <pd.title , tx, ty, [("name":name, "color":cl, "style":st,
          "path":[(coord[i] : r[i]|i<-[0..2])+("kind":name)|
          tuple[num, num] r<-v])|<str name, str cl, str st, list[tuple[num, num]] v> <-d]>;  
-      writeTextJSonFile(location+"data.json", jsonData); 
-      writeFile(location+"index.html",  html(header, body));    
+      writeTextJSonFile(location+"data.json", jsonData);   
+      publish(location, header, body);  
       return location;    
       }
       
- public loc publish(loc location, PlotData  pd, str header, str body, str buttons, int width, int height
+public loc publish(loc location, str header, str body) {     
+     writeFile(location+"index.html",  html(header, body));    
+     return location;    
+     }
+      
+ public loc publish(loc location, PlotData  pd, str header, str body, int width, int height
    ) { 
      list[tuple[str name, str color, str style, list[tuple[num , num ]] d]] d = pd.fs;
      list[str] coord = ["x", "y"];
      list[str] tx  = pd.xticks;
      list[str] ty  = pd.yticks;
+     list[str] names = [e.name|e<-d];
+     str checkButtons = buttons("Points", "markerButton", <["all"]+names,  ["points", "lines", "splines"]>);
      str header0 =toCss((
             "td":
             ("border-collapse":"collapse", "vertical-align":"top")  
@@ -421,92 +426,164 @@ public loc publish(loc location, PlotData  pd, str header, str body) {
          "path":[(coord[i] : r[i]|i<-[0..2])+("kind":name)|
          tuple[num, num] r<-v])|<str name, str cl, str st, list[tuple[num, num]] v> <-d]>; 
      // println(jsonData);
-      writeTextJSonFile(location+"data.json", jsonData); 
-      writeFile(location+"graph.html",  html(header, body));  
+      writeTextJSonFile(location+"data.json", jsonData);     
       writeFile(location+"index.html", html(header0, 
       W3(table_, W3(tr_, W3(td_,
       W3(iframe_,
            (src_:"graph.html", id_:"graph", width_:width, height_:height+150)
       ))
-      + W3(td_, buttons)
+      + W3(td_, checkButtons)
       ) 
-      )));        
+      ))); 
+      writeFile(location+"graph.html",  html(header+
+         W3(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8")), body));         
       return location;    
       }
       
 str scatterFunction(int symbolSize, str style) {
       str head =  "svg"+D3(\append("g") o attr((style_: "clip-path:url(#clippath);")) o
-           selectAll(".line") o \data(<"dat[3]">) o  enter o \append("g"));
-      str dots = head+D3(\filter(
-      <["d"], [<"return d.style == \"dots\" <style=="dots"? "|| d.style==\"default\"":""> ">]>));
-      return dots+D3(
-           attr(("fill":<["q"],[<"return q.color==\"none\"?colormap(q.name):q.color">]>)) o
-           selectAll("g.point") o \data(<["d", "i"], [<"return d.path">]>) o  enter o \append("path") o
-           attr((
-              class_: <["q"], [<"return \"point \"+q.name">]>, 
+           selectAll(".points") o \data(<"dat[3]">) o  enter o \append("g"));
+      str points = head+D3(\filter(
+      <["d"], [<"return force || 
+      (sessionStorage.getItem(\'points\')?
+            sessionStorage.getItem(\'points\').indexOf(\':\'+d.name+\':\') \>= 0
+            :
+      (d.style == \"points\" <style=="points"? "|| d.style==\"default\"":"">))">]>)
+      o
+       \filter(<["d"],[  
+                      < "return choice==\"all\" || choice == d.name">
+                      ]>)
+      );
+      return JS(<"scatterFunction", ["choice", "force"], < 
+           points+D3(
+           attr(("fill":<["q"],[
+            <"return q.color==\"none\"?colormap(q.name):q.color">
+            ]>
+            ,
+            class_: <["q"], [    
+              <"return \"graph \"+ \"points \"+q.name">
+              ]>
+            )) 
+           o selectAll("g.point") o \data(<["d", "i"], [<"return d.path">]>) o  enter o \append("path") o
+           attr(( 
               transform_: <["d", "i"], [<"return \"translate(\"+x_scale(d.x) +\",\"+y_scale(d.y) + \")\"">]>,
                //"d": "function(d, i, j) {return d3.svg.symbol()();}"
                "d": <"d3.svg"+D3(symbol o size(symbolSize))>
-           ))o \append("title") o text(<["d", "i"],  [<"return d.name">]>));
+           ))o \append("title") o text(<["d", "i"],  [<"return d.name">]>)         
+           )>>);
       }
 
-      
- str dotFunction(int symbolSize, str style) {
-      str head =  "svg"+D3(\append("g") o attr((style_: "clip-path:url(#clippath);")) o
-           selectAll(".line") o \data(<"dat[3]">) o  enter o \append("g"));
-      str dots = head+D3(\filter(
-      <["d"], [<
-        "return d.style != \"dots\" 
-              <style!="dots"? "|| d.style==\"default\"":"">
-         ">]>) o \filter(
-      <["d"],[<"return choice==\"all\" || choice == d.name">]>));
-      return dots+D3( 
-           selectAll(".dot") o \data(<["d", "i"], [<"return d.path">]>)  
-           o  enter o \append("circle") o
-           attr((
-              class_: <["q"], [<"return \"dot \"+q.name">]>, 
-              "cx": <"qline.x()">, 
-              "cy": <"qline.y()">, 
-               "r": "2px"
-           )) // o \append("title") o text("function(d, i) {return d.name;}")
-           
-             );
-      }
  
  
  str lineFunction(str style) {  
     str head =  "svg"+D3(\append("g") o attr((style_: "clip-path:url(#clippath);")) o
-           selectAll(".line") o \data(<"dat[3]">) o  enter o \append("path"));
+           selectAll(".lines") o \data(<"dat[3]">) o  enter o \append("path"));
     str lines = head+D3(\filter(
-    <["d"],[<"return d.style != \"dots\" <style!="dots"?"":"&& d.style!=\"default\"">
-        ">]>));
-    return lines+D3(
+       <["d"], [<"
+            return force || 
+            (sessionStorage.getItem(\'lines\')?
+            sessionStorage.getItem(\'lines\').indexOf(\':\'+d.name+\':\') \>= 0
+            :
+            (d.style == \"lines\" <style=="lines"? "|| d.style==\"default\"":""> ))
+            ">]>) 
+            o \filter(<["d"],[  
+                      < "return choice==\"all\" || choice == d.name">
+                      ]>)
+          );
+    return JS(<"lineFunction", ["choice", "force"], <
+           lines+D3(
            attr((
-              class_: <["q"], [<"return \"line \"+q.name">]>,
-              "d": <["q"], [<"return mainLine(q.style)(q.path)">]>,
+              class_: <["q"], [         
+                   <"return \"graph \"+\"lines \"+q.name">]>,
+              "d": <["q"], [<"return lineLinear(q.path)">]>,    
               "stroke":<["q"], [<"return q.color==\"none\"?colormap(q.name):q.color">]>
-           ) )  o \append("title") o text(<["d", "i"], [<"return d.name">]>)
-         ) ;
+              
+              
+           ) )  
+           o \append("title") o text(<["d", "i"], [<"return d.name">]>)
+           
+         )>>) ;
     }
     
-public str buttons(str title, str class, tuple[list[str] names,  list[tuple[value val, str lab]] vs] t,
-   bool mark) {
-   str radioButton = radioButton(title, class, t, mark);
+str splineFunction(str style) {  
+    str head =  "svg"+D3(\append("g") o attr((style_: "clip-path:url(#clippath);")) o
+           selectAll(".splines") o \data(<"dat[3]">) o  enter o \append("path"));
+    str lines = head+D3(\filter(
+       <["d"], [
+             // <"if (sessionStorage.getItem(\'splines\')) alert(sessionStorage.getItem(\'splines\').indexOf(\"cos\"))">,
+             <
+            "return force || 
+            (sessionStorage.getItem(\'splines\')?
+            sessionStorage.getItem(\'splines\').indexOf(\':\'+d.name+\':\') \>= 0
+            :
+            (d.style == \"splines\" <style=="splines"? "|| d.style==\"default\"":""> ))
+            ">]>)
+             o \filter(<["d"],[  
+                      < "return choice==\"all\" || choice == d.name">
+                      ]>)
+       );
+    return JS(<"splineFunction", ["choice", "force"], <lines+D3(
+           attr((
+              class_: <["q"], [
+               <"return \"graph \"+\"splines \"+q.name">]>,
+              "d": <["q"], [<"return lineMonotone(q.path)">]>,
+              "stroke":<["q"], [<"return q.color==\"none\"?colormap(q.name):q.color">]>
+           ) )  o \append("title") o text(<["d", "i"], [<"return d.name">]>)
+          
+         )
+          >>) ;
+    }
+    
+public str buttons(str title, str class, tuple[list[str] names,  list[str] vs] t
+   ) {
+   str checkBox = CheckBox(title, class, t);
+   str resetButton = ResetButton();
    str textButton =  labelNames();
    return W3(table_,
       W3(tr_, W3(td_, textButton))+
-      W3(tr_, W3(td_, radioButton)));
+      W3(tr_, W3(td_, checkBox))+
+      W3(tr_, W3(td_, resetButton))
+      );
+   }
+   
+str CheckBox(str title, str class, tuple[list[str] names,  list[str lab] vs] t) {
+   str s = "";
+   for (str name<-t.names) s+=W3(tr_, W3(td_, W3(b_, name))+  
+   "<for(str v<-t.vs){>
+      <W3(td_,  (id_: "<v>"), W3(label_, ("for":"<v>"),  v)
+      +
+      W3(input_
+    , ("type":"checkbox", "name": "<name>",  class_: "<class> <v> <name>",
+    "value":v, 
+     "onclick":
+       JS(
+         <"window.frames[0].dotting(this)">
+     ) 
+   ) 
+        )) 
+      >
+   <}>");
+   return W3(h4_, title)+W3(table_, s
+   );     
+   }
+
+str ResetButton() {
+   return W3(input_, ("type":"button", "value":"reset",
+      "onclick":
+       JS(
+         <"window.frames[0].resetting(this)">
+     ))); 
    }
      
-    
+/*   
 public str radioButton(str title, str class, tuple[list[str] names,  list[tuple[value val, str lab]] vs] t,
    bool mark) {
    str s = "";
    for (str name<-t.names) s+=W3(tr_, W3(td_, W3(b_, name))+  
    "<for(v<-t.vs){>
-      <W3(td_, W3(label_, ("for":"<v.val>"),  v.lab)
+      <W3(td_, (id_: "<v.val>"), W3(label_, ("for":"<v.val>"),  v.lab)
       +
-      W3("<mark>"=="<v.val>"?input_checked:input_
+      W3(input_
     , ("type":"radio", "name": "<name>",  class_: "<class> <name>", "value" :v.val
      , "onclick":
        JS(
@@ -521,7 +598,7 @@ public str radioButton(str title, str class, tuple[list[str] names,  list[tuple[
    return W3(h4_, title)+W3(table_, s
    );     
    }
-
+*/
 public str labelNames() {
    str xl = W3(tr_, W3(td_, W3(input_, ("type":"text", id_: "xlabel", "placeholder":"x axis", "onkeydown":JS(
      <"if (event.keyCode==13) window.frames[0].labelingX(this)">)))));
@@ -533,9 +610,8 @@ public str labelNames() {
  public void plot(PlotData p, int width = 800, int height = 400, int margin = 60,
    str style = "splines", int symbolSize = 32, bool mark = false, str xLabel = "x",
    str yLabel = "y") {  
-   list[str] names = [d.name|d<-p.fs, d.style!="dots"];
    str header = W3(title_, p.title)+
-      W3(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8"))+
+      // W3(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8"))+
       toCss((
             ".grid line":(fill_:"none", stroke_:"lightgrey"/*"antiquewhite"*/, "opacity":"0.7"),
             ".axis line":(fill_:"green"),
@@ -543,8 +619,10 @@ public str labelNames() {
             "stroke-width":"0",stroke_:"black") 
             ,".axis path":(fill_:"none")
             , ".tick":(fill_:"black")
-            , ".line":(fill_:"none")
-            , ".dot":("stroke-width":"0", stroke_:"none", fill_:"black")
+            , ".lines":(fill_:"none")
+            , ".line":(fill_:"none")       
+            ,".splines":(fill_:"none")
+           // , ".dots":("stroke-width":"0", stroke_:"none", fill_:"black")
             , ".tx":("fill":"black","stroke":"none", "font-family":"sans-serif", "font-size":"10pt", "stroke-width":"1"
             , "text-anchor":"middle")
             , "td":("border-style":"solid", "padding":"4px", "border-width":"1px", "border-color":"light-grey"
@@ -634,15 +712,8 @@ public str labelNames() {
                x(<["d"], [<"return x_scale(d.x)">]>)
              o y(<["d"], [<"return y_scale(d.y)">]>)           
              ) 
-        > 
-        ,
-        <"mainLine", ["style"], 
-           [
-            < "return style == \"splines\" || (style == \"default\" && <
-                  style=="splines">) ? lineMonotone : lineLinear">
-      
-           ] 
-        > 
+        >
+        
         /* */
         ,     
        <"svg"+D3(
@@ -699,25 +770,121 @@ public str labelNames() {
           ,
            <scatterFunction(symbolSize, style)>
            , 
-          <lineFunction(style)>
+           <"scatterFunction(\"all\", false)">
+           ,
+           <lineFunction(style)>
+           ,
+           <"lineFunction(\"all\", false)">
+           ,
+           <splineFunction(style)>
+           ,
+           <"splineFunction(\"all\", false)">
+           ,
+          <"hasClass",["element", "cls"], [
+          <"return (\' \' + element.className + \' \').indexOf(\' \' + cls + \' \') \> -1;">
+          ]>
           ,
-          mark? <dotFunction(symbolSize, style)> : "" 
+          <"getClass", ["e"], [
+             <"if (hasClass(e,\'points\')) return \'points\'">
+             ,<"if (hasClass(e,\'lines\')) return \'lines\'">
+             ,<"if (hasClass(e,\'splines\')) return \'splines\'">
+             ,<"return \'\'">
+          ]>
           ,
-          
+          <"plotFunction",["e", "n"], <"switch(e) {
+             case \"lines\": lineFunction(n, true); break;
+             case \"splines\": splineFunction(n, true); break;
+             case \"points\":  scatterFunction(n, true); break;
+             case \"default\":  scatterFunction(n, false); 
+                                splineFunction(n, false);
+                                lineFunction(n, false);
+                                break;
+             default: return \"\";
+             }">>
+             ,
+             <"selectDisplayedGraphs",[], [
+                     <"x", "window.parent.document.getElementsByClassName(\'markerButton\')"> 
+                     ,
+                     
+                     <"lines", "\":\"">
+                     ,
+                     <"splines", "\":\"">
+                     ,
+                     <"points",  "\":\"">
+                     ,
+                              
+                     <"for (var i = 0;i\<x.length;i++) {if(x[i].name!=\'all\') x[i].checked=false;}">
+                     ,
+                      <"svg"+D3(selectAll(".splines")
+                      o
+                      \each(<["d", "i"],[ 
+                      <"window.parent.document.getElementsByClassName(\'splines \' +d.name)[0].checked = true">
+                      ,
+                      <"splines=splines.concat(\':\', d.name, \':\')">
+                      ]>)
+                      )> 
+                       ,
+                    <"svg"+D3(selectAll(".lines")
+                      o
+                      \each(<["d", "i"],[ 
+                      <"window.parent.document.getElementsByClassName(\'lines \' +d.name)[0].checked = true">
+                      ,
+                      <"lines=lines.concat(\':\',d.name, \':\')">
+                      ]>)
+                      )> 
+                       ,
+                    <"svg"+D3(selectAll(".points")
+                      o
+                      \each(<["d", "i"],[ 
+                      <"window.parent.document.getElementsByClassName(\'points \' +d.name)[0].checked = true">
+                      ,
+                      <"points=points.concat(\':\',d.name, \':\')">
+                      ]>)
+                      )>
+            //  , <"alert(splines[1])">
+             , <"sessionStorage.setItem(\'lines\',lines)"> 
+             , <"sessionStorage.setItem(\'splines\',splines)"> 
+             , <"sessionStorage.setItem(\'points\',points)">
+             ]> 
+          ,
           <"window.dotting", <["e"], [
                      <"choice","e.name">
                      ,
-                     <"if (e.checked && e.value==\"false\") {       
-                      svg"+D3(selectAll(".dot")  
+                     <"if ( ! e.checked ) {       
+                      svg"+D3(selectAll(<"\".\"+getClass(e)">)     // <"\"\"+getClass(e)+\"\"">)  
                       o 
-                      \filter(<["d"],[ < "return choice==\"all\" || choice == d.kind">]>)
+                      \filter(<["d"],[  
+                      < "return choice==\"all\" || choice == d.name">
+                      ]>)
                       o \data([])
                       o \exit o _remove )+"}"
                       >
                     ,
-                     <"if (e.checked && e.value==\"true\") { 
-                          <dotFunction(symbolSize, style)>} ">                    
+                     <"if (e.checked || e.value == \"default\") { 
+                         plotFunction(e.value, choice); 
+                         }   
+                     ">
+                     ,
+                     
+                    
+                    <"selectDisplayedGraphs()">                     
                    ] >>
+                ,
+                <"window.resetting", <["e"], [
+                   <"sessionStorage.removeItem(\'splines\')">
+                   ,
+                   <"sessionStorage.removeItem(\'lines\')">
+                   ,
+                   <"sessionStorage.removeItem(\'points\')">
+                   ,
+                   <"svg"+D3(selectAll(".graph")     // <"\"\"+getClass(e)+\"\"">)  
+                      o \data([])
+                      o \exit o _remove )      
+                     >
+                , <"plotFunction(\'default\', \'all\')">
+                , <"selectDisplayedGraphs()">
+                    
+                ]>>
         ,
         <"window.labelingX",<["e"], [    
            <"text", "svg"+D3(select(".labelX"))>
@@ -738,18 +905,20 @@ public str labelNames() {
              ,<"text.text(getLabel(\"yLabel\", yLabel))">
              , <"text", "svg"+D3(select(".labelX"))>
              ,<"text.text(getLabel(\"xLabel\", xLabel))">
+             ,<"selectDisplayedGraphs()">
             ] >>
-        ,
+        ,      
+       
        <"window.onload", <"window.loadLabel()">>                    
         );
-      str radio = buttons("Points", "markerButton", <["all"]+names,  [<true,"yes">, <false, "no">]>, mark);
+      
       
       
       htmlDisplay(publish(
             // |project://chart/src/aap|
                 |file:///tmp/d3|
             , p, 
-         header , body, radio, width, height));
+         header , body, width, height));
  
 
   }
@@ -774,6 +943,7 @@ public str cellspacing_="cellspacing";
 public str border_="border";
      
 public str fill_= "fill";
+public str color_= "color";
 public str stroke_= "stroke"; 
 
 public str stroke_width_= "stroke-width";
@@ -858,20 +1028,24 @@ public str   d3_ = "d3";
  
 public void main() {
    
-   num r(num v) = round(v,0.0004);
+   // num r(num v) = round(v,0.0004);
    
-   num r3(num v) = round(v*v*v,0.0004);
+   num r(num v) =v;
+   
+   num r3(num v) =v * v *v;
+   
+   // num r3(num v) = round(v*v*v,0.0004);
    
    int n= 10;
    tuple[str, str, str, list[tuple[num, num]]] dsin = <"sin", "none", "default", [<(i*6.0/n), 5*r(sin(2*i*PI()/n))+5>|i<-[0..n+1]]>;
-   tuple[str, str, str, list[tuple[num, num]]] dcos = <"cos", "none", "dots", [<(i*6.0/n), 5*r(cos(2*i*PI()/n))+5>|i<-[0..n+1]]>;
-   tuple[str, str, str, list[tuple[num, num]]] dsin3 = <"sin3", "none", "splines", [<(i*6.0/n), 5*r3(sin(2*i*PI()/n))+5>|i<-[0..n+1]]>;
+   tuple[str, str, str, list[tuple[num, num]]] dcos = <"cos", "none", "points", [<(i*6.0/n), 5*r(cos(2*i*PI()/n))+5>|i<-[0..n+1]]>;
+   tuple[str, str, str, list[tuple[num, num]]] dsin3 = <"sin3", "none", "lines", [<(i*6.0/n), 5*r3(sin(2*i*PI()/n))+5>|i<-[0..n+1]]>;
    tuple[str, str, str, list[tuple[num, num]]] dcos3 = <"cos3", "none", "splines", [<(i*6.0/n), 5*r3(cos(2*i*PI()/n))+5>|i<-[0..n+1]]>;
    
    list[tuple[str, str, str, list[tuple[num, num]]]] d = [dsin, dcos, dsin3, dcos3];
 
    PlotData p = <"Sin and Cos", [labx(i)|i<-[0..7]], [laby(i)|i<-[0..11]], d>;
-   plot(p,  symbolSize = 20, style = "splines", mark = false);
+   plot(p,  symbolSize = 20, style = "splines");
    /*
     list[list[tuple[num, num]]] d = [[<(i*step)*nTickx, (-y+f(x+(i*step)*width))*nTicky/height >| i<-[0..ub+1]]|f<-g];
     list[tuple[str, str, list[tuple[num, num]]]] w =  [<"<i>","blue", d[i]>|i<-[0..size(d)]];
