@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
+package org.rascalmpl.library.experiments.Compiler.RVM.ToJVM;
 
 import java.io.FileOutputStream;
 import java.util.HashMap;
@@ -11,7 +11,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class Generator implements Opcodes {
+public class BytecodeGenerator implements Opcodes {
 	byte[] endCode = null;
 	private ClassWriter cw = null;
 	private MethodVisitor mv = null;
@@ -33,7 +33,7 @@ public class Generator implements Opcodes {
 		return lb;
 	}
 
-	public Generator(String packageName2, String className2) {
+	public BytecodeGenerator(String packageName2, String className2) {
 
 	}
 
@@ -266,7 +266,7 @@ public class Generator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(IIZ)V");
 	}
 
-	byte[] finalizeCode() {
+	public byte[] finalizeCode() {
 		if (endCode == null) {
 			cw.visitEnd();
 			endCode = cw.toByteArray();
@@ -538,7 +538,7 @@ public class Generator implements Opcodes {
 	public static void Pain(String[] argv) {
 		byte[] result = null;
 		// System.out.println("Getting started!\n");
-		Generator emittor = new Generator("packageName", "className");
+		BytecodeGenerator emittor = new BytecodeGenerator("packageName", "className");
 
 		emittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter", "Runner");
 		emittor.emitMethod("main", 0, false);

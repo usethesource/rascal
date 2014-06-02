@@ -2,7 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 
 public class CallPrim extends Instruction {
@@ -20,7 +20,7 @@ public class CallPrim extends Instruction {
 	
 	public String toString() { return "CALLPRIM " + prim + ", " + arity + ", " + src; }
 	
-	public void generate(Generator codeEmittor, boolean dcode){
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("insnCALLPRIM", prim.ordinal(), arity);
 		codeblock.addCode2(opcode.getOpcode(), prim.ordinal(), arity);
 		codeblock.addCode(codeblock.getConstantIndex(src));

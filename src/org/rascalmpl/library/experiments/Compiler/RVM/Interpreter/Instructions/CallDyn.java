@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class CallDyn extends Instruction {
 	
@@ -16,7 +16,7 @@ public class CallDyn extends Instruction {
 	
 	public String toString() { return "CALLDYN " + arity; }
 	
-	public void generate(Generator codeEmittor, boolean dcode){
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		codeEmittor.emitInlineCalldyn(arity, continuationPoint,dcode) ;
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}

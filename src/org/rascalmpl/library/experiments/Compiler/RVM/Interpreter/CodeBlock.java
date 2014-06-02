@@ -92,6 +92,9 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.T
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
+
+
 public class CodeBlock {
 
 	public final IValueFactory vf;
@@ -653,7 +656,7 @@ public class CodeBlock {
 		return add(new Shift(this));
 	}
 			
-	public CodeBlock done(Generator codeEmittor, String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing, boolean debug) {
+	public CodeBlock done(BytecodeGenerator codeEmittor, String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing, boolean debug) {
 		this.functionMap = codeMap;
 		this.constructorMap = constructorMap;
 		this.resolver = resolver;

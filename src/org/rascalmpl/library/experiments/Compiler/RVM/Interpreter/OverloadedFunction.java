@@ -2,6 +2,9 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.util.Map;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.NameMangler;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
+
 public class OverloadedFunction {
 
 	final int[] functions;
@@ -15,7 +18,7 @@ public class OverloadedFunction {
 		this.funIn = funIn;
 	}
 
-	public void finalize(Generator codeEmittor, Map<String, Integer> functionMap, int oid) {
+	public void finalize(BytecodeGenerator codeEmittor, Map<String, Integer> functionMap, int oid) {
 		if (funIn != null) {
 			this.scopeIn = functionMap.get(funIn);
 		}

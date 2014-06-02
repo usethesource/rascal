@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class LoadLoc7 extends Instruction {
 
@@ -9,7 +9,7 @@ public class LoadLoc7 extends Instruction {
 		super(ins, Opcode.LOADLOC7);
 	}
 
-	public void generate(Generator codeEmittor, boolean debug) {
+	public void generate(BytecodeGenerator codeEmittor, boolean debug) {
 		codeEmittor.emitCall("insnLOADLOC7");
 		codeblock.addCode0(opcode.getOpcode());
 	}

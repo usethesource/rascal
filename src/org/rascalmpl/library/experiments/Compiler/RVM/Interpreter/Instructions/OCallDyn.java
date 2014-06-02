@@ -2,7 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class OCallDyn extends Instruction {
 	
@@ -19,7 +19,7 @@ public class OCallDyn extends Instruction {
 	
 	public String toString() { return "OCALLDYN " + types + ", " + arity + " " + src; }
 	
-	public void generate(Generator codeEmittor, boolean dcode){
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("jvmOCALLDYN", types, arity);
 		
 		codeblock.addCode2(opcode.getOpcode(), types, arity);

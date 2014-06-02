@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class LoadVarKwp extends Instruction {
 
@@ -18,7 +18,7 @@ public class LoadVarKwp extends Instruction {
 		return "LOADVARKWP " + fuid + ", " + name + " [" + codeblock.getFunctionIndex(fuid) + ", " + codeblock.getConstantIndex(codeblock.vf.string(name)) + "]";
 	}
 
-	public void generate(Generator codeEmittor, boolean dcode) {
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
 
 		codeEmittor.emitCall("insnLOADVARKWP", codeblock.getFunctionIndex(fuid), codeblock.getConstantIndex(codeblock.vf.string(name)));
 
