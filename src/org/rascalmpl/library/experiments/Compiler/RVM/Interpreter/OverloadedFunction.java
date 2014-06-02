@@ -17,11 +17,16 @@ public class OverloadedFunction {
 		this.constructors = constructors;
 		this.funIn = funIn;
 	}
-
+	public void  finalize(Map<String, Integer> functionMap){
+		if(funIn != null) {
+			this.scopeIn = functionMap.get(funIn);
+		}
+	}
 	public void finalize(BytecodeGenerator codeEmittor, Map<String, Integer> functionMap, int oid) {
 		if (funIn != null) {
 			this.scopeIn = functionMap.get(funIn);
 		}
+
 		codeEmittor.emitOCallHandler("OverLoadedHandlerOID"+oid,funIn,scopeIn,functions,constructors);
 		int funcListIndex = 0 ;
 		for (int i : functions) {

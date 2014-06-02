@@ -212,7 +212,7 @@ public class Execute {
 	 * @param declaration the declaration of that function
 	 * @param rvm in which function will be loaded
 	 */
-	private void loadInstructions(String name, IConstructor declaration, RVMonJVM rvm, boolean isCoroutine){
+	private void loadInstructions(String name, IConstructor declaration, IRVM rvm, boolean isCoroutine){
 		int continuationPoint = 0 ;
 	
 		Type ftype = isCoroutine ? null : rvm.symbolToType((IConstructor) declaration.get("ftype"));

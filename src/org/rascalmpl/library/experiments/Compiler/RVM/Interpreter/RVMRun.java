@@ -39,7 +39,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
-public class RVMRun {
+public class RVMRun implements IRVM {
 
 	public final IValueFactory vf;
 	private final TypeFactory tf;
@@ -2769,6 +2769,23 @@ public class RVMRun {
 	}
 	public void dinsnFAILRETURN() {
 		jmpTarget = 3;
+	}
+
+	@Override
+	public IValue executeProgram(String uid_main, IValue[] args) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public RascalExecutionContext getRex() {
+		return rex;
+	}
+
+	@Override
+	public void declare(Function f) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
