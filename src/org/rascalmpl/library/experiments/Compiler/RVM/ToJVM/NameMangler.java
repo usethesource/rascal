@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
+package org.rascalmpl.library.experiments.Compiler.RVM.ToJVM;
 
 public class NameMangler {
 	static public String mangleV0(String n) {

@@ -2,7 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class Throw extends Instruction {
 	
@@ -18,7 +18,7 @@ public class Throw extends Instruction {
 	public void generate(){
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(src));
 	}
-	public void generate(Generator codeEmittor, boolean dcode){
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("insnTHROW");
 		codeblock.addCode0(opcode.getOpcode());
 	}

@@ -24,6 +24,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
+
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class RVM {
 
@@ -201,7 +204,7 @@ public class RVM {
 		throw new RuntimeException("PANIC: Cannot convert object back to IValue: " + result);
 	}
 
-	public void finalize(Generator codeEmittor) {
+	public void finalize(BytecodeGenerator codeEmittor) {
 		// Finalize the instruction generation of all functions, if needed
 		if (!finalized) {
 			finalized = true;
@@ -266,7 +269,7 @@ public class RVM {
 				// TODO; in the future create classes with the same name of a Rascal module
 				String className = "RVMRunner";
 
-				Generator codeEmittor = new Generator(packageName, className);
+				BytecodeGenerator codeEmittor = new BytecodeGenerator(packageName, className);
 
 				finalize(codeEmittor);
 				rvmGenCode = codeEmittor.finalizeCode();

@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class CallJava extends Instruction {
 	
@@ -21,7 +21,7 @@ public class CallJava extends Instruction {
 	public String toString() { return "CALLJAVA " + codeblock.getConstantValue(methodName) + ", " + codeblock.getConstantValue(className) +
 			                                      ", " +  codeblock.getConstantType(parameterTypes) + ", " + reflect; }
 		
-	public void generate(Generator codeEmittor, boolean dcode){
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		codeEmittor.emitCallJava(methodName, className, parameterTypes, reflect,dcode) ;
 		
 		codeblock.addCode(opcode.getOpcode());

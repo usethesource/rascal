@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class Exhaust extends Instruction {
 
@@ -9,7 +9,7 @@ public class Exhaust extends Instruction {
 		super(ins, Opcode.EXHAUST);
 	}
 
-	public void generate(Generator codeEmittor, boolean dcode) {
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
 		if (dcode)
 			codeEmittor.emitCall("dinsnEXHAUST");
 

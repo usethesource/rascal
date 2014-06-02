@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class Guard extends Instruction {
 	private int continuationPoint ;
@@ -10,7 +10,7 @@ public class Guard extends Instruction {
 		super(ins, Opcode.GUARD);
 		this.continuationPoint = continuationPoint ;
 	}
-	public void generate(Generator codeEmittor, boolean dcode){
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 
 		codeEmittor.emitInlineGuard(continuationPoint,dcode) ;
 		codeblock.addCode0(opcode.getOpcode());

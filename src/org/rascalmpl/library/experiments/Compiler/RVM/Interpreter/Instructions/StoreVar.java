@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class StoreVar extends Instruction {
 
@@ -18,7 +18,7 @@ public class StoreVar extends Instruction {
 		return "STOREVAR " + fuid + ", " + pos;
 	}
 
-	public void generate(Generator codeEmittor, boolean dcode) {
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
 
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
 		

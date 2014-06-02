@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class Yield0 extends Instruction {
 	// Entry point management for finding "NEXT" location
@@ -11,7 +11,7 @@ public class Yield0 extends Instruction {
 		super(ins, Opcode.YIELD0);
 		this.hotEntryPoint = ep ;
 	}
-	public void generate(Generator codeEmittor, boolean dcode){
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		codeEmittor.emitInlineYield0(hotEntryPoint,dcode) ;
 		codeblock.addCode0(opcode.getOpcode());
 	}

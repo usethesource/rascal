@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Generator;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class Call extends Instruction {
 
@@ -20,7 +20,7 @@ public class Call extends Instruction {
 		return "CALL " + fuid + ", " + arity + " [ " + codeblock.getFunctionIndex(fuid) + " ]";
 	}
 
-	public void generate(Generator codeEmittor, boolean dcode) {
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
 		// TODO this is wrong !!!
 		// Call function directly needs name demangling, and stack creation
 		// if (dcode)
