@@ -61,7 +61,7 @@ public class Execute {
 		
 		PrintWriter stdout = ctx.getStdOut();
 		
-		RVM rvm = new RVM(new RascalExecutionContext(vf, debug.getValue(), profile.getValue(), ctx));
+		RVMonJVM rvm = new RVMonJVM(new RascalExecutionContext(vf, debug.getValue(), profile.getValue(), ctx));
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
@@ -212,7 +212,7 @@ public class Execute {
 	 * @param declaration the declaration of that function
 	 * @param rvm in which function will be loaded
 	 */
-	private void loadInstructions(String name, IConstructor declaration, RVM rvm, boolean isCoroutine){
+	private void loadInstructions(String name, IConstructor declaration, RVMonJVM rvm, boolean isCoroutine){
 		int continuationPoint = 0 ;
 	
 		Type ftype = isCoroutine ? null : rvm.symbolToType((IConstructor) declaration.get("ftype"));
