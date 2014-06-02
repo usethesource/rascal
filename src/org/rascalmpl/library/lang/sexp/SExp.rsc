@@ -15,7 +15,7 @@ data String
 
 data SimpleString
   = raw(Raw raw)
-  | token(str \value)
+  | \token(str \value)
   | base64(list[str] chars)
   | hex(list[str] digits)
   | quoted(str \value)

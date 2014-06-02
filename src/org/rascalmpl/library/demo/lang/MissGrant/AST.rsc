@@ -11,8 +11,8 @@ data Controller = controller(list[Event] events,
 
 data State = state(str name, list[str] actions, list[Transition] transitions);
 
-data Command = command(str name, str token);
-data Event = event(str name, str token);
+data Command = command(str name, str \token);
+data Event = event(str name, str \token);
 data Transition = transition(str event, str state);
 
 

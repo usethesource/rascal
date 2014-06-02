@@ -17,12 +17,12 @@ public str controller2methods(str name, Controller ctl) =
 
 public str event2java(Event event) =
          "private boolean <event.name>(String token) {
-         '  return token.equals(\"<event.token>\");
+         '  return \token.equals(\"<event.\token>\");
          '}";
 
 public str command2java(Command command) =
          "private void <command.name>(Writer output) {
-         '  output.write(\"<command.token>\");
+         '  output.write(\"<command.\token>\");
          '}";
 
 public str state2java(State state) =
