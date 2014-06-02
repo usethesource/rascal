@@ -17,9 +17,11 @@ public java tuple[value,int] executeProgram(RVMProgram program,
                                             lrel[str,list[str],list[str]] imported_overloaded_functions,
                                             map[str,int] imported_overloading_resolvers, 
 										    list[value] arguments, 
+										    str test_name,
 										    bool debug, 
 										    bool testsuite,
-										    bool profile);
+										    bool profile);						    
+										    
 
 public void execute(experiments::Compiler::RVM::Syntax::RascalVM tree, loc selection) {
 	ast = implode(#experiments::Compiler::RVM::AST::RascalVM, tree);

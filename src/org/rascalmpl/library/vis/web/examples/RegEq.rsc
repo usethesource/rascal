@@ -18,5 +18,5 @@ void main() {
      tuple[str name, lrel[num, num] dots] d  = <"dots", [<arbReal(), arbReal()>|int i<-[0..n]]>;
      tuple[str name, lrel[num,num] t]  z = getReg(d.dots);
      plot([z,d], x= 0, y=0, width = 1, nTickx = 10, height = 1, nTicky = 10, nStep=30,  style="splines", 
-     symbolSize=40, styleMap=("dots":"dots"));
+     symbolSize=40, styleMap=("dots":"points"));
      }

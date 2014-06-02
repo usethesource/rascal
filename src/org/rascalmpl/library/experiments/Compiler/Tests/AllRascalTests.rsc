@@ -6,9 +6,37 @@ import List;
 import DateTime;
 import experiments::Compiler::Execute;
 
-loc base1 = |project:///rascal-test/tests/functionality|;
-
 // Percentage of succeeded tests, see spreadsheet TestOverview.ods
+
+
+list[str] basicTests = [
+"Booleans",					// OK
+							// Commented out fromInt test
+"Equality",					// OK
+							// Added parentheses for ? operator
+"Functions",				// OK
+"Integers",                 // OK
+"IO",						// TC cannot handle ... arguments
+
+"ListRelations",			// TC tests commented out
+							// Issue #462	
+
+"Lists",                    // OK
+"Locations",			
+"Maps",						// OK
+"Matching",					// TC, #450
+"Memoization",
+"Nodes",					// OK
+"Relations"	,				// 1 test fails, nested any
+"Sets",						// TC complains about tst_group2
+                            // 4 tests fails
+							// Issue #459
+							// Issue #460
+"SolvedIssues",				// OK
+"Strings" , 				// OK
+"Tuples"					// OK					
+];
+
 
 list[str] functionalityTests = [
 
@@ -16,12 +44,14 @@ list[str] functionalityTests = [
 "AliasTests",				// OK
 "AnnotationTests",			// OK
 "AssignmentTests",			// OK
-"BackTrackingTests",		// OK
+"BacktrackingTests",		// OK
 "CallTests",				// [58] keyword parameters Issue #456
 "ComprehensionTests",		// OK
 							 //3 tests fail that correspond to empty enumerations: interpreter gives false, compiler gives true.
 "ConcretePatternTests1",	//OK
 "ConcretePatternTests2",	//OK
+"ConcreteSyntaxTests1",
+"ConcreteSyntaxTests2",
 
 "DataDeclarationTests",		// OK
 "DataTypeTests",			// OK
@@ -30,9 +60,10 @@ list[str] functionalityTests = [
 							 //error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1071,1,<35,14>,<35,15>))
 							 //error("Cannot re-declare name that is already declared in the current function or closure",|project://rascal-test/src/tests/functionality/DeclarationTests.rsc|(1167,1,<39,24>,<39,25>))
 "FunctionCompositionTests",	// Issue #468	
+"InterpolationTests",
 "PatternTests",				// [420] Issue #458
-"PatternTestsList3",
 "PatternTestsDescendant",
+"PatternTestsList3",
 "ProjectionTests", 			// OK
 "RangeTests",				// OK, 4 tests fail but this is due to false 1. == 1.0 comparisons.
 "ReducerTests",				// OK
@@ -40,37 +71,14 @@ list[str] functionalityTests = [
  							 //Commented out 6: Treatment of redeclared local variables
 "ScopeTests",				// OK
 							 //Commented out several tests: no shadowing allowed
+"SetMatchTests1",
+"SetMatchTests2",           // TC cannot handle overloaded constructor
 "StatementTests",			// Fail in overloaded constructor gives problem ==> Issue posted
 "SubscriptTests",			// OK
 "TryCatchTests",			// OK    				
 "VisitTests"				// 13 fail [98]
 ];
 
-
-list[str] rascalTests = [
-"BacktrackingTests",		// OK
-"Booleans",					// OK
-							// Commented out fromInt test
-"Equality",					// OK
-							// Added parentheses for ? operator
-"Functions",				// OK
-"Integers",					// OK
-"IO",						// OK
-"Lists",					// OK
-"ListRelations",			// TC tests commented out
-							// Issue #462
-"Maps",						// OK
-"Matching",					// TC, #450
-"Nodes",					// OK
-"Relations"	,				// 1 test fails, nested any
-"Sets",						// 4 tests fails
-							// Issue #459
-							// Issue #460
-"SolvedIssues",				// OK
-"Strings" , 				// OK
-"StringTests",				// OK
-"Tuples"					// OK					
-];
 
 list[str] libraryTests = [
 
@@ -79,14 +87,16 @@ list[str] libraryTests = [
 "BooleanTests",			// OK
 "GraphTests",			// OK
 "IntegerTests",			// OK
-//"ListRelationsTests",
+"ListRelationsTests",
 "ListTests" ,			// OK
 "MapTests",				// OK
 "MathTests"	,			// OK
+"NodeTests",
 "NumberTests",			// OK
 "RelationTests",		// OK
 "SetTests",				// OK
-"StringTests"			// OK
+"StringTests",			// OK
+"ValueIOTests"
 ];
 
 /*
@@ -110,7 +120,7 @@ FAILED TESTS:
 |project://rascal-test/src/tests/BacktrackingTests.rsc|(3177,834,<96,0>,<116,1>): FALSE 
 |project://rascal-test/src/tests/ListRelations.rsc|(2949,149,<94,0>,<96,83>): FALSE  with arguments: [<-219637694,-221094360>,<-548755640,-1212156571>,<1324502974,773893189>] 
 |project://rascal-test/src/tests/Matching.rsc|(283,77,<20,0>,<23,1>): FALSE 
-|project://rascal-test/src/tests/Nodes.rsc|(2908,328,<136,0>,<145,1>): FALSE  with arguments: "鎃䬁"($1348-04-05T10:17:16.706+01:00$,{"\"\"⇼","\"\\\"\\\"괖\"農",""},({465151638,-1811667661}:|tmp:///wI|,{}:|tmp:///|)) 
+|project://rascal-test/src/tests/Nodes.rsc|(2908,328,<136,0>,<145,1>): FALSE  with arguments: "������"($1348-04-05T10:17:16.706+01:00$,{"\"\"���","\"\\\"\\\"���\"���",""},({465151638,-1811667661}:|tmp:///wI|,{}:|tmp:///|)) 
 |project://rascal-test/src/tests/Nodes.rsc|(2536,182,<122,0>,<127,1>): FALSE  with arguments: "h9Bc"("7c"($0228-05-07T03:12:04.393+01:00$,""),$2015-06-02T05:44:42.155+01:00$,{-1620187633,-1831381091,-275570814},()) 
 |project://rascal-test/src/tests/Relations.rsc|(2201,151,<70,0>,<72,85>): FALSE  with arguments: {<1012834307,905272390>,<-1511508561,-1930750599>} 
 |project://rascal-test/src/tests/Relations.rsc|(871,185,<27,0>,<30,47>): FALSE  with arguments: {<{},0.24525990529456354,""()>} 
@@ -159,9 +169,9 @@ value main(list[value] args){
   crashes = [];
   partial_results = [];
   all_results = [];
-  all_results += runTests(functionalityTests, |project://rascal-test/src/tests/functionality|);
-  all_results += runTests(rascalTests, |project://rascal-test/src/tests|);
-  all_results += runTests(libraryTests, |project://rascal-test/src/tests/library|);
+  all_results += runTests(functionalityTests, |rascal:///lang/rascal/tests/functionality|);
+  all_results += runTests(basicTests, |rascal:///lang/rascal/tests/basic|);
+  all_results += runTests(libraryTests, |rascal:///lang/rascal/tests/library|);
   
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");
