@@ -1,15 +1,9 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -26,13 +20,11 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
-public class RVM {
+public class RVMonJVM {
 
 	public final IValueFactory vf;
 
-	private boolean debug = true;
 	private boolean listing = false;
 	private boolean finalized = false;
 
@@ -49,23 +41,23 @@ public class RVM {
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
 
+	RascalExecutionContext rex ;
+
 	PrintWriter stdout;
 	PrintWriter stderr;
 
 	IEvaluatorContext ctx;
 
-	private List<ClassLoader> classLoaders;
-	
-	public RVM(RascalExecutionContext rascalExecutionContext) {
+		public RVMonJVM(RascalExecutionContext rascalExecutionContext) {
 		super();
 		
 		rex = rascalExecutionContext ;	
 		this.vf = rex.getValueFactory() ;
 		
-		this.classLoaders = rex.getClassLoaders();
+		//this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
-		this.debug = rex.getDebug();
+		//this.debug = rex.getDebug();
 		this.finalized = false;
 		
 		this.types = new Types(this.vf);
@@ -79,35 +71,6 @@ public class RVM {
 		resolver = new HashMap<String,Integer>();
 		overloadedStore = new ArrayList<OverloadedFunction>();
 	}
-
-	public RVM(IValueFactory vf, IEvaluatorContext ctx, boolean debug, boolean profile) {
-		super();
-
-		this.vf = vf;
-
-		this.ctx = ctx;
-		this.stdout = ctx.getStdOut();
-		this.stderr = ctx.getStdErr();
-		this.debug = debug;
-		this.finalized = false;
-
-		this.types = new Types(this.vf);
-
-		functionStore = new ArrayList<Function>();
-		constructorStore = new ArrayList<Type>();
-
-		functionMap = new HashMap<String, Integer>();
-		constructorMap = new HashMap<String, Integer>();
-
-		resolver = new HashMap<String, Integer>();
-		overloadedStore = new ArrayList<OverloadedFunction>();
-	}
-
-	public RVM(IValueFactory vf) {
-		this(vf, null, false, false);
-	}
-	RascalExecutionContext rex ;
-
 
 	public void declare(Function f) {
 		if (functionMap.get(f.getName()) != null) {
@@ -277,7 +240,7 @@ public class RVM {
 				/* DEBUG */	codeEmittor.dump("/Users/ferryrietveld/Running.class");
 
 				// Oneshot classloader
-				Class<?> generatedClass = new ClassLoader(RVM.class.getClassLoader()) {
+				Class<?> generatedClass = new ClassLoader(RVMonJVM.class.getClassLoader()) {
 					public Class<?> defineClass(String name, byte[] bytes) {
 						return super.defineClass(name, bytes, 0, bytes.length);
 					}
@@ -329,146 +292,10 @@ public class RVM {
 
 		Object o = null;
 		o = runner.dynRun(uid_main, args);
+		//o = runner.executeProgram(root, cf);
 		if (o != null && o instanceof Thrown) {
 			throw (Thrown) o;
 		}
 		return narrow(o);
-	}
-
-	long buildTime = 0;
-
-	public IValue executeProgramNO(String uid_main, IValue[] args) {
-		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-		Object o = null;
-		boolean profile = false;
-		long[] runTimingJVM = new long[35];
-		long[] runTimingINT = new long[35];
-
-		if (runner == null) {
-			buildTime = bean.getCurrentThreadUserTime();
-			buildRunner(profile);
-			buildTime = (bean.getCurrentThreadUserTime() - buildTime) / 1000000;
-		}
-
-		Function main_function = functionStore.get(functionMap.get(uid_main));
-
-		if (main_function == null) {
-			throw new RuntimeException("PANIC: No function " + uid_main + " found");
-		}
-
-		if (main_function.nformals != 2) { // List of IValues and empty map of
-											// keyword parameters
-			throw new RuntimeException("PANIC: function " + uid_main + " should have two arguments");
-		}
-
-		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
-		Frame cf = root;
-		cf.stack[0] = vf.list(args); // pass the program argument to
-										// main_function as a IList object
-		cf.stack[1] = vf.mapWriter().done();
-
-		for (int i = 0; i < 35; i++) {
-			long startTime = bean.getCurrentThreadUserTime();
-			o = runner.dynRun(uid_main, args);
-			runTimingJVM[i] = bean.getCurrentThreadUserTime() - startTime;
-
-			startTime = bean.getCurrentThreadUserTime();
-			o = runner.executeProgram(root, cf);
-			runTimingINT[i] = bean.getCurrentThreadUserTime() - startTime;
-		}
-
-		for (int i = 0; i < 35; i++) {
-			runTimingJVM[i] = runTimingJVM[i] / 1000000;
-			runTimingINT[i] = runTimingINT[i] / 1000000;
-		}
-
-		try {
-			if (uid_main.contains("main")) {
-				File file = new File("/Users/ferryrietveld/measurements.csv");
-				if (!file.exists()) {
-					file.createNewFile();
-					FileWriter fileWriter = new FileWriter("/Users/ferryrietveld/measurements.csv", true);
-					fileWriter.write("Name;runType;buildTime;firstRun");
-					for (int i = 1; i < 35; i++)
-						fileWriter.write(";" + i);
-					fileWriter.write(";average last 30;stdev last 30\n");
-					fileWriter.close();
-				}
-
-				FileWriter fileWritter = new FileWriter("/Users/ferryrietveld/measurements.csv", true);
-
-				fileWritter.write(uid_main.replace(';','|'));
-				fileWritter.write(";(JVM)");
-				fileWritter.write(";" + buildTime);
-
-				for (int i = 0; i < 35; i++) {
-					fileWritter.write(";" + runTimingJVM[i]);
-				}
-
-				fileWritter.write(";" + mean(runTimingJVM, 5, 34));
-				fileWritter.write(";" + stddev(runTimingJVM, 5, 34));
-				fileWritter.write("\n");
-
-				fileWritter.write(uid_main.replace(';', '|'));
-				fileWritter.write(";(INT)");
-				fileWritter.write(";" + buildTime);
-
-				for (int i = 0; i < 35; i++) {
-					fileWritter.write(";" + runTimingINT[i]);
-				}
-
-				fileWritter.write(";" + mean(runTimingINT, 5, 34));
-				fileWritter.write(";" + stddev(runTimingINT, 5, 34));
-				fileWritter.write("\n");
-
-				fileWritter.close();
-			}
-		} catch (IOException e) {
-			System.err.println(e.getMessage());
-		}
-
-		if (o != null && o instanceof Thrown) {
-			throw (Thrown) o;
-		}
-		return narrow(o);
-	}
-
-	// A poor mans statistics, Stolen and modified.
-	public float sum(long[] a, int lo, int hi) {
-		if (lo < 0 || hi >= a.length || lo > hi)
-			throw new RuntimeException("Subarray indices out of bounds");
-		float sum = 0;
-		for (int i = lo; i <= hi; i++) {
-			sum += a[i];
-		}
-		return sum;
-	}
-
-	public float mean(long[] a, int lo, int hi) {
-		int length = hi - lo + 1;
-		if (lo < 0 || hi >= a.length || lo > hi)
-			throw new RuntimeException("Subarray indices out of bounds");
-		if (length == 0)
-			return Float.NaN;
-		float sum = sum(a, lo, hi);
-		return sum / length;
-	}
-
-	public float var(long[] a, int lo, int hi) {
-		int length = hi - lo + 1;
-		if (lo < 0 || hi >= a.length || lo > hi)
-			throw new RuntimeException("Subarray indices out of bounds");
-		if (length == 0)
-			return Float.NaN;
-		float avg = mean(a, lo, hi);
-		float sum = 0;
-		for (int i = lo; i <= hi; i++) {
-			sum += (a[i] - avg) * (a[i] - avg);
-		}
-		return sum / (length - 1);
-	}
-
-	public float stddev(long[] a, int lo, int hi) {
-		return (float) Math.sqrt(var(a, lo, hi));
 	}
 }

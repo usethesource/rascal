@@ -72,7 +72,7 @@ public class Function {
 		codeEmittor.closeMethod();
 	}
 
-	public void attachExceptionTable(IList exceptions, RVM rvm) {
+	public void attachExceptionTable(IList exceptions, RVMonJVM rvm) {
 		froms = new int[exceptions.length()];
 		tos = new int[exceptions.length()];
 		types = new int[exceptions.length()];
