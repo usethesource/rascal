@@ -52,7 +52,6 @@ public class Execute {
 								 IList imported_overloaded_functions,
 								 IMap imported_overloading_resolvers,
 								 IList argumentsAsList,
-								 IString test_name,
 								 IBool debug, IBool testsuite, IBool profile, IEvaluatorContext ctx) {
 		
 		boolean isTestSuite = testsuite.getValue();

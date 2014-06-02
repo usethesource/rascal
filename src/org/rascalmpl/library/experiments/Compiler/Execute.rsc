@@ -8,7 +8,7 @@ import experiments::Compiler::muRascal::Load;
 
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::RVM::Run;
-import experiments::Compiler::Compile;
+extend experiments::Compiler::Compile;
 
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
@@ -53,7 +53,7 @@ list[Declaration] parseMuLibrary(){
 
 loc compiledVersion(loc src) = src.parent + (basename(src) + ".rvm");
 
-tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments, str test_name ="", bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
+tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
    map[str,Symbol] imported_types = ();
    list[Declaration] imported_functions = [];
    lrel[str,list[str],list[str]] imported_overloaded_functions = [];
@@ -116,29 +116,29 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    <v, t> = executeProgram(rvmProgram, imported_types,
    									   imported_functions, 
    									   imported_overloaded_functions, imported_overloading_resolvers, 
-   									   arguments, test_name, debug, testsuite, profile);
+   									   arguments, debug, testsuite, profile);
    println("Result = <v>, [<t> msec]");
    return <v, t>;
 }
 
-value execute(RVMProgram rvmProgram, list[value] arguments, str test_name ="", bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
-	<v, t> = execute_and_time(rvmProgram, arguments, test_name=test_name, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile);
+value execute(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
+	<v, t> = execute_and_time(rvmProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile);
 	return v;
 }
 
-value execute(loc rascalSource, list[value] arguments, str test_name ="", bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
+value execute(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   return execute(rvmProgram, arguments, test_name=test_name, debug=debug, testsuite=testsuite,profile=profile);
+   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile);
 }
 
-value execute(str rascalSource, list[value] arguments, str test_name ="", bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
+value execute(str rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   return execute(rvmProgram, arguments, test_name=test_name, debug=debug, testsuite=testsuite,profile=profile);
+   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile);
 }
 
-tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, str test_name ="", bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
+tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   return execute_and_time(rvmProgram, arguments,  test_name=test_name, debug=debug, testsuite=testsuite, profile=profile);
+   return execute_and_time(rvmProgram, arguments, debug=debug, testsuite=testsuite, profile=profile);
 }
 
 value executeTests(loc rascalSource){

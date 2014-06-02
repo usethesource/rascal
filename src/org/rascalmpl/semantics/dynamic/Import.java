@@ -232,6 +232,7 @@ public abstract class Import {
 		GlobalEnvironment heap = eval.__getHeap();
 		
 		if (!heap.existsModule(name)) {
+			//System.err.println("importModule: " + name);
 			// deal with a fresh module that needs initialization
 			heap.addModule(new ModuleEnvironment(name, heap));
 			loadModule(src, name, eval);

@@ -4723,7 +4723,7 @@ public enum RascalPrimitive {
 				message = "";
 			test_results.append(vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message)));
 			
-			testResultListener.report(passed, fun, src, message, exception);
+			testResultListener.report(passed, $computeTestName(fun, src), src, message, exception);
 			return sp - 4;
 		}
 	},
@@ -5895,6 +5895,11 @@ public enum RascalPrimitive {
 	 * 					AUXILIARY FUNCTIONS	 (prefixed with $)							*	
 	 ************************************************************************************/
 
+	
+	private static String $computeTestName(String name, ISourceLocation loc){
+		 return name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
+	}
+	
 	/*
 	 * String templates
 	 */

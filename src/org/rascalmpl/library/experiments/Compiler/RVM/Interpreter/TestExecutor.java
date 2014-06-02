@@ -25,85 +25,37 @@ import org.rascalmpl.interpreter.ITestResultListener;
 public class TestExecutor {
 
 	private final Evaluator eval;
+	private final ITestResultListener testResultListener;
 
 	public TestExecutor(Evaluator eval, ITestResultListener testResultListener){
 		super();
 
 		this.eval = eval;
+		this.testResultListener = testResultListener;
+		// Make listener known to compiler's run-time system
 		Execute.setTestResultListener(testResultListener);
 	}
 
-	public void test(String moduleName) {
+	public void test(String moduleName, int nTests) {
 		
+		testResultListener.start(nTests);
 		IValueFactory vf = eval.getValueFactory();
-		ISourceLocation src;
 		try {
-			src = vf.sourceLocation("rascal", "", moduleName.replaceAll("::",  "/") + ".rsc");
+			ISourceLocation src = vf.sourceLocation("rascal", "", moduleName.replaceAll("::",  "/") + ".rsc");
+			System.err.println("TestExecutor.test: testing " + moduleName + ", " + nTests + " tests");
 			eval.call("executeTests", src);
+			System.err.println("TestExecutor.test: testing " + moduleName + " ... done");
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		catch (Exception e) {
+			System.err.println("TestExecutor.test: " + moduleName + " unexpected exception: " + e.getMessage());
+			throw e;
+		}
+		finally {
+			testResultListener.done();
+		}
 	}
-
-//	public void test() {
-//		ModuleEnvironment topModule = (ModuleEnvironment) eval.getCurrentEnvt().getRoot();
-//
-//		runTests(topModule, topModule.getTests());
-//
-//		for (String i : topModule.getImports()) {
-//			ModuleEnvironment mod = topModule.getImport(i);
-//			
-//			if (mod != null) {
-//			  runTests(mod, mod.getTests());
-//			}
-//		}
-//	}
-//
-//	private void runTests(ModuleEnvironment env, List<AbstractFunction> tests) {
-//		testResultListener.start(tests.size());
-//
-////		try {
-//		for (int i = tests.size() - 1; i >= 0; i--) {
-//		  AbstractFunction test = tests.get(i);
-//		  if (test.hasTag("ignore") || test.hasTag("Ignore") || test.hasTag("ignoreInterpreter") || test.hasTag("IgnoreInterpreter")) {
-//			  continue;
-//		  }
-//
-//		  try{
-//		    QuickCheck qc = QuickCheck.getInstance();
-//		    StringWriter sw = new StringWriter();
-//		    PrintWriter out = new PrintWriter(sw);
-//		    int maxDepth = Cobra.readIntTag(test, Cobra.MAXDEPTH, 5);
-//		    int tries = Cobra.readIntTag(test, Cobra.TRIES, 500);
-//
-//		    boolean result = qc.quickcheck(test, maxDepth, tries, false, out);
-//		    if (!result) {
-//		      out.flush();
-//		      testResultListener.report(false, test.getName(), test.getAst().getLocation(), sw.getBuffer()
-//		          .toString(), null);
-//		    } else {
-//		      testResultListener.report(true, test.getName(), test.getAst().getLocation(), sw.getBuffer()
-//		          .toString(), null);
-//		    }
-//		  }
-//		  catch(StaticError e) {
-//		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
-//		  }
-//		  catch(Throw e){
-//		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
-//		  }
-//		  catch(Throwable e){
-//		    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
-//		  }
-//		}
-//		//		}
-//		//		finally {
-//		testResultListener.done();
-//		//		}
-//	}
-//
-
-
 
 }
