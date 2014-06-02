@@ -20,7 +20,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	
 	final Function function;
 	final Frame env;
-	final RVMRun rvm;
+	final IRVM rvm;
 	
 	/*
 	 * Records arguments in case of partial parameter binding
@@ -28,7 +28,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	Object[] args;
 	int next = 0;
 	
-	public FunctionInstance(Function function, Frame env, RVMRun rvm) {
+	public FunctionInstance(Function function, Frame env, IRVM rvm) {
 		this.function = function;
 		this.env = env;
 		this.rvm = rvm;
@@ -37,7 +37,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	/**
 	 * Assumption: scopeIn != -1; 
 	 */
-	public static FunctionInstance computeFunctionInstance(Function function, Frame cf, int scopeIn, RVMRun rvm) {
+	public static FunctionInstance computeFunctionInstance(Function function, Frame cf, int scopeIn, IRVM rvm) {
 		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
 				return new FunctionInstance(function, env, rvm);
@@ -49,7 +49,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	/**
 	 * Assumption: arity < function.nformals 
 	 */
-	public static FunctionInstance applyPartial(Function function, Frame env, RVMRun rvm, int arity, Object[] stack, int sp) {
+	public static FunctionInstance applyPartial(Function function, Frame env, IRVM rvm, int arity, Object[] stack, int sp) {
 		FunctionInstance fun_instance = new FunctionInstance(function, env, rvm);
 		if(arity == 0) {
 			return fun_instance;
@@ -136,15 +136,15 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 		for(IValue argValue : argValues) {
 			args[i++] = argValue;
 		}
-		IMapWriter kwargs = rvm.vf.mapWriter();
+		IMapWriter kwargs = rvm.getRex().getValueFactory().mapWriter();
 		if(keyArgValues != null) {
 			for(Entry<String, IValue> entry : keyArgValues.entrySet()) {
-				kwargs.put(rvm.vf.string(entry.getKey()), keyArgValues.get(entry.getValue()));
+				kwargs.put(rvm.getRex().getValueFactory().string(entry.getKey()), keyArgValues.get(entry.getValue()));
 			}
 		}
 		args[i] = kwargs.done();
 		IValue rval = rvm.executeFunction(this, args);
-		return ResultFactory.makeResult(rval.getType(), rval, rvm.getEvaluatorContext());
+		return ResultFactory.makeResult(rval.getType(), rval, rvm.getRex().getEvaluatorContext());
 	}
 
 	@Override
@@ -166,7 +166,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 
 	@Override
 	public IEvaluator<Result<IValue>> getEval() {
-		return rvm.getEvaluatorContext().getEvaluator();
+		return rvm.getRex().getEvaluatorContext().getEvaluator();
 	}
 
 }

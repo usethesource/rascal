@@ -72,7 +72,17 @@ public class Function {
 		codeEmittor.closeMethod();
 	}
 
-	public void attachExceptionTable(IList exceptions, RVMonJVM rvm) {
+	public void finalize(Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
+		codeblock.done(name, codeMap, constructorMap, resolver, listing);
+		this.scopeId = codeblock.getFunctionIndex(name);
+		if(funIn != null) {
+			this.scopeIn = codeblock.getFunctionIndex(funIn);
+		}
+		this.constantStore = codeblock.getConstants();
+		this.typeConstantStore = codeblock.getTypeConstants();
+	}
+
+	public void attachExceptionTable(IList exceptions, IRVM rvm) {
 		froms = new int[exceptions.length()];
 		tos = new int[exceptions.length()];
 		types = new int[exceptions.length()];

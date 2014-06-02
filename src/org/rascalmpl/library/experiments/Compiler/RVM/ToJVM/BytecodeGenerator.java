@@ -37,6 +37,10 @@ public class BytecodeGenerator implements Opcodes {
 
 	}
 
+	public BytecodeGenerator() {
+		emit = false ;
+	}
+
 	void enableOutput(boolean flag) {
 		emit = flag;
 	}
@@ -71,6 +75,8 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitClass(String pName, String cName) {
+		if (!emit)
+			return;
 		this.className = cName;
 		this.packageName = pName;
 		this.fullClassName = packageName + "/" + className;
@@ -267,6 +273,8 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public byte[] finalizeCode() {
+		if (!emit)
+			return null;
 		if (endCode == null) {
 			cw.visitEnd();
 			endCode = cw.toByteArray();
@@ -301,6 +309,8 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitReturn1() {
+		if (!emit)
+			return;
 		Label l0 = new Label();
 
 		if (!emit)
@@ -338,6 +348,8 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void dump(String loc) {
+		if (!emit)
+			return;
 		if (endCode == null)
 			finalizeCode();
 		try {
@@ -350,14 +362,20 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitDynDispatch(int numberOfFunctions) {
+		if (!emit)
+			return;
 		funcArray = new String[numberOfFunctions];
 	}
 
 	public void emitDynCaLL(String fname, Integer value) {
+		if (!emit)
+			return;
 		funcArray[value] = fname;
 	}
 
 	public void emitDynFinalize() {
+		if (!emit)
+			return;
 		int nrFuncs = funcArray.length;
 		Label[] caseLabels = new Label[nrFuncs];
 
@@ -1006,12 +1024,12 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineYield1(int arity, int hotEntryPoint, boolean debug) {
-		Label l0 = new Label();
 		if (!emit)
 			return;
 		if (debug)
 			emitCall("dinsnYIELD1", 1);
 
+		Label l0 = new Label();
 		mv.visitVarInsn(ALOAD, 0);
 		
 		emitIntValue(arity);
@@ -1040,12 +1058,12 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineYield0(int hotEntryPoint, boolean debug) {
-		Label l0 = new Label();
 		if (!emit)
 			return;
 		if (debug)
 			emitCall("dinsnYIELD0", 1);
 
+		Label l0 = new Label();
 		mv.visitVarInsn(ALOAD, 0);
 		
 		emitIntValue(hotEntryPoint);

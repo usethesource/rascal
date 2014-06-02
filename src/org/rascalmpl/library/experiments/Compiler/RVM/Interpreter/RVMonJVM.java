@@ -21,7 +21,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 
-public class RVMonJVM {
+public class RVMonJVM implements IRVM {
 
 	public final IValueFactory vf;
 
@@ -297,5 +297,19 @@ public class RVMonJVM {
 			throw (Thrown) o;
 		}
 		return narrow(o);
+	}
+	@Override
+	public RascalExecutionContext getRex() {
+		return rex;
+	}
+	
+	@Override
+	public IValue executeFunction(String uid_main, IValue[] args) {
+		return null;
+	}
+
+	@Override
+	public IValue executeFunction(FunctionInstance functionInstance, IValue[] args) {
+		return null;
 	}
 }
