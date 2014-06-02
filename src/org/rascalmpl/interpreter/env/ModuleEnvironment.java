@@ -684,10 +684,12 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public ModuleEnvironment getImport(String moduleName) {
 		if(importedModules.contains(moduleName)) {
+//			System.err.println("getImport: contains " + moduleName);
 			return heap.getModule(moduleName);
 		}
 		else {
-			return null;
+//			System.err.println("getImport: contains not " + moduleName);
+			return null;    
 		}
 	}
 	
@@ -861,6 +863,10 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
+			if(mod == null)	{									// PK: Added missing null test
+				System.err.println("getFlagsEnvironment, mod == null for: " + this.name + ", " + moduleName + ", " + name);
+				throw new RuntimeException("getFlagsEnvironment");
+			}
 			env = mod.getLocalFlagsEnvironment(name);
 			
 			if (env != null) {

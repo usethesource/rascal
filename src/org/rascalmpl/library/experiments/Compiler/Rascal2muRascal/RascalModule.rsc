@@ -103,8 +103,11 @@ MuModule r2mu(loc moduleLoc){
 @doc{Compile a parsed Rascal source module to muRascal}
 MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    try {
+    println("r2mu: entering ...");
    	Configuration c = newConfiguration();
-   	config = checkModule(M, c);  
+   	println("r2mu: newConfiguration done");
+   	config = checkModule(M, c); 
+   	println("r2mu: checkModule done"); 
    	//text(config);
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
@@ -122,6 +125,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  }
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes();
+   	  println("r2mu: extractScopes done"); 
    	  module_name = "<M.header.name>";
    	  imported_modules = [];
    	  functions_in_module = [];
@@ -134,7 +138,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  									   				    containedIn == 0, config.store[containedIn].at.path == at.path // needed due to the handling of 'extend' by the type checker
    	  						  );
    	 
-   	 // Costructor functions are generated in case of constructors with keyword parameters
+   	 // Constructor functions are generated in case of constructors with keyword parameters
    	 // (this enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments)						  
    	 for(int uid <- config.store, constructor(name, Symbol \type, keywordParams, 0, _) := config.store[uid], !isEmpty(config.dataKeywordDefaults[uid])) {
    	     // ***Note: the keywordParams field excludes the common keyword parameters 
@@ -169,7 +173,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
          
          functions_in_module += muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body);   	                                       
    	 }
-   	  						  
+   	  println("r2mu: translateModule");				  
    	  translateModule(M);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
@@ -185,16 +189,20 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  														   [ fuid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.dataKeywordDefaults[fuid]) ]
    	  											  			 > 
    	  															| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions ];
-   	  
+   	  println("r2mu: returning translation");     
    	  return muModule(modName, imported_modules, types, functions_in_module, variables_in_module, variable_initializations, overloadingResolver, overloaded_functions, getGrammar(config));
    	}
    } catch Java("ParseError","Parse error"): {
    	   throw "Syntax errors in module <moduleLoc>";
-   } finally {
-   	   //println("r2mu: Cleaning up ...");
+   } catch value except: {
+       println("Unexpected exception: <except>");
+       throw "Unexpected exception: <except>";
+   }
+   finally {
+   	   println("r2mu: Cleaning up ...");
    	   resetR2mu();
    	   resetScopeExtraction();
-   	   //println("r2mu: Cleaned up!");
+   	   println("r2mu: Cleaned up!");
    }
    throw "r2mu: cannot come here!";
 }
