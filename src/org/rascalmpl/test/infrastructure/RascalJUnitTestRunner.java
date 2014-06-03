@@ -79,7 +79,7 @@ public class RascalJUnitTestRunner extends Runner {
 	}
 	
 	static protected String computeTestName(String name, ISourceLocation loc) {
-		return name + ":" + loc.getEndLine();
+		return name + ": <" + loc.getOffset() +"," + loc.getLength() +">";
 	}
 	
 	@Override
