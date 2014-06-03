@@ -319,8 +319,8 @@ public class RVMRunBody extends RVMRun {
 	public Object jvmCallTemplate(Object rval, boolean precondition, Coroutine coroutine, Frame prev, int[] refs) {
 		
 		
-		if ( callHelper(1111, 2222, 3333).equals(YIELD1) ) {
-			return YIELD1 ;
+		if ( callHelper(1111, 2222, 3333).equals(YIELD) ) {
+			return YIELD ;
 		}
 
 		// Do not return ;
@@ -344,7 +344,7 @@ public class RVMRunBody extends RVMRun {
 		if (cf == null) {
 			return Rascal_TRUE; // TODO rval;
 		}
-		return YIELD1;
+		return YIELD;
 	}
 	
 	public Object jvmYIELD0(Object rval, boolean precondition, Coroutine coroutine, Frame prev, int[] refs, int i) {
@@ -353,7 +353,7 @@ public class RVMRunBody extends RVMRun {
 		if (cf == null) {
 			return Rascal_TRUE; // TODO rval;
 		}
-		return YIELD1;
+		return YIELD;
 	}
 	public void dopop() {
 		insnSTORELOC(1) ;
@@ -430,7 +430,7 @@ public class RVMRunBody extends RVMRun {
 		rval = dynRun(cf.function.funId); // In a inline version we can call the
 											// function directly.
 
-		if (rval.equals(YIELD1)) {
+		if (rval.equals(YIELD)) {
 			// drop my stack
 			cf.hotEntryPoint = ep;
 			cf.sp = sp;
@@ -438,7 +438,7 @@ public class RVMRunBody extends RVMRun {
 			cf = cf.previousCallFrame;
 			sp = cf.sp;
 			stack = cf.stack;
-			return YIELD1; // Will cause the inline call to return YIELD
+			return YIELD; // Will cause the inline call to return YIELD
 		} else {
 			cf.hotEntryPoint = 0;
 			cf.nextFrame = null; // Allow GC to clean

@@ -74,7 +74,8 @@ public class Execute {
 			testResultListener = (ITestResultListener) new DefaultTestResultListener(stderr);
 		}
 		
-		RVM rvm = new RVM(new RascalExecutionContext(vf, debug.getValue(), profile.getValue(), ctx, testResultListener));
+		//IRVM rvm = new RVM(new RascalExecutionContext(vf, debug.getValue(), profile.getValue(), ctx, testResultListener));
+		 IRVM rvm = new RVMonJVM(new RascalExecutionContext(vf, debug.getValue(), profile.getValue(), ctx, testResultListener));
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
