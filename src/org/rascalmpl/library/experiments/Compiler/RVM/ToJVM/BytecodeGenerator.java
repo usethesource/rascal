@@ -20,6 +20,7 @@ public class BytecodeGenerator implements Opcodes {
 	private String fullClassName = null;
 	private String[] funcArray = null;
 	private boolean emit = true;
+	private boolean isCoroutine = false ;
 	private HashMap<String, Label> labelMap = new HashMap<String, Label>();
 	private Label[] hotEntryLabels = null;
 	private Label exitLabel = null;
@@ -121,9 +122,11 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitEnd();
 	}
 
-	public void emitMethod(String name, int continuationPoints, boolean debug) {
+	public void emitMethod(String name, boolean isCoroutine, int continuationPoints, boolean debug) {
 		if (!emit)
 			return;
+		
+		this.isCoroutine = isCoroutine ;
 		mv = cw.visitMethod(ACC_PUBLIC, name, "()Ljava/lang/Object;", null, null);
 		labelMap.clear(); // New set of labels.
 
@@ -559,7 +562,7 @@ public class BytecodeGenerator implements Opcodes {
 		BytecodeGenerator emittor = new BytecodeGenerator("packageName", "className");
 
 		emittor.emitClass("org/rascalmpl/library/experiments/Compiler/RVM/Interpreter", "Runner");
-		emittor.emitMethod("main", 0, false);
+		emittor.emitMethod("main", false,  0, false);
 		emittor.emitLabel("entrypoint");
 		emittor.emitCall("main");
 		emittor.emitCall("main", 10, 20);
@@ -1044,7 +1047,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ARETURN);
 		mv.visitLabel(l0);
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD1", "Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
 
 		if (exitLabel != null) { // The label for the hot entry
@@ -1078,7 +1081,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ARETURN);
 		mv.visitLabel(l0);
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD1", "Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
 
 		if (exitLabel != null) { // The label for the hot entry
@@ -1121,11 +1124,11 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "callHelper", "(III)Ljava/lang/Object;");
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD1", "Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
 		mv.visitJumpInsn(IFEQ, l0);
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD1", "Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
 
 		mv.visitLabel(l0);
@@ -1148,11 +1151,11 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "calldynHelper", "(II)Ljava/lang/Object;");
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD1", "Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
 		mv.visitJumpInsn(IFEQ, l0);
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD1", "Lorg/eclipse/imp/pdb/facts/IString;");
+		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);
 
 		mv.visitLabel(l0);

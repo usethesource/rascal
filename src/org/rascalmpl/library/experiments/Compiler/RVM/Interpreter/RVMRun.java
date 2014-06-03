@@ -43,13 +43,12 @@ public class RVMRun implements IRVM {
 
 	public final IValueFactory vf;
 	private final TypeFactory tf;
-	//protected final Boolean TRUE;
-	//protected final Boolean FALSE;
 	protected final IBool Rascal_TRUE;
 	protected final IBool Rascal_FALSE;
+	
 	protected final IString NONE;
-	protected final IString YIELD0;
-	protected final IString YIELD1;
+	protected final IString YIELD;
+//	protected final IString YIELD1;
 	protected final IString FAILRETURN;
 	protected final IString PANIC;
 
@@ -69,7 +68,6 @@ public class RVMRun implements IRVM {
 	private Map<String, Integer> constructorMap;
 	ArrayList<Frame> stacktrace = new ArrayList<Frame>();
 	
-
 	private final Map<IValue, IValue> moduleVariables;
 	PrintWriter stdout;
 	PrintWriter stderr;
@@ -137,8 +135,8 @@ public class RVMRun implements IRVM {
 
 		// Return types used in code generator
 		NONE = vf.string("$nothing$");
-		YIELD0 = vf.string("$yield0$");
-		YIELD1 = vf.string("$yield1$");
+		YIELD = vf.string("$yield0$");
+		//YIELD1 = vf.string("$yield1$");
 		FAILRETURN = vf.string("$failreturn$");
 		PANIC = vf.string("$panic$");
 
@@ -2452,7 +2450,7 @@ public class RVMRun implements IRVM {
 		rval = dynRun(fun.funId); // In a full inline version we can call the
 									// function directly (name is known).
 
-		if (rval.equals(YIELD1)) {
+		if (rval.equals(YIELD)) {
 			// drop my stack
 			cf.hotEntryPoint = ep;
 			cf.sp = sp;
@@ -2460,7 +2458,7 @@ public class RVMRun implements IRVM {
 			cf = cf.previousCallFrame;
 			sp = cf.sp;
 			stack = cf.stack;
-			return YIELD1; // Will cause the inline call to return YIELD
+			return YIELD; // Will cause the inline call to return YIELD
 		} else {
 			cf.hotEntryPoint = 0;
 			cf.nextFrame = null; // Allow GC to clean
@@ -2682,7 +2680,7 @@ public class RVMRun implements IRVM {
 		rval = dynRun(cf.function.funId); // In a inline version we can call the
 											// function directly.
 
-		if (rval.equals(YIELD1)) {
+		if (rval.equals(YIELD)) {
 			// drop my stack
 			cf.hotEntryPoint = ep;
 			cf.sp = sp;
@@ -2690,7 +2688,7 @@ public class RVMRun implements IRVM {
 			cf = cf.previousCallFrame;
 			sp = cf.sp;
 			stack = cf.stack;
-			return YIELD1; // Will cause the inline call to return YIELD
+			return YIELD; // Will cause the inline call to return YIELD
 		} else {
 			cf.hotEntryPoint = 0;
 			cf.nextFrame = null; // Allow GC to clean
@@ -2771,6 +2769,8 @@ public class RVMRun implements IRVM {
 		jmpTarget = 3;
 	}
 
+	
+	
 	@Override
 	public IValue executeProgram(String uid_main, IValue[] args) {
 		// TODO Auto-generated method stub
@@ -2784,6 +2784,24 @@ public class RVMRun implements IRVM {
 
 	@Override
 	public void declare(Function f) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void declareConstructor(String name, IConstructor symbol) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addResolver(IMap resolver) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void fillOverloadedStore(IList overloadedStore) {
 		// TODO Auto-generated method stub
 		
 	}
