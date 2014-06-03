@@ -4690,7 +4690,7 @@ public enum RascalPrimitive {
 			Throwable exception = null;
 			for(int i = 0; i < tries; i++){
 				if(nargs > 0){
-					message = " with arguments: ";
+					message = "test fails for arguments: ";
 					ITuple tup = (ITuple) randomValue.generate(argType);
 					for(int j = 0; j < nargs; j++){
 						args[j] = tup.get(j);
