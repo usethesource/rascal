@@ -21,7 +21,7 @@ real var(list[int] a) {
 
 real stdev(real var) = sqrt(var) ;
 	
-value main(list[value] args) {
+value ain(list[value] args) {
 	// List of 100 
 	list[int] llist = [1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
 					   1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
@@ -39,3 +39,11 @@ value main(list[value] args) {
 	}
 	return <avg,stdev(vari),vari> ;
 }
+value main(list[value] args) {
+	rel[int,int] R = {<1,2>, <2,3>, <3,4>}; 
+	T = R; 
+	solve (T) { 
+		T = T + (T o R);
+	}
+	return T ; 
+}  
