@@ -74,7 +74,7 @@ public class GrammarToJigll {
 	
 	private Map<List<IConstructor>, RegularExpression> deleteSetCache;
 
-	private GrammarGraph grammarGraph;
+	private Grammar grammar;
 
 	private GLLParser parser;
 
@@ -93,18 +93,19 @@ public class GrammarToJigll {
 	@SuppressWarnings("unchecked")
 	public IConstructor jparse(IConstructor symbol, IString str, ISourceLocation loc) {
 		
-		if (grammarGraph == null) {
+		if (grammar == null) {
 			return null;
 		}
 
 		input = Input.fromString(str.getValue(), loc.getURI());
-		parser = ParserFactory.newParser(grammarGraph, input);
+		parser = ParserFactory.newParser(grammar, input);
 
 		log.info("Iguana started.");
 
 		startSymbol = SymbolAdapter.toString(symbol, true);
 
-		ParseResult result = parser.parse(input, this.grammarGraph, startSymbol);
+		GrammarGraph grammarGraph = grammar.toGrammarGraph();
+		ParseResult result = parser.parse(input, grammarGraph, startSymbol);
 
 		if (result.isParseSuccess()) {
 			long start = System.nanoTime();
@@ -130,7 +131,7 @@ public class GrammarToJigll {
 	public void generateGrammar(IConstructor rascalGrammar) {
 		this.rascalGrammar = rascalGrammar;
 		
-		Grammar grammar = convert("inmemory", rascalGrammar);
+		grammar = convert("inmemory", rascalGrammar);
 		IMap notAllowed = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("notAllowed"));
 		IMap except = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("excepts"));
 
@@ -141,14 +142,10 @@ public class GrammarToJigll {
 		addExceptPatterns(op, except);
 		addPrecedencePatterns(op, notAllowed);
 //		grammar = op.rewrite(grammar);
-		
-		System.out.println(grammar);
-
-		grammarGraph = grammar.toGrammarGraph();
 	}
 
 	public void printGrammar() {
-		System.out.println(grammarGraph);
+		System.out.println(grammar);
 	}
 
 	public void save(IString path) throws FileNotFoundException, IOException {
@@ -157,14 +154,15 @@ public class GrammarToJigll {
 			file.createNewFile();
 		}
 		ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
-		out.writeObject(grammarGraph);
+		out.writeObject(grammar);
 		out.close();
 	}
 
 	public void generateGraph(IString path, ISourceLocation loc) {
-		parser = ParserFactory.newParser(grammarGraph, input);
+		parser = ParserFactory.newParser(grammar, input);
 
-		ParseResult result = parser.parse(input, this.grammarGraph, startSymbol);
+		GrammarGraph grammarGraph = grammar.toGrammarGraph();
+		ParseResult result = parser.parse(input, grammarGraph, startSymbol);
 		if (result.isParseSuccess()) {
 			SPPFNode sppf = result.asParseSuccess().getSPPFNode();
 			Visualization.generateSPPFGraph(path.getValue(), sppf, grammarGraph, input);
@@ -271,7 +269,7 @@ public class GrammarToJigll {
 
 	public Grammar convert(String name, IConstructor rascalGrammar) {
 
-		Grammar grammar = new Grammar();
+		Grammar.Builder builder = new Grammar.Builder();
 		
 		IMap definitions = (IMap) rascalGrammar.get("rules");
 		
@@ -318,12 +316,12 @@ public class GrammarToJigll {
 					
 					Rule rule = new Rule(head, body, new SerializableValue(object));
 					rulesMap.put(prod, rule);
-					grammar.addRule(rule);
+					builder.addRule(rule);
 				}
 			}
 		}
 		
-		return grammar;
+		return builder.build();
 	}
 
 	private void addPrecedencePatterns(OperatorPrecedence op, IMap notAllowed) {
@@ -783,7 +781,7 @@ public class GrammarToJigll {
 
 	private boolean isEBNF(IConstructor value) {
 		return isEBNFList(value) || SymbolAdapter.isAlt(value)
-				|| SymbolAdapter.isSeq(value) || SymbolAdapter.isOpt(value) || SymbolAdapter.isEmpty(value);
+				|| SymbolAdapter.isSeq(value) || SymbolAdapter.isOpt(value);
 	}
 
 	private boolean isEBNFList(IConstructor value) {

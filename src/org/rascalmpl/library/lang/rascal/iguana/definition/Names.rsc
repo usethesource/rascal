@@ -31,7 +31,6 @@ public GrammarDefinition resolve(GrammarDefinition d) {
   ks = {n | m <- d.modules, \keywords(n) <- d.modules[m].grammar.rules};
   ls = {n | m <- d.modules, \layouts(n) <- d.modules[m].grammar.rules};
   
-  println("tk: <tk>");
   return visit(d) {
     case sort(n) : {
       if (n in lx) insert \lex(n);
