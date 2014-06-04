@@ -10,23 +10,47 @@ int n_redundant_stores = 0;
 int n_jumps_to_jumps = 0;
 
 INS peephole(INS instructions){
-  return instructions;							// Not (yet) used, due to lack of impact.
-  result1 = redundant_stores(instructions);
-  result2 = jumps_to_jumps(result1);
-  result3 = unused_labels(result2);
-  result4 = dead_code(result3);
-  println("**** peephole removed <size(instructions) - size(result4)> instructions");
-  iprintln(instructions);
-  iprintln(result4);
-  return result4;
+  // return instructions;  
+  // Not (yet) used, due to lack of impact. 
+  // (not when youre debugging)
+  
+  // Peephole-ing a fixed point problem multiple steps for debugging.
+  // -- Maybe disable could be slow --
+    INS result = instructions ;
+    int loopcount = 0 ;
+    solve (result) {
+        loopcount = loopcount + 1 ;
+        result = dead_code(result);
+        result = unused_labels(result);
+        result = redundant_stores(result);
+        result = jumps_to_jumps(result);
+    }
+    println("**** peephole removed <size(instructions) - size(result)> instructions in <loopcount> iterations");
+//  iprintln(instructions);
+//  iprintln(result4);
+    return result;
 }
 
-// Redundant_stores
+// Redundant_stores, loads and jmps
+
+INS redundant_stores([ *Instruction ins1, LOADCON(_), POP(),  *Instruction ins2] ) {
+    n_redundant_stores += 1;
+    return redundant_stores([*ins1, *ins2]);
+}
+
+INS redundant_stores([ *Instruction ins1, JMP(p), LABEL(p),  *Instruction ins2] ) {
+    n_redundant_stores += 1;
+    return redundant_stores([*ins1, LABEL(p), *ins2]);
+}
+
+INS redundant_stores([ *Instruction ins1, LOADCON(true), JMPFALSE(_),  *Instruction ins2] ) {
+    n_redundant_stores += 1;
+    return redundant_stores([*ins1, *ins2]);
+}
 
 INS redundant_stores([ *Instruction ins1, STOREVAR(v,p), POP(), LOADVAR(v,p),  *Instruction ins2] ) {
     n_redundant_stores += 1;
-    return redundant_stores([*ins1, STOREVAR(v,p), *ins2]);
-    
+    return redundant_stores([*ins1, STOREVAR(v,p), *ins2]);   
 }
 
 INS redundant_stores([ *Instruction ins1, STORELOC(int p), POP(), LOADLOC(p),  *Instruction ins2] ) {
@@ -76,10 +100,10 @@ INS dead_code([ *Instruction ins ] ) {
     i = 0;
     while(i < size(ins)){
        result += ins[i];
-       if(JMP(lab) := ins[i] || RETURN0() := ins[i] || RETURN1(a) := ins[i], FAILRETURN() := ins[i]){
+       if(JMP(lab) := ins[i] || RETURN0() := ins[i] || RETURN1(a) := ins[i] || FAILRETURN() := ins[i]){
           i += 1;
           while(i < size(ins) &&  LABEL(lab1) !:= ins[i]){
-            println("remove: <ins[i]>");
+            //println("remove: <ins[i]>");
             i += 1;
           }
        } else {

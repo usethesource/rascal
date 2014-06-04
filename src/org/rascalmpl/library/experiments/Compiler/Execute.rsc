@@ -8,7 +8,7 @@ import experiments::Compiler::muRascal::Load;
 
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::RVM::Run;
-import experiments::Compiler::Compile;
+extend experiments::Compiler::Compile;
 
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
@@ -38,8 +38,8 @@ list[Declaration] parseMuLibrary(){
   		set_nlocals(fun.nlocals);
   	    body = peephole(tr(fun.body));
   	    required_frame_size = get_nlocals() + estimate_stack_size(fun.body);
-    	functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body)
-    									  : FUNCTION(fun.qname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, fun.src, required_frame_size, body,[]);
+    	functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body)
+    									  : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, fun.src, required_frame_size, body,[]);
   	}
   	// Specific to delimited continuations (experimental)
 //  	functions += [ shiftClosures[qname] | str qname <- shiftClosures ];
@@ -139,6 +139,11 @@ value execute(str rascalSource, list[value] arguments, bool debug=false, bool li
 tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
    return execute_and_time(rvmProgram, arguments, debug=debug, testsuite=testsuite, profile=profile);
+}
+
+value executeTests(loc rascalSource){
+   rvmProgram = compile(rascalSource);
+   return execute(rvmProgram, [], testsuite=true);
 }
 
 str makeTestSummary(lrel[loc,int,str] test_results) = "<size(test_results)> tests executed; < size(test_results[_,0])> failed; < size(test_results[_,2])> ignored";

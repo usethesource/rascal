@@ -8,7 +8,7 @@ import experiments::Compiler::Compile;
  */
 
 list[str] libs = [
-/*
+
 
 "Boolean", 								// OK
 "DateTime",								// OK
@@ -35,15 +35,15 @@ list[str] libs = [
 "util::Benchmark",						// OK
 "util::Eval",							// OK
 "util::FileSystem", 					// OK
-"util::Highlight",						// OK
+"util::Highlight",						// ERROR
 "util::Math",							// OK
 "util::Maybe",							// OK
 "util::Monitor",						// OK
 "util::PriorityQueue",					// OK
-"util::Reflective", 					// OK
+"util::Reflective", 					// ERROR
 "util::ShellExec",						// OK
-"util::Webserver",						// OK
-
+"util::Webserver"						// OK
+/*
 // Not yet OK
 
 "Ambiguity",			// #483
@@ -230,19 +230,19 @@ list[str] libs = [
 "experiments::Compiler::RVM::Load",							// OK
 "experiments::Compiler::RVM::Parse"							// OK
 */
-
+/*
 // MuRascal
 "experiments::Compiler::muRascal::AST",						// OK
-"experiments::Compiler::muRascal::Parse",					// OK
+"experiments::Compiler::muRascal::Parse",					// ERROR was OK
 "experiments::Compiler::muRascal::Load",					// OK
 "experiments::Compiler::muRascal::Implode",					// ERROR
 "experiments::Compiler::muRascal::MuAllMuOr",				// ERROR
 "experiments::Compiler::muRascal::Syntax",					// OK
 "experiments::Compiler::muRascal::Run"						// OK
-
+*/
 /*
 // muRascal2RVM
-"experiments::Compiler::muRascal2RVM::PeepHole",			// OK
+"experiments::Compiler::muRascal2RVM::PeepHole",			// was OK
 "experiments::Compiler::muRascal2RVM::RascalReifiedTypes",	// OK
 "experiments::Compiler::muRascal2RVM::ReifiedTypes",		// ERROR
 "experiments::Compiler::muRascal2RVM::StackSize",			// OK
@@ -260,7 +260,7 @@ list[str] libs = [
 "experiments::Compiler::Rascal2muRascal::TypeUtils",		// ERROR
 
 // Typechecker
-"lang::rascal::types::AbstractKind",						// OK
+"lang::rascal::types::AbstractKind",						// ERROR was OK
 "lang::rascal::types::AbstractName",						// ERROR
 "lang::rascal::types::AbstractType",						// ERROR
 "lang::rascal::types::CheckTypes",							// ERROR
@@ -271,7 +271,7 @@ list[str] libs = [
 "lang::rascal::types::TypeSignature",						// ERROR
 
 // Parser generator
-"lang::rascal::grammar::analyze::DefUse",					// OK
+"lang::rascal::grammar::analyze::DefUse",					// was OK
 "lang::rascal::grammar::analyze::Dependency",				// ERROR
 
 "lang::rascal::grammar::definition::Attributes",			// ERROR

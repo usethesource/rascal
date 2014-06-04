@@ -119,7 +119,7 @@ default tuple[MuExp,list[MuFunction]] makeMuMulti(MuExp exp, str fuid) {
     // Works because mkVar and mkAssign produce muVar and muAssign, i.e., specify explicitly function scopes computed by the type checker
     list[MuFunction] functions = [];
     str gen_uid = "<fuid>/GEN_<nextLabel()>(0)";
-    functions += muCoroutine(gen_uid, fuid, 0, 0, |unknown:///|, [], muBlock([ muGuard(muCon(true)), muIfelse(nextLabel(), exp, [ muReturn() ], [ muExhaust() ]) ]));
+    functions += muCoroutine(gen_uid, "GEN", fuid, 0, 0, |unknown:///|, [], muBlock([ muGuard(muCon(true)), muIfelse(nextLabel(), exp, [ muReturn() ], [ muExhaust() ]) ]));
     return <muMulti(muApply(muFun(gen_uid, fuid),[])),functions>;
 }
 
@@ -151,7 +151,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("ALL", str fuid, list[MuExp] ex
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(all_uid, fuid, 0, size(localvars), |unknown:///|, [], muBlock(body));
+    functions += muCoroutine(all_uid, "ALL", fuid, 0, size(localvars), |unknown:///|, [], muBlock(body));
     return <muMulti(muApply(muFun(all_uid, fuid),[])),functions>;
 }
 
@@ -167,7 +167,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("OR", str fuid, list[MuExp] exp
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(or_uid, fuid, 0, 0, |unknown:///|, [], muBlock(body));
+    functions += muCoroutine(or_uid, "OR", fuid, 0, 0, |unknown:///|, [], muBlock(body));
     return <muMulti(muApply(muFun(or_uid, fuid),[])),functions>;
 }
 
@@ -195,7 +195,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("IMPLICATION", str fuid, list[M
         k = k + 1;
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(impl_uid, fuid, 0, k, |unknown:///|, [], muBlock(body));
+    functions += muCoroutine(impl_uid, "IMPLICATION", fuid, 0, k, |unknown:///|, [], muBlock(body));
     return <muMulti(muApply(muFun(impl_uid, fuid),[])),functions>;
 }
 
@@ -223,7 +223,7 @@ private tuple[MuExp,list[MuFunction]] generateMu("EQUIVALENCE", str fuid, list[M
         k = k + 1;
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(equiv_uid, fuid, 0, k, |unknown:///|, [], muBlock(body));
+    functions += muCoroutine(equiv_uid, "EQUIVALENCE", fuid, 0, k, |unknown:///|, [], muBlock(body));
     return <muMulti(muApply(muFun(equiv_uid, fuid), [])),functions>;
 }
 
