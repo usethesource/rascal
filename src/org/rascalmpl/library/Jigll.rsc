@@ -36,7 +36,6 @@ public void generate(loc mo) {
      gr = addNotAllowedSets(gr);
      gr = prioAssocToChoice(gr);
 
-	 iprintln(gr);  
      generateGrammar(gr);
      return;
    }

@@ -16,6 +16,9 @@ public class SerializableValue implements Serializable {
 	private IValue wrapped;
 
 	public SerializableValue(IValue val) {
+		if (val == null) {
+			throw new RuntimeException("Value cannot be null.");
+		}
 		this.wrapped = val;
 	}
 
