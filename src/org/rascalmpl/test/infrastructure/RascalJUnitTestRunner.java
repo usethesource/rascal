@@ -79,7 +79,7 @@ public class RascalJUnitTestRunner extends Runner {
 	}
 	
 	static protected String computeTestName(String name, ISourceLocation loc) {
-		return name + ":" + loc.getEndLine();
+		return name + ": <" + loc.getOffset() +"," + loc.getLength() +">";
 	}
 	
 	@Override
@@ -100,7 +100,7 @@ public class RascalJUnitTestRunner extends Runner {
 				desc.addChild(modDesc);
 				
 				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
-				  if (!f.hasTag("ignore")) {
+				  if (!(f.hasTag("ignore") || f.hasTag("Ignore") || f.hasTag("ignoreInterpreter") || f.hasTag("IgnoreInterpreter"))) {
 				    modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
 				  }
 				}

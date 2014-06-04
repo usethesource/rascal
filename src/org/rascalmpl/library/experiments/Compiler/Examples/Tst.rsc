@@ -1,7 +1,7 @@
 module experiments::Compiler::Examples::Tst
 
-value g(int a, int b) = a / b;
+test bool test1() = true;
 
-value f(int a, str x = "x") = true ? g(a, 0) : 7;
+test bool test2(int a) = true;
 
-public value main(list[value] args) { int x = 3; assert 3 == 4 : "abc"; }//f(5, x = "XXXX");
+value main(list[value] args) = true;

@@ -26,6 +26,7 @@ RVMProgram compile(str rascalSource, bool listing=false, bool recompile=false){
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
 RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false){
+    println("compile: <moduleLoc>");
     rvmProgramLoc = moduleLoc.parent + (basename(moduleLoc) + ".rvm");
     if(!recompile && exists(rvmProgramLoc) && lastModified(rvmProgramLoc) > lastModified(moduleLoc)){
        try {
@@ -38,12 +39,13 @@ RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false){
   	       return rvmProgram;
   	   } catch x: println("rascal2rvm: Reading <rvmProgramLoc> did not succeed: <x>");
   	}
-    
+    println("compile: parsing and compiling <moduleLoc>");
    	muMod = r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
    	for(imp <- muMod.imports){
    	    println("Compiling import <imp>");
    	    compile(imp);
    	}
+   	println("compile: generate rvm <moduleLoc>");
    	rvmProgram = mu2rvm(muMod, listing=listing);                          
 
    	println("rascal2rvm: Writing compiled version <rvmProgramLoc>");

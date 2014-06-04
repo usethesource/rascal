@@ -383,11 +383,11 @@ public interface IASTVisitor<T> {
 
   public T visitIntegerLiteralOctalIntegerLiteral(IntegerLiteral.OctalIntegerLiteral x);
 
-  public T visitKeywordArgumentDefault(KeywordArgument.Default x);
+  public T visitKeywordArgument_ExpressionDefault(KeywordArgument_Expression.Default x);
 
-  public T visitKeywordArgumentsDefault(KeywordArguments.Default x);
+  public T visitKeywordArguments_ExpressionDefault(KeywordArguments_Expression.Default x);
 
-  public T visitKeywordArgumentsNone(KeywordArguments.None x);
+  public T visitKeywordArguments_ExpressionNone(KeywordArguments_Expression.None x);
 
   public T visitKeywordFormalDefault(KeywordFormal.Default x);
 
