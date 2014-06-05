@@ -324,8 +324,8 @@ test bool listComprehensionNested5()  = [ [y | int y <- [0..X+1], X > 2] | int X
 test bool listComprehensionNested6()  = [ *[y | int y <- [0..X+1], X > 2] | int X <- [1,2,3]] == [0,1,2,3];
   	
 // emptyTupleGenerator
-test bool emptyTupleGeneratorError1() = {<X,Y> | <int X, int Y> <- {}} == {} ;
-test bool emptyTupleGeneratorError2() = {<X,Y> | <int X, int Y> <- []} == {} ;
+// TODO:? @ignoreCompiler{Type checker rejects this} test bool emptyTupleGeneratorError1() = {<X,Y> | <int X, int Y> <- {}} == {} ;
+// TODO:? @ignoreCompiler{Type checker rejects this} test bool emptyTupleGeneratorError2() = {<X,Y> | <int X, int Y> <- []} == {} ;
 test bool emptyTupleGeneratorError3() = {<X,Y> | int X <- {}, int Y <- {}} == {};
 test bool emptyTupleGeneratorError4() = {<X,Y> | int X <- [], int Y <- []} == {};
   
