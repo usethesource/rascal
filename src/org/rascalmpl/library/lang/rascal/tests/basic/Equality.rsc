@@ -72,6 +72,11 @@ Actual parameters:
 
 */
 test bool submapOrdering1(map[value,value] x, map[value,value] y) = x <= y + x; // remember map join is not commutative
+
+/*TODO:
+java.lang.Exception: failed for arguments: (true:"",-1185257414:"1sn"({""()},"冖񓱍资"(|tmp:///|),-304421973r46873778,["R7jZ"()])) 
+                                           (true:"",$3632-03-24T14:03:39.476+01:00$:["0Xo","",""],|tmp:///|:$2015-08-06T08:23:51.810+01:00$,|tmp:///R66k|:<"h7"()>) 
+*/
 test bool submapOrdering2(map[value,value]x, map[value,value] y) = (x <= y) <==> (x == () || all(e <- x, e in y, y[e] == x[e]));
 
 // maps are partially ordered
