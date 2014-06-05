@@ -138,7 +138,7 @@ public abstract class Import {
 					String moduleEnvName = eval.getCurrentModuleEnvironment().getName();
 					URI ur = null;
 					if (moduleEnvName.equals(ModuleEnvironment.SHELL_MODULE)) {
-						ur = URI.create("rascal:///");
+						ur = URIUtil.rootScheme("rascal");
 					} else {
 						ur = eval.getRascalResolver().getRootForModule((URIUtil.createRascalModule(moduleEnvName)));
 					}
