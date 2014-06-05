@@ -47,6 +47,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	private String prefix;
 	private HashMap<String, Integer> testsPerModule; 				// number of tests to be executed
 	private HashMap<String, List<Description>> ignoredPerModule;	// tests to be ignored
+	int totalTests = 0;
 
 	static {
 		heap = new GlobalEnvironment();
@@ -71,6 +72,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		desc = null;
 		testsPerModule = new HashMap<String, Integer>();
 		ignoredPerModule = new HashMap<String, List<Description>>();
+		totalTests = 0;
 		try {
 			Object instance = clazz.newInstance();
 			if (instance instanceof IRascalJUnitTestSetup) {
@@ -93,6 +95,13 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		this.prefix = prefix;
 	}
 	
+	@Override
+	public int testCount(){
+		getDescription();
+		System.err.println("testCount: " + totalTests);
+		return totalTests;
+	}
+	
 	private void cleanUp(){
 		desc = null;
 		testsPerModule = null;
@@ -109,7 +118,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 			return desc;
 		Description desc = Description.createSuiteDescription(prefix);
 		this.desc = desc;
-		int totalTests = 0;
+		
 
 		try {
 			String[] modules = evaluator.getResolverRegistry().listEntries(URIUtil.create("rascal", "", "/" + prefix.replaceAll("::", "/")));
@@ -156,8 +165,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 			desc = getDescription();
 		}
 		notifier.fireTestRunStarted(desc);
-		
-		System.err.println("run: testCount = " + desc.testCount());
 
 		for (Description mod : desc.getChildren()) {
 			
@@ -175,8 +182,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 				e.printStackTrace(System.err);
 				notifier.fireTestFailure(new Failure(mod, e));
 			}
-			notifier.fireTestStarted(mod);	// Make sure that the test count is decremented for the test suite itself
-			notifier.fireTestFinished(mod);
 		}
 
 		notifier.fireTestRunFinished(new Result());
@@ -213,12 +218,12 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		@Override
 		public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
 			
-			//System.err.println("RascalJunitCompiledTestRunner.report: " + successful + ", test = " + test + ", at " + loc + ", message = " + message);
+			System.err.println("RascalJunitCompiledTestRunner.report: " + successful + ", test = " + test + ", at " + loc + ", message = " + message);
 			Description desc = getDescription(test, loc);
 			notifier.fireTestStarted(desc);
 
 			if (!successful) {
-				notifier.fireTestFailure(new Failure(desc, t != null ? t : (message == null ? null : new Exception(message))));
+				notifier.fireTestFailure(new Failure(desc, t != null ? t : new Exception(message == null ? "test failed" : message)));
 			}
 			else {
 				notifier.fireTestFinished(desc);
@@ -231,15 +236,3 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		}
 	}
 }
-
-//class ExtendedDescription {
-//	final Description description;
-//	final String name;
-//	final ISourceLocation loc;
-//	
-//	ExtendedDescription(Description desc, String name, ISourceLocation s){
-//		this.description = desc;
-//		this.name = name;
-//		this.loc = s;
-//	}
-//}
