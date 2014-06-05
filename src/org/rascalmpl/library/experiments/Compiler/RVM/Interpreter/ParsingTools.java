@@ -389,7 +389,7 @@ public class ParsingTools {
 	// Rascal library function
 	public IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
 		if(rex == null){
-			rex = new RascalExecutionContext(vf, false, false, ctx);
+			rex = new RascalExecutionContext(vf, false, false, ctx, null);
 		}
 		return parseFragment(name, start, tree, loc.getURI(), grammar);
 	}

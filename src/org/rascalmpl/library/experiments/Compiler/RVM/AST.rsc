@@ -3,7 +3,8 @@ module experiments::Compiler::RVM::AST
 import Type;
 
 public data Declaration = 
-		  FUNCTION(str qname, 
+		  FUNCTION(str qname,
+		  		   str uqname, 
 		  		   Symbol ftype, 
 		  		   str scopeIn, 
 		  		   int nformals, 
@@ -15,6 +16,7 @@ public data Declaration =
 		  		   list[Instruction] instructions,
 		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
 	    | COROUTINE(str qname, 
+	                str uqname,
 		  		    str scopeIn, 
 		  		    int nformals, 
 		  		    int nlocals, 

@@ -12,11 +12,10 @@ module lang::rascal::tests::functionality::ReducerTests
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
 *******************************************************************************/
 
-	test bool testCount() = ( 0 | it + 1 | x <- [1,2,3] ) == 3;
+test bool testCount() = ( 0 | it + 1 | x <- [1,2,3] ) == 3;
 	
-	test bool testMax() = ( 0 | x > it ? x : it | x <- [1,2,3] ) == 3;
+test bool testMax() = ( 0 | x > it ? x : it | x <- [1,2,3] ) == 3;
 	
-	test bool testSum() = ( 0 | it + x  | x <- [1,2,3] ) == 6;
+test bool testSum() = ( 0 | it + x  | x <- [1,2,3] ) == 6;
 	
-	test bool testFlatMap() = 		( {} | it + x  | x <- {{1,2}, {2,3,4}} ) == {1,2,3,4};
-	
+test bool testFlatMap() = ( {} | it + x  | x <- {{1,2}, {2,3,4}} ) == {1,2,3,4};

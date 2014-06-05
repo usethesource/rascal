@@ -2,7 +2,7 @@ module lang::rascal::tests::functionality::AliasTests
 /*******************************************************************************
  * Copyright (c) 2009-2011 CWI
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
@@ -13,60 +13,61 @@ module lang::rascal::tests::functionality::AliasTests
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
 
-import util::Eval;
-
-public test bool q () {
-   return eval("1==1;")==result(true);
-   }
+alias INTEGER0 = int;
 		
-public test bool  usingAliases1()= eval("alias INTEGER = int;INTEGER I = 3; I == 3;")==result(true);
-public test bool  usingAliases2()= eval("alias INTEGER = int;INTEGER I = 3; INTEGER J = I ; J == 3;")==result(true);
-public test bool  usingAliases3()= eval("alias INTEGER = int;list[INTEGER] LI = [1,2,3]; LI == [1,2,3];")==result(true);
-public test bool  usingAliases4()= eval("alias INTEGER = int;set[INTEGER] SI = {1,2,3}; SI == {1,2,3};")==result(true);
-public test bool  usingAliases5()= eval("alias INTEGER = int; map[INTEGER,INTEGER] MI = (1:10,2:20);MI == (1:10,2:20);")==result(true);
-public test bool  usingAliases6()= eval("alias INTEGER = int; rel[INTEGER,INTEGER] RI = {\<1,10\>,\<2,20\>}; RI == {\<1,10\>,\<2,20\>};")==result(true);
+test bool  usingAliases1() { INTEGER0 I = 3; return I == 3; }
+test bool  usingAliases2() { INTEGER0 I = 3; INTEGER0 J = I ; return J == 3; }
+test bool  usingAliases3() { list[INTEGER0] LI = [1,2,3]; return LI == [1,2,3]; }
+test bool  usingAliases4() { set[INTEGER0] SI = {1,2,3}; return SI == {1,2,3}; }
+test bool  usingAliases5() { map[INTEGER0,INTEGER0] MI = (1:10,2:20); return MI == (1:10,2:20); }
+test bool  usingAliases6() { rel[INTEGER0,INTEGER0] RI = {<1,10>,<2,20>}; return RI == {<1,10>,<2,20>}; }
+ 
+alias INTEGER1 = INTEGER0;
 
-public test bool  usingIndirectAliases1()= eval("
-        alias INTEGER0 = int; alias INTEGER1 = INTEGER0;
-        alias INTEGER = INTEGER1;INTEGER I = 3; I == 3;")==result(true);
-public test bool  usingIndirectAliases2()= eval("
-        alias INTEGER0 = int; alias INTEGER1 = INTEGER0;
-        alias INTEGER = INTEGER1;INTEGER I = 3; INTEGER J = I ; J == 3;")==result(true);
-public test bool  usingIndirectAliases3()= eval("
-        alias INTEGER0 = int; alias INTEGER1 = INTEGER0;
-        alias INTEGER = INTEGER1;list[INTEGER] LI = [1,2,3]; LI == [1,2,3];")==result(true);
-public test bool  usingIndirectAliases4()= eval("
-       alias INTEGER0 = int; alias INTEGER1 = INTEGER0;
-       alias INTEGER = INTEGER1;set[INTEGER] SI = {1,2,3}; SI == {1,2,3};")==result(true);
-public test bool  usingIndirectAliases5()= eval("
-       alias INTEGER0 = int; alias INTEGER1 = INTEGER0;
-       alias INTEGER = INTEGER1; map[INTEGER,INTEGER] MI = (1:10,2:20);MI == (1:10,2:20);")==result(true);
-public test bool  usingIndirectAliases6()= eval("
-       alias INTEGER0 = int; alias INTEGER1 = INTEGER0;
-       alias INTEGER = INTEGER1; rel[INTEGER,INTEGER] RI = {\<1,10\>,\<2,20\>}; RI == {\<1,10\>,\<2,20\>};")==result(true);
+test bool  usingIndirectAliases1() { INTEGER1 I = 3; return I == 3; }       
+test bool  usingIndirectAliases2() { INTEGER1 I = 3; INTEGER1 J = I ; return J == 3; }        
+test bool  usingIndirectAliases3() { list[INTEGER1] LI = [1,2,3]; return LI == [1,2,3]; }      
+test bool  usingIndirectAliases4() { set[INTEGER1] SI = {1,2,3}; return SI == {1,2,3}; }      
+test bool  usingIndirectAliases5() { map[INTEGER1,INTEGER1] MI = (1:10,2:20); return MI == (1:10,2:20); }
+test bool  usingIndirectAliases6() { rel[INTEGER1,INTEGER1] RI = {<1,10>,<2,20>}; return RI == {<1,10>,<2,20>}; }
 
+alias INTEGER2 = INTEGER1;
+test bool  usingVeryIndirectAliases1() { INTEGER2 I = 3; return I == 3; }       
+test bool  usingVeryIndirectAliases2() { INTEGER2 I = 3; INTEGER2 J = I ; return J == 3; }        
+test bool  usingVeryIndirectAliases3() { list[INTEGER2] LI = [1,2,3]; return LI == [1,2,3]; }      
+test bool  usingVeryIndirectAliases4() { set[INTEGER2] SI = {1,2,3}; return SI == {1,2,3}; }      
+test bool  usingVeryIndirectAliases5() { map[INTEGER2,INTEGER2] MI = (1:10,2:20); return MI == (1:10,2:20); }
+test bool  usingVeryIndirectAliases6() { rel[INTEGER2,INTEGER2] RI = {<1,10>,<2,20>}; return RI == {<1,10>,<2,20>}; }
 
-public test bool  aliasAndADT1() =
-		eval("data INTEGER1 = f(int);alias INTEGER0 = INTEGER1;
-		     INTEGER0 x = f(0); x == f(0);")==result(true);
-		
-public test bool aliasAndADT2() = 
-        eval("
-		     alias StateId = int;
-		     alias Permutation = list[int];
-		     alias StatedId = int;
-		     alias Symbol = int;
-		     map[list[Permutation], StateId] allStates = ();
-		     rel[StateId from,StateId to,Symbol symbol] Transitions = {};  
-		     Transitions = {\<1,2,3\>}; true;
-		     ")==result(true);	
+alias INTEGER4 = INTEGER3;
+alias INTEGER3 = int;
 
-public test bool  transitiveAliasAcrossTuples() = eval("
-				 alias trans = tuple[str, str, str];	
-				 alias block = set[trans];
-				 alias partition = set[block];
-		         block aBlock = {\<\"a\", \"b\", \"c\"\>};
-				 aBlock == {\<\"a\", \"b\", \"c\"\>};
-				 ")==result(true);	
+test bool outofOrderDeclaration() { INTEGER4 x = 0; return x == 0; }
+
+alias ADT0 = ADT1;
+data ADT1 = f(int);
+
+test bool  aliasAndADT1() { ADT0 x = f(0); return x == f(0); }
+	
+alias StateId = int;
+alias Permutation = list[int];
+alias StatedId = int;
+alias Symbol = int;
+             	
+test bool aliasAndADT2() {
+    map[list[Permutation], StateId] allStates = ();
+    rel[StateId from,StateId to,Symbol symbol] Transitions = {};  
+    Transitions = {<1,2,3>}; 
+    return true;
+}
+		  
+alias trans = tuple[str, str, str]; 
+alias block = set[trans];
+alias partition = set[block];
+                 
+test bool  transitiveAliasAcrossTuples() {
+    block aBlock = {<"a", "b", "c">};
+    return aBlock == {<"a", "b", "c">};
+}	
 	
 

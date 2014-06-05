@@ -11,12 +11,11 @@ module lang::rascal::tests::functionality::ProjectionTests
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
 *******************************************************************************/
-
-
-
 	
 //	nonEmpty
-		public test bool nonEmpty1()={<1,2>}<0> == {1};
-		public test bool nonEmpty2()={<1,2>}<1> == {2};
+
+test bool nonEmpty1()={<1,2>}<0> == {1};
+
+test bool nonEmpty2()={<1,2>}<1> == {2};
 	
 

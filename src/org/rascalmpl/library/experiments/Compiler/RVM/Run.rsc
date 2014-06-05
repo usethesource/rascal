@@ -5,9 +5,9 @@ import experiments::Compiler::RVM::Syntax;
 import experiments::Compiler::RVM::Load;
 
 import ParseTree;
-import util::IDE;
+//import util::IDE;
 
-import IO;
+//import IO;
 
 @javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Execute}
 @reflect{Executes RVM programs}
@@ -19,19 +19,20 @@ public java tuple[value,int] executeProgram(RVMProgram program,
 										    list[value] arguments, 
 										    bool debug, 
 										    bool testsuite,
-										    bool profile);
+										    bool profile);						    
+										    
 
-public void execute(experiments::Compiler::RVM::Syntax::RascalVM tree, loc selection) {
-	ast = implode(#experiments::Compiler::RVM::AST::RascalVM, tree);
-	out = executeProgram(ast.directives);
-	println(out);	
-}
-
-set[Contribution] contributions = 
-	{ menu(menu("muRascalVM", [ action("Run", execute) ])) };
-
-@doc{Registers the muRascalVM language, .rvm}
-public void registerLanguage() {
-	registerLanguage("muRascalVM", "rvm", experiments::Compiler::RVM::Syntax::RascalVM (str src, loc l) { return parseRVM(src, l); });
-	registerContributions("muRascalVM", contributions);
-}
+//public void execute(experiments::Compiler::RVM::Syntax::RascalVM tree, loc selection) {
+//	ast = implode(#experiments::Compiler::RVM::AST::RascalVM, tree);
+//	out = executeProgram(ast.directives);
+//	println(out);	
+//}
+//
+//set[Contribution] contributions = 
+//	{ menu(menu("muRascalVM", [ action("Run", execute) ])) };
+//
+//@doc{Registers the muRascalVM language, .rvm}
+//public void registerLanguage() {
+//	registerLanguage("muRascalVM", "rvm", experiments::Compiler::RVM::Syntax::RascalVM (str src, loc l) { return parseRVM(src, l); });
+//	registerContributions("muRascalVM", contributions);
+//}

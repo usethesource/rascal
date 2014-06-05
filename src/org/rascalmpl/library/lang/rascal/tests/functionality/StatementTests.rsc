@@ -75,15 +75,13 @@ test bool testWhile2() {return {int n = 0; int m = 2; while(n < 3){ m = m * m; n
   	
 data D = d(int i) | d();
   
-/* Undefined label FAIL_d */
-/*TODO:COMP*/ // D d(int i) { if (i % 2 == 0) fail d; else return d();}
+D d(int i) { if (i % 2 == 0) fail d; else return d();}
   
 // fail
   
 test bool fail1() = d(2) := d(2);
-/*TODO:COMP*/ //@ignore{redefined constructor does not work in compiler}test bool fail2() = d(3) == d();
+test bool fail2() = d(3) == d();
   		
-  
 // testFor
   
 test bool testFor1() {int n = 0; for(int i <- [1,2,3,4]){ n = n + i;} return n == 10;}
@@ -95,7 +93,7 @@ test bool testFor5() {int n = 0; loop:for(int i <- [1,2,3,4], n <= 3){ if (n == 
 // testAppend
 
 /*TODO:?*/
-//public test bool testAppend() for(int i <- [1,2,3,4]){ 3 * i; } == 12;));
+//test bool testAppend() for(int i <- [1,2,3,4]){ 3 * i; } == 12;));
 test bool testAppend1() { L = for(int i <- [1,2,3,4]){ append 3 * i; }; return L == [3,6,9,12];}
 test bool testAppend2() { L = for(int i <- [1,2,3,4]){ append 3 * i; append 4 *i;}; return L == [3,4,6,8,9,12,12,16];}
 
