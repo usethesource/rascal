@@ -1,11 +1,8 @@
 package org.rascalmpl.parser;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,9 +31,7 @@ import org.jgll.grammar.condition.ContextFreeCondition;
 import org.jgll.grammar.condition.PositionalCondition;
 import org.jgll.grammar.condition.RegularExpressionCondition;
 import org.jgll.grammar.precedence.OperatorPrecedence;
-import org.jgll.grammar.symbol.Character;
 import org.jgll.grammar.symbol.CharacterClass;
-import org.jgll.grammar.symbol.Keyword;
 import org.jgll.grammar.symbol.Nonterminal;
 import org.jgll.grammar.symbol.Range;
 import org.jgll.grammar.symbol.Rule;
@@ -54,6 +49,7 @@ import org.jgll.regex.Sequence;
 import org.jgll.sppf.SPPFNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
+import org.jgll.util.GrammarUtil;
 import org.jgll.util.Input;
 import org.jgll.util.Visualization;
 import org.jgll.util.logging.LoggerWrapper;
@@ -81,9 +77,9 @@ public class GrammarToJigll {
 	private String startSymbol;
 
 	private Input input;
-
-	private IConstructor rascalGrammar;
 	
+	private boolean saveObjects = false;
+
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
 		deleteSetCache = new HashMap<>();
@@ -117,7 +113,8 @@ public class GrammarToJigll {
 			return ((Result<IConstructor>) sppf.getObject()).getObject();			
 		} else {
 			ParseError e = result.asParseError();
-			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(loc, 
+			throw RuntimeExceptionFactory.parseError(
+					   vf.sourceLocation(loc, 
 					   e.getInputIndex(), 
 					   1,
 					   input.getLineNumber(e.getInputIndex()),
@@ -129,8 +126,6 @@ public class GrammarToJigll {
 	}
 
 	public void generateGrammar(IConstructor rascalGrammar) {
-		this.rascalGrammar = rascalGrammar;
-		
 		grammar = convert("inmemory", rascalGrammar);
 		IMap notAllowed = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("notAllowed"));
 		IMap except = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("excepts"));
@@ -149,13 +144,7 @@ public class GrammarToJigll {
 	}
 
 	public void save(IString path) throws FileNotFoundException, IOException {
-		File file = new File(path.getValue());
-		if (!file.exists()) {
-			file.createNewFile();
-		}
-		ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
-		out.writeObject(grammar);
-		out.close();
+		GrammarUtil.save(grammar, new File(path.getValue()).toURI());
 	}
 
 	public void generateGraph(IString path, ISourceLocation loc) {
@@ -300,13 +289,15 @@ public class GrammarToJigll {
 
 				IConstructor prod = (IConstructor) alt;
 
-				IConstructor object;
+				SerializableValue object = null;
 
-				if (ebnf) {
-					object = getRegularDefinition(alts);
-				} else {
-					object = (IConstructor) alt;
-				}
+				if (saveObjects) {
+					if (ebnf) {
+						object = new SerializableValue(getRegularDefinition(alts));
+					} else {
+						object = new SerializableValue((IConstructor) alt);
+					}					
+				} 
 
 				if (!prod.getName().equals("regular")) {
 
@@ -314,7 +305,7 @@ public class GrammarToJigll {
 
 					List<Symbol> body = getSymbolList(rhs);
 					
-					Rule rule = new Rule(head, body, new SerializableValue(object));
+					Rule rule = new Rule(head, body, object);
 					rulesMap.put(prod, rule);
 					builder.addRule(rule);
 				}
@@ -373,7 +364,12 @@ public class GrammarToJigll {
 //				if(body.size() == 1) {
 //					regularExpressionsMap.put(head.getName(), body.get(0));				
 //				} else {
-				regularExpressionsMap.put(head.getName(), new Sequence.Builder<RegularExpression>(body).setLabel(head.getName()).setObject(new SerializableValue(prod)).build());
+				SerializableValue object = null;
+				if (saveObjects) {
+					object = new SerializableValue(prod);
+				}
+				
+				regularExpressionsMap.put(head.getName(), new Sequence.Builder<RegularExpression>(body).setLabel(head.getName()).setObject(object).build());
 //				}
 			}
 		}
@@ -445,106 +441,7 @@ public class GrammarToJigll {
 		
 		return result;
 	}
-
-	private Keyword getKeyword(IConstructor symbol) {
-
-		String name = SymbolAdapter.toString(symbol, true);
-		Keyword keyword = (Keyword) regularExpressionsMap.get(name);
-
-		if (keyword == null) {
-
-			IMap definitions = (IMap) rascalGrammar.get("rules");
-			IConstructor choice = (IConstructor) definitions.get(symbol);
-
-			// Keywords are already expanded into a sequence
-			if(choice == null) {
-				if (symbol.getName().equals("seq")) {
-					keyword = new Keyword.Builder(getChars((IList) symbol.get("symbols"))).setObject(new SerializableValue(symbol)).build();
-				} else if (symbol.getName().equals("char-class")) {
-					keyword = new Keyword.Builder(getChars(symbol)).setObject(new SerializableValue(symbol)).build();	
-				}
-			} else {
-				ISet alts = null;
-				try {
-					alts = (ISet) choice.get("alternatives");
-				} catch(Exception e) {
-					throw e;
-				}
-
-				assert alts.size() == 1;
-
-				for (IValue alt : alts) {
-					
-					IConstructor prod = (IConstructor) alt;
-
-					IList rhs = null;
-					try {
-						rhs = (IList) prod.get("symbols");
-					} catch(Exception e) {
-						throw e;
-					}
-					
-					keyword = new Keyword.Builder(getChars(rhs)).setObject(new SerializableValue(prod)).build();
-				}				
-			}
-			
-			regularExpressionsMap.put(name, keyword);
-		}
-
-		return keyword;
-	}
 	
-	private Sequence<Character> getChars(IList rhs) {
-		
-		List<Character> chars = new ArrayList<>();
-		
-		for (IValue s : rhs) {
-
-			IList ranges = null;
-			try {
-				ranges = (IList) ((IConstructor) s).get("ranges");
-			} catch(Exception e) {
-				throw e;
-			}
-
-			assert ranges.length() == 1;
-			
-			for (IValue r : ranges) {
-				IConstructor range = (IConstructor) r;
-				int begin = ((IInteger) range.get("begin")).intValue();
-				int end = ((IInteger) range.get("end")).intValue();
-				assert begin == end;
-				chars.add(Character.from(begin));
-			}
-		}
-		
-		return Sequence.from(chars);
-	}
-	
-	/**
-	 * Transforms a charclass with a single char into an int array 
-	 */
-	private Sequence<Character> getChars(IConstructor charClass) {
-		Character character;
-
-		IList ranges = null;
-		try {
-			ranges = (IList) charClass.get("ranges");
-		} catch(Exception e) {
-			throw e;
-		}
-
-		assert ranges.length() == 1;
-		
-		IConstructor range = (IConstructor) ranges.get(0);
-		int begin = ((IInteger) range.get("begin")).intValue();
-		int end = ((IInteger) range.get("end")).intValue();
-		assert begin == end;
-		character = Character.from(begin);
-		
-		return Sequence.from(character);
-	}
-
 	private Nonterminal getHead(IConstructor symbol) {
 		switch (symbol.getName()) {
 
@@ -632,6 +529,11 @@ public class GrammarToJigll {
 			return regex;
 		}
 		
+		SerializableValue object = null;
+		if (saveObjects) {
+			object = new SerializableValue(symbol);
+		}
+		
 		switch (symbol.getName()) {
 		
 			case "keywords":
@@ -659,19 +561,19 @@ public class GrammarToJigll {
 				break;
 	
 			case "iter":
-				regex = new RegexPlus.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(new SerializableValue(symbol)).build();
+				regex = new RegexPlus.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
 				break;
 	
 			case "iter-seps":
-				regex = new RegexPlus.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(new SerializableValue(symbol)).build();
+				regex = new RegexPlus.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
 				break;
 	
 			case "iter-star":
-				regex = new RegexStar.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(new SerializableValue(symbol)).build();
+				regex = new RegexStar.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
 				break;
 	
 			case "iter-star-seps":
-				regex = new RegexStar.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(new SerializableValue(symbol)).build();
+				regex = new RegexStar.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
 				break;
 	
 			case "opt":
@@ -679,11 +581,11 @@ public class GrammarToJigll {
 				break;
 	
 			case "alt":
-				regex = new RegexAlt.Builder<>(getRegularExpressionList((ISet) symbol.get("alternatives"))).setObject(new SerializableValue(symbol)).build();
+				regex = new RegexAlt.Builder<>(getRegularExpressionList((ISet) symbol.get("alternatives"))).setObject(object).build();
 				break;
 	
 			case "seq":
-				regex = new Sequence.Builder<>(getRegularExpressionList((IList) symbol.get("symbols"))).setObject(new SerializableValue(symbol)).build();
+				regex = new Sequence.Builder<>(getRegularExpressionList((IList) symbol.get("symbols"))).setObject(object).build();
 				break;
 				
 			default:
