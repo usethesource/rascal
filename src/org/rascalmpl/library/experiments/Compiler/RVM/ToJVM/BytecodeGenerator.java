@@ -390,7 +390,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv = cw.visitMethod(ACC_PUBLIC, "dynRun", "(I)Ljava/lang/Object;", null, null);
 		mv.visitCode();
 
-		// Case switch on int at loc 3 (java stack)
+		// Case switch on int at loc 1 (java stack)
 		mv.visitVarInsn(ILOAD, 1);
 		mv.visitTableSwitchInsn(0, nrFuncs - 1, defaultlabel, caseLabels);
 		for (int i = 0; i < nrFuncs; i++) {
@@ -821,34 +821,11 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(AASTORE);
 	}
 
-	public void emitInlineLoadLoc3(boolean debug) {
-		if (!emit)
-			return;
-		if (debug) {
-			emitCall("dinsnLOADLOC3");
-		}
-		mv.visitCode();
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitInsn(DUP);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
-		mv.visitInsn(DUP_X1);
-		mv.visitInsn(ICONST_1);
-		mv.visitInsn(IADD);
-		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
-		mv.visitInsn(ICONST_3);
-		mv.visitInsn(AALOAD);
-		mv.visitInsn(AASTORE);
-	}
-
 	public void emitInlineLoadLocN(int n, boolean debug) {
 		if (!emit)
 			return;
 		if (debug) {
-			emitCall("dinsnLOADLOC3");
+			emitCall("dinsnLOADLOCN");
 		}
 		mv.visitCode();
 		mv.visitVarInsn(ALOAD, 0);
@@ -864,6 +841,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
 
 		emitIntValue(n);
+		
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
 	}
