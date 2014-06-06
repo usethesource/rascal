@@ -14,6 +14,20 @@ import lang::rascal::types::CheckTypes;
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
+loc compiledVersion(loc src) = src.parent + (basename(src) + ".rvm");
+
+//loc compiledVersion(loc src){
+//	bin = src.parent + (basename(src) + ".rvm");
+//	binpath = bin.path;
+//	println("binpath = <binpath>");
+//	if(contains(binpath, "/src/")){
+//		binpath = replaceFirst(binpath, "/src/", "/bin/");
+//		bin = |file://<binpath>|;	
+//	}
+//	println("compiledVersion: <src> -\> <bin>");
+//	return bin;
+//}
+
 RVMProgram compile(str rascalSource, bool listing=false, bool recompile=false){
    muMod  = r2mu(parse(#start[Module], rascalSource).top);
    for(imp <- muMod.imports){
@@ -27,7 +41,8 @@ RVMProgram compile(str rascalSource, bool listing=false, bool recompile=false){
 @doc{Compile a Rascal source module (given at a location) to RVM}
 RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false){
     println("compile: <moduleLoc>");
-    rvmProgramLoc = moduleLoc.parent + (basename(moduleLoc) + ".rvm");
+    //rvmProgramLoc = moduleLoc.parent + (basename(moduleLoc) + ".rvm");
+    rvmProgramLoc = compiledVersion(moduleLoc);
     if(!recompile && exists(rvmProgramLoc) && lastModified(rvmProgramLoc) > lastModified(moduleLoc)){
        try {
   	       rvmProgram = readTextValueFile(#RVMProgram, rvmProgramLoc);
