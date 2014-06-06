@@ -30,11 +30,7 @@ public class RVMRunBody extends RVMRun {
 		globalReturnValue = null;
 
 		// Overloading specific
-		if (c_ofun_call != null && cf.previousCallFrame == c_ofun_call.cf) {
-			ocalls.pop();
-			c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
-		}
-
+		
 		Object rval = null;
 		boolean returns = cf.isCoroutine;
 		if (returns) {
@@ -59,10 +55,8 @@ public class RVMRunBody extends RVMRun {
 				return; // TODO NONE;
 			}
 		}
-		instructions = cf.function.codeblock.getInstructions();
 		stack = cf.stack;
 		sp = cf.sp;
-		pc = cf.pc;
 		if (returns) {
 			stack[sp++] = rval;
 		}
@@ -99,33 +93,6 @@ public class RVMRunBody extends RVMRun {
 			rval = stack[sp - 1];
 		}
 		return rval;
-	}
-
-	int[] dodo;
-
-	public void insnOCALL(int ofun, int arity) {
-		cf.sp = sp;
-		cf.pc = pc;
-
-		OverloadedFunction of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
-		c_ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.functions, of.constructors, root, null, arity) : OverloadedFunctionInstanceCall
-				.computeOverloadedFunctionInstanceCall(cf, of.functions, of.constructors, of.scopeIn, null, arity);
-
-		ocalls.push(c_ofun_call);
-
-		Frame frame = c_ofun_call.nextFrame(functionStore);
-
-		if (frame != null) {
-			cf = frame;
-			stack = cf.stack;
-			sp = cf.sp;
-			pc = cf.pc;
-		} else {
-			Type constructor = c_ofun_call.nextConstructor(constructorStore);
-			sp = sp - arity;
-			stack[sp++] = vf.constructor(constructor, c_ofun_call.getConstructorArguments(constructor.getArity()));
-		}
-
 	}
 
 
@@ -445,12 +412,6 @@ public class RVMRunBody extends RVMRun {
 			return NONE; // Inline call will continue execution
 		}
 	}
-	public void insnJMPINDEXED(int i) {
-		int labelIndex = ((IInteger) stack[--sp]).intValue();
-		IList labels = (IList) cf.function.constantStore[i];
-		pc = ((IInteger) labels.get(labelIndex)).intValue();
-		return;
-	}
 	public void jvmJMPINDEXED(int i) {
 		switch(  ((IInteger) stack[--sp]).intValue()) {
 		case 0 : fret() ;
@@ -496,7 +457,7 @@ public class RVMRunBody extends RVMRun {
 		nop();
 		sp--;
 		if (!((IBool) stack[sp - 1]).getValue()) {
-			pc = target;
+			//pc = target;
 		}
 		nop();
 	}
@@ -505,7 +466,7 @@ public class RVMRunBody extends RVMRun {
 		nop();
 		sp--;
 		if (((IBool) stack[sp]).getValue()) {
-			pc = target;
+			//pc = target;
 		}
 		nop();
 	}

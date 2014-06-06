@@ -850,35 +850,36 @@ public class RVMonMethods implements IRVM {
 		try {
 			try {
 				clazz = this.getClass().getClassLoader().loadClass(className);
-			} catch (ClassNotFoundException e1) {
+			} catch(ClassNotFoundException e1) {
 				// If the class is not found, try other class loaders
-				for (ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
+				for(ClassLoader loader : this.classLoaders) {
+					//for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
 					try {
 						clazz = loader.loadClass(className);
 						break;
-					} catch (ClassNotFoundException e2) {
+					} catch(ClassNotFoundException e2) {
 						;
 					}
 				}
 			}
-
-			if (clazz == null) {
-				throw new RuntimeException("Class not found: " + className);
+			
+			if(clazz == null) {
+				throw new CompilerError("Class not found: " + className);
 			}
-
+			
 			Constructor<?> cons;
 			cons = clazz.getConstructor(IValueFactory.class);
 			Object instance = cons.newInstance(vf);
 			Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes, reflect));
 			int nformals = parameterTypes.getArity();
 			Object[] parameters = new Object[nformals + reflect];
-			for (int i = 0; i < nformals; i++) {
+			for(int i = 0; i < nformals; i++){
 				parameters[i] = stack[sp - nformals + i];
 			}
-			if (reflect == 1) {
-				parameters[nformals] = this.ctx;
+			if(reflect == 1) {
+				parameters[nformals] = this.getEvaluatorContext();
 			}
-			stack[sp - nformals] = m.invoke(instance, parameters);
+			stack[sp - nformals] =  m.invoke(instance, parameters);
 			return sp - nformals + 1;
 		}
 		// catch (ClassNotFoundException e) {
@@ -1680,19 +1681,18 @@ public class RVMonMethods implements IRVM {
 
 	public void insnCALLJAVA() {
 		postOp = 0;
-		String methodName = ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
-		String className = ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
+		String methodName =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
+		String className =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
 		Type parameterTypes = cf.function.typeConstantStore[instructions[pc++]];
 		int reflect = instructions[pc++];
 		arity = parameterTypes.getArity();
 		try {
-			sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
-		} catch (Throw e) {
+		    sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
+		} catch(Throw e) {
 			thrown = Thrown.getInstance(e.getException(), e.getLocation(), new ArrayList<Frame>());
 			postOp = Opcode.POSTOP_HANDLEEXCEPTION;
 			return; // TODO break INSTRUCTION;
 		}
-		return;
 	}
 
 	private void insnCREATEDYN(int arity) {

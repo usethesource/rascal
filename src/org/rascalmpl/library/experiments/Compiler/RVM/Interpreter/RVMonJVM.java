@@ -292,7 +292,6 @@ public class RVMonJVM implements IRVM {
 
 		Object o = null;
 		o = runner.dynRun(uid_main, args);
-		//o = runner.executeProgram(root, cf);
 		if (o != null && o instanceof Thrown) {
 			throw (Thrown) o;
 		}

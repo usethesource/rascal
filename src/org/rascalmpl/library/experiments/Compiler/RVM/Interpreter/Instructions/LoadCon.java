@@ -16,8 +16,8 @@ public class LoadCon extends Instruction {
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		
-		//codeEmittor.emitInlineLoadCon(constant,dcode);
-		codeEmittor.emitCall("insnLOADCON", constant);
+		//codeEmittor.emitCall("insnLOADCON", constant);
+		codeEmittor.emitInlineLoadCon(constant,dcode);
 		codeblock.addCode1(opcode.getOpcode(), constant);
 	}
 }
