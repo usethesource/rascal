@@ -5,14 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors: Jurgen Vinju
+ * Contributors: Paul Klint, Jurgen Vinju
  */
-package org.rascalmpl.test.basic_compiled;
+package org.rascalmpl.test.functionality_compiled;
 
 import org.junit.runner.RunWith;
 import org.rascalmpl.test.infrastructure.RascalJUnitCompiledTestRunner;
 import org.rascalmpl.test.infrastructure.RascalJUnitTestPrefix;
 
 @RunWith(RascalJUnitCompiledTestRunner.class)
-@RascalJUnitTestPrefix("lang::rascal::tests::basic")
-public class RunRascalTestModules { }
+@RascalJUnitTestPrefix("lang::rascal::tests::functionality")
+public class RunRascalCompiledTestModules { }

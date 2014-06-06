@@ -18,7 +18,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
@@ -128,22 +127,11 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	}
 	
 	@Override
-	public Description getDescription() {	
-//		IValueFactory vf = evaluator.getValueFactory();
-//		try {
-//			ISourceLocation src = vf.sourceLocation("rascal", "", "lang/rascal/tests/imports/ImportTests1.rsc");
-//			evaluator.call("executeTests", src);
-//		} catch (URISyntaxException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
-		
+	public Description getDescription() {			
 		if(desc != null)
 			return desc;
 		Description desc = Description.createSuiteDescription(prefix);
 		this.desc = desc;
-		
 
 		try {
 			String[] modules = evaluator.getResolverRegistry().listEntries(URIUtil.create("rascal", "", "/" + prefix.replaceAll("::", "/")));
@@ -243,7 +231,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		@Override
 		public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
 			
-			System.err.println("RascalJunitCompiledTestRunner.report: " + successful + ", test = " + test + ", at " + loc + ", message = " + message);
+			//System.err.println("RascalJunitCompiledTestRunner.report: " + successful + ", test = " + test + ", at " + loc + ", message = " + message);
 			Description desc = getDescription(test, loc);
 			notifier.fireTestStarted(desc);
 
