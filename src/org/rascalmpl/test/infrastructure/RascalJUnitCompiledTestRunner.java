@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
@@ -37,6 +38,20 @@ import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+/**
+ * A JUnit test runner for compiled Rascal tests.
+ * 
+ * The current approach is hybrid:
+ *  - The Rascal source files are parsed to extract the tests.
+ *  - Next the the compiled version of the tests is executed.
+ *  - If needed, tests are recompiled.
+ *  
+ *  To achieve this the Rascal sources of the compiler are loaded in the interpreter.
+ *  
+ *  In a future version we could skip the parsing phase and extract test info from meta-infor
+ *  in the generated code.
+ *
+ */
 public class RascalJUnitCompiledTestRunner extends Runner {
 	private static Evaluator evaluator;
 	private static GlobalEnvironment heap;
@@ -113,7 +128,17 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	}
 	
 	@Override
-	public Description getDescription() {
+	public Description getDescription() {	
+//		IValueFactory vf = evaluator.getValueFactory();
+//		try {
+//			ISourceLocation src = vf.sourceLocation("rascal", "", "lang/rascal/tests/imports/ImportTests1.rsc");
+//			evaluator.call("executeTests", src);
+//		} catch (URISyntaxException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		
 		if(desc != null)
 			return desc;
 		Description desc = Description.createSuiteDescription(prefix);
@@ -223,7 +248,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 			notifier.fireTestStarted(desc);
 
 			if (!successful) {
-				notifier.fireTestFailure(new Failure(desc, t != null ? t : new Exception(message == null ? "test failed" : message)));
+				notifier.fireTestFailure(new Failure(desc, t != null ? t : new AssertionError(message == null ? "test failed" : message)));
 			}
 			else {
 				notifier.fireTestFinished(desc);
