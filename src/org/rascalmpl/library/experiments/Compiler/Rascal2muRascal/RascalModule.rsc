@@ -105,9 +105,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    try {
     println("r2mu: entering ...");
    	Configuration c = newConfiguration();
-   	println("r2mu: newConfiguration done");
-   	config = checkModule(M, c); 
-   	println("r2mu: checkModule done"); 
+   	config = checkModule(M, c);  
    	//text(config);
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
@@ -124,8 +122,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  	}
    	  }
    	  // Extract scoping information available from the configuration returned by the type checker  
-   	  extractScopes();
-   	  println("r2mu: extractScopes done"); 
+   	  extractScopes(); 
    	  module_name = "<M.header.name>";
    	  imported_modules = [];
    	  functions_in_module = [];
@@ -173,7 +170,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
          
          functions_in_module += muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body);   	                                       
    	 }
-   	  println("r2mu: translateModule");				  
+   	 				  
    	  translateModule(M);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
@@ -188,21 +185,20 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  														   	+ [ fuid2str[fuid] + "::companion" | int fuid <- of.fuids, fuid in constructors, !isEmpty(config.dataKeywordDefaults[fuid]) ],
    	  														   [ fuid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.dataKeywordDefaults[fuid]) ]
    	  											  			 > 
-   	  															| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions ];
-   	  println("r2mu: returning translation");     
+   	  															| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions ];    
    	  return muModule(modName, imported_modules, types, functions_in_module, variables_in_module, variable_initializations, overloadingResolver, overloaded_functions, getGrammar(config));
    	}
    } catch Java("ParseError","Parse error"): {
    	   throw "Syntax errors in module <moduleLoc>";
    } catch value except: {
-       println("r2mu: Unexpected exception: <except>");
+       //println("r2mu: Unexpected exception: <except>");
        throw "r2mu: Unexpected exception: <except>";
    }
    finally {
-   	   println("r2mu: Cleaning up ...");
+   	   //println("r2mu: Cleaning up ...");
    	   resetR2mu();
    	   resetScopeExtraction();
-   	   println("r2mu: Cleaned up!");
+   	   //println("r2mu: Cleaned up!");
    }
    throw "r2mu: cannot come here!";
 }

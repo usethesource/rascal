@@ -224,7 +224,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 
 		@Override
 		public void start(int count) {
-			System.out.println("RascalJunitCompiledTestRunner.start: " + count);
+			//System.out.println("RascalJunitCompiledTestRunner.start: " + count);
 			notifier.fireTestRunStarted(module);
 		}
 

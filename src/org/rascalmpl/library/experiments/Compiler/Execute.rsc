@@ -27,6 +27,8 @@ public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/Libr
 
 public list[loc] defaultImports = [|rascal:///Exception.rsc|];
 
+
+
 list[Declaration] parseMuLibrary(){
     println("rascal2rvm: Recompiling library <basename(MuLibrary)>.mu");
  	libModule = load(MuLibrary);
@@ -51,7 +53,7 @@ list[Declaration] parseMuLibrary(){
   	return functions; 
 }
 
-loc compiledVersion(loc src) = src.parent + (basename(src) + ".rvm");
+
 
 tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
    map[str,Symbol] imported_types = ();
