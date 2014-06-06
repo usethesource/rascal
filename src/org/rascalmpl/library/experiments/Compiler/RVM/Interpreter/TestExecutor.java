@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.junit.runner.Description;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.interpreter.NullRascalMonitor;
 
 public class TestExecutor {
 
@@ -35,6 +36,8 @@ public class TestExecutor {
 		this.testResultListener = testResultListener;
 		// Make listener known to compiler's run-time system
 		Execute.setTestResultListener(testResultListener);
+		
+		
 	}
 
 	public void test(String moduleName, int nTests) {
