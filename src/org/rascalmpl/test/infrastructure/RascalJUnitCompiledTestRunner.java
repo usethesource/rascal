@@ -76,9 +76,12 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		// Import the compiler's Execute module
 		NullRascalMonitor monitor = new NullRascalMonitor();
 		
-		System.err.println("**** Loading Compiler (takes a minute!) ****");
+		System.err.println("*********************************************");
+		System.err.println("**** Loading Compiler (takes a minute!)  ****");
+		System.err.println("**** Needs JVM arguments: -Xms64m -Xmx1G ****");
 		evaluator.doImport(monitor, "experiments::Compiler::Execute");		
-		System.err.println("**** Compiler Loaded ****");
+		System.err.println("****          Compiler Loaded            ****");
+		System.err.println("*********************************************");
 	}  
 	
 	public RascalJUnitCompiledTestRunner(Class<?> clazz) {
