@@ -45,7 +45,6 @@ list[Declaration] parseMuLibrary(loc bindir = |home:///bin|){
 //  	functions += [ shiftClosures[qname] | str qname <- shiftClosures ];
 //  	shiftClosures = ();
   
-  	MuLibraryCompiled = compiledVersion(MuLibrary, bindir);
   	writeTextValueFile(MuLibraryCompiled, functions);
     println("rascal2rvm: Writing compiled version of library <MuLibraryCompiled>");
   	
@@ -60,6 +59,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    map[str,int] imported_overloading_resolvers = ();
    
    // Read the muLibrary, recompile if necessary
+   MuLibraryCompiled = compiledVersion(MuLibrary, bindir);
    
    if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
       try {

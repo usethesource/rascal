@@ -14,13 +14,7 @@ import lang::rascal::types::CheckTypes;
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
-//loc compiledVersion(loc src) = src.parent + (basename(src) + ".rvm");
-
-loc compiledVersion(loc src, loc bindir){
-	bin = (bindir + src.path)[extension="rvm"];
-	println("compiledVersion: <src> -\> <bin>");
-	return bin;
-}
+loc compiledVersion(loc src, loc bindir) = (bindir + src.path)[extension="rvm"];
 
 RVMProgram compile(str rascalSource, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
    muMod  = r2mu(parse(#start[Module], rascalSource).top);
