@@ -27,9 +27,7 @@ public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/Libr
 
 public list[loc] defaultImports = [|rascal:///Exception.rsc|];
 
-
-
-list[Declaration] parseMuLibrary(){
+list[Declaration] parseMuLibrary(loc bindir = |home:///bin|){
     println("rascal2rvm: Recompiling library <basename(MuLibrary)>.mu");
  	libModule = load(MuLibrary);
  	functions = [];
@@ -47,15 +45,15 @@ list[Declaration] parseMuLibrary(){
 //  	functions += [ shiftClosures[qname] | str qname <- shiftClosures ];
 //  	shiftClosures = ();
   
+  	MuLibraryCompiled = compiledVersion(MuLibrary, bindir);
   	writeTextValueFile(MuLibraryCompiled, functions);
-    println("rascal2rvm: Writing compiled version of library <basename(MuLibraryCompiled)>.rvm");
+    println("rascal2rvm: Writing compiled version of library <MuLibraryCompiled>");
   	
   	return functions; 
 }
 
-
-
-tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
+tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, 
+									bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
    map[str,Symbol] imported_types = ();
    list[Declaration] imported_functions = [];
    lrel[str,list[str],list[str]] imported_overloaded_functions = [];
@@ -79,9 +77,9 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    // Recompile the default imports, if necessary
    
    for(def <- defaultImports){
-       compiledDef = compiledVersion(def);
+       compiledDef = compiledVersion(def, bindir);
        if(!exists(compiledDef) || lastModified(compiledDef) < lastModified(def)){
-          compile(def);
+          compile(def, bindir = bindir);
        }
    }
    
@@ -90,7 +88,8 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
        for(imp <- rvmProgram.imports + defaultImports, imp notin processed) {
            println("importing: <imp>");
            processed += imp;
-           importedLoc = imp.parent + (basename(imp) + ".rvm");
+           //importedLoc = imp.parent + (basename(imp) + ".rvm");
+           importedLoc = compiledVersion(imp, bindir);
            try {
   	           importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
   	           
@@ -123,24 +122,24 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    return <v, t>;
 }
 
-value execute(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
+value execute(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
 	<v, t> = execute_and_time(rvmProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile);
 	return v;
 }
 
-value execute(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
+value execute(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile);
+   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir);
 }
 
-value execute(str rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
+value execute(str rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile);
+   return execute(rvmProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir);
 }
 
-tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false){
+tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
    rvmProgram = compile(rascalSource, listing=listing, recompile=recompile);
-   return execute_and_time(rvmProgram, arguments, debug=debug, testsuite=testsuite, profile=profile);
+   return execute_and_time(rvmProgram, arguments, debug=debug, testsuite=testsuite, profile=profile, bindir = bindir);
 }
 
 value executeTests(loc rascalSource){
