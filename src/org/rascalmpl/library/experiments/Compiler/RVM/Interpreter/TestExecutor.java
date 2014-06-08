@@ -19,10 +19,8 @@ import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.junit.runner.Description;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 
 public class TestExecutor {
 
