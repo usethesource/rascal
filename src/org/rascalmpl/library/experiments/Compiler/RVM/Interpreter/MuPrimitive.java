@@ -97,9 +97,9 @@ public enum MuPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 2;
-			if (stack[sp - 2] instanceof IValue	&& (stack[sp - 2] instanceof IValue)) {
+			if (stack[sp - 2] instanceof IValue	&& (stack[sp - 1] instanceof IValue)) {
 				stack[sp - 2] = vf.bool(((IValue) stack[sp - 2]).isEqual(((IValue) stack[sp - 1])));
-			} else if (stack[sp - 2] instanceof Type && (stack[sp - 2] instanceof Type)) {
+			} else if (stack[sp - 2] instanceof Type && (stack[sp - 1] instanceof Type)) {
 				stack[sp - 2] = vf.bool(((Type) stack[sp - 2]) == ((Type) stack[sp - 1]));
 			} else
 				throw new CompilerError("MuPrimitive equal -- not defined on "
