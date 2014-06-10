@@ -473,5 +473,19 @@ public class RVMRunBody extends RVMRun {
 	public RVMRunBody(RascalExecutionContext rascalExecutionContext) {
 		super(rascalExecutionContext);
 	}
-
+	
+	int spp() {
+		return sp++ ;
+	}
+	
+	public void insnLOADIN2T(int i) {
+		// TODO solve loading of the right value in compile time
+		stack[spp()] = 2 ;
+	}
+	
+	public void mup(MuPrimitive muprim) {
+			
+		sp = MuPrimitive.and_mbool_mbool.execute(stack, sp, 2) ;
+		
+	}
 }
