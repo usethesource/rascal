@@ -44,6 +44,7 @@ anno list[Message]   Declaration@messages;
 
 data Statement;
 anno loc Statement@src;
+anno loc Statement@decl;
 
 data Expression;
 anno loc Expression@src;

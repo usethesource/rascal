@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.uri.URIResolverRegistry;
 
@@ -31,8 +32,9 @@ public class RascalExecutionContext {
 	private final IValueFactory vf;
 	private final boolean debug;
 	private final boolean profile;
+	private final ITestResultListener testResultListener;
 	
-	RascalExecutionContext(IValueFactory vf, boolean debug, boolean profile, IEvaluatorContext ctx){
+	RascalExecutionContext(IValueFactory vf, boolean debug, boolean profile, IEvaluatorContext ctx, ITestResultListener testResultListener){
 		
 		this.vf = vf;
 		this.debug = debug;
@@ -44,20 +46,31 @@ public class RascalExecutionContext {
 		stderr = ctx.getEvaluator().getStdErr();
 		config = ctx.getEvaluator().getConfiguration();
 		classLoaders = ctx.getEvaluator().getClassLoaders();
+		this.testResultListener = testResultListener;
 		this.ctx = ctx;
 	}
 
 	IValueFactory getValueFactory(){ return vf; }
+	
 	boolean getDebug() { return debug; }
+	
 	boolean getProfile(){ return profile; }
+	
 	URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
+	
 	IRascalMonitor getMonitor() {return monitor;}
+	
 	PrintWriter getStdErr() { return stderr; }
+	
 	PrintWriter getStdOut() { return stdout; }
+	
 	Configuration getConfiguration() { return config; }
+	
 	List<ClassLoader> getClassLoaders() { return classLoaders; }
 	
 	IEvaluatorContext getEvaluatorContext() { return ctx; }
+	
+	ITestResultListener getTestResultListener() { return testResultListener; }
 
 	/**
 	 * Source location resolvers map user defined schemes to primitive schemes

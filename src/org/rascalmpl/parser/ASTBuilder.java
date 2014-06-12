@@ -204,8 +204,13 @@ public class ASTBuilder {
 		}
 		sort = sort.equalsIgnoreCase("pattern") ? "Expression" : capitalize(sort); 
 		
-		if (sort.equals("Mapping")) {
-			sort = "Mapping_Expression";
+		switch(sort){
+		case "Mapping":
+			sort = "Mapping_Expression"; break;
+		case "KeywordArgument":
+			sort = "KeywordArgument_Expression"; break;
+		case "KeywordArguments":
+			sort = "KeywordArguments_Expression"; break;
 		}
 
 		IList args = getASTArgs(tree);
