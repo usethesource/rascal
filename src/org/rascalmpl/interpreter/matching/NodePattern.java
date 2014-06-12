@@ -39,6 +39,9 @@ import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.ast.Expression;
+
+import org.rascalmpl.ast.KeywordArgument_Expression;
+import org.rascalmpl.ast.KeywordArguments_Expression;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
@@ -83,7 +86,6 @@ public class NodePattern extends AbstractMatchingResult {
 			qName = null;
 			matchUPTR = false;
 		}
-
 	}
 
 	@Override

@@ -664,9 +664,13 @@ public class TypeReifier {
 	}
 	
 	private static void constructCompleteTypeStoreRec(TypeStore complete, ModuleEnvironment env, java.util.Set<java.lang.String> done) {
+		if(env == null)		// PK: added this seemingly missing case
+			return;
+		
 		if (done.contains(env.getName())) {
 			return;
 		}
+		//System.err.println("constructCompleteTypeStoreRec: add " + env.getName());
 		done.add(env.getName());
 		
 		complete.importStore(env.getStore());

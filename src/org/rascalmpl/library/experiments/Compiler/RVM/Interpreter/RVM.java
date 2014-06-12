@@ -1389,6 +1389,9 @@ public class RVM {
 				
 			}
 		} catch (Exception e) {
+			if(e instanceof Thrown){
+				throw e;
+			}
 			e.printStackTrace(stderr);
 			throw new CompilerError("Instruction execution: instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: "+ e.getMessage() + e.getCause() );
 			//stdout.println("PANIC: (instruction execution): " + e.getMessage());

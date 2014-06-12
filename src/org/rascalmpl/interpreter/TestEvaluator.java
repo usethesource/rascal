@@ -66,13 +66,16 @@ public class TestEvaluator {
 //		try {
 		for (int i = tests.size() - 1; i >= 0; i--) {
 		  AbstractFunction test = tests.get(i);
+		  if (test.hasTag("ignore") || test.hasTag("Ignore") || test.hasTag("ignoreInterpreter") || test.hasTag("IgnoreInterpreter")) {
+			  continue;
+		  }
 
 		  try{
 		    QuickCheck qc = QuickCheck.getInstance();
 		    StringWriter sw = new StringWriter();
 		    PrintWriter out = new PrintWriter(sw);
 		    int maxDepth = Cobra.readIntTag(test, Cobra.MAXDEPTH, 5);
-		    int tries = Cobra.readIntTag(test, Cobra.TRIES, 50);
+		    int tries = Cobra.readIntTag(test, Cobra.TRIES, 500);
 
 		    boolean result = qc.quickcheck(test, maxDepth, tries, false, out);
 		    if (!result) {

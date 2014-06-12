@@ -24,7 +24,7 @@ public Class class(int version, set[ClassModifier] modifiers, str name, str sign
 public Class innerClass(str name, int access) = innerClass(name, "", "", access);
 
 data PrimitiveTypeDescriptor = boolean() | char() | byte() | short() | \int() | float() | long() | double();
-data TypeDescriptor = primitive(PrimitiveTypeDescriptor \type) | object(str internalName) | array(TypeDescriptor \type);
+data TypeDescriptor = primitive(PrimitiveTypeDescriptor \type) | object(str internalName) | array(TypeDescriptor \td);
 
 data MethodDescription = methodDescriptor(list[TypeDescriptor] arguments, TypeDescriptor returnType);
 

@@ -71,8 +71,9 @@ public class SerializeClass {
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()), null, null);
 		} catch(Exception e){
-			ctx.getStdErr().print(e.getMessage());
-			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()), null, null);
+			String msg = e.getMessage();
+			ctx.getStdErr().print(msg);
+			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(msg != null ? msg : e.getClass().getSimpleName()), null, null);
 		}
 		
 	}

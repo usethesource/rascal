@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors: Jurgen Vinju
+ * Contributors: Paul Klint, Jurgen Vinju
  */
 
 package org.rascalmpl.test.infrastructure;
@@ -13,7 +13,6 @@ package org.rascalmpl.test.infrastructure;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
-import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.junit.runner.Description;
@@ -80,11 +79,11 @@ public class RascalJUnitTestRunner extends Runner {
 	}
 	
 	static protected String computeTestName(String name, ISourceLocation loc) {
-		return name + ":" + loc.getEndLine();
+		return name + ": <" + loc.getOffset() +"," + loc.getLength() +">";
 	}
 	
 	@Override
-	public Description getDescription() {
+	public Description getDescription() {		
 		Description desc = Description.createSuiteDescription(prefix);
 		this.desc = desc;
 		
@@ -100,13 +99,10 @@ public class RascalJUnitTestRunner extends Runner {
 				Description modDesc = Description.createSuiteDescription(name);
 				desc.addChild(modDesc);
 				
-				List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
-				
-        for (int i = tests.size() - 1; i >= 0; i--) {
-          AbstractFunction f = tests.get(i);
-          if (!f.hasTag("ignore")) {
-            modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
-          }
+				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
+				  if (!(f.hasTag("ignore") || f.hasTag("Ignore") || f.hasTag("ignoreInterpreter") || f.hasTag("IgnoreInterpreter"))) {
+				    modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
+				  }
 				}
 			}
 			

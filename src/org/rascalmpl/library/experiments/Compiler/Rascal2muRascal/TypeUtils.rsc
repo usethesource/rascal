@@ -125,7 +125,7 @@ void extractScopes(){
       switch(item){
         case function(rname,rtype,
                       keywordParams,_,
-        			  inScope,_,src):      { 
+        			  inScope,_,_,src):      { 
         							         functions += {uid};
         							         declares += {<inScope, uid>}; 
                                              loc2uid[src] = uid;
@@ -252,7 +252,7 @@ void extractScopes(){
             uid2addr[topdecls[i]] = <getFUID(uid2str(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0), i + 1>;
     	}
     	// Then, functions
-    	topdecls = [ uid | uid <- declares[muid], function(_,_,_,_,_,_,_) := config.store[uid] ||
+    	topdecls = [ uid | uid <- declares[muid], function(_,_,_,_,_,_,_,_) := config.store[uid] ||
     											  closure(_,_,_,_)        := config.store[uid] ||
     											  constructor(_,_,_,_,_)  := config.store[uid] ||
     											( production(rname,_,_,_) := config.store[uid] 
@@ -295,7 +295,7 @@ void extractScopes(){
             uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have the position
         }
         // Then, functions
-        decls = [ uid | uid <- declares[innerScopes], function(_,_,_,_,_,_,_) := config.store[uid] ||
+        decls = [ uid | uid <- declares[innerScopes], function(_,_,_,_,_,_,_,_) := config.store[uid] ||
         											  closure(_,_,_,_) := config.store[uid] ];
         for(i <- index(decls)) {
         	uid2addr[decls[i]] = <fuid2str[fuid], -1>;
@@ -350,7 +350,7 @@ str getOuterType(Tree e) {
 Symbol getFunctionType(loc l) { 
    int uid = loc2uid[l];
    fun = config.store[uid];
-   if(function(_,Symbol rtype,_,_,_,_,_) := fun) {
+   if(function(_,Symbol rtype,_,_,_,_,_,_) := fun) {
        return rtype;
    } else {
        throw "Looked up a function, but got: <fun> instead";
@@ -399,7 +399,7 @@ str uid2str(int uid) {
 		name = uid2str(containedIn[uid]) + "/" + name;
 	} else if(declaredIn[uid]?) {
 	    val = config.store[uid];
-	    if( (function(_,_,_,_,inScope,_,src) := val || constructor(_,_,_,inScope,src) := val || production(_,_,inScope,src) := val ), 
+	    if( (function(_,_,_,_,inScope,_,_,src) := val || constructor(_,_,_,inScope,src) := val || production(_,_,inScope,src) := val ), 
 	        \module(value _,loc at) := config.store[inScope]) {
         	if(at.path != src.path) {
         	    str path = replaceAll(src.path, ".rsc", "");
