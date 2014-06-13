@@ -27,34 +27,38 @@ void ex01(){
 }  
 
 void ex02(){
-	ex("ex02", box(fillColor("red"), lineColor("black"), lineWidth(10), lineStyle([10,20,10,10]), size(100,100)));
-}   
+	ex("ex02", box(fillColor("red"), lineColor("blue"), lineWidth(10), lineStyle([10,20,10,10]), size(100,100)));
+}
+
+void ex03(){
+	ex("ex02", box(fillColor("red"), lineColor("blue"), lineWidth(1), size(100,100), pos(50,50)));
+}     
 
 // Nested box
 
 void ex10(){
-	ex("ex10", box(box(fillColor("red"), size(50,100)), fillColor("black"), size(200,200), gap(10,10)));
+	ex("ex10", box(box(fillColor("red"), size(50,100)), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex11(){
-	ex("ex11", box(box(fillColor("red"), size(50,100), align(left(), top())), fillColor("black"), size(200,200), gap(0,0)));
+	ex("ex11", box(box(fillColor("red"), size(50,100), align(left(), top())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 void ex12(){
-	ex("ex12", box(box(fillColor("red"), size(50,100), align(right(), top())), fillColor("black"), size(200,200), gap(0,0)));
+	ex("ex12", box(box(fillColor("red"), size(50,100), align(right(), top())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 void ex13(){
-	ex("ex13", box(box(fillColor("red"), size(50,100), align(right(), bottom())), fillColor("black"), size(200,200), gap(0,0)));
+	ex("ex13", box(box(fillColor("red"), size(50,100), align(right(), bottom())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 void ex14(){
-	ex("ex14", box(box(fillColor("red"), size(50,100), align(left(), bottom())), fillColor("black"), size(200,200), gap(0,0)));
+	ex("ex14", box(box(fillColor("red"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 
 void ex15(){
-	ex("ex15", box(box(fillColor("red"), size(50,100), align(left(), top())), fillColor("black"), size(200,200), gap(10,10)));
+	ex("ex15", box(box(fillColor("red"), size(50,100), align(left(), top())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex16(){
@@ -62,15 +66,15 @@ void ex16(){
 } 
 
 void ex17(){
-	ex("ex17", box(box(fillColor("red"), size(50,100), align(right(), bottom())), fillColor("black"), size(200,200), gap(10,10)));
+	ex("ex17", box(box(fillColor("red"), size(50,100), align(right(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex18(){
-	ex("ex18", box(box(fillColor("red"), size(50,100), align(left(), bottom())), fillColor("black"), size(200,200), gap(10,10)));
+	ex("ex18", box(box(fillColor("red"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex19(){
-	ex("ex19", box(box(box(fillColor("green"), size(20,20)), fillColor("red"), size(50,100), align(left(), bottom())), fillColor("black"), size(200,200), gap(10,10)));
+	ex("ex19", box(box(box(fillColor("green"), size(20,20)), fillColor("red"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 // hcat  
@@ -232,3 +236,12 @@ void ex62(){
 					 //box(fillColor("yellow"),size(50,50))
 					], align(left(), vcenter())));
 }
+
+/*
+t1 = tree(box(fillColor("green")),
+          [ box(fillColor("red")),
+     	    box(fillColor("blue"))
+     	  ],
+          std(size(50)), std(gap(20))
+    	);
+*/

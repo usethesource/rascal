@@ -29,16 +29,23 @@ FProperties combine(FProperty fp, FProperties fps) = [fp, *fps];
 
 FProperties combine(FProperties fps1, FProperties fps2) = fps1 + fps2;
 
-alias Size 	= tuple[int width, int height];
-alias Pos  	= tuple[int x, int y];
-alias Gap 	= tuple[int width, int height];
-alias Align	= tuple[HAlign xalign, VAlign yalign];
+// Bounding box
 
 data BBox = bbox(int x, int y, int width, int height);
 
 Pos getPos(BBox bb) = <bb.x, bb.y>;
 
 Size getSize(BBox bb) = <bb.width, bb.height>;
+
+// size 
+
+alias Size 	= tuple[int width, int height];
+
+bool hasSize(FProperties fps) {
+	for(fp <- fps)
+		if (size(int xsize, int ysize) := fp) return true;
+	return false;
+}	
 
 Size getSize(FProperties fps, Size def) {
 	for(fp <- fps)
@@ -48,6 +55,16 @@ Size getSize(FProperties fps, Size def) {
 
 Size getSize(FProperties fps) = getSize(fps, <0,0>);
 
+// gap
+
+alias Gap 	= tuple[int width, int height];
+
+bool hasGap(FProperties fps, Size def) {
+	for(fp <- fps)
+		if (gap(int width, int height) := fp) return true;
+	return false;
+}
+
 Size getGap(FProperties fps, Size def) {
 	for(fp <- fps)
 		if (gap(int width, int height) := fp) return <width, height>;
@@ -56,6 +73,16 @@ Size getGap(FProperties fps, Size def) {
 
 Size getGap(FProperties fps)  = getGap(fps, <0,0>);
 
+// pos 
+
+alias Pos = tuple[int x, int y];
+
+bool hasPos(FProperties fps) {
+	for(fp <- fps)
+		if (pos(int x, int y) := fp) return true;
+	return false;
+}	
+
 Pos getPos(FProperties fps, Pos def) {
 	for(fp <- fps)
 		if (pos(int xpos, int ypos) := fp) return <xpos, ypos>;
@@ -63,6 +90,8 @@ Pos getPos(FProperties fps, Pos def) {
 }
 
 Size getPos(FProperties fps)  = getPos(fps, <0,0>);
+
+alias Align	= tuple[HAlign xalign, VAlign yalign];
 
 Align getAlign(FProperties fps, Align def) {
 	for(fp <- fps)
@@ -88,7 +117,7 @@ str trProps(FProperties fps) {
 	return "{ <intercalate(", ", res)> }";
 }
 
-str trProp(pos(int xpos, int ypos)) 		= "x: <xpos>, y: <ypos>";
+str trProp(pos(int xpos, int ypos)) 		= "";
 //str trProp(size(int xsize, int ysize))	= "width: <xsize>, height <ysize>";
 str trProp(gap(int width, int height)) 		= "";
 str trProp(align(HAlign xalign, VAlign yalign)) 	

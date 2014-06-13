@@ -18,6 +18,7 @@ data PRIM =
 	| circle_prim(BBox bb, FProperties fp)
 	| barchart_prim(BBox bb, FProperties fp)
 	| scatterplot_prim(BBox bb, FProperties fp)
+	| tree_prim(BBox bb, FProperties fp)
 	;
 	
 // Translation a list of PRIMs to one HTML page
@@ -64,7 +65,15 @@ BBox reduce(bb, FProperties fps){
 
 // Compute the size of a Figure
 
-Size sizeOf(_box(FProperties fps), FProperty pfps...) = getSize(combine(fps, pfps), <10, 10>);
+Size sizeOf(_box(FProperties fps), FProperty pfps...) {
+	afps = combine(fps, pfps);
+	<w, h> = getSize(afps, <10, 10>);
+	if(hasPos(afps)){
+		<x, y> = getPos(afps);
+		return <x + w, y + h>;
+	}
+	return <w, h>;
+}
 
 Size sizeOf(_box(Figure inner, FProperties fps), FProperty pfps...) {
     afps = combine(fps, pfps);
@@ -106,11 +115,19 @@ Size sizeOf(_scatterplot(FProperties fps),  FProperty pfps...){
 	return res;
 }
 
+Size sizeOf(_tree(FProperties fps),  FProperty pfps...){
+	afps = combine(fps, pfps);
+	res = getSize(afps, <200,200>);
+	println("sizeOF _tree: <res>");
+	return res;
+}
+
 // Translates a Figure to a list of PRIMs
 
 list[PRIM] trFig(Figure f) {
 	<w, h> = sizeOf(f,  getDefaultProperties());
-	return tr(f, bbox(0, 0, w, h), getDefaultProperties());
+	<x, y> = getPos(f.props, <0, 0>);
+	return tr(f, bbox(x, y, w, h), getDefaultProperties());
 }
 
 list[PRIM] tr(_box(FProperties fps), bb, FProperties pfps) {
@@ -150,6 +167,12 @@ list[PRIM] tr(_scatterplot(FProperties fps), bb, FProperties pfps) {
 	println("tr _scatterplot: fps <fps>, bb <bb>, pfps <pfps>");
 	fps1 = combine(fps, pfps);
 	return [scatterplot_prim(bb, fps1)];
+}
+
+list[PRIM] tr(_tree(FProperties fps), bb, FProperties pfps) {
+	println("tr _tree: fps <fps>, bb <bb>, pfps <pfps>");
+	fps1 = combine(fps, pfps);
+	return [tree_prim(bb, fps1)];
 }
 
 Pos align(Pos position, Size container, Size fig, Gap gap, Align align){
