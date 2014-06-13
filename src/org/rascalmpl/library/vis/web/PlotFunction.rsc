@@ -41,7 +41,7 @@ public tuple[int x, int y, int mx, int my] rng(list[lrel[num, num]] dots) {
     zz.mx = max(zz.mx, r.mx); zz.my = max(zz.my, r.my);
     }
     // println(zz);
-    return <floor(zz.x), floor(zz.y), ceil(zz.mx), ceil(zz.my)>;
+    return <floor(zz.x)-1, floor(zz.y)-1, ceil(zz.mx)+1, ceil(zz.my)+1>;
    } 
    
 tuple[str name, lrel[num, num] f] pf(tuple[str name, list[num] ticks, num(num) g] t) {
@@ -56,25 +56,61 @@ public void plot(tuple[str name, lrel[num, num] f] dots ..., num x = 0, num y = 
     if (!isEmpty(yticks)) nTicky = size(yticks);
     num tickx = 1.0/(nTickx-1);
     num ticky = 1.0/(nTicky-1);
-    num step =  1.0/nStep;   
-    if (width<0) {
+    num step =  1.0/nStep;  
+    num w = width;  num h = height;   
+    if (w<0) {
         tuple[int x, int y, int mx, int my] r = rng(dots.f);    
         x = r.x; y = r.y; 
-        width = r.mx - r.x;
-        if (height<0) height = r.my - r.y;
+        w = r.mx - r.x;
+        if (h<0) h = r.my - r.y;
         }
     // println(x);
    list[str] xt = xticks;
-   if (isEmpty(xt)) xt = [labx(i, x, tickx * width)|int i<-[0..nTickx]];
+   if (isEmpty(xt)) xt = [labx(i, x, tickx * w)|int i<-[0..nTickx]];
    list[str] yt = yticks;
-   if (isEmpty(yt)) yt = [laby(i, y, ticky * height)|int i<-[0..nTicky]];     
+   if (isEmpty(yt)) yt = [laby(i, y, ticky * h)|int i<-[0..nTicky]];     
    list[tuple[str, str, str, list[tuple[num, num]]]] q = 
    [<d.name, getColor(colorMap, d.name), getStyle(styleMap, d.name), 
-       [<(-x+cx)*(nTickx-1)/width, (-y+cy)*(nTicky-1)/height >| <cx, cy> <- d.f]>|d<-dots];       
-    PlotData p = <"plot", xt, yt, q>;
+       [<(-x+cx)*(nTickx-1)/w, (-y+cy)*(nTicky-1)/h >| <cx, cy> <- d.f]>|d<-dots];       
+    PlotData p = <"plot", "plot", xt, yt, q>;
     plot(p, width=viewWidth, height=viewHeight, style=style, symbolSize = symbolSize);  
+    }
+      
+public str plotHtml(loc location, str tagName, tuple[str name, lrel[num, num] f] dots ..., num x = 0, num y = 0, num width = -1, num height = -1, int nTickx = 10,
+    int nTicky = 10, int nStep=100, int viewWidth= 600, int viewHeight = 600, 
+    map[str, str] colorMap = (), map[str, str] styleMap = (),
+    str style="dots", int symbolSize=20, list[str] xticks = [], list[str] yticks = [], num factor = 1.0,
+    bool x_axis = true, bool y_axis = true, int margin = 60) {
+    if (!isEmpty(xticks)) nTickx = size(xticks);
+    if (!isEmpty(yticks)) nTicky = size(yticks);
+    num tickx = 1.0/nTickx;
+    num ticky = 1.0/nTicky;
+    num step =  1.0/nStep; 
+    num w = width;  num h = height;  
+    if (w<0) {
+        tuple[int x, int y, int mx, int my] r = rng(dots.f);
+        x = r.x; y = r.y; w = r.mx - r.x; 
+        if (height<0) h = r.my - r.y;
+        }
+    list[str] xt = xticks;
+    if (isEmpty(xt)) xt = [labx(i, x, tickx * w)|int i<-[0..nTickx+1]];
+    list[str] yt = yticks;
+    if (isEmpty(yt)) yt = [laby(i, y, ticky * h)|int i<-[0..nTicky+1]];   
+   list[tuple[str, str, str, list[tuple[num, num]]]] q = 
+   [<d.name, getColor(colorMap, d.name), getStyle(styleMap, d.name), 
+       [<(-x+cx)*nTickx/w, (-y+cy)*nTicky/h >| <cx, cy> <- d.f]>|d<-dots];       
+    PlotData p = <tagName, tagName, xt, yt, q>;
+    str g = plotEl(location, 
+         p, width = viewWidth
+     , height = viewHeight 
+     , style = style
+     , symbolSize = symbolSize
+     , factor =  1.0, margin =margin
+    , x_axis = x_axis, y_axis = y_axis);
+    // println(xt);
+    // println(yt);
+    return g;
     }  
- 
 public void plotFunction(tuple[str name, list[num] ticks, num(num) g] t..., str name = "plotFunction",  num x = 0, num y = 0, num width = -1, num height = -1, int nTickx = 10,
     int nTicky = 10, int nStep=100, int viewWidth= 600, int viewHeight = 600, 
     map[str, str] colorMap = (), map[str, str] styleMap = (),
