@@ -29,9 +29,6 @@ public data Figure =
    
    | _ellipse(FProperties props)                // ellipse with inner element
    | _ellipse(Figure inner, FProperties props)  // ellipse with inner element
-   
-   | _wedge(FProperties props)			      	// wedge
-   | _wedge(Figure inner, FProperties props)    // wedge with inner element
                    
    | _hcat(Figures figs, FProperties props) 	// horizontal and vertical concatenation
    | _vcat(Figures figs, FProperties props) 	// horizontal and vertical concatenation
@@ -40,6 +37,7 @@ public data Figure =
    
    | _barchart(FProperties props)
    | _scatterplot(FProperties props)
+   | _tree(Figures figs, FProperties props)
    ;
 
 public Figure text(str s, FProperty props ...){
@@ -54,34 +52,6 @@ public Figure box(Figure fig, FProperty props ...){
   return _box(fig, props);
 }
 
-public Figure ellipse(FProperty props ...){
-  return _ellipse(props);
-}
-
-public Figure ellipse(Figure fig, FProperty props ...){
-  return _ellipse(fig, props);
-}
-
-public Figure wedge(FProperty props ...){
-  return _wedge(props);
-}
-
-public Figure wedge(Figure fig, FProperty props ...){
-  return _wedge(fig, props);
-}  
-
-public Figure space(FProperty props ...){
-  return _space(props);
-}
-
-public Figure space(Figure fig, FProperty props ...){
-  return _space(fig, props);
-}
-
-public Figure overlap(Figure under,Figure over, FProperty props ...){
-  return _overlap(under,over,props);
-}
-
 public Figure hcat(Figures figs, FProperty props ...){
   return _hcat(figs,props);
 }
@@ -91,15 +61,11 @@ public Figure vcat(Figures figs, FProperty props ...){
 }
 
 public Figure tree(Figure root, Figures children, FProperty props...){
-	return _tree([root] + children,[std(resizable(false))] + props);
+	return _tree([root] + children, props);
 }
 
 public Figure hvcat(Figures figs, FProperty props ...){
   return _widthDepsHeight(_hvcat(figs, props),[]);
-}
-
-public Figure overlay(Figures figs, FProperty props ...){
-  return _overlay(figs, props);
 }
 
 public Figure barchart(FProperty props ...){
