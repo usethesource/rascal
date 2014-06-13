@@ -16,7 +16,7 @@ alias Att =  map[str, value];
 
 alias Css = map[str, Att];
 
-alias PlotData = tuple[str title, list[str] xticks, list[str] yticks, list[tuple[str name, str color, str style, list[tuple[num, num]] d]] fs] ;
+alias PlotData = tuple[str title, str name, list[str] xticks, list[str] yticks, list[tuple[str name, str color, str style, list[tuple[num, num]] d]] fs] ;
 
 
 
@@ -407,51 +407,46 @@ public loc publish(loc location, str header, str body) {
      return location;    
      }
       
- public loc publish(loc location, PlotData  pd, str header, str body, int width, int height
-   ) { 
-     list[tuple[str name, str color, str style, list[tuple[num , num ]] d]] d = pd.fs;
-     list[str] coord = ["x", "y"];
-     list[str] tx  = pd.xticks;
-     list[str] ty  = pd.yticks;
+ public loc publish(loc location, PlotData  pd, str body
+   ) {  
+     list[tuple[str name, str color, str style, list[tuple[num , num ]] d]] 
+     d = pd.fs;
      list[str] names = [e.name|e<-d];
-     str checkButtons = buttons("Points", "markerButton", <["all"]+names,  ["points", "lines", "splines"]>);
+     str checkButtons = buttons("Points", pd.name, "markerButton", <["all"]+names,  ["points", "lines", "splines"]>);
      str header0 =toCss((
             "td":
-            ("border-collapse":"collapse", "vertical-align":"top")  
-            ,"table":
-            ("border":"1px solid green")      
-             ));
-     tuple[str, list[str], list[str], list[map[str key, /*list[map[str, value]]*/ value dt]]] 
-        jsonData = <pd.title , tx, ty, [("name":name, "color":cl, "style":st,
-         "path":[(coord[i] : r[i]|i<-[0..2])+("kind":name)|
-         tuple[num, num] r<-v])|<str name, str cl, str st, list[tuple[num, num]] v> <-d]>; 
-     // println(jsonData);
-      writeTextJSonFile(location+"data.json", jsonData);     
+            (
+             "vertical-align":"top"
+            //  ,"border-collapse":"collapse"     
+            // ,"border":"1px solid green"
+             )  
+           ,"table":
+            ("border-collapse":"collapse"
+           //  , "border":"1px solid green"
+            )      
+             ));    
       writeFile(location+"index.html", html(header0, 
       W3(table_, W3(tr_, W3(td_,
-      W3(iframe_,
-           (src_:"graph.html", id_:"graph", width_:width, height_:height+150)
-      ))
+         body
+      )
       + W3(td_, checkButtons)
       ) 
-      ))); 
-      writeFile(location+"graph.html",  html(header+
-         W3(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8")), body));         
+      )));   
       return location;    
       }
       
-str scatterFunction(int symbolSize, str style) {
+str scatterFunction(PlotData p, int symbolSize, str style) {
       str head =  "svg"+D3(\append("g") o attr((style_: "clip-path:url(#clippath);")) o
            selectAll(".points") o \data(<"dat[3]">) o  enter o \append("g"));
       str points = head+D3(\filter(
       <["d"], [<"return force || 
       (sessionStorage.getItem(\'points\')?
-            sessionStorage.getItem(\'points\').indexOf(\':\'+d.name+\':\') \>= 0
+            sessionStorage.getItem(\'points\').indexOf(\':<p.name>_\'+d.name+\':\') \>= 0
             :
       (d.style == \"points\" <style=="points"? "|| d.style==\"default\"":"">))">]>)
       o
        \filter(<["d"],[  
-                      < "return choice==\"all\" || choice == d.name">
+                      < "return choice==\"<p.name>_all\" || choice == \'<p.name>_\'+d.name">
                       ]>)
       );
       return JS(<"scatterFunction", ["choice", "force"], < 
@@ -461,7 +456,7 @@ str scatterFunction(int symbolSize, str style) {
             ]>
             ,
             class_: <["q"], [    
-              <"return \"graph \"+ \"points \"+q.name">
+              <"return \"<p.name> \"+ \"points \"+q.name">
               ]>
             )) 
            o selectAll("g.point") o \data(<["d", "i"], [<"return d.path">]>) o  enter o \append("path") o
@@ -475,26 +470,26 @@ str scatterFunction(int symbolSize, str style) {
 
  
  
- str lineFunction(str style) {  
+ str lineFunction(PlotData p,str style) {  
     str head =  "svg"+D3(\append("g") o attr((style_: "clip-path:url(#clippath);")) o
            selectAll(".lines") o \data(<"dat[3]">) o  enter o \append("path"));
     str lines = head+D3(\filter(
        <["d"], [<"
             return force || 
             (sessionStorage.getItem(\'lines\')?
-            sessionStorage.getItem(\'lines\').indexOf(\':\'+d.name+\':\') \>= 0
+            sessionStorage.getItem(\'lines\').indexOf(\':<p.name>_\'+d.name+\':\') \>= 0
             :
             (d.style == \"lines\" <style=="lines"? "|| d.style==\"default\"":""> ))
             ">]>) 
             o \filter(<["d"],[  
-                      < "return choice==\"all\" || choice == d.name">
+                      < "return choice==\"<p.name>_all\" || choice == \'<p.name>_\'	+d.name">
                       ]>)
           );
     return JS(<"lineFunction", ["choice", "force"], <
            lines+D3(
            attr((
               class_: <["q"], [         
-                   <"return \"graph \"+\"lines \"+q.name">]>,
+                   <"return \"<p.name> \"+\"lines \"+q.name">]>,
               "d": <["q"], [<"return lineLinear(q.path)">]>,    
               "stroke":<["q"], [<"return q.color==\"none\"?colormap(q.name):q.color">]>
               
@@ -505,39 +500,41 @@ str scatterFunction(int symbolSize, str style) {
          )>>) ;
     }
     
-str splineFunction(str style) {  
+str splineFunction(PlotData p, str style) {  
     str head =  "svg"+D3(\append("g") o attr((style_: "clip-path:url(#clippath);")) o
            selectAll(".splines") o \data(<"dat[3]">) o  enter o \append("path"));
     str lines = head+D3(\filter(
        <["d"], [
-             // <"if (sessionStorage.getItem(\'splines\')) alert(sessionStorage.getItem(\'splines\').indexOf(\"cos\"))">,
+            //  <"alert(sessionStorage.getItem(\'splines\'))">,        
              <
             "return force || 
             (sessionStorage.getItem(\'splines\')?
-            sessionStorage.getItem(\'splines\').indexOf(\':\'+d.name+\':\') \>= 0
+            sessionStorage.getItem(\'splines\').indexOf(\':<p.name>_\'+d.name+\':\') \>= 0
             :
             (d.style == \"splines\" <style=="splines"? "|| d.style==\"default\"":""> ))
             ">]>)
              o \filter(<["d"],[  
-                      < "return choice==\"all\" || choice == d.name">
+                      < "return choice==\"<p.name>_all\" || choice == \'<p.name>_\'+d.name">
                       ]>)
        );
-    return JS(<"splineFunction", ["choice", "force"], <lines+D3(
+    return JS(<"splineFunction", ["choice", "force"], [
+          <lines+D3(
            attr((
               class_: <["q"], [
-               <"return \"graph \"+\"splines \"+q.name">]>,
-              "d": <["q"], [<"return lineMonotone(q.path)">]>,
+               <"return \"<p.name> \"+\"splines \"+q.name">]>,
+              "d": <["q"], [
+                 <"return lineMonotone(q.path)">]>,
               "stroke":<["q"], [<"return q.color==\"none\"?colormap(q.name):q.color">]>
            ) )  o \append("title") o text(<["d", "i"], [<"return d.name">]>)
           
          )
-          >>) ;
+          >]>) ;
     }
     
-public str buttons(str title, str class, tuple[list[str] names,  list[str] vs] t
+public str buttons(str title, str tagName, str class, tuple[list[str] names,  list[str] vs] t
    ) {
-   str checkBox = CheckBox(title, class, t);
-   str resetButton = ResetButton();
+   str checkBox = CheckBox(title, tagName, class, t);
+   str resetButton = ResetButton(tagName);
    str textButton =  labelNames();
    return W3(table_,
       W3(tr_, W3(td_, textButton))+
@@ -546,18 +543,18 @@ public str buttons(str title, str class, tuple[list[str] names,  list[str] vs] t
       );
    }
    
-str CheckBox(str title, str class, tuple[list[str] names,  list[str lab] vs] t) {
+str CheckBox(str title, str tagName, str class, tuple[list[str] names,  list[str lab] vs] t) {
    str s = "";
    for (str name<-t.names) s+=W3(tr_, W3(td_, W3(b_, name))+  
    "<for(str v<-t.vs){>
       <W3(td_,  (id_: "<v>"), W3(label_, ("for":"<v>"),  v)
       +
       W3(input_
-    , ("type":"checkbox", "name": "<name>",  class_: "<class> <v> <name>",
+    , ("type":"checkbox", "name": "<tagName>_<name>",  class_: "<class> <v> <tagName>_<name>",
     "value":v, 
      "onclick":
        JS(
-         <"window.frames[0].dotting(this)">
+         <"window.frames[\'<tagName>\'].dotting(this)">
      ) 
    ) 
         )) 
@@ -567,11 +564,11 @@ str CheckBox(str title, str class, tuple[list[str] names,  list[str lab] vs] t) 
    );     
    }
 
-str ResetButton() {
+str ResetButton(str tagName) {
    return W3(input_, ("type":"button", "value":"reset",
       "onclick":
        JS(
-         <"window.frames[0].resetting(this)">
+         <"window.frames[\'<tagName>\'].resetting(this)">
      ))); 
    }
      
@@ -606,10 +603,49 @@ public str labelNames() {
      <"if (event.keyCode==13) window.frames[0].labelingY(this)">)))));
    return W3(h4_, "axe labels")+W3(table_, xl+yl);
    }
- 
- public void plot(PlotData p, int width = 800, int height = 400, int margin = 60,
+   
+public str plotEl(loc location, 
+   PlotData pd, int width = 800, int height = 400, int margin = 60,
    str style = "splines", int symbolSize = 32, bool mark = false, str xLabel = "x",
-   str yLabel = "y") {  
+   str yLabel = "y", num factor = 1.0, bool remember = false,
+   bool x_axis = true, bool y_axis = true
+   ) {
+ // -----------------------------------
+   list[tuple[str name, str color, str style, list[tuple[num , num ]] d]] 
+   d = pd.fs;
+   list[str] coord = ["x", "y"];
+   list[str] tx  = pd.xticks;
+   list[str] ty  = pd.yticks;
+   tuple[str, list[str], list[str], list[map[str key,  value dt]]] 
+        jsonData = <pd.title , tx, ty, [("name":name, "color":cl, "style":st,
+         "path":[(coord[i] : r[i]|i<-[0..2])+("kind":name)|
+         tuple[num, num] r<-v])|<str name, str cl, str st, list[tuple[num, num]] v> <-d]>; 
+     // println(jsonData);
+   writeTextJSonFile(location+"<pd.name>.json", jsonData); 
+// ------------------------------------
+   tuple[str header, str body, PlotData dat] r =
+       plotEl(pd
+        , width = width, height = height     
+        , style=style, symbolSize=symbolSize
+        , xLabel = xLabel, yLabel = yLabel, margin =margin
+        , remember = remember, x_axis = x_axis, y_axis = y_axis
+        ); 
+    writeFile(location+"<pd.name>.html",  html(r.header+
+         W3(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8")), r.body));             
+    return W3(iframe_,
+           (src_:"<pd.name>.html"
+            , "scrolling":"no"
+           , id_:"<pd.name>", width_:width+10, height_:height+(x_axis?height/5:height/5))
+      );
+     
+   }
+   
+ public tuple[str header, str body, PlotData dat] plotEl(
+   PlotData p, int width = 800, int height = 400, int margin = 60,
+   str style = "splines", int symbolSize = 32, bool mark = false, str xLabel = "x",
+   str yLabel = "y", bool remember = false, bool x_axis = true,
+   bool y_axis = true
+   ) {
    str header = W3(title_, p.title)+
       // W3(script_,(src_: "http://d3js.org/d3.v3.min.js", charset_:"utf-8"))+
       toCss((
@@ -625,17 +661,19 @@ public str labelNames() {
            // , ".dots":("stroke-width":"0", stroke_:"none", fill_:"black")
             , ".tx":("fill":"black","stroke":"none", "font-family":"sans-serif", "font-size":"10pt", "stroke-width":"1"
             , "text-anchor":"middle")
-            , "td":("border-style":"solid", "padding":"4px", "border-width":"1px", "border-color":"light-grey"
-                 , "border-collapse":"collapse", "vertical-align":"top")
-            
-            , "table":("border":"1px solid green")
+           // , "td":("border-style":"solid", "padding":"4px", "border-width":"1px", "border-color":"light-grey"
+           //      ,  "vertical-align":"top") 
+            , "table":(
+                 "border-collapse":"collapse"
+               // , "border":"1px solid red"
+               )
             , ".label": ("font-size":"10pt","font-family":"sans-serif", "font-style":"italic")
-            
+            , "h1": ("font-size":"1em")
              ));
       str body =  W3(h1_,  p.title)  +
       
       
-       JavaScriptJson("\"data.json\"", "error", "dat",
+       JavaScriptJson("\"<p.name>.json\"", "error", "dat",
         
          <"width", width>,
          <"height",height>,
@@ -656,7 +694,9 @@ public str labelNames() {
       ,
       <"colormap","d3.scale" + D3(category10 o domain(<"names">))>
       ,
-      <"choice", "\"all\"">
+      <"choice", "\"<p.name>_all\"">
+      ,
+     (!remember)?<"clean()">:""
       ,
       < 
           "x_scale",
@@ -692,12 +732,12 @@ public str labelNames() {
         o \append("rect") o attr((x_:<"margin">, y_:<"margin">, width_:<"width-2*margin">
            , height_:<"height-2*margin">)))
        >
-       ,
-       <"qline", "d3.svg"+D3(line o
-               x(<["d"], [<"return x_scale(d.x)">]>)
-             o y(<["d"], [<"return y_scale(d.y)">]>)
-            ) >
-        ,   
+       //,
+       //<"qline", "d3.svg"+D3(line o
+       //        x(<["d"], [<"return x_scale(d.x)">]>)
+       //      o y(<["d"], [<"return y_scale(d.y)">]>)
+       //     ) >
+       ,   
        <
        "lineMonotone", "d3.svg.line()"+D3(
              interpolate("monotone") o 
@@ -716,23 +756,22 @@ public str labelNames() {
         
         /* */
         ,     
-       <"svg"+D3(
+       x_axis?<"svg"+D3(
               \append(g_) o attr((
                    class_:"axis", 
                    transform_: <"\"translate(0, \" +(height-margin)+ \")\"">
               ))
             o  call(<"x_axis">)                  
         )
-        >
+        >:<"">
         ,
-        <"svg"+D3(\append(g_) o attr((
+        y_axis?<"svg"+D3(\append(g_) o attr((
            class_:"axis", 
            transform_: <"\"translate(\"+margin+\", 0)\"">
            ))
             o  call(<"y_axis">)
          )
-       > 
-               
+       > :<"">          
         ,       
          <"svg"+ D3(\append("g") o attr((transform_:<"\"translate(0,\"+margin+\")\"">)) o attr((
           class_:"grid"   
@@ -757,28 +796,28 @@ public str labelNames() {
        ,
        <"getLabel",["s", "v"], [<"return sessionStorage.getItem(s)?sessionStorage.getItem(s):v">]>
        ,
-       <
+      x_axis? <
        "svg"+D3(\append(text_) o attr((class_: "labelX label", text_anchor_:"end",
            x_:width/2, y_: height-20)) o text(<"getLabel(\"xLabel\", xLabel)">))
-       > 
+       > :<"">
        ,
-       <
+       y_axis? <
        "svg"+D3(\append(text_) o attr((class_: "labelY label", text_anchor_:"end",
            y_: 0, x_:-height/2, "dy":".75em", transform_:"rotate(-90)")) o text(<"getLabel(\"yLabel\", yLabel)">))
-       >   
+       >  :<""> 
           /* */
           ,
-           <scatterFunction(symbolSize, style)>
+           <scatterFunction(p, symbolSize, style)>
            , 
-           <"scatterFunction(\"all\", false)">
+           <"scatterFunction(\"<p.name>_all\", false)">
            ,
-           <lineFunction(style)>
+           <lineFunction(p, style)>
            ,
-           <"lineFunction(\"all\", false)">
+           <"lineFunction(\"<p.name>_all\", false)">
            ,
-           <splineFunction(style)>
+           <splineFunction(p, style)>
            ,
-           <"splineFunction(\"all\", false)">
+           <"splineFunction(\"<p.name>_all\", false)">
            ,
           <"hasClass",["element", "cls"], [
           <"return (\' \' + element.className + \' \').indexOf(\' \' + cls + \' \') \> -1;">
@@ -804,8 +843,7 @@ public str labelNames() {
              ,
              <"selectDisplayedGraphs",[], [
                      <"x", "window.parent.document.getElementsByClassName(\'markerButton\')"> 
-                     ,
-                     
+                     ,              
                      <"lines", "\":\"">
                      ,
                      <"splines", "\":\"">
@@ -813,32 +851,32 @@ public str labelNames() {
                      <"points",  "\":\"">
                      ,
                               
-                     <"for (var i = 0;i\<x.length;i++) {if(x[i].name!=\'all\') x[i].checked=false;}">
+                     <"for (var i = 0;i\<x.length;i++) {if(x[i].name!=\'<p.name>_all\') x[i].checked=false;}">
                      ,
                       <"svg"+D3(selectAll(".splines")
                       o
                       \each(<["d", "i"],[ 
-                      <"window.parent.document.getElementsByClassName(\'splines \' +d.name)[0].checked = true">
+                      <"window.parent.document.getElementsByClassName(\'splines <p.name>_\' +d.name)[0].checked = true">
                       ,
-                      <"splines=splines.concat(\':\', d.name, \':\')">
+                      <"splines=splines.concat(\':<p.name>_\', d.name, \':\')">
                       ]>)
                       )> 
                        ,
                     <"svg"+D3(selectAll(".lines")
                       o
                       \each(<["d", "i"],[ 
-                      <"window.parent.document.getElementsByClassName(\'lines \' +d.name)[0].checked = true">
+                      <"window.parent.document.getElementsByClassName(\'lines <p.name>_\' +d.name)[0].checked = true">
                       ,
-                      <"lines=lines.concat(\':\',d.name, \':\')">
+                      <"lines=lines.concat(\':<p.name>_\',d.name, \':\')">
                       ]>)
                       )> 
                        ,
                     <"svg"+D3(selectAll(".points")
                       o
                       \each(<["d", "i"],[ 
-                      <"window.parent.document.getElementsByClassName(\'points \' +d.name)[0].checked = true">
+                      <"window.parent.document.getElementsByClassName(\'points <p.name>_\' +d.name)[0].checked = true">
                       ,
-                      <"points=points.concat(\':\',d.name, \':\')">
+                      <"points=points.concat(\':<p.name>_\',d.name, \':\')">
                       ]>)
                       )>
             //  , <"alert(splines[1])">
@@ -854,7 +892,7 @@ public str labelNames() {
                       svg"+D3(selectAll(<"\".\"+getClass(e)">)     // <"\"\"+getClass(e)+\"\"">)  
                       o 
                       \filter(<["d"],[  
-                      < "return choice==\"all\" || choice == d.name">
+                      < "return choice==\"<p.name>_all\" || choice == \'<p.name>_\'+d.name">
                       ]>)
                       o \data([])
                       o \exit o _remove )+"}"
@@ -870,18 +908,22 @@ public str labelNames() {
                     <"selectDisplayedGraphs()">                     
                    ] >>
                 ,
-                <"window.resetting", <["e"], [
-                   <"sessionStorage.removeItem(\'splines\')">
+                <"clean", [], [
+                  <"sessionStorage.removeItem(\'splines\')">
                    ,
                    <"sessionStorage.removeItem(\'lines\')">
                    ,
                    <"sessionStorage.removeItem(\'points\')">
+                ] >
+                ,
+                <"window.resetting", <["e"], [
+                   <"clean()">
                    ,
-                   <"svg"+D3(selectAll(".graph")     // <"\"\"+getClass(e)+\"\"">)  
+                   <"svg"+D3(selectAll(".<p.name>")     // <"\"\"+getClass(e)+\"\"">)  
                       o \data([])
                       o \exit o _remove )      
                      >
-                , <"plotFunction(\'default\', \'all\')">
+                , <"plotFunction(\'default\', \'<p.name>_all\')">
                 , <"selectDisplayedGraphs()">
                     
                 ]>>
@@ -906,19 +948,41 @@ public str labelNames() {
              , <"text", "svg"+D3(select(".labelX"))>
              ,<"text.text(getLabel(\"xLabel\", xLabel))">
              ,<"selectDisplayedGraphs()">
+             ,<"setFontSize()">
             ] >>
-        ,      
-       
-       <"window.onload", <"window.loadLabel()">>                    
+        ,
+         <"window.setFontSize",<[],  [ 
+           
+           <"window.pageSized", "window.innerWidth/50">,
+            <"window.pageSized", "Math.max(pageSized, 10)">,
+            <"window.pageSized", "Math.min(pageSized, 30)">,
+            // <"alert(pageSized)">,
+            <"document.body.style.fontSize","window.pageSized+\"pt\"">     
+        ] >>
+        ,            
+        remember?<"window.onload", <"window.loadLabel()">> :"window.setFontSize()"                   
         );
-      
-      
+       
+   return <header, body, p>;  
+   }
+ 
+ public void plot(PlotData p, int width = 800, int height = 400, int margin = 60,
+   str style = "splines", int symbolSize = 32, bool mark = false, str xLabel = "x",
+   str yLabel = "y", bool remember = true) {  
+   
+      str iframe =
+         plotEl(|file:///tmp/d3|, p
+        , width = width, height = height     
+        , style=style, symbolSize=symbolSize
+        , xLabel = xLabel, yLabel = yLabel, margin =margin,
+        remember = remember
+        );
       
       htmlDisplay(publish(
             // |project://chart/src/aap|
-                |file:///tmp/d3|
-            , p, 
-         header , body, width, height));
+              |file:///tmp/d3|
+            , p
+            , iframe));
  
 
   }
@@ -1044,7 +1108,7 @@ public void main() {
    
    list[tuple[str, str, str, list[tuple[num, num]]]] d = [dsin, dcos, dsin3, dcos3];
 
-   PlotData p = <"Sin and Cos", [labx(i)|i<-[0..7]], [laby(i)|i<-[0..11]], d>;
+   PlotData p = <"Sin and Cos", "sinc", [labx(i)|i<-[0..7]], [laby(i)|i<-[0..11]], d>;
    plot(p,  symbolSize = 20, style = "splines");
    /*
     list[list[tuple[num, num]]] d = [[<(i*step)*nTickx, (-y+f(x+(i*step)*width))*nTicky/height >| i<-[0..ub+1]]|f<-g];
