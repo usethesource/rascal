@@ -237,11 +237,13 @@ void ex62(){
 					], align(left(), vcenter())));
 }
 
-/*
-t1 = tree(box(fillColor("green")),
-          [ box(fillColor("red")),
-     	    box(fillColor("blue"))
-     	  ],
-          std(size(50)), std(gap(20))
-    	);
-*/
+
+Figures nodes1 = [ /* 0 */	box(fillColor("green")),
+          		   /* 1 */	box(fillColor("red")),
+     	    	   /* 2 */	box(fillColor("blue"))
+     	  		];
+Edges edges1 = [edge(0,1), edge(1,2), edge(2,0)];        
+
+void ex70(){
+	ex("ex70", graph(nodes1, edges1, size(1000,600)));
+}

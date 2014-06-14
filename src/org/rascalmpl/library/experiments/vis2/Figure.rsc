@@ -37,8 +37,18 @@ public data Figure =
    
    | _barchart(FProperties props)
    | _scatterplot(FProperties props)
-   | _tree(Figures figs, FProperties props)
+   | _graph(Figures nodes, Edges edges, FProperties props)
    ;
+ 
+data Edge =			 							// edge between between two elements in complex shapes like tree or graph
+     _edge(int from, int to, FProperties prop)
+   ;
+   
+public alias Edges = list[Edge];
+   
+public Edge edge(int from, int to, FProperty props ...){
+  return _edge(from, to, props);
+}
 
 public Figure text(str s, FProperty props ...){
   return _text(s, props);
@@ -60,8 +70,8 @@ public Figure vcat(Figures figs, FProperty props ...){
   return _vcat(figs,props);
 }
 
-public Figure tree(Figure root, Figures children, FProperty props...){
-	return _tree([root] + children, props);
+public Figure graph(Figures nodes, Edges edges, FProperty props...){
+	return _graph(nodes, edges, props);
 }
 
 public Figure hvcat(Figures figs, FProperty props ...){

@@ -4,6 +4,7 @@ import experiments::vis2::Figure;
 import experiments::vis2::Properties;
 import util::Math;
 import IO;
+import List;
 
 /*
  * Translate a Figure to Javascript in two steps:
@@ -18,7 +19,9 @@ data PRIM =
 	| circle_prim(BBox bb, FProperties fp)
 	| barchart_prim(BBox bb, FProperties fp)
 	| scatterplot_prim(BBox bb, FProperties fp)
-	| tree_prim(BBox bb, FProperties fp)
+	| graph_prim(BBox bb,  list[str] nodes, Edges edges, FProperties fp)
+	| define(str id, list[PRIM] prims)
+	| use(str id, BBox bb)
 	;
 	
 // Translation a list of PRIMs to one HTML page
@@ -34,6 +37,7 @@ str trPrims(str title, int width, int height, list[PRIM] prims){
         '	\<script src=\"<vis2>/lib/Figure.js\"\>\</script\>
         '	\<script src=\"<vis2>/lib/Barchart.js\"\>\</script\>
         '	\<script src=\"<vis2>/lib/Scatterplot.js\"\>\</script\>
+        '	\<script src=\"<vis2>/lib/Graph.js\"\>\</script\>
         '	\<link rel=\"stylesheet\" type=\"text/css\" href=\"<vis2>/lib/Figure.css\"\>
 		'\</head\>
 		'\<body\>
@@ -55,6 +59,20 @@ str trPrim(rect_prim(BBox bb, FProperties fp)) = "makeRect(svg, <bb.x>, <bb.y>, 
 str trPrim(barchart_prim(BBox bb, FProperties fp)) = "makeBarchart(svg, <bb.x>, <bb.y>, <bb.width>, <bb.height>, <trProps(fp)>);";
 
 str trPrim(scatterplot_prim(BBox bb, FProperties fp)) = "makeScatterplot(svg, <bb.x>, <bb.y>, <bb.width>, <bb.height>, <trProps(fp)>);";
+
+str trPrim(graph_prim(BBox bb, list[str] nodes, Edges edges, FProperties fp)) {
+	graphProps = "{ nodes: <nodes>, edges: [" + intercalate(",", ["{source: <v1>, target: <v2>}" | edge(v1, v2, *ps) <- edges]) + "] }";
+	return "makeGraph(svg, <bb.x>, <bb.y>, <bb.width>, <bb.height>, combine(<graphProps>,<trProps(fp)>));";
+}
+
+str trPrim(define(str id, list[PRIM] prims, FProperties fp){
+
+}
+
+default str trPrim(p) {
+	throw "trPrim: no rule for <p>";	
+}
+
 
 // Size computation of nestes figures
 
@@ -115,10 +133,11 @@ Size sizeOf(_scatterplot(FProperties fps),  FProperty pfps...){
 	return res;
 }
 
-Size sizeOf(_tree(FProperties fps),  FProperty pfps...){
+Size sizeOf(_graph(Figures nodes, Edges edges, FProperties fps),  FProperty pfps...){
 	afps = combine(fps, pfps);
 	res = getSize(afps, <200,200>);
-	println("sizeOF _tree: <res>");
+	println("sizeOF _graph: <res>");
+	
 	return res;
 }
 
@@ -169,10 +188,15 @@ list[PRIM] tr(_scatterplot(FProperties fps), bb, FProperties pfps) {
 	return [scatterplot_prim(bb, fps1)];
 }
 
-list[PRIM] tr(_tree(FProperties fps), bb, FProperties pfps) {
-	println("tr _tree: fps <fps>, bb <bb>, pfps <pfps>");
+list[PRIM] tr(_graph(Figures nodes, Edges edges, FProperties fps), bb, FProperties pfps) {
+	println("tr _graph: fps <fps>, bb <bb>, pfps <pfps>");
 	fps1 = combine(fps, pfps);
-	return [tree_prim(bb, fps1)];
+	pref = "XXX";
+	defs = [ define("<pref>:<i>", trFig(nodes[i])) | i <- index(nodes)];
+	ids = ["<pref>:<i>" | i <- index(nodes) ];
+	res =  defs + [graph_prim(bb, ids, edges, fps1)];
+	println("_graph ==\> <res>");
+	return res;
 }
 
 Pos align(Pos position, Size container, Size fig, Gap gap, Align align){
