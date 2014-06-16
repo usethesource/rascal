@@ -21,9 +21,9 @@ public class CallPrim extends Instruction {
 	public String toString() { return "CALLPRIM " + prim + ", " + arity + ", " + src; }
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		//codeEmittor.emitCall("insnCALLPRIM", prim.ordinal(), arity);
+		codeEmittor.emitCall("insnCALLPRIM", prim.ordinal(), arity);
 		
-		codeEmittor.emitInlineCallPrime(prim, arity, dcode); 
+		//codeEmittor.emitInlineCallPrime(prim, arity, dcode); 
 		codeblock.addCode2(opcode.getOpcode(), prim.ordinal(), arity);
 		codeblock.addCode(codeblock.getConstantIndex(src));
 	}

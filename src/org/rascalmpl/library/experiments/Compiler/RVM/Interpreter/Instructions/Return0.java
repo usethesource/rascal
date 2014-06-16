@@ -10,7 +10,7 @@ public class Return0 extends Instruction {
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		//System.out.println("RETURN0");
-		codeEmittor.emitReturn0(dcode);
+		codeEmittor.emitInlineReturn0(dcode);
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }
