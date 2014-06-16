@@ -35,6 +35,12 @@ module analysis::m3::AST
 import Message;
 import analysis::m3::TypeSymbol;
 
+data \AST(loc file = |unknown:///|)
+  = declaration(Declaration declaration)
+  | \string(str contents)
+  | noAST(Message msg)
+  ;
+
 data Declaration;
 anno loc             Declaration@src;
 anno loc             Declaration@decl;
