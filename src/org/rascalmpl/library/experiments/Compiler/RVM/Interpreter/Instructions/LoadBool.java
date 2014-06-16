@@ -18,12 +18,12 @@ public class LoadBool extends Instruction {
 		//codeEmittor.emitCall("insnLOADBOOL", bool ? 1 : 0);
 		
 		
-		codeEmittor.emitInlineLoadBool(bool) ;
-//		if ( bool )
-//			codeEmittor.emitCall("insnLOADBOOLTRUE");	
-//		else 
-//			codeEmittor.emitCall("insnLOADBOOLFALSE");
-//		
+//		codeEmittor.emitInlineLoadBool(bool) ;
+		if ( bool )
+			codeEmittor.emitCall("insnLOADBOOLTRUE");	
+		else 
+			codeEmittor.emitCall("insnLOADBOOLFALSE");
+		
 		codeblock.addCode1(opcode.getOpcode(), bool ? 1 : 0);
 	}
 }

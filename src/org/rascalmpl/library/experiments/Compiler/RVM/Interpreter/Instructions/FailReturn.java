@@ -15,7 +15,7 @@ public class FailReturn extends Instruction {
 		if (dcode)
 			codeEmittor.emitCall("dinsnFAILRETURN");
 
-		codeEmittor.emitFailreturn();
+		codeEmittor.emitInlineFailreturn();
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

@@ -187,8 +187,8 @@ public class BytecodeGenerator implements Opcodes {
 		if (debug)
 			emitCall("dinsnJMPTRUE", 1);
 
-		emitInlinePop(false); // pop part of jmp...
-		//emitCall("insnPOP");
+		//emitInlinePop(false); // pop part of jmp...
+		emitCall("insnPOP");
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
@@ -208,8 +208,8 @@ public class BytecodeGenerator implements Opcodes {
 
 		Label lb = getNamedLabel(targetLabel);
 
-		emitInlinePop(false); // pop part of jmp...
-		//emitCall("insnPOP");
+		//emitInlinePop(false); // pop part of jmp...
+		emitCall("insnPOP");
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
@@ -289,7 +289,7 @@ public class BytecodeGenerator implements Opcodes {
 		return endCode;
 	}
 
-	public void emitReturn0(boolean debug) {
+	public void emitInlineReturn0(boolean debug) {
 		if (!emit)
 			return;
 		Label l0 = new Label();
@@ -315,7 +315,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ARETURN);
 	}
 
-	public void emitReturn1() {
+	public void emitInlineReturn1() {
 		if (!emit)
 			return;
 		Label l0 = new Label();
@@ -342,7 +342,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ARETURN);
 	}
 
-	public void emitFailreturn() {
+	public void emitInlineFailreturn() {
 		if (!emit)
 			return;
 
