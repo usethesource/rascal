@@ -62,7 +62,7 @@ public class RVMRun extends RVMBase implements IRVM {
 
 	protected ArrayList<Type> constructorStore;
 	private Map<String, Integer> constructorMap;
-	ArrayList<Frame> stacktrace = new ArrayList<Frame>();
+	public ArrayList<Frame> stacktrace = new ArrayList<Frame>();
 
 	private final Map<IValue, IValue> moduleVariables;
 	PrintWriter stdout;
@@ -406,7 +406,7 @@ public class RVMRun extends RVMBase implements IRVM {
 	// String last_function_name;
 	//
 	// Overloading specific
-	Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
+	//Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
 	// OverloadedFunctionInstanceCall c_ofun_call = null;
 
 	Object globalReturnValue = null;
@@ -604,7 +604,7 @@ public class RVMRun extends RVMBase implements IRVM {
 		this.functionMap = functionMap2;
 	}
 
-	public void insnPOP() {
+    final public void insnPOP() {
 		sp--;
 	}
 

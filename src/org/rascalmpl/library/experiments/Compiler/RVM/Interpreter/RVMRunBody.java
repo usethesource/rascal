@@ -479,13 +479,40 @@ public class RVMRunBody extends RVMRun {
 	}
 	
 	public void insnLOADIN2T(int i) {
-		// TODO solve loading of the right value in compile time
-		stack[spp()] = 2 ;
+		insnPOP();
 	}
 	
 	public void mup(MuPrimitive muprim) {
-			
-		sp = MuPrimitive.and_mbool_mbool.execute(stack, sp, 2) ;
+		sp = RascalPrimitive.adt_update.execute(stack, sp, arity, stacktrace);
+	}
+	public void CHK() {
+		sp--;
+		Type argType =  ((IValue) stack[sp - 1]).getType();
+		Type paramType = ((Type) stack[sp]);
+		stack[sp - 1] = vf.bool(argType.isSubtypeOf(paramType));
+	}
+	
+	public Object f() {
+		Frame    lframe = cf ;
+		Object[] stack = lframe.stack ;
+		int      sp = lframe.sp ;
 		
+		
+		return NONE ;
+	}
+	public Object  F(Frame cf)  throws Exception {
+		//Object[] stack ;
+		//int      sp ;
+		//Frame    lcf ;
+		
+		cf = cf ;
+		stack  = cf.stack ;
+		sp = cf.sp ;
+		
+		nop() ;
+		
+		stack[sp++] = cf.function.constantStore[1];
+		
+		return NONE;	
 	}
 }

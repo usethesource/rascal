@@ -11,6 +11,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 
 public class BytecodeGenerator implements Opcodes {
 	byte[] endCode = null;
@@ -186,8 +187,8 @@ public class BytecodeGenerator implements Opcodes {
 		if (debug)
 			emitCall("dinsnJMPTRUE", 1);
 
-		// emitInlinePop(false); // pop part of jmp...
-		emitCall("insnPOP");
+		emitInlinePop(false); // pop part of jmp...
+		//emitCall("insnPOP");
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
@@ -207,7 +208,8 @@ public class BytecodeGenerator implements Opcodes {
 
 		Label lb = getNamedLabel(targetLabel);
 
-		emitCall("insnPOP");
+		emitInlinePop(false); // pop part of jmp...
+		//emitCall("insnPOP");
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
@@ -607,22 +609,6 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "jvmOCALL", "(II)V");
 	}
 
-	// public void $emitYield0(int hotEntryPoint) {
-	// if (!emit)
-	// return;
-	//
-	// // TODO: Implement real yield this stub is only needed to get the
-	// // generated
-	// // code past the JVM verifier.
-	//
-	// mv.visitVarInsn(ALOAD, 0); // Load this on stack.
-	// mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "insnYIELD0", "()V");
-	//
-	// System.out.println(currentName + " Y0 : entrypoint :" + hotEntryPoint);
-	// mv.visitLabel(hotEntryLabels[hotEntryPoint]);
-	//
-	// }
-
 	public void emitInlineGuard(int hotEntryPoint, boolean dcode) {
 		if (!emit)
 			return;
@@ -647,7 +633,9 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ISTORE, 2);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitLdcInsn(new Integer(hotEntryPoint));
+		
+		emitIntValue(hotEntryPoint);
+		
 		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "hotEntryPoint", "I");
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
@@ -1163,11 +1151,16 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitLabel(l0);
 	}
 
+	/**
+	 * Emits a inline version of the CallMUPrime instructions. Uses a direct call to the
+	 * static enum execute method.  
+	 *
+	 */
 	public void emitInlineCallMuPrime(MuPrimitive muprim, int arity,  boolean debug) {
 		if (!emit)
 			return;
 		if (debug)
-			emitCall("dinsnCALLDYN", 1);
+			emitCall("dinsnCALLMUPRIM", 1);
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name() , "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
@@ -1179,6 +1172,23 @@ public class BytecodeGenerator implements Opcodes {
 		emitIntValue(arity);
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "execute", "([Ljava/lang/Object;II)I");
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+	}
+
+	public void emitInlineCallPrime(RascalPrimitive prim, int arity, boolean dcode) {
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name() , "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+
+		emitIntValue(arity);
+
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "stacktrace", "Ljava/util/ArrayList;");
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute", "([Ljava/lang/Object;IILjava/util/List;)I");
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 
