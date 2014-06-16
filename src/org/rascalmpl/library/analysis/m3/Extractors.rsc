@@ -11,52 +11,43 @@ extend analysis::m3::Core;
 import util::FileSystem;
 import String;
 
-alias Extractor = tuple[set[M3] models, set[loc] rest] (loc project, set[loc] files); 
+data Language(str version = "")
+  = generic()
+  ;
+  
+data \AST(loc file = |unknown:///|)
+  = \genericAST(str contents)
+  | noAST(Message msg)
+  ;
 
-private set[Extractor] registry = {};
+alias M3Extractor = set[M3] (loc project, set[loc] files);
+alias ASTExtractor = set[\AST] (loc project, set[loc] files);
 
-void registerExtractor(Extractor extractor) {
-  registry += {extractor};
+private rel[Language, M3Extractor] M3Registry = {};
+private rel[Language, ASTExtractor] ASTRegistry = {};
+
+void registerExtractor(Language language, M3Extractor extractor) {
+  M3Registry += {<language, extractor>};
 }
 
-set[M3] extractM3(loc project) = extractM3(project, {project});
+void registerExtractor(Language language, ASTExtractor extractor) {
+  ASTRegistry += {<language, extractor>};
+}
+
+rel[Language, M3] extractM3(loc project) = extractM3(project, {project});
+rel[Language, \AST] extractAST(loc project) = extractAST(project, {project});
 
 @doc{
 Synopsis: runs all extractors on a project to return one M3 model per file in the project
 }
-set[M3] extractM3(loc project, set[loc] roots) {
-  todo = { *files(r) | r <- roots };
+rel[Language, M3] extractM3(loc project, set[loc] roots) {
+  allFiles = { *files(r) | r <- roots };
   
-  result = for (e <- registry) {
-    <models, todo> = e(project, todo);
-    append models;
-  }
-  
-  return {*m | m <- result} + {genericM3(f) | f <- todo}; 
+  return {<e<0>, f> |  e<-M3Registry, f <- e<1>(project, allFiles)}; 
 }
 
-M3 genericM3(loc file) {
-  m = m3(file);
+rel[Language, \AST] extractAST(loc project, set[loc] roots) {
+  allFiles = { *files(r) | r <- roots };
   
-  m@declarations = { };
-  m@uses = { };
-  m@containment = { };
-  m@documentation = { };
-  m@modifiers = { };
-  m@messages = [ ];
-  m@names = { };
-  m@types = { };
-  
-  try {
-    content = readFile(file);
-    chs = size(content);
-    lines = chs == 0 ? 1 : (1 | it + 1 | /\n/ := content);
-    lastline = size(readFileLines(file)[-1]);
-    m@declarations = { <file[scheme="m3+unit"], file(0,chs,<1,0>,<lines - 1,lastline>)> }; 
-  }
-  catch IO(str msg) : {
-    m@messages += [error(msg, file)];
-  }
-  
-  return m;
+  return {<e<0>, f> |  e<-ASTRegistry, f <- e<1>(project, allFiles)}; 
 }
