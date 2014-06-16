@@ -1,6 +1,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -268,7 +273,7 @@ public class RVMonJVM implements IRVM {
 		}
 	}
 
-	public IValue executeProgram(String uid_main, IValue[] args) {
+	public IValue executeProgramP(String uid_main, IValue[] args) {
 		boolean profile = false;
 
 		buildRunner(profile);
@@ -297,6 +302,126 @@ public class RVMonJVM implements IRVM {
 		}
 		return narrow(o);
 	}
+
+	public IValue executeProgram(String uid_main, IValue[] args) {
+		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+		Object o = null;
+		boolean profile = false;
+		long[] runTimingJVM = new long[35];
+
+		long buildTime = 0;
+		if (runner == null) {
+			buildTime = bean.getCurrentThreadUserTime();
+			buildRunner(profile);
+			buildTime = (bean.getCurrentThreadUserTime() - buildTime) / 1000000;
+		}
+
+		Function main_function = functionStore.get(functionMap.get(uid_main));
+
+		if (main_function == null) {
+			throw new RuntimeException("PANIC: No function " + uid_main + " found");
+		}
+
+		if (main_function.nformals != 2) { // List of IValues and empty map of
+											// keyword parameters
+			throw new RuntimeException("PANIC: function " + uid_main + " should have two arguments");
+		}
+
+		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
+		Frame cf = root;
+		cf.stack[0] = vf.list(args); // pass the program argument to
+										// main_function as a IList object
+		cf.stack[1] = vf.mapWriter().done();
+
+		for (int i = 0; i < 35; i++) {
+			long startTime = bean.getCurrentThreadUserTime();
+			o = runner.dynRun(uid_main, args);
+			runTimingJVM[i] = bean.getCurrentThreadUserTime() - startTime;
+		}
+
+		for (int i = 0; i < 35; i++) {
+			runTimingJVM[i] = runTimingJVM[i] / 1000000;
+		}
+
+		try {
+			if (uid_main.contains("main")) {
+				File file = new File("/Users/ferryrietveld/measurements.csv");
+				if (!file.exists()) {
+					file.createNewFile();
+					FileWriter fileWriter = new FileWriter("/Users/ferryrietveld/measurements.csv", true);
+					fileWriter.write("Name;runType;buildTime;firstRun");
+					for (int i = 1; i < 35; i++)
+						fileWriter.write(";" + i);
+					fileWriter.write(";average last 30;stdev last 30\n");
+					fileWriter.close();
+				}
+
+				FileWriter fileWritter = new FileWriter("/Users/ferryrietveld/measurements.csv", true);
+
+				fileWritter.write(uid_main.replace(';','|'));
+				fileWritter.write(";(JVM)");
+				fileWritter.write(";" + buildTime);
+
+				for (int i = 0; i < 35; i++) {
+					fileWritter.write(";" + runTimingJVM[i]);
+				}
+
+				fileWritter.write(";" + mean(runTimingJVM, 2, 4));
+				fileWritter.write(";" + stddev(runTimingJVM, 0, 4));
+				fileWritter.write("\n");
+
+				fileWritter.close();
+			}
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+		}
+
+		if (o != null && o instanceof Thrown) {
+			throw (Thrown) o;
+		}
+		return narrow(o);
+	}
+
+	// A poor mans statistics, Stolen and modified.
+	public float sum(long[] a, int lo, int hi) {
+		if (lo < 0 || hi >= a.length || lo > hi)
+			throw new RuntimeException("Subarray indices out of bounds");
+		float sum = 0;
+		for (int i = lo; i <= hi; i++) {
+			sum += a[i];
+		}
+		return sum;
+	}
+
+	public float mean(long[] a, int lo, int hi) {
+		int length = hi - lo + 1;
+		if (lo < 0 || hi >= a.length || lo > hi)
+			throw new RuntimeException("Subarray indices out of bounds");
+		if (length == 0)
+			return Float.NaN;
+		float sum = sum(a, lo, hi);
+		return sum / length;
+	}
+
+	public float var(long[] a, int lo, int hi) {
+		int length = hi - lo + 1;
+		if (lo < 0 || hi >= a.length || lo > hi)
+			throw new RuntimeException("Subarray indices out of bounds");
+		if (length == 0)
+			return Float.NaN;
+		float avg = mean(a, lo, hi);
+		float sum = 0;
+		for (int i = lo; i <= hi; i++) {
+			sum += (a[i] - avg) * (a[i] - avg);
+		}
+		return sum / (length - 1);
+	}
+
+	public float stddev(long[] a, int lo, int hi) {
+		return (float) Math.sqrt(var(a, lo, hi));
+	}
+
+	
 	@Override
 	public RascalExecutionContext getRex() {
 		return rex;

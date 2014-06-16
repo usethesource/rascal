@@ -1175,7 +1175,13 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 
-	public void emitInlineCallPrime(RascalPrimitive prim, int arity, boolean dcode) {
+	public void emitInlineCallPrime(RascalPrimitive prim, int arity, boolean debug) {
+		if (!emit)
+			return;
+		if (debug)
+			emitCall("dinsnCALLPRIM", 1);
+
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name() , "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
 		mv.visitVarInsn(ALOAD, 0);
@@ -1191,6 +1197,27 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute", "([Ljava/lang/Object;IILjava/util/List;)I");
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
+	
+	public void emitInlineLoadBool(boolean b) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitInsn(DUP);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitInsn(DUP_X1);
+		mv.visitInsn(ICONST_1);
+		mv.visitInsn(IADD);
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 
+		if ( b ) {
+			mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+		}
+		else {
+			mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");			
+		}
+		mv.visitInsn(AASTORE);
+	}
 }
 

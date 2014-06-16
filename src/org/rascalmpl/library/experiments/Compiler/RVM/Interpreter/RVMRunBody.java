@@ -515,4 +515,12 @@ public class RVMRunBody extends RVMRun {
 		
 		return NONE;	
 	}
+	public void insnLOADBOOLTRUE() {
+		stack[sp++] = Rascal_TRUE;
+	}
+
+	public void insnLOADBOOLFALSE() {
+		stack[sp++] = Rascal_FALSE;
+	}
+
 }

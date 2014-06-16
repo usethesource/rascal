@@ -17,11 +17,13 @@ public class LoadBool extends Instruction {
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		//codeEmittor.emitCall("insnLOADBOOL", bool ? 1 : 0);
 		
-		if ( bool )
-			codeEmittor.emitCall("insnLOADBOOLTRUE");	
-		else 
-			codeEmittor.emitCall("insnLOADBOOLFALSE");
 		
+		codeEmittor.emitInlineLoadBool(bool) ;
+//		if ( bool )
+//			codeEmittor.emitCall("insnLOADBOOLTRUE");	
+//		else 
+//			codeEmittor.emitCall("insnLOADBOOLFALSE");
+//		
 		codeblock.addCode1(opcode.getOpcode(), bool ? 1 : 0);
 	}
 }
