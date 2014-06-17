@@ -20,8 +20,8 @@ public class CallMuPrim extends Instruction {
 	}
 
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
-		codeEmittor.emitCall("insnCALLMUPRIM", muprim.ordinal(), arity);
-		//codeEmittor.emitInlineCallMuPrime(muprim, arity, dcode);
+		//codeEmittor.emitCall("insnCALLMUPRIM", muprim.ordinal(), arity);
+		codeEmittor.emitInlineCallMuPrime(muprim, arity, dcode);
 		codeblock.addCode2(opcode.getOpcode(), muprim.ordinal(), arity);
 	}
 	
