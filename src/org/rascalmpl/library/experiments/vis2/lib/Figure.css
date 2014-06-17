@@ -29,10 +29,10 @@ rect:hover {
 	  stroke-width: 3px;
 	}
 
-	.node text { font: 12px sans-serif; }
+.node text { font: 12px sans-serif; }
 
-	.link {
+.link {
 	  fill: none;
-	  stroke: #ccc;
-	  stroke-width: 2px;
-	}
+	  stroke: black;
+	  stroke-width: 1.5px;
+}

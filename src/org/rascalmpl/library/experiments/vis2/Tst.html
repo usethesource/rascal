@@ -13,7 +13,14 @@
 	var svg = d3.select("body").append("svg").attr("width", 1000).attr("height", 600);
 	var defs = svg.append("defs");
 	
-	makeRect(defs, 100, 100, 100, 100, {}).attr("id", "R");
+	function makeSVG(selection, x, y, width, height, options){
+		var svg1 = selection.append("svg").attr("width", 1000).attr("height", 600);
+		makeRect(svg1, 100, 100, 100, 100, {});
+		makeRect(svg1, 200, 200, 100, 100, {});
+		return svg1;
+	}
+	
+	makeSVG(defs, 100, 100, 100, 100, {}).attr("id", "R");
 			
 	svg.append("use").attr("xlink:href", "#R").attr("x",200);
 </script>

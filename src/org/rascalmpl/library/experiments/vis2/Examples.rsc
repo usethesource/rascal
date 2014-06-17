@@ -3,6 +3,7 @@ module experiments::vis2::Examples
 import experiments::vis2::Figure;
 import experiments::vis2::Properties;
 import experiments::vis2::Translate;
+import experiments::vis2::Color;
 import util::Math;
 import IO;
 import util::HtmlDisplay;
@@ -31,8 +32,8 @@ void ex02(){
 }
 
 void ex03(){
-	ex("ex02", box(fillColor("red"), lineColor("blue"), lineWidth(1), size(100,100), pos(50,50)));
-}     
+	ex("ex03", box(fillColor("red"), lineColor("blue"), lineWidth(1), size(100,100), pos(50,50)));
+}
 
 // Nested box
 
@@ -94,6 +95,14 @@ void ex22(){
 void ex23(){
 	ex("ex23", hcat([box(fillColor("red"),size(50,100)), box(fillColor("green"), size(200,200)), box(fillColor("blue"), size(10,10))], align(right(), bottom()), gap(10,10)));
 }
+
+void ex24(){
+	ex("ex24", hcat([box(size(2,2),pos(x, y)) | <x, y> <- [<0,0>, <10,10>, <20,20>]]));
+}
+
+void ex25(){
+	ex("ex25", hcat([box(size(2,2),pos(toInt(x * 2), toInt(100 * sin(x)))) | real x <- [0.0, 0.1 .. 10.0]]));
+} 
 
 // hcat in box
 
@@ -238,12 +247,34 @@ void ex62(){
 }
 
 
-Figures nodes1 = [ /* 0 */	box(fillColor("green")),
-          		   /* 1 */	box(fillColor("red")),
-     	    	   /* 2 */	box(fillColor("blue"))
+Figures nodes1 = [ /* 0 */	hcat([box(fillColor("green"), size(50,50)),box(fillColor("yellow"), size(50,50)), box(fillColor("gray"), size(50,50))]),
+          		   /* 1 */	box(fillColor("red"), fillOpacity(0.4), size(100,100)),
+     	    	   /* 2 */	box(fillColor("lightblue"), rounded(10,10), lineStyle([1,1,1,1,1,1]), size(150,150))
      	  		];
-Edges edges1 = [edge(0,1), edge(1,2), edge(2,0)];        
+Edges edges1 = [edge(0,1, lineColor("orange")), edge(1,2, lineWidth(3), lineOpacity(0.3)), edge(2,0, lineStyle([4,2,4,2]))];        
 
 void ex70(){
-	ex("ex70", graph(nodes1, edges1, size(1000,600)));
+	ex("ex70", graph(nodes1, edges1, size(500,500)));
 }
+
+void ex71(){
+	ex("ex71", hcat([graph(nodes1, edges1, size(400,400)),
+					 scatterplot(fillColor("blue"), size(400,300), dataset(DATA2)),
+					 barchart(fillColor("black"), size(400,300), dataset(DATA1))
+					], gap(50,50)));
+}
+
+void ex72(){
+	ex("ex72", hcat([graph(nodes1, edges1, size(400,400)),
+					 scatterplot(fillColor("blue"), size(400,300), dataset(DATA2)),
+					 texteditor(size(200,200)),
+					 barchart(fillColor("black"), size(400,300), dataset(DATA1))
+					], gap(50,50)));
+}
+
+void ex73(){
+	ex("ex73", vcat([ box(size(100,100)),
+					  text("Hello", size(200,200))
+					]));
+}
+

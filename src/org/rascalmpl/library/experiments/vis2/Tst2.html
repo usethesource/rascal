@@ -1,0 +1,23 @@
+<html>
+<head>
+	<title>ex70</title>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<link rel="stylesheet" href="/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2/CodeMirror/lib/codemirror.css">
+	<script src="/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2/CodeMirror/lib/codemirror.js"></script>
+</head>
+<body>
+
+<textarea autofocus="autofocus" id="code"> </textarea>
+
+<script>
+ var textarea = document.getElementById("code");
+ alert(textarea.getAttribute("id"));
+  var editor = CodeMirror.fromTextArea(textarea, {
+    mode: "javascript",
+	lineNumbers: true,
+	value: "function myScript(){return 100;}\n"
+  });
+</script>
+	
+</body>
+</html>  
