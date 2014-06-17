@@ -46,18 +46,67 @@ anno rel[str simpleName, loc qualifiedName]  M3@names;         // convenience ma
 anno rel[loc definition, loc comments]       M3@documentation; // comments and javadoc attached to declared things
 anno rel[loc definition, Modifier modifier] M3@modifiers;     // modifiers associated with declared things
 
-M3 composeM3(loc id, set[M3] models) {
-  m = m3(id);
-  m@declarations = {*model@declarations | model <- models};
-  m@uses = {*model@uses | model <- models};
-  m@containment = {*model@containment | model <- models};
-  m@documentation = {*model@documentation | model <- models};
-  m@modifiers = {*model@modifiers | model <- models};
-  m@messages = [*model@messages | model <- models];
-  m@names = {*model@names | model <- models};
-  m@types = {*model@types | model <- models};
-  
-  return m;
+data Language(str version = "")
+  = generic()
+  ;
+
+@doc{
+	Create an empty m3 term with empty annotations
+}
+public M3 emptyM3(loc id)
+{
+	m = m3(id);
+
+	m@declarations = {};
+	m@uses = {};
+	m@containment = {};
+	m@documentation = {};
+	m@modifiers = {};
+	m@messages = [];
+	m@names = {};
+	m@types = {};
+
+	return m;
+}
+
+private value compose(set[&T] s1, set[&T] s2) = s1 + s2; // works on rel as well
+private value compose(list[&T] l1, list[&T] l2) = l1 + l2;
+private value compose(map[&T, &U] m1, map[&T, &U] m2) = m1 + m2;
+private value compose(value v1, value v2) { throw "can\'t compose non-collections or values of different types"; }
+
+@doc{
+	Generic function to compose the annotations of a set of M3s.
+}
+@memo
+M3 composeM3(loc id, set[M3] models)
+{
+	set[str] allAnnoNames = { *domain(getAnnotations(m)) | m <- models };
+
+	map[str, value] allAnnos = ();
+
+	for (m <- models)
+	{
+		annos = getAnnotations(m);
+
+		for (name <- allAnnoNames, name in annos)
+		{
+			if (allAnnos[name]?)
+			{
+				try
+				{
+					allAnnos[name] = compose(allAnnos[name], annos[name]);
+				}
+				catch e:
+				; // ignore
+			}
+			else
+			{
+				allAnnos[name] = annos[name];
+			}
+		}
+	}
+
+	return setAnnotations(m3(id), allAnnos);
 }
 
 bool isEmpty(M3 model) = model.id.scheme == "unknown";
