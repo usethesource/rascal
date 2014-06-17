@@ -359,7 +359,7 @@ public class RVMonJVM implements IRVM {
 				FileWriter fileWritter = new FileWriter("/Users/ferryrietveld/measurements.csv", true);
 
 				fileWritter.write(uid_main.replace(';','|'));
-				fileWritter.write(";(JVM)");
+				fileWritter.write(";(Partial)");
 				fileWritter.write(";" + buildTime);
 
 				for (int i = 0; i < 35; i++) {
