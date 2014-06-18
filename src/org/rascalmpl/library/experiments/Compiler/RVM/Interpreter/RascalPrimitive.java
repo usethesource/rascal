@@ -39,6 +39,7 @@ import org.eclipse.imp.pdb.facts.exceptions.InvalidDateTimeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
@@ -4646,6 +4647,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 0;
+			testResultListener.done();
 			stack[sp] = test_results.done();
 			return sp + 1;
 		}
@@ -4685,9 +4687,10 @@ public enum RascalPrimitive {
 			int tries = nargs == 0 ? 1 : TRIES;
 			boolean passed = true;
 			String message = "";
+			Throwable exception = null;
 			for(int i = 0; i < tries; i++){
 				if(nargs > 0){
-					message = " with arguments: ";
+					message = "test fails for arguments: ";
 					ITuple tup = (ITuple) randomValue.generate(argType);
 					for(int j = 0; j < nargs; j++){
 						args[j] = tup.get(j);
@@ -4706,6 +4709,7 @@ public enum RascalPrimitive {
 					if(!cons.getName().equals(expected)){
 						message = e.toString() + message;
 						passed = false;
+						exception = e;
 						break;
 					}
 				}
@@ -4718,6 +4722,8 @@ public enum RascalPrimitive {
 			if(passed)
 				message = "";
 			test_results.append(vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message)));
+			
+			testResultListener.report(passed, $computeTestName(fun, src), src, message, exception);
 			return sp - 4;
 		}
 	},
@@ -5812,6 +5818,8 @@ public enum RascalPrimitive {
 	
 	private static IBool Rascal_TRUE;
 	private static IBool Rascal_FALSE;
+	
+	private static ITestResultListener testResultListener;
 
 	public static ParsingTools getParsingTools() { assert parsingTools != null; return parsingTools; }
 
@@ -5836,6 +5844,7 @@ public enum RascalPrimitive {
 		indentStack = new Stack<String>();
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
+		testResultListener = rex.getTestResultListener();
 	}
 
 	public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
@@ -5886,6 +5895,11 @@ public enum RascalPrimitive {
 	 * 					AUXILIARY FUNCTIONS	 (prefixed with $)							*	
 	 ************************************************************************************/
 
+	
+	private static String $computeTestName(String name, ISourceLocation loc){
+		 return name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
+	}
+	
 	/*
 	 * String templates
 	 */
@@ -6172,10 +6186,8 @@ public enum RascalPrimitive {
 	}
 
 	private static IBool $list_less_list(IList left, IList right) {
-		IBool res = Rascal_FALSE;
-
 		if(left.length() > right.length()){
-			return res;
+			return Rascal_FALSE;
 		}
 		OUTER:for (int l = 0, r = 0; l < left.length(); l++) {
 			for (r = Math.max(l, r) ; r < right.length(); r++) {
@@ -6184,7 +6196,7 @@ public enum RascalPrimitive {
 					continue OUTER;
 				}
 			}
-			return res;
+			return Rascal_FALSE;
 		}
 		return vf.bool(left.length() != right.length());
 	}
@@ -6239,7 +6251,6 @@ public enum RascalPrimitive {
 	}
 
 	private static IBool $list_lessequal_list(IList left, IList right) {
-		IBool res = Rascal_FALSE;
 		if (left.length() == 0) {
 			return Rascal_TRUE;
 		}
@@ -6253,7 +6264,7 @@ public enum RascalPrimitive {
 					continue OUTER;
 				}
 			}
-			return res;
+			return Rascal_FALSE;
 		}
 
 		return vf.bool(left.length() <= right.length());

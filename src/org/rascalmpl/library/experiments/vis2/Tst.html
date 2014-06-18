@@ -1,0 +1,22 @@
+<html>
+<head>
+	<title>ex70</title>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script src="/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2/lib/Figure.js"></script>
+	<script src="/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2/lib/Barchart.js"></script>
+	<script src="/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2/lib/Scatterplot.js"></script>
+	<script src="/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2/lib/Tree.js"></script>
+	<link rel="stylesheet" type="text/css" href="/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2/lib/Figure.css">
+</head>
+<body>
+<script>
+	var svg = d3.select("body").append("svg").attr("width", 1000).attr("height", 600);
+	var defs = svg.append("defs");
+	
+	makeRect(defs, 100, 100, 100, 100, {}).attr("id", "R");
+			
+	svg.append("use").attr("xlink:href", "#R").attr("x",200);
+</script>
+			
+</body>
+</html>
