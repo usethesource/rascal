@@ -35,6 +35,8 @@ anno rel[loc from, loc to] M3@typeDependency;     // using a type literal in som
 anno rel[loc from, loc to] M3@methodOverrides;    // which method override which other methods
 anno rel[loc declaration, loc annotation] M3@annotations;
 
+data Language(str version="") = java();
+
 public M3 composeJavaM3(loc id, set[M3] models) {
   m = composeM3(id, models);
   
