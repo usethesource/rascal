@@ -30,14 +30,14 @@ Pitfalls:
 * Even though different languages may map to the same syntactic construct, this does not mean that the semantics is the same. Downstream
 metrics or other analysis tools should still take semantic differences between programming languages into account. 
 }
-module analysis::m3::AST 
+module analysis::m3::AST
 
 import Message;
 import analysis::m3::TypeSymbol;
 
-data \AST(loc file = |unknown:///|)
+public data \AST(loc file = |unknown:///|)
   = declaration(Declaration declaration)
-  | \string(str contents)
+  | lines(list[str] contents)
   | noAST(Message msg)
   ;
 

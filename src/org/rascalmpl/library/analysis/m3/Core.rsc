@@ -46,7 +46,7 @@ anno rel[str simpleName, loc qualifiedName]  M3@names;         // convenience ma
 anno rel[loc definition, loc comments]       M3@documentation; // comments and javadoc attached to declared things
 anno rel[loc definition, Modifier modifier] M3@modifiers;     // modifiers associated with declared things
 
-data Language(str version = "")
+public data Language(str version = "")
   = generic()
   ;
 
