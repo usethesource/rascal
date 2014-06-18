@@ -14,6 +14,8 @@ function makeButton(selection, x, y, width, height, options){
     		.attr("width", width)
     		.attr("height", height)
      		.append("xhtml:body")
-    		.style("font", "12px 'Helvetica Neue'")
+    		.style("font", "font" in options ? options.font : "Arial")
+			.style("font-size", "font_size" in options ? options.font_size : 12)
+			.style("text-anchor", "start")
    			.html(form3);
 }

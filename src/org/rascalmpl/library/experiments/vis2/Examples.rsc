@@ -13,7 +13,7 @@ import util::HtmlDisplay;
 void ex(str title, Figure f){
 	<w, h> = sizeOf(f);
 	s = trPrims(title, w, h, trFig(f));
-	println(s);
+	//println(s);
 	htmlDisplay(|file:///tmp/<title>.html|, s);
 }
 
@@ -38,45 +38,57 @@ void ex03(){
 // Nested box
 
 void ex10(){
-	ex("ex10", box(box(fillColor("red"), size(50,100)), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex10", box(box(fillColor("white"), size(50,100)), fillColor("blue"), size(200,200)));
 } 
 
 void ex11(){
-	ex("ex11", box(box(fillColor("red"), size(50,100), align(left(), top())), fillColor("blue"), size(200,200), gap(0,0)));
+	ex("ex11", box(box(fillColor("white"), size(50,100), align(left(), top())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 void ex12(){
-	ex("ex12", box(box(fillColor("red"), size(50,100), align(right(), top())), fillColor("blue"), size(200,200), gap(0,0)));
+	ex("ex12", box(box(fillColor("white"), size(50,100), align(right(), top())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 void ex13(){
-	ex("ex13", box(box(fillColor("red"), size(50,100), align(right(), bottom())), fillColor("blue"), size(200,200), gap(0,0)));
+	ex("ex13", box(box(fillColor("white"), size(50,100), align(right(), bottom())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 void ex14(){
-	ex("ex14", box(box(fillColor("red"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(0,0)));
+	ex("ex14", box(box(fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 
 void ex15(){
-	ex("ex15", box(box(fillColor("red"), size(50,100), align(left(), top())), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex15", box(box(fillColor("white"), size(50,100), align(left(), top())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex16(){
-	ex("ex16", box(box(fillColor("red"), size(50,100), align(right(), top())), fillColor("black"), size(200,200), gap(10,10)));
+	ex("ex16", box(box(fillColor("white"), size(50,100), align(right(), top())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex17(){
-	ex("ex17", box(box(fillColor("red"), size(50,100), align(right(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex17", box(box(fillColor("white"), size(50,100), align(right(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex18(){
-	ex("ex18", box(box(fillColor("red"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex18", box(box(fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex19(){
-	ex("ex19", box(box(box(fillColor("green"), size(20,20)), fillColor("red"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex19", box(box(box(fillColor("red"), size(20,20)), fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
+
+void ex19a(){
+	ex("ex19a", box(box(box(fillColor("red"), size(20,20), align(left(), top())), fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+}
+
+void ex19b(){
+	ex("ex19b", box(box(box(fillColor("red"), size(20,20), align(right(), top())), fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+}
+
+void ex19c(){
+	ex("ex19c", box(box(box(fillColor("red"), size(20,20), align(right(), bottom())), fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+}
 
 // hcat  
         
@@ -272,9 +284,16 @@ void ex72(){
 					], gap(50,50)));
 }
 
-void ex73(){
-	ex("ex73", vcat([ box(size(100,100)),
-					  text("Hello", size(200,200))
-					]));
+void ex80(){
+	ex("ex80", text("Hello", fontSize(20)));
 }
 
+void ex81(){
+	ex("ex81", box(text("Hello", fillColor("black"), fontSize(20)), fillColor("white")));
+}
+
+void ex82(){
+	ex("ex82", hcat([ box(text("Hello", fillColor("black")), fillColor("white")),
+					  text("World")
+					], fontSize(20)));
+}
