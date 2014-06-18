@@ -390,8 +390,12 @@ public class SourceConverter extends M3Converter {
 			}
 		}
 		
-		insert(extendsRelations, ownValue, extendsClass);
-		insert(implementsRelations, ownValue, implementsInterfaces);
+		if (node.isInterface()) {
+			insert(extendsRelations, ownValue, implementsInterfaces);
+		} else {
+			insert(extendsRelations, ownValue, extendsClass);
+			insert(implementsRelations, ownValue, implementsInterfaces);
+		}
 		
 		return true;
 	}

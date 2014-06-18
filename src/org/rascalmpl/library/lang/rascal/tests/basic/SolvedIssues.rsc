@@ -7,13 +7,13 @@ module lang::rascal::tests::basic::SolvedIssues
 
 import List;
 
-public test bool emptySetEquals(set[value] x, set[value] y) = x - x == y - y;
+test bool emptySetEquals(set[value] x, set[value] y) = x - x == y - y;
 
-public test bool emptySetEquals(map[value,value] x, map[value,value] y) = x - x == y - y;
+test bool emptySetEquals(map[value,value] x, map[value,value] y) = x - x == y - y;
 
 data X = n(set[node] nn);
 
-public test bool infiniteMatcher() {
+test bool infiniteMatcher() {
   bool firstTime = true;
   for (n({"a"(),_*}) <- { n({"a"()}) }) {
     if (!firstTime) {

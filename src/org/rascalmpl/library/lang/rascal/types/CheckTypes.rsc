@@ -5705,17 +5705,28 @@ public Configuration finalizeFunctionImport(Configuration c, RName functionName)
 		} else if (overload(items,overloaded(set[Symbol] nonDefaults, set[Symbol] defaults)) := c.store[itemId]) {
 			itemIds = c.store[itemId].items;
 			bool changed = false;
+			map[int,Symbol] nonDefaultChanges = ( );
+			map[int,Symbol] defaultChanges = ( );
+			
 			for (i <- itemIds, c.store[i] is function, c.store[i].isDeferred) {
 				c = finalizeItem(c, i);
 				changed = true;
 	        	if(hasDefaultModifier(c.functionModifiers[i])) {
-	        		defaults += c.store[i].rtype;
+	        		defaultChanges[i] = c.store[i].rtype;
 	        	} else {
-	        		nonDefaults += c.store[i].rtype;
+	        		nonDefaultChanges[i] = c.store[i].rtype;
 	        	}
 			}
 			if (changed) {
-				c.store[itemId].rtype = overloaded(nonDefaults, defaults);
+				c.store[itemId].rtype = overloaded(nonDefaults + nonDefaultChanges<1>, defaults + defaultChanges<1>);
+
+				changedItems = nonDefaultChanges<0> + defaultChanges<0>;
+				for (i <- c.store, c.store[i] is overload, !isEmpty(c.store[i].items & changedItems)) {
+					ot = c.store[i].rtype;
+					ot.overloads = ot.overloads + { nonDefaultChanges[ii] | ii <- (c.store[i].items & nonDefaultChanges<0>) };
+					ot.defaults = ot.defaults + { defaultChanges[ii] | ii <- (c.store[i].items & defaultChanges<0>) };
+					c.store[i].rtype = ot; 
+				}  
 			}
 		}
 	}
@@ -6180,7 +6191,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule im>;` := importItem > | 
 		importItem <- importList, 
 		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
-	rel[RName mname, bool isext] defaultModules = { < RSimpleName("Exception"), false > };
+	rel[RName mname, bool isext] defaultModules = (moduleName != RSimpleName("Exception")) ? { < RSimpleName("Exception"), false > } : {};
 	
 	// Now, for each module being imported, create a module in the configuration
 	// and generate a signature. This also brings in extra imports via the extends

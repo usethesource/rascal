@@ -257,7 +257,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 		      continue OUTER;
 		    }
 		  }
-		  return new LessThanOrEqualResult(true, false, ctx);
+		  return new LessThanOrEqualResult(false, false, ctx);
 		}
 	  
 		return new LessThanOrEqualResult(left.length() < right.length(), left.length() == right.length(), ctx);

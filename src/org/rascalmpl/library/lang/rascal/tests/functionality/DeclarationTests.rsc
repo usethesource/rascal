@@ -13,16 +13,16 @@ module lang::rascal::tests::functionality::DeclarationTests
  *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
 *******************************************************************************/
 
-   public test bool localTypeInferenceBottomScope() {
-		x = 1;
-		return x == 1;
-	}
+test bool localTypeInferenceBottomScope() {
+	x = 1;
+	return x == 1;
+}
 	
-	public test bool localTypeInferenceNestedScope() {
-		return { x = 1; x == 1; }
-	}
+test bool localTypeInferenceNestedScope() {
+	return { x = 1; x == 1; }
+}
 	
-	public test bool localTypeInferenceNoEscape() {
-		{ x = 1; x == 1; }
-	    x = "1"; return x == "1";
-	}
+test bool localTypeInferenceNoEscape() {
+	{ x = 1; x == 1; }
+	x = "1"; return x == "1";
+}

@@ -496,7 +496,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
     MuExp body = translateFunction(parameters.formals.formals, isVarArgs, kwps, cbody, []);
     
     tuple[str fuid,int pos] addr = uid2addr[uid];
-    addFunctionToModule(muFunction(fuid, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
+    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									  getFormals(uid), getScopeSize(fuid), 
   									  isVarArgs, e@\loc, [], (), 
   									  body));
@@ -518,7 +518,7 @@ MuExp translateBoolClosure(Expression e){
 	bool isVarArgs = false;
   	
     MuExp body = muReturn(translate(e));
-    addFunctionToModule(muFunction(fuid, ftype, addr.fuid, nformals, nlocals, isVarArgs, e@\loc, [], (), body));
+    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, addr.fuid, nformals, nlocals, isVarArgs, e@\loc, [], (), body));
   	
   	leaveFunctionScope();								  
   	
@@ -643,7 +643,7 @@ MuExp translateVisit(label,\visit) {
 	//functions_in_module = lift(functions_in_module,scopeId,phi_fuid,mapping);
 	setFunctionsInModule(lift(getFunctionsInModule(),scopeId,phi_fuid,mapping));
 	
-	addFunctionToModule(muFunction(phi_fuid, phi_ftype, scopeId, 3, pos_in_phi, false, \visit@\loc, [], (), body));
+	addFunctionToModule(muFunction(phi_fuid, "PHI", phi_ftype, scopeId, 3, pos_in_phi, false, \visit@\loc, [], (), body));
 	
 	leaveFunctionScope();
 	leaveVisit();
@@ -665,7 +665,7 @@ MuExp translateVisit(label,\visit) {
 		
 		leaveFunctionScope();
 		
-		addFunctionToModule(muFunction(phi_fixpoint_fuid, phi_ftype, scopeId, 3, 5, false, \visit@\loc, [], (), muBlock(body)));
+		addFunctionToModule(muFunction(phi_fixpoint_fuid, "PHI_FIXPOINT", phi_ftype, scopeId, 3, 5, false, \visit@\loc, [], (), muBlock(body)));
 	
 	    // Local variables of the surrounding function
 		str hasMatch = asTmp(nextLabel());

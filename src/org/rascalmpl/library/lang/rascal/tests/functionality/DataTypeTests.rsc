@@ -460,27 +460,27 @@ test bool testList30() = [] <= [1];
     /*TODO:REMOVE?*/		
     // These commented out tests assume that <= etc. are ("half") ordering operations
     // Currently they are strictly subset implementations.
-    //		public test bool testList() = [2, 1, 0] <= [2, 3];
-    //		public test bool testList() = [2, 1] <= [2, 3, 0];
+    //		test bool testList() = [2, 1, 0] <= [2, 3];
+    //		test bool testList() = [2, 1] <= [2, 3, 0];
     
 test bool testList31() = [2, 1] <= [2, 1];
 test bool testList32() = [2, 1] <= [2, 1, 0];
     		
 test bool testList33() = [] < [1];
-//		public test bool testList() = [2, 1, 0] < [2, 3];
-//		public test bool testList() = [2, 1] < [2, 3, 0];
+//		test bool testList() = [2, 1, 0] < [2, 3];
+//		test bool testList() = [2, 1] < [2, 3, 0];
 test bool testList34() = [2, 1] < [2, 1, 0];
     		
 test bool testList35() = [] >= [];
-//		public test bool testList() = [1] >= [];
-//		public test bool testList() = [2, 3] >= [2, 1, 0];
-//		public test bool testList() = [2, 3, 0] >= [2, 1];
+//		test bool testList() = [1] >= [];
+//		test bool testList() = [2, 3] >= [2, 1, 0];
+//		test bool testList() = [2, 3, 0] >= [2, 1];
 test bool testList36() = [2, 1] >= [2, 1];
 test bool testList37() = [2, 1, 0] >= [2, 1];
     		
 test bool testList38() = [1] > [];
-//		public test bool testList() = [2, 3] > [2, 1, 0];
-//		public test bool testList() = [2, 3, 0] > [2, 1];
+//		test bool testList() = [2, 3] > [2, 1, 0];
+//		test bool testList() = [2, 3, 0] > [2, 1];
 test bool testList39() = [2, 1, 0] > [2, 1];
     		
 test bool testList40() = [] * [] == [];
@@ -699,7 +699,7 @@ test bool testSetMultiVariable13() = !({*str S1, *str S2} := {100, "a"});
 test bool testSetMultiVariable14() = !({*int S1, *int S2} := {100, "a"});
     
       
-public test bool addSetError1() { 		return {1,2,3} + true=={1,2,3,true}; }
+test bool addSetError1() { 		return {1,2,3} + true=={1,2,3,true}; }
     	
 	// setSplicing
         
@@ -939,7 +939,7 @@ test bool namedRelation2() { rel[int from, int to] R = {<1,10>, <2,20>}; return 
     /* TODO: Issue :f constructor overlaps with NODE */
     /*
     data NODE1 = val(value V) | f() | f1(NODE1 a);
-    	public test bool good1()  {
+    	test bool good1()  {
     		return f1(val(1)) == f1(val(1));
     	}
     */
