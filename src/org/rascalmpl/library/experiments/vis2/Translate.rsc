@@ -22,6 +22,10 @@ public str trPrims(str title, int width, int height, list[PRIM] prims){
 	// TODO: get rid of this absolute path
 	vis2 = "/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2";
 	
+	prims = "<for(prim <- prims){>
+			'	<trPrim(prim, "svg")><}>";
+	println(prims);
+	
 	return "\<html\>
 		'\<head\>
         '	\<title\><title>\</title\>
@@ -37,8 +41,7 @@ public str trPrims(str title, int width, int height, list[PRIM] prims){
 		'\<script\>
 		'	svg = d3.select(\"body\").append(\"svg\").attr(\"width\", <width>).attr(\"height\", <height>);
 		'	defs = svg.append(\"defs\");
-		'	<for(prim <- prims){>
-		'   	<trPrim(prim, "svg")><}>
+		'	<prims>
 		'
 		'	var editor = CodeMirror.fromTextArea(document.getElementById(\"texteditor\"), {
     	'		mode: \"javascript\",
@@ -62,10 +65,10 @@ data PRIM = circle_prim(BBox bb, FProperties fp);
 
 // TODO
 
-data PRIM = text_prim(BBox bb, str txt, FProperties fp);
+data PRIM = text_prim(BBox bb, str txt, int ascent, FProperties fp);
 
-private str trPrim(text_prim(BBox bb, str txt, FProperties fp), str selection) = 
-	"makeText(<selection>, <bb.x>, <bb.y>, <bb.width>, <bb.height>, { text_value: \"<txt>\", <trPropsContent(fp)> });";
+private str trPrim(text_prim(BBox bb, str txt, int ascent, FProperties fp), str selection) = 
+	"makeText(<selection>, <bb.x>, <bb.y+ascent>, <bb.width>, <bb.height>, { text_value: \"<txt>\", <trPropsContent(fp)> });";
 
 data PRIM = barchart_prim(BBox bb, FProperties fp);
 
@@ -116,9 +119,11 @@ private default str trPrim(p, str selection) {
 	throw "trPrim: no rule for <p>";	
 }
 
+/**********************************************************************************************************/
+
 // Translates a Figure to a list of PRIMs
 
-private loc fig_site;
+private loc fig_site = |http://localhost:8081|;
 
 public list[PRIM] trFig(Figure f loc site = |http://localhost:8081|) {
 	fig_site = site;
@@ -134,11 +139,16 @@ private BBox reduce(bb, FProperties fps){
 	return bbox(bb.x, bb.y, width, height);
 }
 
+default bool isComposition(Figure f) = false;
+
 // ---------- box ----------
 
 Size sizeOf(_box(FProperties fps), FProperty pfps...) {
 	afps = combine(fps, pfps);
 	<w, h> = getSize(afps, <10, 10>);
+	lw = getLineWidth(afps);
+	w += lw;
+	h += lw;
 	if(hasPos(afps)){
 		<x, y> = getPos(afps);
 		return <x + w, y + h>;
@@ -148,10 +158,16 @@ Size sizeOf(_box(FProperties fps), FProperty pfps...) {
 
 Size sizeOf(_box(Figure inner, FProperties fps), FProperty pfps...) {
     afps = combine(fps, pfps);
-    <outer_width, outer_height> = getSize(afps);
-	<inner_width, inner_height> = sizeOf(inner, afps);
+    <inner_width, inner_height> = sizeOf(inner, afps);
 	<xgap, ygap> = getGap(afps);
-	return <max(outer_width, inner_width + 2*xgap), max(outer_height, inner_height + 2*ygap)>;
+	lw = getLineWidth(afps);
+	
+    if(hasSize(afps)){
+	    <outer_width, outer_height> = getSize(afps);
+		return <max(outer_width + lw, inner_width + 2*xgap), max(outer_height + lw, inner_height + 2*ygap)>;
+	} else {
+		return <inner_width + 2*xgap + lw, inner_height + 2*ygap + lw>;
+	}
 }
 
 private list[PRIM] tr(_box(FProperties fps), bb, FProperties pfps) {
@@ -162,6 +178,7 @@ private list[PRIM] tr(_box(FProperties fps), bb, FProperties pfps) {
 private list[PRIM] tr(_box(Figure inner, FProperties fps), bb, FProperties pfps) {
 	println("box with inner: inner = <inner>, bb = <bb>, fps = <fps>, pfps = <pfps>");
 	afps = combine(fps, pfps);
+	ifps = isComposition(inner) ? afps : combine(inner.props, afps);
 	<outer_width, outer_height> = getSize(afps, getSize(bb));
 	<xgap, ygap> = getGap(afps);
 	println("box with inner: gap: <xgap>, <ygap>");
@@ -172,8 +189,8 @@ private list[PRIM] tr(_box(Figure inner, FProperties fps), bb, FProperties pfps)
 	otrans = rect_prim(bbox(bb.x, bb.y, outer_width, outer_height), afps);
 	
 	println("box with inner: otrans = <otrans>");
-	
-	ipos = align(getPos(bb), <outer_width, outer_height>, <inner_width, inner_height>, <xgap, ygap>, getAlign(afps));
+	println("box with inner: <ifps>, <getAlign(ifps)>");
+	ipos = align(getPos(bb), <outer_width, outer_height>, <inner_width, inner_height>, <xgap, ygap>, getAlign(ifps));
 	
 	itrans = tr(inner, bbox(ipos.x, ipos.y, inner_width, inner_height), combine(fps, afps));
 	println("box with inner: itrans = <itrans>");
@@ -185,24 +202,24 @@ private list[PRIM] tr(_box(Figure inner, FProperties fps), bb, FProperties pfps)
 
 Size sizeOf(_text(computedStr txt, FProperties fps),  FProperty pfps...){
 	afps = combine(fps, pfps);
-	res = getSize(afps, <100,20>);
-	println("sizeOF text: <res>");
-	return res;
+	sz = getSize(afps, <100,100>);
+	println("sizeOF text: <sz>");
+	return sz;
 }
 
 Size sizeOf(_text(str txt, FProperties fps),  FProperty pfps...){
 	afps = combine(fps, pfps);
-	res = getSize(afps, <100,20>);
-	println("sizeOF text: <res>");
-	return res;
+	sz = textSize(txt, getFont(afps), getFontSize(afps));
+	println("sizeOF text: <sz>");
+	return sz;
 }
 
 private list[PRIM] tr(_text(computedStr txt, FProperties fps), bb, FProperties pfps) = tr(_text(txt(), fps), bb, pfps);
 
 private list[PRIM] tr(_text(str txt, FProperties fps), bb, FProperties pfps) {
 	println("tr _text: fps <fps>, bb <bb>, pfps <pfps>");
-	fps1 = combine(fps, pfps);
-	return [text_prim(bb, txt, fps1)];
+	afps = combine(fps, pfps);
+	return [text_prim(bb, txt, fontAscent(getFont(afps),getFontSize(afps)), afps)];
 }
 
 // ---------- hcat ----------
@@ -216,6 +233,8 @@ Size sizeOf(_hcat(list[Figure] figs, FProperties fps),  FProperty pfps...) {
     return <w, h>;
 }
 
+bool isComposition(_hcat(_, _)) = true;
+
 private list[PRIM] tr(_hcat(list[Figure] figs, FProperties fps),  BBox bb, FProperty pfps...){
 	afps = combine(fps, pfps);
 	int x = bb.x;
@@ -225,7 +244,7 @@ private list[PRIM] tr(_hcat(list[Figure] figs, FProperties fps),  BBox bb, FProp
 	tfigs = [];
 	for(f <- figs){
 		<f_width, f_height> = sizeOf(f, afps);
-		p = valign(<x,y>, <outer_width, outer_height>, <f_width, f_height>, <0, 0>, getAlign(combine(f.props, afps)));
+		p = valign(<x,y>, <outer_width, outer_height>, <f_width, f_height>, <0, 0>, getAlign(afps));
 		tfigs += tr(f, bbox(p.x, p.y, f_width, f_height), afps);
 		x += xgap + f_width;
 	}
@@ -243,6 +262,8 @@ Size sizeOf(_vcat(list[Figure] figs, FProperties fps),  FProperty pfps...) {
     return <w, h>;
 }
 
+bool isComposition(_vcat(_, _)) = true;
+
 private list[PRIM] tr(_vcat(list[Figure] figs, FProperties fps),  BBox bb, FProperty pfps...){
 	afps = combine(fps, pfps);
 	int x = bb.x;
@@ -252,7 +273,7 @@ private list[PRIM] tr(_vcat(list[Figure] figs, FProperties fps),  BBox bb, FProp
 	tfigs = [];
 	for(f <- figs){
 		<f_width, f_height> = sizeOf(f, afps);
-		p = halign(<x,y>, <outer_width, outer_height>, <f_width, f_height>, <0, 0>, getAlign(combine(f.props, afps)));
+		p = halign(<x,y>, <outer_width, outer_height>, <f_width, f_height>, <0, 0>, getAlign(afps));
 		tfigs += tr(f, bbox(p.x, p.y, f_width, f_height), afps);
 		y += ygap + f_height;
 	}
@@ -337,9 +358,9 @@ Size sizeOf(_button(str label, void () vcallback, FProperties fps),  FProperty p
 
 private list[PRIM] tr(_button(str label, void () vcallback, FProperties fps), bb, FProperties pfps) {
 	println("tr _button: fps <fps>, bb <bb>, pfps <pfps>");
-	fps1 = combine(fps, pfps);
+	afps = combine(fps, pfps);
 	id = def_callback(vcallback);
-	return [button_prim(bb, label, id, fps1)];
+	return [button_prim(bb, label, id, afps)];
 }
 
 // ---------- textfield ----------

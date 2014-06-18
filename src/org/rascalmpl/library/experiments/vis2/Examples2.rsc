@@ -87,16 +87,16 @@ void ex(str title, Figure f){
 
 void ex1(){
 	int counter = 0;
-	str getCounter() = "<counter>";
-	ex("ex1", vcat([ button("Click me", (){ counter += 1; }, size(100,50), fillColor("yellow")),
-					 text(getCounter, size(150, 50))
+	str getCounter() = "... <counter>...";
+	ex("ex1", vcat([ button("Click me", (){ counter += 1; }, size(80,50), fontSize(20), fillColor("yellow")),
+					 text(getCounter, size(150, 50), fontSize(30))
 				   ], align(left(),vcenter())));
 }
 
 void ex2(){
 	str color = "red";
 	str getFillColor() { return color; }
-	ex("ex2", hcat([ text("Enter:", size(150, 50)), textfield((str s){ color = s; }, size(100,50)), box(fillColor(getFillColor), size(100,100))
+	ex("ex2", hcat([ text("Enter:", size(150, 50), fontSize(18) ), textfield((str s){ color = s; }, size(100,50)), box(fillColor(getFillColor), size(100,100))
 				   ], gap(50,50)));
 }
 

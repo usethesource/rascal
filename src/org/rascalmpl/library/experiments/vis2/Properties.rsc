@@ -42,7 +42,7 @@ data VAlign = top() | vcenter() | bottom();
 	
 public alias FProperties = list[FProperty];
 
-FProperties getDefaultProperties() = []; //[size(50,50), gap(0,0)];
+FProperties getDefaultProperties() = [gap(0,0), font("Arial"), fontSize(12)];
 
 FProperties combine(FProperty fp, FProperties fps) = [fp, *fps];
 
@@ -120,6 +120,32 @@ Align getAlign(FProperties fps, Align def) {
 
 Align getAlign(FProperties fps) = getAlign(fps, <hcenter(), vcenter()>);
 
+// lineWdith
+
+bool hasLinewidth(FProperties fps) {
+	for(fp <- fps)
+		if (lineWidth(int w) := fp) return true;
+	return false;
+}
+
+int getLineWidth(FProperties fps) {
+	for(fp <- fps)
+		if (lineWidth(int w) := fp) return w;
+	return 1;
+}
+
+str getFont(FProperties fps){
+	for(fp <- fps)
+		if (font(str fname) := fp) return fname;
+	return "Arial";
+}
+
+int getFontSize(FProperties fps){
+	for(fp <- fps)
+		if (fontSize(int n) := fp) return n;
+	return 12;
+}
+
 // Translate properties to a javascript map
 
 str trPropsContent(FProperties fps) {
@@ -145,8 +171,8 @@ str trProp(align(HAlign xalign, VAlign yalign))
 											= "";
 str trProp(lineWidth(int n)) 				= "stroke_width: <n>";
 str trProp(lineStyle(list[int] dashes))		= "stroke_dasharray: <dashes>";
-str trProp(fillColor(str s)) 				{ r = "fill: \"<s>\""; println("fillColor, constant: <r>"); return r; }
-str trProp(fillColor(str() sc)) 			{ r = "fill: \"<sc()>\""; println("fillColor, computed: <r>"); return r; }
+str trProp(fillColor(str s)) 				= "fill: \"<s>\"";
+str trProp(fillColor(str() sc)) 			= "fill: \"<sc()>\"";
 
 str trProp(lineColor(str s))				= "stroke:\"<s>\"";
 str trProp(lineOpacity(real r))				= "stroke_opacity:\"<r>\"";
