@@ -3,6 +3,7 @@ module experiments::vis2::Examples
 import experiments::vis2::Figure;
 import experiments::vis2::Properties;
 import experiments::vis2::Translate;
+import experiments::vis2::Color;
 import util::Math;
 import IO;
 import util::HtmlDisplay;
@@ -12,7 +13,7 @@ import util::HtmlDisplay;
 void ex(str title, Figure f){
 	<w, h> = sizeOf(f);
 	s = trPrims(title, w, h, trFig(f));
-	println(s);
+	//println(s);
 	htmlDisplay(|file:///tmp/<title>.html|, s);
 }
 
@@ -31,51 +32,63 @@ void ex02(){
 }
 
 void ex03(){
-	ex("ex02", box(fillColor("red"), lineColor("blue"), lineWidth(1), size(100,100), pos(50,50)));
-}     
+	ex("ex03", box(fillColor("red"), lineColor("blue"), lineWidth(1), size(100,100), pos(50,50)));
+}
 
 // Nested box
 
 void ex10(){
-	ex("ex10", box(box(fillColor("red"), size(50,100)), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex10", box(box(fillColor("white"), size(50,100)), fillColor("blue"), size(200,200)));
 } 
 
 void ex11(){
-	ex("ex11", box(box(fillColor("red"), size(50,100), align(left(), top())), fillColor("blue"), size(200,200), gap(0,0)));
+	ex("ex11", box(box(fillColor("white"), size(50,100), align(left(), top())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 void ex12(){
-	ex("ex12", box(box(fillColor("red"), size(50,100), align(right(), top())), fillColor("blue"), size(200,200), gap(0,0)));
+	ex("ex12", box(box(fillColor("white"), size(50,100), align(right(), top())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 void ex13(){
-	ex("ex13", box(box(fillColor("red"), size(50,100), align(right(), bottom())), fillColor("blue"), size(200,200), gap(0,0)));
+	ex("ex13", box(box(fillColor("white"), size(50,100), align(right(), bottom())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 void ex14(){
-	ex("ex14", box(box(fillColor("red"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(0,0)));
+	ex("ex14", box(box(fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 
 void ex15(){
-	ex("ex15", box(box(fillColor("red"), size(50,100), align(left(), top())), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex15", box(box(fillColor("white"), size(50,100), align(left(), top())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex16(){
-	ex("ex16", box(box(fillColor("red"), size(50,100), align(right(), top())), fillColor("black"), size(200,200), gap(10,10)));
+	ex("ex16", box(box(fillColor("white"), size(50,100), align(right(), top())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex17(){
-	ex("ex17", box(box(fillColor("red"), size(50,100), align(right(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex17", box(box(fillColor("white"), size(50,100), align(right(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex18(){
-	ex("ex18", box(box(fillColor("red"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex18", box(box(fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex19(){
-	ex("ex19", box(box(box(fillColor("green"), size(20,20)), fillColor("red"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex19", box(box(box(fillColor("red"), size(20,20)), fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
+
+void ex19a(){
+	ex("ex19a", box(box(box(fillColor("red"), size(20,20), align(left(), top())), fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+}
+
+void ex19b(){
+	ex("ex19b", box(box(box(fillColor("red"), size(20,20), align(right(), top())), fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+}
+
+void ex19c(){
+	ex("ex19c", box(box(box(fillColor("red"), size(20,20), align(right(), bottom())), fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+}
 
 // hcat  
         
@@ -94,6 +107,14 @@ void ex22(){
 void ex23(){
 	ex("ex23", hcat([box(fillColor("red"),size(50,100)), box(fillColor("green"), size(200,200)), box(fillColor("blue"), size(10,10))], align(right(), bottom()), gap(10,10)));
 }
+
+void ex24(){
+	ex("ex24", hcat([box(size(2,2),pos(x, y)) | <x, y> <- [<0,0>, <10,10>, <20,20>]]));
+}
+
+void ex25(){
+	ex("ex25", hcat([box(size(2,2),pos(toInt(x * 2), toInt(100 * sin(x)))) | real x <- [0.0, 0.1 .. 10.0]]));
+} 
 
 // hcat in box
 
@@ -238,12 +259,41 @@ void ex62(){
 }
 
 
-Figures nodes1 = [ /* 0 */	box(fillColor("green")),
-          		   /* 1 */	box(fillColor("red")),
-     	    	   /* 2 */	box(fillColor("blue"))
+Figures nodes1 = [ /* 0 */	hcat([box(fillColor("green"), size(50,50)),box(fillColor("yellow"), size(50,50)), box(fillColor("gray"), size(50,50))]),
+          		   /* 1 */	box(fillColor("red"), fillOpacity(0.4), size(100,100)),
+     	    	   /* 2 */	box(fillColor("lightblue"), rounded(10,10), lineStyle([1,1,1,1,1,1]), size(150,150))
      	  		];
-Edges edges1 = [edge(0,1), edge(1,2), edge(2,0)];        
+Edges edges1 = [edge(0,1, lineColor("orange")), edge(1,2, lineWidth(3), lineOpacity(0.3)), edge(2,0, lineStyle([4,2,4,2]))];        
 
 void ex70(){
-	ex("ex70", graph(nodes1, edges1, size(1000,600)));
+	ex("ex70", graph(nodes1, edges1, size(500,500)));
+}
+
+void ex71(){
+	ex("ex71", hcat([graph(nodes1, edges1, size(400,400)),
+					 scatterplot(fillColor("blue"), size(400,300), dataset(DATA2)),
+					 barchart(fillColor("black"), size(400,300), dataset(DATA1))
+					], gap(50,50)));
+}
+
+void ex72(){
+	ex("ex72", hcat([graph(nodes1, edges1, size(400,400)),
+					 scatterplot(fillColor("blue"), size(400,300), dataset(DATA2)),
+					 texteditor(size(200,200)),
+					 barchart(fillColor("black"), size(400,300), dataset(DATA1))
+					], gap(50,50)));
+}
+
+void ex80(){
+	ex("ex80", text("Hello", fontSize(20)));
+}
+
+void ex81(){
+	ex("ex81", box(text("Hello", fillColor("black"), fontSize(20)), fillColor("white")));
+}
+
+void ex82(){
+	ex("ex82", hcat([ box(text("Hello", fillColor("black")), fillColor("white")),
+					  text("World")
+					], fontSize(20)));
 }

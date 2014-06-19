@@ -3,7 +3,7 @@ module vis::web::examples::DisplayFigures
 import util::Math;
 import vis::web::PlotFunction;
 
-int n = 6;
+int n = 50;
 
 num cos3(num x) = cos(x) * cos(x) * cos(x);
 
