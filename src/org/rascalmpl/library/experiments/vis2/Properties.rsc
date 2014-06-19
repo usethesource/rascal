@@ -8,11 +8,30 @@ data FProperty =
       pos(int xpos, int ypos)
     | size(int xsize, int ysize)
     | gap(int xgap, int ygap)
+    
+    // lines
+    
 	| lineWidth(int n)
 	| lineColor(str c)
 	| lineStyle(list[int] dashes)
+	| lineOpacity(real op)
+	
+	// areas
 	| fillColor(str c)
+	| fillColor(str() sc)
+	| fillOpacity(real op)
+	| rounded(int rx, int ry)
 	| align(HAlign xalign, VAlign yalign)
+	
+	// fonts and text
+	
+	| font(str fontName)
+	| fontSize(int fontSize)
+	| fontBaseline(str s)
+	| textAngle(num  r)
+	
+	// data sets	
+	
 	| dataset(list[num] values1)
 	| dataset(lrel[num,num] values2)
 	;
@@ -23,7 +42,7 @@ data VAlign = top() | vcenter() | bottom();
 	
 public alias FProperties = list[FProperty];
 
-FProperties getDefaultProperties() = []; //[size(50,50), gap(0,0)];
+FProperties getDefaultProperties() = [gap(0,0), font("Arial"), fontSize(12)];
 
 FProperties combine(FProperty fp, FProperties fps) = [fp, *fps];
 
@@ -101,9 +120,35 @@ Align getAlign(FProperties fps, Align def) {
 
 Align getAlign(FProperties fps) = getAlign(fps, <hcenter(), vcenter()>);
 
+// lineWdith
+
+bool hasLinewidth(FProperties fps) {
+	for(fp <- fps)
+		if (lineWidth(int w) := fp) return true;
+	return false;
+}
+
+int getLineWidth(FProperties fps) {
+	for(fp <- fps)
+		if (lineWidth(int w) := fp) return w;
+	return 1;
+}
+
+str getFont(FProperties fps){
+	for(fp <- fps)
+		if (font(str fname) := fp) return fname;
+	return "Arial";
+}
+
+int getFontSize(FProperties fps){
+	for(fp <- fps)
+		if (fontSize(int n) := fp) return n;
+	return 12;
+}
+
 // Translate properties to a javascript map
 
-str trProps(FProperties fps) {
+str trPropsContent(FProperties fps) {
 	seen = {};
 	res = for(fp <- fps){
 		attr = getName(fp);
@@ -114,8 +159,10 @@ str trProps(FProperties fps) {
 				append t;
 		}
 	}
-	return "{ <intercalate(", ", res)> }";
+	return intercalate(", ", res);
 }
+
+str trProps(FProperties fps) = "{ <trPropsContent(fps)> }";
 
 str trProp(pos(int xpos, int ypos)) 		= "";
 //str trProp(size(int xsize, int ysize))	= "width: <xsize>, height <ysize>";
@@ -125,8 +172,18 @@ str trProp(align(HAlign xalign, VAlign yalign))
 str trProp(lineWidth(int n)) 				= "stroke_width: <n>";
 str trProp(lineStyle(list[int] dashes))		= "stroke_dasharray: <dashes>";
 str trProp(fillColor(str s)) 				= "fill: \"<s>\"";
+str trProp(fillColor(str() sc)) 			= "fill: \"<sc()>\"";
+
 str trProp(lineColor(str s))				= "stroke:\"<s>\"";
+str trProp(lineOpacity(real r))				= "stroke_opacity:\"<r>\"";
+str trProp(fillOpacity(real r))				= "fill_opacity:\"<r>\"";
+str trProp(rounded(int rx, int ry))			= "rx: <rx>, ry: <ry>";
 str trProp(dataset(list[num] values1)) 		= "dataset: <values1>";
 str trProp(dataset(lrel[num,num] values2))	= "dataset: [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
+
+str trProp(font(str fontName))				= "font: \"<fontName>\"";
+str trProp(fontSize(int fontSize))			= "font_size: <fontSize>";
+str trProp(fontBaseline(str s))				= "???";
+str trProp(textAngle(num  r))				= "???";
 
 default str trProp(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "width: <xsize>, height: <ysize>" : "unknown: <fp>";
