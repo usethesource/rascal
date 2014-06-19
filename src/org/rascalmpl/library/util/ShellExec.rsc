@@ -62,6 +62,12 @@ Synopsis: Read from an existing process's output stream. This is non-blocking.
 public java str readFrom(PID processId);
 
 @doc{
+Synopsis: Read from an existing process's error output stream. This is non-blocking.
+}
+@javaClass{org.rascalmpl.library.util.ShellExec}
+public java str readFromErr(PID processId);
+
+@doc{
 Synopsis: Read the entire stream from an existing process's output stream. This is blocking.
 }
 @javaClass{org.rascalmpl.library.util.ShellExec}
