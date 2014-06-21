@@ -1,22 +1,73 @@
 <html>
 <head>
-	<title>ex70</title>
+	<title>Tst2.html</title>
 	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-	<link rel="stylesheet" href="/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2/CodeMirror/lib/codemirror.css">
-	<script src="/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2/CodeMirror/lib/codemirror.js"></script>
 </head>
 <body>
+<style>
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
 
-<textarea autofocus="autofocus" id="code"> </textarea>
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+</style>
 
 <script>
- var textarea = document.getElementById("code");
- alert(textarea.getAttribute("id"));
-  var editor = CodeMirror.fromTextArea(textarea, {
-    mode: "javascript",
-	lineNumbers: true,
-	value: "function myScript(){return 100;}\n"
-  });
+
+var w = 500;
+			var h = 300;
+			var padding = 20;
+ svg = d3.select("body").append("svg").attr("width", 400).attr("height", 200);
+ var scale = d3.scale.linear().domain([100, 500])
+                    .range([10, 350]);
+                    var dataset = [
+                [5, 20], [480, 90], [250, 50], [100, 33], [330, 95],
+                [410, 12], [475, 44], [25, 67], [85, 21], [220, 88]
+              ];
+ var xScale = d3.scale.linear()
+                     .domain([0, d3.max(dataset, function(d) { return d[0]; })])
+                     .range([0, w]);
+                     
+ var yScale = d3.scale.linear()
+                     .domain([0, d3.max(dataset, function(d) { return d[1]; })])
+                     .range([0, h]);
+ var rScale = d3.scale.linear()
+                     .domain([0, d3.max(dataset, function(d) { return d[1]; })])
+                     .range([2, 5]);
+                     
+ svg.selectAll("circle")  // <-- No longer "rect"
+   .data(dataset)
+   .enter()
+   .append("circle") 
+   .attr("cx", function(d) {
+        return xScale(d[0]);
+   })
+   .attr("cy", function(d) {
+        return yScale(d[1]);
+   })
+   .attr("x", function(d) {
+    	return xScale(d[0]);
+	})
+	.attr("y", function(d) {
+	    	return yScale(d[1]);
+	})
+   .attr("r", function(d) {
+    	return rScale(d[1]);
+	});   
+	
+var xAxis = d3.svg.axis()
+                  .scale(xScale)
+                  .orient("bottom");
+ svg.append("g")
+ .attr("class", "axis") //Assign "axis" class
+ .attr("transform", "translate(0," + (h - padding) + ")")
+    .call(xAxis);                                   
 </script>
 	
 </body>
