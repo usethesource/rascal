@@ -297,3 +297,8 @@ void ex82(){
 					  text("World")
 					], fontSize(20)));
 }
+
+void ex90(){
+	trFig2Json(box(size(100,100)), |file:///tmp/ex90.json|);
+
+}

@@ -187,3 +187,39 @@ str trProp(fontBaseline(str s))				= "???";
 str trProp(textAngle(num  r))				= "???";
 
 default str trProp(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "width: <xsize>, height: <ysize>" : "unknown: <fp>";
+
+
+str trPropsJson(FProperties fps){
+	res = for(fp <- fps){
+		attr = getName(fp);
+			t = trPropJson(fp);
+			if(t != "")
+				append t;
+	}
+	return intercalate(", ", res);
+}
+
+
+str trPropJson(pos(int xpos, int ypos)) 		= "";
+//str trPropJson(size(int xsize, int ysize))	= "width: <xsize>, height <ysize>";
+str trPropJson(gap(int width, int height)) 		= "";
+str trPropJson(align(HAlign xalign, VAlign yalign)) 	
+											= "";
+str trPropJson(lineWidth(int n)) 				= "lineWidth: <n>";
+str trPropJson(lineStyle(list[int] dashes))		= "lineStyle: <dashes>";
+str trPropJson(fillColor(str s)) 				= "fillColor: \"<s>\"";
+str trPropJson(fillColor(str() sc)) 			= "fillColor: \"<sc()>\"";
+
+str trPropJson(lineColor(str s))				= "lineColor:\"<s>\"";
+str trPropJson(lineOpacity(real r))				= "lineOpacity:\"<r>\"";
+str trPropJson(fillOpacity(real r))				= "fill_opacity:\"<r>\"";
+str trPropJson(rounded(int rx, int ry))			= "rx: <rx>, ry: <ry>";
+str trPropJson(dataset(list[num] values1)) 		= "dataset: <values1>";
+str trPropJson(dataset(lrel[num,num] values2))	= "dataset: [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
+
+str trPropJson(font(str fontName))				= "font: \"<fontName>\"";
+str trPropJson(fontSize(int fontSize))			= "fontSize: <fontSize>";
+str trPropJson(fontBaseline(str s))				= "???";
+str trPropJson(textAngle(num  r))				= "???";
+
+default str trPropJson(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "width: <xsize>, height: <ysize>" : "unknown: <fp>";

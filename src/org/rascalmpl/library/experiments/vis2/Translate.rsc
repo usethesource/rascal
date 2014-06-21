@@ -5,6 +5,7 @@ import experiments::vis2::Properties;
 import util::Math;
 import IO;
 import List;
+//import lang::json::IO;
 
 /*
  * Translate a Figure to Javascript in two steps:
@@ -33,22 +34,28 @@ public str trPrims(str title, int width, int height, list[PRIM] prims){
         '	<for(file <- libJS){>
         '	\<script src=\"<vis2>/lib/<file>.js\"\>\</script\>  <}>
         '	\<script src=\"<vis2>/CodeMirror/lib/codemirror.js\"\>\</script\>
-        '
+        "
+        +   
+        /*
         '	\<link rel=\"stylesheet\" type=\"text/css\" href=\"<vis2>/lib/Figure.css\"\>
         '	\<link rel=\"stylesheet\" href=\"<vis2>/CodeMirror/lib/codemirror.css\"\>
-		'\</head\>
+        */
+		"\</head\>
 		'\<body\>
 		'\<script\>
 		'	svg = d3.select(\"body\").append(\"svg\").attr(\"width\", <width>).attr(\"height\", <height>);
 		'	defs = svg.append(\"defs\");
 		'	<prims>
-		'
+		"
+		+
+		/*
 		'	var editor = CodeMirror.fromTextArea(document.getElementById(\"texteditor\"), {
     	'		mode: \"javascript\",
     	'		lineNumbers: true,
     	'		value: \"function myScript(){return 100;}\\n\"
   		'	});
-		'\</script\>
+  		*/
+  		"\</script\>
 		'\</body\>
 		'\</html\>
 		";
@@ -198,6 +205,9 @@ private list[PRIM] tr(_box(Figure inner, FProperties fps), bb, FProperties pfps)
 	return otrans + itrans;
 }
 
+str trJson(_box(FProperties fps)) = "{name:	\"box\", <trPropsJson(fps)> }";
+str trJson(_box(Figure inner, FProperties fps)) = "{name: \"box\", <trPropsJson(fps)>, inner: <trJson(inner)> }";
+
 // ---------- text ----------
 
 Size sizeOf(_text(computedStr txt, FProperties fps),  FProperty pfps...){
@@ -251,6 +261,8 @@ private list[PRIM] tr(_hcat(list[Figure] figs, FProperties fps),  BBox bb, FProp
 	return tfigs;
 }
 
+str trJson(hcat(list[Figure] figs, FProperties fps)) = "{name: \"hcat\", <trPropsJson(fps)>, inner: [<for(f <- figs){><trJson(inner)>,<}> }";
+
 // ---------- vcat ----------
 
 Size sizeOf(_vcat(list[Figure] figs, FProperties fps),  FProperty pfps...) {
@@ -280,6 +292,9 @@ private list[PRIM] tr(_vcat(list[Figure] figs, FProperties fps),  BBox bb, FProp
 	return tfigs;
 }
 
+str trJson(vcat(list[Figure] figs, FProperties fps)) = "{name: \"vcat\", <trPropsJson(fps)>, inner: [<for(f <- figs){><trJson(inner)>,<}> }";
+
+
 // ---------- barchart ----------
 
 Size sizeOf(_barchart(FProperties fps),  FProperty pfps...){
@@ -295,6 +310,8 @@ private list[PRIM] tr(_barchart(FProperties fps), bb, FProperties pfps) {
 	return [barchart_prim(bb, fps1)];
 }
 
+str trJson(_barchart(FProperties fps)) = "{name: \"barchart\", <trPropsJson(fps)> }";
+
 // ---------- scatterplot ----------
 
 Size sizeOf(_scatterplot(FProperties fps),  FProperty pfps...){
@@ -309,6 +326,9 @@ private list[PRIM] tr(_scatterplot(FProperties fps), bb, FProperties pfps) {
 	fps1 = combine(fps, pfps);
 	return [scatterplot_prim(bb, fps1)];
 }
+
+str trJson(_scatterplot(FProperties fps)) = "{name: \"scatterplot\", <trPropsJson(fps)> }";
+
 
 // ---------- graph ----------
 
@@ -471,3 +491,10 @@ private Pos valign(Pos position, Size container, Size fig, Gap gap, Align align)
 	println("res = <res>");
 	return res;
 }
+
+/*************************************************************************************/
+
+public void trFig2Json(Figure fig, loc file, loc site = |http://localhost:8081|) {
+	writeTextJSonFile(file, fig);
+}
+
