@@ -48,7 +48,7 @@ public data Figure =
    
 // interaction
 
-   | _button(str label, void () vcallback, FProperties props)
+//   | _button(str label, void () vcallback, FProperties props)
    | _textfield(void (str) scallback, FProperties props)
    ;
  
@@ -106,9 +106,9 @@ public Figure texteditor(FProperty props ...){
   return _texteditor(props);
 }
 
-public Figure button(str label, void () vcallback, FProperty props ...){
-  return _button(label, vcallback, props);
-}
+//public Figure button(str label, void () vcallback, FProperty props ...){
+//  return _button(label, vcallback, props);
+//}
 
 public Figure textfield(void (str) scallback, FProperty props ...){
   return _textfield(scallback, props);

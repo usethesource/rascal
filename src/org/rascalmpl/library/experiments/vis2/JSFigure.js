@@ -182,10 +182,8 @@ function drawFigure(description){
 	var x = f.x || 0;
 	var y = f.y || 0;
 	var area = d3.select("#figurearea").append("svg").attr("width", f.width).attr("height", f.height);
-	//var defs = area.append("defs").attr("id", "svgdefs");
 	return f.draw(area, x, y);
 }
-
 
 /****************** Bounding box and draw function table *******/
 
@@ -239,8 +237,41 @@ drawFunction.box = function (selection, x, y){
 		inner.draw(sel, x + this.hgap + inner.halign * (this.width  - inner.width  - 2 * this.hgap), 
 						y + this.vgap + inner.valign * (this.height - inner.height - 2 * this.vgap));
 	}
-	return sel;
+	return addInteraction(sel, this);
 }
+
+function addInteraction(selection, fig){
+	if(fig.hasOwnProperty("onClick")){
+		selection.on("click", function() { post(fig.site + "/do_callback/" + fig.onClick); });
+	}
+	return selection;
+}
+
+function post(path, params, method) {
+    method = method || "post"; // Set method to post by default if not specified.
+    
+    // The rest of this code assumes you are not using a library.
+    // It can be made less wordy if you use one.
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+
+            form.appendChild(hiddenField);
+         }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+
 
 /**************** hcat *******************/
 
@@ -254,7 +285,7 @@ bboxFunction.hcat = function(){
 		width += elm.width;
 		height = Math.max(height, elm.height);
 	}
-	this.width = width;
+	this.width = width + (inner.length - 1) * this.hgap;	//TODO length == 0
 	this.height = height;
 	return;
 }
@@ -270,11 +301,10 @@ drawFunction.hcat = function (selection, x, y){
 	
 	var inner = this.inner;
 	console.log("hcat:", inner);
-	var valign = this.valign;
 	for(var i = 0; i < inner.length; i++){
 		var elm = inner[i];
-		elm.draw(selection, x, y + valign * (this.height - elm.height));
-		x += elm.width;
+		elm.draw(selection, x, y + this.valign * (this.height - elm.height));
+		x += elm.width + this.hgap;
 	}
 	return outersel;
 }
@@ -292,7 +322,7 @@ bboxFunction.vcat = function(){
 		height += elm.height;
 	}
 	this.width = width;
-	this.height = height;
+	this.height = height + (inner.length - 1) * this.vgap;
 	return;
 }
 
@@ -614,10 +644,37 @@ drawFunction.graph = function (selection, x, y){
 	      
 	  
     });
-} 
+}
 
+/********************* textfield ***************************/
+bboxFunction.textfield = function(){
+	if(this.width == 0){
+		this.width = 200;
+	}
+	if(this.height == 0){
+		this.height = 200;
+	}
+}
 
+drawFunction.textfield = function (selection, x, y){
 
+	//var form1 = "<form action=\"" + site + "/do_callback?callback=" + callback + "\"> <input type=\"submit\" value=\"Click me\"></form>";
+	//var form2 = "<a href=\"" + site + "/do_callback/" + callback + "\"> Click me </a>";
+	
+	//var form3 = "<form action=\"\"> <input type=\"text\" id=\"callback_str_arg\" onchange=\"post('" + site + "/do_callback_str/" + callback + "', {callback_str_arg :  document.getElementById('callback_str_arg').value })\"\></form>";
 
+	var form3 = "<form action='" + this.site + "/do_callback_str/" + this.callback + "' method='post'> <input type=\"text\" name=\"callback_str_arg\" /></form>";
+
+	//alert(form3);
+	return selection.append("foreignObject")
+			.attr("x", x)
+			.attr("y", y)
+    		.attr("width", this.width)
+    		.attr("height", this.height)
+     		.append("xhtml:body")
+    		.style("font", this.fontName)
+ 			.style("font-size", this.fontSize)
+   			.html(form3);
+}
 
 
