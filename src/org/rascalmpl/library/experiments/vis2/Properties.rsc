@@ -146,65 +146,80 @@ int getFontSize(FProperties fps){
 	return 12;
 }
 
-// Translate properties to a javascript map
+//// Translate properties to a javascript map
+//
+//str trPropsContent(FProperties fps) {
+//	seen = {};
+//	res = for(fp <- fps){
+//		attr = getName(fp);
+//		if(attr notin seen){
+//			seen += attr;
+//			t = trProp(fp);
+//			if(t != "")
+//				append t;
+//		}
+//	}
+//	return intercalate(", ", res);
+//}
+//
+//str trProps(FProperties fps) = "{ <trPropsContent(fps)> }";
+//
+//str trProp(pos(int xpos, int ypos)) 		= "";
+////str trProp(size(int xsize, int ysize))	= "width: <xsize>, height <ysize>";
+//str trProp(gap(int width, int height)) 		= "";
+//str trProp(align(HAlign xalign, VAlign yalign)) 	
+//											= "";
+//str trProp(lineWidth(int n)) 				= "stroke_width: <n>";
+//str trProp(lineStyle(list[int] dashes))		= "stroke_dasharray: <dashes>";
+//str trProp(fillColor(str s)) 				= "fill: \"<s>\"";
+//str trProp(fillColor(str() sc)) 			= "fill: \"<sc()>\"";
+//
+//str trProp(lineColor(str s))				= "stroke:\"<s>\"";
+//str trProp(lineOpacity(real r))				= "stroke_opacity:\"<r>\"";
+//str trProp(fillOpacity(real r))				= "fill_opacity:\"<r>\"";
+//str trProp(rounded(int rx, int ry))			= "rx: <rx>, ry: <ry>";
+//str trProp(dataset(list[num] values1)) 		= "dataset: <values1>";
+//str trProp(dataset(lrel[num,num] values2))	= "dataset: [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
+//
+//str trProp(font(str fontName))				= "font: \"<fontName>\"";
+//str trProp(fontSize(int fontSize))			= "font_size: <fontSize>";
+//str trProp(fontBaseline(str s))				= "???";
+//str trProp(textAngle(num  r))				= "???";
+//
+//default str trProp(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "width: <xsize>, height: <ysize>" : "unknown: <fp>";
 
-str trPropsContent(FProperties fps) {
-	seen = {};
-	res = for(fp <- fps){
-		attr = getName(fp);
-		if(attr notin seen){
-			seen += attr;
-			t = trProp(fp);
-			if(t != "")
-				append t;
-		}
-	}
-	return intercalate(", ", res);
-}
 
-str trProps(FProperties fps) = "{ <trPropsContent(fps)> }";
-
-str trProp(pos(int xpos, int ypos)) 		= "";
-//str trProp(size(int xsize, int ysize))	= "width: <xsize>, height <ysize>";
-str trProp(gap(int width, int height)) 		= "";
-str trProp(align(HAlign xalign, VAlign yalign)) 	
-											= "";
-str trProp(lineWidth(int n)) 				= "stroke_width: <n>";
-str trProp(lineStyle(list[int] dashes))		= "stroke_dasharray: <dashes>";
-str trProp(fillColor(str s)) 				= "fill: \"<s>\"";
-str trProp(fillColor(str() sc)) 			= "fill: \"<sc()>\"";
-
-str trProp(lineColor(str s))				= "stroke:\"<s>\"";
-str trProp(lineOpacity(real r))				= "stroke_opacity:\"<r>\"";
-str trProp(fillOpacity(real r))				= "fill_opacity:\"<r>\"";
-str trProp(rounded(int rx, int ry))			= "rx: <rx>, ry: <ry>";
-str trProp(dataset(list[num] values1)) 		= "dataset: <values1>";
-str trProp(dataset(lrel[num,num] values2))	= "dataset: [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
-
-str trProp(font(str fontName))				= "font: \"<fontName>\"";
-str trProp(fontSize(int fontSize))			= "font_size: <fontSize>";
-str trProp(fontBaseline(str s))				= "???";
-str trProp(textAngle(num  r))				= "???";
-
-default str trProp(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "width: <xsize>, height: <ysize>" : "unknown: <fp>";
-
-
-str trPropsJson(FProperties fps){
-	res = for(fp <- fps){
+str trPropsJson(FProperties fps str sep = ""){
+	res = "";
+	
+	for(fp <- fps){
 		attr = getName(fp);
 			t = trPropJson(fp);
 			if(t != "")
-				append t;
+				res += ", " + t;
 	}
-	return intercalate(", ", res);
+	return res + sep;
 }
 
 
 str trPropJson(pos(int xpos, int ypos)) 		= "";
 //str trPropJson(size(int xsize, int ysize))	= "width: <xsize>, height <ysize>";
-str trPropJson(gap(int width, int height)) 		= "";
-str trPropJson(align(HAlign xalign, VAlign yalign)) 	
-											= "";
+str trPropJson(gap(int width, int height)) 		= "hgap: <width>, vgap: <height>";
+
+str trPropJson(align(HAlign xalign, VAlign yalign)){
+	xa = 0.5;
+	switch(xalign){
+		case left():	xa = 0.0;
+		case right():	xa = 1.0;
+	}
+	ya = 0.5;
+	switch(yalign){
+		case top():		ya = 0.0;
+		case bottom():	ya = 1.0;
+	}
+	return "halign: <xa>, valign: <ya>";
+}	
+
 str trPropJson(lineWidth(int n)) 				= "lineWidth: <n>";
 str trPropJson(lineStyle(list[int] dashes))		= "lineStyle: <dashes>";
 str trPropJson(fillColor(str s)) 				= "fillColor: \"<s>\"";
