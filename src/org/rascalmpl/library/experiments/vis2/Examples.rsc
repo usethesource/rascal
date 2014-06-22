@@ -11,8 +11,7 @@ import util::HtmlDisplay;
 // ********************** Examples **********************
 
 void ex(str title, Figure f){
-	<w, h> = sizeOf(f);
-	s = trPrims(title, w, h, trFig(f));
+	s = fig2html(title, f);
 	//println(s);
 	htmlDisplay(|file:///tmp/<title>.html|, s);
 }
@@ -296,9 +295,4 @@ void ex82(){
 	ex("ex82", hcat([ box(text("Hello", fillColor("black")), fillColor("white")),
 					  text("World")
 					], fontSize(20)));
-}
-
-void ex90(){
-	trFig2Json(box(size(100,100)), |file:///tmp/ex90.json|);
-
 }
