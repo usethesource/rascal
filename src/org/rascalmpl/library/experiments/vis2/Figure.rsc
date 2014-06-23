@@ -113,24 +113,3 @@ public Figure texteditor(FProperty props ...){
 public Figure textfield(void (str) scallback, FProperty props ...){
   return _textfield(scallback, props);
 }
-
-/*
- * Utitlity functions
-*/
-
-@doc{Create a list of font names}
-@javaClass{org.rascalmpl.library.experiments.vis2.FigureUtils}
-public java list[str] fontNames();
-
-@doc{Compute the size of a text string}
-@javaClass{org.rascalmpl.library.experiments.vis2.FigureUtils}
-public java tuple[int,int] textSize(str text, str fontName, int fontSize, bool bold = false, bool italic = false);
-
-@doc{Compute the ascent size (part of glyphs above baseline) of a font}
-@javaClass{org.rascalmpl.library.experiments.vis2.FigureUtils}
-public java int fontAscent(str fontName, int fontSize, bool bold = false, bool italic = false);
-
-@doc{ompute the descent size (part of glyphs below baseline) of a font}
-@javaClass{org.rascalmpl.library.experiments.vis2.FigureUtils}
-public java int fontDescent(str fontName, int fontSize, bool bold = false, bool italic = false);
-
