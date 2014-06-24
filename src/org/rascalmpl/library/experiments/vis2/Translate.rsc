@@ -16,10 +16,10 @@ public str fig2html(str title, Figure fig, loc site=|http://localhost:8081|){
 	// TODO: get rid of this absolute path
 	vis2 = "/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2";
 	
-	init_callbacks();
+	//init_callbacks();
 	fig_site = site;
-	fig_in_json = trJson(fig);
-	println(fig_in_json);
+	//fig_in_json = trJson(fig);
+	//println(fig_in_json);
 	
 	return "\<html\>
 		'\<head\>
@@ -34,35 +34,58 @@ public str fig2html(str title, Figure fig, loc site=|http://localhost:8081|){
 		'\<div id=\"figurearea\"\> 
 		'\</div\>
 		'\<script\>
-		'	drawFigure(<fig_in_json>);
+		'	askServer(\"<getSite()>/initial_figure\");
   		'\</script\>
 		'\</body\>
 		'\</html\>
 		";
 }
 
+str trJson(Figure f, loc site) {
+	fig_site = site;
+	return trJson(f);
+}
+
 /******************** Translate figure primitives ************************************/
 
-str trJson(_box(FProperties fps)) = "{figure: \"box\" <trPropsJson(fps)> }";
+str trJson(_box(FProperties fps)) = 
+	"{\"figure\": \"box\" <trPropsJson(fps)> }";
 
-str trJson(_box(Figure inner, FProperties fps)) = "{figure: \"box\" <trPropsJson(fps,sep=", ")> inner: <trJson(inner)> }";
+str trJson(_box(Figure inner, FProperties fps)) = 
+	"{\"figure\": \"box\" <trPropsJson(fps,sep=", ")> 
+    ' \"inner\":  <trJson(inner)> 
+    '}";
 
-str trJson(_text(str txt, FProperties fps)) = "{figure: \"text\", textValue: \"<txt>\"<trPropsJson(fps)> }";
+str trJson(_text(str txt, FProperties fps)) = 
+	"{\"figure\": \"text\", \"textValue\": \"<txt>\"<trPropsJson(fps)> }";
 
-str trJson(_text(str() txt, FProperties fps)) = trJson(_text(txt(), fps));
+str trJson(_text(str() txt, FProperties fps)) = 
+	trJson(_text(txt(), fps));
 
-str trJson(_hcat(list[Figure] figs, FProperties fps)) = "{figure: \"hcat\"<trPropsJson(fps, sep=", ")> inner: [<intercalate(", ", [trJson(f) | f <- figs])> ] }";
+str trJson(_hcat(list[Figure] figs, FProperties fps)) = 
+	"{\"figure\": \"hcat\"<trPropsJson(fps, sep=", ")> 
+    ' \"inner\":   [<intercalate(",\n", [trJson(f) | f <- figs])> 
+    '          ] 
+    '}";
 
-str trJson(_vcat(list[Figure] figs, FProperties fps)) = "{figure: \"vcat\"<trPropsJson(fps, sep=", ")> inner: [<intercalate(", ", [trJson(f) | f <- figs])>] }";
+str trJson(_vcat(list[Figure] figs, FProperties fps)) = 
+	"{\"figure\": \"vcat\"<trPropsJson(fps, sep=", ")> 
+    ' \"inner\":  [<intercalate(",\n", [trJson(f) | f <- figs])>
+    '         ] 
+    '}";
 
-str trJson(_barchart(FProperties fps)) = "{figure: \"barchart\" <trPropsJson(fps)> }";
+str trJson(_barchart(FProperties fps)) = 
+	"{\"figure\": \"barchart\" <trPropsJson(fps)> }";
 
-str trJson(_scatterplot(FProperties fps)) = "{figure: \"scatterplot\" <trPropsJson(fps)> }";
+str trJson(_scatterplot(FProperties fps)) = 
+	"{\"figure\": \"scatterplot\" <trPropsJson(fps)> }";
 
 str trJson(_graph(Figures nodes, Edges edges, FProperties fps)) = 
-	"{figure: \"graph\" <trPropsJson(fps, sep=", ")> 
-	' nodes: [<intercalate(", ", [trJson(f) | f <- nodes])>], 
-	' edges: [<intercalate(", ", ["{source: <from>, target: <to>}"| _edge(from,to,efps) <- edges])>]
+	"{\"figure\": \"graph\" <trPropsJson(fps, sep=", ")> 
+	' \"nodes\":  [<intercalate(",\n", [trJson(f) | f <- nodes])>
+	'         ], 
+	' \"edges\":  [<intercalate(",\n", ["{source: <from>, target: <to>}"| _edge(from,to,efps) <- edges])>
+	'         ]
 	'}";
 
 
@@ -86,7 +109,7 @@ str trJson(_graph(Figures nodes, Edges edges, FProperties fps)) =
 
 str trJson(_textfield(void (str) scallback, FProperties fps)) {
  id = def_callback_str(scallback);
- return "{figure: \"textfield\" <trPropsJson(fps, sep=", ")> site: \"<getSite()>\", callback: \"<id>\" }";
+ return "{\"figure\": \"textfield\" <trPropsJson(fps, sep=", ")> \"site\": \"<getSite()>\", \"onClick\": \"<id>\" }";
 } 
 
 default str trJson(Figure f) { throw "trJson: cannot translate <f>"; }
@@ -108,7 +131,7 @@ str trPropsJson(FProperties fps str sep = ""){
 str trPropJson(pos(int xpos, int ypos)) 		= "";
 //str trPropJson(size(int xsize, int ysize))	= "width: <xsize>, height <ysize>";
 
-str trPropJson(gap(int width, int height)) 		= "hgap: <width>, vgap: <height>";
+str trPropJson(gap(int width, int height)) 		= "\"hgap\": <width>, \"vgap\": <height>";
 
 str trPropJson(align(HAlign xalign, VAlign yalign)){
 	xa = 0.5;
@@ -121,29 +144,29 @@ str trPropJson(align(HAlign xalign, VAlign yalign)){
 		case top():		ya = 0.0;
 		case bottom():	ya = 1.0;
 	}
-	return "halign: <xa>, valign: <ya>";
+	return "\"halign\": <xa>, \"valign\": <ya>";
 }	
 
-str trPropJson(lineWidth(int n)) 				= "lineWidth: <n>";
-str trPropJson(lineStyle(list[int] dashes))		= "lineStyle: <dashes>";
-str trPropJson(fillColor(str s)) 				= "fillColor: \"<s>\"";
-str trPropJson(fillColor(str() sc)) 			= "fillColor: \"<sc()>\"";
+str trPropJson(lineWidth(int n)) 				= "\"lineWidth\": <n>";
+str trPropJson(lineStyle(list[int] dashes))		= "\"lineStyle\": <dashes>";
+str trPropJson(fillColor(str s)) 				= "\"fillColor\": \"<s>\"";
+str trPropJson(fillColor(str() sc)) 			= "\"fillColor\": \"<sc()>\"";
 
-str trPropJson(lineColor(str s))				= "lineColor:\"<s>\"";
+str trPropJson(lineColor(str s))				= "\"lineColor\":\"<s>\"";
 str trPropJson(lineOpacity(real r))				= "lineOpacity:\"<r>\"";
-str trPropJson(fillOpacity(real r))				= "fill_opacity:\"<r>\"";
-str trPropJson(rounded(int rx, int ry))			= "rx: <rx>, ry: <ry>";
-str trPropJson(dataset(list[num] values1)) 		= "dataset: <values1>";
-str trPropJson(dataset(lrel[num,num] values2))	= "dataset: [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
+str trPropJson(fillOpacity(real r))				= "\"fill_opacity\":\"<r>\"";
+str trPropJson(rounded(int rx, int ry))			= "\"rx\": <rx>, \"ry\": <ry>";
+str trPropJson(dataset(list[num] values1)) 		= "\"dataset\": <values1>";
+str trPropJson(dataset(lrel[num,num] values2))	= "\"dataset\": [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
 
-str trPropJson(font(str fontName))				= "font: \"<fontName>\"";
-str trPropJson(fontSize(int fontSize))			= "fontSize: <fontSize>";
+str trPropJson(font(str fontName))				= "\"font\": \"<fontName>\"";
+str trPropJson(fontSize(int fontSize))			= "\"fontSize\": <fontSize>";
 str trPropJson(fontBaseline(str s))				= "???";
 str trPropJson(textAngle(num  r))				= "???";
 
-str trPropJson(onClick(void () vcallback))		= "onClick: \"<def_callback(vcallback)>\", site: \"<getSite()>\"";
+str trPropJson(onClick(void () vcallback))		= "\"onClick\": \"<def_callback(vcallback)>\", \"site\": \"<getSite()>\"";
 
-default str trPropJson(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "width: <xsize>, height: <ysize>" : "unknown: <fp>";
+default str trPropJson(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "\"width\": <xsize>, \"height\": <ysize>" : "unknown: <fp>";
 
 /******************* Utilities for callback management ********************/
 
@@ -172,15 +195,15 @@ public str def_callback(void () vcallback){
 	}
 	ncallback += 1;
 	str cid = "<ncallback>";
-	println("callbacks = <callbacks>, cid = <cid>");
+	//println("callbacks = <callbacks>, cid = <cid>");
 	callbacks[cid] = vcallback;
 	seen_callbacks[vcallback] = cid;
-	println("def_callback: <cid>, <callbacks>, <seen_callbacks>");
+	//println("def_callback: <cid>, <callbacks>, <seen_callbacks>");
 	return cid;
 }
 
 public void do_callback(str fun, map[str, str] parameters){
-    println("do_callback: <fun>, <parameters>, <callbacks>");
+    //println("do_callback: <fun>, <parameters>, <callbacks>");
 	callbacks[fun]();
 }
 
@@ -211,8 +234,10 @@ private str def_callback_str(void (str) scallback){
 }
 
 public void do_callback_str(str fun, map[str, str] parameters){
-    println("do_callback_str: <fun>, <parameters>, <callbacks>");
-	callbacks_str[fun](parameters["callback_str_arg"]);
+    //println("do_callback_str: <fun>, <parameters>, <callbacks>");
+    try {
+		callbacks_str[fun](parameters["callback_str_arg"]);
+	} catch: println("callback failed");
 }
 
 private void init_callbacks(){

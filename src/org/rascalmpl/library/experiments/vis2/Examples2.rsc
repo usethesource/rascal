@@ -16,7 +16,7 @@ loc startRenderWebserver() {
   
   while (true) {
     try {
-      serve(site, dispatchserver(page));
+      serve(site, dispatchserver(page1));
       return site;
     }  
     catch IO("Address already in use"): {
@@ -29,54 +29,69 @@ void stopRenderWebserver(loc site) {
   shutdown(site);
 }
 
-Response page(post(), /^\/$/                         , map[str,str] _)   = response(render(current_title, current_fig));
-Response page(get(), /^\/$/                          , map[str,str] _)   = response(render(current_title, current_fig));
-
-Response page(post(), /^\/do_callback\/<fun:[a-zA-Z0-9_]+>/, map[str, str]ps) {
-	println("do_callback: <fun>, <ps>");
-	do_callback(fun, ps);
-	return response(render(current_title, current_fig));
+Response page1(Method method, str path, map[str, str] parameters){
+	//println("page1: <site>, <method>, <path>, <parameters>");
+	return page(method, path, parameters);
 }
 
-Response page(post(), /^\/do_callback_str\/<fun:[a-zA-Z0-9_]+>/, map[str, str]ps) {
-	println("do_callback_str: <fun>, <ps>");
-	do_callback_str(fun, ps);
-	return response(render(current_title, current_fig));
+Response page(get(), /^\/$/                          , map[str,str] _)   = response(generateUpdatedFigure());
+
+Response page(post(), /^\/initial_figure/, map[str, str] parameters) {
+	//println("post: initial_figure: <parameters>");
+	return response(generateUpdatedFigure());
 }
 
-Response page(get(), /^\/do_callback_str\/<fun:[a-zA-Z0-9_]+>/, map[str, str]ps) {
-	println("do_callback_str: <fun>, <ps>");
-	do_callback_str(fun, ps);
-	return response(render(current_title, current_fig));
+Response page(post(), /^\/do_callback\/<fun:[a-zA-Z0-9_]+>/, map[str, str] parameters) {
+	//println("post: do_callback: <fun>, <parameters>");
+	do_callback(fun, parameters);
+	return response(generateUpdatedFigure());
 }
 
-default Response page(get(), str path, map[str, str] ps) = response(base + path); 
 
-default Response page(put(), str path, map[str, str] ps){
-	throw "invalid <path> with <ps>";
+Response page(post(), /^\/do_callback_str\/<fun:[a-zA-Z0-9_]+>/, map[str, str] parameters) {
+	//println("post: do_callback_str: <fun>, <parameters>");
+	do_callback_str(fun, parameters);
+	return response(generateUpdatedFigure());
 }
 
-default Response page(!get(), str path, map[str, str] ps) {
-  throw "invalid <path> with <ps>";
+default Response page(get(), str path, map[str, str] parameters) = response(base + path); 
+
+default Response page(post(), str path, map[str, str] parameters){
+	throw "invalid request <path> with <parameters>";
+}
+
+default Response page(!get(), str path, map[str, str] parameters) {
+  throw "invalid request <path> with <parameters>";
 }
 
 // ********************** Examples **********************
 
-str current_title;
+str current_title = "";
+
 Figure current_fig = box(fillColor("red"), size(100,200));
+
 loc site = startRenderWebserver();
 
-void render(str title, Figure f){
+str generateUpdatedFigure(){ 
+	//println("generateUpdatedFigure: <site>, <current_fig>");
+	s = trJson(current_fig, site);
+	//println(s);
+	return s;
+}
+
+void generateInitialFigure(str title, Figure f){
+	//stopRenderWebserver(site);
+	//site = startRenderWebserver();
 	current_title = title;
 	current_fig = f;
-	println("site = <site>");
-	println("f = <f>");
-	s = fig2html(title, f);
-	//println(s);
+	//println("generateInitialFigure: <site>, <current_fig>");
+	s = fig2html(title, f, site=site);
 	htmlDisplay(|file:///tmp/<title>.html|, s);
 }
 
-void ex(str title, Figure f){ render(title, f); }
+// ********************** Examples **********************
+
+void ex(str title, Figure f){ generateInitialFigure(title, f); }
 
 void ex1(){
 	int counter = 0;
