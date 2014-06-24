@@ -16,7 +16,7 @@ var Figure = {
     borderRadius: 0,
     halign: 0.5,
     valign: 0.5,
-    fontName: "Arial",
+    fontName: "Helvetica",
     fontSize: 12,
     dataset: []
 }
@@ -69,6 +69,7 @@ function drawFigure(description) {
 
 function addInteraction(selection, fig) {
     if (fig.hasOwnProperty("onClick")) {
+    	selection.style("cursor", "crosshair");
         selection.on("click", function(e) {
             d3.event.stopPropagation();
             askServer(fig.site + "/do_callback/" + fig.onClick);
@@ -144,39 +145,6 @@ function askServer(path, params) {
         }
 	});
 }
-
-/*
-var req;
-
-function askServer(path, params) {
-    req = new XMLHttpRequest();
-    var sep = "?";
-    var args = "";
-    for (var param in params) {
-        args += sep + param + "=" + params[param];
-        sep = "&";
-    }
-    alert(path + args);
-    req.open("PUT", path + args, true);
-    req.onreadystatechange = handleServerResponse;
-    req.send();
-}
-
-function handleServerResponse() {
-    if ((req.readyState == 4) && (req.status == 200)) {
-        try {
-            var result = req.responseText;
-            var res1 = JSON.parse(result);
-            var area = d3.select("#figurearea svg").remove();
-            drawFigure(res1);
-        } catch (e) {
-            console.error("Parsing error:", e);
-        }
-    } else {
-        console.log("Server request failed:", req);
-    }
-}
-*/
 
 /****************** Bounding box and draw function table *******/
 
@@ -315,7 +283,9 @@ bboxFunction.text = function() {
     .attr("y", 0)
     .style("text-anchor", "start")
     .text(this.textValue)
-    .style("font", this.fontName)
+    .style("font-family", this.fontName)
+    .style("font-style", "normal")
+    .style("font-weight", "bold")
     .style("font-size", this.fontSize)
     .style("stroke", this.lineColor)
     .style("fill", this.fillColor);
@@ -337,7 +307,9 @@ drawFunction.text = function (selection, x, y) {
     .attr("y", y - this.ascent) // take ascent into account
     .style("text-anchor", "start")
     .text(this.textValue)
-    .style("font", this.fontName)
+    .style("font-family", this.fontName)
+    .style("font-style", "normal")
+    .style("font-weight", "bold")
     .style("font-size", this.fontSize)
     .style("stroke", this.lineColor)
     .style("fill", this.fillColor)
@@ -649,7 +621,8 @@ bboxFunction.textfield = function() {
 drawFunction.textfield = function (selection, x, y) {
     var site = this.site;
     var callback = this.onClick;
-    var form = "<form action=\"\" method=\"put\"> <input type='text' value=\"\"/></form>";
+    
+    var form = "<form action=\"\"> <input type='text' value=\"\"/></form>";
 
     var html = selection.append("foreignObject")
     .attr("x", x)
@@ -663,6 +636,7 @@ drawFunction.textfield = function (selection, x, y) {
 
     html.on("submit", function() {
         var v = html.select("input")[0][0].value;
+        d3.event.stopPropagation();
         askServer(site + "/do_callback_str/" + callback, {
             "callback_str_arg" : v
         });
