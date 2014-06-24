@@ -2,18 +2,12 @@ module experiments::vis2::Examples
 
 import experiments::vis2::Figure;
 import experiments::vis2::Properties;
-import experiments::vis2::Translate;
-import experiments::vis2::Color;
-import util::Math;
-import IO;
-import util::HtmlDisplay;
+import experiments::vis2::FigureServer;
 
 // ********************** Examples **********************
 
 void ex(str title, Figure f){
-	s = fig2html(title, f);
-	//println(s);
-	htmlDisplay(|file:///tmp/<title>.html|, s);
+	generateInitialFigure(title, f);
 }
 
 // single box
@@ -295,4 +289,32 @@ void ex82(){
 	ex("ex82", hcat([ box(text("Hello", fillColor("black")), fillColor("white")),
 					  text("World")
 					], fontSize(20)));
+}
+
+/************** Interaction *****************/
+
+void ex100(){
+	int counter = 0;
+	str getCounter() = "... <counter>...";
+	ex("ex100", vcat([ box(text("Click me"), onClick((){ counter += 1; }), fontSize(20), gap(2,2), fillColor("whitesmoke")),
+					 text(getCounter, size(150, 50), fontSize(30))
+				   ], align(left(),vcenter())));
+}
+
+void ex101(){
+	str color = "red";
+	str getFillColor() { return color; }
+	ex("ex101", hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
+	                 textfield((str s){ color = s; }, size(100,25)), 
+	                 box(fillColor(getFillColor), size(100,100))
+				   ], gap(10,10)));
+}
+
+void ex102(){
+	ex("ex103", figure(("color" : "red"),
+				hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
+	                   textfield(def("color"), size(100,25)), 
+	                   box(fillColor(use("color")), size(100,100))
+				   ], gap(10,10)))
+			  );
 }

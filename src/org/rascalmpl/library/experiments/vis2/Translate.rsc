@@ -17,9 +17,8 @@ public str fig2html(str title, Figure fig, loc site=|http://localhost:8081|){
 	vis2 = "/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2";
 	
 	//init_callbacks();
+	
 	fig_site = site;
-	//fig_in_json = trJson(fig);
-	//println(fig_in_json);
 	
 	return "\<html\>
 		'\<head\>
@@ -159,7 +158,7 @@ str trPropJson(rounded(int rx, int ry))			= "\"rx\": <rx>, \"ry\": <ry>";
 str trPropJson(dataset(list[num] values1)) 		= "\"dataset\": <values1>";
 str trPropJson(dataset(lrel[num,num] values2))	= "\"dataset\": [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
 
-str trPropJson(font(str fontName))				= "\"font\": \"<fontName>\"";
+str trPropJson(font(str fontName))				= "\"fontName\": \"<fontName>\"";
 str trPropJson(fontSize(int fontSize))			= "\"fontSize\": <fontSize>";
 str trPropJson(fontBaseline(str s))				= "???";
 str trPropJson(textAngle(num  r))				= "???";
