@@ -18,7 +18,7 @@ public class NodeCursor extends Cursor implements INode {
 	}
 	
 	private INode getNode() {
-		return (INode)getValue();
+		return (INode)getWrappedValue();
 	}
 
 	@Override

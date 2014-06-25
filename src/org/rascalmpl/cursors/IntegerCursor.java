@@ -19,14 +19,9 @@ public class IntegerCursor extends Cursor implements IInteger {
 	}
 
 	private IInteger getInt() {
-		return ((IInteger)getValue());
+		return ((IInteger)getWrappedValue());
 	}
 	
-	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-		return getValue().accept(v);
-	}
-
 	@Override
 	public INumber add(INumber other) {
 		return new IntegerCursor(getInt().add(other), getCtx());

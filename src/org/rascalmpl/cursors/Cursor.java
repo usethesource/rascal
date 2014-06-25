@@ -19,10 +19,12 @@ public abstract class Cursor implements ICursor, IValue {
 		this.ctx = ctx;
 	}
 	
-	public IValue getValue() {
+	@Override
+	public IValue getWrappedValue() {
 		return value;
 	}
 	
+	@Override
 	public Context getCtx() {
 		return ctx;
 	}
@@ -48,10 +50,12 @@ public abstract class Cursor implements ICursor, IValue {
 		return value.asAnnotatable();
 	}
 	
+	@Override
 	public IValue up() {
 		return ctx.up(value);
 	}
 	
+	@Override
 	public IValue root() {
 		IValue current = this;
 		while (current instanceof ICursor) {
@@ -67,7 +71,7 @@ public abstract class Cursor implements ICursor, IValue {
 	
 	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-		return getValue().accept(v);
+		return getWrappedValue().accept(v);
 	}
 
 }
