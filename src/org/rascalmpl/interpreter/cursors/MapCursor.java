@@ -1,4 +1,4 @@
-package org.rascalmpl.cursors;
+package org.rascalmpl.interpreter.cursors;
 
 import java.util.Iterator;
 import java.util.Map.Entry;

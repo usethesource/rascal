@@ -1,4 +1,4 @@
-package org.rascalmpl.cursors;
+package org.rascalmpl.interpreter.cursors;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
