@@ -24,7 +24,7 @@ public class NodeCursor extends Cursor implements INode {
 	@Override
 	public IValue get(int i) throws IndexOutOfBoundsException {
 		Context ctx = new NodeIndexContext(getCtx(), i, getNode());
-		return TypeToCursor.makeCursor(getNode().get(i), ctx);
+		return CursorFactory.makeCursor(getNode().get(i), ctx);
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class NodeCursor extends Cursor implements INode {
 	@Override
 	public IValue getKeywordArgumentValue(String name) {
 		Context ctx = new NodeKeywordContext(getCtx(), name, getNode());
-		return TypeToCursor.makeCursor(getNode().getKeywordArgumentValue(name), ctx);
+		return CursorFactory.makeCursor(getNode().getKeywordArgumentValue(name), ctx);
 	}
 
 	@Override

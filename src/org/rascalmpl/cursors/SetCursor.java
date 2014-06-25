@@ -51,7 +51,7 @@ public class SetCursor extends Cursor implements ISet {
 			public IValue next() {
 				IValue elt = iter.next();
 				Context ctx = new SetContext(getCtx(), getSet().delete(elt));
-				return TypeToCursor.makeCursor(elt, ctx);
+				return CursorFactory.makeCursor(elt, ctx);
 			}
 
 			@Override

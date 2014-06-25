@@ -34,7 +34,7 @@ public class ConstructorCursor extends NodeCursor implements IConstructor {
 	@Override
 	public IValue get(String label) {
 		Context ctx = new ConstructorLabelContext(getCtx(), label, getConstructor());
-		return TypeToCursor.makeCursor(getConstructor().get(label), ctx);
+		return CursorFactory.makeCursor(getConstructor().get(label), ctx);
 	}
 
 	@Override

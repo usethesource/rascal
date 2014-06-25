@@ -5,7 +5,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.cursors.Cursor;
 import org.rascalmpl.cursors.ICursor;
 import org.rascalmpl.cursors.TopContext;
-import org.rascalmpl.cursors.TypeToCursor;
+import org.rascalmpl.cursors.CursorFactory;
 
 public class Cursors {
 
@@ -13,12 +13,12 @@ public class Cursors {
 	}
 
 	public IValue makeCursor(IValue typ, IValue v) {
-		IValue c = TypeToCursor.makeCursor(v, new TopContext());
+		IValue c = CursorFactory.makeCursor(v, new TopContext());
 		return c;
 	}
 
 	public IValue update(IValue typ, IValue cursor, IValue v) {
-		return TypeToCursor.makeCursor(v, ((ICursor) cursor).getCtx());
+		return CursorFactory.makeCursor(v, ((ICursor) cursor).getCtx());
 	}
 
 	public IValue getRoot(IValue typ, IValue v) {

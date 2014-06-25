@@ -39,7 +39,7 @@ public class MapCursor extends Cursor implements IMap {
 	@Override
 	public IValue get(IValue key) {
 		Context ctx = new MapContext(getCtx(), key, getMap());
-		return TypeToCursor.makeCursor(getMap().get(key), ctx);
+		return CursorFactory.makeCursor(getMap().get(key), ctx);
 	}
 
 	@Override
