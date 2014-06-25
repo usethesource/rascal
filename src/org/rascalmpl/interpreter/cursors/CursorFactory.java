@@ -1,4 +1,4 @@
-package org.rascalmpl.cursors;
+package org.rascalmpl.interpreter.cursors;
 
 
 import java.lang.reflect.InvocationHandler;
