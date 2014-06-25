@@ -1,6 +1,7 @@
 package org.rascalmpl.cursors;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -90,12 +91,12 @@ public class TypeToCursor implements ITypeVisitor<IValue, RuntimeException> {
 
 	@Override
 	public IValue visitConstructor(Type type) throws RuntimeException {
-		return value;
+		return new ConstructorCursor((IConstructor)value, ctx);
 	}
 
 	@Override
 	public IValue visitAbstractData(Type type) throws RuntimeException {
-		return value;
+		return new ConstructorCursor((IConstructor)value, ctx);
 	}
 
 	@Override

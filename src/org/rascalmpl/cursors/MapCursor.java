@@ -18,7 +18,7 @@ public class MapCursor extends Cursor implements IMap {
 	}
 	
 	private IMap getMap() {
-		return (IMap)getValue();
+		return (IMap)getWrappedValue();
 	}
 
 	@Override

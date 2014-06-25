@@ -19,7 +19,7 @@ public class ListCursor extends Cursor implements IList {
 	}
 	
 	IList getList() {
-		return (IList)getValue();
+		return (IList)getWrappedValue();
 	}
 
 	@Override

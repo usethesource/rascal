@@ -16,6 +16,9 @@ import org.eclipse.imp.pdb.facts.IValue;
 
 public class Factory {
 	
+	// TODO: merge this with TypeToCursor
+	// the refined typing here is unneeded.
+	
 	static class AtomCursor extends Cursor implements InvocationHandler {
 		public AtomCursor(IValue value) {
 			super(value);
@@ -27,16 +30,16 @@ public class Factory {
 
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-			if (method.getName().equals("up") || method.getName().equals("root") || method.getName().equals("getCtx")) {
+			String name = method.getName();
+			if (name.equals("up") || name.equals("root") || name.equals("getCtx") || name.equals("getWrappedValue") || name.equals("toString")) {
 				return method.invoke(this, args);
 			}
-			return method.invoke(getValue(), args);
-			
+			return method.invoke(getWrappedValue(), args);
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static <T extends IValue> T atomCursor(Class<T> cls, T value, Context ctx) {
+	public static <T extends IValue> T atomCursor(Class<T> cls, T value, Context ctx) {
 		return (T) Proxy.newProxyInstance(Factory.class.getClassLoader(),new Class[]{cls, ICursor.class}, new AtomCursor(value, ctx));
 	}
 	
