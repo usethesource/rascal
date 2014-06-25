@@ -4,10 +4,17 @@ import experiments::vis2::Figure;
 import experiments::vis2::Properties;
 import experiments::vis2::FigureServer;
 
+import String;
+import util::Math;
+
 // ********************** Examples **********************
 
 void ex(str title, Figure f){
-	generateInitialFigure(title, f);
+	generateInitialFigure(title, (), f);
+}
+
+void ex(str title, map[str,str] context, Figure f){
+	generateInitialFigure(title, context, f);
 }
 
 // single box
@@ -269,13 +276,13 @@ void ex71(){
 					], gap(50,50)));
 }
 
-void ex72(){
-	ex("ex72", hcat([graph(nodes1, edges1, size(400,400)),
-					 scatterplot(fillColor("blue"), size(400,300), dataset(DATA2)),
-					 texteditor(size(200,200)),
-					 barchart(fillColor("black"), size(400,300), dataset(DATA1))
-					], gap(50,50)));
-}
+//void ex72(){
+//	ex("ex72", hcat([graph(nodes1, edges1, size(400,400)),
+//					 scatterplot(fillColor("blue"), size(400,300), dataset(DATA2)),
+//					 texteditor(size(200,200)),
+//					 barchart(fillColor("black"), size(400,300), dataset(DATA1))
+//					], gap(50,50)));
+//}
 
 void ex80(){
 	ex("ex80", text("Hello", fontSize(20)));
@@ -293,28 +300,84 @@ void ex82(){
 
 /************** Interaction *****************/
 
-void ex100(){
-	int counter = 0;
-	str getCounter() = "... <counter>...";
-	ex("ex100", vcat([ box(text("Click me"), onClick((){ counter += 1; }), fontSize(20), gap(2,2), fillColor("whitesmoke")),
-					 text(getCounter, size(150, 50), fontSize(30))
-				   ], align(left(),vcenter())));
+void ex200(){
+
+	int inc(int val) { return val + 1; }
+	
+	generateInitialFigure("ex200",  ("counter" : "0"), 
+				vcat([ box(text("Click me"), onClick(def(#int, "counter", inc)), fontSize(20), gap(2,2), fillColor("whitesmoke")),
+					   text(use("counter"), size(150, 50), fontSize(30))
+				     ], align(left(),vcenter())));
 }
 
-void ex101(){
-	str color = "red";
-	str getFillColor() { return color; }
-	ex("ex101", hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
-	                 textfield((str s){ color = s; }, size(100,25)), 
-	                 box(fillColor(getFillColor), size(100,100))
-				   ], gap(10,10)));
+void ex201(){
+
+	int inc(int val) { return val + 1; }
+	
+	generateInitialFigure("ex201",  ("counter" : "0"), 
+				vcat([ box(text("Click me 1"), onClick(def(#int, "counter", inc)), fontSize(20), gap(2,2), fillColor("whitesmoke")),
+					   text(use("counter"), size(150, 50), fontSize(30)),
+					   box(text("Click me 2"), onClick(def(#int, "counter", inc)), fontSize(20), gap(2,2), fillColor("whitesmoke")),
+					   text(use("counter"), size(150, 50), fontSize(50)),
+					   text(use("counter"), size(150, 50), fontSize(80))
+				     ], align(left(),vcenter())));
 }
 
-void ex102(){
-	ex("ex103", figure(("color" : "red"),
+void ex202(){
+	generateInitialFigure("ex202", ("C1" : "red"),
 				hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
-	                   textfield(def("color"), size(100,25)), 
-	                   box(fillColor(use("color")), size(100,100))
-				   ], gap(10,10)))
+				
+	                   textInput(def(#str, "C1"), size(100,25)), 
+	                   
+	                   box(lineColor(use("C1")), lineWidth(10), size(100,100)),
+	                   
+	                   box(lineColor(use("C1")), lineWidth(10), size(100,100))
+				   ], gap(20,20))
 			  );
+}
+
+void ex203(){
+	generateInitialFigure("ex203", ("FC" : "red", "LW": "1"),
+				vcat([
+					hcat([ text("fillColor:", size(150, 50), fontSize(20), font("Helvetica")), textInput(def(#str, "FC"), size(100,25))]),
+				
+					hcat([ text("lineWidth:", size(150, 50), fontSize(20), font("Helvetica")), textInput(def(#int, "LW"), size(100,25))]),
+					
+					box(size(100,100), lineWidth(0)),
+					
+	                box(fillColor(use("FC")), lineWidth(use("LW")), size(100,100))
+	                   
+				   ], gap(30,30))
+			  );
+}
+
+void ex204(){
+	generateInitialFigure("ex204", ("SEL": "0"),
+			hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
+			
+	               textInput(def(#int, "SEL"), size(100,25)),
+	               
+				   fswitch(use("SEL"), [ box(fillColor("red"), size(100,100)),
+									     box(fillColor("white"), size(100,100)),
+									     box(fillColor("blue"), size(100,100))
+								       ])],
+					gap(30,30)));
+}
+
+void ex205(){
+	generateInitialFigure("ex205", ("SLIDER_VAL": "0"),
+			vcat([ hcat([text("0"), rangeInput(0,100,5, def(#int, "SLIDER_VAL"), size(500, 50)), text("100")]),
+			
+				   text(use("SLIDER_VAL"), size(150, 50), fontSize(18), font("Helvetica"))
+	             ],			  
+				 gap(30,30)));
+}
+
+void ex206(){
+	generateInitialFigure("ex206", ("SLIDER_VAL": "0"),
+			vcat([ rangeInput(0, 100, 5, def(#int, "SLIDER_VAL"), size(500, 50)),
+					box(size(100,100), lineWidth(0)),
+				   box(lineWidth(use("SLIDER_VAL")), size(150, 50), fillColor("red"))
+	             ], align(left(), top()),		  
+				 gap(30,30)));
 }

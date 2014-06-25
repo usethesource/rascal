@@ -9,6 +9,11 @@ import ToString;
 
 import  experiments::vis2::Properties;
 
+data Visualization =
+	   visualization(str name, map[str,str] context, Figure fig)
+	|  visualization(str name, Figure fig)
+	;
+
 /*
  * Figure: a visual element, the principal visualization datatype
  * Note: for experimentation purposes this is a small extract from the real thing: vis/Figure.rsc
@@ -22,7 +27,7 @@ public data Figure =
 /* atomic primitives */
 	
      _text(str s, FProperties props)		    // text label
-   | _text(computedStr sv, FProperties props)
+   | _text(Use u, FProperties props)
    
 /* primitives/containers */
 
@@ -48,8 +53,26 @@ public data Figure =
    
 // interaction
 
-//   | _button(str label, void () vcallback, FProperties props)
-   | _textfield(void (str) scallback, FProperties props)
+   | _textInput(Def d, FProperties props)
+   
+    | _fswitch(Use u, Figures figs, FProperties props)
+   
+    | _rangeInput(int low, int high, int step, Def d, FProperties props)
+
+// TODO   
+
+   | _mouseOver(Figure under, Figure over,FProperties props)   
+       
+   | _computeFigure(bool() recomp,Figure () computeFig, FProperties props)
+ 
+   | _combo(list[str] choices, Def d, FProperties props)
+   
+   | _choice(list[str] choices, Def d, FProperties props)
+   
+   | _checkbox(str text, bool checked, Def d, FProperties props)
+   
+  
+   
    ;
  
 data Edge =			 							// edge between between two elements in complex shapes like tree or graph
@@ -66,8 +89,8 @@ public Figure text(str s, FProperty props ...){
   return _text(s, props);
 }
 
-public Figure text(computedStr sv, FProperty props ...){
-  return _text(sv, props);
+public Figure text(Use u, FProperty props ...){
+  return _text(u, props);
 }
 
 public Figure box(FProperty props ...){
@@ -106,10 +129,14 @@ public Figure texteditor(FProperty props ...){
   return _texteditor(props);
 }
 
-//public Figure button(str label, void () vcallback, FProperty props ...){
-//  return _button(label, vcallback, props);
-//}
+public Figure textInput(Def d, FProperty props ...){
+  return _textInput(d, props);
+}
 
-public Figure textfield(void (str) scallback, FProperty props ...){
-  return _textfield(scallback, props);
+public Figure fswitch(Use u, Figures figs, FProperty props ...){
+ 	return _fswitch(u, figs, props);
+}
+
+public Figure rangeInput(int low, int high, int step, Def d, FProperty props...){
+   return _rangeInput(low, high, step, d, props);
 }

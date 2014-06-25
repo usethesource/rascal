@@ -1,16 +1,16 @@
+
+
 /****************** The figure prototype with all defaults *********************/
 
 var Figure = {
     figure: "figure",
     textValue: "none",
-    width: 0,
-    height: 0,
     hgap: 0,
     vgap: 0,
     fillColor: "white",
     fillOpacity: 1.0,
     lineWidth: 1,
-    lineColor: "black",
+    lineColor: "black", 
     lineStyle: "solid",
     lineOpacity: 1.0,
     borderRadius: 0,
@@ -18,8 +18,28 @@ var Figure = {
     valign: 0.5,
     fontName: "Helvetica",
     fontSize: 12,
-    dataset: []
+    dataset: [], 
+    figure_state: {},
+    figure_root:  {},
+    hasDefinedSize: function() { return this.hasOwnProperty("definedSize"); }
 }
+
+Object.defineProperty(Figure, "width", { get: function(){ 
+                                                    if(this.hasOwnProperty("_width"))return this._width;
+                                                    if(this.hasDefinedSize()) return this.definedSize[0];
+                                                    throw "Undefined width";
+                                        },
+             set: function(w){ this._width = w; }
+        
+    });
+    
+Object.defineProperty(Figure, "height", { get: function(){ if(this.hasOwnProperty("_height")) return this._height;
+                              if(this.definedSize) return this.definedSize[1];
+                              throw "Undefined height";
+                           },
+              set: function(h){ this._height = h; }
+        
+    });
 
 /****************** Build a figure given its JSON representation ****************/
 
@@ -35,7 +55,9 @@ function buildFigure1(description, parent) {
     var f = Object.create(parent);
     f.bbox = bboxFunction[description.figure]; // || throw "No bbox function defined for " + description.figure;
     f.draw = drawFunction[description.figure]; // || throw "No draw function defined for " + description.figure;
-    for (var prop in description) {
+    
+    for(p in description) {
+        handle_prop = function(prop){
         if (prop === "inner") {
             var inner_description = description[prop];
             if (isArray(inner_description)) {
@@ -48,16 +70,29 @@ function buildFigure1(description, parent) {
                 f[prop] = buildFigure1(inner_description, f);
             }
         } else {
-            f[prop] = description[prop];
+            var prop_val = description[prop];
+            if(prop_val.use){
+                var var_name = prop_val.use;
+                Object.defineProperty(f, prop, {get: function(){ return Figure.figure_state[var_name];}  });
+            } else {
+                var val = description[prop];
+                Object.defineProperty(f, prop, {value: val});
+            }
         }
+        }; 
+        handle_prop(p);
     }
     return f;
 }
 
 /****************** Draw a figure object ****************/
 
-function drawFigure(description) {
-    var f = buildFigure(description);
+function drawFigure (description){
+    drawFigure1(buildFigure(description));
+}
+
+function drawFigure1(f) {
+    Figure.figure_root = f;
     f.bbox();
     var x = f.x || 0;
     var y = f.y || 0;
@@ -65,14 +100,23 @@ function drawFigure(description) {
     return f.draw(area, x, y);
 }
 
+function redrawFigure(){
+    var area = d3.select("#figurearea svg").remove();
+    drawFigure1(Figure.figure_root);
+}
+
+
 /****************** AddInteraction to a figure *************************/
 
 function addInteraction(selection, fig) {
     if (fig.hasOwnProperty("onClick")) {
     	selection.style("cursor", "crosshair");
+        selection.on("dbclick", function(e) {d3.event.stopPropagation();});
         selection.on("click", function(e) {
             d3.event.stopPropagation();
-            askServer(fig.site + "/do_callback/" + fig.onClick);
+            Figure.figure_state.var_type = fig.var_type;
+            Figure.figure_state.var_name = fig.var_name;
+            askServer(fig.site + "/do_callback/" + fig.onClick, Figure.figure_state);
         });
     }
     return selection;
@@ -137,11 +181,13 @@ ajax.post = function(url, data, callback, sync) {
 function askServer(path, params) {
 	ajax.post(path, params, function(responseText){
 		try {
-            var res1 = JSON.parse(responseText);
+            var res = JSON.parse(responseText);
             var area = d3.select("#figurearea svg").remove();
-            drawFigure(res1);
+            Figure.figure_state = res.figure_state;
+            drawFigure(res.figure_root);
+            return;
         } catch (e) {
-            console.error("Parsing error:", responseText);
+            console.error(e.message + ": " + responseText);
         }
 	});
 }
@@ -157,8 +203,14 @@ var drawFunction = {};
 /**************** box *******************/
 
 bboxFunction.box = function() {
-    var width = this.width;
-    var height = this.height;
+    var width, height;
+    
+    if(this.hasDefinedSize()){
+        width = this.definedSize[0];
+        height = this.definedSize[1];
+    } else {
+        width = height = 0;
+    }
     var lw = this.lineWidth;
     width += (lw + 1) / 2;
     height += (lw + 1) / 2;
@@ -168,9 +220,11 @@ bboxFunction.box = function() {
         console.log(inner);
         inner.bbox();
         console.log("inner", inner.width, inner.height);
-        width = Math.max(width, inner.width + 2 * this.hgap);
-        height = Math.max(height, inner.height + 2 * this.vgap);
-        console.log("outer size:", width, height);
+        if(!this.hasDefinedSize()){
+            width = Math.max(width, inner.width + 2 * this.hgap);
+            height = Math.max(height, inner.height + 2 * this.vgap);
+            console.log("outer size:", width, height);
+        }
     }
     // 	if(this.pos){
     // 		p = this.pos;
@@ -512,9 +566,9 @@ bboxFunction.graph = function() {
 
 drawFunction.graph = function (selection, x, y) {
     var width = this.width,
-    height = this.height,
-    nodes = this.nodes || [],
-    links = this.edges || [];
+        height = this.height,
+        nodes = this.nodes || [],
+        links = this.edges || [];
 
     console.log("nodes:", nodes);
     var defs = selection.append("defs");
@@ -608,8 +662,9 @@ drawFunction.graph = function (selection, x, y) {
     });
 }
 
-/********************* textfield ***************************/
-bboxFunction.textfield = function() {
+/********************* textInput ***************************/
+
+bboxFunction.textInput = function() {
     if (this.width == 0) {
         this.width = 200;
     }
@@ -618,7 +673,7 @@ bboxFunction.textfield = function() {
     }
 }
 
-drawFunction.textfield = function (selection, x, y) {
+drawFunction.textInput = function (selection, x, y) {
     var site = this.site;
     var callback = this.onClick;
     
@@ -630,19 +685,85 @@ drawFunction.textfield = function (selection, x, y) {
     .attr("width", this.width)
     .attr("height", this.height)
     .append("xhtml:body")
-    .style("font", this.fontName)
+    .style("font-family", this.fontName)
     .style("font-size", this.fontSize)
     .html(form);
 
-    html.on("submit", function() {
-        var v = html.select("input")[0][0].value;
-        d3.event.stopPropagation();
-        askServer(site + "/do_callback_str/" + callback, {
-            "callback_str_arg" : v
+    if(this.hasOwnProperty("onClick")){
+        var callback = this.onClick;
+        html.on("mousedown", function() { d3.event.stopPropagation(); });
+        html.on("submit", function() {
+            var v = html.select("input")[0][0].value;
+            
+            askServer(site + "/do_callback_str/" + callback, {
+                "callback_str_arg" : v
+            });
         });
-    });
+    } else {
+        var var_name = this.var_name;
+        html.on("mousedown", function() { d3.event.stopPropagation(); });
+        html.on("submit", function() {
+            var v = html.select("input")[0][0].value;
+            d3.event.preventDefault();
+            Figure.figure_state[var_name] = v;
+            redrawFigure();
+        });
+    }
 }
 
 
+/********************* fswitch ***************************/
+
+bboxFunction.fswitch = function() {
+    var inner = this.inner;
+    var selector = Math.min(Math.max(this.selector,0), inner.length - 1);
+    var selected = inner[selector];
+    selected.bbox();
+    this.width = selected.width;
+    this.height = selected.height;
+}
+
+drawFunction.fswitch = function (selection, x, y) {
+    var inner = this.inner;
+    var selector = Math.min(Math.max(this.selector,0), inner.length -1);
+    var selected = this.inner[selector];
+    return selected.draw(selection, x, y);
+}  
 
 
+/********************* rangeInput ***************************/
+
+bboxFunction.rangeInput = function() {
+     if (this.width == 0) {
+        this.width = 200;
+    }
+    if (this.height == 0) {
+        this.height = 200;
+    }
+}
+
+drawFunction.rangeInput = function (selection, x, y) {
+    var site = this.site;
+    var callback = this.onClick;
+    
+    var form = "<form action=\"\"> <input type='range' min=0 max=100 value=50/></form>";
+
+    var html = selection.append("foreignObject")
+    .attr("x", x)
+    .attr("y", y)
+    .attr("width", this.width)
+    .attr("height", this.height)
+    .append("xhtml:body")
+    .style("font-family", this.fontName)
+    .style("font-size", this.fontSize)
+    .html(form);
+
+     var var_name = this.var_name;
+     html.on("mousedown", function() { d3.event.stopPropagation(); });
+     html.on("change", function() {
+            var v = html.select("input")[0][0].value;
+            d3.event.preventDefault();
+            Figure.figure_state[var_name] = v;
+            redrawFigure();
+        });
+}   
