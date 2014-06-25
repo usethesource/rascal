@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.cursors.ICursor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
@@ -192,12 +193,30 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return that.equalityBoolean(this);
 	}
 
+	@SuppressWarnings("unchecked")
 	protected <V extends IValue> Result<IBool> equalityBoolean(ElementResult<V> that) {
-		return bool(that.getValue().isEqual(this.getValue()), ctx);
+		V a = that.getValue();
+		T b = this.getValue();
+		if (a instanceof ICursor) {
+			a = (V) ((ICursor)a).getWrappedValue();
+		}
+		if (b instanceof ICursor) {
+			b = (T) ((ICursor)b).getWrappedValue();
+		}
+		return bool(a.isEqual(b), ctx);
 	}
 
+	@SuppressWarnings("unchecked")
 	protected <V extends IValue> Result<IBool> nonEqualityBoolean(ElementResult<V> that) {
-		return bool((!that.getValue().isEqual(this.getValue())), ctx);
+		V a = that.getValue();
+		T b = this.getValue();
+		if (a instanceof ICursor) {
+			a = (V) ((ICursor)a).getWrappedValue();
+		}
+		if (b instanceof ICursor) {
+			b = (T) ((ICursor)b).getWrappedValue();
+		}
+		return bool((!a.isEqual(b)), ctx);
 	}
 	
 	@SuppressWarnings("unchecked")
