@@ -26,8 +26,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 public class CursorFactory implements ITypeVisitor<IValue, RuntimeException> {
 
 	public static IValue makeCursor(IValue value, Context ctx) {
-		CursorFactory t2c = new CursorFactory(value, ctx);
-		return value.getType().accept(t2c);
+		CursorFactory fact = new CursorFactory(value, ctx);
+		return value.getType().accept(fact);
 	}
 	
 	private static class AtomCursor extends Cursor implements InvocationHandler {
