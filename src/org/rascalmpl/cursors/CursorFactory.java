@@ -130,7 +130,7 @@ public class CursorFactory implements ITypeVisitor<IValue, RuntimeException> {
 
 	@Override
 	public IValue visitTuple(Type type) throws RuntimeException {
-		return value;
+		return new TupleCursor(value, ctx);
 	}
 
 	@Override
