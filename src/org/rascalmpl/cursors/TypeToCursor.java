@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -71,7 +72,7 @@ public class TypeToCursor implements ITypeVisitor<IValue, RuntimeException> {
 
 	@Override
 	public IValue visitSet(Type type) throws RuntimeException {
-		return value;
+		return new SetCursor((ISet) value, ctx);
 	}
 
 	@Override
