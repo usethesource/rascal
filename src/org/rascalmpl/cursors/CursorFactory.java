@@ -1,8 +1,14 @@
 package org.rascalmpl.cursors;
 
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -17,37 +23,59 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 
-import static org.rascalmpl.cursors.Factory.*;
-
-public class TypeToCursor implements ITypeVisitor<IValue, RuntimeException> {
+public class CursorFactory implements ITypeVisitor<IValue, RuntimeException> {
 
 	public static IValue makeCursor(IValue value, Context ctx) {
-		TypeToCursor t2c = new TypeToCursor(value, ctx);
+		CursorFactory t2c = new CursorFactory(value, ctx);
 		return value.getType().accept(t2c);
 	}
 	
+	private static class AtomCursor extends Cursor implements InvocationHandler {
+		public AtomCursor(IValue value) {
+			super(value);
+		}
+		
+		public AtomCursor(IValue value, Context ctx) {
+			super(value, ctx);
+		}
+
+		@Override
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			String name = method.getName();
+			if (name.equals("up") || name.equals("root") || name.equals("getCtx") || name.equals("getWrappedValue") || name.equals("toString")) {
+				return method.invoke(this, args);
+			}
+			return method.invoke(getWrappedValue(), args);
+		}
+	}
+	
+	
+	private static IValue atomCursor(Class<? extends IValue> cls, IValue value, Context ctx) {
+		return (IValue) Proxy.newProxyInstance(CursorFactory.class.getClassLoader(),
+				new Class[]{cls, ICursor.class}, new AtomCursor(value, ctx));
+	}
 	
 	private IValue value;
 	private Context ctx;
 
-	private TypeToCursor(IValue value, Context ctx) {
+	private CursorFactory(IValue value, Context ctx) {
 		this.value = value;
 		this.ctx = ctx;
 	}
 	
 	@Override
 	public IValue visitReal(Type type) throws RuntimeException {
-		return realCursor((IReal)value, ctx);
+		return atomCursor(IReal.class, value, ctx);
 	}
 
 	@Override
 	public IValue visitInteger(Type type) throws RuntimeException {
-		return integerCursor((IInteger)value, ctx);
+		return atomCursor(IInteger.class, value, ctx);
 	}
 
 	@Override
 	public IValue visitRational(Type type) throws RuntimeException {
-		return rationalCursor((IRational)value, ctx);
+		return atomCursor(IRational.class, value, ctx);
 	}
 
 	@Override
@@ -62,7 +90,7 @@ public class TypeToCursor implements ITypeVisitor<IValue, RuntimeException> {
 
 	@Override
 	public IValue visitNumber(Type type) throws RuntimeException {
-		return numberCursor((INumber)value, ctx);
+		return atomCursor(INumber.class, value, ctx);
 	}
 
 	@Override
@@ -77,12 +105,12 @@ public class TypeToCursor implements ITypeVisitor<IValue, RuntimeException> {
 
 	@Override
 	public IValue visitSourceLocation(Type type) throws RuntimeException {
-		return sourceLocationCursor((ISourceLocation)value, ctx);
+		return atomCursor(ISourceLocation.class, value, ctx);
 	}
 
 	@Override
 	public IValue visitString(Type type) throws RuntimeException {
-		return stringCursor((IString)value, ctx);
+		return atomCursor(IString.class, value, ctx);
 	}
 
 	@Override
@@ -117,7 +145,7 @@ public class TypeToCursor implements ITypeVisitor<IValue, RuntimeException> {
 
 	@Override
 	public IValue visitBool(Type type) throws RuntimeException {
-		return boolCursor((IBool)value, ctx);
+		return atomCursor(IBool.class, value, ctx);
 	}
 
 	@Override
@@ -127,12 +155,12 @@ public class TypeToCursor implements ITypeVisitor<IValue, RuntimeException> {
 
 	@Override
 	public IValue visitExternal(Type type) throws RuntimeException {
-		return value;
+		return atomCursor(IExternalValue.class, value, ctx);
 	}
 
 	@Override
 	public IValue visitDateTime(Type type) throws RuntimeException {
-		return dateTimeCursor((IDateTime)value, ctx);
+		return atomCursor(IDateTime.class, value, ctx);
 	}
 
 }
