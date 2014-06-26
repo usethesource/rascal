@@ -26,3 +26,5 @@ public java str readFrom(int listenerId);
 @javaClass{org.rascalmpl.library.experiments.sockets.Sockets}
 public java void writeTo(int listenerId, str msg);
 
+@javaClass{org.rascalmpl.library.experiments.sockets.Sockets}
+public java void writeToAsASCII(int listenerId, str msg);
