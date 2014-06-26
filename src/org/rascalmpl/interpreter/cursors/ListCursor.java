@@ -92,7 +92,7 @@ public class ListCursor extends Cursor implements IList {
 
 	@Override
 	public IValue get(int i) throws IndexOutOfBoundsException {
-		ListContext ctx = new ListContext(getCtx(), getList().sublist(0, i), getList().sublist(i + 1, getList().length() - (i + 1)));
+		ListContext ctx = new ListContext(getCtx(), i, getList());
 		return CursorFactory.makeCursor(getList().get(i), ctx);
 	}
 

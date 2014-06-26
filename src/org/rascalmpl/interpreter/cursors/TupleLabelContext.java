@@ -1,7 +1,10 @@
 package org.rascalmpl.interpreter.cursors;
 
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.library.util.Cursors;
 
 public class TupleLabelContext extends Context {
 
@@ -20,4 +23,8 @@ public class TupleLabelContext extends Context {
 		return new TupleCursor(tuple.set(label, focus), ctx);
 	}
 
+	@Override
+	public IList toPath(IValueFactory vf) {
+		return ctx.toPath(vf).append(vf.constructor(Cursors.Nav_field, vf.string(label)));
+	}
 }
