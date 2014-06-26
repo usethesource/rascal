@@ -7,6 +7,14 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 public abstract class Cursor implements ICursor, IValue {
 	
+	/* TODO
+	 * 
+	 * Currently, many cursors return new cursors as if the operation on the value was actually
+	 * an update of the cursor. This is probably wrong: it doesn't work that way for atoms either.
+	 * Operations should just return the new value, - only navigation leads to new cursors. If
+	 * you want update, you should do update(...) in Rascal.
+	 */
+	
 	private IValue value;
 	private Context ctx;
 
@@ -61,12 +69,12 @@ public abstract class Cursor implements ICursor, IValue {
 		while (current instanceof ICursor) {
 			current = ((ICursor)current).up();
 		}
-		return current;
+		return CursorFactory.makeCursor(current, new TopContext());
 	}
 	
 	@Override
 	public String toString() {
-		return "%" + value.toString();
+		return value.toString();
 	}
 	
 	@Override
