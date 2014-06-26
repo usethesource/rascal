@@ -12,6 +12,14 @@
 
 module lang::json::IO
 
+@javaClass{org.rascalmpl.library.lang.json.IO}
+public java str toJSON(value v);
+
+@javaClass{org.rascalmpl.library.lang.json.IO}
+@reflect{Uses type store}
+public java &T fromJSON(type[&T] typ, str src);
+
+
 @doc{write an JSon Term to a text file}
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @reflect{Uses URI Resolver Registry}
