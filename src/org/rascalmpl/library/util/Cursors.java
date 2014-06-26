@@ -1,6 +1,8 @@
 package org.rascalmpl.library.util;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -22,6 +24,7 @@ public class Cursors {
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	
 	public static final Type Nav = tf.abstractDataType(cursors, "Nav");
+	public static final Type Nav_root = tf.constructor(cursors, Nav, "root", tf.stringType(), "name");
 	public static final Type Nav_field = tf.constructor(cursors, Nav, "field", tf.stringType(), "name");
 	public static final Type Nav_subscript= tf.constructor(cursors, Nav, "subscript", tf.integerType(), "index");
 	public static final Type Nav_lookup = tf.constructor(cursors, Nav, "lookup", tf.valueType(), "key");
@@ -38,8 +41,11 @@ public class Cursors {
 	}
 
 	public IValue makeCursor(IValue v) {
-		IValue c = CursorFactory.makeCursor(v, new TopContext());
-		return c;
+		return CursorFactory.makeCursor(v, new TopContext());
+	}
+
+	public IValue makeCursor(IValue v, IString name) {
+		return CursorFactory.makeCursor(v, new TopContext(name.getValue()));
 	}
 
 	public IValue update(IValue cursor, IValue v) {
@@ -69,6 +75,10 @@ public class Cursors {
 		checkCursorness("first", cursor);
 		return ((ICursor)cursor).getCtx().toPath(vf);
 	}
+	
+	public IBool isCursor(IValue v) {
+		return vf.bool(v instanceof ICursor);
+	}
 
 	private static void checkCursorness(String arg, IValue cursor) {
 		if (!(cursor instanceof ICursor)) {
@@ -76,6 +86,8 @@ public class Cursors {
 					arg + " argument should be a cursor");
 		}
 	}
+	
+	
 
 	private static void checkUnaryFunction(String arg, IValue f) {
 //		if (!(f instanceof ICallableValue) || ((ICallableValue)f).getArity() != 1) {
