@@ -117,5 +117,17 @@ public class Sockets {
 		}
 		out.append(msg.getValue());
 	}
-	
+
+	public void writeToAsASCII(IInteger socketId, IString msg) {
+		if (!clientSockets.containsKey(socketId)) {
+			throw RuntimeExceptionFactory.illegalArgument(socketId, null, null);
+		}
+		
+		try {
+			clientSockets.get(socketId).getOutputStream().write(msg.getValue().getBytes("ASCII"));
+		} catch (IOException ioe) {
+			throw RuntimeExceptionFactory.javaException(ioe, null, null);
+		}
+	}
+
 }
