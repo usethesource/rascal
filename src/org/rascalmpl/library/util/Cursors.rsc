@@ -6,6 +6,8 @@ data Nav
   = field(str name)
   | subscript(int index)
   | lookup(value key)
+  | select(list[int] indices)
+  | select(list[str] labels)
   ;
 
 

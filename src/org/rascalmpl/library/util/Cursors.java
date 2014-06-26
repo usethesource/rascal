@@ -25,6 +25,8 @@ public class Cursors {
 	public static final Type Nav_field = tf.constructor(cursors, Nav, "field", tf.stringType(), "name");
 	public static final Type Nav_subscript= tf.constructor(cursors, Nav, "subscript", tf.integerType(), "index");
 	public static final Type Nav_lookup = tf.constructor(cursors, Nav, "lookup", tf.valueType(), "key");
+	public static final Type Nav_selectByIndex = tf.constructor(cursors, Nav, "select", tf.listType(tf.integerType()), "indices");
+	public static final Type Nav_selectByLabel = tf.constructor(cursors, Nav, "select", tf.listType(tf.stringType()), "labels");
 	
 	
 	public static final Type Path = tf.aliasType(cursors, "Path", tf.listType(Nav));
