@@ -12,12 +12,12 @@ public class Cursors {
 	public Cursors(IValueFactory vf) {
 	}
 
-	public IValue makeCursor(IValue typ, IValue v) {
+	public IValue makeCursor(IValue v) {
 		IValue c = CursorFactory.makeCursor(v, new TopContext());
 		return c;
 	}
 
-	public IValue update(IValue typ, IValue cursor, IValue v) {
+	public IValue update(IValue cursor, IValue v) {
 		checkCursorness(cursor);
 		return CursorFactory.makeCursor(v, ((ICursor) cursor).getCtx());
 	}
