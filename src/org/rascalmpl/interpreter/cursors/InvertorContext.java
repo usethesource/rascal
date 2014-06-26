@@ -1,10 +1,6 @@
 package org.rascalmpl.interpreter.cursors;
 
-import java.util.Collections;
-
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.result.ICallableValue;
 
