@@ -180,6 +180,24 @@ str trPropJson(align(HAlign xalign, VAlign yalign)){
 	return "\"halign\": <xa>, \"valign\": <ya>";
 }	
 
+str trPropJson(width(int w))					= "\"definedWidth\": <w>";
+str trPropJson(width(use(str name)))			= "\"definedWidth\": {\"use\": \"<name>\"}";
+
+str trPropJson(height(int h))					= "\"definedHeight\": <h>";
+str trPropJson(height(use(str name)))			= "\"definedHeight\": {\"use\": \"<name>\"}";
+
+str trPropJson(xpos(int x))						= "\"xpos\": <x>";
+str trPropJson(xpos(use(str name)))				= "\"xpos\": {\"use\": \"<name>\"}";
+
+str trPropJson(ypos(int y))						= "\"ypos\": <y>";
+str trPropJson(ypos(use(str name)))				= "\"ypos\": {\"use\": \"<name>\"}";
+
+str trPropJson(hgap(int g))						= "\"hgap\": <h>";
+str trPropJson(hgap(use(str name)))				= "\"hgap\": {\"use\": \"<name>\"}";
+
+str trPropJson(vgap(int g))						= "\"vgap\": <h>";
+str trPropJson(vgap(use(str name)))				= "\"vgap\": {\"use\": \"<name>\"}";
+
 str trPropJson(lineWidth(int n)) 				= "\"lineWidth\": <n>";
 str trPropJson(lineWidth(use(str name)))		= "\"lineWidth\": {\"use\": \"<name>\"}";
 
@@ -215,7 +233,7 @@ str trPropJson(prop: onClick(def(type[&T] tp, str var_name, CallBack[&T] callbac
 	return "\"onClick\": \"<def_callback(callback)>\", \"var_type\": \"<tp>\", \"var_name\": \"<var_name>\", \"site\": \"<getSite()>\"";	
 }
 
-default str trPropJson(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "\"definedSize\": [<xsize>, <ysize>]" : "unknown: <fp>";
+default str trPropJson(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "\"definedWidth\": <xsize>, \"definedHeight\": <ysize>" : "unknown: <fp>";
 
 /******************* Utilities for callback management ********************/
 
