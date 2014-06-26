@@ -323,8 +323,20 @@ void ex201(){
 				     ], align(left(),vcenter())));
 }
 
+
 void ex202(){
-	generateInitialFigure("ex202", ("C1" : "red"),
+	generateInitialFigure("ex202", ("TXT" : "abc"),
+				hcat([ 		
+	                   textInput(def(#str, "TXT"), size(100,25)), 
+	                   text(use("TXT"), size(150, 50), fontSize(50)),
+	                   text(use("TXT"), size(150, 50), fontSize(80))
+	                  
+				   ], gap(20,20))
+			  );
+}
+
+void ex203(){
+	generateInitialFigure("ex203", ("C1" : "red"),
 				hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
 				
 	                   textInput(def(#str, "C1"), size(100,25)), 
@@ -336,23 +348,27 @@ void ex202(){
 			  );
 }
 
-void ex203(){
-	generateInitialFigure("ex203", ("FC" : "red", "LW": "1"),
+void ex204(){
+	generateInitialFigure("ex204", ("FC" : "red", "LW": "1", "WIDTH": "100", "HEIGHT" : "100"),
 				vcat([
 					hcat([ text("fillColor:", size(150, 50), fontSize(20), font("Helvetica")), textInput(def(#str, "FC"), size(100,25))]),
 				
 					hcat([ text("lineWidth:", size(150, 50), fontSize(20), font("Helvetica")), textInput(def(#int, "LW"), size(100,25))]),
 					
+					hcat([ text("width:", size(150, 50), fontSize(20), font("Helvetica")), textInput(def(#int, "WIDTH"), size(100,25))]),
+					
+					hcat([ text("height:", size(150, 50), fontSize(20), font("Helvetica")), textInput(def(#int, "HEIGHT"), size(100,25))]),
+					
 					box(size(100,100), lineWidth(0)),
 					
-	                box(fillColor(use("FC")), lineWidth(use("LW")), size(100,100))
+	                box(fillColor(use("FC")), lineWidth(use("LW")), width(use("WIDTH")), height(use("HEIGHT")))
 	                   
 				   ], gap(30,30))
 			  );
 }
 
-void ex204(){
-	generateInitialFigure("ex204", ("SEL": "0"),
+void ex205(){
+	generateInitialFigure("ex205", ("SEL": "0"),
 			hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
 			
 	               textInput(def(#int, "SEL"), size(100,25)),
@@ -364,19 +380,31 @@ void ex204(){
 					gap(30,30)));
 }
 
-void ex205(){
-	generateInitialFigure("ex205", ("SLIDER_VAL": "0"),
-			vcat([ hcat([text("0"), rangeInput(0,100,5, def(#int, "SLIDER_VAL"), size(500, 50)), text("100")]),
+void ex206(){
+	generateInitialFigure("ex206", ("SLIDER_VAL": "50"),
+			vcat([ hcat([text("0"), rangeInput(0,100,5, def(#int, "SLIDER_VAL"), size(150, 50)), text("100")]),
 			
-				   text(use("SLIDER_VAL"), size(150, 50), fontSize(18), font("Helvetica"))
+				   text(use("SLIDER_VAL"), size(150, 50), fontSize(30), font("Helvetica"))
 	             ],			  
-				 gap(30,30)));
+				 gap(10,20)));
 }
 
-void ex206(){
-	generateInitialFigure("ex206", ("SLIDER_VAL": "0"),
+void ex207(){
+	generateInitialFigure("ex207", ("WIDTH": "50", "HEIGHT": "50"),
+			vcat([ hcat([text("WIDTH"), text("0"), rangeInput(0,100,5, def(#int, "WIDTH"), size(150, 50)), text("100")]),
+			       hcat([text("HEIGHT"), text("0"), rangeInput(0,100,5, def(#int, "HEIGHT"), size(150, 50)), text("100")]),
+			
+				   box(width(use("WIDTH")), height(use("HEIGHT")), fillColor("pink"))
+	             ],			  
+				 gap(10,20)));
+}
+
+void ex208(){
+	generateInitialFigure("ex208", ("SLIDER_VAL": "0"),
 			vcat([ rangeInput(0, 100, 5, def(#int, "SLIDER_VAL"), size(500, 50)),
-					box(size(100,100), lineWidth(0)),
+			
+				   box(size(100,100), lineWidth(0)),
+				   
 				   box(lineWidth(use("SLIDER_VAL")), size(150, 50), fillColor("red"))
 	             ], align(left(), top()),		  
 				 gap(30,30)));

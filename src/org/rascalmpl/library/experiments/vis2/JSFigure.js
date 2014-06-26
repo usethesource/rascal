@@ -21,12 +21,17 @@ var Figure = {
     dataset: [], 
     figure_state: {},
     figure_root:  {},
-    hasDefinedSize: function() { return this.hasOwnProperty("definedSize"); }
+    hasDefinedWidth: function() { return this.hasOwnProperty("definedWidth"); },
+    hasDefinedHeight: function() { return this.hasOwnProperty("definedHeight"); },
+    // TODO: maintenance prone, find better solution!
+    propertiesWithNumberArg: ["width", "height", "definedWidth", "definedHeight", 
+                               "xpos", "ypos", "hgap", "vgap", "halign", "valign",
+                              "lineWidth", "fontSize", "fillOpacity", "lineOpacity", "borderRadius"]
 }
 
 Object.defineProperty(Figure, "width", { get: function(){ 
                                                     if(this.hasOwnProperty("_width"))return this._width;
-                                                    if(this.hasDefinedSize()) return this.definedSize[0];
+                                                    if(this.hasDefinedWidth()) return this.definedWidth;
                                                     throw "Undefined width";
                                         },
              set: function(w){ this._width = w; }
@@ -34,17 +39,24 @@ Object.defineProperty(Figure, "width", { get: function(){
     });
     
 Object.defineProperty(Figure, "height", { get: function(){ if(this.hasOwnProperty("_height")) return this._height;
-                              if(this.definedSize) return this.definedSize[1];
+                              if(this.hasDefinedHeight) return this.definedHeight;
                               throw "Undefined height";
                            },
-              set: function(h){ this._height = h; }
+              set: function(h){ if(isString(h)) {
+                                    alert(h); 
+                                }
+                                 this._height = h; }
         
     });
 
 /****************** Build a figure given its JSON representation ****************/
 
-function isArray(myArray) {
-    return Object.prototype.toString.call(myArray) === "[object Array]";
+function isArray(obj) {
+    return Object.prototype.toString.call(obj) === "[object Array]";
+}
+
+function isString(obj) {
+    return Object.prototype.toString.call(obj) === "[object String]";
 }
 
 function buildFigure(description) {
@@ -57,7 +69,7 @@ function buildFigure1(description, parent) {
     f.draw = drawFunction[description.figure]; // || throw "No draw function defined for " + description.figure;
     
     for(p in description) {
-        handle_prop = function(prop){
+        handle_prop = function(prop){       // Use extra closure to protect var_name as used in defineProperty
         if (prop === "inner") {
             var inner_description = description[prop];
             if (isArray(inner_description)) {
@@ -73,7 +85,11 @@ function buildFigure1(description, parent) {
             var prop_val = description[prop];
             if(prop_val.use){
                 var var_name = prop_val.use;
-                Object.defineProperty(f, prop, {get: function(){ return Figure.figure_state[var_name];}  });
+                if(Figure.propertiesWithNumberArg.indexOf(prop) >= 0){
+                    Object.defineProperty(f, prop, {get: function(){ return parseInt(Figure.figure_state[var_name]);}  });
+                } else {
+                    Object.defineProperty(f, prop, {get: function(){ return Figure.figure_state[var_name];}  });
+                }
             } else {
                 var val = description[prop];
                 Object.defineProperty(f, prop, {value: val});
@@ -187,7 +203,7 @@ function askServer(path, params) {
             drawFigure(res.figure_root);
             return;
         } catch (e) {
-            console.error(e.message + ": " + responseText);
+            console.error(e.message + ", on figure " + responseText);
         }
 	});
 }
@@ -203,14 +219,16 @@ var drawFunction = {};
 /**************** box *******************/
 
 bboxFunction.box = function() {
-    var width, height;
+    var width = 0, height = 0, definedW, definedH;
     
-    if(this.hasDefinedSize()){
-        width = this.definedSize[0];
-        height = this.definedSize[1];
-    } else {
-        width = height = 0;
+    if(this.hasDefinedWidth()){
+        width = this.definedWidth;
+        definedW = 1;
     }
+    if(this.hasDefinedHeight()){
+        height = this.definedHeight;
+        definedH = 1;
+    } 
     var lw = this.lineWidth;
     width += (lw + 1) / 2;
     height += (lw + 1) / 2;
@@ -220,11 +238,13 @@ bboxFunction.box = function() {
         console.log(inner);
         inner.bbox();
         console.log("inner", inner.width, inner.height);
-        if(!this.hasDefinedSize()){
+        if(!definedW){
             width = Math.max(width, inner.width + 2 * this.hgap);
-            height = Math.max(height, inner.height + 2 * this.vgap);
-            console.log("outer size:", width, height);
         }
+        if(!definedH){
+            height = Math.max(height, inner.height + 2 * this.vgap);
+        }
+        console.log("outer size:", width, height);
     }
     // 	if(this.pos){
     // 		p = this.pos;
@@ -343,8 +363,7 @@ bboxFunction.text = function() {
     .style("font-size", this.fontSize)
     .style("stroke", this.lineColor)
     .style("fill", this.fillColor);
-    //console.log("svgtmp", svgtmp);
-    //console.log("txt", txt);
+   
     var bb = txt.node().getBBox();
     svgtmp.node().remove();
     this.width = bb.width;
@@ -674,43 +693,36 @@ bboxFunction.textInput = function() {
 }
 
 drawFunction.textInput = function (selection, x, y) {
-    var site = this.site;
-    var callback = this.onClick;
+    var foreign = selection.append("foreignObject")
+        .attr("x", x).attr("y", y).attr("width", this.width).attr("height", this.height);
     
-    var form = "<form action=\"\"> <input type='text' value=\"\"/></form>";
-
-    var html = selection.append("foreignObject")
-    .attr("x", x)
-    .attr("y", y)
-    .attr("width", this.width)
-    .attr("height", this.height)
-    .append("xhtml:body")
-    .style("font-family", this.fontName)
-    .style("font-size", this.fontSize)
-    .html(form);
+    foreign.append("xhtml:body")
+        .append("form").attr("action", "")
+        .append("input")
+            .style("width", this.width + "px").style("height", this.height + "px")
+            .style("font-family", this.fontName).style("font-size", this.fontSize)
+            .attr("type", "text").attr("value", "");
+    
 
     if(this.hasOwnProperty("onClick")){
-        var callback = this.onClick;
-        html.on("mousedown", function() { d3.event.stopPropagation(); });
-        html.on("submit", function() {
-            var v = html.select("input")[0][0].value;
-            
-            askServer(site + "/do_callback_str/" + callback, {
-                "callback_str_arg" : v
-            });
+        foreign.on("mousedown", function() { d3.event.stopPropagation(); });
+        foreign.on("submit", function() {
+            var v = foreign.select("input")[0][0].value;
+            askServer(this.site + "/do_callback_str/" + this.onClick, {"callback_str_arg" : v});
         });
     } else {
         var var_name = this.var_name;
-        html.on("mousedown", function() { d3.event.stopPropagation(); });
-        html.on("submit", function() {
-            var v = html.select("input")[0][0].value;
+       // foreign.attr("prototype",  Figure.figure_state[var_name]);
+        
+        foreign.on("mousedown", function() { d3.event.stopPropagation(); });
+        foreign.on("submit", function() {
+            var v = foreign.select("input")[0][0].value;
             d3.event.preventDefault();
             Figure.figure_state[var_name] = v;
             redrawFigure();
         });
     }
 }
-
 
 /********************* fswitch ***************************/
 
@@ -742,28 +754,27 @@ bboxFunction.rangeInput = function() {
     }
 }
 
-drawFunction.rangeInput = function (selection, x, y) {
-    var site = this.site;
-    var callback = this.onClick;
+drawFunction.rangeInput = function (selection, x, y) {   
+        
+    var foreign = selection.append("foreignObject")
+        .attr("x", x).attr("y", y).attr("width", this.width).attr("height", this.height);
     
-    var form = "<form action=\"\"> <input type='range' min=0 max=100 value=50/></form>";
-
-    var html = selection.append("foreignObject")
-    .attr("x", x)
-    .attr("y", y)
-    .attr("width", this.width)
-    .attr("height", this.height)
-    .append("xhtml:body")
-    .style("font-family", this.fontName)
-    .style("font-size", this.fontSize)
-    .html(form);
-
+    foreign.append("xhtml:body")
+        .append("form").attr("action", "")
+        .append("input")
+            .style("width", this.width + "px").style("height", this.height + "px")
+            .attr("type", "range")
+            .attr("min", this.min).attr("max", this.max).attr("step", this.step)
+            .attr("value", Figure.figure_state[this.var_name]);
+        
      var var_name = this.var_name;
-     html.on("mousedown", function() { d3.event.stopPropagation(); });
-     html.on("change", function() {
-            var v = html.select("input")[0][0].value;
+     
+     var handler = function() {
+            var v = foreign.select("input")[0][0].value;
             d3.event.preventDefault();
             Figure.figure_state[var_name] = v;
             redrawFigure();
-        });
-}   
+        };
+
+     foreign.on("change", handler);
+}
