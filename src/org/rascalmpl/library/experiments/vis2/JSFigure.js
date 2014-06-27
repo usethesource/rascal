@@ -753,8 +753,8 @@ drawFunction.colorInput = function (selection, x, y) {
      var accessor = this.accessor;
         
      foreign.on("mousedown", function() { d3.event.stopPropagation(); });
-     foreign.on("submit", function() {
-            var v = foreign.select("input")[0][0].value;
+     foreign.on("change", function() {
+            var v = "'" + foreign.select("input")[0][0].value + "'";
             d3.event.preventDefault();
             Figure.setModelElement(accessor, v);
             redrawFigure()
