@@ -27,7 +27,6 @@ public data Figure =
 /* atomic primitives */
 	
      _text(str s, FProperties props)		    // text label
-//   | _text(Use u, FProperties props)
    
 /* primitives/containers */
 
@@ -90,10 +89,6 @@ public Edge edge(int from, int to, FProperty props ...){
 public Figure text(str s, FProperty props ...){
   return _text(s, props);
 }
-
-//public Figure text(Use u, FProperty props ...){
-//  return _text(u, props);
-//}
 
 public Figure box(FProperty props ...){
   return _box(props);
