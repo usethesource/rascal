@@ -27,7 +27,7 @@ public data Figure =
 /* atomic primitives */
 	
      _text(str s, FProperties props)		    // text label
-   | _text(Use u, FProperties props)
+//   | _text(Use u, FProperties props)
    
 /* primitives/containers */
 
@@ -53,14 +53,18 @@ public data Figure =
    
 // interaction
 
-   | _textInput(Def d, FProperties props)
+   | _strInput(Bind[str] sbinder, FProperties props)
    
-    | _fswitch(Use u, Figures figs, FProperties props)
+   | _numInput(Bind[num] nbinder, FProperties props)
    
-    | _rangeInput(int low, int high, int step, Def d, FProperties props)
+   | _colorInput(Bind[str] sbinder, FProperties props)
+   
+    | _fswitch(int sel, Figures figs, FProperties props)
+   
+    | _rangeInput(int low, int high, int step, Bind[int] ibinder, FProperties props)
 
 // TODO   
-
+/*
    | _mouseOver(Figure under, Figure over,FProperties props)   
        
    | _computeFigure(bool() recomp,Figure () computeFig, FProperties props)
@@ -70,9 +74,7 @@ public data Figure =
    | _choice(list[str] choices, Def d, FProperties props)
    
    | _checkbox(str text, bool checked, Def d, FProperties props)
-   
-  
-   
+*/
    ;
  
 data Edge =			 							// edge between between two elements in complex shapes like tree or graph
@@ -89,9 +91,9 @@ public Figure text(str s, FProperty props ...){
   return _text(s, props);
 }
 
-public Figure text(Use u, FProperty props ...){
-  return _text(u, props);
-}
+//public Figure text(Use u, FProperty props ...){
+//  return _text(u, props);
+//}
 
 public Figure box(FProperty props ...){
   return _box(props);
@@ -129,14 +131,22 @@ public Figure texteditor(FProperty props ...){
   return _texteditor(props);
 }
 
-public Figure textInput(Def d, FProperty props ...){
-  return _textInput(d, props);
+public Figure strInput(Bind[str] sbinder, FProperty props ...){
+  return _strInput(sbinder, props);
 }
 
-public Figure fswitch(Use u, Figures figs, FProperty props ...){
- 	return _fswitch(u, figs, props);
+public Figure numInput(Bind[num] nbinder, FProperty props ...){
+  return _numInput(nbinder, props);
 }
 
-public Figure rangeInput(int low, int high, int step, Def d, FProperty props...){
-   return _rangeInput(low, high, step, d, props);
+public Figure colorInput(Bind[str] sbinder, FProperty props ...){
+  return _colorInput(sbinder, props);
+}
+
+public Figure fswitch(int sel, Figures figs, FProperty props ...){
+ 	return _fswitch(sel, figs, props);
+}
+
+public Figure rangeInput(int low, int high, int step, Bind[int] binder, FProperty props...){
+   return _rangeInput(low, high, step, binder, props);
 }
