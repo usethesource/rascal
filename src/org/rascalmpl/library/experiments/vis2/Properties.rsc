@@ -1,7 +1,5 @@
 module experiments::vis2::Properties
 
-alias Cursor[&T] = &T;
-
 data Bind[&T]
     = bind(Cursor[&T] accessor)
     | bind(Cursor[&T] accessor, &T val)

@@ -9,11 +9,9 @@ import List;
 import util::Cursors;
 import Type;
 
-
 /*
  * Translate a Figure to HTML + JSON
  */
-
 
 // Translation a figure to one HTML page
 
@@ -195,7 +193,7 @@ str trJson(p: _rangeInput(int low, int high, int step, Bind[int] binder, FProper
    }
 }
     
-// Default
+// Catch missing cases
 
 default str trJson(Figure f) { throw "trJson: cannot translate <f>"; }
 
@@ -232,8 +230,6 @@ str trPropJson(align(HAlign xalign, VAlign yalign)){
 }
 
 str trPath(Path path){
-	
-	
     accessor = "Figure.model";
 	for(nav <- path){
 		switch(nav){
@@ -251,9 +247,10 @@ str trPath(Path path){
   	return "\"<accessor>\"";
 }
 
+str numArg(num n) 	= isCursor(n) ? "{\"use\": <trPath(toPath(n))>}" : "<n>";
 
-str numArg(num n) = isCursor(n) ? "{\"use\": <trPath(toPath(n))>}" : "<n>";
-str strArg(str s) = isCursor(s) ? "{\"use\": <trPath(toPath(s))>}" : "\"<s>\"";
+str strArg(str s) 	= isCursor(s) ? "{\"use\": <trPath(toPath(s))>}" : "\"<s>\"";
+
 str valArg(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "<v>";		
 
 str trPropJson(width(int w))					= "\"definedWidth\": <numArg(w)>";
@@ -303,55 +300,3 @@ str trPropJson(prop: onClick(binder: bind(&T accessor, &T replacement))){
 }
 
 default str trPropJson(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "\"definedWidth\": <xsize>, \"definedHeight\": <ysize>" : "unknown: <fp>";
-
-/******************* Utilities for callback management ********************/
-/*
-private loc fig_site = |http://localhost:8081|;
-
-public str getSite() = "<fig_site>"[1 .. -1];
-
-
-// CallBack[&T]
-
-private int ncallback = 0;
-private map[str, value] callbacks = ();
-private map[value, str] seen_callbacks = ();
-
-private void init_callback(){
-	ncallback = 0;
-	callbacks = ();
-	seen_callbacks = ();
-}
-
-public str def_callback(CallBack[&T] callback){
-println("A");
-	if(!callbacks?){
-		init_callbacks();
-	}
-	if(seen_callbacks[callback]?){
-		return seen_callbacks[callback];
-	}
-	ncallback += 1;
-	str cid = "<ncallback>";
-	println("callbacks = <callbacks>, cid = <cid>");
-	callbacks[cid] = callback;
-	seen_callbacks[callback] = cid;
-	println("def_callback: <cid>, <callbacks>, <seen_callbacks>");
-	return cid;
-}
-
-public  map[str, str] do_callback(str fun, map[str, str] state){
-    println("do_callback: <fun>, <state>, <callbacks>");
-    
-    tp = state["var_type"];
-    var_name = state["var_name"];
- 	var_value = state[var_name];
-    callback = callbacks[fun];
-    switch(tp){
-    	case "int":	{ if( int(int) callback := callbacks[fun]) { state[var_name] = "<callback(toInt(var_value))>"; return state; } }
-    	case "str":	{ if( str(str) callback := callbacks[fun]) { state[var_name] = "<callback(var_value)>"; return state; } }
-    };
-    throw "do_callback: unsupported type <tp> for <var_name>";
-}
-
-*/

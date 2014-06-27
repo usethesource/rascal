@@ -56,7 +56,7 @@ private default Response page(!get(), str path, map[str, str] parameters) {
   throw "invalid request <path> with <parameters>";
 }
 
-// ********************** Generating figures **********************
+// ********************** Global state **** **********************
 
 private str figure_name = "";
 
@@ -69,6 +69,8 @@ Figure (value model) figure_builder = Figure(value v) { return box(); };
 private loc site = startFigureServer();
 
 public str getSite() = "<site>"[1 .. -1];
+
+// ********************** Render ********************************
 
 public void render(str title, Figure fig) {
 	render(title, [], Figure(value m) { return fig; });
@@ -84,6 +86,8 @@ public void render(str title, &T model, Figure (&T model) makeFig){
 	htmlDisplay(|file:///tmp/<title>.html|, fig2html(title, getSite()));
 }
 
+// ********************** Render and refresh **********************
+
 private str refresh(value model){ 
 	try {
 		println("refresh: <site>, <model>");
@@ -96,8 +100,6 @@ private str refresh(value model){
 		throw "refresh: unexpected: <e>";
 	}
 }
-
-// Examples
 
 
 
