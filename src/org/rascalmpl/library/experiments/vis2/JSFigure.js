@@ -26,7 +26,13 @@ var Figure = {
     // TODO: maintenance prone, find better solution!
     propertiesWithNumberArg: ["width", "height", "definedWidth", "definedHeight", 
                                "xpos", "ypos", "hgap", "vgap", "halign", "valign",
-                              "lineWidth", "fontSize", "fillOpacity", "lineOpacity", "borderRadius"]
+                              "lineWidth", "fontSize", "fillOpacity", "lineOpacity", "borderRadius"],
+                              
+    getModelElement: function(accessor) { return eval(accessor); },
+    
+    setModelElement: function(accessor, v) { eval(accessor + "=" + v); return v; },
+    
+    model: [50,50]
 }
 
 Object.defineProperty(Figure, "width", { get: function(){ 
@@ -69,7 +75,7 @@ function buildFigure1(description, parent) {
     f.draw = drawFunction[description.figure]; // || throw "No draw function defined for " + description.figure;
     
     for(p in description) {
-        handle_prop = function(prop){       // Use extra closure to protect var_name as used in defineProperty
+        handle_prop = function(prop){       // Use extra closure to protect accessor as used in defineProperty
         if (prop === "inner") {
             var inner_description = description[prop];
             if (isArray(inner_description)) {
@@ -84,11 +90,14 @@ function buildFigure1(description, parent) {
         } else {
             var prop_val = description[prop];
             if(prop_val.use){
-                var var_name = prop_val.use;
+                var accessor = prop_val.use;
+                if(prop === "accessor"){
+                    Object.defineProperty(f, prop, {get: function(){ return accessor;}  });
+                } else
                 if(Figure.propertiesWithNumberArg.indexOf(prop) >= 0){
-                    Object.defineProperty(f, prop, {get: function(){ return parseInt(Figure.figure_state[var_name]);}  });
+                    Object.defineProperty(f, prop, {get: function(){ return parseInt(eval(accessor));}  });
                 } else {
-                    Object.defineProperty(f, prop, {get: function(){ return Figure.figure_state[var_name];}  });
+                    Object.defineProperty(f, prop, {get: function(){ return eval(accessor);}  });
                 }
             } else {
                 var val = description[prop];
@@ -129,10 +138,9 @@ function addInteraction(selection, fig) {
     	selection.style("cursor", "crosshair");
         selection.on("dbclick", function(e) {d3.event.stopPropagation();});
         selection.on("click", function(e) {
-            d3.event.stopPropagation();
-            Figure.figure_state.var_type = fig.var_type;
-            Figure.figure_state.var_name = fig.var_name;
-            askServer(fig.site + "/do_callback/" + fig.onClick, Figure.figure_state);
+           d3.event.stopPropagation();
+           Figure.setModelElement(fig.accessor, fig.replacement);
+           refreshFromServer();
         });
     }
     return selection;
@@ -199,13 +207,19 @@ function askServer(path, params) {
 		try {
             var res = JSON.parse(responseText);
             var area = d3.select("#figurearea svg").remove();
-            Figure.figure_state = res.figure_state;
+            Figure.model = res.model_root;
+            Figure.site = res.site;
+            Figure.figure_root = res.figure_root;
             drawFigure(res.figure_root);
             return;
         } catch (e) {
             console.error(e.message + ", on figure " + responseText);
         }
 	});
+}
+
+function refreshFromServer(){
+    askServer(Figure.site + "/refresh", {"model" : JSON.stringify(Figure.model)});
 }
 
 /****************** Bounding box and draw function table *******/
@@ -681,9 +695,9 @@ drawFunction.graph = function (selection, x, y) {
     });
 }
 
-/********************* textInput ***************************/
+/********************* strInput ***************************/
 
-bboxFunction.textInput = function() {
+bboxFunction.strInput = function() {
     if (this.width == 0) {
         this.width = 200;
     }
@@ -692,7 +706,7 @@ bboxFunction.textInput = function() {
     }
 }
 
-drawFunction.textInput = function (selection, x, y) {
+drawFunction.strInput = function (selection, x, y) {
     var foreign = selection.append("foreignObject")
         .attr("x", x).attr("y", y).attr("width", this.width).attr("height", this.height);
     
@@ -703,32 +717,89 @@ drawFunction.textInput = function (selection, x, y) {
             .style("font-family", this.fontName).style("font-size", this.fontSize)
             .attr("type", "text").attr("value", "");
     
-
-    if(this.hasOwnProperty("onClick")){
-        foreign.on("mousedown", function() { d3.event.stopPropagation(); });
-        foreign.on("submit", function() {
-            var v = foreign.select("input")[0][0].value;
-            askServer(this.site + "/do_callback_str/" + this.onClick, {"callback_str_arg" : v});
-        });
-    } else {
-        var var_name = this.var_name;
-       // foreign.attr("prototype",  Figure.figure_state[var_name]);
+     var accessor = this.accessor;
         
-        foreign.on("mousedown", function() { d3.event.stopPropagation(); });
-        foreign.on("submit", function() {
-            var v = foreign.select("input")[0][0].value;
+     foreign.on("mousedown", function() { d3.event.stopPropagation(); });
+     foreign.on("submit", function() {
+            var v = "'" + foreign.select("input")[0][0].value + "'";
             d3.event.preventDefault();
-            Figure.figure_state[var_name] = v;
-            redrawFigure();
-        });
+            Figure.setModelElement(accessor, v);
+            redrawFigure()
+     });
+}
+
+/********************* colorInput ***************************/
+
+bboxFunction.colorInput = function() {
+    if (this.width == 0) {
+        this.width = 200;
+    }
+    if (this.height == 0) {
+        this.height = 200;
     }
 }
+
+drawFunction.colorInput = function (selection, x, y) {
+    var foreign = selection.append("foreignObject")
+        .attr("x", x).attr("y", y).attr("width", this.width).attr("height", this.height);
+    
+    foreign.append("xhtml:body")
+        .append("form").attr("action", "")
+        .append("input")
+            .style("width", this.width + "px").style("height", this.height + "px")
+            .style("font-family", this.fontName).style("font-size", this.fontSize)
+            .attr("type", "color").attr("value", "");
+    
+     var accessor = this.accessor;
+        
+     foreign.on("mousedown", function() { d3.event.stopPropagation(); });
+     foreign.on("submit", function() {
+            var v = foreign.select("input")[0][0].value;
+            d3.event.preventDefault();
+            Figure.setModelElement(accessor, v);
+            redrawFigure()
+     });
+}
+
+/********************* numInput ***************************/
+
+bboxFunction.numInput = function() {
+    if (this.width == 0) {
+        this.width = 200;
+    }
+    if (this.height == 0) {
+        this.height = 200;
+    }
+}
+
+drawFunction.numInput = function (selection, x, y) {
+    var foreign = selection.append("foreignObject")
+        .attr("x", x).attr("y", y).attr("width", this.width).attr("height", this.height);
+    
+    foreign.append("xhtml:body")
+        .append("form").attr("action", "")
+        .append("input")
+            .style("width", this.width + "px").style("height", this.height + "px")
+            .style("font-family", this.fontName).style("font-size", this.fontSize)
+            .attr("type", "number").attr("value", "");
+    
+     var accessor = this.accessor;
+        
+     foreign.on("mousedown", function() { d3.event.stopPropagation(); });
+     foreign.on("submit", function() {
+            var v = foreign.select("input")[0][0].value;
+            d3.event.preventDefault();
+            Figure.setModelElement(accessor, v);
+            redrawFigure()
+     });
+}
+
 
 /********************* fswitch ***************************/
 
 bboxFunction.fswitch = function() {
     var inner = this.inner;
-    var selector = Math.min(Math.max(this.selector,0), inner.length - 1);
+    var selector = Math.min(Math.max(Figure.getModelElement(this.selector),0), inner.length - 1);
     var selected = inner[selector];
     selected.bbox();
     this.width = selected.width;
@@ -737,7 +808,7 @@ bboxFunction.fswitch = function() {
 
 drawFunction.fswitch = function (selection, x, y) {
     var inner = this.inner;
-    var selector = Math.min(Math.max(this.selector,0), inner.length -1);
+    var selector = Math.min(Math.max(Figure.getModelElement(this.selector),0), inner.length -1);
     var selected = this.inner[selector];
     return selected.draw(selection, x, y);
 }  
@@ -765,14 +836,14 @@ drawFunction.rangeInput = function (selection, x, y) {
             .style("width", this.width + "px").style("height", this.height + "px")
             .attr("type", "range")
             .attr("min", this.min).attr("max", this.max).attr("step", this.step)
-            .attr("value", Figure.figure_state[this.var_name]);
+            .attr("value", Figure.getModelElement(this.accessor));
         
-     var var_name = this.var_name;
+     var accessor = this.accessor;
      
      var handler = function() {
             var v = foreign.select("input")[0][0].value;
             d3.event.preventDefault();
-            Figure.figure_state[var_name] = v;
+            Figure.setModelElement(accessor, v);
             redrawFigure();
         };
 

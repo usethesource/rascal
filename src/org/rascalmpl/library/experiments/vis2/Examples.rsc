@@ -10,11 +10,11 @@ import util::Math;
 // ********************** Examples **********************
 
 void ex(str title, Figure f){
-	generateInitialFigure(title, (), f);
+	render(title, f);
 }
 
-void ex(str title, map[str,str] context, Figure f){
-	generateInitialFigure(title, context, f);
+void ex(str title, value model, Figure f){
+	render(title, model, f);
 }
 
 // single box
@@ -300,88 +300,102 @@ void ex82(){
 
 /************** Interaction *****************/
 
-void ex200(){
+alias M200 = tuple[int counter];
 
-	int inc(int val) { return val + 1; }
+void ex200(){
 	
-	generateInitialFigure("ex200",  ("counter" : "0"), 
-				vcat([ box(text("Click me"), onClick(def(#int, "counter", inc)), fontSize(20), gap(2,2), fillColor("whitesmoke")),
-					   text(use("counter"), size(150, 50), fontSize(30))
-				     ], align(left(),vcenter())));
+	render("ex200",  <666>,  Figure (M200 m) {
+			return
+				vcat([ box(text("Click me"), onClick(bind(m.counter, m.counter + 1)), fontSize(20), gap(2,2), fillColor("whitesmoke")),
+					   text("<m.counter>", size(150, 50), fontSize(30))
+				     ], align(left(),vcenter()));
+				     });
 }
 
 void ex201(){
-
-	int inc(int val) { return val + 1; }
 	
-	generateInitialFigure("ex201",  ("counter" : "0"), 
-				vcat([ box(text("Click me 1"), onClick(def(#int, "counter", inc)), fontSize(20), gap(2,2), fillColor("whitesmoke")),
-					   text(use("counter"), size(150, 50), fontSize(30)),
-					   box(text("Click me 2"), onClick(def(#int, "counter", inc)), fontSize(20), gap(2,2), fillColor("whitesmoke")),
-					   text(use("counter"), size(150, 50), fontSize(50)),
-					   text(use("counter"), size(150, 50), fontSize(80))
-				     ], align(left(),vcenter())));
+	render("ex201",  <666>,  Figure (M200 m) {
+			return
+				vcat([ box(text("Click me 1"), onClick(bind(m.counter, m.counter + 1)), fontSize(20), gap(2,2), fillColor("whitesmoke")),
+					   text("<m.counter>", size(150, 50), fontSize(30)),
+					   box(text("Click me 2"), onClick(bind(m.counter, m.counter + 1)), fontSize(20), gap(2,2), fillColor("whitesmoke")),
+					   text("<m.counter>", size(150, 50), fontSize(50)),
+					   text("<m.counter>", size(150, 50), fontSize(80))
+				     ], align(left(),vcenter()));
+			});
 }
 
+alias M202 = tuple[str TXT];
 
 void ex202(){
-	generateInitialFigure("ex202", ("TXT" : "abc"),
+	render("ex202", <"abc">, Figure (M202 m) {
+			return
 				hcat([ 		
-	                   textInput(def(#str, "TXT"), size(100,25)), 
-	                   text(use("TXT"), size(150, 50), fontSize(50)),
-	                   text(use("TXT"), size(150, 50), fontSize(80))
+	                   strInput(bind(m.TXT), size(100,25)), 
+	                   text(m.TXT, size(150, 50), fontSize(50)),
+	                   text(m.TXT, size(150, 50), fontSize(80))
 	                  
-				   ], gap(20,20))
-			  );
+				   ], gap(20,20));
+			});
 }
+
+alias M203 = tuple[str C];
 
 void ex203(){
-	generateInitialFigure("ex203", ("C1" : "red"),
+	render("ex203", <"red">, Figure (M203 m) {
+			return
 				hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
 				
-	                   textInput(def(#str, "C1"), size(100,25)), 
+	                   strInput(bind(m.C), size(100,25)), 
 	                   
-	                   box(lineColor(use("C1")), lineWidth(10), size(100,100)),
+	                   box(lineColor(m.C), lineWidth(10), size(100,100)),
 	                   
-	                   box(lineColor(use("C1")), lineWidth(10), size(100,100))
-				   ], gap(20,20))
-			  );
+	                   box(lineColor(m.C), lineWidth(10), size(100,100))
+				   ], gap(20,20));
+			  });
 }
 
+alias M204 = tuple[str FC, int LW, int WIDTH, int HEIGHT];
+
 void ex204(){
-	generateInitialFigure("ex204", ("FC" : "red", "LW": "1", "WIDTH": "100", "HEIGHT" : "100"),
+	render("ex204", <"red", 1, 100, 100>, Figure (M204 m) {
+			return
 				vcat([
-					hcat([ text("fillColor:", size(150, 50), fontSize(20), font("Helvetica")), textInput(def(#str, "FC"), size(100,25))]),
+					hcat([ text("fillColor:", size(150, 50), fontSize(20), font("Helvetica")), colorInput(bind(m.FC), size(100,25))]),
 				
-					hcat([ text("lineWidth:", size(150, 50), fontSize(20), font("Helvetica")), textInput(def(#int, "LW"), size(100,25))]),
+					hcat([ text("lineWidth:", size(150, 50), fontSize(20), font("Helvetica")), numInput(bind(m.LW), size(100,25))]),
 					
-					hcat([ text("width:", size(150, 50), fontSize(20), font("Helvetica")), textInput(def(#int, "WIDTH"), size(100,25))]),
+					hcat([ text("width:", size(150, 50), fontSize(20), font("Helvetica")), numInput(bind(m.WIDTH), size(100,25))]),
 					
-					hcat([ text("height:", size(150, 50), fontSize(20), font("Helvetica")), textInput(def(#int, "HEIGHT"), size(100,25))]),
+					hcat([ text("height:", size(150, 50), fontSize(20), font("Helvetica")), numInput(bind(m.HEIGHT), size(100,25))]),
 					
 					box(size(100,100), lineWidth(0)),
 					
-	                box(fillColor(use("FC")), lineWidth(use("LW")), width(use("WIDTH")), height(use("HEIGHT")))
+	                box(fillColor(m.FC), lineWidth(m.LW), width(m.WIDTH), height(m.HEIGHT))
 	                   
-				   ], gap(30,30))
-			  );
+				   ], gap(30,30));
+			  });
 }
 
+alias M205 = tuple[int SEL];
+
 void ex205(){
-	generateInitialFigure("ex205", ("SEL": "0"),
+	render("ex205", <0>,  Figure (M205 m) {
+			return
 			hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
 			
-	               textInput(def(#int, "SEL"), size(100,25)),
+	               numInput(bind(m.SEL), size(100,25)),
 	               
-				   fswitch(use("SEL"), [ box(fillColor("red"), size(100,100)),
+				   fswitch(m.SEL, [ box(fillColor("red"), size(100,100)),
 									     box(fillColor("white"), size(100,100)),
 									     box(fillColor("blue"), size(100,100))
 								       ])],
-					gap(30,30)));
+					gap(30,30));
+					});
 }
 
 void ex206(){
-	generateInitialFigure("ex206", ("SLIDER_VAL": "50"),
+	render("ex206", ("SLIDER_VAL": "50"),
 			vcat([ hcat([text("0"), rangeInput(0,100,5, def(#int, "SLIDER_VAL"), size(150, 50)), text("100")]),
 			
 				   text(use("SLIDER_VAL"), size(150, 50), fontSize(30), font("Helvetica"))
@@ -389,23 +403,31 @@ void ex206(){
 				 gap(10,20)));
 }
 
+alias M207 = tuple[int WIDTH, int HEIGHT];
+
 void ex207(){
-	generateInitialFigure("ex207", ("WIDTH": "50", "HEIGHT": "50"),
-			vcat([ hcat([text("WIDTH"), text("0"), rangeInput(0,100,5, def(#int, "WIDTH"), size(150, 50)), text("100")]),
-			       hcat([text("HEIGHT"), text("0"), rangeInput(0,100,5, def(#int, "HEIGHT"), size(150, 50)), text("100")]),
+
+	render("ex207", <50, 50>, Figure (M207 m) {
+			return vcat([ hcat([text("WIDTH"), text("0"), rangeInput(0,100,5, bind(m.WIDTH), size(150, 50)), text("100")]),
+			       hcat([text("HEIGHT"), text("0"), rangeInput(0,100,5, bind(m.HEIGHT), size(150, 50)), text("100")]),
 			
-				   box(width(use("WIDTH")), height(use("HEIGHT")), fillColor("pink"))
+				   box(width(m.WIDTH), height(m.HEIGHT), fillColor("pink"))
 	             ],			  
-				 gap(10,20)));
+				 gap(10,20));
+		});
 }
 
+alias M208 = tuple[int SLIDER_VAL];
+
 void ex208(){
-	generateInitialFigure("ex208", ("SLIDER_VAL": "0"),
-			vcat([ rangeInput(0, 100, 5, def(#int, "SLIDER_VAL"), size(500, 50)),
+	render("ex208", <50>, Figure (M208 m) {
+			return 
+			vcat([ rangeInput(0, 100, 5, bind(m.SLIDER_VAL), size(500, 50)),
 			
 				   box(size(100,100), lineWidth(0)),
 				   
-				   box(lineWidth(use("SLIDER_VAL")), size(150, 50), fillColor("red"))
+				   box(lineWidth(m.SLIDER_VAL), size(150, 50), fillColor("red"))
 	             ], align(left(), top()),		  
-				 gap(30,30)));
+				 gap(30,30));
+				 });
 }

@@ -6,6 +6,9 @@ import Node;
 import String;
 import IO;
 import List;
+import util::Cursors;
+import Type;
+
 
 /*
  * Translate a Figure to HTML + JSON
@@ -14,13 +17,9 @@ import List;
 
 // Translation a figure to one HTML page
 
-public str fig2html(str title, map[str,str] state, Figure fig, loc site=|http://localhost:8081|){
+public str fig2html(str title, str site_as_str){
 	// TODO: get rid of this absolute path
 	vis2 = "/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2";
-	
-	//init_callbacks();
-	
-	fig_site = site;
 	
 	return "\<html\>
 		'\<head\>
@@ -35,20 +34,14 @@ public str fig2html(str title, map[str,str] state, Figure fig, loc site=|http://
 		'\<div id=\"figurearea\"\> 
 		'\</div\>
 		'\<script\>
-		'	askServer(\"<getSite()>/initial_figure\");
+		'	askServer(\"<site_as_str>/initial_figure\");
   		'\</script\>
 		'\</body\>
 		'\</html\>
 		";
 }
 
-str trJson(Figure f, map[str,str] state, loc site) {
-	fig_site = site;
-	return trJson(f);
-}
-
 /******************** Translate figure primitives ************************************/
-
 
 // Graphical elements
 
@@ -61,10 +54,7 @@ str trJson(_box(Figure inner, FProperties fps)) =
     '}";
 
 str trJson(_text(str txt, FProperties fps)) = 
-	"{\"figure\": \"text\", \"textValue\": \"<txt>\"<trPropsJson(fps)> }";
-
-str trJson(_text(use(str var_name), FProperties fps)) = 
-	"{\"figure\": \"text\", \"textValue\": {\"use\": \"<var_name>\"}<trPropsJson(fps)> }";
+	"{\"figure\": \"text\", \"textValue\": <strArg(txt)> <trPropsJson(fps)> }";
 
 str trJson(_hcat(list[Figure] figs, FProperties fps)) = 
 	"{\"figure\": \"hcat\"<trPropsJson(fps, sep=", ")> 
@@ -112,36 +102,98 @@ str trJson(_graph(Figures nodes, Edges edges, FProperties fps)) =
 
 // Interaction elements
 
-// ---------- textInput ----------
-
-str trJson(_textInput(void (str) scallback, FProperties fps)) {
- cbid = def_callback_str(scallback);
- return "{\"figure\": \"textInput\" <trPropsJson(fps, sep=", ")> \"site\": \"<getSite()>\", \"onClick\": \"<cbid>\" }";
-} 
+// ---------- strInput ----------
  
-str trJson(_textInput(def(type[&T] var_type, str var_name), FProperties fps)) {
- return "{\"figure\": \"textInput\" <trPropsJson(fps, sep=", ")> \"site\": \"<getSite()>\", \"var_type\": \"<var_type>\", \"var_name\": \"<var_name>\" }";
+str trJson(_strInput(Bind[str] sbinder, FProperties fps)) {
+	if(isCursor(sbinder.accessor)){
+		refresh = "false";
+		replacement = "\"\"";
+		if(bind(a, r) := sbinder){
+			refresh = "true";
+			replacement = r;
+		}
+ 		return 	"{\"figure\": 		 \"strInput\" <trPropsJson(fps, sep=", ")>
+ 				' \"accessor_type\": \"<typeOf(sbinder.accessor)>\",
+ 				' \"accessor\": 	 <trPath(toPath(sbinder.accessor))>,
+ 				' \"refresh\":		 <refresh>,
+ 				' \"replacement\":	 <replacement>
+ 				'}";
+    } else {
+    	throw "strInput: accessor argument should be a cursor: <sbinder.accessor>";
+    }
 }
 
-str trJson(_fswitch(use(str var_name), Figures figs, FProperties fps)) = 
-	
-	"{\"figure\": \"fswitch\"<trPropsJson(fps, sep=", ")> 
-	  \"selector\":	 {\"use\": \"<var_name>\"},
-    ' \"inner\":   [<intercalate(",\n", [trJson(f) | f <- figs])> 
-    '          ] 
-    '}";
+// ---------- colorInput ----------
 
-str trJson(_rangeInput(int low, int high, int step, def(type[&T] var_type, str var_name), FProperties fps)) =   
-	"{ \"figure\": \"rangeInput\"<trPropsJson(fps, sep=", ")> 
-	'  \"low\":	 		<low>,
-	'  \"high\":		<high>,
-	'  \"step\":		<step>,
-	'   \"site\":		\"<getSite()>\", 
-	'	\"var_type\": 	\"<var_type>\", 
-	'	\"var_name\": 	\"<var_name>\"
-    '}";
+str trJson(_colorInput(Bind[str] sbinder, FProperties fps)) {
+	if(isCursor(sbinder.accessor)){
+		refresh = "false";
+		replacement = "\"\"";
+		if(bind(a, r) := sbinder){
+			refresh = "true";
+			replacement = r;
+		}
+ 		return 	"{\"figure\": 		 \"colorInput\" <trPropsJson(fps, sep=", ")>
+ 				' \"accessor_type\": \"<typeOf(sbinder.accessor)>\",
+ 				' \"accessor\": 	 <trPath(toPath(sbinder.accessor))>,
+ 				' \"refresh\":		 <refresh>,
+ 				' \"replacement\":	 <replacement>
+ 				'}";
+    } else {
+    	throw "colorInput: accessor argument should be a cursor: <sbinder.accessor>";
+    }
+}
 
-  
+// ---------- numInput ----------
+
+str trJson(_numInput(Bind[num] nbinder, FProperties fps)) {
+	if(isCursor(nbinder.accessor)){
+		refresh = "false";
+		replacement = "\"\"";
+		if(bind(a, r) := nbinder){
+			refresh = "true";
+			replacement = r;
+		}
+ 		return 	"{\"figure\": 		 \"numInput\" <trPropsJson(fps, sep=", ")>
+ 				' \"accessor_type\": \"<typeOf(nbinder.accessor)>\",
+ 				' \"accessor\": 	 <trPath(toPath(nbinder.accessor))>,
+ 				' \"refresh\":		 <refresh>,
+ 				' \"replacement\":	 <replacement>
+ 				'}";
+    } else {
+    	throw "numInput: accessor argument should be a cursor: <nbinder.accessor>";
+    }
+}
+
+str trJson(_fswitch(int sel, Figures figs, FProperties fps)) { 
+	if(isCursor(sel)){
+	   return 
+		"{\"figure\": \"fswitch\"<trPropsJson(fps, sep=", ")> 
+		  \"selector\":	 <trPath(toPath(sel))>,
+    	' \"inner\":   [<intercalate(",\n", [trJson(f) | f <- figs])> 
+   	 '          ] 
+    	'}";
+    } else {
+    	throw "fswitch: selector should be a cursor: sel";
+    }
+ }   
+
+str trJson(p: _rangeInput(int low, int high, int step, Bind[int] binder, FProperties fps)) {
+  if(isCursor(binder.accessor)){ 
+  	replacement = bind(a, v) := binder ? v : "\"undefined\"";  
+	return 
+	"{ \"figure\":			\"rangeInput\"<trPropsJson(fps, sep=", ")> 
+	'  \"low\":	 			<numArg(low)>,
+	'  \"high\":			<numArg(high)>,
+	'  \"step\":			<numArg(step)>,
+	'  \"type\": 			\"<typeOf(binder.accessor)>\", 
+	'  \"accessor\": 		<valArg(binder.accessor)>,
+	'  \"replacement\":		<replacement>	
+	'}";
+   } else {
+   		throw "rangeInput: accessor <binder.accessor> of bind argument is not a cursor";
+   }
+}
     
 // Default
 
@@ -162,7 +214,6 @@ str trPropsJson(FProperties fps str sep = ""){
 }
 
 str trPropJson(pos(int xpos, int ypos)) 		= "";
-//str trPropJson(size(int xsize, int ysize))	= "width: <xsize>, height <ysize>";
 
 str trPropJson(gap(int width, int height)) 		= "\"hgap\": <width>, \"vgap\": <height>";
 
@@ -178,68 +229,87 @@ str trPropJson(align(HAlign xalign, VAlign yalign)){
 		case bottom():	ya = 1.0;
 	}
 	return "\"halign\": <xa>, \"valign\": <ya>";
-}	
+}
 
-str trPropJson(width(int w))					= "\"definedWidth\": <w>";
-str trPropJson(width(use(str name)))			= "\"definedWidth\": {\"use\": \"<name>\"}";
+str trPath(Path path){
+	
+	
+    accessor = "Figure.model";
+	for(nav <- path){
+		switch(nav){
+		 	case root(str name):		accessor += ".<name>"; 
+			case field(str name): 		accessor += ".<name>";
+  			case subscript(int index):	accessor += "[<index>]";
+  			case lookup(value key):		accessor += "[<key>]";
+  			case select(list[int] indices):
+  										accessor += "";		// TODO
+  			case select(list[str] labels):
+  										accessor += "";		// TODO
+  		}
+  	}
+  	println("trPath: <path>: <accessor>");
+  	return "\"<accessor>\"";
+}
 
-str trPropJson(height(int h))					= "\"definedHeight\": <h>";
-str trPropJson(height(use(str name)))			= "\"definedHeight\": {\"use\": \"<name>\"}";
 
-str trPropJson(xpos(int x))						= "\"xpos\": <x>";
-str trPropJson(xpos(use(str name)))				= "\"xpos\": {\"use\": \"<name>\"}";
+str numArg(num n) = isCursor(n) ? "{\"use\": <trPath(toPath(n))>}" : "<n>";
+str strArg(str s) = isCursor(s) ? "{\"use\": <trPath(toPath(s))>}" : "\"<s>\"";
+str valArg(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "<v>";		
 
-str trPropJson(ypos(int y))						= "\"ypos\": <y>";
-str trPropJson(ypos(use(str name)))				= "\"ypos\": {\"use\": \"<name>\"}";
+str trPropJson(width(int w))					= "\"definedWidth\": <numArg(w)>";
+str trPropJson(height(int h))					= "\"definedHeight\": <numArg(h)>";
 
-str trPropJson(hgap(int g))						= "\"hgap\": <h>";
-str trPropJson(hgap(use(str name)))				= "\"hgap\": {\"use\": \"<name>\"}";
+str trPropJson(xpos(int x))						= "\"xpos\": <numArg(x)>";
 
-str trPropJson(vgap(int g))						= "\"vgap\": <h>";
-str trPropJson(vgap(use(str name)))				= "\"vgap\": {\"use\": \"<name>\"}";
+str trPropJson(ypos(int y))						= "\"ypos\": <numArg(y)>";
 
-str trPropJson(lineWidth(int n)) 				= "\"lineWidth\": <n>";
-str trPropJson(lineWidth(use(str name)))		= "\"lineWidth\": {\"use\": \"<name>\"}";
+str trPropJson(hgap(int g))						= "\"hgap\": <numArg(g)>";
 
-str trPropJson(lineColor(str s))				= "\"lineColor\":\"<s>\"";
-str trPropJson(lineColor(use(str name)))		= "\"lineColor\": {\"use\": \"<name>\"}";
+str trPropJson(vgap(int g))						= "\"vgap\": <numArg(g)>";
 
-str trPropJson(lineStyle(list[int] dashes))		= "\"lineStyle\": <dashes>";
+str trPropJson(lineWidth(int n)) 				= "\"lineWidth\": <numArg(n)>";
 
-str trPropJson(fillColor(str s)) 				= "\"fillColor\": \"<s>\"";
-str trPropJson(fillColor(use(str name)))		= "\"fillColor\": {\"use\": \"<name>\"}";
+str trPropJson(lineColor(str s))				= "\"lineColor\":<strArg(s)>";
 
-str trPropJson(lineOpacity(real r))				= "lineOpacity:\"<r>\"";
-str trPropJson(lineOpacity(use(str name)))		= "\"lineOpacity\": {\"use\": \"<name>\"}";
+str trPropJson(lineStyle(list[int] dashes))		= "\"lineStyle\": <dashes>";			// TODO
 
-str trPropJson(fillOpacity(real r))				= "\"fill_opacity\":\"<r>\"";
-str trPropJson(fillOpacity(use(str name)))		= "\"fillOpacity\": {\"use\": \"<name>\"}";
+str trPropJson(fillColor(str s)) 				= "\"fillColor\": <strArg(s)>";
 
-str trPropJson(rounded(int rx, int ry))			= "\"rx\": <rx>, \"ry\": <ry>";
+str trPropJson(lineOpacity(real r))				= "lineOpacity:\"<numArg(r)>\"";
+
+str trPropJson(fillOpacity(real r))				= "\"fill_opacity\": <numArg(r)>";
+
+str trPropJson(rounded(int rx, int ry))			= "\"rx\": <numArg(rx)>, \"ry\": <numArg(ry)>";
 str trPropJson(dataset(list[num] values1)) 		= "\"dataset\": <values1>";
 str trPropJson(dataset(lrel[num,num] values2))	= "\"dataset\": [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
 
-str trPropJson(font(str fontName))				= "\"fontName\": \"<fontName>\"";
-str trPropJson(font(use(str name)))				= "\"fontName\": {\"use\": \"<name>\"}";
+str trPropJson(font(str fontName))				= "\"fontName\": <strArg(fontName)>";
 
-str trPropJson(fontSize(int fontSize))			= "\"fontSize\": <fontSize>";
-str trPropJson(fontSize(use(str name)))			= "\"fontSize\": {\"use\": \"<name>\"}";
+str trPropJson(fontSize(int fontSize))			= "\"fontSize\": <numArg(fontSize)>";
 
-
-//str trPropJson(onClick(void () vcallback))		= "\"onClick\": \"<def_callback(vcallback)>\", \"site\": \"<getSite()>\"";
-
-str trPropJson(prop: onClick(def(type[&T] tp, str var_name, CallBack[&T] callback))){
-	println("prop = <prop>");		
-	return "\"onClick\": \"<def_callback(callback)>\", \"var_type\": \"<tp>\", \"var_name\": \"<var_name>\", \"site\": \"<getSite()>\"";	
+str trPropJson(prop: onClick(binder: bind(&T accessor, &T replacement))){
+	println("prop = <prop>");	
+	if(isCursor(binder.accessor)){ 	
+		return 
+			"\"onClick\":  		\"true\",
+			'\"type\": 			\"<typeOf(binder.accessor)>\", 
+			' \"accessor\": 	<trPath(toPath(binder.accessor))>,
+			' \"replacement\":	<replacement>,
+			' \"refresh\":		\"true\"
+			";	
+ 	} else {
+   		throw "onClick: accessor <accessor> in binder is not a cursor";
+   }
 }
 
 default str trPropJson(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "\"definedWidth\": <xsize>, \"definedHeight\": <ysize>" : "unknown: <fp>";
 
 /******************* Utilities for callback management ********************/
-
+/*
 private loc fig_site = |http://localhost:8081|;
 
 public str getSite() = "<fig_site>"[1 .. -1];
+
 
 // CallBack[&T]
 
@@ -283,3 +353,5 @@ public  map[str, str] do_callback(str fun, map[str, str] state){
     };
     throw "do_callback: unsupported type <tp> for <var_name>";
 }
+
+*/

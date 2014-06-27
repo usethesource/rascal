@@ -7,6 +7,9 @@ import util::Webserver;
 import util::HtmlDisplay;
 import IO;
 import List;
+import util::Cursors;
+import lang::json::IO;
+import Type;
 
 private loc base = |file:///|;
 
@@ -33,23 +36,14 @@ private Response page1(Method method, str path, map[str, str] parameters){
 	return page(method, path, parameters);
 }
 
-private Response page(get(), /^\/$/                          , map[str,str] _)   = response(generateUpdatedFigure());
-
 private Response page(post(), /^\/initial_figure/, map[str, str] parameters) {
 	println("post: initial_figure: <parameters>");
-	return response(generateUpdatedFigure(figure_state));
+	return response(refresh(model_root));
 }
 
-private Response page(post(), /^\/do_callback\/<fun:[a-zA-Z0-9_]+>/, map[str, str] state) {
-	println("post: do_callback: <fun>, <state>");
-	figure_state = do_callback(fun, state);
-	return response(generateUpdatedFigure(figure_state));
-}
-
-private Response page(post(), /^\/do_callback_str\/<fun:[a-zA-Z0-9_]+>/, map[str, str] parameters) {
-	println("post: do_callback_str: <fun>, <parameters>");
-	do_callback_str(fun, parameters);
-	return response(generateUpdatedFigure(parameters));
+private Response page(post(), /^\/refresh/, map[str, str] parameters) {
+	println("post: refresh: <parameters>");
+	return response(refresh(fromJSON(type(model_type,()), parameters["model"])));
 }
 
 private default Response page(get(), str path, map[str, str] parameters) = response(base + path); 
@@ -66,31 +60,44 @@ private default Response page(!get(), str path, map[str, str] parameters) {
 
 private str figure_name = "";
 
-private Figure figure_root = box(fillColor("red"), size(100,200));
+private Symbol model_type;
 
-private map[str,str] figure_state = ();
+private value model_root = ();
+
+Figure (value model) figure_builder = Figure(value v) { return box(); };
 
 private loc site = startFigureServer();
 
-private str state2Json(map[str,str] state) =
-  "{" + intercalate(", ", ["\"<key>\" : \"<state[key]>\"" | key <- state]) + "}";
+public str getSite() = "<site>"[1 .. -1];
 
-private str generateUpdatedFigure(map[str,str] state){ 
-	println("generateUpdatedFigure: <site>, <state>, <figure_root>");
-	figure_state = state;
-	s = trJson(figure_root, figure_state, site);
-	println(s);
-	return "{\"figure_state\": <state2Json(figure_state)>, \"figure_root\" : <s> }";
+public void render(str title, Figure fig) {
+	render(title, [], Figure(value m) { return fig; });
 }
 
-public void generateInitialFigure(str title, map[str,str] state, Figure f){
-	//stopRenderWebserver(site);
-	//site = startRenderWebserver();
+public void render(str title, &T model, Figure (&T model) makeFig){
 	figure_name = title;
-	figure_root = f;
-	figure_state = state;
-	println("generateInitialFigure: <site>, state, <figure_root>");
-	s = fig2html(title, state, f, site=site);
-	print(s);
-	htmlDisplay(|file:///tmp/<title>.html|, s);
+	model_root = model;
+	model_type = typeOf(model);
+	figure_builder = makeFig;
+	
+	print(getSite());
+	htmlDisplay(|file:///tmp/<title>.html|, fig2html(title, getSite()));
 }
+
+private str refresh(value model){ 
+	try {
+		println("refresh: <site>, <model>");
+		model_root = model;
+		figure_root = figure_builder(makeCursor(model_root));
+		s = trJson(figure_root);
+		println(s);
+		return "{\"model_root\": <toJSON(model_root)>, \"figure_root\" : <s>, \"site\":  \"<getSite()>\"}";
+	} catch e: {
+		throw "refresh: unexpected: <e>";
+	}
+}
+
+// Examples
+
+
+
