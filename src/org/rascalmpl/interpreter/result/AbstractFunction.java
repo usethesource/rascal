@@ -108,7 +108,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return false;
 	}
 
-	public String getTag(String key) {
+	public IValue getTag(String key) {
 		return null;
 	}
 
