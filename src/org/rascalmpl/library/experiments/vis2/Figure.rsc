@@ -9,11 +9,6 @@ import ToString;
 
 import  experiments::vis2::Properties;
 
-data Visualization =
-	   visualization(str name, map[str,str] context, Figure fig)
-	|  visualization(str name, Figure fig)
-	;
-
 /*
  * Figure: a visual element, the principal visualization datatype
  * Note: for experimentation purposes this is a small extract from the real thing: vis/Figure.rsc
@@ -21,12 +16,10 @@ data Visualization =
  
 public alias Figures = list[Figure];
 
-alias computedStr 	= str();
-
 public data Figure = 
 /* atomic primitives */
 	
-     _text(str s, FProperties props)		    // text label
+     _text(value v, FProperties props)		    // text label
    
 /* primitives/containers */
 
@@ -52,15 +45,26 @@ public data Figure =
    
 // interaction
 
-   | _strInput(Bind[str] sbinder, FProperties props)
+   | _buttonInput(str trueText, str falseText, FProperties props)
    
-   | _numInput(Bind[num] nbinder, FProperties props)
+   | _checkboxInput(FProperties props)
+
+   | _strInput(FProperties props)
    
-   | _colorInput(Bind[str] sbinder, FProperties props)
+   | _numInput(FProperties props)
    
-    | _fswitch(int sel, Figures figs, FProperties props)
+   | _colorInput(FProperties props)
    
-    | _rangeInput(int low, int high, int step, Bind[int] ibinder, FProperties props)
+   | _rangeInput(int low, int high, int step, FProperties props)
+   
+
+// visibility control
+
+   | _visible(bool yes, Figure fig, FProperties props)
+   
+   | _fswitch(int sel, Figures figs, FProperties props)
+   
+   
 
 // TODO   
 /*
@@ -86,8 +90,8 @@ public Edge edge(int from, int to, FProperty props ...){
   return _edge(from, to, props);
 }
 
-public Figure text(str s, FProperty props ...){
-  return _text(s, props);
+public Figure text(value v, FProperty props ...){
+  return _text(v, props);
 }
 
 public Figure box(FProperty props ...){
@@ -126,22 +130,34 @@ public Figure texteditor(FProperty props ...){
   return _texteditor(props);
 }
 
-public Figure strInput(Bind[str] sbinder, FProperty props ...){
-  return _strInput(sbinder, props);
+public Figure strInput(FProperty props ...){
+  return _strInput(props);
 }
 
-public Figure numInput(Bind[num] nbinder, FProperty props ...){
-  return _numInput(nbinder, props);
+public Figure numInput(FProperty props ...){
+  return _numInput(props);
 }
 
-public Figure colorInput(Bind[str] sbinder, FProperty props ...){
-  return _colorInput(sbinder, props);
+public Figure colorInput(FProperty props ...){
+  return _colorInput(props);
+}
+
+public Figure buttonInput(str trueText, str falseText, FProperty props ...){
+  return _buttonInput(trueText, falseText, props);
+}
+
+public Figure checkboxInput(FProperty props ...){
+  return _checkboxInput(props);
 }
 
 public Figure fswitch(int sel, Figures figs, FProperty props ...){
  	return _fswitch(sel, figs, props);
 }
 
-public Figure rangeInput(int low, int high, int step, Bind[int] binder, FProperty props...){
-   return _rangeInput(low, high, step, binder, props);
+public Figure visible(bool vis, Figure fig, FProperty props ...){
+ 	return _visible(vis, fig, props);
+}
+
+public Figure rangeInput(int low, int high, int step, FProperty props...){
+   return _rangeInput(low, high, step, props);
 }
