@@ -318,10 +318,16 @@ test bool keywordTest6(){
     list[int] varargs(int x, int y ..., int z = 0, str q = "a") = y;
     return varargs(1,2,3,4,q="b",z=5) == [2,3,4];
 }
+test bool keywordTest7(){
+    int vol(int x, int y, int z, int area = x * y, int volume = area * z) = volume;
+    return vol(1,2,3) == 6; 
+}
   
 data Figure (real shrink = 1.0, str fillColor = "white", str lineColor = "black")  =  emptyFigure() 
   | ellipse(Figure inner = emptyFigure()) 
-  | box(Figure inner = emptyFigure());
+  | box(Figure inner = emptyFigure())
+  | volume(int width, int height, int depth, int area = width * height, int volume = area * depth)
+  ;
   
 test bool keywordTest7() = emptyFigure().fillColor == "white";
 
@@ -340,6 +346,13 @@ test bool keywordTest13() = emptyFigure(shrink=0.5,fillColor="red", lineColor="b
 test bool keywordTest14() = emptyFigure(lineColor="red", shrink=0.5).fillColor == "white";
 
 test bool keywordTest15() = ellipse().fillColor == "white";
+ 
+test bool keywordTest16() = volume(2,3,4).area == 6 && volume(2,3,4).volume == 24;
+
+test bool keywordTest17() = volume(2,3,4,area=0).volume == 0;
+
+test bool keywordTest18() = volume(2,3,4,volume=0).area == 6;
+
 
 
 /* The following give NoSuchKey errors: TC info is missing or not found in the compiler */
