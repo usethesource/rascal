@@ -2,6 +2,7 @@ package org.rascalmpl.interpreter.cursors;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
@@ -52,10 +53,20 @@ public abstract class Cursor implements ICursor, IValue {
 	public boolean isAnnotatable() {
 		return value.isAnnotatable();
 	}
+	
+	@Override
+	public boolean mayHaveKeywordParameters() {
+		return value.mayHaveKeywordParameters();
+	}
 
 	@Override
 	public IAnnotatable<? extends IValue> asAnnotatable() {
 		return value.asAnnotatable();
+	}
+	
+	@Override
+	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+		return value.asWithKeywordParameters();
 	}
 	
 	@Override
