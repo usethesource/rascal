@@ -1,5 +1,7 @@
 module experiments::vis2::Properties
 
+import experiments::vis2::Figure;
+
 alias Cursor[&T] = &T;
 
 data Bind[&T]
@@ -47,6 +49,7 @@ data FProperty =
 	// interaction
 	
 	| on(str event, Bind[value] binder)
+	| on(str event, Figure fig)
 	
 	// data sets	
 	
