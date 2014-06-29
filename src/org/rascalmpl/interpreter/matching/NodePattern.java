@@ -21,11 +21,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
@@ -39,9 +37,6 @@ import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.ast.Expression;
-
-import org.rascalmpl.ast.KeywordArgument_Expression;
-import org.rascalmpl.ast.KeywordArguments_Expression;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
@@ -189,7 +184,7 @@ public class NodePattern extends AbstractMatchingResult {
 				// keyword parameter that who do match on may depend on its dynamic value.
 			}
 		}
-		else {
+		else if (this.subject.mayHaveKeywordParameters()) {
 			// the matching side has no declared keyword parameters (an untyped node), so we do not have default values to take care of
 			IWithKeywordParameters<? extends INode> wkw = this.subject.asWithKeywordParameters();
 			

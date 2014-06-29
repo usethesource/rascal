@@ -18,10 +18,12 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class TreeAsNode implements INode {
   private final String name;
   private final IList args;
+  private final IConstructor tree;
 
   public TreeAsNode(IConstructor tree) {
     this.name = TreeAdapter.getConstructorName(tree);
     this.args = TreeAdapter.isContextFree(tree) ? TreeAdapter.getASTArgs(tree) : TreeAdapter.getArgs(tree);
+    this.tree = tree;
   }
   
   @Override
@@ -79,13 +81,12 @@ public class TreeAsNode implements INode {
 
   @Override
   public boolean isAnnotatable() {
-    return false;
+    return tree.isAnnotatable();
   }
 
   @Override
   public IAnnotatable<? extends INode> asAnnotatable() {
-    throw new IllegalOperationException(
-        "Facade cannot be viewed as annotatable.", getType());
+    return tree.asAnnotatable();
   }
 
   @Override
@@ -95,8 +96,7 @@ public class TreeAsNode implements INode {
 
   @Override
   public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
-    throw new IllegalOperationException(
-        "Facade cannot be viewed as with keyword parameters.", getType());
+    return tree.asWithKeywordParameters();
   }
 
 }

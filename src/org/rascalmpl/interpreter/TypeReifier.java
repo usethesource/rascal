@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IList;
@@ -28,19 +27,14 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
-import org.eclipse.imp.pdb.facts.impl.primitive.ExternalValue;
-import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -532,11 +526,11 @@ public class TypeReifier {
 					}
 				}
 				
-				IMapWriter kwTypes = vf.mapWriter();
+				IListWriter kwTypes = vf.listWriter();
 				IMapWriter kwDefaults = vf.mapWriter();
 				
 				for (String key : type.getKeywordParameters()) {
-					kwTypes.put(vf.string(key), type.getKeywordParameterType(key).accept(this));
+					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(key), type.getKeywordParameterType(key).accept(this)));
 					kwDefaults.put(vf.string(key), new KeywordParameterInitializerWrapperFunction(type.getKeywordParameterInitializer(key), ctx));
 				}
 				
