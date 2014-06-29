@@ -181,12 +181,12 @@ public class TypeDeclarationEvaluator {
 					
 					try {
 						eval.setCurrentEnvt(env);
-						if (!environment.containsKey(name)) {
+//						if (!environment.containsKey(name)) {
 							return kw.getExpression().interpret(eval).getValue();
-						}
-						else {
-							return environment.get(name);
-						}
+//						}
+//						else {
+//							return environment.get(name);
+//						}
 					}
 					finally {
 						eval.unwind(old);
