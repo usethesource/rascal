@@ -284,7 +284,7 @@ void ex71(){
 //}
 
 void ex80(){
-	ex("ex80", text("Hello", fontSize(20)));
+	ex("ex80", text("Hello", font("sans-serif"), fillColor("black"), fontSize(20)));
 }
 
 void ex81(){
@@ -307,8 +307,8 @@ void ex200(){
 			return
 				vcat([ box(text("Click me", on("click", bind(m.counter, m.counter + 1)), fontSize(20), gap(2,2)), fillColor("whitesmoke")),
 					   text(m.counter, size(150, 50), fontSize(30))
-				     ], align(left(),vcenter()));
-				     });
+				     ]);
+			});
 }
 
 void ex201(){
@@ -320,14 +320,38 @@ void ex201(){
 					   box(text("Click me 2", on("click", bind(m.counter, m.counter + 1)), fontSize(20), gap(2,2)), fillColor("whitesmoke")),
 					   text(m.counter, size(150, 50), fontSize(50)),
 					   text(m.counter, size(150, 50), fontSize(80))
-				     ], align(left(),vcenter()));
+				     ]);
 			});
 }
 
-alias M202 = tuple[str TXT];
-
 void ex202(){
-	render("ex202", <"abc">, Figure (M202 m) {
+	
+	render("ex202",  <666>,  Figure (M200 m) {
+			return
+				vcat([ buttonInput( "Click me", "Click me", on("click", bind(m.counter, m.counter + 1)), size(80, 40)),
+					   text(m.counter, size(150, 50), fontSize(30))
+				     ]);
+			});
+}
+
+void ex203(){
+	
+	render("ex203",  <666>,  Figure (M200 m) {
+			return
+				vcat([ buttonInput( "Click me", "Click me", on("click", bind(m.counter, m.counter + 1)), size(80, 40)),
+					   text(m.counter, size(150, 50), fontSize(30)),
+					   box(size(50,50), lineColor("white")),
+					   buttonInput( "Click me", "Click me", on("click", bind(m.counter, m.counter + 1)), size(100, 40)),
+					   text(m.counter, size(150, 50), fontSize(50)),
+					   text(m.counter, size(150, 50), fontSize(80))
+				     ]);
+			});
+}
+
+alias M204 = tuple[str TXT];
+
+void ex204(){
+	render("ex204", <"abc">, Figure (M204 m) {
 			return
 				hcat([ 		
 	                   strInput(on("submit", bind(m.TXT)), size(100,25)), 
@@ -338,12 +362,12 @@ void ex202(){
 			});
 }
 
-alias M203 = tuple[str C];
+alias M205 = tuple[str C];
 
-void ex203(){
-	render("ex203", <"red">, Figure (M203 m) {
+void ex205(){
+	render("ex205", <"red">, Figure (M205 m) {
 			return
-				hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
+				hcat([ text("Enter:", size(150, 50), fontSize(18)), 
 				
 	                   strInput(on("submit", bind(m.C)), size(100,25)), 
 	                   
@@ -354,12 +378,12 @@ void ex203(){
 			  });
 }
 
-alias M204 = tuple[str C];
+alias M206 = tuple[str C];
 
-void ex204(){
-	render("ex204", <"#00fdff">, Figure (M204 m) {
+void ex206(){
+	render("ex206", <"#00fdff">, Figure (M206 m) {
 			return
-				hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
+				hcat([ text("Enter:", size(150, 50), fontSize(18)), 
 				
 	                   colorInput(on("change", bind(m.C)), size(100,25)), 
 	                   
@@ -370,19 +394,20 @@ void ex204(){
 			  });
 }
 
-alias M205 = tuple[str FC, int LW, int WIDTH, int HEIGHT];
+alias M207 = tuple[str FC, int LW, int WIDTH, int HEIGHT];
 
-void ex205(){
-	render("ex205", <"red", 1, 100, 100>, Figure (M205 m) {
+void ex207(){
+	render("ex207", <"red", 1, 100, 100>, Figure (M207 m) {
 			return
 				vcat([
-					hcat([ text("fillColor:", size(150, 50), fontSize(20), font("Helvetica")), colorInput(on("change", bind(m.FC)), size(100,25))]),
+					hcat([ text("  fillColor:", size(150, 50), fontSize(20)), colorInput(on("change", bind(m.FC)), size(100,25)),
 				
-					hcat([ text("lineWidth:", size(150, 50), fontSize(20), font("Helvetica")), numInput(on("change", bind(m.LW)), size(100,25))]),
+					       text("lineWidth:", size(150, 50), fontSize(20)), numInput(on("change", bind(m.LW)), size(80,25)),
 					
-					hcat([ text("width:", size(150, 50), fontSize(20), font("Helvetica")), numInput(on("change", bind(m.WIDTH)), size(100,25))]),
+					       text("     width:", size(150, 50), fontSize(20)), numInput(on("change", bind(m.WIDTH)), size(100,25)),
 					
-					hcat([ text("height:", size(150, 50), fontSize(20), font("Helvetica")), numInput(on("change", bind(m.HEIGHT)), size(100,25))]),
+					       text("    height:", size(150, 50), fontSize(20)), numInput(on("change", bind(m.HEIGHT)), size(100,25))
+					     ]),
 					
 					box(size(100,100), lineWidth(0)),
 					
@@ -392,12 +417,12 @@ void ex205(){
 			  });
 }
 
-alias M206 = tuple[int SEL];
+alias M208 = tuple[int SEL];
 
-void ex206(){
-	render("ex205", <0>,  Figure (M206 m) {
+void ex208(){
+	render("ex208", <0>,  Figure (M208 m) {
 			return
-			hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
+			hcat([ text("Enter:", size(150, 50), fontSize(18)), 
 			
 	               numInput(on("change", bind(m.SEL)), size(100,25)),
 	               
@@ -409,12 +434,12 @@ void ex206(){
 					});
 }
 
-alias M207 = tuple[int SEL];
+alias M209 = tuple[int SEL];
 
-void ex207(){
-	render("ex207", <0>,  Figure (M207 m) {
+void ex209(){
+	render("ex209", <0>,  Figure (M209 m) {
 			return
-			hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
+			hcat([ text("Enter:", size(150, 50), fontSize(18)), 
 			
 	               choiceInput(["red", "white", "blue"], on("change", bind(m.SEL)), size(100,25)),
 	               
@@ -426,24 +451,24 @@ void ex207(){
 					});
 }
 
-alias M208 = tuple[int SLIDER];
+alias M210 = tuple[int SLIDER];
 
-void ex208(){
-	render("ex208", <50>, Figure (M208 m) {
+void ex210(){
+	render("ex210", <50>, Figure (M210 m) {
 			return
 			vcat([ hcat([text("0"), rangeInput(0,100,5, on("change", bind(m.SLIDER)), size(150, 50)), text("100")]),
 			
-				   text(m.SLIDER, size(150, 50), fontSize(30), font("Helvetica"))
+				   text(m.SLIDER, size(150, 50), fontSize(30))
 	             ],			  
 				 gap(10,20));
 				 });
 }
 
-alias M209 = tuple[int WIDTH, int HEIGHT];
+alias M211 = tuple[int WIDTH, int HEIGHT];
 
-void ex209(){
+void ex211(){
 
-	render("ex209", <50, 50>, Figure (M209 m) {
+	render("ex211", <50, 50>, Figure (M211 m) {
 			return vcat([ hcat([text("WIDTH"), text("0"), rangeInput(0,100,5, on("change", bind(m.WIDTH)), size(150, 50)), text("100")]),
 			       hcat([text("HEIGHT"), text("0"), rangeInput(0,100,5, on("change", bind(m.HEIGHT)), size(150, 50)), text("100")]),
 			
@@ -453,10 +478,10 @@ void ex209(){
 		});
 }
 
-alias M210 = tuple[int SLIDER_VAL];
+alias M212 = tuple[int SLIDER_VAL];
 
-void ex210(){
-	render("ex210", <1>, Figure (M210 m) {
+void ex212(){
+	render("ex212", <1>, Figure (M212 m) {
 			return 
 			vcat([ rangeInput(0, 50, 5, on("change", bind(m.SLIDER_VAL)), size(200, 50)),
 				   box(size(50,50), lineWidth(0)),
@@ -466,11 +491,10 @@ void ex210(){
 				 });
 }
 
+alias M213 = tuple[bool VISABLE];
 
-alias M211 = tuple[bool VISABLE];
-
-void ex211(){
-	render("ex211", <true>, Figure (M211 m) {
+void ex213(){
+	render("ex213", <true>, Figure (M213 m) {
 			return 
 			vcat([ buttonInput( "hide", "show", on("click", bind(m.VISABLE)),size(50, 50)),
 				   
@@ -480,10 +504,10 @@ void ex211(){
 				 });
 }
 
-alias M212 = tuple[bool VISABLE];
+alias M214 = tuple[bool VISABLE];
 
-void ex212(){
-	render("ex212", <true>, Figure (M212 m) {
+void ex214(){
+	render("ex214", <true>, Figure (M214 m) {
 			return 
 			vcat([ checkboxInput(on("click", bind(m.VISABLE)), size(50, 50)),
 				   
@@ -493,13 +517,13 @@ void ex212(){
 				 });
 }
 
+// Resize scatterplot
 
+alias M215 = tuple[int SIZE];
 
-alias M213 = tuple[int SIZE];
+void ex215(){
 
-void ex213(){
-
-	render("ex213", <300>, Figure (M213 m) {
+	render("ex215", <300>, Figure (M215 m) {
 			low = 100;
 			high = 500;
 			return vcat([ hcat([text("SIZE"), text(low), rangeInput(low,high,5, on("change", bind(m.SIZE)), size(500, 50)), text(high)]),
@@ -510,11 +534,13 @@ void ex213(){
 		});
 }
 
-alias M214 = tuple[int SIZE];
+// Tooltip
 
-void ex214(){
+alias M216 = tuple[int SIZE];
 
-	render("ex214", <300>, Figure (M214 m) {
+void ex216(){
+
+	render("ex216", <300>, Figure (M216 m) {
 			low = 100;
 			high = 500;
 			

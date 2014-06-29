@@ -15,8 +15,14 @@ var Figure = {
     borderRadius: 0,
     halign: 0.5,
     valign: 0.5,
+    fontFamily: "sans-serif", // serif, sans-serif, monospace
     fontName: "Helvetica",
     fontSize: 12,
+    fontColor: "black",
+    fontStyle: "normal",        // normal, italic
+    fontWeight: "normal",      // normal, bold
+    textDecoration: "none",     // none, underline, overline, line-through
+    
     dataset: [], 
     figure_root:  {},
     
@@ -410,12 +416,12 @@ bboxFunction.text = function() {
         .attr("y", 0)
         .style("text-anchor", "start")
         .text(this.textValue)
-        .style("font-family", this.fontName)
-        .style("font-style", "normal")
-        .style("font-weight", "bold")
+        .style("font-family", this.fontFamily)
+        .style("font-style", this.fontStyle)
+        .style("font-weight", this.fontWeight)
         .style("font-size", this.fontSize)
-        .style("stroke", this.lineColor)
-        .style("fill", this.fillColor);
+        .style("stroke", this.fontColor)
+        .style("fill", this.fontColor);
    
     var bb = txt.node().getBBox();
     svgtmp.node().remove();
@@ -432,12 +438,12 @@ drawFunction.text = function (selection, x, y) {
         .attr("y", y - this.ascent) // take ascent into account
         .style("text-anchor", "start")
         .text(this.textValue)
-        .style("font-family", this.fontName)
-        .style("font-style", "normal")
-        .style("font-weight", "bold")
+        .style("font-family", this.fontFamily)
+        .style("font-style", this.fontStyle)
+        .style("font-weight", this.fontWeight)
         .style("font-size", this.fontSize)
-        .style("stroke", this.lineColor)
-        .style("fill", this.fillColor);
+        .style("stroke", this.fontColor)
+        .style("fill", this.fontColor);
     
     drawExtraFigure(selection, x, y, this);
     addInteraction(my_svg, x, y, this);
