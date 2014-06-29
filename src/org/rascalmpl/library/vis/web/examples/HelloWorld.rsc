@@ -42,7 +42,7 @@ public void mainSVG() {
            ,
            <
            svg_ + D3(
-            selectAll(rect_) o \data(<"dat">) o  enter o \append(text_) 
+            selectAll(text_) o \data(<"dat">) o  enter o \append(text_) 
            o attr((stroke_:"green"
            , fill_:"none"
            , x_: <["d"], <"return d.x">>
@@ -50,6 +50,36 @@ public void mainSVG() {
            o text(<["d"], <"return d.name">>)  
            )           
           >
+          )
+    ));
+   }
+   
+ public void mainSVG2() {
+    htmlDisplay(publish(
+          |file:///tmp/helloworld|      
+          , [("name":"Hello", "x":50, "y":50), ("name":"World", "x":150, "y":150)]      
+          , ""
+          , JavaScriptJson("\"data.json\"", "error", "dat",
+           <"svg",
+                "d3" + D3(
+                 select(body_) o \append(svg_) o attr((
+                              width_: <"400">, height_:<"400">
+                              ))      
+                 )
+           > 
+           ,
+           <svg_ + D3(\append(defs_) o attr((id_: "figure"))
+           o call(<[],
+           <svg_ + D3(
+            selectAll(text_) o \data(<"dat">) o  enter o \append(text_) 
+           o attr((stroke_:"green"
+           , fill_:"none"
+           , x_: <["d"], <"return d.x">>
+           , y_: <["d"], <"return d.y">>))
+           o text(<["d"], <"return d.name">>)  
+           )           
+          >>))>,
+          <svg_ + D3(\append(use_) o attr(("xlink:href":"#figure")))>         
           )
     ));
    }

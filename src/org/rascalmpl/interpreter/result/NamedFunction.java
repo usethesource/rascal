@@ -26,6 +26,7 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionModifier;
+import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
@@ -48,7 +49,9 @@ abstract public class NamedFunction extends AbstractFunction {
   protected final boolean isStatic;
   protected final String resourceScheme;
   protected final String resolverScheme;
-  protected final Map<String, String> tags;
+  protected final Map<String, IValue> tags;
+  protected final Type[] keywordParameterTypes;
+
 	private SoftReference<MemoizationCache> memoization;
   protected final boolean hasMemoization;
   
@@ -66,7 +69,7 @@ abstract public class NamedFunction extends AbstractFunction {
       this.resolverScheme = getResolverScheme((FunctionDeclaration) ast);
       this.hasMemoization = checkMemoization((FunctionDeclaration) ast);
     } else {
-      tags = new HashMap<String, String>();
+      tags = new HashMap<String, IValue>();
       this.resourceScheme = null;
       this.resolverScheme = null;
       this.hasMemoization = false;
@@ -156,26 +159,37 @@ abstract public class NamedFunction extends AbstractFunction {
     return hasMemoization;
   }
 
-  protected Map<String, String> parseTags(FunctionDeclaration declaration) {
-  	Map<String, String> result = new HashMap<String, String>();
+  protected Map<String, IValue> parseTags(FunctionDeclaration declaration) {
+  	final Map<String, IValue> result = new HashMap<String, IValue>();
   	Tags tags = declaration.getTags();
   	if (tags.hasTags()) {
   		for (Tag tag : tags.getTags()) {
-  			if(tag.hasContents()){
-  				String key = Names.name(tag.getName());
-  				String value = ((TagString.Lexical) tag.getContents()).getString();
-  				if (value.length() > 2 && value.startsWith("{")) {
+  			final String key = Names.name(tag.getName());
+  			result.put(key, tag.accept(new NullASTVisitor<IValue>() {
+  				@Override
+  				public IValue visitTagDefault(Tag.Default x) {
+  					String value = ((TagString.Lexical) x.getContents()).getString();
   					value = value.substring(1, value.length() - 1);
+  					return vf.string(value);
   				}
-  				result.put(key, value);
-  			}
+  				
+  				@Override
+  				public IValue visitTagEmpty(Tag.Empty x) { 
+  					return vf.string("");
+  				}
+  				
+  				@Override
+  				public IValue visitTagExpression(Tag.Expression x) { 
+  					return x.getExpression().interpret(eval).getValue(); 
+  				}
+  			}));
   		}
   	}
   	return result;
   }
 
   @Override
-  public String getTag(String key) {
+  public IValue getTag(String key) {
   	return tags.get(key);
   }
 
