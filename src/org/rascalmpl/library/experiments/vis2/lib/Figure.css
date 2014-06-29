@@ -1,5 +1,50 @@
 /* CSS styles for various visualizations */
 
+   .rascal-fig,
+  .rascal-fig *,
+  .rascal-fig *:before,
+  .rascal-fig *:after
+  {
+     /* fix border box model */
+     -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+     -ms-box-sizing: border-box;
+     -o-box-sizing: border-box;
+     box-sizing: border-box;
+  }
+  .rascal-fig-vcat,
+  .rascal-fig-hcat,
+  .rascal-fig-hvcat
+  {
+     font-size: 0px;
+  }
+
+  .rascal-fig-hcat {
+     max-width:100%;
+     overflow-x: auto;
+     white-space: nowrap;
+  }
+  .rascal-fig-hcat > * {
+     display: inline-block; 
+  }
+
+  .rascal-fig-vcat > * {
+     display: block;
+  }
+  .rascal-fig-hvcat {
+     max-width: 100%;
+  }
+  .rascal-fig-hvcat > * {
+     display: inline-block; 
+  }
+  .rascal-fig-box {
+     border : 1px solid black;
+	   position: relative;
+  }
+  .rascal-fig-text {
+     font-size:12px;
+     letter-spacing: normal;
+  }
 
 /* barchart */
 
@@ -29,10 +74,10 @@ rect:hover {
 	  stroke-width: 3px;
 	}
 
-	.node text { font: 12px sans-serif; }
+.node text { font: 12px sans-serif; }
 
-	.link {
+.link {
 	  fill: none;
-	  stroke: #ccc;
-	  stroke-width: 2px;
-	}
+	  stroke: black;
+	  stroke-width: 1.5px;
+}

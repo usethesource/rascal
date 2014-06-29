@@ -1,19 +1,19 @@
 module experiments::vis2::Examples
 
 import experiments::vis2::Figure;
-import experiments::vis2::Properties;
-import experiments::vis2::Translate;
+import experiments::vis2::FigureServer;
+
+import String;
 import util::Math;
-import IO;
-import util::HtmlDisplay;
 
 // ********************** Examples **********************
 
 void ex(str title, Figure f){
-	<w, h> = sizeOf(f);
-	s = trPrims(title, w, h, trFig(f));
-	println(s);
-	htmlDisplay(|file:///tmp/<title>.html|, s);
+	render(title, f);
+}
+
+void ex(str title, value model, Figure f){
+	render(title, model, f);
 }
 
 // single box
@@ -31,51 +31,63 @@ void ex02(){
 }
 
 void ex03(){
-	ex("ex02", box(fillColor("red"), lineColor("blue"), lineWidth(1), size(100,100), pos(50,50)));
-}     
+	ex("ex03", box(fillColor("red"), lineColor("blue"), lineWidth(1), size(100,100), pos(50,50)));
+}
 
 // Nested box
 
 void ex10(){
-	ex("ex10", box(box(fillColor("red"), size(50,100)), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex10", box(box(fillColor("white"), size(50,100)), fillColor("blue"), size(200,200)));
 } 
 
 void ex11(){
-	ex("ex11", box(box(fillColor("red"), size(50,100), align(left(), top())), fillColor("blue"), size(200,200), gap(0,0)));
+	ex("ex11", box(box(fillColor("white"), size(50,100), align(left(), top())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 void ex12(){
-	ex("ex12", box(box(fillColor("red"), size(50,100), align(right(), top())), fillColor("blue"), size(200,200), gap(0,0)));
+	ex("ex12", box(box(fillColor("white"), size(50,100), align(right(), top())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 void ex13(){
-	ex("ex13", box(box(fillColor("red"), size(50,100), align(right(), bottom())), fillColor("blue"), size(200,200), gap(0,0)));
+	ex("ex13", box(box(fillColor("white"), size(50,100), align(right(), bottom())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 void ex14(){
-	ex("ex14", box(box(fillColor("red"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(0,0)));
+	ex("ex14", box(box(fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(0,0)));
 } 
 
 
 void ex15(){
-	ex("ex15", box(box(fillColor("red"), size(50,100), align(left(), top())), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex15", box(box(fillColor("white"), size(50,100), align(left(), top())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex16(){
-	ex("ex16", box(box(fillColor("red"), size(50,100), align(right(), top())), fillColor("black"), size(200,200), gap(10,10)));
+	ex("ex16", box(box(fillColor("white"), size(50,100), align(right(), top())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex17(){
-	ex("ex17", box(box(fillColor("red"), size(50,100), align(right(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex17", box(box(fillColor("white"), size(50,100), align(right(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex18(){
-	ex("ex18", box(box(fillColor("red"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex18", box(box(fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
 
 void ex19(){
-	ex("ex19", box(box(box(fillColor("green"), size(20,20)), fillColor("red"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+	ex("ex19", box(box(box(fillColor("red"), size(20,20)), fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
 } 
+
+void ex19a(){
+	ex("ex19a", box(box(box(fillColor("red"), size(20,20), align(left(), top())), fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+}
+
+void ex19b(){
+	ex("ex19b", box(box(box(fillColor("red"), size(20,20), align(right(), top())), fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+}
+
+void ex19c(){
+	ex("ex19c", box(box(box(fillColor("red"), size(20,20), align(right(), bottom())), fillColor("white"), size(50,100), align(left(), bottom())), fillColor("blue"), size(200,200), gap(10,10)));
+}
 
 // hcat  
         
@@ -94,6 +106,14 @@ void ex22(){
 void ex23(){
 	ex("ex23", hcat([box(fillColor("red"),size(50,100)), box(fillColor("green"), size(200,200)), box(fillColor("blue"), size(10,10))], align(right(), bottom()), gap(10,10)));
 }
+
+void ex24(){
+	ex("ex24", hcat([box(size(2,2),pos(x, y)) | <x, y> <- [<0,0>, <10,10>, <20,20>]]));
+}
+
+void ex25(){
+	ex("ex25", hcat([box(size(2,2),pos(toInt(x * 2), toInt(100 * sin(x)))) | real x <- [0.0, 0.1 .. 10.0]]));
+} 
 
 // hcat in box
 
@@ -238,12 +258,279 @@ void ex62(){
 }
 
 
-Figures nodes1 = [ /* 0 */	box(fillColor("green")),
-          		   /* 1 */	box(fillColor("red")),
-     	    	   /* 2 */	box(fillColor("blue"))
+Figures nodes1 = [ /* 0 */	hcat([box(fillColor("green"), size(50,50)),box(fillColor("yellow"), size(50,50)), box(fillColor("gray"), size(50,50))]),
+          		   /* 1 */	box(fillColor("red"), fillOpacity(0.4), size(100,100)),
+     	    	   /* 2 */	box(fillColor("lightblue"), rounded(10,10), lineStyle([1,1,1,1,1,1]), size(150,150))
      	  		];
-Edges edges1 = [edge(0,1), edge(1,2), edge(2,0)];        
+Edges edges1 = [edge(0,1, lineColor("orange")), edge(1,2, lineWidth(3), lineOpacity(0.3)), edge(2,0, lineStyle([4,2,4,2]))];        
 
 void ex70(){
-	ex("ex70", graph(nodes1, edges1, size(1000,600)));
+	ex("ex70", graph(nodes1, edges1, size(500,500)));
 }
+
+void ex71(){
+	ex("ex71", hcat([graph(nodes1, edges1, size(400,400)),
+					 scatterplot(fillColor("blue"), size(400,300), dataset(DATA2)),
+					 barchart(fillColor("black"), size(400,300), dataset(DATA1))
+					], gap(50,50)));
+}
+
+//void ex72(){
+//	ex("ex72", hcat([graph(nodes1, edges1, size(400,400)),
+//					 scatterplot(fillColor("blue"), size(400,300), dataset(DATA2)),
+//					 texteditor(size(200,200)),
+//					 barchart(fillColor("black"), size(400,300), dataset(DATA1))
+//					], gap(50,50)));
+//}
+
+void ex80(){
+	ex("ex80", text("Hello", fontSize(20)));
+}
+
+void ex81(){
+	ex("ex81", box(text("Hello", fillColor("black"), fontSize(20)), fillColor("white")));
+}
+
+void ex82(){
+	ex("ex82", hcat([ box(text("Hello", fillColor("black")), fillColor("white")),
+					  text("World")
+					], fontSize(20)));
+}
+
+/************** Interaction *****************/
+
+alias M200 = tuple[int counter];
+
+void ex200(){
+	
+	render("ex200",  <666>,  Figure (M200 m) {
+			return
+				vcat([ box(text("Click me", on("click", bind(m.counter, m.counter + 1)), fontSize(20), gap(2,2)), fillColor("whitesmoke")),
+					   text(m.counter, size(150, 50), fontSize(30))
+				     ], align(left(),vcenter()));
+				     });
+}
+
+void ex201(){
+	
+	render("ex201",  <666>,  Figure (M200 m) {
+			return
+				vcat([ box(text("Click me 1", on("click", bind(m.counter, m.counter + 1)), fontSize(20), gap(2,2)), fillColor("whitesmoke")),
+					   text(m.counter, size(150, 50), fontSize(30)),
+					   box(text("Click me 2", on("click", bind(m.counter, m.counter + 1)), fontSize(20), gap(2,2)), fillColor("whitesmoke")),
+					   text(m.counter, size(150, 50), fontSize(50)),
+					   text(m.counter, size(150, 50), fontSize(80))
+				     ], align(left(),vcenter()));
+			});
+}
+
+alias M202 = tuple[str TXT];
+
+void ex202(){
+	render("ex202", <"abc">, Figure (M202 m) {
+			return
+				hcat([ 		
+	                   strInput(on("submit", bind(m.TXT)), size(100,25)), 
+	                   text(m.TXT, size(150, 50), fontSize(50)),
+	                   text(m.TXT, size(150, 50), fontSize(80))
+	                  
+				   ], gap(20,20));
+			});
+}
+
+alias M203 = tuple[str C];
+
+void ex203(){
+	render("ex203", <"red">, Figure (M203 m) {
+			return
+				hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
+				
+	                   strInput(on("submit", bind(m.C)), size(100,25)), 
+	                   
+	                   box(lineColor(m.C), lineWidth(10), size(100,100)),
+	                   
+	                   box(lineColor(m.C), lineWidth(10), size(100,100))
+				   ], gap(20,20));
+			  });
+}
+
+alias M204 = tuple[str C];
+
+void ex204(){
+	render("ex204", <"#00fdff">, Figure (M204 m) {
+			return
+				hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
+				
+	                   colorInput(on("change", bind(m.C)), size(100,25)), 
+	                   
+	                   box(lineColor(m.C), lineWidth(10), size(100,100)),
+	                   
+	                   box(lineColor(m.C), lineWidth(10), size(100,100))
+				   ], gap(20,20));
+			  });
+}
+
+alias M205 = tuple[str FC, int LW, int WIDTH, int HEIGHT];
+
+void ex205(){
+	render("ex205", <"red", 1, 100, 100>, Figure (M205 m) {
+			return
+				vcat([
+					hcat([ text("fillColor:", size(150, 50), fontSize(20), font("Helvetica")), colorInput(on("change", bind(m.FC)), size(100,25))]),
+				
+					hcat([ text("lineWidth:", size(150, 50), fontSize(20), font("Helvetica")), numInput(on("change", bind(m.LW)), size(100,25))]),
+					
+					hcat([ text("width:", size(150, 50), fontSize(20), font("Helvetica")), numInput(on("change", bind(m.WIDTH)), size(100,25))]),
+					
+					hcat([ text("height:", size(150, 50), fontSize(20), font("Helvetica")), numInput(on("change", bind(m.HEIGHT)), size(100,25))]),
+					
+					box(size(100,100), lineWidth(0)),
+					
+	                box(fillColor(m.FC), lineWidth(m.LW), width(m.WIDTH), height(m.HEIGHT))
+	                   
+				   ], gap(30,30));
+			  });
+}
+
+alias M206 = tuple[int SEL];
+
+void ex206(){
+	render("ex205", <0>,  Figure (M206 m) {
+			return
+			hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
+			
+	               numInput(on("change", bind(m.SEL)), size(100,25)),
+	               
+				   choice(m.SEL, [ box(fillColor("red"), size(100,100)),
+								   box(fillColor("white"), size(100,100)),
+								   box(fillColor("blue"), size(100,100))
+								 ])],
+					gap(30,30));
+					});
+}
+
+alias M207 = tuple[int SEL];
+
+void ex207(){
+	render("ex207", <0>,  Figure (M207 m) {
+			return
+			hcat([ text("Enter:", size(150, 50), fontSize(18), font("Helvetica")), 
+			
+	               choiceInput(["red", "white", "blue"], on("change", bind(m.SEL)), size(100,25)),
+	               
+				   choice(m.SEL, [ box(fillColor("red"), size(100,100)),
+								   box(fillColor("white"), size(100,100)),
+								   box(fillColor("blue"), size(100,100))
+								 ])],
+					gap(30,30));
+					});
+}
+
+alias M208 = tuple[int SLIDER];
+
+void ex208(){
+	render("ex208", <50>, Figure (M208 m) {
+			return
+			vcat([ hcat([text("0"), rangeInput(0,100,5, on("change", bind(m.SLIDER)), size(150, 50)), text("100")]),
+			
+				   text(m.SLIDER, size(150, 50), fontSize(30), font("Helvetica"))
+	             ],			  
+				 gap(10,20));
+				 });
+}
+
+alias M209 = tuple[int WIDTH, int HEIGHT];
+
+void ex209(){
+
+	render("ex209", <50, 50>, Figure (M209 m) {
+			return vcat([ hcat([text("WIDTH"), text("0"), rangeInput(0,100,5, on("change", bind(m.WIDTH)), size(150, 50)), text("100")]),
+			       hcat([text("HEIGHT"), text("0"), rangeInput(0,100,5, on("change", bind(m.HEIGHT)), size(150, 50)), text("100")]),
+			
+				   box(width(m.WIDTH), height(m.HEIGHT), fillColor("pink"))
+	             ],			  
+				 gap(10,20));
+		});
+}
+
+alias M210 = tuple[int SLIDER_VAL];
+
+void ex210(){
+	render("ex210", <1>, Figure (M210 m) {
+			return 
+			vcat([ rangeInput(0, 50, 5, on("change", bind(m.SLIDER_VAL)), size(200, 50)),
+				   box(size(50,50), lineWidth(0)),
+				   box(lineWidth(m.SLIDER_VAL), size(150, 50), fillColor("red"))
+	             ], align(left(), top()),		  
+				 gap(80,80));
+				 });
+}
+
+
+alias M211 = tuple[bool VISABLE];
+
+void ex211(){
+	render("ex211", <true>, Figure (M211 m) {
+			return 
+			vcat([ buttonInput( "hide", "show", on("click", bind(m.VISABLE)),size(50, 50)),
+				   
+				   visible(m.VISABLE,  box(size(150, 50), fillColor("red")))
+	             ], align(left(), top()),		  
+				 gap(30,30));
+				 });
+}
+
+alias M212 = tuple[bool VISABLE];
+
+void ex212(){
+	render("ex212", <true>, Figure (M212 m) {
+			return 
+			vcat([ checkboxInput(on("click", bind(m.VISABLE)), size(50, 50)),
+				   
+				   visible(m.VISABLE,  box(size(150, 50), fillColor("red")))
+	             ], align(left(), top()),		  
+				 gap(30,30));
+				 });
+}
+
+
+
+alias M213 = tuple[int SIZE];
+
+void ex213(){
+
+	render("ex213", <300>, Figure (M213 m) {
+			low = 100;
+			high = 500;
+			return vcat([ hcat([text("SIZE"), text(low), rangeInput(low,high,5, on("change", bind(m.SIZE)), size(500, 50)), text(high)]),
+				   
+				    scatterplot(fillColor("black"), width(m.SIZE), height(m.SIZE), dataset(DATA2))
+	             ],			  
+				 gap(10,20));
+		});
+}
+
+alias M214 = tuple[int SIZE];
+
+void ex214(){
+
+	render("ex214", <300>, Figure (M214 m) {
+			low = 100;
+			high = 500;
+			
+			FProperty tooltip(str txt) = on("mouseover", box(text(txt, fontSize(12), lineColor("black")), fillColor("yellow")));
+			
+			return 
+				vcat([ box(size(200,50), lineColor("white")),
+					   hcat([ box(fillColor("red"), width(100), height(100),  tooltip("I am a red box")),
+						      box(fillColor("blue"), width(100), height(100), tooltip("I am a blue box")),
+						      box(fillColor("white"), width(100), height(100))
+	                        ])
+	                  ],		  
+				 gap(10,20));
+		});
+}
+
+
+
+

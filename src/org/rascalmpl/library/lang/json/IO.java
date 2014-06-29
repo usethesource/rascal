@@ -18,9 +18,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -62,6 +65,29 @@ public class IO {
 		}
 	}
 
+	public IString toJSON(IValue value) {
+		StringWriter out = new StringWriter();
+		try {
+			new JSonWriter().write(value, out);
+			return values.string(out.toString());
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()),
+					null, null);
+		}
+	}
+	public IValue fromJSON(IValue type, IString src, IEvaluatorContext ctx) {
+		TypeStore store = ctx.getCurrentEnvt().getStore();
+		Type start = new TypeReifier(ctx.getValueFactory()).valueToType(
+				(IConstructor) type, store);
+		try (Reader read = new StringReader(src.getValue())) {
+			;
+			return new JSonReader().read(values, store, start, read);
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()),
+					null, null);
+		} 
+	}
+	
 	public IValue readTextJSonFile(IValue type, ISourceLocation loc,
 			IEvaluatorContext ctx) {
 		// TypeStore store = new TypeStore();
