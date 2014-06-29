@@ -18,6 +18,7 @@ package org.rascalmpl.interpreter;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -310,7 +311,7 @@ public class TraversalEvaluator {
 		  
 		  try {
 		    QualifiedName n = Names.toQualifiedName(cons.getType().getName(), cons.getName(), null);
-		    rcons = (IConstructor) eval.call(n, cons.asWithKeywordParameters().getParameters(), args);
+		    rcons = (IConstructor) eval.call(n, cons.mayHaveKeywordParameters() ? cons.asWithKeywordParameters().getParameters() : Collections.<String,IValue>emptyMap(), args);
 		  }
 		  catch (UndeclaredFunction | UndeclaredModule | ArgumentsMismatch e) {
 		    // This may happen when visiting data constructors dynamically which are not 
