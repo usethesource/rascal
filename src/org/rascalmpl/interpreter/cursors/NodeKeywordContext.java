@@ -19,7 +19,8 @@ public class NodeKeywordContext extends Context {
 
 	@Override
 	public IValue up(IValue focus) {
-		return new NodeCursor(node.set(node.getKeywordIndex(keyword), focus), ctx);
+		return new NodeCursor(node.asWithKeywordParameters().setParameter(keyword, focus), ctx);
+//		return new NodeCursor(node.set(node.getKeywordIndex(keyword), focus), ctx);
 	}
 
 	@Override
