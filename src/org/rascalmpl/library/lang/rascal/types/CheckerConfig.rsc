@@ -527,7 +527,7 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 		c.typeEnv[n] = itemId;
 		c.typeEnv[fullName] = itemId;
 	} else if (n notin c.typeEnv && n in c.globalAdtMap) {
-		existingId = c.typeEnv[n];
+		existingId = c.globalAdtMap[n];
 		c = extendNonTerminal(c, existingId);
 	} else if (c.store[c.typeEnv[n]] is sorttype) {
 		// A nonterminal of this name already exists. Use this existing nonterminal item, adding
