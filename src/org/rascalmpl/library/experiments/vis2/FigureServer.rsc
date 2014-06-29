@@ -1,7 +1,7 @@
 module experiments::vis2::FigureServer
 
 import experiments::vis2::Figure;
-import experiments::vis2::Properties;
+//import experiments::vis2::Properties;
 import experiments::vis2::Translate;
 import util::Webserver;
 import util::HtmlDisplay;

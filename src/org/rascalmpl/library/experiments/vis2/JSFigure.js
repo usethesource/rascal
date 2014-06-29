@@ -18,20 +18,17 @@ var Figure = {
     fontName: "Helvetica",
     fontSize: 12,
     dataset: [], 
-    figure_state: {},
     figure_root:  {},
-    hasDefinedWidth: function() { return this.hasOwnProperty("definedWidth"); },
+    
+    hasDefinedWidth: function()  { return this.hasOwnProperty("definedWidth"); },
+    
     hasDefinedHeight: function() { return this.hasOwnProperty("definedHeight"); },
-    // TODO: maintenance prone, find better solution!
-    propertiesWithNumberArg: ["width", "height", "definedWidth", "definedHeight", 
-                               "xpos", "ypos", "hgap", "vgap", "halign", "valign",
-                              "lineWidth", "fontSize", "fillOpacity", "lineOpacity", "borderRadius"],
-                              
+                               
     getModelElement: function(accessor) { return eval(accessor); },
     
     setModelElement: function(accessor, v) { eval(accessor + "=" + v); return v; },
     
-    model: [50,50]
+    model: undefined
 }
 
 Object.defineProperty(Figure, "width", { get: function(){ 
@@ -44,13 +41,15 @@ Object.defineProperty(Figure, "width", { get: function(){
     });
     
 Object.defineProperty(Figure, "height", { get: function(){ if(this.hasOwnProperty("_height")) return this._height;
-                              if(this.hasDefinedHeight) return this.definedHeight;
-                              throw "Undefined height";
-                           },
-              set: function(h){ if(isString(h)) {
-                                    alert(h); 
-                                }
-                                 this._height = h; }
+                                                    if(this.hasDefinedHeight) return this.definedHeight;
+                                                        throw "Undefined height";
+                                               },
+                                          set: function(h){ 
+                                                    if(isString(h)) {
+                                                        alert(h); 
+                                                    }
+                                                    this._height = h; 
+                                               }
         
     });
 
@@ -92,14 +91,14 @@ function buildFigure1(description, parent) {
                 var accessor = prop_val.use;
                 if(prop === "accessor"){
                     Object.defineProperty(f, prop, {get: function(){ return accessor;}  });
-//                 } else
-//                 if(Figure.propertiesWithNumberArg.indexOf(prop) >= 0){
-//                     Object.defineProperty(f, prop, {get: function(){ return parseInt(eval(accessor));}  });
                 } else {
                     Object.defineProperty(f, prop, {get: function(){ return eval(accessor);}  });
                 }
             } else {
                 var val = description[prop];
+                if(val.hasOwnProperty("figure")){
+                    val = buildFigure1(val, f);
+                }
                 Object.defineProperty(f, prop, {value: val});
             }
         }
@@ -129,22 +128,44 @@ function redrawFigure(){
     drawFigure1(Figure.figure_root);
 }
 
+bboxExtraFigure = function (fig){
+    if(fig.hasOwnProperty("extra_figure")){
+        fig.extra_figure.bbox();
+    }
+}
+
 /****************** AddInteraction to a figure *************************/
 
-function addInteraction(selection, fig) {
+function addInteraction(selection, x, y, fig) {
     if (fig.hasOwnProperty("event")) {
     	selection.style("cursor", "crosshair");
+        
+        if(fig.event != "click"){
+            selection.on("mouseout", function(){ fig.draw_extra_figure = false;  redrawFigure();});
+        }
+        
         selection.on(fig.event, function(e) {
            d3.event.stopPropagation();
            if(fig.hasOwnProperty("replacement")){
                 Figure.setModelElement(fig.accessor, fig.replacement);
                 refreshFromServer();
+           } else if(fig.hasOwnProperty("extra_figure")){
+               fig.draw_extra_figure = (fig.event === "click") ? ! fig.draw_extra_figure : true;
+               redrawFigure();
            } else {
+                //fig.draw_extra_figure = false;
                 redrawFigure();
            }
         });
     }
     return selection;
+}
+
+function drawExtraFigure(selection, x, y, fig){
+    if(fig.hasOwnProperty("extra_figure") && fig.draw_extra_figure === true){
+        fig.extra_figure.bbox();
+        fig.extra_figure.draw(selection, x, y);
+    }
 }
 
 function handleUserInput(fig, v) {
@@ -246,6 +267,7 @@ var drawFunction = {};
 
 /**************** box *******************/
 
+
 bboxFunction.box = function() {
     var width = 0, height = 0, definedW, definedH;
     
@@ -280,12 +302,10 @@ bboxFunction.box = function() {
     // 	}
     this.width = width;
     this.height = height;
-    return;
 }
 
 drawFunction.box = function (selection, x, y) {
-    var sel = selection;
-    var outersel = selection
+    var my_svg = selection
     .append("rect")
     .attr("x", x)
     .attr("y", y)
@@ -297,10 +317,12 @@ drawFunction.box = function (selection, x, y) {
     .style("stroke-dasharray", this.lineStyle)
     if (this.hasOwnProperty("inner")) {
         var inner = this.inner;
-        inner.draw(sel, x + this.hgap + inner.halign * (this.width - inner.width - 2 * this.hgap), 
+        inner.draw(selection, x + this.hgap + inner.halign * (this.width - inner.width - 2 * this.hgap), 
         y + this.vgap + inner.valign * (this.height - inner.height - 2 * this.vgap));
     }
-    return addInteraction(sel, this);
+    drawExtraFigure(selection, x, y, this);
+    addInteraction(my_svg, x, y, this);
+    return my_svg;
 }
 
 /**************** hcat *******************/
@@ -321,13 +343,13 @@ bboxFunction.hcat = function() {
 }
 
 drawFunction.hcat = function (selection, x, y) {
-    var outersel = selection
-    .append("rect")
-    .attr("x", x)
-    .attr("y", y)
-    .attr("width", this.width)
-    .attr("height", this.height)
-    .style("fill", "none");
+    var my_svg = selection
+        .append("rect")
+        .attr("x", x)
+        .attr("y", y)
+        .attr("width", this.width)
+        .attr("height", this.height)
+        .style("fill", "none");
 
     var inner = this.inner;
     console.log("hcat:", inner);
@@ -336,7 +358,9 @@ drawFunction.hcat = function (selection, x, y) {
         elm.draw(selection, x, y + this.valign * (this.height - elm.height));
         x += elm.width + this.hgap;
     }
-    return outersel;
+    drawExtraFigure(selection, x, y, this);
+    addInteraction(my_svg, x, y, this);
+    return my_svg;
 }
 
 /**************** vcat *******************/
@@ -353,17 +377,16 @@ bboxFunction.vcat = function() {
     }
     this.width = width;
     this.height = height + (inner.length - 1) * this.vgap;
-    return;
 }
 
 drawFunction.vcat = function (selection, x, y) {
-    var outersel = selection
-    .append("rect")
-    .attr("x", x)
-    .attr("y", y)
-    .attr("width", this.width)
-    .attr("height", this.height)
-    .style("fill", "none");
+    var my_svg = selection
+        .append("rect")
+        .attr("x", x)
+        .attr("y", y)
+        .attr("width", this.width)
+        .attr("height", this.height)
+        .style("fill", "none");
 
     var inner = this.inner;
     var halign = this.halign;
@@ -372,7 +395,9 @@ drawFunction.vcat = function (selection, x, y) {
         elm.draw(selection, x + halign * (this.width - elm.width), y);
         y += elm.height;
     }
-    return outersel;
+    drawExtraFigure(selection, x, y, this);
+    addInteraction(my_svg, x, y, this);
+    return my_svg;
 }
 
 /**************** text *******************/
@@ -381,16 +406,16 @@ bboxFunction.text = function() {
     var svgtmp = d3.select("body").append("svg").attr("id", "svgtmp").attr("width", 100).attr("height", 100);
     //console.log("svgtmp", svgtmp);
     var txt = svgtmp.append("text")
-    .attr("x", 0)
-    .attr("y", 0)
-    .style("text-anchor", "start")
-    .text(this.textValue)
-    .style("font-family", this.fontName)
-    .style("font-style", "normal")
-    .style("font-weight", "bold")
-    .style("font-size", this.fontSize)
-    .style("stroke", this.lineColor)
-    .style("fill", this.fillColor);
+        .attr("x", 0)
+        .attr("y", 0)
+        .style("text-anchor", "start")
+        .text(this.textValue)
+        .style("font-family", this.fontName)
+        .style("font-style", "normal")
+        .style("font-weight", "bold")
+        .style("font-size", this.fontSize)
+        .style("stroke", this.lineColor)
+        .style("fill", this.fillColor);
    
     var bb = txt.node().getBBox();
     svgtmp.node().remove();
@@ -398,26 +423,25 @@ bboxFunction.text = function() {
     this.height = bb.height;
     this.ascent = bb.y; // save the y of the bounding box as ascent
     console.log("text:", this.width, this.height, this.ascent);
-    return;
 }
 
 drawFunction.text = function (selection, x, y) {
-    return selection
-    .append("text")
-    .attr("x", x)
-    .attr("y", y - this.ascent) // take ascent into account
-    .style("text-anchor", "start")
-    .text(this.textValue)
-    .style("font-family", this.fontName)
-    .style("font-style", "normal")
-    .style("font-weight", "bold")
-    .style("font-size", this.fontSize)
-    .style("stroke", this.lineColor)
-    .style("fill", this.fillColor)
-    // 	   		.style("fill-opacity", "fill_opacity" in options ? options.fill_opacity : 1)
-    // 			.style("stroke-width", "stroke_width" in options ? options.stroke_width : 1)
-    // 			.style("stroke-dasharray", "stroke_dasharray" in options ? options.stroke_dasharray : [])
-    // 			.style("stroke-opacity", "stroke_opacity" in options ? options.stroke_opacity : 1.0);
+    var my_svg =  selection
+        .append("text")
+        .attr("x", x)
+        .attr("y", y - this.ascent) // take ascent into account
+        .style("text-anchor", "start")
+        .text(this.textValue)
+        .style("font-family", this.fontName)
+        .style("font-style", "normal")
+        .style("font-weight", "bold")
+        .style("font-size", this.fontSize)
+        .style("stroke", this.lineColor)
+        .style("fill", this.fillColor);
+    
+    drawExtraFigure(selection, x, y, this);
+    addInteraction(my_svg, x, y, this);
+    return my_svg;
 }
 
 /**************** scatterplot *******************/
@@ -524,6 +548,10 @@ drawFunction.scatterplot = function (selection, x, y) {
     .attr("class", "axis")
     .attr("transform", "translate(" + padding + ",0)")
     .call(yAxis);
+    
+    drawExtraFigure(selection, x, y, this);
+    addInteraction(svg, x, y, this);
+    return svg;
 }
 
 /**************** barchart ****************/
@@ -598,6 +626,9 @@ drawFunction.barchart = function (selection, x, y) {
     .attr("font-family", "sans-serif")
     .attr("font-size", "11px")
     .attr("fill", "white");
+    
+    drawExtraFigure(selection, x, y, this);
+    addInteraction(svg, x, y, this);
 }
 
 /**************** graph *******************/
@@ -707,13 +738,16 @@ drawFunction.graph = function (selection, x, y) {
 
 
     });
+    
+    drawExtraFigure(selection, x, y, this);
+    addInteraction(selection, x, y, this);
 }
 
 // visibility control
 
-/********************* fswitch ***************************/
+/********************* choice ***************************/
 
-bboxFunction.fswitch = function() {
+bboxFunction.choice = function() {
     var inner = this.inner;
     var selector = Math.min(Math.max(Figure.getModelElement(this.selector),0), inner.length - 1);
     var selected = inner[selector];
@@ -722,7 +756,7 @@ bboxFunction.fswitch = function() {
     this.height = selected.height;
 }
 
-drawFunction.fswitch = function (selection, x, y) {
+drawFunction.choice = function (selection, x, y) {
     var inner = this.inner;
     var selector = Math.min(Math.max(Figure.getModelElement(this.selector),0), inner.length -1);
     var selected = this.inner[selector];
@@ -777,8 +811,7 @@ drawFunction.buttonInput = function (selection, x, y) {
             .attr("type", "button").attr("value", b ? this.trueText : this.falseText);
         
      foreign.on("mousedown", function() {
-          var b = !Figure.getModelElement(accessor);
-          //foreign.select("input").attr("value", b ? this.trueText : this.falseText);  
+          var b = !Figure.getModelElement(accessor); 
           return handleUserInput(fig, b);
      });
 }
@@ -930,5 +963,35 @@ drawFunction.rangeInput = function (selection, x, y) {
         
      foreign.on(fig.event, function(){
             return handleUserInput(fig, foreign.select("input")[0][0].value);
+     });
+}
+
+/********************* choiceInput ***************************/
+
+bboxFunction.choiceInput = bboxFunction.buttonInput
+
+drawFunction.choiceInput = function (selection, x, y) { 
+    var fig = this;
+    var accessor = this.accessor;
+    var selectedIndex = Figure.getModelElement(this.accessor);
+    
+    var foreign = selection.append("foreignObject")
+        .attr("x", x).attr("y", y).attr("width", this.width).attr("height", this.height);
+    
+    var select =foreign.append("xhtml:body")
+        .append("form").attr("action", "").attr("onsubmit", "return false")
+        .append("select").attr("value", selectedIndex).attr("selectedIndex", selectedIndex)
+            .style("width", this.width + "px").style("height", this.height + "px");
+    
+    for(var i = 0; i < this.choices.length; i++){
+        var opt = select.append("option").attr("value", i);
+        if(i == selectedIndex){
+            opt.attr("selected", "selected");
+        }
+        opt.text(this.choices[i]);
+    }
+        
+     foreign.on(fig.event, function(){
+            return handleUserInput(fig, foreign.select("select")[0][0].selectedIndex);
      });
 }

@@ -1,7 +1,7 @@
 module experiments::vis2::Translate
 
 import experiments::vis2::Figure;
-import experiments::vis2::Properties;
+//import experiments::vis2::Properties;
 import Node;
 import String;
 import IO;
@@ -82,7 +82,6 @@ str trJson(_graph(Figures nodes, Edges edges, FProperties fps)) =
 	'         ]
 	'}";
 
-
 // ---------- texteditor ----------
 
 //Size sizeOf(_texteditor(FProperties fps),  FProperty pfps...){
@@ -102,16 +101,16 @@ str trJson(_graph(Figures nodes, Edges edges, FProperties fps)) =
 
 // ---------- fswitch ----------
 
-str trJson(_fswitch(int sel, Figures figs, FProperties fps)) { 
+str trJson(_choice(int sel, Figures figs, FProperties fps)) { 
 	if(isCursor(sel)){
 	   return 
-		"{\"figure\": 	\"fswitch\"<trPropsJson(fps, sep=", ")> 
+		"{\"figure\": 	\"choice\"<trPropsJson(fps, sep=", ")> 
 		' \"selector\":	<trPath(toPath(sel))>,
     	' \"inner\":   [<intercalate(",\n", [trJson(f) | f <- figs])> 
    	    '              ] 
     	'}";
     } else {
-    	throw "fswitch: selector should be a cursor: sel";
+    	throw "choice: selector should be a cursor: sel";
     }
  }
  
@@ -138,154 +137,42 @@ str trJson(_buttonInput(str trueText, str falseText, FProperties fps)) =
  	' \"trueText\":		<strArg(trueText)>,
  	' \"falseText\":	<strArg(falseText)>
  	'}";
-    
-//str trJson(_buttonInput(Bind[bool] bbinder, str trueText, str falseText, FProperties fps)) {
-//	if(isCursor(bbinder.accessor)){
-//		refresh = "false";
-//		replacement = "\"\"";
-//		if(bind(a, r) := bbinder){
-//			refresh = "true";
-//			replacement = r;
-//		}
-// 		return 	"{\"figure\": 		 \"buttonInput\" <trPropsJson(fps, sep=", ")>
-// 				' \"accessor_type\": \"<typeOf(bbinder.accessor)>\",
-// 				' \"accessor\": 	 <trPath(toPath(bbinder.accessor))>,
-// 				' \"refresh\":		 <refresh>,
-// 				' \"replacement\":	 <replacement>,
-// 				' \"trueText\":		 <strArg(trueText)>,
-// 				' \"falseText\":	 <strArg(falseText)>
-// 				'}";
-//    } else {
-//    	throw "buttonInput: accessor argument should be a cursor: <bbinder.accessor>";
-//    }
-//}
-
-
+ 
 // ---------- checboxInput ----------
 
 str trJson(_checkboxInput(FProperties fps)) =
 	"{\"figure\":	\"checkboxInput\" <trPropsJson(fps)> }";
-    
-//str trJson(_checkboxInput(FProperties fps)) {
-//	if(isCursor(bbinder.accessor)){
-//		refresh = "false";
-//		replacement = "\"\"";
-//		if(bind(a, r) := bbinder){
-//			refresh = "true";
-//			replacement = r;
-//		}
-// 		return 	"{\"figure\": 		 \"checkboxInput\" <trPropsJson(fps, sep=", ")>
-// 				' \"accessor_type\": \"<typeOf(bbinder.accessor)>\",
-// 				' \"accessor\": 	 <trPath(toPath(bbinder.accessor))>,
-// 				' \"refresh\":		 <refresh>,
-// 				' \"replacement\":	 <replacement>
-// 				'}";
-//    } else {
-//    	throw "checkboxInput: accessor argument should be a cursor: <bbinder.accessor>";
-//    }
-//}
-
-
+   
 // ---------- strInput ----------
  
 str trJson(_strInput(FProperties fps)) =
  	"{\"figure\": \"strInput\" <trPropsJson(fps)> }";
+ 	
+// ---------- choiceInput ----------
 
-
-//str trJson(_strInput(Bind[str] sbinder, FProperties fps)) {
-//	if(isCursor(sbinder.accessor)){
-//		refresh = "false";
-//		replacement = "\"\"";
-//		if(bind(a, r) := sbinder){
-//			refresh = "true";
-//			replacement = r;
-//		}
-// 		return 	"{\"figure\": 		 \"strInput\" <trPropsJson(fps, sep=", ")>
-// 				' \"accessor_type\": \"<typeOf(sbinder.accessor)>\",
-// 				' \"accessor\": 	 <trPath(toPath(sbinder.accessor))>,
-// 				' \"refresh\":		 <refresh>,
-// 				' \"replacement\":	 <replacement>
-// 				'}";
-//    } else {
-//    	throw "strInput: accessor argument should be a cursor: <sbinder.accessor>";
-//    }
-//}
+str trJson(_choiceInput(list[str] choices, FProperties fps)) =
+	"{\"figure\": 		 \"choiceInput\" <trPropsJson(fps, sep=", ")>
+	' \"choices\":		 <choices>
+	'}";
 
 // ---------- colorInput ----------
 
 str trJson(_colorInput(FProperties fps)) =
 	"{\"figure\": 		 \"colorInput\" <trPropsJson(fps)> }";
- 
-
-//str trJson(_colorInput(Bind[str] sbinder, FProperties fps)) {
-//	if(isCursor(sbinder.accessor)){
-//		refresh = "false";
-//		replacement = "\"\"";
-//		if(bind(a, r) := sbinder){
-//			refresh = "true";
-//			replacement = r;
-//		}
-// 		return 	"{\"figure\": 		 \"colorInput\" <trPropsJson(fps, sep=", ")>
-// 				' \"accessor_type\": \"<typeOf(sbinder.accessor)>\",
-// 				' \"accessor\": 	 <trPath(toPath(sbinder.accessor))>,
-// 				' \"refresh\":		 <refresh>,
-// 				' \"replacement\":	 <replacement>
-// 				'}";
-//    } else {
-//    	throw "colorInput: accessor argument should be a cursor: <sbinder.accessor>";
-//    }
-//}
 
 // ---------- numInput ----------
 
 str trJson(_numInput(FProperties fps)) =
 	"{\"figure\": 		 \"numInput\" <trPropsJson(fps)> }";
 
-//str trJson(_numInput(Bind[num] nbinder, FProperties fps)) {
-//	if(isCursor(nbinder.accessor)){
-//		refresh = "false";
-//		replacement = "\"\"";
-//		if(bind(a, r) := nbinder){
-//			refresh = "true";
-//			replacement = r;
-//		}
-// 		return 	"{\"figure\": 		 \"numInput\" <trPropsJson(fps, sep=", ")>
-// 				' \"accessor_type\": \"<typeOf(nbinder.accessor)>\",
-// 				' \"accessor\": 	 <trPath(toPath(nbinder.accessor))>,
-// 				' \"refresh\":		 <refresh>,
-// 				' \"replacement\":	 <replacement>
-// 				'}";
-//    } else {
-//    	throw "numInput: accessor argument should be a cursor: <nbinder.accessor>";
-//    }
-//}
-
-   
 // ---------- rangeInput ----------
 
 str trJson(p: _rangeInput(int low, int high, int step, FProperties fps)) =
 	"{ \"figure\":			\"rangeInput\"<trPropsJson(fps, sep=", ")> 
-	'  \"low\":	 			<numArg(low)>,
-	'  \"high\":			<numArg(high)>,
+	'  \"min\":	 			<numArg(low)>,
+	'  \"max\":				<numArg(high)>,
 	'  \"step\":			<numArg(step)>
 	'}";
-
-//str trJson(p: _rangeInput(int low, int high, int step, Bind[int] binder, FProperties fps)) {
-//  if(isCursor(binder.accessor)){ 
-//  	replacement = bind(a, v) := binder ? v : "\"undefined\"";  
-//	return 
-//	"{ \"figure\":			\"rangeInput\"<trPropsJson(fps, sep=", ")> 
-//	'  \"low\":	 			<numArg(low)>,
-//	'  \"high\":			<numArg(high)>,
-//	'  \"step\":			<numArg(step)>,
-//	'  \"type\": 			\"<typeOf(binder.accessor)>\", 
-//	'  \"accessor\": 		<valArg(binder.accessor)>,
-//	'  \"replacement\":		<replacement>	
-//	'}";
-//   } else {
-//   		throw "rangeInput: accessor <binder.accessor> of bind argument is not a cursor";
-//   }
-//}
     
 // Catch missing cases
 
@@ -404,6 +291,15 @@ str trPropJson(prop: on(str event, binder: bind(&T accessor, &T replacement))){
  	} else {
    		throw "on: accessor <accessor> in binder is not a cursor";
    }
+}
+
+str trPropJson(prop: on(str event, Figure fig)){
+	println("prop = <prop>");	
+	
+	return 
+		"\"event\":  		\"<event>\",
+		'\"extra_figure\":	<trJson(fig)>
+		";	
 }
 
 default str trPropJson(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "\"definedWidth\": <xsize>, \"definedHeight\": <ysize>" : "unknown: <fp>";
