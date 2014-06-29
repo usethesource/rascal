@@ -1,279 +1,305 @@
 module experiments::vis2::Translate
 
 import experiments::vis2::Figure;
-import experiments::vis2::Properties;
-import util::Math;
+//import experiments::vis2::Properties;
+import Node;
+import String;
 import IO;
 import List;
+import util::Cursors;
+import Type;
 
 /*
- * Translate a Figure to Javascript in two steps:
- * 1. trFig: Figure -> list[PRIM]
- * 2. trPrims: list[PRIM] -> str
+ * Translate a Figure to HTML + JSON
  */
 
-// The graphical primitives that are defined in the library (vis2/lib)
+// Translation a figure to one HTML page
 
-data PRIM =
-	  rect_prim(BBox bb, FProperties fp)
-	| circle_prim(BBox bb, FProperties fp)
-	| barchart_prim(BBox bb, FProperties fp)
-	| scatterplot_prim(BBox bb, FProperties fp)
-	| graph_prim(BBox bb,  list[str] nodes, Edges edges, FProperties fp)
-	| define(str id, list[PRIM] prims)
-	| use(str id, BBox bb)
-	;
-	
-// Translation a list of PRIMs to one HTML page
-	
-str trPrims(str title, int width, int height, list[PRIM] prims){
+public str fig2html(str title, str site_as_str){
 	// TODO: get rid of this absolute path
 	vis2 = "/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2";
 	
 	return "\<html\>
 		'\<head\>
         '	\<title\><title>\</title\>
+        '	\<link rel=\"stylesheet\" href=\"<vis2>/lib/reset.css\" /\>
+        '	\<link rel=\"stylesheet\" href=\"<vis2>/lib/Figure.css\" /\>
         '	\<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"\>\</script\>
-        '	\<script src=\"<vis2>/lib/Figure.js\"\>\</script\>
-        '	\<script src=\"<vis2>/lib/Barchart.js\"\>\</script\>
-        '	\<script src=\"<vis2>/lib/Scatterplot.js\"\>\</script\>
-        '	\<script src=\"<vis2>/lib/Graph.js\"\>\</script\>
-        '	\<link rel=\"stylesheet\" type=\"text/css\" href=\"<vis2>/lib/Figure.css\"\>
+        '	\<script src=\"<vis2>/JSFigure.js\"\>\</script\>
+        
 		'\</head\>
 		'\<body\>
+		'\<div id=\"figurearea\"\> 
+		'\</div\>
 		'\<script\>
-		'	var svg = d3.select(\"body\").append(\"svg\").attr(\"width\", <width>).attr(\"height\", <height>);
-		'	<for(prim <- prims){>
-		'   	<trPrim(prim)><}>
-		'\</script\>
-			
+		'	askServer(\"<site_as_str>/initial_figure\");
+  		'\</script\>
 		'\</body\>
 		'\</html\>
 		";
 }
 
-// Translate one PRIM to JS
+/******************** Translate figure primitives ************************************/
 
-str trPrim(rect_prim(BBox bb, FProperties fp)) = "makeRect(svg, <bb.x>, <bb.y>, <bb.width>, <bb.height>, <trProps(fp)>);";
+// Graphical elements
 
-str trPrim(barchart_prim(BBox bb, FProperties fp)) = "makeBarchart(svg, <bb.x>, <bb.y>, <bb.width>, <bb.height>, <trProps(fp)>);";
+str trJson(_box(FProperties fps)) = 
+	"{\"figure\": \"box\" <trPropsJson(fps)> }";
 
-str trPrim(scatterplot_prim(BBox bb, FProperties fp)) = "makeScatterplot(svg, <bb.x>, <bb.y>, <bb.width>, <bb.height>, <trProps(fp)>);";
+str trJson(_box(Figure inner, FProperties fps)) = 
+	"{\"figure\": \"box\" <trPropsJson(fps,sep=", ")> 
+    ' \"inner\":  <trJson(inner)> 
+    '}";
 
-str trPrim(graph_prim(BBox bb, list[str] nodes, Edges edges, FProperties fp)) {
-	graphProps = "{ nodes: <nodes>, edges: [" + intercalate(",", ["{source: <v1>, target: <v2>}" | edge(v1, v2, *ps) <- edges]) + "] }";
-	return "makeGraph(svg, <bb.x>, <bb.y>, <bb.width>, <bb.height>, combine(<graphProps>,<trProps(fp)>));";
-}
+str trJson(_text(value v, FProperties fps)) = 
+	"{\"figure\": \"text\", \"textValue\": <valArgQuoted(v)> <trPropsJson(fps)> }";
 
-str trPrim(define(str id, list[PRIM] prims, FProperties fp){
+str trJson(_hcat(list[Figure] figs, FProperties fps)) = 
+	"{\"figure\": \"hcat\"<trPropsJson(fps, sep=", ")> 
+    ' \"inner\":   [<intercalate(",\n", [trJson(f) | f <- figs])> 
+    '          ] 
+    '}";
 
-}
+str trJson(_vcat(list[Figure] figs, FProperties fps)) = 
+	"{\"figure\": \"vcat\"<trPropsJson(fps, sep=", ")> 
+    ' \"inner\":  [<intercalate(",\n", [trJson(f) | f <- figs])>
+    '         ] 
+    '}";
 
-default str trPrim(p) {
-	throw "trPrim: no rule for <p>";	
-}
+// Layouts
 
+str trJson(_barchart(FProperties fps)) = 
+	"{\"figure\": \"barchart\" <trPropsJson(fps)> }";
 
-// Size computation of nestes figures
+str trJson(_scatterplot(FProperties fps)) = 
+	"{\"figure\": \"scatterplot\" <trPropsJson(fps)> }";
 
-BBox reduce(bb, FProperties fps){
-	<width, height> = getSize(fps, <bb.width, bb.height>);
-	return bbox(bb.x, bb.y, width, height);
-}
+str trJson(_graph(Figures nodes, Edges edges, FProperties fps)) = 
+	"{\"figure\": \"graph\" <trPropsJson(fps, sep=", ")> 
+	' \"nodes\":  [<intercalate(",\n", [trJson(f) | f <- nodes])>
+	'         ], 
+	' \"edges\":  [<intercalate(",\n", ["{\"source\": <from>, \"target\": <to>}"| _edge(from,to,efps) <- edges])>
+	'         ]
+	'}";
 
-// Compute the size of a Figure
+// ---------- texteditor ----------
 
-Size sizeOf(_box(FProperties fps), FProperty pfps...) {
-	afps = combine(fps, pfps);
-	<w, h> = getSize(afps, <10, 10>);
-	if(hasPos(afps)){
-		<x, y> = getPos(afps);
-		return <x + w, y + h>;
+//Size sizeOf(_texteditor(FProperties fps),  FProperty pfps...){
+//	afps = combine(fps, pfps);
+//	res = getSize(afps, <200,200>);
+//	println("sizeOF texteditor: <res>");
+//	return res;
+//}
+//
+//private list[PRIM] tr(_texteditor(FProperties fps), bb, FProperties pfps) {
+//	println("tr _texteditor: fps <fps>, bb <bb>, pfps <pfps>");
+//	fps1 = combine(fps, pfps);
+//	return [texteditor_prim(bb, fps1)];
+//}
+
+// Visibility control elements
+
+// ---------- fswitch ----------
+
+str trJson(_choice(int sel, Figures figs, FProperties fps)) { 
+	if(isCursor(sel)){
+	   return 
+		"{\"figure\": 	\"choice\"<trPropsJson(fps, sep=", ")> 
+		' \"selector\":	<trPath(toPath(sel))>,
+    	' \"inner\":   [<intercalate(",\n", [trJson(f) | f <- figs])> 
+   	    '              ] 
+    	'}";
+    } else {
+    	throw "choice: selector should be a cursor: sel";
+    }
+ }
+ 
+// ---------- visible ----------
+ 
+ str trJson(_visible(bool vis, Figure fig, FProperties fps)) { 
+	if(isCursor(vis)){
+	   return 
+		"{\"figure\":	\"visible\"<trPropsJson(fps, sep=", ")> 
+		' \"selector\":	<trPath(toPath(vis))>,
+    	' \"inner\":   	<trJson(fig)> 
+    	'}";
+    } else {
+    	throw "fswitch: selector should be a cursor: sel";
+    }
+ }   
+
+// ---------- input elements ----------
+
+// ---------- buttonInput ----------
+
+str trJson(_buttonInput(str trueText, str falseText, FProperties fps)) =
+	"{\"figure\": 		\"buttonInput\" <trPropsJson(fps, sep=", ")>
+ 	' \"trueText\":		<strArg(trueText)>,
+ 	' \"falseText\":	<strArg(falseText)>
+ 	'}";
+ 
+// ---------- checboxInput ----------
+
+str trJson(_checkboxInput(FProperties fps)) =
+	"{\"figure\":	\"checkboxInput\" <trPropsJson(fps)> }";
+   
+// ---------- strInput ----------
+ 
+str trJson(_strInput(FProperties fps)) =
+ 	"{\"figure\": \"strInput\" <trPropsJson(fps)> }";
+ 	
+// ---------- choiceInput ----------
+
+str trJson(_choiceInput(list[str] choices, FProperties fps)) =
+	"{\"figure\": 		 \"choiceInput\" <trPropsJson(fps, sep=", ")>
+	' \"choices\":		 <choices>
+	'}";
+
+// ---------- colorInput ----------
+
+str trJson(_colorInput(FProperties fps)) =
+	"{\"figure\": 		 \"colorInput\" <trPropsJson(fps)> }";
+
+// ---------- numInput ----------
+
+str trJson(_numInput(FProperties fps)) =
+	"{\"figure\": 		 \"numInput\" <trPropsJson(fps)> }";
+
+// ---------- rangeInput ----------
+
+str trJson(p: _rangeInput(int low, int high, int step, FProperties fps)) =
+	"{ \"figure\":			\"rangeInput\"<trPropsJson(fps, sep=", ")> 
+	'  \"min\":	 			<numArg(low)>,
+	'  \"max\":				<numArg(high)>,
+	'  \"step\":			<numArg(step)>
+	'}";
+    
+// Catch missing cases
+
+default str trJson(Figure f) { throw "trJson: cannot translate <f>"; }
+
+/**************** Tranlate properties *************************/
+
+str trPropsJson(FProperties fps str sep = ""){
+	res = "";
+	
+	for(fp <- fps){
+		attr = getName(fp);
+			t = trPropJson(fp);
+			if(t != "")
+				res += ", " + t;
 	}
-	return <w, h>;
+	return res + sep;
 }
 
-Size sizeOf(_box(Figure inner, FProperties fps), FProperty pfps...) {
-    afps = combine(fps, pfps);
-    <outer_width, outer_height> = getSize(afps);
-	<inner_width, inner_height> = sizeOf(inner, afps);
-	<xgap, ygap> = getGap(afps);
-	return <max(outer_width, inner_width + 2*xgap), max(outer_height, inner_height + 2*ygap)>;
-}
+str trPropJson(pos(int xpos, int ypos)) 		= "";
 
-Size sizeOf(_hcat(list[Figure] figs, FProperties fps),  FProperty pfps...) {
-	afps = combine(fps, pfps);
-	<hg, vg> = getGap(afps);
-    sizes = [ sizeOf(f, afps) | f <- figs ];
-    w = (0 | it + hg + sz.width | sz <- sizes) - hg;
-    h = (0 | max(it, sz.height) | sz <- sizes); 
-    return <w, h>;
-}
+str trPropJson(gap(int width, int height)) 		= "\"hgap\": <width>, \"vgap\": <height>";
 
-Size sizeOf(_vcat(list[Figure] figs, FProperties fps),  FProperty pfps...) {
-	afps = combine(fps, pfps);
-	<hg, vg> = getGap(afps);
-    sizes = [ sizeOf(f, afps) | f <- figs ];
-    w = (0 | max(it, sz.width) | sz <- sizes);
-    h = (0 | it + vg + sz.height | sz <- sizes) - vg; 
-    return <w, h>;
-}
-
-Size sizeOf(_barchart(FProperties fps),  FProperty pfps...){
-	afps = combine(fps, pfps);
-	res = getSize(afps, <200,200>);
-	println("sizeOF _barchart: <res>");
-	return res;
-}
-
-Size sizeOf(_scatterplot(FProperties fps),  FProperty pfps...){
-	afps = combine(fps, pfps);
-	res = getSize(afps, <200,200>);
-	println("sizeOF _scatterplot: <res>");
-	return res;
-}
-
-Size sizeOf(_graph(Figures nodes, Edges edges, FProperties fps),  FProperty pfps...){
-	afps = combine(fps, pfps);
-	res = getSize(afps, <200,200>);
-	println("sizeOF _graph: <res>");
-	
-	return res;
-}
-
-// Translates a Figure to a list of PRIMs
-
-list[PRIM] trFig(Figure f) {
-	<w, h> = sizeOf(f,  getDefaultProperties());
-	<x, y> = getPos(f.props, <0, 0>);
-	return tr(f, bbox(x, y, w, h), getDefaultProperties());
-}
-
-list[PRIM] tr(_box(FProperties fps), bb, FProperties pfps) {
-	fps1 = combine(fps, pfps);
-	return [rect_prim(reduce(bb, fps1), fps1)];
-}
-
-list[PRIM] tr(_box(Figure inner, FProperties fps), bb, FProperties pfps) {
-	println("box with inner: inner = <inner>, bb = <bb>, fps = <fps>, pfps = <pfps>");
-	afps = combine(fps, pfps);
-	<outer_width, outer_height> = getSize(afps, getSize(bb));
-	<xgap, ygap> = getGap(afps);
-	println("box with inner: gap: <xgap>, <ygap>");
-	<inner_width, inner_height> = sizeOf(inner, afps);
-	outer_width = max(inner_width + 2 * xgap, outer_width);
-	outer_height = max(inner_height + 2 * ygap, outer_height);
-	
-	otrans = rect_prim(bbox(bb.x, bb.y, outer_width, outer_height), afps);
-	
-	println("box with inner: otrans = <otrans>");
-	
-	ipos = align(getPos(bb), <outer_width, outer_height>, <inner_width, inner_height>, <xgap, ygap>, getAlign(afps));
-	
-	itrans = tr(inner, bbox(ipos.x, ipos.y, inner_width, inner_height), combine(fps, afps));
-	println("box with inner: itrans = <itrans>");
-	println("box with inner: outer_width: <outer_width>, outer_height: <outer_height>");
-	return otrans + itrans;
-}
-
-list[PRIM] tr(_barchart(FProperties fps), bb, FProperties pfps) {
-	println("tr _barchart: fps <fps>, bb <bb>, pfps <pfps>");
-	fps1 = combine(fps, pfps);
-	return [barchart_prim(bb, fps1)];
-}
-
-list[PRIM] tr(_scatterplot(FProperties fps), bb, FProperties pfps) {
-	println("tr _scatterplot: fps <fps>, bb <bb>, pfps <pfps>");
-	fps1 = combine(fps, pfps);
-	return [scatterplot_prim(bb, fps1)];
-}
-
-list[PRIM] tr(_graph(Figures nodes, Edges edges, FProperties fps), bb, FProperties pfps) {
-	println("tr _graph: fps <fps>, bb <bb>, pfps <pfps>");
-	fps1 = combine(fps, pfps);
-	pref = "XXX";
-	defs = [ define("<pref>:<i>", trFig(nodes[i])) | i <- index(nodes)];
-	ids = ["<pref>:<i>" | i <- index(nodes) ];
-	res =  defs + [graph_prim(bb, ids, edges, fps1)];
-	println("_graph ==\> <res>");
-	return res;
-}
-
-Pos align(Pos position, Size container, Size fig, Gap gap, Align align){
-	println("align: position = <position>, container = <container>, fig = <fig>, gap = <gap>, align = <align>");
-	dx = dy = 0;
-	switch(align.xalign){
-		case left(): 	dx = gap.width;
-		case hcenter():	dx = (container.width - fig.width)/2;
-		case right():	dx = container.width - fig.width - gap.width;
+str trPropJson(align(HAlign xalign, VAlign yalign)){
+	xa = 0.5;
+	switch(xalign){
+		case left():	xa = 0.0;
+		case right():	xa = 1.0;
 	}
+	ya = 0.5;
+	switch(yalign){
+		case top():		ya = 0.0;
+		case bottom():	ya = 1.0;
+	}
+	return "\"halign\": <xa>, \"valign\": <ya>";
+}
+
+str trPath(Path path){
+    accessor = "Figure.model";
+	for(nav <- path){
+		switch(nav){
+		 	case root(str name):		accessor += ".<name>"; 
+			case field(str name): 		accessor += ".<name>";
+  			case subscript(int index):	accessor += "[<index>]";
+  			case lookup(value key):		accessor += "[<key>]";
+  			case select(list[int] indices):
+  										accessor += "";		// TODO
+  			case select(list[str] labels):
+  										accessor += "";		// TODO
+  		}
+  	}
+  	println("trPath: <path>: <accessor>");
+  	return "\"<accessor>\"";
+}
+
+str numArg(num n) 	= isCursor(n) ? "{\"use\": <trPath(toPath(n))>}" : "<n>";
+
+str strArg(str s) 	= isCursor(s) ? "{\"use\": <trPath(toPath(s))>}" : "\"<s>\"";
+
+str valArg(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "<v>";
+str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "\"<v>\"";		
+
+str trPropJson(width(int w))					= "\"definedWidth\": <numArg(w)>";
+str trPropJson(height(int h))					= "\"definedHeight\": <numArg(h)>";
+
+str trPropJson(xpos(int x))						= "\"xpos\": <numArg(x)>";
+
+str trPropJson(ypos(int y))						= "\"ypos\": <numArg(y)>";
+
+str trPropJson(hgap(int g))						= "\"hgap\": <numArg(g)>";
+
+str trPropJson(vgap(int g))						= "\"vgap\": <numArg(g)>";
+
+str trPropJson(lineWidth(int n)) 				= "\"lineWidth\": <numArg(n)>";
+
+str trPropJson(lineColor(str s))				= "\"lineColor\":<strArg(s)>";
+
+str trPropJson(lineStyle(list[int] dashes))		= "\"lineStyle\": <dashes>";			// TODO
+
+str trPropJson(fillColor(str s)) 				= "\"fillColor\": <strArg(s)>";
+
+str trPropJson(lineOpacity(real r))				= "lineOpacity:\"<numArg(r)>\"";
+
+str trPropJson(fillOpacity(real r))				= "\"fill_opacity\": <numArg(r)>";
+
+str trPropJson(rounded(int rx, int ry))			= "\"rx\": <numArg(rx)>, \"ry\": <numArg(ry)>";
+str trPropJson(dataset(list[num] values1)) 		= "\"dataset\": <values1>";
+str trPropJson(dataset(lrel[num,num] values2))	= "\"dataset\": [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
+
+str trPropJson(font(str fontName))				= "\"fontName\": <strArg(fontName)>";
+
+str trPropJson(fontSize(int fontSize))			= "\"fontSize\": <numArg(fontSize)>";
+
+str trPropJson(prop: on(str event, binder: bind(&T accessor))){
+	println("prop = <prop>");	
+	if(isCursor(binder.accessor)){ 	
+		return 
+			"\"event\":  		\"<event>\",
+			'\"type\": 			\"<typeOf(binder.accessor)>\", 
+			'\"accessor\": 		<trPath(toPath(binder.accessor))>
+			";	
+ 	} else {
+   		throw "on: accessor <accessor> in binder is not a cursor";
+   }
+}
+
+str trPropJson(prop: on(str event, binder: bind(&T accessor, &T replacement))){
+	println("prop = <prop>");	
+	if(isCursor(binder.accessor)){ 	
+		return 
+			"\"event\":  		\"<event>\",
+			'\"type\": 			\"<typeOf(binder.accessor)>\", 
+			'\"accessor\": 		<trPath(toPath(binder.accessor))>,
+			'\"replacement\":	<replacement>
+			";	
+ 	} else {
+   		throw "on: accessor <accessor> in binder is not a cursor";
+   }
+}
+
+str trPropJson(prop: on(str event, Figure fig)){
+	println("prop = <prop>");	
 	
-	switch(align.yalign){
-		case top(): 	dy = gap.height;
-		case vcenter():	dy = (container.height - fig.height)/2;
-		case bottom():	dy = container.height - fig.height - gap.height;
-	}
-	res = <position.x + dx, position.y + dy>;
-	
-	println("res = <res>");
-	return res;
+	return 
+		"\"event\":  		\"<event>\",
+		'\"extra_figure\":	<trJson(fig)>
+		";	
 }
 
-Pos halign(Pos position, Size container, Size fig, Gap gap, Align align){
-	println("halign: position = <position>, container = <container>, fig = <fig>,  gap = <gap>, align = <align>");
-	dx = 0;
-	switch(align.xalign){
-		case left(): 	dx = gap.width;
-		case hcenter():	dx = (container.width - fig.width)/2;
-		case right():	dx = container.width - fig.width - gap.width;
-	}
-	
-	res = <position.x + dx, position.y>;
-	println("res = <res>");
-	return res;
-}
-
-Pos valign(Pos position, Size container, Size fig, Gap gap, Align align){
-	println("valign: position = <position>, container = <container>, fig = <fig>,  gap = <gap>, align = <align>");
-	dy = 0;
-	switch(align.yalign){
-		case top(): 	dy = gap.height;
-		case vcenter():	dy = (container.height - fig.height)/2;
-		case bottom():	dy = container.height - fig.height - gap.height;
-	}
-	res = <position.x, position.y + dy>;
-	println("res = <res>");
-	return res;
-}
-
-list[PRIM] tr(_hcat(list[Figure] figs, FProperties fps),  BBox bb, FProperty pfps...){
-	afps = combine(fps, pfps);
-	int x = bb.x;
-	int y = bb.y;
-	<outer_width, outer_height> = getSize(bb);
-	<xgap, ygap> = getGap(afps);
-	tfigs = [];
-	for(f <- figs){
-		<f_width, f_height> = sizeOf(f, afps);
-		p = valign(<x,y>, <outer_width, outer_height>, <f_width, f_height>, <0, 0>, getAlign(combine(f.props, afps)));
-		tfigs += tr(f, bbox(p.x, p.y, f_width, f_height), afps);
-		x += xgap + f_width;
-	}
-	return tfigs;
-}
-
-list[PRIM] tr(_vcat(list[Figure] figs, FProperties fps),  BBox bb, FProperty pfps...){
-	afps = combine(fps, pfps);
-	int x = bb.x;
-	int y = bb.y;
-	<outer_width, outer_height> = getSize(bb);
-	<xgap, ygap> = getGap(afps);
-	tfigs = [];
-	for(f <- figs){
-		<f_width, f_height> = sizeOf(f, afps);
-		p = halign(<x,y>, <outer_width, outer_height>, <f_width, f_height>, <0, 0>, getAlign(combine(f.props, afps)));
-		tfigs += tr(f, bbox(p.x, p.y, f_width, f_height), afps);
-		y += ygap + f_height;
-	}
-	return tfigs;
-}
+default str trPropJson(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "\"definedWidth\": <xsize>, \"definedHeight\": <ysize>" : "unknown: <fp>";

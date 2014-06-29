@@ -1,18 +1,58 @@
 module experiments::vis2::Properties
 
-import Node;
-import List;
-import IO;
+import experiments::vis2::Figure;
 
+alias Cursor[&T] = &T;
+
+data Bind[&T]
+    = bind(Cursor[&T] accessor)
+    | bind(Cursor[&T] accessor, &T val)
+	;
+	
 data FProperty =
       pos(int xpos, int ypos)
+      
+    | xpos(int p)
+    | ypos(int p)
+
     | size(int xsize, int ysize)
+    | width(int w)
+    | height(int h)
+    
     | gap(int xgap, int ygap)
+    | hgap(int g)
+    | vgap(int g)
+    
+    // lines
+    
 	| lineWidth(int n)
 	| lineColor(str c)
 	| lineStyle(list[int] dashes)
+	| lineOpacity(real op)
+	
+	// areas
+
 	| fillColor(str c)
+	| fillOpacity(real op)
+	| rounded(int rx, int ry)
+	
 	| align(HAlign xalign, VAlign yalign)
+	
+	| halign(HAlign ha)
+	| valign(VAlign va)
+
+	// fonts and text
+	
+	| font(str fontName)
+	| fontSize(int fontSize)
+
+	// interaction
+	
+	| on(str event, Bind[value] binder)
+	| on(str event, Figure fig)
+	
+	// data sets	
+	
 	| dataset(list[num] values1)
 	| dataset(lrel[num,num] values2)
 	;
@@ -23,110 +63,41 @@ data VAlign = top() | vcenter() | bottom();
 	
 public alias FProperties = list[FProperty];
 
-FProperties getDefaultProperties() = []; //[size(50,50), gap(0,0)];
+public set[str] legalEvents = {
 
-FProperties combine(FProperty fp, FProperties fps) = [fp, *fps];
+// Form events
+	"blur",				// Fires the moment that the element loses focus
+	"change",			// Fires the moment when the value of the element is changed
+	"contextmenu",		// Script to be run when a context menu is triggered
+	"focus",			// Fires the moment when the element gets focus
+	"formchange",		// Script to be run when a form changes
+	"forminput",		// Script to be run when a form gets user input
+	"input",			// Script to be run when an element gets user input
+	"invalid",			// Script to be run when an element is invalid
+	"select",			// Fires after some text has been selected in an element
+	"submit",			// Fires when a form is submitted
+	
+// Keyboard events
+	"keydown",			// Fires when a user is pressing a key
+	"keypress",			// Fires when a user presses a key
+	"keyup",			// Fires when a user releases a key
+	
+// Mouse events
+	"click",			// Fires on a mouse click on the element
+	"dbclick",			// Fires on a mouse double-click on the element
+	"drag",				// Script to be run when an element is dragged
+	"dragend",			// Script to be run at the end of a drag operation
+	"dragenter",		// Script to be run when an element has been dragged to a valid drop target
+	"dragleave",		// Script to be run when an element leaves a valid drop target
+	"dragover",			// Script to be run when an element is being dragged over a valid drop target
+	"dragstart",		// Script to be run at the start of a drag operation
+	"drop",				// Script to be run when dragged element is being dropped
+	"mousedown",		// Fires when a mouse button is pressed down on an element
+	"mousemove",		// Fires when the mouse pointer moves over an element
+	"mouseeout",		// Fires when the mouse pointer moves out of an element
+	"mouseover",		// Fires when the mouse pointer moves over an element
+	"mouseup",			// Fires when a mouse button is released over an element
+	"mousewheel",		// Script to be run when the mouse wheel is being rotated
+	"scroll"			// Script to be run when an element's scrollbar is being scrolled
+	};
 
-FProperties combine(FProperties fps1, FProperties fps2) = fps1 + fps2;
-
-// Bounding box
-
-data BBox = bbox(int x, int y, int width, int height);
-
-Pos getPos(BBox bb) = <bb.x, bb.y>;
-
-Size getSize(BBox bb) = <bb.width, bb.height>;
-
-// size 
-
-alias Size 	= tuple[int width, int height];
-
-bool hasSize(FProperties fps) {
-	for(fp <- fps)
-		if (size(int xsize, int ysize) := fp) return true;
-	return false;
-}	
-
-Size getSize(FProperties fps, Size def) {
-	for(fp <- fps)
-		if (size(int xsize, int ysize) := fp) return <xsize, ysize>;
-	return def;
-}
-
-Size getSize(FProperties fps) = getSize(fps, <0,0>);
-
-// gap
-
-alias Gap 	= tuple[int width, int height];
-
-bool hasGap(FProperties fps, Size def) {
-	for(fp <- fps)
-		if (gap(int width, int height) := fp) return true;
-	return false;
-}
-
-Size getGap(FProperties fps, Size def) {
-	for(fp <- fps)
-		if (gap(int width, int height) := fp) return <width, height>;
-	return def;
-}
-
-Size getGap(FProperties fps)  = getGap(fps, <0,0>);
-
-// pos 
-
-alias Pos = tuple[int x, int y];
-
-bool hasPos(FProperties fps) {
-	for(fp <- fps)
-		if (pos(int x, int y) := fp) return true;
-	return false;
-}	
-
-Pos getPos(FProperties fps, Pos def) {
-	for(fp <- fps)
-		if (pos(int xpos, int ypos) := fp) return <xpos, ypos>;
-	return def;
-}
-
-Size getPos(FProperties fps)  = getPos(fps, <0,0>);
-
-alias Align	= tuple[HAlign xalign, VAlign yalign];
-
-Align getAlign(FProperties fps, Align def) {
-	for(fp <- fps)
-		if (align(HAlign xalign, VAlign yalign) := fp) return <xalign, yalign>;
-	return def;
-}
-
-Align getAlign(FProperties fps) = getAlign(fps, <hcenter(), vcenter()>);
-
-// Translate properties to a javascript map
-
-str trProps(FProperties fps) {
-	seen = {};
-	res = for(fp <- fps){
-		attr = getName(fp);
-		if(attr notin seen){
-			seen += attr;
-			t = trProp(fp);
-			if(t != "")
-				append t;
-		}
-	}
-	return "{ <intercalate(", ", res)> }";
-}
-
-str trProp(pos(int xpos, int ypos)) 		= "";
-//str trProp(size(int xsize, int ysize))	= "width: <xsize>, height <ysize>";
-str trProp(gap(int width, int height)) 		= "";
-str trProp(align(HAlign xalign, VAlign yalign)) 	
-											= "";
-str trProp(lineWidth(int n)) 				= "stroke_width: <n>";
-str trProp(lineStyle(list[int] dashes))		= "stroke_dasharray: <dashes>";
-str trProp(fillColor(str s)) 				= "fill: \"<s>\"";
-str trProp(lineColor(str s))				= "stroke:\"<s>\"";
-str trProp(dataset(list[num] values1)) 		= "dataset: <values1>";
-str trProp(dataset(lrel[num,num] values2))	= "dataset: [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
-
-default str trProp(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "width: <xsize>, height: <ysize>" : "unknown: <fp>";
