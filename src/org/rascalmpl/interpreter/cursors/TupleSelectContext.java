@@ -5,7 +5,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.library.util.Cursors;
+import org.rascalmpl.library.util.Cursor;
 
 public class TupleSelectContext extends Context {
 	private final Context ctx;
@@ -36,7 +36,7 @@ public class TupleSelectContext extends Context {
 		for (int i = 0; i < fields.length; i++) {
 			labels[i] = vf.integer(fields[i]);
 		}
-		return ctx.toPath(vf).append(vf.constructor(Cursors.Nav_selectByIndex, vf.list(labels)));
+		return ctx.toPath(vf).append(vf.constructor(Cursor.Nav_selectByIndex, vf.list(labels)));
 	}
 
 }

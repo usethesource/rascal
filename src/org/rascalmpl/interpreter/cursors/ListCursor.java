@@ -98,7 +98,8 @@ public class ListCursor extends Cursor implements IList {
 
 	@Override
 	public IList sublist(int offset, int length) {
-		return new ListCursor(getList().sublist(offset, length), getCtx());
+		Context ctx = new SubListContext(getCtx(), offset, length, getList());
+		return new ListCursor(getList().sublist(offset, length), ctx);
 	}
 
 	@Override
