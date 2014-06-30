@@ -2,6 +2,7 @@ package org.rascalmpl.library.util;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -12,11 +13,13 @@ import org.rascalmpl.interpreter.cursors.Context;
 import org.rascalmpl.interpreter.cursors.CursorFactory;
 import org.rascalmpl.interpreter.cursors.ICursor;
 import org.rascalmpl.interpreter.cursors.InvertorContext;
+import org.rascalmpl.interpreter.cursors.SetCursor;
 import org.rascalmpl.interpreter.cursors.TopContext;
+import org.rascalmpl.interpreter.cursors.UnionContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
-public class Cursors {
+public class Cursor {
 
 	
 	private static final TypeStore cursors = new TypeStore();
@@ -36,7 +39,7 @@ public class Cursors {
 
 	private final IValueFactory vf;
 	
-	public Cursors(IValueFactory vf) {
+	public Cursor(IValueFactory vf) {
 		this.vf = vf;
 	}
 
@@ -46,6 +49,11 @@ public class Cursors {
 
 	public IValue makeCursor(IValue v, IString name) {
 		return CursorFactory.makeCursor(v, new TopContext(name.getValue()));
+	}
+	
+	public ISet subset(ISet sub, ISet backing) {
+		checkCursorness("second", backing);
+		return new SetCursor(sub, new UnionContext(((ICursor)backing).getCtx(), (ISet) ((ICursor)backing).getWrappedValue()));
 	}
 
 	public IValue update(IValue cursor, IValue v) {

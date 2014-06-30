@@ -3,7 +3,7 @@ package org.rascalmpl.interpreter.cursors;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.library.util.Cursors;
+import org.rascalmpl.library.util.Cursor;
 
 public class TopContext extends Context {
 	private final String name;
@@ -24,7 +24,7 @@ public class TopContext extends Context {
 	@Override
 	public IList toPath(IValueFactory vf) {
 		if (!name.isEmpty()) {
-			return vf.list(vf.constructor(Cursors.Nav_root, vf.string(name)));
+			return vf.list(vf.constructor(Cursor.Nav_root, vf.string(name)));
 		}
 		return vf.list();
 	}
