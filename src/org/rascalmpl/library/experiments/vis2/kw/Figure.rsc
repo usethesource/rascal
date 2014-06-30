@@ -116,10 +116,12 @@ public data Figure(
 	
 		list[value] dataset = []
 	) =
+	
+	emptyFigure()
 
 // atomic primitives
 	
-     text(value v)		    // text label
+   | text(value v)		    // text label
    
 // primitives/containers
 
