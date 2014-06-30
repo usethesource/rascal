@@ -5,7 +5,11 @@ alias Path = list[Nav];
 data Nav
   = root(str name)
   | field(str name)
-  | subscript(int index)
+  | field(int position)
+  | argument(int position)
+  | argument(str name)
+  | element(int index)
+  | sublist(int from, int to)
   | lookup(value key)
   | select(list[int] indices)
   | select(list[str] labels)
