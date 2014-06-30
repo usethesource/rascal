@@ -47,10 +47,10 @@ public class CursorFactory implements ITypeVisitor<IValue, RuntimeException> {
 
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-//			String name = method.getName();
-//			if (name.equals("up") || name.equals("root") || name.equals("getCtx") || name.equals("getWrappedValue") || name.equals("toString")) {
-//				return method.invoke(this, args);
-//			}
+			String name = method.getName();
+			if (name.equals("up") || name.equals("root") || name.equals("getCtx") || name.equals("getWrappedValue") || name.equals("toString")) {
+				return method.invoke(this, args);
+			}
 			return method.invoke(getWrappedValue(), args);
 		}
 	}
@@ -58,7 +58,7 @@ public class CursorFactory implements ITypeVisitor<IValue, RuntimeException> {
 	
 	private static IValue atomCursor(Class<? extends IValue> cls, IValue value, Context ctx) {
 		return (IValue) Proxy.newProxyInstance(CursorFactory.class.getClassLoader(),
-				new Class[]{cls}, new AtomCursor(value, ctx));
+				new Class[]{cls, ICursor.class}, new AtomCursor(value, ctx));
 	}
 	
 	
