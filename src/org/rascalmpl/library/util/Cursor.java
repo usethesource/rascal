@@ -26,10 +26,16 @@ public class Cursor {
 	
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	
+	
 	public static final Type Nav = tf.abstractDataType(cursors, "Nav");
 	public static final Type Nav_root = tf.constructor(cursors, Nav, "root", tf.stringType(), "name");
-	public static final Type Nav_field = tf.constructor(cursors, Nav, "field", tf.stringType(), "name");
-	public static final Type Nav_subscript= tf.constructor(cursors, Nav, "subscript", tf.integerType(), "index");
+	public static final Type Nav_fieldName = tf.constructor(cursors, Nav, "field", tf.stringType(), "name");
+	public static final Type Nav_fieldPosition = tf.constructor(cursors, Nav, "field", tf.integerType(), "position");
+	public static final Type Nav_argumentPosition = tf.constructor(cursors, Nav, "argument", tf.integerType(), "position");
+	public static final Type Nav_argumentName = tf.constructor(cursors, Nav, "argument", tf.stringType(), "name");
+	public static final Type Nav_element = tf.constructor(cursors, Nav, "element", tf.integerType(), "index");
+	public static final Type Nav_sublist = tf.constructor(cursors, Nav, "sublist", tf.integerType(), "from", tf.integerType(), "to");
+	
 	public static final Type Nav_lookup = tf.constructor(cursors, Nav, "lookup", tf.valueType(), "key");
 	public static final Type Nav_selectByIndex = tf.constructor(cursors, Nav, "select", tf.listType(tf.integerType()), "indices");
 	public static final Type Nav_selectByLabel = tf.constructor(cursors, Nav, "select", tf.listType(tf.stringType()), "labels");

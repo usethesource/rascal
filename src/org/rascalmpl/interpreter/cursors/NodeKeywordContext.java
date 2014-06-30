@@ -25,7 +25,7 @@ public class NodeKeywordContext extends Context {
 
 	@Override
 	public IList toPath(IValueFactory vf) {
-		return ctx.toPath(vf).append(vf.constructor(Cursor.Nav_field, vf.string(keyword)));
+		return ctx.toPath(vf).append(vf.constructor(Cursor.Nav_argumentName, vf.string(keyword)));
 	}
 
 }

@@ -28,6 +28,6 @@ public class TupleIndexContext extends Context {
 
 	@Override
 	public IList toPath(IValueFactory vf) {
-		return ctx.toPath(vf).append(vf.constructor(Cursor.Nav_subscript, vf.integer(index)));
+		return ctx.toPath(vf).append(vf.constructor(Cursor.Nav_fieldPosition, vf.integer(index)));
 	}
 }
