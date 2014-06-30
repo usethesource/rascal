@@ -182,7 +182,8 @@ function handleUserInput(fig, v) {
         refreshFromServer();
     } else {
         Figure.setModelElement(fig.accessor, v);
-        redrawFigure();
+        //redrawFigure();
+        refreshFromServer();
     }
     return false;
 }
