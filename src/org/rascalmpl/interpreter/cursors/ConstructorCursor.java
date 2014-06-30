@@ -3,6 +3,7 @@ package org.rascalmpl.interpreter.cursors;
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -65,5 +66,10 @@ public class ConstructorCursor extends NodeCursor implements IConstructor {
 	@Override
 	public IAnnotatable<? extends IConstructor> asAnnotatable() {
 		return getConstructor().asAnnotatable();
+	}
+	
+	@Override
+	public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+		return getConstructor().asWithKeywordParameters();
 	}
 }

@@ -727,31 +727,16 @@ public class RVM {
 					arity = CodeBlock.fetchArg2(instruction);
 					//cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
 					
-					IValue[] args = null;
-					if(arity == constructor.getArity()) {
-						args = new IValue[arity];
-					} else {
-						// Constructors with keyword parameters
-						Type type = (Type) stack[--sp];
-						IMap kwargs = (IMap) stack[--sp];
-						Object[] types = new Object[2*constructor.getArity() + 2*kwargs.size()];
-						int j = 0;
-						for(int i = 0; i < constructor.getArity(); i++) {
-							types[j++] = constructor.getFieldType(i);
-							types[j++] = constructor.getFieldName(i);
-						}
-						args = new IValue[constructor.getArity() + kwargs.size()];
-						for(int i = 0; i < type.getArity(); i++) {
-							types[j++] = type.getFieldType(i);
-							types[j++] = type.getFieldName(i);
-							args[constructor.getArity() + i] = kwargs.get(vf.string(type.getFieldName(i)));
-						}
-						constructor = tf.constructorFromTuple(typeStore, constructor.getAbstractDataType(), constructor.getName(), tf.tupleType(types), constructor.getArity());
+					IValue[] args = new IValue[constructor.getArity()];
+					// Constructors with keyword parameters
+					Type type = (Type) stack[--sp];
+					java.util.Map<String,IValue> kwargs = (java.util.Map<String,IValue>) stack[--sp];
+					
+					for(int i = 0; i < constructor.getArity(); i++) {
+						args[constructor.getArity() - 1 - i] = (IValue) stack[--sp];
 					}
-					for(int i = 0; i < constructor.getPositionalArity(); i++) {
-						args[constructor.getPositionalArity() - 1 - i] = (IValue) stack[--sp];
-					}
-					stack[sp++] = vf.constructor(constructor, args);
+					
+					stack[sp++] = vf.constructor(constructor, args, kwargs);
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLDYN:				

@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -37,6 +38,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.KeywordParameterInitializerWrapperFunction;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.ReifiedType;
@@ -72,7 +74,7 @@ public class TypeReifier {
 		bindings.put(Factory.TypeParam, t);
 		Type typeType = Factory.Type.instantiate(bindings);
 		
-		IMapWriter defs = vf.mapWriter(Factory.Symbol, Factory.Production);
+		IMapWriter defs = vf.mapWriter();
 		for (Map.Entry<IConstructor, IConstructor> entry : definitions.entrySet()) {
 			defs.put(entry.getKey(), entry.getValue());
 		}
@@ -145,7 +147,18 @@ public class TypeReifier {
 	private Type declareConstructor(Type adt, IConstructor alt, TypeStore store) {
 		IConstructor defined = (IConstructor) alt.get("def");
 		String name = ((IString) defined.get("name")).getValue();
-		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
+		Type kwTypes = symbolsToTupleType((IList) alt.get("kwTypes"), store);
+		
+		IMap kwDefaultMap = (IMap) alt.get("kwDefaults");
+		Map<String,IKeywordParameterInitializer> kwDefaults = new HashMap<>();
+		
+		for (IValue key : kwDefaultMap) {
+			// this depends on the reifier to use KeywordParameterInitializerWrapperFunction to reify an IKeywordParameterInitializer
+			KeywordParameterInitializerWrapperFunction wrapper = (KeywordParameterInitializerWrapperFunction) kwDefaultMap.get(key);
+			kwDefaults.put(((IString) key).getValue(), wrapper.getInitializer());
+		}
+		
+		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store), kwTypes, kwDefaults);
 	}
 
 	private Type symbolToType(IConstructor symbol, TypeStore store) {
@@ -290,7 +303,16 @@ public class TypeReifier {
 	private Type funcToType(IConstructor symbol, TypeStore store) {
 		Type returnType = symbolToType((IConstructor) symbol.get("ret"), store);
 		Type parameters = symbolsToTupleType((IList) symbol.get("parameters"), store);
-		return RascalTypeFactory.getInstance().functionType(returnType, parameters);
+		Type kwTypes = symbolsToTupleType((IList) symbol.get("kwTypes"), store); 
+		
+		IMap kwDefaultMap = (IMap) symbol.get("kwDefaults");
+		Map<String,IKeywordParameterInitializer> kwDefaults = new HashMap<>();
+		
+		for (IValue key : kwDefaultMap) {
+			kwDefaults.put(((IString) key).getValue(), ((KeywordParameterInitializerWrapperFunction) kwDefaultMap.get(key)).getInitializer());
+		}
+		
+		return RascalTypeFactory.getInstance().functionType(returnType, parameters, kwTypes, kwDefaults);
 	}
 
 	private Type consToType(IConstructor symbol, TypeStore store) {
@@ -470,6 +492,9 @@ public class TypeReifier {
 							w.append(field.accept(this));
 						}
 					}
+					
+					
+					
 					result = vf.constructor(Factory.Symbol_Cons, vf.constructor(Factory.Symbol_Label, vf.string(type.getName()), adt), w.done());
 
 					cache.put(type, result);
@@ -501,10 +526,20 @@ public class TypeReifier {
 					}
 				}
 				
-				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), vf.set()));
+				IListWriter kwTypes = vf.listWriter();
+				IMapWriter kwDefaults = vf.mapWriter();
+				
+				for (String key : type.getKeywordParameters()) {
+					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(key), type.getKeywordParameterType(key).accept(this)));
+					kwDefaults.put(vf.string(key), new KeywordParameterInitializerWrapperFunction(type.getKeywordParameterInitializer(key), ctx));
+				}
+				
+				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), kwDefaults.done(), vf.set()));
 				choice = vf.constructor(Factory.Production_Choice, adt, alts.done());
 				definitions.put(adt, choice);
 			}
+			
+			
 
 			@Override
 			public IValue visitAbstractData(Type type) {

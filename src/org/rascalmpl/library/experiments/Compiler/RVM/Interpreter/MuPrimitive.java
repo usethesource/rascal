@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,6 +24,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
@@ -152,57 +154,8 @@ public enum MuPrimitive {
 	get_children_and_keyword_params_as_values {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
-			assert arity == 1;
-			IValue v = (IValue) stack[sp - 1];
-			Object[] elems;
-			if (v.getType().isAbstractData()) {
-				IConstructor cons = (IConstructor) v;
-				Type tp = cons.getConstructorType();
-
-				int cons_arity = tp.getArity();
-				int pos_arity = tp.getPositionalArity();
-
-				elems = new Object[cons_arity];
-				for (int i = 0; i < pos_arity; i++) {
-					elems[i] = cons.get(i);
-				}
-
-				for (int i = pos_arity; i < cons_arity; i++) {
-					String key = tp.getFieldName(i);
-					IValue val = cons.get(key);
-					elems[i] = val;
-				}
-				stack[sp - 1] = elems;
-				return sp;
-			}
-
-			INode nd = (INode) stack[sp - 1];
-			int nd_arity = nd.arity();
-			if(nd_arity > 0){
-				IValue last = nd.get(nd_arity - 1);
-
-				if(last.getType().isMap()){
-					IMap kwmap = (IMap) last;
-					int kw_arity = kwmap.size();
-					elems = new Object[nd_arity - 1 + kw_arity];
-					int j = nd_arity - 1;
-					for(int i = 0; i < nd_arity - 1; i++){
-						elems[i] = nd.get(i);
-					}
-					for(IValue elm : kwmap){
-						elems[j++] = kwmap.get(elm);
-					}
-				} else {
-					elems = new Object[nd_arity];
-					for(int i = 0; i < nd_arity; i++){
-						elems[i] = nd.get(i);
-					}
-				}	
-			} else {
-				elems = new Object[0];
-			}
-			stack[sp - 1] = elems;
-			return sp;
+			assert false;
+			throw new RuntimeException("can not convert keyword parameters to flat list anymore");
 		};
 	},
 	
@@ -216,58 +169,18 @@ public enum MuPrimitive {
 		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
-			assert arity == 1;
-			IValue v = (IValue) stack[sp - 1];
-			if (v.getType().isAbstractData()) {
-				IConstructor cons = (IConstructor) v;
-				Type tp = cons.getConstructorType();
+		  assert arity == 1;
+		  INode v = (INode) stack[sp - 1];
+		  
+		  int cons_arity = v.arity();
+		  Object[] elems = new Object[cons_arity + 1];
+		  for (int i = 0; i < cons_arity; i++) {
+		    elems[i] = v.get(i);
+		  }
 
-				int cons_arity = tp.getArity();
-				int pos_arity = tp.getPositionalArity();
-				IMapWriter writer = vf.mapWriter();
-				for (int i = pos_arity; i < cons_arity; i++) {
-					String key = tp.getFieldName(i);
-					IValue val = cons.get(key);
-					writer.put(vf.string(key), val);
-				}
-				Object[] elems = new Object[pos_arity + 1];
-				for (int i = 0; i < pos_arity; i++) {
-					elems[i] = cons.get(i);
-				}
-				elems[pos_arity] = writer.done();
-				stack[sp - 1] = elems;
-				return sp;
-			}
-			INode nd = (INode) v;
-			String name = nd.getName();
-			int nd_arity = nd.arity();
-			Object[] elems;
-			if(nd_arity > 0){
-				IValue last = nd.get(nd_arity - 1);
-				IMap map;
-				
-				if(last.getType().isMap()){
-					elems = new Object[nd_arity];
-					for(int i = 0; i < nd_arity; i++){
-						elems[i] = nd.get(i);
-					}
-				} else {
-					TypeFactory tf = TypeFactory.getInstance();
-					map = vf.map(tf.voidType(), tf.voidType());
-					elems = new Object[nd_arity + 1];				// account for keyword map
-
-					for(int i = 0; i < nd_arity; i++){
-						elems[i] = nd.get(i);
-					}
-					elems[nd_arity] = map;
-				}
-			} else {
-				elems = new Object[1];
-				TypeFactory tf = TypeFactory.getInstance();
-				elems[0] = vf.map(tf.voidType(), tf.voidType());
-			}
-			stack[sp - 1] = elems;
-			return sp;
+		  elems[cons_arity] = v.asWithKeywordParameters().getParameters();
+		  stack[sp - 1] = elems;
+		  return sp;
 		};
 	},
 	
@@ -331,63 +244,17 @@ public enum MuPrimitive {
 		 * Given a constructor or node get: - its name - positional arguments -
 		 * keyword parameters collected in a map
 		 */
-		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
-			IValue v = (IValue) stack[sp - 1];
-			if (v.getType().isAbstractData()) {
-				IConstructor cons = (IConstructor) v;
-				Type tp = cons.getConstructorType();
-
-				int cons_arity = tp.getArity();
-				int pos_arity = tp.getPositionalArity();
-				IMapWriter writer = vf.mapWriter();
-				for (int i = pos_arity; i < cons_arity; i++) {
-					String key = tp.getFieldName(i);
-					IValue val = cons.get(key);
-					writer.put(vf.string(key), val);
-				}
-				Object[] elems = new Object[pos_arity + 2];
-				elems[0] = vf.string(cons.getName());
-				for (int i = 0; i < pos_arity; i++) {
-					elems[i + 1] = cons.get(i);
-				}
-				elems[pos_arity + 1] = writer.done();
-				stack[sp - 1] = elems;
-				return sp;
+			INode v = (INode) stack[sp - 1];
+			int cons_arity = v.arity();
+			Object[] elems = new Object[cons_arity + 2];
+			elems[0] = vf.string(v.getName());
+			for (int i = 0; i < cons_arity; i++) {
+			  elems[i + 1] = v.get(i);
 			}
-			INode nd = (INode) v;
-			String name = nd.getName();
-			int nd_arity = nd.arity();
-			Object[] elems;
-			if(nd_arity > 0){
-				IValue last = nd.get(nd_arity - 1);
-				IMap map;
-				
-				if(last.getType().isMap()){
-					elems = new Object[nd_arity + 1];				// account for function name
-					elems[0] = vf.string(name);
-					for(int i = 0; i < nd_arity; i++){
-						elems[i + 1] = nd.get(i);
-					}
-				} else {
-					TypeFactory tf = TypeFactory.getInstance();
-					map = vf.map(tf.voidType(), tf.voidType());
-					elems = new Object[nd_arity + 2];				// account for function name and keyword map
-
-					elems[0] = vf.string(name);
-					for(int i = 0; i < nd_arity; i++){
-						elems[i + 1] = nd.get(i);
-					}
-					elems[1 + nd_arity] = map;
-				}
-			} else {
-				elems = new Object[2];
-				TypeFactory tf = TypeFactory.getInstance();
-				elems[0] = vf.string(name);
-				elems[1] = vf.map(tf.voidType(), tf.voidType());
-			}
+			elems[cons_arity + 1] = v.asWithKeywordParameters().getParameters();
 			stack[sp - 1] = elems;
 			return sp;
 		};
@@ -726,6 +593,25 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	}, // kwp
+	map_create {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity >= 0;
+			
+			if(arity == 0){
+				stack[sp] = new HashMap<String, IValue>();
+				return sp + 1;
+			}
+			Map<String, IValue> writer = new HashMap<String, IValue>();
+			for (int i = arity; i > 0; i -= 2) {
+				writer.put(((IString) stack[sp - i]).getValue(), (IValue) stack[sp - i + 1]);
+			}
+			sp = sp - arity + 1;
+			stack[sp - 1] = writer;
+
+			return sp;
+		}
+	},
 	map_contains_key {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {

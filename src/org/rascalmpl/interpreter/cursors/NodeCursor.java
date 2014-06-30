@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 public class NodeCursor extends Cursor implements INode {
@@ -33,34 +34,8 @@ public class NodeCursor extends Cursor implements INode {
 	}
 
 	@Override
-	public boolean hasKeywordArguments() {
-		return getNode().hasKeywordArguments();
-	}
-
-	@Override
-	public String[] getKeywordArgumentNames() {
-		return getNode().getKeywordArgumentNames();
-	}
-
-	@Override
-	public int getKeywordIndex(String name) {
-		return getNode().getKeywordIndex(name);
-	}
-
-	@Override
-	public IValue getKeywordArgumentValue(String name) {
-		Context ctx = new NodeKeywordContext(getCtx(), name, getNode());
-		return CursorFactory.makeCursor(getNode().getKeywordArgumentValue(name), ctx);
-	}
-
-	@Override
 	public int arity() {
 		return getNode().arity();
-	}
-
-	@Override
-	public int positionalArity() {
-		return getNode().positionalArity();
 	}
 
 	@Override
@@ -109,6 +84,16 @@ public class NodeCursor extends Cursor implements INode {
 	@Override
 	public IAnnotatable<? extends INode> asAnnotatable() {
 		return getNode().asAnnotatable();
+	}
+
+	@Override
+	public boolean mayHaveKeywordParameters() {
+		return getNode().mayHaveKeywordParameters();
+	}
+
+	@Override
+	public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
+		return getNode().asWithKeywordParameters();
 	}
 
 }

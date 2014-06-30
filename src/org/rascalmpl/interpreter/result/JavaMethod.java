@@ -19,11 +19,14 @@ package org.rascalmpl.interpreter.result;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -31,11 +34,7 @@ import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.KeywordParameter;
-import org.rascalmpl.interpreter.staticErrors.NoKeywordParameters;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
@@ -48,7 +47,7 @@ public class JavaMethod extends NamedFunction {
 	private final JavaBridge javaBridge;
 	
 	public JavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
-		this(eval, (FunctionType) func.getSignature().typeOf(env, true), func,isDefault(func), hasTestMod(func.getSignature()), varargs, env, javaBridge);
+		this(eval, (FunctionType) func.getSignature().typeOf(env, true, eval), func,isDefault(func), hasTestMod(func.getSignature()), varargs, env, javaBridge);
 	}
 	
 	/*
@@ -59,7 +58,7 @@ public class JavaMethod extends NamedFunction {
 	 *  require types.
 	 */
 	private JavaMethod(IEvaluator<Result<IValue>> eval, FunctionType type, FunctionDeclaration func, boolean varargs, boolean isTest, boolean isDefault, Environment env, JavaBridge javaBridge){
-		super(func, eval, type , Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, null, env);
+		super(func, eval, type , Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, env);
 		this.javaBridge = javaBridge;
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
 		this.instance = javaBridge.getJavaClassInstance(func);
@@ -155,55 +154,28 @@ public class JavaMethod extends NamedFunction {
 	}
 	
 	protected Object[] addKeywordActuals(Object[] oldActuals, Type formals, Map<String, IValue> keyArgValues){
-		if(keywordParameterDefaults == null){
-			if(keyArgValues != null){
-				throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
-			}
-			return oldActuals;
-		}
-		Object[] newActuals = new Object[formals.getArity() + keywordParameterDefaults.size()];
-		System.arraycopy(oldActuals, 0, newActuals, 0, oldActuals.length);
-		int posArity = formals.getArity();
-		
-		if(keyArgValues == null){
-			if(keywordParameterDefaults != null){
-				for(int i = 0; i < keywordParameterDefaults.size(); i++){
-					KeywordParameter kw = keywordParameterDefaults.get(i);
-					Result<IValue> r = kw.getDefault();
-					newActuals[posArity + i] = r.getValue();
-				}
-			}
-			return newActuals;
-		}
-		if(keywordParameterDefaults == null)
-			throw new NoKeywordParameters(getName(), ctx.getCurrentAST());
-		
-		int nBoundKeywordArgs = 0;
-		for(int i = 0; i < keywordParameterDefaults.size(); i++){
-			KeywordParameter kw = keywordParameterDefaults.get(i);
-			String kwparam = kw.getName();
-			if(keyArgValues.containsKey(kwparam)){
-				nBoundKeywordArgs++;
-				IValue r = keyArgValues.get(kwparam);
-				if(!r.getType().isSubtypeOf(keywordParameterTypes[i])){
-					throw new UnexpectedKeywordArgumentType(kwparam, keywordParameterTypes[i], r.getType(), ctx.getCurrentAST());
-				}
-				newActuals[posArity + i] = r;
-			} else {
-				Result<IValue> r = kw.getDefault();
-				newActuals[posArity + i] = r.getValue();
-			}
-		}
-		if(nBoundKeywordArgs != keyArgValues.size()){
-			main:
-			for(String kwparam : keyArgValues.keySet())
-				for(KeywordParameter kw : keywordParameterDefaults){
-					if(kwparam.equals(kw.getName()))
-							continue main;
-					throw new UndeclaredKeywordParameter(getName(), kwparam, ctx.getCurrentAST());
-				}
-		}
-		return newActuals;
+	  if (getFunctionType().hasKeywordParameters()) {
+	    Object[] newActuals = new Object[formals.getArity() + 1];
+	    System.arraycopy(oldActuals, 0, newActuals, 0, oldActuals.length);
+	    
+	    // TODO: this code used to do some typechecking on the keyword parameters,
+	    // but that made little sense since the static types are not available here.
+	    Map<String,IValue> params = new HashMap<>();
+	    for (String label : getFunctionType().getKeywordParameterInitializers().keySet()) {
+	    	if (!keyArgValues.containsKey(label)) {
+	    		IKeywordParameterInitializer init =  getFunctionType().getKeywordParameterInitializer(label);
+	    		params.put(label, init.initialize(AbstractSpecialisedImmutableMap.mapOf(params)));
+	    	}
+	    	else {
+	    		params.put(label, keyArgValues.get(label));
+	    	}
+	    }
+
+	    newActuals[formals.getArity()] = params;
+	    return newActuals;
+	  }
+	  
+	  return oldActuals;
 	}
 	
 
