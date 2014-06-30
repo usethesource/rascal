@@ -74,7 +74,7 @@ public class RascalFunction extends NamedFunction {
 				Stack<Accumulator> accumulators) {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
-				(FunctionType) func.getSignature().typeOf(env, true),
+				(FunctionType) func.getSignature().typeOf(env, true, eval),
 				varargs, isDefault(func), hasTestMod(func.getSignature()),
 				func.getBody().getStatements(), env, accumulators);
 	}
@@ -83,7 +83,7 @@ public class RascalFunction extends NamedFunction {
 			Stack<Accumulator> accumulators) {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
-				(FunctionType) func.getSignature().typeOf(env, true), 
+				(FunctionType) func.getSignature().typeOf(env, true, eval), 
 				varargs, isDefault(func), hasTestMod(func.getSignature()),
 				Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getLocation(), ASTBuilder.makeStat("Expression", func.getLocation(), func.getExpression()))}),
 				env, accumulators);
@@ -92,7 +92,7 @@ public class RascalFunction extends NamedFunction {
 	@SuppressWarnings("unchecked")
 	public RascalFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, String name, FunctionType functionType,
 			boolean varargs, boolean isDefault, boolean isTest, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
-		super(ast, eval, functionType, name, varargs, isDefault, isTest, null, env);
+		super(ast, eval, functionType, name, varargs, isDefault, isTest, env);
 		this.body = body;
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
 		this.accumulators = (Stack<Accumulator>) accumulators.clone();
@@ -222,9 +222,11 @@ public class RascalFunction extends NamedFunction {
 
 	@Override
   public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
-	Result<IValue> result = getMemoizedResult(actuals, keyArgValues);
-	if (result !=  null) 
-		return result;
+	  Result<IValue> result = getMemoizedResult(actuals, keyArgValues);
+	  if (result !=  null) { 
+	    return result;
+	  }
+	
     Environment old = ctx.getCurrentEnvt();
     AbstractAST currentAST = ctx.getCurrentAST();
     AbstractAST oldAST = currentAST;
@@ -284,8 +286,8 @@ public class RascalFunction extends NamedFunction {
             try {
               bindKeywordArgs(keyArgValues);
               result = runBody();
-	          storeMemoizedResult(actuals,keyArgValues, result);
-	          return result;
+              storeMemoizedResult(actuals,keyArgValues, result);
+              return result;
             }
             catch (Failure e) {
               // backtrack current pattern assignment
@@ -315,8 +317,8 @@ public class RascalFunction extends NamedFunction {
     }
     catch (Return e) {
       result = computeReturn(e);
-	  storeMemoizedResult(actuals,keyArgValues, result);
-	  return result;
+      storeMemoizedResult(actuals,keyArgValues, result);
+      return result;
     } 
     finally {
       if (callTracing) {

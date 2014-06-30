@@ -18,6 +18,7 @@ package org.rascalmpl.interpreter;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -37,6 +38,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.env.Environment;
@@ -50,6 +52,7 @@ import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -307,7 +310,8 @@ public class TraversalEvaluator {
 		  IConstructor rcons;
 		  
 		  try {
-		    rcons = (IConstructor) eval.call(cons.getType().getName(), cons.getName(), args);
+		    QualifiedName n = Names.toQualifiedName(cons.getType().getName(), cons.getName(), null);
+		    rcons = (IConstructor) eval.call(n, cons.mayHaveKeywordParameters() ? cons.asWithKeywordParameters().getParameters() : Collections.<String,IValue>emptyMap(), args);
 		  }
 		  catch (UndeclaredFunction | UndeclaredModule | ArgumentsMismatch e) {
 		    // This may happen when visiting data constructors dynamically which are not 
@@ -316,15 +320,14 @@ public class TraversalEvaluator {
 		    // and normalizing "rewrite rules" will not trigger at all, but we can gracefully continue 
 		    // because we know what the tree looked like before we started visiting.
 		    eval.warning("In visit: " + e.getMessage(), eval.getCurrentAST().getLocation());
-		    rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(), args);
+		    rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(),  args, cons.asWithKeywordParameters().getParameters());
 		  }
 		  
 		  if (cons.asAnnotatable().hasAnnotations()) {
 		    rcons = rcons.asAnnotatable().setAnnotations(cons.asAnnotatable().getAnnotations());
 		  }
-		    
 
-		    return rcons;
+		  return rcons;
 		}
 		else {
 			return subject;
