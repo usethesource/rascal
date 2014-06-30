@@ -38,6 +38,12 @@ public class CursorFactory implements ITypeVisitor<IValue, RuntimeException> {
 		public AtomCursor(IValue value, Context ctx) {
 			super(value, ctx);
 		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			return getWrappedValue().equals(obj);
+		}
+		
 
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -54,6 +60,7 @@ public class CursorFactory implements ITypeVisitor<IValue, RuntimeException> {
 		return (IValue) Proxy.newProxyInstance(CursorFactory.class.getClassLoader(),
 				new Class[]{cls, ICursor.class}, new AtomCursor(value, ctx));
 	}
+	
 	
 	private IValue value;
 	private Context ctx;

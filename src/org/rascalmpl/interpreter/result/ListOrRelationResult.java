@@ -47,15 +47,19 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 	public Result<IValue> makeSlice(int first, int second, int end){
 		IListWriter w = getValueFactory().listWriter();
 		int increment = second - first;
-		if(first == end || increment == 0){
+		if (first == end || increment == 0) {
 			// nothing to be done
-		} else
-		if(first <= end){
-			for(int i = first; i >= 0 && i < end; i += increment){
-				w.append(getValue().get(i));
+		} else if (first <= end) {
+			if (increment == 1) {
+				return makeResult(TypeFactory.getInstance().listType(getType().getElementType()), getValue().sublist(first, end - first), ctx);
+			}
+			else {
+				for (int i = first; i >= 0 && i < end; i += increment) {
+					w.append(getValue().get(i));
+				}
 			}
 		} else {
-			for(int j = first; j >= 0 && j > end && j < getValue().length(); j += increment){
+			for (int j = first; j >= 0 && j > end && j < getValue().length(); j += increment) {
 				w.append(getValue().get(j));
 			}
 		}
