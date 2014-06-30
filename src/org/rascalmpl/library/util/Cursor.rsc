@@ -35,6 +35,5 @@ java bool isCursor(value v);
 @javaClass{org.rascalmpl.library.util.Cursor}
 java set[&T] subset(set[&T] sub, set[&T] backing);
 
-
 tuple[set[&T], set[&T]] split(set[&T] src, bool(&T) p) 
   = <subset({ x | x <- src, p(x)}, src), subset({x | x <- src, !p(x) }, src)>;
