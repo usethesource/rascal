@@ -227,7 +227,10 @@ public class FunctionType extends RascalType {
 			return returnType == other.returnType 
 			    && argumentTypes == other.argumentTypes
 			    && (keywordParameters != null ? keywordParameters.equals(other.keywordParameters) : other.keywordParameters == null)
-			    && (defaultParameters != null ? defaultParameters.values().equals(other.defaultParameters.values()) : other.defaultParameters == null);
+			    //&& (defaultParameters != null ? defaultParameters.values().equals(other.defaultParameters.values()) : other.defaultParameters == null);
+			    && (defaultParameters != null ? (other.defaultParameters != null && defaultParameters.values().equals(other.defaultParameters.values())) 
+			                                  : other.defaultParameters == null);
+
 		}
 		return false;
 	}
