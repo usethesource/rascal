@@ -6,7 +6,7 @@ import Node;
 import String;
 import IO;
 import List;
-import util::Cursors;
+import util::Cursor;
 import Type;
 
 /*
@@ -210,13 +210,28 @@ str trPropJson(align(HAlign xalign, VAlign yalign)){
 	return "\"halign\": <xa>, \"valign\": <ya>";
 }
 
+/*
+= root(str name)
+  | field(str name)
+  | field(int position)
+  | argument(int position)
+  | argument(str name)
+  | element(int index)
+  | sublist(int from, int to)
+  | lookup(value key)
+  | select(list[int] indices)
+  | select(list[str] labels)
+  */
+
 str trPath(Path path){
     accessor = "Figure.model";
 	for(nav <- path){
 		switch(nav){
 		 	case root(str name):		accessor += ".<name>"; 
 			case field(str name): 		accessor += ".<name>";
-  			case subscript(int index):	accessor += "[<index>]";
+			case field(int position): 	accessor += "[<position>]";
+  			case argument(int index):	accessor += "[\\\"#args\\\"][<index>]";
+  			case element(int index):	accessor += "[<index>]";
   			case lookup(value key):		accessor += "[<key>]";
   			case select(list[int] indices):
   										accessor += "";		// TODO

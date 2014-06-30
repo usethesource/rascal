@@ -15,6 +15,7 @@ data Bind[&T]
     = bind(Cursor[&T] accessor)
     | bind(Cursor[&T] accessor, &T val)
 	;
+	
 data HAlign = left() | hcenter() | right();
 
 data VAlign = top() | vcenter() | bottom();
@@ -116,33 +117,34 @@ public data Figure(
 	
 		list[value] dataset = []
 	) =
+	
+	emptyFigure()
 
 // atomic primitives
 	
-     text(value v)		    // text label
+   | text(value text="")		    // text label
    
 // primitives/containers
 
-   | box(Figure inner)      // rectangular box with inner element
-   | box()			        // rectangular box
+   | box(Figure fig=emptyFigure())      // rectangular box with inner element
  
    
 //   | _ellipse(FProperties props)                // ellipse with inner element
 //   | _ellipse(Figure inner, FProperties props)  // ellipse with inner element
                    
-   | hcat(Figures figs) 	// horizontal and vertical concatenation
-   | vcat(Figures figs) 	// horizontal and vertical concatenation
+   | hcat(Figures figs=[]) 	// horizontal and vertical concatenation
+   | vcat(Figures figs=[]) 	// horizontal and vertical concatenation
                    
 //   | _overlay(Figures figs, FProperties props)	// overlay (stacked) composition
 
 
 // interaction
 
-   | buttonInput(str trueText, str falseText)
+   | buttonInput(str trueText = "", str falseText = "")
    
    | checkboxInput()
    
-   | choiceInput(list[str] choices)
+   | choiceInput(list[str] choices = [])
    
    | colorInput()
    
@@ -157,15 +159,15 @@ public data Figure(
    
    | numInput()
    
-   | rangeInput(int low, int high, int step)
+   | rangeInput(int low=0, int high=100, int step=1)
 
    | strInput()
    
 // visibility control
 
-   | visible(bool yes, Figure fig)
+   | visible(bool yes, Figure fig = emptyFigure())
    
-   | choice(int sel, Figures figs)
+   | choice(int condition = true, Figures figs = [])
   
 /*
    | _computeFigure(bool() recomp,Figure () computeFig, FProperties props)
