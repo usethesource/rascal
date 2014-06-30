@@ -1,4 +1,4 @@
-module util::Cursors
+module util::Cursor
 
 alias Path = list[Nav];
 
@@ -25,7 +25,6 @@ java &U compute(&T v, &U(&T) to, &T(&U) from);
 
 @javaClass{org.rascalmpl.library.util.Cursor}
 java &T getRoot(type[&T] typ, value v);
-
 
 @javaClass{org.rascalmpl.library.util.Cursor}
 java Path toPath(value v);
