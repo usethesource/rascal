@@ -544,7 +544,7 @@ void ex216(){
 			low = 100;
 			high = 500;
 			
-			FProperty tooltip(str txt) = on("mouseover", box(text(txt, fontSize(12), lineColor("black")), fillColor("yellow")));
+			FProperty tooltip(str txt) = on("click", box(text(txt, fontSize(12), lineColor("black")), fillColor("yellow")));
 			
 			return 
 				vcat([ box(size(200,50), lineColor("white")),
@@ -556,6 +556,61 @@ void ex216(){
 				 gap(10,20));
 		});
 }
+
+
+alias M217 = tuple[str C];
+
+void ex217(){
+          
+	render("ex217", <"white">, Figure (M217 m) {
+			return box(colorInput(on("change", bind(m.C)), size(50,20)), fillColor(m.C), rounded(10,10), gap(20,20), lineStyle([1,1,1,1,1,1]));
+		});
+}
+
+alias M218 = tuple[str C1, str C2];
+
+void ex218(){
+          
+	render("ex218", <"white", "blue">, Figure (M218 m) {
+			return hcat([ box(colorInput(on("change", bind(m.C1)), size(50,20)), fillColor(m.C1), rounded(10,10), gap(20,20), lineStyle([1,1,1,1,1,1])),
+						  box(colorInput(on("change", bind(m.C2)), size(50,20)), fillColor(m.C2), rounded(10,10), gap(20,20), lineStyle([1,1,1,1,1,1]))
+						], gap(20,30));
+		});
+}
+
+alias M219 = tuple[str C];
+
+void ex219(){
+          
+	render("ex219", <"blue">, Figure (M219 m) {
+			Figures nodes1 = [  /* 0 */	hcat([box(fillColor("green"), size(50,50)),box(fillColor("yellow"), size(50,50)), box(fillColor("gray"), size(50,50))]),
+          		       			/* 1 */	box(fillColor("red"), fillOpacity(0.4), size(100,100)),
+     	    	      			/* 2 */	box(colorInput(on("change", bind(m.C)), size(50,50)), fillColor(m.C), rounded(10,10), lineStyle([1,1,1,1,1,1]), size(150,150))
+     	  					];
+    		Edges edges1 = [edge(0,1, lineColor("orange")), edge(1,2, lineWidth(3), gap(20,20), lineOpacity(0.3)), edge(2,0, lineStyle([4,2,4,2]))];  
+	
+			return graph(nodes1, edges1, size(500,500));
+		});
+}
+
+/*************/
+
+data M220 = m220(str C = "red");
+
+void ex220(){
+	render("ex220", m220(), Figure (M220 m) {
+			return
+				hcat([ text("Enter:", size(150, 50), fontSize(18)), 
+				
+	                   strInput(on("submit", bind(m.C)), size(100,25)), 
+	                   
+	                   box(lineColor(m.C), lineWidth(10), size(100,100)),
+	                   
+	                   box(lineColor(m.C), lineWidth(10), size(100,100))
+				   ], gap(20,20));
+			  });
+}
+
 
 
 
