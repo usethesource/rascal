@@ -423,7 +423,7 @@ syntax Parameters
 lexical OptionalComma = \default: ","? ;
 
 syntax KeywordFormals
-    = \default: OptionalComma optionalComma {KeywordFormal ","}+ keywordFormalList
+    = \default: OptionalComma optionalComma [,\ (] << {KeywordFormal ","}+ keywordFormalList
     | none: ()
     ;
     
@@ -432,7 +432,7 @@ syntax KeywordFormal
     ;
     
 syntax KeywordArguments[&T]
-    = \default:  OptionalComma optionalComma {KeywordArgument[&T] ","}+ keywordArgumentList
+    = \default:  OptionalComma optionalComma [,\ (] << {KeywordArgument[&T] ","}+ keywordArgumentList
     | none: ()
     ;
     
