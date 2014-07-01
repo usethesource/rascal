@@ -37,7 +37,7 @@ public void render(str title, type[&T] mt, &T model, Figure (&T model) makeFig){
 
 public void render(str title, type[&T] model_type, &T model, Figure (&T model) makeFig, &T (&T model) transformer){
 
-	Figure figure;
+	Figure figure = box();
 	
 	/********************** get_initial_figure **********************/
 	
