@@ -5,7 +5,7 @@ import Node;
 import String;
 import IO;
 import List;
-import util::Cursors;
+import util::Cursor;
 import Type;
 
 /*
@@ -40,36 +40,55 @@ public str fig2html(str title, str site_as_str){
 
 /******************** Translate figure primitives ************************************/
 
-str flat(list[str] properties) = properties == [] ? "" : "<for(p <- properties){>, <p><}>";
-
 str trProperties(Figure fig){
 	def = box();
 	properties = [];
-	if(fig.width != def.width) 		properties += "\"definedWidth\": <numArg(fig.width)>";
-	if(fig.height != def.height) 	properties += "\"definedHeight\": <numArg(fig.height)>";
 	
+	if(fig.pos != def.pos) 					properties += "\"xpos\": <numArg(fig.xpos[0])>,
+												  		  '\"ypos\": <numArg(fig.xpos[1])> ";
+	if(fig.xpos != def.xpos) 				properties += "\"xpos\": <numArg(fig.xpos)>";
+	if(fig.ypos != def.ypos) 				properties += "\"ypos\": <numArg(fig.ypos)>";
 	
-	if(fig.xpos != def.xpos) 		properties += "\"xpos\": <numArg(fig.xpos)>";
-	if(fig.ypos != def.ypos) 		properties += "\"ypos\": <numArg(fig.ypos)>";
+	if(fig.size != def.size) 				properties += "\"definedWidth\": <numArg(fig.size[0])>,
+												  		  '\"definedHeight\": <numArg(fig.size[1])> ";
+												  
+	if(fig.width != def.width) 				properties += "\"definedWidth\": <numArg(fig.width)>";
+	if(fig.height != def.height) 			properties += "\"definedHeight\": <numArg(fig.height)>";
 	
-	if(fig.hgap != def.hgap) 		properties += "\"hgap\": <numArg(fig.hgap)>";
-	if(fig.vgap != def.vgap) 		properties += "\"vgap\": <numArg(fig.vgap)>";
+	if(fig.gap != def.gap) 					properties += "\"hgap\": <numArg(fig.gap[0])>,
+												  		  '\"vgap\": <numArg(fig.gap[1])> ";
+												  
+	if(fig.hgap != def.hgap) 				properties += "\"hgap\": <numArg(fig.hgap)>";
+	if(fig.vgap != def.vgap) 				properties += "\"vgap\": <numArg(fig.vgap)>";
 	
-	if(fig.lineWidth != def.lineWidth) properties += "\"lineWidth\": <numArg(fig.lineWidth)>";
+	if(fig.lineWidth != def.lineWidth) 		properties += "\"lineWidth\": <numArg(fig.lineWidth)>";
 	
-	if(fig.lineColor != def.lineColor) properties += "\"lineColor\": <numArg(fig.lineColor)>";
+	if(fig.lineColor != def.lineColor) 		properties += "\"lineColor\": <numArg(fig.lineColor)>";
 	
-	if(fig.lineStyle != def.lineStyle) properties += "\"lineStyle\": <fig.lineStyle>";			// TODO
+	if(fig.lineStyle != def.lineStyle) 		properties += "\"lineStyle\": <fig.lineStyle>";			// TODO
 	
-	if(fig.fillColor != def.fillColor) properties += "\"fillColor\": <strArg(fig.fillColor)>";
-	if(fig.lineOpacity != def.lineOpacity) properties += "\"lineOpacity\": <numArg(fig.lineOpacity)>";
-	if(fig.fillOpacity != def.fillOpacity) properties += "\"fillOpacity\": <numArg(fig.fillOpacity)>";
+	if(fig.fillColor != def.fillColor) 		properties += "\"fillColor\": <strArg(fig.fillColor)>";
 	
-	if(fig.font != def.font) 	properties += "\"fontName\": <strArg(fig.font)>";
-	if(fig.fontSize != def.fontSize) properties += "\"fontSize\": <numArg(fig.fontSize)>";
+	if(fig.lineOpacity != def.lineOpacity)	properties += "\"lineOpacity\": <numArg(fig.lineOpacity)>";
 	
-	if(fig.dataset != def.dataset) properties += trDataset(fig.dataset);
-/*	
+	if(fig.fillOpacity != def.fillOpacity)	properties += "\"fillOpacity\": <numArg(fig.fillOpacity)>";
+	
+	// rounded tr trPropJson(rounded(int rx, int ry))			= "\"rx\": <numArg(rx)>, \"ry\": <numArg(ry)>";
+	
+	if(fig.align != def.align) 				properties += "\"halign\": <trHALign(numArg(fig.align[0]))>,
+												  	  	  '\"valign\": <trVAlign(numArg(fig.align[1]))>";
+												  	  
+	if(fig.halign != def.halign) 			properties += "\"halign\": <trHALign(numArg(fig.halign))>";
+	
+	if(fig.valign != def.valign) 			properties += "\"valign\": <trHALign(numArg(fig.valign))>";
+												  	  
+												  
+	if(fig.font != def.font) 				properties += "\"fontName\": <strArg(fig.font)>";
+	
+	if(fig.fontSize != def.fontSize) 		properties += "\"fontSize\": <numArg(fig.fontSize)>";
+	
+	if(fig.dataset != def.dataset) 			properties += trDataset(fig.dataset);
+	
 	if(fig.on != def.on){
 		switch(fig.on){
 			case on(str event, binder: bind(&T accessor)):
@@ -100,43 +119,49 @@ str trProperties(Figure fig){
 						];
 		}
 	}
-	*/
+	
 	return properties == [] ? "" : "<for(p <- properties){>, <p><}>";
 }
 //str trPropJson(dataset(list[num] values1)) 		= "\"dataset\": <values1>";
 //str trPropJson(dataset(lrel[num,num] values2))	= "\"dataset\": [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
 
-// Graphical elements
+// Graphical elements	
 
-str trJson(fig: box()) = 
-	"{\"figure\": \"box\" <trProperties(fig)> }";
-
-str trJson(fig: box(Figure inner)) = 
-	"{\"figure\": \"box\", \"inner\": <trJson(inner)> <trProperties(fig)> }";
-
-
-str trJson(fig: text(value v)) = 
-	"{\"figure\": \"text\", \"textValue\": <valArgQuoted(v)> <trProperties(fig)> }";
+str trJson(figure: box()) {
+	inner = figure.fig; 
+	return 
+	"{\"figure\": \"box\"" +
+		(inner == emptyFigure() ? "" : ", \"inner\": <trJson(inner)>") +
+		"<trProperties(figure)> }";
+}
+str trJson(figure: text(value v)) = 
+	"{\"figure\": \"text\", \"textValue\": <valArgQuoted(v)> <trProperties(figure)> }";
 	
-str trJson(fig: hcat(list[Figure] figs)) = 
+str trJson(figure: hcat()){ 
+	figs = figure.figs;
+	return
 	"{\"figure\": \"hcat\",
     ' \"inner\":   [<intercalate(",\n", [trJson(f) | f <- figs])> 
     '              ] 
-    '<trProperties(fig)>
+    '<trProperties(figure)>
     '}";
+}
     
-str trJson(fig: vcat(list[Figure] figs)) = 
+str trJson(figure: vcat()) { 
+	figs = figure.figs;
+	return
 	"{\"figure\": \"vcat\",
     ' \"inner\":   [<intercalate(",\n", [trJson(f) | f <- figs])> 
     '              ] 
-    '<trProperties(fig)>
+    '<trProperties(figure)>
     '}";
+}
 
-str trJson(fig: barchart()) = 
-	"{\"figure\": \"barchart\" <trProperties(fig)> }";
+str trJson(figure: barchart()) = 
+	"{\"figure\": \"barchart\" <trProperties(figure)> }";
 
-str trJson(fig: scatterplot()) = 
-	"{\"figure\": \"scatterplot\" <trProperties(fig)> }";
+str trJson(figure: scatterplot()) = 
+	"{\"figure\": \"scatterplot\" <trProperties(figure)> }";
 
 /*
 
@@ -170,31 +195,35 @@ str trJson(_graph(Figures nodes, Edges edges, FProperties fps)) =
 
 // Visibility control elements
 
-// ---------- choice ----------
-/*
-str trJson(fig: choice(int sel, Figures figs)) { 
+// ---------- conditional ----------
+
+str trJson(figure: experiments::vis2::kw::Figure::choice()) { 
+	int sel = figure.sel;
+	figures = figure.figs;
 	if(isCursor(sel)){
 	   return 
 		"{\"figure\": 	\"choice\",
 		' \"selector\":	<trPath(toPath(sel))>,
     	' \"inner\":   [<intercalate(",\n", [trJson(f) | f <- figs])> 
    	    '              ] 
-   	    ' <trProperties(fig)>
+   	    ' <trProperties(figure)>
     	'}";
     } else {
     	throw "choice: selector should be a cursor: sel";
     }
  }
-*/ 
+
  // ---------- visible ----------
  
- str trJson(fig: visible(bool vis, Figure fig)) { 
+ str trJson(figure: visible()) { 
+ 	bool vis = figure.vis;
+ 	Figure fig1 = figure.fig;
 	if(isCursor(vis)){
 	   return 
 		"{\"figure\":	\"visible\",
 		' \"selector\":	<trPath(toPath(vis))>,
     	' \"inner\":   	<trJson(fig)>
-    	' <trProperties(fig)> 
+    	' <trProperties(figure)> 
     	'}";
     } else {
     	throw "fswitch: selector should be a cursor: sel";
@@ -205,87 +234,88 @@ str trJson(fig: choice(int sel, Figures figs)) {
 
 // ---------- buttonInput ----------
 
-str trJson(fig: buttonInput(str trueText, str falseText)) =
+str trJson(figure: buttonInput(str trueText, str falseText)) {
+	trueText = figure.trueText;
+	falseText = figure.falseText;
+	return 
 	"{\"figure\": 		\"buttonInput\",
  	' \"trueText\":		<strArg(trueText)>,
  	' \"falseText\":	<strArg(falseText)>
- 	' <trProperties(fig)> 
+ 	' <trProperties(figure)> 
  	'}";
- 
+} 
 // ---------- checboxInput ----------
 
-str trJson(fig: checkboxInput()) =
-	"{\"figure\":	\"checkboxInput\" <trProperties(fig)>  }";
+str trJson(figure: checkboxInput()) =
+	"{\"figure\":	\"checkboxInput\" <trProperties(figure)>  }";
    
 // ---------- strInput ----------
  
-str trJson(fig: strInput()) =
- 	"{\"figure\": \"strInput\" <trProperties(fig)> }";
+str trJson(figure: strInput()) =
+ 	"{\"figure\": \"strInput\" <trProperties(figure)> }";
  	
 // ---------- choiceInput ----------
 
-str trJson(fig: choiceInput(list[str] choices)) =
+str trJson(figures: choiceInput()) {
+	choices = figure.choices;
+	return
 	"{\"figure\": 		 \"choiceInput\",
 	' \"choices\":		 <choices>
-	' <trProperties(fig)> 
+	' <trProperties(figure)> 
 	'}";
+}
+	
 
 // ---------- colorInput ----------
 
-str trJson(fig: colorInput(FProperties fps)) =
-	"{\"figure\": 		 \"colorInput\"  <trProperties(fig)> }";
+str trJson(figure: colorInput()) =
+	"{\"figure\": 		 \"colorInput\"  <trProperties(figure)> }";
 
 // ---------- numInput ----------
 
-str trJson(fig: numInput()) =
-	"{\"figure\": 		 \"numInput\" <trProperties(fig)> }";
+str trJson(figure: numInput()) =
+	"{\"figure\": 		 \"numInput\" <trProperties(figure)> }";
 
 // ---------- rangeInput ----------
 
-str trJson(fig: rangeInput(int low, int high, int step)) =
+str trJson(figure: rangeInput(int low, int high, int step)) {
+	low = figure.low;
+	high = figure.high;
+	step = figure.step;
+	return
 	"{ \"figure\":			\"rangeInput\", 
 	'  \"min\":	 			<numArg(low)>,
 	'  \"max\":				<numArg(high)>,
 	'  \"step\":			<numArg(step)>
-	' <trProperties(fig)> 
+	' <trProperties(figure)> 
 	'}";
+}
+	
     
 // Catch missing cases
 
 default str trJson(Figure f) { throw "trJson: cannot translate <f>"; }
 
-/**************** Tranlate properties *************************/
-/*
-str trPropsJson(FProperties fps str sep = ""){
-	res = "";
-	
-	for(fp <- fps){
-		attr = getName(fp);
-			t = trPropJson(fp);
-			if(t != "")
-				res += ", " + t;
-	}
-	return res + sep;
-}
+/**************** Utilities for tranlating properties *************************/
 
-str trPropJson(pos(int xpos, int ypos)) 		= "";
-
-str trPropJson(gap(int width, int height)) 		= "\"hgap\": <width>, \"vgap\": <height>";
-
-str trPropJson(align(HAlign xalign, VAlign yalign)){
+str trHAlign(HAlign xalign){
 	xa = 0.5;
 	switch(xalign){
 		case left():	xa = 0.0;
 		case right():	xa = 1.0;
 	}
+	return "<xa>";
+}
+
+str trVAlign(VAlign yalign){
 	ya = 0.5;
 	switch(yalign){
 		case top():		ya = 0.0;
 		case bottom():	ya = 1.0;
 	}
-	return "\"halign\": <xa>, \"valign\": <ya>";
+	return "<ya>";
 }
-*/
+
 str trPath(Path path){
     accessor = "Figure.model";
 	for(nav <- path){
@@ -310,73 +340,3 @@ str strArg(str s) 	= isCursor(s) ? "{\"use\": <trPath(toPath(s))>}" : "\"<s>\"";
 
 str valArg(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "<v>";
 str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "\"<v>\"";		
-/*
-str trPropJson(width(int w))					= "\"definedWidth\": <numArg(w)>";
-str trPropJson(height(int h))					= "\"definedHeight\": <numArg(h)>";
-
-str trPropJson(xpos(int x))						= "\"xpos\": <numArg(x)>";
-
-str trPropJson(ypos(int y))						= "\"ypos\": <numArg(y)>";
-
-str trPropJson(hgap(int g))						= "\"hgap\": <numArg(g)>";
-
-str trPropJson(vgap(int g))						= "\"vgap\": <numArg(g)>";
-
-str trPropJson(lineWidth(int n)) 				= "\"lineWidth\": <numArg(n)>";
-
-str trPropJson(lineColor(str s))				= "\"lineColor\":<strArg(s)>";
-
-str trPropJson(lineStyle(list[int] dashes))		= "\"lineStyle\": <dashes>";			// TODO
-
-str trPropJson(fillColor(str s)) 				= "\"fillColor\": <strArg(s)>";
-
-str trPropJson(lineOpacity(real r))				= "lineOpacity:\"<numArg(r)>\"";
-
-str trPropJson(fillOpacity(real r))				= "\"fill_opacity\": <numArg(r)>";
-
-str trPropJson(rounded(int rx, int ry))			= "\"rx\": <numArg(rx)>, \"ry\": <numArg(ry)>";
-str trPropJson(dataset(list[num] values1)) 		= "\"dataset\": <values1>";
-str trPropJson(dataset(lrel[num,num] values2))	= "\"dataset\": [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
-
-str trPropJson(font(str fontName))				= "\"fontName\": <strArg(fontName)>";
-
-str trPropJson(fontSize(int fontSize))			= "\"fontSize\": <numArg(fontSize)>";
-
-str trPropJson(prop: on(str event, binder: bind(&T accessor))){
-	println("prop = <prop>");	
-	if(isCursor(binder.accessor)){ 	
-		return 
-			"\"event\":  		\"<event>\",
-			'\"type\": 			\"<typeOf(binder.accessor)>\", 
-			'\"accessor\": 		<trPath(toPath(binder.accessor))>
-			";	
- 	} else {
-   		throw "on: accessor <accessor> in binder is not a cursor";
-   }
-}
-
-str trPropJson(prop: on(str event, binder: bind(&T accessor, &T replacement))){
-	println("prop = <prop>");	
-	if(isCursor(binder.accessor)){ 	
-		return 
-			"\"event\":  		\"<event>\",
-			'\"type\": 			\"<typeOf(binder.accessor)>\", 
-			'\"accessor\": 		<trPath(toPath(binder.accessor))>,
-			'\"replacement\":	<replacement>
-			";	
- 	} else {
-   		throw "on: accessor <accessor> in binder is not a cursor";
-   }
-}
-
-str trPropJson(prop: on(str event, Figure fig)){
-	println("prop = <prop>");	
-	
-	return 
-		"\"event\":  		\"<event>\",
-		'\"extra_figure\":	<trJson(fig)>
-		";	
-}
-
-default str trPropJson(FProperty fp) 			= (size(int xsize, int ysize) := fp) ? "\"definedWidth\": <xsize>, \"definedHeight\": <ysize>" : "unknown: <fp>";
-*/
