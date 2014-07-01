@@ -21,14 +21,14 @@ import experiments::vis2::Exp;
    represents the model as updated by the client.
  *************************************************************************/
 
-//private loc site = |http://localhost:8081|; // Most recent web server
+private loc site = |http://localhost:8081|; // Most recent web server
 
 private &T identity(&T model) = model;		// Model identity function
 
 /********************** Render *********************************/
 
 public void render(str title, Figure fig) {
-	render(title, [], #list[void], Figure(value m) { return fig; }, identity);
+	render(title, #list[void], [], Figure(value m) { return fig; }, identity);
 }
 
 public void render(str title, type[&T] mt, &T model, Figure (&T model) makeFig){
@@ -99,24 +99,28 @@ public void render(str title, type[&T] model_type, &T model, Figure (&T model) m
 	  
 	  while (true) {
 	    try {
+	      println("Trying ... <site>");
 	      serve(site, dispatchserver(page1));
 	      return site;
 	    }  
-	    catch IO("Address already in use"): {
+	    catch IO(_): {
 	      site.port += 1; 
 	    }
 	  }
 	}
 	
-	public str getSite() = "<site>"[1 .. -1];
+	public str getSite() = "<experiments::vis2::FigureServer::site>"[1 .. -1];
 	
-	loc site = |http://localhost:8081|; // Most recent web server
+	//loc site = |http://localhost:8081|; // Most recent web server
 	
 	try {
-		shutdown(site);
+		println("shutdown ... <experiments::vis2::FigureServer::site>");
+		shutdown(experiments::vis2::FigureServer::site);
+		shutdown(experiments::vis2::FigureServer::site);
 	} catch e: { };
 	
-	site = startFigureServer();
+	experiments::vis2::FigureServer::site = startFigureServer();
+	
 	figure = makeFig(makeCursor(model));
 
 	print(getSite());
