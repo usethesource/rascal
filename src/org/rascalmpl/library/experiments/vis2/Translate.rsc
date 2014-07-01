@@ -25,6 +25,7 @@ public str fig2html(str title, str site_as_str){
         '	\<link rel=\"stylesheet\" href=\"<vis2>/lib/reset.css\" /\>
         '	\<link rel=\"stylesheet\" href=\"<vis2>/lib/Figure.css\" /\>
         '	\<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"\>\</script\>
+        '	\<script src=\"http://cpettitt.github.io/project/dagre-d3/vX.Y.Z/dagre-d3.min.js\"\>\</script\>
         '	\<script src=\"<vis2>/JSFigure.js\"\>\</script\>
         
 		'\</head\>
