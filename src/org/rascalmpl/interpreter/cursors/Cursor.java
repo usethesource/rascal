@@ -6,7 +6,7 @@ import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
-public abstract class Cursor implements ICursor, IValue {
+public abstract class Cursor implements ICursor {
 	
 	/* TODO
 	 * 
