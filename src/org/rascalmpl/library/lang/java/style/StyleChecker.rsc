@@ -18,18 +18,14 @@ import Message;
   
   m = createM3FromEclipseProject(|project://pdb.values|);
   a = createAstsFromEclipseProject(|project://pdb.values|, true);
-  styleChecker(m, a);
+  styleChecker(m, a, checkers = {names, emptyCatch});
 */
 alias Checker = list[Message] (node ast, M3 model);
 
-@doc{The active Checker functions to call on each ast}
-private set[Checker] activeCheckers() {
-  return {names, emptyCatch};
-}
-
+  
 @doc{For testing on the console; we should assume only a model for the current AST is in the model}
 list[Message] styleChecker(M3 model, set[node] asts, set[Checker] checkers = {})
-  = [*checker(a, model) | a <- asts, Checker checker <- {names, emptyCatch}];
+  = [*checker(a, model) | a <- asts, Checker checker <- checkers];
    
 @doc{For integration into OSSMETER, we get the models and the ASTs per file}   
 list[Message] styleChecker(map[loc, M3] models, map[loc, node] asts, set[Checker] checkers = {}) 
@@ -55,4 +51,4 @@ list[Message] emptyCatch(node ast, M3 model) {
 
   return [emptyCatchBlock(a@src) | /a:\catch(_,body) := ast, isEmpty(body)];
 }
-  
+
