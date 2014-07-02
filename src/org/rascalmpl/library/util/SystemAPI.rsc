@@ -17,6 +17,11 @@ import String;
 @javaClass{org.rascalmpl.library.util.SystemAPI}
 public java str getSystemProperty(str property);
 
+@doc{Returns the absolute location of the (relative-) location}
+@javaClass{org.rascalmpl.library.util.SystemAPI}
+@reflect{Uses URI Resolver Registry}
+public java loc resolveLoc(loc location);
+
 /*
 @doc{For using the char backquote in Rascal Programs without interpretation.}
 public str backquote = "`";
