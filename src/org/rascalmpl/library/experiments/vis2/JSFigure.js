@@ -421,8 +421,8 @@ bboxFunction.text = function() {
         .style("font-style", this.fontStyle)
         .style("font-weight", this.fontWeight)
         .style("font-size", this.fontSize)
-        .style("stroke", this.fontColor)
-        .style("fill", this.fontColor);
+        .style("stroke", this.fonrColor)
+        .style("fill",   this.FontColor);
    
     var bb = txt.node().getBBox();
     svgtmp.node().remove();

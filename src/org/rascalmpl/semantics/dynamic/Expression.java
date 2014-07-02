@@ -518,7 +518,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				          }
 				        }
 				        else {
-				          eval.getMonitor().warning("calling function with extra unknown keyword arguments", getLocation());
+				          eval.getMonitor().warning("calling function with extra unknown keyword argument: " +  name, getLocation());
 				        }
 				      }
 
