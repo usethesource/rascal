@@ -1,7 +1,7 @@
-module experiments::vis2::FigureServer
+module experiments::vis2::kw::FigureServer
 
-import experiments::vis2::Figure;
-import experiments::vis2::Translate;
+import experiments::vis2::kw::Figure;
+import experiments::vis2::kw::Translate;
 import util::Webserver;
 import util::HtmlDisplay;
 import IO;
@@ -37,7 +37,9 @@ public void render(str title, type[&T] mt, &T model, Figure (&T model) makeFig){
 
 public void render(str title, type[&T] model_type, &T model, Figure (&T model) makeFig, &T (&T model) transformer){
 
-	Figure figure = box();
+	Figure figure;
+	
+	
 	
 	/********************** get_initial_figure **********************/
 	
@@ -114,12 +116,15 @@ public void render(str title, type[&T] model_type, &T model, Figure (&T model) m
 	//loc site = |http://localhost:8081|; // Most recent web server
 	
 	try {
-		println("shutdown ... <experiments::vis2::FigureServer::site>");
-		shutdown(experiments::vis2::FigureServer::site);
-		shutdown(experiments::vis2::FigureServer::site);
+		println("shutdown ... <experiments::vis2::kw::FigureServer::site>");
+		shutdown(experiments::vis2::kw::FigureServer::site);
+		shutdown(experiments::vis2::kw::FigureServer::site);
 	} catch e: { };
 	
+	println("XXXX");
+	
 	experiments::vis2::FigureServer::site = startFigureServer();
+	
 	
 	figure = makeFig(makeCursor(model));
 

@@ -19,8 +19,6 @@ data Bind[&T]
 data HAlign = left() | hcenter() | right();
 
 data VAlign = top() | vcenter() | bottom();
-	
-//public alias FProperties = list[FProperty];
 
 public set[str] legalEvents = {
 
@@ -73,8 +71,6 @@ data EventHandler
 	| handle(str event,Figure fig)
 	;
 
-EventHandler defaultHandler = handle();
-
 public data Figure(
 		tuple[int,int] pos = <0,0>,
 		int xpos = 0,
@@ -99,10 +95,10 @@ public data Figure(
 		real fillOpacity = 1.0,
 		tuple[int, int] rounded = <0, 0>,
 	
-		//tuple[HAlign, VAlign] align = <hcenter(), vcenter()>,
+		tuple[HAlign, VAlign] align = <hcenter(), vcenter()>,
 	
-		//HAlign halign = hcenter(),
-		//VAlign valign = vcenter(),
+		HAlign halign = hcenter(),
+		VAlign valign = vcenter(),
 
 		// fonts and text
 	
@@ -111,7 +107,7 @@ public data Figure(
 
 		// interaction
 	
-		//EventHandler on = defaultHandler,
+		EventHandler on = handle(),
 	
 		// data sets
 	
@@ -122,7 +118,7 @@ public data Figure(
 
 // atomic primitives
 	
-   | text(value text="")		    // text label
+   | text(value text)		    // text label
    
 // primitives/containers
 
