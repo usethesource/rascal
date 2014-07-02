@@ -80,7 +80,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	  for (AbstractFunction c : primaryCandidates) {
 	    Type args = c.getKeywordArgumentTypes();
 	    
-	    if (args != null && args.hasKeywordParameters()) {
+	    if (args != null && args.hasFieldNames()) {
 	    	for (String label : args.getFieldNames()) {
 	    		labels.add(label);
 	    		types.add(args.getFieldType(label));
