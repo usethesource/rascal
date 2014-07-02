@@ -165,7 +165,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		 * depth of the list of arguments plus 1.
 		 */
 
-		if (type.getArity() == 0) { // Diepte 0 dus we mogen altijd opleveren.
+		if (type.getArity() == 0 && !type.hasKeywordParameters()) { 
 			return vf.constructor(type);
 		} else if (this.maxDepth <= 0) {
 			return null;
@@ -186,7 +186,23 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 			}
 			values.add(argument);
 		}
-		return vf.constructor(type, values.toArray(new IValue[values.size()]));
+		IValue[] params = values.toArray(new IValue[values.size()]);
+		if (stRandom.nextBoolean() && type.getKeywordParameterTypes().getArity() > 0) {
+			Map<String, IValue> kwParams = new HashMap<>();
+			for (String kw:  type.getKeywordParameters()) {
+				if (stRandom.nextBoolean()) continue;
+				Type fieldType = type.getKeywordParameterType(kw);
+				IValue argument = visitor.generate(fieldType);
+				if (argument == null) {
+					return null;
+				}
+				kwParams.put(kw, argument);
+			}
+			return vf.constructor(type, params, kwParams);
+		}
+		else {
+			return vf.constructor(type, params);
+		}
 
 	}
 
@@ -279,6 +295,25 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		IValue[] args = new IValue[arity];
 		for (int i = 0; i < arity; i++) {
 			args[i] = descend().generate(tf.valueType());
+		}
+		
+		if (stRandom.nextBoolean()) {
+			int kwArity = 1 + stRandom.nextInt(5);
+			Map<String, IValue> kwParams = new HashMap<>(kwArity);
+			for (int i = 0; i < kwArity; i++) {
+				String name = "";
+				while (name.isEmpty()) {
+					// names have to start with alpha character
+					name = RandomUtil.stringAlpha(stRandom, 3); 
+				}
+				name += RandomUtil.stringAlphaNumeric(stRandom, 4);
+				IValue argument = descend().generate(tf.valueType());
+				if (argument == null) {
+					return null;
+				}
+				kwParams.put(name, argument);
+			}
+			return vf.node(str, args, kwParams);
 		}
 		
 		return vf.node(str, args);	
