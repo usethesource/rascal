@@ -8,6 +8,7 @@ import ValueIO;
 private loc aFile = |tmp:///rascal-test/wr.txt|;
 
 /*TODO:fix*/
+@Ignore
 test bool writeReadFile(str content) {
   writeFile(aFile, content);
   return readFile(aFile) == content;
@@ -48,6 +49,7 @@ public str removeZeroIAmbBOM(Encoding enc, str s) {
 }
 
 /*TODO:fix*/
+@Ignore
 test bool appendWorksCorrectly(Encoding enc, str a, str b) {
 	a = removeZeroIAmbBOM(enc, a);
 	b = removeZeroIAmbBOM(enc, b);
@@ -57,6 +59,7 @@ test bool appendWorksCorrectly(Encoding enc, str a, str b) {
 }
 
 /*TODO:fix*/
+@Ignore
 test bool appendWorksCorrectlyImplicit(Encoding enc, str a, str b) {
 	a = removeZeroIAmbBOM(enc, a);
 	b = removeZeroIAmbBOM(enc, b);
