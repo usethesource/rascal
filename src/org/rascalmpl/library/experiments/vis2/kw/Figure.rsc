@@ -65,10 +65,10 @@ public set[str] legalEvents = {
  
 public alias Figures = list[Figure];
 
-data EventHandler 
-	= handle()
-	| handle(str event, Bind[value] binder)
-	| handle(str event,Figure fig)
+data Event 
+	= on()
+	| on(str event, Bind[value] binder)
+	| on(str event,Figure fig)
 	;
 
 public data Figure(
@@ -107,7 +107,7 @@ public data Figure(
 
 		// interaction
 	
-		EventHandler on = handle(),
+		Event event = on(),
 	
 		// data sets
 	
@@ -118,18 +118,14 @@ public data Figure(
 
 // atomic primitives
 	
-   | text(value text)		    // text label
+   | text(value text)		    		// text label
    
 // primitives/containers
 
    | box(Figure fig=emptyFigure())      // rectangular box with inner element
- 
-   
-//   | _ellipse(FProperties props)                // ellipse with inner element
-//   | _ellipse(Figure inner, FProperties props)  // ellipse with inner element
                    
-   | hcat(Figures figs=[]) 	// horizontal and vertical concatenation
-   | vcat(Figures figs=[]) 	// horizontal and vertical concatenation
+   | hcat(Figures figs=[]) 				// horizontal and vertical concatenation
+   | vcat(Figures figs=[]) 				// horizontal and vertical concatenation
                    
 //   | _overlay(Figures figs, FProperties props)	// overlay (stacked) composition
 
@@ -161,9 +157,9 @@ public data Figure(
    
 // visibility control
 
-   | visible(bool yes, Figure fig = emptyFigure())
+   | visible(bool condition=true, Figure fig = emptyFigure())
    
-   | choice(int condition = true, Figures figs = [])
+   | choice(int selection = 0, Figures figs = [])
   
 /*
    | _computeFigure(bool() recomp,Figure () computeFig, FProperties props)
@@ -178,30 +174,14 @@ public data Figure(
    
    | barchart()
    | scatterplot()
+  
+// graph
+   | graph(map[str, Figure] nodes = (), Figures edges = [])
+   | edge(str from, str to, str label)
    
-   
- // graph
- //  | _graph(Figures nodes = [], Edges edges = [])
-//   | _texteditor(FProperties props)
+// | _texteditor()
    ;
  
-// graphs
-/*
-data Edge =			 							// edge between between two elements in complex shapes like tree or graph
-     _edge(int from, int to, FProperties props)
-   ;
-   
-public alias Edges = list[Edge];
-   
-public Edge edge(int from, int to, FProperty props ...){
-  return _edge(from, to, props);
-}
 
-public Figure graph(Figures nodes, Edges edges, FProperty props...){
-	return _graph(nodes, edges, props);
-}
 
-public Figure texteditor(FProperty props ...){
-  return _texteditor(props);
-}
-*/
+

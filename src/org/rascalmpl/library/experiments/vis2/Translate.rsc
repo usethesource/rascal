@@ -15,13 +15,13 @@ import Type;
 
 // Translation a figure to one HTML page
 
-public str fig2html(str title, str site_as_str){
+public str fig2html(str name, str site_as_str){
 	// TODO: get rid of this absolute path
 	vis2 = "/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2";
 	
-	return "\<html\>
+	res = "\<html\>
 		'\<head\>
-        '	\<title\><title>\</title\>
+        '	\<title\><name>\</title\>
         '	\<link rel=\"stylesheet\" href=\"<vis2>/lib/reset.css\" /\>
         '	\<link rel=\"stylesheet\" href=\"<vis2>/lib/Figure.css\" /\>
         '	\<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"\>\</script\>
@@ -33,11 +33,13 @@ public str fig2html(str title, str site_as_str){
 		'\<div id=\"figurearea\"\> 
 		'\</div\>
 		'\<script\>
-		'	askServer(\"<site_as_str>/initial_figure\");
+		'	askServer(\"<site_as_str>/initial_figure/<name>\");
   		'\</script\>
 		'\</body\>
 		'\</html\>
 		";
+	println(res);
+	return res;
 }
 
 /******************** Translate figure primitives ************************************/
@@ -48,23 +50,26 @@ str trJson(_box(FProperties fps)) =
 	"{\"figure\": \"box\" <trPropsJson(fps)> }";
 
 str trJson(_box(Figure inner, FProperties fps)) = 
-	"{\"figure\": \"box\" <trPropsJson(fps,sep=", ")> 
+	"{\"figure\": \"box\", 
     ' \"inner\":  <trJson(inner)> 
+    ' <trPropsJson(fps)>
     '}";
 
 str trJson(_text(value v, FProperties fps)) = 
 	"{\"figure\": \"text\", \"textValue\": <valArgQuoted(v)> <trPropsJson(fps)> }";
 
 str trJson(_hcat(list[Figure] figs, FProperties fps)) = 
-	"{\"figure\": \"hcat\"<trPropsJson(fps, sep=", ")> 
+	"{\"figure\": \"hcat\",
     ' \"inner\":   [<intercalate(",\n", [trJson(f) | f <- figs])> 
     '          ] 
+    ' <trPropsJson(fps)> 
     '}";
 
 str trJson(_vcat(list[Figure] figs, FProperties fps)) = 
-	"{\"figure\": \"vcat\"<trPropsJson(fps, sep=", ")> 
+	"{\"figure\": \"vcat\",
     ' \"inner\":  [<intercalate(",\n", [trJson(f) | f <- figs])>
     '         ] 
+    ' <trPropsJson(fps)> 
     '}";
 
 // Layouts
@@ -74,13 +79,15 @@ str trJson(_barchart(FProperties fps)) =
 
 str trJson(_scatterplot(FProperties fps)) = 
 	"{\"figure\": \"scatterplot\" <trPropsJson(fps)> }";
+	
 
-str trJson(_graph(Figures nodes, Edges edges, FProperties fps)) = 
-	"{\"figure\": \"graph\" <trPropsJson(fps, sep=", ")> 
-	' \"nodes\":  [<intercalate(",\n", [trJson(f) | f <- nodes])>
-	'         ], 
-	' \"edges\":  [<intercalate(",\n", ["{\"source\": <from>, \"target\": <to>}"| _edge(from,to,efps) <- edges])>
+str trJson(_graph(map[&T,Figure] nodes, Edges[&T] edges, FProperties fps)) = 
+	"{\"figure\": \"graph\", 
+	' \"nodes\":  [<intercalate(",\n", ["{ \"id\": \"<f>\", \"value\" : {\"label\": \"<f>\"}}" | f <- nodes])>
+	'             ], 
+	' \"edges\":  [<intercalate(",\n", ["{\"u\": \"<from>\", \"v\": \"<to>\", \"value\": {\"label\": \"<lab>\"}}"| _edge(from,to,lab,efps) <- edges])>
 	'         ]
+	' <trPropsJson(fps)> 
 	'}";
 
 // ---------- texteditor ----------
@@ -105,10 +112,11 @@ str trJson(_graph(Figures nodes, Edges edges, FProperties fps)) =
 str trJson(_choice(int sel, Figures figs, FProperties fps)) { 
 	if(isCursor(sel)){
 	   return 
-		"{\"figure\": 	\"choice\"<trPropsJson(fps, sep=", ")> 
+		"{\"figure\": 	\"choice\",
 		' \"selector\":	<trPath(toPath(sel))>,
     	' \"inner\":   [<intercalate(",\n", [trJson(f) | f <- figs])> 
    	    '              ] 
+   	    ' <trPropsJson(fps)> 
     	'}";
     } else {
     	throw "choice: selector should be a cursor: sel";
@@ -120,9 +128,10 @@ str trJson(_choice(int sel, Figures figs, FProperties fps)) {
  str trJson(_visible(bool vis, Figure fig, FProperties fps)) { 
 	if(isCursor(vis)){
 	   return 
-		"{\"figure\":	\"visible\"<trPropsJson(fps, sep=", ")> 
+		"{\"figure\":	\"visible\",
 		' \"selector\":	<trPath(toPath(vis))>,
     	' \"inner\":   	<trJson(fig)> 
+    	' <trPropsJson(fps)> 
     	'}";
     } else {
     	throw "fswitch: selector should be a cursor: sel";
@@ -134,9 +143,10 @@ str trJson(_choice(int sel, Figures figs, FProperties fps)) {
 // ---------- buttonInput ----------
 
 str trJson(_buttonInput(str trueText, str falseText, FProperties fps)) =
-	"{\"figure\": 		\"buttonInput\" <trPropsJson(fps, sep=", ")>
+	"{\"figure\": 		\"buttonInput\", 
  	' \"trueText\":		<strArg(trueText)>,
  	' \"falseText\":	<strArg(falseText)>
+ 	' <trPropsJson(fps)>
  	'}";
  
 // ---------- checboxInput ----------
@@ -152,8 +162,9 @@ str trJson(_strInput(FProperties fps)) =
 // ---------- choiceInput ----------
 
 str trJson(_choiceInput(list[str] choices, FProperties fps)) =
-	"{\"figure\": 		 \"choiceInput\" <trPropsJson(fps, sep=", ")>
+	"{\"figure\": 		 \"choiceInput\", 
 	' \"choices\":		 <choices>
+	' <trPropsJson(fps)>
 	'}";
 
 // ---------- colorInput ----------
@@ -169,10 +180,11 @@ str trJson(_numInput(FProperties fps)) =
 // ---------- rangeInput ----------
 
 str trJson(p: _rangeInput(int low, int high, int step, FProperties fps)) =
-	"{ \"figure\":			\"rangeInput\"<trPropsJson(fps, sep=", ")> 
+	"{ \"figure\":			\"rangeInput\",
 	'  \"min\":	 			<numArg(low)>,
 	'  \"max\":				<numArg(high)>,
 	'  \"step\":			<numArg(step)>
+	' <trPropsJson(fps)> 
 	'}";
     
 // Catch missing cases
@@ -181,7 +193,7 @@ default str trJson(Figure f) { throw "trJson: cannot translate <f>"; }
 
 /**************** Tranlate properties *************************/
 
-str trPropsJson(FProperties fps str sep = ""){
+str trPropsJson(FProperties fps){
 	res = "";
 	
 	for(fp <- fps){
@@ -190,7 +202,7 @@ str trPropsJson(FProperties fps str sep = ""){
 			if(t != "")
 				res += ", " + t;
 	}
-	return res + sep;
+	return res;
 }
 
 str trPropJson(pos(int xpos, int ypos)) 		= "";

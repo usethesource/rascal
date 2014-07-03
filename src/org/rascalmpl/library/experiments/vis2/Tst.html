@@ -1,121 +1,93 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-    <title>Multiple Bar Charts showcasing various scale methods and data offset-ing technique</title>
-    <script type="text/javascript" src="https://raw.github.com/GerHobbelt/d3/master/d3.latest.js"></script>
-    <!--<script type="text/javascript" src="../../../../js/d3/d3.latest.js"></script>-->
-  <style>
-circle {
-  stroke: #fff;
-  stroke-width: 1.5px;
-}
 
-body, p {
-  font: 12px sans-serif;
+<meta charset="utf-8">
+<title>Dagre D3 Renderer Demo</title>
+
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="http://cpettitt.github.io/project/graphlib/latest/graphlib.min.js"></script>
+<script src="http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js"></script>
+
+<style>
+svg {
+  border: 1px solid black;
+  overflow: hidden;
 }
 
 text {
-  font: 10px sans-serif;
+  font-weight: 300;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+  font-size: 14px;
 }
-  </style>
-  </head>
-  <body>
-  <p>The list of HTML5 input types (+ sample for each, as created by D3.JS):</p>
 
-  <ul id="input-types"></ul>
+.node rect {
+  stroke-width: 2px;
+  stroke: #333;
+  fill: #fff;
+}
 
-    <p>Plus a lone 'input type=range' one:</p>
-  <!--
-    Safari 5 has a bug: this <input> renders correctly, while the D3-generated one at
-    the end has the slider positioned at the default value '50' despite 'value="0"'
-    being set and visible with 'inspect element'.  :-(
+#node-CLOSED rect {
+  fill: #f77;
+}
 
-  <input type="range" name="lone-ranger1" min="0" max="1000" value="0"  style="width: 800px;">
-  -->
-  <script type="text/javascript">
+#node-ESTAB rect {
+  fill: #7f7;
+}
 
-var input_types = [
-  'color',
-  'date',
-  'datetime',
-  'datetime-local',
-  'email',
-  'month',
-  'number',
-  'range',
-  'search',
-  'tel',
-  'time',
-  'url',
-  'week'
-];
+.edgeLabel rect {
+  fill: #fff;
+}
 
-// create the UL list of types, id-ing each <LI> so we can then d3.select those later for the real test
-var ul = d3.select("ul#input-types") // this one exists, and is to be parent of...
-    .selectAll('li')       // ... these, which don't exist yet, but will once ...
-      .data(input_types)     // ... data[] is used to determine how many there must be ...
-      .enter()                 // ... and we pick the set of 'not-yet-existing' elements corresponding
-        .append('li');     // ... to one(1) data[i] item each
+.edgePath path {
+  stroke: #333;
+  stroke-width: 1.5px;
+  fill: none;
+}
+</style>
 
-  ul.attr('id', function(d) {
-      return 'inp-item-' + d;
-    })
-    .append('p')
-      .text(function(d) {
-        return 'type="' + d + '"';
-      });
-  ul.append('input')
-    .attr('type', String);      // implicit   function(d, i) { return ''+d; }
+<body onLoad="draw();">
 
-/*
-    <input type="range" name="lone-ranger" min="0" max="1000" value="0" onchange="... show value ..." style="width: 800px;">
+<svg width=650 height=680><g transform="translate(20,20)"/></svg>
 
-    first 4 lines have same effect as these (in this context, as data[] isn't used anywhere, really):
+<script>
+function draw() {
+  // States and transitions from RFC 793
+  var states = [ "CLOSED", "LISTEN", "SYN RCVD", "SYN SENT",
+                 "ESTAB", "FINWAIT-1", "CLOSE WAIT", "FINWAIT-2",
+                 "CLOSING", "LAST-ACK", "TIME WAIT" ]
+           .map(function(s) {
+              return { id: s, value: { label: s } };       
+           });
+  var edges = [
+    { u: "CLOSED",     v: "LISTEN",     value: { label: "open" } },
+    { u: "LISTEN",     v: "SYN RCVD",   value: { label: "rcv SYN" } },
+    { u: "LISTEN",     v: "SYN SENT",   value: { label: "send" } },
+    { u: "LISTEN",     v: "CLOSED",     value: { label: "close" } },
+    { u: "SYN RCVD",   v: "FINWAIT-1",  value: { label: "close" } },
+    { u: "SYN RCVD",   v: "ESTAB",      value: { label: "rcv ACK of SYN" } },
+    { u: "SYN SENT",   v: "SYN RCVD",   value: { label: "rcv SYN" } },
+    { u: "SYN SENT",   v: "ESTAB",      value: { label: "rcv SYN, ACK" } },
+    { u: "SYN SENT",   v: "CLOSED",     value: { label: "close" } },
+    { u: "ESTAB",      v: "FINWAIT-1",  value: { label: "close" } },
+    { u: "ESTAB",      v: "CLOSE WAIT", value: { label: "rcv FIN" } },
+    { u: "FINWAIT-1",  v: "FINWAIT-2",  value: { label: "rcv ACK of FIN" } },
+    { u: "FINWAIT-1",  v: "CLOSING",    value: { label: "rcv FIN" } },
+    { u: "CLOSE WAIT", v: "LAST-ACK",   value: { label: "close" } },
+    { u: "FINWAIT-2",  v: "TIME WAIT",  value: { label: "rcv FIN" } },
+    { u: "CLOSING",    v: "TIME WAIT",  value: { label: "rcv ACK of FIN" } },
+    { u: "LAST-ACK",   v: "CLOSED",     value: { label: "rcv ACK of FIN" } },
+    { u: "TIME WAIT",  v: "CLOSED",     value: { label: "timeout=2MSL" } }
+  ];
 
-      d3.select('body')
-        .append('input')
-          .attr('type', 'range')
-*/
-d3.select('body')
-  .data(['range'])
-    .append('input')
-      .attr('type', String)      // implicit   function(d, i) { return ''+d; }
-      .attr('name', 'lone-ranger')
-      .attr('value', 400)
-      .attr('min', 0)
-      .attr('max', 1000)
-      .attr('style', 'width: 800px;')
-      .on('change', function(d, i) {
-        // 'this' is the node itself
-        var pa = d3.select(this.parentNode);
-        var ranger_value = +this.value; // identical to    +d3.select(this).node().value
-
-        // only create node when it's not there yet:
-        var pn = pa.selectAll('p#display-value')
-            /*
-          .data([ranger_value])   // when you don't use data(), you can't .enter().append() !
-          .enter()
-            */
-          .enter();
-            pn.each(function(d, i) {
-              var sel = d3.select(this);
-              if (!d)
-              {
-                sel.append('span')
-                  .attr('id', 'display-value');
-              }
-            });
-
-        // always update the value shown:
-        pn = pa.select('span#display-value');
-
-          pn.text(function() {
-            return 'value = ' + ranger_value;
-          });
-      });
-
-  </script>
-
-  </body>
-</html>
+  var renderer = new dagreD3.Renderer();
+  var oldDrawNodes = renderer.drawNodes();
+  renderer.drawNodes(function(graph, root) {
+    var svgNodes = oldDrawNodes(graph, root);
+    svgNodes.attr("id", function(u) { return "node-" + u; });
+    return svgNodes;
+  });
+  var layout = renderer.run(dagreD3.json.decode(states, edges), d3.select("svg g"));
+  d3.select("svg")
+    .attr("width", layout.graph().width + 40)
+    .attr("height", layout.graph().height + 40);
+}
+</script>

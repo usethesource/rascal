@@ -1,19 +1,14 @@
 module experiments::vis2::Tst2
 
-data HAlign = left() | hcenter() | right();
-data VAlign = top() | vcenter() | bottom();
+import IO;
+import util::Cursor;
 
-public data Figure(
-		real fillOpacity = 1.0
-	
-		//, tuple[HAlign, VAlign] align = <hcenter(), vcenter()>
-		//, HAlign halign = hcenter()
-		//, VAlign valign = vcenter()
-	) =
-	
-	emptyFigure()
-   | box(Figure inner)      // rectangular box with inner element
-//   | box()			        // rectangular box
- 
-   ;
+data D = d(int n, str opt = "abc");
+
+value main(list[value] args){
+	x = makeCursor(d(13, opt="def"));
+	println("x.n = <toPath(x.n)>");
+	println("x.opt = <toPath(x.opt)>");
+	return true;
+}
  

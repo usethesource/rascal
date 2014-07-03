@@ -40,142 +40,180 @@ public str fig2html(str title, str site_as_str){
 
 /******************** Translate figure primitives ************************************/
 
-str trProperties(Figure fig){
-	def = box();
+str trProperties(Figure child, Figure parent){
 	properties = [];
 	
-	if(fig.pos != def.pos) 					properties += "\"xpos\": <numArg(fig.xpos[0])>,
-												  		  '\"ypos\": <numArg(fig.xpos[1])> ";
-	if(fig.xpos != def.xpos) 				properties += "\"xpos\": <numArg(fig.xpos)>";
-	if(fig.ypos != def.ypos) 				properties += "\"ypos\": <numArg(fig.ypos)>";
+	if(child.pos != parent.pos)						properties += "\"xpos\": <numArg(child.pos[0])>, 
+															      '\"ypos\": <numArg(child.pos[1])> ";
 	
-	if(fig.size != def.size) 				properties += "\"definedWidth\": <numArg(fig.size[0])>,
-												  		  '\"definedHeight\": <numArg(fig.size[1])> ";
+	if(child.xpos != parent.xpos) 					properties += "\"xpos\": <numArg(child.xpos)>";
+	if(child.ypos != parent.ypos) 					properties += "\"ypos\": <numArg(child.ypos)>";
+	
+	if(child.size != parent.size) 					properties += "\"definedWidth\": <numArg(child.size[0])>,
+												  		          '\"definedHeight\": <numArg(child.size[1])> ";
 												  
-	if(fig.width != def.width) 				properties += "\"definedWidth\": <numArg(fig.width)>";
-	if(fig.height != def.height) 			properties += "\"definedHeight\": <numArg(fig.height)>";
+	if(child.width != parent.width) 				properties += "\"definedWidth\": <numArg(child.width)>";
+	if(child.height != parent.height) 				properties += "\"definedHeight\": <numArg(child.height)>";
 	
-	if(fig.gap != def.gap) 					properties += "\"hgap\": <numArg(fig.gap[0])>,
-												  		  '\"vgap\": <numArg(fig.gap[1])> ";
+	if(child.gap != parent.gap) 					properties += "\"hgap\": <numArg(child.gap[0])>,
+												  		          '\"vgap\": <numArg(child.gap[1])> ";
 												  
-	if(fig.hgap != def.hgap) 				properties += "\"hgap\": <numArg(fig.hgap)>";
-	if(fig.vgap != def.vgap) 				properties += "\"vgap\": <numArg(fig.vgap)>";
+	if(child.hgap != parent.hgap) 					properties += "\"hgap\": <numArg(child.hgap)>";
+	if(child.vgap != parent.vgap) 					properties += "\"vgap\": <numArg(child.vgap)>";
 	
-	if(fig.lineWidth != def.lineWidth) 		properties += "\"lineWidth\": <numArg(fig.lineWidth)>";
+	if(child.lineWidth != parent.lineWidth) 		properties += "\"lineWidth\": <numArg(child.lineWidth)>";
 	
-	if(fig.lineColor != def.lineColor) 		properties += "\"lineColor\": <numArg(fig.lineColor)>";
+	if(child.lineColor != parent.lineColor) 		properties += "\"lineColor\": <strArg(child.lineColor)>";
 	
-	if(fig.lineStyle != def.lineStyle) 		properties += "\"lineStyle\": <fig.lineStyle>";			// TODO
+	if(child.lineStyle != parent.lineStyle) 		properties += "\"lineStyle\": <child.lineStyle>";			// TODO
 	
-	if(fig.fillColor != def.fillColor) 		properties += "\"fillColor\": <strArg(fig.fillColor)>";
+	if(child.fillColor != parent.fillColor) 		properties += "\"fillColor\": <strArg(child.fillColor)>";
 	
-	if(fig.lineOpacity != def.lineOpacity)	properties += "\"lineOpacity\": <numArg(fig.lineOpacity)>";
+	if(child.lineOpacity != parent.lineOpacity)		properties += "\"lineOpacity\": <numArg(child.lineOpacity)>";
 	
-	if(fig.fillOpacity != def.fillOpacity)	properties += "\"fillOpacity\": <numArg(fig.fillOpacity)>";
+	if(child.fillOpacity != parent.fillOpacity)		properties += "\"fillOpacity\": <numArg(child.fillOpacity)>";
 	
-	// rounded tr trPropJson(rounded(int rx, int ry))			= "\"rx\": <numArg(rx)>, \"ry\": <numArg(ry)>";
+	if(child.rounded != parent.rounded)				properties += "\"rx\": <numArg(child.rounded[0])>, 
+																  '\"ry\": <numArg(child.rounded[1])>";
 	
-	if(fig.align != def.align) 				properties += "\"halign\": <trHALign(numArg(fig.align[0]))>,
-												  	  	  '\"valign\": <trVAlign(numArg(fig.align[1]))>";
+	if(child.align != parent.align) 				properties += "\"halign\": <trHAlign(child.align[0])>,
+												  	  	  		  '\"valign\": <trVAlign(child.align[1])>"; 		// TODO add numArg
 												  	  
-	if(fig.halign != def.halign) 			properties += "\"halign\": <trHALign(numArg(fig.halign))>";
+	if(child.halign != parent.halign) 				properties += "\"halign\": <trHAlign(child.halign)>";
 	
-	if(fig.valign != def.valign) 			properties += "\"valign\": <trHALign(numArg(fig.valign))>";
+	if(child.valign != parent.valign) 				properties += "\"valign\": <trVAlign(child.valign)>";
 												  	  
 												  
-	if(fig.font != def.font) 				properties += "\"fontName\": <strArg(fig.font)>";
+	if(child.font != parent.font) 					properties += "\"fontName\": <strArg(child.font)>";
 	
-	if(fig.fontSize != def.fontSize) 		properties += "\"fontSize\": <numArg(fig.fontSize)>";
+	if(child.fontSize != parent.fontSize) 			properties += "\"fontSize\": <numArg(child.fontSize)>";
 	
-	if(fig.dataset != def.dataset) 			properties += trDataset(fig.dataset);
+	if(child.dataset != parent.dataset) 			properties += trDataset(child.dataset);
 	
-	if(fig.on != def.on){
-		switch(fig.on){
-			case on(str event, binder: bind(&T accessor)):
-				if(isCursor(binder.accessor)){ 	
+	if(child.event != parent.event){
+	
+	println("trProperties: <child.event>");
+		switch(child.event){
+			case on(str event, binder: bind(accessor)):
+				if(isCursor(accessor)){ 	
 					properties += [
 						"\"event\": \"<event>\"",
-						"\"type\":  \"<typeOf(binder.accessor)>\"", 
-						"\"accessor\": <trPath(toPath(binder.accessor))>"
+						"\"type\":  \"<typeOf(accessor)>\"", 
+						"\"accessor\": <trPath(toPath(accessor))>"
 						];
  				} else {
    				  	throw "on: accessor <accessor> in binder is not a cursor";
    				}
-			case  on(str event, binder: bind(&T accessor, &T replacement)):
-				if(isCursor(binder.accessor)){ 	
+			case  on(str event, bind(accessor, replacement)): {
+				println("accessor: <accessor>, isCursor: <isCursor(accessor)>");
+				if(isCursor(accessor)){ 	
 					properties += [
 						"\"event\":  		\"<event>\"",
-						"\"type\": 			\"<typeOf(binder.accessor)>\"",
-						"\"accessor\": 		<trPath(toPath(binder.accessor))>",
+						"\"type\": 			\"<typeOf(accessor)>\"",
+						"\"accessor\": 		<trPath(toPath(accessor))>",
 						"\"replacement\":	<replacement>"
 						];	
  				} else {
    					throw "on: accessor <accessor> in binder is not a cursor";
    				}
+   				}
    			case on(str event, Figure fig):
    					properties += [
    						"\"event\":  		\"<event>\"",
-						"\"extra_figure\":	<trJson(fig)>"
+						"\"extra_figure\":	<trJson(fig, parent)>"
 						];
 		}
 	}
 	
 	return properties == [] ? "" : "<for(p <- properties){>, <p><}>";
 }
-//str trPropJson(dataset(list[num] values1)) 		= "\"dataset\": <values1>";
-//str trPropJson(dataset(lrel[num,num] values2))	= "\"dataset\": [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
+
+str trDataset(list[num] values1) 		= "\"dataset\": <values1>";
+str trDataset(lrel[num,num] values2)	= "\"dataset\": [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
 
 // Graphical elements	
 
-str trJson(figure: box()) {
+// Figure without properties of its own
+
+str trSimple(str kind, Figure child, Figure parent) = "{\"figure\": \"<kind>\" <trProperties(child, parent)> }";
+
+// ---------- box ----------
+
+str trJson(figure: box(), Figure parent) {
 	inner = figure.fig; 
+	println("inner = <inner>");
 	return 
 	"{\"figure\": \"box\"" +
-		(inner == emptyFigure() ? "" : ", \"inner\": <trJson(inner)>") +
-		"<trProperties(figure)> }";
+		(getName(inner) == "emptyFigure" ? "" : ", \"inner\": <trJson(inner, parent)>") +
+		"<trProperties(figure, parent)> }";
 }
-str trJson(figure: text(value v)) = 
-	"{\"figure\": \"text\", \"textValue\": <valArgQuoted(v)> <trProperties(figure)> }";
+
+// ---------- text ----------
+
+str trJson(figure: text(value v), Figure parent) = 
+	"{\"figure\": \"text\", \"textValue\": <valArgQuoted(v)> <trProperties(figure, parent)> }";
+
+// ---------- hcat ----------
 	
-str trJson(figure: hcat()){ 
+str trJson(figure: hcat(), Figure parent){ 
 	figs = figure.figs;
 	return
 	"{\"figure\": \"hcat\",
-    ' \"inner\":   [<intercalate(",\n", [trJson(f) | f <- figs])> 
+    ' \"inner\":   [<intercalate(",\n", [trJson(f, figure) | f <- figs])> 
     '              ] 
-    '<trProperties(figure)>
+    '<trProperties(figure, parent)>
     '}";
 }
+
+// ---------- vcat ----------
     
-str trJson(figure: vcat()) { 
+str trJson(figure: vcat(), Figure parent) { 
 	figs = figure.figs;
 	return
 	"{\"figure\": \"vcat\",
-    ' \"inner\":   [<intercalate(",\n", [trJson(f) | f <- figs])> 
+    ' \"inner\":   [<intercalate(",\n", [trJson(f, figure) | f <- figs])> 
     '              ] 
-    '<trProperties(figure)>
+    '<trProperties(figure, parent)>
     '}";
 }
 
-str trJson(figure: barchart()) = 
-	"{\"figure\": \"barchart\" <trProperties(figure)> }";
+// ---------- barchart ----------
 
-str trJson(figure: scatterplot()) = 
-	"{\"figure\": \"scatterplot\" <trProperties(figure)> }";
+str trJson(figure: barchart(), Figure parent) = trSimple("barchart", figure, parent);
+
+// ---------- barchart ----------
+
+str trJson(figure: scatterplot(), Figure parent) =  trSimple("scatterplot", figure, parent);
+
+// ---------- graph ----------
+
+str trJson(figure: graph(), Figure parent) { 
+	nodes = figure.nodes;
+	edges = figure.edges;
+	println("nodes = <nodes>");
+	println("edges = <edges>");
+	return
+	"{\"figure\": \"graph\", 
+	' \"nodes\":  [<intercalate(",\n", ["{ \"id\": \"<f>\", 
+	'                                      \"value\" : {\"label\": \"<f>\", 
+	'												    \"figure\": <trJson(nodes[f], parent)>}}" | f <- nodes])>
+	'             ],  
+	' \"edges\":  [<intercalate(",\n", ["{\"u\": \"<from>\", 
+	'									  \"v\": \"<to>\", 
+	'									  \"value\": {\"label\": \"<label>\" <trProperties(e, parent)>}}"| e: edge(from,to,label) <- edges])>
+	'         ]
+	' <trProperties(figure, parent)> 
+	'}";
+}
+
+// edge
+
+str trJSon(figure: edge(int from, int to)) {
+	
+	throw "edges should not be translated";
+}
 
 /*
-
-// Layouts
-
-
-str trJson(_graph(Figures nodes, Edges edges, FProperties fps)) = 
-	"{\"figure\": \"graph\" <trPropsJson(fps, sep=", ")> 
-	' \"nodes\":  [<intercalate(",\n", [trJson(f) | f <- nodes])>
-	'         ], 
-	' \"edges\":  [<intercalate(",\n", ["{\"source\": <from>, \"target\": <to>}"| _edge(from,to,efps) <- edges])>
-	'         ]
-	'}";
-
 // ---------- texteditor ----------
 
 //Size sizeOf(_texteditor(FProperties fps),  FProperty pfps...){
@@ -192,41 +230,40 @@ str trJson(_graph(Figures nodes, Edges edges, FProperties fps)) =
 //}
 */
 
-
 // Visibility control elements
 
-// ---------- conditional ----------
+// ---------- choice ----------
 
-str trJson(figure: experiments::vis2::kw::Figure::choice()) { 
-	int sel = figure.sel;
-	figures = figure.figs;
-	if(isCursor(sel)){
+str trJson(figure: experiments::vis2::kw::Figure::choice(), Figure parent) { 
+	int selection = figure.selection;
+	choices = figure.figs;
+	if(isCursor(selection)){
 	   return 
 		"{\"figure\": 	\"choice\",
-		' \"selector\":	<trPath(toPath(sel))>,
-    	' \"inner\":   [<intercalate(",\n", [trJson(f) | f <- figs])> 
+		' \"selector\":	<trPath(toPath(selection))>,
+    	' \"inner\":   [<intercalate(",\n", [trJson(f, figure) | f <- choices])> 
    	    '              ] 
-   	    ' <trProperties(figure)>
+   	    ' <trProperties(figure, parent)>
     	'}";
     } else {
-    	throw "choice: selector should be a cursor: sel";
+    	throw "choice: selection should be a cursor: <selection>";
     }
  }
 
  // ---------- visible ----------
  
- str trJson(figure: visible()) { 
- 	bool vis = figure.vis;
- 	Figure fig1 = figure.fig;
-	if(isCursor(vis)){
+ str trJson(figure: visible(), Figure parent) { 
+ 	bool condition = figure.condition;
+ 	Figure fig = figure.fig;
+	if(isCursor(condition)){
 	   return 
 		"{\"figure\":	\"visible\",
-		' \"selector\":	<trPath(toPath(vis))>,
-    	' \"inner\":   	<trJson(fig)>
-    	' <trProperties(figure)> 
+		' \"selector\":	<trPath(toPath(condition))>,
+    	' \"inner\":   	<trJson(fig, figure)>
+    	' <trProperties(figure, parent)> 
     	'}";
     } else {
-    	throw "fswitch: selector should be a cursor: sel";
+    	throw "fswitch: condition should be a cursor: <condition>";
     }
  }   
 
@@ -234,51 +271,43 @@ str trJson(figure: experiments::vis2::kw::Figure::choice()) {
 
 // ---------- buttonInput ----------
 
-str trJson(figure: buttonInput(str trueText, str falseText)) {
+str trJson(figure: buttonInput(), Figure parent) {
 	trueText = figure.trueText;
 	falseText = figure.falseText;
 	return 
 	"{\"figure\": 		\"buttonInput\",
  	' \"trueText\":		<strArg(trueText)>,
  	' \"falseText\":	<strArg(falseText)>
- 	' <trProperties(figure)> 
+ 	' <trProperties(figure, parent)> 
  	'}";
 } 
+
 // ---------- checboxInput ----------
 
-str trJson(figure: checkboxInput()) =
-	"{\"figure\":	\"checkboxInput\" <trProperties(figure)>  }";
+str trJson(figure: checkboxInput(), Figure parent) = trSimple("checkboxInput", figure, parent);
    
-// ---------- strInput ----------
- 
-str trJson(figure: strInput()) =
- 	"{\"figure\": \"strInput\" <trProperties(figure)> }";
- 	
 // ---------- choiceInput ----------
 
-str trJson(figures: choiceInput()) {
+str trJson(figure: choiceInput(), Figure parent) {
 	choices = figure.choices;
 	return
 	"{\"figure\": 		 \"choiceInput\",
 	' \"choices\":		 <choices>
-	' <trProperties(figure)> 
+	' <trProperties(figure, parent)> 
 	'}";
 }
 	
-
 // ---------- colorInput ----------
 
-str trJson(figure: colorInput()) =
-	"{\"figure\": 		 \"colorInput\"  <trProperties(figure)> }";
+str trJson(figure: colorInput(), Figure parent) = trSimple("colorInput", figure, parent);
 
 // ---------- numInput ----------
 
-str trJson(figure: numInput()) =
-	"{\"figure\": 		 \"numInput\" <trProperties(figure)> }";
+str trJson(figure: numInput(), Figure parent) = trSimple("numInput", figure, parent);
 
 // ---------- rangeInput ----------
 
-str trJson(figure: rangeInput(int low, int high, int step)) {
+str trJson(figure: rangeInput(), Figure parent) {
 	low = figure.low;
 	high = figure.high;
 	step = figure.step;
@@ -287,16 +316,19 @@ str trJson(figure: rangeInput(int low, int high, int step)) {
 	'  \"min\":	 			<numArg(low)>,
 	'  \"max\":				<numArg(high)>,
 	'  \"step\":			<numArg(step)>
-	' <trProperties(figure)> 
+	' <trProperties(figure, parent)> 
 	'}";
 }
+
+// ---------- strInput ----------
+ 
+str trJson(figure: strInput(), Figure parent) = trSimple("strInput", figure, parent);
 	
-    
 // Catch missing cases
 
-default str trJson(Figure f) { throw "trJson: cannot translate <f>"; }
+default str trJson(Figure f, Figure parent) { throw "trJson: cannot translate <f>"; }
 
-/**************** Utilities for tranlating properties *************************/
+/**************** Utilities for translating properties *************************/
 
 str trHAlign(HAlign xalign){
 	xa = 0.5;
@@ -322,8 +354,16 @@ str trPath(Path path){
 		switch(nav){
 		 	case root(str name):		accessor += ".<name>"; 
 			case field(str name): 		accessor += ".<name>";
-  			case subscript(int index):	accessor += "[<index>]";
+			case field(int position):	accessor += "[<position>]";
+			
+			case argument(str name):	accessor += ".<name>";
+			case argument(int position):accessor += "[<position>]";
+  
+			case element(int index):	accessor += "[<index>]";
+  			case sublist(int from, int to):	accessor += ".slice(<from>,<to>]";
+  			
   			case lookup(value key):		accessor += "[<key>]";
+  			
   			case select(list[int] indices):
   										accessor += "";		// TODO
   			case select(list[str] labels):
@@ -339,4 +379,5 @@ str numArg(num n) 	= isCursor(n) ? "{\"use\": <trPath(toPath(n))>}" : "<n>";
 str strArg(str s) 	= isCursor(s) ? "{\"use\": <trPath(toPath(s))>}" : "\"<s>\"";
 
 str valArg(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "<v>";
+
 str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "\"<v>\"";		
