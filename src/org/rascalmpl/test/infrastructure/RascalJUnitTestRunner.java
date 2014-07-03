@@ -95,7 +95,14 @@ public class RascalJUnitTestRunner extends Runner {
 					continue;
 				}
 				String name = prefix + "::" + module.replaceFirst(".rsc", "");
-				evaluator.doImport(new NullRascalMonitor(), name);
+				
+				try {
+					evaluator.doImport(new NullRascalMonitor(), name);
+				}
+				catch (Throwable e) {
+					throw new RuntimeException("Could not import " + name + " for testing...", e);
+				}
+				
 				Description modDesc = Description.createSuiteDescription(name);
 				desc.addChild(modDesc);
 				
@@ -112,7 +119,7 @@ public class RascalJUnitTestRunner extends Runner {
 			throw new RuntimeException("could not create test suite", e);
 		} catch (URISyntaxException e) {
 			throw new RuntimeException("could not create test suite", e);
-		}
+		} 
 	}
 
 	@Override
