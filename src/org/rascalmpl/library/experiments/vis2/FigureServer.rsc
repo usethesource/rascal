@@ -51,14 +51,23 @@ res = "\<html\>
         '	\<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"\>\</script\>
         '	\<script src=\"http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js\"\>\</script\>
         '	\<script src=\"<vis2>/JSFigure.js\"\>\</script\>
+        '   \<style\>
+        '   /*#active { background-color: #CCCCCC; }*/
+        '	a { border: 1px solid; pad: 10px; color: #000000; text-decoration: none; border-radius: 4px;}
+        '   /* unvisited link */
+		'   a:link { background-color: #E6E6E6; fill: #000000;}
+		'  /* mouse over link */
+		'   a:hover { background-color: #FFFFFF; }
+		'	/* selected link */
+		'	/*a:active { color: #000000; }*/
+        '   \</style\>
 		'\</head\>
 		'\<body\>
-		'	\<h2\>Active visualizations:\</h2\>
+		'	\<div id=\"active\"\>
 		'   \<br\>
-		'	\<p\>
 		'	    <for(name <- sort(toList(domain(visualizations)))){> \<a href=\"#\" onclick=\"askServer(\'<getSite()>/initial_figure/<name>\')\"\><name>\</a\>   <}>
-		'   \</p\>
 		'   \<hr\>
+		'   \</div\>
 		'   \<div id=\"figurearea\"\>
 		'   \</div\>
 		'\</body\>
@@ -123,8 +132,11 @@ public void render(str name, type[&T] model_type, &T model, Figure (&T model) vi
 
 public void render(str name, type[&T] model_type, &T model, Figure (&T model) visualize, &T (&T model) transform){
 
-	visualizations[name] = descriptor(name, model_type, model, visualize, transform, visualize(makeCursor(model)));
-	print(getSite());
+	f = visualize(makeCursor(model));
+	println("render: <f>");
+	println("render: <trJson(f, emptyFigure())>");
+	visualizations[name] = descriptor(name, model_type, model, visualize, transform, f);
+	println(getSite());
 	htmlDisplay(site, fig2html(name, getSite()));
 }
 
@@ -136,7 +148,7 @@ private str get_initial_figure(str name){
 		descr = visualizations[name];
 		f = descr.visualize(makeCursor(descr.model));
 		println("get_initial_server: <f>");
-    	res = "{\"model_root\": <toJSON(descr.model)>, \"figure_root\" : <trJson(f)>, \"site\": \"<getSite()>\", \"name\": \"<name>\" }";
+    	res = "{\"model_root\": <toJSON(descr.model)>, \"figure_root\" : <trJson(f, emptyFigure())>, \"site\": \"<getSite()>\", \"name\": \"<name>\" }";
     	println("get_initial_server: res = <res>");
     	return res;
     } else {
@@ -154,11 +166,11 @@ private str refresh(str name, str modelAsJSON){
 			println("refresh: <site>, <model>");
 			model = descr.transform(makeCursor(model));
 			Figure figure = descr.visualize(makeCursor(model));
-			s = trJson(figure);
+			s = trJson(figure, emptyFigure());
 			descr.model = model;
 			visualizations[name] = descr;
 			println(s);
-			return "{\"model_root\": <toJSON(model)>, \"figure_root\" : <s>, \"site\":  \"<getSite()>\"}";
+			return "{\"model_root\": <toJSON(model)>, \"figure_root\" : <s>, \"site\":  \"<getSite()>\", \"name\": \"<name>\" }";
 		} else {
 			return "refresh: unknown visualization: <name>";
 		}

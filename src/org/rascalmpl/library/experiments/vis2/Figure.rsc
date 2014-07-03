@@ -16,59 +16,9 @@ data Bind[&T]
     | bind(Cursor[&T] accessor, &T val)
 	;
 	
-data FProperty =
-      pos(int xpos, int ypos)
-      
-    | xpos(int p)
-    | ypos(int p)
-
-    | size(int xsize, int ysize)
-    | width(int w)
-    | height(int h)
-    
-    | gap(int xgap, int ygap)
-    | hgap(int g)
-    | vgap(int g)
-    
-    // lines
-    
-	| lineWidth(int n)
-	| lineColor(str c)
-	| lineStyle(list[int] dashes)
-	| lineOpacity(real op)
-	
-	// areas
-
-	| fillColor(str c)
-	| fillOpacity(real op)
-	| rounded(int rx, int ry)
-	
-	| align(HAlign xalign, VAlign yalign)
-	
-	| halign(HAlign ha)
-	| valign(VAlign va)
-
-	// fonts and text
-	
-	| font(str fontName)
-	| fontSize(int fontSize)
-
-	// interaction
-	
-	| on(str event, Bind[value] binder)
-	| on(str event, Figure fig)
-	
-	// data sets	
-	
-	| dataset(list[num] values1)
-	| dataset(lrel[num,num] values2)
-	;
-	
 data HAlign = left() | hcenter() | right();
 
 data VAlign = top() | vcenter() | bottom();
-	
-public alias FProperties = list[FProperty];
 
 public set[str] legalEvents = {
 
@@ -115,148 +65,123 @@ public set[str] legalEvents = {
  
 public alias Figures = list[Figure];
 
-public data Figure = 
-/* atomic primitives */
+data Event 
+	= on()
+	| on(str event, Bind[value] binder)
+	| on(str event,Figure fig)
+	;
+
+public data Figure(
+		tuple[int,int] pos = <0,0>,
+		int xpos = 0,
+		int ypos = 0,
+		tuple[int,int] size = <0,0>,
+		int width = 0,
+		int height = 0,
+		tuple[int,int] gap = <0,0>,
+		int hgap = 0,
+		int vgap = 0,
+   
+    	// lines
+    
+		int lineWidth = 1,
+		str lineColor = "black",
+		list[int] lineStyle = [],
+		real lineOpacity = 1.0,
 	
-     _text(value v, FProperties props)		    // text label
-   
-/* primitives/containers */
+		// areas
 
-   | _box(FProperties props)			        // rectangular box
-   | _box(Figure inner, FProperties props)      // rectangular box with inner element
-   
-   | _ellipse(FProperties props)                // ellipse with inner element
-   | _ellipse(Figure inner, FProperties props)  // ellipse with inner element
-                   
-   | _hcat(Figures figs, FProperties props) 	// horizontal and vertical concatenation
-   | _vcat(Figures figs, FProperties props) 	// horizontal and vertical concatenation
-                   
-   | _overlay(Figures figs, FProperties props)	// overlay (stacked) composition
+		str fillColor = "white",
+		real fillOpacity = 1.0,
+		tuple[int, int] rounded = <0, 0>,
+	
+		tuple[HAlign, VAlign] align = <hcenter(), vcenter()>,
+	
+		HAlign halign = hcenter(),
+		VAlign valign = vcenter(),
 
-// charts
+		// fonts and text
+	
+		str font = "Helvetica",
+		int fontSize = 12,
+
+		// interaction
+	
+		Event event = on(),
+	
+		// data sets
+	
+		list[value] dataset = []
+	) =
+	
+	emptyFigure()
+
+// atomic primitives
+	
+   | text(value text)		    		// text label
    
-   | _barchart(FProperties props)
-   | _scatterplot(FProperties props)
-   
- // graph
-   | _graph(map[&T, Figure] nodes, Edges[&T] edges, FProperties props)
-   | _texteditor(FProperties props)
-   
+// primitives/containers
+
+   | box(Figure fig=emptyFigure())      // rectangular box with inner element
+                   
+   | hcat(Figures figs=[]) 				// horizontal and vertical concatenation
+   | vcat(Figures figs=[]) 				// horizontal and vertical concatenation
+                   
+//   | _overlay(Figures figs, FProperties props)	// overlay (stacked) composition
+
+
 // interaction
 
-   | _buttonInput(str trueText, str falseText, FProperties props)
+   | buttonInput(str trueText = "", str falseText = "")
    
-   | _checkboxInput(FProperties props)
+   | checkboxInput()
+   
+   | choiceInput(list[str] choices = [])
+   
+   | colorInput()
+   
+   // date
+   // datetime
+   // email
+   // month
+   // time
+   // tel
+   // week
+   // url
+   
+   | numInput()
+   
+   | rangeInput(int low=0, int high=100, int step=1)
 
-   | _strInput(FProperties props)
+   | strInput()
    
-   | _numInput(FProperties props)
-   
-   | _colorInput(FProperties props)
-   
-   | _rangeInput(int low, int high, int step, FProperties props)
-   
-   | _choiceInput(list[str] choices, FProperties props)
-   
-
 // visibility control
 
-   | _visible(bool yes, Figure fig, FProperties props)
+   | visible(bool condition=true, Figure fig = emptyFigure())
    
-   | _choice(int sel, Figures figs, FProperties props)
-
-// TODO   
+   | choice(int selection = 0, Figures figs = [])
+  
 /*
-       
    | _computeFigure(bool() recomp,Figure () computeFig, FProperties props)
  
    | _combo(list[str] choices, Def d, FProperties props)
  
 */
+
+// More advanced figure elements
+
+// charts
+   
+   | barchart()
+   | scatterplot()
+  
+// graph
+   | graph(map[str, Figure] nodes = (), Figures edges = [])
+   | edge(str from, str to, str label)
+   
+// | _texteditor()
    ;
  
-data Edge[&T] =			 							// edge between between two elements in complex shapes like tree or graph
-     _edge(&T from, &T to, str label, FProperties props)
-   ;
-   
-public alias Edges[&T] = list[Edge[&T]];
-   
-public Edge edge(&T from, &T to, str label, FProperty props ...){
-  return _edge(from, to, label, props);
-}
 
-public Figure text(value v, FProperty props ...){
-  return _text(v, props);
-}
 
-public Figure box(FProperty props ...){
-  return _box(props);
-}
 
-public Figure box(Figure fig, FProperty props ...){
-  return _box(fig, props);
-}
-
-public Figure hcat(Figures figs, FProperty props ...){
-  return _hcat(figs,props);
-}
-
-public Figure vcat(Figures figs, FProperty props ...){
-  return _vcat(figs,props);
-}
-
-public Figure graph(map[&T, Figure] nodes, Edges[&T] edges, FProperty props...){
-	return _graph(nodes, edges, props);
-}
-
-public Figure hvcat(Figures figs, FProperty props ...){
-  return _widthDepsHeight(_hvcat(figs, props),[]);
-}
-
-public Figure barchart(FProperty props ...){
-  return _barchart(props);
-}
-
-public Figure scatterplot(FProperty props ...){
-  return _scatterplot(props);
-}
-
-public Figure texteditor(FProperty props ...){
-  return _texteditor(props);
-}
-
-public Figure strInput(FProperty props ...){
-  return _strInput(props);
-}
-
-public Figure numInput(FProperty props ...){
-  return _numInput(props);
-}
-
-public Figure colorInput(FProperty props ...){
-  return _colorInput(props);
-}
-
-public Figure buttonInput(str trueText, str falseText, FProperty props ...){
-  return _buttonInput(trueText, falseText, props);
-}
-
-public Figure checkboxInput(FProperty props ...){
-  return _checkboxInput(props);
-}
-
-public Figure choice(int sel, Figures figs, FProperty props ...){
- 	return _choice(sel, figs, props);
-}
-
-public Figure visible(bool vis, Figure fig, FProperty props ...){
- 	return _visible(vis, fig, props);
-}
-
-public Figure rangeInput(int low, int high, int step, FProperty props...){
-   return _rangeInput(low, high, step, props);
-}
-
-public Figure choiceInput(list[str] choices, FProperty props...){
-   return _choiceInput(choices, props);
-}
