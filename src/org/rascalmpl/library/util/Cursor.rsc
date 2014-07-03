@@ -8,6 +8,7 @@ data Nav
   | field(int position)
   | argument(int position)
   | argument(str name)
+  | keywordParam(str name)
   | element(int index)
   | sublist(int from, int to)
   | lookup(value key)
