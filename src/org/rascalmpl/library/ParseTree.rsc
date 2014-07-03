@@ -116,7 +116,7 @@ Description:
 }
 
 data Tree 
-     = appl(Production prod, list[Tree] args) /*1*/
+     = appl(Production prod, list[Tree] args, loc pos = |unknown:///|) /*1*/
      | cycle(Symbol symbol, int cycleLength) 
      | amb(set[Tree] alternatives)  
      | char(int character)
@@ -239,11 +239,6 @@ Production associativity(Symbol rhs, Associativity a, {prod(label(str l, rhs), l
 public Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
   = associativity(s, as, a + { e | e <- b}); 
              
-@doc{
-Synopsis: Annotate a parse tree node with a source location.
-}
-anno loc Tree@\loc;
-
 @doc{
 Synopsis: Parse input text (from a string or a location) and return a parse tree.
 
@@ -409,12 +404,8 @@ ADT type names correspond to syntax non-terminal names, and constructor names co
 to production labels. Labels of production arguments do not have to match with labels
  in ADT constructors.
 
-Finally, source location annotations are propagated as annotations on constructor ASTs. 
-To access them, the user is required to explicitly declare a location annotation on all
-ADTs used in implosion. In other words, for every ADT type `T`, add:
-
 <listing>
-anno loc T@location;
+data T(loc src=|unknown:///|);
 </listing>
 
 Examples:
@@ -470,38 +461,11 @@ Synopsis: Annotate a parse tree node with an (error) message.
 }
 public anno Message Tree@message;
 
-@doc{
-Synopsis: Annotate a parse tree node with a list of (error) messages.
-}
-public anno set[Message] Tree@messages;
-
-@doc{
-Synopsis: Annotate a parse tree node with a documentation string.
-}
-anno str Tree@doc;
-
-@doc{
-Synopsis: Annotate a parse tree node with documentation strings for several locations.
-
-}
-anno map[loc,str] Tree@docs;
-
-
-@doc{
-Synopsis: Annotate a parse tree node with the target of a reference.
-}
-anno loc Tree@link;
-
-@doc{
-Synopsis: Annotate a parse tree node with multiple targets for a reference.
-}
-anno set[loc] Tree@links;
 
 @doc{
 Synopsis: Tree search result type for [treeAt].
 }
 public data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
-
 
 @doc{
 Synopsis: Select the innermost Tree of a given type which is enclosed by a given location.
