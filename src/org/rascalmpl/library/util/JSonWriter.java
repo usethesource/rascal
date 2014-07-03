@@ -52,7 +52,7 @@ public class JSonWriter implements IValueTextWriter {
 
 	static boolean debug = false;
 
-	static final String name = "#name", args = "#args", annos = "#annos";
+	static final String name = "#name", args = "#args", annos = "#annos", keywords = "#keywords";
 
 	public void write(IValue value, java.io.Writer stream) throws IOException {
 	  value.accept(new Writer(stream));
@@ -259,6 +259,9 @@ public class JSonWriter implements IValueTextWriter {
 			Iterator<IValue> nodeIterator = o.iterator();
 			Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
 			Iterator<String> annoIterator = annotations.keySet().iterator();
+			
+			Map<String, IValue> keywordParameters = o.asWithKeywordParameters().getParameters();
+			Iterator<String> keywordIterator = keywordParameters.keySet().iterator();
 			if (nodeTyped) inNode++;
 			append("{\"" + name + "\":");
 			append('\"');
@@ -293,6 +296,23 @@ public class JSonWriter implements IValueTextWriter {
 					annotations.get(key).accept(this);
 				}
 				append('}');
+//				// append(']');
+			}
+		    if (keywordIterator.hasNext()) {
+			     append(",");
+//				// append('[');
+				String key = keywordIterator.next();
+				append("\""+key+"\"");
+				append(':');
+				keywordParameters.get(key).accept(this);
+				while (keywordIterator.hasNext()) {
+					append(',');
+					key = keywordIterator.next();
+					append("\""+key+"\"");
+					append(':');
+					keywordParameters.get(key).accept(this);
+				}
+				//append('}');
 //				// append(']');
 			}
 			append('}');
