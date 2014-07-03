@@ -96,3 +96,21 @@ test bool textTuple() = textWriteRead(#tuple[int, bool, str], <1,true,"abc">);
  
 test bool textAdt() = textWriteRead1(#Bool, band(bor(btrue(),bfalse()),band(btrue(),btrue())));
  
+
+test bool valueText(value v) = textWriteRead(#value, v);
+test bool nodeText(node v) = textWriteRead(#node, v);
+test bool strText(str v) = textWriteRead(#str, v);
+test bool mapText(map[value, value] v) = textWriteRead(#map[value,value], v);
+test bool setText(set[value] v) = textWriteRead(#set[value], v);
+test bool listText(list[value] v) = textWriteRead(#list[value], v);
+test bool tupleText(tuple[value,value,value] v) = textWriteRead(#tuple[value,value,value], v);
+test bool numText(num v) = textWriteRead(#num, v);
+
+test bool valueBinary(value v) = binaryWriteRead(#value, v);
+test bool nodeBinary(node v) = binaryWriteRead(#node, v);
+test bool strBinary(str v) = binaryWriteRead(#str, v);
+test bool mapBinary(map[value, value] v) = binaryWriteRead(#map[value,value], v);
+test bool setBinary(set[value] v) = binaryWriteRead(#set[value], v);
+test bool listBinary(list[value] v) = binaryWriteRead(#list[value], v);
+test bool tupleBinary(tuple[value,value,value] v) = binaryWriteRead(#tuple[value,value,value], v);
+test bool numBinary(num v) = binaryWriteRead(#num, v);
