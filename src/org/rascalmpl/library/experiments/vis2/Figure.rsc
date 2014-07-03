@@ -139,7 +139,7 @@ public data Figure =
    | _scatterplot(FProperties props)
    
  // graph
-   | _graph(Figures nodes, Edges edges, FProperties props)
+   | _graph(map[&T, Figure] nodes, Edges[&T] edges, FProperties props)
    | _texteditor(FProperties props)
    
 // interaction
@@ -175,14 +175,14 @@ public data Figure =
 */
    ;
  
-data Edge =			 							// edge between between two elements in complex shapes like tree or graph
-     _edge(int from, int to, FProperties props)
+data Edge[&T] =			 							// edge between between two elements in complex shapes like tree or graph
+     _edge(&T from, &T to, str label, FProperties props)
    ;
    
-public alias Edges = list[Edge];
+public alias Edges[&T] = list[Edge[&T]];
    
-public Edge edge(int from, int to, FProperty props ...){
-  return _edge(from, to, props);
+public Edge edge(&T from, &T to, str label, FProperty props ...){
+  return _edge(from, to, label, props);
 }
 
 public Figure text(value v, FProperty props ...){
@@ -205,7 +205,7 @@ public Figure vcat(Figures figs, FProperty props ...){
   return _vcat(figs,props);
 }
 
-public Figure graph(Figures nodes, Edges edges, FProperty props...){
+public Figure graph(map[&T, Figure] nodes, Edges[&T] edges, FProperty props...){
 	return _graph(nodes, edges, props);
 }
 

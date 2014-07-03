@@ -24,7 +24,15 @@ void ex0(){
 
 void ex01(){
 	ex("ex01", box(fillColor("red"), size(100,100)));
-}  
+}
+
+void R(){
+	ex("R", box(fillColor("red"), size(100,100)));
+}
+
+void B(){
+	ex("B", box(fillColor("blue"), size(100,100)));
+}    
 
 void ex02(){
 	ex("ex02", box(fillColor("red"), lineColor("blue"), lineWidth(10), lineStyle([10,20,10,10]), size(100,100)));
@@ -257,15 +265,15 @@ void ex62(){
 					], align(left(), vcenter())));
 }
 
-
-Figures nodes1 = [ /* 0 */	hcat([box(fillColor("green"), size(50,50)),box(fillColor("yellow"), size(50,50)), box(fillColor("gray"), size(50,50))]),
-          		   /* 1 */	box(fillColor("red"), fillOpacity(0.4), size(100,100)),
-     	    	   /* 2 */	box(fillColor("lightblue"), rounded(10,10), lineStyle([1,1,1,1,1,1]), size(150,150))
-     	  		];
-Edges edges1 = [edge(0,1, lineColor("orange")), edge(1,2, lineWidth(3), lineOpacity(0.3)), edge(2,0, lineStyle([4,2,4,2]))];        
+map[str,Figure] nodes1 = 
+			     ( "N0" :	box(fillColor("green")),
+          		   "N1" :   box(fillColor("red")),
+     	    	   "N2" :	box(fillColor("lightblue"))
+     	  		);
+Edges[str] edges1 = [edge("N0","N1", "N0-N1", lineColor("orange")), edge("N1","N2", "N1-N2", lineWidth(3), lineOpacity(0.3)), edge("N2","N0", "N2-N0", lineStyle([4,2,4,2]))];        
 
 void ex70(){
-	ex("ex70", graph(nodes1, edges1, size(500,500)));
+	ex("ex70", graph(nodes1, edges1, size(700,700)));
 }
 
 void ex71(){

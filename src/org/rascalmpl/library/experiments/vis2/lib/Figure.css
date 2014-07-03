@@ -81,3 +81,40 @@ rect:hover {
 	  stroke: black;
 	  stroke-width: 1.5px;
 }
+
+/ * graph */
+
+svg {
+  border: 1px solid black;
+  overflow: hidden;
+}
+
+text {
+  font-weight: 300;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+  font-size: 14px;
+}
+
+.node rect {
+  stroke-width: 2px;
+  stroke: #333;
+  fill: #fff;
+}
+
+#node-CLOSED rect {
+  fill: #f77;
+}
+
+#node-ESTAB rect {
+  fill: #7f7;
+}
+
+.edgeLabel rect {
+  fill: #fff;
+}
+
+.edgePath path {
+  stroke: #333;
+  stroke-width: 1.5px;
+  fill: none;
+}
