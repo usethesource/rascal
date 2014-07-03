@@ -357,7 +357,8 @@ str trPath(Path path){
 			case field(int position):	accessor += "[<position>]";
 			
 			case argument(str name):	accessor += ".<name>";
-			case argument(int position):accessor += "[<position>]";
+			case argument(int position):accessor += "[\\\"#args\\\"][<position>]";
+			case keywordParam(str name):accessor += ".<name>";
   
 			case element(int index):	accessor += "[<index>]";
   			case sublist(int from, int to):	accessor += ".slice(<from>,<to>]";

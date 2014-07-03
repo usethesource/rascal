@@ -131,11 +131,7 @@ function drawFigure1(f) {
     return f.draw(area, x, y);
 }
 
-function redrawFigure(){
-    var area = d3.select("#figurearea svg");
-    try { area.remove(); } catch(e) { console.log(redrawFigure, e); };
-    drawFigure1(Figure.figure_root);
-}
+
 
 bboxExtraFigure = function (fig){
     if(fig.hasOwnProperty("extra_figure")){
@@ -162,7 +158,6 @@ function addInteraction(selection, x, y, fig) {
                fig.draw_extra_figure = (fig.event === "click") ? ! fig.draw_extra_figure : true;
                redrawFigure();
            } else {
-                //fig.draw_extra_figure = false;
                 redrawFigure();
            }
         });
@@ -250,12 +245,17 @@ ajax.post = function(url, data, callback, sync) {
 function askServer(path, params) {
 	ajax.post(path, params, function(responseText){
 		try {
+            if(d3.event){
+              d3.event.stopPropagation();
+            }
             var res = JSON.parse(responseText);
             var area = d3.select("#figurearea svg");
-            try { area.remove(); } catch(e) { console.log("askServer", e); };
+            if(!area.empty()){
+              try { area.remove(); } catch(e) { console.log("askServer", e); };
+		    }
             Figure.name = res.name;
-            Figure.model_constructor = res.model_root["#name"];
-            Figure.model = res.model_root["#args"];
+            Figure.model_constructor = res.model_root;
+            Figure.model = res.model_root;
             Figure.site = res.site;
             Figure.figure_root = res.figure_root;
             drawFigure(res.figure_root);
@@ -267,7 +267,15 @@ function askServer(path, params) {
 }
 
 function refreshFromServer(){
-    askServer(Figure.site + "/refresh/" + Figure.name, {"model" : JSON.stringify({"#name": Figure.model_constructor, "#args": Figure.model})});
+    askServer(Figure.site + "/refresh/" + Figure.name, {"model" : JSON.stringify(Figure.model)});
+}
+
+function redrawFigure(){
+    var area = d3.select("#figurearea svg");
+    if(!area.empty()){
+      try { area.remove(); } catch(e) { console.log(redrawFigure, e); };
+    }
+    drawFigure1(Figure.figure_root);
 }
 
 /****************** Bounding box and draw function table *******/
