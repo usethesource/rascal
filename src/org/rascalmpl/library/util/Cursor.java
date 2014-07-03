@@ -33,6 +33,7 @@ public class Cursor {
 	public static final Type Nav_fieldPosition = tf.constructor(cursors, Nav, "field", tf.integerType(), "position");
 	public static final Type Nav_argumentPosition = tf.constructor(cursors, Nav, "argument", tf.integerType(), "position");
 	public static final Type Nav_argumentName = tf.constructor(cursors, Nav, "argument", tf.stringType(), "name");
+	public static final Type Nav_keywordParam = tf.constructor(cursors, Nav, "keywordParam", tf.stringType(), "name");
 	public static final Type Nav_element = tf.constructor(cursors, Nav, "element", tf.integerType(), "index");
 	public static final Type Nav_sublist = tf.constructor(cursors, Nav, "sublist", tf.integerType(), "from", tf.integerType(), "to");
 	

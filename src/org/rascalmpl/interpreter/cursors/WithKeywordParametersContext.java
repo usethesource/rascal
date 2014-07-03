@@ -8,7 +8,6 @@ import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.rascalmpl.library.util.Cursor;
 
 public class WithKeywordParametersContext extends Context {
-
 	private Context ctx;
 	private String label;
 	private IWithKeywordParameters<IConstructor> kwp;
@@ -26,7 +25,7 @@ public class WithKeywordParametersContext extends Context {
 	
 	@Override
 	public IList toPath(IValueFactory vf) {
-		return ctx.toPath(vf).append(vf.constructor(Cursor.Nav_argumentName, vf.string(label)));
+		return ctx.toPath(vf).append(vf.constructor(Cursor.Nav_keywordParam, vf.string(label)));
 	}
 
 }
