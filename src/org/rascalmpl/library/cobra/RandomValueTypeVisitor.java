@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -289,7 +288,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
 	@Override
 	public IValue visitNode(Type type) {
-	  String str = stRandom.nextBoolean() ? RandomStringUtils.random(stRandom.nextInt(5)) : RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5));
+		String str = stRandom.nextBoolean() ? RandomUtil.string(stRandom, stRandom.nextInt(5)) : RandomUtil.stringAlpha(stRandom, stRandom.nextInt(5));
 
 	  int arity = maxDepth <= 0 ? 0: stRandom.nextInt(5);
 		IValue[] args = new IValue[arity];
