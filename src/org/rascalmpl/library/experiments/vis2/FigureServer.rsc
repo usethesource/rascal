@@ -48,9 +48,11 @@ res = "\<html\>
         '	\<title\>Rascal Visualization Server\</title\>
          '	\<link rel=\"stylesheet\" href=\"<vis2>/lib/reset.css\" /\>
         '	\<link rel=\"stylesheet\" href=\"<vis2>/lib/Figure.css\" /\>
+        '	\<link rel=\"stylesheet\" href=\"<vis2>/lib/nv.d3.css\" /\>
         '	\<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"\>\</script\>
         '	\<script src=\"http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js\"\>\</script\>
         '	\<script src=\"<vis2>/JSFigure.js\"\>\</script\>
+        '	\<script src=\"<vis2>/lib/nv.d3.js\"\>\</script\>
         '   \<style\>
         '   /*#active { background-color: #CCCCCC; }*/
         '	a { border: 1px solid; pad: 10px; color: #000000; text-decoration: none; border-radius: 4px;}
@@ -164,7 +166,9 @@ private str refresh(str name, str modelAsJSON){
 			descr = visualizations[name];
 			model = fromJSON(descr.model_type, modelAsJSON);
 			println("refresh: <site>, <model>");
+			println("refresh: model before trafo: <model>");
 			model = descr.transform(makeCursor(model));
+			println("refresh: model after trafo: <model>");
 			Figure figure = descr.visualize(makeCursor(model));
 			s = trJson(figure, emptyFigure());
 			descr.model = model;

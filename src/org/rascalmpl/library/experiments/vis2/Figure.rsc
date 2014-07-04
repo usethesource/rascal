@@ -14,6 +14,7 @@ alias Cursor[&T] = &T;
 data Bind[&T]
     = bind(Cursor[&T] accessor)
     | bind(Cursor[&T] accessor, &T val)
+    | update(value(value model))
 	;
 	
 data HAlign = left() | hcenter() | right();
@@ -84,15 +85,15 @@ public data Figure(
    
     	// lines
     
-		int lineWidth = 1,
-		str lineColor = "black",
-		list[int] lineStyle = [],
-		real lineOpacity = 1.0,
+		int strokeWidth = 1,			// was: lineWidth
+		str stroke = "black", 			// was: lineColor
+		list[int] strokeDashArray = [],	// was: lineStyle
+		real strokeOpacity = 1.0,		// was: lineOpacity
 	
 		// areas
 
-		str fillColor = "white",
-		real fillOpacity = 1.0,
+		str fill = "white", 			// was: fillColor
+		real fillOpacity = 1.0,			// was: fill-opacity
 		tuple[int, int] rounded = <0, 0>,
 	
 		tuple[HAlign, VAlign] align = <hcenter(), vcenter()>,
@@ -101,10 +102,14 @@ public data Figure(
 		VAlign valign = vcenter(),
 
 		// fonts and text
-	
-		str font = "Helvetica",
+		
+		str fontFamily = "sans-serif",
+		str fontName = "Helvetica", 	// was: font
 		int fontSize = 12,
-
+		str fontStyle = "normal",
+		str fontWeight = "normal",
+		str textDecoration	= "none",	// text-decoration
+		
 		// interaction
 	
 		Event event = on(),
@@ -174,6 +179,7 @@ public data Figure(
    
    | barchart()
    | scatterplot()
+   | lineChart()
   
 // graph
    | graph(map[str, Figure] nodes = (), Figures edges = [])
