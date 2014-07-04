@@ -42,26 +42,20 @@ Response page1(Method method, str path, map[str, str] parameters){ // Debugging 
 }
 
 Response page(get(), /^\/$/                          , map[str,str] _) {
-vis2 = "/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2";
 res = "\<html\>
 		'\<head\>
         '	\<title\>Rascal Visualization Server\</title\>
-         '	\<link rel=\"stylesheet\" href=\"<vis2>/lib/reset.css\" /\>
-        '	\<link rel=\"stylesheet\" href=\"<vis2>/lib/Figure.css\" /\>
-        '	\<link rel=\"stylesheet\" href=\"<vis2>/lib/nv.d3.css\" /\>
+         '	\<link rel=\"stylesheet\" href=\"lib/reset.css\" /\>
+        '	\<link rel=\"stylesheet\" href=\"lib/Figure.css\" /\>
+        '	\<link rel=\"stylesheet\" href=\"/lib/nv.d3.css\" /\>
         '	\<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"\>\</script\>
         '	\<script src=\"http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js\"\>\</script\>
-        '	\<script src=\"<vis2>/JSFigure.js\"\>\</script\>
-        '	\<script src=\"<vis2>/lib/nv.d3.js\"\>\</script\>
+        '	\<script src=\"JSFigure.js\"\>\</script\>
+        '	\<script src=\"lib/nv.d3.js\"\>\</script\>
         '   \<style\>
-        '   /*#active { background-color: #CCCCCC; }*/
         '	a { border: 1px solid; pad: 10px; color: #000000; text-decoration: none; border-radius: 4px;}
-        '   /* unvisited link */
 		'   a:link { background-color: #E6E6E6; fill: #000000;}
-		'  /* mouse over link */
 		'   a:hover { background-color: #FFFFFF; }
-		'	/* selected link */
-		'	/*a:active { color: #000000; }*/
         '   \</style\>
 		'\</head\>
 		'\<body\>
@@ -101,7 +95,8 @@ default Response page(!get(), str path, map[str, str] parameters) {
 
 /********************** web server creation ********************/
 
-private loc base = |file:///|;
+
+private loc base = |rascal:///experiments/vis2|;
 
 private loc startFigureServer() {
   	loc site = |http://localhost:8081|;
@@ -167,7 +162,8 @@ private str refresh(str name, str modelAsJSON){
 			model = fromJSON(descr.model_type, modelAsJSON);
 			println("refresh: <site>, <model>");
 			println("refresh: model before trafo: <model>");
-			model = descr.transform(makeCursor(model));
+			model = descr.transform(model);
+			//model = descr.transform(makeCursor(model));
 			println("refresh: model after trafo: <model>");
 			Figure figure = descr.visualize(makeCursor(model));
 			s = trJson(figure, emptyFigure());
