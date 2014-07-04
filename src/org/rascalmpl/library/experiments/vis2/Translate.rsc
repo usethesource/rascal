@@ -7,6 +7,7 @@ import IO;
 import List;
 import util::Cursor;
 import Type;
+import lang::json::IO;
 
 /*
  * Translate a Figure to HTML + JSON
@@ -40,6 +41,12 @@ public str fig2html(str title, str site_as_str){
 
 /******************** Translate figure primitives ************************************/
 
+void check(str property, str val, set[str] allowed){
+	if(val notin allowed){
+		throw "property <property> has value <val> but should be one of <allowed>";
+	}
+}
+
 str trProperties(Figure child, Figure parent){
 	properties = [];
 	
@@ -61,17 +68,18 @@ str trProperties(Figure child, Figure parent){
 	if(child.hgap != parent.hgap) 					properties += "\"hgap\": <numArg(child.hgap)>";
 	if(child.vgap != parent.vgap) 					properties += "\"vgap\": <numArg(child.vgap)>";
 	
-	if(child.lineWidth != parent.lineWidth) 		properties += "\"lineWidth\": <numArg(child.lineWidth)>";
+	if(child.strokeWidth != parent.strokeWidth) 	properties += "\"stroke-width\": <numArg(child.strokeWidth)>";
 	
-	if(child.lineColor != parent.lineColor) 		properties += "\"lineColor\": <strArg(child.lineColor)>";
+	if(child.stroke != parent.stroke) 				properties += "\"stroke\": <strArg(child.stroke)>";
 	
-	if(child.lineStyle != parent.lineStyle) 		properties += "\"lineStyle\": <child.lineStyle>";			// TODO
+	if(child.strokeDashArray != parent.strokeDashArray) 		
+													properties += "\"stroke-dasharray\": <child.strokeDashArray>";			// TODO
 	
-	if(child.fillColor != parent.fillColor) 		properties += "\"fillColor\": <strArg(child.fillColor)>";
+	if(child.fill != parent.fill) 					properties += "\"fill\": <strArg(child.fill)>";
 	
-	if(child.lineOpacity != parent.lineOpacity)		properties += "\"lineOpacity\": <numArg(child.lineOpacity)>";
+	if(child.strokeOpacity != parent.strokeOpacity)		properties += "\"stroke-opacity\": <numArg(child.strokeOpacity)>";
 	
-	if(child.fillOpacity != parent.fillOpacity)		properties += "\"fillOpacity\": <numArg(child.fillOpacity)>";
+	if(child.fillOpacity != parent.fillOpacity)		properties += "\"fill-opacity\": <numArg(child.fillOpacity)>";
 	
 	if(child.rounded != parent.rounded)				properties += "\"rx\": <numArg(child.rounded[0])>, 
 																  '\"ry\": <numArg(child.rounded[1])>";
@@ -83,10 +91,20 @@ str trProperties(Figure child, Figure parent){
 	
 	if(child.valign != parent.valign) 				properties += "\"valign\": <trVAlign(child.valign)>";
 												  	  
-												  
-	if(child.font != parent.font) 					properties += "\"fontName\": <strArg(child.font)>";
+	if(child.fontFamily != parent.fontFamily) 		properties += "\"font-family\": <strArg(child.fontFamily)>";											  
+	if(child.fontName != parent.fontName) 			properties += "\"font-name\": <strArg(child.fontName)>";
 	
-	if(child.fontSize != parent.fontSize) 			properties += "\"fontSize\": <numArg(child.fontSize)>";
+	if(child.fontSize != parent.fontSize) 			properties += "\"font-size\": <numArg(child.fontSize)>";
+
+	check("fontStyle", child.fontStyle, {"normal", "italic"});
+	if(child.fontStyle != parent.fontStyle) 		properties += "\"font-style\": <strArg(child.fontStyle)>";
+
+	check("fontWeight", child.fontWeight, {"normal", "bold"});
+	if(child.fontWeight != parent.fontWeight) 		properties += "\"font-weight\": <strArg(child.fontWeight)>";
+
+	//check("textDecoration", child.textDecoration, {"none","underline", "overline", "line-through"});
+	//if(child.textDecoration != parent.textDecoration) 
+													properties += "\"text-decoration\": <strArg(child.textDecoration)>";
 	
 	if(child.dataset != parent.dataset) 			properties += trDataset(child.dataset);
 	
@@ -98,7 +116,7 @@ str trProperties(Figure child, Figure parent){
 				if(isCursor(accessor)){ 	
 					properties += [
 						"\"event\": \"<event>\"",
-						"\"type\":  \"<typeOf(accessor)>\"", 
+						//"\"type\":  \"<typeOf(accessor)>\"", 
 						"\"accessor\": <trPath(toPath(accessor))>"
 						];
  				} else {
@@ -109,9 +127,9 @@ str trProperties(Figure child, Figure parent){
 				if(isCursor(accessor)){ 	
 					properties += [
 						"\"event\":  		\"<event>\"",
-						"\"type\": 			\"<typeOf(accessor)>\"",
+					//	"\"type\": 			\"int()\", 					//\"<typeOf(accessor)>\"",
 						"\"accessor\": 		<trPath(toPath(accessor))>",
-						"\"replacement\":	<replacement>"
+						"\"replacement\":	<toJSON(replacement)>"
 						];	
  				} else {
    					throw "on: accessor <accessor> in binder is not a cursor";
@@ -122,6 +140,8 @@ str trProperties(Figure child, Figure parent){
    						"\"event\":  		\"<event>\"",
 						"\"extra_figure\":	<trJson(fig, parent)>"
 						];
+		    default:
+		    	throw "No case for <child.event>";
 		}
 	}
 	
@@ -144,7 +164,7 @@ str trJson(figure: box(), Figure parent) {
 	println("inner = <inner>");
 	return 
 	"{\"figure\": \"box\"" +
-		(getName(inner) == "emptyFigure" ? "" : ", \"inner\": <trJson(inner, parent)>") +
+		(getName(inner) == "emptyFigure" ? "" : ", \"inner\": <trJson(inner, figure)>") +
 		"<trProperties(figure, parent)> }";
 }
 
@@ -181,9 +201,13 @@ str trJson(figure: vcat(), Figure parent) {
 
 str trJson(figure: barchart(), Figure parent) = trSimple("barchart", figure, parent);
 
-// ---------- barchart ----------
+// ---------- scatterplot ----------
 
 str trJson(figure: scatterplot(), Figure parent) =  trSimple("scatterplot", figure, parent);
+
+// ---------- linechart ----------
+
+str trJson(figure: lineChart(), Figure parent) =  trSimple("linechart", figure, parent);
 
 // ---------- graph ----------
 
@@ -195,8 +219,8 @@ str trJson(figure: graph(), Figure parent) {
 	return
 	"{\"figure\": \"graph\", 
 	' \"nodes\":  [<intercalate(",\n", ["{ \"id\": \"<f>\", 
-	'                                      \"value\" : {\"label\": \"<f>\", 
-	'												    \"figure\": <trJson(nodes[f], parent)>}}" | f <- nodes])>
+	'                                      \"value\" : {\"label\": \"<f>\"
+	'												    <trProperties(nodes[f], parent)>}}" | f <- nodes])>
 	'             ],  
 	' \"edges\":  [<intercalate(",\n", ["{\"u\": \"<from>\", 
 	'									  \"v\": \"<to>\", 

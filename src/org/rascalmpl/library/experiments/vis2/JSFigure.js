@@ -6,22 +6,21 @@ var Figure = {
     textValue: "none",
     hgap: 0,
     vgap: 0,
-    fillColor: "white",
-    fillOpacity: 1.0,
-    lineWidth: 1,
-    lineColor: "black", 
-    lineStyle: "solid",
-    lineOpacity: 1.0,
+    fill: "white",
+    "fill-opacity": 1.0,
+    "stroke-width": 1,
+    stroke: "black", 
+    "stroke-dasharray": [],
+    "stroke-opacity": 1.0,
     borderRadius: 0,
     halign: 0.5,
     valign: 0.5,
-    fontFamily: "sans-serif", // serif, sans-serif, monospace
-    fontName: "Helvetica",
-    fontSize: 12,
-    fontColor: "black",
-    fontStyle: "normal",        // normal, italic
-    fontWeight: "normal",      // normal, bold
-    textDecoration: "none",     // none, underline, overline, line-through
+    "font-family": "sans-serif", // serif, sans-serif, monospace
+    "font-name": "Helvetica",
+    "font-size": 12,
+    "font-style": "normal",        // normal, italic
+    "font-weight": "normal",      // normal, bold
+    "text-decoration": "none",     // none, underline, overline, line-through
     
     dataset: [], 
     figure_root:  {},
@@ -32,7 +31,10 @@ var Figure = {
                                
     getModelElement: function(accessor) { return eval(accessor); },
     
-    setModelElement: function(accessor, v) { eval(accessor + "=" + v); return v; },
+    setModelElement: function(accessor, v) { 
+          var v1 = !isString(v) ? JSON.stringify(v) : v;
+          eval(accessor + "=" + v1); return v; 
+          },
     
     model: undefined,
     
@@ -42,7 +44,7 @@ var Figure = {
 Object.defineProperty(Figure, "width", { get: function(){ 
                                                     if(this.hasOwnProperty("_width"))return this._width;
                                                     if(this.hasDefinedWidth()) return this.definedWidth;
-                                                    throw "Undefined width";
+                                                    return 0;
                                         },
              set: function(w){ this._width = w; }
         
@@ -50,7 +52,7 @@ Object.defineProperty(Figure, "width", { get: function(){
     
 Object.defineProperty(Figure, "height", { get: function(){ if(this.hasOwnProperty("_height")) return this._height;
                                                     if(this.hasDefinedHeight) return this.definedHeight;
-                                                        throw "Undefined height";
+                                                    return 0;
                                                },
                                           set: function(h){ 
                                                     if(isString(h)) {
@@ -146,10 +148,11 @@ function addInteraction(selection, x, y, fig) {
     	selection.style("cursor", "crosshair");
         
         if(fig.event != "click"){
-            selection.on("mouseout", function(){ fig.draw_extra_figure = false;  redrawFigure();});
+            selection.on("mouseout", function(){ d3.event.preventDefault(); fig.draw_extra_figure = false;  redrawFigure();});
         }
         
         selection.on(fig.event, function(e) {
+           d3.event.preventDefault();
            d3.event.stopPropagation();
            if(fig.hasOwnProperty("replacement")){
                 Figure.setModelElement(fig.accessor, fig.replacement);
@@ -300,7 +303,7 @@ bboxFunction.box = function() {
         height = this.definedHeight;
         definedH = 1;
     } 
-    var lw = this.lineWidth;
+    var lw = this["stroke-width"];
     width += (lw + 1) / 2;
     height += (lw + 1) / 2;
     console.log("box.bbox:", width, height);
@@ -332,10 +335,10 @@ drawFunction.box = function (selection, x, y) {
     .attr("y", y)
     .attr("width", this.width)
     .attr("height", this.height)
-    .style("stroke", this.lineColor)
-    .style("fill", this.fillColor)
-    .style("stroke-width", this.lineWidth + "px")
-    .style("stroke-dasharray", this.lineStyle)
+    .style("stroke", this.stroke)
+    .style("fill", this.fill)
+    .style("stroke-width", this["stroke-width"] + "px")
+    .style("stroke-dasharray", this["stroke-dasharray"])
     if (this.hasOwnProperty("inner")) {
         var inner = this.inner;
         inner.draw(selection, x + this.hgap + inner.halign * (this.width - inner.width - 2 * this.hgap), 
@@ -424,24 +427,24 @@ drawFunction.vcat = function (selection, x, y) {
 /**************** text *******************/
 
 bboxFunction.text = function() {
-    var svgtmp = d3.select("body").append("svg").attr("id", "svgtmp").attr("width", 100).attr("height", 100);
+    var svgtmp = d3.select("body").append("svg").attr("id", "svgtmp").attr("width", 1000).attr("height", 1000);
     //console.log("svgtmp", svgtmp);
     var txt = svgtmp.append("text")
         .attr("x", 0)
         .attr("y", 0)
         .style("text-anchor", "start")
         .text(this.textValue)
-        .style("font-family", this.fontFamily)
-        .style("font-style", this.fontStyle)
-        .style("font-weight", this.fontWeight)
-        .style("font-size", this.fontSize)
-        .style("stroke", this.fonrColor)
-        .style("fill",   this.FontColor);
+        .style("font-family", this["font-family"])
+        .style("font-style", this["font-style"])
+        .style("font-weight", this["font-weight"])
+        .style("font-size", this["font-size"])
+        .style("stroke", this.stroke)
+        .style("fill",   this.stroke);
    
     var bb = txt.node().getBBox();
     svgtmp.node().remove();
-    this.width = bb.width;
-    this.height = bb.height;
+    this.width = Math.max(this.width,1.05*bb.width);
+    this.height = Math.max(this.height, 1.05*bb.height);
     this.ascent = bb.y; // save the y of the bounding box as ascent
     console.log("text:", this.width, this.height, this.ascent);
 }
@@ -453,12 +456,12 @@ drawFunction.text = function (selection, x, y) {
         .attr("y", y - this.ascent) // take ascent into account
         .style("text-anchor", "start")
         .text(this.textValue)
-        .style("font-family", this.fontFamily)
-        .style("font-style", this.fontStyle)
-        .style("font-weight", this.fontWeight)
-        .style("font-size", this.fontSize)
-        .style("stroke", this.fontColor)
-        .style("fill", this.fontColor);
+        .style("font-family", this["font-family"])
+        .style("font-style", this["font-style"])
+        .style("font-weight", this["font-weight"])
+        .style("font-size", this["font-size"])
+        .style("stroke", this.stroke)
+        .style("fill",   this.stroke);
     
     drawExtraFigure(selection, x, y, this);
     addInteraction(my_svg, x, y, this);
@@ -692,17 +695,16 @@ function addLabel(node, root, marginX, marginY) {
              'translate(' + (-bbox.width / 2) + ',' + (-bbox.height / 2) + ')');
 
   rect
-    .attr('rx', node.figure.rx || 5)
-    .attr('ry', node.figure.ry || 5)
+    .attr('rx', node.rx || 5)
+    .attr('ry', node.ry || 5)
     .attr('x', -(bbox.width / 2 + marginX))
     .attr('y', -(bbox.height / 2 + marginY))
     .attr('width', bbox.width + 2 * marginX)
     .attr('height', bbox.height + 2 * marginY)
-    .style('fill', node.figure.fillColor || "#000000")
-    .style("stroke", node.figure.lineColor)
-    .style("fill", node.figure.fillColor)
-    .style("stroke-width", node.figure.lineWidth + "px")
-    .style("stroke-dasharray", node.figure.lineStyle);
+    .style('fill', node.fill || "#000000")
+    .style("stroke", node.stroke)
+    .style("stroke-width", node["stroke-Width"] + "px")
+    .style("stroke-dasharray", node["stroke-dasharray"]);
 
   if (node.fill) {
     rect.attr('fill', "#afafaf"); //node.fill);
@@ -937,10 +939,10 @@ drawFunction.visible = function (selection, x, y) {
 /********************* buttonInput ***************************/
 
 bboxFunction.buttonInput = function() {
-    if (this.width == 0) {
+    if (!this.width || this.width == 0) {
         this.width = 200;
     }
-    if (this.height == 0) {
+    if (!this.height || this.height == 0) {
         this.height = 200;
     }
 }
@@ -1003,7 +1005,7 @@ drawFunction.strInput = function (selection, x, y) {
         .attr("x", x).attr("y", y).attr("width", this.width).attr("height", this.height);
     
     foreign.append("xhtml:body")
-        .append("form").attr("action", "").attr("onsubmit", "return false")
+        .append("form").attr("action", "").attr("onsubmit", "return false;")
         .append("input")
             .style("width", this.width + "px").style("height", this.height + "px")
             .attr("type", "text").attr("value", Figure.getModelElement(accessor));
@@ -1144,3 +1146,83 @@ drawFunction.choiceInput = function (selection, x, y) {
             return handleUserInput(fig, foreign.select("select")[0][0].selectedIndex);
      });
 }
+
+
+/****************** linechart ************************/
+
+bboxFunction.linechart = function() {
+    if (this.width == 0) {
+        this.width = 200;
+    }
+    if (this.height == 0) {
+        this.height = 200;
+    }
+}
+
+drawFunction.linechart = function (selection, x, y) {
+
+nv.addGraph(function() {
+  var chart = nv.models.lineChart()
+                .margin({left: 100})  //Adjust chart margins to give the x-axis some breathing room.
+                .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!
+                .transitionDuration(350)  //how fast do you want the lines to transition?
+                .showLegend(true)       //Show the legend, allowing users to turn on/off line series.
+                .showYAxis(true)        //Show the y-axis
+                .showXAxis(true)        //Show the x-axis
+  ;
+
+  chart.xAxis     //Chart x-axis settings
+      .axisLabel('Time (ms)')
+      .tickFormat(d3.format(',r'));
+
+  chart.yAxis     //Chart y-axis settings
+      .axisLabel('Voltage (v)')
+      .tickFormat(d3.format('.02f'));
+
+  /* Done setting the chart up? Time to render it!*/
+  var myData = sinAndCos();   //You need data...
+
+  selection    //Select the <svg> element you want to render the chart in.   
+      .datum(myData)         //Populate the <svg> element with chart data...
+      .call(chart);          //Finally, render the chart!
+
+  //Update the chart when window resizes.
+  nv.utils.windowResize(function() { chart.update() });
+  return chart;
+});
+/**************************************
+ * Simple test data generator
+ */
+function sinAndCos() {
+  var sin = [],sin2 = [],
+      cos = [];
+
+  //Data is represented as an array of {x,y} pairs.
+  for (var i = 0; i < 100; i++) {
+    sin.push({x: i, y: Math.sin(i/10)});
+    sin2.push({x: i, y: Math.sin(i/10) *0.25 + 0.5});
+    cos.push({x: i, y: .5 * Math.cos(i/10)});
+  }
+
+  //Line chart data should be sent as an array of series objects.
+  return [
+    {
+      values: sin,      //values - represents the array of {x,y} data points
+      key: 'Sine Wave', //key  - the name of the series.
+      color: '#ff7f0e'  //color - optional: choose your own line color.
+    },
+    {
+      values: cos,
+      key: 'Cosine Wave',
+      color: '#2ca02c'
+    },
+    {
+      values: sin2,
+      key: 'Another sine wave',
+      color: '#7777ff',
+      area: true      //area - set to true if you want this line to turn into a filled area chart.
+    }
+  ];
+}
+}
+
