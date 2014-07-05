@@ -1,7 +1,7 @@
 module experiments::vis2::Examples
 
 import experiments::vis2::Figure;
-import experiments::vis2::FigureServer;
+import experiments::vis2::FigureServer; 
 
 import String;
 import util::Math;
@@ -222,19 +222,29 @@ void vcat5(){
 	ex("vcat5", vcat(figs=[box(fill="red",size=<100,100>), box(fill="green", size=<200,200>)], align=<left(), top()>));
 }
 
-list[num] DATA1 = [ 11, 12, 15, 20, 18, 17, 16, 18, 23, 25 ];
+/********************* barChart ******************************/
 
-void barchart1(){
-	ex("barchart1", barchart(fill="black", size=<400,300>, dataset=DATA1));
+Dataset[LabeledData] exampleBarData() =
+	("Cumulative Return": [	<"A Label" , -29.765957771107>,
+          					<"B Label" , 0>,
+       						<"C Label" , 32.807804682612>,
+          					<"D Label" , 196.45946739256>,
+     						<"E Label" , 0.19434030906893>,
+     						<"F Label" , -98.079782601442>,
+      						<"G Label" , -13.925743130903>,
+      						<"H Label" , -5.1387322875705>
+      					  ]);
+
+void barChart1(){
+	ex("barChart1", barChart(size=<400,300>, dataset=exampleBarData()));
+
 }
 
-void barchart2(){
-	ex("barchart2", hcat(figs=[barchart(fill="blue", size=<400,300>, dataset=DATA1), 
-					 box(fill="red",size=<100,100>), 
-					 barchart(fill="black", size=<200,300>, dataset=DATA1),
-					 box(fill="yellow",size=<50,50>)
-					], align=<right(), bottom()>));
+void barChart2(){
+	ex("barChart2", hcat(figs=[  box(fill="red",size=<100,100>), barChart(size=<400,300>, dataset=exampleBarData())]));
 }
+
+/*
 
 lrel[num,num] DATA2 = [<5, 20>, <480, 90>, <250, 50>, <100, 33>, <330, 95>,<410, 12>, <475, 44>, <25, 67>, <85, 21>, <220, 88>, <600, 150>];
 
@@ -257,11 +267,51 @@ void scatterplot3(){
 					 //box(fill="yellow",size=<50,50>)
 					], align=<left(), vcenter()>));
 }
+*/
 
-void linechart1(){
-	ex("linechart1", lineChart(fill="blue", size=<400,300>));
+/********************* lineChart ******************************/
+
+Dataset[XYData] sinAndCos() =
+	("Sine Wave":         xyData([<x, round(sin(x/10),0.01)>               | x <- [0.0, 1.0 .. 100.0]], color= "#ff7f0e"),
+	 "Cosine Wave":       xyData([<x, round(0.5 * cos(x/10), 0.01)>        | x <- [0.0, 1.0 .. 100.0]], color= "#2ca02c"),
+	 "Another sine wave": xyData([<x, round(0.25 * sin(x/10) + 0.5, 0.01)> | x <- [0.0, 1.0 .. 100.0]], color= "#7777ff", area=true)
+	);
+
+void lineChart1(){
+	ex("lineChart1", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+							   yAxis=axis(label="Voltage (v)", tick=".02f"),	
+							   dataset= sinAndCos(), 
+							   size=<400,400>));
 }
 
+void lineChart2(){
+	ex("lineChart2", hcat(figs=[box(fill="yellow", size=<200,100>),
+								lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+							   			  yAxis=axis(label="Voltage (v)", tick=".02f"),	
+							   			  dataset= sinAndCos(), 
+							   			  size=<400,400>)
+	]));
+}
+
+void lineChart3(){
+	ex("lineChart3", box(fill="whitesmoke", strokeWidth=4, stroke="blue",
+					     fig=hcat(figs=[barChart(size=<400,300>, dataset=exampleBarData()),
+								lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+							   			  yAxis=axis(label="Voltage (v)", tick=".02f"),	
+							   			  dataset= sinAndCos(), 
+							   			  size=<400,400>)
+	])));
+}
+
+void lineChart4(){
+	ex("lineChart4", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+							   yAxis=axis(label="Voltage (v)", tick=".02f"),	
+							   dataset= sinAndCos(), 
+							   flavor="lineWithFocusChart",
+							   size=<400,400>));
+}
+
+/********************* graph ******************************/
 
 map[str,Figure] nodes1 = 
 			     ( "N0" :	box(fill="yellow", rounded=<1,1>, strokeWidth=3),
@@ -280,11 +330,16 @@ void graph1(){
 
 
 void graph2(){
-	ex("graph2", hcat(figs=[graph(nodes=nodes1, edges=edges1, size=<250,250>),
-					 scatterplot(fill="blue", size=<400,300>, dataset=DATA2),
-					 barchart(fill="black", size=<400,300>, dataset=DATA1)
+	ex("graph2", hcat(figs=[ barChart(size=<400,300>, dataset=exampleBarData()),
+						     graph(nodes=nodes1, edges=edges1, size=<250,250>),
+					         lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+							   		   yAxis=axis(label="Voltage (v)", tick=".02f"),	
+							   		   dataset= sinAndCos(), 
+							   		   size=<400,400>)
 					], gap=<50,50>));
 }
+
+
 public void graph3(){
      nodes =
         ("A": box(size=<20,20>, fill="green"),
@@ -347,6 +402,7 @@ public void graph4(){
   			 render("graph4", graph(nodes=states, edges=edges, size=<900,900>,gap=<40,40>,fill="white"));
 }
 
+
 //void ex72(){
 //	ex("ex72", hcat(figs=[graph(nodes1, edges1, size(400,400)),
 //					 scatterplot(fill="blue", size=<400,300>, dataset=DATA2),
@@ -355,6 +411,10 @@ public void graph4(){
 //					], gap(50,50)));
 //}
 //
+
+
+/************** text *****************/
+
 void text1(){
 	ex("text1", text("Hello", fontFamily="sans-serif", fill="black", fontWeight="bold", fontStyle="italic", fontSize=20));
 }

@@ -14,50 +14,15 @@ alias Cursor[&T] = &T;
 data Bind[&T]
     = bind(Cursor[&T] accessor)
     | bind(Cursor[&T] accessor, &T val)
-    | update(value(value model))
+    | delete(Cursor[&T] accessor)
+    | add(Cursor[&T] accessor, value(value model))
 	;
 	
 data HAlign = left() | hcenter() | right();
 
 data VAlign = top() | vcenter() | bottom();
 
-public set[str] legalEvents = {
 
-// Form events
-	"blur",				// Fires the moment that the element loses focus
-	"change",			// Fires the moment when the value of the element is changed
-	"contextmenu",		// Script to be run when a context menu is triggered
-	"focus",			// Fires the moment when the element gets focus
-	"formchange",		// Script to be run when a form changes
-	"forminput",		// Script to be run when a form gets user input
-	"input",			// Script to be run when an element gets user input
-	"invalid",			// Script to be run when an element is invalid
-	"select",			// Fires after some text has been selected in an element
-	"submit",			// Fires when a form is submitted
-	
-// Keyboard events
-	"keydown",			// Fires when a user is pressing a key
-	"keypress",			// Fires when a user presses a key
-	"keyup",			// Fires when a user releases a key
-	
-// Mouse events
-	"click",			// Fires on a mouse click on the element
-	"dbclick",			// Fires on a mouse double-click on the element
-	"drag",				// Script to be run when an element is dragged
-	"dragend",			// Script to be run at the end of a drag operation
-	"dragenter",		// Script to be run when an element has been dragged to a valid drop target
-	"dragleave",		// Script to be run when an element leaves a valid drop target
-	"dragover",			// Script to be run when an element is being dragged over a valid drop target
-	"dragstart",		// Script to be run at the start of a drag operation
-	"drop",				// Script to be run when dragged element is being dropped
-	"mousedown",		// Fires when a mouse button is pressed down on an element
-	"mousemove",		// Fires when the mouse pointer moves over an element
-	"mouseeout",		// Fires when the mouse pointer moves out of an element
-	"mouseover",		// Fires when the mouse pointer moves over an element
-	"mouseup",			// Fires when a mouse button is released over an element
-	"mousewheel",		// Script to be run when the mouse wheel is being rotated
-	"scroll"			// Script to be run when an element's scrollbar is being scrolled
-	};
 
 /*
  * Figure: a visual element, the principal visualization datatype
@@ -71,6 +36,20 @@ data Event
 	| on(str event, Bind[value] binder)
 	| on(str event,Figure fig)
 	;
+	
+data XYData = xyData(lrel[num,num] pairs, 				// <x, y> values
+		     		 str color="black", 				// color of line
+			 		 bool area = false);				// fill area below line
+
+alias LabeledData = lrel[str label, num val];			// <label, number> values
+
+alias Dataset[&Kind] = map[str name, &Kind values];
+
+data Axis 
+	= axis(str label ="",  str tick = "d")
+	;
+	
+data Margin = margin(int left = 0, int right = 0, int top = 0, int bottom = 0);
 
 public data Figure(
 		tuple[int,int] pos = <0,0>,
@@ -116,7 +95,7 @@ public data Figure(
 	
 		// data sets
 	
-		list[value] dataset = []
+		Dataset dataset = ()
 	) =
 	
 	emptyFigure()
@@ -133,7 +112,6 @@ public data Figure(
    | vcat(Figures figs=[]) 				// horizontal and vertical concatenation
                    
 //   | _overlay(Figures figs, FProperties props)	// overlay (stacked) composition
-
 
 // interaction
 
@@ -177,15 +155,15 @@ public data Figure(
 
 // charts
    
-   | barchart()
-   | scatterplot()
-   | lineChart()
+   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[LabeledData] dataset = (), str flavor ="barChart")
+   | scatterPlot()
+   | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[XYData] dataset = (), str flavor ="lineChart")
   
 // graph
-   | graph(map[str, Figure] nodes = (), Figures edges = [])
+
+   | graph(map[str, Figure] nodes = (), Figures edges = [], str flavor="layeredGraph")
    | edge(str from, str to, str label)
    
-// | _texteditor()
    ;
  
 
