@@ -10,36 +10,10 @@ import Type;
 import lang::json::IO;
 
 /*
- * Translate a Figure to HTML + JSON
+ * Translate a Figure to JSON
  */
-
-// Translation a figure to one HTML page
-
-public str fig2html(str title, str site_as_str){
-	// TODO: get rid of this absolute path
-	vis2 = "/Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/vis2";
-	
-	return "\<html\>
-		'\<head\>
-        '	\<title\><title>\</title\>
-        '	\<link rel=\"stylesheet\" href=\"<vis2>/lib/reset.css\" /\>
-        '	\<link rel=\"stylesheet\" href=\"<vis2>/lib/Figure.css\" /\>
-        '	\<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"\>\</script\>
-        '	\<script src=\"<vis2>/JSFigure.js\"\>\</script\>
-        
-		'\</head\>
-		'\<body\>
-		'\<div id=\"figurearea\"\> 
-		'\</div\>
-		'\<script\>
-		'	askServer(\"<site_as_str>/initial_figure\");
-  		'\</script\>
-		'\</body\>
-		'\</html\>
-		";
-}
-
-/******************** Translate figure primitives ************************************/
+ 
+/******************** Translate figure properties ************************************/
 
 void check(str property, str val, set[str] allowed){
 	if(val notin allowed){
@@ -47,7 +21,7 @@ void check(str property, str val, set[str] allowed){
 	}
 }
 
-str trProperties(Figure child, Figure parent){
+str propsToJSON(Figure child, Figure parent){
 	properties = [];
 	
 	if(child.pos != parent.pos)						properties += "\"xpos\": <numArg(child.pos[0])>, 
@@ -109,8 +83,11 @@ str trProperties(Figure child, Figure parent){
 	if(child.dataset != parent.dataset) 			properties += trDataset(child.dataset);
 	
 	if(child.event != parent.event){
+		if(!isLegalEvent(child.event)){
+			throw "non-existing event name: <child.event>";
+		}
 	
-	println("trProperties: <child.event>");
+	    println("propsToJSON: <child.event>");
 		switch(child.event){
 			case on(str event, binder: bind(accessor)):
 				if(isCursor(accessor)){ 	
@@ -138,7 +115,7 @@ str trProperties(Figure child, Figure parent){
    			case on(str event, Figure fig):
    					properties += [
    						"\"event\":  		\"<event>\"",
-						"\"extra_figure\":	<trJson(fig, parent)>"
+						"\"extra_figure\":	<figToJSON(fig, parent)>"
 						];
 		    default:
 		    	throw "No case for <child.event>";
@@ -148,211 +125,72 @@ str trProperties(Figure child, Figure parent){
 	return properties == [] ? "" : "<for(p <- properties){>, <p><}>";
 }
 
-str trDataset(list[num] values1) 		= "\"dataset\": <values1>";
-str trDataset(lrel[num,num] values2)	= "\"dataset\": [" + intercalate(",", ["[<v1>,<v2>]" | <v1, v2> <- values2]) + "]";
+str trDataset(Dataset ds) = 
+	"\"dataset\": [ <intercalate(",\n", [ trSeries(key, ds[key]) | key <- ds ])> ]";
 
-// Graphical elements	
-
-// Figure without properties of its own
-
-str trSimple(str kind, Figure child, Figure parent) = "{\"figure\": \"<kind>\" <trProperties(child, parent)> }";
-
-// ---------- box ----------
-
-str trJson(figure: box(), Figure parent) {
-	inner = figure.fig; 
-	println("inner = <inner>");
-	return 
-	"{\"figure\": \"box\"" +
-		(getName(inner) == "emptyFigure" ? "" : ", \"inner\": <trJson(inner, figure)>") +
-		"<trProperties(figure, parent)> }";
-}
-
-// ---------- text ----------
-
-str trJson(figure: text(value v), Figure parent) = 
-	"{\"figure\": \"text\", \"textValue\": <valArgQuoted(v)> <trProperties(figure, parent)> }";
-
-// ---------- hcat ----------
-	
-str trJson(figure: hcat(), Figure parent){ 
-	figs = figure.figs;
+str trSeries(str key, series: xyData(lrel[num,num] pairs)	) {
+	xy = intercalate(",\n", [" {\"x\": <x>, \"y\": <y>}"| <x,y> <- series.pairs]);
 	return
-	"{\"figure\": \"hcat\",
-    ' \"inner\":   [<intercalate(",\n", [trJson(f, figure) | f <- figs])> 
-    '              ] 
-    '<trProperties(figure, parent)>
-    '}";
+		"{ \"key\":    \"<key>\",
+		'  \"values\": [ <xy> 
+		'	           ], 
+		'  \"color\":  \"<series.color>\", 
+		'  \"area\":   <series.area>
+		'}";
 }
 
-// ---------- vcat ----------
-    
-str trJson(figure: vcat(), Figure parent) { 
-	figs = figure.figs;
+str trSeries(str key, series: lrel[str label, num val] labeledValues) {
+	values = intercalate(",\n", [" {\"label\": \"<label>\", \"value\": <val>}"| <label, val> <- series]);
 	return
-	"{\"figure\": \"vcat\",
-    ' \"inner\":   [<intercalate(",\n", [trJson(f, figure) | f <- figs])> 
-    '              ] 
-    '<trProperties(figure, parent)>
-    '}";
+		"{ \"key\":    \"<key>\",
+		'  \"values\": [ <values> 
+		'	           ]
+		'}";
 }
 
-// ---------- barchart ----------
-
-str trJson(figure: barchart(), Figure parent) = trSimple("barchart", figure, parent);
-
-// ---------- scatterplot ----------
-
-str trJson(figure: scatterplot(), Figure parent) =  trSimple("scatterplot", figure, parent);
-
-// ---------- linechart ----------
-
-str trJson(figure: lineChart(), Figure parent) =  trSimple("linechart", figure, parent);
-
-// ---------- graph ----------
-
-str trJson(figure: graph(), Figure parent) { 
-	nodes = figure.nodes;
-	edges = figure.edges;
-	println("nodes = <nodes>");
-	println("edges = <edges>");
-	return
-	"{\"figure\": \"graph\", 
-	' \"nodes\":  [<intercalate(",\n", ["{ \"id\": \"<f>\", 
-	'                                      \"value\" : {\"label\": \"<f>\"
-	'												    <trProperties(nodes[f], parent)>}}" | f <- nodes])>
-	'             ],  
-	' \"edges\":  [<intercalate(",\n", ["{\"u\": \"<from>\", 
-	'									  \"v\": \"<to>\", 
-	'									  \"value\": {\"label\": \"<label>\" <trProperties(e, parent)>}}"| e: edge(from,to,label) <- edges])>
-	'         ]
-	' <trProperties(figure, parent)> 
-	'}";
+str trSeries(str key, Dataset[&T] ds) {
+	throw "trSeries: not recoginzed: <ds>";
 }
-
-// edge
-
-str trJSon(figure: edge(int from, int to)) {
-	
-	throw "edges should not be translated";
-}
-
-/*
-// ---------- texteditor ----------
-
-//Size sizeOf(_texteditor(FProperties fps),  FProperty pfps...){
-//	afps = combine(fps, pfps);
-//	res = getSize(afps, <200,200>);
-//	println("sizeOF texteditor: <res>");
-//	return res;
-//}
-//
-//private list[PRIM] tr(_texteditor(FProperties fps), bb, FProperties pfps) {
-//	println("tr _texteditor: fps <fps>, bb <bb>, pfps <pfps>");
-//	fps1 = combine(fps, pfps);
-//	return [texteditor_prim(bb, fps1)];
-//}
-*/
-
-// Visibility control elements
-
-// ---------- choice ----------
-
-str trJson(figure: experiments::vis2::Figure::choice(), Figure parent) { 
-	int selection = figure.selection;
-	choices = figure.figs;
-	if(isCursor(selection)){
-	   return 
-		"{\"figure\": 	\"choice\",
-		' \"selector\":	<trPath(toPath(selection))>,
-    	' \"inner\":   [<intercalate(",\n", [trJson(f, figure) | f <- choices])> 
-   	    '              ] 
-   	    ' <trProperties(figure, parent)>
-    	'}";
-    } else {
-    	throw "choice: selection should be a cursor: <selection>";
-    }
- }
-
- // ---------- visible ----------
- 
- str trJson(figure: visible(), Figure parent) { 
- 	bool condition = figure.condition;
- 	Figure fig = figure.fig;
-	if(isCursor(condition)){
-	   return 
-		"{\"figure\":	\"visible\",
-		' \"selector\":	<trPath(toPath(condition))>,
-    	' \"inner\":   	<trJson(fig, figure)>
-    	' <trProperties(figure, parent)> 
-    	'}";
-    } else {
-    	throw "fswitch: condition should be a cursor: <condition>";
-    }
- }   
-
-// ---------- input elements ----------
-
-// ---------- buttonInput ----------
-
-str trJson(figure: buttonInput(), Figure parent) {
-	trueText = figure.trueText;
-	falseText = figure.falseText;
-	return 
-	"{\"figure\": 		\"buttonInput\",
- 	' \"trueText\":		<strArg(trueText)>,
- 	' \"falseText\":	<strArg(falseText)>
- 	' <trProperties(figure, parent)> 
- 	'}";
-} 
-
-// ---------- checboxInput ----------
-
-str trJson(figure: checkboxInput(), Figure parent) = trSimple("checkboxInput", figure, parent);
-   
-// ---------- choiceInput ----------
-
-str trJson(figure: choiceInput(), Figure parent) {
-	choices = figure.choices;
-	return
-	"{\"figure\": 		 \"choiceInput\",
-	' \"choices\":		 <choices>
-	' <trProperties(figure, parent)> 
-	'}";
-}
-	
-// ---------- colorInput ----------
-
-str trJson(figure: colorInput(), Figure parent) = trSimple("colorInput", figure, parent);
-
-// ---------- numInput ----------
-
-str trJson(figure: numInput(), Figure parent) = trSimple("numInput", figure, parent);
-
-// ---------- rangeInput ----------
-
-str trJson(figure: rangeInput(), Figure parent) {
-	low = figure.low;
-	high = figure.high;
-	step = figure.step;
-	return
-	"{ \"figure\":			\"rangeInput\", 
-	'  \"min\":	 			<numArg(low)>,
-	'  \"max\":				<numArg(high)>,
-	'  \"step\":			<numArg(step)>
-	' <trProperties(figure, parent)> 
-	'}";
-}
-
-// ---------- strInput ----------
- 
-str trJson(figure: strInput(), Figure parent) = trSimple("strInput", figure, parent);
-	
-// Catch missing cases
-
-default str trJson(Figure f, Figure parent) { throw "trJson: cannot translate <f>"; }
 
 /**************** Utilities for translating properties *************************/
+
+bool isLegalEvent(str event) = event in {
+
+// Form events
+	"blur",				// Fires the moment that the element loses focus
+	"change",			// Fires the moment when the value of the element is changed
+	"contextmenu",		// Script to be run when a context menu is triggered
+	"focus",			// Fires the moment when the element gets focus
+	"formchange",		// Script to be run when a form changes
+	"forminput",		// Script to be run when a form gets user input
+	"input",			// Script to be run when an element gets user input
+	"invalid",			// Script to be run when an element is invalid
+	"select",			// Fires after some text has been selected in an element
+	"submit",			// Fires when a form is submitted
+	
+// Keyboard events
+	"keydown",			// Fires when a user is pressing a key
+	"keypress",			// Fires when a user presses a key
+	"keyup",			// Fires when a user releases a key
+	
+// Mouse events
+	"click",			// Fires on a mouse click on the element
+	"dbclick",			// Fires on a mouse double-click on the element
+	"drag",				// Script to be run when an element is dragged
+	"dragend",			// Script to be run at the end of a drag operation
+	"dragenter",		// Script to be run when an element has been dragged to a valid drop target
+	"dragleave",		// Script to be run when an element leaves a valid drop target
+	"dragover",			// Script to be run when an element is being dragged over a valid drop target
+	"dragstart",		// Script to be run at the start of a drag operation
+	"drop",				// Script to be run when dragged element is being dropped
+	"mousedown",		// Fires when a mouse button is pressed down on an element
+	"mousemove",		// Fires when the mouse pointer moves over an element
+	"mouseeout",		// Fires when the mouse pointer moves out of an element
+	"mouseover",		// Fires when the mouse pointer moves over an element
+	"mouseup",			// Fires when a mouse button is released over an element
+	"mousewheel",		// Script to be run when the mouse wheel is being rotated
+	"scroll"			// Script to be run when an element's scrollbar is being scrolled
+	};
 
 str trHAlign(HAlign xalign){
 	xa = 0.5;
@@ -406,3 +244,214 @@ str strArg(str s) 	= isCursor(s) ? "{\"use\": <trPath(toPath(s))>}" : "\"<s>\"";
 str valArg(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "<v>";
 
 str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "\"<v>\"";		
+
+/******************** Translate figures ************************************/
+		
+// Graphical elements	
+
+// Figure without properties of its own
+
+str nopropsToJSON(str kind, Figure child, Figure parent) = "{\"figure\": \"<kind>\" <propsToJSON(child, parent)> }";
+
+// ---------- box ----------
+
+str figToJSON(figure: box(), Figure parent) {
+	inner = figure.fig; 
+	println("inner = <inner>");
+	return 
+	"{\"figure\": \"box\"" +
+		(getName(inner) == "emptyFigure" ? "" : ", \"inner\": <figToJSON(inner, figure)>") +
+		"<propsToJSON(figure, parent)> }";
+}
+
+// ---------- text ----------
+
+str figToJSON(figure: text(value v), Figure parent) = 
+	"{\"figure\": \"text\", \"textValue\": <valArgQuoted(v)> <propsToJSON(figure, parent)> }";
+
+// ---------- hcat ----------
+	
+str figToJSON(figure: hcat(), Figure parent){ 
+	figs = figure.figs;
+	return
+	"{\"figure\": \"hcat\",
+    ' \"inner\":   [<intercalate(",\n", [figToJSON(f, figure) | f <- figs])> 
+    '              ] 
+    '<propsToJSON(figure, parent)>
+    '}";
+}
+
+// ---------- vcat ----------
+    
+str figToJSON(figure: vcat(), Figure parent) { 
+	figs = figure.figs;
+	return
+	"{\"figure\": \"vcat\",
+    ' \"inner\":   [<intercalate(",\n", [figToJSON(f, figure) | f <- figs])> 
+    '              ] 
+    '<propsToJSON(figure, parent)>
+    '}";
+}
+
+// ---------- Charts ----------
+
+map[str, set[str]] chartFlavors = (
+	"barChart":	
+		{"barChart"},
+	"lineChart":
+		{"lineChart", "lineWithFocusChart"}
+);
+
+// ---------- Utility for all charts -------------------
+
+str trChart(str chartType, Figure chart, Figure parent) {
+	if(chart.flavor != chartType){
+		if(!chartFlavors[chartType]? || chart.flavor notin chartFlavors[chartType]){
+			throw "Unknow chart flavor \"<chart.flavor>\" for <chartType>";
+		}
+	}
+	xaxis = chart.xAxis;
+	yaxis = chart.yAxis;
+	dataset = chart.dataset;
+	return
+	"{\"figure\": \"<chartType>\",
+	' \"flavor\": \"<chart.flavor>\", 
+	' \"xAxis\":  {\"label\": \"<xaxis.label>\", \"tick\": \"<xaxis.tick>\" },
+	' \"yAxis\":  {\"label\": \"<yaxis.label>\", \"tick\": \"<yaxis.tick>\" }
+	'  <propsToJSON(chart, parent)> 
+	'}";
+}
+
+// ---------- barChart ----------
+
+str figToJSON(chart: barChart(), Figure parent) = trChart("barChart", chart, parent);
+
+// ---------- lineChart ----------
+
+str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, parent);
+
+// ---------- graph ----------
+
+str figToJSON(figure: graph(), Figure parent) { 
+	nodes = figure.nodes;
+	edges = figure.edges;
+	println("nodes = <nodes>");
+	println("edges = <edges>");
+	return
+	"{\"figure\": \"graph\", 
+	' \"nodes\":  [<intercalate(",\n", ["{ \"id\": \"<f>\", 
+	'                                      \"value\" : {\"label\": \"<f>\"
+	'												    <propsToJSON(nodes[f], parent)>}}" | f <- nodes])>
+	'             ],  
+	' \"edges\":  [<intercalate(",\n", ["{\"u\": \"<from>\", 
+	'									  \"v\": \"<to>\", 
+	'									  \"value\": {\"label\": \"<label>\" <propsToJSON(e, parent)>}}"| e: edge(from,to,label) <- edges])>
+	'         ]
+	' <propsToJSON(figure, parent)> 
+	'}";
+}
+
+// edge
+
+str figToJSON(figure: edge(int from, int to)) {
+	throw "edge should not be translated on its own";
+}
+
+// Visibility control elements
+
+// ---------- choice ----------
+
+str figToJSON(figure: experiments::vis2::Figure::choice(), Figure parent) { 
+	int selection = figure.selection;
+	choices = figure.figs;
+	if(isCursor(selection)){
+	   return 
+		"{\"figure\": 	\"choice\",
+		' \"selector\":	<trPath(toPath(selection))>,
+    	' \"inner\":   [<intercalate(",\n", [figToJSON(f, figure) | f <- choices])> 
+   	    '              ] 
+   	    ' <propsToJSON(figure, parent)>
+    	'}";
+    } else {
+    	throw "choice: selection should be a cursor: <selection>";
+    }
+ }
+
+ // ---------- visible ----------
+ 
+ str figToJSON(figure: visible(), Figure parent) { 
+ 	bool condition = figure.condition;
+ 	Figure fig = figure.fig;
+	if(isCursor(condition)){
+	   return 
+		"{\"figure\":	\"visible\",
+		' \"selector\":	<trPath(toPath(condition))>,
+    	' \"inner\":   	<figToJSON(fig, figure)>
+    	' <propsToJSON(figure, parent)> 
+    	'}";
+    } else {
+    	throw "fswitch: condition should be a cursor: <condition>";
+    }
+ }   
+
+// ---------- input elements ----------
+
+// ---------- buttonInput ----------
+
+str figToJSON(figure: buttonInput(), Figure parent) {
+	trueText = figure.trueText;
+	falseText = figure.falseText;
+	return 
+	"{\"figure\": 		\"buttonInput\",
+ 	' \"trueText\":		<strArg(trueText)>,
+ 	' \"falseText\":	<strArg(falseText)>
+ 	' <propsToJSON(figure, parent)> 
+ 	'}";
+} 
+
+// ---------- checboxInput ----------
+
+str figToJSON(figure: checkboxInput(), Figure parent) = nopropsToJSON("checkboxInput", figure, parent);
+   
+// ---------- choiceInput ----------
+
+str figToJSON(figure: choiceInput(), Figure parent) {
+	choices = figure.choices;
+	return
+	"{\"figure\": 		 \"choiceInput\",
+	' \"choices\":		 <choices>
+	' <propsToJSON(figure, parent)> 
+	'}";
+}
+	
+// ---------- colorInput ----------
+
+str figToJSON(figure: colorInput(), Figure parent) = nopropsToJSON("colorInput", figure, parent);
+
+// ---------- numInput ----------
+
+str figToJSON(figure: numInput(), Figure parent) = nopropsToJSON("numInput", figure, parent);
+
+// ---------- rangeInput ----------
+
+str figToJSON(figure: rangeInput(), Figure parent) {
+	low = figure.low;
+	high = figure.high;
+	step = figure.step;
+	return
+	"{ \"figure\":			\"rangeInput\", 
+	'  \"min\":	 			<numArg(low)>,
+	'  \"max\":				<numArg(high)>,
+	'  \"step\":			<numArg(step)>
+	' <propsToJSON(figure, parent)> 
+	'}";
+}
+
+// ---------- strInput ----------
+ 
+str figToJSON(figure: strInput(), Figure parent) = nopropsToJSON("strInput", figure, parent);
+	
+// Catch missing cases
+
+default str figToJSON(Figure f, Figure parent) { throw "figToJSON: cannot translate <f>"; }
+

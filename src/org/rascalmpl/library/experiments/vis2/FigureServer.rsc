@@ -12,8 +12,6 @@ import util::Cursor;
 import lang::json::IO;
 import Type;
 
-import experiments::vis2::Exp;
-
 /************************* Figure server *********************************
  This server responds to two requests:
  - initial_figure/<name>: returns the initial version of figure <name>
@@ -47,11 +45,20 @@ res = "\<html\>
         '	\<title\>Rascal Visualization Server\</title\>
          '	\<link rel=\"stylesheet\" href=\"lib/reset.css\" /\>
         '	\<link rel=\"stylesheet\" href=\"lib/Figure.css\" /\>
-        '	\<link rel=\"stylesheet\" href=\"/lib/nv.d3.css\" /\>
+        
         '	\<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"\>\</script\>
-        '	\<script src=\"http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js\"\>\</script\>
-        '	\<script src=\"JSFigure.js\"\>\</script\>
+       
+        '   \<!-- NVD3 --\>
+        '	\<link rel=\"stylesheet\" href=\"/lib/nv.d3.css\" /\>
         '	\<script src=\"lib/nv.d3.js\"\>\</script\>
+        
+        '	\<!-- DAGRE-D3 --\>
+        '	\<script src=\"http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js\"\>\</script\>
+        
+        '	\<script src=\"JSFigure.js\"\>\</script\>
+        '	\<script src=\"Chart.js\"\>\</script\>
+ 		'	\<script src=\"Graph.js\"\>\</script\>
+        
         '   \<style\>
         '	a { border: 1px solid; pad: 10px; color: #000000; text-decoration: none; border-radius: 4px;}
 		'   a:link { background-color: #E6E6E6; fill: #000000;}
@@ -61,7 +68,7 @@ res = "\<html\>
 		'\<body\>
 		'	\<div id=\"active\"\>
 		'   \<br\>
-		'	    <for(name <- sort(toList(domain(visualizations)))){> \<a href=\"#\" onclick=\"askServer(\'<getSite()>/initial_figure/<name>\')\"\><name>\</a\>   <}>
+		'	    <for(name <- sort(toList(domain(visualizations)))){> \<a href=\"#\" onclick=\"askServer(\'<getSite()>/initial_figure/<name>\')\"\><name>\</a\>\n   <}>
 		'   \<hr\>
 		'   \</div\>
 		'   \<div id=\"figurearea\"\>
@@ -131,10 +138,10 @@ public void render(str name, type[&T] model_type, &T model, Figure (&T model) vi
 
 	f = visualize(makeCursor(model));
 	println("render: <f>");
-	println("render: <trJson(f, emptyFigure())>");
+	println("render: <figToJSON(f, emptyFigure())>");
 	visualizations[name] = descriptor(name, model_type, model, visualize, transform, f);
 	println(getSite());
-	htmlDisplay(site, fig2html(name, getSite()));
+	htmlDisplay(site);
 }
 
 /********************** get_initial_figure **********************/
@@ -145,7 +152,7 @@ private str get_initial_figure(str name){
 		descr = visualizations[name];
 		f = descr.visualize(makeCursor(descr.model));
 		println("get_initial_server: <f>");
-    	res = "{\"model_root\": <toJSON(descr.model)>, \"figure_root\" : <trJson(f, emptyFigure())>, \"site\": \"<getSite()>\", \"name\": \"<name>\" }";
+    	res = "{\"model_root\": <toJSON(descr.model)>, \"figure_root\" : <figToJSON(f, emptyFigure())>, \"site\": \"<getSite()>\", \"name\": \"<name>\" }";
     	println("get_initial_server: res = <res>");
     	return res;
     } else {
@@ -166,7 +173,7 @@ private str refresh(str name, str modelAsJSON){
 			//model = descr.transform(makeCursor(model));
 			println("refresh: model after trafo: <model>");
 			Figure figure = descr.visualize(makeCursor(model));
-			s = trJson(figure, emptyFigure());
+			s = figToJSON(figure, emptyFigure());
 			descr.model = model;
 			visualizations[name] = descr;
 			println(s);
