@@ -50,7 +50,8 @@ Object.defineProperty(Figure, "width", { get: function(){
         
     });
     
-Object.defineProperty(Figure, "height", { get: function(){ if(this.hasOwnProperty("_height")) return this._height;
+Object.defineProperty(Figure, "height", { get: function(){ 
+													if(this.hasOwnProperty("_height")) return this._height;
                                                     if(this.hasDefinedHeight) return this.definedHeight;
                                                     return 0;
                                                },
@@ -289,7 +290,6 @@ Figure.drawFunction = {};
 
 /**************** box *******************/
 
-
 Figure.bboxFunction.box = function() {
     var width = 0, height = 0, definedW, definedH;
     
@@ -302,8 +302,8 @@ Figure.bboxFunction.box = function() {
         definedH = 1;
     } 
     var lw = this["stroke-width"];
-    width += (lw + 1) / 2;
-    height += (lw + 1) / 2;
+    width += lw; // (lw + 1) / 2;
+    height += lw; // (lw + 1) / 2
     console.log("box.bbox:", width, height);
     if (this.hasOwnProperty("inner")) {
         var inner = this.inner;
@@ -327,10 +327,11 @@ Figure.bboxFunction.box = function() {
 }
 
 Figure.drawFunction.box = function (selection, x, y) {
+ 	var lw = this["stroke-width"];
     var my_svg = selection
     .append("rect")
-    .attr("x", x)
-    .attr("y", y)
+    .attr("x", x+lw)
+    .attr("y", y+lw)
     .attr("width", this.width)
     .attr("height", this.height)
     .style("stroke", this.stroke)
@@ -339,12 +340,29 @@ Figure.drawFunction.box = function (selection, x, y) {
     .style("stroke-dasharray", this["stroke-dasharray"])
     if (this.hasOwnProperty("inner")) {
         var inner = this.inner;
-        inner.draw(selection, x + this.hgap + inner.halign * (this.width - inner.width - 2 * this.hgap), 
-        y + this.vgap + inner.valign * (this.height - inner.height - 2 * this.vgap));
+        inner.draw(selection, x + lw + this.hgap + inner.halign * (this.width - inner.width - 2 * this.hgap), 
+                              y + lw + this.vgap + inner.valign * (this.height - inner.height - 2 * this.vgap));
     }
     drawExtraFigure(selection, x, y, this);
     addInteraction(my_svg, x, y, this);
     return my_svg;
+}
+
+/**************** shape *****************/
+
+Figure.bboxFunction.shape = function() {
+
+}
+
+Figure.drawFunction.shape = function (selection, x, y) {
+	selection
+		.append("path")
+		.attr("d", this.path)
+		.style("stroke", this.stroke)
+    	.style("fill", this.fill)
+    	.style("stroke-width", this["stroke-width"] + "px")
+    	.style("stroke-dasharray", this["stroke-dasharray"])
+    	;
 }
 
 /**************** hcat *******************/
@@ -415,7 +433,7 @@ Figure.drawFunction.vcat = function (selection, x, y) {
     for (var i = 0; i < inner.length; i++) {
         var elm = inner[i];
         elm.draw(selection, x + halign * (this.width - elm.width), y);
-        y += elm.height;
+        y += elm.height + this.vgap;
     }
     drawExtraFigure(selection, x, y, this);
     addInteraction(my_svg, x, y, this);
@@ -427,6 +445,11 @@ Figure.drawFunction.vcat = function (selection, x, y) {
 Figure.bboxFunction.text = function() {
     var svgtmp = d3.select("body").append("svg").attr("id", "svgtmp").attr("width", 1000).attr("height", 1000);
     //console.log("svgtmp", svgtmp);
+    if(!this.width)
+    	this.width = 0;
+    if(!this.height)			// TODO: height is not set automatically, why?
+    	this.height = 0;
+
     var txt = svgtmp.append("text")
         .attr("x", 0)
         .attr("y", 0)
