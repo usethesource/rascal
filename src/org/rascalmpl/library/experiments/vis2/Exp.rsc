@@ -8,9 +8,9 @@ data Exp = add(Exp l, Exp r) | lit(str n);
 
 data State = state(Exp current_exp, int current_value);
 
-Figure visExp(lit(n)) = strInput(event=on("change", bind(n)), size=<25,25>);
+Figure visExp(lit(n)) = strInput(event=on("submit", bind(n)), size=<25,25>);
 
-Figure visExp(experiments::vis2::Exp::add(Exp l, Exp r) ) = box(fill="WhiteSmoke", fillOpacity=0.2, strokeDashArray=[1,1,1,1,1],
+Figure visExp(add(Exp l, Exp r) ) = box(fill="WhiteSmoke", fillOpacity=0.2, strokeDashArray=[1,1,1,1,1],
 										fig=hcat(figs=[text("("), visExp(l), text("+"), visExp(r), text(")")], fontSize=14, gap=<10,10>));
 
 int eval(lit(n)) = toInt(n);
