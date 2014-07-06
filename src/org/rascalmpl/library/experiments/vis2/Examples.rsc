@@ -27,11 +27,11 @@ void box1(){
 }  
 
 void box2(){
-	ex("box2", box(fill="red", stroke="blue", strokeWidth=10, strokeDashArray= [10,20,10,10], size=<100,100>));
-}
+	ex("box2", box(fill="red", size=<100,100>, strokeWidth=10));
+} 
 
 void box3(){
-	ex("box3", box(fill="red", stroke="blue", strokeWidth=1, size=<100,100>, pos=<50,50>));
+	ex("box3", box(fill="red", stroke="blue", strokeWidth=10, strokeDashArray= [10,20,10,10], size=<100,100>));
 }
 
 // Nested box
@@ -222,6 +222,40 @@ void vcat5(){
 	ex("vcat5", vcat(figs=[box(fill="red",size=<100,100>), box(fill="green", size=<200,200>)], align=<left(), top()>));
 }
 
+/********************** polygon ******************************/
+
+void polygon1(){
+	ex("polygon1", polygon([vertex(100,100), vertex(100,200), vertex(200,200)]));
+}
+
+void polygon2(){
+	ex("polygon2", polygon([vertex(100,100), vertex(100,200), vertex(200,200)], fill="red", strokeWidth=4, strokeDashArray=[1,1,1,1,1,1]));
+}
+
+/********************** shape ******************************/
+
+void shape1(){
+	ex("shape1", shape([vertex(100,100), vertex(100,200), vertex(200,200)]));
+}
+
+void shape2(){
+	ex("shape2", shape([vertex(30,100), vertex(100, 100), vertex(200,80)]));
+}
+
+void shape3(){
+	ex("shape3", shape([vertex(0,0), vertex(60, 0), vertex(60,60), vertex(0,60),
+					    vertex(15,15, visible=false), vertex(45, 15), vertex(45,45), vertex(15,45), vertex(15,15)
+					   ], fill = "red"));
+}
+
+void shape4(){
+	ex("shape4", shape([vertex(0,0), vertex(50, 50), vertex(80,50), vertex(100,0) ], closed = true, curved = true, fill = "yellow"));
+}
+
+void shape5(){
+	ex("shape5", shape([vertex(0,0), vertex(50, 50), vertex(80,50), vertex(100,0) ], shapeCurved=true, shapeClosed = true, fill = "yellow"));
+}
+
 /********************* barChart ******************************/
 
 Dataset[LabeledData] exampleBarData() =
@@ -243,31 +277,6 @@ void barChart1(){
 void barChart2(){
 	ex("barChart2", hcat(figs=[  box(fill="red",size=<100,100>), barChart(size=<400,300>, dataset=exampleBarData())]));
 }
-
-/*
-
-lrel[num,num] DATA2 = [<5, 20>, <480, 90>, <250, 50>, <100, 33>, <330, 95>,<410, 12>, <475, 44>, <25, 67>, <85, 21>, <220, 88>, <600, 150>];
-
-void scatterplot1(){
-	ex("scatterplot1", scatterplot(fill="black", size=<400,300>, dataset=DATA2));
-}
-
-void scatterplot2(){
-	ex("scatterplot2", hcat(figs=[scatterplot(fill="blue", size=<400,300>, dataset=DATA2), 
-					 //box(fill="red",size=<100,100>), 
-					 scatterplot(fill="black", size=<400,300>, dataset=DATA2)
-					 //box(fill="yellow",size=<50,50>)
-					], align=<right(), bottom()>));
-}
-
-void scatterplot3(){
-	ex("scatterplot3", hcat(figs=[scatterplot(fill="blue", size=<400,300>, dataset=DATA2), 
-					 //box(fill="red",size=<100,100>), 
-					 barchart(fill="black", size=<400,300>, dataset=DATA1)
-					 //box(fill="yellow",size=<50,50>)
-					], align=<left(), vcenter()>));
-}
-*/
 
 /********************* lineChart ******************************/
 
@@ -402,17 +411,6 @@ public void graph4(){
   			 render("graph4", graph(nodes=states, edges=edges, size=<900,900>,gap=<40,40>,fill="white"));
 }
 
-
-//void ex72(){
-//	ex("ex72", hcat(figs=[graph(nodes1, edges1, size(400,400)),
-//					 scatterplot(fill="blue", size=<400,300>, dataset=DATA2),
-//					 texteditor(size=<200,200>),
-//					 barchart(fill="black", size=<400,300>, dataset=DATA1)
-//					], gap(50,50)));
-//}
-//
-
-
 /************** text *****************/
 
 void text1(){
@@ -420,7 +418,7 @@ void text1(){
 }
 
 void text2(){
-	ex("text2", box(fig=text("Hello", fill="black", fontSize=20), fill="white"));
+	ex("text2", box(fig=text("Hello", fontFamily="sans-serif", fill="black", fontWeight="bold", fontStyle="italic", fill="black", fontSize=20), fill="yellow"));
 }
 
 void text3(){
