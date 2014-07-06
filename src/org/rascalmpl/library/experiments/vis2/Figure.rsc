@@ -15,14 +15,12 @@ data Bind[&T]
     = bind(Cursor[&T] accessor)
     | bind(Cursor[&T] accessor, &T val)
     | delete(Cursor[&T] accessor)
-    | add(Cursor[&T] accessor, value(value model))
+//    | add(Cursor[&T] accessor, value(value model))
 	;
 	
 data HAlign = left() | hcenter() | right();
 
 data VAlign = top() | vcenter() | bottom();
-
-
 
 /*
  * Figure: a visual element, the principal visualization datatype
@@ -33,8 +31,8 @@ public alias Figures = list[Figure];
 
 data Event 
 	= on()
-	| on(str event, Bind[value] binder)
-	| on(str event,Figure fig)
+	| on(str eventName, Bind[value] binder)
+	| on(str eventName, Figure fig)
 	;
 	
 data XYData = xyData(lrel[num,num] pairs, 				// <x, y> values
@@ -51,10 +49,39 @@ data Axis
 	
 data Margin = margin(int left = 0, int right = 0, int top = 0, int bottom = 0);
 
+alias Points = lrel[num,num];
+
+/*
+shape
+	
+	ngo,
+	polygon
+	
+	gradient(numr)
+	texture(loc image)
+	lineCap flat, rounded, padded
+	lineJoin	smooth, sharp(r), clipped
+	dashing
+	dashOffset
+	
+	trafo:
+		moveto/moveby
+		scale
+		rotate
+	linestyle: color, width, cap, join, dashing, dashOffset
+*/
+
+data Vertex
+	= vertex(num x, num y)
+	| vertexBy(num x, num y)
+	;
+	
+alias Vertices = list[Vertex];
+
 public data Figure(
-		tuple[int,int] pos = <0,0>,
-		int xpos = 0,
-		int ypos = 0,
+		//tuple[int,int] pos = <0,0>,
+		//int xpos = 0,
+		//int ypos = 0,
 		tuple[int,int] size = <0,0>,
 		int width = 0,
 		int height = 0,
@@ -73,6 +100,7 @@ public data Figure(
 
 		str fill = "white", 			// was: fillColor
 		real fillOpacity = 1.0,			// was: fill-opacity
+		str fillRule = "nonzero",		// or "evenodd"
 		tuple[int, int] rounded = <0, 0>,
 	
 		tuple[HAlign, VAlign] align = <hcenter(), vcenter()>,
@@ -107,8 +135,15 @@ public data Figure(
 // primitives/containers
 
    | box(Figure fig=emptyFigure())      // rectangular box with inner element
+   
+   | polygon(Vertices vertices)
+   
+   | polyline(Vertices vertices)
+   
+   | shape(Vertices vertices, bool shapeConnected = true, bool shapeClosed = true, bool shapeCurved = false, bool fillEvenOdd = true)
                    
    | hcat(Figures figs=[]) 				// horizontal and vertical concatenation
+   
    | vcat(Figures figs=[]) 				// horizontal and vertical concatenation
                    
 //   | _overlay(Figures figs, FProperties props)	// overlay (stacked) composition

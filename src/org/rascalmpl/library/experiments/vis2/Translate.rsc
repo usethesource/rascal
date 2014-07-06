@@ -8,6 +8,7 @@ import List;
 import util::Cursor;
 import Type;
 import lang::json::IO;
+import util::Math;
 
 /*
  * Translate a Figure to JSON
@@ -24,11 +25,11 @@ void check(str property, str val, set[str] allowed){
 str propsToJSON(Figure child, Figure parent){
 	properties = [];
 	
-	if(child.pos != parent.pos)						properties += "\"xpos\": <numArg(child.pos[0])>, 
-															      '\"ypos\": <numArg(child.pos[1])> ";
-	
-	if(child.xpos != parent.xpos) 					properties += "\"xpos\": <numArg(child.xpos)>";
-	if(child.ypos != parent.ypos) 					properties += "\"ypos\": <numArg(child.ypos)>";
+	//if(child.pos != parent.pos)						properties += "\"xpos\": <numArg(child.pos[0])>, 
+	//														      '\"ypos\": <numArg(child.pos[1])> ";
+	//
+	//if(child.xpos != parent.xpos) 					properties += "\"xpos\": <numArg(child.xpos)>";
+	//if(child.ypos != parent.ypos) 					properties += "\"ypos\": <numArg(child.ypos)>";
 	
 	if(child.size != parent.size) 					properties += "\"definedWidth\": <numArg(child.size[0])>,
 												  		          '\"definedHeight\": <numArg(child.size[1])> ";
@@ -55,6 +56,11 @@ str propsToJSON(Figure child, Figure parent){
 	
 	if(child.fillOpacity != parent.fillOpacity)		properties += "\"fill-opacity\": <numArg(child.fillOpacity)>";
 	
+	if(child.fillRule != parent.fillRule){
+		check("fillRule", child.fillRule, {"nonzero", "evenodd"});
+		properties += "\"fill-rule\": <strArg(child.fillRule)>";
+	}
+	
 	if(child.rounded != parent.rounded)				properties += "\"rx\": <numArg(child.rounded[0])>, 
 																  '\"ry\": <numArg(child.rounded[1])>";
 	
@@ -78,12 +84,12 @@ str propsToJSON(Figure child, Figure parent){
 
 	//check("textDecoration", child.textDecoration, {"none","underline", "overline", "line-through"});
 	//if(child.textDecoration != parent.textDecoration) 
-													properties += "\"text-decoration\": <strArg(child.textDecoration)>";
+													//properties += "\"text-decoration\": <strArg(child.textDecoration)>";
 	
 	if(child.dataset != parent.dataset) 			properties += trDataset(child.dataset);
 	
-	if(child.event != parent.event){
-		if(!isLegalEvent(child.event)){
+	if(child.event != parent.event && child.event != on()){
+		if(!isLegalEvent(child.event.eventName)){
 			throw "non-existing event name: <child.event>";
 		}
 	
@@ -150,6 +156,52 @@ str trSeries(str key, series: lrel[str label, num val] labeledValues) {
 
 str trSeries(str key, Dataset[&T] ds) {
 	throw "trSeries: not recoginzed: <ds>";
+}
+	
+str trVertices(list[Vertex] vertices, bool shapeClosed = true, bool shapeCurved = true, bool shapeConnected = true) {
+	<width, height>  = bbox(vertices);
+	
+	str path = "M <vertices[0].x> <vertices[0].y> "; // Move to start point
+	int n = size(vertices);
+	if(shapeConnected && shapeCurved && n > 2){
+		path += "Q <toInt((vertices[0].x + vertices[1].x)/2.0)> <toInt((vertices[0].y + vertices[1].y)/2.0)> <vertices[1].x> <vertices[1].y> ";
+		for(int i <- [2 ..n]){
+			v = vertices[i];
+			path += "<isAbsolute(v) ? "T" : "t"> <v.x> <v.y> "; // Smooth point on quadartic curve
+		}
+	} else {
+		for(int i <- [1 .. n]){
+			v = vertices[i];
+			path += "<shapeConnected ? (isAbsolute(v) ? "L" : "l") : (isAbsolute(v) ? "M" : "m") > <v.x> <v.y> ";
+		}
+	}
+	
+	if(shapeConnected && shapeClosed) path += "Z";
+	
+	return "\"path\":    \"<path>\",
+		   ' \"width\":  <width>,
+		   ' \"height\": <height>
+		   ";		   
+}
+
+bool isAbsolute(Vertex v) = (getName(v) == "vertex");
+
+tuple[num, num] bbox(list[Vertex] vertices){	// TODO: assumes all points are positive
+	maxX = maxY = 0;
+	x = y = 0;
+	for(int i <- index(vertices)){
+		v = vertices[0];
+		if(isAbsolute(v)){
+			x = v.x; y = v.y;
+			
+		} else {
+			x += v.x; y += v.y;
+		}
+		maxX = max(x, maxX);
+		maxY = max(y, maxY);	
+	}
+	return <maxX, maxY>;
+
 }
 
 /**************** Utilities for translating properties *************************/
@@ -268,6 +320,16 @@ str figToJSON(figure: box(), Figure parent) {
 
 str figToJSON(figure: text(value v), Figure parent) = 
 	"{\"figure\": \"text\", \"textValue\": <valArgQuoted(v)> <propsToJSON(figure, parent)> }";
+
+// ---------- polygon -------
+
+str figToJSON(figure: polygon(Vertices vertices), Figure parent) =
+	"{\"figure\": \"shape\", <trVertices(vertices, shapeConnected=true, shapeCurved=false, shapeClosed=true)> <propsToJSON(figure, parent)> }";
+	
+// ---------- shape -------
+
+str figToJSON(figure: shape(Vertices vertices), Figure parent) =
+	"{\"figure\": \"shape\", <trVertices(vertices, shapeClosed=figure.shapeClosed, shapeCurved=figure.shapeCurved)>, \"fill-rule\": \"<figure.fillEvenOdd ? "evenodd" : "nonzero">\" <propsToJSON(figure, parent)> }";
 
 // ---------- hcat ----------
 	
