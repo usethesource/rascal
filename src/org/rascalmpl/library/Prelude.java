@@ -2115,10 +2115,6 @@ public class Prelude {
 		return values.string(T.getName());
 	}
 
-	public IValue makeNode(IString N, IList V) {
-		return makeNode(N, V, values.mapWriter().done());
-	}
-
 	public IValue makeNode(IString N, IList V, IMap kwParams)
 	//@doc{makeNode -- create a node given its function name and arguments}
 	{

@@ -126,10 +126,8 @@ makeNode("f", [10, "abc"]);
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java node makeNode(str N, value V...);
+public java node makeNode(str N, value V..., map[str, value] keywordParameters = ());
 
-@javaClass{org.rascalmpl.library.Prelude}
-public java node makeNode(str N, list[value] V, map[str, value] keywordParameters);
 
 
 @doc{
