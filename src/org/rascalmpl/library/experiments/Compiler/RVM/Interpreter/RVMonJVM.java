@@ -232,10 +232,9 @@ public class RVMonJVM implements IRVM {
 		byte[] rvmGenCode = null;
 		if (!finalized) {
 			try {
-				String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter";
-				
-				// TODO; in the future create classes with the same name of a Rascal module
-				String className = "RVMRunner";
+				// TODO; in the future create classes with the same name as a Rascal module
+				String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter";				
+				String className   = "RVMRunner";
 
 				BytecodeGenerator codeEmittor = new BytecodeGenerator(packageName, className);
 

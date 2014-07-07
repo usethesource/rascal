@@ -277,7 +277,7 @@ public class RVMRunBody extends RVMRun {
 			return NONE;
 		}
 
-		// Skip nop and below nop.
+		// Skip nop and code below nop.
 		nop();
 		return NONE;
 	}

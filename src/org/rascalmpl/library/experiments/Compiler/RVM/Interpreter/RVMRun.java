@@ -393,21 +393,9 @@ public class RVMRun extends RVMBase implements IRVM {
 	 */
 	public Frame cf; // current frame
 	public Frame root; // Root frame of a program
-	//public int sp; // current stack pointer
-	// int[] instructions; // current instruction sequence
-	// int instruction; // TODO current active instruction (remove)
-	// int op; // TODO current opcode (remove)
-	// int pc; // current program counter
 	int postOp;
-	// int pos;
-	// ArrayList<Frame> stacktrace;
 	Thrown thrown;
 	int arity;
-	// String last_function_name;
-	//
-	// Overloading specific
-	//Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
-	// OverloadedFunctionInstanceCall c_ofun_call = null;
 
 	Object globalReturnValue = null;
 
@@ -609,108 +597,52 @@ public class RVMRun extends RVMBase implements IRVM {
 	}
 
 	public void insnLOADLOC0() {
-		postOp = 0;
-		if (stack[0] != null) {
 			stack[sp++] = stack[0];
-		} else {
-			postOp = Opcode.POSTOP_CHECKUNDEF;
-		}
 	}
 
 	public void insnLOADLOC1() {
-		postOp = 0;
-		if (stack[1] != null) {
 			stack[sp++] = stack[1];
-		} else {
-			postOp = Opcode.POSTOP_CHECKUNDEF;
-		}
 	}
 
 	public void insnLOADLOC2() {
-		postOp = 0;
-		if (stack[2] != null) {
 			stack[sp++] = stack[2];
-		} else {
-			postOp = Opcode.POSTOP_CHECKUNDEF;
-		}
 	}
 
 	public void insnLOADLOC3() {
-		postOp = 0;
-		if (stack[3] != null) {
 			stack[sp++] = stack[3];
-		} else {
-			postOp = Opcode.POSTOP_CHECKUNDEF;
-		}
 	}
 
 	public void insnLOADLOC4() {
-		postOp = 0;
-		if (stack[4] != null) {
 			stack[sp++] = stack[4];
-		} else {
-			postOp = Opcode.POSTOP_CHECKUNDEF;
-		}
 	}
 
 	public void insnLOADLOC5() {
-		postOp = 0;
-		if (stack[5] != null) {
 			stack[sp++] = stack[5];
-		} else {
-			postOp = Opcode.POSTOP_CHECKUNDEF;
-		}
 	}
 
 	public void insnLOADLOC6() {
-		postOp = 0;
-		if (stack[6] != null) {
 			stack[sp++] = stack[6];
-		} else {
-			postOp = Opcode.POSTOP_CHECKUNDEF;
-		}
 	}
 
 	public void insnLOADLOC7() {
-		postOp = 0;
-		if (stack[7] != null) {
 			stack[sp++] = stack[7];
-		} else {
-			postOp = Opcode.POSTOP_CHECKUNDEF;
-		}
 	}
 
 	public void insnLOADLOC8() {
-		postOp = 0;
-		if (stack[8] != null) {
 			stack[sp++] = stack[8];
-		} else {
-			postOp = Opcode.POSTOP_CHECKUNDEF;
-		}
 	}
 
 	public void insnLOADLOC9() {
-		postOp = 0;
-		if (stack[9] != null) {
 			stack[sp++] = stack[9];
-		} else {
-			postOp = Opcode.POSTOP_CHECKUNDEF;
-		}
 	}
 
 	public void insnLOADLOC(int i) {
-		postOp = 0;
-		if (stack[i] != null) {
 			stack[sp++] = stack[i];
-		} else {
-			postOp = Opcode.POSTOP_CHECKUNDEF;
-		}
 	}
 
 	public void insnLOADBOOL(int i) {
 		stack[sp++] = i == 1 ? Rascal_TRUE : Rascal_FALSE;
 	}
-
 	public void insnLOADBOOLTRUE() {
 		stack[sp++] = Rascal_TRUE;
 	}
@@ -720,7 +652,6 @@ public class RVMRun extends RVMBase implements IRVM {
 	}
 
 	public void insnLOADINT(int i) {
-		// TODO solve loading of the right value in compile time
 		stack[sp++] = i;
 	}
 
@@ -732,19 +663,18 @@ public class RVMRun extends RVMBase implements IRVM {
 		stack[sp++] = new Reference(stack, i);
 	}
 
+	// In this partial implementation fully inlined.
 	public void insnCALLMUPRIM(int arg1, int arg2) {
 		sp = MuPrimitive.values[arg1].execute(stack, sp, arg2);
 	}
 
 	public void insnLOADTYPE(int i) {
 		stack[sp++] = cf.function.typeConstantStore[i];
-		return;
 	}
 
 	public void insnLOADLOCDEREF(int loc) {
 		Reference ref = (Reference) stack[loc];
 		stack[sp++] = ref.stack[ref.pos];
-		return;
 	}
 
 	public void insnSTORELOC(int target) {
@@ -761,12 +691,10 @@ public class RVMRun extends RVMBase implements IRVM {
 	}
 
 	public void insnLOADFUN(int fun) {
-		// Loads functions that are defined at the root
 		stack[sp++] = new FunctionInstance(functionStore.get(fun), root, this);
 	}
 
 	public void insnLOAD_NESTED_FUN(int fun, int scopeIn) {
-		// Loads nested functions and closures (anonymous nested functions)
 		stack[sp++] = FunctionInstance.computeFunctionInstance(functionStore.get(fun), cf, scopeIn, this);
 	}
 
@@ -972,39 +900,38 @@ public class RVMRun extends RVMBase implements IRVM {
 	}
 
 	public void insnSUBSCRIPTARRAY() {
-		stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
 		sp--;
+		stack[sp - 1] = ((Object[]) stack[sp - 1])[((Integer) stack[sp])];
 	}
 
 	public void insnSUBSCRIPTLIST() {
-		stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
 		sp--;
+		stack[sp - 1] = ((IList) stack[sp - 1]).get((Integer) stack[sp]);
 	}
 
 	public void insnLESSINT() {
-		stack[sp - 2] = ((Integer) stack[sp - 2]) < ((Integer) stack[sp - 1]) ? Rascal_TRUE : Rascal_FALSE;
 		sp--;
+		stack[sp - 1] = ((Integer) stack[sp - 1]) < ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
 	}
 
 	public void insnGREATEREQUALINT() {
-		stack[sp - 2] = ((Integer) stack[sp - 2]) >= ((Integer) stack[sp - 1]) ? Rascal_TRUE : Rascal_FALSE;
 		sp--;
+		stack[sp - 1] = ((Integer) stack[sp - 1]) >= ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
 	}
 
 	public void insnADDINT() {
-		stack[sp - 2] = ((Integer) stack[sp - 2]) + ((Integer) stack[sp - 1]);
 		sp--;
+		stack[sp - 1] = ((Integer) stack[sp - 1]) + ((Integer) stack[sp]);
 	}
 
 	public void insnSUBTRACTINT() {
-		stack[sp - 2] = ((Integer) stack[sp - 2]) - ((Integer) stack[sp - 1]);
 		sp--;
+		stack[sp - 1] = ((Integer) stack[sp - 1]) - ((Integer) stack[sp]);
 	}
 
 	public void insnANDBOOL() {
-		stack[sp - 2] = ((IBool) stack[sp - 2]).and((IBool) stack[sp - 1]);
-		;
 		sp--;
+		stack[sp - 1] = ((IBool) stack[sp - 1]).and((IBool) stack[sp]) ;
 	}
 
 	public void insnTYPEOF() {
@@ -1024,22 +951,19 @@ public class RVMRun extends RVMBase implements IRVM {
 	}
 
 	public void insnSUBTYPE() {
-		stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
 		sp--;
-		return;
+		stack[sp - 1] = vf.bool(((Type) stack[sp - 1]).isSubtypeOf((Type) stack[sp]));
 	}
 
 	public void insnCHECKARGTYPE() {
-		Type argType = ((IValue) stack[sp - 2]).getType();
-		Type paramType = ((Type) stack[sp - 1]);
-		stack[sp - 2] = argType.isSubtypeOf(paramType) ? Rascal_TRUE : Rascal_FALSE;
 		sp--;
-		return;
+		Type argType = ((IValue) stack[sp - 1]).getType();
+		Type paramType = ((Type) stack[sp]);
+		stack[sp - 1] = argType.isSubtypeOf(paramType) ? Rascal_TRUE : Rascal_FALSE;
 	}
 
 	public void insnLABEL() {
 		throw new RuntimeException("label instruction at runtime");
-
 	}
 
 	public void insnHALT() {
@@ -1050,7 +974,6 @@ public class RVMRun extends RVMBase implements IRVM {
 			}
 		}
 		return; // TODO stack[sp - 1];
-
 	}
 
 	public void insnPRINTLN(int arity) {
@@ -1318,7 +1241,7 @@ public class RVMRun extends RVMBase implements IRVM {
 		} else {
 			cf.hotEntryPoint = 0;
 			cf.nextFrame = null; // Allow GC to clean
-			return NONE; // Inline call wil continue execution
+			return NONE;         // Inline call will continue execution
 		}
 	}
 
@@ -1346,8 +1269,7 @@ public class RVMRun extends RVMBase implements IRVM {
 
 		stack = cf.stack;
 		sp = cf.sp;
-		Object result = dynRun(coroutine.entryFrame.function.funId);
-
+		dynRun(coroutine.entryFrame.function.funId);
 	}
 
 	public Object exhaustHelper() {

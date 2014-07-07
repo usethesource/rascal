@@ -23,6 +23,7 @@ public class BytecodeGenerator implements Opcodes {
 	private String[] funcArray = null;
 	private boolean emit = true;
 	private boolean isCoroutine = false;
+
 	private HashMap<String, Label> labelMap = new HashMap<String, Label>();
 	private Label[] hotEntryLabels = null;
 	private Label exitLabel = null;
@@ -37,7 +38,8 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public BytecodeGenerator(String packageName2, String className2) {
-
+		fullClassName = packageName2 + "." + className2 ;
+		fullClassName = fullClassName.replace('.',	'/' ) ;
 	}
 
 	public BytecodeGenerator() {
@@ -80,6 +82,7 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitClass(String pName, String cName) {
 		if (!emit)
 			return;
+		
 		this.className = cName;
 		this.packageName = pName;
 		this.fullClassName = packageName + "/" + className;
@@ -87,30 +90,6 @@ public class BytecodeGenerator implements Opcodes {
 		cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 
 		cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", null);
-
-		// Main constructor
-		// mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Lorg/eclipse/imp/pdb/facts/IValueFactory;Lorg/rascalmpl/interpreter/IEvaluatorContext;ZZ)V", null, null);
-		// mv.visitCode();
-		// mv.visitVarInsn(ALOAD, 0);
-		// mv.visitVarInsn(ALOAD, 1);
-		// mv.visitVarInsn(ALOAD, 2);
-		// mv.visitVarInsn(ILOAD, 3);
-		// mv.visitVarInsn(ILOAD, 4);
-		// mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", "<init>",
-		// "(Lorg/eclipse/imp/pdb/facts/IValueFactory;Lorg/rascalmpl/interpreter/IEvaluatorContext;ZZ)V");
-		// mv.visitInsn(RETURN);
-		// mv.visitMaxs(0, 0);
-		// mv.visitEnd();
-
-		// Add constructor initialzing super.
-		// mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Lorg/eclipse/imp/pdb/facts/IValueFactory;)V", null, null);
-		// mv.visitCode();
-		// mv.visitVarInsn(ALOAD, 0);
-		// mv.visitVarInsn(ALOAD, 1);
-		// mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", "<init>", "(Lorg/eclipse/imp/pdb/facts/IValueFactory;)V");
-		// mv.visitInsn(RETURN);
-		// mv.visitMaxs(0, 0);
-		// mv.visitEnd();
 
 		// Add constructor initialzing super.
 		// Give it REX 15-5-2014
