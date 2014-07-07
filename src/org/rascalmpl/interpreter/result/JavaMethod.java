@@ -154,25 +154,25 @@ public class JavaMethod extends NamedFunction {
 	}
 	
 	protected Object[] addKeywordActuals(Object[] oldActuals, Type formals, Map<String, IValue> keyArgValues){
-	  if (getFunctionType().hasKeywordParameters()) {
-	    Object[] newActuals = new Object[formals.getArity() + 1];
-	    System.arraycopy(oldActuals, 0, newActuals, 0, oldActuals.length);
-	    
-	    // TODO: this code used to do some typechecking on the keyword parameters,
-	    // but that made little sense since the static types are not available here.
-	    Map<String,IValue> params = new HashMap<>();
-	    for (String label : getFunctionType().getKeywordParameterInitializers().keySet()) {
-	    	if (!keyArgValues.containsKey(label)) {
-	    		IKeywordParameterInitializer init =  getFunctionType().getKeywordParameterInitializer(label);
-	    		params.put(label, init.initialize(AbstractSpecialisedImmutableMap.mapOf(params)));
-	    	}
-	    	else {
-	    		params.put(label, keyArgValues.get(label));
-	    	}
-	    }
-
-	    newActuals[formals.getArity()] = params;
-	    return newActuals;
+		if (getFunctionType().hasKeywordParameters()) {
+			Type kwType = getFunctionType().getKeywordParameterTypes();
+			int amountOfKWArguments =  kwType.getArity();
+			Object[] newActuals = new Object[formals.getArity() + amountOfKWArguments];
+			System.arraycopy(oldActuals, 0, newActuals, 0, oldActuals.length);
+			Map<String, IValue> paramEnvironment = new HashMap<>();
+			for (int i = 0; i < amountOfKWArguments; i++) {
+				String label = kwType.getFieldName(i);
+				IValue value = null;
+				if (!keyArgValues.containsKey(label)) {
+					IKeywordParameterInitializer init = getFunctionType().getKeywordParameterInitializer(label);
+					value = init.initialize(AbstractSpecialisedImmutableMap.mapOf(paramEnvironment));
+				} else {
+					value = keyArgValues.get(label);
+				}
+				newActuals[oldActuals.length + i] = value;
+				paramEnvironment.put(label, value);
+			}
+			return newActuals;
 	  }
 	  
 	  return oldActuals;
