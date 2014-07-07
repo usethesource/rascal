@@ -302,8 +302,8 @@ Figure.bboxFunction.box = function() {
         definedH = 1;
     } 
     var lw = this["stroke-width"];
-    width += lw; // (lw + 1) / 2;
-    height += lw; // (lw + 1) / 2
+    width += (lw + 1) / 2;
+    height += (lw + 1) / 2
     console.log("box.bbox:", width, height);
     if (this.hasOwnProperty("inner")) {
         var inner = this.inner;
@@ -318,16 +318,12 @@ Figure.bboxFunction.box = function() {
         }
         console.log("outer size:", width, height);
     }
-    // 	if(this.pos){
-    // 		p = this.pos;
-    // 		return [p[0] + sz[0], p[1] + sz[1]];
-    // 	}
     this.width = width;
     this.height = height;
 }
 
 Figure.drawFunction.box = function (selection, x, y) {
- 	var lw = this["stroke-width"];
+ 	var lw = (this["stroke-width"])/2;		// TODO: check this
     var my_svg = selection
     .append("rect")
     .attr("x", x+lw)
@@ -340,8 +336,8 @@ Figure.drawFunction.box = function (selection, x, y) {
     .style("stroke-dasharray", this["stroke-dasharray"])
     if (this.hasOwnProperty("inner")) {
         var inner = this.inner;
-        inner.draw(selection, x + lw + this.hgap + inner.halign * (this.width - inner.width - 2 * this.hgap), 
-                              y + lw + this.vgap + inner.valign * (this.height - inner.height - 2 * this.vgap));
+        inner.draw(selection, x + lw + this.hgap + this.halign * (this.width - inner.width - 2 * this.hgap), 
+                              y + lw + this.vgap + this.valign * (this.height - inner.height - 2 * this.vgap));
     }
     drawExtraFigure(selection, x, y, this);
     addInteraction(my_svg, x, y, this);
@@ -377,6 +373,7 @@ Figure.bboxFunction.hcat = function() {
         width += elm.width;
         height = Math.max(height, elm.height);
     }
+	
     this.width = width + (inner.length - 1) * this.hgap; //TODO length == 0
     this.height = height;
     return;

@@ -145,6 +145,14 @@ void box_hcat3(){
 					size=<400,400>, align=<right(), top()>, fill="grey"));
 }
 
+void aaa(){
+	ex("aaa", box(
+					fig=hcat(figs=[ box(fill="red",size=<50,100>), 
+						   box(fill="green", size=<200,200>)
+						 ], align=<left(), top()>, gap=<10,10>),
+					size=<400,400>, align=<right(), top()>, fill="grey"));
+}
+
 void box_hcat4(){
 	ex("box_hcat4", box(
 					fig=hcat(figs=[ box(fill="red",size=<50,100>), 
@@ -221,6 +229,90 @@ void vcat4(){
 void vcat5(){
 	ex("vcat5", vcat(figs=[box(fill="red",size=<100,100>), box(fill="green", size=<200,200>)], align=<left(), top()>));
 }
+
+// vcat in box
+
+void box_vcat1(){
+	ex("box_vcat1", box(
+					fig=vcat(figs=[ box(fill="red",size=<50,100>), 
+						   box(fill="green", size=<200,200>), 
+						   box(fill="blue", size=<10,10>)
+						 ], align=<left(), top()>, gap=<10,10>),
+					fill="grey"));
+}
+
+void box_vcat2(){
+	ex("box_vcat2", box(
+					fig=vcat(figs=[ box(fill="red",size=<50,100>), 
+						   box(fill="green", size=<200,200>), 
+						   box(fill="blue", size=<10,10>)
+						 ], align=<left(), top()>, gap=<10,10>),
+					size=<400,400>, align=<left(), top()>, fill="grey"));
+}
+
+void box_vcat3(){
+	ex("box_vcat3", box(
+					fig=vcat(figs=[ box(fill="red",size=<50,100>), 
+						   box(fill="green", size=<200,200>), 
+						   box(fill="blue", size=<10,10>)
+						 ], align=<left(), top()>, gap=<10,10>),
+					size=<400,400>, align=<right(), top()>, fill="grey"));
+}
+
+void box_vcat4(){
+	ex("box_vcat4", box(
+					fig=vcat(figs=[ box(fill="red",size=<50,100>), 
+						   box(fill="green", size=<200,200>), 
+						   box(fill="blue", size=<10,10>)
+						 ], align=<left(), top()>, gap=<10,10>),
+					size=<400,400>, align=<right(), bottom()>, fill="grey"));
+}
+
+void box_vcat5(){
+	ex("box_vcat5", box(
+					fig=vcat(figs=[ box(fill="red",size=<50,100>), 
+						   box(fill="green", size=<200,200>), 
+						   box(fill="blue", size=<10,10>)
+						 ], align=<left(), top()>, gap=<10,10>),
+					size=<400,400>, align=<left(), bottom()>, fill="grey"));
+}
+
+void box_vcat6(){
+	ex("box_vcat6", box(
+					fig=vcat(figs=[ box(fill="red",size=<50,100>), 
+						   box(fill="green", size=<200,200>), 
+						   box(fill="blue", size=<10,10>)
+						 ], align=<hcenter(), vcenter()>, gap=<10,10>),
+					size=<400,400>, align=<left(), top()>, fill="grey"));
+}
+
+void box_vcat7(){
+	ex("box_vcat7", box(
+					fig=vcat(figs=[ box(fill="red",size=<50,100>), 
+						   box(fill="green", size=<200,200>), 
+						   box(fill="blue", size=<10,10>)
+						 ], align=<hcenter(), vcenter()>, gap=<10,10>),
+					size=<400,400>, align=<right(), top()>, fill="grey"));
+}
+
+void box_vcat8(){
+	ex("box_vcat8", box(
+					fig=vcat(figs=[ box(fill="red",size=<50,100>), 
+						   box(fill="green", size=<200,200>), 
+						   box(fill="blue", size=<10,10>)
+						 ], align=<hcenter(), vcenter()>, gap=<10,10>),
+					size=<400,400>, align=<right(), bottom()>, fill="grey"));
+}
+
+void box_vcat9(){
+	ex("box_vcat9", box(
+					fig=vcat(figs=[ box(fill="red",size=<50,100>), 
+						   box(fill="green", size=<200,200>), 
+						   box(fill="blue", size=<10,10>)
+						 ], align=<hcenter(), vcenter()>, gap=<10,10>),
+					size=<400,400>, align=<left(), bottom()>, fill="grey"));
+}
+
 
 /********************** polygon ******************************/
 
