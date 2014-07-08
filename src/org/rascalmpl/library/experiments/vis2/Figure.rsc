@@ -17,10 +17,20 @@ data Bind[&T]
     | delete(Cursor[&T] accessor)
 //    | add(Cursor[&T] accessor, value(value model))
 	;
-	
-data HAlign = left() | hcenter() | right();
 
-data VAlign = top() | vcenter() | bottom();
+alias Position = tuple[num hpos, num vpos];
+
+public Position topLeft      = <0.0, 0.0>;
+public Position topMiddle    = <0.5, 0.0>;
+public Position topRight     = <1.0, 0.0>;
+
+public Position middleLeft   = <0.0, 0.5>;
+public Position middle       = <0.5, 0.5>;
+public Position midleRight   = <0.5, 1.0>;
+
+public Position bottomLeft   = <0.0, 1.0>;
+public Position bottomMiddle = <0.5, 1.0>;
+public Position bottomRight  = <1.0, 1.0>;
 
 /*
  * Figure: a visual element, the principal visualization datatype
@@ -49,25 +59,17 @@ data Axis
 	
 data Margin = margin(int left = 0, int right = 0, int top = 0, int bottom = 0);
 
-alias Points = lrel[num,num];
-
 /*
-shape
-	
 	ngo,
 	polygon
-	
+	image
+	link
 	gradient(numr)
 	texture(loc image)
 	lineCap flat, rounded, padded
 	lineJoin	smooth, sharp(r), clipped
-	dashing
 	dashOffset
-	
-	trafo:
-		moveto/moveby
-		scale
-		rotate
+		
 	linestyle: color, width, cap, join, dashing, dashOffset
 */
 
@@ -79,34 +81,32 @@ data Vertex
 alias Vertices = list[Vertex];
 
 public data Figure(
-		//tuple[int,int] pos = <0,0>,
-		//int xpos = 0,
-		//int ypos = 0,
-		tuple[int,int] size = <0,0>,
-		int width = 0,
-		int height = 0,
+		tuple[int,int] size = <-1,-1>,
+		int width = -1,
+		int height = -1,
+		Position pos = <0.5, 0.5>, // TODO should be middle,
+	
+		num grow = 1.0,
 		tuple[int,int] gap = <0,0>,
 		int hgap = 0,
 		int vgap = 0,
    
     	// lines
     
-		int strokeWidth = 1,			// was: lineWidth
-		str stroke = "black", 			// was: lineColor
-		list[int] strokeDashArray = [],	// was: lineStyle
-		real strokeOpacity = 1.0,		// was: lineOpacity
+		int lineWidth = 1,			
+		str lineColor = "black", 		
+		list[int] lineDashing = [],	
+		real lineOpacity = 1.0,
 	
 		// areas
 
-		str fill = "white", 			// was: fillColor
-		real fillOpacity = 1.0,			// was: fill-opacity
-		str fillRule = "nonzero",		// or "evenodd"
+		str fillColor    = "white", 			
+		real fillOpacity = 1.0,	
+		str fillRule     = "nonzero",		// or "evenodd"
+		
 		tuple[int, int] rounded = <0, 0>,
 	
-		tuple[HAlign, VAlign] align = <hcenter(), vcenter()>,
-	
-		HAlign halign = hcenter(),
-		VAlign valign = vcenter(),
+		
 
 		// fonts and text
 		
@@ -130,23 +130,42 @@ public data Figure(
 
 // atomic primitives
 	
-   | text(value text)		    		// text label
+   | text(value text)		    			// text label
    
 // primitives/containers
 
-   | box(Figure fig=emptyFigure())      // rectangular box with inner element
+   | box(Figure fig=emptyFigure())      	// rectangular box with inner element
    
    | polygon(Vertices vertices)
    
    | polyline(Vertices vertices)
    
-   | shape(Vertices vertices, bool shapeConnected = true, bool shapeClosed = true, bool shapeCurved = false, bool fillEvenOdd = true)
+   | shape(Vertices vertices, 				// Arbitrary shape
+   			bool shapeConnected = true, 	// Connect vertices with line/curve
+   			bool shapeClosed = true, 		// Make a closed hape
+   			bool shapeCurved = false, 		// Connect vertices with a spline
+   			bool fillEvenOdd = true)		// The fill rule to be used.
                    
-   | hcat(Figures figs=[]) 				// horizontal and vertical concatenation
+   | hcat(Figures figs=[]) 					// horizontal and vertical concatenation
    
-   | vcat(Figures figs=[]) 				// horizontal and vertical concatenation
+   | vcat(Figures figs=[]) 					// horizontal and vertical concatenation
                    
-//   | _overlay(Figures figs, FProperties props)	// overlay (stacked) composition
+   | overlay(Figures figs=[])				// overlay (stacked) composition
+   
+   | grid(list[Figures] figArray = [[]])	// grid of figures
+
+// transformations
+
+   | move(int x, int y, Figure fig)			// Move to position relative to origin of enclosing Figure
+   | moveX(int x, Figure fig)
+   | moveY(int y, Figure fig)
+   
+   | scaleX(num factor, Figure fig)
+   | scaleY(num factor, Figure fig)
+   | scale(num xfactor, num yfactor, Figure fig)
+   | scale(num factor, Figure fig)
+   
+   | rotate(num angle, Figure fig)
 
 // interaction
 
@@ -191,6 +210,7 @@ public data Figure(
 // charts
    
    | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[LabeledData] dataset = (), str flavor ="barChart")
+   | vegaBarChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[LabeledData] dataset = (), str flavor ="barChart")
    | scatterPlot()
    | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[XYData] dataset = (), str flavor ="lineChart")
   
