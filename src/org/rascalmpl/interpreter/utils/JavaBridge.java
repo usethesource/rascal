@@ -176,7 +176,7 @@ public class JavaBridge {
 		}
 		
 		while(i < arity + kwArity){
-			Class<?> clazz = toJavaClass(keywordFormals.get(i - arity).getExpression(), env);
+			Class<?> clazz = toJavaClass(keywordFormals.get(i - arity).getType(), env);
 			if (clazz != null) {
 				  classes[i++] = clazz;
 				}
@@ -191,6 +191,10 @@ public class JavaBridge {
 	
 	private Class<?> toJavaClass(Expression formal, Environment env) {
 		return toJavaClass(toValueType(formal, env));
+	}
+	
+	private Class<?> toJavaClass(org.rascalmpl.ast.Type tp, Environment env) {
+		return toJavaClass(tp.typeOf(env, true, null));
 	}
 
 	private Class<?> toJavaClass(org.eclipse.imp.pdb.facts.type.Type type) {

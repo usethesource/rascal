@@ -122,9 +122,9 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 
 	public IValue call(IRascalMonitor monitor, String name, IValue... args);
 
-	public IValue call(QualifiedName name, Map<String, IValue> kwArgs, IValue[] args);
+	public IValue call(QualifiedName name, Map<String, IValue> kwArgs, IValue... args);
 	
-	public IValue call(String name, String module, Map<String, IValue> kwArgs, IValue[] args);
+	public IValue call(String name, String module, Map<String, IValue> kwArgs, IValue... args);
 	 
 	public IConstructor parseCommands(IRascalMonitor monitor, String commands,
 			URI location);
