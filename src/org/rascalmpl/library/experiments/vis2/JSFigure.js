@@ -25,9 +25,9 @@ var Figure = {
     dataset: [], 
     figure_root:  {},
     
-    hasDefinedWidth: function()  { return this.hasOwnProperty("definedWidth"); },
+    hasDefinedWidth: function()  { return this.hasOwnProperty("width"); },
     
-    hasDefinedHeight: function() { return this.hasOwnProperty("definedHeight"); },
+    hasDefinedHeight: function() { return this.hasOwnProperty("height"); },
                                
     getModelElement: function(accessor) { return eval(accessor); },
     
@@ -41,28 +41,30 @@ var Figure = {
     name: undefined
 }
 
-Object.defineProperty(Figure, "width", { get: function(){ 
+
+Object.defineProperty(Figure, "width", {
+										get: function(){ 
                                                     if(this.hasOwnProperty("_width"))return this._width;
                                                     if(this.hasDefinedWidth()) return this.definedWidth;
                                                     return 0;
-                                        },
-             set: function(w){ this._width = w; }
+                                        	  },
+             							set: function(w){ 
+													this._width = w; 
+											  }
         
-    });
+    									});
     
-Object.defineProperty(Figure, "height", { get: function(){ 
+Object.defineProperty(Figure, "height", {
+										get: function(){ 
 													if(this.hasOwnProperty("_height")) return this._height;
                                                     if(this.hasDefinedHeight) return this.definedHeight;
                                                     return 0;
                                                },
                                           set: function(h){ 
-                                                    if(isString(h)) {
-                                                        alert(h); 
-                                                    }
                                                     this._height = h; 
                                                }
         
-    });
+    									});
 
 /****************** Build a figure given its JSON representation ****************/
 
@@ -83,7 +85,7 @@ function buildFigure1(description, parent) {
     f.bbox = Figure.bboxFunction[description.figure]; // || throw "No bbox function defined for " + description.figure;
     f.draw = Figure.drawFunction[description.figure]; // || throw "No draw function defined for " + description.figure;
     
-    for(p in description) {
+    for(var p in description) {
         handle_prop = function(prop){       // Use extra closure to protect accessor as used in defineProperty
         if (prop === "inner") {
             var inner_description = description[prop];
@@ -136,10 +138,8 @@ function drawFigure (description){
 function drawFigure1(f) {
     Figure.figure_root = f;
     f.bbox();
-    var x = f.x || 0;
-    var y = f.y || 0;
     var area = d3.select("#figurearea").append("svg").attr("width", f.width).attr("height", f.height);
-    return f.draw(area, x, y);
+    return f.draw(area, 0, 0);
 }
 
 bboxExtraFigure = function (fig){
@@ -296,6 +296,16 @@ Figure.bboxFunction = {};
 // Draw the various figure types
 Figure.drawFunction = {};
 
+/**************** empty *******************/
+
+Figure.bboxFunction.empty = function(){
+	this.width = this.height = 0;
+}
+
+Figure.drawFunction.box = function (selection, x, y) {
+		return selection;
+}
+
 /**************** box *******************/
 
 Figure.bboxFunction.box = function() {
@@ -354,12 +364,54 @@ Figure.drawFunction.box = function (selection, x, y) {
 
 /**************** shape *****************/
 
-Figure.bboxFunction.shape = function() {
+function isEmptyFigure(fig){
+	return fig.figure === "empty";
+}
 
+Figure.bboxFunction.shape = function() {
+	this.inner[0].bbox();
+	this.inner[1].bbox();
+	this.inner[1].bbox();
 }
 
 Figure.drawFunction.shape = function (selection, x, y) {
-	selection
+	var inner = this.inner;
+	var defs = selection.append("defs");
+	if(!isEmptyFigure(inner[0])){
+		var startMarker = defs.append("marker")
+							.attr("id", "startMarker")
+							.attr("markerWidth", inner[0].width)
+							.attr("markerHeight", inner[0].height)
+							.attr("refX", inner[0].width/2)
+							.attr("refY", inner[0].height/2)
+							.attr("orient", "auto")
+							;
+		inner[0].draw(startMarker, 0, 0);
+	}
+	if(!isEmptyFigure(inner[1])){
+		var midMarker = defs.append("marker")
+							.attr("id", "midMarker")
+							.attr("markerWidth", inner[1].width)
+							.attr("markerHeight", inner[1].height)
+							.attr("refX", inner[1].width/2)
+							.attr("refY", inner[1].height/2)
+							.attr("orient", "auto")
+							;
+		inner[1].draw(midMarker, 0, 0);
+	}
+	if(!isEmptyFigure(inner[2])){
+		var endMarker = defs.append("marker")
+							.attr("id", "endMarker")
+							.attr("markerWidth", inner[2].width)
+							.attr("markerHeight", inner[2].height)
+							.attr("refX", inner[2].width/2)
+							.attr("refY", inner[2].height/2)
+							.attr("orient", "auto")
+							;
+		inner[2].draw(endMarker, 0, 0);
+	}
+	var path =
+		selection
 		.append("path")
 		.attr("d", this.path)
 		.style("stroke", this.stroke)
@@ -367,7 +419,35 @@ Figure.drawFunction.shape = function (selection, x, y) {
     	.style("stroke-width", this["stroke-width"] + "px")
     	.style("stroke-dasharray", this["stroke-dasharray"])
     	;
+    if(!isEmptyFigure(inner[0])){
+    	path.style("marker-start", "url(#startMarker)");
+    }
+    if(!isEmptyFigure(inner[1])){
+    	path.style("marker-mid", "url(#midMarker)");
+    }
+     if(!isEmptyFigure(inner[2])){
+    	path.style("marker-end", "url(#endMarker)");
+    }
 }
+
+/**************** image *****************/
+
+Figure.bboxFunction.image = function() {
+	this.width = this.definedWidth || 100;
+	this.height = this.definedHeight || 100;
+}
+
+Figure.drawFunction.image = function (selection, x, y) {
+	selection
+		.append("image")
+		.attr("x", x)
+		.attr("y",y)
+		.attr("width", this.width)
+		.attr("height", this.height)
+		.attr("xlink:href", this.url)
+		;
+}
+
 
 /**************** move *******************/
 
@@ -375,12 +455,13 @@ Figure.bboxFunction.move = function() {
 	var inner = this.inner;
 	inner.bbox();
 	
-	this.width = Math.abs(this.x) + inner.width;
+ 	this.width = Math.abs(this.x) + inner.width;
 	this.height = Math.abs(this.y) + inner.height;
+	console.log("move.bbox:", this.x, this.y, this.width, this.height);
 }
 
 Figure.drawFunction.move = function (selection, x, y) {
-	this.inner.draw(selection, x , y);
+	this.inner.draw(selection, x + this.x, y + this.y);
 	return selection;
 }
 
@@ -445,28 +526,52 @@ Figure.drawFunction.scale = function (selection, x, y) {
 
 /**************** rotate *******************/
 
+Figure.toRadians = function (angle){
+	return angle * (Math.PI/180);
+}
+
 Figure.bboxFunction.rotate = function() {
 	var inner = this.inner;
 	inner.bbox();
 	var w = inner.width;
 	var h = inner.height;
-	var angle = this.angle;
+	
+	var angle = Figure.toRadians(this.angle % 180);
 	var sin = Math.sin(angle);
 	var cos = Math.cos(angle);
-	this.width = Math.abs(w * cos) + Math.abs(h * sin);
-	this.height = Math.abs(w * sin) + Math.abs(h * cos) ;
+	var rot_w = w * cos + h * sin;
+	var rot_h = w * sin + h * cos; 
+	
+	//var dw = 0.5 * Math.abs(rot_w - w);
+	
+	//var dh = 0.5 * Math.abs(rot_h - h);
+	
+	//var dw = Math.abs(w - 0.5*(w - h) * sin);
+	//var dh = Math.abs(h - 0.5*(w - h) * sin);
+	
+	
+	//var dw = Math.abs(w * cos);
+	//var dh = Math.abs(h * cos);
+	
+	var dw = Math.abs(0.7 * (rot_w - w) * sin);
+	var dh = Math.abs(0.7 * (rot_h - h) * sin);
+	
+	this.dw = dw;
+	this.dh = dh;
+	this.width = rot_w; 
+	this.height = rot_h;
+	console.log("rotate.bbox:", this.width, this.height, "dw:", dw, "dh:", dh);
 }
 
 Figure.drawFunction.rotate = function (selection, x, y) {
 	var inner = this.inner;
 	var my_svg = selection
+		.append("svg").attr("viewbox", " 0 0 " + this.width + " " + this.height)
 		.append("g")
-		.attr("transform", "rotate(" + this.angle + "," +  (x+inner.width/2) + "," + (y+inner.height/2) + ")");
+		.attr("transform", "rotate(" + this.angle + "," +  (x+inner.width/2) + "," + (y+inner.height/2) + ")"/* translate(" + this.dw + "," + this.dh + ")"*/ );
 	 inner.draw(my_svg, x, y);
 	return my_svg;
 }
-
-
 
 /**************** hcat *******************/
 
@@ -574,8 +679,8 @@ Figure.drawFunction.overlay = function (selection, x, y) {
 	var valign = this.valign;
     for (var i = 0; i < inner.length; i++) {
         var elm = inner[i];
-        elm.draw(selection, x + /*elm.halign * */ (this.width  - elm.width), 
-							y + /* elm.valign * */ (this.height - elm.height));
+        elm.draw(selection, x /*+ elm.halign * (this.width  - elm.width) */, 
+							y /*+  elm.valign *  (this.height - elm.height) */);
     }
     drawExtraFigure(selection, x, y, this);
     addInteraction(my_svg, x, y, this);
