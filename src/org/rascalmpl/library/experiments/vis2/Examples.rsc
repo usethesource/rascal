@@ -384,6 +384,17 @@ void move3(){
 								])));
 }
 
+void move4a(){
+
+	ex("move4a", hcat(figs= [
+						box(fillColor="red", size=<50,50>),
+								
+						box(fig=overlay(figs= [move(200, 200, box(fillColor="yellow", size=<50,50>)),
+								               move(20, 0, box(fillColor="gray", size=<50,50>))
+								]))
+						]));
+}
+
 void move4(){
 
 	ex("move4", hcat(figs= [
@@ -391,11 +402,18 @@ void move4(){
 							           move(200, 200, box(fillColor="green", size=<50,50>))
 								]),
 								
-						box(fig=overlay(figs= [move(100, 100, box(fillColor="red", size=<50,50>)),
-								               move(200, 200, box(fillColor="green", size=<50,50>)),
-								               move(0, 0, box(fillColor="blue", size=<50,50>))
+						box(fig=overlay(figs= [move(100, 100, box(fillColor="purple", size=<50,50>)),
+								               move(200, 200, box(fillColor="yellow", size=<50,50>)),
+								               move(0, 0, box(fillColor="gray", size=<50,50>))
 								]))
 						]));
+}
+
+void move5(){
+	ex("move5", box(fig=overlay(figs= [move(100, 100, box(fillColor="red", size=<50,50>)),
+								       move(100, -50, box(fillColor="green", size=<50,50>)),
+								       move(0, 0, box(fillColor="blue", size=<50,50>))
+								])));
 }
 	
 
@@ -441,8 +459,47 @@ void rotate1(){
 }
 
 void rotate2(){
-	ex("rotate2", box(fig=rotate(45, box(size=<200,300>)), size=<500,500>));
+	ex("rotate2", box(fig=rotate(0, box(size=<200,300>))));
 }
+void rotate3(){
+	ex("rotate3", box(fig=rotate(45, box(size=<200,300>))));
+}
+
+void rotate4(){
+	ex("rotate4", box(fig=rotate(90, box(size=<200,300>))));
+}
+
+void rotate5(){
+	ex("rotate5", box(fig=rotate(180, box(size=<200,300>))));
+}
+
+void rotate6(){
+	ex("rotate6", box(fig=rotate(225, box(size=<200,300>))));
+}
+void rotate7(){
+	ex("rotate7", box(fig=rotate(270, box(size=<200,300>))));
+}
+
+void rotate8(){
+	ex("rotate8", box(fig=rotate(360, box(size=<200,300>))));
+}
+
+/********************** image ******************************/
+
+void image1(){
+	ex("image1", image(url=|file:///lib/favicon.ico|, size=<50,50>));
+}
+
+void image2(){
+	ex("image2", hcat(figs = [ image(url=|file:///lib/favicon.ico|, size=<50,50>),
+							   image(url=|file:///lib/favicon.ico|, size=<100,100>)
+							 ]));
+}
+
+void image3(){
+	ex("image3", rotate(45, image(url=|file:///lib/favicon.ico|, size=<50,50>)));
+}
+
 
 /********************** polygon ******************************/
 
@@ -477,6 +534,91 @@ void shape4(){
 void shape5(){
 	ex("shape5", shape([vertex(0,0), vertex(50, 50), vertex(80,50), vertex(100,0) ], shapeCurved=true, shapeClosed = true, fillColor = "yellow"));
 }
+
+// http://www.soc.napier.ac.uk/~cs66/hilbert.html
+
+Vertices hilbert(num x0, num y0, num xis, num xjs, num yis, num yjs, int n){
+	/* x0 and y0 are the coordinates of the bottom left corner */
+	/* xis & xjs are the i & j components of the unit x vector this frame */
+	/* similarly yis and yjs */
+	if (n<= 0){
+   	return [vertex(x0+(xis+yis)/2, y0+(xjs+yjs)/2)];
+	} else {
+		return [ *hilbert(x0,             y0,             yis/2,  yjs/2,  xis/2,  xjs/2,  n-1),
+   				 *hilbert(x0+xis/2,       y0+xjs/2,       xis/2,  xjs/2,  yis/2,  yjs/2,  n-1),
+  				 *hilbert(x0+xis/2+yis/2, y0+xjs/2+yjs/2, xis/2,  xjs/2,  yis/2,  yjs/2,  n-1),
+   				 *hilbert(x0+xis/2+yis,   y0+xjs/2+yjs,   -yis/2, -yjs/2, -xis/2, -xjs/2, n-1) ];
+   	}
+}
+
+/* Sample call */
+//hilbert(0, 0, 300, 0, 0, 300, 4);
+
+void hilbert1(){
+	ex("hilbert1", shape(hilbert(0, 0, 300, 0, 0, 300, 5)));
+}
+
+void hilbert2(){
+	ex("hilbert2", shape(hilbert(0, 0, 300, 0, 0, 300, 5), 
+								startMarker=box(size=<10,10>,fillColor="red"),
+								midMarker=box(size=<3,3>,fillColor="blue"),
+								endMarker=box(size=<10,10>,fillColor="green")
+					   ));
+}
+
+void hilbert3(){
+	ex("hilbert3", hcat(figs = [ box(fig=shape(hilbert(0, 0, 300, 0, 0, 300, 1))),
+							   box(fig=shape(hilbert(0, 0, 300, 0, 0, 300, 2))),
+							   box(fig=shape(hilbert(0, 0, 300, 0, 0, 300, 3))),
+							   box(fig=shape(hilbert(0, 0, 300, 0, 0, 300, 4))),
+							   box(fig=shape(hilbert(0, 0, 300, 0, 0, 300, 5)))
+							 ]));
+}
+
+
+/********************** shape with markers ******************************/
+
+void marker1(){
+	ex("marker1", box(size=<300,300>, fig=shape([vertex(100,100), vertex(200,200)], startMarker=box(size=<10,10>,fillColor="red"))));
+}
+
+void marker2(){
+	ex("marker2", box(size=<300,300>, fig=shape([vertex(100,100), vertex(100,200), vertex(200,200)], shapeClosed=true, startMarker=box(size=<10,10>,fillColor="red"))));
+}
+
+void marker3(){
+	ex("marker3", box(size=<300,300>, fig=shape([vertex(100,100), vertex(100,200), vertex(200,200)], 
+												shapeClosed=true,
+												startMarker=box(size=<10,10>,fillColor="red"),
+												midMarker=box(size=<20,20>,fillColor="blue")
+												)));
+}
+
+void marker4(){
+	ex("marker4", box(size=<300,300>, fig=shape([vertex(100,100), vertex(150,30), vertex(200,100), vertex(150,150)],
+												shapeClosed=true, shapeCurved=true,
+												startMarker=box(size=<10,10>,fillColor="red"),
+												midMarker=box(size=<20,20>,fillColor="blue")
+												//endMarker=box(size=<20,20>,fillColor="yellow")
+												)));
+}
+
+Figure arrow(int side, str color, bool rightDir=true) =
+	rightDir ? shape([vertex(0,0), vertex(side,side), vertex(0, 2*side)], shapeClosed=true, fillColor=color)
+			 : shape([vertex(side,0), vertex(0,side), vertex(side, 2*side)], shapeClosed=true, fillColor=color);
+
+void arrow1(){
+	ex("arrow1", box(size=<300,300>, fig= shape([vertex(100,100), vertex(200,200)], endMarker=arrow(10, "red"))));
+}
+
+void arrow2(){
+	ex("arrow2", box(size=<300,300>, fig= shape([vertex(100,100), vertex(200,200)], startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red"))));
+}
+
+void arrow3(){
+	ex("arrow3", box(size=<300,300>, fig= shape([vertex(100,100), vertex(200,150), vertex(100,200), vertex(250,250)], shapeCurved=true, startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red"))));
+}
+
 
 /********************* barChart ******************************/
 

@@ -139,7 +139,7 @@ public void render(str name, type[&T] model_type, &T model, Figure (&T model) vi
 
 	f = visualize(makeCursor(model));
 	println("render: <f>");
-	println("render: <figToJSON(f, emptyFigure())>");
+	println("render: <figToJSON(f, getSite())>");
 	visualizations[name] = descriptor(name, model_type, model, visualize, transform, f);
 	println(getSite());
 	htmlDisplay(site);
@@ -153,7 +153,7 @@ private str get_initial_figure(str name){
 		descr = visualizations[name];
 		f = descr.visualize(makeCursor(descr.model));
 		println("get_initial_server: <f>");
-    	res = "{\"model_root\": <toJSON(descr.model)>, \"figure_root\" : <figToJSON(f, emptyFigure())>, \"site\": \"<getSite()>\", \"name\": \"<name>\" }";
+    	res = "{\"model_root\": <toJSON(descr.model)>, \"figure_root\" : <figToJSON(f, getSite())>, \"site\": \"<getSite()>\", \"name\": \"<name>\" }";
     	println("get_initial_server: res = <res>");
     	return res;
     } else {
@@ -174,7 +174,7 @@ private str refresh(str name, str modelAsJSON){
 			//model = descr.transform(makeCursor(model));
 			println("refresh: model after trafo: <model>");
 			Figure figure = descr.visualize(makeCursor(model));
-			s = figToJSON(figure, emptyFigure());
+			s = figToJSON(figure, getSite());
 			descr.model = model;
 			visualizations[name] = descr;
 			println(s);

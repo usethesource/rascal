@@ -11,7 +11,7 @@ Figure viewTDModel(TDModel m){
 				figs = [ hcat(figs=[ text("Todos", fontSize=20), 
 								     box(width=90,stroke="white"), 
 								     text("New todo:"), 
-								     strInput(event=on("submit", add(m.todos, void(str txt){ return todo(false, txt); })), size=<100,20>)
+								     strInput(event=on("submit", call(TDModel (TDModel m, str txt){ return m + todo(false, txt); })), size=<100,20>)
 								   ]),
 					     *[viewTodo(td) | td <- m.tds]
 					   ]);
