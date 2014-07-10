@@ -1092,3 +1092,8 @@ void boxcolor2(){
 						     ], gap=<20,30>);
 		});
 }
+
+void xxx(){
+
+	ex("xxx", strInput(content="YYY", size=<100,50>));
+	}
