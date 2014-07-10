@@ -25,6 +25,7 @@ public class RascalManifest {
   protected static final String META_INF_RASCAL_MF = META_INF + "/RASCAL.MF";
   protected static final String MAIN_MODULE = "Main-Module";
   protected static final String MAIN_FUNCTION = "Main-Function";
+  protected static final String REQUIRE_BUNDLES = "Require-Bundles";
 
   public Manifest getDefaultManifest() {
     Manifest manifest = new Manifest();
@@ -85,6 +86,13 @@ public class RascalManifest {
   }  
   
   /**
+   * @return a list of bundle names this jar depends on, or 'null' if none is configured.
+   */
+  public List<String> getRequiredBundles(Class<?> clazz) {
+    return getRequiredBundles(manifest(clazz));
+  }
+
+  /**
    * @return a list of paths relative to the root of the jar, if no such option is configured
    *         it will return ["src"].
    */
@@ -106,6 +114,13 @@ public class RascalManifest {
     return getAttribute(project, MAIN_FUNCTION, null);
   }
   
+  /**
+   * @return a list of bundle names this jar depends on, or 'null' if none is configured.
+   */
+  protected List<String> getRequiredBundles(InputStream project) {
+    return getAttributeList(project, REQUIRE_BUNDLES, null);
+  }
+
   protected InputStream manifest(Class<?> clazz) {
     return clazz.getResourceAsStream("/" + META_INF_RASCAL_MF);
   }
@@ -140,7 +155,11 @@ public class RascalManifest {
       }
     }
 
-    return Arrays.<String>asList(new String[] { def });
+    if (def == null) {
+      return null;
+    } else {
+      return Arrays.<String>asList(new String[] { def });
+    }
   }
   
   /**
