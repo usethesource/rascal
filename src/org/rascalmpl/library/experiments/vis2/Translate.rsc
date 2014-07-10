@@ -8,7 +8,7 @@ import List;
 import util::Cursor;
 import Type;
 import lang::json::IO;
-import util::Math;
+//import util::Math;
 
 /*
  * Translate a Figure to JSON
@@ -37,22 +37,30 @@ str propsToJSON(Figure child, Figure parent){
 	if(child.width != parent.width) 				properties += "\"definedWidth\": <numArg(child.width)>";
 	if(child.height != parent.height) 				properties += "\"definedHeight\": <numArg(child.height)>";
 	
+	if(child.pos != parent.pos) 					properties += "\"halign\": <numArg(child.pos[0])>,
+												  	  	  		  '\"valign\": <numArg(child.pos[1])>";
+												  	  
+	//if(child.halign != parent.halign) 				properties += "\"halign\": <trHAlign(child.halign)>";
+	//
+	//if(child.valign != parent.valign) 				properties += "\"valign\": <trVAlign(child.valign)>";
+ //
+	
 	if(child.gap != parent.gap) 					properties += "\"hgap\": <numArg(child.gap[0])>,
 												  		          '\"vgap\": <numArg(child.gap[1])> ";
 												  
 	if(child.hgap != parent.hgap) 					properties += "\"hgap\": <numArg(child.hgap)>";
 	if(child.vgap != parent.vgap) 					properties += "\"vgap\": <numArg(child.vgap)>";
 	
-	if(child.strokeWidth != parent.strokeWidth) 	properties += "\"stroke-width\": <numArg(child.strokeWidth)>";
+	if(child.lineWidth != parent.lineWidth) 	properties += "\"stroke-width\": <numArg(child.lineWidth)>";
 	
-	if(child.stroke != parent.stroke) 				properties += "\"stroke\": <strArg(child.stroke)>";
+	if(child.lineColor != parent.lineColor) 				properties += "\"stroke\": <strArg(child.lineColor)>";
 	
-	if(child.strokeDashArray != parent.strokeDashArray) 		
-													properties += "\"stroke-dasharray\": <child.strokeDashArray>";			// TODO
+	if(child.lineDashing != parent.lineDashing) 		
+													properties += "\"stroke-dasharray\": <child.lineDashing>";			// TODO
 	
-	if(child.fill != parent.fill) 					properties += "\"fill\": <strArg(child.fill)>";
+	if(child.fillColor != parent.fillColor) 		properties += "\"fill\": <strArg(child.fillColor)>";
 	
-	if(child.strokeOpacity != parent.strokeOpacity)		properties += "\"stroke-opacity\": <numArg(child.strokeOpacity)>";
+	if(child.lineOpacity != parent.lineOpacity)		properties += "\"stroke-opacity\": <numArg(child.lineOpacity)>";
 	
 	if(child.fillOpacity != parent.fillOpacity)		properties += "\"fill-opacity\": <numArg(child.fillOpacity)>";
 	
@@ -64,12 +72,7 @@ str propsToJSON(Figure child, Figure parent){
 	if(child.rounded != parent.rounded)				properties += "\"rx\": <numArg(child.rounded[0])>, 
 																  '\"ry\": <numArg(child.rounded[1])>";
 	
-	if(child.align != parent.align) 				properties += "\"halign\": <trHAlign(child.align[0])>,
-												  	  	  		  '\"valign\": <trVAlign(child.align[1])>"; 		// TODO add numArg
-												  	  
-	if(child.halign != parent.halign) 				properties += "\"halign\": <trHAlign(child.halign)>";
-	
-	if(child.valign != parent.valign) 				properties += "\"valign\": <trVAlign(child.valign)>";
+  
 												  	  
 	if(child.fontFamily != parent.fontFamily) 		properties += "\"font-family\": <strArg(child.fontFamily)>";											  
 	if(child.fontName != parent.fontName) 			properties += "\"font-name\": <strArg(child.fontName)>";
@@ -244,6 +247,7 @@ bool isLegalEvent(str event) = event in {
 	"scroll"			// Script to be run when an element's scrollbar is being scrolled
 	};
 
+/*
 str trHAlign(HAlign xalign){
 	xa = 0.5;
 	switch(xalign){
@@ -261,7 +265,7 @@ str trVAlign(VAlign yalign){
 	}
 	return "<ya>";
 }
-
+*/
 str trPath(Path path){
     accessor = "Figure.model";
 	for(nav <- path){
@@ -304,6 +308,7 @@ str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "\"
 // Figure without properties of its own
 
 str nopropsToJSON(str kind, Figure child, Figure parent) = "{\"figure\": \"<kind>\" <propsToJSON(child, parent)> }";
+
 
 // ---------- box ----------
 
@@ -355,11 +360,125 @@ str figToJSON(figure: vcat(), Figure parent) {
     '}";
 }
 
+// ---------- overlay ----------
+    
+str figToJSON(figure: overlay(), Figure parent) { 
+	figs = figure.figs;
+	return
+	"{\"figure\": \"overlay\",
+    ' \"inner\":   [<intercalate(",\n", [figToJSON(f, figure) | f <- figs])> 
+    '              ] 
+    '<propsToJSON(figure, parent)>
+    '}";
+}
+
+// ---------- grid ----------
+    
+str figToJSON(figure: grid(), Figure parent) { 
+	figArray = figure.figArray;
+	
+	array = [ [ figToJSON(figArray[i][j], figure) | j <- index(figArray[i])] | i <- index(figArray)];
+	inner = "[ <intercalate(",\n", [ "[ <intercalate(",\n", row)> ]" | row <- array ])> ]";
+	
+	return
+	"{\"figure\": \"grid\",
+    ' \"inner\":   <inner>
+    '<propsToJSON(figure, parent)>
+    '}";
+}
+   
+// ---------- transformations ---------- 
+
+// move
+
+str figToJSON(figure: move(int x, int y, Figure fig), Figure parent) {
+	return
+	"{\"figure\": 	\"move\",
+	' \"x\":		<x>,
+	' \"y\":		<y>,
+    ' \"inner\":  	<figToJSON(fig, figure)> 
+    ' <propsToJSON(figure, parent)>
+    '}";
+}
+
+str figToJSON(figure: moveX(int x, Figure fig), Figure parent) {
+	return
+	"{\"figure\": 	\"moveX\",
+	' \"x\":		<x>,
+    ' \"inner\":  	<figToJSON(fig, figure)> 
+    ' <propsToJSON(figure, parent)>
+    '}";
+}
+
+str figToJSON(figure: moveY(int y, Figure fig), Figure parent) {
+	return
+	"{\"figure\": 	\"moveY\",
+	' \"y\":		<y>,
+    ' \"inner\":  	<figToJSON(fig, figure)> 
+    ' <propsToJSON(figure, parent)>
+    '}";
+}
+
+// scale
+   
+str figToJSON(figure: scaleX(num factor, Figure fig), Figure parent) {
+	return
+	"{\"figure\": 	\"scale\",
+	' \"xfactor\":	<factor>,
+	' \"yfactor\":	1,
+    ' \"inner\":  	<figToJSON(fig, figure)> 
+    ' <propsToJSON(figure, parent)>
+    '}";
+}
+
+str figToJSON(figure: scaleY(num factor, Figure fig), Figure parent) {
+	return
+	"{\"figure\": 	\"scale\",
+	' \"xfactor\":	1,
+	' \"yfactor\":	<factor>,
+    ' \"inner\":  	<figToJSON(fig, figure)> 
+    ' <propsToJSON(figure, parent)>
+    '}";
+}
+
+str figToJSON(figure: scale(num xfactor, num yfactor, Figure fig), Figure parent) {
+	return
+	"{\"figure\": 	\"scale\",
+	' \"xfactor\":	<xfactor>,
+	' \"yfactor\":	<yfactor>,
+    ' \"inner\":  	<figToJSON(fig, figure)> 
+    ' <propsToJSON(figure, parent)>
+    '}";
+}
+
+str figToJSON(figure: scale(num factor, Figure fig), Figure parent) {
+	return
+	"{\"figure\": 	\"scale\",
+	' \"xfactor\":	<factor>,
+	' \"yfactor\":	<factor>,
+    ' \"inner\":  	<figToJSON(fig, figure)> 
+    ' <propsToJSON(figure, parent)>
+    '}";
+}
+
+// rotate
+
+str figToJSON(figure: rotate(num angle, Figure fig), Figure parent){
+	return
+	"{\"figure\": 	\"rotate\",
+	' \"angle\":	<angle>,
+    ' \"inner\":  	<figToJSON(fig, figure)> 
+    ' <propsToJSON(figure, parent)>
+    '}";
+}
+
 // ---------- Charts ----------
 
 map[str, set[str]] chartFlavors = (
+    "vegaBarChart":
+    	{"barChart"},
 	"barChart":	
-		{"barChart"},
+		{"barChart", "vegeBarChart"},
 	"lineChart":
 		{"lineChart", "lineWithFocusChart"}
 );
@@ -387,6 +506,10 @@ str trChart(str chartType, Figure chart, Figure parent) {
 // ---------- barChart ----------
 
 str figToJSON(chart: barChart(), Figure parent) = trChart("barChart", chart, parent);
+
+// ---------- vegaBarChart ----------
+
+str figToJSON(chart: vegaBarChart(), Figure parent) = trChart("vegaBarChart", chart, parent);
 
 // ---------- lineChart ----------
 

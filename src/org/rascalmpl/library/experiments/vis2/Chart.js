@@ -6,13 +6,13 @@
 
 Figure.bboxFunction.barChart = function() {
     if (this.width == 0) {
-        this.width = 200;
+        this.width = 400;
     }
     if (this.height == 0) {
-        this.height = 200;
-    }
+        this.height = 400;
+    } 
 }
-
+ 
 Figure.drawFunction.barChart = function (selection, x, y) {
   var figure = this;
   nv.addGraph(function() {

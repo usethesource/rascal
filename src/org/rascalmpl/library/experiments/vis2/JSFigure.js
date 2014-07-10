@@ -87,12 +87,20 @@ function buildFigure1(description, parent) {
         handle_prop = function(prop){       // Use extra closure to protect accessor as used in defineProperty
         if (prop === "inner") {
             var inner_description = description[prop];
-            if (isArray(inner_description)) {
-                var inner_array = new Array();
+            if (isArray(inner_description)) {					// Allow two level nesting of figures to allow grids
+                var inner_array1 = new Array();
                 for (var i = 0; i < inner_description.length; i++) {
-                    inner_array[i] = buildFigure1(inner_description[i], f);
+                	if(isArray(inner_description[i])){
+                		var inner_array2 = new Array();
+                		for(var j = 0; j < inner_description[i].length; j++){
+                			inner_array2[j] = buildFigure1(inner_description[i][j], f);
+                		}
+                		inner_array1[i] = inner_array2;
+                	} else {
+                    	inner_array1[i] = buildFigure1(inner_description[i], f);
+                    }
                 }
-                f[prop] = inner_array;
+                f[prop] = inner_array1;
             } else {
                 f[prop] = buildFigure1(inner_description, f);
             }
@@ -302,8 +310,8 @@ Figure.bboxFunction.box = function() {
         definedH = 1;
     } 
     var lw = this["stroke-width"];
-    width += lw; // (lw + 1) / 2;
-    height += lw; // (lw + 1) / 2
+    width += (lw + 1) / 2;
+    height += (lw + 1) / 2
     console.log("box.bbox:", width, height);
     if (this.hasOwnProperty("inner")) {
         var inner = this.inner;
@@ -318,16 +326,12 @@ Figure.bboxFunction.box = function() {
         }
         console.log("outer size:", width, height);
     }
-    // 	if(this.pos){
-    // 		p = this.pos;
-    // 		return [p[0] + sz[0], p[1] + sz[1]];
-    // 	}
     this.width = width;
     this.height = height;
 }
 
 Figure.drawFunction.box = function (selection, x, y) {
- 	var lw = this["stroke-width"];
+ 	var lw = (this["stroke-width"])/2;		// TODO: check this
     var my_svg = selection
     .append("rect")
     .attr("x", x+lw)
@@ -340,8 +344,8 @@ Figure.drawFunction.box = function (selection, x, y) {
     .style("stroke-dasharray", this["stroke-dasharray"])
     if (this.hasOwnProperty("inner")) {
         var inner = this.inner;
-        inner.draw(selection, x + lw + this.hgap + inner.halign * (this.width - inner.width - 2 * this.hgap), 
-                              y + lw + this.vgap + inner.valign * (this.height - inner.height - 2 * this.vgap));
+        inner.draw(selection, x + lw + this.hgap + this.halign * (this.width - inner.width - 2 * this.hgap), 
+                              y + lw + this.vgap + this.valign * (this.height - inner.height - 2 * this.vgap));
     }
     drawExtraFigure(selection, x, y, this);
     addInteraction(my_svg, x, y, this);
@@ -365,6 +369,105 @@ Figure.drawFunction.shape = function (selection, x, y) {
     	;
 }
 
+/**************** move *******************/
+
+Figure.bboxFunction.move = function() {
+	var inner = this.inner;
+	inner.bbox();
+	
+	this.width = Math.abs(this.x) + inner.width;
+	this.height = Math.abs(this.y) + inner.height;
+}
+
+Figure.drawFunction.move = function (selection, x, y) {
+	this.inner.draw(selection, x , y);
+	return selection;
+}
+
+/**************** moveX *******************/
+
+Figure.bboxFunction.moveX = function() {
+	var inner = this.inner;
+	inner.bbox();
+	this.width = this.x + inner.width;
+	this.height = inner.height;
+}
+
+Figure.drawFunction.moveX = function (selection, x, y) {
+	this.inner.draw(selection, x + this.x, y);
+	return selection;
+}
+
+/**************** moveY *******************/
+
+Figure.bboxFunction.moveY = function() {
+	var inner = this.inner;
+	inner.bbox();
+	this.width = inner.width;
+	this.height = this.y + inner.height;
+}
+
+Figure.drawFunction.moveY = function (selection, x, y) {
+	this.inner.draw(selection, x, y + this.y);
+	return selection;
+}
+
+// /**************** moveBy *******************/
+
+// Figure.bboxFunction.moveBy = function() {
+// 	var inner = this.inner;
+// 	inner.bbox();
+// 	this.width = this.x + inner.width;
+// 	this.height = this.y + inner.height;
+// }
+
+// Figure.drawFunction.moveBy = function (selection, x, y) {
+// 	this.inner.draw(selection, x + this.x, y + this.y);
+// 	return selection;
+// }
+
+/**************** scale *******************/
+
+Figure.bboxFunction.scale = function() {
+	var inner = this.inner;
+	inner.bbox();
+	this.width = this.xfactor * inner.width;
+	this.height = this.yfactor * inner.height;
+}
+
+Figure.drawFunction.scale = function (selection, x, y) {
+	var my_svg = selection
+		.append("g")
+		.attr("transform", "scale(" + this.xfactor + "," + this.yfactor + ")");
+	this.inner.draw(my_svg, x, y);
+	return my_svg;
+}
+
+/**************** rotate *******************/
+
+Figure.bboxFunction.rotate = function() {
+	var inner = this.inner;
+	inner.bbox();
+	var w = inner.width;
+	var h = inner.height;
+	var angle = this.angle;
+	var sin = Math.sin(angle);
+	var cos = Math.cos(angle);
+	this.width = Math.abs(w * cos) + Math.abs(h * sin);
+	this.height = Math.abs(w * sin) + Math.abs(h * cos) ;
+}
+
+Figure.drawFunction.rotate = function (selection, x, y) {
+	var inner = this.inner;
+	var my_svg = selection
+		.append("g")
+		.attr("transform", "rotate(" + this.angle + "," +  (x+inner.width/2) + "," + (y+inner.height/2) + ")");
+	 inner.draw(my_svg, x, y);
+	return my_svg;
+}
+
+
+
 /**************** hcat *******************/
 
 Figure.bboxFunction.hcat = function() {
@@ -377,6 +480,7 @@ Figure.bboxFunction.hcat = function() {
         width += elm.width;
         height = Math.max(height, elm.height);
     }
+	
     this.width = width + (inner.length - 1) * this.hgap; //TODO length == 0
     this.height = height;
     return;
@@ -438,6 +542,94 @@ Figure.drawFunction.vcat = function (selection, x, y) {
     drawExtraFigure(selection, x, y, this);
     addInteraction(my_svg, x, y, this);
     return my_svg;
+}
+
+/**************** overlay *******************/
+
+Figure.bboxFunction.overlay = function() {
+    var inner = this.inner;
+    var width = 0;
+    var height = 0;
+    for (var i = 0; i < inner.length; i++) {
+        var elm = inner[i];
+        elm.bbox();
+        width = Math.max(width, elm.width);
+        height = Math.max(height, elm.height);
+    }
+    this.width = width;
+    this.height = height;
+}
+
+Figure.drawFunction.overlay = function (selection, x, y) {
+    var my_svg = selection
+        .append("rect")
+        .attr("x", x)
+        .attr("y", y)
+        .attr("width", this.width)
+        .attr("height", this.height)
+        .style("fill", "none");
+
+    var inner = this.inner;
+    var halign = this.halign;
+	var valign = this.valign;
+    for (var i = 0; i < inner.length; i++) {
+        var elm = inner[i];
+        elm.draw(selection, x + /*elm.halign * */ (this.width  - elm.width), 
+							y + /* elm.valign * */ (this.height - elm.height));
+    }
+    drawExtraFigure(selection, x, y, this);
+    addInteraction(my_svg, x, y, this);
+    return my_svg;
+}
+
+/**************** grid *******************/
+
+Figure.bboxFunction.grid = function() {
+	var inner = this.inner;
+    var row_height = new Array();
+    var col_width = new Array();
+    
+    for (var r = 0; r < inner.length; r++) {
+    	for(var c = 0; c < inner[r].length; c++){
+    		var elm = inner[r][c];
+    		elm.bbox();
+    		col_width[c]  = col_width[c]  ? Math.max(elm.width, col_width[c])   : elm.width;
+    		row_height[r] = row_height[r] ? Math.max(elm.height, row_height[r]) : elm.height;
+    	}
+    }
+    
+    var width = col_width.length * this.hgap +
+    			col_width.reduce(function(previous,current){ 
+                      return previous ? previous + current : current;
+                   });
+    var height = row_height.length * this.vgap +
+    			 row_height.reduce(function(previous,current){ 
+                      return previous ? previous + current : current;
+                   });
+     this.row_height = row_height;
+     this.col_width = col_width;
+     this.width = width;
+     this.height = height
+	 console.log("grid.bbox:", width, height, row_height, col_width);
+}
+
+Figure.drawFunction.grid = function (selection, x, y) {
+	var inner = this.inner;
+	var row_height = this.row_height;
+	var col_width = this.col_width;
+	var current_x = x;
+	var current_y = y;
+	
+	for(var r = 0; r < inner.length; r++){
+		current_x = x;
+		for(var c = 0; c < inner[r].length; c++){
+			var elm = inner[r][c];
+			elm.draw(selection, current_x + elm.halign * (col_width[c] - elm.width),
+								current_y + elm.valign * (row_height[r] - elm.height));
+			current_x += col_width[c] + this.hgap;
+		}
+		current_y += row_height[r] + this.vgap;
+	}
 }
 
 /**************** text *******************/
