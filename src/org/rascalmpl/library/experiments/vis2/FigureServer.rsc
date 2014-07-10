@@ -86,6 +86,11 @@ Response page(post(), /^\/initial_figure\/<name:[a-zA-Z0-9_]+>/, map[str, str] p
 	return response(get_initial_figure(name));
 }
 
+Response page(get(), /^\/initial_figure\/<name:[a-zA-Z0-9_]+>/, map[str, str] parameters) {
+	println("get: initial_figure: <name>, <parameters>");
+	return response(get_initial_figure(name));
+}
+
 Response page(post(), /^\/refresh\/<name:[a-zA-Z0-9_]+>/, map[str, str] parameters) {
 	println("post: refresh: <name>, <parameters>");
 	return response(refresh(name, parameters["model"]));
@@ -142,7 +147,7 @@ public void render(str name, type[&T] model_type, &T model, Figure (&T model) vi
 	println("render: <figToJSON(f, getSite())>");
 	visualizations[name] = descriptor(name, model_type, model, visualize, transform, f);
 	println(getSite());
-	htmlDisplay(site);
+	htmlDisplay(site /*+ "?name=<name>"*/);
 }
 
 /********************** get_initial_figure **********************/

@@ -341,7 +341,7 @@ void grid4(){
 /********************** overlay ******************************/
 
 void overlay1(){
-	ex("overlay1", overlay(figs= [box(fillColor="red", size=<50,50>), box(fillColor="green", size=<100,20>)]));
+	ex("overlay1", overlay(pos=middle, figs= [box(fillColor="red", size=<50,50>), box(fillColor="green", size=<100,20>)]));
 }
 
 void overlay2(){
@@ -357,30 +357,30 @@ void overlay4(){
 }
 
 void overlay5(){
-	ex("overlay5", box(fig=overlay(figs=[move(x, y, box(size=<2,2>)) | <x, y> <- [<0,0>, <10,10>, <20,20>]])));
+	ex("overlay5", box(fig=overlay(pos=topLeft, figs=[MOVE(x, y, box(size=<10,10>)) | <x, y> <- [<0,0>, <100,100>, <200,200>]])));
 }
 
 void overlay6(){
-	ex("overlay6", box(fig=overlay(figs= move(0,100, box(size = <100,1>)) + [move(toInt(x * 10), toInt(100 + 100 * sin(x)), box(size=<2,2>))| real x <- [0.0, 0.1 .. 10.0]])));
+	ex("overlay6", box(fig=overlay(pos=topLeft, figs= MOVE(0,100, box(size = <100,1>)) + [MOVE(toInt(x * 10), toInt(100 + 100 * sin(x)), box(size=<2,2>))| real x <- [0.0, 0.1 .. 10.0]])));
 } 
 
 
 /********************** move ******************************/
 
 void move1(){
-	ex("move1", move(100, 100, box(fillColor="red", size=<50,50>)));
+	ex("move1", MOVE(100, 100, box(fillColor="red", size=<50,50>)));
 }
 
 void move2(){
-	ex("move2", overlay(figs= [move(100, 100, box(fillColor="red", size=<50,50>)),
-							   move(200, 200, box(fillColor="green", size=<50,50>))
+	ex("move2", overlay(figs= [MOVE(100, 100, box(fillColor="red", size=<50,50>)),
+							   MOVE(200, 200, box(fillColor="green", size=<50,50>))
 								]));
 }
 
 void move3(){
-	ex("move3", box(fig=overlay(figs= [move(100, 100, box(fillColor="red", size=<50,50>)),
-								       move(200, 200, box(fillColor="green", size=<50,50>)),
-								       move(0, 0, box(fillColor="blue", size=<50,50>))
+	ex("move3", box(fig=overlay(figs= [MOVE(100, 100, box(fillColor="red", size=<50,50>)),
+								       MOVE(200, 200, box(fillColor="green", size=<50,50>)),
+								       MOVE(0, 0, box(fillColor="blue", size=<50,50>))
 								])));
 }
 
@@ -389,8 +389,8 @@ void move4a(){
 	ex("move4a", hcat(figs= [
 						box(fillColor="red", size=<50,50>),
 								
-						box(fig=overlay(figs= [move(200, 200, box(fillColor="yellow", size=<50,50>)),
-								               move(20, 0, box(fillColor="gray", size=<50,50>))
+						box(fig=overlay(figs= [MOVE(200, 200, box(fillColor="yellow", size=<50,50>)),
+								               MOVE(20, 0, box(fillColor="gray", size=<50,50>))
 								]))
 						]));
 }
@@ -398,21 +398,21 @@ void move4a(){
 void move4(){
 
 	ex("move4", hcat(figs= [
-						overlay(figs= [move(100, 100, box(fillColor="red", size=<50,50>)),
-							           move(200, 200, box(fillColor="green", size=<50,50>))
+						overlay(figs= [MOVE(100, 100, box(fillColor="red", size=<50,50>)),
+							           MOVE(200, 200, box(fillColor="green", size=<50,50>))
 								]),
 								
-						box(fig=overlay(figs= [move(100, 100, box(fillColor="purple", size=<50,50>)),
-								               move(200, 200, box(fillColor="yellow", size=<50,50>)),
-								               move(0, 0, box(fillColor="gray", size=<50,50>))
+						box(fig=overlay(figs= [MOVE(100, 100, box(fillColor="purple", size=<50,50>)),
+								               MOVE(200, 200, box(fillColor="yellow", size=<50,50>)),
+								               MOVE(0, 0, box(fillColor="gray", size=<50,50>))
 								]))
 						]));
 }
 
 void move5(){
-	ex("move5", box(fig=overlay(figs= [move(100, 100, box(fillColor="red", size=<50,50>)),
-								       move(100, -50, box(fillColor="green", size=<50,50>)),
-								       move(0, 0, box(fillColor="blue", size=<50,50>))
+	ex("move5", box(fig=overlay(figs= [MOVE(100, 100, box(fillColor="red", size=<50,50>)),
+								       MOVE(100, -50, box(fillColor="green", size=<50,50>)),
+								       MOVE(0, 0, box(fillColor="blue", size=<50,50>))
 								])));
 }
 	
@@ -504,36 +504,58 @@ void image3(){
 /********************** polygon ******************************/
 
 void polygon1(){
-	ex("polygon1", polygon([vertex(100,100), vertex(100,200), vertex(200,200)]));
+	ex("polygon1", polygon([line(100,100), line(100,200), line(200,200)]));
 }
 
 void polygon2(){
-	ex("polygon2", polygon([vertex(100,100), vertex(100,200), vertex(200,200)], fillColor="red", lineWidth=4, lineDashing=[1,1,1,1,1,1]));
+	ex("polygon2", polygon([line(100,100), line(100,200), line(200,200)], fillColor="red", lineWidth=4, lineDashing=[1,1,1,1,1,1]));
 }
 
 /********************** shape ******************************/
 
 void shape1(){
-	ex("shape1", shape([vertex(100,100), vertex(100,200), vertex(200,200)]));
+	ex("shape1", shape([line(100,100), line(100,200), line(200,200)], shapeClosed=true));
 }
 
 void shape2(){
-	ex("shape2", shape([vertex(30,100), vertex(100, 100), vertex(200,80)]));
+	ex("shape2", shape([line(30,100), line(100, 100), line(200,80)], shapeClosed=true));
 }
 
 void shape3(){
-	ex("shape3", shape([vertex(0,0), vertex(60, 0), vertex(60,60), vertex(0,60),
-					    vertex(15,15, visible=false), vertex(45, 15), vertex(45,45), vertex(15,45), vertex(15,15)
-					   ], fillColor = "red"));
+	ex("shape3", hcat(figs=[ shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="red"),
+	
+							 shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="blue")
+							 ]));
 }
 
 void shape4(){
-	ex("shape4", shape([vertex(0,0), vertex(50, 50), vertex(80,50), vertex(100,0) ], closed = true, curved = true, fillColor = "yellow"));
+	ex("shape4", shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeClosed = true,  fillColor = "yellow"));
 }
 
 void shape5(){
-	ex("shape5", shape([vertex(0,0), vertex(50, 50), vertex(80,50), vertex(100,0) ], shapeCurved=true, shapeClosed = true, fillColor = "yellow"));
+	ex("shape5", shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeCurved=true, shapeClosed = true, fillColor = "yellow"));
 }
+
+// SVG Essentials, p95.
+
+void fillRule1(){
+	ex("fillRule1", grid(fillColor="yellow",
+						figArray=[ [ shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
+					                      shapeClosed=true, fillRule="nonzero", fillColor = "grey"),
+					           
+					                 shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(15,45), line(45,45), line(45, 15)], 	// clockwise/counter clockwise
+					                       shapeClosed=true, fillRule="nonzero", fillColor = "grey")
+					               ],
+					               
+					               [ shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
+					                      shapeClosed=true, fillRule="evenodd", fillColor = "grey"),
+					           
+					                 shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(15,45), line(45,45), line(45, 15)], 	// clockwise/counter clockwise
+					                       shapeClosed=true, fillRule="evenodd", fillColor = "grey")
+					               ] ]));			           
+					           
+}
+
 
 // http://www.soc.napier.ac.uk/~cs66/hilbert.html
 
@@ -542,7 +564,7 @@ Vertices hilbert(num x0, num y0, num xis, num xjs, num yis, num yjs, int n){
 	/* xis & xjs are the i & j components of the unit x vector this frame */
 	/* similarly yis and yjs */
 	if (n<= 0){
-   	return [vertex(x0+(xis+yis)/2, y0+(xjs+yjs)/2)];
+   	return [line(x0+(xis+yis)/2, y0+(xjs+yjs)/2)];
 	} else {
 		return [ *hilbert(x0,             y0,             yis/2,  yjs/2,  xis/2,  xjs/2,  n-1),
    				 *hilbert(x0+xis/2,       y0+xjs/2,       xis/2,  xjs/2,  yis/2,  yjs/2,  n-1),
@@ -550,9 +572,6 @@ Vertices hilbert(num x0, num y0, num xis, num xjs, num yis, num yjs, int n){
    				 *hilbert(x0+xis/2+yis,   y0+xjs/2+yjs,   -yis/2, -yjs/2, -xis/2, -xjs/2, n-1) ];
    	}
 }
-
-/* Sample call */
-//hilbert(0, 0, 300, 0, 0, 300, 4);
 
 void hilbert1(){
 	ex("hilbert1", shape(hilbert(0, 0, 300, 0, 0, 300, 5)));
@@ -567,11 +586,12 @@ void hilbert2(){
 }
 
 void hilbert3(){
-	ex("hilbert3", hcat(figs = [ box(fig=shape(hilbert(0, 0, 300, 0, 0, 300, 1))),
-							   box(fig=shape(hilbert(0, 0, 300, 0, 0, 300, 2))),
-							   box(fig=shape(hilbert(0, 0, 300, 0, 0, 300, 3))),
-							   box(fig=shape(hilbert(0, 0, 300, 0, 0, 300, 4))),
-							   box(fig=shape(hilbert(0, 0, 300, 0, 0, 300, 5)))
+	ex("hilbert3", hcat(,
+						figs = [ box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 1))),
+							     box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 2))),
+							     box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 3))),
+							     box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 4))),
+							     box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 5)))
 							 ]));
 }
 
@@ -579,15 +599,15 @@ void hilbert3(){
 /********************** shape with markers ******************************/
 
 void marker1(){
-	ex("marker1", box(size=<300,300>, fig=shape([vertex(100,100), vertex(200,200)], startMarker=box(size=<10,10>,fillColor="red"))));
+	ex("marker1", box(size=<300,300>, fig=shape([line(100,100), line(200,200)], startMarker=box(size=<10,10>,fillColor="red"))));
 }
 
 void marker2(){
-	ex("marker2", box(size=<300,300>, fig=shape([vertex(100,100), vertex(100,200), vertex(200,200)], shapeClosed=true, startMarker=box(size=<10,10>,fillColor="red"))));
+	ex("marker2", box(size=<300,300>, fig=shape([line(100,100), line(100,200), line(200,200)], shapeClosed=true, startMarker=box(size=<10,10>,fillColor="red"))));
 }
 
 void marker3(){
-	ex("marker3", box(size=<300,300>, fig=shape([vertex(100,100), vertex(100,200), vertex(200,200)], 
+	ex("marker3", box(size=<300,300>, fig=shape([line(100,100), line(100,200), line(200,200)], 
 												shapeClosed=true,
 												startMarker=box(size=<10,10>,fillColor="red"),
 												midMarker=box(size=<20,20>,fillColor="blue")
@@ -595,7 +615,7 @@ void marker3(){
 }
 
 void marker4(){
-	ex("marker4", box(size=<300,300>, fig=shape([vertex(100,100), vertex(150,30), vertex(200,100), vertex(150,150)],
+	ex("marker4", box(size=<300,300>, fig=shape([line(100,100), line(150,30), line(200,100), line(150,150)],
 												shapeClosed=true, shapeCurved=true,
 												startMarker=box(size=<10,10>,fillColor="red"),
 												midMarker=box(size=<20,20>,fillColor="blue")
@@ -604,19 +624,20 @@ void marker4(){
 }
 
 Figure arrow(int side, str color, bool rightDir=true) =
-	rightDir ? shape([vertex(0,0), vertex(side,side), vertex(0, 2*side)], shapeClosed=true, fillColor=color)
-			 : shape([vertex(side,0), vertex(0,side), vertex(side, 2*side)], shapeClosed=true, fillColor=color);
+	rightDir ? shape([line(0,0), line(side,side), line(0, 2*side)], shapeClosed=true, fillColor=color)
+			 : shape([line(side,0), line(0,side), line(side, 2*side)], shapeClosed=true, fillColor=color);
 
 void arrow1(){
-	ex("arrow1", box(size=<300,300>, fig= shape([vertex(100,100), vertex(200,200)], endMarker=arrow(10, "red"))));
+	ex("arrow1", box(size=<300,300>, fig= shape([line(100,100), line(200,200)], endMarker=arrow(10, "red"))));
 }
 
 void arrow2(){
-	ex("arrow2", box(size=<300,300>, fig= shape([vertex(100,100), vertex(200,200)], startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red"))));
+	ex("arrow2", box(size=<300,300>, fig= shape([line(100,100), line(200,200)], startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red"))));
 }
 
 void arrow3(){
-	ex("arrow3", box(size=<300,300>, fig= shape([vertex(100,100), vertex(200,150), vertex(100,200), vertex(250,250)], shapeCurved=true, startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red"))));
+	ex("arrow3", box(size=<300,300>, fillColor="silver", fig= shape([line(100,100), line(200,150), line(100,200), line(250,250)], 
+	                                            shapeCurved=true, startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red"))));
 }
 
 
@@ -804,7 +825,7 @@ void counter1(){
 	
 	render("counter1",  #COUNTER, COUNTER(666), Figure (COUNTER m) {
 			return
-				vcat(figs=[ box(fig=text("Click me", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
+				vcat(pos=topLeft, figs=[ box(fig=text("Click me", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
 					   text(m.counter, size=<150,50>,fontSize=30)
 				     ]);
 			});
@@ -814,7 +835,7 @@ void counter2(){
 	
 	render("counter2",  #COUNTER, COUNTER(666),  Figure (COUNTER m) {
 			return
-				vcat(figs=[ box(fig=text("Click me 1", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
+				vcat(pos=topLeft, figs=[ box(fig=text("Click me 1", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
 					   text(m.counter, size=<150,50>,fontSize=30),
 					   box(fig=text("Click me 2", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
 					   text(m.counter, size=<150,50>, fontSize=50),
@@ -827,7 +848,7 @@ void counter3(){
 	
 	render("counter3",  #COUNTER, COUNTER(666), Figure (COUNTER m) {
 			return
-				vcat(figs=[ buttonInput(trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, m.counter + 1)), size=<80,40>),
+				vcat(pos=topLeft, figs=[ buttonInput(trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, m.counter + 1)), size=<80,40>),
 					   text(m.counter, size=<150,50>,fontSize=30)
 				     ]);
 			});
@@ -837,7 +858,7 @@ void counter4(){
 	
 	render("counter4",  #COUNTER, COUNTER(666), Figure (COUNTER m) {
 			return
-				vcat(figs=[ buttonInput( trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, m.counter + 1)), size=<80,40>),
+				vcat(pos=topLeft, figs=[ buttonInput( trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, m.counter + 1)), size=<80,40>),
 					   text(m.counter, size=<150,50>,fontSize=30),
 					   box(size=<50,50>, lineColor="white"),
 					   buttonInput( trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, m.counter + 1)), size=<100,40>),
@@ -852,7 +873,7 @@ data ECHO = ECHO(str TXT);
 void echo1(){
 	render("echo1", #ECHO, ECHO("abc"), Figure (ECHO m) {
 			return
-				hcat(figs=[ 		
+				hcat(pos=topLeft, figs=[ 		
 	                   strInput(event=on("submit", bind(m.TXT)), size=<100,25>), 
 	                   text(m.TXT, size=<150,50>, fontSize=50),
 	                   text(m.TXT, size=<150,50>, fontSize=80)
@@ -1071,28 +1092,3 @@ void boxcolor2(){
 						     ], gap=<20,30>);
 		});
 }
-
-//data M219 = m219(str C);
-//
-//void ex219(){
-//          
-//	render("ex219", #M219, m219("blue"), Figure (M219 m) {
-//			Figures nodes1 = [  /* 0 */	hcat(figs=[box(fillColor="green", size=<50,50>),box(fillColor="yellow", size=<50,50>), box(fillColor="gray"), size=<50,50>)]),
-//          		       			/* 1 */	box(fillColor="red", fillOpacity=0.4, size=<100,100>),
-//     	    	      			/* 2 */	box(colorInput(event=on("change", bind(m.C)), size=<50,50>), fillColor=m.C, rounded=<10,10>,lineDashing=[1,1,1,1,1,1], size=<150,150>)
-//     	  					];
-//    		Edges edges1 = [edge(0,1, lineColor="orange"), edge(1,2, lineWidth=3, gap=<20,20>, lineOpacity=0.3), edge(2,0, lineDashing=[4,24,2])];  
-//	
-//			return graph(nodes1, edges1, size=<500,500>);
-//		});
-//}
-
-
-
-
-
-
-
-
-
-
