@@ -9,6 +9,7 @@ module util::FileSystem
 
 import Exception;
 import IO;
+import String;
 
 data FileSystem 
   = directory(loc l, set[FileSystem] children)
@@ -27,3 +28,5 @@ set[loc] find(loc f, bool (loc) filt)
 
 set[loc] find(loc f, str ext) = find(f, bool (loc l) { return l.extension == ext; });
 
+// same as files(), but skips folders starting with a .
+set[loc] visibleFiles(loc l) = size(l.path) == 0 || startsWith(split("/", l.path)[-1], ".") ? {} : isDirectory(l) ? { *visibleFiles(e) | e <- l.ls } : {l};
