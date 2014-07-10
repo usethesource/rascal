@@ -172,18 +172,18 @@ str trSeries(str key, Dataset[&T] ds) {
 str trVertices(list[Vertex] vertices, bool shapeClosed = true, bool shapeCurved = true, bool shapeConnected = true) {
 	<width, height>  = bbox(vertices);
 	
-	str path = "M <toInt(vertices[0].x)> <toInt(vertices[0].y)> "; // Move to start point
+	str path = "M<toInt(vertices[0].x)> <toInt(vertices[0].y)>"; // Move to start point
 	int n = size(vertices);
 	if(shapeConnected && shapeCurved && n > 2){
-		path += "Q <toInt((vertices[0].x + vertices[1].x)/2.0)> <toInt((vertices[0].y + vertices[1].y)/2.0)> <toInt(vertices[1].x)> <toInt(vertices[1].y)> ";
+		path += "Q<toInt((vertices[0].x + vertices[1].x)/2.0)> <toInt((vertices[0].y + vertices[1].y)/2.0)> <toInt(vertices[1].x)> <toInt(vertices[1].y)>";
 		for(int i <- [2 ..n]){
 			v = vertices[i];
-			path += "<isAbsolute(v) ? "T" : "t"> <toInt(v.x)> <toInt(v.y)> "; // Smooth point on quadartic curve
+			path += "<isAbsolute(v) ? "T" : "t"><toInt(v.x)> <toInt(v.y)>"; // Smooth point on quadartic curve
 		}
 	} else {
 		for(int i <- [1 .. n]){
 			v = vertices[i];
-			path += "<shapeConnected ? (isAbsolute(v) ? "L" : "l") : (isAbsolute(v) ? "M" : "m") > <toInt(v.x)> <toInt(v.y)> ";
+			path += "<directive(v)><toInt(v.x)> <toInt(v.y)>";
 		}
 	}
 	
@@ -195,7 +195,9 @@ str trVertices(list[Vertex] vertices, bool shapeClosed = true, bool shapeCurved 
 		   ";		   
 }
 
-bool isAbsolute(Vertex v) = (getName(v) == "vertex");
+bool isAbsolute(Vertex v) = (getName(v) == "line" || getName(v) == "move");
+
+str directive(Vertex v) = ("line": "L", "lineBy": "l", "move": "M", "moveBy": "m")[getName(v)];
 
 tuple[num, num] bbox(list[Vertex] vertices){	// TODO: assumes all points are positive
 	num maxX = 0;
@@ -256,25 +258,6 @@ bool isLegalEvent(str event) = event in {
 	"scroll"			// Script to be run when an element's scrollbar is being scrolled
 	};
 
-/*
-str trHAlign(HAlign xalign){
-	xa = 0.5;
-	switch(xalign){
-		case left():	xa = 0.0;
-		case right():	xa = 1.0;
-	}
-	return "<xa>";
-}
-
-str trVAlign(VAlign yalign){
-	ya = 0.5;
-	switch(yalign){
-		case top():		ya = 0.0;
-		case bottom():	ya = 1.0;
-	}
-	return "<ya>";
-}
-*/
 str trPath(Path path){
     accessor = "Figure.model";
 	for(nav <- path){
@@ -324,7 +307,6 @@ str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "\"
 // Figure without properties of its own
 
 str nopropsToJSON(str kind, Figure child, Figure parent) = "{\"figure\": \"<kind>\" <propsToJSON(child, parent)> }";
-
 
 // ---------- box ----------
 
@@ -427,7 +409,7 @@ str figToJSON(figure: grid(), Figure parent) {
 
 // move
 
-str figToJSON(figure: move(int x, int y, Figure fig), Figure parent) {
+str figToJSON(figure: MOVE(int x, int y, Figure fig), Figure parent) {
 	return
 	"{\"figure\": 	\"move\",
 	' \"x\":		<x>,
@@ -437,7 +419,7 @@ str figToJSON(figure: move(int x, int y, Figure fig), Figure parent) {
     '}";
 }
 
-str figToJSON(figure: moveX(int x, Figure fig), Figure parent) {
+str figToJSON(figure: MOVEX(int x, Figure fig), Figure parent) {
 	return
 	"{\"figure\": 	\"moveX\",
 	' \"x\":		<x>,
@@ -446,7 +428,7 @@ str figToJSON(figure: moveX(int x, Figure fig), Figure parent) {
     '}";
 }
 
-str figToJSON(figure: moveY(int y, Figure fig), Figure parent) {
+str figToJSON(figure: MOVEY(int y, Figure fig), Figure parent) {
 	return
 	"{\"figure\": 	\"moveY\",
 	' \"y\":		<y>,
@@ -456,49 +438,16 @@ str figToJSON(figure: moveY(int y, Figure fig), Figure parent) {
 }
 
 // scale
-   
-//str figToJSON(figure: experiments::vis2::Figure::scaleX(num factor, Figure fig), Figure parent) {
-//	return
-//	"{\"figure\": 	\"scale\",
-//	' \"xfactor\":	<factor>,
-//	' \"yfactor\":	1,
-//    ' \"inner\":  	<figToJSON(fig, figure)> 
-//    ' <propsToJSON(figure, parent)>
-//    '}";
-//}
-//
-//str figToJSON(figure: experiments::vis2::Figure::scaleY(num factor, Figure fig), Figure parent) {
-//	return
-//	"{\"figure\": 	\"scale\",
-//	' \"xfactor\":	1,
-//	' \"yfactor\":	<factor>,
-//    ' \"inner\":  	<figToJSON(fig, figure)> 
-//    ' <propsToJSON(figure, parent)>
-//    '}";
-//}
-//
-//str figToJSON(figure: experiments::vis2::Figure::scale(num xfactor, num yfactor, Figure fig), Figure parent) {
-//	return
-//	"{\"figure\": 	\"scale\",
-//	' \"xfactor\":	<xfactor>,
-//	' \"yfactor\":	<yfactor>,
-//    ' \"inner\":  	<figToJSON(fig, figure)> 
-//    ' <propsToJSON(figure, parent)>
-//    '}";
-//}
-//
 
-// This one should stay
-
-//str figToJSON(figure: experiments::vis2::Figure::scale(num factor, Figure fig), Figure parent) {
-//	return
-//	"{\"figure\": 	\"scale\",
-//	' \"xfactor\":	<factor>,
-//	' \"yfactor\":	<factor>,
-//    ' \"inner\":  	<figToJSON(fig, figure)> 
-//    ' <propsToJSON(figure, parent)>
-//    '}";
-//}
+str figToJSON(figure: SCALE(num factor, Figure fig), Figure parent) {
+	return
+	"{\"figure\": 	\"scale\",
+	' \"xfactor\":	<factor>,
+	' \"yfactor\":	<factor>,
+    ' \"inner\":  	<figToJSON(fig, figure)> 
+    ' <propsToJSON(figure, parent)>
+    '}";
+}
 
 // rotate
 

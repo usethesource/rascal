@@ -45,12 +45,16 @@ data Bind[&T]
 // Data formats for various chart elements
 	
 data XYData = xyData(lrel[num,num] pairs, 				// <x, y> values
-		     		 str color="black", 				// color of line
-			 		 bool area = false);				// fill area below line
+		     		 str color="black", 				// color of line			// TODO: artefact of chart package!
+			 		 bool area = false);				// fill area below line		// TODO: artefact of chart package!
 
 alias LabeledData = lrel[str label, num val];			// <label, number> values
 
 alias Dataset[&Kind] = map[str name, &Kind values];
+
+// {"label": "Category A", "mean": 1, "lo": 0,   "hi": 2},
+//  {"label":"Washington", "born":-7506057600000, "died":-5366196000000, 
+//         "enter":-5701424400000, "leave":-5453884800000},
 
 data Axis 
 	= axis(str label ="",  str tick = "d")
@@ -61,7 +65,6 @@ data Axis
 /*
 	ngo,
 	polygon
-	image
 	link
 	gradient(numr)
 	texture(loc image)
@@ -75,8 +78,10 @@ data Axis
 // Vertices for defining shapes.
 
 data Vertex
-	= vertex(num x, num y)
-	| vertexBy(num x, num y)
+	= line(num x, num y)
+	| lineBy(num x, num y)
+	| move(num x, num y)
+	| moveBy(num x, num y)
 	;
 	
 alias Vertices = list[Vertex];
@@ -106,7 +111,7 @@ public data Figure(
 
 		str fillColor    = "white", 			
 		real fillOpacity = 1.0,	
-		str fillRule     = "nonzero",		// or "evenodd"
+		str fillRule     = "evenodd",
 		
 		tuple[int, int] rounded = <0, 0>,
 
@@ -161,16 +166,13 @@ public data Figure(
    | grid(list[Figures] figArray = [[]])	// grid of figures
 
 // Transformations
-
-   | move(int x, int y, Figure fig)			// Move to position relative to origin of enclosing Figure
-   | moveX(int x, Figure fig)				// TODO: how to handle negative values?
-   | moveY(int y, Figure fig)
+	// TODO: avoid name clash with move
+   | MOVE(int x, int y, Figure fig)			// Move to position relative to origin of enclosing Figure
+   | MOVEX(int x, Figure fig)				// TODO: how to handle negative values?
+   | MOVEY(int y, Figure fig)
    
-  // | scaleX(num factor, Figure fig)
-  // | scaleY(num factor, Figure fig)
-  // | scale(num xfactor, num yfactor, Figure fig)
-  
-   | scale(num factor, Figure fig)
+  	//TODO: avoid name clash with Math::util:scale
+   | SCALE(num factor, Figure fig)
    
    | rotate(num angle, Figure fig)
 

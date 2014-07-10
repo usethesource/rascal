@@ -413,8 +413,10 @@ Figure.drawFunction.shape = function (selection, x, y) {
 	var path =
 		selection
 		.append("path")
+		.attr("transform", "translate(" + x + "," + y + ")")
 		.attr("d", this.path)
 		.style("stroke", this.stroke)
+		.style("fill-rule", this["fill-rule"])
     	.style("fill", this.fill)
     	.style("stroke-width", this["stroke-width"] + "px")
     	.style("stroke-dasharray", this["stroke-dasharray"])
@@ -679,8 +681,8 @@ Figure.drawFunction.overlay = function (selection, x, y) {
 	var valign = this.valign;
     for (var i = 0; i < inner.length; i++) {
         var elm = inner[i];
-        elm.draw(selection, x /*+ elm.halign * (this.width  - elm.width) */, 
-							y /*+  elm.valign *  (this.height - elm.height) */);
+        elm.draw(selection, x /*+ this.halign * elm.halign * (this.width  - elm.width) */, 
+							y /*+ this.valign * elm.valign * (this.height - elm.height) */) ;
     }
     drawExtraFigure(selection, x, y, this);
     addInteraction(my_svg, x, y, this);
