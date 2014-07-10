@@ -22,7 +22,6 @@ private str site = ""; // localhost as string (for current translation)
  }
  
  
- 
 /******************** Translate figure properties ************************************/
 
 void check(str property, str val, set[str] allowed){
@@ -306,7 +305,8 @@ str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "\"
 
 // Figure without properties of its own
 
-str nopropsToJSON(str kind, Figure child, Figure parent) = "{\"figure\": \"<kind>\" <propsToJSON(child, parent)> }";
+str basicToJSON(str kind, Figure child, Figure parent, str extraProps="") = 
+	"{\"figure\": \"<kind>\" <isEmpty(extraProps) ? "" : ", <extraProps>"> <propsToJSON(child, parent)> }";
 
 // ---------- box ----------
 
@@ -584,7 +584,7 @@ str figToJSON(figure: buttonInput(), Figure parent) {
 
 // ---------- checboxInput ----------
 
-str figToJSON(figure: checkboxInput(), Figure parent) = nopropsToJSON("checkboxInput", figure, parent);
+str figToJSON(figure: checkboxInput(), Figure parent) = basicToJSON("checkboxInput", figure, parent);
    
 // ---------- choiceInput ----------
 
@@ -599,11 +599,11 @@ str figToJSON(figure: choiceInput(), Figure parent) {
 	
 // ---------- colorInput ----------
 
-str figToJSON(figure: colorInput(), Figure parent) = nopropsToJSON("colorInput", figure, parent);
+str figToJSON(figure: colorInput(), Figure parent) = basicToJSON("colorInput", figure, parent);
 
 // ---------- numInput ----------
 
-str figToJSON(figure: numInput(), Figure parent) = nopropsToJSON("numInput", figure, parent);
+str figToJSON(figure: numInput(), Figure parent) = basicToJSON("numInput", figure, parent);
 
 // ---------- rangeInput ----------
 
@@ -622,7 +622,8 @@ str figToJSON(figure: rangeInput(), Figure parent) {
 
 // ---------- strInput ----------
  
-str figToJSON(figure: strInput(), Figure parent) = nopropsToJSON("strInput", figure, parent);
+str figToJSON(figure: strInput(), Figure parent) = 
+	basicToJSON("strInput", figure, parent);
 	
 // Catch missing cases
 
