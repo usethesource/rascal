@@ -497,12 +497,16 @@ void barChart1(){
 }
 
 void vegaBarChart1(){
-	ex("vegaBarChart1", vegaBarChart(size=<600,600>, dataset=exampleBarData()));
+	ex("vegaBarChart1", vegaBarChart(size=<400,200>, dataset=exampleBarData()));
 
 }
 
 void barChart2(){
 	ex("barChart2", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, dataset=exampleBarData())]));
+}
+
+void vegaBarChart2(){
+	ex("vegaBarChart2", hcat(figs=[  box(fillColor="red",size=<100,100>), vegaBarChart(size=<400,300>, dataset=exampleBarData())]));
 }
 
 /********************* lineChart ******************************/

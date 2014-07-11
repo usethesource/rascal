@@ -2,6 +2,22 @@
 /*					Vega Chart functions						*/
 /********************************************************/
 
+function rsc2vega(dataset) {
+     if (dataset.length!=1) {
+         alert("Illegal dataset");
+         return null;
+         }
+     var vs = dataset[0].values;    
+     var r = new Array(); 
+     for (i=0;i<vs.length;i++) {
+         var q = new Object();
+         q.x = vs[i].label;
+         q.y = vs[i].value;
+         r[i] = q;
+         }
+     return r;
+     }
+     
 /****************** vegaBarChart ****************************/
 
 Figure.bboxFunction.vegaBarChart = function() {
@@ -13,13 +29,32 @@ Figure.bboxFunction.vegaBarChart = function() {
     } 
 }
 
+
+
 Figure.drawFunction.vegaBarChart = function (selection, x, y) {
 //alert(selection);
+var figure = this;
+var data = {table: rsc2vega(figure.dataset)};
+
+function updateSpec(spec, width, height, top, left, bottom, right) {
+    spec.width = width - left - right;
+    spec.height = height - top - bottom;
+    padding = new Object();
+    padding.top = top;
+    padding.left = left;
+    padding.bottom = bottom;
+    padding.right = right;
+    spec.padding = padding;
+    return spec;
+    }
+
+
 var spec = {
-  "width": 400,
-  "height": 200,
-  "padding": {"top": 10, "left": 30, "bottom": 30, "right": 10},
-  "data": [{"name": "table"}],
+  //"width": figure.width,
+  // "height": figure.height,
+  // "padding": {"top": 10, "left": "30", "bottom": 30, "right": 10},
+  "data": [{"name": "table"}
+  ],
   "scales": [
     {
       "name": "x", "type": "ordinal", "range": "width",
@@ -37,70 +72,51 @@ var spec = {
   "marks": [
     {
       "type": "rect",
-      "from": {"data": "table"},
-      "properties": {
+      "from": {"data": "table"    
+      }
+      , "properties": {
         "enter": {
           "x": {"scale": "x", "field": "data.x"},
           "y": {"scale": "y", "field": "data.y"},
           "y2": {"scale": "y", "value": 0},
           "width": {"scale": "x", "band": true, "offset": -1}
+          , "stroke": {"value": "lightgrey"},
+          "strokeWidth": {"value": 1}
         },
         "update": {
           "fill": {"value": "steelblue"}
         },
         "hover": {
-          "fill": {"value": "green"}
-        }
+          "fill": {"value": "red"}
+        } 
+       
       }
-    },
-    {
-      "type": "rect",
-      "interactive": false,
-      "from": {"data": "table"},
-      "properties": {
-        "enter": {
-          "x": {"scale": "x", "field": "data.x", "offset": -3.5},
-          "y": {"scale": "y", "field": "data.y", "offset": -3.5},
-          "y2": {"scale": "y", "value": 0, "offset": 3.5},
-          "width": {"scale": "x", "band": true, "offset": 6},
-          "fill": {"value": "transparent"},
-          "stroke": {"value": "red"},
-          "strokeWidth": {"value": 2}
-        },     
-      "update": {
-          "fill": {"value": "steelblue"}
-        },
-        "hover": {
-          "fill": {"value": "green"}
-        }
-      }
-    },
-    {
-      "type": "rect",
-      "interactive": false,
-      "from": {"data": "table"},
-      "properties": {
-        "enter": {
-          "x": {"scale": "x", "field": "data.x", "offset": -3.5},
-          "y": {"scale": "y", "field": "data.y", "offset": -3.5},
-          "y2": {"scale": "y", "value": 0, "offset": 3.5},
-          "width": {"scale": "x", "band": true, "offset": 6},
-          "fill": {"value": "transparent"},
-          "stroke": {"value": "red"},
-          "strokeWidth": {"value": 2}
-        },
-        "update": {
-          "strokeOpacity": {"value": 1}
-        },
-        "hover": {
-          "strokeOpacity": {"value": 0}
-        }
-      }
-    }
+    }      
+   ,{
+          "type": "text"
+         , "from": {"data": "table"
+         , "transform": [{"type":"formula", "field": "lab", "expr":"Math.round(d.data.y)"}]
+          }
+         ,"properties": {
+           "enter": {
+               "x": {"scale": "x", "field": "data.x"}
+              ,"y": {"scale": "y", "field": "data.y", "offset": -4}
+              , "fill": {"value": "black"}
+              // , "valign": {"value": "top"}
+              // , "dx": {"value": "center"}  
+              // , "baseline": {"value": "middle"}
+              , "text": {"field": "lab"}
+              
+              
+            } 
+          } 
+        }   
   ]
 };
 
-var data = {table: [
+
+/*
+[
   {"x": 1,  "y": 28}, {"x": 2,  "y": 55},
   {"x": 3,  "y": 43}, {"x": 4,  "y": 91},
   {"x": 5,  "y": 81}, {"x": 6,  "y": 53},
@@ -111,13 +127,15 @@ var data = {table: [
   {"x": 15, "y": 17}, {"x": 16, "y": 27}, 
   {"x": 17, "y": 68}, {"x": 18, "y": 16},
   {"x": 19, "y": 49}, {"x": 20, "y": 75}
-]};
-	selection.append("foreignObject").attr("width", 400).attr("height", 400).append("xhtml:body").attr("id","chartName");
+]
+*/
+
+selection.append("foreignObject").attr("width", figure.width).attr("height", figure.height).attr("x", x).attr("y", y).append("xhtml:body").attr("id","chartName");
 	
-  vg.parse.spec(spec, function(chart) {
+  vg.parse.spec(updateSpec(spec, figure.width, figure.height, 10, 30, 30, 10), function(chart) {
   // alert("chart");
   var view = chart({el: "#chartName", data:data, renderer:"svg"})
-    .on("mouseover", function(event, item) {
+   /* .on("mouseover", function(event, item) {
       // invoke hover properties on cousin one hop forward in scenegraph
       view.update({
         props: "hover",
@@ -129,11 +147,11 @@ var data = {table: [
       view.update({
         props: "update",
         items: item.cousin(1),
-        duration: 250,
+        duration: 500,
         ease: "linear"
       });
     })
-    .update();
+    */ .update(); 
     d3.select("canvas").remove();
     //alert(view);
 }
