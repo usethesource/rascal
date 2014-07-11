@@ -58,6 +58,7 @@ res = "\<html\>
         
         '	\<script src=\"JSFigure.js\"\>\</script\>
         '	\<script src=\"Chart.js\"\>\</script\>
+         '	\<script src=\"VegaChart.js\"\>\</script\>
  		'	\<script src=\"Graph.js\"\>\</script\>
         
         '   \<style\>
