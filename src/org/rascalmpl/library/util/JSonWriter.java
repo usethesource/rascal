@@ -33,8 +33,10 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.IValueTextWriter;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.rascalmpl.values.uptr.Factory;
 
 /**
  * This class implements the JSon readable syntax for {@link IValue}'s. See also
@@ -248,6 +250,13 @@ public class JSonWriter implements IValueTextWriter {
 			return o;
 		}
 
+		private boolean isParseTreeNode(INode node){
+			Type tp = node.getType();
+			return tp.isSubtypeOf(Factory.Tree) || tp.isSubtypeOf(Factory.Production) || tp.isSubtypeOf(Factory.Attributes)  ||
+				   tp.isSubtypeOf(Factory.Attr) || tp.isSubtypeOf(Factory.Associativity) || tp.isSubtypeOf(Factory.Symbol) ||
+				   tp.isSubtypeOf(Factory.Symbol) || tp.isSubtypeOf(Factory.CharRange)  || tp.isSubtypeOf(Factory.Condition) ;
+		}
+	
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -260,8 +269,6 @@ public class JSonWriter implements IValueTextWriter {
 			Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
 			Iterator<String> annoIterator = annotations.keySet().iterator();
 			
-			Map<String, IValue> keywordParameters = o.asWithKeywordParameters().getParameters();
-			Iterator<String> keywordIterator = keywordParameters.keySet().iterator();
 			if (nodeTyped) inNode++;
 			append("{\"" + name + "\":");
 			append('\"');
@@ -298,23 +305,30 @@ public class JSonWriter implements IValueTextWriter {
 				append('}');
 //				// append(']');
 			}
-		    if (keywordIterator.hasNext()) {
-			     append(",");
-//				// append('[');
-				String key = keywordIterator.next();
-				append("\""+key+"\"");
-				append(':');
-				keywordParameters.get(key).accept(this);
-				while (keywordIterator.hasNext()) {
-					append(',');
-					key = keywordIterator.next();
-					append("\""+key+"\"");
-					append(':');
-					keywordParameters.get(key).accept(this);
-				}
-				//append('}');
-//				// append(']');
-			}
+		    
+		    // TODO: SOS horrible hack to prevent crash on writing parse trees
+		    
+		    if(!isParseTreeNode(o)){
+		    	Map<String, IValue> keywordParameters = o.asWithKeywordParameters().getParameters();
+		    	Iterator<String> keywordIterator = keywordParameters.keySet().iterator();
+		    	if (keywordIterator.hasNext()) {
+		    		append(",");
+		    		//				// append('[');
+		    		String key = keywordIterator.next();
+		    		append("\""+key+"\"");
+		    		append(':');
+		    		keywordParameters.get(key).accept(this);
+		    		while (keywordIterator.hasNext()) {
+		    			append(',');
+		    			key = keywordIterator.next();
+		    			append("\""+key+"\"");
+		    			append(':');
+		    			keywordParameters.get(key).accept(this);
+		    		}
+		    		//append('}');
+		    		//				// append(']');
+		    	}
+		    }
 			append('}');
 			if (nodeTyped) inNode--;
 			return o;
