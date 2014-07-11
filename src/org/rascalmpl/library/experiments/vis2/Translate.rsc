@@ -8,11 +8,19 @@ import List;
 import util::Cursor;
 import Type;
 import lang::json::IO;
-//import util::Math;
+import util::Math;
+
+private str site = ""; // localhost as string (for current translation)
 
 /*
  * Translate a Figure to JSON
  */
+ 
+ str figToJSON(Figure fig, str s){
+ 	site = s;
+ 	return figToJSON(fig, emptyFigure());
+ }
+ 
  
 /******************** Translate figure properties ************************************/
 
@@ -31,14 +39,12 @@ str propsToJSON(Figure child, Figure parent){
 	//if(child.xpos != parent.xpos) 					properties += "\"xpos\": <numArg(child.xpos)>";
 	//if(child.ypos != parent.ypos) 					properties += "\"ypos\": <numArg(child.ypos)>";
 	
-	if(child.size != parent.size) 					properties += "\"definedWidth\": <numArg(child.size[0])>,
-												  		          '\"definedHeight\": <numArg(child.size[1])> ";
+	if(child.size != parent.size) 					properties += "\"width\": <numArg(child.size[0])>, \"height\": <numArg(child.size[1])> ";
 												  
-	if(child.width != parent.width) 				properties += "\"definedWidth\": <numArg(child.width)>";
-	if(child.height != parent.height) 				properties += "\"definedHeight\": <numArg(child.height)>";
+	if(child.width != parent.width) 				properties += "\"width\": <numArg(child.width)>";
+	if(child.height != parent.height) 				properties += "\"width\": <numArg(child.height)>";
 	
-	if(child.pos != parent.pos) 					properties += "\"halign\": <numArg(child.pos[0])>,
-												  	  	  		  '\"valign\": <numArg(child.pos[1])>";
+	if(child.pos != parent.pos) 					properties += "\"halign\": <numArg(child.pos[0])>, \"valign\": <numArg(child.pos[1])>";
 												  	  
 	//if(child.halign != parent.halign) 				properties += "\"halign\": <trHAlign(child.halign)>";
 	//
@@ -88,6 +94,7 @@ str propsToJSON(Figure child, Figure parent){
 	//check("textDecoration", child.textDecoration, {"none","underline", "overline", "line-through"});
 	//if(child.textDecoration != parent.textDecoration) 
 													//properties += "\"text-decoration\": <strArg(child.textDecoration)>";
+
 	
 	if(child.dataset != parent.dataset) 			properties += trDataset(child.dataset);
 	
@@ -138,7 +145,7 @@ str trDataset(Dataset ds) =
 	"\"dataset\": [ <intercalate(",\n", [ trSeries(key, ds[key]) | key <- ds ])> ]";
 
 str trSeries(str key, series: xyData(lrel[num,num] pairs)	) {
-	xy = intercalate(",\n", [" {\"x\": <x>, \"y\": <y>}"| <x,y> <- series.pairs]);
+	xy = intercalate(",\n", [" {\"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}"| <x,y> <- series.pairs]);
 	return
 		"{ \"key\":    \"<key>\",
 		'  \"values\": [ <xy> 
@@ -164,44 +171,47 @@ str trSeries(str key, Dataset[&T] ds) {
 str trVertices(list[Vertex] vertices, bool shapeClosed = true, bool shapeCurved = true, bool shapeConnected = true) {
 	<width, height>  = bbox(vertices);
 	
-	str path = "M <vertices[0].x> <vertices[0].y> "; // Move to start point
+	str path = "M<toInt(vertices[0].x)> <toInt(vertices[0].y)>"; // Move to start point
 	int n = size(vertices);
 	if(shapeConnected && shapeCurved && n > 2){
-		path += "Q <toInt((vertices[0].x + vertices[1].x)/2.0)> <toInt((vertices[0].y + vertices[1].y)/2.0)> <vertices[1].x> <vertices[1].y> ";
+		path += "Q<toInt((vertices[0].x + vertices[1].x)/2.0)> <toInt((vertices[0].y + vertices[1].y)/2.0)> <toInt(vertices[1].x)> <toInt(vertices[1].y)>";
 		for(int i <- [2 ..n]){
 			v = vertices[i];
-			path += "<isAbsolute(v) ? "T" : "t"> <v.x> <v.y> "; // Smooth point on quadartic curve
+			path += "<isAbsolute(v) ? "T" : "t"><toInt(v.x)> <toInt(v.y)>"; // Smooth point on quadartic curve
 		}
 	} else {
 		for(int i <- [1 .. n]){
 			v = vertices[i];
-			path += "<shapeConnected ? (isAbsolute(v) ? "L" : "l") : (isAbsolute(v) ? "M" : "m") > <v.x> <v.y> ";
+			path += "<directive(v)><toInt(v.x)> <toInt(v.y)>";
 		}
 	}
 	
 	if(shapeConnected && shapeClosed) path += "Z";
 	
 	return "\"path\":    \"<path>\",
-		   ' \"width\":  <width>,
-		   ' \"height\": <height>
+		   ' \"width\":  <toInt(width)>,
+		   ' \"height\": <toInt(height)>
 		   ";		   
 }
 
-bool isAbsolute(Vertex v) = (getName(v) == "vertex");
+bool isAbsolute(Vertex v) = (getName(v) == "line" || getName(v) == "move");
+
+str directive(Vertex v) = ("line": "L", "lineBy": "l", "move": "M", "moveBy": "m")[getName(v)];
 
 tuple[num, num] bbox(list[Vertex] vertices){	// TODO: assumes all points are positive
-	maxX = maxY = 0;
+	num maxX = 0;
+	num maxY = 0;
 	x = y = 0;
 	for(int i <- index(vertices)){
-		v = vertices[0];
+		v = vertices[i];
 		if(isAbsolute(v)){
 			x = v.x; y = v.y;
 			
 		} else {
 			x += v.x; y += v.y;
 		}
-		maxX = max(x, maxX);
-		maxY = max(y, maxY);	
+		maxX = x > maxX ? x : maxX;
+		maxY = y > maxY ? y : maxY;	
 	}
 	return <maxX, maxY>;
 
@@ -247,25 +257,6 @@ bool isLegalEvent(str event) = event in {
 	"scroll"			// Script to be run when an element's scrollbar is being scrolled
 	};
 
-/*
-str trHAlign(HAlign xalign){
-	xa = 0.5;
-	switch(xalign){
-		case left():	xa = 0.0;
-		case right():	xa = 1.0;
-	}
-	return "<xa>";
-}
-
-str trVAlign(VAlign yalign){
-	ya = 0.5;
-	switch(yalign){
-		case top():		ya = 0.0;
-		case bottom():	ya = 1.0;
-	}
-	return "<ya>";
-}
-*/
 str trPath(Path path){
     accessor = "Figure.model";
 	for(nav <- path){
@@ -293,9 +284,16 @@ str trPath(Path path){
   	return "\"<accessor>\"";
 }
 
-str numArg(num n) 	= isCursor(n) ? "{\"use\": <trPath(toPath(n))>}" : "<n>";
+str toJSNumber(num n) {
+	s = "<n>";
+	return s[-1] == "." ? "<s>0" : s;
+}
+
+str numArg(num n) 	= isCursor(n) ? "{\"use\": <trPath(toPath(n))>}" : toJSNumber(n);
 
 str strArg(str s) 	= isCursor(s) ? "{\"use\": <trPath(toPath(s))>}" : "\"<s>\"";
+
+str locArg(loc v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "\"<site>/<v.path>\"";
 
 str valArg(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "<v>";
 
@@ -307,24 +305,33 @@ str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "\"
 
 // Figure without properties of its own
 
-str nopropsToJSON(str kind, Figure child, Figure parent) = "{\"figure\": \"<kind>\" <propsToJSON(child, parent)> }";
-
+str basicToJSON(str kind, Figure child, Figure parent, str extraProps="") = 
+	"{\"figure\": \"<kind>\" <isEmpty(extraProps) ? "" : ", <extraProps>"> <propsToJSON(child, parent)> }";
 
 // ---------- box ----------
 
 str figToJSON(figure: box(), Figure parent) {
 	inner = figure.fig; 
 	println("inner = <inner>");
-	return 
-	"{\"figure\": \"box\"" +
-		(getName(inner) == "emptyFigure" ? "" : ", \"inner\": <figToJSON(inner, figure)>") +
-		"<propsToJSON(figure, parent)> }";
+	return getName(inner) == "emptyFigure"
+		   ? "{\"figure\": \"box\" <propsToJSON(figure, parent)> }"
+		   : "{\"figure\": \"box\",
+    		 ' \"inner\":  <figToJSON(inner, figure)>
+			 '  <propsToJSON(figure, parent)> 
+	         '}";
 }
 
 // ---------- text ----------
 
 str figToJSON(figure: text(value v), Figure parent) = 
 	"{\"figure\": \"text\", \"textValue\": <valArgQuoted(v)> <propsToJSON(figure, parent)> }";
+	
+// ---------- image ----------
+
+str figToJSON(figure: image(), Figure parent) {
+	//img = readFile(figure.url);
+	return "{\"figure\": \"image\", \"url\": <locArg(figure.url)> <propsToJSON(figure, parent)> }";
+}
 
 // ---------- polygon -------
 
@@ -333,8 +340,19 @@ str figToJSON(figure: polygon(Vertices vertices), Figure parent) =
 	
 // ---------- shape -------
 
-str figToJSON(figure: shape(Vertices vertices), Figure parent) =
-	"{\"figure\": \"shape\", <trVertices(vertices, shapeClosed=figure.shapeClosed, shapeCurved=figure.shapeCurved)>, \"fill-rule\": \"<figure.fillEvenOdd ? "evenodd" : "nonzero">\" <propsToJSON(figure, parent)> }";
+str figToJSON(figure: shape(Vertices vertices), Figure parent) {
+	startMarker = figure.startMarker;
+	midMarker = figure.midMarker;
+	endMarker = figure.endMarker;
+	return
+	"{\"figure\": \"shape\", <trVertices(vertices, shapeClosed=figure.shapeClosed, shapeCurved=figure.shapeCurved)>, 
+	' \"fill-rule\": \"<figure.fillEvenOdd ? "evenodd" : "nonzero">\",
+	' \"inner\": [ <startMarker == emptyFigure() ? "{\"figure\": \"empty\"}" : figToJSON(startMarker, figure)>,
+	'            <midMarker   == emptyFigure() ? "{\"figure\": \"empty\"}" : figToJSON(midMarker, figure)>,
+	'            <endMarker   == emptyFigure() ? "{\"figure\": \"empty\"}" : figToJSON(endMarker, figure)>
+	'          ]
+	' <propsToJSON(figure, parent)> }";
+}
 
 // ---------- hcat ----------
 	
@@ -391,7 +409,7 @@ str figToJSON(figure: grid(), Figure parent) {
 
 // move
 
-str figToJSON(figure: move(int x, int y, Figure fig), Figure parent) {
+str figToJSON(figure: MOVE(int x, int y, Figure fig), Figure parent) {
 	return
 	"{\"figure\": 	\"move\",
 	' \"x\":		<x>,
@@ -401,7 +419,7 @@ str figToJSON(figure: move(int x, int y, Figure fig), Figure parent) {
     '}";
 }
 
-str figToJSON(figure: moveX(int x, Figure fig), Figure parent) {
+str figToJSON(figure: MOVEX(int x, Figure fig), Figure parent) {
 	return
 	"{\"figure\": 	\"moveX\",
 	' \"x\":		<x>,
@@ -410,7 +428,7 @@ str figToJSON(figure: moveX(int x, Figure fig), Figure parent) {
     '}";
 }
 
-str figToJSON(figure: moveY(int y, Figure fig), Figure parent) {
+str figToJSON(figure: MOVEY(int y, Figure fig), Figure parent) {
 	return
 	"{\"figure\": 	\"moveY\",
 	' \"y\":		<y>,
@@ -420,38 +438,8 @@ str figToJSON(figure: moveY(int y, Figure fig), Figure parent) {
 }
 
 // scale
-   
-str figToJSON(figure: scaleX(num factor, Figure fig), Figure parent) {
-	return
-	"{\"figure\": 	\"scale\",
-	' \"xfactor\":	<factor>,
-	' \"yfactor\":	1,
-    ' \"inner\":  	<figToJSON(fig, figure)> 
-    ' <propsToJSON(figure, parent)>
-    '}";
-}
 
-str figToJSON(figure: scaleY(num factor, Figure fig), Figure parent) {
-	return
-	"{\"figure\": 	\"scale\",
-	' \"xfactor\":	1,
-	' \"yfactor\":	<factor>,
-    ' \"inner\":  	<figToJSON(fig, figure)> 
-    ' <propsToJSON(figure, parent)>
-    '}";
-}
-
-str figToJSON(figure: scale(num xfactor, num yfactor, Figure fig), Figure parent) {
-	return
-	"{\"figure\": 	\"scale\",
-	' \"xfactor\":	<xfactor>,
-	' \"yfactor\":	<yfactor>,
-    ' \"inner\":  	<figToJSON(fig, figure)> 
-    ' <propsToJSON(figure, parent)>
-    '}";
-}
-
-str figToJSON(figure: scale(num factor, Figure fig), Figure parent) {
+str figToJSON(figure: SCALE(num factor, Figure fig), Figure parent) {
 	return
 	"{\"figure\": 	\"scale\",
 	' \"xfactor\":	<factor>,
@@ -596,7 +584,7 @@ str figToJSON(figure: buttonInput(), Figure parent) {
 
 // ---------- checboxInput ----------
 
-str figToJSON(figure: checkboxInput(), Figure parent) = nopropsToJSON("checkboxInput", figure, parent);
+str figToJSON(figure: checkboxInput(), Figure parent) = basicToJSON("checkboxInput", figure, parent);
    
 // ---------- choiceInput ----------
 
@@ -611,11 +599,11 @@ str figToJSON(figure: choiceInput(), Figure parent) {
 	
 // ---------- colorInput ----------
 
-str figToJSON(figure: colorInput(), Figure parent) = nopropsToJSON("colorInput", figure, parent);
+str figToJSON(figure: colorInput(), Figure parent) = basicToJSON("colorInput", figure, parent);
 
 // ---------- numInput ----------
 
-str figToJSON(figure: numInput(), Figure parent) = nopropsToJSON("numInput", figure, parent);
+str figToJSON(figure: numInput(), Figure parent) = basicToJSON("numInput", figure, parent);
 
 // ---------- rangeInput ----------
 
@@ -634,7 +622,8 @@ str figToJSON(figure: rangeInput(), Figure parent) {
 
 // ---------- strInput ----------
  
-str figToJSON(figure: strInput(), Figure parent) = nopropsToJSON("strInput", figure, parent);
+str figToJSON(figure: strInput(), Figure parent) = 
+	basicToJSON("strInput", figure, parent);
 	
 // Catch missing cases
 
