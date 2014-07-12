@@ -32,19 +32,21 @@ void check(str property, str val, set[str] allowed){
 
 str propsToJSON(Figure child, Figure parent){
 	properties = [];
+	defaults = emptyFigure();
 	
-	//if(child.pos != parent.pos)						properties += "\"xpos\": <numArg(child.pos[0])>, 
-	//														      '\"ypos\": <numArg(child.pos[1])> ";
+	//if(child.at != <0,0>)								properties += "\"atX\": <numArg(child.at[0])>, 
+	//														      	  '\"atY\": <numArg(child.at[1])> ";
 	//
 	//if(child.xpos != parent.xpos) 					properties += "\"xpos\": <numArg(child.xpos)>";
 	//if(child.ypos != parent.ypos) 					properties += "\"ypos\": <numArg(child.ypos)>";
 	
-	if(child.size != parent.size) 					properties += "\"width\": <numArg(child.size[0])>, \"height\": <numArg(child.size[1])> ";
+	if(child.size != parent.size /*&& child.size != defaults.size*/) 					properties += "\"width\": <numArg(child.size[0])>, \"height\": <numArg(child.size[1])> ";
 												  
 	if(child.width != parent.width) 				properties += "\"width\": <numArg(child.width)>";
-	if(child.height != parent.height) 				properties += "\"width\": <numArg(child.height)>";
+	if(child.height != parent.height) 				properties += "\"height\": <numArg(child.height)>";
 	
-	if(child.pos != parent.pos) 					properties += "\"halign\": <numArg(child.pos[0])>, \"valign\": <numArg(child.pos[1])>";
+	if(child.align != parent.align /* && child.pos != defaults.pos*/) 					properties += "\"halign\": <numArg(child.align[0])>, \"valign\": <numArg(child.align[1])>";
+	//else											properties += "\"halign\": <numArg(parent.pos[0])>, \"valign\": <numArg(parent.pos[1])>";
 												  	  
 	//if(child.halign != parent.halign) 				properties += "\"halign\": <trHAlign(child.halign)>";
 	//
@@ -169,7 +171,7 @@ str trSeries(str key, Dataset[&T] ds) {
 }
 	
 str trVertices(list[Vertex] vertices, bool shapeClosed = true, bool shapeCurved = true, bool shapeConnected = true) {
-	<width, height>  = bbox(vertices);
+	//<width, height>  = bbox(vertices);
 	
 	str path = "M<toInt(vertices[0].x)> <toInt(vertices[0].y)>"; // Move to start point
 	int n = size(vertices);
@@ -188,34 +190,31 @@ str trVertices(list[Vertex] vertices, bool shapeClosed = true, bool shapeCurved 
 	
 	if(shapeConnected && shapeClosed) path += "Z";
 	
-	return "\"path\":    \"<path>\",
-		   ' \"width\":  <toInt(width)>,
-		   ' \"height\": <toInt(height)>
-		   ";		   
+	return "\"path\":    \"<path>\"";		   
 }
 
 bool isAbsolute(Vertex v) = (getName(v) == "line" || getName(v) == "move");
 
 str directive(Vertex v) = ("line": "L", "lineBy": "l", "move": "M", "moveBy": "m")[getName(v)];
 
-tuple[num, num] bbox(list[Vertex] vertices){	// TODO: assumes all points are positive
-	num maxX = 0;
-	num maxY = 0;
-	x = y = 0;
-	for(int i <- index(vertices)){
-		v = vertices[i];
-		if(isAbsolute(v)){
-			x = v.x; y = v.y;
-			
-		} else {
-			x += v.x; y += v.y;
-		}
-		maxX = x > maxX ? x : maxX;
-		maxY = y > maxY ? y : maxY;	
-	}
-	return <maxX, maxY>;
-
-}
+//tuple[num, num] bbox(list[Vertex] vertices){	// TODO: assumes all points are positive
+//	num maxX = 0;
+//	num maxY = 0;
+//	x = y = 0;
+//	for(int i <- index(vertices)){
+//		v = vertices[i];
+//		if(isAbsolute(v)){
+//			x = v.x; y = v.y;
+//			
+//		} else {
+//			x += v.x; y += v.y;
+//		}
+//		maxX = x > maxX ? x : maxX;
+//		maxY = y > maxY ? y : maxY;	
+//	}
+//	return <maxX, maxY>;
+//
+//}
 
 /**************** Utilities for translating properties *************************/
 
@@ -265,7 +264,8 @@ str trPath(Path path){
 			case field(str name): 		accessor += ".<name>";
 			case field(int position):	accessor += "[<position>]";
 			
-			case argument(str name):	accessor += ".<name>";
+			case argument(str name):	accessor += "[\\\"#args\\\"].<name>";
+			//case argument(str name):	accessor += ".<name>";
 			case argument(int position):accessor += "[\\\"#args\\\"][<position>]";
 			case keywordParam(str name):accessor += ".<name>";
   
@@ -407,11 +407,11 @@ str figToJSON(figure: grid(), Figure parent) {
    
 // ---------- transformations ---------- 
 
-// move
+// at
 
-str figToJSON(figure: MOVE(int x, int y, Figure fig), Figure parent) {
+str figToJSON(figure: at(int x, int y, Figure fig), Figure parent) {
 	return
-	"{\"figure\": 	\"move\",
+	"{\"figure\": 	\"at\",
 	' \"x\":		<x>,
 	' \"y\":		<y>,
     ' \"inner\":  	<figToJSON(fig, figure)> 
@@ -419,18 +419,18 @@ str figToJSON(figure: MOVE(int x, int y, Figure fig), Figure parent) {
     '}";
 }
 
-str figToJSON(figure: MOVEX(int x, Figure fig), Figure parent) {
+str figToJSON(figure: atX(int x, Figure fig), Figure parent) {
 	return
-	"{\"figure\": 	\"moveX\",
+	"{\"figure\": 	\"atX\",
 	' \"x\":		<x>,
     ' \"inner\":  	<figToJSON(fig, figure)> 
     ' <propsToJSON(figure, parent)>
     '}";
 }
 
-str figToJSON(figure: MOVEY(int y, Figure fig), Figure parent) {
+str figToJSON(figure: atY(int y, Figure fig), Figure parent) {
 	return
-	"{\"figure\": 	\"moveY\",
+	"{\"figure\": 	\"atY\",
 	' \"y\":		<y>,
     ' \"inner\":  	<figToJSON(fig, figure)> 
     ' <propsToJSON(figure, parent)>

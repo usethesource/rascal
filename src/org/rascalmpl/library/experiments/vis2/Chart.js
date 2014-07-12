@@ -4,21 +4,23 @@
 
 /****************** barChart ****************************/
 
-Figure.bboxFunction.barChart = function() {
-    if (this.width == 0) {
-        this.width = 400;
-    }
-    if (this.height == 0) {
-        this.height = 400;
-    } 
+Figure.bboxFunction.barChart = function(selection) {
+  this.svg = selection.append("svg");
+  if(!this.hasDefinedWidth()){
+  	this.width = 400;
+  }
+  if(this.hasDefinedHeight()){
+  	this.height = 400;
+  }
+  return this.svg;
 }
- 
-Figure.drawFunction.barChart = function (selection, x, y) {
+
+Figure.drawFunction.barChart = function (x, y, w, h) {
   var figure = this;
   nv.addGraph(function() {
 	  var chart = nv.models.discreteBarChart()
-	  	.width(figure.width)				 // Set required width and height from figure
-	    .height(figure.height)
+	  	.width(w)				 			// Set required width and height from figure
+	    .height(h)
       	.x(function(d) { return d.label })   // Specify the data accessors.
       	.y(function(d) { return d.value })
       	.staggerLabels(true)    			 // Too many bars and not enough room? Try staggering labels.
@@ -27,20 +29,18 @@ Figure.drawFunction.barChart = function (selection, x, y) {
       	.transitionDuration(350)
       	;
 	
-	  selection.append("svg")               // Create <svg> element to render the chart in.
-	  	  .attr("x", x)
-	  	  .attr("y", y)
-	  	  .attr("width", figure.width)
-	      .attr("height", figure.height) 
-	      .datum(figure.dataset)         	// Populate the <svg> element with chart data...
-	      .call(chart)                   	// Finally, render the chart
-	      ;
-	  chart.update();
-	      
-	  // Update the chart when window resizes.
+	  figure.svg 
+	  	.attr("x", x)
+	  	.attr("y", y)
+	  	.attr("width", w)
+	    .attr("height", h) 
+	    .datum(figure.dataset)         	  // Populate the <svg> element with chart data...
+	    .call(chart)                  // Finally, render the chart
+	     ;
 	  nv.utils.windowResize(function() { chart.update() });
 	  return chart;
    });
+  return this.svg;
 }
 
 /****************** lineChart ***************************/
@@ -51,22 +51,24 @@ Figure.lineChartFlavors = {
 				nv.models.lineWithFocusChart
 };
 
-Figure.bboxFunction.lineChart = function() {
-    if (this.width == 0) {
-        this.width = 200;
-    }
-    if (this.height == 0) {
-        this.height = 200;
-    }
+Figure.bboxFunction.lineChart = function(selection) {
+	this.svg = selection.append("svg");
+   	if(!this.hasDefinedWidth()){
+  		this.width = 400;
+  	}
+  	if(this.hasDefinedHeight()){
+  		this.height = 400;
+  	}
+  	return this.svg;
 }
 
-Figure.drawFunction.lineChart = function (selection, x, y) {
+Figure.drawFunction.lineChart = function (x, y, w, h) {
   var figure = this;
   var flavor = figure.flavor;
   nv.addGraph(function() {
 	  var chart = Figure.lineChartFlavors[flavor]()
-	  	 .width(figure.width)			 // Set required width and height from figure
-	     .height(figure.height)
+	  	 .width(w)			 			// Set required width and height from figure
+	     .height(h)
 	     .margin({left: 100})  			 // Adjust chart margins to give the x-axis some breathing room.
 	     .transitionDuration(350)  		 // How fast do you want the lines to transition?
 	  ;
@@ -87,11 +89,11 @@ Figure.drawFunction.lineChart = function (selection, x, y) {
 	      .axisLabel(figure.yAxis.label)
 	      .tickFormat(d3.format(figure.xAxis.tick));
 	
-	  selection.append("svg")             // Create <svg> element to render the chart in.
+	 figure.svg             // Create <svg> element to render the chart in.
 	  	  .attr("x", x)
 	  	  .attr("y", y)
-	  	  .attr("width", figure.width)
-	      .attr("height", figure.height)
+	  	  .attr("width", w)
+	      .attr("height", h)
 	      .datum(figure.dataset)         // Populate the <svg> element with chart data...
 	      .call(chart)                   // Finally, render the chart
 	      ;
@@ -101,4 +103,5 @@ Figure.drawFunction.lineChart = function (selection, x, y) {
 	  nv.utils.windowResize(function() { chart.update() });
 	  return chart;
    });
+   return this.svg;
 }
