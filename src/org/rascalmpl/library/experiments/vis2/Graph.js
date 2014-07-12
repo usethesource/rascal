@@ -105,19 +105,8 @@ function defaultDrawNodes(g, root) {
   return svgNodes;
 }
 
-Figure.bboxFunction.graph = function() {
-    if (this.width == 0) {
-        this.width = 200;
-    }
-    if (this.height == 0) {
-        this.height = 200;
-    }
-}
-
-Figure.drawFunction.graph = function (selection, x, y) {
-    var width = this.width,
-        height = this.height,
-        nodes = this.nodes || [],
+Figure.bboxFunction.graph = function(selection) {
+   var  nodes = this.nodes || [],
         edges = this.edges || [];
 
   //var renderer = GraphRenderer = new dagreD3.Renderer();
@@ -128,14 +117,29 @@ Figure.drawFunction.graph = function (selection, x, y) {
     svgNodes.attr("id", function(u) { return "node-" + u; });
     return svgNodes;
   });
-  selection = selection.append("svg").attr("width", 650).attr("height", 680).attr("x", x).attr("y", y).append("g").attr("transform", "translate(20,20)");
-  var layout = GraphRenderer.run(dagreD3.json.decode(nodes, edges), selection);
-  selection
-    .attr("width", layout.graph().width + 40)
-    .attr("height", layout.graph().height + 40);
+  this.svg = selection.append("svg");
+  var layout = GraphRenderer.run(dagreD3.json.decode(nodes, edges), this.svg);
+  
+  if(!this.hasDefinedWidth()){
+  	this.width = layout.graph().width + 40;
+  }
+  if(!this.hasDefinedHeight()){
+  	this.height = layout.graph().height + 40;
+  }	
+//    drawExtraFigure(selection, x, y, this);
+//    addInteraction(selection, x, y, this);
+  return this.svg;
+}   
 
-    drawExtraFigure(selection, x, y, this);
-    addInteraction(selection, x, y, this);
+Figure.drawFunction.graph = function (x, y, w, h) {
+	this.svg
+		.attr("x", x)
+		.attr("y", y)
+		.attr("width", w)
+		.attr("height", h)
+		;
+		
+    return this.svg;
 }
 
 /******************* springGraph ***********************/

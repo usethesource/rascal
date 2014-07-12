@@ -1,6 +1,8 @@
 
 /****************** The figure prototype with all defaults *********************/
 
+"use strict";
+
 var Figure = {
     figure: "figure",
     textValue: "none",
@@ -13,8 +15,8 @@ var Figure = {
     "stroke-dasharray": [],
     "stroke-opacity": 1.0,
     borderRadius: 0,
-    halign: 0.5,
-    valign: 0.5,
+//    halign: 0.5,
+ //   valign: 0.5,
     "font-family": "sans-serif", // serif, sans-serif, monospace
     "font-name": "Helvetica",
     "font-size": 12,
@@ -43,28 +45,49 @@ var Figure = {
 
 
 Object.defineProperty(Figure, "width", {
-										get: function(){ 
-                                                    if(this.hasOwnProperty("_width"))return this._width;
-                                                    if(this.hasDefinedWidth()) return this.definedWidth;
-                                                    return 0;
-                                        	  },
-             							set: function(w){ 
-													this._width = w; 
-											  }
-        
-    									});
+	get: function(){ 
+			if(this.hasOwnProperty("_width")) return this._width;
+			return undefined;
+			},
+	set: function(w){ this._width = w;  }
+});
     
 Object.defineProperty(Figure, "height", {
-										get: function(){ 
-													if(this.hasOwnProperty("_height")) return this._height;
-                                                    if(this.hasDefinedHeight) return this.definedHeight;
-                                                    return 0;
-                                               },
-                                          set: function(h){ 
-                                                    this._height = h; 
-                                               }
+	get: function(){ 
+			if(this.hasOwnProperty("_height")) return this._height;
+			return undefined;
+		},
+	set: function(h){ this._height = h; }
+});
+
+Object.defineProperty(Figure, "atX", {
+	get: function(){ 
+			if(this.hasOwnProperty("_atX")) return this._atX;
+			return 0;
+		},
+	set: function(x){ this._atX = x; }
+});
+
+Object.defineProperty(Figure, "atY", {
+	get: function(){ 
+			if(this.hasOwnProperty("_atY")) return this._atY;
+			return 0;
+		},
+	set: function(y){ this._atY = y; }
+});
+    									
+Object.defineProperty(Figure, "halign", {
+	get: function(){ 
+	return "_halign" in this ? this._halign : 0.5; },
+	set: function(h){ this._halign = h; }
         
-    									});
+});
+
+Object.defineProperty(Figure, "valign", {
+	get: function(){ 
+		return "_valign" in this ? this._valign : 0.5; },
+	set: function(v){ this._valign = v; }
+});
 
 /****************** Build a figure given its JSON representation ****************/
 
@@ -86,7 +109,7 @@ function buildFigure1(description, parent) {
     f.draw = Figure.drawFunction[description.figure]; // || throw "No draw function defined for " + description.figure;
     
     for(var p in description) {
-        handle_prop = function(prop){       // Use extra closure to protect accessor as used in defineProperty
+        var handle_prop = function(prop){       // Use extra closure to protect accessor as used in defineProperty
         if (prop === "inner") {
             var inner_description = description[prop];
             if (isArray(inner_description)) {					// Allow two level nesting of figures to allow grids
@@ -111,16 +134,16 @@ function buildFigure1(description, parent) {
             if(prop_val.use){
                 var accessor = prop_val.use;
                 if(prop === "accessor"){
-                    Object.defineProperty(f, prop, {get: function(){ return accessor;}  });
+                    Object.defineProperty(f, prop, {get: function(){ return accessor;},  set: function(v) { return accessor; }});
                 } else {
-                    Object.defineProperty(f, prop, {get: function(){ return eval(accessor);}  });
+                    Object.defineProperty(f, prop, {get: function(){ return eval(accessor);},  set: function(v) { return eval(accessor); } });
                 }
             } else {
                 var val = description[prop];
                 if(val.hasOwnProperty("figure")){
                     val = buildFigure1(val, f);
                 }
-                Object.defineProperty(f, prop, {value: val});
+                Object.defineProperty(f, prop, {value: val, writable: true});
             }
         }
         }; 
@@ -132,26 +155,44 @@ function buildFigure1(description, parent) {
 /****************** Draw a figure object ****************/
 
 function drawFigure (description){
-    drawFigure1(buildFigure(description));
+	var b;
+	try {
+		b = buildFigure(description);
+	} catch(e){
+		console.log("buildFigure failed:", e);
+	}	
+    drawFigure1(b);
 }
 
 function drawFigure1(f) {
     Figure.figure_root = f;
-    f.bbox();
-    var area = d3.select("#figurearea").append("svg").attr("width", f.width).attr("height", f.height);
-    return f.draw(area, 0, 0);
+     var area = d3.select("#figurearea").append("svg");
+    try {
+   	 f.bbox(area);
+   	 } catch(e){
+   	 	console.log("bbox failed:", e);
+   	 }
+   
+    try {
+    	return f.draw(0, 0, f.width, f.height);
+    } catch(e){
+    	console.log("draw failed:", e);
+    }
+    area.attr("width", f.width).attr("height", f.height);
+	return area;
 }
 
-bboxExtraFigure = function (fig){
-    if(fig.hasOwnProperty("extra_figure")){
-        fig.extra_figure.bbox();
-    }
-}
+// bboxExtraFigure = function (fig){
+//     if(fig.hasOwnProperty("extra_figure")){
+//         fig.extra_figure.bbox();
+//     }
+// }
 
 /****************** AddInteraction to a figure *************************/
 
-function addInteraction(selection, x, y, fig) {
+function addInteraction(fig) {
     if (fig.hasOwnProperty("event")) {
+		var selection = fig.svg;
     	selection.style("cursor", "crosshair");
         
         if(fig.event != "click"){
@@ -175,12 +216,12 @@ function addInteraction(selection, x, y, fig) {
     return selection;
 }
 
-function drawExtraFigure(selection, x, y, fig){
-    if(fig.hasOwnProperty("extra_figure") && fig.draw_extra_figure === true){
-        fig.extra_figure.bbox();
-        fig.extra_figure.draw(selection, x, y);
-    }
-}
+// function drawExtraFigure(selection, x, y, fig){
+//     if(fig.hasOwnProperty("extra_figure") && fig.draw_extra_figure === true){
+//         fig.extra_figure.bbox();
+//         fig.extra_figure.draw(selection, x, y);
+//     }
+// }
 
 function handleUserInput(fig, v) {
     d3.event.stopPropagation();
@@ -298,35 +339,44 @@ Figure.drawFunction = {};
 
 /**************** empty *******************/
 
-Figure.bboxFunction.empty = function(){
+Figure.bboxFunction.empty = function(selection){
 	this.width = this.height = 0;
 }
 
-Figure.drawFunction.box = function (selection, x, y) {
-		return selection;
+Figure.drawFunction.box = function (x, y, w, h) {
+		return /* what? */;
 }
 
 /**************** box *******************/
 
-Figure.bboxFunction.box = function() {
+Figure.bboxFunction.box = function(selection) {
     var width = 0, height = 0, definedW, definedH;
     
     if(this.hasDefinedWidth()){
-        width = this.definedWidth;
+        width = this.width;
         definedW = 1;
     }
     if(this.hasDefinedHeight()){
-        height = this.definedHeight;
+        height = this.height;
         definedH = 1;
     } 
-    var lw = this["stroke-width"];
+    var lw = this["stroke-width"]/2;	// TODO: check this
     width += (lw + 1) / 2;
     height += (lw + 1) / 2
     console.log("box.bbox:", width, height);
+    	
+    this.svg = selection
+    	.append("rect")
+    	.style("stroke", this.stroke)
+    	.style("fill", this.fill)
+    	.style("stroke-width", this["stroke-width"] + "px")
+    	.style("stroke-dasharray", this["stroke-dasharray"])
+    	;
+    
     if (this.hasOwnProperty("inner")) {
         var inner = this.inner;
         console.log(inner);
-        inner.bbox();
+        inner.bbox(selection);
         console.log("inner", inner.width, inner.height);
         if(!definedW){
             width = Math.max(width, inner.width + 2 * this.hgap);
@@ -334,32 +384,30 @@ Figure.bboxFunction.box = function() {
         if(!definedH){
             height = Math.max(height, inner.height + 2 * this.vgap);
         }
-        console.log("outer size:", width, height);
+        console.log("box outer size:", width, height);
     }
     this.width = width;
     this.height = height;
 }
 
-Figure.drawFunction.box = function (selection, x, y) {
+Figure.drawFunction.box = function (x, y, w, h) {
  	var lw = (this["stroke-width"])/2;		// TODO: check this
-    var my_svg = selection
-    .append("rect")
-    .attr("x", x+lw)
-    .attr("y", y+lw)
-    .attr("width", this.width)
-    .attr("height", this.height)
-    .style("stroke", this.stroke)
-    .style("fill", this.fill)
-    .style("stroke-width", this["stroke-width"] + "px")
-    .style("stroke-dasharray", this["stroke-dasharray"])
+    this.svg
+    	.attr("x", x + lw)
+    	.attr("y", y + lw)
+    	.attr("width", w)
+    	.attr("height", h)
+    	;
+    
     if (this.hasOwnProperty("inner")) {
         var inner = this.inner;
-        inner.draw(selection, x + lw + this.hgap + this.halign * (this.width - inner.width - 2 * this.hgap), 
-                              y + lw + this.vgap + this.valign * (this.height - inner.height - 2 * this.vgap));
+        inner.draw(x + this.atX + lw + this.hgap + this.halign * (this.width  - inner.width  - 2 * this.hgap), 
+                   y + this.atY + lw + this.vgap + this.valign * (this.height - inner.height - 2 * this.vgap),
+                   inner.width, inner.height);
     }
-    drawExtraFigure(selection, x, y, this);
-    addInteraction(my_svg, x, y, this);
-    return my_svg;
+    //drawExtraFigure(selection, x, y, this);
+    addInteraction(this);
+    return this.svg;
 }
 
 /**************** shape *****************/
@@ -368,52 +416,50 @@ function isEmptyFigure(fig){
 	return fig.figure === "empty";
 }
 
-Figure.bboxFunction.shape = function() {
-	this.inner[0].bbox();
-	this.inner[1].bbox();
-	this.inner[1].bbox();
-}
-
-Figure.drawFunction.shape = function (selection, x, y) {
+Figure.bboxFunction.shape = function(selection) {
 	var inner = this.inner;
+	
 	var defs = selection.append("defs");
 	if(!isEmptyFigure(inner[0])){
-		var startMarker = defs.append("marker")
-							.attr("id", "startMarker")
-							.attr("markerWidth", inner[0].width)
-							.attr("markerHeight", inner[0].height)
-							.attr("refX", inner[0].width/2)
-							.attr("refY", inner[0].height/2)
-							.attr("orient", "auto")
-							;
-		inner[0].draw(startMarker, 0, 0);
+		var startMarker = defs.append("marker");
+		inner[0].bbox(startMarker);
+		startMarker
+			.attr("id", "startMarker")
+			.attr("markerWidth", inner[0].width)
+			.attr("markerHeight", inner[0].height)
+			.attr("refX", inner[0].width/2)
+			.attr("refY", inner[0].height/2)
+			.attr("orient", "auto")
+			;
 	}
 	if(!isEmptyFigure(inner[1])){
-		var midMarker = defs.append("marker")
-							.attr("id", "midMarker")
-							.attr("markerWidth", inner[1].width)
-							.attr("markerHeight", inner[1].height)
-							.attr("refX", inner[1].width/2)
-							.attr("refY", inner[1].height/2)
-							.attr("orient", "auto")
-							;
-		inner[1].draw(midMarker, 0, 0);
+		var midMarker = defs.append("marker");
+		inner[1].bbox(midMarker);
+		midMarker
+			.attr("id", "midMarker")
+			.attr("markerWidth", inner[1].width)
+			.attr("markerHeight", inner[1].height)
+			.attr("refX", inner[1].width/2)
+			.attr("refY", inner[1].height/2)
+			.attr("orient", "auto")
+			;
 	}
 	if(!isEmptyFigure(inner[2])){
-		var endMarker = defs.append("marker")
-							.attr("id", "endMarker")
-							.attr("markerWidth", inner[2].width)
-							.attr("markerHeight", inner[2].height)
-							.attr("refX", inner[2].width/2)
-							.attr("refY", inner[2].height/2)
-							.attr("orient", "auto")
-							;
-		inner[2].draw(endMarker, 0, 0);
+		var endMarker = defs.append("marker");
+		inner[2].bbox(endMarker);
+		endMarker
+			.attr("id", "endMarker")
+			.attr("markerWidth", inner[2].width)
+			.attr("markerHeight", inner[2].height)
+			.attr("refX", inner[2].width/2)
+			.attr("refY", inner[2].height/2)
+			.attr("orient", "auto")
+			;
 	}
-	var path =
+	var path = this.svg =
 		selection
 		.append("path")
-		.attr("transform", "translate(" + x + "," + y + ")")
+		//.attr("transform", "translate(" + x + "," + y + ")")
 		.attr("d", this.path)
 		.style("stroke", this.stroke)
 		.style("fill-rule", this["fill-rule"])
@@ -430,60 +476,94 @@ Figure.drawFunction.shape = function (selection, x, y) {
      if(!isEmptyFigure(inner[2])){
     	path.style("marker-end", "url(#endMarker)");
     }
+	
+	var bb = path.node().getBBox();
+	
+	this.width = bb.width;
+	this.height = bb.height;
+	
+	return this.svg;
+}
+
+Figure.drawFunction.shape = function (x, y, w, h) {
+	 this.svg
+	 	.attr("x", x)
+		.attr("y", y)
+    	.attr("width", w)
+    	.attr("height", h)
+		.attr("transform", "translate(" + x + "," + y + ")")
+    	;
+	return this.svg;
 }
 
 /**************** image *****************/
 
-Figure.bboxFunction.image = function() {
-	this.width = this.definedWidth || 100;
-	this.height = this.definedHeight || 100;
-}
-
-Figure.drawFunction.image = function (selection, x, y) {
-	selection
+Figure.bboxFunction.image = function(selection) {	
+	var w  = this.width || 50;
+	var h = this.width || 50;
+	this.svg = selection
 		.append("image")
-		.attr("x", x)
-		.attr("y",y)
-		.attr("width", this.width)
-		.attr("height", this.height)
+		.attr("width", w)
+		.attr("height", h)
 		.attr("xlink:href", this.url)
 		;
+	
+	var bb = this.svg.node().getBBox();
+	
+	if(!this.hasDefinedHeight()){
+		this.width = bb.width;
+	}
+	
+	if(!this.hasDefinedHeight()){
+		this.height = bb.height;
+	}
+	return this.svg;
 }
 
+Figure.drawFunction.image = function (x, y, w, h) {
+	this.svg
+		.attr("x", x)
+		.attr("y", y)
+		.attr("width", w)
+		.attr("height", h)
+		;
+	return this.svg;
+}
 
-/**************** move *******************/
+/**************** at *******************/
 
-Figure.bboxFunction.move = function() {
+Figure.bboxFunction.at = function(selection) {
 	var inner = this.inner;
-	inner.bbox();
+	this.svg = inner.bbox(selection);
 	
  	this.width = Math.abs(this.x) + inner.width;
 	this.height = Math.abs(this.y) + inner.height;
 	console.log("move.bbox:", this.x, this.y, this.width, this.height);
+	return this.svg;
 }
 
-Figure.drawFunction.move = function (selection, x, y) {
-	this.inner.draw(selection, x + this.x, y + this.y);
-	return selection;
+Figure.drawFunction.at = function (x, y, w, h) {
+	this.inner.draw(x + this.x, y + this.y, this.inner.width, this.inner.height);
+	return this.svg;
 }
 
-/**************** moveX *******************/
+/**************** atX *******************/
 
-Figure.bboxFunction.moveX = function() {
+Figure.bboxFunction.atX = function() {
 	var inner = this.inner;
 	inner.bbox();
 	this.width = this.x + inner.width;
 	this.height = inner.height;
 }
 
-Figure.drawFunction.moveX = function (selection, x, y) {
+Figure.drawFunction.atX = function (selection, x, y) {
 	this.inner.draw(selection, x + this.x, y);
 	return selection;
 }
 
-/**************** moveY *******************/
+/**************** atY *******************/
 
-Figure.bboxFunction.moveY = function() {
+Figure.bboxFunction.atY = function() {
 	var inner = this.inner;
 	inner.bbox();
 	this.width = inner.width;
@@ -495,35 +575,23 @@ Figure.drawFunction.moveY = function (selection, x, y) {
 	return selection;
 }
 
-// /**************** moveBy *******************/
-
-// Figure.bboxFunction.moveBy = function() {
-// 	var inner = this.inner;
-// 	inner.bbox();
-// 	this.width = this.x + inner.width;
-// 	this.height = this.y + inner.height;
-// }
-
-// Figure.drawFunction.moveBy = function (selection, x, y) {
-// 	this.inner.draw(selection, x + this.x, y + this.y);
-// 	return selection;
-// }
-
 /**************** scale *******************/
 
-Figure.bboxFunction.scale = function() {
+Figure.bboxFunction.scale = function(selection) {
+	this.svg = selection
+		.append("g")
+		.attr("transform", "scale(" + this.xfactor + "," + this.yfactor + ")")
+		;
 	var inner = this.inner;
-	inner.bbox();
+	this.svg = inner.bbox(this.svg);
 	this.width = this.xfactor * inner.width;
 	this.height = this.yfactor * inner.height;
+	return this.svg;
 }
 
-Figure.drawFunction.scale = function (selection, x, y) {
-	var my_svg = selection
-		.append("g")
-		.attr("transform", "scale(" + this.xfactor + "," + this.yfactor + ")");
-	this.inner.draw(my_svg, x, y);
-	return my_svg;
+Figure.drawFunction.scale = function (x, y, w, h) {
+	this.inner.draw(x, y, this.inner.width, this.inner.height);
+	return this.svg;
 }
 
 /**************** rotate *******************/
@@ -532,174 +600,219 @@ Figure.toRadians = function (angle){
 	return angle * (Math.PI/180);
 }
 
-Figure.bboxFunction.rotate = function() {
+Figure.bboxFunction.rotate = function(selection) {
+	
+	this.svg = selection.append("svg");
+	var group = this.svg.append("g");
+	
 	var inner = this.inner;
-	inner.bbox();
+	inner.bbox(group);
 	var w = inner.width;
-	var h = inner.height;
+ 	var h = inner.height;
+	
+	group.attr("transform", "rotate(" + this.angle + "," +  (w/2) + "," + (h/2) + ")");
 	
 	var angle = Figure.toRadians(this.angle % 180);
 	var sin = Math.sin(angle);
 	var cos = Math.cos(angle);
-	var rot_w = w * cos + h * sin;
-	var rot_h = w * sin + h * cos; 
+	this.width = w * cos + h * sin;
+	this.height = w * sin + h * cos; 
+
+	console.log("rotate.bbox:", this.width, this.height);
 	
-	//var dw = 0.5 * Math.abs(rot_w - w);
-	
-	//var dh = 0.5 * Math.abs(rot_h - h);
-	
-	//var dw = Math.abs(w - 0.5*(w - h) * sin);
-	//var dh = Math.abs(h - 0.5*(w - h) * sin);
-	
-	
-	//var dw = Math.abs(w * cos);
-	//var dh = Math.abs(h * cos);
-	
-	var dw = Math.abs(0.7 * (rot_w - w) * sin);
-	var dh = Math.abs(0.7 * (rot_h - h) * sin);
-	
-	this.dw = dw;
-	this.dh = dh;
-	this.width = rot_w; 
-	this.height = rot_h;
-	console.log("rotate.bbox:", this.width, this.height, "dw:", dw, "dh:", dh);
+	return this.svg;
 }
 
-Figure.drawFunction.rotate = function (selection, x, y) {
+Figure.drawFunction.rotate = function (x, y, w, h) {
 	var inner = this.inner;
-	var my_svg = selection
-		.append("svg").attr("viewbox", " 0 0 " + this.width + " " + this.height)
-		.append("g")
-		.attr("transform", "rotate(" + this.angle + "," +  (x+inner.width/2) + "," + (y+inner.height/2) + ")"/* translate(" + this.dw + "," + this.dh + ")"*/ );
-	 inner.draw(my_svg, x, y);
-	return my_svg;
+	this.svg
+		.attr("x", x)
+		.attr("y", y)
+		.attr("width", inner.width)
+		.attr("height", inner.height)
+	//	.attr("viewbox", " 0 0 " + w + " " + h)
+		;
+	inner.draw(x, y, inner.width, inner.height);
+	return this.svg;
 }
+
+// Figure.bboxFunction.rotate = function(selection) {
+// 	var inner = this.inner;
+// 	inner.bbox();
+// 	var w = inner.width;
+// 	var h = inner.height;
+	
+// 	var angle = Figure.toRadians(this.angle % 180);
+// 	var sin = Math.sin(angle);
+// 	var cos = Math.cos(angle);
+// 	var rot_w = w * cos + h * sin;
+// 	var rot_h = w * sin + h * cos; 
+	
+// 	//var dw = 0.5 * Math.abs(rot_w - w);
+	
+// 	//var dh = 0.5 * Math.abs(rot_h - h);
+	
+// 	//var dw = Math.abs(w - 0.5*(w - h) * sin);
+// 	//var dh = Math.abs(h - 0.5*(w - h) * sin);
+	
+	
+// 	//var dw = Math.abs(w * cos);
+// 	//var dh = Math.abs(h * cos);
+	
+// 	var dw = Math.abs(0.7 * (rot_w - w) * sin);
+// 	var dh = Math.abs(0.7 * (rot_h - h) * sin);
+	
+// 	this.dw = dw;
+// 	this.dh = dh;
+// 	this.width = rot_w; 
+// 	this.height = rot_h;
+// 	console.log("rotate.bbox:", this.width, this.height, "dw:", dw, "dh:", dh);
+// }
+
+// Figure.drawFunction.rotate = function (selection, x, y) {
+// 	var inner = this.inner;
+// 	var my_svg = selection
+// 		.append("svg").attr("viewbox", " 0 0 " + this.width + " " + this.height)
+// 		.append("g")
+// 		.attr("transform", "rotate(" + this.angle + "," +  (x+inner.width/2) + "," + (y+inner.height/2) + ")"/* translate(" + this.dw + "," + this.dh + ")"*/ );
+// 	 inner.draw(my_svg, x, y);
+// 	return my_svg;
+// }
+
 
 /**************** hcat *******************/
 
-Figure.bboxFunction.hcat = function() {
+Figure.bboxFunction.hcat = function(selection) {
     var inner = this.inner;
     var width = 0;
     var height = 0;
+    
+    this.svg = selection.append("g");
+    
     for (var i = 0; i < inner.length; i++) {
         var elm = inner[i];
-        elm.bbox();
+        elm.bbox(selection);
         width += elm.width;
         height = Math.max(height, elm.height);
     }
 	
     this.width = width + (inner.length - 1) * this.hgap; //TODO length == 0
     this.height = height;
-    return;
+    return this.svg;
 }
 
-Figure.drawFunction.hcat = function (selection, x, y) {
-    var my_svg = selection
-        .append("rect")
-        .attr("x", x)
-        .attr("y", y)
-        .attr("width", this.width)
-        .attr("height", this.height)
-        .style("fill", "none");
-
+Figure.drawFunction.hcat = function (x, y, w, h) {
+   this.svg
+   		.attr("x", x)
+   		.attr("y", y)
+   		.attr("width", w)
+   		.attr("height", h)
+   		;
     var inner = this.inner;
     console.log("hcat:", inner);
     for (var i = 0; i < inner.length; i++) {
         var elm = inner[i];
-        elm.draw(selection, x, y + this.valign * (this.height - elm.height));
+        elm.draw(x, y + this.valign * (this.height - elm.height), elm.width, elm.height);
         x += elm.width + this.hgap;
     }
-    drawExtraFigure(selection, x, y, this);
-    addInteraction(my_svg, x, y, this);
-    return my_svg;
+    //drawExtraFigure(selection, x, y, this);
+    addInteraction(this);
 }
 
 /**************** vcat *******************/
 
-Figure.bboxFunction.vcat = function() {
+Figure.bboxFunction.vcat = function(selection) {
     var inner = this.inner;
     var width = 0;
     var height = 0;
+	
+	this.svg = selection.append("g");
+	
     for (var i = 0; i < inner.length; i++) {
         var elm = inner[i];
-        elm.bbox();
+        elm.bbox(selection);
         width = Math.max(width, elm.width);
         height += elm.height;
     }
     this.width = width;
     this.height = height + (inner.length - 1) * this.vgap;
+	return this.svg;
 }
 
-Figure.drawFunction.vcat = function (selection, x, y) {
-    var my_svg = selection
-        .append("rect")
+Figure.drawFunction.vcat = function (x, y, w, h) {
+    this.svg
         .attr("x", x)
         .attr("y", y)
-        .attr("width", this.width)
-        .attr("height", this.height)
-        .style("fill", "none");
+        .attr("width", w)
+        .attr("height", h)
+        ;
 
     var inner = this.inner;
-    var halign = this.halign;
     for (var i = 0; i < inner.length; i++) {
         var elm = inner[i];
-        elm.draw(selection, x + halign * (this.width - elm.width), y);
+        elm.draw(x + this.halign * (this.width - elm.width), y, elm.width, elm.height);
         y += elm.height + this.vgap;
     }
-    drawExtraFigure(selection, x, y, this);
-    addInteraction(my_svg, x, y, this);
-    return my_svg;
+//     drawExtraFigure(selection, x, y, this);
+     addInteraction(this);
+    return this.svg;
 }
 
 /**************** overlay *******************/
 
-Figure.bboxFunction.overlay = function() {
+Figure.bboxFunction.overlay = function(selection) {
     var inner = this.inner;
     var width = 0;
     var height = 0;
+	
+	this.svg = selection.append("g");
+	
     for (var i = 0; i < inner.length; i++) {
         var elm = inner[i];
-        elm.bbox();
+        elm.bbox(selection);
         width = Math.max(width, elm.width);
         height = Math.max(height, elm.height);
     }
     this.width = width;
     this.height = height;
+	return this.svg;
 }
 
-Figure.drawFunction.overlay = function (selection, x, y) {
-    var my_svg = selection
-        .append("rect")
+Figure.drawFunction.overlay = function (x, y, w, h) {
+    this.svg 
         .attr("x", x)
         .attr("y", y)
-        .attr("width", this.width)
-        .attr("height", this.height)
-        .style("fill", "none");
+        .attr("width", w)
+        .attr("height", h)
+        ;
 
     var inner = this.inner;
     var halign = this.halign;
 	var valign = this.valign;
     for (var i = 0; i < inner.length; i++) {
         var elm = inner[i];
-        elm.draw(selection, x /*+ this.halign * elm.halign * (this.width  - elm.width) */, 
-							y /*+ this.valign * elm.valign * (this.height - elm.height) */) ;
+        elm.draw(x + this.halign * (this.width  - elm.width), 
+				 y + this.valign * (this.height - elm.height),
+				 elm.width, elm.height) ;
     }
-    drawExtraFigure(selection, x, y, this);
-    addInteraction(my_svg, x, y, this);
-    return my_svg;
+//     drawExtraFigure(selection, x, y, this);
+    addInteraction(this);
+    return this.svg;
 }
 
 /**************** grid *******************/
 
-Figure.bboxFunction.grid = function() {
+Figure.bboxFunction.grid = function(selection) {
 	var inner = this.inner;
     var row_height = new Array();
     var col_width = new Array();
+	
+	this.svg = selection.append("g");
     
     for (var r = 0; r < inner.length; r++) {
     	for(var c = 0; c < inner[r].length; c++){
     		var elm = inner[r][c];
-    		elm.bbox();
+    		elm.bbox(selection);
     		col_width[c]  = col_width[c]  ? Math.max(elm.width, col_width[c])   : elm.width;
     		row_height[r] = row_height[r] ? Math.max(elm.height, row_height[r]) : elm.height;
     	}
@@ -718,9 +831,17 @@ Figure.bboxFunction.grid = function() {
      this.width = width;
      this.height = height
 	 console.log("grid.bbox:", width, height, row_height, col_width);
+	 return this.svg;
 }
 
-Figure.drawFunction.grid = function (selection, x, y) {
+Figure.drawFunction.grid = function (x, y, w, h) {
+	this.svg 
+        .attr("x", x)
+        .attr("y", y)
+        .attr("width", w)
+        .attr("height", h)
+        ;
+		
 	var inner = this.inner;
 	var row_height = this.row_height;
 	var col_width = this.col_width;
@@ -731,27 +852,20 @@ Figure.drawFunction.grid = function (selection, x, y) {
 		current_x = x;
 		for(var c = 0; c < inner[r].length; c++){
 			var elm = inner[r][c];
-			elm.draw(selection, current_x + elm.halign * (col_width[c] - elm.width),
-								current_y + elm.valign * (row_height[r] - elm.height));
+			elm.draw(current_x + elm.halign * (col_width[c] - elm.width),
+					 current_y + elm.valign * (row_height[r] - elm.height),
+					 elm.width, elm.height);
 			current_x += col_width[c] + this.hgap;
 		}
 		current_y += row_height[r] + this.vgap;
 	}
+	return this.svg;
 }
 
 /**************** text *******************/
 
-Figure.bboxFunction.text = function() {
-    var svgtmp = d3.select("body").append("svg").attr("id", "svgtmp").attr("width", 1000).attr("height", 1000);
-    //console.log("svgtmp", svgtmp);
-    if(!this.width)
-    	this.width = 0;
-    if(!this.height)			// TODO: height is not set automatically, why?
-    	this.height = 0;
-
-    var txt = svgtmp.append("text")
-        .attr("x", 0)
-        .attr("y", 0)
+Figure.bboxFunction.text = function(selection) {
+    this.svg = selection.append("text")
         .style("text-anchor", "start")
         .text(this.textValue)
         .style("font-family", this["font-family"])
@@ -761,153 +875,173 @@ Figure.bboxFunction.text = function() {
         .style("stroke", this.stroke)
         .style("fill",   this.stroke);
    
-    var bb = txt.node().getBBox();
-    svgtmp.node().remove();
-    this.width = Math.max(this.width,1.05*bb.width);
-    this.height = Math.max(this.height, 1.05*bb.height);
+    var bb = this.svg.node().getBBox();
+    this.width = 1.05*bb.width;
+    this.height = 1.05*bb.height;
     this.ascent = bb.y; // save the y of the bounding box as ascent
     console.log("text:", this.width, this.height, this.ascent);
 }
 
-Figure.drawFunction.text = function (selection, x, y) {
-    var my_svg =  selection
-        .append("text")
+Figure.drawFunction.text = function (x, y, w, h) {
+    this.svg
         .attr("x", x)
         .attr("y", y - this.ascent) // take ascent into account
-        .style("text-anchor", "start")
-        .text(this.textValue)
-        .style("font-family", this["font-family"])
-        .style("font-style", this["font-style"])
-        .style("font-weight", this["font-weight"])
-        .style("font-size", this["font-size"])
-        .style("stroke", this.stroke)
-        .style("fill",   this.stroke);
+		.attr("width", w)
+		.attr("height", h)
+		;
     
-    drawExtraFigure(selection, x, y, this);
-    addInteraction(my_svg, x, y, this);
-    return my_svg;
+   // drawExtraFigure(selection, x, y, this);
+    addInteraction(this);
+    return this.svg;
 }
 
 // visibility control
 
 /********************* choice ***************************/
 
-Figure.bboxFunction.choice = function() {
+Figure.bboxFunction.choice = function(selection) {
     var inner = this.inner;
     var selector = Math.min(Math.max(Figure.getModelElement(this.selector),0), inner.length - 1);
-    var selected = inner[selector];
-    selected.bbox();
-    this.width = selected.width;
-    this.height = selected.height;
+    this.selected = inner[selector];
+    this.svg = this.selected.bbox(selection);
+    this.width = this.selected.width;
+    this.height = this.selected.height;
 }
 
-Figure.drawFunction.choice = function (selection, x, y) {
-    var inner = this.inner;
-    var selector = Math.min(Math.max(Figure.getModelElement(this.selector),0), inner.length -1);
-    var selected = this.inner[selector];
-    return selected.draw(selection, x, y);
+Figure.drawFunction.choice = function (x, y, w, h) {
+    return this.selected.draw(x, y, w, h);
 }
 
 /********************* visible ***************************/
 
-Figure.bboxFunction.visible = function() {
+Figure.bboxFunction.visible = function(selection) {
     var inner = this.inner;
     var visible = Figure.getModelElement(this.selector);
     if(visible){
-        inner.bbox();
+        this.svg = inner.bbox(selection);
         this.width = inner.width;
         this.height = inner.height;
+
     } else {
         this.width = this.height = 0;
+		this.svg = selection;
     }
+	this.isVisible = visible;
+	return this.svg;
 }
 
-Figure.drawFunction.visible = function (selection, x, y) {
-    var inner = this.inner;
-    var visible = Figure.getModelElement(this.selector);
-    return visible ? inner.draw(selection, x, y) : selection;
+Figure.drawFunction.visible = function (x, y, w, h) {
+    return this.isVisible ? this.inner.draw(x, y, w, h) : this.svg;
 } 
 
 /********************* Input elements ************************/
 
 /********************* buttonInput ***************************/
 
-Figure.bboxFunction.buttonInput = function() {
-    if (!this.width || this.width == 0) {
-        this.width = 200;
-    }
-    if (!this.height || this.height == 0) {
-        this.height = 200;
-    }
-}
-
-Figure.drawFunction.buttonInput = function (selection, x, y) {
+Figure.bboxFunction.buttonInput = function (selection) {
     var fig = this;
     var accessor = this.accessor; 
     var b = Figure.getModelElement(accessor);
+	
+	var w = this.width || 50;
+	var h = this.height || 25;
     
-    var foreign = selection.append("foreignObject")
-        .attr("x", x).attr("y", y).attr("width", this.width).attr("height", this.height);
+    var foreign = this.svg = selection.append("foreignObject");
    
     foreign.append("xhtml:body")
         .append("form").attr("action", "")
         .append("input")
-            .style("width", this.width + "px").style("height", this.height + "px")
+            .style("width", w + "px").style("height", h + "px")
             .attr("type", "button").attr("value", b ? this.trueText : this.falseText);
         
-     foreign.on("mousedown", function() {
-          var b = !Figure.getModelElement(accessor); 
-          return handleUserInput(fig, b);
-     });
+    foreign.on("mousedown", function() {
+         var b = !Figure.getModelElement(accessor); 
+         return handleUserInput(fig, b);
+    });
+	 
+	var bb = foreign.node().getBBox();
+	
+	this.width = Math.max(w, bb.width);
+	this.height = Math.max(h, bb.height);
+	
+	return this.svg;
+}
+
+Figure.drawFunction.buttonInput = function (x, y, w, h) {
+	this.svg
+	 	.attr("x", x)
+		.attr("y", y)
+		.attr("width", w)
+		.attr("height", h)
+		;
+	return this.svg;
 }
 
 /********************* checkboxInput ***************************/
 
-Figure.bboxFunction.checkboxInput = Figure.bboxFunction.buttonInput;
-
-Figure.drawFunction.checkboxInput = function (selection, x, y) {
+Figure.bboxFunction.checkboxInput = function (selection) {
     var fig = this;
     var accessor = this.accessor; 
     var b = Figure.getModelElement(accessor);
     
-    var foreign = selection.append("foreignObject")
-        .attr("x", x).attr("y", y).attr("width", this.width).attr("height", this.height);
-    
+    var foreign = this.svg = selection.append("foreignObject");
+	
+	var w = this.width || 50;
+	var h = this.height || 25;
+	
     foreign.append("xhtml:body")
         .append("form").attr("action", "")
         .append("input")
-            .style("width", this.width + "px").style("height", this.height + "px")
+            .style("width", w + "px").style("height", h + "px")
             .attr("type", "checkbox");
-     if(b){
+    if(b){
          foreign.select("input").attr("checked", "checked");
-     }
+    }
         
-     foreign.on("mousedown", function() {
+    foreign.on("mousedown", function() {
          return handleUserInput(fig, !Figure.getModelElement(accessor));
-     });
+    });
+	 
+	var bb = foreign.node().getBBox();
+	
+	this.width = Math.max(w, bb.width);
+	this.height = Math.max(h, bb.height);
+	
+	return this.svg;
 }
+
+Figure.drawFunction.checkboxInput = Figure.drawFunction.buttonInput;
 
 /********************* strInput ***************************/
 
-Figure.bboxFunction.strInput = Figure.bboxFunction.buttonInput
-
-Figure.drawFunction.strInput = function (selection, x, y) {
+Figure.bboxFunction.strInput = function (selection) {
     var fig = this;
     var accessor = this.accessor; 
      
-    var foreign = selection.append("foreignObject")
-        .attr("x", x).attr("y", y).attr("width", this.width).attr("height", this.height);
+    var foreign = this.svg = selection.append("foreignObject");
+	
+	var w = this.width || 50;
+	var h = this.height || 25;
     
     foreign.append("xhtml:body")
         .append("form").attr("action", "").attr("onsubmit", "return false;")
         .append("input")
-            .style("width", this.width + "px").style("height", this.height + "px")
+            .style("width", w + "px").style("height", h + "px")
             .attr("type", "text").attr("value", Figure.getModelElement(accessor));
   
-     foreign.on(fig.event, function() {
+    this.svg.on(fig.event, function() {
         return handleUserInput(fig, "'" + foreign.select("input")[0][0].value + "'");
-     });
+    });
+	 
+	var bb = foreign.node().getBBox();
+	
+	this.width = Math.max(w, bb.width);
+	this.height = Math.max(h, bb.height);
+	
+	return this.svg;
 }
+
+Figure.drawFunction.strInput = Figure.drawFunction.buttonInput;
 
 /********************* colorInput ***************************/
 
@@ -944,89 +1078,117 @@ function colorNameToHex(color)
     return color;
 }
 
-Figure.bboxFunction.colorInput = Figure.bboxFunction.buttonInput;
-
-Figure.drawFunction.colorInput = function (selection, x, y) {
+Figure.bboxFunction.colorInput = function (selection) {
     var fig = this;
     var accessor = this.accessor;
+	
+	var w = this.width || 50;
+	var h = this.height || 25;
     
-    var foreign = selection.append("foreignObject")
-        .attr("x", x).attr("y", y).attr("width", this.width).attr("height", this.height);
+    var foreign = this.svg = selection.append("foreignObject");
     
     console.log(Figure.getModelElement(accessor));
     foreign.append("xhtml:body")
         .append("form").attr("action", "").attr("onsubmit", "return false")
         .append("input")
-            .style("width", this.width + "px").style("height", this.height + "px")
+            .style("width", w + "px").style("height", h + "px")
             .attr("type", "color").attr("value", Figure.getModelElement(accessor));
             
     foreign.on("change", function() {
-            return handleUserInput(fig, "\"" + foreign.select("input")[0][0].value + "\"");
-     });
+        return handleUserInput(fig, "\"" + foreign.select("input")[0][0].value + "\"");
+    });
+	 
+	var bb = foreign.node().getBBox();
+	
+	this.width = Math.max(w, bb.width);
+	this.height = Math.max(h, bb.height);
+	
+	return this.svg;
 }
+
+Figure.drawFunction.colorInput =  Figure.drawFunction.buttonInput;
+
 
 /********************* numInput ***************************/
 
-Figure.bboxFunction.numInput  = Figure.bboxFunction.buttonInput;
-
-Figure.drawFunction.numInput = function (selection, x, y) {
+Figure.bboxFunction.numInput = function (selection) {
     var fig = this;
     var accessor = this.accessor;
+	
+	var w = this.width || 50;
+	var h = this.height || 25;
     
-    var foreign = selection.append("foreignObject")
-        .attr("x", x).attr("y", y).attr("width", this.width).attr("height", this.height);
+    var foreign = this.svg = selection.append("foreignObject");
     
     foreign.append("xhtml:body")
         .append("form").attr("action", "").attr("onsubmit", "return false")
         .append("input")
-            .style("width", this.width + "px").style("height", this.height + "px")
+            .style("width", w + "px").style("height", h + "px")
             .attr("type", "number").attr("value", Figure.getModelElement(accessor));
      
-     foreign.on(this.event, function() {
-            return handleUserInput(fig, foreign.select("input")[0][0].value);
-     });
+    foreign.on(this.event, function() {
+           return handleUserInput(fig, foreign.select("input")[0][0].value);
+    });
+	 
+	var bb = foreign.node().getBBox();
+	
+	this.width = Math.max(w, bb.width);
+	this.height = Math.max(h, bb.height);
+	
+	return this.svg;
 }
+
+Figure.drawFunction.numInput = Figure.drawFunction.buttonInput;
 
 /********************* rangeInput ***************************/
 
-Figure.bboxFunction.rangeInput = Figure.bboxFunction.buttonInput
-
-Figure.drawFunction.rangeInput = function (selection, x, y) { 
+Figure.bboxFunction.rangeInput = function (selection) { 
     var fig = this;
     var accessor = this.accessor;
     
-    var foreign = selection.append("foreignObject")
-        .attr("x", x).attr("y", y).attr("width", this.width).attr("height", this.height);
+    var w = this.width || 50;
+	var h = this.height || 25;
+	
+    var foreign = this.svg = selection.append("foreignObject");
     
     foreign.append("xhtml:body")
         .append("form").attr("action", "").attr("onsubmit", "return false")
         .append("input")
-            .style("width", this.width + "px").style("height", this.height + "px")
+            .style("width", w + "px").style("height", h + "px")
             .attr("type", "range")
             .attr("min", this.min).attr("max", this.max).attr("step", this.step)
             .attr("value", Figure.getModelElement(this.accessor));
         
-     foreign.on(fig.event, function(){
+    foreign.on(fig.event, function(){
             return handleUserInput(fig, foreign.select("input")[0][0].value);
-     });
+    });
+	
+	var bb = foreign.node().getBBox();
+	
+	this.width = Math.max(w, bb.width);
+	this.height = Math.max(h, bb.height);
+	
+	return this.svg;
 }
+
+Figure.drawFunction.rangeInput = Figure.drawFunction.buttonInput;
 
 /********************* choiceInput ***************************/
 
-Figure.bboxFunction.choiceInput = Figure.bboxFunction.buttonInput
-
-Figure.drawFunction.choiceInput = function (selection, x, y) { 
+Figure.bboxFunction.choiceInput = function (selection) { 
     var fig = this;
     var accessor = this.accessor;
     var selectedIndex = Figure.getModelElement(this.accessor);
+	
+	var w = this.width || 50;
+	var h = this.height || 25;
     
-    var foreign = selection.append("foreignObject")
-        .attr("x", x).attr("y", y).attr("width", this.width).attr("height", this.height);
+    var foreign = this.svg = selection.append("foreignObject");
     
     var select =foreign.append("xhtml:body")
         .append("form").attr("action", "").attr("onsubmit", "return false")
         .append("select").attr("value", selectedIndex).attr("selectedIndex", selectedIndex)
-            .style("width", this.width + "px").style("height", this.height + "px");
+            .style("width", w + "px").style("height", h + "px");
     
     for(var i = 0; i < this.choices.length; i++){
         var opt = select.append("option").attr("value", i);
@@ -1036,7 +1198,16 @@ Figure.drawFunction.choiceInput = function (selection, x, y) {
         opt.text(this.choices[i]);
     }
         
-     foreign.on(fig.event, function(){
-            return handleUserInput(fig, foreign.select("select")[0][0].selectedIndex);
-     });
+    foreign.on(fig.event, function(){
+        return handleUserInput(fig, foreign.select("select")[0][0].selectedIndex);
+    });
+	 
+	var bb = foreign.node().getBBox();
+	
+	this.width = Math.max(w, bb.width);
+	this.height = Math.max(h, bb.height);
+	
+	return this.svg;
 }
+
+Figure.drawFunction.choiceInput = Figure.drawFunction.buttonInput;

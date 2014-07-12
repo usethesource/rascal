@@ -9,21 +9,25 @@ import ToString;
 
 /* Properties */
 
-// Positions for relative placement of figures inside figures
+// Position for absolute placement of figure in parent
 
-alias Position = tuple[num hpos, num vpos];
+alias Position = tuple[num x, num y];
 
-public Position topLeft      = <0.0, 0.0>;
-public Position topMiddle    = <0.5, 0.0>;
-public Position topRight     = <1.0, 0.0>;
+// Alignment for relative placement of figure in parent
 
-public Position middleLeft   = <0.0, 0.5>;
-public Position middle       = <0.5, 0.5>;
-public Position midleRight   = <0.5, 1.0>;
+alias Alignment = tuple[num hpos, num vpos];
 
-public Position bottomLeft   = <0.0, 1.0>;
-public Position bottomMiddle = <0.5, 1.0>;
-public Position bottomRight  = <1.0, 1.0>;
+public Alignment topLeft      = <0.0, 0.0>;
+public Alignment top          = <0.5, 0.0>;
+public Alignment topRight     = <1.0, 0.0>;
+
+public Alignment left   		 = <0.0, 0.5>;
+public Alignment center       = <0.5, 0.5>;
+public Alignment right   	 = <1.0, 0.5>;
+
+public Alignment bottomLeft   = <0.0, 1.0>;
+public Alignment bottom 		 = <0.5, 1.0>;
+public Alignment bottomRight  = <1.0, 1.0>;
 
 // Events and bindings for input elements
 
@@ -89,12 +93,13 @@ alias Vertices = list[Vertex];
 public alias Figures = list[Figure];
 
 public data Figure(
-		// Dimensions and positioning
+		// Dimensions and Alignmenting
 		
-		tuple[int,int] size = <-1,-1>,
-		int width = -1,
-		int height = -1,
-		Position pos = <0.5, 0.5>, // TODO should be middle,
+		tuple[int,int] size = <0,0>,
+		int width = 0,
+		int height = 0,
+		Position at = <0,0>,
+		Alignment align = <0.5, 0.5>, // TODO should be middle,
 		num grow = 1.0,
 		tuple[int,int] gap = <0,0>,
 		int hgap = 0,
@@ -117,7 +122,7 @@ public data Figure(
 
 		// Font and text properties
 		
-		str fontFamily = "sans-serif",
+		str fontFamily = "Helvetica Neue Light, Arial, Verdana, sans-serif",
 		str fontName = "Helvetica", 	// was: font
 		int fontSize = 12,
 		str fontStyle = "normal",
@@ -162,14 +167,14 @@ public data Figure(
                    
    | hcat(Figures figs=[]) 					// horizontal and vertical concatenation
    | vcat(Figures figs=[]) 					// horizontal and vertical concatenation 
-   | overlay(Figures figs=[])				// overlay (stacked) composition
+   | overlay(Figures figs=[])				// overlay (stacked) comAlignment
    | grid(list[Figures] figArray = [[]])	// grid of figures
 
 // Transformations
 	// TODO: avoid name clash with move
-   | MOVE(int x, int y, Figure fig)			// Move to position relative to origin of enclosing Figure
-   | MOVEX(int x, Figure fig)				// TODO: how to handle negative values?
-   | MOVEY(int y, Figure fig)
+   | at(int x, int y, Figure fig)			// Move to Alignment relative to origin of enclosing Figure
+   | atX(int x, Figure fig)				// TODO: how to handle negative values?
+   | atY(int y, Figure fig)
    
   	//TODO: avoid name clash with Math::util:scale
    | SCALE(num factor, Figure fig)
