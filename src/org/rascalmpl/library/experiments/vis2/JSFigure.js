@@ -775,7 +775,7 @@ Figure.drawFunction.vcat = function (x, y, w, h) {
 
 function initArray(n, v){
 	var ar = new Array();
-	for(int i = 0; i < n ; i++){
+	for(var i = 0; i < n ; i++){
 		ar[i] = v;
 	}
 	return ar;
@@ -809,8 +809,11 @@ Figure.bboxFunction.grid = function(selection) {
     this.min_width  = col_width.length  * this.hgap + col_width.reduce(add);
     this.min_height = row_height.length * this.vgap + row_height.reduce(add);
 	
-	this.row_height = row_height;
     this.col_width  = col_width;
+	this.row_height = row_height;
+	
+	this.col_flex_width  = col_flex_width;
+	this.row_flex_height = row_flex_height;
 	
 	this.ncol_flex_width  = col_flex_width.length  == 0 ? 0 : col_flex_width.reduce(add);
 	this.nrow_flex_height = row_flex_height.length == 0 ? 0 : row_flex_height.reduce(add);

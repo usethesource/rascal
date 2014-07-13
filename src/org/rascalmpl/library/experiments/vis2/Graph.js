@@ -2,6 +2,8 @@
 /*					Graph functions						*/
 /********************************************************/
 
+"use strict";
+
 /******************* layeredGraph ***********************/
 
 //////// Functions taken from dagre-d3 to override drawNode
