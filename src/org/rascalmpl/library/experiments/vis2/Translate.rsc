@@ -495,18 +495,23 @@ str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, p
 // ---------- graph ----------
 
 str figToJSON(figure: graph(), Figure parent) { 
+	if(!layoutFlavors["graph"]? || figure.flavor notin layoutFlavors["graph"]){
+		throw "Unknow graph flavor \"<figure.flavor>\"";
+	}
 	nodes = figure.nodes;
 	edges = figure.edges;
 	println("nodes = <nodes>");
 	println("edges = <edges>");
 	return
 	"{\"figure\": \"graph\", 
-	' \"nodes\":  [<intercalate(",\n", ["{ \"id\": \"<f>\", 
-	'                                      \"value\" : {\"label\": \"<f>\"
+	' \"flavor\": \"<figure.flavor>\",
+	' \"nodes\":  [<intercalate(",\n", ["{ \"id\": \"<f>\", \"name\": \"<f>\",
+	'                                      \"value\" : {\"label\": \"<f>\",
+														\"inner\":  <figToJSON(nodes[f], parent)>
 	'												    <propsToJSON(nodes[f], parent)>}}" | f <- nodes])>
 	'             ],  
-	' \"edges\":  [<intercalate(",\n", ["{\"u\": \"<from>\", 
-	'									  \"v\": \"<to>\", 
+	' \"edges\":  [<intercalate(",\n", ["{\"u\": \"<from>\", \"source\" : \"<from>\",
+	'									  \"v\": \"<to>\", \"target\": \"<to>\",
 	'									  \"value\": {\"label\": \"<label>\" <propsToJSON(e, parent)>}}"| e: edge(from,to,label) <- edges])>
 	'         ]
 	' <propsToJSON(figure, parent)> 

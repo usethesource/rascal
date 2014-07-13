@@ -4,7 +4,30 @@
 
 "use strict";
 
+/********************************************************/
+/*				graph			 						*/
+/********************************************************/
+
+
+Figure.bboxFunction.graph = function(selection) {
+  	this.svg = selection.append("svg");
+	Figure.getBBoxForComponent("graph", this.flavor)(this, selection);
+	return this.svg;
+}
+
+Figure.drawFunction.graph = function (x, y, w, h) {
+	return Figure.getDrawForComponent("graph", this.flavor)(this, x, y, w, h);
+}
+
+
+/********************************************************/
+/*				graph flavors			 				*/
+/********************************************************/
+
+
 /******************* layeredGraph ***********************/
+
+Figure.registerComponent("graph", "layeredGraph");
 
 //////// Functions taken from dagre-d3 to override drawNode
 
@@ -107,9 +130,9 @@ function defaultDrawNodes(g, root) {
   return svgNodes;
 }
 
-Figure.bboxFunction.graph = function(selection) {
-   var  nodes = this.nodes || [],
-        edges = this.edges || [];
+Figure.bboxFunction.layeredGraph = function(figure, selection) {
+   var  nodes = figure.nodes || [],
+        edges = figure.edges || [];
 
   //var renderer = GraphRenderer = new dagreD3.Renderer();
   GraphRenderer.drawNodes(defaultDrawNodes);
@@ -119,132 +142,123 @@ Figure.bboxFunction.graph = function(selection) {
     svgNodes.attr("id", function(u) { return "node-" + u; });
     return svgNodes;
   });
-  this.svg = selection.append("svg");
-  var layout = GraphRenderer.run(dagreD3.json.decode(nodes, edges), this.svg);
+  var layout = GraphRenderer.run(dagreD3.json.decode(nodes, edges), figure.svg);
   
-  if(!this.hasDefinedWidth()){
-  	this.width = layout.graph().width + 40;
+  if(!figure.hasDefinedWidth()){
+  	figure.min_width = layout.graph().width + 40;
   }
-  if(!this.hasDefinedHeight()){
-  	this.height = layout.graph().height + 40;
+  if(!figure.hasDefinedHeight()){
+  	figure.min_height = layout.graph().height + 40;
   }	
 //    drawExtraFigure(selection, x, y, this);
 //    addInteraction(selection, x, y, this);
-  return this.svg;
+  return figure.svg;
 }   
 
-Figure.drawFunction.graph = function (x, y, w, h) {
-	this.svg
+Figure.drawFunction.layeredGraph = function (figure, x, y, w, h) {
+	figure.svg
 		.attr("x", x)
 		.attr("y", y)
 		.attr("width", w)
 		.attr("height", h)
 		;
 		
-    return this.svg;
+    return figure.svg;
 }
 
 /******************* springGraph ***********************/
 
-// Function.drawFunction.graph = function (selection, x, y) {
-//     var width = this.width,
-//         height = this.height,
-//         nodes = this.nodes || [],
-//         links = this.edges || [];
+Figure.registerComponent("graph", "springGraph");
 
-//     console.log("nodes:", nodes);
-//     var defs = selection.append("defs");
+Figure.bboxFunction.springGraph = function(figure, selection) {
+	figure.svg = selection.append("svg");
+  	if(!figure.hasDefinedWidth()){
+  		figure.width = 400;
+  	}
+  	if(!figure.hasDefinedHeight()){
+  		figure.height = 400;
+  	}
+  	return figure.svg;
+}	
+	
+
+Figure.drawFunction.springGraph = function (figure, x, y, w, h) {
+    var width = w,
+        height = h,
+        nodes = figure.nodes || [],
+        links = figure.edges || [];
+
+    console.log("nodes:", nodes);
+    var defs = figure.svg.append("defs");
     
-//     for (var i in nodes) {
-//         console.log("node", i, nodes[i]);
-//         var f = buildFigure(nodes[i]);
-//         f.bbox();
-//         var d = defs.append("g").attr("id", "node" + i).attr("width", f.width).attr("height", f.height);
-//         nodes[i] = f.draw(d, 0, 0);
-//     }
-//     console.log("links", links);
+    for (var i in nodes) {
+        console.log("node", i, nodes[i]);
+        var f = buildFigure(nodes[i].value.inner);
+        f.bbox(figure.svg);
+        var d = defs.append("g").attr("id", "node" + i).attr("width", f.width).attr("height", f.height);
+        nodes[i].value.inner = f.draw(0, 0, f.width, f.height);
+    }
+    console.log("links", links);
 
-//     var force = self.force = d3.layout.force()
-//     .nodes(nodes)
-//     .links(links)
-//     .gravity(.02)
-//     .linkDistance(200)
-//     .charge(-200)
-//     .size([width, height])
-//     .start()
-//     /*	
-//             	// build the arrow.
-//         	selection.append("svg:defs").selectAll("marker")
-//             	.data(["end"])
-//           		.enter().append("svg:marker")
-//             	.attr("id", String)
-//             	.attr("viewBox", "0 -5 10 10")
-//             	.attr("refX", 100)
-//            		.attr("refY", -1)
-//             	.attr("markerWidth", 6)
-//             	.attr("markerHeight", 6)
-//             	.attr("orient", "auto")
-//           		.append("svg:path")
-//             	.attr("d", "M0,-5L10,0L0,5");
-//          */
-//     var link = selection.selectAll(".link")
-//     .data(links)
-//     .enter().append("line")
-//     .style("stroke", function(d) {
-//         return d.stroke || "black";
-//     })
-//     .style("fill", function(d) {
-//         return d.fill || "black";
-//     })
-//     .style("fill-opacity", function(d) {
-//         return d.fill_opacity || 1.0;
-//     })
-//     .style("stroke-width", function(d) {
-//         return d.stroke_width || 1;
-//     })
-//     .style("stroke-dasharray", function(d) {
-//         return d.stroke_dasharray || [];
-//     })
-//     .style("stroke-opacity", function(d) {
-//         return d.stroke_opacity || 1.0;
-//     })
-//     .attr("class", "link")
-//     //	   .attr("marker-end", "url(#end)")
-//     ;
+    var force = self.force = d3.layout.force()
+    	.nodes(nodes)
+    	.links(links)
+    	.gravity(.02)
+    	.linkDistance(200)
+    	.charge(-200)
+    	.size([width, height])
+    	.start()
+		;
+    /*	
+            	// build the arrow.
+        	selection.append("svg:defs").selectAll("marker")
+            	.data(["end"])
+          		.enter().append("svg:marker")
+            	.attr("id", String)
+            	.attr("viewBox", "0 -5 10 10")
+            	.attr("refX", 100)
+           		.attr("refY", -1)
+            	.attr("markerWidth", 6)
+            	.attr("markerHeight", 6)
+            	.attr("orient", "auto")
+          		.append("svg:path")
+            	.attr("d", "M0,-5L10,0L0,5");
+         */
+    var link = figure.svg.selectAll(".link")
+    	.data(links)
+    	.enter().append("line")
+    	.style("stroke", function(d) {return d.stroke || "black"; })
+    	.style("fill", function(d) { return d.fill || "black"; })
+    	.style("fill-opacity", function(d) { return d.fill_opacity || 1.0; })
+    	.style("stroke-width", function(d) { return d.stroke_width || 1;   })
+    	.style("stroke-dasharray", function(d) { return d.stroke_dasharray || []; })
+    	.style("stroke-opacity", function(d) { return d.stroke_opacity || 1.0; })
+   		.attr("class", "link")
+    	//	   .attr("marker-end", "url(#end)")
+    	;
 
-//     var node = selection.selectAll("g.node")
-//     .data(nodes)
-//     .enter()
-//     .append("use")
-//     .attr("class", "node")
-//     .attr("xlink:href", function(d, i) {
-//         return "#node" + i;
-//     })
-//     .call(force.drag);
+    var node = figure.svg.selectAll("g.node")
+    	.data(nodes)
+    	.enter()
+    	.append("use")
+    	.attr("class", "node")
+    	.attr("xlink:href", function(d, i) { return "#node" + i; })
+    	.call(force.drag);
 
-//     force.on("tick", function() {
+    force.on("tick", function() {
 
-//         node.attr("transform", function(d) {
-//             return "translate(" + d.x + "," + d.y + ")";
-//         });
+        node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")";  });
 
-//         link.attr("x1", function(d) {
-//             console.log(d);
-//             return d.source.x + nodes[d.source].attr("width") / 2;
-//         })
-//         .attr("y1", function(d) {
-//             return d.source.y + d.source.attr("height") / 2;
-//         })
-//         .attr("x2", function(d) {
-//             return d.target.x + d.target.attr("width") / 2;
-//         })
-//         .attr("y2", function(d) {
-//             return d.target.y + d.target.attr("height") / 2;
-//         });
-
-
-//     });
+        link.attr("x1", function(d) {
+            	console.log(d);
+            	return d.source.x + nodes[d.source].value.inner.width / 2;
+        	})
+        	.attr("y1", function(d) { return d.source.y + d.source.value.attr("height") / 2; })
+        .attr("x2", function(d) { return d.target.x + d.target.value.attr("width") / 2; })
+        .attr("y2", function(d) { return d.target.y + d.target.value.attr("height") / 2; })
+		;
+    });
     
-//     drawExtraFigure(selection, x, y, this);
-//     addInteraction(selection, x, y, this);
-// }
+    //drawExtraFigure(selection, x, y, this);
+   // addInteraction(selection, x, y, this);
+}
