@@ -98,6 +98,14 @@ void box16(){
 	ex("box16", box(fig=box(fig=RB, fillColor="white", size=<50,100>, align=bottomRight), fillColor="blue", size=<200,200>, gap=<10,10>, align=bottomLeft));
 }
 
+void box17(){
+	ex("box17", box(fig=RB, fillColor="blue", grow=3));
+}
+
+void box18(){
+	ex("box18", box(fig=text("Hello", fontSize=20), grow=2));
+}
+
 // hcat  
 
 Figures rgbFigs = [box(fillColor="red",size=<50,100>), box(fillColor="green", size=<200,200>), box(fillColor="blue", size=<10,10>)];
@@ -642,15 +650,15 @@ void hilbert3(){
 /********************** shape with markers ******************************/
 
 void marker1(){
-	ex("marker1", box(size=<300,300>, fig=shape([line(100,100), line(200,200)], startMarker=box(size=<10,10>,fillColor="red"))));
+	ex("marker1", box(size=<300,300>, align=topLeft, fig=shape([move(100,100), line(200,200)], startMarker=box(size=<10,10>,fillColor="red"))));
 }
 
 void marker2(){
-	ex("marker2", box(size=<300,300>, fig=shape([line(100,100), line(100,200), line(200,200)], shapeClosed=true, startMarker=box(size=<10,10>,fillColor="red"))));
+	ex("marker2", box(size=<300,300>, align=topLeft, fig=shape([move(100,100), line(100,200), line(200,200)], shapeClosed=true, startMarker=box(size=<10,10>,fillColor="red"))));
 }
 
 void marker3(){
-	ex("marker3", box(size=<300,300>, fig=shape([line(100,100), line(100,200), line(200,200)], 
+	ex("marker3", box(size=<300,300>, align=topLeft, fig=shape([move(100,100), line(100,200), line(200,200)], 
 												shapeClosed=true,
 												startMarker=box(size=<10,10>,fillColor="red"),
 												midMarker=box(size=<20,20>,fillColor="blue")
@@ -658,7 +666,7 @@ void marker3(){
 }
 
 void marker4(){
-	ex("marker4", box(size=<300,300>, fig=shape([line(100,100), line(150,30), line(200,100), line(150,150)],
+	ex("marker4", box(size=<300,300>,  align=topLeft, fig=shape([move(100,100), line(150,30), line(200,100), line(150,150)],
 												shapeClosed=true, shapeCurved=true,
 												startMarker=box(size=<10,10>,fillColor="red"),
 												midMarker=box(size=<20,20>,fillColor="blue")
@@ -671,16 +679,16 @@ Figure arrow(int side, str color, bool rightDir=true) =
 			 : shape([line(side,0), line(0,side), line(side, 2*side)], shapeClosed=true, fillColor=color);
 
 void arrow1(){
-	ex("arrow1", box(size=<300,300>, fig= shape([line(100,100), line(200,200)], endMarker=arrow(10, "red"))));
+	ex("arrow1", box(size=<300,300>, align=topLeft, fig= shape([move(100,100), line(200,200)], endMarker=arrow(10, "red"))));
 }
 
 void arrow2(){
-	ex("arrow2", box(size=<300,300>, fig= shape([line(100,100), line(200,200)], startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red"))));
+	ex("arrow2", box(size=<300,300>, align=topLeft, fig= shape([move(100,100), line(200,200)], startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red"))));
 }
 
 void arrow3(){
-	ex("arrow3", box(size=<300,300>, fillColor="silver", fig= shape([line(100,100), line(200,150), line(100,200), line(250,250)], 
-	                                            shapeCurved=true, startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red"))));
+	ex("arrow3", box(size=<300,300>, align=topLeft, fillColor="silver", fig= shape([line(100,100), line(200,150), line(100,200), line(250,250)], 
+	                                            shapeCurved=true, fillColor="silver",startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red"))));
 }
 
 
@@ -704,22 +712,18 @@ void barChart1(){
 
 void barChart2(){
 	ex("barChart2", barChart(dataset=exampleBarData(), size=<600,600>));
+}
 
+void barChart3(){
+	ex("barChart3", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, dataset=exampleBarData())]));
 }
 
 void vegaBarChart1(){
-	ex("vegaBarChart1", vegaBarChart(size=<400,200>, dataset=exampleBarData()));
-
+	ex("vegaBarChart1", barChart(size=<400,200>, dataset=exampleBarData(), flavor="vegaBarChart"));
 }
-
-
-void barChart2(){
-	ex("barChart2", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, dataset=exampleBarData())]));
-}
-
 
 void vegaBarChart2(){
-	ex("vegaBarChart2", hcat(figs=[  box(fillColor="red",size=<100,100>), vegaBarChart(size=<400,300>, dataset=exampleBarData())]));
+	ex("vegaBarChart2", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, dataset=exampleBarData(), flavor="vegaBarChart")]));
 }
 
 /********************* lineChart ******************************/
@@ -765,7 +769,7 @@ void lineChart5(){
 	ex("lineChart5", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
 							   yAxis=axis(label="Voltage (v)", tick=".02f"),	
 							   dataset= sinAndCos(), 
-							   flavor="lineWithFocusChart",
+							   flavor="nvLineWithFocusChart",
 							   size=<400,400>));
 }
 
@@ -895,7 +899,7 @@ void counter1(){
 	
 	render("counter1",  #COUNTER, COUNTER(666), Figure (COUNTER m) {
 			return
-				vcat(align=topLeft, figs=[ box(fig=text("Click me", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
+				vcat(figs=[ box(fig=text("Click me", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
 					   text(m.counter, size=<150,50>,fontSize=30)
 				     ]);
 			});
@@ -905,7 +909,7 @@ void counter2(){
 	
 	render("counter2",  #COUNTER, COUNTER(666),  Figure (COUNTER m) {
 			return
-				vcat(align=topLeft, figs=[ box(fig=text("Click me 1", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
+				vcat(figs=[ box(fig=text("Click me 1", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
 					   text(m.counter, size=<150,50>,fontSize=30),
 					   box(fig=text("Click me 2", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
 					   text(m.counter, size=<150,50>, fontSize=50),
@@ -918,7 +922,7 @@ void counter3(){
 	
 	render("counter3",  #COUNTER, COUNTER(666), Figure (COUNTER m) {
 			return
-				vcat(align=topLeft, figs=[ buttonInput(trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, m.counter + 1)), size=<80,40>),
+				vcat(figs=[ buttonInput(trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, m.counter + 1)), size=<80,40>),
 					   text(m.counter, size=<150,50>,fontSize=30)
 				     ]);
 			});
@@ -928,9 +932,8 @@ void counter4(){
 	
 	render("counter4",  #COUNTER, COUNTER(666), Figure (COUNTER m) {
 			return
-				vcat(align=topLeft, figs=[ buttonInput( trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, m.counter + 1)), size=<80,40>),
+				vcat(figs=[ buttonInput( trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, m.counter + 1)), size=<80,40>),
 					   text(m.counter, size=<150,50>,fontSize=30),
-					   box(size=<50,50>, lineColor="white"),
 					   buttonInput( trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, m.counter + 1)), size=<100,40>),
 					   text(m.counter, size=<150,50>, fontSize=50),
 					   text(m.counter, size=<150,50>, fontSize=80)
@@ -943,12 +946,23 @@ data ECHO = ECHO(str TXT);
 void echo1(){
 	render("echo1", #ECHO, ECHO("abc"), Figure (ECHO m) {
 			return
-				hcat(align=topLeft, figs=[ 		
-	                   strInput(event=on("submit", bind(m.TXT))), 
-	                   text(m.TXT, size=<150,50>, fontSize=50),
-	                   text(m.TXT, size=<150,50>, fontSize=80)
-	                  
-				   ], gap=<20,20>);
+				hcat(figs=[ strInput(event=on("submit", bind(m.TXT))), 
+	                        text(m.TXT, size=<150,50>, fontSize=50),
+	                        text(m.TXT, size=<150,50>, fontSize=80)
+				          ], gap=<20,20>);
+			});
+}
+
+data ECHO2 = ECHO2(num NUM);
+
+void echo2(){
+	render("echo2", #ECHO2, ECHO2(0), Figure (ECHO2 m) {
+			return
+				hcat(figs=[ text("Enter number:", fontSize=18),
+							numInput(event=on("input", bind(m.NUM))), 
+	                        text(m.NUM, size=<150,50>, fontSize=50),
+	                        text(m.NUM, size=<150,50>, fontSize=80)
+				          ], gap=<20,20>);
 			});
 }
 
@@ -957,9 +971,9 @@ data BORDER = BORDER(str C);
 void border1(){
 	render("border1", #BORDER, BORDER("red"), Figure (BORDER m) {
 			return
-				hcat(figs=[ text("Enter:", size=<150,50>, fontSize=18), 
+				hcat(figs=[ text("Enter:", fontSize=18), 
 				
-	                   strInput(event=on("submit", bind(m.C)), size=<100,25>), 
+	                   strInput(event=on("submit", bind(m.C))), 
 	                   
 	                   box(lineColor=m.C, lineWidth=10, size=<100,100>),
 	                   
@@ -971,7 +985,7 @@ void border1(){
 void border2(){
 	render("border2", #BORDER, BORDER("red"), Figure (BORDER m) {
 			return
-				hcat(figs=[ text("Enter:", size=<150,50>, fontSize=18), 
+				hcat(figs=[ text("Enter:", fontSize=18), 
 				
 	                   colorInput(event=on("change", bind(m.C)), size=<100,25>), 
 	                   
@@ -990,11 +1004,11 @@ void control1(){
 				vcat(figs=[
 					hcat(figs=[ text("  fillColor:", size=<150,50>, fontSize=20), colorInput(event=on("submit", bind(m.FC)), size=<100,25>),
 				
-					       text("lineWidth:", size=<150,50>, fontSize=20), numInput(event=on("submit", bind(m.LW)), size=<80,25>),
+					       text("lineWidth:", size=<150,50>, fontSize=20), numInput(event=on("input", bind(m.LW)), size=<80,25>),
 					
-					       text("     width:", size=<150,50>, fontSize=20), numInput(event=on("submit", bind(m.WIDTH)), size=<100,25>),
+					       text("     width:", size=<150,50>, fontSize=20), numInput(event=on("input", bind(m.WIDTH)), size=<100,25>),
 					
-					       text("    height:", size=<150,50>, fontSize=20), numInput(event=on("submit", bind(m.HEIGHT)), size=<100,25>)
+					       text("    height:", size=<150,50>, fontSize=20), numInput(event=on("input", bind(m.HEIGHT)), size=<100,25>)
 					     ]),
 					
 					box(size=<100,100>, lineWidth=0),
@@ -1087,7 +1101,7 @@ void slider4(){
 			low = 100;
 			high = 500;
 			return vcat(figs=[ hcat(figs=[text("SIZE"), text(low), rangeInput(low=low,high=high,step=5, event=on("change", bind(m.SIZE)), size=<500,50>), text(high) ]),
-				               barChart( width=m.SIZE, height=m.SIZE, dataset=exampleBarData())
+				               barChart(width=m.SIZE, height=m.SIZE, dataset=exampleBarData())
 	             ],			  
 				 gap=<10,20>);
 		});

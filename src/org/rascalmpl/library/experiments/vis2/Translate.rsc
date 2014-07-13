@@ -34,24 +34,16 @@ str propsToJSON(Figure child, Figure parent){
 	properties = [];
 	defaults = emptyFigure();
 	
-	//if(child.at != <0,0>)								properties += "\"atX\": <numArg(child.at[0])>, 
-	//														      	  '\"atY\": <numArg(child.at[1])> ";
-	//
-	//if(child.xpos != parent.xpos) 					properties += "\"xpos\": <numArg(child.xpos)>";
-	//if(child.ypos != parent.ypos) 					properties += "\"ypos\": <numArg(child.ypos)>";
 	
-	if(child.size != parent.size /*&& child.size != defaults.size*/) 					properties += "\"width\": <numArg(child.size[0])>, \"height\": <numArg(child.size[1])> ";
+	if(child.size != parent.size /*&& child.size != defaults.size*/) 					
+													properties += "\"width\": <numArg(child.size[0])>, \"height\": <numArg(child.size[1])> ";
 												  
 	if(child.width != parent.width) 				properties += "\"width\": <numArg(child.width)>";
 	if(child.height != parent.height) 				properties += "\"height\": <numArg(child.height)>";
 	
-	if(child.align != parent.align /* && child.pos != defaults.pos*/) 					properties += "\"halign\": <numArg(child.align[0])>, \"valign\": <numArg(child.align[1])>";
-	//else											properties += "\"halign\": <numArg(parent.pos[0])>, \"valign\": <numArg(parent.pos[1])>";
-												  	  
-	//if(child.halign != parent.halign) 				properties += "\"halign\": <trHAlign(child.halign)>";
-	//
-	//if(child.valign != parent.valign) 				properties += "\"valign\": <trVAlign(child.valign)>";
- //
+	if(child.align != parent.align) 				properties += "\"halign\": <numArg(child.align[0])>, \"valign\": <numArg(child.align[1])>";
+	
+	if(child.grow != parent.grow) 					properties += "\"grow\": <numArg(child.grow)>";											  	  
 	
 	if(child.gap != parent.gap) 					properties += "\"hgap\": <numArg(child.gap[0])>,
 												  		          '\"vgap\": <numArg(child.gap[1])> ";
@@ -59,12 +51,11 @@ str propsToJSON(Figure child, Figure parent){
 	if(child.hgap != parent.hgap) 					properties += "\"hgap\": <numArg(child.hgap)>";
 	if(child.vgap != parent.vgap) 					properties += "\"vgap\": <numArg(child.vgap)>";
 	
-	if(child.lineWidth != parent.lineWidth) 	properties += "\"stroke-width\": <numArg(child.lineWidth)>";
+	if(child.lineWidth != parent.lineWidth) 		properties += "\"stroke-width\": <numArg(child.lineWidth)>";
 	
-	if(child.lineColor != parent.lineColor) 				properties += "\"stroke\": <strArg(child.lineColor)>";
+	if(child.lineColor != parent.lineColor) 		properties += "\"stroke\": <strArg(child.lineColor)>";
 	
-	if(child.lineDashing != parent.lineDashing) 		
-													properties += "\"stroke-dasharray\": <child.lineDashing>";			// TODO
+	if(child.lineDashing != parent.lineDashing) 	properties += "\"stroke-dasharray\": <child.lineDashing>";			// TODO
 	
 	if(child.fillColor != parent.fillColor) 		properties += "\"fill\": <strArg(child.fillColor)>";
 	
@@ -460,24 +451,25 @@ str figToJSON(figure: rotate(num angle, Figure fig), Figure parent){
     '}";
 }
 
-// ---------- Charts ----------
 
-map[str, set[str]] chartFlavors = (
-    "vegaBarChart":
-    	{"barChart"},
+// --------- Describe all flavors of all layouts
+
+map[str, set[str]] layoutFlavors = (
 	"barChart":	
-		{"barChart", "vegeBarChart"},
+		{"nvBarChart", "vegaBarChart"},
 	"lineChart":
-		{"lineChart", "lineWithFocusChart"}
+		{"nvLineChart", "nvLineWithFocusChart"},
+	"graph":
+		{"layeredGraph", "springGraph"}
 );
+
+// ---------- Charts ----------
 
 // ---------- Utility for all charts -------------------
 
 str trChart(str chartType, Figure chart, Figure parent) {
-	if(chart.flavor != chartType){
-		if(!chartFlavors[chartType]? || chart.flavor notin chartFlavors[chartType]){
-			throw "Unknow chart flavor \"<chart.flavor>\" for <chartType>";
-		}
+	if(!layoutFlavors[chartType]? || chart.flavor notin layoutFlavors[chartType]){
+		throw "Unknow chart flavor \"<chart.flavor>\" for <chartType>";
 	}
 	xaxis = chart.xAxis;
 	yaxis = chart.yAxis;
@@ -495,9 +487,6 @@ str trChart(str chartType, Figure chart, Figure parent) {
 
 str figToJSON(chart: barChart(), Figure parent) = trChart("barChart", chart, parent);
 
-// ---------- vegaBarChart ----------
-
-str figToJSON(chart: vegaBarChart(), Figure parent) = trChart("vegaBarChart", chart, parent);
 
 // ---------- lineChart ----------
 
