@@ -145,7 +145,21 @@ Figure.bboxFunction = {};
 // Draw the various figure types
 Figure.drawFunction = {};
 
-/****************** Register new flavor of existing componentType ****************/
+/****************** Register new flavor of existing componentType ****************
+
+To make it easier to add new charting/drawing componnents a simple extension system has been added.
+
+The component types are fixed and built-in, e.g. barChart, lineChart, graph, etc.
+
+A new flavor for a component type can be added, e.g.,
+
+Figure.registerComponent("lineChart", "nvLineChart") will register new flavor "nvLineChart" for lineCharts.
+
+Its draw function can be obtained by:
+Figure.getDrawForComponent("lineChart", "nvLineChart")
+
+This assumes (and checks!) that the function Figure.drawFunction.nvLineChart exists.
+***********************************************************************************/
 
 Figure.components = {barChart: [], lineChart: [], graph: []};
 
@@ -157,6 +171,20 @@ Figure.registerComponent = function(componentType, flavor){
 	Figure.components[componentType].push(flavor);
 }
 
+Figure.getBBoxForComponent = function(componentType, flavor){
+	if(!Figure.components[componentType]){
+		throw "Cannot get unknown component type " + componentType;
+	}
+	if(Figure.components[componentType].indexOf(flavor) >= 0){
+		if(Figure.bboxFunction[flavor]){
+			return Figure.bboxFunction[flavor];
+		} else {
+			throw "No bbox function defined for registered flavor " + flavor + " for component type " + componentType;
+		}
+	}
+	throw "Cannot get bbox for unregistered flavor " + flavor + " for componentType " + componentType;
+}
+
 Figure.getDrawForComponent = function(componentType, flavor){
 	if(!Figure.components[componentType]){
 		throw "Cannot get unknown component type " + componentType;
@@ -165,11 +193,12 @@ Figure.getDrawForComponent = function(componentType, flavor){
 		if(Figure.drawFunction[flavor]){
 			return Figure.drawFunction[flavor];
 		} else {
-			throw "No function defined for registered flavor " + flavor + " for component type " + componentType;
+			throw "No draw function defined for registered flavor " + flavor + " for component type " + componentType;
 		}
 	}
-	throw "Cannot get unregistered flavor " + flavor + " for componentType " + componentType;
+	throw "Cannot get draw for unregistered flavor " + flavor + " for componentType " + componentType;
 }
+
 
 /****************** Draw a figure object ****************/
 

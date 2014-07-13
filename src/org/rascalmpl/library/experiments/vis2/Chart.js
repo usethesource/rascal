@@ -14,7 +14,7 @@ Figure.bboxFunction.barChart = function(selection) {
   	if(!this.hasDefinedWidth()){
   		this.width = 400;
   	}
-  	if(this.hasDefinedHeight()){
+  	if(!this.hasDefinedHeight()){
   		this.height = 400;
   	}
   	return this.svg;

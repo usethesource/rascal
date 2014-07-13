@@ -719,7 +719,7 @@ void barChart3(){
 }
 
 void vegaBarChart1(){
-	ex("vegaBarChart1", barChart(size=<400,200>, dataset=exampleBarData(), flavor="vegaBarChart"));
+	ex("vegaBarChart1", barChart(size=<400,400>, dataset=exampleBarData(), flavor="vegaBarChart"));
 }
 
 void vegaBarChart2(){
@@ -776,9 +776,9 @@ void lineChart5(){
 /********************* graph ******************************/
 
 map[str,Figure] nodes1 = 
-			     ( "N0" :	box(fillColor="yellow", rounded=<1,1>, lineWidth=3),
-          		   "N1" :   box(fillColor="red", lineDashing=[1,1,1,1,1,1]),
-     	    	   "N2" :	box(fillColor="lightblue", rounded=<15,15>)
+			     ( "N0" :	box(fillColor="yellow", rounded=<1,1>, lineWidth=3, size=<10,10>),
+          		   "N1" :   box(fillColor="red", lineDashing=[1,1,1,1,1,1], size=<20,20>),
+     	    	   "N2" :	box(fillColor="lightblue", rounded=<15,15>, size=<30,30>)
      	  		);
 list[Figure] edges1 = [ edge("N0","N1", "N0-N1", lineColor="orange"), 
 						edge("N1","N2", "N1-N2", lineWidth=3, lineOpacity=0.3), 
@@ -788,6 +788,10 @@ list[Figure] edges1 = [ edge("N0","N1", "N0-N1", lineColor="orange"),
 
 void graph1(){
 	ex("graph1", graph(nodes=nodes1, edges=edges1));
+}
+
+void graph1a(){
+	ex("graph1a", graph(nodes=nodes1, edges=edges1, flavor="springGraph", size=<200,200>));
 }
 
 
@@ -861,7 +865,7 @@ public void graph4(){
     			edge("TIME WAIT",  	"CLOSED",     "timeout=2MSL")
   			];
   			
-  			 render("graph4", graph(nodes=states, edges=edges, gap=<40,40>,fillColor="white"));
+  			 render("graph4", graph(nodes=states, edges=edges, gap=<40,40>, fillColor="white"));
 }
 
 /************** text *****************/
