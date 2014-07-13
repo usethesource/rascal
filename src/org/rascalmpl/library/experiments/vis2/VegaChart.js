@@ -22,19 +22,10 @@ function rsc2vega(dataset) {
 
 /****************** vegaBarChart *************************/
 
-Figure.bboxFunction.vegaBarChart = function(selection) {
-    if (!this.hasDefinedWidth()) {
-        this.width = 400;
-    }
-    if (this.hasDefinedHeight()) {
-        this.height = 400;
-    }
-	this.svg = selection.append("svg");
-    return this.svg;
-}
+Figure.registerComponent("barChart", "vegaBarChart");
 
-Figure.drawFunction.vegaBarChart = function(x, y, w, h) {
-    var figure = this;
+Figure.drawFunction.vegaBarChart = function(figure, x, y, w, h) {
+
     var data = {table: rsc2vega(figure.dataset)};
     
     function updateSpec(spec, width, height, top, left, bottom, right) {

@@ -6,6 +6,7 @@
 var Figure = {
     figure: "figure",
     textValue: "none",
+	grow:	1.0,
     hgap: 0,
     vgap: 0,
     fill: "white",
@@ -15,8 +16,6 @@ var Figure = {
     "stroke-dasharray": [],
     "stroke-opacity": 1.0,
     borderRadius: 0,
-//    halign: 0.5,
- //   valign: 0.5,
     "font-family": "sans-serif", // serif, sans-serif, monospace
     "font-name": "Helvetica",
     "font-size": 12,
@@ -47,7 +46,7 @@ var Figure = {
 Object.defineProperty(Figure, "width", {
 	get: function(){ 
 			if(this.hasOwnProperty("_width")) return this._width;
-			if(this.hasOwnProperty("min-_width")) return this.min_width;
+			if(this.hasOwnProperty("min_width")) return this.min_width;
 			return undefined;
 			},
 	set: function(w){ this._width = w;  }
@@ -136,6 +135,40 @@ function buildFigure1(description, parent) {
         handle_prop(p);
     }
     return f;
+}
+
+/****************** Bounding box and draw function table *******/
+
+// Determine the bounding box of the various figures types
+Figure.bboxFunction = {};
+
+// Draw the various figure types
+Figure.drawFunction = {};
+
+/****************** Register new flavor of existing componentType ****************/
+
+Figure.components = {barChart: [], lineChart: [], graph: []};
+
+
+Figure.registerComponent = function(componentType, flavor){
+	if(!Figure.components[componentType]){
+		throw "Cannot register unknown component type " + componentType;
+	}
+	Figure.components[componentType].push(flavor);
+}
+
+Figure.getDrawForComponent = function(componentType, flavor){
+	if(!Figure.components[componentType]){
+		throw "Cannot get unknown component type " + componentType;
+	}
+	if(Figure.components[componentType].indexOf(flavor) >= 0){
+		if(Figure.drawFunction[flavor]){
+			return Figure.drawFunction[flavor];
+		} else {
+			throw "No function defined for registered flavor " + flavor + " for component type " + componentType;
+		}
+	}
+	throw "Cannot get unregistered flavor " + flavor + " for componentType " + componentType;
 }
 
 /****************** Draw a figure object ****************/
@@ -316,13 +349,7 @@ function redrawFigure(){
     drawFigure1(Figure.figure_root);
 }
 
-/****************** Bounding box and draw function table *******/
 
-// Determine the bounding box of the various figures types
-Figure.bboxFunction = {};
-
-// Draw the various figure types
-Figure.drawFunction = {};
 
 /**************** empty *******************/
 
@@ -366,10 +393,10 @@ Figure.bboxFunction.box = function(selection) {
         inner.bbox(selection);
         console.log("inner", inner.width, inner.height);
         if(!definedW){
-            width = Math.max(width, inner.width + 2 * this.hgap);
+            width = Math.max(width, this.grow * inner.width + 2 * this.hgap);
         }
         if(!definedH){
-            height = Math.max(height, inner.height + 2 * this.vgap);
+            height = Math.max(height, this.grow * inner.height + 2 * this.vgap);
         }
         console.log("box outer size:", width, height);
     }
@@ -406,10 +433,13 @@ function isEmptyFigure(fig){
 Figure.bboxFunction.shape = function(selection) {
 	var inner = this.inner;
 	
-	var defs = selection.append("defs");
+	this.svg = selection.append("g");
+	
+	var defs = this.svg.append("defs");
 	if(!isEmptyFigure(inner[0])){
 		var startMarker = defs.append("marker");
 		inner[0].bbox(startMarker);
+		inner[0].draw(0,0,inner[0].width,inner[0].height);
 		startMarker
 			.attr("id", "startMarker")
 			.attr("markerWidth", inner[0].width)
@@ -422,6 +452,7 @@ Figure.bboxFunction.shape = function(selection) {
 	if(!isEmptyFigure(inner[1])){
 		var midMarker = defs.append("marker");
 		inner[1].bbox(midMarker);
+		inner[1].draw(0,0,inner[1].width,inner[1].height);
 		midMarker
 			.attr("id", "midMarker")
 			.attr("markerWidth", inner[1].width)
@@ -434,6 +465,7 @@ Figure.bboxFunction.shape = function(selection) {
 	if(!isEmptyFigure(inner[2])){
 		var endMarker = defs.append("marker");
 		inner[2].bbox(endMarker);
+		inner[2].draw(0,0,inner[2].width,inner[2].height);
 		endMarker
 			.attr("id", "endMarker")
 			.attr("markerWidth", inner[2].width)
@@ -443,8 +475,7 @@ Figure.bboxFunction.shape = function(selection) {
 			.attr("orient", "auto")
 			;
 	}
-	var path = this.svg =
-		selection
+	var path = this.svg
 		.append("path")
 		//.attr("transform", "translate(" + x + "," + y + ")")
 		.attr("d", this.path)
@@ -473,13 +504,14 @@ Figure.bboxFunction.shape = function(selection) {
 }
 
 Figure.drawFunction.shape = function (x, y, w, h) {
+	this.svg.select("path").attr("transform", "translate(" + x + "," + y + ")");
 	 this.svg
-	 	.attr("x", x)
-		.attr("y", y)
+	 	//.attr("x", 0)
+		//.attr("y", 0)
     	.attr("width", w)
     	.attr("height", h)
-		.attr("transform", "translate(" + x + "," + y + ")")
     	;
+	var inner = this.inner;
 	return this.svg;
 }
 
@@ -1097,30 +1129,53 @@ Figure.drawFunction.strInput = Figure.drawFunction.buttonInput;
 
 function colorNameToHex(color)
 {
-    var colors = {"aliceblue":"#f0f8ff","antiquewhite":"#faebd7","aqua":"#00ffff","aquamarine":"#7fffd4","azure":"#f0ffff",
-    "beige":"#f5f5dc","bisque":"#ffe4c4","black":"#000000","blanchedalmond":"#ffebcd","blue":"#0000ff","blueviolet":"#8a2be2","brown":"#a52a2a","burlywood":"#deb887",
-    "cadetblue":"#5f9ea0","chartreuse":"#7fff00","chocolate":"#d2691e","coral":"#ff7f50","cornflowerblue":"#6495ed","cornsilk":"#fff8dc","crimson":"#dc143c","cyan":"#00ffff",
-    "darkblue":"#00008b","darkcyan":"#008b8b","darkgoldenrod":"#b8860b","darkgray":"#a9a9a9","darkgreen":"#006400","darkkhaki":"#bdb76b","darkmagenta":"#8b008b","darkolivegreen":"#556b2f",
-    "darkorange":"#ff8c00","darkorchid":"#9932cc","darkred":"#8b0000","darksalmon":"#e9967a","darkseagreen":"#8fbc8f","darkslateblue":"#483d8b","darkslategray":"#2f4f4f","darkturquoise":"#00ced1",
-    "darkviolet":"#9400d3","deeppink":"#ff1493","deepskyblue":"#00bfff","dimgray":"#696969","dodgerblue":"#1e90ff",
-    "firebrick":"#b22222","floralwhite":"#fffaf0","forestgreen":"#228b22","fuchsia":"#ff00ff",
-    "gainsboro":"#dcdcdc","ghostwhite":"#f8f8ff","gold":"#ffd700","goldenrod":"#daa520","gray":"#808080","green":"#008000","greenyellow":"#adff2f",
-    "honeydew":"#f0fff0","hotpink":"#ff69b4",
-    "indianred ":"#cd5c5c","indigo":"#4b0082","ivory":"#fffff0","khaki":"#f0e68c",
-    "lavender":"#e6e6fa","lavenderblush":"#fff0f5","lawngreen":"#7cfc00","lemonchiffon":"#fffacd","lightblue":"#add8e6","lightcoral":"#f08080","lightcyan":"#e0ffff","lightgoldenrodyellow":"#fafad2",
-    "lightgrey":"#d3d3d3","lightgreen":"#90ee90","lightpink":"#ffb6c1","lightsalmon":"#ffa07a","lightseagreen":"#20b2aa","lightskyblue":"#87cefa","lightslategray":"#778899","lightsteelblue":"#b0c4de",
-    "lightyellow":"#ffffe0","lime":"#00ff00","limegreen":"#32cd32","linen":"#faf0e6",
-    "magenta":"#ff00ff","maroon":"#800000","mediumaquamarine":"#66cdaa","mediumblue":"#0000cd","mediumorchid":"#ba55d3","mediumpurple":"#9370d8","mediumseagreen":"#3cb371","mediumslateblue":"#7b68ee",
-    "mediumspringgreen":"#00fa9a","mediumturquoise":"#48d1cc","mediumvioletred":"#c71585","midnightblue":"#191970","mintcream":"#f5fffa","mistyrose":"#ffe4e1","moccasin":"#ffe4b5",
-    "navajowhite":"#ffdead","navy":"#000080",
-    "oldlace":"#fdf5e6","olive":"#808000","olivedrab":"#6b8e23","orange":"#ffa500","orangered":"#ff4500","orchid":"#da70d6",
-    "palegoldenrod":"#eee8aa","palegreen":"#98fb98","paleturquoise":"#afeeee","palevioletred":"#d87093","papayawhip":"#ffefd5","peachpuff":"#ffdab9","peru":"#cd853f","pink":"#ffc0cb","plum":"#dda0dd","powderblue":"#b0e0e6","purple":"#800080",
-    "red":"#ff0000","rosybrown":"#bc8f8f","royalblue":"#4169e1",
-    "saddlebrown":"#8b4513","salmon":"#fa8072","sandybrown":"#f4a460","seagreen":"#2e8b57","seashell":"#fff5ee","sienna":"#a0522d","silver":"#c0c0c0","skyblue":"#87ceeb","slateblue":"#6a5acd","slategray":"#708090","snow":"#fffafa","springgreen":"#00ff7f","steelblue":"#4682b4",
-    "tan":"#d2b48c","teal":"#008080","thistle":"#d8bfd8","tomato":"#ff6347","turquoise":"#40e0d0",
-    "violet":"#ee82ee",
-    "wheat":"#f5deb3","white":"#ffffff","whitesmoke":"#f5f5f5",
-    "yellow":"#ffff00","yellowgreen":"#9acd32"};
+    var colors = {
+			"aliceblue":"#f0f8ff",		"antiquewhite":"#faebd7",		"aqua":"#00ffff",				"aquamarine":"#7fffd4",			"azure":"#f0ffff",
+			
+			"beige":"#f5f5dc",			"bisque":"#ffe4c4",				"black":"#000000",				"blanchedalmond":"#ffebcd",		"blue":"#0000ff",			"blueviolet":"#8a2be2",		"brown":"#a52a2a",			"burlywood":"#deb887",
+			
+    		"cadetblue":"#5f9ea0",		"chartreuse":"#7fff00",			"chocolate":"#d2691e",			"coral":"#ff7f50",				"cornflowerblue":"#6495ed",	"cornsilk":"#fff8dc",		"crimson":"#dc143c",		"cyan":"#00ffff",
+			
+    		"darkblue":"#00008b",		"darkcyan":"#008b8b",			"darkgoldenrod":"#b8860b",		"darkgray":"#a9a9a9",			"darkgrey":"#a9a9a9",		"darkgreen":"#006400",		"darkkhaki":"#bdb76b",		"darkmagenta":"#8b008b",
+			"darkolivegreen":"#556b2f",	"darkorange":"#ff8c00",			"darkorchid":"#9932cc",			"darkred":"#8b0000",			"darksalmon":"#e9967a",		"darkseagreen":"#8fbc8f",	"darkslateblue":"#483d8b",
+			"darkslategray":"#2f4f4f",	"darkslategrey":"#2f4f4f",		"darkturquoise":"#00ced1",		"darkviolet":"#9400d3",			"deeppink":"#ff1493",		"deepskyblue":"#00bfff",	"dimgray":"#696969",		"dimgrey":"#696969",			"dodgerblue":"#1e90ff",
+    		
+    		"firebrick":"#b22222",		"floralwhite":"#fffaf0",		"forestgreen":"#228b22",		"fuchsia":"#ff00ff",
+    		
+    		"gainsboro":"#dcdcdc",		"ghostwhite":"#f8f8ff",			"gold":"#ffd700",				"goldenrod":"#daa520",			"gray":"#808080",			"grey":"#808080",			"green":"#008000",			"greenyellow":"#adff2f",
+   			
+   			"honeydew":"#f0fff0",		"hotpink":"#ff69b4",
+    		
+    		"indianred ":"#cd5c5c",		"indigo":"#4b0082",				"ivory":"#fffff0",
+			
+			"khaki":"#f0e68c",
+    		
+    		"lavender":"#e6e6fa",		"lavenderblush":"#fff0f5",		"lawngreen":"#7cfc00",			"lemonchiffon":"#fffacd",		"lightblue":"#add8e6",		"lightcoral":"#f08080",		"lightcyan":"#e0ffff",		"lightgoldenrodyellow":"#fafad2",	
+			"lightgrey":"#d3d3d3",		"lightgreen":"#90ee90",			"lightpink":"#ffb6c1",			"lightsalmon":"#ffa07a",		"lightseagreen":"#20b2aa",	"lightskyblue":"#87cefa",	"lightslategray":"#778899",	"lightslategrey":"#778899", 	"lightsteelblue":"#b0c4de",
+    		"lightyellow":"#ffffe0",	"lime":"#00ff00",				"limegreen":"#32cd32",			"linen":"#faf0e6",
+    		
+    		"magenta":"#ff00ff",		"maroon":"#800000",				"mediumaquamarine":"#66cdaa",	"mediumblue":"#0000cd",			"mediumorchid":"#ba55d3",	"mediumpurple":"#9370d8",	"mediumseagreen":"#3cb371",
+			"mediumslateblue":"#7b68ee","mediumspringgreen":"#00fa9a",	"mediumturquoise":"#48d1cc",	"mediumvioletred":"#c71585",	"midnightblue":"#191970",	"mintcream":"#f5fffa",		"mistyrose":"#ffe4e1",		"moccasin":"#ffe4b5",
+    		
+    		"navajowhite":"#ffdead",	"navy":"#000080",
+    		
+    		"oldlace":"#fdf5e6",		"olive":"#808000",				"olivedrab":"#6b8e23",			"orange":"#ffa500",				"orangered":"#ff4500",		"orchid":"#da70d6",
+    		
+    		"palegoldenrod":"#eee8aa",	"palegreen":"#98fb98",			"paleturquoise":"#afeeee",		"palevioletred":"#d87093",		"papayawhip":"#ffefd5",		"peachpuff":"#ffdab9",		"peru":"#cd853f",		
+			"pink":"#ffc0cb",			"plum":"#dda0dd",				"powderblue":"#b0e0e6",			"purple":"#800080",
+    		
+    		"red":"#ff0000",			"rosybrown":"#bc8f8f",			"royalblue":"#4169e1",
+    		
+    		"saddlebrown":"#8b4513",	"salmon":"#fa8072",				"sandybrown":"#f4a460",			"seagreen":"#2e8b57",			"seashell":"#fff5ee",		"sienna":"#a0522d",			"silver":"#c0c0c0",
+			"skyblue":"#87ceeb",		"slateblue":"#6a5acd",			"slategray":"#708090",			"slategrey":"#708090",			"snow":"#fffafa",			"springgreen":"#00ff7f",	"steelblue":"#4682b4",
+    		
+    		"tan":"#d2b48c",			"teal":"#008080",				"thistle":"#d8bfd8",			"tomato":"#ff6347",				"turquoise":"#40e0d0",
+    		
+    		"violet":"#ee82ee",
+    		
+    		"wheat":"#f5deb3",			"white":"#ffffff",				"whitesmoke":"#f5f5f5",
+    		"yellow":"#ffff00",			"yellowgreen":"#9acd32"
+			};
 
     if (typeof colors[color.toLowerCase()] != 'undefined')
         return colors[color.toLowerCase()];
@@ -1177,7 +1232,7 @@ Figure.bboxFunction.numInput = function (selection) {
             .attr("type", "number").attr("value", Figure.getModelElement(accessor));
      
     foreign.on(this.event, function() {
-           return handleUserInput(fig, foreign.select("input")[0][0].value);
+           return handleUserInput(fig, JSON.parse(foreign.select("input")[0][0].value));
     });
 	 
 	var bb = foreign.node().getBBox();
