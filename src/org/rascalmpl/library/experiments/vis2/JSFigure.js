@@ -27,9 +27,9 @@ var Figure = {
     dataset: [], 
     figure_root:  {},
     
-    hasDefinedWidth: function()  { return this.hasOwnProperty("width"); },
+    hasDefinedWidth: function()  { var w = this.width  || 0; return w > 0; },
     
-    hasDefinedHeight: function() { return this.hasOwnProperty("height"); },
+    hasDefinedHeight: function() { var h = this.height || 0; return h > 0; },
                                
     getModelElement: function(accessor) { return eval(accessor); },
     
@@ -47,6 +47,7 @@ var Figure = {
 Object.defineProperty(Figure, "width", {
 	get: function(){ 
 			if(this.hasOwnProperty("_width")) return this._width;
+			if(this.hasOwnProperty("min-_width")) return this.min_width;
 			return undefined;
 			},
 	set: function(w){ this._width = w;  }
@@ -55,25 +56,10 @@ Object.defineProperty(Figure, "width", {
 Object.defineProperty(Figure, "height", {
 	get: function(){ 
 			if(this.hasOwnProperty("_height")) return this._height;
+			if(this.hasOwnProperty("min_height")) return this.min_height;
 			return undefined;
 		},
 	set: function(h){ this._height = h; }
-});
-
-Object.defineProperty(Figure, "atX", {
-	get: function(){ 
-			if(this.hasOwnProperty("_atX")) return this._atX;
-			return 0;
-		},
-	set: function(x){ this._atX = x; }
-});
-
-Object.defineProperty(Figure, "atY", {
-	get: function(){ 
-			if(this.hasOwnProperty("_atY")) return this._atY;
-			return 0;
-		},
-	set: function(y){ this._atY = y; }
 });
     									
 Object.defineProperty(Figure, "halign", {
@@ -216,12 +202,13 @@ function addInteraction(fig) {
     return selection;
 }
 
-// function drawExtraFigure(selection, x, y, fig){
-//     if(fig.hasOwnProperty("extra_figure") && fig.draw_extra_figure === true){
-//         fig.extra_figure.bbox();
-//         fig.extra_figure.draw(selection, x, y);
-//     }
-// }
+function drawExtraFigure(fig, x, y){
+    if(fig.hasOwnProperty("extra_figure") && fig.draw_extra_figure === true){
+		var extra = fig.extra_figure;
+        extra.bbox(fig.svg);
+        extra.draw(x, y, extra.width, extra.height);
+    }
+}
 
 function handleUserInput(fig, v) {
     d3.event.stopPropagation();
@@ -386,8 +373,8 @@ Figure.bboxFunction.box = function(selection) {
         }
         console.log("box outer size:", width, height);
     }
-    this.width = width;
-    this.height = height;
+    this.min_width = width;
+    this.min_height = height;
 }
 
 Figure.drawFunction.box = function (x, y, w, h) {
@@ -401,11 +388,11 @@ Figure.drawFunction.box = function (x, y, w, h) {
     
     if (this.hasOwnProperty("inner")) {
         var inner = this.inner;
-        inner.draw(x + this.atX + lw + this.hgap + this.halign * (this.width  - inner.width  - 2 * this.hgap), 
-                   y + this.atY + lw + this.vgap + this.valign * (this.height - inner.height - 2 * this.vgap),
+        inner.draw(x + lw + this.hgap + this.halign * (w  - inner.width  - 2 * this.hgap), 
+                   y + lw + this.vgap + this.valign * (h - inner.height - 2 * this.vgap),
                    inner.width, inner.height);
     }
-    //drawExtraFigure(selection, x, y, this);
+    drawExtraFigure(this, x, y);
     addInteraction(this);
     return this.svg;
 }
@@ -686,18 +673,27 @@ Figure.bboxFunction.hcat = function(selection) {
     var inner = this.inner;
     var width = 0;
     var height = 0;
+	
+	this.nflex_width = 0;
+	this.nflex_height = 0;
     
     this.svg = selection.append("g");
     
     for (var i = 0; i < inner.length; i++) {
         var elm = inner[i];
-        elm.bbox(selection);
+        elm.bbox(this.svg);
         width += elm.width;
         height = Math.max(height, elm.height);
+		if(!elm.hasDefinedWidth()) this.nflex_width++;
+		if(!elm.hasDefinedHeight()) this.nflex_height++;
     }
 	
-    this.width = width + (inner.length - 1) * this.hgap; //TODO length == 0
-    this.height = height;
+	this.min_width = width + (inner.length - 1) * this.hgap; //TODO length == 0
+	if(this.hasDefinedWidth()){
+		// Consider the cases this.width < this.min_width and this.width > this.min_width
+	}
+	this.min_height = height;
+	
     return this.svg;
 }
 
@@ -710,12 +706,18 @@ Figure.drawFunction.hcat = function (x, y, w, h) {
    		;
     var inner = this.inner;
     console.log("hcat:", inner);
+	
+	var dw = (w - this.min_width)/this.nflex_width;
+	var x1 = x;
+	
     for (var i = 0; i < inner.length; i++) {
         var elm = inner[i];
-        elm.draw(x, y + this.valign * (this.height - elm.height), elm.width, elm.height);
-        x += elm.width + this.hgap;
+		var ew = !elm.hasDefinedWidth() ? dw : elm.width;
+		var eh = !elm.hasDefinedHeight() ? h : elm.height;
+        elm.draw(x1, y + this.valign * (h - eh), ew, eh);
+        x1 += ew + this.hgap;
     }
-    //drawExtraFigure(selection, x, y, this);
+    drawExtraFigure(this, x, y);
     addInteraction(this);
 }
 
@@ -726,16 +728,21 @@ Figure.bboxFunction.vcat = function(selection) {
     var width = 0;
     var height = 0;
 	
+	this.nflex_width = 0;
+	this.nflex_height = 0;
+	
 	this.svg = selection.append("g");
 	
     for (var i = 0; i < inner.length; i++) {
         var elm = inner[i];
-        elm.bbox(selection);
+        elm.bbox(this.svg);
         width = Math.max(width, elm.width);
         height += elm.height;
+		if(!elm.hasDefinedWidth()) this.nflex_width++;
+		if(!elm.hasDefinedHeight()) this.nflex_height++;
     }
-    this.width = width;
-    this.height = height + (inner.length - 1) * this.vgap;
+    this.min_width = width;
+    this.min_height = height + (inner.length - 1) * this.vgap;
 	return this.svg;
 }
 
@@ -748,15 +755,117 @@ Figure.drawFunction.vcat = function (x, y, w, h) {
         ;
 
     var inner = this.inner;
+	var dh = (h - this.min_height)/this.nflex_height;
+	var y1 = y;
+	
     for (var i = 0; i < inner.length; i++) {
         var elm = inner[i];
-        elm.draw(x + this.halign * (this.width - elm.width), y, elm.width, elm.height);
-        y += elm.height + this.vgap;
+		var ew = !elm.hasDefinedWidth() ? w : elm.width;
+		var eh = !elm.hasDefinedHeight() ? dh : elm.height;
+        elm.draw(x + this.halign * (w - ew), y1, ew, eh);
+        y1 += eh + this.vgap;
     }
-//     drawExtraFigure(selection, x, y, this);
-     addInteraction(this);
+    drawExtraFigure(this, x, y);
+    addInteraction(this);
     return this.svg;
 }
+
+
+/**************** grid *******************/
+
+function initArray(n, v){
+	var ar = new Array();
+	for(int i = 0; i < n ; i++){
+		ar[i] = v;
+	}
+	return ar;
+}
+
+Figure.bboxFunction.grid = function(selection) {
+	var inner = this.inner;
+    
+    var col_width = new Array();
+	var row_height = new Array();
+	
+	var col_flex_width = new Array();
+	var row_flex_height = new Array();
+	
+	this.svg = selection.append("g");
+    
+    for (var r = 0; r < inner.length; r++) {
+    	for(var c = 0; c < inner[r].length; c++){
+    		var elm = inner[r][c];
+    		elm.bbox(this.svg);
+    		col_width[c]  = col_width[c]  ? Math.max(elm.width, col_width[c])   : elm.width;
+    		row_height[r] = row_height[r] ? Math.max(elm.height, row_height[r]) : elm.height;
+			
+			if(!elm.hasDefinedWidth()) { col_flex_width[c] =  1; }
+			if(!elm.hasDefinedHeight()){ row_flex_height[r] = 1; }
+    	}
+    }
+    
+    var add = function (previous, current) { return (previous && current) ? previous + current : (previous ? previous : current); }
+	
+    this.min_width  = col_width.length  * this.hgap + col_width.reduce(add);
+    this.min_height = row_height.length * this.vgap + row_height.reduce(add);
+	
+	this.row_height = row_height;
+    this.col_width  = col_width;
+	
+	this.ncol_flex_width  = col_flex_width.length  == 0 ? 0 : col_flex_width.reduce(add);
+	this.nrow_flex_height = row_flex_height.length == 0 ? 0 : row_flex_height.reduce(add);
+	
+	console.log("grid.bbox:", this.min_width, this.min_height, col_width, row_height);
+	return this.svg;
+}
+
+Figure.drawFunction.grid = function (x, y, w, h) {
+	this.svg 
+        .attr("x", x)
+        .attr("y", y)
+        .attr("width", w)
+        .attr("height", h)
+        ;
+		
+	var inner = this.inner;
+	
+	var col_width = this.col_width;
+	var row_height = this.row_height;
+	
+	var dw = (w - this.min_width)/this.ncol_flex_width;
+	var dh = (h - this.min_height)/this.nrow_flex_height;
+	
+	for(var c = 0; c < col_width.length; c++){
+		if(this.col_flex_width[c] === 1){
+			col_width[c] += dw;
+		}
+	}
+	
+	for(var r = 0; r < row_height.length; r++){
+		if(this.row_flex_height[r] === 1){
+			row_height[r] += dh;
+		}
+	}
+	var current_x = x;
+	var current_y = y;
+	
+	for(var r = 0; r < inner.length; r++){
+		current_x = x;
+		for(var c = 0; c < inner[r].length; c++){
+			var elm = inner[r][c];
+			var ew = !elm.hasDefinedWidth() ? col_width[c] : elm.width;
+			var eh = !elm.hasDefinedHeight() ? row_height[r] : elm.height;
+		
+			elm.draw(current_x + elm.halign * (col_width[c] - ew),
+					 current_y + elm.valign * (row_height[r] - eh),
+					 ew, eh);
+			current_x += col_width[c] + this.hgap;
+		}
+		current_y += row_height[r] + this.vgap;
+	}
+	return this.svg;
+}
+
 
 /**************** overlay *******************/
 
@@ -795,71 +904,9 @@ Figure.drawFunction.overlay = function (x, y, w, h) {
 				 y + this.valign * (this.height - elm.height),
 				 elm.width, elm.height) ;
     }
-//     drawExtraFigure(selection, x, y, this);
+	drawExtraFigure(this, x, y);
     addInteraction(this);
     return this.svg;
-}
-
-/**************** grid *******************/
-
-Figure.bboxFunction.grid = function(selection) {
-	var inner = this.inner;
-    var row_height = new Array();
-    var col_width = new Array();
-	
-	this.svg = selection.append("g");
-    
-    for (var r = 0; r < inner.length; r++) {
-    	for(var c = 0; c < inner[r].length; c++){
-    		var elm = inner[r][c];
-    		elm.bbox(selection);
-    		col_width[c]  = col_width[c]  ? Math.max(elm.width, col_width[c])   : elm.width;
-    		row_height[r] = row_height[r] ? Math.max(elm.height, row_height[r]) : elm.height;
-    	}
-    }
-    
-    var width = col_width.length * this.hgap +
-    			col_width.reduce(function(previous,current){ 
-                      return previous ? previous + current : current;
-                   });
-    var height = row_height.length * this.vgap +
-    			 row_height.reduce(function(previous,current){ 
-                      return previous ? previous + current : current;
-                   });
-     this.row_height = row_height;
-     this.col_width = col_width;
-     this.width = width;
-     this.height = height
-	 console.log("grid.bbox:", width, height, row_height, col_width);
-	 return this.svg;
-}
-
-Figure.drawFunction.grid = function (x, y, w, h) {
-	this.svg 
-        .attr("x", x)
-        .attr("y", y)
-        .attr("width", w)
-        .attr("height", h)
-        ;
-		
-	var inner = this.inner;
-	var row_height = this.row_height;
-	var col_width = this.col_width;
-	var current_x = x;
-	var current_y = y;
-	
-	for(var r = 0; r < inner.length; r++){
-		current_x = x;
-		for(var c = 0; c < inner[r].length; c++){
-			var elm = inner[r][c];
-			elm.draw(current_x + elm.halign * (col_width[c] - elm.width),
-					 current_y + elm.valign * (row_height[r] - elm.height),
-					 elm.width, elm.height);
-			current_x += col_width[c] + this.hgap;
-		}
-		current_y += row_height[r] + this.vgap;
-	}
-	return this.svg;
 }
 
 /**************** text *******************/
@@ -890,7 +937,7 @@ Figure.drawFunction.text = function (x, y, w, h) {
 		.attr("height", h)
 		;
     
-   // drawExtraFigure(selection, x, y, this);
+    drawExtraFigure(this, x, y);
     addInteraction(this);
     return this.svg;
 }

@@ -170,6 +170,47 @@ void box_hcat9(){
 	ex("box_hcat9", box(fig=ctFigs, fillColor="grey", size=<400,400>, align=bottomLeft));
 }
 
+// hcat flex
+
+void hflex1(){
+	ex("hflex1", hcat(size = <200,200>,
+					  figs = [ box(fillColor="red"), 
+				               box(fillColor="green", size=<100,100>), 
+				               box(fillColor="blue", size=<50,50>)
+				             ]));
+}
+
+void hflex2(){
+	ex("hflex2", hcat(size = <200,200>,
+					  figs = [ box(fillColor="red", height=10), 
+				               box(fillColor="green", size=<100,100>), 
+				               box(fillColor="blue", size=<50,50>)
+				             ]));
+}
+
+void hflex3(){
+	ex("hflex3", hcat(size = <200,200>,
+					  figs = [ box(fillColor="red", width=10), 
+				               box(fillColor="green", size=<100,100>), 
+				               box(fillColor="blue", size=<50,50>)
+				             ]));
+}	
+
+void hflex4(){
+	ex("hflex4", hcat(size = <200,200>,
+					  figs = [ box(fillColor="red"), 
+				               box(fillColor="green", size=<100,100>), 
+				               box(fillColor="blue")
+				             ]));
+}
+void hflex5(){
+	ex("hflex5", hcat(size = <400,400>,
+					  figs = [ box(fillColor="red"), 
+				               box(fillColor="green", size=<100,100>), 
+				               box(fillColor="blue")
+				             ]));
+}						               
+				               
 
 // vcat
 
@@ -188,6 +229,47 @@ void vcat3(){
 void vcat4(){
 	ex("vcat4", vcat(figs=rgbFigs, align=topRight, gap=<10,10>));
 }
+
+// vcat flex
+
+void vflex1(){
+	ex("vflex1", vcat(size = <200,200>,
+					  figs = [ box(fillColor="red"), 
+				               box(fillColor="green", size=<100,100>), 
+				               box(fillColor="blue", size=<50,50>)
+				             ]));
+}
+
+void vflex2(){
+	ex("vflex2", vcat(size = <200,200>,
+					  figs = [ box(fillColor="red", height=10), 
+				               box(fillColor="green", size=<100,100>), 
+				               box(fillColor="blue", size=<50,50>)
+				             ]));
+}
+
+void vflex3(){
+	ex("vflex3", vcat(size = <200,200>,
+					  figs = [ box(fillColor="red", width=10), 
+				               box(fillColor="green", size=<100,100>), 
+				               box(fillColor="blue", size=<50,50>)
+				             ]));
+}	
+
+void vflex4(){
+	ex("vflex4", vcat(size = <200,200>,
+					  figs = [ box(fillColor="red"), 
+				               box(fillColor="green", size=<100,100>), 
+				               box(fillColor="blue")
+				             ]));
+}
+void vflex5(){
+	ex("vflex5", vcat(size = <400,400>,
+					  figs = [ box(fillColor="red"), 
+				               box(fillColor="green", size=<100,100>), 
+				               box(fillColor="blue")
+				             ]));
+}	
 
 
 // vcat in box
@@ -240,6 +322,24 @@ void box_vcat9(){
 	ex("box_vcat9", box(fig=vctFigs, size=<400,400>, align=bottomLeft, fillColor="grey"));
 }
 
+// hvcat flex
+
+void hvflex1(){
+	ex("hvflex1", hcat(size=<600,600>,
+					   figs= [ vcat(width=200, height=300,
+	                                figs= [ 
+	                                       box(fillColor="red"), 
+				                           box(fillColor="green", width=50), 
+				                           box(fillColor="blue")
+				                          ]),
+				               vcat(//size = <400,400>,
+					               figs = [ box(fillColor="yellow", height=50), 
+				                            box(fillColor="purple"), 
+				                            box(fillColor="orange")
+				                          ])
+				            ]));
+}	
+
 /********************** grid ******************************/
 
 Figure RedBox = box(fillColor="red", size=<50,50>);
@@ -268,6 +368,29 @@ void grid4(){
 	ex("grid4", grid(figArray=[ [box(fillColor="red", size=<50,50>, align=bottomRight), GreenBox],
 							    [BlueBox, RedBox, RedBox]
 							  ], gap=<10,10>));
+}
+
+// grid flex
+
+void gflex1(){
+	ex("gflex1", grid(size=<600,600>,
+					  figArray= [ [box(fillColor="red"),               box(fillColor="green", width=50), box(fillColor="blue")],
+				                  [box(fillColor="yellow", height=50), box(fillColor="purple"),          box(fillColor="mediumspringgreen") ]
+				                ]));
+}
+
+void gflex2(){
+	ex("gflex2", grid(size=<600,600>,
+					  figArray= [ [box(fillColor="red"),               box(fillColor="green", size=<50,50>), box(fillColor="blue")],
+				                  [box(fillColor="yellow", height=50), box(fillColor="purple"),          box(fillColor="mediumspringgreen") ]
+				                ]));
+}
+
+void gflex3(){
+	ex("gflex3", grid(size=<600,600>,
+					  figArray= [ [box(fillColor="red"),               box(fillColor="green", size=<50,50>, align=topRight), box(fillColor="blue")],
+				                  [box(fillColor="yellow", size=<50,50>, align=bottomLeft), box(fillColor="purple"),          box(fillColor="mediumspringgreen") ]
+				                ]));
 }
 
 /********************** overlay ******************************/
@@ -993,14 +1116,14 @@ void visible2(){
 
 data EMPTY = EMPTY();
 
-void tooltip1(){
+Event tooltip(str txt) = on("mouseover", box(size=<50,50>,fig=text(txt, fontSize=12, lineColor="black"), fillColor="yellow"));
 
-	render("tooltip1", #EMPTY, EMPTY(), Figure (EMPTY m) {
-			low = 100;
-			high = 500;
-			
-			Event tooltip(str txt) = on("mouseover", box(fig=text(txt, fontSize=12, lineColor="black"), fillColor="yellow"));
-			
+void tooltip1(){
+	ex("tooltip1", box(fillColor="red", width=100, height=100, event=tooltip("I am a red box")));
+}
+
+void tooltip2(){
+	render("tooltip2", #EMPTY, EMPTY(), Figure (EMPTY m) {
 			return 
 				vcat(figs=[ box(size=<200,50>, lineColor="white"),
 					   hcat(figs=[ box(fillColor="red", width=100, height=100, event=tooltip("I am a red box")),
