@@ -2,6 +2,8 @@
 /*					Chart functions						*/
 /********************************************************/
 
+"use strict";
+
 /****************** barChart ****************************/
 
 Figure.bboxFunction.barChart = function(selection) {
