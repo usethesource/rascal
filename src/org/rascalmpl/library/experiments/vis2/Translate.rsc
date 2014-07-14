@@ -68,8 +68,7 @@ str propsToJSON(Figure child, Figure parent){
 		properties += "\"fill-rule\": <strArg(child.fillRule)>";
 	}
 	
-	if(child.rounded != parent.rounded)				properties += "\"rx\": <numArg(child.rounded[0])>, 
-																  '\"ry\": <numArg(child.rounded[1])>";
+	if(child.rounded != parent.rounded)				properties += "\"rx\": <numArg(child.rounded[0])>, \"ry\": <numArg(child.rounded[1])>";
 	
   
 												  	  
@@ -505,18 +504,39 @@ str figToJSON(figure: graph(), Figure parent) {
 	return
 	"{\"figure\": \"graph\", 
 	' \"flavor\": \"<figure.flavor>\",
-	' \"nodes\":  [<intercalate(",\n", ["{ \"id\": \"<f>\", \"name\": \"<f>\",
-	'                                      \"value\" : {\"label\": \"<f>\",
-														\"inner\":  <figToJSON(nodes[f], parent)>
-	'												    <propsToJSON(nodes[f], parent)>}}" | f <- nodes])>
-	'             ],  
-	' \"edges\":  [<intercalate(",\n", ["{\"u\": \"<from>\", \"source\" : \"<from>\",
-	'									  \"v\": \"<to>\", \"target\": \"<to>\",
-	'									  \"value\": {\"label\": \"<label>\" <propsToJSON(e, parent)>}}"| e: edge(from,to,label) <- edges])>
+	' \"nodes\":  [<intercalate(",\n", ["{ \"name\": \"<f>\",
+									    '  \"inner\":  <figToJSON(nodes[f], parent)>
+ 										'}" | f <- nodes])>
+	'           ],  
+	' \"edges\":  [<intercalate(",\n", ["{\"name\": \"<label>\", \"source\" : \"<from>\", \"target\": \"<to>\" <propsToJSON(e, parent)>}"| e: edge(from,to,label) <- edges])>
 	'         ]
 	' <propsToJSON(figure, parent)> 
 	'}";
 }
+
+//str figToJSON(figure: graph(), Figure parent) { 
+//	if(!layoutFlavors["graph"]? || figure.flavor notin layoutFlavors["graph"]){
+//		throw "Unknow graph flavor \"<figure.flavor>\"";
+//	}
+//	nodes = figure.nodes;
+//	edges = figure.edges;
+//	println("nodes = <nodes>");
+//	println("edges = <edges>");
+//	return
+//	"{\"figure\": \"graph\", 
+//	' \"flavor\": \"<figure.flavor>\",
+//	' \"nodes\":  [<intercalate(",\n", ["{ \"id\": \"<f>\", \"name\": \"<f>\",
+//	'                                      \"value\" : {\"label\": \"<f>\",
+//														\"inner\":  <figToJSON(nodes[f], parent)>
+//	'												    <propsToJSON(nodes[f], parent)>}}" | f <- nodes])>
+//	'             ],  
+//	' \"edges\":  [<intercalate(",\n", ["{\"u\": \"<from>\", \"source\" : \"<from>\",
+//	'									  \"v\": \"<to>\", \"target\": \"<to>\",
+//	'									  \"value\": {\"label\": \"<label>\" <propsToJSON(e, parent)>}}"| e: edge(from,to,label) <- edges])>
+//	'         ]
+//	' <propsToJSON(figure, parent)> 
+//	'}";
+//}
 
 // edge
 

@@ -780,7 +780,7 @@ map[str,Figure] nodes1 =
           		   "N1" :   box(fillColor="red", lineDashing=[1,1,1,1,1,1], size=<20,20>),
      	    	   "N2" :	box(fillColor="lightblue", rounded=<15,15>, size=<30,30>)
      	  		);
-list[Figure] edges1 = [ edge("N0","N1", "N0-N1", lineColor="orange"), 
+list[Figure] edges1 = [ edge("N0","N1", "N0-N1", lineColor="orange", lineWidth=4), 
 						edge("N1","N2", "N1-N2", lineWidth=3, lineOpacity=0.3), 
 						edge("N2","N0", "N2-N0", lineDashing=[4,2,4,2]),
 						edge("N0","N2", "N0-N2", lineDashing=[4,2,4,2])
