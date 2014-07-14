@@ -1006,6 +1006,79 @@ Figure.drawFunction.text = function (x, y, w, h) {
     return this.svg;
 }
 
+/**************** markdown *******************/
+
+Figure.bboxFunction.markdown = function(selection) {
+	var converter = new Markdown.Converter();
+    var html = converter.makeHtml(this.textValue);
+	this.svg = selection.append("foreignObject");
+	var foreign = this.svg
+   		.append("xhtml:body")
+		.html(html)
+		;
+   
+    var bb = this.svg.node().getBoundingClientRect();
+	console.log("markdown.bbox:", bb);
+    //this.width = bb.right - bb.left;
+    //this.height = bb.bottom - bb.top;
+
+    console.log("markdown:", this.width, this.height);
+}
+
+Figure.drawFunction.markdown = function (x, y, w, h) {
+    this.svg
+        .attr("x", x)
+		.attr("y", y)
+		.attr("width", w)
+		.attr("height", h)
+		;
+    
+    drawExtraFigure(this, x, y);
+    addInteraction(this);
+    return this.svg;
+}
+
+/**************** math *******************/
+
+Figure.bboxFunction.math = function(selection) {
+	this.svg = selection.append("foreignObject");
+	var foreign = this.svg
+   		.append("xhtml:body");
+	var math = foreign
+		.append("script")
+		.attr("type", "math/tex")
+		.text(this.textValue)
+		.style("font-family", this["font-family"])
+        .style("font-style", this["font-style"])
+        .style("font-weight", this["font-weight"])
+        .style("font-size", this["font-size"])
+        .style("stroke", this.stroke)
+        .style("fill",   this.stroke);
+		;
+		
+	MathJax.Hub.Typeset(math);
+   
+    var bb = this.svg.node().getBoundingClientRect();
+	console.log("math.bbox:", bb);
+    //this.width = bb.right - bb.left;
+    //this.height = bb.bottom - bb.top;
+
+    console.log("math:", this.width, this.height);
+}
+
+Figure.drawFunction.math = function (x, y, w, h) {
+    this.svg
+        .attr("x", x)
+		.attr("y", y)
+		.attr("width", w)
+		.attr("height", h)
+		;
+    
+    drawExtraFigure(this, x, y);
+    addInteraction(this);
+    return this.svg;
+}
+
 // visibility control
 
 /********************* choice ***************************/

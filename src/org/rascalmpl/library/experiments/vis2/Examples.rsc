@@ -909,6 +909,26 @@ void text6(){
 					], fontSize=20));
 }
 
+/************** markdown *****************/
+
+void markdown1(){
+	ex("markdown1", markdown("#A markdown example:
+							 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+							 '
+							 '
+							 '* item 1
+							 '* item 2
+							 '
+							 '```literal``` and _emphasis_
+							 '"	, size=<400,400>));
+}
+
+/************** math *****************/
+
+void math1(){
+	ex("math1", math("x+\\sqrt{1-x^2}", size=<200,200>));
+}
+
 /************** Interaction *****************/
 
 data COUNTER = COUNTER(int counter);
