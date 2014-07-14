@@ -206,18 +206,18 @@ Figure.drawFunction.springGraph = function (figure, x, y, w, h) {
         links = figure.edges || [];
 
 	var xnodes = {};
-    console.log("nodes:", nodes);
+    console.log("nodes:", org_nodes);
     var defs = figure.svg.append("defs");
     
     for (var i in org_nodes) {
-        console.log("node", i, nodes[i]);
+        console.log("node", i, org_nodes[i]);
 		var d = defs.append("g").attr("id", "node" + i);
-        var f = buildFigure(nodes[i].inner);
+        var f = buildFigure(org_nodes[i].inner);
         f.bbox(d);
 		f.draw(0, 0, f.width, f.height);
        	d.attr("width", f.width).attr("height", f.height);
 		
-        xnodes[nodes[i].name] = {value: f};
+        xnodes[org_nodes[i].name] = {value: f};
     }
     console.log("links", links);
 
@@ -268,14 +268,14 @@ Figure.drawFunction.springGraph = function (figure, x, y, w, h) {
 
     force.on("tick", function() {
 
-        node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")";  });
+        node.attr("transform", function(d) { return "translate(" + (x + d.x) + "," + (y + d.y) + ")";  });
 
         link.attr("x1", function(d) { 
-			return xnodes[d.source].x + xnodes[d.source].value.width / 2;
+			return x + xnodes[d.source].x + xnodes[d.source].value.width / 2;
 			})
-        	.attr("y1", function(d) { return xnodes[d.source].y + xnodes[d.source].value.height / 2; })
-        	.attr("x2", function(d) { return xnodes[d.target].x + xnodes[d.target].value.width / 2; })
-        	.attr("y2", function(d) { return xnodes[d.target].y + xnodes[d.target].value.height / 2; })
+        	.attr("y1", function(d) { return y + xnodes[d.source].y + xnodes[d.source].value.height / 2; })
+        	.attr("x2", function(d) { return x + xnodes[d.target].x + xnodes[d.target].value.width / 2; })
+        	.attr("y2", function(d) { return y + xnodes[d.target].y + xnodes[d.target].value.height / 2; })
 			;
     });
     
