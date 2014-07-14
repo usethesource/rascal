@@ -790,13 +790,18 @@ void graph1(){
 	ex("graph1", graph(nodes=nodes1, edges=edges1));
 }
 
-void graph1a(){
-	ex("graph1a", graph(nodes=nodes1, edges=edges1, flavor="springGraph", size=<200,200>));
+void graph2(){
+	ex("graph2", graph(nodes=nodes1, edges=edges1, flavor="springGraph", size=<200,200>));
 }
 
+void graph3(){
+	ex("graph3", hcat(figs= [ graph(nodes=nodes1, edges=edges1),
+							  graph(nodes=nodes1, edges=edges1, flavor="springGraph", size=<200,200>)
+							 ]));
+}
 
-void graph2(){
-	ex("graph2", hcat(figs=[ barChart(size=<400,300>, dataset=exampleBarData()),
+void graph4(){
+	ex("graph4", hcat(figs=[ barChart(size=<400,300>, dataset=exampleBarData()),
 						     graph(nodes=nodes1, edges=edges1),
 					         lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
 							   		   yAxis=axis(label="Voltage (v)", tick=".02f"),	
@@ -805,9 +810,7 @@ void graph2(){
 					], gap=<50,50>));
 }
 
-
-public void graph3(){
-     nodes =
+map[str,Figure] nodes2 =
         ("A": box(size=<20,20>, fillColor="green"),
      	 "B": box(size=<20,20>, fillColor="red"),
      	 "C": box(size=<20,20>, fillColor="blue"),
@@ -816,7 +819,7 @@ public void graph3(){
      	 "F": box(size=<20,20>, fillColor="orange")
      	);
      	
-    edges = 
+list[Figure] edges2 = 
     	[ edge("A", "B", ""),
     	  edge("B", "C", ""),
     	  edge("C", "D", ""),
@@ -824,11 +827,22 @@ public void graph3(){
     	  edge("E", "F", ""),
     	  edge("F", "A", "")
     	];
-    	    
-    render("graph3", graph(nodes=nodes, edges=edges,gap=<40,40>));
+    	
+public void graph5(){ 
+    render("graph5", graph(nodes=nodes2, edges=edges2));
 }
 
-public void graph4(){
+public void graph6(){ 
+    render("graph6", graph(nodes=nodes2, edges=edges2,flavor="springGraph", size=<300,300>));
+}
+
+public void graph7(){ 
+    render("graph7", hcat(figs=[graph(nodes=nodes2, edges=edges2),
+    					   graph(nodes=nodes2, edges=edges2,flavor="springGraph", size=<300,300>)
+    					  ]));
+}
+
+public void graph8(){
 
 	b = box(fillColor="whitesmoke");
     states = ( 	"CLOSED": box(fillColor="#f77"), 
@@ -865,7 +879,7 @@ public void graph4(){
     			edge("TIME WAIT",  	"CLOSED",     "timeout=2MSL")
   			];
   			
-  			 render("graph4", graph(nodes=states, edges=edges, gap=<40,40>, fillColor="white"));
+  	render("graph8", graph(nodes=states, edges=edges));
 }
 
 /************** text *****************/
