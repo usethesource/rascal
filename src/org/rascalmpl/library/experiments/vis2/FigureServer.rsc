@@ -56,6 +56,12 @@ res = "\<html\>
         '	\<!-- DAGRE-D3 --\>
         '	\<script src=\"http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js\"\>\</script\>
         
+        ' 	\<!-- MathJax --\>
+        ' 	\<script src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_SVG\"\>\</script\>
+
+        ' 	\<!-- Markdown.Converter --\>
+        '	\<script src=\"lib/MarkdownConverter.js\"\>\</script\>
+        
         '	\<script src=\"JSFigure.js\"\>\</script\>
         '	\<script src=\"Chart.js\"\>\</script\>
         '	\<script src=\"VegaChart.js\"\>\</script\>

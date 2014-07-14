@@ -143,6 +143,8 @@ public data Figure(
 // atomic primitives
 	
    | text(value text)		    			// text label
+   | markdown(value text)					// text with markdown markup (TODO: make flavor of text?)
+   | math(value text)						// text with latex markup
    
 // Graphical elements
 
@@ -224,6 +226,8 @@ public data Figure(
 
    | graph(map[str, Figure] nodes = (), Figures edges = [], str flavor="layeredGraph")
    | edge(str from, str to, str label)
+   
+
    ;
  
 

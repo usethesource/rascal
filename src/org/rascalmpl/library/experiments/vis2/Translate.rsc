@@ -279,15 +279,22 @@ str toJSNumber(num n) {
 	return s[-1] == "." ? "<s>0" : s;
 }
 
+str escape(str s) = escape(s, (	"\"" : "\\\"", 
+								"\'" : "\\\'",
+								"\\" : "\\\\",
+								"\n" : "\\n"	
+								));
+
+
 str numArg(num n) 	= isCursor(n) ? "{\"use\": <trPath(toPath(n))>}" : toJSNumber(n);
 
-str strArg(str s) 	= isCursor(s) ? "{\"use\": <trPath(toPath(s))>}" : "\"<s>\"";
+str strArg(str s) 	= isCursor(s) ? "{\"use\": <trPath(toPath(s))>}" : "\"<escape(s)>\"";
 
 str locArg(loc v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "\"<site>/<v.path>\"";
 
 str valArg(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "<v>";
 
-str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "\"<v>\"";		
+str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "\"<escape("<v>")>\"";		
 
 /******************** Translate figures ************************************/
 		
@@ -315,6 +322,17 @@ str figToJSON(figure: box(), Figure parent) {
 
 str figToJSON(figure: text(value v), Figure parent) = 
 	"{\"figure\": \"text\", \"textValue\": <valArgQuoted(v)> <propsToJSON(figure, parent)> }";
+
+// ---------- markdown ----------
+
+str figToJSON(figure: markdown(value v), Figure parent) = 
+	"{\"figure\": \"markdown\", \"textValue\": <valArgQuoted(v)> <propsToJSON(figure, parent)> }";
+
+// ---------- math ----------
+
+str figToJSON(figure: math(value v), Figure parent) = 
+	"{\"figure\": \"math\", \"textValue\": <valArgQuoted(v)> <propsToJSON(figure, parent)> }";
+
 	
 // ---------- image ----------
 
