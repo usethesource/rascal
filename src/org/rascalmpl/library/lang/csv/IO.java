@@ -281,7 +281,7 @@ public class IO {
 						return values.integer(field);
 					}
 					catch (NumberFormatException nfe) {
-						throw RuntimeExceptionFactory.illegalTypeArgument("Invalid int \"" + field + "\" for requested field " + currentType, ctx.getCurrentAST(), ctx.getStackTrace());
+						throw RuntimeExceptionFactory.illegalTypeArgument(currentType.toString(),ctx.getCurrentAST(), ctx.getStackTrace(), "Invalid int \"" + field + "\" for requested field " + currentType);
 					}
 				}
 				@Override
