@@ -251,8 +251,16 @@ public class JSonReader extends AbstractBinaryReader {
 		String str = parseStringLiteral(reader);
 		if (expected.isDateTime())
 			result = dateTime(str);
-		else
+		else if(expected.isSourceLocation()){
+			try {
+				URI uri = new URI(str);
+				result = vf.sourceLocation(uri);
+			} catch (URISyntaxException e) {
+				throw new FactParseError("malformed source location:" + str, reader.getPosition());
+			}
+		} else {
 			result = vf.string(str);
+		}
 		reader.readSkippingWS(); /* " */
 		return result;
 	}
