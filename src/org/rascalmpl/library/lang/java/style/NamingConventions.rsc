@@ -9,27 +9,30 @@ import String;
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
 
+import IO;
+
 /*
-AbstractClassName		abstract classes					^Abstract.*$|^.*Factory$
+AbstractClassName		abstract classes					^Abstract.*$|^.*Factory$				ok
 ClassTypeParameterName	class type parameters				^[A-Z]$
-ConstantName	 		constants (static, final fields)	^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$
-LocalFinalVariableName	local, final variables, 
-						including catch parameters			^[a-z][a-zA-Z0-9]*$
-LocalVariableName	 	local, non-final variables, 
-						including catch parameters			^[a-z][a-zA-Z0-9]*$
+ConstantName	 		constants (static, final fields)	^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$			ok
+LocalFinalVariableName	local, final variables, 													ok
+						including catch parameters			^[a-z][a-zA-Z0-9]*$						ok
+LocalVariableName	 	local, non-final variables, 												ok
+						including catch parameters			^[a-z][a-zA-Z0-9]*$						ok
 MemberName				non-static fields					^[a-z][a-zA-Z0-9]*$
-MethodName				methods								^[a-z][a-zA-Z0-9]*$
+MethodName				methods								^[a-z][a-zA-Z0-9]*$						ok
 MethodTypeParameterName	method type parameters				^[A-Z]$
-PackageName				packages							^[a-z]+(\.[a-zA-Z_][a-zA-Z0-9_]*)*$
-ParameterName			parameters							^[a-z][a-zA-Z0-9]*$
-StaticVariableName		static, non-final fields			^[a-z][a-zA-Z0-9]*$
-TypeName				classes and interfaces				^[A-Z][a-zA-Z0-9]*$
+PackageName				packages							^[a-z]+(\.[a-zA-Z_][a-zA-Z0-9_]*)*$		ok
+ParameterName			parameters							^[a-z][a-zA-Z0-9]*$						ok
+StaticVariableName		static, non-final fields			^[a-z][a-zA-Z0-9]*$						ok
+TypeName				classes and interfaces				^[A-Z][a-zA-Z0-9]*$						ok
 */
 
 data Message = namingConvention(str category, loc pos, str id);
 
 list[Message] namingConventions(node ast, M3 model) {
   rel[loc name, loc src] decls = model@declarations;
+  rel[loc name, Modifier modifier] modifiers = model@modifiers;
   
   return 
   	for(<n, pos> <- decls){
@@ -44,6 +47,9 @@ list[Message] namingConventions(node ast, M3 model) {
   				elementName =  elementName[ .. sep];
   			}
   		}
+  		elemModifiers = modifiers[n];
+  		println("<elementName>: <elemModifiers>, <n>, <pos>");
+  		
   		switch(n.scheme){
   			case "java+compilationUnit": {
   					elems = split(elementName, ".");
@@ -59,27 +65,57 @@ list[Message] namingConventions(node ast, M3 model) {
   					}
   				}
   			case "java+class":
+  					if(\abstract() in elemModifiers){
+  						if(!(/^Abstract/ := elementName || /Factory$/ := elementName)){
+  							append namingConvention("AbstractClassName", pos, elementName);
+  						}
+  					} else
   					if(/^[A-Z][a-zA-Z0-9]*$/ !:= elementName){ append namingConvention("TypeName", pos, elementName); }
   				
   			case "java+constructor": continue;
   			
-  			case "java+field":		
-  					if(/^[a-z][a-zA-Z0-9]*$/ !:= elementName){ append namingConvention("MemberName", pos, elementName); }
+  			case "java+field":	
+  					if({\static(), \final()} <=  elemModifiers){
+  						elems = split(elementName, "_");
+  						println("java+field: <elems>");
+  						if( /^[A-Z][A-Z0-9]*$/ !:= elems[0] || any( elem <- elems[1..], /^[A-Z0-9]+$/ !:= elem)){
+  							append namingConvention("ConstantName", pos, elementName);
+  						}
+  					} else	
+  					if(/^[a-z][a-zA-Z0-9]*$/ !:= elementName){ 
+  						str category = \static() in elemModifiers ? "StaticVariableName" :  "MemberName";
+  						append namingConvention(category, pos, elementName); 
+  					}
   			
   			case "java+method":		
-					if(/^[a-z][a-zA-Z0-9]*$/ !:= elementName){ append namingConvention("MethodName", pos, elementName); }
+					if(/^[a-z][a-zA-Z0-9]*$/ !:= elementName && \static() notin elemModifiers){ 
+						append namingConvention("MethodName", pos, elementName); 
+					}
+  			case "java+typeVariable":
+  					if(/^[A-Z]$/ !:= elementName){ 
+  						// TODO: how do we diistinguish these two cases?
+  						str category = isClass(pos) ? "ClassTypeParameterName" : "MethodTypeParameterName";
+  						append namingConvention(category, pos, elementName); 
+  					}
   			
   			case "java+parameter":
-  					if(/^[a-z][a-zA-Z0-9]*$/ !:= elementName){ append namingConvention("ParameterName", pos, elementName); }
+  					if(/^[a-z][a-zA-Z0-9]*$/ !:= elementName){ 
+  						append namingConvention("ParameterName", pos, elementName); 
+  					}
   				
-  			case "java+variable":	
-  					if(/^[a-z][a-zA-Z0-9]*$/ !:= elementName){ append namingConvention("ParameterName", pos, elementName); }
+  			case "java+variable":
+  					if(/^[a-z][a-zA-Z0-9]*$/ !:= elementName){ 
+  						str category = \final() in elemModifiers ? "LocalFinalVariableName" : "LocalVariableName";
+  						append namingConvention(category, pos, elementName);
+  					 }
   			
   			case "java+interface":	
-  					if(/^[A-Z][a-zA-Z0-9]*$/ !:= elementName){ append namingConvention("TypeName", pos, elementName); }
+  					if(/^[A-Z][a-zA-Z0-9]*$/ !:= elementName){ 
+  						append namingConvention("TypeName", pos, elementName); 
+  					}
   			
   			default:
-  				throw "Cannot handle scheme <n.scheme>";
+  				throw "Cannot handle scheme <n>, <pos>";
   	}
   }
 }
