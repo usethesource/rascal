@@ -157,7 +157,7 @@ public class JavaMethod extends NamedFunction {
 		if (getFunctionType().hasKeywordParameters()) {
 			Type kwType = getFunctionType().getKeywordParameterTypes();
 			int amountOfKWArguments =  kwType.getArity();
-			Object[] newActuals = new Object[formals.getArity() + amountOfKWArguments];
+			Object[] newActuals = new Object[oldActuals.length + amountOfKWArguments];
 			System.arraycopy(oldActuals, 0, newActuals, 0, oldActuals.length);
 			Map<String, IValue> paramEnvironment = new HashMap<>();
 			for (int i = 0; i < amountOfKWArguments; i++) {
