@@ -8,6 +8,7 @@
  * Contributors:
  *    Jurgen Vinju (jurgenv@cwi.nl) - initial API and implementation
  *    Bert Lisser  (Bert.Lisser@cwi.nl)
+ *    Paul Klint	(Paul.Klint@cwi.nl) - added missing cases and made standards compliant
  *******************************************************************************/
 package org.rascalmpl.library.util;
 
