@@ -683,6 +683,22 @@ public class JSonReader extends AbstractBinaryReader {
 				map.put(ky, v);
 			}
 		}
+		
+		// keyword parameters
+		
+		HashMap<String, IValue> kwmap = new HashMap<String, IValue>();
+		
+		Iterator<IValue> iterator = t.iterator();
+		while (iterator.hasNext()) {
+			IValue k = iterator.next();
+			String ky = ((IString) k).getValue();
+
+			if(!(k.equals(nameKey) || k.equals(argKey) || k.equals(annoKey))){
+				IValue v = t.get(k);
+				kwmap.put(ky, v);
+			}
+		}
+		
 		if (funname.equals("#rat")) {
 			int dn = ((IInteger) a[0]).intValue(), nm = ((IInteger) a[1])
 					.intValue();
@@ -758,6 +774,9 @@ public class JSonReader extends AbstractBinaryReader {
 		}
 		if (annoMap != null)
 			result = result.asAnnotatable().setAnnotations(map);
+		if(kwmap.size() > 0){
+			result = result.asWithKeywordParameters().setParameters(kwmap);
+		}
 		return result;
 	}
 
