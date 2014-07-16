@@ -343,12 +343,54 @@ public class JSonWriter implements IValueTextWriter {
 				append("]}");
 			return o;
 		}
-
+		
+		/*	(non-Javadoc)
+		 * @see org.eclipse.imp.pdb.facts.visitors.IValueVisitor#visitString(org.eclipse.imp.pdb.facts.IString)
+		 */
 		public IValue visitString(IString o) throws IOException {
-			// TODO optimize this implementation and finish all escapes
+			// See http://www.json.org for string escapes
 			append('\"');
-			append(o.getValue().replaceAll("\"", "\\\\\"")
-					.replaceAll("\n", "\\\\n"));
+			for(int i = 0; i < o.length(); i++){
+				String s = o.substring(i, i+1).getValue();
+				switch(s){
+				
+				case "\"":
+					append("\\\"");
+					break;
+					
+				case "\\":
+					append("\\\\");
+					break;
+				case "/":
+					append("\\/");
+					break;
+				case "\b":
+					append("\\b");
+					break;
+					
+				case "\f":
+					append("\\f");
+					break;
+					
+				case "\n":
+					append("\\n");
+					break;
+					
+				case "\r":
+					append("\\r");
+					break;
+					
+				case "\t":
+					append("\\t");
+					break;
+				
+				default:
+					append(s);
+				}
+			}
+
+//			append(o.getValue().replaceAll("\"", "\\\\\"")
+//					.replaceAll("\n", "\\\\n"));
 			append('\"');
 			return o;
 		}
