@@ -422,12 +422,16 @@ public class JSonReader extends AbstractBinaryReader {
 		do {
 			escaped = false;
 			if (reader.read() == '\\') {
-				reader.read();
+				//reader.read();
+//				if (reader.read() == -1){
+//					throw new IOException("Premature EOF.");
+//				}
 				escaped = true;
 			}
 			int lastChar = reader.getLastChar();
-			if (lastChar == -1)
+			if (lastChar == -1){
 				throw new IOException("Premature EOF.");
+			}
 			if (escaped) {
 				switch (lastChar) {
 				case 'n':
