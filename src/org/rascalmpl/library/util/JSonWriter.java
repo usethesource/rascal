@@ -32,17 +32,21 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.IValueTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 /**
  * This class implements the JSon readable syntax for {@link IValue}'s. See also
  * {@link JSonReader}
  * 
- * @author bertl
+ * Contributors:
+ *    Bert Lisser  (Bert.Lisser@cwi.nl)
+ *    Paul Klint	(Paul.Klint@cwi.nl) - added missing cases and made standards compliant
  * 
  **/
 
@@ -55,6 +59,8 @@ public class JSonWriter implements IValueTextWriter {
 	static boolean debug = false;
 
 	static final String name = "#name", args = "#args", annos = "#annos", keywords = "#keywords";
+	
+	static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
 	public void write(IValue value, java.io.Writer stream) throws IOException {
 	  value.accept(new Writer(stream));
@@ -271,10 +277,7 @@ public class JSonWriter implements IValueTextWriter {
 			
 			if (nodeTyped) inNode++;
 			append("{\"" + name + "\":");
-			append('\"');
-			append(o.getName().replaceAll("\"", "\\\\\"")
-					.replaceAll("\n", "\\\\n"));
-			append('\"');
+			visitString(vf.string(o.getName()));
 			append(",\"" + args + "\":");
 			append('[');
 			if (nodeIterator.hasNext()) {
