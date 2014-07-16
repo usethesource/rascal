@@ -272,8 +272,6 @@ public class JSonWriter implements IValueTextWriter {
 		 */
 		public IValue visitNode(INode o) throws IOException {
 			Iterator<IValue> nodeIterator = o.iterator();
-			Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
-			Iterator<String> annoIterator = annotations.keySet().iterator();
 			
 			if (nodeTyped) inNode++;
 			append("{\"" + name + "\":");
@@ -290,23 +288,28 @@ public class JSonWriter implements IValueTextWriter {
 				}
 			}
 			append(']');
-		    if (annoIterator.hasNext()) {
-			     append(",\""+annos+"\":");
-//				// append('[');
-				append('{');
-				String key = annoIterator.next();
-				append("\""+key+"\"");
-				append(':');
-				annotations.get(key).accept(this);
-				while (annoIterator.hasNext()) {
-					append(',');
-					key = annoIterator.next();
+			
+			if(o.isAnnotatable()){
+				Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
+				Iterator<String> annoIterator = annotations.keySet().iterator();
+				if (annoIterator.hasNext()) {
+					append(",\""+annos+"\":");
+					// append('[');
+					append('{');
+					String key = annoIterator.next();
 					append("\""+key+"\"");
 					append(':');
 					annotations.get(key).accept(this);
+					while (annoIterator.hasNext()) {
+						append(',');
+						key = annoIterator.next();
+						append("\""+key+"\"");
+						append(':');
+						annotations.get(key).accept(this);
+					}
+					append('}');
+					// append(']');
 				}
-				append('}');
-//				// append(']');
 			}
 		    
 		    // TODO: SOS horrible hack to prevent crash on writing parse trees
@@ -414,6 +417,7 @@ public class JSonWriter implements IValueTextWriter {
 //			SimpleDateFormat sd = new SimpleDateFormat(
 //					"yyyy-MM-dd HH:mm:ss.SSS");
 			append(sd.format(new Date(o.getInstant())));
+			//System.err.println("visitdateTime: " +new Date(o.getInstant()));
 			append('\"');
 			if (typed || inNode > 0)
 				append("]}");
