@@ -405,8 +405,9 @@ public class JSonWriter implements IValueTextWriter {
 			if (typed || inNode > 0)
 				append("{\"" + name + "\":\"#datetime\",\"" + args + "\":[");
 			append('\"');
+			
 			SimpleDateFormat sd = new SimpleDateFormat(
-					"yyyy-MM-dd HH:mm:ss.SSSZ");
+					"yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 //			SimpleDateFormat sd = new SimpleDateFormat(
 //					"yyyy-MM-dd HH:mm:ss.SSS");
 			append(sd.format(new Date(o.getInstant())));

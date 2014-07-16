@@ -422,10 +422,9 @@ public class JSonReader extends AbstractBinaryReader {
 		do {
 			escaped = false;
 			if (reader.read() == '\\') {
-				//reader.read();
-//				if (reader.read() == -1){
-//					throw new IOException("Premature EOF.");
-//				}
+				if (reader.read() == -1){
+					throw new IOException("Premature EOF.");
+				}
 				escaped = true;
 			}
 			int lastChar = reader.getLastChar();
@@ -451,6 +450,9 @@ public class JSonReader extends AbstractBinaryReader {
 					break;
 				case '\\':
 					str.append('\\');
+					break;
+				case '/':
+					str.append('/');
 					break;
 				case '\'':
 					str.append('\'');
@@ -480,7 +482,7 @@ public class JSonReader extends AbstractBinaryReader {
 	}
 
 	IValue dateTime(String s) {
-		final String formatString = "yyyy-MM-dd HH:mm:ss.SSSZ";
+		final String formatString = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 		try {
 			java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat(
 					formatString);
@@ -779,7 +781,11 @@ public class JSonReader extends AbstractBinaryReader {
 		IValue[] terms = parseTermsArray(reader, elementType);
 		if (debug)
 			System.err.println("ParseTerms2:" + base + " " + elementType);
-		if (base.isList() || base.isTop()) {
+		if (base.isList() || base.isTop() || base.isRational()) {
+			if(expected.isRational()){
+				int dn = ((IInteger) terms[0]).intValue(), nm = ((IInteger) terms[1]).intValue();
+				return vf.rational(dn, nm);
+			}
 			IListWriter w = vf.listWriter(base.isTop() ? tf.valueType() : expected.getElementType());
 			for (int i = terms.length - 1; i >= 0; i--) {
 				w.insert(terms[i]);
@@ -813,7 +819,7 @@ public class JSonReader extends AbstractBinaryReader {
 			return base;
 		} else if (base.isAbstractData()) {
 			return tf.tupleType(tf.stringType(), tf.valueType());
-		} else if (base.isTop()) {
+		} else if (base.isTop() || base.isRational()) {
 			return base;
 		} else {
 			throw new IllegalOperationException("getElementType", expected);
