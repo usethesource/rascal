@@ -800,6 +800,13 @@ public class JSonReader extends AbstractBinaryReader {
 			ISetWriter w = vf.setWriter(expected.getElementType());
 			w.insert(terms);
 			return w.done();
+		} else if(base.isMap()){
+			//Type tt = expected.getElementType();
+			IMapWriter w = vf.mapWriter(expected); //tt.getFieldType(0), tt.getFieldType(1));
+			for (int i = terms.length - 1; i >= 0; i--) {
+				w.put(((ITuple) terms[i]).get(0), ((ITuple)terms[i]).get(1));
+			}
+			return w.done();
 		}
 		throw new FactParseError("Unexpected type " + expected,
 				reader.getPosition());
@@ -816,7 +823,7 @@ public class JSonReader extends AbstractBinaryReader {
 		} else if (base.isSet()) {
 			return base.getElementType();
 		} else if (base.isMap()) {
-			return base;
+			return tf.tupleType(base.getKeyType(), base.getValueType());
 		} else if (base.isAbstractData()) {
 			return tf.tupleType(tf.stringType(), tf.valueType());
 		} else if (base.isTop() || base.isRational()) {
