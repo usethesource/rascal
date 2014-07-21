@@ -10,8 +10,8 @@ data State = state(Exp current_exp, int current_value);
 
 Figure visExp(lit(n)) = strInput(event=on("submit", bind(n)), size=<25,25>);
 
-Figure visExp(add(Exp l, Exp r) ) = box(fillColor="WhiteSmoke", fillOpacity=0.2, lineDashing=[1,1,1,1,1],
-										fig=hcat(figs=[text("("), visExp(l), text("+"), visExp(r), text(")")], fontSize=14, gap=<10,10>));
+Figure visExp(add(Exp l, Exp r) ) = box(fillColor="WhiteSmoke", fillOpacity=0.2, lineDashing=[1,1,1,1,1], gap=<12,12>,
+										fig=hcat(figs=[text("("), visExp(l), text("+"), visExp(r), text(")")], fontSize=14, gap=<12,12>));
 
 int eval(lit(n)) = toInt(n);
 

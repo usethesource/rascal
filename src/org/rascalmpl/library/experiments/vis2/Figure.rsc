@@ -17,44 +17,46 @@ alias Position = tuple[num x, num y];
 
 alias Alignment = tuple[num hpos, num vpos];
 
-public Alignment topLeft      = <0.0, 0.0>;
-public Alignment top          = <0.5, 0.0>;
-public Alignment topRight     = <1.0, 0.0>;
+public Alignment topLeft      	= <0.0, 0.0>;
+public Alignment top          	= <0.5, 0.0>;
+public Alignment topRight     	= <1.0, 0.0>;
 
-public Alignment left   		 = <0.0, 0.5>;
-public Alignment center       = <0.5, 0.5>;
-public Alignment right   	 = <1.0, 0.5>;
+public Alignment left   		= <0.0, 0.5>;
+public Alignment center       	= <0.5, 0.5>;
+public Alignment right   	 	= <1.0, 0.5>;
 
-public Alignment bottomLeft   = <0.0, 1.0>;
-public Alignment bottom 		 = <0.5, 1.0>;
-public Alignment bottomRight  = <1.0, 1.0>;
+public Alignment bottomLeft   	= <0.0, 1.0>;
+public Alignment bottom 		= <0.5, 1.0>;
+public Alignment bottomRight	= <1.0, 1.0>;
 
 // Events and bindings for input elements
 
 data Event 
 	= on()
-	| on(str eventName, Bind[value] binder)
+	| on(str eventName, Bind binder)
 	| on(str eventName, Figure fig)
 	;
 	
-alias Cursor[&T] = &T;
+//alias Cursor[&T] = &T;
 
-data Bind[&T]
-    = bind(Cursor[&T] accessor)
-    | bind(Cursor[&T] accessor, &T val)
-    | delete(Cursor[&T] accessor)
+data Bind
+    = bind(value accessor)
+    | bind(value accessor, value val)
+//    | delete(Cursor[&T] accessor)
 //    | add(Cursor[&T] accessor, value(value model))
 	;
 
 // Data formats for various chart elements
 	
-data XYData = xyData(lrel[num,num] pairs, 				// <x, y> values
-		     		 str color="black", 				// color of line			// TODO: artefact of chart package!
-			 		 bool area = false);				// fill area below line		// TODO: artefact of chart package!
+alias XYData 			= lrel[num x, num y];
 
-alias LabeledData = lrel[str label, num val];			// <label, number> values
+//alias XYMultiData 		= lrel[str kind, num x, num y];
+			 		 
+alias LabeledData 		= lrel[str label, num val];			
 
-alias Dataset[&Kind] = map[str name, &Kind values];
+//alias LabeledMultiData	= lrel[str kind, str label, num val];
+
+alias Dataset[&T] 		= map[str name, &T values];
 
 // {"label": "Category A", "mean": 1, "lo": 0,   "hi": 2},
 //  {"label":"Washington", "born":-7506057600000, "died":-5366196000000, 
@@ -122,7 +124,7 @@ public data Figure(
 
 		// Font and text properties
 		
-		str fontFamily = "Helvetica Neue Light, Arial, Verdana, sans-serif",
+		str fontFamily = "\"Helvetica Neue Light\", Arial, Verdana, sans-serif",
 		str fontName = "Helvetica", 	// was: font
 		int fontSize = 12,
 		str fontStyle = "normal",
@@ -150,15 +152,17 @@ public data Figure(
 
    | box(Figure fig=emptyFigure())      	// rectangular box with inner element
    
-   | polygon(Vertices vertices)
+   | ellipse(int rx=0, int ry=0, Figure fig=emptyFigure())
    
-   | polyline(Vertices vertices)
+   | circle(int r=0, Figure fig=emptyFigure())
+   
+   | ngon(int n=3, int r=0, Figure fig=emptyFigure())	// regular polygon
    
    | shape(Vertices vertices, 				// Arbitrary shape
    			bool shapeConnected = true, 	// Connect vertices with line/curve
-   			bool shapeClosed = false, 		// Make a closed hape
+   			bool shapeClosed = false, 		// Make a closed shape
    			bool shapeCurved = false, 		// Connect vertices with a spline
-   			bool fillEvenOdd = true,		// The fill rule to be used.
+   			bool fillEvenOdd = true,		// The fill rule to be used. (TODO: remove?)
    			Figure startMarker=emptyFigure(),
    			Figure midMarker=emptyFigure(), 
    			Figure endMarker=emptyFigure())
@@ -218,13 +222,19 @@ public data Figure(
 
 // Charts
    
-   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[LabeledData] dataset = (), str flavor ="nvBarChart")
+   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[LabeledData] dataset = (), bool grouped = false, str flavor ="nvBarChart")
+   
+//   | multiBarChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[LabeledMultiData] dataset = (), bool grouped = false, str flavor ="nvBarChart")
+   
    | scatterPlot()
-   | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[XYData] dataset = (), str flavor ="nvLineChart")
+   
+   | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[XYData] dataset = (), bool area = false, str flavor ="nvLineChart")
+   
+//   | multiLineChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[XYMultiData] dataset = (), bool area = false, str flavor ="nvLineChart")
   
 // Graphs
 
-   | graph(map[str, Figure] nodes = (), Figures edges = [], str flavor="layeredGraph")
+   | graph(lrel[str, Figure] nodes = (), Figures edges = [], str flavor="layeredGraph")
    | edge(str from, str to, str label)
    
 

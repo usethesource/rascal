@@ -19,154 +19,62 @@ Figure.drawFunction.graph = function (x, y, w, h) {
 	return Figure.getDrawForComponent("graph", this.flavor)(this, x, y, w, h);
 }
 
-
 /********************************************************/
 /*				graph flavors			 				*/
 /********************************************************/
 
-
 /******************* layeredGraph ***********************/
 
 Figure.registerComponent("graph", "layeredGraph");
-
-//////// Functions taken from dagre-d3 to override drawNode
-
-function isComposite(g, u) {
-  return 'children' in g && g.children(u).length;
-}
-
-function addLabel(node, root, marginX, marginY) {
-  // Add the rect first so that it appears behind the label
-  var label = node.label;
-  var rect = root.append('rect');
-  var labelSvg = root.append('g');
-
-  if (label[0] === '<') {
-    addForeignObjectLabel(label, labelSvg);
-    // No margin for HTML elements
-    marginX = marginY = 0;
-  } else {
-    addTextLabel(label,
-                 labelSvg,
-                 Math.floor(node.labelCols),
-                 node.labelCut);
-  }
-
-  var bbox = root.node().getBBox();
-
-  labelSvg.attr('transform',
-             'translate(' + (-bbox.width / 2) + ',' + (-bbox.height / 2) + ')');
-
-  rect
-    .attr('rx', node.rx || 5)
-    .attr('ry', node.ry || 5)
-    .attr('x', -(bbox.width / 2 + marginX))
-    .attr('y', -(bbox.height / 2 + marginY))
-    .attr('width', bbox.width + 2 * marginX)
-    .attr('height', bbox.height + 2 * marginY)
-    .style('fill', node.fill || "#000000")
-    .style("stroke", node.stroke)
-    .style("stroke-width", node["stroke-Width"] + "px")
-    .style("stroke-dasharray", node["stroke-dasharray"]);
-
-  if (node.fill) {
-    rect.attr('fill', "#afafaf"); //node.fill);
-  }
-
-  if (node.href) {
-    root
-      .attr('class', root.attr('class') + ' clickable')
-      .on('click', function() {
-        window.open(node.href);
-      });
-  }
-}
-
-function addTextLabel(label, root, labelCols, labelCut) {
-  if (labelCut === undefined) labelCut = 'false';
-  labelCut = (labelCut.toString().toLowerCase() === 'true');
-
-  var node = root
-    .append('text')
-    .attr('text-anchor', 'left');
-
-  label = label.replace(/\\n/g, '\n');
-
-  var arr = labelCols ? wordwrap(label, labelCols, labelCut) : label;
-  arr = arr.split('\n');
-  for (var i = 0; i < arr.length; i++) {
-    node
-      .append('tspan')
-        .attr('dy', '1em')
-        .attr('x', '1')
-        .text(arr[i]);
-  }
-}
-
-var GraphRenderer = new dagreD3.Renderer();
-
-function defaultDrawNodes(g, root) {
-  var nodes = g.nodes().filter(function(u) { return !isComposite(g, u); });
-  console.log("defaultDrawNodes");
-  var svgNodes = root
-    .selectAll('g.node')
-    .classed('enter', false)
-    .data(nodes, function(u) { return u; });
-
-  svgNodes.selectAll('*').remove();
-
-  svgNodes
-    .enter()
-      .append('g')
-        .style('opacity', 0)
-        .attr('class', 'node enter');
-
-  svgNodes.each(function(u) { addLabel(g.node(u), d3.select(this), 10, 10); });
-
-  this._transition(svgNodes.exit())
-      .style('opacity', 0)
-      .remove();
-
-  return svgNodes;
-}
 
 Figure.bboxFunction.layeredGraph = function(figure, selection) {
    var  org_nodes = figure.nodes || [],
         org_edges = figure.edges || [],
 		nodes     = [],
 		edges 	  = [];
-		
+
+	figure.svg = selection.append("svg");
+	var defs = figure.svg.append("defs");
+
    var g = new dagreD3.Digraph();
    
    for(var i = 0; i < org_nodes.length; i++){
 	   var node = org_nodes[i];
-	   node.inner.label = node.name;
-	   g.addNode(node.name, node.inner);
+	   var d = defs.append("g").attr("id", node.name);
+	   var f = buildFigure(node.inner);
+	   f.bbox(d);
+	   f.draw(0,0,f.width, f.height);
+	   d.attr("width", f.width).attr("height", f.height).attr("transform", "translate(" + (-f.width/2) + "," + (-f.height/2) + ")");
+	   
+	   g.addNode(node.name, {label: node.name, use: node.name});
    }
    
    for(var i = 0; i < org_edges.length; i++){
 	   var edge = org_edges[i];
 	   edge.label = edge.name;
-	   
+	   console.log("edge:", edge);
 	   g.addEdge(null, edge.source, edge.target, edge);
    }
 
-  //var renderer = GraphRenderer = new dagreD3.Renderer();
-  GraphRenderer.drawNodes(defaultDrawNodes);
-  var oldDrawNodes = GraphRenderer.drawNodes();
-  GraphRenderer.drawNodes(function(graph, root) {
+  var renderer = new dagreD3.Renderer();
+   var oldDrawNodes = renderer.drawNodes();
+  renderer.drawNodes(function(graph, root) {
     var svgNodes = oldDrawNodes(graph, root);
     svgNodes.attr("id", function(u) { return "node-" + u; });
     return svgNodes;
   });
-  var layout = GraphRenderer.run(g, figure.svg);
+  var layout = renderer.run(g, figure.svg);
   
   if(!figure.hasDefinedWidth()){
   	figure.min_width = layout.graph().width + 40;
+  } else {
+  	figure.min_width = Math.max(figure.width, layout.graph().width + 40);
   }
   if(!figure.hasDefinedHeight()){
   	figure.min_height = layout.graph().height + 40;
-  }	
+  }	 else {
+    figure.min_height = Math.max(figure.height, layout.graph().height + 40);
+  }
 //    drawExtraFigure(selection, x, y, this);
 //    addInteraction(selection, x, y, this);
   return figure.svg;
@@ -178,6 +86,7 @@ Figure.drawFunction.layeredGraph = function (figure, x, y, w, h) {
 		.attr("y", y)
 		.attr("width", w)
 		.attr("height", h)
+		.attr("viewbox", x + " " + y + " " + w + " " + h)
 		;
 		
     return figure.svg;
