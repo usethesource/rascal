@@ -4,29 +4,13 @@
 
 "use strict";
 
-function rsc2vega(dataset) {
-    if (dataset.length != 1) {
-        alert("Illegal dataset");
-        return null;
-    }
-    var vs = dataset[0].values;
-    var r = new Array();
-    for (var i = 0; i < vs.length; i++) {
-        var q = new Object();
-        q.x = vs[i].label;
-        q.y = vs[i].value;
-        r[i] = q;
-    }
-    return r;
-}
-
 /****************** vegaBarChart *************************/
 
 Figure.registerComponent("barChart", "vegaBarChart");
 
 Figure.drawFunction.vegaBarChart = function(figure, x, y, w, h) {
 
-    var data = {table: rsc2vega(figure.dataset)};
+    var data = {table: figure.datasets};
     
     function updateSpec(spec, width, height, top, left, bottom, right) {
         spec.width = width - left - right;

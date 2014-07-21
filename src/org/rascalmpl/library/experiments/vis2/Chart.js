@@ -51,7 +51,7 @@ Figure.drawFunction.nvBarChart = function (figure, x, y, w, h) {
 	  		.attr("y", y)
 	  		.attr("width", w)
 	    	.attr("height", h) 
-	    	.datum(figure.dataset)         	  	// Populate the <svg> element with chart data...
+	    	.datum(figure.datasets)         	 // Populate the <svg> element with chart data...
 	    	.call(chart)                  		// Finally, render the chart
 	     	;
 	  	nv.utils.windowResize(function() { chart.update() });
@@ -113,7 +113,7 @@ Figure.drawFunction.nvLineChart = function (figure, x, y, w, h) {
 	  	  	.attr("y", y)
 	  	  	.attr("width", w)
 	      	.attr("height", h)
-	      	.datum(figure.dataset)         	// Populate the <svg> element with chart data...
+	      	.datum(figure.datasets)         // Populate the <svg> element with chart data...
 	      	.call(chart)                   	// Finally, render the chart
 	      	;
 	  	chart.update();
