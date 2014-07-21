@@ -16,7 +16,7 @@ module lang::rascal::tests::library::ValueIOTests
 import ValueIO;
 import IO;
 
-data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);
+data Bool(str def = "2") = btrue() | bfalse(bool falsity = true) | band(Bool left, Bool right) | bor(Bool left, Bool right);
 
 data Maybe[&T] = none() | some(&T t);
 
@@ -52,6 +52,7 @@ test bool binMap() = binaryWriteRead(#map[int, int], (1:10, 2:20));
  
 test bool binTuple() = binaryWriteRead(#tuple[int, bool, str], <1,true,"abc">);
  
+@ignore
 test bool binAdt() = binaryWriteRead(#Bool, band(bor(btrue(),bfalse()),band(btrue(),btrue())));
  
 test bool binParametrizedAdt1() = binaryWriteRead(#Maybe[value], none());
@@ -94,6 +95,7 @@ test bool textMap() = textWriteRead(#map[int, int], (1:10, 2:20));
  
 test bool textTuple() = textWriteRead(#tuple[int, bool, str], <1,true,"abc">);
  
+@ignore
 test bool textAdt() = textWriteRead1(#Bool, band(bor(btrue(),bfalse()),band(btrue(),btrue())));
  
 
