@@ -16,11 +16,11 @@ var Figure = {
     "stroke-dasharray": [],
     "stroke-opacity": 1.0,
     borderRadius: 0,
-    "font-family": "sans-serif", // serif, sans-serif, monospace
+    "font-family": "\"Helvetica Neue Light\", Helvetica, Arial, sans-serif",
     "font-name": "Helvetica",
-    "font-size": 12,
+    "font-size": 14,
     "font-style": "normal",        // normal, italic
-    "font-weight": "normal",      // normal, bold
+    "font-weight": 300,            // normal==400, bold
     "text-decoration": "none",     // none, underline, overline, line-through
     
     dataset: [], 
@@ -214,7 +214,12 @@ function drawFigure (description){
 
 function drawFigure1(f) {
     Figure.figure_root = f;
-     var area = d3.select("#figurearea").append("svg");
+     var area = d3.select("#figurearea").append("svg")
+     	.style("stroke-width", 1)
+     	.style("font-weight", 300)
+     	.style("font-size", 20)
+     	.style("font-family", "\"Helvetica Neue Light\", Helvetica, Arial, sans-serif")
+     	;
     try {
    	 f.bbox(area);
    	 } catch(e){
@@ -393,65 +398,210 @@ Figure.drawFunction.box = function (x, y, w, h) {
 /**************** box *******************/
 
 Figure.bboxFunction.box = function(selection) {
-    var width = 0, height = 0, definedW, definedH;
-    
-    if(this.hasDefinedWidth()){
-        width = this.width;
-        definedW = 1;
-    }
-    if(this.hasDefinedHeight()){
-        height = this.height;
-        definedH = 1;
-    } 
-    var lw = this["stroke-width"]/2;	// TODO: check this
-    width += (lw + 1) / 2;
-    height += (lw + 1) / 2
-    console.log("box.bbox:", width, height);
-    	
-    this.svg = selection
+    var figure = this,
+		width  = figure.hasDefinedWidth()  ? figure.width  : 0,
+        height = figure.hasDefinedHeight() ? figure.height : 0;
+ 	
+    figure.svg = selection
     	.append("rect")
-    	.style("stroke", this.stroke)
-    	.style("fill", this.fill)
-    	.style("stroke-width", this["stroke-width"] + "px")
-    	.style("stroke-dasharray", this["stroke-dasharray"])
+    	.attr("rx", figure.rx)
+    	.attr("ry", figure.ry)
+		;
+	
+	figure.svg
+    	.style("stroke", figure.stroke)
+    	.style("fill", figure.fill)
+    	.style("stroke-width", figure["stroke-width"] + "px")
+    	.style("stroke-dasharray", figure["stroke-dasharray"])
     	;
     
-    if (this.hasOwnProperty("inner")) {
-        var inner = this.inner;
+    if (figure.hasOwnProperty("inner")) {
+        var inner = figure.inner;
         console.log(inner);
         inner.bbox(selection);
-        console.log("inner", inner.width, inner.height);
-        if(!definedW){
-            width = Math.max(width, this.grow * inner.width + 2 * this.hgap);
+        console.log("box.inner", inner.width, inner.height);
+        if(!figure.hasDefinedWidth()){
+            width = Math.max(width, figure.grow * inner.width + 2 * figure.hgap);
         }
-        if(!definedH){
-            height = Math.max(height, this.grow * inner.height + 2 * this.vgap);
+        if(!figure.hasDefinedHeight()){
+            height = Math.max(height, figure.grow * inner.height + 2 * figure.vgap);
         }
         console.log("box outer size:", width, height);
     }
-    this.min_width = width;
-    this.min_height = height;
+    
+    var lw = figure["stroke-width"]/2;	// TODO: check this
+    
+    figure.min_width  = width  + (lw + 1) / 2;
+    figure.min_height = height +  (lw + 1) / 2;
+    
+    console.log("box.bbox:", figure.min_width,  figure.min_height);
+	return figure.svg;
 }
 
 Figure.drawFunction.box = function (x, y, w, h) {
- 	var lw = (this["stroke-width"])/2;		// TODO: check this
-    this.svg
-    	.attr("x", x + lw)
+ 	var figure = this,
+		lw = (figure["stroke-width"])/2;		// TODO: check this
+    	
+	figure.svg
+		.attr("x", x + lw)
     	.attr("y", y + lw)
     	.attr("width", w)
     	.attr("height", h)
-    	;
+   	;
     
-    if (this.hasOwnProperty("inner")) {
-        var inner = this.inner;
-        inner.draw(x + lw + this.hgap + this.halign * (w  - inner.width  - 2 * this.hgap), 
-                   y + lw + this.vgap + this.valign * (h - inner.height - 2 * this.vgap),
+    if (figure.hasOwnProperty("inner")) {
+        var inner = figure.inner;
+        inner.draw(x + lw + figure.hgap + figure.halign * (w  - inner.width  - 2 * figure.hgap), 
+                   y + lw + figure.vgap + figure.valign * (h - inner.height - 2 * figure.vgap),
                    inner.width, inner.height);
     }
-    drawExtraFigure(this, x, y);
-    addInteraction(this);
-    return this.svg;
+    drawExtraFigure(figure, x, y);
+    addInteraction(figure);
+    return figure.svg;
 }
+
+/**************** ellipse *******************/
+
+Figure.bboxFunction.ellipse = function(selection) {
+    var figure = this,
+	    width  = figure.hasOwnProperty("rx") ? 2 * figure.rx  : 0,
+        height = figure.hasOwnProperty("ry") ? 2 * figure.ry : 0;
+ 
+	figure.svg = selection
+    	.append("ellipse")
+    	.style("stroke", figure.stroke)
+    	.style("fill", figure.fill)
+    	.style("stroke-width", figure["stroke-width"] + "px")
+    	.style("stroke-dasharray", figure["stroke-dasharray"])
+    	;
+    
+    if (figure.hasOwnProperty("inner")) {
+        var inner = figure.inner;
+        console.log(inner);
+        inner.bbox(selection);
+        console.log("ellipse.inner", inner.width, inner.height);
+        if(!figure.hasOwnProperty("rx")){
+            width = Math.max(width, figure.grow * inner.width + 2 * figure.hgap);
+        }
+        if(!figure.hasOwnProperty("ry")){
+            height = Math.max(height, figure.grow * inner.height + 2 * figure.vgap);
+        }
+        console.log("ellipse outer size:", width, height);
+    }
+    var lw = figure["stroke-width"]/2;	// TODO: check this
+    
+    width += (lw + 1) / 2;
+	height += (lw + 1) / 2;
+	
+    figure.min_width  = figure.hasOwnProperty("rx") ?  2 * figure.rx : 2 * width  / Math.sqrt(2);
+    figure.min_height = figure.hasOwnProperty("ry") ?  2 * figure.ry : 2 * height / Math.sqrt(2);
+	
+	if(figure.circle){
+		var m = Math.max(figure.min_width,  figure.min_height);
+		figure.min_width = m;
+		figure.min_height = m;
+	}
+    
+    console.log("ellipse.bbox:", figure.min_width,  figure.min_height);
+	return figure.svg;
+}
+
+Figure.drawFunction.ellipse = function (x, y, w, h) {
+	var figure = this;
+ 	var lw = (figure["stroke-width"])/2;		// TODO: check this
+    	
+	figure.svg
+		.attr("cx", x + lw + w/2)
+		.attr("cy", y + lw + h/2)
+		.attr("rx", w/2)
+    	.attr("ry", h/2)
+		;
+    
+    if (figure.hasOwnProperty("inner")) {
+        var inner = figure.inner;
+        inner.draw(x + lw + figure.hgap + figure.halign * (w  - inner.width  - 2 * figure.hgap), 
+                   y + lw + figure.vgap + figure.valign * (h - inner.height - 2 * figure.vgap),
+                   inner.width, inner.height);
+    }
+    drawExtraFigure(figure, x, y);
+    addInteraction(figure);
+    return figure.svg;
+}
+
+/**************** ngon *******************/
+
+Figure.generate_ngon = function(n, r){
+	var path = "M " + r * Math.sin(0) + " " + r * Math.cos(0);
+	var angle = 2 * Math.PI / n;
+	for(var a = 0; a <= 2 * Math.PI; a += angle){
+		path += "L" + r * Math.sin(a) + " " + r * Math.cos(a);
+	}
+	return path + "Z";
+}
+
+Figure.bboxFunction.ngon = function(selection) {
+    var figure = this,
+	    r  = figure.hasOwnProperty("r") ? 2 * figure.r  : 0;
+ 
+	figure.svg = selection
+    	.append("path")
+    	.style("stroke", figure.stroke)
+    	.style("fill", figure.fill)
+    	.style("stroke-width", figure["stroke-width"] + "px")
+    	.style("stroke-dasharray", figure["stroke-dasharray"])
+    	;
+    
+    if (figure.hasOwnProperty("inner")) {
+        var inner = figure.inner;
+        console.log(inner);
+        inner.bbox(selection);
+        console.log("ngon.inner", inner.width, inner.height);
+        if(r == 0){
+			var w = figure.grow * inner.width +  2 * figure.hgap;
+			var h = figure.grow * inner.height + 2 * figure.vgap;
+			r = Math.sqrt(w*w + h*h) / Math.cos(Math.PI / figure.n);
+        }
+        console.log("ngon outer size:", r);
+    }
+    var lw = figure["stroke-width"]/2;	// TODO: check this
+    
+    r += (lw + 1) / 2;
+	
+    //figure.min_width  = figure.r != 0  ?  2 * figure.r : r;
+   // figure.min_height = figure.min_width;
+	
+	figure.svg.attr("d", Figure.generate_ngon(figure.n, r/2));
+	var bbox = figure.svg.node().getBBox();
+	
+	figure.min_width  = bbox.width;  //figure.r != 0  ?  2 * figure.r : r;
+    figure.min_height = bbox.height; //figure.min_width;
+	figure.x = -bbox.x;
+	figure.y = -bbox.y;
+	
+    console.log("ngon.bbox:", figure.min_width,  figure.min_height);
+	return figure.svg;
+}
+
+Figure.drawFunction.ngon = function (x, y, w, h) {
+	var figure = this;
+ 	var lw = (figure["stroke-width"])/2;		// TODO: check this
+    	
+	figure.svg
+		.attr("transform", "translate(" + (x + figure.x + lw) + "," + (y + figure.y + lw) + ")")
+		//.attr("d", Figure.generate_ngon(figure.n, w/2))
+		;
+    
+    if (figure.hasOwnProperty("inner")) {
+        var inner = figure.inner;
+        inner.draw(x + figure.x - (w/2) + lw + figure.hgap + figure.halign * (w - inner.width  - 2 * figure.hgap), 
+                   y + figure.y - (h/2) + lw + figure.vgap + figure.valign * (h - inner.height - 2 * figure.vgap),
+                   inner.width, inner.height);
+    }
+    drawExtraFigure(figure, x, y);
+    addInteraction(figure);
+    return figure.svg;
+}
+
 
 /**************** shape *****************/
 
@@ -984,7 +1134,9 @@ Figure.bboxFunction.text = function(selection) {
         .style("font-weight", this["font-weight"])
         .style("font-size", this["font-size"])
         .style("stroke", this.stroke)
-        .style("fill",   this.stroke);
+        .style("stroke-width", this["stroke-width"])
+        .style("fill",   this.stroke)
+        ;
    
     var bb = this.svg.node().getBBox();
     this.width = 1.05*bb.width;
@@ -1012,15 +1164,14 @@ Figure.bboxFunction.markdown = function(selection) {
 	var converter = new Markdown.Converter();
     var html = converter.makeHtml(this.textValue);
 	this.svg = selection.append("foreignObject");
-	var foreign = this.svg
-   		.append("xhtml:body")
-		.html(html)
-		;
+	var body = this.svg.append("xhtml:body");
+	var html_in_body = body.html(html);
    
-    var bb = this.svg.node().getBoundingClientRect();
-	console.log("markdown.bbox:", bb);
-    //this.width = bb.right - bb.left;
-    //this.height = bb.bottom - bb.top;
+    var bb = html_in_body.node().getBoundingClientRect();
+	var cr = html_in_body.node().getClientRects();
+	console.log("markdown.bbox:", bb, cr);
+    this.width = bb.width > 0 ? bb.width : this.hasDefinedWidth() ? this.width : 400;
+    this.height = bb.height > 0 ? bb.height : this.hasDefinedHeight() ? this.height : 400;
 
     console.log("markdown:", this.width, this.height);
 }
@@ -1041,12 +1192,15 @@ Figure.drawFunction.markdown = function (x, y, w, h) {
 /**************** math *******************/
 
 Figure.bboxFunction.math = function(selection) {
-	this.svg = selection.append("foreignObject");
-	var foreign = this.svg
-   		.append("xhtml:body");
-	var math = foreign
+	this.svg = selection
+		.append("foreignObject");
+   	var body = this.svg
+		.append("xhtml:body");
+	var script = body
 		.append("script")
 		.attr("type", "math/tex")
+		;
+	var text = script
 		.text(this.textValue)
 		.style("font-family", this["font-family"])
         .style("font-style", this["font-style"])
@@ -1056,12 +1210,16 @@ Figure.bboxFunction.math = function(selection) {
         .style("fill",   this.stroke);
 		;
 		
-	MathJax.Hub.Typeset(math);
-   
-    var bb = this.svg.node().getBoundingClientRect();
-	console.log("math.bbox:", bb);
-    //this.width = bb.right - bb.left;
-    //this.height = bb.bottom - bb.top;
+	MathJax.Hub.Typeset(script);	// Todo: place in MathJax Queue
+	
+	// fetch the id MathJax has assigned to the script element and
+	// grab width/height from the corresponding, generated, svg element
+	
+	var svg_generated_by_MathJax = "#" + script.attr("id") + "-Frame svg";
+	var span = this.svg.select(svg_generated_by_MathJax).node();
+
+    this.width = span.width.baseVal.value;
+    this.height = span.height.baseVal.value;
 
     console.log("math:", this.width, this.height);
 }

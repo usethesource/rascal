@@ -106,6 +106,89 @@ void box18(){
 	ex("box18", box(fig=text("Hello", fontSize=20), grow=2));
 }
 
+// ellipse
+
+void ellipse1(){
+	ex("ellipse1", ellipse(cx=100, cy=100, rx=100, ry=75));
+}
+
+void ellipse2(){
+	ex("ellipse2", ellipse(cx=100, cy=100, rx=100, ry=75, fillColor="red"));
+}
+
+void ellipse3(){
+	ex("ellipse3", ellipse(cx=100, cy=100, fillColor="red", fig=box(size=<50,80>, fillColor="yellow")));
+}
+
+// circle
+
+void circle1(){
+	ex("circle1", circle(r=100));
+}
+
+void circle2(){
+	ex("circle2", circle(r=100, fillColor="red"));
+}
+
+void circle3(){
+	ex("circle3", circle(fillColor="red", fig=box(size=<50,80>, fillColor="yellow")));
+}
+
+// ngon
+
+void ngon1(){
+	ex("ngon1", ngon(n = 3, r=100));
+}
+
+void ngon2(){
+	ex("ngon2", ngon(n = 4, r=100));
+}
+
+void ngon3(){
+	ex("ngon3", ngon(n = 5, r=100));
+}
+
+void ngon4(){
+	ex("ngon4", ngon(n = 6, r=100, fillColor="red"));
+}
+
+void ngon5(){
+	ex("ngon5", ngon(n = 3, fillColor="red", fig=box(size=<250,180>, fillColor="yellow")));
+}
+
+void ngon6(){
+	ex("ngon6", ngon(n = 4, fillColor="red", fig=box(size=<250,180>, fillColor="yellow")));
+}
+
+void ngon7(){
+	ex("ngon7", ngon(n = 5, fillColor="red", fig=box(size=<250,180>, fillColor="yellow")));
+}
+
+void ngon8(){
+	ex("ngon8", ngon(n = 6, fillColor="red", fig=box(size=<250,180>, fillColor="yellow")));
+}
+
+void ngon9(){
+	ex("ngon9", ngon(n = 7, fillColor="red", fig=box(size=<250,180>, fillColor="yellow")));
+}
+
+void ngon10(){
+	ex("ngon10", ngon(n = 10, fillColor="red", fig=box(size=<250,180>, fillColor="yellow")));
+}
+void ngon11(){
+	ex("ngon11", ngon(n = 15, fillColor="red", fig=box(size=<250,180>, fillColor="yellow")));
+}
+
+void ngon12(){
+	ex("ngon12", box(fig= ngon(n = 3, fillColor="red", r = 100)));
+}
+void ngon13(){
+	ex("ngon13", box(fig= ngon(n = 4, fillColor="red", r = 100)));
+}
+void ngon14(){
+	ex("ngon14", box(fig= ngon(n = 5, fillColor="red", r = 100)));
+}
+
 // hcat  
 
 Figures rgbFigs = [box(fillColor="red",size=<50,100>), box(fillColor="green", size=<200,200>), box(fillColor="blue", size=<10,10>)];
@@ -729,9 +812,9 @@ void vegaBarChart2(){
 /********************* lineChart ******************************/
 
 Dataset[XYData] sinAndCos() =
-	("Sine Wave":         xyData([<x, round(sin(x/10),0.01)>               | x <- [0.0, 1.0 .. 100.0]], color= "#ff7f0e"),
-	 "Cosine Wave":       xyData([<x, round(0.5 * cos(x/10), 0.01)>        | x <- [0.0, 1.0 .. 100.0]], color= "#2ca02c"),
-	 "Another sine wave": xyData([<x, round(0.25 * sin(x/10) + 0.5, 0.01)> | x <- [0.0, 1.0 .. 100.0]], color= "#7777ff", area=true)
+	("Sine Wave":         [<x, round(sin(x/10),0.01)>               | x <- [0.0, 1.0 .. 100.0]],
+	 "Cosine Wave":       [<x, round(0.5 * cos(x/10), 0.01)>        | x <- [0.0, 1.0 .. 100.0]],
+	 "Another sine wave": [<x, round(0.25 * sin(x/10) + 0.5, 0.01)> | x <- [0.0, 1.0 .. 100.0]]
 	);
 
 void lineChart1(){
@@ -775,15 +858,15 @@ void lineChart5(){
 
 /********************* graph ******************************/
 
-map[str,Figure] nodes1 = 
-			     ( "N0" :	box(fillColor="yellow", rounded=<1,1>, lineWidth=3, size=<10,10>),
-          		   "N1" :   box(fillColor="red", lineDashing=[1,1,1,1,1,1], size=<20,20>),
-     	    	   "N2" :	box(fillColor="lightblue", rounded=<15,15>, size=<30,30>)
-     	  		);
-list[Figure] edges1 = [ edge("N0","N1", "N0-N1", lineColor="orange", lineWidth=4), 
-						edge("N1","N2", "N1-N2", lineWidth=3, lineOpacity=0.3), 
-						edge("N2","N0", "N2-N0", lineDashing=[4,2,4,2]),
-						edge("N0","N2", "N0-N2", lineDashing=[4,2,4,2])
+lrel[str,Figure] nodes1 = 
+			     [ <"N0",    ngon(n=5, fig=text("N0"), fillColor="yellow", rounded=<1,1>, lineWidth=1, size=<30,30>)>,
+          		   <"N1" ,   box(fig=text("N1"), fillColor="red", lineDashing=[1,1,1,1,1,1], size=<30,30>)>,
+     	    	   <"N2" ,	 ellipse(fig=text("N2"), fillColor="lightblue", size=<50,50>)>
+     	  		];
+list[Figure] edges1 = [ edge("N0","N1", "N0-N1"/*, lineColor="green", lineWidth=4*/), 
+						edge("N1","N2", "N1-N2", /* lineWidth=3, */ lineOpacity=0.3), 
+						edge("N2","N0", "N2-N0"/*, lineDashing=[4,2,4,2]*/),
+						edge("N0","N2", "N0-N2"/*, lineDashing=[4,2,4,2]*/)
 					  ];        
 
 void graph1(){
@@ -844,20 +927,21 @@ public void graph7(){
 
 public void graph8(){
 
-	b = box(fillColor="whitesmoke");
-    states = ( 	"CLOSED": box(fillColor="#f77"), 
-    			"LISTEN": b,
-    			"SYN RCVD" : b,
-				"SYN SENT": b,
-                "ESTAB":	 box(fillColor="#7f7"),
-                "FINWAIT-1" : b,
-                "CLOSE WAIT": b,
-                "FINWAIT-2": b,
+	Figure b(str label) =  box(fig = text(label), fillColor="whitesmoke", rounded=<5,5>, gap=<5,5>, grow=1.2);
+
+    states = [ 	<"CLOSED", 		box(fig=text("CLOSED"), fillColor="#f77", rounded=<5,5>, gap=<5,5>, grow=1.2)>, 
+    			<"LISTEN", 		b("LISTEN")>,
+    			<"SYN RCVD", 	b("SYN RCVD")>,
+				<"SYN SENT", 	b("SYN SENT")>,
+                <"ESTAB",	 	box(fig=text("ESTAB"), fillColor="#7f7", rounded=<5,5>, gap=<5,5>, grow=1.2)>,
+                <"FINWAIT-1", 	b("FINWAIT-1")>,
+                <"CLOSE WAIT", 	box(fig=text("CLOSE WAIT"), fillColor="whitesmoke", lineDashing=[1,1,1,1],  rounded=<5,5>, gap=<5,5>, grow=1.2)>,
+                <"FINWAIT-2", 	b("FINWAIT-2")>,
                    
-                "CLOSING": b,
-                "LAST-ACK": b,
-                "TIME WAIT": b
-                );
+                <"CLOSING", b("CLOSING")>,
+                <"LAST-ACK", b("LAST-ACK")>,
+                <"TIME WAIT", b("TIME WAIT")>
+                ];
  	
     edges = [	edge("CLOSED", 		"LISTEN",  	 "open"),
     			edge("LISTEN",		"SYN RCVD",  "rcv SYN"),
@@ -875,16 +959,19 @@ public void graph8(){
     			edge("CLOSE WAIT", 	"LAST-ACK",  "close"),
     			edge("FINWAIT-2",  	"TIME WAIT",  "rcv FIN"),
     			edge("CLOSING",    	"TIME WAIT",  "rcv ACK of FIN"),
-    			edge("LAST-ACK",   	"CLOSED",     "rcv ACK of FIN"),
+    			edge("LAST-ACK",   	"CLOSED",     "rcv ACK of FIN", lineColor="green"),
     			edge("TIME WAIT",  	"CLOSED",     "timeout=2MSL")
   			];
   			
-  	render("graph8", graph(nodes=states, edges=edges));
+  	render("graph8", graph(nodes=states, edges=edges, size=<650,680>));
 }
 
 /************** text *****************/
 void text1(){
-	ex("text1", text("Hello", fontSize=20));
+	ex("text1", text("Hello", fontSize=14, lineWidth=1));
+}
+void text1a(){
+	ex("text1a", text("Hello", fontSize=20));
 }
 
 void text2(){
@@ -920,13 +1007,13 @@ void markdown1(){
 							 '* item 2
 							 '
 							 '```literal``` and _emphasis_
-							 '"	, size=<400,400>));
+							 '"	, size=<200,50>));
 }
 
 /************** math *****************/
 
 void math1(){
-	ex("math1", math("x+\\sqrt{1-x^2}", size=<200,200>));
+	ex("math1", math("x+\\sqrt{1-x^2}"));
 }
 
 /************** Interaction *****************/
@@ -1192,7 +1279,6 @@ void tooltip2(){
 				 gap=<10,20>);
 		});
 }
-
 
 data COLOR1 = COLOR1(str C);
 

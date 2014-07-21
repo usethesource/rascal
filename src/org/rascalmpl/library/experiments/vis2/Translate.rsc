@@ -136,25 +136,43 @@ str propsToJSON(Figure child, Figure parent){
 str trDataset(Dataset ds) = 
 	"\"dataset\": [ <intercalate(",\n", [ trSeries(key, ds[key]) | key <- ds ])> ]";
 
-str trSeries(str key, series: xyData(lrel[num,num] pairs)	) {
-	xy = intercalate(",\n", [" {\"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}"| <x,y> <- series.pairs]);
+str trSeries(str key, lrel[num x, num y] xyData) {
+	xy = intercalate(",\n", [" {\"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}"| <x,y> <- xyData]);
 	return
 		"{ \"key\":    \"<key>\",
 		'  \"values\": [ <xy> 
-		'	           ], 
-		'  \"color\":  \"<series.color>\", 
-		'  \"area\":   <series.area>
+		'	           ]
 		'}";
 }
 
-str trSeries(str key, series: lrel[str label, num val] labeledValues) {
-	values = intercalate(",\n", [" {\"label\": \"<label>\", \"value\": <val>}"| <label, val> <- series]);
+//str trSeries(str key, lrel[str kind, num x, num y] xyMultiData	) {
+//	xy = intercalate(",\n", [" {\"kind\": <kind>, \"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}"| <kind, x, y> <- xyMultiData]);
+//	return
+//		"{ \"key\":    \"<key>\",
+//		'  \"values\": [ <xy> 
+//		'	           ], 
+//		'  \"color\":  \"<series.color>\", 
+//		'  \"area\":   <series.area>
+//		'}";
+//}
+
+str trSeries(str key, lrel[str label, num val] labeledData) {
+	values = intercalate(",\n", [" {\"label\": \"<label>\", \"value\": <val>}"| <label, val> <- labeledData]);
 	return
 		"{ \"key\":    \"<key>\",
 		'  \"values\": [ <values> 
 		'	           ]
 		'}";
 }
+
+//str trSeries(str key, series: lrel[str kind, str label, num val] labeledMultiData) {
+//	values = intercalate(",\n", [" {\"kind\": <kind>, \"label\": \"<label>\", \"value\": <val>}"| <kind, label, val> <- labeledMultiData]);
+//	return
+//		"{ \"key\":    \"<key>\",
+//		'  \"values\": [ <values> 
+//		'	           ]
+//		'}";
+//}
 
 str trSeries(str key, Dataset[&T] ds) {
 	throw "trSeries: not recoginzed: <ds>";
@@ -318,6 +336,48 @@ str figToJSON(figure: box(), Figure parent) {
 	         '}";
 }
 
+// ---------- ellipse ----------
+
+str figToJSON(figure: ellipse(), Figure parent) {
+	inner = figure.fig; 
+	println("inner = <inner>");
+	return getName(inner) == "emptyFigure"
+		   ? "{\"figure\": \"ellipse\", \"rx\": <figure.rx>, \"ry\": <figure.ry> <propsToJSON(figure, parent)> }"
+		   : "{\"figure\": \"ellipse\", \"rx\": <figure.rx>, \"ry\": <figure.ry>,
+    		 ' \"inner\":  <figToJSON(inner, figure)>
+			 '  <propsToJSON(figure, parent)> 
+	         '}";
+}
+
+// ---------- circle ----------
+
+str figToJSON(figure: circle(), Figure parent) {
+	inner = figure.fig; 
+	println("inner = <inner>");
+	return getName(inner) == "emptyFigure"
+		   ? "{\"figure\": \"ellipse\", \"circle\": \"true\", \"rx\": <figure.r>, \"ry\": <figure.r> <propsToJSON(figure, parent)> }"
+		   : "{\"figure\": \"ellipse\", \"circle\": \"true\", \"rx\": <figure.r>, \"ry\": <figure.r>,
+    		 ' \"inner\":  <figToJSON(inner, figure)>
+			 '  <propsToJSON(figure, parent)> 
+	         '}";
+}
+
+// ---------- ngon -------
+
+str figToJSON(figure: ngon(), Figure parent) {
+	inner = figure.fig; 
+	println("inner = <inner>");
+	return getName(inner) == "emptyFigure"
+		   ? "{\"figure\": \"ngon\", \"n\": <figure.n>, \"r\": <figure.r> <propsToJSON(figure, parent)> }"
+		   : "{\"figure\": \"ngon\", \"n\": <figure.n>, \"r\": <figure.r>,
+    		 ' \"inner\":  <figToJSON(inner, figure)>
+			 '  <propsToJSON(figure, parent)> 
+	         '}";
+}
+
+str figToJSON(figure: ngon(), Figure parent) =
+	"{\"figure\": \"ngon\", \"n\": <figure.n>, \"r\": <figure.r>  <propsToJSON(figure, parent)> }";
+
 // ---------- text ----------
 
 str figToJSON(figure: text(value v), Figure parent) = 
@@ -341,10 +401,7 @@ str figToJSON(figure: image(), Figure parent) {
 	return "{\"figure\": \"image\", \"url\": <locArg(figure.url)> <propsToJSON(figure, parent)> }";
 }
 
-// ---------- polygon -------
 
-str figToJSON(figure: polygon(Vertices vertices), Figure parent) =
-	"{\"figure\": \"shape\", <trVertices(vertices, shapeConnected=true, shapeCurved=false, shapeClosed=true)> <propsToJSON(figure, parent)> }";
 	
 // ---------- shape -------
 
@@ -484,7 +541,7 @@ map[str, set[str]] layoutFlavors = (
 
 // ---------- Utility for all charts -------------------
 
-str trChart(str chartType, Figure chart, Figure parent) {
+str trChart(str chartType, Figure chart, Figure parent, str extraProps="") {
 	if(!layoutFlavors[chartType]? || chart.flavor notin layoutFlavors[chartType]){
 		throw "Unknow chart flavor \"<chart.flavor>\" for <chartType>";
 	}
@@ -496,7 +553,7 @@ str trChart(str chartType, Figure chart, Figure parent) {
 	' \"flavor\": \"<chart.flavor>\", 
 	' \"xAxis\":  {\"label\": \"<xaxis.label>\", \"tick\": \"<xaxis.tick>\" },
 	' \"yAxis\":  {\"label\": \"<yaxis.label>\", \"tick\": \"<yaxis.tick>\" }
-	'  <propsToJSON(chart, parent)> 
+	'  <isEmpty(extraProps) ? "" : ", <extraProps>"> <propsToJSON(chart, parent)> 
 	'}";
 }
 
@@ -504,10 +561,18 @@ str trChart(str chartType, Figure chart, Figure parent) {
 
 str figToJSON(chart: barChart(), Figure parent) = trChart("barChart", chart, parent);
 
+//// ---------- multiBarChart ----------
+//
+//str figToJSON(chart: multiBarChart(), Figure parent) = trChart("barChart", chart, parent, extraProps="\"grouped\": <chart.grouped>");
+
 
 // ---------- lineChart ----------
 
-str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, parent);
+str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, parent, extraProps="\"area\": <chart.area>");
+
+//// ---------- multiLineChart ----------
+//
+//str figToJSON(chart: multiLineChart(), Figure parent) = trChart("lineChart", chart, parent, extraProps="\"area\": <chart.area>");
 
 // ---------- graph ----------
 
@@ -522,8 +587,8 @@ str figToJSON(figure: graph(), Figure parent) {
 	return
 	"{\"figure\": \"graph\", 
 	' \"flavor\": \"<figure.flavor>\",
-	' \"nodes\":  [<intercalate(",\n", ["{ \"name\": \"<f>\",
-									    '  \"inner\":  <figToJSON(nodes[f], parent)>
+	' \"nodes\":  [<intercalate(",\n", ["{ \"name\": \"<f[0]>\",
+									    '  \"inner\":  <figToJSON(f[1], parent)>
  										'}" | f <- nodes])>
 	'           ],  
 	' \"edges\":  [<intercalate(",\n", ["{\"name\": \"<label>\", \"source\" : \"<from>\", \"target\": \"<to>\" <propsToJSON(e, parent)>}"| e: edge(from,to,label) <- edges])>
