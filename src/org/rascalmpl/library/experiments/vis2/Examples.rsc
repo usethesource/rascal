@@ -777,7 +777,7 @@ void arrow3(){
 
 /********************* barChart ******************************/
 
-Dataset[LabeledData] exampleBarData() =
+Datasets[LabeledData] exampleBarData() =
 	("Cumulative Return": [	<"A Label" , -29.765957771107>,
           					<"B Label" , 0>,
        						<"C Label" , 32.807804682612>,
@@ -789,29 +789,29 @@ Dataset[LabeledData] exampleBarData() =
       					  ]);
 
 void barChart1(){
-	ex("barChart1", barChart(dataset=exampleBarData()));
+	ex("barChart1", barChart(datasets=exampleBarData()));
 
 }
 
 void barChart2(){
-	ex("barChart2", barChart(dataset=exampleBarData(), size=<600,600>));
+	ex("barChart2", barChart(datasets=exampleBarData(), size=<600,600>));
 }
 
 void barChart3(){
-	ex("barChart3", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, dataset=exampleBarData())]));
+	ex("barChart3", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, datasets=exampleBarData())]));
 }
 
 void vegaBarChart1(){
-	ex("vegaBarChart1", barChart(size=<400,400>, dataset=exampleBarData(), flavor="vegaBarChart"));
+	ex("vegaBarChart1", barChart(size=<400,400>, datasets=exampleBarData(), flavor="vegaBarChart"));
 }
 
 void vegaBarChart2(){
-	ex("vegaBarChart2", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, dataset=exampleBarData(), flavor="vegaBarChart")]));
+	ex("vegaBarChart2", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, datasets=exampleBarData(), flavor="vegaBarChart")]));
 }
 
 /********************* lineChart ******************************/
 
-Dataset[XYData] sinAndCos() =
+Datasets[XYData] sinAndCos() =
 	("Sine Wave":         [<x, round(sin(x/10),0.01)>               | x <- [0.0, 1.0 .. 100.0]],
 	 "Cosine Wave":       [<x, round(0.5 * cos(x/10), 0.01)>        | x <- [0.0, 1.0 .. 100.0]],
 	 "Another sine wave": [<x, round(0.25 * sin(x/10) + 0.5, 0.01)> | x <- [0.0, 1.0 .. 100.0]]
@@ -820,20 +820,20 @@ Dataset[XYData] sinAndCos() =
 void lineChart1(){
 	ex("lineChart1", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
 							   yAxis=axis(label="Voltage (v)", tick=".02f"),	
-							   dataset= sinAndCos()));
+							   datasets= sinAndCos()));
 }
 
 void lineChart2(){
 	ex("lineChart2", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
 							   yAxis=axis(label="Voltage (v)", tick=".02f"),	
-							   dataset= sinAndCos(), size=<600,600>));
+							   datasets= sinAndCos(), size=<600,600>));
 }
 
 void lineChart3(){
 	ex("lineChart3", hcat(figs=[box(fillColor="yellow", size=<200,100>),
 								lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
 							   			  yAxis=axis(label="Voltage (v)", tick=".02f"),	
-							   			  dataset= sinAndCos(), 
+							   			  datasets= sinAndCos(), 
 							   			  size=<400,400>)
 	]));
 }
@@ -843,7 +843,7 @@ void lineChart4(){
 					     fig=hcat(figs=[barChart(size=<400,300>, dataset=exampleBarData()),
 								lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
 							   			  yAxis=axis(label="Voltage (v)", tick=".02f"),	
-							   			  dataset= sinAndCos(), 
+							   			  datasets= sinAndCos(), 
 							   			  size=<400,400>)
 	])));
 }
@@ -851,7 +851,7 @@ void lineChart4(){
 void lineChart5(){
 	ex("lineChart5", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
 							   yAxis=axis(label="Voltage (v)", tick=".02f"),	
-							   dataset= sinAndCos(), 
+							   datasets= sinAndCos(), 
 							   flavor="nvLineWithFocusChart",
 							   size=<400,400>));
 }

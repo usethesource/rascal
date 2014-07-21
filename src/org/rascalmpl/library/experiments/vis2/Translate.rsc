@@ -88,7 +88,7 @@ str propsToJSON(Figure child, Figure parent){
 													//properties += "\"text-decoration\": <strArg(child.textDecoration)>";
 
 	
-	if(child.dataset != parent.dataset) 			properties += trDataset(child.dataset);
+//	if(child.dataset != parent.dataset) 			properties += trDataset(child.dataset);
 	
 	if(child.event != parent.event && child.event != on()){
 		if(!isLegalEvent(child.event.eventName)){
@@ -133,51 +133,7 @@ str propsToJSON(Figure child, Figure parent){
 	return properties == [] ? "" : "<for(p <- properties){>, <p><}>";
 }
 
-str trDataset(Dataset ds) = 
-	"\"dataset\": [ <intercalate(",\n", [ trSeries(key, ds[key]) | key <- ds ])> ]";
 
-str trSeries(str key, lrel[num x, num y] xyData) {
-	xy = intercalate(",\n", [" {\"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}"| <x,y> <- xyData]);
-	return
-		"{ \"key\":    \"<key>\",
-		'  \"values\": [ <xy> 
-		'	           ]
-		'}";
-}
-
-//str trSeries(str key, lrel[str kind, num x, num y] xyMultiData	) {
-//	xy = intercalate(",\n", [" {\"kind\": <kind>, \"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}"| <kind, x, y> <- xyMultiData]);
-//	return
-//		"{ \"key\":    \"<key>\",
-//		'  \"values\": [ <xy> 
-//		'	           ], 
-//		'  \"color\":  \"<series.color>\", 
-//		'  \"area\":   <series.area>
-//		'}";
-//}
-
-str trSeries(str key, lrel[str label, num val] labeledData) {
-	values = intercalate(",\n", [" {\"label\": \"<label>\", \"value\": <val>}"| <label, val> <- labeledData]);
-	return
-		"{ \"key\":    \"<key>\",
-		'  \"values\": [ <values> 
-		'	           ]
-		'}";
-}
-
-//str trSeries(str key, series: lrel[str kind, str label, num val] labeledMultiData) {
-//	values = intercalate(",\n", [" {\"kind\": <kind>, \"label\": \"<label>\", \"value\": <val>}"| <kind, label, val> <- labeledMultiData]);
-//	return
-//		"{ \"key\":    \"<key>\",
-//		'  \"values\": [ <values> 
-//		'	           ]
-//		'}";
-//}
-
-str trSeries(str key, Dataset[&T] ds) {
-	throw "trSeries: not recoginzed: <ds>";
-}
-	
 str trVertices(list[Vertex] vertices, bool shapeClosed = true, bool shapeCurved = true, bool shapeConnected = true) {
 	//<width, height>  = bbox(vertices);
 	
@@ -525,8 +481,9 @@ str figToJSON(figure: rotate(num angle, Figure fig), Figure parent){
     '}";
 }
 
+// ---------- Charts ----------
 
-// --------- Describe all flavors of all layouts
+// --------- Describe all flavors of all chart layouts
 
 map[str, set[str]] layoutFlavors = (
 	"barChart":	
@@ -537,7 +494,49 @@ map[str, set[str]] layoutFlavors = (
 		{"layeredGraph", "springGraph"}
 );
 
-// ---------- Charts ----------
+// ---------- Generate different output formats
+
+// ---------- NVD3 output
+
+str trNvDataset(Datasets ds) = 
+	"\"datasets\": [ <intercalate(",\n", [ trNvSeries(key, ds[key]) | key <- ds ])> ]";
+
+str trNvSeries(str key, lrel[num x, num y] xyData) {
+	xy = intercalate(",\n", [" {\"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}"| <x,y> <- xyData]);
+	return
+		"{ \"key\":    \"<key>\",
+		'  \"values\": [ <xy> 
+		'	           ]
+		'}";
+}
+
+str trNvSeries(str key, lrel[str label, num val] labeledData) {
+	values = intercalate(",\n", [" {\"label\": \"<label>\", \"value\": <val>}"| <label, val> <- labeledData]);
+	return
+		"{ \"key\":    \"<key>\",
+		'  \"values\": [ <values> 
+		'	           ]
+		'}";
+}
+
+str trNVSeries(str key, Datasets[&T] ds) {
+	throw "trNVSeries: not recognized: <ds>";
+}
+
+// ---------- Vega output
+
+str trVegaDataset(Datasets ds) = 
+	"\"datasets\": [ <intercalate(",\n", [ trVegaSeries(key, ds[key]) | key <- ds ])> ]";
+
+str trVegaSeries(str key, lrel[num x, num y] xyData) =
+	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}" | <x,y> <- xyData ]);
+
+str trVegaSeries(str key, lrel[str label, num val] labeledData) =
+	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- labeledData ]);
+
+str trVegaSeries(str key, Datasets[&T] ds) {
+	throw "trVegaSeries: not recognized: <ds>";
+}
 
 // ---------- Utility for all charts -------------------
 
@@ -547,32 +546,26 @@ str trChart(str chartType, Figure chart, Figure parent, str extraProps="") {
 	}
 	xaxis = chart.xAxis;
 	yaxis = chart.yAxis;
-	dataset = chart.dataset;
+	datasets = startsWith(chart.flavor, "nv") ? trNvDataset(chart.datasets) :  trVegaDataset(chart.datasets);
+
 	return
 	"{\"figure\": \"<chartType>\",
 	' \"flavor\": \"<chart.flavor>\", 
 	' \"xAxis\":  {\"label\": \"<xaxis.label>\", \"tick\": \"<xaxis.tick>\" },
-	' \"yAxis\":  {\"label\": \"<yaxis.label>\", \"tick\": \"<yaxis.tick>\" }
+	' \"yAxis\":  {\"label\": \"<yaxis.label>\", \"tick\": \"<yaxis.tick>\" },
+	' <datasets>
 	'  <isEmpty(extraProps) ? "" : ", <extraProps>"> <propsToJSON(chart, parent)> 
 	'}";
 }
 
 // ---------- barChart ----------
 
-str figToJSON(chart: barChart(), Figure parent) = trChart("barChart", chart, parent);
-
-//// ---------- multiBarChart ----------
-//
-//str figToJSON(chart: multiBarChart(), Figure parent) = trChart("barChart", chart, parent, extraProps="\"grouped\": <chart.grouped>");
-
+str figToJSON(chart: barChart(), Figure parent) = trChart("barChart", chart, parent, extraProps="\"grouped\": <chart.grouped>");
 
 // ---------- lineChart ----------
 
 str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, parent, extraProps="\"area\": <chart.area>");
 
-//// ---------- multiLineChart ----------
-//
-//str figToJSON(chart: multiLineChart(), Figure parent) = trChart("lineChart", chart, parent, extraProps="\"area\": <chart.area>");
 
 // ---------- graph ----------
 

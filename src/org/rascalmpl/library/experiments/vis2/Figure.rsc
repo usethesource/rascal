@@ -47,20 +47,14 @@ data Bind
 	;
 
 // Data formats for various chart elements
-	
+
 alias XYData 			= lrel[num x, num y];
-
-//alias XYMultiData 		= lrel[str kind, num x, num y];
 			 		 
-alias LabeledData 		= lrel[str label, num val];			
+alias LabeledData 		= lrel[str label, num val];		
 
-//alias LabeledMultiData	= lrel[str kind, str label, num val];
+alias ErrorData			= lrel[str label, num mean, num low, num high];	
 
-alias Dataset[&T] 		= map[str name, &T values];
-
-// {"label": "Category A", "mean": 1, "lo": 0,   "hi": 2},
-//  {"label":"Washington", "born":-7506057600000, "died":-5366196000000, 
-//         "enter":-5701424400000, "leave":-5453884800000},
+alias Datasets[&T] 		= map[str name, &T values];
 
 data Axis 
 	= axis(str label ="",  str tick = "d")
@@ -69,8 +63,6 @@ data Axis
 //data Margin = margin(int left = 0, int right = 0, int top = 0, int bottom = 0);
 
 /*
-	ngo,
-	polygon
 	link
 	gradient(numr)
 	texture(loc image)
@@ -137,7 +129,7 @@ public data Figure(
 	
 		// Dataset for chart-like layouts
 	
-		Dataset dataset = ()
+		Datasets datasets = ()
 	) =
 	
 	emptyFigure()
@@ -222,16 +214,12 @@ public data Figure(
 
 // Charts
    
-   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[LabeledData] dataset = (), bool grouped = false, str flavor ="nvBarChart")
-   
-//   | multiBarChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[LabeledMultiData] dataset = (), bool grouped = false, str flavor ="nvBarChart")
-   
+   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), bool grouped = false, str flavor ="nvBarChart")
+      
    | scatterPlot()
    
-   | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[XYData] dataset = (), bool area = false, str flavor ="nvLineChart")
-   
-//   | multiLineChart(Axis xAxis=axis(), Axis yAxis=axis(), Dataset[XYMultiData] dataset = (), bool area = false, str flavor ="nvLineChart")
-  
+   | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[XYData] datasets = (), bool area = false, str flavor ="nvLineChart")
+     
 // Graphs
 
    | graph(lrel[str, Figure] nodes = (), Figures edges = [], str flavor="layeredGraph")
