@@ -52,7 +52,6 @@ test bool binMap() = binaryWriteRead(#map[int, int], (1:10, 2:20));
  
 test bool binTuple() = binaryWriteRead(#tuple[int, bool, str], <1,true,"abc">);
  
-@ignore
 test bool binAdt() = binaryWriteRead(#Bool, band(bor(btrue(),bfalse()),band(btrue(),btrue())));
  
 test bool binParametrizedAdt1() = binaryWriteRead(#Maybe[value], none());
