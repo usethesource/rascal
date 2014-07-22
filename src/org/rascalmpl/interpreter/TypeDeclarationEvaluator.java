@@ -37,6 +37,7 @@ import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Declaration.Alias;
 import org.rascalmpl.ast.Declaration.Data;
 import org.rascalmpl.ast.Declaration.DataAbstract;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
@@ -173,47 +174,60 @@ public class TypeDeclarationEvaluator {
 		
 		for (final KeywordFormal kw : ps) {
 			final String name = Names.name(kw.getName());
-			results.put(name, new IKeywordParameterInitializer() {
-				@Override
-				public IValue initialize(ImmutableMap<String, IValue> environment) {
-					Environment env = computeEnvironment(declContext, environment);
-					Environment old = eval.getCurrentEnvt();
+			final Expression expr = kw.getExpression();
+			IValue staticValue = null;
+			if (expr.hasLiteral() || expr.isSet() || expr.isMap() || expr.isList()) {
+				if (!expr.hasGenerators()) {
+					staticValue = expr.interpret(eval).getValue();
+				}
+			}
+			
+			if (staticValue != null) {
+				results.put(name, TypeFactory.getInstance().constantKeywordParameterInitializer(staticValue));
+			}
+			else {
+				results.put(name, new IKeywordParameterInitializer() {
+					@Override
+					public IValue initialize(ImmutableMap<String, IValue> environment) {
+						Environment env = computeEnvironment(declContext, environment);
+						Environment old = eval.getCurrentEnvt();
 					
-					try {
-						eval.setCurrentEnvt(env);
-//						if (!environment.containsKey(name)) {
-							return kw.getExpression().interpret(eval).getValue();
-//						}
-//						else {
-//							return environment.get(name);
-//						}
+						try {
+							eval.setCurrentEnvt(env);
+//							if (!environment.containsKey(name)) {
+								return kw.getExpression().interpret(eval).getValue();
+//							}
+//							else {
+//								return environment.get(name);
+//							}
+						}
+						finally {
+							eval.unwind(old);
+						}
 					}
-					finally {
-						eval.unwind(old);
-					}
-				}
 
-				private Environment computeEnvironment(Environment declContext, final ImmutableMap<String, IValue> environment) {
-					return new Environment(declContext, eval.getCurrentEnvt().getLocation(), "init") {
-						@Override
-						public boolean isRootScope() {
-							return true;
-						}
-						
-						@Override
-						public Result<IValue> getVariable(String name) {
-							if (environment.containsKey(name)) {
-								IValue v = environment.get(name);
-								// we loose static type information for the variables used in the initializers here.
-								return ResultFactory.makeResult(/*kwType.getFieldType(name)*/ v.getType(), v, eval);
+					private Environment computeEnvironment(Environment declContext, final ImmutableMap<String, IValue> environment) {
+						return new Environment(declContext, eval.getCurrentEnvt().getLocation(), "init") {
+							@Override
+							public boolean isRootScope() {
+								return true;
 							}
-							else {
-								return super.getVariable(name);
+							
+							@Override
+							public Result<IValue> getVariable(String name) {
+								if (environment.containsKey(name)) {
+									IValue v = environment.get(name);
+									// we loose static type information for the variables used in the initializers here.
+									return ResultFactory.makeResult(/*kwType.getFieldType(name)*/ v.getType(), v, eval);
+								}
+								else {
+									return super.getVariable(name);
+								}
 							}
-						}
-					};
-				}
-			});
+						};
+					}
+				});
+			}
 		}
 		
 		return results;

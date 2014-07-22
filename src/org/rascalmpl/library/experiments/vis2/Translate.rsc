@@ -334,6 +334,14 @@ str figToJSON(figure: ngon(), Figure parent) {
 str figToJSON(figure: ngon(), Figure parent) =
 	"{\"figure\": \"ngon\", \"n\": <figure.n>, \"r\": <figure.r>  <propsToJSON(figure, parent)> }";
 
+// ---------- polygon -------
+
+str figToJSON(figure: polygon(), Figure parent) =
+	"{\"figure\": \"polygon\", \"points\": <[[x,y] | <x, y> <- figure.points]>,
+	' \"fill-rule\": \"<figure.fillEvenOdd ? "evenodd" : "nonzero">\" <propsToJSON(figure, parent)> 
+	'}";
+
+
 // ---------- text ----------
 
 str figToJSON(figure: text(value v), Figure parent) = 
@@ -560,7 +568,14 @@ str trChart(str chartType, Figure chart, Figure parent, str extraProps="") {
 
 // ---------- barChart ----------
 
-str figToJSON(chart: barChart(), Figure parent) = trChart("barChart", chart, parent, extraProps="\"grouped\": <chart.grouped>");
+str figToJSON(chart: barChart(), Figure parent) {
+
+	if(chart.orientation notin {"vertical", "horizontal"}){
+		throw "orientation has illegal value: <chart.orientation>";
+	}
+	return trChart("barChart", chart, parent, 
+		extraProps="\"orientation\": \"<chart.orientation>\", \"grouped\": <chart.grouped>");
+}
 
 // ---------- lineChart ----------
 

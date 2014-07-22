@@ -352,6 +352,18 @@ function defaultPositionEdgeLabels(g, svgEdgeLabels) {
     .attr('transform', transform);
 }
 
+function isEllipse(obj) {
+    return Object.prototype.toString.call(obj) === '[object SVGEllipseElement]';
+}
+
+//function isCircle(obj) {
+//    return Object.prototype.toString.call(obj) === '[object SVGCircleElement]';
+//}
+
+function isPolygon(obj) {
+    return Object.prototype.toString.call(obj) === '[object SVGPolygonElement]';
+}
+
 function defaultPositionEdgePaths(g, svgEdgePaths, root) {
   var interpolate = this._edgeInterpolate,
       tension = this._edgeTension;
@@ -367,18 +379,26 @@ function defaultPositionEdgePaths(g, svgEdgePaths, root) {
 
     //points.unshift(intersectRect(source, p0));
     points.unshift(source);
-    var sel = (target.label === '') ? 'defs' : ('defs #' + target.label);
-    //var sel = 'defs';
-    var definedFig = root.select(sel).node();
-    if(definedFig){
-        if(Object.prototype.toString.call(definedFig.childNodes[0]) === '[object SVGEllipseElement]'){
-           points.push(intersectEllipse(target, definedFig.childNodes[0], p1));
-        } else {
-          points.push(intersectRect(target, p1));
-        }
+    
+    if(target.label === ''){
+	// TODO: use bpodgursky's shortening algorithm here
+	points.push(intersectRect(target, p1));
     } else {
-        // TODO: use bpodgursky's shortening algorithm here
-        points.push(intersectRect(target, p1));
+	//var sel = 'abc';
+	var sel = 'defs #'.concat(target.label);
+	var definedFig = root.select(sel).node();
+        if(definedFig){
+            var outerFig = definedFig.childNodes[0];
+           if(isEllipse(outerFig)){
+              points.push(intersectEllipse(target, outerFig, p1));
+           } else if(isPolygon(outerFig)){
+               points.push(intersectPolygon(target, outerFig, p1));
+           } else {
+             points.push(intersectRect(target, p1));
+           }
+        } else {
+            points.push(intersectRect(target, p1));
+        }
     }
     return d3.svg.line()
       .x(function(d) { return d.x; })
@@ -651,6 +671,117 @@ function intersectEllipse(node, ellipse, point) {
     }
 
     return {x: cx + dx, y: cy +dy};
+}
+
+//function getPoints(pointsAsString){
+//    var pairs = pointsAsString.split(' ');
+//    var points = [];
+//    for(var i = 0; i < pairs.length; i++){
+//	points[i] = pairs[i].split(',');
+//    }
+//    return points;
+//}
+
+function same_sign(r1, r2) {
+    return r1 * r2 >= 0;
+}
+
+function intersectLine(x1, y1, x2, y2, x3, y3, x4, y4, intersections){
+    // See http://processingjs.org/learning/custom/intersect/
+    var a1, a2, b1, b2, c1, c2;
+    var r1, r2 , r3, r4;
+    var denom, offset, num;
+    var x, y;
+
+    // Compute a1, b1, c1, where line joining points 1 and 2
+    // is "a1 x + b1 y + c1 = 0".
+    a1 = y2 - y1;
+    b1 = x1 - x2;
+    c1 = (x2 * y1) - (x1 * y2);
+
+    // Compute r3 and r4.
+    r3 = ((a1 * x3) + (b1 * y3) + c1);
+    r4 = ((a1 * x4) + (b1 * y4) + c1);
+
+    // Check signs of r3 and r4. If both point 3 and point 4 lie on
+    // same side of line 1, the line segments do not intersect.
+    if ((r3 !== 0) && (r4 !== 0) && same_sign(r3, r4)){
+      return /*DONT_INTERSECT*/;
+    }
+
+    // Compute a2, b2, c2
+    a2 = y4 - y3;
+    b2 = x3 - x4;
+    c2 = (x4 * y3) - (x3 * y4);
+
+    // Compute r1 and r2
+    r1 = (a2 * x1) + (b2 * y1) + c2;
+    r2 = (a2 * x2) + (b2 * y2) + c2;
+
+    // Check signs of r1 and r2. If both point 1 and point 2 lie
+    // on same side of second line segment, the line segments do
+    // not intersect.
+    if ((r1 !== 0) && (r2 !== 0) && (same_sign(r1, r2))){
+      return /*DONT_INTERSECT*/;
+    }
+
+    //Line segments intersect: compute intersection point.
+    denom = (a1 * b2) - (a2 * b1);
+
+    if (denom === 0) {
+      return /*COLLINEAR*/;
+    }
+
+    if (denom < 0){
+      offset = -denom / 2;
+    }
+    else {
+      offset = denom / 2 ;
+    }
+
+    // The denom/2 is to get rounding instead of truncating. It
+    // is added or subtracted to the numerator, depending upon the
+    // sign of the numerator.
+    num = (b1 * c2) - (b2 * c1);
+    if (num < 0){
+      x = (num - offset) / denom;
+    }
+    else {
+      x = (num + offset) / denom;
+    }
+
+    num = (a2 * c1) - (a1 * c2);
+    if (num < 0){
+      y = ( num - offset) / denom;
+    }
+    else {
+      y = (num + offset) / denom;
+    }
+
+    // lines_intersect
+    intersections.push([x, y]);
+    return;
+  }
+
+function intersectPolygon(node, polygon, point) {
+    var x1 = node.x;
+    var y1 = node.y;
+    var x2 = point.x;
+    var y2 = point.y;
+    var intersections = [];
+    
+    var points = polygon.points;
+    
+    for(var i = 0; i < points.length; i++){
+	var p1 = points[i];
+	var p2 = points[i < points.length-1 ? i + 1 : 0];
+	intersectLine(x1, y1, x2, y2, x1 + p1.x, y1 + p1.y, x1 + p2.x, y1 + p2.y, intersections);
+    }
+    if(intersections.length > 0){
+      return {x: intersections[0][0], y: intersections[0][1]};
+    } else {
+       throw 'No intersections found';
+    }
 }
 
 function isComposite(g, u) {

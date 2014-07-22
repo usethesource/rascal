@@ -639,11 +639,15 @@ void image4(){
 /********************** polygon ******************************/
 
 void polygon1(){
-	ex("polygon1", polygon([line(100,100), line(100,200), line(200,200)]));
+	ex("polygon1", polygon(points=[<100,100>, <100,200>, <200,200>]));
 }
 
 void polygon2(){
-	ex("polygon2", polygon([line(100,100), line(100,200), line(200,200)], fillColor="red", lineWidth=4, lineDashing=[1,1,1,1,1,1]));
+	ex("polygon2", polygon(points=[<100,100>, <100,200>, <200,200>], fillColor="red", lineWidth=4, lineDashing=[1,1,1,1,1,1]));
+}
+
+void polygon3(){
+	ex("polygon3", polygon(points=[<100,10>, <40,198>, <190,78>, <10,78>, <160,198>], fillColor="green", lineWidth=4));
 }
 
 /********************** shape ******************************/
@@ -803,7 +807,8 @@ void barChart3(){
 }
 
 void vegaBarChart1(){
-	ex("vegaBarChart1", barChart(size=<1600,800>, datasets=exampleVegaBarData(), flavor="vegaBarChart"));
+	ex("vegaBarChart1", barChart(size=<1600,800>, datasets=exampleVegaBarData(), flavor="vegaBarChart",
+	orientation="horizontal"));
 }
 
 void vegaBarChart2(){
@@ -860,9 +865,11 @@ void lineChart5(){
 /********************* graph ******************************/
 
 lrel[str,Figure] nodes1 = 
-			     [ <"N0",    ngon(n=5, fig=text("N0"), fillColor="yellow", rounded=<1,1>, lineWidth=1, size=<30,30>)>,
-          		   <"N1" ,   box(fig=text("N1"), fillColor="red", lineDashing=[1,1,1,1,1,1], size=<30,30>)>,
-     	    	   <"N2" ,	 ellipse(fig=text("N2"), fillColor="lightblue", size=<50,50>)>
+			     [ <"N0",    ngon(n=5, fig=text("N0"), fillColor="yellow", lineWidth=1, size=<30,30>)>,
+          		   <"N1" ,   //polygon(points=[<100,10>, <40,198>, <190,78>, <10,78>, <160,198>], fillColor="green", lineWidth=4)>,
+          		   
+          		   			box(fig=text("N1"), fillColor="red", lineDashing=[1,1,1,1,1,1], size=<50,50>)>,
+     	    	   <"N2" ,	 ellipse(fig=text("N2"), fillColor="lightblue", size=<80,80>)>
      	  		];
 list[Figure] edges1 = [ edge("N0","N1", "N0-N1"/*, lineColor="green", lineWidth=4*/), 
 						edge("N1","N2", "N1-N2", /* lineWidth=3, */ lineOpacity=0.3), 
@@ -930,11 +937,11 @@ public void graph8(){
 
 	Figure b(str label) =  box(fig = text(label), fillColor="whitesmoke", rounded=<5,5>, gap=<5,5>, grow=1.2);
 
-    states = [ 	<"CLOSED", 		box(fig=text("CLOSED"), fillColor="#f77", rounded=<5,5>, gap=<5,5>, grow=1.2)>, 
+    states = [ 	<"CLOSED", 		ngon(n=6, fig=text("CLOSED"), fillColor="#f77", rounded=<5,5>, gap=<5,5>, grow=1.2)>, 
     			<"LISTEN", 		b("LISTEN")>,
     			<"SYN RCVD", 	b("SYN RCVD")>,
 				<"SYN SENT", 	b("SYN SENT")>,
-                <"ESTAB",	 	box(fig=text("ESTAB"), fillColor="#7f7", rounded=<5,5>, gap=<5,5>, grow=1.2)>,
+                <"ESTAB",	 	ngon(n=3, fig=text("ESTAB"), fillColor="#7f7", rounded=<5,5>, gap=<5,5>, grow=1.2)>,
                 <"FINWAIT-1", 	b("FINWAIT-1")>,
                 <"CLOSE WAIT", 	box(fig=text("CLOSE WAIT"), fillColor="whitesmoke", lineDashing=[1,1,1,1],  rounded=<5,5>, gap=<5,5>, grow=1.2)>,
                 <"FINWAIT-2", 	b("FINWAIT-2")>,

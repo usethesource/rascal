@@ -22,14 +22,13 @@ Figure.drawFunction.vegaBarChart = function(figure, x, y, w, h) {
         spec.padding = padding;
         return spec;
     }
- 
-	d3.json("vega/Vertical.json", function(err, spec) {
-	alert(spec);
+    var dfile="illegal orientation";
+    if (figure.orientation=="vertical") dfile = "vega/Vertical.json";
+    if (figure.orientation=="horizontal") dfile = "vega/Horizontal.json";
+   
+	d3.json(dfile, function(err, spec) {
+	// alert(spec);
 	figure.svg
-                      //.attr("x", x)
-                      // .attr("y", y)
-                      // .attr("width", w)
-                 //  .attr("height", h)
     .append("foreignObject")
     .attr("width", figure.width)
      .attr("height", figure.height)
@@ -38,7 +37,7 @@ Figure.drawFunction.vegaBarChart = function(figure, x, y, w, h) {
     .attr("id", "chartName")
     ;
     
-    vg.parse.spec(updateSpec(spec, figure.width, figure.height, 10, 70, 100, 10), function(chart) {
+    vg.parse.spec(updateSpec(spec, figure.width, figure.height, 100, 100, 100, 100), function(chart) {
         // alert("chart");
           var view = chart({el: "#chartName",data: data,renderer: "svg"})
            .update();

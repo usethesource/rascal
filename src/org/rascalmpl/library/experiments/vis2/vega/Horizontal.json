@@ -5,7 +5,7 @@
        "data": [{"name": "table"}]
     }
   ],
-  "padding":100
+  "padding":0
   ,
   "scales": [
     {
@@ -29,17 +29,17 @@
     }
   ],
   "axes": [
-    {"type": "y", "scale": "cat", "tickSize": 0, "tickPadding": 0, "offset":-100,
+    {"type": "y", "scale": "cat", "tickSize": 0, "tickPadding": 0, "offset":0,
     "properties": {
        "labels":{
-          "dx" : {"value":0}
+          "dx" : {"value":-70}
           ,"fill":{"value":"black"}
-           ,"align":{"value":"right"}
+           ,"align":{"value":"left"}
           }
       ,"axis": {"stroke":{"value":"black"}
          }
     }},
-    {"type": "x", "scale": "val"}
+    {"type": "x", "scale": "val", "format":"s"}
   ],
   "marks": [
     {
@@ -71,8 +71,9 @@
               "y": {"scale": "pos", "field": "data.c"},
               "height": {"scale": "pos", "band": true},
               "width": {"scale": "val", "field": "data.y"},
-              "x": {"value": 100},
-              "fill": {"scale": "color", "field": "data.c"}         
+              "x": {"value": 0},
+              "fill": {"scale": "color", "field": "data.c"}  ,
+              "stroke":"lightgray"       
             }     
           }
         },
@@ -82,7 +83,7 @@
             "enter": {
               "y": {"scale": "pos", "field": "data.c"},
               "dy": {"scale": "pos", "band": true, "mult": 0.5},
-              "x": {"scale": "val", "field": "data.y", "offset": 96},
+              "x": {"scale": "val", "field": "data.y", "offset": -4},
               "fill": {"value": "white"},
               "align": {"value": "right"},
               "baseline": {"value": "middle"},
