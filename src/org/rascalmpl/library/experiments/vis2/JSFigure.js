@@ -531,12 +531,12 @@ Figure.drawFunction.ellipse = function (x, y, w, h) {
 /**************** ngon *******************/
 
 Figure.generate_ngon = function(n, r){
-	var path = "M " + r * Math.sin(0) + " " + r * Math.cos(0);
+	var points = "";
 	var angle = 2 * Math.PI / n;
 	for(var a = 0; a <= 2 * Math.PI; a += angle){
-		path += "L" + r * Math.sin(a) + " " + r * Math.cos(a);
+		points += r * Math.sin(a) + "," + r * Math.cos(a) + " ";
 	}
-	return path + "Z";
+	return points;
 }
 
 Figure.bboxFunction.ngon = function(selection) {
@@ -544,7 +544,7 @@ Figure.bboxFunction.ngon = function(selection) {
 	    r  = figure.hasOwnProperty("r") ? 2 * figure.r  : 0;
  
 	figure.svg = selection
-    	.append("path")
+    	.append("polygon")
     	.style("stroke", figure.stroke)
     	.style("fill", figure.fill)
     	.style("stroke-width", figure["stroke-width"] + "px")
@@ -570,7 +570,7 @@ Figure.bboxFunction.ngon = function(selection) {
     //figure.min_width  = figure.r != 0  ?  2 * figure.r : r;
    // figure.min_height = figure.min_width;
 	
-	figure.svg.attr("d", Figure.generate_ngon(figure.n, r/2));
+	figure.svg.attr("points", Figure.generate_ngon(figure.n, r/2));
 	var bbox = figure.svg.node().getBBox();
 	
 	figure.min_width  = bbox.width;  //figure.r != 0  ?  2 * figure.r : r;
@@ -602,6 +602,46 @@ Figure.drawFunction.ngon = function (x, y, w, h) {
     return figure.svg;
 }
 
+/**************** polygon *******************/
+
+Figure.bboxFunction.polygon = function(selection) {
+    var figure = this;
+ 
+	figure.svg = selection
+    	.append("polygon")
+    	.style("stroke", figure.stroke)
+    	.style("fill-rule", this["fill-rule"])
+    	.style("fill", figure.fill)
+    	.style("stroke-width", figure["stroke-width"] + "px")
+    	.style("stroke-dasharray", figure["stroke-dasharray"])
+    	;
+    
+    var lw = figure["stroke-width"]/2;	// TODO: check this
+    
+	figure.svg.attr("points",figure.points);
+	var bbox = figure.svg.node().getBBox();
+	
+	figure.min_width  = bbox.width;  
+    figure.min_height = bbox.height; 
+	figure.x = -bbox.x;
+	figure.y = -bbox.y;
+	
+    console.log("polygon.bbox:", figure.min_width,  figure.min_height);
+	return figure.svg;
+}
+
+Figure.drawFunction.polygon = function (x, y, w, h) {
+	var figure = this;
+ 	var lw = (figure["stroke-width"])/2;		// TODO: check this
+    	
+	figure.svg
+		.attr("transform", "translate(" + (x + figure.x + lw) + "," + (y + figure.y + lw) + ")")
+		;
+    
+    drawExtraFigure(figure, x, y);
+    addInteraction(figure);
+    return figure.svg;
+}
 
 /**************** shape *****************/
 
