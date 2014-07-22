@@ -84,6 +84,8 @@ data Vertex
 	
 alias Vertices = list[Vertex];
 
+alias Points = lrel[num x, num y];
+
 public alias Figures = list[Figure];
 
 public data Figure(
@@ -150,6 +152,8 @@ public data Figure(
    
    | ngon(int n=3, int r=0, Figure fig=emptyFigure())	// regular polygon
    
+   | polygon(Points points=[], bool fillEvenOdd = true)
+   
    | shape(Vertices vertices, 				// Arbitrary shape
    			bool shapeConnected = true, 	// Connect vertices with line/curve
    			bool shapeClosed = false, 		// Make a closed shape
@@ -214,7 +218,7 @@ public data Figure(
 
 // Charts
    
-   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), bool grouped = false, str flavor ="nvBarChart")
+   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), str orientation = "vertical", bool grouped = false, str flavor ="nvBarChart")
       
    | scatterPlot()
    
