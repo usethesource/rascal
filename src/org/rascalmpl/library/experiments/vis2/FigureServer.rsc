@@ -42,6 +42,7 @@ Response page1(Method method, str path, map[str, str] parameters){ // Debugging 
 Response page(get(), /^\/$/                          , map[str,str] _) {
 res = "\<html\>
 		'\<head\>
+		'	\<meta charset=UTF-8\>
         '	\<title\>Rascal Visualization Server\</title\>
         
         '	\<link rel=\"stylesheet\" href=\"lib/reset.css\" /\>
