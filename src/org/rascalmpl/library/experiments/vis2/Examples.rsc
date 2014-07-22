@@ -6,6 +6,7 @@ import experiments::vis2::FigureServer;
 import String;
 import List;
 import util::Math;
+import experiments::vis2::Steden;
 
 // ********************** Examples **********************
 
@@ -802,7 +803,7 @@ void barChart3(){
 }
 
 void vegaBarChart1(){
-	ex("vegaBarChart1", barChart(size=<400,400>, datasets=exampleBarData(), flavor="vegaBarChart"));
+	ex("vegaBarChart1", barChart(size=<1600,800>, datasets=exampleVegaBarData(), flavor="vegaBarChart"));
 }
 
 void vegaBarChart2(){

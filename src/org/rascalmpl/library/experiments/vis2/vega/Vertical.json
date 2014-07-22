@@ -1,0 +1,59 @@
+{      
+        "data": [{"name": "table"}],
+        "scales": [
+            {
+                "name": "x","range": "width", "type":"ordinal",
+                "domain": {"data": "table","field": "data.x"}
+            }, 
+            {
+                "name": "y","type":"linear", "range": "height","nice": true,
+                "domain": {"data": "table","field": "data.y"}
+                
+            }
+        ],
+        "axes": [
+            {"type": "x","scale": "x", "properties":{}}
+            ,
+            {"type": "y","scale": "y","format":"s" }
+        ],
+        "marks": [
+            {
+                "type": "rect",
+                "from": {"data": "table"
+                }
+                ,"properties": {
+                    "enter": {
+                        "x": {"scale": "x","field": "data.x"},
+                        "y": {"scale": "y","field": "data.y"},
+                        "y2": {"scale": "y","value": 0},
+                        "width": {"scale": "x","band": true,"offset": -1}
+                        ,"stroke": {"value": "lightgrey"},
+                        "strokeWidth": {"value": 1}
+                    },
+                    "update": {
+                        "fill": {"value": "blue"}
+                    },
+                    "hover": {
+                        "fill": {"value": "red"}
+                    }
+                
+                }
+            }
+            , {
+                "type": "text"
+                ,"from": {"data": "table"
+                    ,"transform": [{"type": "formula","field": "lab","expr": "Math.round(d.data.y)"}]
+                }
+                ,"properties": {
+                    "enter": {
+                        "x": {"scale": "x","field": "data.x"}
+                        ,"y": {"scale": "y","field": "data.y","offset": -4}
+                        ,"fill": {"value": "black"}
+                        ,"text": {"field": "lab"}
+                    
+                    
+                    }
+                }
+            }
+        ]
+    }
