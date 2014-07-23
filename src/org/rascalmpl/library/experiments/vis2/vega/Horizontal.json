@@ -73,8 +73,17 @@
               "width": {"scale": "val", "field": "data.y"},
               "x": {"value": 0},
               "fill": {"scale": "color", "field": "data.c"}  ,
-              "stroke":"lightgray"       
-            }     
+              "stroke":{"value":"lightgray"}      
+            } 
+           ,
+            "hover": {
+               "fill": {"value": "red"}
+               }
+            ,
+            "update": {
+               "fill": {"scale": "color", "field": "data.c"}
+               }
+                  
           }
         },
         {

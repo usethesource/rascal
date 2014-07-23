@@ -23,9 +23,12 @@ Figure.drawFunction.vegaBarChart = function(figure, x, y, w, h) {
         return spec;
     }
     var dfile="illegal orientation";
-    if (figure.orientation=="vertical") dfile = "vega/Vertical.json";
-    if (figure.orientation=="horizontal") dfile = "vega/Horizontal.json";
-   
+    if (figure.grouped) {
+        if (figure.orientation=="vertical") dfile = "vega/Vertical.json";
+        if (figure.orientation=="horizontal") dfile = "vega/Horizontal.json";
+        } 
+    else
+        dfile = "vega/Stacked.json";
 	d3.json(dfile, function(err, spec) {
 	// alert(spec);
 	figure.svg
