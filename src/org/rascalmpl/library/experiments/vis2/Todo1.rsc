@@ -10,15 +10,15 @@ alias Todos = list[Todo];
 data Model = model(Todos tds, str new);
 
 Figure visTodos(Model m) =
-   grid(gap=<10,10>, pos=middleLeft,
+   grid(gap=<10,10>, align=left,
    		figArray=[ [ text("Todos", fontSize=20), text("New todo:"),  strInput(event=on("submit", bind(m.new)), size=<100,20>)],
 				   *[ visTodo(m.tds, td) | td <- m.tds ]
 				 ]);
 
 Figures visTodo(Todos tds, Todo td) =
 	[ checkboxInput(event=on("click", bind(td.done)), size=<50,20>),
-	  text(td.txt, pos=middleLeft),
-      buttonInput(trueText="remove", pos=middleLeft, event=on("click", bind(tds, remove(tds, td))), size=<50,20>)
+	  text(td.txt, align=left),
+      buttonInput(trueText="remove", align=left, event=on("click", bind(tds, remove(tds, td))), size=<50,20>)
     ];
 
 Model transform(Model m) {

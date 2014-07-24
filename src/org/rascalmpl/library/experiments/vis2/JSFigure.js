@@ -16,11 +16,11 @@ var Figure = {
     "stroke-dasharray": [],
     "stroke-opacity": 1.0,
     borderRadius: 0,
-    "font-family": "sans-serif", // serif, sans-serif, monospace
+    "font-family": "\"Helvetica Neue Light\", Helvetica, Arial, sans-serif",
     "font-name": "Helvetica",
-    "font-size": 12,
+    "font-size": 14,
     "font-style": "normal",        // normal, italic
-    "font-weight": "normal",      // normal, bold
+    "font-weight": 300,            // normal==400, bold
     "text-decoration": "none",     // none, underline, overline, line-through
     
     dataset: [], 
@@ -202,6 +202,15 @@ Figure.getDrawForComponent = function(componentType, flavor){
 
 /****************** Draw a figure object ****************/
 
+
+function redrawFigure(){
+    var area = d3.select("#figurearea svg");
+    if(!area.empty()){
+      try { area.remove(); } catch(e) { console.log(redrawFigure, e); };
+    }
+    drawFigure1(Figure.figure_root);
+}
+
 function drawFigure (description){
 	var b;
 	try {
@@ -214,9 +223,31 @@ function drawFigure (description){
 
 function drawFigure1(f) {
     Figure.figure_root = f;
-     var area = d3.select("#figurearea").append("svg");
+    var area = d3.select("#figurearea")
+     	//.append("div")
+     	//.attr("width", "2000")
+     	//.attr("height", "2000")
+     	//.style("overflow", "scroll")
+     	;
+     	
+    var svgarea = area
+     	.append("svg")
+     	
+     	.style("fill", "white")
+     	.style("fill-opacity", 1)
+     	
+     	.style("stroke", "black")
+     	.style("stroke-width", 1)
+     	.style("stroke-opacity", 1)
+     	.style("stroke-dasharray", [])
+     	
+     	.style("font-weight", 300)
+     	.style("font-size", 20)
+     	.style("font-family", "\"Helvetica Neue Light\", Helvetica, Arial, sans-serif")
+     	;
+    svgarea = zoomSetup(svgarea);
     try {
-   	 f.bbox(area);
+   	 f.bbox(svgarea);
    	 } catch(e){
    	 	console.log("bbox failed:", e);
    	 }
@@ -226,8 +257,38 @@ function drawFigure1(f) {
     } catch(e){
     	console.log("draw failed:", e);
     }
-    area.attr("width", f.width).attr("height", f.height);
-	return area;
+    svgarea.attr("width", f.width).attr("height", f.height);
+	return svgarea;
+}
+
+// Setup dom for zooming
+
+function zoomSetup(svg) {
+   var root = svg;
+
+  if (root.select('rect.overlay').empty()) {
+    // Create an overlay for capturing mouse events that don't touch foreground
+    root.append('rect')
+      .attr('class', 'overlay')
+      .attr('width', '100%')
+      .attr('height', '100%')
+      .style('fill', 'none');
+
+    // Capture the zoom behaviour from the svg
+    svg = svg.append('g')
+      .attr('class', 'zoom');
+
+      root.call(defaultZoom(svg));
+  }
+  return svg;
+}
+
+// By default allow pan and zoom
+
+function defaultZoom(svg) {
+  return d3.behavior.zoom().on('zoom', function() {
+    svg.attr('transform', 'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')');
+  });
 }
 
 // bboxExtraFigure = function (fig){
@@ -286,7 +347,13 @@ function handleUserInput(fig, v) {
     return false;
 }
 
-/****************** Askserver and redraw a figure object ****************/
+/************************************************************************/
+/*																		*/
+/* Server communication:												*/
+/*  - askServer		get new figure and model							*/
+/*  - redraw		redarw the figure									*/
+/*																		*/
+/************************************************************************/
 
 var ajax = {};
 ajax.x = function() {
@@ -370,17 +437,24 @@ function refreshFromServer(){
     askServer(Figure.site + "/refresh/" + Figure.name, {"model" : JSON.stringify(Figure.model)});
 }
 
-function redrawFigure(){
-    var area = d3.select("#figurearea svg");
-    if(!area.empty()){
-      try { area.remove(); } catch(e) { console.log(redrawFigure, e); };
-    }
-    drawFigure1(Figure.figure_root);
-}
 
+/************************************************************************/
+/*																		*/
+/*	Basic figure elements:												*/
+/*	- empty		the empty figure										*/
+/*  - box 		rectangle												*/
+/*  - ellipse	ellipse													*/
+/*  - ngon		regular polygon											*/
+/*  - polygon	generic polygon consisting of arbitrary lines			*/
+/*  - shape		arbitrary shape consisting of lines and curves			*/
+/*  - text		string rendered as is									*/
+/*  - markdown	string with markdown markup								*/
+/*  - math		string with latex markup, rendered as math				*/
+/*  - image		arbitrary image											*/
+/*																		*/
+/************************************************************************/
 
-
-/**************** empty *******************/
+/**************** empty *************************************************/
 
 Figure.bboxFunction.empty = function(selection){
 	this.width = this.height = 0;
@@ -390,81 +464,265 @@ Figure.drawFunction.box = function (x, y, w, h) {
 		return /* what? */;
 }
 
-/**************** box *******************/
+/**************** box **************************************************/
 
 Figure.bboxFunction.box = function(selection) {
-    var width = 0, height = 0, definedW, definedH;
-    
-    if(this.hasDefinedWidth()){
-        width = this.width;
-        definedW = 1;
-    }
-    if(this.hasDefinedHeight()){
-        height = this.height;
-        definedH = 1;
-    } 
-    var lw = this["stroke-width"]/2;	// TODO: check this
-    width += (lw + 1) / 2;
-    height += (lw + 1) / 2
-    console.log("box.bbox:", width, height);
-    	
-    this.svg = selection
+    var figure = this,
+		width  = figure.hasDefinedWidth()  ? figure.width  : 0,
+        height = figure.hasDefinedHeight() ? figure.height : 0;
+ 	
+    figure.svg = selection
     	.append("rect")
-    	.style("stroke", this.stroke)
-    	.style("fill", this.fill)
-    	.style("stroke-width", this["stroke-width"] + "px")
-    	.style("stroke-dasharray", this["stroke-dasharray"])
+    	.attr("rx", figure.rx)
+    	.attr("ry", figure.ry)
+		;
+	
+	figure.svg
+    	.style("stroke", figure.stroke)
+		.style("stroke-opacity", figure["stroke-opacity"])
+    	.style("fill", figure.fill)
+		.style("fill-opacity", figure["fill-opacity"])
+    	.style("stroke-width", figure["stroke-width"] + "px")
+    	.style("stroke-dasharray", figure["stroke-dasharray"])
     	;
     
-    if (this.hasOwnProperty("inner")) {
-        var inner = this.inner;
+    if (figure.hasOwnProperty("inner")) {
+        var inner = figure.inner;
         console.log(inner);
         inner.bbox(selection);
-        console.log("inner", inner.width, inner.height);
-        if(!definedW){
-            width = Math.max(width, this.grow * inner.width + 2 * this.hgap);
+        console.log("box.inner", inner.width, inner.height);
+        if(!figure.hasDefinedWidth()){
+            width = Math.max(width, figure.grow * inner.min_width + 2 * figure.hgap);
         }
-        if(!definedH){
-            height = Math.max(height, this.grow * inner.height + 2 * this.vgap);
+        if(!figure.hasDefinedHeight()){
+            height = Math.max(height, figure.grow * inner.min_height + 2 * figure.vgap);
         }
         console.log("box outer size:", width, height);
     }
-    this.min_width = width;
-    this.min_height = height;
+	
+    var lw = figure["stroke-width"];
+    
+    figure.min_width  = width  + lw;
+    figure.min_height = height + lw;
+    
+    console.log("box.bbox:", figure.min_width,  figure.min_height);
+	return figure.svg;
 }
 
 Figure.drawFunction.box = function (x, y, w, h) {
- 	var lw = (this["stroke-width"])/2;		// TODO: check this
-    this.svg
-    	.attr("x", x + lw)
-    	.attr("y", y + lw)
-    	.attr("width", w)
-    	.attr("height", h)
-    	;
+ 	var figure = this,
+		lw = (figure["stroke-width"]);		// TODO: check this
+		
+	figure.svg
+		.attr("x", x + lw/2)
+    	.attr("y", y + lw/2)
+    	.attr("width", w - lw)
+    	.attr("height", h - lw)
+   	;
     
-    if (this.hasOwnProperty("inner")) {
-        var inner = this.inner;
-        inner.draw(x + lw + this.hgap + this.halign * (w  - inner.width  - 2 * this.hgap), 
-                   y + lw + this.vgap + this.valign * (h - inner.height - 2 * this.vgap),
-                   inner.width, inner.height);
+    if (figure.hasOwnProperty("inner")) {
+        var inner = figure.inner;
+        inner.draw(x + lw/2 + figure.hgap + figure.halign * (w - inner.min_width  - 2 * figure.hgap), 
+                   y + lw/2 + figure.vgap + figure.valign * (h - inner.min_height - 2 * figure.vgap),
+                   inner.min_width - lw, inner.min_height - lw );
     }
-    drawExtraFigure(this, x, y);
-    addInteraction(this);
-    return this.svg;
+    drawExtraFigure(figure, x, y);
+    addInteraction(figure);
+    return figure.svg;
 }
 
-/**************** shape *****************/
+/**************** ellipse **********************************************/
+
+Figure.bboxFunction.ellipse = function(selection) {
+    var figure = this,
+	    width  = figure.hasOwnProperty("rx") ? 2 * figure.rx  : 0,
+        height = figure.hasOwnProperty("ry") ? 2 * figure.ry : 0;
+ 
+	figure.svg = selection
+    	.append("ellipse")
+    	.style("stroke", figure.stroke)
+    	.style("fill", figure.fill)
+    	.style("stroke-width", figure["stroke-width"] + "px")
+    	.style("stroke-dasharray", figure["stroke-dasharray"])
+    	;
+    
+    if (figure.hasOwnProperty("inner")) {
+        var inner = figure.inner;
+        console.log(inner);
+        inner.bbox(selection);
+        console.log("ellipse.inner", inner.width, inner.height);
+        if(!figure.hasOwnProperty("rx")){
+            width = Math.max(width, figure.grow * inner.width + 2 * figure.hgap);
+        }
+        if(!figure.hasOwnProperty("ry")){
+            height = Math.max(height, figure.grow * inner.height + 2 * figure.vgap);
+        }
+        console.log("ellipse outer size:", width, height);
+    }
+    var lw = figure["stroke-width"];
+    
+    width += 2 * lw;
+	height += 2 * lw;
+	
+    figure.min_width  = figure.hasOwnProperty("rx") ?  2 * figure.rx : 2 * width  / Math.sqrt(2);
+    figure.min_height = figure.hasOwnProperty("ry") ?  2 * figure.ry : 2 * height / Math.sqrt(2);
+	
+	if(figure.circle){
+		var m = Math.max(figure.min_width,  figure.min_height);
+		figure.min_width = m;
+		figure.min_height = m;
+	}
+    
+    console.log("ellipse.bbox:", figure.min_width,  figure.min_height);
+	return figure.svg;
+}
+
+Figure.drawFunction.ellipse = function (x, y, w, h) {
+	var figure = this;
+ 	var lw = (figure["stroke-width"]);		// TODO: check this
+    	
+	figure.svg
+		.attr("cx", x + w/2)
+		.attr("cy", y + h/2)
+		.attr("rx", w/2 - lw)
+    	.attr("ry", h/2 - lw)
+		;
+    
+    if (figure.hasOwnProperty("inner")) {
+        var inner = figure.inner;
+        inner.draw(x + lw + figure.hgap + figure.halign * (w  - inner.min_width  - 2 * figure.hgap), 
+                   y + lw + figure.vgap + figure.valign * (h - inner.min_height - 2 * figure.vgap),
+                   inner.min_width, inner.min_height);
+    }
+    drawExtraFigure(figure, x, y);
+    addInteraction(figure);
+    return figure.svg;
+}
+
+/**************** ngon *************************************************/
+
+Figure.generate_ngon = function(n, r){
+	var points = "";
+	var angle = 2 * Math.PI / n;
+	for(var a = 0; a <= 2 * Math.PI; a += angle){
+		points += r * Math.sin(a) + "," + r * Math.cos(a) + " ";
+	}
+	return points;
+}
+
+Figure.bboxFunction.ngon = function(selection) {
+    var figure = this,
+	    r  = figure.hasOwnProperty("r") ? 2 * figure.r  : 0;
+ 
+	figure.svg = selection
+    	.append("polygon")
+    	.style("stroke", figure.stroke)
+    	.style("fill", figure.fill)
+    	.style("stroke-width", figure["stroke-width"] + "px")
+    	.style("stroke-dasharray", figure["stroke-dasharray"])
+    	;
+    
+    if (figure.hasOwnProperty("inner")) {
+        var inner = figure.inner;
+        console.log(inner);
+        inner.bbox(selection);
+        console.log("ngon.inner", inner.width, inner.height);
+        if(r == 0){
+			var w = figure.grow * inner.width +  2 * figure.hgap;
+			var h = figure.grow * inner.height + 2 * figure.vgap;
+			r = Math.sqrt(w*w + h*h) / Math.cos(Math.PI / figure.n);
+        }
+        console.log("ngon outer size:", r);
+    }
+    var lw = figure["stroke-width"]/2;	// TODO: check this
+    
+    r += (lw + 1) / 2;
+	
+	figure.svg.attr("points", Figure.generate_ngon(figure.n, r/2));
+	var bb = figure.svg.node().getBBox();
+	
+	figure.min_width  = bb.width;  
+    figure.min_height = bb.height;
+	figure.x = -bb.x;
+	figure.y = -bb.y;
+	
+    console.log("ngon.bbox:", figure.min_width,  figure.min_height);
+	return figure.svg;
+}
+
+Figure.drawFunction.ngon = function (x, y, w, h) {
+	var figure = this;
+ 	var lw = (figure["stroke-width"])/2;		// TODO: check this
+    	
+	figure.svg
+		.attr("transform", "translate(" + (x + figure.x + lw) + "," + (y + figure.y + lw) + ")")
+		;
+    
+    if (figure.hasOwnProperty("inner")) {
+        var inner = figure.inner;
+        inner.draw(x + figure.x - (w/2) + lw + figure.hgap + figure.halign * (w - inner.width  - 2 * figure.hgap), 
+                   y + figure.y - (h/2) + lw + figure.vgap + figure.valign * (h - inner.height - 2 * figure.vgap),
+                   inner.width, inner.height);
+    }
+    drawExtraFigure(figure, x, y);
+    addInteraction(figure);
+    return figure.svg;
+}
+
+/**************** polygon **********************************************/
+
+Figure.bboxFunction.polygon = function(selection) {
+    var figure = this;
+ 
+	figure.svg = selection
+    	.append("polygon")
+    	.style("stroke", figure.stroke)
+    	.style("fill-rule", this["fill-rule"])
+    	.style("fill", figure.fill)
+    	.style("stroke-width", figure["stroke-width"] + "px")
+    	.style("stroke-dasharray", figure["stroke-dasharray"])
+    	;
+    
+    var lw = figure["stroke-width"];	// TODO: check this
+    
+	figure.svg.attr("points",figure.points);
+	var bbox = figure.svg.node().getBBox();
+	
+	figure.min_width  = bbox.width + 2.5*lw;  
+    figure.min_height = bbox.height + 2.5*lw; 
+	figure.x = -bbox.x;
+	figure.y = -bbox.y;
+	
+    console.log("polygon.bbox:", figure.min_width,  figure.min_height);
+	return figure.svg;
+}
+
+Figure.drawFunction.polygon = function (x, y, w, h) {
+	var figure = this;
+ 	var lw = (figure["stroke-width"]);		// TODO: check this
+    	
+	figure.svg
+		.attr("transform", "translate(" + (x + figure.x + lw) + "," + (y + figure.y + lw) + ")")
+		;
+    
+    drawExtraFigure(figure, x, y);
+    addInteraction(figure);
+    return figure.svg;
+}
+
+/**************** shape ************************************************/
 
 function isEmptyFigure(fig){
 	return fig.figure === "empty";
 }
 
 Figure.bboxFunction.shape = function(selection) {
-	var inner = this.inner;
+	var figure = this,
+	    inner = this.inner;
 	
-	this.svg = selection.append("g");
+	figure.svg = selection.append("g");
 	
-	var defs = this.svg.append("defs");
+	var defs = figure.svg.append("defs");
 	if(!isEmptyFigure(inner[0])){
 		var startMarker = defs.append("marker");
 		inner[0].bbox(startMarker);
@@ -504,15 +762,15 @@ Figure.bboxFunction.shape = function(selection) {
 			.attr("orient", "auto")
 			;
 	}
-	var path = this.svg
+	var path = figure.svg
 		.append("path")
 		//.attr("transform", "translate(" + x + "," + y + ")")
-		.attr("d", this.path)
-		.style("stroke", this.stroke)
-		.style("fill-rule", this["fill-rule"])
-    	.style("fill", this.fill)
-    	.style("stroke-width", this["stroke-width"] + "px")
-    	.style("stroke-dasharray", this["stroke-dasharray"])
+		.attr("d", figure.path)
+		.style("stroke", figure.stroke)
+		.style("fill-rule", figure["fill-rule"])
+    	.style("fill", figure.fill)
+    	.style("stroke-width", figure["stroke-width"] + "px")
+    	.style("stroke-dasharray", figure["stroke-dasharray"])
     	;
     if(!isEmptyFigure(inner[0])){
     	path.style("marker-start", "url(#startMarker)");
@@ -526,25 +784,146 @@ Figure.bboxFunction.shape = function(selection) {
 	
 	var bb = path.node().getBBox();
 	
-	this.width = bb.width;
-	this.height = bb.height;
+	var lw = figure["stroke-width"];
 	
-	return this.svg;
+	figure.min_width = bb.width + 2*lw;
+	figure.min_height = bb.height + 2*lw;
+	figure.x = -bb.x;
+	figure.y = -bb.y;
+	
+	return figure.svg;
 }
 
 Figure.drawFunction.shape = function (x, y, w, h) {
-	this.svg.select("path").attr("transform", "translate(" + x + "," + y + ")");
-	 this.svg
-	 	//.attr("x", 0)
-		//.attr("y", 0)
-    	.attr("width", w)
-    	.attr("height", h)
+	var figure = this;
+	var lw = figure["stroke-width"];
+	figure.svg.select("path").attr("transform", "translate(" + (x + figure.x + lw) + "," + (y + figure.y + lw) + ")");
+	figure.svg
+	 	.attr("x", 0+lw)
+		.attr("y", 0+lw)
+    	.attr("width", w-2*lw)
+    	.attr("height", h-2*lw)
     	;
 	var inner = this.inner;
 	return this.svg;
 }
 
-/**************** image *****************/
+
+/**************** text *************************************************/
+
+Figure.bboxFunction.text = function(selection) {
+    this.svg = selection.append("text")
+        .style("text-anchor", "start")
+        .text(this.textValue)
+        .style("font-family", this["font-family"])
+        .style("font-style", this["font-style"])
+        .style("font-weight", this["font-weight"])
+        .style("font-size", this["font-size"])
+        .style("stroke", this.stroke)
+        .style("stroke-width", this["stroke-width"])
+        .style("fill",   this.stroke)
+        ;
+   
+    var bb = this.svg.node().getBBox();
+    this.min_width = 1.05*bb.width;
+    this.min_height = 1.05*bb.height;
+    this.ascent = bb.y; // save the y of the bounding box as ascent
+    console.log("text:", this.width, this.height, this.ascent);
+}
+
+Figure.drawFunction.text = function (x, y, w, h) {
+    this.svg
+        .attr("x", x)
+        .attr("y", y - this.ascent) // take ascent into account
+		.attr("width", w)
+		.attr("height", h)
+		;
+    
+    drawExtraFigure(this, x, y);
+    addInteraction(this);
+    return this.svg;
+}
+
+/**************** markdown *********************************************/
+
+Figure.bboxFunction.markdown = function(selection) {
+	var converter = new Markdown.Converter();
+    var html = converter.makeHtml(this.textValue);
+	this.svg = selection.append("foreignObject");
+	var body = this.svg.append("xhtml:body");
+	var html_in_body = body.html(html);
+   
+    var bb = html_in_body.node().getBoundingClientRect();
+	var cr = html_in_body.node().getClientRects();
+	console.log("markdown.bbox:", bb, cr);
+    this.width = bb.width > 0 ? bb.width : this.hasDefinedWidth() ? this.width : 400;
+    this.height = bb.height > 0 ? bb.height : this.hasDefinedHeight() ? this.height : 400;
+
+    console.log("markdown:", this.width, this.height);
+}
+
+Figure.drawFunction.markdown = function (x, y, w, h) {
+    this.svg
+        .attr("x", x)
+		.attr("y", y)
+		.attr("width", w)
+		.attr("height", h)
+		;
+    
+    drawExtraFigure(this, x, y);
+    addInteraction(this);
+    return this.svg;
+}
+
+/**************** math *************************************************/
+
+Figure.bboxFunction.math = function(selection) {
+	this.svg = selection
+		.append("foreignObject");
+   	var body = this.svg
+		.append("xhtml:body");
+	var script = body
+		.append("script")
+		.attr("type", "math/tex")
+		;
+	var text = script
+		.text(this.textValue)
+		.style("font-family", this["font-family"])
+        .style("font-style", this["font-style"])
+        .style("font-weight", this["font-weight"])
+        .style("font-size", this["font-size"])
+        .style("stroke", this.stroke)
+        .style("fill",   this.stroke);
+		;
+		
+	MathJax.Hub.Typeset(script);	// Todo: place in MathJax Queue
+	
+	// fetch the id MathJax has assigned to the script element and
+	// grab width/height from the corresponding, generated, svg element
+	
+	var svg_generated_by_MathJax = "#" + script.attr("id") + "-Frame svg";
+	var span = this.svg.select(svg_generated_by_MathJax).node();
+
+    this.width = span.width.baseVal.value;
+    this.height = span.height.baseVal.value;
+
+    console.log("math:", this.width, this.height);
+}
+
+Figure.drawFunction.math = function (x, y, w, h) {
+    this.svg
+        .attr("x", x)
+		.attr("y", y)
+		.attr("width", w)
+		.attr("height", h)
+		;
+    
+    drawExtraFigure(this, x, y);
+    addInteraction(this);
+    return this.svg;
+}
+
+/**************** image ************************************************/
 
 Figure.bboxFunction.image = function(selection) {	
 	var w  = this.width || 50;
@@ -578,157 +957,17 @@ Figure.drawFunction.image = function (x, y, w, h) {
 	return this.svg;
 }
 
-/**************** at *******************/
+/************************************************************************/
+/*																		*/
+/*	Compostion operators:												*/
+/*	- hcat		horizontal composition									*/
+/*  - vcat 		vertical composition									*/
+/*  - grid		placement in grid										*/
+/*  - overlay   superposition											*/
+/*																		*/
+/************************************************************************/
 
-Figure.bboxFunction.at = function(selection) {
-	var inner = this.inner;
-	this.svg = inner.bbox(selection);
-	
- 	this.width = Math.abs(this.x) + inner.width;
-	this.height = Math.abs(this.y) + inner.height;
-	console.log("move.bbox:", this.x, this.y, this.width, this.height);
-	return this.svg;
-}
-
-Figure.drawFunction.at = function (x, y, w, h) {
-	this.inner.draw(x + this.x, y + this.y, this.inner.width, this.inner.height);
-	return this.svg;
-}
-
-/**************** atX *******************/
-
-Figure.bboxFunction.atX = function() {
-	var inner = this.inner;
-	inner.bbox();
-	this.width = this.x + inner.width;
-	this.height = inner.height;
-}
-
-Figure.drawFunction.atX = function (selection, x, y) {
-	this.inner.draw(selection, x + this.x, y);
-	return selection;
-}
-
-/**************** atY *******************/
-
-Figure.bboxFunction.atY = function() {
-	var inner = this.inner;
-	inner.bbox();
-	this.width = inner.width;
-	this.height = this.y + inner.height;
-}
-
-Figure.drawFunction.moveY = function (selection, x, y) {
-	this.inner.draw(selection, x, y + this.y);
-	return selection;
-}
-
-/**************** scale *******************/
-
-Figure.bboxFunction.scale = function(selection) {
-	this.svg = selection
-		.append("g")
-		.attr("transform", "scale(" + this.xfactor + "," + this.yfactor + ")")
-		;
-	var inner = this.inner;
-	this.svg = inner.bbox(this.svg);
-	this.width = this.xfactor * inner.width;
-	this.height = this.yfactor * inner.height;
-	return this.svg;
-}
-
-Figure.drawFunction.scale = function (x, y, w, h) {
-	this.inner.draw(x, y, this.inner.width, this.inner.height);
-	return this.svg;
-}
-
-/**************** rotate *******************/
-
-Figure.toRadians = function (angle){
-	return angle * (Math.PI/180);
-}
-
-Figure.bboxFunction.rotate = function(selection) {
-	
-	this.svg = selection.append("svg");
-	var group = this.svg.append("g");
-	
-	var inner = this.inner;
-	inner.bbox(group);
-	var w = inner.width;
- 	var h = inner.height;
-	
-	group.attr("transform", "rotate(" + this.angle + "," +  (w/2) + "," + (h/2) + ")");
-	
-	var angle = Figure.toRadians(this.angle % 180);
-	var sin = Math.sin(angle);
-	var cos = Math.cos(angle);
-	this.width = w * cos + h * sin;
-	this.height = w * sin + h * cos; 
-
-	console.log("rotate.bbox:", this.width, this.height);
-	
-	return this.svg;
-}
-
-Figure.drawFunction.rotate = function (x, y, w, h) {
-	var inner = this.inner;
-	this.svg
-		.attr("x", x)
-		.attr("y", y)
-		.attr("width", inner.width)
-		.attr("height", inner.height)
-	//	.attr("viewbox", " 0 0 " + w + " " + h)
-		;
-	inner.draw(x, y, inner.width, inner.height);
-	return this.svg;
-}
-
-// Figure.bboxFunction.rotate = function(selection) {
-// 	var inner = this.inner;
-// 	inner.bbox();
-// 	var w = inner.width;
-// 	var h = inner.height;
-	
-// 	var angle = Figure.toRadians(this.angle % 180);
-// 	var sin = Math.sin(angle);
-// 	var cos = Math.cos(angle);
-// 	var rot_w = w * cos + h * sin;
-// 	var rot_h = w * sin + h * cos; 
-	
-// 	//var dw = 0.5 * Math.abs(rot_w - w);
-	
-// 	//var dh = 0.5 * Math.abs(rot_h - h);
-	
-// 	//var dw = Math.abs(w - 0.5*(w - h) * sin);
-// 	//var dh = Math.abs(h - 0.5*(w - h) * sin);
-	
-	
-// 	//var dw = Math.abs(w * cos);
-// 	//var dh = Math.abs(h * cos);
-	
-// 	var dw = Math.abs(0.7 * (rot_w - w) * sin);
-// 	var dh = Math.abs(0.7 * (rot_h - h) * sin);
-	
-// 	this.dw = dw;
-// 	this.dh = dh;
-// 	this.width = rot_w; 
-// 	this.height = rot_h;
-// 	console.log("rotate.bbox:", this.width, this.height, "dw:", dw, "dh:", dh);
-// }
-
-// Figure.drawFunction.rotate = function (selection, x, y) {
-// 	var inner = this.inner;
-// 	var my_svg = selection
-// 		.append("svg").attr("viewbox", " 0 0 " + this.width + " " + this.height)
-// 		.append("g")
-// 		.attr("transform", "rotate(" + this.angle + "," +  (x+inner.width/2) + "," + (y+inner.height/2) + ")"/* translate(" + this.dw + "," + this.dh + ")"*/ );
-// 	 inner.draw(my_svg, x, y);
-// 	return my_svg;
-// }
-
-
-/**************** hcat *******************/
+/**************** hcat *************************************************/
 
 Figure.bboxFunction.hcat = function(selection) {
     var inner = this.inner;
@@ -782,7 +1021,7 @@ Figure.drawFunction.hcat = function (x, y, w, h) {
     addInteraction(this);
 }
 
-/**************** vcat *******************/
+/**************** vcat *************************************************/
 
 Figure.bboxFunction.vcat = function(selection) {
     var inner = this.inner;
@@ -831,8 +1070,7 @@ Figure.drawFunction.vcat = function (x, y, w, h) {
     return this.svg;
 }
 
-
-/**************** grid *******************/
+/**************** grid *************************************************/
 
 function initArray(n, v){
 	var ar = new Array();
@@ -930,8 +1168,7 @@ Figure.drawFunction.grid = function (x, y, w, h) {
 	return this.svg;
 }
 
-
-/**************** overlay *******************/
+/**************** overlay **********************************************/
 
 Figure.bboxFunction.overlay = function(selection) {
     var inner = this.inner;
@@ -973,115 +1210,175 @@ Figure.drawFunction.overlay = function (x, y, w, h) {
     return this.svg;
 }
 
-/**************** text *******************/
+/************************************************************************/
+/*																		*/
+/*	Placement and transformation operators:								*/
+/*	- at		place figure at give x,y position						*/
+/*  - atX		place figure at given x poisition						*/
+/*  - atY		place figure at given y poisition						*/
+/*  - scale 	scale figure											*/
+/*  - rotate	rotate figure											*/
+/*																		*/
+/************************************************************************/
 
-Figure.bboxFunction.text = function(selection) {
-    this.svg = selection.append("text")
-        .style("text-anchor", "start")
-        .text(this.textValue)
-        .style("font-family", this["font-family"])
-        .style("font-style", this["font-style"])
-        .style("font-weight", this["font-weight"])
-        .style("font-size", this["font-size"])
-        .style("stroke", this.stroke)
-        .style("fill",   this.stroke);
-   
-    var bb = this.svg.node().getBBox();
-    this.width = 1.05*bb.width;
-    this.height = 1.05*bb.height;
-    this.ascent = bb.y; // save the y of the bounding box as ascent
-    console.log("text:", this.width, this.height, this.ascent);
+/**************** at ***************************************************/
+
+Figure.bboxFunction.at = function(selection) {
+	var inner = this.inner;
+	this.svg = inner.bbox(selection);
+	
+ 	this.width = Math.abs(this.x) + inner.width;
+	this.height = Math.abs(this.y) + inner.height;
+	console.log("move.bbox:", this.x, this.y, this.width, this.height);
+	return this.svg;
 }
 
-Figure.drawFunction.text = function (x, y, w, h) {
-    this.svg
-        .attr("x", x)
-        .attr("y", y - this.ascent) // take ascent into account
-		.attr("width", w)
-		.attr("height", h)
+Figure.drawFunction.at = function (x, y, w, h) {
+	this.inner.draw(x + this.x, y + this.y, this.inner.width, this.inner.height);
+	return this.svg;
+}
+
+/**************** atX **************************************************/
+
+Figure.bboxFunction.atX = function() {
+	var inner = this.inner;
+	inner.bbox();
+	this.width = this.x + inner.width;
+	this.height = inner.height;
+}
+
+Figure.drawFunction.atX = function (selection, x, y) {
+	this.inner.draw(selection, x + this.x, y);
+	return selection;
+}
+
+/**************** atY **************************************************/
+
+Figure.bboxFunction.atY = function() {
+	var inner = this.inner;
+	inner.bbox();
+	this.width = inner.width;
+	this.height = this.y + inner.height;
+}
+
+Figure.drawFunction.moveY = function (selection, x, y) {
+	this.inner.draw(selection, x, y + this.y);
+	return selection;
+}
+
+/**************** scale ************************************************/
+
+Figure.bboxFunction.scale = function(selection) {
+	this.svg = selection
+		.append("g")
+		.attr("transform", "scale(" + this.xfactor + "," + this.yfactor + ")")
 		;
-    
-    drawExtraFigure(this, x, y);
-    addInteraction(this);
-    return this.svg;
+	var inner = this.inner;
+	this.svg = inner.bbox(this.svg);
+	this.width = this.xfactor * inner.width;
+	this.height = this.yfactor * inner.height;
+	return this.svg;
 }
 
-/**************** markdown *******************/
-
-Figure.bboxFunction.markdown = function(selection) {
-	var converter = new Markdown.Converter();
-    var html = converter.makeHtml(this.textValue);
-	this.svg = selection.append("foreignObject");
-	var foreign = this.svg
-   		.append("xhtml:body")
-		.html(html)
-		;
-   
-    var bb = this.svg.node().getBoundingClientRect();
-	console.log("markdown.bbox:", bb);
-    //this.width = bb.right - bb.left;
-    //this.height = bb.bottom - bb.top;
-
-    console.log("markdown:", this.width, this.height);
+Figure.drawFunction.scale = function (x, y, w, h) {
+	this.inner.draw(x, y, this.inner.width, this.inner.height);
+	return this.svg;
 }
 
-Figure.drawFunction.markdown = function (x, y, w, h) {
-    this.svg
-        .attr("x", x)
+/**************** rotate ***********************************************/
+
+Figure.toRadians = function (angle){
+	return angle * (Math.PI/180);
+}
+
+Figure.bboxFunction.rotate = function(selection) {
+	
+	this.svg = selection.append("svg");
+	var group = this.svg.append("g");
+	
+	var inner = this.inner;
+	inner.bbox(group);
+	var w = inner.width;
+ 	var h = inner.height;
+	
+	group.attr("transform", "rotate(" + this.angle + "," +  (w/2) + "," + (h/2) + ")");
+	
+	var angle = Figure.toRadians(this.angle % 180);
+	var sin = Math.sin(angle);
+	var cos = Math.cos(angle);
+	this.width = w * cos + h * sin;
+	this.height = w * sin + h * cos; 
+
+	console.log("rotate.bbox:", this.width, this.height);
+	
+	return this.svg;
+}
+
+Figure.drawFunction.rotate = function (x, y, w, h) {
+	var inner = this.inner;
+	this.svg
+		.attr("x", x)
 		.attr("y", y)
-		.attr("width", w)
-		.attr("height", h)
+		.attr("width", inner.width)
+		.attr("height", inner.height)
+	//	.attr("viewbox", " 0 0 " + w + " " + h)
 		;
-    
-    drawExtraFigure(this, x, y);
-    addInteraction(this);
-    return this.svg;
+	inner.draw(x, y, inner.width, inner.height);
+	return this.svg;
 }
 
-/**************** math *******************/
+// Figure.bboxFunction.rotate = function(selection) {
+// 	var inner = this.inner;
+// 	inner.bbox();
+// 	var w = inner.width;
+// 	var h = inner.height;
+	
+// 	var angle = Figure.toRadians(this.angle % 180);
+// 	var sin = Math.sin(angle);
+// 	var cos = Math.cos(angle);
+// 	var rot_w = w * cos + h * sin;
+// 	var rot_h = w * sin + h * cos; 
+	
+// 	//var dw = 0.5 * Math.abs(rot_w - w);
+	
+// 	//var dh = 0.5 * Math.abs(rot_h - h);
+	
+// 	//var dw = Math.abs(w - 0.5*(w - h) * sin);
+// 	//var dh = Math.abs(h - 0.5*(w - h) * sin);
+	
+	
+// 	//var dw = Math.abs(w * cos);
+// 	//var dh = Math.abs(h * cos);
+	
+// 	var dw = Math.abs(0.7 * (rot_w - w) * sin);
+// 	var dh = Math.abs(0.7 * (rot_h - h) * sin);
+	
+// 	this.dw = dw;
+// 	this.dh = dh;
+// 	this.width = rot_w; 
+// 	this.height = rot_h;
+// 	console.log("rotate.bbox:", this.width, this.height, "dw:", dw, "dh:", dh);
+// }
 
-Figure.bboxFunction.math = function(selection) {
-	this.svg = selection.append("foreignObject");
-	var foreign = this.svg
-   		.append("xhtml:body");
-	var math = foreign
-		.append("script")
-		.attr("type", "math/tex")
-		.text(this.textValue)
-		.style("font-family", this["font-family"])
-        .style("font-style", this["font-style"])
-        .style("font-weight", this["font-weight"])
-        .style("font-size", this["font-size"])
-        .style("stroke", this.stroke)
-        .style("fill",   this.stroke);
-		;
-		
-	MathJax.Hub.Typeset(math);
-   
-    var bb = this.svg.node().getBoundingClientRect();
-	console.log("math.bbox:", bb);
-    //this.width = bb.right - bb.left;
-    //this.height = bb.bottom - bb.top;
+// Figure.drawFunction.rotate = function (selection, x, y) {
+// 	var inner = this.inner;
+// 	var my_svg = selection
+// 		.append("svg").attr("viewbox", " 0 0 " + this.width + " " + this.height)
+// 		.append("g")
+// 		.attr("transform", "rotate(" + this.angle + "," +  (x+inner.width/2) + "," + (y+inner.height/2) + ")"/* translate(" + this.dw + "," + this.dh + ")"*/ );
+// 	 inner.draw(my_svg, x, y);
+// 	return my_svg;
+// }
 
-    console.log("math:", this.width, this.height);
-}
+/************************************************************************/
+/*																		*/
+/* Visibility control elements:											*/
+/* - choice																*/
+/* - visible															*/
+/*																		*/
+/************************************************************************/
 
-Figure.drawFunction.math = function (x, y, w, h) {
-    this.svg
-        .attr("x", x)
-		.attr("y", y)
-		.attr("width", w)
-		.attr("height", h)
-		;
-    
-    drawExtraFigure(this, x, y);
-    addInteraction(this);
-    return this.svg;
-}
-
-// visibility control
-
-/********************* choice ***************************/
+/**************** choice ************************************************/
 
 Figure.bboxFunction.choice = function(selection) {
     var inner = this.inner;
@@ -1096,7 +1393,7 @@ Figure.drawFunction.choice = function (x, y, w, h) {
     return this.selected.draw(x, y, w, h);
 }
 
-/********************* visible ***************************/
+/**************** visible ***********************************************/
 
 Figure.bboxFunction.visible = function(selection) {
     var inner = this.inner;
@@ -1118,9 +1415,20 @@ Figure.drawFunction.visible = function (x, y, w, h) {
     return this.isVisible ? this.inner.draw(x, y, w, h) : this.svg;
 } 
 
-/********************* Input elements ************************/
+/************************************************************************/
+/*																		*/
+/* Input elements:														*/
+/* - buttonInput														*/
+/* - checkboxInput														*/
+/* - choiceInput														*/
+/* - colorInput															*/
+/* - numInput															*/
+/* - rangeInput															*/
+/* - strInput															*/
+/*																		*/
+/************************************************************************/
 
-/********************* buttonInput ***************************/
+/**************** buttonInput *******************************************/
 
 Figure.bboxFunction.buttonInput = function (selection) {
     var fig = this;
@@ -1161,7 +1469,7 @@ Figure.drawFunction.buttonInput = function (x, y, w, h) {
 	return this.svg;
 }
 
-/********************* checkboxInput ***************************/
+/**************** checkboxInput ****************************************/
 
 Figure.bboxFunction.checkboxInput = function (selection) {
     var fig = this;
@@ -1196,25 +1504,33 @@ Figure.bboxFunction.checkboxInput = function (selection) {
 
 Figure.drawFunction.checkboxInput = Figure.drawFunction.buttonInput;
 
-/********************* strInput ***************************/
+/**************** choiceInput ******************************************/
 
-Figure.bboxFunction.strInput = function (selection) {
+Figure.bboxFunction.choiceInput = function (selection) { 
     var fig = this;
-    var accessor = this.accessor; 
-     
-    var foreign = this.svg = selection.append("foreignObject");
+    var accessor = this.accessor;
+    var selectedIndex = Figure.getModelElement(this.accessor);
 	
 	var w = this.width || 50;
 	var h = this.height || 25;
     
-    foreign.append("xhtml:body")
-        .append("form").attr("action", "").attr("onsubmit", "return false;")
-        .append("input")
-            .style("width", w + "px").style("height", h + "px")
-            .attr("type", "text").attr("value", Figure.getModelElement(accessor));
-  
-    this.svg.on(fig.event, function() {
-        return handleUserInput(fig, "'" + foreign.select("input")[0][0].value + "'");
+    var foreign = this.svg = selection.append("foreignObject");
+    
+    var select =foreign.append("xhtml:body")
+        .append("form").attr("action", "").attr("onsubmit", "return false")
+        .append("select").attr("value", selectedIndex).attr("selectedIndex", selectedIndex)
+            .style("width", w + "px").style("height", h + "px");
+    
+    for(var i = 0; i < this.choices.length; i++){
+        var opt = select.append("option").attr("value", i);
+        if(i == selectedIndex){
+            opt.attr("selected", "selected");
+        }
+        opt.text(this.choices[i]);
+    }
+        
+    foreign.on(fig.event, function(){
+        return handleUserInput(fig, foreign.select("select")[0][0].selectedIndex);
     });
 	 
 	var bb = foreign.node().getBBox();
@@ -1225,9 +1541,10 @@ Figure.bboxFunction.strInput = function (selection) {
 	return this.svg;
 }
 
-Figure.drawFunction.strInput = Figure.drawFunction.buttonInput;
+Figure.drawFunction.choiceInput = Figure.drawFunction.buttonInput;
 
-/********************* colorInput ***************************/
+
+/**************** colorInput *******************************************/
 
 function colorNameToHex(color)
 {
@@ -1315,8 +1632,7 @@ Figure.bboxFunction.colorInput = function (selection) {
 
 Figure.drawFunction.colorInput =  Figure.drawFunction.buttonInput;
 
-
-/********************* numInput ***************************/
+/**************** numInput *********************************************/
 
 Figure.bboxFunction.numInput = function (selection) {
     var fig = this;
@@ -1347,7 +1663,7 @@ Figure.bboxFunction.numInput = function (selection) {
 
 Figure.drawFunction.numInput = Figure.drawFunction.buttonInput;
 
-/********************* rangeInput ***************************/
+/**************** rangeInput *******************************************/
 
 Figure.bboxFunction.rangeInput = function (selection) { 
     var fig = this;
@@ -1380,33 +1696,26 @@ Figure.bboxFunction.rangeInput = function (selection) {
 
 Figure.drawFunction.rangeInput = Figure.drawFunction.buttonInput;
 
-/********************* choiceInput ***************************/
 
-Figure.bboxFunction.choiceInput = function (selection) { 
+/**************** strInput *********************************************/
+
+Figure.bboxFunction.strInput = function (selection) {
     var fig = this;
-    var accessor = this.accessor;
-    var selectedIndex = Figure.getModelElement(this.accessor);
+    var accessor = this.accessor; 
+     
+    var foreign = this.svg = selection.append("foreignObject");
 	
 	var w = this.width || 50;
 	var h = this.height || 25;
     
-    var foreign = this.svg = selection.append("foreignObject");
-    
-    var select =foreign.append("xhtml:body")
-        .append("form").attr("action", "").attr("onsubmit", "return false")
-        .append("select").attr("value", selectedIndex).attr("selectedIndex", selectedIndex)
-            .style("width", w + "px").style("height", h + "px");
-    
-    for(var i = 0; i < this.choices.length; i++){
-        var opt = select.append("option").attr("value", i);
-        if(i == selectedIndex){
-            opt.attr("selected", "selected");
-        }
-        opt.text(this.choices[i]);
-    }
-        
-    foreign.on(fig.event, function(){
-        return handleUserInput(fig, foreign.select("select")[0][0].selectedIndex);
+    foreign.append("xhtml:body")
+        .append("form").attr("action", "").attr("onsubmit", "return false;")
+        .append("input")
+            .style("width", w + "px").style("height", h + "px")
+            .attr("type", "text").attr("value", Figure.getModelElement(accessor));
+  
+    this.svg.on(fig.event, function() {
+        return handleUserInput(fig, "'" + foreign.select("input")[0][0].value + "'");
     });
 	 
 	var bb = foreign.node().getBBox();
@@ -1417,4 +1726,4 @@ Figure.bboxFunction.choiceInput = function (selection) {
 	return this.svg;
 }
 
-Figure.drawFunction.choiceInput = Figure.drawFunction.buttonInput;
+Figure.drawFunction.strInput = Figure.drawFunction.buttonInput;

@@ -12,20 +12,20 @@ import lang::java::jdt::m3::AST;
 import IO;
 
 /*
-AbstractClassName		abstract classes					^Abstract.*$|^.*Factory$				ok
+AbstractClassName		abstract classes					^Abstract.*$|^.*Factory$				DONE
 ClassTypeParameterName	class type parameters				^[A-Z]$
-ConstantName	 		constants (static, final fields)	^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$			ok
-LocalFinalVariableName	local, final variables, 													ok
-						including catch parameters			^[a-z][a-zA-Z0-9]*$						ok
-LocalVariableName	 	local, non-final variables, 												ok
-						including catch parameters			^[a-z][a-zA-Z0-9]*$						ok
+ConstantName	 		constants (static, final fields)	^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$			DONE
+LocalFinalVariableName	local, final variables, 													DONE
+						including catch parameters			^[a-z][a-zA-Z0-9]*$						DONE
+LocalVariableName	 	local, non-final variables, 												DONE
+						including catch parameters			^[a-z][a-zA-Z0-9]*$						DONE
 MemberName				non-static fields					^[a-z][a-zA-Z0-9]*$
-MethodName				methods								^[a-z][a-zA-Z0-9]*$						ok
+MethodName				methods								^[a-z][a-zA-Z0-9]*$						DONE
 MethodTypeParameterName	method type parameters				^[A-Z]$
-PackageName				packages							^[a-z]+(\.[a-zA-Z_][a-zA-Z0-9_]*)*$		ok
-ParameterName			parameters							^[a-z][a-zA-Z0-9]*$						ok
-StaticVariableName		static, non-final fields			^[a-z][a-zA-Z0-9]*$						ok
-TypeName				classes and interfaces				^[A-Z][a-zA-Z0-9]*$						ok
+PackageName				packages							^[a-z]+(\.[a-zA-Z_][a-zA-Z0-9_]*)*$		DONE
+ParameterName			parameters							^[a-z][a-zA-Z0-9]*$						DONE
+StaticVariableName		static, non-final fields			^[a-z][a-zA-Z0-9]*$						DONE
+TypeName				classes and interfaces				^[A-Z][a-zA-Z0-9]*$						DONE
 */
 
 data Message = namingConvention(str category, loc pos, str id);

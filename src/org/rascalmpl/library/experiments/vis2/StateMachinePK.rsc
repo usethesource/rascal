@@ -47,5 +47,5 @@ void sm(){
 	println(toPath(tree1.states));
 	
 	
-	//render("sm", #StateMachine, model(tree), visModel);
+	render("sm", #StateMachine, model(tree), visModel);
 }
