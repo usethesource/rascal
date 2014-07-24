@@ -188,6 +188,17 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 			write(out, v);
 		}
 		out.endArray();
+		
+		if (value.mayHaveKeywordParameters()) {
+			IWithKeywordParameters<? extends INode> kw = value.asWithKeywordParameters();
+			out.beginObject();
+			for (String k : kw.getParameterNames()) {
+				out.name(k);
+				write(out, kw.getParameter(k));
+			}
+			out.endObject();
+		}
+		
 		out.endArray();
 		out.endObject();
 		return null;
