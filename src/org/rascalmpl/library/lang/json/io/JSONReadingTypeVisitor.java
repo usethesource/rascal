@@ -265,11 +265,25 @@ public class JSONReadingTypeVisitor implements
 			args.add(read(VALUE_TYPE));
 		}
 		in.endArray();
+		
+		Map<String, IValue> kwargs = null;
+		if (in.hasNext()) {
+			kwargs = new HashMap<>();
+			in.beginObject();
+			while (in.hasNext()) {
+				String label = in.nextName();
+				kwargs.put(label, read(VALUE_TYPE));
+			}
+			in.endObject();
+		}
 
 		in.endArray();
 
-		INode node = vf.node(name, args.toArray(new IValue[] {}));
-		return node;
+		IValue[] argsArray = args.toArray(new IValue[] {});
+		if (kwargs != null) {
+			return vf.node(name, argsArray, kwargs);
+		}
+		return vf.node(name, argsArray);
 	}
 
 	@Override
@@ -308,9 +322,15 @@ public class JSONReadingTypeVisitor implements
 		TypeFactory tf = TypeFactory.getInstance();
 		IValue[] argsArray = args.toArray(new IValue[] {});
 		Type sig = tf.tupleType(argsArray);
-		for (Type t : ctors) {
+
+		nextConstructor: for (Type t : ctors) {
 			if (sig.isSubtypeOf(t.getFieldTypes())) {
-				if (kwargs != null) {
+				if (t.hasKeywordParameters() && kwargs != null) {
+					for (String label: kwargs.keySet()) {
+						if (!kwargs.get(label).getType().isSubtypeOf(t.getKeywordParameterType(label))) {
+							continue nextConstructor;
+						}
+					}
 					return vf.constructor(t, argsArray, kwargs);
 				}
 				return vf.constructor(t, argsArray);

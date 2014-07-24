@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -26,9 +27,9 @@ public class IValueAdapter extends TypeAdapter<IValue> {
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
 		INode n = vf.node("\uD83C\uDF5D", vf.integer(34), vf.real(1979.0));
-//		IWithKeywordParameters<? extends INode> kw = n
-//				.asWithKeywordParameters();
-//		n = kw.setParameter("keyword", vf.integer(-1));
+		IWithKeywordParameters<? extends INode> kw = n
+				.asWithKeywordParameters();
+		n = kw.setParameter("keyword", vf.integer(-1));
 		IMapWriter w = vf.mapWriter();
 		w.put(vf.string("hello"), vf.integer(43));
 		ISet x = vf.set(vf.list(n), w.done());
