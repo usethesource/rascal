@@ -59,7 +59,8 @@ public class JSONReadingTypeVisitor implements
 		// because nodes have values, but nums do not.
 
 		in.beginObject();
-		String $ = in.nextName(); // ignored
+		// TODO check that the name is good (perhaps push this unwrapping into the visit methods.
+		in.nextName(); // ignored
 		IValue v = type.accept(this);
 		in.endObject();
 		return v;
@@ -319,8 +320,19 @@ public class JSONReadingTypeVisitor implements
 				+ type);
 	}
 
+	
 	@Override
 	public IValue visitTuple(Type type) throws IOException {
+		if (type.isTop()) {
+			List<IValue >args = new ArrayList<IValue>();
+			in.beginArray();
+			while (in.hasNext()) {
+				args.add(read(VALUE_TYPE));
+			}
+			in.endArray();
+			return vf.tuple(args.toArray(new IValue[]{}));
+		}
+		
 		IValue args[] = new IValue[type.getArity()];
 		in.beginArray();
 		int i = 0;
@@ -373,6 +385,9 @@ public class JSONReadingTypeVisitor implements
 			break;
 		case "str":
 			value = visitString(type);
+			break;
+		case "tuple":
+			value = visitTuple(type);
 			break;
 		default:
 			throw new IOException("invalid tag for value: " + tag);
