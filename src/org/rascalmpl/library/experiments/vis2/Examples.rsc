@@ -6,6 +6,9 @@ import experiments::vis2::FigureServer;
 import String;
 import List;
 import util::Math;
+import experiments::vis2::\data::Nederland;
+import experiments::vis2::\data::Steden;
+
 
 // ********************** Examples **********************
 
@@ -838,11 +841,13 @@ void barChart3(){
 }
 
 void vegaBarChart1(){
-	ex("vegaBarChart1", barChart(size=<400,400>, datasets=exampleBarData(), flavor="vegaBarChart"));
+	ex("vegaBarChart1", barChart(size=<800,800>, datasets=exampleNederland(), flavor="vegaBarChart",
+	orientation="vertical", grouped=false));
 }
 
 void vegaBarChart2(){
-	ex("vegaBarChart2", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, datasets=exampleBarData(), flavor="vegaBarChart")]));
+	ex("vegaBarChart2", barChart(size=<1600,800>, datasets=exampleSteden(), flavor="vegaBarChart",
+	orientation="vertical", grouped=true));
 }
 
 /********************* lineChart ******************************/
