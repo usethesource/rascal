@@ -33,8 +33,11 @@ Figure.bboxFunction.layeredGraph = function(figure, selection) {
 		nodes     = [],
 		edges 	  = [];
 
-	figure.svg = selection.append("svg");
-	var defs = figure.svg.append("defs");
+   figure.svg
+   	.style("fill", "black")
+   	.style("stroke", "none")
+   	;
+   var defs = figure.svg.append("defs");
 
    var g = new dagreD3.Digraph();
    
@@ -55,29 +58,37 @@ Figure.bboxFunction.layeredGraph = function(figure, selection) {
 	   console.log("edge:", edge);
 	   g.addEdge(null, edge.source, edge.target, edge);
    }
-
-  var renderer = new dagreD3.Renderer();
-   var oldDrawNodes = renderer.drawNodes();
-  renderer.drawNodes(function(graph, root) {
-    var svgNodes = oldDrawNodes(graph, root);
-    svgNodes.attr("id", function(u) { return "node-" + u; });
-    return svgNodes;
-  });
-  var layout = renderer.run(g, figure.svg);
   
-  if(!figure.hasDefinedWidth()){
-  	figure.min_width = layout.graph().width + 40;
-  } else {
-  	figure.min_width = Math.max(figure.width, layout.graph().width + 40);
-  }
-  if(!figure.hasDefinedHeight()){
-  	figure.min_height = layout.graph().height + 40;
-  }	 else {
-    figure.min_height = Math.max(figure.height, layout.graph().height + 40);
-  }
+   var renderer = new dagreD3.Renderer();
+   var oldDrawNodes = renderer.drawNodes();
+   renderer.drawNodes(function(graph, root) {
+      var svgNodes = oldDrawNodes(graph, root);
+      svgNodes.attr("id", function(u) { return "node-" + u; });
+      return svgNodes;
+   });
+  
+   var layout1 = dagreD3.layout()
+  	.nodeSep(figure.nodeSep)
+  	.edgeSep(figure.edgeSep)
+  	.rankSep(figure.rankSep)
+  	.rankDir(figure.rankDir)
+  	;
+  	
+   var layout = renderer.layout(layout1).run(g, figure.svg);
+  
+   if(!figure.hasDefinedWidth()){
+  	  figure.min_width = layout.graph().width + 40;
+   } else {
+  	 figure.min_width = Math.max(figure.width, layout.graph().width + 40);
+   }
+   if(!figure.hasDefinedHeight()){
+  	  figure.min_height = layout.graph().height + 40;
+    } else {
+      figure.min_height = Math.max(figure.height, layout.graph().height + 40);
+    }
 //    drawExtraFigure(selection, x, y, this);
 //    addInteraction(selection, x, y, this);
-  return figure.svg;
+    return figure.svg;
 }   
 
 Figure.drawFunction.layeredGraph = function (figure, x, y, w, h) {
@@ -97,7 +108,7 @@ Figure.drawFunction.layeredGraph = function (figure, x, y, w, h) {
 Figure.registerComponent("graph", "springGraph");
 
 Figure.bboxFunction.springGraph = function(figure, selection) {
-	figure.svg = selection.append("svg");
+	//figure.svg = selection.append("svg");
   	if(!figure.hasDefinedWidth()){
   		figure.width = 400;
   	}
