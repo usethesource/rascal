@@ -42,8 +42,10 @@ Response page1(Method method, str path, map[str, str] parameters){ // Debugging 
 Response page(get(), /^\/$/                          , map[str,str] _) {
 res = "\<html\>
 		'\<head\>
+		'	\<meta charset=UTF-8\>
         '	\<title\>Rascal Visualization Server\</title\>
-         '	\<link rel=\"stylesheet\" href=\"lib/reset.css\" /\>
+        
+        '	\<link rel=\"stylesheet\" href=\"lib/reset.css\" /\>
         '	\<link rel=\"stylesheet\" href=\"lib/Figure.css\" /\>
         
         '	\<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"\>\</script\>
@@ -51,10 +53,10 @@ res = "\<html\>
         '   \<!-- NVD3 --\>
         '	\<link rel=\"stylesheet\" href=\"/lib/nv.d3.css\" /\>
         '	\<script src=\"lib/nv.d3.js\"\>\</script\>
-         '	\<script src=\"lib/vega-min.js\"\>\</script\>
+        '	\<script src=\"lib/vega-min.js\"\>\</script\>
         
         '	\<!-- DAGRE-D3 --\>
-        '	\<script src=\"http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js\"\>\</script\>
+        '	\<script src=\"lib/dagre-d3.js\"\>\</script\>
         
         ' 	\<!-- MathJax --\>
         ' 	\<script src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_SVG\"\>\</script\>

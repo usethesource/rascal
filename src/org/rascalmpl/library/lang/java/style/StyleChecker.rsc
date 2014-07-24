@@ -15,13 +15,15 @@ import IO;
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
 
-import lang::java::style::NamingConventions;	
+import lang::java::style::BlockChecks;
+import lang::java::style::NamingConventions;
 
 alias Checker = list[Message] (node ast, M3 model);
 
 private set[Checker] active() = {
-  namingConventions,
-  emptyCatch
+  blockChecks,
+  namingConventions
+  
 };  
 
 @doc{For testing on the console; we should assume only a model for the current AST is in the model}
@@ -32,15 +34,7 @@ list[Message] styleChecker(M3 model, set[node] asts, set[Checker] checkers = act
 list[Message] styleChecker(map[loc, M3] models, map[loc, node] asts, set[Checker] checkers = active()) 
   = [*checker(asts[f], models[f]) | f <- models, checker <- checkers];  
   
-data Message = emptyCatchBlock(loc pos);
 
-list[Message] emptyCatch(node ast, M3 model) {
-  bool isEmpty(empty()) = true;
-  bool isEmpty(block([])) = true;
-  default bool isEmpty(Statement _) = false;
-
-  return [emptyCatchBlock(a@src) | /a:\catch(_,body) := ast, isEmpty(body)];
-}
 
 value main(loc dir = |project://style-check-tests|){
   
