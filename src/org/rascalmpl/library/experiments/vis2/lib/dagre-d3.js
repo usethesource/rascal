@@ -364,6 +364,22 @@ function isPolygon(obj) {
     return Object.prototype.toString.call(obj) === '[object SVGPolygonElement]';
 }
 
+function intersectNode(nd, p1, root){
+  if (nd.label.match(/^[a-zA-Z0-9]+$/)) {
+      var definedFig = root.select('defs #' + nd.label).node();
+      if (definedFig) {
+          var outerFig = definedFig.childNodes[0];
+          if (isCircle(outerFig) || isEllipse(outerFig)) {
+              return intersectEllipse(nd, outerFig, p1);
+          } else if (isPolygon(outerFig)) {
+              return intersectPolygon(nd, outerFig, p1);
+          }
+       }
+    }
+    // TODO: use bpodgursky's shortening algorithm here
+    return intersectRect(nd, p1);
+}
+
 function defaultPositionEdgePaths(g, svgEdgePaths, root) {
   var interpolate = this._edgeInterpolate,
       tension = this._edgeTension;
@@ -374,28 +390,13 @@ function defaultPositionEdgePaths(g, svgEdgePaths, root) {
     var target = g.node(g.incidentNodes(e)[1]);
     var points = value.points.slice();
 
+    //var p0 = points.length === 0 ? target : points[0];
     var p1 = points.length === 0 ? source : points[points.length - 1];
-
-    points.unshift(source);
     
-    if (target.label.match(/[a-zA-Z0-9]+/)) {
-	var definedFig = root.select('defs #' + target.label).node();
-        if (definedFig) {
-           var outerFig = definedFig.childNodes[0];
-           if(isCircle(outerFig) || isEllipse(outerFig)){
-              points.push(intersectEllipse(target, outerFig, p1));
-           } else if (isPolygon(outerFig)) {
-               points.push(intersectPolygon(target, outerFig, p1));
-           } else {
-             points.push(intersectRect(target, p1));
-           }
-        } else {
-            points.push(intersectRect(target, p1));
-        }
-    } else {
-	// TODO: use bpodgursky's shortening algorithm here
-	points.push(intersectRect(target, p1));
-    }
+    points.unshift(source);	// ultimately we want here: points.unshift(intersectNode(source, p0, root));
+    
+    points.push(intersectNode(target, p1, root));
+    
     return d3.svg.line()
       .x(function(d) { return d.x; })
       .y(function(d) { return d.y; })
@@ -475,6 +476,7 @@ function defaultPostRender(graph, root) {
 }
 
 function addLabel(node, root, addingNode, marginX, marginY) {
+  // If the node has 'use' meta data, we rely on that
   if(node.use){
       root.append('use').attr('xlink:href', '#' + node.use);
       return;
@@ -615,8 +617,6 @@ function intersectRect(rect, point) {
   var x = rect.x;
   var y = rect.y;
 
-  // For now we only support rectangles
-
   // Rectangle intersection algorithm from:
   // http://math.stackexchange.com/questions/108113/find-edge-between-two-boxes
   var dx = point.x - x;
@@ -752,9 +752,9 @@ function intersectPolygon(node, polygon, point) {
     var points = polygon.points;
     console.log('intersectPolygon', points);
     
-    for(var i = 0; i < points.length; i++){
-	var p1 = points[i];
-	var p2 = points[i < points.length - 1 ? i + 1 : 0];
+    for(var i = 0; i < points.numberOfItems; i++){
+	var p1 = points.getItem(i);
+	var p2 = points.getItem(i < points.numberOfItems - 1 ? i + 1 : 0);
 	intersectLine(x1, y1, x2, y2, x1 + p1.x, y1 + p1.y, x1 + p2.x, y1 + p2.y, intersections);
     }
 

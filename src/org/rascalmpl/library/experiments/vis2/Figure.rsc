@@ -146,11 +146,11 @@ public data Figure(
 
    | box(Figure fig=emptyFigure())      	// rectangular box with inner element
    
-   | ellipse(int rx=0, int ry=0, Figure fig=emptyFigure())
+   | ellipse(num cx = 0, num cy = 0, num rx=0, num ry=0, Figure fig=emptyFigure())
    
-   | circle(int r=0, Figure fig=emptyFigure())
+   | circle(num cx = 0, num cy = 0, num r=0, Figure fig=emptyFigure())
    
-   | ngon(int n=3, int r=0, Figure fig=emptyFigure())	// regular polygon
+   | ngon(int n=3, num r=0, Figure fig=emptyFigure())	// regular polygon
    
    | polygon(Points points=[], bool fillEvenOdd = true)
    
@@ -172,8 +172,8 @@ public data Figure(
    | overlay(Figures figs=[])				// overlay (stacked) comAlignment
    | grid(list[Figures] figArray = [[]])	// grid of figures
 
-// Transformations
-	// TODO: avoid name clash with move
+// Figure transformations
+
    | at(int x, int y, Figure fig)			// Move to Alignment relative to origin of enclosing Figure
    | atX(int x, Figure fig)				// TODO: how to handle negative values?
    | atY(int y, Figure fig)
@@ -226,10 +226,11 @@ public data Figure(
      
 // Graphs
 
-   | graph(lrel[str, Figure] nodes = (), Figures edges = [], str flavor="layeredGraph")
+   | graph(lrel[str, Figure] nodes = (), Figures edges = [], str orientation = "topDown", int nodeSep = 50, int edgeSep=10, int layerSep= 30, str flavor="layeredGraph")
    | edge(str from, str to, str label)
    
-
+// Trees
+	| tree(Figure root, Figures children)
    ;
  
 

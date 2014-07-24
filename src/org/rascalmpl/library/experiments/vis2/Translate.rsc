@@ -583,10 +583,15 @@ str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, p
 
 
 // ---------- graph ----------
+// str orientation = "topDown", int nodeSep = 10, int edgeSep=10, int layerSep= 10, 
 
 str figToJSON(figure: graph(), Figure parent) { 
 	if(!layoutFlavors["graph"]? || figure.flavor notin layoutFlavors["graph"]){
 		throw "Unknow graph flavor \"<figure.flavor>\"";
+	}
+	
+	if(figure.orientation notin {"topDown", "leftRight"}){
+	   throw "orientation has illegal value: <figure.orientation>";
 	}
 	nodes = figure.nodes;
 	edges = figure.edges;
@@ -595,11 +600,15 @@ str figToJSON(figure: graph(), Figure parent) {
 	return
 	"{\"figure\": \"graph\", 
 	' \"flavor\": \"<figure.flavor>\",
+	' \"nodeSep\": <figure.nodeSep>,
+	' \"edgeSep\": <figure.edgeSep>,
+	' \"rankSep\": <figure.layerSep>,
+	' \"rankDir\": <figure.orientation == "topDown" ? "\"TD\"" : "\"LR\"">,
 	' \"nodes\":  [<intercalate(",\n", ["{ \"name\": \"<f[0]>\",
-									    '  \"inner\":  <figToJSON(f[1], parent)>
+									    '  \"inner\":  <figToJSON(f[1], figure)>
  										'}" | f <- nodes])>
 	'           ],  
-	' \"edges\":  [<intercalate(",\n", ["{\"name\": \"<label>\", \"source\" : \"<from>\", \"target\": \"<to>\" <propsToJSON(e, parent)>}"| e: edge(from,to,label) <- edges])>
+	' \"edges\":  [<intercalate(",\n", ["{\"name\": \"<label>\", \"source\" : \"<from>\", \"target\": \"<to>\" <propsToJSON(e, figure)>}"| e: edge(from,to,label) <- edges])>
 	'         ]
 	' <propsToJSON(figure, parent)> 
 	'}";

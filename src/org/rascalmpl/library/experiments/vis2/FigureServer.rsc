@@ -53,7 +53,7 @@ res = "\<html\>
         '   \<!-- NVD3 --\>
         '	\<link rel=\"stylesheet\" href=\"/lib/nv.d3.css\" /\>
         '	\<script src=\"lib/nv.d3.js\"\>\</script\>
-         '	\<script src=\"lib/vega-min.js\"\>\</script\>
+        '	\<script src=\"lib/vega-min.js\"\>\</script\>
         
         '	\<!-- DAGRE-D3 --\>
         '	\<script src=\"lib/dagre-d3.js\"\>\</script\>
