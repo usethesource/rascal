@@ -172,9 +172,9 @@ public class JSONReadingTypeVisitor implements
 
 		String scheme = null;
 		String authority = null;
-		String path = null;
-		String fragment = null;
-		String query = null;
+		String path = "";
+		String fragment = "";
+		String query = "";
 		int offset = -1;
 		int length = -1;
 		int beginLine = -1;
@@ -203,6 +203,9 @@ public class JSONReadingTypeVisitor implements
 			case "offset":
 				offset = in.nextInt();
 				break;
+			case "length":
+				length = in.nextInt();
+				break;
 			case "beginLine":
 				beginLine = in.nextInt();
 				break;
@@ -224,8 +227,7 @@ public class JSONReadingTypeVisitor implements
 
 		in.endObject();
 
-		if (path != null && offset != -1 && length != -1 && beginLine != -1
-				&& endLine != -1 && beginColumn != -1 && endColumn != -1) {
+		if (path != null && offset != -1 && length != -1 && beginLine != -1 && endLine != -1 && beginColumn != -1 && endColumn != -1) {
 			return vf.sourceLocation(path, offset, length, beginLine, endLine,
 					beginColumn, endColumn);
 		}
