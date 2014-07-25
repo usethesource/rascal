@@ -22,7 +22,7 @@ AvoidNestedBlocks	DONE
 data Message = blockCheck(str category, loc pos);
 
 list[Message] blockChecks(node ast, M3 model) {
-	return emptyBlocks(ast, model) + avoidNestedBlocks(ast, model);
+	return emptyBlock(ast, model) + avoidNestedBlocks(ast, model);
 }
 
 list[Message] emptyBlock(node ast, M3 model) {
@@ -38,8 +38,6 @@ list[Message] emptyBlock(node ast, M3 model) {
   }
   
   visit(ast){
-  
-  	/* Missing: STATIC_INIT, what is it? */
   	
   	case a: \catch(_, body):	check("emptyCatchBlock", a, body); 
   		

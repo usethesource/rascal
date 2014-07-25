@@ -16,14 +16,15 @@ import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
 
 import lang::java::style::BlockChecks;
+import lang::java::style::Metrics;
 import lang::java::style::NamingConventions;
 
 alias Checker = list[Message] (node ast, M3 model);
 
 private set[Checker] active() = {
   blockChecks,
+ // metrics,
   namingConventions
-  
 };  
 
 @doc{For testing on the console; we should assume only a model for the current AST is in the model}
@@ -40,6 +41,6 @@ value main(loc dir = |project://style-check-tests|){
   
   m3model = createM3FromEclipseProject(dir);
   asts = createAstsFromDirectory(dir, true);
-  return styleChecker(m3model, asts, checkers = {namingConventions, emptyCatch});
+  return styleChecker(m3model, asts, checkers = active());
 }  
 
