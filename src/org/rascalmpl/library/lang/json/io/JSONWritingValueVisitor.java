@@ -177,26 +177,29 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 
 	@Override
 	public Void visitNode(INode value) throws IOException {
-		// {node: ["name", [...]] }
+		// {node: ["name", arity, [...]] }
 		out.beginObject();
 		out.name("node");
 		out.beginArray();
 		INode n = (INode) value;
 		out.value(n.getName());
+		out.value(n.arity());
 		out.beginArray();
 		for (IValue v : n.getChildren()) {
 			write(out, v);
 		}
 		out.endArray();
 		
-		if (value.mayHaveKeywordParameters()) {
+		if (!value.asAnnotatable().hasAnnotations()) {
 			IWithKeywordParameters<? extends INode> kw = value.asWithKeywordParameters();
-			out.beginObject();
-			for (String k : kw.getParameterNames()) {
-				out.name(k);
-				write(out, kw.getParameter(k));
+			if (kw.hasParameters()) {
+				out.beginObject();
+				for (String k : kw.getParameterNames()) {
+					out.name(k);
+					write(out, kw.getParameter(k));
+				}
+				out.endObject();
 			}
-			out.endObject();
 		}
 		
 		out.endArray();
@@ -206,26 +209,31 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 
 	@Override
 	public Void visitConstructor(IConstructor value) throws IOException {
-		// {cons: ["name", [...], { }]}
+		// {cons: ["name", arity, [...], { }]}
 		out.beginObject();
 		out.name("cons");
 		out.beginArray();
 		out.value(value.getName());
+		out.value(value.arity());
 		out.beginArray();
 		for (IValue v : value.getChildren()) {
 			write(out, v);
 		}
 		out.endArray();
 
-		if (value.mayHaveKeywordParameters()) {
+		if (!value.asAnnotatable().hasAnnotations()) {
 			IWithKeywordParameters<? extends INode> kw = value.asWithKeywordParameters();
-			out.beginObject();
-			for (String k : kw.getParameterNames()) {
-				out.name(k);
-				write(out, kw.getParameter(k));
+			if (kw.hasParameters()) {
+				out.beginObject();
+				for (String k : kw.getParameterNames()) {
+					out.name(k);
+					write(out, kw.getParameter(k));
+				}
+				out.endObject();
+			
 			}
-			out.endObject();
 		}
+
 		out.endArray();
 
 		out.endObject();
