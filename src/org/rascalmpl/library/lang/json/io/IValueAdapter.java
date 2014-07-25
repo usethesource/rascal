@@ -36,12 +36,14 @@ public class IValueAdapter extends TypeAdapter<IValue> {
 
 		Gson gson = new GsonBuilder()
 				.registerTypeAdapter(IValue.class,
-						new IValueAdapter(x.getType(), vf))
+						new IValueAdapter(x.getType(), vf, new TypeStore()))
 				.enableComplexMapKeySerialization()
 				// .serializeNulls()
 				.setDateFormat(DateFormat.LONG)
 				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-				.setPrettyPrinting().setVersion(1.0).create();
+//				.setPrettyPrinting()
+				.setVersion(1.0)
+				.create();
 
 		String json = gson.toJson(x, new TypeToken<IValue>() {}.getType());
 		System.out.println(json);
@@ -53,11 +55,13 @@ public class IValueAdapter extends TypeAdapter<IValue> {
 	}
 
 	private final Type type;
-	private IValueFactory vf;
+	private final IValueFactory vf;
+	private final TypeStore ts;
 
-	public IValueAdapter(Type type, IValueFactory vf) {
+	public IValueAdapter(Type type, IValueFactory vf, TypeStore ts) {
 		this.type = type;
 		this.vf = vf;
+		this.ts = ts;
 	}
 
 	@Override
@@ -67,7 +71,7 @@ public class IValueAdapter extends TypeAdapter<IValue> {
 
 	@Override
 	public IValue read(JsonReader in) throws IOException {
-		return JSONReadingTypeVisitor.read(in, vf, new TypeStore(), type);
+		return JSONReadingTypeVisitor.read(in, vf, ts, type);
 	}
 
 	

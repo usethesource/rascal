@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -19,6 +18,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
+import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.values.uptr.Factory;
 
 import com.google.gson.stream.JsonReader;
 
@@ -257,12 +258,14 @@ public class JSONReadingTypeVisitor implements
 		// ["name", [ ... ] ]
 
 		in.beginArray();
+		
 		String name = in.nextString();
-
-		List<IValue> args = new ArrayList<>();
+		int arity = in.nextInt();
+		
+		IValue[] args = new IValue[arity];
 		in.beginArray();
-		while (in.hasNext()) {
-			args.add(read(VALUE_TYPE));
+		for (int i = 0; i < arity; i++) {
+			args[i] = read(VALUE_TYPE);
 		}
 		in.endArray();
 		
@@ -279,11 +282,10 @@ public class JSONReadingTypeVisitor implements
 
 		in.endArray();
 
-		IValue[] argsArray = args.toArray(new IValue[] {});
 		if (kwargs != null) {
-			return vf.node(name, argsArray, kwargs);
+			return vf.node(name, args, kwargs);
 		}
-		return vf.node(name, argsArray);
+		return vf.node(name, args);
 	}
 
 	@Override
@@ -297,11 +299,25 @@ public class JSONReadingTypeVisitor implements
 
 		in.beginArray();
 		String name = in.nextString();
+		int arity = in.nextInt();
 
-		List<IValue> args = new ArrayList<>();
+		Set<Type> ctors = ts.lookupConstructor(type, name);
+		Type ctor = null;
+		for (Type t: ctors) {
+			if (t.getArity() == arity) {
+				ctor = t;
+				break;
+			}
+		}
+		
+		if (ctor == null) {
+			throw new IOException("no constructor " + name + "/" + arity+ " in " + type);
+		}
+		
+		IValue[] args = new IValue[arity];
 		in.beginArray();
-		while (in.hasNext()) {
-			args.add(read(VALUE_TYPE));
+		for (int i = 0; i < arity; i++) {
+			args[i] = read(ctor.getFieldType(i));
 		}
 		in.endArray();
 
@@ -318,26 +334,12 @@ public class JSONReadingTypeVisitor implements
 
 		in.endArray();
 
-		Set<Type> ctors = ts.lookupConstructor(type, name);
-		TypeFactory tf = TypeFactory.getInstance();
-		IValue[] argsArray = args.toArray(new IValue[] {});
-		Type sig = tf.tupleType(argsArray);
-
-		nextConstructor: for (Type t : ctors) {
-			if (sig.isSubtypeOf(t.getFieldTypes())) {
-				if (t.hasKeywordParameters() && kwargs != null) {
-					for (String label: kwargs.keySet()) {
-						if (!kwargs.get(label).getType().isSubtypeOf(t.getKeywordParameterType(label))) {
-							continue nextConstructor;
-						}
-					}
-					return vf.constructor(t, argsArray, kwargs);
-				}
-				return vf.constructor(t, argsArray);
-			}
+		
+		if (ctor.hasKeywordParameters() && kwargs != null) {
+			return vf.constructor(ctor, args, kwargs);
 		}
-		throw new IOException("no constructor " + name + "(" + sig + ") in "
-				+ type);
+
+		return vf.constructor(ctor, args);
 	}
 
 	
@@ -480,6 +482,9 @@ public class JSONReadingTypeVisitor implements
 
 	@Override
 	public IValue visitExternal(Type type) throws IOException {
+		if (type instanceof NonTerminalType) {
+			return Factory.Tree.accept(this);
+		}
 		throw new IOException("cannot deserialize external values");
 	}
 
