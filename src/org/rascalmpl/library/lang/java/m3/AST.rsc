@@ -67,7 +67,7 @@ data Expression
     | \this(Expression thisExpression)
     | \super()
     | \declarationExpression(Declaration decl)
-    | \infix(Expression lhs, str operator, Expression rhs, list[Expression] extendedOperands)
+    | \infix(Expression lhs, str operator, Expression rhs)
     | \postfix(Expression operand, str operator)
     | \prefix(str operator, Expression operand)
     | \simpleName(str name)
