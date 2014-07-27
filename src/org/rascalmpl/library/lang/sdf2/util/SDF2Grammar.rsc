@@ -711,6 +711,8 @@ public Symbol getSymbol(Sym sym, bool isLex) {
         
     case (Sym) `(<Sym first> | <Sym second>)` :
          return alt({getSymbol(first, isLex), getSymbol(second, isLex)});
+    case (Sym) `(<Sym single>)`: 
+    	return getSymbol(single, isLex);
     default: throw "missed a case <sym>";  
   }
 }  
