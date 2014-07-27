@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-
+@contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 
 module lang::json::IO
 
@@ -19,18 +19,3 @@ public java str toJSON(value v);
 @reflect{Uses type store}
 public java &T fromJSON(type[&T] typ, str src);
 
-
-@doc{write an JSon Term to a text file}
-@javaClass{org.rascalmpl.library.lang.json.IO}
-@reflect{Uses URI Resolver Registry}
-public java void writeTextJSonFile(loc location, value v);
-
-
-@doc{read an ATerm from a text file}
-@javaClass{org.rascalmpl.library.lang.json.IO}
-@reflect{Uses URI Resolver Registry}
-public java &T readTextJSonFile(type[&T] begin, loc location);
-
-public value readTextJSonFile(loc location) {
-  return readTextJSonFile(#value, location);
-}
