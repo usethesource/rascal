@@ -535,9 +535,14 @@ Figure.drawFunction.box = function (x, y, w, h) {
 
 Figure.bboxFunction.ellipse = function(selection) {
     var figure = this,
-	    width  = figure.hasOwnProperty("rx") ? 2 * figure.rx  : 0,
+	    width,  
+        height;
+ 	if(figure.circle){
+		width = height = figure.hasOwnProperty("r") ? 2 * figure.r  : 0;
+	} else {
+		width  = figure.hasOwnProperty("rx") ? 2 * figure.rx  : 0;
         height = figure.hasOwnProperty("ry") ? 2 * figure.ry : 0;
- 
+	}
 	figure.svg = selection
     	.append("ellipse")
     	.style("stroke", figure.stroke)
@@ -550,12 +555,12 @@ Figure.bboxFunction.ellipse = function(selection) {
         var inner = figure.inner;
         console.log(inner);
         inner.bbox(selection);
-        console.log("ellipse.inner", inner.width, inner.height);
-        if(!figure.hasOwnProperty("rx")){
-            width = Math.max(width, figure.grow * inner.width + 2 * figure.hgap);
+        console.log("ellipse.inner", inner.min_width, inner.min_height);
+        if(!(figure.hasOwnProperty("rx") || figure.hasOwnProperty("rx"))){
+            width = Math.max(width, figure.grow * inner.min_width + 2 * figure.hgap);
         }
-        if(!figure.hasOwnProperty("ry")){
-            height = Math.max(height, figure.grow * inner.height + 2 * figure.vgap);
+        if(!(figure.hasOwnProperty("ry") || figure.hasOwnProperty("ry"))){
+            height = Math.max(height, figure.grow * inner.min_height + 2 * figure.vgap);
         }
         console.log("ellipse outer size:", width, height);
     }
@@ -564,13 +569,12 @@ Figure.bboxFunction.ellipse = function(selection) {
     width += 2 * lw;
 	height += 2 * lw;
 	
-    figure.min_width  = figure.hasOwnProperty("rx") ?  2 * figure.rx : 2 * width  / Math.sqrt(2);
-    figure.min_height = figure.hasOwnProperty("ry") ?  2 * figure.ry : 2 * height / Math.sqrt(2);
-	
 	if(figure.circle){
-		var m = Math.max(figure.min_width,  figure.min_height);
-		figure.min_width = m;
-		figure.min_height = m;
+		var m = Math.max(width,  height);
+		figure.min_width = figure.min_height = figure.hasOwnProperty("r") ?  2 * figure.r : 2 * m  / Math.sqrt(2);
+	} else {
+		figure.min_width  = figure.hasOwnProperty("rx") ?  2 * figure.rx : 2 * width  / Math.sqrt(2);
+    	figure.min_height = figure.hasOwnProperty("ry") ?  2 * figure.ry : 2 * height / Math.sqrt(2);
 	}
     
     console.log("ellipse.bbox:", figure.min_width,  figure.min_height);
@@ -660,8 +664,8 @@ Figure.drawFunction.ngon = function (x, y, w, h) {
     
     if (figure.hasOwnProperty("inner")) {
         var inner = figure.inner;
-        inner.draw(x + figure.x - (w/2) + lw + figure.hgap + figure.halign * (w - inner.width  - 2 * figure.hgap), 
-                   y + figure.y - (h/2) + lw + figure.vgap + figure.valign * (h - inner.height - 2 * figure.vgap),
+        inner.draw(x + figure.x - (w/2) + lw + figure.hgap + figure.halign * (w - inner.min_width  - 2 * figure.hgap), 
+                   y + figure.y - (h/2) + lw + figure.vgap + figure.valign * (h - inner.min_height - 2 * figure.vgap),
                    inner.width, inner.height);
     }
     drawExtraFigure(figure, x, y);
@@ -828,7 +832,7 @@ Figure.bboxFunction.text = function(selection) {
     this.min_width = 1.05*bb.width;
     this.min_height = 1.05*bb.height;
     this.ascent = bb.y; // save the y of the bounding box as ascent
-    console.log("text:", this.width, this.height, this.ascent);
+    console.log("text:", this.min_width, this.min_height, this.ascent);
 }
 
 Figure.drawFunction.text = function (x, y, w, h) {

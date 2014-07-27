@@ -43,13 +43,13 @@ Figure.bboxFunction.layeredGraph = function(figure, selection) {
    
    for(var i = 0; i < org_nodes.length; i++){
 	   var node = org_nodes[i];
-	   var d = defs.append("g").attr("id", node.name);
+	   var d = defs.append("g").attr("id", "def-" + node.name);
 	   var f = buildFigure(node.inner);
 	   f.bbox(d);
 	   f.draw(0,0,f.width, f.height);
 	   d.attr("width", f.width).attr("height", f.height).attr("transform", "translate(" + (-f.width/2) + "," + (-f.height/2) + ")");
 	   
-	   g.addNode(node.name, {label: node.name, use: node.name});
+	   g.addNode(node.name, {label: node.name, use: "def-" + node.name});
    }
    
    for(var i = 0; i < org_edges.length; i++){

@@ -297,9 +297,11 @@ str figToJSON(figure: box(), Figure parent) {
 str figToJSON(figure: ellipse(), Figure parent) {
 	inner = figure.fig; 
 	println("inner = <inner>");
+	rx = figure.rx > 0 ? ", \"rx\": <figure.rx>" : "";
+	ry = figure.ry > 0 ? ", \"ry\": <figure.ry>" : "";
 	return getName(inner) == "emptyFigure"
-		   ? "{\"figure\": \"ellipse\", \"rx\": <figure.rx>, \"ry\": <figure.ry> <propsToJSON(figure, parent)> }"
-		   : "{\"figure\": \"ellipse\", \"rx\": <figure.rx>, \"ry\": <figure.ry>,
+		   ? "{\"figure\": \"ellipse\" <rx> <rx> <propsToJSON(figure, parent)> }"
+		   : "{\"figure\": \"ellipse\" <rx> <ry>,
     		 ' \"inner\":  <figToJSON(inner, figure)>
 			 '  <propsToJSON(figure, parent)> 
 	         '}";
@@ -310,9 +312,10 @@ str figToJSON(figure: ellipse(), Figure parent) {
 str figToJSON(figure: circle(), Figure parent) {
 	inner = figure.fig; 
 	println("inner = <inner>");
+	r = figure.r > 0 ? ", \"rx\": <figure.r>, \"ry\": <figure.r>"; 
 	return getName(inner) == "emptyFigure"
-		   ? "{\"figure\": \"ellipse\", \"circle\": \"true\", \"rx\": <figure.r>, \"ry\": <figure.r> <propsToJSON(figure, parent)> }"
-		   : "{\"figure\": \"ellipse\", \"circle\": \"true\", \"rx\": <figure.r>, \"ry\": <figure.r>,
+		   ? "{\"figure\": \"ellipse\", \"circle\": \"true\" <r> <propsToJSON(figure, parent)> }"
+		   : "{\"figure\": \"ellipse\", \"circle\": \"true\" <r>,
     		 ' \"inner\":  <figToJSON(inner, figure)>
 			 '  <propsToJSON(figure, parent)> 
 	         '}";
