@@ -5,6 +5,7 @@ import lang::java::m3::Core;
 import lang::java::m3::AST;
 import Message;
 import String;
+import Set;
 
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
@@ -20,7 +21,7 @@ NPathComplexity					DONE
 JavaNCSS						TBD
 */
 
-data Message = metrics(str category, loc pos);
+data Message = metric(str category, loc pos);
 
 list[Message] metrics(node ast, M3 model) {
 	return 
@@ -33,7 +34,7 @@ list[Message] metrics(node ast, M3 model) {
 }
 	
 list[Message] booleanExpressionComplexity(node ast, M3 model){
-	boolean tooManyBooleanOperators(Expression e){
+	bool tooManyBooleanOperators(Expression e){
 	   int cnt = 0;
 	   visit(e){
 		 case \infix(_, str operator, _):
@@ -42,7 +43,7 @@ list[Message] booleanExpressionComplexity(node ast, M3 model){
 	   return cnt > 3;
     }
 	
-	return [ metrics("BooleanExpressionComplexity", e@src) | /Expression e := ast, tooManyBooleanOperators(e) ];
+	return [ metric("BooleanExpressionComplexity", e@src) | /Expression e := ast, tooManyBooleanOperators(e) ];
 }
 
 set[str] excludedClasses = {
@@ -84,12 +85,12 @@ list[Message] classDataAbstractionCoupling(node ast, M3 model){
     }
 
 	return 
-		[ metrics("ClassDataAbstractionCoupling", c) | c <- classes(M3), tooManyNew(M3@containment[c]) ];
+		[ metric("ClassDataAbstractionCoupling", c) | c <- classes(model), tooManyNew(model@containment[c]) ];
 }
 
 list[Message] classFanOutComplexity(node ast, M3 model){
 	return 
-		[ metrics("ClassFanOutComplexity", c) | c <- classes(M3), size(M3@typeDependency[M3@containment[c]] - excludedClasses) > 7 ];
+		[ metric("ClassFanOutComplexity", c) | c <- classes(model), size(model@typeDependency[model@containment[c]] - excludedClasses) > 7 ];
 }
 
 list[Message] cyclomaticComplexity(node ast, M3 model){
@@ -110,7 +111,7 @@ list[Message] cyclomaticComplexity(node ast, M3 model){
    			case \infix(_, "&&", _, _): cnt += 1;
     		case \infix(_, "||", _, _): cnt + 1;
 		}
-		if(cnt > 10) msgs += metrics("CyclomaticComplexity", ast2@src);
+		if(cnt > 10) msgs += metric("CyclomaticComplexity", ast2@src);
 	}
 	
 	top-down-break visit(ast){
@@ -124,7 +125,7 @@ list[Message] nPathComplexity(node ast, M3 model){
 	msgs = [];
 	void checkNPath(node ast){
 		if(nPath(ast) > 200){
-			msgs += metrics("NPathComplexity", ast@src);
+			msgs += metric("NPathComplexity", ast@src);
 		}
 	}
 	top-down-break visit(ast){

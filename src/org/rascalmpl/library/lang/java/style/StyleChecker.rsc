@@ -16,15 +16,19 @@ import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
 
 import lang::java::style::BlockChecks;
+import lang::java::style::ClassDesign;
 import lang::java::style::Metrics;
 import lang::java::style::NamingConventions;
+import lang::java::style::SizeViolations;
 
 alias Checker = list[Message] (node ast, M3 model);
 
 private set[Checker] active() = {
-  blockChecks,
- // metrics,
-  namingConventions
+  //blockChecks,
+ // classDesign,
+  metrics
+ // namingConventions,
+ // sizeViolations
 };  
 
 @doc{For testing on the console; we should assume only a model for the current AST is in the model}
