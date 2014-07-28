@@ -81,21 +81,15 @@ public class JSONReadingTypeVisitor implements
 
 
 	private String tag() {
-		assert stack.peek() instanceof Map && ((Map)stack.peek()).size() == 1;
-		Map m = (Map)stack.peek();
-		for (Object k: m.keySet()) {
-			return (String) k;
-		}
-		return null;
+		assert stack.peek() instanceof List && ((List)stack.peek()).size() == 2;
+		List m = (List)stack.peek();
+		return (String) m.get(0);
 	}
 	
 	private Object contents() {
-		assert stack.peek() instanceof Map && ((Map)stack.peek()).size() == 1;
-		Map m = (Map)stack.peek();
-		for (Object k: m.keySet()) {
-			return m.get(k);
-		}
-		return null;
+		assert stack.peek() instanceof List && ((List)stack.peek()).size() == 2;
+		List m = (List)stack.peek();
+		return m.get(1);
 	}
 	
 	@Override

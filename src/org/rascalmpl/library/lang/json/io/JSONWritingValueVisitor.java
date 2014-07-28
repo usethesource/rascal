@@ -42,55 +42,55 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 	@Override
 	public Void visitReal(IReal value) throws IOException {
 		// {real: n}
-		out.beginObject()
-			.name("real")
+		out.beginArray()
+			.value("real")
 			.value(value.doubleValue())
-			.endObject();
+			.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitInteger(IInteger value) throws IOException {
 		// {int: n}
-		out.beginObject()
-			.name("int")
+		out.beginArray()
+			.value("int")
 			.value(((IInteger) value).intValue())
-			.endObject();
+			.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitRational(IRational value) throws IOException {
 		// {rat: [n, d] }
-		out.beginObject()
-			.name("rat")
+		out.beginArray()
+			.value("rat")
 			.beginArray()
 			.value(((IRational) value).numerator().longValue())
 			.value(((IRational) value).denominator().longValue())
 			.endArray()
-			.endObject();
+			.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitList(IList value) throws IOException {
 		// {list: [ ... ] }
-		out.beginObject()
-			.name("list")
+		out.beginArray()
+			.value("list")
 			.beginArray();
 		for (IValue v : (IList) value) {
 			write(out, v);
 		}
 		out.endArray()
-			.endObject();
+			.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitMap(IMap value) throws IOException {
 		// {map: [ [k, v], [k, v] ] }
-		out.beginObject()
-			.name("map")
+		out.beginArray()
+			.value("map")
 			.beginArray();
 		for (IValue k : (IMap) value) {
 			out.beginArray();
@@ -99,29 +99,29 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 			out.endArray();
 		}
 		out.endArray()
-			.endObject();
+			.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitSet(ISet value) throws IOException {
 		// {set: [.... ]}
-		out.beginObject();
-		out.name("set");
+		out.beginArray();
+		out.value("set");
 		out.beginArray();
 		for (IValue v : (ISet) value) {
 			write(out, v);
 		}
 		out.endArray();
-		out.endObject();
+		out.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitSourceLocation(ISourceLocation value) throws IOException {
 		// {loc: {...} }
-		out.beginObject();
-		out.name("loc");
+		out.beginArray();
+		out.value("loc");
 		out.beginObject();
 		ISourceLocation loc = (ISourceLocation) value;
 
@@ -164,25 +164,24 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 		}
 
 		out.endObject();
-		out.endObject();
+		out.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitString(IString value) throws IOException {
-		// {str: ""}
-		out.beginObject()
-			.name("str")
+		out.beginArray()
+			.value("str")
 			.value(((IString) value).getValue())
-			.endObject();
+			.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitNode(INode value) throws IOException {
-		// {node: ["name", arity, [...]] }
-		out.beginObject();
-		out.name("node");
+		// ["node", ["name", arity, [...]] ]
+		out.beginArray();
+		out.value("node");
 		out.beginArray();
 		INode n = (INode) value;
 		out.value(n.getName());
@@ -210,7 +209,7 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 			
 		
 		out.endArray();
-		out.endObject();
+		out.endArray();
 		return null;
 	}
 
@@ -221,9 +220,9 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 		}
 		
 		
-		// {cons: ["name", arity, [...], { }]}
-		out.beginObject();
-		out.name("cons");
+		// ["cons", ["name", arity, [...], { }]]
+		out.beginArray();
+		out.value("cons");
 		out.beginArray();
 		out.value(value.getName());
 		out.value(value.arity());
@@ -251,7 +250,7 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 
 		out.endArray();
 
-		out.endObject();
+		out.endArray();
 		return null;
 	}
 
@@ -277,10 +276,7 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 			}
 			out.endArray();
 			break;
-		case "integer":
-			out.value(((IInteger)value.get(0)).longValue());
-			break;
-		case "float":
+		case "number":
 			out.value(((IReal)value.get(0)).doubleValue());
 			break;
 		case "string":
@@ -304,15 +300,15 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 	@Override
 	public Void visitTuple(ITuple value) throws IOException {
 		// {tuple: [ ... ]}
-		out.beginObject()
-			.name("tuple");
+		out.beginArray()
+			.value("tuple");
 		out.beginArray();
 		ITuple t = (ITuple) value;
 		for (int i = 0; i < t.arity(); i++) {
 			write(out, t.get(i));
 		}
 		out.endArray();
-		out.endObject();
+		out.endArray();
 		return null;
 	}
 
@@ -321,10 +317,10 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 	@Override
 	public Void visitBoolean(IBool value) throws IOException {
 		// {bool: ..}
-		out.beginObject()
-			.name("bool")
+		out.beginArray()
+			.value("bool")
 			.value(((IBool) value).getValue())
-			.endObject();
+			.endArray();
 		return null;
 	}
 
@@ -339,8 +335,8 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 	public Void visitDateTime(IDateTime value) throws IOException {
 		// {datetime: { }}
 		IDateTime dt = (IDateTime) value;
-		out.beginObject();
-		out.name("datetime");
+		out.beginArray();
+		out.value("datetime");
 		out.beginObject();
 		if (dt.isDate() || dt.isDateTime()) {
 			out.name("year");
@@ -366,7 +362,7 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 			out.value(dt.getTimezoneOffsetMinutes());
 		}
 		out.endObject();
-		out.endObject();
+		out.endArray();
 		return null;
 	}
 
