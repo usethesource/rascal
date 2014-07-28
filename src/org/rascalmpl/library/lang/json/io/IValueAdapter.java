@@ -57,8 +57,10 @@ public class IValueAdapter extends TypeAdapter<IValue> {
 	private final Type type;
 	private final IValueFactory vf;
 	private final TypeStore ts;
+//	private final Gson gson;
 
 	public IValueAdapter(Type type, IValueFactory vf, TypeStore ts) {
+//		this.gson = gson;
 		this.type = type;
 		this.vf = vf;
 		this.ts = ts;
