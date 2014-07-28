@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.rascalmpl.library.lang.json;
 
+import java.io.IOException;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -24,6 +26,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.json.io.IValueAdapter;
+import org.rascalmpl.library.lang.json.io.JSONReadingTypeVisitor;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -42,13 +45,16 @@ public class IO {
 
 
 	private Gson gsonFor(Type t, TypeStore ts) {
-		return new GsonBuilder()
-		.registerTypeAdapter(IValue.class, new IValueAdapter(t, values, ts))
+		IValueAdapter adap = new IValueAdapter(t, values, ts);
+		Gson gson = new GsonBuilder()
+		.registerTypeAdapter(IValue.class, adap)
 		.enableComplexMapKeySerialization()
 		.setDateFormat(DateFormat.LONG)
 		.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
 		.setVersion(1.0)
 		.create();
+		adap.setGson(gson);
+		return gson;
 	}
 
 	public IString toJSON(IValue value) {
@@ -63,12 +69,27 @@ public class IO {
 	public IValue fromJSON(IValue type, IString src, IEvaluatorContext ctx) {
 		TypeStore store = ctx.getCurrentEnvt().getStore();
 		Type start = new TypeReifier(ctx.getValueFactory()).valueToType((IConstructor) type, store);
-		Gson gson = gsonFor(start, store);
+		Gson gson = new GsonBuilder()
+		.enableComplexMapKeySerialization()
+		.setDateFormat(DateFormat.LONG)
+		.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+		.setVersion(1.0)
+		.create();
+		
+		Object obj = gson.fromJson(src.getValue(), Object.class);
 		try {
-			return gson.fromJson(src.getValue(), IValue.class);
-		} catch (Exception e) {
+			return JSONReadingTypeVisitor.read(obj, values, store, start);
+		}
+		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		} 
+		}
+		
+//		Gson gson = gsonFor(start, store);
+//		try {
+//			return gson.fromJson(src.getValue(), IValue.class);
+//		} catch (Exception e) {
+//			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+//		} 
 	}
 	
 }
