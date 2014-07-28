@@ -305,7 +305,7 @@ public class JSONReadingTypeVisitor implements
 		Map<String, IValue> kwargs = null;
 		if (l.size() > 3) {
 			kwargs = new HashMap<>();
-			Map kw = (Map)l.get(arity + 2);
+			Map kw = (Map)l.get(3);
 			for (Object k: kw.keySet()) {
 				String label = (String)k;
 				stack.push(kw.get(label));
@@ -362,7 +362,7 @@ public class JSONReadingTypeVisitor implements
 		Map<String, IValue> kwargs = null;
 		if (ctor.hasKeywordParameters() && l.size() > 3) {
 			kwargs = new HashMap<>();
-			Map kw = (Map)l.get(arity + 2);
+			Map kw = (Map)l.get(3);
 			for (Object k: kw.keySet()) {
 				String label = (String)k;
 				Type kwType = ctor.getKeywordParameterType(label);

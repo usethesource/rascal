@@ -18,6 +18,8 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
+import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
+import org.eclipse.imp.pdb.facts.impl.NodeWithKeywordParametersFacade;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.json.Factory;
@@ -192,6 +194,8 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 		out.endArray();
 		
 //		if (!value.asAnnotatable().hasAnnotations()) {
+		// temp hack
+		if (value instanceof NodeWithKeywordParametersFacade) {
 			IWithKeywordParameters<? extends INode> kw = value.asWithKeywordParameters();
 			if (kw.hasParameters()) {
 				out.beginObject();
@@ -201,7 +205,9 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 				}
 				out.endObject();
 			}
+		}
 //		}
+			
 		
 		out.endArray();
 		out.endObject();
@@ -228,6 +234,8 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 		out.endArray();
 
 		//if (!value.asAnnotatable().hasAnnotations()) {
+		// temp hack
+		if (value instanceof ConstructorWithKeywordParametersFacade) {
 			IWithKeywordParameters<? extends INode> kw = value.asWithKeywordParameters();
 			if (kw.hasParameters()) {
 				out.beginObject();
@@ -238,6 +246,7 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 				out.endObject();
 			
 			}
+		}
 //		}
 
 		out.endArray();
