@@ -294,11 +294,13 @@ public class TreeAdapter {
 			}
 			@Override
 			public IConstructor visitTreeAppl(IConstructor arg) throws IOException {
-				IList children = (IList) arg.get("args");
-				for (IValue child : children) {
-					child.accept(this);
-					if (result) {
-						break;
+				if (!result) {
+					IList children = (IList) arg.get("args");
+					for (IValue child : children) {
+						child.accept(this);
+						if (result) {
+							break;
+						}
 					}
 				}
 				return arg;
