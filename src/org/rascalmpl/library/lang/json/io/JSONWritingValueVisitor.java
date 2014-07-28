@@ -227,7 +227,7 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 		}
 		out.endArray();
 
-		if (!value.asAnnotatable().hasAnnotations()) {
+		//if (!value.asAnnotatable().hasAnnotations()) {
 			IWithKeywordParameters<? extends INode> kw = value.asWithKeywordParameters();
 			if (kw.hasParameters()) {
 				out.beginObject();
@@ -238,7 +238,7 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 				out.endObject();
 			
 			}
-		}
+//		}
 
 		out.endArray();
 

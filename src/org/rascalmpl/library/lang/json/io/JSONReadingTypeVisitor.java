@@ -331,12 +331,12 @@ public class JSONReadingTypeVisitor implements
 		in.endArray();
 
 		Map<String, IValue> kwargs = null;
-		if (type.hasKeywordParameters() && in.hasNext()) {
+		if (ctor.hasKeywordParameters() && in.hasNext()) {
 			kwargs = new HashMap<>();
 			in.beginObject();
 			while (in.hasNext()) {
 				String label = in.nextName();
-				Type kwType = type.getKeywordParameterType(label);
+				Type kwType = ctor.getKeywordParameterType(label);
 				kwargs.put(label, read(kwType));
 			}
 			in.endObject();
