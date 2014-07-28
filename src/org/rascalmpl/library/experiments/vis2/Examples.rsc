@@ -900,10 +900,10 @@ void lineChart5(){
 /********************* graph ******************************/
 
 lrel[str,Figure] nodes1 = 
-			     [ <"N0",    ngon(n=5, fig=text("N0"), fillColor="yellow", lineWidth=1, size=<30,30>)>,
+			     [ <"N0",    ngon(n=5, fig=text("N0"), fillColor="yellow", lineWidth=1)>,
           		   <"N1" ,   //SCALE(0.5, polygon(points=[<200,10>,<250,190>, <160,210>], fillColor="pink", lineWidth=1))>,
           		   			//SCALE(0.5, polygon(points=[<100,10>, <40,198>, <190,78>, <10,78>, <160,198>], fillColor="green", lineWidth=4))>,
-          		   			SCALE(0.5, polygon(points=[<350,75>, <379,161>, <469,161>, <397,215>, <423,301>, <350,250>, <277,301>, <303,215>, <231,161>, <321,161>],fillColor="blue", lineWidth=4))>,
+          		   			polygon(points=[<70.0,15>, <75.8,32.2>, <93.8,32.2>, <79.4,43>, <84.6,60.2>, <70,50>, <55.4,60.2>, <60.6,43>, <46.2,32.2>, <64.2,32.2>],fillColor="blue", lineWidth=0)>,
           		   			//box(fig=text("N1"), fillColor="red", lineDashing=[1,1,1,1,1,1], size=<50,50>)>,
      	    	   <"N2" ,	 ellipse(fig=text("N2"), fillColor="lightblue", size=<80,80>)>
      	  		];
