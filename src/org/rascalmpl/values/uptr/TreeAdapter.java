@@ -19,6 +19,7 @@ package org.rascalmpl.values.uptr;
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -280,8 +281,53 @@ public class TreeAdapter {
 			fStream = stream;
 		}
 		
+		/**
+		 * This Visitor tries to find if this tree contains a cycle, without going in to the amb parts 
+		 */
+		private static class CycleDetector  extends TreeVisitor<IOException> {
+			public boolean result = false;
+
+			@Override
+			public IConstructor visitTreeCycle(IConstructor arg) throws IOException {
+				result = true;
+				return arg;
+			}
+			@Override
+			public IConstructor visitTreeAppl(IConstructor arg) throws IOException {
+				IList children = (IList) arg.get("args");
+				for (IValue child : children) {
+					child.accept(this);
+					if (result) {
+						break;
+					}
+				}
+				return arg;
+			}
+			@Override
+			public IConstructor visitTreeAmb(IConstructor arg) throws IOException {
+				// don't go into other amb trees with cycles
+				return arg;
+			}
+			@Override
+			public IConstructor visitTreeChar(IConstructor arg) throws IOException {
+				return arg;
+			}
+			public static boolean detect(IConstructor tree) throws IOException {
+				CycleDetector look = new CycleDetector();
+				tree.accept(look);
+				return look.result;
+			}
+		}
+		
 		public IConstructor visitTreeAmb(IConstructor arg) throws IOException {
-			((ISet) arg.get("alternatives")).iterator().next().accept(this);
+			Iterator<IValue> alternatives = ((ISet) arg.get("alternatives")).iterator();
+			// do not try to print the alternative with the cycle in it.
+			// so lets try to find the tree without the cycle
+			IConstructor tree = (IConstructor)alternatives.next();
+			while (alternatives.hasNext() && CycleDetector.detect(tree) ) {
+				tree = (IConstructor)alternatives.next();
+			}
+			tree.accept(this);
 			return arg;
 		}
 		
