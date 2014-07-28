@@ -25,6 +25,6 @@ public class TupleLabelContext extends Context {
 
 	@Override
 	public IList toPath(IValueFactory vf) {
-		return ctx.toPath(vf).append(vf.constructor(Cursor.Nav_fieldName, vf.string(label)));
+		return ctx.toPath(vf).append(vf.constructor(Cursor.Nav_fieldPosition, vf.integer(tuple.getType().getFieldIndex(label))));
 	}
 }
