@@ -191,7 +191,7 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 		}
 		out.endArray();
 		
-		if (!value.asAnnotatable().hasAnnotations()) {
+//		if (!value.asAnnotatable().hasAnnotations()) {
 			IWithKeywordParameters<? extends INode> kw = value.asWithKeywordParameters();
 			if (kw.hasParameters()) {
 				out.beginObject();
@@ -201,7 +201,7 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 				}
 				out.endObject();
 			}
-		}
+//		}
 		
 		out.endArray();
 		out.endObject();
@@ -281,7 +281,10 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 			out.value(((IBool)value.get(0)).getValue());
 			break;
 		case "ivalue":
+			out.beginObject();
+			out.name("#value");
 			value.get(0).accept(this);
+			out.endObject();
 			break;
 		default:
 			throw new IOException("invalid JSON constructor " + value);

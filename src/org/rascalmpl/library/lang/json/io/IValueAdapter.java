@@ -34,9 +34,10 @@ public class IValueAdapter extends TypeAdapter<IValue> {
 		w.put(vf.string("hello"), vf.integer(43));
 		ISet x = vf.set(vf.list(n), w.done());
 
+		IValueAdapter iValueAdapter = new IValueAdapter(x.getType(), vf, new TypeStore());
 		Gson gson = new GsonBuilder()
 				.registerTypeAdapter(IValue.class,
-						new IValueAdapter(x.getType(), vf, new TypeStore()))
+						iValueAdapter)
 				.enableComplexMapKeySerialization()
 				// .serializeNulls()
 				.setDateFormat(DateFormat.LONG)
@@ -45,25 +46,36 @@ public class IValueAdapter extends TypeAdapter<IValue> {
 				.setVersion(1.0)
 				.create();
 
+		iValueAdapter.setGson(gson);
+		
 		String json = gson.toJson(x, new TypeToken<IValue>() {}.getType());
 		System.out.println(json);
 		
 		IValue newValue = gson.fromJson(json, IValue.class);
+		
+		
 		System.out.println("Old = " + x);
 		System.out.println("New = " + newValue);
 		System.out.println(newValue.isEqual(x));
+		
+		
+		Object obj = gson.fromJson("[1,2,3]", Object.class);
+		System.out.println(obj);
 	}
 
 	private final Type type;
 	private final IValueFactory vf;
 	private final TypeStore ts;
-//	private final Gson gson;
+	private Gson gson;
 
 	public IValueAdapter(Type type, IValueFactory vf, TypeStore ts) {
-//		this.gson = gson;
 		this.type = type;
 		this.vf = vf;
 		this.ts = ts;
+	}
+	
+	public void setGson(Gson gson) {
+		this.gson = gson;
 	}
 
 	@Override
@@ -73,7 +85,8 @@ public class IValueAdapter extends TypeAdapter<IValue> {
 
 	@Override
 	public IValue read(JsonReader in) throws IOException {
-		return JSONReadingTypeVisitor.read(in, vf, ts, type);
+		return null;
+		//return JSONReadingTypeVisitor.read(gson, in, vf, ts, type);
 	}
 
 	

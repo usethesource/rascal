@@ -13,9 +13,8 @@ data JSON
 	= null() 
 	| object(map[str, JSON] properties) 
 	| array(list[JSON] values) 
-	| integer(int n)
-	| float(real r)
+	| number(real n)
 	| string(str s) 
 	| boolean(bool b)
-	| ivalue(value v)
+	| ivalue(type[value] t, value v)
 	;
