@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.lang.json.Factory;
 
 import com.google.gson.stream.JsonWriter;
 
@@ -209,6 +210,11 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 
 	@Override
 	public Void visitConstructor(IConstructor value) throws IOException {
+		if (value.getType().getAbstractDataType() == Factory.JSON) {
+			return writePlainJSON(value);
+		}
+		
+		
 		// {cons: ["name", arity, [...], { }]}
 		out.beginObject();
 		out.name("cons");
@@ -237,6 +243,49 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 		out.endArray();
 
 		out.endObject();
+		return null;
+	}
+
+	private Void writePlainJSON(IConstructor value) throws IndexOutOfBoundsException, IOException {
+		switch (value.getName()) {
+		case "null":
+			out.nullValue();
+			break;
+		case "object":
+			IMap props = (IMap) value.get(0);
+			out.beginObject();
+			for (IValue k: props) {
+				out.name(((IString)k).getValue());
+				writePlainJSON((IConstructor) props.get(k));
+			}
+			out.endObject();
+			break;
+		case "array":
+			IList vals = (IList) value.get(0);
+			out.beginArray();
+			for (IValue v: vals) {
+				writePlainJSON((IConstructor) v);
+			}
+			out.endArray();
+			break;
+		case "integer":
+			out.value(((IInteger)value.get(0)).longValue());
+			break;
+		case "float":
+			out.value(((IReal)value.get(0)).doubleValue());
+			break;
+		case "string":
+			out.value(((IString)value.get(0)).getValue());
+			break;
+		case "boolean":
+			out.value(((IBool)value.get(0)).getValue());
+			break;
+		case "ivalue":
+			value.get(0).accept(this);
+			break;
+		default:
+			throw new IOException("invalid JSON constructor " + value);
+		}
 		return null;
 	}
 

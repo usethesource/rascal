@@ -1,5 +1,7 @@
 package org.rascalmpl.library.lang.json.io;
 
+import static org.rascalmpl.library.lang.json.Factory.JSON;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ import java.util.Set;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
@@ -31,13 +34,15 @@ public class JSONReadingTypeVisitor implements
 	private final JsonReader in;
 	private final IValueFactory vf;
 	private final TypeStore ts;
+//	private Gson gson;
 
-	public static IValue read(JsonReader in, IValueFactory vf, TypeStore ts, Type t) throws IOException {
-		JSONReadingTypeVisitor v = new JSONReadingTypeVisitor(in, vf, ts);
+	public static IValue read(JsonReader in, /*Gson gson, */IValueFactory vf, TypeStore ts, Type t) throws IOException {
+		JSONReadingTypeVisitor v = new JSONReadingTypeVisitor(/*gson,*/ in, vf, ts);
 		return v.read(t);
 	}
 	
-	private JSONReadingTypeVisitor(JsonReader in, IValueFactory vf, TypeStore ts) {
+	private JSONReadingTypeVisitor(/*Gson gson, */JsonReader in, IValueFactory vf, TypeStore ts) {
+//		this.gson = gson;
 		this.in = in;
 		this.vf = vf;
 		this.ts = ts;
@@ -172,7 +177,7 @@ public class JSONReadingTypeVisitor implements
 
 		String scheme = null;
 		String authority = null;
-		String path = "";
+		String path = null;
 		String fragment = "";
 		String query = "";
 		int offset = -1;
@@ -228,14 +233,11 @@ public class JSONReadingTypeVisitor implements
 		in.endObject();
 
 		if (path != null && offset != -1 && length != -1 && beginLine != -1 && endLine != -1 && beginColumn != -1 && endColumn != -1) {
-			return vf.sourceLocation(path, offset, length, beginLine, endLine,
-					beginColumn, endColumn);
+			return vf.sourceLocation(path, offset, length, beginLine, endLine, beginColumn, endColumn);
 		}
 		try {
-			if (scheme != null && authority != null && query != null
-					&& fragment != null) {
-				return vf.sourceLocation(scheme, authority, path, query,
-						fragment);
+			if (scheme != null && authority != null && query != null && fragment != null) {
+				return vf.sourceLocation(scheme, authority, path, query, fragment);
 			}
 			if (scheme != null && authority != null) {
 				return vf.sourceLocation(scheme, authority, path);
@@ -245,7 +247,8 @@ public class JSONReadingTypeVisitor implements
 		}
 
 		if (path != null) {
-			return vf.sourceLocation(path);
+			ISourceLocation x = vf.sourceLocation(path);
+			return x;
 		}
 		throw new IOException("Could not parse complete source location");
 	}
@@ -298,6 +301,10 @@ public class JSONReadingTypeVisitor implements
 	@Override
 	public IValue visitAbstractData(Type type) throws IOException {
 		// [ "name", [ ... ], { ... } }
+		
+		if (type == JSON) {
+			return readPlainJSON();
+		}
 
 		in.beginArray();
 		String name = in.nextString();
@@ -324,12 +331,13 @@ public class JSONReadingTypeVisitor implements
 		in.endArray();
 
 		Map<String, IValue> kwargs = null;
-		if (in.hasNext()) {
+		if (type.hasKeywordParameters() && in.hasNext()) {
 			kwargs = new HashMap<>();
 			in.beginObject();
 			while (in.hasNext()) {
 				String label = in.nextName();
-				kwargs.put(label, read(VALUE_TYPE));
+				Type kwType = type.getKeywordParameterType(label);
+				kwargs.put(label, read(kwType));
 			}
 			in.endObject();
 		}
@@ -345,6 +353,11 @@ public class JSONReadingTypeVisitor implements
 	}
 
 	
+	private IValue readPlainJSON() throws IOException {
+		throw new NotYetImplemented("object nodes");
+//		return gson.fromJson(in, JSON.class);
+	}
+
 	@Override
 	public IValue visitTuple(Type type) throws IOException {
 		if (type.isTop()) {
