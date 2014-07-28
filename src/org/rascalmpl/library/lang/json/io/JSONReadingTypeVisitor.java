@@ -11,6 +11,7 @@ import static org.rascalmpl.library.lang.json.Factory.JSON_string;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -431,26 +432,25 @@ public class JSONReadingTypeVisitor implements
 
 	@Override
 	public IValue visitTuple(Type type) throws IOException {
-//		if (type.isTop()) {
-//			List<IValue >args = new ArrayList<IValue>();
-//			in.beginArray();
-//			while (in.hasNext()) {
-//				args.add(read(VALUE_TYPE));
-//			}
-//			in.endArray();
-//			return vf.tuple(args.toArray(new IValue[]{}));
-//		}
-//		
-//		IValue args[] = new IValue[type.getArity()];
-//		in.beginArray();
-//		int i = 0;
-//		while (in.hasNext()) {
-//			args[i] = read(type.getFieldType(i));
-//			i++;
-//		}
-//		in.endArray();
-//		return vf.tuple(type, args);
-		return null;
+		List l = (List)stack.peek();
+		
+		if (type.isTop()) {
+			IValue[] args = new IValue[l.size()];
+			for (int i = 0; i < l.size(); i++) {
+				stack.push(l.get(i));
+				args[i] = read(tf.valueType());
+				stack.pop();
+			}
+			return vf.tuple(args);
+		}
+
+		IValue args[] = new IValue[type.getArity()];
+		for (int i = 0; i < l.size(); i++) {
+			stack.push(l.get(i));
+			args[i] = read(type.getFieldType(i));
+			stack.pop();
+		}
+		return vf.tuple(type, args);
 	}
 
 	@Override
