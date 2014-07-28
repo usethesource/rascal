@@ -39,13 +39,12 @@ public class IO {
 
 	public IO(IValueFactory values) {
 		super();
-
 		this.values = values;
 	}
 
 
-	private Gson gsonFor(Type t, TypeStore ts) {
-		IValueAdapter adap = new IValueAdapter(t, values, ts);
+	public IString toJSON(IValue value) {
+		IValueAdapter adap = new IValueAdapter();
 		Gson gson = new GsonBuilder()
 		.registerTypeAdapter(IValue.class, adap)
 		.enableComplexMapKeySerialization()
@@ -53,12 +52,6 @@ public class IO {
 		.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
 		.setVersion(1.0)
 		.create();
-		adap.setGson(gson);
-		return gson;
-	}
-
-	public IString toJSON(IValue value) {
-		Gson gson = gsonFor(value.getType(), new TypeStore() /* ignored when writing */);
 		try {
 			String json = gson.toJson(value, new TypeToken<IValue>() {}.getType());
 			return values.string(json);
@@ -83,13 +76,6 @@ public class IO {
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
-		
-//		Gson gson = gsonFor(start, store);
-//		try {
-//			return gson.fromJson(src.getValue(), IValue.class);
-//		} catch (Exception e) {
-//			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-//		} 
 	}
 	
 }
