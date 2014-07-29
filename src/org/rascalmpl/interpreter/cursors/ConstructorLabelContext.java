@@ -25,7 +25,8 @@ public class ConstructorLabelContext extends Context {
 
 	@Override
 	public IList toPath(IValueFactory vf) {
-		return ctx.toPath(vf).append(vf.constructor(Cursor.Nav_argumentName, vf.string(label)));
+		return ctx.toPath(vf).append(vf.constructor(Cursor.Nav_argumentPosition, 
+				vf.integer(constructor.getType().getFieldIndex(label))));
 	}
 
 }

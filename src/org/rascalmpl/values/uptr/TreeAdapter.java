@@ -284,19 +284,24 @@ public class TreeAdapter {
 		/**
 		 * This Visitor tries to find if this tree contains a cycle, without going in to the amb parts 
 		 */
-		private static class FindCycle  extends TreeVisitor<IOException> {
+		private static class CycleDetector  extends TreeVisitor<IOException> {
 			public boolean result = false;
 
 			@Override
 			public IConstructor visitTreeCycle(IConstructor arg) throws IOException {
 				result = true;
-				throw new RuntimeException("Stop searching");
+				return arg;
 			}
 			@Override
 			public IConstructor visitTreeAppl(IConstructor arg) throws IOException {
-				IList children = (IList) arg.get("args");
-				for (IValue child : children) {
-					child.accept(this);
+				if (!result) {
+					IList children = (IList) arg.get("args");
+					for (IValue child : children) {
+						child.accept(this);
+						if (result) {
+							break;
+						}
+					}
 				}
 				return arg;
 			}
@@ -309,17 +314,11 @@ public class TreeAdapter {
 			public IConstructor visitTreeChar(IConstructor arg) throws IOException {
 				return arg;
 			}
-		}
-		
-		private static boolean containsCycle(IConstructor tree) throws IOException {
-			FindCycle look = new FindCycle();
-			try {
+			public static boolean detect(IConstructor tree) throws IOException {
+				CycleDetector look = new CycleDetector();
 				tree.accept(look);
-			}
-			catch (RuntimeException e) {
 				return look.result;
 			}
-			return look.result;
 		}
 		
 		public IConstructor visitTreeAmb(IConstructor arg) throws IOException {
@@ -327,7 +326,7 @@ public class TreeAdapter {
 			// do not try to print the alternative with the cycle in it.
 			// so lets try to find the tree without the cycle
 			IConstructor tree = (IConstructor)alternatives.next();
-			while (containsCycle(tree) && alternatives.hasNext()) {
+			while (alternatives.hasNext() && CycleDetector.detect(tree) ) {
 				tree = (IConstructor)alternatives.next();
 			}
 			tree.accept(this);
