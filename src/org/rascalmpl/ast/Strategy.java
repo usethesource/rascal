@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,6 +52,20 @@ public abstract class Strategy extends AbstractAST {
       return visitor.visitStrategyBottomUp(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof BottomUp)) {
+        return false;
+      }        
+      BottomUp tmp = (BottomUp) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 ; 
+    } 
+  
     	
   }
   public boolean isBottomUpBreak() {
@@ -77,6 +91,20 @@ public abstract class Strategy extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitStrategyBottomUpBreak(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof BottomUpBreak)) {
+        return false;
+      }        
+      BottomUpBreak tmp = (BottomUpBreak) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 ; 
+    } 
   
     	
   }
@@ -104,6 +132,20 @@ public abstract class Strategy extends AbstractAST {
       return visitor.visitStrategyInnermost(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Innermost)) {
+        return false;
+      }        
+      Innermost tmp = (Innermost) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 ; 
+    } 
+  
     	
   }
   public boolean isOutermost() {
@@ -129,6 +171,20 @@ public abstract class Strategy extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitStrategyOutermost(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Outermost)) {
+        return false;
+      }        
+      Outermost tmp = (Outermost) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 ; 
+    } 
   
     	
   }
@@ -156,6 +212,20 @@ public abstract class Strategy extends AbstractAST {
       return visitor.visitStrategyTopDown(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof TopDown)) {
+        return false;
+      }        
+      TopDown tmp = (TopDown) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 ; 
+    } 
+  
     	
   }
   public boolean isTopDownBreak() {
@@ -181,6 +251,20 @@ public abstract class Strategy extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitStrategyTopDownBreak(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof TopDownBreak)) {
+        return false;
+      }        
+      TopDownBreak tmp = (TopDownBreak) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 ; 
+    } 
   
     	
   }

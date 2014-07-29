@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,6 +52,20 @@ public abstract class Assoc extends AbstractAST {
       return visitor.visitAssocAssociative(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Associative)) {
+        return false;
+      }        
+      Associative tmp = (Associative) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 ; 
+    } 
+  
     	
   }
   public boolean isLeft() {
@@ -77,6 +91,20 @@ public abstract class Assoc extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitAssocLeft(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Left)) {
+        return false;
+      }        
+      Left tmp = (Left) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 ; 
+    } 
   
     	
   }
@@ -104,6 +132,20 @@ public abstract class Assoc extends AbstractAST {
       return visitor.visitAssocNonAssociative(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof NonAssociative)) {
+        return false;
+      }        
+      NonAssociative tmp = (NonAssociative) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 ; 
+    } 
+  
     	
   }
   public boolean isRight() {
@@ -129,6 +171,20 @@ public abstract class Assoc extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitAssocRight(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Right)) {
+        return false;
+      }        
+      Right tmp = (Right) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 ; 
+    } 
   
     	
   }

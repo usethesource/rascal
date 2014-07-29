@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -89,6 +89,20 @@ public abstract class Command extends AbstractAST {
       return visitor.visitCommandDeclaration(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Declaration)) {
+        return false;
+      }        
+      Declaration tmp = (Declaration) o;
+      return true && tmp.declaration.equals(this.declaration) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 19 * declaration.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Declaration getDeclaration() {
@@ -125,6 +139,20 @@ public abstract class Command extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitCommandExpression(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Expression)) {
+        return false;
+      }        
+      Expression tmp = (Expression) o;
+      return true && tmp.expression.equals(this.expression) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 37 * expression.hashCode() ; 
+    } 
   
     
     @Override
@@ -163,6 +191,20 @@ public abstract class Command extends AbstractAST {
       return visitor.visitCommandImport(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Import)) {
+        return false;
+      }        
+      Import tmp = (Import) o;
+      return true && tmp.imported.equals(this.imported) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 47 * imported.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Import getImported() {
@@ -200,6 +242,20 @@ public abstract class Command extends AbstractAST {
       return visitor.visitCommandShell(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Shell)) {
+        return false;
+      }        
+      Shell tmp = (Shell) o;
+      return true && tmp.command.equals(this.command) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 83 * command.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.ShellCommand getCommand() {
@@ -236,6 +292,20 @@ public abstract class Command extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitCommandStatement(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Statement)) {
+        return false;
+      }        
+      Statement tmp = (Statement) o;
+      return true && tmp.statement.equals(this.statement) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 79 * statement.hashCode() ; 
+    } 
   
     
     @Override

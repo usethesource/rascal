@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -68,6 +68,20 @@ public abstract class UserType extends AbstractAST {
       return visitor.visitUserTypeName(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Name)) {
+        return false;
+      }        
+      Name tmp = (Name) o;
+      return true && tmp.name.equals(this.name) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 67 * name.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.QualifiedName getName() {
@@ -106,6 +120,20 @@ public abstract class UserType extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitUserTypeParametric(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Parametric)) {
+        return false;
+      }        
+      Parametric tmp = (Parametric) o;
+      return true && tmp.name.equals(this.name) && tmp.parameters.equals(this.parameters) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 13 * name.hashCode() + 47 * parameters.hashCode() ; 
+    } 
   
     
     @Override

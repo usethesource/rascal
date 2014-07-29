@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -78,6 +78,20 @@ public abstract class Variant extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitVariantNAryConstructor(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof NAryConstructor)) {
+        return false;
+      }        
+      NAryConstructor tmp = (NAryConstructor) o;
+      return true && tmp.name.equals(this.name) && tmp.arguments.equals(this.arguments) && tmp.keywordArguments.equals(this.keywordArguments) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 41 * name.hashCode() + 29 * arguments.hashCode() + 11 * keywordArguments.hashCode() ; 
+    } 
   
     
     @Override

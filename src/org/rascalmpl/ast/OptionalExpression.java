@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -61,6 +61,20 @@ public abstract class OptionalExpression extends AbstractAST {
       return visitor.visitOptionalExpressionExpression(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Expression)) {
+        return false;
+      }        
+      Expression tmp = (Expression) o;
+      return true && tmp.expression.equals(this.expression) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 23 * expression.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getExpression() {
@@ -95,6 +109,20 @@ public abstract class OptionalExpression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitOptionalExpressionNoExpression(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof NoExpression)) {
+        return false;
+      }        
+      NoExpression tmp = (NoExpression) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 ; 
+    } 
   
     	
   }

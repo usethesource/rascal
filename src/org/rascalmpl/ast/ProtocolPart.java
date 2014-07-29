@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,6 +86,20 @@ public abstract class ProtocolPart extends AbstractAST {
       return visitor.visitProtocolPartInterpolated(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Interpolated)) {
+        return false;
+      }        
+      Interpolated tmp = (Interpolated) o;
+      return true && tmp.pre.equals(this.pre) && tmp.expression.equals(this.expression) && tmp.tail.equals(this.tail) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 43 * pre.hashCode() + 61 * expression.hashCode() + 11 * tail.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.PreProtocolChars getPre() {
@@ -140,6 +154,20 @@ public abstract class ProtocolPart extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitProtocolPartNonInterpolated(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof NonInterpolated)) {
+        return false;
+      }        
+      NonInterpolated tmp = (NonInterpolated) o;
+      return true && tmp.protocolChars.equals(this.protocolChars) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 97 * protocolChars.hashCode() ; 
+    } 
   
     
     @Override

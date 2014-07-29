@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -110,6 +110,20 @@ public abstract class Type extends AbstractAST {
       return visitor.visitTypeBasic(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Basic)) {
+        return false;
+      }        
+      Basic tmp = (Basic) o;
+      return true && tmp.basic.equals(this.basic) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 47 * basic.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.BasicType getBasic() {
@@ -146,6 +160,20 @@ public abstract class Type extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitTypeBracket(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Bracket)) {
+        return false;
+      }        
+      Bracket tmp = (Bracket) o;
+      return true && tmp.type.equals(this.type) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 23 * type.hashCode() ; 
+    } 
   
     
     @Override
@@ -184,6 +212,20 @@ public abstract class Type extends AbstractAST {
       return visitor.visitTypeFunction(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Function)) {
+        return false;
+      }        
+      Function tmp = (Function) o;
+      return true && tmp.function.equals(this.function) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 47 * function.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.FunctionType getFunction() {
@@ -220,6 +262,20 @@ public abstract class Type extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitTypeSelector(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Selector)) {
+        return false;
+      }        
+      Selector tmp = (Selector) o;
+      return true && tmp.selector.equals(this.selector) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 31 * selector.hashCode() ; 
+    } 
   
     
     @Override
@@ -258,6 +314,20 @@ public abstract class Type extends AbstractAST {
       return visitor.visitTypeStructured(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Structured)) {
+        return false;
+      }        
+      Structured tmp = (Structured) o;
+      return true && tmp.structured.equals(this.structured) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 61 * structured.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.StructuredType getStructured() {
@@ -294,6 +364,20 @@ public abstract class Type extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitTypeSymbol(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Symbol)) {
+        return false;
+      }        
+      Symbol tmp = (Symbol) o;
+      return true && tmp.symbol.equals(this.symbol) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 43 * symbol.hashCode() ; 
+    } 
   
     
     @Override
@@ -332,6 +416,20 @@ public abstract class Type extends AbstractAST {
       return visitor.visitTypeUser(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof User)) {
+        return false;
+      }        
+      User tmp = (User) o;
+      return true && tmp.user.equals(this.user) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 17 * user.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.UserType getUser() {
@@ -368,6 +466,20 @@ public abstract class Type extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitTypeVariable(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Variable)) {
+        return false;
+      }        
+      Variable tmp = (Variable) o;
+      return true && tmp.typeVar.equals(this.typeVar) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 89 * typeVar.hashCode() ; 
+    } 
   
     
     @Override
