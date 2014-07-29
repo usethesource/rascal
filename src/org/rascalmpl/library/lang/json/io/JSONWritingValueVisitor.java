@@ -18,8 +18,11 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
+import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
+import org.eclipse.imp.pdb.facts.impl.NodeWithKeywordParametersFacade;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.lang.json.Factory;
 
 import com.google.gson.stream.JsonWriter;
 
@@ -39,55 +42,55 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 	@Override
 	public Void visitReal(IReal value) throws IOException {
 		// {real: n}
-		out.beginObject()
-			.name("real")
+		out.beginArray()
+			.value("real")
 			.value(value.doubleValue())
-			.endObject();
+			.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitInteger(IInteger value) throws IOException {
 		// {int: n}
-		out.beginObject()
-			.name("int")
+		out.beginArray()
+			.value("int")
 			.value(((IInteger) value).intValue())
-			.endObject();
+			.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitRational(IRational value) throws IOException {
 		// {rat: [n, d] }
-		out.beginObject()
-			.name("rat")
+		out.beginArray()
+			.value("rat")
 			.beginArray()
 			.value(((IRational) value).numerator().longValue())
 			.value(((IRational) value).denominator().longValue())
 			.endArray()
-			.endObject();
+			.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitList(IList value) throws IOException {
 		// {list: [ ... ] }
-		out.beginObject()
-			.name("list")
+		out.beginArray()
+			.value("list")
 			.beginArray();
 		for (IValue v : (IList) value) {
 			write(out, v);
 		}
 		out.endArray()
-			.endObject();
+			.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitMap(IMap value) throws IOException {
 		// {map: [ [k, v], [k, v] ] }
-		out.beginObject()
-			.name("map")
+		out.beginArray()
+			.value("map")
 			.beginArray();
 		for (IValue k : (IMap) value) {
 			out.beginArray();
@@ -96,29 +99,29 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 			out.endArray();
 		}
 		out.endArray()
-			.endObject();
+			.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitSet(ISet value) throws IOException {
 		// {set: [.... ]}
-		out.beginObject();
-		out.name("set");
+		out.beginArray();
+		out.value("set");
 		out.beginArray();
 		for (IValue v : (ISet) value) {
 			write(out, v);
 		}
 		out.endArray();
-		out.endObject();
+		out.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitSourceLocation(ISourceLocation value) throws IOException {
 		// {loc: {...} }
-		out.beginObject();
-		out.name("loc");
+		out.beginArray();
+		out.value("loc");
 		out.beginObject();
 		ISourceLocation loc = (ISourceLocation) value;
 
@@ -161,25 +164,24 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 		}
 
 		out.endObject();
-		out.endObject();
+		out.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitString(IString value) throws IOException {
-		// {str: ""}
-		out.beginObject()
-			.name("str")
+		out.beginArray()
+			.value("str")
 			.value(((IString) value).getValue())
-			.endObject();
+			.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitNode(INode value) throws IOException {
-		// {node: ["name", arity, [...]] }
-		out.beginObject();
-		out.name("node");
+		// ["node", ["name", arity, [...]] ]
+		out.beginArray();
+		out.value("node");
 		out.beginArray();
 		INode n = (INode) value;
 		out.value(n.getName());
@@ -190,7 +192,9 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 		}
 		out.endArray();
 		
-		if (!value.asAnnotatable().hasAnnotations()) {
+//		if (!value.asAnnotatable().hasAnnotations()) {
+		// temp hack
+		if (value instanceof NodeWithKeywordParametersFacade) {
 			IWithKeywordParameters<? extends INode> kw = value.asWithKeywordParameters();
 			if (kw.hasParameters()) {
 				out.beginObject();
@@ -201,17 +205,24 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 				out.endObject();
 			}
 		}
+//		}
+			
 		
 		out.endArray();
-		out.endObject();
+		out.endArray();
 		return null;
 	}
 
 	@Override
 	public Void visitConstructor(IConstructor value) throws IOException {
-		// {cons: ["name", arity, [...], { }]}
-		out.beginObject();
-		out.name("cons");
+		if (value.getType().getAbstractDataType() == Factory.JSON) {
+			return writePlainJSON(value);
+		}
+		
+		
+		// ["cons", ["name", arity, [...], { }]]
+		out.beginArray();
+		out.value("cons");
 		out.beginArray();
 		out.value(value.getName());
 		out.value(value.arity());
@@ -221,7 +232,9 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 		}
 		out.endArray();
 
-		if (!value.asAnnotatable().hasAnnotations()) {
+		//if (!value.asAnnotatable().hasAnnotations()) {
+		// temp hack
+		if (value instanceof ConstructorWithKeywordParametersFacade) {
 			IWithKeywordParameters<? extends INode> kw = value.asWithKeywordParameters();
 			if (kw.hasParameters()) {
 				out.beginObject();
@@ -233,25 +246,69 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 			
 			}
 		}
+//		}
 
 		out.endArray();
 
-		out.endObject();
+		out.endArray();
+		return null;
+	}
+
+	private Void writePlainJSON(IConstructor value) throws IndexOutOfBoundsException, IOException {
+		switch (value.getName()) {
+		case "null":
+			out.nullValue();
+			break;
+		case "object":
+			IMap props = (IMap) value.get(0);
+			out.beginObject();
+			for (IValue k: props) {
+				out.name(((IString)k).getValue());
+				writePlainJSON((IConstructor) props.get(k));
+			}
+			out.endObject();
+			break;
+		case "array":
+			IList vals = (IList) value.get(0);
+			out.beginArray();
+			for (IValue v: vals) {
+				writePlainJSON((IConstructor) v);
+			}
+			out.endArray();
+			break;
+		case "number":
+			out.value(((IReal)value.get(0)).doubleValue());
+			break;
+		case "string":
+			out.value(((IString)value.get(0)).getValue());
+			break;
+		case "boolean":
+			out.value(((IBool)value.get(0)).getValue());
+			break;
+		case "ivalue":
+			out.beginObject();
+			out.name("#value");
+			value.get(0).accept(this);
+			out.endObject();
+			break;
+		default:
+			throw new IOException("invalid JSON constructor " + value);
+		}
 		return null;
 	}
 
 	@Override
 	public Void visitTuple(ITuple value) throws IOException {
 		// {tuple: [ ... ]}
-		out.beginObject()
-			.name("tuple");
+		out.beginArray()
+			.value("tuple");
 		out.beginArray();
 		ITuple t = (ITuple) value;
 		for (int i = 0; i < t.arity(); i++) {
 			write(out, t.get(i));
 		}
 		out.endArray();
-		out.endObject();
+		out.endArray();
 		return null;
 	}
 
@@ -260,10 +317,10 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 	@Override
 	public Void visitBoolean(IBool value) throws IOException {
 		// {bool: ..}
-		out.beginObject()
-			.name("bool")
+		out.beginArray()
+			.value("bool")
 			.value(((IBool) value).getValue())
-			.endObject();
+			.endArray();
 		return null;
 	}
 
@@ -278,8 +335,8 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 	public Void visitDateTime(IDateTime value) throws IOException {
 		// {datetime: { }}
 		IDateTime dt = (IDateTime) value;
-		out.beginObject();
-		out.name("datetime");
+		out.beginArray();
+		out.value("datetime");
 		out.beginObject();
 		if (dt.isDate() || dt.isDateTime()) {
 			out.name("year");
@@ -305,7 +362,7 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 			out.value(dt.getTimezoneOffsetMinutes());
 		}
 		out.endObject();
-		out.endObject();
+		out.endArray();
 		return null;
 	}
 
