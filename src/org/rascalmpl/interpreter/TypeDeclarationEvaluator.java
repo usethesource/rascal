@@ -176,8 +176,9 @@ public class TypeDeclarationEvaluator {
 			final String name = Names.name(kw.getName());
 			final Expression expr = kw.getExpression();
 			IValue staticValue = null;
-			if (expr.hasLiteral() || expr.isSet() || expr.isMap() || expr.isList()) {
-				if (!expr.hasGenerators()) {
+			if (expr.isLiteral() || expr.isSet() || expr.isMap() || expr.isList()) {
+				boolean interpolatedString = expr.isLiteral() && expr.getLiteral().isString() && expr.getLiteral().getStringLiteral().isInterpolated();
+				if (!expr.hasGenerators() && !interpolatedString) {
 					staticValue = expr.interpret(eval).getValue();
 				}
 			}
