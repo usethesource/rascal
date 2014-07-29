@@ -217,7 +217,10 @@ public class FunctionType extends RascalType {
 	
 	@Override
 	public int hashCode() {
-		return 19 + 19 * returnType.hashCode() + 23 * argumentTypes.hashCode();
+		return 19 + 19 * returnType.hashCode() + 23 * argumentTypes.hashCode() 
+				+ (keywordParameters != null ? 29 * keywordParameters.hashCode() : 0)
+				+ (defaultParameters != null ? 31 * defaultParameters.hashCode() : 0)
+				;
 	}
 	
 	@Override
