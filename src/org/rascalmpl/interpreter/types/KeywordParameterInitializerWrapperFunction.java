@@ -86,4 +86,9 @@ public class KeywordParameterInitializerWrapperFunction extends ExternalValue im
 	public IEvaluator<Result<IValue>> getEval() {
 		return ctx.getEvaluator();
 	}
+	
+	@Override
+	public String toString() {
+		return "value () { return " + initializer + "; }";
+	}
 }

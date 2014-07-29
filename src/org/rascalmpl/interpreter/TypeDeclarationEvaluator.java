@@ -382,6 +382,10 @@ public class TypeDeclarationEvaluator {
 		public int hashCode() {
 			return 19 + kw.hashCode();
 		}
+		@Override
+		public String toString() {
+			return "...";
+		}
 	}
 
 	private static class DeclarationCollector extends NullASTVisitor<Declaration> {
