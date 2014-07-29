@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,6 +70,20 @@ public abstract class Variable extends AbstractAST {
       return visitor.visitVariableInitialized(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Initialized)) {
+        return false;
+      }        
+      Initialized tmp = (Initialized) o;
+      return true && tmp.name.equals(this.name) && tmp.initial.equals(this.initial) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 79 * name.hashCode() + 89 * initial.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Name getName() {
@@ -115,6 +129,20 @@ public abstract class Variable extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitVariableUnInitialized(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof UnInitialized)) {
+        return false;
+      }        
+      UnInitialized tmp = (UnInitialized) o;
+      return true && tmp.name.equals(this.name) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 71 * name.hashCode() ; 
+    } 
   
     
     @Override

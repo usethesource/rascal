@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -84,6 +84,20 @@ public abstract class SyntaxDefinition extends AbstractAST {
       return visitor.visitSyntaxDefinitionKeyword(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Keyword)) {
+        return false;
+      }        
+      Keyword tmp = (Keyword) o;
+      return true && tmp.defined.equals(this.defined) && tmp.production.equals(this.production) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 19 * defined.hashCode() + 13 * production.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Sym getDefined() {
@@ -133,6 +147,20 @@ public abstract class SyntaxDefinition extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSyntaxDefinitionLanguage(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Language)) {
+        return false;
+      }        
+      Language tmp = (Language) o;
+      return true && tmp.start.equals(this.start) && tmp.defined.equals(this.defined) && tmp.production.equals(this.production) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 61 * start.hashCode() + 71 * defined.hashCode() + 79 * production.hashCode() ; 
+    } 
   
     
     @Override
@@ -193,6 +221,20 @@ public abstract class SyntaxDefinition extends AbstractAST {
       return visitor.visitSyntaxDefinitionLayout(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Layout)) {
+        return false;
+      }        
+      Layout tmp = (Layout) o;
+      return true && tmp.vis.equals(this.vis) && tmp.defined.equals(this.defined) && tmp.production.equals(this.production) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 13 * vis.hashCode() + 97 * defined.hashCode() + 13 * production.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Visibility getVis() {
@@ -249,6 +291,20 @@ public abstract class SyntaxDefinition extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSyntaxDefinitionLexical(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Lexical)) {
+        return false;
+      }        
+      Lexical tmp = (Lexical) o;
+      return true && tmp.defined.equals(this.defined) && tmp.production.equals(this.production) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 97 * defined.hashCode() + 17 * production.hashCode() ; 
+    } 
   
     
     @Override

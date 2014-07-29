@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -147,6 +147,20 @@ public abstract class Assignable extends AbstractAST {
       return visitor.visitAssignableAnnotation(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Annotation)) {
+        return false;
+      }        
+      Annotation tmp = (Annotation) o;
+      return true && tmp.receiver.equals(this.receiver) && tmp.annotation.equals(this.annotation) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 73 * receiver.hashCode() + 43 * annotation.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Assignable getReceiver() {
@@ -193,6 +207,20 @@ public abstract class Assignable extends AbstractAST {
       return visitor.visitAssignableBracket(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Bracket)) {
+        return false;
+      }        
+      Bracket tmp = (Bracket) o;
+      return true && tmp.arg.equals(this.arg) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 89 * arg.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Assignable getArg() {
@@ -231,6 +259,20 @@ public abstract class Assignable extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitAssignableConstructor(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Constructor)) {
+        return false;
+      }        
+      Constructor tmp = (Constructor) o;
+      return true && tmp.name.equals(this.name) && tmp.arguments.equals(this.arguments) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 29 * name.hashCode() + 23 * arguments.hashCode() ; 
+    } 
   
     
     @Override
@@ -280,6 +322,20 @@ public abstract class Assignable extends AbstractAST {
       return visitor.visitAssignableFieldAccess(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof FieldAccess)) {
+        return false;
+      }        
+      FieldAccess tmp = (FieldAccess) o;
+      return true && tmp.receiver.equals(this.receiver) && tmp.field.equals(this.field) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 29 * receiver.hashCode() + 41 * field.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Assignable getReceiver() {
@@ -327,6 +383,20 @@ public abstract class Assignable extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitAssignableIfDefinedOrDefault(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof IfDefinedOrDefault)) {
+        return false;
+      }        
+      IfDefinedOrDefault tmp = (IfDefinedOrDefault) o;
+      return true && tmp.receiver.equals(this.receiver) && tmp.defaultExpression.equals(this.defaultExpression) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 53 * receiver.hashCode() + 17 * defaultExpression.hashCode() ; 
+    } 
   
     
     @Override
@@ -377,6 +447,20 @@ public abstract class Assignable extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitAssignableSlice(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Slice)) {
+        return false;
+      }        
+      Slice tmp = (Slice) o;
+      return true && tmp.receiver.equals(this.receiver) && tmp.optFirst.equals(this.optFirst) && tmp.optLast.equals(this.optLast) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 17 * receiver.hashCode() + 59 * optFirst.hashCode() + 61 * optLast.hashCode() ; 
+    } 
   
     
     @Override
@@ -438,6 +522,20 @@ public abstract class Assignable extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitAssignableSliceStep(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof SliceStep)) {
+        return false;
+      }        
+      SliceStep tmp = (SliceStep) o;
+      return true && tmp.receiver.equals(this.receiver) && tmp.optFirst.equals(this.optFirst) && tmp.second.equals(this.second) && tmp.optLast.equals(this.optLast) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 13 * receiver.hashCode() + 61 * optFirst.hashCode() + 79 * second.hashCode() + 79 * optLast.hashCode() ; 
+    } 
   
     
     @Override
@@ -505,6 +603,20 @@ public abstract class Assignable extends AbstractAST {
       return visitor.visitAssignableSubscript(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Subscript)) {
+        return false;
+      }        
+      Subscript tmp = (Subscript) o;
+      return true && tmp.receiver.equals(this.receiver) && tmp.subscript.equals(this.subscript) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 97 * receiver.hashCode() + 17 * subscript.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Assignable getReceiver() {
@@ -551,6 +663,20 @@ public abstract class Assignable extends AbstractAST {
       return visitor.visitAssignableTuple(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Tuple)) {
+        return false;
+      }        
+      Tuple tmp = (Tuple) o;
+      return true && tmp.elements.equals(this.elements) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 83 * elements.hashCode() ; 
+    } 
+  
     
     @Override
     public java.util.List<org.rascalmpl.ast.Assignable> getElements() {
@@ -587,6 +713,20 @@ public abstract class Assignable extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitAssignableVariable(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Variable)) {
+        return false;
+      }        
+      Variable tmp = (Variable) o;
+      return true && tmp.qualifiedName.equals(this.qualifiedName) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 23 * qualifiedName.hashCode() ; 
+    } 
   
     
     @Override

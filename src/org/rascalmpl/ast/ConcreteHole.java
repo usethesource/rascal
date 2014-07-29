@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -69,6 +69,20 @@ public abstract class ConcreteHole extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitConcreteHoleOne(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof One)) {
+        return false;
+      }        
+      One tmp = (One) o;
+      return true && tmp.symbol.equals(this.symbol) && tmp.name.equals(this.name) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 53 * symbol.hashCode() + 47 * name.hashCode() ; 
+    } 
   
     
     @Override

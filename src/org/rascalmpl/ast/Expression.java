@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -336,6 +336,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionAddition(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Addition)) {
+        return false;
+      }        
+      Addition tmp = (Addition) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 41 * lhs.hashCode() + 37 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getLhs() {
@@ -382,6 +396,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionAll(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof All)) {
+        return false;
+      }        
+      All tmp = (All) o;
+      return true && tmp.generators.equals(this.generators) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 59 * generators.hashCode() ; 
+    } 
+  
     
     @Override
     public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
@@ -420,6 +448,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionAnd(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof And)) {
+        return false;
+      }        
+      And tmp = (And) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 37 * lhs.hashCode() + 97 * rhs.hashCode() ; 
+    } 
   
     
     @Override
@@ -467,6 +509,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionAnti(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Anti)) {
+        return false;
+      }        
+      Anti tmp = (Anti) o;
+      return true && tmp.pattern.equals(this.pattern) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 43 * pattern.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getPattern() {
@@ -503,6 +559,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionAny(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Any)) {
+        return false;
+      }        
+      Any tmp = (Any) o;
+      return true && tmp.generators.equals(this.generators) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 29 * generators.hashCode() ; 
+    } 
   
     
     @Override
@@ -542,6 +612,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionAppendAfter(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof AppendAfter)) {
+        return false;
+      }        
+      AppendAfter tmp = (AppendAfter) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 59 * lhs.hashCode() + 83 * rhs.hashCode() ; 
+    } 
   
     
     @Override
@@ -591,6 +675,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionAsType(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof AsType)) {
+        return false;
+      }        
+      AsType tmp = (AsType) o;
+      return true && tmp.type.equals(this.type) && tmp.argument.equals(this.argument) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 41 * type.hashCode() + 47 * argument.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Type getType() {
@@ -637,6 +735,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionBracket(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Bracket)) {
+        return false;
+      }        
+      Bracket tmp = (Bracket) o;
+      return true && tmp.expression.equals(this.expression) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 53 * expression.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getExpression() {
@@ -677,6 +789,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionCallOrTree(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof CallOrTree)) {
+        return false;
+      }        
+      CallOrTree tmp = (CallOrTree) o;
+      return true && tmp.expression.equals(this.expression) && tmp.arguments.equals(this.arguments) && tmp.keywordArguments.equals(this.keywordArguments) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 41 * expression.hashCode() + 17 * arguments.hashCode() + 31 * keywordArguments.hashCode() ; 
+    } 
   
     
     @Override
@@ -737,6 +863,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionClosure(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Closure)) {
+        return false;
+      }        
+      Closure tmp = (Closure) o;
+      return true && tmp.type.equals(this.type) && tmp.parameters.equals(this.parameters) && tmp.statements.equals(this.statements) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 73 * type.hashCode() + 47 * parameters.hashCode() + 43 * statements.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Type getType() {
@@ -794,6 +934,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionComposition(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Composition)) {
+        return false;
+      }        
+      Composition tmp = (Composition) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 23 * lhs.hashCode() + 71 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getLhs() {
@@ -840,6 +994,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionComprehension(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Comprehension)) {
+        return false;
+      }        
+      Comprehension tmp = (Comprehension) o;
+      return true && tmp.comprehension.equals(this.comprehension) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 53 * comprehension.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Comprehension getComprehension() {
@@ -877,6 +1045,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionConcrete(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Concrete)) {
+        return false;
+      }        
+      Concrete tmp = (Concrete) o;
+      return true && tmp.concrete.equals(this.concrete) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 89 * concrete.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Concrete getConcrete() {
@@ -913,6 +1095,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionDescendant(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Descendant)) {
+        return false;
+      }        
+      Descendant tmp = (Descendant) o;
+      return true && tmp.pattern.equals(this.pattern) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 59 * pattern.hashCode() ; 
+    } 
   
     
     @Override
@@ -952,6 +1148,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionDivision(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Division)) {
+        return false;
+      }        
+      Division tmp = (Division) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 97 * lhs.hashCode() + 71 * rhs.hashCode() ; 
+    } 
   
     
     @Override
@@ -1001,6 +1211,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionEnumerator(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Enumerator)) {
+        return false;
+      }        
+      Enumerator tmp = (Enumerator) o;
+      return true && tmp.pattern.equals(this.pattern) && tmp.expression.equals(this.expression) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 19 * pattern.hashCode() + 23 * expression.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getPattern() {
@@ -1048,6 +1272,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionEquals(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Equals)) {
+        return false;
+      }        
+      Equals tmp = (Equals) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 61 * lhs.hashCode() + 97 * rhs.hashCode() ; 
+    } 
   
     
     @Override
@@ -1097,6 +1335,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionEquivalence(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Equivalence)) {
+        return false;
+      }        
+      Equivalence tmp = (Equivalence) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 13 * lhs.hashCode() + 71 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getLhs() {
@@ -1145,6 +1397,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionFieldAccess(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof FieldAccess)) {
+        return false;
+      }        
+      FieldAccess tmp = (FieldAccess) o;
+      return true && tmp.expression.equals(this.expression) && tmp.field.equals(this.field) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 43 * expression.hashCode() + 29 * field.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getExpression() {
@@ -1192,6 +1458,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionFieldProject(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof FieldProject)) {
+        return false;
+      }        
+      FieldProject tmp = (FieldProject) o;
+      return true && tmp.expression.equals(this.expression) && tmp.fields.equals(this.fields) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 71 * expression.hashCode() + 17 * fields.hashCode() ; 
+    } 
   
     
     @Override
@@ -1242,6 +1522,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionFieldUpdate(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof FieldUpdate)) {
+        return false;
+      }        
+      FieldUpdate tmp = (FieldUpdate) o;
+      return true && tmp.expression.equals(this.expression) && tmp.key.equals(this.key) && tmp.replacement.equals(this.replacement) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 13 * expression.hashCode() + 11 * key.hashCode() + 61 * replacement.hashCode() ; 
+    } 
   
     
     @Override
@@ -1300,6 +1594,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionGetAnnotation(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof GetAnnotation)) {
+        return false;
+      }        
+      GetAnnotation tmp = (GetAnnotation) o;
+      return true && tmp.expression.equals(this.expression) && tmp.name.equals(this.name) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 23 * expression.hashCode() + 71 * name.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getExpression() {
@@ -1347,6 +1655,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionGreaterThan(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof GreaterThan)) {
+        return false;
+      }        
+      GreaterThan tmp = (GreaterThan) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 83 * lhs.hashCode() + 61 * rhs.hashCode() ; 
+    } 
   
     
     @Override
@@ -1396,6 +1718,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionGreaterThanOrEq(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof GreaterThanOrEq)) {
+        return false;
+      }        
+      GreaterThanOrEq tmp = (GreaterThanOrEq) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 79 * lhs.hashCode() + 73 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getLhs() {
@@ -1444,6 +1780,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionHas(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Has)) {
+        return false;
+      }        
+      Has tmp = (Has) o;
+      return true && tmp.expression.equals(this.expression) && tmp.name.equals(this.name) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 67 * expression.hashCode() + 61 * name.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getExpression() {
@@ -1491,6 +1841,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionIfDefinedOtherwise(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof IfDefinedOtherwise)) {
+        return false;
+      }        
+      IfDefinedOtherwise tmp = (IfDefinedOtherwise) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 61 * lhs.hashCode() + 83 * rhs.hashCode() ; 
+    } 
   
     
     @Override
@@ -1541,6 +1905,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionIfThenElse(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof IfThenElse)) {
+        return false;
+      }        
+      IfThenElse tmp = (IfThenElse) o;
+      return true && tmp.condition.equals(this.condition) && tmp.thenExp.equals(this.thenExp) && tmp.elseExp.equals(this.elseExp) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 17 * condition.hashCode() + 97 * thenExp.hashCode() + 19 * elseExp.hashCode() ; 
+    } 
   
     
     @Override
@@ -1599,6 +1977,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionImplication(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Implication)) {
+        return false;
+      }        
+      Implication tmp = (Implication) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 23 * lhs.hashCode() + 31 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getLhs() {
@@ -1646,6 +2038,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionIn(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof In)) {
+        return false;
+      }        
+      In tmp = (In) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 37 * lhs.hashCode() + 47 * rhs.hashCode() ; 
+    } 
   
     
     @Override
@@ -1695,6 +2101,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionInsertBefore(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof InsertBefore)) {
+        return false;
+      }        
+      InsertBefore tmp = (InsertBefore) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 61 * lhs.hashCode() + 17 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getLhs() {
@@ -1742,6 +2162,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionIntersection(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Intersection)) {
+        return false;
+      }        
+      Intersection tmp = (Intersection) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 47 * lhs.hashCode() + 43 * rhs.hashCode() ; 
+    } 
   
     
     @Override
@@ -1791,6 +2225,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionIs(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Is)) {
+        return false;
+      }        
+      Is tmp = (Is) o;
+      return true && tmp.expression.equals(this.expression) && tmp.name.equals(this.name) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 83 * expression.hashCode() + 79 * name.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getExpression() {
@@ -1837,6 +2285,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionIsDefined(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof IsDefined)) {
+        return false;
+      }        
+      IsDefined tmp = (IsDefined) o;
+      return true && tmp.argument.equals(this.argument) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 67 * argument.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getArgument() {
@@ -1872,6 +2334,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionIt(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof It)) {
+        return false;
+      }        
+      It tmp = (It) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 ; 
+    } 
+  
     	
   }
   public boolean isJoin() {
@@ -1901,6 +2377,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionJoin(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Join)) {
+        return false;
+      }        
+      Join tmp = (Join) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 37 * lhs.hashCode() + 83 * rhs.hashCode() ; 
+    } 
   
     
     @Override
@@ -1950,6 +2440,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionLessThan(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof LessThan)) {
+        return false;
+      }        
+      LessThan tmp = (LessThan) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 61 * lhs.hashCode() + 53 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getLhs() {
@@ -1998,6 +2502,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionLessThanOrEq(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof LessThanOrEq)) {
+        return false;
+      }        
+      LessThanOrEq tmp = (LessThanOrEq) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 11 * lhs.hashCode() + 71 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getLhs() {
@@ -2044,6 +2562,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionList(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof List)) {
+        return false;
+      }        
+      List tmp = (List) o;
+      return true && tmp.elements0.equals(this.elements0) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 71 * elements0.hashCode() ; 
+    } 
+  
     
     @Override
     public java.util.List<org.rascalmpl.ast.Expression> getElements0() {
@@ -2081,6 +2613,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionLiteral(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Literal)) {
+        return false;
+      }        
+      Literal tmp = (Literal) o;
+      return true && tmp.literal.equals(this.literal) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 79 * literal.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Literal getLiteral() {
@@ -2117,6 +2663,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionMap(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Map)) {
+        return false;
+      }        
+      Map tmp = (Map) o;
+      return true && tmp.mappings.equals(this.mappings) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 37 * mappings.hashCode() ; 
+    } 
   
     
     @Override
@@ -2156,6 +2716,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionMatch(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Match)) {
+        return false;
+      }        
+      Match tmp = (Match) o;
+      return true && tmp.pattern.equals(this.pattern) && tmp.expression.equals(this.expression) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 37 * pattern.hashCode() + 17 * expression.hashCode() ; 
+    } 
   
     
     @Override
@@ -2205,6 +2779,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionModulo(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Modulo)) {
+        return false;
+      }        
+      Modulo tmp = (Modulo) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 71 * lhs.hashCode() + 19 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getLhs() {
@@ -2251,6 +2839,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionMultiVariable(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof MultiVariable)) {
+        return false;
+      }        
+      MultiVariable tmp = (MultiVariable) o;
+      return true && tmp.qualifiedName.equals(this.qualifiedName) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 47 * qualifiedName.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.QualifiedName getQualifiedName() {
@@ -2288,6 +2890,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionNegation(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Negation)) {
+        return false;
+      }        
+      Negation tmp = (Negation) o;
+      return true && tmp.argument.equals(this.argument) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 29 * argument.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getArgument() {
@@ -2324,6 +2940,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionNegative(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Negative)) {
+        return false;
+      }        
+      Negative tmp = (Negative) o;
+      return true && tmp.argument.equals(this.argument) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 53 * argument.hashCode() ; 
+    } 
   
     
     @Override
@@ -2363,6 +2993,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionNoMatch(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof NoMatch)) {
+        return false;
+      }        
+      NoMatch tmp = (NoMatch) o;
+      return true && tmp.pattern.equals(this.pattern) && tmp.expression.equals(this.expression) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 97 * pattern.hashCode() + 29 * expression.hashCode() ; 
+    } 
   
     
     @Override
@@ -2410,6 +3054,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionNonEmptyBlock(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof NonEmptyBlock)) {
+        return false;
+      }        
+      NonEmptyBlock tmp = (NonEmptyBlock) o;
+      return true && tmp.statements.equals(this.statements) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 89 * statements.hashCode() ; 
+    } 
+  
     
     @Override
     public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
@@ -2448,6 +3106,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionNonEquals(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof NonEquals)) {
+        return false;
+      }        
+      NonEquals tmp = (NonEquals) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 71 * lhs.hashCode() + 29 * rhs.hashCode() ; 
+    } 
   
     
     @Override
@@ -2497,6 +3169,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionNotIn(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof NotIn)) {
+        return false;
+      }        
+      NotIn tmp = (NotIn) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 59 * lhs.hashCode() + 29 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getLhs() {
@@ -2544,6 +3230,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionOr(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Or)) {
+        return false;
+      }        
+      Or tmp = (Or) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 89 * lhs.hashCode() + 17 * rhs.hashCode() ; 
+    } 
   
     
     @Override
@@ -2593,6 +3293,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionProduct(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Product)) {
+        return false;
+      }        
+      Product tmp = (Product) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 73 * lhs.hashCode() + 59 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getLhs() {
@@ -2639,6 +3353,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionQualifiedName(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof QualifiedName)) {
+        return false;
+      }        
+      QualifiedName tmp = (QualifiedName) o;
+      return true && tmp.qualifiedName.equals(this.qualifiedName) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 37 * qualifiedName.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.QualifiedName getQualifiedName() {
@@ -2677,6 +3405,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionRange(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Range)) {
+        return false;
+      }        
+      Range tmp = (Range) o;
+      return true && tmp.first.equals(this.first) && tmp.last.equals(this.last) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 71 * first.hashCode() + 83 * last.hashCode() ; 
+    } 
   
     
     @Override
@@ -2727,6 +3469,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionReducer(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Reducer)) {
+        return false;
+      }        
+      Reducer tmp = (Reducer) o;
+      return true && tmp.init.equals(this.init) && tmp.result.equals(this.result) && tmp.generators.equals(this.generators) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 29 * init.hashCode() + 47 * result.hashCode() + 97 * generators.hashCode() ; 
+    } 
   
     
     @Override
@@ -2785,6 +3541,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionReifiedType(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof ReifiedType)) {
+        return false;
+      }        
+      ReifiedType tmp = (ReifiedType) o;
+      return true && tmp.symbol.equals(this.symbol) && tmp.definitions.equals(this.definitions) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 29 * symbol.hashCode() + 31 * definitions.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getSymbol() {
@@ -2831,6 +3601,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionReifyType(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof ReifyType)) {
+        return false;
+      }        
+      ReifyType tmp = (ReifyType) o;
+      return true && tmp.type.equals(this.type) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 71 * type.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Type getType() {
@@ -2869,6 +3653,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionRemainder(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Remainder)) {
+        return false;
+      }        
+      Remainder tmp = (Remainder) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 37 * lhs.hashCode() + 67 * rhs.hashCode() ; 
+    } 
   
     
     @Override
@@ -2916,6 +3714,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionSet(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Set)) {
+        return false;
+      }        
+      Set tmp = (Set) o;
+      return true && tmp.elements0.equals(this.elements0) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 31 * elements0.hashCode() ; 
+    } 
+  
     
     @Override
     public java.util.List<org.rascalmpl.ast.Expression> getElements0() {
@@ -2956,6 +3768,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionSetAnnotation(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof SetAnnotation)) {
+        return false;
+      }        
+      SetAnnotation tmp = (SetAnnotation) o;
+      return true && tmp.expression.equals(this.expression) && tmp.name.equals(this.name) && tmp.value.equals(this.value) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 23 * expression.hashCode() + 43 * name.hashCode() + 43 * value.hashCode() ; 
+    } 
   
     
     @Override
@@ -3015,6 +3841,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionSlice(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Slice)) {
+        return false;
+      }        
+      Slice tmp = (Slice) o;
+      return true && tmp.expression.equals(this.expression) && tmp.optFirst.equals(this.optFirst) && tmp.optLast.equals(this.optLast) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 29 * expression.hashCode() + 61 * optFirst.hashCode() + 89 * optLast.hashCode() ; 
+    } 
   
     
     @Override
@@ -3076,6 +3916,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionSliceStep(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof SliceStep)) {
+        return false;
+      }        
+      SliceStep tmp = (SliceStep) o;
+      return true && tmp.expression.equals(this.expression) && tmp.optFirst.equals(this.optFirst) && tmp.second.equals(this.second) && tmp.optLast.equals(this.optLast) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 83 * expression.hashCode() + 83 * optFirst.hashCode() + 71 * second.hashCode() + 31 * optLast.hashCode() ; 
+    } 
   
     
     @Override
@@ -3141,6 +3995,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionSplice(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Splice)) {
+        return false;
+      }        
+      Splice tmp = (Splice) o;
+      return true && tmp.argument.equals(this.argument) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 47 * argument.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getArgument() {
@@ -3177,6 +4045,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionSplicePlus(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof SplicePlus)) {
+        return false;
+      }        
+      SplicePlus tmp = (SplicePlus) o;
+      return true && tmp.argument.equals(this.argument) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 17 * argument.hashCode() ; 
+    } 
   
     
     @Override
@@ -3218,6 +4100,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionStepRange(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof StepRange)) {
+        return false;
+      }        
+      StepRange tmp = (StepRange) o;
+      return true && tmp.first.equals(this.first) && tmp.second.equals(this.second) && tmp.last.equals(this.last) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 47 * first.hashCode() + 89 * second.hashCode() + 43 * last.hashCode() ; 
+    } 
   
     
     @Override
@@ -3276,6 +4172,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionSubscript(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Subscript)) {
+        return false;
+      }        
+      Subscript tmp = (Subscript) o;
+      return true && tmp.expression.equals(this.expression) && tmp.subscripts.equals(this.subscripts) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 43 * expression.hashCode() + 89 * subscripts.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getExpression() {
@@ -3324,6 +4234,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionSubtraction(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Subtraction)) {
+        return false;
+      }        
+      Subtraction tmp = (Subtraction) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 61 * lhs.hashCode() + 13 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getLhs() {
@@ -3370,6 +4294,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionTransitiveClosure(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof TransitiveClosure)) {
+        return false;
+      }        
+      TransitiveClosure tmp = (TransitiveClosure) o;
+      return true && tmp.argument.equals(this.argument) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 43 * argument.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getArgument() {
@@ -3407,6 +4345,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionTransitiveReflexiveClosure(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof TransitiveReflexiveClosure)) {
+        return false;
+      }        
+      TransitiveReflexiveClosure tmp = (TransitiveReflexiveClosure) o;
+      return true && tmp.argument.equals(this.argument) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 17 * argument.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getArgument() {
@@ -3443,6 +4395,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionTuple(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Tuple)) {
+        return false;
+      }        
+      Tuple tmp = (Tuple) o;
+      return true && tmp.elements.equals(this.elements) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 67 * elements.hashCode() ; 
+    } 
   
     
     @Override
@@ -3482,6 +4448,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionTypedVariable(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof TypedVariable)) {
+        return false;
+      }        
+      TypedVariable tmp = (TypedVariable) o;
+      return true && tmp.type.equals(this.type) && tmp.name.equals(this.name) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 79 * type.hashCode() + 43 * name.hashCode() ; 
+    } 
   
     
     @Override
@@ -3532,6 +4512,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionTypedVariableBecomes(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof TypedVariableBecomes)) {
+        return false;
+      }        
+      TypedVariableBecomes tmp = (TypedVariableBecomes) o;
+      return true && tmp.type.equals(this.type) && tmp.name.equals(this.name) && tmp.pattern.equals(this.pattern) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 11 * type.hashCode() + 13 * name.hashCode() + 71 * pattern.hashCode() ; 
+    } 
   
     
     @Override
@@ -3590,6 +4584,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionVariableBecomes(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof VariableBecomes)) {
+        return false;
+      }        
+      VariableBecomes tmp = (VariableBecomes) o;
+      return true && tmp.name.equals(this.name) && tmp.pattern.equals(this.pattern) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 73 * name.hashCode() + 43 * pattern.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Name getName() {
@@ -3638,6 +4646,20 @@ public abstract class Expression extends AbstractAST {
       return visitor.visitExpressionVisit(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Visit)) {
+        return false;
+      }        
+      Visit tmp = (Visit) o;
+      return true && tmp.label.equals(this.label) && tmp.visit.equals(this.visit) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 43 * label.hashCode() + 83 * visit.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Label getLabel() {
@@ -3685,6 +4707,20 @@ public abstract class Expression extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionVoidClosure(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof VoidClosure)) {
+        return false;
+      }        
+      VoidClosure tmp = (VoidClosure) o;
+      return true && tmp.parameters.equals(this.parameters) && tmp.statements0.equals(this.statements0) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13331 + 17 * parameters.hashCode() + 67 * statements0.hashCode() ; 
+    } 
   
     
     @Override
