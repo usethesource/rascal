@@ -70,7 +70,7 @@ public abstract class CommonKeywordParameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13331 ; 
+      return 907 ; 
     } 
   
     	
@@ -112,7 +112,7 @@ public abstract class CommonKeywordParameters extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13331 + 29 * keywordFormalList.hashCode() ; 
+      return 383 + 167 * keywordFormalList.hashCode() ; 
     } 
   
     

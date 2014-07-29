@@ -156,8 +156,6 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
 }
 
 public str classForProduction(str pkg, str super, Sig sig) {
-  primes = [p | p <- [2..100], all(i <- [2..10], p != i ==> p % i != 0)];
-  
   return "static public class <sig.name> extends <super> {
          '  // Production: <sig>
          '
@@ -187,7 +185,7 @@ public str classForProduction(str pkg, str super, Sig sig) {
          ' 
          '  @Override
          '  public int hashCode() {
-         '    return 13331 <for (arg(_, name) <- sig.args) { >+ <primes[arbInt(size(primes))]> * <name>.hashCode() <}>; 
+         '    return <arbPrime(1000)> <for (arg(_, name) <- sig.args) { >+ <arbPrime(1000)> * <name>.hashCode() <}>; 
          '  } 
          '
          '  <for (arg(typ, name) <- sig.args) { cname = capitalize(name); >
