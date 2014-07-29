@@ -70,7 +70,7 @@ public abstract class DataTarget extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13331 ; 
+      return 953 ; 
     } 
   
     	
@@ -112,7 +112,7 @@ public abstract class DataTarget extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13331 + 59 * label.hashCode() ; 
+      return 151 + 211 * label.hashCode() ; 
     } 
   
     

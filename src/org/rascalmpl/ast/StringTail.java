@@ -104,7 +104,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13331 + 31 * mid.hashCode() + 17 * expression.hashCode() + 11 * tail.hashCode() ; 
+      return 179 + 173 * mid.hashCode() + 829 * expression.hashCode() + 409 * tail.hashCode() ; 
     } 
   
     
@@ -177,7 +177,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13331 + 97 * mid.hashCode() + 97 * template.hashCode() + 79 * tail.hashCode() ; 
+      return 877 + 137 * mid.hashCode() + 947 * template.hashCode() + 139 * tail.hashCode() ; 
     } 
   
     
@@ -246,7 +246,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13331 + 73 * post.hashCode() ; 
+      return 71 + 89 * post.hashCode() ; 
     } 
   
     
