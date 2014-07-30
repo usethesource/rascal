@@ -320,10 +320,15 @@ public class TraversalEvaluator {
 		    // and normalizing "rewrite rules" will not trigger at all, but we can gracefully continue 
 		    // because we know what the tree looked like before we started visiting.
 		    eval.warning("In visit: " + e.getMessage(), eval.getCurrentAST().getLocation());
-		    rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(),  args, cons.asWithKeywordParameters().getParameters());
+		    if (cons.mayHaveKeywordParameters()) {
+		    	rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(),  args, cons.asWithKeywordParameters().getParameters());
+		    }
+		    else {
+		    	rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(),  args);
+		    }
 		  }
 		  
-		  if (cons.asAnnotatable().hasAnnotations()) {
+		  if (!cons.mayHaveKeywordParameters() && cons.asAnnotatable().hasAnnotations()) {
 		    rcons = rcons.asAnnotatable().setAnnotations(cons.asAnnotatable().getAnnotations());
 		  }
 
