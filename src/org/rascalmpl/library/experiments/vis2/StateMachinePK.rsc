@@ -32,7 +32,7 @@ Figure visTransition(Transition t) =
 
 data Model = model(Tree tree);
 
-str example =
+str sm_example =
 	"state closed
 	'	open =\> opened
 	'	lock =\> locked
@@ -42,10 +42,7 @@ str example =
 
 void sm(){
 
-	tree = parse(#StateMachine, example);
-	tree1 = makeCursor(tree);
-	println(toPath(tree1.states));
+	example = parse(#StateMachine, sm_example);
 	
-	
-	render("sm", #StateMachine, model(tree), visModel);
+	render("sm", #StateMachine, model(example), visModel);
 }
