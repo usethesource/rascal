@@ -9,19 +9,24 @@ var Figure = {
 	grow:	1.0,
     hgap: 0,
     vgap: 0,
+	
     fill: "white",
     "fill-opacity": 1.0,
+	
     "stroke-width": 1,
     stroke: "black", 
     "stroke-dasharray": [],
     "stroke-opacity": 1.0,
+	
     borderRadius: 0,
-    "font-family": "\"Helvetica Neue Light\", Helvetica, Arial, sans-serif",
+	
+    "font-family": "Helvetica, Helvetica, Arial, sans-serif",
     "font-name": "Helvetica",
     "font-size": 14,
     "font-style": "normal",        // normal, italic
-    "font-weight": 300,            // normal==400, bold
+    "font-weight": 100,            // normal==400, bold
     "text-decoration": "none",     // none, underline, overline, line-through
+    "font-color": "black",
     
     dataset: [], 
     figure_root:  {},
@@ -30,7 +35,9 @@ var Figure = {
     
     hasDefinedHeight: function() { var h = this.height || 0; return h > 0; },
                                
-    getModelElement: function(accessor) { return eval(accessor); },
+    getModelElement: function(accessor) { 
+			return getValue(eval(accessor)); 
+			},
     
     setModelElement: function(accessor, v) { 
           var v1 = !isString(v) ? JSON.stringify(v) : v;
@@ -40,6 +47,54 @@ var Figure = {
     model: undefined,
     
     name: undefined
+}
+
+function setAllStyles(figure, svg){
+	svg = setFillAndStrokeStyles(figure, svg);
+	svg = setFontStyles(figure, svg);
+	return svg;
+}
+
+function setDefaultStyles(svg){
+	return setAllStyles(Figure, svg);
+}
+
+function setFillAndStrokeStyles(figure, svg){
+	return svg
+		.style("fill", figure["fill"])
+     	.style("fill-opacity", figure["fill-opacity"])
+     	
+     	.style("stroke", figure["stroke"])
+     	.style("stroke-width", figure["stroke-width"])
+     	.style("stroke-opacity", figure["stroke-opacity"])
+     	.style("stroke-dasharray", figure["dash-array"])
+     	.style("vector-effect", "non-scaling-stroke")
+     	;
+}
+
+function setFontStyles(figure, svg){
+	return svg
+		.style("font-family", figure["font-family"])
+		.style("font-name", figure["font-name"])
+		.style("font-size", figure["font-size"])
+		.style("font-style", figure["font-style"])
+     	.style("font-weight", figure["font-weight"])
+		.style("text-decoration", figure["text-decoration"])
+		.style("fill", figure["font-color"])
+		.style("stroke", figure["font-color"])
+		.style("stroke-width", figure["stroke-width"])
+		;
+}
+
+function getValue(obj){
+	switch(obj[0]){
+		case "tuple":
+		case "list":
+		case "set":
+			return obj[1].each(getValue);
+		default:
+			return obj[1];
+	}
 }
 
 
@@ -230,21 +285,8 @@ function drawFigure1(f) {
      	//.style("overflow", "scroll")
      	;
      	
-    var svgarea = area
-     	.append("svg")
+    var svgarea = setDefaultStyles(area.append("svg"));
      	
-     	.style("fill", "white")
-     	.style("fill-opacity", 1)
-     	
-     	.style("stroke", "black")
-     	.style("stroke-width", 1)
-     	.style("stroke-opacity", 1)
-     	.style("stroke-dasharray", [])
-     	
-     	.style("font-weight", 300)
-     	.style("font-size", 20)
-     	.style("font-family", "\"Helvetica Neue Light\", Helvetica, Arial, sans-serif")
-     	;
     svgarea = zoomSetup(svgarea);
     try {
    	 f.bbox(svgarea);
@@ -477,14 +519,7 @@ Figure.bboxFunction.box = function(selection) {
     	.attr("ry", figure.ry)
 		;
 	
-	figure.svg
-    	.style("stroke", figure.stroke)
-		.style("stroke-opacity", figure["stroke-opacity"])
-    	.style("fill", figure.fill)
-		.style("fill-opacity", figure["fill-opacity"])
-    	.style("stroke-width", figure["stroke-width"] + "px")
-    	.style("stroke-dasharray", figure["stroke-dasharray"])
-    	;
+	figure.svg = setFillAndStrokeStyles(figure, figure.svg);
     
     if (figure.hasOwnProperty("inner")) {
         var inner = figure.inner;
@@ -538,43 +573,36 @@ Figure.bboxFunction.ellipse = function(selection) {
 	    width,  
         height;
  	if(figure.circle){
-		width = height = figure.hasOwnProperty("r") ? 2 * figure.r  : 0;
+		width = height = figure.hasOwnProperty("rx") ? 2 * figure.rx  : 0;
 	} else {
 		width  = figure.hasOwnProperty("rx") ? 2 * figure.rx  : 0;
         height = figure.hasOwnProperty("ry") ? 2 * figure.ry : 0;
 	}
-	figure.svg = selection
-    	.append("ellipse")
-    	.style("stroke", figure.stroke)
-    	.style("fill", figure.fill)
-    	.style("stroke-width", figure["stroke-width"] + "px")
-    	.style("stroke-dasharray", figure["stroke-dasharray"])
-    	;
+	figure.svg = setFillAndStrokeStyles(figure, selection.append("ellipse"));
     
     if (figure.hasOwnProperty("inner")) {
         var inner = figure.inner;
         console.log(inner);
         inner.bbox(selection);
         console.log("ellipse.inner", inner.min_width, inner.min_height);
-        if(!(figure.hasOwnProperty("rx") || figure.hasOwnProperty("rx"))){
+        if(!figure.hasOwnProperty("rx")){
             width = Math.max(width, figure.grow * inner.min_width + 2 * figure.hgap);
         }
-        if(!(figure.hasOwnProperty("ry") || figure.hasOwnProperty("ry"))){
+        if(!figure.hasOwnProperty("ry")){
             height = Math.max(height, figure.grow * inner.min_height + 2 * figure.vgap);
         }
         console.log("ellipse outer size:", width, height);
     }
     var lw = figure["stroke-width"];
     
-    width += 2 * lw;
-	height += 2 * lw;
-	
+    //width += lw;
+	//height += lw;
+	var diag = 1.02 * Math.sqrt(width*width + height*height);
 	if(figure.circle){
-		var m = Math.max(width,  height);
-		figure.min_width = figure.min_height = figure.hasOwnProperty("r") ?  2 * figure.r : 2 * m  / Math.sqrt(2);
+		figure.min_width = figure.min_height = figure.hasOwnProperty("rx") ?  2 * figure.rx : diag  ; /// Math.sqrt(2);
 	} else {
-		figure.min_width  = figure.hasOwnProperty("rx") ?  2 * figure.rx : 2 * width  / Math.sqrt(2);
-    	figure.min_height = figure.hasOwnProperty("ry") ?  2 * figure.ry : 2 * height / Math.sqrt(2);
+		figure.min_width  = figure.hasOwnProperty("rx") ?  2 * figure.rx : diag; //2 * width  / Math.sqrt(2);
+    	figure.min_height = figure.hasOwnProperty("ry") ?  2 * figure.ry : diag; // 2 * height / Math.sqrt(2);
 	}
     
     console.log("ellipse.bbox:", figure.min_width,  figure.min_height);
@@ -588,8 +616,8 @@ Figure.drawFunction.ellipse = function (x, y, w, h) {
 	figure.svg
 		.attr("cx", x + w/2)
 		.attr("cy", y + h/2)
-		.attr("rx", w/2 - lw)
-    	.attr("ry", h/2 - lw)
+		.attr("rx", w/2)
+    	.attr("ry", h/2)
 		;
     
     if (figure.hasOwnProperty("inner")) {
@@ -618,13 +646,7 @@ Figure.bboxFunction.ngon = function(selection) {
     var figure = this,
 	    r  = figure.hasOwnProperty("r") ? 2 * figure.r  : 0;
  
-	figure.svg = selection
-    	.append("polygon")
-    	.style("stroke", figure.stroke)
-    	.style("fill", figure.fill)
-    	.style("stroke-width", figure["stroke-width"] + "px")
-    	.style("stroke-dasharray", figure["stroke-dasharray"])
-    	;
+	figure.svg = setFillAndStrokeStyles(figure, selection.append("polygon"));
     
     if (figure.hasOwnProperty("inner")) {
         var inner = figure.inner;
@@ -678,14 +700,7 @@ Figure.drawFunction.ngon = function (x, y, w, h) {
 Figure.bboxFunction.polygon = function(selection) {
     var figure = this;
  
-	figure.svg = selection
-    	.append("polygon")
-    	.style("stroke", figure.stroke)
-    	.style("fill-rule", this["fill-rule"])
-    	.style("fill", figure.fill)
-    	.style("stroke-width", figure["stroke-width"] + "px")
-    	.style("stroke-dasharray", figure["stroke-dasharray"])
-    	;
+	figure.svg = setFillAndStrokeStyles(figure, selection.append("polygon"));
     
     var lw = figure["stroke-width"];	// TODO: check this
     
@@ -769,13 +784,10 @@ Figure.bboxFunction.shape = function(selection) {
 	var path = figure.svg
 		.append("path")
 		//.attr("transform", "translate(" + x + "," + y + ")")
-		.attr("d", figure.path)
-		.style("stroke", figure.stroke)
-		.style("fill-rule", figure["fill-rule"])
-    	.style("fill", figure.fill)
-    	.style("stroke-width", figure["stroke-width"] + "px")
-    	.style("stroke-dasharray", figure["stroke-dasharray"])
-    	;
+		.attr("d", figure.path);
+	path = setFillAndStrokeStyles(figure, path);
+	path.attr("fill-rule", figure["fill-rule"]);
+	
     if(!isEmptyFigure(inner[0])){
     	path.style("marker-start", "url(#startMarker)");
     }
@@ -816,16 +828,13 @@ Figure.drawFunction.shape = function (x, y, w, h) {
 /**************** text *************************************************/
 
 Figure.bboxFunction.text = function(selection) {
-    this.svg = selection.append("text")
+	var figure = this;
+    figure.svg = selection.append("text");
+	figure.svg = setAllStyles(figure, figure.svg);
+	figure.svg
         .style("text-anchor", "start")
+        .style("fill", figure["stroke"])
         .text(this.textValue)
-        .style("font-family", this["font-family"])
-        .style("font-style", this["font-style"])
-        .style("font-weight", this["font-weight"])
-        .style("font-size", this["font-size"])
-        .style("stroke", this.stroke)
-        .style("stroke-width", this["stroke-width"])
-        .style("fill",   this.stroke)
         ;
    
     var bb = this.svg.node().getBBox();
@@ -1273,20 +1282,23 @@ Figure.drawFunction.moveY = function (selection, x, y) {
 /**************** scale ************************************************/
 
 Figure.bboxFunction.scale = function(selection) {
-	this.svg = selection
+	var figure = this;
+	figure.svg = selection
 		.append("g")
-		.attr("transform", "scale(" + this.xfactor + "," + this.yfactor + ")")
+		.attr("transform", "scale(" + figure.xfactor + "," + figure.yfactor + ")")
 		;
-	var inner = this.inner;
-	this.svg = inner.bbox(this.svg);
-	this.width = this.xfactor * inner.width;
-	this.height = this.yfactor * inner.height;
-	return this.svg;
+	var inner = figure.inner;
+	figure.svg = inner.bbox(figure.svg);
+	figure.min_width = figure.xfactor * inner.width;
+	figure.min_height = figure.yfactor * inner.height;
+	return figure.svg;
 }
 
 Figure.drawFunction.scale = function (x, y, w, h) {
-	this.inner.draw(x, y, this.inner.width, this.inner.height);
-	return this.svg;
+	var figure = this;
+	//figure.attr("viewbox", " " + x + " " + y + " " + w + " " + h);
+	figure.inner.draw(x/figure.xfactor, y/figure.yfactor, figure.inner.width, figure.inner.height);
+	return figure.svg;
 }
 
 /**************** rotate ***********************************************/
@@ -1305,74 +1317,42 @@ Figure.bboxFunction.rotate = function(selection) {
 	var w = inner.width;
  	var h = inner.height;
 	
-	group.attr("transform", "rotate(" + this.angle + "," +  (w/2) + "," + (h/2) + ")");
-	
-	var angle = Figure.toRadians(this.angle % 180);
+	var angle = Figure.toRadians(this.angle);
 	var sin = Math.sin(angle);
+	if(sin < 0){ sin = -sin; }
+	
 	var cos = Math.cos(angle);
-	this.width = w * cos + h * sin;
-	this.height = w * sin + h * cos; 
+	if(cos < 0){ cos = -cos; }
+	
+	this.min_width = w * cos + h * sin;
+	this.min_height = w * sin + h * cos; 
+	
+	var midx = (this.min_width  - w)/2;
+	var midy = (this.min_height - h)/2;
+	
+	group.attr("transform", "translate(" + midx + "," + midy + ")" 
+							+
+	                        "rotate(" + this.angle + "," +  (w/2) + "," + (h/2) + ")"
+	                        );
 
-	console.log("rotate.bbox:", this.width, this.height);
+	console.log("rotate.bbox:", this.min_width, this.min_height);
 	
 	return this.svg;
 }
 
 Figure.drawFunction.rotate = function (x, y, w, h) {
-	var inner = this.inner;
+    var figure = this;
+	var inner = figure.inner;
 	this.svg
 		.attr("x", x)
 		.attr("y", y)
-		.attr("width", inner.width)
-		.attr("height", inner.height)
+		.attr("width", w)
+		.attr("height", h)
 	//	.attr("viewbox", " 0 0 " + w + " " + h)
 		;
 	inner.draw(x, y, inner.width, inner.height);
-	return this.svg;
+	return figure.svg;
 }
-
-// Figure.bboxFunction.rotate = function(selection) {
-// 	var inner = this.inner;
-// 	inner.bbox();
-// 	var w = inner.width;
-// 	var h = inner.height;
-	
-// 	var angle = Figure.toRadians(this.angle % 180);
-// 	var sin = Math.sin(angle);
-// 	var cos = Math.cos(angle);
-// 	var rot_w = w * cos + h * sin;
-// 	var rot_h = w * sin + h * cos; 
-	
-// 	//var dw = 0.5 * Math.abs(rot_w - w);
-	
-// 	//var dh = 0.5 * Math.abs(rot_h - h);
-	
-// 	//var dw = Math.abs(w - 0.5*(w - h) * sin);
-// 	//var dh = Math.abs(h - 0.5*(w - h) * sin);
-	
-	
-// 	//var dw = Math.abs(w * cos);
-// 	//var dh = Math.abs(h * cos);
-	
-// 	var dw = Math.abs(0.7 * (rot_w - w) * sin);
-// 	var dh = Math.abs(0.7 * (rot_h - h) * sin);
-	
-// 	this.dw = dw;
-// 	this.dh = dh;
-// 	this.width = rot_w; 
-// 	this.height = rot_h;
-// 	console.log("rotate.bbox:", this.width, this.height, "dw:", dw, "dh:", dh);
-// }
-
-// Figure.drawFunction.rotate = function (selection, x, y) {
-// 	var inner = this.inner;
-// 	var my_svg = selection
-// 		.append("svg").attr("viewbox", " 0 0 " + this.width + " " + this.height)
-// 		.append("g")
-// 		.attr("transform", "rotate(" + this.angle + "," +  (x+inner.width/2) + "," + (y+inner.height/2) + ")"/* translate(" + this.dw + "," + this.dh + ")"*/ );
-// 	 inner.draw(my_svg, x, y);
-// 	return my_svg;
-// }
 
 /************************************************************************/
 /*																		*/
