@@ -55,7 +55,7 @@ module.exports =  {
   debug: require('dagre').debug
 };
 
-},{"./lib/Renderer":3,"./lib/version":4,"dagre":11,"graphlib":28}],3:[function(require,module,exports){
+},{"./lib/Renderer":3,"./lib/version":4,"dagre":11,"graphlib":29}],3:[function(require,module,exports){
 var layout = require('dagre').layout;
 
 var d3;
@@ -198,6 +198,13 @@ Renderer.prototype.run = function(graph, orgSvg) {
   // Now apply the layout function
   var result = runLayout(graph, this._layout);
 
+  // Copy useDef attribute from input graph to output graph
+  graph.eachNode(function(u, a) {
+    if (a.useDef) {
+      result.node(u).useDef = a.useDef;
+    }
+  });
+
   // Run any user-specified post layout processing
   this._postLayout(result, svg);
 
@@ -218,23 +225,25 @@ function copyAndInitGraph(graph) {
 
   // Init labels if they were not present in the source graph
   copy.nodes().forEach(function(u) {
-    var value = copy.node(u);
-    if (value === undefined) {
-      value = {};
-      copy.node(u, value);
-    }
+    var value = copyObject(copy.node(u));
+    copy.node(u, value);
     if (!('label' in value)) { value.label = ''; }
   });
 
   copy.edges().forEach(function(e) {
-    var value = copy.edge(e);
-    if (value === undefined) {
-      value = {};
-      copy.edge(e, value);
-    }
+    var value = copyObject(copy.edge(e));
+    copy.edge(e, value);
     if (!('label' in value)) { value.label = ''; }
   });
 
+  return copy;
+}
+
+function copyObject(obj) {
+  var copy = {};
+  for (var k in obj) {
+    copy[k] = obj[k];
+  }
   return copy;
 }
 
@@ -365,8 +374,8 @@ function isPolygon(obj) {
 }
 
 function intersectNode(nd, p1, root){
-  if (nd.label.match(/^[a-zA-Z0-9]+$/)) {
-      var definedFig = root.select('defs #def-' + nd.label).node();
+  if (nd.useDef) {
+      var definedFig = root.select('defs #' + nd.useDef).node();
       if (definedFig) {
           var outerFig = definedFig.childNodes[0];
           if (isCircle(outerFig) || isEllipse(outerFig)) {
@@ -393,10 +402,7 @@ function defaultPositionEdgePaths(g, svgEdgePaths, root) {
     var p0 = points.length === 0 ? target : points[0];
     var p1 = points.length === 0 ? source : points[points.length - 1];
     
-    //points.unshift(source);	// ultimately we want this: 
-    console.log('intersect source -> p0');
     points.unshift(intersectNode(source, p0, root));
-    console.log('intersect target -> p1');
     points.push(intersectNode(target, p1, root));
     
     return d3.svg.line()
@@ -424,8 +430,11 @@ function defaultTransition(selection) {
 function defaultZoomSetup(graph, svg) {
   var root = svg.property('ownerSVGElement');
   // If the svg node is the root, we get null, so set to svg.
-  if (!root) { root = svg; }
-  root = d3.select(root);
+  if (!root) {
+    root = svg;
+  } else {
+    root = d3.select(root);
+  }
 
   if (root.select('rect.overlay').empty()) {
     // Create an overlay for capturing mouse events that don't touch foreground
@@ -478,19 +487,19 @@ function defaultPostRender(graph, root) {
 }
 
 function addLabel(node, root, addingNode, marginX, marginY) {
-  // If the node has 'use' meta data, we rely on that
-  if(node.use){
-      root.append('use').attr('xlink:href', '#' + node.use);
-      return;
+  // If the node has 'useDef' meta data, we rely on that
+  if(node.useDef) {
+    root.append('use').attr('xlink:href', '#' + node.useDef);
+    return;
   }
   // Add the rect first so that it appears behind the label
   var label = node.label;
   var rect = root.append('rect');
   if (node.width) {
-      rect.attr('width', node.width);
+    rect.attr('width', node.width);
   }
   if (node.height) {
-      rect.attr('height', node.height);
+    rect.attr('height', node.height);
   }
   
   var labelSvg = root.append('g').style('stroke', '#00');
@@ -647,34 +656,34 @@ function intersectRect(rect, point) {
 }
 
 function intersectEllipse(node, ellipseOrCircle, point) {
-    // Formulae from: http://mathworld.wolfram.com/Ellipse-LineIntersection.html
-    
-    var cx = node.x;
-    var cy = node.y;
-    var rx, ry;
-    
-    if(isCircle(ellipseOrCircle)){
-	rx = ry = ellipseOrCircle.r.baseVal.value;
-    } else {
-	rx = ellipseOrCircle.rx.baseVal.value;
-	ry = ellipseOrCircle.ry.baseVal.value;
-    }
-   
-    var px = cx - point.x;
-    var py = cy - point.y;
-    
-    var det = Math.sqrt(rx * rx * py * py + ry * ry * px * px);
-   
-    var dx = Math.abs(rx * ry * px / det);
-    if(point.x < cx){
-	dx = -dx;
-    }
-    var dy = Math.abs(rx * ry * py / det);
-    if(point.y < cy){
-	dy = - dy;
-    }
+  // Formulae from: http://mathworld.wolfram.com/Ellipse-LineIntersection.html
+  
+  var cx = node.x;
+  var cy = node.y;
+  var rx, ry;
+  
+  if(isCircle(ellipseOrCircle)) {
+    rx = ry = ellipseOrCircle.r.baseVal.value;
+  } else {
+    rx = ellipseOrCircle.rx.baseVal.value;
+    ry = ellipseOrCircle.ry.baseVal.value;
+  }
+ 
+  var px = cx - point.x;
+  var py = cy - point.y;
+  
+  var det = Math.sqrt(rx * rx * py * py + ry * ry * px * px);
+ 
+  var dx = Math.abs(rx * ry * px / det);
+  if(point.x < cx) {
+    dx = -dx;
+  }
+  var dy = Math.abs(rx * ry * py / det);
+  if(point.y < cy) {
+    dy = - dy;
+  }
 
-    return {x: cx + dx, y: cy +dy};
+  return {x: cx + dx, y: cy +dy};
 }
 
 function same_sign(r1, r2) {
@@ -684,118 +693,117 @@ function same_sign(r1, r2) {
 // Add point to the found interesctions, but check first that it is unique.
 
 function add_point(x, y, intersections){
-    if (!intersections.some(function (elm){ return elm[0] === x && elm[1] === y; })) {
-	intersections.push([x, y]);
-    }
+  if (!intersections.some(function (elm){ return elm[0] === x && elm[1] === y; })) {
+    intersections.push([x, y]);
+  }
 }
 
 function intersectLine(x1, y1, x2, y2, x3, y3, x4, y4, intersections){
-    // Algorithm from J. Avro, (ed.) Graphics Gems, No 2, Morgan Kaufmann, 1994, p7 and p473.
-    
-    var a1, a2, b1, b2, c1, c2;
-    var r1, r2 , r3, r4;
-    var denom, offset, num;
-    var x, y;
+  // Algorithm from J. Avro, (ed.) Graphics Gems, No 2, Morgan Kaufmann, 1994, p7 and p473.
+  
+  var a1, a2, b1, b2, c1, c2;
+  var r1, r2 , r3, r4;
+  var denom, offset, num;
+  var x, y;
 
-    // Compute a1, b1, c1, where line joining points 1 and 2 is F(x,y) = a1 x + b1 y + c1 = 0.
-    a1 = y2 - y1;
-    b1 = x1 - x2;
-    c1 = (x2 * y1) - (x1 * y2);
+  // Compute a1, b1, c1, where line joining points 1 and 2 is F(x,y) = a1 x + b1 y + c1 = 0.
+  a1 = y2 - y1;
+  b1 = x1 - x2;
+  c1 = (x2 * y1) - (x1 * y2);
 
-    // Compute r3 and r4.
-    r3 = ((a1 * x3) + (b1 * y3) + c1);
-    r4 = ((a1 * x4) + (b1 * y4) + c1);
+  // Compute r3 and r4.
+  r3 = ((a1 * x3) + (b1 * y3) + c1);
+  r4 = ((a1 * x4) + (b1 * y4) + c1);
 
-    // Check signs of r3 and r4. If both point 3 and point 4 lie on
-    // same side of line 1, the line segments do not intersect.
-    if ((r3 !== 0) && (r4 !== 0) && same_sign(r3, r4)) {
-      return /*DONT_INTERSECT*/;
-    }
-
-    // Compute a2, b2, c2 where line joining points 3 and 4 is G(x,y) = a2 x + b2 y + c2 = 0 
-    a2 = y4 - y3;
-    b2 = x3 - x4;
-    c2 = (x4 * y3) - (x3 * y4);
-
-    // Compute r1 and r2
-    r1 = (a2 * x1) + (b2 * y1) + c2;
-    r2 = (a2 * x2) + (b2 * y2) + c2;
-    
-    // Check signs of r1 and r2. If both point 1 and point 2 lie
-    // on same side of second line segment, the line segments do
-    // not intersect.
-    if ((r1 !== 0) && (r2 !== 0) && (same_sign(r1, r2))) {
-      return /*DONT_INTERSECT*/;
-    }
-
-    // Line segments intersect: compute intersection point.
-    denom = (a1 * b2) - (a2 * b1);
-    if (denom === 0) {
-      return /*COLLINEAR*/;
-    }
-    
-    offset = Math.abs(denom / 2);
-
-    // The denom/2 is to get rounding instead of truncating. It
-    // is added or subtracted to the numerator, depending upon the
-    // sign of the numerator.
-    num = (b1 * c2) - (b2 * c1);
-    x = (num < 0) ? ((num - offset) / denom) : ((num + offset) / denom);
-
-    num = (a2 * c1) - (a1 * c2);
-    y = (num < 0) ? ((num - offset) / denom) : ((num + offset) / denom);
-
-    // lines_intersect
-    add_point(x, y, intersections);
-    return;
+  // Check signs of r3 and r4. If both point 3 and point 4 lie on
+  // same side of line 1, the line segments do not intersect.
+  if ((r3 !== 0) && (r4 !== 0) && same_sign(r3, r4)) {
+    return /*DONT_INTERSECT*/;
   }
 
+  // Compute a2, b2, c2 where line joining points 3 and 4 is G(x,y) = a2 x + b2 y + c2 = 0 
+  a2 = y4 - y3;
+  b2 = x3 - x4;
+  c2 = (x4 * y3) - (x3 * y4);
+
+  // Compute r1 and r2
+  r1 = (a2 * x1) + (b2 * y1) + c2;
+  r2 = (a2 * x2) + (b2 * y2) + c2;
+  
+  // Check signs of r1 and r2. If both point 1 and point 2 lie
+  // on same side of second line segment, the line segments do
+  // not intersect.
+  if ((r1 !== 0) && (r2 !== 0) && (same_sign(r1, r2))) {
+    return /*DONT_INTERSECT*/;
+  }
+
+  // Line segments intersect: compute intersection point.
+  denom = (a1 * b2) - (a2 * b1);
+  if (denom === 0) {
+    return /*COLLINEAR*/;
+  }
+  
+  offset = Math.abs(denom / 2);
+
+  // The denom/2 is to get rounding instead of truncating. It
+  // is added or subtracted to the numerator, depending upon the
+  // sign of the numerator.
+  num = (b1 * c2) - (b2 * c1);
+  x = (num < 0) ? ((num - offset) / denom) : ((num + offset) / denom);
+
+  num = (a2 * c1) - (a1 * c2);
+  y = (num < 0) ? ((num - offset) / denom) : ((num + offset) / denom);
+
+  // lines_intersect
+  add_point(x, y, intersections);
+}
+
 function intersectPolygon(node, polygon, point) {
-    var x1 = node.x;
-    var y1 = node.y;
-    var x2 = point.x;
-    var y2 = point.y;
-    
-    var intersections = [];
-    var points = polygon.points;
-    
-    var minx = 100000, miny = 100000;
-    for(var j = 0; j < points.numberOfItems; j++){
-	var p = points.getItem(j);
-	minx = Math.min(minx, p.x);
-	miny = Math.min(miny, p.y);
-    }
-    
-    var left = x1 - node.width/2 - minx;
-    var top =  y1 - node.height/2 - miny;
-    
-    for(var i = 0; i < points.numberOfItems; i++){
-	var p1 = points.getItem(i);
-	var p2 = points.getItem(i < points.numberOfItems - 1 ? i + 1 : 0);
-	intersectLine(x1, y1, x2, y2, left + p1.x, top + p1.y, left + p2.x, top + p2.y, intersections);
-    }
-   
-    if(intersections.length === 1){
-	return {x: intersections[0][0], y: intersections[0][1]};
-     }
-    if(intersections.length > 1){
-       // More intersections, find the one nearest to edge end point
-       intersections.sort(function(p, q){
-           var pdx = p[0] - point.x,
-               pdy = p[1] - point.y,
-               distp = Math.sqrt(pdx * pdx + pdy * pdy),
+  var x1 = node.x;
+  var y1 = node.y;
+  var x2 = point.x;
+  var y2 = point.y;
+  
+  var intersections = [];
+  var points = polygon.points;
+  
+  var minx = 100000, miny = 100000;
+  for(var j = 0; j < points.numberOfItems; j++) {
+    var p = points.getItem(j);
+    minx = Math.min(minx, p.x);
+    miny = Math.min(miny, p.y);
+  }
+  
+  var left = x1 - node.width/2 - minx;
+  var top =  y1 - node.height/2 - miny;
+  
+  for(var i = 0; i < points.numberOfItems; i++) {
+    var p1 = points.getItem(i);
+    var p2 = points.getItem(i < points.numberOfItems - 1 ? i + 1 : 0);
+    intersectLine(x1, y1, x2, y2, left + p1.x, top + p1.y, left + p2.x, top + p2.y, intersections);
+  }
+ 
+  if(intersections.length === 1) {
+    return {x: intersections[0][0], y: intersections[0][1]};
+  }
+  if(intersections.length > 1){
+    // More intersections, find the one nearest to edge end point
+    intersections.sort(function(p, q) {
+      var pdx = p[0] - point.x,
+         pdy = p[1] - point.y,
+         distp = Math.sqrt(pdx * pdx + pdy * pdy),
 
-               qdx = q[0] - point.x,
-               qdy = q[1] - point.y,
-               distq = Math.sqrt(qdx * qdx + qdy * qdy);
+         qdx = q[0] - point.x,
+         qdy = q[1] - point.y,
+         distq = Math.sqrt(qdx * qdx + qdy * qdy);
 
-           return (distp < distq) ? -1 : (distp === distq ? 0 : 1);
-       });
-       return {x: intersections[0][0], y: intersections[0][1]};
-    } else {
-       console.log('NO INTERSCTION FOUND, RETURN NODE CENTER', node);
-       return node;
-    }
+      return (distp < distq) ? -1 : (distp === distq ? 0 : 1);
+    });
+    return {x: intersections[0][0], y: intersections[0][1]};
+  } else {
+   console.log('NO INTERSECTION FOUND, RETURN NODE CENTER', node);
+   return node;
+  }
 }
 
 function isComposite(g, u) {
@@ -815,7 +823,7 @@ function bind(func, thisArg) {
 }
 
 },{"d3":10,"dagre":11}],4:[function(require,module,exports){
-module.exports = '0.2.4-pre';
+module.exports = '0.2.5-pre';
 
 },{}],5:[function(require,module,exports){
 exports.Set = require('./lib/Set');
@@ -1204,8 +1212,62 @@ exports.Digraph = require("graphlib").Digraph;
 exports.Graph = require("graphlib").Graph;
 exports.layout = require("./lib/layout");
 exports.version = require("./lib/version");
+exports.debug = require("./lib/debug");
 
-},{"./lib/layout":12,"./lib/version":27,"graphlib":28}],12:[function(require,module,exports){
+},{"./lib/debug":12,"./lib/layout":13,"./lib/version":28,"graphlib":29}],12:[function(require,module,exports){
+'use strict';
+
+var util = require('./util');
+
+/**
+ * Renders a graph in a stringified DOT format that indicates the ordering of
+ * nodes by layer. Circles represent normal nodes. Diamons represent dummy
+ * nodes. While we try to put nodes in clusters, it appears that graphviz
+ * does not respect this because we're later using subgraphs for ordering nodes
+ * in each layer.
+ */
+exports.dotOrdering = function(g) {
+  var ordering = util.ordering(g.filterNodes(util.filterNonSubgraphs(g)));
+  var result = 'digraph {';
+
+  function dfs(u) {
+    var children = g.children(u);
+    if (children.length) {
+      result += 'subgraph cluster_' + u + ' {';
+      result += 'label="' + u + '";';
+      children.forEach(function(v) {
+        dfs(v);
+      });
+      result += '}';
+    } else {
+      result += u;
+      if (g.node(u).dummy) {
+        result += ' [shape=diamond]';
+      }
+      result += ';';
+    }
+  }
+
+  g.children(null).forEach(dfs);
+
+  ordering.forEach(function(layer) {
+    result += 'subgraph { rank=same; edge [style="invis"];';
+    result += layer.join('->');
+    result += '}';
+  });
+
+  g.eachEdge(function(e, u, v) {
+    result += u + '->' + v + ';';
+  });
+
+  result += '}';
+
+  return result;
+};
+
+},{"./util":27}],13:[function(require,module,exports){
+'use strict';
+
 var util = require('./util'),
     rank = require('./rank'),
     order = require('./order'),
@@ -1474,7 +1536,9 @@ module.exports = function() {
 };
 
 
-},{"./order":13,"./position":18,"./rank":19,"./util":26,"graphlib":28}],13:[function(require,module,exports){
+},{"./order":14,"./position":19,"./rank":20,"./util":27,"graphlib":29}],14:[function(require,module,exports){
+'use strict';
+
 var util = require('./util'),
     crossCount = require('./order/crossCount'),
     initLayerGraphs = require('./order/initLayerGraphs'),
@@ -1577,19 +1641,21 @@ function sweep(g, layerGraphs, iter) {
 
 function sweepDown(g, layerGraphs) {
   var cg;
-  for (i = 1; i < layerGraphs.length; ++i) {
+  for (var i = 1; i < layerGraphs.length; ++i) {
     cg = sortLayer(layerGraphs[i], cg, predecessorWeights(g, layerGraphs[i].nodes()));
   }
 }
 
 function sweepUp(g, layerGraphs) {
   var cg;
-  for (i = layerGraphs.length - 2; i >= 0; --i) {
+  for (var i = layerGraphs.length - 2; i >= 0; --i) {
     sortLayer(layerGraphs[i], cg, successorWeights(g, layerGraphs[i].nodes()));
   }
 }
 
-},{"./order/crossCount":14,"./order/initLayerGraphs":15,"./order/initOrder":16,"./order/sortLayer":17,"./util":26}],14:[function(require,module,exports){
+},{"./order/crossCount":15,"./order/initLayerGraphs":16,"./order/initOrder":17,"./order/sortLayer":18,"./util":27}],15:[function(require,module,exports){
+'use strict';
+
 var util = require('../util');
 
 module.exports = crossCount;
@@ -1646,7 +1712,9 @@ function twoLayerCrossCount(g, layer1, layer2) {
   return cc;
 }
 
-},{"../util":26}],15:[function(require,module,exports){
+},{"../util":27}],16:[function(require,module,exports){
+'use strict';
+
 var nodesFromList = require('graphlib').filter.nodesFromList,
     /* jshint -W079 */
     Set = require('cp-data').Set;
@@ -1697,7 +1765,9 @@ function initLayerGraphs(g) {
   return layerGraphs;
 }
 
-},{"cp-data":5,"graphlib":28}],16:[function(require,module,exports){
+},{"cp-data":5,"graphlib":29}],17:[function(require,module,exports){
+'use strict';
+
 var crossCount = require('./crossCount'),
     util = require('../util');
 
@@ -1735,52 +1805,26 @@ function initOrder(g, random) {
   g.graph().orderCC = Number.MAX_VALUE;
 }
 
-},{"../util":26,"./crossCount":14}],17:[function(require,module,exports){
-var util = require('../util');
-/*
+},{"../util":27,"./crossCount":15}],18:[function(require,module,exports){
+'use strict';
+
+var util = require('../util'),
     Digraph = require('graphlib').Digraph,
     topsort = require('graphlib').alg.topsort,
     nodesFromList = require('graphlib').filter.nodesFromList;
-*/
 
 module.exports = sortLayer;
 
-/*
 function sortLayer(g, cg, weights) {
+  weights = adjustWeights(g, weights);
   var result = sortLayerSubgraph(g, null, cg, weights);
+
   result.list.forEach(function(u, i) {
     g.node(u).order = i;
   });
   return result.constraintGraph;
 }
-*/
 
-function sortLayer(g, cg, weights) {
-  var ordering = [];
-  var bs = {};
-  g.eachNode(function(u, value) {
-    ordering[value.order] = u;
-    var ws = weights[u];
-    if (ws.length) {
-      bs[u] = util.sum(ws) / ws.length;
-    }
-  });
-
-  var toSort = g.nodes().filter(function(u) { return bs[u] !== undefined; });
-  toSort.sort(function(x, y) {
-    return bs[x] - bs[y] || g.node(x).order - g.node(y).order;
-  });
-
-  for (var i = 0, j = 0, jl = toSort.length; j < jl; ++i) {
-    if (bs[ordering[i]] !== undefined) {
-      g.node(toSort[j++]).order = i;
-    }
-  }
-}
-
-// TOOD: re-enable constrained sorting once we have a strategy for handling
-// undefined barycenters.
-/*
 function sortLayerSubgraph(g, sg, cg, weights) {
   cg = cg ? cg.filterNodes(nodesFromList(g.children(sg))) : new Digraph();
 
@@ -1794,7 +1838,9 @@ function sortLayerSubgraph(g, sg, cg, weights) {
       var ws = weights[u];
       nodeData[u] = {
         degree: ws.length,
-        barycenter: ws.length > 0 ? util.sum(ws) / ws.length : 0,
+        barycenter: util.sum(ws) / ws.length,
+        order: g.node(u).order,
+        orderCount: 1,
         list: [u]
       };
     }
@@ -1804,7 +1850,8 @@ function sortLayerSubgraph(g, sg, cg, weights) {
 
   var keys = Object.keys(nodeData);
   keys.sort(function(x, y) {
-    return nodeData[x].barycenter - nodeData[y].barycenter;
+    return nodeData[x].barycenter - nodeData[y].barycenter ||
+           nodeData[x].order - nodeData[y].order;
   });
 
   var result =  keys.map(function(u) { return nodeData[u]; })
@@ -1812,7 +1859,6 @@ function sortLayerSubgraph(g, sg, cg, weights) {
   return result;
 }
 
-/*
 function mergeNodeData(g, lhs, rhs) {
   var cg = mergeDigraphs(lhs.constraintGraph, rhs.constraintGraph);
 
@@ -1829,6 +1875,9 @@ function mergeNodeData(g, lhs, rhs) {
     degree: lhs.degree + rhs.degree,
     barycenter: (lhs.barycenter * lhs.degree + rhs.barycenter * rhs.degree) /
                 (lhs.degree + rhs.degree),
+    order: (lhs.order * lhs.orderCount + rhs.order * rhs.orderCount) /
+           (lhs.orderCount + rhs.orderCount),
+    orderCount: lhs.orderCount + rhs.orderCount,
     list: lhs.list.concat(rhs.list),
     firstSG: lhs.firstSG !== undefined ? lhs.firstSG : rhs.firstSG,
     lastSG: rhs.lastSG !== undefined ? rhs.lastSG : lhs.lastSG,
@@ -1898,9 +1947,48 @@ function findViolatedConstraint(cg, nodeData) {
     }
   }
 }
-*/
 
-},{"../util":26}],18:[function(require,module,exports){
+// Adjust weights so that they fall in the range of 0..|N|-1. If a node has no
+// weight assigned then set its adjusted weight to its current position. This
+// allows us to better retain the origiinal position of nodes without neighbors.
+function adjustWeights(g, weights) {
+  var minW = Number.MAX_VALUE,
+      maxW = 0,
+      adjusted = {};
+  g.eachNode(function(u) {
+    if (g.children(u).length) return;
+
+    var ws = weights[u];
+    if (ws.length) {
+      minW = Math.min(minW, util.min(ws));
+      maxW = Math.max(maxW, util.max(ws));
+    }
+  });
+
+  var rangeW = (maxW - minW);
+  g.eachNode(function(u) {
+    if (g.children(u).length) return;
+
+    var ws = weights[u];
+    if (!ws.length) {
+      adjusted[u] = [g.node(u).order];
+    } else {
+      adjusted[u] = ws.map(function(w) {
+        if (rangeW) {
+          return (w - minW) * (g.order() - 1) / rangeW;
+        } else {
+          return g.order() - 1 / 2;
+        }
+      });
+    }
+  });
+
+  return adjusted;
+}
+
+},{"../util":27,"graphlib":29}],19:[function(require,module,exports){
+'use strict';
+
 var util = require('./util');
 
 /*
@@ -2340,7 +2428,9 @@ module.exports = function() {
   }
 };
 
-},{"./util":26}],19:[function(require,module,exports){
+},{"./util":27}],20:[function(require,module,exports){
+'use strict';
+
 var util = require('./util'),
     acyclic = require('./rank/acyclic'),
     initRank = require('./rank/initRank'),
@@ -2478,7 +2568,9 @@ function normalize(g) {
   g.eachNode(function(u, node) { node.rank -= m; });
 }
 
-},{"./rank/acyclic":20,"./rank/constraints":21,"./rank/feasibleTree":22,"./rank/initRank":23,"./rank/simplex":25,"./util":26,"graphlib":28}],20:[function(require,module,exports){
+},{"./rank/acyclic":21,"./rank/constraints":22,"./rank/feasibleTree":23,"./rank/initRank":24,"./rank/simplex":26,"./util":27,"graphlib":29}],21:[function(require,module,exports){
+'use strict';
+
 var util = require('../util');
 
 module.exports = acyclic;
@@ -2541,7 +2633,9 @@ function undo(g) {
   });
 }
 
-},{"../util":26}],21:[function(require,module,exports){
+},{"../util":27}],22:[function(require,module,exports){
+'use strict';
+
 exports.apply = function(g) {
   function dfs(sg) {
     var rankSets = {};
@@ -2710,7 +2804,9 @@ exports.relax = function(g) {
   });
 };
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
+'use strict';
+
 /* jshint -W079 */
 var Set = require('cp-data').Set,
 /* jshint +W079 */
@@ -2835,7 +2931,9 @@ function slack(g, u, v) {
   return rankDiff - maxMinLen;
 }
 
-},{"../util":26,"cp-data":5,"graphlib":28}],23:[function(require,module,exports){
+},{"../util":27,"cp-data":5,"graphlib":29}],24:[function(require,module,exports){
+'use strict';
+
 var util = require('../util'),
     topsort = require('graphlib').alg.topsort;
 
@@ -2867,7 +2965,9 @@ function initRank(g) {
   });
 }
 
-},{"../util":26,"graphlib":28}],24:[function(require,module,exports){
+},{"../util":27,"graphlib":29}],25:[function(require,module,exports){
+'use strict';
+
 module.exports = {
   slack: slack
 };
@@ -2885,7 +2985,9 @@ function slack(graph, u, v, minLen) {
   return Math.abs(graph.node(u).rank - graph.node(v).rank) - minLen;
 }
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
+'use strict';
+
 var util = require('../util'),
     rankUtil = require('./rankUtil');
 
@@ -3195,7 +3297,9 @@ function minimumLength(graph, u, v) {
   }
 }
 
-},{"../util":26,"./rankUtil":24}],26:[function(require,module,exports){
+},{"../util":27,"./rankUtil":25}],27:[function(require,module,exports){
+'use strict';
+
 /*
  * Returns the smallest value in the array.
  */
@@ -3239,7 +3343,7 @@ exports.values = function(obj) {
 };
 
 exports.shuffle = function(array) {
-  for (i = array.length - 1; i > 0; --i) {
+  for (var i = array.length - 1; i > 0; --i) {
     var j = Math.floor(Math.random() * (i + 1));
     var aj = array[j];
     array[j] = array[i];
@@ -3314,10 +3418,10 @@ log.level = 0;
 
 exports.log = log;
 
-},{}],27:[function(require,module,exports){
-module.exports = '0.4.5';
-
 },{}],28:[function(require,module,exports){
+module.exports = '0.4.6';
+
+},{}],29:[function(require,module,exports){
 exports.Graph = require("./lib/Graph");
 exports.Digraph = require("./lib/Digraph");
 exports.CGraph = require("./lib/CGraph");
@@ -3350,7 +3454,7 @@ exports.filter = {
 
 exports.version = require("./lib/version");
 
-},{"./lib/CDigraph":30,"./lib/CGraph":31,"./lib/Digraph":32,"./lib/Graph":33,"./lib/alg/components":34,"./lib/alg/dijkstra":35,"./lib/alg/dijkstraAll":36,"./lib/alg/findCycles":37,"./lib/alg/floydWarshall":38,"./lib/alg/isAcyclic":39,"./lib/alg/postorder":40,"./lib/alg/preorder":41,"./lib/alg/prim":42,"./lib/alg/tarjan":43,"./lib/alg/topsort":44,"./lib/converter/json.js":46,"./lib/filter":47,"./lib/graph-converters":48,"./lib/version":50}],29:[function(require,module,exports){
+},{"./lib/CDigraph":31,"./lib/CGraph":32,"./lib/Digraph":33,"./lib/Graph":34,"./lib/alg/components":35,"./lib/alg/dijkstra":36,"./lib/alg/dijkstraAll":37,"./lib/alg/findCycles":38,"./lib/alg/floydWarshall":39,"./lib/alg/isAcyclic":40,"./lib/alg/postorder":41,"./lib/alg/preorder":42,"./lib/alg/prim":43,"./lib/alg/tarjan":44,"./lib/alg/topsort":45,"./lib/converter/json.js":47,"./lib/filter":48,"./lib/graph-converters":49,"./lib/version":51}],30:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -3547,7 +3651,7 @@ function delEdgeFromMap(map, v, e) {
 }
 
 
-},{"cp-data":5}],30:[function(require,module,exports){
+},{"cp-data":5}],31:[function(require,module,exports){
 var Digraph = require("./Digraph"),
     compoundify = require("./compoundify");
 
@@ -3584,7 +3688,7 @@ CDigraph.prototype.toString = function() {
   return "CDigraph " + JSON.stringify(this, null, 2);
 };
 
-},{"./Digraph":32,"./compoundify":45}],31:[function(require,module,exports){
+},{"./Digraph":33,"./compoundify":46}],32:[function(require,module,exports){
 var Graph = require("./Graph"),
     compoundify = require("./compoundify");
 
@@ -3621,7 +3725,7 @@ CGraph.prototype.toString = function() {
   return "CGraph " + JSON.stringify(this, null, 2);
 };
 
-},{"./Graph":33,"./compoundify":45}],32:[function(require,module,exports){
+},{"./Graph":34,"./compoundify":46}],33:[function(require,module,exports){
 /*
  * This file is organized with in the following order:
  *
@@ -3889,7 +3993,7 @@ Digraph.prototype._filterNodes = function(pred) {
 };
 
 
-},{"./BaseGraph":29,"./util":49,"cp-data":5}],33:[function(require,module,exports){
+},{"./BaseGraph":30,"./util":50,"cp-data":5}],34:[function(require,module,exports){
 /*
  * This file is organized with in the following order:
  *
@@ -4024,7 +4128,7 @@ Graph.prototype.delEdge = function(e) {
 };
 
 
-},{"./BaseGraph":29,"./util":49,"cp-data":5}],34:[function(require,module,exports){
+},{"./BaseGraph":30,"./util":50,"cp-data":5}],35:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -4067,7 +4171,7 @@ function components(g) {
   return results;
 }
 
-},{"cp-data":5}],35:[function(require,module,exports){
+},{"cp-data":5}],36:[function(require,module,exports){
 var PriorityQueue = require("cp-data").PriorityQueue;
 
 module.exports = dijkstra;
@@ -4147,7 +4251,7 @@ function dijkstra(g, source, weightFunc, incidentFunc) {
   return results;
 }
 
-},{"cp-data":5}],36:[function(require,module,exports){
+},{"cp-data":5}],37:[function(require,module,exports){
 var dijkstra = require("./dijkstra");
 
 module.exports = dijkstraAll;
@@ -4184,7 +4288,7 @@ function dijkstraAll(g, weightFunc, incidentFunc) {
   return results;
 }
 
-},{"./dijkstra":35}],37:[function(require,module,exports){
+},{"./dijkstra":36}],38:[function(require,module,exports){
 var tarjan = require("./tarjan");
 
 module.exports = findCycles;
@@ -4206,7 +4310,7 @@ function findCycles(g) {
   return tarjan(g).filter(function(cmpt) { return cmpt.length > 1; });
 }
 
-},{"./tarjan":43}],38:[function(require,module,exports){
+},{"./tarjan":44}],39:[function(require,module,exports){
 module.exports = floydWarshall;
 
 /**
@@ -4285,7 +4389,7 @@ function floydWarshall(g, weightFunc, incidentFunc) {
   return results;
 }
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var topsort = require("./topsort");
 
 module.exports = isAcyclic;
@@ -4311,7 +4415,7 @@ function isAcyclic(g) {
   return true;
 }
 
-},{"./topsort":44}],40:[function(require,module,exports){
+},{"./topsort":45}],41:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -4338,7 +4442,7 @@ function postorder(g, root, f) {
   dfs(root);
 }
 
-},{"cp-data":5}],41:[function(require,module,exports){
+},{"cp-data":5}],42:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -4365,7 +4469,7 @@ function preorder(g, root, f) {
   dfs(root);
 }
 
-},{"cp-data":5}],42:[function(require,module,exports){
+},{"cp-data":5}],43:[function(require,module,exports){
 var Graph = require("../Graph"),
     PriorityQueue = require("cp-data").PriorityQueue;
 
@@ -4436,7 +4540,7 @@ function prim(g, weightFunc) {
   return result;
 }
 
-},{"../Graph":33,"cp-data":5}],43:[function(require,module,exports){
+},{"../Graph":34,"cp-data":5}],44:[function(require,module,exports){
 module.exports = tarjan;
 
 /**
@@ -4504,7 +4608,7 @@ function tarjan(g) {
   return results;
 }
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 module.exports = topsort;
 topsort.CycleException = CycleException;
 
@@ -4562,7 +4666,7 @@ CycleException.prototype.toString = function() {
   return "Graph has at least one cycle";
 };
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 // This file provides a helper function that mixes-in Dot behavior to an
 // existing graph prototype.
 
@@ -4670,7 +4774,7 @@ function compoundify(SuperConstructor) {
   return Constructor;
 }
 
-},{"cp-data":5}],46:[function(require,module,exports){
+},{"cp-data":5}],47:[function(require,module,exports){
 var Graph = require("../Graph"),
     Digraph = require("../Digraph"),
     CGraph = require("../CGraph"),
@@ -4760,7 +4864,7 @@ function typeOf(obj) {
   return Object.prototype.toString.call(obj).slice(8, -1);
 }
 
-},{"../CDigraph":30,"../CGraph":31,"../Digraph":32,"../Graph":33}],47:[function(require,module,exports){
+},{"../CDigraph":31,"../CGraph":32,"../Digraph":33,"../Graph":34}],48:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -4776,7 +4880,7 @@ exports.nodesFromList = function(nodes) {
   };
 };
 
-},{"cp-data":5}],48:[function(require,module,exports){
+},{"cp-data":5}],49:[function(require,module,exports){
 var Graph = require("./Graph"),
     Digraph = require("./Digraph");
 
@@ -4815,7 +4919,7 @@ Digraph.prototype.asUndirected = function() {
   return g;
 };
 
-},{"./Digraph":32,"./Graph":33}],49:[function(require,module,exports){
+},{"./Digraph":33,"./Graph":34}],50:[function(require,module,exports){
 // Returns an array of all values for properties of **o**.
 exports.values = function(o) {
   var ks = Object.keys(o),
@@ -4828,7 +4932,7 @@ exports.values = function(o) {
   return result;
 };
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 module.exports = '0.7.4';
 
 },{}]},{},[1])
