@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,6 +77,20 @@ public abstract class ImportedModule extends AbstractAST {
       return visitor.visitImportedModuleActuals(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Actuals)) {
+        return false;
+      }        
+      Actuals tmp = (Actuals) o;
+      return true && tmp.name.equals(this.name) && tmp.actuals.equals(this.actuals) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 499 + 701 * name.hashCode() + 727 * actuals.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.QualifiedName getName() {
@@ -126,6 +140,20 @@ public abstract class ImportedModule extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitImportedModuleActualsRenaming(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof ActualsRenaming)) {
+        return false;
+      }        
+      ActualsRenaming tmp = (ActualsRenaming) o;
+      return true && tmp.name.equals(this.name) && tmp.actuals.equals(this.actuals) && tmp.renamings.equals(this.renamings) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 293 + 643 * name.hashCode() + 53 * actuals.hashCode() + 311 * renamings.hashCode() ; 
+    } 
   
     
     @Override
@@ -182,6 +210,20 @@ public abstract class ImportedModule extends AbstractAST {
       return visitor.visitImportedModuleDefault(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Default)) {
+        return false;
+      }        
+      Default tmp = (Default) o;
+      return true && tmp.name.equals(this.name) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 863 + 887 * name.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.QualifiedName getName() {
@@ -220,6 +262,20 @@ public abstract class ImportedModule extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitImportedModuleRenamings(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Renamings)) {
+        return false;
+      }        
+      Renamings tmp = (Renamings) o;
+      return true && tmp.name.equals(this.name) && tmp.renamings.equals(this.renamings) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 709 + 59 * name.hashCode() + 13 * renamings.hashCode() ; 
+    } 
   
     
     @Override

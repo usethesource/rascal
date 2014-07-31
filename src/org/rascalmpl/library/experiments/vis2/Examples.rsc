@@ -94,14 +94,16 @@ public Figure box21 = box(fig=box(lineWidth=20, lineColor="silver", lineOpacity=
 void tbox21(){ ex("box21", box21); }
 
 void boxes(){
-	ex("boxes", vcat(figs=[hcat(figs=[box1, box2, box3]),
-						   hcat(figs=[box4, box5, box6, box7, box8]),
-						   hcat(figs=[box4, box9, box10, box11, box12]),
-						   hcat(figs=[box13, box14, box15, box16, box17]),
-						   hcat(figs=[box18, box19]),
-						   box20, 
-						   box21
-						  ], align=topLeft));
+	ex("boxes", grid(gap=<10,10>,
+					figArray=[ //[box1, box2, box3],
+						       //[box4, box5, box6, box7, box8],
+						       [box4, box9, box10, box11, box12],
+						       
+						       [box13, box14, box15, box16, box17],
+						       //[box18, box19]
+						       [box20]
+						      // [box21]
+						  ], align=center));
 }
 
 // ellipse
@@ -163,45 +165,57 @@ void tngon2(){ ex("ngon2", ngon2); }
 public Figure ngon3 = ngon(n = 5, r=100);
 void tngon3(){ ex("ngon3", ngon3); }
 
-public Figure ngon4 = ngon(n = 6, r=100, fillColor="red");
+public Figure ngon4 = ngon(n = 6, r=100);
 void tngon4(){ ex("ngon4", ngon4); }
 
-public Figure ngon5 = ngon(n = 3, fillColor="red", fig=box(size=<250,180>, fillColor="yellow"));
+public Figure ngon5 = ngon(n = 7, r=100);
 void tngon5(){ ex("ngon5", ngon5); }
 
-public Figure ngon6 = ngon(n = 4, fillColor="red", fig=box(size=<250,180>, fillColor="yellow"));
+public Figure ngon6 = ngon(n = 8, r=100);
 void tngon6(){ ex("ngon6", ngon6); }
 
-public Figure ngon7 = ngon(n = 5, fillColor="red", fig=box(size=<250,180>, fillColor="yellow"));
-void tngon7(){ ex("ngon7", ngon7); }
+public Figure ngon7 = box(fig= ngon(n = 3, fillColor="red", r = 100));
+void tngon7(){	ex("ngon7", ngon7); }
 
-public Figure ngon8 = ngon(n = 6, fillColor="red", fig=box(size=<250,180>, fillColor="yellow"));
-void tngon8(){ ex("ngon8", ngon8); }
+public Figure ngon8 = box(fig= ngon(n = 4, fillColor="red", r = 100));
+void tngon8(){	ex("ngon8", ngon8); }
 
-public Figure ngon9 =  ngon(n = 7, fillColor="red", fig=box(size=<250,180>, fillColor="yellow"));
-void tngon9(){ ex("ngon9", ngon9); }
+public Figure ngon9 = box(fig= ngon(n = 5, fillColor="red", r = 100));
+void tngon9(){	ex("ngon9", ngon9); }
 
-public Figure ngon10 = ngon(n = 10, fillColor="red", fig=box(size=<250,180>, fillColor="yellow"));
-void tngon10(){ ex("ngon10", ngon10); }
+public Figure ngon10 = box(fig= ngon(n = 6, fillColor="red", r = 100));
+void tngon10(){	ex("ngon10", ngon10); }
 
-public Figure ngon11 = ngon(n = 15, fillColor="red", fig=box(size=<250,180>, fillColor="yellow"));
-void tngon11(){ ex("ngon11", ngon11); }
+public Figure ngon11 = box(fig= ngon(n = 7, fillColor="red", r = 100));
+void tngon11(){	ex("ngon11", ngon11); }
 
-public Figure ngon12 = box(fig= ngon(n = 3, fillColor="red", r = 100));
+public Figure ngon12 = box(fig= ngon(n = 8, fillColor="red", r = 100));
 void tngon12(){	ex("ngon12", ngon12); }
 
-public Figure ngon13 = box(fig= ngon(n = 4, fillColor="red", r = 100));
-void tngon13(){	ex("ngon13", ngon13); }
+public Figure ngon13 = ngon(n = 3, fillColor="red", fig=box(size=<250,180>, fillColor="yellow"));
+void tngon13(){ ex("ngon13", ngon13); }
 
-public Figure ngon14 = box(fig= ngon(n = 5, fillColor="red", r = 100));
+public Figure ngon14 = ngon(n = 4, fillColor="red", fig=box(size=<250,180>, fillColor="yellow"));
+void tngon14(){ ex("ngon14", ngon14); }
 
-void tngon14(){	ex("ngon14", ngon14); }
+public Figure ngon15 = ngon(n = 5, fillColor="red", fig=box(size=<250,180>, fillColor="yellow"));
+void tngon15(){ ex("ngon15", ngon15); }
+
+public Figure ngon16 = ngon(n = 6, fillColor="red", fig=box(size=<250,180>, fillColor="yellow"));
+void tngon16(){ ex("ngon16", ngon16); }
+
+public Figure ngon17 =  ngon(n = 7, fillColor="red", fig=box(size=<250,180>, fillColor="yellow"));
+void tngon17(){ ex("ngon17", ngon17); }
+
+public Figure ngon18 = ngon(n = 10, fillColor="red", fig=box(size=<250,180>, fillColor="yellow"));
+void tngon18(){ ex("ngon18", ngon18); }
 
 void ngons(){
-  ex("ngons" , vcat(figs=[ hcat(figs=[ngon1, ngon2, ngon3, ngon4]),
-  						   hcat(figs=[ngon5, ngon6, ngon7, ngon8]),
-  						   hcat(figs=[ngon9, ngon10, ngon11]),
-  						   hcat(figs=[ngon12, ngon13, ngon14])
+  ex("ngons" , grid(gap=<10,10>,
+                    figArray=[ 
+							[ngon1, ngon2, ngon3, ngon4, ngon5, ngon6],
+							[ngon7, ngon8, ngon9, ngon10, ngon11, ngon12],
+							[ngon13, ngon14, ngon15, ngon16, ngon17, ngon18]			    
   						 ], align=topLeft));
 }
 
@@ -235,50 +249,45 @@ public Figure polygon9 = box(lineColor="red", lineWidth=10, fig=polygon(points=[
 void tpolygon9(){ ex("polygon9", polygon9); }
 
 void polygons() {
-  ex("polygons",  vcat(figs=[ hcat(figs=[polygon1, polygon2, polygon3, polygon4, polygon5]),
-                              hcat(figs=[polygon6, polygon7, polygon8, polygon9])
+  ex("polygons",  grid(gap=<10,10>,
+  					   figArray=[
+							[polygon1, polygon2, polygon3, polygon4, polygon5],
+                            [polygon6, polygon7, polygon8, polygon9]
                             ], align=topLeft));
 }
 
 /********************** shape ******************************/
 
-void shape1(){
-	ex("shape1", shape([line(100,100), line(100,200), line(200,200)], shapeClosed=true));
-}
+public Figure shape1 = shape([line(100,100), line(100,200), line(200,200)], shapeClosed=true);
+void tshape1(){	ex("shape1", shape1); }
 
-void shape2(){
-	ex("shape2", shape([line(30,100), line(100, 100), line(200,80)], shapeClosed=true));
-}
+public Figure shape2 = shape([line(30,100), line(100, 100), line(200,80)], shapeClosed=true);
+void tshape2(){ ex("shape2", shape2); }
 
-void shape3(){
-	ex("shape3", hcat(figs=[ shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="red"),
+public Figure shape3 = hcat(figs=[ shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="red"),
 	
 							 shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="blue")
-							 ]));
-}
+							 ]);
+void tshape3(){ ex("shape3", shape3); }
 
-void shape4(){
-	ex("shape4", shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeClosed = true,  fillColor = "yellow"));
-}
+public Figure shape4 = shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeClosed = true,  fillColor = "yellow");
+void tshape4(){	ex("shape4", shape4); }
 
-void shape5(){
-	ex("shape5", shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeCurved=true, shapeClosed = true, fillColor = "yellow"));
-}
+public Figure shape5 = shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeCurved=true, shapeClosed = true, fillColor = "yellow");
+void tshape5(){	ex("shape5", shape5); }
 
-void shape6(){
-	ex("shape6", box(lineColor="red", fig=shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
-					                      shapeClosed=true, fillRule="evenodd", fillColor = "grey")));
-}
+public Figure shape6 = box(lineColor="red", fig=shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
+					                      shapeClosed=true, fillRule="evenodd", fillColor = "grey"));
+void tshape6(){	ex("shape6", shape6); }
 
-void shape7(){
-	ex("shape7", box(lineColor="red", lineWidth=10, fig=shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
-					                      shapeClosed=true, fillRule="evenodd", fillColor = "grey")));
-}
+public Figure shape7 = box(lineColor="red", lineWidth=10, fig=shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
+					                      shapeClosed=true, fillRule="evenodd", fillColor = "grey"));
+					                      
+void tshape7(){	ex("shape7", shape7); }
 
 // SVG Essentials, p95.
 
-void fillRule1(){
-	ex("fillRule1", grid(fillColor="yellow",
+public Figure fillRule1 = grid(fillColor="yellow",
 						figArray=[ [ shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
 					                      shapeClosed=true, fillRule="nonzero", fillColor = "grey"),
 					           
@@ -291,8 +300,15 @@ void fillRule1(){
 					           
 					                 shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(15,45), line(45,45), line(45, 15)], 	// clockwise/counter clockwise
 					                       shapeClosed=true, fillRule="evenodd", fillColor = "grey")
-					               ] ]));			           
-					           
+					               ] ]);
+void tfillRule1(){ ex("fillRule1", fillRule1); }
+
+void shapes(){
+	ex("shapes", grid(gap=<10,10>,
+					figArray=[ [shape1, shape2, shape3, shape4, shape5 ],
+							   [shape6, shape7, fillRule1]
+							 ]));
+
 }
 
 
@@ -391,11 +407,12 @@ void thflex5(){ ex("hflex5", hflex5); }
 
 	
 void hcats(){
-	ex("hcats", vcat(figs=[
-							hcat(figs=[hcat1, hcat2, hcat3, hcat4, box_hcat1]),
-							hcat(figs=[box_hcat2,box_hcat3,box_hcat4,box_hcat5]),
-							hcat(figs=[box_hcat6,box_hcat7,box_hcat8, box_hcat9]),
-							hcat(figs=[hflex1,hflex2,hflex3, hflex4,hflex5])
+	ex("hcats", grid(gap=<10,10>,
+	                 figArray=[
+							[hcat1, hcat2, hcat3, hcat4, box_hcat1],
+							[box_hcat2,box_hcat3,box_hcat4,box_hcat5],
+							[box_hcat6,box_hcat7,box_hcat8, box_hcat9],
+							[hflex1,hflex2,hflex3, hflex4,hflex5]
 						  ], align=topLeft));
 }		               
 
@@ -412,7 +429,6 @@ void tvcat3(){ ex("vcat3", vcat3); }
 
 public Figure vcat4 = vcat(figs=rgbFigs, align=topRight, gap=<10,10>);
 void tvcat4(){ ex("vcat4", vcat4); }
-
 
 
 // vcat in box
@@ -516,12 +532,13 @@ void hvflex1(){
 }	
 
 void vcats(){
-	ex("vcats", vcat(figs=[
-							hcat(figs=[vcat1, vcat2, vcat3, vcat4, box_vcat1]),
-							hcat(figs=[box_vcat2,box_vcat3,box_vcat4,box_vcat5]),
-							hcat(figs=[box_vcat6,box_vcat7,box_vcat8, box_vcat9]),
-							hcat(figs=[vflex1,vflex2,vflex3, vflex4,vflex5])
-						  ], align=topLeft));
+	ex("vcats", grid(gap=<10,10>, 
+	                 figArray=[
+							[vcat1, vcat2, vcat3, vcat4, box_vcat1],
+							[box_vcat2,box_vcat3,box_vcat4,box_vcat5],
+							[box_vcat6,box_vcat7,box_vcat8, box_vcat9],
+							[vflex1,vflex2,vflex3, vflex4,vflex5]
+						  ], align=center));
 }	
 
 /********************** grid ******************************/
@@ -579,67 +596,69 @@ void gflex3(){
 
 /********************** overlay ******************************/
 
-void overlay1(){
-	ex("overlay1", overlay(align=center, figs= [box(fillColor="red", size=<50,50>), box(fillColor="green", size=<100,20>)]));
+public Figure overlay1 = overlay(align=topLeft, figs= [box(fillColor="red", size=<50,50>), box(fillColor="green", size=<100,20>)]);
+void toverlay1(){ ex("overlay1", overlay1); }
+
+public Figure overlay2 = overlay(align=center, figs= [box(fillColor="red", size=<50,50>), box(fillColor="green", size=<100,20>)]);
+void toverlay2(){ ex("overlay2", overlay2); }
+
+public Figure overlay3 = overlay(align=bottomLeft, figs= [box(fillColor="red", size=<50,50>), box(fillColor="green", size=<100,20>)]);
+void toverlay3(){ ex("overlay3", overlay3); }
+
+public Figure overlay4 = overlay(align=topRight, figs= [box(fillColor="red", size=<50,50>), box(fillColor="green", size=<100,20>)]);
+void toverlay4(){ ex("overlay4", overlay4); }
+
+public Figure overlay5 = overlay(align=center, figs= [box(fillColor="red", size=<50,50>), box(fillColor="green", size=<100,20>)]);
+void toverlay5(){ ex("overlay5", overlay5); }
+
+public Figure overlay6 = overlay(align=bottomRight, figs= [box(fillColor="red", size=<50,50>), box(fillColor="green", size=<100,20>)]);
+void toverlay6(){ ex("overlay6", overlay6); }
+
+
+//public Figure overlay5 = box(fig=overlay(align=topLeft, figs=[at(x, y, box(size=<10,10>)) | <x, y> <- [<0,0>, <100,100>, <200,200>]]));
+//void toverlay5(){ ex("overlay5", overlay5); }
+//
+//public Figure overlay6 = box(fig=overlay(align=topLeft, figs= at(0,100, box(size = <100,1>)) + [at(toInt(x * 10), toInt(100 + 100 * sin(x)), box(size=<2,2>))| real x <- [0.0, 0.1 .. 10.0]]));
+//void toverlay6(){ ex("overlay6", overlay6); } 
+
+void overlays(){
+	ex("overlays", grid(gap=<10,10>,
+						figArray=[ 
+							[overlay1, overlay2, overlay3],
+							[overlay4, overlay5, overlay6]
+						]));
 }
 
-void overlay2(){
-	ex("overlay2", overlay(align=topLeft, figs= [box(fillColor="red", size=<50,50>), box(fillColor="green", size=<100,20>)]));
-}
 
-void overlay3(){
-	ex("overlay3", overlay(align=bottomRight, figs= [box(fillColor="red", size=<50,50>), box(fillColor="green", size=<100,20>)]));
-}
+/********************** at ********************************/
 
-//void overlay4(){
-//	ex("overlay4", overlay(figs= [box(fillColor="red", size=<50,50>, align=topLeft), box(fillColor="green", size=<100,20>, align=bottomRight)]));
-//}
+public Figure at1 = at(100, 100, box(fillColor="red", size=<50,50>));
+void tat1(){ ex("at1", at1); }
 
-void overlay5(){
-	ex("overlay5", box(fig=overlay(align=topLeft, figs=[MOVE(x, y, box(size=<10,10>)) | <x, y> <- [<0,0>, <100,100>, <200,200>]])));
-}
-
-void overlay6(){
-	ex("overlay6", box(fig=overlay(align=topLeft, figs= MOVE(0,100, box(size = <100,1>)) + [MOVE(toInt(x * 10), toInt(100 + 100 * sin(x)), box(size=<2,2>))| real x <- [0.0, 0.1 .. 10.0]])));
-} 
-
-
-/********************** move ******************************/
-
-void at1(){
-	ex("at1", at(100, 100, box(fillColor="red", size=<50,50>)));
-}
-
-void at2(){
-	ex("at2", overlay(align=topLeft,
+public Figure at2 = overlay(align=topLeft,
 						figs= [at(100,100, box(fillColor="red", size=<50,50>)),
 							   at(200,200, box(fillColor="green", size=<50,50>))
-							  ]));
-}
+							  ]);
+void tat2(){ ex("at2", at2); }
 
-void at3(){
-	ex("at3", box(fig=overlay(align=topLeft,
+public Figure at3 = box(fig=overlay(align=topLeft,
 	                          figs= [at(100,100, box(fillColor="red", size=<50,50>)),
 								     at(200,200, box(fillColor="green", size=<50,50>)),
 								     at(0,0, box(fillColor="blue", size=<50,50>))
-								])));
-}
+								]));
+void tat3(){ ex("at3", at3); }
 
-void at4(){
-
-	ex("at4", hcat(figs= [
+public Figure at4 = hcat(figs= [
 						box(fillColor="red", size=<50,50>),
 								
 						box(fig=overlay(align=topLeft,
 						                figs= [at(200,200, box(fillColor="yellow", size=<50,50>)),
 								               at(20, 0, box(fillColor="gray", size=<50,50>))
 								]))
-						]));
-}
+						]);
+void tat4(){ ex("at4", at4); }
 
-void at5(){
-
-	ex("at5", hcat(figs= [
+public Figure at5 = hcat(figs= [
 						overlay(align=topLeft,
 						        figs= [at(100, 100, box(fillColor="red", size=<50,50>)),
 							           at(200, 200, box(fillColor="green", size=<50,50>))
@@ -650,84 +669,95 @@ void at5(){
 								               at(200, 200, box(fillColor="yellow", size=<50,50>)),
 								               at(0, 0, box(fillColor="gray", size=<50,50>))
 								]))
-						]));
-}
+						]);
+void tat5(){ ex("at5", at5); }
 
-void at6(){
-	ex("at6", box(fig=overlay(align=topLeft,
+public Figure at6 = box(fig=overlay(align=topLeft,
 	                          figs= [at(100, 100, box(fillColor="red", size=<50,50>)),
 								       at(100, -50, box(fillColor="green", size=<50,50>)),
 								       at(0, 0, box(fillColor="blue", size=<50,50>))
-								])));
+								]));
+void tat6(){ ex("at6", at6); }
+
+void ats(){
+	ex("ats", hcat(gap=<10,10>, align=topLeft,
+				   figs=[
+				   			at1, at2, at3 //, at4, at5, at6
+				   ]));
 }
 
 /********************** scale ******************************/
 
-void scale1(){
-	ex("scale1", SCALE(0.5, box(size=<200,300>)));
-}
+public Figure scale1 = SCALE(0.5, box(size=<200,300>, lineWidth=4));
+void tscale1(){ ex("scale1", scale1); }
 
-void scale2(){
-	ex("scale2", SCALE(1, box(size=<200,300>)));
-}
+public Figure scale2 = SCALE(1, box(size=<200,300>, lineWidth=4));
+void tscale2(){	ex("scale2", scale2); }
 
-void scale3(){
-	ex("scale3", SCALE(2, box(size=<200,300>)));
-}
+public Figure scale3 = SCALE(2, box(size=<200,300>, lineWidth=4));
+void tscale3(){	ex("scale3", scale3); }
+
+void scales(){ ex("scales", hcat(gap=<10,10>, figs=[ scale1, scale2, scale3])); }
 
 /********************** rotate ******************************/
 
-void rotate1(){
-	ex("rotate1", rotate(45, box(size=<200,300>)));
-}
+public Figure rotate1 = rotate(0, box(size=<100,150>));
+void trotate1(){ ex("rotate1", rotate1); }
 
-void rotate2(){
-	ex("rotate2", box(fig=rotate(0, box(size=<200,300>))));
-}
-void rotate3(){
-	ex("rotate3", box(fig=rotate(45, box(size=<200,300>))));
-}
+public Figure rotate2 = box(fig=rotate(45, box(size=<100,150>)));
+void trotate2(){ ex("rotate2", rotate2); }
 
-void rotate4(){
-	ex("rotate4", box(fig=rotate(90, box(size=<200,300>))));
-}
+public Figure rotate3 = box(fig=rotate(90, box(size=<100,150>)));
+void trotate3(){ ex("rotate3", rotate3); }
 
-void rotate5(){
-	ex("rotate5", box(fig=rotate(180, box(size=<200,300>))));
-}
+public Figure rotate4 = box(fig=rotate(135, box(size=<100,150>)));
+void trotate4(){ ex("rotate4", rotate4); }
 
-void rotate6(){
-	ex("rotate6", box(fig=rotate(225, box(size=<200,300>))));
-}
-void rotate7(){
-	ex("rotate7", box(fig=rotate(270, box(size=<200,300>))));
-}
+public Figure rotate5 = box(fig=rotate(180, box(size=<100,150>)));
+void trotate5(){ ex("rotate5", rotate5); }
 
-void rotate8(){
-	ex("rotate8", box(fig=rotate(360, box(size=<200,300>))));
+public Figure rotate6 = box(fig=rotate(225, box(size=<100,150>)));
+void trotate6(){ ex("rotate6", rotate6); }
+
+public Figure rotate7 = box(fig=rotate(270, box(size=<100,150>)));
+void trotate7(){ ex("rotate7", rotate7); }
+
+public Figure rotate8 = box(fig=rotate(360, box(size=<100,150>)));
+void trotate8(){ ex("rotate8", rotate8); }
+
+void rotates(){
+	ex("rotates", hcat(gap=<10,10>,
+					   figs= [
+					   				rotate1, rotate2 //, rotate3, rotate4,	rotate5, rotate6, rotate7, rotate8
+					   ]));
 }
 
 /********************** image ******************************/
 
-void image1(){
-	ex("image1", image(url=|file:///lib/favicon.ico|));
-}
+public Figure image1 = image(url=|file:///lib/favicon.ico|);
+void timage1(){	ex("image1", image1); }
 
-void image2(){
-	ex("image2", image(url=|file:///lib/favicon.ico|, size=<80,80>));
-}
+public Figure image2 = image(url=|file:///lib/favicon.ico|, size=<80,80>);
+void timage2(){	ex("image2", image2); }
 
-void image3(){
-	ex("image3", hcat(figs = [ image(url=|file:///lib/favicon.ico|, size=<50,50>),
+public Figure image3 = image(url=|http:///www.wiskgenoot.nl/watis/1b_CWI_LogoCMYK.png|);
+void timage3(){	ex("image2", image2); }
+
+public Figure image4 = hcat(figs = [ image(url=|file:///lib/favicon.ico|, size=<50,50>),
 							   image(url=|file:///lib/favicon.ico|, size=<100,100>)
-							 ]));
+							 ]);
+void timage4(){	ex("image4",image4); }
+
+public Figure image5 =  rotate(45, image(url=|file:///lib/favicon.ico|, size=<50,50>));
+void timage5(){	ex("image5",image5); }
+
+void images(){
+	ex("images", grid(gap=<10,10>,
+					  figArray= [
+					  			[image1, image2, image3],
+					  			[image4, image5]
+					  ]));
 }
-
-void image4(){
-	ex("image4", rotate(45, image(url=|file:///lib/favicon.ico|, size=<50,50>)));
-}
-
-
 
 
 // http://www.soc.napier.ac.uk/~cs66/hilbert.html
@@ -768,49 +798,103 @@ void hilbert3(){
 							 ]));
 }
 
+void hilberts(){
+	ex("hilberts", grid(figArray=[
+								   [text("1   ", fontSize=30),
+								   	box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 1))),
+								   	box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 1), 
+															startMarker=box(size=<10,10>,fillColor="red"),
+															midMarker=box(size=<3,3>,fillColor="blue"),
+															endMarker=box(size=<10,10>,fillColor="green")))
+							       ],
+							       [text("2   ", fontSize=30),
+								   	box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 2))),
+								   	box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 2), 
+															startMarker=box(size=<10,10>,fillColor="red"),
+															midMarker=box(size=<3,3>,fillColor="blue"),
+															endMarker=box(size=<10,10>,fillColor="green")))
+							       ],
+							       [text("3   ", fontSize=30),
+								   	box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 3))),
+								   	box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 3), 
+															startMarker=box(size=<10,10>,fillColor="red"),
+															midMarker=box(size=<3,3>,fillColor="blue"),
+															endMarker=box(size=<10,10>,fillColor="green")))
+							       ],
+							       [text("4   ", fontSize=30),
+								   	box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 4))),
+								   	box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 4), 
+															startMarker=box(size=<10,10>,fillColor="red"),
+															midMarker=box(size=<3,3>,fillColor="blue"),
+															endMarker=box(size=<10,10>,fillColor="green")))
+							       ],
+							       [text("5   ", fontSize=30),
+								   	box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 5))),
+								   	box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 5), 
+															startMarker=box(size=<10,10>,fillColor="red"),
+															midMarker=box(size=<3,3>,fillColor="blue"),
+															endMarker=box(size=<10,10>,fillColor="green")))
+							       ],
+							       [text("6   ", fontSize=30),
+								   	box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 6))),
+								   	box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 6), 
+															startMarker=box(size=<10,10>,fillColor="red"),
+															midMarker=box(size=<3,3>,fillColor="blue"),
+															endMarker=box(size=<10,10>,fillColor="green")))
+							       ],
+							       [text("7   ", fontSize=30),
+								   	box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 7))),
+								   	box(size=<400,400>, fig=shape(hilbert(0, 0, 300, 0, 0, 300, 7), 
+															startMarker=box(size=<10,10>,fillColor="red"),
+															midMarker=box(size=<3,3>,fillColor="blue"),
+															endMarker=box(size=<10,10>,fillColor="green")))
+							       ]
+								   ]));
+}
+
 
 /********************** shape with markers ******************************/
 
-void marker1(){
-	ex("marker1", box(size=<300,300>, align=topLeft, fig=shape([move(100,100), line(200,200)], startMarker=box(size=<10,10>,fillColor="red"))));
-}
+public Figure marker1 =  box(align=topLeft, fig=shape([move(100,100), line(200,200)], startMarker=box(size=<10,10>,fillColor="red")));
+void tmarker1(){ ex("marker1",marker1); }
 
-void marker2(){
-	ex("marker2", box(size=<300,300>, align=topLeft, fig=shape([move(100,100), line(100,200), line(200,200)], shapeClosed=true, startMarker=box(size=<10,10>,fillColor="red"))));
-}
+public Figure marker2 = box(align=topLeft, fig=shape([move(100,100), line(100,200), line(200,200)], shapeClosed=true, startMarker=box(size=<10,10>,fillColor="red")));
+void tmarker2(){ ex("marker2", marker2); }
 
-void marker3(){
-	ex("marker3", box(size=<300,300>, align=topLeft, fig=shape([move(100,100), line(100,200), line(200,200)], 
+public Figure marker3 = box(align=topLeft, fig=shape([move(100,100), line(100,200), line(200,200)], 
 												shapeClosed=true,
 												startMarker=box(size=<10,10>,fillColor="red"),
 												midMarker=box(size=<20,20>,fillColor="blue")
-												)));
-}
+												));
+void tmarker3(){ ex("marker3", marker3); }
 
-void marker4(){
-	ex("marker4", box(size=<300,300>,  align=topLeft, fig=shape([move(100,100), line(150,30), line(200,100), line(150,150)],
+public Figure marker4 = box(align=topLeft, fig=shape([move(100,100), line(150,30), line(200,100), line(150,150)],
 												shapeClosed=true, shapeCurved=true,
 												startMarker=box(size=<10,10>,fillColor="red"),
 												midMarker=box(size=<20,20>,fillColor="blue")
 												//endMarker=box(size=<20,20>,fillColor="yellow")
-												)));
-}
+												));
+void tmarker4(){ ex("marker4", marker4); }
 
 Figure arrow(int side, str color, bool rightDir=true) =
 	rightDir ? shape([line(0,0), line(side,side), line(0, 2*side)], shapeClosed=true, fillColor=color)
 			 : shape([line(side,0), line(0,side), line(side, 2*side)], shapeClosed=true, fillColor=color);
 
-void arrow1(){
-	ex("arrow1", box(size=<300,300>, align=topLeft, fig= shape([move(100,100), line(200,200)], endMarker=arrow(10, "red"))));
-}
+public Figure arrow1 = box(align=topLeft, fig= shape([move(100,100), line(200,200)], endMarker=arrow(10, "red")));
+void tarrow1(){ ex("arrow1", arrow1); }
 
-void arrow2(){
-	ex("arrow2", box(size=<300,300>, align=topLeft, fig= shape([move(100,100), line(200,200)], startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red"))));
-}
+public Figure arrow2 = box(align=topLeft, fig= shape([move(100,100), line(200,200)], startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red")));
+void tarrow2(){	ex("arrow2", arrow2); }
 
-void arrow3(){
-	ex("arrow3", box(size=<300,300>, align=topLeft, fillColor="silver", fig= shape([line(100,100), line(200,150), line(100,200), line(250,250)], 
-	                                            shapeCurved=true, fillColor="silver",startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red"))));
+public Figure arrow3 = box(align=topLeft, fillColor="silver", fig= shape([line(100,100), line(200,150), line(100,200), line(250,250)], 
+	                                            shapeCurved=true, fillColor="silver",startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red")));
+void tarrow3(){	ex("arrow3", arrow3); }
+
+void markers(){
+	ex("markers", grid(gap=<10,10>,
+					   figArray=[ [marker1, marker2, marker3, marker4],
+					   			  [arrow1, arrow2, arrow3]
+					   			]));
 }
 
 
@@ -1011,34 +1095,57 @@ public void graph8(){
 }
 
 /************** text *****************/
-void text1(){
-	ex("text1", text("Hello", fontSize=14, lineWidth=1));
-}
-void text1a(){
-	ex("text1a", text("Hello", fontSize=20));
-}
 
-void text2(){
-	ex("text2", text("Hello", fontStyle="italic", fontSize=20));
-}
+public Figure text0 = text("Hello");
+void ttext0(){ ex("text0", text0); }
 
-void text3(){
-	ex("text3", text("Hello", fontWeight="bold", fontSize=20));
-}
+public Figure text1 = text("Hello", fontSize=14, lineWidth=1);
+void ttext1(){ ex("text1", text1); }
 
-void text4(){
-	ex("text4", text("Hello", fontWeight="bold", fontStyle="italic", fontSize=20));
-}
+public Figure text2 = text("Hello", fontSize=20);
+void ttext2(){ ex("text2", text2); }
 
-void text5(){
-	ex("text5", box(fig=text("Hello", fillColor="black", fontWeight="bold", fontStyle="italic", fillColor="black", fontSize=20), fillColor="yellow"));
-}
+public Figure text3 = text("Hello", fontStyle="italic", fontSize=20);
+void ttext3(){	ex("text3", text3); }
 
-void text6(){
-	ex("text6", hcat(figs=[ box(fig=text("Hello", fillColor="black"), fillColor="white"),
+public Figure text4 = text("Hello", fontWeight="bold", fontSize=20);
+void ttext4(){ ex("text4", text4); }
+
+public Figure text5 = text("Hello", fontWeight="bold", fontStyle="italic", fontSize=20);
+void ttext5(){ ex("text5", text5); }
+
+
+public Figure text6 = text("Hello", fontSize=14, textDecoration="underline");
+void ttext6(){ ex("text6", text6); }
+
+public Figure text7 = text("Hello", fontSize=14, textDecoration="line-through");
+void ttext7(){ ex("text7", text7); }
+
+public Figure text8 = text("Hello", fontSize=14, textDecoration="overline");
+void ttext8(){ ex("text8", text8); }
+
+
+public Figure text9 = text("Hello", fontSize=14, fontColor="red");
+void ttext9(){ ex("text9", text9); }
+
+public Figure text10 = box(fig=text("Hello", fillColor="black", fontWeight="bold", fontStyle="italic", fillColor="black", fontSize=20), fillColor="yellow");
+void ttext10(){ ex("text10", text10); }
+
+public Figure text11 = hcat(figs=[ box(fig=text("Hello", fillColor="black"), fillColor="white"),
 					  text("World")
-					], fontSize=20));
-}
+					], fontSize=20);
+void ttext11(){ ex("text11", text11); }
+
+void texts(){
+	ex("texts", grid(gap=<20,20>,align=left, 
+	                 figArray=[
+							[text0, text1, text2, text3, text4, text5],
+							[text6, text7, text8, text9],
+							[text10,text11]
+							
+						  ]));
+}	
+
 
 /************** markdown *****************/
 
@@ -1069,8 +1176,8 @@ void counter1(){
 	render("counter1",  #COUNTER, COUNTER(666), Figure (COUNTER m) {
 			return
 				vcat(figs=[ box(fig=text("Click me", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
-					   text(m.counter, size=<150,50>,fontSize=30)
-				     ]);
+					        text(m.counter, size=<150,50>,fontSize=30)
+				     ], align=topLeft);
 			});
 }
 
@@ -1115,10 +1222,10 @@ data ECHO = ECHO(str TXT);
 void echo1(){
 	render("echo1", #ECHO, ECHO("abc"), Figure (ECHO m) {
 			return
-				hcat(figs=[ strInput(event=on("submit", bind(m.TXT))), 
+				hcat(figs=[ strInput(event=on("change", bind(m.TXT))), 
 	                        text(m.TXT, size=<150,50>, fontSize=50),
 	                        text(m.TXT, size=<150,50>, fontSize=80)
-				          ], gap=<20,20>);
+				          ], align=bottom, gap=<20,20>);
 			});
 }
 
@@ -1343,4 +1450,26 @@ void boxcolor2(){
 						     ], gap=<20,30>);
 		});
 }
+
+// ------------- ALL TESTS -------------------------
+
+void allExamples(){
+	boxes();
+	hcats();
+	vcats();
+	overlays();
+	polygons();
+	ngons();
+	shapes();
+	markers();
+	circles();
+	ellipses();
+	texts();
+	images();
+	hilberts();
+	ats();
+	rotates();
+	scales();
+}
+
 

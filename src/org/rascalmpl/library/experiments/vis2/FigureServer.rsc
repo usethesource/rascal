@@ -182,7 +182,7 @@ private str refresh(str name, str modelAsJSON){
 		if(visualizations[name]?){
 			descr = visualizations[name];
 			model = fromJSON(descr.model_type, modelAsJSON);
-			println("refresh: <site>, <model>");
+			println("refresh: <site>, <typeOf(model)>: <model>");
 			println("refresh: model before trafo: <model>");
 			model = descr.transform(model);
 			//model = descr.transform(makeCursor(model));

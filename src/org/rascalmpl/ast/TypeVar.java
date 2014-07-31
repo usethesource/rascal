@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,6 +70,20 @@ public abstract class TypeVar extends AbstractAST {
       return visitor.visitTypeVarBounded(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Bounded)) {
+        return false;
+      }        
+      Bounded tmp = (Bounded) o;
+      return true && tmp.name.equals(this.name) && tmp.bound.equals(this.bound) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 853 + 571 * name.hashCode() + 593 * bound.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Name getName() {
@@ -115,6 +129,20 @@ public abstract class TypeVar extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitTypeVarFree(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Free)) {
+        return false;
+      }        
+      Free tmp = (Free) o;
+      return true && tmp.name.equals(this.name) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 521 + 653 * name.hashCode() ; 
+    } 
   
     
     @Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,6 +77,20 @@ public abstract class PatternWithAction extends AbstractAST {
       return visitor.visitPatternWithActionArbitrary(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Arbitrary)) {
+        return false;
+      }        
+      Arbitrary tmp = (Arbitrary) o;
+      return true && tmp.pattern.equals(this.pattern) && tmp.statement.equals(this.statement) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13 + 127 * pattern.hashCode() + 61 * statement.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getPattern() {
@@ -124,6 +138,20 @@ public abstract class PatternWithAction extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitPatternWithActionReplacing(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Replacing)) {
+        return false;
+      }        
+      Replacing tmp = (Replacing) o;
+      return true && tmp.pattern.equals(this.pattern) && tmp.replacement.equals(this.replacement) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 2 + 919 * pattern.hashCode() + 961 * replacement.hashCode() ; 
+    } 
   
     
     @Override

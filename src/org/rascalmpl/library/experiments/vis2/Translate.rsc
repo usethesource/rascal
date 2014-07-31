@@ -77,16 +77,16 @@ str propsToJSON(Figure child, Figure parent){
 	
 	if(child.fontSize != parent.fontSize) 			properties += "\"font-size\": <numArg(child.fontSize)>";
 
-	check("fontStyle", child.fontStyle, {"normal", "italic"});
+	check("fontStyle", child.fontStyle, {"normal", "italic", "oblique"});
 	if(child.fontStyle != parent.fontStyle) 		properties += "\"font-style\": <strArg(child.fontStyle)>";
 
-	check("fontWeight", child.fontWeight, {"normal", "bold"});
+	check("fontWeight", child.fontWeight, {"normal", "bold", "bolder", "lighter"});
 	if(child.fontWeight != parent.fontWeight) 		properties += "\"font-weight\": <strArg(child.fontWeight)>";
 
-	//check("textDecoration", child.textDecoration, {"none","underline", "overline", "line-through"});
-	//if(child.textDecoration != parent.textDecoration) 
-													//properties += "\"text-decoration\": <strArg(child.textDecoration)>";
-
+	check("textDecoration", child.textDecoration, {"none","underline", "overline", "line-through"});
+	if(child.textDecoration != parent.textDecoration) 
+													properties += "\"text-decoration\": <strArg(child.textDecoration)>";
+	if(child.fontColor != parent.fontColor) 		properties += "\"font-color\": <strArg(child.fontColor)>";
 	
 //	if(child.dataset != parent.dataset) 			properties += trDataset(child.dataset);
 	
@@ -219,31 +219,50 @@ bool isLegalEvent(str event) = event in {
 	"mousewheel",		// Script to be run when the mouse wheel is being rotated
 	"scroll"			// Script to be run when an element's scrollbar is being scrolled
 	};
-
+/*
+ = root(str name)
+  | field(str name)
+  | field(int position)
+  | argument(int position)
+  | argument(str name)
+  | keywordParam(str name)
+  | element(int index)
+  | sublist(int from, int to)
+  | lookup(value key)
+  | select(list[int] indices)
+  | select(list[str] labels)
+  ;
+  */
+  
 str trPath(Path path){
     accessor = "Figure.model";
 	for(nav <- path){
 		switch(nav){
-		 	case root(str name):		accessor += ".<name>"; 
-			case field(str name): 		accessor += ".<name>";
-			case field(int position):	accessor += "[<position>]";
+		 	//case root(str name):		accessor += ".<name>"; 		// ???
+		 	
+			case field(int position):	accessor += "[1][<position>]";
+			//case field(str name): 		accessor += "[1][3].<name>";
 			
-			case argument(str name):	accessor += "[\\\"#args\\\"].<name>";
-			//case argument(str name):	accessor += ".<name>";
-			case argument(int position):accessor += "[\\\"#args\\\"][<position>]";
-			case keywordParam(str name):accessor += ".<name>";
+			case argument(int position):accessor += "[1][2][<position>]";
+			//case argument(str name):	accessor += "[1][3].<name>";
+	
+			case keywordParam(str name):accessor += "[1][3].<name>";
   
-			case element(int index):	accessor += "[<index>]";
-  			case sublist(int from, int to):	accessor += ".slice(<from>,<to>]";
+			case element(int index):	accessor += "[1][<index>]";
+			
+  			case sublist(int from, int to):	accessor += "[1].slice(<from>,<to>]";
   			
-  			case lookup(value key):		accessor += "[<key>]";
+  			case lookup(value key):		accessor += "[1].lookup(<key>)";			// welk geval is dit ook alweer?
   			
-  			case select(list[int] indices):
-  										accessor += "";		// TODO
-  			case select(list[str] labels):
-  										accessor += "";		// TODO
+  			//case select(list[int] indices):
+  			//							accessor += "";		// TODO
+  			//case select(list[str] labels):
+  			//							accessor += "";		// TODO
+  			default:
+  				throw "Unsupported path element <nav>";
   		}
   	}
+  	accessor += "[1]";
   	println("trPath: <path>: <accessor>");
   	return "\"<accessor>\"";
 }
@@ -264,7 +283,8 @@ str numArg(num n) 	= isCursor(n) ? "{\"use\": <trPath(toPath(n))>}" : toJSNumber
 
 str strArg(str s) 	= isCursor(s) ? "{\"use\": <trPath(toPath(s))>}" : "\"<escape(s)>\"";
 
-str locArg(loc v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "\"<site>/<v.path>\"";
+str locArg(loc v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : 
+					(v.scheme == "file" ? "\"<site>/<v.path>\"" : "\"<"<v>"[1..-1]>\"");
 
 str valArg(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "<v>";
 
@@ -300,7 +320,7 @@ str figToJSON(figure: ellipse(), Figure parent) {
 	rx = figure.rx > 0 ? ", \"rx\": <figure.rx>" : "";
 	ry = figure.ry > 0 ? ", \"ry\": <figure.ry>" : "";
 	return getName(inner) == "emptyFigure"
-		   ? "{\"figure\": \"ellipse\" <rx> <rx> <propsToJSON(figure, parent)> }"
+		   ? "{\"figure\": \"ellipse\" <rx> <ry> <propsToJSON(figure, parent)> }"
 		   : "{\"figure\": \"ellipse\" <rx> <ry>,
     		 ' \"inner\":  <figToJSON(inner, figure)>
 			 '  <propsToJSON(figure, parent)> 
@@ -312,7 +332,7 @@ str figToJSON(figure: ellipse(), Figure parent) {
 str figToJSON(figure: circle(), Figure parent) {
 	inner = figure.fig; 
 	println("inner = <inner>");
-	r = figure.r > 0 ? ", \"rx\": <figure.r>, \"ry\": <figure.r>"; 
+	r = figure.r > 0 ? ", \"rx\": <figure.r>, \"ry\": <figure.r>" : ""; 
 	return getName(inner) == "emptyFigure"
 		   ? "{\"figure\": \"ellipse\", \"circle\": \"true\" <r> <propsToJSON(figure, parent)> }"
 		   : "{\"figure\": \"ellipse\", \"circle\": \"true\" <r>,

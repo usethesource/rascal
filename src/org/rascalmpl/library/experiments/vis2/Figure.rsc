@@ -118,12 +118,13 @@ public data Figure(
 
 		// Font and text properties
 		
-		str fontFamily = "\"Helvetica Neue Light\", Arial, Verdana, sans-serif",
-		str fontName = "Helvetica", 	// was: font
+		str fontFamily = "Helvetica, Arial, Verdana, sans-serif",
+		str fontName = "Helvetica",
 		int fontSize = 12,
-		str fontStyle = "normal",
-		str fontWeight = "normal",
-		str textDecoration	= "none",	// text-decoration
+		str fontStyle = "normal",		// normal|italic|oblique|initial|inherit
+		str fontWeight = "normal",		//normal|bold|bolder|lighter|number|initial|inherit; normal==400, bold==700
+		str fontColor = "black",
+		str textDecoration	= "none",	// none|underline|overline|line-through|initial|inherit
 		
 		// Interaction
 	

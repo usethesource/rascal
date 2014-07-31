@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -68,6 +68,20 @@ public abstract class TypeArg extends AbstractAST {
       return visitor.visitTypeArgDefault(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Default)) {
+        return false;
+      }        
+      Default tmp = (Default) o;
+      return true && tmp.type.equals(this.type) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 113 + 673 * type.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Type getType() {
@@ -106,6 +120,20 @@ public abstract class TypeArg extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitTypeArgNamed(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Named)) {
+        return false;
+      }        
+      Named tmp = (Named) o;
+      return true && tmp.type.equals(this.type) && tmp.name.equals(this.name) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 829 + 307 * type.hashCode() + 911 * name.hashCode() ; 
+    } 
   
     
     @Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -147,6 +147,20 @@ public abstract class Sym extends AbstractAST {
       return visitor.visitSymAlternative(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Alternative)) {
+        return false;
+      }        
+      Alternative tmp = (Alternative) o;
+      return true && tmp.first.equals(this.first) && tmp.alternatives.equals(this.alternatives) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 389 + 59 * first.hashCode() + 599 * alternatives.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Sym getFirst() {
@@ -193,6 +207,20 @@ public abstract class Sym extends AbstractAST {
       return visitor.visitSymCaseInsensitiveLiteral(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof CaseInsensitiveLiteral)) {
+        return false;
+      }        
+      CaseInsensitiveLiteral tmp = (CaseInsensitiveLiteral) o;
+      return true && tmp.cistring.equals(this.cistring) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 829 + 359 * cistring.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.CaseInsensitiveStringConstant getCistring() {
@@ -229,6 +257,20 @@ public abstract class Sym extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSymCharacterClass(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof CharacterClass)) {
+        return false;
+      }        
+      CharacterClass tmp = (CharacterClass) o;
+      return true && tmp.charClass.equals(this.charClass) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 61 + 691 * charClass.hashCode() ; 
+    } 
   
     
     @Override
@@ -268,6 +310,20 @@ public abstract class Sym extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSymColumn(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Column)) {
+        return false;
+      }        
+      Column tmp = (Column) o;
+      return true && tmp.symbol.equals(this.symbol) && tmp.column.equals(this.column) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 997 + 919 * symbol.hashCode() + 383 * column.hashCode() ; 
+    } 
   
     
     @Override
@@ -313,6 +369,20 @@ public abstract class Sym extends AbstractAST {
       return visitor.visitSymEmpty(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Empty)) {
+        return false;
+      }        
+      Empty tmp = (Empty) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 883 ; 
+    } 
+  
     	
   }
   public boolean isEndOfLine() {
@@ -340,6 +410,20 @@ public abstract class Sym extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSymEndOfLine(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof EndOfLine)) {
+        return false;
+      }        
+      EndOfLine tmp = (EndOfLine) o;
+      return true && tmp.symbol.equals(this.symbol) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 409 + 691 * symbol.hashCode() ; 
+    } 
   
     
     @Override
@@ -379,6 +463,20 @@ public abstract class Sym extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSymExcept(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Except)) {
+        return false;
+      }        
+      Except tmp = (Except) o;
+      return true && tmp.symbol.equals(this.symbol) && tmp.label.equals(this.label) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 17 + 251 * symbol.hashCode() + 439 * label.hashCode() ; 
+    } 
   
     
     @Override
@@ -428,6 +526,20 @@ public abstract class Sym extends AbstractAST {
       return visitor.visitSymFollow(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Follow)) {
+        return false;
+      }        
+      Follow tmp = (Follow) o;
+      return true && tmp.symbol.equals(this.symbol) && tmp.match.equals(this.match) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 719 + 331 * symbol.hashCode() + 71 * match.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Sym getSymbol() {
@@ -474,6 +586,20 @@ public abstract class Sym extends AbstractAST {
       return visitor.visitSymIter(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Iter)) {
+        return false;
+      }        
+      Iter tmp = (Iter) o;
+      return true && tmp.symbol.equals(this.symbol) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 97 + 977 * symbol.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Sym getSymbol() {
@@ -512,6 +638,20 @@ public abstract class Sym extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSymIterSep(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof IterSep)) {
+        return false;
+      }        
+      IterSep tmp = (IterSep) o;
+      return true && tmp.symbol.equals(this.symbol) && tmp.sep.equals(this.sep) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 239 + 599 * symbol.hashCode() + 67 * sep.hashCode() ; 
+    } 
   
     
     @Override
@@ -559,6 +699,20 @@ public abstract class Sym extends AbstractAST {
       return visitor.visitSymIterStar(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof IterStar)) {
+        return false;
+      }        
+      IterStar tmp = (IterStar) o;
+      return true && tmp.symbol.equals(this.symbol) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 641 + 73 * symbol.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Sym getSymbol() {
@@ -597,6 +751,20 @@ public abstract class Sym extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSymIterStarSep(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof IterStarSep)) {
+        return false;
+      }        
+      IterStarSep tmp = (IterStarSep) o;
+      return true && tmp.symbol.equals(this.symbol) && tmp.sep.equals(this.sep) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 13 + 433 * symbol.hashCode() + 449 * sep.hashCode() ; 
+    } 
   
     
     @Override
@@ -646,6 +814,20 @@ public abstract class Sym extends AbstractAST {
       return visitor.visitSymLabeled(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Labeled)) {
+        return false;
+      }        
+      Labeled tmp = (Labeled) o;
+      return true && tmp.symbol.equals(this.symbol) && tmp.label.equals(this.label) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 107 + 317 * symbol.hashCode() + 41 * label.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Sym getSymbol() {
@@ -692,6 +874,20 @@ public abstract class Sym extends AbstractAST {
       return visitor.visitSymLiteral(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Literal)) {
+        return false;
+      }        
+      Literal tmp = (Literal) o;
+      return true && tmp.string.equals(this.string) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 233 + 463 * string.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.StringConstant getString() {
@@ -728,6 +924,20 @@ public abstract class Sym extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSymNonterminal(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Nonterminal)) {
+        return false;
+      }        
+      Nonterminal tmp = (Nonterminal) o;
+      return true && tmp.nonterminal.equals(this.nonterminal) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 107 + 103 * nonterminal.hashCode() ; 
+    } 
   
     
     @Override
@@ -767,6 +977,20 @@ public abstract class Sym extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSymNotFollow(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof NotFollow)) {
+        return false;
+      }        
+      NotFollow tmp = (NotFollow) o;
+      return true && tmp.symbol.equals(this.symbol) && tmp.match.equals(this.match) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 229 + 101 * symbol.hashCode() + 881 * match.hashCode() ; 
+    } 
   
     
     @Override
@@ -816,6 +1040,20 @@ public abstract class Sym extends AbstractAST {
       return visitor.visitSymNotPrecede(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof NotPrecede)) {
+        return false;
+      }        
+      NotPrecede tmp = (NotPrecede) o;
+      return true && tmp.match.equals(this.match) && tmp.symbol.equals(this.symbol) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 661 + 487 * match.hashCode() + 277 * symbol.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Sym getMatch() {
@@ -862,6 +1100,20 @@ public abstract class Sym extends AbstractAST {
       return visitor.visitSymOptional(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Optional)) {
+        return false;
+      }        
+      Optional tmp = (Optional) o;
+      return true && tmp.symbol.equals(this.symbol) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 499 + 647 * symbol.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Sym getSymbol() {
@@ -898,6 +1150,20 @@ public abstract class Sym extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSymParameter(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Parameter)) {
+        return false;
+      }        
+      Parameter tmp = (Parameter) o;
+      return true && tmp.nonterminal.equals(this.nonterminal) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 911 + 673 * nonterminal.hashCode() ; 
+    } 
   
     
     @Override
@@ -937,6 +1203,20 @@ public abstract class Sym extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSymParametrized(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Parametrized)) {
+        return false;
+      }        
+      Parametrized tmp = (Parametrized) o;
+      return true && tmp.nonterminal.equals(this.nonterminal) && tmp.parameters.equals(this.parameters) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 641 + 709 * nonterminal.hashCode() + 2 * parameters.hashCode() ; 
+    } 
   
     
     @Override
@@ -986,6 +1266,20 @@ public abstract class Sym extends AbstractAST {
       return visitor.visitSymPrecede(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Precede)) {
+        return false;
+      }        
+      Precede tmp = (Precede) o;
+      return true && tmp.match.equals(this.match) && tmp.symbol.equals(this.symbol) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 433 + 961 * match.hashCode() + 479 * symbol.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Sym getMatch() {
@@ -1034,6 +1328,20 @@ public abstract class Sym extends AbstractAST {
       return visitor.visitSymSequence(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Sequence)) {
+        return false;
+      }        
+      Sequence tmp = (Sequence) o;
+      return true && tmp.first.equals(this.first) && tmp.sequence.equals(this.sequence) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 421 + 761 * first.hashCode() + 127 * sequence.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Sym getFirst() {
@@ -1080,6 +1388,20 @@ public abstract class Sym extends AbstractAST {
       return visitor.visitSymStart(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Start)) {
+        return false;
+      }        
+      Start tmp = (Start) o;
+      return true && tmp.nonterminal.equals(this.nonterminal) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 79 + 269 * nonterminal.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Nonterminal getNonterminal() {
@@ -1116,6 +1438,20 @@ public abstract class Sym extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSymStartOfLine(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof StartOfLine)) {
+        return false;
+      }        
+      StartOfLine tmp = (StartOfLine) o;
+      return true && tmp.symbol.equals(this.symbol) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 929 + 383 * symbol.hashCode() ; 
+    } 
   
     
     @Override
@@ -1155,6 +1491,20 @@ public abstract class Sym extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSymUnequal(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Unequal)) {
+        return false;
+      }        
+      Unequal tmp = (Unequal) o;
+      return true && tmp.symbol.equals(this.symbol) && tmp.match.equals(this.match) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 709 + 283 * symbol.hashCode() + 3 * match.hashCode() ; 
+    } 
   
     
     @Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,6 +60,20 @@ public abstract class FunctionModifiers extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitFunctionModifiersModifierlist(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Modifierlist)) {
+        return false;
+      }        
+      Modifierlist tmp = (Modifierlist) o;
+      return true && tmp.modifiers.equals(this.modifiers) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 829 + 401 * modifiers.hashCode() ; 
+    } 
   
     
     @Override
