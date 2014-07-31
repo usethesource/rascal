@@ -20,7 +20,7 @@ var Figure = {
 	
     borderRadius: 0,
 	
-    "font-family": "Helvetica, Helvetica, Arial, sans-serif",
+    "font-family": "Helvetica, Arial, sans-serif",
     "font-name": "Helvetica",
     "font-size": 14,
     "font-style": "normal",        // normal, italic

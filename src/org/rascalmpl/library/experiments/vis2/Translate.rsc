@@ -102,7 +102,7 @@ str propsToJSON(Figure child, Figure parent){
 					properties += [
 						"\"event\": \"<event>\"",
 						//"\"type\":  \"<typeOf(accessor)>\"", 
-						"\"accessor\": <trPath(toPath(accessor))>"
+						"\"accessor\": <trCursor(accessor)>"
 						];
  				} else {
    				  	throw "on: accessor <accessor> in binder is not a cursor";
@@ -113,7 +113,7 @@ str propsToJSON(Figure child, Figure parent){
 					properties += [
 						"\"event\":  		\"<event>\"",
 					//	"\"type\": 			\"int()\", 					//\"<typeOf(accessor)>\"",
-						"\"accessor\": 		<trPath(toPath(accessor))>",
+						"\"accessor\": 		<trCursor(accessor)>",
 						"\"replacement\":	<toJSON(replacement)>"
 						];	
  				} else {
@@ -161,24 +161,6 @@ bool isAbsolute(Vertex v) = (getName(v) == "line" || getName(v) == "move");
 
 str directive(Vertex v) = ("line": "L", "lineBy": "l", "move": "M", "moveBy": "m")[getName(v)];
 
-//tuple[num, num] bbox(list[Vertex] vertices){	// TODO: assumes all points are positive
-//	num maxX = 0;
-//	num maxY = 0;
-//	x = y = 0;
-//	for(int i <- index(vertices)){
-//		v = vertices[i];
-//		if(isAbsolute(v)){
-//			x = v.x; y = v.y;
-//			
-//		} else {
-//			x += v.x; y += v.y;
-//		}
-//		maxX = x > maxX ? x : maxX;
-//		maxY = y > maxY ? y : maxY;	
-//	}
-//	return <maxX, maxY>;
-//
-//}
 
 /**************** Utilities for translating properties *************************/
 
@@ -234,7 +216,8 @@ bool isLegalEvent(str event) = event in {
   ;
   */
   
-str trPath(Path path){
+str trCursor(value v){
+	path = toPath(v);
     accessor = "Figure.model";
 	for(nav <- path){
 		switch(nav){
@@ -263,7 +246,7 @@ str trPath(Path path){
   		}
   	}
   	accessor += "[1]";
-  	println("trPath: <path>: <accessor>");
+  	println("trCursor: <v>, <path>: <accessor>");
   	return "\"<accessor>\"";
 }
 
@@ -279,16 +262,16 @@ str escape(str s) = escape(s, (	"\"" : "\\\"",
 								));
 
 
-str numArg(num n) 	= isCursor(n) ? "{\"use\": <trPath(toPath(n))>}" : toJSNumber(n);
+str numArg(num n) 	= isCursor(n) ? "{\"use\": <trCursor(n)>}" : toJSNumber(n);
 
-str strArg(str s) 	= isCursor(s) ? "{\"use\": <trPath(toPath(s))>}" : "\"<escape(s)>\"";
+str strArg(str s) 	= isCursor(s) ? "{\"use\": <trCursor(s)>}" : "\"<escape(s)>\"";
 
-str locArg(loc v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : 
+str locArg(loc v) = isCursor(v) ? "{\"use\": <trCursor(v)>}" : 
 					(v.scheme == "file" ? "\"<site>/<v.path>\"" : "\"<"<v>"[1..-1]>\"");
 
-str valArg(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "<v>";
+str valArg(value v) = isCursor(v) ? "{\"use\": <trCursor(v)>}" : "<v>";
 
-str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trPath(toPath(v))>}" : "\"<escape("<v>")>\"";		
+str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trCursor(v)>}" : "\"<escape("<v>")>\"";		
 
 /******************** Translate figures ************************************/
 		
@@ -677,7 +660,7 @@ str figToJSON(figure: experiments::vis2::Figure::choice(), Figure parent) {
 	if(isCursor(selection)){
 	   return 
 		"{\"figure\": 	\"choice\",
-		' \"selector\":	<trPath(toPath(selection))>,
+		' \"selector\":	<trCursor(selection)>,
     	' \"inner\":   [<intercalate(",\n", [figToJSON(f, figure) | f <- choices])> 
    	    '              ] 
    	    ' <propsToJSON(figure, parent)>
@@ -695,7 +678,7 @@ str figToJSON(figure: experiments::vis2::Figure::choice(), Figure parent) {
 	if(isCursor(condition)){
 	   return 
 		"{\"figure\":	\"visible\",
-		' \"selector\":	<trPath(toPath(condition))>,
+		' \"selector\":	<trCursor(condition)>,
     	' \"inner\":   	<figToJSON(fig, figure)>
     	' <propsToJSON(figure, parent)> 
     	'}";
