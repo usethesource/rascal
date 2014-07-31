@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,6 +70,20 @@ public abstract class Catch extends AbstractAST {
       return visitor.visitCatchBinding(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Binding)) {
+        return false;
+      }        
+      Binding tmp = (Binding) o;
+      return true && tmp.pattern.equals(this.pattern) && tmp.body.equals(this.body) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 131 + 37 * pattern.hashCode() + 919 * body.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getPattern() {
@@ -115,6 +129,20 @@ public abstract class Catch extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitCatchDefault(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Default)) {
+        return false;
+      }        
+      Default tmp = (Default) o;
+      return true && tmp.body.equals(this.body) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 113 + 523 * body.hashCode() ; 
+    } 
   
     
     @Override

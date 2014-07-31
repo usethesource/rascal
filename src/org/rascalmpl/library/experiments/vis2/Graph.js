@@ -49,7 +49,7 @@ Figure.bboxFunction.layeredGraph = function(figure, selection) {
 	   f.draw(0,0,f.width, f.height);
 	   d.attr("width", f.width).attr("height", f.height).attr("transform", "translate(" + (-f.width/2) + "," + (-f.height/2) + ")");
 	   
-	   g.addNode(node.name, {label: node.name, use: "def-" + node.name});
+	   g.addNode(node.name, {label: node.name, useDef: "def-" + node.name});
    }
    
    for(var i = 0; i < org_edges.length; i++){

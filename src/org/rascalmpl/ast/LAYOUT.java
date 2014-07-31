@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,16 @@ public abstract class LAYOUT extends AbstractAST {
   }
   public java.lang.String getString() {
     return string;
+  }
+
+  @Override
+  public int hashCode() {
+    return string.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof Lexical && ((Lexical) o).string.equals(string);  
   }
 
   @Override

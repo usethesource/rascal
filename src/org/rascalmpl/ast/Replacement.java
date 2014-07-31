@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,6 +70,20 @@ public abstract class Replacement extends AbstractAST {
       return visitor.visitReplacementConditional(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Conditional)) {
+        return false;
+      }        
+      Conditional tmp = (Conditional) o;
+      return true && tmp.replacementExpression.equals(this.replacementExpression) && tmp.conditions.equals(this.conditions) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 607 + 89 * replacementExpression.hashCode() + 61 * conditions.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getReplacementExpression() {
@@ -115,6 +129,20 @@ public abstract class Replacement extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitReplacementUnconditional(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Unconditional)) {
+        return false;
+      }        
+      Unconditional tmp = (Unconditional) o;
+      return true && tmp.replacementExpression.equals(this.replacementExpression) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 179 + 47 * replacementExpression.hashCode() ; 
+    } 
   
     
     @Override
