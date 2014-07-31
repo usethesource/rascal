@@ -4,6 +4,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.library.util.Cursor;
 
 public class ConstructorLabelContext extends Context {
@@ -25,8 +26,9 @@ public class ConstructorLabelContext extends Context {
 
 	@Override
 	public IList toPath(IValueFactory vf) {
+		Type type = constructor.getConstructorType();
 		return ctx.toPath(vf).append(vf.constructor(Cursor.Nav_argumentPosition, 
-				vf.integer(constructor.getType().getFieldIndex(label))));
+				vf.integer(type.getFieldIndex(label))));
 	}
 
 }
