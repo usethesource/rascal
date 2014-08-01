@@ -85,6 +85,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	public Type getKeywordArgumentTypes() {
 	  return functionType.getKeywordParameterTypes();
 	}
+
+	public boolean hasKeywordParameter(String label) {
+		return functionType.hasKeywordParameter(label);
+	}
 	
 	@Override
 	public int getArity() {
@@ -162,7 +166,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return keywordParameterDefaults;
 	}
 	
-	@Override
+  @Override
   public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,  IValue[] argValues, Map<String, IValue> keyArgValues) {
     IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
     try {

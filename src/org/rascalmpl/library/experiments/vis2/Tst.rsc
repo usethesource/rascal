@@ -1,50 +1,25 @@
 module experiments::vis2::Tst
 
-import util::Math;
-import List;
-import Set;
+import ParseTree;
+import util::Cursor;
 import IO;
-import String;
-import ToString;
 
-/* Properties */
+layout Whitespace = [\t-\n\r\ ]*;
+layout Id = [A-Za-z][A-Za-z0-9]*;
+syntax StateMachine = State* states;
+syntax State = "state" Id id Transition* transitions;
+syntax Transition = Id from "=\>" Id to;
 
-alias Cursor[&T] = &T;
+str example = "state closed";
 
-data Bind[&T]
-    = bind(Cursor[&T] accessor)
-    | bind(Cursor[&T] accessor, &T val)
-	;
+data D = constructor(list[int] ns, int m);
+
+void tst(){
+	d = constructor([1,2,3],20);
+	d1 = makeCursor(d);
+	println("d1: <toPath(d1.ns[0])>");				// ==> d1: [argument(0),element(0)]
 	
-data HAlign = left() | hcenter() | right();
-
-data VAlign = top() | vcenter() | bottom();
-
-/*
- * Figure: a visual element, the principal visualization datatype
- * Note: for experimentation purposes this is a small extract from the real thing: vis/Figure.rsc
- */
- 
-public alias Figures = list[Figure];
-
-data EventHandler 
-	= handle()
-	| handle(str event, Bind[value] binder)
-	| handle(str event,Figure fig)
-	;
-
-public data Figure(
-	
-		tuple[HAlign, VAlign] align = <hcenter(), vcenter()>,
-		HAlign halign = hcenter(),
-		VAlign valign = vcenter(),	
-		EventHandler on = handle()
-	) =
-	
-	 emptyFigure()
-	
-   | text(value text)		   
-
-   | box(Figure fig=emptyFigure())
- 
-  ;
+	tree = parse(#StateMachine, example);
+	tree1 = makeCursor(tree);
+	println("tree1: <toPath(tree1.states)>");	// ==> tree1: [argument("args"),element(0)]
+}

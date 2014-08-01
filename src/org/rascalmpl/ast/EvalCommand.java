@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -75,6 +75,20 @@ public abstract class EvalCommand extends AbstractAST {
       return visitor.visitEvalCommandDeclaration(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Declaration)) {
+        return false;
+      }        
+      Declaration tmp = (Declaration) o;
+      return true && tmp.declaration.equals(this.declaration) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 331 + 397 * declaration.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Declaration getDeclaration() {
@@ -112,6 +126,20 @@ public abstract class EvalCommand extends AbstractAST {
       return visitor.visitEvalCommandImport(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Import)) {
+        return false;
+      }        
+      Import tmp = (Import) o;
+      return true && tmp.imported.equals(this.imported) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 53 + 739 * imported.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Import getImported() {
@@ -148,6 +176,20 @@ public abstract class EvalCommand extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitEvalCommandStatement(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Statement)) {
+        return false;
+      }        
+      Statement tmp = (Statement) o;
+      return true && tmp.statement.equals(this.statement) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 7 + 673 * statement.hashCode() ; 
+    } 
   
     
     @Override

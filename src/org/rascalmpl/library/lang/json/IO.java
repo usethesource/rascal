@@ -15,14 +15,8 @@
 package org.rascalmpl.library.lang.json;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -31,75 +25,57 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.util.JSonReader;
-import org.rascalmpl.library.util.JSonWriter;
+import org.rascalmpl.library.lang.json.io.IValueAdapter;
+import org.rascalmpl.library.lang.json.io.JSONReadingTypeVisitor;
+
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.ibm.icu.text.DateFormat;
 
 public class IO {
 	private final IValueFactory values;
 
 	public IO(IValueFactory values) {
 		super();
-
 		this.values = values;
 	}
 
-	public void writeTextJSonFile(ISourceLocation loc, IValue value,
-			IEvaluatorContext ctx) {
-		OutputStream out = null;
-		try {
-			out = ctx.getResolverRegistry()
-					.getOutputStream(loc.getURI(), false);
-			new JSonWriter().write(value, new OutputStreamWriter(out, "UTF8"));
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()),
-					null, null);
-		} finally {
-			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException ioex) {
-					throw RuntimeExceptionFactory.io(
-							values.string(ioex.getMessage()), null, null);
-				}
-			}
-		}
-	}
 
 	public IString toJSON(IValue value) {
-		StringWriter out = new StringWriter();
+		IValueAdapter adap = new IValueAdapter();
+		Gson gson = new GsonBuilder()
+		.registerTypeAdapter(IValue.class, adap)
+		.enableComplexMapKeySerialization()
+		.setDateFormat(DateFormat.LONG)
+		.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+		.setVersion(1.0)
+		.create();
 		try {
-			new JSonWriter().write(value, out);
-			return values.string(out.toString());
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()),
-					null, null);
+			String json = gson.toJson(value, new TypeToken<IValue>() {}.getType());
+			return values.string(json);
+		} catch (Exception e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
 	public IValue fromJSON(IValue type, IString src, IEvaluatorContext ctx) {
 		TypeStore store = ctx.getCurrentEnvt().getStore();
-		Type start = new TypeReifier(ctx.getValueFactory()).valueToType(
-				(IConstructor) type, store);
-		try (Reader read = new StringReader(src.getValue())) {
-			;
-			return new JSonReader().read(values, store, start, read);
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()),
-					null, null);
-		} 
+		Type start = new TypeReifier(ctx.getValueFactory()).valueToType((IConstructor) type, store);
+		Gson gson = new GsonBuilder()
+		.enableComplexMapKeySerialization()
+		.setDateFormat(DateFormat.LONG)
+		.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+		.setVersion(1.0)
+		.create();
+		
+		Object obj = gson.fromJson(src.getValue(), Object.class);
+		try {
+			return JSONReadingTypeVisitor.read(obj, values, store, start);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
 	}
 	
-	public IValue readTextJSonFile(IValue type, ISourceLocation loc,
-			IEvaluatorContext ctx) {
-		// TypeStore store = new TypeStore();
-		TypeStore store = ctx.getCurrentEnvt().getStore();
-		Type start = new TypeReifier(ctx.getValueFactory()).valueToType(
-				(IConstructor) type, store);
-		try (Reader read = ctx.getResolverRegistry().getCharacterReader(loc.getURI())) {
-			;
-			return new JSonReader().read(values, store, start, read);
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()),
-					null, null);
-		} 
-	}
 }

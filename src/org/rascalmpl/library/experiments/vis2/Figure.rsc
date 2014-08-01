@@ -9,254 +9,231 @@ import ToString;
 
 /* Properties */
 
-alias Cursor[&T] = &T;
+// Position for absolute placement of figure in parent
 
-data Bind[&T]
-    = bind(Cursor[&T] accessor)
-    | bind(Cursor[&T] accessor, &T val)
+alias Position = tuple[num x, num y];
+
+// Alignment for relative placement of figure in parent
+
+alias Alignment = tuple[num hpos, num vpos];
+
+public Alignment topLeft      	= <0.0, 0.0>;
+public Alignment top          	= <0.5, 0.0>;
+public Alignment topRight     	= <1.0, 0.0>;
+
+public Alignment left   		= <0.0, 0.5>;
+public Alignment center       	= <0.5, 0.5>;
+public Alignment right   	 	= <1.0, 0.5>;
+
+public Alignment bottomLeft   	= <0.0, 1.0>;
+public Alignment bottom 		= <0.5, 1.0>;
+public Alignment bottomRight	= <1.0, 1.0>;
+
+// Events and bindings for input elements
+
+data Event 
+	= on()
+	| on(str eventName, Bind binder)
+	| on(str eventName, Figure fig)
 	;
 	
-data FProperty =
-      pos(int xpos, int ypos)
-      
-    | xpos(int p)
-    | ypos(int p)
+//alias Cursor[&T] = &T;
 
-    | size(int xsize, int ysize)
-    | width(int w)
-    | height(int h)
-    
-    | gap(int xgap, int ygap)
-    | hgap(int g)
-    | vgap(int g)
-    
-    // lines
-    
-	| lineWidth(int n)
-	| lineColor(str c)
-	| lineStyle(list[int] dashes)
-	| lineOpacity(real op)
-	
-	// areas
+data Bind
+    = bind(value accessor)
+    | bind(value accessor, value val)
+//    | delete(Cursor[&T] accessor)
+//    | add(Cursor[&T] accessor, value(value model))
+	;
 
-	| fillColor(str c)
-	| fillOpacity(real op)
-	| rounded(int rx, int ry)
-	
-	| align(HAlign xalign, VAlign yalign)
-	
-	| halign(HAlign ha)
-	| valign(VAlign va)
+// Data formats for various chart elements
 
-	// fonts and text
-	
-	| font(str fontName)
-	| fontSize(int fontSize)
+alias XYData 			= lrel[num x, num y];
+			 		 
+alias LabeledData 		= lrel[str label, num val];		
 
-	// interaction
-	
-	| on(str event, Bind[value] binder)
-	| on(str event, Figure fig)
-	
-	// data sets	
-	
-	| dataset(list[num] values1)
-	| dataset(lrel[num,num] values2)
+alias ErrorData			= lrel[str label, num mean, num low, num high];	
+
+alias Datasets[&T] 		= map[str name, &T values];
+
+data Axis 
+	= axis(str label ="",  str tick = "d")
 	;
 	
-data HAlign = left() | hcenter() | right();
-
-data VAlign = top() | vcenter() | bottom();
-	
-public alias FProperties = list[FProperty];
-
-public set[str] legalEvents = {
-
-// Form events
-	"blur",				// Fires the moment that the element loses focus
-	"change",			// Fires the moment when the value of the element is changed
-	"contextmenu",		// Script to be run when a context menu is triggered
-	"focus",			// Fires the moment when the element gets focus
-	"formchange",		// Script to be run when a form changes
-	"forminput",		// Script to be run when a form gets user input
-	"input",			// Script to be run when an element gets user input
-	"invalid",			// Script to be run when an element is invalid
-	"select",			// Fires after some text has been selected in an element
-	"submit",			// Fires when a form is submitted
-	
-// Keyboard events
-	"keydown",			// Fires when a user is pressing a key
-	"keypress",			// Fires when a user presses a key
-	"keyup",			// Fires when a user releases a key
-	
-// Mouse events
-	"click",			// Fires on a mouse click on the element
-	"dbclick",			// Fires on a mouse double-click on the element
-	"drag",				// Script to be run when an element is dragged
-	"dragend",			// Script to be run at the end of a drag operation
-	"dragenter",		// Script to be run when an element has been dragged to a valid drop target
-	"dragleave",		// Script to be run when an element leaves a valid drop target
-	"dragover",			// Script to be run when an element is being dragged over a valid drop target
-	"dragstart",		// Script to be run at the start of a drag operation
-	"drop",				// Script to be run when dragged element is being dropped
-	"mousedown",		// Fires when a mouse button is pressed down on an element
-	"mousemove",		// Fires when the mouse pointer moves over an element
-	"mouseeout",		// Fires when the mouse pointer moves out of an element
-	"mouseover",		// Fires when the mouse pointer moves over an element
-	"mouseup",			// Fires when a mouse button is released over an element
-	"mousewheel",		// Script to be run when the mouse wheel is being rotated
-	"scroll"			// Script to be run when an element's scrollbar is being scrolled
-	};
+//data Margin = margin(int left = 0, int right = 0, int top = 0, int bottom = 0);
 
 /*
- * Figure: a visual element, the principal visualization datatype
- * Note: for experimentation purposes this is a small extract from the real thing: vis/Figure.rsc
- */
- 
+	link
+	gradient(numr)
+	texture(loc image)
+	lineCap flat, rounded, padded
+	lineJoin	smooth, sharp(r), clipped
+	dashOffset
+		
+	linestyle: color, width, cap, join, dashing, dashOffset
+*/
+
+// Vertices for defining shapes.
+
+data Vertex
+	= line(num x, num y)
+	| lineBy(num x, num y)
+	| move(num x, num y)
+	| moveBy(num x, num y)
+	;
+	
+alias Vertices = list[Vertex];
+
+alias Points = lrel[num x, num y];
+
 public alias Figures = list[Figure];
 
-public data Figure = 
-/* atomic primitives */
+public data Figure(
+		// Dimensions and Alignmenting
+		
+		tuple[int,int] size = <0,0>,
+		int width = 0,
+		int height = 0,
+		Position at = <0,0>,
+		Alignment align = <0.5, 0.5>, // TODO should be middle,
+		num grow = 1.0,
+		tuple[int,int] gap = <0,0>,
+		int hgap = 0,
+		int vgap = 0,
+   
+    	// Line properties
+    
+		int lineWidth = 1,			
+		str lineColor = "black", 		
+		list[int] lineDashing = [],	
+		real lineOpacity = 1.0,
 	
-     _text(value v, FProperties props)		    // text label
-   
-/* primitives/containers */
+		// Area properties
 
-   | _box(FProperties props)			        // rectangular box
-   | _box(Figure inner, FProperties props)      // rectangular box with inner element
+		str fillColor    = "white", 			
+		real fillOpacity = 1.0,	
+		str fillRule     = "evenodd",
+		
+		tuple[int, int] rounded = <0, 0>,
+
+		// Font and text properties
+		
+		str fontFamily = "Helvetica, Arial, Verdana, sans-serif",
+		str fontName = "Helvetica",
+		int fontSize = 12,
+		str fontStyle = "normal",		// normal|italic|oblique|initial|inherit
+		str fontWeight = "normal",		//normal|bold|bolder|lighter|number|initial|inherit; normal==400, bold==700
+		str fontColor = "black",
+		str textDecoration	= "none",	// none|underline|overline|line-through|initial|inherit
+		
+		// Interaction
+	
+		Event event = on(),
+	
+		// Dataset for chart-like layouts
+	
+		Datasets datasets = ()
+	) =
+	
+	emptyFigure()
+
+// atomic primitives
+	
+   | text(value text)		    			// text label
+   | markdown(value text)					// text with markdown markup (TODO: make flavor of text?)
+   | math(value text)						// text with latex markup
    
-   | _ellipse(FProperties props)                // ellipse with inner element
-   | _ellipse(Figure inner, FProperties props)  // ellipse with inner element
+// Graphical elements
+
+   | box(Figure fig=emptyFigure())      	// rectangular box with inner element
+   
+   | ellipse(num cx = 0, num cy = 0, num rx=0, num ry=0, Figure fig=emptyFigure())
+   
+   | circle(num cx = 0, num cy = 0, num r=0, Figure fig=emptyFigure())
+   
+   | ngon(int n=3, num r=0, Figure fig=emptyFigure())	// regular polygon
+   
+   | polygon(Points points=[], bool fillEvenOdd = true)
+   
+   | shape(Vertices vertices, 				// Arbitrary shape
+   			bool shapeConnected = true, 	// Connect vertices with line/curve
+   			bool shapeClosed = false, 		// Make a closed shape
+   			bool shapeCurved = false, 		// Connect vertices with a spline
+   			bool fillEvenOdd = true,		// The fill rule to be used. (TODO: remove?)
+   			Figure startMarker=emptyFigure(),
+   			Figure midMarker=emptyFigure(), 
+   			Figure endMarker=emptyFigure())
+   
+   | image(loc url=|home:///|)
+
+// Figure composers
                    
-   | _hcat(Figures figs, FProperties props) 	// horizontal and vertical concatenation
-   | _vcat(Figures figs, FProperties props) 	// horizontal and vertical concatenation
-                   
-   | _overlay(Figures figs, FProperties props)	// overlay (stacked) composition
+   | hcat(Figures figs=[]) 					// horizontal and vertical concatenation
+   | vcat(Figures figs=[]) 					// horizontal and vertical concatenation 
+   | overlay(Figures figs=[])				// overlay (stacked) comAlignment
+   | grid(list[Figures] figArray = [[]])	// grid of figures
 
-// charts
-   
-   | _barchart(FProperties props)
-   | _scatterplot(FProperties props)
-   
- // graph
-   | _graph(Figures nodes, Edges edges, FProperties props)
-   | _texteditor(FProperties props)
-   
-// interaction
+// Figure transformations
 
-   | _buttonInput(str trueText, str falseText, FProperties props)
+   | at(int x, int y, Figure fig)			// Move to Alignment relative to origin of enclosing Figure
+   | atX(int x, Figure fig)				// TODO: how to handle negative values?
+   | atY(int y, Figure fig)
    
-   | _checkboxInput(FProperties props)
+  	//TODO: avoid name clash with Math::util:scale
+   | SCALE(num factor, Figure fig)
+   
+   | rotate(num angle, Figure fig)
 
-   | _strInput(FProperties props)
-   
-   | _numInput(FProperties props)
-   
-   | _colorInput(FProperties props)
-   
-   | _rangeInput(int low, int high, int step, FProperties props)
-   
-   | _choiceInput(list[str] choices, FProperties props)
-   
+// Input elements
 
-// visibility control
-
-   | _visible(bool yes, Figure fig, FProperties props)
+   | buttonInput(str trueText = "", str falseText = "")
+   | checkboxInput()
+   | choiceInput(list[str] choices = [])
+   | colorInput()
    
-   | _choice(int sel, Figures figs, FProperties props)
+   // date
+   // datetime
+   // email
+   // month
+   // time
+   // tel
+   // week
+   // url
+   
+   | numInput()
+   | rangeInput(int low=0, int high=100, int step=1)
+   | strInput()
+   
+// Visibility control elements
 
-// TODO   
+   | visible(bool condition=true, Figure fig = emptyFigure())
+   
+   | choice(int selection = 0, Figures figs = [])
+  
 /*
-       
    | _computeFigure(bool() recomp,Figure () computeFig, FProperties props)
  
-   | _combo(list[str] choices, Def d, FProperties props)
- 
 */
+
+// More advanced figure elements
+
+// Charts
+   
+   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), str orientation = "vertical", bool grouped = false, str flavor ="nvBarChart")
+      
+   | scatterPlot()
+   
+   | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[XYData] datasets = (), bool area = false, str flavor ="nvLineChart")
+     
+// Graphs
+
+   | graph(lrel[str, Figure] nodes = (), Figures edges = [], str orientation = "topDown", int nodeSep = 50, int edgeSep=10, int layerSep= 30, str flavor="layeredGraph")
+   | edge(str from, str to, str label)
+   
+// Trees
+	| tree(Figure root, Figures children)
    ;
  
-data Edge =			 							// edge between between two elements in complex shapes like tree or graph
-     _edge(int from, int to, FProperties props)
-   ;
-   
-public alias Edges = list[Edge];
-   
-public Edge edge(int from, int to, FProperty props ...){
-  return _edge(from, to, props);
-}
 
-public Figure text(value v, FProperty props ...){
-  return _text(v, props);
-}
 
-public Figure box(FProperty props ...){
-  return _box(props);
-}
 
-public Figure box(Figure fig, FProperty props ...){
-  return _box(fig, props);
-}
-
-public Figure hcat(Figures figs, FProperty props ...){
-  return _hcat(figs,props);
-}
-
-public Figure vcat(Figures figs, FProperty props ...){
-  return _vcat(figs,props);
-}
-
-public Figure graph(Figures nodes, Edges edges, FProperty props...){
-	return _graph(nodes, edges, props);
-}
-
-public Figure hvcat(Figures figs, FProperty props ...){
-  return _widthDepsHeight(_hvcat(figs, props),[]);
-}
-
-public Figure barchart(FProperty props ...){
-  return _barchart(props);
-}
-
-public Figure scatterplot(FProperty props ...){
-  return _scatterplot(props);
-}
-
-public Figure texteditor(FProperty props ...){
-  return _texteditor(props);
-}
-
-public Figure strInput(FProperty props ...){
-  return _strInput(props);
-}
-
-public Figure numInput(FProperty props ...){
-  return _numInput(props);
-}
-
-public Figure colorInput(FProperty props ...){
-  return _colorInput(props);
-}
-
-public Figure buttonInput(str trueText, str falseText, FProperty props ...){
-  return _buttonInput(trueText, falseText, props);
-}
-
-public Figure checkboxInput(FProperty props ...){
-  return _checkboxInput(props);
-}
-
-public Figure choice(int sel, Figures figs, FProperty props ...){
- 	return _choice(sel, figs, props);
-}
-
-public Figure visible(bool vis, Figure fig, FProperty props ...){
- 	return _visible(vis, fig, props);
-}
-
-public Figure rangeInput(int low, int high, int step, FProperty props...){
-   return _rangeInput(low, high, step, props);
-}
-
-public Figure choiceInput(list[str] choices, FProperty props...){
-   return _choiceInput(choices, props);
-}

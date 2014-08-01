@@ -1,83 +1,59 @@
-/* CSS styles for various visualizations */
-
-   .rascal-fig,
-  .rascal-fig *,
-  .rascal-fig *:before,
-  .rascal-fig *:after
-  {
-     /* fix border box model */
-     -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-     -ms-box-sizing: border-box;
-     -o-box-sizing: border-box;
-     box-sizing: border-box;
-  }
-  .rascal-fig-vcat,
-  .rascal-fig-hcat,
-  .rascal-fig-hvcat
-  {
-     font-size: 0px;
-  }
-
-  .rascal-fig-hcat {
-     max-width:100%;
-     overflow-x: auto;
-     white-space: nowrap;
-  }
-  .rascal-fig-hcat > * {
-     display: inline-block; 
-  }
-
-  .rascal-fig-vcat > * {
-     display: block;
-  }
-  .rascal-fig-hvcat {
-     max-width: 100%;
-  }
-  .rascal-fig-hvcat > * {
-     display: inline-block; 
-  }
-  .rascal-fig-box {
-     border : 1px solid black;
-	   position: relative;
-  }
-  .rascal-fig-text {
-     font-size:12px;
-     letter-spacing: normal;
-  }
-
+/*
+#figurearea {
+  fill:	#ffffff;
+  fill-opacity: 1;
+  stroke: #ffffff;
+  stroke-width: 0.5px;
+ 
+  stroke-dasharray: [];
+  stroke-opacity: 1.0;
+  
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-name": Helvetica;
+  font-weight: 300;
+  font-size: 14px;
+  font-style: normal;
+}
+*/
 /* barchart */
 
 rect:hover {
 	fill: grey;
 }
 
+/ * graph */
 
-/* scatterplot */
-	
-.axis path,
-.axis line {
-	fill: none;
-	stroke: black;
-	shape-rendering: crispEdges;
+svg {
+  border: 1px solid black;
+  overflow: hidden;
 }
 
-.axis text {
-	font-family: sans-serif;
-	font-size: 11px;
+node text {
+  font-weight: 300;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+  font-size: 14px;
 }
-/* tree */
 
-.node circle {
-	  fill: #fff;
-	  stroke: steelblue;
-	  stroke-width: 3px;
-	}
+.node rect {
+  stroke-width: 2px;
+  stroke: #333;
+  fill: #fff;
+}
 
-.node text { font: 12px sans-serif; }
+#node-CLOSED rect {
+  fill: #f77;
+}
 
-.link {
-	  fill: none;
-	  stroke: black;
-	  stroke-width: 1.5px;
+#node-ESTAB rect {
+  fill: #7f7;
+}
+
+.edgeLabel rect {
+  fill: #fff;
+}
+
+.edgePath path {
+  stroke: #333;
+  stroke-width: 1.5px;
+  fill: none;
 }

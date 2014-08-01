@@ -678,7 +678,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   }
   
   @Override
-  public IValue call(String name, String module, Map<String, IValue> kwArgs, IValue[] args) {
+  public IValue call(String name, String module, Map<String, IValue> kwArgs, IValue... args) {
 	  IRascalMonitor old = setMonitor(monitor);
     Environment oldEnv = getCurrentEnvt();
     
@@ -693,7 +693,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
   }
 	
-	private IValue call(String name, Map<String,IValue> kwArgs, IValue[] args) {
+	private IValue call(String name, Map<String,IValue> kwArgs, IValue... args) {
 	  QualifiedName qualifiedName = Names.toQualifiedName(name, getCurrentEnvt().getLocation());
 	  setCurrentAST(qualifiedName);
 		return call(qualifiedName, kwArgs, args);
@@ -1567,7 +1567,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		this.curStdout = null;
 	}
 
-	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues) {
+	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue... argValues) {
 		if (Evaluator.doProfiling && profiler == null) {
 			profiler = new Profiler(this);
 			profiler.start();

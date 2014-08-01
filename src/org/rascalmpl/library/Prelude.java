@@ -2094,6 +2094,20 @@ public class Prelude {
 		}
 		return w.done();
 	}
+	
+	public IValue getKeywordParameters(INode T)
+	//@doc{getChildren -- get the children of a node}
+	{
+		IMapWriter w = values.mapWriter();
+		
+		if (T.mayHaveKeywordParameters()) {
+			for(Entry<String, IValue> e : T.asWithKeywordParameters().getParameters().entrySet()){
+				w.put(values.string(e.getKey()), e.getValue());
+			}
+		}
+		
+		return w.done();
+	}
 
 	public IValue getName(INode T)
 	//@doc{getName -- get the function name of a node}
@@ -2101,7 +2115,7 @@ public class Prelude {
 		return values.string(T.getName());
 	}
 
-	public IValue makeNode(IString N, IList V)
+	public IValue makeNode(IString N, IList V, IMap kwParams)
 	//@doc{makeNode -- create a node given its function name and arguments}
 	{
 	    IList argList = V;
@@ -2110,7 +2124,13 @@ public class Prelude {
 		for(IValue v : argList){
 			args[i++] = v;
 		}
-		return values.node(N.getValue(), args);
+		
+		Map<String,IValue> map = new HashMap<>();
+		for (IValue key : kwParams) {
+			map.put(((IString) key).getValue(), kwParams.get(key));
+		}
+		
+		return values.node(N.getValue(), args, map);
 	}
 	
 	public IValue readATermFromFile(IString fileName){
