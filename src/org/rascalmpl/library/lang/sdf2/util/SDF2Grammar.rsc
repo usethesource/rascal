@@ -827,7 +827,7 @@ public Symbol getCharClass(Class cc) {
      	return \char-class([]);
      	
      case (Class) `[<Range* ranges>]` :
-     		return \char-class([getCharRange(r) | /Range r := ranges]);
+     		return \new-char-class([getCharRange(r) | /Range r := ranges]);
      	
      case (Class) `(<Class c>)`: 
      	return getCharClass(c);

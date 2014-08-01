@@ -21,63 +21,41 @@ import Grammar;
 import List;
 import IO;
 
-public data CharRange = \empty-range();    
-  
-public CharRange range(int from, int to) {
-  if (to < from)
-    return \empty-range();
-  else
-    fail;
-}
+data CharRange = \empty-range();
 
-public Symbol \char-class([*CharRange a, \empty-range(), *CharRange b]) 
-  = \char-class(a+b);
-
-public Symbol \char-class([*CharRange a, range(int from1, int to1), *CharRange b, range(int from2, int to2), *CharRange c]) {
-  if ((from1 <= from2 && to1 >= from2 - 1) 
-     || (from2 <= from1 && to2 >= from1 - 1)
-     || (from1 >= from2 && to1 <= to2)
-     || (from2 >= from1 && to2 <= to1)) 
-       return \char-class(a+[range(min([from1,from2]),max([to1,to2]))]+b+c);
-    else 
-      fail;
-}
+CharRange \new-range(int from, int to) = from <= to ? range(from, to) : \empty-range();
  
-public Symbol \char-class([*CharRange a, range(int n,int m), *CharRange b, range(int \o, int p), *CharRange c]) {
-  if (p < n) 
-    return \char-class(a + [range(\o,p)]+b+[range(n,m)]+c);
-  else 
-    fail;
-}
-     
-test bool testFlip() = \char-class([range(2,2), range(1,1)]) == \char-class([range(1,2)]);
-test bool testMerge() = \char-class([range(3,4), range(2,2), range(1,1)]) == \char-class([range(1,4)]);
-test bool testEnvelop() = \char-class([range(10,20), range(15,20), range(20,30)]) == \char-class([range(10,30)]);
-test bool testEnvelop2() = \char-class([range(10,20), range(10,19), range(20,30)]) == \char-class([range(10,30)]);
+public Symbol \new-char-class(list[CharRange] ranges) 
+  = \char-class(([] | union(it, [r]) | r <- ranges));
+  
+test bool testFlip() = \new-char-class([range(2,2), range(1,1)]) == \char-class([range(1,2)]);
+test bool testMerge() = \new-char-class([range(3,4), range(2,2), range(1,1)]) == \char-class([range(1,4)]);
+test bool testEnvelop() = \new-char-class([range(10,20), range(15,20), range(20,30)]) == \char-class([range(10,30)]);
+test bool testEnvelop2() = \new-char-class([range(10,20), range(10,19), range(20,30)]) == \char-class([range(10,30)]);
 
 public Symbol complement(\char-class(list[CharRange] r1)) 
-  = \char-class(complement(r1));
+  = \char-class([ r | r <- complement(r1), !(r is \empty-range)]);
   
 public default Symbol  complement(Symbol s) {
   throw "unsupported symbol for character class complement: <s>";
 }
   
 public Symbol difference(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 	
-  = \char-class(difference(r1,r2));
+  = \char-class([r | r <- difference(r1,r2), !(r is \empty-range)]);
 
 public default Symbol  difference(Symbol s, Symbol t) {
   throw "unsupported symbols for  character class difference: <s> and <t>";
 }
 
 public Symbol union(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2))
- = \char-class(union(r1,r2));
+ = \char-class([ r | r <- union(r1,r2), !(r is \empty-range)]);
  
 public default Symbol  union(Symbol s, Symbol t) {
   throw "unsupported symbols for union: <s> and <t>";
 }
 
 public Symbol intersection(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 
- = \char-class(intersection(r1,r2));
+ = \char-class([ r | r <- intersection(r1,r2), !(r is \empty-range)]);
 
 public default Symbol  intersection(Symbol s, Symbol t) {
   throw "unsupported symbols for intersection: <s> and <t>";
@@ -107,7 +85,6 @@ public CharRange difference(CharRange l, CharRange r) {
       return l;
 
     // inclusion of left into right
-    // <--------right------->
     // ---------<-left->-----
     if (ls >= rs && le <= re) 
       return \empty-range(); 
@@ -116,13 +93,13 @@ public CharRange difference(CharRange l, CharRange r) {
     // -------<-right->------->
     // <---------left--------->
     if (rs >= ls && re <= le) 
-      return range(ls,rs-1);
+      return \new-range(ls,rs-1);
 
     // overlap on left side of right
     // <--left-------->----------
     // ---------<-----right----->
     if (le < re) 
-      return range(ls,rs-1); 
+      return \new-range(ls,rs-1); 
     
     // overlap on right side of right
     // -------------<---left---->
@@ -253,13 +230,13 @@ public list[CharRange] union(list[CharRange] l, list[CharRange] r) {
   // left beyond right
   // <-right-> --------
   // --------- <-left->
-  if (lhead.begin > rhead.end) 
+  if (lhead.begin > rhead.end + 1) 
     return rhead + union(l,rtail); 
 
   // left before right
   // <-left-> ----------
   // -------- <-right->
-  if (lhead.end < rhead.begin) 
+  if (lhead.end + 1< rhead.begin) 
     return lhead + union(ltail,r);
 
   // inclusion of left into right
@@ -329,14 +306,14 @@ public list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   // -------<-right->------->
   // <---------left--------->
   if (rhead.begin >= lhead.begin && rhead.end <= lhead.end) 
-    return range(lhead.begin,rhead.begin-1) 
+    return \new-range(lhead.begin,rhead.begin-1) 
          + difference(range(rhead.end+1,lhead.end)+ltail,rtail);
 
   // overlap on left side of right
   // <--left-------->----------
   // ---------<-----right----->
   if (lhead.end < rhead.end) 
-    return range(lhead.begin,rhead.begin-1) + difference(ltail,r); 
+    return \new-range(lhead.begin,rhead.begin-1) + difference(ltail,r); 
     
   // overlap on right side of right
   // -------------<---left---->
@@ -347,11 +324,11 @@ public list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   throw "did not expect to end up here! <l> - <r>";
 }
 
-test bool comp() = complement(\char-class([])) == \char-class([range(0,65535)]);
-test bool comp2() = complement(\char-class([range(0,0)])) == \char-class([range(1,65535)]);
-test bool comp3() = complement(\char-class([range(1,1)])) == \char-class([range(0,0),range(2,65535)]);
-test bool comp4() = complement(\char-class([range(10,20), range(30,40)])) == \char-class([range(0,9),range(21,29),range(41,65535)]);
-test bool comp5() = complement(\char-class([range(10,35), range(30,40)])) == \char-class([range(0,9),range(41,65535)]);
+test bool comp() = complement(\char-class([])) == \char-class([range(1,16777215)]);
+test bool comp2() = complement(\char-class([range(0,0)])) == \char-class([range(1,16777215)]);
+test bool comp3() = complement(\char-class([range(1,1)])) == \char-class([range(2,16777215)]);
+test bool comp4() = complement(\char-class([range(10,20), range(30,40)])) == \char-class([range(1,9),range(21,29),range(41,16777215)]);
+test bool comp5() = complement(\char-class([range(10,35), range(30,40)])) == \char-class([range(1,9),range(41,16777215)]);
 
 test bool union1() = union(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([range(10,20), range(30,40)]);
 test bool union2() = union(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(10,40)]);
@@ -364,7 +341,7 @@ test bool diff2() = difference(\char-class([range(10,30), range(40,50)]), \char-
 
 public Symbol cc2ranges(Class cc) {
    switch(cc) {
-     case \simpleCharclass(Range* ranges) : return \char-class([range(r) | r <- ranges]);
+     case \simpleCharclass(Range* ranges) : return \new-char-class([range(r) | r <- ranges]);
      case \bracket(Class c): return cc2ranges(c);
      case \complement(Class c) : return complement(cc2ranges(c));
      case \intersection(Class l, Class r) : return intersection(cc2ranges(l), cc2ranges(r));
@@ -377,7 +354,11 @@ public Symbol cc2ranges(Class cc) {
 private CharRange range(Range r) {
   switch (r) {
     case character(Char c) : return range(character(c),character(c));
-    case fromTo(Char l, Char r) : return range(character(l),character(r));
+    case fromTo(Char l, Char r) : {
+      <cL,cR> = <character(l),character(r)>;
+      // users may flip te ranges, but after this reversed ranges will results in empty ranges
+      return cL <= cR ? range(cL, cR) : range(cR, cL);
+    } 
     default: throw "missed a case <r>";
   }
 } 
