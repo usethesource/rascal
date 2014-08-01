@@ -1,4 +1,4 @@
-module experiments::vis2::StateMachinePK
+module experiments::vis2::examples::gui::StateMachine
 
 import experiments::vis2::Figure;
 import experiments::vis2::FigureServer;
@@ -18,7 +18,7 @@ syntax Transition = Id from "=\>" Id to;
 Figure visModel(Model m) = visStateMachine(m.tree);
 
 Figure visStateMachine(StateMachine sm) =
-	vcat(pos=topLeft, figs=[visState(s) | s <- sm.states]);
+	vcat(align=topLeft, figs=[visState(s) | s <- sm.states]);
 	
 Figure visState(State s) =
 	vcat(figs = [ text("state <s.id>", size=<30,20>),

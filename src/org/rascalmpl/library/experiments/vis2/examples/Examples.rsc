@@ -1,4 +1,4 @@
-module experiments::vis2::Examples
+module experiments::vis2::examples::Examples
 
 import experiments::vis2::Figure;
 import experiments::vis2::FigureServer; 
