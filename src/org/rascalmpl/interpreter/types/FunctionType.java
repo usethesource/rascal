@@ -227,13 +227,40 @@ public class FunctionType extends RascalType {
 	public boolean equals(Object o) {
 		if (o instanceof FunctionType) {
 			FunctionType other = (FunctionType) o;
-			return returnType == other.returnType 
-			    && argumentTypes == other.argumentTypes
-			    && (keywordParameters != null ? keywordParameters.equals(other.keywordParameters) : other.keywordParameters == null)
-			    //&& (defaultParameters != null ? defaultParameters.values().equals(other.defaultParameters.values()) : other.defaultParameters == null);
-			    && (defaultParameters != null ? (other.defaultParameters != null && defaultParameters.values().equals(other.defaultParameters.values())) 
-			                                  : other.defaultParameters == null);
+			
+			if (returnType != other.returnType) { 
+				return false;
+			}
+			
+			if (argumentTypes != other.argumentTypes) {
+				return false;
+			}
+			
+			if (keywordParameters != other.keywordParameters) {
+				return false;
+			}
 
+			if (defaultParameters == null && other.defaultParameters == null) {
+				return true;
+			}
+			
+			if ((defaultParameters != null && other.defaultParameters == null) || (defaultParameters == null && other.defaultParameters != null)) {
+				return false;
+			}
+			
+			if (defaultParameters.size() != other.defaultParameters.size()) {
+				return false;
+			}
+			
+			for (String key : defaultParameters.keySet()) {
+				IKeywordParameterInitializer oi = other.defaultParameters.get(key);
+				if (oi == null || !defaultParameters.get(key).equals(oi)) {
+					return false;
+				}
+				
+			}
+			
+			return true;
 		}
 		return false;
 	}
