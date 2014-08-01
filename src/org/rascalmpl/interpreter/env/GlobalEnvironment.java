@@ -117,6 +117,7 @@ public class GlobalEnvironment {
 	 * @param name
 	 */
 	public ModuleEnvironment addModule(ModuleEnvironment mod) {
+		assert mod != null;
 		ModuleEnvironment env = moduleEnvironment.get(mod.getName());
 		if (env == null) {
 			moduleEnvironment.put(mod.getName(), mod);

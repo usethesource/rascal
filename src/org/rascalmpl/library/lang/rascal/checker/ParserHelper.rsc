@@ -63,6 +63,14 @@ public Tree parseAssignable(str toParse) {
 	return parse(#Assignable,toParse);
 }
 
+public Tree parseModule(str toParse) {
+	return parse(#Module,toParse);
+}
+
+public Tree parseModuleWithSpaces(str toParse) {
+	return parse(#start[Module],toParse);
+}
+
 public void howManyMatches(str toParse) {
 	Tree pt = parse(#Expression,toParse);
 	for ((Expression)`[<{Expression ","}* x>, <{Expression ","}* x2>, <Expression a>, <{Expression ","}* y>]` := pt) println("Found a match: <x> and <x2> and <a> and <y>");

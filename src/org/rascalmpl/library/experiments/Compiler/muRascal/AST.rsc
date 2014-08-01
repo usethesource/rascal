@@ -25,10 +25,10 @@ public data MuModule =
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-                muFunction(str qname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, 
-                           loc source, list[str] modifiers, map[str,str] tags,
+                muFunction(str qname, str uqname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, 
+                           loc src, list[str] modifiers, map[str,str] tags,
                            MuExp body)
-              | muCoroutine(str qname, str scopeIn, int nformals, int nlocals, list[int] refs, MuExp body)
+              | muCoroutine(str qname, str uqname, str scopeIn, int nformals, int nlocals, loc src, list[int] refs, MuExp body)
           ;
           
 // A global (module level) variable.
@@ -82,15 +82,16 @@ public data MuExp =
           | muCall(MuExp fun, list[MuExp] args)                 // Call a *muRascal function
           | muApply(MuExp fun, list[MuExp] args)                // Partial *muRascal function application
           
-          | muOCall(MuExp fun, list[MuExp] args)                // Call a declared *Rascal function
+          | muOCall(MuExp fun, list[MuExp] args, loc src)       // Call a declared *Rascal function
 
           | muOCall(MuExp fun, Symbol types,                    // Call a dynamic *Rascal function
-          					   list[MuExp] args)
+          					   list[MuExp] args, loc src)
           
-          | muCallConstr(str fuid, list[MuExp] args) 			// Call a constructor
+          | muCallConstr(str fuid, list[MuExp] args /*, loc src*/)	// Call a constructor
           
-          | muCallPrim(str name)                                // Call a Rascal primitive function (with empty list of arguments)
-          | muCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
+          | muCallPrim(str name, loc src)                       // Call a Rascal primitive function (with empty list of arguments)
+          | muCallPrim(str name, list[MuExp] exps, loc src)		// Call a Rascal primitive function
+          
           | muCallMuPrim(str name, list[MuExp] exps)			// Call a muRascal primitive function
           | muCallJava(str name, str class, 
           			   Symbol parameterTypes,
@@ -157,7 +158,7 @@ public data MuExp =
           
           // Exceptions
           
-          | muThrow(MuExp exp)
+          | muThrow(MuExp exp, loc src)
           
           // Exception handling try/catch
           
@@ -172,6 +173,8 @@ public data MuExp =
           
 public MuExp muMulti(muOne(MuExp exp)) = muOne(exp);
 public MuExp muOne(muMulti(MuExp exp)) = muOne(exp);
+
+anno loc MuExp@\loc;
  
 data MuCatch = muCatch(str id, str fuid, Symbol \type, MuExp body);    
 
@@ -211,6 +214,7 @@ public data Function =
                             list[Guard] guard, lrel[list[VarDecl] vardecls, str s] locals, list[MuExp] body, bool comma)
           ;
 
+
 public data MuExp =
               preIntCon(str txt)
             | preStrCon(str txt)  
@@ -227,6 +231,10 @@ public data MuExp =
             | preAssign(lrel[str,int] funNames, Identifier id, MuExp exp)
             | preAssignLocList(Identifier id1, Identifier id2, MuExp exp)
             | preIfthen(MuExp cond, list[MuExp] thenPart, bool comma)
+            
+            | preMuCallPrim(str name)                                // Call a Rascal primitive function (with empty list of arguments)
+            | preMuCallPrim(str name, list[MuExp] exps)				// Call a Rascal primitive function
+            | preThrow(MuExp exp)
             
             | preAddition(MuExp lhs, MuExp rhs)
             | preSubtraction(MuExp lhs, MuExp rhs)
@@ -268,3 +276,6 @@ public data MuExp =
 public bool isOverloadedFunction(muOFun(str _)) = true;
 //public bool isOverloadedFunction(muOFun(str _, str _)) = true;
 public default bool isOverloadedFunction(MuExp _) = false;
+
+MuExp muCallPrim(str name) = muCallPrim(name, |unknown:///no-location-available|);
+MuExp muCallPrim(str name, list[MuExp] exps) = muCallPrim(name, exps, |unknown:///no-location-available|);

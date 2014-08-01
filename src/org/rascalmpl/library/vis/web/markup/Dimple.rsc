@@ -136,11 +136,11 @@ str vals1(list[value] fields) {
     }
 
 public void main() {
- str header  = Z(title_, (), "Dimple")+
- Z(script_,(src_: "http://d3js.org/d3.v3.min.js"))+
- Z(script_,(src_: "http:dimplejs.org/dist/dimple.v1.1.2.min.js"))
+ str header  = W3(title_, (), "Dimple")+
+ W3(script_,(src_: "http://d3js.org/d3.v3.min.js"))+
+ W3(script_,(src_: "http:dimplejs.org/dist/dimple.v1.1.2.min.js"))
  ;
- str body =  Z(h1_, (id_: "header"), "Dimple") +
+ str body =  W3(h1_, (id_: "header"), "Dimple") +
   JavaScript(
         <svg_, dimple.newSvg("body", 800, 600)>
         ,

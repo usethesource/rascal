@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2014 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -18,9 +18,10 @@ import IO;
 import String;
 import List;
 import Set;
+import util::Math;
 
 private str header = "/*******************************************************************************
-                     ' * Copyright (c) 2009-2013 CWI
+                     ' * Copyright (c) 2009-2014 CWI
                      ' * All rights reserved. This program and the accompanying materials
                      ' * are made available under the terms of the Eclipse Public License v1.0
                      ' * which accompanies this distribution, and is available at
@@ -173,6 +174,20 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '    return visitor.visit<super><sig.name>(this);
          '  }
          '
+         '  @Override
+         '  public boolean equals(Object o) {
+         '    if (!(o instanceof <sig.name>)) {
+         '      return false;
+         '    }        
+         '    <sig.name> tmp = (<sig.name>) o;
+         '    return true <for (arg(_, name) <- sig.args) {>&& tmp.<name>.equals(this.<name>) <}>; 
+         '  }
+         ' 
+         '  @Override
+         '  public int hashCode() {
+         '    return <arbPrime(1000)> <for (arg(_, name) <- sig.args) { >+ <arbPrime(1000)> * <name>.hashCode() <}>; 
+         '  } 
+         '
          '  <for (arg(typ, name) <- sig.args) { cname = capitalize(name); >
          '  @Override
          '  public <typ> get<cname>() {
@@ -195,6 +210,16 @@ public str lexicalClass(str name) {
          '  }
          '  public java.lang.String getString() {
          '    return string;
+         '  }
+         '
+         '  @Override
+         '  public int hashCode() {
+         '    return string.hashCode();
+         '  }
+         '
+         '  @Override
+         '  public boolean equals(Object o) {
+         '    return o instanceof Lexical && ((Lexical) o).string.equals(string);  
          '  }
          '
          '  @Override

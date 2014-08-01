@@ -11,6 +11,7 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -59,7 +60,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		return type;
 	}
 	
@@ -122,7 +123,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		return type;
 	}
 	
@@ -323,7 +324,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		return type;
 	}
 	
@@ -334,21 +335,21 @@ public abstract class Tree {
 	
 	@Override
 	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-		if (constant) {
-			return new LiteralPattern(eval, this,  node);
-		}
-		
-		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(alts.size());
-		for (org.rascalmpl.ast.Expression arg : alts) {
-			kids.add(arg.buildMatcher(eval));
-		}
-		
-		IMatchingResult setMatcher = new SetPattern(eval, this,  kids);
-		java.util.List<IMatchingResult> wrap = new ArrayList<IMatchingResult>(1);
-		wrap.add(setMatcher);
-		
-		Result<IValue> ambCons = eval.getCurrentEnvt().getVariable("amb");
-		return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, Factory.Tree_Amb, wrap);
+	  if (constant) {
+	    return new LiteralPattern(eval, this,  node);
+	  }
+
+	  java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(alts.size());
+	  for (org.rascalmpl.ast.Expression arg : alts) {
+	    kids.add(arg.buildMatcher(eval));
+	  }
+
+	  IMatchingResult setMatcher = new SetPattern(eval, this,  kids);
+	  java.util.List<IMatchingResult> wrap = new ArrayList<IMatchingResult>(1);
+	  wrap.add(setMatcher);
+
+	  Result<IValue> ambCons = eval.getCurrentEnvt().getVariable("amb");
+	  return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, Factory.Tree_Amb, wrap, Collections.<String,IMatchingResult>emptyMap());
 	} 
   }
   
@@ -372,7 +373,7 @@ public abstract class Tree {
 	  }
 
 	  @Override
-	  public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	  public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		  return Factory.Tree;
 	  }
   }
@@ -398,7 +399,7 @@ public abstract class Tree {
 	  }
 
 	  @Override
-	  public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	  public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		  return Factory.Tree;
 	  }
   }

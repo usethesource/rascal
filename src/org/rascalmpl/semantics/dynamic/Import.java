@@ -146,7 +146,7 @@ public abstract class Import {
 					String moduleEnvName = eval.getCurrentModuleEnvironment().getName();
 					URI ur = null;
 					if (moduleEnvName.equals(ModuleEnvironment.SHELL_MODULE)) {
-						ur = URI.create("rascal:///");
+						ur = URIUtil.rootScheme("rascal");
 					} else {
 						ur = eval.getRascalResolver().getRootForModule((URIUtil.createRascalModule(moduleEnvName)));
 					}
@@ -252,6 +252,7 @@ public abstract class Import {
 		GlobalEnvironment heap = eval.__getHeap();
 		
 		if (!heap.existsModule(name)) {
+			//System.err.println("importModule: " + name);
 			// deal with a fresh module that needs initialization
 			heap.addModule(new ModuleEnvironment(name, heap));
 			loadModule(src, name, eval);
@@ -463,7 +464,7 @@ public abstract class Import {
 	  try {
 		  imp.interpret(eval);
 	  }
-	  catch (Throwable e) {
+	  catch (StaticError e) {
 		  // parsing the current module should be robust wrt errors in modules it depends on.
 		  eval.getMonitor().warning("could not load module " + TreeAdapter.yield(mod) + "[" + e.getMessage() + "]", imp != null ? imp.getLocation() : eval.getCurrentAST().getLocation());
 		  if(eval.isInterrupted()) {

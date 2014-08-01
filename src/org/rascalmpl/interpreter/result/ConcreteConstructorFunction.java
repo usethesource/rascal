@@ -34,9 +34,8 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteConstructorFunction extends ConstructorFunction {
 
-	public ConcreteConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval,
-			Environment env) {
-		super(ast, eval, env, Factory.Tree_Appl, null);
+	public ConcreteConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env) {
+		super(ast, eval, env, Factory.Tree_Appl);
 	}
 	
 	@Override

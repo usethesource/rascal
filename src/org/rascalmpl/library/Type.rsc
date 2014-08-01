@@ -98,8 +98,8 @@ Description:
 Productions represent abstract (recursive) definitions of abstract data type constructors and functions.
 }  
 data Production
-     = \cons(Symbol def, list[Symbol] symbols, set[Attr] attributes)
-     | \func(Symbol def, list[Symbol] symbols, set[Attr] attributes)
+     = \cons(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, map[str, value(map[str,value])] kwDefaults, set[Attr] attributes)
+     | \func(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, map[str, value(map[str,value])] kwDefaults, set[Attr] attributes)
      | \choice(Symbol def, set[Production] alternatives)
      ;
 
@@ -462,6 +462,16 @@ public &T typeCast(type[&T] typ, value v) {
     return x;
   throw typeCastException(typeOf(v), typ);
 }
+
+@doc{
+Synopsis: instantiate an ADT constructor of a given type with the given children
+
+Description:
+
+This function will build a constructor if the definition exists and throw an exception otherwise.
+}
+@javaClass{org.rascalmpl.library.Type}
+public java &T make(type[&T] typ, str name, list[value] args);
 
 @doc{
 Synopsis: returns the dynamic type of a value as a reified type

@@ -22,15 +22,10 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.IRascalMonitor;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.ReifiedType;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.interpreter.IEvaluatorContext;				// TODO: remove import: YES
+import org.rascalmpl.interpreter.IRascalMonitor;				// remove import: NO
+import org.rascalmpl.interpreter.types.NonTerminalType;			// remove import: NO
+import org.rascalmpl.interpreter.types.ReifiedType;				// remove import: NO
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -41,7 +36,6 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.recovery.Recoverer;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -52,28 +46,25 @@ import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
 public class ParsingTools {
 
 	private IValueFactory vf;
-	private URIResolverRegistry resolverRegistry;
 	private IRascalMonitor monitor;
 	private List<ClassLoader> classLoaders;
 	private PrintWriter stderr;
-
-	private Configuration config;
 	private HashMap<IValue,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>> parsers;
-	private IEvaluatorContext ctx;
+	private RascalExecutionContext rex;
 	
-	public ParsingTools(IValueFactory fact){
+	public ParsingTools(IValueFactory vf){
 		super();
-		vf = fact;
+		this.vf = vf; 
+		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>>();
+		stderr = new PrintWriter(System.err);
 	}
 	
-	public void setContext(IEvaluatorContext ctx){
-		this.ctx = ctx;
-		resolverRegistry = ctx.getResolverRegistry();
-		monitor = ctx.getEvaluator().getMonitor();
-		stderr = ctx.getEvaluator().getStdErr();
-		config = ctx.getEvaluator().getConfiguration();
+	public void setContext(RascalExecutionContext rex){
+		this.rex = rex;
+		monitor = rex.getMonitor();
+		stderr = rex.getStdErr();
 		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>>();
-		classLoaders = ctx.getEvaluator().getClassLoaders();
+		classLoaders = rex.getClassLoaders();
 	}
 	
 	private IRascalMonitor getMonitor() {
@@ -129,10 +120,11 @@ public class ParsingTools {
 	 * Parse text from a string
 	 * @param start		Start symbol
 	 * @param input		Text to be parsed as string
+	 * @param stacktrace TODO
 	 * @return ParseTree or Exception
 	 */
-	public IValue parse(IString moduleName, IValue start, IString input) {
-		return parse(moduleName, start, vf.mapWriter().done(), URIUtil.invalidURI(), input.getValue().toCharArray());
+	public IValue parse(IString moduleName, IValue start, IString input, List<Frame> stacktrace) {
+		return parse(moduleName, start, vf.mapWriter().done(), URIUtil.invalidURI(), input.getValue().toCharArray(), stacktrace);
 	}
 	
 	/**
@@ -147,9 +139,9 @@ public class ParsingTools {
 		
 		try{
 			char[] input = getResourceContent(location.getURI());
-			return parse(moduleName, start,  vf.mapWriter().done(), location.getURI(), input);
+			return parse(moduleName, start,  vf.mapWriter().done(), location.getURI(), input, null);
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), null, null);
+			throw RascalRuntimeException.io(vf.string(ioex.getMessage()), null);
 		} finally{
 			setMonitor(old);
 		}
@@ -162,9 +154,10 @@ public class ParsingTools {
 	 * @param robust		Error recovery map
 	 * @param location		Location where input text comes from
 	 * @param input			Input text as char array
+	 * @param stacktrace 	Stacktrace of calling context
 	 * @return
 	 */
-	public IValue parse(IString moduleName, IValue start, IMap robust, URI location, char[] input) {
+	public IValue parse(IString moduleName, IValue start, IMap robust, URI location, char[] input, List<Frame> stacktrace) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
@@ -181,10 +174,10 @@ public class ParsingTools {
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = vf.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
-			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
+			throw RascalRuntimeException.parseError(errorLoc, stacktrace);
 		}
 		catch (UndeclaredNonTerminalException e){
-			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), null);
+			throw new CompilerError("Undeclared non-terminal: " + e.getName() + ", " + e.getClassName());
 		}
 	}
 	
@@ -215,13 +208,13 @@ public class ParsingTools {
 	 */
 	private static IConstructor checkPreconditions(IValue start, Type reified) {
 		if (!(reified instanceof ReifiedType)) {
-		   throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A reified type is required instead of " + reified);
+		   throw RascalRuntimeException.illegalArgument(start, null, "A reified type is required instead of " + reified);
 		}
 		
 		Type nt = reified.getTypeParameters().getFieldType(0);
 		
 		if (!(nt instanceof NonTerminalType)) {
-			throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A non-terminal type is required instead of  " + nt);
+			throw RascalRuntimeException.illegalArgument(start, null, "A non-terminal type is required instead of  " + nt);
 		}
 		
 		IConstructor symbol = ((NonTerminalType) nt).getSymbol();
@@ -257,7 +250,7 @@ public class ParsingTools {
 		initializeRecovery(robust, lookaheads, robustProds);
 		
 		//__setInterrupt(false);
-		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(ctx);
+		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(rex.getEvaluatorContext());
 		
 	      String className = name;
 	      Class<?> clazz;
@@ -271,9 +264,9 @@ public class ParsingTools {
 	        } catch (ClassNotFoundException e) {
 	          continue;
 	        } catch (InstantiationException e) {
-	          throw new ImplementationError("could not instantiate " + className + " to valid IGTD parser", e);
+	          throw new CompilerError("could not instantiate " + className + " to valid IGTD parser: " + e);
 	        } catch (IllegalAccessException e) {
-	          throw new ImplementationError("not allowed to instantiate " + className + " to valid IGTD parser", e);
+	          throw new CompilerError("not allowed to instantiate " + className + " to valid IGTD parser: " + e);
 	        } catch (LinkageError e){
 	        	continue;
 	        }
@@ -319,10 +312,10 @@ public class ParsingTools {
 		startJob("Loading parser generator", 40);
 		if(parserGenerator == null ){
 		  if (isBootstrapper()) {
-		    throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
+		    throw new CompilerError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
 		  }
 		 
-		  parserGenerator = new ParserGenerator(monitor, stderr, classLoaders, vf, config);
+		  parserGenerator = new ParserGenerator(rex.getMonitor(), rex.getStdErr(), classLoaders, vf, rex.getConfiguration());
 		}
 		endJob(true);
 		return parserGenerator;
@@ -333,7 +326,7 @@ public class ParsingTools {
 		Reader textStream = null;
 		
 		try {
-			textStream = resolverRegistry.getCharacterReader(location);
+			textStream = rex.getResolverRegistry().getCharacterReader(location);
 			data = InputConverter.toChar(textStream);
 		}
 		finally{
@@ -376,18 +369,18 @@ public class ParsingTools {
 	    if (parser == null || force) {
 	      String parserName = name; // .replaceAll("::", ".");
 	     //stderr.println("name = " + name);
-	      parser = pg.getNewParser(monitor, loc, parserName, definitions);
+	      parser = pg.getNewParser(rex.getMonitor(), loc, parserName, definitions);
 	      storeObjectParser(name, start, parser);
 	    }
 
 	    try {
 	      return parser.newInstance();
 	    } catch (InstantiationException e) {
-	      throw new ImplementationError(e.getMessage(), e);
+	      throw new CompilerError(e.getMessage() + e);
 	    } catch (IllegalAccessException e) {
-	      throw new ImplementationError(e.getMessage(), e);
+	      throw new CompilerError(e.getMessage() + e);
 	    } catch (ExceptionInInitializerError e) {
-	      throw new ImplementationError(e.getMessage(), e);
+	      throw new CompilerError(e.getMessage() + e);
 	    }
 	  }
 	  
@@ -395,8 +388,8 @@ public class ParsingTools {
 	  
 	// Rascal library function
 	public IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
-		if(this.ctx == null){
-			setContext(ctx);
+		if(rex == null){
+			rex = new RascalExecutionContext(vf, false, false, ctx, null);
 		}
 		return parseFragment(name, start, tree, loc.getURI(), grammar);
 	}
@@ -437,18 +430,18 @@ public class ParsingTools {
 	      getMonitor().warning("parse error in concrete syntax", src);
 	      return tree.asAnnotatable().setAnnotation("parseError", src);
 	    }
-	    catch (StaticError e) {
-	      ISourceLocation loc = TreeAdapter.getLocation(tree);
-	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-	      getMonitor().warning(e.getMessage(), e.getLocation());
-	      return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
-	    }
-	    catch (UndeclaredNonTerminalException e) {
-	      ISourceLocation loc = TreeAdapter.getLocation(tree);
-	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-	      getMonitor().warning(e.getMessage(), src);
-	      return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
-	    }
+//	    catch (StaticError e) {
+//	      ISourceLocation loc = TreeAdapter.getLocation(tree);
+//	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+//	      getMonitor().warning(e.getMessage(), e.getLocation());
+//	      return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
+//	    }
+//	    catch (UndeclaredNonTerminalException e) {
+//	      ISourceLocation loc = TreeAdapter.getLocation(tree);
+//	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+//	      getMonitor().warning(e.getMessage(), src);
+//	      return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
+//	    }
 	  }
 	  
 	  private char[] replaceAntiQuotesByHoles(IConstructor lit, Map<String, IConstructor> antiquotes) {
@@ -492,7 +485,7 @@ public class ParsingTools {
 	  }
 
 	  private IConstructor replaceHolesByAntiQuotes(IConstructor fragment, final Map<String, IConstructor> antiquotes) {
-		  return (IConstructor) fragment.accept(new IdentityTreeVisitor<ImplementationError>() {
+		  return (IConstructor) fragment.accept(new IdentityTreeVisitor<CompilerError>() {
 
 			  @Override
 			  public IConstructor visitTreeAppl(IConstructor tree)  {
@@ -526,7 +519,7 @@ public class ParsingTools {
 					  }
 				  }
 
-				  throw new ImplementationError("expected to find a holeType, but did not: " + tree);
+				  throw new CompilerError("expected to find a holeType, but did not: " + tree);
 			  }
 
 			  @Override

@@ -81,10 +81,10 @@ public class NodeResult extends ElementResult<INode> {
 		}
 		IInteger index = ((IntegerResult)subscripts[0]).getValue();
 		int idx = index.intValue();
-		if(idx < 0){
-			idx = idx + getValue().positionalArity();
+		if (idx < 0){
+			idx = idx + getValue().arity();
 		}
-		if ( (idx >= getValue().positionalArity()) || (idx < 0)) {
+		if ( (idx >= getValue().arity()) || (idx < 0)) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		Type elementType = getTypeFactory().valueType();

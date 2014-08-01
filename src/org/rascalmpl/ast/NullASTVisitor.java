@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -749,15 +749,15 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitKeywordArgumentDefault(KeywordArgument.Default x) { 
+  public T visitKeywordArgument_ExpressionDefault(KeywordArgument_Expression.Default x) { 
     return null; 
   }
 
-  public T visitKeywordArgumentsDefault(KeywordArguments.Default x) { 
+  public T visitKeywordArguments_ExpressionDefault(KeywordArguments_Expression.Default x) { 
     return null; 
   }
 
-  public T visitKeywordArgumentsNone(KeywordArguments.None x) { 
+  public T visitKeywordArguments_ExpressionNone(KeywordArguments_Expression.None x) { 
     return null; 
   }
 

@@ -110,6 +110,7 @@ import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
+import org.rascalmpl.uri.HttpsURIResolver;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.TempURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -222,6 +223,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 		HttpURIResolver http = new HttpURIResolver();
 		resolverRegistry.registerInput(http);
+		
+		//added
+		HttpsURIResolver https = new HttpsURIResolver();
+		resolverRegistry.registerInput(https);
 
 		CWDURIResolver cwd = new CWDURIResolver();
 		resolverRegistry.registerInputOutput(cwd);
@@ -680,7 +685,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   }
   
   @Override
-  public IValue call(String name, String module, Map<String, IValue> kwArgs, IValue[] args) {
+  public IValue call(String name, String module, Map<String, IValue> kwArgs, IValue... args) {
 	  IRascalMonitor old = setMonitor(monitor);
     Environment oldEnv = getCurrentEnvt();
     
@@ -695,13 +700,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
   }
 	
-	private IValue call(String name, Map<String,IValue> kwArgs, IValue[] args) {
+	private IValue call(String name, Map<String,IValue> kwArgs, IValue... args) {
 	  QualifiedName qualifiedName = Names.toQualifiedName(name, getCurrentEnvt().getLocation());
 	  setCurrentAST(qualifiedName);
 		return call(qualifiedName, kwArgs, args);
 	}
 	
-  private IValue call(QualifiedName qualifiedName, Map<String,IValue> kwArgs, IValue... args) {
+  public IValue call(QualifiedName qualifiedName, Map<String,IValue> kwArgs, IValue... args) {
     OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(qualifiedName);
 		RascalTypeFactory rtf = RascalTypeFactory.getInstance();
     
@@ -1575,7 +1580,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		this.curStdout = null;
 	}
 
-	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues) {
+	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue... argValues) {
 		if (Evaluator.doProfiling && profiler == null) {
 			profiler = new Profiler(this);
 			profiler.start();

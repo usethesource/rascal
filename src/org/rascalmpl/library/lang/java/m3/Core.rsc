@@ -35,6 +35,8 @@ anno rel[loc from, loc to] M3@typeDependency;     // using a type literal in som
 anno rel[loc from, loc to] M3@methodOverrides;    // which method override which other methods
 anno rel[loc declaration, loc annotation] M3@annotations;
 
+data Language(str version="") = java();
+
 public M3 composeJavaM3(loc id, set[M3] models) {
   m = composeM3(id, models);
   
@@ -80,10 +82,8 @@ public M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
     sourcePaths = getPaths(project, "java");
     //setEnvironmentOptions(project);
     setEnvironmentOptions(classPaths, sourcePaths);
-    M3 result = m3(project);
-    for (sp <- sourcePaths) {
-      result = composeJavaM3(project, { createM3FromFile(f, javaVersion = javaVersion) | loc f <- find(sp, "java") });
-    }
+    m3s = { *createM3FromFile(f, javaVersion = javaVersion) | sp <- sourcePaths, loc f <- find(sp, "java") };
+    M3 result = composeJavaM3(project, m3s);
     registerProject(project, result);
     return result;
 }

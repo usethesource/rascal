@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -84,6 +84,20 @@ public abstract class Comprehension extends AbstractAST {
       return visitor.visitComprehensionList(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof List)) {
+        return false;
+      }        
+      List tmp = (List) o;
+      return true && tmp.results.equals(this.results) && tmp.generators.equals(this.generators) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 2 + 167 * results.hashCode() + 67 * generators.hashCode() ; 
+    } 
+  
     
     @Override
     public java.util.List<org.rascalmpl.ast.Expression> getResults() {
@@ -133,6 +147,20 @@ public abstract class Comprehension extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitComprehensionMap(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Map)) {
+        return false;
+      }        
+      Map tmp = (Map) o;
+      return true && tmp.from.equals(this.from) && tmp.to.equals(this.to) && tmp.generators.equals(this.generators) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 977 + 613 * from.hashCode() + 593 * to.hashCode() + 499 * generators.hashCode() ; 
+    } 
   
     
     @Override
@@ -190,6 +218,20 @@ public abstract class Comprehension extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitComprehensionSet(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Set)) {
+        return false;
+      }        
+      Set tmp = (Set) o;
+      return true && tmp.results.equals(this.results) && tmp.generators.equals(this.generators) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 173 + 379 * results.hashCode() + 367 * generators.hashCode() ; 
+    } 
   
     
     @Override

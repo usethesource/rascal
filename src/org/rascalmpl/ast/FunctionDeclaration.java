@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -100,6 +100,20 @@ public abstract class FunctionDeclaration extends AbstractAST {
       return visitor.visitFunctionDeclarationAbstract(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Abstract)) {
+        return false;
+      }        
+      Abstract tmp = (Abstract) o;
+      return true && tmp.tags.equals(this.tags) && tmp.visibility.equals(this.visibility) && tmp.signature.equals(this.signature) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 701 + 241 * tags.hashCode() + 103 * visibility.hashCode() + 137 * signature.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Tags getTags() {
@@ -162,6 +176,20 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitFunctionDeclarationConditional(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Conditional)) {
+        return false;
+      }        
+      Conditional tmp = (Conditional) o;
+      return true && tmp.tags.equals(this.tags) && tmp.visibility.equals(this.visibility) && tmp.signature.equals(this.signature) && tmp.expression.equals(this.expression) && tmp.conditions.equals(this.conditions) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 961 + 829 * tags.hashCode() + 541 * visibility.hashCode() + 139 * signature.hashCode() + 313 * expression.hashCode() + 787 * conditions.hashCode() ; 
+    } 
   
     
     @Override
@@ -242,6 +270,20 @@ public abstract class FunctionDeclaration extends AbstractAST {
       return visitor.visitFunctionDeclarationDefault(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Default)) {
+        return false;
+      }        
+      Default tmp = (Default) o;
+      return true && tmp.tags.equals(this.tags) && tmp.visibility.equals(this.visibility) && tmp.signature.equals(this.signature) && tmp.body.equals(this.body) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 761 + 383 * tags.hashCode() + 241 * visibility.hashCode() + 197 * signature.hashCode() + 449 * body.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Tags getTags() {
@@ -311,6 +353,20 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitFunctionDeclarationExpression(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Expression)) {
+        return false;
+      }        
+      Expression tmp = (Expression) o;
+      return true && tmp.tags.equals(this.tags) && tmp.visibility.equals(this.visibility) && tmp.signature.equals(this.signature) && tmp.expression.equals(this.expression) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 787 + 317 * tags.hashCode() + 131 * visibility.hashCode() + 641 * signature.hashCode() + 3 * expression.hashCode() ; 
+    } 
   
     
     @Override

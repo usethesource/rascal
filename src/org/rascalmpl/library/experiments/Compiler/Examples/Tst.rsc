@@ -1,8 +1,7 @@
 module experiments::Compiler::Examples::Tst
 
-data A = a();
+test bool test1() = true;
 
+test bool test2(int a) = true;
 
-value main(list[value] args) = { "abc" } := { "abc" };
-
-//value main(list[value] args) = [e | e <- "f"(1,kw=2)];
+value main(list[value] args) = true;

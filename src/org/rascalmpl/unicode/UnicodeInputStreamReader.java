@@ -68,6 +68,9 @@ public class UnicodeInputStreamReader extends Reader {
 		ByteOrderMarker b = UnicodeDetector.detectBom(detectionBuffer, bufferSize);
 		if (b != null) {
 			Charset ref = Charset.forName(encoding);
+			if (UnicodeDetector.isAmbigiousBOM(b.getCharset(), ref)) {
+				b = ByteOrderMarker.fromString(encoding);
+			}
 			if (b.getCharset().equals(ref) || b.getGroup().equals(ref)) {
 				InputStream prefix = new ByteArrayInputStream(detectionBuffer, b.getHeaderLength(), bufferSize - b.getHeaderLength());
 				return new InputStreamReader(new ConcatInputStream(prefix, in), b.getCharset());

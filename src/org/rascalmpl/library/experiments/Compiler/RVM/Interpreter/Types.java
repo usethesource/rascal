@@ -1,9 +1,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
@@ -13,8 +15,6 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -62,7 +62,7 @@ public class Types {
 			return aliasToType(symbol, store);
 		}
 		else if (cons == Factory.Symbol_Bag) {
-			throw new NotYetImplemented("bags are not implemented yet");
+			throw new CompilerError("bags are not implemented yet");
 		}
 		else if (cons == Factory.Symbol_Cons) {
 			return consToType(symbol, store);
@@ -173,7 +173,8 @@ public class Types {
 	private Type funcToType(IConstructor symbol, TypeStore store) {
 		Type returnType = symbolToType((IConstructor) symbol.get("ret"), store);
 		Type parameters = symbolsToTupleType((IList) symbol.get("parameters"), store);
-		return RascalTypeFactory.getInstance().functionType(returnType, parameters);
+		// TODO: function types shouls also reify keyword parameters
+		return RascalTypeFactory.getInstance().functionType(returnType, parameters, tf.voidType(), Collections.<String,IKeywordParameterInitializer>emptyMap());
 	}
 
 	private Type consToType(IConstructor symbol, TypeStore store) {
@@ -432,7 +433,7 @@ public class Types {
 					return visitFunctionType((FunctionType) externalType);
 				}
 				
-				throw new ImplementationError("unable to reify " + externalType);
+				throw new CompilerError("unable to reify " + externalType);
 			}
 
 			private IValue visitFunctionType(FunctionType externalType) {

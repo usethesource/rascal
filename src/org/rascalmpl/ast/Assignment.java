@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,6 +52,20 @@ public abstract class Assignment extends AbstractAST {
       return visitor.visitAssignmentAddition(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Addition)) {
+        return false;
+      }        
+      Addition tmp = (Addition) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 199 ; 
+    } 
+  
     	
   }
   public boolean isAppend() {
@@ -77,6 +91,20 @@ public abstract class Assignment extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitAssignmentAppend(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Append)) {
+        return false;
+      }        
+      Append tmp = (Append) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 257 ; 
+    } 
   
     	
   }
@@ -104,6 +132,20 @@ public abstract class Assignment extends AbstractAST {
       return visitor.visitAssignmentDefault(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Default)) {
+        return false;
+      }        
+      Default tmp = (Default) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 257 ; 
+    } 
+  
     	
   }
   public boolean isDivision() {
@@ -129,6 +171,20 @@ public abstract class Assignment extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitAssignmentDivision(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Division)) {
+        return false;
+      }        
+      Division tmp = (Division) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 673 ; 
+    } 
   
     	
   }
@@ -156,6 +212,20 @@ public abstract class Assignment extends AbstractAST {
       return visitor.visitAssignmentIfDefined(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof IfDefined)) {
+        return false;
+      }        
+      IfDefined tmp = (IfDefined) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 563 ; 
+    } 
+  
     	
   }
   public boolean isIntersection() {
@@ -181,6 +251,20 @@ public abstract class Assignment extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitAssignmentIntersection(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Intersection)) {
+        return false;
+      }        
+      Intersection tmp = (Intersection) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 61 ; 
+    } 
   
     	
   }
@@ -208,6 +292,20 @@ public abstract class Assignment extends AbstractAST {
       return visitor.visitAssignmentProduct(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Product)) {
+        return false;
+      }        
+      Product tmp = (Product) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 271 ; 
+    } 
+  
     	
   }
   public boolean isSubtraction() {
@@ -233,6 +331,20 @@ public abstract class Assignment extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitAssignmentSubtraction(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Subtraction)) {
+        return false;
+      }        
+      Subtraction tmp = (Subtraction) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 197 ; 
+    } 
   
     	
   }

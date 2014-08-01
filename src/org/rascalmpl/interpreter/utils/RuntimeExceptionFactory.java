@@ -281,7 +281,7 @@ public class RuntimeExceptionFactory {
 	}
 	
 	public static Throw illegalTypeArgument(String type, AbstractAST ast, StackTrace trace){
-		return new Throw(VF.constructor(IllegalTypeArgument,VF.string(type)), ast, trace);	
+		return new Throw(VF.constructor(IllegalTypeArgument,VF.string(type), VF.string("")), ast, trace);	
 	}
 	
 	public static Throw implodeError(String msg, AbstractAST ast, StackTrace trace) {

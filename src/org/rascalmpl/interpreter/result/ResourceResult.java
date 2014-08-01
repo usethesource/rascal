@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -56,4 +57,14 @@ public abstract class ResourceResult extends Result<IValue> implements IExternal
 				"Cannot be viewed as annotatable.", getType());
 	}
 	
+	@Override
+	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+	  throw new IllegalOperationException(
+        "Cannot be viewed as with keyword parameters.", getType());
+	}
+	
+	@Override
+	public boolean mayHaveKeywordParameters() {
+	  return false;
+	}
 }

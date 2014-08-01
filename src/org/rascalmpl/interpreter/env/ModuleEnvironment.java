@@ -17,6 +17,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.env;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -232,8 +234,7 @@ public class ModuleEnvironment extends Environment {
 		todo.add(getName());
 		
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
-		Type DefSort = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) VF.constructor(Factory.Symbol_Sort, VF.string("SyntaxDefinition")));
-		IMapWriter result = VF.mapWriter(TF.stringType(), TF.tupleType(TF.setType(TF.stringType()), TF.setType(TF.stringType()), TF.setType(DefSort)));
+		IMapWriter result = VF.mapWriter();
 		
 		while(!todo.isEmpty()){
 			String m = todo.get(0);
@@ -250,21 +251,21 @@ public class ModuleEnvironment extends Environment {
 			ModuleEnvironment env = m.equals(getName()) ? this : heap.getModule(m);
 			
 			if(env != null){
-				ISetWriter importWriter = VF.setWriter(TF.stringType());
+				ISetWriter importWriter = VF.setWriter();
 				for(String impname : env.getImports()){
 					if(!done.contains(impname)) todo.add(impname);
 					
 					importWriter.insert(VF.string(impname));
 				}
 				
-				ISetWriter extendWriter = VF.setWriter(TF.stringType());
+				ISetWriter extendWriter = VF.setWriter();
 				for(String impname : env.getExtends()){
 					if(!done.contains(impname)) todo.add(impname);
 					
 					extendWriter.insert(VF.string(impname));
 				}
 				
-				ISetWriter defWriter = VF.setWriter(DefSort);
+				ISetWriter defWriter = VF.setWriter();
 				for(IValue def : env.productions){
 					defWriter.insert(def);
 				}
@@ -272,21 +273,21 @@ public class ModuleEnvironment extends Environment {
 				ITuple t = VF.tuple(importWriter.done(), extendWriter.done(), defWriter.done());
 				result.put(VF.string(m), t);
 			}else if(m.equals(getName())) { // This is the root scope.
-				ISetWriter importWriter = VF.setWriter(TF.stringType());
+				ISetWriter importWriter = VF.setWriter();
 				for(String impname : importedModules){
 					if(!done.contains(impname)) todo.add(impname);
 					
 					importWriter.insert(VF.string(impname));
 				}
 				
-				ISetWriter extendWriter = VF.setWriter(TF.stringType());
+				ISetWriter extendWriter = VF.setWriter();
 				for(String impname : getExtends()){
 					if(!done.contains(impname)) todo.add(impname);
 					
 					extendWriter.insert(VF.string(impname));
 				}
 				
-				ISetWriter defWriter = VF.setWriter(DefSort);
+				ISetWriter defWriter = VF.setWriter();
 				for(IValue def : productions){
 					defWriter.insert(def);
 				}
@@ -577,18 +578,14 @@ public class ModuleEnvironment extends Environment {
 		return sort;
 	}
 	
-	private Type makeTupleType(Type adt, String name, Type tupleType, List<KeywordParameter> keyargs){
-		if(keyargs == null){
-			return TF.constructorFromTuple(typeStore, adt, name, tupleType);
-		} else {
-			return TF.constructorFromTuple(typeStore, adt, name, tupleType, tupleType.getArity() - keyargs.size());
-		}
+	private Type makeTupleType(Type adt, String name, Type tupleType, Type keywordParams, Map<String,IKeywordParameterInitializer> defaultParams) {
+	  return TF.constructorFromTuple(typeStore, adt, name, tupleType, keywordParams, defaultParams);
 	}
 	
 	@Override
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordParameter> keyargs) {
-		Type cons = makeTupleType(adt, name, tupleType, keyargs);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Type keywordParams, Map<String,IKeywordParameterInitializer> defaultParams) {
+		Type cons = makeTupleType(adt, name, tupleType, keywordParams, defaultParams);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);
@@ -597,9 +594,9 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name,
-			List<KeywordParameter> keyargs, Object... childrenAndLabels) {
-		Type cons = TF.constructor(typeStore, nodeType, name, childrenAndLabels);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
+			Map<String, Type> kwArgs, Map<String, IValue> kwDefaults, Object... childrenAndLabels) {
+		Type cons = TF.constructor(typeStore, nodeType, name, childrenAndLabels, kwArgs, kwDefaults);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);
@@ -607,9 +604,9 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Type... children) {
-		Type cons = TF.constructor(typeStore, nodeType, name, children);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keyargs);
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Map<String,Type> keywordParams, Map<String,IValue> defaultParams, Type... children) {
+		Type cons = TF.constructor(typeStore, nodeType, name, children, keywordParams, defaultParams);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);
@@ -634,7 +631,21 @@ public class ModuleEnvironment extends Environment {
 		}
 		return anno;
 	}
+
+	public Collection<Type> getAbstractDatatypes() {
+		return typeStore.getAbstractDataTypes();
+	}
+
+	public Collection<Type> getAliases() {
+		return typeStore.getAliases();
+	}
+
+	public Map<Type, Map<String, Type>> getAnnotations() {
+		return typeStore.getAnnotations();
+	}
 	
+
+
 	@Override
 	public Type getAbstractDataType(String sort) {
 		return typeStore.lookupAbstractDataType(sort);
@@ -681,13 +692,17 @@ public class ModuleEnvironment extends Environment {
 		return "Environment [ " + getName() + ", imports: " + ((importedModules != null) ? importedModules : "") + ", extends: " + ((extended != null) ? extended : "") + "]"; 
 	}
 
+	
+	
 	@Override
 	public ModuleEnvironment getImport(String moduleName) {
 		if(importedModules.contains(moduleName)) {
+//			System.err.println("getImport: contains " + moduleName);
 			return heap.getModule(moduleName);
 		}
 		else {
-			return null;
+//			System.err.println("getImport: contains not " + moduleName);
+			return null;    
 		}
 	}
 	
@@ -861,6 +876,10 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
+			if(mod == null)	{									// PK: Added missing null test
+				System.err.println("getFlagsEnvironment, mod == null for: " + this.name + ", " + moduleName + ", " + name);
+				throw new RuntimeException("getFlagsEnvironment");
+			}
 			env = mod.getLocalFlagsEnvironment(name);
 			
 			if (env != null) {
