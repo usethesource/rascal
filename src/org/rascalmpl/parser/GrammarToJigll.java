@@ -27,14 +27,13 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.jgll.grammar.Grammar;
-import org.jgll.grammar.GrammarBuilder;
+import org.jgll.grammar.GrammarGraph;
 import org.jgll.grammar.condition.Condition;
 import org.jgll.grammar.condition.ConditionType;
 import org.jgll.grammar.condition.ContextFreeCondition;
 import org.jgll.grammar.condition.PositionalCondition;
 import org.jgll.grammar.condition.RegularExpressionCondition;
-import org.jgll.grammar.slot.factory.GrammarSlotFactoryImpl;
-import org.jgll.grammar.slot.factory.GrammarSlotFactory;
+import org.jgll.grammar.precedence.OperatorPrecedence;
 import org.jgll.grammar.symbol.CharacterClass;
 import org.jgll.grammar.symbol.Keyword;
 import org.jgll.grammar.symbol.Nonterminal;
@@ -50,7 +49,6 @@ import org.jgll.regex.RegexPlus;
 import org.jgll.regex.RegexStar;
 import org.jgll.regex.RegularExpression;
 import org.jgll.regex.Sequence;
-import org.jgll.regex.automaton.RunnableAutomaton;
 import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
@@ -79,7 +77,7 @@ public class GrammarToJigll {
 	
 	private Map<List<IConstructor>, RegularExpression> deleteSetCache;
 
-	private Grammar grammar;
+	private GrammarGraph grammarGraph;
 
 	private GLLParser parser;
 
@@ -89,7 +87,7 @@ public class GrammarToJigll {
 
 	private IConstructor rascalGrammar;
 	
-	private int mode = TOKEN_BASED;
+	private int mode = CHARACTER_LEVEL;
 	
 	
 	public GrammarToJigll(IValueFactory vf) {
@@ -101,12 +99,12 @@ public class GrammarToJigll {
 	@SuppressWarnings("unchecked")
 	public IConstructor jparse(IConstructor symbol, IString str, ISourceLocation loc) {
 		
-		if (grammar == null) {
+		if (grammarGraph == null) {
 			return null;
 		}
 
 		input = Input.fromString(str.getValue(), loc.getURI());
-		parser = ParserFactory.newParser(grammar, input);
+		parser = ParserFactory.newParser(grammarGraph, input);
 
 		log.info("Iguana started.");
 
@@ -115,7 +113,7 @@ public class GrammarToJigll {
 		startSymbol = SymbolAdapter.toString(symbol, true);
 
 		try {
-			sppf = parser.parse(input, this.grammar, startSymbol);
+			sppf = parser.parse(input, this.grammarGraph, startSymbol);
 		} catch (ParseError e) {
 			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(loc, 
 																	   e.getInputIndex(), 
@@ -127,7 +125,7 @@ public class GrammarToJigll {
 		}
 
 		long start = System.nanoTime();
-		sppf.accept(new ModelBuilderVisitor<>(input, new ParsetreeBuilder(), grammar));
+		sppf.accept(new ModelBuilderVisitor<>(input, new ParsetreeBuilder(), grammarGraph));
 		long end = System.nanoTime();
 		log.info("Flattening: %d ms ", (end - start) / 1000_000);
 
@@ -137,21 +135,24 @@ public class GrammarToJigll {
 	public void generateGrammar(IConstructor rascalGrammar) {
 		this.rascalGrammar = rascalGrammar;
 		
-		GrammarBuilder builder = convert("inmemory", rascalGrammar);
+		Grammar grammar = convert("inmemory", rascalGrammar);
 		IMap notAllowed = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("notAllowed"));
 		IMap except = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("excepts"));
 
 		assert notAllowed != null;
 		assert except != null;
 
-		addExceptPatterns(builder, except);
-		addPrecedencePatterns(builder, notAllowed);
+		OperatorPrecedence op = new OperatorPrecedence();
+		addExceptPatterns(op, except);
+		addPrecedencePatterns(op, notAllowed);
+		grammar = op.rewrite(grammar);
+//		System.out.println(grammar);
 
-		grammar = builder.build();
+		grammarGraph = grammar.toGrammarGraph();
 	}
 
 	public void printGrammar() {
-		System.out.println(grammar);
+		System.out.println(grammarGraph);
 	}
 
 	public void save(IString path) throws FileNotFoundException, IOException {
@@ -160,16 +161,16 @@ public class GrammarToJigll {
 			file.createNewFile();
 		}
 		ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
-		out.writeObject(grammar);
+		out.writeObject(grammarGraph);
 		out.close();
 	}
 
 	public void generateGraph(IString path, ISourceLocation loc) {
-		parser = ParserFactory.newParser(grammar, input);
+		parser = ParserFactory.newParser(grammarGraph, input);
 
 		NonterminalSymbolNode sppf;
 		try {
-			sppf = parser.parse(input, this.grammar, startSymbol);
+			sppf = parser.parse(input, this.grammarGraph, startSymbol);
 		} catch (ParseError e) {
 			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(loc, 
 					   e.getInputIndex(), 
@@ -180,7 +181,7 @@ public class GrammarToJigll {
 					   input.getColumnNumber(e.getInputIndex()) - 1), null, null);
 		}
 
-		Visualization.generateSPPFGraph(path.getValue(), sppf, grammar, input);
+		Visualization.generateSPPFGraph(path.getValue(), sppf, grammarGraph, input);
 	}
 
 	private Condition getNotFollow(IConstructor symbol) {
@@ -271,10 +272,9 @@ public class GrammarToJigll {
 		}
 	}
 
-	public GrammarBuilder convert(String name, IConstructor rascalGrammar) {
+	public Grammar convert(String name, IConstructor rascalGrammar) {
 
-		GrammarSlotFactory factory = new GrammarSlotFactoryImpl();
-		GrammarBuilder builder = new GrammarBuilder(name, factory);
+		Grammar grammar = new Grammar();
 		
 		IMap definitions = (IMap) rascalGrammar.get("rules");
 
@@ -341,15 +341,15 @@ public class GrammarToJigll {
 					
 					Rule rule = new Rule(head, body, new SerializableValue(object));
 					rulesMap.put(prod, rule);
-					builder.addRule(rule);
+					grammar.addRule(rule);
 				}
 			}
 		}
 		
-		return builder;
+		return grammar;
 	}
 
-	private void addPrecedencePatterns(GrammarBuilder builder, IMap notAllowed) {
+	private void addPrecedencePatterns(OperatorPrecedence op, IMap notAllowed) {
 
 		Iterator<Entry<IValue, IValue>> it = notAllowed.entryIterator();
 
@@ -366,7 +366,7 @@ public class GrammarToJigll {
 			Iterator<IValue> iterator = set.iterator();
 			while (iterator.hasNext()) {
 				// Create a new filter for each filtered nonterminal
-				builder.addPrecedencePattern(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
+				op.addPrecedencePattern(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
 			}
 		}
 	}
@@ -391,7 +391,7 @@ public class GrammarToJigll {
 		}
 	}
 	
-	private void addExceptPatterns(GrammarBuilder builder, IMap map) {
+	private void addExceptPatterns(OperatorPrecedence op, IMap map) {
 
 		Iterator<Entry<IValue, IValue>> it = map.entryIterator();
 
@@ -408,7 +408,7 @@ public class GrammarToJigll {
 			Iterator<IValue> iterator = set.iterator();
 			while (iterator.hasNext()) {
 				// Create a new filter for each filtered nonterminal
-				builder.addExceptPattern(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
+				op.addExceptPattern(rule.getHead(), rule, position, rulesMap.get(iterator.next()));
 			}
 		}
 	}
@@ -425,9 +425,6 @@ public class GrammarToJigll {
 		return targetRanges;
 	}
 	
-	CharacterClass c = new CharacterClass(Range.in('a', 'z'), Range.in('A', 'Z'), Range.in('_', '_'));
-	RunnableAutomaton test = new RegexPlus(c).getAutomaton().getRunnableAutomaton();
-	
 	private List<Symbol> getSymbolList(IList rhs) {
 		
 		List<Symbol> result = new ArrayList<>();
@@ -436,14 +433,6 @@ public class GrammarToJigll {
 			IConstructor current = (IConstructor) rhs.get(i);
 			
 			Symbol symbol = getSymbol(current);				
-			
-			// TODO: get a list of keywords later from the grammar instead of this hack.
-			if(symbol instanceof Keyword) {
-				// Keywords cannot be followed by [a-z A-Z _] by default.
-				if(test.match(Input.fromString(symbol.getName().substring(1, symbol.getName().length() - 1)))) {
-					symbol = symbol.withCondition(RegularExpressionCondition.notFollow(c));
-				}
-			}
 			
 			if (symbol != null) {
 				result.add(symbol);
