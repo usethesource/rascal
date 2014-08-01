@@ -93,6 +93,9 @@ import experiments::Compiler::Examples::KWP3;
 import experiments::Compiler::Examples::KWP4;
 import experiments::Compiler::Examples::KWP5;
 import experiments::Compiler::Examples::KWP6;
+//
+import experiments::Compiler::Examples::KWP9;
+import experiments::Compiler::Examples::KWP10;
 
 import experiments::Compiler::Examples::Template1;
 import experiments::Compiler::Examples::Template2;
@@ -112,7 +115,10 @@ value demo(str example bool debug = false, bool listing=false, bool testsuite=fa
   execute(base + (example + ".rsc"), [], debug=debug, listing=listing, testsuite=testsuite, recompile=recompile, profile=profile);
 
 test bool tst() = demo("AsType1",recompile=true) == experiments::Compiler::Examples::AsType1::main([]);
+
+// New bug in type checker:
 test bool tst() = demo("AsType2",recompile=true) == experiments::Compiler::Examples::AsType2::main([]);
+
 // Bug in the interpreter, see issue #542
 test bool tst() = demo("Bottles") == experiments::Compiler::Examples::Bottles::main([]);
 test bool tst() = demo("Capture") == experiments::Compiler::Examples::Capture::main([]);
@@ -159,9 +165,14 @@ test bool tst() = demo("ExceptionHandlingNotHandledSimple") == experiments::Comp
 test bool tst() = demo("RascalRuntimeExceptions") == experiments::Compiler::Examples::RascalRuntimeExceptions::main([]);
 test bool tst() = demo("RascalRuntimeExceptionsPlusOverloading") == experiments::Compiler::Examples::RascalRuntimeExceptionsPlusOverloading::main([]);
 test bool tst() = demo("IsDefined") == experiments::Compiler::Examples::IsDefined::main([]);
-test bool tst() = demo("UninitializedVariable") == experiments::Compiler::Examples::UninitializedVariable::expectedResult;
-test bool tst() = demo("UninitializedVariables") == experiments::Compiler::Examples::UninitializedVariables::expectedResult;
+
+// RVM now assumes that all variables have been initialized
+//test bool tst() = demo("UninitializedVariable") == experiments::Compiler::Examples::UninitializedVariable::expectedResult;
+//test bool tst() = demo("UninitializedVariables") == experiments::Compiler::Examples::UninitializedVariables::expectedResult;
+
+// Related to the above, but not yet investiagted:
 test bool tst() = demo("IfDefinedOtherwise") == experiments::Compiler::Examples::IfDefinedOtherwise::expectedResult;
+
 test bool tst() = demo("IfDefinedOtherwise2") == experiments::Compiler::Examples::IfDefinedOtherwise2::main([]);
 
 test bool tst() = demo("UseLibrary") == experiments::Compiler::Examples::UseLibrary::main([]);
@@ -204,6 +215,8 @@ test bool tst() = demo("KWP5") == experiments::Compiler::Examples::KWP5::expecte
 test bool tst() = demo("KWP6") == experiments::Compiler::Examples::KWP6::main([]);
 test bool tst() = demo("KWP7") == experiments::Compiler::Examples::ExpectedResults::expectedResultKWP7;
 test bool tst() = demo("KWP8") == experiments::Compiler::Examples::ExpectedResults::expectedResultKWP8;
+test bool tst1331() = demo("KWP9") == experiments::Compiler::Examples::KWP9::main([]);
+test bool tst13331() = demo("KWP10") == experiments::Compiler::Examples::KWP10::main([]);
 
 // Nested functions
 test bool tst() = demo("NestedFunctions1") == experiments::Compiler::Examples::NestedFunctions1::main([]);

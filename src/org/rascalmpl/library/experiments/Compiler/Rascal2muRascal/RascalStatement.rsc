@@ -27,9 +27,9 @@ MuExp translateStats(Statement* statements) = muBlock([ translate(stat) | stat <
 
 // -- assert statement -----------------------------------------------
 	
-MuExp translate(s: (Statement) `assert <Expression expression> ;`) = muCallPrim("assertreport", [translate(expression), muCon(""), muCon(s@\loc)]);
+MuExp translate(s: (Statement) `assert <Expression expression> ;`) = muCallPrim("assertreport", [translate(expression), muCon(""), muCon(s@\loc)], s@\loc);
 
-MuExp translate(s: (Statement) `assert <Expression expression> : <Expression message>;`) = muCallPrim("assertreport", [translate(expression), translate(message), muCon(s@\loc)]);
+MuExp translate(s: (Statement) `assert <Expression expression> : <Expression message>;`) = muCallPrim("assertreport", [translate(expression), translate(message), muCon(s@\loc)], s@\loc);
 
 // -- single expression statement ------------------------------------
 
@@ -283,8 +283,8 @@ MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <B
  
    varCode = [ translate(var) | var <- variables ];
    tmps = [ nextTmp() | var <- variables ];
-// TODO: check that given bound is positive
    return muBlock([ muAssignTmp(iterations, fuid, (bound is empty) ? muCon(1000000) : translate(bound.expression)),
+    				muCallPrim("non_negative", [muTmp(iterations,fuid)]),
                     muAssignTmp(change, fuid, muCon(true)),
                     *[ muAssignTmp(tmps[i], fuid, varCode[i]) | i <- index(varCode) ],
                     muWhile(nextLabel(),
@@ -336,7 +336,7 @@ MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <
 	str fuid = topFunctionScope();
 	str varname = asTmp(nextLabel());
 	return muTry(muTry(tryCatch.exp, tryCatch.\catch, muBlock([])), 
-				 muCatch(varname, fuid, Symbol::\value(), muBlock([finallyExp, muThrow(muTmp(varname,fuid))])), 
+				 muCatch(varname, fuid, Symbol::\value(), muBlock([finallyExp, muThrow(muTmp(varname,fuid), finallyBody@\loc)])), 
 				 finallyExp); 
 }
 
@@ -344,7 +344,7 @@ MuExp translateCatches(str varname, str varfuid, list[Catch] catches, bool hasDe
   // Translate a list of catch blocks into one catch block
   if(size(catches) == 0) {
   	  // In case there is no default catch provided, re-throw the value from the catch block
-      return muThrow(muTmp(varname,varfuid));
+      return muThrow(muTmp(varname,varfuid), |unknown:///|);
   }
   
   c = head(catches);
@@ -386,79 +386,159 @@ MuExp translate(s: (Statement) `<Label label> { <Statement+ statements> }`) =
 MuExp translate(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) = translateAssignment(s); 
 
 MuExp translateAssignment(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) =
-    assignTo(assignable, applyAssignmentOperator("<operator>", assignable, statement));
+    assignTo(assignable, "<operator>", getOuterType(statement), translate(statement));
 
 // apply assignment operator 
     
-MuExp applyAssignmentOperator(str operator, assignable, statement) {
+MuExp applyOperator(str operator, assignable, str rhs_type, MuExp rhs) {
     if(operator == "=")
-    	return translate(statement);
+        return rhs;
     if(operator == "?="){
         oldval = getValues(assignable);
-        assert size(oldval) == 1;	
-        return generateIfDefinedOtherwise(oldval[0], translate(statement));
+        assert size(oldval) == 1;   
+        return generateIfDefinedOtherwise(oldval[0], rhs);
     }
     op1 = ("+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator]; 
     //op2 = "<getOuterType(assignable)>_<op1>_<getOuterType(statement)>";
-    op2 = typedBinaryOp(getOuterType(assignable), op1, getOuterType(statement));;
+    op2 = typedBinaryOp(getOuterType(assignable), op1, rhs_type);
     
     oldval = getValues(assignable);
     assert size(oldval) == 1;
-    return muCallPrim("<op2>", [*oldval, translate(statement)]); 	
+    return muCallPrim("<op2>", [*oldval, rhs]);    
+}
+
+str getAssignOp(str operator){
+    return  ("=" : "replace", "+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator]; 
 }
     
 // assignTo: assign the rhs of the assignment (possibly modified by an assign operator) to the assignable
     
-MuExp assignTo(a: (Assignable) `<QualifiedName qualifiedName>`, MuExp rhs) {
-    return mkAssign("<qualifiedName>", qualifiedName@\loc, rhs);
+MuExp assignTo(a: (Assignable) `<QualifiedName qualifiedName>`, str operator, str rhs_type, MuExp rhs) {
+    return mkAssign("<qualifiedName>", qualifiedName@\loc, applyOperator(operator, a, rhs_type, rhs));
 }
 
-MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, MuExp rhs) =
-     assignTo(receiver, muCallPrim("<getOuterType(receiver)>_update", [*getValues(receiver), translate(subscript), rhs]));
+MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, str operator,  str rhs_type, MuExp rhs) =
+     assignTo(receiver, "=", rhs_type, muCallPrim("<getOuterType(receiver)>_update", [*getValues(receiver), translate(subscript), applyOperator(operator, a, rhs_type, rhs)], a@\loc));
     
-MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, MuExp rhs) =
-    assignTo(receiver, muCallPrim("<getOuterType(receiver)>_replace", [*getValues(receiver), translateOpt(optFirst), muCon(false), translateOpt(optLast), rhs]) );
+MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, str operator,  str rhs_type, MuExp rhs) =
+    assignTo(receiver, "=", rhs_type, muCallPrim("<getOuterType(receiver)>_slice_<getAssignOp(operator)>", [*getValues(receiver), translateOpt(optFirst), muCon(false), translateOpt(optLast), rhs], a@\loc) );
 
-MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> , <Expression second> .. <OptionalExpression optLast> ]`, MuExp rhs) =
-     assignTo(receiver, muCallPrim("<getOuterType(receiver)>_replace", [*getValues(receiver), translateOpt(optFirst), translate(second), translateOpt(optLast), rhs]));
+MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> , <Expression second> .. <OptionalExpression optLast> ]`, str operator,  str rhs_type, MuExp rhs) =
+     assignTo(receiver, "=", rhs_type, muCallPrim("<getOuterType(receiver)>_slice_<getAssignOp(operator)>", [*getValues(receiver), translateOpt(optFirst), translate(second), translateOpt(optLast), rhs], a@\loc));
 
-MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, MuExp rhs) =
+MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, str operator,  str rhs_type, MuExp rhs) =
      getOuterType(receiver) == "tuple" 
-     ? assignTo(receiver, muCallPrim("<getOuterType(receiver)>_update", [*getValues(receiver), muCon(getTupleFieldIndex(getType(receiver@\loc), "<field>")), rhs]) )
-     : assignTo(receiver, muCallPrim("<getOuterType(receiver)>_field_update", [*getValues(receiver), muCon("<field>"), rhs]) );
+     ? assignTo(receiver,  "=", rhs_type, muCallPrim("<getOuterType(receiver)>_update", [*getValues(receiver), muCon(getTupleFieldIndex(getType(receiver@\loc), "<field>")), applyOperator(operator, a, rhs_type, rhs)], a@\loc) )
+     : assignTo(receiver, "=", rhs_type, muCallPrim("<getOuterType(receiver)>_field_update", [*getValues(receiver), muCon("<field>"), applyOperator(operator, a, rhs_type, rhs)], a@\loc) );
      
      //MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, MuExp rhs) =
      //assignTo(receiver, muCallPrim("<getOuterType(receiver)>_field_update", [*getValues(receiver), muCon("<field>"), rhs]) );
 
-MuExp assignTo(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, MuExp rhs) = 
-	assignTo(receiver,  rhs);
+MuExp assignTo(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator,  str rhs_type, MuExp rhs) = 
+    assignTo(receiver,  "=", rhs_type, rhs);
 
-MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, MuExp rhs) {
+MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, str operator,  str rhs_type, MuExp rhs) {
     str fuid = topFunctionScope();
-	nelems = size(elements); // size_assignables
+    nelems = size(elements); // size_assignables
     name = nextTmp();
-    elems = [ e | e <- elements];	// hack since elements[i] yields a value result;
+    elems = [ e | e <- elements];   // hack since elements[i] yields a value result;
     return muBlock(
-              muAssignTmp(name, fuid, rhs) + 
-              [ assignTo(elems[i], muCallPrim("tuple_subscript_int", [muTmp(name,fuid), muCon(i)]) )
+              muAssignTmp(name, fuid, applyOperator(operator, a, rhs_type, rhs)) + 
+              [ assignTo(elems[i], "=", rhs_type, muCallPrim("tuple_subscript_int", [muTmp(name,fuid), muCon(i)], a@\loc) )
               | i <- [0 .. nelems]
               ]);
 }
 
-MuExp assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, MuExp rhs) { 
+MuExp assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, str operator,  str rhs_type, MuExp rhs) { 
     str fuid = topFunctionScope();
     nelems = size(arguments);// size_assignables
     name = nextTmp();
-    elems = [ e | e <- arguments];	// hack since elements[i] yields a value result;
+    elems = [ e | e <- arguments];  // hack since elements[i] yields a value result;
     return muBlock(
-              muAssignTmp(name, fuid, rhs) + 
-              [ assignTo(elems[i], muCalla("adt_subscript_int", [muTmp(name,fuid), muCon(i)]) )
+              muAssignTmp(name, fuid, applyOperator(operator, a, rhs_type, rhs)) + 
+              [ assignTo(elems[i], "=", rhs_type, muCallPrim("adt_subscript_int", [muTmp(name,fuid), muCon(i)], a@\loc) )
               | i <- [0 .. nelems]
               ]);
 }
 
-MuExp assignTo(a: (Assignable) `<Assignable receiver> @ <Name annotation>`,  MuExp rhs) =
-     assignTo(receiver, muCallPrim("annotation_set", [*getValues(receiver), muCon("<annotation>"), rhs]));
+MuExp assignTo(a: (Assignable) `<Assignable receiver> @ <Name annotation>`,  str operator,  str rhs_type, MuExp rhs) =
+     assignTo(receiver, "=", rhs_type, muCallPrim("annotation_set", [*getValues(receiver), muCon("<annotation>"), applyOperator(operator, a, rhs_type, rhs)], a@\loc));
+
+
+//MuExp translateAssignment(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`) =
+//    assignTo(assignable, applyAssignmentOperator("<operator>", assignable, statement));
+//
+//// apply assignment operator 
+//    
+//MuExp applyAssignmentOperator(str operator, assignable, statement) {
+//    if(operator == "=")
+//    	return translate(statement);
+//    if(operator == "?="){
+//        oldval = getValues(assignable);
+//        assert size(oldval) == 1;	
+//        return generateIfDefinedOtherwise(oldval[0], translate(statement));
+//    }
+//    op1 = ("+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator]; 
+//    //op2 = "<getOuterType(assignable)>_<op1>_<getOuterType(statement)>";
+//    op2 = typedBinaryOp(getOuterType(assignable), op1, getOuterType(statement));;
+//    
+//    oldval = getValues(assignable);
+//    assert size(oldval) == 1;
+//    return muCallPrim("<op2>", [*oldval, translate(statement)]); 	
+//}
+//    
+//// assignTo: assign the rhs of the assignment (possibly modified by an assign operator) to the assignable
+//    
+//MuExp assignTo(a: (Assignable) `<QualifiedName qualifiedName>`, MuExp rhs) {
+//    return mkAssign("<qualifiedName>", qualifiedName@\loc, rhs);
+//}
+//
+//MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, MuExp rhs) =
+//     assignTo(receiver, muCallPrim("<getOuterType(receiver)>_update", [*getValues(receiver), translate(subscript), rhs], a@\loc));
+//    
+//MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, MuExp rhs) =
+//    assignTo(receiver, muCallPrim("<getOuterType(receiver)>_replace", [*getValues(receiver), translateOpt(optFirst), muCon(false), translateOpt(optLast), rhs], a@\loc) );
+//
+//MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> , <Expression second> .. <OptionalExpression optLast> ]`, MuExp rhs) =
+//     assignTo(receiver, muCallPrim("<getOuterType(receiver)>_replace", [*getValues(receiver), translateOpt(optFirst), translate(second), translateOpt(optLast), rhs], a@\loc));
+//
+//MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, MuExp rhs) =
+//     getOuterType(receiver) == "tuple" 
+//     ? assignTo(receiver, muCallPrim("<getOuterType(receiver)>_update", [*getValues(receiver), muCon(getTupleFieldIndex(getType(receiver@\loc), "<field>")), rhs], a@\loc) )
+//     : assignTo(receiver, muCallPrim("<getOuterType(receiver)>_field_update", [*getValues(receiver), muCon("<field>"), rhs], a@\loc) );
+//     
+//     //MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, MuExp rhs) =
+//     //assignTo(receiver, muCallPrim("<getOuterType(receiver)>_field_update", [*getValues(receiver), muCon("<field>"), rhs]) );
+//
+//MuExp assignTo(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, MuExp rhs) = 
+//	assignTo(receiver,  rhs);
+//
+//MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, MuExp rhs) {
+//    str fuid = topFunctionScope();
+//	nelems = size(elements); // size_assignables
+//    name = nextTmp();
+//    elems = [ e | e <- elements];	// hack since elements[i] yields a value result;
+//    return muBlock(
+//              muAssignTmp(name, fuid, rhs) + 
+//              [ assignTo(elems[i], muCallPrim("tuple_subscript_int", [muTmp(name,fuid), muCon(i)], a@\loc) )
+//              | i <- [0 .. nelems]
+//              ]);
+//}
+//
+//MuExp assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, MuExp rhs) { 
+//    str fuid = topFunctionScope();
+//    nelems = size(arguments);// size_assignables
+//    name = nextTmp();
+//    elems = [ e | e <- arguments];	// hack since elements[i] yields a value result;
+//    return muBlock(
+//              muAssignTmp(name, fuid, rhs) + 
+//              [ assignTo(elems[i], muCallPrim("adt_subscript_int", [muTmp(name,fuid), muCon(i)], a@\loc) )
+//              | i <- [0 .. nelems]
+//              ]);
+//}
+//
+//MuExp assignTo(a: (Assignable) `<Assignable receiver> @ <Name annotation>`,  MuExp rhs) =
+//     assignTo(receiver, muCallPrim("annotation_set", [*getValues(receiver), muCon("<annotation>"), rhs], a@\loc));
 
 // getValues: get the current value(s) of an assignable
 
@@ -471,17 +551,19 @@ list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <Expression subsc
     if(otr notin {"map"}){
        subscript_op += "_<getOuterType(subscript)>";
     }
-    return [ muCallPrim(subscript_op, [*getValues(receiver), translate(subscript)]) ];
+    return [ muCallPrim(subscript_op, [*getValues(receiver), translate(subscript)], a@\loc) ];
 }
     
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) = 
-    translateSlice(getValues(receiver), translateOpt(optFirst), muCon(false),  translateOpt(optLast));
+    //translateSlice(getValues(receiver), translateOpt(optFirst), muCon(false),  translateOpt(optLast));
+     [ muCallPrim("<getOuterType(receiver)>_slice", [ *getValues(receiver), translateOpt(optFirst), muCon("false"), translateOpt(optLast) ], a@\loc) ];
     
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`) = 
-    translateSlice(getValues(receiver), translateOpt(optFirst), translate(second),  translateOpt(optLast));
+    //translateSlice(getValues(receiver), translateOpt(optFirst), translate(second),  translateOpt(optLast));
+     [ muCallPrim("<getOuterType(receiver)>_slice", [ *getValues(receiver), translateOpt(optFirst),  translate(second), translateOpt(optLast) ], a@\loc) ];
 
 list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) = 
-    [ muCallPrim("<getOuterType(receiver)>_field_access", [ *getValues(receiver), muCon("<field>")]) ];
+    [ muCallPrim("<getOuterType(receiver)>_field_access", [ *getValues(receiver), muCon("<field>")], a@\loc) ];
 
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`) = 
      [ generateIfDefinedOtherwise(getValues(receiver)[0], translate(defaultExpression)) ];
@@ -491,7 +573,7 @@ list[MuExp] getValues(a:(Assignable) `\<  <{Assignable ","}+ elements > \>` ) = 
 list[MuExp] getValues(a:(Assignable) `<Name name> ( <{Assignable ","}+ arguments> )` ) = [ *getValues(arg) | arg <- arguments ];
 
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> @ <Name annotation>`) = 
-    [ muCallPrim("annotation_get", [ *getValues(receiver), muCon("<annotation>")]) ];
+    [ muCallPrim("annotation_get", [ *getValues(receiver), muCon("<annotation>")], a@\loc) ];
 
 // getReceiver: get the final receiver of an assignable
 
@@ -526,7 +608,7 @@ MuExp translate(s: (Statement) `return <Statement statement>`) {
 
 // -- throw statement ------------------------------------------------
 
-MuExp translate(s: (Statement) `throw <Statement statement>`) = muThrow(translate(statement));
+MuExp translate(s: (Statement) `throw <Statement statement>`) = muThrow(translate(statement),s@\loc);
 
 MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`) // TODO: handle dataTarget
 	= { fillCaseType(getType(statement@\loc)); 
@@ -536,7 +618,7 @@ MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statem
 // -- append statement -----------------------------------------------
 
 MuExp translate(s: (Statement) `append <DataTarget dataTarget> <Statement statement>`) =
-   muCallPrim("listwriter_add", [muTmp(asTmp(currentLoop(dataTarget)),getCurrentLoopScope(dataTarget)), translate(statement)]);
+   muCallPrim("listwriter_add", [muTmp(asTmp(currentLoop(dataTarget)),getCurrentLoopScope(dataTarget)), translate(statement)], s@\loc);
 
 // -- function declaration statement ---------------------------------
 

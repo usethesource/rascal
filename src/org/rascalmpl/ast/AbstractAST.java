@@ -87,7 +87,8 @@ public abstract class AbstractAST implements IVisitable {
 		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 	}
 	
-	public void _setType(Type nonterminalType) {
+
+  public void _setType(Type nonterminalType) {
 		if (_type != null && (! _type.equals(nonterminalType))) {
 			// For debugging purposes
 			System.err.println("In _setType, found two unequal types: " + _type.toString() + " and " + nonterminalType.toString());
@@ -153,8 +154,9 @@ public abstract class AbstractAST implements IVisitable {
 	/**
 	 * Computes internal type representations for type literals and patterns. 
 	 * @param instantiateTypeParameters TODO
+	 * @param eval TODO
 	 */
-	public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+	public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 		throw new NotYetImplemented(this);
 	}
 

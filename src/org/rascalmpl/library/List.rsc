@@ -56,45 +56,45 @@ test: delete(<L>, <I>) == <?>
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] delete(list[&T] lst, int n);
 
-@doc{
-Synopsis: The set of all legal indices of a list.
-
-Description:
-Returns the set of all legal index values for a list. Also see [$List/index] for a function that returns a list
-of __ordered__ index values.
-
-Examples:
-<screen>
-import List;
-domain([1, 3, 5]);
-domain(["zebra", "elephant", "snake", "owl"]);
-// Compare this with the result of [$List/index]:
-index([1, 3, 5]);
-</screen>
-
-Questions:
-QChoice: The number of elements in the domain of a list is:
-g: Equal to the number of elements in the list.
-b: Depends on the number of repeated elements in the list.
-b: One less than the number of elements in the list.
-b: One larger than the number of elements in the list.
-
-QType:
-prep: import List;
-make: L = list[arb[int,str],3,5]
-test: domain(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],0,5]
-expr: H = domain(<L>)
-hint: <H>
-test: domain(<L>) == <?>
-
-
-}
-@javaClass{org.rascalmpl.library.Prelude}
-public java set[int] domain(list[&T] lst);
+//@doc{
+//Synopsis: The set of all legal indices of a list [Deprecated, use index]
+//
+//Description:
+//Returns the set of all legal index values for a list. Also see [$List/index] for a function that returns a list
+//of __ordered__ index values.
+//
+//Examples:
+//<screen>
+//import List;
+//domain([1, 3, 5]);
+//domain(["zebra", "elephant", "snake", "owl"]);
+//// Compare this with the result of [$List/index]:
+//index([1, 3, 5]);
+//</screen>
+//
+//Questions:
+//QChoice: The number of elements in the domain of a list is:
+//g: Equal to the number of elements in the list.
+//b: Depends on the number of repeated elements in the list.
+//b: One less than the number of elements in the list.
+//b: One larger than the number of elements in the list.
+//
+//QType:
+//prep: import List;
+//make: L = list[arb[int,str],3,5]
+//test: domain(<L>)
+//
+//QValue:
+//prep: import List;
+//make: L = list[arb[int,str],0,5]
+//expr: H = domain(<L>)
+//hint: <H>
+//test: domain(<L>) == <?>
+//
+//
+//}
+//@javaClass{org.rascalmpl.library.Prelude}
+//public java set[int] domain(list[&T] lst);
 
 @doc{
 Synopsis: Drop elements from the head of a list.

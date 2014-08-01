@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors: Jurgen Vinju
+ * Contributors: Paul Klint, Jurgen Vinju
  */
 
 package org.rascalmpl.test.infrastructure;
@@ -79,11 +79,11 @@ public class RascalJUnitTestRunner extends Runner {
 	}
 	
 	static protected String computeTestName(String name, ISourceLocation loc) {
-		return name + ":" + loc.getEndLine();
+		return name + ": <" + loc.getOffset() +"," + loc.getLength() +">";
 	}
 	
 	@Override
-	public Description getDescription() {
+	public Description getDescription() {		
 		Description desc = Description.createSuiteDescription(prefix);
 		this.desc = desc;
 		
@@ -95,12 +95,19 @@ public class RascalJUnitTestRunner extends Runner {
 					continue;
 				}
 				String name = prefix + "::" + module.replaceFirst(".rsc", "");
-				evaluator.doImport(new NullRascalMonitor(), name);
+				
+				try {
+					evaluator.doImport(new NullRascalMonitor(), name);
+				}
+				catch (Throwable e) {
+					throw new RuntimeException("Could not import " + name + " for testing...", e);
+				}
+				
 				Description modDesc = Description.createSuiteDescription(name);
 				desc.addChild(modDesc);
 				
 				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
-				  if (!f.hasTag("ignore")) {
+				  if (!(f.hasTag("ignore") || f.hasTag("Ignore") || f.hasTag("ignoreInterpreter") || f.hasTag("IgnoreInterpreter"))) {
 				    modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
 				  }
 				}
@@ -112,7 +119,7 @@ public class RascalJUnitTestRunner extends Runner {
 			throw new RuntimeException("could not create test suite", e);
 		} catch (URISyntaxException e) {
 			throw new RuntimeException("could not create test suite", e);
-		}
+		} 
 	}
 
 	@Override

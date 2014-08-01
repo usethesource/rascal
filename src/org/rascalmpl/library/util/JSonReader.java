@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) INRIA-LORIA and CWI 2006-2009 
+ * Copyright (c) INRIA-LORIA and CWI 2006-2014 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Jurgen Vinju (jurgenv@cwi.nl) - initial API and implementation
  *    Bert Lisser  (Bert.Lisser@cwi.nl)
+ *    Paul Klint	(Paul.Klint@cwi.nl) - added missing cases and made standards compliant
  *******************************************************************************/
 package org.rascalmpl.library.util;
 
@@ -251,8 +252,16 @@ public class JSonReader extends AbstractBinaryReader {
 		String str = parseStringLiteral(reader);
 		if (expected.isDateTime())
 			result = dateTime(str);
-		else
+		else if(expected.isSourceLocation()){
+			try {
+				URI uri = new URI(str);
+				result = vf.sourceLocation(uri);
+			} catch (URISyntaxException e) {
+				throw new FactParseError("malformed source location:" + str, reader.getPosition());
+			}
+		} else {
 			result = vf.string(str);
+		}
 		reader.readSkippingWS(); /* " */
 		return result;
 	}
@@ -414,12 +423,15 @@ public class JSonReader extends AbstractBinaryReader {
 		do {
 			escaped = false;
 			if (reader.read() == '\\') {
-				reader.read();
+				if (reader.read() == -1){
+					throw new IOException("Premature EOF.");
+				}
 				escaped = true;
 			}
 			int lastChar = reader.getLastChar();
-			if (lastChar == -1)
+			if (lastChar == -1){
 				throw new IOException("Premature EOF.");
+			}
 			if (escaped) {
 				switch (lastChar) {
 				case 'n':
@@ -439,6 +451,9 @@ public class JSonReader extends AbstractBinaryReader {
 					break;
 				case '\\':
 					str.append('\\');
+					break;
+				case '/':
+					str.append('/');
 					break;
 				case '\'':
 					str.append('\'');
@@ -468,7 +483,7 @@ public class JSonReader extends AbstractBinaryReader {
 	}
 
 	IValue dateTime(String s) {
-		final String formatString = "yyyy-MM-dd HH:mm:ss.SSSZ";
+		final String formatString = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 		try {
 			java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat(
 					formatString);
@@ -668,6 +683,22 @@ public class JSonReader extends AbstractBinaryReader {
 				map.put(ky, v);
 			}
 		}
+		
+		// keyword parameters
+		
+		HashMap<String, IValue> kwmap = new HashMap<String, IValue>();
+		
+		Iterator<IValue> iterator = t.iterator();
+		while (iterator.hasNext()) {
+			IValue k = iterator.next();
+			String ky = ((IString) k).getValue();
+
+			if(!(k.equals(nameKey) || k.equals(argKey) || k.equals(annoKey))){
+				IValue v = t.get(k);
+				kwmap.put(ky, v);
+			}
+		}
+		
 		if (funname.equals("#rat")) {
 			int dn = ((IInteger) a[0]).intValue(), nm = ((IInteger) a[1])
 					.intValue();
@@ -743,6 +774,9 @@ public class JSonReader extends AbstractBinaryReader {
 		}
 		if (annoMap != null)
 			result = result.asAnnotatable().setAnnotations(map);
+		if(kwmap.size() > 0){
+			result = result.asWithKeywordParameters().setParameters(kwmap);
+		}
 		return result;
 	}
 
@@ -767,7 +801,11 @@ public class JSonReader extends AbstractBinaryReader {
 		IValue[] terms = parseTermsArray(reader, elementType);
 		if (debug)
 			System.err.println("ParseTerms2:" + base + " " + elementType);
-		if (base.isList() || base.isTop()) {
+		if (base.isList() || base.isTop() || base.isRational()) {
+			if(expected.isRational()){
+				int dn = ((IInteger) terms[0]).intValue(), nm = ((IInteger) terms[1]).intValue();
+				return vf.rational(dn, nm);
+			}
 			IListWriter w = vf.listWriter(base.isTop() ? tf.valueType() : expected.getElementType());
 			for (int i = terms.length - 1; i >= 0; i--) {
 				w.insert(terms[i]);
@@ -781,6 +819,13 @@ public class JSonReader extends AbstractBinaryReader {
 		} else if (base.isSet()) {
 			ISetWriter w = vf.setWriter(expected.getElementType());
 			w.insert(terms);
+			return w.done();
+		} else if(base.isMap()){
+			//Type tt = expected.getElementType();
+			IMapWriter w = vf.mapWriter(expected); //tt.getFieldType(0), tt.getFieldType(1));
+			for (int i = terms.length - 1; i >= 0; i--) {
+				w.put(((ITuple) terms[i]).get(0), ((ITuple)terms[i]).get(1));
+			}
 			return w.done();
 		}
 		throw new FactParseError("Unexpected type " + expected,
@@ -798,10 +843,10 @@ public class JSonReader extends AbstractBinaryReader {
 		} else if (base.isSet()) {
 			return base.getElementType();
 		} else if (base.isMap()) {
-			return base;
+			return tf.tupleType(base.getKeyType(), base.getValueType());
 		} else if (base.isAbstractData()) {
 			return tf.tupleType(tf.stringType(), tf.valueType());
-		} else if (base.isTop()) {
+		} else if (base.isTop() || base.isRational()) {
 			return base;
 		} else {
 			throw new IllegalOperationException("getElementType", expected);

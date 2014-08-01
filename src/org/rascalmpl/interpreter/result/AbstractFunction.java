@@ -17,6 +17,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +25,11 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IExternalValue;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -63,20 +66,28 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected static boolean callTracing = false;
 	
 	// TODO: change arguments of these constructors to use EvaluatorContexts
-	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, boolean varargs, List<KeywordParameter> keyargs, Environment env) {
+	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, boolean varargs, Environment env) {
 		super(functionType, null, eval);
 		this.ast = ast;
 		this.functionType = functionType;
 		this.eval = eval;
 		this.hasVarArgs = varargs;
-		this.hasKeyArgs = keyargs != null && keyargs.size() > 0;
-		this.keywordParameterDefaults = keyargs;
+		this.hasKeyArgs = functionType.hasKeywordParameters();
 		this.declarationEnvironment = env;
 		this.vf = eval.getValueFactory();
 	}
 
 	public boolean isTest() {
 		return false;
+	}
+	
+	@Override
+	public Type getKeywordArgumentTypes() {
+	  return functionType.getKeywordParameterTypes();
+	}
+
+	public boolean hasKeywordParameter(String label) {
+		return functionType.hasKeywordParameter(label);
 	}
 	
 	@Override
@@ -108,7 +119,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return false;
 	}
 
-	public String getTag(String key) {
+	public IValue getTag(String key) {
 		return null;
 	}
 
@@ -155,7 +166,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return keywordParameterDefaults;
 	}
 	
-	@Override
+  @Override
   public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,  IValue[] argValues, Map<String, IValue> keyArgValues) {
     IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
     try {
@@ -281,7 +292,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			lub = lub.lub(actuals[j].getType());
 		}
 		
-		IListWriter list = vf.listWriter(lub);
+		IListWriter list = vf.listWriter();
 		list.insertAt(0, actuals, i, actuals.length - arity + 1);
 		newActuals[i] = list.done();
 		return newActuals;
@@ -430,7 +441,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	/* test if a function is of type T(T) for a given T */
 	public boolean isTypePreserving() {
 		Type t = getReturnType();
-		return getFunctionType().equivalent(RascalTypeFactory.getInstance().functionType(t,t));
+		return getFunctionType().equivalent(RascalTypeFactory.getInstance().functionType(t,t, TF.voidType(), Collections.<String,IKeywordParameterInitializer>emptyMap()));
 	}
 	
 	public String getName() {
@@ -488,5 +499,16 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		throw new IllegalOperationException(
 				"Cannot be viewed as annotatable.", getType());
 	}
+
+	@Override
+	public boolean mayHaveKeywordParameters() {
+	  return false; // this is not a data value
+	}
 	
+	@Override
+	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+	  // this is not a data value
+	  throw new IllegalOperationException(
+        "Facade cannot be viewed as with keyword parameters.", getType());
+	}
 }

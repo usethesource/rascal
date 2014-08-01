@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -75,13 +76,15 @@ public class QuickCheck {
 	public boolean quickcheck(AbstractFunction function, int maxDepth,
 			int tries, boolean verbose, PrintWriter out) {
 
+		String fname = function.getName();
+	
 		Environment declEnv = function.getEnv();
 		IValueFactory vf = function.getEval().getValueFactory();
 		Type formals = function.getFormals();
 		String expected = null;
 		
 		if(function.hasTag(EXPECT_TAG)){
-			expected = function.getTag(EXPECT_TAG);
+			expected = ((IString) function.getTag(EXPECT_TAG)).getValue();
 		}
 		
 
@@ -114,37 +117,36 @@ public class QuickCheck {
 				IValue result = function.call(actualTypes, values, null).getValue();
 				function.getEval().getStdOut().flush();
 				if (!((IBool) result).getValue()) {
-					reportFailed("Test returns false", tpbindings, formals, values, out);
+					reportFailed(fname, "test returns false", tpbindings, formals, values, out);
 					return false;
 				} else if (verbose && formals.getArity() > 0) {
 					out.println((i + 1) + ": Checked with " + Arrays.toString(values) + ": true");
 				}
 			} catch (Throw e){
 				if(expected == null || !((IConstructor)e.getException()).getName().equals(expected)){
-					return reportFailed(e.getMessage(), tpbindings, formals, values, out);
+					return reportFailed(fname, e.getMessage(), tpbindings, formals, values, out);
 				}
 				expectedThrown = true;
 			}
 			catch (Throwable e) {
 				if(expected == null || !e.getClass().toString().endsWith("." + expected)){
-					return reportFailed(e.getMessage(), tpbindings, formals, values, out);
+					return reportFailed(fname, e.getMessage(), tpbindings, formals, values, out);
 				}
 				expectedThrown = true;
 			}
 			if(expected != null && !expectedThrown){
-				return reportMissingException(expected, out);
+				return reportMissingException(fname, expected, out);
 			}
 		}
 
-		out.println(formals.getArity() > 0 ? "Not refuted after " + tries + " tries with maximum depth " + maxDepth
-				: "succeeded");
+		out.println("Test " + fname + (formals.getArity() > 0 ? " not refuted after " + tries + " tries with maximum depth " + maxDepth
+				: " succeeded"));
 
 		return true;
-
 	}
 	
-	private boolean reportFailed(String msg, HashMap<Type, Type> tpbindings, Type formals, IValue[] values, PrintWriter out){
-		out.println("Failed due to\n\t" + msg + "\n");
+	private boolean reportFailed(String name, String msg, HashMap<Type, Type> tpbindings, Type formals, IValue[] values, PrintWriter out){
+		out.println("Test " + name + " failed due to\n\t" + msg + "\n");
 		if(tpbindings.size() > 0){
 			out.println("Type parameters:");
 			for(Type key : tpbindings.keySet()){
@@ -160,8 +162,8 @@ public class QuickCheck {
 		return false;
 	}
 	
-	private boolean reportMissingException(String msg, PrintWriter out){
-		out.println("Failed due to\n\tmissing exception: " + msg + "\n");
+	private boolean reportMissingException(String name, String msg, PrintWriter out){
+		out.println("Test " + name + " failed due to\n\tmissing exception: " + msg + "\n");
 		return false;
 	}
 

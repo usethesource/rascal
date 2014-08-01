@@ -29,10 +29,10 @@ public class ASTConverter extends JavaToRascalConverter {
 	
 	private IValue resolveType(ASTNode node) {
 	  if (node instanceof Expression) {
-		if (node instanceof SimpleName) {
-			IBinding b = ((SimpleName) node).resolveBinding();
+		if (node instanceof Name) {
+			IBinding b = ((Name) node).resolveBinding();
 			if (b!= null && b instanceof IVariableBinding) {
-				return bindingsResolver.computeTypeSymbol(((IVariableBinding) b).getType(), ((SimpleName) node).isDeclaration());
+				return bindingsResolver.computeTypeSymbol(((IVariableBinding) b).getType(), false);
 			}
 		}
 	    ITypeBinding binding = ((Expression) node).resolveTypeBinding();
@@ -486,16 +486,14 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue operator = values.string(node.getOperator().toString());
 		IValue leftSide = visitChild(node.getLeftOperand());
 		IValue rightSide = visitChild(node.getRightOperand());
-	
-		IValueList extendedOperands = new IValueList(values);
-		if (node.hasExtendedOperands()) {
-			for (Iterator it = node.extendedOperands().iterator(); it.hasNext();) {
-				Expression e = (Expression) it.next();
-				extendedOperands.add(visitChild(e));
-			}
+		
+		IValue intermediateExpression = constructExpressionNode("infix", leftSide, operator, rightSide);
+		for (Iterator it = node.extendedOperands().iterator(); it.hasNext();) {
+			Expression e = (Expression) it.next();
+			intermediateExpression = constructExpressionNode("infix", intermediateExpression, operator, visitChild(e));
 		}
-	
-		ownValue = constructExpressionNode("infix", leftSide, operator, rightSide, extendedOperands.asList());
+		
+		ownValue = intermediateExpression;
 		
 		return false;
 	}

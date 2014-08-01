@@ -65,7 +65,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			return TF.boolType();
 		}
 
@@ -85,7 +85,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			return TF.dateTimeType();
 		}
 
@@ -108,7 +108,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			return TF.integerType();
 		}
 
@@ -128,7 +128,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			return TF.sourceLocationType();
 		}
 
@@ -159,7 +159,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			return TF.realType();
 		}
 	}
@@ -184,7 +184,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			return TF.rationalType();
 		}
 	}
@@ -212,7 +212,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			return TF.stringType();
 		}
 
@@ -266,7 +266,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			return TF.stringType();
 		}
 

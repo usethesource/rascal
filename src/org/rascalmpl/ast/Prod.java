@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -112,6 +112,20 @@ public abstract class Prod extends AbstractAST {
       return visitor.visitProdAll(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof All)) {
+        return false;
+      }        
+      All tmp = (All) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 409 + 59 * lhs.hashCode() + 113 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Prod getLhs() {
@@ -160,6 +174,20 @@ public abstract class Prod extends AbstractAST {
       return visitor.visitProdAssociativityGroup(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof AssociativityGroup)) {
+        return false;
+      }        
+      AssociativityGroup tmp = (AssociativityGroup) o;
+      return true && tmp.associativity.equals(this.associativity) && tmp.group.equals(this.group) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 601 + 419 * associativity.hashCode() + 71 * group.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Assoc getAssociativity() {
@@ -207,6 +235,20 @@ public abstract class Prod extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitProdFirst(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof First)) {
+        return false;
+      }        
+      First tmp = (First) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 773 + 797 * lhs.hashCode() + 367 * rhs.hashCode() ; 
+    } 
   
     
     @Override
@@ -257,6 +299,20 @@ public abstract class Prod extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitProdLabeled(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Labeled)) {
+        return false;
+      }        
+      Labeled tmp = (Labeled) o;
+      return true && tmp.modifiers.equals(this.modifiers) && tmp.name.equals(this.name) && tmp.args.equals(this.args) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 653 + 199 * modifiers.hashCode() + 773 * name.hashCode() + 101 * args.hashCode() ; 
+    } 
   
     
     @Override
@@ -311,6 +367,20 @@ public abstract class Prod extends AbstractAST {
       return visitor.visitProdOthers(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Others)) {
+        return false;
+      }        
+      Others tmp = (Others) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 383 ; 
+    } 
+  
     	
   }
   public boolean isReference() {
@@ -338,6 +408,20 @@ public abstract class Prod extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitProdReference(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Reference)) {
+        return false;
+      }        
+      Reference tmp = (Reference) o;
+      return true && tmp.referenced.equals(this.referenced) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 647 + 619 * referenced.hashCode() ; 
+    } 
   
     
     @Override
@@ -377,6 +461,20 @@ public abstract class Prod extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitProdUnlabeled(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Unlabeled)) {
+        return false;
+      }        
+      Unlabeled tmp = (Unlabeled) o;
+      return true && tmp.modifiers.equals(this.modifiers) && tmp.args.equals(this.args) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 683 + 593 * modifiers.hashCode() + 823 * args.hashCode() ; 
+    } 
   
     
     @Override

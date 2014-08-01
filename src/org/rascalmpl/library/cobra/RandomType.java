@@ -11,12 +11,14 @@
  *******************************************************************************/
 package org.rascalmpl.library.cobra;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -92,18 +94,20 @@ public class RandomType {
 	}
 	
 	public Type getFunctionType(int maxDepth) {
-		return rtf.functionType(getType(maxDepth), getTupleType(maxDepth));
+	  // TODO: add keyword parameter generation
+		return rtf.functionType(getType(maxDepth), getTupleType(maxDepth), tf.voidType(), Collections.<String,IKeywordParameterInitializer>emptyMap());
 	}
 	
 	public Type getOverloadedFunctionType(int maxDepth) {
+	  // TODO: add keyword parameter generation
 		Type returnType = getType(maxDepth);
 		List<Type> l = getTypeList(maxDepth, 2);
 		Set<FunctionType> alternatives = new HashSet<FunctionType>();
 		for(Type t : l) {
 			if(t.isTuple()) {
-				alternatives.add((FunctionType)rtf.functionType(returnType, t));
+				alternatives.add((FunctionType)rtf.functionType(returnType, t, tf.voidType(), Collections.<String,IKeywordParameterInitializer>emptyMap()));
 			} else {
-				alternatives.add((FunctionType)rtf.functionType(returnType, tf.tupleType(t)));
+				alternatives.add((FunctionType)rtf.functionType(returnType, tf.tupleType(t), tf.voidType(), Collections.<String,IKeywordParameterInitializer>emptyMap()));
 			}
 		}
 		return rtf.overloadedFunctionType(alternatives);

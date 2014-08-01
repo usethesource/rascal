@@ -1,10 +1,13 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import: NO
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Frame {
 	int scopeId;
@@ -13,6 +16,7 @@ public class Frame {
 	final Object[] stack;
 	int sp;
 	int pc;
+	ISourceLocation src;
 	final Function function;
 	
 	final boolean isCoroutine;
@@ -32,6 +36,7 @@ public class Frame {
 		this.stack = stack;
 		this.pc = 0;
 		this.sp = 0;
+		this.src = function.src;
 		this.function = function;
 		this.isCoroutine = function.isCoroutine;
 	}
@@ -45,7 +50,7 @@ public class Frame {
 				return getCoroutineFrame(f, env, arity, sp);
 			}
 		}
-		throw new RuntimeException("Could not find a matching scope when computing a nested coroutine instance: " + f.scopeIn);
+		throw new CompilerError("Could not find a matching scope when computing a nested coroutine instance: " + f.scopeIn);
 	}
 	
 	/**
@@ -58,7 +63,7 @@ public class Frame {
 	public Frame getCoroutineFrame(Function f, Frame env, int arity, int sp) {
 		Frame frame = new Frame(f.scopeId, null, env, f.maxstack, f);
 		if(arity != f.nformals) {
-			throw new RuntimeException("Incorrect number of arguments has been passed to create a coroutine instance, expected: " + f.nformals);
+			throw new CompilerError("Incorrect number of arguments has been passed to create a coroutine instance, expected: " + f.nformals);
 		}
 		for (int i = 0; i < arity; i++) {
 			frame.stack[i] = stack[sp - arity + i];
@@ -155,7 +160,7 @@ public class Frame {
 			if(function.nformals == arity && ((IValue) stack[start + posArityMinusOne]).getType().isSubtypeOf(argTypes.getFieldType(posArityMinusOne))) {
 				this.stack[this.sp++] = stack[start + posArityMinusOne];
 			} else {
-				IListWriter writer = ValueFactory.getInstance().listWriter();
+				IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
 				for(int i = posArityMinusOne; i < arity - 1; i++) {
 					writer.append((IValue) stack[start + i]);
 				}
@@ -169,10 +174,31 @@ public class Frame {
 	
 	public Frame copy() {
 		if(pc != 0)
-			throw new RuntimeException("Copying the frame with certain instructions having been already executed.");
+			throw new CompilerError("Copying the frame with certain instructions having been already executed.");
 		Frame newFrame = new Frame(scopeId, previousCallFrame, previousScope, function, stack.clone());
 		newFrame.sp = sp; 
 		return newFrame;
+	}
+	
+	public String toString(){
+		StringBuilder s = new StringBuilder("\tin ");
+		s.append(this.function.getPrintableName()).append("(");
+		for(int i = 0; i < function.nformals-1; i++){
+			if(i > 0) s.append(", ");
+			s.append(stack[i]);
+		}
+		IMap m = (IMap) stack[function.nformals-1];
+		if(m.size() > 0){
+			for(IValue key : m){
+				s.append(", ").append(((IString) key).getValue()).append("=").append(m.get(key));
+			}
+		}
+		
+		s.append(")");
+		if(src != null){
+				s.append(" at ").append(src);
+		}
+		return s.toString();
 	}
 	
 }

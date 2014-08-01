@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -526,17 +527,19 @@ public class Environment {
 			functionEnvironment.put(name, list);
 		}
 
-		list.add(function);
-		functionEnvironment.put(name, list);
+		if (!list.contains(function)) {
+			list.add(function);
+			functionEnvironment.put(name, list);
 		
-		if (function.hasResourceScheme()) {
-			if (getRoot() instanceof ModuleEnvironment) {
-				((ModuleEnvironment)getRoot()).addResourceImporter(function);
+			if (function.hasResourceScheme()) {
+				if (getRoot() instanceof ModuleEnvironment) {
+					((ModuleEnvironment)getRoot()).addResourceImporter(function);
+				}
 			}
-		}
-		
-		if (function.hasResolverScheme()) {
-			getRoot().getHeap().registerSourceResolver(function.getResolverScheme(), function);
+
+			if (function.hasResolverScheme()) {
+				getRoot().getHeap().registerSourceResolver(function.getResolverScheme(), function);
+			}
 		}
 	}
 
@@ -686,16 +689,16 @@ public class Environment {
 		return getRoot().concreteSyntaxType(name, symbol);
 	}
 
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordParameter> keyargs) {
-		return getRoot().constructorFromTuple(ast, eval, adt, name, tupleType, keyargs);
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Type keywordParams, Map<String,IKeywordParameterInitializer> defaultParams) {
+		return getRoot().constructorFromTuple(ast, eval, adt, name, tupleType, keywordParams, defaultParams);
 	}
 
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Object... childrenAndLabels ) {
-		return getRoot().constructor(ast, eval, nodeType, name, keyargs, childrenAndLabels);
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Map<String,Type> keywordParams, Map<String,IValue> defaultParams, Object... childrenAndLabels ) {
+		return getRoot().constructor(ast, eval, nodeType, name, keywordParams, defaultParams, childrenAndLabels);
 	}
 
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Type... children ) {
-		return getRoot().constructor(ast, eval, nodeType, name, keyargs, children);
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Map<String,Type> keywordParams, Map<String,IValue> defaultParams, Type... children ) {
+		return getRoot().constructor(ast, eval, nodeType, name, keywordParams, defaultParams, children);
 	}
 
 	public Type aliasType(String name, Type aliased, Type...parameters) {
