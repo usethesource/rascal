@@ -307,7 +307,8 @@ syntax ArraySubscript =
 
 syntax FloatLiteral =
    float: HexaFloatLiteral !>> [D F d f] 
-  |  float: DeciFloatLiteral \ DeciFloatLiteralKeywords !>> [D F d f] 
+   |  float: DeciFloatLiteral !>> [D F d f]
+  //|  float: DeciFloatLiteral \ DeciFloatLiteralKeywords !>> [D F d f] 
   ;
 
 
@@ -889,6 +890,7 @@ lexical EndOfFile =
   
   ;
 
+// This is weird
 keyword DeciFloatLiteralKeywords =
   [0-9]+ 
   ;
