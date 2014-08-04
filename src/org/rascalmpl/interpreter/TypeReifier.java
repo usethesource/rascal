@@ -12,6 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -303,16 +304,8 @@ public class TypeReifier {
 	private Type funcToType(IConstructor symbol, TypeStore store) {
 		Type returnType = symbolToType((IConstructor) symbol.get("ret"), store);
 		Type parameters = symbolsToTupleType((IList) symbol.get("parameters"), store);
-		Type kwTypes = symbolsToTupleType((IList) symbol.get("kwTypes"), store); 
 		
-		IMap kwDefaultMap = (IMap) symbol.get("kwDefaults");
-		Map<String,IKeywordParameterInitializer> kwDefaults = new HashMap<>();
-		
-		for (IValue key : kwDefaultMap) {
-			kwDefaults.put(((IString) key).getValue(), ((KeywordParameterInitializerWrapperFunction) kwDefaultMap.get(key)).getInitializer());
-		}
-		
-		return RascalTypeFactory.getInstance().functionType(returnType, parameters, kwTypes, kwDefaults);
+		return RascalTypeFactory.getInstance().functionType(returnType, parameters, tf.tupleEmpty(), Collections.<String, IKeywordParameterInitializer>emptyMap());
 	}
 
 	private Type consToType(IConstructor symbol, TypeStore store) {
