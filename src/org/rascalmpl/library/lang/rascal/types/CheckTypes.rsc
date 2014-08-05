@@ -2642,35 +2642,35 @@ public tuple[Configuration,RName,Symbol] checkKeywordFormal(KeywordFormal kf: (K
 }
 
 @doc{Defs and uses of names; allows marking them while still keeping them in the same list or set.}
-data DefOrUse = def(RName name) | use(RName name);
+data DefOrUse = def(RName name, int nameId) | use(RName name, int nameId);
 
-data LiteralNodeInfo = literalNodeInfo(DefOrUse,loc);
-data MapNodeInfo = mapNodeInfo(PatternTree,PatternTree);
+data LiteralNodeInfo = literalNodeInfo(DefOrUse dOrU, loc at);
+data MapNodeInfo = mapNodeInfo(PatternTree dtree, PatternTree rtree);
 
 @doc{A compact representation of patterns}
 data PatternTree 
     = setNode(list[PatternTree] children)
     | listNode(list[PatternTree] children)
-    | nameNode(RName name)
-    | multiNameNode(RName name)
-    | spliceNodePlus(RName name)
-    | spliceNodePlus(RName name, loc at, Symbol rtype)
-    | spliceNodeStar(RName name)
-    | spliceNodeStar(RName name, loc at, Symbol rtype)
+    | nameNode(RName name, int nameId)
+    | multiNameNode(RName name, int nameId)
+    | spliceNodePlus(RName name, int nameId)
+    | spliceNodePlus(RName name, loc at, Symbol rtype, int nameId)
+    | spliceNodeStar(RName name, int nameId)
+    | spliceNodeStar(RName name, loc at, Symbol rtype, int nameId)
     | negativeNode(PatternTree child)
     | literalNode(Symbol rtype)
     | literalNode(list[LiteralNodeInfo] names)
     | tupleNode(list[PatternTree] children)
-    | typedNameNode(RName name, loc at, Symbol rtype)
+    | typedNameNode(RName name, loc at, Symbol rtype, int nameId)
     | mapNode(list[MapNodeInfo] mapChildren)
     | reifiedTypeNode(PatternTree s, PatternTree d)
     | callOrTreeNode(PatternTree head, list[PatternTree] args)
     | concreteSyntaxNode(Symbol rtype, list[PatternTree] args)
-    | varBecomesNode(RName name, loc at, PatternTree child)
+    | varBecomesNode(RName name, loc at, PatternTree child, int nameId)
     | asTypeNode(Symbol rtype, PatternTree child)
     | deepNode(PatternTree child)
     | antiNode(PatternTree child)
-    | tvarBecomesNode(Symbol rtype, RName name, loc at, PatternTree child)
+    | tvarBecomesNode(Symbol rtype, RName name, loc at, PatternTree child, int nameId)
     ;
     
 @doc{Mark pattern trees with the source location of the pattern}
@@ -2691,24 +2691,24 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`[ <{Pattern ","}* ps>
     return < c, listNode(tpList)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<QualifiedName qn>`, Configuration c) {
-    return < c, nameNode(convertName(qn))[@at = pat@\loc] >;
+    return < c, nameNode(convertName(qn), 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<QualifiedName qn>*`, Configuration c) {
-    return < c, multiNameNode(convertName(qn))[@at = pat@\loc] >;
+    return < c, multiNameNode(convertName(qn), 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`* <QualifiedName qn>`, Configuration c) {
-    return < c, spliceNodeStar(convertName(qn))[@at = pat@\loc] >;
+    return < c, spliceNodeStar(convertName(qn), 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`* <Type t> <Name n>`, Configuration c) {
     < c, rt > = convertAndExpandType(t,c);
-    return < c, spliceNodeStar(convertName(n), n@\loc, rt)[@at = pat@\loc] >;
+    return < c, spliceNodeStar(convertName(n), n@\loc, rt, 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`+ <QualifiedName qn>`, Configuration c) {
-    return < c, spliceNodePlus(convertName(qn))[@at = pat@\loc] >;
+    return < c, spliceNodePlus(convertName(qn), 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`+ <Type t> <Name n>`, Configuration c) {
     < c, rt > = convertAndExpandType(t,c);
-    return < c, spliceNodePlus(convertName(n), n@\loc, rt)[@at = pat@\loc] >;
+    return < c, spliceNodePlus(convertName(n), n@\loc, rt, 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`- <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
@@ -2734,11 +2734,11 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<RegExpLiteral rl>`, 
         
     top-down visit(rl) {
         case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_],_),list[Tree] prds) : 
-        	names += literalNodeInfo(use(convertName(prds[1])), prds[1]@\loc );
+        	names += literalNodeInfo(use(convertName(prds[1]),0), prds[1]@\loc );
         case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_,_,_],_),list[Tree] prds) : 
-        	names += literalNodeInfo(def(convertName(prds[1])), prds[1]@\loc);
+        	names += literalNodeInfo(def(convertName(prds[1]),0), prds[1]@\loc);
         case \appl(\prod(lex("NamedRegExp"),[_,\lex("Name"),_],_),list[Tree] prds) : 
-        	names += literalNodeInfo(use(convertName(prds[1])), prds[1]@\loc);
+        	names += literalNodeInfo(use(convertName(prds[1]),0), prds[1]@\loc);
     }
     
     return < c, literalNode(names)[@at = pat@\loc] >;
@@ -2759,7 +2759,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`\< <Pattern p1>, <{Pa
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Type t> <Name n>`, Configuration c) {
     < c, rt > = convertAndExpandType(t,c);
-    return < c, typedNameNode(convertName(n), n@\loc, rt)[@at = pat@\loc] >;
+    return < c, typedNameNode(convertName(n), n@\loc, rt, 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`( <{Mapping[Pattern] ","}* mps> )`, Configuration c) {
     list[MapNodeInfo] res = [ ];
@@ -2779,7 +2779,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
   psList = for (hole((ConcreteHole) `\<<Sym sym> <Name n>\>`) <- concrete.parts) {
     <c, rt> = resolveSorts(sym2symbol(sym),sym@\loc,c);
-    append typedNameNode(convertName(n), n@\loc, rt)[@at = n@\loc];
+    append typedNameNode(convertName(n), n@\loc, rt, 0)[@at = n@\loc];
   }
   
   <c, sym> = resolveSorts(sym2symbol(concrete.symbol),concrete.symbol@\loc, c);
@@ -2793,7 +2793,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Patte
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Name n> : <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
-    return < c, varBecomesNode(convertName(n), n@\loc, pti)[@at = pat@\loc] >;
+    return < c, varBecomesNode(convertName(n), n@\loc, pti, 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`[ <Type t> ] <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
@@ -2811,7 +2811,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`! <Pattern p>`, Confi
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Type t> <Name n> : <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
     < c, rt > = convertAndExpandType(t,c);
-    return < c, tvarBecomesNode(rt,convertName(n),n@\loc,pti)[@at = pat@\loc] >;
+    return < c, tvarBecomesNode(rt,convertName(n),n@\loc,pti,0)[@at = pat@\loc] >;
 }
 
 @doc{Allows PatternTree nodes to be annotated with types.}
@@ -2844,200 +2844,323 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     // Step 1: Do an initial assignment of types to the names present
     // in the tree and to nodes with invariant types (such as int
     // literals and guarded patterns).
-    pt = bottom-up visit(pt) {
-        case ptn:setNode(ptns) : {
-            for (idx <- index(ptns), spliceNodePlus(n) := ptns[idx] || spliceNodeStar(n) := ptns[idx] || 
-                                     spliceNodePlus(n,_,_) := ptns[idx] || spliceNodeStar(n,_,_) := ptns[idx] ||
-                                     multiNameNode(n) := ptns[idx]) {
-                
-            	if (spliceNodePlus(_,_,rt) := ptns[idx] || spliceNodeStar(_,_,rt) := ptns[idx]) {
-	                if (RSimpleName("_") == n) {
-                        c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
-	                } else {
-	                	// TODO: Do we want to issue a warning here if the same name is used multiple times? Probably, although a pass
-	                	// over the pattern tree may be a better way to do this (this would only catch cases at the same level of
-	                	// a set pattern or, below, a list pattern)
-	                    c = addLocalVariable(c, n, false, ptns[idx]@at, \set(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt];
-	                } 
-            	} else {
-	                if (RSimpleName("_") == n) {
-	                    rt = \inferred(c.uniqueify);
-	                    c.uniqueify = c.uniqueify + 1;
-	                    c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
-	                } else if (!fcvExists(c, n)) {
-	                    rt = \inferred(c.uniqueify);
-	                    c.uniqueify = c.uniqueify + 1;
-	                    c = addLocalVariable(c, n, true, ptns[idx]@at, \set(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt];
-	                } else {
-	                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
-	                    c.usedIn[ptn@at] = head(c.stack);
-	                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
-	                    // TODO: Keep this now that we have splicing?
-	                    if (isSetType(rt))
-	                        ptns[idx] = ptns[idx][@rtype = getSetElementType(rt)];
-	                    else
-	                        failures += makeFailType("Expected type set, not <prettyPrintType(rt)>", ptns[idx]@at);
-	                    c = addNameWarning(c,n,ptns[idx]@at);
-	                }
-            	}
-            }
-            
-            insert(ptn[children=ptns]);
-        }
+    tuple[PatternTree,Configuration] assignInitialPatternTypes(PatternTree pt, Configuration c) {
+		switch(pt) {
+			case multiNameNode(_,_) : return < pt, c >;
 
-        case ptn:listNode(ptns) : {
-            for (idx <- index(ptns), spliceNodePlus(n) := ptns[idx] || spliceNodeStar(n) := ptns[idx] || 
-                                     spliceNodePlus(n,_,_) := ptns[idx] || spliceNodeStar(n,_,_) := ptns[idx] ||
-                                     multiNameNode(n) := ptns[idx]) {
-                
-            	if (spliceNodePlus(_,_,rt) := ptns[idx] || spliceNodeStar(_,_,rt) := ptns[idx]) {
-	                if (RSimpleName("_") == n) {
-                        c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
-	                } else {
-	                    c = addLocalVariable(c, n, false, ptns[idx]@at, \list(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt];
-	                } 
-            	} else {
-	                if (RSimpleName("_") == n) {
-	                    rt = \inferred(c.uniqueify);
-	                    c.uniqueify = c.uniqueify + 1;
-	                    c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
-	                } else if (!fcvExists(c, n)) {
-	                    rt = \inferred(c.uniqueify);
-	                    c.uniqueify = c.uniqueify + 1;
-	                    c = addLocalVariable(c, n, true, ptns[idx]@at, \list(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt];
-	                } else {
-	                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
-	                    c.usedIn[ptn@at] = head(c.stack);
-	                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
-	                    // TODO: Keep this now that we have splicing?
-	                    if (isListType(rt))
-	                        ptns[idx] = ptns[idx][@rtype = getListElementType(rt)];
-	                    else
-	                        failures += makeFailType("Expected type list, not <prettyPrintType(rt)>", ptns[idx]@at); 
-	                    c = addNameWarning(c,n,ptns[idx]@at);
-	                }
+			case spliceNodePlus(_,_) : return < pt, c >;
+
+			case spliceNodePlus(_,_,_,_) : return < pt, c >;
+
+			case spliceNodeStar(_,_) : return < pt, c >;
+
+			case spliceNodeStar(_,_,_,_) : return < pt, c >;
+
+			case negativeNode(ptc) : {
+				< ptc, c > = assignInitialPatternTypes(ptc, c);
+				pt.child = ptc;
+				return < pt, c >; 
+			}
+
+			case tupleNode(ptl) : {
+				list[PatternTree] ptres = [ ];
+				for (pti <- ptl) {
+					< pti, c > = assignInitialPatternTypes(pti, c);
+					ptres = ptres + pti;
+				}
+				pt.children = ptres;
+				return < pt, c >;
+			}
+			
+			case mapNode(mc) : {
+				list[MapNodeInfo] mnres = [ ];
+				for (mapNodeInfo(dt,rt) <- mc) {
+					< dt, c > = assignInitialPatternTypes(dt, c);
+					< rt, c > = assignInitialPatternTypes(rt, c);
+					mnres = mnres + mapNodeInfo(dt,rt);
+				}
+				pt.mapChildren = mnres;
+				return < pt, c >;
+			}
+			
+			case callOrTreeNode(pth, ptargs) : {
+				< pth, c > = assignInitialPatternTypes(pth, c);
+				list[PatternTree] ptres = [ ];
+				for (pti <- ptargs) {
+					< pti, c > = assignInitialPatternTypes(pti, c);
+					ptres = ptres + pti;
+				}
+				pt.head = pth; pt.args = ptres;
+				return < pt, c >;
+			}
+			
+	        case ptn:setNode(ptns) : {
+	        	for (idx <- index(ptns)) {
+	        		< pti, c > = assignInitialPatternTypes(ptns[idx], c);
+	        		ptns[idx] = pti;
+	        	}
+
+	            for (idx <- index(ptns), spliceNodePlus(n,nid) := ptns[idx] || spliceNodeStar(n,nid) := ptns[idx] || 
+	                                     spliceNodePlus(n,_,_,nid) := ptns[idx] || spliceNodeStar(n,_,_,nid) := ptns[idx] ||
+	                                     multiNameNode(n,nid) := ptns[idx]) {
+	                
+	            	if (spliceNodePlus(_,_,rt,nid) := ptns[idx] || spliceNodeStar(_,_,rt,nid) := ptns[idx]) {
+		                if (RSimpleName("_") == n) {
+	                        c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                } else {
+		                	// TODO: Do we want to issue a warning here if the same name is used multiple times? Probably, although a pass
+		                	// over the pattern tree may be a better way to do this (this would only catch cases at the same level of
+		                	// a set pattern or, below, a list pattern)
+		                    c = addLocalVariable(c, n, false, ptns[idx]@at, \set(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                } 
+	            	} else {
+		                if (RSimpleName("_") == n) {
+		                    rt = \inferred(c.uniqueify);
+		                    c.uniqueify = c.uniqueify + 1;
+		                    c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                } else if (!fcvExists(c, n)) {
+		                    rt = \inferred(c.uniqueify);
+		                    c.uniqueify = c.uniqueify + 1;
+		                    c = addLocalVariable(c, n, true, ptns[idx]@at, \set(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                } else {
+		                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
+		                    c.usedIn[ptn@at] = head(c.stack);
+		                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
+	                        ptns[idx].nameId = c.fcvEnv[n];
+		                    // TODO: Keep this now that we have splicing?
+		                    if (isSetType(rt))
+		                        ptns[idx] = ptns[idx][@rtype = getSetElementType(rt)];
+		                    else
+		                        failures += makeFailType("Expected type set, not <prettyPrintType(rt)>", ptns[idx]@at);
+		                    c = addNameWarning(c,n,ptns[idx]@at);
+		                }
+	            	}
 	            }
-            }
-            insert(ptn[children=ptns]);
-        }
+	            
+	            ptn.children = ptns;
+	            return < ptn, c >;
+	        }
+	
+	        case ptn:listNode(ptns) : {
+	        	for (idx <- index(ptns)) {
+	        		< pti, c > = assignInitialPatternTypes(ptns[idx], c);
+	        		ptns[idx] = pti;
+	        	}
 
-        case ptn:nameNode(n) : { 
-            if (RSimpleName("_") == n) {
-                rt = \inferred(c.uniqueify);
-                c.uniqueify = c.uniqueify + 1;
-                c = addUnnamedVariable(c, ptn@at, rt);
-                insert(ptn[@rtype = rt][@defs = { c.nextLoc - 1 }]);
-            } else if (!fcvExists(c, n)) {
-                rt = \inferred(c.uniqueify);
-                c.uniqueify = c.uniqueify + 1;
-                c = addLocalVariable(c, n, true, ptn@at, rt);
-                insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
-            } else {
-                c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
-                c.usedIn[ptn@at] = head(c.stack);
-                if ( !((ptn@headPosition)?) || ((ptn@headPosition)? && !ptn@headPosition)) {
-                    if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
-                        c = addScopeWarning(c, "<prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
-                    } else {
-                        c = addNameWarning(c,n,ptn@at);
-                    }
-                }
-                insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
-            }
-        }
-        
-        case ptn:literalNode(Symbol rt) => ptn[@rtype = rt]
-        
-        case ptn:literalNode(list[LiteralNodeInfo] names) : {
-            for ( literalNodeInfo(d, l) <- names ) {
-                if (def(n) := d) {
-                    c = addLocalVariable(c, n, false, l, \str());
-                } else if (use(n) := d) {
-                    if (!fcvExists(c, n)) {
-                        failures += makeFailType("Name <prettyPrintName(n)> not yet defined", ptn@at);
-                    } else {
-                        c.uses = c.uses + < c.fcvEnv[n], l >; 
-                        c.usedIn[l] = head(c.stack);
-                    }
-                } 
-            }
-            insert(ptn[@rtype = \str()]);
-        }
-        
-        case ptn:typedNameNode(n, l, rt) : { 
-            if (RSimpleName("_") == n) {
-                c = addUnnamedVariable(c, l, rt);
-                insert(ptn[@rtype = rt][@defs = { c.nextLoc - 1 }]);
-            } else {
-                c = addLocalVariable(c, n, false, l, rt);
-                insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
-            }
-        }
-        
-        case ptn:varBecomesNode(n, l, _) : { 
-            if (RSimpleName("_") == n) {
-                rt = \inferred(c.uniqueify);
-                c.uniqueify = c.uniqueify + 1;
-                c = addUnnamedVariable(c, l, rt);
-                insert(ptn[@rtype = rt][@defs = { c.nextLoc - 1 }]);
-            } else if (!fcvExists(c, n)) {
-                rt = \inferred(c.uniqueify);
-                c.uniqueify = c.uniqueify + 1;
-                c = addLocalVariable(c, n, true, l, rt);
-                insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
-            }  else {
-                c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
-                c.usedIn[ptn@at] = head(c.stack);
-                if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
-                    c = addScopeWarning(c, "Name <prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
-                } else {
-                    c = addNameWarning(c,n,ptn@at);
-                }
-                insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
-            }
-        }
+	            for (idx <- index(ptns), spliceNodePlus(n,nid) := ptns[idx] || spliceNodeStar(n,nid) := ptns[idx] || 
+	                                     spliceNodePlus(n,_,_,nid) := ptns[idx] || spliceNodeStar(n,_,_,nid) := ptns[idx] ||
+	                                     multiNameNode(n,nid) := ptns[idx]) {
+	                
+	            	if (spliceNodePlus(_,_,rt,nid) := ptns[idx] || spliceNodeStar(_,_,rt,nid) := ptns[idx]) {
+		                if (RSimpleName("_") == n) {
+	                        c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                } else {
+		                    c = addLocalVariable(c, n, false, ptns[idx]@at, \list(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                } 
+	            	} else {
+		                if (RSimpleName("_") == n) {
+		                    rt = \inferred(c.uniqueify);
+		                    c.uniqueify = c.uniqueify + 1;
+		                    c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                } else if (!fcvExists(c, n)) {
+		                    rt = \inferred(c.uniqueify);
+		                    c.uniqueify = c.uniqueify + 1;
+		                    c = addLocalVariable(c, n, true, ptns[idx]@at, \list(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                } else {
+		                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
+		                    c.usedIn[ptn@at] = head(c.stack);
+	                        ptns[idx].nameId = c.fcvEnv[n];
+		                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
+		                    // TODO: Keep this now that we have splicing?
+		                    if (isListType(rt))
+		                        ptns[idx] = ptns[idx][@rtype = getListElementType(rt)];
+		                    else
+		                        failures += makeFailType("Expected type list, not <prettyPrintType(rt)>", ptns[idx]@at); 
+		                    c = addNameWarning(c,n,ptns[idx]@at);
+		                }
+		            }
+	            }
+	            ptn.children = ptns;
+	            return < ptn, c >;
+	        }
+	
+	        case ptn:nameNode(n,nid) : { 
+	            if (RSimpleName("_") == n) {
+	                rt = \inferred(c.uniqueify);
+	                c.uniqueify = c.uniqueify + 1;
+	                c = addUnnamedVariable(c, ptn@at, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = rt][@defs = { c.nextLoc - 1 }], c >;
+	            } else if (!fcvExists(c, n)) {
+	                rt = \inferred(c.uniqueify);
+	                c.uniqueify = c.uniqueify + 1;
+	                c = addLocalVariable(c, n, true, ptn@at, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	            } else {
+	                c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+	                c.usedIn[ptn@at] = head(c.stack);
+                    ptn.nameId = c.fcvEnv[n];
+	                if ( !((ptn@headPosition)?) || ((ptn@headPosition)? && !ptn@headPosition)) {
+	                    if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
+	                        c = addScopeWarning(c, "<prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
+	                    } else {
+	                        c = addNameWarning(c,n,ptn@at);
+	                    }
+	                }
+	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	            }
+	        }
+	        
+	        case ptn:literalNode(Symbol rt) : {
+	        	return < ptn[@rtype = rt], c >;
+	        }
+	        
+	        case ptn:literalNode(list[LiteralNodeInfo] names) : {
+	            for ( idx <- index(names), lni:literalNodeInfo(d, l) := names[idx] ) {
+	                if (def(n,nid) := d) {
+	                    c = addLocalVariable(c, n, false, l, \str());
+	                    d.nameId = c.nextLoc - 1;
+	                    lni.dOrU = d;
+	                    names[idx] = lni;
+	                } else if (use(n,nid) := d) {
+	                    if (!fcvExists(c, n)) {
+	                        failures += makeFailType("Name <prettyPrintName(n)> not yet defined", ptn@at);
+	                    } else {
+	                        c.uses = c.uses + < c.fcvEnv[n], l >; 
+	                        c.usedIn[l] = head(c.stack);
+	                        d.nameId = c.fcvEnv[n];
+	                        lni.dOrU = d;
+	                        names[idx] = lni;
+	                    }
+	                } 
+	            }
+	            ptn.names = names;
+	            return < ptn[@rtype = \str()], c >;
+	        }
+	        
+	        case ptn:typedNameNode(n, l, rt, nid) : { 
+	            if (RSimpleName("_") == n) {
+	                c = addUnnamedVariable(c, l, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = rt][@defs = { c.nextLoc - 1 }], c >;
+	            } else {
+	                c = addLocalVariable(c, n, false, l, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	            }
+	        }
+	        
+	        case ptn:varBecomesNode(n, l, ptc, nid) : { 
+	        	< ptc, c > = assignInitialPatternTypes(ptc, c);
+	        	ptn.child = ptc;
+	        	
+	            if (RSimpleName("_") == n) {
+	                rt = \inferred(c.uniqueify);
+	                c.uniqueify = c.uniqueify + 1;
+	                c = addUnnamedVariable(c, l, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = rt][@defs = { c.nextLoc - 1 }], c >;
+	            } else if (!fcvExists(c, n)) {
+	                rt = \inferred(c.uniqueify);
+	                c.uniqueify = c.uniqueify + 1;
+	                c = addLocalVariable(c, n, true, l, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	            }  else {
+	                c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+	                c.usedIn[ptn@at] = head(c.stack);
+	                if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
+	                    c = addScopeWarning(c, "Name <prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
+	                } else {
+	                    c = addNameWarning(c,n,ptn@at);
+	                }
+                    ptn.nameId = c.fcvEnv[n];
+	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	            }
+	        }
+	
+			case ptn:deepNode(ptc) : {
+	        	< ptc, c > = assignInitialPatternTypes(ptc, c);
+	        	ptn.child = ptc;
 
-		case ptn:deepNode(_) : {
-			rt = \inferred(c.uniqueify);
-			c.uniqueify = c.uniqueify + 1;
-			insert(ptn[@rtype = rt]);
-		}
-		
-        case ptn:asTypeNode(rt, _) => ptn[@rtype = rt]
-        
-		case ptn:antiNode(_) : {
-			rt = \inferred(c.uniqueify);
-			c.uniqueify = c.uniqueify + 1;
-			insert(ptn[@rtype = rt]);
-		}
-		
-		case ptn:reifiedTypeNode(tSymbol,pDefs) => 
-			ptn[@rtype = makeReifiedType(makeValueType())]
-		
-        // TODO: Not sure if this is the best choice, but it is the choice
-        // the current interpreter makes...
-        //case ptn:antiNode(_) => ptn[@rtype = \value()]
-        
-        case ptn:tvarBecomesNode(rt, n, l, _) : { 
-            if (RSimpleName("_") == n) {
-                c = addUnnamedVariable(c, l, rt);
-                insert(ptn[@rtype = rt][@defs = { c.nextLoc - 1 }]);
-            } else {
-                c = addLocalVariable(c, n, false, l, rt);
-                insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
-            }
-        }
-        
-        case ptn:concreteSyntaxNode(rt,plist) => ptn[@rtype = rt]
+				rt = \inferred(c.uniqueify);
+				c.uniqueify = c.uniqueify + 1;
+				return < ptn[@rtype = rt], c >;
+			}
+			
+	        case ptn:asTypeNode(rt, ptc) : {
+	        	< ptc, c > = assignInitialPatternTypes(ptc, c);
+	        	ptn.child = ptc;
+
+	        	return < ptn[@rtype = rt], c >;
+	        }
+	        
+			case ptn:antiNode(ptc) : {
+				cBool = enterBooleanScope(c, ptn@at);
+	        	< ptc, cBool > = assignInitialPatternTypes(ptc, cBool);
+	        	ptn.child = ptc;
+	        	c = exitBooleanScope(cBool, c);
+
+				rt = \inferred(c.uniqueify);
+				c.uniqueify = c.uniqueify + 1;
+				return < ptn[@rtype = rt], c >;
+			}
+			
+			case ptn:reifiedTypeNode(tSymbol,pDefs) : {
+				< tSymbol, c > = assignInitialPatternTypes(tSymbol, c);
+				< pDefs, c > = assignInitialPatternTypes(pDefs, c);
+				ptn.s = tSymbol;
+				ptn.d = pDefs;
+				 
+				return < ptn[@rtype = makeReifiedType(makeValueType())], c >;
+			}
+			
+	        case ptn:tvarBecomesNode(rt, n, l, ptc, nid) : { 
+	        	< ptc, c > = assignInitialPatternTypes(ptc, c);
+	        	ptn.child = ptc;
+
+	            if (RSimpleName("_") == n) {
+	                c = addUnnamedVariable(c, l, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = rt][@defs = { c.nextLoc - 1 }], c >;
+	            } else {
+	                c = addLocalVariable(c, n, false, l, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	            }
+	        }
+	        
+	        case ptn:concreteSyntaxNode(rt,plist) : {
+	        	for (idx <- index(plist)) {
+	        		< pti, c > = assignInitialPatternTypes(plist[idx], c);
+	        		plist[idx] = pti;
+	        	}
+	            ptn.args = plist;
+	        	return < ptn[@rtype = rt], c >;
+	        }
+	    }
+	    
+		return < pt, c >;
     }
+    
+    < pt, c > = assignInitialPatternTypes(pt, c);
     
     if (size(failures) > 0) {
     	// TODO: Allowing the "bad" config to go back, change back to
@@ -3098,25 +3221,25 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 
             case ptn:antiNode(cp) => updateRT(ptn, cp@rtype) when (cp@rtype)? && concreteType(cp@rtype)
             
-            case ptn:varBecomesNode(n,l,cp) : {
+            case ptn:varBecomesNode(n,l,cp,nid) : {
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
-                    Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[c.fcvEnv[n]].rtype;
-                    bool isInferred = (RSimpleName("_") == n) ? true : c.store[c.fcvEnv[n]].inferred;
+                    Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[nid].rtype;
+                    bool isInferred = (RSimpleName("_") == n) ? true : c.store[nid].inferred;
                     if (isInferred) {
                         if (isInferredType(rt)) {
                             if (RSimpleName("_") == n) {
-                                c.store[getOneFrom(ptn@defs)].rtype = cp@rtype; 
+                                c.store[nid].rtype = cp@rtype; 
                             } else {
-                                c.store[c.fcvEnv[n]].rtype = cp@rtype;
+                                c.store[nid].rtype = cp@rtype;
                             }
                             insert updateRT(ptn, cp@rtype);
                         } else {
                             Symbol rtNew = lub(rt, cp@rtype);
                             if (!equivalent(rtNew,rt)) {
                                 if (RSimpleName("_") == n) {
-                                    c.store[getOneFrom(ptn@defs)].rtype = rtNew; 
+                                    c.store[nid].rtype = rtNew; 
                                 } else {
-                                    c.store[c.fcvEnv[n]].rtype = rtNew;
+                                    c.store[nid].rtype = rtNew;
                                 }
                                 insert updateRT(ptn, rtNew);
                             }
@@ -3128,9 +3251,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 }
             }
     
-            case ptn:tvarBecomesNode(rt,n,l,cp) : {
+            case ptn:tvarBecomesNode(rt,n,l,cp,nid) : {
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
-                    Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[c.fcvEnv[n]].rtype;
+                    Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[nid].rtype;
                     if (!comparable(cp@rtype, rt))
                         failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn@at);
                 }
@@ -3394,26 +3517,26 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case nameNode(RSimpleName("_")) : {
+        case nameNode(RSimpleName("_"),nid) : {
             Symbol currentType = pt@rtype;
             if (isInferredType(currentType)) {
-                c.store[getOneFrom(pt@defs)].rtype = rt;
+                c.store[nid].rtype = rt;
                 return < c, pt[@rtype = rt] >;
             } else {
-                c.store[getOneFrom(pt@defs)].rtype = lub(currentType, rt);
+                c.store[nid].rtype = lub(currentType, rt);
                 return < c, pt[@rtype = lub(currentType, rt)] >;
             }
         }
         
-        case nameNode(rn) : {
-            Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
-            if (c.store[c.fcvEnv[rn]].inferred) {
+        case nameNode(rn,nid) : {
+            Symbol currentType = c.store[nid].rtype;
+            if (c.store[nid].inferred) {
                 if (isInferredType(currentType)) {
-                    c.store[c.fcvEnv[rn]].rtype = rt;
+                    c.store[nid].rtype = rt;
                 } else {
-                    c.store[c.fcvEnv[rn]].rtype = lub(currentType, rt);
+                    c.store[nid].rtype = lub(currentType, rt);
                 }
-                return < c, pt[@rtype = c.store[c.fcvEnv[rn]].rtype] >;
+                return < c, pt[@rtype = c.store[nid].rtype] >;
             } else {
                 if (comparable(currentType, rt))
                     return < c, pt >;
@@ -3422,32 +3545,32 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case multiNameNode(RSimpleName("_")) : {
+        case multiNameNode(RSimpleName("_"),nid) : {
             Symbol currentType = pt@rtype;
             if (isInferredType(currentType)) {
-                c.store[getOneFrom(pt@defs)].rtype = rt;
+                c.store[nid].rtype = rt;
                 return < c, pt[@rtype = rt] >;
             } else {
-                c.store[getOneFrom(pt@defs)].rtype = lub(currentType, rt);
+                c.store[nid].rtype = lub(currentType, rt);
                 return < c, pt[@rtype = lub(currentType, rt)] >;
             }
         }
 
-        case multiNameNode(rn) : {
-            Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
-            if (c.store[c.fcvEnv[rn]].inferred) {
+        case multiNameNode(rn,nid) : {
+            Symbol currentType = c.store[nid].rtype;
+            if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
-                    c.store[c.fcvEnv[rn]].rtype = \set(rt);
+                    c.store[nid].rtype = \set(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
-                    c.store[c.fcvEnv[rn]].rtype = \list(rt);
+                    c.store[nid].rtype = \list(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isSetType(currentType)) {
-                    c.store[c.fcvEnv[rn]].rtype = \set(lub(getSetElementType(currentType), rt));
-                    return < c, pt[@rtype = getSetElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                    c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
+                    return < c, pt[@rtype = getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
-                    c.store[c.fcvEnv[rn]].rtype = \list(lub(getListElementType(currentType), rt));
-                    return < c, pt[@rtype = getListElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                    c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
+                    return < c, pt[@rtype = getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
                 if (isSetType(currentType) && comparable(getSetElementType(currentType), rt))
@@ -3459,7 +3582,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-       case spliceNodeStar(RSimpleName("_")) : {
+       case spliceNodeStar(RSimpleName("_"),nid) : {
             Symbol currentType = pt@rtype;
             if (isInferredType(currentType)) {
                 return < c, pt[@rtype = rt] >;
@@ -3468,21 +3591,21 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case spliceNodeStar(rn) : { 
-        	Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
-            if (c.store[c.fcvEnv[rn]].inferred) {
+        case spliceNodeStar(rn,nid) : { 
+        	Symbol currentType = c.store[nid].rtype;
+            if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
-                    c.store[c.fcvEnv[rn]].rtype = \set(rt);
+                    c.store[nid].rtype = \set(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
-                    c.store[c.fcvEnv[rn]].rtype = \list(rt);
+                    c.store[nid].rtype = \list(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isSetType(currentType)) {
-                    c.store[c.fcvEnv[rn]].rtype = \set(lub(getSetElementType(currentType), rt));
-                    return < c, pt[@rtype = getSetElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                    c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
+                    return < c, pt[@rtype = getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
-                    c.store[c.fcvEnv[rn]].rtype = \list(lub(getListElementType(currentType), rt));
-                    return < c, pt[@rtype = getListElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                    c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
+                    return < c, pt[@rtype = getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
                 if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
@@ -3495,7 +3618,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case spliceNodeStar(RSimpleName("_"),_,nt) : {
+        case spliceNodeStar(RSimpleName("_"),_,nt,nid) : {
             Symbol currentType = pt@rtype;
             if (comparable(currentType, rt)) {
                 return < c, pt >;
@@ -3504,8 +3627,8 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case spliceNodeStar(rn,_,nt) : { 
-        	Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
+        case spliceNodeStar(rn,_,nt,nid) : { 
+        	Symbol currentType = c.store[nid].rtype;
             if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
                 return < c, pt >;
             } else if (isListType(currentType) && comparable(getListElementType(currentType), rt)) {
@@ -3515,7 +3638,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case spliceNodePlus(RSimpleName("_")) : {
+        case spliceNodePlus(RSimpleName("_"),nid) : {
         	Symbol currentType = pt@rtype;
             if (isInferredType(currentType)) {
                 return < c, pt[@rtype = rt] >;
@@ -3524,21 +3647,21 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             } 
         }
         
-        case spliceNodePlus(rn) : { 
-        	Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
-            if (c.store[c.fcvEnv[rn]].inferred) {
+        case spliceNodePlus(rn,nid) : { 
+        	Symbol currentType = c.store[nid].rtype;
+            if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
-                    c.store[c.fcvEnv[rn]].rtype = \set(rt);
+                    c.store[nid].rtype = \set(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
-                    c.store[c.fcvEnv[rn]].rtype = \list(rt);
+                    c.store[nid].rtype = \list(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isSetType(currentType)) {
-                    c.store[c.fcvEnv[rn]].rtype = \set(lub(getSetElementType(currentType), rt));
-                    return < c, pt[@rtype = getSetElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                    c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
+                    return < c, pt[@rtype = getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
-                    c.store[c.fcvEnv[rn]].rtype = \list(lub(getListElementType(currentType), rt));
-                    return < c, pt[@rtype = getListElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                    c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
+                    return < c, pt[@rtype = getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
                 if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
@@ -3551,7 +3674,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case spliceNodePlus(RSimpleName("_"),_,nt) : {
+        case spliceNodePlus(RSimpleName("_"),_,nt,nid) : {
             Symbol currentType = pt@rtype;
             if (comparable(currentType, rt)) {
                 return < c, pt >;
@@ -3560,8 +3683,8 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case spliceNodePlus(rn,_,nt) : { 
-        	Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
+        case spliceNodePlus(rn,_,nt,nid) : { 
+        	Symbol currentType = c.store[nid].rtype;
             if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
                 return < c, pt >;
             } else if (isListType(currentType) && comparable(getListElementType(currentType), rt)) {
@@ -3608,8 +3731,8 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case typedNameNode(n, l, nt) : {
-            Symbol currentType = (RSimpleName("_") == n) ? pt@rtype : c.store[c.fcvEnv[n]].rtype;
+        case typedNameNode(n, l, nt, nid) : {
+            Symbol currentType = (RSimpleName("_") == n) ? pt@rtype : c.store[nid].rtype;
             if (comparable(currentType, rt))
                 return < c, pt >;
             else
@@ -3648,7 +3771,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             //return < c, pt >;
         }
         
-        case varBecomesNode(n, l, cp) : {
+        case varBecomesNode(n, l, cp, nid) : {
             Symbol currentType = pt@rtype;
             < c, cpnew > = bind(cp, rt, c);
             return < c, pt[child=cpnew] >;
@@ -3674,7 +3797,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             return < c, pt[child = cpNew][@rtype=rt] >;
         }
         
-        case tvarBecomesNode(nt, n, l, cp) : {
+        case tvarBecomesNode(nt, n, l, cp, nid) : {
             < c, cpNew > = bind(cp, rt, c);
             return < c, pt[child = cpNew] >;
         }
