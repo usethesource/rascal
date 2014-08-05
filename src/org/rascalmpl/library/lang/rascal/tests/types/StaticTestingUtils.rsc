@@ -3,8 +3,8 @@ module lang::rascal::tests::types::StaticTestingUtils
 
 /*
  * Utilities for writing tests for the Rascal Type Checker:
- * - all utitlities depend on checkStatementsString
- * - all utitlies match for the occurence of certain phrases in the generated error messages.
+ * - all utilities depend on checkStatementsString
+ * - all utilities match for the occurence of certain phrases in the generated error messages.
  * - (in a next phase we may want to introduce a more specific error reporting datatype)
  */
 
@@ -91,7 +91,9 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 		"does not allow fields",
 		"Tuple index must be between", 
 		"out of range",
-		"Cannot add append information, no valid surrounding context found"
+		"Cannot add append information, no valid surrounding context found",
+		"Cannot match an expression of type: _ against a pattern of type _",
+		"Cannot subscript map of type _ using subscript of type _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
 // NOTE: type checker does not yet support analysis of uninitialized variables, therefore this check always succeeds, for now.
@@ -139,9 +141,10 @@ bool cannotMatch(str stmts, list[str] importedModules = [], list[str] initialDec
 bool declarationError(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
 		"Constructor overlaps existing constructors in the same datatype", 
-		"Initializer type"
+		"Initializer type",
+		"Errors present in constructor parameters, cannot add constructor to scope"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
 void makeModule(str name, str body){
-    writeFile(|rascal://lang/rascal/tests/types/<name>.rsc|, "module <name>\n<body>");
+    writeFile(|rascal:///<name>.rsc|, "module <name>\n<body>");
 }
