@@ -17,7 +17,7 @@ import Map;
 import ParseTree;
 import Message;
 import Node;
-import Type;
+//import Type;
 import Relation;
 import util::Reflective;
 import DateTime;
@@ -515,6 +515,7 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 
 	Configuration extendNonTerminal(Configuration c, int existingId) {
 		c.store[existingId].ats = c.store[existingId].ats + l;
+		if (n notin c.typeEnv) c.typeEnv[n] = existingId;
 		c.typeEnv[fullName] = existingId;
 		c.definitions = c.definitions + < existingId, l >;
 		return c; 	
@@ -745,7 +746,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		constructorItemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
 
-		overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt)}; //, !equivalent(c.store[i].rtype,rt)};
+		overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
 		if (size(overlaps) > 0)
 			c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
 
@@ -823,12 +824,10 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 	}
 	else {
 		sortName = RSimpleName( (prod.def is label) ? prod.def.symbol.name : prod.def.name );
-		fullSortName = appendName(moduleName, sortName);
 		sortId = c.globalAdtMap[sortName];
 	}   
 
 	args = prod.symbols;
-	moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
 	// TODO: think about production overload when we start to create ability to construct concrete trees from abstract names
 	Symbol rtype = Symbol::\prod( (prod.def is label) ? prod.def.symbol : prod.def, getSimpleName(n), prod.symbols, prod.attributes );
 
@@ -862,6 +861,10 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 		}
 	}
 
+	Symbol removeAllLabels(Symbol st) { return top-down visit(st) { case label(_,sti) => sti }; }
+	
+	// We can have unnamed productions; in that case, we still add information into the store, but don't add anything
+	// into the type environment, since we cannot look this up by name.
 	existsAlready = size({ i | i <- c.nonterminalConstructors[sortId], c.store[i].at == l, c.store[i].name == n}) > 0;
 	if (!existsAlready) {
 		nameWithSort = appendName(sortName,n);
@@ -870,20 +873,33 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 		productionItemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
 
-		overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, comparable(c.store[i].rtype,rtype)}; //, !equivalent(c.store[i].rtype,rt)};
-		if (size(overlaps) > 0)
-			c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);
-
+		if (RSimpleName("") != n) {
+			// If the production is named, another production will overlap if it has the same name and a different type, including
+			// labels -- it is only acceptable to repeat a production exactly
+			overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, c.store[i].rtype != rtype}; 
+			if (size(overlaps) > 0)
+				c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);
+		} else {
+			// If the production isn't named, we have a slightly different rule: the productions don't need to match, but if
+			// they match not accounting for labels, they have to match given labels -- so, the production can be different,
+			// but if it has the same parts, they have to have the same names
+			overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, removeAllLabels(c.store[i].rtype) == removeAllLabels(rtype), c.store[i].rtype != rtype};
+			if (size(overlaps) > 0)
+				c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);		
+		}
+		
 		productionItem = production(n, rtype, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
 		c.store[productionItemId] = productionItem;
 		c.definitions = c.definitions + < productionItemId, l >;
 		c.nonterminalConstructors = c.nonterminalConstructors + < sortId, productionItemId >;
 
-		addProductionItem(n, productionItemId);
-		addProductionItem(nameWithSort, productionItemId);
-		addProductionItem(nameWithModule, productionItemId);
+		if (RSimpleName("") != n) {
+			addProductionItem(n, productionItemId);
+			addProductionItem(nameWithSort, productionItemId);
+			addProductionItem(nameWithModule, productionItemId);
+		}
 	}    
-
+	
 	// Add non-terminal fields
 	alreadySeen = {};
 	for(\label(str fn, Symbol ft) <- prod.symbols) {

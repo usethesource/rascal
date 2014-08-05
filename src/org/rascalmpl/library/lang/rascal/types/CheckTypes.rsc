@@ -18,7 +18,7 @@ import Map;
 import ParseTree;
 import Message;
 import Node;
-import Type;
+//import Type;
 import Relation;
 import util::Reflective;
 import DateTime;
@@ -34,6 +34,8 @@ import lang::rascal::types::TypeSignature;
 import lang::rascal::types::TypeInstantiation;
 import lang::rascal::checker::ParserHelper;
 import lang::rascal::grammar::definition::Symbols;
+//import lang::rascal::types::CheckModule;
+
 extend lang::rascal::types::CheckerConfig;
 
 import lang::rascal::\syntax::Rascal;
@@ -3094,7 +3096,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                       
             //case ptn:deepNode(cp) => updateRT(ptn, \void()) when (cp@rtype)? && concreteType(cp@rtype)
 
-            //case ptn:antiNode(cp) => updateRT(ptn, cp@rtype) when (cp@rtype)? && concreteType(cp@rtype)
+            case ptn:antiNode(cp) => updateRT(ptn, cp@rtype) when (cp@rtype)? && concreteType(cp@rtype)
             
             case ptn:varBecomesNode(n,l,cp) : {
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
@@ -3638,9 +3640,12 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         }
         
         case callOrTreeNode(ph, cs) : {
-            // TODO: Should we implement this? We already always push back down when we hit call or tree nodes,
-            // so this may just be redundant. So, for now, just return the default.
-            return < c, pt >;
+            Symbol currentType = pt@rtype;
+            if (comparable(currentType, rt))
+                return < c, pt >;
+            else
+                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+            //return < c, pt >;
         }
         
         case varBecomesNode(n, l, cp) : {
@@ -4493,9 +4498,10 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
                 }
             }
         }
-        if (!comparable(getMapDomainType(atree@atype), tsub))
-            atree@atype = makeFailType("Cannot subscript map of type <prettyPrintType(atree@atype)> using subscript of type <prettyPrintType(tsub)>", assn@\loc);
-        return < c, subscriptNode(atree,tsub)[@atype=getMapRangeType(atree@atype)][@at=assn@\loc] >;
+		if (!comparable(getMapDomainType(atree@atype), tsub)) {
+			atree@atype = makeFailType("Cannot subscript map of type <prettyPrintType(atree@atype)> using subscript of type <prettyPrintType(tsub)>", assn@\loc);
+		}
+        return < c, subscriptNode(atree,tsub)[@atype=(isMapType(atree@atype))?getMapRangeType(atree@atype):atree@atype][@at=assn@\loc] >;
     }
 
     if (isRelType(atree@atype) && size(getRelFields(atree@atype)) == 2 && subtype(tsub,getRelFields(atree@atype)[0]))
@@ -5265,14 +5271,26 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 		for (Variant vr:(Variant)`<Name vn> ( < {TypeArg ","}* vargs > <KeywordFormals keywordArgs>)` <- vs) {
 			// TODO: Check for convert errors
 			list[Symbol] targs = [ ];
-			for (varg <- vargs) { < c, vargT > = convertAndExpandTypeArg(varg, c); targs = targs + vargT; } 
+			failures = { };
+			for (varg <- vargs) { 
+				< c, vargT > = convertAndExpandTypeArg(varg, c);
+				targs = targs + vargT;
+				if (isFailType(vargT)) { 
+					failures = failures + vargT;
+				}
+			} 
 			cn = convertName(vn);
 			kfl = [ ];
 			if ((KeywordFormals)`<OptionalComma _> <{KeywordFormal ","}+ keywordFormalList>` := keywordArgs)
 				kfl = [ ka | ka <- keywordFormalList ];
 			< c, ckfrel > = calculateKeywordParamRel(c, commonParamList);
 			< c, kfrel > = calculateKeywordParamRel(c, kfl);
-			c = addConstructor(c, cn, vr@\loc, Symbol::\cons(adtType,getSimpleName(cn),targs), ckfrel, kfrel);       
+			if (size(failures) > 0) {
+				c = addScopeError(c, "Errors present in constructor parameters, cannot add constructor to scope", vr@\loc);
+				c.messages += getFailures(collapseFailTypes(failures));
+			} else { 
+				c = addConstructor(c, cn, vr@\loc, Symbol::\cons(adtType,getSimpleName(cn),targs), ckfrel, kfrel);
+			}       
 		}
 	}
 
@@ -6186,6 +6204,8 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	c = addModule(c, moduleName, md@\loc);
 	currentModuleId = head(c.stack);
 
+	//ImportGraph ig = getImportGraph(md, removeExtend = true);
+	
 	// A relation from imported module names to bool, with true meaning this is an extending import
 	rel[RName mname, bool isext] modulesToImport = 
 		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule im>;` := importItem > | 
