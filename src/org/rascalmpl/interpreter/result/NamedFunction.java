@@ -231,7 +231,11 @@ abstract public class NamedFunction extends AbstractFunction {
         ImmutableMap<String,IValue> args = AbstractSpecialisedImmutableMap.mapOf();
 
         for (Entry<String, Result<IValue>> var : env.getVariables().entrySet()) {
-            args = args.__put(var.getKey(), var.getValue().getValue());
+            IValue val = var.getValue().getValue();
+            
+            if (val != null) { // there may be uninitialized variables in scope, and the map does not handle null values well
+            	args = args.__put(var.getKey(), val);
+            }
         }
 
         if (functionType.hasKeywordParameters()) {
