@@ -108,8 +108,8 @@ list[Message] cyclomaticComplexity(node ast, M3 model){
 			case \case(_): 				cnt += 1;
 			case \conditional(_, _, _): cnt += 1;
   			case \catch(_, _): 			cnt += 1;
-   			case \infix(_, "&&", _, _): cnt += 1;
-    		case \infix(_, "||", _, _): cnt + 1;
+   			case \infix(_, "&&", _): cnt += 1;
+    		case \infix(_, "||", _): cnt + 1;
 		}
 		if(cnt > 10) msgs += metric("CyclomaticComplexity", ast2@src);
 	}
