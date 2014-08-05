@@ -333,6 +333,7 @@ public RSignature getModuleSignature(Tree t, set[RName] visitedAlready) {
 	return createRSignature(t, visitedAlready);
 }
 
+@doc{Get the name of the import from within the module name definition.}
 public RName getNameOfImportedModule((ImportedModule)`<QualifiedName qn> <ModuleActuals ma> <Renamings rn>`) = convertName(qn);
 public RName getNameOfImportedModule((ImportedModule)`<QualifiedName qn> <ModuleActuals ma>`) = convertName(qn);
 public RName getNameOfImportedModule((ImportedModule)`<QualifiedName qn> <Renamings rn>`) = convertName(qn);
