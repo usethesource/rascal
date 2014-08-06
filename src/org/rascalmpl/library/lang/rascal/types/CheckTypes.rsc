@@ -18,7 +18,6 @@ import Map;
 import ParseTree;
 import Message;
 import Node;
-//import Type;
 import Relation;
 import util::Reflective;
 import DateTime;

@@ -1202,9 +1202,6 @@ public Configuration addScopeInfo(Configuration c, str s, loc l) = addScopeMessa
 @doc{Represents the result of checking an expression.}
 alias CheckResult = tuple[Configuration conf, Symbol res];
 
-@doc{Marks if a function is a var-args function.}
-public anno bool Symbol@isVarArgs;
-
 @doc{Marks the location(s) where a defined type (function, constructor, etc) is defined.}
 public anno set[loc] Symbol@definedAt;
 
