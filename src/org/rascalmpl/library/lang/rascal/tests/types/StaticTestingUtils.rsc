@@ -145,6 +145,11 @@ bool declarationError(str stmts, list[str] importedModules = [], list[str] initi
 		"Errors present in constructor parameters, cannot add constructor to scope"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
+bool missingModule(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
+	check(stmts, [
+		"Cannot import module _"
+	], importedModules=importedModules, initialDecls=initialDecls);
+	
 void makeModule(str name, str body){
     writeFile(|rascal:///<name>.rsc|, "module <name>\n<body>");
 }
