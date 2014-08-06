@@ -10,6 +10,8 @@ import Set;
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
 
+import lang::java::style::Utils;
+
 import IO;
 
 /*
@@ -23,7 +25,7 @@ JavaNCSS						TBD
 
 data Message = metric(str category, loc pos);
 
-list[Message] metrics(node ast, M3 model) {
+list[Message] metricsChecks(node ast, M3 model) {
 	return 
 		  booleanExpressionComplexity(ast, model) 
 		+ classDataAbstractionCoupling(ast, model)
@@ -34,19 +36,26 @@ list[Message] metrics(node ast, M3 model) {
 }
 	
 list[Message] booleanExpressionComplexity(node ast, M3 model){
+	msgs = [];
+	
 	bool tooManyBooleanOperators(Expression e){
 	   int cnt = 0;
 	   visit(e){
 		 case \infix(_, str operator, _):
 			 if(operator in {"&&", "&", "||", "|", "^"}) cnt += 1;
+		 case \prefix("!", _): cnt += 1;
 	   }
 	   return cnt > 3;
     }
 	
-	return [ metric("BooleanExpressionComplexity", e@src) | /Expression e := ast, tooManyBooleanOperators(e) ];
+	top-down-break visit(ast){
+		case Expression e: 
+			if(tooManyBooleanOperators(e)) { msgs += metric("BooleanExpressionComplexity", e@src); }
+	}
+	return msgs;
 }
 
-set[str] excludedClasses = {
+set[str] excludedClasses = {	// TODO: verify that these names really work (may use a loc?)
 	"boolean", "byte", "char", "double", "float", "int", "long", "short", "void", 
 	"Boolean", "Byte", "Character", "Double", "Float", "Integer", "Long", "Short", 
 	"Void", "Object", "Class", "String", "StringBuffer", "StringBuilder", 
@@ -63,7 +72,7 @@ list[Message] classDataAbstractionCoupling(node ast, M3 model){
 		if({ name } := invNames[declaration])
 			return name;
 	}
-    set[str] getNew(node ast){
+    set[str] getNew(Declaration ast){
     	news = {};
     	visit(ast){
     		case obj: \newObject(Expression expr, Type \type, list[Expression] args, Declaration class):
@@ -80,12 +89,12 @@ list[Message] classDataAbstractionCoupling(node ast, M3 model){
     	}
     	return news;
     }
-    bool tooManyNew(set[node] asts){
-    	return size(( {} | it + getNew(a) | a <- asts ) - excludedClasses) > 7;
+    bool tooManyNew(Declaration class){
+    	return size(getNew(class) - excludedClasses) > 7;
     }
 
 	return 
-		[ metric("ClassDataAbstractionCoupling", c) | c <- classes(model), tooManyNew(model@containment[c]) ];
+		[ metric("ClassDataAbstractionCoupling", c@src) | c <- getAllClasses(ast), tooManyNew(c) ];
 }
 
 list[Message] classFanOutComplexity(node ast, M3 model){
@@ -95,9 +104,9 @@ list[Message] classFanOutComplexity(node ast, M3 model){
 
 list[Message] cyclomaticComplexity(node ast, M3 model){
 	msgs = [];
-	void checkCC(node ast2){
+	void checkCC(Statement body){
 		int cnt = 1;
-		visit(ast2){
+		visit(body){
 			case \do(_, _): 			cnt += 1;
 			case \while(_, _): 			cnt += 1;
     		case \foreach(_, _, _): 	cnt += 1;
@@ -111,7 +120,7 @@ list[Message] cyclomaticComplexity(node ast, M3 model){
    			case \infix(_, "&&", _): cnt += 1;
     		case \infix(_, "||", _): cnt + 1;
 		}
-		if(cnt > 10) msgs += metric("CyclomaticComplexity", ast2@src);
+		if(cnt > 10) msgs += metric("CyclomaticComplexity", body@src);
 	}
 	
 	top-down-break visit(ast){
@@ -119,13 +128,14 @@ list[Message] cyclomaticComplexity(node ast, M3 model){
     	case \method(_, _, _, _, Statement impl): 	checkCC(impl);
     	case \constructor(_, _, _, Statement impl): checkCC(impl);
 	}
+	return msgs;
 }
 
 list[Message] nPathComplexity(node ast, M3 model){
 	msgs = [];
-	void checkNPath(node ast){
-		if(nPath(ast) > 200){
-			msgs += metric("NPathComplexity", ast@src);
+	void checkNPath(Statement body){
+		if(nPath(body) > 200){
+			msgs += metric("NPathComplexity", body@src);
 		}
 	}
 	top-down-break visit(ast){
@@ -141,10 +151,10 @@ list[Message] nPathComplexity(node ast, M3 model){
 int nPathExpression(Expression e){
 	cnt = 1;
 	visit(e){
-		case \infix(_, "&&", _, list[Expression] extendedOperands): 	
-			cnt += size(extendedOperands) + 1;
-    	case \infix(_, "||", _, list[Expression] extendedOperands): 	
-    		cnt += size(extendedOperands) + 1;
+		case \infix(_, "&&", _): 	
+			cnt += 1;
+    	case \infix(_, "||", _): 	
+    		cnt += 1;
 	}
 	return cnt;
 }
@@ -152,7 +162,7 @@ int nPathExpression(Expression e){
 int nPath(node ast){
 	switch(ast){
 			case \block(list[Statement] statements):
-					return (1 | it * npath(s) | s <- statements);
+					return (1 | it * nPath(s) | s <- statements);
 					
 			case \do(body,cond): 		
 					return nPathExpression(cond) + nPath(body) + 1;
@@ -176,7 +186,7 @@ int nPath(node ast){
     				return nPathExpression(cond) + nPath(thenBranch) + nPath(elseBranch);
     				
 			case \switch(Expression expression, list[Statement] statements):
-					return nPathExpression(cond) + (0 | it + nPath(s) | s <- statements);
+					return nPathExpression(expression) + (0 | it + nPath(s) | s <- statements);
 					
 			case \case(_):
 					return 0;

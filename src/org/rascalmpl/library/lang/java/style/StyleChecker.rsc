@@ -25,12 +25,12 @@ import lang::java::style::SizeViolations;
 alias Checker = list[Message] (node ast, M3 model);
 
 private set[Checker] active() = {
-  //blockChecks,
- // classDesign,
-  coding,
-  metrics
- // namingConventions,
- // sizeViolations
+  blockChecks,
+  classDesignChecks,
+  codingChecks,
+  metricsChecks,
+  namingConventionsChecks,
+  sizeViolationsChecks
 };  
 
 @doc{For testing on the console; we should assume only a model for the current AST is in the model}
@@ -43,10 +43,10 @@ list[Message] styleChecker(map[loc, M3] models, map[loc, node] asts, set[Checker
   
 
 
-value main(loc dir = |project://style-check-tests|){
+list[Message] main(loc dir = |project://style-check-tests|){
   
   m3model = createM3FromEclipseProject(dir);
   asts = createAstsFromDirectory(dir, true);
   return styleChecker(m3model, asts, checkers = active());
-}  
+} 
 
