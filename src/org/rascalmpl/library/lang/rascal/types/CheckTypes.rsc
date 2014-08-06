@@ -6323,6 +6323,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	map[RName,RSignature] sigMap = ( );
 	map[RName,int] moduleIds = ( );
 	map[RName,loc] moduleLocs = ( );
+	set[RName] notImported = { };
 
 	c = addModule(c, moduleName, md@\loc);
 	currentModuleId = head(c.stack);
@@ -6364,19 +6365,20 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 			}
 			c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
 		} catch perror : {
-			c = addScopeError(c, "Cannot calculate signature for imported module <prettyPrintName(modName)>", md@\loc);
+			c = addScopeError(c, "Cannot import module <prettyPrintName(modName)>", md@\loc);
+			notImported = notImported + modName;
 		}
 	}
 
 	// Now that we have a signature for each module, actually perform the import for each, creating
 	// a configuration for each with just the items from that module signature.
 	dt1 = now();
-	for (< modName, isExt > <- defaultModules) {
+	for (< modName, isExt > <- defaultModules, modName notin notImported) {
 		// This loads a default module. In this case, the defaults should stay in the
 		// configuration, since each module can "see" these definitions.
 		c = startModuleImport(c, sigMap[modName], modName, moduleIds[modName], isExt);
 	}
-	for (< modName, isExt > <- modulesToImport) {
+	for (< modName, isExt > <- modulesToImport, modName notin notImported) {
 		// This loads a non-default module. We start each time with the environment we
 		// had after all the defaults loaded.
 		c = startModuleImportAndReset(c, sigMap[modName], modName, moduleIds[modName], isExt);
@@ -6454,7 +6456,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 
 		// Bring in type names from the imported modules as long as they don't
 		// conflict with the type names just added.
-		c = loadImportedTypesAndTags(c, { mn | < mn, false > <- modulesToImport });
+		c = loadImportedTypesAndTags(c, { mn | < mn, false > <- modulesToImport, mn notin notImported });
 		
 		// Now, actually process the type names
 		for (t <- typesAndTags) c = checkDeclaration(t,true,c);
@@ -6462,12 +6464,12 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		// Now that we have a signature for each module, actually perform the import for each, creating
 		// a configuration for each with just the items from that module signature.
 		dt1 = now();
-		for (< modName, isExt > <- defaultModules) {
+		for (< modName, isExt > <- defaultModules, modName notin notImported) {
 			// This loads a default module. In this case, the defaults should stay in the
 			// configuration, since each module can "see" these definitions.
 			c = resumeModuleImport(c, sigMap[modName], modName, moduleIds[modName], isExt);
 		}
-		for (< modName, isExt > <- modulesToImport) {
+		for (< modName, isExt > <- modulesToImport, modName notin notImported) {
 			// This loads a non-default module. We start each time with the environment we
 			// had after all the defaults loaded.
 			c = resumeModuleImportAndReset(c, sigMap[modName], modName, moduleIds[modName], isExt);
@@ -6477,21 +6479,21 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		// Process the current module. We start by merging in everything from the modules we are
 		// extending to give an initial "seed" for our environment. We will just use the standard
 		// add functions for this.
-		c = loadExtendedModuleNames(c, { mn | < mn, true > <- modulesToImport });
+		c = loadExtendedModuleNames(c, { mn | < mn, true > <- modulesToImport, mn notin notImported });
 
 		// Next, process the annotations
 		for (t <- annotations) c = checkDeclaration(t,true,c);
 
 		// Bring in annotations from the imported modules as long as they don't
 		// conflict with the annotations just added.
-		c = loadImportedAnnotations(c, { mn | < mn, false > <- modulesToImport });
+		c = loadImportedAnnotations(c, { mn | < mn, false > <- modulesToImport, mn notin notImported });
 				
 		// Next, introduce names into the environment
 		for (t <- names) c = checkDeclaration(t,false,c);
 
 		// Bring in names from the imported modules as long as they don't
 		// conflict with the names just added.
-		c = loadImportedNames(c,  { mn | < mn, false > <- modulesToImport });
+		c = loadImportedNames(c,  { mn | < mn, false > <- modulesToImport, mn notin notImported });
 		
 		// Process the names
 		for (t <- names) c = checkDeclaration(t,true,c);
