@@ -27,18 +27,18 @@ public class OverloadedFunction {
 			this.scopeIn = functionMap.get(funIn);
 		}
 
-		codeEmittor.emitOCallHandler("OverLoadedHandlerOID"+oid,funIn,scopeIn,functions,constructors);
-		int funcListIndex = 0 ;
-		for (int i : functions) {
-			String fname = null;
-			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
-				if (i == e.getValue()) {
-					fname = e.getKey();
-					break;
-				}
-			}
-			codeEmittor.emitOCallCALL(NameMangler.mangle(fname),funcListIndex++,false) ;
-		}
-		codeEmittor.emitOCallEnd();
+//		codeEmittor.emitOCallHandler("OverLoadedHandlerOID"+oid,funIn,scopeIn,functions,constructors);
+//		int funcListIndex = 0 ;
+//		for (int i : functions) {
+//			String fname = null;
+//			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
+//				if (i == e.getValue()) {
+//					fname = e.getKey();
+//					break;
+//				}
+//			}
+//			codeEmittor.emitOCallCALL(NameMangler.mangle(fname),funcListIndex++,false) ;
+//		}
+//		codeEmittor.emitOCallEnd();
 	}
 }
