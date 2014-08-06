@@ -121,7 +121,9 @@ bool undefinedField(str stmts, list[str] importedModules = [], list[str] initial
 bool argumentMismatch(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
 		"Function of type _ cannot be called with argument types _", 
-		"Constructor of type _ cannot be built with argument types _"
+		"Constructor of type _ cannot be built with argument types _",
+		"Keyword parameter of type _ cannot be assigned argument of type _",
+		"Unknown keyword parameters passed: _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 bool redeclaredVariable(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
