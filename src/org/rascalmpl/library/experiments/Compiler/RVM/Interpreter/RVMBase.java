@@ -31,8 +31,8 @@ public class RVMBase {
 	public Object[] stack;
 	public IValueFactory vf;
 
-	public static IBool Rascal_TRUE;
-	public static IBool Rascal_FALSE;
+	public IBool Rascal_TRUE;
+	public IBool Rascal_FALSE;
 
 	private static HashSet<IValue> emptyMset = new HashSet<IValue>(0);
 

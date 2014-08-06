@@ -272,7 +272,7 @@ public class RVMonJVM implements IRVM {
 		}
 	}
 
-	public IValue executeProgramP(String uid_main, IValue[] args) {
+	public IValue executeProgram(String uid_main, IValue[] args) {
 		boolean profile = false;
 
 		buildRunner(profile);
@@ -302,7 +302,7 @@ public class RVMonJVM implements IRVM {
 		return narrow(o);
 	}
 
-	public IValue executeProgram(String uid_main, IValue[] args) {
+	public IValue executeProgramStat(String uid_main, IValue[] args) {
 		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
 		Object o = null;
 		boolean profile = false;
