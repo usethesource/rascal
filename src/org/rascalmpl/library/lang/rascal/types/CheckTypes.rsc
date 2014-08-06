@@ -18,7 +18,6 @@ import Map;
 import ParseTree;
 import Message;
 import Node;
-//import Type;
 import Relation;
 import util::Reflective;
 import DateTime;
@@ -380,6 +379,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     
     list[Expression] epsList = [ epsi | epsi <- eps ];
     < c, t1 > = checkExp(e, c);
+    
+    usedItems = invert(c.uses)[e@\loc];
+    usedItems = { ui | ui <- usedItems, !(c.store[ui] is overload)} + { uii | ui <- usedItems, c.store[ui] is overload, uii <- c.store[ui].items };
+    rel[Symbol,KeywordParamMap] functionKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is function };
+    rel[Symbol,KeywordParamMap] constructorKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is constructor };
+     
     if (isFailType(t1)) failures += t1;
     list[Symbol] tl = [];
     for (ep <- eps) { 
@@ -388,13 +393,28 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         if (isFailType(t2)) failures += t2; 
     }
     
+    KeywordParamMap kl = ( );
+    if ((KeywordArguments[Expression])`<OptionalComma oc> <{KeywordArgument[Expression] ","}+ kargs>` := keywordArguments) {
+		for (ka:(KeywordArgument[Expression])`<Name kn> = <Expression ke>` <- kargs) {
+			< c, t3 > = checkExp(ke, c);
+	        if (isFailType(t3)) failures += t3;
+	         
+			knr = convertName(kn);
+			if (knr notin kl) {
+				kl[knr] = t3;
+			} else {
+				c = addScopeError(c,"Cannot use keyword parameter <prettyPrintName(knr)> more than once",ka@\loc);
+			}
+		}
+    }
+		
     // If we have any failures, either in the head or in the arguments,
     // we aren't going to be able to match, so filter these cases out
     // here
     if (size(failures) > 0)
         return markLocationFailed(c, exp@\loc, failures);
     
- 	tuple[Symbol, bool, Configuration] instantiateFunctionTypeArgs(Configuration c, Symbol targetType) {
+ 	tuple[Symbol, KeywordParamMap, bool, Configuration] instantiateFunctionTypeArgs(Configuration c, Symbol targetType, KeywordParamMap kpm) {
 		// If the function is parametric, we need to calculate the actual types of the
     	// parameters and make sure they fall within the proper bounds.
     	formalArgs = getFunctionArgumentTypes(targetType);
@@ -436,6 +456,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				}
 			}
     	}
+    	for (kn <- kpm) {
+    		try {
+    			bindings = match(kpm[kn], kl[kn], bindings);
+    		} catch : {
+    			canInstantiate = false;
+    		}
+    	}
     	// Based on the above, either give an error message (if we could not match the function's parameter types) or
     	// try to instantiate the entire function type. The instantiation should only fail if we cannot instantiate
     	// the return type correctly, for instance if the instantiation would violate the bounds.
@@ -448,7 +475,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             	canInstantiate = false;
         	}
     	}
-    	return < targetType, canInstantiate, c >;	
+    	return < targetType, kpm, canInstantiate, c >;	
 	}
 	
 	// Special handling for overloads -- if we have an overload, at least one of the overload options
@@ -462,41 +489,55 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 		}		
 	}
 	
-	tuple[Configuration c, set[Symbol] matches, set[str] failures] matchFunctionAlts(Configuration c, set[Symbol] alts) {
-        set[Symbol] matches = { };
+	tuple[Configuration c, rel[Symbol,KeywordParamMap] matches, set[str] failures] matchFunctionAlts(Configuration c, set[Symbol] alts) {
+        rel[Symbol,KeywordParamMap] matches = { };
         set[str] failureReasons = { };
-        for (a <- alts, isFunctionType(a)) {
+        for (a <- alts, isFunctionType(a), kpm <- ( (!isEmpty(functionKP[a])) ? functionKP[a] : { ( ) })) {
             list[Symbol] args = getFunctionArgumentTypes(a);
             // NOTE: We cannot assume the annotation is set, since we only set it when we add a
             // function (and have the info available); we don't have the information when we only
             // have a function type, such as with a function parameter.
             bool varArgs = ( ((a@isVarArgs)?) ? a@isVarArgs : false );
             if (!varArgs) {
-                if (size(epsList) == size(args) && size(epsList) == 0) {
-                    matches += a;
-                } else if (size(epsList) == size(args)) {
+                //if (size(epsList) == size(args) && size(epsList) == 0) {
+                //    matches += a;
+                //} else 
+                if (size(epsList) == size(args)) {
 					if (typeContainsTypeVars(a)) {
-        				< instantiated, b, c > = instantiateFunctionTypeArgs(c, a);
+        				< instantiated, instantiatedKP, b, c > = instantiateFunctionTypeArgs(c, a, kpm);
         				if (!b) {
         					failureReasons += "Could not instantiate type variables in type <prettyPrintType(a)> with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
         					continue;
         				}
         				args = getFunctionArgumentTypes(instantiated);
+        				kpm = instantiatedKP;
         			}
-                 	if (false notin { subtypeOrOverload(tl[idx],args[idx]) | (idx <- index(epsList)) })
-                    	matches += a;
-                    else
+                 	if (false notin { subtypeOrOverload(tl[idx],args[idx]) | (idx <- index(epsList)) }) {
+                 		if (size(kl<0> - kpm<0>) > 0) {
+                 			failureReasons += "Unknown keyword parameters passed: <intercalate(",",[prettyPrintName(kpname)|kpname<-(kl<0>-kpm<0>)])>";
+                 		} else {
+                 			kpFailures = { kpname | kpname <- kl<0>, !subtypeOrOverload(kl[kpname],kpm[kpname]) };
+                 			if (size(kpFailures) > 0) {
+                 				for (kpname <- kpFailures) {
+                 					failureReasons += "Keyword parameter of type <prettyPrintType(kpm[kpname])> cannot be assigned argument of type <prettyPrintType(kl[kpname])>";
+                 				}
+                 			} else {
+                    			matches += < a, kpm > ;
+                    		}
+                    	} 
+                    } else {
                     	failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                    }
                 } else {
                     failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
                 }
             } else {
                 if (size(epsList) >= size(args)-1) {
                     if (size(epsList) == 0) {
-                        matches += a;
+                        matches += < a, kpm >;
                     } else {
 						if (typeContainsTypeVars(a) && size(args)-1 <= size(tl)) {
-    	    				< instantiated, b, c > = instantiateFunctionTypeArgs(c, a);
+    	    				< instantiated, instantiatedKP, b, c > = instantiateFunctionTypeArgs(c, a, kpm);
 	        				if (!b) {
 	        					failureReasons += "Could not instantiate type variables in type <prettyPrintType(a)> with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
 	        					continue;
@@ -511,12 +552,19 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                         list[Symbol] fixedArgs = head(args,size(args)-1);
                         Symbol varArgsType = getListElementType(last(args));
                         if (size(fixedPart) == 0 || all(idx <- index(fixedPart), subtypeOrOverload(fixedPart[idx],fixedArgs[idx]))) {
-                            if (size(varPart) == 0) {
-                                matches += a;
-                            } else if (size(varPart) == 1 && subtypeOrOverload(varPart[0],last(args))) {
-                                matches += a;
-                            } else if (all(idx2 <- index(varPart),subtypeOrOverload(varPart[idx2],varArgsType))) {
-                                matches += a;
+                            if ( (size(varPart) == 0 ) || (size(varPart) == 1 && subtypeOrOverload(varPart[0],last(args))) || (all(idx2 <- index(varPart),subtypeOrOverload(varPart[idx2],varArgsType))) ) {
+		                 		if (size(kl<0> - kpm<0>) > 0) {
+		                 			failureReasons += "Unknown keyword parameters passed: <intercalate(",",[prettyPrintName(kpname)|kpname<-(kl<0>-kpm<0>)])>";
+		                 		} else {
+		                 			kpFailures = { kpname | kpname <- kl<0>, !subtypeOrOverload(kl[kpname],kpm[kpname]) };
+		                 			if (size(kpFailures) > 0) {
+		                 				for (kpname <- kpFailures) {
+		                 					failureReasons += "Keyword parameter of type <prettyPrintType(kpm[kpname])> cannot be assigned argument of type <prettyPrintType(kl[kpname])>";
+		                 				}
+		                 			} else {
+		                    			matches += < a, kpm > ;
+		                    		}
+		                    	}
                             } else {
                                 failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
                             }
@@ -533,15 +581,24 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         return < c, matches, failureReasons >;
     }
     
-   tuple[Configuration c, set[Symbol] matches, set[str] failures] matchConstructorAlts(Configuration c, set[Symbol] alts) {
-        set[Symbol] matches = { };
+   tuple[Configuration c, rel[Symbol,KeywordParamMap] matches, set[str] failures] matchConstructorAlts(Configuration c, set[Symbol] alts) {
+        rel[Symbol,KeywordParamMap] matches = { };
         set[str] failureReasons = { };
-        for (a <- alts, isConstructorType(a)) {
+        for (a <- alts, isConstructorType(a), kpm <- ( (!isEmpty(constructorKP[a])) ? constructorKP[a] : { ( ) })) {
             list[Symbol] args = getConstructorArgumentTypes(a);
-            if (size(epsList) == size(args) && size(epsList) == 0) {
-                matches += a;
-            } else if (size(epsList) == size(args) && false notin { subtype(tl[idx],args[idx]) | idx <- index(epsList) }) {
-                matches += a;
+            if ( (size(epsList) == size(args) && size(epsList) == 0) || (size(epsList) == size(args) && false notin { subtype(tl[idx],args[idx]) | idx <- index(epsList) }) ) {
+	     		if (size(kl<0> - kpm<0>) > 0) {
+	     			failureReasons += "Unknown keyword parameters passed: <intercalate(",",[prettyPrintName(kpname)|kpname<-(kl<0>-kpm<0>)])>";
+	     		} else {
+	     			kpFailures = { kpname | kpname <- kl<0>, !subtypeOrOverload(kl[kpname],kpm[kpname]) };
+	     			if (size(kpFailures) > 0) {
+	     				for (kpname <- kpFailures) {
+	     					failureReasons += "Keyword parameter of type <prettyPrintType(kpm[kpname])> cannot be assigned argument of type <prettyPrintType(kl[kpname])>";
+	     				}
+	     			} else {
+	        			matches += < a, kpm > ;
+	        		}
+	        	}
             } else {
                 failureReasons += "Constructor of type <prettyPrintType(a)> cannot be built with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
             }
@@ -577,10 +634,14 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         set[Symbol] alts     = isFunctionType(t1) ? {t1} : ( (isConstructorType(t1) || isProductionType(t1)) ? {  } : getNonDefaultOverloadOptions(t1) );
         set[Symbol] defaults = isFunctionType(t1) ? {  } : ( (isConstructorType(t1) || isProductionType(t1)) ? {t1} : getDefaultOverloadOptions(t1) );
         
-        < c, nonDefaultFunctionMatches, nonDefaultFunctionFailureReasons > = matchFunctionAlts(c, alts);
-        < c, defaultFunctionMatches, defaultFunctionFailureReasons > = matchFunctionAlts(c, defaults);
-        < c, constructorMatches, constructorFailureReasons > = matchConstructorAlts(c, defaults);
+        < c, nonDefaultFunctionMatchesWithKP, nonDefaultFunctionFailureReasons > = matchFunctionAlts(c, alts);
+        < c, defaultFunctionMatchesWithKP, defaultFunctionFailureReasons > = matchFunctionAlts(c, defaults);
+        < c, constructorMatchesWithKP, constructorFailureReasons > = matchConstructorAlts(c, defaults);
         < c, productionMatches, productionFailureReasons > = matchProductionAlts(c, defaults);
+
+        set[Symbol] nonDefaultFunctionMatches = nonDefaultFunctionMatchesWithKP<0>;
+        set[Symbol] defaultFunctionMatches = defaultFunctionMatchesWithKP<0>;
+        set[Symbol] constructorMatches = constructorMatchesWithKP<0>;
         
         if (size(nonDefaultFunctionMatches + defaultFunctionMatches + constructorMatches + productionMatches) == 0) {
             return markLocationFailed(c,exp@\loc,{makeFailType(reason,exp@\loc) | reason <- (nonDefaultFunctionFailureReasons + defaultFunctionFailureReasons + constructorFailureReasons + productionFailureReasons)});
@@ -604,6 +665,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         bool cannotInstantiateFunction = false;
         bool cannotInstantiateConstructor = false;
         
+        // TODO: The above code checks keyword parameters; they need to be properly instantiated below
+        // in case they are parametric.
         if (size(nonDefaultFunctionMatches + defaultFunctionMatches) > 0) {
             rts = nonDefaultFunctionMatches + defaultFunctionMatches;
             for(rt <- rts) {
@@ -611,7 +674,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             	isInNonDefaults = rt in nonDefaultFunctionMatches;
             	
             	if (typeContainsTypeVars(rt)) {
-					< rt, canInstantiate, c > = instantiateFunctionTypeArgs(c, rt);
+            		// TODO: Need to get back valid params here...
+					< rt, instantiatedKP, canInstantiate, c > = instantiateFunctionTypeArgs(c, rt, ());
 					cannotInstantiateFunction = !canInstantiate;
 					if(isInDefaults) {
 						finalDefaultMatches += rt;
