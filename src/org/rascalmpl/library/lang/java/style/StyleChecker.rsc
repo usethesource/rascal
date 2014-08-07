@@ -24,7 +24,7 @@ import lang::java::style::Metrics;
 import lang::java::style::NamingConventions;
 import lang::java::style::SizeViolations;
 
-alias Checker = list[Message] (node ast, M3 model, list[Declaration] classes, list[Declaration] methods);
+alias Checker = list[Message] (node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations);
 
 private set[Checker] active() = {
   blockChecks,
@@ -39,9 +39,9 @@ private set[Checker] active() = {
 list[Message] styleChecker(M3 model, set[node] asts, set[Checker] checkers = active()){
 	msgs = [];
     for(ast <- asts){
-    	allClasses = getAllClasses(ast);
-		allMethods = getAllMethods(ast);
-		msgs += [*checker(ast, model, allClasses, allMethods) | Checker checker <- checkers];
+    	classDeclarations = getAllClassDeclarations(ast);
+		classDeclarations = getAllMethodDeclarations(ast);
+		msgs += [*checker(ast, model, classDeclarations, classDeclarations) | Checker checker <- checkers];
     }
     return msgs;
  }

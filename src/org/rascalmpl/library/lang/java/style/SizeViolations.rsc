@@ -27,17 +27,17 @@ OuterTypeNumber				TBD
 MethodCount					DONE
 */
 
-list[Message] sizeViolationsChecks(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods) {
+list[Message] sizeViolationsChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
 	return
-		  executableStatementCount(ast, model, allClasses, allMethods)
-		+ fileLength(ast, model, allClasses, allMethods)
-		+ methodLength(ast, model, allClasses, allMethods)
-		+ parameterNumber(ast, model, allClasses, allMethods)
+		  executableStatementCount(ast, model, classDeclarations, methodDeclarations)
+		+ fileLength(ast, model, classDeclarations, methodDeclarations)
+		+ methodLength(ast, model, classDeclarations, methodDeclarations)
+		+ parameterNumber(ast, model, classDeclarations, methodDeclarations)
 		;
 
 }
 
-list[Message] executableStatementCount(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
+list[Message] executableStatementCount(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
 	msgs = [];
 	void checkSize(Statement ast){
 		if(size([s | /Statement s := ast]) > 30){
@@ -52,11 +52,11 @@ list[Message] executableStatementCount(node ast, M3 model, list[Declaration] all
 	return msgs;
 }
 
-list[Message] fileLength(Declaration ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
+list[Message] fileLength(Declaration ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
 	return (ast@src.end.line > 2000) ?  sizeViolation("FileLength", ast@src) : [];
 }
 
-list[Message] methodLength(Declaration ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
+list[Message] methodLength(Declaration ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
 	msgs = [];
 	void checkSize(Declaration ast){
 		if(ast@src.end.line - ast@src.begin.line > 150){
@@ -71,10 +71,10 @@ list[Message] methodLength(Declaration ast, M3 model, list[Declaration] allClass
 	return msgs;
 }
 
-list[Message] parameterNumber(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
+list[Message] parameterNumber(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
 	msgs = [];
 	
-	for(m <- getAllMethods(ast)){
+	for(m <- methodDeclarations){
 		if(size(m.parameters) > 7){
 			msgs += sizeViolation("ParameterNumber", m@src);
 		}
@@ -83,6 +83,6 @@ list[Message] parameterNumber(node ast, M3 model, list[Declaration] allClasses, 
 }
 
 // TODO: this check should be refined er method category
-list[Message] methodCount(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
+list[Message] methodCount(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
     return size([m | /m:\method(_, _, _, _, Statement impl) := ast]) > 100 ? sizeViolation("MethodCount", ast@src) : [];
 }

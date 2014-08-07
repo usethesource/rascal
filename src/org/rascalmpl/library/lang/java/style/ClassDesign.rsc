@@ -27,16 +27,16 @@ ThrowsCount					DONE
 InnerTypeLast				TBD
 */
 
-list[Message] classDesignChecks(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods) {
+list[Message] classDesignChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
 	return
-		     visibilityModifier(ast, model, allClasses, allMethods)
-		   + finalClass(ast, model, allClasses, allMethods)
-		   + mutableException(ast, model, allClasses, allMethods)
-		   + throwsCount(ast, model, allClasses, allMethods)
+		     visibilityModifier(ast, model, classDeclarations, methodDeclarations)
+		   + finalClass(ast, model, classDeclarations, methodDeclarations)
+		   + mutableException(ast, model, classDeclarations, methodDeclarations)
+		   + throwsCount(ast, model, classDeclarations, methodDeclarations)
 		   ;
 }
 
-list[Message] visibilityModifier(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
+list[Message] visibilityModifier(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
 	modifiers = model@modifiers;
 	msgs = [];
 	
@@ -52,7 +52,7 @@ list[Message] visibilityModifier(node ast, M3 model, list[Declaration] allClasse
 	return msgs;
 }
 
-list[Message] finalClass(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
+list[Message] finalClass(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
     modifiers = model@modifiers;
 	msgs = [];
 	bool isPrivate(loc m) = \private() in modifiers[m];
@@ -79,14 +79,14 @@ list[Message] finalClass(node ast, M3 model, list[Declaration] allClasses, list[
     return msgs;
 }
 
-list[Message] mutableException(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
+list[Message] mutableException(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
 	modifiers = model@modifiers;
 	msgs = [];
 	bool hasOnlyFinalFields(loc c){
 		return all(f <- fields(model, c), \final() in modifiers[f]);
 	}
 	
-	for(c <- getAllClasses(ast)){
+	for(c <- classDeclarations){
 		if((/Exception$/ := c.name || /Error$/ := c.name) && !hasOnlyFinalFields(c@decl /*getDeclaredEntity(c@src, model)*/)){ 
 				msgs += classDesign("MutableException", c@src);
 			}
@@ -95,7 +95,7 @@ list[Message] mutableException(node ast, M3 model, list[Declaration] allClasses,
     return msgs;
 }
 
-list[Message] throwsCount(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
+list[Message] throwsCount(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
 	msgs = [];
 
 	void cntThrows(Statement body){
