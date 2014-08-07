@@ -22,6 +22,7 @@ import lang::java::style::ClassDesign;
 import lang::java::style::Coding;
 import lang::java::style::Imports;
 import lang::java::style::Metrics;
+import lang::java::style::Miscellaneous;
 import lang::java::style::NamingConventions;
 import lang::java::style::SizeViolations;
 
@@ -33,6 +34,7 @@ private set[Checker] active() = {
   codingChecks,
   importsChecks,
   metricsChecks,
+  miscellaneousChecks,
   namingConventionsChecks,
   sizeViolationsChecks
 };  
