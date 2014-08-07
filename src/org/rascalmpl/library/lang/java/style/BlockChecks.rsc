@@ -22,14 +22,14 @@ AvoidNestedBlocks	DONE
 
 data Message = blockCheck(str category, loc pos);
 
-list[Message] blockChecks(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods) {
+list[Message] blockChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
 	return 
-		  emptyBlock(ast, model, allClasses, allMethods) 
-		+ avoidNestedBlocks(ast, model, allClasses, allMethods)
+		  emptyBlock(ast, model, classDeclarations, methodDeclarations) 
+		+ avoidNestedBlocks(ast, model, classDeclarations, methodDeclarations)
 		;
 }
 
-list[Message] emptyBlock(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods) {
+list[Message] emptyBlock(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
   msgs = [];
   bool isEmpty(empty()) = true;
   bool isEmpty(block([])) = true;
@@ -75,7 +75,7 @@ list[Message] emptyBlock(node ast, M3 model, list[Declaration] allClasses, list[
 //	return [blockCheck("NestedBlock", nested@src) | /\block(body1) := ast, size(body1) > 0 , /Statement nested:block(_) := body1];
 //}
 
-list[Message] avoidNestedBlocks(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
+list[Message] avoidNestedBlocks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
 	msgs = [];
 	void checkNesting(list[Statement] stats){
 		for(stat <- stats){

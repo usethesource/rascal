@@ -22,7 +22,7 @@ import lang::java::jdt::m3::AST;
 //	}
 //}
 
-list[Declaration] getAllClasses(node ast){
+list[Declaration] getAllClassDeclarations(node ast){
 	cls = [];
 	top-down-break visit(ast){
 	  case c: \class(_, _, _, _):
@@ -31,7 +31,7 @@ list[Declaration] getAllClasses(node ast){
 	return cls;
 }
 
-list[Declaration] getAllClasses(set[node] asts){
+list[Declaration] getAllClassDeclarations(set[node] asts){
 	cls = [];
 	for(ast <- asts){
 		top-down-break visit(ast){
@@ -60,7 +60,7 @@ Declaration getClass(str name,  node ast){
 	throw "class <src> not found";
 }
 
-list[Declaration] getAllMethods(node ast){
+list[Declaration] getAllMethodDeclarations(node ast){
 	mtds = [];
 	top-down-break visit(ast){
     	case m: \method(_, _, _, _, _): 
@@ -73,7 +73,7 @@ list[Declaration] getAllMethods(node ast){
 	return mtds;
 }
 
-list[Declaration] getAllMethods(set[node] asts){
+list[Declaration] getAllMethodDeclarations(set[node] asts){
 	mtds = [];
 	for(ast <- asts){
 		top-down-break visit(ast){

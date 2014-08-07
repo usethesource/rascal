@@ -30,7 +30,7 @@ TypeName				classes and interfaces				^[A-Z][a-zA-Z0-9]*$						DONE
 
 data Message = namingConvention(str category, loc pos, str id);
 
-list[Message] namingConventionsChecks(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods) {
+list[Message] namingConventionsChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
   rel[loc name, loc src] decls = model@declarations;
   rel[loc name, Modifier modifier] modifiers = model@modifiers;
   
