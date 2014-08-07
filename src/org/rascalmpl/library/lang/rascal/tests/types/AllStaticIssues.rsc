@@ -201,8 +201,8 @@ test bool Issue471h() =
 // https://github.com/cwi-swat/rascal/issues/472
 
 test bool Issue472a() =                                                      // TODO: EmptyList()
-	checkOK("[1, /f(/g(2), _), 3] := [1, f(g(1),f(g(2),g(3),true)), 3];", 
-					initialDecls = ["f(F left, F right) | g(int N);"]);
+	checkOK("[1, /f(/g(2), _), 3] := [1, f(g(1),f(g(2),g(3))), 3];", 
+					initialDecls = ["data F = f(F left, F right) | g(int N);"]);
  
 test bool Issue472b() =
 	checkOK("[1, F outer: /f(/F inner: g(2), _), 3] := [1, f(g(1),f(g(2),g(3))), 3] && outer == f(g(1),f(g(2),g(3))) && inner == g(2);", 
