@@ -97,6 +97,10 @@ import lang::rascal::\syntax::Rascal;
 // 32. resolve deferred names in field accesses and updates, maybe in throws clauses as well
 //
 // 33. make sure statement types are computed correctly (e.g., assign results of an if)
+//
+// * Add support for keyword param type parameter instantiation in Call or Tree expressions
+//
+// * Add support for checking keyword parameter definitions that are defined in terms of other parameters
 
 public CheckResult checkStatementSequence(list[Statement] ss, Configuration c) {
 	// Introduce any functions in the statement list into the current scope, but
@@ -492,7 +496,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 	tuple[Configuration c, rel[Symbol,KeywordParamMap] matches, set[str] failures] matchFunctionAlts(Configuration c, set[Symbol] alts) {
         rel[Symbol,KeywordParamMap] matches = { };
         set[str] failureReasons = { };
-        for (a <- alts, isFunctionType(a), kpm <- ( (!isEmpty(functionKP[a])) ? functionKP[a] : { ( ) })) {
+        for (a <- alts, isFunctionType(a), KeywordParamMap kpm <- ( (!isEmpty(functionKP[a])) ? functionKP[a] : { ( ) })) {
             list[Symbol] args = getFunctionArgumentTypes(a);
             // NOTE: We cannot assume the annotation is set, since we only set it when we add a
             // function (and have the info available); we don't have the information when we only
@@ -1275,6 +1279,19 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 				return c.store[c.typeEnv[typeName]].rtype;			
 			} else {
 				return makeFailType("The type of field <fAsString>, <prettyPrintName(typeName)>, is not in scope", l);
+			}
+		} else if (fAsString == "definitions") {
+			domainName = RSimpleName("Symbol");
+			rangeName = RSimpleName("Production");
+			if (domainName in c.typeEnv && c.store[c.typeEnv[domainName]] is datatype && isADTType(c.store[c.typeEnv[domainName]].rtype) &&
+			    rangeName in c.typeEnv && c.store[c.typeEnv[rangeName]] is datatype && isADTType(c.store[c.typeEnv[rangeName]].rtype)) {
+				return makeMapType(makeADTType("Symbol"), makeADTType("Production"));
+			} else if (domainName in c.typeEnv && c.store[c.typeEnv[domainName]] is datatype && isADTType(c.store[c.typeEnv[domainName]].rtype)) {
+				return makeFailType("The type used in field <fAsString>, <prettyPrintName(rangeName)>, is not in scope", l);
+			} else if (rangeName in c.typeEnv && c.store[c.typeEnv[rangeName]] is datatype && isADTType(c.store[c.typeEnv[rangeName]].rtype)) {
+				return makeFailType("The type used in field <fAsString>, <prettyPrintName(domainName)>, is not in scope", l);
+			} else {
+				return makeFailType("Types used in field <fAsString>, <prettyPrintName(domainName)> and <prettyPrintName(rangeName)>, are not in scope", l);
 			}
 		} else {
 			return makeFailType("Field <fAsString> does not exist on type type", l);
@@ -2728,7 +2745,7 @@ data PatternTree
     | typedNameNode(RName name, loc at, Symbol rtype, int nameId)
     | mapNode(list[MapNodeInfo] mapChildren)
     | reifiedTypeNode(PatternTree s, PatternTree d)
-    | callOrTreeNode(PatternTree head, list[PatternTree] args)
+    | callOrTreeNode(PatternTree head, list[PatternTree] args, map[RName,PatternTree] keywordArgs)
     | concreteSyntaxNode(Symbol rtype, list[PatternTree] args)
     | varBecomesNode(RName name, loc at, PatternTree child, int nameId)
     | asTypeNode(Symbol rtype, PatternTree child)
@@ -2853,7 +2870,15 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Patte
     < c, pti > = extractPatternTree(p,c);
     list[PatternTree] psList = [ ];
     for (psi <- ps) { < c, psit > = extractPatternTree(psi,c); psList = psList + psit; }
-    return < c, callOrTreeNode(pti[@headPosition=true],psList)[@at = pat@\loc] >;
+
+	map[RName,PatternTree] keywordArgs = ( );
+    if ((KeywordArguments[Pattern])`<OptionalComma oc> <{KeywordArgument[Pattern] ","}+ kargs>` := keywordArguments) {
+		for (ka:(KeywordArgument[Pattern])`<Name kn> = <Pattern kp>` <- kargs) {
+			< c, ptk > = extractPatternTree(kp, c);
+			keywordArgs[convertName(kn)] = ptk;
+		}
+	}
+    return < c, callOrTreeNode(pti[@headPosition=true], psList, keywordArgs)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Name n> : <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
@@ -2947,14 +2972,19 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 				return < pt, c >;
 			}
 			
-			case callOrTreeNode(pth, ptargs) : {
+			case callOrTreeNode(pth, ptargs, kpargs) : {
 				< pth, c > = assignInitialPatternTypes(pth, c);
 				list[PatternTree] ptres = [ ];
 				for (pti <- ptargs) {
 					< pti, c > = assignInitialPatternTypes(pti, c);
 					ptres = ptres + pti;
 				}
-				pt.head = pth; pt.args = ptres;
+				kpres = ( );
+				for (kpname <- kpargs) {
+					< kptree, c > = assignInitialPatternTypes(kpargs[kpname], c);
+					kpres[kpname] = kptree;
+				}
+				pt.head = pth; pt.args = ptres; pt.keywordArgs = kpres;
 				return < pt, c >;
 			}
 			
@@ -3333,24 +3363,28 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			}
                 
     
-            case ptn:callOrTreeNode(ph,pargs) : {
+            case ptn:callOrTreeNode(ph,pargs,kpargs) : {
             	if ( (ph@rtype)? && concreteType(ph@rtype) ) {
                     if (isConstructorType(ph@rtype) || isOverloadedType(ph@rtype) || isProductionType(ph@rtype)) {
                         // default alternatives contain all possible constructors of this name
                         set[Symbol] alts = (isOverloadedType(ph@rtype)) ? (filterSet(getDefaultOverloadOptions(ph@rtype), isConstructorType) + filterSet(getDefaultOverloadOptions(ph@rtype), isProductionType)) : {ph@rtype};
                         // matches holds all the constructors that match the arity and types in the pattern
-                        set[Symbol] matches = { };
-                        set[Symbol] nonMatches = { };
+				        rel[Symbol,KeywordParamMap] matches = { };
+				        rel[Symbol,KeywordParamMap] nonMatches = { };
                         ptn@arityMismatches = { };
                         ptn@tooManyMatches = { };
                         
+					    usedItems = invert(c.uses)[ph@at];
+					    usedItems = { ui | ui <- usedItems, !(c.store[ui] is overload)} + { uii | ui <- usedItems, c.store[ui] is overload, uii <- c.store[ui].items };
+					    rel[Symbol,KeywordParamMap] constructorKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is constructor };
+
                         //if (size(pargs) == 0) {
                         //    // if we have no arguments, then all the alternatives could match
                         //    // TODO: Is this true? It seems that we can only match if the arity matches, so, disabling for now...
                         //    matches = alts;
                         //} else {
                             // filter first based on the arity of the constructor
-                            for (a <- alts) {
+                            for (a <- alts, kpm <- ( (!isEmpty(constructorKP[a])) ? constructorKP[a] : { ( ) })) {
                             	if (isConstructorType(a) && size(getConstructorArgumentTypes(a)) == size(pargs)) {
 	                                // next, find the bad matches, which are those argument positions where we have concrete
 	                                // type information and that information does not match the alternative
@@ -3379,18 +3413,50 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                                		}
 	                                	}
 	                                }
-	                                if (size(badMatches) == 0) 
-	                                    // if we had no bad matches, this is a valid alternative
-	                                    matches += a;
+	                                if (size(badMatches) == 0) {
+	                                    // if we had no bad matches, this is a valid alternative so far
+				                 		if (size(kpargs<0> - kpm<0>) > 0) {
+				                 			badMatches = badMatches + (kpargs<0> - kpm<0>);
+				                 		} else {
+				                 			for (kpname <- kpargs) {
+			                                	bool pseudoMatch = false;
+			                                	argType = kpm[kpname];
+			                                	if ((kpargs[kpname]@rtype)?) {
+			                                		if (concreteType(kpargs[kpname]@rtype)) {
+			                                			if (!subtype(kpargs[kpname]@rtype, argType)) {
+			                                				badMatches = badMatches + kpname;
+			                                			}
+			                                		} else {
+			                                			pseudoMatch = true;
+			                                		}
+			                                	} else {
+			                                		pseudoMatch = true;
+			                                	}
+			                                	
+			                                	if (pseudoMatch) {
+			                                		if (! ( (isListType(argType) && kpargs[kpname] is listNode) ||
+			                                			    (isSetType(argType) && kpargs[kpname] is setNode) ||
+			                                			    (isMapType(argType) && kpargs[kpname] is mapNode) ||
+			                                			    ( !(kpargs[kpname] is listNode || kpargs[kpname] is setNode || kpargs[kpname] is mapNode) && (!((kpargs[kpname]@rtype)?) || !(concreteType(kpargs[kpname]@rtype)))))) {
+			                                			badMatches = badMatches + idx;
+			                                		}
+			                                	}
+				                 			}
+
+											if (size(badMatches) == 0) {				                 			
+				                    			matches += < a, kpm > ;
+				                    		}
+				                    	}
+									}
                             	} else if (isProductionType(a) && size(getProductionArgumentTypes(a)) == size(pargs)) {
 	                                // next, find the bad matches, which are those argument positions where we have concrete
 	                                // type information and that information does not match the alternative
 	                                badMatches = { idx | idx <- index(pargs), (pargs[idx]@rtype)?, concreteType(pargs[idx]@rtype), !subtype(pargs[idx]@rtype, getProductionArgumentTypes(a)[idx]) };
 	                                if (size(badMatches) == 0) 
 	                                    // if we had no bad matches, this is a valid alternative
-	                                    matches += a;
+	                                    matches += < a, kpm >;
                                 } else {
-                                    nonMatches += a;
+                                    nonMatches += < a, kpm >;
                                 }
                             }
                         //}
@@ -3399,19 +3465,25 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             // Push the binding back down the tree with the information in the constructor type; if
                             // this doesn't cause errors, save the updated children back into the tree, along with
                             // the match type
-                            Symbol matchType = getOneFrom(matches);
+                            Symbol matchType = getOneFrom(matches<0>);
+                            KeywordParamMap matchParams = getOneFrom(matches<1>);
+                            KeywordParamMap justUsedParams = domainR(matchParams,kpargs<0>);
                             bool cannotInstantiate = false;
 
                             // TODO: Find a better place for this huge chunk of code!
-                            if (concreteType(matchType) && typeContainsTypeVars(matchType) && ( size(pargs) == 0 || all(idx <- index(pargs), (pargs[idx])?, concreteType(pargs[idx]@rtype)))) {
+                            if (concreteType(matchType) && (false notin { concreteType(justUsedParams[kpn]) | kpn <- justUsedParams }) && 
+                                (typeContainsTypeVars(matchType) || (true in { typeContainsTypeVars(justUsedParams[kpn]) | kpn <- justUsedParams })) && 
+                                ( size(pargs) == 0 || all(idx <- index(pargs), (pargs[idx])?, concreteType(pargs[idx]@rtype))) &&
+                                ( size(justUsedParams) == 0 || all(kpn <- justUsedParams, concreteType(kpargs[kpn]@rtype)))) {
                                 // If the constructor is parametric, we need to calculate the actual types of the
                                 // parameters and make sure they fall within the proper bounds. Note that we can only
                                 // do this when the match type is concrete and when we either have no pargs or we have
                                 // pargs that all have concrete types associated with them.
                                 formalArgs = isConstructorType(matchType) ? getConstructorArgumentTypes(matchType) : getProductionArgumentTypes(matchType);
-                                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
+                                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- (formalArgs + justUsedParams<1>) };
                                 map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
                                 unlabeledArgs = [ (\label(_,v) := li) ? v : li | li <- formalArgs ];
+                                unlabeledParams = ( kpn : (\label(_,v) := justUsedParams[kpn]) ? v : justUsedParams[kpn] | kpn <- justUsedParams );
                                 for (idx <- index(formalArgs)) {
                                     try {
                                         bindings = match(unlabeledArgs[idx],pargs[idx]@rtype,bindings);
@@ -3420,9 +3492,20 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                         cannotInstantiate = true;  
                                     }
                                 }
+                                for (kpn <- justUsedParams) {
+                                	try {
+                                		bindings = match(unlabeledParams[kpn],kpargs[kpn]@rtype,bindings);
+                                	} catch : {
+                                        insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate keyword parameter <prettyPrintName(kpn)>, parameter type <prettyPrintType(kpargs[kpn]@rtype)> violates bound of type parameter in formal argument with type <prettyPrintType(unlabeledParams[kpn])>", kpargs[kpn]@at));
+                                        cannotInstantiate = true;                                  	
+                                	}
+                                }
                                 if (!cannotInstantiate) {
                                     try {
                                         matchType = instantiate(matchType, bindings);
+                                        for (kpn <- justUsedParams) {
+                                        	unlabeledParams[kpn] = instantiate(unlabeledParams[kpn], bindings);
+                                        }
                                     } catch : {
                                         insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate type parameters in constructor", ptn@at));
                                         cannotInstantiate = true;
@@ -3432,8 +3515,10 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             
                             if (!cannotInstantiate) {
                                 list[PatternTree] newChildren = [ ];
+                                map[RName,PatternTree] newParamChildren = ( );
                                 formalArgs = isConstructorType(matchType) ? getConstructorArgumentTypes(matchType) : getProductionArgumentTypes(matchType);
                                 unlabeledArgs = [ (\label(_,v) := li) ? v : li | li <- formalArgs ];                                
+                                unlabeledParams = ( kpn : (\label(_,v) := justUsedParams[kpn]) ? v : justUsedParams[kpn] | kpn <- justUsedParams );
                                 try {
                                     for (idx <- index(pargs)) {
                                         //println("<ptn@at>: pushing down <getConstructorArgumentTypes(matchType)[idx]> for arg <pargs[idx]>");  
@@ -3443,12 +3528,21 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 } catch v : {
                                     newChildren = pargs;
                                 }
-                                insert updateRT(ptn[head=ph[@rtype=matchType]][args=newChildren], isConstructorType(matchType)?getConstructorResultType(matchType):getProductionSortType(matchType));
+                                try {
+                                	for (kpn <- justUsedParams) {
+                                		< c, newparg > = bind(kpargs[kpn], unlabeledParams[kpn], c);
+                                		newParamChildren[kpn] = newparg;
+                                	}
+                                } catch v : {
+                                	newParamChildren = kpargs;
+                                }
+                                insert updateRT(ptn[head=ph[@rtype=matchType]][args=newChildren][keywordArgs=newParamChildren], isConstructorType(matchType)?getConstructorResultType(matchType):getProductionSortType(matchType));
                             }
                         } else {
-                        	insert updateBindProblems(ptn, nonMatches, matches);
+                        	insert updateBindProblems(ptn, nonMatches<0>, matches<0>);
                         }
                     } else if (isStrType(ph@rtype)) {
+                    	// TODO: How do we handle keyword parameters for nodes? Treat them all as value?
                         list[PatternTree] newChildren = [];
                         try {
                             for(int idx <- index(pargs)) {
@@ -3496,15 +3590,15 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     }
 
     set[PatternTree] unknownConstructorFailures(PatternTree pt) {
-        return { ptih | /PatternTree pti:callOrTreeNode(PatternTree ptih,_) := pt, (ptih@rtype)?, isInferredType(ptih@rtype) };
+        return { ptih | /PatternTree pti:callOrTreeNode(PatternTree ptih,_,_) := pt, (ptih@rtype)?, isInferredType(ptih@rtype) };
     }
 
     set[PatternTree] arityFailures(PatternTree pt) {
-        return { pti | /PatternTree pti:callOrTreeNode(_,_) := pt, (pti@arityMismatches)?, size(pti@arityMismatches) > 0 };
+        return { pti | /PatternTree pti:callOrTreeNode(_,_,_) := pt, (pti@arityMismatches)?, size(pti@arityMismatches) > 0 };
     }
 
     set[PatternTree] tooManyMatchesFailures(PatternTree pt) {
-        return { pti | /PatternTree pti:callOrTreeNode(_,_) := pt, (pti@tooManyMatches)?, size(pti@tooManyMatches) > 0 };
+        return { pti | /PatternTree pti:callOrTreeNode(_,_,_) := pt, (pti@tooManyMatches)?, size(pti@tooManyMatches) > 0 };
     }
 
 	set[PatternTree] unresolved = { };
@@ -3826,7 +3920,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         	return < c, pt[s=psnew][d=pdnew] >; 
         }
         
-        case callOrTreeNode(ph, cs) : {
+        case callOrTreeNode(ph, cs, kp) : {
             Symbol currentType = pt@rtype;
             if (comparable(currentType, rt))
                 return < c, pt >;
@@ -4519,6 +4613,12 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<LocalVariableDeclaratio
     if ((LocalVariableDeclaration)`<Declarator d>` := vd || (LocalVariableDeclaration)`dynamic <Declarator d>` := vd) {
         if ((Declarator)`<Type t> <{Variable ","}+ vars>` := d) {
             < c, rt > = convertAndExpandType(t,c);
+            
+            if (isFailType(rt)) {
+            	for (fm <- getFailures(rt)) {
+            		c = addScopeMessage(c, fm);
+            	}
+            }
             
             for (v <- vars) {
                 if ((Variable)`<Name n> = <Expression init>` := v || (Variable)`<Name n>` := v) {
