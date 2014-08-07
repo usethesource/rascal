@@ -97,16 +97,13 @@ list[Message] mutableException(node ast, M3 model, list[Declaration] classDeclar
 
 list[Message] throwsCount(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
 	msgs = [];
-
-	void cntThrows(Statement body){
-		if(size([e | /e:\throw(_) := body]) > 1){
-			msgs += classDesign("ThrowsCount", body@src);
+	
+	for(m <- methodDeclarations){
+		if(size([e | /e:\throw(_) := m.impl]) > 1){
+			msgs += classDesign("ThrowsCount", m@src);
 		}
 	}
-	top-down-break visit(ast){
-		case m: \method(_, _, _, _, body):		cntThrows(body);
-    	case m: \constructor(_, _, _, body):	cntThrows(body);
-	}
+
 	return msgs;
 }
 
