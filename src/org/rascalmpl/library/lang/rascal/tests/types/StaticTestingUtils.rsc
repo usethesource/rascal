@@ -113,6 +113,11 @@ bool undeclaredVariable(str stmts, list[str] importedModules = [], list[str] ini
 		"Only constructors or productions with a different arity are available"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
+bool undeclaredType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
+	check(stmts, [
+		"Type _ not declared"
+	], importedModules=importedModules, initialDecls=initialDecls);
+
 bool undefinedField(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
 		"Field _ does not exist on type _"
