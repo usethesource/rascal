@@ -12,21 +12,32 @@ import IO;
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
 
-loc getDeclaredEntity(loc src, M3 model){
-	res = model@declarations<1,0>[src];
-	if(size(res) != 1){
-		throw "getEntity: undefined src <src>";
-	}
-	for(e <- res){
-		return e;
-	}
-}
+//loc getDeclaredEntity(loc src, M3 model){
+//	res = model@declarations<1,0>[src];
+//	if(size(res) != 1){
+//		throw "getEntity: undefined src <src>";
+//	}
+//	for(e <- res){
+//		return e;
+//	}
+//}
 
 list[Declaration] getAllClasses(node ast){
 	cls = [];
 	top-down-break visit(ast){
 	  case c: \class(_, _, _, _):
 	  		cls += c;
+	}
+	return cls;
+}
+
+list[Declaration] getAllClasses(set[node] asts){
+	cls = [];
+	for(ast <- asts){
+		top-down-break visit(ast){
+		  case c: \class(_, _, _, _):
+		  		cls += c;
+		}
 	}
 	return cls;
 }
@@ -58,6 +69,21 @@ list[Declaration] getAllMethods(node ast){
     		mtds += m;
     	case m: \constructor(_, _,  _, _):
 			mtds += m;
+	}
+	return mtds;
+}
+
+list[Declaration] getAllMethods(set[node] asts){
+	mtds = [];
+	for(ast <- asts){
+		top-down-break visit(ast){
+	    	case m: \method(_, _, _, _, _): 
+	    		mtds +=  m;
+	    	case m: \method(_, _, _, _):	
+	    		mtds += m;
+	    	case m: \constructor(_, _,  _, _):
+				mtds += m;
+		}
 	}
 	return mtds;
 }

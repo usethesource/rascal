@@ -27,16 +27,16 @@ ThrowsCount					DONE
 InnerTypeLast				TBD
 */
 
-list[Message] classDesignChecks(node ast, M3 model) {
+list[Message] classDesignChecks(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods) {
 	return
-		     visibilityModifier(ast, model)
-		   + finalClass(ast, model)
-		   + mutableException(ast, model)
-		   + throwsCount(ast, model)
+		     visibilityModifier(ast, model, allClasses, allMethods)
+		   + finalClass(ast, model, allClasses, allMethods)
+		   + mutableException(ast, model, allClasses, allMethods)
+		   + throwsCount(ast, model, allClasses, allMethods)
 		   ;
 }
 
-list[Message] visibilityModifier(node ast, M3 model){
+list[Message] visibilityModifier(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
 	modifiers = model@modifiers;
 	msgs = [];
 	
@@ -52,7 +52,7 @@ list[Message] visibilityModifier(node ast, M3 model){
 	return msgs;
 }
 
-list[Message] finalClass(node ast, M3 model){
+list[Message] finalClass(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
     modifiers = model@modifiers;
 	msgs = [];
 	bool isPrivate(loc m) = \private() in modifiers[m];
@@ -79,7 +79,7 @@ list[Message] finalClass(node ast, M3 model){
     return msgs;
 }
 
-list[Message] mutableException(node ast, M3 model){
+list[Message] mutableException(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
 	modifiers = model@modifiers;
 	msgs = [];
 	bool hasOnlyFinalFields(loc c){
@@ -87,7 +87,7 @@ list[Message] mutableException(node ast, M3 model){
 	}
 	
 	for(c <- getAllClasses(ast)){
-		if((/Exception$/ := c.name || /Error$/ := c.name) && !hasOnlyFinalFields(getDeclaredEntity(c@src, model))){ 
+		if((/Exception$/ := c.name || /Error$/ := c.name) && !hasOnlyFinalFields(c@decl /*getDeclaredEntity(c@src, model)*/)){ 
 				msgs += classDesign("MutableException", c@src);
 			}
 	}
@@ -95,7 +95,7 @@ list[Message] mutableException(node ast, M3 model){
     return msgs;
 }
 
-list[Message] throwsCount(node ast, M3 model){
+list[Message] throwsCount(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
 	msgs = [];
 
 	void cntThrows(Statement body){
