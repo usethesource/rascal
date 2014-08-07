@@ -87,3 +87,13 @@ list[Declaration] getAllMethodDeclarations(set[node] asts){
 	}
 	return mtds;
 }
+
+str packageName2String(package(str name)) = name;
+str packageName2String(package(Declaration parentPackage, str name)) = "<packageName2String(parentPackage)>.<name>";
+
+str getPackageName(node ast){
+	top-down-break visit(ast){
+		case p: \package(_):	return packageName2String(p);
+    	case p: \package(_, _):	return packageName2String(p);
+    }
+ }
