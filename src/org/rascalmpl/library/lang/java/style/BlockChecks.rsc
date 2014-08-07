@@ -71,10 +71,6 @@ list[Message] emptyBlock(node ast, M3 model, list[Declaration] classDeclarations
   return msgs;
 }
 
-//list[Message] avoidNestedBlocks(node ast, M3 model) {
-//	return [blockCheck("NestedBlock", nested@src) | /\block(body1) := ast, size(body1) > 0 , /Statement nested:block(_) := body1];
-//}
-
 list[Message] avoidNestedBlocks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
 	msgs = [];
 	void checkNesting(list[Statement] stats){

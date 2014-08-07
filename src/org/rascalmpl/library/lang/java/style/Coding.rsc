@@ -286,12 +286,12 @@ list[Message] returnCount(node ast, M3 model, list[Declaration] classDeclaration
    		 }
    		 return cnt;
 	}
-	top-down-break visit(ast){
-    	case m: \method(_, _, _, _, body): 
-    		if(countReturns(body) > limit) {
+	for(m <- methodDeclarations){
+		if(countReturns(m.impl) > limit) {
     			msgs += coding("ReturnCount", m@src);
-    		}
-	}
+    	}
+    }
+	
 	return msgs;
 }
 

@@ -63,11 +63,10 @@ list[Message] methodLength(Declaration ast, M3 model, list[Declaration] classDec
 			msgs += sizeViolation("MethodLength", ast@src);
 		}
 	}
-	
-	top-down-break visit(ast){
-    	case m: \method(_, _, list[Declaration] parameters, _, _): checkSize(m);
-    	case m: \constructor(_, _, list[Declaration] parameters, _): checkSize(m);
+	for(m <- methodDeclarations){
+		checkSize(m);
 	}
+	
 	return msgs;
 }
 
@@ -82,7 +81,7 @@ list[Message] parameterNumber(node ast, M3 model, list[Declaration] classDeclara
 	return msgs;
 }
 
-// TODO: this check should be refined er method category
+// TODO: this check should be refined per method category
 list[Message] methodCount(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
     return size([m | /m:\method(_, _, _, _, Statement impl) := ast]) > 100 ? sizeViolation("MethodCount", ast@src) : [];
 }
