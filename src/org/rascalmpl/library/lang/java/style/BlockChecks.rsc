@@ -22,14 +22,14 @@ AvoidNestedBlocks	DONE
 
 data Message = blockCheck(str category, loc pos);
 
-list[Message] blockChecks(node ast, M3 model) {
+list[Message] blockChecks(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods) {
 	return 
-		  emptyBlock(ast, model) 
-		+ avoidNestedBlocks(ast, model)
+		  emptyBlock(ast, model, allClasses, allMethods) 
+		+ avoidNestedBlocks(ast, model, allClasses, allMethods)
 		;
 }
 
-list[Message] emptyBlock(node ast, M3 model) {
+list[Message] emptyBlock(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods) {
   msgs = [];
   bool isEmpty(empty()) = true;
   bool isEmpty(block([])) = true;
@@ -75,7 +75,7 @@ list[Message] emptyBlock(node ast, M3 model) {
 //	return [blockCheck("NestedBlock", nested@src) | /\block(body1) := ast, size(body1) > 0 , /Statement nested:block(_) := body1];
 //}
 
-list[Message] avoidNestedBlocks(node ast, M3 model){
+list[Message] avoidNestedBlocks(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
 	msgs = [];
 	void checkNesting(list[Statement] stats){
 		for(stat <- stats){

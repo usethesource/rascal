@@ -27,17 +27,17 @@ OuterTypeNumber				TBD
 MethodCount					DONE
 */
 
-list[Message] sizeViolationsChecks(node ast, M3 model) {
+list[Message] sizeViolationsChecks(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods) {
 	return
-		   executableStatementCount(ast, model)
-		+  fileLength(ast, model)
-		+  methodLength(ast, model)
-		+ parameterNumber(ast, model)
+		  executableStatementCount(ast, model, allClasses, allMethods)
+		+ fileLength(ast, model, allClasses, allMethods)
+		+ methodLength(ast, model, allClasses, allMethods)
+		+ parameterNumber(ast, model, allClasses, allMethods)
 		;
 
 }
 
-list[Message] executableStatementCount(node ast, M3 model){
+list[Message] executableStatementCount(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
 	msgs = [];
 	void checkSize(Statement ast){
 		if(size([s | /Statement s := ast]) > 30){
@@ -52,11 +52,11 @@ list[Message] executableStatementCount(node ast, M3 model){
 	return msgs;
 }
 
-list[Message] fileLength(Declaration ast, M3 model){
+list[Message] fileLength(Declaration ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
 	return (ast@src.end.line > 2000) ?  sizeViolation("FileLength", ast@src) : [];
 }
 
-list[Message] methodLength(Declaration ast, M3 model){
+list[Message] methodLength(Declaration ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
 	msgs = [];
 	void checkSize(Declaration ast){
 		if(ast@src.end.line - ast@src.begin.line > 150){
@@ -71,7 +71,7 @@ list[Message] methodLength(Declaration ast, M3 model){
 	return msgs;
 }
 
-list[Message] parameterNumber(node ast, M3 model){
+list[Message] parameterNumber(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
 	msgs = [];
 	
 	for(m <- getAllMethods(ast)){
@@ -83,6 +83,6 @@ list[Message] parameterNumber(node ast, M3 model){
 }
 
 // TODO: this check should be refined er method category
-list[Message] methodCount(node ast, M3 model){
+list[Message] methodCount(node ast, M3 model, list[Declaration] allClasses, list[Declaration] allMethods){
     return size([m | /m:\method(_, _, _, _, Statement impl) := ast]) > 100 ? sizeViolation("MethodCount", ast@src) : [];
 }
