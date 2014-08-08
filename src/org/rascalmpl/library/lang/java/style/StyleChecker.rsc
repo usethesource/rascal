@@ -88,17 +88,22 @@ test bool precision() {
        cscm = index({ <cat, mc.begin.line> | <mc,cat> <- csm[path]});
        
        for (cat <- racm) {
-         if (cat in cscm, <sl, el> <- racm[cat], l <- cscm[cat], l >= sl && l <= el) {
-            println("match found: <cat>, <path>, <l>");
-            break;
+         if (cat notin cscm) {
+            println("category not found by checkstyle: <cat>, <path>, <racm[cat]>");
+            break;          
          }
-         else {
-            println("not found by checkstyle: <cat>, <path>, <racm[cat]>");          
+         
+         for (<sl, el> <- racm[cat], !any(l <- cscm[cat], l >= sl && l <= el)) {
+            println("line number not matched by checkstyle: <cat>, <path>, <racm[cat]>");
+         }
+         
+         for (cat in cscm, <sl, el> <- racm[cat], l <- cscm[cat], l >= sl && l <= el) {
+            println("match found: <cat>, <path>, <l>");
          }
        }
     }
     else {
-       println("not found by checkstyle: <ram[path]>");
+       println("path not found by checkstyle: <path> : <ram[path]>");
     }
   }
   
