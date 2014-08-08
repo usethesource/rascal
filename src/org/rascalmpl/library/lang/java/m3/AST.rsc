@@ -7,6 +7,8 @@ extend analysis::m3::AST;
 import util::FileSystem;
 import lang::java::m3::TypeSymbol;
 import IO;
+import Set;
+import String;
  
 data Declaration
     = \compilationUnit(list[Declaration] imports, list[Declaration] types)
@@ -148,6 +150,7 @@ data Modifier
     | \onDemand()
     ;
 
+@memo
 set[loc] getPaths(loc dir, str suffix) { 
    bool containsFile(loc d) = isDirectory(d) ? (x <- d.ls && x.extension == suffix) : false;
    return find(dir, containsFile);
@@ -157,8 +160,20 @@ set[loc] getPaths(loc dir, str suffix) {
 @reflect
 java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
 
-void setEnvironmentOptions(loc directory) {
-    setEnvironmentOptions(getPaths(directory, "class") + find(directory, "jar"), getPaths(directory, "java"));
+@memo
+set[loc] findRoots(loc project, set[loc] allPaths) {
+  set[loc] result = {};
+  while (!isEmpty(allPaths)) {
+    loc oneLoc = getOneFrom(allPaths);
+    allPaths -= oneLoc;
+    loc parent = project + replaceLast(oneLoc.path, "/" + oneLoc.file, "");
+    if (parent != project && parent != project+"/") {
+      allPaths += parent;
+    } else {
+      result += oneLoc;
+    }
+  }
+  return result;
 }
       
 @doc{
@@ -179,6 +194,8 @@ public java Declaration createAstFromString(loc fileName, str source, bool colle
 
 @doc{Creates ASTs from a project}
 public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, str javaVersion = "1.7" ) {
-   setEnvironmentOptions(project);
-   return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | loc f <- find(project, "java") };
+   classPaths = getPaths(project, "class") + find(project, "jar");
+   sourcePaths = getPaths(project, "java");
+   setEnvironmentOptions(classPaths, findRoots(project, sourcePaths));
+   return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | sp <- sourcePaths, loc f <- find(sp, "java") };
 }
