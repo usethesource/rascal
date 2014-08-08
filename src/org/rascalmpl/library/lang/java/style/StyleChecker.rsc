@@ -82,28 +82,28 @@ test bool precision() {
   csm = index({< path, mc> | mc:<l,_> <- cs, /.*src\/<path:.*>$/ := l.path});
   
   
-  for (path <- ram) {
+  for (path <- ram, bprintln("for file <path>")) {
     if (path in csm) {
        racm = index({<mr.category, <mr.pos.begin.line, mr.pos.end.line>> | mr <- ram[path]});
        cscm = index({ <cat, mc.begin.line> | <mc,cat> <- csm[path]});
        
-       for (cat <- racm) {
+       for (cat <- racm, bprintln("  for category <cat>")) {
          if (cat notin cscm) {
-            println("category not found by checkstyle: <cat>, <path>, <racm[cat]>");
+            println("    category not found by checkstyle: <cat>, <path>, <racm[cat]>");
             break;          
          }
          
          for (<sl, el> <- racm[cat], !any(l <- cscm[cat], l >= sl && l <= el)) {
-            println("line number not matched by checkstyle: <cat>, <path>, <racm[cat]>");
+            println("    line number not matched by checkstyle: <cat>, <path>, <racm[cat]>");
          }
          
          for (cat in cscm, <sl, el> <- racm[cat], l <- cscm[cat], l >= sl && l <= el) {
-            println("match found: <cat>, <path>, <l>");
+            println("    match found: <cat>, <path>, <l>");
          }
        }
     }
     else {
-       println("path not found by checkstyle: <path> : <ram[path]>");
+       println("  path not found by checkstyle: <path> : <ram[path]>");
     }
   }
   
