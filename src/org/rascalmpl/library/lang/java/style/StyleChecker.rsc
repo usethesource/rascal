@@ -60,3 +60,23 @@ list[Message] main(loc dir = |project://java-checkstyle-tests|){
   return styleChecker(m3model, asts, checkers = active());
 } 
 
+// temporary functions for regression testing with checkstyle
+
+test bool compare() {
+  msgs = main();
+  report = getCheckStyleMessages();
+  
+}
+
+rel[loc, str] getCheckStyleMessages(loc checkStyleXmlOutput = |project://java-checkstyle-tests/lib/output.xml|) {
+   txt = readFile(checkStyleXmlOutput);
+   dom = parseXMLDOM(txt);
+   r =  { <|file:///<fname>|(0,0,<toInt(l),0>,<toInt(l),0>), ch> 
+        | /element(_, "file", cs:[*_,attribute(_,"name", fname),*_]) := dom
+        , /e:element(_, "error", as) := cs
+        , {*_,attribute(_, "source", /^.*\.<ch:[A-Za-z]*>Check$/), attribute(_,"line", l)} := {*as}
+        };
+   return r;
+}
+
+
