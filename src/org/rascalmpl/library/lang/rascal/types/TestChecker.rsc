@@ -225,13 +225,17 @@ public map[RName,Symbol] getPatternVariables(Configuration c) {
 
 public set[Message] getFailureMessages(CheckResult r) {
    if(failure(set[Message] msgs) := r.res){
-      return msgs;
+      return msgs + getErrorMessages(r);
    }	  
-   return {};
+   return getErrorMessages(r);
+}
+
+public set[Message] getErrorMessages(CheckResult r){
+  return { m | m <- r.conf.messages, m is error };
 }
 
 public set[Message] getWarningMessages(CheckResult r){
-  return r.conf.messages;
+  return { m | m <- r.conf.messages, m is warning };
 }
 
 public set[Message] getAllMessages(CheckResult r) = getFailureMessages(r) + getWarningMessages(r);
