@@ -50,10 +50,8 @@ list[Message] redundantImport(Declaration ast, M3 model, list[Declaration] class
 	packageName = getPackageName(ast);
    
 	imported = [ imp | /Declaration imp: \import(str name) := ast];
-	println("redundantImport: <ast@src>");
 	
 	for(imp: \import(str name) <- imported){
-	println("redundantImport: <name>, <imported>");
 		if(indexOf(imported, name) != lastIndexOf(imported, name)){
 			msgs += imports("RedundantImport", imp@src);
 		} else

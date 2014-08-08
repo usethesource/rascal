@@ -838,6 +838,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             failures += makeFailType("Expected 4 arguments: int, int, tuple[int,int], and tuple[int,int]", exp@\loc); 
         }
         
+        if (size(kl) > 0) {
+        	failures += makeFailType("Cannot pass keyword parameters as part of creating a location", exp@\loc);
+        }
+        
         if (size(failures) > 0)
             return markLocationFailed(c,exp@\loc,failures);
         else
@@ -3544,14 +3548,21 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                     } else if (isStrType(ph@rtype)) {
                     	// TODO: How do we handle keyword parameters for nodes? Treat them all as value?
                         list[PatternTree] newChildren = [];
+                        map[RName,PatternTree] newKPChildren = ( );
                         try {
                             for(int idx <- index(pargs)) {
                                 <c, newarg> = bind(pargs[idx],Symbol::\value(),c);
+                                newChildren += newarg;
+                            }
+                            for (kpname <- kpargs) {
+                            	< c, newarg > = bind(kpargs[kpname],Symbol::\value(),c);
+                            	newKPChildren[kpname] = newarg;
                             }
                         } catch v : {
                             newChildren = pargs;
+                            newKPChildren = kpargs;
                         }
-                        insert updateRT(ptn[args=newChildren], \node());
+                        insert updateRT(ptn[args=newChildren][keywordArgs=newKPChildren], \node());
                     }
                 }
             }       
