@@ -45,7 +45,7 @@ list[Message] unCommentedMain(node ast, M3 model, list[Declaration] classDeclara
 // model@containment<1,0>)[ast@decl] is ambiguous!
 
 list[Message] outerTypeFilename(Declaration ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) =
-    [miscellaneous("outerTypeFilename", innerDecl)  | innerDecl <- (model@containment)[ast@decl] , 
+    [miscellaneous("OuterTypeFilename", innerDecl)  | innerDecl <- (model@containment)[ast@decl] , 
     											  \public() in model@modifiers[innerDecl],
 												  !endsWith(ast@decl.path[..-5], innerDecl.path) ];
 

@@ -99,7 +99,7 @@ test bool precision() {
           'Checkstyle generated <size(checkstyleCategories)> different categories.
           '<if (size(missingCategories) > 0) {>and these <size(missingCategories)> are missing from checkstyle:
           '  <sort(missingCategories)>
-          '  (compare to <sort(checkstyleCategories)>)<}>
+          '  (compare to <sort(checkstyleCategories - rascalCategories)>)<}>
           '");   
   
   // filter for common files and report per file
