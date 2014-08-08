@@ -5,6 +5,7 @@ import lang::java::m3::Core;
 import lang::java::m3::AST;
 import Message;
 import String;
+import List;
 
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
@@ -21,50 +22,68 @@ AvoidNestedBlocks	DONE
 
 data Message = blockCheck(str category, loc pos);
 
-list[Message] blockChecks(node ast, M3 model) {
-	return emptyBlock(ast, model) + avoidNestedBlocks(ast, model);
+list[Message] blockChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
+	return 
+		  emptyBlock(ast, model, classDeclarations, methodDeclarations) 
+		+ avoidNestedBlocks(ast, model, classDeclarations, methodDeclarations)
+		;
 }
 
-list[Message] emptyBlock(node ast, M3 model) {
+list[Message] emptyBlock(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
   msgs = [];
   bool isEmpty(empty()) = true;
   bool isEmpty(block([])) = true;
   default bool isEmpty(Statement _) = false;
   
-  void check(str category, Statement parent, Statement body) {
+  void check(str category, Statement body) {
   	if(isEmpty(body)){
-  			msgs += blockCheck("emptyCatchBlock", parent@src);
+  			msgs += blockCheck(category, body@src);
   		}
   }
   
-  visit(ast){
+  top-down-break visit(ast){
   	
-  	case a: \catch(_, body):	check("emptyCatchBlock", a, body); 
+  	case a: \catch(_, body):	check("EmptyCatchBlock", body); 
   		
-  	case a : \do(body, _):		check("emptyDoBlock", a, body);
-  	case a : \while(_, body):	check("emptyWhileBlock", a, body);
+  	case a : \do(body, _):		check("EmptyDoBlock", body);
+  	case a : \while(_, body):	check("EmptyWhileBlock", body);
+  	case a : \for(_, _, _, Statement body) :
+  								check("EmptyForBlock", body);
   	case a : \for(_, _, Statement body) :
-  								check("emptyForBlock", a, body);
+  								check("EmptyForBlock", body);
   	case a : \if(_, Statement thenBranch):
-  								check("emptyThenBlock", a, thenBranch); 
+  								check("EmptyThenBlock", thenBranch); 
   	case a : \if(_, Statement thenBranch, Statement elseBranch): {
-  								check("emptyThenBlock", a, thenBranch);
-  								check("emptyElseBlock", a, elseBranch);
+  								check("EmptyThenBlock", thenBranch);
+  								check("EmptyElseBlock", elseBranch);
   								}
   	case a: \try(Statement body, _):
-  								check("emptyTryBlock", a, body);
+  								check("EmptyTryBlock", body);
  
   	case a : \try(body, _, Statement \finally) : {
-  								check("emptyTryBlock", a, body);
-  								check("emptyFinallyBlock", a, \finally);
+  								check("EmptyTryBlock", body);
+  								check("EmptyFinallyBlock", \finally);
   								}
   	case a : \initializer(Statement initializerBody):
-  								check("emptyInitializerBlock", a, initializerBody);
+  								check("EmptyInitializerBlock", initializerBody);
   }
 
   return msgs;
 }
 
-list[Message] avoidNestedBlocks(node ast, M3 model) {
-	return [blockCheck("nestedBlock", a@src) | /a:\block(_,body1) := ast, /block(_) := body1];
+list[Message] avoidNestedBlocks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+	msgs = [];
+	void checkNesting(list[Statement] stats){
+		for(stat <- stats){
+			if(block(body1) := stat && /nested:\block(body1) := stat){
+				msgs +=blockCheck("NestedBlock", nested@src);
+			}
+		}
+	}
+	top-down-break visit(ast){
+		case \initializer(block(stats)): 			checkNesting(stats);
+    	case \method(_, _, _, _, block(stats)):		checkNesting(stats);
+    	case \constructor(_, _, _, block(stats)): 	checkNesting(stats);
+	}
+	return msgs;
 }

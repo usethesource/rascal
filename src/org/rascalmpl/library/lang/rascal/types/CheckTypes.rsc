@@ -18,7 +18,6 @@ import Map;
 import ParseTree;
 import Message;
 import Node;
-//import Type;
 import Relation;
 import util::Reflective;
 import DateTime;
@@ -98,6 +97,10 @@ import lang::rascal::\syntax::Rascal;
 // 32. resolve deferred names in field accesses and updates, maybe in throws clauses as well
 //
 // 33. make sure statement types are computed correctly (e.g., assign results of an if)
+//
+// * Add support for keyword param type parameter instantiation in Call or Tree expressions
+//
+// * Add support for checking keyword parameter definitions that are defined in terms of other parameters
 
 public CheckResult checkStatementSequence(list[Statement] ss, Configuration c) {
 	// Introduce any functions in the statement list into the current scope, but
@@ -380,6 +383,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     
     list[Expression] epsList = [ epsi | epsi <- eps ];
     < c, t1 > = checkExp(e, c);
+    
+    usedItems = invert(c.uses)[e@\loc];
+    usedItems = { ui | ui <- usedItems, !(c.store[ui] is overload)} + { uii | ui <- usedItems, c.store[ui] is overload, uii <- c.store[ui].items };
+    rel[Symbol,KeywordParamMap] functionKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is function };
+    rel[Symbol,KeywordParamMap] constructorKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is constructor };
+     
     if (isFailType(t1)) failures += t1;
     list[Symbol] tl = [];
     for (ep <- eps) { 
@@ -388,13 +397,28 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         if (isFailType(t2)) failures += t2; 
     }
     
+    KeywordParamMap kl = ( );
+    if ((KeywordArguments[Expression])`<OptionalComma oc> <{KeywordArgument[Expression] ","}+ kargs>` := keywordArguments) {
+		for (ka:(KeywordArgument[Expression])`<Name kn> = <Expression ke>` <- kargs) {
+			< c, t3 > = checkExp(ke, c);
+	        if (isFailType(t3)) failures += t3;
+	         
+			knr = convertName(kn);
+			if (knr notin kl) {
+				kl[knr] = t3;
+			} else {
+				c = addScopeError(c,"Cannot use keyword parameter <prettyPrintName(knr)> more than once",ka@\loc);
+			}
+		}
+    }
+		
     // If we have any failures, either in the head or in the arguments,
     // we aren't going to be able to match, so filter these cases out
     // here
     if (size(failures) > 0)
         return markLocationFailed(c, exp@\loc, failures);
     
- 	tuple[Symbol, bool, Configuration] instantiateFunctionTypeArgs(Configuration c, Symbol targetType) {
+ 	tuple[Symbol, KeywordParamMap, bool, Configuration] instantiateFunctionTypeArgs(Configuration c, Symbol targetType, KeywordParamMap kpm) {
 		// If the function is parametric, we need to calculate the actual types of the
     	// parameters and make sure they fall within the proper bounds.
     	formalArgs = getFunctionArgumentTypes(targetType);
@@ -436,6 +460,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				}
 			}
     	}
+    	for (kn <- kpm) {
+    		try {
+    			bindings = match(kpm[kn], kl[kn], bindings);
+    		} catch : {
+    			canInstantiate = false;
+    		}
+    	}
     	// Based on the above, either give an error message (if we could not match the function's parameter types) or
     	// try to instantiate the entire function type. The instantiation should only fail if we cannot instantiate
     	// the return type correctly, for instance if the instantiation would violate the bounds.
@@ -448,7 +479,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             	canInstantiate = false;
         	}
     	}
-    	return < targetType, canInstantiate, c >;	
+    	return < targetType, kpm, canInstantiate, c >;	
 	}
 	
 	// Special handling for overloads -- if we have an overload, at least one of the overload options
@@ -462,41 +493,55 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 		}		
 	}
 	
-	tuple[Configuration c, set[Symbol] matches, set[str] failures] matchFunctionAlts(Configuration c, set[Symbol] alts) {
-        set[Symbol] matches = { };
+	tuple[Configuration c, rel[Symbol,KeywordParamMap] matches, set[str] failures] matchFunctionAlts(Configuration c, set[Symbol] alts) {
+        rel[Symbol,KeywordParamMap] matches = { };
         set[str] failureReasons = { };
-        for (a <- alts, isFunctionType(a)) {
+        for (a <- alts, isFunctionType(a), KeywordParamMap kpm <- ( (!isEmpty(functionKP[a])) ? functionKP[a] : { ( ) })) {
             list[Symbol] args = getFunctionArgumentTypes(a);
             // NOTE: We cannot assume the annotation is set, since we only set it when we add a
             // function (and have the info available); we don't have the information when we only
             // have a function type, such as with a function parameter.
             bool varArgs = ( ((a@isVarArgs)?) ? a@isVarArgs : false );
             if (!varArgs) {
-                if (size(epsList) == size(args) && size(epsList) == 0) {
-                    matches += a;
-                } else if (size(epsList) == size(args)) {
+                //if (size(epsList) == size(args) && size(epsList) == 0) {
+                //    matches += a;
+                //} else 
+                if (size(epsList) == size(args)) {
 					if (typeContainsTypeVars(a)) {
-        				< instantiated, b, c > = instantiateFunctionTypeArgs(c, a);
+        				< instantiated, instantiatedKP, b, c > = instantiateFunctionTypeArgs(c, a, kpm);
         				if (!b) {
         					failureReasons += "Could not instantiate type variables in type <prettyPrintType(a)> with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
         					continue;
         				}
         				args = getFunctionArgumentTypes(instantiated);
+        				kpm = instantiatedKP;
         			}
-                 	if (false notin { subtypeOrOverload(tl[idx],args[idx]) | (idx <- index(epsList)) })
-                    	matches += a;
-                    else
+                 	if (false notin { subtypeOrOverload(tl[idx],args[idx]) | (idx <- index(epsList)) }) {
+                 		if (size(kl<0> - kpm<0>) > 0) {
+                 			failureReasons += "Unknown keyword parameters passed: <intercalate(",",[prettyPrintName(kpname)|kpname<-(kl<0>-kpm<0>)])>";
+                 		} else {
+                 			kpFailures = { kpname | kpname <- kl<0>, !subtypeOrOverload(kl[kpname],kpm[kpname]) };
+                 			if (size(kpFailures) > 0) {
+                 				for (kpname <- kpFailures) {
+                 					failureReasons += "Keyword parameter of type <prettyPrintType(kpm[kpname])> cannot be assigned argument of type <prettyPrintType(kl[kpname])>";
+                 				}
+                 			} else {
+                    			matches += < a, kpm > ;
+                    		}
+                    	} 
+                    } else {
                     	failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                    }
                 } else {
                     failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
                 }
             } else {
                 if (size(epsList) >= size(args)-1) {
                     if (size(epsList) == 0) {
-                        matches += a;
+                        matches += < a, kpm >;
                     } else {
 						if (typeContainsTypeVars(a) && size(args)-1 <= size(tl)) {
-    	    				< instantiated, b, c > = instantiateFunctionTypeArgs(c, a);
+    	    				< instantiated, instantiatedKP, b, c > = instantiateFunctionTypeArgs(c, a, kpm);
 	        				if (!b) {
 	        					failureReasons += "Could not instantiate type variables in type <prettyPrintType(a)> with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
 	        					continue;
@@ -511,12 +556,19 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                         list[Symbol] fixedArgs = head(args,size(args)-1);
                         Symbol varArgsType = getListElementType(last(args));
                         if (size(fixedPart) == 0 || all(idx <- index(fixedPart), subtypeOrOverload(fixedPart[idx],fixedArgs[idx]))) {
-                            if (size(varPart) == 0) {
-                                matches += a;
-                            } else if (size(varPart) == 1 && subtypeOrOverload(varPart[0],last(args))) {
-                                matches += a;
-                            } else if (all(idx2 <- index(varPart),subtypeOrOverload(varPart[idx2],varArgsType))) {
-                                matches += a;
+                            if ( (size(varPart) == 0 ) || (size(varPart) == 1 && subtypeOrOverload(varPart[0],last(args))) || (all(idx2 <- index(varPart),subtypeOrOverload(varPart[idx2],varArgsType))) ) {
+		                 		if (size(kl<0> - kpm<0>) > 0) {
+		                 			failureReasons += "Unknown keyword parameters passed: <intercalate(",",[prettyPrintName(kpname)|kpname<-(kl<0>-kpm<0>)])>";
+		                 		} else {
+		                 			kpFailures = { kpname | kpname <- kl<0>, !subtypeOrOverload(kl[kpname],kpm[kpname]) };
+		                 			if (size(kpFailures) > 0) {
+		                 				for (kpname <- kpFailures) {
+		                 					failureReasons += "Keyword parameter of type <prettyPrintType(kpm[kpname])> cannot be assigned argument of type <prettyPrintType(kl[kpname])>";
+		                 				}
+		                 			} else {
+		                    			matches += < a, kpm > ;
+		                    		}
+		                    	}
                             } else {
                                 failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
                             }
@@ -533,15 +585,24 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         return < c, matches, failureReasons >;
     }
     
-   tuple[Configuration c, set[Symbol] matches, set[str] failures] matchConstructorAlts(Configuration c, set[Symbol] alts) {
-        set[Symbol] matches = { };
+   tuple[Configuration c, rel[Symbol,KeywordParamMap] matches, set[str] failures] matchConstructorAlts(Configuration c, set[Symbol] alts) {
+        rel[Symbol,KeywordParamMap] matches = { };
         set[str] failureReasons = { };
-        for (a <- alts, isConstructorType(a)) {
+        for (a <- alts, isConstructorType(a), kpm <- ( (!isEmpty(constructorKP[a])) ? constructorKP[a] : { ( ) })) {
             list[Symbol] args = getConstructorArgumentTypes(a);
-            if (size(epsList) == size(args) && size(epsList) == 0) {
-                matches += a;
-            } else if (size(epsList) == size(args) && false notin { subtype(tl[idx],args[idx]) | idx <- index(epsList) }) {
-                matches += a;
+            if ( (size(epsList) == size(args) && size(epsList) == 0) || (size(epsList) == size(args) && false notin { subtype(tl[idx],args[idx]) | idx <- index(epsList) }) ) {
+	     		if (size(kl<0> - kpm<0>) > 0) {
+	     			failureReasons += "Unknown keyword parameters passed: <intercalate(",",[prettyPrintName(kpname)|kpname<-(kl<0>-kpm<0>)])>";
+	     		} else {
+	     			kpFailures = { kpname | kpname <- kl<0>, !subtypeOrOverload(kl[kpname],kpm[kpname]) };
+	     			if (size(kpFailures) > 0) {
+	     				for (kpname <- kpFailures) {
+	     					failureReasons += "Keyword parameter of type <prettyPrintType(kpm[kpname])> cannot be assigned argument of type <prettyPrintType(kl[kpname])>";
+	     				}
+	     			} else {
+	        			matches += < a, kpm > ;
+	        		}
+	        	}
             } else {
                 failureReasons += "Constructor of type <prettyPrintType(a)> cannot be built with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
             }
@@ -577,10 +638,14 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         set[Symbol] alts     = isFunctionType(t1) ? {t1} : ( (isConstructorType(t1) || isProductionType(t1)) ? {  } : getNonDefaultOverloadOptions(t1) );
         set[Symbol] defaults = isFunctionType(t1) ? {  } : ( (isConstructorType(t1) || isProductionType(t1)) ? {t1} : getDefaultOverloadOptions(t1) );
         
-        < c, nonDefaultFunctionMatches, nonDefaultFunctionFailureReasons > = matchFunctionAlts(c, alts);
-        < c, defaultFunctionMatches, defaultFunctionFailureReasons > = matchFunctionAlts(c, defaults);
-        < c, constructorMatches, constructorFailureReasons > = matchConstructorAlts(c, defaults);
+        < c, nonDefaultFunctionMatchesWithKP, nonDefaultFunctionFailureReasons > = matchFunctionAlts(c, alts);
+        < c, defaultFunctionMatchesWithKP, defaultFunctionFailureReasons > = matchFunctionAlts(c, defaults);
+        < c, constructorMatchesWithKP, constructorFailureReasons > = matchConstructorAlts(c, defaults);
         < c, productionMatches, productionFailureReasons > = matchProductionAlts(c, defaults);
+
+        set[Symbol] nonDefaultFunctionMatches = nonDefaultFunctionMatchesWithKP<0>;
+        set[Symbol] defaultFunctionMatches = defaultFunctionMatchesWithKP<0>;
+        set[Symbol] constructorMatches = constructorMatchesWithKP<0>;
         
         if (size(nonDefaultFunctionMatches + defaultFunctionMatches + constructorMatches + productionMatches) == 0) {
             return markLocationFailed(c,exp@\loc,{makeFailType(reason,exp@\loc) | reason <- (nonDefaultFunctionFailureReasons + defaultFunctionFailureReasons + constructorFailureReasons + productionFailureReasons)});
@@ -604,6 +669,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         bool cannotInstantiateFunction = false;
         bool cannotInstantiateConstructor = false;
         
+        // TODO: The above code checks keyword parameters; they need to be properly instantiated below
+        // in case they are parametric.
         if (size(nonDefaultFunctionMatches + defaultFunctionMatches) > 0) {
             rts = nonDefaultFunctionMatches + defaultFunctionMatches;
             for(rt <- rts) {
@@ -611,7 +678,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             	isInNonDefaults = rt in nonDefaultFunctionMatches;
             	
             	if (typeContainsTypeVars(rt)) {
-					< rt, canInstantiate, c > = instantiateFunctionTypeArgs(c, rt);
+            		// TODO: Need to get back valid params here...
+					< rt, instantiatedKP, canInstantiate, c > = instantiateFunctionTypeArgs(c, rt, ());
 					cannotInstantiateFunction = !canInstantiate;
 					if(isInDefaults) {
 						finalDefaultMatches += rt;
@@ -768,6 +836,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             }           
         } else {
             failures += makeFailType("Expected 4 arguments: int, int, tuple[int,int], and tuple[int,int]", exp@\loc); 
+        }
+        
+        if (size(kl) > 0) {
+        	failures += makeFailType("Cannot pass keyword parameters as part of creating a location", exp@\loc);
         }
         
         if (size(failures) > 0)
@@ -1211,6 +1283,19 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 				return c.store[c.typeEnv[typeName]].rtype;			
 			} else {
 				return makeFailType("The type of field <fAsString>, <prettyPrintName(typeName)>, is not in scope", l);
+			}
+		} else if (fAsString == "definitions") {
+			domainName = RSimpleName("Symbol");
+			rangeName = RSimpleName("Production");
+			if (domainName in c.typeEnv && c.store[c.typeEnv[domainName]] is datatype && isADTType(c.store[c.typeEnv[domainName]].rtype) &&
+			    rangeName in c.typeEnv && c.store[c.typeEnv[rangeName]] is datatype && isADTType(c.store[c.typeEnv[rangeName]].rtype)) {
+				return makeMapType(makeADTType("Symbol"), makeADTType("Production"));
+			} else if (domainName in c.typeEnv && c.store[c.typeEnv[domainName]] is datatype && isADTType(c.store[c.typeEnv[domainName]].rtype)) {
+				return makeFailType("The type used in field <fAsString>, <prettyPrintName(rangeName)>, is not in scope", l);
+			} else if (rangeName in c.typeEnv && c.store[c.typeEnv[rangeName]] is datatype && isADTType(c.store[c.typeEnv[rangeName]].rtype)) {
+				return makeFailType("The type used in field <fAsString>, <prettyPrintName(domainName)>, is not in scope", l);
+			} else {
+				return makeFailType("Types used in field <fAsString>, <prettyPrintName(domainName)> and <prettyPrintName(rangeName)>, are not in scope", l);
 			}
 		} else {
 			return makeFailType("Field <fAsString> does not exist on type type", l);
@@ -2642,35 +2727,35 @@ public tuple[Configuration,RName,Symbol] checkKeywordFormal(KeywordFormal kf: (K
 }
 
 @doc{Defs and uses of names; allows marking them while still keeping them in the same list or set.}
-data DefOrUse = def(RName name) | use(RName name);
+data DefOrUse = def(RName name, int nameId) | use(RName name, int nameId);
 
-data LiteralNodeInfo = literalNodeInfo(DefOrUse,loc);
-data MapNodeInfo = mapNodeInfo(PatternTree,PatternTree);
+data LiteralNodeInfo = literalNodeInfo(DefOrUse dOrU, loc at);
+data MapNodeInfo = mapNodeInfo(PatternTree dtree, PatternTree rtree);
 
 @doc{A compact representation of patterns}
 data PatternTree 
     = setNode(list[PatternTree] children)
     | listNode(list[PatternTree] children)
-    | nameNode(RName name)
-    | multiNameNode(RName name)
-    | spliceNodePlus(RName name)
-    | spliceNodePlus(RName name, loc at, Symbol rtype)
-    | spliceNodeStar(RName name)
-    | spliceNodeStar(RName name, loc at, Symbol rtype)
+    | nameNode(RName name, int nameId)
+    | multiNameNode(RName name, int nameId)
+    | spliceNodePlus(RName name, int nameId)
+    | spliceNodePlus(RName name, loc at, Symbol rtype, int nameId)
+    | spliceNodeStar(RName name, int nameId)
+    | spliceNodeStar(RName name, loc at, Symbol rtype, int nameId)
     | negativeNode(PatternTree child)
     | literalNode(Symbol rtype)
     | literalNode(list[LiteralNodeInfo] names)
     | tupleNode(list[PatternTree] children)
-    | typedNameNode(RName name, loc at, Symbol rtype)
+    | typedNameNode(RName name, loc at, Symbol rtype, int nameId)
     | mapNode(list[MapNodeInfo] mapChildren)
     | reifiedTypeNode(PatternTree s, PatternTree d)
-    | callOrTreeNode(PatternTree head, list[PatternTree] args)
+    | callOrTreeNode(PatternTree head, list[PatternTree] args, map[RName,PatternTree] keywordArgs)
     | concreteSyntaxNode(Symbol rtype, list[PatternTree] args)
-    | varBecomesNode(RName name, loc at, PatternTree child)
+    | varBecomesNode(RName name, loc at, PatternTree child, int nameId)
     | asTypeNode(Symbol rtype, PatternTree child)
     | deepNode(PatternTree child)
     | antiNode(PatternTree child)
-    | tvarBecomesNode(Symbol rtype, RName name, loc at, PatternTree child)
+    | tvarBecomesNode(Symbol rtype, RName name, loc at, PatternTree child, int nameId)
     ;
     
 @doc{Mark pattern trees with the source location of the pattern}
@@ -2691,24 +2776,24 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`[ <{Pattern ","}* ps>
     return < c, listNode(tpList)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<QualifiedName qn>`, Configuration c) {
-    return < c, nameNode(convertName(qn))[@at = pat@\loc] >;
+    return < c, nameNode(convertName(qn), 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<QualifiedName qn>*`, Configuration c) {
-    return < c, multiNameNode(convertName(qn))[@at = pat@\loc] >;
+    return < c, multiNameNode(convertName(qn), 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`* <QualifiedName qn>`, Configuration c) {
-    return < c, spliceNodeStar(convertName(qn))[@at = pat@\loc] >;
+    return < c, spliceNodeStar(convertName(qn), 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`* <Type t> <Name n>`, Configuration c) {
     < c, rt > = convertAndExpandType(t,c);
-    return < c, spliceNodeStar(convertName(n), n@\loc, rt)[@at = pat@\loc] >;
+    return < c, spliceNodeStar(convertName(n), n@\loc, rt, 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`+ <QualifiedName qn>`, Configuration c) {
-    return < c, spliceNodePlus(convertName(qn))[@at = pat@\loc] >;
+    return < c, spliceNodePlus(convertName(qn), 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`+ <Type t> <Name n>`, Configuration c) {
     < c, rt > = convertAndExpandType(t,c);
-    return < c, spliceNodePlus(convertName(n), n@\loc, rt)[@at = pat@\loc] >;
+    return < c, spliceNodePlus(convertName(n), n@\loc, rt, 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`- <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
@@ -2734,11 +2819,11 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<RegExpLiteral rl>`, 
         
     top-down visit(rl) {
         case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_],_),list[Tree] prds) : 
-        	names += literalNodeInfo(use(convertName(prds[1])), prds[1]@\loc );
+        	names += literalNodeInfo(use(convertName(prds[1]),0), prds[1]@\loc );
         case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_,_,_],_),list[Tree] prds) : 
-        	names += literalNodeInfo(def(convertName(prds[1])), prds[1]@\loc);
+        	names += literalNodeInfo(def(convertName(prds[1]),0), prds[1]@\loc);
         case \appl(\prod(lex("NamedRegExp"),[_,\lex("Name"),_],_),list[Tree] prds) : 
-        	names += literalNodeInfo(use(convertName(prds[1])), prds[1]@\loc);
+        	names += literalNodeInfo(use(convertName(prds[1]),0), prds[1]@\loc);
     }
     
     return < c, literalNode(names)[@at = pat@\loc] >;
@@ -2759,7 +2844,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`\< <Pattern p1>, <{Pa
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Type t> <Name n>`, Configuration c) {
     < c, rt > = convertAndExpandType(t,c);
-    return < c, typedNameNode(convertName(n), n@\loc, rt)[@at = pat@\loc] >;
+    return < c, typedNameNode(convertName(n), n@\loc, rt, 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`( <{Mapping[Pattern] ","}* mps> )`, Configuration c) {
     list[MapNodeInfo] res = [ ];
@@ -2779,7 +2864,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
   psList = for (hole((ConcreteHole) `\<<Sym sym> <Name n>\>`) <- concrete.parts) {
     <c, rt> = resolveSorts(sym2symbol(sym),sym@\loc,c);
-    append typedNameNode(convertName(n), n@\loc, rt)[@at = n@\loc];
+    append typedNameNode(convertName(n), n@\loc, rt, 0)[@at = n@\loc];
   }
   
   <c, sym> = resolveSorts(sym2symbol(concrete.symbol),concrete.symbol@\loc, c);
@@ -2789,11 +2874,19 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Patte
     < c, pti > = extractPatternTree(p,c);
     list[PatternTree] psList = [ ];
     for (psi <- ps) { < c, psit > = extractPatternTree(psi,c); psList = psList + psit; }
-    return < c, callOrTreeNode(pti[@headPosition=true],psList)[@at = pat@\loc] >;
+
+	map[RName,PatternTree] keywordArgs = ( );
+    if ((KeywordArguments[Pattern])`<OptionalComma oc> <{KeywordArgument[Pattern] ","}+ kargs>` := keywordArguments) {
+		for (ka:(KeywordArgument[Pattern])`<Name kn> = <Pattern kp>` <- kargs) {
+			< c, ptk > = extractPatternTree(kp, c);
+			keywordArgs[convertName(kn)] = ptk;
+		}
+	}
+    return < c, callOrTreeNode(pti[@headPosition=true], psList, keywordArgs)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Name n> : <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
-    return < c, varBecomesNode(convertName(n), n@\loc, pti)[@at = pat@\loc] >;
+    return < c, varBecomesNode(convertName(n), n@\loc, pti, 0)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`[ <Type t> ] <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
@@ -2811,7 +2904,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`! <Pattern p>`, Confi
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Type t> <Name n> : <Pattern p>`, Configuration c) {
     < c, pti > = extractPatternTree(p,c);
     < c, rt > = convertAndExpandType(t,c);
-    return < c, tvarBecomesNode(rt,convertName(n),n@\loc,pti)[@at = pat@\loc] >;
+    return < c, tvarBecomesNode(rt,convertName(n),n@\loc,pti,0)[@at = pat@\loc] >;
 }
 
 @doc{Allows PatternTree nodes to be annotated with types.}
@@ -2844,200 +2937,328 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     // Step 1: Do an initial assignment of types to the names present
     // in the tree and to nodes with invariant types (such as int
     // literals and guarded patterns).
-    pt = bottom-up visit(pt) {
-        case ptn:setNode(ptns) : {
-            for (idx <- index(ptns), spliceNodePlus(n) := ptns[idx] || spliceNodeStar(n) := ptns[idx] || 
-                                     spliceNodePlus(n,_,_) := ptns[idx] || spliceNodeStar(n,_,_) := ptns[idx] ||
-                                     multiNameNode(n) := ptns[idx]) {
-                
-            	if (spliceNodePlus(_,_,rt) := ptns[idx] || spliceNodeStar(_,_,rt) := ptns[idx]) {
-	                if (RSimpleName("_") == n) {
-                        c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
-	                } else {
-	                	// TODO: Do we want to issue a warning here if the same name is used multiple times? Probably, although a pass
-	                	// over the pattern tree may be a better way to do this (this would only catch cases at the same level of
-	                	// a set pattern or, below, a list pattern)
-	                    c = addLocalVariable(c, n, false, ptns[idx]@at, \set(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt];
-	                } 
-            	} else {
-	                if (RSimpleName("_") == n) {
-	                    rt = \inferred(c.uniqueify);
-	                    c.uniqueify = c.uniqueify + 1;
-	                    c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
-	                } else if (!fcvExists(c, n)) {
-	                    rt = \inferred(c.uniqueify);
-	                    c.uniqueify = c.uniqueify + 1;
-	                    c = addLocalVariable(c, n, true, ptns[idx]@at, \set(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt];
-	                } else {
-	                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
-	                    c.usedIn[ptn@at] = head(c.stack);
-	                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
-	                    // TODO: Keep this now that we have splicing?
-	                    if (isSetType(rt))
-	                        ptns[idx] = ptns[idx][@rtype = getSetElementType(rt)];
-	                    else
-	                        failures += makeFailType("Expected type set, not <prettyPrintType(rt)>", ptns[idx]@at);
-	                    c = addNameWarning(c,n,ptns[idx]@at);
-	                }
-            	}
-            }
-            
-            insert(ptn[children=ptns]);
-        }
+    tuple[PatternTree,Configuration] assignInitialPatternTypes(PatternTree pt, Configuration c) {
+		switch(pt) {
+			case multiNameNode(_,_) : return < pt, c >;
 
-        case ptn:listNode(ptns) : {
-            for (idx <- index(ptns), spliceNodePlus(n) := ptns[idx] || spliceNodeStar(n) := ptns[idx] || 
-                                     spliceNodePlus(n,_,_) := ptns[idx] || spliceNodeStar(n,_,_) := ptns[idx] ||
-                                     multiNameNode(n) := ptns[idx]) {
-                
-            	if (spliceNodePlus(_,_,rt) := ptns[idx] || spliceNodeStar(_,_,rt) := ptns[idx]) {
-	                if (RSimpleName("_") == n) {
-                        c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
-	                } else {
-	                    c = addLocalVariable(c, n, false, ptns[idx]@at, \list(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt];
-	                } 
-            	} else {
-	                if (RSimpleName("_") == n) {
-	                    rt = \inferred(c.uniqueify);
-	                    c.uniqueify = c.uniqueify + 1;
-	                    c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
-	                } else if (!fcvExists(c, n)) {
-	                    rt = \inferred(c.uniqueify);
-	                    c.uniqueify = c.uniqueify + 1;
-	                    c = addLocalVariable(c, n, true, ptns[idx]@at, \list(rt));
-	                    ptns[idx] = ptns[idx][@rtype = rt];
-	                } else {
-	                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
-	                    c.usedIn[ptn@at] = head(c.stack);
-	                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
-	                    // TODO: Keep this now that we have splicing?
-	                    if (isListType(rt))
-	                        ptns[idx] = ptns[idx][@rtype = getListElementType(rt)];
-	                    else
-	                        failures += makeFailType("Expected type list, not <prettyPrintType(rt)>", ptns[idx]@at); 
-	                    c = addNameWarning(c,n,ptns[idx]@at);
-	                }
+			case spliceNodePlus(_,_) : return < pt, c >;
+
+			case spliceNodePlus(_,_,_,_) : return < pt, c >;
+
+			case spliceNodeStar(_,_) : return < pt, c >;
+
+			case spliceNodeStar(_,_,_,_) : return < pt, c >;
+
+			case negativeNode(ptc) : {
+				< ptc, c > = assignInitialPatternTypes(ptc, c);
+				pt.child = ptc;
+				return < pt, c >; 
+			}
+
+			case tupleNode(ptl) : {
+				list[PatternTree] ptres = [ ];
+				for (pti <- ptl) {
+					< pti, c > = assignInitialPatternTypes(pti, c);
+					ptres = ptres + pti;
+				}
+				pt.children = ptres;
+				return < pt, c >;
+			}
+			
+			case mapNode(mc) : {
+				list[MapNodeInfo] mnres = [ ];
+				for (mapNodeInfo(dt,rt) <- mc) {
+					< dt, c > = assignInitialPatternTypes(dt, c);
+					< rt, c > = assignInitialPatternTypes(rt, c);
+					mnres = mnres + mapNodeInfo(dt,rt);
+				}
+				pt.mapChildren = mnres;
+				return < pt, c >;
+			}
+			
+			case callOrTreeNode(pth, ptargs, kpargs) : {
+				< pth, c > = assignInitialPatternTypes(pth, c);
+				list[PatternTree] ptres = [ ];
+				for (pti <- ptargs) {
+					< pti, c > = assignInitialPatternTypes(pti, c);
+					ptres = ptres + pti;
+				}
+				kpres = ( );
+				for (kpname <- kpargs) {
+					< kptree, c > = assignInitialPatternTypes(kpargs[kpname], c);
+					kpres[kpname] = kptree;
+				}
+				pt.head = pth; pt.args = ptres; pt.keywordArgs = kpres;
+				return < pt, c >;
+			}
+			
+	        case ptn:setNode(ptns) : {
+	        	for (idx <- index(ptns)) {
+	        		< pti, c > = assignInitialPatternTypes(ptns[idx], c);
+	        		ptns[idx] = pti;
+	        	}
+
+	            for (idx <- index(ptns), spliceNodePlus(n,nid) := ptns[idx] || spliceNodeStar(n,nid) := ptns[idx] || 
+	                                     spliceNodePlus(n,_,_,nid) := ptns[idx] || spliceNodeStar(n,_,_,nid) := ptns[idx] ||
+	                                     multiNameNode(n,nid) := ptns[idx]) {
+	                
+	            	if (spliceNodePlus(_,_,rt,nid) := ptns[idx] || spliceNodeStar(_,_,rt,nid) := ptns[idx]) {
+		                if (RSimpleName("_") == n) {
+	                        c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                } else {
+		                	// TODO: Do we want to issue a warning here if the same name is used multiple times? Probably, although a pass
+		                	// over the pattern tree may be a better way to do this (this would only catch cases at the same level of
+		                	// a set pattern or, below, a list pattern)
+		                    c = addLocalVariable(c, n, false, ptns[idx]@at, \set(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                } 
+	            	} else {
+		                if (RSimpleName("_") == n) {
+		                    rt = \inferred(c.uniqueify);
+		                    c.uniqueify = c.uniqueify + 1;
+		                    c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                } else if (!fcvExists(c, n)) {
+		                    rt = \inferred(c.uniqueify);
+		                    c.uniqueify = c.uniqueify + 1;
+		                    c = addLocalVariable(c, n, true, ptns[idx]@at, \set(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                } else {
+		                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
+		                    c.usedIn[ptn@at] = head(c.stack);
+		                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
+	                        ptns[idx].nameId = c.fcvEnv[n];
+		                    // TODO: Keep this now that we have splicing?
+		                    if (isSetType(rt))
+		                        ptns[idx] = ptns[idx][@rtype = getSetElementType(rt)];
+		                    else
+		                        failures += makeFailType("Expected type set, not <prettyPrintType(rt)>", ptns[idx]@at);
+		                    c = addNameWarning(c,n,ptns[idx]@at);
+		                }
+	            	}
 	            }
-            }
-            insert(ptn[children=ptns]);
-        }
+	            
+	            ptn.children = ptns;
+	            return < ptn, c >;
+	        }
+	
+	        case ptn:listNode(ptns) : {
+	        	for (idx <- index(ptns)) {
+	        		< pti, c > = assignInitialPatternTypes(ptns[idx], c);
+	        		ptns[idx] = pti;
+	        	}
 
-        case ptn:nameNode(n) : { 
-            if (RSimpleName("_") == n) {
-                rt = \inferred(c.uniqueify);
-                c.uniqueify = c.uniqueify + 1;
-                c = addUnnamedVariable(c, ptn@at, rt);
-                insert(ptn[@rtype = rt][@defs = { c.nextLoc - 1 }]);
-            } else if (!fcvExists(c, n)) {
-                rt = \inferred(c.uniqueify);
-                c.uniqueify = c.uniqueify + 1;
-                c = addLocalVariable(c, n, true, ptn@at, rt);
-                insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
-            } else {
-                c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
-                c.usedIn[ptn@at] = head(c.stack);
-                if ( !((ptn@headPosition)?) || ((ptn@headPosition)? && !ptn@headPosition)) {
-                    if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
-                        c = addScopeWarning(c, "<prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
-                    } else {
-                        c = addNameWarning(c,n,ptn@at);
-                    }
-                }
-                insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
-            }
-        }
-        
-        case ptn:literalNode(Symbol rt) => ptn[@rtype = rt]
-        
-        case ptn:literalNode(list[LiteralNodeInfo] names) : {
-            for ( literalNodeInfo(d, l) <- names ) {
-                if (def(n) := d) {
-                    c = addLocalVariable(c, n, false, l, \str());
-                } else if (use(n) := d) {
-                    if (!fcvExists(c, n)) {
-                        failures += makeFailType("Name <prettyPrintName(n)> not yet defined", ptn@at);
-                    } else {
-                        c.uses = c.uses + < c.fcvEnv[n], l >; 
-                        c.usedIn[l] = head(c.stack);
-                    }
-                } 
-            }
-            insert(ptn[@rtype = \str()]);
-        }
-        
-        case ptn:typedNameNode(n, l, rt) : { 
-            if (RSimpleName("_") == n) {
-                c = addUnnamedVariable(c, l, rt);
-                insert(ptn[@rtype = rt][@defs = { c.nextLoc - 1 }]);
-            } else {
-                c = addLocalVariable(c, n, false, l, rt);
-                insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
-            }
-        }
-        
-        case ptn:varBecomesNode(n, l, _) : { 
-            if (RSimpleName("_") == n) {
-                rt = \inferred(c.uniqueify);
-                c.uniqueify = c.uniqueify + 1;
-                c = addUnnamedVariable(c, l, rt);
-                insert(ptn[@rtype = rt][@defs = { c.nextLoc - 1 }]);
-            } else if (!fcvExists(c, n)) {
-                rt = \inferred(c.uniqueify);
-                c.uniqueify = c.uniqueify + 1;
-                c = addLocalVariable(c, n, true, l, rt);
-                insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
-            }  else {
-                c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
-                c.usedIn[ptn@at] = head(c.stack);
-                if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
-                    c = addScopeWarning(c, "Name <prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
-                } else {
-                    c = addNameWarning(c,n,ptn@at);
-                }
-                insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
-            }
-        }
+	            for (idx <- index(ptns), spliceNodePlus(n,nid) := ptns[idx] || spliceNodeStar(n,nid) := ptns[idx] || 
+	                                     spliceNodePlus(n,_,_,nid) := ptns[idx] || spliceNodeStar(n,_,_,nid) := ptns[idx] ||
+	                                     multiNameNode(n,nid) := ptns[idx]) {
+	                
+	            	if (spliceNodePlus(_,_,rt,nid) := ptns[idx] || spliceNodeStar(_,_,rt,nid) := ptns[idx]) {
+		                if (RSimpleName("_") == n) {
+	                        c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                } else {
+		                    c = addLocalVariable(c, n, false, ptns[idx]@at, \list(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                } 
+	            	} else {
+		                if (RSimpleName("_") == n) {
+		                    rt = \inferred(c.uniqueify);
+		                    c.uniqueify = c.uniqueify + 1;
+		                    c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                } else if (!fcvExists(c, n)) {
+		                    rt = \inferred(c.uniqueify);
+		                    c.uniqueify = c.uniqueify + 1;
+		                    c = addLocalVariable(c, n, true, ptns[idx]@at, \list(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                } else {
+		                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
+		                    c.usedIn[ptn@at] = head(c.stack);
+	                        ptns[idx].nameId = c.fcvEnv[n];
+		                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
+		                    // TODO: Keep this now that we have splicing?
+		                    if (isListType(rt))
+		                        ptns[idx] = ptns[idx][@rtype = getListElementType(rt)];
+		                    else
+		                        failures += makeFailType("Expected type list, not <prettyPrintType(rt)>", ptns[idx]@at); 
+		                    c = addNameWarning(c,n,ptns[idx]@at);
+		                }
+		            }
+	            }
+	            ptn.children = ptns;
+	            return < ptn, c >;
+	        }
+	
+	        case ptn:nameNode(n,nid) : { 
+	            if (RSimpleName("_") == n) {
+	                rt = \inferred(c.uniqueify);
+	                c.uniqueify = c.uniqueify + 1;
+	                c = addUnnamedVariable(c, ptn@at, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = rt][@defs = { c.nextLoc - 1 }], c >;
+	            } else if (!fcvExists(c, n)) {
+	                rt = \inferred(c.uniqueify);
+	                c.uniqueify = c.uniqueify + 1;
+	                c = addLocalVariable(c, n, true, ptn@at, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	            } else {
+	                c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+	                c.usedIn[ptn@at] = head(c.stack);
+                    ptn.nameId = c.fcvEnv[n];
+	                if ( !((ptn@headPosition)?) || ((ptn@headPosition)? && !ptn@headPosition)) {
+	                    if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
+	                        c = addScopeWarning(c, "<prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
+	                    } else {
+	                        c = addNameWarning(c,n,ptn@at);
+	                    }
+	                }
+	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	            }
+	        }
+	        
+	        case ptn:literalNode(Symbol rt) : {
+	        	return < ptn[@rtype = rt], c >;
+	        }
+	        
+	        case ptn:literalNode(list[LiteralNodeInfo] names) : {
+	            for ( idx <- index(names), lni:literalNodeInfo(d, l) := names[idx] ) {
+	                if (def(n,nid) := d) {
+	                    c = addLocalVariable(c, n, false, l, \str());
+	                    d.nameId = c.nextLoc - 1;
+	                    lni.dOrU = d;
+	                    names[idx] = lni;
+	                } else if (use(n,nid) := d) {
+	                    if (!fcvExists(c, n)) {
+	                        failures += makeFailType("Name <prettyPrintName(n)> not yet defined", ptn@at);
+	                    } else {
+	                        c.uses = c.uses + < c.fcvEnv[n], l >; 
+	                        c.usedIn[l] = head(c.stack);
+	                        d.nameId = c.fcvEnv[n];
+	                        lni.dOrU = d;
+	                        names[idx] = lni;
+	                    }
+	                } 
+	            }
+	            ptn.names = names;
+	            return < ptn[@rtype = \str()], c >;
+	        }
+	        
+	        case ptn:typedNameNode(n, l, rt, nid) : { 
+	            if (RSimpleName("_") == n) {
+	                c = addUnnamedVariable(c, l, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = rt][@defs = { c.nextLoc - 1 }], c >;
+	            } else {
+	                c = addLocalVariable(c, n, false, l, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	            }
+	        }
+	        
+	        case ptn:varBecomesNode(n, l, ptc, nid) : { 
+	        	< ptc, c > = assignInitialPatternTypes(ptc, c);
+	        	ptn.child = ptc;
+	        	
+	            if (RSimpleName("_") == n) {
+	                rt = \inferred(c.uniqueify);
+	                c.uniqueify = c.uniqueify + 1;
+	                c = addUnnamedVariable(c, l, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = rt][@defs = { c.nextLoc - 1 }], c >;
+	            } else if (!fcvExists(c, n)) {
+	                rt = \inferred(c.uniqueify);
+	                c.uniqueify = c.uniqueify + 1;
+	                c = addLocalVariable(c, n, true, l, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	            }  else {
+	                c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+	                c.usedIn[ptn@at] = head(c.stack);
+	                if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
+	                    c = addScopeWarning(c, "Name <prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
+	                } else {
+	                    c = addNameWarning(c,n,ptn@at);
+	                }
+                    ptn.nameId = c.fcvEnv[n];
+	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	            }
+	        }
+	
+			case ptn:deepNode(ptc) : {
+	        	< ptc, c > = assignInitialPatternTypes(ptc, c);
+	        	ptn.child = ptc;
 
-		case ptn:deepNode(_) : {
-			rt = \inferred(c.uniqueify);
-			c.uniqueify = c.uniqueify + 1;
-			insert(ptn[@rtype = rt]);
-		}
-		
-        case ptn:asTypeNode(rt, _) => ptn[@rtype = rt]
-        
-		case ptn:antiNode(_) : {
-			rt = \inferred(c.uniqueify);
-			c.uniqueify = c.uniqueify + 1;
-			insert(ptn[@rtype = rt]);
-		}
-		
-		case ptn:reifiedTypeNode(tSymbol,pDefs) => 
-			ptn[@rtype = makeReifiedType(makeValueType())]
-		
-        // TODO: Not sure if this is the best choice, but it is the choice
-        // the current interpreter makes...
-        //case ptn:antiNode(_) => ptn[@rtype = \value()]
-        
-        case ptn:tvarBecomesNode(rt, n, l, _) : { 
-            if (RSimpleName("_") == n) {
-                c = addUnnamedVariable(c, l, rt);
-                insert(ptn[@rtype = rt][@defs = { c.nextLoc - 1 }]);
-            } else {
-                c = addLocalVariable(c, n, false, l, rt);
-                insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
-            }
-        }
-        
-        case ptn:concreteSyntaxNode(rt,plist) => ptn[@rtype = rt]
+				rt = \inferred(c.uniqueify);
+				c.uniqueify = c.uniqueify + 1;
+				return < ptn[@rtype = rt], c >;
+			}
+			
+	        case ptn:asTypeNode(rt, ptc) : {
+	        	< ptc, c > = assignInitialPatternTypes(ptc, c);
+	        	ptn.child = ptc;
+
+	        	return < ptn[@rtype = rt], c >;
+	        }
+	        
+			case ptn:antiNode(ptc) : {
+				cBool = enterBooleanScope(c, ptn@at);
+	        	< ptc, cBool > = assignInitialPatternTypes(ptc, cBool);
+	        	ptn.child = ptc;
+	        	c = exitBooleanScope(cBool, c);
+
+				rt = \inferred(c.uniqueify);
+				c.uniqueify = c.uniqueify + 1;
+				return < ptn[@rtype = rt], c >;
+			}
+			
+			case ptn:reifiedTypeNode(tSymbol,pDefs) : {
+				< tSymbol, c > = assignInitialPatternTypes(tSymbol, c);
+				< pDefs, c > = assignInitialPatternTypes(pDefs, c);
+				ptn.s = tSymbol;
+				ptn.d = pDefs;
+				 
+				return < ptn[@rtype = makeReifiedType(makeValueType())], c >;
+			}
+			
+	        case ptn:tvarBecomesNode(rt, n, l, ptc, nid) : { 
+	        	< ptc, c > = assignInitialPatternTypes(ptc, c);
+	        	ptn.child = ptc;
+
+	            if (RSimpleName("_") == n) {
+	                c = addUnnamedVariable(c, l, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = rt][@defs = { c.nextLoc - 1 }], c >;
+	            } else {
+	                c = addLocalVariable(c, n, false, l, rt);
+                    ptn.nameId = c.nextLoc - 1;
+	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
+	            }
+	        }
+	        
+	        case ptn:concreteSyntaxNode(rt,plist) : {
+	        	for (idx <- index(plist)) {
+	        		< pti, c > = assignInitialPatternTypes(plist[idx], c);
+	        		plist[idx] = pti;
+	        	}
+	            ptn.args = plist;
+	        	return < ptn[@rtype = rt], c >;
+	        }
+	    }
+	    
+		return < pt, c >;
     }
+    
+    < pt, c > = assignInitialPatternTypes(pt, c);
     
     if (size(failures) > 0) {
     	// TODO: Allowing the "bad" config to go back, change back to
@@ -3098,25 +3319,25 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 
             case ptn:antiNode(cp) => updateRT(ptn, cp@rtype) when (cp@rtype)? && concreteType(cp@rtype)
             
-            case ptn:varBecomesNode(n,l,cp) : {
+            case ptn:varBecomesNode(n,l,cp,nid) : {
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
-                    Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[c.fcvEnv[n]].rtype;
-                    bool isInferred = (RSimpleName("_") == n) ? true : c.store[c.fcvEnv[n]].inferred;
+                    Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[nid].rtype;
+                    bool isInferred = (RSimpleName("_") == n) ? true : c.store[nid].inferred;
                     if (isInferred) {
                         if (isInferredType(rt)) {
                             if (RSimpleName("_") == n) {
-                                c.store[getOneFrom(ptn@defs)].rtype = cp@rtype; 
+                                c.store[nid].rtype = cp@rtype; 
                             } else {
-                                c.store[c.fcvEnv[n]].rtype = cp@rtype;
+                                c.store[nid].rtype = cp@rtype;
                             }
                             insert updateRT(ptn, cp@rtype);
                         } else {
                             Symbol rtNew = lub(rt, cp@rtype);
                             if (!equivalent(rtNew,rt)) {
                                 if (RSimpleName("_") == n) {
-                                    c.store[getOneFrom(ptn@defs)].rtype = rtNew; 
+                                    c.store[nid].rtype = rtNew; 
                                 } else {
-                                    c.store[c.fcvEnv[n]].rtype = rtNew;
+                                    c.store[nid].rtype = rtNew;
                                 }
                                 insert updateRT(ptn, rtNew);
                             }
@@ -3128,9 +3349,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                 }
             }
     
-            case ptn:tvarBecomesNode(rt,n,l,cp) : {
+            case ptn:tvarBecomesNode(rt,n,l,cp,nid) : {
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
-                    Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[c.fcvEnv[n]].rtype;
+                    Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[nid].rtype;
                     if (!comparable(cp@rtype, rt))
                         failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn@at);
                 }
@@ -3146,24 +3367,28 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			}
                 
     
-            case ptn:callOrTreeNode(ph,pargs) : {
+            case ptn:callOrTreeNode(ph,pargs,kpargs) : {
             	if ( (ph@rtype)? && concreteType(ph@rtype) ) {
                     if (isConstructorType(ph@rtype) || isOverloadedType(ph@rtype) || isProductionType(ph@rtype)) {
                         // default alternatives contain all possible constructors of this name
                         set[Symbol] alts = (isOverloadedType(ph@rtype)) ? (filterSet(getDefaultOverloadOptions(ph@rtype), isConstructorType) + filterSet(getDefaultOverloadOptions(ph@rtype), isProductionType)) : {ph@rtype};
                         // matches holds all the constructors that match the arity and types in the pattern
-                        set[Symbol] matches = { };
-                        set[Symbol] nonMatches = { };
+				        rel[Symbol,KeywordParamMap] matches = { };
+				        rel[Symbol,KeywordParamMap] nonMatches = { };
                         ptn@arityMismatches = { };
                         ptn@tooManyMatches = { };
                         
+					    usedItems = invert(c.uses)[ph@at];
+					    usedItems = { ui | ui <- usedItems, !(c.store[ui] is overload)} + { uii | ui <- usedItems, c.store[ui] is overload, uii <- c.store[ui].items };
+					    rel[Symbol,KeywordParamMap] constructorKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is constructor };
+
                         //if (size(pargs) == 0) {
                         //    // if we have no arguments, then all the alternatives could match
                         //    // TODO: Is this true? It seems that we can only match if the arity matches, so, disabling for now...
                         //    matches = alts;
                         //} else {
                             // filter first based on the arity of the constructor
-                            for (a <- alts) {
+                            for (a <- alts, kpm <- ( (!isEmpty(constructorKP[a])) ? constructorKP[a] : { ( ) })) {
                             	if (isConstructorType(a) && size(getConstructorArgumentTypes(a)) == size(pargs)) {
 	                                // next, find the bad matches, which are those argument positions where we have concrete
 	                                // type information and that information does not match the alternative
@@ -3192,18 +3417,50 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                                		}
 	                                	}
 	                                }
-	                                if (size(badMatches) == 0) 
-	                                    // if we had no bad matches, this is a valid alternative
-	                                    matches += a;
+	                                if (size(badMatches) == 0) {
+	                                    // if we had no bad matches, this is a valid alternative so far
+				                 		if (size(kpargs<0> - kpm<0>) > 0) {
+				                 			badMatches = badMatches + (kpargs<0> - kpm<0>);
+				                 		} else {
+				                 			for (kpname <- kpargs) {
+			                                	bool pseudoMatch = false;
+			                                	argType = kpm[kpname];
+			                                	if ((kpargs[kpname]@rtype)?) {
+			                                		if (concreteType(kpargs[kpname]@rtype)) {
+			                                			if (!subtype(kpargs[kpname]@rtype, argType)) {
+			                                				badMatches = badMatches + kpname;
+			                                			}
+			                                		} else {
+			                                			pseudoMatch = true;
+			                                		}
+			                                	} else {
+			                                		pseudoMatch = true;
+			                                	}
+			                                	
+			                                	if (pseudoMatch) {
+			                                		if (! ( (isListType(argType) && kpargs[kpname] is listNode) ||
+			                                			    (isSetType(argType) && kpargs[kpname] is setNode) ||
+			                                			    (isMapType(argType) && kpargs[kpname] is mapNode) ||
+			                                			    ( !(kpargs[kpname] is listNode || kpargs[kpname] is setNode || kpargs[kpname] is mapNode) && (!((kpargs[kpname]@rtype)?) || !(concreteType(kpargs[kpname]@rtype)))))) {
+			                                			badMatches = badMatches + idx;
+			                                		}
+			                                	}
+				                 			}
+
+											if (size(badMatches) == 0) {				                 			
+				                    			matches += < a, kpm > ;
+				                    		}
+				                    	}
+									}
                             	} else if (isProductionType(a) && size(getProductionArgumentTypes(a)) == size(pargs)) {
 	                                // next, find the bad matches, which are those argument positions where we have concrete
 	                                // type information and that information does not match the alternative
 	                                badMatches = { idx | idx <- index(pargs), (pargs[idx]@rtype)?, concreteType(pargs[idx]@rtype), !subtype(pargs[idx]@rtype, getProductionArgumentTypes(a)[idx]) };
 	                                if (size(badMatches) == 0) 
 	                                    // if we had no bad matches, this is a valid alternative
-	                                    matches += a;
+	                                    matches += < a, kpm >;
                                 } else {
-                                    nonMatches += a;
+                                    nonMatches += < a, kpm >;
                                 }
                             }
                         //}
@@ -3212,19 +3469,25 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             // Push the binding back down the tree with the information in the constructor type; if
                             // this doesn't cause errors, save the updated children back into the tree, along with
                             // the match type
-                            Symbol matchType = getOneFrom(matches);
+                            Symbol matchType = getOneFrom(matches<0>);
+                            KeywordParamMap matchParams = getOneFrom(matches<1>);
+                            KeywordParamMap justUsedParams = domainR(matchParams,kpargs<0>);
                             bool cannotInstantiate = false;
 
                             // TODO: Find a better place for this huge chunk of code!
-                            if (concreteType(matchType) && typeContainsTypeVars(matchType) && ( size(pargs) == 0 || all(idx <- index(pargs), (pargs[idx])?, concreteType(pargs[idx]@rtype)))) {
+                            if (concreteType(matchType) && (false notin { concreteType(justUsedParams[kpn]) | kpn <- justUsedParams }) && 
+                                (typeContainsTypeVars(matchType) || (true in { typeContainsTypeVars(justUsedParams[kpn]) | kpn <- justUsedParams })) && 
+                                ( size(pargs) == 0 || all(idx <- index(pargs), (pargs[idx])?, concreteType(pargs[idx]@rtype))) &&
+                                ( size(justUsedParams) == 0 || all(kpn <- justUsedParams, concreteType(kpargs[kpn]@rtype)))) {
                                 // If the constructor is parametric, we need to calculate the actual types of the
                                 // parameters and make sure they fall within the proper bounds. Note that we can only
                                 // do this when the match type is concrete and when we either have no pargs or we have
                                 // pargs that all have concrete types associated with them.
                                 formalArgs = isConstructorType(matchType) ? getConstructorArgumentTypes(matchType) : getProductionArgumentTypes(matchType);
-                                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- formalArgs };
+                                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- (formalArgs + justUsedParams<1>) };
                                 map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
                                 unlabeledArgs = [ (\label(_,v) := li) ? v : li | li <- formalArgs ];
+                                unlabeledParams = ( kpn : (\label(_,v) := justUsedParams[kpn]) ? v : justUsedParams[kpn] | kpn <- justUsedParams );
                                 for (idx <- index(formalArgs)) {
                                     try {
                                         bindings = match(unlabeledArgs[idx],pargs[idx]@rtype,bindings);
@@ -3233,9 +3496,20 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                         cannotInstantiate = true;  
                                     }
                                 }
+                                for (kpn <- justUsedParams) {
+                                	try {
+                                		bindings = match(unlabeledParams[kpn],kpargs[kpn]@rtype,bindings);
+                                	} catch : {
+                                        insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate keyword parameter <prettyPrintName(kpn)>, parameter type <prettyPrintType(kpargs[kpn]@rtype)> violates bound of type parameter in formal argument with type <prettyPrintType(unlabeledParams[kpn])>", kpargs[kpn]@at));
+                                        cannotInstantiate = true;                                  	
+                                	}
+                                }
                                 if (!cannotInstantiate) {
                                     try {
                                         matchType = instantiate(matchType, bindings);
+                                        for (kpn <- justUsedParams) {
+                                        	unlabeledParams[kpn] = instantiate(unlabeledParams[kpn], bindings);
+                                        }
                                     } catch : {
                                         insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate type parameters in constructor", ptn@at));
                                         cannotInstantiate = true;
@@ -3245,8 +3519,10 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             
                             if (!cannotInstantiate) {
                                 list[PatternTree] newChildren = [ ];
+                                map[RName,PatternTree] newParamChildren = ( );
                                 formalArgs = isConstructorType(matchType) ? getConstructorArgumentTypes(matchType) : getProductionArgumentTypes(matchType);
                                 unlabeledArgs = [ (\label(_,v) := li) ? v : li | li <- formalArgs ];                                
+                                unlabeledParams = ( kpn : (\label(_,v) := justUsedParams[kpn]) ? v : justUsedParams[kpn] | kpn <- justUsedParams );
                                 try {
                                     for (idx <- index(pargs)) {
                                         //println("<ptn@at>: pushing down <getConstructorArgumentTypes(matchType)[idx]> for arg <pargs[idx]>");  
@@ -3256,21 +3532,37 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 } catch v : {
                                     newChildren = pargs;
                                 }
-                                insert updateRT(ptn[head=ph[@rtype=matchType]][args=newChildren], isConstructorType(matchType)?getConstructorResultType(matchType):getProductionSortType(matchType));
+                                try {
+                                	for (kpn <- justUsedParams) {
+                                		< c, newparg > = bind(kpargs[kpn], unlabeledParams[kpn], c);
+                                		newParamChildren[kpn] = newparg;
+                                	}
+                                } catch v : {
+                                	newParamChildren = kpargs;
+                                }
+                                insert updateRT(ptn[head=ph[@rtype=matchType]][args=newChildren][keywordArgs=newParamChildren], isConstructorType(matchType)?getConstructorResultType(matchType):getProductionSortType(matchType));
                             }
                         } else {
-                        	insert updateBindProblems(ptn, nonMatches, matches);
+                        	insert updateBindProblems(ptn, nonMatches<0>, matches<0>);
                         }
                     } else if (isStrType(ph@rtype)) {
+                    	// TODO: How do we handle keyword parameters for nodes? Treat them all as value?
                         list[PatternTree] newChildren = [];
+                        map[RName,PatternTree] newKPChildren = ( );
                         try {
                             for(int idx <- index(pargs)) {
                                 <c, newarg> = bind(pargs[idx],Symbol::\value(),c);
+                                newChildren += newarg;
+                            }
+                            for (kpname <- kpargs) {
+                            	< c, newarg > = bind(kpargs[kpname],Symbol::\value(),c);
+                            	newKPChildren[kpname] = newarg;
                             }
                         } catch v : {
                             newChildren = pargs;
+                            newKPChildren = kpargs;
                         }
-                        insert updateRT(ptn[args=newChildren], \node());
+                        insert updateRT(ptn[args=newChildren][keywordArgs=newKPChildren], \node());
                     }
                 }
             }       
@@ -3309,15 +3601,15 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     }
 
     set[PatternTree] unknownConstructorFailures(PatternTree pt) {
-        return { ptih | /PatternTree pti:callOrTreeNode(PatternTree ptih,_) := pt, (ptih@rtype)?, isInferredType(ptih@rtype) };
+        return { ptih | /PatternTree pti:callOrTreeNode(PatternTree ptih,_,_) := pt, (ptih@rtype)?, isInferredType(ptih@rtype) };
     }
 
     set[PatternTree] arityFailures(PatternTree pt) {
-        return { pti | /PatternTree pti:callOrTreeNode(_,_) := pt, (pti@arityMismatches)?, size(pti@arityMismatches) > 0 };
+        return { pti | /PatternTree pti:callOrTreeNode(_,_,_) := pt, (pti@arityMismatches)?, size(pti@arityMismatches) > 0 };
     }
 
     set[PatternTree] tooManyMatchesFailures(PatternTree pt) {
-        return { pti | /PatternTree pti:callOrTreeNode(_,_) := pt, (pti@tooManyMatches)?, size(pti@tooManyMatches) > 0 };
+        return { pti | /PatternTree pti:callOrTreeNode(_,_,_) := pt, (pti@tooManyMatches)?, size(pti@tooManyMatches) > 0 };
     }
 
 	set[PatternTree] unresolved = { };
@@ -3394,26 +3686,26 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case nameNode(RSimpleName("_")) : {
+        case nameNode(RSimpleName("_"),nid) : {
             Symbol currentType = pt@rtype;
             if (isInferredType(currentType)) {
-                c.store[getOneFrom(pt@defs)].rtype = rt;
+                c.store[nid].rtype = rt;
                 return < c, pt[@rtype = rt] >;
             } else {
-                c.store[getOneFrom(pt@defs)].rtype = lub(currentType, rt);
+                c.store[nid].rtype = lub(currentType, rt);
                 return < c, pt[@rtype = lub(currentType, rt)] >;
             }
         }
         
-        case nameNode(rn) : {
-            Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
-            if (c.store[c.fcvEnv[rn]].inferred) {
+        case nameNode(rn,nid) : {
+            Symbol currentType = c.store[nid].rtype;
+            if (c.store[nid].inferred) {
                 if (isInferredType(currentType)) {
-                    c.store[c.fcvEnv[rn]].rtype = rt;
+                    c.store[nid].rtype = rt;
                 } else {
-                    c.store[c.fcvEnv[rn]].rtype = lub(currentType, rt);
+                    c.store[nid].rtype = lub(currentType, rt);
                 }
-                return < c, pt[@rtype = c.store[c.fcvEnv[rn]].rtype] >;
+                return < c, pt[@rtype = c.store[nid].rtype] >;
             } else {
                 if (comparable(currentType, rt))
                     return < c, pt >;
@@ -3422,32 +3714,32 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case multiNameNode(RSimpleName("_")) : {
+        case multiNameNode(RSimpleName("_"),nid) : {
             Symbol currentType = pt@rtype;
             if (isInferredType(currentType)) {
-                c.store[getOneFrom(pt@defs)].rtype = rt;
+                c.store[nid].rtype = rt;
                 return < c, pt[@rtype = rt] >;
             } else {
-                c.store[getOneFrom(pt@defs)].rtype = lub(currentType, rt);
+                c.store[nid].rtype = lub(currentType, rt);
                 return < c, pt[@rtype = lub(currentType, rt)] >;
             }
         }
 
-        case multiNameNode(rn) : {
-            Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
-            if (c.store[c.fcvEnv[rn]].inferred) {
+        case multiNameNode(rn,nid) : {
+            Symbol currentType = c.store[nid].rtype;
+            if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
-                    c.store[c.fcvEnv[rn]].rtype = \set(rt);
+                    c.store[nid].rtype = \set(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
-                    c.store[c.fcvEnv[rn]].rtype = \list(rt);
+                    c.store[nid].rtype = \list(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isSetType(currentType)) {
-                    c.store[c.fcvEnv[rn]].rtype = \set(lub(getSetElementType(currentType), rt));
-                    return < c, pt[@rtype = getSetElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                    c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
+                    return < c, pt[@rtype = getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
-                    c.store[c.fcvEnv[rn]].rtype = \list(lub(getListElementType(currentType), rt));
-                    return < c, pt[@rtype = getListElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                    c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
+                    return < c, pt[@rtype = getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
                 if (isSetType(currentType) && comparable(getSetElementType(currentType), rt))
@@ -3459,7 +3751,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-       case spliceNodeStar(RSimpleName("_")) : {
+       case spliceNodeStar(RSimpleName("_"),nid) : {
             Symbol currentType = pt@rtype;
             if (isInferredType(currentType)) {
                 return < c, pt[@rtype = rt] >;
@@ -3468,21 +3760,21 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case spliceNodeStar(rn) : { 
-        	Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
-            if (c.store[c.fcvEnv[rn]].inferred) {
+        case spliceNodeStar(rn,nid) : { 
+        	Symbol currentType = c.store[nid].rtype;
+            if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
-                    c.store[c.fcvEnv[rn]].rtype = \set(rt);
+                    c.store[nid].rtype = \set(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
-                    c.store[c.fcvEnv[rn]].rtype = \list(rt);
+                    c.store[nid].rtype = \list(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isSetType(currentType)) {
-                    c.store[c.fcvEnv[rn]].rtype = \set(lub(getSetElementType(currentType), rt));
-                    return < c, pt[@rtype = getSetElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                    c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
+                    return < c, pt[@rtype = getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
-                    c.store[c.fcvEnv[rn]].rtype = \list(lub(getListElementType(currentType), rt));
-                    return < c, pt[@rtype = getListElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                    c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
+                    return < c, pt[@rtype = getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
                 if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
@@ -3495,7 +3787,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case spliceNodeStar(RSimpleName("_"),_,nt) : {
+        case spliceNodeStar(RSimpleName("_"),_,nt,nid) : {
             Symbol currentType = pt@rtype;
             if (comparable(currentType, rt)) {
                 return < c, pt >;
@@ -3504,8 +3796,8 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case spliceNodeStar(rn,_,nt) : { 
-        	Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
+        case spliceNodeStar(rn,_,nt,nid) : { 
+        	Symbol currentType = c.store[nid].rtype;
             if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
                 return < c, pt >;
             } else if (isListType(currentType) && comparable(getListElementType(currentType), rt)) {
@@ -3515,7 +3807,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case spliceNodePlus(RSimpleName("_")) : {
+        case spliceNodePlus(RSimpleName("_"),nid) : {
         	Symbol currentType = pt@rtype;
             if (isInferredType(currentType)) {
                 return < c, pt[@rtype = rt] >;
@@ -3524,21 +3816,21 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             } 
         }
         
-        case spliceNodePlus(rn) : { 
-        	Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
-            if (c.store[c.fcvEnv[rn]].inferred) {
+        case spliceNodePlus(rn,nid) : { 
+        	Symbol currentType = c.store[nid].rtype;
+            if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
-                    c.store[c.fcvEnv[rn]].rtype = \set(rt);
+                    c.store[nid].rtype = \set(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
-                    c.store[c.fcvEnv[rn]].rtype = \list(rt);
+                    c.store[nid].rtype = \list(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isSetType(currentType)) {
-                    c.store[c.fcvEnv[rn]].rtype = \set(lub(getSetElementType(currentType), rt));
-                    return < c, pt[@rtype = getSetElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                    c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
+                    return < c, pt[@rtype = getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
-                    c.store[c.fcvEnv[rn]].rtype = \list(lub(getListElementType(currentType), rt));
-                    return < c, pt[@rtype = getListElementType(c.store[c.fcvEnv[rn]].rtype)] >;
+                    c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
+                    return < c, pt[@rtype = getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
                 if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
@@ -3551,7 +3843,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case spliceNodePlus(RSimpleName("_"),_,nt) : {
+        case spliceNodePlus(RSimpleName("_"),_,nt,nid) : {
             Symbol currentType = pt@rtype;
             if (comparable(currentType, rt)) {
                 return < c, pt >;
@@ -3560,8 +3852,8 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case spliceNodePlus(rn,_,nt) : { 
-        	Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
+        case spliceNodePlus(rn,_,nt,nid) : { 
+        	Symbol currentType = c.store[nid].rtype;
             if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
                 return < c, pt >;
             } else if (isListType(currentType) && comparable(getListElementType(currentType), rt)) {
@@ -3608,8 +3900,8 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
-        case typedNameNode(n, l, nt) : {
-            Symbol currentType = (RSimpleName("_") == n) ? pt@rtype : c.store[c.fcvEnv[n]].rtype;
+        case typedNameNode(n, l, nt, nid) : {
+            Symbol currentType = (RSimpleName("_") == n) ? pt@rtype : c.store[nid].rtype;
             if (comparable(currentType, rt))
                 return < c, pt >;
             else
@@ -3639,7 +3931,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         	return < c, pt[s=psnew][d=pdnew] >; 
         }
         
-        case callOrTreeNode(ph, cs) : {
+        case callOrTreeNode(ph, cs, kp) : {
             Symbol currentType = pt@rtype;
             if (comparable(currentType, rt))
                 return < c, pt >;
@@ -3648,7 +3940,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             //return < c, pt >;
         }
         
-        case varBecomesNode(n, l, cp) : {
+        case varBecomesNode(n, l, cp, nid) : {
             Symbol currentType = pt@rtype;
             < c, cpnew > = bind(cp, rt, c);
             return < c, pt[child=cpnew] >;
@@ -3674,7 +3966,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             return < c, pt[child = cpNew][@rtype=rt] >;
         }
         
-        case tvarBecomesNode(nt, n, l, cp) : {
+        case tvarBecomesNode(nt, n, l, cp, nid) : {
             < c, cpNew > = bind(cp, rt, c);
             return < c, pt[child = cpNew] >;
         }
@@ -4332,6 +4624,12 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<LocalVariableDeclaratio
     if ((LocalVariableDeclaration)`<Declarator d>` := vd || (LocalVariableDeclaration)`dynamic <Declarator d>` := vd) {
         if ((Declarator)`<Type t> <{Variable ","}+ vars>` := d) {
             < c, rt > = convertAndExpandType(t,c);
+            
+            if (isFailType(rt)) {
+            	for (fm <- getFailures(rt)) {
+            		c = addScopeMessage(c, fm);
+            	}
+            }
             
             for (v <- vars) {
                 if ((Variable)`<Name n> = <Expression init>` := v || (Variable)`<Name n>` := v) {
@@ -6200,6 +6498,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	map[RName,RSignature] sigMap = ( );
 	map[RName,int] moduleIds = ( );
 	map[RName,loc] moduleLocs = ( );
+	set[RName] notImported = { };
 
 	c = addModule(c, moduleName, md@\loc);
 	currentModuleId = head(c.stack);
@@ -6241,19 +6540,20 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 			}
 			c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
 		} catch perror : {
-			c = addScopeError(c, "Cannot calculate signature for imported module <prettyPrintName(modName)>", md@\loc);
+			c = addScopeError(c, "Cannot import module <prettyPrintName(modName)>", md@\loc);
+			notImported = notImported + modName;
 		}
 	}
 
 	// Now that we have a signature for each module, actually perform the import for each, creating
 	// a configuration for each with just the items from that module signature.
 	dt1 = now();
-	for (< modName, isExt > <- defaultModules) {
+	for (< modName, isExt > <- defaultModules, modName notin notImported) {
 		// This loads a default module. In this case, the defaults should stay in the
 		// configuration, since each module can "see" these definitions.
 		c = startModuleImport(c, sigMap[modName], modName, moduleIds[modName], isExt);
 	}
-	for (< modName, isExt > <- modulesToImport) {
+	for (< modName, isExt > <- modulesToImport, modName notin notImported) {
 		// This loads a non-default module. We start each time with the environment we
 		// had after all the defaults loaded.
 		c = startModuleImportAndReset(c, sigMap[modName], modName, moduleIds[modName], isExt);
@@ -6331,7 +6631,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 
 		// Bring in type names from the imported modules as long as they don't
 		// conflict with the type names just added.
-		c = loadImportedTypesAndTags(c, { mn | < mn, false > <- modulesToImport });
+		c = loadImportedTypesAndTags(c, { mn | < mn, false > <- modulesToImport, mn notin notImported });
 		
 		// Now, actually process the type names
 		for (t <- typesAndTags) c = checkDeclaration(t,true,c);
@@ -6339,12 +6639,12 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		// Now that we have a signature for each module, actually perform the import for each, creating
 		// a configuration for each with just the items from that module signature.
 		dt1 = now();
-		for (< modName, isExt > <- defaultModules) {
+		for (< modName, isExt > <- defaultModules, modName notin notImported) {
 			// This loads a default module. In this case, the defaults should stay in the
 			// configuration, since each module can "see" these definitions.
 			c = resumeModuleImport(c, sigMap[modName], modName, moduleIds[modName], isExt);
 		}
-		for (< modName, isExt > <- modulesToImport) {
+		for (< modName, isExt > <- modulesToImport, modName notin notImported) {
 			// This loads a non-default module. We start each time with the environment we
 			// had after all the defaults loaded.
 			c = resumeModuleImportAndReset(c, sigMap[modName], modName, moduleIds[modName], isExt);
@@ -6354,21 +6654,21 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		// Process the current module. We start by merging in everything from the modules we are
 		// extending to give an initial "seed" for our environment. We will just use the standard
 		// add functions for this.
-		c = loadExtendedModuleNames(c, { mn | < mn, true > <- modulesToImport });
+		c = loadExtendedModuleNames(c, { mn | < mn, true > <- modulesToImport, mn notin notImported });
 
 		// Next, process the annotations
 		for (t <- annotations) c = checkDeclaration(t,true,c);
 
 		// Bring in annotations from the imported modules as long as they don't
 		// conflict with the annotations just added.
-		c = loadImportedAnnotations(c, { mn | < mn, false > <- modulesToImport });
+		c = loadImportedAnnotations(c, { mn | < mn, false > <- modulesToImport, mn notin notImported });
 				
 		// Next, introduce names into the environment
 		for (t <- names) c = checkDeclaration(t,false,c);
 
 		// Bring in names from the imported modules as long as they don't
 		// conflict with the names just added.
-		c = loadImportedNames(c,  { mn | < mn, false > <- modulesToImport });
+		c = loadImportedNames(c,  { mn | < mn, false > <- modulesToImport, mn notin notImported });
 		
 		// Process the names
 		for (t <- names) c = checkDeclaration(t,true,c);

@@ -5,9 +5,12 @@ import lang::java::m3::Core;
 import lang::java::m3::AST;
 import Message;
 import String;
+import List;
 
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
+
+import lang::java::style::Utils;
 
 import IO;
 
@@ -24,101 +27,83 @@ ThrowsCount					DONE
 InnerTypeLast				TBD
 */
 
-list[Message] classDesign(node ast, M3 model) {
+list[Message] classDesignChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
 	return
-		     visibilityModifier(ast, model)
-		   + finalClass(ast, model)
-		   + throwsCount(ast, model)
-		   + mutableException(ast, model)
-		;
+		     visibilityModifier(ast, model, classDeclarations, methodDeclarations)
+		   + finalClass(ast, model, classDeclarations, methodDeclarations)
+		   + mutableException(ast, model, classDeclarations, methodDeclarations)
+		   + throwsCount(ast, model, classDeclarations, methodDeclarations)
+		   ;
 }
 
-list[Message] visibilityModifier(node ast, M3 model){
-	annotations = model@annotations;
+list[Message] visibilityModifier(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+	modifiers = model@modifiers;
 	msgs = [];
-	void checkVis(node ast, name){
-		annos = annotations[ast@src];
-		if((\public() in annos() & /^serialVersionUID/ !:= name) || \protected in annos){
-			msgs += classDesign("VisibilityModifier", ast@src);
-		}
-		
-		top-down-break visit(ast){
-			case \initializer(Statement initializerBody): checkSize(initializerBody);
-    		case \method(_, _, _, _, Statement impl): 	checkSize(impl);
-    		case \constructor(_, _, _, Statement impl): checkSize(impl);
+	
+	for(c <- classes(model)){
+		for(f <- fields(model, c)){
+			mods = modifiers[f];
+			if(\public() in mods && !({\static(), \final()} < mods)){
+				msgs += classDesign("VisibilityModifier", f);
+			}
 		}
 	}
 	
-	top-down-break visit(ast){
-		case m: \field(Type \type, list[Expression] fragments): checkVis(m, intercalate(".", fragments));
-	}
 	return msgs;
 }
 
-list[Message] finalClass(node ast, M3 model){
-    annotations = model@annotations;
+list[Message] finalClass(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+    modifiers = model@modifiers;
 	msgs = [];
-	void notPrivate(node ast) = \private() notin annotations[ast@src];
+	bool isPrivate(loc m) = \private() in modifiers[m];
 	
-	bool hasOnlyPrivateMethods(node ast){
-		top-down-break visit(ast){
-			case m: \initializer(Statement initializerBody):	if(notPrivate(ast)) return false;
-    		case m: \method(_, _, _, _, Statement impl): 		if(notPrivate(ast)) return false;
-    		case m: \constructor(_, _, _, Statement impl): 		if(notPrivate(ast)) return false;
+	bool hasOnlyPrivateConstructors(loc class){
+		ncons = 0;
+		for(m <-  methods(model, class)){
+			if(m.scheme == "java+constructor"){
+				ncons += 1;
+				if(!isPrivate(m)){
+					return false;
+				}
+			}	
 		}
-		return true;
+		return ncons > 0;
 	}
-	void checkFinalClass(node ast) { 
-		if(hasOnyPrivateMethods(ast) && \final() notin annotations[c]){
-			msgs += classDesign("FinalClass", ast@src);
+	
+	for(c <- classes(model)){
+		if(hasOnlyPrivateConstructors(c) && \final() notin modifiers[c]){
+			msgs += classDesign("FinalClass", c);
 		}
 	}
-	
-	top-down-break visit(ast){
-		case c: \class(str name, list[Type] extends, list[Type] implements, list[Declaration] body):
-			checkFinalClass(c);
-	
-    	case c: \class(list[Declaration] body):
-    		checkFinalClass(c);
-    }
+
     return msgs;
 }
 
-list[Message] mutableException(node ast, M3 model){
-	annotations = model@annotations;
+list[Message] mutableException(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+	modifiers = model@modifiers;
 	msgs = [];
-	bool hasOnlyFinalFields(node ast){
-		top-down-break visit(ast){
-			case m: \field(Type \type, list[Expression] fragments): 
-				if(\final() notin annotations[m]){
-					return false;
-				}
-		}
-		return true;
+	bool hasOnlyFinalFields(loc c){
+		return all(f <- fields(model, c), \final() in modifiers[f]);
 	}
-
-	top-down-break visit(ast){
-		case c: \class(str name, list[Type] extends, list[Type] implements, list[Declaration] body):
-			if((/Exception$/ := name || /Error$/ := name) && !hasOnlyFinalFields(c)){ 
+	
+	for(c <- classDeclarations){
+		if((/Exception$/ := c.name || /Error$/ := c.name) && !hasOnlyFinalFields(c@decl /*getDeclaredEntity(c@src, model)*/)){ 
 				msgs += classDesign("MutableException", c@src);
 			}
 	}
+
     return msgs;
 }
 
-list[Message] throwsCount(node ast, M3 model){
+list[Message] throwsCount(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
 	msgs = [];
-
-	void cntExceptions(node ast, list[Expression] exceptions){
-		if(size(exceptions) > 1){
-			msgs += classDesign("TrhowsCount", ast@src);
+	
+	for(m <- methodDeclarations){
+		if(size([e | /e:\throw(_) := m.impl]) > 1){
+			msgs += classDesign("ThrowsCount", m@src);
 		}
 	}
-	top-down-break visit(ast){
-		case m: \method(_, _, _, list[Expression] exceptions, _):	cntExceptions(m, exceptions);
-    	case m: \method(_, _, _, list[Expression] exceptions): 		cntExceptions(m, exceptions);
-    	case m: \constructor(_, _, list[Expression] exceptions, _):	cntExceptions(m, exceptions);
-	}
+
 	return msgs;
 }
 
