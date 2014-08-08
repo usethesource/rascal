@@ -39,7 +39,7 @@ bool check(str stmts, list[str] expected, list[str] importedModules = [], list[s
 }
 
 bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls = []){
-     errors = getAllMessages(checkStatementsString(stmts, importedModules=importedModules, initialDecls=initialDecls));
+     errors = getFailureMessages(checkStatementsString(stmts, importedModules=importedModules, initialDecls=initialDecls));
      println(errors);
      if(size(errors) == 0)
         return true;
