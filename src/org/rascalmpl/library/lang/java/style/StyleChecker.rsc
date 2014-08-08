@@ -11,6 +11,8 @@ import lang::java::m3::AST;
 import Message;
 import String;
 import IO;
+import lang::xml::DOM;
+import Relation;
 
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
@@ -64,10 +66,48 @@ list[Message] main(loc dir = |project://java-checkstyle-tests|){
 
 // temporary functions for regression testing with checkstyle
 
-test bool compare() {
-  msgs = main();
-  report = getCheckStyleMessages();
+@doc{measure if Rascal reports issues that CheckStyle also does}
+test bool precision() {
+  ra = main();
+  cs = getCheckStyleMessages();
   
+  println("comparing checkstyle:
+          '  <cs>
+          'with rascal
+          '  <ra>");
+
+  // first hash on file names
+  
+  ram = index({< path, mr> | mr <- ra, /.*src\/<path:.*>$/ := mr.pos.path});
+  csm = index({< path, mc> | mc:<l,_> <- cs, /.*src\/<path:.*>$/ := l.path});
+  
+  
+  for (path <- ram, bprintln("for file <path>")) {
+    if (path in csm) {
+       racm = index({<mr.category, <mr.pos.begin.line, mr.pos.end.line>> | mr <- ram[path]});
+       cscm = index({ <cat, mc.begin.line> | <mc,cat> <- csm[path]});
+       
+       for (cat <- racm, bprintln("  for category <cat>")) {
+         if (cat notin cscm) {
+            println("    category not found by checkstyle: <cat>, <path>, <racm[cat]>");
+            break;          
+         }
+         
+         for (<sl, el> <- racm[cat], !any(l <- cscm[cat], l >= sl && l <= el)) {
+            println("    line number not matched by checkstyle: <cat>, <path>, <racm[cat]>");
+         }
+         
+         for (cat in cscm, <sl, el> <- racm[cat], l <- cscm[cat], l >= sl && l <= el) {
+            println("    match found: <cat>, <path>, <l>");
+         }
+       }
+    }
+    else {
+       println("  path not found by checkstyle: <path> : <ram[path]>");
+    }
+  }
+  
+  return false;        
 }
 
 rel[loc, str] getCheckStyleMessages(loc checkStyleXmlOutput = |project://java-checkstyle-tests/lib/output.xml|) {
