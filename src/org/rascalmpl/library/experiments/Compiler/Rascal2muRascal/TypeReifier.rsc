@@ -249,7 +249,7 @@ public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] defin
 public default map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) = definitions;
 
 private Production sym2prod(Symbol::\cons(Symbol \type, str name, list[Symbol] parameters)) 
-	= Production::\cons(Symbol::label(name, \type), parameters, {}) 
+	= Production::\cons(Symbol::label(name, \type), parameters, [], (), {}) 
 		when Symbol::\adt(str _, list[Symbol] _) := \type;
 private Production sym2prod(Symbol::\prod(Symbol \type, str name, list[Symbol] parameters, set[Attr] attributes))
 	= Production::\prod(Symbol::\label(name, \type), parameters, attributes) 
