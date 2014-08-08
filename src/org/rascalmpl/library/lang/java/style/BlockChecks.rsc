@@ -43,29 +43,29 @@ list[Message] emptyBlock(node ast, M3 model, list[Declaration] classDeclarations
   
   top-down-break visit(ast){
   	
-  	case a: \catch(_, body):	check("EmptyCatchBlock", body); 
+  	case a: \catch(_, body):	check("EmptyBlock", body); 
   		
-  	case a : \do(body, _):		check("EmptyDoBlock", body);
-  	case a : \while(_, body):	check("EmptyWhileBlock", body);
+  	case a : \do(body, _):		check("EmptyBlock", body);
+  	case a : \while(_, body):	check("EmptyBlock", body);
   	case a : \for(_, _, _, Statement body) :
-  								check("EmptyForBlock", body);
+  								check("EmptyBlock", body);
   	case a : \for(_, _, Statement body) :
-  								check("EmptyForBlock", body);
+  								check("EmptyBlock", body);
   	case a : \if(_, Statement thenBranch):
-  								check("EmptyThenBlock", thenBranch); 
+  								check("EmptyBlock", thenBranch); 
   	case a : \if(_, Statement thenBranch, Statement elseBranch): {
-  								check("EmptyThenBlock", thenBranch);
-  								check("EmptyElseBlock", elseBranch);
+  								check("EmptyBlock", thenBranch);
+  								check("EmptyBlock", elseBranch);
   								}
   	case a: \try(Statement body, _):
-  								check("EmptyTryBlock", body);
+  								check("EmptyBlock", body);
  
   	case a : \try(body, _, Statement \finally) : {
-  								check("EmptyTryBlock", body);
-  								check("EmptyFinallyBlock", \finally);
+  								check("EmptyBlock", body);
+  								check("EmptyBlock", \finally);
   								}
   	case a : \initializer(Statement initializerBody):
-  								check("EmptyInitializerBlock", initializerBody);
+  								check("EmptyBlock", initializerBody);
   }
 
   return msgs;
