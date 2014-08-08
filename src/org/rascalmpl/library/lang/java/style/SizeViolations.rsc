@@ -12,6 +12,8 @@ import IO;
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
 
+import lang::java::style::Utils;
+
 data Message = sizeViolation(str category, loc pos);
 
 /*
@@ -25,19 +27,19 @@ OuterTypeNumber				TBD
 MethodCount					DONE
 */
 
-list[Message] sizeViolations(node ast, M3 model) {
+list[Message] sizeViolationsChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
 	return
-		   executableStatementCount(ast, model)
-		+  fileLength(ast, model)
-		+  methodLength(ast, model)
-		+ parameterNumber(ast, model)
+		  executableStatementCount(ast, model, classDeclarations, methodDeclarations)
+		+ fileLength(ast, model, classDeclarations, methodDeclarations)
+		+ methodLength(ast, model, classDeclarations, methodDeclarations)
+		+ parameterNumber(ast, model, classDeclarations, methodDeclarations)
 		;
 
 }
 
-list[Message] executableStatementCount(node ast, M3 model){
+list[Message] executableStatementCount(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
 	msgs = [];
-	void checkSize(node ast){
+	void checkSize(Statement ast){
 		if(size([s | /Statement s := ast]) > 30){
 			msgs += sizeViolation("ExecutableStatementCount", ast@src);
 		}
@@ -50,39 +52,36 @@ list[Message] executableStatementCount(node ast, M3 model){
 	return msgs;
 }
 
-list[Message] fileLength(node ast, M3 model){
-	return (ast@src.end.line > 2000) ?  sizeViolation("FileLength", ast@src);
+list[Message] fileLength(Declaration ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+	return (ast@src.end.line > 2000) ?  sizeViolation("FileLength", ast@src) : [];
 }
 
-list[Message] methodLength(node ast, M3 model){
+list[Message] methodLength(Declaration ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
 	msgs = [];
-	void checkSize(node ast){
+	void checkSize(Declaration ast){
 		if(ast@src.end.line - ast@src.begin.line > 150){
 			msgs += sizeViolation("MethodLength", ast@src);
 		}
 	}
-	top-down-break visit(ast){
-    	case m: \method(_, _, _, _, Statement impl): checkSize(m);
-    	case m: \constructor(_, _, _, Statement impl): checkSize(m);
+	for(m <- methodDeclarations){
+		checkSize(m);
 	}
+	
 	return msgs;
 }
 
-list[Message] parameterNumber(node ast, M3 model){
-	parameters = model@parameters;
-	void checkSize(node ast){
-		if(size(parameters[ast@src]) > 7){
-			msgs += sizeViolation("ParameterNumber", ast@src);
+list[Message] parameterNumber(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+	msgs = [];
+	
+	for(m <- methodDeclarations){
+		if(size(m.parameters) > 7){
+			msgs += sizeViolation("ParameterNumber", m@src);
 		}
 	}
-	top-down-break visit(ast){
-    	case m: \method(_, _, _, _, Statement impl): checkSize(m);
-    	case m: \constructor(_, _, _, Statement impl): checkSize(m);
-	}
 	return msgs;
 }
 
-// TODO: this check should be refined er method category
-list[Message] methodCount(node ast, M3 model){
+// TODO: this check should be refined per method category
+list[Message] methodCount(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
     return size([m | /m:\method(_, _, _, _, Statement impl) := ast]) > 100 ? sizeViolation("MethodCount", ast@src) : [];
 }

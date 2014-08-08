@@ -113,6 +113,11 @@ bool undeclaredVariable(str stmts, list[str] importedModules = [], list[str] ini
 		"Only constructors or productions with a different arity are available"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
+bool undeclaredType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
+	check(stmts, [
+		"Type _ not declared"
+	], importedModules=importedModules, initialDecls=initialDecls);
+
 bool undefinedField(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
 		"Field _ does not exist on type _"
@@ -121,7 +126,9 @@ bool undefinedField(str stmts, list[str] importedModules = [], list[str] initial
 bool argumentMismatch(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
 		"Function of type _ cannot be called with argument types _", 
-		"Constructor of type _ cannot be built with argument types _"
+		"Constructor of type _ cannot be built with argument types _",
+		"Keyword parameter of type _ cannot be assigned argument of type _",
+		"Unknown keyword parameters passed: _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 bool redeclaredVariable(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
@@ -143,6 +150,11 @@ bool declarationError(str stmts, list[str] importedModules = [], list[str] initi
 		"Constructor overlaps existing constructors in the same datatype", 
 		"Initializer type",
 		"Errors present in constructor parameters, cannot add constructor to scope"
+	], importedModules=importedModules, initialDecls=initialDecls);
+	
+bool missingModule(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
+	check(stmts, [
+		"Cannot import module _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
 void makeModule(str name, str body){

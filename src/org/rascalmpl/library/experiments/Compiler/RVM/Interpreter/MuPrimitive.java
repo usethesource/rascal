@@ -401,7 +401,8 @@ public enum MuPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isMap());
+			stack[sp - 1] = vf.bool(stack[sp - 1] instanceof Map);
+//			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isMap());
 			return sp;
 		};
 	},

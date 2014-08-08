@@ -30,7 +30,7 @@ TypeName				classes and interfaces				^[A-Z][a-zA-Z0-9]*$						DONE
 
 data Message = namingConvention(str category, loc pos, str id);
 
-list[Message] namingConventions(node ast, M3 model) {
+list[Message] namingConventionsChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
   rel[loc name, loc src] decls = model@declarations;
   rel[loc name, Modifier modifier] modifiers = model@modifiers;
   
@@ -48,7 +48,7 @@ list[Message] namingConventions(node ast, M3 model) {
   			}
   		}
   		elemModifiers = modifiers[n];
-  		println("<elementName>: <elemModifiers>, <n>, <pos>");
+  		//println("<elementName>: <elemModifiers>, <n>, <pos>");
   		
   		switch(n.scheme){
   			case "java+compilationUnit": {
@@ -77,7 +77,6 @@ list[Message] namingConventions(node ast, M3 model) {
   			case "java+field":	
   					if({\static(), \final()} <=  elemModifiers){
   						elems = split(elementName, "_");
-  						println("java+field: <elems>");
   						if( /^[A-Z][A-Z0-9]*$/ !:= elems[0] || any( elem <- elems[1..], /^[A-Z0-9]+$/ !:= elem)){
   							append namingConvention("ConstantName", pos, elementName);
   						}
@@ -113,6 +112,8 @@ list[Message] namingConventions(node ast, M3 model) {
   					if(/^[A-Z][a-zA-Z0-9]*$/ !:= elementName){ 
   						append namingConvention("TypeName", pos, elementName); 
   					}
+  					
+  			case "java+initializer":	;
   			
   			default:
   				throw "Cannot handle scheme <n>, <pos>";
