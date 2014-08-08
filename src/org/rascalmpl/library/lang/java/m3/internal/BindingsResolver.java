@@ -241,7 +241,7 @@ public class BindingsResolver {
 		if (binding == null)
 			return null;
 		ISourceLocation decl = resolveBinding(binding);
-		return computeMethodTypeSymbol(decl, binding, isDeclaration);
+		return computeMethodTypeSymbol(decl, binding.getMethodDeclaration(), isDeclaration);
 	}
 	
   private IConstructor computeMethodTypeSymbol(ISourceLocation decl, IMethodBinding binding, boolean isDeclaration) {
@@ -260,7 +260,8 @@ public class BindingsResolver {
   private IList computeTypes(ITypeBinding[] bindings, boolean isDeclaration) {
     IListWriter parameters = values.listWriter();
     for (ITypeBinding parameterType: bindings) {
-        parameters.append(computeTypeSymbol(parameterType, isDeclaration));
+    	IConstructor arg = computeTypeSymbol(parameterType, isDeclaration);
+        parameters.append(arg);
     }
     return parameters.done();
   }
@@ -283,24 +284,16 @@ public class BindingsResolver {
   }
 
   private IConstructor parameterNode(ISourceLocation decl, ITypeBinding[] bound, boolean isDeclaration, boolean isUpperbound) {
-    if (bound.length > 0) {
-      if (isDeclaration) {
-	    IConstructor boundSym = boundSymbol(bound, isDeclaration, isUpperbound);
-	    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeParameter", tf.tupleType(decl.getType(), boundSym.getType()));
-	    return values.constructor(cons, decl, boundSym);
+	IConstructor boundSym = unboundedSym();
+    if (isDeclaration) {
+      if (bound.length > 0) {
+        boundSym = boundSymbol(bound, isDeclaration, isUpperbound);
       }
-      org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeArgument", tf.tupleType(decl.getType()));
-      return values.constructor(cons, decl);
+      org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeParameter", tf.tupleType(decl.getType(), boundSym.getType()));
+      return values.constructor(cons, decl, boundSym);
     }
-    else {
-      return parameterNode(decl);
-    }
-  }
-
-  private IConstructor parameterNode(ISourceLocation decl) {
-    IConstructor boundSym = unboundedSym();
-    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeParameter", tf.tupleType(decl.getType(), boundSym.getType()));
-    return values.constructor(cons, decl, boundSym);
+    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeArgument", tf.tupleType(decl.getType()));
+    return values.constructor(cons, decl);
   }
 
   private IConstructor unboundedSym() {
@@ -330,15 +323,7 @@ public class BindingsResolver {
       return enumSymbol(decl);
     }
     else if (binding.isTypeVariable()) {
-      ITypeBinding[] bound = binding.getTypeBounds();
-      
-      if (bound.length == 0) {
-        return parameterNode(decl);
-      }
-      else {
-    	// for type parameters it is always upperbound
-        return parameterNode(decl, bound, isDeclaration, true);
-      } 
+    	return parameterNode(decl, binding.getTypeBounds(), isDeclaration, true);
     }
     else if (binding.isWildcardType()) {
       /*
@@ -354,7 +339,7 @@ public class BindingsResolver {
       else {
         return wildcardSymbol(boundSymbol(new ITypeBinding[] { bound }, isDeclaration, binding.isUpperbound()));
       }
-    }  
+    }
     else if (binding.isClass()) {
       return classSymbol(decl, computeTypes(isDeclaration ? binding.getTypeParameters() : binding.getTypeArguments(), isDeclaration));
     }
