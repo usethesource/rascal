@@ -340,8 +340,8 @@ public class SourceConverter extends M3Converter {
 	
 	public void endVisit(SingleVariableDeclaration node) {
 		ownValue = scopeManager.pop();
-	  IConstructor type = bindingsResolver.computeTypeSymbol(node.getType().resolveBinding(), false);
-    insert(types, ownValue, type);
+	    IConstructor type = bindingsResolver.computeTypeSymbol(node.getType().resolveBinding(), false);
+        insert(types, ownValue, type);
 	}
 	
 	public boolean visit(SuperConstructorInvocation node) {
