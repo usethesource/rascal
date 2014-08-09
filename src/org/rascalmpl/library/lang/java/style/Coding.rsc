@@ -287,7 +287,7 @@ list[Message] returnCount(node ast, M3 model, list[Declaration] classDeclaration
    		 return cnt;
 	}
 	for(m <- methodDeclarations){
-		if(countReturns(m.impl) > limit) {
+		if(m has impl && countReturns(m.impl) > limit) {
     			msgs += coding("ReturnCount", m@src);
     	}
     }
