@@ -74,30 +74,11 @@ UnnecessaryParentheses			TBD
 OneStatementPerLine				TBD
 */
 
-list[Message] codingChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
-	return 
-		  avoidInlineConditionals(ast, model, classDeclarations, methodDeclarations)
-		+ magicNumber(ast, model, classDeclarations, methodDeclarations)
-		+ missingSwitchDefault(ast, model, classDeclarations, methodDeclarations)
-		+ simplifyBooleanExpression(ast, model, classDeclarations, methodDeclarations)
-		+ simplifyBooleanReturn(ast, model, classDeclarations, methodDeclarations)
-		+ stringLiteralEquality(ast, model, classDeclarations, methodDeclarations)
-		+ nestedForDepth(ast, model, classDeclarations, methodDeclarations)
-		+ nestedIfDepth(ast, model, classDeclarations, methodDeclarations)
-		+ nestedTryDepth(ast, model, classDeclarations, methodDeclarations)
-		+ noClone(ast, model, classDeclarations, methodDeclarations)
-		+ noFinalizer(ast, model, classDeclarations, methodDeclarations)
-		+ returnCount(ast, model, classDeclarations, methodDeclarations)
-		+ defaultComesLast(ast, model, classDeclarations, methodDeclarations)
-		+ fallThrough(ast, model, classDeclarations, methodDeclarations)
-		+ multipleStringLiterals(ast, model, classDeclarations, methodDeclarations)
-		;
-}
 
-list[Message] avoidInlineConditionals(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) =
+list[Message] avoidInlineConditionals(node ast, M3 model, OuterDeclarations decls) =
 	[coding("AvoidInlineConditionals", c@src) | /c:\conditional(_, _, _) := ast];
 
-list[Message] magicNumber(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] magicNumber(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
  	for( /s: \number(str numberValue) := ast){
  		if(numberValue notin {"-1", "0", "1", "2"}){
@@ -107,7 +88,7 @@ list[Message] magicNumber(node ast, M3 model, list[Declaration] classDeclaration
  	return msgs;
 }
 
-list[Message] missingSwitchDefault(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] missingSwitchDefault(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
 	
 	top-down-break visit(ast){
@@ -119,7 +100,7 @@ list[Message] missingSwitchDefault(node ast, M3 model, list[Declaration] classDe
 	return msgs;
 }
 
-list[Message] simplifyBooleanExpression(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] simplifyBooleanExpression(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
 	
 	void checkBoolConstant(operand){
@@ -135,7 +116,7 @@ list[Message] simplifyBooleanExpression(node ast, M3 model, list[Declaration] cl
 	return msgs;
 }
 
-list[Message] simplifyBooleanReturn(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] simplifyBooleanReturn(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
 	
 	bool isBooleanReturn (stat) =
@@ -151,7 +132,7 @@ list[Message] simplifyBooleanReturn(node ast, M3 model, list[Declaration] classD
 	return msgs;
 }
 
-list[Message] stringLiteralEquality(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] stringLiteralEquality(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
 	
 	bool checkStringLiteral(operand) = stringLiteral(_) := operand;
@@ -163,7 +144,7 @@ list[Message] stringLiteralEquality(node ast, M3 model, list[Declaration] classD
 	return msgs;
 }
 
-list[Message] nestedForDepth(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] nestedForDepth(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
 	int limit = 2;
 	
@@ -185,7 +166,7 @@ list[Message] nestedForDepth(node ast, M3 model, list[Declaration] classDeclarat
     return msgs;
 }
 
-list[Message] nestedIfDepth(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] nestedIfDepth(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
 	int limit = 2;
 	
@@ -207,7 +188,7 @@ list[Message] nestedIfDepth(node ast, M3 model, list[Declaration] classDeclarati
     return msgs;
 }
 
-list[Message] nestedTryDepth(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] nestedTryDepth(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
 	int limit = 2;
 	
@@ -236,10 +217,10 @@ list[Message] nestedTryDepth(node ast, M3 model, list[Declaration] classDeclarat
     return msgs;
 }
 
-list[Message] noClone(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] noClone(node ast, M3 model, OuterDeclarations decls){
 	overrides = model@methodOverrides;
 	msgs = [];
-	for(m <- methodDeclarations){	// the loc of the method with and without @Override differ
+	for(m <- decls.allMethods){	// the loc of the method with and without @Override differ
 		if(m.name == "clone"){
 			entity = m@decl; //getDeclaredEntity(m@src, model);
 			if(!isEmpty(overrides[entity])) { 
@@ -250,9 +231,9 @@ list[Message] noClone(node ast, M3 model, list[Declaration] classDeclarations, l
 	return msgs;
 }
 
-list[Message] noFinalizer(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] noFinalizer(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
-	for(m <- methodDeclarations){
+	for(m <- decls.allMethods){
 		if(m.name == "finalizer"){
 			msgs += coding("NoFinalizer", m@src);
 		}
@@ -260,7 +241,7 @@ list[Message] noFinalizer(node ast, M3 model, list[Declaration] classDeclaration
 	return msgs;
 }
 
-list[Message] multipleStringLiterals(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){	// TODO: should exclude strings in annotations
+list[Message] multipleStringLiterals(node ast, M3 model, OuterDeclarations decls){	// TODO: should exclude strings in annotations
 	seen = {};
 	msgs = [];
  	for( /s: stringLiteral(str stringValue) := ast){
@@ -274,7 +255,7 @@ list[Message] multipleStringLiterals(node ast, M3 model, list[Declaration] class
  	return msgs;
 }
 
-list[Message] returnCount(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] returnCount(node ast, M3 model, OuterDeclarations decls){
 	int limit = 2;
 	msgs = [];
 	
@@ -286,7 +267,7 @@ list[Message] returnCount(node ast, M3 model, list[Declaration] classDeclaration
    		 }
    		 return cnt;
 	}
-	for(m <- methodDeclarations){
+	for(m <- decls.allMethods){
 		if(m has impl && countReturns(m.impl) > limit) {
     			msgs += coding("ReturnCount", m@src);
     	}
@@ -295,7 +276,7 @@ list[Message] returnCount(node ast, M3 model, list[Declaration] classDeclaration
 	return msgs;
 }
 
-list[Message] defaultComesLast(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] defaultComesLast(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
 	
 	bool defComesLast(list[Statement] statements){
@@ -316,7 +297,7 @@ list[Message] defaultComesLast(node ast, M3 model, list[Declaration] classDeclar
 	return msgs;
 }
 
-list[Message] fallThrough(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){		// TODO: give no message when fallthru comment is present.
+list[Message] fallThrough(node ast, M3 model, OuterDeclarations decls){		// TODO: give no message when fallthru comment is present.
 	msgs = [];
 	
 	bool containsExit(Statement stat){

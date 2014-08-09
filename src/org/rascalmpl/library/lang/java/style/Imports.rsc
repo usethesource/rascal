@@ -26,25 +26,18 @@ ImportOrder			TBD
 ImportControl		TBD
 */
 
-list[Message] importsChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
-	return
-		  avoidStarImport(ast, model, classDeclarations, methodDeclarations)
-		+ avoidStaticImport(ast, model, classDeclarations, methodDeclarations)
-		+ illegalImport(ast, model, classDeclarations, methodDeclarations)
-		+ redundantImport(ast, model, classDeclarations, methodDeclarations)
-		;
-}
 
-list[Message] avoidStarImport(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) =
+
+list[Message] avoidStarImport(node ast, M3 model, OuterDeclarations decls) =
 	[ imports("AvoidStarImport", imp@src) | /Declaration imp: \import(_) := ast, \onDemand() in (imp@modifiers?{})];
 	
-list[Message] avoidStaticImport(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) =
+list[Message] avoidStaticImport(node ast, M3 model, OuterDeclarations decls) =
 	[ imports("AvoidStaticImport", imp@src) | /Declaration imp: \import(_) := ast, \static() in (imp@modifiers?{})];
 	
-list[Message] illegalImport(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) =
+list[Message] illegalImport(node ast, M3 model, OuterDeclarations decls) =
 	[ imports("IllegalImport", imp@src) | /Declaration imp: \import(name) := ast, startsWith(name, "sun")];
 	
-list[Message] redundantImport(Declaration ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
+list[Message] redundantImport(node ast, M3 model, OuterDeclarations decls) {
 	msgs = [];
 	
 	packageName = getPackageName(ast);

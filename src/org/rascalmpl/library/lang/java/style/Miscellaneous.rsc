@@ -32,19 +32,14 @@ OuterTypeFilename	DONE
 UniqueProperties	TBD
 */
 
-list[Message] miscellaneousChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
-	return
-		  unCommentedMain(ast, model, classDeclarations, methodDeclarations)
-		+ outerTypeFilename(ast, model, classDeclarations, methodDeclarations)
-		;
-}
 
-list[Message] unCommentedMain(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) =
-	[miscellaneous("UnCommentedMain", m@src)  | m <- methodDeclarations, m.name == "main"];
+
+list[Message] unCommentedMain(node ast, M3 model, OuterDeclarations decls) =
+	[miscellaneous("UnCommentedMain", m@src)  | m <- decls.allMethods, m.name == "main"];
 	
 // model@containment<1,0>)[ast@decl] is ambiguous!
 
-list[Message] outerTypeFilename(Declaration ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) =
+list[Message] outerTypeFilename(Declaration ast, M3 model, OuterDeclarations decls) =
     [miscellaneous("OuterTypeFilename", innerDecl)  | innerDecl <- (model@containment)[ast@decl] , 
     											  \public() in model@modifiers[innerDecl],
 												  !endsWith(ast@decl.path[..-5], innerDecl.path) ];

@@ -9,6 +9,8 @@ import String;
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
 
+import lang::java::style::Utils;
+
 import IO;
 
 /*
@@ -30,12 +32,12 @@ TypeName				classes and interfaces				^[A-Z][a-zA-Z0-9]*$						DONE
 
 data Message = namingConvention(str category, loc pos, str id);
 
-list[Message] namingConventionsChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
-  rel[loc name, loc src] decls = model@declarations;
+list[Message] namingConventionsChecks(node ast, M3 model, OuterDeclarations decls) {
+  rel[loc name, loc src] decls1 = model@declarations;
   rel[loc name, Modifier modifier] modifiers = model@modifiers;
   
   return 
-  	for(<n, pos> <- decls){
+  	for(<n, pos> <- decls1){
   		path = n.path;
   		elementName = path[findLast(path, "/") + 1 ..];
   		sep = findLast(elementName, "(");
