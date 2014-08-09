@@ -53,7 +53,7 @@ list[Message] executableStatementCount(node ast, M3 model, list[Declaration] cla
 }
 
 list[Message] fileLength(Declaration ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
-	return (ast@src.end.line > 2000) ?  sizeViolation("FileLength", ast@src) : [];
+	return (ast@src.end.line > 2000) ?  [sizeViolation("FileLength", ast@src)] : [];
 }
 
 list[Message] methodLength(Declaration ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
