@@ -99,7 +99,7 @@ list[Message] throwsCount(node ast, M3 model, list[Declaration] classDeclaration
 	msgs = [];
 	
 	for(m <- methodDeclarations){
-		if(size([e | /e:\throw(_) := m.impl]) > 1){
+		if(m has impl && size([e | /e:\throw(_) := m.impl]) > 1){
 			msgs += classDesign("ThrowsCount", m@src);
 		}
 	}

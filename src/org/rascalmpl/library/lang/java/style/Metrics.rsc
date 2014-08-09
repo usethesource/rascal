@@ -69,8 +69,8 @@ list[Message] classDataAbstractionCoupling(node ast, M3 model, list[Declaration]
 	invNames = model@names<1,0>;
 	
 	str getName(loc declaration){
-		if({ name } := invNames[declaration])
-			return name;
+		p = declaration.path;
+		return p[findLast(p, "/")+1 .. ];
 	}
     set[str] getNew(Declaration ast){
     	news = {};
@@ -84,7 +84,7 @@ list[Message] classDataAbstractionCoupling(node ast, M3 model, list[Declaration]
     		case obj: \newObject(Type \type, list[Expression] args, Declaration class):
     			news += getName(obj@typ.decl);
     		
-    		case obj: \newObject(Type \type, list[Expression] args): 
+    		case obj: \newObject(Type \type, list[Expression] args):
     			news += getName(obj@typ.decl);
     	}
     	return news;
