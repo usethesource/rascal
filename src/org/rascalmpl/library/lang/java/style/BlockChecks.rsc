@@ -9,6 +9,7 @@ import List;
 
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
+import lang::java::style::Utils;
 
 import IO;
 
@@ -22,15 +23,9 @@ AvoidNestedBlocks	DONE
 
 data Message = blockCheck(str category, loc pos);
 
-list[Message] blockChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
-	return 
-		  emptyBlock(ast, model, classDeclarations, methodDeclarations) 
-		+ needBraces(ast, model, classDeclarations, methodDeclarations)
-		+ avoidNestedBlocks(ast, model, classDeclarations, methodDeclarations)
-		;
-}
 
-list[Message] emptyBlock(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
+
+list[Message] emptyBlock(node ast, M3 model, OuterDeclarations decls) {
   msgs = [];
   bool isEmpty(empty()) = true;
   bool isEmpty(block([])) = true;
@@ -44,35 +39,35 @@ list[Message] emptyBlock(node ast, M3 model, list[Declaration] classDeclarations
   
   top-down-break visit(ast){
   	
-  	case a: \catch(_, body):	check("EmptyBlock", body); 
+  	case \catch(_, body):	check("EmptyBlock", body); 
   		
-  	case a : \do(body, _):		check("EmptyBlock", body);
-  	case a : \while(_, body):	check("EmptyBlock", body);
-  	case a : \for(_, _, _, Statement body) :
+  	case \do(body, _):		check("EmptyBlock", body);
+  	case \while(_, body):	check("EmptyBlock", body);
+  	case \for(_, _, _, Statement body) :
   								check("EmptyBlock", body);
-  	case a : \for(_, _, Statement body) :
+  	case \for(_, _, Statement body) :
   								check("EmptyBlock", body);
-  	case a : \if(_, Statement thenBranch):
+  	case \if(_, Statement thenBranch):
   								check("EmptyBlock", thenBranch); 
-  	case a : \if(_, Statement thenBranch, Statement elseBranch): {
+  	case \if(_, Statement thenBranch, Statement elseBranch): {
   								check("EmptyBlock", thenBranch);
   								check("EmptyBlock", elseBranch);
   								}
-  	case a: \try(Statement body, _):
+  	case \try(Statement body, _):
   								check("EmptyBlock", body);
  
-  	case a : \try(body, _, Statement \finally) : {
+  	case \try(body, _, Statement \finally) : {
   								check("EmptyBlock", body);
   								check("EmptyBlock", \finally);
   								}
-  	case a : \initializer(Statement initializerBody):
+  	case \initializer(Statement initializerBody):
   								check("EmptyBlock", initializerBody);
   }
 
   return msgs;
 }
 
-list[Message] needBraces(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] needBraces(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
 	
 	void check(Statement body){
@@ -100,7 +95,7 @@ list[Message] needBraces(node ast, M3 model, list[Declaration] classDeclarations
 	return msgs;
 }
 
-list[Message] avoidNestedBlocks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] avoidNestedBlocks(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
 	void checkNesting(list[Statement] stats){
 		for(stat <- stats){

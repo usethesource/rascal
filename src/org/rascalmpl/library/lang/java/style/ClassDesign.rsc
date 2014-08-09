@@ -27,16 +27,9 @@ ThrowsCount					DONE
 InnerTypeLast				TBD
 */
 
-list[Message] classDesignChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
-	return
-		     visibilityModifier(ast, model, classDeclarations, methodDeclarations)
-		   + finalClass(ast, model, classDeclarations, methodDeclarations)
-		   + mutableException(ast, model, classDeclarations, methodDeclarations)
-		   + throwsCount(ast, model, classDeclarations, methodDeclarations)
-		   ;
-}
 
-list[Message] visibilityModifier(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+
+list[Message] visibilityModifier(node ast, M3 model, OuterDeclarations decls){
 	modifiers = model@modifiers;
 	msgs = [];
 	
@@ -52,7 +45,7 @@ list[Message] visibilityModifier(node ast, M3 model, list[Declaration] classDecl
 	return msgs;
 }
 
-list[Message] finalClass(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] finalClass(node ast, M3 model, OuterDeclarations decls){
     modifiers = model@modifiers;
 	msgs = [];
 	bool isPrivate(loc m) = \private() in modifiers[m];
@@ -79,14 +72,14 @@ list[Message] finalClass(node ast, M3 model, list[Declaration] classDeclarations
     return msgs;
 }
 
-list[Message] mutableException(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] mutableException(node ast, M3 model, OuterDeclarations decls){
 	modifiers = model@modifiers;
 	msgs = [];
 	bool hasOnlyFinalFields(loc c){
 		return all(f <- fields(model, c), \final() in modifiers[f]);
 	}
 	
-	for(c <- classDeclarations){
+	for(c <- decls.allClasses){
 		if((/Exception$/ := c.name || /Error$/ := c.name) && !hasOnlyFinalFields(c@decl /*getDeclaredEntity(c@src, model)*/)){ 
 				msgs += classDesign("MutableException", c@src);
 			}
@@ -95,10 +88,10 @@ list[Message] mutableException(node ast, M3 model, list[Declaration] classDeclar
     return msgs;
 }
 
-list[Message] throwsCount(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] throwsCount(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
 	
-	for(m <- methodDeclarations){
+	for(m <- decls.allMethods){
 		if(m has impl && size([e | /e:\throw(_) := m.impl]) > 1){
 			msgs += classDesign("ThrowsCount", m@src);
 		}

@@ -25,17 +25,9 @@ JavaNCSS						TBD
 
 data Message = metric(str category, loc pos);
 
-list[Message] metricsChecks(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations) {
-	return 
-		  booleanExpressionComplexity(ast, model, classDeclarations, methodDeclarations) 
-		+ classDataAbstractionCoupling(ast, model, classDeclarations, methodDeclarations)
-		+ classFanOutComplexity(ast, model, classDeclarations, methodDeclarations)
-		+ cyclomaticComplexity(ast, model, classDeclarations, methodDeclarations)
-		+ nPathComplexity(ast, model, classDeclarations, methodDeclarations)
-		;
-}
+
 	
-list[Message] booleanExpressionComplexity(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] booleanExpressionComplexity(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
 	
 	bool tooManyBooleanOperators(Expression e){
@@ -65,7 +57,7 @@ set[str] excludedClasses = {	// TODO: verify that these names really work (may u
 	"List", "ArrayList", "Deque", "Queue", "LinkedList", "Set", "HashSet", "SortedSet", "TreeSet", 
 	"Map", "HashMap", "SortedMap", "TreeMap"};
 
-list[Message] classDataAbstractionCoupling(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){ 
+list[Message] classDataAbstractionCoupling(node ast, M3 model, OuterDeclarations decls){ 
 	invNames = model@names<1,0>;
 	
 	str getName(loc declaration){
@@ -94,15 +86,15 @@ list[Message] classDataAbstractionCoupling(node ast, M3 model, list[Declaration]
     }
 
 	return 
-		[ metric("ClassDataAbstractionCoupling", c@src) | c <- classDeclarations, tooManyNew(c) ];
+		[ metric("ClassDataAbstractionCoupling", c@src) | c <- decls.allClasses, tooManyNew(c) ];
 }
 
-list[Message] classFanOutComplexity(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] classFanOutComplexity(node ast, M3 model, OuterDeclarations decls){
 	return 
 		[ metric("ClassFanOutComplexity", c) | c <- classes(model), size(model@typeDependency[model@containment[c]] - excludedClasses) > 7 ];
 }
 
-list[Message] cyclomaticComplexity(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] cyclomaticComplexity(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
 	void checkCC(Statement body){
 		int cnt = 1;
@@ -131,7 +123,7 @@ list[Message] cyclomaticComplexity(node ast, M3 model, list[Declaration] classDe
 	return msgs;
 }
 
-list[Message] nPathComplexity(node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations){
+list[Message] nPathComplexity(node ast, M3 model, OuterDeclarations decls){
 	msgs = [];
 	void checkNPath(Statement body){
 		if(nPath(body) > 200){

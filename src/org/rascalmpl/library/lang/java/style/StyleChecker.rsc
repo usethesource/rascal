@@ -30,26 +30,81 @@ import lang::java::style::Miscellaneous;
 import lang::java::style::NamingConventions;
 import lang::java::style::SizeViolations;
 
-alias Checker = list[Message] (node ast, M3 model, list[Declaration] classDeclarations, list[Declaration] methodDeclarations);
+alias Checker = list[Message] (Declaration ast, M3 model, OuterDeclarations decls);
 
 private set[Checker] active() = {
-  blockChecks,
-  classDesignChecks,
-  codingChecks,
-  importsChecks,
-  metricsChecks,
-  miscellaneousChecks,
-  namingConventionsChecks,
-  sizeViolationsChecks
+
+// BlockChecks
+
+		  emptyBlock
+		, needBraces
+		, avoidNestedBlocks
+
+// ClassDesignChecks
+
+		, visibilityModifier
+		, finalClass
+		, mutableException
+		, throwsCount
+
+// CodingChecks
+
+		, avoidInlineConditionals
+		, magicNumber
+		, missingSwitchDefault
+		, simplifyBooleanExpression
+		, simplifyBooleanReturn
+		, stringLiteralEquality
+		, nestedForDepth
+		, nestedIfDepth
+		, nestedTryDepth
+		, noClone
+		, noFinalizer
+		, returnCount
+		, defaultComesLast
+		, fallThrough
+		, multipleStringLiterals
+
+// ImportsChecks
+
+		, avoidStarImport
+		, avoidStaticImport
+		, illegalImport
+		, redundantImport
+
+// MetricsChecks
+
+		, booleanExpressionComplexity 
+		, classDataAbstractionCoupling
+		, classFanOutComplexity
+		, cyclomaticComplexity
+		, nPathComplexity
+
+// MiscellaneousChecks
+
+		, unCommentedMain
+		, outerTypeFilename
+
+// NamingComventions
+
+		, namingConventionsChecks
+
+// SizeViolationsChecks
+
+		, executableStatementCount
+		, fileLength
+		, methodLength
+		, parameterNumber
 };  
 
 @doc{For testing on the console; we should assume only a model for the current AST is in the model}
 list[Message] styleChecker(M3 model, set[node] asts, set[Checker] checkers = active()){
 	msgs = [];
     for(ast <- asts){
-    	classDeclarations = getAllClassDeclarations(ast);
-		classDeclarations = getAllMethodDeclarations(ast);
-		msgs += [*checker(ast, model, classDeclarations, classDeclarations) | Checker checker <- checkers];
+    	allDeclarations = getAllDeclarations(ast);
+    	//classDeclarations = getAllClassDeclarations(ast);
+		//classDeclarations = getAllMethodDeclarations(ast);
+		msgs += [*checker(ast, model, allDeclarations) | Checker checker <- checkers];
     }
     return msgs;
  }
