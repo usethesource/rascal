@@ -126,11 +126,12 @@ data Configuration = config(set[Message] messages,
                             map[str,Symbol] tvarBounds,
                             map[RName,ModuleInfo] moduleInfo,
                             map[RName,int] globalAdtMap,
+                            map[RName,int] globalSortMap,
                             map[int,Signature] deferredSignatures,
                             bool importing
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),false);
+public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),false);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -502,14 +503,14 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 	fullName = appendName(moduleName, n);
 
 	int addNonTerminal() {
-		if (n in c.globalAdtMap) {
-			return c.globalAdtMap[n];
+		if (n in c.globalSortMap) {
+			return c.globalSortMap[n];
 		}
 		itemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
 		c.store[itemId] = sorttype(n,sort,moduleId,{ l });
 		c.definitions = c.definitions + < itemId, l >;
-		c.globalAdtMap[n] = itemId;
+		c.globalSortMap[n] = itemId;
 		return itemId;
 	}
 
@@ -521,14 +522,14 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 		return c; 	
 	}
 		    
-	if (n notin c.typeEnv && n notin c.globalAdtMap) {
+	if (n notin c.typeEnv && n notin c.globalSortMap) {
 		// No type of this name already exists. Add a new nonterminal item, and link it in
 		// using both the qualified and unqualified names.
 		itemId = addNonTerminal();
 		c.typeEnv[n] = itemId;
 		c.typeEnv[fullName] = itemId;
-	} else if (n notin c.typeEnv && n in c.globalAdtMap) {
-		existingId = c.globalAdtMap[n];
+	} else if (n notin c.typeEnv && n in c.globalSortMap) {
+		existingId = c.globalSortMap[n];
 		c = extendNonTerminal(c, existingId);
 	} else if (c.store[c.typeEnv[n]] is sorttype) {
 		// A nonterminal of this name already exists. Use this existing nonterminal item, adding
@@ -734,7 +735,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 			c.fcvEnv[n] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
-			c = addScopeError(c, "Invalid addition: cannot add constructor <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or production name in the same scope.", l);
+			c = addScopeWarning(c, "Invalid declaration: constructor <prettyPrintName(n)> clashes with an existing variable, function, or production name in the same scope.", l);
 		}
 	}
 
@@ -795,7 +796,7 @@ public Configuration addImportedConstructor(Configuration c, RName n, int itemId
 			c.fcvEnv[n] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
-			c = addScopeError(c, "Invalid addition: cannot add constructor <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or production name in the same scope.", c.store[itemId].at);
+			c = addScopeWarning(c, "Invalid declaration: constructor <prettyPrintName(n)> clashes with an existing variable, function, or production name in the same scope.", c.store[itemId].at);
 		}
 	}
 
@@ -820,11 +821,11 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 
 	if (unwrapType(prod.def) is \start) {
 		sortName = RSimpleName("start[<getNonTerminalName(prod.def)>]");
-		sortId = c.globalAdtMap[sortName];
+		sortId = c.globalSortMap[sortName];
 	}
 	else {
 		sortName = RSimpleName( (prod.def is label) ? prod.def.symbol.name : prod.def.name );
-		sortId = c.globalAdtMap[sortName];
+		sortId = c.globalSortMap[sortName];
 	}   
 
 	args = prod.symbols;
@@ -857,7 +858,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 			c.fcvEnv[n] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
-			c = addScopeError(c, "Invalid addition: cannot add production <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or constructor name in the same scope.", l);
+			c = addScopeWarning(c, "Invalid declaration: production <prettyPrintName(n)> clashes with an existing variable, function, or constructor name in the same scope.", l);
 		}
 	}
 
@@ -952,7 +953,7 @@ public Configuration addImportedProduction(Configuration c, RName n, int itemId,
 			c.fcvEnv[n] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
-			c = addScopeError(c, "Invalid addition: cannot add production <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or constructor name in the same scope.", c.store[itemId].at);
+			c = addScopeWarning(c, "Invalid declaration: production <prettyPrintName(n)> clashes with an existing variable, function, or constructor name in the same scope.", c.store[itemId].at);
 		}
 	}
 

@@ -13,6 +13,8 @@ import String;
 import IO;
 import lang::xml::DOM;
 import Relation;
+import Set;
+import List;
 
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
@@ -68,43 +70,71 @@ list[Message] main(loc dir = |project://java-checkstyle-tests|){
 
 @doc{measure if Rascal reports issues that CheckStyle also does}
 test bool precision() {
-  ra = main();
-  cs = getCheckStyleMessages();
+  rascal = main();
+  checkstyle = getCheckStyleMessages();
   
   println("comparing checkstyle:
-          '  <cs>
-          'with rascal
-          '  <ra>");
+          '  <size(checkstyle)> messages: <checkstyle>
+          'with rascal:
+          '  <size(rascal)> messages: <rascal>
+          '");
 
-  // first hash on file names
+  rascalPerFile = index({< path, mr> | mr <- rascal, /.*src\/<path:.*>$/ := mr.pos.path});
+  checkstylePerFile = index({< path, mc> | mc:<l,_> <- checkstyle, /.*src\/<path:.*>$/ := l.path});
   
-  ram = index({< path, mr> | mr <- ra, /.*src\/<path:.*>$/ := mr.pos.path});
-  csm = index({< path, mc> | mc:<l,_> <- cs, /.*src\/<path:.*>$/ := l.path});
+  missingFiles = rascalPerFile<0> - checkstylePerFile<0>;
   
+  println("Rascal found errors in <size(rascalPerFile<0>)> files
+          'Checkstyle found errors in <size(checkstylePerFile<0>)> files
+          '<if (size(missingFiles) > 0) {>and these <size(missingFiles)> files are missing from checkstyle: 
+          '  <missingFiles>
+          '  counting for <(0 | it + size(rascalPerFile[m]) | m <- missingFiles)> missing messages.<} else {>and no files are missing.<}>
+          '");
+          
+  rascalCategories = { mr.category | mr <- rascal};
+  checkstyleCategories = { c | mc:<l,c> <- checkstyle};
+  missingCategories = rascalCategories - checkstyleCategories;
   
-  for (path <- ram, bprintln("for file <path>")) {
-    if (path in csm) {
-       racm = index({<mr.category, <mr.pos.begin.line, mr.pos.end.line>> | mr <- ram[path]});
-       cscm = index({ <cat, mc.begin.line> | <mc,cat> <- csm[path]});
+  println("Rascal generated <size(rascalCategories)> different categories.
+          'Checkstyle generated <size(checkstyleCategories)> different categories.
+          '<if (size(missingCategories) > 0) {>and these <size(missingCategories)> are missing from checkstyle:
+          '  <sort(missingCategories)>
+          '  (compare to <sort(checkstyleCategories - rascalCategories)>)<}>
+          '");   
+  
+  // filter for common files and report per file
+  
+  for (path <- rascalPerFile, path in checkstylePerFile, bprintln("analyzing file <path>")) {
+       rascalPerCategory = index({<mr.category, <mr.pos.begin.line, mr.pos.end.line>> | mr <- rascalPerFile[path]});
+       checkstylePerCategory = index({ <cat, mc.begin.line> | <mc,cat> <- checkstylePerFile[path]});
+       missingCategories = rascalPerCategory<0> - checkstylePerCategory<0>;
        
-       for (cat <- racm, bprintln("  for category <cat>")) {
-         if (cat notin cscm) {
-            println("    category not found by checkstyle: <cat>, <path>, <racm[cat]>");
-            break;          
+       println("  Rascal found errors in <size(rascalPerCategory<0>)> categories.
+               '  Checkstyle found errors in <size(checkstylePerCategory<0>)> categories.
+               '  <if (size(missingCategories) > 0) {>and these <size(missingCategories)> categories are missing from checkstyle: 
+               '  <missingCategories>
+               '  counting for <(0 | it + size(rascalPerCategory[m]) | m <- missingCategories)> missing messages in <checkstylePerCategory><} else {>  and no categories are missing.<}>
+               '");
+       
+       int matched = 0;
+       int notmatched = 0;
+               
+       for (cat <- rascalPerCategory, cat in checkstylePerCategory, bprintln("  analyzing category <cat>")) {
+         for (<sl, el> <- rascalPerCategory[cat], !any(l <- checkstylePerCategory[cat], l >= sl && l <= el)) {
+            println("    line number not matched by checkstyle: <cat>, <path>, <rascalPerCategory[cat]>");
+            notmatched += 1;
          }
          
-         for (<sl, el> <- racm[cat], !any(l <- cscm[cat], l >= sl && l <= el)) {
-            println("    line number not matched by checkstyle: <cat>, <path>, <racm[cat]>");
-         }
-         
-         for (cat in cscm, <sl, el> <- racm[cat], l <- cscm[cat], l >= sl && l <= el) {
+         for (cat in checkstylePerCategory, <sl, el> <- rascalPerCategory[cat], l <- checkstylePerCategory[cat], l >= sl && l <= el) {
             println("    match found: <cat>, <path>, <l>");
+            matched += 1;
          }
        }
-    }
-    else {
-       println("  path not found by checkstyle: <path> : <ram[path]>");
-    }
+       
+       if (matched > 0 && notmatched > 0)  {
+         println("  of the <matched + notmatched> messages, there were <matched> matches and <notmatched> missed messages in <path>
+                 '");
+       }        
   }
   
   return false;        
@@ -113,10 +143,13 @@ test bool precision() {
 rel[loc, str] getCheckStyleMessages(loc checkStyleXmlOutput = |project://java-checkstyle-tests/lib/output.xml|) {
    txt = readFile(checkStyleXmlOutput);
    dom = parseXMLDOM(txt);
-   r =  { <|file:///<fname>|(0,0,<toInt(l),0>,<toInt(l),0>), ch> 
+   str fix(str x) {
+     return /^.*\.<y:[A-Za-z]*>Check$/ := x ? y : x;
+   }
+   r =  { <|file:///<fname>|(0,0,<toInt(l),0>,<toInt(l),0>), fix(ch)> 
         | /element(_, "file", cs:[*_,attribute(_,"name", fname),*_]) := dom
         , /e:element(_, "error", as) := cs
-        , {*_,attribute(_, "source", /^.*\.<ch:[A-Za-z]*>Check$/), attribute(_,"line", l)} := {*as}
+        , {*_,attribute(_, "source", ch), attribute(_,"line", l)} := {*as}
         };
    return r;
 }
