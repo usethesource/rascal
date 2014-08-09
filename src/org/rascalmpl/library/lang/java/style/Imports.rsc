@@ -53,13 +53,13 @@ list[Message] redundantImport(Declaration ast, M3 model, list[Declaration] class
 	
 	for(imp: \import(str name) <- imported){
 		if(indexOf(imported, name) != lastIndexOf(imported, name)){
-			msgs += imports("RedundantImport", imp@src);
+			msgs += imports("UnusedImports", imp@src);
 		} else
 		if(startsWith(name, "java.lang")){
-			msgs += imports("RedundantImport", imp@src);
+			msgs += imports("UnusedImports", imp@src);
 		} else
 		if(startsWith(name, packageName)){
-			msgs += imports("RedundantImport", imp@src);
+			msgs += imports("UnusedImports", imp@src);
 		}
 	}
 	
