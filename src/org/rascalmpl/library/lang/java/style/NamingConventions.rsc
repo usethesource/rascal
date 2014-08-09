@@ -113,7 +113,17 @@ list[Message] namingConventionsChecks(node ast, M3 model, list[Declaration] clas
   						append namingConvention("TypeName", pos, elementName); 
   					}
   					
+  			case "java+enumConstant":
+  					if(/^[A-Z][A-Z0-9]*$/ !:= elementName){ 
+  						append namingConvention("EnumName", pos, elementName); 
+  					}
+  			case "java+enum":	
+  					if(/^[A-Z][a-zA-Z0-9]*$/ !:= elementName){ 
+  						append namingConvention("TypeName", pos, elementName); 
+  					}
   			case "java+initializer":	;
+  			
+  			case "java+anonymousClass": ;
   			
   			default:
   				throw "Cannot handle scheme <n>, <pos>";
