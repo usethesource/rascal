@@ -6,6 +6,7 @@ import lang::java::m3::AST;
 import Message;
 import String;
 import Set;
+import Type;
 
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
@@ -25,27 +26,43 @@ JavaNCSS						TBD
 
 data Message = metric(str category, loc pos);
 
+bool isBooleanOperator(\infix(_, str operator, _)) = operator in {"&&", "&", "||", "|", "^"};
+bool isBooleanOperator(\prefix("!", _)) = true;
+default bool isBooleanOperator(Expression e) = false;
 
-	
-list[Message] booleanExpressionComplexity(node ast, M3 model, OuterDeclarations decls){
-	msgs = [];
-	
-	bool tooManyBooleanOperators(Expression e){
-	   int cnt = 0;
-	   visit(e){
-		 case \infix(_, str operator, _):
-			 if(operator in {"&&", "&", "||", "|", "^"}) cnt += 1;
-		 case \prefix("!", _): cnt += 1;
-	   }
-	   return cnt > 3;
-    }
-	
-	top-down-break visit(ast){
-		case Expression e: 
-			if(tooManyBooleanOperators(e)) { msgs += metric("BooleanExpressionComplexity", e@src); }
+int countBooleanOperators(list[Expression] parents){
+	nOperators = 0;
+	for(parent <- parents){
+		if(isBooleanOperator(parent)){
+			nOperators += 1;
+		}
 	}
-	return msgs;
+	return nOperators;
 }
+
+list[Message] booleanExpressionComplexity(Expression exp,  list[Expression] parents, node ast, M3 model) =
+	(exp has src && isBooleanOperator(exp) && countBooleanOperators(parents) > 2) ? [metric("BooleanExpressionComplexity", exp@src)] : [];
+	
+	
+//list[Message] booleanExpressionComplexity(node ast, M3 model, OuterDeclarations decls){
+//	msgs = [];
+//	
+//	bool tooManyBooleanOperators(Expression e){
+//	   int cnt = 0;
+//	   visit(e){
+//		 case \infix(_, str operator, _):
+//			 if(operator in {"&&", "&", "||", "|", "^"}) cnt += 1;
+//		 case \prefix("!", _): cnt += 1;
+//	   }
+//	   return cnt > 3;
+//    }
+//	
+//	top-down-break visit(ast){
+//		case Expression e: 
+//			if(tooManyBooleanOperators(e)) { msgs += metric("BooleanExpressionComplexity", e@src); }
+//	}
+//	return msgs;
+//}
 
 set[str] excludedClasses = {	// TODO: verify that these names really work (may use a loc?)
 	"boolean", "byte", "char", "double", "float", "int", "long", "short", "void", 
@@ -57,148 +74,181 @@ set[str] excludedClasses = {	// TODO: verify that these names really work (may u
 	"List", "ArrayList", "Deque", "Queue", "LinkedList", "Set", "HashSet", "SortedSet", "TreeSet", 
 	"Map", "HashMap", "SortedMap", "TreeMap"};
 
-list[Message] classDataAbstractionCoupling(node ast, M3 model, OuterDeclarations decls){ 
-	invNames = model@names<1,0>;
-	
-	str getName(loc declaration){
+str getName(loc declaration){
 		p = declaration.path;
-		return p[findLast(p, "/")+1 .. ];
+		res = p[findLast(p, "/")+1 .. ];
+		//println("getName: <declaration>, <res>");
+		return res;
 	}
-    set[str] getNew(Declaration ast){
-    	news = {};
-    	visit(ast){
-    		case obj: \newObject(Expression expr, Type \type, list[Expression] args, Declaration class):
-    			news += getName(obj@typ.decl);
-    			
-    		case obj: \newObject(Expression expr, Type \type, list[Expression] args):
-    			news += getName(obj@typ.decl);
-    		
-    		case obj: \newObject(Type \type, list[Expression] args, Declaration class):
-    			news += getName(obj@typ.decl);
-    		
-    		case obj: \newObject(Type \type, list[Expression] args):
-    			news += getName(obj@typ.decl);
-    	}
-    	return news;
-    }
-    bool tooManyNew(Declaration class){
-    	return size(getNew(class) - excludedClasses) > 7;
-    }
 
-	return 
-		[ metric("ClassDataAbstractionCoupling", c@src) | c <- decls.allClasses, tooManyNew(c) ];
+list[Message] classDataAbstractionCoupling(Expression exp: \newObject(_, _, _, _),  list[Expression] parents, node ast, M3 model) {
+	updateCheckState("classDataAbstractionCoupling", getName(exp@typ.decl));
+	return [];
 }
-
-list[Message] classFanOutComplexity(node ast, M3 model, OuterDeclarations decls){
-	return 
-		[ metric("ClassFanOutComplexity", c) | c <- classes(model), size(model@typeDependency[model@containment[c]] - excludedClasses) > 7 ];
-}
-
-list[Message] cyclomaticComplexity(node ast, M3 model, OuterDeclarations decls){
-	msgs = [];
-	void checkCC(Statement body){
-		int cnt = 1;
-		visit(body){
-			case \do(_, _): 			cnt += 1;
-			case \while(_, _): 			cnt += 1;
-    		case \foreach(_, _, _): 	cnt += 1;
-    		case \for(_, _, _, _) : 	cnt += 1;
-    		case \for(_, _, _): 		cnt += 1;
-    		case \if(_, _): 			cnt += 1;
-    		case \if(_, _, _): 			cnt += 1;
-			case \case(_): 				cnt += 1;
-			case \conditional(_, _, _): cnt += 1;
-  			case \catch(_, _): 			cnt += 1;
-   			case \infix(_, "&&", _): cnt += 1;
-    		case \infix(_, "||", _): cnt + 1;
-		}
-		if(cnt > 10) msgs += metric("CyclomaticComplexity", body@src);
-	}
 	
-	top-down-break visit(ast){
-		case \initializer(Statement initializerBody): checkCC(initializerBody);
-    	case \method(_, _, _, _, Statement impl): 	checkCC(impl);
-    	case \constructor(_, _, _, Statement impl): checkCC(impl);
-	}
-	return msgs;
+list[Message] classDataAbstractionCoupling(Expression exp: \newObject(_, _, _),  list[Expression] parents, node ast, M3 model){
+	updateCheckState("classDataAbstractionCoupling", getName(exp@typ.decl));
+	return [];
 }
 
-list[Message] nPathComplexity(node ast, M3 model, OuterDeclarations decls){
-	msgs = [];
-	void checkNPath(Statement body){
-		if(nPath(body) > 200){
-			msgs += metric("NPathComplexity", body@src);
-		}
-	}
-	top-down-break visit(ast){
-		case \initializer(Statement initializerBody): checkNPath(initializerBody);
-    	case \method(_, _, _, _, Statement impl): 	checkNPath(impl);
-    	case \constructor(_, _, _, Statement impl): checkNPath(impl);
-	}
-	return msgs;
+list[Message] classDataAbstractionCoupling(Expression exp: \newObject(_, _),  list[Expression] parents, node ast, M3 model){
+	updateCheckState("classDataAbstractionCoupling", getName(exp@typ.decl));
+	return [];
+}
+	
+// update/finalize
+
+value updateClassDataAbstractionCoupling(value current, value delta) { 
+	if(set[str] cs:= current && str d := delta) return cs + d; 
 }
 
-// http://pmd.sourceforge.net/pmd-4.3.0/xref/net/sourceforge/pmd/rules/design/NpathComplexity.html
+list[Message] finalizeClassDataAbstractionCoupling(Declaration d, value current) =
+	(set[str] s := current && size(s- excludedClasses) > 7) ? [metric("ClassDataAbstractionCoupling", d@src)] : [];	
+	
+//list[Message] classDataAbstractionCoupling(node ast, M3 model, OuterDeclarations decls){ 
+//	invNames = model@names<1,0>;
+//	
+//	str getName(loc declaration){
+//		p = declaration.path;
+//		return p[findLast(p, "/")+1 .. ];
+//	}
+//    set[str] getNew(Declaration ast){
+//    	news = {};
+//    	visit(ast){
+//    		case obj: \newObject(Expression expr, Type \type, list[Expression] args, Declaration class):
+//    			news += getName(obj@typ.decl);
+//    			
+//    		case obj: \newObject(Expression expr, Type \type, list[Expression] args):
+//    			news += getName(obj@typ.decl);
+//    		
+//    		case obj: \newObject(Type \type, list[Expression] args, Declaration class):
+//    			news += getName(obj@typ.decl);
+//    		
+//    		case obj: \newObject(Type \type, list[Expression] args):
+//    			news += getName(obj@typ.decl);
+//    	}
+//    	return news;
+//    }
+//    bool tooManyNew(Declaration class){
+//    	return size(getNew(class) - excludedClasses) > 7;
+//    }
+//
+//	return 
+//		[ metric("ClassDataAbstractionCoupling", c@src) | c <- decls.allClasses, tooManyNew(c) ];
+//}
+//
+//list[Message] classFanOutComplexity(node ast, M3 model, OuterDeclarations decls){
+//	return 
+//		[ metric("ClassFanOutComplexity", c) | c <- classes(model), size(model@typeDependency[model@containment[c]] - excludedClasses) > 7 ];
+//}
 
-int nPathExpression(Expression e){
-	cnt = 1;
-	visit(e){
-		case \infix(_, "&&", _): 	
-			cnt += 1;
-    	case \infix(_, "||", _): 	
-    		cnt += 1;
-	}
-	return cnt;
-}
 
-int nPath(node ast){
-	switch(ast){
-			case \block(list[Statement] statements):
-					return (1 | it * nPath(s) | s <- statements);
-					
-			case \do(body,cond): 		
-					return nPathExpression(cond) + nPath(body) + 1;
-					
-			case \while(cond, body): 	
-					return nPathExpression(cond) + nPath(body) + 1;
-					
-    		case \foreach(_, _,body): 	
-    				return nPath(body);
-    				
-    		case \for(_, cond, _, body):
-    				return nPathExpression(cond) + nPath(body) + 1;
-    				
-    		case \for(_, _, body): 		
-    				return nPath(body);
-    				
-    		case \if(cond, thenBranch): 
-    				return nPathExpression(cond) + nPath(thenBranch) + 1;
-    				
-    		case \if(cond, thenBranch, elseBranch):
-    				return nPathExpression(cond) + nPath(thenBranch) + nPath(elseBranch);
-    				
-			case \switch(Expression expression, list[Statement] statements):
-					return nPathExpression(expression) + (0 | it + nPath(s) | s <- statements);
-					
-			case \case(_):
-					return 0;
-					
-			case \defaultCase():
-					return 0;
-			
-			case \try(Statement body, list[Statement] catchClauses):
-					return nPath(body) + (0 | it + nPath(s) | s <- catchClauses);
-					
-    		case \try(Statement body, list[Statement] catchClauses, Statement \finally):                                        
-					return nPath(body) + (0 | it + nPath(s) | s <- catchClauses) + nPath(\finally);
-										
-  			case \catch(_, body): 		
-  					return nPath(body);
 
-    			case \return(Expression e): 
-    				return nPathExpression(e);
-    		
-    		default:
-    			return 1;
-		}
-}
+//list[Message] cyclomaticComplexity(node ast, M3 model, OuterDeclarations decls){
+//	msgs = [];
+//	void checkCC(Statement body){
+//		int cnt = 1;
+//		visit(body){
+//			case \do(_, _): 			cnt += 1;
+//			case \while(_, _): 			cnt += 1;
+//    		case \foreach(_, _, _): 	cnt += 1;
+//    		case \for(_, _, _, _) : 	cnt += 1;
+//    		case \for(_, _, _): 		cnt += 1;
+//    		case \if(_, _): 			cnt += 1;
+//    		case \if(_, _, _): 			cnt += 1;
+//			case \case(_): 				cnt += 1;
+//			case \conditional(_, _, _): cnt += 1;
+//  			case \catch(_, _): 			cnt += 1;
+//   			case \infix(_, "&&", _): cnt += 1;
+//    		case \infix(_, "||", _): cnt + 1;
+//		}
+//		if(cnt > 10) msgs += metric("CyclomaticComplexity", body@src);
+//	}
+//	
+//	top-down-break visit(ast){
+//		case \initializer(Statement initializerBody): checkCC(initializerBody);
+//    	case \method(_, _, _, _, Statement impl): 	checkCC(impl);
+//    	case \constructor(_, _, _, Statement impl): checkCC(impl);
+//	}
+//	return msgs;
+//}
+//
+//list[Message] nPathComplexity(node ast, M3 model, OuterDeclarations decls){
+//	msgs = [];
+//	void checkNPath(Statement body){
+//		if(nPath(body) > 200){
+//			msgs += metric("NPathComplexity", body@src);
+//		}
+//	}
+//	top-down-break visit(ast){
+//		case \initializer(Statement initializerBody): checkNPath(initializerBody);
+//    	case \method(_, _, _, _, Statement impl): 	checkNPath(impl);
+//    	case \constructor(_, _, _, Statement impl): checkNPath(impl);
+//	}
+//	return msgs;
+//}
+//
+//// http://pmd.sourceforge.net/pmd-4.3.0/xref/net/sourceforge/pmd/rules/design/NpathComplexity.html
+//
+//int nPathExpression(Expression e){
+//	cnt = 1;
+//	visit(e){
+//		case \infix(_, "&&", _): 	
+//			cnt += 1;
+//    	case \infix(_, "||", _): 	
+//    		cnt += 1;
+//	}
+//	return cnt;
+//}
+//
+//int nPath(node ast){
+//	switch(ast){
+//			case \block(list[Statement] statements):
+//					return (1 | it * nPath(s) | s <- statements);
+//					
+//			case \do(body,cond): 		
+//					return nPathExpression(cond) + nPath(body) + 1;
+//					
+//			case \while(cond, body): 	
+//					return nPathExpression(cond) + nPath(body) + 1;
+//					
+//    		case \foreach(_, _,body): 	
+//    				return nPath(body);
+//    				
+//    		case \for(_, cond, _, body):
+//    				return nPathExpression(cond) + nPath(body) + 1;
+//    				
+//    		case \for(_, _, body): 		
+//    				return nPath(body);
+//    				
+//    		case \if(cond, thenBranch): 
+//    				return nPathExpression(cond) + nPath(thenBranch) + 1;
+//    				
+//    		case \if(cond, thenBranch, elseBranch):
+//    				return nPathExpression(cond) + nPath(thenBranch) + nPath(elseBranch);
+//    				
+//			case \switch(Expression expression, list[Statement] statements):
+//					return nPathExpression(expression) + (0 | it + nPath(s) | s <- statements);
+//					
+//			case \case(_):
+//					return 0;
+//					
+//			case \defaultCase():
+//					return 0;
+//			
+//			case \try(Statement body, list[Statement] catchClauses):
+//					return nPath(body) + (0 | it + nPath(s) | s <- catchClauses);
+//					
+//    		case \try(Statement body, list[Statement] catchClauses, Statement \finally):                                        
+//					return nPath(body) + (0 | it + nPath(s) | s <- catchClauses) + nPath(\finally);
+//										
+//  			case \catch(_, body): 		
+//  					return nPath(body);
+//
+//    			case \return(Expression e): 
+//    				return nPathExpression(e);
+//    		
+//    		default:
+//    			return 1;
+//		}
+//}

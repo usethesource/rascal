@@ -8,9 +8,89 @@ import String;
 import List;
 import Set;
 import IO;
+import Node;
 
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
+
+// Create a unique name for a constructor
+str getConstructor(node nd) = "<getName(nd)><arity(nd)>";
+
+str packageName2String(package(str name)) = name;
+str packageName2String(package(Declaration parentPackage, str name)) = "<packageName2String(parentPackage)>.<name>";
+
+str getPackageName(node ast){	// TODO: improve
+	top-down-break visit(ast){
+		case p: \package(_):	return packageName2String(p);
+    	case p: \package(_, _):	return packageName2String(p);
+    }
+}
+
+// A check may have an associated CheckState that defines
+// - triggers, a set of constructors that will create a new state
+// - the initial state
+// - function for updating the check's state
+// - function to finalize the check's state, i.e., generate message based on the state info
+ 
+alias CheckStateDescriptor = 
+	tuple[set[str] triggers,
+		  value initial, 
+		  value (value current, value delta) update,
+		  list[Message] (Declaration d, value v) finalize
+		 ];
+						
+private map[str checkName, CheckStateDescriptor descr] checkStateDescriptors = ();
+
+data CheckState = checkState(loc src, value current);
+
+private map[str checkName, list[CheckState] states] checkStates = ();
+
+void initCheckStates(){
+	checkStates = ();
+}
+
+void registerCheckState(str checkName, 
+						set[str] triggers,
+						value initial, 
+						value (value current, value delta) update,
+						list[Message] (Declaration d, value v) finalize){
+						
+	checkStateDescriptors[checkName] = <triggers, initial, update, finalize>;
+	checkStates[checkName] = [];
+}
+
+void enterDeclaration(Declaration decl){
+	cons = getConstructor(decl);
+	for(checkName <- checkStateDescriptors){
+		descr = checkStateDescriptors[checkName];
+		if(cons in descr.triggers){
+			//println("enterDeclaration, <cons>, <checkName>, <decl@src>");
+			checkStates[checkName] = push(checkState(decl@src, descr.initial), checkStates[checkName]);
+		}
+	}
+}
+
+void updateCheckState(str checkName, value delta){
+	states = checkStates[checkName];
+	checkStates[checkName][0] = checkState(states[0].src, checkStateDescriptors[checkName].update(states[0].current, delta));
+}
+
+list[Message] leaveDeclaration(Declaration decl){
+	msgs = [];
+	cons = getConstructor(decl);
+	for(checkName <- checkStateDescriptors){
+		descr = checkStateDescriptors[checkName];
+		if(cons in descr.triggers){
+			//println("leaveDeclaration, <cons>, <checkName>, <decl@src>");
+			if(checkStates[checkName][0].src != decl@src){
+				throw "leaveDeclaration: entered <decl@src>, but leaving <checkStates[checkName][0].src>";
+			}
+			msgs += checkStateDescriptors[checkName].finalize(decl, checkStates[checkName][0].current);
+			checkStates[checkName] = tail(checkStates[checkName]);
+		}
+	}
+	return msgs;
+}
 
 //loc getDeclaredEntity(loc src, M3 model){
 //	res = model@declarations<1,0>[src];
@@ -22,106 +102,108 @@ import lang::java::jdt::m3::AST;
 //	}
 //}
 
-alias OuterDeclarations = 
-	tuple[	list[Declaration] allClasses,
-			list[Declaration] allInterfaces,
-			list[Declaration] allEnums,
-			list[Declaration] allMethods,
-			map[str,set[Statement]] allStatements
-		 ];
+//alias OuterDeclarations = 
+//	tuple[	list[Declaration] allClasses,
+//			list[Declaration] allInterfaces,
+//			list[Declaration] allEnums,
+//			list[Declaration] allMethods,
+//			map[str,set[Statement]] allStatements
+//		 ];
 
-OuterDeclarations getAllDeclarations(node ast){
-	cls = [];
-	ifaces = [];
-	enums = [];
-	mtds = [];
-	stats = ();
-	
-	void add(str kind, Statement stat){
-		if(stats[kind] ?) stats[kind] += {stat}; else stats[kind] = {stat};
-	}
+//OuterDeclarations getAllDeclarations(node ast){
+//	cls = [];
+//	ifaces = [];
+//	enums = [];
+//	mtds = [];
+//	stats = ();
+//	
+//	void add(str kind, Statement stat){
+//		if(stats[kind] ?) stats[kind] += {stat}; else stats[kind] = {stat};
+//	}
+//
+//	top-downvisit(ast){
+//		// Collect declarations
+//		
+//		case c: \class(_, _, _, _):
+//	  		cls += c;
+//	  	case ifc: \interface(_, _, _, _):
+//	  		ifaces += ifc;
+//	  	case enm: \enum(_, _, _, _):
+//	  		enums += enm;
+//	  	case m: \method(_, _, _, _, _): 
+//    		mtds +=  m;
+//      	case m: \method(_, _, _, _):	
+//    		mtds += m;
+//    	case m: \constructor(_, _,  _, _):
+//			mtds += m;
+//
+//		// Collect statements
+//		
+//		case s : \assert(_):
+//			add("assert", s);
+//    	case s : \assert(_, _): 
+//    		add("assert", s);
+//    	case s : \block(_):
+//    		add("block", s);
+//    	case s : \break():
+//    		add("break", s);
+//    	case s : \break(_):
+//    		add("break", s);
+//    	case s : \continue():
+//    		add("continue", s);
+//    	case s : \continue(_):
+//    		add("continue", s);
+//    	case s : \do(_, _):
+//    		add("do", s);
+//    	case s : \empty():
+//    		add("empty", s);
+//    	case s : \foreach(_, _, _):
+//    		add("foreach", s);
+//    	case s : \for(_, _, _, _):
+//    		add("for", s);
+//    	case s : \for(_, _, _):
+//    		add("for", s);
+//    	case s : \if(_, _):
+//    		add("if", s);
+//    	case s : \if(_, _, _):
+//    		add("if", s);
+//    	case s : \label(_, _):
+//    		add("label", s);
+//   		case s : \return(_):
+//   			add("return", s);
+//    	case s : \return():
+//    		add("return", s);
+//    	case s : \switch(_, _):
+//    		add("switch", s);
+//    	case s : \case(_):
+//    		add("case", s);
+//    	case s : \defaultcase():
+//    		add("defaultcase", s);
+//    	case s : \synchronizedStatement(_, _):
+//    		add("synchronizedStatement", s);
+//    	case s : \throw(Expression expression):
+//    		add("throw", s);
+//    	case s : \try(_, _):
+//    		add("try", s);
+//   		case s : \try(_, _, _)  :
+//   			add("try", s);                                      
+//    	case s : \catch(_, _):
+//    		add("catch", s); 
+//    	case s : \declarationStatement(_):
+//    		add("declarationStatement", s);
+//    	case s : \while(_, _):
+//    		add("while", s);
+//    	case s : \expressionStatement(_):
+//    		add("expressionStatement", s);
+//    	case s : \constructorCall(_, _, _):
+//    		add("constructorCall", s);
+//    	case s : \constructorCall(_, _):
+//    		add("constructorCall", s);
+//	}
+//	return <cls, ifaces, enums, mtds, stats>;
+//}
 
-	top-downvisit(ast){
-		// Collect declarations
-		
-		case c: \class(_, _, _, _):
-	  		cls += c;
-	  	case ifc: \interface(_, _, _, _):
-	  		ifaces += ifc;
-	  	case enm: \enum(_, _, _, _):
-	  		enums += enm;
-	  	case m: \method(_, _, _, _, _): 
-    		mtds +=  m;
-      	case m: \method(_, _, _, _):	
-    		mtds += m;
-    	case m: \constructor(_, _,  _, _):
-			mtds += m;
 
-		// Collect statements
-		
-		case s : \assert(_):
-			add("assert", s);
-    	case s : \assert(_, _): 
-    		add("assert", s);
-    	case s : \block(_):
-    		add("block", s);
-    	case s : \break():
-    		add("break", s);
-    	case s : \break(_):
-    		add("break", s);
-    	case s : \continue():
-    		add("continue", s);
-    	case s : \continue(_):
-    		add("continue", s);
-    	case s : \do(_, _):
-    		add("do", s);
-    	case s : \empty():
-    		add("empty", s);
-    	case s : \foreach(_, _, _):
-    		add("foreach", s);
-    	case s : \for(_, _, _, _):
-    		add("for", s);
-    	case s : \for(_, _, _):
-    		add("for", s);
-    	case s : \if(_, _):
-    		add("if", s);
-    	case s : \if(_, _, _):
-    		add("if", s);
-    	case s : \label(_, _):
-    		add("label", s);
-   		case s : \return(_):
-   			add("return", s);
-    	case s : \return():
-    		add("return", s);
-    	case s : \switch(_, _):
-    		add("switch", s);
-    	case s : \case(_):
-    		add("case", s);
-    	case s : \defaultcase():
-    		add("defaultcase", s);
-    	case s : \synchronizedStatement(_, _):
-    		add("synchronizedStatement", s);
-    	case s : \throw(Expression expression):
-    		add("throw", s);
-    	case s : \try(_, _):
-    		add("try", s);
-   		case s : \try(_, _, _)  :
-   			add("try", s);                                      
-    	case s : \catch(_, _):
-    		add("catch", s); 
-    	case s : \declarationStatement(_):
-    		add("declarationStatement", s);
-    	case s : \while(_, _):
-    		add("while", s);
-    	case s : \expressionStatement(_):
-    		add("expressionStatement", s);
-    	case s : \constructorCall(_, _, _):
-    		add("constructorCall", s);
-    	case s : \constructorCall(_, _):
-    		add("constructorCall", s);
-	}
-	return <cls, ifaces, enums, mtds, stats>;
-}
 
 //list[Declaration] getAllClassDeclarations(node ast){
 //	cls = [];
@@ -189,12 +271,3 @@ OuterDeclarations getAllDeclarations(node ast){
 //	return mtds;
 //}
 
-str packageName2String(package(str name)) = name;
-str packageName2String(package(Declaration parentPackage, str name)) = "<packageName2String(parentPackage)>.<name>";
-
-str getPackageName(node ast){
-	top-down-break visit(ast){
-		case p: \package(_):	return packageName2String(p);
-    	case p: \package(_, _):	return packageName2String(p);
-    }
- }

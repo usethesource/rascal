@@ -15,6 +15,7 @@ import lang::xml::DOM;
 import Relation;
 import Set;
 import List;
+import Node;
 
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
@@ -30,95 +31,343 @@ import lang::java::style::Miscellaneous;
 import lang::java::style::NamingConventions;
 import lang::java::style::SizeViolations;
 
-alias Checker = list[Message] (Declaration ast, M3 model, OuterDeclarations decls);
+// Available checks
 
-private set[Checker] active() = {
+// TODO: It is better to have a list of check + applicable constructors and compute the other tables 
 
-// BlockChecks
+//// BlockChecks
 
-		  emptyBlock
-		, needBraces
-		, avoidNestedBlocks
+// 		  emptyBlock
+//		, needBraces
+//		, avoidNestedBlocks
 
-// ClassDesignChecks
+//// ClassDesignChecks
+//
+//		, visibilityModifier
+//		, finalClass
+//		, mutableException
+//		, throwsCount
+//
+//// CodingChecks
+//
+//		, avoidInlineConditionals
+//		, magicNumber
+//		, missingSwitchDefault
+//		, simplifyBooleanExpression
+//		, simplifyBooleanReturn
+//		, stringLiteralEquality
+//		, nestedForDepth
+//		, nestedIfDepth
+//		, nestedTryDepth
+//		, noClone
+//		, noFinalizer
+//		, returnCount
+//		, defaultComesLast
+//		, fallThrough
+//		, multipleStringLiterals
+//
+//// ImportsChecks
+//
+//		, avoidStarImport
+//		, avoidStaticImport
+//		, illegalImport
+//		, redundantImport
+//
+//// MetricsChecks
+//
+//		, booleanExpressionComplexity 
+//		, classDataAbstractionCoupling
+//		, classFanOutComplexity
+//		, cyclomaticComplexity
+//		, nPathComplexity
+//
+//// MiscellaneousChecks
+//
+//		, unCommentedMain
+//		, outerTypeFilename
+//
+//// NamingComventions
+//
+//		, namingConventionsChecks
+//
+//// SizeViolationsChecks
+//
+//		, executableStatementCount
+//		, fileLength
+//		, methodLength
+//		, parameterNumber
 
-		, visibilityModifier
-		, finalClass
-		, mutableException
-		, throwsCount
 
-// CodingChecks
 
-		, avoidInlineConditionals
-		, magicNumber
-		, missingSwitchDefault
-		, simplifyBooleanExpression
-		, simplifyBooleanReturn
-		, stringLiteralEquality
-		, nestedForDepth
-		, nestedIfDepth
-		, nestedTryDepth
-		, noClone
-		, noFinalizer
-		, returnCount
-		, defaultComesLast
-		, fallThrough
-		, multipleStringLiterals
 
-// ImportsChecks
+// Declaration Checking
 
-		, avoidStarImport
-		, avoidStaticImport
-		, illegalImport
-		, redundantImport
+// DeclarationChecker has as parameters:
+// - decl, the current declaration to be processed
+// - parents, the enclosing declrations
+// - ast of the compilationUnit
+// - M3 model
+// and returns
+// - a list of messages
 
-// MetricsChecks
+alias DeclarationChecker = list[Message] (Declaration decl,  list[Declaration] parents, node ast, M3 model);
 
-		, booleanExpressionComplexity 
-		, classDataAbstractionCoupling
-		, classFanOutComplexity
-		, cyclomaticComplexity
-		, nPathComplexity
+map[str, set[DeclarationChecker]] declarationCheckers = (
+	"class4": 
+		{visibilityModifier, finalClass, mutableException,outerTypeFilename},
+	"interface4": 
+		{outerTypeFilename},
+	"enum4": 
+		{outerTypeFilename},
+	"method5": 
+		{noClone, noFinalizer, unCommentedMain, outerTypeFilename, methodLength, parameterNumber},
+	"method4": 
+		{noClone, noFinalizer, unCommentedMain, outerTypeFilename, parameterNumber},
+	"constructor4": 
+		{},
+	"initializer1":
+		{},
+	"import1":
+		{avoidStarImport, avoidStaticImport, illegalImport}
+);
 
-// MiscellaneousChecks
+// Run all checks associated with the constructor of the current declaration
 
-		, unCommentedMain
-		, outerTypeFilename
+list[Message] check(Declaration d, list[Declaration] parents,  node ast, M3 model){
+	msgs = [];
+	cons = getConstructor(d);
+	if(!declarationCheckers[cons]?)
+		return [];
+	for(checker <- declarationCheckers[cons]){
+		msgs += checker(d, parents, ast, model);
+	}
+	return msgs;
+}
 
-// NamingComventions
+// Statement Checking
 
-		, namingConventionsChecks
+// StatementChecker has as parameters:
+// - stat, the current statement to be processed
+// - parents, the enclosing statements
+// - ast of the compilationUnit
+// - M3 model
+// and returns
+// - a list of messages
 
-// SizeViolationsChecks
+alias StatementChecker = list[Message] (Statement stat,  list[Statement] parents, node ast, M3 model);
 
-		, executableStatementCount
-		, fileLength
-		, methodLength
-		, parameterNumber
-};  
+map[str, set[StatementChecker]] statementCheckers = (
+	"assert1": 
+		{},
+	"assert2": 
+		{},
+	"block1": 
+		{avoidNestedBlocks},
+	"break0": 
+		{},
+	"break1": 
+		{},
+	"continue0": 
+		{},
+	"continue1": 
+		{},
+	"do2": 
+		{emptyBlock, needBraces},
+	"empty0": 
+		{},
+	"foreach3": 
+		{nestedForDepth},	
+	"for3": 
+		{emptyBlock, needBraces, nestedForDepth},	
+	"for4": 
+		{emptyBlock, needBraces, nestedForDepth},
+	 "if2": 
+	 	{emptyBlock, needBraces, nestedIfDepth},
+	"if3": 
+		{emptyBlock, needBraces, simplifyBooleanReturn, nestedIfDepth},   	
+	"label2": 
+		{} ,
+	"return0": 
+		{returnCount},
+	"return1": 
+		{returnCount},
+	"switch2": 
+		{missingSwitchDefault, defaultComesLast, fallThrough},
+	"case1": 
+		{},
+	"defaultcase0": 
+		{},
+	"synchronizedStatement2": 
+		{},
+	"throw1": 
+		{throwsCount},
+	"try2": 
+		{emptyBlock, nestedTryDepth},
+	"try3": 
+		{emptyBlock, nestedTryDepth},
+	"catch2": 
+		{},
+	"declarationStatement1": 
+		{},
+	"while2": 
+		{emptyBlock, needBraces},
+	"expressionStatement1": 
+		{},
+	"constructorCall2": 
+		{},
+	"constructorCall3":	
+		{}
+);
+
+// Run all checks associated with the constructor of the current statement
+
+list[Message] check(Statement s, list[Statement] parents,  node ast, M3 model){
+	msgs = [];
+	cons = getConstructor(s);
+	if(!statementCheckers[cons]?)
+		return [];
+	for(checker <- statementCheckers[cons]){
+		msgs += checker(s, parents, ast, model);
+	}
+	return msgs;
+}
+
+// Expression Checking
+
+// ExpressionChecker has as parameters:
+// - exp, the current expression to be processed
+// - parents, the enclosing expressions
+// - ast of the compilationUnit
+// - M3 model
+// and returns
+// - a list of messages
+
+alias ExpressionChecker = list[Message] (Expression exp,  list[Expression] parents, node ast, M3 model);
+
+map[str, set[ExpressionChecker]] expressionCheckers = (
+	"conditional3":
+		{avoidInlineConditionals},
+	"number1":
+		{magicNumber},
+	"infix3":
+		{simplifyBooleanExpression, stringLiteralEquality,booleanExpressionComplexity},
+	"prefix2":
+		{simplifyBooleanExpression,booleanExpressionComplexity},
+	"stringLiteral1":
+		{multipleStringLiterals},
+	"newObject4":
+		{classDataAbstractionCoupling},
+	"newObject3":
+		{classDataAbstractionCoupling},
+	"newObject2":
+		{classDataAbstractionCoupling}
+);
+
+// Run all checks associated with the constructor of the current expression
+
+list[Message] check(Expression e, list[Expression] parents,  node ast, M3 model){
+	msgs = [];
+	cons = getConstructor(e);
+	if(!expressionCheckers[cons]?)
+		return [];
+	for(checker <- expressionCheckers[cons]){
+		msgs += checker(e, parents, ast, model);
+	}
+	return msgs;
+}
+
+list[Message] checkAll(node ast, M3 model){
+	initCheckStates();
+	registerCheckState("throwsCount", {"method5", "constructor4", "initializer1"}, 0, updateThrowsCount, finalizeThrowsCount);
+	registerCheckState("returnCount", {"method5", "constructor4"}, 0, updateReturnCount, finalizeReturnCount);
+	registerCheckState("classDataAbstractionCoupling", {"class4"}, {}, updateClassDataAbstractionCoupling, finalizeClassDataAbstractionCoupling);
+	return  checkAll(ast, model, [], [], []);
+}	
+
+
+// The toplevel driver checkAll:
+// - performs a top-down traversal of the compilationUnit
+// - invokes the checks for the declrations/statements/expressions being encountered
+// - accumaltes all messages and returns them
+
+list[Message] checkAll(node ast, M3 model, list[Declaration] declParents, list[Statement] statParents, list[Expression] expParents){
+	msgs = [];
+	isDeclaration = false;
+
+	switch(ast){
+	
+		case Declaration d:
+			{ msgs += check(d, declParents, ast, model); 
+				declParents = d + declParents; 
+				enterDeclaration(d); 
+				isDeclaration = true;
+			}
+		
+		case Statement s: 
+			{ msgs += check(s, statParents, ast, model); 
+			  statParents = s + statParents; 
+			}
+		
+		case Expression e:
+			{ //println(e);
+			  msgs += check(e, expParents, ast, model); 
+			  expParents = e + expParents; 
+			}
+		
+		case Type t:  /* ignore for the moment */;
+		
+		default:
+			println("Other: <ast>");
+	}
+	
+	for(child <- getChildren(ast)){
+		switch(child){
+		case list[Declaration] decls:
+			for(d <- decls){
+				msgs += checkAll(d, model, declParents, statParents, expParents);
+			}
+		case list[Statement] stats:
+			for(s <- stats){
+				msgs += checkAll(s, model, declParents, statParents, expParents);
+			}
+		case node nd:
+			msgs += checkAll(nd, model, declParents, statParents, expParents);
+			
+		case list[node] nds:
+			for(nd <- nds){
+				msgs += checkAll(nd, model, declParents, statParents, expParents);
+			}
+		default:
+			;//println("ignore child: <child> of <ast>");
+		}
+	}
+	if(isDeclaration){
+		msgs += leaveDeclaration(head(declParents));
+	}
+	return msgs;
+}
+
+
+  
 
 @doc{For testing on the console; we should assume only a model for the current AST is in the model}
-list[Message] styleChecker(M3 model, set[node] asts, set[Checker] checkers = active()){
+list[Message] styleChecker(M3 model, set[node] asts){
 	msgs = [];
     for(ast <- asts){
-    	allDeclarations = getAllDeclarations(ast);
-    	//classDeclarations = getAllClassDeclarations(ast);
-		//classDeclarations = getAllMethodDeclarations(ast);
-		msgs += [*checker(ast, model, allDeclarations) | Checker checker <- checkers];
+		msgs += checkAll(ast, model);
     }
     return msgs;
  }
    
 @doc{For integration into OSSMETER, we get the models and the ASTs per file}   
-list[Message] styleChecker(map[loc, M3] models, map[loc, node] asts, set[Checker] checkers = active()) 
+list[Message] styleChecker(map[loc, M3] models, map[loc, node] asts) 
   = [*checker(asts[f], models[f]) | f <- models, checker <- checkers];  
   
 
 list[Message] main(loc dir = |project://java-checkstyle-tests|){
-  
   m3model = createM3FromEclipseProject(dir);
   asts = createAstsFromDirectory(dir, true);
-  return styleChecker(m3model, asts, checkers = active());
+  return styleChecker(m3model, asts);
 } 
 
 // temporary functions for regression testing with checkstyle
