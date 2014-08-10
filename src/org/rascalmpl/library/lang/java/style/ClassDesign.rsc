@@ -27,25 +27,37 @@ ThrowsCount					DONE
 InnerTypeLast				TBD
 */
 
-
-
-list[Message] visibilityModifier(node ast, M3 model, OuterDeclarations decls){
+list[Message] visibilityModifier(Declaration cls, list[Declaration] parents, node ast, M3 model) {
 	modifiers = model@modifiers;
 	msgs = [];
-	
-	for(c <- classes(model)){
-		for(f <- fields(model, c)){
-			mods = modifiers[f];
-			if(\public() in mods && !({\static(), \final()} < mods)){
-				msgs += classDesign("VisibilityModifier", f);
-			}
+	c = cls@decl;
+	for(f <- fields(model, c)){
+		mods = modifiers[f];
+		if(\public() in mods && !({\static(), \final()} < mods)){
+			msgs += classDesign("VisibilityModifier", f);
 		}
 	}
 	
 	return msgs;
 }
 
-list[Message] finalClass(node ast, M3 model, OuterDeclarations decls){
+//list[Message] visibilityModifier(node ast, M3 model, OuterDeclarations decls){
+//	modifiers = model@modifiers;
+//	msgs = [];
+//	
+//	for(c <- classes(model)){
+//		for(f <- fields(model, c)){
+//			mods = modifiers[f];
+//			if(\public() in mods && !({\static(), \final()} < mods)){
+//				msgs += classDesign("VisibilityModifier", f);
+//			}
+//		}
+//	}
+//	
+//	return msgs;
+//}
+
+list[Message] finalClass(Declaration cls, list[Declaration] parents, node ast, M3 model) {
     modifiers = model@modifiers;
 	msgs = [];
 	bool isPrivate(loc m) = \private() in modifiers[m];
@@ -63,41 +75,95 @@ list[Message] finalClass(node ast, M3 model, OuterDeclarations decls){
 		return ncons > 0;
 	}
 	
-	for(c <- classes(model)){
-		if(hasOnlyPrivateConstructors(c) && \final() notin modifiers[c]){
-			msgs += classDesign("FinalClass", c);
-		}
+	c = cls@decl;
+	
+	if(hasOnlyPrivateConstructors(c) && \final() notin modifiers[c]){
+		msgs += classDesign("FinalClass", c);
 	}
 
     return msgs;
 }
 
-list[Message] mutableException(node ast, M3 model, OuterDeclarations decls){
+//list[Message] finalClass(node ast, M3 model, OuterDeclarations decls){
+//    modifiers = model@modifiers;
+//	msgs = [];
+//	bool isPrivate(loc m) = \private() in modifiers[m];
+//	
+//	bool hasOnlyPrivateConstructors(loc class){
+//		ncons = 0;
+//		for(m <-  methods(model, class)){
+//			if(m.scheme == "java+constructor"){
+//				ncons += 1;
+//				if(!isPrivate(m)){
+//					return false;
+//				}
+//			}	
+//		}
+//		return ncons > 0;
+//	}
+//	
+//	for(c <- classes(model)){
+//		if(hasOnlyPrivateConstructors(c) && \final() notin modifiers[c]){
+//			msgs += classDesign("FinalClass", c);
+//		}
+//	}
+//
+//    return msgs;
+//}
+
+list[Message] mutableException(Declaration cls, list[Declaration] parents, node ast, M3 model) {
 	modifiers = model@modifiers;
 	msgs = [];
 	bool hasOnlyFinalFields(loc c){
 		return all(f <- fields(model, c), \final() in modifiers[f]);
 	}
+	c = cls@decl;
 	
-	for(c <- decls.allClasses){
-		if((/Exception$/ := c.name || /Error$/ := c.name) && !hasOnlyFinalFields(c@decl /*getDeclaredEntity(c@src, model)*/)){ 
-				msgs += classDesign("MutableException", c@src);
-			}
+	if((/Exception$/ := cls.name || /Error$/ := cls.name) && !hasOnlyFinalFields(cls@decl)){ 
+			msgs += classDesign("MutableException", cls@src);
 	}
 
     return msgs;
 }
 
-list[Message] throwsCount(node ast, M3 model, OuterDeclarations decls){
-	msgs = [];
-	
-	for(m <- decls.allMethods){
-		if(m has impl && size([e | /e:\throw(_) := m.impl]) > 1){
-			msgs += classDesign("ThrowsCount", m@src);
-		}
-	}
-
-	return msgs;
+//list[Message] mutableException(node ast, M3 model, OuterDeclarations decls){
+//	modifiers = model@modifiers;
+//	msgs = [];
+//	bool hasOnlyFinalFields(loc c){
+//		return all(f <- fields(model, c), \final() in modifiers[f]);
+//	}
+//	
+//	for(c <- decls.allClasses){
+//		if((/Exception$/ := c.name || /Error$/ := c.name) && !hasOnlyFinalFields(c@decl /*getDeclaredEntity(c@src, model)*/)){ 
+//				msgs += classDesign("MutableException", c@src);
+//			}
+//	}
+//
+//    return msgs;
+//}
+list[Message] throwsCount(Statement s: \throw(_), list[Statement] parents, node ast, M3 model) {
+	updateCheckState("throwsCount", 1);
+	return [];
 }
+
+default list[Message] throwsCount(Statement s: \throw(_), list[Statement] parents, node ast, M3 model) = [];
+
+value updateThrowsCount(value current, value delta) { if(int n := current && int d := delta) return n + d; }
+
+list[Message] finalizeThrowsCount(Declaration d, value current) =
+	(int n := current && n > 1) ? [classDesign("ThrowsCount", d@src)] : [];
+
+
+//list[Message] throwsCount(node ast, M3 model, OuterDeclarations decls){
+//	msgs = [];
+//	
+//	for(m <- decls.allMethods){
+//		if(m has impl && size([e | /e:\throw(_) := m.impl]) > 1){
+//			msgs += classDesign("ThrowsCount", m@src);
+//		}
+//	}
+//
+//	return msgs;
+//}
 
 
