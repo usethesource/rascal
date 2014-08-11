@@ -51,7 +51,7 @@ public class IteratorFactory {
 			if (subjectType instanceof NonTerminalType){
 				NonTerminalType nt = (NonTerminalType) subjectType;
 
-				if (nt.isConcreteListType()){
+				if (nt.isConcreteListType() || nt.isOptionalType()){
 					IConstructor listSymbol = nt.getSymbol();
 					return RascalTypeFactory.getInstance().nonTerminalType(SymbolAdapter.getSymbol(listSymbol));
 				}
@@ -121,6 +121,10 @@ public class IteratorFactory {
 								(SymbolAdapter.getSeparators(ls).length() + 1) : 1;
 
 						return new CFListIterator((IList)tree.get(1), delta);
+					}
+					else if (nt.isOptionalType()) {
+						checkMayOccur(patType, subjectType, ctx);
+						return new CFListIterator((IList)tree.get(1), 0);
 					}
 				}
 			}
