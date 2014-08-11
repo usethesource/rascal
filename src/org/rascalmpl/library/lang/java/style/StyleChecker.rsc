@@ -16,6 +16,8 @@ import Relation;
 import Set;
 import List;
 import Node;
+import util::Benchmark;
+import util::Math;
 
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
@@ -113,16 +115,32 @@ import lang::java::style::SizeViolations;
 alias DeclarationChecker = list[Message] (Declaration decl,  list[Declaration] parents, node ast, M3 model);
 
 map[str, set[DeclarationChecker]] declarationCheckers = (
+	"compilationUnit2":
+		{fileLength,namingConventions},
+	"compilationUnit3":
+		{fileLength, namingConventions},
 	"class4": 
-		{visibilityModifier, finalClass, mutableException,outerTypeFilename},
+		{visibilityModifier, finalClass, mutableException,outerTypeFilename, namingConventions, classFanOutComplexity},
 	"interface4": 
 		{outerTypeFilename},
 	"enum4": 
-		{outerTypeFilename},
+		{outerTypeFilename, namingConventions},
+	"enumConstant3":
+		{namingConventions},
+	"enumConstant2":
+		{namingConventions},
+	"field2":
+		{namingConventions},
+	"variables2":
+		{namingConventions},
+	"parameter3":
+			{namingConventions},
+	"typeParameter2":
+			{namingConventions},
 	"method5": 
-		{noClone, noFinalizer, unCommentedMain, outerTypeFilename, methodLength, parameterNumber},
+		{noClone, noFinalizer, unCommentedMain, outerTypeFilename, methodLength, parameterNumber, namingConventions, methodCount},
 	"method4": 
-		{noClone, noFinalizer, unCommentedMain, outerTypeFilename, parameterNumber},
+		{noClone, noFinalizer, unCommentedMain, outerTypeFilename, parameterNumber, namingConventions,methodCount},
 	"constructor4": 
 		{},
 	"initializer1":
@@ -278,9 +296,12 @@ list[Message] check(Expression e, list[Expression] parents,  node ast, M3 model)
 
 list[Message] checkAll(node ast, M3 model){
 	initCheckStates();
+	
 	registerCheckState("throwsCount", {"method5", "constructor4", "initializer1"}, 0, updateThrowsCount, finalizeThrowsCount);
 	registerCheckState("returnCount", {"method5", "constructor4"}, 0, updateReturnCount, finalizeReturnCount);
-	registerCheckState("classDataAbstractionCoupling", {"class4"}, {}, updateClassDataAbstractionCoupling, finalizeClassDataAbstractionCoupling);
+	registerCheckState("methodCount", {"class4"}, 0, updateMethodCount, finalizeMethodCount);
+	registerCheckState("classDataAbstractionCoupling", {"class4", "enum4"}, {}, updateClassDataAbstractionCoupling, finalizeClassDataAbstractionCoupling);
+	
 	return  checkAll(ast, model, [], [], []);
 }	
 
@@ -352,22 +373,35 @@ list[Message] checkAll(node ast, M3 model, list[Declaration] declParents, list[S
 
 @doc{For testing on the console; we should assume only a model for the current AST is in the model}
 list[Message] styleChecker(M3 model, set[node] asts){
+	nlines = 0;
 	msgs = [];
-    for(ast <- asts){
+    for(Declaration ast <- asts){
+    	nlines += ast@src.end.line;
 		msgs += checkAll(ast, model);
     }
+    println("Checked <nlines> of Java code, found <size(msgs)> issues");
     return msgs;
  }
    
 @doc{For integration into OSSMETER, we get the models and the ASTs per file}   
 list[Message] styleChecker(map[loc, M3] models, map[loc, node] asts) 
   = [*checker(asts[f], models[f]) | f <- models, checker <- checkers];  
-  
+
+real tosec(int t1, int t2) = round((t2 - t1)/1000.0, 0.1); 
 
 list[Message] main(loc dir = |project://java-checkstyle-tests|){
+  t1 = realTime();
   m3model = createM3FromEclipseProject(dir);
-  asts = createAstsFromDirectory(dir, true);
-  return styleChecker(m3model, asts);
+  t2 = realTime();
+  asts = createAstsFromEclipseProject(dir, true);
+  t3 = realTime();
+  msgs = styleChecker(m3model, asts);
+  t4 = realTime();
+  println("Create M3 model: <tosec(t1, t2)> sec.");
+  println("Create ASTs    : <tosec(t2, t3)> sec.");
+  println("Perform checks : <tosec(t3, t4)> sec.");
+  println("Total time     : <tosec(t1, t4)> sec.");
+  return msgs;
 } 
 
 // temporary functions for regression testing with checkstyle

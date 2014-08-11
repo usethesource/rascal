@@ -26,34 +26,26 @@ ImportOrder			TBD
 ImportControl		TBD
 */
 
+/* --- avoidStarImport ------------------------------------------------------*/
 
 list[Message] avoidStarImport(Declaration imp: \import(_),  list[Declaration] parents, node ast, M3 model) =
 	\onDemand() in (imp@modifiers?{}) ? [imports("AvoidStarImport", imp@src)] : [];
 
 default list[Message] avoidStarImport(Declaration imp,  list[Declaration] parents, node ast, M3 model) = [];
 
-//list[Message] avoidStarImport(node ast, M3 model, OuterDeclarations decls) =
-//	[ imports("AvoidStarImport", imp@src) | /Declaration imp: \import(_) := ast, \onDemand() in (imp@modifiers?{})];
-//	
+// avoidStaticImport
 
 list[Message] avoidStaticImport(Declaration imp: \import(_),  list[Declaration] parents, node ast, M3 model) =
 	\static() in (imp@modifiers?{}) ? [ imports("AvoidStaticImport", imp@src)] : [];
 	
 default list[Message] avoidStaticImport(Declaration imp,  list[Declaration] parents, node ast, M3 model) = [];	
-	
-//list[Message] avoidStaticImport(node ast, M3 model, OuterDeclarations decls) =
-//	[ imports("AvoidStaticImport", imp@src) | /Declaration imp: \import(_) := ast, \static() in (imp@modifiers?{})];
-//	
+
+/* --- illegalImport --------------------------------------------------------*/
 
 list[Message] illegalImport(Declaration imp: \import(str name),  list[Declaration] parents, node ast, M3 model) =
 	startsWith(name, "sun") ? [imports("IllegalImport", imp@src)] : [];
 
 list[Message] illegalImport(Declaration imp,  list[Declaration] parents, node ast, M3 model) = [];
-			
-
-//list[Message] illegalImport(node ast, M3 model, OuterDeclarations decls) =
-//	[ imports("IllegalImport", imp@src) | /Declaration imp: \import(name) := ast, startsWith(name, "sun")];
-//	
 
 // TODO:
 

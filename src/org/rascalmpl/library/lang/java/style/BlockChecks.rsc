@@ -23,12 +23,11 @@ AvoidNestedBlocks	DONE
 
 data Message = blockCheck(str category, loc pos);
 
-// emptyBlock
+/* --- emptyBlock -----------------------------------------------------------*/
 
 bool isEmpty(empty()) = true;
 bool isEmpty(block([])) = true;
 default bool isEmpty(Statement _) = false;
-
 
 list[Message] emptyBlock(\catch(_, body), list[Statement] parents, node ast, M3 model) =
 	isEmpty(body) ? [blockCheck("EmptyBlock", body@src)] : [];
@@ -63,49 +62,7 @@ list[Message] emptyBlock(\if(_, Statement thenBranch, Statement elseBranch), lis
 
 default list[Message] emptyBlock(\if(_, Statement thenBranch, Statement elseBranch), list[Statement] parents, node ast, M3 model) = [];	
 
-//list[Message] emptyBlock(node ast, M3 model, OuterDeclarations decls) {
-//  msgs = [];
-//  bool isEmpty(empty()) = true;
-//  bool isEmpty(block([])) = true;
-//  default bool isEmpty(Statement _) = false;
-//  
-//  void check(str category, Statement body) {
-//  	if(isEmpty(body)){
-//  			msgs += blockCheck(category, body@src);
-//  		}
-//  }
-//  
-//  top-down-break visit(ast){
-//  	
-//  	case \catch(_, body):	check("EmptyBlock", body); 
-//  		
-//  	case \do(body, _):		check("EmptyBlock", body);
-//  	case \while(_, body):	check("EmptyBlock", body);
-//  	case \for(_, _, _, Statement body) :
-//  								check("EmptyBlock", body);
-//  	case \for(_, _, Statement body) :
-//  								check("EmptyBlock", body);
-//  	case \if(_, Statement thenBranch):
-//  								check("EmptyBlock", thenBranch); 
-//  	case \if(_, Statement thenBranch, Statement elseBranch): {
-//  								check("EmptyBlock", thenBranch);
-//  								check("EmptyBlock", elseBranch);
-//  								}
-//  	case \try(Statement body, _):
-//  								check("EmptyBlock", body);
-// 
-//  	case \try(body, _, Statement \finally) : {
-//  								check("EmptyBlock", body);
-//  								check("EmptyBlock", \finally);
-//  								}
-//  	case \initializer(Statement initializerBody):
-//  								check("EmptyBlock", initializerBody);
-//  }
-//
-//  return msgs;
-//}
-
-// needBraces
+/* --- needBraces -----------------------------------------------------------*/
 
 bool isBlock(Statement body) = block(_) := body;
 
@@ -129,34 +86,8 @@ list[Message] needBraces(\if(_, Statement thenBranch, Statement elseBranch), lis
 	(!isBlock(elseBranch) ? [blockCheck("NeedBraces", elseBranch@src)] : []);
 
 default list[Message] needBraces(Statement s, list[Statement] parents, node ast, M3 model) = [];
-		
-//list[Message] needBraces(node ast, M3 model, OuterDeclarations decls){
-//	msgs = [];
-//	
-//	void check(Statement body){
-//		if(block(_) !:= body){
-//			msgs += blockCheck("NeedBraces", body@src);
-//		}
-//	}
-//
-//	visit(ast){
-//		case \do(body, _):		
-//			check(body);
-//  		case \while(_, body):	
-//  			check(body);
-//		case \for(_, _, _, Statement body) :
-//  			check(body);
-//  		case \for(_, _, Statement body) :
-//  			check(body);
-//  		case \if(_, Statement thenBranch):
-//  			check(thenBranch); 
-//  		case \if(_, Statement thenBranch, Statement elseBranch): {
-//  				check(thenBranch);
-//  				check(elseBranch);
-//  			}
-//		}
-//	return msgs;
-//}
+	
+/* --- avoidNestedBlocks ----------------------------------------------------*/
 
 list[Message] avoidNestedBlocks(b: block(stats), list[Statement] parents, node ast, M3 model) {
 	if(size(parents) > 0 && isBlock(head(parents))){
@@ -166,20 +97,3 @@ list[Message] avoidNestedBlocks(b: block(stats), list[Statement] parents, node a
 }
 
 default list[Message] avoidNestedBlocks(Statement s, list[Statement] parents, node ast, M3 model) = [];
-	
-//list[Message] avoidNestedBlocks(node ast, M3 model, OuterDeclarations decls){
-//	msgs = [];
-//	void checkNesting(list[Statement] stats){
-//		for(stat <- stats){
-//			if(block(body1) := stat && /nested:\block(body1) := stat){
-//				msgs +=blockCheck("NestedBlock", nested@src);
-//			}
-//		}
-//	}
-//	top-down-break visit(ast){
-//		case \initializer(block(stats)): 			checkNesting(stats);
-//    	case \method(_, _, _, _, block(stats)):		checkNesting(stats);
-//    	case \constructor(_, _, _, block(stats)): 	checkNesting(stats);
-//	}
-//	return msgs;
-//}

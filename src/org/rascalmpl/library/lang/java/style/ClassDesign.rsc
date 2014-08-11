@@ -27,6 +27,8 @@ ThrowsCount					DONE
 InnerTypeLast				TBD
 */
 
+/* --- visibilityModifier ---------------------------------------------------*/
+
 list[Message] visibilityModifier(Declaration cls, list[Declaration] parents, node ast, M3 model) {
 	modifiers = model@modifiers;
 	msgs = [];
@@ -41,21 +43,7 @@ list[Message] visibilityModifier(Declaration cls, list[Declaration] parents, nod
 	return msgs;
 }
 
-//list[Message] visibilityModifier(node ast, M3 model, OuterDeclarations decls){
-//	modifiers = model@modifiers;
-//	msgs = [];
-//	
-//	for(c <- classes(model)){
-//		for(f <- fields(model, c)){
-//			mods = modifiers[f];
-//			if(\public() in mods && !({\static(), \final()} < mods)){
-//				msgs += classDesign("VisibilityModifier", f);
-//			}
-//		}
-//	}
-//	
-//	return msgs;
-//}
+/* --- finalClass -----------------------------------------------------------*/
 
 list[Message] finalClass(Declaration cls, list[Declaration] parents, node ast, M3 model) {
     modifiers = model@modifiers;
@@ -84,32 +72,7 @@ list[Message] finalClass(Declaration cls, list[Declaration] parents, node ast, M
     return msgs;
 }
 
-//list[Message] finalClass(node ast, M3 model, OuterDeclarations decls){
-//    modifiers = model@modifiers;
-//	msgs = [];
-//	bool isPrivate(loc m) = \private() in modifiers[m];
-//	
-//	bool hasOnlyPrivateConstructors(loc class){
-//		ncons = 0;
-//		for(m <-  methods(model, class)){
-//			if(m.scheme == "java+constructor"){
-//				ncons += 1;
-//				if(!isPrivate(m)){
-//					return false;
-//				}
-//			}	
-//		}
-//		return ncons > 0;
-//	}
-//	
-//	for(c <- classes(model)){
-//		if(hasOnlyPrivateConstructors(c) && \final() notin modifiers[c]){
-//			msgs += classDesign("FinalClass", c);
-//		}
-//	}
-//
-//    return msgs;
-//}
+/* --- mutableException -----------------------------------------------------*/
 
 list[Message] mutableException(Declaration cls, list[Declaration] parents, node ast, M3 model) {
 	modifiers = model@modifiers;
@@ -126,44 +89,49 @@ list[Message] mutableException(Declaration cls, list[Declaration] parents, node 
     return msgs;
 }
 
-//list[Message] mutableException(node ast, M3 model, OuterDeclarations decls){
-//	modifiers = model@modifiers;
-//	msgs = [];
-//	bool hasOnlyFinalFields(loc c){
-//		return all(f <- fields(model, c), \final() in modifiers[f]);
-//	}
-//	
-//	for(c <- decls.allClasses){
-//		if((/Exception$/ := c.name || /Error$/ := c.name) && !hasOnlyFinalFields(c@decl /*getDeclaredEntity(c@src, model)*/)){ 
-//				msgs += classDesign("MutableException", c@src);
-//			}
-//	}
-//
-//    return msgs;
-//}
+default list[Message] mutableException(Declaration cls, list[Declaration] parents, node ast, M3 model) = [];
+
+/* --- throwsCount ----------------------------------------------------------*/
+
 list[Message] throwsCount(Statement s: \throw(_), list[Statement] parents, node ast, M3 model) {
 	updateCheckState("throwsCount", 1);
 	return [];
 }
 
-default list[Message] throwsCount(Statement s: \throw(_), list[Statement] parents, node ast, M3 model) = [];
+default list[Message] throwsCount(Statement s, list[Statement] parents, node ast, M3 model) = [];
+
+// update/finalize
 
 value updateThrowsCount(value current, value delta) { if(int n := current && int d := delta) return n + d; }
 
 list[Message] finalizeThrowsCount(Declaration d, value current) =
 	(int n := current && n > 1) ? [classDesign("ThrowsCount", d@src)] : [];
 
+// experiment -----------------------------------------------------------------
 
-//list[Message] throwsCount(node ast, M3 model, OuterDeclarations decls){
-//	msgs = [];
-//	
-//	for(m <- decls.allMethods){
-//		if(m has impl && size([e | /e:\throw(_) := m.impl]) > 1){
-//			msgs += classDesign("ThrowsCount", m@src);
-//		}
-//	}
-//
-//	return msgs;
-//}
+/*
+tuple[void(value), list[Message]()] throwsCountProvider(Declaration d){
+	int current = 0;
+	
+	void update(value delta) { if(int d := delta) current += d; }
 
+	list[Message] finalize() =
+		(current > 1) ? [classDesign("ThrowsCount", d@src)] : [];
 
+	return <update, finalize>;
+}
+
+tuple[void(value), list[Message]()] classDataAbstractionCouplingProvider(Declaration d){
+	set[str] current = {};
+
+	void update(value delta) { if(str d := delta) current += delta; }
+
+	list[Message] finalize() =
+	(size(current - excludedClasses) > 7) ? [metric("ClassDataAbstractionCoupling", d@src)] : [];	
+
+	return <update, finalize>;
+}
+
+public list[tuple[void(value), list[Message]()](Declaration)] exp = [throwsCountProvider, classDataAbstractionCouplingProvider];
+
+*/
