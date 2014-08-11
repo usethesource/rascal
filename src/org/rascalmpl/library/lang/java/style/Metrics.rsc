@@ -7,6 +7,7 @@ import Message;
 import String;
 import Set;
 import Type;
+import Node;
 
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
@@ -26,6 +27,9 @@ JavaNCSS						TBD
 
 data Message = metric(str category, loc pos);
 
+
+/* --- booleanExpressionComplexity ------------------------------------------*/
+
 bool isBooleanOperator(\infix(_, str operator, _)) = operator in {"&&", "&", "||", "|", "^"};
 bool isBooleanOperator(\prefix("!", _)) = true;
 default bool isBooleanOperator(Expression e) = false;
@@ -42,29 +46,10 @@ int countBooleanOperators(list[Expression] parents){
 
 list[Message] booleanExpressionComplexity(Expression exp,  list[Expression] parents, node ast, M3 model) =
 	(exp has src && isBooleanOperator(exp) && countBooleanOperators(parents) > 2) ? [metric("BooleanExpressionComplexity", exp@src)] : [];
-	
-	
-//list[Message] booleanExpressionComplexity(node ast, M3 model, OuterDeclarations decls){
-//	msgs = [];
-//	
-//	bool tooManyBooleanOperators(Expression e){
-//	   int cnt = 0;
-//	   visit(e){
-//		 case \infix(_, str operator, _):
-//			 if(operator in {"&&", "&", "||", "|", "^"}) cnt += 1;
-//		 case \prefix("!", _): cnt += 1;
-//	   }
-//	   return cnt > 3;
-//    }
-//	
-//	top-down-break visit(ast){
-//		case Expression e: 
-//			if(tooManyBooleanOperators(e)) { msgs += metric("BooleanExpressionComplexity", e@src); }
-//	}
-//	return msgs;
-//}
 
-set[str] excludedClasses = {	// TODO: verify that these names really work (may use a loc?)
+/* --- classDataAbstractionCoupling -----------------------------------------*/
+
+set[str] excludedClasses = {
 	"boolean", "byte", "char", "double", "float", "int", "long", "short", "void", 
 	"Boolean", "Byte", "Character", "Double", "Float", "Integer", "Long", "Short", 
 	"Void", "Object", "Class", "String", "StringBuffer", "StringBuilder", 
@@ -74,25 +59,31 @@ set[str] excludedClasses = {	// TODO: verify that these names really work (may u
 	"List", "ArrayList", "Deque", "Queue", "LinkedList", "Set", "HashSet", "SortedSet", "TreeSet", 
 	"Map", "HashMap", "SortedMap", "TreeMap"};
 
-str getName(loc declaration){
-		p = declaration.path;
+str getTypeName(TypeSymbol tp){
+	if(tp has decl){
+		p = tp.decl.path;
 		res = p[findLast(p, "/")+1 .. ];
-		//println("getName: <declaration>, <res>");
+		//println("getName: <tp>, <res>");
+		return res;
+	} else {
+		res = getName(tp);
+		//println("getName: <tp>, <res>");
 		return res;
 	}
+}
 
 list[Message] classDataAbstractionCoupling(Expression exp: \newObject(_, _, _, _),  list[Expression] parents, node ast, M3 model) {
-	updateCheckState("classDataAbstractionCoupling", getName(exp@typ.decl));
+	updateCheckState("classDataAbstractionCoupling", getTypeName(exp@typ));
 	return [];
 }
 	
 list[Message] classDataAbstractionCoupling(Expression exp: \newObject(_, _, _),  list[Expression] parents, node ast, M3 model){
-	updateCheckState("classDataAbstractionCoupling", getName(exp@typ.decl));
+	updateCheckState("classDataAbstractionCoupling", getTypeName(exp@typ));
 	return [];
 }
 
 list[Message] classDataAbstractionCoupling(Expression exp: \newObject(_, _),  list[Expression] parents, node ast, M3 model){
-	updateCheckState("classDataAbstractionCoupling", getName(exp@typ.decl));
+	updateCheckState("classDataAbstractionCoupling", getTypeName(exp@typ));
 	return [];
 }
 	
@@ -104,45 +95,30 @@ value updateClassDataAbstractionCoupling(value current, value delta) {
 
 list[Message] finalizeClassDataAbstractionCoupling(Declaration d, value current) =
 	(set[str] s := current && size(s- excludedClasses) > 7) ? [metric("ClassDataAbstractionCoupling", d@src)] : [];	
+
+
+/* --- classFanOutComplexity ------------------------------------------------*/
+
+str getTypeName(loc s) = s.path[1..];
+
+set[str] getTypeNames(set[loc] locs) = { getTypeName(l) | l <- locs };
+
+list[Message] classFanOutComplexity(Declaration cls, list[Declaration] parents, node ast, M3 model) {
+
+	println("<cls@src>: <getTypeNames(model@typeDependency[model@containment[cls@decl]])>");
+	return size(getTypeNames(model@typeDependency[model@containment[cls@decl]]) - excludedClasses) > 7 ? [ metric("ClassFanOutComplexity", cls@src) ] : [];
 	
-//list[Message] classDataAbstractionCoupling(node ast, M3 model, OuterDeclarations decls){ 
-//	invNames = model@names<1,0>;
-//	
-//	str getName(loc declaration){
-//		p = declaration.path;
-//		return p[findLast(p, "/")+1 .. ];
-//	}
-//    set[str] getNew(Declaration ast){
-//    	news = {};
-//    	visit(ast){
-//    		case obj: \newObject(Expression expr, Type \type, list[Expression] args, Declaration class):
-//    			news += getName(obj@typ.decl);
-//    			
-//    		case obj: \newObject(Expression expr, Type \type, list[Expression] args):
-//    			news += getName(obj@typ.decl);
-//    		
-//    		case obj: \newObject(Type \type, list[Expression] args, Declaration class):
-//    			news += getName(obj@typ.decl);
-//    		
-//    		case obj: \newObject(Type \type, list[Expression] args):
-//    			news += getName(obj@typ.decl);
-//    	}
-//    	return news;
-//    }
-//    bool tooManyNew(Declaration class){
-//    	return size(getNew(class) - excludedClasses) > 7;
-//    }
-//
-//	return 
-//		[ metric("ClassDataAbstractionCoupling", c@src) | c <- decls.allClasses, tooManyNew(c) ];
-//}
-//
+	}
+
 //list[Message] classFanOutComplexity(node ast, M3 model, OuterDeclarations decls){
 //	return 
 //		[ metric("ClassFanOutComplexity", c) | c <- classes(model), size(model@typeDependency[model@containment[c]] - excludedClasses) > 7 ];
 //}
 
+// NOTE: The following checks are alerady part of the OSSMETER metrics are not repeated here.
 
+//--------------------------------
+// cyclomaticComplexity
 
 //list[Message] cyclomaticComplexity(node ast, M3 model, OuterDeclarations decls){
 //	msgs = [];
@@ -172,7 +148,9 @@ list[Message] finalizeClassDataAbstractionCoupling(Declaration d, value current)
 //	}
 //	return msgs;
 //}
-//
+
+// nPathComplexity
+
 //list[Message] nPathComplexity(node ast, M3 model, OuterDeclarations decls){
 //	msgs = [];
 //	void checkNPath(Statement body){

@@ -27,6 +27,8 @@ OuterTypeNumber				TBD
 MethodCount					DONE
 */
 
+/* --- executableStatementCount ---------------------------------------------*/
+
 //list[Message] executableStatementCount(node ast, M3 model, OuterDeclarations decls){
 //	msgs = [];
 //	void checkSize(Statement ast){
@@ -41,32 +43,22 @@ MethodCount					DONE
 //	}
 //	return msgs;
 //}
-//
-//list[Message] fileLength(Declaration ast, M3 model, OuterDeclarations decls){
-//	return (ast@src.end.line > 2000) ?  [sizeViolation("FileLength", ast@src)] : [];
-//}
-//
+
+/* --- fileLength -----------------------------------------------------------*/
+
+list[Message] fileLength(Declaration m,  list[Declaration] parents, node ast, M3 model) =
+	(m@src.end.line > 2000) ?  [sizeViolation("FileLength", m@src)] : [];
+
+/* --- methodLength ---------------------------------------------------------*/
 
 int getSize(Declaration d) = d@src.end.line - d@src.begin.line;
 
 list[Message] methodLength(Declaration m: \method(_,_,_,_,_),  list[Declaration] parents, node ast, M3 model) =
 	(getSize(m) > 150) ? [sizeViolation("MethodLength", m@src)] : [];
-	
-	
-//list[Message] methodLength(Declaration ast, M3 model, OuterDeclarations decls){
-//	msgs = [];
-//	void checkSize(Declaration ast){
-//		if(ast@src.end.line - ast@src.begin.line > 150){
-//			msgs += sizeViolation("MethodLength", ast@src);
-//		}
-//	}
-//	for(m <- decls.allMethods){
-//		checkSize(m);
-//	}
-//	
-//	return msgs;
-//}
+
     
+/* --- parameterNumber ------------------------------------------------------*/
+
 list[Message] parameterNumber(Declaration m: \method(_,_,parameters,_,_),  list[Declaration] parents, node ast, M3 model) =
 	size(parameters) > 7 ? [sizeViolation("ParameterNumber", m@src)] : [];
 
@@ -75,18 +67,28 @@ list[Message] parameterNumber(Declaration m: \method(_,_,parameters,_),  list[De
 
 default list[Message] parameterNumber(Declaration m,  list[Declaration] parents, node ast, M3 model) = [];
 	
-//list[Message] parameterNumber(node ast, M3 model, OuterDeclarations decls){
-//	msgs = [];
-//	
-//	for(m <- decls.allMethods){
-//		if(size(m.parameters) > 7){
-//			msgs += sizeViolation("ParameterNumber", m@src);
-//		}
-//	}
-//	return msgs;
-//}
-//
-//// TODO: this check should be refined per method category
-//list[Message] methodCount(node ast, M3 model, OuterDeclarations decls){
-//    return size([m | /m:\method(_, _, _, _, Statement impl) := ast]) > 100 ? sizeViolation("MethodCount", ast@src) : [];
-//}
+/* --- methodCount ----------------------------------------------------------*/
+
+// TODO: this check should be refined per method category: maxTotal, maxPrivate, maxPackage, maxProtected, maxPublic
+
+list[Message] methodCount(Declaration d: \method(_, _, _, _, _), list[Declaration] parents, node ast, M3 model) {
+	updateCheckState("methodCount", 1);
+	return [];
+}
+
+list[Message] methodCount(Declaration d: \method(_, _, _, _), list[Declaration] parents, node ast, M3 model) {
+	updateCheckState("methodCount", 1);
+	return [];
+}
+
+default list[Message] methodCount(Declaration d, list[Declaration] parents, node ast, M3 model) = [];
+
+// update/finalize
+
+value updateMethodCount(value current, value delta) { if(int n := current && int d := delta) return n + d; }
+
+list[Message] finalizeMethodCount(Declaration d, value current) =
+	(int n := current && n > 100) ? [sizeViolation("MethodCount", d@src) ] : [];
+	
+
+
