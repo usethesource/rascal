@@ -35,6 +35,7 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.TypeReachability;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class IteratorFactory {
 	
@@ -51,7 +52,7 @@ public class IteratorFactory {
 			if (subjectType instanceof NonTerminalType){
 				NonTerminalType nt = (NonTerminalType) subjectType;
 
-				if (nt.isConcreteListType()){
+				if (nt.isConcreteListType() || nt.isOptionalType()){
 					IConstructor listSymbol = nt.getSymbol();
 					return RascalTypeFactory.getInstance().nonTerminalType(SymbolAdapter.getSymbol(listSymbol));
 				}
@@ -120,7 +121,11 @@ public class IteratorFactory {
 						int delta = SymbolAdapter.isSepList(ls) ? 
 								(SymbolAdapter.getSeparators(ls).length() + 1) : 1;
 
-						return new CFListIterator((IList)tree.get(1), delta);
+						return new CFListIterator(TreeAdapter.getArgs(tree), delta);
+					}
+					else if (nt.isOptionalType()) {
+						checkMayOccur(patType, subjectType, ctx);
+						return new CFListIterator(TreeAdapter.getArgs(tree), 1);
 					}
 				}
 			}
