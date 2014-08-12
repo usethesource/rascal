@@ -3488,7 +3488,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 // do this when the match type is concrete and when we either have no pargs or we have
                                 // pargs that all have concrete types associated with them.
                                 formalArgs = isConstructorType(matchType) ? getConstructorArgumentTypes(matchType) : getProductionArgumentTypes(matchType);
-                                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- (formalArgs + justUsedParams<1>) };
+                                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- (toSet(formalArgs) + justUsedParams<1>) };
                                 map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
                                 unlabeledArgs = [ (\label(_,v) := li) ? v : li | li <- formalArgs ];
                                 unlabeledParams = ( kpn : (\label(_,v) := justUsedParams[kpn]) ? v : justUsedParams[kpn] | kpn <- justUsedParams );
