@@ -90,5 +90,33 @@ value updateMethodCount(value current, value delta) { if(int n := current && int
 list[Message] finalizeMethodCount(Declaration d, value current) =
 	(int n := current && n > 100) ? [sizeViolation("MethodCount", d@src) ] : [];
 	
+/* --- fieldCount ----------------------------------------------------------*/
 
+list[Message] fieldCount(Declaration d:  \field(Type \type, list[Expression] fragments), list[Declaration] parents, node ast, M3 model) {
+	updateCheckState("fieldCount", 1);
+	return [];
+}
+default list[Message] fieldCount(Declaration d, list[Declaration] parents, node ast, M3 model) = [];
 
+// update/finalize
+
+value updateFieldCount(value current, value delta) { if(int n := current && int d := delta) return n + d; }
+
+list[Message] finalizeFieldCount(Declaration d, value current) =
+	(int n := current && n > 15) ? [sizeViolation("FieldCount", d@src) ] : [];
+	
+/* --- publicCount ----------------------------------------------------------*/
+
+list[Message] publicCount(Declaration d, list[Declaration] parents, node ast, M3 model) {
+	if(\public() in (d@modifiers ? {})){
+		updateCheckState("publicCount", 1);
+	}
+	return [];
+}
+
+// update/finalize
+
+value updatePublicCount(value current, value delta) { if(int n := current && int d := delta) return n + d; }
+
+list[Message] finalizePublicCount(Declaration d, value current) =
+	(int n := current && n > 45) ? [sizeViolation("PublicCount", d@src) ] : [];
