@@ -13,6 +13,7 @@ import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
 
 import lang::java::style::Utils;
+import lang::java::style::CheckStates;
 
 data Message = sizeViolation(str category, loc pos);
 
