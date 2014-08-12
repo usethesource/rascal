@@ -46,42 +46,42 @@ MethodCount					DONE
 
 /* --- fileLength -----------------------------------------------------------*/
 
-list[Message] fileLength(Declaration m,  list[Declaration] parents, node ast, M3 model) =
+list[Message] fileLength(Declaration m,  list[Declaration] parents, M3 model) =
 	(m@src.end.line > 2000) ?  [sizeViolation("FileLength", m@src)] : [];
 
 /* --- methodLength ---------------------------------------------------------*/
 
 int getSize(Declaration d) = d@src.end.line - d@src.begin.line;
 
-list[Message] methodLength(Declaration m: \method(_,_,_,_,_),  list[Declaration] parents, node ast, M3 model) =
+list[Message] methodLength(Declaration m: \method(_,_,_,_,_),  list[Declaration] parents, M3 model) =
 	(getSize(m) > 150) ? [sizeViolation("MethodLength", m@src)] : [];
 
     
 /* --- parameterNumber ------------------------------------------------------*/
 
-list[Message] parameterNumber(Declaration m: \method(_,_,parameters,_,_),  list[Declaration] parents, node ast, M3 model) =
+list[Message] parameterNumber(Declaration m: \method(_,_,parameters,_,_),  list[Declaration] parents, M3 model) =
 	size(parameters) > 7 ? [sizeViolation("ParameterNumber", m@src)] : [];
 
-list[Message] parameterNumber(Declaration m: \method(_,_,parameters,_),  list[Declaration] parents, node ast, M3 model) =
+list[Message] parameterNumber(Declaration m: \method(_,_,parameters,_),  list[Declaration] parents, M3 model) =
 	size(parameters) > 7 ? [sizeViolation("ParameterNumber", m@src)] : [];
 
-default list[Message] parameterNumber(Declaration m,  list[Declaration] parents, node ast, M3 model) = [];
+default list[Message] parameterNumber(Declaration m,  list[Declaration] parents, M3 model) = [];
 	
 /* --- methodCount ----------------------------------------------------------*/
 
 // TODO: this check should be refined per method category: maxTotal, maxPrivate, maxPackage, maxProtected, maxPublic
 
-list[Message] methodCount(Declaration d: \method(_, _, _, _, _), list[Declaration] parents, node ast, M3 model) {
+list[Message] methodCount(Declaration d: \method(_, _, _, _, _), list[Declaration] parents, M3 model) {
 	updateCheckState("methodCount", 1);
 	return [];
 }
 
-list[Message] methodCount(Declaration d: \method(_, _, _, _), list[Declaration] parents, node ast, M3 model) {
+list[Message] methodCount(Declaration d: \method(_, _, _, _), list[Declaration] parents, M3 model) {
 	updateCheckState("methodCount", 1);
 	return [];
 }
 
-default list[Message] methodCount(Declaration d, list[Declaration] parents, node ast, M3 model) = [];
+default list[Message] methodCount(Declaration d, list[Declaration] parents, M3 model) = [];
 
 // update/finalize
 
@@ -92,11 +92,11 @@ list[Message] finalizeMethodCount(Declaration d, value current) =
 	
 /* --- fieldCount ----------------------------------------------------------*/
 
-list[Message] fieldCount(Declaration d:  \field(Type \type, list[Expression] fragments), list[Declaration] parents, node ast, M3 model) {
+list[Message] fieldCount(Declaration d:  \field(Type \type, list[Expression] fragments), list[Declaration] parents, M3 model) {
 	updateCheckState("fieldCount", 1);
 	return [];
 }
-default list[Message] fieldCount(Declaration d, list[Declaration] parents, node ast, M3 model) = [];
+default list[Message] fieldCount(Declaration d, list[Declaration] parents, M3 model) = [];
 
 // update/finalize
 
@@ -107,7 +107,7 @@ list[Message] finalizeFieldCount(Declaration d, value current) =
 	
 /* --- publicCount ----------------------------------------------------------*/
 
-list[Message] publicCount(Declaration d, list[Declaration] parents, node ast, M3 model) {
+list[Message] publicCount(Declaration d, list[Declaration] parents, M3 model) {
 	if(\public() in (d@modifiers ? {})){
 		updateCheckState("publicCount", 1);
 	}

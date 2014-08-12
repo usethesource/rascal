@@ -52,7 +52,7 @@ import lang::java::style::Strings;
 // and returns
 // - a list of messages
 
-alias DeclarationChecker = list[Message] (Declaration decl,  list[Declaration] parents, node ast, M3 model);
+alias DeclarationChecker = list[Message] (Declaration decl,  list[Declaration] parents, M3 model);
 
 map[DeclarationChecker, set[str]] declarationChecker2Cons = (
 	avoidStarImport: 			// Imports
@@ -147,13 +147,13 @@ void buildDeclarationCheckers(){
 
 // Run all checks associated with the constructor of the current declaration
 
-list[Message] check(Declaration d, list[Declaration] parents,  node ast, M3 model){
+list[Message] check(Declaration d, list[Declaration] parents,  M3 model){
 	msgs = [];
 	cons = getConstructor(d);
 	if(!declarationCheckers[cons]?)
 		return [];
 	for(checker <- declarationCheckers[cons]){
-		msgs += checker(d, parents, ast, model);
+		msgs += checker(d, parents, model);
 	}
 	return msgs;
 }
@@ -168,7 +168,7 @@ list[Message] check(Declaration d, list[Declaration] parents,  node ast, M3 mode
 // and returns
 // - a list of messages
 
-alias StatementChecker = list[Message] (Statement stat,  list[Statement] parents, node ast, M3 model);
+alias StatementChecker = list[Message] (Statement stat,  list[Statement] parents, M3 model);
 map[StatementChecker, set[str]] statementChecker2Cons = (
 	avoidNestedBlocks: 				// BlockChecks
 		{ "block1" },
@@ -238,13 +238,13 @@ void buildStatementCheckers(){
 
 // Run all checks associated with the constructor of the current statement
 
-list[Message] check(Statement s, list[Statement] parents,  node ast, M3 model){
+list[Message] check(Statement s, list[Statement] parents,  M3 model){
 	msgs = [];
 	cons = getConstructor(s);
 	if(!statementCheckers[cons]?)
 		return [];
 	for(checker <- statementCheckers[cons]){
-		msgs += checker(s, parents, ast, model);
+		msgs += checker(s, parents, model);
 	}
 	return msgs;
 }
@@ -259,7 +259,7 @@ list[Message] check(Statement s, list[Statement] parents,  node ast, M3 model){
 // and returns
 // - a list of messages
 
-alias ExpressionChecker = list[Message] (Expression exp,  list[Expression] parents, node ast, M3 model);
+alias ExpressionChecker = list[Message] (Expression exp,  list[Expression] parents, M3 model);
 
 map[ExpressionChecker, set[str]] expressionChecker2Cons = (
 	appendCharacterWithChar: 
@@ -324,13 +324,13 @@ void buildExpressionCheckers(){
 
 // Run all checks associated with the constructor of the current expression
 
-list[Message] check(Expression e, list[Expression] parents,  node ast, M3 model){
+list[Message] check(Expression e, list[Expression] parents, M3 model){
 	msgs = [];
 	cons = getConstructor(e);
 	if(!expressionCheckers[cons]?)
 		return [];
 	for(checker <- expressionCheckers[cons]){
-		msgs += checker(e, parents, ast, model);
+		msgs += checker(e, parents, model);
 	}
 	return msgs;
 }
@@ -368,20 +368,20 @@ list[Message] checkAll(node ast, M3 model, list[Declaration] declParents, list[S
 	switch(ast){
 	
 		case Declaration d:
-			{ msgs += check(d, declParents, ast, model); 
+			{ msgs += check(d, declParents, model); 
 				declParents = d + declParents; 
 				enterDeclaration(d); 
 				isDeclaration = true;
 			}
 		
 		case Statement s: 
-			{ msgs += check(s, statParents, ast, model); 
+			{ msgs += check(s, statParents, model); 
 			  statParents = s + statParents; 
 			}
 		
 		case Expression e:
 			{ //println(e);
-			  msgs += check(e, expParents, ast, model); 
+			  msgs += check(e, expParents, model); 
 			  expParents = e + expParents; 
 			}
 		

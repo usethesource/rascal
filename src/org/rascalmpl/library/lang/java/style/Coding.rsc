@@ -76,62 +76,58 @@ OneStatementPerLine				TBD
 
 /* --- avoidInlineConditionals ----------------------------------------------*/
 
-list[Message] avoidInlineConditionals(Expression exp: \conditional(_, _, _),  list[Expression] parents, node ast, M3 model) =
+list[Message] avoidInlineConditionals(Expression exp: \conditional(_, _, _),  list[Expression] parents, M3 model) =
 	[coding("AvoidInlineConditionals", exp@src)];
 	
-default list[Message] avoidInlineConditionals(Expression exp,  list[Expression] parents, node ast, M3 model) = [];
+default list[Message] avoidInlineConditionals(Expression exp,  list[Expression] parents, M3 model) = [];
 
 /* --- magicNumber ----------------------------------------------------------*/
 
-list[Message] magicNumber(Expression exp: \number(str numberValue),  list[Expression] parents, node ast, M3 model) =
+list[Message] magicNumber(Expression exp: \number(str numberValue),  list[Expression] parents, M3 model) =
 	(numberValue notin {"-1", "0", "1", "2"}) ? [coding("MagicNumber", exp@src)] : [];
 
-default list[Message] magicNumber(Expression exp,  list[Expression] parents, node ast, M3 model) = [];
+default list[Message] magicNumber(Expression exp,  list[Expression] parents, M3 model) = [];
 
 /* --- missingSwitchDefault -------------------------------------------------*/
 
-list[Message] missingSwitchDefault(Statement stat: \switch(_, list[Statement] statements),  list[Statement] parents, node ast, M3 model) =
+list[Message] missingSwitchDefault(Statement stat: \switch(_, list[Statement] statements),  list[Statement] parents, M3 model) =
 	(!(\defaultCase() in statements)) ? [coding("MissingSwitchDefault", stat@src)] : [];
     	
-default list[Message] missingSwitchDefault(Statement stat: \switch(_, list[Statement] statements),  list[Statement] parents, node ast, M3 model) = [];
+default list[Message] missingSwitchDefault(Statement stat: \switch(_, list[Statement] statements),  list[Statement] parents, M3 model) = [];
 
 /* --- simplifyBooleanExpression --------------------------------------------*/
 
-bool isBooleanLiteral(Expression e) = \booleanLiteral(_) := e;
-
-list[Message] simplifyBooleanExpression(Expression exp: \infix(lhs, "&&", rhs),  list[Expression] parents, node ast, M3 model) =
+list[Message] simplifyBooleanExpression(Expression exp: \infix(lhs, "&&", rhs),  list[Expression] parents, M3 model) =
 	(isBooleanLiteral(lhs) ? [coding("SimplifyBooleanExpression", lhs@src)] : []) +
 	(isBooleanLiteral(rhs) ? [coding("SimplifyBooleanExpression", rhs@src)] : []);
 
-list[Message] simplifyBooleanExpression(Expression exp: \infix(lhs, "||", rhs),  list[Expression] parents, node ast, M3 model) =
+list[Message] simplifyBooleanExpression(Expression exp: \infix(lhs, "||", rhs),  list[Expression] parents, M3 model) =
 	(isBooleanLiteral(lhs) ? [coding("SimplifyBooleanExpression", lhs@src)] : []) +
 	(isBooleanLiteral(rhs) ? [coding("SimplifyBooleanExpression", rhs@src)] : []);
 
-list[Message] simplifyBooleanExpression(Expression exp: \prefix("|", operand),  list[Expression] parents, node ast, M3 model) =
+list[Message] simplifyBooleanExpression(Expression exp: \prefix("|", operand),  list[Expression] parents, M3 model) =
 	(isBooleanLiteral(operand) ? [coding("SimplifyBooleanExpression", operand@src)] : []);
 
-default list[Message] simplifyBooleanExpression(Expression exp,  list[Expression] parents, node ast, M3 model) = [];
+default list[Message] simplifyBooleanExpression(Expression exp,  list[Expression] parents, M3 model) = [];
 
 /* --- simplifyBooleanReturn ------------------------------------------------*/
 
 bool isBooleanReturn (stat) = \return(booleanLiteral(_)) := stat;
 
-list[Message] simplifyBooleanReturn(Statement stat: \if(Expression condition, Statement thenBranch, Statement elseBranch),  list[Statement] parents, node ast, M3 model) =
+list[Message] simplifyBooleanReturn(Statement stat: \if(Expression condition, Statement thenBranch, Statement elseBranch),  list[Statement] parents, M3 model) =
 	(isBooleanReturn(thenBranch) && isBooleanReturn(elseBranch)) ? [coding("SimplifyBooleanReturn", stat@src)] : [];
 
-default list[Message] simplifyBooleanReturn(Statement stat, list[Expression] parents, node ast, M3 model) = [];
+default list[Message] simplifyBooleanReturn(Statement stat, list[Expression] parents, M3 model) = [];
 
 /* --- stringLiteralEquality ------------------------------------------------*/
 
-bool isStringLiteral(Expression e) = stringLiteral(_) := e;
-
-list[Message] stringLiteralEquality(Expression exp: \infix(lhs, "==", rhs),  list[Expression] parents, node ast, M3 model) =
+list[Message] stringLiteralEquality(Expression exp: \infix(lhs, "==", rhs),  list[Expression] parents, M3 model) =
 	(isStringLiteral(lhs) || isStringLiteral(rhs)) ? [coding("StringLiteralEquality", exp@src)] : [];
 
-list[Message] stringLiteralEquality(Expression exp: \infix(lhs, "!=", rhs),  list[Expression] parents, node ast, M3 model) =
+list[Message] stringLiteralEquality(Expression exp: \infix(lhs, "!=", rhs),  list[Expression] parents, M3 model) =
 	(isStringLiteral(lhs) || isStringLiteral(rhs)) ? [coding("StringLiteralEquality", exp@src)] : [];
 
-default list[Message] stringLiteralEquality(Expression exp,  list[Expression] parents, node ast, M3 model) = [];
+default list[Message] stringLiteralEquality(Expression exp,  list[Expression] parents, M3 model) = [];
 
 /* --- nestedForDepth -------------------------------------------------------*/
 
@@ -150,16 +146,16 @@ int countForNesting(list[Statement] parents){
 	return nesting;
 }
 
-list[Message] nestedForDepth(Statement stat: \foreach(_, _, _),  list[Statement] parents, node ast, M3 model) =
+list[Message] nestedForDepth(Statement stat: \foreach(_, _, _),  list[Statement] parents, M3 model) =
 	countForNesting(parents) > 0 ? [coding("NestedForDepth", stat@src)] : [];
 	
-list[Message] nestedForDepth(Statement stat: \for(_, _, _, _),  list[Statement] parents, node ast, M3 model) =
+list[Message] nestedForDepth(Statement stat: \for(_, _, _, _),  list[Statement] parents, M3 model) =
 	countForNesting(parents) > 0 ? [coding("NestedForDepth", stat@src)] : [];
 	
-list[Message] nestedForDepth(Statement stat: \for(_, _, _),  list[Statement] parents, node ast, M3 model) =
+list[Message] nestedForDepth(Statement stat: \for(_, _, _),  list[Statement] parents, M3 model) =
 	countForNesting(parents) > 0 ? [coding("NestedForDepth", stat@src)] : [];
 
-default list[Message] nestedForDepth(Statement stat,  list[Statement] parents, node ast, M3 model) = [];
+default list[Message] nestedForDepth(Statement stat,  list[Statement] parents, M3 model) = [];
 
 /* --- nestedIfDepth --------------------------------------------------------*/
 
@@ -176,13 +172,13 @@ int countIfNesting(list[Statement] parents){
 	return nesting;
 }
 
-list[Message] nestedIfDepth(Statement stat: \if(_, _),  list[Statement] parents, node ast, M3 model) =
+list[Message] nestedIfDepth(Statement stat: \if(_, _),  list[Statement] parents, M3 model) =
 	countIfNesting(parents) > 0 ? [coding("NestedIfDepth", stat@src)] : [];
 	
-list[Message] nestedIfDepth(Statement stat: \if(_, _, _),  list[Statement] parents, node ast, M3 model) =
+list[Message] nestedIfDepth(Statement stat: \if(_, _, _),  list[Statement] parents, M3 model) =
 	countIfNesting(parents) > 0 ? [coding("NestedIfDepth", stat@src)] : [];
 	
-default list[Message] nestedIfDepth(Statement stat,  list[Statement] parents, node ast, M3 model) = [];	
+default list[Message] nestedIfDepth(Statement stat,  list[Statement] parents, M3 model) = [];	
 
 /* --- nestedTryDepth -------------------------------------------------------*/
 
@@ -196,13 +192,13 @@ int countTryNesting(list[Statement] parents){
 	return nesting;
 }
 
-list[Message] nestedTryDepth(Statement stat: \try(_, _),  list[Statement] parents, node ast, M3 model) =
+list[Message] nestedTryDepth(Statement stat: \try(_, _),  list[Statement] parents, M3 model) =
 	countTryNesting(parents) > 0 ? [coding("NestedTryDepth", stat@src)] : [];
 
-list[Message] nestedTryDepth(Statement stat: \try(_, _, _),  list[Statement] parents, node ast, M3 model) =
+list[Message] nestedTryDepth(Statement stat: \try(_, _, _),  list[Statement] parents, M3 model) =
 	countTryNesting(parents) > 0 ? [coding("NestedTryDepth", stat@src)] : [];
 
-default list[Message] nestedTryDepth(Statement stat,  list[Statement] parents, node ast, M3 model) = [];
+default list[Message] nestedTryDepth(Statement stat,  list[Statement] parents, M3 model) = [];
 
 /* --- noClone --------------------------------------------------------------*/
 
@@ -212,23 +208,23 @@ list[Message] checkNoClone(Declaration m, M3 model){
 	return (m.name == "clone" && !isEmpty(overrides[entity])) ? [coding("NoClone", m@src)] : [];
 }
 
-list[Message] noClone(Declaration m: \method(_, _, _, _),  list[Declaration] parents, node ast, M3 model) =
+list[Message] noClone(Declaration m: \method(_, _, _, _),  list[Declaration] parents, M3 model) =
 	checkNoClone(m, model);
 	
-list[Message] noClone(Declaration m: \method(_, _, _, _, _),  list[Declaration] parents, node ast, M3 model) =
+list[Message] noClone(Declaration m: \method(_, _, _, _, _),  list[Declaration] parents, M3 model) =
 	checkNoClone(m, model); 
 	
-default list[Message] noClone(Declaration m,  list[Declaration] parents, node ast, M3 model) = [];	
+default list[Message] noClone(Declaration m,  list[Declaration] parents, M3 model) = [];	
 
 /* --- noFinalizer ----------------------------------------------------------*/
 
-list[Message] noFinalizer(Declaration m: \method(_, _, _, _),  list[Declaration] parents, node ast, M3 model) =
+list[Message] noFinalizer(Declaration m: \method(_, _, _, _),  list[Declaration] parents, M3 model) =
 	(m.name == "finalizer") ? [coding("NoFinalizer", m@src)] : [];
 	
-list[Message] noFinalizer(Declaration m: \method(_, _, _, _, _),  list[Declaration] parents, node ast, M3 model) =
+list[Message] noFinalizer(Declaration m: \method(_, _, _, _, _),  list[Declaration] parents, M3 model) =
 	(m.name == "finalizer") ? [coding("NoFinalizer", m@src)] : [];
 	
-default list[Message] noFinalizer(Declaration decl,  list[Declaration] parents, node ast, M3 model) = [];	
+default list[Message] noFinalizer(Declaration decl,  list[Declaration] parents, M3 model) = [];	
 
 /* --- multipleStringLiterals -----------------------------------------------*/
 
@@ -236,7 +232,7 @@ default list[Message] noFinalizer(Declaration decl,  list[Declaration] parents, 
 
 set[str] seenStringLiterals = {};
 
-list[Message] multipleStringLiterals(Expression exp: stringLiteral(str stringValue),  list[Expression] parents, node ast, M3 model) {
+list[Message] multipleStringLiterals(Expression exp: stringLiteral(str stringValue),  list[Expression] parents, M3 model) {
 	if(stringValue != ""){
  		if(stringValue in seenStringLiterals){
  				return [coding("MultipleStringLiterals", exp@src)];
@@ -245,21 +241,21 @@ list[Message] multipleStringLiterals(Expression exp: stringLiteral(str stringVal
  		return [];
  	}
 }
-default list[Message] multipleStringLiterals(Expression exp,  list[Expression] parents, node ast, M3 model) = [];
+default list[Message] multipleStringLiterals(Expression exp,  list[Expression] parents, M3 model) = [];
 
 /* --- returnCount ----------------------------------------------------------*/
 
-list[Message] returnCount(Statement stat: \return(_),  list[Statement] parents, node ast, M3 model){
+list[Message] returnCount(Statement stat: \return(_),  list[Statement] parents, M3 model){
 	updateCheckState("returnCount", 1);
 	return [];
 }
 
-list[Message] returnCount(Statement stat: \return(),  list[Statement] parents, node ast, M3 model){
+list[Message] returnCount(Statement stat: \return(),  list[Statement] parents, M3 model){
 	updateCheckState("returnCount", 1);
 	return [];
 }
 
-default list[Message] returnCount(Statement stat,  list[Statement] parents, node ast, M3 model) = [];
+default list[Message] returnCount(Statement stat,  list[Statement] parents, M3 model) = [];
 
 // update/finalize
 
@@ -279,10 +275,10 @@ bool defComesLast(list[Statement] statements){
 	return true;
 }
 
-list[Message] defaultComesLast(Statement stat: \switch(_, list[Statement] statements),  list[Statement] parents, node ast, M3 model) =
+list[Message] defaultComesLast(Statement stat: \switch(_, list[Statement] statements),  list[Statement] parents, M3 model) =
 	!defComesLast(statements) ? [coding("DefaultComesLast", stat@src)] : [];
 	
-default list[Message] defaultComesLast(Statement stat,  list[Statement] parents, node ast, M3 model) = [];	
+default list[Message] defaultComesLast(Statement stat,  list[Statement] parents, M3 model) = [];	
 
 /* --- fallThrough ----------------------------------------------------------*/
 
@@ -313,7 +309,7 @@ list[Message] findFallThrough(list[Statement] statements){
 	return msgs;
 }
 
-list[Message] fallThrough(Statement stat: \switch(_, list[Statement] statements),  list[Statement] parents, node ast, M3 model) =
+list[Message] fallThrough(Statement stat: \switch(_, list[Statement] statements),  list[Statement] parents, M3 model) =
 	findFallThrough(statements);  
 
-default list[Message] fallThrough(Statement stat,  list[Statement] parents, node ast, M3 model) = [];
+default list[Message] fallThrough(Statement stat,  list[Statement] parents, M3 model) = [];

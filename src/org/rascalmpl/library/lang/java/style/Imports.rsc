@@ -28,24 +28,24 @@ ImportControl		TBD
 
 /* --- avoidStarImport ------------------------------------------------------*/
 
-list[Message] avoidStarImport(Declaration imp: \import(_),  list[Declaration] parents, node ast, M3 model) =
+list[Message] avoidStarImport(Declaration imp: \import(_),  list[Declaration] parents, M3 model) =
 	\onDemand() in (imp@modifiers?{}) ? [imports("AvoidStarImport", imp@src)] : [];
 
-default list[Message] avoidStarImport(Declaration imp,  list[Declaration] parents, node ast, M3 model) = [];
+default list[Message] avoidStarImport(Declaration imp,  list[Declaration] parents, M3 model) = [];
 
 // avoidStaticImport
 
-list[Message] avoidStaticImport(Declaration imp: \import(_),  list[Declaration] parents, node ast, M3 model) =
+list[Message] avoidStaticImport(Declaration imp: \import(_),  list[Declaration] parents, M3 model) =
 	\static() in (imp@modifiers?{}) ? [ imports("AvoidStaticImport", imp@src)] : [];
 	
-default list[Message] avoidStaticImport(Declaration imp,  list[Declaration] parents, node ast, M3 model) = [];	
+default list[Message] avoidStaticImport(Declaration imp,  list[Declaration] parents, M3 model) = [];	
 
 /* --- illegalImport --------------------------------------------------------*/
 
-list[Message] illegalImport(Declaration imp: \import(str name),  list[Declaration] parents, node ast, M3 model) =
+list[Message] illegalImport(Declaration imp: \import(str name),  list[Declaration] parents, M3 model) =
 	startsWith(name, "sun") ? [imports("IllegalImport", imp@src)] : [];
 
-list[Message] illegalImport(Declaration imp,  list[Declaration] parents, node ast, M3 model) = [];
+list[Message] illegalImport(Declaration imp,  list[Declaration] parents, M3 model) = [];
 
 // TODO:
 
