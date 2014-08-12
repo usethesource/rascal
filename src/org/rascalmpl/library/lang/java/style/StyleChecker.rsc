@@ -32,77 +32,17 @@ import lang::java::style::Metrics;
 import lang::java::style::Miscellaneous;
 import lang::java::style::NamingConventions;
 import lang::java::style::SizeViolations;
+import lang::java::style::Strings;
 
-// Available checks
+// Specification of checkers:
+// - we dinstinguish checkers for declarations, statements and expressions.
+// - for each category, a map is declared that associates the set of Java AST constructors
+//   for which the check has to be applied.
+//   IMPORTANT: this set has to be indentical to the constructors used in the rules defining each check
+// - this map is inverted by the builder functions that create a map from constructor 
+//   to all the checks they have to be applied to it.
 
-// TODO: It is better to have a list of check + applicable constructors and compute the other tables 
-
-//// BlockChecks
-
-// 		  emptyBlock
-//		, needBraces
-//		, avoidNestedBlocks
-
-//// ClassDesignChecks
-//
-//		, visibilityModifier
-//		, finalClass
-//		, mutableException
-//		, throwsCount
-//
-//// CodingChecks
-//
-//		, avoidInlineConditionals
-//		, magicNumber
-//		, missingSwitchDefault
-//		, simplifyBooleanExpression
-//		, simplifyBooleanReturn
-//		, stringLiteralEquality
-//		, nestedForDepth
-//		, nestedIfDepth
-//		, nestedTryDepth
-//		, noClone
-//		, noFinalizer
-//		, returnCount
-//		, defaultComesLast
-//		, fallThrough
-//		, multipleStringLiterals
-//
-//// ImportsChecks
-//
-//		, avoidStarImport
-//		, avoidStaticImport
-//		, illegalImport
-//		, redundantImport
-//
-//// MetricsChecks
-//
-//		, booleanExpressionComplexity 
-//		, classDataAbstractionCoupling
-//		, classFanOutComplexity
-//		, cyclomaticComplexity
-//		, nPathComplexity
-//
-//// MiscellaneousChecks
-//
-//		, unCommentedMain
-//		, outerTypeFilename
-//
-//// NamingComventions
-//
-//		, namingConventionsChecks
-//
-//// SizeViolationsChecks
-//
-//		, executableStatementCount
-//		, fileLength
-//		, methodLength
-//		, parameterNumber
-
-
-
-
-// Declaration Checking
+// --- Declaration Checking -------------------------------------------------*/
 
 // DeclarationChecker has as parameters:
 // - decl, the current declaration to be processed
@@ -114,40 +54,96 @@ import lang::java::style::SizeViolations;
 
 alias DeclarationChecker = list[Message] (Declaration decl,  list[Declaration] parents, node ast, M3 model);
 
-map[str, set[DeclarationChecker]] declarationCheckers = (
-	"compilationUnit2":
-		{fileLength,namingConventions},
-	"compilationUnit3":
-		{fileLength, namingConventions},
-	"class4": 
-		{visibilityModifier, finalClass, mutableException,outerTypeFilename, namingConventions, classFanOutComplexity},
-	"interface4": 
-		{outerTypeFilename},
-	"enum4": 
-		{outerTypeFilename, namingConventions},
-	"enumConstant3":
-		{namingConventions},
-	"enumConstant2":
-		{namingConventions},
-	"field2":
-		{namingConventions},
-	"variables2":
-		{namingConventions},
-	"parameter3":
-			{namingConventions},
-	"typeParameter2":
-			{namingConventions},
-	"method5": 
-		{noClone, noFinalizer, unCommentedMain, outerTypeFilename, methodLength, parameterNumber, namingConventions, methodCount},
-	"method4": 
-		{noClone, noFinalizer, unCommentedMain, outerTypeFilename, parameterNumber, namingConventions,methodCount},
-	"constructor4": 
-		{},
-	"initializer1":
-		{},
-	"import1":
-		{avoidStarImport, avoidStaticImport, illegalImport}
+map[DeclarationChecker, set[str]] declarationChecker2Cons = (
+	avoidStarImport: 			// Imports
+		{"import1"},
+	avoidStaticImport:			// Imports  	
+		{"import1"},
+	avoidStringBufferField: 	// Strings
+		{ "field2" },
+	classFanOutComplexity: 		// Metrics
+		{ "class4" },
+	fieldCount: 				// SizeViolations
+		{ "field2" },
+	fileLength:					// SizeViolations
+		{ "compilationUnit2", 
+		  "compilationUnit3" 
+		},
+	finalClass: 				// ClassDesign
+		{ "class4" },
+	illegalImport:  			// Imports
+		{"import1"},
+	methodLength: 				// SizeViolations
+		{ "method5" },
+	methodCount: 				// SizeViolations
+		{ "method4", 
+		  "method5"
+		},
+	mutableException: 			// ClassDesign
+		{ "class4" },
+	namingConventions: 			// NamingComventions
+		{ "class4",
+		  "compilationUnit2", 
+		  "compilationUnit3", 
+		  "enum4", 
+		  "enumConstant2", 
+		  "enumConstant3", 
+		  "field2",
+		  "method4", 
+		  "method5",
+		  "parameter3", 
+		  "typeParameter2", 
+		  "variables2"
+		},
+	noClone: 					// Coding
+		{ "method4", 
+		  "method5"
+		},
+	noFinalizer: 				// Coding
+		{ "method4",
+		  "method5"
+		},
+	outerTypeFilename: 			// Miscellaneous
+		{ "class4", 
+		  "interface4", 
+		  "enum4"
+		},
+	parameterNumber: 			// SizeViolations
+		{ "method4", 
+		  "method5"
+		},
+	publicCount: 				// SizeViolations
+		{ "field2", 
+		  "method4", 
+		  "method5",
+		  "variables2"
+		},
+	// redundantImports			// Imports
+	unCommentedMain: 			// Miscellaneous
+		{ "method4", 
+		  "method5" 
+		},
+	visibilityModifier: 		// ClassDesign
+		{ "class4" }
 );
+
+// Build the map for all declaration checkers
+
+map[str, set[DeclarationChecker]] declarationCheckers = ();
+
+void buildDeclarationCheckers(){
+	declarationCheckers = ();
+	for(DeclarationChecker dc <- declarationChecker2Cons){
+		cons = declarationChecker2Cons[dc];
+		for(c <- cons){
+			if(!declarationCheckers[c]?){
+				declarationCheckers[c] = {dc};
+			} else {
+			  declarationCheckers[c] =  declarationCheckers[c] + {dc};
+			}
+		}
+	}
+}
 
 // Run all checks associated with the constructor of the current declaration
 
@@ -162,7 +158,7 @@ list[Message] check(Declaration d, list[Declaration] parents,  node ast, M3 mode
 	return msgs;
 }
 
-// Statement Checking
+/* --- Statement Checking ---------------------------------------------------*/
 
 // StatementChecker has as parameters:
 // - stat, the current statement to be processed
@@ -173,69 +169,72 @@ list[Message] check(Declaration d, list[Declaration] parents,  node ast, M3 mode
 // - a list of messages
 
 alias StatementChecker = list[Message] (Statement stat,  list[Statement] parents, node ast, M3 model);
-
-map[str, set[StatementChecker]] statementCheckers = (
-	"assert1": 
-		{},
-	"assert2": 
-		{},
-	"block1": 
-		{avoidNestedBlocks},
-	"break0": 
-		{},
-	"break1": 
-		{},
-	"continue0": 
-		{},
-	"continue1": 
-		{},
-	"do2": 
-		{emptyBlock, needBraces},
-	"empty0": 
-		{},
-	"foreach3": 
-		{nestedForDepth},	
-	"for3": 
-		{emptyBlock, needBraces, nestedForDepth},	
-	"for4": 
-		{emptyBlock, needBraces, nestedForDepth},
-	 "if2": 
-	 	{emptyBlock, needBraces, nestedIfDepth},
-	"if3": 
-		{emptyBlock, needBraces, simplifyBooleanReturn, nestedIfDepth},   	
-	"label2": 
-		{} ,
-	"return0": 
-		{returnCount},
-	"return1": 
-		{returnCount},
-	"switch2": 
-		{missingSwitchDefault, defaultComesLast, fallThrough},
-	"case1": 
-		{},
-	"defaultcase0": 
-		{},
-	"synchronizedStatement2": 
-		{},
-	"throw1": 
-		{throwsCount},
-	"try2": 
-		{emptyBlock, nestedTryDepth},
-	"try3": 
-		{emptyBlock, nestedTryDepth},
-	"catch2": 
-		{},
-	"declarationStatement1": 
-		{},
-	"while2": 
-		{emptyBlock, needBraces},
-	"expressionStatement1": 
-		{},
-	"constructorCall2": 
-		{},
-	"constructorCall3":	
-		{}
+map[StatementChecker, set[str]] statementChecker2Cons = (
+	avoidNestedBlocks: 				// BlockChecks
+		{ "block1" },
+	defaultComesLast: 				// Coding
+		{ "switch2" },
+	emptyBlock: 					// BlockChecks
+		{ "do2",
+		  "for3",
+		  "for4",
+		  "if2",
+		  "if3",
+		  "try2",
+		  "try3",
+		  "while2"
+		},
+	fallThrough: 					// Coding
+		{ "switch2" },
+	missingSwitchDefault: 			// Coding
+		{ "switch2" },
+	needBraces:						// BlockChecks
+		{ "do2",
+		  "for3",
+		  "for4",
+		  "if2",
+		  "if3",
+		  "while2"
+		},
+	nestedForDepth: 				// Coding
+		{ "foreach3",
+		  "for3",
+		  "for4"
+		},
+	nestedIfDepth: 					// Coding
+		{ "if2",
+		  "if3"
+		},
+	nestedTryDepth: 				// Coding
+		{ "try2",
+		  "try3"
+		},
+	returnCount: 					// Coding
+		{ "return0",
+		  "return1"
+		},
+	simplifyBooleanReturn: 			// Coding
+		{ "if3" },
+	throwsCount: 					// ClassDesign
+		{ "throw1" }
 );
+
+// Build the map for all statement checkers
+
+map[str, set[StatementChecker]] statementCheckers = ();
+
+void buildStatementCheckers(){
+	statementCheckers = ();
+	for(StatementChecker sc <- statementChecker2Cons){
+		cons = statementChecker2Cons[sc];
+		for(c <- cons){
+			if(!statementCheckers[c]?){
+				statementCheckers[c] = {};
+			}
+			statementCheckers[c] = statementCheckers[c] + {sc};
+		}
+	}
+}
 
 // Run all checks associated with the constructor of the current statement
 
@@ -250,7 +249,7 @@ list[Message] check(Statement s, list[Statement] parents,  node ast, M3 model){
 	return msgs;
 }
 
-// Expression Checking
+/* --- Expression Checking --------------------------------------------------*/
 
 // ExpressionChecker has as parameters:
 // - exp, the current expression to be processed
@@ -262,24 +261,66 @@ list[Message] check(Statement s, list[Statement] parents,  node ast, M3 model){
 
 alias ExpressionChecker = list[Message] (Expression exp,  list[Expression] parents, node ast, M3 model);
 
-map[str, set[ExpressionChecker]] expressionCheckers = (
-	"conditional3":
-		{avoidInlineConditionals},
-	"number1":
-		{magicNumber},
-	"infix3":
-		{simplifyBooleanExpression, stringLiteralEquality,booleanExpressionComplexity},
-	"prefix2":
-		{simplifyBooleanExpression,booleanExpressionComplexity},
-	"stringLiteral1":
-		{multipleStringLiterals},
-	"newObject4":
-		{classDataAbstractionCoupling},
-	"newObject3":
-		{classDataAbstractionCoupling},
-	"newObject2":
-		{classDataAbstractionCoupling}
+map[ExpressionChecker, set[str]] expressionChecker2Cons = (
+	appendCharacterWithChar: 
+		{ "methodCall4" },
+	avoidInlineConditionals: 		// Coding
+		{ "conditional3" },
+	booleanExpressionComplexity: 	// Metrics
+		{ "infix3",
+		  "prefix2"
+		},
+	classDataAbstractionCoupling: 	// Metrics
+		{ "newObject2",
+		  "newObject3",
+		  "newObject4"
+		},
+	consecutiveLiteralAppends:		// Strings  
+		{ "methodCall4" },
+	inefficientEmptyStringCheck:	// Strings 
+		{ "methodCall4" },
+	inefficientStringBuffering:		// Strings 
+		{ "newObject2",
+		  "methodCall4"
+		},
+	magicNumber: 					// Coding
+		{ "number1" },
+	multipleStringLiterals: 		// Coding
+		{ "stringLiteral1" },
+	simplifyBooleanExpression: 		// Coding
+		{ "infix3",
+		  "prefix2"
+		},
+	stringInstantiation: 			// Strings
+	 	{ "newObject2" },
+	stringLiteralEquality: 			// Coding
+		{ "infix3" },
+	stringToString: 				// Strings
+		{ "methodCall4" },
+	unnnessaryCaseChange: 			// Strings
+		{ "methodCall4" },
+	useIndexOfChar: 				// Strings
+		{ "methodCall4" },
+	useStringBufferLength: 			// Strings
+		{ "methodCall4" }
 );
+
+// Build the map for all expression checkers
+
+map[str, set[ExpressionChecker]] expressionCheckers = ();
+
+void buildExpressionCheckers(){
+	expressionCheckers = ();
+	for(ExpressionChecker ec <- expressionChecker2Cons){
+		cons = expressionChecker2Cons[ec];
+		for(c <- cons){
+			if(!expressionCheckers[c]?){
+				expressionCheckers[c] = {};
+			}
+			expressionCheckers[c] = expressionCheckers[c] + {ec};
+		}
+	}
+}
 
 // Run all checks associated with the constructor of the current expression
 
@@ -294,22 +335,31 @@ list[Message] check(Expression e, list[Expression] parents,  node ast, M3 model)
 	return msgs;
 }
 
+/* --- Toplevel check functions ---------------------------------------------*/
+
+// checkALL: initialize and call actual checkALL
+
 list[Message] checkAll(node ast, M3 model){
+	buildDeclarationCheckers();
+	buildStatementCheckers();
+	buildExpressionCheckers();
+	
 	initCheckStates();
 	
-	registerCheckState("throwsCount", {"method5", "constructor4", "initializer1"}, 0, updateThrowsCount, finalizeThrowsCount);
-	registerCheckState("returnCount", {"method5", "constructor4"}, 0, updateReturnCount, finalizeReturnCount);
-	registerCheckState("methodCount", {"class4"}, 0, updateMethodCount, finalizeMethodCount);
-	registerCheckState("classDataAbstractionCoupling", {"class4", "enum4"}, {}, updateClassDataAbstractionCoupling, finalizeClassDataAbstractionCoupling);
+	registerCheckState("throwsCount", {"method5", "constructor4", "initializer1"},	0, updateThrowsCount, finalizeThrowsCount);
+	registerCheckState("returnCount", {"method5", "constructor4"}, 					0, updateReturnCount, finalizeReturnCount);
+	registerCheckState("methodCount", {"class4", "interface4", "enum4"}, 			0, updateMethodCount, finalizeMethodCount);
+	registerCheckState("fieldCount",  {"class4", "interface4", "enum4"},			0, updateFieldCount, finalizeFieldCount);
+	registerCheckState("publicCount",  {"class4", "interface4", "enum4"},			0, updatePublicCount, finalizePublicCount);
+	registerCheckState("classDataAbstractionCoupling", {"class4", "enum4"}, 		{}, updateClassDataAbstractionCoupling, finalizeClassDataAbstractionCoupling);
 	
 	return  checkAll(ast, model, [], [], []);
 }	
 
-
-// The toplevel driver checkAll:
+// The toplevel check function checkAll:
 // - performs a top-down traversal of the compilationUnit
 // - invokes the checks for the declrations/statements/expressions being encountered
-// - accumaltes all messages and returns them
+// - accumalates all messages and returns them
 
 list[Message] checkAll(node ast, M3 model, list[Declaration] declParents, list[Statement] statParents, list[Expression] expParents){
 	msgs = [];
@@ -367,9 +417,6 @@ list[Message] checkAll(node ast, M3 model, list[Declaration] declParents, list[S
 	}
 	return msgs;
 }
-
-
-  
 
 @doc{For testing on the console; we should assume only a model for the current AST is in the model}
 list[Message] styleChecker(M3 model, set[node] asts){
