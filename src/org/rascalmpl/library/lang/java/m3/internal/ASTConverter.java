@@ -1,5 +1,6 @@
 package org.rascalmpl.library.lang.java.m3.internal;
 
+import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -24,7 +25,13 @@ public class ASTConverter extends JavaToRascalConverter {
 		if (!decl.getURI().getScheme().equals("unknown")) {
 		  setAnnotation("decl", decl); 
 		}
-		setAnnotation("typ", resolveType(node));
+		IValue typeAnno = resolveType(node);
+		try {
+			setAnnotation("typ", (typeAnno != null) ? typeAnno : values.sourceLocation("unresolved", "", ""));
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private IValue resolveType(ASTNode node) {
