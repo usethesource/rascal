@@ -22,9 +22,11 @@ import util::Math;
 import lang::java::jdt::m3::Core;		// Java specific modules
 import lang::java::jdt::m3::AST;
 
-import lang::java::style::Utils;
+import lang::java::style::Utils;		// Utilities for StyleChecker
+import lang::java::style::CheckStates;	// Management of check states
 
-import lang::java::style::BlockChecks;
+
+import lang::java::style::BlockChecks;	// Groups of checks
 import lang::java::style::ClassDesign;
 import lang::java::style::Coding;
 import lang::java::style::Imports;
