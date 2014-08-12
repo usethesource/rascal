@@ -1221,7 +1221,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
 @doc{Field names and types for built-ins}
 private map[Symbol,map[str,Symbol]] fieldMap =
     ( \loc() :
-        ( "scheme" : \str(), "authority" : \str(), "host" : \str(), "path" : \str(), "parent" : \str(),
+        ( "scheme" : \str(), "authority" : \str(), "host" : \str(), "path" : \str(), "parent" : \loc(),
           "file" : \str(), "ls" : \list(\loc()), "extension" : \str(), "fragment" : \str(), 
           "query" : \str(), "user" : \str(), "port" : \int(), "length" : \int(), "offset" : \int(), 
           "begin" : \tuple([\label("line",\int()),\label("column",\int())]), 
