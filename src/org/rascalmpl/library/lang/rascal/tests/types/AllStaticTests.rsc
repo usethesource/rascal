@@ -45,7 +45,7 @@ extend lang::rascal::tests::types::SubscriptTCTests;
 
 extend lang::rascal::tests::types::VisitTCTests;
 
-extend AllStaticIssues;
+extend lang::rascal::tests::types::AllStaticIssues;
 
 // Sanity check on the testing utilities themselves
 
