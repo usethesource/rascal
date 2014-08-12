@@ -41,62 +41,60 @@ import lang::rascal::\syntax::Rascal;
 
 //
 // TODOs
-// 1a. Make sure that names propagate correctly with boolean operators. For instance,
-//     in a boolean or, a name needs to occur along both branches for it to be
-//     visible outside the or, but for and the name can occur along only one
-//     branch (since both need to be true, meaning both have been processed).
+// * Make sure that names propagate correctly with boolean operators. For instance,
+//   in a boolean or, a name needs to occur along both branches for it to be
+//   visible outside the or, but for and the name can occur along only one
+//   branch (since both need to be true, meaning both have been processed). [NOTE: this
+//   should be done, but we should double check]
 //
-// 4. Filter out bad assignables? For instance, we cannot have <x,y>.f, but it does
-//    parse, so we may be handed an example such as this.
+// * Filter out bad assignables? For instance, we cannot have <x,y>.f, but it does
+//   parse, so we may be handed an example such as this.
 //
-// 6. Check tags to make sure they are declared
+// * Check tags to make sure they are declared
 //
-// 10. Make sure we always instantiate type parameters when we use a constructor. NOTE: This
-//     is partially done -- it has been done for call or tree expressions, but not yet for
-//     call or tree patterns.
+// * Make sure we always instantiate type parameters when we use a constructor. NOTE: This
+//   is partially done -- it has been done for call or tree expressions, but not yet for
+//   call or tree patterns.
 //
-// 13. Check values created by append NOTE: This is partially done, in that we are gathering
-//     the types. Additional checking may still be needed.
+// * Check values created by append NOTE: This is partially done, in that we are gathering
+//   the types. Additional checking may still be needed.
 //
-// 15. Make sure type var bounds are consistent.
+// * Make sure type var bounds are consistent.
 //
-// 21. Ensure that inferred types are handled appropriately in situations
-//     where we have control flow iteration: loops, visits, calls, solve
+// * Ensure that inferred types are handled appropriately in situations
+//   where we have control flow iteration: nested calls (other cases complete)
 //
-// 22. Ensure field names are propagated correctly in subscripting and projection
-//     operations.
+// * Typing for loops -- should this always be void? We never know if the loop actually evaluates.
 //
-// 23. Typing for loops -- should this always be void? We never know if the loop actually evaluates.
+// * Remember to keep track of throws declarations, right now these are just discarded.
+//   PARTIALLY DONE: We are now keeping track of these, but still need to check
+//   them to enforce they are constructors for runtime exception.
 //
-// 24. Remember to keep track of throws declarations, right now these are just discarded.
-//     PARTIALLY DONE: We are now keeping track of these, but still need to check
-//     them to enforce they are constructors for runtime exception.
+// * Need to account for default functions and constructors which have the same signature,
+//   this is allowed, and we give precedence to the function DONE
 //
-// 25. Need to account for default functions and constructors which have the same signature,
-//     this is allowed, and we give precedence to the function DONE
+// * We should mark a function with the same signature and name as a constructor but with
+//   a different return type as an error. This is currently being done at the point of use,
+//   but should be done at the point of definition.
 //
-// 25a. We should mark a function with the same signature and name as a constructor but with
-//      a different return type as an error. This is currently being done at the point of use,
-//      but should be done at the point of definition.
+// * Need to pre-populate the type and name environments with the constructors for
+//   reified types, since we get these back if someone uses #type.
 //
-// 26. Need to pre-populate the type and name environments with the constructors for
-//     reified types, since we get these back if someone uses #type.
+// * In statement blocks, segregate out function defs, these see the scope of the
+//   entire block, not just what came before; however, closures are still just
+//   expressions, so we still need the ability to capture an environment for them
+//   and smartly check for changes to inferred types
 //
-// 28. In statement blocks, segregate out function defs, these see the scope of the
-//     entire block, not just what came before; however, closures are still just
-//     expressions, so we still need the ability to capture an environment for them
-//     and smartly check for changes to inferred types
+// * Make sure that, in a function, all paths return.
 //
-// 29. Make sure that, in a function, all paths return.
+// * Make sure we don't allow changes to the types of variables bound in pattern matches.
+//   These do not follow the same rules as other inferred vars.
 //
-// 30. Make sure we don't allow changes to the types of variables bound in pattern matches.
-//     These do not follow the same rules as other inferred vars.
+// * addition on functions
 //
-// 31. addition on functions
+// * resolve deferred names in field accesses and updates, maybe in throws clauses as well
 //
-// 32. resolve deferred names in field accesses and updates, maybe in throws clauses as well
-//
-// 33. make sure statement types are computed correctly (e.g., assign results of an if)
+// * make sure statement types are computed correctly (e.g., assign results of an if)
 //
 // * Add support for keyword param type parameter instantiation in Call or Tree expressions
 //
@@ -1078,12 +1076,15 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
         else {
             relFields = getRelFields(t1);
             failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],\set(relFields[idx]))) };
-            if (size(failures) > 0)
+            if (size(failures) > 0) {
                 return markLocationFailed(c,exp@\loc,failures);
-            else if ((size(relFields) - size(tl)) == 1)
-                return markLocationType(c,exp@\loc,\set(last(relFields)));
-            else
+            } else if ((size(relFields) - size(tl)) == 1) {
+            	rftype = last(relFields);
+            	if (\label(_,rft) := rftype) rftype = rft; 
+                return markLocationType(c,exp@\loc,\set(rftype));
+            } else {
                 return markLocationType(c,exp@\loc,\rel(tail(relFields,size(relFields)-size(tl))));
+            }
         }
     } else if (isListRelType(t1)) {
         if (size(tl) >= size(getListRelFields(t1)))
@@ -1091,12 +1092,15 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
         else {
             relFields = getListRelFields(t1);
             failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],\set(relFields[idx]))) };
-            if (size(failures) > 0)
+            if (size(failures) > 0) {
                 return markLocationFailed(c,exp@\loc,failures);
-            else if ((size(relFields) - size(tl)) == 1)
-                return markLocationType(c,exp@\loc,\list(last(relFields)));
-            else
+            } else if ((size(relFields) - size(tl)) == 1) {
+            	rftype = last(relFields);
+            	if (\label(_,rft) := rftype) rftype = rft; 
+                return markLocationType(c,exp@\loc,\list(rftype));
+            } else {
                 return markLocationType(c,exp@\loc,\lrel(tail(relFields,size(relFields)-size(tl))));
+            }
         }
     } else if (isMapType(t1)) {
         if (size(tl) != 1)
@@ -4039,7 +4043,26 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> <Visit v>`, 
         cVisit.labelStack = labelStackItem(RSimpleName(""), visitLabel(), \void()) + cVisit.labelStack;
     }
     
-    < cVisit, vt > = checkVisit(v,cVisit);
+    < cVisited, vt > = checkVisit(v,cVisit);
+
+    // See if the visit changed the type of any vars declared outside of the visit.
+    modifiedVars = { vl | vl <- (cVisited.fcvEnv<1> & cVisit.fcvEnv<1>), variable(_,rt1,true,_,_) := cVisited.store[vl], variable(_,rt2,true,_,_) := cVisit.store[vl], !equivalent(rt1,rt2) };
+    modifiedVarValues = ( vl : cVisited.store[vl].rtype | vl <- modifiedVars );
+
+	cVisit = cVisited;
+	
+    // If the visit did change the type of any of these vars, iterate again and see if the type keeps changing. If so,
+    // the visit does not cause the type to stabilize, in which case we want to issue a warning and set the type of
+    // the var in question to value.
+    if (size(modifiedVars) > 0) {
+        < cVisitedAgain, vt > = checkVisit(v,cVisit);
+        modifiedVars2 = { vl | vl <- modifiedVars, !equivalent(cVisitedAgain.store[vl].rtype,modifiedVarValues[vl]) };
+        
+        for (vl <- modifiedVars2) {
+            cVisit.store[vl].rtype = \value();
+            cVisit = addMessage(cVisit, error("Type of variable <prettyPrintName(cVisit.store[vl].name)> does not stabilize in visit", v@\loc));
+        }               
+    }
 
     // Remove the added item from the label stack and then exit the block we created above,
     // which will clear up the added label name, removing it from scope.
@@ -4106,7 +4129,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> while ( <{Ex
         
         for (vl <- modifiedVars2) {
             cWhileBool.store[vl].rtype = \value();
-            cWhileBool = addMessage(cWhileBool, error("Type of variable <prettyPrintName(cWhileBool.store[vl].rname)> does not stabilize in loop", bdy@\loc));
+            cWhileBool = addMessage(cWhileBool, error("Type of variable <prettyPrintName(cWhileBool.store[vl].name)> does not stabilize in loop", bdy@\loc));
         }               
     }
 
@@ -4150,8 +4173,29 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> do <Statemen
     // Check the body of the loop               
     cDoWhileBody = enterBlock(cDoWhile, bdy@\loc);
     < cDoWhileBody, t2 > = checkStmt(bdy, cDoWhileBody);
+
+    // See if the loop changed the type of any vars declared outside of the loop.
+    modifiedVars = { vl | vl <- (cDoWhileBody.fcvEnv<1> & cDoWhile.fcvEnv<1>), variable(_,rt1,true,_,_) := cDoWhileBody.store[vl], variable(_,rt2,true,_,_) := cDoWhile.store[vl], !equivalent(rt1,rt2) };
+    modifiedVarValues = ( vl : cDoWhileBody.store[vl].rtype | vl <- modifiedVars );
+
     cDoWhile = exitBlock(cDoWhileBody, cDoWhile);
     if (isFailType(t2)) failures += t2;
+
+    // If the loop did change the type of any of these vars, iterate again and see if the type keeps changing. If so,
+    // the loop does not cause the type to stabilize, in which case we want to issue a warning and set the type of
+    // the var in question to value.
+    if (size(modifiedVars) > 0) {
+        cDoWhileBody = enterBlock(cDoWhile, bdy@\loc);
+        < cDoWhileBody, t2 > = checkStmt(bdy, cDoWhileBody);
+        modifiedVars2 = { vl | vl <- modifiedVars, !equivalent(cDoWhileBody.store[vl].rtype,modifiedVarValues[vl]) };
+        cDoWhile = exitBlock(cDoWhileBody, cDoWhile);
+        if (isFailType(t2)) failures += t2;
+        
+        for (vl <- modifiedVars2) {
+            cDoWhile.store[vl].rtype = \value();
+            cDoWhile = addMessage(cDoWhile, error("Type of variable <prettyPrintName(cDoWhile.store[vl].name)> does not stabilize in loop", bdy@\loc));
+        }               
+    }
 
     // Check the loop condition 
     cDoWhileBool = enterBooleanScope(cDoWhile,cond@\loc);
@@ -4213,8 +4257,29 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> for ( <{Expr
     // Check the body of the loop       
     cForBody = enterBlock(cForBool, bdy@\loc);      
     < cForBody, t2 > = checkStmt(bdy, cForBody);
+    
+    // See if the loop changed the type of any vars declared outside of the loop.
+    modifiedVars = { vl | vl <- (cForBody.fcvEnv<1> & cFor.fcvEnv<1>), variable(_,rt1,true,_,_) := cForBody.store[vl], variable(_,rt2,true,_,_) := cFor.store[vl], !equivalent(rt1,rt2) };
+    modifiedVarValues = ( vl : cForBody.store[vl].rtype | vl <- modifiedVars );
+    
     cForBool = exitBlock(cForBody, cForBool);
     if (isFailType(t2)) failures += t2;
+
+    // If the loop did change the type of any of these vars, iterate again and see if the type keeps changing. If so,
+    // the loop does not cause the type to stabilize, in which case we want to issue a warning and set the type of
+    // the var in question to value.
+    if (size(modifiedVars) > 0) {
+        cForBody = enterBlock(cForBool, bdy@\loc);
+        < cForBody, t2 > = checkStmt(bdy, cForBody);
+        modifiedVars2 = { vl | vl <- modifiedVars, !equivalent(cForBody.store[vl].rtype,modifiedVarValues[vl]) };
+        cForBool = exitBlock(cForBody, cForBool);
+        if (isFailType(t2)) failures += t2;
+        
+        for (vl <- modifiedVars2) {
+            cForBool.store[vl].rtype = \value();
+            cForBool = addMessage(cForBool, error("Type of variable <prettyPrintName(cForBool.store[vl].name)> does not stabilize in loop", bdy@\loc));
+        }               
+    }
 
     // Exit back to the block scope
     cFor = exitBooleanScope(cForBool, cFor);
@@ -4456,8 +4521,29 @@ public CheckResult checkStmt(Statement stmt:(Statement)`solve ( <{QualifiedName 
     // Finally, check the body.
     cBody = enterBlock(c, body@\loc);
     < cBody, tbody > = checkStmt(body, cBody);
+    
+    // See if the solve body changed the type of any vars declared outside of the solve.
+    modifiedVars = { vl | vl <- (cBody.fcvEnv<1> & c.fcvEnv<1>), variable(_,rt1,true,_,_) := cBody.store[vl], variable(_,rt2,true,_,_) := c.store[vl], !equivalent(rt1,rt2) };
+    modifiedVarValues = ( vl : cBody.store[vl].rtype | vl <- modifiedVars );
+    
     c = exitBlock(cBody, c);
     if (isFailType(tbody)) failures = failures + tbody;
+
+    // If the solve did change the type of any of these vars, iterate again and see if the type keeps changing. If so,
+    // the solve does not cause the type to stabilize, in which case we want to issue a warning and set the type of
+    // the var in question to value.
+    if (size(modifiedVars) > 0) {
+        cBody = enterBlock(c, body@\loc);
+        < cBody, t2 > = checkStmt(body, cBody);
+        modifiedVars2 = { vl | vl <- modifiedVars, !equivalent(cBody.store[vl].rtype,modifiedVarValues[vl]) };
+        c = exitBlock(cBody, c);
+        if (isFailType(t2)) failures += t2;
+        
+        for (vl <- modifiedVars2) {
+            c.store[vl].rtype = \value();
+            c = addMessage(c, error("Type of variable <prettyPrintName(c.store[vl].name)> does not stabilize in solve", body@\loc));
+        }               
+    }
     
     if (size(failures) > 0)
         return markLocationFailed(c, stmt@\loc, failures);
