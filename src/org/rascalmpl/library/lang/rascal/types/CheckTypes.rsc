@@ -5552,9 +5552,6 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
     // If we can descend, process the aliased type as well, assigning it into
     // the alias.
     if (descend) {
-        // If we descend, we also want to add the constructors; if not, we are just
-        // adding the ADT into the type environment. We get the adt type out of
-        // the store by looking up the definition from this location.
         aliasId = getOneFrom(invert(c.definitions)[decl@\loc]);
         aliasType = c.store[aliasId].rtype;
         // TODO: Check for convert errors
@@ -6246,19 +6243,19 @@ public set[RName] getDeclarationNames(Declaration decl:(Declaration)`<FunctionDe
 	
 	switch(fd) {
 		case (FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig>;` : {
-			return { getNameFromSignature(sig); }
+			return { getNameFromSignature(sig) };
 		}
 
 		case (FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;` : {
-			return { getNameFromSignature(sig); }
+			return { getNameFromSignature(sig) };
 		}
 
 		case (FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> = <Expression exp> when <{Expression ","}+ conds>;` : {
-			return { getNameFromSignature(sig); }
+			return { getNameFromSignature(sig) };
 		}
 
 		case (FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> <FunctionBody body>` : {
-			return { getNameFromSignature(sig); }
+			return { getNameFromSignature(sig) };
 		}
 	}
 }
@@ -6477,9 +6474,12 @@ public Configuration loadImportedTypesAndTags(Configuration c, set[RName] import
 	// in the type environment
 	for (an <- aliasNames, an notin typeNames, an notin sortNames, an notin c.typeEnv) {
 		aliasIds = justAliases[an];
-		if (size(aliasIds) == 1) {
+		aliasTypes = { c.store[aid].rtype | aid <- aliasIds };
+		if (size(aliasTypes) == 1) {
 			c = addImportedAlias(c, an, getOneFrom(aliasIds));
-		} 
+		} else {
+			c = addScopeError(c, "Could not import alias <prettyPrintName(an)>, multiple inconsistent definitions were found", c.store[getOneFrom(aliasIds)].at);
+		}
 	}
 	
 	return c;
@@ -6503,7 +6503,7 @@ public Configuration loadImportedAnnotations(Configuration c, set[RName] importe
 	return c;
 }
 
-public Configuration loadImportedNames(Configuration c, set[RName] importedModules) {
+public Configuration loadImportedNames(Configuration c, set[RName] varNamesToDeclare, set[RName] funNamesToDeclare, set[RName] importedModules) {
 	// TODO: Add info messages about names that were not imported into scope?
 
 	// Build relations with info on all functions, constructors, productions, and vars 
@@ -6524,8 +6524,10 @@ public Configuration loadImportedNames(Configuration c, set[RName] importedModul
 	
 	// We can add a production into the environment if either a) the name isn't added yet and it doesn't
 	// conflict with the name of a constructor we could add, or b) the name is added, but isn't used for
-	// constructors, and (like with the prior option) no constructors of the same name can be added
-	for (tn <- productionNames) {
+	// constructors, and (like with the prior option) no constructors of the same name can be added. We
+	// cannot add the production name if it would conflict with a top-level variable in the module we
+	// are checking.
+	for (tn <- productionNames, tn notin varNamesToDeclare) {
 		if (tn notin c.fcvEnv && tn notin constructorNames) {
 			for (ti <- justProductions[tn]) {
 				c = addImportedProduction(c, tn, ti);
@@ -6543,8 +6545,10 @@ public Configuration loadImportedNames(Configuration c, set[RName] importedModul
 
 	// We can add a constructor into the environment if either a) the name isn't added yet and it doesn't
 	// conflict with the name of a production we could add, or b) the name is added, but isn't used for
-	// productions, and (like with the prior option) no productions of the same name can be added
-	for (tn <- constructorNames) {
+	// productions, and (like with the prior option) no productions of the same name can be added. Like
+	// with productions, we also cannot add a name that would conflict with a top-level variable in the
+	// module we are checking.
+	for (tn <- constructorNames, tn notin varNamesToDeclare) {
 		if (tn notin c.fcvEnv && tn notin productionNames) {
 			for (ti <- justConstructors[tn]) {
 				c = addImportedConstructor(c, tn, ti);
@@ -6562,14 +6566,14 @@ public Configuration loadImportedNames(Configuration c, set[RName] importedModul
 	
 	// We can always add functions -- it's fine if they overlap with constructors or productions. The one
 	// exception is that we cannot add a function if it would clash with a module-level variable that is
-	// already in scope.
-	for (tn <- functionNames, (tn notin c.fcvEnv || (! (c.store[c.fcvEnv[tn]] is variable))), tid <- justFunctions[tn]) {
+	// already in scope or will be in scope in the top-level module.
+	for (tn <- functionNames, tn notin varNamesToDeclare, ( tn notin c.fcvEnv || ( ! (c.store[c.fcvEnv[tn]] is variable))), tid <- justFunctions[tn]) {
 		c = addImportedFunction(c, tn, tid); 
 	}
 	
 	// Add variables. We can only do so if they are not already in the environment and if there is only
 	// one var with this name.
-	for (tn <- varNames, tn notin c.fcvEnv, size(justVars[tn]) == 1, tid <- justVars[tn]) {
+	for (tn <- varNames, tn notin c.fcvEnv, tn notin varNamesToDeclare, tn notin funNamesToDeclare, size(justVars[tn]) == 1, tid <- justVars[tn]) {
 		c = addImportedVariable(c, tn, tid);
 	}	
 	
@@ -6677,10 +6681,15 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 
 		c.stack = currentModuleId + c.stack;
 
+		set[RName] varNamesToDeclare = { };
+		set[RName] funNamesToDeclare = { };
+		
 		for ((Toplevel)`<Declaration decl>` <- tls) {
 			switch(decl) {
-				case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : 
+				case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : {
 					names = names + decl;
+					varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
+				}
 				case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
 					annotations = annotations + decl;
 				case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
@@ -6691,8 +6700,10 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 					typesAndTags = typesAndTags + decl;
 				case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 					typesAndTags = typesAndTags + decl;
-				case (Declaration)`<FunctionDeclaration _>` : 
+				case (Declaration)`<FunctionDeclaration _>` : { 
 					names = names + decl;
+					funNamesToDeclare = funNamesToDeclare + getDeclarationNames(decl);
+				}
 			}
 		}
 
@@ -6700,6 +6711,10 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		for (t <- typesAndTags) c = checkDeclaration(t,false,c);
 		for (t <- aliases) c = checkDeclaration(t,false,c);
 
+		// Bring in type names from the imported modules as long as they don't
+		// conflict with the type names just added.
+		c = loadImportedTypesAndTags(c, { mn | < mn, false > <- modulesToImport, mn notin notImported });
+		
 		// Now, actually process the aliases
 		bool modified = true;
 		definitions = invert(c.definitions);
@@ -6715,12 +6730,9 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 			}
 		}
 
-		// Bring in type names from the imported modules as long as they don't
-		// conflict with the type names just added.
-		c = loadImportedTypesAndTags(c, { mn | < mn, false > <- modulesToImport, mn notin notImported });
-		
 		// Now, actually process the type names
 		for (t <- typesAndTags) c = checkDeclaration(t,true,c);
+		//for (t <- aliases) c = checkDeclaration(t,true,c);
 
 		// Now that we have a signature for each module, actually perform the import for each, creating
 		// a configuration for each with just the items from that module signature.
@@ -6749,13 +6761,13 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		// conflict with the annotations just added.
 		c = loadImportedAnnotations(c, { mn | < mn, false > <- modulesToImport, mn notin notImported });
 				
+		// Bring in names from the imported modules as long as they don't
+		// conflict with the names just added.
+		c = loadImportedNames(c,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- modulesToImport, mn notin notImported });
+		
 		// Next, introduce names into the environment
 		for (t <- names) c = checkDeclaration(t,false,c);
 
-		// Bring in names from the imported modules as long as they don't
-		// conflict with the names just added.
-		c = loadImportedNames(c,  { mn | < mn, false > <- modulesToImport, mn notin notImported });
-		
 		// Process the names
 		for (t <- names) c = checkDeclaration(t,true,c);
 
