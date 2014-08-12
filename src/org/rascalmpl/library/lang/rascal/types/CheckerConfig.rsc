@@ -1194,6 +1194,7 @@ public Configuration addTag(Configuration c, TagKind tk, RName n, set[Symbol] on
 
 // TODO: If we ever use tags, add support for importing them...
 
+public Configuration addMessage(Configuration c, Message m) = c[messages = c.messages + m];
 public Configuration addScopeMessage(Configuration c, Message m) = c[messages = c.messages + m];
 
 public Configuration addScopeError(Configuration c, str s, loc l) = addScopeMessage(c,error(s,l));
