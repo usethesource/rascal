@@ -25,7 +25,6 @@ import lang::java::jdt::m3::AST;
 import lang::java::style::Utils;		// Utilities for StyleChecker
 import lang::java::style::CheckStates;	// Management of check states
 
-
 import lang::java::style::BlockChecks;	// Groups of checks
 import lang::java::style::ClassDesign;
 import lang::java::style::Coding;
@@ -36,23 +35,41 @@ import lang::java::style::NamingConventions;
 import lang::java::style::SizeViolations;
 import lang::java::style::Strings;
 
-// Specification of checkers:
-// - we dinstinguish checkers for declarations, statements and expressions.
-// - for each category, a map is declared that associates the set of Java AST constructors
-//   for which the check has to be applied.
-//   IMPORTANT: this set has to be indentical to the constructors used in the rules defining each check
-// - this map is inverted by the builder functions that create a map from constructor 
-//   to all the checks they have to be applied to it.
+/*****************************************************************************/
+/*																			 */
+/*						Rascal Java Style Checker							 */
+/*																			 */
+/* Implements a subset of checks from 										 */
+/* - CheckStyle, http://checkstyle.sourceforge.net/index.html				 */
+/* - PMD, http://pmd.sourceforge.net/pmd-5.1.2/								 */
+/*                                                                           */
+/* Specification of checkers:												 */
+/* - we dinstinguish checkers for declarations, statements and expressions.	 */
+/* - for each category, a map is declared that associates the set of Java    */
+/*   AST constructors for which the check has to be applied.				 */
+/*   IMPORTANT: this set has to be indentical to the constructors used in    */
+/*   the rules defining each check											 */
+/* - this map is inverted by the builder functions that create a map from    */
+/*   constructor to all the checks they have to be applied to it.			 */
+/* - Some checker required a state to record their progress, such a state    */
+/*   needs to be registered (registerCheckState, see CheckStates)			 */	
+/*																			 */		
+/*****************************************************************************/
 
-// --- Declaration Checking -------------------------------------------------*/
 
-// DeclarationChecker has as parameters:
-// - decl, the current declaration to be processed
-// - parents, the enclosing declrations
-// - ast of the compilationUnit
-// - M3 model
-// and returns
-// - a list of messages
+/*****************************************************************************/
+/*																			 */
+/* Declaration Checking													     */
+/*																			 */
+/* DeclarationChecker has as parameters:									 */
+/* - decl, the current declaration to be processed							 */
+/* - parents, the enclosing declarations									 */
+/* - ast of the compilationUnit												 */
+/* - M3 model																 */
+/* and returns																 */
+/* - a list of messages														 */
+/*																			 */
+/*****************************************************************************/
 
 alias DeclarationChecker = list[Message] (Declaration decl,  list[Declaration] parents, M3 model);
 
@@ -160,17 +177,22 @@ list[Message] check(Declaration d, list[Declaration] parents,  M3 model){
 	return msgs;
 }
 
-/* --- Statement Checking ---------------------------------------------------*/
-
-// StatementChecker has as parameters:
-// - stat, the current statement to be processed
-// - parents, the enclosing statements
-// - ast of the compilationUnit
-// - M3 model
-// and returns
-// - a list of messages
+/*****************************************************************************/
+/*																			 */
+/* Statement Checking													     */
+/*																			 */
+/* StatementChecker has as parameters:									     */
+/*  stat, the current statement to be processed						         */
+/* - parents, the enclosing statements										 */
+/* - ast of the compilationUnit												 */
+/* - M3 model																 */
+/* and returns																 */
+/* - a list of messages														 */
+/*																			 */
+/*****************************************************************************/
 
 alias StatementChecker = list[Message] (Statement stat,  list[Statement] parents, M3 model);
+
 map[StatementChecker, set[str]] statementChecker2Cons = (
 	avoidNestedBlocks: 				// BlockChecks
 		{ "block1" },
@@ -251,15 +273,19 @@ list[Message] check(Statement s, list[Statement] parents,  M3 model){
 	return msgs;
 }
 
-/* --- Expression Checking --------------------------------------------------*/
-
-// ExpressionChecker has as parameters:
-// - exp, the current expression to be processed
-// - parents, the enclosing expressions
-// - ast of the compilationUnit
-// - M3 model
-// and returns
-// - a list of messages
+/*****************************************************************************/
+/*																			 */
+/* Expression Checking													     */
+/*																			 */
+/* ExpressionChecker has as parameters:									     */
+/* - exp, the current expression to be processed					         */
+/* - parents, the enclosing expressions									     */
+/* - ast of the compilationUnit												 */
+/* - M3 model																 */
+/* and returns																 */
+/* - a list of messages														 */
+/*																			 */
+/*****************************************************************************/
 
 alias ExpressionChecker = list[Message] (Expression exp,  list[Expression] parents, M3 model);
 
@@ -337,9 +363,21 @@ list[Message] check(Expression e, list[Expression] parents, M3 model){
 	return msgs;
 }
 
-/* --- Toplevel check functions ---------------------------------------------*/
-
-// checkALL: initialize and call actual checkALL
+/*****************************************************************************/
+/*																			 */
+/* Toplevel check functions													 */
+/*																			 */
+/* - checkAll:																 */
+/*   - build all tables														 */
+/*   - initialize check states												 */
+/*   - call actual checkAll													 */
+/*																			 */
+/* - The toplevel check function checkAll:									 */
+/*   - performs a top-down traversal of the compilationUnit	ast				 */
+/*   - invokes checks for declarations, statements, expressions encountered  */
+/*   - accumulates all messages and returns them							 */
+/*																			 */
+/*****************************************************************************/
 
 list[Message] checkAll(node ast, M3 model){
 	buildDeclarationCheckers();
@@ -357,11 +395,6 @@ list[Message] checkAll(node ast, M3 model){
 	
 	return  checkAll(ast, model, [], [], []);
 }	
-
-// The toplevel check function checkAll:
-// - performs a top-down traversal of the compilationUnit
-// - invokes the checks for the declrations/statements/expressions being encountered
-// - accumalates all messages and returns them
 
 list[Message] checkAll(node ast, M3 model, list[Declaration] declParents, list[Statement] statParents, list[Expression] expParents){
 	msgs = [];
