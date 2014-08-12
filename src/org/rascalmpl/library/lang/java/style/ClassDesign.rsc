@@ -29,7 +29,7 @@ InnerTypeLast				TBD
 
 /* --- visibilityModifier ---------------------------------------------------*/
 
-list[Message] visibilityModifier(Declaration cls, list[Declaration] parents, node ast, M3 model) {
+list[Message] visibilityModifier(Declaration cls, list[Declaration] parents, M3 model) {
 	modifiers = model@modifiers;
 	msgs = [];
 	c = cls@decl;
@@ -45,7 +45,7 @@ list[Message] visibilityModifier(Declaration cls, list[Declaration] parents, nod
 
 /* --- finalClass -----------------------------------------------------------*/
 
-list[Message] finalClass(Declaration cls, list[Declaration] parents, node ast, M3 model) {
+list[Message] finalClass(Declaration cls, list[Declaration] parents, M3 model) {
     modifiers = model@modifiers;
 	msgs = [];
 	bool isPrivate(loc m) = \private() in modifiers[m];
@@ -74,7 +74,7 @@ list[Message] finalClass(Declaration cls, list[Declaration] parents, node ast, M
 
 /* --- mutableException -----------------------------------------------------*/
 
-list[Message] mutableException(Declaration cls, list[Declaration] parents, node ast, M3 model) {
+list[Message] mutableException(Declaration cls, list[Declaration] parents, M3 model) {
 	modifiers = model@modifiers;
 	msgs = [];
 	bool hasOnlyFinalFields(loc c){
@@ -89,16 +89,16 @@ list[Message] mutableException(Declaration cls, list[Declaration] parents, node 
     return msgs;
 }
 
-default list[Message] mutableException(Declaration cls, list[Declaration] parents, node ast, M3 model) = [];
+default list[Message] mutableException(Declaration cls, list[Declaration] parents, M3 model) = [];
 
 /* --- throwsCount ----------------------------------------------------------*/
 
-list[Message] throwsCount(Statement s: \throw(_), list[Statement] parents, node ast, M3 model) {
+list[Message] throwsCount(Statement s: \throw(_), list[Statement] parents, M3 model) {
 	updateCheckState("throwsCount", 1);
 	return [];
 }
 
-default list[Message] throwsCount(Statement s, list[Statement] parents, node ast, M3 model) = [];
+default list[Message] throwsCount(Statement s, list[Statement] parents, M3 model) = [];
 
 // update/finalize
 
@@ -107,31 +107,3 @@ value updateThrowsCount(value current, value delta) { if(int n := current && int
 list[Message] finalizeThrowsCount(Declaration d, value current) =
 	(int n := current && n > 1) ? [classDesign("ThrowsCount", d@src)] : [];
 
-// experiment -----------------------------------------------------------------
-
-/*
-tuple[void(value), list[Message]()] throwsCountProvider(Declaration d){
-	int current = 0;
-	
-	void update(value delta) { if(int d := delta) current += d; }
-
-	list[Message] finalize() =
-		(current > 1) ? [classDesign("ThrowsCount", d@src)] : [];
-
-	return <update, finalize>;
-}
-
-tuple[void(value), list[Message]()] classDataAbstractionCouplingProvider(Declaration d){
-	set[str] current = {};
-
-	void update(value delta) { if(str d := delta) current += delta; }
-
-	list[Message] finalize() =
-	(size(current - excludedClasses) > 7) ? [metric("ClassDataAbstractionCoupling", d@src)] : [];	
-
-	return <update, finalize>;
-}
-
-public list[tuple[void(value), list[Message]()](Declaration)] exp = [throwsCountProvider, classDataAbstractionCouplingProvider];
-
-*/

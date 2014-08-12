@@ -15,6 +15,36 @@ import lang::java::jdt::m3::AST;
 
 /* --- various utilities ----------------------------------------------------*/
 
+str getTypeName(TypeSymbol tp){
+	if(tp has decl){
+		p = tp.decl.path;
+		res = p[findLast(p, "/")+1 .. ];
+		//println("getName: <tp>, <res>");
+		return res;
+	} else {
+		res = getName(tp);
+		//println("getName: <tp>, <res>");
+		return res;
+	}
+}
+
+str getTypeName(loc s) = s.path[1..];
+
+bool isBooleanExpression(Expression e: \infix(_, str operator, _)) = operator in {"&&", "&", "||", "|", "^"};
+bool isBooleanExpression(Expression e: \prefix("!", _)) = true;
+default bool isBooleanExpression(Expression e) = false;
+
+bool isBooleanLiteral(Expression e) = \booleanLiteral(_) := e;
+
+bool isStringLiteral(Expression e) = stringLiteral(_) := e;
+bool isEmptyStringLiteral(Expression e) = stringLiteral("\"\"") := e;
+
+str getStringLiteralValue(stringLiteral(s)) = s[1 .. -1]; // strip quotes
+
+bool isEmptyStatement(empty()) = true;
+bool isEmptyStatement(block([])) = true;
+default bool isEmptyStatement(Statement _) = false;
+
 // Create a unique name for a constructor
 str getConstructor(node nd) = "<getName(nd)><arity(nd)>";
 
@@ -98,12 +128,40 @@ list[Message] leaveDeclaration(Declaration decl){
 	return msgs;
 }
 
-//loc getDeclaredEntity(loc src, M3 model){
-//	res = model@declarations<1,0>[src];
-//	if(size(res) != 1){
-//		throw "getEntity: undefined src <src>";
-//	}
-//	for(e <- res){
-//		return e;
-//	}
-//}
+/* --- experiment -----------------------------------------------------------*/
+
+/*
+ * Here we try to represent checkstates by closures: a <check>Provider return a
+ * pair of functions: <update, finalize> that are to be called by the framework.
+ *
+ * Unfortunately, the typing is not correct: the update function should be typed more precisely,
+ * but then various update functions no longer fit in the same type, see examples at the bottom
+
+/*
+tuple[void(value), list[Message]()] throwsCountProvider(Declaration d){
+	int current = 0;
+	
+	void update(value delta) { if(int d := delta) current += d; }
+
+	list[Message] finalize() =
+		(current > 1) ? [classDesign("ThrowsCount", d@src)] : [];
+
+	return <update, finalize>;
+}
+
+tuple[void(value), list[Message]()] classDataAbstractionCouplingProvider(Declaration d){
+	set[str] current = {};
+
+	void update(value delta) { if(str d := delta) current += delta; }
+
+	list[Message] finalize() =
+	(size(current - excludedClasses) > 7) ? [metric("ClassDataAbstractionCoupling", d@src)] : [];	
+
+	return <update, finalize>;
+}
+
+// This only works with updates of type void(value)
+
+public list[tuple[void(value), list[Message]()](Declaration)] exp = [throwsCountProvider, classDataAbstractionCouplingProvider];
+
+*/

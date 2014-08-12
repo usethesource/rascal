@@ -33,7 +33,7 @@ TypeName				classes and interfaces				^[A-Z][a-zA-Z0-9]*$						DONE
 
 data Message = namingConvention(str category, loc pos, str id); 
  
-list[Message] namingConventions(Declaration d: \compilationUnit(Declaration package, _, _),  list[Declaration] parents, node ast, M3 model) {
+list[Message] namingConventions(Declaration d: \compilationUnit(Declaration package, _, _),  list[Declaration] parents, M3 model) {
 	pname = getPackageName(package);
 	elems = split(".", pname);
   	if( /^[a-z]+$/ !:= elems[0]  || size(elems) > 1 && any(elem <- elems[1..], /^[a-zA-Z_][a-zA-Z0-9_]*$/ !:= elem)){
@@ -42,7 +42,7 @@ list[Message] namingConventions(Declaration d: \compilationUnit(Declaration pack
   	return [];
 }
 
-list[Message] namingConventions(Declaration d: \class(str name, _, _, _),  list[Declaration] parents, node ast, M3 model) {
+list[Message] namingConventions(Declaration d: \class(str name, _, _, _),  list[Declaration] parents, M3 model) {
 	elemModifiers = d@modifiers ? {};
 	if(\abstract() in elemModifiers){
   		if(!(/^Abstract/ := name || /Factory$/ := name)){
@@ -53,7 +53,7 @@ list[Message] namingConventions(Declaration d: \class(str name, _, _, _),  list[
   	return [];
 }
  
-list[Message] namingConventions(Declaration d: \field(Type \type, list[Expression] fragments),  list[Declaration] parents, node ast, M3 model) {
+list[Message] namingConventions(Declaration d: \field(Type \type, list[Expression] fragments),  list[Declaration] parents, M3 model) {
  	msgs = [];
  	elemModifiers = d@modifiers ? {};
  	for(fragment <- fragments){
@@ -74,7 +74,7 @@ list[Message] namingConventions(Declaration d: \field(Type \type, list[Expressio
  	return msgs;
 }
 
-list[Message] namingConventions(Declaration d: \method(_, str name, _, _, _),  list[Declaration] parents, node ast, M3 model) {
+list[Message] namingConventions(Declaration d: \method(_, str name, _, _, _),  list[Declaration] parents, M3 model) {
 	elemModifiers = d@modifiers ? {};
 	if(/^[a-z][a-zA-Z0-9]*$/ !:= name && \static() notin elemModifiers){ 
 		return [namingConvention("MethodName", d@src, name)]; 
@@ -83,7 +83,7 @@ list[Message] namingConventions(Declaration d: \method(_, str name, _, _, _),  l
 }
 
 // TODO merge with above
-list[Message] namingConventions(Declaration d: \method(_, str name, _, _),  list[Declaration] parents, node ast, M3 model) {
+list[Message] namingConventions(Declaration d: \method(_, str name, _, _),  list[Declaration] parents, M3 model) {
 	elemModifiers = d@modifiers ? {};
 	if(/^[a-z][a-zA-Z0-9]*$/ !:= name && \static() notin elemModifiers){ 
 		return [namingConvention("MethodName", d@src, name)]; 
@@ -91,10 +91,10 @@ list[Message] namingConventions(Declaration d: \method(_, str name, _, _),  list
 	return [];
 }
    
-list[Message] namingConventions(Declaration d: \parameter(_, str name, _),  list[Declaration] parents, node ast, M3 model) =
+list[Message] namingConventions(Declaration d: \parameter(_, str name, _),  list[Declaration] parents, M3 model) =
 	(/^[a-z][a-zA-Z0-9]*$/ !:= name) ? [ namingConvention("ParameterName", d@src, name) ] : [];
 
-list[Message] namingConventions(Declaration d: \typeParameter(str name, _),  list[Declaration] parents, node ast, M3 model){
+list[Message] namingConventions(Declaration d: \typeParameter(str name, _),  list[Declaration] parents, M3 model){
 	println("namingConventions: <d>");
 	if(/^[A-Z]$/ !:= name){ 
   		// TODO: how do we distinguish these two cases?
@@ -104,19 +104,19 @@ list[Message] namingConventions(Declaration d: \typeParameter(str name, _),  lis
   	return [];
 }
 
-list[Message] namingConventions(Declaration d: \enum(str name, _, _, _),  list[Declaration] parents, node ast, M3 model) =
+list[Message] namingConventions(Declaration d: \enum(str name, _, _, _),  list[Declaration] parents, M3 model) =
 	(/^[A-Z][a-zA-Z0-9]*$/ !:= name) ? [ namingConvention("TypeName", d@src, name) ] : [];
 
-list[Message] namingConventions(Declaration d: \enumConstant(str name, _, _),  list[Declaration] parents, node ast, M3 model) =
+list[Message] namingConventions(Declaration d: \enumConstant(str name, _, _),  list[Declaration] parents, M3 model) =
   (/^[A-Z][a-zA-Z0-9]*$/ !:= name) ? [ namingConvention("TypeName", d@src, name) ] : [];
   
-list[Message] namingConventions(Declaration d: \enumConstant(str name, _),  list[Declaration] parents, node ast, M3 model) =
+list[Message] namingConventions(Declaration d: \enumConstant(str name, _),  list[Declaration] parents, M3 model) =
   (/^[A-Z][a-zA-Z0-9]*$/ !:= name) ? [ namingConvention("TypeName", d@src, name) ] : [];
  
-list[Message] namingConventions(Declaration d: \interface(str name, _, _, _),  list[Declaration] parents, node ast, M3 model) =
+list[Message] namingConventions(Declaration d: \interface(str name, _, _, _),  list[Declaration] parents, M3 model) =
   (/^[A-Z][a-zA-Z0-9]*$/ !:= name) ? [ namingConvention("TypeName", d@src, name) ] : [];
    
-list[Message] namingConventions(Declaration d: \variables(Type \type, list[Expression] \fragments),  list[Declaration] parents, node ast, M3 model) {
+list[Message] namingConventions(Declaration d: \variables(Type \type, list[Expression] \fragments),  list[Declaration] parents, M3 model) {
 	elemModifiers = d@modifiers ? {};
 	msgs = [];
 	for(fragment <- fragments){
@@ -130,3 +130,5 @@ list[Message] namingConventions(Declaration d: \variables(Type \type, list[Expre
   	}
   	return msgs;
 } 
+
+default list[Message] namingConventions(Declaration d,  list[Declaration] parents, M3 model) = [];

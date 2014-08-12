@@ -34,13 +34,13 @@ UniqueProperties	TBD
 
 /* --- unCommentedMain ------------------------------------------------------*/
 
-list[Message] unCommentedMain(Declaration m: \method(_,name,_,_,_),  list[Declaration] parents, node ast, M3 model) =
+list[Message] unCommentedMain(Declaration m: \method(_,name,_,_,_),  list[Declaration] parents, M3 model) =
 	name == "main" ? [miscellaneous("UnCommentedMain", m@src)] : [];
 	
-list[Message] unCommentedMain(Declaration m: \method(_,name,_,_),  list[Declaration] parents, node ast, M3 model) =
+list[Message] unCommentedMain(Declaration m: \method(_,name,_,_),  list[Declaration] parents, M3 model) =
 	name == "main" ? [miscellaneous("UnCommentedMain", m@src)] : [];
 
-default list[Message] unCommentedMain(Declaration d,  list[Declaration] parents, node ast, M3 model) =	[];
+default list[Message] unCommentedMain(Declaration d,  list[Declaration] parents, M3 model) =	[];
 
 /* --- outerTypeFilename ----------------------------------------------------*/
 
@@ -55,7 +55,7 @@ str getPath(loc l){
 bool isOuterType(list[Declaration] parents) =
 size(parents) == 0 || compilationUnit(_,_) := head(parents) || compilationUnit(_,_,_) := head(parents);
 
-list[Message] outerTypeFilename(Declaration d,  list[Declaration] parents, node ast, M3 model) =
+list[Message] outerTypeFilename(Declaration d,  list[Declaration] parents, M3 model) =
 	isOuterType(parents) && \public() in (d@modifiers? {}) && !endsWith(getPath(parents[0]@decl), getPath(d@decl))
 	? [miscellaneous("OuterTypeFilename", d@decl) ] : [];
 
