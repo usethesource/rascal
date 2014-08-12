@@ -328,7 +328,8 @@ MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions_in_module += muCoroutine(all_uid, fuid, 0, size(localvars), [], muBlock(body));
+    												//TODO scopeIn argument is missing
+    functions_in_module += muCoroutine(all_uid, fuid, 0, size(localvars), |unknown:///a-location-in-library|, [], muBlock(body));
     return muMulti(muApply(muFun(all_uid, fuid), []));
 }
 
@@ -344,7 +345,8 @@ MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions_in_module += muCoroutine(or_uid, fuid, 0, size(localvars), [], muBlock(body));
+    												//TODO scopeIn argument is missing
+    functions_in_module += muCoroutine(or_uid, fuid, 0, size(localvars),  |unknown:///a-location-in-library|, [], muBlock(body));
     return muMulti(muApply(muFun(or_uid, fuid), []));
 }
 
