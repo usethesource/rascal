@@ -62,7 +62,7 @@ default list[Message] emptyBlock(\if(_, Statement thenBranch, Statement elseBran
 
 bool isBlock(Statement body) = block(_) := body;
 
-list[Message] needBraces(\do(_, Statement body), list[Statement] parents, M3 model) =
+list[Message] needBraces(\do(Statement body,_), list[Statement] parents, M3 model) =
 	!isBlock(body) ? [blockCheck("NeedBraces", body@src)] : [];
 	
 list[Message] needBraces(\while(_, Statement body), list[Statement] parents, M3 model) =
