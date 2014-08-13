@@ -43,7 +43,7 @@ list[Message] namingConventions(Declaration d: \compilationUnit(Declaration pack
 }
 
 list[Message] namingConventions(Declaration d: \class(str name, _, _, _),  list[Declaration] parents, M3 model) {
-	elemModifiers = d@modifiers ? {};
+	elemModifiers = model@modifiers[d@decl];
 	if(\abstract() in elemModifiers){
   		if(!(/^Abstract/ := name || /Factory$/ := name)){
   			return [namingConvention("AbstractClassName", d@src, name)];
@@ -55,7 +55,7 @@ list[Message] namingConventions(Declaration d: \class(str name, _, _, _),  list[
  
 list[Message] namingConventions(Declaration d: \field(Type \type, list[Expression] fragments),  list[Declaration] parents, M3 model) {
  	msgs = [];
- 	elemModifiers = d@modifiers ? {};
+ 	elemModifiers = model@modifiers[d@decl];
  	for(fragment <- fragments){
  		if(fragment has name){
  			name = fragment.name;
@@ -75,7 +75,7 @@ list[Message] namingConventions(Declaration d: \field(Type \type, list[Expressio
 }
 
 list[Message] namingConventions(Declaration d: \method(_, str name, _, _, _),  list[Declaration] parents, M3 model) {
-	elemModifiers = d@modifiers ? {};
+	elemModifiers = model@modifiers[d@decl];
 	if(/^[a-z][a-zA-Z0-9]*$/ !:= name && \static() notin elemModifiers){ 
 		return [namingConvention("MethodName", d@src, name)]; 
 	}
@@ -84,7 +84,7 @@ list[Message] namingConventions(Declaration d: \method(_, str name, _, _, _),  l
 
 // TODO merge with above
 list[Message] namingConventions(Declaration d: \method(_, str name, _, _),  list[Declaration] parents, M3 model) {
-	elemModifiers = d@modifiers ? {};
+	elemModifiers = model@modifiers[d@decl];
 	if(/^[a-z][a-zA-Z0-9]*$/ !:= name && \static() notin elemModifiers){ 
 		return [namingConvention("MethodName", d@src, name)]; 
 	}
@@ -117,7 +117,7 @@ list[Message] namingConventions(Declaration d: \interface(str name, _, _, _),  l
   (/^[A-Z][a-zA-Z0-9]*$/ !:= name) ? [ namingConvention("TypeName", d@src, name) ] : [];
    
 list[Message] namingConventions(Declaration d: \variables(Type \type, list[Expression] \fragments),  list[Declaration] parents, M3 model) {
-	elemModifiers = d@modifiers ? {};
+	elemModifiers = model@modifiers[d@decl];
 	msgs = [];
 	for(fragment <- fragments){
 		if(fragment has name){
