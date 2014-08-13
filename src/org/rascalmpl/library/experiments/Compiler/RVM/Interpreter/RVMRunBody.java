@@ -8,9 +8,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
-// This file isonly a tool to aid the writing
+// This file is only a tool to aid the writing
 // of jvm bytecode and is not used in the program 
-// DELETE PROJECT 
+// DELETE FROM PROJECT 
 
 
 public class RVMRunBody extends RVMRun {

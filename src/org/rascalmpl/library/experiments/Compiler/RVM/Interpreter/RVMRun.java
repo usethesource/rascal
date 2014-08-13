@@ -39,7 +39,14 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
-public class RVMRun extends RVMBase implements IRVM {
+public class RVMRun implements IRVM {
+	
+	public int sp;
+	public Object[] stack;
+	public IValueFactory vf;
+
+	public IBool Rascal_TRUE;
+	public IBool Rascal_FALSE;
 
 	private final TypeFactory tf;
 
@@ -1099,12 +1106,7 @@ public class RVMRun extends RVMBase implements IRVM {
 
 	public void jvmCREATE(int fun, int arity) {
 		cccf = cf.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
-
-		sp = cf.sp;
 		cccf.previousCallFrame = cf;
-
-		cf.sp = sp;
-
 		cf = cccf;
 
 		stack = cf.stack;
@@ -1117,19 +1119,18 @@ public class RVMRun extends RVMBase implements IRVM {
 
 		Object src = stack[--sp];
 
-		if (src instanceof FunctionInstance) {
-			// In case of partial parameter binding
-			fun_instance = (FunctionInstance) src;
-			cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
-		} else {
+		if (!(src instanceof FunctionInstance)) {
 			throw new RuntimeException("Unexpected argument type for CREATEDYN: " + src.getClass() + ", " + src);
 		}
-		cccf.previousCallFrame = cf;
 
+		// In case of partial parameter binding
+		fun_instance = (FunctionInstance) src;
+		cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
+		cccf.previousCallFrame = cf;
 		cf = cccf;
+		
 		stack = cf.stack;
 		sp = cf.sp;
-
 		dynRun(fun_instance.function.funId);
 	}
 
