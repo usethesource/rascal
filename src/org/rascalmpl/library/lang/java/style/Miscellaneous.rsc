@@ -56,7 +56,7 @@ bool isOuterType(list[Declaration] parents) =
 size(parents) == 0 || compilationUnit(_,_) := head(parents) || compilationUnit(_,_,_) := head(parents);
 
 list[Message] outerTypeFilename(Declaration d,  list[Declaration] parents, M3 model) =
-	isOuterType(parents) && \public() in (d@modifiers? {}) && !endsWith(getPath(parents[0]@decl), getPath(d@decl))
+	isOuterType(parents) && \public() in (model@modifiers[d@decl]) && !endsWith(getPath(parents[0]@decl), getPath(d@decl))
 	? [miscellaneous("OuterTypeFilename", d@decl) ] : [];
 
 //// TODO: model@containment<1,0>)[ast@decl] is ambiguous!
