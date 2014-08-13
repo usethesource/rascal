@@ -113,7 +113,7 @@ default list[Message] simplifyBooleanExpression(Expression exp,  list[Expression
 
 /* --- simplifyBooleanReturn ------------------------------------------------*/
 
-bool isBooleanReturn (stat) = \return(booleanLiteral(_)) := stat;
+bool isBooleanReturn (Statement stat) = \return(booleanLiteral(_)) := stat;
 
 list[Message] simplifyBooleanReturn(Statement stat: \if(Expression condition, Statement thenBranch, Statement elseBranch),  list[Statement] parents, M3 model) =
 	(isBooleanReturn(thenBranch) && isBooleanReturn(elseBranch)) ? [coding("SimplifyBooleanReturn", stat@src)] : [];
@@ -299,9 +299,9 @@ bool containsExit(Statement stat){
 list[Message] findFallThrough(list[Statement] statements){
 	msgs = [];
 	for(i <- index(statements)){
-		if(\case(Expression expression) := statements[i] && 
+		if(\case(_) := statements[i] && 
 		   i+2 < size(statements) &&
-		   (\case(Expression expression) := statements[i+2] || \caseDefault() := statements[i+2])){
+		   (\case(_) := statements[i+2] || \defaultCase() := statements[i+2])){
 		   if(!containsExit(statements[i+1])){
 		   		msgs += coding("FallThrough", statements[i+1]@src);
 		   }
