@@ -1466,28 +1466,30 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ @ <Name
     if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
     if (isNodeType(t1) || isADTType(t1)) {
         aname = convertName(n);
-        
-        if (aname in c.annotationEnv, true in { hasDeferredTypes(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
-        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
-	        if (true in { isFailType(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
-	        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", exp@\loc));
+        if (aname in c.annotationEnv) {
+	        annIds = (c.store[c.annotationEnv[aname]] is overload) ? c.store[c.annotationEnv[aname]].items : { c.annotationEnv[aname] };
+	        if (true in { hasDeferredTypes(ati) | ati <- { c.store[annId].rtype, c.store[annId].onType | annId <- annIds } }) {
+	        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
+		        if (true in { isFailType(ati) | ati <- { c.store[annId].rtype, c.store[annId].onType | annId <- annIds } }) {
+		        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", exp@\loc));
+		        }
 	        }
-        }
-        
-        if (aname in c.annotationEnv, true in { subtype(t1,ot) | ot <- c.store[c.annotationEnv[aname]].onTypes }) {
-            aType = c.store[c.annotationEnv[aname]].rtype;
-            if (isFailType(aType)) {
-                return markLocationFailed(c,exp@\loc,aType);
-            } else {
-                if (subtype(t2,aType)) {
-                    return markLocationType(c,exp@\loc,t1);
-                } else {
-                    return markLocationFailed(c,exp@\loc,makeFailType("Cannot assign value of type <prettyPrintType(t2)> to annotation of type <prettyPrintType(aType)>", exp@\loc));
-                }
-            }
-        } else {
-            return markLocationFailed(c,exp@\loc,makeFailType("Annotation <n> not declared on <prettyPrintType(t1)> or its supertypes",exp@\loc));
-        }
+		        
+		    aTypes = { c.store[annId].rtype | annId <- annIds, subtype(t1,c.store[annId].onType) };
+	        if (size(aTypes) > 0) {
+	            aType = getOneFrom(aTypes); // This should be sufficient, insert logic should keep this to one
+	            if (isFailType(aType)) {
+	                return markLocationFailed(c,exp@\loc,aType);
+	            } else {
+	                if (subtype(t2,aType)) {
+	                    return markLocationType(c,exp@\loc,t1);
+	                } else {
+	                    return markLocationFailed(c,exp@\loc,makeFailType("Cannot assign value of type <prettyPrintType(t2)> to annotation of type <prettyPrintType(aType)>", exp@\loc));
+	                }
+	            }
+	        } 
+		}
+        return markLocationFailed(c,exp@\loc,makeFailType("Annotation <n> not declared on <prettyPrintType(t1)> or its supertypes",exp@\loc));
     } else {
         return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected node or ADT types, found <prettyPrintType(t1)>", e@\loc));
     }
@@ -1499,29 +1501,31 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> @ <Name n
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
     if (isNodeType(t1) || isADTType(t1)) {
         aname = convertName(n);
-
-        if (aname in c.annotationEnv, true in { hasDeferredTypes(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
-        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
-	        if (true in { isFailType(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
-	        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", exp@\loc));
+        if (aname in c.annotationEnv) {
+	        annIds = (c.store[c.annotationEnv[aname]] is overload) ? c.store[c.annotationEnv[aname]].items : { c.annotationEnv[aname] };
+	        if (true in { hasDeferredTypes(ati) | ati <- { c.store[annId].rtype, c.store[annId].onType | annId <- annIds } }) {
+	        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
+		        if (true in { isFailType(ati) | ati <- { c.store[annId].rtype, c.store[annId].onType | annId <- annIds } }) {
+		        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", exp@\loc));
+		        }
 	        }
-        }
-
-        if (aname in c.annotationEnv, true in { subtype(t1,ot) | ot <- c.store[c.annotationEnv[aname]].onTypes }) {
-            aType = c.store[c.annotationEnv[aname]].rtype;
-            if (isFailType(aType))
-                return markLocationFailed(c,exp@\loc,aType);
-            else
-                return markLocationType(c,exp@\loc,aType);
-        } else {
-            return markLocationFailed(c,exp@\loc,makeFailType("Annotation <n> not declared on <prettyPrintType(t1)> or its supertypes",exp@\loc));
-        }
+		        
+		    aTypes = { c.store[annId].rtype | annId <- annIds, subtype(t1,c.store[annId].onType) };
+	        if (size(aTypes) > 0) {
+	            aType = getOneFrom(aTypes); // This should be sufficient, insert logic should keep this to one
+	            if (isFailType(aType)) {
+	                return markLocationFailed(c,exp@\loc,aType);
+	            } else {
+	                return markLocationType(c,exp@\loc,aType);
+	            }
+	        }
+        } 
     } else {
         return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected node or ADT types, found <prettyPrintType(t1)>", e@\loc));
     }
 }
 
-    @doc{Check the types of Rascal expressions: Is (DONE)}
+@doc{Check the types of Rascal expressions: Is (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e> is <Name n>`, Configuration c) {
     needNewScope = !inBooleanScope(c);
     cIs = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
@@ -5076,16 +5080,21 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
         // the current type is a subtype of one of these.
         // TODO: Make sure all annotations of the same name are given equivalent types. This
         // requirement is implicit in the code below, but I'm not sure it's being checked.
-        if (aname in c.annotationEnv, true in { hasDeferredTypes(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
-        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
-	        if (true in { isFailType(ati) | ati <- (c.store[c.annotationEnv[aname]].onTypes + c.store[c.annotationEnv[aname]].rtype) }) {
-	        	return markLocationFailed(c, exp@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", exp@\loc));
+        
+        if (aname in c.annotationEnv) {
+	        annIds = (c.store[c.annotationEnv[aname]] is overload) ? c.store[c.annotationEnv[aname]].items : { c.annotationEnv[aname] };
+	        if (true in { hasDeferredTypes(ati) | ati <- { c.store[annId].rtype, c.store[annId].onType | annId <- annIds } }) {
+	        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
+		        if (true in { isFailType(ati) | ati <- { c.store[annId].rtype, c.store[annId].onType | annId <- annIds } }) {
+		        	return markLocationFailed(c, assn@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", exp@\loc));
+		        }
 	        }
-        }
-
-        if (aname in c.annotationEnv, true in { subtype(atree@atype,ot) | ot <- c.store[c.annotationEnv[aname]].onTypes }) {
-            aType = c.store[c.annotationEnv[aname]].rtype;
-            return < c, annotationNode(atree,aname)[@atype=aType][@at=assn@\loc] >;
+		     
+		    aTypes = { c.store[annId].rtype | annId <- annIds, subtype(atree@atype,c.store[annId].onType) };
+	        if (size(aTypes) > 0) {
+	            aType = getOneFrom(aTypes);
+	            return < c, annotationNode(atree,aname)[@atype=aType][@at=assn@\loc] >;
+	        }
         } else {
             rt = makeFailType("Annotation <an> not declared on <prettyPrintType(atree@atype)> or its supertypes",assn@\loc);
             return < c, annotationNode(atree,aname)[@atype=rt][@at=assn@\loc] >;
@@ -7830,17 +7839,12 @@ public Configuration resolveDeferredTypes(Configuration c, int itemId) {
 			c.store[itemId].rtype = rt;
 		}
 
-		set[Symbol] otres = { };
-		for (ot <- c.store[itemId].onTypes) {
-			if (hasDeferredTypes(ot)) {
-				< c, ott > = expandType(undefer(ot), av.at, c);
-				otres = otres + ott;
-			} else {
-				otres = otres + ot;
-			}
+		if (hasDeferredTypes(av.onType)) {
+			< c, ott > = expandType(undefer(av.onType), av.at, c);
+			av.onType = ott;
 		}
-		if (c.store[itemId].onTypes != otres) {
-			c.store[itemId].onTypes = otres;
+		if (c.store[itemId].onType != av.onType) {
+			c.store[itemId].onType = av.onType;
 		}
 	}
 	return c;

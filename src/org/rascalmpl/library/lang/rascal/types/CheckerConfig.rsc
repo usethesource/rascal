@@ -73,7 +73,7 @@ data AbstractValue
     | sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats)
     | constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at)
     | production(RName name, Symbol rtype, int containedIn, loc at)
-    | annotation(RName name, Symbol rtype, set[Symbol] onTypes, int containedIn, loc at)
+    | annotation(RName name, Symbol rtype, Symbol onType, int containedIn, loc at)
     | \tag(RName name, TagKind tkind, set[Symbol] onTypes, int containedIn, loc at)
     | \alias(RName name, Symbol rtype, int containedIn, loc at)
     | booleanScope(int containedIn, loc at)
@@ -383,26 +383,53 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
 		if (!isEmpty(existingDefs)) return getOneFrom(existingDefs);
 
 		annId = c.nextLoc;
-		c.store[annId] = annotation(n,rt,{rtOn},moduleId,l);
+		c.store[annId] = annotation(n,rt,rtOn,moduleId,l);
 		c.definitions = c.definitions + < annId, l >;
 		c.nextLoc = annId + 1;
 		return annId;
+	}
+
+	void updateAnnotation(int id, int newid) {
+		if (c.store[id] is overload) {
+			c.store[id].items = c.store[id].items + newid;
+			c.store[id].rtype = lub(c.store[id].rtype, rt);
+		} else {
+			oitem = overload({ id, newid }, lub(c.store[id].rtype, rt));
+			oid = c.nextLoc;
+			c.store[oid] = oitem;
+			c.nextLoc = oid + 1;
+		}
 	}
 
 	if (n notin c.annotationEnv) {
 		annId = insertAnnotation();
 		c.annotationEnv[n] = annId;
 	} else {
-		// If the annotation already exists, make sure the new annotation has an equivalent type. This is
-		// required even for cases where we have the same annotation name on two different types.
-		// TODO: Should we allow different annotation types on different target types?
-		if (!equivalent(rt,c.store[c.annotationEnv[n]].rtype)){
-			c = addScopeError(c, "Annotation <prettyPrintName(n)> has already been declared with type <c.store[c.annotationEnv[n]].rtype> in module <prettyPrintName(moduleName)>", l);
+		// If an annotation of this name has already been declared, we need to make sure that either it has not been
+		// declared on this (or a comparable type) or, if it has, that the types are equivalent
+		annIds = (c.store[c.annotationEnv[n]] is overload) ? c.store[c.annotationEnv[n]].items : { c.annotationEnv[n] };
+		onComparableTypes = { aId | aId <- annIds, comparable(rtOn, c.store[aId].onType) };
+		
+		if (size(onComparableTypes) == 0) {
+			// This annotation has not been declared before on any comparable types.
 			annId = insertAnnotation();
+			updateAnnotation(c.annotationEnv[n], annId);			
 		} else {
-			c.store[c.annotationEnv[n]].onTypes = c.store[c.annotationEnv[n]].onTypes + rtOn;
-			c.definitions = c.definitions + < c.annotationEnv[n], l >;
-		} 
+			// This annotation has been declared before on at least one comparable type.
+			bool firstTimeThrough = true;
+			for (ct <- onComparableTypes) {
+				if (!equivalent(rt,c.store[ct].rtype)) {
+					c = addScopeError(c, "Annotation <prettyPrintName(n)> has already been declared with type <c.store[ct].rtype> in module <prettyPrintName(c.store[c.store[ct].containedIn].name)>", l);
+					if (firstTimeThrough) {
+						// If we don't add an item regardless, this can lead to errors later, but we don't want to add it repeatedly
+						annId = insertAnnotation();
+						firstTimeThrough = false;
+					}
+				} else {
+					c.definitions = c.definitions + < getOneFrom(onComparableTypes), l >;
+				}
+			}
+		}
 	}
 	
 	return c;
@@ -412,13 +439,38 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
 public Configuration addImportedAnnotation(Configuration c, RName n, int annId) {
 	if (n in c.annotationEnv && c.annotationEnv[n] == annId) return c;
 
+	void updateAnnotation(int id) {
+		if (c.store[id] is overload) {
+			c.store[id].items = c.store[id].items + { (c.store[annId] is overload) ? c.store[annId].items : { annId } };
+			c.store[id].rtype = lub(c.store[id].rtype, c.store[annId].rtype);
+		} else {
+			oitem = overload(( (c.store[annId] is overload) ? c.store[annId].items : { annId } ) + id, lub(c.store[id].rtype, c.store[annId].rtype));
+			oid = c.nextLoc;
+			c.store[oid] = oitem;
+			c.nextLoc = oid + 1;
+		}
+	}
+
 	if (n notin c.annotationEnv) {
 		c.annotationEnv[n] = annId;
-	} else if (!equivalent(c.store[annId].rtype,c.store[c.annotationEnv[n]].rtype)){
-		moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-		moduleName = c.store[moduleId].name;
-		c = addScopeError(c, "Annotation <prettyPrintName(n)> has already been declared with type <c.store[c.annotationEnv[n]].rtype> in module <prettyPrintName(moduleName)>", c.store[annId].at);
+	} else {
+		// If an annotation of this name has already been declared, we need to make sure that either it has not been
+		// declared on this (or a comparable type) or, if it has, that the types are equivalent
+		annIds = (c.store[c.annotationEnv[n]] is overload) ? c.store[c.annotationEnv[n]].items : { c.annotationEnv[n] };
+		mergeIds = (c.store[annId] is overload) ? c.store[annId].items : { annId };
+		onComparableTypes = { < aId, mId > | aId <- annIds, mId <- mergeIds, comparable(c.store[mId].onType, c.store[aId].onType) };
+		
+		if (size(onComparableTypes) == 0) {
+			// This annotation has not been declared before on any comparable types.
+			updateAnnotation(c.annotationEnv[n]);			
+		} else {
+			// This annotation has been declared before on at least one comparable type.
+			for (< ct, mId > <- onComparableTypes, !equivalent(c.store[mId].rtype,c.store[ct].rtype)) {
+				c = addScopeError(c, "Import of annotation <prettyPrintName(n)> in module <prettyPrintName(c.store[c.store[annId].containedIn].name)> conflicts with existing annotation in module <prettyPrintName(c.store[c.store[ct].containedIn].name)>", c.store[mid].at);
+			}
+		}
 	}
+	
 	return c;
 }
 
