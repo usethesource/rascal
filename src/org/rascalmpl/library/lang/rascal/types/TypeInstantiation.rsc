@@ -25,7 +25,7 @@ public alias Bindings = map[str varName, Symbol varType];
 // TODO: Add support for bags if we ever get around to supporting them...
 // TODO: Add support for overloaded types if they can make it to here (this is
 // usually invoked on specific types that are inside overloads)
-public Bindings match(Symbol r, Symbol s, Bindings b) {
+public Bindings match(Symbol r, Symbol s, Bindings b, bool bindIdenticalVars=false) {
 	// Strip off labels and aliases
 	if (\label(_, lt) := r) return match(lt, s, b);
 	if (\label(_, rt) := s) return match(r, rt, b);
@@ -38,6 +38,10 @@ public Bindings match(Symbol r, Symbol s, Bindings b) {
 	if (arity(r) == 0 && comparable(s,r)) return b;
 	
 	// Handle parameters
+	if (isTypeVar(r) && isTypeVar(s) && getTypeVarName(r) == getTypeVarName(s) && getTypeVarBound(r) == getTypeVarBound(s) && !bindIdenticalVars) {
+		return b;
+	}
+	
 	if (isTypeVar(r)) {
 		varName = getTypeVarName(r);
 		varBound = getTypeVarBound(r);
@@ -94,6 +98,10 @@ public Bindings match(Symbol r, Symbol s, Bindings b) {
 	if ( isConstructorType(r) && isConstructorType(s) && getADTName(r) == getADTName(s)) {
 		b = match(getConstructorArgumentTypesAsTuple(r), getConstructorArgumentTypesAsTuple(s), b);
 		return match(getConstructorResultType(r), getConstructorResultType(s), b);
+	}
+	
+	if ( isConstructorType(r) && isADTType(s) ) {
+		return match(getConstructorResultType(r), s, b);
 	}
 	
 	// For functions, match the return types and the parameter types

@@ -430,7 +430,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 			// formals as actuals.
 			for (idx <- index(tl)) {
 				try {
-					bindings = match(formalArgs[idx],tl[idx],bindings);
+					bindings = match(formalArgs[idx],tl[idx],bindings,bindIdenticalVars=true);
 				} catch : {
 					// c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
 					canInstantiate = false;  
@@ -443,7 +443,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 			// parameter.
 			for (idx <- index(tl), idx < size(formalArgs)) {
 				try {
-					bindings = match(formalArgs[idx],tl[idx],bindings);
+					bindings = match(formalArgs[idx],tl[idx],bindings,bindIdenticalVars=true);
 				} catch : {
 					// c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
 					canInstantiate = false;  
@@ -451,7 +451,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 			}
 			for (idx <- index(tl), idx >= size(formalArgs)) {
 				try {
-					bindings = match(getListElementType(formalArgs[size(formalArgs)-1]),tl[idx],bindings);
+					bindings = match(getListElementType(formalArgs[size(formalArgs)-1]),tl[idx],bindings,bindIdenticalVars=true);
 				} catch : {
 					// c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(getListElementType(formalArgs[size(formalArgs)-1]))>", epsList[idx]@\loc);
 					canInstantiate = false;  
@@ -460,7 +460,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     	}
     	for (kn <- kpm) {
     		try {
-    			bindings = match(kpm[kn], kl[kn], bindings);
+    			bindings = match(kpm[kn], kl[kn], bindings,bindIdenticalVars=true);
     		} catch : {
     			canInstantiate = false;
     		}
@@ -3478,6 +3478,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             KeywordParamMap justUsedParams = domainR(matchParams,kpargs<0>);
                             bool cannotInstantiate = false;
 
+							map[str,Symbol] bindings = ( );
+							
                             // TODO: Find a better place for this huge chunk of code!
                             if (concreteType(matchType) && (false notin { concreteType(justUsedParams[kpn]) | kpn <- justUsedParams }) && 
                                 (typeContainsTypeVars(matchType) || (true in { typeContainsTypeVars(justUsedParams[kpn]) | kpn <- justUsedParams })) && 
@@ -3488,8 +3490,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 // do this when the match type is concrete and when we either have no pargs or we have
                                 // pargs that all have concrete types associated with them.
                                 formalArgs = isConstructorType(matchType) ? getConstructorArgumentTypes(matchType) : getProductionArgumentTypes(matchType);
-                                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- (toSet(formalArgs) + justUsedParams<1>) };
-                                map[str,Symbol] bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
+                                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- (toSet(formalArgs) + justUsedParams<1> + { matchType }) };
+                                bindings = ( getTypeVarName(tv) : \void() | tv <- typeVars );
                                 unlabeledArgs = [ (\label(_,v) := li) ? v : li | li <- formalArgs ];
                                 unlabeledParams = ( kpn : (\label(_,v) := justUsedParams[kpn]) ? v : justUsedParams[kpn] | kpn <- justUsedParams );
                                 for (idx <- index(formalArgs)) {
@@ -3506,6 +3508,14 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 	} catch : {
                                         insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate keyword parameter <prettyPrintName(kpn)>, parameter type <prettyPrintType(kpargs[kpn]@rtype)> violates bound of type parameter in formal argument with type <prettyPrintType(unlabeledParams[kpn])>", kpargs[kpn]@at));
                                         cannotInstantiate = true;                                  	
+                                	}
+                                }
+                                if (size(subjects) == 1) {
+                                	try {
+                                		bindings = match(matchType, getOneFrom(subjects),bindings);
+                                	} catch : {
+                                        insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate pattern type <prettyPrintType(matchType)> with subject type <prettyPrintType(getOneFrom(subjects))>", ptn@at));
+                                        cannotInstantiate = true;                                  	                                	
                                 	}
                                 }
                                 if (!cannotInstantiate) {
@@ -3530,7 +3540,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 try {
                                     for (idx <- index(pargs)) {
                                         //println("<ptn@at>: pushing down <getConstructorArgumentTypes(matchType)[idx]> for arg <pargs[idx]>");  
-                                        < c, newarg > = bind(pargs[idx],unlabeledArgs[idx],c);
+                                        < c, newarg > = bind(pargs[idx],unlabeledArgs[idx],c,bindings=bindings);
                                         newChildren += newarg;
                                     }
                                 } catch v : {
@@ -3648,7 +3658,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 }
 
 @doc{Bind a subject type to a pattern tree.}
-public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
+public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbol] bindings = ( )) {
     // NOTE: We assume the bind triggers an error at the point of bind failure.
     // So, if we are looking at a set node, we just have to make sure that the
     // type we are binding to it is a set of something.
@@ -3692,7 +3702,10 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
         
         case nameNode(RSimpleName("_"),nid) : {
             Symbol currentType = pt@rtype;
-            if (isInferredType(currentType)) {
+            if (isTypeVar(currentType) && getTypeVarName(currentType) in bindings) {
+            	c.store[nid].rtype = bindings[getTypeVarName(currentType)];
+            	return < c, pt[@rtype=c.store[nid].rtype] >;
+            } else if (isInferredType(currentType)) {
                 c.store[nid].rtype = rt;
                 return < c, pt[@rtype = rt] >;
             } else {
@@ -3706,18 +3719,25 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             if (c.store[nid].inferred) {
                 if (isInferredType(currentType)) {
                     c.store[nid].rtype = rt;
+				} else if (isTypeVar(currentType) && getTypeVarName(currentType) in bindings) {
+    	        	c.store[nid].rtype = bindings[getTypeVarName(currentType)];
                 } else {
                     c.store[nid].rtype = lub(currentType, rt);
                 }
                 return < c, pt[@rtype = c.store[nid].rtype] >;
             } else {
-                if (comparable(currentType, rt))
+                if (isTypeVar(currentType) && getTypeVarName(currentType) in bindings) {
+    	        	c.store[nid].rtype = bindings[getTypeVarName(currentType)];
+        	    	return < c, pt[@rtype=c.store[nid].rtype] >;
+                } else if (comparable(currentType, rt)) {
                     return < c, pt >;
-                else
+	            } else {
                     throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+                }
             }
         }
         
+		// TODO: Do we also need a case here for a type parameter?
         case multiNameNode(RSimpleName("_"),nid) : {
             Symbol currentType = pt@rtype;
             if (isInferredType(currentType)) {
@@ -3729,6 +3749,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
 
+		// TODO: Do we also need a case here for a type parameter?
         case multiNameNode(rn,nid) : {
             Symbol currentType = c.store[nid].rtype;
             if (c.store[nid].inferred) {
@@ -3755,6 +3776,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
+		// TODO: Do we also need a case here for a type parameter?
        case spliceNodeStar(RSimpleName("_"),nid) : {
             Symbol currentType = pt@rtype;
             if (isInferredType(currentType)) {
@@ -3764,6 +3786,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
+		// TODO: Do we also need a case here for a type parameter?
         case spliceNodeStar(rn,nid) : { 
         	Symbol currentType = c.store[nid].rtype;
             if (c.store[nid].inferred) {
@@ -3791,6 +3814,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
+		// TODO: Do we also need a case here for a type parameter?
         case spliceNodeStar(RSimpleName("_"),_,nt,nid) : {
             Symbol currentType = pt@rtype;
             if (comparable(currentType, rt)) {
@@ -3800,6 +3824,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
+		// TODO: Do we also need a case here for a type parameter?
         case spliceNodeStar(rn,_,nt,nid) : { 
         	Symbol currentType = c.store[nid].rtype;
             if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
@@ -3811,6 +3836,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
+		// TODO: Do we also need a case here for a type parameter?
         case spliceNodePlus(RSimpleName("_"),nid) : {
         	Symbol currentType = pt@rtype;
             if (isInferredType(currentType)) {
@@ -3820,6 +3846,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             } 
         }
         
+		// TODO: Do we also need a case here for a type parameter?
         case spliceNodePlus(rn,nid) : { 
         	Symbol currentType = c.store[nid].rtype;
             if (c.store[nid].inferred) {
@@ -3847,6 +3874,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
+		// TODO: Do we also need a case here for a type parameter?
         case spliceNodePlus(RSimpleName("_"),_,nt,nid) : {
             Symbol currentType = pt@rtype;
             if (comparable(currentType, rt)) {
@@ -3856,6 +3884,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
+		// TODO: Do we also need a case here for a type parameter?
         case spliceNodePlus(rn,_,nt,nid) : { 
         	Symbol currentType = c.store[nid].rtype;
             if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
@@ -3904,6 +3933,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
+		// TODO: Do we also need a case here for a type parameter?
         case typedNameNode(n, l, nt, nid) : {
             Symbol currentType = (RSimpleName("_") == n) ? pt@rtype : c.store[nid].rtype;
             if (comparable(currentType, rt))
@@ -3926,6 +3956,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             }
         }
         
+		// TODO: Do we also need a case here for a type parameter?
         case reifiedTypeNode(ps,pd) : {
         	// The subject type has no influence on the types of the children of a reified type
         	// node, so we can't push a type down through the node, we instead always insist
@@ -3944,12 +3975,14 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             //return < c, pt >;
         }
         
+		// TODO: Do we also need a case here for a type parameter?
         case varBecomesNode(n, l, cp, nid) : {
             Symbol currentType = pt@rtype;
             < c, cpnew > = bind(cp, rt, c);
             return < c, pt[child=cpnew] >;
         }
         
+		// TODO: Do we also need a case here for a type parameter?
         case asTypeNode(nt, cp) : {
             < c, cpNew > = bind(cp, rt, c);
             return < c, pt[child = cpNew] >;
@@ -3970,6 +4003,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
             return < c, pt[child = cpNew][@rtype=rt] >;
         }
         
+		// TODO: Do we also need a case here for a type parameter?
         case tvarBecomesNode(nt, n, l, cp, nid) : {
             < c, cpNew > = bind(cp, rt, c);
             return < c, pt[child = cpNew] >;
