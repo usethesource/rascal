@@ -114,6 +114,6 @@ default list[Message] inefficientEmptyStringCheck(Expression exp, list[Expressio
 /* --- avoidStringBufferField -----------------------------------------------*/
 
 list[Message] avoidStringBufferField(Declaration decl:  \field(Type \type, list[Expression] fragments), list[Declaration] parents, M3 model) =	
-	isStringBufferOrBuilderType(\type) && \private() in (decl@modifiers ? {})
+	isStringBufferOrBuilderType(\type) && \private() in (model@modifiers[decl@decl])
 	? [string("AvoidStringBufferField", decl@src) ] 
 	: [];
