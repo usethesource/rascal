@@ -60,7 +60,12 @@ list[Message] classDataAbstractionCoupling(Expression exp: \newObject(_, _, _, _
 	return [];
 }
 	
-list[Message] classDataAbstractionCoupling(Expression exp: \newObject(_, _, _),  list[Expression] parents, M3 model){
+list[Message] classDataAbstractionCoupling(Expression exp: \newObject(Expression expr, _, _),  list[Expression] parents, M3 model){
+	updateCheckState("classDataAbstractionCoupling", getTypeName(exp@typ));
+	return [];
+}
+
+list[Message] classDataAbstractionCoupling(Expression exp: \newObject(Type \type, _, _),  list[Expression] parents, M3 model){
 	updateCheckState("classDataAbstractionCoupling", getTypeName(exp@typ));
 	return [];
 }
