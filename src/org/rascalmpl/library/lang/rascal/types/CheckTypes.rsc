@@ -1520,6 +1520,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> @ <Name n
 	            }
 	        }
         } 
+        return markLocationFailed(c,exp@\loc,makeFailType("Annotation <n> not declared on <prettyPrintType(t1)> or its supertypes",exp@\loc));
     } else {
         return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected node or ADT types, found <prettyPrintType(t1)>", e@\loc));
     }
