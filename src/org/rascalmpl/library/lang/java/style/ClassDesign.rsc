@@ -32,9 +32,10 @@ InnerTypeLast				TBD
 
 list[Message] visibilityModifier(Declaration cls, list[Declaration] parents, M3 model) {
 	msgs = [];
+	modifiers = model@modifiers;
 	c = cls@decl;
 	for(f <- fields(model, c)){
-		mods = (f@modifiers ? {});
+		mods = modifiers[f];
 		if(\public() in mods && !({\static(), \final()} < mods)){
 			msgs += classDesign("VisibilityModifier", f);
 		}
@@ -47,7 +48,8 @@ list[Message] visibilityModifier(Declaration cls, list[Declaration] parents, M3 
 
 list[Message] finalClass(Declaration cls, list[Declaration] parents, M3 model) {
 	msgs = [];
-	bool isPrivate(loc m) = \private() in (m@modifiers?{});
+	modifiers = model@modifiers;
+	bool isPrivate(loc m) = \private() in modifiers[m];
 	
 	bool hasOnlyPrivateConstructors(loc class){
 		ncons = 0;
@@ -63,8 +65,8 @@ list[Message] finalClass(Declaration cls, list[Declaration] parents, M3 model) {
 	}
 	
 	c = cls@decl;
-	
-	if(hasOnlyPrivateConstructors(c) && \final() notin (c@modifiers?{})){
+	mods = model@modifiers;
+	if(hasOnlyPrivateConstructors(c) && \final() notin mods[c]){
 		msgs += classDesign("FinalClass", c);
 	}
 
@@ -75,8 +77,9 @@ list[Message] finalClass(Declaration cls, list[Declaration] parents, M3 model) {
 
 list[Message] mutableException(Declaration cls, list[Declaration] parents, M3 model) {
 	msgs = [];
+	modifiers = model@modifiers;
 	bool hasOnlyFinalFields(loc c){
-		return all(f <- fields(model, c), \final() in (f@modifiers?{}));
+		return all(f <- fields(model, c), \final() in modifiers[f]);
 	}
 	c = cls@decl;
 	
