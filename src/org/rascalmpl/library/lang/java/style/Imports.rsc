@@ -29,14 +29,14 @@ ImportControl		TBD
 /* --- avoidStarImport ------------------------------------------------------*/
 
 list[Message] avoidStarImport(Declaration imp: \import(_),  list[Declaration] parents, M3 model) =
-	\onDemand() in (imp@modifiers?{}) ? [imports("AvoidStarImport", imp@src)] : [];
+	\onDemand() in (model@modifiers[imp@decl]) ? [imports("AvoidStarImport", imp@src)] : [];
 
 default list[Message] avoidStarImport(Declaration imp,  list[Declaration] parents, M3 model) = [];
 
 // avoidStaticImport
 
 list[Message] avoidStaticImport(Declaration imp: \import(_),  list[Declaration] parents, M3 model) =
-	\static() in (imp@modifiers?{}) ? [ imports("AvoidStaticImport", imp@src)] : [];
+	\static() in (model@modifiers[imp@decl]) ? [ imports("AvoidStaticImport", imp@src)] : [];
 	
 default list[Message] avoidStaticImport(Declaration imp,  list[Declaration] parents, M3 model) = [];	
 
