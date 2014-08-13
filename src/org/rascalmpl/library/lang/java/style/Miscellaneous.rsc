@@ -34,10 +34,10 @@ UniqueProperties	TBD
 
 /* --- unCommentedMain ------------------------------------------------------*/
 
-list[Message] unCommentedMain(Declaration m: \method(_,name,_,_,_),  list[Declaration] parents, M3 model) =
+list[Message] unCommentedMain(Declaration m: \method(_,str name,_,_,_),  list[Declaration] parents, M3 model) =
 	name == "main" ? [miscellaneous("UnCommentedMain", m@src)] : [];
 	
-list[Message] unCommentedMain(Declaration m: \method(_,name,_,_),  list[Declaration] parents, M3 model) =
+list[Message] unCommentedMain(Declaration m: \method(_,str name,_,_),  list[Declaration] parents, M3 model) =
 	name == "main" ? [miscellaneous("UnCommentedMain", m@src)] : [];
 
 default list[Message] unCommentedMain(Declaration d,  list[Declaration] parents, M3 model) =	[];
