@@ -2931,6 +2931,9 @@ public anno set[Symbol] PatternTree@arityMismatches;
 @doc{Do we have too many matching constructors here?}
 public anno set[Symbol] PatternTree@tooManyMatches;
 
+@doc{A hint of the possible type passed down from above.}
+public anno Symbol PatternTree@typeHint;
+
 @doc{A quick predicate to say whether we can use the type in a type calculation}
 public bool concreteType(Symbol t) = size({ ti | /Symbol ti := t, \failure(_) := ti || \inferred(_) := ti }) == 0; 
 
@@ -3239,9 +3242,11 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 				return < ptn[@rtype = makeReifiedType(makeValueType())], c >;
 			}
 			
+			// TODO: This is the common case, we need to propagate type hints
+			// to handle the uncommon cases
 	        case ptn:tvarBecomesNode(rt, n, l, ptc, nid) : { 
 	        	< ptc, c > = assignInitialPatternTypes(ptc, c);
-	        	ptn.child = ptc;
+	        	ptn.child = ptc[@typeHint = rt];
 
 	            if (RSimpleName("_") == n) {
 	                c = addUnnamedVariable(c, l, rt);
@@ -3473,6 +3478,12 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 }
                             }
                         //}
+                        
+                        if (size(matches) > 1) {
+                        	if ( (ptn@typeHint)? ) {
+                        		matches = { < a, kpm > | < a, kpm > <- matches, !isConstructorType(a) || (isConstructorType(a) && equivalent(getConstructorResultType(a),ptn@typeHint)) }; 
+                        	}
+                        }
                         
                         if (size(matches) == 1) {
                             // Push the binding back down the tree with the information in the constructor type; if
