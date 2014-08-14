@@ -318,9 +318,9 @@ lexical LAYOUT
 
 public Tree SizeOfExpression(Expression exp){ // May be ambiguous with "sizeof(TypeName)".
    list[Tree] children;
-   if(appl(prod(_,_,attrs([_*,term(cons("Bracket")),_*])),children) := exp){
+   if(appl(prod(_,_,attrs([_*,term(cons("bracket")),_*])),children) := exp){
       Tree child = children[1];
-      if(appl(prod(label("Variable",_),_,_),_) := child){
+      if(appl(prod(label("variable",_),_,_),_) := child){
          if(unparse(child) in typeDefs){
             filter;
          }
@@ -331,7 +331,7 @@ public Tree SizeOfExpression(Expression exp){ // May be ambiguous with "sizeof(T
 }
 
 public Tree MultiplicationExpression(Expression lexp, Expression rexp){ // May be ambiguous with "TypeName *Declarator".
-   if(appl(prod(label("Variable",_),_,_),_) := lexp){
+   if(appl(prod(label("variable",_),_,_),_) := lexp){
       if(unparse(lexp) in typeDefs){
          filter;
       }
@@ -341,7 +341,7 @@ public Tree MultiplicationExpression(Expression lexp, Expression rexp){ // May b
 }
 
 public Tree NonCommaExpression(Expression expr){
-   if(appl(prod(label("CommaExpression",_),_,_),_) := expr){
+   if(appl(prod(label("commaExpression",_),_,_),_) := expr){
       filter;
    }
    
@@ -354,8 +354,8 @@ public Tree DeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ ini
       TypeSpecifier theType = findType(specChildren);
       
       for(spec <- specs){
-         if(appl(prod(label("StorageClass",_),_,_),typeSpecifier) := spec){
-            if([_*,appl(prod(label("TypeDef",_),_,_),_),_*] := typeSpecifier){
+         if(appl(prod(label("storageClass",_),_,_),typeSpecifier) := spec){
+            if([_*,appl(prod(label("typeDef",_),_,_),_),_*] := typeSpecifier){
                list[tuple[str var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
                for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
                   str variable = variableTuple.var;
@@ -383,14 +383,14 @@ public Tree DeclarationWithoutInitDecls(Specifier+ specs){
       TypeSpecifier theType = findType(specChildren);
       
       for(spec <- specChildren){
-         if(appl(prod(label("TypeSpecifier",_),_,_),typeSpecifier) := spec){
-            if(identifier:appl(prod(label("Identifier",_),_,_),_) := typeSpecifier[0]){
+         if(appl(prod(label("typeSpecifier",_),_,_),typeSpecifier) := spec){
+            if(identifier:appl(prod(label("identifier",_),_,_),_) := typeSpecifier[0]){
                if(identifier != theType) filter;
             }
          }
       } // May be ambiguous with Spec* {InitDecl ","}*
       
-      if(appl(prod(label("Identifier",_),_,_),_) := theType){
+      if(appl(prod(label("identifier",_),_,_),_) := theType){
          if(unparse(theType) notin typeDefs){
             filter;
          } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
@@ -406,8 +406,8 @@ public Tree GlobalDeclarationWithInitDecls(Specifier* specs, {InitDeclarator ","
       TypeSpecifier theType = findType(specChildren);
       
       for(spec <- specs){
-         if(appl(prod(label("StorageClass",_),_,_),typeSpecifier) := spec){
-            if([_*,appl(prod(label("TypeDef",_),_,_),_),_*] := typeSpecifier){
+         if(appl(prod(label("storageClass",_),_,_),typeSpecifier) := spec){
+            if([_*,appl(prod(label("typeDef",_),_,_),_),_*] := typeSpecifier){
                list[tuple[str var, InitDeclarator initDecl]] variables = findVariableNames(initDeclarators);
                for(tuple[str var, InitDeclarator initDecl] variableTuple <- variables){
                   str variable = variableTuple.var;
@@ -434,15 +434,15 @@ public Tree GlobalDeclarationWithoutInitDecls(Specifier+ specs){
    if(appl(_,specChildren) := specs){
       TypeSpecifier theType = findType(specChildren);
       
-      if(appl(prod(label("Identifier",_),_,_),_) := theType){
+      if(appl(prod(label("identifier",_),_,_),_) := theType){
          if(unparse(theType) notin typeDefs){
             filter;
          } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
       }
       
       for(spec <- specChildren){
-         if(appl(prod(label("TypeSpecifier",_),_,_),typeSpecifier) := spec){
-            if(identifier:appl(prod(label("Identifier",_),_,_),_) := typeSpecifier[0]){
+         if(appl(prod(label("typeSpecifier",_),_,_),typeSpecifier) := spec){
+            if(identifier:appl(prod(label("identifier",_),_,_),_) := typeSpecifier[0]){
                if(identifier != theType) filter;
             }
          }
@@ -458,8 +458,8 @@ public Tree StructDeclWithDecl(Specifier+ specs, {StructDeclarator ","}+ declara
       TypeSpecifier theType = findType(specChildren);
       
       for(spec <- specChildren){
-         if(appl(prod(label("TypeSpecifier",_),_,_),typeSpecifier) := spec){
-            if(identifier:appl(prod(label("Identifier",_),_,_),_) := typeSpecifier[0]){
+         if(appl(prod(label("typeSpecifier",_),_,_),typeSpecifier) := spec){
+            if(identifier:appl(prod(label("identifier",_),_,_),_) := typeSpecifier[0]){
                if(identifier != theType) filter;
             }
          }
@@ -480,15 +480,15 @@ public Tree StructDeclWithoutDecl(Specifier+ specs){
    if(appl(_,specChildren) := specs){
       TypeSpecifier theType = findType(specChildren);
       
-      if(appl(prod(label("Identifier",_),_,_),_) := theType){   
+      if(appl(prod(label("identifier",_),_,_),_) := theType){   
          if(unparse(theType) notin typeDefs){
             filter;
          } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
       }
       
       for(spec <- specChildren){
-         if(appl(prod(label("TypeSpecifier",_),_,_),typeSpecifier) := spec){
-            if(identifier:appl(prod(label("Identifier",_),_,_),_) := typeSpecifier[0]){
+         if(appl(prod(label("typeSpecifier",_),_,_),typeSpecifier) := spec){
+            if(identifier:appl(prod(label("identifier",_),_,_),_) := typeSpecifier[0]){
                if(identifier != theType) filter;
             }
          }
@@ -499,8 +499,8 @@ public Tree StructDeclWithoutDecl(Specifier+ specs){
 }
 
 public Tree DefaultFunctionDefinition(Specifier* specs, Declarator declarator, Declaration* _, Declaration* _, Statement* _){
-   if(!(appl(prod(label("FunctionDeclarator",_),_,_),_) := declarator) &&
-         !(appl(prod(label("Bracket",_),_,_),_) := declarator)){
+   if(!(appl(prod(label("functionDeclarator",_),_,_),_) := declarator) &&
+         !(appl(prod(label("bracket",_),_,_),_) := declarator)){
       filter;
    }
    
@@ -508,19 +508,19 @@ public Tree DefaultFunctionDefinition(Specifier* specs, Declarator declarator, D
    if(appl(_,specChildren) := specs){
       TypeSpecifier theType = findType(specChildren);
       
-      if(appl(prod(label("Identifier",_),_,_),_) := theType){   
+      if(appl(prod(label("identifier",_),_,_),_) := theType){   
          if(unparse(theType) notin typeDefs){
             filter;
          } // Fail if not typedeffed.
       }
       
       for(spec <- specChildren){
-         if(appl(prod(label("TypeSpecifier",_),_,_),typeSpecifier) := spec){
-            if(identifier:appl(prod(label("Identifier",_),_,_),_) := typeSpecifier[0]){
+         if(appl(prod(label("typeSpecifier",_),_,_),typeSpecifier) := spec){
+            if(identifier:appl(prod(label("identifier",_),_,_),_) := typeSpecifier[0]){
                if(identifier != theType) filter;
             }
-         }else if(appl(prod(label("StorageClass",_),_,_),storageClass) := spec){
-            if(appl(prod(label("TypeDef",_),_,_),_) := storageClass[0]){
+         }else if(appl(prod(label("storageClass",_),_,_),storageClass) := spec){
+            if(appl(prod(label("typeDef",_),_,_),_) := storageClass[0]){
                filter;
             }
          } // Certain storage parameters are not allowed.
@@ -531,8 +531,8 @@ public Tree DefaultFunctionDefinition(Specifier* specs, Declarator declarator, D
 }
 
 public Tree DefaultFunctionPrototype(Specifier* specs, PrototypeDeclarator decl){
-   if(!(appl(prod(label("FunctionDeclarator",_),_,_),_) := decl) &&
-         !(appl(prod(label("Bracket",_),_,_),_) := decl)){
+   if(!(appl(prod(label("functionDeclarator",_),_,_),_) := decl) &&
+         !(appl(prod(label("bracket",_),_,_),_) := decl)){
       filter;
    }
    
@@ -540,19 +540,19 @@ public Tree DefaultFunctionPrototype(Specifier* specs, PrototypeDeclarator decl)
    if(appl(_,specChildren) := specs){
       TypeSpecifier theType = findType(specChildren);
       
-      if(appl(prod(label("Identifier",_),_,_),_) := theType){   
+      if(appl(prod(label("identifier",_),_,_),_) := theType){   
          if(unparse(theType) notin typeDefs){
             filter;
          } // Fail if not typedeffed.
       }
       
       for(spec <- specChildren){
-         if(appl(prod(label("TypeSpecifier",_),_,_),typeSpecifier) := spec){
-            if(identifier:appl(prod(label("Identifier",_),_,_),_) := typeSpecifier[0]){
+         if(appl(prod(label("typeSpecifier",_),_,_),typeSpecifier) := spec){
+            if(identifier:appl(prod(label("identifier",_),_,_),_) := typeSpecifier[0]){
                if(identifier != theType) filter;
             }
-         }else if(appl(prod(label("StorageClass",_),_,_),storageClass) := spec){
-            if(appl(prod(label("TypeDef",_),_,_),_) := storageClass[0]){
+         }else if(appl(prod(label("storageClass",_),_,_),storageClass) := spec){
+            if(appl(prod(label("typeDef",_),_,_),_) := storageClass[0]){
                filter;
             }
          } // Certain storage parameters are not allowed (also fixes ambiguity with declarations).
@@ -571,45 +571,45 @@ private TypeSpecifier findType(list[Tree] specs){
 	
 	list[Tree] typeSpecs = [];
 	for(spec <- specs){
-		if(appl(prod(label("TypeSpecifier",_),_,_),typeSpecifier) := spec){
+		if(appl(prod(label("typeSpecifier",_),_,_),typeSpecifier) := spec){
 			typeSpecs += typeSpecifier[0];
 		}
 	}
 	
 	// This is order dependant, so don't convert this to a switch.
-	if([_*,voidType:appl(prod(label("Void",_),_,_),_),_*] := typeSpecs){
+	if([_*,voidType:appl(prod(label("void",_),_,_),_),_*] := typeSpecs){
 		cType = voidType;
-	}else if([_*,charType:appl(prod(label("Char",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,charType:appl(prod(label("char",_),_,_),_),_*] := typeSpecs){
 		cType = charType;
-	}else if([_*,shortType:appl(prod(label("Short",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,shortType:appl(prod(label("short",_),_,_),_),_*] := typeSpecs){
 		cType = shortType;
-	}else if([_*,longType:appl(prod(label("Long",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,longType:appl(prod(label("long",_),_,_),_),_*] := typeSpecs){
 		cType = longType;
-	}else if([_*,floatType:appl(prod(label("Float",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,floatType:appl(prod(label("float",_),_,_),_),_*] := typeSpecs){
 		cType = floatType;
-	}else if([_*,doubleType:appl(prod(label("Double",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,doubleType:appl(prod(label("double",_),_,_),_),_*] := typeSpecs){
 		cType = doubleType;
-	}else if([_*,intType:appl(prod(label("Int",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,intType:appl(prod(label("int",_),_,_),_),_*] := typeSpecs){
 		cType = intType; // Do this one last, since you can have things like "long int" or "short int". In these cases anything other then "int" is what you want.
-	}else if([_*,theStruct:appl(prod(label("Struct",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,theStruct:appl(prod(label("struct",_),_,_),_),_*] := typeSpecs){
 		cType = theStruct;
-	}else if([_*,theStruct:appl(prod(label("StructDecl",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,theStruct:appl(prod(label("structDecl",_),_,_),_),_*] := typeSpecs){
 		cType = theStruct;
-	}else if([_*,theStruct:appl(prod(label("StructAnonDecl",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,theStruct:appl(prod(label("structAnonDecl",_),_,_),_),_*] := typeSpecs){
 		cType = theStruct;
-	}else if([_*,theUnion:appl(prod(label("Union",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,theUnion:appl(prod(label("union",_),_,_),_),_*] := typeSpecs){
 		cType = theUnion;
-	}else if([_*,theUnion:appl(prod(label("UnionDecl",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,theUnion:appl(prod(label("unionDecl",_),_,_),_),_*] := typeSpecs){
 		cType = theUnion;
-	}else if([_*,theUnion:appl(prod(label("UnionAnonDecl",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,theUnion:appl(prod(label("unionAnonDecl",_),_,_),_),_*] := typeSpecs){
 		cType = theUnion;
-	}else if([_*,theEnum:appl(prod(label("Enum",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,theEnum:appl(prod(label("enum",_),_,_),_),_*] := typeSpecs){
 		cType = theEnum;
-	}else if([_*,theEnum:appl(prod(label("EnumDecl",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,theEnum:appl(prod(label("enumDecl",_),_,_),_),_*] := typeSpecs){
 		cType = theEnum;
-	}else if([_*,theEnum:appl(prod(label("EnumAnonDecl",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,theEnum:appl(prod(label("enumAnonDecl",_),_,_),_),_*] := typeSpecs){
 		cType = theEnum;
-	}else if([_*,identifier:appl(prod(label("Identifier",_),_,_),_),_*] := typeSpecs){
+	}else if([_*,identifier:appl(prod(label("identifier",_),_,_),_),_*] := typeSpecs){
 		cType = identifier;
 	}else{
 		// Bah.
@@ -622,8 +622,8 @@ private TypeSpecifier findType(list[Tree] specs){
 
 private bool hasCustomType(list[Tree] specs){
 	for(spec <- specs){
-		if(appl(prod(label("TypeSpecifier",_),_,_),typeSpecifier) := spec){
-			return (appl(prod(label("Identifier",_),_,_),_) := typeSpecifier[0]);
+		if(appl(prod(label("typeSpecifier",_),_,_),typeSpecifier) := spec){
+			return (appl(prod(label("identifier",_),_,_),_) := typeSpecifier[0]);
 		}
 	}
 	return false;
@@ -633,9 +633,9 @@ private tuple[list[Specifier], Declarator] findModifiers(list[Tree] specs, Decla
 	list[Specifier] modifiers = [];
 	
 	for(spec <- specs){
-		if(appl(prod(label("TypeQualifier",_),_,_),typeQualifier) := spec){
+		if(appl(prod(label("typeQualifier",_),_,_),typeQualifier) := spec){
 			modifiers += spec;
-		}else if(appl(prod(label("StorageClass",_),_,_),storageClass) := spec){
+		}else if(appl(prod(label("storageClass",_),_,_),storageClass) := spec){
 			modifiers += spec;
 		}
 	}
@@ -644,15 +644,15 @@ private tuple[list[Specifier], Declarator] findModifiers(list[Tree] specs, Decla
 }
 
 private str findVariableInDeclarator(Declarator decl){
-	if(appl(prod(label("Identifier",_),_,_),_) := decl){
+	if(appl(prod(label("identifier",_),_,_),_) := decl){
 		return unparse(decl);
-	}else if(appl(prod(label("Bracket",_),_,_),_) := decl){
+	}else if(appl(prod(label("bracket",_),_,_),_) := decl){
 		return findVariableInDeclarator(decl.decl);
-	}else if(appl(prod(label("ArrayDeclarator",_),_,_),_) := decl){
+	}else if(appl(prod(label("arrayDeclarator",_),_,_),_) := decl){
 		return findVariableInDeclarator(decl.decl);
-	}else if(appl(prod(label("FunctionDeclarator",_),_,_),_) := decl){
+	}else if(appl(prod(label("functionDeclarator",_),_,_),_) := decl){
 		return findVariableInDeclarator(decl.decl);
-	}else if(appl(prod(label("PointerDeclarator",_),_,_),_) := decl){
+	}else if(appl(prod(label("pointerDeclarator",_),_,_),_) := decl){
 		return findVariableInDeclarator(decl.decl);
 	}
 	
