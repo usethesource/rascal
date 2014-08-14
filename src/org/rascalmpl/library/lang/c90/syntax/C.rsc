@@ -31,7 +31,7 @@ syntax Statement
 	;
 
 syntax Expression 
-	= Variable: Identifier 
+	= variable: Identifier 
 	| @category="Constant" HexadecimalConstant 
 	| @category="Constant" IntegerConstant 
 	| @category="Constant" CharacterConstant 
@@ -40,7 +40,7 @@ syntax Expression
 	| Expression "[" Expression "]" 
 	| Expression "(" {NonCommaExpression ","}* ")" 
 	| "sizeof" "(" TypeName ")" 
-	| bracket Bracket: "(" Expression ")" 
+	| bracket \bracket: "(" Expression ")" 
 	| Expression "." Identifier 
 	| Expression "-\>" Identifier 
 	| Expression "++" 
@@ -53,9 +53,9 @@ syntax Expression
 	| "-" Expression 
 	| "~" Expression 
 	| "!" Expression 
-	| SizeOfExpression: "sizeof" Expression exp // May be ambiguous with "sizeof(TypeName)".
+	| sizeOfExpression: "sizeof" Expression exp // May be ambiguous with "sizeof(TypeName)".
 	| "(" TypeName ")" Expression 
-	> left ( MultiplicationExpression: Expression lexp "*" Expression rexp // May be ambiguous with "TypeName *Declarator".
+	> left ( multiplicationExpression: Expression lexp "*" Expression rexp // May be ambiguous with "TypeName *Declarator".
 	       | Expression "/" Expression 
 	       | Expression "%" Expression
 	       ) 
@@ -92,10 +92,10 @@ syntax Expression
 	        | Expression "
 	        | =" Expression
 			)
-	> left CommaExpression: Expression "," Expression
+	> left commaExpression: Expression "," Expression
 	;
 
-syntax NonCommaExpression = NonCommaExpression: Expression expr;
+syntax NonCommaExpression = nonCommaExpression: Expression expr;
 
 lexical Identifier = ([a-zA-Z_] [a-zA-Z0-9_]* !>> [a-zA-Z0-9_]) \ Keyword;
 
@@ -137,13 +137,13 @@ keyword Keyword
 	;
 
 syntax Declaration 
-	= DeclarationWithInitDecls: Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" 
-	| DeclarationWithoutInitDecls: Specifier+ specs ";" // Avoid.
+	= declarationWithInitDecls: Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" 
+	| declarationWithoutInitDecls: Specifier+ specs ";" // Avoid.
 	;
 
 syntax GlobalDeclaration 
-	= GlobalDeclarationWithInitDecls: Specifier* specs {InitDeclarator ","}+ initDeclarators ";" 
-	| GlobalDeclarationWithoutInitDecls: Specifier+ specs ";" // Avoid.
+	= globalDeclarationWithInitDecls: Specifier* specs {InitDeclarator ","}+ initDeclarators ";" 
+	| globalDeclarationWithoutInitDecls: Specifier+ specs ";" // Avoid.
 	;
 
 syntax InitDeclarator 
@@ -152,13 +152,13 @@ syntax InitDeclarator
 	;
 
 syntax Specifier 
-	= StorageClass: StorageClass 
-	| TypeSpecifier: TypeSpecifier 
-	| TypeQualifier: TypeQualifier
+	= storageClass: StorageClass 
+	| typeSpecifier: TypeSpecifier 
+	| typeQualifier: TypeQualifier
 	;
 
 syntax StorageClass 
-	= TypeDef: "typedef" 
+	= typeDef: "typedef" 
 	| "extern" 
 	| "static" 
 	| "auto" 
@@ -166,25 +166,25 @@ syntax StorageClass
 	;
 
 syntax TypeSpecifier 
-	= Identifier: Identifier 
-	| Void: "void" 
-	| Char: "char" 
-	| Short: "short" 
-	| Int: "int" 
-	| Long: "long" 
-	| Float: "float" 
-	| Double: "double" 
+	= identifier: Identifier 
+	| \void: "void" 
+	| char: "char" 
+	| short: "short" 
+	| \int: "int" 
+	| long: "long" 
+	| \float: "float" 
+	| \double: "double" 
 	| "signed" 
 	| "unsigned" 
-	| Struct: "struct" Identifier 
-	| StructDecl: "struct" Identifier "{" StructDeclaration* "}" 
-	| StructAnonDecl: "struct" "{" StructDeclaration* "}" 
-	| Union: "union" Identifier 
-	| UnionDecl: "union" Identifier "{" StructDeclaration* "}" 
-	| UnionAnonDecl: "union" "{" StructDeclaration* "}" 
-	| Enum: "enum" Identifier 
-	| EnumDecl: "enum" Identifier "{" {Enumerator ","}+ "}" 
-	| EnumAnonDecl: "enum" "{" {Enumerator ","}+ "}"
+	| struct: "struct" Identifier 
+	| structDecl: "struct" Identifier "{" StructDeclaration* "}" 
+	| structAnonDecl: "struct" "{" StructDeclaration* "}" 
+	| union: "union" Identifier 
+	| unionDecl: "union" Identifier "{" StructDeclaration* "}" 
+	| unionAnonDecl: "union" "{" StructDeclaration* "}" 
+	| enum: "enum" Identifier 
+	| enumDecl: "enum" Identifier "{" {Enumerator ","}+ "}" 
+	| enumAnonDecl: "enum" "{" {Enumerator ","}+ "}"
 	;
 
 syntax TypeQualifier 
@@ -193,8 +193,8 @@ syntax TypeQualifier
 	;
 
 syntax StructDeclaration 
-	= StructDeclWithDecl: Specifier+ specs {StructDeclarator ","}+ ";" // TODO: Disallow store class specifiers.
-	| StructDeclWithoutDecl: Specifier+ specs ";" // TODO: Disallow store class specifiers. Avoid.
+	= structDeclWithDecl: Specifier+ specs {StructDeclarator ","}+ ";" // TODO: Disallow store class specifiers.
+	| structDeclWithoutDecl: Specifier+ specs ";" // TODO: Disallow store class specifiers. Avoid.
 	;
 
 syntax StructDeclarator 
@@ -231,27 +231,27 @@ syntax Enumerator
 	;
 
 syntax AbstractDeclarator 
-	= Identifier: AnonymousIdentifier 
-	| bracket Bracket: "(" AbstractDeclarator decl ")" 
-	| ArrayDeclarator: AbstractDeclarator decl "[" Expression? exp "]" 
-	| FunctionDeclarator: AbstractDeclarator decl "(" Parameters? params ")" 
-	> PointerDeclarator: "*" TypeQualifier* qualifiers AbstractDeclarator decl
+	= identifier: AnonymousIdentifier 
+	| bracket \bracket: "(" AbstractDeclarator decl ")" 
+	| arrayDeclarator: AbstractDeclarator decl "[" Expression? exp "]" 
+	| functionDeclarator: AbstractDeclarator decl "(" Parameters? params ")" 
+	> pointerDeclarator: "*" TypeQualifier* qualifiers AbstractDeclarator decl
 	;
 
 syntax PrototypeDeclarator 
-	= Identifier: Identifier 
-	| bracket Bracket: "(" AbstractDeclarator decl ")" 
-	| ArrayDeclarator: PrototypeDeclarator decl "[" Expression? exp "]" 
-	| FunctionDeclarator: PrototypeDeclarator decl "(" PrototypeParameters? params ")" 
-	> PointerDeclarator: "*" TypeQualifier* qualifiers PrototypeDeclarator decl
+	= identifier: Identifier 
+	| bracket \bracket: "(" AbstractDeclarator decl ")" 
+	| arrayDeclarator: PrototypeDeclarator decl "[" Expression? exp "]" 
+	| functionDeclarator: PrototypeDeclarator decl "(" PrototypeParameters? params ")" 
+	> pointerDeclarator: "*" TypeQualifier* qualifiers PrototypeDeclarator decl
 	;
 
 syntax Declarator 
-	= Identifier: Identifier 
-	| bracket Bracket: "(" Declarator decl ")" 
-	| ArrayDeclarator: Declarator decl "[" Expression? exp "]" 
-	| FunctionDeclarator: Declarator decl "(" Parameters? params ")" 
-	> PointerDeclarator: "*" TypeQualifier* qualifiers Declarator decl
+	= identifier: Identifier 
+	| bracket \bracket: "(" Declarator decl ")" 
+	| arrayDeclarator: Declarator decl "[" Expression? exp "]" 
+	| functionDeclarator: Declarator decl "(" Parameters? params ")" 
+	> pointerDeclarator: "*" TypeQualifier* qualifiers Declarator decl
 	;
 
 lexical IntegerConstant = [0-9]+ [uUlL]* !>> [0-9];
@@ -283,9 +283,9 @@ lexical StringConstantContent
 // TODO: Type specifiers are required for K&R style parameter declarations, initialization of them is not allowed however.
 // TODO: Disallow storage class specifiers as specifiers.
 // TODO: Disallow ArrayDeclarators in the declarator.
-syntax FunctionDefinition = DefaultFunctionDefinition: Specifier* specs Declarator Declaration* "{" Declaration* Statement* "}";
+syntax FunctionDefinition = defaultFunctionDefinition: Specifier* specs Declarator Declaration* "{" Declaration* Statement* "}";
 
-syntax FunctionPrototype = DefaultFunctionPrototype: Specifier* specs PrototypeDeclarator decl ";";
+syntax FunctionPrototype = defaultFunctionPrototype: Specifier* specs PrototypeDeclarator decl ";";
 
 syntax ExternalDeclaration 
 	= FunctionDefinition 
@@ -310,8 +310,8 @@ lexical Asterisk = [*] !>> [/];
 layout LAYOUTLIST = LAYOUT* !>> [\ \t\n\r];
 
 lexical LAYOUT 
-	= Whitespace: [\ \t\n\r] 
-	| @category="Comment" Comment: Comment
+	= whitespace: [\ \t\n\r] 
+	| @category="Comment" comment: Comment
 	;
 
 //--------------------------------------------------------------------------
