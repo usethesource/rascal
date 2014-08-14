@@ -1221,11 +1221,25 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
 @doc{Field names and types for built-ins}
 private map[Symbol,map[str,Symbol]] fieldMap =
     ( \loc() :
-        ( "scheme" : \str(), "authority" : \str(), "host" : \str(), "path" : \str(), "parent" : \loc(),
-          "file" : \str(), "ls" : \list(\loc()), "extension" : \str(), "fragment" : \str(), 
-          "query" : \str(), "user" : \str(), "port" : \int(), "length" : \int(), "offset" : \int(), 
+        ( "scheme" : \str(), 
+          "authority" : \str(), 
+          "host" : \str(), 
+          "user" : \str(), 
+          "port" : \int(), 
+          "path" : \str(), 
+          "query" : \str(), 
+          "fragment" : \str(), 
+          "length" : \int(), 
+          "offset" : \int(), 
           "begin" : \tuple([\label("line",\int()),\label("column",\int())]), 
-          "end" : \tuple([\label("line",\int()),\label("column",\int())]), "uri" : \str(), "top" : \loc()
+          "end" : \tuple([\label("line",\int()),\label("column",\int())]), 
+          "uri" : \str(), 
+          "top" : \loc(),
+          "parent" : \loc(),
+          "file" : \str(), 
+          "ls" : \list(\loc()), 
+          "extension" : \str(),
+          "params" : \map(\str(),\str())
         ),
       \datetime() :
         ( "year" : \int(), "month" : \int(), "day" : \int(), "hour" : \int(), "minute" : \int(), 
