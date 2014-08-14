@@ -98,7 +98,7 @@ public java value readCSV(loc location, bool header = true, str separator = ",",
 
 @deprecated{use the readCSV with keyword parameters}
 public value readCSV(loc location, map[str,str] options) {
-	return readCSV(location, header = options["header"]?"true" == "true", separator = options["separator"]?",");
+	return readCSV(location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
 }
 
 
