@@ -14,8 +14,8 @@ import lang::jvm::ast::Level0;
 @javaClass{org.rascalmpl.library.lang.jvm.transform.SerializeClass}
 @reflect{Uses URI Resolver}
 public java void serialize(Class class, loc path)
-throws PathNotFound(loc), IO(str msg), JavaBytecodeError(str msg);
+throws PathNotFound(loc), IO(str msg);
 
 @javaClass{org.rascalmpl.library.lang.jvm.transform.Rascalify}
 public java void deserializeToDisk(loc source, loc destination, str moduleName)
-throws PathNotFound(loc), IO(str msg), JavaBytecodeError(str msg);
+throws PathNotFound(loc), IO(str msg);
