@@ -190,10 +190,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	}
    } catch Java("ParseError","Parse error"): {
    	   throw "Syntax errors in module <moduleLoc>";
-   } catch value except: {
-       //println("r2mu: Unexpected exception: <except>");
-       throw "r2mu: Unexpected exception: <except>";
-   }
+   } 
    finally {
    	   //println("r2mu: Cleaning up ...");
    	   resetR2mu();
