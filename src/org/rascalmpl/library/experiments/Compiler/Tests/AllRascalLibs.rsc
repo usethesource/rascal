@@ -3,6 +3,11 @@ module experiments::Compiler::Tests::AllRascalLibs
 import Prelude;
 import experiments::Compiler::Compile;
 
+import util::FileSystem;
+import util::Benchmark;
+
+import Set;
+
 /*
  * Results of compiling Rascal library modules.
  */
@@ -40,7 +45,7 @@ list[str] libs = [
 "util::Maybe",							// OK
 "util::Monitor",						// OK
 "util::PriorityQueue",					// OK
-"util::Reflective", 					// ERROR
+"util::Reflective", 					// OK
 "util::ShellExec",						// OK
 "util::Webserver"						// OK
 /*
@@ -234,11 +239,11 @@ list[str] libs = [
 // MuRascal
 "experiments::Compiler::muRascal::AST",						// OK
 "experiments::Compiler::muRascal::Parse",					// ERROR was OK
-"experiments::Compiler::muRascal::Load",					// OK
+"experiments::Compiler::muRascal::Load",					// ERROR was OK
 "experiments::Compiler::muRascal::Implode",					// ERROR
 "experiments::Compiler::muRascal::MuAllMuOr",				// ERROR
 "experiments::Compiler::muRascal::Syntax",					// OK
-"experiments::Compiler::muRascal::Run"						// OK
+"experiments::Compiler::muRascal::Run"						// ERROR was OK
 */
 /*
 // muRascal2RVM
@@ -260,7 +265,7 @@ list[str] libs = [
 "experiments::Compiler::Rascal2muRascal::TypeUtils",		// ERROR
 
 // Typechecker
-"lang::rascal::types::AbstractKind",						// ERROR was OK
+"lang::rascal::types::AbstractKind",						// OK
 "lang::rascal::types::AbstractName",						// ERROR
 "lang::rascal::types::AbstractType",						// ERROR
 "lang::rascal::types::CheckTypes",							// ERROR
@@ -271,8 +276,8 @@ list[str] libs = [
 "lang::rascal::types::TypeSignature",						// ERROR
 
 // Parser generator
-"lang::rascal::grammar::analyze::DefUse",					// was OK
-"lang::rascal::grammar::analyze::Dependency",				// ERROR
+"lang::rascal::grammar::analyze::DefUse",					// OK
+"lang::rascal::grammar::analyze::Dependency",				// OK
 
 "lang::rascal::grammar::definition::Attributes",			// ERROR
 "lang::rascal::grammar::definition::Characters",			// ERROR
@@ -349,4 +354,339 @@ value main(list[value] args){
     }
   }
   return true;
+}
+
+int tosec(int t1, int t2) =(t2 - t1)/1000;
+
+set[loc] exclude = {  };
+
+list[loc] failures = 
+[
+  |rascal:///APIGen.rsc|,
+  |rascal:///Ambiguity.rsc|,
+  |rascal:///analysis/formalconcepts/CXTIO.rsc|,
+  |rascal:///analysis/formalconcepts/FCA.rsc|,
+  |rascal:///analysis/linearprogramming/LLLinearProgramming.rsc|,
+  |rascal:///analysis/linearprogramming/LinearProgramming.rsc|,
+  |rascal:///analysis/m3/Core.rsc|,
+  |rascal:///analysis/m3/Registry.rsc|,
+  |rascal:///cobra/tests/quickcheck/annotations.rsc|,
+  |rascal:///cobra/tests/quickcheck/output.rsc|,
+  |rascal:///cobra/tests/quickcheck/tests.rsc|,
+  |rascal:///cobra/tests/tests.rsc|,
+  |rascal:///demo/Mod17.rsc|,
+  |rascal:///demo/Queens.rsc|,
+  |rascal:///demo/Uninit.rsc|,
+  |rascal:///demo/basic/Cursors.rsc|,
+  |rascal:///demo/lang/Exp/Combined/Manual/Eval.rsc|,
+  |rascal:///demo/lang/Exp/Combined/Manual/Load.rsc|,
+  |rascal:///demo/lang/Func/Eval0.rsc|,
+  |rascal:///demo/lang/Func/Eval1.rsc|,
+  |rascal:///demo/lang/Func/Eval2.rsc|,
+  |rascal:///demo/lang/Func/Eval3.rsc|,
+  |rascal:///demo/lang/Func/Load.rsc|,
+  |rascal:///demo/lang/Func/Test.rsc|,
+  |rascal:///demo/lang/Lisra/Eval.rsc|,
+  |rascal:///demo/lang/Lisra/Pretty.rsc|,
+  |rascal:///demo/lang/Lisra/Test.rsc|,
+  |rascal:///demo/lang/MissGrant/CheckController.rsc|,
+  |rascal:///demo/lang/MissGrant/Implode.rsc|,
+  |rascal:///demo/lang/MissGrant/Outline.rsc|,
+  |rascal:///demo/lang/MissGrant/ParallelMerge.rsc|,
+  |rascal:///demo/lang/MissGrant/Step.rsc|,
+  |rascal:///demo/lang/MissGrant/ToDot.rsc|,
+  |rascal:///demo/lang/Pico/CommonSubExpr.rsc|,
+  |rascal:///demo/lang/Pico/Compile.rsc|,
+  |rascal:///demo/lang/Pico/ControlFlow.rsc|,
+  |rascal:///demo/lang/Pico/Eval.rsc|,
+  |rascal:///demo/lang/Pico/Load.rsc|,
+  |rascal:///demo/lang/Pico/Syntax.rsc|,
+  |rascal:///demo/lang/Pico/ToDot.rsc|,
+  |rascal:///demo/lang/Pico/Typecheck.rsc|,
+  |rascal:///demo/lang/Pico/Uninit.rsc|,
+  |rascal:///demo/lang/Pico/UseDef.rsc|,
+  |rascal:///demo/lang/Pico/Visualize.rsc|,
+  |rascal:///demo/lang/turing/l1/ast/Load.rsc|,
+  |rascal:///demo/lang/turing/l1/cst/Parse.rsc|,
+  |rascal:///demo/lang/turing/l2/ast/Load.rsc|,
+  |rascal:///demo/lang/turing/l2/cst/Parse.rsc|,
+  |rascal:///demo/lang/turing/l2/desugar/Desugar.rsc|,
+  |rascal:///demo/vis/Higher.rsc|,
+  |rascal:///demo/vis/Logo.rsc|,
+  |rascal:///demo/vis/VisADT.rsc|,
+  |rascal:///experiments/Compiler/Benchmarks/BDotVis.rsc|,
+  |rascal:///experiments/Compiler/Benchmarks/Run.rsc|,
+  |rascal:///experiments/Compiler/Benchmarks/SudokuEq.rsc|,
+  |rascal:///experiments/Compiler/Compile.rsc|,
+  |rascal:///experiments/Compiler/Examples/QL/lang/qla/FormatExpr.rsc|,
+  |rascal:///experiments/Compiler/Examples/QL/lang/qla/Outline.rsc|,
+  |rascal:///experiments/Compiler/Examples/QL/lang/qla/Plugin.rsc|,
+  |rascal:///experiments/Compiler/Examples/QL/util/Explode.rsc|,
+  |rascal:///experiments/Compiler/Examples/QL/util/Priorities.rsc|,
+  |rascal:///experiments/Compiler/Examples/QL/util/SimpleBox.rsc|,
+  |rascal:///experiments/Compiler/Examples/Run.rsc|,
+  |rascal:///experiments/Compiler/Examples/Tst1.rsc|,
+  |rascal:///experiments/Compiler/Examples/Tst5.rsc|,
+  |rascal:///experiments/Compiler/Execute.rsc|,
+  |rascal:///experiments/Compiler/RVM/Tests.rsc|,
+  |rascal:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|,
+  |rascal:///experiments/Compiler/Rascal2muRascal/RascalModule.rsc|,
+  |rascal:///experiments/Compiler/Rascal2muRascal/RascalPattern.rsc|,
+  |rascal:///experiments/Compiler/Rascal2muRascal/RascalStatement.rsc|,
+  |rascal:///experiments/Compiler/Rascal2muRascal/RascalType.rsc|,
+  |rascal:///experiments/Compiler/Rascal2muRascal/Run.rsc|,
+  |rascal:///experiments/Compiler/Rascal2muRascal/TypeReifier.rsc|,
+  |rascal:///experiments/Compiler/Rascal2muRascal/TypeUtils.rsc|,
+  |rascal:///experiments/Compiler/ReductionWithEvalCtx/AST.rsc|,
+  |rascal:///experiments/Compiler/ReductionWithEvalCtx/EvalCtx.rsc|,
+  |rascal:///experiments/Compiler/ReductionWithEvalCtx/Parse.rsc|,
+  |rascal:///experiments/Compiler/ReductionWithEvalCtx/Reduction.rsc|,
+  |rascal:///experiments/Compiler/ReductionWithEvalCtx/ReductionWithEvalCtx.rsc|,
+  |rascal:///experiments/Compiler/ReductionWithEvalCtx/RenameReplace.rsc|,
+  |rascal:///experiments/Compiler/ReductionWithEvalCtx/Syntax.rsc|,
+  |rascal:///experiments/Compiler/ReductionWithEvalCtx/Tests.rsc|,
+  |rascal:///experiments/Compiler/Tests/AllCompilerTests.rsc|,
+  |rascal:///experiments/Compiler/Tests/AllRascalLibs.rsc|,
+  |rascal:///experiments/Compiler/Tests/AllRascalTests.rsc|,
+  |rascal:///experiments/Compiler/Tests/Booleans.rsc|,
+  |rascal:///experiments/Compiler/Tests/Expressions.rsc|,
+  |rascal:///experiments/Compiler/Tests/FindNonInit.rsc|,
+  |rascal:///experiments/Compiler/Tests/GetGrammarTest.rsc|,
+  |rascal:///experiments/Compiler/Tests/MyIO.rsc|,
+  |rascal:///experiments/Compiler/Tests/Patterns.rsc|,
+  |rascal:///experiments/Compiler/Tests/Statements.rsc|,
+  |rascal:///experiments/Compiler/Tests/StringTemplates.rsc|,
+  |rascal:///experiments/Compiler/Tests/TestUtils.rsc|,
+  |rascal:///experiments/Compiler/Tests/Types.rsc|,
+  |rascal:///experiments/Compiler/muRascal/Examples/CountDown.rsc|,
+  |rascal:///experiments/Compiler/muRascal/Examples/Do.rsc|,
+  |rascal:///experiments/Compiler/muRascal/Examples/Fac.rsc|,
+  |rascal:///experiments/Compiler/muRascal/Examples/Fib.rsc|,
+  |rascal:///experiments/Compiler/muRascal/Examples/NestedWhile.rsc|,
+  |rascal:///experiments/Compiler/muRascal/Implode.rsc|,
+  |rascal:///experiments/Compiler/muRascal/Load.rsc|,
+  |rascal:///experiments/Compiler/muRascal/MuAllMuOr.rsc|,
+  |rascal:///experiments/Compiler/muRascal/Parse.rsc|,
+  |rascal:///experiments/Compiler/muRascal/Run.rsc|,
+  |rascal:///experiments/Compiler/muRascal2RVM/ReifiedTypes.rsc|,
+  |rascal:///experiments/Compiler/muRascal2RVM/StackSize.rsc|,
+  |rascal:///experiments/Compiler/muRascal2RVM/mu2rvm.rsc|,
+  |rascal:///experiments/Concept/DotVis.rsc|,
+  |rascal:///experiments/Concept/FcaLattices.rsc|,
+  |rascal:///experiments/Concept/GetFigure.rsc|,
+  |rascal:///experiments/Concept/Types.rsc|,
+  |rascal:///experiments/vis2/Figure.rsc|,
+  |rascal:///experiments/vis2/FigureServer.rsc|,
+  |rascal:///experiments/vis2/Translate.rsc|,
+  |rascal:///experiments/vis2/Tst2.rsc|,
+  |rascal:///experiments/vis2/data/Nederland.rsc|,
+  |rascal:///experiments/vis2/data/Steden.rsc|,
+  |rascal:///experiments/vis2/examples/Examples.rsc|,
+  |rascal:///experiments/vis2/examples/chart/Steden.rsc|,
+  |rascal:///experiments/vis2/examples/gui/Exp.rsc|,
+  |rascal:///experiments/vis2/examples/gui/Repl.rsc|,
+  |rascal:///experiments/vis2/examples/gui/StateMachine.rsc|,
+  |rascal:///experiments/vis2/examples/gui/Todo1.rsc|,
+  |rascal:///experiments/vis2/examples/gui/Todo2.rsc|,
+  |rascal:///lang/box/syntax/Box.rsc|,
+  |rascal:///lang/box/util/Box2Text.rsc|,
+  |rascal:///lang/box/util/BoxFormat.rsc|,
+  |rascal:///lang/box/util/Parse.rsc|,
+  |rascal:///lang/box/util/SimpleBox.rsc|,
+  |rascal:///lang/c90/syntax/C.rsc|,
+  |rascal:///lang/csv/IO.rsc|,
+  |rascal:///lang/csv/ast/Implode.rsc|,
+  |rascal:///lang/dimacs/IO.rsc|,
+  |rascal:///lang/dot/Dot.rsc|,
+  |rascal:///lang/html5/DOM.rsc|,
+  |rascal:///lang/java/ast/Implode.rsc|,
+  |rascal:///lang/java/ast/implode/Modifiers.rsc|,
+  |rascal:///lang/java/ast/implode/Types.rsc|,
+  |rascal:///lang/java/m3/Core.rsc|,
+  |rascal:///lang/java/m3/Registry.rsc|,
+  |rascal:///lang/java/m3/TypeHierarchy.rsc|,
+  |rascal:///lang/java/nanopatterns/NanoPatternAnalyzer.rsc|,
+  |rascal:///lang/java/style/Annotations.rsc|,
+  |rascal:///lang/java/style/BlockChecks.rsc|,
+  |rascal:///lang/java/style/CheckStates.rsc|,
+  |rascal:///lang/java/style/ClassDesign.rsc|,
+  |rascal:///lang/java/style/Coding.rsc|,
+  |rascal:///lang/java/style/Imports.rsc|,
+  |rascal:///lang/java/style/Metrics.rsc|,
+  |rascal:///lang/java/style/Miscellaneous.rsc|,
+  |rascal:///lang/java/style/NamingConventions.rsc|,
+  |rascal:///lang/java/style/SizeViolations.rsc|,
+  |rascal:///lang/java/style/Strings.rsc|,
+  |rascal:///lang/java/style/StyleChecker.rsc|,
+  |rascal:///lang/java/style/Utils.rsc|,
+  |rascal:///lang/java/syntax/Disambiguate.rsc|,
+  |rascal:///lang/java/syntax/Java15.rsc|,
+  |rascal:///lang/json/ast/Implode.rsc|,
+  |rascal:///lang/jvm/ast/Level0.rsc|,
+  |rascal:///lang/jvm/ast/Level1.rsc|,
+  |rascal:///lang/jvm/transform/SerializeClass.rsc|,
+  |rascal:///lang/kanren/mini/Goals.rsc|,
+  |rascal:///lang/kanren/mini/MiniKanren.rsc|,
+  |rascal:///lang/kanren/mini/Test.rsc|,
+  |rascal:///lang/kodkod/AST.rsc|,
+  |rascal:///lang/pico/syntax/Main.rsc|,
+  |rascal:///lang/rascal/checker/ListUtils.rsc|,
+  |rascal:///lang/rascal/checker/ParserHelper.rsc|,
+  |rascal:///lang/rascal/checker/TTL/ExpressionGenerator.rsc|,
+  |rascal:///lang/rascal/checker/TTL/Library.rsc|,
+  |rascal:///lang/rascal/checker/TTL/PatternGenerator.rsc|,
+  |rascal:///lang/rascal/checker/TTL/TTLGen.rsc|,
+  |rascal:///lang/rascal/checker/TTL/TTLsyntax.rsc|,
+  |rascal:///lang/rascal/checker/TTL/generated/Expressions.rsc|,
+  |rascal:///lang/rascal/checker/TTL/generated/Operators.rsc|,
+  |rascal:///lang/rascal/checker/TTL/generated/Patterns.rsc|,
+  |rascal:///lang/rascal/checker/TTL/generated/Signatures.rsc|,
+  |rascal:///lang/rascal/checker/TTL/generated/Statements.rsc|,
+  |rascal:///lang/rascal/checker/TreeUtils.rsc|,
+  |rascal:///lang/rascal/checker/tests/AP1.rsc|,
+  |rascal:///lang/rascal/checker/tests/BuiltIns1.rsc|,
+  |rascal:///lang/rascal/checker/tests/Life.rsc|,
+  |rascal:///lang/rascal/checker/tests/Literals2.rsc|,
+  |rascal:///lang/rascal/checker/tests/Loops.rsc|,
+  |rascal:///lang/rascal/checker/tests/Nested.rsc|,
+  |rascal:///lang/rascal/checker/tests/Types1.rsc|,
+  |rascal:///lang/rascal/doc/Document.rsc|,
+  |rascal:///lang/rascal/doc/ToHTML.rsc|,
+  |rascal:///lang/rascal/doc/ToLatex.rsc|,
+  |rascal:///lang/rascal/format/Escape.rsc|,
+  |rascal:///lang/rascal/format/Grammar.rsc|,
+  |rascal:///lang/rascal/grammar/Bootstrap.rsc|,
+  |rascal:///lang/rascal/grammar/ConcreteSyntax.rsc|,
+  |rascal:///lang/rascal/grammar/Lookahead.rsc|,
+  |rascal:///lang/rascal/grammar/ParserGenerator.rsc|,
+  |rascal:///lang/rascal/grammar/SyntaxTreeGenerator.rsc|,
+  |rascal:///lang/rascal/grammar/definition/Attributes.rsc|,
+  |rascal:///lang/rascal/grammar/definition/Characters.rsc|,
+  |rascal:///lang/rascal/grammar/definition/Keywords.rsc|,
+  |rascal:///lang/rascal/grammar/definition/Layout.rsc|,
+  |rascal:///lang/rascal/grammar/definition/Literals.rsc|,
+  |rascal:///lang/rascal/grammar/definition/Modules.rsc|,
+  |rascal:///lang/rascal/grammar/definition/Priorities.rsc|,
+  |rascal:///lang/rascal/grammar/definition/Productions.rsc|,
+  |rascal:///lang/rascal/grammar/definition/Regular.rsc|,
+  |rascal:///lang/rascal/grammar/definition/Symbols.rsc|,
+  |rascal:///lang/rascal/scaffold/GenOperators.rsc|,
+  |rascal:///lang/rascal/syntax/tests/ConcreteSyntax.rsc|,
+  |rascal:///lang/rascal/syntax/tests/ImplodeTests.rsc|,
+  |rascal:///lang/rascal/syntax/tests/ParsingRegressionTests.rsc|,
+  |rascal:///lang/rascal/syntax/tests/PreBootstrap.rsc|,
+  |rascal:///lang/rascal/tests/functionality/ConcreteSyntaxTests2.rsc|,
+  |rascal:///lang/rascal/tests/library/lang/csv/CSVIOTests.rsc|,
+  |rascal:///lang/rascal/tests/library/lang/json/JSONIOTests.rsc|,
+  |rascal:///lang/rascal/tests/types/AccumulatingTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/AliasTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/AllStaticIssues.rsc|,
+  |rascal:///lang/rascal/tests/types/AllStaticTests.rsc|,
+  |rascal:///lang/rascal/tests/types/AnnotationTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/AssignmentTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/CallTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/ComprehensionTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/DataDeclarationTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/DataTypeTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/DeclarationTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/ImportTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/PatternTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/ProjectionTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/RegExpTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/ScopeTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/StatementTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/StaticTestingUtils.rsc|,
+  |rascal:///lang/rascal/tests/types/SubscriptTCTests.rsc|,
+  |rascal:///lang/rascal/tests/types/VisitTCTests.rsc|,
+  |rascal:///lang/rascal/types/AbstractName.rsc|,
+  |rascal:///lang/rascal/types/AbstractType.rsc|,
+  |rascal:///lang/rascal/types/CheckTypes.rsc|,
+  |rascal:///lang/rascal/types/CheckerConfig.rsc|,
+  |rascal:///lang/rascal/types/ConvertType.rsc|,
+  |rascal:///lang/rascal/types/TestChecker.rsc|,
+  |rascal:///lang/rascal/types/TypeExceptions.rsc|,
+  |rascal:///lang/rascal/types/TypeInstantiation.rsc|,
+  |rascal:///lang/rascal/types/TypeSignature.rsc|,
+  |rascal:///lang/rascal/upgrade/UpdateNestedListAndSetPatterns.rsc|,
+  |rascal:///lang/saf/Check.rsc|,
+  |rascal:///lang/saf/Config.rsc|,
+  |rascal:///lang/saf/Implode.rsc|,
+  |rascal:///lang/saf/Parse.rsc|,
+  |rascal:///lang/saf/Render.rsc|,
+  |rascal:///lang/saf/Run.rsc|,
+  |rascal:///lang/sdf2/filters/CountPreferAvoid.rsc|,
+  |rascal:///lang/sdf2/filters/DetectCycles.rsc|,
+  |rascal:///lang/sdf2/filters/DirectThenCountPreferAvoid.rsc|,
+  |rascal:///lang/sdf2/filters/FilterCycles.rsc|,
+  |rascal:///lang/sdf2/filters/GeneralInjectionCount.rsc|,
+  |rascal:///lang/sdf2/filters/IndirectPreferAvoid.rsc|,
+  |rascal:///lang/sdf2/filters/InjectionCount.rsc|,
+  |rascal:///lang/sdf2/util/Importer.rsc|,
+  |rascal:///lang/sdf2/util/Load.rsc|,
+  |rascal:///lang/sdf2/util/SDF2Grammar.rsc|,
+  |rascal:///lang/sexp/SExp.rsc|,
+  |rascal:///lang/sexp/syntax/SExp.rsc|,
+  |rascal:///lang/uri/syntax/RFC3986.rsc|,
+  |rascal:///resource/jdbc/JDBC.rsc|,
+  |rascal:///util/Brackets.rsc|,
+  |rascal:///util/PriorityQueue.rsc|,
+  |rascal:///util/integration/maude/RLSRunner.rsc|,
+  |rascal:///util/tasks/Vis.rsc|,
+  |rascal:///vis/Figure.rsc|,
+  |rascal:///vis/ParseTree.rsc|,
+  |rascal:///vis/examples/GenGraph.rsc|,
+  |rascal:///vis/examples/GenTree.rsc|,
+  |rascal:///vis/examples/Graph.rsc|,
+  |rascal:///vis/examples/MouseOver.rsc|,
+  |rascal:///vis/examples/MouseOverSpiral.rsc|,
+  |rascal:///vis/examples/New.rsc|,
+  |rascal:///vis/examples/Outline.rsc|,
+  |rascal:///vis/examples/tetris/PlacedTetromino.rsc|,
+  |rascal:///vis/examples/tetris/Tetris.rsc|,
+  |rascal:///vis/examples/tetris/TetrisState.rsc|,
+  |rascal:///vis/examples/tetris/Tetromino.rsc|,
+  |rascal:///vis/web/BarChart.rsc|,
+  |rascal:///vis/web/Chart.rsc|,
+  |rascal:///vis/web/PlotFunction.rsc|,
+  |rascal:///vis/web/examples/CWI.rsc|,
+  |rascal:///vis/web/examples/CodeCut.rsc|,
+  |rascal:///vis/web/examples/DisplayFigures.rsc|,
+  |rascal:///vis/web/examples/DisplayRelations.rsc|,
+  |rascal:///vis/web/examples/Gauss.rsc|,
+  |rascal:///vis/web/examples/HelloWorld.rsc|,
+  |rascal:///vis/web/examples/M3BarChart.rsc|,
+  |rascal:///vis/web/examples/Napoleon.rsc|,
+  |rascal:///vis/web/examples/RegEq.rsc|,
+  |rascal:///vis/web/markup/D3.rsc|,
+  |rascal:///vis/web/markup/Dimple.rsc|
+];
+
+lrel[loc,str] compileAll(list[value] args){
+	allFiles = toList(find(|rascal:///|, "rsc") - exclude);
+	nfiles = size(allFiles);
+	crashes = [];
+	t1 = realTime();
+	i = 0;
+	while(!isEmpty(allFiles)){
+		<f, allFiles> = takeOneFrom(allFiles);
+		i += 1;
+		println("**** Compiling <i> of <nfiles> files (<size(crashes)> failed), time sofar <tosec(t1, realTime())> sec. ****");
+		try {
+			compile(f);
+		} catch e: {
+			crashes += <f, "<e>">;
+		}
+	}
+	if(size(crashes) > 0){
+    	println("\nERRORS:\n");
+     		for(<lib, msg> <- crashes){
+       			println("<lib>: <msg>");
+    		}
+  	}
+  	
+  	ncrashes = size(crashes);
+  	ndone = nfiles - ncrashes;
+	println("Compiled: total <nfiles>, success <ndone> (<100.0 * ndone / nfiles>%), failed <nfiles - ndone> (<100.0 * (nfiles - ndone)/nfiles>%).");
+	println("Time: <tosec(t1, realTime())> sec.");
+	return crashes;
 }
