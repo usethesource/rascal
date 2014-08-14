@@ -181,7 +181,8 @@ public class Eval {
 			  throw new Throw(values.constructor(Exception_StaticError, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, ctx.getStackTrace());
 			}
 			throw e;
-		} catch (URISyntaxException e) {
+		} 
+		catch (URISyntaxException e) {
 			// this should never happen
 			if (forRascal)
 				throw RuntimeExceptionFactory.illegalArgument(commands, null, null);
