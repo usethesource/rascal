@@ -460,7 +460,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     	}
     	for (kn <- kpm) {
     		try {
-    			bindings = match(kpm[kn], kl[kn], bindings,bindIdenticalVars=true);
+    			bindings = match(kpm[kn], ((kn in kl) ? kl[kn] : kpm[kn]), bindings,bindIdenticalVars=true);
     		} catch : {
     			canInstantiate = false;
     		}
