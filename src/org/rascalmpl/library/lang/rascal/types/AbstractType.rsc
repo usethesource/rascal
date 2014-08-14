@@ -267,7 +267,7 @@ public Symbol makeTypeVarWithBound(str varName, Symbol varBound) = \parameter(va
 @doc{Unwraps aliases, parameters, and labels from around a type.}
 public Symbol unwrapType(\alias(_,_,at)) = unwrapType(at);
 public Symbol unwrapType(\parameter(_,tvb)) = unwrapType(tvb);
-public Symbol unwrapType(\label(_,lt)) = unwrapType(lt);
+public Symbol unwrapType(\label(_,ltype)) = unwrapType(ltype);
 public default Symbol unwrapType(Symbol t) = t;
 
 @doc{Get the type that has been reified and stored in the reified type.}
@@ -404,7 +404,7 @@ public bool tupleHasField(Symbol t, int fn) {
 @doc{Get the type of the tuple field with the given name.}
 public Symbol getTupleFieldType(Symbol t, str fn) {
 	if (\tuple(tas) := unwrapType(t)) {
-		fieldmap = ( l : lt | \label(l,lt) <- tas );
+		fieldmap = ( l : ltype | \label(l,ltype) <- tas );
 		if (fn in fieldmap) return fieldmap[fn];
 		throw "Tuple <prettyPrintType(t)> does not have field <fn>";
 	}
@@ -475,7 +475,7 @@ public Symbol getBagElementType(Symbol t) {
 
 @doc{Get the domain and range of the map as a tuple.}
 public Symbol getMapFieldsAsTuple(Symbol t) {
-    if (\map(lt,rt) := unwrapType(t)) return \tuple([lt,rt]);
+    if (\map(dt,rt) := unwrapType(t)) return \tuple([dt,rt]);
     throw "getMapFieldsAsTuple called with unexpected type <prettyPrintType(t)>";
 }       
 
@@ -654,8 +654,8 @@ public set[Symbol] getDefaultOverloadOptions(Symbol t) {
 
 @doc{Construct a new overloaded type.}
 public Symbol makeOverloadedType(set[Symbol] options, set[Symbol] defaults) {
-	options  = { *( (\overloaded(opts,_) := opt) ? opts : { opt } ) | opt <- options };
-	defaults = defaults + { *( (\overloaded(_,opts) := opt) ? opts : {} ) | opt <- options };
+	options  = { *( (\overloaded(opts,_) := optItem) ? opts : { optItem } ) | optItem <- options };
+	defaults = defaults + { *( (\overloaded(_,opts) := optItem) ? opts : {} ) | optItem <- options };
 	return \overloaded(options,defaults);
 }
 
