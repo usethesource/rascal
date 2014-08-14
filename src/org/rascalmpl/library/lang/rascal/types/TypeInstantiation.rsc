@@ -9,12 +9,9 @@
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 module lang::rascal::types::TypeInstantiation
 
-import List;
 import Set;
 import IO;
 import Node;
-import Type;
-import ParseTree;
 
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;

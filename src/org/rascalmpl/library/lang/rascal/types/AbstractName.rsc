@@ -9,7 +9,6 @@
 @bootstrapParser
 module lang::rascal::types::AbstractName
 
-import List;
 import String;
 import ParseTree;
 

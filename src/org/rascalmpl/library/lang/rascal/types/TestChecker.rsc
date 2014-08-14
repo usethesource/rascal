@@ -9,15 +9,14 @@
 @bootstrapParser
 module lang::rascal::types::TestChecker
 
-import List;
 import String;
 import Type;
 import DateTime;
 import Message;
 import util::Reflective;
-import ParseTree;
 
 import lang::rascal::types::AbstractName;
+import lang::rascal::types::AbstractType;
 import lang::rascal::types::TypeSignature;
 import lang::rascal::checker::ParserHelper;
 import lang::rascal::types::CheckTypes;

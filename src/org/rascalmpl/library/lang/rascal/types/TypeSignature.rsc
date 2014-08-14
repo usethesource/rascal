@@ -10,12 +10,9 @@
 @bootstrapParser
 module lang::rascal::types::TypeSignature
 
-import List;
 import Set;
-import ParseTree;
 import util::Reflective;
 import IO;
-import Type;
 
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractKind;

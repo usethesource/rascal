@@ -10,12 +10,10 @@
 @bootstrapParser
 module lang::rascal::types::CheckTypes
 
-import List;
 import analysis::graphs::Graph;
 import IO;
 import Set;
 import Map;
-import ParseTree;
 import Message;
 import Node;
 import Relation;
@@ -1478,7 +1476,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ @ <Name
     < c, t2 > = checkExp(er, c);
 
     if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-    if (isNodeType(t1) || isADTType(t1)) {
+    if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) {
         aname = convertName(n);
         if (aname in c.annotationEnv) {
 	        annIds = (c.store[c.annotationEnv[aname]] is overload) ? c.store[c.annotationEnv[aname]].items : { c.annotationEnv[aname] };
@@ -1505,7 +1503,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ @ <Name
 		}
         return markLocationFailed(c,exp@\loc,makeFailType("Annotation <n> not declared on <prettyPrintType(t1)> or its supertypes",exp@\loc));
     } else {
-        return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected node or ADT types, found <prettyPrintType(t1)>", e@\loc));
+        return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected node, ADT, or concrete syntax types, found <prettyPrintType(t1)>", e@\loc));
     }
 }
 
@@ -1513,7 +1511,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ @ <Name
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e> @ <Name n>`, Configuration c) {
     < c, t1 > = checkExp(e, c);
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
-    if (isNodeType(t1) || isADTType(t1)) {
+    if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) {
         aname = convertName(n);
         if (aname in c.annotationEnv) {
 	        annIds = (c.store[c.annotationEnv[aname]] is overload) ? c.store[c.annotationEnv[aname]].items : { c.annotationEnv[aname] };
@@ -1536,7 +1534,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> @ <Name n
         } 
         return markLocationFailed(c,exp@\loc,makeFailType("Annotation <n> not declared on <prettyPrintType(t1)> or its supertypes",exp@\loc));
     } else {
-        return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected node or ADT types, found <prettyPrintType(t1)>", e@\loc));
+        return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected node, ADT, or concrete syntax types, found <prettyPrintType(t1)>", e@\loc));
     }
 }
 
@@ -1548,7 +1546,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> is <Name 
     c = needNewScope ? exitBooleanScope(cIs, c) : cIs;
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
     if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) return markLocationType(c,exp@\loc,\bool());
-    return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected node or ADT types, found <prettyPrintType(t1)>", e@\loc));
+    return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected node, ADT, or concrete syntax types, found <prettyPrintType(t1)>", e@\loc));
 }
 
 @doc{Check the types of Rascal expressions: Has (DONE)}
@@ -2885,7 +2883,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
 }
 
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Concrete concrete>`, Configuration c) {
-  psList = for (hole((ConcreteHole) `\<<Sym sym> <Name n>\>`) <- concrete.parts) {
+  psList = for (/(ConcreteHole)`\<<Sym sym> <Name n>\>` := concrete) {
     <c, rt> = resolveSorts(sym2symbol(sym),sym@\loc,c);
     append typedNameNode(convertName(n), n@\loc, rt, 0)[@at = n@\loc];
   }
@@ -5100,7 +5098,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
     }
     
     // Now, check the assignment type to make sure it is a type that can carry an annotation.
-    if (isNodeType(atree@atype) || isADTType(atree@atype)) {
+    if (isNodeType(atree@atype) || isADTType(atree@atype) || isNonTerminalType(atree@atype)) {
         // Check to make sure that the annotation is actually declared on the receiver type. We do this
         // by grabbing back all the types on which this annotation is defined and making sure that
         // the current type is a subtype of one of these.
@@ -5126,7 +5124,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
             return < c, annotationNode(atree,aname)[@atype=rt][@at=assn@\loc] >;
         }
     } else {
-        rt = makeFailType("Invalid type: expected node or ADT types, found <prettyPrintType(atree@atype)>", assn@\loc);
+        rt = makeFailType("Invalid type: expected node, ADT, or concrete syntax types, found <prettyPrintType(atree@atype)>", assn@\loc);
         return < c, annotationNode(atree,aname)[@atype=rt][@at=assn@\loc] >;
     }
 }

@@ -10,12 +10,9 @@
 @bootstrapParser
 module lang::rascal::types::ConvertType
 
-import List;
 import Set;
 import String;
 import Type;
-import Message;
-import ParseTree;
 import IO;
 
 import lang::rascal::types::AbstractName;

@@ -11,12 +11,9 @@
 @bootstrapParser
 module lang::rascal::types::AbstractType
 
-import List;
 import Set;
 import String;
-import Type;
-import Message;
-import ParseTree;
+extend ParseTree;
 
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::ConvertType;
@@ -775,3 +772,4 @@ public bool hasDeferredTypes(Symbol t) = size({d | /d:deferred(_) := t}) > 0;
 
 public bool subtype(deferred(Symbol t), Symbol s) = subtype(t,s);
 public bool subtype(Symbol t, deferred(Symbol s)) = subtype(t,s); 
+public bool subtype(Symbol t, \adt("Tree",[])) = true when isNonTerminalType(t);
