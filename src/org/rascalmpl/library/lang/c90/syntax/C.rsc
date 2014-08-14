@@ -10,305 +10,309 @@ module lang::c90::\syntax::C
 
 import ParseTree;
 
-syntax Statement = "{" Declaration* Statement* "}" |
-                   Identifier ":" Statement |
-                   "case" Expression ":" Statement |
-                   "default" ":" Statement |
-                   ";" |
-                   Expression ";" |
-                   "if" "(" Expression ")" Statement |
-                   "if" "(" Expression ")" Statement "else" Statement |
-                   "switch" "(" Expression ")" Statement |
-                   "while" "(" Expression ")" Statement |
-                   "do" Statement "while" "(" Expression ")" ";" |
-                   "for" "(" Expression? ";" Expression? ";" Expression? ")" Statement |
-                   "goto" Identifier ";" |
-                   "continue" ";" |
-                   "break" ";" |
-                   "return" ";" |
-                   "return" Expression ";"
-                   ;
+syntax Statement 
+	= "{" Declaration* Statement* "}" 
+	| Identifier ":" Statement 
+	| "case" Expression ":" Statement 
+	| "default" ":" Statement 
+	| ";" 
+	| Expression ";" 
+	| "if" "(" Expression ")" Statement 
+	| "if" "(" Expression ")" Statement "else" Statement 
+	| "switch" "(" Expression ")" Statement 
+	| "while" "(" Expression ")" Statement 
+	| "do" Statement "while" "(" Expression ")" ";" 
+	| "for" "(" Expression? ";" Expression? ";" Expression? ")" Statement 
+	| "goto" Identifier ";" 
+	| "continue" ";" 
+	| "break" ";" 
+	| "return" ";" 
+	| "return" Expression ";"
+	;
 
-syntax Expression = Variable: Identifier |
-                    @category="Constant" HexadecimalConstant |
-                    @category="Constant" IntegerConstant |
-                    @category="Constant" CharacterConstant |
-                    @category="Constant" FloatingPointConstant |
-                    @category="Constant" StringConstant |
-                    Expression "[" Expression "]" |
-                    Expression "(" {NonCommaExpression ","}* ")" |
-                    "sizeof" "(" TypeName ")" |
-                    bracket Bracket: "(" Expression ")" |
-                    Expression "." Identifier |
-                    Expression "-\>" Identifier |
-                    Expression "++" |
-                    Expression "--" >
-                    [+] !<< "++" Expression |
-                    [\-] !<< "--" Expression |
-                    "&" Expression |
-                    "*" Expression |
-                    "+" Expression |
-                    "-" Expression |
-                    "~" Expression |
-                    "!" Expression |
-                    SizeOfExpression: "sizeof" Expression exp | // May be ambiguous with "sizeof(TypeName)".
-                    "(" TypeName ")" Expression >
-                    left (
-                         MultiplicationExpression: Expression lexp "*" Expression rexp | // May be ambiguous with "TypeName *Declarator".
-                         Expression "/" Expression |
-                         Expression "%" Expression
-                    ) >
-                    left (
-                         Expression "+" Expression |
-                         Expression "-" Expression
-                    ) >
-                    left (
-                         Expression "\<\<" Expression |
-                         Expression "\>\>" Expression
-                    ) >
-                    left (
-                         Expression "\<" Expression |
-                         Expression "\>" Expression |
-                         Expression "\<=" Expression |
-                         Expression "\>=" Expression
-                    ) >
-                    left (
-                         Expression "==" Expression |
-                         Expression "!=" Expression
-                    ) >
-                    left Expression "&" Expression >
-                    left Expression "^" Expression >
-                    left Expression "|" Expression >
-                    left Expression "&&" Expression >
-                    left Expression "||" Expression >
-                    right Expression "?" Expression ":" Expression >
-                    right (
-                          Expression "=" Expression |
-                          Expression "*=" Expression |
-                          Expression "/=" Expression |
-                          Expression "%=" Expression |
-                          Expression "+=" Expression |
-                          Expression "-=" Expression |
-                          Expression "\<\<=" Expression |
-                          Expression "\>\>=" Expression |
-                          Expression "&=" Expression |
-                          Expression "^=" Expression |
-                          Expression "|=" Expression
-                    ) >
-                    left CommaExpression: Expression "," Expression
-                    ;
+syntax Expression 
+	= Variable: Identifier 
+	| @category="Constant" HexadecimalConstant 
+	| @category="Constant" IntegerConstant 
+	| @category="Constant" CharacterConstant 
+	| @category="Constant" FloatingPointConstant 
+	| @category="Constant" StringConstant 
+	| Expression "[" Expression "]" 
+	| Expression "(" {NonCommaExpression ","}* ")" 
+	| "sizeof" "(" TypeName ")" 
+	| bracket Bracket: "(" Expression ")" 
+	| Expression "." Identifier 
+	| Expression "-\>" Identifier 
+	| Expression "++" 
+	| Expression "--" 
+	> [+] !<< "++" Expression 
+	| [\-] !<< "--" Expression 
+	| "&" Expression 
+	| "*" Expression 
+	| "+" Expression 
+	| "-" Expression 
+	| "~" Expression 
+	| "!" Expression 
+	| SizeOfExpression: "sizeof" Expression exp // May be ambiguous with "sizeof(TypeName)".
+	| "(" TypeName ")" Expression 
+	> left ( MultiplicationExpression: Expression lexp "*" Expression rexp // May be ambiguous with "TypeName *Declarator".
+	       | Expression "/" Expression 
+	       | Expression "%" Expression
+	       ) 
+	> left ( Expression "+" Expression 
+	       | Expression "-" Expression
+	       )
+	> left ( Expression "\<\<" Expression 
+	       | Expression "\>\>" Expression
+		   )
+	> left ( Expression "\<" Expression 
+	       | Expression "\>" Expression 
+	       | Expression "\<=" Expression 
+	       | Expression "\>=" Expression
+	       )
+	> left ( Expression "==" Expression 
+	       | Expression "!=" Expression
+	       )
+    > left Expression "&" Expression 
+	> left Expression "^" Expression 
+	> left Expression "|" Expression 
+	> left Expression "&&" Expression 
+	> left Expression "||" Expression 
+	> right Expression "?" Expression ":" Expression 
+	> right ( Expression "=" Expression 
+	        | Expression "*=" Expression 
+	        | Expression "/=" Expression 
+	        | Expression "%=" Expression 
+	        | Expression "+=" Expression 
+	        | Expression "-=" Expression 
+	        | Expression "\<\<=" Expression 
+	        | Expression "\>\>=" Expression 
+	        | Expression "&=" Expression 
+	        | Expression "^=" Expression 
+	        | Expression "
+	        | =" Expression
+			)
+	> left CommaExpression: Expression "," Expression
+	;
 
-syntax NonCommaExpression = NonCommaExpression: Expression expr
-                            ;
+syntax NonCommaExpression = NonCommaExpression: Expression expr;
 
-lexical Identifier = ([a-zA-Z_] [a-zA-Z0-9_]* !>> [a-zA-Z0-9_]) \ Keyword
-                    ;
+lexical Identifier = ([a-zA-Z_] [a-zA-Z0-9_]* !>> [a-zA-Z0-9_]) \ Keyword;
 
-syntax AnonymousIdentifier = 
-                             ;
+syntax AnonymousIdentifier = ;
 
-keyword Keyword = "auto" |
-                 "break" |
-                 "case" |
-                 "char" |
-                 "const" |
-                 "continue" |
-                 "default" |
-                 "do" |
-                 "double" |
-                 "else" |
-                 "enum" |
-                 "extern" |
-                 "float" |
-                 "for" |
-                 "goto" |
-                 "if" |
-                 "int" |
-                 "long" |
-                 "register" |
-                 "return" |
-                 "short" |
-                 "signed" |
-                 "sizeof" |
-                 "static" |
-                 "struct" |
-                 "switch" |
-                 "typedef" |
-                 "union" |
-                 "unsigned" |
-                 "void" |
-                 "volatile" |
-                 "while"
-                 ;
+keyword Keyword 
+	= "auto" 
+	| "break" 
+	| "case" 
+	| "char" 
+	| "const" 
+	| "continue" 
+	| "default" 
+	| "do" 
+	| "double" 
+	| "else" 
+	| "enum" 
+	| "extern" 
+	| "float" 
+	| "for" 
+	| "goto" 
+	| "if" 
+	| "int" 
+	| "long" 
+	| "register" 
+	| "return" 
+	| "short" 
+	| "signed" 
+	| "sizeof" 
+	| "static" 
+	| "struct" 
+	| "switch" 
+	| "typedef" 
+	| "union" 
+	| "unsigned" 
+	| "void" 
+	| "volatile" 
+	| "while"
+	;
 
-syntax Declaration = DeclarationWithInitDecls: Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" |
-                     DeclarationWithoutInitDecls: Specifier+ specs ";" // Avoid.
-                     ;
+syntax Declaration 
+	= DeclarationWithInitDecls: Specifier+ specs {InitDeclarator ","}+ initDeclarators ";" 
+	| DeclarationWithoutInitDecls: Specifier+ specs ";" // Avoid.
+	;
 
-syntax GlobalDeclaration = GlobalDeclarationWithInitDecls: Specifier* specs {InitDeclarator ","}+ initDeclarators ";" |
-                           GlobalDeclarationWithoutInitDecls: Specifier+ specs ";" // Avoid.
-                           ;
+syntax GlobalDeclaration 
+	= GlobalDeclarationWithInitDecls: Specifier* specs {InitDeclarator ","}+ initDeclarators ";" 
+	| GlobalDeclarationWithoutInitDecls: Specifier+ specs ";" // Avoid.
+	;
 
-syntax InitDeclarator = Declarator decl |
-                        Declarator decl "=" Initializer
-                        ;
+syntax InitDeclarator 
+	= Declarator decl 
+	| Declarator decl "=" Initializer
+	;
 
-syntax Specifier = StorageClass: StorageClass |
-                   TypeSpecifier: TypeSpecifier |
-                   TypeQualifier: TypeQualifier
-                   ;
+syntax Specifier 
+	= StorageClass: StorageClass 
+	| TypeSpecifier: TypeSpecifier 
+	| TypeQualifier: TypeQualifier
+	;
 
-syntax StorageClass = TypeDef: "typedef" |
-                      "extern" |
-                      "static" |
-                      "auto" |
-                      "register"
-                      ;
+syntax StorageClass 
+	= TypeDef: "typedef" 
+	| "extern" 
+	| "static" 
+	| "auto" 
+	| "register"
+	;
 
-syntax TypeSpecifier = Identifier: Identifier |
-                       Void: "void" |
-                       Char: "char" |
-                       Short: "short" |
-                       Int: "int" |
-                       Long: "long" |
-                       Float: "float" |
-                       Double: "double" |
-                       "signed" |
-                       "unsigned" |
-                       Struct: "struct" Identifier |
-                       StructDecl: "struct" Identifier "{" StructDeclaration* "}" |
-                       StructAnonDecl: "struct" "{" StructDeclaration* "}" |
-                       Union: "union" Identifier |
-                       UnionDecl: "union" Identifier "{" StructDeclaration* "}" |
-                       UnionAnonDecl: "union" "{" StructDeclaration* "}" |
-                       Enum: "enum" Identifier |
-                       EnumDecl: "enum" Identifier "{" {Enumerator ","}+ "}" |
-                       EnumAnonDecl: "enum" "{" {Enumerator ","}+ "}"
-                       ;
+syntax TypeSpecifier 
+	= Identifier: Identifier 
+	| Void: "void" 
+	| Char: "char" 
+	| Short: "short" 
+	| Int: "int" 
+	| Long: "long" 
+	| Float: "float" 
+	| Double: "double" 
+	| "signed" 
+	| "unsigned" 
+	| Struct: "struct" Identifier 
+	| StructDecl: "struct" Identifier "{" StructDeclaration* "}" 
+	| StructAnonDecl: "struct" "{" StructDeclaration* "}" 
+	| Union: "union" Identifier 
+	| UnionDecl: "union" Identifier "{" StructDeclaration* "}" 
+	| UnionAnonDecl: "union" "{" StructDeclaration* "}" 
+	| Enum: "enum" Identifier 
+	| EnumDecl: "enum" Identifier "{" {Enumerator ","}+ "}" 
+	| EnumAnonDecl: "enum" "{" {Enumerator ","}+ "}"
+	;
 
-syntax TypeQualifier = "const" |
-                       "volatile"
-                       ;
+syntax TypeQualifier 
+	= "const" 
+	| "volatile"
+	;
 
-syntax StructDeclaration = StructDeclWithDecl: Specifier+ specs {StructDeclarator ","}+ ";" | // TODO: Disallow store class specifiers.
-                           StructDeclWithoutDecl: Specifier+ specs ";" // TODO: Disallow store class specifiers. Avoid.
-                           ;
+syntax StructDeclaration 
+	= StructDeclWithDecl: Specifier+ specs {StructDeclarator ","}+ ";" // TODO: Disallow store class specifiers.
+	| StructDeclWithoutDecl: Specifier+ specs ";" // TODO: Disallow store class specifiers. Avoid.
+	;
 
-syntax StructDeclarator = Declarator |
-                          Declarator? ":" Expression // Prefer the one where 'Declarator' is filled.
-                          ;
+syntax StructDeclarator 
+	= Declarator 
+	| Declarator? ":" Expression // Prefer the one where 'Declarator' is filled.
+	;
 
-syntax Parameters = {Parameter ","}+ MoreParameters? |
-                    "void"
-                    ;
+syntax Parameters 
+	= {Parameter ","}+ MoreParameters? 
+	| "void"
+	;
 
-syntax MoreParameters = "," "..."
-                        ;
+syntax MoreParameters = "," "...";
 
-syntax Parameter = Specifier* Declarator
-                   ;
+syntax Parameter = Specifier* Declarator;
 
-syntax PrototypeParameter = Specifier* AbstractDeclarator
-                   ;
+syntax PrototypeParameter = Specifier* AbstractDeclarator;
 
-syntax PrototypeParameters = {PrototypeParameter ","}+ MoreParameters? |
-                             "void"
-                             ;
+syntax PrototypeParameters 
+	= {PrototypeParameter ","}+ MoreParameters? 
+	| "void"
+	;
 
-syntax Initializer = NonCommaExpression |
-                     "{" {Initializer ","}+ ","?  "}"
-                     ;
+syntax Initializer 
+	= NonCommaExpression 
+	| "{" {Initializer ","}+ ","?  "}"
+	;
 
-syntax TypeName = Specifier+ AbstractDeclarator
-                  ;
+syntax TypeName = Specifier+ AbstractDeclarator;
 
-syntax Enumerator = Identifier |
-                    Identifier "=" NonCommaExpression
-                    ;
+syntax Enumerator 
+	= Identifier 
+	| Identifier "=" NonCommaExpression
+	;
 
-syntax AbstractDeclarator = Identifier: AnonymousIdentifier |
-                            bracket Bracket: "(" AbstractDeclarator decl ")" |
-                            ArrayDeclarator: AbstractDeclarator decl "[" Expression? exp "]" |
-                            FunctionDeclarator: AbstractDeclarator decl "(" Parameters? params ")" >
-                            PointerDeclarator: "*" TypeQualifier* qualifiers AbstractDeclarator decl
-                            ;
+syntax AbstractDeclarator 
+	= Identifier: AnonymousIdentifier 
+	| bracket Bracket: "(" AbstractDeclarator decl ")" 
+	| ArrayDeclarator: AbstractDeclarator decl "[" Expression? exp "]" 
+	| FunctionDeclarator: AbstractDeclarator decl "(" Parameters? params ")" 
+	> PointerDeclarator: "*" TypeQualifier* qualifiers AbstractDeclarator decl
+	;
 
-syntax PrototypeDeclarator = Identifier: Identifier |
-                             bracket Bracket: "(" AbstractDeclarator decl ")" |
-                             ArrayDeclarator: PrototypeDeclarator decl "[" Expression? exp "]" |
-                             FunctionDeclarator: PrototypeDeclarator decl "(" PrototypeParameters? params ")" >
-                             PointerDeclarator: "*" TypeQualifier* qualifiers PrototypeDeclarator decl
-                             ;
+syntax PrototypeDeclarator 
+	= Identifier: Identifier 
+	| bracket Bracket: "(" AbstractDeclarator decl ")" 
+	| ArrayDeclarator: PrototypeDeclarator decl "[" Expression? exp "]" 
+	| FunctionDeclarator: PrototypeDeclarator decl "(" PrototypeParameters? params ")" 
+	> PointerDeclarator: "*" TypeQualifier* qualifiers PrototypeDeclarator decl
+	;
 
-syntax Declarator = Identifier: Identifier |
-                    bracket Bracket: "(" Declarator decl ")" |
-                    ArrayDeclarator: Declarator decl "[" Expression? exp "]" |
-                    FunctionDeclarator: Declarator decl "(" Parameters? params ")" >
-                    PointerDeclarator: "*" TypeQualifier* qualifiers Declarator decl
-                    ;
+syntax Declarator 
+	= Identifier: Identifier 
+	| bracket Bracket: "(" Declarator decl ")" 
+	| ArrayDeclarator: Declarator decl "[" Expression? exp "]" 
+	| FunctionDeclarator: Declarator decl "(" Parameters? params ")" 
+	> PointerDeclarator: "*" TypeQualifier* qualifiers Declarator decl
+	;
 
-lexical IntegerConstant = [0-9]+ [uUlL]* !>> [0-9]
-                         ;
+lexical IntegerConstant = [0-9]+ [uUlL]* !>> [0-9];
 
-lexical HexadecimalConstant = [0] [xX] [a-fA-F0-9]+ [uUlL]* !>> [a-fA-F0-9]
-                             ;
+lexical HexadecimalConstant = [0] [xX] [a-fA-F0-9]+ [uUlL]* !>> [a-fA-F0-9];
 
-lexical FloatingPointConstant = [0-9]+ Exponent [fFlL]? |
-                                [0-9]* [.] [0-9]+ !>> [0-9] Exponent? [fFlL]? |
-                                [0-9]+ [.] Exponent? [fFlL]?
-                                ;
+lexical FloatingPointConstant 
+	= [0-9]+ Exponent [fFlL]? 
+	| [0-9]* [.] [0-9]+ !>> [0-9] Exponent? [fFlL]? 
+	| [0-9]+ [.] Exponent? [fFlL]?
+	;
 
-lexical Exponent = [Ee] [+\-]? [0-9]+ !>> [0-9]
-                   ;
+lexical Exponent = [Ee] [+\-]? [0-9]+ !>> [0-9];
 
-lexical CharacterConstant = [L]? [\'] CharacterConstantContent+ [\']
-                            ;
+lexical CharacterConstant = [L]? [\'] CharacterConstantContent+ [\'];
 
-lexical CharacterConstantContent = [\\] ![] |
-                                   ![\\\']
-                                   ;
+lexical CharacterConstantContent 
+	= [\\] ![] 
+	| ![\\\']
+	;
 
-lexical StringConstant = [L]? [\"] StringConstantContent* [\"]
-                         ;
+lexical StringConstant = [L]? [\"] StringConstantContent* [\"];
 
-lexical StringConstantContent = [\\] ![] |
-                                ![\\\"]
-                                ;
+lexical StringConstantContent 
+	= [\\] ![] 
+	| ![\\\"]
+	;
 
 // TODO: Type specifiers are required for K&R style parameter declarations, initialization of them is not allowed however.
 // TODO: Disallow storage class specifiers as specifiers.
 // TODO: Disallow ArrayDeclarators in the declarator.
-syntax FunctionDefinition = DefaultFunctionDefinition: Specifier* specs Declarator Declaration* "{" Declaration* Statement* "}"
-                            ;
+syntax FunctionDefinition = DefaultFunctionDefinition: Specifier* specs Declarator Declaration* "{" Declaration* Statement* "}";
 
-syntax FunctionPrototype = DefaultFunctionPrototype: Specifier* specs PrototypeDeclarator decl ";"
-                           ;
+syntax FunctionPrototype = DefaultFunctionPrototype: Specifier* specs PrototypeDeclarator decl ";";
 
-syntax ExternalDeclaration = FunctionDefinition |
-                             FunctionPrototype |
-                             GlobalDeclaration
-                             ;
+syntax ExternalDeclaration 
+	= FunctionDefinition 
+	| FunctionPrototype 
+	| GlobalDeclaration
+	;
 
-start syntax TranslationUnit = ExternalDeclaration+
-                               ;
+start syntax TranslationUnit = ExternalDeclaration+;
 
-lexical Comment = [/][*] MultiLineCommentBodyToken* [*][/] |
-                  "//" ![\n]* [\n]
-                  ;
+lexical Comment 
+	= [/][*] MultiLineCommentBodyToken* [*][/] 
+	| "//" ![\n]* [\n]
+	;
 
-lexical MultiLineCommentBodyToken = ![*] |
-                                    Asterisk
-                                    ;
+lexical MultiLineCommentBodyToken 
+	= ![*] 
+	| Asterisk
+	;
 
-lexical Asterisk = [*] !>> [/]
-                   ;
+lexical Asterisk = [*] !>> [/];
 
-layout LAYOUTLIST = LAYOUT* !>> [\ \t\n\r]
-                    ;
+layout LAYOUTLIST = LAYOUT* !>> [\ \t\n\r];
 
-lexical LAYOUT = Whitespace: [\ \t\n\r] |
-                 @category="Comment" Comment: Comment
-                 ;
+lexical LAYOUT 
+	= Whitespace: [\ \t\n\r] 
+	| @category="Comment" Comment: Comment
+	;
 
 //--------------------------------------------------------------------------
 
