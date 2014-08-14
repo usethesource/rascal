@@ -21,7 +21,7 @@ public Class class(int version, int access, str name, str signature, str superNa
 				 class(version, access, name, signature, superName, interfaces, "", "", "", "", "",
 				   innerClasses, fields, methods);
 				   
-public Class innerClass(str name, int access) = innerClass(name, "", "", access);
+public InnerClass innerClass(str name, int access) = innerClass(name, "", "", access);
 
 data Class 
   = class(int version, int access, str name, str signature, str superName, list[str] interfaces,
