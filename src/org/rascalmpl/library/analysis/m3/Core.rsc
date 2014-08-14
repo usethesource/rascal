@@ -43,7 +43,7 @@ anno rel[loc name, loc src]        M3@declarations;            // maps declarati
 anno rel[loc name, TypeSymbol typ] M3@types;                   // assigns types to declared source code artifacts
 anno rel[loc src, loc name]        M3@uses;                    // maps source locations of usages to the respective declarations
 anno rel[loc from, loc to]         M3@containment;             // what is logically contained in what else (not necessarily physically, but usually also)
-anno list[Message messages]        M3@messages;                // error messages and warnings produced while constructing a single m3 model
+anno list[Message]                 M3@messages;                // error messages and warnings produced while constructing a single m3 model
 anno rel[str simpleName, loc qualifiedName]  M3@names;         // convenience mapping from logical names to end-user readable (GUI) names, and vice versa
 anno rel[loc definition, loc comments]       M3@documentation; // comments and javadoc attached to declared things
 anno rel[loc definition, Modifier modifier] M3@modifiers;     // modifiers associated with declared things
