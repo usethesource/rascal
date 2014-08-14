@@ -32,6 +32,8 @@ import Set;
 import IO;
 import util::FileSystem;
 import analysis::graphs::Graph;
+import Node;
+import Map;
 extend analysis::m3::TypeSymbol;
  
 data Modifier;
