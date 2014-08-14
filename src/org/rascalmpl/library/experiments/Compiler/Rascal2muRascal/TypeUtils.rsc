@@ -26,6 +26,10 @@ import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getQualifie
  * - the typechecker generates a unique identifier (uid, an integer) for every entity it encounters and this uid
  *   is connected to all information about this entity.
  */
+
+// NOTE from JJV: this looks suspiciously like an M3 model, if you leave qualified name locs
+// instead of ints everywhere and include one mapping from these to ints.
+// We might move towards actually using M3 for compatibility's sake?
  
 /********************************************************************/
 /*     Part I: Extract and convert Type checker Configuration       */
