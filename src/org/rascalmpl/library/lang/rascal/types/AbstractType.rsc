@@ -328,12 +328,16 @@ public list[Symbol] getListRelFields(Symbol t) {
 
 @doc{Get the name of a type variable.}
 public str getTypeVarName(Symbol t) {
+	if (\alias(_,_,Symbol at) := t) return getTypeVarName(at);
+	if (\label(_,Symbol lt) := t) return getTypeVarName(lt);
     if (\parameter(tvn,_) := t) return tvn;
     throw "getTypeVarName given unexpected type: <prettyPrintType(t)>";
 }
 
 @doc{Get the bound of a type variable.}
 public Symbol getTypeVarBound(Symbol t) {
+	if (\alias(_,_,Symbol at) := t) return getTypeVarBound(at);
+	if (\label(_,Symbol lt) := t) return getTypeVarBound(lt);
     if (\parameter(_,tvb) := t) return tvb;
     throw "getTypeVarBound given unexpected type: <prettyPrintType(t)>";
 }
