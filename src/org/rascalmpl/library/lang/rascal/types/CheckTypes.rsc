@@ -97,6 +97,8 @@ import lang::rascal::\syntax::Rascal;
 // * Add support for keyword param type parameter instantiation in Call or Tree expressions
 //
 // * Add support for checking keyword parameter definitions that are defined in terms of other parameters
+//
+// * Split out descend on datatypes from declaration of constructors
 
 public CheckResult checkStatementSequence(list[Statement] ss, Configuration c) {
 	// Introduce any functions in the statement list into the current scope, but
@@ -6667,7 +6669,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule im>;` := importItem > | 
 		importItem <- importList, 
 		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
-	rel[RName mname, bool isext] defaultModules = (moduleName != RSimpleName("Exception")) ? { < RSimpleName("Exception"), false > } : {};
+	rel[RName mname, bool isext] defaultModules = { }; // (moduleName != RSimpleName("Exception")) ? { < RSimpleName("Exception"), false > } : {};
 	
 	// Now, for each module being imported, create a module in the configuration
 	// and generate a signature. This also brings in extra imports via the extends
@@ -6782,25 +6784,6 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		// conflict with the type names just added.
 		c = loadImportedTypesAndTags(c, { mn | < mn, false > <- modulesToImport, mn notin notImported });
 		
-		// Now, actually process the aliases
-		bool modified = true;
-		definitions = invert(c.definitions);
-		while(modified) {
-			modified = false;
-			for(t <- aliases) {
-				int aliasId = getOneFrom(definitions[t@\loc]);
-				Symbol aliasedType = c.store[aliasId].rtype;
-				c = checkDeclaration(t,true,c);
-				if(aliasedType != c.store[aliasId].rtype) {
-					modified = true;
-				}
-			}
-		}
-
-		// Now, actually process the type names
-		for (t <- typesAndTags) c = checkDeclaration(t,true,c);
-		//for (t <- aliases) c = checkDeclaration(t,true,c);
-
 		// Now that we have a signature for each module, actually perform the import for each, creating
 		// a configuration for each with just the items from that module signature.
 		dt1 = now();
@@ -6816,6 +6799,24 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		}
 		c = pushTiming(c, "Imported module signatures, stage 1", dt1, now());
 	            
+		// Now, actually process the aliases
+		bool modified = true;
+		definitions = invert(c.definitions);
+		while(modified) {
+			modified = false;
+			for(t <- aliases) {
+				int aliasId = getOneFrom(definitions[t@\loc]);
+				Symbol aliasedType = c.store[aliasId].rtype;
+				c = checkDeclaration(t,true,c);
+				if(aliasedType != c.store[aliasId].rtype) {
+					modified = true;
+				}
+			}
+		}
+
+		// Now, actually process the type declarations, which will add any constructors.
+		for (t <- typesAndTags) c = checkDeclaration(t,true,c);
+
 		// Process the current module. We start by merging in everything from the modules we are
 		// extending to give an initial "seed" for our environment. We will just use the standard
 		// add functions for this.
