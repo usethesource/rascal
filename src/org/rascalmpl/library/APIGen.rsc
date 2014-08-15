@@ -41,7 +41,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
   }
   
   
-  public str declareConstructor(Production::cons(label(str cname, Symbol _), list[Symbol] args, set[Attr] _), str typeName) 
+  public str declareConstructor(Production::cons(label(str cname, Symbol _), list[Symbol] args, list[Symbol] kwTypes, map[str, value(map[str,value])] kwDefaults, set[Attr] _), str typeName) 
     = "public static final Type <typeName>_<cname> 
       '  = tf.constructor(typestore,<typeName>,\"<cname>\"<typeNameTuples2FactoryCallArgs(args)>);";
   
@@ -58,7 +58,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
       case \loc() : return "tf.sourceLocationType()";
       case \datetime() : return "tf.dateTimeType()";
       case \node() : return "tf.nodeType()";
-      case \cons(name,_,_) : return resolveType (name);
+      case \cons(\adt(name,_),_,_) : return resolveType (name);
       case \set(ti) :  return "tf.setType(<type2FactoryCall(ti)>)";  
       case \list(ti) :  return "tf.listType(<type2FactoryCall(ti)>)";
       case \map(label(l1,ti),label(l2, ti2)) : return "tf.mapType(<type2FactoryCall(ti)>,\"<l1>\", <type2FactoryCall(ti2)>, \"<l2>\")";
@@ -70,7 +70,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
                '                 tf.tupleType(<typeList2FactoryVarArgsFirstPos(args)>)";
       case \adt(name, _) : return resolveType(name);
       case \alias(name,_,_) : return resolveType(name);
-      case \parameter(name, _) : return "tf.parameterType(\"<name>\",<type2FactoryCall(t2)>)";
+      case \parameter(name, t2) : return "tf.parameterType(\"<name>\",<type2FactoryCall(t2)>)";
       case \reified(t2) : return "rtf.reifiedType(<type2FactoryCall(t2)>)";
       default: 
         throw "Do not now how to construct <t>";  
@@ -82,11 +82,11 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
   }
   
   default str typeParamsVarArgs(list[Symbol] p) {
-     return toExtraArgs([ type2FactoryCall(t[0]) | t <- p]);
+     return toExtraArgs([ type2FactoryCall(t0) | t <- p, Symbol t0 := t[0]]);
   }
   
   str typeAndLabelsList2FactoryVarArgs(list[Symbol] typesAndLabels){
-    return toExtraArgs([type2FactoryCall(typ),"\"<label>\"" | label(label,typ) <- typesAndLabels ]);
+    return toExtraArgs([type2FactoryCall(typ),"\"<l>\"" | label(l,typ) <- typesAndLabels ]);
   }
   
   str typeList2FactoryVarArgs(list[Symbol] tss){
@@ -125,7 +125,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
   
   
   
-  str declareConstructorGetters(Production::cons(label(str cname,_), list[Symbol] args, set[Attr] _), str typeName){
+  str declareConstructorGetters(Production::cons(label(str cname,_), list[Symbol] args, list[Symbol] kwTypes, map[str, value(map[str,value])] kwDefaults, set[Attr] _), str typeName){
      if(size(args) == 0) 
        return "";
      return   "<for(i <- [0..size(args)]) {>public static <typeToSimpleJavaType(args[i])> <typeName>_<cname>_<args[i].name>(IConstructor c){
