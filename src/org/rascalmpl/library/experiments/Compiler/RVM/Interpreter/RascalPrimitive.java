@@ -596,6 +596,12 @@ public enum RascalPrimitive {
 			return set_add_set.execute(stack, sp, arity, stacktrace);
 		}
 	},
+	rel_add_elm {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			return set_add_elm.execute(stack, sp, arity, stacktrace);
+		}
+	},
 	str_add_str {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
