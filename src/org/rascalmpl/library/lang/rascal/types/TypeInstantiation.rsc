@@ -23,6 +23,7 @@ public alias Bindings = map[str varName, Symbol varType];
 // TODO: Add support for overloaded types if they can make it to here (this is
 // usually invoked on specific types that are inside overloads)
 public Bindings match(Symbol r, Symbol s, Bindings b, bool bindIdenticalVars=false) {
+	if (!typeContainsTypeVars(r)) return b;
 	return match(r,s,b,bindIdenticalVars);
 }
 
@@ -37,7 +38,11 @@ public Bindings match(Symbol r, Symbol s, Bindings b, bool bindIdenticalVars) {
 	// (i.e., has no internal structure), just do a comparability
 	// check. The receiver obviously does not contain a parameter.
 	if (arity(r) == 0 && comparable(s,r)) return b;
-	
+
+	// Another simple case: if the receiver has no type vars, then just return
+	// the current bindings.
+	if (!typeContainsTypeVars(r)) return b;
+		
 	// Handle parameters
 	if (isTypeVar(r) && isTypeVar(s) && getTypeVarName(r) == getTypeVarName(s) && getTypeVarBound(r) == getTypeVarBound(s) && !bindIdenticalVars) {
 		return b;
