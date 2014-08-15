@@ -106,14 +106,6 @@ public M3 createM3FromJar(loc jarFile) {
     return composeJavaM3(jarLoc , { createM3FromJarClass(jarClass) | loc jarClass <- crawl(jarFile, "class") });
 }
 
-public M3 includeJarRelations(M3 project, set[M3] jarRels = {}) {
-  set[M3] rels = jarRels;
-  if (isEmpty(rels))
-    rels = createM3FromProjectJars(project.id);
-  
-  return composeJavaM3(project.id, rels);
-}
-
 public bool isCompilationUnit(loc entity) = entity.scheme == "java+compilationUnit";
 public bool isPackage(loc entity) = entity.scheme == "java+package";
 public bool isClass(loc entity) = entity.scheme == "java+class";
