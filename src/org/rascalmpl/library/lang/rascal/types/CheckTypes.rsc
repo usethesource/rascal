@@ -3378,6 +3378,13 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             }
     
             case ptn:tvarBecomesNode(rt,n,l,cp,nid) : {
+            	try {
+            		< c, newcp > = bind(cp,rt,c);
+            		ptn.child = newcp;
+            		insert(ptn);
+            	} catch : {
+            		; // If we bind successfully, we take advantage of that, otherwise we ignore it -- this lets us propagate the type
+            	}
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
                     Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[nid].rtype;
                     if (!comparable(cp@rtype, rt))
