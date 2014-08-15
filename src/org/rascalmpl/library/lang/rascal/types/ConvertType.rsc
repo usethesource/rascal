@@ -12,7 +12,6 @@ module lang::rascal::types::ConvertType
 
 import Set;
 import String;
-import Type;
 import IO;
 
 import lang::rascal::types::AbstractName;
