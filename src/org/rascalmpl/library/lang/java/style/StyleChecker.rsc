@@ -47,7 +47,7 @@ import lang::java::style::Strings;
 /* - we dinstinguish checkers for declarations, statements and expressions.	 */
 /* - for each category, a map is declared that associates the set of Java    */
 /*   AST constructors for which the check has to be applied.				 */
-/*   IMPORTANT: this set has to be indentical to the constructors used in    */
+/*   IMPORTANT: this set has to be identical to the constructors used in    */
 /*   the rules defining each check											 */
 /* - this map is inverted by the builder functions that create a map from    */
 /*   constructor to all the checks they have to be applied to it.			 */

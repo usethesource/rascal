@@ -55,7 +55,7 @@ list[Message] namingConventions(Declaration d: \class(str name, _, _, _),  list[
  
 list[Message] namingConventions(Declaration d: \field(Type \type, list[Expression] fragments),  list[Declaration] parents, M3 model) {
  	msgs = [];
- 	elemModifiers = model@modifiers[d@decl];
+ 	elemModifiers = d@modifiers?{};
  	for(fragment <- fragments){
  		if(fragment has name){
  			name = fragment.name;
@@ -117,7 +117,7 @@ list[Message] namingConventions(Declaration d: \interface(str name, _, _, _),  l
   (/^[A-Z][a-zA-Z0-9]*$/ !:= name) ? [ namingConvention("TypeName", d@src, name) ] : [];
    
 list[Message] namingConventions(Declaration d: \variables(Type \type, list[Expression] \fragments),  list[Declaration] parents, M3 model) {
-	elemModifiers = model@modifiers[d@decl];
+	elemModifiers = d@modifiers?{};
 	msgs = [];
 	for(fragment <- fragments){
 		if(fragment has name){
