@@ -3639,7 +3639,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             } catch v : {
                 //println("Bind attempt failed, now have <pt>");
                 if(pt@rtype? && !hasInferredType(pt@rtype)) {
-                	failures += makeFailType("Cannot match an expression of type: <getOneFrom(subjects)> against a pattern of type <pt@rtype>", pt@at);
+                	failures += makeFailType("Cannot match an expression of type: <type(getOneFrom(subjects),())> against a pattern of type <type(pt@rtype,())>", pt@at);
                	}
             }
         }
