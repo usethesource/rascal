@@ -439,7 +439,7 @@ public Configuration addImportedAnnotation(Configuration c, RName n, int annId) 
 
 	void updateAnnotation(int id) {
 		if (c.store[id] is overload) {
-			c.store[id].items = c.store[id].items + { (c.store[annId] is overload) ? c.store[annId].items : { annId } };
+			c.store[id].items = c.store[id].items + ( (c.store[annId] is overload) ? c.store[annId].items : { annId } );
 			c.store[id].rtype = lub(c.store[id].rtype, c.store[annId].rtype);
 		} else {
 			oitem = overload(( (c.store[annId] is overload) ? c.store[annId].items : { annId } ) + id, lub(c.store[id].rtype, c.store[annId].rtype));
