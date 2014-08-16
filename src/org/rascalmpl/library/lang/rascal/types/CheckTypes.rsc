@@ -7645,13 +7645,17 @@ public anno map[loc,str] Tree@docStrings;
 public anno map[loc,set[loc]] Tree@docLinks;
 
 public Configuration checkAndReturnConfig(str mpath) {
+	return checkAndReturnConfig(getModuleLocation(mpath));
+}
+
+public Configuration checkAndReturnConfig(loc l) {
     c = newConfiguration();
-	t = getModuleParseTree(mpath);    
+	t = parseModule(l);    
     //try {
 		if (t has top && Module m := t.top)
 			c = checkModule(m, c);
 	//} catch v : {
-	//	c.messages = {error("Encountered error checking module <mpath>:<v>", t@\loc)};
+	//	c.messages = {error("Encountered error checking module <l>:<v>", t@\loc)};
 	//}
 	return c;
 }
