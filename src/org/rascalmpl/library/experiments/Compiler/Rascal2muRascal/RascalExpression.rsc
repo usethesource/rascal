@@ -775,7 +775,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    MuExp receiver = translate(expression);
    list[MuExp] args = [ translate(a) | a <- arguments ];
    if(getOuterType(expression) == "str") {
-       return muCallPrim("node_create", [receiver, *args] + (size_keywordArguments(keywordArguments) > 0 ? [kwargs] : [/* muCon(()) */]), e@\loc);
+   		return muCallPrim("node_create", [receiver, *args, *kwargs], e@\loc);
+       //return muCallPrim("node_create", [receiver, *args] + (size_keywordArguments(keywordArguments) > 0 ? [kwargs] : [/* muCon(()) */]), e@\loc);
    }
    
    if(getOuterType(expression) == "loc"){
@@ -895,10 +896,10 @@ MuExp translateKeywordArguments((KeywordArguments[Expression]) `<KeywordArgument
    if(keywordArguments is \default){
       kwargs = [ muCon("<kwarg.name>"), translate(kwarg.expression)  | /*KeywordArgument[Expression]*/ kwarg <- keywordArguments.keywordArgumentList ];
       if(size(kwargs) > 0){
-         return muCallPrim("map_create", kwargs);
+         return muCallMuPrim("make_mmap", kwargs);
       }
    }
-   return muCon(());
+   return muCallMuPrim("make_mmap", []);
    
    //str fuid = topFunctionScope();
    //list[MuExp] kwargs = [ muAssignTmp("map_of_keyword_arguments", fuid, muCallPrim("mapwriter_open",[])) ];
@@ -1339,13 +1340,15 @@ MuExp translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`)  = tran
 // -- equivalent expression -----------------------------------------
 MuExp translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`)  = translateBool(e);
 
+
+
 // -- and expression ------------------------------------------------
 
-MuExp translate(e:(Expression) `<Expression lhs> && <Expression rhs>`)  = translateBool(e);
+MuExp translate(Expression e:(Expression) `<Expression lhs> && <Expression rhs>`)  = translateBool(e);
 
 // -- or expression -------------------------------------------------
 
-MuExp translate(e:(Expression) `<Expression lhs> || <Expression rhs>`)  = translateBool(e);
+MuExp translate(Expression e:(Expression) `<Expression lhs> || <Expression rhs>`)  = translateBool(e);
  
 // -- conditional expression ----------------------------------------
 

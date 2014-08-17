@@ -1,7 +1,16 @@
 module experiments::Compiler::Examples::Tst
 
-test bool test1() = true;
+str f(int i, str k = "empty", int j = 0) {
+    k = k + "; bbb";
+    j = j - 1;
+    return "<i>, <j>, <k>";
+}
 
-test bool test2(int a) = true;
+value main(list[value] args) {
+    return 
+    	f(0);
 
-value main(list[value] args) = true;
+         // f(0, k = "aaa");
+         // f(0, j = 100);
+         // f(0, j = 100, k = "aaa");
+}

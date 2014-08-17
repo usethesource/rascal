@@ -4209,11 +4209,11 @@ public enum RascalPrimitive {
 			assert arity >= 1;
 
 			String name = ((IString) stack[sp - arity]).getValue();
-			IValue[] args = new IValue[arity - 1];
-			for(int i = 0; i < arity - 1; i ++){
+			IValue[] args = new IValue[arity - 2];
+			for(int i = 0; i < arity - 2; i ++){
 				args[i] = (IValue) stack[sp - arity + 1 + i];
 			}
-			stack[sp - arity] = vf.node(name, args);
+			stack[sp - arity] = vf.node(name, args, (HashMap<String, IValue>)stack[sp - 1]);
 			return sp - arity + 1;
 		}
 

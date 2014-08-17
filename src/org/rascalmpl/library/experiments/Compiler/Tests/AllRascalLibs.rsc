@@ -358,32 +358,33 @@ value main(list[value] args){
 
 int tosec(int t1, int t2) =(t2 - t1)/1000;
 
-set[loc] exclude = {  };
+set[loc] exclude = { 
+		|rascal:///vis/web/examples/DisplayRelations.rsc|,
+		|rascal:///experiments/Compiler/Rascal2muRascal/TypeReifier.rsc|,
+		|rascal:///experiments/Compiler/Rascal2muRascal/TypeUtils.rsc|,
+		|rascal:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|,
+		|rascal:///lang/rascal/types/TestChecker.rsc|,
+		|rascal:///vis/web/examples/CodeCut.rsc|,
+		|rascal:///experiments/Compiler/Rascal2muRascal/RascalModule.rsc|,
+		|rascal:///vis/web/examples/M3BarChart.rsc|,
+		|rascal:///lang/rascal/types/CheckTypes.rsc|
+};
 
-list[loc] failures = 
-[
-  |rascal:///APIGen.rsc|,
+set[loc] failures = {
   |rascal:///Ambiguity.rsc|,
   |rascal:///analysis/formalconcepts/CXTIO.rsc|,
   |rascal:///analysis/formalconcepts/FCA.rsc|,
   |rascal:///analysis/linearprogramming/LLLinearProgramming.rsc|,
   |rascal:///analysis/linearprogramming/LinearProgramming.rsc|,
-  |rascal:///analysis/m3/Core.rsc|,
-  |rascal:///analysis/m3/Registry.rsc|,
   |rascal:///cobra/tests/quickcheck/annotations.rsc|,
   |rascal:///cobra/tests/quickcheck/output.rsc|,
   |rascal:///cobra/tests/quickcheck/tests.rsc|,
   |rascal:///cobra/tests/tests.rsc|,
   |rascal:///demo/Mod17.rsc|,
-  |rascal:///demo/Queens.rsc|,
   |rascal:///demo/Uninit.rsc|,
   |rascal:///demo/basic/Cursors.rsc|,
   |rascal:///demo/lang/Exp/Combined/Manual/Eval.rsc|,
   |rascal:///demo/lang/Exp/Combined/Manual/Load.rsc|,
-  |rascal:///demo/lang/Func/Eval0.rsc|,
-  |rascal:///demo/lang/Func/Eval1.rsc|,
-  |rascal:///demo/lang/Func/Eval2.rsc|,
-  |rascal:///demo/lang/Func/Eval3.rsc|,
   |rascal:///demo/lang/Func/Load.rsc|,
   |rascal:///demo/lang/Func/Test.rsc|,
   |rascal:///demo/lang/Lisra/Eval.rsc|,
@@ -400,16 +401,11 @@ list[loc] failures =
   |rascal:///demo/lang/Pico/ControlFlow.rsc|,
   |rascal:///demo/lang/Pico/Eval.rsc|,
   |rascal:///demo/lang/Pico/Load.rsc|,
-  |rascal:///demo/lang/Pico/Syntax.rsc|,
   |rascal:///demo/lang/Pico/ToDot.rsc|,
   |rascal:///demo/lang/Pico/Typecheck.rsc|,
   |rascal:///demo/lang/Pico/Uninit.rsc|,
   |rascal:///demo/lang/Pico/UseDef.rsc|,
   |rascal:///demo/lang/Pico/Visualize.rsc|,
-  |rascal:///demo/lang/turing/l1/ast/Load.rsc|,
-  |rascal:///demo/lang/turing/l1/cst/Parse.rsc|,
-  |rascal:///demo/lang/turing/l2/ast/Load.rsc|,
-  |rascal:///demo/lang/turing/l2/cst/Parse.rsc|,
   |rascal:///demo/lang/turing/l2/desugar/Desugar.rsc|,
   |rascal:///demo/vis/Higher.rsc|,
   |rascal:///demo/vis/Logo.rsc|,
@@ -429,14 +425,10 @@ list[loc] failures =
   |rascal:///experiments/Compiler/Examples/Tst5.rsc|,
   |rascal:///experiments/Compiler/Execute.rsc|,
   |rascal:///experiments/Compiler/RVM/Tests.rsc|,
-  |rascal:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|,
-  |rascal:///experiments/Compiler/Rascal2muRascal/RascalModule.rsc|,
   |rascal:///experiments/Compiler/Rascal2muRascal/RascalPattern.rsc|,
   |rascal:///experiments/Compiler/Rascal2muRascal/RascalStatement.rsc|,
   |rascal:///experiments/Compiler/Rascal2muRascal/RascalType.rsc|,
   |rascal:///experiments/Compiler/Rascal2muRascal/Run.rsc|,
-  |rascal:///experiments/Compiler/Rascal2muRascal/TypeReifier.rsc|,
-  |rascal:///experiments/Compiler/Rascal2muRascal/TypeUtils.rsc|,
   |rascal:///experiments/Compiler/ReductionWithEvalCtx/AST.rsc|,
   |rascal:///experiments/Compiler/ReductionWithEvalCtx/EvalCtx.rsc|,
   |rascal:///experiments/Compiler/ReductionWithEvalCtx/Parse.rsc|,
@@ -499,11 +491,7 @@ list[loc] failures =
   |rascal:///lang/dimacs/IO.rsc|,
   |rascal:///lang/dot/Dot.rsc|,
   |rascal:///lang/html5/DOM.rsc|,
-  |rascal:///lang/java/ast/Implode.rsc|,
-  |rascal:///lang/java/ast/implode/Modifiers.rsc|,
-  |rascal:///lang/java/ast/implode/Types.rsc|,
   |rascal:///lang/java/m3/Core.rsc|,
-  |rascal:///lang/java/m3/Registry.rsc|,
   |rascal:///lang/java/m3/TypeHierarchy.rsc|,
   |rascal:///lang/java/nanopatterns/NanoPatternAnalyzer.rsc|,
   |rascal:///lang/java/style/Annotations.rsc|,
@@ -522,16 +510,12 @@ list[loc] failures =
   |rascal:///lang/java/syntax/Disambiguate.rsc|,
   |rascal:///lang/java/syntax/Java15.rsc|,
   |rascal:///lang/json/ast/Implode.rsc|,
-  |rascal:///lang/jvm/ast/Level0.rsc|,
   |rascal:///lang/jvm/ast/Level1.rsc|,
-  |rascal:///lang/jvm/transform/SerializeClass.rsc|,
   |rascal:///lang/kanren/mini/Goals.rsc|,
   |rascal:///lang/kanren/mini/MiniKanren.rsc|,
   |rascal:///lang/kanren/mini/Test.rsc|,
   |rascal:///lang/kodkod/AST.rsc|,
-  |rascal:///lang/pico/syntax/Main.rsc|,
   |rascal:///lang/rascal/checker/ListUtils.rsc|,
-  |rascal:///lang/rascal/checker/ParserHelper.rsc|,
   |rascal:///lang/rascal/checker/TTL/ExpressionGenerator.rsc|,
   |rascal:///lang/rascal/checker/TTL/Library.rsc|,
   |rascal:///lang/rascal/checker/TTL/PatternGenerator.rsc|,
@@ -550,9 +534,6 @@ list[loc] failures =
   |rascal:///lang/rascal/checker/tests/Loops.rsc|,
   |rascal:///lang/rascal/checker/tests/Nested.rsc|,
   |rascal:///lang/rascal/checker/tests/Types1.rsc|,
-  |rascal:///lang/rascal/doc/Document.rsc|,
-  |rascal:///lang/rascal/doc/ToHTML.rsc|,
-  |rascal:///lang/rascal/doc/ToLatex.rsc|,
   |rascal:///lang/rascal/format/Escape.rsc|,
   |rascal:///lang/rascal/format/Grammar.rsc|,
   |rascal:///lang/rascal/grammar/Bootstrap.rsc|,
@@ -575,7 +556,6 @@ list[loc] failures =
   |rascal:///lang/rascal/syntax/tests/ImplodeTests.rsc|,
   |rascal:///lang/rascal/syntax/tests/ParsingRegressionTests.rsc|,
   |rascal:///lang/rascal/syntax/tests/PreBootstrap.rsc|,
-  |rascal:///lang/rascal/tests/functionality/ConcreteSyntaxTests2.rsc|,
   |rascal:///lang/rascal/tests/library/lang/csv/CSVIOTests.rsc|,
   |rascal:///lang/rascal/tests/library/lang/json/JSONIOTests.rsc|,
   |rascal:///lang/rascal/tests/types/AccumulatingTCTests.rsc|,
@@ -598,20 +578,15 @@ list[loc] failures =
   |rascal:///lang/rascal/tests/types/StaticTestingUtils.rsc|,
   |rascal:///lang/rascal/tests/types/SubscriptTCTests.rsc|,
   |rascal:///lang/rascal/tests/types/VisitTCTests.rsc|,
-  |rascal:///lang/rascal/types/AbstractName.rsc|,
   |rascal:///lang/rascal/types/AbstractType.rsc|,
-  |rascal:///lang/rascal/types/CheckTypes.rsc|,
   |rascal:///lang/rascal/types/CheckerConfig.rsc|,
   |rascal:///lang/rascal/types/ConvertType.rsc|,
-  |rascal:///lang/rascal/types/TestChecker.rsc|,
   |rascal:///lang/rascal/types/TypeExceptions.rsc|,
   |rascal:///lang/rascal/types/TypeInstantiation.rsc|,
   |rascal:///lang/rascal/types/TypeSignature.rsc|,
-  |rascal:///lang/rascal/upgrade/UpdateNestedListAndSetPatterns.rsc|,
   |rascal:///lang/saf/Check.rsc|,
   |rascal:///lang/saf/Config.rsc|,
   |rascal:///lang/saf/Implode.rsc|,
-  |rascal:///lang/saf/Parse.rsc|,
   |rascal:///lang/saf/Render.rsc|,
   |rascal:///lang/saf/Run.rsc|,
   |rascal:///lang/sdf2/filters/CountPreferAvoid.rsc|,
@@ -619,7 +594,6 @@ list[loc] failures =
   |rascal:///lang/sdf2/filters/DirectThenCountPreferAvoid.rsc|,
   |rascal:///lang/sdf2/filters/FilterCycles.rsc|,
   |rascal:///lang/sdf2/filters/GeneralInjectionCount.rsc|,
-  |rascal:///lang/sdf2/filters/IndirectPreferAvoid.rsc|,
   |rascal:///lang/sdf2/filters/InjectionCount.rsc|,
   |rascal:///lang/sdf2/util/Importer.rsc|,
   |rascal:///lang/sdf2/util/Load.rsc|,
@@ -649,22 +623,20 @@ list[loc] failures =
   |rascal:///vis/web/Chart.rsc|,
   |rascal:///vis/web/PlotFunction.rsc|,
   |rascal:///vis/web/examples/CWI.rsc|,
-  |rascal:///vis/web/examples/CodeCut.rsc|,
   |rascal:///vis/web/examples/DisplayFigures.rsc|,
-  |rascal:///vis/web/examples/DisplayRelations.rsc|,
   |rascal:///vis/web/examples/Gauss.rsc|,
   |rascal:///vis/web/examples/HelloWorld.rsc|,
-  |rascal:///vis/web/examples/M3BarChart.rsc|,
   |rascal:///vis/web/examples/Napoleon.rsc|,
   |rascal:///vis/web/examples/RegEq.rsc|,
   |rascal:///vis/web/markup/D3.rsc|,
   |rascal:///vis/web/markup/Dimple.rsc|
-];
+};
 
-lrel[loc,str] compileAll(list[value] args){
-	allFiles = toList(find(|rascal:///|, "rsc") - exclude);
+set[loc] compileAll(list[value] args){
+	allFiles = find(|rascal:///|, "rsc") - exclude;
+	good = allFiles - failures;
 	nfiles = size(allFiles);
-	crashes = [];
+	crashes = {};
 	t1 = realTime();
 	i = 0;
 	while(!isEmpty(allFiles)){
@@ -674,13 +646,13 @@ lrel[loc,str] compileAll(list[value] args){
 		try {
 			compile(f);
 		} catch e: {
-			crashes += <f, "<e>">;
+			crashes += f;
 		}
 	}
 	if(size(crashes) > 0){
     	println("\nERRORS:\n");
-     		for(<lib, msg> <- crashes){
-       			println("<lib>: <msg>");
+     		for(loc lib <- crashes){
+       			println("<lib>");
     		}
   	}
   	
@@ -688,5 +660,15 @@ lrel[loc,str] compileAll(list[value] args){
   	ndone = nfiles - ncrashes;
 	println("Compiled: total <nfiles>, success <ndone> (<100.0 * ndone / nfiles>%), failed <nfiles - ndone> (<100.0 * (nfiles - ndone)/nfiles>%).");
 	println("Time: <tosec(t1, realTime())> sec.");
+	
+	better = failures - crashes;
+	if(size(better) > 0){
+		println("The following files succeeded, but failed the previous run: <for(f <- better){><f>\n<}>");
+	}
+	worse = good & failures;
+	if(size(worse) > 0){
+		println("The following files failed, but succeeded the previous run: <for(f <- worse){><f>\n<}>");
+	}
+	
 	return crashes;
 }

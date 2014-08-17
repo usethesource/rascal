@@ -164,14 +164,15 @@ test bool tst() = demo("ExceptionHandlingNotHandled") == experiments::Compiler::
 test bool tst() = demo("ExceptionHandlingNotHandledSimple") == experiments::Compiler::Examples::ExceptionHandlingNotHandledSimple::expectedResult;
 test bool tst() = demo("RascalRuntimeExceptions") == experiments::Compiler::Examples::RascalRuntimeExceptions::main([]);
 test bool tst() = demo("RascalRuntimeExceptionsPlusOverloading") == experiments::Compiler::Examples::RascalRuntimeExceptionsPlusOverloading::main([]);
-test bool tst() = demo("IsDefined") == experiments::Compiler::Examples::IsDefined::main([]);
+
+//test bool tst() = demo("IsDefined") == experiments::Compiler::Examples::IsDefined::main([]);
 
 // RVM now assumes that all variables have been initialized
 //test bool tst() = demo("UninitializedVariable") == experiments::Compiler::Examples::UninitializedVariable::expectedResult;
 //test bool tst() = demo("UninitializedVariables") == experiments::Compiler::Examples::UninitializedVariables::expectedResult;
 
-// Related to the above, but not yet investiagted:
-test bool tst() = demo("IfDefinedOtherwise") == experiments::Compiler::Examples::IfDefinedOtherwise::expectedResult;
+// Related to the above
+//test bool tst() = demo("IfDefinedOtherwise") == experiments::Compiler::Examples::IfDefinedOtherwise::expectedResult;
 
 test bool tst() = demo("IfDefinedOtherwise2") == experiments::Compiler::Examples::IfDefinedOtherwise2::main([]);
 

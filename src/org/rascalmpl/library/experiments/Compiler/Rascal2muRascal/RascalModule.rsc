@@ -152,18 +152,18 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	     
    	     enterFunctionScope(fuid);
    	     
-   	     list[MuExp] kwps = [ muAssign("map_of_default_values", fuid, defaults_pos, muCallMuPrim("make_map_str_entry",[])) ];
+   	     list[MuExp] kwps = [ muAssign("map_of_default_values", fuid, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
    	     list[MuExp] kwargs = [];
          for(RName kwf <- keywordParams) {
-             kwps += muCallMuPrim("map_str_entry_add_entry_type_ivalue", 
+             kwps += muCallMuPrim("mmap_str_entry_add_entry_type_ivalue", 
                                   [ muVar("map_of_default_values",fuid,defaults_pos), 
                                     muCon("<getSimpleName(kwf)>"), 
-                                    muCallMuPrim("make_entry_type_ivalue", [ muTypeCon(keywordParams[kwf]), 
+                                    muCallMuPrim("make_mentry_type_ivalue", [ muTypeCon(keywordParams[kwf]), 
                                                                              translate(getOneFrom(config.dataKeywordDefaults[uid,kwf])) ]) ]);
              kwargs = kwargs + [ muCon("<getSimpleName(kwf)>"), muVarKwp(fuid,getSimpleName(kwf)) ];
          }
          MuExp body = muBlock(kwps + kwargs + [ muReturn(muCall(muConstr(fuid2str[uid]),[ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
-                                            + [ muCallMuPrim("map_create", kwargs), 
+                                            + [ muCallMuPrim("make_mmap", kwargs), 
                                                 muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),keywordParams[rname]) | rname <- keywordParams ])) ])) ]);
                                                 
          leaveFunctionScope();
@@ -330,12 +330,12 @@ public list[MuExp] translateKeywordParameters(Parameters parameters, str fuid, i
   KeywordFormals kwfs = parameters.keywordFormals;
   if(kwfs is \default) {
       keywordParamsMap = getKeywords(l);
-      kwps = [ muAssign("map_of_default_values", fuid, pos, muCallMuPrim("make_map_str_entry",[])) ];
+      kwps = [ muAssign("map_of_default_values", fuid, pos, muCallMuPrim("make_mmap_str_entry",[])) ];
       for(KeywordFormal kwf <- kwfs.keywordFormalList) {
-          kwps += muCallMuPrim("map_str_entry_add_entry_type_ivalue", 
+          kwps += muCallMuPrim("mmap_str_entry_add_entry_type_ivalue", 
                                   [ muVar("map_of_default_values",fuid,pos), 
                                     muCon("<kwf.name>"), 
-                                    muCallMuPrim("make_entry_type_ivalue", [ muTypeCon(keywordParamsMap[convertName(kwf.name)]), 
+                                    muCallMuPrim("make_mentry_type_ivalue", [ muTypeCon(keywordParamsMap[convertName(kwf.name)]), 
                                                                              translate(kwf.expression) ]) ]);
       }
   }
