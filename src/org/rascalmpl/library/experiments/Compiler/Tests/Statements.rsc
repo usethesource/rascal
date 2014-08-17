@@ -23,6 +23,8 @@ test bool tst() = run("{ z = \<1,2\>; \<x, y\> = z;  x + y; }") == { z = <1,2>; 
 
 test bool tst() = run("{x = [1,2,3]; z = \<10,20\>; \<x[2], y\> = z; x[2] + y; }") == {x = [1,2,3]; z = <10,20>; <x[2], y> = z;  x[2] + y; };
                        
+
+@Ignore{Treatment of undefined values}
 test bool tst() = run("{M = (1:10); M[1] ? 0 += 100; M;}") == {M = (1:10); M[1] ? 0 += 100; M;};
 test bool tst() = run("{M = (1:10); M[2] ? 0 += 100; M;}") == {M = (1:10); M[2] ? 0 += 100; M;};
 

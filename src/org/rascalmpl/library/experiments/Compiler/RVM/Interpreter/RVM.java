@@ -326,6 +326,9 @@ public class RVM {
 		if(o instanceof HashSet){
 			return "HashSet[" + ((HashSet<?>) o).toString() + "]";
 		}
+		if(o instanceof Map){
+			return "Map[" + ((Map<?, ?>) o).toString() + "]";
+		}
 		if(o instanceof HashMap){
 			return "HashMap[" + ((HashMap<?, ?>) o).toString() + "]";
 		}
@@ -451,7 +454,8 @@ public class RVM {
 		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
 		Frame cf = root;
 		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
-		cf.stack[1] = vf.mapWriter().done();
+//		cf.stack[1] = vf.mapWriter().done();
+		cf.stack[1] = new HashMap<String, IValue>();
 		cf.src = main_function.src;
 		Object o = executeProgram(root, cf);
 		if(o != null && o instanceof Thrown){
@@ -730,6 +734,7 @@ public class RVM {
 					IValue[] args = new IValue[constructor.getArity()];
 					// Constructors with keyword parameters
 					Type type = (Type) stack[--sp];
+					@SuppressWarnings("unchecked")
 					java.util.Map<String,IValue> kwargs = (java.util.Map<String,IValue>) stack[--sp];
 					
 					for(int i = 0; i < constructor.getArity(); i++) {
@@ -1271,12 +1276,13 @@ public class RVM {
 					postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 					
 				case Opcode.OP_LOADLOCKWP:
-					IString name = (IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction));
+					String name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction))).getValue();
 					@SuppressWarnings("unchecked")
 					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
-					Map.Entry<Type, IValue> defaultValue = defaults.get(name.getValue());
+					Map.Entry<Type, IValue> defaultValue = defaults.get(name);
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						IMap kargs = (IMap) f.stack[f.function.nformals - 1];
+						@SuppressWarnings("unchecked")
+						HashMap<String, IValue> kargs = (HashMap<String,IValue>) f.stack[f.function.nformals - 1];
 						if(kargs.containsKey(name)) {
 							val = kargs.get(name);
 							if(val.getType().isSubtypeOf(defaultValue.getKey())) {
@@ -1293,9 +1299,10 @@ public class RVM {
 					
 				case Opcode.OP_STORELOCKWP:
 					val = (IValue) stack[sp - 1];
-					name = (IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction));
-					IMap kargs = (IMap) stack[cf.function.nformals - 1];
-					stack[cf.function.nformals - 1] = kargs.put(name, val);
+					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction))).getValue();
+					@SuppressWarnings("unchecked")
+					HashMap<String, IValue> kargs = (HashMap<String, IValue>) stack[cf.function.nformals - 1];
+					/*stack[cf.function.nformals - 1] = */kargs.put(name, val);
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_STOREVARKWP:
@@ -1314,7 +1321,7 @@ public class RVM {
 					throw new CompilerError("LOADCONT cannot find matching scope: " + s);
 				
 				case Opcode.OP_RESET:
-					fun_instance = (FunctionInstance) stack[--sp]; // A fucntion of zero arguments
+					fun_instance = (FunctionInstance) stack[--sp]; // A function of zero arguments
 					cf.pc = pc;
 					cf = cf.getCoroutineFrame(fun_instance, 0, sp);
 					activeCoroutines.push(new Coroutine(cf));

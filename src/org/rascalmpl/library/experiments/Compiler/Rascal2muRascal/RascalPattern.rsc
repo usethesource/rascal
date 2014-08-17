@@ -444,9 +444,14 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    MuExp fun_pat;
    MuExp fun_name;
    argCode = [ translatePat(pat) | pat <- arguments ] + translatePatKWArguments(keywordArguments);
+   //iprintln(expression);
    if(expression is qualifiedName){
       fun_name = getType(expression@\loc).name;
       //fun_pat = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(fun_name)]);
+      return muApply(mkCallToLibFun("Library","MATCH_SIMPLE_CALL_OR_TREE"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
+   } else if(expression is literal){ // StringConstant
+      fun_name = "<expression>"[1..-1];
+      println("fun_name = <fun_name>");
       return muApply(mkCallToLibFun("Library","MATCH_SIMPLE_CALL_OR_TREE"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
    } else {
      fun_pat = translatePat(expression);

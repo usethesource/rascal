@@ -172,8 +172,8 @@ coroutine ENUM_NODE(iNd, rVal)
 	    return iNd;								// Concrete node, but not a concrete list
 	  }
    } else {										// Not a concrete list
-      array = get_children_and_keyword_params_as_values(iNd)
-      len = size_array(array)
+      array = get_args_and_keyword_values(iNd)
+      len = size_array(array)					// TODO: Ignore keyword parameters for now
   
    	  if(len > 0){
 		 while(j < len) {
@@ -378,6 +378,7 @@ guard {
         pat
     ipats[j] = create(pats[j], subjects[j])
     while((j >= 0) && (j < plen)) {
+     	println("MATCH_N", j, pats[j], subjects[j])
         pat = ipats[j]
         if(next(pat)) {
             if(j < (plen - 1)) {
@@ -397,7 +398,10 @@ guard {
 coroutine MATCH_SIMPLE_CALL_OR_TREE(iName, pats, iSubject) guard iSubject is node {
     var args      
     if(equal(iName, get_name(iSubject))) {
-        args = get_children_and_keyword_params_as_map(iSubject)
+        args = get_args_and_keyword_mmap(iSubject);	// TODO kw args
+        println("MATCH_SIMPLE_CALL_OR_TREE", iName);
+        println("MATCH_SIMPLE_CALL_OR_TREE", pats);
+        println("MATCH_SIMPLE_CALL_OR_TREE", args);
         MATCH_N(pats, args)
         exhaust
     }
@@ -410,13 +414,14 @@ coroutine MATCH_SIMPLE_CALL_OR_TREE(iName, pats, iSubject) guard iSubject is nod
 // Match a call pattern with an arbitrary pattern as function symbol
 
 coroutine MATCH_CALL_OR_TREE(pats, iSubject) guard iSubject is node {
-    var args = get_name_and_children_and_keyword_params_as_map(iSubject)
+    var args = get_name_and_args(iSubject);	// TODO kw args
     MATCH_N(pats, args)
 }
 
-coroutine MATCH_KEYWORD_PARAMS(keywords, pats, iSubject) guard iSubject is map { 
+coroutine MATCH_KEYWORD_PARAMS(keywords, pats, kwMap) guard kwMap is mmap { 
     var len = size_array(keywords), 
         subjects, j, kw
+    println("MATCH_KEYWORD_PARAMS", len, keywords, pats, kwMap)
     if(len == 0) {
         return
     }
@@ -424,18 +429,19 @@ coroutine MATCH_KEYWORD_PARAMS(keywords, pats, iSubject) guard iSubject is map {
     j = 0
     while(j < len) {
         kw = keywords[j]
-        if(map_contains_key(iSubject, kw)) {
-            subjects[j] = get_map(iSubject, kw)
+        if(mmap_contains_key(kwMap, kw)) {
+            subjects[j] = get_mmap(kwMap, kw)
         } else {
             exhaust
         }
         j = j + 1
     }
+    println("MATCH_KEYWORD_PARAMS, calling MATCH_N", pats, subjects)
     MATCH_N(pats, subjects)
 }
 
 coroutine MATCH_REIFIED_TYPE(pat, iSubject) guard iSubject is node { 
-    var nc = get_name_and_children_and_keyword_params_as_map(iSubject), 
+    var nc = get_name_and_args(iSubject), // TODO kw args?
         konstructor = nc[0], 
         symbol = nc[1]
     if(equal(konstructor, "type") && equal(symbol, pat)) {
@@ -448,6 +454,7 @@ coroutine MATCH_TUPLE(pats, iSubject) guard iSubject is tuple {
 }
 
 coroutine MATCH_LITERAL(pat, iSubject) guard equal(pat, iSubject) {
+	println("MATCH_LITERAL", pat, iSubject)
     yield
 }
 
@@ -1322,8 +1329,8 @@ coroutine MATCH_AND_DESCENT_MAP(pat, iMap) {
 }
 
 coroutine MATCH_AND_DESCENT_NODE(pat, iNd) {
-    var ar = get_children_and_keyword_params_as_values(iNd), 
-        last = size_array(ar), 
+    var ar = get_name_and_args(iNd), 
+        last = size_array(ar) - 1, 					// TODO keyword args
         j = 0
     while(j < last) {
         MATCH_AND_DESCENT(pat, ar[j])
