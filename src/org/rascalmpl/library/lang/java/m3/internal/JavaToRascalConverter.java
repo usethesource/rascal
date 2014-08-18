@@ -93,7 +93,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected ISourceLocation resolveBinding(CompilationUnit node) {
 		ISourceLocation compilationUnit = new BindingsResolver(typeStore, true) {
 			public ISourceLocation resolveBinding(CompilationUnit node) {
-				return convertBinding("java+compilationUnit", null, loc.getPath());
+				return makeBinding("java+compilationUnit", null, loc.getPath());
 			}
 		}.resolveBinding(node);
 		
