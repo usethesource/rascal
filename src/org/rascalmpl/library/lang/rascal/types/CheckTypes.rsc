@@ -659,7 +659,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple constructors found which could be applied",exp@\loc));
         } else if (size(productionMatches) > 1) {
         	return markLocationFailed(c,exp@\loc,makeFailType("Multiple productions found which could be applied",exp@\loc));
-        } else if (size(productionMatches) > 1 && size(constructorMatches) > 1)
+        } else if (size(productionMatches) >= 1 && size(constructorMatches) >= 1)
         	return markLocationFailed(c,exp@\loc,makeFailType("Both a constructor and a concrete syntax production could be applied",exp@\loc));
         
         set[Symbol] finalNonDefaultMatches = {};
@@ -751,7 +751,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 			} else if (size(finalNonDefaultMatches) == 0 && size(finalDefaultMatches) == 2) {
 				// Make sure the defaults function, constructor, and production variants have the same return type, else we
 				// have a conflict.
-				functionVariant = getOneFrom(filterSet(finalDefaultMatches, isFunctionType));
+				functionMatches = filterSet(finalDefaultMatches, isFunctionType);
+				functionVariant = getOneFrom(functionMatches);
 				constructorMatches = filterSet(finalDefaultMatches, isConstructorType);
 				productionMatches = filterSet(finalDefaultMatches, isProductionType);
 				nonFunctionResult = (size(constructorMatches) > 0) ? getConstructorResultType(getOneFrom(constructorMatches)) : getProductionSortType(getOneFrom(productionMatches));
@@ -6598,44 +6599,26 @@ public Configuration loadImportedNames(Configuration c, set[RName] varNamesToDec
 	justProductions = { < tn, ti > | < tn, ti > <- (name2id+overloadIds), c.store[ti] is production };
 	productionNames = justProductions<0>;
 	
-	// We can add a production into the environment if either a) the name isn't added yet and it doesn't
-	// conflict with the name of a constructor we could add, or b) the name is added, but isn't used for
-	// constructors, and (like with the prior option) no constructors of the same name can be added. We
-	// cannot add the production name if it would conflict with a top-level variable in the module we
-	// are checking.
+	// We can add a production into the environment if it will not conflict with a variable being
+	// declared in the global scope of the current module. TODO: We may want to issue a warning
+	// here OR keep track of the names that could not be imported to issue better error messages
+	// later (e.g., for when someone tries to use the production name).
 	for (tn <- productionNames, tn notin varNamesToDeclare) {
-		if (tn notin c.fcvEnv && tn notin constructorNames) {
+		if (tn notin c.fcvEnv || (tn in c.fcvEnv && !(c.store[c.fcvEnv[tn]] is variable))) {
 			for (ti <- justProductions[tn]) {
 				c = addImportedProduction(c, tn, ti);
-			}
-		} else if (tn in c.fcvEnv && !(c.store[c.fcvEnv[tn]] is variable)) {
-			tnIds = (c.store[c.fcvEnv[tn]] is overload) ? c.store[c.fcvEnv[tn]].items : { c.fcvEnv[tn] };
-			containsCons = size({ ti | ti <- tnIds, c.store[ti] is constructor}) > 0;
-			if (!containsCons && tn notin constructorNames) {
-				for (ti <- justProductions[tn]) {
-					c = addImportedProduction(c, tn, ti);
-				}
 			}
 		}
 	}
 
-	// We can add a constructor into the environment if either a) the name isn't added yet and it doesn't
-	// conflict with the name of a production we could add, or b) the name is added, but isn't used for
-	// productions, and (like with the prior option) no productions of the same name can be added. Like
-	// with productions, we also cannot add a name that would conflict with a top-level variable in the
-	// module we are checking.
+	// We can add a constructor into the environment if it will not conflict with a variable being
+	// declared in the global scope of the current module. TODO: We may want to issue a warning
+	// here OR keep track of the names that could not be imported to issue better error messages
+	// later (e.g., for when someone tries to use the constructor name).
 	for (tn <- constructorNames, tn notin varNamesToDeclare) {
-		if (tn notin c.fcvEnv && tn notin productionNames) {
+		if (tn notin c.fcvEnv || (tn in c.fcvEnv && !(c.store[c.fcvEnv[tn]] is variable))) {
 			for (ti <- justConstructors[tn]) {
 				c = addImportedConstructor(c, tn, ti);
-			}
-		} else if (tn in c.fcvEnv && !(c.store[c.fcvEnv[tn]] is variable)) {
-			tnIds = (c.store[c.fcvEnv[tn]] is overload) ? c.store[c.fcvEnv[tn]].items : { c.fcvEnv[tn] };
-			containsProds = size({ ti | ti <- tnIds, c.store[ti] is production}) > 0;
-			if (!containsProds && tn notin productionNames) {
-				for (ti <- justConstructors[tn]) {
-					c = addImportedConstructor(c, tn, ti);
-				}
 			}
 		}
 	}

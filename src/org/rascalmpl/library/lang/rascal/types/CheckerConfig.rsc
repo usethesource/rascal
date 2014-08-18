@@ -768,10 +768,10 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 			// Case 2: The name is already overloaded. Add this as one more overload.
 			// TODO: If we are annotating overload items, we need to copy annotations here
 			c.store[c.fcvEnv[n]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + rt));
-		} else if (c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is function) {
+		} else if (c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is production) {
 			nonDefaults = {};
 			defaults = { rt };
-			if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
+			if(isConstructorType(c.store[c.fcvEnv[n]].rtype) || isProductionType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
 	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
@@ -786,7 +786,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 			c.fcvEnv[n] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
-			c = addScopeWarning(c, "Invalid declaration: constructor <prettyPrintName(n)> clashes with an existing variable, function, or production name in the same scope.", l);
+			c = addScopeWarning(c, "Invalid declaration: constructor <prettyPrintName(n)> clashes with an existing variable name in the same scope.", l);
 		}
 	}
 
@@ -829,10 +829,10 @@ public Configuration addImportedConstructor(Configuration c, RName n, int itemId
 			c.fcvEnv[n] = constructorItemId;
 		} else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
 			c.store[c.fcvEnv[n]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + c.store[constructorItemId].rtype));
-		} else if (c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is function) {
+		} else if (c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is production) {
 			nonDefaults = {};
 			defaults = { c.store[constructorItemId].rtype };
-			if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
+			if(isConstructorType(c.store[c.fcvEnv[n]].rtype) || isProductionType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
 	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
@@ -891,10 +891,10 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 			// Case 2: The name is already overloaded. Add this as one more overload.
 			// TODO: If we are annotating overload items, we need to copy annotations here
 			c.store[c.fcvEnv[n]] = overload(items + productionItemId, overloaded(itemTypes,defaults + rtype));
-		} else if (c.store[c.fcvEnv[n]] is production || c.store[c.fcvEnv[n]] is function) {
+		} else if (c.store[c.fcvEnv[n]] is production || c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is constructor) {
 			nonDefaults = {};
 			defaults = { rtype };
-			if(isProductionType(c.store[c.fcvEnv[n]].rtype)) {
+			if(isProductionType(c.store[c.fcvEnv[n]].rtype) || isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
 	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
@@ -909,14 +909,14 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 			c.fcvEnv[n] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
-			c = addScopeWarning(c, "Invalid declaration: production <prettyPrintName(n)> clashes with an existing variable, function, or constructor name in the same scope.", l);
+			c = addScopeWarning(c, "Invalid declaration: production <prettyPrintName(n)> clashes with an existing variable name in the same scope.", l);
 		}
 	}
 
 	Symbol removeAllLabels(Symbol st) { return top-down visit(st) { case label(_,sti) => sti }; }
 	
 	// We can have unnamed productions; in that case, we still add information into the store, but don't add anything
-	// into the type environment, since we cannot look this up by name.
+	// into the name environment, since we cannot look this up by name.
 	existsAlready = size({ i | i <- c.nonterminalConstructors[sortId], c.store[i].at == l, c.store[i].name == n}) > 0;
 	if (!existsAlready) {
 		nameWithSort = appendName(sortName,n);
@@ -986,10 +986,10 @@ public Configuration addImportedProduction(Configuration c, RName n, int itemId,
 			c.fcvEnv[n] = productionItemId;
 		} else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
 			c.store[c.fcvEnv[n]] = overload(items + productionItemId, overloaded(itemTypes,defaults + c.store[productionItemId].rtype));
-		} else if (c.store[c.fcvEnv[n]] is production || c.store[c.fcvEnv[n]] is function) {
+		} else if (c.store[c.fcvEnv[n]] is production || c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is constructor) {
 			nonDefaults = {};
 			defaults = { c.store[productionItemId].rtype };
-			if(isProductionType(c.store[c.fcvEnv[n]].rtype)) {
+			if(isProductionType(c.store[c.fcvEnv[n]].rtype) || isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
 	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
@@ -1004,7 +1004,7 @@ public Configuration addImportedProduction(Configuration c, RName n, int itemId,
 			c.fcvEnv[n] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
-			c = addScopeWarning(c, "Invalid declaration: production <prettyPrintName(n)> clashes with an existing variable, function, or constructor name in the same scope.", c.store[itemId].at);
+			c = addScopeWarning(c, "Invalid declaration: production <prettyPrintName(n)> clashes with an existing variable name in the same scope.", c.store[itemId].at);
 		}
 	}
 
