@@ -422,8 +422,6 @@ list[Message] checkAll(node ast, M3 model, list[Declaration] declParents, list[S
 		
 		case Type t:  /* ignore for the moment */;
 		
-		default:
-			println("Other: <ast>");
 	}
 	
 	for(child <- getChildren(ast)){
