@@ -666,6 +666,11 @@ public class RVMRun implements IRVM {
 		stack[sp++] = cf.function.constantStore[arg1];
 	}
 
+	public int insnLOADCON(int arg1, Object[] stack, int sp) {
+		stack[sp++] = cf.function.constantStore[arg1];
+		return sp ;
+	}
+
 	public void insnLOADLOCREF(int i) {
 		stack[sp++] = new Reference(stack, i);
 	}

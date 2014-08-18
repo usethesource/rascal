@@ -515,15 +515,12 @@ public class RVMRunBody extends RVMRun {
 		
 		return NONE;	
 	}
-	public void insnLOADBOOLTRUE() {
-		stack[sp++] = Rascal_TRUE;
-	}
 
-	public void insnLOADBOOLFALSE(Frame cf) {
+	public Object nfi(Frame ccf) {
 		int sp = cf.sp  ;
 		Object[] stack = cf.stack ;
 		
-		
+		nfi(cf) ;
 		
 		stack[sp++] = Rascal_FALSE;
 		
@@ -534,8 +531,22 @@ public class RVMRunBody extends RVMRun {
 //mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRunBody", "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
 //mv.visitInsn(AASTORE);
 
-
+		return null ;
 
 	}
+	public void insnLOADBOOLTRUE(Frame cf) {
+		int nosp = cf.sp ;
+		Object[] stack = cf.stack ;
+		
+		nop() ;
+	
+		nosp = insnLOADCON(1, stack, nosp) ;
+		
+		nop() ;
+		
+		stack[sp++] = stack[0] ;
+	}
 
+	
+	
 }
