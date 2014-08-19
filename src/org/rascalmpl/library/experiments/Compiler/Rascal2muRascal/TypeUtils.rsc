@@ -17,9 +17,9 @@ import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getQualifie
  * See declaration of Configuration in lang::rascal::types::CheckTypes.
  * It contains (type, scope, use, def) information collected by the type checker.
  * This module consists of three parts:
- * Part I:		defines the function is extractScopes that extracts information from a configuration
- * 				and transformations it in a representation that is suited for the compiler.
- * Part II: 	defines other functions to access this type information.
+ * Part I:		Defines the function extractScopes that extracts information from a Configuration
+ * 				and transforms it into a representation that is suited for the compiler.
+ * Part II: 	Defines other functions to access this type information.
  * Part III:	Type-related code generation functions.
  * 
  * Some details:
@@ -127,121 +127,116 @@ void extractScopes(){
    for(uid <- config.store){
       item = config.store[uid];
       switch(item){
-        case function(rname,rtype,
-                      keywordParams,_,
-        			  inScope,_,_,src):      { 
-        							         functions += {uid};
-        							         declares += {<inScope, uid>}; 
-                                             loc2uid[src] = uid;
-                                             for(l <- config.uses[uid]) {
-                                                 loc2uid[l] = uid;
-                                             }
-                                             // Fill in uid2name
-                                             name = getFUID(getSimpleName(rname),rtype);
-                                             if(cases[inScope]?) {
-                                                 if(cases[inScope][name]?) {
-                                                     cases[inScope][name] = cases[inScope][name] + 1;
-                                                 } else {
-                                                    cases[inScope] = cases[inScope] + (name:0);
-                                                 }
-                                             } else {
-                                                cases[inScope] = (name:0);
-                                             }
-                                             name = getFUID(getSimpleName(rname),rtype,cases[inScope][name]);
-                                             uid2name[uid] = name;
-                                             // Fill in fuid2type to enable more precise overloading resolution
-                                             fuid2type[uid] = rtype;
-                                             // Check if the function is default
-                                             //println(config.store[uid]);
-                                             //println(config.functionModifiers[uid]);
-                                             if(defaultModifier() in config.functionModifiers[uid]) {
-                                             	defaultFunctions += {uid};
-                                             }
-                                           }
-        case overload(_,_):                {
-        								     ofunctions += {uid};
-        								     for(l <- config.uses[uid]) {
-        								     	loc2uid[l] = uid;
-        								     } 
-        								   }
+        case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
+	         functions += {uid};
+	         declares += {<inScope, uid>}; 
+             loc2uid[src] = uid;
+             for(l <- config.uses[uid]) {
+                 loc2uid[l] = uid;
+             }
+             // Fill in uid2name
+             name = getFUID(getSimpleName(rname),rtype);
+             if(cases[inScope]?) {
+                 if(cases[inScope][name]?) {
+                     cases[inScope][name] = cases[inScope][name] + 1;
+                 } else {
+                    cases[inScope] = cases[inScope] + (name:0);
+                 }
+             } else {
+                cases[inScope] = (name:0);
+             }
+             name = getFUID(getSimpleName(rname),rtype,cases[inScope][name]);
+             uid2name[uid] = name;
+             // Fill in fuid2type to enable more precise overloading resolution
+             fuid2type[uid] = rtype;
+             // Check if the function is default
+             //println(config.store[uid]);
+             //println(config.functionModifiers[uid]);
+             if(defaultModifier() in config.functionModifiers[uid]) {
+             	defaultFunctions += {uid};
+             }
+        }
+        case overload(_,_): {
+		     ofunctions += {uid};
+		     for(l <- config.uses[uid]) {
+		     	loc2uid[l] = uid;
+		     } 
+    }
         case variable(_,_,_,inScope,src):  { 
-        									 variables += {uid};
-        									 declares += {<inScope, uid>}; 
-        									 loc2uid[src] = uid;
-                                             for(l <- config.uses[uid]) {
-                                                 loc2uid[l] = uid;
-                                             }
-                                           }
-        case constructor(rname,rtype,_,
-                         inScope,src):     { 
-        									 constructors += {uid};
-        									 declares += {<inScope, uid>};
-        									 loc2uid[src] = uid;
-        									 for(l <- config.uses[uid]) {
-        									     loc2uid[l] = uid;
-        									 }
-        									 // Fill in uid2name
-        								     uid2name[uid] = getCUID(getSimpleName(rname),rtype);
-        								     // Fill in fuid2type to enable more precise overloading resolution
-        								     fuid2type[uid] = rtype;
-        								   }
-        case production(rname,rtype,
-                        inScope,src):      {
-                                             if(!isEmpty(getSimpleName(rname))) {
-                                             	constructors += {uid};
-                                             	declares += {<inScope, uid>};
-                                             	loc2uid[src] = uid;
-                                             	for(l <- config.uses[uid]) {
-                                                  loc2uid[l] = uid;
-                                             	}
-                                             	// Fill in uid2name
-                                             	uid2name[uid] = getPUID(getSimpleName(rname),rtype);
-                                             	// Fill in fuid2type to enable more precise overloading resolution
-                                             	fuid2type[uid] = rtype;
-                                             }
-                                           }
-        case blockScope(inScope,src):      { 
-        								     containment += {<inScope, uid>};
-        									 loc2uid[src] = uid;
-        									 // Fill in uid2name
-        									 if(blocks[inScope]?) {
-        									  	blocks[inScope] = blocks[inScope] + 1;
-        									 } else {
-        									  	blocks[inScope] = 0;
-        									 }
-        									 uid2name[uid] = "blk#<blocks[inScope]>";
-        								   }
-        case booleanScope(inScope,src):    { 
-        								     containment += {<inScope, uid>}; 
-        									 loc2uid[src] = uid;
-        									 // Fill in uid2name
-        									 if(bscopes[inScope]?) {
-        									    bscopes[inScope] = bscopes[inScope] + 1;
-        									 } else {
-        									    bscopes[inScope] = 0;
-        									 }
-        									 uid2name[uid] = "bscope#<bscopes[inScope]>";
-        								   }
-        case closure(rtype,keywordParams,
-                       inScope,src):       {
-                                             functions += {uid};
-                                             declares += {<inScope, uid>};
-        									 loc2uid[src] = uid;
-        									 // Fill in uid2name
-        									 if(closures[inScope]?) {
-        									    closures[inScope] = closures[inScope] + 1;
-        									 } else {
-        									    closures[inScope] = 0;
-        									 }
-        									 uid2name[uid] = "closure#<closures[inScope]>";
-        									 fuid2type[uid] = rtype;
-        								   }
+			 variables += {uid};
+			 declares += {<inScope, uid>}; 
+			 loc2uid[src] = uid;
+             for(l <- config.uses[uid]) {
+                 loc2uid[l] = uid;
+             }
+        }
+        case constructor(rname,rtype,_,inScope,src): { 
+			 constructors += {uid};
+			 declares += {<inScope, uid>};
+			 loc2uid[src] = uid;
+			 for(l <- config.uses[uid]) {
+			     loc2uid[l] = uid;
+			 }
+			 // Fill in uid2name
+		     uid2name[uid] = getCUID(getSimpleName(rname),rtype);
+		     // Fill in fuid2type to enable more precise overloading resolution
+		     fuid2type[uid] = rtype;
+        }
+        case production(rname,rtype,inScope,src): {
+             if(!isEmpty(getSimpleName(rname))) {
+             	constructors += {uid};
+             	declares += {<inScope, uid>};
+             	loc2uid[src] = uid;
+             	for(l <- config.uses[uid]) {
+                  loc2uid[l] = uid;
+             	}
+             	// Fill in uid2name
+             	uid2name[uid] = getPUID(getSimpleName(rname),rtype);
+             	// Fill in fuid2type to enable more precise overloading resolution
+             	fuid2type[uid] = rtype;
+             }
+        }
+        case blockScope(inScope,src): { 
+		     containment += {<inScope, uid>};
+			 loc2uid[src] = uid;
+			 // Fill in uid2name
+			 if(blocks[inScope]?) {
+			  	blocks[inScope] = blocks[inScope] + 1;
+			 } else {
+			  	blocks[inScope] = 0;
+			 }
+			 uid2name[uid] = "blk#<blocks[inScope]>";
+        }
+        case booleanScope(inScope,src): { 
+		     containment += {<inScope, uid>}; 
+			 loc2uid[src] = uid;
+			 // Fill in uid2name
+			 if(bscopes[inScope]?) {
+			    bscopes[inScope] = bscopes[inScope] + 1;
+			 } else {
+			    bscopes[inScope] = 0;
+			 }
+			 uid2name[uid] = "bscope#<bscopes[inScope]>";
+        }
+        case closure(rtype,keywordParams,inScope,src): {
+             functions += {uid};
+             declares += {<inScope, uid>};
+			 loc2uid[src] = uid;
+			 // Fill in uid2name
+			 if(closures[inScope]?) {
+			    closures[inScope] = closures[inScope] + 1;
+			 } else {
+			    closures[inScope] = 0;
+			 }
+			 uid2name[uid] = "closure#<closures[inScope]>";
+			 fuid2type[uid] = rtype;
+        }
         case \module(RName rname, loc at):  {
-        									 modules += uid;
-        									 moduleNames += prettyPrintName(rname);
-        									 // Fill in uid2name
-        									 uid2name[uid] = prettyPrintName(rname);
-        								   }
+			 modules += uid;
+			 moduleNames += prettyPrintName(rname);
+			 // Fill in uid2name
+			 uid2name[uid] = prettyPrintName(rname);
+        }
       }
     }
     
@@ -349,7 +344,7 @@ str getOuterType(Tree e) {
  * Getting a function type by name is problematic in case of nested functions,
  * given that 'fcvEnv' does not contain nested functions;
  * Additionally, it does not allow getting types of functions that are part of an overloaded function;
- * Alternatively, the type of a function can be looked up by @loc;   
+ * Alternatively, the type of a function can be looked up by its @loc;   
  */
 Symbol getFunctionType(loc l) { 
    int uid = loc2uid[l];
@@ -535,10 +530,10 @@ public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tup
 	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
 	    case muVar(str name,fromScope,int pos)                 => muVar(name,toScope,newPos)
 	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
-	    case muVarRef(str name, fromScope,int pos)              => muVarRef(name,toScope,newPos)
+	    case muVarRef(str name, fromScope,int pos)             => muVarRef(name,toScope,newPos)
 	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
-        case muAssignVarDeref(str name,fromScope,int pos,
-                                                  MuExp exp) => muAssignVarDeref(name,toScope,newPos,exp)
+        case muAssignVarDeref(str name,fromScope,int pos,MuExp exp) 
+        													   => muAssignVarDeref(name,toScope,newPos,exp)
                                                                   when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
 	    case muFun(str fuid,fromScope)                         => muFun(fuid,toScope)
 	    case muCatch(str id,fromScope,Symbol \type,MuExp body) => muCatch(id,toScope,\type,body)
