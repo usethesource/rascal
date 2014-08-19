@@ -115,3 +115,8 @@ test bool setBinary(set[value] v) = binaryWriteRead(#set[value], v);
 test bool listBinary(list[value] v) = binaryWriteRead(#list[value], v);
 test bool tupleBinary(tuple[value,value,value] v) = binaryWriteRead(#tuple[value,value,value], v);
 test bool numBinary(num v) = binaryWriteRead(#num, v);
+
+test bool compressionWorks(value v) {
+   writeBinaryValueFile(|file:///tmp/xxx|,v, compression=false);
+   return readBinaryValueFile(|file:///tmp/xxx|) == v;
+}

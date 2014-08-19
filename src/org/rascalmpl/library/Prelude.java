@@ -3454,13 +3454,13 @@ public class Prelude {
 		}
 	}
 	
-	public void writeBinaryValueFile(ISourceLocation loc, IValue value, IEvaluatorContext ctx){
+	public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression, IEvaluatorContext ctx){
 	  loc = ctx.getHeap().resolveSourceLocation(loc);
 	  
 		OutputStream out = null;
 		try{
 			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false); 
-			new BinaryValueWriter().write(value, out);
+			new BinaryValueWriter().write(value, out, compression.getValue());
 		}catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 		}finally{
