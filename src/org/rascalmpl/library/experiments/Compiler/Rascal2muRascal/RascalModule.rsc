@@ -128,12 +128,16 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  functions_in_module = [];
    	  variables_in_module = [];
    	  variable_initializations = [];
-   	  map[str,Symbol] types = ( fuid2str[uid] : \type | int uid <- config.store, 
-   	  									   					( constructor(name, Symbol \type, keywordParams, containedIn, at) := config.store[uid]
-   	  									   				      || production(name, Symbol \type, containedIn, at) := config.store[uid] ),
-   	  									   				    !isEmpty(getSimpleName(name)),
-   	  									   				    containedIn == 0, config.store[containedIn].at.path == at.path // needed due to the handling of 'extend' by the type checker
-   	  						  );
+   	  map[str,Symbol] types = 
+   	  	( fuid2str[uid] : \type | 
+   	  	  int uid <- config.store, 
+   	  	  ( constructor(name, Symbol \type, keywordParams, containedIn, at) := config.store[uid]
+   	  	  || production(name, Symbol \type, containedIn, at) := config.store[uid] 
+   	  	  ),
+   	  	  !isEmpty(getSimpleName(name)),
+   	  	  containedIn == 0, 
+   	  	  config.store[containedIn].at.path == at.path // needed due to the handling of 'extend' by the type checker
+   	  	);
    	 
    	 // Constructor functions are generated in case of constructors with keyword parameters
    	 // (this enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments)						  
@@ -145,7 +149,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	         keywordParams[rname] = config.adtFields[<adt,getSimpleName(rname)>];
    	     }
    	     str fuid = fuid2str[uid] + "::companion";
-   	     Symbol ftype = Symbol::func(getConstructorResultType(\type),[ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ]);
+   	     Symbol ftype = Symbol::func(getConstructorResultType(\type), [ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ]);
    	     tuple[str fuid,int pos] addr = uid2addr[uid];
    	     int nformals = size(\type.parameters) + 1;
    	     int defaults_pos = nformals;
@@ -159,15 +163,18 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
                                   [ muVar("map_of_default_values",fuid,defaults_pos), 
                                     muCon("<getSimpleName(kwf)>"), 
                                     muCallMuPrim("make_mentry_type_ivalue", [ muTypeCon(keywordParams[kwf]), 
-                                                                             translate(getOneFrom(config.dataKeywordDefaults[uid,kwf])) ]) ]);
+                                                                              translate(getOneFrom(config.dataKeywordDefaults[uid,kwf])) ]) ]);
              kwargs = kwargs + [ muCon("<getSimpleName(kwf)>"), muVarKwp(fuid,getSimpleName(kwf)) ];
          }
-         MuExp body = muBlock(kwps + kwargs + [ muReturn(muCall(muConstr(fuid2str[uid]),[ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
-                                            + [ muCallMuPrim("make_mmap", kwargs), 
-                                                muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),keywordParams[rname]) | rname <- keywordParams ])) ])) ]);
+         MuExp body = 
+         	muBlock(kwps 
+         			+ kwargs 
+         			+ [ muReturn(muCall(muConstr(fuid2str[uid]),[ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
+                    + [ muCallMuPrim("make_mmap", kwargs), 
+                    muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),keywordParams[rname]) | rname <- keywordParams ])) ])) ]);
                                                 
          leaveFunctionScope();
-         
+         println("RascalModule: fuid=<fuid>, name=<name>, ftype=<ftype>, kwargs=<kwargs>");
          functions_in_module += muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body);   	                                       
    	 }
    	 				  
@@ -178,14 +185,16 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  generate_tests(modName);
    	  
    	  // Overloading resolution...	  
-   	  lrel[str,list[str],list[str]] overloaded_functions = [ < (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
-   	  														   [ fuid2str[fuid] | int fuid <- of.fuids, (fuid in functions) && (fuid notin defaultFunctions) ] 
-   	  														   	+ [ fuid2str[fuid] | int fuid <- of.fuids, fuid in defaultFunctions ]
-   	  														   	// Replace call to a constructor with call to the constructor function if the constructor has keyword parameters
-   	  														   	+ [ fuid2str[fuid] + "::companion" | int fuid <- of.fuids, fuid in constructors, !isEmpty(config.dataKeywordDefaults[fuid]) ],
-   	  														   [ fuid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.dataKeywordDefaults[fuid]) ]
-   	  											  			 > 
-   	  															| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions ];    
+   	  lrel[str,list[str],list[str]] overloaded_functions = 
+   	  	[ < (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
+   	  		[ fuid2str[fuid] | int fuid <- of.fuids, (fuid in functions) && (fuid notin defaultFunctions) ] 
+   	  		+ [ fuid2str[fuid] | int fuid <- of.fuids, fuid in defaultFunctions ]
+   	  		  // Replace call to a constructor with call to the constructor function if the constructor has keyword parameters
+   	  		+ [ fuid2str[fuid] + "::companion" | int fuid <- of.fuids, fuid in constructors, !isEmpty(config.dataKeywordDefaults[fuid]) ],
+   	  		[ fuid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.dataKeywordDefaults[fuid]) ]
+   	  	  > 
+   	  	| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions 
+   	  	];    
    	  return muModule(modName, imported_modules, types, functions_in_module, variables_in_module, variable_initializations, overloadingResolver, overloaded_functions, getGrammar(config));
    	}
    } catch Java("ParseError","Parse error"): {

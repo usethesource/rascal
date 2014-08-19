@@ -88,8 +88,8 @@ test bool tst() = run("{ int n = 0; switch([1,2,3,4,5,6]) { case [*int x, *int y
                                                                   
 // Solve
 
-test bool tst() = run("{rel[int,int] R = {\<1,2\>, \<2,3\>, \<3,4\>}; T = R; solve (T) { T = T + (T o R);}}") ==
-                       {rel[int,int] R = {<1,2>, <2,3>, <3,4>}; T = R; solve (T) { T = T + (T o R);} };       
+test bool tst() = run("{rel[int,int] R = {\<1,2\>, \<2,3\>, \<3,4\>}; T = R; solve (T) { T = T + (T o R);} T;}") ==
+                       {rel[int,int] R = {<1,2>, <2,3>, <3,4>}; T = R; solve (T) { T = T + (T o R);} T;};       
                        
 
                    

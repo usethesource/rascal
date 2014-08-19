@@ -740,7 +740,6 @@ public class RVM {
 					for(int i = 0; i < constructor.getArity(); i++) {
 						args[constructor.getArity() - 1 - i] = (IValue) stack[--sp];
 					}
-					
 					stack[sp++] = vf.constructor(constructor, args, kwargs);
 					continue NEXT_INSTRUCTION;
 					

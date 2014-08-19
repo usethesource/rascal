@@ -185,7 +185,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case preMuCallPrim(str name)                                            			=> muCallPrim(name[1..-1], [],   |unknown:///a-location-in-library|)
                case preMuCallPrim(str name, list[MuExp] exps)									=> muCallPrim(name[1..-1], exps, |unknown:///a-location-in-library|)
                
-               case preThrow(MuExp exp1)														=> muTrow(exp1, |unknown:///a-location-in-library|)
+               case preThrow(MuExp exp1)														=> muThrow(exp1, |unknown:///a-location-in-library|)
                
                case muCallMuPrim(str name, list[MuExp] exps)									=> muCallMuPrim(name[1..-1], exps)			// strip surrounding quotes
                
@@ -224,12 +224,12 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
  			   case muCall(preVar(mvar("get_children")), [exp1])								=> muCallMuPrim("get_children", [exp1])
   			   //case muCall(preVar(mvar("get_children_and_keyword_params_as_values")), [exp1])	=> muCallMuPrim("get_children_and_keyword_params_as_values", [exp1])
   			   //case muCall(preVar(mvar("get_positional_args")), [exp1])							=> muCallMuPrim("get_positional_args", [exp1])
-  			   case muCall(preVar(mvar("get_args_and_keyword_mmap")), [exp1])					=> muCallMuPrim("get_args_and_keyword_mmap", [exp1])
+  			   case muCall(preVar(mvar("get_children_and_keyword_mmap")), [exp1])					=> muCallMuPrim("get_children_and_keyword_mmap", [exp1])
 	
 			   case muCall(preVar(mvar("get_name")), [exp1])									=> muCallMuPrim("get_name", [exp1])
-			   case muCall(preVar(mvar("get_name_and_args")), [exp1])							=> muCallMuPrim("get_name_and_args", [exp1])
+			   case muCall(preVar(mvar("get_name_and_children_and_keyword_mmap")), [exp1])							=> muCallMuPrim("get_name_and_children_and_keyword_mmap", [exp1])
 			   
-			   case muCall(preVar(mvar("get_args_and_keyword_values")), [exp1])					=> muCallMuPrim("get_args_and_keyword_values", [exp1])
+			   case muCall(preVar(mvar("get_children_and_keyword_values")), [exp1])					=> muCallMuPrim("get_children_and_keyword_values", [exp1])
 			   
  			   case muCall(preVar(mvar("get_children_without_layout_or_separators")), [exp1])	=> muCallMuPrim("get_children_without_layout_or_separators", [exp1])
  			   case muCall(preVar(mvar("has_label")), [exp1, exp2])								=> muCallMuPrim("has_label", [exp1, exp2])
@@ -333,7 +333,7 @@ MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     												//TODO scopeIn argument is missing
-    functions_in_module += muCoroutine(all_uid, fuid, 0, size(localvars), |unknown:///a-location-in-library|, [], muBlock(body));
+    functions_in_module += muCoroutine(all_uid, fuid, "", 0, size(localvars), |unknown:///a-location-in-library|, [], muBlock(body));
     return muMulti(muApply(muFun(all_uid, fuid), []));
 }
 
@@ -350,7 +350,7 @@ MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     												//TODO scopeIn argument is missing
-    functions_in_module += muCoroutine(or_uid, fuid, 0, size(localvars),  |unknown:///a-location-in-library|, [], muBlock(body));
+    functions_in_module += muCoroutine(or_uid, fuid, "", 0, size(localvars),  |unknown:///a-location-in-library|, [], muBlock(body));
     return muMulti(muApply(muFun(or_uid, fuid), []));
 }
 

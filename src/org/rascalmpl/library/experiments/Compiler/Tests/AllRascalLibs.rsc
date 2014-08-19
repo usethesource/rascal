@@ -359,15 +359,15 @@ value main(list[value] args){
 int tosec(int t1, int t2) =(t2 - t1)/1000;
 
 set[loc] exclude = { 
-		|rascal:///vis/web/examples/DisplayRelations.rsc|,
-		|rascal:///experiments/Compiler/Rascal2muRascal/TypeReifier.rsc|,
-		|rascal:///experiments/Compiler/Rascal2muRascal/TypeUtils.rsc|,
-		|rascal:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|,
-		|rascal:///lang/rascal/types/TestChecker.rsc|,
-		|rascal:///vis/web/examples/CodeCut.rsc|,
-		|rascal:///experiments/Compiler/Rascal2muRascal/RascalModule.rsc|,
-		|rascal:///vis/web/examples/M3BarChart.rsc|,
-		|rascal:///lang/rascal/types/CheckTypes.rsc|
+		//|rascal:///vis/web/examples/DisplayRelations.rsc|,
+		//|rascal:///experiments/Compiler/Rascal2muRascal/TypeReifier.rsc|,
+		//|rascal:///experiments/Compiler/Rascal2muRascal/TypeUtils.rsc|,
+		//|rascal:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|,
+		//|rascal:///lang/rascal/types/TestChecker.rsc|,
+		//|rascal:///vis/web/examples/CodeCut.rsc|,
+		//|rascal:///experiments/Compiler/Rascal2muRascal/RascalModule.rsc|,
+		//|rascal:///vis/web/examples/M3BarChart.rsc|,
+		//|rascal:///lang/rascal/types/CheckTypes.rsc|
 };
 
 set[loc] failures = {

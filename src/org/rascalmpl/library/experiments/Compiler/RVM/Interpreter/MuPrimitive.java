@@ -152,39 +152,6 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
-	
-//	get_children_and_keyword_params_as_values {
-//		@Override
-//		public int execute(Object[] stack, int sp, int arity) {
-//			assert false;
-//			throw new RuntimeException("can not convert keyword parameters to flat list anymore");
-//		};
-//	},
-	
-//	get_children_and_keyword_params_as_map {
-//		/*
-//		 * Given a constructor or node get: 
-//		 * - positional arguments 
-//		 * - keyword parameters collected in a map
-//		 */
-//		@SuppressWarnings("deprecation")
-//		@Override
-//		public int execute(Object[] stack, int sp, int arity) {
-//		  assert arity == 1;
-//		  INode v = (INode) stack[sp - 1];
-//		  
-//		  int cons_arity = v.arity();
-//		  Object[] elems = new Object[cons_arity + 1];
-//		  for (int i = 0; i < cons_arity; i++) {
-//		    elems[i] = v.get(i);
-//		  }
-//
-//		  elems[cons_arity] = v.asWithKeywordParameters().getParameters();
-//		  stack[sp - 1] = elems;
-//		  return sp;
-//		};
-//	},
-	
 	get_children_without_layout_or_separators {
 		@SuppressWarnings("deprecation")
 		@Override
@@ -251,7 +218,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
-	get_name_and_args {	// TODO: needed?
+	get_name_and_children_and_keyword_mmap {
 		/*
 		 * Given a constructor or node get: 
 		 * - its name 
@@ -273,10 +240,9 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
-	get_args_and_keyword_mmap {	// TODO: needed?
+	get_children_and_keyword_mmap {
 		/*
 		 * Given a constructor or node get: 
-		 * - its name 
 		 * - positional arguments 
 		 * - keyword parameters collected in a mmap
 		 */
@@ -294,7 +260,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
-	get_args_and_keyword_values {	// TODO: needed?
+	get_children_and_keyword_values {
 		/*
 		 * Given a constructor or node get: 
 		 * - positional arguments 
@@ -319,39 +285,6 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
-//	get_name_and_positional_args {
-//		/*
-//		 * Given a constructor or node get: 
-//		 * - its name 
-//		 * - positional arguments 
-//		 */
-//		@Override
-//		public int execute(Object[] stack, int sp, int arity) {
-//			assert arity == 1;
-//			INode v = (INode) stack[sp - 1];
-//			int cons_arity = v.arity();
-//			Object[] elems = new Object[cons_arity + 1];
-//			elems[0] = vf.string(v.getName());
-//			for (int i = 0; i < cons_arity; i++) {
-//			  elems[i + 1] = v.get(i);
-//			}
-//			stack[sp - 1] = elems;
-//			return sp;
-//		};
-//	},
-//	get_keyword_args_as_mmap {
-//		/*
-//		 * Given a constructor or node get: 
-//		 * - keyword parameters collected in an mmap
-//		 */
-//		@Override
-//		public int execute(Object[] stack, int sp, int arity) {
-//			assert arity == 1;
-//			INode v = (INode) stack[sp - 1];
-//			stack[sp - 1] =  v.asWithKeywordParameters().getParameters();;
-//			return sp;
-//		};
-//	},
 	get_tuple_elements {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -490,7 +423,7 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
-	is_map {
+	is_map {	// IMap
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
@@ -499,7 +432,7 @@ public enum MuPrimitive {
 		};
 	},
 	
-	is_mmap {
+	is_mmap {	// Map used as internal representation of keyword parameters
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
@@ -678,20 +611,11 @@ public enum MuPrimitive {
 			return sp + 1;
 		};
 	}, // kwp
-/*	make_map_str_ivalue {
-		@Override
-		public int execute(Object[] stack, int sp, int arity) {
-			assert arity == 0;
-			stack[sp] = new HashMap<String, IValue>();
-			return sp + 1;
-		};
-	}, */ // kwp
 	make_mentry_type_ivalue {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 2;
-			stack[sp - 2] = new AbstractMap.SimpleEntry<Type, IValue>(
-					(Type) stack[sp - 2], (IValue) stack[sp - 1]);
+			stack[sp - 2] = new AbstractMap.SimpleEntry<Type, IValue>((Type) stack[sp - 2], (IValue) stack[sp - 1]);
 			return sp - 1;
 		};
 	}, // kwp
@@ -835,7 +759,7 @@ public enum MuPrimitive {
 		@SuppressWarnings("unchecked")
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 3;
-			stack[sp - 3] = ((Map<String, Map.Entry<Type, IValue>>) stack[sp - 3])
+			/*stack[sp - 3] = */((Map<String, Map.Entry<Type, IValue>>) stack[sp - 3])
 					.put(((IString) stack[sp - 2]).getValue(),
 							(Map.Entry<Type, IValue>) stack[sp - 1]);
 			return sp - 2;
