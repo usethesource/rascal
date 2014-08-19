@@ -63,6 +63,7 @@
 				</executions>
 				<configuration>
 					<argLine>
+                  -ea
 						-Xmx1g
 						-Xss128m
 					</argLine>
