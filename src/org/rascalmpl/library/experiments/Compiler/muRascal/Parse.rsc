@@ -31,7 +31,7 @@ Tree parseMuRascal(str s) {
   //return ast2;							   
 }
 
-Tree parseMuRascal(str s, loc s){
-  pt = parse( #start[Module], s);
+Tree parseMuRascal(loc l){
+  pt = parse( #start[Module], l);
   return pt;
 }
