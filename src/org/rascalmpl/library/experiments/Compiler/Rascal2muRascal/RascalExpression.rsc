@@ -1200,12 +1200,17 @@ MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS) {
     str varname = asTmp(nextLabel());
 	// Check if evaluation of the expression throws a 'NoSuchKey' or 'NoSuchAnnotation' exception;
 	// do this by checking equality of the value constructor names
-	cond1 = muCallMuPrim("equal", [ muCon("UninitializedVariable"),
-									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children_and_keyword_params_as_map", [ muTmp(asUnwrapedThrown(varname),fuid) ]), muInt(0) ] ) ]);
-	cond3 = muCallMuPrim("equal", [ muCon("NoSuchKey"),
-									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children_and_keyword_params_as_map", [ muTmp(asUnwrapedThrown(varname),fuid) ]), muInt(0) ] ) ]);
-	cond2 = muCallMuPrim("equal", [ muCon("NoSuchAnnotation"),
-									muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children_and_keyword_params_as_map", [ muTmp(asUnwrapedThrown(varname),fuid) ]), muInt(0) ] ) ]);
+	
+	cond1 = muCallMuPrim("equal", [ muCon("UninitializedVariable"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ])]);
+	cond2 = muCallMuPrim("equal", [ muCon("NoSuchKey"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]) ]);
+	cond3 = muCallMuPrim("equal", [ muCon("NoSuchAnnotation"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]) ]);
+	
+	//cond1 = muCallMuPrim("equal", [ muCon("UninitializedVariable"),
+	//								muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children_and_keyword_params_as_map", [ muTmp(asUnwrapedThrown(varname),fuid) ]), muInt(0) ] ) ]);
+	//cond3 = muCallMuPrim("equal", [ muCon("NoSuchKey"),
+	//								muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children_and_keyword_params_as_map", [ muTmp(asUnwrapedThrown(varname),fuid) ]), muInt(0) ] ) ]);
+	//cond2 = muCallMuPrim("equal", [ muCon("NoSuchAnnotation"),
+	//								muCallMuPrim("subscript_array_mint", [ muCallMuPrim("get_name_and_children_and_keyword_params_as_map", [ muTmp(asUnwrapedThrown(varname),fuid) ]), muInt(0) ] ) ]);
 	
 	elsePart3 = muIfelse(nextLabel(), cond3, [ muRHS ], [ muThrow(muTmp(varname,fuid), |unknown:///|) ]);
 	elsePart2 = muIfelse(nextLabel(), cond2, [ muRHS ], [ elsePart3 ]);
