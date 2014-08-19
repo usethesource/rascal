@@ -13,6 +13,7 @@ module lang::rascal::types::ConvertType
 import Set;
 import String;
 import IO;
+import Message;
 
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
