@@ -53,7 +53,7 @@ public java &T readTextValueString(type[&T] result, str input);
 @doc{Write a value to a file using an efficient binary file format}
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
-public java void writeBinaryValueFile(loc file, value val);
+public java void writeBinaryValueFile(loc file, value val, bool compression = true);
 	
 @doc{Write a value to a file using a textual file format}
 @javaClass{org.rascalmpl.library.Prelude}
