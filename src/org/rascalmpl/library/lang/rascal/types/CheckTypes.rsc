@@ -1292,7 +1292,7 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
     } else if (isMapType(t1)) {
         rt = getMapFieldsAsTuple(t1);
         if (tupleHasField(rt, fAsString))
-            return getTupleFieldType(rt, fAsString);
+            return makeSetType(getTupleFieldType(rt, fAsString));
         else
             return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
 	} else if (isReifiedType(t1)) {
@@ -2949,6 +2949,9 @@ public anno set[Symbol] PatternTree@tooManyMatches;
 @doc{A hint of the possible type passed down from above.}
 public anno Symbol PatternTree@typeHint;
 
+@doc{A hint of the possible type passed down from above.}
+public anno Symbol Tree@typeHint;
+
 @doc{A quick predicate to say whether we can use the type in a type calculation}
 public bool concreteType(Symbol t) = size({ ti | /Symbol ti := t, \failure(_) := ti || \inferred(_) := ti }) == 0; 
 
@@ -2958,6 +2961,10 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     
     // Init: extract the pattern tree, which gives us an abstract representation of the pattern
     < c, pt > = extractPatternTree(pat,c);
+    if ( (pat@typeHint)? ) {
+    	pt@typeHint = pat@typeHint;
+    }
+    
     Configuration cbak = c;
     set[Symbol] failures = { };
     
@@ -3503,7 +3510,17 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                         
                         if (size(matches) > 1) {
                         	if ( (ptn@typeHint)? ) {
-                        		matches = { < a, kpm > | < a, kpm > <- matches, !isConstructorType(a) || (isConstructorType(a) && equivalent(getConstructorResultType(a),ptn@typeHint)) }; 
+                        		newMatches = { };
+                        		for ( < a, kpm > <- matches) {
+                        			if (isConstructorType(a) && equivalent(getConstructorResultType(a),ptn@typeHint)) {
+                        				newMatches += < a, kpm >;
+                        			} else if (isProductionType(a) && equivalent(getProductionSortType(a),ptn@typeHint)) {
+                        				newMatches += < a, kpm >;
+                        			} else if (! (isConstructorType(a) || isProductionType(a))) {
+                        				newMatches += < a, kpm >;
+                        			}
+                        		}
+                        		matches = newMatches; 
                         	}
                         }
                         
@@ -4005,11 +4022,18 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         }
         
         case callOrTreeNode(ph, cs, kp) : {
-            Symbol currentType = pt@rtype;
-            if (comparable(currentType, rt))
-                return < c, pt >;
-            else
-                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+        	if ( (pt@rtype)? ) {
+	            Symbol currentType = pt@rtype;
+	            if (comparable(currentType, rt)) {
+	                return < c, pt >;
+	            } else {
+	                throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
+	            }
+	        } else if ((pt@tooManyMatches)?) {
+	        	// Add a type hint, based on the subject type, which should be usable in
+	        	// the next iteration of the matcher.
+	        	return < c, pt[@typeHint=rt] >;
+	        }
             //return < c, pt >;
         }
         
@@ -4699,7 +4723,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Assignable a> <Assignme
 
 @doc{Check the type of Rascal statements: Return (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`return <Statement s>`, Configuration c) {
-    < c, t1 > = checkStmt(s, c);
+    < c, t1 > = checkStmt(s[@typeHint=c.expectedReturnType], c);
     if (!isFailType(t1) && !subtype(t1, c.expectedReturnType))
         return markLocationFailed(c, stmt@\loc, makeFailType("Invalid return type <prettyPrintType(t1)>, expected return type <prettyPrintType(c.expectedReturnType)>", stmt@\loc)); 
     return markLocationType(c, stmt@\loc, \void());
@@ -7124,7 +7148,7 @@ public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAc
     // First, calculate the pattern type. The expected type, which is the type of the item being
     // matched (in a switch, for instance), acts as the subject type. If we cannot calculate the
     // pattern type, assume it is value so we can continue checking, but report the error.
-    < cVisit, pt > = calculatePatternType(p, cVisit, expected);
+    < cVisit, pt > = calculatePatternType(p[@typeHint=expected], cVisit, expected);
     if (isFailType(pt)) {
     	<cVisit, pt> = markLocationFailed(cVisit, p@\loc, pt);
         pt = \value();
@@ -7149,7 +7173,7 @@ public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAc
     // First, calculate the pattern type. The expected type, which is the type of the item being
     // matched (in a switch, for instance), acts as the subject type. If we cannot calculate the
     // pattern type, assume it is value so we can continue checking, but report the error.
-    < cVisit, pt > = calculatePatternType(p, cVisit, expected);
+    < cVisit, pt > = calculatePatternType(p[@typeHint=expected], cVisit, expected);
     if (isFailType(pt)) {
         <cVisit, pt> = markLocationFailed(cVisit, p@\loc, pt);
         pt = \value();
