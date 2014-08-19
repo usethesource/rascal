@@ -1,5 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.util.HashMap;
+
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -187,10 +189,11 @@ public class Frame {
 			if(i > 0) s.append(", ");
 			s.append(stack[i]);
 		}
-		IMap m = (IMap) stack[function.nformals-1];
+		@SuppressWarnings("unchecked")
+		HashMap<String, IValue> m = (HashMap<String, IValue>) stack[function.nformals-1];
 		if(m.size() > 0){
-			for(IValue key : m){
-				s.append(", ").append(((IString) key).getValue()).append("=").append(m.get(key));
+			for(String key : m.keySet()){
+				s.append(", ").append(key).append("=").append(m.get(key));
 			}
 		}
 		
