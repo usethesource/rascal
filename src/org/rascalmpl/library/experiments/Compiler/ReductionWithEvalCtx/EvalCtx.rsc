@@ -1,6 +1,6 @@
-module experiments::CoreRascal::ReductionWithEvalCtx::EvalCtx
+module experiments::Compiler::ReductionWithEvalCtx::EvalCtx
 
-import experiments::CoreRascal::ReductionWithEvalCtx::AST;
+import experiments::Compiler::ReductionWithEvalCtx::AST;
 
 import IO;
 
