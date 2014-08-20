@@ -5829,6 +5829,12 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         // scope -- we don't want to inadvertently use the function name as the name of a pattern variable,
         // and this makes sure we find it when checking the patterns in the signature.
         cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+	    
+	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
+	    // scope of the function
+	    funId = getOneFrom(invert(cFun.definitions)[fd@\loc]);
+	    cFun.stack = funId + cFun.stack;
+	    
         < cFun, tFun > = processSignature(sig, cFun);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
 
@@ -5836,15 +5842,16 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 		// names, and also make sure the default is the correct type.        
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
 		for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
-		  
+		
+		cFun.stack = tail(cFun.stack);
+				  
         // We now have the function type. So, we can throw cFun away, and add this as a proper function
         // into the scope. NOTE: This can be a failure type.
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
-    //else {
+   
     funId = getOneFrom(invert(c.definitions)[fd@\loc]);
     c.stack = funId + c.stack;
-    //}   
     
     // Normally we would now descend into the body. Here we don't have one.
     // However, we still process the signature, e.g., to add the formal parameters to the store,
@@ -5881,6 +5888,12 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     	set[Modifier] modifiers = getModifiers(sig);
         cFun = prepareSignatureEnv(c);
         cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+
+	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
+	    // scope of the function
+	    funId = getOneFrom(invert(cFun.definitions)[fd@\loc]);
+	    cFun.stack = funId + cFun.stack;
+
         < cFun, tFun > = processSignature(sig, cFun);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
 
@@ -5888,13 +5901,14 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 		// names, and also make sure the default is the correct type.        
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
 		for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
-
+		
+		cFun.stack = tail(cFun.stack);
+		
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
-    //else {
+    
     funId = getOneFrom(invert(c.definitions)[fd@\loc]);
     c.stack = funId + c.stack;
-    //}   
     
     if (descend) {
         // Process the signature, but this time in a copy of the current environment
@@ -5943,6 +5957,12 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     	set[Modifier] modifiers = getModifiers(sig); 
         cFun = prepareSignatureEnv(c);
         cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+
+	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
+	    // scope of the function
+	    funId = getOneFrom(invert(cFun.definitions)[fd@\loc]);
+	    cFun.stack = funId + cFun.stack;
+
         < cFun, tFun > = processSignature(sig, cFun);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
 
@@ -5951,12 +5971,13 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
 		for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
 
+		cFun.stack = tail(cFun.stack);
+		
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
-    //else {
+
     funId = getOneFrom(invert(c.definitions)[fd@\loc]);
     c.stack = funId + c.stack;
-    //}   
     
     if (descend) {
         // Process the signature, but this time in a copy of the current environment
@@ -6017,6 +6038,12 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     	set[Modifier] modifiers = getModifiers(sig);
         cFun = prepareSignatureEnv(c);
         cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        
+	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
+	    // scope of the function
+	    funId = getOneFrom(invert(cFun.definitions)[fd@\loc]);
+	    cFun.stack = funId + cFun.stack;
+
         < cFun, tFun > = processSignature(sig, cFun);
         if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
 
@@ -6025,12 +6052,13 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
 		for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
 
+		cFun.stack = tail(cFun.stack);
+		
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
-    //else {
+
     funId = getOneFrom(invert(c.definitions)[fd@\loc]);
     c.stack = funId + c.stack;
-    //}   
     
     if (descend) {
         // Process the signature, but this time in a copy of the current environment

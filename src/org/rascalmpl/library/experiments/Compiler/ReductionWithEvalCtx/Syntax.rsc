@@ -1,4 +1,4 @@
-module experiments::CoreRascal::ReductionWithEvalCtx::Syntax
+module experiments::Compiler::ReductionWithEvalCtx::Syntax
 
 layout Whitespace = [\ \t\n]*;
 lexical Identifier = ( [a-z][a-z0-9]* ) \ Keywords;

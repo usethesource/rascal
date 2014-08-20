@@ -1,4 +1,4 @@
-module experiments::CoreRascal::ReductionWithEvalCtx::AST
+module experiments::Compiler::ReductionWithEvalCtx::AST
 
 @doc{The lambda expression part}
 public data Exp = 
