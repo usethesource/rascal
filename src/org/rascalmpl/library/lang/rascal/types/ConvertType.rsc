@@ -14,6 +14,7 @@ import Set;
 import String;
 import IO;
 import Message;
+import Type;
 
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
