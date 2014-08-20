@@ -795,8 +795,12 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ICONST_1);
 		mv.visitInsn(IADD);
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+
+		//mv.visitVarInsn(ALOAD, 0);
+		//mv.visitFieldInsn(GETFIELD, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+
+		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+
 		mv.visitInsn(AASTORE);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
@@ -1064,8 +1068,13 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf",
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitJumpInsn(IFNONNULL, l0);
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "Rascal_TRUE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+
+		//mv.visitVarInsn(ALOAD, 0);
+		//mv.visitFieldInsn(GETFIELD, fullClassName, "Rascal_TRUE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+		
+		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+
+		
 		mv.visitInsn(ARETURN);
 		mv.visitLabel(l0);
 		mv.visitVarInsn(ALOAD, 0);
@@ -1099,8 +1108,12 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf",
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitJumpInsn(IFNONNULL, l0);
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "Rascal_TRUE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+
+		//mv.visitVarInsn(ALOAD, 0);
+		//mv.visitFieldInsn(GETFIELD, fullClassName, "Rascal_TRUE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+		
+		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/eclipse/imp/pdb/facts/IBool;");
+
 		mv.visitInsn(ARETURN);
 		mv.visitLabel(l0);
 		mv.visitVarInsn(ALOAD, 0);
