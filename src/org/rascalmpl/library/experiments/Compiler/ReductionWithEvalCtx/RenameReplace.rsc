@@ -1,6 +1,6 @@
-module experiments::CoreRascal::ReductionWithEvalCtx::RenameReplace
+module experiments::Compiler::ReductionWithEvalCtx::RenameReplace
 
-import experiments::CoreRascal::ReductionWithEvalCtx::AST;
+import experiments::Compiler::ReductionWithEvalCtx::AST;
 
 @doc{Alpha-substitution: [ z / y ]}
 

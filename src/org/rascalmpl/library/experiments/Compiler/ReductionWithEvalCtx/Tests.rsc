@@ -1,10 +1,10 @@
-module experiments::CoreRascal::ReductionWithEvalCtx::Tests
+module experiments::Compiler::ReductionWithEvalCtx::Tests
 
-import experiments::CoreRascal::ReductionWithEvalCtx::AST;
-import experiments::CoreRascal::ReductionWithEvalCtx::Parse;
-import experiments::CoreRascal::ReductionWithEvalCtx::EvalCtx;
-import experiments::CoreRascal::ReductionWithEvalCtx::Reduction;
-import experiments::CoreRascal::ReductionWithEvalCtx::ReductionWithEvalCtx;
+import experiments::Compiler::ReductionWithEvalCtx::AST;
+import experiments::Compiler::ReductionWithEvalCtx::Parse;
+import experiments::Compiler::ReductionWithEvalCtx::EvalCtx;
+import experiments::Compiler::ReductionWithEvalCtx::Reduction;
+import experiments::Compiler::ReductionWithEvalCtx::ReductionWithEvalCtx;
 
 import IO;
 
