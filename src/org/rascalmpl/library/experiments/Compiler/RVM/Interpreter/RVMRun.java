@@ -45,8 +45,8 @@ public class RVMRun implements IRVM {
 	public Object[] stack;
 	public IValueFactory vf;
 
-	public IBool Rascal_TRUE;
-	public IBool Rascal_FALSE;
+	public static IBool Rascal_TRUE;
+	public static IBool Rascal_FALSE;
 
 	private final TypeFactory tf;
 
@@ -654,12 +654,27 @@ public class RVMRun implements IRVM {
 		stack[sp++] = Rascal_TRUE;
 	}
 
+	public int insnLOADBOOLTRUE(Object[] stack, int sp) {
+		stack[sp++] = Rascal_TRUE;
+		return sp ;
+	}
+
 	public void insnLOADBOOLFALSE() {
 		stack[sp++] = Rascal_FALSE;
 	}
 
+	public int insnLOADBOOLFALSE(Object[] stack, int sp) {
+		stack[sp++] = Rascal_FALSE;
+		return sp ;
+	}
+
 	public void insnLOADINT(int i) {
 		stack[sp++] = i;
+	}
+
+	public int insnLOADINT(int i, Object[] stack, int sp) {
+		stack[sp++] = i;
+		return sp ;
 	}
 
 	public void insnLOADCON(int arg1) {
@@ -673,6 +688,11 @@ public class RVMRun implements IRVM {
 
 	public void insnLOADLOCREF(int i) {
 		stack[sp++] = new Reference(stack, i);
+	}
+
+	public int insnLOADLOCREF(int i, Object[] stack, int sp) {
+		stack[sp++] = new Reference(stack, i);
+		return sp ;
 	}
 
 	// In this partial implementation fully inlined.
