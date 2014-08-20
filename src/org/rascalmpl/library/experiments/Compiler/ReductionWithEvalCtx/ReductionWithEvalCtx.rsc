@@ -1,8 +1,8 @@
-module experiments::CoreRascal::ReductionWithEvalCtx::ReductionWithEvalCtx
+module experiments::Compiler::ReductionWithEvalCtx::ReductionWithEvalCtx
 
-import experiments::CoreRascal::ReductionWithEvalCtx::AST;
-import experiments::CoreRascal::ReductionWithEvalCtx::RenameReplace;
-import experiments::CoreRascal::ReductionWithEvalCtx::EvalCtx;
+import experiments::Compiler::ReductionWithEvalCtx::AST;
+import experiments::Compiler::ReductionWithEvalCtx::RenameReplace;
+import experiments::Compiler::ReductionWithEvalCtx::EvalCtx;
 //extend experiments::CoreRascal::ReductionWithEvalCtx::Reduction;
 
 import IO;

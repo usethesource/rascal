@@ -1,9 +1,9 @@
-module experiments::CoreRascal::ReductionWithEvalCtx::Parse
+module experiments::Compiler::ReductionWithEvalCtx::Parse
 
-import experiments::CoreRascal::ReductionWithEvalCtx::Syntax;
-import experiments::CoreRascal::ReductionWithEvalCtx::AST;
+import experiments::Compiler::ReductionWithEvalCtx::Syntax;
+import experiments::Compiler::ReductionWithEvalCtx::AST;
 import Prelude;
 import ParseTree;
 
-Exp parse(str s) = implode(#experiments::CoreRascal::ReductionWithEvalCtx::AST::Exp,
-						   parse( #experiments::CoreRascal::ReductionWithEvalCtx::Syntax::Exp, s));
+Exp parse(str s) = implode(#experiments::Compiler::ReductionWithEvalCtx::AST::Exp,
+						   parse( #experiments::Compiler::ReductionWithEvalCtx::Syntax::Exp, s));

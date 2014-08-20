@@ -1,6 +1,6 @@
-module experiments::CoreRascal::ReductionWithEvalCtx::Reduction
+module experiments::Compiler::ReductionWithEvalCtx::Reduction
 
-import experiments::CoreRascal::ReductionWithEvalCtx::AST;
+import experiments::Compiler::ReductionWithEvalCtx::AST;
 
 @doc{Reduction rules}
 public Exp step( add(number(n1), number(n2)) ) = number(n1 + n2);
