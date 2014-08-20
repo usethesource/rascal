@@ -13,7 +13,7 @@
 
 module List
 
-import util::Math;
+import Exception;
 import Map;
 
 @doc{
@@ -686,7 +686,10 @@ test: mix(<L>, <M>) == <?>
 
 }
 public list[&T] mix(list[&T] l, list[&T] r){
-	return [elementAt(l,i),elementAt(r,i)| i <- [0 .. min(size(l),size(r))]] + drop(size(r),l) + drop(size(l),r);
+	sizeL = size(l);
+	sizeR = size(r);
+	minSize = sizeL < sizeR ? sizeL : sizeR;
+	return [elementAt(l,i),elementAt(r,i)| i <- [0 .. minSize]] + drop(sizeR,l) + drop(sizeL,r);
 }
 
 @doc{
