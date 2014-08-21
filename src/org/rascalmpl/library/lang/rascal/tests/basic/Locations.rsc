@@ -51,7 +51,10 @@ test bool validURIFragment(loc l, str s) = l[fragment = s].uri != "";
 
 str fixPathAddition(str s) = replaceAll(s, "/", "");
 
-test bool pathAdditions1(list[str] ss) = (|tmp:///ba| | it + fixPathAddition(s)  | s <- ss, s != "" ).path == ("/ba" | it + "/" + fixPathAddition(s)  | s <- ss, s != "" );
+test bool pathAdditions1(list[str] ss) 
+  =  (|tmp:///ba| | it + t  | s <- ss, t := fixPathAddition(s), t != "" ).path 
+  == ("/ba" | it + "/" + t  | s <- ss, t := fixPathAddition(s), t != "" );
+  
 test bool pathAdditions2(loc l, str s) = s == "" || (l + fixPathAddition(s)).path == ((endsWith(l.path, "/") ? l.path : l.path + "/") + fixPathAddition(s)) ;
 
 test bool testParent(loc l, str s) = s == "" || ((l + replaceAll(s, "/","_")).parent + "/") == (l[path=l.path] + "/");
