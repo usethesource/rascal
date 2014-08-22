@@ -310,7 +310,7 @@ public class RascalShell {
 		PrintWriter stdout = new PrintWriter(System.out);
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		Evaluator evaluator = new Evaluator(vf, stderr, stdout, root, heap);
-	  evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		return evaluator;
 	}
 	
