@@ -1,11 +1,14 @@
 package org.rascalmpl.interpreter.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.jar.Attributes;
+import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 
 /**
  * The META-INF/RASCAL.MF file contains information about 
@@ -26,6 +29,7 @@ public class RascalManifest {
   protected static final String MAIN_MODULE = "Main-Module";
   protected static final String MAIN_FUNCTION = "Main-Function";
   protected static final String REQUIRE_BUNDLES = "Require-Bundles";
+  protected static final String REQUIRE_LIBRARIES = "Require-Libraries";
 
   public Manifest getDefaultManifest() {
     Manifest manifest = new Manifest();
@@ -91,6 +95,20 @@ public class RascalManifest {
   public List<String> getRequiredBundles(Class<?> clazz) {
     return getRequiredBundles(manifest(clazz));
   }
+  
+  /**
+   * @return a list of bundle names this jar depends on, or 'null' if none is configured.
+   */
+  public List<String> getRequiredBundles(File jarFile) {
+    return getRequiredBundles(manifest(jarFile));
+  }
+  
+  /**
+   * @return a list of bundle names this jar depends on, or 'null' if none is configured.
+   */
+  public List<String> getRequiredLibraries(Class<?> clazz) {
+    return getRequiredLibraries(manifest(clazz));
+  }
 
   /**
    * @return a list of paths relative to the root of the jar, if no such option is configured
@@ -98,6 +116,14 @@ public class RascalManifest {
    */
   protected List<String> getSourceRoots(InputStream project) {
     return getAttributeList(project, SOURCE, DEFAULT_SRC);
+  }
+  
+  /**
+   * @return a list of paths relative to the root of the jar, if no such option is configured
+   *         it will return ["src"].
+   */
+  public List<String> getSourceRoots(File file) {
+    return getSourceRoots(manifest(file));
   }
   
   /**
@@ -121,8 +147,24 @@ public class RascalManifest {
     return getAttributeList(project, REQUIRE_BUNDLES, null);
   }
 
+  /**
+   * @return a list of bundle names this jar depends on, or 'null' if none is configured.
+   */
+  protected List<String> getRequiredLibraries(InputStream project) {
+    return getAttributeList(project, REQUIRE_LIBRARIES, null);
+  }
+  
   protected InputStream manifest(Class<?> clazz) {
     return clazz.getResourceAsStream("/" + META_INF_RASCAL_MF);
+  }
+  
+  protected InputStream manifest(File jarFile) {
+	  try (JarFile file = new JarFile(jarFile)) {
+		  return file.getInputStream(new ZipEntry(META_INF_RASCAL_MF));
+	  }
+	  catch (IOException e) {
+		  return null;
+	  }
   }
   
   /**
