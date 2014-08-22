@@ -64,10 +64,10 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 	  
 	  if (loc.hasOffsetLength()) {
 	    if (loc.hasLineColumn()) {
-	      return vf.sourceLocation(resolve(uri), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
+	      return vf.sourceLocation(vf.sourceLocation(resolve(uri)), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
 	    }
 	    else {
-	      return vf.sourceLocation(resolve(uri), loc.getOffset(), loc.getLength());
+	      return vf.sourceLocation(vf.sourceLocation(resolve(uri)), loc.getOffset(), loc.getLength());
 	    }
 	  }
 	  
