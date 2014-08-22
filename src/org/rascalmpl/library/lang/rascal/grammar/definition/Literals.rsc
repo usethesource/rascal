@@ -9,7 +9,6 @@
 module lang::rascal::grammar::definition::Literals
 
 import lang::rascal::\syntax::Rascal;
-import lang::rascal::grammar::definition::Modules;
 import Grammar;
 import ParseTree;
 import String;
