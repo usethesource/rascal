@@ -1303,8 +1303,14 @@ public enum RascalPrimitive {
 			String fieldName = ((IString) stack[sp - 1]).getValue();
 			Type tp = cons.getConstructorType();
 			try {
-				int fld_index = tp.getFieldIndex(fieldName);
-				stack[sp - 2] = cons.get(fld_index);
+				IValue v;
+				if(tp.hasKeywordParameter(fieldName)){
+					v = cons.asWithKeywordParameters().getParameter(fieldName);
+				} else {
+					int fld_index = tp.getFieldIndex(fieldName);
+					v = cons.get(fld_index);
+				}
+				stack[sp - 2] = v;
 				return sp - 1;
 			} catch(FactTypeUseException e) {
 				throw RascalRuntimeException.noSuchField(fieldName, stacktrace);
@@ -5658,6 +5664,18 @@ public enum RascalPrimitive {
 				stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
 			}
 			return sp;
+		}
+	},
+	
+	reify {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			assert arity == 2;
+			Types types = new Types(vf);			// TODO make global
+			IValue v = (IValue) stack[sp - 2];
+			Type type = v.getType();
+			stack[sp - 2] = types.typeToSymbol(type, null);
+			return sp - 1;
 		}
 	},
 
