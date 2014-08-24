@@ -16,7 +16,6 @@ import String;
 extend ParseTree;
 
 import lang::rascal::types::AbstractName;
-import lang::rascal::types::ConvertType;
 import lang::rascal::\syntax::Rascal;
 
 @doc{Annotation for parameterized types indicating whether the bound was explicitly given.}

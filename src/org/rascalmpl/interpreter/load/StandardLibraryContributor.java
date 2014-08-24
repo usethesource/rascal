@@ -18,6 +18,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.URIUtil;
 
 
@@ -45,7 +46,15 @@ public class StandardLibraryContributor implements
 		if (property != null) {
 			for (String path : property.split(":")) {
 				try {
-					l.add(URIUtil.fixUnicode(new File(path).toURI()));
+					if (path.endsWith(".jar")) {
+						// TODO: test this new functionality
+						for (String root: new RascalManifest().getSourceRoots(new File(path))) {
+							l.add(URIUtil.fixUnicode(URIUtil.create("jar","",path + "!" + root)));
+						}
+					}
+					else {
+						l.add(URIUtil.fixUnicode(new File(path).toURI()));
+					}
 				} catch (URISyntaxException e) {
 				}
 			}
