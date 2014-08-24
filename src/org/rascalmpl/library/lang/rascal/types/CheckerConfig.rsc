@@ -125,10 +125,11 @@ data Configuration = config(set[Message] messages,
                             map[RName,int] globalAdtMap,
                             map[RName,int] globalSortMap,
                             map[int,Signature] deferredSignatures,
+                            set[RName] unimportedNames,
                             bool importing
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),false);
+public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 

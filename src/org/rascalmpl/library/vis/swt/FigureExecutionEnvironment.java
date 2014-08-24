@@ -232,6 +232,10 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	public void writeScreenshot(OutputStream s){
 		appletRoot.writeScreenshot(s);
 	}
+	
+	public void saveImage(OutputStream s) {
+		appletRoot.saveImage(s);
+	}
 
 	@Override
 	public void registerAnimation(Animation a) {

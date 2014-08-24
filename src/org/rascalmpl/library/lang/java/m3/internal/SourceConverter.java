@@ -87,9 +87,17 @@ public class SourceConverter extends M3Converter {
 		// enum constant declaration and classinstancecreation gives types for anonymousclasses
 		ASTNode parent = node.getParent();
 		if (parent instanceof ClassInstanceCreation) {
-			insert(typeDependency, ownValue, resolveBinding(((ClassInstanceCreation) parent).getType()));
+			ISourceLocation superclass = resolveBinding(((ClassInstanceCreation) parent).getType());
+			insert(typeDependency, ownValue, superclass);
 			IConstructor type = bindingsResolver.computeTypeSymbol(((ClassInstanceCreation) parent).getType().resolveBinding(), false);
 		  	insert(types, ownValue, type);
+		  	
+		  	if (!superclass.getScheme().contains("+interface")) {
+		  		insert(extendsRelations, ownValue, superclass);
+		  	}
+		  	else {
+		  		insert(implementsRelations, ownValue, superclass);
+		  	}
 		}
 		else if (parent instanceof EnumConstantDeclaration) {
 			insert(typeDependency, ownValue, resolveBinding(((EnumConstantDeclaration) parent).resolveVariable()));
