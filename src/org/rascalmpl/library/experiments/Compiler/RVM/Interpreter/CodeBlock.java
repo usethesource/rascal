@@ -538,10 +538,11 @@ public class CodeBlock {
 		return add(new OCallDyn(this, getTypeConstantIndex(types), arity, src));
 	}
 	
-	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes, int reflect){
+	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
 		return add(new CallJava(this, getConstantIndex(vf.string(methodName)), 
 									  getConstantIndex(vf.string(className)), 
 								      getTypeConstantIndex(parameterTypes),
+								      getTypeConstantIndex(keywordTypes),
 								      reflect));
 	}
 	

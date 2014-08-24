@@ -174,7 +174,6 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
                     muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),keywordParams[rname]) | rname <- keywordParams ])) ])) ]);
                                                 
          leaveFunctionScope();
-         println("RascalModule: fuid=<fuid>, name=<name>, ftype=<ftype>, kwargs=<kwargs>");
          functions_in_module += muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body);   	                                       
    	 }
    	 				  
@@ -309,9 +308,15 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   if(ttags["javaClass"]?){
      paramTypes = \tuple([param | param <- ftype.parameters]);
      params = [ muVar("<ftype.parameters[i]>", fuid, i) | i <- [ 0 .. nformals] ];
-     body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, ("reflect" in ttags) ? 1 : 0, params);
+     
+     keywordTypes = \tuple([]);
+     KeywordFormals kwfs = fd.signature.parameters.keywordFormals;
+     if(kwfs is \default) {
+      	keywordTypes = \tuple([ label("<kwf.name>", translateType(kwf.\type)) | KeywordFormal kwf <- kwfs.keywordFormalList]);
+      	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
+     }
+     body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, keywordTypes, ("reflect" in ttags) ? 1 : 0, params);
      //tbody = translateFunction(fd.signature.parameters.formals.formals, isVarArgs, kwps, exp, when_conditions);
-  	
   }
   tbody = translateFunction(fd.signature.parameters.formals.formals, isVarArgs, kwps, body, when_conditions);
   
