@@ -182,8 +182,10 @@ public class BytecodeGenerator implements Opcodes {
 		// emitInlinePop(false); // pop part of jmp...
 		emitCall("insnPOP");
 
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 3);
+		
+		//mv.visitVarInsn(ALOAD, 0);
+		//mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		mv.visitInsn(AALOAD);
@@ -203,8 +205,11 @@ public class BytecodeGenerator implements Opcodes {
 		// emitInlinePop(false); // pop part of jmp...
 		emitCall("insnPOP");
 
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 3);
+		
+		//mv.visitVarInsn(ALOAD, 0);
+		//mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		mv.visitInsn(AALOAD);
@@ -871,8 +876,11 @@ public class BytecodeGenerator implements Opcodes {
 		if (debug) {
 			emitCall("dinsnLOADINT");
 		}
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 3);
+		
+//		mv.visitVarInsn(ALOAD, 0);
+//		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitInsn(DUP);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
@@ -1034,8 +1042,11 @@ public class BytecodeGenerator implements Opcodes {
 		if (exitLabel == null)
 			exitLabel = new Label();
 
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 3);
+		
+		//mv.visitVarInsn(ALOAD, 0);
+		//mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
+		
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitInsn(DUP);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
@@ -1283,4 +1294,17 @@ public class BytecodeGenerator implements Opcodes {
 			mv.visitInsn(AASTORE);
 		}
 	}
+
+	public void emitCallWithArgs(String fname) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 3);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;I)I");
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+	}
+
 }
