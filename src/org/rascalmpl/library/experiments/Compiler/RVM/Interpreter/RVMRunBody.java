@@ -547,6 +547,13 @@ public class RVMRunBody extends RVMRun {
 		stack[sp++] = stack[0] ;
 	}
 
+	void callOne(Frame cf) {
+		int nosp = cf.sp ;
+		Object[] stack= cf.stack; 
+		
+		sp = insnCHECKARGTYPE(stack, sp) ;
+	
+	}
 	
 	
 }
