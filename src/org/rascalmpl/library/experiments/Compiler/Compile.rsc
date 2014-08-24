@@ -55,3 +55,36 @@ RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false, loc
    	
    	return rvmProgram;
 }
+
+void listing(loc moduleLoc, str name = ""){
+
+	rvmProgram = compile(moduleLoc, recompile=true);
+	
+	if(name != ""){
+		for(decl <- rvmProgram.declarations){
+			if(findFirst(decl, name) >= 0){
+				iprintln(rvmProgram.declarations[decl]);
+			}
+		}
+		return;
+	}
+	
+	println("MODULE\t<rvmProgram.name>");
+	
+	println("IMPORTS\t<rvmProgram.imports>");
+	
+	println("DECLARATIONS");
+	
+	for(decl <- rvmProgram.declarations){
+		iprintln(rvmProgram.declarations[decl]);
+	}
+	
+	println("INITIALIZATION");
+	iprintln(rvmProgram.initialization);
+	
+	println("RESOLVER");
+	print("\t"); iprintln(rvmProgram.resolver);
+		
+	println("OVERLOADED FUNCTIONS");
+	print("\t"); iprintln(rvmProgram.overloaded_functions);
+}
