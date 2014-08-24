@@ -3240,7 +3240,7 @@ public class Prelude {
 			if(match(str,i,find)){
 				matched = true;
 				b.append(replacement.getValue());
-				i += fLength;
+				i += Math.max(1, fLength);
 			} else {
 				b.appendCodePoint(str.charAt(i));
 				i++;
