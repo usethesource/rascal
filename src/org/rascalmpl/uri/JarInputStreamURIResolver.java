@@ -9,6 +9,7 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -20,10 +21,10 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 	public JarInputStreamURIResolver(URI jarURI, URIResolverRegistry registry) {
 		this.jarURI = jarURI;
 		this.registry = registry;
-		this.scheme = "jarstream+\"" + jarURI.toASCIIString() + "\"";
+		this.scheme = "jarstream+" + UUID.randomUUID();
 	}
 	
-	private InputStream getJarStream() throws IOException {
+	public InputStream getJarStream() throws IOException {
 		return registry.getInputStream(jarURI);
 	}
 
@@ -34,7 +35,7 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			
 			while ((next = stream.getNextJarEntry()) != null) {
-				if (next.getName().equals(uri.getPath())) {
+				if (next.getName().equals(uri.getPath().substring(1))) {
 					byte[] buf = new byte[1024];
 					int len;
 					while ((len = stream.read(buf)) > 0) {
@@ -61,7 +62,7 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 			JarEntry je = null;
 
 			while ((je = stream.getNextJarEntry()) != null) {
-				if (je.getName().equals(uri.getPath())) {
+				if (je.getName().equals(uri.getPath().substring(1))) {
 					return true;
 				}
 			}
@@ -78,7 +79,7 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 			JarEntry je = null;
 
 			while ((je = stream.getNextJarEntry()) != null) {
-				if (je.getName().equals(uri.getPath())) {
+				if (je.getName().equals(uri.getPath().substring(1))) {
 					return je.getTime();
 				}
 			}
@@ -93,7 +94,7 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 			JarEntry je = null;
 
 			while ((je = stream.getNextJarEntry()) != null) {
-				if (je.getName().equals(uri.getPath())) {
+				if (je.getName().equals(uri.getPath().substring(1))) {
 					return je.isDirectory();
 				}
 			}
@@ -110,7 +111,7 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 			JarEntry je = null;
 
 			while ((je = stream.getNextJarEntry()) != null) {
-				if (je.getName().equals(uri.getPath())) {
+				if (je.getName().equals(uri.getPath().substring(1))) {
 					return !je.isDirectory();
 				}
 			}
