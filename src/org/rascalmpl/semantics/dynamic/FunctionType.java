@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.TypeArg;
@@ -40,7 +39,7 @@ public abstract class FunctionType extends org.rascalmpl.ast.FunctionType {
 			Type returnType = this.getType().typeOf(__eval, instantiateTypeParameters, eval);
 			Type argTypes = TypeUtils.typeOf(this.getArguments(), __eval, instantiateTypeParameters);
 			return org.rascalmpl.interpreter.types.RascalTypeFactory
-					.getInstance().functionType(returnType, argTypes, TF.voidType(), Collections.<String,IKeywordParameterInitializer>emptyMap());
+					.getInstance().functionType(returnType, argTypes, TF.voidType());
 		}
 	}
 

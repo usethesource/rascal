@@ -24,7 +24,6 @@ import java.util.LinkedList;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -35,9 +34,9 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Field;
-import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.KeywordArgument_Expression;
 import org.rascalmpl.ast.KeywordArguments_Expression;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Label;
 import org.rascalmpl.ast.Mapping_Expression;
 import org.rascalmpl.ast.Name;
@@ -506,12 +505,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				      String name = Names.name(kwa.getName());
 
 				      if (kwFormals != null) {
-				        // can typecheck something because keyword argument definitions exist
-
-//				        if (!kwFormals.containsKey(name)) {
-//				          throw new UndeclaredKeywordParameter(function.getType().toString(), name, this);
-//				        }
-
 				        if (kwFormals.hasField(name)) {
 				          if (!val.getType().isSubtypeOf(kwFormals.getFieldType(name))) {
 				            throw new UnexpectedType(kwFormals.getFieldType(name), val.getType(), this);
@@ -535,7 +528,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				}
 				return res;
 			}
-			
 			catch (StackOverflowError e) {
 				throw RuntimeExceptionFactory.stackOverflow(this, eval.getStackTrace());
 			}
@@ -594,17 +586,17 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 
 			Type kwParams = TF.voidType();
-			java.util.Map<String,IKeywordParameterInitializer> kwDefaults = new HashMap<>();
 
+			java.util.List<KeywordFormal> kwd = parameters.getKeywordFormals().getKeywordFormalList();
+			
 			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
-				java.util.List<KeywordFormal> kwd = parameters.getKeywordFormals().getKeywordFormalList();
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kwd, __eval);
-				kwDefaults = TypeDeclarationEvaluator.interpretKeywordParameters(kwd, kwParams, env, __eval);
 			}
 
 			return new RascalFunction(this, __eval, null,
-					(FunctionType) RTF
-					.functionType(returnType, formals, kwParams, kwDefaults), this.getParameters()
+					(FunctionType) RTF.functionType(returnType, formals, kwParams),
+					kwd,
+					this.getParameters()
 					.isVarArgs(), false, false, this.getStatements(), env, __eval.__getAccumulators());
 		}
 
@@ -2858,16 +2850,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					.getInstance();
 
 			Type kwParams = TF.voidType();
-			java.util.Map<String,IKeywordParameterInitializer> kwDefaults = new HashMap<>();
-
+			java.util.List<KeywordFormal> kws = parameters.getKeywordFormals().getKeywordFormalList();
+			
 			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
-				java.util.List<KeywordFormal> kws = parameters.getKeywordFormals().getKeywordFormalList();
+				
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kws, eval);
-				kwDefaults = TypeDeclarationEvaluator.interpretKeywordParameters(kws, kwParams, eval.getCurrentEnvt(), eval);
 			}
 
 			return new RascalFunction(this, eval, null, (FunctionType) RTF
-					.functionType(TF.voidType(), formals, kwParams, kwDefaults), this.getParameters()
+					.functionType(TF.voidType(), formals, kwParams), kws, this.getParameters()
 					.isVarArgs(), false, false, this.getStatements0(), eval
 					.getCurrentEnvt(), eval.__getAccumulators());
 

@@ -18,12 +18,14 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
@@ -32,16 +34,18 @@ import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 public class ConstructorFunction extends NamedFunction {
-	private Type constructorType;
+	private final Type constructorType;
+	private final List<KeywordFormal> initializers;
 
-	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType) {
-		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), constructorType.getKeywordParameterTypes(), constructorType.getKeywordParameterInitializers()), constructorType.getName(), false, true, false, env);
+	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType, List<KeywordFormal> initializers) {
+		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), constructorType.getKeywordParameterTypes()), initializers, constructorType.getName(), false, true, false, env);
 		this.constructorType = constructorType;
+		this.initializers = initializers;
 	}
 
 	@Override
 	public ConstructorFunction cloneInto(Environment env) {
-		ConstructorFunction c = new ConstructorFunction(getAst(), getEval(), env, constructorType);
+		ConstructorFunction c = new ConstructorFunction(getAst(), getEval(), env, constructorType, initializers);
 		c.setPublic(isPublic());
 		return c;
 	}
@@ -78,6 +82,7 @@ public class ConstructorFunction extends NamedFunction {
 			instantiated = constructorType.instantiate(bindings);
 		}
 
+		// TODO: do something with defaults?!
 		return makeResult(instantiated, ctx.getValueFactory().constructor(constructorType, actuals, keyArgValues), ctx);
 	}
 	

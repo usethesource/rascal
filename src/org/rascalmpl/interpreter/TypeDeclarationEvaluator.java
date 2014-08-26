@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeRedeclaredException;
@@ -115,22 +114,21 @@ public class TypeDeclarationEvaluator {
 		for (Variant var : x.getVariants()) {
 			String altName = Names.name(var.getName());
 
-			Map<String,IKeywordParameterInitializer> init = Collections.emptyMap();
 			Type kwType = tf.voidType();
 			
 			if (var.isNAryConstructor()) {
+				List<KeywordFormal> local = var.getKeywordArguments().getKeywordFormalList();
+				List<KeywordFormal> kws = new ArrayList<>(common.size() + local.size());
+				
 				if (var.getKeywordArguments().isDefault()) {
-					List<KeywordFormal> local = var.getKeywordArguments().getKeywordFormalList();
-					List<KeywordFormal> kws = new ArrayList<>(common.size() + local.size());
 					kws.addAll(common);
 					kws.addAll(local);
 					
 					kwType = computeKeywordParametersType(kws, eval);
-					init = interpretKeywordParameters(kws, kwType, env, this.eval);
 				}
 				else if (!common.isEmpty()) {
 					kwType = computeKeywordParametersType(common, eval);
-					init = interpretKeywordParameters(common, kwType, env, this.eval);
+					kws = common;
 				}
 
 				List<TypeArg> args = var.getArguments();
@@ -157,7 +155,7 @@ public class TypeDeclarationEvaluator {
 				Type children = tf.tupleType(fields, labels);
 				
 				try {
-					ConstructorFunction cons = env.constructorFromTuple(var, eval, adt, altName, children, kwType, init);
+					ConstructorFunction cons = env.constructorFromTuple(var, eval, adt, altName, children, kwType, kws);
 					cons.setPublic(true); // TODO: implement declared visibility
 				} catch (org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException e) {
 					throw new RedeclaredType(altName, var);
@@ -168,32 +166,6 @@ public class TypeDeclarationEvaluator {
 		}
 	}
 
-	public static Map<String,IKeywordParameterInitializer> interpretKeywordParameters(final List<KeywordFormal> ps, final Type kwType, final Environment declContext, final IEvaluator<Result<IValue>> eval) {
-		Map<String,IKeywordParameterInitializer> results = new HashMap<>();
-		
-		
-		for (final KeywordFormal kw : ps) {
-			final String name = Names.name(kw.getName());
-			final Expression expr = kw.getExpression();
-			IValue staticValue = null;
-			if (expr.isLiteral() || expr.isSet() || expr.isMap() || expr.isList()) {
-				boolean interpolatedString = expr.isLiteral() && expr.getLiteral().isString() && expr.getLiteral().getStringLiteral().isInterpolated();
-				if (!expr.hasGenerators() && !interpolatedString) {
-					staticValue = expr.interpret(eval).getValue();
-				}
-			}
-			
-			if (staticValue != null) {
-				results.put(name, TypeFactory.getInstance().constantKeywordParameterInitializer(staticValue));
-			}
-			else {
-				results.put(name, new EvaluatedParameterInitializer(declContext, kw, eval));
-			}
-		}
-		
-		return results;
-	}
-	
 	public void declareAbstractADT(DataAbstract x, Environment env) {
 		TypeFactory.getInstance();
 		declareAbstractDataType(x.getUser(), env);
@@ -314,77 +286,6 @@ public class TypeDeclarationEvaluator {
 
 		for (Toplevel t : decls) {
 			t.accept(collector);
-		}
-	}
-
-	private static final class EvaluatedParameterInitializer implements
-			IKeywordParameterInitializer {
-		private final Environment declContext;
-		private final KeywordFormal kw;
-		private final IEvaluator<Result<IValue>> eval;
-
-		private EvaluatedParameterInitializer(Environment declContext,
-				KeywordFormal kw, IEvaluator<Result<IValue>> eval) {
-			this.declContext = declContext;
-			this.kw = kw;
-			this.eval = eval;
-		}
-
-		@Override
-		public IValue initialize(ImmutableMap<String, IValue> environment) {
-			Environment env = computeEnvironment(declContext, environment);
-			Environment old = eval.getCurrentEnvt();
-		
-			try {
-				eval.setCurrentEnvt(env);
-//							if (!environment.containsKey(name)) {
-					return kw.getExpression().interpret(eval).getValue();
-//							}
-//							else {
-//								return environment.get(name);
-//							}
-			}
-			finally {
-				eval.unwind(old);
-			}
-		}
-
-		private Environment computeEnvironment(Environment declContext, final ImmutableMap<String, IValue> environment) {
-			return new Environment(declContext, eval.getCurrentEnvt().getLocation(), "init") {
-				@Override
-				public boolean isRootScope() {
-					return true;
-				}
-				
-				@Override
-				public Result<IValue> getVariable(String name) {
-					if (environment.containsKey(name)) {
-						IValue v = environment.get(name);
-						// we loose static type information for the variables used in the initializers here.
-						return ResultFactory.makeResult(/*kwType.getFieldType(name)*/ v.getType(), v, eval);
-					}
-					else {
-						return super.getVariable(name);
-					}
-				}
-			};
-		}
-		
-		@Override
-		public boolean equals(Object obj) {
-			if (!(obj instanceof EvaluatedParameterInitializer)) {
-				return false;
-			}
-			EvaluatedParameterInitializer other = (EvaluatedParameterInitializer) obj;
-			return other.kw.equals(kw);
-		}
-		@Override
-		public int hashCode() {
-			return 19 + kw.hashCode();
-		}
-		@Override
-		public String toString() {
-			return "...";
 		}
 	}
 
