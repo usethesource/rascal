@@ -79,7 +79,7 @@ public class ConstructorResult extends NodeResult {
 				
 				if (parameter == null) {
 					// then its time to compute defaults.
-					Map<String, IValue> kwArgs = ctx.getCurrentEnvt().getConstructorFunction(getType()).computeKeywordArgs(childrenAsArray(), getValue().asWithKeywordParameters().getParameters());
+					Map<String, IValue> kwArgs = ctx.getCurrentEnvt().getConstructorFunction(getValue().getConstructorType()).computeKeywordArgs(childrenAsArray(), getValue().asWithKeywordParameters().getParameters());
 					parameter = kwArgs.get(name);
 
 					assert parameter != null; // this shouldn't happen because defaults are defined 
