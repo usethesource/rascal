@@ -33,13 +33,12 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
-import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
@@ -136,11 +135,12 @@ public class NodePattern extends AbstractMatchingResult {
 			return;
 		}
 
+		IValue[] subjectChildren = new IValue[patternChildren.size()];
 		for (int i = 0; i < patternChildren.size(); i++){
-			IValue subjectChild = this.subject.get(i);
+			subjectChildren[i] = this.subject.get(i);
 			IMatchingResult patternChild = patternChildren.get(i);
 
-			patternChild.initMatch(ResultFactory.makeResult(subjectChild.getType(), subjectChild, ctx));
+			patternChild.initMatch(ResultFactory.makeResult(subjectChildren[i].getType(), subjectChildren[i], ctx));
 			hasNext = patternChild.hasNext();
 
 			if (!hasNext) {
@@ -149,25 +149,13 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 
 		if (type.hasKeywordParameters()) {
-			ImmutableMap<String, IValue> kwEnv = AbstractSpecialisedImmutableMap.mapOf();
+			// this fills in the defaults for pattern matching against them:
+			ConstructorFunction func = ctx.getCurrentEnvt().getConstructorFunction(type);
+			Map<String, IValue> kwArgs = func.computeKeywordArgs(subjectChildren, subject.getValue().asWithKeywordParameters().getParameters());
+
 			
-			// We have to be careful to match the keyword parameters in order of their declaration in the constructor
-			// because the default values may have data dependencies going from right to left in the declaration, at the 
-			// same time the concrete value may override default values.
 			for (String kwLabel : type.getKeywordParameterTypes().getFieldNames()) {
-				IWithKeywordParameters<? extends INode> wkw = this.subject.asWithKeywordParameters();
-				IValue subjectParam = wkw.getParameter(kwLabel);
-				
-				if (subjectParam == null) { 
-					// the subject does not have the keyword parameter, but we know how to get a default value
-					// note that wkw.getParameter could return a default value as well, but this is not guaranteed because
-					// its value could have been generated in a context where the default is not defined, yet the constructor
-					// name and the arity matches. So here, we find a default from the declaring context of the pattern.
-					subjectParam = type.getKeywordParameterInitializer(kwLabel).initialize(kwEnv);
-				}
-				
-				// update the initialization environment which is shared from left to right between the initializers
-				kwEnv = kwEnv.__put(kwLabel, subjectParam);
+				IValue subjectParam = kwArgs.get(kwLabel);
 				
 				if (keywordParameters.containsKey(kwLabel)) {
 					IMatchingResult matcher = keywordParameters.get(kwLabel);

@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
