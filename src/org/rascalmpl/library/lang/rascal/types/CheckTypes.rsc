@@ -6590,8 +6590,12 @@ public Configuration loadImportedTypesAndTags(Configuration c, set[RName] import
 	
 	// We can import data declarations for name `tn` when `tn` is not yet in the type environment, 
 	// and, in all imports, `tn` is always a data type name
-	for (tn <- typeNames, (tn notin c.typeEnv && tn notin sortNames && tn notin aliasNames), ti <- justTypes[tn]) {
-		c = addImportedADT(c, tn, ti);
+	for (tn <- typeNames, ti <- justTypes[tn]) {
+		if (tn notin c.typeEnv && tn notin sortNames && tn notin aliasNames) {
+			c = addImportedADT(c, tn, ti);
+		} else {
+			c.unimportedNames = c.unimportedNames + tn;
+		}
 	}
 	
 	// This follows the same rules as for data declarations, but for sort declarations
@@ -7045,7 +7049,17 @@ public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c)
 				if (c.importing) {
 					insert(deferred(utc));
 				} else {
-					return < c, makeFailType("Type <prettyPrintName(rn)> not declared", l) >;
+					if (rn in c.unimportedNames) {
+						nameMatches = { "<prettyPrintName(appendName(mi,rn))>" | mi <- c.moduleInfo, rn in c.moduleInfo[mi].typeEnv || appendName(mi,rn) in c.moduleInfo[mi].typeEnv };
+						if (size(nameMatches) > 0) {
+							ft = makeFailType("Type <prettyPrintName(rn)> was not imported, use one of the following fully qualified type names instead: <intercalate(",",toList(nameMatches))>", l);
+							return < c, ft >;
+						} else {
+							return < c, makeFailType("Type <prettyPrintName(rn)> not declared", l) >;
+						}
+					} else {
+						return < c, makeFailType("Type <prettyPrintName(rn)> not declared", l) >;
+					}
 				}
 			}
 		}

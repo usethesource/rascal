@@ -91,6 +91,7 @@ public data Instruction =
 		| CALLPRIM(str name, int arity, loc src)	// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
 		| CALLJAVA(str name, str class, 
 		           Symbol parameterTypes,
+		           Symbol keywordTypes,
 		           int reflect)			            // Call a Java method
 		
 		| RETURN0()									// Return from function without value

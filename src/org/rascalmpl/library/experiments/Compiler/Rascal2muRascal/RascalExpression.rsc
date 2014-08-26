@@ -744,9 +744,6 @@ private bool hasTopLevelInsert(Case c) {
 	return false;
 }
 
-
-
-
 // -- reducer expression --------------------------------------------
 
 MuExp translate (e:(Expression) `( <Expression init> | <Expression result> | <{Expression ","}+ generators> )`) = translateReducer(init, result, generators);
@@ -763,8 +760,10 @@ MuExp translateReducer(Expression init, Expression result, {Expression ","}+ gen
 
 // -- reified type expression ---------------------------------------
 
-MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) { throw("reifiedType"); }
-//  muCon(symbolToValue(symbol, config)); // TODO
+MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) {
+  // previous: return muCon(symbolToValue(symbol, config));
+  return muCallPrim("reify", [translate(symbol), translate(definitions)]);
+}
 
 // -- call expression -----------------------------------------------
 
@@ -855,6 +854,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
            }
            throw "Ups, unexpected type of the call receiver expression!";
        }
+       
+     
        
        for(int alt <- of.alts) {
            t = fuid2type[alt];

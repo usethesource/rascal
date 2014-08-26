@@ -254,7 +254,8 @@ public class Execute {
 				break;
 
 			case "LOADVAR":
-				codeblock.LOADVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				codeblock.LOADVAR(getStrField(instruction, "fuid"), 
+								  getIntField(instruction, "pos"));
 				break;
 
 			case "LOADLOC":
@@ -266,7 +267,8 @@ public class Execute {
 				break;
 
 			case "STOREVAR":
-				codeblock.STOREVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				codeblock.STOREVAR(getStrField(instruction, "fuid"), 
+								   getIntField(instruction, "pos"));
 				break;
 
 			case "STORELOC":
@@ -278,11 +280,14 @@ public class Execute {
 				break;
 
 			case "CALLPRIM":
-				codeblock.CALLPRIM(RascalPrimitive.valueOf(getStrField(instruction, "name")), getIntField(instruction, "arity"), getLocField(instruction, "src"));
+				codeblock.CALLPRIM(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getIntField(instruction, "arity"), 
+								   getLocField(instruction, "src"));
 				break;
 
 			case "CALLMUPRIM":
-				codeblock.CALLMUPRIM(MuPrimitive.valueOf(getStrField(instruction, "name")), getIntField(instruction, "arity"));
+				codeblock.CALLMUPRIM(MuPrimitive.valueOf(getStrField(instruction, "name")), 
+									 getIntField(instruction, "arity"));
 				break;
 
 			case "CALL":
@@ -294,7 +299,8 @@ public class Execute {
 				break;
 				
 			case "APPLY":
-				codeblock.APPLY(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.APPLY(getStrField(instruction, "fuid"), 
+								getIntField(instruction, "arity"));
 				break;
 				
 			case "APPLYDYN":
@@ -330,7 +336,8 @@ public class Execute {
 				break;
 				
 			case "CREATE":
-				codeblock.CREATE(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.CREATE(getStrField(instruction, "fuid"), 
+								 getIntField(instruction, "arity"));
 				break;
 
 			case "CREATEDYN":
@@ -374,7 +381,8 @@ public class Execute {
 				break;
 
 			case "LOADVARREF":
-				codeblock.LOADVARREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				codeblock.LOADVARREF(getStrField(instruction, "fuid"), 
+									 getIntField(instruction, "pos"));
 				break;
 
 			case "LOADLOCDEREF":
@@ -382,7 +390,8 @@ public class Execute {
 				break;
 
 			case "LOADVARDEREF":
-				codeblock.LOADVARDEREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				codeblock.LOADVARDEREF(getStrField(instruction, "fuid"), 
+									   getIntField(instruction, "pos"));
 				break;
 
 			case "STORELOCDEREF":
@@ -390,11 +399,13 @@ public class Execute {
 				break;
 
 			case "STOREVARDEREF":
-				codeblock.STOREVARDEREF(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				codeblock.STOREVARDEREF(getStrField(instruction, "fuid"), 
+										getIntField(instruction, "pos"));
 				break;
 
 			case "LOAD_NESTED_FUN":
-				codeblock.LOADNESTEDFUN(getStrField(instruction, "fuid"), getStrField(instruction, "scopeIn"));
+				codeblock.LOADNESTEDFUN(getStrField(instruction, "fuid"), 
+										getStrField(instruction, "scopeIn"));
 				break;
 
 			case "LOADCONSTR":
@@ -402,7 +413,8 @@ public class Execute {
 				break;
 
 			case "CALLCONSTR":
-				codeblock.CALLCONSTR(getStrField(instruction, "fuid"), getIntField(instruction, "arity")/*, getLocField(instruction, "src")*/);
+				codeblock.CALLCONSTR(getStrField(instruction, "fuid"), 
+									 getIntField(instruction, "arity")/*, getLocField(instruction, "src")*/);
 				break;
 
 			case "LOADTYPE":
@@ -425,17 +437,23 @@ public class Execute {
 				break;
 
 			case "OCALL" :
-				codeblock.OCALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"), getLocField(instruction, "src"));
+				codeblock.OCALL(getStrField(instruction, "fuid"), 
+								getIntField(instruction, "arity"), 
+								getLocField(instruction, "src"));
 				break;
 
 			case "OCALLDYN" :
-				codeblock.OCALLDYN(rvm.symbolToType((IConstructor) instruction.get("types")), getIntField(instruction, "arity"), getLocField(instruction, "src"));
+				codeblock.OCALLDYN(rvm.symbolToType((IConstructor) instruction.get("types")), 
+								   getIntField(instruction, "arity"), 
+								   getLocField(instruction, "src"));
 				break;
 
 			case "CALLJAVA":
-				codeblock.CALLJAVA(getStrField(instruction, "name"), getStrField(instruction, "class"), 
-						 			rvm.symbolToType((IConstructor) instruction.get("parameterTypes")), 
-						 			getIntField(instruction, "reflect"));
+				codeblock.CALLJAVA(getStrField(instruction, "name"), 
+						           getStrField(instruction, "class"), 
+						 		   rvm.symbolToType((IConstructor) instruction.get("parameterTypes")), 
+						 		   rvm.symbolToType((IConstructor) instruction.get("keywordTypes")), 
+						 		   getIntField(instruction, "reflect"));
 				break;
 
 			case "THROW":
@@ -511,7 +529,8 @@ public class Execute {
 				break;
 				
 			case "LOADVARKWP":
-				codeblock.LOADVARKWP(getStrField(instruction, "fuid"), getStrField(instruction, "name"));
+				codeblock.LOADVARKWP(getStrField(instruction, "fuid"), 
+									 getStrField(instruction, "name"));
 				break;
 				
 			case "STORELOCKWP":
@@ -519,11 +538,13 @@ public class Execute {
 				break;
 				
 			case "STOREVARKWP":
-				codeblock.STOREVARKWP(getStrField(instruction, "fuid"), getStrField(instruction, "name"));
+				codeblock.STOREVARKWP(getStrField(instruction, "fuid"), 
+									  getStrField(instruction, "name"));
 				break;
 				
 			case "UNWRAPTHROWNVAR":
-				codeblock.UNWRAPTHROWNVAR(getStrField(instruction, "fuid"), getIntField(instruction, "pos"));
+				codeblock.UNWRAPTHROWNVAR(getStrField(instruction, "fuid"), 
+									      getIntField(instruction, "pos"));
 				break;
 				
 			default:
