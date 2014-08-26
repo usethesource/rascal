@@ -17,6 +17,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,9 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.KeywordFormal;
+import org.rascalmpl.ast.KeywordFormals;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
@@ -86,6 +89,11 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 
+	protected static List<KeywordFormal> getFormals(FunctionDeclaration func) {
+		KeywordFormals keywordFormals = func.getSignature().getParameters().getKeywordFormals();
+		return keywordFormals.hasKeywordFormalList() ? keywordFormals.getKeywordFormalList() : Collections.<KeywordFormal>emptyList();
+	}
+	
 	public boolean isTest() {
 		return false;
 	}
