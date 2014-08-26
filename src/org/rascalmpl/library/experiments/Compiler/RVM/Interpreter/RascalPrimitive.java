@@ -4186,9 +4186,6 @@ public enum RascalPrimitive {
 			assert arity == 5;
 			INode node = (INode) stack[sp - 5];
 			int nd_arity = node.arity();
-			if(node.get(nd_arity - 1).getType().isMap()){ // Take keyword map into consideration, when present
-				nd_arity--;
-			}
 			SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), nd_arity, stacktrace);
 			IList repl = (IList) stack[sp - 1];
 			stack[sp - 5] = node.replace(sd.first, sd.second, sd.end, repl);
@@ -4251,9 +4248,6 @@ public enum RascalPrimitive {
 
 			INode node = (INode) stack[sp - 4];
 			int nd_arity = node.arity();
-			if(node.get(nd_arity - 1).getType().isMap()){ // Take keyword map into consideration, when present
-				nd_arity--;
-			}
 			stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), nd_arity, stacktrace));
 			return sp - 3;
 		}
@@ -5043,9 +5037,7 @@ public enum RascalPrimitive {
 			int idx = ((IInteger) stack[sp - 1]).intValue();
 			try {
 				if(idx < 0){
-					int nd_arity = node.arity();
-					/* take keyword map into consideration, when present */
-					idx =  (nd_arity + idx) + (node.get(nd_arity - 1).getType().isMap() ? - 1 : 0);
+					idx =  node.arity() + idx;
 				}
 				stack[sp - 2] = node.get(idx);  
 			} catch(IndexOutOfBoundsException e) {
@@ -6099,6 +6091,7 @@ public enum RascalPrimitive {
 				if (uri.getHost() != null) {
 					uri = URIUtil.changeUserInformation(uri, newStringValue);
 				}
+				authority = uri.getAuthority();
 				uriPartChanged = true;
 				break;
 
