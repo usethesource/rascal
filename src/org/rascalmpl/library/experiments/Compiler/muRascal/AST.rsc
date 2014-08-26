@@ -95,6 +95,7 @@ public data MuExp =
           | muCallMuPrim(str name, list[MuExp] exps)			// Call a muRascal primitive function
           | muCallJava(str name, str class, 
           			   Symbol parameterTypes,
+          			   Symbol keywordTypes,
           			   int reflect,
           			   list[MuExp] args)						// Call a Java method in given class
  

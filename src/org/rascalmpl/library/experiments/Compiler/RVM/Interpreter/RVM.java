@@ -963,10 +963,11 @@ public class RVM {
 					String methodName =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
 					String className =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
 					Type parameterTypes = cf.function.typeConstantStore[instructions[pc++]];
+					Type keywordTypes = cf.function.typeConstantStore[instructions[pc++]];
 					int reflect = instructions[pc++];
 					arity = parameterTypes.getArity();
 					try {
-					    sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
+					    sp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
 					} catch(Throw e) {
 						stacktrace.add(cf);
 						thrown = Thrown.getInstance(e.getException(), e.getLocation(), stacktrace);
@@ -1406,7 +1407,7 @@ public class RVM {
 		}
 	}
 	
-	int callJavaMethod(String methodName, String className, Type parameterTypes, int reflect, Object[] stack, int sp) throws Throw {
+	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw {
 		Class<?> clazz = null;
 		try {
 			try {
@@ -1431,17 +1432,38 @@ public class RVM {
 			Constructor<?> cons;
 			cons = clazz.getConstructor(IValueFactory.class);
 			Object instance = cons.newInstance(vf);
-			Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes, reflect));
-			int nformals = parameterTypes.getArity();
-			Object[] parameters = new Object[nformals + reflect];
-			for(int i = 0; i < nformals; i++){
-				parameters[i] = stack[sp - nformals + i];
+			Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes, keywordTypes, reflect));
+			int arity = parameterTypes.getArity();
+			int kwArity = keywordTypes.getArity();
+			int kwMaps = kwArity > 0 ? 2 : 0;
+			Object[] parameters = new Object[arity + kwArity + reflect];
+			int i = 0;
+			while(i < arity){
+				parameters[i] = stack[sp - arity - kwMaps + i];
+				i++;
 			}
+			if(kwArity > 0){
+				@SuppressWarnings("unchecked")
+				Map<String, IValue> kwMap = (Map<String, IValue>) stack[sp - 2];
+				@SuppressWarnings("unchecked")
+				Map<String, Map.Entry<Type, IValue>> kwDefaultMap = (Map<String, Map.Entry<Type, IValue>>) stack[sp - 1];
+
+				while(i < arity + kwArity){
+					String key = keywordTypes.getFieldName(i - arity);
+					IValue val = kwMap.get(key);
+					if(val == null){
+						val = kwDefaultMap.get(key).getValue();
+					}
+					parameters[i] = val;
+					i++;
+				}
+			}
+			
 			if(reflect == 1) {
-				parameters[nformals] = this.getEvaluatorContext();
+				parameters[arity + kwArity] = this.getEvaluatorContext();
 			}
-			stack[sp - nformals] =  m.invoke(instance, parameters);
-			return sp - nformals + 1;
+			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
+			return sp - arity - kwMaps + 1;
 		} 
 //		catch (ClassNotFoundException e) {
 //			// TODO Auto-generated catch block
@@ -1468,20 +1490,25 @@ public class RVM {
 		return sp;
 	}
 	
-	Class<?>[] makeJavaTypes(Type parameterTypes, int reflect){
+	Class<?>[] makeJavaTypes(Type parameterTypes, Type keywordTypes, int reflect){
 		JavaClasses javaClasses = new JavaClasses();
-		int arity = parameterTypes.getArity() + reflect;
-		Class<?>[] jtypes = new Class<?>[arity];
+		int arity = parameterTypes.getArity();
+		int kwArity = keywordTypes.getArity();
+		Class<?>[] jtypes = new Class<?>[arity + kwArity + reflect];
 		
-		for(int i = 0; i < parameterTypes.getArity(); i++){
+		int i = 0;
+		while(i < parameterTypes.getArity()){
 			jtypes[i] = parameterTypes.getFieldType(i).accept(javaClasses);
+			i++;
 		}
+		
+		while(i < arity + kwArity){
+			jtypes[i] = keywordTypes.getFieldType(i -  arity).accept(javaClasses);
+			i++;
+		}
+		
 		if(reflect == 1) {
-			try {
-				jtypes[arity - 1] = this.getClass().getClassLoader().loadClass("org.rascalmpl.interpreter.IEvaluatorContext");
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
+			jtypes[arity + kwArity] = IEvaluatorContext.class;
 		}
 		return jtypes;
 	}

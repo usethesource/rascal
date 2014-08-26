@@ -124,6 +124,22 @@ int getScopeSize(str fuid) =
 // extractScopes: extract and convert type information from the Configuration delivered by the type checker.
 						    
 void extractScopes(){
+	// Inspect all items in config.store and construct the sets
+	// - modules, modulesNames
+	// - functions, ofunctions
+	// - constructors
+	// - variables
+	
+	// the relations 
+	// - declares
+	// - containment
+	
+	// and the mappings:
+	// - uid2name
+	// - loc2uid
+	// - fuid2type
+	// - fuid2str
+	
    for(uid <- config.store){
       item = config.store[uid];
       switch(item){
@@ -251,12 +267,13 @@ void extractScopes(){
             uid2addr[topdecls[i]] = <getFUID(uid2str(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0), i + 1>;
     	}
     	// Then, functions
-    	topdecls = [ uid | uid <- declares[muid], function(_,_,_,_,_,_,_,_) := config.store[uid] ||
-    											  closure(_,_,_,_)        := config.store[uid] ||
-    											  constructor(_,_,_,_,_)  := config.store[uid] ||
-    											( production(rname,_,_,_) := config.store[uid] 
-    											    && !isEmpty(getSimpleName(rname)) )        ||
-    											  variable(_,_,_,_,_)     := config.store[uid] ];
+    	topdecls = [ uid | uid <- declares[muid], 
+    	                      function(_,_,_,_,_,_,_,_) := config.store[uid] 
+    	                   || closure(_,_,_,_)          := config.store[uid] 
+    	                   || constructor(_,_,_,_,_)    := config.store[uid] 
+    	                   || ( production(rname,_,_,_) := config.store[uid] && !isEmpty(getSimpleName(rname)) ) 
+    	                   || variable(_,_,_,_,_)     := config.store[uid] 
+    	           ];
     	for(i <- index(topdecls)) {
     		// functions and closures are identified by their qualified names, and they do not have a position in their scope
     		// only the qualified name of their enclosing module or function is significant 
@@ -373,6 +390,8 @@ tuple[str fuid,int pos] getVariableScope(str name, loc l) {
   return addr;
 }
 
+// Create unique symbolic names for functions, constructors and productions
+
 str getFUID(str fname, Symbol \type) { 
     //println("getFUID: <fname>, <\type>");
     return "<fname>(<for(p<-\type.parameters){><p>;<}>)";
@@ -381,11 +400,12 @@ str getFUID(str fname, Symbol \type) {
 str getFUID(str fname, Symbol \type, int case_num) = "<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
 str getFUID(str modName, str fname, Symbol \type, int case_num) = "<modName>/<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
 
-str getCUID(str cname, Symbol \type) = "<\type.\adt>::<cname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
-str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
+// NOTE: was "<\type.\adt>::<cname>(<for(label(l,t)<-tparams){><t> <l>;<}>)"; but that did cater for unlabeled fields
+str getCUID(str cname, Symbol \type) = "<\type.\adt>::<cname>(<for(p<-\type.parameters){><p>;<}>)";
+str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cname>(<for(p <-\type.parameters){><p>;<}>)";
 
-str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
-str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(Symbol::label(l,t)<-\type.parameters){><t> <l>;<}>)";
+str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(p <-\type.parameters){><p>;<}>)";
+str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(p <-\type.parameters){><p>;<}>)";
 
 str uid2str(int uid) {
 	if(!uid2name[uid]?) {
@@ -398,7 +418,9 @@ str uid2str(int uid) {
 		name = uid2str(containedIn[uid]) + "/" + name;
 	} else if(declaredIn[uid]?) {
 	    val = config.store[uid];
-	    if( (function(_,_,_,_,inScope,_,_,src) := val || constructor(_,_,_,inScope,src) := val || production(_,_,inScope,src) := val ), 
+	    if( (function(_,_,_,_,inScope,_,_,src) := val || 
+	         constructor(_,_,_,inScope,src) := val || 
+	         production(_,_,inScope,src) := val ), 
 	        \module(value _,loc at) := config.store[inScope]) {
         	if(at.path != src.path) {
         	    str path = replaceAll(src.path, ".rsc", "");

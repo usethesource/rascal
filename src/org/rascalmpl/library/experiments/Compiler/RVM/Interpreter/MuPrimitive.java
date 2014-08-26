@@ -599,6 +599,7 @@ public enum MuPrimitive {
 			return sp + 1;
 		};
 	},
+	// Create a map from keyword name to an entry <type, default_value>
 	make_mmap_str_entry {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -606,7 +607,8 @@ public enum MuPrimitive {
 			stack[sp] = new HashMap<String, Map.Entry<Type, IValue>>();
 			return sp + 1;
 		};
-	}, // kwp
+	}, 
+	// Create an entry <type, default_value>
 	make_mentry_type_ivalue {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -614,7 +616,8 @@ public enum MuPrimitive {
 			stack[sp - 2] = new AbstractMap.SimpleEntry<Type, IValue>((Type) stack[sp - 2], (IValue) stack[sp - 1]);
 			return sp - 1;
 		};
-	}, // kwp
+	},
+	// Create a keword map with <name, value> entries
 	make_mmap {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -634,6 +637,7 @@ public enum MuPrimitive {
 			return sp;
 		}
 	},
+	// Does a keyword map with <name, value> entries contain a given key?
 	mmap_contains_key {
 		@SuppressWarnings("unchecked")
 		@Override
