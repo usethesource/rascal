@@ -77,7 +77,7 @@ public class RascalFunction extends NamedFunction {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
 				(FunctionType) func.getSignature().typeOf(env, true, eval),
-				func.getSignature().getParameters().getKeywordFormals().getKeywordFormalList(),
+				getFormals(func),
 				varargs, isDefault(func), hasTestMod(func.getSignature()),
 				func.getBody().getStatements(), env, accumulators);
 	}
@@ -87,7 +87,7 @@ public class RascalFunction extends NamedFunction {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
 				(FunctionType) func.getSignature().typeOf(env, true, eval), 
-				func.getSignature().getParameters().getKeywordFormals().getKeywordFormalList(),
+				getFormals(func),
 				varargs, isDefault(func), hasTestMod(func.getSignature()),
 				Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getLocation(), ASTBuilder.makeStat("Expression", func.getLocation(), func.getExpression()))}),
 				env, accumulators);

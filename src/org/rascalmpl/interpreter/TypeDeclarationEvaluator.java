@@ -112,7 +112,7 @@ public class TypeDeclarationEvaluator {
 			Type kwType = tf.voidType();
 			
 			if (var.isNAryConstructor()) {
-				List<KeywordFormal> local = var.getKeywordArguments().getKeywordFormalList();
+				List<KeywordFormal> local = var.getKeywordArguments().hasKeywordFormalList() ? var.getKeywordArguments().getKeywordFormalList() : Collections.<KeywordFormal>emptyList();
 				List<KeywordFormal> kws = new ArrayList<>(common.size() + local.size());
 				
 				if (var.getKeywordArguments().isDefault()) {

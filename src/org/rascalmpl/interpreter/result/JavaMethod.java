@@ -19,12 +19,16 @@ package org.rascalmpl.interpreter.result;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.FunctionDeclaration;
+import org.rascalmpl.ast.KeywordFormal;
+import org.rascalmpl.ast.KeywordFormals;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.StackTrace;
@@ -56,12 +60,14 @@ public class JavaMethod extends NamedFunction {
 	 *  require types.
 	 */
 	private JavaMethod(IEvaluator<Result<IValue>> eval, FunctionType type, FunctionDeclaration func, boolean varargs, boolean isTest, boolean isDefault, Environment env, JavaBridge javaBridge){
-		super(func, eval, type , func.getSignature().getParameters().getKeywordFormals().getKeywordFormalList(), Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, env);
+		super(func, eval, type , getFormals(func), Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, env);
 		this.javaBridge = javaBridge;
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
 		this.instance = javaBridge.getJavaClassInstance(func);
 		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
 	}
+
+	
 	
 
 	@Override
