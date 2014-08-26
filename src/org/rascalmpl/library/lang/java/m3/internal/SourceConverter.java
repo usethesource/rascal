@@ -78,7 +78,7 @@ public class SourceConverter extends M3Converter {
 	
 	public void endVisit(AnnotationTypeMemberDeclaration node) {
 		ownValue = scopeManager.pop();
-		IConstructor type = bindingsResolver.computeTypeSymbol(node.getType().resolveBinding(), true);
+		IConstructor type = bindingsResolver.resolveType(node.getType().resolveBinding(), true);
 	    insert(types, ownValue, type);
 	}
 	
@@ -89,7 +89,7 @@ public class SourceConverter extends M3Converter {
 		if (parent instanceof ClassInstanceCreation) {
 			ISourceLocation superclass = resolveBinding(((ClassInstanceCreation) parent).getType());
 			insert(typeDependency, ownValue, superclass);
-			IConstructor type = bindingsResolver.computeTypeSymbol(((ClassInstanceCreation) parent).getType().resolveBinding(), false);
+			IConstructor type = bindingsResolver.resolveType(((ClassInstanceCreation) parent).getType().resolveBinding(), false);
 		  	insert(types, ownValue, type);
 		  	
 		  	if (!superclass.getScheme().contains("+interface")) {
@@ -101,7 +101,7 @@ public class SourceConverter extends M3Converter {
 		}
 		else if (parent instanceof EnumConstantDeclaration) {
 			insert(typeDependency, ownValue, resolveBinding(((EnumConstantDeclaration) parent).resolveVariable()));
-			IConstructor type = bindingsResolver.computeTypeSymbol(((EnumConstantDeclaration) parent).resolveVariable().getType(), false);
+			IConstructor type = bindingsResolver.resolveType(((EnumConstantDeclaration) parent).resolveVariable().getType(), false);
 		  	insert(types, ownValue, type);
 		}
 		insert(declarations, ownValue, getSourceLocation(node));
@@ -171,7 +171,7 @@ public class SourceConverter extends M3Converter {
 	}
 
   private void computeTypeSymbol(AbstractTypeDeclaration node) {
-    IConstructor type = bindingsResolver.computeTypeSymbol(node.resolveBinding(), true);
+    IConstructor type = bindingsResolver.resolveType(node.resolveBinding(), true);
     insert(types, ownValue, type);
   }
 	
@@ -223,7 +223,7 @@ public class SourceConverter extends M3Converter {
 			fillOverrides(node.resolveBinding(), ((AnonymousClassDeclaration)parent).resolveBinding());
 		}
 		
-		IConstructor type = bindingsResolver.computeMethodTypeSymbol(node.resolveBinding(), true);
+		IConstructor type = bindingsResolver.resolveType(node.resolveBinding(), true);
 		insert(types, ownValue, type);
 	}
 	
@@ -348,7 +348,7 @@ public class SourceConverter extends M3Converter {
 	
 	public void endVisit(SingleVariableDeclaration node) {
 		ownValue = scopeManager.pop();
-	    IConstructor type = bindingsResolver.computeTypeSymbol(node.getType().resolveBinding(), false);
+	    IConstructor type = bindingsResolver.resolveType(node.getType().resolveBinding(), false);
         insert(types, ownValue, type);
 	}
 	
@@ -439,7 +439,7 @@ public class SourceConverter extends M3Converter {
 		IVariableBinding binding = node.resolveBinding();
 		
 		if (binding != null) {
-		  IConstructor type = bindingsResolver.computeTypeSymbol(binding.getType(), false);
+		  IConstructor type = bindingsResolver.resolveType(binding.getType(), false);
 		  insert(types, ownValue, type);
 		}
 		else {
