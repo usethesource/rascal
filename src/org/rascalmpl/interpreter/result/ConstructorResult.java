@@ -16,6 +16,7 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -67,23 +68,43 @@ public class ConstructorResult extends NodeResult {
 			if (!getType().hasField(name, store) && !getType().hasKeywordParameter(name, store)) {
 				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
+
+			Type nodeType = getValue().getConstructorType();
+			if (!nodeType.hasField(name) && !nodeType.hasKeywordParameter(name)) {
+				throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
+			}
+
+			if (nodeType.hasKeywordParameter(name)) {
+				IValue parameter = getValue().asWithKeywordParameters().getParameter(name);
+				
+				if (parameter == null) {
+					// then its time to compute defaults.
+					Map<String, IValue> kwArgs = ctx.getCurrentEnvt().getConstructorFunction(getType()).computeKeywordArgs(childrenAsArray(), getValue().asWithKeywordParameters().getParameters());
+					parameter = kwArgs.get(name);
+
+					assert parameter != null; // this shouldn't happen because defaults are defined 
+				}
+				return makeResult(nodeType.getKeywordParameterType(name), parameter, ctx);
+			}
+			else {
+				int index = nodeType.getFieldIndex(name);
+				return makeResult(nodeType.getFieldType(index), getValue().get(index), ctx);
+			}
 		} catch (UndeclaredAbstractDataTypeException e) {
 			throw new UndeclaredType(getType().toString(), ctx.getCurrentAST());
 		}
-		Type nodeType = getValue().getConstructorType();
-		if (!nodeType.hasField(name) && !nodeType.hasKeywordParameter(name)) {
-			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
-		}
-		
-		if (nodeType.hasKeywordParameter(name)) {
-		  return makeResult(nodeType.getKeywordParameterType(name), getValue().asWithKeywordParameters().getParameter(name), ctx);
-		}
-		else {
-		  int index = nodeType.getFieldIndex(name);
-		  return makeResult(nodeType.getFieldType(index), getValue().get(index), ctx);
-		}
 	}
 	
+	private IValue[] childrenAsArray() {
+		IValue[] result = new IValue[getValue().arity()];
+		
+		for (int i = 0; i < getValue().arity(); i++) {
+			result[i] = getValue().get(i);
+		}
+		
+		return result;
+	}
+
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		if (!getType().hasField(name, store) && !getValue().getConstructorType().hasKeywordParameter(name)) {

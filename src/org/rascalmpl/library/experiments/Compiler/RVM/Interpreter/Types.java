@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 

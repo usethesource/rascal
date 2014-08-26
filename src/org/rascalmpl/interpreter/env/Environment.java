@@ -43,6 +43,7 @@ import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 
 /**
@@ -303,6 +304,25 @@ public class Environment {
 		if (parent != null) {
 			parent.getAllFunctions(name, collection);
 		}
+	}
+	
+	public ConstructorFunction getConstructorFunction(Type constructorType) {
+		Type functionType = RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), constructorType.getKeywordParameterTypes());
+		List<AbstractFunction> list = new LinkedList<>();
+		getAllFunctions(constructorType.getAbstractDataType(), constructorType.getName(), list);
+		
+		for (AbstractFunction candidate : list) {
+			if (candidate instanceof ConstructorFunction) {
+				ConstructorFunction func = (ConstructorFunction) candidate;
+				
+				if (func.getName().equals(constructorType.getName()) 
+						&& func.getFunctionType() == functionType) {
+					return func;
+				}
+			}
+		}
+		
+		return null; // not found
 	}
 	
 	public void getAllFunctions(Type returnType, String name, List<AbstractFunction> collection) {

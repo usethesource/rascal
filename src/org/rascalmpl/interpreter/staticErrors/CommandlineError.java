@@ -1,12 +1,11 @@
 package org.rascalmpl.interpreter.staticErrors;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.ast.Expression;
-import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 
 public class CommandlineError extends RuntimeException {
@@ -24,21 +23,20 @@ public class CommandlineError extends RuntimeException {
     
     b.append("Usage: ");
     b.append(command);
-    Map<String, Expression> kwps = main.getKeywordParameterDefaults();
     
+    Map<String, IValue> kwargs = main.computeKeywordArgs(new IValue[] {}, Collections.<String,IValue>emptyMap());
     
-    
-    if (kwps.size() > 1) {
+    if (kwargs.size() > 1) {
       b.append(" [options]\n\nOptions:\n");
     
-      for (Entry<String, Expression> param : kwps.entrySet()) {
+      for (Entry<String, IValue> param : kwargs.entrySet()) {
         b.append("\t-");
         b.append(param.getKey());
         if (param.getValue().getType().isSubtypeOf(tf.boolType())) {
           b.append("\t[arg]: one of nothing (true), \'1\', \'0\', \'true\' or \'false\';\n");
         }
         else {
-          b.append("\t[arg]: " + param.getType() + " argument;\n");
+          b.append("\t[arg]: " + param.getValue().getType() + " argument;\n");
         }
       }
     }

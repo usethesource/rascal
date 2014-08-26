@@ -24,7 +24,6 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.KeywordFormal;
-import org.rascalmpl.ast.KeywordFormals;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Tag;
