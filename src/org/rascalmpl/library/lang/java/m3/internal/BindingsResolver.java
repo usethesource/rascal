@@ -228,26 +228,19 @@ public class BindingsResolver {
 		return makeBinding("unknown", null, null);
 	}
 	
-	public IConstructor resolveType(ISourceLocation uri, IBinding binding, boolean isDeclaration) {
-		if (binding == null) {
-			return null;
+	public IConstructor resolveType(IBinding binding, boolean isDeclaration) {
+		IConstructor result = unresolvedSym();
+		if (binding != null) {
+			ISourceLocation uri = resolveBinding(binding);
+		    if (binding instanceof ITypeBinding) {
+		      return computeTypeSymbol(uri, (ITypeBinding) binding, isDeclaration);
+		    } else if (binding instanceof IMethodBinding) {
+		      return computeMethodTypeSymbol(uri, (IMethodBinding) binding, isDeclaration);
+		    } else if (binding instanceof IVariableBinding) {
+		      return resolveType(((IVariableBinding) binding).getType(), isDeclaration);
+		    }
 		}
-	    if (binding instanceof ITypeBinding) {
-	      return computeTypeSymbol(uri, (ITypeBinding) binding, isDeclaration);
-	    } else if (binding instanceof IMethodBinding) {
-	      return computeMethodTypeSymbol(uri, (IMethodBinding) binding, isDeclaration);
-	    } else if (binding instanceof IVariableBinding) {
-	      return resolveType(uri, ((IVariableBinding) binding).getType(), isDeclaration);
-	    }
-	    
-	    return null;
-	}
-	
-	public IConstructor computeMethodTypeSymbol(IMethodBinding binding, boolean isDeclaration) {
-		if (binding == null)
-			return null;
-		ISourceLocation decl = resolveBinding(binding);
-		return computeMethodTypeSymbol(decl, binding.getMethodDeclaration(), isDeclaration);
+	    return result;
 	}
 	
   private IConstructor computeMethodTypeSymbol(ISourceLocation decl, IMethodBinding binding, boolean isDeclaration) {
@@ -257,7 +250,7 @@ public class BindingsResolver {
       return constructorSymbol(decl, parameters);
     } else {
       IList typeParameters = computeTypes(isDeclaration ? binding.getTypeParameters() : binding.getTypeArguments(), isDeclaration);
-      IConstructor retSymbol = computeTypeSymbol(binding.getReturnType(), false);
+      IConstructor retSymbol = resolveType(binding.getReturnType(), false);
       
       return methodSymbol(decl, typeParameters, retSymbol,  parameters);
     }
@@ -266,7 +259,7 @@ public class BindingsResolver {
   private IList computeTypes(ITypeBinding[] bindings, boolean isDeclaration) {
     IListWriter parameters = values.listWriter();
     for (ITypeBinding parameterType: bindings) {
-    	IConstructor arg = computeTypeSymbol(parameterType, isDeclaration);
+    	IConstructor arg = resolveType(parameterType, isDeclaration);
         parameters.append(arg);
     }
     return parameters.done();
@@ -307,12 +300,10 @@ public class BindingsResolver {
     org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(boundType, "unbounded", tf.voidType());
     return values.constructor(cons);
   }
-
-  public IConstructor computeTypeSymbol(ITypeBinding binding, boolean isDeclaration) {
-	  if (binding == null)
-		  return null;
-	  ISourceLocation decl = resolveBinding(binding);
-	  return computeTypeSymbol(decl, binding, isDeclaration);
+  
+  private IConstructor unresolvedSym() {
+	org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "unresolved", tf.voidType());
+    return values.constructor(cons);
   }
 
    private IConstructor computeTypeSymbol(ISourceLocation decl, ITypeBinding binding, boolean isDeclaration) {
@@ -320,7 +311,7 @@ public class BindingsResolver {
       return primitiveSymbol(binding.getName());
     }
     else if (binding.isArray()) {
-      return arraySymbol(computeTypeSymbol(binding.getComponentType(), isDeclaration), binding.getDimensions());
+      return arraySymbol(resolveType(binding.getComponentType(), isDeclaration), binding.getDimensions());
     }
     else if (binding.isNullType()) {
       return nullSymbol(); 
@@ -354,10 +345,10 @@ public class BindingsResolver {
       ITypeBinding wildcard = binding.getWildcard();
       
       if (typeBounds.length == 0) {
-        return captureSymbol(unboundedSym(), computeTypeSymbol(wildcard, isDeclaration));
+        return captureSymbol(unboundedSym(), resolveType(wildcard, isDeclaration));
       }
       else {
-        return captureSymbol(boundSymbol(typeBounds, isDeclaration, true), computeTypeSymbol(wildcard, isDeclaration));
+        return captureSymbol(boundSymbol(typeBounds, isDeclaration, true), resolveType(wildcard, isDeclaration));
       }
     }
     else if (binding.isInterface()) {
