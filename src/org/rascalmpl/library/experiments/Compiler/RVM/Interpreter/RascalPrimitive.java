@@ -1572,6 +1572,13 @@ public enum RascalPrimitive {
 
 				if (i != -1) {
 					path = path.substring(0, i);
+					if (sloc.getScheme().equalsIgnoreCase("file")) {
+						// there is a special case for file references to windows paths.
+						// the root path should end with a / (c:/ not c:)
+						if (path.lastIndexOf((int)'/') == 0 && path.endsWith(":")) {
+							path += "/";
+						}
+					}
 					v = $loc_field_update(sloc, "path", vf.string(path), stacktrace);
 				} else {
 					throw RascalRuntimeException.noParent(sloc, stacktrace);
@@ -4685,8 +4692,7 @@ public enum RascalPrimitive {
 			Type argType = typeReifier.valueToType(type_cons);
 			IMap definitions = (IMap) type_cons.get("definitions");
 
-			TypeStore store = new TypeStore();
-			typeReifier.declareAbstractDataTypes(definitions, store);
+			typeReifier.declareAbstractDataTypes(definitions, typeStore);
 
 			int nargs = argType.getArity();
 			IValue[] args = new IValue[nargs + 1]; // '+1' kwargs
@@ -4694,7 +4700,7 @@ public enum RascalPrimitive {
 			TypeParameterVisitor tpvisit = new TypeParameterVisitor();
 			Type requestedType = tf.tupleType(argType);
 			HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
-			RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, MAXDEPTH, tpbindings, store);
+			RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, MAXDEPTH, tpbindings, typeStore);
 
 			int tries = nargs == 0 ? 1 : TRIES;
 			boolean passed = true;
@@ -5674,7 +5680,7 @@ public enum RascalPrimitive {
 			Types types = new Types(vf);			// TODO make global
 			IValue v = (IValue) stack[sp - 2];
 			Type type = v.getType();
-			stack[sp - 2] = types.typeToSymbol(type, null);
+			stack[sp - 2] = types.typeToSymbol(type, typeStore);
 			return sp - 1;
 		}
 	},
@@ -5831,6 +5837,7 @@ public enum RascalPrimitive {
 
 	private static IValueFactory vf;
 	private static TypeFactory tf;
+	private static TypeStore typeStore;
 	private static Type lineColumnType;
 	private static IMap emptyMap;
 	private static IList emptyList;
@@ -5860,6 +5867,7 @@ public enum RascalPrimitive {
 		parsingTools = new ParsingTools(vf);
 		parsingTools.setContext(rex);
 		tf = TypeFactory.getInstance();
+		typeStore = rex.getTypeStore();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 				new String[] {"line", "column"});
 		emptyMap = vf.mapWriter().done();
