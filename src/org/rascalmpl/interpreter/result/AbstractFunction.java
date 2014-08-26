@@ -34,6 +34,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
@@ -58,7 +59,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected final FunctionType functionType;
 	protected final boolean hasVarArgs;
 	protected boolean hasKeyArgs;
-	protected Map<String, Expression> keywordParameterDefaults;
+	protected final Map<String, Expression> keywordParameterDefaults = new HashMap<>();
 	
 	protected final static TypeStore hiddenStore = new TypeStore();
 
@@ -568,10 +569,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			Type kwType = getFunctionType().getKeywordParameterTypes();
 			bindKeywordArgs(keyArgValues);
 
-			Map<String, IValue> result = AbstractSpecialisedImmutableMap.mapOf();
+			ImmutableMap<String, IValue> result = AbstractSpecialisedImmutableMap.mapOf();
 			for (int i = 0; i < kwType.getArity(); i++) {
 				String fieldName = kwType.getFieldName(i);
-				result.put(fieldName, env.getVariable(fieldName).getValue());
+				result = result.__put(fieldName, env.getVariable(fieldName).getValue());
 			}
 			
 			return result;
