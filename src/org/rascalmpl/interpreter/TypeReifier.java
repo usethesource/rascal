@@ -12,13 +12,11 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -39,7 +37,6 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.KeywordParameterInitializerWrapperFunction;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.ReifiedType;
@@ -150,16 +147,7 @@ public class TypeReifier {
 		String name = ((IString) defined.get("name")).getValue();
 		Type kwTypes = symbolsToTupleType((IList) alt.get("kwTypes"), store);
 		
-		IMap kwDefaultMap = (IMap) alt.get("kwDefaults");
-		Map<String,IKeywordParameterInitializer> kwDefaults = new HashMap<>();
-		
-		for (IValue key : kwDefaultMap) {
-			// this depends on the reifier to use KeywordParameterInitializerWrapperFunction to reify an IKeywordParameterInitializer
-			KeywordParameterInitializerWrapperFunction wrapper = (KeywordParameterInitializerWrapperFunction) kwDefaultMap.get(key);
-			kwDefaults.put(((IString) key).getValue(), wrapper.getInitializer());
-		}
-		
-		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store), kwTypes, kwDefaults);
+		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store), kwTypes);
 	}
 
 	private Type symbolToType(IConstructor symbol, TypeStore store) {
@@ -305,7 +293,7 @@ public class TypeReifier {
 		Type returnType = symbolToType((IConstructor) symbol.get("ret"), store);
 		Type parameters = symbolsToTupleType((IList) symbol.get("parameters"), store);
 		
-		return RascalTypeFactory.getInstance().functionType(returnType, parameters, tf.tupleEmpty(), Collections.<String, IKeywordParameterInitializer>emptyMap());
+		return RascalTypeFactory.getInstance().functionType(returnType, parameters, tf.tupleEmpty());
 	}
 
 	private Type consToType(IConstructor symbol, TypeStore store) {
@@ -524,7 +512,6 @@ public class TypeReifier {
 				
 				for (String key : type.getKeywordParameters()) {
 					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(key), type.getKeywordParameterType(key).accept(this)));
-					kwDefaults.put(vf.string(key), new KeywordParameterInitializerWrapperFunction(type.getKeywordParameterInitializer(key), ctx));
 				}
 				
 				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), kwDefaults.done(), vf.set()));

@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;

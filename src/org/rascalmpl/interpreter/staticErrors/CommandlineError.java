@@ -1,8 +1,11 @@
 package org.rascalmpl.interpreter.staticErrors;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 
@@ -21,15 +24,17 @@ public class CommandlineError extends RuntimeException {
     
     b.append("Usage: ");
     b.append(command);
-    List<KeywordParameter> kwps = main.getKeywordParameterDefaults();
+    Map<String, Expression> kwps = main.getKeywordParameterDefaults();
+    
+    
     
     if (kwps.size() > 1) {
       b.append(" [options]\n\nOptions:\n");
     
-      for (KeywordParameter param : kwps) {
+      for (Entry<String, Expression> param : kwps.entrySet()) {
         b.append("\t-");
-        b.append(param.getName());
-        if (param.getType().isSubtypeOf(tf.boolType())) {
+        b.append(param.getKey());
+        if (param.getValue().getType().isSubtypeOf(tf.boolType())) {
           b.append("\t[arg]: one of nothing (true), \'1\', \'0\', \'true\' or \'false\';\n");
         }
         else {
