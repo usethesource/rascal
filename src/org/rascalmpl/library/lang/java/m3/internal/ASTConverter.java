@@ -1,6 +1,5 @@
 package org.rascalmpl.library.lang.java.m3.internal;
 
-import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -25,45 +24,29 @@ public class ASTConverter extends JavaToRascalConverter {
 		if (!decl.getURI().getScheme().equals("unknown")) {
 		  setAnnotation("decl", decl); 
 		}
-		IValue typeAnno = resolveType(node);
-		try {
-			setAnnotation("typ", (typeAnno != null) ? typeAnno : values.sourceLocation("unresolved", "", ""));
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		setAnnotation("typ", resolveType(node));
 	}
 	
 	private IValue resolveType(ASTNode node) {
 	  if (node instanceof Expression) {
 		if (node instanceof Name) {
 			IBinding b = ((Name) node).resolveBinding();
-			if (b!= null && b instanceof IVariableBinding) {
-				return bindingsResolver.computeTypeSymbol(((IVariableBinding) b).getType(), false);
-			}
+			return bindingsResolver.resolveType(b, false);
 		}
 	    ITypeBinding binding = ((Expression) node).resolveTypeBinding();
-	    if (binding != null) {
-	      return bindingsResolver.computeTypeSymbol(binding, false);
-	    }
+	    return bindingsResolver.resolveType(binding, false);
 	  }
 	  else if (node instanceof TypeDeclaration) {
 	    ITypeBinding binding = ((TypeDeclaration) node).resolveBinding();
-	    if (binding != null) {
-	      return bindingsResolver.computeTypeSymbol(binding, true);
-	    }
+	    return bindingsResolver.resolveType(binding, true);
 	  }
 	  else if (node instanceof MethodDeclaration) {
 	    IMethodBinding binding = ((MethodDeclaration) node).resolveBinding();
-      if (binding != null) {
-        return bindingsResolver.computeMethodTypeSymbol(binding, true);
-      }
+        return bindingsResolver.resolveType(binding, true);
 	  }
 	  else if (node instanceof VariableDeclaration) {
 	    IVariableBinding binding = ((VariableDeclaration) node).resolveBinding();
-      if (binding != null && binding.getType() != null) {
-        return bindingsResolver.computeTypeSymbol(binding.getType(), false);
-      }
+	    return bindingsResolver.resolveType(binding.getType(), false);
 	  }
 	  
 	  return null;
