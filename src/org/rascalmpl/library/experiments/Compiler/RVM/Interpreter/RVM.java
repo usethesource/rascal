@@ -64,7 +64,7 @@ public class RVM {
 	private final Map<String, Integer> resolver;
 	private final ArrayList<OverloadedFunction> overloadedStore;
 	
-	private final TypeStore typeStore = new TypeStore();
+	private final TypeStore typeStore;
 	private final Types types;
 	
 	private final ArrayList<Type> constructorStore;
@@ -117,6 +117,7 @@ public class RVM {
 
 		this.vf = rex.getValueFactory();
 		tf = TypeFactory.getInstance();
+		typeStore = rex.getTypeStore();
 		
 		this.rex = rex;
 		//this.ctx = ctx;
@@ -167,6 +168,9 @@ public class RVM {
 	}
 	
 	public void declareConstructor(String name, IConstructor symbol) {
+//		if(name.indexOf("ParseTree") >= 0 && name.indexOf("Production") >= 0){
+//			System.err.println("declareConstructor: " + name + ", " + symbol);
+//		}
 		Type constr = types.symbolToType(symbol, typeStore);
 		if(constructorMap.get(name) != null) {
 			throw new CompilerError("Double declaration of constructor: " + name);
@@ -216,6 +220,41 @@ public class RVM {
 				constrs[i++] = index;
 			}
 			this.overloadedStore.add(new OverloadedFunction(funs, constrs, scopeIn));
+		}
+	}
+	 
+	
+	void printStores(){
+		System.out.println("FUNCTION STORE");
+		for(int i = 0; i < functionStore.size(); i++){
+			System.out.println(i + ": " + functionStore.get(i));;
+		}
+		System.out.println("OVERLOADED STORE");
+		for(int i = 0; i < overloadedStore.size(); i++){
+			OverloadedFunction ofun = overloadedStore.get(i);
+			StringBuilder sb = new StringBuilder(i + ": ");
+			if(ofun.functions.length > 0){
+				sb.append(" functions:");
+				for(int j = 0; j < ofun.functions.length; j++){
+					int ifun = ofun.functions[j];
+					String fname = functionStore.get(ifun).getQualifiedName();
+					sb.append(" ").append(ifun).append(" [").append(fname).append("]");
+				}
+			}
+			if(ofun.constructors.length > 0){
+				sb.append(" constructors:");
+				for(int j = 0; j < ofun.constructors.length; j++){
+					int icons = ofun.constructors[j];
+					String cname = constructorStore.get(icons).getName();
+					sb.append(" ").append(icons).append(" [").append(cname).append("]");
+				}
+			}
+			System.out.println(sb);
+		}
+		
+		System.out.println("CONSTRUCTOR STORE");
+		for(int i = 0; i < constructorStore.size(); i++){
+			System.out.println(i + ": " + constructorStore.get(i));;
 		}
 	}
 	
@@ -439,10 +478,13 @@ public class RVM {
 	
 	public IValue executeProgram(String uid_main, IValue[] args) {
 		
+		//printStores();
+		
 		finalize();
 		
 		Function main_function = functionStore.get(functionMap.get(uid_main));
 
+		
 		if (main_function == null) {
 			throw RascalRuntimeException.noMainFunction(null);
 		}
@@ -469,6 +511,7 @@ public class RVM {
 		return res;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private Object executeProgram(Frame root, Frame cf) {
 		Object[] stack = cf.stack;		                              	// current stack
 		int sp = cf.function.nlocals;				                  	// current stack pointer
@@ -732,10 +775,15 @@ public class RVM {
 					//cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
 					
 					IValue[] args = new IValue[constructor.getArity()];
-					// Constructors with keyword parameters
-					Type type = (Type) stack[--sp];
-					@SuppressWarnings("unchecked")
-					java.util.Map<String,IValue> kwargs = (java.util.Map<String,IValue>) stack[--sp];
+					
+					java.util.Map<String,IValue> kwargs;
+					if(constructor.hasKeywordParameters()){
+						// Constructors with keyword parameters
+						Type type = (Type) stack[--sp];
+						kwargs = (java.util.Map<String,IValue>) stack[--sp];
+					} else {
+						kwargs = new HashMap<String,IValue>();
+					}
 					
 					for(int i = 0; i < constructor.getArity(); i++) {
 						args[constructor.getArity() - 1 - i] = (IValue) stack[--sp];

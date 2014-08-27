@@ -1329,8 +1329,8 @@ coroutine MATCH_AND_DESCENT_MAP(pat, iMap) {
 }
 
 coroutine MATCH_AND_DESCENT_NODE(pat, iNd) {
-    var ar = get_name_and_children_and_keyword_mmap(iNd), 
-        last = size_array(ar) - 1, 					// TODO keyword args
+    var ar = get_children_and_keyword_values(iNd), 
+        last = size_array(ar),
         j = 0
     while(j < last) {
         MATCH_AND_DESCENT(pat, ar[j])
