@@ -540,7 +540,7 @@ public class RVMRunBody extends RVMRun {
 		
 		nop() ;
 	
-		nosp = insnLOADCON(1, stack, nosp) ;
+		nosp = insnLOADCON(stack, nosp, 1) ;
 		
 		nop() ;
 		
@@ -554,6 +554,16 @@ public class RVMRunBody extends RVMRun {
 		sp = insnCHECKARGTYPE(stack, sp) ;
 	
 	}
-	
+
+	public Object drun(Frame cf) {
+		int spp = cf.sp ;
+		Object[] stack = cf.stack ;
+		
+		//this.sp = insnLOADCON(stack, this.sp, cf, 25) ;
+		
+		this.sp = insnPOP(this.sp) ;
+		
+		return null ;
+	}
 	
 }

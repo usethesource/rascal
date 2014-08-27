@@ -9,7 +9,7 @@ public class SubType extends Instruction {
 		super(ins, Opcode.SUBTYPE);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitCall("insnSUBTYPE");
+		codeEmittor.emitCallWithArgs("insnSUBTYPE");
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

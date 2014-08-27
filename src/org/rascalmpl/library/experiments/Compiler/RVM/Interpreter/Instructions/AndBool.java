@@ -9,8 +9,8 @@ public class AndBool extends Instruction {
 		super(ins, Opcode.ANDBOOL);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitCall("insnANDBOOL");
+		//codeEmittor.emitCall("insnANDBOOL");
+		codeEmittor.emitCallWithArgs("insnANDBOOL");
 		codeblock.addCode0(opcode.getOpcode());
 	}
-
 }

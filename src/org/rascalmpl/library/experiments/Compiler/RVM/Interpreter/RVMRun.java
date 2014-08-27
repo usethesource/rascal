@@ -330,7 +330,7 @@ public class RVMRun implements IRVM {
 		for (int i = 0; i < args.length; i++) {
 			cf.stack[i] = args[i];
 		}
-		Object o = dynRun(func.funId);
+		Object o = dynRun(func.funId,cf);
 
 		cf = oldCF;
 		stack = cf.stack;
@@ -368,7 +368,7 @@ public class RVMRun implements IRVM {
 			stack[i] = args[i];
 		}
 
-		Object o = dynRun(func.function.funId);
+		Object o = dynRun(func.function.funId,cf);
 
 		cf = oldCF;
 		stack = cf.stack;
@@ -599,8 +599,11 @@ public class RVMRun implements IRVM {
 		this.functionMap = functionMap2;
 	}
 
-    final public void insnPOP() {
+	final public void insnPOP() {
 		sp--;
+	}
+	public int insnPOP(int sp) {
+		return --sp;
 	}
 
 	public void insnLOADLOC0() {
@@ -681,7 +684,12 @@ public class RVMRun implements IRVM {
 		stack[sp++] = cf.function.constantStore[arg1];
 	}
 
-	public int insnLOADCON(int arg1, Object[] stack, int sp) {
+	public int insnLOADCON(Object[] stack, int sp, Frame cf, int arg1) {
+		stack[sp++] = cf.function.constantStore[arg1];
+		return sp++ ;
+	}
+
+	public int insnLOADCON(Object[] stack, int sp, int arg1) {
 		stack[sp++] = cf.function.constantStore[arg1];
 		return sp ;
 	}
@@ -689,9 +697,9 @@ public class RVMRun implements IRVM {
 	public void insnLOADLOCREF(int i) {
 		stack[sp++] = new Reference(stack, i);
 	}
-
-	public int insnLOADLOCREF(int i, Object[] stack, int sp) {
-		stack[sp++] = new Reference(stack, i);
+	
+	public int insnLOADLOCREF(Object[] stack, int sp,int args1) {
+		stack[sp++] = new Reference(stack, args1);
 		return sp ;
 	}
 
@@ -703,13 +711,27 @@ public class RVMRun implements IRVM {
 	public void insnLOADTYPE(int i) {
 		stack[sp++] = cf.function.typeConstantStore[i];
 	}
+	public int insnLOADTYPE(Object[] stack, int sp, Frame cf, int arg1) {
+		stack[sp++] = cf.function.typeConstantStore[arg1];
+		return sp; 
+	}
 
-	public void insnLOADLOCDEREF(int loc) {
+//	public void insnLOADLOCDEREF(int loc) {
+//		Reference ref = (Reference) stack[loc];
+//		stack[sp++] = ref.stack[ref.pos];
+//	}
+
+	public int insnLOADLOCDEREF(Object[] stack, int sp, int loc) {
 		Reference ref = (Reference) stack[loc];
 		stack[sp++] = ref.stack[ref.pos];
+		return sp ;
 	}
 
 	public void insnSTORELOC(int target) {
+		stack[target] = stack[sp - 1];
+	}
+	
+	public void insnSTORELOC(Object[] stack,int sp, int target) {
 		stack[target] = stack[sp - 1];
 	}
 
@@ -916,20 +938,20 @@ public class RVMRun implements IRVM {
 		stack[sp++] = fun_instance;
 	}
 
-	public void insnCALLPRIM(int muprim, int arity) {
-		postOp = 0;
-		try {
-			sp = RascalPrimitive.values[muprim].execute(stack, sp, arity, stacktrace);
-		} catch (Exception exception) {
-			if (!(exception instanceof Thrown)) {
-				throw exception;
-			}
-			thrown = (Thrown) exception;
-			thrown.stacktrace.add(cf);
-			sp = sp - arity;
-			postOp = Opcode.POSTOP_HANDLEEXCEPTION;
-		}
-	}
+//	public void insnCALLPRIM(int muprim, int arity) {
+//		postOp = 0;
+//		try {
+//			sp = RascalPrimitive.values[muprim].execute(stack, sp, arity, stacktrace);
+//		} catch (Exception exception) {
+//			if (!(exception instanceof Thrown)) {
+//				throw exception;
+//			}
+//			thrown = (Thrown) exception;
+//			thrown.stacktrace.add(cf);
+//			sp = sp - arity;
+//			postOp = Opcode.POSTOP_HANDLEEXCEPTION;
+//		}
+//	}
 
 	public void insnSUBSCRIPTARRAY() {
 		sp--;
@@ -956,14 +978,24 @@ public class RVMRun implements IRVM {
 		stack[sp - 1] = ((Integer) stack[sp - 1]) + ((Integer) stack[sp]);
 	}
 
-	public void insnSUBTRACTINT() {
+//	public void insnSUBTRACTINT() {
+//		sp--;
+//		stack[sp - 1] = ((Integer) stack[sp - 1]) - ((Integer) stack[sp]);
+//	}
+	public int insnSUBTRACTINT(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = ((Integer) stack[sp - 1]) - ((Integer) stack[sp]);
+		return sp;
 	}
 
-	public void insnANDBOOL() {
+//	public void insnANDBOOL() {
+//		sp--;
+//		stack[sp - 1] = ((IBool) stack[sp - 1]).and((IBool) stack[sp]) ;
+//	}
+	public int insnANDBOOL(Object[] stack,int sp) {
 		sp--;
 		stack[sp - 1] = ((IBool) stack[sp - 1]).and((IBool) stack[sp]) ;
+		return sp;
 	}
 
 	public void insnTYPEOF() {
@@ -982,22 +1014,22 @@ public class RVMRun implements IRVM {
 		}
 	}
 
-	public void insnSUBTYPE() {
-		sp--;
-		stack[sp - 1] = vf.bool(((Type) stack[sp - 1]).isSubtypeOf((Type) stack[sp]));
-	}
+//	public void insnSUBTYPE() {
+//		sp--;
+//		stack[sp - 1] = vf.bool(((Type) stack[sp - 1]).isSubtypeOf((Type) stack[sp]));
+//	}
 	public int insnSUBTYPE(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = vf.bool(((Type) stack[sp - 1]).isSubtypeOf((Type) stack[sp]));
 		return sp ;
 	}
 
-	public void insnCHECKARGTYPE() {
-		sp--;
-		Type argType = ((IValue) stack[sp - 1]).getType();
-		Type paramType = ((Type) stack[sp]);
-		stack[sp - 1] = argType.isSubtypeOf(paramType) ? Rascal_TRUE : Rascal_FALSE;
-	}
+//	public void insnCHECKARGTYPE() {
+//		sp--;
+//		Type argType = ((IValue) stack[sp - 1]).getType();
+//		Type paramType = ((Type) stack[sp]);
+//		stack[sp - 1] = argType.isSubtypeOf(paramType) ? Rascal_TRUE : Rascal_FALSE;
+//	}
 	public int insnCHECKARGTYPE(Object[] stack, int sp) {
 		sp--;
 		Type argType = ((IValue) stack[sp - 1]).getType();
@@ -1108,11 +1140,11 @@ public class RVMRun implements IRVM {
 		sp = func.nlocals;
 		cf.sp = this.sp;
 
-		Object result = dynRun(n);
+		Object result = dynRun(n,cf);
 		return result;
 	}
 
-	public Object dynRun(int n) {
+	public Object dynRun(int n,Frame cf) {
 		System.out.println("Unimplemented Base called !");
 		return PANIC;
 	}
@@ -1148,7 +1180,18 @@ public class RVMRun implements IRVM {
 
 		stack = cf.stack;
 		sp = cf.sp;
-		dynRun(fun); // Run untill guard, leaves coroutine instance in stack.
+		dynRun(fun,cf); // Run untill guard, leaves coroutine instance in stack.
+	}
+
+	public int jvmCREATE(Object[] stack,int sp, int fun, int arity) {
+		cccf = cf.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
+		cccf.previousCallFrame = cf;
+		cf = cccf;
+
+		stack = cf.stack;
+		sp = cf.sp;
+		dynRun(fun,cf); // Run untill guard, leaves coroutine instance in stack.
+		return ++sp;
 	}
 
 	public void jvmCREATEDYN(int arity) {
@@ -1168,7 +1211,7 @@ public class RVMRun implements IRVM {
 		
 		stack = cf.stack;
 		sp = cf.sp;
-		dynRun(fun_instance.function.funId);
+		dynRun(fun_instance.function.funId,cf);
 	}
 
 	public int typeSwitchHelper() {
@@ -1264,7 +1307,7 @@ public class RVMRun implements IRVM {
 		this.stack = cf.stack;
 		this.sp = cf.sp;
 
-		rval = dynRun(fun.funId); // In a full inline version we can call the
+		rval = dynRun(fun.funId,cf); // In a full inline version we can call the
 									// function directly (name is known).
 
 		if (rval.equals(YIELD)) {
@@ -1307,7 +1350,7 @@ public class RVMRun implements IRVM {
 
 		stack = cf.stack;
 		sp = cf.sp;
-		dynRun(coroutine.entryFrame.function.funId);
+		dynRun(coroutine.entryFrame.function.funId,cf);
 	}
 
 	public Object exhaustHelper() {
@@ -1350,7 +1393,7 @@ public class RVMRun implements IRVM {
 			cf = frame;
 			stack = cf.stack;
 			sp = cf.sp;
-			Object rsult = dynRun(cf.function.funId);
+			Object rsult = dynRun(cf.function.funId,cf);
 			if (rsult.equals(NONE)) {
 				return; // Alternative matched.
 			}
@@ -1377,7 +1420,7 @@ public class RVMRun implements IRVM {
 			cf = cf.getFrame(fun_instance.function, fun_instance.env, arity, sp);
 			stack = cf.stack;
 			sp = cf.sp;
-			dynRun(cf.function.funId);
+			dynRun(cf.function.funId,cf);
 			return;
 		}
 		// 2. OverloadedFunctionInstance due to named Rascal
@@ -1392,7 +1435,7 @@ public class RVMRun implements IRVM {
 			cf = frame;
 			stack = cf.stack;
 			sp = cf.sp;
-			Object rsult = dynRun(cf.function.funId);
+			Object rsult = dynRun(cf.function.funId,cf);
 			if (rsult.equals(NONE))
 				return; // Alternative matched.
 			frame = ofunCall.nextFrame(functionStore);
@@ -1473,7 +1516,7 @@ public class RVMRun implements IRVM {
 		this.stack = cf.stack;
 		this.sp = cf.sp;
 
-		rval = dynRun(cf.function.funId); // In a inline version we can call the
+		rval = dynRun(cf.function.funId,cf); // In a inline version we can call the
 											// function directly.
 
 		if (rval.equals(YIELD)) {

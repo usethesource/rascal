@@ -407,20 +407,20 @@ public class CodeBlock {
 	}
 	
 	public CodeBlock LOADLOC (int pos){
-		switch(pos){
-		case 0: return add(new LoadLoc0(this));
-		case 1: return add(new LoadLoc1(this));
-		case 2: return add(new LoadLoc2(this));
-		case 3: return add(new LoadLoc3(this));
-		case 4: return add(new LoadLoc4(this));
-		case 5: return add(new LoadLoc5(this));
-		case 6: return add(new LoadLoc6(this));
-		case 7: return add(new LoadLoc7(this));
-		case 8: return add(new LoadLoc8(this));
-		case 9: return add(new LoadLoc9(this));
-		default:
+//		switch(pos){
+//		case 0: return add(new LoadLoc0(this));
+//		case 1: return add(new LoadLoc1(this));
+//		case 2: return add(new LoadLoc2(this));
+//		case 3: return add(new LoadLoc3(this));
+//		case 4: return add(new LoadLoc4(this));
+//		case 5: return add(new LoadLoc5(this));
+//		case 6: return add(new LoadLoc6(this));
+//		case 7: return add(new LoadLoc7(this));
+//		case 8: return add(new LoadLoc8(this));
+//		case 9: return add(new LoadLoc9(this));
+//		default:
 			return add(new LoadLoc(this, pos));
-		}
+//		}
 	}
 	
 	public CodeBlock STORELOC (int pos){
