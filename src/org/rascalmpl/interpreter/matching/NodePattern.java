@@ -173,11 +173,27 @@ public class NodePattern extends AbstractMatchingResult {
 			}
 		}
 		else if (this.subject.mayHaveKeywordParameters()) {
-			// the matching side has no declared keyword parameters (an untyped node), so we do not have default values to take care of
-			IWithKeywordParameters<? extends INode> wkw = this.subject.asWithKeywordParameters();
+			Map<String, IValue> kwArgs;
 			
+			// the matching side has no declared keyword parameters (an untyped node), so we do not have default values to take care of
+			if (this.subject.getType().isAbstractData()) {
+				ConstructorFunction func = ctx.getCurrentEnvt().getConstructorFunction(((IConstructor) this.subject).getConstructorType());
+			
+				if (func != null) {
+					kwArgs = func.computeKeywordArgs(subjectChildren, subject.getValue().asWithKeywordParameters().getParameters());
+				}
+				else {
+					// the definition of the constructor could not be found, so we don't have defaults
+					kwArgs = this.subject.asWithKeywordParameters().getParameters();
+				}
+			}
+			else {
+				// a generic node does not support defaults
+				kwArgs = this.subject.asWithKeywordParameters().getParameters();
+			}
+
 			for (Entry<String,IMatchingResult> entry : keywordParameters.entrySet()) {
-				IValue subjectParam = wkw.getParameter(entry.getKey());
+				IValue subjectParam = kwArgs.get(entry.getKey());
 				
 				if (subjectParam != null) {
 					// we are matching a keyword parameter, and indeed the subject has one

@@ -559,7 +559,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	public Map<String, IValue> computeKeywordArgs(IValue[] oldActuals, Map<String, IValue> keyArgValues) {
-		Environment env = new Environment(vf.sourceLocation(URIUtil.rootScheme("initializer")), "keyword parameter initializer");
+		Environment env = new Environment(declarationEnvironment, vf.sourceLocation(URIUtil.rootScheme("initializer")), "keyword parameter initializer");
 		Environment old = ctx.getCurrentEnvt();
 		Type formals = getFunctionType().getArgumentTypes();
 		
