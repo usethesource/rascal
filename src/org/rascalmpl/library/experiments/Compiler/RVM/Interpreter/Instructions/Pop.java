@@ -9,8 +9,8 @@ public class Pop extends Instruction {
 		super(ins, Opcode.POP);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitCall("insnPOP"); 
-		//codeEmittor.emitInlinePop(dcode);
+		//codeEmittor.emitCall("insnPOP"); 
+		codeEmittor.emitInlinePop(dcode);
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }
