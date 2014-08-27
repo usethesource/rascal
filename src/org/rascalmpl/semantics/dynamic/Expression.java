@@ -2846,14 +2846,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			Parameters parameters = getParameters();
 			Type formals = parameters.typeOf(eval.getCurrentEnvt(), true, eval);
-			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory
-					.getInstance();
+			RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 
 			Type kwParams = TF.voidType();
-			java.util.List<KeywordFormal> kws = parameters.getKeywordFormals().getKeywordFormalList();
+			java.util.List<KeywordFormal> kws = parameters.getKeywordFormals().hasKeywordFormalList() ? parameters.getKeywordFormals().getKeywordFormalList() : Collections.<KeywordFormal>emptyList();
 			
 			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
-				
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kws, eval);
 			}
 
@@ -2861,9 +2859,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					.functionType(TF.voidType(), formals, kwParams), kws, this.getParameters()
 					.isVarArgs(), false, false, this.getStatements0(), eval
 					.getCurrentEnvt(), eval.__getAccumulators());
-
 		}
-
 	}
 
 	public Expression(IConstructor __param1) {
@@ -2877,6 +2873,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		for (org.rascalmpl.ast.Expression e : elements) {
 			args.add(i++, e.buildMatcher(eval));
 		}
+		
 		return args;
 	}
 	
