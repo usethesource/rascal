@@ -188,12 +188,12 @@ public class JavaMethod extends NamedFunction {
 			for (int i = 0; i < amountOfKWArguments; i++) {
 				newActuals[oldActuals.length + i] = env.getVariable(kwType.getFieldName(i)).getValue();
 			}
+			
+			return newActuals;
 		}
 		finally {
 			ctx.setCurrentEnvt(old);
 		}
-	  
-	  return oldActuals;
 	}
 	
 
