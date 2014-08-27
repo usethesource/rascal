@@ -8,7 +8,10 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -16,33 +19,62 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 	private URIResolverRegistry registry;
 	private URI jarURI;
 	private String scheme;
+	private Map<String, Integer> index;
 
 	public JarInputStreamURIResolver(URI jarURI, URIResolverRegistry registry) {
 		this.jarURI = jarURI;
 		this.registry = registry;
-		this.scheme = "jarstream+\"" + jarURI.toASCIIString() + "\"";
+		this.scheme = "jarstream+" + UUID.randomUUID();
+		buildIndex();
 	}
 	
-	private InputStream getJarStream() throws IOException {
+	public InputStream getJarStream() throws IOException {
 		return registry.getInputStream(jarURI);
 	}
 
-	@Override
-	public InputStream getInputStream(URI uri) throws IOException {
+	private void buildIndex() {
+		index = new HashMap<>();
+		
 		try (JarInputStream stream = new JarInputStream(getJarStream())) {
 			JarEntry next = null;
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			int pos = 0;
 			
 			while ((next = stream.getNextJarEntry()) != null) {
-				if (next.getName().equals(uri.getPath())) {
-					byte[] buf = new byte[1024];
-					int len;
-					while ((len = stream.read(buf)) > 0) {
-						out.write(buf, 0, len);
-					}
-					
-					return new ByteArrayInputStream(out.toByteArray());
+				index.put(next.getName(), pos++);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			index = null;
+		}		
+	}
+	
+	private JarEntry getEntry(JarInputStream stream, String file) throws IOException {
+		Integer pos = index == null ? null : index.get(file);
+		
+		if (pos != null) {
+			JarEntry entry;
+			do {
+				entry = stream.getNextJarEntry();
+			} while (pos-- > 0);
+			
+			return entry;
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public InputStream getInputStream(URI uri) throws IOException {		
+		try (JarInputStream stream = new JarInputStream(getJarStream())) {
+			if (getEntry(stream, uri.getPath().substring(1)) != null) {
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				byte[] buf = new byte[1024];
+				int len;
+				while ((len = stream.read(buf)) > 0) {
+					out.write(buf, 0, len);
 				}
+				
+				return new ByteArrayInputStream(out.toByteArray());
 			}
 		}
 		
@@ -57,32 +89,17 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 
 	@Override
 	public boolean exists(URI uri) {
-		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			JarEntry je = null;
-
-			while ((je = stream.getNextJarEntry()) != null) {
-				if (je.getName().equals(uri.getPath())) {
-					return true;
-				}
-			}
-		} catch (IOException e) {
-			return false;
-		} 
-		
-		return false;
+		return index.containsKey(uri.getPath().substring(1));
 	}
 
 	@Override
 	public long lastModified(URI uri) throws IOException {
 		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			JarEntry je = null;
-
-			while ((je = stream.getNextJarEntry()) != null) {
-				if (je.getName().equals(uri.getPath())) {
-					return je.getTime();
-				}
+			JarEntry je = getEntry(stream, uri.getPath().substring(1));
+			if (je != null) {
+				return je.getTime();
 			}
-		} 
+		}
 		
 		throw new FileNotFoundException(uri.toString());
 	}
@@ -90,12 +107,9 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 	@Override
 	public boolean isDirectory(URI uri) {
 		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			JarEntry je = null;
-
-			while ((je = stream.getNextJarEntry()) != null) {
-				if (je.getName().equals(uri.getPath())) {
-					return je.isDirectory();
-				}
+			JarEntry je = getEntry(stream, uri.getPath().substring(1));
+			if (je != null) {
+				return je.isDirectory();
 			}
 		} catch (IOException e) {
 			return false;
@@ -106,19 +120,7 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 
 	@Override
 	public boolean isFile(URI uri) {
-		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			JarEntry je = null;
-
-			while ((je = stream.getNextJarEntry()) != null) {
-				if (je.getName().equals(uri.getPath())) {
-					return !je.isDirectory();
-				}
-			}
-		} catch (IOException e) {
-			return false;
-		}
-		
-		return false;
+		return !isDirectory(uri);
 	}
 
 	@Override
