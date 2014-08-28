@@ -75,16 +75,7 @@ public class ConstructorResult extends NodeResult {
 			}
 
 			if (nodeType.hasKeywordParameter(name)) {
-				IValue parameter = getValue().asWithKeywordParameters().getParameter(name);
-				
-				if (parameter == null) {
-					// then its time to compute defaults.
-					Map<String, IValue> kwArgs = ctx.getCurrentEnvt().getConstructorFunction(getValue().getConstructorType()).computeKeywordArgs(childrenAsArray(), getValue().asWithKeywordParameters().getParameters());
-					parameter = kwArgs.get(name);
-
-					assert parameter != null; // this shouldn't happen because defaults are defined 
-				}
-				return makeResult(nodeType.getKeywordParameterType(name), parameter, ctx);
+				return makeResult(nodeType.getKeywordParameterType(name), getValue().asWithKeywordParameters().getParameter(name), ctx);
 			}
 			else {
 				int index = nodeType.getFieldIndex(name);
@@ -95,16 +86,6 @@ public class ConstructorResult extends NodeResult {
 		}
 	}
 	
-	private IValue[] childrenAsArray() {
-		IValue[] result = new IValue[getValue().arity()];
-		
-		for (int i = 0; i < getValue().arity(); i++) {
-			result[i] = getValue().get(i);
-		}
-		
-		return result;
-	}
-
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		if (!getType().hasField(name, store) && !getValue().getConstructorType().hasKeywordParameter(name)) {
