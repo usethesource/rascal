@@ -82,8 +82,7 @@ public class ConstructorFunction extends NamedFunction {
 			instantiated = constructorType.instantiate(bindings);
 		}
 
-		// TODO: do something with defaults?!
-		return makeResult(instantiated, ctx.getValueFactory().constructor(constructorType, actuals, keyArgValues), ctx);
+		return makeResult(instantiated, ctx.getValueFactory().constructor(constructorType, actuals, computeKeywordArgs(actuals, keyArgValues)), ctx);
 	}
 	
 	@Override
