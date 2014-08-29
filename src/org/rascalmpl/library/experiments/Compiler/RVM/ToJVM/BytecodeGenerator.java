@@ -179,17 +179,13 @@ public class BytecodeGenerator implements Opcodes {
 		if (debug)
 			emitCall("dinsnJMPTRUE", 1);
 
-		// emitInlinePop(false); // pop part of jmp...
-		emitCall("insnPOP");
+		emitInlinePop(false); // pop part of jmp...
 
 		mv.visitVarInsn(ALOAD, 3);
 		
-		//mv.visitVarInsn(ALOAD, 0);
-		//mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		mv.visitInsn(AALOAD);
-		// mv.visitTypeInsn(CHECKCAST, "org/eclipse/imp/pdb/facts/IBool");
 		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IBool", "getValue", "()Z");
 		mv.visitJumpInsn(IFNE, lb);
 	}
@@ -202,18 +198,13 @@ public class BytecodeGenerator implements Opcodes {
 
 		Label lb = getNamedLabel(targetLabel);
 
-		// emitInlinePop(false); // pop part of jmp...
-		emitCall("insnPOP");
+		emitInlinePop(false); // pop part of jmp...
 
 		mv.visitVarInsn(ALOAD, 3);
 		
-		//mv.visitVarInsn(ALOAD, 0);
-		//mv.visitFieldInsn(GETFIELD, fullClassName, "stack", "[Ljava/lang/Object;");
-
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		mv.visitInsn(AALOAD);
-		// mv.visitTypeInsn(CHECKCAST, "org/eclipse/imp/pdb/facts/IBool");
 		mv.visitMethodInsn(INVOKEINTERFACE, "org/eclipse/imp/pdb/facts/IBool", "getValue", "()Z");
 		mv.visitJumpInsn(IFEQ, lb);
 	}
@@ -940,24 +931,16 @@ public class BytecodeGenerator implements Opcodes {
 			emitCall("insnSTORELOC", loc);
 			return;
 		}
-
 		mv.visitVarInsn(ALOAD, 3);
-		// mv.visitVarInsn(ALOAD, 0);
-		// mv.visitFieldInsn(GETFIELD, fullClassName, "stack",
-		// "[Ljava/lang/Object;");
-
 		emitIntValue(loc);
-
 		mv.visitVarInsn(ALOAD, 3);
-		// mv.visitVarInsn(ALOAD, 0);
-		// mv.visitFieldInsn(GETFIELD, fullClassName, "stack",
-		// "[Ljava/lang/Object;");
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		mv.visitInsn(ICONST_1);
 		mv.visitInsn(ISUB);
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
+
 	}
 
 	public void emitInlineTypeSwitch(IList labels, boolean dcode) {
@@ -1285,7 +1268,7 @@ public class BytecodeGenerator implements Opcodes {
 		}
 	}
 
-	public void emitCallWithArgs(String fname) {
+	public void emitCallWithArgsSS(String fname) {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, 0);
@@ -1296,7 +1279,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;I)I");
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
-	public void emitCallWithArgsI(String fname,int i, boolean dbg) {
+	public void emitCallWithArgsSSI(String fname,int i, boolean dbg) {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, 0);
@@ -1308,7 +1291,22 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;II)I");
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
-	public void emitVoidCallWithArgsI(String fname,int i, boolean dbg) {
+	public void emitCallWithArgsSSFI(String fname,int i, boolean dbg) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 3); // Stack
+		
+		mv.visitVarInsn(ALOAD, 0); // SP
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitVarInsn(ALOAD, 1); // CF
+
+		emitIntValue(i);   // I
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;I)I");
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
+	}
+	public void emitVoidCallWithArgsSSI(String fname,int i, boolean dbg) {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, 0);
@@ -1317,5 +1315,23 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
 		emitIntValue(i);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;II)V");
+	}
+
+	public void emitCallWithArgsSSFII(String fname, int i, int j, boolean dcode) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 3); // Stack
+		
+		mv.visitVarInsn(ALOAD, 0); // SP
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitVarInsn(ALOAD, 1); // CF
+
+		emitIntValue(i);   // I
+		emitIntValue(j);   // I
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;II)I");
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");
 	}
 }

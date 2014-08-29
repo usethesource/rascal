@@ -9,7 +9,7 @@ public class CheckArgType extends Instruction {
 		super(ins, Opcode.CHECKARGTYPE);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitCallWithArgs("insnCHECKARGTYPE");
+		codeEmittor.emitCallWithArgsSS("insnCHECKARGTYPE");
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

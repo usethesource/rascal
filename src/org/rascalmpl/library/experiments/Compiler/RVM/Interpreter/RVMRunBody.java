@@ -322,9 +322,6 @@ public class RVMRunBody extends RVMRun {
 		}
 		return YIELD;
 	}
-	public void dopop() {
-		insnSTORELOC(1) ;
-	}
 	public void ainsnLOADCON(int arg1) {
 		stack[sp++] = cf.function.constantStore[arg1];
 	}
@@ -540,7 +537,7 @@ public class RVMRunBody extends RVMRun {
 		
 		nop() ;
 	
-		nosp = insnLOADCON(stack, nosp, 1) ;
+		nosp = insnLOADCON(stack, nosp, cf,  1) ;
 		
 		nop() ;
 		
@@ -562,6 +559,12 @@ public class RVMRunBody extends RVMRun {
 		//this.sp = insnLOADCON(stack, this.sp, cf, 25) ;
 		
 		this.sp = insnPOP(this.sp) ;
+
+		nop() ;
+		
+		stack[3] = stack[sp-1] ;
+		
+		nop() ;
 		
 		return null ;
 	}

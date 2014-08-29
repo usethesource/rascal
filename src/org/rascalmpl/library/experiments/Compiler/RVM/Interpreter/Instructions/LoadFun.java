@@ -15,8 +15,7 @@ public class LoadFun extends Instruction {
 	public String toString() { return "LOADFUN " + fuid + "[" + codeblock.getFunctionIndex(fuid) + "]"; }
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitCall("insnLOADFUN", codeblock.getFunctionIndex(fuid));
-
+		codeEmittor.emitCallWithArgsSSI("insnLOADFUN", codeblock.getFunctionIndex(fuid),dcode);
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getFunctionIndex(fuid));
 	}
 
