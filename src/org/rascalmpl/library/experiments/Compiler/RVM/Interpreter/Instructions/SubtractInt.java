@@ -9,7 +9,7 @@ public class SubtractInt extends Instruction {
 		super(ins, Opcode.SUBTRACTINT);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitCallWithArgs("insnSUBTRACTINT");
+		codeEmittor.emitCallWithArgsSS("insnSUBTRACTINT");
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

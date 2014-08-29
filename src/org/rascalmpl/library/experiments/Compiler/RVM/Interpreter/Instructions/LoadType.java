@@ -16,7 +16,7 @@ public class LoadType extends Instruction {
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		//codeEmittor.emitCall("insnLOADTYPE", type) ;
-		codeEmittor.emitInlineLoadType(type, dcode);
+		codeEmittor.emitCallWithArgsSSFI("insnLOADTYPE", type, dcode); 
 		codeblock.addCode1(opcode.getOpcode(), type);
 	}
 }

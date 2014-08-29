@@ -689,15 +689,9 @@ public class RVMRun implements IRVM {
 		return sp++ ;
 	}
 
-	public int insnLOADCON(Object[] stack, int sp, int arg1) {
-		stack[sp++] = cf.function.constantStore[arg1];
-		return sp ;
-	}
-
-	public void insnLOADLOCREF(int i) {
-		stack[sp++] = new Reference(stack, i);
-	}
-	
+//	public void insnLOADLOCREF(int i) {
+//		stack[sp++] = new Reference(stack, i);
+//	}
 	public int insnLOADLOCREF(Object[] stack, int sp,int args1) {
 		stack[sp++] = new Reference(stack, args1);
 		return sp ;
@@ -708,9 +702,9 @@ public class RVMRun implements IRVM {
 		sp = MuPrimitive.values[arg1].execute(stack, sp, arg2);
 	}
 
-	public void insnLOADTYPE(int i) {
-		stack[sp++] = cf.function.typeConstantStore[i];
-	}
+//	public void insnLOADTYPE(int i) {
+//		stack[sp++] = cf.function.typeConstantStore[i];
+//	}
 	public int insnLOADTYPE(Object[] stack, int sp, Frame cf, int arg1) {
 		stack[sp++] = cf.function.typeConstantStore[arg1];
 		return sp; 
@@ -727,13 +721,13 @@ public class RVMRun implements IRVM {
 		return sp ;
 	}
 
-	public void insnSTORELOC(int target) {
-		stack[target] = stack[sp - 1];
-	}
-	
-	public void insnSTORELOC(Object[] stack,int sp, int target) {
-		stack[target] = stack[sp - 1];
-	}
+//	public void insnSTORELOC(int target) {
+//		stack[target] = stack[sp - 1];
+//	}
+//	
+//	public void insnSTORELOC(Object[] stack,int sp, int target) {
+//		stack[target] = stack[sp - 1];
+//	}
 
 	public void insnUNWRAPTHROWNLOC(int target) {
 		stack[target] = ((Thrown) stack[--sp]).value;
@@ -744,12 +738,20 @@ public class RVMRun implements IRVM {
 		ref.stack[ref.pos] = stack[sp - 1];
 	}
 
-	public void insnLOADFUN(int fun) {
+//	public void insnLOADFUN(int fun) {
+//		stack[sp++] = new FunctionInstance(functionStore.get(fun), root, this);
+//	}
+	public int insnLOADFUN(Object[] stack, int sp, int fun) {
 		stack[sp++] = new FunctionInstance(functionStore.get(fun), root, this);
+		return sp;
 	}
 
-	public void insnLOAD_NESTED_FUN(int fun, int scopeIn) {
+//	public void insnLOAD_NESTED_FUN(int fun, int scopeIn) {
+//		stack[sp++] = FunctionInstance.computeFunctionInstance(functionStore.get(fun), cf, scopeIn, this);
+//	}
+	public int insnLOAD_NESTED_FUN(Object[] stack, int sp, Frame cf,int fun, int scopeIn) {
 		stack[sp++] = FunctionInstance.computeFunctionInstance(functionStore.get(fun), cf, scopeIn, this);
+		return sp;
 	}
 
 	public void insnLOADOFUN(int ofun) {
