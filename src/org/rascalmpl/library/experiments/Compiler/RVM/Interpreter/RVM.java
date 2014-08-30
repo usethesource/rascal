@@ -428,6 +428,7 @@ public class RVM {
 		for(int i = 0; i < args.length; i++){
 			cf.stack[i] = args[i]; 
 		}
+		cf.stack[args.length] = new HashMap<String, IValue>();
 		Object o = executeProgram(root, cf);
 		if(o instanceof Thrown){
 			throw (Thrown) o;
@@ -496,7 +497,6 @@ public class RVM {
 		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
 		Frame cf = root;
 		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
-//		cf.stack[1] = vf.mapWriter().done();
 		cf.stack[1] = new HashMap<String, IValue>();
 		cf.src = main_function.src;
 		Object o = executeProgram(root, cf);
@@ -777,9 +777,9 @@ public class RVM {
 					IValue[] args = new IValue[constructor.getArity()];
 					
 					java.util.Map<String,IValue> kwargs;
-					if(constructor.hasKeywordParameters()){
+					Type type = (Type) stack[--sp];
+					if(type.getArity() > 0){
 						// Constructors with keyword parameters
-						Type type = (Type) stack[--sp];
 						kwargs = (java.util.Map<String,IValue>) stack[--sp];
 					} else {
 						kwargs = new HashMap<String,IValue>();
