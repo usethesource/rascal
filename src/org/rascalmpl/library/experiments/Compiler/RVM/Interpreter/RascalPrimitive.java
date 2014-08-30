@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.regex.Pattern;
@@ -36,14 +37,18 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.InvalidDateTimeException;
+import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext
+import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /*
@@ -4689,7 +4694,7 @@ public enum RascalPrimitive {
 			typeReifier.declareAbstractDataTypes(definitions, typeStore);
 
 			int nargs = argType.getArity();
-			IValue[] args = new IValue[nargs + 1]; // '+1' kwargs
+			IValue[] args = new IValue[nargs];
 
 			TypeParameterVisitor tpvisit = new TypeParameterVisitor();
 			Type requestedType = tf.tupleType(argType);
@@ -4710,7 +4715,6 @@ public enum RascalPrimitive {
 					}
 				}
 				try {
-					args[nargs] = vf.mapWriter().done(); // kwargs
 					IValue res = rvm.executeFunction(fun, args); 
 					passed = ((IBool) res).getValue();
 					if(!passed){
@@ -5664,15 +5668,45 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
-	
-	reify {
+	reifiedType_create {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
-			Types types = new Types(vf);			// TODO make global
-			IValue v = (IValue) stack[sp - 2];
-			Type type = v.getType();
-			stack[sp - 2] = types.typeToSymbol(type, typeStore);
+			
+			IConstructor type_cons = (IConstructor) stack[sp - 2];
+			IMap idefinitions = (IMap) stack[sp - 1];
+			typeReifier = new TypeReifier(vf);
+			
+			Type type = typeReifier.symbolToType(type_cons, idefinitions);
+			
+			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
+			bindings.put(Factory.TypeParam, type);
+			
+			stack[sp - 2] = vf.constructor(Factory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
+			
+			return sp - 1;
+		}
+	},
+	
+	type2symbol {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			assert arity == 2;
+			
+			Type type = (Type) stack[sp - 2];
+			stack[sp - 2] = $type2symbol(type);
+//			IMap idefinitions = (IMap) stack[sp - 1];
+//			typeReifier = new TypeReifier(vf);
+//			
+//			new ReifiedType(type);
+//			
+//			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
+//			bindings.put(Factory.TypeParam, type);
+//			
+//			Symbols.typeToSymbol(type, false,  "");
+//			
+//			stack[sp - 2] = vf.constructor(Factory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
+//			
 			return sp - 1;
 		}
 	},
@@ -6514,7 +6548,145 @@ public enum RascalPrimitive {
 		}
 		return val.toString();
 	}
+	
+	private static IConstructor $type2symbol(Type t){
+		 return t.accept(new ITypeVisitor<IConstructor,RuntimeException>() {
 
+			@Override
+			public IConstructor visitReal(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Real);
+			}
+
+			@Override
+			public IConstructor visitInteger(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Int);
+			}
+
+			@Override
+			public IConstructor visitRational(Type type)
+					throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Rat);
+			}
+
+			@Override
+			public IConstructor visitList(Type type) throws RuntimeException {
+				Type elementType = type.getElementType();
+				if(elementType.isTuple()){
+					IConstructor[] fields = new IConstructor[elementType.getArity()];
+					for(int i = 0; i < elementType.getArity(); i++){
+						fields[i] =elementType.getFieldType(i).accept(this);
+					}
+					return vf.constructor(Factory.Symbol_ListRel, vf.list(fields));
+				}
+				return vf.constructor(Factory.Symbol_List, type.getElementType().accept(this));
+			}
+
+			@Override
+			public IConstructor visitMap(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Map, type.getKeyType().accept(this), type.getValueType().accept(this));
+			}
+
+			@Override
+			public IConstructor visitNumber(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Num);
+			}
+
+			@Override
+			public IConstructor visitAlias(Type type) throws RuntimeException {
+				throw new RuntimeException();
+			}
+
+			@Override
+			public IConstructor visitSet(Type type) throws RuntimeException {
+				Type elementType = type.getElementType();
+				if(elementType.isTuple()){
+					IConstructor[] fields = new IConstructor[elementType.getArity()];
+					for(int i = 0; i < elementType.getArity(); i++){
+						fields[i] =elementType.getFieldType(i).accept(this);
+					}
+					return vf.constructor(Factory.Symbol_Rel, vf.list(fields));
+				}
+				return vf.constructor(Factory.Symbol_Set, type.getElementType().accept(this));
+			}
+
+			@Override
+			public IConstructor visitSourceLocation(Type type)
+					throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Loc);
+			}
+
+			@Override
+			public IConstructor visitString(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Str);
+			}
+
+			@Override
+			public IConstructor visitNode(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Node);
+			}
+
+			@Override
+			public IConstructor visitConstructor(Type type)
+					throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Cons, vf.string(type.getName()), type.getFieldTypes().accept(this));
+			}
+
+			@Override
+			public IConstructor visitAbstractData(Type type)
+					throws RuntimeException {
+				Type parameterType = type.getTypeParameters();
+				IValue args[] = new IValue[parameterType.getArity()];
+				for(int i = 0; i < parameterType.getArity(); i++){
+					args[i] = parameterType.getFieldType(i).accept(this);
+				}
+				return vf.constructor(Factory.Symbol_Adt, vf.string(type.getName()), vf.list(args));
+			}
+
+			@Override
+			public IConstructor visitTuple(Type type) throws RuntimeException {
+				IConstructor fields[] = new IConstructor[type.getArity()];
+				for(int i = 0; i < type.getArity(); i++){
+					fields[i] = type.getFieldType(i).accept(this);
+				}
+				return vf.constructor(Factory.Symbol_Tuple, fields);
+			}
+
+			@Override
+			public IConstructor visitValue(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Value);
+			}
+
+			@Override
+			public IConstructor visitVoid(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Void);
+			}
+
+			@Override
+			public IConstructor visitBool(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Bool);
+			}
+
+			@Override
+			public IConstructor visitParameter(Type type)
+					throws RuntimeException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public IConstructor visitExternal(Type type)
+					throws RuntimeException {
+				return type.accept(this);
+			}
+
+			@Override
+			public IConstructor visitDateTime(Type type)
+					throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Datetime);
+			}
+			
+	});
+	}
 }
 
 /*
