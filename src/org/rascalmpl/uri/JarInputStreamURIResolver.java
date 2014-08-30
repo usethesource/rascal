@@ -49,6 +49,9 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 	}
 	
 	private JarEntry getEntry(JarInputStream stream, String file) throws IOException {
+		if (file.startsWith("/")) {
+			file = file.substring(1);
+		}
 		Integer pos = index == null ? null : index.get(file);
 		
 		if (pos != null) {
@@ -64,9 +67,9 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 	}
 	
 	@Override
-	public InputStream getInputStream(URI uri) throws IOException {		
+	public InputStream getInputStream(URI uri) throws IOException {
 		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			if (getEntry(stream, uri.getPath().substring(1)) != null) {
+			if (getEntry(stream, uri.getPath()) != null) {
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 				byte[] buf = new byte[1024];
 				int len;
@@ -89,13 +92,17 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 
 	@Override
 	public boolean exists(URI uri) {
-		return index.containsKey(uri.getPath().substring(1));
+		String file = uri.getPath();
+		if (file.startsWith("/")) {
+			file = file.substring(1);
+		}
+		return index.containsKey(file);
 	}
 
 	@Override
 	public long lastModified(URI uri) throws IOException {
 		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			JarEntry je = getEntry(stream, uri.getPath().substring(1));
+			JarEntry je = getEntry(stream, uri.getPath());
 			if (je != null) {
 				return je.getTime();
 			}
@@ -107,7 +114,7 @@ public class JarInputStreamURIResolver implements IURIInputStreamResolver {
 	@Override
 	public boolean isDirectory(URI uri) {
 		try (JarInputStream stream = new JarInputStream(getJarStream())) {
-			JarEntry je = getEntry(stream, uri.getPath().substring(1));
+			JarEntry je = getEntry(stream, uri.getPath());
 			if (je != null) {
 				return je.isDirectory();
 			}
