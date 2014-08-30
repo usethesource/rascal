@@ -315,7 +315,11 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       	keywordTypes = \tuple([ label("<kwf.name>", translateType(kwf.\type)) | KeywordFormal kwf <- kwfs.keywordFormalList]);
       	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
      }
-     body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, keywordTypes, ("reflect" in ttags) ? 1 : 0, params);
+     if("<fd.signature.name>" == "typeOf"){		// special treatment of Types::typeOf
+     	body = muCallPrim("type2symbol", [ muCallPrim("typeOf", params), muCon(getGrammar(config)) ]);
+     } else {
+        body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, keywordTypes, ("reflect" in ttags) ? 1 : 0, params);
+     }
      //tbody = translateFunction(fd.signature.parameters.formals.formals, isVarArgs, kwps, exp, when_conditions);
   }
   tbody = translateFunction(fd.signature.parameters.formals.formals, isVarArgs, kwps, body, when_conditions);
