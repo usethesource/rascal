@@ -98,7 +98,7 @@ public class Inferences {
 		//for(int i = 0; i < s2.length; i++) System.err.println("s2[" + i + "] = " + s2[i]);
 		try {
 			double r = new TTestImpl().tTest(s1, s2);
-			System.err.println("r = " + r);
+			//System.err.println("r = " + r);
 			return values.real(r);
 		} catch (IllegalArgumentException e) {
 			throw RuntimeExceptionFactory.illegalArgument(sample1, null, null, e.getMessage());
@@ -150,7 +150,7 @@ public class Inferences {
 		
 		for(int i = 0; i < rank.length; i++){
 			rank[i] = rank.length - rank[i] + 1; // invert the ranking: smallest come now first.
-			System.err.println("rank[" + i + "] = " + rank[i]);
+			//System.err.println("rank[" + i + "] = " + rank[i]);
 		}
 		
 		for(int i = 0; i < dataValues.length(); i++){
