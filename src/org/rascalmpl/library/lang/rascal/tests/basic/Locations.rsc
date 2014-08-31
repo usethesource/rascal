@@ -5,9 +5,18 @@ import List;
 import IO;
 
 int singleChar(str s) = charAt(s,0);
-list[int] validSchemeChars = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")] 
+
+list[int] makeValidSchemeChars() = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")] 
 	+ [singleChar("0")..singleChar("9")] + [singleChar("+"), singleChar("-"), singleChar(".")]
 	;
+	
+list[int] validSchemeChars = makeValidSchemeChars();
+
+// TODO: the compiler cannot handle this initalization
+//list[int] validSchemeChars = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")] 
+//	+ [singleChar("0")..singleChar("9")] + [singleChar("+"), singleChar("-"), singleChar(".")]
+//	;
+
 str createValidScheme(str s) {
 	if (s == "")
 		return "a";
@@ -71,11 +80,4 @@ test bool supportSquareBraces(loc l) {
 	return newL.authority == newAuth;
 }
 
-test bool testExtension(loc l, str s, str s2) {
-	s2 = replaceAll(s2, ".","_");
-	s2 = replaceAll(s2, "/","_");
-	if (endsWith(s, "/")) {
-		s += "a";	
-	}
-	return (l + "<s>.<s2>").extension == s2;
-}
+ 
