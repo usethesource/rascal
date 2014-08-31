@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.regex.Pattern;
@@ -43,8 +42,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext
-import org.rascalmpl.interpreter.types.ReifiedType;
-import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIUtil;
@@ -6648,7 +6645,7 @@ public enum RascalPrimitive {
 				for(int i = 0; i < type.getArity(); i++){
 					fields[i] = type.getFieldType(i).accept(this);
 				}
-				return vf.constructor(Factory.Symbol_Tuple, fields);
+				return vf.constructor(Factory.Symbol_Tuple, vf.list(fields));
 			}
 
 			@Override
