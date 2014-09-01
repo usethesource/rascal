@@ -22,7 +22,7 @@ public class LoadVarDeref extends Instruction {
 
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
 
-		codeEmittor.emitCall("insnLOADVARDEREF", what, pos);
+		codeEmittor.emitCallWithArgsSSFII("insnLOADVARDEREF", what, pos,dcode);
 		
 		codeblock.addCode2(opcode.getOpcode(), what, pos);
 	}

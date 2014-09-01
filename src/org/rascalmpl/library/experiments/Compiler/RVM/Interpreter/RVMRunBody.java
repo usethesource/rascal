@@ -300,8 +300,8 @@ public class RVMRunBody extends RVMRun {
 		return exhaustHelper() ;
 	}
 	public void call(int a , int b , boolean g) {
-		insnLOADVARREF(1111, 2222, true);
-		insnLOADVARREF(1111, 2222, false);
+		//insnLOADVARREF(1111, 2222, true);
+		//insnLOADVARREF(1111, 2222, false);
 		
 	}
 

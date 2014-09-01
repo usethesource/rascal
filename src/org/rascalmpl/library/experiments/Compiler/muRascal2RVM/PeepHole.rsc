@@ -25,7 +25,7 @@ INS peephole(INS instructions){
         result = redundant_stores(result);
         result = jumps_to_jumps(result);
     }
-    println("**** peephole removed <size(instructions) - size(result)> instructions in <loopcount> iterations");
+//  println("**** peephole removed <size(instructions) - size(result)> instructions in <loopcount> iterations");
 //  iprintln(instructions);
 //  iprintln(result4);
     return result;
