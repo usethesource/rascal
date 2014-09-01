@@ -650,39 +650,40 @@ public class RVMRun implements IRVM {
 			stack[sp++] = stack[i];
 	}
 
-	public void insnLOADBOOL(int i) {
-		stack[sp++] = i == 1 ? Rascal_TRUE : Rascal_FALSE;
-	}
-	public void insnLOADBOOLTRUE() {
-		stack[sp++] = Rascal_TRUE;
-	}
+//	public void insnLOADBOOL(int i) {
+//		stack[sp++] = i == 1 ? Rascal_TRUE : Rascal_FALSE;
+//	}
+
+//	public void insnLOADBOOLTRUE() {
+//		stack[sp++] = Rascal_TRUE;
+//	}
 
 	public int insnLOADBOOLTRUE(Object[] stack, int sp) {
 		stack[sp++] = Rascal_TRUE;
 		return sp ;
 	}
 
-	public void insnLOADBOOLFALSE() {
-		stack[sp++] = Rascal_FALSE;
-	}
+//	public void insnLOADBOOLFALSE() {
+//		stack[sp++] = Rascal_FALSE;
+//	}
 
 	public int insnLOADBOOLFALSE(Object[] stack, int sp) {
 		stack[sp++] = Rascal_FALSE;
 		return sp ;
 	}
 
-	public void insnLOADINT(int i) {
-		stack[sp++] = i;
-	}
+//	public void insnLOADINT(int i) {
+//		stack[sp++] = i;
+//	}
 
-	public int insnLOADINT(int i, Object[] stack, int sp) {
+	public int insnLOADINT(Object[] stack, int sp,int i) {
 		stack[sp++] = i;
 		return sp ;
 	}
 
-	public void insnLOADCON(int arg1) {
-		stack[sp++] = cf.function.constantStore[arg1];
-	}
+//	public void insnLOADCON(int arg1) {
+//		stack[sp++] = cf.function.constantStore[arg1];
+//	}
 
 	public int insnLOADCON(Object[] stack, int sp, Frame cf, int arg1) {
 		stack[sp++] = cf.function.constantStore[arg1];
@@ -729,11 +730,16 @@ public class RVMRun implements IRVM {
 //		stack[target] = stack[sp - 1];
 //	}
 
-	public void insnUNWRAPTHROWNLOC(int target) {
+	public int insnUNWRAPTHROWNLOC(Object[] stack, int sp,int target) {
 		stack[target] = ((Thrown) stack[--sp]).value;
+		return sp;
 	}
 
-	public void insnSTORELOCDEREF(int loc) {
+//	public void insnSTORELOCDEREF(int loc) {
+//		Reference ref = (Reference) stack[loc];
+//		ref.stack[ref.pos] = stack[sp - 1];
+//	}
+	public void insnSTORELOCDEREF(Object[] stack, int sp, int loc) {
 		Reference ref = (Reference) stack[loc];
 		ref.stack[ref.pos] = stack[sp - 1];
 	}
@@ -754,18 +760,56 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	public void insnLOADOFUN(int ofun) {
+//	public void insnLOADOFUN(int ofun) {
+//		OverloadedFunction of = overloadedStore.get(ofun);
+//		stack[sp++] = of.scopeIn == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this) : OverloadedFunctionInstance
+//				.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.scopeIn, functionStore, constructorStore, this);
+//	}
+	public int insnLOADOFUN(Object[] stack, int sp,Frame cf,int ofun) {
 		OverloadedFunction of = overloadedStore.get(ofun);
 		stack[sp++] = of.scopeIn == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this) : OverloadedFunctionInstance
 				.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.scopeIn, functionStore, constructorStore, this);
+		return sp;
 	}
 
-	public void insnLOADCONSTR(int construct) {
+//	public void insnLOADCONSTR(int construct) {
+//		Type constructor = constructorStore.get(construct);
+//		stack[sp++] = constructor;
+//	}
+	public int insnLOADCONSTR(Object[] stack, int sp, int construct) {
 		Type constructor = constructorStore.get(construct);
 		stack[sp++] = constructor;
+		return sp;
 	}
 
-	public void insnLOADVAR(int scopeid, int pos, boolean maxArg2) {
+//	public void insnLOADVAR(int scopeid, int pos, boolean maxArg2) {
+//		postOp = 0;
+//		Object rval;
+//
+//		if (maxArg2) {
+//			rval = moduleVariables.get(cf.function.constantStore[scopeid]);
+//			if (rval == null) {
+//				postOp = Opcode.POSTOP_CHECKUNDEF;
+//				return; // TODO break INSTRUCTION;
+//			}
+//			stack[sp++] = rval;
+//			return;
+//		}
+//
+//		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+//			if (fr.scopeId == scopeid) {
+//				rval = fr.stack[pos];
+//				if (rval == null) {
+//					postOp = Opcode.POSTOP_CHECKUNDEF;
+//					return; // TODO break INSTRUCTION;
+//				}
+//				stack[sp++] = rval;
+//				return;
+//			}
+//		}
+//		throw new RuntimeException("LOADVAR cannot find matching scope: " + scopeid);
+//	}
+	public int insnLOADVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxArg2) {
 		postOp = 0;
 		Object rval;
 
@@ -773,10 +817,10 @@ public class RVMRun implements IRVM {
 			rval = moduleVariables.get(cf.function.constantStore[scopeid]);
 			if (rval == null) {
 				postOp = Opcode.POSTOP_CHECKUNDEF;
-				return; // TODO break INSTRUCTION;
+				return sp ; // TODO break INSTRUCTION;
 			}
 			stack[sp++] = rval;
-			return;
+			return sp;
 		}
 
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
@@ -784,45 +828,89 @@ public class RVMRun implements IRVM {
 				rval = fr.stack[pos];
 				if (rval == null) {
 					postOp = Opcode.POSTOP_CHECKUNDEF;
-					return; // TODO break INSTRUCTION;
+					return sp; // TODO break INSTRUCTION;
 				}
 				stack[sp++] = rval;
-				return;
+				return sp;
 			}
 		}
 		throw new RuntimeException("LOADVAR cannot find matching scope: " + scopeid);
 	}
 
-	public void insnLOADVARREF(int scopeid, int pos, boolean maxarg2) {
+//	public void insnLOADVARREF(int scopeid, int pos, boolean maxarg2) {
+//	Object rval;
+//	if (maxarg2) {
+//		rval = moduleVariables.get(cf.function.constantStore[scopeid]);
+//		stack[sp++] = rval;
+//		return;
+//	}
+//
+//	for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+//		if (fr.scopeId == scopeid) {
+//			rval = new Reference(fr.stack, pos);
+//			stack[sp++] = rval;
+//			return;
+//		}
+//	}
+//	throw new RuntimeException("LOADVAR or LOADVARREF cannot find matching scope: " + scopeid);
+//}
+
+	public int insnLOADVARREF(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
 		Object rval;
 		if (maxarg2) {
 			rval = moduleVariables.get(cf.function.constantStore[scopeid]);
 			stack[sp++] = rval;
-			return;
+			return sp;
 		}
 
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
 				rval = new Reference(fr.stack, pos);
 				stack[sp++] = rval;
-				return;
+				return sp;
 			}
 		}
 		throw new RuntimeException("LOADVAR or LOADVARREF cannot find matching scope: " + scopeid);
 	}
 
-	public void insnLOADVARDEREF(int scopeid, int pos) {
+//	public void insnLOADVARDEREF(int scopeid, int pos) {
+//		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+//			if (fr.scopeId == scopeid) {
+//				Reference ref = (Reference) fr.stack[pos];
+//				stack[sp++] = ref.stack[ref.pos];
+//				return;
+//			}
+//		}
+//		throw new RuntimeException("LOADVARDEREF cannot find matching scope: " + scopeid);
+//	}
+	public int insnLOADVARDEREF(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
 				Reference ref = (Reference) fr.stack[pos];
 				stack[sp++] = ref.stack[ref.pos];
-				return;
+				return sp;
 			}
 		}
 		throw new RuntimeException("LOADVARDEREF cannot find matching scope: " + scopeid);
 	}
 
-	public void insnSTOREVAR(int scopeid, int pos, boolean maxarg2) {
+//	public void insnSTOREVAR(int scopeid, int pos, boolean maxarg2) {
+//		if (maxarg2) {
+//			IValue mvar = cf.function.constantStore[scopeid];
+//			moduleVariables.put(mvar, (IValue) stack[sp - 1]);
+//			return;
+//		}
+//		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+//			if (fr.scopeId == scopeid) {
+//				// TODO: We need to re-consider how to guarantee
+//				// safe use of both Java objects and IValues
+//				fr.stack[pos] = stack[sp - 1];
+//				return;
+//			}
+//		}
+//		throw new RuntimeException("STOREVAR cannot find matching scope: " + scopeid);
+//	}
+	public void insnSTOREVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
 		if (maxarg2) {
 			IValue mvar = cf.function.constantStore[scopeid];
 			moduleVariables.put(mvar, (IValue) stack[sp - 1]);
