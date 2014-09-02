@@ -9,7 +9,7 @@ public class SubscriptList extends Instruction {
 		super(ins, Opcode.SUBSCRIPTLIST);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitCall("insnSUBSCRIPTLIST");
+		codeEmittor.emitCallWithArgsSS("insnSUBSCRIPTLIST");
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

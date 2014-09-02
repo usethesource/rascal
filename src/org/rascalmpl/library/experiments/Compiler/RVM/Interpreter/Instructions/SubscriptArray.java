@@ -9,7 +9,7 @@ public class SubscriptArray extends Instruction {
 		super(ins, Opcode.SUBSCRIPTARRAY);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitCall("insnSUBSCRIPTARRAY");
+		codeEmittor.emitCallWithArgsSS("insnSUBSCRIPTARRAY");
 		codeblock.addCode0(opcode.getOpcode());
 	}
 }

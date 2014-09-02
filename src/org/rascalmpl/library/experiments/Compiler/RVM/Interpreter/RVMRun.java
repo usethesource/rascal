@@ -1043,14 +1043,24 @@ public class RVMRun implements IRVM {
 //		}
 //	}
 
-	public void insnSUBSCRIPTARRAY() {
+//	public void insnSUBSCRIPTARRAY() {
+//		sp--;
+//		stack[sp - 1] = ((Object[]) stack[sp - 1])[((Integer) stack[sp])];
+//	}
+	public int insnSUBSCRIPTARRAY(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = ((Object[]) stack[sp - 1])[((Integer) stack[sp])];
+		return sp;
 	}
 
-	public void insnSUBSCRIPTLIST() {
+//	public void insnSUBSCRIPTLIST() {
+//		sp--;
+//		stack[sp - 1] = ((IList) stack[sp - 1]).get((Integer) stack[sp]);
+//	}
+	public int insnSUBSCRIPTLIST(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = ((IList) stack[sp - 1]).get((Integer) stack[sp]);
+		return sp ;
 	}
 
 	public void insnLESSINT() {
@@ -1063,9 +1073,14 @@ public class RVMRun implements IRVM {
 		stack[sp - 1] = ((Integer) stack[sp - 1]) >= ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
 	}
 
-	public void insnADDINT() {
+//	public void insnADDINT() {
+//		sp--;
+//		stack[sp - 1] = ((Integer) stack[sp - 1]) + ((Integer) stack[sp]);
+//	}
+	public int insnADDINT(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = ((Integer) stack[sp - 1]) + ((Integer) stack[sp]);
+		return sp ;
 	}
 
 //	public void insnSUBTRACTINT() {
