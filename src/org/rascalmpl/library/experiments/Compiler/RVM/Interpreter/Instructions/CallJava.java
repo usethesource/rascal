@@ -22,7 +22,7 @@ public class CallJava extends Instruction {
 			                                      ", " +  codeblock.getConstantType(parameterTypes) + ", " + reflect; }
 		
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitCallJava(methodName, className, parameterTypes, reflect,dcode) ;
+		codeEmittor.emitCallWithArgsSSFIIII("insnCALLJAVA", methodName, className, parameterTypes, reflect,dcode) ;
 		
 		codeblock.addCode(opcode.getOpcode());
 		codeblock.addCode(methodName);
