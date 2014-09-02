@@ -9,7 +9,7 @@ public class LessInt extends Instruction {
 		super(ins, Opcode.LESSINT);
 	}
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		 codeEmittor.emitCall("insnLESSINT");
+		 codeEmittor.emitCallWithArgsSS("insnLESSINT");
 		 codeblock.addCode0(opcode.getOpcode());
 	}
 }

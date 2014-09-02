@@ -19,7 +19,7 @@ public class CallConstr extends Instruction {
 	public String toString() { return "CALLCONSTRUCTOR " + fuid + ", " + arity + " [ " + codeblock.getConstructorIndex(fuid) + " ]"; }
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		codeEmittor.emitCall("insnCALLCONSTR", codeblock.getConstructorIndex(fuid), arity);
+		codeEmittor.emitCallWithArgsSSII("insnCALLCONSTR", codeblock.getConstructorIndex(fuid), arity,dcode);
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getConstructorIndex(fuid), arity);
 		//codeblock.addCode(codeblock.getConstantIndex(src));
 	}
