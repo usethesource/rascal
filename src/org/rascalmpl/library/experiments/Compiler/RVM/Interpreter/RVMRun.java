@@ -606,49 +606,49 @@ public class RVMRun implements IRVM {
 		return --sp;
 	}
 
-	public void insnLOADLOC0() {
-			stack[sp++] = stack[0];
-	}
-
-	public void insnLOADLOC1() {
-			stack[sp++] = stack[1];
-	}
-
-	public void insnLOADLOC2() {
-			stack[sp++] = stack[2];
-	}
-
-	public void insnLOADLOC3() {
-			stack[sp++] = stack[3];
-	}
-
-	public void insnLOADLOC4() {
-			stack[sp++] = stack[4];
-	}
-
-	public void insnLOADLOC5() {
-			stack[sp++] = stack[5];
-	}
-
-	public void insnLOADLOC6() {
-			stack[sp++] = stack[6];
-	}
-
-	public void insnLOADLOC7() {
-			stack[sp++] = stack[7];
-	}
-
-	public void insnLOADLOC8() {
-			stack[sp++] = stack[8];
-	}
-
-	public void insnLOADLOC9() {
-			stack[sp++] = stack[9];
-	}
-
-	public void insnLOADLOC(int i) {
-			stack[sp++] = stack[i];
-	}
+//	public void insnLOADLOC0() {
+//			stack[sp++] = stack[0];
+//	}
+//
+//	public void insnLOADLOC1() {
+//			stack[sp++] = stack[1];
+//	}
+//
+//	public void insnLOADLOC2() {
+//			stack[sp++] = stack[2];
+//	}
+//
+//	public void insnLOADLOC3() {
+//			stack[sp++] = stack[3];
+//	}
+//
+//	public void insnLOADLOC4() {
+//			stack[sp++] = stack[4];
+//	}
+//
+//	public void insnLOADLOC5() {
+//			stack[sp++] = stack[5];
+//	}
+//
+//	public void insnLOADLOC6() {
+//			stack[sp++] = stack[6];
+//	}
+//
+//	public void insnLOADLOC7() {
+//			stack[sp++] = stack[7];
+//	}
+//
+//	public void insnLOADLOC8() {
+//			stack[sp++] = stack[8];
+//	}
+//
+//	public void insnLOADLOC9() {
+//			stack[sp++] = stack[9];
+//	}
+//
+//	public void insnLOADLOC(int i) {
+//			stack[sp++] = stack[i];
+//	}
 
 //	public void insnLOADBOOL(int i) {
 //		stack[sp++] = i == 1 ? Rascal_TRUE : Rascal_FALSE;
@@ -699,9 +699,9 @@ public class RVMRun implements IRVM {
 	}
 
 	// In this partial implementation fully inlined.
-	public void insnCALLMUPRIM(int arg1, int arg2) {
-		sp = MuPrimitive.values[arg1].execute(stack, sp, arg2);
-	}
+//	public void insnCALLMUPRIM(int arg1, int arg2) {
+//		sp = MuPrimitive.values[arg1].execute(stack, sp, arg2);
+//	}
 
 //	public void insnLOADTYPE(int i) {
 //		stack[sp++] = cf.function.typeConstantStore[i];
@@ -927,24 +927,50 @@ public class RVMRun implements IRVM {
 		throw new RuntimeException("STOREVAR cannot find matching scope: " + scopeid);
 	}
 
-	public void insnUNWRAPTHROWNVAR(int scopeid, int pos, boolean maxarg2) {
+//	public void insnUNWRAPTHROWNVAR(int scopeid, int pos, boolean maxarg2) {
+//		if (maxarg2) {
+//			IValue mvar = cf.function.constantStore[scopeid];
+//			moduleVariables.put(mvar, (IValue) stack[sp - 1]);
+//			return;
+//		}
+//		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+//			if (fr.scopeId == scopeid) {
+//				// TODO: We need to re-consider how to guarantee safe use of
+//				// both Java objects and IValues
+//				fr.stack[pos] = ((Thrown) stack[--sp]).value;
+//				return;
+//			}
+//		}
+//		throw new RuntimeException("UNWRAPTHROWNVAR cannot find matching scope: " + scopeid);
+//	}
+	public int insnUNWRAPTHROWNVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
 		if (maxarg2) {
 			IValue mvar = cf.function.constantStore[scopeid];
 			moduleVariables.put(mvar, (IValue) stack[sp - 1]);
-			return;
+			return sp;
 		}
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
 				// TODO: We need to re-consider how to guarantee safe use of
 				// both Java objects and IValues
 				fr.stack[pos] = ((Thrown) stack[--sp]).value;
-				return;
+				return sp;
 			}
 		}
 		throw new RuntimeException("UNWRAPTHROWNVAR cannot find matching scope: " + scopeid);
 	}
 
-	public void insnSTOREVARDEREF(int scopeid, int pos) {
+//	public void insnSTOREVARDEREF(int scopeid, int pos) {
+//		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+//			if (fr.scopeId == scopeid) {
+//				Reference ref = (Reference) fr.stack[pos];
+//				ref.stack[ref.pos] = stack[sp - 1];
+//				return;
+//			}
+//		}
+//		throw new RuntimeException("STOREVARDEREF cannot find matching scope: " + scopeid);
+//	}
+	public void insnSTOREVARDEREF(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
 				Reference ref = (Reference) fr.stack[pos];
