@@ -16,7 +16,7 @@ public class LoadLocKwp extends Instruction {
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		
-		codeEmittor.emitCall("insnLOADLOCKWP" , codeblock.getConstantIndex(codeblock.vf.string(name)));
+		codeEmittor.emitCallWithArgsSSFI("insnLOADLOCKWP" , codeblock.getConstantIndex(codeblock.vf.string(name)),dcode);
 		
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(codeblock.vf.string(name)));
 	}
