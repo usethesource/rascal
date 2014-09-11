@@ -16,7 +16,7 @@ public class StoreLocKwp extends Instruction {
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		
-		codeEmittor.emitCall("insnSTORELOCKWP", codeblock.getConstantIndex(codeblock.vf.string(name)));
+		codeEmittor.emitVoidCallWithArgsSSFI("insnSTORELOCKWP", codeblock.getConstantIndex(codeblock.vf.string(name)),dcode);
 		
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstantIndex(codeblock.vf.string(name)));
 	}

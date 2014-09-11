@@ -16,7 +16,7 @@ public class CreateDyn extends Instruction {
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
 		codeEmittor.emitCall("jvmCREATEDYN", arity);
+		//codeEmittor.emitCallWithArgsSSFI("jvmCREATEDYN", arity, dcode);
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
-		
 }

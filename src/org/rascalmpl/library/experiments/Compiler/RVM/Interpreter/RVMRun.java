@@ -43,6 +43,7 @@ public class RVMRun implements IRVM {
 
 	public int sp;
 	public Object[] stack;
+	public Frame cf; // current frame
 	public IValueFactory vf;
 
 	public static IBool Rascal_TRUE;
@@ -51,7 +52,7 @@ public class RVMRun implements IRVM {
 	private final TypeFactory tf;
 
 	protected final IString NONE;
-		protected final IString YIELD;
+	protected final IString YIELD;
 	protected final IString FAILRETURN;
 	protected final IString PANIC;
 
@@ -398,7 +399,6 @@ public class RVMRun implements IRVM {
 	/*
 	 * The following instance variables are only used by executeProgram
 	 */
-	public Frame cf; // current frame
 	public Frame root; // Root frame of a program
 	int postOp;
 	Thrown thrown;
@@ -1292,7 +1292,7 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	public void insnTHROW() {
+	public void insnTHROW(Object[] stack, int sp, Frame cf) {
 		Object obj = stack[--sp];
 		thrown = null;
 		if (obj instanceof IValue) {
@@ -1307,7 +1307,7 @@ public class RVMRun implements IRVM {
 		// TODO break INSTRUCTION;
 	}
 
-	public void insnLOADLOCKWP(int constant) {
+	public int insnLOADLOCKWP(Object[] stack, int sp, Frame cf, int constant) {
 		IString name = (IString) cf.function.codeblock.getConstantValue(constant);
 		@SuppressWarnings("unchecked")
 		Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
@@ -1318,18 +1318,19 @@ public class RVMRun implements IRVM {
 				IValue val = kargs.get(name);
 				if (val.getType().isSubtypeOf(defaultValue.getKey())) {
 					stack[sp++] = val;
-					return;
+					return sp;
 				}
 			}
 		}
 		stack[sp++] = defaultValue.getValue();
+		return sp;
 	}
 
 	public void insnLOADVARKWP() {
 		return;
 	}
 
-	public void insnSTORELOCKWP(int constant) {
+	public void insnSTORELOCKWP(Object[] stack,int sp, Frame cf,int constant) {
 		IValue val = (IValue) stack[sp - 1];
 		IString name = (IString) cf.function.codeblock.getConstantValue(constant);
 		IMap kargs = (IMap) stack[cf.function.nformals - 1];
@@ -1340,14 +1341,14 @@ public class RVMRun implements IRVM {
 		return;
 	}
 
-	public void insnLOADCONT(int scopeid) {
+	public int insnLOADCONT(Object[] stack, int sp, Frame cf, int scopeid) {
 		assert stack[0] instanceof Coroutine;
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
 				// TODO: unsafe in general case (the coroutine object should be
 				// copied)
 				stack[sp++] = fr.stack[0];
-				return;
+				return sp;
 			}
 		}
 		throw new RuntimeException("LOADCONT cannot find matching scope: " + scopeid);
@@ -1413,7 +1414,7 @@ public class RVMRun implements IRVM {
 		dynRun(fun, cf); // Run untill guard, leaves coroutine instance in stack.
 	}
 
-	public int jvmCREATE(Object[] stack, int sp, int fun, int arity) {
+	public int jvmCREATE(Object[] stack, int sp, Frame cf, int fun, int arity) {
 		cccf = cf.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
 		cccf.previousCallFrame = cf;
 		cf = cccf;
@@ -1442,6 +1443,27 @@ public class RVMRun implements IRVM {
 		stack = cf.stack;
 		sp = cf.sp;
 		dynRun(fun_instance.function.funId, cf);
+	}
+
+	public int jvmCREATEDYN(Object[] stack, int sp, Frame cf, int arity) {
+		FunctionInstance fun_instance;
+
+		Object src = stack[--sp];
+
+		if (!(src instanceof FunctionInstance)) {
+			throw new RuntimeException("Unexpected argument type for CREATEDYN: " + src.getClass() + ", " + src);
+		}
+
+		// In case of partial parameter binding
+		fun_instance = (FunctionInstance) src;
+		cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
+		cccf.previousCallFrame = cf;
+		cf = cccf;
+
+		stack = cf.stack;
+		sp = cf.sp;
+		dynRun(fun_instance.function.funId, cf);  // Guard will increment sp of calling function to allow Rascal_T?F storage.
+		return cf.sp ;
 	}
 
 	public int typeSwitchHelper() {
