@@ -305,17 +305,26 @@ public class BytecodeGenerator implements Opcodes {
 		if (!emit)
 			return;
 		// 0 this
-		// 1 Object rval ;
+		// 1 Frame cf;
+		// 2 int sp ;
+		// 3 Object rval ;
+		// 4 Object rval ;
 
-		// does : Object = return1Helper() ;
+		// does : Object rval = return1Helper(Object[] stack) ;
+		
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "return1Helper", "()Ljava/lang/Object;");
-		mv.visitVarInsn(ASTORE, 1);
+		mv.visitVarInsn(ALOAD, 3);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "return1Helper", "([Ljava/lang/Object;)Ljava/lang/Object;");		
+		mv.visitVarInsn(ASTORE, 7);
+		
+//		mv.visitVarInsn(ALOAD, 0);
+//		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "return1Helper", "()Ljava/lang/Object;");		
+//		mv.visitVarInsn(ASTORE, 7);
 
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitJumpInsn(IFNONNULL, l0);
-		mv.visitVarInsn(ALOAD, 1); // LOAD rval
+		mv.visitVarInsn(ALOAD, 7); // LOAD rval
 		mv.visitInsn(ARETURN);
 
 		mv.visitLabel(l0);
@@ -1300,4 +1309,18 @@ public class BytecodeGenerator implements Opcodes {
 		emitIntValue(pos); // I
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;I)V");
 	}
+
+	public void emitCallWithArgsSSF(String fname, boolean dcode) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 3); // Stack
+
+		mv.visitVarInsn(ALOAD, 0); // SP
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitVarInsn(ALOAD, 1); // CF
+		
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)I");
+		mv.visitFieldInsn(PUTFIELD, fullClassName, "sp", "I");}
 }
