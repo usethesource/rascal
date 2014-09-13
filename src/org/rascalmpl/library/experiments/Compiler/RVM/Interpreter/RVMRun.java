@@ -1380,6 +1380,29 @@ public class RVMRun implements IRVM {
 		return PANIC;
 	}
 
+	public Object return1Helper(Object[] stock) {
+		Object rval = null;
+		if (cf.isCoroutine) {
+			rval = Rascal_TRUE;
+			int[] refs = cf.function.refs;
+			if (arity != refs.length) {
+				throw new RuntimeException("Coroutine " + cf.function.name + ": arity of return (" + arity + ") unequal to number of reference parameters (" + refs.length + ")");
+			}
+			for (int i = 0; i < arity; i++) {
+				Reference ref = (Reference) stack[refs[arity - 1 - i]];
+				ref.stack[ref.pos] = stack[--sp];
+			}
+		} else {
+			rval = stack[sp - 1];
+		}
+		cf = cf.previousCallFrame;
+		if (cf != null) {
+			stack = cf.stack;
+			sp = cf.sp;
+			stack[sp++] = rval;
+		}
+		return rval;
+	}
 	public Object return1Helper() {
 		Object rval = null;
 		if (cf.isCoroutine) {
@@ -1578,20 +1601,20 @@ public class RVMRun implements IRVM {
 		}
 	}
 
-	public void jvmNEXT0() {
+	public int jvmNEXT0(Object[] stock, int spp, Frame cff) {
 		Coroutine coroutine = (Coroutine) stack[--sp];
 
 		// Merged the hasNext and next semantics
 		if (!coroutine.hasNext()) {
 			stack[sp++] = Rascal_FALSE;
-			return;
+			return sp;
 		}
 		// put the coroutine onto the stack of active coroutines
 		activeCoroutines.push(coroutine);
 		ccf = coroutine.start;
 		coroutine.next(cf);
 
-		// Push something on the stack of the prev yiellding function
+		// Push something on the stack of the prev yielding function
 		coroutine.frame.stack[coroutine.frame.sp++] = null;
 
 		cf.sp = sp;
@@ -1603,6 +1626,7 @@ public class RVMRun implements IRVM {
 		stack = cf.stack;
 		sp = cf.sp;
 		dynRun(coroutine.entryFrame.function.funId, cf);
+		return sp;
 	}
 
 	public Object exhaustHelper() {
