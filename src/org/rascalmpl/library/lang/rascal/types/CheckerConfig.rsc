@@ -69,7 +69,7 @@ data AbstractValue
     | datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
     | sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats)
     | constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at)
-    | production(RName name, Symbol rtype, int containedIn, loc at)
+    | production(RName name, Symbol rtype, int containedIn, Production p, loc at)
     | annotation(RName name, Symbol rtype, Symbol onType, int containedIn, loc at)
     | \tag(RName name, TagKind tkind, set[Symbol] onTypes, int containedIn, loc at)
     | \alias(RName name, Symbol rtype, int containedIn, loc at)
@@ -118,13 +118,13 @@ data Configuration = config(set[Message] messages,
                             list[Timing] timings,
                             int nextLoc,
                             int uniqueify,
-                            map[int,Expression] keywordDefaults,
-                            rel[int,RName,Expression] dataKeywordDefaults,
+                            map[int,str] keywordDefaults,
+                            rel[int,RName,str] dataKeywordDefaults,
                             map[str,Symbol] tvarBounds,
                             map[RName,ModuleInfo] moduleInfo,
                             map[RName,int] globalAdtMap,
                             map[RName,int] globalSortMap,
-                            map[int,Signature] deferredSignatures,
+                            map[int,value] deferredSignatures,
                             set[RName] unimportedNames,
                             bool importing
                            );
@@ -187,22 +187,23 @@ public Configuration addLabel(Configuration c, RName n, loc l, LabelSource ls) {
 
 public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
 
+@doc{Get the container in which the given item is defined.}
 public int definingContainer(Configuration c, int i) {
 	if (c.store[i] is overload) return definingContainer(c, getOneFrom(c.store[i].items));
     cid = c.store[i].containedIn;
-    if (c.store[cid] is \module) return cid;
-    if (c.store[cid] is function) return cid;
-    if (c.store[cid] is closure) return cid;
+    if (c.store[cid] is \module || c.store[cid] is function || c.store[cid] is closure) return cid;
     return definingContainer(c,cid);
 }
 
+@doc{Starting with the current context, get the container in which it is being defined.}
 public list[int] upToContainer(Configuration c, int i) {
-    if (c.store[i] is \module) return [i];
-    if (c.store[i] is function) return [i];
-    if (c.store[i] is closure) return [i];
+	// NOTE: The reason we do not need to check for overload here is because the current context can
+	// never be an overload -- it has to be some actual scope item that could be put on the stack.
+    if (c.store[i] is \module || c.store[i] is function || c.store[i] is closure) return [i];
     return [i] + upToContainer(c,c.store[i].containedIn);
 }
 
+@doc{Get the container for a given abstract value.}
 private int getContainedIn(Configuration c, AbstractValue av) {
 	if (av has containedIn) return av.containedIn;
 	// NOTE: This assumes that overloads are all defined at the same level (all at the top
@@ -264,7 +265,7 @@ public tuple[Configuration,Symbol] checkTVarBound(Configuration c, loc l, Symbol
 
 @doc{Add a new top-level variable into the configuration.}
 public Configuration addTopLevelVariable(Configuration c, RName n, bool inf, Vis visibility, loc l, Symbol rt) {
-	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	moduleId = head([i | i <- c.stack, c.store[i] is \module]);
 	moduleName = c.store[moduleId].name;
 
 	< c, rt > = checkTVarBound(c, l, rt);
@@ -306,9 +307,9 @@ public Configuration addTopLevelVariable(Configuration c, RName n, bool inf, loc
 
 @doc{Add an imported top-level variable into the configuration.}
 public Configuration addImportedVariable(Configuration c, RName n, int varId, bool addFullName=false) {
-	if (n in c.fcvEnv && c.fcvEnv[n] == itemId) return c;
+	if (n in c.fcvEnv && c.fcvEnv[n] == varId) return c;
 
-	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	moduleId = head([i | i <- c.stack, c.store[i] is \module]);
 	moduleName = c.store[moduleId].name;
 	if (n notin c.fcvEnv) {
 		c.fcvEnv[n] = varId;
@@ -323,7 +324,7 @@ public Configuration addImportedVariable(Configuration c, RName n, int varId, bo
 
 @doc{Add a new local variable into the configuration.}
 public Configuration addLocalVariable(Configuration c, RName n, bool inf, loc l, Symbol rt) {
-	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	moduleId = head([i | i <- c.stack, c.store[i] is \module]);
 	moduleName = c.store[moduleId].name;
 
 	< c, rt > = checkTVarBound(c, l, rt);
@@ -678,7 +679,14 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 
 	adtName = RSimpleName(rt.\adt.name);
 	fullAdtName = appendName(moduleName, adtName);
-	adtId = c.globalAdtMap[adtName];
+	
+	adtId = 0;
+	if (adtName in c.globalAdtMap) {
+		adtId = c.globalAdtMap[adtName];
+	} else {
+		c = addScopeError(c, "Cannot add constructor <prettyPrintName(n)>, associated ADT <prettyPrintName(adtName)> not found", l);
+		return c;
+	}
 
 	keywordParamMap = ( pn : pt | <pn,pt,_> <- keywordParams);
 
@@ -808,7 +816,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		c.definitions = c.definitions + < constructorItemId, l >;
 		c.adtConstructors = c.adtConstructors + < adtId, constructorItemId >;
 
-		c.dataKeywordDefaults = c.dataKeywordDefaults + { < constructorItemId, cp, pe > | <cp,pt,pe> <- consolidatedParams };
+		c.dataKeywordDefaults = c.dataKeywordDefaults + { < constructorItemId, cp, "<pe>" > | <cp,pt,pe> <- consolidatedParams };
 
 		addConstructorItem(n, constructorItemId);
 		addConstructorItem(nameWithAdt, constructorItemId);
@@ -873,13 +881,28 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 
 	if (unwrapType(prod.def) is \start) {
 		sortName = RSimpleName("start[<getNonTerminalName(prod.def)>]");
-		sortId = c.globalSortMap[sortName];
-	}
-	else {
+		if (sortName in c.globalSortMap) {
+			sortId = c.globalSortMap[sortName];
+		} else {
+			if (RSimpleName("") !:= n) {
+				c = addScopeError(c, "Cannot add production <prettyPrintName(n)>, associated sort <prettyPrintName(sortName)> not found", l);
+			} else {
+				c = addScopeError(c, "Cannot add production <prettyPrintName(n)>, associated sort <prettyPrintName(sortName)> not found", l);
+			}
+		}
+	} else {
 		sortName = RSimpleName( (prod.def is label) ? prod.def.symbol.name : prod.def.name );
-		sortId = c.globalSortMap[sortName];
+		if (sortName in c.globalSortMap) {
+			sortId = c.globalSortMap[sortName];
+		} else {
+			if (RSimpleName("") !:= n) {
+				c = addScopeError(c, "Cannot add production <prettyPrintName(n)>, associated sort <prettyPrintName(sortName)> not found", l);
+			} else {
+				c = addScopeError(c, "Cannot add production <prettyPrintName(n)>, associated sort <prettyPrintName(sortName)> not found", l);
+			}
+		}
 	}   
-
+	
 	args = prod.symbols;
 	// TODO: think about production overload when we start to create ability to construct concrete trees from abstract names
 	Symbol rtype = Symbol::\prod( (prod.def is label) ? prod.def.symbol : prod.def, getSimpleName(n), prod.symbols, prod.attributes );
@@ -941,7 +964,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 				c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);		
 		}
 		
-		productionItem = production(n, rtype, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
+		productionItem = production(n, rtype, head([i | i <- c.stack, \module(_,_) := c.store[i]]), prod, l);
 		c.store[productionItemId] = productionItem;
 		c.definitions = c.definitions + < productionItemId, l >;
 		c.nonterminalConstructors = c.nonterminalConstructors + < sortId, productionItemId >;
@@ -1289,4 +1312,3 @@ public Configuration exitBooleanScope(Configuration c, Configuration cOrig) {
 
 @doc{Check if a set of function modifiers has the default modifier}
 public bool hasDefaultModifier(set[Modifier] modifiers) = defaultModifier() in modifiers;
-
