@@ -149,6 +149,7 @@ public class TypeReifier {
 		IConstructor defined = (IConstructor) alt.get("def");
 		String name = ((IString) defined.get("name")).getValue();
 		Type kwTypes = symbolsToTupleType((IList) alt.get("kwTypes"), store);
+		if (kwTypes.getArity() == 0) kwTypes = tf.voidType();
 		
 		IMap kwDefaultMap = (IMap) alt.get("kwDefaults");
 		Map<String,IKeywordParameterInitializer> kwDefaults = new HashMap<>();
@@ -305,7 +306,7 @@ public class TypeReifier {
 		Type returnType = symbolToType((IConstructor) symbol.get("ret"), store);
 		Type parameters = symbolsToTupleType((IList) symbol.get("parameters"), store);
 		
-		return RascalTypeFactory.getInstance().functionType(returnType, parameters, tf.tupleEmpty(), Collections.<String, IKeywordParameterInitializer>emptyMap());
+		return RascalTypeFactory.getInstance().functionType(returnType, parameters, tf.voidType(), Collections.<String, IKeywordParameterInitializer>emptyMap());
 	}
 
 	private Type consToType(IConstructor symbol, TypeStore store) {
