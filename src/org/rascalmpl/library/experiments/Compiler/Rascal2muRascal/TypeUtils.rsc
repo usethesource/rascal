@@ -289,16 +289,16 @@ void extractScopes(){
 		fuid2str[uid] = uid2str(uid);
 	}
 	
-    for(int fuid <- functions) {
-    	nformals = getFormals(fuid); // ***Note: Includes keyword parameters as a single map parameter 
-        innerScopes = {fuid} + containmentPlus[fuid];
+    for(int fuid1 <- functions) {
+    	nformals = getFormals(fuid1); // ***Note: Includes keyword parameters as a single map parameter 
+        innerScopes = {fuid1} + containmentPlus[fuid1];
         // First, fill in variables to get their positions right
-        keywordParams = config.store[fuid].keywordParams;
+        keywordParams = config.store[fuid1].keywordParams;
         // Filter all the non-keyword variables within the function scope
         // ***Note: Filtering by name is possible only when shadowing of local variables is not permitted
         // Sort variable declarations to ensure that formal parameters get first positions preserving their order
         decls_non_kwp = sort([ uid | int uid <- declares[innerScopes], variable(name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
-        fuid_str = fuid2str[fuid];
+        fuid_str = fuid2str[fuid1];
         for(int i <- index(decls_non_kwp)) {
         	// Note: we need to reserve positions for variables that will replace formal parameter patterns
         	// '+ 1' is needed to allocate the first local variable to store default values of keyword parameters
@@ -314,19 +314,22 @@ void extractScopes(){
         decls = [ uid | uid <- declares[innerScopes], function(_,_,_,_,_,_,_,_) := config.store[uid] ||
         											  closure(_,_,_,_) := config.store[uid] ];
         for(i <- index(decls)) {
-        	uid2addr[decls[i]] = <fuid2str[fuid], -1>;
+        	uid2addr[decls[i]] = <fuid2str[fuid1], -1>;
         }
     }
     
     // Fill in uid2addr for overloaded functions;
-    for(int fuid <- ofunctions) {
-        set[int] funs = config.store[fuid].items;
-    	if(int fuid <- funs, production(rname,_,_,_) := config.store[fuid] && isEmpty(getSimpleName(rname)))
+    for(int fuid2 <- ofunctions) {
+        set[int] funs = config.store[fuid2].items;
+    	if(int fuid3 <- funs, production(rname,_,_,_) := config.store[fuid3] && isEmpty(getSimpleName(rname)))
     	    continue;
+    	 if(int fuid4 <- funs,   annotation(_,_,_,_,_) := config.store[fuid4])
+    	 continue; 
+    	    
     	set[str] scopes = {};
     	str scopeIn = uid2str(0);
-    	for(int fuid <- funs) {
-    	    funScopeIn = uid2addr[fuid].fuid;
+    	for(int fuid5 <- funs) {
+    	    funScopeIn = uid2addr[fuid5].fuid;
     		if(funScopeIn notin moduleNames) {
     			scopes += funScopeIn;
     		}
@@ -334,7 +337,7 @@ void extractScopes(){
     	// The alternatives of the overloaded function may come from different scopes 
     	// but only in case of module scopes;
     	assert size(scopes) == 0 || size(scopes) == 1;
-    	uid2addr[fuid] = <scopeIn,-1>;
+    	uid2addr[fuid2] = <scopeIn,-1>;
     }
 }
 
@@ -397,15 +400,18 @@ str getFUID(str fname, Symbol \type) {
     return "<fname>(<for(p<-\type.parameters){><p>;<}>)";
 }
 
+str getField(Symbol::label(l, t)) = "<t> <l>";
+default str getField(Symbol t) = "<t>";
+
 str getFUID(str fname, Symbol \type, int case_num) = "<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
 str getFUID(str modName, str fname, Symbol \type, int case_num) = "<modName>/<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
 
-// NOTE: was "<\type.\adt>::<cname>(<for(label(l,t)<-tparams){><t> <l>;<}>)"; but that did cater for unlabeled fields
-str getCUID(str cname, Symbol \type) = "<\type.\adt>::<cname>(<for(p<-\type.parameters){><p>;<}>)";
-str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cname>(<for(p <-\type.parameters){><p>;<}>)";
+// NOTE: was "<\type.\adt>::<cname>(<for(label(l,t)<-tparams){><t> <l>;<}>)"; but that did not cater for unlabeled fields
+str getCUID(str cname, Symbol \type) = "<\type.\adt>::<cname>(<for(p<-\type.parameters){><getField(p)>;<}>)";
+str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
 
-str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(p <-\type.parameters){><p>;<}>)";
-str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(p <-\type.parameters){><p>;<}>)";
+str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
+str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
 
 str uid2str(int uid) {
 	if(!uid2name[uid]?) {

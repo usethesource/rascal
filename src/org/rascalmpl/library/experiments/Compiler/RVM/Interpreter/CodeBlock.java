@@ -700,6 +700,17 @@ public class CodeBlock {
     	System.out.println();
     }
     
+    public String toString(){
+    	StringBuilder sb = new StringBuilder();
+    	int pc = 0;
+    	while(pc < finalCode.length){
+    		Opcode opc = Opcode.fromInteger(finalCode[pc]);
+    		sb.append("[").append(pc).append("]: ").append(Opcode.toString(this, opc, pc));
+    		pc += opc.getPcIncrement();
+    	}
+    	return sb.toString();
+    }
+    
     public String toString(int n){
     	Opcode opc = Opcode.fromInteger(fetchOp(finalCode[n]));
     	return Opcode.toString(this, opc, n);

@@ -109,6 +109,7 @@ import experiments::Compiler::Examples::Extending;
 import experiments::Compiler::Examples::ExpectedResults;
 
 import experiments::Compiler::Examples::FunctionWithVarargsAndKeyword;
+import experiments::Compiler::Examples::ModuleVarInitWithRange;
 
 loc base = |rascal:///experiments/Compiler/Examples/|;
 
@@ -228,6 +229,7 @@ test bool tst() = demo("NestedFunctions3") == experiments::Compiler::Examples::N
 test bool tst() = demo("NestedFunctions4") == experiments::Compiler::Examples::NestedFunctions4::main([]);
 
 test bool tst() = demo("FunctionWithVarargsAndKeyword") == experiments::Compiler::Examples::FunctionWithVarargsAndKeyword::main([]);
+test bool tst() = demo("ModuleVarInitWithRange") == experiments::Compiler::Examples::ModuleVarInitWithRange::main([]);
 
 // Bug in the compiler, issue #543
 test bool tst() = demo("Template1") == experiments::Compiler::Examples::Template1::main([]);
