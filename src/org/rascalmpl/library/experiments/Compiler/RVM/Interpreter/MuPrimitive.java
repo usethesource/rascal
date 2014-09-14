@@ -235,7 +235,11 @@ public enum MuPrimitive {
 			for (int i = 0; i < cons_arity; i++) {
 			  elems[i + 1] = v.get(i);
 			}
-			elems[cons_arity + 1] = v.asWithKeywordParameters().getParameters();
+			if(v.mayHaveKeywordParameters()){
+				elems[cons_arity + 1] = v.asWithKeywordParameters().getParameters();
+			} else {
+				elems[cons_arity + 1] = emptyKeywordMap;
+			}
 			stack[sp - 1] = elems;
 			return sp;
 		};
@@ -1236,8 +1240,8 @@ public enum MuPrimitive {
 	private static IValueFactory vf;
 //	static Method[] methods;
 	// Changed values to public (Ferry)
-	public static MuPrimitive[] values = MuPrimitive.values();
-	private static HashSet<IValue> emptyMset = new HashSet<IValue>(0);
+	public static final MuPrimitive[] values = MuPrimitive.values();
+	private static final HashSet<IValue> emptyMset = new HashSet<IValue>(0);
 
 //	private static boolean profiling = false;
 //	private static long timeSpent[] = new long[values.length];
@@ -1246,6 +1250,8 @@ public enum MuPrimitive {
 	
 	private static IBool Rascal_TRUE;
 	private static IBool Rascal_FALSE;
+	
+	private static final Map<String, IValue> emptyKeywordMap = new  HashMap<String, IValue>();
 
 	public static MuPrimitive fromInteger(int muprim) {
 		return values[muprim];

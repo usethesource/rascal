@@ -15,7 +15,7 @@ package org.rascalmpl.interpreter.utils;
 
 public final class StringUtils {
 	
-	public static String unescapeSingleQuoteAndBackslash(String str) {
+	public static String unescapeSingleQuoteAndBackslash(String str) { //TODO not Unicode safe!
 		char[] chars = str.toCharArray();
 		StringBuffer result = new StringBuffer();
 		
@@ -24,13 +24,17 @@ public final class StringUtils {
 			char b = chars[i];
 			switch (b) {
 			case '\\':
-				switch (chars[++i]) {
-				case '\\':
-					b = '\\'; 
-					break;
-				case '\'':
-					b = '\''; 
-					break;
+				if(i >= chars.length - 1){
+					b = '\\';
+				} else {
+					switch (chars[++i]) {
+					case '\\':
+						b = '\\'; 
+						break;
+					case '\'':
+						b = '\''; 
+						break;
+					}
 				}
 			}
 			result.append(b);

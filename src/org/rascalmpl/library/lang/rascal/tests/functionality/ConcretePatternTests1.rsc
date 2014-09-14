@@ -90,6 +90,6 @@ test bool concreteMatch51() = (Ds) `<{D ","}* ds1>,d,d,<{D ","}* ds2>,d` := [Ds]
 test bool concreteMatch52() = (Ds) `<{D ","}* ds1>,d,d,d,<{D ","}* ds2>` := [Ds] "d,d,d,d,d" && "<ds1>" == "" && "<ds2>" == "d,d";
 
  
-
-test bool optionalNotPresentIsFalse() = !((A)`a` <- ([OptTestGrammar] "b").a);
-test bool optionalPresentIsTrue() = (A)`a` <- ([OptTestGrammar] "ab").a;
+/*TODO:TC*/
+//test bool optionalNotPresentIsFalse() = !((A)`a` <- ([OptTestGrammar] "b").a);
+//test bool optionalPresentIsTrue() = (A)`a` <- ([OptTestGrammar] "ab").a;

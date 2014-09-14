@@ -56,9 +56,9 @@ RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false, loc
    	return rvmProgram;
 }
 
-void listing(loc moduleLoc, str name = ""){
+void listing(loc moduleLoc, str name = "", bool recompile=false){
 
-	rvmProgram = compile(moduleLoc, recompile=true);
+	rvmProgram = compile(moduleLoc, recompile=recompile);
 	
 	if(name != ""){
 		for(decl <- rvmProgram.declarations){
