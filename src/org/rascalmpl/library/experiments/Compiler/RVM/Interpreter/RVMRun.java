@@ -1629,7 +1629,7 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	public Object exhaustHelper() {
+	public Object exhaustHelper(Object[] stock,int sop, Frame cof) {
 		if (cf == ccf) {
 			activeCoroutines.pop();
 			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
