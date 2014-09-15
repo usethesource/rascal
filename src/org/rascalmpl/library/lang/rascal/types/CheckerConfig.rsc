@@ -118,8 +118,8 @@ data Configuration = config(set[Message] messages,
                             list[Timing] timings,
                             int nextLoc,
                             int uniqueify,
-                            map[int,str] keywordDefaults,
-                            rel[int,RName,str] dataKeywordDefaults,
+                            map[int,value] keywordDefaults,
+                            rel[int,RName,value] dataKeywordDefaults,
                             map[str,Symbol] tvarBounds,
                             map[RName,ModuleInfo] moduleInfo,
                             map[RName,int] globalAdtMap,
@@ -816,7 +816,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		c.definitions = c.definitions + < constructorItemId, l >;
 		c.adtConstructors = c.adtConstructors + < adtId, constructorItemId >;
 
-		c.dataKeywordDefaults = c.dataKeywordDefaults + { < constructorItemId, cp, "<pe>" > | <cp,pt,pe> <- consolidatedParams };
+		c.dataKeywordDefaults = c.dataKeywordDefaults + { < constructorItemId, cp, pe > | <cp,pt,pe> <- consolidatedParams };
 
 		addConstructorItem(n, constructorItemId);
 		addConstructorItem(nameWithAdt, constructorItemId);

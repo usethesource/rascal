@@ -2758,7 +2758,7 @@ public tuple[Configuration,RName,Symbol] checkKeywordFormal(KeywordFormal kf: (K
 	if (!subtype(et, rt))
 		rt = makeFailType("The default is not compatible with the parameter type", kf@\loc);  
 	if (c.nextLoc > currentNextLoc)
-		c.keywordDefaults[currentNextLoc] = "<e>";	  	
+		c.keywordDefaults[currentNextLoc] = e;	  	
 	
 	return < c, rn, rt >;
 }
