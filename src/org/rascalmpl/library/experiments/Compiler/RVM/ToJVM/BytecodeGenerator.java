@@ -598,17 +598,6 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ASTORE, 1);
 	}
 
-	public void emitOCallV2(int ofun, int arity) {
-		if (!emit)
-			return;
-
-		mv.visitVarInsn(ALOAD, 0);
-		emitIntValue(ofun);
-		emitIntValue(arity);
-
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "jvmOCALL", "(II)V");
-	}
-
 	public void emitInlineGuard(int hotEntryPoint, boolean dcode) {
 		if (!emit)
 			return;
@@ -1052,11 +1041,14 @@ public class BytecodeGenerator implements Opcodes {
 		emitEntryLabel(continuationPoint);
 
 		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 3);
+		mv.visitVarInsn(ILOAD, 2);
+		mv.visitVarInsn(ALOAD, 1);
 
 		emitIntValue(arity);
 		emitIntValue(continuationPoint);
 
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "calldynHelper", "(II)Ljava/lang/Object;");
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "calldynHelper", "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;II)Ljava/lang/Object;");
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
@@ -1270,6 +1262,22 @@ public class BytecodeGenerator implements Opcodes {
 			mv.visitInsn(ICONST_0);
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;IIZ)V");
+	}
+
+	public void emitVoidCallWithArgsSSFII(String fname, int what, int pos, boolean dcode) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 3); // Stack
+
+		mv.visitVarInsn(ALOAD, 0); // SP
+		mv.visitFieldInsn(GETFIELD, fullClassName, "sp", "I");
+		mv.visitVarInsn(ALOAD, 1); // CF
+
+		emitIntValue(what); // I
+		emitIntValue(pos); // I
+		
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;II)V");
 	}
 
 	public void emitCallWithArgsSSFIIII(String fname, int methodName, int className2, int parameterTypes, int reflect, boolean dcode) {

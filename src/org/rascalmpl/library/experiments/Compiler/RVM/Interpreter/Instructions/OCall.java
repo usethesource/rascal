@@ -24,7 +24,8 @@ public class OCall extends Instruction {
 		if ( dcode ) codeEmittor.emitCall("dinsnOCALL", codeblock.getOverloadedFunctionIndex(fuid));
 
 		//codeEmittor.emitOCall("OverLoadedHandlerOID" + codeblock.getOverloadedFunctionIndex(fuid),continuationPoint) ; //    TODO ,arity);
-		codeEmittor.emitOCallV2(codeblock.getOverloadedFunctionIndex(fuid), arity);
+//		codeEmittor.emitOCallV2(codeblock.getOverloadedFunctionIndex(fuid), arity);
+		codeEmittor.emitVoidCallWithArgsSSFII("jvmOCALL",codeblock.getOverloadedFunctionIndex(fuid), arity,dcode);
 
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getOverloadedFunctionIndex(fuid), arity);
 		codeblock.addCode(codeblock.getConstantIndex(src));
