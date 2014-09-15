@@ -1722,7 +1722,7 @@ public class RVMRun implements IRVM {
 		stack[sp++] = vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
 	}
 
-	public Object return0Helper() {
+	public Object return0Helper(Object[] st0ck, int spp, Frame cpf) {
 
 		Object rval = null;
 
