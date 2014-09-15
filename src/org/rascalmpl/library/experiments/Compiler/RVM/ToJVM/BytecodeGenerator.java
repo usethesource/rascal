@@ -296,7 +296,10 @@ public class BytecodeGenerator implements Opcodes {
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "exhaustHelper", "()Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, 3);
+		mv.visitVarInsn(ILOAD, 2);
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "exhaustHelper", "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;");
 		mv.visitInsn(ARETURN);
 	}
 
@@ -310,7 +313,7 @@ public class BytecodeGenerator implements Opcodes {
 		// 0 this
 		// 1 Frame cf;
 		// 2 int sp ;
-		// 3 Object rval ;
+		// 3 stack ;
 		// 4 Object rval ;
 
 		// does : Object rval = return1Helper(Object[] stack) ;
