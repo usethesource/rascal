@@ -1652,7 +1652,7 @@ public class RVMRun implements IRVM {
 	// 2: Not done by nextFrame (there is no frame)
 	// 3: todo after the constructor call.
 	// Problem there was 1 frame and the function failed.
-	public void jvmOCALL(int ofun, int arity) {
+	public void jvmOCALL(Object[] stock, int sop, Frame cof,int ofun, int arity) {
 		boolean stackPointerAdjusted = false;
 		cf.sp = sp;
 
@@ -1681,7 +1681,7 @@ public class RVMRun implements IRVM {
 		stack[sp++] = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
 	}
 
-	public void jvmOCALLDYN(int typesel, int arity) {
+	public void jvmOCALLDYN(Object[] stock, int sop, Frame cof,int typesel, int arity) {
 		Object funcObject = stack[--sp];
 		OverloadedFunctionInstanceCall ofunCall = null;
 		cf.sp = sp;
@@ -1747,7 +1747,7 @@ public class RVMRun implements IRVM {
 		return rval;
 	}
 
-	public Object calldynHelper(int arity, int ep) {
+	public Object calldynHelper(Object[] stock, int sop, Frame cof, int arity, int ep) {
 		// In case of CALLDYN, the stack top value of type 'Type'
 		// leads to a constructor call
 		// This instruction is a monstrosity it should be split in three.
