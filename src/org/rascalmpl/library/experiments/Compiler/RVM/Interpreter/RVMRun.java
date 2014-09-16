@@ -1380,7 +1380,7 @@ public class RVMRun implements IRVM {
 		return PANIC;
 	}
 
-	public Object return1Helper(Object[] stock) {
+	public Object return1Helper(Object[] stock, int sop, Frame cof) {
 		Object rval = null;
 		if (cf.isCoroutine) {
 			rval = Rascal_TRUE;
@@ -1403,30 +1403,7 @@ public class RVMRun implements IRVM {
 		}
 		return rval;
 	}
-	public Object return1Helper() {
-		Object rval = null;
-		if (cf.isCoroutine) {
-			rval = Rascal_TRUE;
-			int[] refs = cf.function.refs;
-			if (arity != refs.length) {
-				throw new RuntimeException("Coroutine " + cf.function.name + ": arity of return (" + arity + ") unequal to number of reference parameters (" + refs.length + ")");
-			}
-			for (int i = 0; i < arity; i++) {
-				Reference ref = (Reference) stack[refs[arity - 1 - i]];
-				ref.stack[ref.pos] = stack[--sp];
-			}
-		} else {
-			rval = stack[sp - 1];
-		}
-		cf = cf.previousCallFrame;
-		if (cf != null) {
-			stack = cf.stack;
-			sp = cf.sp;
-			stack[sp++] = rval;
-		}
-		return rval;
-	}
-
+	
 	public void jvmCREATE(int fun, int arity) {
 		cccf = cf.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
 		cccf.previousCallFrame = cf;
