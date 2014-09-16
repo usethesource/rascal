@@ -320,7 +320,9 @@ public class BytecodeGenerator implements Opcodes {
 		
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 3);
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "return1Helper", "([Ljava/lang/Object;)Ljava/lang/Object;");		
+		mv.visitVarInsn(ILOAD, 2);
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "return1Helper", "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;");		
 		mv.visitVarInsn(ASTORE, 7);
 		
 //		mv.visitVarInsn(ALOAD, 0);
