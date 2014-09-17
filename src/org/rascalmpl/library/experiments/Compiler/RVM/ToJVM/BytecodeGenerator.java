@@ -1018,12 +1018,15 @@ public class BytecodeGenerator implements Opcodes {
 		emitEntryLabel(continuationPoint);
 
 		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 3);
+		mv.visitVarInsn(ILOAD, 2);
+		mv.visitVarInsn(ALOAD, 1);
 
 		emitIntValue(functionIndex);
 		emitIntValue(arity);
 		emitIntValue(continuationPoint);
 
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "callHelper", "(III)Ljava/lang/Object;");
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "callHelper", "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;III)Ljava/lang/Object;");
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
