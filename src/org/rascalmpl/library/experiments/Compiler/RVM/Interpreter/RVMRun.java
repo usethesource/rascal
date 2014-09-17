@@ -1533,7 +1533,7 @@ public class RVMRun implements IRVM {
 		stack = cf.stack;
 	}
 
-	public Object callHelper(int funid, int arity, int ep) {
+	public Object callHelper(Object[] stock, int sop, Frame cof,int funid, int arity, int ep) {
 		Frame tmp;
 		Function fun;
 		Object rval;
