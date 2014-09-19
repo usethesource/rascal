@@ -17,28 +17,31 @@ public class OverloadedFunction {
 		this.constructors = constructors;
 		this.funIn = funIn;
 	}
-	public void  finalize(Map<String, Integer> functionMap){
-		if(funIn != null) {
+
+	public void finalize(Map<String, Integer> functionMap) {
+		if (funIn != null) {
 			this.scopeIn = functionMap.get(funIn);
 		}
 	}
+
 	public void finalize(BytecodeGenerator codeEmittor, Map<String, Integer> functionMap, int oid) {
 		if (funIn != null) {
 			this.scopeIn = functionMap.get(funIn);
 		}
+	}
 
-//		codeEmittor.emitOCallHandler("OverLoadedHandlerOID"+oid,funIn,scopeIn,functions,constructors);
-//		int funcListIndex = 0 ;
-//		for (int i : functions) {
-//			String fname = null;
-//			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
-//				if (i == e.getValue()) {
-//					fname = e.getKey();
-//					break;
-//				}
-//			}
-//			codeEmittor.emitOCallCALL(NameMangler.mangle(fname),funcListIndex++,false) ;
-//		}
-//		codeEmittor.emitOCallEnd();
+	public int[] getFuntions() {
+		return functions;
+	}
+
+	public int[] getConstructors() {
+		return constructors;
+	}
+
+	public int getScope() {
+		return scopeIn ;
+	}
+	public String getScopeFun() {
+		return funIn ;
 	}
 }

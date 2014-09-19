@@ -698,7 +698,7 @@ public class CodeBlock {
 		}
 		// TODO: BUG  
 		if ( insList.get(insList.size()-1)  instanceof Label ) {
-			// The mu2rvm code generator emit faulty code and jumps outside existing space 
+			// The mu2rvm code generator emits faulty code and jumps outside existing space 
 			// put in a panic return, code is also generated on a not used label.  
 			// Activate the peephole optimizer :).
 			codeEmittor.emitPanicReturn() ;
