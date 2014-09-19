@@ -21,11 +21,6 @@ public class Call extends Instruction {
 	}
 
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
-		// TODO this is wrong !!!
-		// Call function directly needs name demangling, and stack creation
-		// if (dcode)
-		// codeEmittor.emitCall("dinsnCALL", codeblock.getFunctionIndex(fuid));
-
 		codeEmittor.emitInlineCall(codeblock.getFunctionIndex(fuid), arity, continuationPoint,dcode) ;
 		codeblock.addCode2(opcode.getOpcode(), codeblock.getFunctionIndex(fuid), arity);
 	}

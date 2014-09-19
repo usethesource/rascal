@@ -1011,7 +1011,7 @@ public class RVMRun implements IRVM {
 	// }
 	// stack[sp++] = vf.constructor(constructor, args);
 	// }
-	public int insnCALLCONSTR(Object[] stack, int sp,int constrctr, int arity) {
+	public int insnCALLCONSTR(Object[] stack, int sp, int constrctr, int arity) {
 		Type constructor = constructorStore.get(constrctr);
 
 		IValue[] args = null;
@@ -1042,25 +1042,25 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-//	public void insnCALLJAVA(int m, int c, int p, int r) {
-//		int arity;
-//		postOp = 0;
-//		String methodName = ((IString) cf.function.constantStore[m]).getValue();
-//		String className = ((IString) cf.function.constantStore[c]).getValue();
-//		Type parameterTypes = cf.function.typeConstantStore[p];
-//		int reflect = r;
-//		arity = parameterTypes.getArity();
-//		try {
-//			sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
-//		} catch (Throw e) {
-//			thrown = Thrown.getInstance(e.getException(), e.getLocation(), new ArrayList<Frame>());
-//			postOp = Opcode.POSTOP_HANDLEEXCEPTION;
-//			return; // TODO break INSTRUCTION;
-//		}
-//		return;
-//	}
+	// public void insnCALLJAVA(int m, int c, int p, int r) {
+	// int arity;
+	// postOp = 0;
+	// String methodName = ((IString) cf.function.constantStore[m]).getValue();
+	// String className = ((IString) cf.function.constantStore[c]).getValue();
+	// Type parameterTypes = cf.function.typeConstantStore[p];
+	// int reflect = r;
+	// arity = parameterTypes.getArity();
+	// try {
+	// sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
+	// } catch (Throw e) {
+	// thrown = Thrown.getInstance(e.getException(), e.getLocation(), new ArrayList<Frame>());
+	// postOp = Opcode.POSTOP_HANDLEEXCEPTION;
+	// return; // TODO break INSTRUCTION;
+	// }
+	// return;
+	// }
 	public int insnCALLJAVA(Object[] stack, int sp, Frame cf, int m, int c, int p, int r) {
-		
+
 		int arity;
 		postOp = 0;
 		String methodName = ((IString) cf.function.constantStore[m]).getValue();
@@ -1078,16 +1078,16 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-//	public void insnAPPLY(int function, int arity) {
-//		FunctionInstance fun_instance;
-//		Function fun = functionStore.get(function);
-//		assert arity <= fun.nformals;
-//		assert fun.scopeIn == -1;
-//		fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
-//		sp = sp - arity;
-//		stack[sp++] = fun_instance;
-//		return;
-//	}
+	// public void insnAPPLY(int function, int arity) {
+	// FunctionInstance fun_instance;
+	// Function fun = functionStore.get(function);
+	// assert arity <= fun.nformals;
+	// assert fun.scopeIn == -1;
+	// fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
+	// sp = sp - arity;
+	// stack[sp++] = fun_instance;
+	// return;
+	// }
 	public int insnAPPLY(Object[] stack, int sp, int function, int arity) {
 		FunctionInstance fun_instance;
 		Function fun = functionStore.get(function);
@@ -1099,19 +1099,19 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-//	public void insnAPPLYDYN(int arity) {
-//		FunctionInstance fun_instance;
-//		Object src = stack[--sp];
-//		if (src instanceof FunctionInstance) {
-//			fun_instance = (FunctionInstance) src;
-//			assert arity + fun_instance.next <= fun_instance.function.nformals;
-//			fun_instance = fun_instance.applyPartial(arity, stack, sp);
-//		} else {
-//			throw new RuntimeException("Unexpected argument type for APPLYDYN: " + asString(src));
-//		}
-//		sp = sp - arity;
-//		stack[sp++] = fun_instance;
-//	}
+	// public void insnAPPLYDYN(int arity) {
+	// FunctionInstance fun_instance;
+	// Object src = stack[--sp];
+	// if (src instanceof FunctionInstance) {
+	// fun_instance = (FunctionInstance) src;
+	// assert arity + fun_instance.next <= fun_instance.function.nformals;
+	// fun_instance = fun_instance.applyPartial(arity, stack, sp);
+	// } else {
+	// throw new RuntimeException("Unexpected argument type for APPLYDYN: " + asString(src));
+	// }
+	// sp = sp - arity;
+	// stack[sp++] = fun_instance;
+	// }
 	public int insnAPPLYDYN(Object[] stack, int sp, int arity) {
 		FunctionInstance fun_instance;
 		Object src = stack[--sp];
@@ -1162,20 +1162,20 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-//	public void insnLESSINT() {
-//		sp--;
-//		stack[sp - 1] = ((Integer) stack[sp - 1]) < ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
-//	}
+	// public void insnLESSINT() {
+	// sp--;
+	// stack[sp - 1] = ((Integer) stack[sp - 1]) < ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
+	// }
 	public int insnLESSINT(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = ((Integer) stack[sp - 1]) < ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
 		return sp;
 	}
 
-//	public void insnGREATEREQUALINT() {
-//		sp--;
-//		stack[sp - 1] = ((Integer) stack[sp - 1]) >= ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
-//	}
+	// public void insnGREATEREQUALINT() {
+	// sp--;
+	// stack[sp - 1] = ((Integer) stack[sp - 1]) >= ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
+	// }
 	public int insnGREATEREQUALINT(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = ((Integer) stack[sp - 1]) >= ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
@@ -1212,21 +1212,21 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-//	public void insnTYPEOF() {
-//		if (stack[sp - 1] instanceof HashSet<?>) { // For the benefit of set
-//													// matching
-//			@SuppressWarnings("unchecked")
-//			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
-//			if (mset.isEmpty()) {
-//				stack[sp - 1] = tf.setType(tf.voidType());
-//			} else {
-//				IValue v = mset.iterator().next();
-//				stack[sp - 1] = tf.setType(v.getType());
-//			}
-//		} else {
-//			stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
-//		}
-//	}
+	// public void insnTYPEOF() {
+	// if (stack[sp - 1] instanceof HashSet<?>) { // For the benefit of set
+	// // matching
+	// @SuppressWarnings("unchecked")
+	// HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+	// if (mset.isEmpty()) {
+	// stack[sp - 1] = tf.setType(tf.voidType());
+	// } else {
+	// IValue v = mset.iterator().next();
+	// stack[sp - 1] = tf.setType(v.getType());
+	// }
+	// } else {
+	// stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+	// }
+	// }
 	public void insnTYPEOF(Object[] stack, int sp) {
 		if (stack[sp - 1] instanceof HashSet<?>) { // For the benefit of set
 													// matching
@@ -1330,7 +1330,7 @@ public class RVMRun implements IRVM {
 		return;
 	}
 
-	public void insnSTORELOCKWP(Object[] stack,int sp, Frame cf,int constant) {
+	public void insnSTORELOCKWP(Object[] stack, int sp, Frame cf, int constant) {
 		IValue val = (IValue) stack[sp - 1];
 		IString name = (IString) cf.function.codeblock.getConstantValue(constant);
 		IMap kargs = (IMap) stack[cf.function.nformals - 1];
@@ -1403,7 +1403,7 @@ public class RVMRun implements IRVM {
 		}
 		return rval;
 	}
-	
+
 	public void jvmCREATE(int fun, int arity) {
 		cccf = cf.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
 		cccf.previousCallFrame = cf;
@@ -1462,8 +1462,8 @@ public class RVMRun implements IRVM {
 
 		stack = cf.stack;
 		sp = cf.sp;
-		dynRun(fun_instance.function.funId, cf);  // Guard will increment sp of calling function to allow Rascal_T?F storage.
-		return cf.sp ;
+		dynRun(fun_instance.function.funId, cf); // Guard will increment sp of calling function to allow Rascal_T?F storage.
+		return cf.sp;
 	}
 
 	public int typeSwitchHelper() {
@@ -1514,7 +1514,7 @@ public class RVMRun implements IRVM {
 		stack = cf.stack;
 	}
 
-	public void yield0Helper(int ep) {
+	public void yield0Helper(Object[] stock, int sop, Frame cof, int ep) {
 		// Stores a Rascal_TRUE value into the stack of the NEXT? caller.
 		// The inline yield0 does the return
 		Coroutine coroutine = activeCoroutines.pop();
@@ -1533,7 +1533,7 @@ public class RVMRun implements IRVM {
 		stack = cf.stack;
 	}
 
-	public Object callHelper(Object[] stock, int sop, Frame cof,int funid, int arity, int ep) {
+	public Object callHelper(Object[] stock, int sop, Frame cof, int funid, int arity, int ep) {
 		Frame tmp;
 		Function fun;
 		Object rval;
@@ -1606,7 +1606,7 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	public Object exhaustHelper(Object[] stock,int sop, Frame cof) {
+	public Object exhaustHelper(Object[] stock, int sop, Frame cof) {
 		if (cf == ccf) {
 			activeCoroutines.pop();
 			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
@@ -1629,7 +1629,7 @@ public class RVMRun implements IRVM {
 	// 2: Not done by nextFrame (there is no frame)
 	// 3: todo after the constructor call.
 	// Problem there was 1 frame and the function failed.
-	public void jvmOCALL(Object[] stock, int sop, Frame cof,int ofun, int arity) {
+	public void jvmOCALL(Object[] stock, int sop, Frame cof, int ofun, int arity) {
 		boolean stackPointerAdjusted = false;
 		cf.sp = sp;
 
@@ -1658,7 +1658,7 @@ public class RVMRun implements IRVM {
 		stack[sp++] = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
 	}
 
-	public void jvmOCALLDYN(Object[] stock, int sop, Frame cof,int typesel, int arity) {
+	public void jvmOCALLDYN(Object[] stock, int sop, Frame cof, int typesel, int arity) {
 		Object funcObject = stack[--sp];
 		OverloadedFunctionInstanceCall ofunCall = null;
 		cf.sp = sp;
@@ -1831,15 +1831,15 @@ public class RVMRun implements IRVM {
 	}
 
 	public void dinsnPOP() {
-//		jmpTarget = sp;
+		// jmpTarget = sp;
 	}
 
 	public void dinsnGUARD() {
-//		jmpTarget = sp;
+		// jmpTarget = sp;
 	}
 
 	public void dinsnEXHAUST() {
-//		jmpTarget = sp;
+		// jmpTarget = sp;
 	}
 
 	public void dinsnOCALL(int target) {
