@@ -1404,7 +1404,17 @@ public class RVMRun implements IRVM {
 		return rval;
 	}
 
-	public void jvmCREATE(int fun, int arity) {
+//	public void jvmCREATE(int fun, int arity) {
+//		cccf = cf.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
+//		cccf.previousCallFrame = cf;
+//		cf = cccf;
+//
+//		stack = cf.stack;
+//		sp = cf.sp;
+//		dynRun(fun, cf); // Run untill guard, leaves coroutine instance in stack.
+//	}
+
+	public int jvmCREATE(Object[] stock, int sop, Frame cof, int fun, int arity) {
 		cccf = cf.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
 		cccf.previousCallFrame = cf;
 		cf = cccf;
@@ -1412,20 +1422,30 @@ public class RVMRun implements IRVM {
 		stack = cf.stack;
 		sp = cf.sp;
 		dynRun(fun, cf); // Run untill guard, leaves coroutine instance in stack.
+		return sp;
 	}
 
-	public int jvmCREATE(Object[] stack, int sp, Frame cf, int fun, int arity) {
-		cccf = cf.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
-		cccf.previousCallFrame = cf;
-		cf = cccf;
+//	public void jvmCREATEDYN(int arity) {
+//		FunctionInstance fun_instance;
+//
+//		Object src = stack[--sp];
+//
+//		if (!(src instanceof FunctionInstance)) {
+//			throw new RuntimeException("Unexpected argument type for CREATEDYN: " + src.getClass() + ", " + src);
+//		}
+//
+//		// In case of partial parameter binding
+//		fun_instance = (FunctionInstance) src;
+//		cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
+//		cccf.previousCallFrame = cf;
+//		cf = cccf;
+//
+//		stack = cf.stack;
+//		sp = cf.sp;
+//		dynRun(fun_instance.function.funId, cf);
+//	}
 
-		stack = cf.stack;
-		sp = cf.sp;
-		dynRun(fun, cf); // Run untill guard, leaves coroutine instance in stack.
-		return ++sp;
-	}
-
-	public void jvmCREATEDYN(int arity) {
+	public int jvmCREATEDYN(Object[] stock, int sop, Frame cof, int arity) {
 		FunctionInstance fun_instance;
 
 		Object src = stack[--sp];
@@ -1443,27 +1463,7 @@ public class RVMRun implements IRVM {
 		stack = cf.stack;
 		sp = cf.sp;
 		dynRun(fun_instance.function.funId, cf);
-	}
-
-	public int jvmCREATEDYN(Object[] stack, int sp, Frame cf, int arity) {
-		FunctionInstance fun_instance;
-
-		Object src = stack[--sp];
-
-		if (!(src instanceof FunctionInstance)) {
-			throw new RuntimeException("Unexpected argument type for CREATEDYN: " + src.getClass() + ", " + src);
-		}
-
-		// In case of partial parameter binding
-		fun_instance = (FunctionInstance) src;
-		cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
-		cccf.previousCallFrame = cf;
-		cf = cccf;
-
-		stack = cf.stack;
-		sp = cf.sp;
-		dynRun(fun_instance.function.funId, cf); // Guard will increment sp of calling function to allow Rascal_T?F storage.
-		return cf.sp;
+		return sp;
 	}
 
 	public int typeSwitchHelper() {

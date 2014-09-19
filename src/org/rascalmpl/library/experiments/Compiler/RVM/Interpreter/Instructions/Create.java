@@ -18,9 +18,7 @@ public class Create extends Instruction {
 	
 	
 	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
-		//codeEmittor.emitCallWithArgsSSFII("jvmCREATE", codeblock.getFunctionIndex(fuid), arity,dcode);
-		codeEmittor.emitCall("jvmCREATE", codeblock.getFunctionIndex(fuid), arity);
+		codeEmittor.emitCallWithArgsSSFII("jvmCREATE", codeblock.getFunctionIndex(fuid), arity,dcode);
 		codeblock.addCode2(opcode.getOpcode(),codeblock.getFunctionIndex(fuid), arity);
 	}
-
 }

@@ -1367,17 +1367,15 @@ public class BytecodeGenerator implements Opcodes {
 		if (functions.length == 1) {
 			int[] ctors = of.getConstructors();
 			if (ctors.length == 0) {
-				// There is only ONE function.
-				// System.out.print("All alone :" + fuid + " = ");
 				Function fu = functionStore.get(functions[0]);
-				// System.out.println(fu.name);
 				if (of.getScopeFun() == null) {
-					//emitVoidCallWithArgsSSFII("jvmOCALLSingle", overloadedFunctionIndex, arity, dcode);
 					emitOcallSingle(NameMangler.mangle(fu.name), functions[0], arity) ;
 				} else {
+					// Nested fucntion needs link to containing frame
 					emitVoidCallWithArgsSSFII("jvmOCALL", overloadedFunctionIndex, arity, dcode);
 				}
 			} else {
+				// Has a constructor.
 				emitVoidCallWithArgsSSFII("jvmOCALL", overloadedFunctionIndex, arity, dcode);
 			}
 		}
