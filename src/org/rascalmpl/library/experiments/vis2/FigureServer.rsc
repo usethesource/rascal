@@ -25,7 +25,7 @@ data Descriptor = descriptor(
 	str name, 						// Unique visualization name
 	type[&T] model_type, 			// Type of the model
 	&T model, 						// The model itself: contains application specific data
-	Figure (&T model) visualize, 	// Model visualizer: turns model into a Figure
+	Figure (str event, str utag, &T model) visualize,  // Model visualizer: turns model into a Figure
 	&T (&T model) transform,		// Model transformer: computes application specific model transformations
 	Figure figure					// Current figure
 	);
@@ -96,13 +96,13 @@ Response page(post(), /^\/initial_figure\/<name:[a-zA-Z0-9_]+>/, map[str, str] p
 }
 
 Response page(get(), /^\/initial_figure\/<name:[a-zA-Z0-9_]+>/, map[str, str] parameters) {
-	println("get: initial_figure: <name>, <parameters>");
+	// println("get: initial_figure: <name>, <parameters>");
 	return response(get_initial_figure(name));
 }
 
 Response page(post(), /^\/refresh\/<name:[a-zA-Z0-9_]+>/, map[str, str] parameters) {
-	println("post: refresh: <name>, <parameters>");
-	return response(refresh(name, parameters["model"]));
+	// println("post: refresh: <name>, <parameters>");
+	return response(refresh(name, parameters["model"], parameters["event"],parameters["utag"]));
 }
 
 default Response page(get(), str path, map[str, str] parameters) = response(base + path); 
@@ -142,18 +142,17 @@ private str getSite() = "<site>"[1 .. -1];
 /********************** Render *********************************/
 
 public void render(str name, Figure fig) {
-	render(name, #list[void], [], Figure(value m) { return fig; }, value(value v){return v;});
+	render(name, #list[void], [], Figure(str event, str utag, value m) { return fig; }, value(value v){return v;});
 }
 
-public void render(str name, type[&T] model_type, &T model, Figure (&T model) visualize){
+public void render(str name, type[&T] model_type, &T model, Figure (str event, str utag, &T model) visualize){
 	render(name, model_type, model, visualize, value(value v){return v;});
 }
 
-public void render(str name, type[&T] model_type, &T model, Figure (&T model) visualize, &T (&T model) transform){
-
-	f = visualize(makeCursor(model));
-	println("render: <f>");
-	println("render: <figToJSON(f, getSite())>");
+public void render(str name, type[&T] model_type, &T model, Figure (str event, str utag, &T model) visualize, &T (&T model) transform){
+    println("render: <model_type> <trCursor(makeCursor(model))>");
+	f = visualize("init", "all", makeCursor(model));
+	// println("render: <figToJSON(f, getSite())>");
 	visualizations[name] = descriptor(name, model_type, model, visualize, transform, f);
 	println(getSite());
 	htmlDisplay(site /*+ "?name=<name>"*/);
@@ -162,13 +161,13 @@ public void render(str name, type[&T] model_type, &T model, Figure (&T model) vi
 /********************** get_initial_figure **********************/
 
 private str get_initial_figure(str name){
-	println("get_initial_figure: <name>");
+	// println("get_initial_figure: <name>");
 	if(visualizations[name]?){
 		descr = visualizations[name];
-		f = descr.visualize(makeCursor(descr.model));
-		println("get_initial_server: <f>");
+		f = descr.visualize("init", "all", makeCursor(descr.model));
+		println("get_initial_figure: <toJSON(descr.model)> <descr.model>");
     	res = "{\"model_root\": <toJSON(descr.model)>, \"figure_root\" : <figToJSON(f, getSite())>, \"site\": \"<getSite()>\", \"name\": \"<name>\" }";
-    	println("get_initial_server: res = <res>");
+    	// println("get_initial_server: res = <res>");
     	return res;
     } else {
     	throw "get_initial_figure: visualization <name> unknown";
@@ -177,21 +176,21 @@ private str get_initial_figure(str name){
 
 /********************** refresh ********************************/
 
-private str refresh(str name, str modelAsJSON){ 
+private str refresh(str name, str modelAsJSON, str event, str utag){ 
 	try {
+	    // println("START <name>");
 		if(visualizations[name]?){
+		    // println("refresh:<event>  <utag>");
 			descr = visualizations[name];
-			model = fromJSON(descr.model_type, modelAsJSON);
-			println("refresh: <site>, <typeOf(model)>: <model>");
-			println("refresh: model before trafo: <model>");
+			model = fromJSON(descr.model_type, modelAsJSON);  // Loopt altijd achter
 			model = descr.transform(model);
-			//model = descr.transform(makeCursor(model));
-			println("refresh: model after trafo: <model>");
-			Figure figure = descr.visualize(makeCursor(model));
+			// model = descr.transform(makeCursor(model));
+			Figure figure = descr.visualize(event, utag, makeCursor(model));
 			s = figToJSON(figure, getSite());
+			// println("refresh: figure after figToJSON: <figure>");		
 			descr.model = model;
 			visualizations[name] = descr;
-			println(s);
+			// println(s);
 			return "{\"model_root\": <toJSON(model)>, \"figure_root\" : <s>, \"site\":  \"<getSite()>\", \"name\": \"<name>\" }";
 		} else {
 			return "refresh: unknown visualization: <name>";
