@@ -113,7 +113,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  for(e <- errors) {
    	  	println(e);
    	  }
-   	  throw "Module contains errors!";
+   	  throw "Module contains static errors!";
    	} else {
    	  // If no static errors...
    	  if(size(warnings) > 0) {
