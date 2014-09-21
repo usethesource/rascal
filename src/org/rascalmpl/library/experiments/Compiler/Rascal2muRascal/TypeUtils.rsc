@@ -51,6 +51,8 @@ public set[int] variables = {};						// declared variables
 public set[int] keywordParameters = {};				// declared keyword parameters
 public set[int] ofunctions = {};					// declared overloaded functions
 
+public set[int] outerScopes= {};					// outermost scopes, i.e. scopes directly contained in the module scope;
+
 public set[str] moduleNames = {};					// encountered module names
 
 
@@ -86,6 +88,7 @@ public void resetScopeExtraction() {
 	variables = {};
 	keywordParameters = {};
 	ofunctions = {};
+	outerScopes = {};
 	
 	uid2name = ();
 	
@@ -136,6 +139,7 @@ void extractScopes(){
 	
 	// and the mappings:
 	// - uid2name
+	// - uid2addr
 	// - loc2uid
 	// - fuid2type
 	// - fuid2str
@@ -179,12 +183,17 @@ void extractScopes(){
 		     } 
     }
         case variable(_,_,_,inScope,src):  { 
+        	 //println("uid: <uid>, src:, <src>, variable: <item>");
 			 variables += {uid};
 			 declares += {<inScope, uid>}; 
 			 loc2uid[src] = uid;
              for(l <- config.uses[uid]) {
                  loc2uid[l] = uid;
              }
+             //for(l <- loc2uid){
+            	// if(/Exception/ !:= "<l>")
+            	//	println("<l> : <loc2uid[l]>");
+             //}	
         }
         case constructor(rname,rtype,_,inScope,src): { 
 			 constructors += {uid};
@@ -222,6 +231,9 @@ void extractScopes(){
 			  	blocks[inScope] = 0;
 			 }
 			 uid2name[uid] = "blk#<blocks[inScope]>";
+			 if(inScope == 0){
+			 	outerScopes += uid;
+			 }
         }
         case booleanScope(inScope,src): { 
 		     containment += {<inScope, uid>}; 
@@ -233,6 +245,9 @@ void extractScopes(){
 			    bscopes[inScope] = 0;
 			 }
 			 uid2name[uid] = "bscope#<bscopes[inScope]>";
+			 if(inScope == 0){
+			 	outerScopes += uid;
+			 }
         }
         case closure(rtype,keywordParams,inScope,src): {
              functions += {uid};
@@ -253,6 +268,7 @@ void extractScopes(){
 			 // Fill in uid2name
 			 uid2name[uid] = prettyPrintName(rname);
         }
+        default: ; //println("extractScopes: skipping <item>");
       }
     }
     
@@ -260,26 +276,46 @@ void extractScopes(){
     
     for(muid <- modules){
         module_name = uid2name[muid];
+        module_var_init_locals = 0;
     	// First, fill in variables to get their positions right
     	// Sort variable declarations to ensure that formal parameters get first positions preserving their order 
     	topdecls = sort([ uid | uid <- declares[muid], variable(_,_,_,_,_) := config.store[uid] ]);
+    	
+   		// println("topdecls1: <topdecls>");
+ 		// println("outerScopes: <outerScopes>");
+ 		fuid_module_init = getFUID(uid2str(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
+ 		
     	for(i <- index(topdecls)) {
-            uid2addr[topdecls[i]] = <getFUID(uid2str(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0), i + 1>;
+    		// Assign a position to module variables
+            uid2addr[topdecls[i]] = <fuid_module_init, i + 1>;
+            // Assign local positions to variables occurring in module variable initializations
+            for(os <- outerScopes){
+            	if(config.store[os].at < config.store[topdecls[i]].at){
+            		decls_inner_vars = sort([ uid | int uid <- declares[os], variable(name,_,_,_,_) := config.store[uid] ]);
+    			    for(int i <- index(decls_inner_vars)) {
+        			    uid2addr[decls_inner_vars[i]] = <fuid_module_init, module_var_init_locals + 1>;
+        			    println("set uid2addr[<decls_inner_vars[i]>] to <uid2addr[decls_inner_vars[i]]>");
+        			    module_var_init_locals += 1;
+        		    }
+            	}
+            }
     	}
+    	
     	// Then, functions
+    	
     	topdecls = [ uid | uid <- declares[muid], 
     	                      function(_,_,_,_,_,_,_,_) := config.store[uid] 
     	                   || closure(_,_,_,_)          := config.store[uid] 
     	                   || constructor(_,_,_,_,_)    := config.store[uid] 
     	                   || ( production(rname,_,_,_) := config.store[uid] && !isEmpty(getSimpleName(rname)) ) 
-    	                   || variable(_,_,_,_,_)     := config.store[uid] 
+    	                   || variable(_,_,_,_,_)       := config.store[uid] 
     	           ];
+ 
     	for(i <- index(topdecls)) {
     		// functions and closures are identified by their qualified names, and they do not have a position in their scope
     		// only the qualified name of their enclosing module or function is significant 
     		
     		mvname = (variable(rname,_,_,_,_) := config.store[topdecls[i]]) ? (":" + prettyPrintName(rname)) : "";
-    		   
     		uid2addr[topdecls[i]] = <uid2str(muid) + mvname, -1>;
     	}
     }
@@ -308,7 +344,7 @@ void extractScopes(){
         decls_kwp = sort([ uid | int uid <- declares[innerScopes], variable(name,_,_,_,_) := config.store[uid], name in keywordParams ]);
         for(int i <- index(decls_kwp)) {
             keywordParameters += decls_kwp[i];
-            uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have the position
+            uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
         }
         // Then, functions
         decls = [ uid | uid <- declares[innerScopes], function(_,_,_,_,_,_,_,_) := config.store[uid] ||
@@ -329,6 +365,7 @@ void extractScopes(){
     	set[str] scopes = {};
     	str scopeIn = uid2str(0);
     	for(int fuid5 <- funs) {
+    		//println("<fuid5>: <config.store[fuid5]>");
     	    funScopeIn = uid2addr[fuid5].fuid;
     		if(funScopeIn notin moduleNames) {
     			scopes += funScopeIn;
@@ -339,6 +376,10 @@ void extractScopes(){
     	assert size(scopes) == 0 || size(scopes) == 1;
     	uid2addr[fuid2] = <scopeIn,-1>;
     }
+    
+    //for(int uid <- uid2addr){
+    //	println("uid2addr[<uid>] = <uid2addr[uid]>");
+    //}
 }
 
 /********************************************************************/
@@ -389,7 +430,16 @@ Symbol getClosureType(loc l) {
 KeywordParamMap getKeywords(loc location) = config.store[loc2uid[location]].keywordParams;
 
 tuple[str fuid,int pos] getVariableScope(str name, loc l) {
-  tuple[str fuid,int pos] addr = uid2addr[loc2uid[l]];
+  //println("getVariableScope: <name>, <l>)");
+  //for(l1 <- loc2uid){
+  //          	if(/Exception/ !:= "<l1>")
+  //          		println("<l1> : <loc2uid[l1]>");
+  //          	if(l1 == l) println("EQUAL");
+  //          }
+  //println(	loc2uid[l] );
+  uid = loc2uid[l];
+  //println(uid2addr);
+  tuple[str fuid,int pos] addr = uid2addr[uid];
   return addr;
 }
 
