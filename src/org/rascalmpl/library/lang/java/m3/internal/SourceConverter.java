@@ -229,7 +229,9 @@ public class SourceConverter extends M3Converter {
 	
 	private void fillOverrides(IMethodBinding node, ITypeBinding parent) {
 		if (node == null || parent == null) {
-			System.err.println("parent or method binding is null, not proceeding with fillOverrides");
+			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+					values.string("parent or method binding is null, not proceeding with fillOverrides"),
+					getSourceLocation(compilUnit.findDeclaringNode(node))));
 			return;
 		}
 		
@@ -297,7 +299,9 @@ public class SourceConverter extends M3Converter {
 		  generatePackageDecls(getParent((ISourceLocation) ownValue), (ISourceLocation) ownValue, getParent(loc));
 		  insert(containment, ownValue, getParent());
 		} else {
-		  System.err.println("Unresolved binding for: "+ node);
+			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+					values.string("Unresolved binding for: " + node),
+					values.sourceLocation(loc, 0, 0)));
 		}
 		
 		scopeManager.push((ISourceLocation) ownValue);
@@ -443,7 +447,9 @@ public class SourceConverter extends M3Converter {
 		  insert(types, ownValue, type);
 		}
 		else {
-		  System.err.println("no binding for " + node);
+			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+					values.string("No binding for: " + node),
+					values.sourceLocation(loc, 0, 0)));
 		}
 		
 		ASTNode parentASTNode = node.getParent();
