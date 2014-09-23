@@ -54,7 +54,9 @@ public class JSONReadingTypeVisitor implements
 	}
 
 	private IValue read(Type type) throws IOException {
+		System.err.println("read:"+type);
 		while (type.isAliased()) {
+			System.err.println("read aliased:"+type);
 			type = type.getAliased();
 		}
 
@@ -63,10 +65,12 @@ public class JSONReadingTypeVisitor implements
 		}
 
 		if (type == tf.numberType()) {
+			System.err.println("read2:"+type);
 			return visitNumber(type);
 		}
 		
 		if (type == JSON) {
+			System.err.println("read3:"+type);
 			return readPlainJSON();
 		}
 
@@ -99,6 +103,7 @@ public class JSONReadingTypeVisitor implements
 
 	@Override
 	public IValue visitInteger(Type type) throws IOException {
+		System.err.println("visitInteger:"+stack.peek());
 		return vf.integer(((Double)stack.peek()).longValue());
 	}
 
@@ -376,6 +381,7 @@ public class JSONReadingTypeVisitor implements
 
 	
 	private IValue readPlainJSON() throws IOException {
+		System.err.println("readPlainJSON:"+stack.peek());
 		return convertToIValue(stack.peek());
 	}
 

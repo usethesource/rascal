@@ -149,7 +149,7 @@ public class EclipseJavaCompiler {
       converter.set(loc);
       cu.accept(converter);
       
-      converter.insertCompilationUnitMessages(true);
+      converter.insertCompilationUnitMessages(true, null);
       return converter.getValue();
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
@@ -169,7 +169,7 @@ public class EclipseJavaCompiler {
 	      converter.set(loc);
 	      cu.accept(converter);
 	      
-	      converter.insertCompilationUnitMessages(true);
+	      converter.insertCompilationUnitMessages(true, null);
 	      return converter.getValue();
 	    } catch (IOException e) {
 	      throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
