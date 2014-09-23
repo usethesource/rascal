@@ -48,6 +48,11 @@ public set[int] functions = {};						// declared functions
 public set[int] defaultFunctions = {};				// declared default functions
 public set[int] constructors = {};					// declared constructors
 public set[int] variables = {};						// declared variables
+
+map[str,int] module_var_init_locals = ();	// number of local variables in module variable initializations
+
+int getModuleVarInitLocals(str mname) = module_var_init_locals[mname];
+
 public set[int] keywordParameters = {};				// declared keyword parameters
 public set[int] ofunctions = {};					// declared overloaded functions
 
@@ -86,6 +91,7 @@ public void resetScopeExtraction() {
 	defaultFunctions = {};
 	constructors = {};
 	variables = {};
+	module_var_init_locals = ();
 	keywordParameters = {};
 	ofunctions = {};
 	outerScopes = {};
@@ -276,7 +282,7 @@ void extractScopes(){
     
     for(muid <- modules){
         module_name = uid2name[muid];
-        module_var_init_locals = 0;
+        nmodule_var_init_locals = 0;
     	// First, fill in variables to get their positions right
     	// Sort variable declarations to ensure that formal parameters get first positions preserving their order 
     	topdecls = sort([ uid | uid <- declares[muid], variable(_,_,_,_,_) := config.store[uid] ]);
@@ -293,13 +299,13 @@ void extractScopes(){
             	if(config.store[os].at < config.store[topdecls[i]].at){
             		decls_inner_vars = sort([ uid | int uid <- declares[os], variable(name,_,_,_,_) := config.store[uid] ]);
     			    for(int i <- index(decls_inner_vars)) {
-        			    uid2addr[decls_inner_vars[i]] = <fuid_module_init, module_var_init_locals + 1>;
-        			    println("set uid2addr[<decls_inner_vars[i]>] to <uid2addr[decls_inner_vars[i]]>");
-        			    module_var_init_locals += 1;
+        			    uid2addr[decls_inner_vars[i]] = <fuid_module_init, 2 + nmodule_var_init_locals>;
+        			    nmodule_var_init_locals += 1;
         		    }
             	}
             }
     	}
+    	module_var_init_locals[module_name] = nmodule_var_init_locals;
     	
     	// Then, functions
     	

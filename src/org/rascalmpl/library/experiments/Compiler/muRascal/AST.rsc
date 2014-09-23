@@ -16,6 +16,7 @@ public data MuModule =
                                  list[MuFunction] functions, 
                                  list[MuVariable] variables, 
                                  list[MuExp] initialization,
+                                 int nlocals_in_initializations,
                                  map[str,int] resolver,
                                  lrel[str,list[str],list[str]] overloaded_functions,
                                  map[Symbol, Production] grammar)

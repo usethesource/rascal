@@ -15,6 +15,8 @@ import experiments::Compiler::muRascal2RVM::ToplevelType;
 import experiments::Compiler::muRascal2RVM::StackSize;
 import experiments::Compiler::muRascal2RVM::PeepHole;
 
+
+
 alias INS = list[Instruction];
 
 // Unique label generator
@@ -22,12 +24,12 @@ alias INS = list[Instruction];
 int nlabel = -1;
 str nextLabel() { nlabel += 1; return "L<nlabel>"; }
 
-public str functionScope = "";
-map[str,int] nlocal = ();
+public str functionScope = "";					// scope name of current function, used to distinguish local and non-local variables
+map[str,int] nlocal = ();						// number of local per scope
 
-map[str,str] scopeIn = ();
+map[str,str] scopeIn = ();						// scope nesting
 
-int get_nlocals() = nlocal[functionScope];
+int get_nlocals() = nlocal[functionScope];		
 
 void set_nlocals(int n) {
 	nlocal[functionScope] = n;
@@ -52,7 +54,7 @@ str mkCatchTo(str label) = "CATCH_TO_<label>";
 str mkFinallyFrom(str label) = "FINALLY_FROM_<label>";
 str mkFinallyTo(str label) = "FINALLY_TO_<label>";
 
-//int defaultStackSize = 25;
+// Manage locals
 
 int newLocal() {
     n = nlocal[functionScope];
@@ -65,6 +67,8 @@ int newLocal(str fuid) {
     nlocal[fuid] = n + 1;
     return n;
 }
+
+// Manage temporaries
 
 map[tuple[str,str],int] temporaries = ();
 str asUnwrapedThrown(str name) = name + "_unwraped";
@@ -153,7 +157,7 @@ void resetShiftCounter() {
 // Translate a muRascal module
 
 RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] types, 
-                           list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations,
+                           list[MuFunction] functions, list[MuVariable] variables, list[MuExp] initializations, int nlocals_in_initializations,
                            map[str,int] resolver, lrel[str,list[str],list[str]] overloaded_functions, map[Symbol, Production] grammar), 
                   bool listing=false){
   
@@ -168,8 +172,8 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   
   funMap = ();
   nlabel = -1;
-  nlocal = ( fun.qname : fun.nlocals | MuFunction fun <- functions ) 
-             + ( module_init_fun : size(variables) + 2 ); // Initialization function
+  nlocal =   ( fun.qname : fun.nlocals | MuFunction fun <- functions ) 
+           + ( module_init_fun : 2 + size(variables) + nlocals_in_initializations); 	// Initialization function, 2 for arguments
   temporaries = ();
   
   // Specific to delimited continuations (experimental)
@@ -194,9 +198,6 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     localNames = ();
     exceptionTable = [];
     catchBlocks = [[]];
-    if(listing){
-    	iprintln(fun);
-    }
     
     // Append catch blocks to the end of the function body code
     // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
@@ -217,16 +218,32 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
     																			  tuple[str from, str to] range <- entry.ranges ];
     funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.uqname, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.refs, |unknown:///|, required_frame_size, code))
     							   : (fun.qname : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.isVarArgs, fun.src, required_frame_size, code, exceptions));
+  
+  	if(listing){
+  		println("===================== <fun.qname>");
+  		iprintln(fun);
+  		println("--------------------- <fun.qname>");
+  		iprintln(funMap[fun.qname]);
+  	}
   }
   
-  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, |unknown:///|, estimate_stack_size(initializations) + size(variables) + 2,
-  								    [*trvoidblock(initializations), 
+  functionScope = module_init_fun;
+  code = trvoidblock(initializations); // comnpute code first since it may generate new locals!
+  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, |unknown:///|, estimate_stack_size(initializations) + nlocal[module_init_fun],
+  								    [*code, 
   								     LOADCON(true),
   								     RETURN1(1),
   								     HALT()
   								    ],
   								    []));
  
+  if(listing){
+  	println("===================== INIT: (nlocals_in_initializations = <nlocals_in_initializations>):");
+  	iprintln(initializations);
+  	println("--------------------- INIT");
+  	iprintln(funMap[module_init_fun]);
+  }
+  
   main_testsuite = getUID(module_name,[],"TESTSUITE",1);
   module_init_testsuite = getUID(module_name,[],"#module_init_testsuite",1);
   if(!funMap[main_testsuite]?) { 						
@@ -238,10 +255,6 @@ RVMProgram mu2rvm(muModule(str module_name, list[loc] imports, map[str,Symbol] t
   funMap = funMap + shiftClosures;
   
   res = rvm(module_name, imports, types, funMap, [], resolver, overloaded_functions);
-  if(listing){
-    for(fname <- funMap)
-  		iprintln(funMap[fname]);
-  }
   return res;
 }
 
@@ -720,7 +733,7 @@ default INS tr(MuExp e) { throw "Unknown node in the muRascal AST: <e>"; }
  * The generated code falls through to subsequent instructions when the condition is true, and jumps to falseLab otherwise.
  */
 
-// muOne: explore one successfull evaluation
+// muOne: explore one successful evaluation
 
 INS tr_cond(muOne(MuExp exp), str continueLab, str failLab, str falseLab) =
       [ LABEL(continueLab), LABEL(failLab) ]
@@ -729,6 +742,8 @@ INS tr_cond(muOne(MuExp exp), str continueLab, str failLab, str falseLab) =
         NEXT0(), 
         JMPFALSE(falseLab)
       ];
+
+// muMultiL explore all successful evaluations
 
 INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
     co = newLocal();
