@@ -608,43 +608,57 @@ set[loc] failures = {
   |rascal:///vis/web/markup/Dimple.rsc|
 };
 
-set[loc] compileAll(list[value] args){
+tuple[set[loc],set[loc]] compileAll(list[value] args){
 	allFiles = find(|rascal:///|, "rsc") - exclude;
 	good = allFiles - failures;
 	nfiles = size(allFiles);
-	crashes = {};
+	static_errors = {};
+	compiler_errors = {};
 	t1 = realTime();
 	i = 0;
 	while(!isEmpty(allFiles)){
 		<f, allFiles> = takeOneFrom(allFiles);
 		i += 1;
-		println("**** Compiling <i> of <nfiles> files (<size(crashes)> failed), time sofar <tosec(t1, realTime())> sec. ****");
+		println("**** Compiling <i> of <nfiles> files (static_errors: <size(static_errors)>, compiler_errors: <size(compiler_errors)>), time sofar <tosec(t1, realTime())> sec. ****");
 		try {
 			compile(f);
-		} catch e: {
-			crashes += f;
+		} catch /static error/: {
+			static_errors += f;
+		  }
+		  catch e: {
+			compiler_errors += f;
 		}
 	}
-	if(size(crashes) > 0){
-    	println("\nERRORS:\n");
-     		for(loc lib <- crashes){
+	
+	if(size(static_errors) > 0){
+    	println("\nSTATIC ERRORS:\n");
+     		for(loc lib <- static_errors){
+       			println("<lib>");
+    		}
+  	}
+	if(size(compiler_errors) > 0){
+    	println("\nCOMPILER ERRORS:\n");
+     		for(loc lib <- compiler_errors){
        			println("<lib>");
     		}
   	}
   	
-  	ncrashes = size(crashes);
-  	ndone = nfiles - ncrashes;
-	println("Compiled: total <nfiles>, success <ndone> (<100.0 * ndone / nfiles>%), failed <nfiles - ndone> (<100.0 * (nfiles - ndone)/nfiles>%).");
+  	nstatic = size(static_errors);
+  	ncompiler = size(compiler_errors);
+  	ndone = nfiles - nstatic - ncompiler;
+	println("Processed: total <nfiles>, success <ndone>");
+	println("Static errors: <nstatic>");
+	println("Compiler errors: <ncompiler>");
 	println("Time: <tosec(t1, realTime())> sec.");
 	
-	better = failures - crashes;
-	if(size(better) > 0){
-		println("The following files succeeded, but failed the previous run: <for(f <- better){><f>\n<}>");
-	}
-	worse = good & failures;
-	if(size(worse) > 0){
-		println("The following files failed, but succeeded the previous run: <for(f <- worse){><f>\n<}>");
-	}
+	//better = failures - crashes;
+	//if(size(better) > 0){
+	//	println("The following files succeeded, but failed the previous run: <for(f <- better){><f>\n<}>");
+	//}
+	//worse = good & failures;
+	//if(size(worse) > 0){
+	//	println("The following files failed, but succeeded the previous run: <for(f <- worse){><f>\n<}>");
+	//}
 	
-	return crashes;
+	return <static_errors, compiler_errors>;
 }
