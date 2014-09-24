@@ -161,9 +161,9 @@ public void writeCSV(&T relation, loc location, map[str,str] options) {
 	writeCSV(relation, location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
 }
 
-public Table loadCSV(loc l) = implodeCSV(parseCSV(l));
+public lang::csv::ast::CSV::Table loadCSV(loc l) = implodeCSV(parseCSV(l));
 
-public Table loadNormalizedCSV(loc l) = unquote(loadCSV(l));
+public lang::csv::ast::CSV::Table loadNormalizedCSV(loc l) = unquote(loadCSV(l));
 
 @doc{Generator for CSV resources}
 @resource{csv}
