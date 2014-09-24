@@ -17,6 +17,7 @@ import analysis::graphs::Graph;
 import analysis::m3::Registry;
 
 import IO;
+import ValueIO;
 import String;
 import Relation;
 import Set;
@@ -75,10 +76,26 @@ map[loc, map[loc, Declaration]] methodASTs = ();
 @doc{
 Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
 }
-public M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
+public M3 createM3FromDirectory(loc project, map[str, str] dependencyUpdateSites = (), str javaVersion = "1.7") {
+    //reset();
     if (!(isDirectory(project)))
       throw "<project> is not a valid directory";
-    classPaths = getPaths(project, "class") + find(project, "jar");
+    int iresult = -1;
+    try iresult = buildProject(project, dependencyUpdateSites);
+    catch : println("error in build manager");
+    set[loc] classPaths = {};
+    if (iresult == 0) {
+      set[loc] firstLeveSubDirs = { d | d <- project.ls + project, isDirectory(d) };
+      for (loc dir <- firstLevelSubDirs) {
+        try {
+          str classPathContents = readTextValueFile(project + "cp.txt");
+        } catch : continue;
+        list[str] classPathSet = split(":", classPathContents);
+        classPaths += { |file:///| + cp | cp <- classPathSet };
+      }
+    } else {
+      classPaths = find(project, "jar");
+    }
     sourcePaths = getPaths(project, "java");
     setEnvironmentOptions(classPaths, findRoots(project, sourcePaths));
     m3s = { *createM3FromFile(f, javaVersion = javaVersion) | sp <- sourcePaths, loc f <- find(sp, "java") };
