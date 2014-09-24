@@ -185,9 +185,6 @@ Description: useful for analyzing raw source code on disk, but if you have an Ec
 @reflect
 public java Declaration createAstFromFile(loc file, bool collectBindings, str javaVersion = "1.7");
 
-@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-public java int buildProject(loc directory, map[str, str] dependencyUpdateSites);
-
 @doc{
   Creates ASTs from an input string
 }
