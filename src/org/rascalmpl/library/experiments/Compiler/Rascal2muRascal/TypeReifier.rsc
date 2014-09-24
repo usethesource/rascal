@@ -39,6 +39,9 @@ public map[Symbol,Production] getGrammar(Configuration config) {
 	// Collect all the types that are in the type environment
 	typeMap = ( getSimpleName(rname) : rtype | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] );
 	set[Symbol] types = range(typeMap);
+	
+	//println("getGrammar: typeMap: <typeMap>");
+	//println("getGrammar: types: <types>");
 	constructors = {};
 	// Collects all the productions of the non-terminal types in the type environment
 	grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
@@ -49,6 +52,10 @@ public map[Symbol,Production] getGrammar(Configuration config) {
 	                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 
 	                                     | /Production p:prod(_,_,_) := grammar };
     
+    //println("getGrammar: grammar: <grammar>");
+    //println("getGrammar: starts: <starts>");
+    //println("getGrammar: productions: <productions>");
+     
    	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
    	if(!isEmpty(activeLayouts)) {
    		activeLayout = getOneFrom(activeLayouts);
