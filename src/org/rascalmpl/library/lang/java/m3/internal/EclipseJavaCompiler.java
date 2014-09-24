@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -39,7 +38,6 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.io.InputConverter;
-import org.rascalmpl.library.lang.java.m3.internal.BuildManager;
 
 @SuppressWarnings("rawtypes")
 public class EclipseJavaCompiler {
