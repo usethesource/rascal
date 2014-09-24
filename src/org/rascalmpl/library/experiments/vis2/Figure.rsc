@@ -89,6 +89,8 @@ alias Points = lrel[num x, num y];
 public alias Figures = list[Figure];
 
 public data Figure(
+        // Naming
+        str id = "",
 		// Dimensions and Alignmenting
 		
 		tuple[int,int] size = <0,0>,

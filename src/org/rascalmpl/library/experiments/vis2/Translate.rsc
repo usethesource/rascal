@@ -33,8 +33,7 @@ void check(str property, str val, set[str] allowed){
 str propsToJSON(Figure child, Figure parent){
 	properties = [];
 	defaults = emptyFigure();
-	
-	
+	if (!isEmpty(child.id))   properties += "\"id\":<strArg(child.id)>";
 	if(child.size != parent.size /*&& child.size != defaults.size*/) 					
 													properties += "\"width\": <numArg(child.size[0])>, \"height\": <numArg(child.size[1])> ";
 												  
@@ -95,20 +94,24 @@ str propsToJSON(Figure child, Figure parent){
 			throw "non-existing event name: <child.event>";
 		}
 	
-	    println("propsToJSON: <child.event>");
+	    // println("propsToJSON: <child.event>");
 		switch(child.event){
-			case on(str event, binder: bind(accessor)):
-				if(isCursor(accessor)){ 	
+			case on(str event, binder: bind(accessor)): {
+				if(isCursor(accessor)){ 
+				    // println("QQQ bind1:<accessor>");	
 					properties += [
 						"\"event\": \"<event>\"",
 						//"\"type\":  \"<typeOf(accessor)>\"", 
-						"\"accessor\": <trCursor(accessor)>"
+						"\"accessor\": <trCursor(accessor, deep = true)>"  // Must [1] behind
 						];
+				    // println("QQQ bind2:<properties>");
  				} else {
    				  	throw "on: accessor <accessor> in binder is not a cursor";
    				}
+   				}
 			case  on(str event, bind(accessor, replacement)): {
-				println("accessor: <accessor>, isCursor: <isCursor(accessor)>");
+			    // println("bind:<trCursor(accessor)> <replacement>");
+				// println("accessor: <accessor>, isCursor: <isCursor(accessor)>");
 				if(isCursor(accessor)){ 	
 					properties += [
 						"\"event\":  		\"<event>\"",
@@ -216,7 +219,7 @@ bool isLegalEvent(str event) = event in {
   ;
   */
   
-str trCursor(value v){
+str trCursor(value v, bool deep = false){
 	path = toPath(v);
     accessor = "Figure.model";
 	for(nav <- path){
@@ -244,9 +247,9 @@ str trCursor(value v){
   			default:
   				throw "Unsupported path element <nav>";
   		}
-  	}
-  	accessor += "[1]";
-  	println("trCursor: <v>, <path>: <accessor>");
+  	} 
+  	if (deep) accessor += "[1]";   // Bert
+  	// println("trCursor: <v>, <path>: <accessor>");
   	return "\"<accessor>\"";
 }
 
@@ -262,16 +265,16 @@ str escape(str s) = escape(s, (	"\"" : "\\\"",
 								));
 
 
-str numArg(num n) 	= isCursor(n) ? "{\"use\": <trCursor(n)>}" : toJSNumber(n);
+str numArg(num n) 	= isCursor(n) ? "{\"use\": <trCursor(n, deep = true)>}" : toJSNumber(n);
 
-str strArg(str s) 	= isCursor(s) ? "{\"use\": <trCursor(s)>}" : "\"<escape(s)>\"";
+str strArg(str s) 	= isCursor(s) ? "{\"use\": <trCursor(s, deep= true)>}" : "\"<escape(s)>\"";
 
-str locArg(loc v) = isCursor(v) ? "{\"use\": <trCursor(v)>}" : 
+str locArg(loc v) = isCursor(v) ? "{\"use\": <trCursor(v, deep = true)>}" : 
 					(v.scheme == "file" ? "\"<site>/<v.path>\"" : "\"<"<v>"[1..-1]>\"");
 
-str valArg(value v) = isCursor(v) ? "{\"use\": <trCursor(v)>}" : "<v>";
+str valArg(value v) = isCursor(v) ? "{\"use\": <trCursor(v, deep = true)>}" : "<v>";
 
-str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trCursor(v)>}" : "\"<escape("<v>")>\"";		
+str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trCursor(v, deep = true)>}" : "\"<escape("<v>")>\"";		
 
 /******************** Translate figures ************************************/
 		
