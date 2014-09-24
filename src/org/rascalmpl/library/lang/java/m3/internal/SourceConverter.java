@@ -269,7 +269,6 @@ public class SourceConverter extends M3Converter {
 	  
 	    if (!(parent == null)) {
 	      insert(containment, parent, pkg);
-	      insert(names, values.string(pkg.getPath()), pkg);
 	      pkg = parent;
 	      generatePackageDecls(getParent(pkg), pkg, getParent(folder));
 	    }
