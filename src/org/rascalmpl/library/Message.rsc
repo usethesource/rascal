@@ -49,22 +49,12 @@ Questions:
 }
 module Message
 
-data Tree;
-@doc{
-Synopsis: An alias that represents a quick fix.
-Description:
-It is a function which takes the Parse Tree and problem location as input and returns the potential rewritten tree in text back to the editor. 
-When the quick fix is applied the outcome of the function will replace the content of the file 
-}
-alias QuickFix = str (&T<:Tree input, loc origin);
-
 @doc{
 Description:
 Messages can be used to communicate information about source texts.
 They can be interpreted by IDE's to display type errors and warnings, etc.
-If wanted, they can be provided with a list of quick fixes. These will show up in the IDE when hovering over the message. 
 }
-data Message(lrel[str label, QuickFix fix] quickFixes = []) = 
+data Message = 
        error(str msg, loc at)
      | warning(str msg, loc at)
      | info(str msg, loc at);

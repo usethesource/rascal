@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -38,18 +39,25 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	private static final String DATATYPE_RASCAL_AST_DECLARATION_NODE 	= "Declaration";
 	private static final String DATATYPE_RASCAL_AST_EXPRESSION_NODE 	= "Expression";
 	private static final String DATATYPE_RASCAL_AST_STATEMENT_NODE 		= "Statement";
+	private static final String DATATYPE_RASCAL_MESSAGE                 = "Message";
+	private static final String DATATYPE_RASCAL_MESSAGE_ERROR           = "error";
 	
 	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_DECLARATION_NODE_TYPE;
 	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE;
 	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE;
 	protected static org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_TYPE_NODE_TYPE;
 	protected static org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE;
+	protected static org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_MESSAGE_DATA_TYPE;
+	protected static org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE;
+	
 	protected CompilationUnit compilUnit;
 	protected ISourceLocation loc;
 	
 	protected final BindingsResolver bindingsResolver;
 	protected final boolean collectBindings;
 	
+	protected IListWriter messages;
+
 	JavaToRascalConverter(final TypeStore typeStore, boolean collectBindings) {
 		super(true);
 		this.typeStore = typeStore;
@@ -60,6 +68,10 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		this.DATATYPE_RASCAL_AST_DECLARATION_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_DECLARATION_NODE);
 		this.DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_EXPRESSION_NODE);
 		this.DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_STATEMENT_NODE);
+		this.DATATYPE_RASCAL_MESSAGE_DATA_TYPE          = typeStore.lookupAbstractDataType(DATATYPE_RASCAL_MESSAGE);
+		this.DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE    = typeStore.lookupConstructor(DATATYPE_RASCAL_MESSAGE_DATA_TYPE, DATATYPE_RASCAL_MESSAGE_ERROR).iterator().next();
+
+		messages = values.listWriter(DATATYPE_RASCAL_MESSAGE_DATA_TYPE);
 	}
 	
 	public void set(CompilationUnit compilUnit) {
@@ -138,7 +150,10 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 				int end = start + nodeLength -1;
 				
 				if (end < start && ((node.getFlags() & 9) > 0)) {
-					System.err.println("Recovered/Malformed node, guessing the length");
+					insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+							values.string("Recovered/Malformed node, guessing the length"),
+							values.sourceLocation(loc, 0, 0)));
+
 					nodeLength = node.toString().length();
 					end = start + nodeLength - 1;
 				}
@@ -150,7 +165,9 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 						 compilUnit.getColumnNumber(start), compilUnit.getColumnNumber(end)+1);
 			}
 		} catch (IllegalArgumentException e) {
-			System.err.println("Most probably missing dependency");
+			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+					values.string("Most probably missing dependency"),
+					values.sourceLocation(loc, 0, 0)));
 		}
 		return values.sourceLocation(loc, 0, 0, 0, 0, 0, 0);
 	}
@@ -261,10 +278,17 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		return values.constructor(constr, removeNulls(children));
 	}
 	
-	protected void insertCompilationUnitMessages(boolean insertErrors) {
+	protected void insertCompilationUnitMessages(boolean insertErrors, IList otherMessages) {
 		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(TF.stringType(), TF.sourceLocationType());
 		
 		IValueList result = new IValueList(values);
+
+		if (otherMessages != null) {
+			for (IValue message : otherMessages) {
+				result.add(message);
+			}
+		}
+
 		if (insertErrors) {
 			int i;
 	
@@ -284,5 +308,11 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 			}
 		}
 		setAnnotation("messages", result.asList());
+	}
+
+	public void insert(IListWriter listW, IValue message) {
+		if (message.getType().isConstructor() && message.getType().getAbstractDataType().getName().equals("Message")) {
+			listW.insert(message);
+		}
 	}
 }
