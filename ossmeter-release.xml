@@ -3,13 +3,12 @@
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
     <target name="create_run_jar">
-        <jar destfile="/Users/jurgenv/Workspaces/Rascal/rascal/rascal.jar" filesetmanifest="mergewithoutmain">
+        <jar destfile="./rascal.jar" filesetmanifest="mergewithoutmain">
             <manifest>
-                <attribute name="Main-Class" value="org.rascalmpl.tutor.RascalTutor"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="/Users/jurgenv/Workspaces/Rascal/rascal/bin"/>
-            <fileset dir="/Users/jurgenv/Workspaces/Rascal/pdb.values/bin"/>
+            <fileset dir="./bin"/>
+            <fileset dir="../pdb.values/bin"/>
             <zipfileset excludes="META-INF/*.SF" src="/Applications/Eclipse/keppler/plugins/org.junit_4.11.0.v201303080030/junit.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/Applications/Eclipse/keppler/plugins/org.hamcrest.core_1.3.0.v201303031735.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/Applications/Eclipse/keppler/plugins/org.eclipse.swt_3.102.1.v20140206-1334.jar"/>
@@ -32,8 +31,8 @@
             <zipfileset excludes="META-INF/*.SF" src="/Applications/Eclipse/keppler/plugins/org.eclipse.equinox.registry_3.5.301.v20130717-1549.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/Applications/Eclipse/keppler/plugins/org.eclipse.core.runtime.compatibility.registry_3.5.200.v20130514-1256/runtime_registry_compatibility.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/Applications/Eclipse/keppler/plugins/org.eclipse.osgi_3.9.1.v20140110-1610.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/jurgenv/Workspaces/Rascal/rascal/lib/snakeyaml-1.11.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/jurgenv/Workspaces/Rascal/rascal/lib/gson-2.2.4.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/snakeyaml-1.11.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/gson-2.2.4.jar"/>
         </jar>
     </target>
 </project>
