@@ -225,15 +225,4 @@ public class EclipseJavaCompiler {
     }
     return data;
   }
-  
-  public IValue buildProject(ISourceLocation directory, IMap dependencyUpdateSites) throws UnsupportedOperationException, Exception {
-	  BuildManager bmw = new BuildManager();
-	  HashMap<String, String> dependencies = new HashMap<>();
-	  for (IValue id: dependencyUpdateSites) {
-		  dependencies.put(((IString) id).getValue(), ((IString) dependencyUpdateSites.get(id)).getValue());
-	  }
-	  bmw.addEclipseRepositories(dependencies);
-	  int result = bmw.resolveProject(directory.getPath());
-	  return VF.integer(result);
-  }
 }
