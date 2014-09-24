@@ -166,7 +166,7 @@ set[loc] findRoots(loc project, set[loc] allPaths) {
   while (!isEmpty(allPaths)) {
     loc oneLoc = getOneFrom(allPaths);
     allPaths -= oneLoc;
-    loc parent = project + replaceLast(oneLoc.path, "/" + oneLoc.file, "");
+    loc parent = project[path=replaceLast(oneLoc.path, "/" + oneLoc.file, "")];
     if (parent != project && parent != project+"/") {
       allPaths += parent;
     } else {
@@ -185,6 +185,9 @@ Description: useful for analyzing raw source code on disk, but if you have an Ec
 @reflect
 public java Declaration createAstFromFile(loc file, bool collectBindings, str javaVersion = "1.7");
 
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
+public java int buildProject(loc directory, map[str, str] dependencyUpdateSites);
+
 @doc{
   Creates ASTs from an input string
 }
@@ -194,7 +197,24 @@ public java Declaration createAstFromString(loc fileName, str source, bool colle
 
 @doc{Creates ASTs from a project}
 public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, str javaVersion = "1.7" ) {
-   classPaths = getPaths(project, "class") + find(project, "jar");
+   if (!(isDirectory(project)))
+     throw "<project> is not a valid directory";
+   int iresult = -1;
+   try iresult = buildProject(project, dependencyUpdateSites);
+   catch : println("error in build manager");
+   set[loc] classPaths = {};
+   if (iresult == 0) {
+     set[loc] firstLeveSubDirs = { d | d <- project.ls + project, isDirectory(d) };
+     for (loc dir <- firstLevelSubDirs) {
+       try {
+         str classPathContents = readTextValueFile(project + "cp.txt");
+       } catch : continue;
+       list[str] classPathSet = split(":", classPathContents);
+       classPaths += { |file:///| + cp | cp <- classPathSet };
+     }
+   } else {
+     classPaths = find(project, "jar");
+   }
    sourcePaths = getPaths(project, "java");
    setEnvironmentOptions(classPaths, findRoots(project, sourcePaths));
    return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | sp <- sourcePaths, loc f <- find(sp, "java") };
