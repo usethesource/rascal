@@ -28,25 +28,29 @@ public class ASTConverter extends JavaToRascalConverter {
 	}
 	
 	private IValue resolveType(ASTNode node) {
-	  if (node instanceof Expression) {
-		if (node instanceof Name) {
-			IBinding b = ((Name) node).resolveBinding();
-			return bindingsResolver.resolveType(b, false);
-		}
-	    ITypeBinding binding = ((Expression) node).resolveTypeBinding();
-	    return bindingsResolver.resolveType(binding, false);
-	  }
-	  else if (node instanceof TypeDeclaration) {
-	    ITypeBinding binding = ((TypeDeclaration) node).resolveBinding();
-	    return bindingsResolver.resolveType(binding, true);
-	  }
-	  else if (node instanceof MethodDeclaration) {
-	    IMethodBinding binding = ((MethodDeclaration) node).resolveBinding();
-        return bindingsResolver.resolveType(binding, true);
-	  }
-	  else if (node instanceof VariableDeclaration) {
-	    IVariableBinding binding = ((VariableDeclaration) node).resolveBinding();
-	    return bindingsResolver.resolveType(binding.getType(), false);
+	  try {
+		  if (node instanceof Expression) {
+			if (node instanceof Name) {
+				IBinding b = ((Name) node).resolveBinding();
+				return bindingsResolver.resolveType(b, false);
+			}
+		    ITypeBinding binding = ((Expression) node).resolveTypeBinding();
+		    return bindingsResolver.resolveType(binding, false);
+		  }
+		  else if (node instanceof TypeDeclaration) {
+		    ITypeBinding binding = ((TypeDeclaration) node).resolveBinding();
+		    return bindingsResolver.resolveType(binding, true);
+		  }
+		  else if (node instanceof MethodDeclaration) {
+		    IMethodBinding binding = ((MethodDeclaration) node).resolveBinding();
+	        return bindingsResolver.resolveType(binding, true);
+		  }
+		  else if (node instanceof VariableDeclaration) {
+		    IVariableBinding binding = ((VariableDeclaration) node).resolveBinding();
+		    return bindingsResolver.resolveType(binding.getType(), false);
+		  }
+	  } catch (NullPointerException e) {
+		  System.err.println("Got NPE for node" + node);
 	  }
 	  
 	  return null;
