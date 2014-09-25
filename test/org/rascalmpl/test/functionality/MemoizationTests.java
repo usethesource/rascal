@@ -1,6 +1,7 @@
 package org.rascalmpl.test.functionality;
 
 import java.util.ArrayList;
+
 import org.junit.Test;
 import org.rascalmpl.test.infrastructure.TestFramework;
 

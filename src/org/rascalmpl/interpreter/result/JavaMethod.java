@@ -19,15 +19,16 @@ package org.rascalmpl.interpreter.result;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.rascalmpl.ast.FunctionDeclaration;
+import org.rascalmpl.ast.KeywordFormal;
+import org.rascalmpl.ast.KeywordFormals;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.StackTrace;
@@ -39,6 +40,7 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIUtil;
 
 public class JavaMethod extends NamedFunction {
 	private final Object instance;
@@ -58,12 +60,14 @@ public class JavaMethod extends NamedFunction {
 	 *  require types.
 	 */
 	private JavaMethod(IEvaluator<Result<IValue>> eval, FunctionType type, FunctionDeclaration func, boolean varargs, boolean isTest, boolean isDefault, Environment env, JavaBridge javaBridge){
-		super(func, eval, type , Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, env);
+		super(func, eval, type , getFormals(func), Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, env);
 		this.javaBridge = javaBridge;
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
 		this.instance = javaBridge.getJavaClassInstance(func);
 		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
 	}
+
+	
 	
 
 	@Override
@@ -90,8 +94,10 @@ public class JavaMethod extends NamedFunction {
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 		Result<IValue> resultValue = getMemoizedResult(actuals, keyArgValues);
-		if (resultValue !=  null) 
+		
+		if (resultValue !=  null) {
 			return resultValue;
+		}
 		Type actualTypesTuple;
 		Type formals = getFormals();
 		Object[] oActuals;
@@ -153,29 +159,41 @@ public class JavaMethod extends NamedFunction {
 		return newActuals;
 	}
 	
-	protected Object[] addKeywordActuals(Object[] oldActuals, Type formals, Map<String, IValue> keyArgValues){
-		if (getFunctionType().hasKeywordParameters()) {
+	protected Object[] addKeywordActuals(Object[] oldActuals, Type formals, Map<String, IValue> keyArgValues) {
+		if (!getFunctionType().hasKeywordParameters()) {
+			return oldActuals;
+		}
+		
+		Environment env = new Environment(vf.sourceLocation(URIUtil.rootScheme("initializer")), "keyword parameter initializer");
+		Environment old = ctx.getCurrentEnvt();
+		
+		try {
+			// we set up an environment to hold the positional parameter values
+			ctx.setCurrentEnvt(env);
+			for (int i = 0; i < formals.getArity(); i++) {
+				String fieldName = formals.getFieldName(i);
+				Type fieldType = formals.getFieldType(i);
+				env.declareVariable(fieldType, fieldName);
+				env.storeLocalVariable(fieldName, ResultFactory.makeResult(fieldType, (IValue) oldActuals[i], ctx));
+			}
+		
+			// then we initialize the keyword parameters in this environment
 			Type kwType = getFunctionType().getKeywordParameterTypes();
 			int amountOfKWArguments =  kwType.getArity();
 			Object[] newActuals = new Object[oldActuals.length + amountOfKWArguments];
 			System.arraycopy(oldActuals, 0, newActuals, 0, oldActuals.length);
-			Map<String, IValue> paramEnvironment = new HashMap<>();
+			bindKeywordArgs(keyArgValues);
+			
+			// then we add the resulting values in order to the actual parameter array for the Java method
 			for (int i = 0; i < amountOfKWArguments; i++) {
-				String label = kwType.getFieldName(i);
-				IValue value = null;
-				if (!keyArgValues.containsKey(label)) {
-					IKeywordParameterInitializer init = getFunctionType().getKeywordParameterInitializer(label);
-					value = init.initialize(AbstractSpecialisedImmutableMap.mapOf(paramEnvironment));
-				} else {
-					value = keyArgValues.get(label);
-				}
-				newActuals[oldActuals.length + i] = value;
-				paramEnvironment.put(label, value);
+				newActuals[oldActuals.length + i] = env.getVariable(kwType.getFieldName(i)).getValue();
 			}
+			
 			return newActuals;
-	  }
-	  
-	  return oldActuals;
+		}
+		finally {
+			ctx.setCurrentEnvt(old);
+		}
 	}
 	
 

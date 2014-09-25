@@ -12,11 +12,9 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.FunctionModifiers;
@@ -44,16 +42,14 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 					.getInstance();
 			Parameters parameters = getParameters();
 			Type kwParams = TF.voidType();
-			java.util.Map<String,IKeywordParameterInitializer> kwDefaults = new HashMap<>();
 
 			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
 				List<KeywordFormal> kwd = parameters.getKeywordFormals().getKeywordFormalList();
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kwd, eval);
-				kwDefaults = TypeDeclarationEvaluator.interpretKeywordParameters(kwd, kwParams, eval.getCurrentEnvt(), eval);
 			}
 
 			return RTF.functionType(getType().typeOf(env, instantiateTypeParameters, eval), parameters
-					.typeOf(env, instantiateTypeParameters, eval), kwParams, kwDefaults);
+					.typeOf(env, instantiateTypeParameters, eval), kwParams);
 		}
 	}
 
@@ -69,18 +65,16 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 			RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 
 			Type kwParams = TF.voidType();
-			java.util.Map<String,IKeywordParameterInitializer> kwDefaults = new HashMap<>();
 
 			Parameters parameters = getParameters();
 
 			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
 				List<KeywordFormal> kwd = parameters.getKeywordFormals().getKeywordFormalList();
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kwd, eval);
-				kwDefaults = TypeDeclarationEvaluator.interpretKeywordParameters(kwd, kwParams, eval.getCurrentEnvt(), eval);
 			}
 
 			return RTF.functionType(getType().typeOf(env, instantiateTypeParameters, eval), getParameters()
-					.typeOf(env, instantiateTypeParameters, eval), kwParams, kwDefaults);
+					.typeOf(env, instantiateTypeParameters, eval), kwParams);
 		}
 
 	}
