@@ -1,22 +1,13 @@
 module experiments::Compiler::Examples::Tst1
 
- data F1 = f1(int N, int M = 10, bool B = false) | f1(str S);
-  		
-test bool matchADTwithKeywords1() = f1(1)                   := f1(1);
-test bool matchADTwithKeywords2() = f1(1, M=10)             := f1(1);
-test bool matchADTwithKeywords3() = f1(1, B=false, M=10)    := f1(1);
-test bool matchADTwithKeywords4() = f1(1, M=20)             := f1(1, B=false, M=20);
+import demo::lang::Exp::Concrete::NoLayout::Syntax;
 
+import String;
+import ParseTree;                                                 /*1*/
 
-value main(list[value] args) = f1(1, M=10)             := f1(1);
-
-
-//import ParseTree;
+//public int eval(str txt) = eval(parse(#Exp, txt));                /*2*/
 //
-//layout Whitespace = [\ \t\n]*;
-//
-//start syntax D = "d";
-//start syntax DS = D+;
-//
-//
-//value main(list[value] args) { if( (DS)`d <D+ Xs>` := (DS)`d d`) return (DS)`d <D+ Xs>` == (DS)`d d`; }
+public int eval((Exp)`<IntegerLiteral l>`) = toInt("<l>");        /*3*/
+public int eval((Exp)`<Exp e1>*<Exp e2>`) = eval(e1) * eval(e2);  /*4*/
+public int eval((Exp)`<Exp e1>+<Exp e2>`) = eval(e1) + eval(e2);  /*5*/
+public int eval((Exp)`(<Exp e>)`) = eval(e);                      /*6*/

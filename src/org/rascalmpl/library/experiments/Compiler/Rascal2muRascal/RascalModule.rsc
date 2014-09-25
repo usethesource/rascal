@@ -159,12 +159,16 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	     list[MuExp] kwps = [ muAssign("map_of_default_values", fuid, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
    	     list[MuExp] kwargs = [];
          for(RName kwf <- keywordParams) {
-             kwps += muCallMuPrim("mmap_str_entry_add_entry_type_ivalue", 
-                                  [ muVar("map_of_default_values",fuid,defaults_pos), 
-                                    muCon("<getSimpleName(kwf)>"), 
-                                    muCallMuPrim("make_mentry_type_ivalue", [ muTypeCon(keywordParams[kwf]), 
-                                                                              translate(getOneFrom(config.dataKeywordDefaults[uid,kwf])) ]) ]);
-             kwargs = kwargs + [ muCon("<getSimpleName(kwf)>"), muVarKwp(fuid,getSimpleName(kwf)) ];
+             if(Expression kw_default_expr := getOneFrom(config.dataKeywordDefaults[uid,kwf])){
+	             kwps += muCallMuPrim("mmap_str_entry_add_entry_type_ivalue", 
+	                                  [ muVar("map_of_default_values",fuid,defaults_pos), 
+	                                    muCon("<getSimpleName(kwf)>"), 
+	                                    muCallMuPrim("make_mentry_type_ivalue", [ muTypeCon(keywordParams[kwf]), 
+	                                                                              translate(kw_default_expr) ]) ]);
+	             kwargs = kwargs + [ muCon("<getSimpleName(kwf)>"), muVarKwp(fuid,getSimpleName(kwf)) ];
+             } else {
+             	throw "Keyword default expression for <kwf> of incorrect type";
+             }
          }
          MuExp body = 
          	muBlock(kwps 
