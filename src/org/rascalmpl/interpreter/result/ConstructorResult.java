@@ -16,6 +16,7 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -67,20 +68,21 @@ public class ConstructorResult extends NodeResult {
 			if (!getType().hasField(name, store) && !getType().hasKeywordParameter(name, store)) {
 				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
+
+			Type nodeType = getValue().getConstructorType();
+			if (!nodeType.hasField(name) && !nodeType.hasKeywordParameter(name)) {
+				throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
+			}
+
+			if (nodeType.hasKeywordParameter(name)) {
+				return makeResult(nodeType.getKeywordParameterType(name), getValue().asWithKeywordParameters().getParameter(name), ctx);
+			}
+			else {
+				int index = nodeType.getFieldIndex(name);
+				return makeResult(nodeType.getFieldType(index), getValue().get(index), ctx);
+			}
 		} catch (UndeclaredAbstractDataTypeException e) {
 			throw new UndeclaredType(getType().toString(), ctx.getCurrentAST());
-		}
-		Type nodeType = getValue().getConstructorType();
-		if (!nodeType.hasField(name) && !nodeType.hasKeywordParameter(name)) {
-			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
-		}
-		
-		if (nodeType.hasKeywordParameter(name)) {
-		  return makeResult(nodeType.getKeywordParameterType(name), getValue().asWithKeywordParameters().getParameter(name), ctx);
-		}
-		else {
-		  int index = nodeType.getFieldIndex(name);
-		  return makeResult(nodeType.getFieldType(index), getValue().get(index), ctx);
 		}
 	}
 	

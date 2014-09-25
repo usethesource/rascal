@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -39,6 +38,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.Evaluator;
@@ -578,40 +578,30 @@ public class ModuleEnvironment extends Environment {
 		return sort;
 	}
 	
-	private Type makeTupleType(Type adt, String name, Type tupleType, Type keywordParams, Map<String,IKeywordParameterInitializer> defaultParams) {
-	  return TF.constructorFromTuple(typeStore, adt, name, tupleType, keywordParams, defaultParams);
+	private Type makeTupleType(Type adt, String name, Type tupleType, Type keywordParams) {
+	  return TF.constructorFromTuple(typeStore, adt, name, tupleType, keywordParams);
 	}
 	
 	@Override
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Type keywordParams, Map<String,IKeywordParameterInitializer> defaultParams) {
-		Type cons = makeTupleType(adt, name, tupleType, keywordParams, defaultParams);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Type keywordParams, List<KeywordFormal> initializers) {
+		Type cons = makeTupleType(adt, name, tupleType, keywordParams);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, initializers);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);
 		return function;
 	}
 	
-	@Override
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name,
-			Map<String, Type> kwArgs, Map<String, IValue> kwDefaults, Object... childrenAndLabels) {
-		Type cons = TF.constructor(typeStore, nodeType, name, childrenAndLabels, kwArgs, kwDefaults);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
-		storeFunction(name, function);
-		markNameFinal(name);
-		markNameOverloadable(name);
-		return function;
-	}
-	
-	@Override
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Map<String,Type> keywordParams, Map<String,IValue> defaultParams, Type... children) {
-		Type cons = TF.constructor(typeStore, nodeType, name, children, keywordParams, defaultParams);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
-		storeFunction(name, function);
-		markNameFinal(name);
-		markNameOverloadable(name);
-		return function;
-	}
+//	@Override
+//	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name,
+//			Map<String, Type> kwArgs, Map<String, IValue> kwDefaults, Object... childrenAndLabels) {
+//		Type cons = TF.constructor(typeStore, nodeType, name, childrenAndLabels, kwArgs, kwDefaults);
+//		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
+//		storeFunction(name, function);
+//		markNameFinal(name);
+//		markNameOverloadable(name);
+//		return function;
+//	}
 	
 	@Override
 	public Type aliasType(String name, Type aliased, Type... parameters) {

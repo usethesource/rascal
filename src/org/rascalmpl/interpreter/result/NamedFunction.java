@@ -17,15 +17,13 @@ import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
-import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionModifier;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Tag;
@@ -34,9 +32,7 @@ import org.rascalmpl.ast.Tags;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
 
@@ -54,9 +50,9 @@ abstract public class NamedFunction extends AbstractFunction {
     private SoftReference<MemoizationCache> memoization;
     protected final boolean hasMemoization;
 
-    public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, String name,
+    public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, List<KeywordFormal> initializers, String name,
             boolean varargs, boolean isDefault, boolean isTest, Environment env) {
-        super(ast, eval, functionType, varargs, env);
+        super(ast, eval, functionType, initializers, varargs, env);
         this.name = name;
         this.isDefault = isDefault;
         this.isTest = isTest;
@@ -226,46 +222,6 @@ abstract public class NamedFunction extends AbstractFunction {
         return false;
     }
 
-    protected void bindKeywordArgs(Map<String, IValue> keyArgValues){
-        Environment env = ctx.getCurrentEnvt();
-        ImmutableMap<String,IValue> args = AbstractSpecialisedImmutableMap.mapOf();
-
-        for (Entry<String, Result<IValue>> var : env.getVariables().entrySet()) {
-            IValue val = var.getValue().getValue();
-            
-            if (val != null) { // there may be uninitialized variables in scope, and the map does not handle null values well
-            	args = args.__put(var.getKey(), val);
-            }
-        }
-
-        if (functionType.hasKeywordParameters()) {
-            for (String kwparam : functionType.getKeywordParameterTypes().getFieldNames()){
-                Type kwType = functionType.getKeywordParameterType(kwparam);
-
-                if (keyArgValues.containsKey(kwparam)){
-                    IValue r = keyArgValues.get(kwparam);
-
-                    if(!r.getType().isSubtypeOf(kwType)) {
-                        throw new UnexpectedKeywordArgumentType(kwparam, kwType, r.getType(), ctx.getCurrentAST());
-                    }
-
-                    args = args.__put(kwparam, r);
-                    env.declareVariable(kwType, kwparam);
-                    env.storeVariable(kwparam, ResultFactory.makeResult(kwType, r, ctx));
-                } 
-                else {
-                    env.declareVariable(kwType, kwparam);
-                    IValue def = functionType.getKeywordParameterInitializer(kwparam).initialize(args);
-                    args = args.__put(kwparam, def);
-                    env.storeVariable(kwparam, ResultFactory.makeResult(kwType, def, ctx));
-                }
-            }
-        }
-
-        // TODO: what if the caller provides more arguments then are declared? They are
-        // silently lost here.
-    }
-
     @Override
     public boolean isTest() {
         return isTest;
@@ -290,9 +246,8 @@ abstract public class NamedFunction extends AbstractFunction {
         if(keywordParameterDefaults != null){
             sep = (strFormals.length() > 0) ? ", " : "";
 
-            for(KeywordParameter kw : keywordParameterDefaults){
-                Result<IValue> r = kw.getDefault();
-                kwFormals += sep + r.getType() + " " + kw.getName() + "=" + r.getValue();
+            for(String kw : keywordParameterDefaults.keySet()){
+                kwFormals += sep + functionType.getFieldType(kw) + " " + kw + "= ...";
                 sep = ", ";
             }
         }

@@ -11,11 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
@@ -29,9 +27,9 @@ public class RascalTypeFactory {
 	public static RascalTypeFactory getInstance() {
 		return InstanceHolder.sInstance;
 	}
-	
-	public Type functionType(Type returnType, Type argumentTypes, Type keywordParams, Map<String,IKeywordParameterInitializer> defaultParams) {
-		return tf.externalType(new FunctionType(returnType, argumentTypes, keywordParams, defaultParams));
+	 
+	public Type functionType(Type returnType, Type argumentTypes, Type keywordParams) {
+		return tf.externalType(new FunctionType(returnType, argumentTypes, keywordParams));
 	}
 	
 	public Type nonTerminalType(IConstructor cons) {
