@@ -84,7 +84,7 @@ list[str] libraryTests = [
 
 // OK
 
-"lang/csv/CSVTIOTests",
+"lang/csv/CSVIOTests",
 "lang/json/JSONIOTests",
 
 "BooleanTests",			// OK

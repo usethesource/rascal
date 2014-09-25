@@ -458,7 +458,7 @@ MuExp translateConcreteParsed(e: appl(Production prod, list[Tree] args)){
        return muVar("ConcreteVar", fuid, pos);
     }    
     return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
-                   [muCon(prod), muCallPrim("list_create", [translateConcreteParsed(arg) | arg <- args], |unknown:///|)]);
+                   [muCon(prod), muCallPrim("list_create", [translateConcreteParsed(arg) | arg <- args], |unknown:///|), muTypeCon(\void())]);
 }
 
 default MuExp translateConcreteParsed(Tree t) = muCon(t);
@@ -760,10 +760,9 @@ MuExp translateReducer(Expression init, Expression result, {Expression ","}+ gen
 
 // -- reified type expression ---------------------------------------
 
-MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) {
-  // previous: return muCon(symbolToValue(symbol, config));
-  return muCallPrim("reify", [translate(symbol), translate(definitions)]);
-}
+MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) =
+  muCallPrim("reifiedType_create", [translate(symbol), translate(definitions)]);
+
 
 // -- call expression -----------------------------------------------
 

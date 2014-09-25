@@ -106,4 +106,21 @@ public class Function {
 		return name.substring(name.indexOf("/")+1, name.indexOf("("));
 	}
 	
+	public String getQualifiedName(){
+		return name.substring(0, name.indexOf("("));
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("FUNCTION ").append(name).append(" ").append(ftype);
+		for(int i = 0; i < constantStore.length; i++){
+			sb.append("constant "). append(i).append(": "). append(constantStore[i]);
+		}
+		for(int i = 0; i < typeConstantStore.length; i++){
+			sb.append("type constant "). append(i).append(": "). append(typeConstantStore[i]);
+		}
+		sb.append(codeblock);
+		return sb.toString();
+	}
+	
 }

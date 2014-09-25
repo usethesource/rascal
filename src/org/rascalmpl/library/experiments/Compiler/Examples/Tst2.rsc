@@ -1,14 +1,11 @@
 module experiments::Compiler::Examples::Tst2
 
-import util::Eval;
-//import List;
-//syntax A = "a";
-//
-//int x;
+//list[int] ints = [0 .. 10];
 
+//value main(list[value] args) = ints;
 
+//set[int] ints = { x | x <- [1,2,3,4]};
 
-//value main(list[value] args) { [A] "b"; |unknown:///|.begin; [1,2,3][4]; throw "abc"; x = 2; } //x; //head([]);
-//value main(list[value] args) { $2014-04-26$.hour; } //|unknown:///|.ls; [1,2,3][4]; throw "abc"; x = 2; } //x; //head([]);
+value ints = {int a = 10; int b = 20; int c = 30; int d = 3; a+b+c+d;};
 
-value main(list[value] args) = eval("1+1;");
+value main(list[value] args) { int z = 100; ints;}

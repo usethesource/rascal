@@ -206,7 +206,7 @@ syntax ConcreteHole
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
   // println("translateConcretePattern, **** Grammar");
-  //iprintln(getGrammar(config));
+  iprintln(getGrammar(config));
   fragType = getType(p@\loc);
   println("translateConcretePattern, fragType = <fragType>");
   reifiedFragType = symbolToValue(fragType, config);

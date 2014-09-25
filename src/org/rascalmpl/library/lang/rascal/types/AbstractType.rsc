@@ -735,15 +735,35 @@ public bool isStartNonTerminalType(Symbol::\start(_)) = true;
 public default bool isStartNonTerminalType(Symbol _) = false;    
 
 @doc{Get the name of the nonterminal.}
-public str getNonTerminalName(Symbol t) {
-	// TODO: I assume we need the cases for the other non-terminal types
-	if (\sort(n) := unwrapType(t)) return n;
-	if (\lex(n) := unwrapType(t)) return n;
-	if (\start(s) := unwrapType(t)) return getNonTerminalName(s);
-	if (\parameterized-sort(n,_) := unwrapType(t)) return n;
-	if (Symbol::\prod(s,_,_,_) := unwrapType(t)) return getNonTerminalName(s);
-    throw "getNonTerminalName, invalid type given: <prettyPrintType(t)>";
-}
+public str getNonTerminalName(\alias(_,_,Symbol at)) = getNonTerminalName(at);
+public str getNonTerminalName(\parameter(_,Symbol tvb)) = getNonTerminalName(tvb);
+public str getNonTerminalName(\label(_,Symbol lt)) = getNonTerminalName(lt);
+public str getNonTerminalName(Symbol::\start(Symbol ss)) = getNonTerminalName(ss);
+public str getNonTerminalName(Symbol::\sort(str n)) = n;
+public str getNonTerminalName(Symbol::\lex(str n)) = n;
+public str getNonTerminalName(Symbol::\layouts(str n)) = n;
+public str getNonTerminalName(Symbol::\keywords(str n)) = n;
+public str getNonTerminalName(Symbol::\parameterized-sort(str n,_)) = n;
+public str getNonTerminalName(Symbol::\parameterized-lex(str n,_)) = n;
+public str getNonTerminalName(Symbol::\iter(Symbol ss)) = getNonTerminalName(ss);
+public str getNonTerminalName(Symbol::\iter-star(Symbol ss)) = getNonTerminalName(ss);
+public str getNonTerminalName(Symbol::\iter-seps(Symbol ss,_)) = getNonTerminalName(ss);
+public str getNonTerminalName(Symbol::\iter-star-seps(Symbol ss,_)) = getNonTerminalName(ss);
+public str getNonTerminalName(Symbol::\opt(Symbol ss)) = getNonTerminalName(ss);
+public str getNonTerminalName(Symbol::\conditional(Symbol ss,_)) = getNonTerminalName(ss);
+public default str getNonTerminalName(Symbol s) { throw "Invalid nonterminal passed to getNonTerminalName: <s>"; }
+
+@doc{Check to see if the type allows fields.}
+public bool nonTerminalAllowsFields(\alias(_,_,Symbol at)) = nonTerminalAllowsFields(at);
+public bool nonTerminalAllowsFields(\parameter(_,Symbol tvb)) = nonTerminalAllowsFields(tvb);
+public bool nonTerminalAllowsFields(\label(_,Symbol lt)) = nonTerminalAllowsFields(lt);
+public bool nonTerminalAllowsFields(Symbol::\start(Symbol ss)) = true;
+public bool nonTerminalAllowsFields(Symbol::\sort(str n)) = true;
+public bool nonTerminalAllowsFields(Symbol::\lex(str n)) = true;
+public bool nonTerminalAllowsFields(Symbol::\parameterized-sort(str n,_)) = true;
+public bool nonTerminalAllowsFields(Symbol::\parameterized-lex(str n,_)) = true;
+public bool nonTerminalAllowsFields(Symbol::\opt(Symbol ss)) = true;
+public default bool nonTerminalAllowsFields(Symbol s) = false;
 
 @doc{Synopsis: Determine if the given type is a production.}
 public bool isProductionType(\alias(_,_,Symbol at)) = isProductionType(at);

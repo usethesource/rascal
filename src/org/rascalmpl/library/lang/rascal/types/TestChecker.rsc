@@ -192,6 +192,9 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 		c = addScopeError(c, "Cannot parse statement <statementsString>",  |file:///tmp/CheckStatementsString.rsc|);
 	}
 	
+	// Re-enter module scope
+	c.stack = c.modEnv[RSimpleName("CheckStatementsString")] + c.stack;
+	
 	for (stmt <- stmts) < c, rt > = checkStmt(stmt, c);
 	
 	c.stack = tail(c.stack);
