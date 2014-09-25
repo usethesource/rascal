@@ -53,7 +53,9 @@ public class IO {
 		.setVersion(1.0)
 		.create();
 		try {
+			System.err.println("QQ1 toJSon:"+value);
 			String json = gson.toJson(value, new TypeToken<IValue>() {}.getType());
+			System.err.println("QQ2 toJSon:"+json);
 			return values.string(json);
 		} catch (Exception e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -62,14 +64,16 @@ public class IO {
 	public IValue fromJSON(IValue type, IString src, IEvaluatorContext ctx) {
 		TypeStore store = ctx.getCurrentEnvt().getStore();
 		Type start = new TypeReifier(ctx.getValueFactory()).valueToType((IConstructor) type, store);
+		System.err.println("fromJSON0:"+start);
 		Gson gson = new GsonBuilder()
 		.enableComplexMapKeySerialization()
 		.setDateFormat(DateFormat.LONG)
 		.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
 		.setVersion(1.0)
 		.create();
-		
+		System.err.println("fromJSON1:"+src.getValue());
 		Object obj = gson.fromJson(src.getValue(), Object.class);
+		System.err.println("fromJSON2:"+start);
 		try {
 			return JSONReadingTypeVisitor.read(obj, values, store, start);
 		}

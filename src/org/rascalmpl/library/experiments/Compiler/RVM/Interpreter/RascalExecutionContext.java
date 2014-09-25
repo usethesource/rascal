@@ -9,6 +9,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
@@ -30,6 +31,7 @@ public class RascalExecutionContext {
 	private final PrintWriter stdout;
 	private final IEvaluatorContext ctx;
 	private final IValueFactory vf;
+	private final TypeStore typeStore;
 	private final boolean debug;
 	private final boolean profile;
 	private final ITestResultListener testResultListener;
@@ -37,6 +39,7 @@ public class RascalExecutionContext {
 	RascalExecutionContext(IValueFactory vf, boolean debug, boolean profile, IEvaluatorContext ctx, ITestResultListener testResultListener){
 		
 		this.vf = vf;
+		this.typeStore = new TypeStore();
 		this.debug = debug;
 		this.profile = profile;
 		
@@ -51,6 +54,8 @@ public class RascalExecutionContext {
 	}
 
 	IValueFactory getValueFactory(){ return vf; }
+	
+	TypeStore getTypeStore() { return typeStore; }
 	
 	boolean getDebug() { return debug; }
 	

@@ -146,6 +146,7 @@ public class TypeReifier {
 		IConstructor defined = (IConstructor) alt.get("def");
 		String name = ((IString) defined.get("name")).getValue();
 		Type kwTypes = symbolsToTupleType((IList) alt.get("kwTypes"), store);
+		if (kwTypes.getArity() == 0) kwTypes = tf.voidType();
 		
 		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store), kwTypes);
 	}
@@ -292,7 +293,8 @@ public class TypeReifier {
 	private Type funcToType(IConstructor symbol, TypeStore store) {
 		Type returnType = symbolToType((IConstructor) symbol.get("ret"), store);
 		Type parameters = symbolsToTupleType((IList) symbol.get("parameters"), store);
-		
+	
+                // TODO: while merging the other branch had tf.voidType()... 	
 		return RascalTypeFactory.getInstance().functionType(returnType, parameters, tf.tupleEmpty());
 	}
 
@@ -300,10 +302,8 @@ public class TypeReifier {
 		Type adt = symbolToType((IConstructor) symbol.get("adt"), store);
 		IList parameters = (IList) symbol.get("parameters");
 		String name = ((IString) symbol.get("name")).getValue();
-		System.err.println("Cons in: " + symbol);
 		// here we assume the store has the declaration already
 		Type t = store.lookupConstructor(adt, name, symbolsToTupleType(parameters, store));
-		System.err.println("Cons out: " + t);
 		return t;
 		
 	}

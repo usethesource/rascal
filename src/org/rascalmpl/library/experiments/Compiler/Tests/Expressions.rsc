@@ -444,5 +444,9 @@ test bool tst() = run(" 1 == 1.0") == (1 == 1.0);
 
 test bool tst() = run("{\<1,2\>} == {}") == ( {<1,2>} == {} );
 
+// Type related
+
+test bool tst() = run("#int") == #int;
+test bool tst() = run("#list[int]") == #list[int];
 
 

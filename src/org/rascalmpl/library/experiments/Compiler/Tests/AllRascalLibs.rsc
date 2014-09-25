@@ -359,19 +359,10 @@ value main(list[value] args){
 int tosec(int t1, int t2) =(t2 - t1)/1000;
 
 set[loc] exclude = { 
-		//|rascal:///vis/web/examples/DisplayRelations.rsc|,
-		//|rascal:///experiments/Compiler/Rascal2muRascal/TypeReifier.rsc|,
-		//|rascal:///experiments/Compiler/Rascal2muRascal/TypeUtils.rsc|,
-		//|rascal:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|,
-		//|rascal:///lang/rascal/types/TestChecker.rsc|,
-		//|rascal:///vis/web/examples/CodeCut.rsc|,
-		//|rascal:///experiments/Compiler/Rascal2muRascal/RascalModule.rsc|,
-		//|rascal:///vis/web/examples/M3BarChart.rsc|,
-		//|rascal:///lang/rascal/types/CheckTypes.rsc|
 };
 
 set[loc] failures = {
-  |rascal:///Ambiguity.rsc|,
+ |rascal:///Ambiguity.rsc|,
   |rascal:///analysis/formalconcepts/CXTIO.rsc|,
   |rascal:///analysis/formalconcepts/FCA.rsc|,
   |rascal:///analysis/linearprogramming/LLLinearProgramming.rsc|,
@@ -385,6 +376,10 @@ set[loc] failures = {
   |rascal:///demo/basic/Cursors.rsc|,
   |rascal:///demo/lang/Exp/Combined/Manual/Eval.rsc|,
   |rascal:///demo/lang/Exp/Combined/Manual/Load.rsc|,
+  |rascal:///demo/lang/Func/Eval0.rsc|,
+  |rascal:///demo/lang/Func/Eval1.rsc|,
+  |rascal:///demo/lang/Func/Eval2.rsc|,
+  |rascal:///demo/lang/Func/Eval3.rsc|,
   |rascal:///demo/lang/Func/Load.rsc|,
   |rascal:///demo/lang/Func/Test.rsc|,
   |rascal:///demo/lang/Lisra/Eval.rsc|,
@@ -397,12 +392,7 @@ set[loc] failures = {
   |rascal:///demo/lang/MissGrant/Step.rsc|,
   |rascal:///demo/lang/MissGrant/ToDot.rsc|,
   |rascal:///demo/lang/Pico/CommonSubExpr.rsc|,
-  |rascal:///demo/lang/Pico/Compile.rsc|,
-  |rascal:///demo/lang/Pico/ControlFlow.rsc|,
-  |rascal:///demo/lang/Pico/Eval.rsc|,
-  |rascal:///demo/lang/Pico/Load.rsc|,
   |rascal:///demo/lang/Pico/ToDot.rsc|,
-  |rascal:///demo/lang/Pico/Typecheck.rsc|,
   |rascal:///demo/lang/Pico/Uninit.rsc|,
   |rascal:///demo/lang/Pico/UseDef.rsc|,
   |rascal:///demo/lang/Pico/Visualize.rsc|,
@@ -421,18 +411,19 @@ set[loc] failures = {
   |rascal:///experiments/Compiler/Examples/QL/util/Priorities.rsc|,
   |rascal:///experiments/Compiler/Examples/QL/util/SimpleBox.rsc|,
   |rascal:///experiments/Compiler/Examples/Run.rsc|,
-  |rascal:///experiments/Compiler/Examples/Tst1.rsc|,
   |rascal:///experiments/Compiler/Examples/Tst5.rsc|,
   |rascal:///experiments/Compiler/Execute.rsc|,
   |rascal:///experiments/Compiler/RVM/Tests.rsc|,
+  |rascal:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|,
+  |rascal:///experiments/Compiler/Rascal2muRascal/RascalModule.rsc|,
   |rascal:///experiments/Compiler/Rascal2muRascal/RascalPattern.rsc|,
   |rascal:///experiments/Compiler/Rascal2muRascal/RascalStatement.rsc|,
   |rascal:///experiments/Compiler/Rascal2muRascal/RascalType.rsc|,
   |rascal:///experiments/Compiler/Rascal2muRascal/Run.rsc|,
-  |rascal:///experiments/Compiler/ReductionWithEvalCtx/AST.rsc|,
+  |rascal:///experiments/Compiler/Rascal2muRascal/TypeReifier.rsc|,
+  |rascal:///experiments/Compiler/Rascal2muRascal/TypeUtils.rsc|,
   |rascal:///experiments/Compiler/ReductionWithEvalCtx/EvalCtx.rsc|,
   |rascal:///experiments/Compiler/ReductionWithEvalCtx/Parse.rsc|,
-  |rascal:///experiments/Compiler/ReductionWithEvalCtx/Reduction.rsc|,
   |rascal:///experiments/Compiler/ReductionWithEvalCtx/ReductionWithEvalCtx.rsc|,
   |rascal:///experiments/Compiler/ReductionWithEvalCtx/RenameReplace.rsc|,
   |rascal:///experiments/Compiler/ReductionWithEvalCtx/Syntax.rsc|,
@@ -458,10 +449,8 @@ set[loc] failures = {
   |rascal:///experiments/Compiler/muRascal/Implode.rsc|,
   |rascal:///experiments/Compiler/muRascal/Load.rsc|,
   |rascal:///experiments/Compiler/muRascal/MuAllMuOr.rsc|,
-  |rascal:///experiments/Compiler/muRascal/Parse.rsc|,
   |rascal:///experiments/Compiler/muRascal/Run.rsc|,
   |rascal:///experiments/Compiler/muRascal2RVM/ReifiedTypes.rsc|,
-  |rascal:///experiments/Compiler/muRascal2RVM/StackSize.rsc|,
   |rascal:///experiments/Compiler/muRascal2RVM/mu2rvm.rsc|,
   |rascal:///experiments/Concept/DotVis.rsc|,
   |rascal:///experiments/Concept/FcaLattices.rsc|,
@@ -487,26 +476,9 @@ set[loc] failures = {
   |rascal:///lang/box/util/SimpleBox.rsc|,
   |rascal:///lang/c90/syntax/C.rsc|,
   |rascal:///lang/csv/IO.rsc|,
-  |rascal:///lang/csv/ast/Implode.rsc|,
   |rascal:///lang/dimacs/IO.rsc|,
   |rascal:///lang/dot/Dot.rsc|,
   |rascal:///lang/html5/DOM.rsc|,
-  |rascal:///lang/java/m3/Core.rsc|,
-  |rascal:///lang/java/m3/TypeHierarchy.rsc|,
-  |rascal:///lang/java/nanopatterns/NanoPatternAnalyzer.rsc|,
-  |rascal:///lang/java/style/Annotations.rsc|,
-  |rascal:///lang/java/style/BlockChecks.rsc|,
-  |rascal:///lang/java/style/CheckStates.rsc|,
-  |rascal:///lang/java/style/ClassDesign.rsc|,
-  |rascal:///lang/java/style/Coding.rsc|,
-  |rascal:///lang/java/style/Imports.rsc|,
-  |rascal:///lang/java/style/Metrics.rsc|,
-  |rascal:///lang/java/style/Miscellaneous.rsc|,
-  |rascal:///lang/java/style/NamingConventions.rsc|,
-  |rascal:///lang/java/style/SizeViolations.rsc|,
-  |rascal:///lang/java/style/Strings.rsc|,
-  |rascal:///lang/java/style/StyleChecker.rsc|,
-  |rascal:///lang/java/style/Utils.rsc|,
   |rascal:///lang/java/syntax/Disambiguate.rsc|,
   |rascal:///lang/java/syntax/Java15.rsc|,
   |rascal:///lang/json/ast/Implode.rsc|,
@@ -545,7 +517,6 @@ set[loc] failures = {
   |rascal:///lang/rascal/grammar/definition/Characters.rsc|,
   |rascal:///lang/rascal/grammar/definition/Keywords.rsc|,
   |rascal:///lang/rascal/grammar/definition/Layout.rsc|,
-  |rascal:///lang/rascal/grammar/definition/Literals.rsc|,
   |rascal:///lang/rascal/grammar/definition/Modules.rsc|,
   |rascal:///lang/rascal/grammar/definition/Priorities.rsc|,
   |rascal:///lang/rascal/grammar/definition/Productions.rsc|,
@@ -556,8 +527,8 @@ set[loc] failures = {
   |rascal:///lang/rascal/syntax/tests/ImplodeTests.rsc|,
   |rascal:///lang/rascal/syntax/tests/ParsingRegressionTests.rsc|,
   |rascal:///lang/rascal/syntax/tests/PreBootstrap.rsc|,
+  |rascal:///lang/rascal/tests/functionality/CallTests.rsc|,
   |rascal:///lang/rascal/tests/library/lang/csv/CSVIOTests.rsc|,
-  |rascal:///lang/rascal/tests/library/lang/json/JSONIOTests.rsc|,
   |rascal:///lang/rascal/tests/types/AccumulatingTCTests.rsc|,
   |rascal:///lang/rascal/tests/types/AliasTCTests.rsc|,
   |rascal:///lang/rascal/tests/types/AllStaticIssues.rsc|,
@@ -579,8 +550,10 @@ set[loc] failures = {
   |rascal:///lang/rascal/tests/types/SubscriptTCTests.rsc|,
   |rascal:///lang/rascal/tests/types/VisitTCTests.rsc|,
   |rascal:///lang/rascal/types/AbstractType.rsc|,
+  |rascal:///lang/rascal/types/CheckTypes.rsc|,
   |rascal:///lang/rascal/types/CheckerConfig.rsc|,
   |rascal:///lang/rascal/types/ConvertType.rsc|,
+  |rascal:///lang/rascal/types/TestChecker.rsc|,
   |rascal:///lang/rascal/types/TypeExceptions.rsc|,
   |rascal:///lang/rascal/types/TypeInstantiation.rsc|,
   |rascal:///lang/rascal/types/TypeSignature.rsc|,
@@ -623,52 +596,69 @@ set[loc] failures = {
   |rascal:///vis/web/Chart.rsc|,
   |rascal:///vis/web/PlotFunction.rsc|,
   |rascal:///vis/web/examples/CWI.rsc|,
+  |rascal:///vis/web/examples/CodeCut.rsc|,
   |rascal:///vis/web/examples/DisplayFigures.rsc|,
+  |rascal:///vis/web/examples/DisplayRelations.rsc|,
   |rascal:///vis/web/examples/Gauss.rsc|,
   |rascal:///vis/web/examples/HelloWorld.rsc|,
+  |rascal:///vis/web/examples/M3BarChart.rsc|,
   |rascal:///vis/web/examples/Napoleon.rsc|,
   |rascal:///vis/web/examples/RegEq.rsc|,
   |rascal:///vis/web/markup/D3.rsc|,
   |rascal:///vis/web/markup/Dimple.rsc|
 };
 
-set[loc] compileAll(list[value] args){
+tuple[set[loc],set[loc]] compileAll(list[value] args){
 	allFiles = find(|rascal:///|, "rsc") - exclude;
 	good = allFiles - failures;
 	nfiles = size(allFiles);
-	crashes = {};
+	static_errors = {};
+	compiler_errors = {};
 	t1 = realTime();
 	i = 0;
 	while(!isEmpty(allFiles)){
 		<f, allFiles> = takeOneFrom(allFiles);
 		i += 1;
-		println("**** Compiling <i> of <nfiles> files (<size(crashes)> failed), time sofar <tosec(t1, realTime())> sec. ****");
+		println("**** Compiling <i> of <nfiles> files (static_errors: <size(static_errors)>, compiler_errors: <size(compiler_errors)>), time sofar <tosec(t1, realTime())> sec. ****");
 		try {
 			compile(f);
-		} catch e: {
-			crashes += f;
+		} catch /static error/: {
+			static_errors += f;
+		  }
+		  catch e: {
+			compiler_errors += f;
 		}
 	}
-	if(size(crashes) > 0){
-    	println("\nERRORS:\n");
-     		for(loc lib <- crashes){
+	
+	if(size(static_errors) > 0){
+    	println("\nSTATIC ERRORS:\n");
+     		for(loc lib <- static_errors){
+       			println("<lib>");
+    		}
+  	}
+	if(size(compiler_errors) > 0){
+    	println("\nCOMPILER ERRORS:\n");
+     		for(loc lib <- compiler_errors){
        			println("<lib>");
     		}
   	}
   	
-  	ncrashes = size(crashes);
-  	ndone = nfiles - ncrashes;
-	println("Compiled: total <nfiles>, success <ndone> (<100.0 * ndone / nfiles>%), failed <nfiles - ndone> (<100.0 * (nfiles - ndone)/nfiles>%).");
+  	nstatic = size(static_errors);
+  	ncompiler = size(compiler_errors);
+  	ndone = nfiles - nstatic - ncompiler;
+	println("Processed: total <nfiles>, success <ndone>");
+	println("Static errors: <nstatic>");
+	println("Compiler errors: <ncompiler>");
 	println("Time: <tosec(t1, realTime())> sec.");
 	
-	better = failures - crashes;
-	if(size(better) > 0){
-		println("The following files succeeded, but failed the previous run: <for(f <- better){><f>\n<}>");
-	}
-	worse = good & failures;
-	if(size(worse) > 0){
-		println("The following files failed, but succeeded the previous run: <for(f <- worse){><f>\n<}>");
-	}
+	//better = failures - crashes;
+	//if(size(better) > 0){
+	//	println("The following files succeeded, but failed the previous run: <for(f <- better){><f>\n<}>");
+	//}
+	//worse = good & failures;
+	//if(size(worse) > 0){
+	//	println("The following files failed, but succeeded the previous run: <for(f <- worse){><f>\n<}>");
+	//}
 	
-	return crashes;
+	return <static_errors, compiler_errors>;
 }

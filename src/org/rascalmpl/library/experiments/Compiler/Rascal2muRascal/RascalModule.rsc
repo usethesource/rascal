@@ -113,7 +113,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  for(e <- errors) {
    	  	println(e);
    	  }
-   	  throw "Module contains errors!";
+   	  throw "Module contains static errors!";
    	} else {
    	  // If no static errors...
    	  if(size(warnings) > 0) {
@@ -159,12 +159,16 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	     list[MuExp] kwps = [ muAssign("map_of_default_values", fuid, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
    	     list[MuExp] kwargs = [];
          for(RName kwf <- keywordParams) {
-             kwps += muCallMuPrim("mmap_str_entry_add_entry_type_ivalue", 
-                                  [ muVar("map_of_default_values",fuid,defaults_pos), 
-                                    muCon("<getSimpleName(kwf)>"), 
-                                    muCallMuPrim("make_mentry_type_ivalue", [ muTypeCon(keywordParams[kwf]), 
-                                                                              translate(getOneFrom(config.dataKeywordDefaults[uid,kwf])) ]) ]);
-             kwargs = kwargs + [ muCon("<getSimpleName(kwf)>"), muVarKwp(fuid,getSimpleName(kwf)) ];
+             if(Expression kw_default_expr := getOneFrom(config.dataKeywordDefaults[uid,kwf])){
+	             kwps += muCallMuPrim("mmap_str_entry_add_entry_type_ivalue", 
+	                                  [ muVar("map_of_default_values",fuid,defaults_pos), 
+	                                    muCon("<getSimpleName(kwf)>"), 
+	                                    muCallMuPrim("make_mentry_type_ivalue", [ muTypeCon(keywordParams[kwf]), 
+	                                                                              translate(kw_default_expr) ]) ]);
+	             kwargs = kwargs + [ muCon("<getSimpleName(kwf)>"), muVarKwp(fuid,getSimpleName(kwf)) ];
+             } else {
+             	throw "Keyword default expression for <kwf> of incorrect type";
+             }
          }
          MuExp body = 
          	muBlock(kwps 
@@ -194,7 +198,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  	  > 
    	  	| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions 
    	  	];    
-   	  return muModule(modName, imported_modules, types, functions_in_module, variables_in_module, variable_initializations, overloadingResolver, overloaded_functions, getGrammar(config));
+   	  return muModule(modName, imported_modules, types, functions_in_module, variables_in_module, variable_initializations, getModuleVarInitLocals(modName), overloadingResolver, overloaded_functions, getGrammar(config));
    	}
    } catch Java("ParseError","Parse error"): {
    	   throw "Syntax errors in module <moduleLoc>";
@@ -315,7 +319,11 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       	keywordTypes = \tuple([ label("<kwf.name>", translateType(kwf.\type)) | KeywordFormal kwf <- kwfs.keywordFormalList]);
       	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
      }
-     body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, keywordTypes, ("reflect" in ttags) ? 1 : 0, params);
+     if("<fd.signature.name>" == "typeOf"){		// special treatment of Types::typeOf
+     	body = muCallPrim("type2symbol", [ muCallPrim("typeOf", params), muCon(getGrammar(config)) ]);
+     } else {
+        body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, keywordTypes, ("reflect" in ttags) ? 1 : 0, params);
+     }
      //tbody = translateFunction(fd.signature.parameters.formals.formals, isVarArgs, kwps, exp, when_conditions);
   }
   tbody = translateFunction(fd.signature.parameters.formals.formals, isVarArgs, kwps, body, when_conditions);

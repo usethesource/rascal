@@ -1568,12 +1568,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		this.curStdout = null;
 	}
 
-	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue... argValues) {
+	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
 		if (Evaluator.doProfiling && profiler == null) {
 			profiler = new Profiler(this);
 			profiler.start();
 			try {
-				return fun.call(monitor, argTypes, argValues, null);
+				return fun.call(monitor, argTypes, argValues, keyArgValues);
 			} finally {
 				if (profiler != null) {
 					profiler.pleaseStop();
@@ -1583,8 +1583,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			}
 		}
 		else {
-			return fun.call(monitor, argTypes, argValues, null);
+			return fun.call(monitor, argTypes, argValues, keyArgValues);
 		}
+	}
+	
+	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue... argValues) {
+		return call(monitor, fun, argTypes, argValues, null);
 	}
 	
 	@Override

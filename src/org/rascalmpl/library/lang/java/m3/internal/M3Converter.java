@@ -80,7 +80,7 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		setAnnotation("methodOverrides", methodOverrides.done());
 		setAnnotation("types", types.done());
 		setAnnotation("annotations", annotations.done());
-		insertCompilationUnitMessages(insertErrors);
+		insertCompilationUnitMessages(insertErrors, messages.done());
 		return ownValue;
 	}
 	

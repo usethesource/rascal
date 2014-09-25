@@ -43,10 +43,14 @@ test bool RedeclaredVarDeclaration(){
 }
 
 
-test bool moduleRedeclarationError1(){ 
-	makeModule("M", "public int n = 1; public int n = 2;"); 
-	return redeclaredVariable("n == 1;", importedModules=["M"]);
-}
+// MAH: I will need to look for a good way to test this now; the configuration no
+// longer includes errors detected in imported modules unless they are actual
+// import errors, in this case the first n is in the imported configuration
+// but the second n isn't since it would raise an error while checking M.
+//test bool moduleRedeclarationError1(){ 
+//	makeModule("M", "public int n = 1; public int n = 2;"); 
+//	return redeclaredVariable("n == 1;", importedModules=["M"]);
+//}
 
 test bool qualifiedScopeTest(){ 
 	makeModule("M", "public int n = 1;"); 
