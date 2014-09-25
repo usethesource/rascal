@@ -1306,11 +1306,14 @@ public enum RascalPrimitive {
 			Type tp = cons.getConstructorType();
 			try {
 				IValue v;
-				if(tp.hasKeywordParameter(fieldName)){
-					v = cons.asWithKeywordParameters().getParameter(fieldName);
-				} else {
+				
+				if(tp.hasField(fieldName)){
 					int fld_index = tp.getFieldIndex(fieldName);
 					v = cons.get(fld_index);
+				} else if(cons.mayHaveKeywordParameters()){
+					v = cons.asWithKeywordParameters().getParameter(fieldName);
+				} else {
+					throw RascalRuntimeException.noSuchField(fieldName, stacktrace);
 				}
 				stack[sp - 2] = v;
 				return sp - 1;
@@ -1319,6 +1322,7 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
 	datetime_field_access {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
