@@ -3385,10 +3385,14 @@ public class Prelude {
 		
 //		TypeStore store = ctx.getCurrentEnvt().getStore();
 		TypeStore store = new TypeStore();
-		ModuleEnvironment pt = ctx.getHeap().getModule("ParseTree");
-		if(pt != null){
-			store.importStore(pt.getStore());
-		}
+		
+// TODO: commented out the following lines and that seems to sove the duplicate declaration of ParseTree.
+//		 Why was this import here? Can someone check?
+		
+//		ModuleEnvironment pt = ctx.getHeap().getModule("ParseTree");
+//		if(pt != null){
+//			store.importStore(pt.getStore());
+//		}
 		Type start = tr.valueToType((IConstructor) type, store);
 		loc = ctx.getHeap().resolveSourceLocation(loc);
 		
