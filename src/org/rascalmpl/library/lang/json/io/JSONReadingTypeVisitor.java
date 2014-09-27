@@ -264,16 +264,15 @@ public class JSONReadingTypeVisitor implements
 			if (scheme != null && authority != null && query != null && fragment != null) {
 				return vf.sourceLocation(scheme, authority, path, query, fragment);
 			}
-			if (scheme != null && authority != null) {
-				return vf.sourceLocation(scheme, authority, path);
+			if (scheme != null) {
+				return vf.sourceLocation(scheme, authority == null ? "" : authority, path);
 			}
 		} catch (URISyntaxException e) {
 			throw new IOException(e);
 		}
 
 		if (path != null) {
-			ISourceLocation x = vf.sourceLocation(path);
-			return x;
+			return vf.sourceLocation(path);
 		}
 		throw new IOException("Could not parse complete source location");
 	}
