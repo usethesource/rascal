@@ -1305,14 +1305,16 @@ public enum RascalPrimitive {
 			String fieldName = ((IString) stack[sp - 1]).getValue();
 			Type tp = cons.getConstructorType();
 			try {
-				IValue v;
-				
 				if(tp.hasField(fieldName)){
 					int fld_index = tp.getFieldIndex(fieldName);
-					v = cons.get(fld_index);
-				} else if(cons.mayHaveKeywordParameters()){
+					stack[sp - 2] = cons.get(fld_index);
+					return sp - 1;
+				} 
+				IValue v = null;
+				if(cons.mayHaveKeywordParameters()){
 					v = cons.asWithKeywordParameters().getParameter(fieldName);
-				} else {
+				}
+				if(v == null){
 					throw RascalRuntimeException.noSuchField(fieldName, stacktrace);
 				}
 				stack[sp - 2] = v;
