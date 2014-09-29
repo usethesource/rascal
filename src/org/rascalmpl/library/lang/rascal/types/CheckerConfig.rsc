@@ -811,6 +811,10 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		if (size(overlaps) > 0)
 			c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
 
+		// NOTE: This will pick one if we have multiple types for the same name, but we will have already issued
+		// a warning above...
+		keywordParamMap = ( pn : pt | pn <- consolidatedParams<0>, pt := getOneFrom(consolidatedParams[pn]<0>) );
+		
 		constructorItem = constructor(n,rt,keywordParamMap,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
 		c.store[constructorItemId] = constructorItem;
 		c.definitions = c.definitions + < constructorItemId, l >;
