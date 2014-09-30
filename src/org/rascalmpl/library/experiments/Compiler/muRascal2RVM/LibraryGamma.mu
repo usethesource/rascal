@@ -273,14 +273,17 @@ coroutine RANGE_INT(pat, iFirst, iEnd) {
 }
 
 coroutine RANGE(pat, iFirst, iEnd) {
-    var j = iFirst, 
-        n = iEnd, 
-        rone
-    if(iFirst is int && iEnd is int) {
+    var j, 
+        n, 
         rone = rint(1)
-    } else {
-        rone = prim("num_to_real", rint(1))
-    }
+   
+   if(iFirst is int && iEnd is int){
+   	  j = iFirst
+   	  n = iEnd
+   } else {
+      j = prim("num_to_real", iFirst)
+      n = prim("num_to_real", iEnd)
+   }
     if(prim("less", j, n)) {
         while(prim("less", j, n)) {
             pat(j)
@@ -323,19 +326,15 @@ coroutine RANGE_STEP_INT(pat, iFirst, iSecond, iEnd) {
 
 coroutine RANGE_STEP(pat, iFirst, iSecond, iEnd) {
     var n = iEnd, 
-        j, step, mixed
-    if(iFirst is int && iSecond is int && iEnd is int) {
+        j, step
+    if(iFirst is int && iEnd is int) {
         j = iFirst
-        mixed = false
     } else {
         j = prim("num_to_real", iFirst)
-        mixed = true
     }
     if(prim("less", j, n)) {
         step = prim("subtract", iSecond, j)
-        if(mixed){
-            step = prim("num_to_real", step)
-        }
+        
         if(prim("lessequal", step, rint(0))) {
             exhaust
         }
@@ -346,9 +345,7 @@ coroutine RANGE_STEP(pat, iFirst, iSecond, iEnd) {
         exhaust
     } else {
         step = prim("subtract", iSecond, j)
-        if(mixed){
-            step = prim("num_to_real", step)
-        }
+        
         if(prim("greaterequal", step, rint(0))) {
             exhaust
         }
