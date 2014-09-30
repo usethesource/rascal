@@ -247,7 +247,7 @@ abstract public class NamedFunction extends AbstractFunction {
             sep = (strFormals.length() > 0) ? ", " : "";
 
             for(String kw : keywordParameterDefaults.keySet()){
-                kwFormals += sep + functionType.getFieldType(kw) + " " + kw + "= ...";
+                kwFormals += sep + functionType.getKeywordParameterType(kw) + " " + kw + "= ...";
                 sep = ", ";
             }
         }

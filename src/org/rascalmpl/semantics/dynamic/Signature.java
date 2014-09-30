@@ -48,8 +48,7 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kwd, eval);
 			}
 
-			return RTF.functionType(getType().typeOf(env, instantiateTypeParameters, eval), parameters
-					.typeOf(env, instantiateTypeParameters, eval), kwParams);
+			return RTF.functionType(getType().typeOf(env, instantiateTypeParameters, eval), parameters.typeOf(env, instantiateTypeParameters, eval), kwParams);
 		}
 	}
 

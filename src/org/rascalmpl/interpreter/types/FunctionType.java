@@ -42,6 +42,36 @@ public class FunctionType extends RascalType {
 	}
 	
 	@Override
+	public Type getFieldType(int i) {
+		return argumentTypes.getFieldType(i);
+	}
+	
+	@Override
+	public Type getFieldType(String fieldName) throws FactTypeUseException {
+		return argumentTypes.getFieldType(fieldName);
+	}
+	
+	@Override
+	public int getFieldIndex(String fieldName) {
+		return argumentTypes.getFieldIndex(fieldName);
+	}
+	
+	@Override
+	public String getFieldName(int i) {
+		return argumentTypes.getFieldName(i);
+	}
+	
+	@Override
+	public String[] getFieldNames() {
+		return argumentTypes.getFieldNames();
+	}
+	
+	@Override
+	public Type getFieldTypes() {
+		return argumentTypes;
+	}
+	
+	@Override
 	public <T, E extends Throwable> T accept(IRascalTypeVisitor<T, E> visitor) throws E {
 	  return visitor.visitFunction(this);
 	}
