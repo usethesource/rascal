@@ -20,8 +20,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.DefaultTestResultListener;
 import org.rascalmpl.interpreter.IEvaluatorContext;  // TODO: remove import? NOT YET: Only used as argument of reclective library function
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 
 public class Execute {
 
