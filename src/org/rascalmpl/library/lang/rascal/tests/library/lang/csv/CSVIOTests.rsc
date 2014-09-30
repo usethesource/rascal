@@ -1,4 +1,4 @@
-module tests::library::lang::csv::CSVIOTests
+module lang::rascal::tests::library::lang::csv::CSVIOTests
 
 import IO;
 import Type;

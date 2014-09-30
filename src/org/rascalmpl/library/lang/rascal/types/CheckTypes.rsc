@@ -645,10 +645,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 		// TODO: To make this work for type hints with type vars we need to instantiate the vars; until we do that,
 		// just skip using the hint in those cases, since it then breaks cases where the hints are not needed.
 		if ( (exp@typeHint)? && (!typeContainsTypeVars(exp@typeHint))) {
-			nonDefaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- nonDefaultFunctionMatchesWithKP, typeContainsTypeVars(a) || equivalent(getFunctionReturnType(a),exp@typeHint) };
-			defaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- defaultFunctionMatchesWithKP, typeContainsTypeVars(a) || equivalent(getFunctionReturnType(a),exp@typeHint) };
-			constructorMatchesWithKP = { < a, kpm > | < a, kpm > <- constructorMatchesWithKP, typeContainsTypeVars(a) || equivalent(getConstructorResultType(a),exp@typeHint) };
-			productionMatches = { < a, kpm > | < a, kpm > <- productionMatches, typeContainsTypeVars(a) || equivalent(getProductionSortType(a),exp@typeHint) };
+			nonDefaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- nonDefaultFunctionMatchesWithKP, typeContainsTypeVars(a) || subtype(getFunctionReturnType(a),exp@typeHint) };
+			defaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- defaultFunctionMatchesWithKP, typeContainsTypeVars(a) || subtype(getFunctionReturnType(a),exp@typeHint) };
+			constructorMatchesWithKP = { < a, kpm > | < a, kpm > <- constructorMatchesWithKP, typeContainsTypeVars(a) || subtype(getConstructorResultType(a),exp@typeHint) };
+			productionMatches = { < a, kpm > | < a, kpm > <- productionMatches, typeContainsTypeVars(a) || subtype(getProductionSortType(a),exp@typeHint) };
 		}
         
 		set[Symbol] nonDefaultFunctionMatches = nonDefaultFunctionMatchesWithKP<0>;
