@@ -26,6 +26,7 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.KeywordFormals;
@@ -33,6 +34,7 @@ import org.rascalmpl.ast.Tag;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -52,6 +54,25 @@ public class JavaMethod extends NamedFunction {
 		this(eval, (FunctionType) func.getSignature().typeOf(env, true, eval), func,isDefault(func), hasTestMod(func.getSignature()), varargs, env, javaBridge);
 	}
 	
+	@Override
+	public Type getFormals() {
+		// get formals is overridden because we can provide labeled parameters for JavaMethods (no pattern matching)
+		FunctionDeclaration func = (FunctionDeclaration) getAst();
+		
+		List<Expression> formals = func.getSignature().getParameters().getFormals().getFormals();
+		int arity = formals.size();
+		Type[] types = new Type[arity];
+		String[] labels = new String[arity];
+		FunctionType ft = getFunctionType();
+		
+		for (int i = 0; i < arity; i++) {
+			types[i] = ft.getFieldType(i);
+			assert formals.get(i).isTypedVariable(); // Java methods only have normal parameters as in `int i, int j`
+			labels[i] = Names.name(formals.get(i).getName());
+		}
+		
+		return TF.tupleType(types, labels);
+	}
 	/*
 	 *  This one is to be called by cloneInto only, to avoid
 	 *  looking into the environment again for obtaining the type.
@@ -100,6 +121,8 @@ public class JavaMethod extends NamedFunction {
 		}
 		Type actualTypesTuple;
 		Type formals = getFormals();
+
+		
 		Object[] oActuals;
 
 		if (hasVarArgs) {
@@ -108,6 +131,19 @@ public class JavaMethod extends NamedFunction {
 		else {
 			oActuals = actuals;
 		}
+		
+		if (hasVarArgs) {
+			actualTypesTuple = computeVarArgsActualTypes(actualTypes, formals);
+		}
+		else {
+			actualTypesTuple = TF.tupleType(actualTypes);
+		}
+		
+		if (!actualTypesTuple.isSubtypeOf(formals)) {
+			// resolve overloading
+			throw new MatchFailed();
+		}
+		
 		oActuals = addKeywordActuals(oActuals, formals, keyArgValues);
 
 		if (hasReflectiveAccess) {
@@ -123,12 +159,7 @@ public class JavaMethod extends NamedFunction {
 		try {
 			ctx.pushEnv(getName());
 
-			if (hasVarArgs) {
-				actualTypesTuple = computeVarArgsActualTypes(actualTypes, formals);
-			}
-			else {
-				actualTypesTuple = TF.tupleType(actualTypes);
-			}
+			
 
 			Environment env = ctx.getCurrentEnvt();
 			bindTypeParameters(actualTypesTuple, formals, env); 
