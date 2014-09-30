@@ -7,7 +7,7 @@
             <manifest>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="./bin"/>
+            <fileset excludes="org/rascalmpl/courses/**" dir="./bin"/>
             <fileset dir="../pdb.values/bin"/>
             <zipfileset excludes="META-INF/*.SF" src="/Applications/Eclipse/keppler/plugins/org.junit_4.11.0.v201303080030/junit.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/Applications/Eclipse/keppler/plugins/org.hamcrest.core_1.3.0.v201303031735.jar"/>
