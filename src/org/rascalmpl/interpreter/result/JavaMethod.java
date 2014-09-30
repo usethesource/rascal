@@ -164,7 +164,7 @@ public class JavaMethod extends NamedFunction {
 			return oldActuals;
 		}
 		
-		Environment env = new Environment(vf.sourceLocation(URIUtil.rootScheme("initializer")), "keyword parameter initializer");
+		Environment env = new Environment(declarationEnvironment, vf.sourceLocation(URIUtil.rootScheme("initializer")), "keyword parameter initializer");
 		Environment old = ctx.getCurrentEnvt();
 		
 		try {
