@@ -1,5 +1,7 @@
 module experiments::Compiler::Examples::RascalRuntimeExceptionsPlusOverloading
 
+import Exception;
+
 str trace = "";
 
 void f(int i) {
