@@ -203,7 +203,7 @@ private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <E
                     
 private MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString("<constant>"));
 
-private str removeMargins(str s)  = visit(s) { case /^[ \t]*'/m => "" };
+private str removeMargins(str s)  = visit(s) { case /^[ \t]*'/m => "" /* case /^[ \t]+$/m => "" */};
 
 private str computeIndent(str s) {
    lines = split("\n", removeMargins(s)); 
@@ -760,8 +760,11 @@ MuExp translateReducer(Expression init, Expression result, {Expression ","}+ gen
 
 // -- reified type expression ---------------------------------------
 
-MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) =
-  muCallPrim("reifiedType_create", [translate(symbol), translate(definitions)]);
+MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) {
+	
+    return muCallPrim("reifiedType_create", [translate(symbol), translate(definitions)]);
+    
+}
 
 
 // -- call expression -----------------------------------------------
@@ -772,6 +775,9 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
       
    MuExp receiver = translate(expression);
    list[MuExp] args = [ translate(a) | a <- arguments ];
+   for(a <- arguments){
+   	println("<a>: <getType(a@\loc)>");     
+   }
    if(getOuterType(expression) == "str") {
    		return muCallPrim("node_create", [receiver, *args, *kwargs], e@\loc);
        //return muCallPrim("node_create", [receiver, *args] + (size_keywordArguments(keywordArguments) > 0 ? [kwargs] : [/* muCon(()) */]), e@\loc);

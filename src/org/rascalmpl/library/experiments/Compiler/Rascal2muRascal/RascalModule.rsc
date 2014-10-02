@@ -105,7 +105,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    try {
     println("r2mu: entering ...");
    	Configuration c = newConfiguration();
-   	config = checkModule(M, c);  
+   	config = checkModule(M, c, forceCheck=true);  
    	//text(config);
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
@@ -197,8 +197,9 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  		[ fuid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.dataKeywordDefaults[fuid]) ]
    	  	  > 
    	  	| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions 
-   	  	];    
-   	  return muModule(modName, imported_modules, types, functions_in_module, variables_in_module, variable_initializations, getModuleVarInitLocals(modName), overloadingResolver, overloaded_functions, getGrammar(config));
+   	  	]; 
+   	  symbol_definitions = getDefinitions(config);   
+   	  return muModule(modName, imported_modules, types, symbol_definitions, functions_in_module, variables_in_module, variable_initializations, getModuleVarInitLocals(modName), overloadingResolver, overloaded_functions, getGrammar(config));
    	}
    } catch Java("ParseError","Parse error"): {
    	   throw "Syntax errors in module <moduleLoc>";

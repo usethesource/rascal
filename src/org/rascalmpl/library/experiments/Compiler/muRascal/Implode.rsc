@@ -63,7 +63,7 @@ MuModule preprocess(Module pmod){
    }
    resolver = ();
    overloaded_functions = [];
-   return muModule(pmod.name, [], types, [ preprocess(f, pmod.name) | f <- pmod.functions ] + functions_in_module, [], [], 0, resolver, overloaded_functions, ());
+   return muModule(pmod.name, [], types, (), [ preprocess(f, pmod.name) | f <- pmod.functions ] + functions_in_module, [], [], 0, resolver, overloaded_functions, ());
 }
 
 bool isGlobalNonOverloadedFunction(str name) {

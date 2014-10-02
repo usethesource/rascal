@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -47,8 +48,6 @@ public class RVM {
 
 	public final IValueFactory vf;
 	private final TypeFactory tf;
-//	private final Boolean TRUE;
-//	private final Boolean FALSE;
 	private final IBool Rascal_TRUE;
 	private final IBool Rascal_FALSE;
 	private final IString NONE; 
@@ -120,7 +119,6 @@ public class RVM {
 		typeStore = rex.getTypeStore();
 		
 		this.rex = rex;
-		//this.ctx = ctx;
 		this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
@@ -129,8 +127,6 @@ public class RVM {
 		
 		this.types = new Types(this.vf);
 		
-//		TRUE = true;
-//		FALSE = false;
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
 		NONE = vf.string("$nothing$");
@@ -160,11 +156,13 @@ public class RVM {
 
 	
 	public void declare(Function f){
+		//System.out.println(functionStore.size() + ", declare: " + f.getName());
 		if(functionMap.get(f.getName()) != null){
 			throw new CompilerError("Double declaration of function: " + f.getName());
 		}
 		functionMap.put(f.getName(), functionStore.size());
 		functionStore.add(f);
+		
 	}
 	
 	public void declareConstructor(String name, IConstructor symbol) {
@@ -227,7 +225,8 @@ public class RVM {
 	void printStores(){
 		System.out.println("FUNCTION STORE");
 		for(int i = 0; i < functionStore.size(); i++){
-			System.out.println(i + ": " + functionStore.get(i));;
+			Function fun = functionStore.get(i);
+			System.out.println(i + ": " + (fun == null ? "null" : fun));
 		}
 		System.out.println("OVERLOADED STORE");
 		for(int i = 0; i < overloadedStore.size(); i++){
@@ -269,9 +268,6 @@ public class RVM {
 	 * @return converted result or an exception
 	 */
 	private IValue narrow(Object result){
-//		if(result instanceof Boolean) {
-//			return vf.bool((Boolean) result);
-//		}
 		if(result instanceof Integer) {
 			return vf.integer((Integer)result);
 		}
@@ -377,7 +373,7 @@ public class RVM {
 		throw new CompilerError("asString cannot convert: " + o);
 	}
 	
-	public void finalize(){
+	private void finalizeInstructions(){
 		// Finalize the instruction generation of all functions, if needed
 		if(!finalized){
 			finalized = true;
@@ -390,7 +386,7 @@ public class RVM {
 		}
 	}
 
-	public String getFunctionName(int n) {
+	private String getFunctionName(int n) {
 		for(String fname : functionMap.keySet()) {
 			if(functionMap.get(fname) == n) {
 				return fname;
@@ -481,7 +477,7 @@ public class RVM {
 		
 		//printStores();
 		
-		finalize();
+		finalizeInstructions();
 		
 		Function main_function = functionStore.get(functionMap.get(uid_main));
 
@@ -1480,7 +1476,7 @@ public class RVM {
 			Constructor<?> cons;
 			cons = clazz.getConstructor(IValueFactory.class);
 			Object instance = cons.newInstance(vf);
-			Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes, keywordTypes, reflect));
+			Method m = clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
 			int arity = parameterTypes.getArity();
 			int kwArity = keywordTypes.getArity();
 			int kwMaps = kwArity > 0 ? 2 : 0;
@@ -1508,7 +1504,7 @@ public class RVM {
 			}
 			
 			if(reflect == 1) {
-				parameters[arity + kwArity] = this.getEvaluatorContext();
+				parameters[arity + kwArity] = converted.contains(methodName) ? this.rex : this.getEvaluatorContext();
 			}
 			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
 			return sp - arity - kwMaps + 1;
@@ -1538,7 +1534,9 @@ public class RVM {
 		return sp;
 	}
 	
-	Class<?>[] makeJavaTypes(Type parameterTypes, Type keywordTypes, int reflect){
+	HashSet<String> converted = new HashSet<String>(Arrays.asList("a", "b"));
+			
+	Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
 		JavaClasses javaClasses = new JavaClasses();
 		int arity = parameterTypes.getArity();
 		int kwArity = keywordTypes.getArity();
@@ -1556,7 +1554,9 @@ public class RVM {
 		}
 		
 		if(reflect == 1) {
-			jtypes[arity + kwArity] = IEvaluatorContext.class;
+			jtypes[arity + kwArity] = converted.contains(methodName) 
+									  ? RascalExecutionContext.class 
+									  : IEvaluatorContext.class;
 		}
 		return jtypes;
 	}

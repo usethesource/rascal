@@ -13,6 +13,7 @@ import Prelude;
 public data MuModule =											
               muModule(str name, list[loc] imports,
               					 map[str,Symbol] types, 
+              					 map[Symbol, Production] symbol_definitions,
                                  list[MuFunction] functions, 
                                  list[MuVariable] variables, 
                                  list[MuExp] initialization,

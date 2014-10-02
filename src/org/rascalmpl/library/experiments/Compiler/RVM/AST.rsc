@@ -32,6 +32,7 @@ public data RVMProgram =
 		  rvm(str name,
 			  list[loc] imports,
               map[str,Symbol] types, 
+              map[Symbol, Production] symbol_definitions,
               map[str, Declaration] declarations, 
               list[Instruction] initialization, 
               map[str,int] resolver, 

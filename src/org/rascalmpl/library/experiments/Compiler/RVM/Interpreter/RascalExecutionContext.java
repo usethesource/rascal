@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -35,10 +36,12 @@ public class RascalExecutionContext {
 	private final boolean debug;
 	private final boolean profile;
 	private final ITestResultListener testResultListener;
+	private final IMap symbol_definitions;
 	
-	RascalExecutionContext(IValueFactory vf, boolean debug, boolean profile, IEvaluatorContext ctx, ITestResultListener testResultListener){
+	RascalExecutionContext(IValueFactory vf, IMap symbol_definitions, boolean debug, boolean profile, IEvaluatorContext ctx, ITestResultListener testResultListener){
 		
 		this.vf = vf;
+		this.symbol_definitions = symbol_definitions;
 		this.typeStore = new TypeStore();
 		this.debug = debug;
 		this.profile = profile;
@@ -54,6 +57,8 @@ public class RascalExecutionContext {
 	}
 
 	IValueFactory getValueFactory(){ return vf; }
+	
+	IMap getSymbolDefinitions() { return symbol_definitions; }
 	
 	TypeStore getTypeStore() { return typeStore; }
 	
