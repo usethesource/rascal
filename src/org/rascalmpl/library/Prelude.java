@@ -2198,7 +2198,7 @@ public class Prelude {
 	 * ParseTree
 	 */
 	
-	protected final TypeReifier tr;
+	protected TypeReifier tr;
 
 	public IValue parse(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
 		return parse(start, values.mapWriter().done(), input, ctx);
@@ -3419,7 +3419,9 @@ public class Prelude {
 	public IValue readTextValueFile(IValue type, ISourceLocation loc, IEvaluatorContext ctx){
 	  loc = ctx.getHeap().resolveSourceLocation(loc);
 	  
-		TypeStore store = ctx.getCurrentEnvt().getStore();
+		//TypeStore store = ctx.getCurrentEnvt().getStore();
+	  	TypeStore store = new TypeStore();
+		tr = new TypeReifier(values);
 		Type start = tr.valueToType((IConstructor) type, store);
 		
 		InputStream in = null;
@@ -3442,10 +3444,10 @@ public class Prelude {
 	public IValue readTextValueString(IValue type, IString input, IEvaluatorContext ctx) {
 //		TypeStore store = ctx.getCurrentEnvt().getStore();
 		TypeStore store = new TypeStore();
-		ModuleEnvironment pt = ctx.getHeap().getModule("ParseTree");
-		if(pt != null){
-			store.importStore(pt.getStore());
-		}
+//		ModuleEnvironment pt = ctx.getHeap().getModule("ParseTree");
+//		if(pt != null){
+//			store.importStore(pt.getStore());
+//		}
 		Type start = tr.valueToType((IConstructor) type, store);
 		
 		StringReader in = new StringReader(input.getValue());
