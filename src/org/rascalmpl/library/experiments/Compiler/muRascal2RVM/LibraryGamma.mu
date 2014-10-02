@@ -1360,7 +1360,24 @@ coroutine MATCH_REGEXP(iRegexp, varrefs, iSubject) {
     }
 }
 
-// ***** Traverse functions *****
+/******************************************************************************************/
+/*					Traversal functions  												  */
+/******************************************************************************************/
+
+// ***** Traversal strategies *****
+
+// The various traversal strategies are implemented by the functions:
+// - TRAVERSE_TOP_DOWN
+// - TRAVERSE_TOP_DOWN_BREAK
+// - TRAVERSE_BOTTOM_UP
+// - TRAVERSE_BOTTOM_UP_BREAK
+//
+// Each function has the following arguments:
+// - phi, a compiler generated function that implements all visit cases
+// - iSubject, the subject value to be traversed
+// - rHasMatch, a reference parameter that records successfull matches
+// - rBeenChanged, a reference parameter that records subject replacements (due to insert or =>)
+// - rebuild, a boolean indicating whether a new value for the subject should be built
 
 function TRAVERSE_TOP_DOWN(phi, iSubject, rHasMatch, rBeenChanged, rebuild) {
 	var matched = false, 
@@ -1426,6 +1443,12 @@ function TRAVERSE_BOTTOM_UP_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rebuil
 	deref rBeenChanged = changed || deref rBeenChanged	
 	return iSubject
 }
+
+// ***** Visit subject's children and return (potentially modified) value *****
+// - iSubject
+// - traverse_fun, the traversal strategy used
+// - phi, compiled visit cases
+// - rHasMatch, rBeenChanged, rebuild as above
 
 function VISIT_CHILDREN(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) { 
 	var children
@@ -1493,6 +1516,12 @@ function VISIT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild
 	}
 	return prim("mapwriter_close", writer)
 }
+
+// ***** Visit subject's children but return no value *****
+// - iSubject
+// - traverse_fun, the traversal strategy used
+// - phi, compiled visit cases
+// - rHasMatch, rBeenChanged, rebuild as above
 
 function VISIT_CHILDREN_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) {	
 	if((iSubject is list) || (iSubject is set) || (iSubject is tuple) || (iSubject is node)) {
