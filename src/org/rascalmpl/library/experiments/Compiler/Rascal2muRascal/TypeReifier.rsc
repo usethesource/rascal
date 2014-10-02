@@ -15,6 +15,7 @@ import ParseTree;
 import List;
 import Map;
 import Set;
+import Relation;
 
 import IO;
 
@@ -33,6 +34,8 @@ private void resetTypeReifier() {
     starts = {};
     activeLayout = Symbol::\layouts("$default$");
 }
+
+// Extract the declared grammar from a type checker configuration
 
 public map[Symbol,Production] getGrammar(Configuration config) {
 
@@ -71,6 +74,40 @@ public map[Symbol,Production] getGrammar(Configuration config) {
  	definitions = definitions + (Symbol::\layouts("$default$"):Production::choice(Symbol::\layouts("$default$"),{Production::prod(Symbol::\layouts("$default$"),[],{})}));
  	definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
  	
+ 	resetTypeReifier();
+ 	
+ 	return definitions;
+}
+
+// Extract all declared symbols from a type checker configuration
+
+public map[Symbol,Production] getDefinitions(Configuration config) {
+	
+	// Collect all the types that are in the type environment
+	typeMap = ( getSimpleName(rname) : config.store[config.typeEnv[rname]].rtype | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype );
+	// Collect all the constructors of the adt types in the type environment
+	types = range(typeMap);
+	constructors = { <\type.\adt, \type> | int uid <- config.store, 
+												constructor(_, Symbol \type, _, _, _) := config.store[uid],
+												\type.\adt in types };
+	// Collects all the productions of the non-terminal types in the type environment
+	grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
+   	  																config.store[uid].rtype in types );
+   	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
+   	
+   	productions = { p.def is label ? <p.def.symbol, Symbol::prod(p.def.symbol, p.def.name, p.symbols, p.attributes)> 
+	                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 
+	                                     | /Production p:prod(_,_,_) := grammar };
+   	
+   	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
+   	if(!isEmpty(activeLayouts)) {
+   		activeLayout = getOneFrom(activeLayouts);
+   	}
+   	// Collect all symbols
+   	symbols = types + carrier(constructors) + carrier(productions) + domain(grammar);
+   	// and find their definitions
+   	map[Symbol,Production] definitions  = (() | reify(symbol, it) | symbol <- symbols);
+
  	resetTypeReifier();
  	
  	return definitions;
@@ -183,7 +220,7 @@ public map[Symbol,Production] reify(Symbol::\var-func(Symbol ret, list[Symbol] p
 	return definitions;
 }
 // reified
-public map[Symbol,Production] reify(Symbol::\reified(Symbol symbol), map[Symbol,Production] definitions) 
+public map[Symbol,Production] reify(Symbol::\reified(Symbol ret), map[Symbol,Production] definitions) 
 	= reify(ret, definitions);
 // parameter
 public map[Symbol,Production] reify(Symbol::\parameter(str name, Symbol bound), map[Symbol,Production] definitions)
