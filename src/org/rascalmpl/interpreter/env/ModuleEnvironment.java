@@ -578,13 +578,13 @@ public class ModuleEnvironment extends Environment {
 		return sort;
 	}
 	
-	private Type makeTupleType(Type adt, String name, Type tupleType, Type keywordParams) {
-	  return TF.constructorFromTuple(typeStore, adt, name, tupleType, keywordParams);
+	private Type makeTupleType(Type adt, String name, Type tupleType) {
+	  return TF.constructorFromTuple(typeStore, adt, name, tupleType);
 	}
 	
 	@Override
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Type keywordParams, List<KeywordFormal> initializers) {
-		Type cons = makeTupleType(adt, name, tupleType, keywordParams);
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordFormal> initializers) {
+		Type cons = makeTupleType(adt, name, tupleType);
 		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, initializers);
 		storeFunction(name, function);
 		markNameFinal(name);

@@ -34,6 +34,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -146,9 +147,12 @@ public class TypeReifier {
 		IConstructor defined = (IConstructor) alt.get("def");
 		String name = ((IString) defined.get("name")).getValue();
 		Type kwTypes = symbolsToTupleType((IList) alt.get("kwTypes"), store);
-		if (kwTypes.getArity() == 0) kwTypes = tf.voidType();
 		
-		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store), kwTypes);
+		if (kwTypes.getArity() == 0) {
+			kwTypes = tf.voidType();
+		}
+		
+		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
 	}
 
 	private Type symbolToType(IConstructor symbol, TypeStore store) {
@@ -474,8 +478,6 @@ public class TypeReifier {
 						}
 					}
 					
-					
-					
 					result = vf.constructor(Factory.Symbol_Cons, vf.constructor(Factory.Symbol_Label, vf.string(type.getName()), adt), w.done());
 
 					cache.put(type, result);
@@ -509,9 +511,11 @@ public class TypeReifier {
 				
 				IListWriter kwTypes = vf.listWriter();
 				IMapWriter kwDefaults = vf.mapWriter();
+				Type consType = ctx.getCurrentEnvt().getRoot().getConstructorFunction(type).getKeywordArgumentTypes();
 				
-				for (String key : type.getKeywordParameters()) {
-					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(key), type.getKeywordParameterType(key).accept(this)));
+				
+				for (int i = 0; i < consType.getArity(); i++) {
+					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(consType.getFieldName(i)), consType.getFieldType(i).accept(this)));
 				}
 				
 				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), kwDefaults.done(), vf.set()));

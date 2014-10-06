@@ -33,7 +33,7 @@ public class OverloadedFunctionType extends RascalType {
 		this.returnType = alternatives.iterator().next().getReturnType();
 	}
 	
-	@Override
+	
 	public Type getKeywordParameterTypes() {
 		// TODO: what does this union mean in case of overlapping names?
 		ArrayList<String> labels = new ArrayList<>();

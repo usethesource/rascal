@@ -274,7 +274,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override
-	public boolean hasKeywordArgs() {
+	public boolean hasKeywordArguments() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -354,7 +354,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		for (AbstractFunction candidate : candidates) {
 			if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
 					|| candidate.getArity() == argValues.length
-					|| candidate.hasKeywordArgs()) {
+					|| candidate.hasKeywordArguments()) {
 				try {
 					return candidate.call(argTypes, argValues, keyArgValues);
 				}
