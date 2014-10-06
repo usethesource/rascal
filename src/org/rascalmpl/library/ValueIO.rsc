@@ -10,7 +10,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module ValueIO
 
-
+import Type;
 
 @doc{Read  a value from a binary file in PBF format}
 public value readValueFile(loc file) {
@@ -38,6 +38,14 @@ public java &T readTextValueFile(type[&T] result, loc file);
 
 public value readTextValueFile(loc file) {
   return readTextValueFile(#value, file);
+}
+
+@doc{
+Synopsis: If you have written a file containing reified types, then you can use this function
+  to read them back.  
+}
+public &T readTextValueFileWithEmbeddedTypes(type[&T] result, loc file) {
+  return readTextValueFile(type(result.symbol, result.definitions + #Symbol.definitions + #Production.definitions), file);
 }
 
 @doc{Parse a textual string representation of a value}

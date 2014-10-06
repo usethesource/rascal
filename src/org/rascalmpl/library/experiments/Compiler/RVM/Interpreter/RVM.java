@@ -1016,6 +1016,9 @@ public class RVM {
 						stacktrace.add(cf);
 						thrown = Thrown.getInstance(e.getException(), e.getLocation(), stacktrace);
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
+					} catch (Exception e){
+						e.printStackTrace(stderr);
+						throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: "+ e.getMessage() + e.getCause() );
 					}
 					
 					continue NEXT_INSTRUCTION;
@@ -1278,6 +1281,11 @@ public class RVM {
 				case Opcode.OP_CHECKARGTYPE:
 					Type argType =  ((IValue) stack[sp - 2]).getType();
 					Type paramType = ((Type) stack[sp - 1]);
+					System.err.println("CHECKARGTYPE in " + cf.function.name + ": paramType=" + paramType + ", argType=" + argType + " => " + argType.isSubtypeOf(paramType));
+					if(!argType.isSubtypeOf(paramType)){
+						System.err.println("CHECKARGTYPE fails in " + cf.function.name + ": paramType=" + paramType + ", argType=" + argType);
+						boolean b = argType.isSubtypeOf(paramType);
+					}
 					stack[sp - 2] = vf.bool(argType.isSubtypeOf(paramType));
 					sp--;
 					continue NEXT_INSTRUCTION;
