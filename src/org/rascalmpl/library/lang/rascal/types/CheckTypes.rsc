@@ -6849,6 +6849,8 @@ public Configuration checkModuleUsingSignatures(Module md:(Module)`<Header heade
 		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
 	rel[RName mname, bool isext] defaultModules = (moduleName != RSimpleName("Exception")) ? { < RSimpleName("Exception"), false > } : {};
 	
+	println("defaultModules = <defaultModules>");
+	
 	// Now, for each module being imported, create a module in the configuration
 	// and generate a signature. This also brings in extra imports via the extends
 	// mechanism (if we extend module A, we also import everything A imports).
@@ -7060,7 +7062,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule im>;` := importItem > | 
 		importItem <- importList, 
 		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
-	rel[RName mname, bool isext] defaultModules = (moduleName != RSimpleName("Exception")) ? { < RSimpleName("Exception"), false > } : {};
+	rel[RName mname, bool isext] defaultModules = {}; // (moduleName != RSimpleName("Exception")) ? { < RSimpleName("Exception"), false > } : {};
 	list[RName] extendedModules = [ getNameOfImportedModule(im) | importItem <- importList, (Import)`extend <ImportedModule im>;` := importItem ];
 	set[RName] allImports = modulesToImport<0> + defaultModules<0>;
 	

@@ -1,18 +1,25 @@
 module experiments::Compiler::Examples::Tst3
 
- data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);
- 
- /*
-value main(list[value] args) = { <t1, t2> | INTERSECT({TYPESET t1, *TYPESET t2}) :=  INTERSECT({SET("b"), SET("a")})};
-  						   //{ <SET("b"),{SET("a")}>, <SET("a"),{SET("b")}>};
-*/
-  	 	
-value main(list[value] args) = {<t1, rest, t2> | {INTERSECT({TYPESET t1, *TYPESET rest}),  t2} :=  {INTERSECT({SET("a"), SET("b")}) , SET("b")}};
+//import ValueIO;
+//import IO;
 
-//  				           { <SET("a"),{SET("b")},SET("b")>, <SET("b"),{SET("a")},SET("b")>};
- 
- /* 
- public test bool testSet67() = {<t1, rest> | {INTERSECT({TYPESET t1, *TYPESET rest}),  t1} :=  {INTERSECT({SET("a"), SET("b")}), SET("b")}}==
-  				           {<SET("b"),{SET("a")}>};  
-  				           
-*/
+@doc{Read a typed value from a text file.}
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses URI Resolver Registry}
+public java &T readTextValueFile(type[&T] result, loc file);
+
+public value readTextValueFile(loc file) {
+  return readTextValueFile(#value, file);
+}
+
+   
+value main(list[value] args) =  readTextValueFile(|file:///tmp/xxx|); // textWriteRead(#int, 1);
+   
+
+//private bool textWriteRead(type[&T] typ, value exp) {
+//   writeTextValueFile(|file:///tmp/xxx|,exp);
+//   println("Wrote <exp>");
+//   if (&T N := readTextValueFile(|file:///tmp/xxx|) && N == exp) return true;
+//   return false;
+//   }
+   
