@@ -84,6 +84,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.AbstractValueFactoryAdapter;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueWriter;
@@ -2198,7 +2199,7 @@ public class Prelude {
 	 * ParseTree
 	 */
 	
-	protected TypeReifier tr;
+	protected final TypeReifier tr;
 
 	public IValue parse(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
 		return parse(start, values.mapWriter().done(), input, ctx);
@@ -3416,18 +3417,60 @@ public class Prelude {
 		}
 	}
 	
+	private class RascalValuesValueFactory extends AbstractValueFactoryAdapter {
+		public RascalValuesValueFactory() {
+			super(values);
+		}
+		
+		@Override
+		public INode node(String name, IValue... children) {
+			IConstructor res = specializeType(name, children);
+			
+			return res != null ? res: values.node(name, children);
+		}
+
+		private IConstructor specializeType(String name, IValue... children) {
+			if ("type".equals(name) 
+					&& children.length == 2
+					&& children[0].getType().isSubtypeOf(Factory.Type_Reified.getFieldType(0))
+					&& children[1].getType().isSubtypeOf(Factory.Type_Reified.getFieldType(1))) {
+				java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
+				bindings.put(Factory.TypeParam, tr.symbolToType((IConstructor) children[0], (IMap) children[1]));
+				
+				return values.constructor(Factory.Type_Reified.instantiate(bindings), children[0], children[1]);
+			}
+			
+			return null;
+		}
+		
+		@Override
+		public INode node(String name, Map<String, IValue> annotations,
+				IValue... children) throws FactTypeUseException {
+			IConstructor res = specializeType(name, children);
+			
+			return res != null ? res: values.node(name, annotations, children);
+		}
+		
+		@Override
+		public INode node(String name, IValue[] children,
+				Map<String, IValue> keyArgValues) throws FactTypeUseException {
+			IConstructor res = specializeType(name, children);
+			
+			return res != null ? res: values.node(name, children, keyArgValues);
+		}
+		
+	}
+	
 	public IValue readTextValueFile(IValue type, ISourceLocation loc, IEvaluatorContext ctx){
 	  loc = ctx.getHeap().resolveSourceLocation(loc);
 	  
-		//TypeStore store = ctx.getCurrentEnvt().getStore();
 	  	TypeStore store = new TypeStore();
-		tr = new TypeReifier(values);
 		Type start = tr.valueToType((IConstructor) type, store);
 		
 		InputStream in = null;
 		try{
 			in = new BufferedInputStream(ctx.getResolverRegistry().getInputStream(loc.getURI()));
-			return new StandardTextReader().read(values, store, start, new InputStreamReader(in, "UTF8"));
+			return new StandardTextReader().read(new RascalValuesValueFactory(), store, start, new InputStreamReader(in, "UTF8"));
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}finally{
@@ -3444,10 +3487,10 @@ public class Prelude {
 	public IValue readTextValueString(IValue type, IString input, IEvaluatorContext ctx) {
 //		TypeStore store = ctx.getCurrentEnvt().getStore();
 		TypeStore store = new TypeStore();
-//		ModuleEnvironment pt = ctx.getHeap().getModule("ParseTree");
-//		if(pt != null){
-//			store.importStore(pt.getStore());
-//		}
+		ModuleEnvironment pt = ctx.getHeap().getModule("ParseTree");
+		if(pt != null){
+			store.importStore(pt.getStore());
+		}
 		Type start = tr.valueToType((IConstructor) type, store);
 		
 		StringReader in = new StringReader(input.getValue());
