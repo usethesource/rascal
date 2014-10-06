@@ -709,13 +709,9 @@ public class Environment {
 		return getRoot().concreteSyntaxType(name, symbol);
 	}
 
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Type keywordParams, List<KeywordFormal> initializers) {
-		return getRoot().constructorFromTuple(ast, eval, adt, name, tupleType, keywordParams, initializers);
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordFormal> initializers) {
+		return getRoot().constructorFromTuple(ast, eval, adt, name, tupleType, initializers);
 	}
-
-//	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Map<String,Type> keywordParams, Map<String,IValue> defaultParams, Object... childrenAndLabels ) {
-//		return getRoot().constructor(ast, eval, nodeType, name, keywordParams, defaultParams, childrenAndLabels);
-//	}
 
 	public Type aliasType(String name, Type aliased, Type...parameters) {
 		return getRoot().aliasType(name, aliased, parameters);

@@ -150,7 +150,7 @@ public class TypeDeclarationEvaluator {
 				Type children = tf.tupleType(fields, labels);
 				
 				try {
-					ConstructorFunction cons = env.constructorFromTuple(var, eval, adt, altName, children, kwType, kws);
+					ConstructorFunction cons = env.constructorFromTuple(var, eval, adt, altName, children, kws);
 					cons.setPublic(true); // TODO: implement declared visibility
 				} catch (org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException e) {
 					throw new RedeclaredType(altName, var);

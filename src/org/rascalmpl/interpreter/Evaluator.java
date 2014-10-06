@@ -572,7 +572,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       if (main.getArity() == 1) {
         return func.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parsePlainCommandLineArgs(commandline)}, null).getValue();
       }
-      else if (main.hasKeywordArgs() && main.getArity() == 0) {
+      else if (main.hasKeywordArguments() && main.getArity() == 0) {
         Map<String, IValue> args = parseKeywordCommandLineArgs(monitor, commandline, main);
         return func.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
       }

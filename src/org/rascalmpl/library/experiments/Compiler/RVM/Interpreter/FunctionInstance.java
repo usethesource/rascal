@@ -127,7 +127,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	}
 
 	@Override
-	public boolean hasKeywordArgs() {
+	public boolean hasKeywordArguments() {
 		return true;
 	}
 
