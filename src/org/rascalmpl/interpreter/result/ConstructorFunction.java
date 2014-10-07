@@ -43,6 +43,10 @@ public class ConstructorFunction extends NamedFunction {
 		this.initializers = initializers;
 	}
 
+	public List<KeywordFormal> getInitializers() {
+		return initializers;
+	}
+	
 	@Override
 	public ConstructorFunction cloneInto(Environment env) {
 		ConstructorFunction c = new ConstructorFunction(getAst(), getEval(), env, constructorType, functionType.getKeywordParameterTypes(), initializers);

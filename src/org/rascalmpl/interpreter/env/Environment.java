@@ -548,19 +548,22 @@ public class Environment {
 			functionEnvironment.put(name, list);
 		}
 
-		if (!list.contains(function)) {
-			list.add(function);
-			functionEnvironment.put(name, list);
-		
-			if (function.hasResourceScheme()) {
-				if (getRoot() instanceof ModuleEnvironment) {
-					((ModuleEnvironment)getRoot()).addResourceImporter(function);
-				}
-			}
+		if (list.contains(function)) {
+			list.remove(function);
+		}
 
-			if (function.hasResolverScheme()) {
-				getRoot().getHeap().registerSourceResolver(function.getResolverScheme(), function);
+		list.add(function);
+
+		functionEnvironment.put(name, list);
+
+		if (function.hasResourceScheme()) {
+			if (getRoot() instanceof ModuleEnvironment) {
+				((ModuleEnvironment)getRoot()).addResourceImporter(function);
 			}
+		}
+
+		if (function.hasResolverScheme()) {
+			getRoot().getHeap().registerSourceResolver(function.getResolverScheme(), function);
 		}
 	}
 

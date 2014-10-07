@@ -17,6 +17,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.env;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,6 +56,8 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
+
+import com.google.common.collect.Iterators;
 
 /**
  * A module environment represents a module object (i.e. a running module).
@@ -583,7 +586,34 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Type keywordParams, List<KeywordFormal> initializers) {
 		Type cons = TF.constructorFromTuple(typeStore, adt, name, tupleType);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keywordParams, initializers);
+		ConstructorFunction function = getConstructorFunction(cons);
+		
+		if (function != null) { // need to fuse keyword parameters
+			ArrayList<Type> newTypes = new ArrayList<>();
+			ArrayList<String> newLabels = new ArrayList<>();
+			ArrayList<KeywordFormal> newInits = new ArrayList<>();
+			Type oldTypes = function.getKeywordArgumentTypes();
+			
+			for (int i = 0; i < oldTypes.getArity(); i++) {
+				newTypes.add(oldTypes.getFieldType(i));
+				newLabels.add(oldTypes.getFieldName(i));
+				newInits.add(function.getInitializers().get(i));
+			}
+			
+			for (int i = 0; i < keywordParams.getArity(); i++) {
+				if (!newLabels.contains(keywordParams.getFieldName(i))) {
+					newTypes.add(keywordParams.getFieldType(i));
+					newLabels.add(keywordParams.getFieldName(i));
+					newInits.add(initializers.get(i));
+				}
+			}
+			
+			function = new ConstructorFunction(ast, eval, this, cons, TypeFactory.getInstance().tupleType(newTypes.toArray(new Type[] { }), newLabels.toArray(new String[] { })), newInits);
+		}
+		else {
+			function = new ConstructorFunction(ast, eval, this, cons, keywordParams, initializers);
+		}
+		
 		storeFunction(name, function);
 		storeKeywordParameters(cons, keywordParams);
 		markNameFinal(name);
