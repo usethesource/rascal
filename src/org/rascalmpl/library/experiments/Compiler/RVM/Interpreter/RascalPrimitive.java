@@ -4683,7 +4683,7 @@ public enum RascalPrimitive {
 			boolean ignore =  ((IBool) stack[sp - 4]).getValue();
 			String expected =  ((IString) stack[sp - 3]).getValue();
 			ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
-			stdout.println("testreport_add: " + fun);
+			//stdout.println("testreport_add: " + fun);
 			//Type argType = (Type) stack[sp - 1];
 
 			if(ignore){

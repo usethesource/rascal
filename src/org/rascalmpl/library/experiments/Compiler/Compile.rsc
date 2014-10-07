@@ -35,7 +35,7 @@ RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false, loc
   	       rvmProgram = readTextValueFile(#RVMProgram, rvmProgramLoc);
   	       
   	       // Temporary work around related to issue #343
-  	       rvmProgram = visit(rvmProgram) { case type[value] t => type(t.symbol,t.definitions) }
+  	       rvmProgram = visit(rvmProgram) { case type[value] t: { insert type(t.symbol,t.definitions); }}
   	       
   	       println("rascal2rvm: Using compiled version <rvmProgramLoc>");
   	       return rvmProgram;
