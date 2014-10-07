@@ -132,15 +132,7 @@ public class Prelude {
 		this.tr = new TypeReifier(values);
 		random = new Random();
 	}
-/*	// Only here for test purposes: 
-	public IValue f1(IInteger x, IInteger y){
-		return values.integer(x.intValue() + y.intValue());
-	}
-	
-	public IValue f2(IInteger x, IList LS, IString y, IBool z){
-		return values.string("x : " + x.intValue() + ", LS = " + LS + ", y ; " + y + ", z : " + z);
-	}
-*/	
+
 	/*
 	 * Boolean
 	 */
@@ -998,11 +990,13 @@ public class Prelude {
 		return w.done();
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IValue exists(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		return values.bool(ctx.getResolverRegistry().exists(sloc.getURI()));
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IValue lastModified(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
@@ -1016,16 +1010,19 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IValue isDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		return values.bool(ctx.getResolverRegistry().isDirectory(sloc.getURI()));
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IValue isFile(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		return values.bool(ctx.getResolverRegistry().isFile(sloc.getURI()));
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public void remove(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  try {
       sloc = ctx.getHeap().resolveSourceLocation(sloc);
@@ -1036,6 +1033,7 @@ public class Prelude {
     }
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public void mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  try {
 	    sloc = ctx.getHeap().resolveSourceLocation(sloc);
@@ -1046,6 +1044,7 @@ public class Prelude {
 	  }
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IValue listEntries(ISourceLocation sloc, IEvaluatorContext ctx) {
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
@@ -1071,6 +1070,7 @@ public class Prelude {
 		return w.done();
 	} 
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  Reader reader = null;
@@ -1100,6 +1100,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
@@ -1112,6 +1113,7 @@ public class Prelude {
 		}
 	}
 
+	// REFLECT -- copy in PreludeCompiled
 	private IValue consumeInputStream(ISourceLocation sloc, Reader in, IEvaluatorContext ctx) {
 		try{
 			java.lang.String str = null;
@@ -1189,6 +1191,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IValue md5HashFile(ISourceLocation sloc, IEvaluatorContext ctx){
 		StringBuilder result = new StringBuilder(1024 * 1024);
 		
@@ -1222,14 +1225,17 @@ public class Prelude {
 		}
 	}
 
+	// REFLECT -- copy in PreludeCompiled
 	public void writeFile(ISourceLocation sloc, IList V, IEvaluatorContext ctx) {
 		writeFile(sloc, V, false, ctx);
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public void writeFileEnc(ISourceLocation sloc, IString charset, IList V, IEvaluatorContext ctx) {
 		writeFileEnc(sloc, charset, V, false, ctx);
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	private void writeFile(ISourceLocation sloc, IList V, boolean append, IEvaluatorContext ctx){
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
@@ -1271,6 +1277,7 @@ public class Prelude {
 		return values.bool(Charset.forName(charset.getValue()).canEncode());
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	private void writeFileEnc(ISourceLocation sloc, IString charset, IList V, boolean append, IEvaluatorContext ctx){
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
@@ -1309,6 +1316,8 @@ public class Prelude {
 		return;
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
+	
 	public void writeFileBytes(ISourceLocation sloc, IList blist, IEvaluatorContext ctx){
 		sloc = ctx.getHeap().resolveSourceLocation(sloc);
 		BufferedOutputStream out=null;
@@ -1338,12 +1347,17 @@ public class Prelude {
 		return;
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public void appendToFile(ISourceLocation sloc, IList V, IEvaluatorContext ctx){
 		writeFile(sloc, V, true, ctx);
 	}
+	
+	// REFLECT -- copy in PreludeCompiled
 	public void appendToFileEnc(ISourceLocation sloc, IString charset, IList V, IEvaluatorContext ctx){
 		writeFileEnc(sloc, charset, V, true, ctx);
 	}
+	
+	// REFLECT -- copy in PreludeCompiled
 	
 	public IList readFileLines(ISourceLocation sloc, IEvaluatorContext ctx){
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
@@ -1373,6 +1387,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IList readFileLinesEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 	  sloc = ctx.getHeap().resolveSourceLocation(sloc);
 	  
@@ -1387,6 +1402,7 @@ public class Prelude {
 		}
 	}
 
+	// REFLECT -- copy in PreludeCompiled
 	private IList consumeInputStreamLines(ISourceLocation sloc,	Reader stream, IEvaluatorContext ctx ) {
 		IListWriter w = values.listWriter();
 		
@@ -1444,6 +1460,7 @@ public class Prelude {
 		return w.done();
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IList readFileBytes(ISourceLocation sloc, IEvaluatorContext ctx){
 		IListWriter w = values.listWriter();
 		sloc = ctx.getHeap().resolveSourceLocation(sloc);
@@ -2201,10 +2218,12 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
+	// REFLECT -- copy in PreludeCompiled
 	public IValue parse(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
 		return parse(start, values.mapWriter().done(), input, ctx);
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IValue parse(IValue start, IMap robust, ISourceLocation input, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
@@ -2300,6 +2319,7 @@ public class Prelude {
 		return values.string(TreeAdapter.yield(tree));
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	protected IConstructor makeConstructor(Type returnType, String name, IEvaluatorContext ctx,  IValue ...args) {
 		IValue value = ctx.getEvaluator().call(returnType.getName(), name, args);
 		Type type = value.getType();
@@ -2340,6 +2360,7 @@ public class Prelude {
 //		return null;
 //	}
 
+	// REFLECT -- copy in PreludeCompiled
 	public IValue implode(IValue reifiedType, IConstructor tree, IEvaluatorContext ctx) {
 		TypeStore store = new TypeStore();
 		Type type = tr.valueToType((IConstructor) reifiedType, store);
@@ -3376,12 +3397,14 @@ public class Prelude {
 	 * ValueIO
 	 */
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IInteger getFileLength(ISourceLocation g, IEvaluatorContext ctx) throws IOException {
 		File f = new File(ctx.getResolverRegistry().getResourceURI(g.getURI()));
 		if (!f.exists() || f.isDirectory()) throw new IOException();
 		return values.integer(f.length());
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc, IEvaluatorContext ctx){
 		
 //		TypeStore store = ctx.getCurrentEnvt().getStore();
@@ -3417,7 +3440,7 @@ public class Prelude {
 		}
 	}
 	
-	private class RascalValuesValueFactory extends AbstractValueFactoryAdapter {
+	class RascalValuesValueFactory extends AbstractValueFactoryAdapter {
 		public RascalValuesValueFactory() {
 			super(values);
 		}
@@ -3461,6 +3484,7 @@ public class Prelude {
 		
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IValue readTextValueFile(IValue type, ISourceLocation loc, IEvaluatorContext ctx){
 	  loc = ctx.getHeap().resolveSourceLocation(loc);
 	  
@@ -3484,6 +3508,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public IValue readTextValueString(IValue type, IString input, IEvaluatorContext ctx) {
 //		TypeStore store = ctx.getCurrentEnvt().getStore();
 		TypeStore store = new TypeStore();
@@ -3503,6 +3528,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression, IEvaluatorContext ctx){
 	  loc = ctx.getHeap().resolveSourceLocation(loc);
 	  
@@ -3523,6 +3549,7 @@ public class Prelude {
 		}
 	}
 	
+	// REFLECT -- copy in PreludeCompiled
 	public void writeTextValueFile(ISourceLocation loc, IValue value, IEvaluatorContext ctx){
 	  loc = ctx.getHeap().resolveSourceLocation(loc);
 	  
@@ -3554,6 +3581,7 @@ public class Prelude {
 			return values.bool(false);
 	}
 
+	// TODO: is this relevant in the compiler?
 	public IList getTraversalContext(IEvaluatorContext ctx) {
 		return ctx.getEvaluator().__getCurrentTraversalEvaluator().getContext();
 	}

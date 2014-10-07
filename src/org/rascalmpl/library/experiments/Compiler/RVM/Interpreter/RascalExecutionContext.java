@@ -58,15 +58,15 @@ public class RascalExecutionContext {
 
 	IValueFactory getValueFactory(){ return vf; }
 	
-	IMap getSymbolDefinitions() { return symbol_definitions; }
+	public IMap getSymbolDefinitions() { return symbol_definitions; }
 	
-	TypeStore getTypeStore() { return typeStore; }
+	public TypeStore getTypeStore() { return typeStore; }
 	
 	boolean getDebug() { return debug; }
 	
 	boolean getProfile(){ return profile; }
 	
-	URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
+	public URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
 	
 	IRascalMonitor getMonitor() {return monitor;}
 	

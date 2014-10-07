@@ -64,6 +64,8 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
       try {
   	       imported_functions = readTextValueFile(#list[Declaration], MuLibraryCompiled);
+  	       // Temporary work around related to issue #343
+  	       imported_functions = visit(imported_functions) { case type[value] t : { insert type(t.symbol,t.definitions); }}
   	       println("rascal2rvm: Using compiled library version <basename(MuLibraryCompiled)>.rvm");
   	  } catch: {
   	       imported_functions = parseMuLibrary();
@@ -94,7 +96,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
   	           importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
   	           
   	           // Temporary work around related to issue #343
-  	           importedRvmProgram = visit(importedRvmProgram) { case type[value] t => type(t.symbol,t.definitions) }
+  	           importedRvmProgram = visit(importedRvmProgram) { case type[value] t : { insert type(t.symbol,t.definitions); }}
   	           
   	           processImports(importedRvmProgram);
   	          

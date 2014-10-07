@@ -198,7 +198,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  	  > 
    	  	| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions 
    	  	]; 
-   	  symbol_definitions = (); //getDefinitions(config);   
+   	  symbol_definitions = getDefinitions(config);   
    	  return muModule(modName, imported_modules, types, symbol_definitions, functions_in_module, variables_in_module, variable_initializations, getModuleVarInitLocals(modName), overloadingResolver, overloaded_functions, getGrammar(config));
    	}
    } catch Java("ParseError","Parse error"): {

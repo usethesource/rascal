@@ -1260,7 +1260,6 @@ public class RVM {
 					
 				case Opcode.OP_TYPEOF:
 					if(stack[sp - 1] instanceof HashSet<?>){	// For the benefit of set matching
-						@SuppressWarnings("unchecked")
 						HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
 						if(mset.isEmpty()){
 							stack[sp - 1] = tf.setType(tf.voidType());
@@ -1281,11 +1280,11 @@ public class RVM {
 				case Opcode.OP_CHECKARGTYPE:
 					Type argType =  ((IValue) stack[sp - 2]).getType();
 					Type paramType = ((Type) stack[sp - 1]);
-					System.err.println("CHECKARGTYPE in " + cf.function.name + ": paramType=" + paramType + ", argType=" + argType + " => " + argType.isSubtypeOf(paramType));
-					if(!argType.isSubtypeOf(paramType)){
-						System.err.println("CHECKARGTYPE fails in " + cf.function.name + ": paramType=" + paramType + ", argType=" + argType);
-						boolean b = argType.isSubtypeOf(paramType);
-					}
+//					System.err.println("CHECKARGTYPE in " + cf.function.name + ": paramType=" + paramType + ", argType=" + argType + " => " + argType.isSubtypeOf(paramType));
+//					if(!argType.isSubtypeOf(paramType)){
+//						System.err.println("CHECKARGTYPE fails in " + cf.function.name + ": paramType=" + paramType + ", argType=" + argType);
+//						boolean b = argType.isSubtypeOf(paramType);
+//					}
 					stack[sp - 2] = vf.bool(argType.isSubtypeOf(paramType));
 					sp--;
 					continue NEXT_INSTRUCTION;
@@ -1512,7 +1511,7 @@ public class RVM {
 			}
 			
 			if(reflect == 1) {
-				parameters[arity + kwArity] = converted.contains(methodName) ? this.rex : this.getEvaluatorContext();
+				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : this.getEvaluatorContext();
 			}
 			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
 			return sp - arity - kwMaps + 1;
@@ -1542,7 +1541,34 @@ public class RVM {
 		return sp;
 	}
 	
-	HashSet<String> converted = new HashSet<String>(Arrays.asList("a", "b"));
+	HashSet<String> converted = new HashSet<String>(Arrays.asList(
+			"org.rascalmpl.library.lang.json.IOCompiled.fromJSON",
+			"org.rascalmpl.library.PreludeCompiled.exists",
+			"org.rascalmpl.library.PreludeCompiled.lastModified",
+			"org.rascalmpl.library.PreludeCompiled.isDirectory",
+			"org.rascalmpl.library.PreludeCompiled.isFile",
+			"org.rascalmpl.library.PreludeCompiled.remove",
+			"org.rascalmpl.library.PreludeCompiled.mkDirectory",
+			"org.rascalmpl.library.PreludeCompiled.listEntries",
+			"org.rascalmpl.library.PreludeCompiled.readFile",
+			"org.rascalmpl.library.PreludeCompiled.readFileEnc",
+			"org.rascalmpl.library.PreludeCompiled.md5HashFile",
+			"org.rascalmpl.library.PreludeCompiled.writeFile",
+			"org.rascalmpl.library.PreludeCompiled.writeFileEnc",
+			"org.rascalmpl.library.PreludeCompiled.writeBytes",
+			"org.rascalmpl.library.PreludeCompiled.appendToFile",
+			"org.rascalmpl.library.PreludeCompiled.appendToFileEnc",
+			"org.rascalmpl.library.PreludeCompiled.readFileLines",
+			"org.rascalmpl.library.PreludeCompiled.readFileLinesEnc",
+			"org.rascalmpl.library.PreludeCompiled.readFileBytes",
+			"org.rascalmpl.library.PreludeCompiled.getFileLength",
+			"org.rascalmpl.library.PreludeCompiled.readBinaryValueFile",
+			"org.rascalmpl.library.PreludeCompiled.readTextValueFile",
+			"org.rascalmpl.library.PreludeCompiled.readTextValueString",
+			"org.rascalmpl.library.PreludeCompiled.writeBinaryValueFile",
+			"org.rascalmpl.library.PreludeCompiled.writeTextValueFile"
+			
+	));
 			
 	Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
 		JavaClasses javaClasses = new JavaClasses();
@@ -1562,7 +1588,7 @@ public class RVM {
 		}
 		
 		if(reflect == 1) {
-			jtypes[arity + kwArity] = converted.contains(methodName) 
+			jtypes[arity + kwArity] = converted.contains(className + "." + methodName) 
 									  ? RascalExecutionContext.class 
 									  : IEvaluatorContext.class;
 		}
