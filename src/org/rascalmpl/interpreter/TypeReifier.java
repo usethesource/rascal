@@ -145,10 +145,19 @@ public class TypeReifier {
 	private Type declareConstructor(Type adt, IConstructor alt, TypeStore store) {
 		IConstructor defined = (IConstructor) alt.get("def");
 		String name = ((IString) defined.get("name")).getValue();
+		Type cons = tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
+	
 		Type kwTypes = symbolsToTupleType((IList) alt.get("kwTypes"), store);
-		if (kwTypes.getArity() == 0) kwTypes = tf.voidType();
 		
-		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store), kwTypes);
+		if (kwTypes.getArity() == 0) {
+			kwTypes = tf.voidType();
+		}
+		
+		for (int i = 0; i < kwTypes.getArity(); i++) {
+			store.declareKeywordParameter(cons, kwTypes.getFieldName(i), kwTypes.getFieldType(i));
+		}
+		
+		return cons;
 	}
 
 	private Type symbolToType(IConstructor symbol, TypeStore store) {
@@ -508,13 +517,13 @@ public class TypeReifier {
 				}
 				
 				IListWriter kwTypes = vf.listWriter();
-				IMapWriter kwDefaults = vf.mapWriter();
+				Map<String, Type> keywordParameters = store.getKeywordParameters(type);
 				
-				for (String key : type.getKeywordParameters()) {
-					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(key), type.getKeywordParameterType(key).accept(this)));
+				for (String key : keywordParameters.keySet()) {
+					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(key), keywordParameters.get(key).accept(this)));
 				}
 				
-				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), kwDefaults.done(), vf.set()));
+				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), vf.set()));
 				choice = vf.constructor(Factory.Production_Choice, adt, alts.done());
 				definitions.put(adt, choice);
 			}

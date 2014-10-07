@@ -33,6 +33,7 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -46,6 +47,7 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -578,31 +580,23 @@ public class ModuleEnvironment extends Environment {
 		return sort;
 	}
 	
-	private Type makeTupleType(Type adt, String name, Type tupleType, Type keywordParams) {
-	  return TF.constructorFromTuple(typeStore, adt, name, tupleType, keywordParams);
-	}
-	
 	@Override
 	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Type keywordParams, List<KeywordFormal> initializers) {
-		Type cons = makeTupleType(adt, name, tupleType, keywordParams);
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, initializers);
+		Type cons = TF.constructorFromTuple(typeStore, adt, name, tupleType);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, keywordParams, initializers);
 		storeFunction(name, function);
+		storeKeywordParameters(cons, keywordParams);
 		markNameFinal(name);
 		markNameOverloadable(name);
 		return function;
 	}
 	
-//	@Override
-//	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name,
-//			Map<String, Type> kwArgs, Map<String, IValue> kwDefaults, Object... childrenAndLabels) {
-//		Type cons = TF.constructor(typeStore, nodeType, name, childrenAndLabels, kwArgs, kwDefaults);
-//		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
-//		storeFunction(name, function);
-//		markNameFinal(name);
-//		markNameOverloadable(name);
-//		return function;
-//	}
-	
+	private void storeKeywordParameters(Type cons, Type keywordParams) {
+		for (int i = 0; i < keywordParams.getArity(); i++) {
+			getStore().declareKeywordParameter(cons, keywordParams.getFieldName(i), keywordParams.getFieldType(i));
+		}
+	}
+
 	@Override
 	public Type aliasType(String name, Type aliased, Type... parameters) {
 		return TF.aliasType(typeStore, name, aliased, parameters);
@@ -649,6 +643,26 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public Type getConstructor(Type sort, String cons, Type args) {
 		return typeStore.lookupConstructor(sort, cons, args);
+	}
+	
+	public IValue getConstructorKeywordParameter(IConstructor cons, String label) {
+		assert cons.mayHaveKeywordParameters();
+		
+		IWithKeywordParameters<IConstructor> withKws = cons.asWithKeywordParameters();
+		IValue parameter = withKws.getParameter(label);
+    	
+    	if (parameter == null) { // not set, so we need to compute defaults
+    		ConstructorFunction func = getConstructorFunction(cons.getConstructorType());
+			Map<String, IValue> newArgs = func.computeKeywordArgs(cons.iterator(), withKws.getParameters());
+    		return newArgs.get(label);
+    	}
+    	else {
+    		return parameter;
+    	}
+	}
+
+	public Type getConstructorKeywordParameterType(IConstructor cons, String label) {
+		return getStore().getAnnotationType(cons.getConstructorType(), label);
 	}
 	
 	@Override

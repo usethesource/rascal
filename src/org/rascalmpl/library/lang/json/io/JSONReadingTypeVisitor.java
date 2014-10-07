@@ -20,7 +20,6 @@ import java.util.Stack;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
@@ -358,14 +357,15 @@ public class JSONReadingTypeVisitor implements
 		}
 
 		Map<String, IValue> kwargs = null;
-		if (ctor.hasKeywordParameters() && l.size() > 3) {
+		
+		Map<String, Type> kwParams = ts.getKeywordParameters(ctor);
+		if (!kwParams.isEmpty() && l.size() > 3) {
 			kwargs = new HashMap<>();
 			Map kw = (Map)l.get(3);
 			for (Object k: kw.keySet()) {
 				String label = (String)k;
-				Type kwType = ctor.getKeywordParameterType(label);
 				stack.push(kw.get(label));
-				kwargs.put(label, read(kwType));
+				kwargs.put(label, read(kwParams.get(label)));
 				stack.pop();
 			}
 		}
@@ -448,7 +448,7 @@ public class JSONReadingTypeVisitor implements
 			args[i] = read(type.getFieldType(i));
 			stack.pop();
 		}
-		return vf.tuple(type, args);
+		return vf.tuple(args);
 	}
 
 	@Override

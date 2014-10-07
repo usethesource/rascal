@@ -98,8 +98,8 @@ Description:
 Productions represent abstract (recursive) definitions of abstract data type constructors and functions.
 }  
 data Production
-     = \cons(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, map[str, value(map[str,value])] kwDefaults, set[Attr] attributes)
-     | \func(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, map[str, value(map[str,value])] kwDefaults, set[Attr] attributes)
+     = \cons(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, set[Attr] attributes)
+     | \func(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, set[Attr] attributes)
      | \choice(Symbol def, set[Production] alternatives)
      ;
 

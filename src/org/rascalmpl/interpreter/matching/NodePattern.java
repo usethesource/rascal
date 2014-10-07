@@ -148,18 +148,19 @@ public class NodePattern extends AbstractMatchingResult {
 			}
 		}
 
-		if (type.hasKeywordParameters()) {
+		Map<String, Type> kwParams = ctx.getCurrentEnvt().getStore().getKeywordParameters(type);
+		if (!kwParams.isEmpty()) {
 			// this fills in the defaults for pattern matching against them:
 			ConstructorFunction func = ctx.getCurrentEnvt().getConstructorFunction(type);
 			Map<String, IValue> kwArgs = func.computeKeywordArgs(subjectChildren, subject.getValue().asWithKeywordParameters().getParameters());
 
 			
-			for (String kwLabel : type.getKeywordParameterTypes().getFieldNames()) {
+			for (String kwLabel : kwParams.keySet()) {
 				IValue subjectParam = kwArgs.get(kwLabel);
 				
 				if (keywordParameters.containsKey(kwLabel)) {
 					IMatchingResult matcher = keywordParameters.get(kwLabel);
-					matcher.initMatch(ResultFactory.makeResult(type.getKeywordParameterType(kwLabel), subjectParam, ctx));
+					matcher.initMatch(ResultFactory.makeResult(kwParams.get(kwLabel), subjectParam, ctx));
 					
 					if (!matcher.hasNext()) {
 						// the matcher can never work, so we can skip initializing the rest

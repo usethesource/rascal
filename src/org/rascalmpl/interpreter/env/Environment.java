@@ -31,6 +31,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
@@ -307,7 +308,7 @@ public class Environment {
 	}
 	
 	public ConstructorFunction getConstructorFunction(Type constructorType) {
-		Type functionType = RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), constructorType.getKeywordParameterTypes());
+		Type functionType = RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), TypeFactory.getInstance().voidType());
 		List<AbstractFunction> list = new LinkedList<>();
 		getAllFunctions(constructorType.getAbstractDataType(), constructorType.getName(), list);
 		
@@ -316,7 +317,7 @@ public class Environment {
 				ConstructorFunction func = (ConstructorFunction) candidate;
 				
 				if (func.getName().equals(constructorType.getName()) 
-						&& func.getFunctionType() == functionType) {
+						&& func.getFunctionType().isSubtypeOf(functionType)) {
 					return func;
 				}
 			}
@@ -649,6 +650,14 @@ public class Environment {
 
 	public Type getConstructor(String cons, Type args) {
 		return getRoot().getConstructor(cons, args);
+	}
+	
+	public IValue getConstructorKeywordParameter(IConstructor cons, String label) {
+		return getRoot().getConstructorKeywordParameter(cons, label);
+	}
+	
+	public Type getConstructorKeywordParameterType(IConstructor cons, String label) {
+		return getRoot().getConstructorKeywordParameterType(cons, label);
 	}
 
 	public Type getAbstractDataType(String sort) {

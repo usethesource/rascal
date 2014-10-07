@@ -37,22 +37,22 @@ public class ConstructorFunction extends NamedFunction {
 	private final Type constructorType;
 	private final List<KeywordFormal> initializers;
 
-	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType, List<KeywordFormal> initializers) {
-		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), constructorType.getKeywordParameterTypes()), initializers, constructorType.getName(), false, true, false, env);
+	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType, Type kwParams, List<KeywordFormal> initializers) {
+		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), kwParams), initializers, constructorType.getName(), false, true, false, env);
 		this.constructorType = constructorType;
 		this.initializers = initializers;
 	}
 
 	@Override
 	public ConstructorFunction cloneInto(Environment env) {
-		ConstructorFunction c = new ConstructorFunction(getAst(), getEval(), env, constructorType, initializers);
+		ConstructorFunction c = new ConstructorFunction(getAst(), getEval(), env, constructorType, functionType.getKeywordParameterTypes(), initializers);
 		c.setPublic(isPublic());
 		return c;
 	}
 	
 	@Override
 	public Type getKeywordArgumentTypes() {
-	  return constructorType.getKeywordParameterTypes();
+	  return functionType.getKeywordParameterTypes();
 	}
 	
 	@Override

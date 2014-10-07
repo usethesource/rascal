@@ -93,17 +93,14 @@ public class FunctionType extends RascalType {
 		return keywordParameters;
 	}
 	
-	@Override
 	public Type getKeywordParameterType(String label) {
 	  return keywordParameters.getFieldType(label);
 	}
 	
-	@Override
 	public boolean hasKeywordParameter(String label) {
 	  return keywordParameters.hasField(label);
 	}
 	
-	@Override
 	public boolean hasKeywordParameters() {
 	  return keywordParameters != null && !keywordParameters.isBottom();
 	}

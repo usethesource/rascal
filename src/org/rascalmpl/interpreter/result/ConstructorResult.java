@@ -16,12 +16,12 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -65,17 +65,21 @@ public class ConstructorResult extends NodeResult {
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		try {
-			if (!getType().hasField(name, store) && !getType().hasKeywordParameter(name, store)) {
+			Type nodeType = getValue().getConstructorType();
+			Type kwType = store.getKeywordParameterType(nodeType, name);
+			
+			if (!getType().hasField(name, store) && kwType == null) {
 				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
-
-			Type nodeType = getValue().getConstructorType();
-			if (!nodeType.hasField(name) && !nodeType.hasKeywordParameter(name)) {
+			
+			if (!nodeType.hasField(name) && kwType == null) {
 				throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
 			}
 
-			if (nodeType.hasKeywordParameter(name)) {
-				return makeResult(nodeType.getKeywordParameterType(name), getValue().asWithKeywordParameters().getParameter(name), ctx);
+			if (kwType != null) {
+				IValue parameter = ctx.getCurrentEnvt().getConstructorKeywordParameter(getValue(), name);
+				assert parameter != null;
+				return makeResult(kwType, parameter, ctx);
 			}
 			else {
 				int index = nodeType.getFieldIndex(name);
@@ -88,19 +92,20 @@ public class ConstructorResult extends NodeResult {
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
-		if (!getType().hasField(name, store) && !getValue().getConstructorType().hasKeywordParameter(name)) {
+		Type kwType = store.getKeywordParameterType(getValue().getConstructorType(), name);
+		
+		if (!getType().hasField(name, store) && kwType == null) {
 			throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 		}
 		
 		Type nodeType = getValue().getConstructorType();
-		if (!nodeType.hasField(name) && !nodeType.hasKeywordParameter(name)) {
+		if (!nodeType.hasField(name) && kwType == null) {
 			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
 		}				
 		
-		if (nodeType.hasKeywordParameter(name)) {
-			Type fieldType = nodeType.getKeywordParameterType(name);
-			if (!repl.getType().isSubtypeOf(fieldType)) {
-				throw new UnexpectedType(fieldType, repl.getType(), ctx.getCurrentAST());
+		if (kwType != null) {
+			if (!repl.getType().isSubtypeOf(kwType)) {
+				throw new UnexpectedType(kwType, repl.getType(), ctx.getCurrentAST());
 			}
 			
 			return makeResult(getType(), getValue().asWithKeywordParameters().setParameter(name, repl.getValue()), ctx);

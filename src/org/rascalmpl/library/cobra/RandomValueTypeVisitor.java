@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -36,6 +37,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.ICallableValue;
@@ -163,7 +165,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		 * depth of the list of arguments plus 1.
 		 */
 
-		if (type.getArity() == 0 && !type.hasKeywordParameters()) { 
+		if (type.getArity() == 0 && !rootEnv.getStore().getKeywordParameters(type).isEmpty()) { 
 			return vf.constructor(type);
 		} else if (this.maxDepth <= 0) {
 			return null;
@@ -185,18 +187,23 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 			values.add(argument);
 		}
 		IValue[] params = values.toArray(new IValue[values.size()]);
-		if (stRandom.nextBoolean() && type.getKeywordParameterTypes().getArity() > 0) {
-			Map<String, IValue> kwParams = new HashMap<>();
-			for (String kw:  type.getKeywordParameters()) {
-				if (stRandom.nextBoolean()) continue;
-				Type fieldType = type.getKeywordParameterType(kw);
-				IValue argument = visitor.generate(fieldType);
+		Map<String, Type> kwTypes = rootEnv.getStore().getKeywordParameters(type);
+		if (stRandom.nextBoolean() && kwTypes.size() > 0) {
+			Map<String,IValue> kwArgs = AbstractSpecialisedImmutableMap.mapOf();
+			
+			for (Entry<String, Type> kw:  kwTypes.entrySet()) {
+				if (stRandom.nextBoolean()) {
+					continue;
+				}
+				
+				IValue argument = visitor.generate(kw.getValue());
 				if (argument == null) {
 					return null;
 				}
-				kwParams.put(kw, argument);
+				kwArgs.put(kw.getKey(), argument);
 			}
-			return vf.constructor(type, params, kwParams);
+			
+			return vf.constructor(type, params, kwArgs);
 		}
 		else {
 			return vf.constructor(type, params);

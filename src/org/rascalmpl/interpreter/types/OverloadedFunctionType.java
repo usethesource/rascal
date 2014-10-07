@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,25 +32,6 @@ public class OverloadedFunctionType extends RascalType {
 		this.returnType = alternatives.iterator().next().getReturnType();
 	}
 	
-	@Override
-	public Type getKeywordParameterTypes() {
-		// TODO: what does this union mean in case of overlapping names?
-		ArrayList<String> labels = new ArrayList<>();
-		ArrayList<Type> types  = new ArrayList<>();
-
-		for (FunctionType f : alternatives) {
-			for (String label : f.getKeywordParameterTypes().getFieldNames()) {
-				if (!labels.contains(label)) {
-					labels.add(label);
-					types.add(f.getKeywordParameterType(label));
-				}
-				// TODO: a clash, but we silently ignore it here?
-			}
-		}
-
-		return TF.tupleType(types.toArray(new Type[types.size()]), labels.toArray(new String[labels.size()]));
-	}
-
 	public int size() {
 		return alternatives.size();
 	}

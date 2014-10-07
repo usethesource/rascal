@@ -17,8 +17,10 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -557,8 +559,31 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	    // TODO: what if the caller provides more arguments then are declared? They are
 	    // silently lost here.
 	}
+
+	public Map<String, IValue> computeKeywordArgs(final IValue[] args, Map<String, IValue> keyArgValues) {
+		Iterator<IValue> it = new Iterator<IValue>() {
+			int cur = 0;
+
+			@Override
+			public boolean hasNext() {
+				return cur < args.length;
+			}
+
+			@Override
+			public IValue next() {
+				return args[cur++];
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
+		
+		return computeKeywordArgs(it, keyArgValues);
+	}
 	
-	public Map<String, IValue> computeKeywordArgs(IValue[] oldActuals, Map<String, IValue> keyArgValues) {
+	public Map<String, IValue> computeKeywordArgs(Iterator<IValue> args, Map<String, IValue> keyArgValues) {
 		Environment env = new Environment(declarationEnvironment, vf.sourceLocation(URIUtil.rootScheme("initializer")), "keyword parameter initializer");
 		Environment old = ctx.getCurrentEnvt();
 		Type formals = getFunctionType().getArgumentTypes();
@@ -567,10 +592,11 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			// we set up an environment to hold the positional parameter values
 			ctx.setCurrentEnvt(env);
 			for (int i = 0; i < formals.getArity(); i++) {
+				assert args.hasNext();
 				String fieldName = formals.getFieldName(i);
 				Type fieldType = formals.getFieldType(i);
 				env.declareVariable(fieldType, fieldName);
-				env.storeLocalVariable(fieldName, ResultFactory.makeResult(fieldType, (IValue) oldActuals[i], ctx));
+				env.storeLocalVariable(fieldName, ResultFactory.makeResult(fieldType, args.next(), ctx));
 			}
 		
 			// then we initialize the keyword parameters in this environment

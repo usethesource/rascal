@@ -10,12 +10,12 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
 public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternalValue {
-	
 	final int[] functions;
 	final int[] constructors;
 	final Frame env;
@@ -60,7 +60,7 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 		}
 		for(int constr : this.constructors) {
 			Type type = constructorStore.get(constr);
-			types.add((FunctionType) RascalTypeFactory.getInstance().functionType(type.getAbstractDataType(), type.getFieldTypes(), type.getKeywordParameterTypes()));
+			types.add((FunctionType) RascalTypeFactory.getInstance().functionType(type.getAbstractDataType(), type.getFieldTypes(), TypeFactory.getInstance().voidType()));
 		}
 		this.type = RascalTypeFactory.getInstance().overloadedFunctionType(types);
 		return this.type;
