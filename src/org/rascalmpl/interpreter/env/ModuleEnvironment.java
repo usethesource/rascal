@@ -57,7 +57,6 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
-import com.google.common.collect.Iterators;
 
 /**
  * A module environment represents a module object (i.e. a running module).
