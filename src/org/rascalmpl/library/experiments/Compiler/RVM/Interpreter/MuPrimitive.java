@@ -149,7 +149,6 @@ public enum MuPrimitive {
 		};
 	},
 	get_children_without_layout_or_separators {
-		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
@@ -181,15 +180,14 @@ public enum MuPrimitive {
 					non_lit_len++;
 				}
 			}
-			IValue[] elems = new IValue[non_lit_len + 1];
+			Object[] elems = new Object[non_lit_len + 1];
 			int j = 0;
 			for(int i = 0; i < len; i += step){
 				if(!$is_literal(args.get(i * step))){
 					elems[j++] = args.get(i * step);
 				}
 			}
-			TypeFactory tf = TypeFactory.getInstance();
-			elems[non_lit_len] =vf.map(tf.voidType(), tf.voidType());
+			elems[non_lit_len] = emptyKeywordMap;
 			stack[sp - 1] = elems;
 			return sp;
 		}
