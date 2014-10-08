@@ -250,7 +250,7 @@ public class ParsingTools {
 		initializeRecovery(robust, lookaheads, robustProds);
 		
 		//__setInterrupt(false);
-		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(rex.getEvaluatorContext());
+		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(rex.getEvaluatorContext());  // TODO: remove CTX
 		
 	      String className = name;
 	      Class<?> clazz;
@@ -385,11 +385,19 @@ public class ParsingTools {
 	  }
 	  
 	  private boolean getBootstrap() { return false; }
-	  
-	// Rascal library function
-	public IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
-		if(rex == null){
-			rex = new RascalExecutionContext(vf, null, false, false, ctx, null);
+	 
+	  // Rascal library function (interpreter version)
+	  public IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
+		  if(rex == null){
+			  rex = new RascalExecutionContext(vf, null, false, false, ctx, null);
+		  }
+		  return parseFragment(name, start, tree, loc.getURI(), grammar);
+	  }
+		
+	// Rascal library function (compiler version)
+	public IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex){ 
+		if(this.rex == null){
+			this.rex = rex;
 		}
 		return parseFragment(name, start, tree, loc.getURI(), grammar);
 	}
