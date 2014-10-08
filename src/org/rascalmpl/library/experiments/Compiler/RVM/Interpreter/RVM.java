@@ -1511,7 +1511,7 @@ public class RVM {
 			}
 			
 			if(reflect == 1) {
-				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : this.getEvaluatorContext();
+				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : this.getEvaluatorContext(); // TODO: remove CTX
 			}
 			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
 			return sp - arity - kwMaps + 1;
@@ -1566,7 +1566,8 @@ public class RVM {
 			"org.rascalmpl.library.PreludeCompiled.readTextValueFile",
 			"org.rascalmpl.library.PreludeCompiled.readTextValueString",
 			"org.rascalmpl.library.PreludeCompiled.writeBinaryValueFile",
-			"org.rascalmpl.library.PreludeCompiled.writeTextValueFile"
+			"org.rascalmpl.library.PreludeCompiled.writeTextValueFile",
+			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment"
 			
 	));
 			
@@ -1590,7 +1591,7 @@ public class RVM {
 		if(reflect == 1) {
 			jtypes[arity + kwArity] = converted.contains(className + "." + methodName) 
 									  ? RascalExecutionContext.class 
-									  : IEvaluatorContext.class;
+									  : IEvaluatorContext.class;				// TODO: remove CTX
 		}
 		return jtypes;
 	}
