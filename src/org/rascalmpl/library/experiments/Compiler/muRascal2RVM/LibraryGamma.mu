@@ -374,6 +374,7 @@ guard {
         j = 0, 
         pat
     ipats[j] = create(pats[j], subjects[j])
+    //println("MATCH_N", plen, slen);
     while((j >= 0) && (j < plen)) {
      	//println("MATCH_N", j, pats[j], subjects[j])
         pat = ipats[j]
@@ -393,17 +394,18 @@ guard {
 // Match a call pattern with a simple string as function symbol
 
 coroutine MATCH_SIMPLE_CALL_OR_TREE(iName, pats, iSubject) guard iSubject is node {
-    var args      
+    var args 
+    //println("MATCH_SIMPLE_CALL_OR_TREE, iName, pats, iSubject:", iName, pats, iSubject)  
+ 
     if(equal(iName, get_name(iSubject))) {
-        args = get_children_and_keyword_mmap(iSubject);	// TODO kw args
-        //println("MATCH_SIMPLE_CALL_OR_TREE", iName);
-        //println("MATCH_SIMPLE_CALL_OR_TREE", pats);
-        //println("MATCH_SIMPLE_CALL_OR_TREE", args);
+        args = get_children_and_keyword_mmap(iSubject);
+        //println("MATCH_SIMPLE_CALL_OR_TREE, args", args);
         MATCH_N(pats, args)
         exhaust
     }
     if(has_label(iSubject, iName)) {
         args = get_children_without_layout_or_separators(iSubject)
+        //println("MATCH_SIMPLE_CALL_OR_TREE, args", args);
         MATCH_N(pats, args)
     }
 }
@@ -411,7 +413,7 @@ coroutine MATCH_SIMPLE_CALL_OR_TREE(iName, pats, iSubject) guard iSubject is nod
 // Match a call pattern with an arbitrary pattern as function symbol
 
 coroutine MATCH_CALL_OR_TREE(pats, iSubject) guard iSubject is node {
-    var args = get_name_and_children_and_keyword_mmap(iSubject);	// TODO kw args
+    var args = get_name_and_children_and_keyword_mmap(iSubject)
     MATCH_N(pats, args)
 }
 
