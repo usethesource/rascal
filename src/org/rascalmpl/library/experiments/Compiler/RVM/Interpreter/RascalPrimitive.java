@@ -1791,6 +1791,7 @@ public enum RascalPrimitive {
 	 */
 
 	annotation_get {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
@@ -1808,6 +1809,7 @@ public enum RascalPrimitive {
 		}
 	},
 	annotation_set {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 3;
@@ -4222,6 +4224,7 @@ public enum RascalPrimitive {
 		}
 	},
 	node_create {
+		@SuppressWarnings("unchecked")
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity >= 1;
