@@ -452,14 +452,46 @@ default MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){
 default MuExp translateConcrete(t) = muCon(t);
 
 MuExp translateConcreteParsed(e: appl(Production prod, list[Tree] args)){
+   println("parsedFragment: <e> with prod.def= <prod.def>");
+   //iprintln(args);
    if(prod.def == label("hole", lex("ConcretePart"))){
        varloc = args[0].args[4].args[0]@\loc;		// TODO: refactor (see concrete patterns)
+       println("varloc = <getType(varloc)>");
        <fuid, pos> = getVariableScope("ConcreteVar", varloc);
+       
        return muVar("ConcreteVar", fuid, pos);
-    }    
+    } 
+    MuExp translated_elems;
+    if(any(arg <- args, isConcreteListVar(arg))){       
+       str fuid = topFunctionScope();
+       writer = nextTmp();
+    
+       translated_args = [ muCallPrim(isConcreteListVar(arg) ? "listwriter_splice_concrete_list_var" : "listwriter_add", 
+                                      [muTmp(writer,fuid), translateConcreteParsed(arg)], e@\loc)
+                         | Tree arg <- args
+                         ];
+       translated_elems = muBlock([ muAssignTmp(writer, fuid, muCallPrim("listwriter_open", [], e@\loc)),
+                                    *translated_args,
+                                    muCallPrim("listwriter_close", [muTmp(writer,fuid)], e@\loc) 
+                                  ]);
+    } else {
+       translated_elems = muCallPrim("list_create", [translateConcreteParsed(arg) | Tree arg <- args], |unknown:///|);
+    }
     return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
-                   [muCon(prod), muCallPrim("list_create", [translateConcreteParsed(arg) | arg <- args], |unknown:///|), muTypeCon(\void())]);
+                   [muCon(prod), translated_elems, muTypeCon(\void())]);
 }
+
+bool isConcreteListVar(e: appl(Production prod, list[Tree] args)){
+   if(prod.def == label("hole", lex("ConcretePart"))){
+      varloc = args[0].args[4].args[0]@\loc;
+      varType = getType(varloc);
+      typeName = getName(varType);
+      return typeName in {"iter", "iter-star", "iter-seps", "iter-star-seps"};
+   }
+   return false;
+}
+
+default bool isConcreteListVar(Tree t) = false;
 
 default MuExp translateConcreteParsed(Tree t) = muCon(t);
 
@@ -949,11 +981,12 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
 MuExp translate (e:(Expression) `<Comprehension comprehension>`) = translateComprehension(comprehension);
 
 private MuExp translateGenerators({Expression ","}+ generators){
-   if(all(gen <- generators, backtrackFree(gen))){
-      return makeMu("ALL",[translate(g) | g <-generators]);
-   } else {
-     return makeMu("ALL",[muCallPrim("rbool", [translate(g)]) | g <-generators]);
-   }
+   return makeMu("ALL",[translate(g) | g <-generators]);
+   //if(all(gen <- generators, backtrackFree(gen))){
+   //   return makeMu("ALL",[translate(g) | g <-generators]);
+   //} else {
+   //  return makeMu("ALL",[muCallPrim("rbool", [translate(g)]) | g <-generators]);
+   //}
 }
 
 private list[MuExp] translateComprehensionContribution(str kind, str tmp, str fuid, list[Expression] results){
