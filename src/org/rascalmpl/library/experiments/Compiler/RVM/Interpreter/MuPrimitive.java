@@ -932,13 +932,13 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
-	rbool {  // TODO should go
-		@Override
-		public int execute(Object[] stack, int sp, int arity) {
-			assert arity == 1;
-			return sp;
-		};
-	},
+//	rbool {  // TODO should go
+//		@Override
+//		public int execute(Object[] stack, int sp, int arity) {
+//			assert arity == 1;
+//			return sp;
+//		};
+//	},
 	rint {
 		/*
 		 * rint -- convert muRascal int (mint) to Rascal int (rint)

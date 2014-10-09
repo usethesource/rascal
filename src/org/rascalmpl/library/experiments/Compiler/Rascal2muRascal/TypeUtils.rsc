@@ -624,6 +624,13 @@ public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tup
 	}
 }
 
+//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter(Symbol symbol2)]), list[Tree] args)) = true;
+//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter-star(Symbol symbol2)]), list[Tree] args)) = true;
+//
+//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter-seps(Symbol symbol2, list[Symbol] separators)]), list[Tree] args)) = true;
+//bool isConcreteListVar(appl(prod(Symbol symbol1, [\iter-star-seps(Symbol symbol2, list[Symbol] separators)]), list[Tree] args)) = true;
+//default bool isConcreteListVar(Tree t) = false;
+
 // TODO: the following functions belong in ParseTree, but that gives "No definition for \"ParseTree/size(list(parameter(\\\"T\\\",value()));)#0\" in functionMap")
 
 @doc{Determine the size of a concrete list}

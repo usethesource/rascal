@@ -41,7 +41,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext
+import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIUtil;
@@ -4353,6 +4353,22 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	listwriter_splice_concrete_list_var {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			assert arity == 2;
+			IListWriter writer = (IListWriter)stack[sp - 2];
+			IConstructor nonterm = (IConstructor) stack[sp - 1];
+			IList non_termargs = (IList) nonterm.get("args");
+			IConstructor iter = (IConstructor) non_termargs.get(0);
+			IList iter_args = (IList) iter.get("args");
+			for(IValue v : iter_args) {
+				writer.append(v);
+			}
+			stack[sp - 2] = writer;
+			return sp - 1;
+		}
+	},
 	sublist {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
@@ -4364,6 +4380,7 @@ public enum RascalPrimitive {
 			return sp - 2;
 		}
 	},
+	
 	
 	/*
 	 * product
