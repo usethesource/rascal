@@ -213,7 +213,8 @@ void extractScopes(){
 		     // Fill in fuid2type to enable more precise overloading resolution
 		     fuid2type[uid] = rtype;
         }
-        case production(rname,rtype,inScope,src): {
+        case production(rname, rtype, inScope, p, src): {
+        	println("Case production: <item>");
              if(!isEmpty(getSimpleName(rname))) {
              	constructors += {uid};
              	declares += {<inScope, uid>};
@@ -274,7 +275,7 @@ void extractScopes(){
 			 // Fill in uid2name
 			 uid2name[uid] = prettyPrintName(rname);
         }
-        default: ; //println("extractScopes: skipping <item>");
+        default: println("extractScopes: skipping <uid>: <item>");
       }
     }
     
@@ -313,10 +314,10 @@ void extractScopes(){
     	                      function(_,_,_,_,_,_,_,_) := config.store[uid] 
     	                   || closure(_,_,_,_)          := config.store[uid] 
     	                   || constructor(_,_,_,_,_)    := config.store[uid] 
-    	                   || ( production(rname,_,_,_) := config.store[uid] && !isEmpty(getSimpleName(rname)) ) 
+    	                   || ( production(rname,_,_,_,_) := config.store[uid] && !isEmpty(getSimpleName(rname)) ) 
     	                   || variable(_,_,_,_,_)       := config.store[uid] 
     	           ];
- 
+ 		println("topdecls = <topdecls>");
     	for(i <- index(topdecls)) {
     		// functions and closures are identified by their qualified names, and they do not have a position in their scope
     		// only the qualified name of their enclosing module or function is significant 
@@ -363,7 +364,7 @@ void extractScopes(){
     // Fill in uid2addr for overloaded functions;
     for(int fuid2 <- ofunctions) {
         set[int] funs = config.store[fuid2].items;
-    	if(int fuid3 <- funs, production(rname,_,_,_) := config.store[fuid3] && isEmpty(getSimpleName(rname)))
+    	if(int fuid3 <- funs, production(rname,_,_,_,_) := config.store[fuid3] && isEmpty(getSimpleName(rname)))
     	    continue;
     	 if(int fuid4 <- funs,   annotation(_,_,_,_,_) := config.store[fuid4])
     	 continue; 
@@ -371,7 +372,7 @@ void extractScopes(){
     	set[str] scopes = {};
     	str scopeIn = uid2str(0);
     	for(int fuid5 <- funs) {
-    		//println("<fuid5>: <config.store[fuid5]>");
+    		println("<fuid5>: <config.store[fuid5]>");
     	    funScopeIn = uid2addr[fuid5].fuid;
     		if(funScopeIn notin moduleNames) {
     			scopes += funScopeIn;
@@ -482,7 +483,7 @@ str uid2str(int uid) {
 	    val = config.store[uid];
 	    if( (function(_,_,_,_,inScope,_,_,src) := val || 
 	         constructor(_,_,_,inScope,src) := val || 
-	         production(_,_,inScope,src) := val ), 
+	         production(_,_,inScope,_,src) := val ), 
 	        \module(value _,loc at) := config.store[inScope]) {
         	if(at.path != src.path) {
         	    str path = replaceAll(src.path, ".rsc", "");
