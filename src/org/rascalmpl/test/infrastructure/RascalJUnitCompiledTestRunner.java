@@ -79,7 +79,9 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		System.err.println("*********************************************");
 		System.err.println("**** Loading Compiler (takes a minute!)  ****");
 		System.err.println("**** Needs JVM arguments: -Xms64m -Xmx1G ****");
+		
 		evaluator.doImport(monitor, "experiments::Compiler::Execute");		
+		
 		System.err.println("****          Compiler Loaded            ****");
 		System.err.println("*********************************************");
 	}  
@@ -123,6 +125,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		desc = null;
 		testsPerModule = null;
 		ignoredPerModule = null;
+		totalTests = 0;
 	}
 	
 	static protected String computeTestName(String name, ISourceLocation loc) {
