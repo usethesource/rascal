@@ -206,12 +206,15 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("size_set")), [exp1])									=> muCallMuPrim("size_set", [exp1])
                case muCall(preVar(mvar("size_mset")), [exp1])									=> muCallMuPrim("size_mset", [exp1])
                case muCall(preVar(mvar("size_map")), [exp1])									=> muCallMuPrim("size_map", [exp1])
+               case muCall(preVar(mvar("size_str")), [exp1])									=> muCallMuPrim("size_str", [exp1])
                case muCall(preVar(mvar("size_tuple")), [exp1])									=> muCallMuPrim("size_tuple", [exp1])
                
                case muCall(preVar(mvar("size")),[exp1])                             			=> muCallMuPrim("size",[exp1])
                
                case muCall(preVar(mvar("is_defined")), [exp1])									=> muCallMuPrim("is_defined", [exp1])
                case muCall(preVar(mvar("is_element")), [exp1, exp2])							=> muCallMuPrim("is_element", [exp1, exp2])
+               case muCall(preVar(mvar("is_tail")), [exp1, exp2, exp3])							=> muCallMuPrim("is_tail_str_str_mint", [exp1, exp2, exp3])
+               case muCall(preVar(mvar("substring")), [exp1, exp2, exp3])						=> muCallMuPrim("substring_str_mint_mint", [exp1, exp2, exp3])
                case muCall(preVar(mvar("is_element_mset")), [exp1, exp2])						=> muCallMuPrim("is_element_mset", [exp1, exp2])
                case muCall(preVar(mvar("keys")), [exp1])										=> muCallMuPrim("keys_map", [exp1])
                case muCall(preVar(mvar("mmap_contains_key")), [exp1, exp2])						=> muCallMuPrim("mmap_contains_key", [exp1, exp2])
@@ -237,7 +240,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("typeOf")), [exp1])										=> muCallPrim("typeOf", [exp1])
                case muCall(preVar(mvar("typeOfMset")), [exp1])									=> muCallMuPrim("typeOfMset", [exp1])
                
-               case muCall(preVar(mvar("elementTypeOf")), [exp1])										=> muCallPrim("elementTypeOf", [exp1])
+               case muCall(preVar(mvar("elementTypeOf")), [exp1])								=> muCallPrim("elementTypeOf", [exp1])
                case muCall(preVar(mvar("subtype")), [exp1, exp2])         						=> muCallPrim("subtype", [exp1, exp2])
                case muCall(preVar(mvar("make_iarray")), [exp1])									=> muCallMuPrim("make_iarray_of_size", [exp1])
                case muCall(preVar(mvar("make_array")), [exp1])									=> muCallMuPrim("make_array_of_size", [exp1])

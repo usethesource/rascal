@@ -12,9 +12,11 @@ public void resetTmpAndLabel(){
 	tmpVar = -1;
 	tmpLabel = -1;
 	loops = [];
+	backtrackingScopes = [];
 	itVariables = [];
 	writerVariables = [];
 	tryCatchFinally = [];
+	visits = [];
 	resetAllCounter();
 	resetOrCounter();
 }
@@ -80,7 +82,7 @@ void leaveLoop(){
 }
 
 // Backtracking scopes also include if-then-else scopes that allow backtracking in case of using fail
-private list[str] backtrackingScopes = [];
+private list[str] backtrackingScopes = [];	// *** state
 
 void enterBacktrackingScope(str name){
   backtrackingScopes = name + backtrackingScopes;
@@ -130,7 +132,7 @@ void leaveWriter(){
 
 // The stack of try-catch-finally block is managed to check whether there is a finally block
 // that must be executed before 'return' if any
-private list[bool] tryCatchFinally = [];
+private list[bool] tryCatchFinally = [];	// *** state
 
 bool hasFinally() = !isEmpty(tryCatchFinally);
 
@@ -145,7 +147,7 @@ void leaveTryCatchFinally() {
 // Administration of function scopes; 
 // needed to translate 'visit' expressions and generate function declarations for 'visit' cases
 
-private lrel[str scope,int counter] functionScopes = [];
+private lrel[str scope,int counter] functionScopes = []; // *** state
 
 str topFunctionScope() = top(functionScopes).scope;
 
@@ -163,12 +165,16 @@ void leaveFunctionScope() {
 	functionScopes = tail(functionScopes); 
 }
 
-private list[Symbol] visits = [];
+private list[Symbol] visits = [];		// *** state
 
 Symbol topCaseType() = top(visits);
 
 void enterVisit() {
 	visits = Symbol::\void() + visits;
+}
+
+bool inStringVisit(){
+	top(visits) == Symbol::\str();
 }
 
 void leaveVisit() {
