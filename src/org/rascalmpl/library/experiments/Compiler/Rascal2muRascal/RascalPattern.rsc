@@ -77,7 +77,25 @@ map[str,str] regexpEscapes = (
 ")" : ")"
 );
 
-MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
+MuExp translateRegExpLiteral(re: (RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`) {
+   <buildRegExp,varrefs> = processRegExpLiteral(re);
+   return muApply(mkCallToLibFun("Library", "MATCH_REGEXP"), 
+                 [ buildRegExp,
+                   muCallMuPrim("make_array", varrefs)
+                 ]); 
+}
+
+MuExp translateRegExpLiteral(re: (RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`, MuExp begin, MuExp end) {
+   <buildRegExp,varrefs> = processRegExpLiteral(re);
+   return muApply(mkCallToLibFun("Library", "MATCH_REGEXP_IN_VISIT"), 
+                 [ buildRegExp,
+                   muCallMuPrim("make_array", varrefs),
+                   begin,
+                   end
+                 ]); 
+}
+
+tuple[MuExp, list[MuExp]] processRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
    str fuid = topFunctionScope();
    swriter = nextTmp();
    fragmentCode = [];
@@ -136,11 +154,8 @@ MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier m
    buildRegExp = muBlock(muAssignTmp(swriter, fuid, muCallPrim("stringwriter_open", [])) + 
                        [ muCallPrim("stringwriter_add", [muTmp(swriter,fuid), exp]) | exp <- fragmentCode ] +
                        muCallPrim("stringwriter_close", [muTmp(swriter,fuid)]));
- 
-   return muApply(mkCallToLibFun("Library", "MATCH_REGEXP"), 
-                 [ buildRegExp,
-                   muCallMuPrim("make_array", varrefs)
-                 ]);  
+   return <buildRegExp, varrefs>;
+   
 }
 
 tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegExp* namedregexps>\>`) {
@@ -206,12 +221,12 @@ syntax ConcreteHole
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
   // println("translateConcretePattern, **** Grammar");
-  iprintln(getGrammar(config));
+  iprintln(getGrammar(getConfiguration()));
   fragType = getType(p@\loc);
   println("translateConcretePattern, fragType = <fragType>");
-  reifiedFragType = symbolToValue(fragType, config);
+  reifiedFragType = symbolToValue(fragType, getConfiguration());
   println("translateConcretePattern, reified: <reifiedFragType>");
-  parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar(config));
+  parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar(getConfiguration()));
   //println("**** parsedFragment");
   iprintln(parsedFragment);
   return translateParsedConcretePattern(parsedFragment);
