@@ -639,6 +639,9 @@ public enum MuPrimitive {
 			return sp;
 		}
 	},
+	
+	
+	
 	// Does a keyword map with <name, value> entries contain a given key?
 	mmap_contains_key {
 		@SuppressWarnings("unchecked")
@@ -675,7 +678,9 @@ public enum MuPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
-			stack[sp - 1] = ((IInteger) stack[sp - 1]).intValue();
+			if(stack[sp - 1] instanceof IInteger){
+				stack[sp - 1] = ((IInteger) stack[sp - 1]).intValue();
+			}
 			return sp;
 		};
 	},
@@ -932,13 +937,6 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
-//	rbool {  // TODO should go
-//		@Override
-//		public int execute(Object[] stack, int sp, int arity) {
-//			assert arity == 1;
-//			return sp;
-//		};
-//	},
 	rint {
 		/*
 		 * rint -- convert muRascal int (mint) to Rascal int (rint)
@@ -967,6 +965,26 @@ public enum MuPrimitive {
 			}
 		};
 	},
+	
+	regexp_begin {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 1;
+			Matcher matcher = (Matcher) stack[sp - 1];
+			stack[sp - 1] = vf.integer(matcher.start());
+			return sp;
+		};
+	},
+	
+	regexp_end {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 1;
+			Matcher matcher = (Matcher) stack[sp - 1];
+			stack[sp - 1] = vf.integer(matcher.end());
+			return sp;
+		};
+	},
 	regexp_find {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -976,6 +994,19 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	
+	regexp_set_region {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 3;
+			Matcher matcher = (Matcher) stack[sp - 3];
+			int start = ((Integer) stack[sp - 2]);
+			int end = ((Integer) stack[sp - 1]);
+			stack[sp - 1] = matcher.region(start, end);
+			return sp - 2;
+		};
+	},
+	
 	regexp_group {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1070,6 +1101,14 @@ public enum MuPrimitive {
 			return sp;
 		};
 	},
+	size_str {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 1;
+			stack[sp - 1] = ((IString) stack[sp - 1]).length();
+			return sp;
+		};
+	},
 	size_tuple {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -1082,7 +1121,9 @@ public enum MuPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
-			if (stack[sp - 1] instanceof IConstructor) {
+			if (stack[sp - 1] instanceof IString) {
+				stack[sp - 1] = ((IString) stack[sp - 1]).length();
+			} else if (stack[sp - 1] instanceof IConstructor) {
 				stack[sp - 1] = ((IConstructor) stack[sp - 1]).arity();
 			} else if (stack[sp - 1] instanceof INode) {
 				stack[sp - 1] = ((INode) stack[sp - 1]).arity();
@@ -1151,6 +1192,36 @@ public enum MuPrimitive {
 			assert arity == 2;
 			stack[sp - 2] = ((ITuple) stack[sp - 2]).get((Integer) stack[sp - 1]);
 			return sp - 1;
+		};
+	},
+	
+	// Make a substring
+	substring_str_mint_mint {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 3;
+			IString subject = ((IString)  stack[sp - 3]);
+			Integer start = ((Integer)  stack[sp - 2]);
+			Integer end  = ((Integer)  stack[sp - 1]);
+			System.err.println("substring: " + subject + ", " + start + ", " + end);
+			stack[sp - 3] = subject.substring(start, end);
+			return sp - 2;
+		};
+	},
+	
+	is_tail_str_str_mint {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 3;
+			IString subject = ((IString)  stack[sp - 3]);
+			IString substr = ((IString)  stack[sp - 2]);
+			Integer start = ((Integer)  stack[sp - 1]);
+			if(start + substr.length() == subject.length()){
+				stack[sp - 3] = vf.bool(subject.substring(start, start + substr.length()).compare(substr) == 0);
+			} else {
+				stack[sp - 3] = Rascal_FALSE;
+			}
+			return sp - 2;
 		};
 	},
 	subtraction_mint_mint {
