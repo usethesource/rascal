@@ -20,85 +20,90 @@ data NODE1 = f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3
 data T = knot(int i, T l, T r) | tip(int i);
 
 data NODE10 = f1(int I) | g1(list[NODE10] L) | h1(NODE10 N1, NODE10 N2);
-		
-		int cnt(NODE1 t) {
-		     int C = 0;
-		     visit(t) {
-		        case int N: C = C + 1;
-		        }
-		     return C;
-		     }
-		     
-		NODE1 walk(NODE1 t) {
-		     return visit(t) {
-		        case int N=>x when x:=N*2, x>=1
-		        };
-		     }
-		     
-		NODE1 drepl(NODE1 T) {
-				return bottom-up-break visit (T) {
-				     case g(value T1, value T2) =>  h(T1, T2)
-				     };
-			   }
-			   
-		NODE1 frepa(NODE1 T) {
-				return visit (T) {
-				    case g(value T1, value T2):
-				          insert h(T1, T2);
-				   };
-				}
-				
-		NODE1 frepb(NODE1 T) { 
-				return visit (T) {
-				     case g(value T1, value T2) => h(T1, T2)
-			          };
-				}
-				
-		NODE1 frepG2H3a(NODE1 T) {
-				return visit (T) {
-				    case g(value T1, value T2):
-				         insert h(T1, T2, 0);
-				   };
-				}
-				
-		NODE1 frepG2H3b(NODE1 T) {
-				return visit (T) {
-				   case g(value T1, value T2) => h(T1, T2, 0)
-				   };
-				}
-				
-		NODE1 inc(NODE1 T) {
-				return visit(T) {
-				     case int N: insert N + 1;
-				   }
-				}
-				
-		
-				
-		tuple[int, NODE1] inc_and_count(NODE1 T, int D) {
-				int C = 0;
-				T = visit (T) {
-				        case int N: { C = C + 1;
-				                      insert N + D;
-				                    }
-				       };
-				return <C, T>;
+	
+int cnt(NODE1 t) {
+	int C = 0;
+	visit(t) {
+		case int N: C = C + 1;
+	}
+	return C;
+}
+	     
+NODE1 walk(NODE1 t) {
+	return 
+		visit(t) {
+			case int N=>x when x:=N*2, x>=1
+		};
+}
+	     
+NODE1 drepl(NODE1 T) {
+	return 
+		bottom-up-break visit (T) {
+			case g(value T1, value T2) =>  h(T1, T2)
+		};
+}
+		   
+NODE1 frepa(NODE1 T) {
+	return 
+		visit (T) {
+			case g(value T1, value T2): insert h(T1, T2);
+		};
+}
+			
+NODE1 frepb(NODE1 T) { 
+	return 
+		visit (T) {
+			case g(value T1, value T2) => h(T1, T2)
+		};
+}
+			
+NODE1 frepG2H3a(NODE1 T) {
+	return 
+		visit (T) {
+			case g(value T1, value T2): insert h(T1, T2, 0);
+		};
+}
+			
+NODE1 frepG2H3b(NODE1 T) {
+	return
+		visit (T) {
+			case g(value T1, value T2) => h(T1, T2, 0)
+		};
+}
+			
+NODE1 inc(NODE1 T) {
+	return 
+		visit(T) {
+			case int N: insert N + 1;
+		}
+}
+	
+tuple[int, NODE1] inc_and_count(NODE1 T, int D) {
+	int C = 0;
+	T = visit (T) {
+			case int N: {
+				C = C + 1;
+			    insert N + D;
 			}
-		
-		NODE1 srepl(NODE1 T) {
-				return top-down-break visit (T) {
-				     case g(value T1, value T2) =>  h(T1, T2)
-			     };
-			  }	
-	  
-		list[int] order(NODE10 T) {
-				res = [];
-				visit (T) {
-				   case int N:  res += N;
-				};
-				return res;
-				}	
-     
+	};
+	return <C, T>;
+}
+	
+NODE1 srepl(NODE1 T) {
+	return 
+		top-down-break visit (T) {
+			case g(value T1, value T2) =>  h(T1, T2)
+		};
+}	
+  
+list[int] order(NODE10 T) {
+	res = [];
+	visit (T) {
+		case int N:  res += N;
+	};
+	return res;
+}	
+ 
 //  Cnt()
 
 test bool Cnt1()= cnt(f(3)) == 1;
@@ -253,6 +258,27 @@ test bool StringVisit4a2()=visit("a"){ case "a": insert "AA"; case /b/: insert "
 test bool StringVisit4a3()=visit("b"){ case "a": insert "AA"; case /b/: insert "BB";} == "BB";
 test bool StringVisit4a4()=visit("abcabc"){ case "a": insert "AA"; case /b/: insert "BB";} == "aBBcaBBc";
 test bool StringVisit4a5()=visit("abcabca"){ case "a": insert "AA"; case /b/: insert "BB";} == "aBBcaBBcAA";
+
+// StringVisit5
+
+tuple[int,int] cntAB(str s){
+	int cntA = 0;
+	int cntB = 0;
+	visit(s){ case /^a/: cntA += 1; case /^b/: cntB += 10;}
+	
+	return <cntA, cntB>;
+}
+
+test bool StringVisit51() = cntAB("") == <0, 0>;
+test bool StringVisit52() = cntAB("cdefg") == <0, 0>;
+test bool StringVisit53() = cntAB("a") == <1, 0>;
+test bool StringVisit54() = cntAB("b") == <0, 10>;
+test bool StringVisit55() = cntAB("ab") == <1, 10>;
+test bool StringVisit56() = cntAB("ba") == <1, 10>;
+test bool StringVisit57() = cntAB("abcabca") == <3, 20>;
+
+
+
 		
 
 
