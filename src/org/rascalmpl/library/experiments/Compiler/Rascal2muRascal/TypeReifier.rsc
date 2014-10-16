@@ -11,6 +11,8 @@ import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 
+import experiments::Compiler::Rascal2muRascal::TypeUtils;
+
 import ParseTree;
 import List;
 import Map;
@@ -20,6 +22,7 @@ import Relation;
 import IO;
 
 private map[str,Symbol] typeMap = ();
+private set[Symbol] types = {};
 private rel[Symbol,Symbol] constructors = {};
 private rel[Symbol,Symbol] productions = {};
 private map[Symbol,Production] grammar = ();
@@ -28,6 +31,7 @@ private Symbol activeLayout = Symbol::\layouts("$default$");
 
 private void resetTypeReifier() {
     typeMap = ();
+    types = {};
     constructors = {};
     productions = {};
     grammar = ();
@@ -35,34 +39,87 @@ private void resetTypeReifier() {
     activeLayout = Symbol::\layouts("$default$");
 }
 
+// Extract common declaration info
+
+private void getGrammarInfo(Configuration config){
+    grammar = ();
+    starts = {};
+    // Collect all the types that are in the type environment
+	typeMap = ( getSimpleName(rname) : config.store[config.typeEnv[rname]].rtype | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype );
+	//typeMap = ( getSimpleName(rname) : rtype | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] );
+	
+	// Collect all the constructors of the adt types in the type environment
+	types = range(typeMap);
+	constructors = { <\type.\adt, \type> | int uid <- config.store, 
+												constructor(_, Symbol \type, _, _, _) := config.store[uid],
+												\type.\adt in types };
+	// Collects all the productions of the non-terminal types in the type environment
+    
+    for(uid <- config.store){
+       item = config.store[uid];
+       if(production(_, rtype, _, p: \prod(Symbol def, _, _), _) := item){
+            unlabelled = def;
+       		if(label(_, def1) := def){
+       		   unlabelled = def1;
+       		}
+			//println("<uid>: <p>");
+			if(grammar[unlabelled]?){
+			   if(choice(unlabelled, alts) := grammar[unlabelled]){
+			      grammar[unlabelled] = choice(unlabelled, alts + p);
+			   } else {
+			      throw "HELP";
+			   }
+			 } else {
+			    grammar[unlabelled] = choice(unlabelled, {p});
+			 }
+       		//println("<def>: <p>");
+       }
+    }
+    
+    productions = { p.def is label ? <p.def.symbol, Symbol::prod(p.def.symbol, p.def.name, p.symbols, p.attributes)> 
+	                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 
+	                                     | /Production p:prod(_,_,_) := grammar };
+   	
+   	starts = { sym | int uid <- config.store, sorttype(rname,\start(sym),_,_) := config.store[uid] };
+   	
+   	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
+   	if(!isEmpty(activeLayouts)) {
+   		activeLayout = getOneFrom(activeLayouts);
+   	}
+}
+
 // Extract the declared grammar from a type checker configuration
 
 public map[Symbol,Production] getGrammar(Configuration config) {
 
+	//println("getGrammar");
+	getGrammarInfo(config);
+	constructors = {};
+	
 	// Collect all the types that are in the type environment
-	typeMap = ( getSimpleName(rname) : rtype | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] );
-	set[Symbol] types = range(typeMap);
+	//typeMap = ( getSimpleName(rname) : rtype | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] );
+	//set[Symbol] types = range(typeMap);
 	
 	//println("getGrammar: typeMap: <typeMap>");
 	//println("getGrammar: types: <types>");
-	constructors = {};
+	//constructors = {};
 	// Collects all the productions of the non-terminal types in the type environment
-	grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
-   	  																config.store[uid].rtype in types );
-   	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
-   	
-   	productions = { p.def is label ? <p.def.symbol, Symbol::prod(p.def.symbol, p.def.name, p.symbols, p.attributes)> 
-	                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 
-	                                     | /Production p:prod(_,_,_) := grammar };
+	//grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
+ //  	  																config.store[uid].rtype in types );
+ //  	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
+ //  	
+ //  	productions = { p.def is label ? <p.def.symbol, Symbol::prod(p.def.symbol, p.def.name, p.symbols, p.attributes)> 
+	//                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 
+	//                                     | /Production p:prod(_,_,_) := grammar };
     
     //println("getGrammar: grammar: <grammar>");
     //println("getGrammar: starts: <starts>");
     //println("getGrammar: productions: <productions>");
      
-   	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
-   	if(!isEmpty(activeLayouts)) {
-   		activeLayout = getOneFrom(activeLayouts);
-   	}
+   	//activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
+   	//if(!isEmpty(activeLayouts)) {
+   	//	activeLayout = getOneFrom(activeLayouts);
+   	//}
 	
 	map[Symbol,Production] definitions =   ( nonterminal : \layouts(grammar[nonterminal]) | nonterminal <- grammar ) 
 										 + ( Symbol::\start(nonterminal) : \layouts(Production::choice(Symbol::\start(nonterminal),
@@ -76,6 +133,10 @@ public map[Symbol,Production] getGrammar(Configuration config) {
  	
  	resetTypeReifier();
  	
+ 	//println("definitions:");
+ 	//for(d <- definitions){
+ 	//	println("\t<d>:\n\t\t<definitions[d]>");
+ 	//}
  	return definitions;
 }
 
@@ -83,28 +144,32 @@ public map[Symbol,Production] getGrammar(Configuration config) {
 
 public map[Symbol,Production] getDefinitions(Configuration config) {
 	
+	//println("getDefinitions");
+	getGrammarInfo(config);
+	
 	// Collect all the types that are in the type environment
-	typeMap = ( getSimpleName(rname) : config.store[config.typeEnv[rname]].rtype | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype );
+	//typeMap = ( getSimpleName(rname) : config.store[config.typeEnv[rname]].rtype | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype );
 	// Collect all the constructors of the adt types in the type environment
-	types = range(typeMap);
-	constructors = { <\type.\adt, \type> | int uid <- config.store, 
-												constructor(_, Symbol \type, _, _, _) := config.store[uid],
-												\type.\adt in types };
+	//types = range(typeMap);
+	//constructors = { <\type.\adt, \type> | int uid <- config.store, 
+	//											constructor(_, Symbol \type, _, _, _) := config.store[uid],
+	//											\type.\adt in types };
 	// Collects all the productions of the non-terminal types in the type environment
-	grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
-   	  																config.store[uid].rtype in types );
-   	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
-   	
-   	productions = { p.def is label ? <p.def.symbol, Symbol::prod(p.def.symbol, p.def.name, p.symbols, p.attributes)> 
-	                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 
-	                                     | /Production p:prod(_,_,_) := grammar };
-   	
-   	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
-   	if(!isEmpty(activeLayouts)) {
-   		activeLayout = getOneFrom(activeLayouts);
-   	}
+	//grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
+ //  	  																config.store[uid].rtype in types );
+ //  	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
+ //  	
+ //  	productions = { p.def is label ? <p.def.symbol, Symbol::prod(p.def.symbol, p.def.name, p.symbols, p.attributes)> 
+	//                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 
+	//                                     | /Production p:prod(_,_,_) := grammar };
+ //  	
+ //  	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
+ //  	if(!isEmpty(activeLayouts)) {
+ //  		activeLayout = getOneFrom(activeLayouts);
+ //  	}
    	// Collect all symbols
    	symbols = types + carrier(constructors) + carrier(productions) + domain(grammar);
+    
    	// and find their definitions
    	map[Symbol,Production] definitions  = (() | reify(symbol, it) | symbol <- symbols);
 
@@ -115,27 +180,13 @@ public map[Symbol,Production] getDefinitions(Configuration config) {
 
 public type[value] symbolToValue(Symbol symbol, Configuration config) {
 	
-	// Collect all the types that are in the type environment
-	typeMap = ( getSimpleName(rname) : config.store[config.typeEnv[rname]].rtype | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype );
-	// Collect all the constructors of the adt types in the type environment
-	types = range(typeMap);
-	constructors = { <\type.\adt, \type> | int uid <- config.store, 
-												constructor(_, Symbol \type, _, _, _) := config.store[uid],
-												\type.\adt in types };
-	// Collects all the productions of the non-terminal types in the type environment
-	grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
-   	  																config.store[uid].rtype in types );
-   	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
+	//println("SymbolToValue");
+	getGrammarInfo(config);
    	
-   	productions = { p.def is label ? <p.def.symbol, Symbol::prod(p.def.symbol, p.def.name, p.symbols, p.attributes)> 
-	                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 
-	                                     | /Production p:prod(_,_,_) := grammar };
-   	
-   	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
-   	if(!isEmpty(activeLayouts)) {
-   		activeLayout = getOneFrom(activeLayouts);
-   	}
-   	
+   	//println("symbolToValue: grammar: <grammar>");
+    //println("symbolToValue: starts: <starts>");
+    //println("symbolToValue: productions: <productions>");
+   	//
 	// Recursively collects all the type definitions associated with a given symbol
  	map[Symbol,Production] definitions = reify(symbol, ());
  	

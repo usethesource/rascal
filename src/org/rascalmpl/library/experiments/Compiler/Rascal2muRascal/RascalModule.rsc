@@ -29,10 +29,11 @@ import experiments::Compiler::Rascal2muRascal::TypeReifier;
  */
  
  // Global state maintained when translating a Rascal module
- 
-private str module_name;								//  name of current module
+
+//private Configuration config;    					// Type chcker configuration 
+private str module_name;							//  name of current module
 private str function_uid;							// uid of current function
-private list[loc] imported_modules = [];				// imported modules of current module
+private list[loc] imported_modules = [];			// imported modules of current module
 private list[MuFunction] functions_in_module = [];	// functions declared in current module
 private list[MuVariable] variables_in_module = [];	// variables declared in current module
 private list[MuExp] variable_initializations = [];	// initialized variables declared in current module
@@ -49,7 +50,7 @@ private set[str] notOverriddenLibs = {};			// Java libraries not overridden for 
 public str getModuleName() = module_name;
 
 private void setFunctionUID(loc l) {
-   inverted = config.definitions<1,0>;
+   inverted = getConfiguration().definitions<1,0>;
    function_uid = toList(inverted[l])[0];
    //println("function_uid = <function_uid>");
 }
@@ -105,8 +106,9 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    try {
     println("r2mu: entering ...");
    	Configuration c = newConfiguration();
-   	config = checkModule(M, c);  
+   	Configuration config = checkModule(M, c);  
    	//text(config);
+   	//println("config.grammar = <config.grammar>");
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    	if(size(errors) > 0) {
@@ -122,7 +124,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  	}
    	  }
    	  // Extract scoping information available from the configuration returned by the type checker  
-   	  extractScopes(); 
+   	  extractScopes(config); 
    	  module_name = "<M.header.name>";
    	  imported_modules = [];
    	  functions_in_module = [];
@@ -199,7 +201,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  	| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions 
    	  	]; 
    	  symbol_definitions = getDefinitions(config);   
-   	  return muModule(modName, imported_modules, types, symbol_definitions, functions_in_module, variables_in_module, variable_initializations, getModuleVarInitLocals(modName), overloadingResolver, overloaded_functions, getGrammar(config));
+   	  return muModule(modName, imported_modules, types, symbol_definitions, functions_in_module, variables_in_module, variable_initializations, getModuleVarInitLocals(modName), overloadingResolver, overloaded_functions, getGrammar(getConfiguration()));
    	}
    } catch Java("ParseError","Parse error"): {
    	   throw "Syntax errors in module <moduleLoc>";
@@ -321,7 +323,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
      }
      if("<fd.signature.name>" == "typeOf"){		// special treatment of Types::typeOf
-     	body = muCallPrim("type2symbol", [ muCallPrim("typeOf", params), muCon(getGrammar(config)) ]);
+     	body = muCallPrim("type2symbol", [ muCallPrim("typeOf", params), muCon(getGrammar(getConfiguration())) ]);
      } else {
         body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, keywordTypes, ("reflect" in ttags) ? 1 : 0, params);
      }
@@ -339,7 +341,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
      // Switched from type constant
      //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(ttags["ignore"]?), muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
      // to reified type
-     tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ignoreTest(ttags)), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), config)) ]);
+     tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ignoreTest(ttags)), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), getConfiguration())) ]);
   }
   leaveFunctionScope();
 }

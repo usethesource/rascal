@@ -157,7 +157,7 @@ coroutine ENUM_NODE(iNd, rVal)
          op = get_children(prod)[0]
          opname = get_name(op)
          // Consider layout and separators
-         if(equal(opname, "iter-seps") || equal(opname, "iter-start-seps")){
+         if(equal(opname, "iter-seps") || equal(opname, "iter-star-seps")){
             delta = 1 + size_list(get_children(op)[1]);
          }
          iLst = children[1]
@@ -374,9 +374,9 @@ guard {
         j = 0, 
         pat
     ipats[j] = create(pats[j], subjects[j])
-    //println("MATCH_N", plen, slen);
+    //println("MATCH_N, plen, slen", plen, slen);
     while((j >= 0) && (j < plen)) {
-     	//println("MATCH_N", j, pats[j], subjects[j])
+     	//println("MATCH_N", j, "pats[j]", pats[j], "subjects[j]", subjects[j])
         pat = ipats[j]
         if(next(pat)) {
             if(j < (plen - 1)) {
@@ -457,6 +457,18 @@ coroutine MATCH_LITERAL(pat, iSubject) guard equal(pat, iSubject) {
     yield
 }
 
+coroutine MATCH_SUBSTRING(pat, rBegin, rEnd, iSubject)
+//guard iSubject is str
+{
+    var len = size(iSubject);
+    if(is_tail(iSubject, pat, mint(deref rBegin))){
+        //println("MATCH_SUBSTRING succeeds", pat, deref rBegin, size(pat), iSubject);
+    	deref rEnd = len
+    	yield
+    }
+    //println("MATCH_SUBSTRING fails", pat, deref rBegin, iSubject);
+}
+
 coroutine MATCH_VAR(rVar, iSubject) {
     var iVal 
     if(is_defined(rVar)) {
@@ -516,7 +528,7 @@ coroutine MATCH_ANTI(pat, iSubject) {
 /******************************************************************************************/
 
 // MATCH_COLLECTION is a generic controller for matching "collections". Currently list and set matching
-// are implemented as instances of MATH_COLLECTION.
+// are implemented as instances of MATCH_COLLECTION.
 // The algorithm has as parameters:
 // - a list of patterns "pats"
 // - a function "accept" that returns true when we have achieved a complete match of the subject
@@ -1362,6 +1374,26 @@ coroutine MATCH_REGEXP(iRegexp, varrefs, iSubject) {
     }
 }
 
+coroutine MATCH_REGEXP_IN_VISIT(iRegexp, varrefs, rBegin, rEnd, iSubject) {
+    var matcher = muprim("regexp_compile", iRegexp, iSubject), 
+        j, rVar
+    muprim("regexp_set_region", matcher, mint(deref rBegin), mint(deref rEnd))
+    while(muprim("regexp_find", matcher)) {
+        j = 0 
+        while(j < size_array(varrefs)) {
+            rVar = varrefs[j]
+            deref rVar = muprim("regexp_group", matcher, j + 1)
+            j = j + 1;
+        }
+        deref rBegin = muprim("regexp_begin", matcher);
+        deref rEnd = muprim("regexp_end", matcher);
+        //println("MATCH_REGEXP_IN_VISIT succeeds", substring(iSubject, mint(deref rBegin), mint(deref rEnd)), iSubject);
+        yield
+        muprim("regexp_set_region", matcher, deref rBegin, deref rEnd)
+    }
+    //println("MATCH_REGEXP_IN_VISIT fails", iSubject);
+}
+
 /******************************************************************************************/
 /*					Traversal functions  												  */
 /******************************************************************************************/
@@ -1374,73 +1406,84 @@ coroutine MATCH_REGEXP(iRegexp, varrefs, iSubject) {
 // - TRAVERSE_BOTTOM_UP
 // - TRAVERSE_BOTTOM_UP_BREAK
 //
-// Each function has the following arguments:
-// - phi, a compiler generated function that implements all visit cases
+// Each strategy function has the following arguments:
+// - phi, a compiler generated function that implements the visit expression
+//   with the arguments:
+//   - iSubject
+//   - matched
+//   - hasInsert
+//   - rBegin
+//   - rEnd
 // - iSubject, the subject value to be traversed
 // - rHasMatch, a reference parameter that records successfull matches
 // - rBeenChanged, a reference parameter that records subject replacements (due to insert or =>)
+// - rBegin, indicates start point of match (inclusive)
+// - rEnd, indicates end point of match (exclusive); for now used for string visit to indicate size of matched substring
 // - rebuild, a boolean indicating whether a new value for the subject should be built
 
-function TRAVERSE_TOP_DOWN(phi, iSubject, rHasMatch, rBeenChanged, rebuild) {
+function TRAVERSE_TOP_DOWN(phi, iSubject, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild) {
 	var matched = false, 
 	    changed = false
-	iSubject = phi(iSubject, ref matched, ref changed)
+	//println("TRAVERSE_TOP_DOWN", phi, iSubject, deref rHasMatch, deref rBeenChanged, deref rBegin, deref rEnd, rebuild);
+	iSubject = phi(iSubject, ref matched, ref changed, rBegin, rEnd)
+	//println("TRAVERSE_TOP_DOWN, new iSubject", iSubject)
 	if(rebuild) {
 		deref rBeenChanged = changed || deref rBeenChanged
 		changed = false
-		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_TOP_DOWN::5, phi, rHasMatch, ref changed, rebuild)
+		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_TOP_DOWN::7, phi, rHasMatch, ref changed, rBegin, rEnd, rebuild)
 		deref rBeenChanged = changed || deref rBeenChanged
 		return iSubject
 	}
-	return VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_TOP_DOWN::5, phi, rHasMatch, ref changed, rebuild)
+	return VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_TOP_DOWN::7, phi, rHasMatch, ref changed, rBegin, rEnd, rebuild)
 }
 
-function TRAVERSE_TOP_DOWN_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rebuild) {
+function TRAVERSE_TOP_DOWN_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild) {
 	var matched = false, 
 	    changed = false
-	iSubject = phi(iSubject, ref matched, ref changed)
+	iSubject = phi(iSubject, ref matched, ref changed, rBegin, rEnd)
 	deref rBeenChanged = changed || deref rBeenChanged	
 	if(deref rHasMatch = matched || deref rHasMatch) {	
 		return iSubject
 	}
 	if(rebuild) {
 		changed = false
-		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_TOP_DOWN_BREAK::5, phi, rHasMatch, ref changed, rebuild)
+		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_TOP_DOWN_BREAK::7, phi, rHasMatch, ref changed, rBegin, rEnd, rebuild)
 		deref rBeenChanged = changed || deref rBeenChanged
 		return iSubject
 	}
-	return VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_TOP_DOWN_BREAK::5, phi, rHasMatch, ref changed, rebuild)
+	return VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_TOP_DOWN_BREAK::7, phi, rHasMatch, ref changed, rBegin, rEnd, rebuild)
 }
 
-function TRAVERSE_BOTTOM_UP(phi, iSubject, rHasMatch, rBeenChanged, rebuild) {
+function TRAVERSE_BOTTOM_UP(phi, iSubject, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild) {
 	var matched = false, 
 	    changed = false
+	//println("TRAVERSE_BOTTOM_UP", phi, iSubject, deref rHasMatch, deref rBeenChanged, deref rBegin, deref rEnd, rebuild);
 	if(rebuild) {
-		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_BOTTOM_UP::5, phi, rHasMatch, ref changed, rebuild)
+		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_BOTTOM_UP::7, phi, rHasMatch, ref changed, rBegin, rEnd, rebuild)
 		deref rBeenChanged = changed || deref rBeenChanged
 		changed = false
 	} else {
-		VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_BOTTOM_UP::5, phi, rHasMatch, ref changed, rebuild)
+		VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_BOTTOM_UP::7, phi, rHasMatch, ref changed, rBegin, rEnd, rebuild)
 	}
-	iSubject = phi(iSubject, ref matched, ref changed)
+	iSubject = phi(iSubject, ref matched, ref changed, rBegin, rEnd)
 	deref rBeenChanged = changed || deref rBeenChanged
 	return iSubject
 }
 
-function TRAVERSE_BOTTOM_UP_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rebuild) { 
+function TRAVERSE_BOTTOM_UP_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild) { 
 	var matched = false, 
 	    changed = false
 	if(rebuild) {
-		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_BOTTOM_UP_BREAK::5, phi, rHasMatch, ref changed, rebuild)
+		iSubject = VISIT_CHILDREN(iSubject, Library::TRAVERSE_BOTTOM_UP_BREAK::7, phi, rHasMatch, ref changed, rBegin, rEnd, rebuild)
 		deref rBeenChanged = changed || deref rBeenChanged
 		changed = false
 	} else {
-		VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_BOTTOM_UP_BREAK::5, phi, rHasMatch, ref changed, rebuild)
+		VISIT_CHILDREN_VOID(iSubject, Library::TRAVERSE_BOTTOM_UP_BREAK::7, phi, rHasMatch, ref changed, rBegin, rEnd, rebuild)
 	}
 	if(deref rHasMatch) {	
 		return iSubject
 	}
-	iSubject = phi(iSubject, ref matched, ref changed)
+	iSubject = phi(iSubject, ref matched, ref changed, rBegin, rEnd)
 	deref rHasMatch = matched || deref rHasMatch
 	deref rBeenChanged = changed || deref rBeenChanged	
 	return iSubject
@@ -1449,16 +1492,21 @@ function TRAVERSE_BOTTOM_UP_BREAK(phi, iSubject, rHasMatch, rBeenChanged, rebuil
 // ***** Visit subject's children and return (potentially modified) value *****
 // - iSubject
 // - traverse_fun, the traversal strategy used
-// - phi, compiled visit cases
-// - rHasMatch, rBeenChanged, rebuild as above
+// - phi, compiled visit expression
+// - rHasMatch, rBeenChanged, rBegin, rEnd, rebuild as above
 
-function VISIT_CHILDREN(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) { 
+function VISIT_CHILDREN(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild) { 
 	var children
+	//println("VISIT_CHILDREN", iSubject, deref rHasMatch, deref rBeenChanged, deref rBegin, deref rEnd, rebuild);
 	if((iSubject is list) || (iSubject is set) || (iSubject is tuple) || (iSubject is node)) {
-		children = VISIT_NOT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild)
+		children = VISIT_NOT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild)
 	} else {
 		if(iSubject is map) {
-			children = VISIT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) // special case of map
+			children = VISIT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild) // special case of map
+		} else {
+		   if(iSubject is str) {
+			  children = VISIT_STR(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild) // special case of str
+		   }
 		}
 	}
 	if(deref rBeenChanged) {
@@ -1471,22 +1519,25 @@ function VISIT_CHILDREN(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, re
 	    			case node:  prim("node", muprim("get_name", iSubject), children)
 	    			case constructor: 
 	                			prim("constructor", muprim("typeOf_constructor", iSubject), children)	    
-	    			case map:   children // special case of map	    
+	    			case map:   children // special case of map
+	    			case str:	children	    
 	    			default:    iSubject
 				}
 	}
+	//println("VISIT_CHILDREN, returns", iSubject);
 	return iSubject
 }
 
-function VISIT_NOT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) {
+function VISIT_NOT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild) {
 	var iarray = make_iarray(size(iSubject)), 
 	    enumerator = create(ENUMERATE_AND_ASSIGN, ref iChild, iSubject), 
 	    j = 0,
 	    iChild, childHasMatch, childBeenChanged
+	//println("VISIT_NOT_MAP", iSubject, deref rHasMatch, deref rBeenChanged, deref rBegin, deref rEnd, rebuild);
 	while(next(enumerator)) {
 		childHasMatch = false
 		childBeenChanged = false
-		iChild = traverse_fun(phi, iChild, ref childHasMatch, ref childBeenChanged, rebuild)
+		iChild = traverse_fun(phi, iChild, ref childHasMatch, ref childBeenChanged, rBegin, rEnd, rebuild)
 		iarray[j] = iChild
 		j = j + 1
 		deref rHasMatch = childHasMatch || deref rHasMatch
@@ -1495,7 +1546,41 @@ function VISIT_NOT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, reb
 	return iarray
 }
 
-function VISIT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) {
+function VISIT_STR(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild) {
+    var writer = prim("stringwriter_open"),
+        j = 0,
+        len = size_str(iSubject),
+        iChild = iSubject, 
+        sub, repl,
+        childHasMatch, childBeenChanged
+    //println("VISIT_STR", iSubject)
+    deref rBegin = 0;
+    deref rEnd = len;     
+    while(j < len){
+        childHasMatch = false
+		childBeenChanged = false
+		deref rBegin = j
+		deref rEnd = len
+		//println("VISIT_STR", sub, j)
+		repl = phi(iSubject, ref childHasMatch, ref childBeenChanged, rBegin, rEnd)
+		//println("called phi:", repl, childHasMatch, childBeenChanged, deref rBegin, deref rEnd)
+		if(childHasMatch){
+		    if(mint(deref rBegin) > j){
+		      prim("stringwriter_add", writer, substring(iSubject, j, mint(deref rBegin)))
+		    }
+			prim("stringwriter_add", writer, repl)
+			j = mint(deref rEnd)
+	    } else {
+	        prim("stringwriter_add", writer, substring(iSubject, j, j + 1))
+	        j = j + 1
+	    }
+		deref rHasMatch = childHasMatch || deref rHasMatch
+		deref rBeenChanged = childBeenChanged || deref rBeenChanged
+    }
+    return prim("stringwriter_close", writer)
+}
+
+function VISIT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild) {
 	var writer = prim("mapwriter_open"), 
 	    enumerator = create(ENUMERATE_AND_ASSIGN, ref iKey, iSubject),
 	    iKey, iVal, childHasMatch, childBeenChanged	    
@@ -1504,13 +1589,13 @@ function VISIT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild
 		
 		childHasMatch = false
 		childBeenChanged = false
-		iKey = traverse_fun(phi, iKey, ref childHasMatch, ref childBeenChanged, rebuild)
+		iKey = traverse_fun(phi, iKey, ref childHasMatch, ref childBeenChanged, rBegin, rEnd, rebuild)
 		deref rHasMatch = childHasMatch || deref rHasMatch
 		deref rBeenChanged = childBeenChanged || deref rBeenChanged
 		
 		childHasMatch = false
 		childBeenChanged = false
-		iVal = traverse_fun(phi, iVal, ref childHasMatch, ref childBeenChanged, rebuild)
+		iVal = traverse_fun(phi, iVal, ref childHasMatch, ref childBeenChanged, rBegin, rEnd, rebuild)
 		deref rHasMatch = childHasMatch || deref rHasMatch
 		deref rBeenChanged = childBeenChanged || deref rBeenChanged
 		
@@ -1522,43 +1607,43 @@ function VISIT_MAP(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild
 // ***** Visit subject's children but return no value *****
 // - iSubject
 // - traverse_fun, the traversal strategy used
-// - phi, compiled visit cases
-// - rHasMatch, rBeenChanged, rebuild as above
+// - phi, compiled visit expression
+// - rHasMatch, rBeenChanged, rBegin, rEnd, rebuild as above
 
-function VISIT_CHILDREN_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) {	
+function VISIT_CHILDREN_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild) {	
 	if((iSubject is list) || (iSubject is set) || (iSubject is tuple) || (iSubject is node)) {
-		VISIT_NOT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild)
+		VISIT_NOT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild)
 		return iSubject
 	}
 	if(iSubject is map) {
-		VISIT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) // special case of map
+		VISIT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild) // special case of map
 	}
 	return iSubject
 }
 
-function VISIT_NOT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) {
+function VISIT_NOT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild) {
 	var enumerator = create(ENUMERATE_AND_ASSIGN, ref iChild, iSubject), 
 	    childBeenChanged = false,
 	    iChild, childHasMatch	
 	while(next(enumerator)) {
 		childHasMatch = false
-		traverse_fun(phi, iChild, ref childHasMatch, ref childBeenChanged, rebuild)
+		traverse_fun(phi, iChild, ref childHasMatch, ref childBeenChanged, rBegin, rEnd, rebuild)
 		deref rHasMatch = childHasMatch || deref rHasMatch
 	}
 	return
 }
 
-function VISIT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rebuild) {
+function VISIT_MAP_VOID(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rBegin, rEnd, rebuild) {
 	var enumerator = create(ENUMERATE_AND_ASSIGN, ref iKey, iSubject), 
 	    childBeenChanged = false,
 	    iKey, iVal, childHasMatch
 	while(next(enumerator)) {
 		childHasMatch = false
-		traverse_fun(phi, iKey, ref childHasMatch, ref childBeenChanged, rebuild)
+		traverse_fun(phi, iKey, ref childHasMatch, ref childBeenChanged, rBegin, rEnd, rebuild)
 		deref rHasMatch = childHasMatch || deref rHasMatch
 		
 		childHasMatch = false
-		traverse_fun(phi, prim("map_subscript", iSubject, iKey), ref childHasMatch, ref childBeenChanged, rebuild)
+		traverse_fun(phi, prim("map_subscript", iSubject, iKey), ref childHasMatch, ref childBeenChanged, rBegin, rEnd, rebuild)
 		deref rHasMatch = childHasMatch || deref rHasMatch
 	}
 	return
