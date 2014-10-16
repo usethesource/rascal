@@ -369,7 +369,7 @@ INS tr(muCallConstr(str fuid, list[MuExp] args)) = [ *tr(args), CALLCONSTR(fuid,
 
 INS tr(muCall(muFun(str fuid), list[MuExp] args)) = [*tr(args), CALL(fuid, size(args))];
 INS tr(muCall(muConstr(str fuid), list[MuExp] args)) = [*tr(args), CALLCONSTR(fuid, size(args))];
-INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size(args))];
+default INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size(args))];
 
 // Partial application of muRascal functions
 
@@ -377,7 +377,7 @@ INS tr(muApply(muFun(str fuid), [])) = [ LOADFUN(fuid) ];
 INS tr(muApply(muFun(str fuid), list[MuExp] args)) = [ *tr(args), APPLY(fuid, size(args)) ];
 INS tr(muApply(muConstr(str fuid), list[MuExp] args)) { throw "Partial application is not supported for constructor calls!"; }
 INS tr(muApply(muFun(str fuid, str scopeIn), [])) = [ LOAD_NESTED_FUN(fuid, scopeIn) ];
-INS tr(muApply(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), APPLYDYN(size(args)) ];
+default INS tr(muApply(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), APPLYDYN(size(args)) ];
 
 // Rascal functions
 

@@ -37,7 +37,9 @@ import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getQualifie
 
 // A set of global values to represent the extracted information
 
-public Configuration config = newConfiguration();
+private Configuration config;
+
+public Configuration getConfiguration() { return config; }
 
 public map[int uid,tuple[str fuid,int pos] fuid2pos] uid2addr = ();	
 													// map uids to qualified function names and positions
@@ -132,7 +134,7 @@ int getScopeSize(str fuid) =
 
 // extractScopes: extract and convert type information from the Configuration delivered by the type checker.
 						    
-void extractScopes(){
+void extractScopes(Configuration c){
 	// Inspect all items in config.store and construct the sets
 	// - modules, modulesNames
 	// - functions, ofunctions
@@ -149,7 +151,9 @@ void extractScopes(){
 	// - loc2uid
 	// - fuid2type
 	// - fuid2str
-	
+
+   config = c;	
+   println("extractScopes, setting config");
    for(uid <- config.store){
       item = config.store[uid];
       switch(item){
@@ -187,7 +191,7 @@ void extractScopes(){
 		     for(l <- config.uses[uid]) {
 		     	loc2uid[l] = uid;
 		     } 
-    }
+    	}
         case variable(_,_,_,inScope,src):  { 
         	 //println("uid: <uid>, src:, <src>, variable: <item>");
 			 variables += {uid};
@@ -213,7 +217,8 @@ void extractScopes(){
 		     // Fill in fuid2type to enable more precise overloading resolution
 		     fuid2type[uid] = rtype;
         }
-        case production(rname,rtype,inScope,src): {
+        case production(rname, rtype, inScope, p, src): {
+             //println("<uid>: <item>");
              if(!isEmpty(getSimpleName(rname))) {
              	constructors += {uid};
              	declares += {<inScope, uid>};
@@ -274,7 +279,7 @@ void extractScopes(){
 			 // Fill in uid2name
 			 uid2name[uid] = prettyPrintName(rname);
         }
-        default: ; //println("extractScopes: skipping <item>");
+        default: ;//println("extractScopes: skipping <uid>: <item>");
       }
     }
     
@@ -313,10 +318,9 @@ void extractScopes(){
     	                      function(_,_,_,_,_,_,_,_) := config.store[uid] 
     	                   || closure(_,_,_,_)          := config.store[uid] 
     	                   || constructor(_,_,_,_,_)    := config.store[uid] 
-    	                   || ( production(rname,_,_,_) := config.store[uid] && !isEmpty(getSimpleName(rname)) ) 
+    	                   || ( production(rname,_,_,_,_) := config.store[uid] && !isEmpty(getSimpleName(rname)) ) 
     	                   || variable(_,_,_,_,_)       := config.store[uid] 
     	           ];
- 
     	for(i <- index(topdecls)) {
     		// functions and closures are identified by their qualified names, and they do not have a position in their scope
     		// only the qualified name of their enclosing module or function is significant 
@@ -363,7 +367,7 @@ void extractScopes(){
     // Fill in uid2addr for overloaded functions;
     for(int fuid2 <- ofunctions) {
         set[int] funs = config.store[fuid2].items;
-    	if(int fuid3 <- funs, production(rname,_,_,_) := config.store[fuid3] && isEmpty(getSimpleName(rname)))
+    	if(int fuid3 <- funs, production(rname,_,_,_,_) := config.store[fuid3] && isEmpty(getSimpleName(rname)))
     	    continue;
     	 if(int fuid4 <- funs,   annotation(_,_,_,_,_) := config.store[fuid4])
     	 continue; 
@@ -482,7 +486,7 @@ str uid2str(int uid) {
 	    val = config.store[uid];
 	    if( (function(_,_,_,_,inScope,_,_,src) := val || 
 	         constructor(_,_,_,inScope,src) := val || 
-	         production(_,_,inScope,src) := val ), 
+	         production(_,_,inScope,_,src) := val ), 
 	        \module(value _,loc at) := config.store[inScope]) {
         	if(at.path != src.path) {
         	    str path = replaceAll(src.path, ".rsc", "");

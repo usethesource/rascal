@@ -60,7 +60,7 @@ Symbol translateType(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) =
 Symbol translateType(t: (UserType) `<QualifiedName name>`) {
 	rn = convertName(name);
 	// look up the name in the type environment
-	val = config.store[config.typeEnv[rn]];
+	val = getConfiguration().store[getConfiguration().typeEnv[rn]];
 	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
 		return val.rtype;
 	}
@@ -69,7 +69,7 @@ Symbol translateType(t: (UserType) `<QualifiedName name>`) {
 Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) {
 	rn = convertName(name);
 	// look up the name in the type environment
-	val = config.store[config.typeEnv[rn]];
+	val = getConfiguration().store[getConfiguration().typeEnv[rn]];
 	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
 		// instantiate type parameters
 		val.rtype.parameters = [ translateType(param) | param <- parameters];
