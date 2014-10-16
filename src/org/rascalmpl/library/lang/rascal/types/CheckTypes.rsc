@@ -6326,21 +6326,25 @@ public Configuration importConstructor(RName conName, UserType adtType, list[Typ
 }
 
 @doc{Import a signature item: Production}
-public Configuration importProduction(RSignatureItem item, Configuration c) {
+public Configuration importProduction(RSignatureItem item, Configuration c, bool registerName=true) {
+	return importProduction(item.prod, item.at, c, registerName=registerName);
+}
+
+@doc{Import a signature item: Production}
+public Configuration importProduction(Production prod, loc at, Configuration c, bool registerName=true) {
 	// Signature item contains a syntax definition production
-	Production prod = item.prod;
 	if( (prod.def is label && prod.def.symbol has name) 
 			|| (!(prod.def is label) && prod.def has name) 
 			|| (prod.def is \start && prod.def.symbol has name)) {
 		str sortName = (prod.def is \start || prod.def is label) ? prod.def.symbol.name : prod.def.name;
-		c = addSyntaxDefinition(c, RSimpleName(sortName), item.at, prod, prod.def is \start);
+		c = addSyntaxDefinition(c, RSimpleName(sortName), at, prod, prod.def is \start, registerName=registerName);
 	}
 	// Productions that end up in the store
 	for(/Production p:prod(_,_,_) := prod) {
 		if(label(str l, Symbol _) := p.def) {
-    		c = addProduction(c, RSimpleName(l), item.at, p);
+    		c = addProduction(c, RSimpleName(l), at, p, registerName=registerName);
     	} else {
-    		c = addProduction(c, RSimpleName(""), item.at, p);
+    		c = addProduction(c, RSimpleName(""), at, p, registerName=registerName);
     	} 
     }
     return c;
@@ -6485,10 +6489,12 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	mId = c.modEnv[mName];
 	
 	map[int,int] containerMap = ( d.modEnv[mName] : mId );
+	set[int] loadedIds = { };
 	
 	void loadItem(int itemId) {
 		AbstractValue av = d.store[itemId];
-				
+		loadedIds = loadedIds + itemId;
+					
 		switch(av) {
 			case variable(RName name, Symbol rtype, bool inferred, int containedIn, loc at) : {
 				itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
@@ -6525,7 +6531,8 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 			}
 			
 			case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
-				c = addProduction(c, name, at, p); 
+				c = importProduction(p, at, c, registerName=false); 
+				//c = addProduction(c, name, at, p); 
 			}
 			
 			case annotation(RName name, Symbol rtype, Symbol onType, int containedIn, loc at) : {
@@ -6544,21 +6551,49 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 		}
 	}
 		
+	void loadTransItem(int itemId) {
+		AbstractValue av = d.store[itemId];
+		loadedIds = loadedIds + itemId;
+					
+		switch(av) {
+			case overload(set[int] items, Symbol rtype) : {
+				for (item <- items) {
+					loadTransItem(item);
+				}
+			}			
+			
+			case sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
+				for (at <- ats) {
+					c = addNonterminal(c, name, at, rtype, registerName = false);
+				} 
+			}
+			
+			case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
+				c = importProduction(p, at, c, registerName=false); 
+			}
+		}
+	}
+			
 	// Add the items from d into c
-	typeIds = d.typeEnv<1>;
-	annotationIds = d.annotationEnv<1>;
-	nameIds = d.fcvEnv<1>;
-	 
-	for (itemId <- typeIds) {
+	// NOTE: This seems repetitive, but we cannot just collapse all the IDs into a set
+	// since there are order dependencies -- we cannot load an annotation until type types
+	// that are annotated are loaded, and we cannot load a constructor until the ADT is
+	// loaded, for instance.
+	for (itemId <- d.typeEnv<1>) {
+		loadItem(itemId);		
+	}
+	for (itemId <- d.annotationEnv<1>) {
+		loadItem(itemId);		
+	}
+	for (itemId <- d.fcvEnv<1>) {
 		loadItem(itemId);		
 	}
 
-	for (itemId <- annotationIds) {
-		loadItem(itemId);		
-	}
-
-	for (itemId <- nameIds) {
-		loadItem(itemId);		
+	// Add productions and nonterminals that aren't linked -- this transitively
+	// brings them all in, even if they aren't given an in-scope name
+	notLoaded = (d.store<0> - loadedIds);
+	for (itemId <- notLoaded) {
+		loadTransItem(itemId);
 	}
 	
 	c = popModule(c);
@@ -6769,7 +6804,8 @@ public Configuration loadImportedAnnotations(Configuration c, set[RName] importe
 
 public Configuration loadImportedNames(Configuration c, set[RName] varNamesToDeclare, set[RName] funNamesToDeclare, set[RName] importedModules) {
 	// TODO: Add info messages about names that were not imported into scope?
-
+	// TODO: Handle scope
+	
 	// Build relations with info on all functions, constructors, productions, and vars 
 	name2id = { < tn, c.moduleInfo[mn].fcvEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].fcvEnv };
 	overloadIds = { < tn, oid > | < tn, tid > <- name2id, c.store[tid] is overload, oid <- c.store[tid].items };
@@ -7038,9 +7074,21 @@ str getCachedHash(loc src, loc bindir) = readBinaryValueFile(#str, cachedHash(sr
 Configuration getCachedConfig(loc src, loc bindir) = readBinaryValueFile(#Configuration, cachedConfig(src,bindir));
 map[RName,str] getCachedHashMap(loc src, loc bindir) = readBinaryValueFile(#map[RName,str], cachedHashMap(src,bindir));
 
-void writeCachedHash(loc src, loc bindir, str hashval) { writeBinaryValueFile(cachedHash(src,bindir), hashval, compress=false); }
-void writeCachedConfig(loc src, loc bindir, Configuration c) { writeBinaryValueFile(cachedConfig(src,bindir), c, compress=false); }
-void writeCachedHashMap(loc src, loc bindir, map[RName,str] m) { writeBinaryValueFile(cachedHashMap(src,bindir), m, compress=false); }
+void writeCachedHash(loc src, loc bindir, str hashval) {
+	l = cachedHash(src,bindir);
+	if (!exists(l.parent)) mkDirectory(l.parent);
+	writeBinaryValueFile(l, hashval, compress=false); 
+}
+void writeCachedConfig(loc src, loc bindir, Configuration c) {
+	l = cachedConfig(src,bindir); 
+	if (!exists(l.parent)) mkDirectory(l.parent);
+	writeBinaryValueFile(l, c, compress=false); 
+}
+void writeCachedHashMap(loc src, loc bindir, map[RName,str] m) {
+	l = cachedHashMap(src,bindir); 
+	if (!exists(l.parent)) mkDirectory(l.parent);
+	writeBinaryValueFile(l, m, compress=false); 
+}
 
 public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false) {
 	return checkModule(md, (md@\loc).top, c, bindir=bindir, forceCheck=forceCheck);
