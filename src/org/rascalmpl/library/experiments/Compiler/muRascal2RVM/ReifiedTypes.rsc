@@ -14,5 +14,5 @@ public bool reifiedtype(Symbol \type, type[value] st) {
 	Module M = parse(#start[Module], moduleLoc);
    	Configuration c = newConfiguration();
    	Configuration config = checkModule(M.top, c);
-   	return symbolToValue(\type,config) == st;
+   	return symbolToValue(\type /*,config*/) == st;
 }

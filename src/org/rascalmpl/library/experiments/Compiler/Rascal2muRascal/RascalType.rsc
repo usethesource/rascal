@@ -58,18 +58,18 @@ Symbol translateType(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) =
 									\func(translateType(tp), [ translateType(arg) | arg <- args]);
 									
 Symbol translateType(t: (UserType) `<QualifiedName name>`) {
-	rn = convertName(name);
 	// look up the name in the type environment
-	val = getConfiguration().store[getConfiguration().typeEnv[rn]];
+	val = getAbstractValueForQualifiedName(name);
+	
 	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
 		return val.rtype;
 	}
 	throw "The name <name> is not resolved to a type: <val>.";
 }
 Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) {
-	rn = convertName(name);
 	// look up the name in the type environment
-	val = getConfiguration().store[getConfiguration().typeEnv[rn]];
+	val = getAbstractValueForQualifiedName(name);
+	
 	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
 		// instantiate type parameters
 		val.rtype.parameters = [ translateType(param) | param <- parameters];

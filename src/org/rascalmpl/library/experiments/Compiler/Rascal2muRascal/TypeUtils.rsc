@@ -390,6 +390,10 @@ void extractScopes(Configuration c){
     //for(int uid <- uid2addr){
     //	println("uid2addr[<uid>] = <uid2addr[uid]>");
     //}
+    
+    // Extract all declarations for the benefit of the type reifier
+    
+    getDeclarationInfo(config);
 }
 
 /********************************************************************/
@@ -435,6 +439,12 @@ Symbol getClosureType(loc l) {
    } else {
        throw "Looked up a closure, but got: <cls> instead";
    }
+}
+
+AbstractValue getAbstractValueForQualifiedName(QualifiedName name){
+	rn = convertName(name);
+	// look up the name in the type environment
+	return config.store[config.typeEnv[rn]];
 }
 					
 KeywordParamMap getKeywords(loc location) = config.store[loc2uid[location]].keywordParams;
@@ -519,7 +529,7 @@ public bool hasField(Symbol s, str fieldName){
     //println("hasField: <s>, <fieldName>");
 
     if(isADTType(s)){
-       s2v = symbolToValue(s, config);
+       s2v = symbolToValue(s /*, config*/);
        //println("s2v = <s2v>");
     }
     // TODO: this is too liberal, restrict to outer type.
