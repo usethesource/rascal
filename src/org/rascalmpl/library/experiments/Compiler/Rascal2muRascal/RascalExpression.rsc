@@ -443,9 +443,9 @@ syntax ConcreteHole
 default MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
     fragType = getType(e@\loc);
     println("translateConcrete, fragType = <fragType>");
-    reifiedFragType = symbolToValue(fragType, getConfiguration());
+    reifiedFragType = symbolToValue(fragType);
     println("translateConcrete, reified: <reifiedFragType>");
-    Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar(getConfiguration()));
+    Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar());
     return translateConcreteParsed(parsedFragment);
 }
 
@@ -1167,7 +1167,7 @@ private MuExp translateSetOrList(es, str kind){
 
 // -- reified type expression ---------------------------------------
 
-MuExp translate (e:(Expression) `# <Type tp>`) = muCon(symbolToValue(translateType(tp),getConfiguration()));
+MuExp translate (e:(Expression) `# <Type tp>`) = muCon(symbolToValue(translateType(tp)));
 
 // -- tuple expression ----------------------------------------------
 
@@ -1359,7 +1359,10 @@ MuExp translate(e:(Expression) `*<Expression argument>`) {
 // -- asType expression ---------------------------------------------
 
 MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
-   muCallPrim("parse", [muCon(getModuleName()), muCon(type(symbolToValue(translateType(typ), getConfiguration()).symbol,getGrammar(getConfiguration()))), translate(argument)], e@\loc);
+   muCallPrim("parse", [muCon(getModuleName()), 
+   					    muCon(type(symbolToValue(translateType(typ)).symbol,getGrammar())), 
+   					    translate(argument)], 
+   					    e@\loc);
    
 // -- composition expression ----------------------------------------
 

@@ -199,9 +199,18 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  		[ fuid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.dataKeywordDefaults[fuid]) ]
    	  	  > 
    	  	| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions 
-   	  	]; 
-   	  symbol_definitions = getDefinitions(config);   
-   	  return muModule(modName, imported_modules, types, symbol_definitions, functions_in_module, variables_in_module, variable_initializations, getModuleVarInitLocals(modName), overloadingResolver, overloaded_functions, getGrammar(getConfiguration()));
+   	  	];    
+   	  return muModule(modName, 
+   	  				  imported_modules, 
+   	  				  types, 
+   	  				  getDefinitions(), 
+   	  				  functions_in_module, 
+   	  				  variables_in_module, 
+   	  				  variable_initializations, 
+   	  				  getModuleVarInitLocals(modName), 
+   	  				  overloadingResolver, 
+   	  				  overloaded_functions, 
+   	  				  getGrammar());
    	}
    } catch Java("ParseError","Parse error"): {
    	   throw "Syntax errors in module <moduleLoc>";
@@ -323,7 +332,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
      }
      if("<fd.signature.name>" == "typeOf"){		// special treatment of Types::typeOf
-     	body = muCallPrim("type2symbol", [ muCallPrim("typeOf", params), muCon(getGrammar(getConfiguration())) ]);
+     	body = muCallPrim("type2symbol", [ muCallPrim("typeOf", params), muCon(getGrammar()) ]);
      } else {
         body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, keywordTypes, ("reflect" in ttags) ? 1 : 0, params);
      }
@@ -341,7 +350,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
      // Switched from type constant
      //tests += muCallPrim("testreport_add", [muCon(fuid), muCon(ttags["ignore"]?), muCon(ttags["expected"] ? ""), muCon(fd@\loc), muTypeCon(\tuple([param | param <- params ])) ]);
      // to reified type
-     tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ignoreTest(ttags)), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]), getConfiguration())) ]);
+     tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ignoreTest(ttags)), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]))) ]);
   }
   leaveFunctionScope();
 }
