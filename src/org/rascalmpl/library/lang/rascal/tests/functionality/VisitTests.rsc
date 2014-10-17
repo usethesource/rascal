@@ -277,8 +277,23 @@ test bool StringVisit55() = cntAB("ab") == <1, 10>;
 test bool StringVisit56() = cntAB("ba") == <1, 10>;
 test bool StringVisit57() = cntAB("abcabca") == <3, 20>;
 
+// StringVisit6
 
+tuple[int,int] TDCntAB(str s){
+	int cntA = 0;
+	int cntB = 0;
+	top-down visit(s){ case /^a/: cntA += 1; case /^b/: cntB += 10;}
+	
+	return <cntA, cntB>;
+}
 
+test bool StringVisit61() = TDCntAB("") == <0, 0>;
+test bool StringVisit62() = TDCntAB("cdefg") == <0, 0>;
+test bool StringVisit63() = TDCntAB("a") == <1, 0>;
+test bool StringVisit64() = TDCntAB("b") == <0, 10>;
+test bool StringVisit65() = TDCntAB("ab") == <1, 10>;
+test bool StringVisit66() = TDCntAB("ba") == <1, 10>;
+test bool StringVisit67() = TDCntAB("abcabca") == <3, 20>;
 		
 
 
