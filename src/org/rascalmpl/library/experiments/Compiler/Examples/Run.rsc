@@ -119,7 +119,6 @@ value demo(str example bool debug = false, bool listing=false, bool testsuite=fa
 
 test bool tst() = demo("AsType1",recompile=true) == experiments::Compiler::Examples::AsType1::main([]);
 
-// New bug in type checker:
 test bool tst() = demo("AsType2",recompile=true) == experiments::Compiler::Examples::AsType2::main([]);
 
 // Bug in the interpreter, see issue #542

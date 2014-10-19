@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.regex.Pattern;
@@ -82,21 +83,25 @@ public enum RascalPrimitive {
 	constructor {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
-			assert arity == 2;
-			Type type = (Type) stack[sp - 2]; 
-			IValue[] args = (IValue[]) stack[sp - 1];
-			stack[sp - 2] = vf.constructor(type, args);
-			return sp - 1;
+			assert arity == 3;
+			Type type = (Type) stack[sp - 3]; 
+			IValue[] args = (IValue[]) stack[sp - 2];
+			@SuppressWarnings("unchecked")
+			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
+			stack[sp - 3] = vf.constructor(type, args, kwargs);
+			return sp - 2;
 		}
 	},
 	node {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
-			assert arity == 2;
-			String name = ((IString) stack[sp - 2]).getValue(); 
-			IValue[] args = (IValue[]) stack[sp - 1];
-			stack[sp - 2] = vf.node(name, args);
-			return sp - 1;
+			assert arity == 3;
+			String name = ((IString) stack[sp - 3]).getValue(); 
+			IValue[] args = (IValue[]) stack[sp - 2];
+			@SuppressWarnings("unchecked")
+			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
+			stack[sp - 3] = vf.node(name, args, kwargs);
+			return sp - 2;
 		}
 	},
 	list {
@@ -108,7 +113,25 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
+	lrel {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			assert arity == 1;
+			IValue[] args = (IValue[]) stack[sp - 1];
+			stack[sp - 1] = args.length == 0 ? emptyList : vf.list(args);
+			return sp;
+		}
+	},
 	set {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			assert arity == 1;
+			IValue[] args = (IValue[]) stack[sp - 1];
+			stack[sp - 1] = args.length == 0 ? emptySet : vf.set(args);
+			return sp;
+		}
+	},
+	rel {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 1;

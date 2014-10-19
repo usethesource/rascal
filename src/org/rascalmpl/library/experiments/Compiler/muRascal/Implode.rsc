@@ -230,10 +230,13 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
   			   case muCall(preVar(mvar("get_children_and_keyword_mmap")), [exp1])					=> muCallMuPrim("get_children_and_keyword_mmap", [exp1])
 	
 			   case muCall(preVar(mvar("get_name")), [exp1])									=> muCallMuPrim("get_name", [exp1])
-			   case muCall(preVar(mvar("get_name_and_children_and_keyword_mmap")), [exp1])							=> muCallMuPrim("get_name_and_children_and_keyword_mmap", [exp1])
+			   case muCall(preVar(mvar("get_name_and_children_and_keyword_mmap")), [exp1])		=> muCallMuPrim("get_name_and_children_and_keyword_mmap", [exp1])
 			   
-			   case muCall(preVar(mvar("get_children_and_keyword_values")), [exp1])					=> muCallMuPrim("get_children_and_keyword_values", [exp1])
-			   
+			   case muCall(preVar(mvar("get_children_and_keyword_values")), [exp1])				=> muCallMuPrim("get_children_and_keyword_values", [exp1])
+			   case muCall(preVar(mvar("get_keyword_mmap")), [exp1])							=> muCallMuPrim("get_keyword_mmap", [exp1])
+			    case muCall(preVar(mvar("make_keyword_mmap")), [exp1, exp2])					=> muCallMuPrim("make_keyword_mmap", [exp1, exp2])
+			   case muCall(preVar(mvar("get_keys_mmap")), [exp1])								=> muCallMuPrim("get_keys_mmap", [exp1])
+			    
  			   case muCall(preVar(mvar("get_children_without_layout_or_separators")), [exp1])	=> muCallMuPrim("get_children_without_layout_or_separators", [exp1])
  			   case muCall(preVar(mvar("has_label")), [exp1, exp2])								=> muCallMuPrim("has_label", [exp1, exp2])
 			 
@@ -272,6 +275,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                												
                case muCall(preVar(mvar("rint")), list[MuExp] exps) 								=> muCallMuPrim("rint", exps)
                case muCall(preVar(mvar("mint")), list[MuExp] exps) 								=> muCallMuPrim("mint", exps)
+               case muCall(preVar(mvar("mstr")), list[MuExp] exps) 								=> muCallMuPrim("mstr", exps)
                case muCall(preVar(mvar("undefine")), list[MuExp] exps) 							=> muCallMuPrim("undefine", exps)
                
                // Syntactic constructs that are mapped to muPrimitives

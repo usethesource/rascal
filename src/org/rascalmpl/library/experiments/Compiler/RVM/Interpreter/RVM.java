@@ -302,6 +302,8 @@ public class RVM {
 //			return ((Boolean) o).toString() + " [Java]";
 		if(o instanceof Integer)
 			return ((Integer)o).toString() + " [Java]";
+		if(o instanceof String)
+			return ((String)o) + " [Java]";
 		if(o instanceof IValue)
 			return ((IValue) o).toString() +" [IValue]";
 		if(o instanceof Type)

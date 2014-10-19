@@ -153,7 +153,7 @@ void extractScopes(Configuration c){
 	// - fuid2str
 
    config = c;	
-   println("extractScopes, setting config");
+   
    for(uid <- config.store){
       item = config.store[uid];
       switch(item){

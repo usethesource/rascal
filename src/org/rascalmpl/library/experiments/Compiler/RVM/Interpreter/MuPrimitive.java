@@ -135,6 +135,11 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
+	/*
+	 * Given a constructor or node get: 
+	 * - positional arguments 
+	 * (any keyword parameters are ignored)
+	 */
 	get_children {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -198,8 +203,8 @@ public enum MuPrimitive {
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 2;
 			Map<String,IValue> m = (Map<String,IValue>) stack[sp - 2];
-			IString key = (IString) stack[sp - 1];
-			stack[sp - 2] = m.get(key.getValue());
+			String key = (String) stack[sp - 1];
+			stack[sp - 2] = m.get(key);
 			return sp - 1;
 		};
 	},
@@ -256,6 +261,60 @@ public enum MuPrimitive {
 			elems[cons_arity] = v.asWithKeywordParameters().getParameters();
 			stack[sp - 1] = elems;
 			return sp;
+		};
+	},
+	get_keyword_mmap {
+		/*
+		 * Given a constructor or node get: 
+		 * - keyword parameters collected in a mmap
+		 */
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 1;
+			INode v = (INode) stack[sp - 1];
+			stack[sp - 1] = v.asWithKeywordParameters().getParameters();
+			return sp;
+		};
+	},
+	get_keys_mmap {
+		/*
+		 * Given a mmap, return its keys as array
+		 */
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 1;
+			@SuppressWarnings("unchecked")
+			Map<String,IValue> mmap = (Map<String,IValue>) stack[sp - 1];
+			int len = mmap.size();
+			String[] keys = new String[len];
+			int i = 0;
+			for(String key : mmap.keySet()){
+				keys[i++] = key;
+			}
+			stack[sp - 1] = keys;
+			return sp;
+		};
+	},
+
+	make_keyword_mmap {
+		/*
+		 * Given a constructor or node get: 
+		 * - an array of keywords (as string)
+		 * - a list of IValues
+		 * construct an mmap representing <keyword[i],value[i]> pairs
+		 */
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 2;
+			String[] keywords = (String[]) stack[sp - 2];
+			Object[] values = (Object[]) stack[sp - 1];
+			assert keywords.length == values.length;
+			Map<String,IValue> mmap = new HashMap<String,IValue>();
+			for(int i = 0; i< keywords.length; i++){
+				mmap.put(keywords[i], (IValue) values[i]);
+			}
+			stack[sp - 2] = mmap;
+			return sp - 1;
 		};
 	},
 	get_children_and_keyword_values {
@@ -619,7 +678,7 @@ public enum MuPrimitive {
 			return sp - 1;
 		};
 	},
-	// Create a keword map with <name, value> entries
+	// Create a keword map with <String, IValue> entries
 	make_mmap {
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
@@ -640,17 +699,15 @@ public enum MuPrimitive {
 		}
 	},
 	
-	
-	
-	// Does a keyword map with <name, value> entries contain a given key?
+	// Does a keyword map with <String, IValue> entries contain a given key (as String)?
 	mmap_contains_key {
 		@SuppressWarnings("unchecked")
 		@Override
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 2;
 			Map<String,IValue> m = (Map<String,IValue>) stack[sp - 2];
-			IString key = ((IString) stack[sp - 1]);
-			stack[sp - 2] = vf.bool(m.containsKey(key.getValue()));
+			String key = ((String) stack[sp - 1]);
+			stack[sp - 2] = vf.bool(m.containsKey(key));
 			return sp - 1;
 		};
 	},
@@ -680,6 +737,16 @@ public enum MuPrimitive {
 			assert arity == 1;
 			if(stack[sp - 1] instanceof IInteger){
 				stack[sp - 1] = ((IInteger) stack[sp - 1]).intValue();
+			}
+			return sp;
+		};
+	},
+	mstr {
+		@Override
+		public int execute(Object[] stack, int sp, int arity) {
+			assert arity == 1;
+			if(stack[sp - 1] instanceof IString){
+				stack[sp - 1] = ((IString) stack[sp - 1]).getValue();
 			}
 			return sp;
 		};
