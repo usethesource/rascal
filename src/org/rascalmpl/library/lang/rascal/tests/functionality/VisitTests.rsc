@@ -295,5 +295,12 @@ test bool StringVisit65() = TDCntAB("ab") == <1, 10>;
 test bool StringVisit66() = TDCntAB("ba") == <1, 10>;
 test bool StringVisit67() = TDCntAB("abcabca") == <3, 20>;
 		
+// Keywords and visit
 
+data RECT = rect(int w, int h, str color = "white");
+
+@ignoreInterpreter{Not implemented}
+test bool KeywordVisit1()=visit("f"(1, kw1="abc", kw2=13)){ case 1 => 10 case "abc" => "def" case 13 => 14} == "f"(10, kw1="def", kw2=14);
+@ignoreInterpreter{Not implemented}
+test bool KeywordVisit2()=visit(rect(10,20)){ case "white" => "red"} == rect(10, 20, color="red");
 
