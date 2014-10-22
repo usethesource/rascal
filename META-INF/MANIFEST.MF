@@ -4,7 +4,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: CWI
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.6.3.qualifier
+Bundle-Version: 0.7.0.qualifier
 Export-Package: 
  org.rascalmpl.ast,
  org.rascalmpl.checker,
