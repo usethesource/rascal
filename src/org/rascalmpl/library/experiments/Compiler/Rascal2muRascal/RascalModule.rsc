@@ -131,7 +131,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  variables_in_module = [];
    	  variable_initializations = [];
    	  map[str,Symbol] types = 
-   	  	( fuid2str[uid] : \type | 
+   	  	( uid2str[uid] : \type | 
    	  	  int uid <- config.store, 
    	  	  ( constructor(name, Symbol \type, keywordParams, containedIn, at) := config.store[uid]
    	  	  || production(name, Symbol \type, containedIn, at) := config.store[uid] 
@@ -150,7 +150,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	         int adt = toMapUnique(invert(config.adtConstructors))[uid];
    	         keywordParams[rname] = config.adtFields[<adt,getSimpleName(rname)>];
    	     }
-   	     str fuid = fuid2str[uid] + "::companion";
+   	     str fuid = uid2str[uid] + "::companion";
    	     Symbol ftype = Symbol::func(getConstructorResultType(\type), [ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ]);
    	     tuple[str fuid,int pos] addr = uid2addr[uid];
    	     int nformals = size(\type.parameters) + 1;
@@ -175,7 +175,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
          MuExp body = 
          	muBlock(kwps 
          			+ kwargs 
-         			+ [ muReturn(muCall(muConstr(fuid2str[uid]),[ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
+         			+ [ muReturn(muCall(muConstr(uid2str[uid]),[ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
                     + [ muCallMuPrim("make_mmap", kwargs), 
                     muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),keywordParams[rname]) | rname <- keywordParams ])) ])) ]);
                                                 
@@ -192,11 +192,11 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  // Overloading resolution...	  
    	  lrel[str,list[str],list[str]] overloaded_functions = 
    	  	[ < (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
-   	  		[ fuid2str[fuid] | int fuid <- of.fuids, (fuid in functions) && (fuid notin defaultFunctions) ] 
-   	  		+ [ fuid2str[fuid] | int fuid <- of.fuids, fuid in defaultFunctions ]
+   	  		[ uid2str[fuid] | int fuid <- of.fuids, (fuid in functions) && (fuid notin defaultFunctions) ] 
+   	  		+ [ uid2str[fuid] | int fuid <- of.fuids, fuid in defaultFunctions ]
    	  		  // Replace call to a constructor with call to the constructor function if the constructor has keyword parameters
-   	  		+ [ fuid2str[fuid] + "::companion" | int fuid <- of.fuids, fuid in constructors, !isEmpty(config.dataKeywordDefaults[fuid]) ],
-   	  		[ fuid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.dataKeywordDefaults[fuid]) ]
+   	  		+ [ uid2str[fuid] + "::companion" | int fuid <- of.fuids, fuid in constructors, !isEmpty(config.dataKeywordDefaults[fuid]) ],
+   	  		[ uid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.dataKeywordDefaults[fuid]) ]
    	  	  > 
    	  	| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions 
    	  	];    
@@ -308,7 +308,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
   uid = loc2uid[fd@\loc];
-  fuid = uid2str(uid);
+  fuid = convert2fuid(uid);
   
   enterFunctionScope(fuid);
   

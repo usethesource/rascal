@@ -1568,7 +1568,7 @@ function VISIT_CHILDREN(iSubject, traverse_fun, phi, rHasMatch, rBeenChanged, rB
         default:
             return iSubject;
     }
-    println("VISIT_CHILDREN, returns", iSubject);
+    //println("VISIT_CHILDREN, returns", iSubject);
     
     return iSubject
 }

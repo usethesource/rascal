@@ -101,6 +101,124 @@ MuExp infix_rel_lrel(str op, Expression e){
   return muCallPrim("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)], e@\loc);
 }
 
+MuExp compose(Expression e){
+  lhsType = getType(e.lhs@\loc);
+  return isFunctionType(lhsType) || isOverloadedType(lhsType) ? translateComposeFunction(e) : infix_rel_lrel("compose", e);
+}
+
+MuExp translateComposeFunction(e){
+  lhsType = getType(e.lhs@\loc);
+  rhsType = getType(e.rhs@\loc);
+  resType = getType(e@\loc);
+  
+  MuExp lhsReceiver = translate(e.lhs);
+  MuExp rhsReceiver = translate(e.rhs);
+  
+  str ofqname = lhsReceiver.fuid + "+" + rhsReceiver.fuid;  // name of composition
+  
+  if(overloadingResolver[ofqname]?){
+    return muOFun(ofqname);
+  }
+  
+  // Unique 'id' of a visit in the function body
+  int i = nextVisit();  // TODO: replace by generated function counter
+    
+  // Generate and add a function COMPOSED_FUNCTIONS_<i>
+  str scopeId = topFunctionScope();
+  str comp_fuid = scopeId + "/" + "COMPOSED_FUNCTIONS_<i>";
+  
+  Symbol comp_ftype;  
+  int nargs;
+  if(isFunctionType(resType)) {
+     nargs = size(resType.parameters);
+     comp_ftype = resType;
+  } else {
+     nargs = size(getOneFrom(resType.overloads).parameters);
+     for(t <- resType.overloads){
+         if(size(t.parameters) != nargs){
+            throw "cannot handle composition/overloading for different arities";
+         }
+     }
+     comp_ftype = Symbol::func(\value(), [\value() | int i <- [0 .. nargs]]);
+  }
+    
+  enterFunctionScope(comp_fuid);
+  kwargs = muCallMuPrim("make_mmap", []);
+  rhsCall = muOCall(rhsReceiver, \tuple([rhsType]), [muVar("parameter_<i>", comp_fuid, i) | int i <- [0 .. nargs]] + [ kwargs ], e.rhs@\loc);
+  body =  [muReturn(muOCall(lhsReceiver, \tuple([lhsType]), [rhsCall, kwargs ], e.lhs@\loc))];
+   
+  leaveFunctionScope();
+  fun = muFunction(comp_fuid, "COMPOSED_FUNCTIONS_<i>", comp_ftype, scopeId, nargs, 2, false, \e@\loc, [], (), muBlock(body));
+ 
+  int uid = declareGeneratedFunction(comp_fuid, comp_ftype);
+  addFunctionToModule(fun);
+  
+  int k = size(overloadedFunctions);
+  scopeId1 = scopeId[0 .. findFirst(scopeId, "/")];
+  overloadedFunctions += <getModuleName(), {uid}>;
+  overloadingResolver[ofqname] = k;
+ 
+  return muOFun(ofqname);
+}
+
+MuExp add(Expression e){
+    lhsType = getType(e.lhs@\loc);
+    return isFunctionType(lhsType) || isOverloadedType(lhsType) ? translateAddFunction(e) :infix("add", e);
+}
+
+MuExp translateAddFunction(Expression e){
+
+  lhsType = getType(e.lhs@\loc);
+  rhsType = getType(e.rhs@\loc);
+  
+  str2uid = invertUnique(uid2str);
+  
+  MuExp lhsReceiver = translate(e.lhs);
+  tuple[str scopeIn, set[int] alts] lhsOf;
+  
+  if(overloadingResolver[lhsReceiver.fuid]?){
+    int lhsResolver = overloadingResolver[lhsReceiver.fuid];
+    lhsOf = overloadedFunctions[lhsResolver];
+  } else {
+    int k = size(overloadedFunctions);
+    uid = str2uid[lhsReceiver.fuid];
+    lhsOf = <topFunctionScope(), {uid }>;
+    overloadedFunctions += lhsOf;
+    overloadingResolver[lhsReceiver.fuid] = k;
+  }
+ 
+  MuExp rhsReceiver = translate(e.rhs);
+  tuple[str scopeIn,set[int] alts] rhsOf;
+  
+  if( overloadingResolver[rhsReceiver.fuid]?){
+    int rhsResolver = overloadingResolver[rhsReceiver.fuid];
+    rhsOf = overloadedFunctions[rhsResolver];
+  } else {
+    int k = size(overloadedFunctions);
+    uid = str2uid[rhsReceiver.fuid];
+    rhsOf = <topFunctionScope(), {uid }>;
+    overloadedFunctions += rhsOf;
+    overloadingResolver[rhsReceiver.fuid] = k;
+  }
+ 
+  tuple[str scopeIn,set[int] alts] compOf = <lhsOf[0], lhsOf[1] + rhsOf[1]>; // add all alternatives
+  
+  str ofqname = lhsReceiver.fuid + "+" + rhsReceiver.fuid;  // name of addition
+  
+  int k;
+  bool exists = compOf in overloadedFunctions;
+ 
+  if(!exists) {
+     k = size(overloadedFunctions);
+     overloadedFunctions += compOf;
+  } else {
+     k = indexOf(overloadedFunctions, compOf);
+  }
+  overloadingResolver[ofqname] = k;  
+
+  return muOFun(ofqname);
+}
+
 str typedUnaryOp(str ot, str op) = (ot == "value" || ot == "parameter") ? op : "<op>_<ot>";
  
 MuExp prefix(str op, Expression arg) {
@@ -397,7 +515,7 @@ MuExp translate(e:(Expression) `<Concrete concrete>`) {
 MuExp getConstructor(str cons) {
    uid = -1;
    for(c <- constructors){
-     //println("c = <c>, uid2name = <uid2name[c]>, uid2str = <uid2str(c)>");
+     //println("c = <c>, uid2name = <uid2name[c]>, uid2str = <convert2fuid(c)>");
      if(cons == getSimpleName(getConfiguration().store[c].name)){
         //println("c = <c>, <config.store[c]>,  <uid2addr[c]>");
         uid = c;
@@ -406,7 +524,7 @@ MuExp getConstructor(str cons) {
    }
    if(uid < 0)
       throw("No definition for constructor: <cons>");
-   return muConstr(fuid2str[uid]);
+   return muConstr(convert2fuid(uid));
 }
 /*
 data Tree 
@@ -513,7 +631,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
  
  MuExp translateClosure(Expression e, Parameters parameters, Tree cbody) {
  	uid = loc2uid[e@\loc];
-	fuid = uid2str(uid);
+	fuid = convert2fuid(uid);
 	
 	enterFunctionScope(fuid);
 	
@@ -535,7 +653,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
   	
   	leaveFunctionScope();								  
   	
-	return (addr.fuid == uid2str(0)) ? muFun(fuid) : muFun(fuid, addr.fuid); // closures are not overloaded
+	return (addr.fuid == convert2fuid(0)) ? muFun(fuid) : muFun(fuid, addr.fuid); // closures are not overloaded
 }
 
 MuExp translateBoolClosure(Expression e){
@@ -926,6 +1044,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        tuple[str scopeIn,set[int] alts] of = overloadedFunctions[i];
        set[int] resolved = {};
        
+       //println("ftype = <ftype>, ofqname = <ofqname>, alts = <of.alts>");
+       
        bool matches(Symbol t) {
            if(isFunctionType(ftype) || isConstructorType(ftype)) {
                if(/parameter(_,_) := t) { // In case of polymorphic function types
@@ -950,7 +1070,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                        println("WARNING: Cannot match <ftype> against <t> for location: <expression@\loc>! <err>");
                    }
                }
-               return t == ftype;
+               //return t == ftype;
+               return subtype(ftype.parameters, t.parameters);
            }           
            if(isOverloadedType(ftype)) {
                if(/parameter(_,_) := t) { // In case of polymorphic function types
@@ -978,7 +1099,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                    }
                    return false;
            	   }
-               return t in (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype));
+               //return t in (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype));
+               return any(Symbol sup <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)), subtype(t.parameters, sup.parameters));
            }
            throw "Ups, unexpected type of the call receiver expression!";
        }
@@ -986,14 +1108,14 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
      
        
        for(int alt <- of.alts) {
-           t = fuid2type[alt];
+           t = uid2type[alt];
            if(matches(t)) {
                resolved += alt;
            }
        }
        if(isEmpty(resolved)) {
            for(int alt <- of.alts) {
-               t = fuid2type[alt];
+               t = uid2type[alt];
                matches(t);
                println("ALT: <t> ftype: <ftype>");
            }
@@ -1015,7 +1137,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    }
    // Push down additional information if the overloading resolution needs to be done at runtime
    return muOCall(receiver, 
-   				  isFunctionType(ftype) ? Symbol::\tuple([ ftype ]) : Symbol::\tuple([ t | Symbol t <- getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype) ]), 
+   				  isFunctionType(ftype) ? Symbol::\tuple([ ftype ]) : Symbol::\tuple([ t | Symbol t <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)) ]), 
    				  args + [ kwargs ],
    				  e@\loc);
 }
@@ -1366,7 +1488,7 @@ MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
    
 // -- composition expression ----------------------------------------
 
-MuExp translate(e:(Expression) `<Expression lhs> o <Expression rhs>`)   = infix_rel_lrel("compose", e);
+MuExp translate(e:(Expression) `<Expression lhs> o <Expression rhs>`)   = compose(e);
 
 // -- product expression --------------------------------------------
 
@@ -1390,7 +1512,7 @@ MuExp translate(e:(Expression) `<Expression lhs> & <Expression rhs>`)   = infix(
 
 // -- addition expression -------------------------------------------
 
-MuExp translate(e:(Expression) `<Expression lhs> + <Expression rhs>`)   = infix("add", e);
+MuExp translate(e:(Expression) `<Expression lhs> + <Expression rhs>`)   = add(e);
 
 // -- subtraction expression ----------------------------------------
 

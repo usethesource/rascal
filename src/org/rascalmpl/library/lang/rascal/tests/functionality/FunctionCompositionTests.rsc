@@ -81,7 +81,6 @@ test bool factorialFibonacci() {
 	return outputs1 == outputs2;
 }
 	
-
 test bool factorialFibonacciPrint1() {
     list[int] inputs = [0,1,2,3,4,5,6,7,8,9];
     list[str] outputs1 = [ printResult(fact(fib(i))) | int i <- inputs ];
@@ -178,8 +177,6 @@ test bool nonDeterministicChoiceAndNormalComposition15() =
 test bool nonDeterministicChoiceAndNormalComposition16() =             
     (i + h)(1) == "1" || (i + h)(1) == "2"; 
     
-
-
 test bool nonDeterministicChoiceAndNormalComposition21() {
     list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
     list[int] outputs = [ (n%2 == 0) ? n*(n - 1) : 2*n | int n <- inputs ]; 
@@ -234,6 +231,17 @@ test bool nonDeterministicChoiceAndNormalComposition26() {
     list[int] outputs8 = [0,1] + [ 2*(2*n-1) | int n <- inputs - [0,1] ];
     list[int] outputs10 = [ 2*(2*n-1) | int n <- inputs ]; 
     list[int] outputs11 = [ (( int (int n) { return (n%2 == 0) ? { fail; } : 2*n; } + l) o (int (int n) { return 2*n - 1; }) + j0 + j1)(n) | int n <- inputs ]; 
+    
+    return outputs11 == outputs8 || outputs11 == outputs10;             
+}
+
+test bool nonDeterministicChoiceAndNormalComposition27() {
+    list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
+    list[int] outputs = [ (n%2 == 0) ? n*(n - 1) : 2*n | int n <- inputs ];    
+    
+    list[int] outputs8 = [0,1] + [ 2*(2*n-1) | int n <- inputs - [0,1] ];
+    list[int] outputs10 = [ 2*(2*n-1) | int n <- inputs ]; 
+    list[int] outputs11 = [ (( l + int (int n) { return (n%2 == 0) ? { fail; } : 2*n; } ) o (int (int n) { return 2*n - 1; }) + j0 + j1)(n) | int n <- inputs ]; 
     
     return outputs11 == outputs8 || outputs11 == outputs10;             
 }
