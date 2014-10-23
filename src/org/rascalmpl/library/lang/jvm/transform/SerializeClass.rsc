@@ -9,6 +9,8 @@
 @contributor{Atze van der Ploeg - Atze.van.der.Ploeg@cwi.nl (CWI)}
 module lang::jvm::transform::SerializeClass
 
+import Exception;
+
 import lang::jvm::ast::Level0;
 
 @javaClass{org.rascalmpl.library.lang.jvm.transform.SerializeClass}

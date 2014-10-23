@@ -7,6 +7,7 @@
 }
 module analysis::statistics::SimpleRegression
 
+import Exception;
 
 @doc{
 Synopsis: Intercept of regression line.
