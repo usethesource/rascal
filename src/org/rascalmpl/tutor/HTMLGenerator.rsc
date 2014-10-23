@@ -23,6 +23,8 @@ import Map;
 import util::Eval;
 import Warnings;
 
+import Exception;
+
 /*
 // Maintain a list of warnings found for current concept;
 

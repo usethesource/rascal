@@ -1,7 +1,8 @@
 module lang::rascal::tests::functionality::ConcreteSyntaxTests2
 
 import ParseTree;
-import lang::pico::\syntax::Main;
+//import lang::pico::\syntax::Main;
+import demo::lang::Pico::Syntax;
 
 test bool Pico1()  {t1 = (Program) `begin declare x: natural; x := 10 end`; return true;}
 
