@@ -200,7 +200,7 @@ public map[Symbol,Production] reify(Symbol::\parameter(str name, Symbol bound), 
 public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) 
 	= { 
 		Symbol nonterminal = typeMap[name];
-		println("reify: name=<name>, symbol=<symbol>, nonterminal=<nonterminal>"); 
+		//println("reify: name=<name>, symbol=<symbol>, nonterminal=<nonterminal>"); 
 		assert !(Symbol::\adt(name,_) := nonterminal);
 		if(!definitions[nonterminal]?) {
 			definitions[nonterminal] = \layouts(grammar[nonterminal]); // inserts an active layout
@@ -208,8 +208,8 @@ public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] defini
 				definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),
 																					   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) }));
 			}
-			println("Productions[nonterminal]: <productions[nonterminal]>");
-			println("Domain(grammar): <domain(grammar)>");
+			//println("Productions[nonterminal]: <productions[nonterminal]>");
+			//println("Domain(grammar): <domain(grammar)>");
 			definitions = ( definitions | reify(sym, it) | sym <- productions[nonterminal] );
 		}
 		definitions;
@@ -227,8 +227,8 @@ public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] defini
 				definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),
 																					   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) }));
 			}
-			println("Productions[nonterminal]: <productions[nonterminal]>");
-			println("Domain(grammar): <domain(grammar)>");
+			//println("Productions[nonterminal]: <productions[nonterminal]>");
+			//println("Domain(grammar): <domain(grammar)>");
 			definitions = ( definitions | reify(sym, it) | sym <- productions[nonterminal] );
 		}
 		definitions = ( definitions | reify(sym, it) | sym <- parameters );

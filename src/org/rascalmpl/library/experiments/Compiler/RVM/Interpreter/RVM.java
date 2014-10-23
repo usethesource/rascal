@@ -201,6 +201,8 @@ public class RVM {
 			int i = 0;
 			for(IValue fuid : fuids) {
 				String name = ((IString) fuid).getValue();
+				//stdout.println("fillOverloadedStore: " + name);
+				//stdout.flush();
 				Integer index = functionMap.get(name);
 				if(index == null){
 					throw new CompilerError("No definition for " + fuid + " in functionMap");
@@ -553,6 +555,7 @@ public class RVM {
 						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
 					}
 					stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
+					stdout.flush();
 				}
 				
 				//Opcode.use(instruction);
@@ -876,6 +879,7 @@ public class RVM {
 						// 	1. FunctionInstance due to closures
 						if(funcObject instanceof FunctionInstance) {
 							FunctionInstance fun_instance = (FunctionInstance) funcObject;
+							//stdout.println("OCALLDYN: " + fun_instance.function.name);
 							cf = cf.getFrame(fun_instance.function, fun_instance.env, arity, sp);
 							instructions = cf.function.codeblock.getInstructions();
 							stack = cf.stack;
@@ -928,7 +932,7 @@ public class RVM {
 					assert cf.previousCallFrame == c_ofun_call.cf;
 					
 					frame = c_ofun_call.nextFrame(functionStore);				
-					if(frame != null) {						
+					if(frame != null) {
 						if(debug) {
 							this.appendToTrace("		" + "try alternative: " + frame.function.name);
 						}
