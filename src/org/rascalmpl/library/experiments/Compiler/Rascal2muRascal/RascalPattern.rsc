@@ -335,7 +335,7 @@ default int nIter(Symbol s) { throw "Cannot determine iteration count: <s>"; }
 // Get the separator of an iterator type
 Symbol getSeparator(\iter-seps(Symbol symbol, list[Symbol] separators)) = separators[0];
 Symbol getSeparator(\iter-star-seps(Symbol symbol, list[Symbol] separators)) = separators[0];
-default list[Symbol] getSeparator(Symbol sym) { throw "Cannot determine separator: <sym>"; }
+default Symbol getSeparator(Symbol sym) { throw "Cannot determine separator: <sym>"; }
 
 // What is is the minimal iteration count of a pattern (as Tree)?
 int nIter(Tree pat){
