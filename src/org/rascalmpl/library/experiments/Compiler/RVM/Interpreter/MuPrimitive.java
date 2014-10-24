@@ -1270,7 +1270,7 @@ public enum MuPrimitive {
 			IString subject = ((IString)  stack[sp - 3]);
 			Integer start = ((Integer)  stack[sp - 2]);
 			Integer end  = ((Integer)  stack[sp - 1]);
-			System.err.println("substring: " + subject + ", " + start + ", " + end);
+			//System.err.println("substring: " + subject + ", " + start + ", " + end);
 			stack[sp - 3] = subject.substring(start, end);
 			return sp - 2;
 		};
