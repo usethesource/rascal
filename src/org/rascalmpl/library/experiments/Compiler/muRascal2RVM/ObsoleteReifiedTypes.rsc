@@ -1,8 +1,8 @@
-module experiments::Compiler::muRascal2RVM::ReifiedTypes
+module experiments::Compiler::muRascal2RVM::ObsoleteReifiedTypes
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::TestChecker;
-import lang::rascal::types::CheckTypes;
+import lang::rascal::types::CheckTypes; 
 
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
