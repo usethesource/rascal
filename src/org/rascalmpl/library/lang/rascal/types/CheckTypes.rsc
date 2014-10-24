@@ -6561,13 +6561,13 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 		}
 	}
 		
-	void loadTransItem(int itemId) {
+	void loadTransSort(int itemId) {
 		AbstractValue av = d.store[itemId];
 		loadedIds = loadedIds + itemId;
 
 		if (overload(set[int] items, Symbol rtype) := av) {
-			for (item <- items, item in filteredIds) {
-				loadTransItem(item);
+			for (item <- items) {
+				loadTransSort(item);
 			}
 		} else {
 			switch(av) {
@@ -6576,7 +6576,20 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 						c = addNonterminal(c, name, at, rtype, registerName = false);
 					} 
 				}
-				
+			}
+		}
+	}
+
+	void loadTransProduction(int itemId) {
+		AbstractValue av = d.store[itemId];
+		loadedIds = loadedIds + itemId;
+
+		if (overload(set[int] items, Symbol rtype) := av) {
+			for (item <- items) {
+				loadTransProduction(item);
+			}
+		} else {
+			switch(av) {
 				case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
 					c = importProduction(p, at, c, registerName=false); 
 				}
@@ -6604,7 +6617,12 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	// brings them all in, even if they aren't given an in-scope name
 	notLoaded = (d.store<0> - loadedIds);
 	for (itemId <- notLoaded) {
-		loadTransItem(itemId);
+		loadTransSort(itemId);
+	}
+
+	notLoaded = (d.store<0> - loadedIds);
+	for (itemId <- notLoaded) {
+		loadTransProduction(itemId);
 	}
 	
 	c = popModule(c);
