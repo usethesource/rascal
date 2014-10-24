@@ -44,7 +44,7 @@ public bool moreBlack(ColoredTree t) = cntBlack1(t) > cntRed(t);
 // Alternative solution in one function:
 
 public bool moreBlack2(ColoredTree t){
-   int cb = true;  // <=========
+   int cb = 0;
    int cr = 0;
    visit(t) {
      case red(_,_): cr = cr + 1;

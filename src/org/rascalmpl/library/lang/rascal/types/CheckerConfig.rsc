@@ -19,6 +19,7 @@ import Relation;
 import util::Reflective;
 import DateTime;
 import String;
+import Exception;
 
 import lang::rascal::checker::ListUtils;
 import lang::rascal::checker::TreeUtils;
