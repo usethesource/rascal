@@ -6498,62 +6498,65 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	//declaringModule = { < mpaths[dl.top], di > | < dl, di > <- d.definitions }; 
 	filteredIds = { di | < di, dl > <- d.definitions, dl.top in mpaths, mpaths[dl.top] in toImport };
 	
+	// TODO: We may need to add extra definitions into the definitions relation so that linking back
+	// to all declarations will work properly (or we just make the location l a set in the add functions)
+	
 	void loadItem(int itemId) {
 		AbstractValue av = d.store[itemId];
 		loadedIds = loadedIds + itemId;
-					
-		switch(av) {
-			case variable(RName name, Symbol rtype, bool inferred, int containedIn, loc at) : {
-				itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
-				c = addTopLevelVariable(c, name, inferred, itemVis, at, rtype);
+				
+		if (overload(set[int] items, Symbol rtype) := av) {
+			for (item <- items, item in filteredIds) {
+				loadItem(item);
 			}
-			
-			case function(RName name, Symbol rtype, KeywordParamMap keywordParams, bool isVarArgs, int containedIn, list[Symbol] throwsTypes, bool isDeferred, loc at) : {
-				itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
-				mods = d.functionModifiers[itemId];
-				c = addFunction(c, name, rtype, keywordParams, mods, isVarArgs, itemVis, throwsTypes, at);
-			}
-			
-			case overload(set[int] items, Symbol rtype) : {
-				for (item <- items, item in filteredIds) {
-					loadItem(item);
+		} else if (itemId in filteredIds) {
+			switch(av) {
+				case variable(RName name, Symbol rtype, bool inferred, int containedIn, loc at) : {
+					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
+					c = addTopLevelVariable(c, name, inferred, itemVis, at, rtype);
 				}
-			}			
-			
-			case datatype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
-				itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
-				for (at <- ats) {
-					c = addADT(c, name, itemVis, at, rtype);
+				
+				case function(RName name, Symbol rtype, KeywordParamMap keywordParams, bool isVarArgs, int containedIn, list[Symbol] throwsTypes, bool isDeferred, loc at) : {
+					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
+					mods = d.functionModifiers[itemId];
+					c = addFunction(c, name, rtype, keywordParams, mods, isVarArgs, itemVis, throwsTypes, at);
 				}
-			}
-			
-			case sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
-				for (at <- ats) {
-					c = addNonterminal(c, name, at, rtype);
-				} 
-			}
-			
-			case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) : {
-				c = addConstructor(c, name, at, rtype, [], [<kp,kt,[Expression]"1"> | kp <- keywordParams, kt := keywordParams[kp]]);
-			}
-			
-			case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
-				c = importProduction(p, at, c, registerName=false); 
-				//c = addProduction(c, name, at, p); 
-			}
-			
-			case annotation(RName name, Symbol rtype, Symbol onType, int containedIn, loc at) : {
-				itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
-				c = addAnnotation(c, name, rtype, onType, itemVis, at);
-			}
-			
-			case \alias(RName name, Symbol rtype, int containedIn, loc at) : {
-				itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
-				c = addAlias(c, name, itemVis, at, rtype);
-			}
-			
-			default: {
-				throw "Could not add item <av>";
+				
+				case datatype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
+					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
+					for (at <- ats) {
+						c = addADT(c, name, itemVis, at, rtype);
+					}
+				}
+				
+				case sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
+					for (at <- ats) {
+						c = addNonterminal(c, name, at, rtype);
+					} 
+				}
+				
+				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) : {
+					c = addConstructor(c, name, at, rtype, [], [<kp,kt,[Expression]"1"> | kp <- keywordParams, kt := keywordParams[kp]]);
+				}
+				
+				case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
+					c = importProduction(p, at, c, registerName=false); 
+					//c = addProduction(c, name, at, p); 
+				}
+				
+				case annotation(RName name, Symbol rtype, Symbol onType, int containedIn, loc at) : {
+					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
+					c = addAnnotation(c, name, rtype, onType, itemVis, at);
+				}
+				
+				case \alias(RName name, Symbol rtype, int containedIn, loc at) : {
+					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
+					c = addAlias(c, name, itemVis, at, rtype);
+				}
+				
+				default: {
+					throw "Could not add item <av>";
+				}
 			}
 		}
 	}
@@ -6561,22 +6564,22 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	void loadTransItem(int itemId) {
 		AbstractValue av = d.store[itemId];
 		loadedIds = loadedIds + itemId;
-					
-		switch(av) {
-			case overload(set[int] items, Symbol rtype) : {
-				for (item <- items, item in filteredIds) {
-					loadTransItem(item);
-				}
-			}			
-			
-			case sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
-				for (at <- ats) {
-					c = addNonterminal(c, name, at, rtype, registerName = false);
-				} 
+
+		if (overload(set[int] items, Symbol rtype) := av) {
+			for (item <- items, item in filteredIds) {
+				loadTransItem(item);
 			}
-			
-			case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
-				c = importProduction(p, at, c, registerName=false); 
+		} else {
+			switch(av) {
+				case sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
+					for (at <- ats) {
+						c = addNonterminal(c, name, at, rtype, registerName = false);
+					} 
+				}
+				
+				case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
+					c = importProduction(p, at, c, registerName=false); 
+				}
 			}
 		}
 	}
@@ -6586,13 +6589,13 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	// since there are order dependencies -- we cannot load an annotation until type types
 	// that are annotated are loaded, and we cannot load a constructor until the ADT is
 	// loaded, for instance.
-	for (itemId <- d.typeEnv<1>, itemId in filteredIds) {
+	for (itemId <- d.typeEnv<1>) {
 		loadItem(itemId);		
 	}
-	for (itemId <- d.annotationEnv<1>, itemId in filteredIds) {
+	for (itemId <- d.annotationEnv<1>) {
 		loadItem(itemId);		
 	}
-	for (itemId <- d.fcvEnv<1>, itemId in filteredIds) {
+	for (itemId <- d.fcvEnv<1>) {
 		// NOTE: This does not bring in nameless productions, we need to handle those separately...
 		loadItem(itemId);		
 	}
@@ -6600,7 +6603,7 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	// Add productions and nonterminals that aren't linked -- this transitively
 	// brings them all in, even if they aren't given an in-scope name
 	notLoaded = (d.store<0> - loadedIds);
-	for (itemId <- notLoaded, itemId in filteredIds) {
+	for (itemId <- notLoaded) {
 		loadTransItem(itemId);
 	}
 	

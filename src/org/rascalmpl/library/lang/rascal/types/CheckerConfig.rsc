@@ -1066,6 +1066,7 @@ public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Produ
     
     if (rn notin c.globalSortMap) {
     	c = addScopeError(c, "Nonterminal name <prettyPrintName(rn)> is not known", l);
+    	return c;
     }
     
     sortId = c.globalSortMap[rn];
