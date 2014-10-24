@@ -23,6 +23,6 @@ set[Contribution] contributions =
 
 @doc{Registers the muRascal language, .mu}
 public void registerMuRascal() {
-	registerLanguage("muRascal", "mu", experiments::Compiler::muRascal::Syntax::Module (str src, loc l) { return parseMuRascal(src, l); });
+	registerLanguage("muRascal", "mu", experiments::Compiler::muRascal::Syntax::Module (str src, loc l) { return parseMuRascal(l); });
 	registerContributions("muRascal", contributions);
 }
