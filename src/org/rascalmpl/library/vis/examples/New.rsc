@@ -7,12 +7,11 @@
 }
 module vis::examples::New
 
+import Prelude;
+import util::Math;
+
 import vis::Figure;
 import vis::Render;
-import Real;
-import util::Math;
-import List;
-
 
 public void overlay1(){
 	render(overlay([
