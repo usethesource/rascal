@@ -485,7 +485,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \parameterized-lex(n,args): 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \parameter(n) :
+        case \parameter(n, b) :
             throw "All parameters should have been instantiated by now: <sym>";
         case \start(s) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
