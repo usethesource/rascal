@@ -33,6 +33,7 @@ import lang::rascal::types::TypeInstantiation;
 import lang::rascal::checker::ParserHelper;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::types::CheckModule;
+import lang::rascal::meta::ModuleInfo;
 
 extend lang::rascal::types::CheckerConfig;
 
@@ -6467,10 +6468,10 @@ public Configuration startModuleImport(Configuration c, RSignature sig, RName mo
 	return c;
 }
 
-public Configuration loadConfigurationAndReset(Configuration c, Configuration d, RName mName) {
+public Configuration loadConfigurationAndReset(Configuration c, Configuration d, RName mName, set[RName] toImport) {
 	cOrig = c;
 
-	c = loadConfiguration(c, d, mName);
+	c = loadConfiguration(c, d, mName, toImport);
 	
 	c.labelEnv = cOrig.labelEnv; 
 	c.fcvEnv = cOrig.fcvEnv; 
@@ -6482,7 +6483,7 @@ public Configuration loadConfigurationAndReset(Configuration c, Configuration d,
 }
 
 @doc{Copy top-level information on module mName from d to c}
-public Configuration loadConfiguration(Configuration c, Configuration d, RName mName) {
+public Configuration loadConfiguration(Configuration c, Configuration d, RName mName, set[RName] toImport) {
 	// Add module mName into the configuration
 	mRec = d.store[d.modEnv[mName]];
 	c = addModule(c, mName, mRec.at);
@@ -6490,6 +6491,12 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	
 	map[int,int] containerMap = ( d.modEnv[mName] : mId );
 	set[int] loadedIds = { };
+	
+	// For each ID we have loaded, figure out which module provides it, and filter the IDs
+	// so we don't import ones that we cannot actually reach
+	mpaths = (  d.store[d.modEnv[dmn]].at.top : dmn | dmn <- d.modEnv ); 
+	//declaringModule = { < mpaths[dl.top], di > | < dl, di > <- d.definitions }; 
+	filteredIds = { di | < di, dl > <- d.definitions, dl.top in mpaths, mpaths[dl.top] in toImport };
 	
 	void loadItem(int itemId) {
 		AbstractValue av = d.store[itemId];
@@ -6508,7 +6515,7 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 			}
 			
 			case overload(set[int] items, Symbol rtype) : {
-				for (item <- items) {
+				for (item <- items, item in filteredIds) {
 					loadItem(item);
 				}
 			}			
@@ -6557,7 +6564,7 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 					
 		switch(av) {
 			case overload(set[int] items, Symbol rtype) : {
-				for (item <- items) {
+				for (item <- items, item in filteredIds) {
 					loadTransItem(item);
 				}
 			}			
@@ -6573,26 +6580,27 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 			}
 		}
 	}
-			
+				
 	// Add the items from d into c
 	// NOTE: This seems repetitive, but we cannot just collapse all the IDs into a set
 	// since there are order dependencies -- we cannot load an annotation until type types
 	// that are annotated are loaded, and we cannot load a constructor until the ADT is
 	// loaded, for instance.
-	for (itemId <- d.typeEnv<1>) {
+	for (itemId <- d.typeEnv<1>, itemId in filteredIds) {
 		loadItem(itemId);		
 	}
-	for (itemId <- d.annotationEnv<1>) {
+	for (itemId <- d.annotationEnv<1>, itemId in filteredIds) {
 		loadItem(itemId);		
 	}
-	for (itemId <- d.fcvEnv<1>) {
+	for (itemId <- d.fcvEnv<1>, itemId in filteredIds) {
+		// NOTE: This does not bring in nameless productions, we need to handle those separately...
 		loadItem(itemId);		
 	}
 
 	// Add productions and nonterminals that aren't linked -- this transitively
 	// brings them all in, even if they aren't given an in-scope name
 	notLoaded = (d.store<0> - loadedIds);
-	for (itemId <- notLoaded) {
+	for (itemId <- notLoaded, itemId in filteredIds) {
 		loadTransItem(itemId);
 	}
 	
@@ -7115,7 +7123,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	set[RName] allImports = modulesToImport<0> + defaultModules<0>;
 	
 	// Get the transitive modules that will be imported
-	ImportGraph ig = getImportGraph(md, removeExtend = false, extraImports=defaultModules);
+	< ig, infomap > = getImportGraphAndInfo(md, removeExtend = false, extraImports=defaultModules);
 	map[RName,str] currentHashes = ( );
 	for (imn <- carrier(ig)) {
 		try {
@@ -7136,7 +7144,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		println("Falling back to using type signatures, cyclic imports encountered.");
 		return checkModuleUsingSignatures(md, c);
 	}
-	
+
 	// Make sure each module we depend on has been checked -- invert the graph and work
 	// our way in from the leaves...
 	//igFlipped = invert(ig);
@@ -7223,10 +7231,22 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	currentModuleId = head(c.stack);
 	c = popModule(c);
 	
+	// For a given import, we want to bring in just the names declared in that module, not the names declared
+	// in modules it also imports. The exception is that we also want to bring in names of modules it extends,
+	// since these appear as local declarations. So, for each import, this computes the modules that provide
+	// importable names, based on this rule.		
+	importFrom = { < m2i, m2i > | m2i <- ( modulesToImport<0> + defaultModules<0> ) };
+	solve(importFrom) {
+		importFrom = importFrom + { < m2i, convertNameString(m2t) > | < m2i, m2j > <- importFrom, m2j in infomap, m2t <- infomap[m2j].extendedModules };
+	}	
+	
 	// Using the checked type information, load in the info for each module
 	for (wl <- allImports, wl notin notImported) {
-		c = loadConfigurationAndReset(c, checkedModules[wl], wl);
+		c = loadConfigurationAndReset(c, checkedModules[wl], wl, importFrom[wl]);
 	}
+	
+	// Compute the IDs that could be brought in by each import
+	//importFromIds = ( dmn : { } | dmn <- importFrom<0> );
 	
 	// Process the current module. We start by merging in everything from the modules we are
 	// extending to give an initial "seed" for our environment. We will just use the standard
