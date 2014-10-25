@@ -6563,7 +6563,6 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 		
 	void loadTransSort(int itemId) {
 		AbstractValue av = d.store[itemId];
-		loadedIds = loadedIds + itemId;
 
 		if (overload(set[int] items, Symbol rtype) := av) {
 			for (item <- items) {
@@ -6574,6 +6573,7 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 				case sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
 					for (at <- ats) {
 						c = addNonterminal(c, name, at, rtype, registerName = false);
+						loadedIds = loadedIds + itemId;
 					} 
 				}
 			}
@@ -6582,7 +6582,6 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 
 	void loadTransProduction(int itemId) {
 		AbstractValue av = d.store[itemId];
-		loadedIds = loadedIds + itemId;
 
 		if (overload(set[int] items, Symbol rtype) := av) {
 			for (item <- items) {
@@ -6592,6 +6591,7 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 			switch(av) {
 				case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
 					c = importProduction(p, at, c, registerName=false); 
+					loadedIds = loadedIds + itemId;
 				}
 			}
 		}
