@@ -31,8 +31,8 @@ bool matches(str subject, str pat){
 bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = []){
      errors = getAllMessages(checkStatementsString(stmts, importedModules=importedModules, initialDecls=initialDecls));
      println(errors);
-     for(str error <- errors, str exp <- expected){
-         if(matches(error.msg, exp))
+     for(eitem <- errors, str exp <- expected){
+         if(matches(eitem.msg, exp))
                return true;          
      }
      throw abbrev("<errors>");
