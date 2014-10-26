@@ -118,7 +118,7 @@ public Color(&T <: num) colorScale(list[&T <: num] values, Color from, Color to)
    mn = min(values);
    range = max(values) - mn;
    sc = colorSteps(from, to, 10);
-   return Color(int v) { return sc[(9 * (v - mn)) / range]; };
+   return Color(num v) { return sc[floor((9 * (v - mn)) / range)]; };
 }
 
 @doc{Create a fixed color palette}
@@ -789,13 +789,13 @@ public Figure space(Figure fig, FProperty props ...){
   return _space(fig, props);
 }
 
-public Figure haxis(Figure fig, FProperty props ...){
-  return _haxis(fig, props);
-}
+//public Figure haxis(Figure fig, FProperty props ...){
+//  return _haxis(fig, props);
+//}
 
-public Figure vaxis(Figure fig, FProperty props ...){
-  return _vaxis(fig, props);
-}
+//public Figure vaxis(Figure fig, FProperty props ...){
+//  return _vaxis(fig, props);
+//}
 
 public Figure hscreen(Figure fig, FProperty props ...){
   return _screen(fig, props + [hmajor(false)]);
@@ -858,13 +858,13 @@ public Figure vscrollable(Figure fig, FProperty props...){
 }
 
 
-public Figure place(Figure fig, str at, Figure base, FProperty props ...){
-  return _place(fig, at, base, props);
-}
+//public Figure place(Figure fig, str at, Figure base, FProperty props ...){
+//  return _place(fig, at, base, props);
+//}
 
-public Figure use(Figure fig, FProperty props ...){
-  return _use(fig, props);
-}
+//public Figure use(Figure fig, FProperty props ...){
+//  return _use(fig, props);
+//}
 
 public Figure overlap(Figure under,Figure over, FProperty props ...){
   return _overlap(under,over,props);
@@ -916,38 +916,38 @@ public Figure treemap(Figures nodes,  FProperty props...){
   return _treemap(nodes,  props);
 }
 
-public Figure rotate(num angle, Figure fig, FProperty props...){
-  return _rotate(angle, fig, props);
-}
+//public Figure rotate(num angle, Figure fig, FProperty props...){
+//  return _rotate(angle, fig, props);
+//}
 
 
-public Figure boolControl(str name, Figure figOn, Figure figOff, FProperty props...){
-  return _boolControl(name, figOn, figOff, props);
-}
+//public Figure boolControl(str name, Figure figOn, Figure figOff, FProperty props...){
+//  return _boolControl(name, figOn, figOff, props);
+//}
 
-public Figure controlOn(str name, Figure fig, FProperty props...){
-  return _controlOn(name, fig, props);
-}
+//public Figure controlOn(str name, Figure fig, FProperty props...){
+//  return _controlOn(name, fig, props);
+//}
 
-public Figure controlOff(str name, Figure fig, FProperty props...){
-  return _controlOff(name, fig, props);
-}
+//public Figure controlOff(str name, Figure fig, FProperty props...){
+//  return _controlOff(name, fig, props);
+//}
 
-public Figure strControl(str name, str initial, FProperty props...){
-  return _strControl(name, initial, props);
-}
+//public Figure strControl(str name, str initial, FProperty props...){
+//  return _strControl(name, initial, props);
+//}
 
-public Figure intControl(str name, int initial, FProperty props...){
-  return _intControl(name, initial, props);
-}
+//public Figure intControl(str name, int initial, FProperty props...){
+//  return _intControl(name, initial, props);
+//}
 
-public Figure colorControl(str name, int initial, FProperty props...){
-  return _colorControl(name, initial, props);
-}
+//public Figure colorControl(str name, int initial, FProperty props...){
+//  return _colorControl(name, initial, props);
+//}
 
-public Figure colorControl(str name, str initial, FProperty props...){
-  return _colorControl(name, initial, props);
-}
+//public Figure colorControl(str name, str initial, FProperty props...){
+//  return _colorControl(name, initial, props);
+//}
 
 public Figure computeFigure(Figure () computeFig, FProperty props...){
  	return _computeFigure(bool() { return true; },computeFig, props);
@@ -985,9 +985,9 @@ public Figure checkbox(str text, void(bool) vcallback, FProperty props...){
    return _checkbox(text, false, vcallback, props);
 }  
 
-public Figure scaleSlider(int low, int high, void(int) vcallback, FProperty props...){
-   return _scale(int() { return low; },int () { return high;},vcallback, props);
-}  
+//public Figure scaleSlider(int low, int high, void(int) vcallback, FProperty props...){
+//   return _scale(int() { return low; },int () { return high;},vcallback, props);
+//}  
 
 public Figure scaleSlider(int() low, int() high, int() selection, void(int) vcallback, FProperty props...){
    return _scale(low,high, selection,vcallback, props);
@@ -995,25 +995,25 @@ public Figure scaleSlider(int() low, int() high, int() selection, void(int) vcal
 
 public Figure normalize(Figure f){
 	f = outermost visit(f){
-		case Figure f : {
-			if([x*,unpack(y),z*] := f.props){
+		case Figure f1 : {
+			if([x*,unpack(y),z*] := f1.props){
 			    //println("x = <x>, y = <y>, z=<z>, concat: <[*x,*y,*z]>");
-				f.props = [*x,*y,*z]; // SPLICING, was: f.props = [x,y,z];
-				insert f;
-			} else if([x*,std(unpack(y)),z*] := f.props){
-				f.props = [*x,*z] + [std(p) | p <- y];  // SPLICING:  f.props = [x,z] + [std(p) | p <- y];
-				insert f;
+				f1.props = [*x,*y,*z]; // SPLICING, was: f.props = [x,y,z];
+				insert f1;
+			} else if([x*,std(unpack(y)),z*] := f1.props){
+				f1.props = [*x,*z] + [std(p) | p <- y];  // SPLICING:  f.props = [x,z] + [std(p) | p <- y];
+				insert f1;
 			} else {
 				fail;
 			}
 		}
 	} 
 	f = visit(f){
-		case Figure f : {
-			if([_*,project(y,z),_*] := f.props){
+		case Figure f1 : {
+			if([_*,project(y,z),_*] := f1.props){
 				projects = [];
 				otherProps = [];
-				for(elem <- f.props){
+				for(elem <- f1.props){
 					if(project(_,_) := elem){
 						projects+=[elem];
 					} else {
@@ -1025,34 +1025,34 @@ public Figure normalize(Figure f){
 		}
 	}
 	f = visit(f){
-		case Figure f : {
-			if([_*,timer(y,z),_*] := f.props){
+		case Figure f1 : {
+			if([_*,timer(y,z),_*] := f1.props){
 				projects = [];
 				otherProps = [];
-				for(elem <- f.props){
+				for(elem <- f1.props){
 					if(timer(_,_) := elem){
 						projects+=[elem];
 					} else {
 						otherProps+=[elem];
 					}
 				}
-				insert (f[props = otherProps] | _timer(p,i,it,[]) | timer(p,i) <- projects);
+				insert (f1[props = otherProps] | _timer(p,i,it,[]) | timer(p,i) <- projects);
 			} else { fail ; } 
 		}
 	}
 	f = visit(f){
-		case Figure f : {
-			if([_*,mouseOver(y),_*] := f.props){
+		case Figure f1 : {
+			if([_*,mouseOver(y),_*] := f1.props){
 				mouseOvers = [];
 				otherProps = [];
-				for(elem <- f.props){
+				for(elem <- f1.props){
 					if(mouseOver(_) := elem){
 						mouseOvers+=[elem];
 					} else {
 						otherProps+=[elem];
 					}
 				}
-				insert (f[props = otherProps] | _mouseOver(it,p,[]) | mouseOver(p) <- mouseOvers);
+				insert (f1[props = otherProps] | _mouseOver(it,p,[]) | mouseOver(p) <- mouseOvers);
 			} else { fail ; } 
 		}
 	}
