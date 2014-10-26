@@ -6503,23 +6503,25 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	
 	void loadItem(int itemId) {
 		AbstractValue av = d.store[itemId];
-		loadedIds = loadedIds + itemId;
 				
 		if (overload(set[int] items, Symbol rtype) := av) {
 			for (item <- items, item in filteredIds) {
 				loadItem(item);
 			}
+			loadedIds = loadedIds + itemId;
 		} else if (itemId in filteredIds) {
 			switch(av) {
 				case variable(RName name, Symbol rtype, bool inferred, int containedIn, loc at) : {
 					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
 					c = addTopLevelVariable(c, name, inferred, itemVis, at, rtype);
+					loadedIds = loadedIds + itemId;
 				}
 				
 				case function(RName name, Symbol rtype, KeywordParamMap keywordParams, bool isVarArgs, int containedIn, list[Symbol] throwsTypes, bool isDeferred, loc at) : {
 					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
 					mods = d.functionModifiers[itemId];
 					c = addFunction(c, name, rtype, keywordParams, mods, isVarArgs, itemVis, throwsTypes, at);
+					loadedIds = loadedIds + itemId;
 				}
 				
 				case datatype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
@@ -6527,31 +6529,40 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 					for (at <- ats) {
 						c = addADT(c, name, itemVis, at, rtype);
 					}
+					loadedIds = loadedIds + itemId;
 				}
 				
 				case sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
 					for (at <- ats) {
 						c = addNonterminal(c, name, at, rtype);
 					} 
+					loadedIds = loadedIds + itemId;
 				}
 				
 				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) : {
 					c = addConstructor(c, name, at, rtype, [], [<kp,kt,[Expression]"1"> | kp <- keywordParams, kt := keywordParams[kp]]);
+					loadedIds = loadedIds + itemId;
 				}
 				
 				case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
-					c = importProduction(p, at, c, registerName=false); 
+					if (prettyPrintName(name) == "notFollow") {
+						println("Found notFollow");
+					}
+					c = importProduction(p, at, c); 
 					//c = addProduction(c, name, at, p); 
+					loadedIds = loadedIds + itemId;
 				}
 				
 				case annotation(RName name, Symbol rtype, Symbol onType, int containedIn, loc at) : {
 					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
 					c = addAnnotation(c, name, rtype, onType, itemVis, at);
+					loadedIds = loadedIds + itemId;
 				}
 				
 				case \alias(RName name, Symbol rtype, int containedIn, loc at) : {
 					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
 					c = addAlias(c, name, itemVis, at, rtype);
+					loadedIds = loadedIds + itemId;
 				}
 				
 				default: {
@@ -6561,39 +6572,40 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 		}
 	}
 		
+	void loadTransType(int itemId) {
+		AbstractValue av = d.store[itemId];
+		if (datatype(RName name, Symbol rtype, int containedIn, set[loc] ats) := av) {		
+			itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
+			for (at <- ats) {
+				c = addADT(c, name, itemVis, at, rtype, registerName = false);
+			}
+			loadedIds = loadedIds + itemId;
+		}
+	}
+
+	void loadTransConstructor(int itemId) {
+		AbstractValue av = d.store[itemId];
+		if (constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) := av) {
+			c = addConstructor(c, name, at, rtype, [], [<kp,kt,[Expression]"1"> | kp <- keywordParams, kt := keywordParams[kp]], registerName = false);
+			loadedIds = loadedIds + itemId;
+		}
+	}
+
 	void loadTransSort(int itemId) {
 		AbstractValue av = d.store[itemId];
-
-		if (overload(set[int] items, Symbol rtype) := av) {
-			for (item <- items) {
-				loadTransSort(item);
-			}
-		} else {
-			switch(av) {
-				case sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
-					for (at <- ats) {
-						c = addNonterminal(c, name, at, rtype, registerName = false);
-						loadedIds = loadedIds + itemId;
-					} 
-				}
-			}
+		if (sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats) := av) {		
+			for (at <- ats) {
+				c = addNonterminal(c, name, at, rtype, registerName = false);
+				loadedIds = loadedIds + itemId;
+			} 
 		}
 	}
 
 	void loadTransProduction(int itemId) {
 		AbstractValue av = d.store[itemId];
-
-		if (overload(set[int] items, Symbol rtype) := av) {
-			for (item <- items) {
-				loadTransProduction(item);
-			}
-		} else {
-			switch(av) {
-				case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
-					c = importProduction(p, at, c, registerName=false); 
-					loadedIds = loadedIds + itemId;
-				}
-			}
+		if (production(RName name, Symbol rtype, int containedIn, Production p, loc at) := av) {
+			c = importProduction(p, at, c, registerName=false); 
+			loadedIds = loadedIds + itemId;
 		}
 	}
 				
@@ -6615,13 +6627,23 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 
 	// Add productions and nonterminals that aren't linked -- this transitively
 	// brings them all in, even if they aren't given an in-scope name
-	notLoaded = (d.store<0> - loadedIds);
-	for (itemId <- notLoaded) {
+	notLoadedTypes = { di | di <- d.store<0>, d.store[di] is datatype } - loadedIds;
+	for (itemId <- notLoadedTypes) {
+		loadTransType(itemId);
+	}
+
+	notLoadedSorts = { di | di <- d.store<0>, d.store[di] is sorttype } - loadedIds;
+	for (itemId <- notLoadedSorts) {
 		loadTransSort(itemId);
 	}
 
-	notLoaded = (d.store<0> - loadedIds);
-	for (itemId <- notLoaded) {
+	notLoadedConstructors = { di | di <- d.store<0>, d.store[di] is constructor } - loadedIds;
+	for (itemId <- notLoadedConstructors) {
+		loadTransConstructor(itemId);
+	}
+
+	notLoadedProds = { di | di <- d.store<0>, d.store[di] is production } - loadedIds;
+	for (itemId <- notLoadedProds) {
 		loadTransProduction(itemId);
 	}
 	
