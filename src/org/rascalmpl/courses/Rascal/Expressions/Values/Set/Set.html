@@ -196,13 +196,13 @@ set[int]: {1,2,3,10,20}
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_0" value="0@0@[0,1,2]">
-<label for="Rascal/Expressions/Values/Set_1_0">The values have no duplicates and no order. </label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_1" value="1@1@[0,1,2]">
+<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_1" value="0@1@[1,0,2]">
 <label for="Rascal/Expressions/Values/Set_1_1">The values have duplicates. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_2" value="2@2@[0,1,2]">
+<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_0" value="1@0@[1,0,2]">
+<label for="Rascal/Expressions/Values/Set_1_0">The values have no duplicates and no order. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_2" value="2@2@[1,0,2]">
 <label for="Rascal/Expressions/Values/Set_1_2">The values are unordered. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
@@ -229,14 +229,14 @@ set[int]: {1,2,3,10,20}
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_2" value="0@2@[2,1,4]">
-<label for="Rascal/Expressions/Values/Set_2_2">The type of the element that was first added to the set. </label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_1" value="1@1@[2,1,4]">
+<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_1" value="0@1@[1,4,2]">
 <label for="Rascal/Expressions/Values/Set_2_1">The types of all the elements in the set. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_4" value="2@4@[2,1,4]">
+<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_4" value="1@4@[1,4,2]">
 <label for="Rascal/Expressions/Values/Set_2_4">The least upper bound of the type of two arbitrary elements. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_2" value="2@2@[1,4,2]">
+<label for="Rascal/Expressions/Values/Set_2_2">The type of the element that was first added to the set. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -284,8 +284,8 @@ set[int]: {1,2,3,10,20}
 <span id="answerFeedback_Rascal_Expressions_Values_Set_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_4:A" value="{-5, 16, 5, 8}">
-The type of <tt>{-5, 16, 5, 8}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_4:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_4:A" value="{&quot;Isolder&quot;, &quot;Joh Yowza&quot;, &quot;Strawberry&quot;, &quot;Blackberry&quot;, &quot;Kiwifruit&quot;}">
+The type of <tt>{&quot;Isolder&quot;, &quot;Joh Yowza&quot;, &quot;Strawberry&quot;, &quot;Blackberry&quot;, &quot;Kiwifruit&quot;}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_4:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -309,10 +309,10 @@ The type of <tt>{-5, 16, 5, 8}</tt> is <input type="text" size="30" name="Rascal
 <span id="answerFeedback_Rascal_Expressions_Values_Set_5" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_5:A" value="-8">
-<input type="hidden" name="Rascal_Expressions_Values_Set_5:B" value="&quot;F&quot;">
-<input type="hidden" name="Rascal_Expressions_Values_Set_5:C" value="-10">
-The type of <tt>{-8, &quot;F&quot;, -10}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_5:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_5:A" value="-4">
+<input type="hidden" name="Rascal_Expressions_Values_Set_5:B" value="&quot;Little Bird&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_Set_5:C" value="-14">
+The type of <tt>{-4, &quot;Little Bird&quot;, -14}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_5:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -337,9 +337,9 @@ The type of <tt>{-8, &quot;F&quot;, -10}</tt> is <input type="text" size="30" na
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_6:ELM" value="77">
-<input type="hidden" name="Rascal_Expressions_Values_Set_6:A" value="{53, 69, 91, 15}">
-<pre class="prequestion">77 <input type="text" size="30" name="Rascal_Expressions_Values_Set_6:answer" class="answerText"> {69,77,15,53,91} == true</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_6:ELM" value="51">
+<input type="hidden" name="Rascal_Expressions_Values_Set_6:A" value="{83, 3, 20, 65, 59}">
+<pre class="prequestion">51 <input type="text" size="30" name="Rascal_Expressions_Values_Set_6:answer" class="answerText"> {65,3,20,59,51,83} == true</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_6:another" value="yes">
@@ -363,9 +363,9 @@ The type of <tt>{-8, &quot;F&quot;, -10}</tt> is <input type="text" size="30" na
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_7:A" value="&quot;Anakin Skywalker&quot;">
-<input type="hidden" name="Rascal_Expressions_Values_Set_7:B" value="{&quot;C-3PO&quot;, &quot;Zekk&quot;, &quot;Grover&quot;, &quot;Isolder&quot;}">
-<pre class="prequestion">&quot;Anakin Skywalker&quot; <input type="text" size="30" name="Rascal_Expressions_Values_Set_7:answer" class="answerText"> {&quot;C-3PO&quot;, &quot;Zekk&quot;, &quot;Grover&quot;, &quot;Isolder&quot;} == {&quot;C-3PO&quot;,&quot;Isolder&quot;,&quot;Zekk&quot;,&quot;Anakin Skywalker&quot;,&quot;Grover&quot;}</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_7:A" value="&quot;Lemon&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_Set_7:B" value="{&quot;Parsley&quot;, &quot;E&quot;}">
+<pre class="prequestion">&quot;Lemon&quot; <input type="text" size="30" name="Rascal_Expressions_Values_Set_7:answer" class="answerText"> {&quot;Parsley&quot;, &quot;E&quot;} == {&quot;E&quot;,&quot;Parsley&quot;,&quot;Lemon&quot;}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_7:another" value="yes">
@@ -389,10 +389,10 @@ The type of <tt>{-8, &quot;F&quot;, -10}</tt> is <input type="text" size="30" na
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_8:DIFF" value="{8, 78, 71, 93, 56}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_8:A" value="{27}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_8:B" value="{56, 0, 46, 63}">
-<pre class="prequestion">{71,8,78,56,27,93} <input type="text" size="30" name="Rascal_Expressions_Values_Set_8:answer" class="answerText"> {0,71,8,56,93,63,46,78} == {71,8,78,56,93}</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_8:DIFF" value="{36, 86, 68}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_8:A" value="{96, 66, 8, 63, 37}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_8:B" value="{13, 85, 79, 73, 33}">
+<pre class="prequestion">{96,66,37,8,86,63,36,68} <input type="text" size="30" name="Rascal_Expressions_Values_Set_8:answer" class="answerText"> {33,73,13,79,85,86,36,68} == {86,36,68}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_8:another" value="yes">
@@ -416,10 +416,10 @@ The type of <tt>{-8, &quot;F&quot;, -10}</tt> is <input type="text" size="30" na
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_9:DIFF" value="{12}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_9:A" value="{54, 36}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_9:B" value="{51, 89}">
-<pre class="prequestion">{36,12,54} <input type="text" size="30" name="Rascal_Expressions_Values_Set_9:answer" class="answerText"> {12,51,89} == {36,54}</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_9:DIFF" value="{82, 18, 22}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_9:A" value="{6, 65, 20, 50}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_9:B" value="{0}">
+<pre class="prequestion">{65,6,20,22,18,50,82} <input type="text" size="30" name="Rascal_Expressions_Values_Set_9:answer" class="answerText"> {0,22,18,82} == {65,6,50,20}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_9:another" value="yes">
@@ -443,9 +443,9 @@ The type of <tt>{-8, &quot;F&quot;, -10}</tt> is <input type="text" size="30" na
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_10:ELM" value="3">
-<input type="hidden" name="Rascal_Expressions_Values_Set_10:A" value="{0, 5, 9, 1}">
-<pre class="prequestion">3 <input type="text" size="30" name="Rascal_Expressions_Values_Set_10:answer" class="answerText"> {0, 5, 9, 1} == true</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_10:ELM" value="2">
+<input type="hidden" name="Rascal_Expressions_Values_Set_10:A" value="{9, 8, 2, 0, 3}">
+<pre class="prequestion">2 <input type="text" size="30" name="Rascal_Expressions_Values_Set_10:answer" class="answerText"> {9, 8, 2, 0, 3} == false</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_10:another" value="yes">
@@ -469,9 +469,9 @@ The type of <tt>{-8, &quot;F&quot;, -10}</tt> is <input type="text" size="30" na
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_11:DIFF" value="{36, 86, 68}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_11:A" value="{96, 66, 8, 63, 37}">
-<pre class="prequestion">{96, 66, 8, 63, 37} <input type="text" size="30" name="Rascal_Expressions_Values_Set_11:answer" class="answerText"> {96,66,37,8,86,63,36,68} == true</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_11:DIFF" value="{42, 81}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_11:A" value="{18, 35, 16, 58}">
+<pre class="prequestion">{18, 35, 16, 58} <input type="text" size="30" name="Rascal_Expressions_Values_Set_11:answer" class="answerText"> {35,42,16,81,18,58} == true</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_11:another" value="yes">
@@ -495,9 +495,9 @@ The type of <tt>{-8, &quot;F&quot;, -10}</tt> is <input type="text" size="30" na
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_12:A" value="{-7, -15, 19, 12, -18}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_12:B" value="{-18, 3, -14, -15}">
-<pre class="prequestion">{-7, -15, 19, 12, -18} <input type="text" size="30" name="Rascal_Expressions_Values_Set_12:answer" class="answerText"> {-18, 3, -14, -15} == {3,12,-18,-15,-14,19,-7}</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_12:A" value="{&quot;Cinnamon&quot;}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_12:B" value="{&quot;Two-Headed Monster&quot;, &quot;Ailyn Vel&quot;}">
+<pre class="prequestion">{&quot;Cinnamon&quot;} <input type="text" size="30" name="Rascal_Expressions_Values_Set_12:answer" class="answerText"> {&quot;Two-Headed Monster&quot;, &quot;Ailyn Vel&quot;} == {&quot;Cinnamon&quot;,&quot;Ailyn Vel&quot;,&quot;Two-Headed Monster&quot;}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_12:another" value="yes">

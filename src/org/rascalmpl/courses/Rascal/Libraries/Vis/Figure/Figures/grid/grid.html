@@ -63,8 +63,7 @@
 <br/>
 
  All elements that are resizable and do not specify a <a href="/Rascal/Libraries/Vis/Figure/Properties/shrink/shrink.html">shrink</a> will be get of the same size. For example:
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">row1 = [ box(text("bla\njada"),fillColor("Red")),
+ <pre class="listing">row1 = [ box(text("bla\njada"),fillColor("Red")),
          ellipse(fillColor("Blue")),
          box(fillColor("Yellow"))
        ];
@@ -82,8 +81,7 @@ render(grid([row1, row2]));
 <br/>
 
  If an element specifies a <a href="/Rascal/Libraries/Vis/Figure/Properties/hshrink/hshrink.html">hshrink</a> then this element will get a portion <a href="/Rascal/Libraries/Vis/Figure/Properties/hshrink/hshrink.html">hshrink</a> of the total width of the grid. Similarly, if an an element specifies a <a href="/Rascal/Libraries/Vis/Figure/Properties/vshrink/vshrink.html">vshrink</a> then this element will get a portion <a href="/Rascal/Libraries/Vis/Figure/Properties/vshrink/vshrink.html">vshrink</a> of the total height of the grid. For example:
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">row1 = [ box(text("bla\njada"),fillColor("Red"),vshrink(0.25)),
+ <pre class="listing">row1 = [ box(text("bla\njada"),fillColor("Red"),vshrink(0.25)),
          ellipse(fillColor("Blue")),
          box(fillColor("Yellow"))
        ];
@@ -101,8 +99,7 @@ render(grid([row1, row2]));
 <br/>
 
  If a row or column contains only non-resizable elements then the entire row or column will not be resized. For example:
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">row1 = [ box(fillColor("Red"),hresizable(false), hsize(15),left()),
+ <pre class="listing">row1 = [ box(fillColor("Red"),hresizable(false), hsize(15),left()),
          ellipse(fillColor("Blue")),
          box(fillColor("Yellow"))
        ];
@@ -125,8 +122,7 @@ render(b);
 <br/>
 
  For example:
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">row1 = [ box(hshrink(0.5)),
+ <pre class="listing">row1 = [ box(hshrink(0.5)),
          box(hshrink(0.5)),
          box(text("jada"))
        ];
@@ -143,8 +139,7 @@ render(grid([row1]));
  <br/>
 <br/>
 
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">row1 = [ box(text("bla\njada"),fillColor("Red")),
+ <pre class="listing">row1 = [ box(text("bla\njada"),fillColor("Red")),
          ellipse(fillColor("Blue")),
          box(fillColor("Yellow"))
        ];
@@ -169,8 +164,7 @@ render(grid([row1, row2],hgrow(1.1),vgrow(1.3)));
 <br/>
 
  For example:
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">row1 = [ box(text("bla\njada"),fillColor("Red")),
+ <pre class="listing">row1 = [ box(text("bla\njada"),fillColor("Red")),
          ellipse(fillColor("Blue")),
          box(fillColor("Yellow"))
        ];
@@ -195,8 +189,7 @@ render(grid([row1, row2],hgap(10),vgap(15)));
  <br/>
 <br/>
 
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">row1 = [ box(fillColor("Red")),
+ <pre class="listing">row1 = [ box(fillColor("Red")),
          box(fillColor("Blue")),
          box(fillColor("Yellow"))
        ];
@@ -223,8 +216,7 @@ render(grid([row1, row2, row3]));
 
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Element with a fixed size:
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">row1 = [ box(fillColor("Red")),
+ <pre class="listing">row1 = [ box(fillColor("Red")),
          box(fillColor("Blue"), size(20), resizable(false)),
          box(fillColor("Yellow"))
        ];
@@ -246,8 +238,7 @@ render(grid([row1, row2, row3]));
 <br/>
 
  And now changing the alignment of <code>b2</code>:
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">row1 = [ box(fillColor("Red")),
+ <pre class="listing">row1 = [ box(fillColor("Red")),
          box(fillColor("Blue"), size(20), resizable(false), top(), right()),
          box(fillColor("Yellow"))
        ];
@@ -271,7 +262,7 @@ render(grid([row1, row2, row3]));
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/grid&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/grid&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 9 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

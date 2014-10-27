@@ -103,7 +103,7 @@
 
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import util::IDE;
-|rascal://util::IDE|(1830,315,&lt;63,0>,&lt;68,95>): Cannot link method org.rascalmpl.eclipse.library.util.IDE because: class not found
+ok
 <span class="prompt">rascal></span>start syntax ABC = [a-z]+;
 ok
 <span class="prompt">rascal></span>layout Whitespace = [\ \t\n]*;
@@ -113,14 +113,14 @@ ok
 <span class="continuation">>>>>>>></span>}
 start(sort("ABC")) (str, loc): start(sort("ABC")) abc(str, loc);
 <span class="prompt">rascal></span>registerLanguage(&quot;The ABC language&quot;, &quot;abc&quot;, abc);
-|stdin:///|(0,16,&lt;1,0>,&lt;1,16>): Undeclared variable: registerLanguage
+ok
 </pre>  After this, your <b>current</b> Eclipse instance will start editors for all files ending in <code>.abc</code> and parse them using the <code>abc</code> function. The editor will provide some default highlighting features.
  <br/>
 <br/>
 
   To add annotations to trees, just after parsing, you should register an 'annotator' function:
 <pre class="screen"><span class="prompt">rascal></span>registerAnnotator(&quot;abc&quot;, Tree (Tree t) { return t[@doc=&quot;Hello!&quot;]; });
-|stdin:///|(0,17,&lt;1,0>,&lt;1,17>): Undeclared variable: registerAnnotator
+ok
 </pre>
 </div>
 
@@ -130,7 +130,7 @@ start(sort("ABC")) (str, loc): start(sort("ABC")) abc(str, loc);
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/IDE&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/IDE&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 3 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -72,8 +72,7 @@
 
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
+<span class="sectionHead">Examples</span>  <pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
 b2 = box(shrink(0.3,0.5), fillColor("Blue"));
 b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
 render(overlay([b1, b2, b3]));
@@ -81,8 +80,7 @@ render(overlay([b1, b2, b3]));
  <br/>
 <br/>
 
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
+ <pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
 b2 = box(shrink(0.3,0.5), fillColor("Blue"),top(),right());
 b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
 render(overlay([b1, b2, b3]));
@@ -90,8 +88,7 @@ render(overlay([b1, b2, b3]));
  <br/>
 <br/>
 
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
+ <pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
 b2 = box(shrink(0.3,0.5), fillColor("Blue"),bottom(),left());
 b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
 render(overlay([b1, b2, b3]));
@@ -99,8 +96,7 @@ render(overlay([b1, b2, b3]));
  <br/>
 <br/>
 
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
+ <pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
 b2 = box(shrink(0.3,0.5), fillColor("Blue"),bottom(),left());
 b3 = box(shrink(0.1,0.7), fillColor("Yellow"),right());
 render(overlay([b1, b2, b3]));
@@ -112,8 +108,7 @@ render(overlay([b1, b2, b3]));
  <br/>
 <br/>
 
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+ <pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [&lt;0.0,0.0>,&lt;0.5,0.5>,&lt;0.8,0.5>,&lt;1.0,0.0>];
 ovl = overlay([point(x,y) | &lt;x,y> &lt;- coords]);
 render(ovl);
@@ -129,8 +124,7 @@ render(ovl);
  <br/>
 <br/>
 
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+ <pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 list[tuple[num,num]] coords = [&lt;0.0,0.0>,&lt;0.5,0.5>,&lt;0.8,0.5>,&lt;1.0,0.0>];
 ovl = overlay([point(x,y) | &lt;x,y> &lt;- coords], shapeConnected(true));
 render(ovl);
@@ -143,8 +137,7 @@ render(ovl);
 <br/>
 
  The next enhancement is to close the begin and end points of the shape, using <a href="/Rascal/Libraries/Vis/Figure/Properties/shapeClosed/shapeClosed.html">shapeClosed</a>:
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+ <pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [&lt;0.0,0.0>,&lt;0.5,0.5>,&lt;0.8,0.5>,&lt;1.0,0.0>];
 ovl = overlay([point(x,y) | &lt;x,y> &lt;- coords], shapeConnected(true),
                                               shapeClosed(true));
@@ -158,8 +151,7 @@ render(ovl);
 <br/>
 
  Another enhancement is to use curves to connect the figures in the shape, using <a href="/Rascal/Libraries/Vis/Figure/Properties/shapeCurved/shapeCurved.html">shapeCurved</a>:
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+ <pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [&lt;0.0,0.0>,&lt;0.5,0.5>,&lt;0.8,0.5>,&lt;1.0,0.0>];
 ovl= overlay([point(x,y) | &lt;x,y> &lt;- coords], shapeConnected(true),
                                              shapeClosed(true),
@@ -174,8 +166,7 @@ render(ovl);
 <br/>
 
  A final enhancement is to set the fill color of the closed shape:
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+ <pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [&lt;0.0,0.0>,&lt;0.5,0.5>,&lt;0.8,0.5>,&lt;1.0,0.0>];
 ovl = overlay([point(x,y) | &lt;x,y> &lt;- coords], shapeConnected(true),
                                               shapeClosed(true),
@@ -195,8 +186,7 @@ render(ovl);
  <br/>
 <br/>
 
- <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
-</warning><pre class="listing">b1 = box(shrink(0.2),vconnect(1.0),hconnect(1.0),top(),left(),fillColor("red"));
+ <pre class="listing">b1 = box(shrink(0.2),vconnect(1.0),hconnect(1.0),top(),left(),fillColor("red"));
 e1 = ellipse(size(25),resizable(false),vconnect(0.0),bottom(),fillColor("green"));
 b2 = box(shrink(0.2),vconnect(0.0),hconnect(0.0),aspectRatio(1.0),top(),right(),fillColor("blue"));
 ovl = overlay([b1,e1,b2 ],shapeConnected(true),shapeClosed(true),fillColor("yellow"));
@@ -215,7 +205,7 @@ render(ovl);
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/overlay&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/overlay&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 10 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

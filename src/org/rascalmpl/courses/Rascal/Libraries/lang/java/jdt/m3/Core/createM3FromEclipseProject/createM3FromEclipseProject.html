@@ -68,7 +68,12 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import lang::java::jdt::m3::Core;
 ok
 <span class="prompt">rascal></span>myModel = createM3FromEclipseProject(|project://HelloWorld|);
-|rascal://lang::java::jdt::m3::Core|(710,19,&lt;28,24>,&lt;28,43>): Undeclared variable: classPathForProject
+|rascal://lang::java::jdt::Project|(276,127,&lt;11,0>,&lt;12,47>): IO("project HelloWorld could not be opened.")
+	at *** somewhere ***(|rascal://lang::java::jdt::Project|(276,127,&lt;11,0>,&lt;12,47>))
+	at classPathForProject(|rascal://lang::java::jdt::m3::Core|(730,7,&lt;28,44>,&lt;28,51>))
+	at ___SCREEN_INSTANCE___(|stdin:///|(10,51,&lt;1,10>,&lt;1,61>))
+
+
 </pre>
 </div>
 
