@@ -538,7 +538,6 @@ Synopsis: Parse an input datetime given as a string using the given format strin
 Examples:
 <screen>
 import DateTime;
-parseDateTime("2011-12-23T11:19:54.501+01:00", "yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ");
 parseDateTime("2011/12/23/11/19/54", "YYYY/MM/dd/HH/mm/ss");
 </screen>
 }

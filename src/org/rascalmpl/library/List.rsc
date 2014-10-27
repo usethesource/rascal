@@ -251,13 +251,16 @@ public tuple[&T, list[&T]] headTail(list[&T] lst) throws EmptyList {
 Synopsis: A list of legal index values of a list.
 
 Description:
-Returns a list of all legal index values for a given list `lst`. 
+Returns a list of all legal index values for a given list `lst`. See [$List/domain] for a function that returns a _set_ of legal index values.
 
 Examples:
 <screen>
 import List;
 index([1, 3, 5]);
 index(["zebra", "elephant", "snake", "owl"]);
+// Compare with the result of [$List/domain]:
+domain([1, 3, 5]);
+domain(["zebra", "elephant", "snake", "owl"]);
 </screen>
 
 Benefits:
