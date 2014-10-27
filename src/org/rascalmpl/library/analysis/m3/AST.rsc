@@ -23,7 +23,7 @@ a variable declaration, etc.
 
 Benefits:
 
-* Symbolic abstract syntax trees can be analyzed and transformed easily using Rascal primitives such as [Pattern], [Comprehension], and [Visit].
+* Symbolic abstract syntax trees can be analyzed and transformed easily using Rascal primitives such as [Patterns], [$Rascal/Expressions/Comprehensions], and [Visit].
 
 Pitfalls:
 
