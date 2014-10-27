@@ -17,7 +17,7 @@ information between spreadsheets and databases. A CSV file has the following str
 * One or more lines consisting of values separated by comma's.
 
 The following functions are provided:
-<toc Rascal/Library/lang/csv/IO 1>
+<toc Rascal/Libraries/lang/csv/IO 1>
 
 Examples:
 <listing>
@@ -36,6 +36,7 @@ import lang::csv::ast::CSV;
 import lang::csv::ast::Implode;
 import Type;
 import Map;
+import ParseTree;
 
 @doc{
 Synopsis: Read a relation from a CSV (Comma Separated Values) file.
@@ -157,6 +158,7 @@ will produce the following files:
 public java void writeCSV(&T relation, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
 @deprecated{use writeCSV with optional parameters}
+//@reflect{Uses type parameter.}
 public void writeCSV(&T relation, loc location, map[str,str] options) {
 	writeCSV(relation, location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
 }
