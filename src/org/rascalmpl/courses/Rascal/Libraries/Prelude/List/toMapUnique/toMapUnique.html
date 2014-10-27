@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>map[&amp;A,&amp;B] toMapUnique(list[tuple[&amp;A, &amp;B]] lst) throws MultipleKey</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import List;</code>
  </AUTOINSERTED>
@@ -68,31 +68,31 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
 <span class="prompt">rascal></span>toMapUnique([&lt;1,10&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;]);
-map[int, int]: (3:30,2:20,1:10)
+map[int, int]: (1:10,2:20,3:30)
 </pre> Let's explore an error case:
 <pre class="screen"><span class="prompt">rascal></span>toMapUnique([&lt;1,10&gt;, &lt;1, 11&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;]);
-|rascal://List|(28940,1003,&lt;1394,0>,&lt;1435,79>): MultipleKey(1)
-	at *** somewhere ***(|rascal://List|(28940,1003,&lt;1394,0>,&lt;1435,79>))
+|rascal://List|(29100,1003,&lt;1397,0>,&lt;1438,79>): MultipleKey(1)
+	at *** somewhere ***(|rascal://List|(29100,1003,&lt;1397,0>,&lt;1438,79>))
 	at toMapUnique(|stdin:///|(43,2,&lt;1,43>,&lt;1,45>))
 
 
 </pre>
 </div>
 
-  	                       
-  	                       
+
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  The keys in a map are unique by definition.
  <code>toMapUnique</code> throws a <code>MultipleKey</code> exception when the list contains more than one tuple with the same first value.
 
 </div>
 
-  	                       
+
 <div id="questions">
 
 
@@ -114,9 +114,9 @@ map[int, int]: (3:30,2:20,1:10)
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_toMapUnique_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_1:K" value="{11, -3, 18, -10, 9, 13}">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_1:V" value="[-18, 4, -11, -20, -2, 13]">
-The type of <tt>toMapUnique([&lt;18,-18&gt;,&lt;-10,4&gt;,&lt;9,-11&gt;,&lt;11,-20&gt;,&lt;-3,-2&gt;,&lt;13,13&gt;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toMapUnique_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_1:K" value="{13, 14, 7, -16, 9, 8}">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_1:V" value="[-6, 5, -9, 0, 9, -7]">
+The type of <tt>toMapUnique([&lt;-16,-6&gt;,&lt;14,5&gt;,&lt;13,-9&gt;,&lt;9,0&gt;,&lt;8,9&gt;,&lt;7,-7&gt;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toMapUnique_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -140,9 +140,9 @@ The type of <tt>toMapUnique([&lt;18,-18&gt;,&lt;-10,4&gt;,&lt;9,-11&gt;,&lt;11,-
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_toMapUnique_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_2:K" value="{-19, -5, -7, 7, 8, 15}">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_2:V" value="[-18, -10, 13, 14, 7, -16]">
-<pre class="prequestion">toMapUnique([&lt;7,-18&gt;,&lt;8,-10&gt;,&lt;-7,13&gt;,&lt;-5,14&gt;,&lt;-19,7&gt;,&lt;15,-16&gt;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toMapUnique_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_2:K" value="{9, -3, 0, -16, -19, 1}">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_2:V" value="[19, 4, 3, -11, -6, 6]">
+<pre class="prequestion">toMapUnique([&lt;-3,19&gt;,&lt;-16,4&gt;,&lt;-19,3&gt;,&lt;9,-11&gt;,&lt;1,-6&gt;,&lt;0,6&gt;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toMapUnique_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toMapUnique_2:another" value="yes">

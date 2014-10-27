@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,18 +48,18 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
-<span class="sectionHead">Function</span>  <ol><li> <code>value readCSV(loc location)</code></li>
+<span class="sectionHead">Function</span>  <ol><li> <code>value readCSV(loc location, bool header = true, str separator = ",", str encoding = "UTF8")</code></li>
 <li> <code>value readCSV(loc location, map[str,str] options)</code></li>
-<li> <code>&amp;T readCSV(type[&amp;T] result, loc location)</code></li>
+<li> <code>&amp;T readCSV(type[&amp;T] result, loc location, bool header = true, str separator = ",", str encoding = "UTF8")</code></li>
 <li> <code>&amp;T readCSV(type[&amp;T] result, loc location, map[str,str] options)</code></li>
 </ol>
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import lang::csv::IO;</code>
  </AUTOINSERTED>
@@ -73,10 +73,10 @@
 
  The <code>result</code> argument is the required type of the value that is produced by reading the CSV
  that is found at <code>location</code>.
- Optionally, a map of options can be given:
- <ul><li> <code>"header" : "true"</code> specifies that a header is present (default).</li>
-<li> <code>"header" : "false"</code> specifies that no header is present.</li>
-<li> <code>"separator" : ","</code> specifies that <code>,</code> is the separator character between fields (default).<br/>
+ Optionally, the following arguments can be supplied:
+ <ul><li> <code>header = true</code> specifies that a header is present (default).</li>
+<li> <code>header = false</code> specifies that no header is present.</li>
+<li> <code>separator = ","</code> specifies that <code>,</code> is the separator character between fields (default).<br/>
 <br/>
  The CSV data should conform to the specified type (if any).
 </li>
@@ -104,7 +104,7 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Given is the follwing file <code>ex1.csv</code>:
  <pre class="listing">position;artist;title;year
@@ -114,29 +114,29 @@
 </pre> We can read it in various ways:
  <pre class="screen"><span class="prompt">rascal></span>import lang::csv::IO;
 ok
-<span class="prompt">rascal></span>R1 = readCSV(#rel[int position, str artist, str title, int year],  |courses:///Rascal/Libraries/lang/csv/ex1.csv|, (&quot;separator&quot; : &quot;;&quot;));
+<span class="prompt">rascal></span>R1 = readCSV(#rel[int position, str artist, str title, int year],  |courses:///Rascal/Libraries/lang/csv/ex1.csv|, separator = &quot;;&quot;);
 rel[int position,str artist,str title,int year]: {
-  &lt;2,"Queen","Bohemian rhapsody",1975>,
+  &lt;1,"Eagles","Hotel California",1977>,
   &lt;3,"Boudewijn de Groot","Avond",1997>,
-  &lt;1,"Eagles","Hotel California",1977>
+  &lt;2,"Queen","Bohemian rhapsody",1975>
 }
 </pre> Now we can, for instance, select one of the fields of <code>R1</code>:
 <pre class="screen"><span class="prompt">rascal></span>R1.artist;
-set[str]: {"Eagles","Boudewijn de Groot","Queen"}
+set[str]: {"Queen","Boudewijn de Groot","Eagles"}
 </pre> It is also possible to infer the type:
-<pre class="screen"><span class="prompt">rascal></span>R1 = readCSV(|courses:///Rascal/Libraries/lang/csv/ex1.csv|, (&quot;separator&quot; : &quot;;&quot;));
+<pre class="screen"><span class="prompt">rascal></span>R1 = readCSV(|courses:///Rascal/Libraries/lang/csv/ex1.csv|, separator = &quot;;&quot;);
 readCSV inferred the relation type: rel[int \position,str \artist,str \title,int \year]
 value: {
-  &lt;2,"Queen","Bohemian rhapsody",1975>,
+  &lt;1,"Eagles","Hotel California",1977>,
   &lt;3,"Boudewijn de Groot","Avond",1997>,
-  &lt;1,"Eagles","Hotel California",1977>
+  &lt;2,"Queen","Bohemian rhapsody",1975>
 }
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/lang/csv/IO/readCSV&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/lang/csv/IO/readCSV&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

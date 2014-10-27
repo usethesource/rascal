@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>Figure button(str label, void () vcallback, FProperty props...)</code>
 
 </div>
 
-                           
+
 <div id="Description">
 <span class="sectionHead">Description</span>  A button with the text <code>label</code>. Whenever the user clicks on this button,
  callback <code>vcallback</code> is called. Typically, the callback causes a state change in the Rascal program
@@ -64,9 +64,10 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">public Figure inc(){
+<span class="sectionHead">Examples</span>  <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
+</warning><pre class="listing">public Figure inc(){
   int n = 0;
   return vcat([ button("Increment", void(){n += 1;}),
                 text(str(){return "&lt;n>";})
@@ -81,19 +82,19 @@ render(inc());
 
 </div>
 
-  	                       
-  	                       
+
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  Unfortunately we cannot show an interactive version of the above example here.
  Try it out in Rascal itself.
 
 </div>
 
-  	                       
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/button&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/button&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

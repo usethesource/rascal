@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>list[int] index(list[&amp;T] lst)</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import List;</code>
  </AUTOINSERTED>
@@ -68,7 +68,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
@@ -78,20 +78,20 @@ list[int]: [0,1,2]
 list[int]: [0,1,2,3]
 </pre>  Compare with the result of <a href="/Rascal/Libraries/Prelude/List/domain/domain.html">domain</a>:
 <pre class="screen"><span class="prompt">rascal></span>domain([1, 3, 5]);
-set[int]: {2,1,0}
+|stdin:///|(0,6,&lt;1,0>,&lt;1,6>): Undeclared variable: domain
 <span class="prompt">rascal></span>domain([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
-set[int]: {3,2,1,0}
+|stdin:///|(0,6,&lt;1,0>,&lt;1,6>): Undeclared variable: domain
 </pre>
 </div>
 
-  	                       
+
 <div id="Benefits">
 <span class="sectionHead">Benefits</span>  This function is useful in <a href="/Rascal/Statements/For/For.html">For</a> loops over lists.
 
 </div>
 
-  	                       
-  	                       
+
+
 <div id="questions">
 
 
@@ -115,17 +115,14 @@ set[int]: {3,2,1,0}
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_index_1:answer" id="Rascal/Libraries/Prelude/List/index_1_3" value="0@3@[3,1,2,0]">
-<label for="Rascal/Libraries/Prelude/List/index_1_3">One larger than the number of elements in the list. </label><br/>
-
-<input type="radio" name="Rascal_Libraries_Prelude_List_index_1:answer" id="Rascal/Libraries/Prelude/List/index_1_1" value="1@1@[3,1,2,0]">
-<label for="Rascal/Libraries/Prelude/List/index_1_1">Depends on the number of repeated elements in the list. </label><br/>
-
-<input type="radio" name="Rascal_Libraries_Prelude_List_index_1:answer" id="Rascal/Libraries/Prelude/List/index_1_2" value="2@2@[3,1,2,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_index_1:answer" id="Rascal/Libraries/Prelude/List/index_1_2" value="0@2@[2,0,1]">
 <label for="Rascal/Libraries/Prelude/List/index_1_2">One less than the number of elements in the list. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_index_1:answer" id="Rascal/Libraries/Prelude/List/index_1_0" value="3@0@[3,1,2,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_index_1:answer" id="Rascal/Libraries/Prelude/List/index_1_0" value="1@0@[2,0,1]">
 <label for="Rascal/Libraries/Prelude/List/index_1_0">Equal to the number of elements in the list. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_index_1:answer" id="Rascal/Libraries/Prelude/List/index_1_1" value="2@1@[2,0,1]">
+<label for="Rascal/Libraries/Prelude/List/index_1_1">Depends on the number of repeated elements in the list. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -149,8 +146,8 @@ set[int]: {3,2,1,0}
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_index_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_index_2:L" value="[&quot;Blackcurrant&quot;, &quot;Basil&quot;, &quot;Countess Darling Von Darling&quot;]">
-The type of <tt>index([&quot;Blackcurrant&quot;, &quot;Basil&quot;, &quot;Countess Darling Von Darling&quot;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_index_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_index_2:L" value="[1, -9, -11, -15]">
+The type of <tt>index([1, -9, -11, -15])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_index_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -174,8 +171,8 @@ The type of <tt>index([&quot;Blackcurrant&quot;, &quot;Basil&quot;, &quot;Counte
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_index_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_index_3:L" value="[-7, -6, -10, 4]">
-<pre class="prequestion">index([-7, -6, -10, 4]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_index_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_index_3:L" value="[&quot;Z&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Zekk&quot;, &quot;Little Bird&quot;]">
+<pre class="prequestion">index([&quot;Z&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Zekk&quot;, &quot;Little Bird&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_index_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_index_3:another" value="yes">
@@ -193,7 +190,7 @@ The type of <tt>index([&quot;Blackcurrant&quot;, &quot;Basil&quot;, &quot;Counte
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/List/index&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/List/index&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  To implement an outline, first make a function that maps a <a href="/Rascal/Libraries/Prelude/ParseTree/ParseTree.html">ParseTree</a> to anything of <code>node</code> or a sub-type of <code>node</code> (any <a href="/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a> or <a href="/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> will do).
  <br/>
@@ -65,7 +65,7 @@
 
  Then, register the outliner:
  <pre class="screen"><span class="prompt">rascal></span>import util::IDE;
-ok
+|rascal://util::IDE|(1830,315,&lt;63,0>,&lt;68,95>): Cannot link method org.rascalmpl.eclipse.library.util.IDE because: class not found
 <span class="prompt">rascal></span>syntax Program = &quot;main&quot;;
 ok
 <span class="prompt">rascal></span>registerOutliner(&quot;myLanguage&quot;, node (Program t) { 
@@ -74,18 +74,18 @@ ok
 <span class="continuation">>>>>>>></span>  n@label = "My node label";
 <span class="continuation">>>>>>>></span>  return n;
 <span class="continuation">>>>>>>></span>});
-ok
+|stdin:///|(0,16,&lt;1,0>,&lt;1,16>): Undeclared variable: registerOutliner
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
-  	                       
+
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/IDE/Outline&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/IDE/Outline&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

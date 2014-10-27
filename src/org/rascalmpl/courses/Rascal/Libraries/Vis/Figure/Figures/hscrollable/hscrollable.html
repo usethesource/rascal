@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>Figure hscrollable(Figure f, FProperty props ...)</code>
 
 </div>
 
-                           
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Embeds figure <code>f</code> in a scrollable plane. The full height of <code>f</code> will always be shown, but if the horizontal space for the hscrollable is too small to show the entire figure <code>f</code> then a horizontal scrollbar will appear. The minimal height of the <code>hscrollable</code> is the minimal height of the figure <code>f</code> plus the height of a horizontal scrollbar, and the minimal width is the minimal width required to show a horizontal scrollbar (unless the minimal size is specified by <a href="/Rascal/Libraries/Vis/Figure/Properties/size/size.html">Properties/size</a>).
  <br/>
@@ -66,27 +66,28 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">box1 = box(hsize(2000), fillColor("Blue"));
+<span class="sectionHead">Examples</span>  <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
+</warning><pre class="listing">box1 = box(hsize(2000), fillColor("Blue"));
 sb = hscrollable(box1,shrink(0.5));
 render(box(sb,fillColor("red")));
 </pre> <img class="TutorImg"  title="s1" alt="s1" src="/Rascal/Libraries/Vis/Figure/Figures/hscrollable/s1.png">
 
 </div>
 
-  	                       
-  	                       
+
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  When rendering on-screen the figure is always displayed in a scrollable area. Thus using a scrollable as a top level figure makes little sense, as there is no observable difference between <code>render(hscrollable(g))</code> and <code>render(g)</code>. In both cases horizontal as well as vertical scrollbars may appear.
 
 </div>
 
-  	                       
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/hscrollable&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/hscrollable&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

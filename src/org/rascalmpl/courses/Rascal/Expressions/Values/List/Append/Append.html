@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,25 +48,25 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> + <i>Exp</i><sub>2</sub></code>
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code>     </th><th align="left">  <code><i>Exp</i><sub>2</sub></code>     </th><th align="left"> <code><i>Exp</i><sub>1</sub> + <i>Exp</i><sub>2</sub></code>      </th></tr><tr><td align="left"> <code>list[<i>T</i><sub>1</sub>]</code> </td><td align="left">  <code><i>T</i><sub>2</sub></code>       </td><td align="left"> <code>list[lub(<i>T</i><sub>1</sub>,<i>T</i><sub>2</sub>)]</code> </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  The operator <code>+</code> appends an element at the end of a list. The <code>+</code> is one of those <a href="/Rascal/Expressions/Operators/Operators.html">Operators</a> which are overloaded. It can also mean <a href="/Rascal/Expressions/Values/List/Insert/Insert.html">List/Insert</a> or <a href="/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">List/Concatenation</a> for example.
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>[] + 1;
 list[int]: [1]
@@ -75,8 +75,8 @@ list[int]: [1,2]
 </pre>
 </div>
 
-  	                       
-  	                       
+
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  <ul><li> If both operands of <code>+</code> are a list, then it acts as <a href="/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">List/Concatenation</a>    This is concatenation:
 <pre class="screen"><span class="prompt">rascal></span>[1] + [2]
@@ -91,7 +91,7 @@ list[value]: [
 </ul>
 </div>
 
-  	                       
+
 <div id="questions">
 
 
@@ -115,14 +115,14 @@ list[value]: [
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_List_Append_1:answer" id="Rascal/Expressions/Values/List/Append_1_3" value="0@3@[3,2,1]">
+<input type="radio" name="Rascal_Expressions_Values_List_Append_1:answer" id="Rascal/Expressions/Values/List/Append_1_3" value="0@3@[3,0,2]">
 <label for="Rascal/Expressions/Values/List/Append_1_3">One smaller than the number of elements in the original list. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_Append_1:answer" id="Rascal/Expressions/Values/List/Append_1_2" value="1@2@[3,2,1]">
-<label for="Rascal/Expressions/Values/List/Append_1_2">Smaller than the number of elements in the original list. </label><br/>
+<input type="radio" name="Rascal_Expressions_Values_List_Append_1:answer" id="Rascal/Expressions/Values/List/Append_1_0" value="1@0@[3,0,2]">
+<label for="Rascal/Expressions/Values/List/Append_1_0">Greater than the number of elements in the original list. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_Append_1:answer" id="Rascal/Expressions/Values/List/Append_1_1" value="2@1@[3,2,1]">
-<label for="Rascal/Expressions/Values/List/Append_1_1">One larger than the number of elements in the original list. </label><br/>
+<input type="radio" name="Rascal_Expressions_Values_List_Append_1:answer" id="Rascal/Expressions/Values/List/Append_1_2" value="2@2@[3,0,2]">
+<label for="Rascal/Expressions/Values/List/Append_1_2">Smaller than the number of elements in the original list. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -146,9 +146,9 @@ list[value]: [
 <span id="answerFeedback_Rascal_Expressions_Values_List_Append_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Append_2:B" value="&quot;Eggplant&quot;">
-<input type="hidden" name="Rascal_Expressions_Values_List_Append_2:A" value="[&quot;F&quot;, &quot;Hoots The Owl&quot;, &quot;Prune&quot;, &quot;Date&quot;]">
-The type of <tt>[&quot;F&quot;, &quot;Hoots The Owl&quot;, &quot;Prune&quot;, &quot;Date&quot;] + &quot;Eggplant&quot;</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_Append_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Append_2:B" value="16">
+<input type="hidden" name="Rascal_Expressions_Values_List_Append_2:A" value="[37, 43, 47, 87]">
+The type of <tt>[37, 43, 47, 87] + 16</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_Append_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -172,9 +172,9 @@ The type of <tt>[&quot;F&quot;, &quot;Hoots The Owl&quot;, &quot;Prune&quot;, &q
 <span id="answerFeedback_Rascal_Expressions_Values_List_Append_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Append_3:B" value="8">
-<input type="hidden" name="Rascal_Expressions_Values_List_Append_3:A" value="[51, 18, 58]">
-<pre class="prequestion">[51, 18, 58] + 8 == <input type="text" size="30" name="Rascal_Expressions_Values_List_Append_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Append_3:B" value="&quot;Curry&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_List_Append_3:A" value="[&quot;Mango&quot;, &quot;Han Solo&quot;, &quot;Dill&quot;, &quot;Big Bird&quot;]">
+<pre class="prequestion">[&quot;Mango&quot;, &quot;Han Solo&quot;, &quot;Dill&quot;, &quot;Big Bird&quot;] + &quot;Curry&quot; == <input type="text" size="30" name="Rascal_Expressions_Values_List_Append_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_Append_3:another" value="yes">
