@@ -49,6 +49,15 @@ $(document).ready(function () {
 			}
 		});
 	}
+	$("#editMenu").after("<div id=\"pleaseWaitMessage\"><img src=\"/images/loader-light.gif\" width=\"16\" height=\"16\"> Recompiling the whole Course, please wait a few minutes..</div>");
+	$("#compileAction").click(function (e) {
+		e.preventDefault();
+		$("#pleaseWaitMessage").show();
+		var url = $(this).attr('href');
+		$.get(url, function () {
+			location.reload();
+		});
+	});
 });
 
 var _gaq = _gaq || [];
