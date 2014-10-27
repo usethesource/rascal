@@ -181,7 +181,9 @@ data Symbol
   
 data Symbol = \conditional(Symbol symbol, set[Condition] conditions) /*12*/;
 
-
+@doc{
+Synopsis: constructors for declaring preconditions and postconditions on symbols
+}
 data Condition
      = \follow(Symbol symbol) /*13*/
      | \not-follow(Symbol symbol)

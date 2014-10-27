@@ -520,7 +520,6 @@ Synopsis: Parse an input time given as a string using the given format string.
 Examples:
 <screen>
 import DateTime;
-parseTime("11:21:19.860+01:00", "HH:mm:ss.SSSZZ");
 parseTime("11/21/19", "HH/mm/ss");
 </screen>
 }
