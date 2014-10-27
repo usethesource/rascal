@@ -17,7 +17,7 @@ information between spreadsheets and databases. A CSV file has the following str
 * One or more lines consisting of values separated by comma's.
 
 The following functions are provided:
-<toc Rascal/Library/lang/csv/IO 1>
+<toc Rascal/Libraries/lang/csv/IO 1>
 
 Examples:
 <listing>
