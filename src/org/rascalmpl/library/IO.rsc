@@ -262,7 +262,7 @@ Examples:
 <screen>
 import IO;
 // Determine the last modification date of the Rascal standard library:
-lastModified(|std:///IO.rsc|);
+lastModified(|clib-rascal:///IO.rsc|);
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
