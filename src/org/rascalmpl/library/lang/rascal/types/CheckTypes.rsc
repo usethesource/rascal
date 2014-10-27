@@ -34,6 +34,7 @@ import lang::rascal::checker::ParserHelper;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::types::CheckModule;
 import lang::rascal::meta::ModuleInfo;
+import lang::rascal::types::Util;
 
 extend lang::rascal::types::CheckerConfig;
 
@@ -4730,14 +4731,29 @@ public CheckResult checkStmt(Statement stmt:(Statement)`global <Type t> <{Qualif
     throw "Not Implemented";
 }
 
+private Configuration addMissingAssignableNames(Configuration c, Assignable a) {
+	introducedNames = getIntroducedNames(a);
+	for (n <- introducedNames<0>, n notin c.fcvEnv) {
+		l = getOneFrom(introducedNames[n]);
+		c = addLocalVariable(c, n, false, l, makeFailTypeAsWarning("Error at location <a@\loc> prevented computation of type",l));
+	}
+	return c;
+}
+
 @doc{Check the type of Rascal statements: Assignment}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Assignable a> <Assignment op> <Statement s>`, Configuration c) {
     // First, evaluate the statement, which gives us the type that we will assign into the assignable. If this is a
     // failure, we cannot figure out the type of the assignable, so just return right away.
     < c, t1 > = checkStmt(s, c);
-    if (isFailType(t1)) return markLocationFailed(c, stmt@\loc, t1);
+    if (isFailType(t1)) {
+    	c = addMissingAssignableNames(c, a);
+    	return markLocationFailed(c, stmt@\loc, t1);
+    }
     < c, t2 > = checkAssignment(op, a, t1, stmt@\loc, c);
-    if (isFailType(t2)) return markLocationFailed(c, stmt@\loc, t2);
+    if (isFailType(t2)) {
+    	c = addMissingAssignableNames(c, a);
+    	return markLocationFailed(c, stmt@\loc, t2);
+    }
     return markLocationType(c, stmt@\loc, t2);
 }
 
@@ -6545,9 +6561,6 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 				}
 				
 				case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
-					if (prettyPrintName(name) == "notFollow") {
-						println("Found notFollow");
-					}
 					c = importProduction(p, at, c); 
 					//c = addProduction(c, name, at, p); 
 					loadedIds = loadedIds + itemId;

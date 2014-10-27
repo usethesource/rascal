@@ -611,6 +611,9 @@ public default bool isFailType(Symbol _) = false;
 @doc{Construct a new fail type with the given message and error location.}
 public Symbol makeFailType(str s, loc l) = failure({error(s,l)});
 
+@doc{Construct a new fail type with the given message and error location.}
+public Symbol makeFailTypeAsWarning(str s, loc l) = failure({warning(s,l)});
+
 @doc{Get the failure messages out of the type.}
 public set[Message] getFailures(failure(set[Message] ms)) = ms;
 
