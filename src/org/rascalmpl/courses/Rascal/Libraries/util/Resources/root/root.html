@@ -259,25 +259,25 @@ Resource: root({
         file(|project://machino-update-site/README.md|)
       }),
     project(
-      |project://ambidexter|,
+      |project://rascal|,
       {
-        file(|project://ambidexter/.gitignore|),
+        file(|project://rascal/.gitignore|),
+        file(|project://rascal/ossmeter-release.xml|),
+        file(|project://rascal/plugin.xml|),
         folder(
-          |project://ambidexter/icons|,
-          {file(|project://ambidexter/icons/ambidexter-a-16.png|)}),
-        file(|project://ambidexter/build.properties|),
-        file(|project://ambidexter/pom.xml|),
-        file(|project://ambidexter/plugin.properties|),
-        file(|project://ambidexter/.classpath|),
-        folder(
-          |project://ambidexter/grammars|,
+          |project://rascal/lib|,
           {
-            file(|project://ambidexter/grammars/grammar131.norm.-lr0.pa.acc|),
-            file(|project://ambidexter/grammars/grammar120.norm.-lr0.pa.acc|),
-            file(|project://ambidexter/grammars/grammar209.norm.acc|),
-            file(|project://ambidexter/grammars/grammar069.norm.y|),
-            file(|project://ambidexter/grammars/grammar058.norm.y|),
-     ...
+            file(|project://rascal/lib/gson-2.2.4-sources.jar|),
+            file(|project://rascal/lib/gson-2.2.4.jar|),
+            file(|project://rascal/lib/gson-2.2.4-javadoc.jar|),
+            file(|project://rascal/lib/snakeyaml-1.11.jar|)
+          }),
+        file(|project://rascal/plugin.properties|),
+        folder(
+          |project://rascal/test|,
+          {folder(
+              |project://rascal/test/org|,
+         ...
 </pre>
 </div>
 

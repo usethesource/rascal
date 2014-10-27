@@ -260,7 +260,9 @@ data Symbol
   
 data Symbol = \conditional(Symbol symbol, set[Condition] conditions) <img src="/images/12.png">;
 
-
+@doc{
+Synopsis: constructors for declaring preconditions and postconditions on symbols
+}
 data Condition
      = \follow(Symbol symbol) <img src="/images/13.png">
      | \not-follow(Symbol symbol)

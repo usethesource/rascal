@@ -112,14 +112,20 @@ list[int]: [3,1,2,3]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_List_Difference_1:answer" id="Rascal/Expressions/Values/List/Difference_1_4" value="0@4@[4,0,3]">
+<input type="radio" name="Rascal_Expressions_Values_List_Difference_1:answer" id="Rascal/Expressions/Values/List/Difference_1_1" value="0@1@[1,4,2,3,0]">
+<label for="Rascal/Expressions/Values/List/Difference_1_1">Greater than the number of elements in the first list. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_List_Difference_1:answer" id="Rascal/Expressions/Values/List/Difference_1_4" value="1@4@[1,4,2,3,0]">
 <label for="Rascal/Expressions/Values/List/Difference_1_4">Smaller than or equal to the number of elements in the second list. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_Difference_1:answer" id="Rascal/Expressions/Values/List/Difference_1_0" value="1@0@[4,0,3]">
-<label for="Rascal/Expressions/Values/List/Difference_1_0">Smaller than or equal to the number of elements in the first list. </label><br/>
+<input type="radio" name="Rascal_Expressions_Values_List_Difference_1:answer" id="Rascal/Expressions/Values/List/Difference_1_2" value="2@2@[1,4,2,3,0]">
+<label for="Rascal/Expressions/Values/List/Difference_1_2">Greater than the number of elements in the second list. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_Difference_1:answer" id="Rascal/Expressions/Values/List/Difference_1_3" value="2@3@[4,0,3]">
+<input type="radio" name="Rascal_Expressions_Values_List_Difference_1:answer" id="Rascal/Expressions/Values/List/Difference_1_3" value="3@3@[1,4,2,3,0]">
 <label for="Rascal/Expressions/Values/List/Difference_1_3">Greater than or equal to the sum of the number of elements in both lists. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_List_Difference_1:answer" id="Rascal/Expressions/Values/List/Difference_1_0" value="4@0@[1,4,2,3,0]">
+<label for="Rascal/Expressions/Values/List/Difference_1_0">Smaller than or equal to the number of elements in the first list. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -143,9 +149,9 @@ list[int]: [3,1,2,3]
 <span id="answerFeedback_Rascal_Expressions_Values_List_Difference_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Difference_2:A" value="[&quot;Thyme&quot;, &quot;O&quot;]">
-<input type="hidden" name="Rascal_Expressions_Values_List_Difference_2:B" value="[&quot;Cardamon&quot;]">
-The type of <tt>[&quot;Thyme&quot;, &quot;O&quot;] - [&quot;Cardamon&quot;]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_Difference_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Difference_2:A" value="[&quot;Papaya&quot;, &quot;Sy Snootles&quot;, &quot;Wasabi&quot;]">
+<input type="hidden" name="Rascal_Expressions_Values_List_Difference_2:B" value="[&quot;A&quot;, &quot;Cookie Monster&quot;, &quot;Boba Fett&quot;, &quot;Jasmine&quot;]">
+The type of <tt>[&quot;Papaya&quot;, &quot;Sy Snootles&quot;, &quot;Wasabi&quot;] - [&quot;A&quot;, &quot;Cookie Monster&quot;, &quot;Boba Fett&quot;, &quot;Jasmine&quot;]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_Difference_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -169,10 +175,10 @@ The type of <tt>[&quot;Thyme&quot;, &quot;O&quot;] - [&quot;Cardamon&quot;]</tt>
 <span id="answerFeedback_Rascal_Expressions_Values_List_Difference_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Difference_3:DIFF" value="{62, 35, 20}">
-<input type="hidden" name="Rascal_Expressions_Values_List_Difference_3:A" value="{73, 17, 69}">
-<input type="hidden" name="Rascal_Expressions_Values_List_Difference_3:B" value="{52}">
-<pre class="prequestion">[62,20,17,73,69,35] - [52,20,62,35] == <input type="text" size="30" name="Rascal_Expressions_Values_List_Difference_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Difference_3:DIFF" value="{69, 5, 52}">
+<input type="hidden" name="Rascal_Expressions_Values_List_Difference_3:A" value="{43, 1, 41, 23, 80}">
+<input type="hidden" name="Rascal_Expressions_Values_List_Difference_3:B" value="{14, 16, 23, 57}">
+<pre class="prequestion">[69,5,23,52,80,43,41,1] - [69,5,57,23,52,16,14] == <input type="text" size="30" name="Rascal_Expressions_Values_List_Difference_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_Difference_3:another" value="yes">

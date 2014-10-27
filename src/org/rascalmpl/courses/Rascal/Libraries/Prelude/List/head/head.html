@@ -81,8 +81,8 @@ int: 1
 str: "zebra"
 </pre>  An exception is thrown when taking the head of an empty list:
 <pre class="screen"><span class="prompt">rascal></span>head([]);
-|rascal://List|(4698,1037,&lt;210,0>,&lt;249,51>): EmptyList()
-	at *** somewhere ***(|rascal://List|(4698,1037,&lt;210,0>,&lt;249,51>))
+|rascal://List|(3636,1037,&lt;170,0>,&lt;209,51>): EmptyList()
+	at *** somewhere ***(|rascal://List|(3636,1037,&lt;170,0>,&lt;209,51>))
 	at head(|stdin:///|(5,2,&lt;1,5>,&lt;1,7>))
 
 
@@ -93,8 +93,8 @@ list[int]: [1,2]
 list[str]: ["zebra","elephant"]
 </pre>  An exception is thrown when the second argument exceeds the length of the list:
 <pre class="screen"><span class="prompt">rascal></span>head([1, 2, 3, 5], 5);
-|rascal://List|(5775,113,&lt;252,0>,&lt;253,71>): IndexOutOfBounds(4)
-	at *** somewhere ***(|rascal://List|(5775,113,&lt;252,0>,&lt;253,71>))
+|rascal://List|(4713,113,&lt;212,0>,&lt;213,71>): IndexOutOfBounds(4)
+	at *** somewhere ***(|rascal://List|(4713,113,&lt;212,0>,&lt;213,71>))
 	at head(|stdin:///|(19,1,&lt;1,19>,&lt;1,20>))
 
 
@@ -125,8 +125,8 @@ list[str]: ["zebra","elephant"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_head_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_head_1:L" value="[-8, 14]">
-The type of <tt>head([-8, 14])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_head_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_head_1:L" value="[&quot;Elmo&quot;, &quot;Thyme&quot;, &quot;Boba Fett&quot;]">
+The type of <tt>head([&quot;Elmo&quot;, &quot;Thyme&quot;, &quot;Boba Fett&quot;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_head_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -150,8 +150,8 @@ The type of <tt>head([-8, 14])</tt> is <input type="text" size="30" name="Rascal
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_head_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_head_2:L" value="[&quot;Han Solo&quot;, &quot;Lime&quot;, &quot;Countess Von Backwards&quot;, &quot;Cinnamon&quot;, &quot;Blackberry&quot;, &quot;Han Solo&quot;]">
-<pre class="prequestion">head([&quot;Han Solo&quot;, &quot;Lime&quot;, &quot;Countess Von Backwards&quot;, &quot;Cinnamon&quot;, &quot;Blackberry&quot;, &quot;Han Solo&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_head_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_head_2:L" value="[4, -19, -17, -13, -13]">
+<pre class="prequestion">head([4, -19, -17, -13, -13]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_head_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_head_2:another" value="yes">

@@ -67,13 +67,145 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import lang::java::jdt::m3::Core;
 ok
-<span class="prompt">rascal></span>myModel = createM3FromEclipseProject(|project://pdb.values|);
-|rascal://lang::java::m3::AST|(6313,172,&lt;159,0>,&lt;161,87>): IO("Unsupported scheme project")
-	at *** somewhere ***(|rascal://lang::java::m3::AST|(6313,172,&lt;159,0>,&lt;161,87>))
-	at setEnvironmentOptions(|rascal://lang::java::jdt::m3::Core|(762,7,&lt;28,76>,&lt;28,83>))
-	at ___SCREEN_INSTANCE___(|stdin:///|(10,51,&lt;1,10>,&lt;1,61>))
-
-
+<span class="prompt">rascal></span>myModel = createM3FromEclipseProject(|project://example-project|);
+M3: m3(|project://example-project|)[
+  @annotations={
+    &lt;|java+method:///Apple/edible()|,|java+interface:///java/lang/Override|>,
+    &lt;|java+method:///Fruit/edible()|,|java+interface:///java/lang/Override|>
+  },
+  @typeDependency={
+    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+class:///java/io/PrintStream|>,
+    &lt;|java+method:///Apple/edible()|,|java+primitiveType:///boolean|>,
+    &lt;|java+method:///Apple/edible()|,|java+interface:///java/lang/Override|>,
+    &lt;|java+method:///Fruit/edible()|,|java+primitiveType:///boolean|>,
+    &lt;|java+method:///Fruit/edible()|,|java+interface:///java/lang/Override|>,
+    &lt;|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|,|java+array:///java/lang/String%5B%5D|>,
+    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+class:///java/lang/System|>,
+    &lt;|java+class:///Apple|,|java+class:///Fruit|>,
+    &lt;|java+method:///IFruit/edible()|,|java+primitiveType:///boolean|>,
+    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+primitiveType:///void|>,
+    &lt;|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|,|java+class:///java/lang/String|>,
+    &lt;|java+class:///Fruit|,|java+interface:///IFruit|>
+  },
+  @methodOverrides={
+    &lt;|java+method:///Apple/edible()|,|java+method:///IFruit/edible()|>,
+    &lt;|java+method:///Fruit/edible()|,|java+method:///IFruit/edible()|>,
+    &lt;|java+method:///Apple/edible()|,|java+method:///Fruit/edible()|>
+  },
+  @names={
+    &lt;"IFruit",|java+interface:///IFruit|>,
+    &lt;"HelloWorld",|java+class:///HelloWorld|>,
+    &lt;"args",|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|>,
+    &lt;"edible",|java+method:///Fruit/edible()|>,
+    &lt;"out",|java+field:///java/lang/System/out|>,
+    &lt;"edible",|java+method:///Apple/edible()|>,
+    &lt;"main",|java+method:///HelloWorld/main(java.lang.String%5B%5D)|>,
+    &lt;"String",|java+class:///java/lang/String|>,
+    &lt;"edible",|java+method:///IFruit/edible()|>,
+    &lt;"println",|java+method:///java/io/PrintStream/println(java.lang.String)|>,
+    &lt;"Override",|java+interface:///java/lang/Override|>,
+    &lt;"System",|java+class:///java/lang/System|>,
+    &lt;"Apple",|java+class:///Apple|>,
+    &lt;"Fruit",|java+class:///Fruit|>
+  },
+  @implements={&lt;|java+class:///Fruit|,|java+interface:///IFruit|>},
+  @methodInvocation={&lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+method:///java/io/PrintStream/println(java.lang.String)|>},
+  @containment={
+    &lt;|java+compilationUnit:///src/IFruit.java|,|java+interface:///IFruit|>,
+    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|>,
+    &lt;|java+class:///Fruit|,|java+method:///Fruit/edible()|>,
+    &lt;|java+class:///HelloWorld|,|java+method:///HelloWorld/main(java.lang.String%5B%5D)|>,
+    &lt;|java+compilationUnit:///src/Fruit.java|,|java+class:///Fruit|>,
+    &lt;|java+compilationUnit:///src/HelloWorld.java|,|java+class:///HelloWorld|>,
+    &lt;|java+class:///Apple|,|java+method:///Apple/edible()|>,
+    &lt;|java+interface:///IFruit|,|java+method:///IFruit/edible()|>,
+    &lt;|java+compilationUnit:///src/Apple.java|,|java+class:///Apple|>
+  },
+  @documentation={},
+  @modifiers={
+    &lt;|java+interface:///IFruit|,public()>,
+    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,static()>,
+    &lt;|java+class:///Fruit|,abstract()>,
+    &lt;|java+method:///Apple/edible()|,public()>,
+    &lt;|java+method:///Fruit/edible()|,public()>,
+    &lt;|java+class:///Apple|,public()>,
+    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,public()>,
+    &lt;|java+class:///HelloWorld|,public()>,
+    &lt;|java+method:///Fruit/edible()|,abstract()>,
+    &lt;|java+class:///Fruit|,public()>
+  },
+  @fieldAccess={&lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|java+field:///java/lang/System/out|>},
+  @messages=[],
+  @uses={
+    &lt;|project://example-project/src/Apple.java|(28,5,&lt;2,27>,&lt;2,32>),|java+class:///Fruit|>,
+    &lt;|project://example-project/src/HelloWorld.java|(71,6,&lt;4,2>,&lt;4,8>),|java+class:///java/lang/System|>,
+    &lt;|project://example-project/src/HelloWorld.java|(82,7,&lt;4,13>,&lt;4,20>),|java+method:///java/io/PrintStream/println(java.lang.String)|>,
+    &lt;|project://example-project/src/Fruit.java|(51,8,&lt;3,2>,&lt;3,10>),|java+interface:///java/lang/Override|>,
+    &lt;|project://example-project/src/Apple.java|(39,8,&lt;4,2>,&lt;4,10>),|java+interface:///java/lang/Override|>,
+    &lt;|project://example-project/src/HelloWorld.java|(78,3,&lt;4,9>,&lt;4,12>),|java+field:///java/lang/System/out|>,
+    &lt;|project://example-project/src/Fruit.java|(40,6,&lt;2,39>,&lt;2,45>),|java+interface:///IFruit|>,
+    &lt;|project://example-project/src/HelloWorld.java|(52,6,&lt;3,25>,&lt;3,31>),|java+class:///java/lang/String|>
+  },
+  @types={
+    &lt;|java+class:///HelloWorld|,class(
+      |java+class:///HelloWorld|,
+      [])>,
+    &lt;|java+class:///Fruit|,class(
+      |java+class:///Fruit|,
+      [])>,
+    &lt;|java+class:///Apple|,class(
+      |java+class:///Apple|,
+      [])>,
+    &lt;|java+method:///IFruit/edible()|,method(
+      |java+method:///IFruit/edible()|,
+      [],
+      boolean(),
+      [])>,
+    &lt;|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|,array(
+      class(
+        |java+class:///java/lang/String|,
+        []),
+      1)>,
+    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,method(
+      |java+method:///HelloWorld/main(java.lang.String%5B%5D)|,
+      [],
+      void(),
+      [array(
+          class(
+            |java+class:///java/lang/String|,
+            []),
+          1)])>,
+    &lt;|java+method:///Apple/edible()|,method(
+      |java+method:///Apple/edible()|,
+      [],
+      boolean(),
+      [])>,
+    &lt;|java+method:///Fruit/edible()|,method(
+      |java+method:///Fruit/edible()|,
+      [],
+      boolean(),
+      [])>,
+    &lt;|java+interface:///IFruit|,interface(
+      |java+interface:///IFruit|,
+      [])>
+  },
+  @extends={&lt;|java+class:///Apple|,|java+class:///Fruit|>},
+  @declarations={
+    &lt;|java+method:///HelloWorld/main(java.lang.String%5B%5D)|,|project://example-project/src/HelloWorld.java|(28,82,&lt;3,1>,&lt;6,2>)>,
+    &lt;|java+compilationUnit:///src/IFruit.java|,|project://example-project/src/IFruit.java|(0,48,&lt;1,0>,&lt;4,2>)>,
+    &lt;|java+method:///Apple/edible()|,|project://example-project/src/Apple.java|(38,54,&lt;4,1>,&lt;7,2>)>,
+    &lt;|java+parameter:///HelloWorld/main(java.lang.String%5B%5D)/args|,|project://example-project/src/HelloWorld.java|(52,13,&lt;3,25>,&lt;3,38>)>,
+    &lt;|java+compilationUnit:///src/HelloWorld.java|,|project://example-project/src/HelloWorld.java|(0,113,&lt;1,0>,&lt;7,2>)>,
+    &lt;|java+class:///HelloWorld|,|project://example-project/src/HelloWorld.java|(1,111,&lt;2,0>,&lt;7,1>)>,
+    &lt;|java+compilationUnit:///src/Apple.java|,|project://example-project/src/Apple.java|(0,96,&lt;1,0>,&lt;9,2>)>,
+    &lt;|java+class:///Apple|,|project://example-project/src/Apple.java|(1,94,&lt;2,0>,&lt;9,1>)>,
+    &lt;|java+class:///Fruit|,|project://example-project/src/Fruit.java|(1,95,&lt;2,0>,&lt;5,1>)>,
+    &lt;|java+interface:///IFruit|,|project://example-project/src/IFruit.java|(1,46,&lt;2,0>,&lt;4,1>)>,
+    &lt;|java+compilationUnit:///src/Fruit.java|,|project://example-project/src/Fruit.java|(0,97,&lt;1,0>,&lt;5,2>)>,
+    &lt;|java+method:///IFruit/edible()|,|project://example-project/src/IFruit.java|(28,17,&lt;3,1>,&lt;3,18>)>,
+    &lt;|java+method:///Fruit/edible()|,|project://example-project/src/Fruit.java|(50,44,&lt;3,1>,&lt;4,34>)>
+  }
+]
 </pre>
 </div>
 
@@ -83,7 +215,7 @@ ok
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromEclipseProject&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/lang/java/jdt/m3/Core/createM3FromEclipseProject&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
