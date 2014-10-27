@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,25 +48,25 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> in <i>Exp</i><sub>2</sub></code>
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code>           </th><th align="left">  <code><i>Exp</i><sub>2</sub></code>     </th><th align="left"> <code><i>Exp</i><sub>1</sub> in <i>Exp</i><sub>2</sub></code> </th></tr><tr><td align="left"> <code><i>T</i><sub>1</sub></code>  &lt;: <code><i>T</i><sub>2</sub></code> </td><td align="left">  <code>set[<i>T</i><sub>2</sub>]</code>  </td><td align="left"> <code>bool</code>               </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Yields <code>true</code> if the value of <code><i>Exp</i><sub>1</sub></code> occurs as element in the value of <code><i>Exp</i><sub>2</sub></code> and <code>false</code> otherwise. The type of <code><i>Exp</i><sub>1</sub></code> should be compatible with the element type of <code><i>Exp</i><sub>2</sub></code>.
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>2 in {1, 2, 3};
 bool: true
@@ -75,9 +75,9 @@ bool: false
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -100,8 +100,8 @@ bool: false
  <br/>
 
 <form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_in_1:A" value="true">
-<input type="hidden" name="Rascal_Expressions_Values_Set_in_1:B" value="[true, true]">
-The type of <tt>true in [true, true]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_in_1:answer" class="answerText"><br/>
+<input type="hidden" name="Rascal_Expressions_Values_Set_in_1:B" value="[false, false, false]">
+The type of <tt>true in [false, false, false]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_in_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -125,9 +125,9 @@ The type of <tt>true in [true, true]</tt> is <input type="text" size="30" name="
 <span id="answerFeedback_Rascal_Expressions_Values_Set_in_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_in_2:ELM" value="81">
-<input type="hidden" name="Rascal_Expressions_Values_Set_in_2:A" value="{65, 89}">
-<pre class="prequestion">81 in {89,81,65} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_in_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_in_2:ELM" value="11">
+<input type="hidden" name="Rascal_Expressions_Values_Set_in_2:A" value="{54}">
+<pre class="prequestion">11 in {11,54} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_in_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_in_2:another" value="yes">
@@ -150,9 +150,9 @@ The type of <tt>true in [true, true]</tt> is <input type="text" size="30" name="
 <span id="answerFeedback_Rascal_Expressions_Values_Set_in_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_in_3:ELM" value="6">
-<input type="hidden" name="Rascal_Expressions_Values_Set_in_3:A" value="{0, 5, 4, 1, 6}">
-<pre class="prequestion">6 in {0, 5, 4, 1, 6} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_in_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_in_3:ELM" value="3">
+<input type="hidden" name="Rascal_Expressions_Values_Set_in_3:A" value="{6, 1}">
+<pre class="prequestion">3 in {6, 1} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_in_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_in_3:another" value="yes">

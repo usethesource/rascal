@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,16 +48,16 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <ol><li> <code>int userTime()</code></li>
 <li> <code>int userTime(void () block)</code></li>
 </ol>
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import util::Benchmark;</code>
  </AUTOINSERTED>
@@ -70,7 +70,7 @@
 </ol>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  We use the factorial function described in <a href="/Recipes/Basic/Factorial/Factorial.html">Recipes:Factorial</a> as example:
  <pre class="screen"><span class="prompt">rascal></span>import util::Benchmark;
@@ -79,20 +79,20 @@ ok
 ok
 </pre>  Here we measure time by using separate calls to <code>userTime</code> before and after a call to <code>fac</code>.
 <pre class="screen"><span class="prompt">rascal></span>before = userTime();
-int: 562893005000
+int: 137465001000
 <span class="prompt">rascal></span>fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 <span class="prompt">rascal></span>userTime() - before;
-int: 18705000
+int: 5509000
 </pre>  The code to be measured can also be passed as a function parameter to <code>userTime</code>:
 <pre class="screen"><span class="prompt">rascal></span>userTime( void() { fac(50); } );
-int: 887000
+int: 575000
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/Benchmark/userTime&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/Benchmark/userTime&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

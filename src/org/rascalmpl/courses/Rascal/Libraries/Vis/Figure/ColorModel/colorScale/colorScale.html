@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,23 +48,24 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>Color(&amp;T &lt;: num) colorScale(list[&amp;T &lt;: num] values, Color from, Color to)</code>
 
 </div>
 
-                           
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Given a list of numbers <code>values</code>, <code>colorScale</code> returns a function that maps these numbers to a color scale between the colors <code>from</code> and <code>to</code>.
 
 </div>
 
-  	                       
+
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">observed = [10, 20, -50, 13, -40, 25];
+<span class="sectionHead">Examples</span>  <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
+</warning><pre class="listing">observed = [10, 20, -50, 13, -40, 25];
 cscale = colorScale(observed, color("green", 0.5), color("red", 0.8));
 boxes = [ box( text("&lt;v>"), size(50), fillColor(cscale(v))) | v &lt;- observed ];
 render(hcat(boxes));
@@ -72,13 +73,13 @@ render(hcat(boxes));
 
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/ColorModel/colorScale&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/ColorModel/colorScale&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  A top-level table of contents:
  <ul><li><a href="/Rascal/Contents/Contents.html">Contents</a>: Table of Contents.</li>
@@ -410,7 +410,7 @@
 <ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/List/List.html">List</a>: Library functions for lists.</li>
 <ul><li><a href="/Rascal/Libraries/Prelude/List/delete/delete.html">delete</a>: Delete an element from a list.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/List/distribution/distribution.html">distribution</a>: Get the distribution of the elements of the list. That is how often does each element occur in the list? </li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/List/domain/domain.html">domain</a>: The set of all legal indices of a list.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/List/domain/domain.html">domain</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/List/drop/drop.html">drop</a>: Drop elements from the head of a list.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/List/dup/dup.html">dup</a>: Remove multiple occurrences of elements in a list. The first occurrence remains.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/List/getOneFrom/getOneFrom.html">getOneFrom</a>: Pick a random element from a list.</li>
@@ -471,7 +471,6 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/ListRelation/rangeX/rangeX.html">rangeX</a>: List relation excluding certain range values.</li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/Prelude/Map/Map.html">Map</a>: </li>
 <ul><li><a href="/Rascal/Libraries/Prelude/Map/delete/delete.html">delete</a>: Delete a key from a map.</li>
-<ul></ul><li><a href="/Rascal/Libraries/Prelude/Map/distribution/distribution.html">distribution</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Map/domain/domain.html">domain</a>: Determine the domain (set of keys) of a map.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Map/domainR/domainR.html">domainR</a>: Map restricted to certain keys.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Map/domainX/domainX.html">domainX</a>: Map with certain keys excluded.</li>
@@ -497,6 +496,7 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Node/delAnnotationsRec/delAnnotationsRec.html">delAnnotationsRec</a>: Delete recursively all annotations from all nodes in a value.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Node/getAnnotations/getAnnotations.html">getAnnotations</a>: Retrieve the annotations of a node value as a map.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Node/getChildren/getChildren.html">getChildren</a>: Get the children of a node.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Node/getKeywordParameters/getKeywordParameters.html">getKeywordParameters</a>: Get the keyword parameters of a node.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Node/getName/getName.html">getName</a>: Determine the name of a node.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Node/itoString/itoString.html">itoString</a>: Convert a node to an indented string.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Node/makeNode/makeNode.html">makeNode</a>: Create a node given its function name and arguments.</li>
@@ -627,6 +627,7 @@
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isValueType/isValueType.html">isValueType</a>: Determine if the given type is a value.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/isVoidType/isVoidType.html">isVoidType</a>: Determine if the given type is a void.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/lub/lub.html">lub</a>: The least-upperbound (lub) between two types.</li>
+<ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/make/make.html">make</a>: instantiate an ADT constructor of a given type with the given children</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/Production/Production.html">Production</a>: A production in a grammar or constructor in a data type.</li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/subtype/subtype.html">subtype</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/Prelude/Type/Symbol/Symbol.html">Symbol</a>: A Symbol represents a Rascal Type.</li>
@@ -642,6 +643,7 @@
 <ul><li><a href="/Rascal/Libraries/util/Benchmark/Benchmark.html">Benchmark</a>: Functions for time measurement and benchmarking.</li>
 <ul><li><a href="/Rascal/Libraries/util/Benchmark/benchmark/benchmark.html">benchmark</a>: Measure and report the execution time of name:void-closure pairs</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Benchmark/cpuTime/cpuTime.html">cpuTime</a>: CPU time in nanoseconds (10<code><i></i><sup>-9</sup></code> sec).</li>
+<ul></ul><li><a href="/Rascal/Libraries/util/Benchmark/gc/gc.html">gc</a>: Force a garbage collection.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Benchmark/getMilliTime/getMilliTime.html">getMilliTime</a>: Current time in milliseconds (10<code><i></i><sup>-3</sup></code> sec) since January 1, 1970 GMT.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Benchmark/getNanoTime/getNanoTime.html">getNanoTime</a>: Current time in nanoseconds (10<code><i></i><sup>-9</sup></code> sec) since January 1, 1970 GMT.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Benchmark/realTime/realTime.html">realTime</a>: Current time in milliseconds (10<code><i></i><sup>-3</sup></code> sec).</li>
@@ -724,6 +726,7 @@
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/PI/PI.html">PI</a>: The constant pi.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/pow/pow.html">pow</a>: Calculate an arbitrary power of a numeric value.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/precision/precision.html">precision</a>: Return the precision of a real number.</li>
+<ul></ul><li><a href="/Rascal/Libraries/util/Math/primes/primes.html">primes</a>: generate prime numbers up to a maximum</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/remainder/remainder.html">remainder</a>: Return the remainder of dividing the numerator by the denominator.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/round/round.html">round</a>: Round a number to the nearest multiple of a given number (default 1).</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/Math/scale/scale.html">scale</a>: Return the scale of a real number.</li>
@@ -768,10 +771,12 @@
 <ul></ul><li><a href="/Rascal/Libraries/util/ShellExec/readEntireErrStream/readEntireErrStream.html">readEntireErrStream</a>: Read the entire error stream from an existing process's output stream. This is blocking.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/ShellExec/readEntireStream/readEntireStream.html">readEntireStream</a>: Read the entire stream from an existing process's output stream. This is blocking.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/ShellExec/readFrom/readFrom.html">readFrom</a>: Read from an existing process's output stream. This is non-blocking.</li>
+<ul></ul><li><a href="/Rascal/Libraries/util/ShellExec/readFromErr/readFromErr.html">readFromErr</a>: Read from an existing process's error output stream. This is non-blocking.</li>
 <ul></ul><li><a href="/Rascal/Libraries/util/ShellExec/writeTo/writeTo.html">writeTo</a>: Write to an existing process's input stream.</li>
 <ul></ul></ul><li><a href="/Rascal/Libraries/util/SyntaxHighlightingTemplates/SyntaxHighlightingTemplates.html">SyntaxHighlightingTemplates</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/util/ValueUI/ValueUI.html">ValueUI</a>: </li>
 <ul><li><a href="/Rascal/Libraries/util/ValueUI/graph/graph.html">graph</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/util/ValueUI/histogramHtml/histogramHtml.html">histogramHtml</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/util/ValueUI/text/text.html">text</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/util/ValueUI/tree/tree.html">tree</a>: </li>
 <ul></ul></ul></ul><li><a href="/Rascal/Libraries/lang/lang.html">lang</a>: Definitions and tools for various languages.</li>
@@ -800,6 +805,7 @@
 <ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/extends/extends.html">extends</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/fieldAccess/fieldAccess.html">fieldAccess</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/implements/implements.html">implements</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/Language/Language.html">Language</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/methodInvocation/methodInvocation.html">methodInvocation</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/methodOverrides/methodOverrides.html">methodOverrides</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/lang/java/m3/Core/Modifier/Modifier.html">Modifier</a>: </li>
@@ -962,6 +968,7 @@
 <ul></ul></ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/graphs.html">graphs</a>: Analyzing unlabeled and labelled graphs.</li>
 <ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph.html">Graph</a>: A <code>Graph</code> datatype with associated functions.</li>
 <ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/bottom/bottom.html">bottom</a>: Determine the bottom nodes (leaves) of a graph.</li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/connectedComponents/connectedComponents.html">connectedComponents</a>: Determine the connected components of a graph.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/Graph/Graph.html">Graph</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/order/order.html">order</a>: Compute topological order of the nodes in a graph.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/Graph/predecessors/predecessors.html">predecessors</a>: Determine the direct predecessors of a graph node.</li>
@@ -982,7 +989,8 @@
 <ul></ul><li><a href="/Rascal/Libraries/analysis/graphs/LabeledGraph/top/top.html">top</a>: Return the top nodes of a LGraph.</li>
 <ul></ul></ul></ul><li><a href="/Rascal/Libraries/analysis/m3/m3.html">m3</a>: a language independent meta model for facts about source code, which is extensible to include language specific modeling elements</li>
 <ul><li><a href="/Rascal/Libraries/analysis/m3/AST/AST.html">AST</a>: a symbolic representation for abstract syntax trees of programming languages.</li>
-<ul><li><a href="/Rascal/Libraries/analysis/m3/AST/decl/decl.html">decl</a>: </li>
+<ul><li><a href="/Rascal/Libraries/analysis/m3/AST/AST/AST.html">AST</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/AST/decl/decl.html">decl</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/m3/AST/messages/messages.html">messages</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/m3/AST/modifiers/modifiers.html">modifiers</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/m3/AST/name/name.html">name</a>: </li>
@@ -992,6 +1000,8 @@
 <ul><li><a href="/Rascal/Libraries/analysis/m3/Core/containment/containment.html">containment</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/declarations/declarations.html">declarations</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/documentation/documentation.html">documentation</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/emptyM3/emptyM3.html">emptyM3</a>: </li>
+<ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/Language/Language.html">Language</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/M3/M3.html">M3</a>: the m3 constructor is identified by the name of a project encoded as a <a href="/Rascal/Expressions/Values/Location/Location.html">Location</a> and has annotations for each kind of fact extracted from a project.</li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/messages/messages.html">messages</a>: </li>
 <ul></ul><li><a href="/Rascal/Libraries/analysis/m3/Core/modifiers/modifiers.html">modifiers</a>: </li>
@@ -1053,14 +1063,14 @@
 <ul></ul></ul></ul></ul></ul></ul>
 </div>
 
-  	                       
-  	                       
-  	                       
-  	                       
+
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Contents&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Contents&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 6 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 12 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -3,7 +3,7 @@ Synopsis: M3 common source code model represent facts extracted from source code
 
 Description:
 
-The M3 core defines basic concepts such as:
+The [$Rascal/Libraries/analysis/m3] core defines basic concepts such as:
 
 * qualified names: we use [$Values/Location]s to model qualified names for each programming language
 * containment: which artifacts are contained in which other artifacts
@@ -11,7 +11,7 @@ The M3 core defines basic concepts such as:
 * uses: where declared artifacts are used
 * types: which artifacts has which types
 
-From this core, M3 is supposed to be extended with features specific for a programming language. See for example [lang/java/m3].
+From this core, [$Rascal/Libraries/analysis/m3] is supposed to be extended with features specific for a programming language. See for example [lang/java/m3].
 
 Benefits:
 

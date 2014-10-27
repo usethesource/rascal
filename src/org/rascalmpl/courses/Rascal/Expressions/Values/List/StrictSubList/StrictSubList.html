@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,25 +48,25 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> &lt; <i>Exp</i><sub>2</sub></code>
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code>     </th><th align="left">  <code><i>Exp</i><sub>2</sub></code>     </th><th align="left"> <code><i>Exp</i><sub>1</sub> &lt; <i>Exp</i><sub>2</sub></code> </th></tr><tr><td align="left"> <code>list[<i>T</i><sub>1</sub>]</code> </td><td align="left">  <code>list[<i>T</i><sub>2</sub>]</code> </td><td align="left"> <code>bool</code>              </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Yields <code>true</code> if the value of <code><i>Exp</i><sub>1</sub></code> is a strict sublist of the value of <code><i>Exp</i><sub>2</sub></code>,  and <code>false</code> otherwise.
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>[1, 2, 3] &lt; [1, 2, 3, 4];
 bool: true
@@ -77,9 +77,9 @@ bool: true
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -101,9 +101,9 @@ bool: true
 <span id="answerFeedback_Rascal_Expressions_Values_List_StrictSubList_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSubList_1:A" value="[4.2915299425047120, -10.5967309654333560, -4.43827265785485800, 16.4587344737194280]">
-<input type="hidden" name="Rascal_Expressions_Values_List_StrictSubList_1:B" value="[3.2357966923198240, 3.7580366521452840, -17.652984325398830560]">
-The type of <tt>[4.2915299425047120, -10.5967309654333560, -4.43827265785485800, 16.4587344737194280] &lt; [3.2357966923198240, 3.7580366521452840, -17.652984325398830560]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_StrictSubList_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSubList_1:A" value="[true, true, false, false]">
+<input type="hidden" name="Rascal_Expressions_Values_List_StrictSubList_1:B" value="[true, false, false, true]">
+The type of <tt>[true, true, false, false] &lt; [true, false, false, true]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_StrictSubList_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -127,9 +127,9 @@ The type of <tt>[4.2915299425047120, -10.5967309654333560, -4.43827265785485800,
 <span id="answerFeedback_Rascal_Expressions_Values_List_StrictSubList_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSubList_2:DIFF" value="{0, 26, 52}">
-<input type="hidden" name="Rascal_Expressions_Values_List_StrictSubList_2:A" value="{5}">
-<pre class="prequestion">[5] &lt; [0,52,5,26] == <input type="text" size="30" name="Rascal_Expressions_Values_List_StrictSubList_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSubList_2:DIFF" value="{20, 46, 2}">
+<input type="hidden" name="Rascal_Expressions_Values_List_StrictSubList_2:A" value="{26}">
+<pre class="prequestion">[26] &lt; [26,20,46,2] == <input type="text" size="30" name="Rascal_Expressions_Values_List_StrictSubList_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSubList_2:another" value="yes">
@@ -152,8 +152,8 @@ The type of <tt>[4.2915299425047120, -10.5967309654333560, -4.43827265785485800,
 <span id="answerFeedback_Rascal_Expressions_Values_List_StrictSubList_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSubList_3:A" value="[false, true, true, true]">
-<pre class="prequestion">[false, true, true, true] &lt; [false, true, true, true] == <input type="text" size="30" name="Rascal_Expressions_Values_List_StrictSubList_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSubList_3:A" value="[3, 12, -3, -10, -5]">
+<pre class="prequestion">[3, 12, -3, -10, -5] &lt; [3, 12, -3, -10, -5] == <input type="text" size="30" name="Rascal_Expressions_Values_List_StrictSubList_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSubList_3:another" value="yes">

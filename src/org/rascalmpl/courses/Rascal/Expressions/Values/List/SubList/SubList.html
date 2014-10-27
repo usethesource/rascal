@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,25 +48,25 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> &lt;= <i>Exp</i><sub>2</sub></code>
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code>     </th><th align="left">  <code><i>Exp</i><sub>2</sub></code>     </th><th align="left"> <code><i>Exp</i><sub>1</sub> &lt;= <i>Exp</i><sub>2</sub></code> </th></tr><tr><td align="left"> <code>list[<i>T</i><sub>1</sub>]</code> </td><td align="left">  <code>list[<i>T</i><sub>2</sub>]</code> </td><td align="left"> <code>bool</code>               </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Yields <code>true</code> if the value of <code><i>Exp</i><sub>1</sub></code> is equal to or a sublist of the value of <code><i>Exp</i><sub>2</sub></code>,  and <code>false</code> otherwise.
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>[1, 2, 3] &lt;= [1, 2, 3, 4];
 bool: true
@@ -77,9 +77,9 @@ bool: true
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -101,9 +101,9 @@ bool: true
 <span id="answerFeedback_Rascal_Expressions_Values_List_SubList_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_SubList_1:A" value="[|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)]">
-<input type="hidden" name="Rascal_Expressions_Values_List_SubList_1:B" value="[|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)]">
-The type of <tt>[|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)] &lt;= [|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_SubList_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_SubList_1:A" value="[false, false, true]">
+<input type="hidden" name="Rascal_Expressions_Values_List_SubList_1:B" value="[false, false, false, false, false]">
+The type of <tt>[false, false, true] &lt;= [false, false, false, false, false]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_SubList_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -127,9 +127,9 @@ The type of <tt>[|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |fi
 <span id="answerFeedback_Rascal_Expressions_Values_List_SubList_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_SubList_2:DIFF" value="{50, 35, 94}">
-<input type="hidden" name="Rascal_Expressions_Values_List_SubList_2:A" value="{94, 48}">
-<pre class="prequestion">[48,94] &lt;= [48,50,35,94] == <input type="text" size="30" name="Rascal_Expressions_Values_List_SubList_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_SubList_2:DIFF" value="{82, 0, 58, 5, 52}">
+<input type="hidden" name="Rascal_Expressions_Values_List_SubList_2:A" value="{80, 86}">
+<pre class="prequestion">[86,80] &lt;= [58,86,52,82,80,5,0] == <input type="text" size="30" name="Rascal_Expressions_Values_List_SubList_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_SubList_2:another" value="yes">
@@ -152,8 +152,8 @@ The type of <tt>[|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |fi
 <span id="answerFeedback_Rascal_Expressions_Values_List_SubList_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_SubList_3:A" value="[true, true, false, false, true]">
-<pre class="prequestion">[true, true, false, false, true] &lt;= [true, true, false, false, true] == <input type="text" size="30" name="Rascal_Expressions_Values_List_SubList_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_SubList_3:A" value="[&quot;Cookie Monster&quot;, &quot;Peppermint&quot;, &quot;Hoots The Owl&quot;, &quot;J&quot;]">
+<pre class="prequestion">[&quot;Cookie Monster&quot;, &quot;Peppermint&quot;, &quot;Hoots The Owl&quot;, &quot;J&quot;] &lt;= [&quot;Cookie Monster&quot;, &quot;Peppermint&quot;, &quot;Hoots The Owl&quot;, &quot;J&quot;] == <input type="text" size="30" name="Rascal_Expressions_Values_List_SubList_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_SubList_3:another" value="yes">

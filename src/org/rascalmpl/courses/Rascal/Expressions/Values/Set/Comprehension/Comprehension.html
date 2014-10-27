@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,37 +48,37 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code>{ <i>Exp</i><sub>1</sub>, <i>Exp</i><sub>2</sub>, ... | <i>Gen</i><sub>1</sub>, <i>Gen</i><sub>2</sub>, ... }</code>
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code> </th><th align="left"> <code><i>Exp</i><sub>2</sub></code> </th><th align="left"> ... </th><th align="left"> <code>{ <i>Exp</i><sub>1</sub>, <i>Exp</i><sub>2</sub>, ... | <i>Gen</i><sub>1</sub>, <i>Gen</i><sub>2</sub>, ... }</code> </th></tr><tr><td align="left"> <code><i>T</i><sub>1</sub></code>   </td><td align="left"> <code><i>T</i><sub>2</sub></code>   </td><td align="left"> ... </td><td align="left"> <code>set[ lub( <i>T</i><sub>1</sub>, <i>T</i><sub>2</sub>, ... ) ]</code>                   </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  A set comprehension consists of a number of contributing expressions <code><i>Exp</i><sub>1</sub></code>, <code><i>Exp</i><sub>2</sub></code>, ... and a number of
  generators <code><i>Gen</i><sub>1</sub></code>, <code><i>Gen</i><sub>2</sub></code>, <code><i>Gen</i><sub>3</sub></code>, ... that are evaluated as described in <a href="/Rascal/Expressions/Comprehensions/Comprehensions.html">Expressions/Comprehensions</a>.
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>{ N * N | int N &lt;- [0 .. 10]};
-set[int]: {25,9,36,4,81,49,1,64,16,0}
+set[int]: {1,9,16,25,0,64,4,36,49,81}
 <span class="prompt">rascal></span>{ N * N | int N &lt;- [0 .. 10], N % 3 == 0};
-set[int]: {9,36,81,0}
+set[int]: {0,36,9,81}
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -100,9 +100,9 @@ set[int]: {9,36,81,0}
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Comprehension_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_1:I" value="1">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_1:J" value="8">
-The type of <tt>{ N + 1 | int N &lt;- [1 .. 8] }</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Comprehension_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_1:I" value="0">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_1:J" value="7">
+The type of <tt>{ N + 1 | int N &lt;- [0 .. 7] }</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Comprehension_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -126,9 +126,9 @@ The type of <tt>{ N + 1 | int N &lt;- [1 .. 8] }</tt> is <input type="text" size
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Comprehension_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_2:I" value="4">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_2:J" value="10">
-<pre class="prequestion">{ N + 1 | int N &lt;- [4 .. 10] } == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Comprehension_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_2:I" value="0">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_2:J" value="7">
+<pre class="prequestion">{ N + 1 | int N &lt;- [0 .. 7] } == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Comprehension_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_2:another" value="yes">
@@ -151,8 +151,8 @@ The type of <tt>{ N + 1 | int N &lt;- [1 .. 8] }</tt> is <input type="text" size
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Comprehension_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_3:S" value="{-20, 5, 19, -9}">
-<pre class="prequestion">{ 2 * N | int N &lt;- {-20, 5, 19, -9} } == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Comprehension_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_3:S" value="{-16, 9, 8}">
+<pre class="prequestion">{ 2 * N | int N &lt;- {-16, 9, 8} } == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Comprehension_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_3:another" value="yes">
@@ -176,8 +176,8 @@ The type of <tt>{ N + 1 | int N &lt;- [1 .. 8] }</tt> is <input type="text" size
  Complete this comprehension:
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_4:S" value="{16, -14, -12}">
-<pre class="prequestion">{ <input type="text" size="30" name="Rascal_Expressions_Values_Set_Comprehension_4:answer" class="answerText"> | int N &lt;- {16, -14, -12} } == {15,-13,-15}</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_4:S" value="{0, 13, 6}">
+<pre class="prequestion">{ <input type="text" size="30" name="Rascal_Expressions_Values_Set_Comprehension_4:answer" class="answerText"> | int N &lt;- {0, 13, 6} } == {5,12,-1}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Comprehension_4:another" value="yes">

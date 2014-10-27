@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Details">
 <span class="sectionHead">Details</span> <a href="/Rascal/Libraries/Prelude/Boolean/Boolean.html">Boolean</a> &#032 <a href="/Rascal/Libraries/Prelude/DateTime/DateTime.html">DateTime</a> &#032 <a href="/Rascal/Libraries/Prelude/Exception/Exception.html">Exception</a> &#032 <a href="/Rascal/Libraries/Prelude/IO/IO.html">IO</a> &#032 <a href="/Rascal/Libraries/Prelude/List/List.html">List</a> &#032 <a href="/Rascal/Libraries/Prelude/ListRelation/ListRelation.html">ListRelation</a> &#032 <a href="/Rascal/Libraries/Prelude/Map/Map.html">Map</a> &#032 <a href="/Rascal/Libraries/Prelude/Message/Message.html">Message</a> &#032 <a href="/Rascal/Libraries/Prelude/Node/Node.html">Node</a> &#032 <a href="/Rascal/Libraries/Prelude/ParseTree/ParseTree.html">ParseTree</a> &#032 <a href="/Rascal/Libraries/Prelude/Relation/Relation.html">Relation</a> &#032 <a href="/Rascal/Libraries/Prelude/Set/Set.html">Set</a> &#032 <a href="/Rascal/Libraries/Prelude/String/String.html">String</a> &#032 <a href="/Rascal/Libraries/Prelude/Type/Type.html">Type</a> &#032 <a href="/Rascal/Libraries/Prelude/ValueIO/ValueIO.html">ValueIO</a> &#032 
 </div>
@@ -155,7 +155,7 @@
 </ul><li><a href="/Rascal/Libraries/Prelude/List/List.html">List</a>: Library functions for lists.</li>
 <ul><li><a href="/Rascal/Libraries/Prelude/List/delete/delete.html">delete</a>: Delete an element from a list.</li>
 <li><a href="/Rascal/Libraries/Prelude/List/distribution/distribution.html">distribution</a>: Get the distribution of the elements of the list. That is how often does each element occur in the list? </li>
-<li><a href="/Rascal/Libraries/Prelude/List/domain/domain.html">domain</a>: The set of all legal indices of a list.</li>
+<li><a href="/Rascal/Libraries/Prelude/List/domain/domain.html">domain</a>: </li>
 <li><a href="/Rascal/Libraries/Prelude/List/drop/drop.html">drop</a>: Drop elements from the head of a list.</li>
 <li><a href="/Rascal/Libraries/Prelude/List/dup/dup.html">dup</a>: Remove multiple occurrences of elements in a list. The first occurrence remains.</li>
 <li><a href="/Rascal/Libraries/Prelude/List/getOneFrom/getOneFrom.html">getOneFrom</a>: Pick a random element from a list.</li>
@@ -216,7 +216,6 @@
 <li><a href="/Rascal/Libraries/Prelude/ListRelation/rangeX/rangeX.html">rangeX</a>: List relation excluding certain range values.</li>
 </ul><li><a href="/Rascal/Libraries/Prelude/Map/Map.html">Map</a>: </li>
 <ul><li><a href="/Rascal/Libraries/Prelude/Map/delete/delete.html">delete</a>: Delete a key from a map.</li>
-<li><a href="/Rascal/Libraries/Prelude/Map/distribution/distribution.html">distribution</a>: </li>
 <li><a href="/Rascal/Libraries/Prelude/Map/domain/domain.html">domain</a>: Determine the domain (set of keys) of a map.</li>
 <li><a href="/Rascal/Libraries/Prelude/Map/domainR/domainR.html">domainR</a>: Map restricted to certain keys.</li>
 <li><a href="/Rascal/Libraries/Prelude/Map/domainX/domainX.html">domainX</a>: Map with certain keys excluded.</li>
@@ -242,6 +241,7 @@
 <li><a href="/Rascal/Libraries/Prelude/Node/delAnnotationsRec/delAnnotationsRec.html">delAnnotationsRec</a>: Delete recursively all annotations from all nodes in a value.</li>
 <li><a href="/Rascal/Libraries/Prelude/Node/getAnnotations/getAnnotations.html">getAnnotations</a>: Retrieve the annotations of a node value as a map.</li>
 <li><a href="/Rascal/Libraries/Prelude/Node/getChildren/getChildren.html">getChildren</a>: Get the children of a node.</li>
+<li><a href="/Rascal/Libraries/Prelude/Node/getKeywordParameters/getKeywordParameters.html">getKeywordParameters</a>: Get the keyword parameters of a node.</li>
 <li><a href="/Rascal/Libraries/Prelude/Node/getName/getName.html">getName</a>: Determine the name of a node.</li>
 <li><a href="/Rascal/Libraries/Prelude/Node/itoString/itoString.html">itoString</a>: Convert a node to an indented string.</li>
 <li><a href="/Rascal/Libraries/Prelude/Node/makeNode/makeNode.html">makeNode</a>: Create a node given its function name and arguments.</li>
@@ -372,6 +372,7 @@
 <li><a href="/Rascal/Libraries/Prelude/Type/isValueType/isValueType.html">isValueType</a>: Determine if the given type is a value.</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/isVoidType/isVoidType.html">isVoidType</a>: Determine if the given type is a void.</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/lub/lub.html">lub</a>: The least-upperbound (lub) between two types.</li>
+<li><a href="/Rascal/Libraries/Prelude/Type/make/make.html">make</a>: instantiate an ADT constructor of a given type with the given children</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/Production/Production.html">Production</a>: A production in a grammar or constructor in a data type.</li>
 <li><a href="/Rascal/Libraries/Prelude/Type/subtype/subtype.html">subtype</a>: </li>
 <li><a href="/Rascal/Libraries/Prelude/Type/Symbol/Symbol.html">Symbol</a>: A Symbol represents a Rascal Type.</li>
@@ -386,14 +387,14 @@
 </ul></ul>
 </div>
 
-  	                       
-  	                       
+
+
 <div id="Benefits">
 <span class="sectionHead">Benefits</span>  This library makes it possible to import all core Rascal functionality with a single import.
 
 </div>
 
-  	                       
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  <ul><li> The prelude may contain more functionality than you need; this leads to an unnecessary longer import  and pollution of your name space.
 </li>
@@ -402,11 +403,11 @@
 </ul>
 </div>
 
-  	                       
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 3 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

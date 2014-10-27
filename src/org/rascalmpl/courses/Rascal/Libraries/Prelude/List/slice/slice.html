@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>list[&amp;T] slice(list[&amp;T] lst, int begin, int len)</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import List;</code>
  </AUTOINSERTED>
@@ -68,7 +68,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
@@ -79,9 +79,9 @@ list[str]: ["elephant","snake"]
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -105,14 +105,17 @@ list[str]: ["elephant","snake"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_4" value="0@4@[4,0,1]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_4" value="0@4@[4,2,3,0]">
 <label for="Rascal/Libraries/Prelude/List/slice_1_4">B - 1 elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_0" value="1@0@[4,0,1]">
-<label for="Rascal/Libraries/Prelude/List/slice_1_0">N elements. </label><br/>
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_2" value="1@2@[4,2,3,0]">
+<label for="Rascal/Libraries/Prelude/List/slice_1_2">B + N elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_1" value="2@1@[4,0,1]">
-<label for="Rascal/Libraries/Prelude/List/slice_1_1">B elements. </label><br/>
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_3" value="2@3@[4,2,3,0]">
+<label for="Rascal/Libraries/Prelude/List/slice_1_3">N - 1 elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_0" value="3@0@[4,2,3,0]">
+<label for="Rascal/Libraries/Prelude/List/slice_1_0">N elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -136,10 +139,10 @@ list[str]: ["elephant","snake"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_slice_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:L" value="[17, -1, -6, -17, -1]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:B" value="1">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:L" value="[-2, 12, -10, 18, -3]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:B" value="0">
 <input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:E" value="4">
-The type of <tt>slice([17, -1, -6, -17, -1],1,4)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_2:answer" class="answerText"><br/>
+The type of <tt>slice([-2, 12, -10, 18, -3],0,4)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -163,10 +166,10 @@ The type of <tt>slice([17, -1, -6, -17, -1],1,4)</tt> is <input type="text" size
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_slice_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:L" value="[&quot;Ginger&quot;, &quot;Grapefruit&quot;, &quot;Prince Charming&quot;, &quot;Yoda&quot;, &quot;Guava&quot;]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:B" value="1">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:E" value="4">
-<pre class="prequestion">slice([&quot;Ginger&quot;, &quot;Grapefruit&quot;, &quot;Prince Charming&quot;, &quot;Yoda&quot;, &quot;Guava&quot;],1,4) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:L" value="[-19, 10, -10, 17, -10]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:B" value="0">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:E" value="2">
+<pre class="prequestion">slice([-19, 10, -10, 17, -10],0,2) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:another" value="yes">

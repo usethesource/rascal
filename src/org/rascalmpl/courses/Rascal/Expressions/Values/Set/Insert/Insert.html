@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,30 +48,30 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> + <i>Exp</i><sub>2</sub></code>
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code>    </th><th align="left">  <code><i>Exp</i><sub>2</sub></code>    </th><th align="left"> <code><i>Exp</i><sub>1</sub> + <i>Exp</i><sub>2</sub></code>      </th></tr><tr><td align="left"> <code>set[<i>T</i><sub>1</sub>]</code> </td><td align="left">  <code><i>T</i><sub>2</sub></code>      </td><td align="left"> <code>set[lub(<i>T</i><sub>1</sub>,<i>T</i><sub>2</sub>)]</code>  </td></tr><tr><td align="left"> <code><i>T</i><sub>1</sub></code>      </td><td align="left">  <code>set[<i>T</i><sub>2</sub>]</code> </td><td align="left"> <code>set[lub(<i>T</i><sub>1</sub>,<i>T</i><sub>2</sub>)]</code>  </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  The <code>+</code> operator will add elements to sets.
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>{1, 2, 3} + 4;
-set[int]: {4,3,2,1}
+set[int]: {1,2,3,4}
 <span class="prompt">rascal></span>1 + { 2, 3, 4};
-set[int]: {4,3,2,1}
+set[int]: {1,2,3,4}
 <span class="prompt">rascal></span>{1} + 1;
 set[int]: {1}
 <span class="prompt">rascal></span>1 + {1};
@@ -79,14 +79,14 @@ set[int]: {1}
 </pre>
 </div>
 
-  	                       
-  	                       
+
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  <ul><li> if both operands of <code>+</code> are a set then it acts as <span class="inlineError">ambiguous: Rascal:Set/Union</span>.</li>
 </ul>
 </div>
 
-  	                       
+
 <div id="questions">
 
 
@@ -110,13 +110,13 @@ set[int]: {1}
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Set_Insert_1:answer" id="Rascal/Expressions/Values/Set/Insert_1_2" value="0@2@[2,1,3]">
-<label for="Rascal/Expressions/Values/Set/Insert_1_2">Smaller than the number of elements in the original set. </label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_Set_Insert_1:answer" id="Rascal/Expressions/Values/Set/Insert_1_1" value="1@1@[2,1,3]">
+<input type="radio" name="Rascal_Expressions_Values_Set_Insert_1:answer" id="Rascal/Expressions/Values/Set/Insert_1_1" value="0@1@[1,2,3]">
 <label for="Rascal/Expressions/Values/Set/Insert_1_1">One larger than the number of elements in the original set. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Set_Insert_1:answer" id="Rascal/Expressions/Values/Set/Insert_1_3" value="2@3@[2,1,3]">
+<input type="radio" name="Rascal_Expressions_Values_Set_Insert_1:answer" id="Rascal/Expressions/Values/Set/Insert_1_2" value="1@2@[1,2,3]">
+<label for="Rascal/Expressions/Values/Set/Insert_1_2">Smaller than the number of elements in the original set. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Set_Insert_1:answer" id="Rascal/Expressions/Values/Set/Insert_1_3" value="2@3@[1,2,3]">
 <label for="Rascal/Expressions/Values/Set/Insert_1_3">One smaller than the number of elements in the original set. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
@@ -141,9 +141,9 @@ set[int]: {1}
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Insert_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_2:A" value="&quot;Sage&quot;">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Insert_2:B" value="{&quot;Countess Darling Von Darling&quot;, &quot;Sy Snootles&quot;, &quot;Little Bird&quot;, &quot;Cayenne&quot;}">
-The type of <tt>&quot;Sage&quot; + {&quot;Countess Darling Von Darling&quot;, &quot;Sy Snootles&quot;, &quot;Little Bird&quot;, &quot;Cayenne&quot;}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Insert_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_2:A" value="&quot;Q&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Insert_2:B" value="{&quot;Watermelon&quot;, &quot;Musterd&quot;}">
+The type of <tt>&quot;Q&quot; + {&quot;Watermelon&quot;, &quot;Musterd&quot;}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Insert_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -167,9 +167,9 @@ The type of <tt>&quot;Sage&quot; + {&quot;Countess Darling Von Darling&quot;, &q
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Insert_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_3:A" value="&quot;Celery&quot;">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Insert_3:B" value="{&quot;V&quot;, &quot;Fig&quot;, &quot;Sy Snootles&quot;, &quot;Nutmeg&quot;}">
-<pre class="prequestion">&quot;Celery&quot; + {&quot;V&quot;, &quot;Fig&quot;, &quot;Sy Snootles&quot;, &quot;Nutmeg&quot;} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Insert_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_3:A" value="6">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Insert_3:B" value="{13, 43}">
+<pre class="prequestion">6 + {13, 43} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Insert_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_3:another" value="yes">
@@ -192,9 +192,9 @@ The type of <tt>&quot;Sage&quot; + {&quot;Countess Darling Von Darling&quot;, &q
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Insert_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_4:A" value="&quot;Blackcurrant&quot;">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Insert_4:B" value="{&quot;Prune&quot;, &quot;Big Bird&quot;, &quot;Obi-Wan Kenobi&quot;, &quot;S&quot;}">
-<pre class="prequestion">{&quot;Prune&quot;, &quot;Big Bird&quot;, &quot;Obi-Wan Kenobi&quot;, &quot;S&quot;} + &quot;Blackcurrant&quot; == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Insert_4:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_4:A" value="&quot;Guy Smiley&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Insert_4:B" value="{&quot;M&quot;, &quot;Jasmine&quot;}">
+<pre class="prequestion">{&quot;M&quot;, &quot;Jasmine&quot;} + &quot;Guy Smiley&quot; == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Insert_4:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Insert_4:another" value="yes">

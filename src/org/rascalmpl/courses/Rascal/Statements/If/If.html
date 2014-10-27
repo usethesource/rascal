@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,20 +48,20 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <ul><li> <code>if ( <i>Exp</i> ) <i>Statement</i>;</code></li>
 <li> <code>if ( <i>Exp</i> ) <i>Statement</i><sub>1</sub> else <i>Statement</i><sub>2</sub>;</code></li>
 </ul>
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i></code> </th><th align="left"> <code>if ( <i>Exp</i> ) <i>Statement</i>;</code> </th></tr><tr><td align="left"> <code>bool</code>  </td><td align="left">  <code>void</code>                     </td></tr></table> <table><col align="left" /><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i></code> </th><th align="left"> <code><i>Statement</i><sub>1</sub></code> </th><th align="left"> <code><i>Statement</i><sub>2</sub></code> </th><th align="left"> <code>if ( <i>Exp</i> ) <i>Statement</i><sub>1</sub> else <i>Statement</i><sub>2</sub>;</code> </th></tr><tr><td align="left"> <code>bool</code>  </td><td align="left">  <code><i>T</i><sub>1</sub></code>        </td><td align="left"> <code><i>T</i><sub>2</sub></code>         </td><td align="left"> <code>lub(<i>T</i><sub>1</sub>, <i>T</i><sub>2</sub>)</code>                              </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  The test <code><i>Exp</i></code> is evaluated and its outcome determines the statement to be executed: 
  <code><i>Statement</i><sub>1</sub></code> if <code><i>Exp</i></code> yields <code>true</code> and <code><i>Statement</i><sub>2</sub></code> otherwise. 
@@ -70,7 +70,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>if( 3 &gt; 2 ) 30; else 40;
 int: 30
@@ -85,9 +85,9 @@ ok
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -109,9 +109,9 @@ ok
 <span id="answerFeedback_Rascal_Statements_If_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Statements_If_1:A" value="2">
-<input type="hidden" name="Rascal_Statements_If_1:B" value="-18">
-The type of <tt>if( 2 &gt; -18 ) 10; else 20;</tt> is <input type="text" size="30" name="Rascal_Statements_If_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Statements_If_1:A" value="1">
+<input type="hidden" name="Rascal_Statements_If_1:B" value="16">
+The type of <tt>if( 1 &gt; 16 ) 10; else 20;</tt> is <input type="text" size="30" name="Rascal_Statements_If_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -135,11 +135,11 @@ The type of <tt>if( 2 &gt; -18 ) 10; else 20;</tt> is <input type="text" size="3
 <span id="answerFeedback_Rascal_Statements_If_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Statements_If_2:A" value="19">
-<input type="hidden" name="Rascal_Statements_If_2:B" value="-13">
-<input type="hidden" name="Rascal_Statements_If_2:C" value="&quot;Boba Fett&quot;">
-<input type="hidden" name="Rascal_Statements_If_2:D" value="&quot;Cranberry&quot;">
-The type of <tt>if( 19 &gt; -13 ) &quot;Boba Fett&quot;; else &quot;Cranberry&quot;;</tt> is <input type="text" size="30" name="Rascal_Statements_If_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Statements_If_2:A" value="1">
+<input type="hidden" name="Rascal_Statements_If_2:B" value="5">
+<input type="hidden" name="Rascal_Statements_If_2:C" value="&quot;Raspberry&quot;">
+<input type="hidden" name="Rascal_Statements_If_2:D" value="&quot;V&quot;">
+The type of <tt>if( 1 &gt; 5 ) &quot;Raspberry&quot;; else &quot;V&quot;;</tt> is <input type="text" size="30" name="Rascal_Statements_If_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -163,9 +163,9 @@ The type of <tt>if( 19 &gt; -13 ) &quot;Boba Fett&quot;; else &quot;Cranberry&qu
 <span id="answerFeedback_Rascal_Statements_If_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Statements_If_3:A" value="7">
-<input type="hidden" name="Rascal_Statements_If_3:B" value="10">
-<pre class="prequestion">if( 7 &gt; 10 ) 10; else 20; == <input type="text" size="30" name="Rascal_Statements_If_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Statements_If_3:A" value="-20">
+<input type="hidden" name="Rascal_Statements_If_3:B" value="7">
+<pre class="prequestion">if( -20 &gt; 7 ) 10; else 20; == <input type="text" size="30" name="Rascal_Statements_If_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Statements_If_3:another" value="yes">

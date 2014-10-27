@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>set[&amp;T] toSet(list[&amp;T] lst)</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import List;</code>
  </AUTOINSERTED>
@@ -68,25 +68,25 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
 <span class="prompt">rascal></span>toSet([10, 20, 30, 40]);
-set[int]: {30,10,40,20}
+set[int]: {40,10,20,30}
 <span class="prompt">rascal></span>toSet([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
-set[str]: {"zebra","owl","elephant","snake"}
+set[str]: {"snake","owl","zebra","elephant"}
 </pre>  Note that the same can be done using splicing
 <pre class="screen"><span class="prompt">rascal></span>l = [10,20,30,40];
 list[int]: [10,20,30,40]
 <span class="prompt">rascal></span>s = {*l};
-set[int]: {30,10,40,20}
+set[int]: {40,10,20,30}
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -108,8 +108,8 @@ set[int]: {30,10,40,20}
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_toSet_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toSet_1:L" value="[-7, 9, -3, 0, -16]">
-The type of <tt>toSet([-7, 9, -3, 0, -16])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toSet_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toSet_1:L" value="[&quot;Anise&quot;, &quot;Two-Headed Monster&quot;]">
+The type of <tt>toSet([&quot;Anise&quot;, &quot;Two-Headed Monster&quot;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toSet_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -133,8 +133,8 @@ The type of <tt>toSet([-7, 9, -3, 0, -16])</tt> is <input type="text" size="30" 
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_toSet_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toSet_2:L" value="[&quot;Pepper&quot;, &quot;F&quot;]">
-<pre class="prequestion">toSet([&quot;Pepper&quot;, &quot;F&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toSet_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toSet_2:L" value="[-9, 10, -15, 0]">
+<pre class="prequestion">toSet([-9, 10, -15, 0]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toSet_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toSet_2:another" value="yes">

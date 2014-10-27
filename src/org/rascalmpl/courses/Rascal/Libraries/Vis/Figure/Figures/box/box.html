@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,33 +48,35 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <ol><li> <code>Figure box(FProperty props...)</code></li>
 <li> <code>Figure box(Figure inner, FProperty props...)</code></li>
 </ol>
 </div>
 
-                           
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Draw a rectangular box using the properties <code>props</code>.
  An optional nested figure <code>inner</code> may be placed inside the box.
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Lets start with a box <code>b0</code> of given (minimal) dimensions:
- <pre class="listing">b0 = box(size(150,50), fillColor("lightGray"));
+ <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
+</warning><pre class="listing">b0 = box(size(150,50), fillColor("lightGray"));
 render(b0);
 </pre> that will display as: <img class="TutorImg"  title="box0" alt="box0" src="/Rascal/Libraries/Vis/Figure/Figures/box/box0.png">
  <br/>
 <br/>
 
  We can nest a new box <code>b1</code> in box <code>b0</code> as follows:
- <pre class="listing">b1 = box(shrink(0.8), fillColor("green"));
+ <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
+</warning><pre class="listing">b1 = box(shrink(0.8), fillColor("green"));
 b0 = box(b1, size(150,50), fillColor("lightGray"));
 render(b0);
 </pre> The result is: <img class="TutorImg"  title="box1" alt="box1" src="/Rascal/Libraries/Vis/Figure/Figures/box/box1.png">
@@ -86,7 +88,8 @@ render(b0);
 <li> The dimensions of <code>b1</code> are determined by  shrinking to 80% of the dimensions of <code>b0</code>.</li>
 </ul> The placement of an inner figure is determined by alignment, see <a href="/Rascal/Libraries/Vis/Figure/Properties/align/align.html">align</a>. 
  We can, for instance, place <code>b1</code> in the top left corner of <code>b0</code>:
- <pre class="listing">b1 = box(shrink(0.8), align(0, 0), fillColor("green"));
+ <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
+</warning><pre class="listing">b1 = box(shrink(0.8), align(0, 0), fillColor("green"));
 b0 = box(b1, size(150,50), fillColor("lightGray"));
 render(b0);
 </pre> The result is: <img class="TutorImg"  title="box2" alt="box2" src="/Rascal/Libraries/Vis/Figure/Figures/box/box2.png">
@@ -94,7 +97,8 @@ render(b0);
 <br/>
 
  Placing <code>b1</code> in the bottom right corner of <code>b0</code>:
- <pre class="listing">b1 = box(shrink(0.8), align(1, 1), fillColor("green"));
+ <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
+</warning><pre class="listing">b1 = box(shrink(0.8), align(1, 1), fillColor("green"));
 b0 = box(b1, size(150,50), fillColor("lightGray"));
 render(b0);
 </pre> gives: <img class="TutorImg"  title="box3" alt="box3" src="/Rascal/Libraries/Vis/Figure/Figures/box/box3.png">
@@ -102,7 +106,8 @@ render(b0);
 <br/>
 
  We can also nest box <code>b0</code> in another box <code>b2</code> and make <code>b2</code> 20% larger than <code>b0</code>:
- <pre class="listing">b0 = box(size(150,50), fillColor("lightGray"));
+ <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
+</warning><pre class="listing">b0 = box(size(150,50), fillColor("lightGray"));
 b2 = box(b0, grow(1.2), fillColor("blue"));
 render(b2);
 </pre> The result is: <img class="TutorImg"  title="box4" alt="box4" src="/Rascal/Libraries/Vis/Figure/Figures/box/box4.png">
@@ -113,18 +118,19 @@ render(b2);
  <br/>
 <br/>
 
- <pre class="listing">render(box(box(box(box(shrink(0.5)),shrink(0.5)),shrink(0.5))));
+ <warning>StaticError("Cannot link method org.rascalmpl.eclipse.library.vis.FigureLibrary because: class not found\n[Advice](http://tutor.rascal-mpl.org/Errors/Static/JavaMethodLink/JavaMethodLink.html)",|rascal://vis::Render|(851,224,<34,0>,<37,52>))
+</warning><pre class="listing">render(box(box(box(box(shrink(0.5)),shrink(0.5)),shrink(0.5))));
 </pre> The result is: <img class="TutorImg"  title="box5" alt="box5" src="/Rascal/Libraries/Vis/Figure/Figures/box/box5.png">
 
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/box&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/box&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 6 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

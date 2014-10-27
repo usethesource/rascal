@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,160 +48,31 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>Resource getProject(loc project)</code>
 
 </div>
 
-                           
-  	                       
+
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import util::Resources;
-ok
+|rascal://util::Resources|(658,85,&lt;18,0>,&lt;19,28>): Cannot link method org.rascalmpl.eclipse.library.util.Resources because: class not found
 <span class="prompt">rascal></span>getProject(|project://org.eclipse.imp.pdb.values|);
-Resource: project(
-  |project://org.eclipse.imp.pdb.values|,
-  {
-    folder(
-      |project://org.eclipse.imp.pdb.values/.settings|,
-      {
-        file(|project://org.eclipse.imp.pdb.values/.settings/org.eclipse.core.resources.prefs|),
-        file(|project://org.eclipse.imp.pdb.values/.settings/org.eclipse.jdt.core.prefs|)
-      }),
-    file(|project://org.eclipse.imp.pdb.values/pom.xml|),
-    folder(
-      |project://org.eclipse.imp.pdb.values/target|,
-      {
-        folder(
-          |project://org.eclipse.imp.pdb.values/target/classes|,
-          {
-            folder(
-              |project://org.eclipse.imp.pdb.values/target/classes/objectexplorer|,
-              {
-                file(|project://org.eclipse.imp.pdb.values/target/classes/objectexplorer/MemoryMeasurer.class|),
-                file(|project://org.eclipse.imp.pdb.values/target/classes/objectexplorer/MemoryMeasurer$MemoryMeasurerVisitor.class|),
-                file(|project://org.eclipse.imp.pdb.values/target/classes/objectexplorer/MemoryMeasurer$DummyEnum.class|)
-              }),
-            folder(
-              |project://org.eclipse.imp.pdb.values/target/classes/nl|,
-              {folder(
-                  |project://org.eclipse.imp.pdb.values/target/classes/nl/cwi|,
-                  {folder(
-                      |project://org.eclipse.imp.pdb.values/target/classes/nl/cwi/swat|,
-                      {
-                        file(|project://org.eclipse.imp.pdb.values/target/classes/nl/cwi/swat/BCITracker.class|),
-                        folder(
-                          |project://org.eclipse.imp.pdb.values/target/classes/nl/cwi/swat/hamlet|,
-                          {file(|project://org.eclipse.imp.pdb.values/target/classes/nl/cwi/swat/hamlet/MaximalSharing.aj|)})
-                      })})}),
-            folder(
-              |project://org.eclipse.imp.pdb.values/target/classes/META-INF|,
-              {file(|project://org.eclipse.imp.pdb.values/target/classes/META-INF/aop-ajc.xml|)}),
-            folder(
-              |project://org.eclipse.imp.pdb.values/target/classes/org|,
-              {folder(
-                  |project://org.eclipse.imp.pdb.values/target/classes/org/eclipse|,
-                  {folder(
-                      |project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp|,
-                      {folder(
-                          |project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb|,
-                          {folder(
-                              |project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts|,
-                              {
-                                file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/IBool.class|),
-                                folder(
-                                  |project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions|,
-                                  {
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/UndeclaredFieldException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/UndeclaredConstructorException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/IllegalFieldTypeException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/UnexpectedElementTypeException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/UnexpectedChildTypeException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/RedeclaredAnnotationException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/UndeclaredAnnotationException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/NullTypeException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/UnexpectedMapValueTypeException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/IllegalIdentifierException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/UnexpectedConstructorTypeException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/OverloadingNotSupportedException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/UnexpectedAnnotationTypeException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/UndeclaredAbstractDataTypeException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/FactTypeUseException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/IllegalFieldNameException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/UnexpectedMapKeyTypeException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/IllegalInstantiatedAbstractDataTypeException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/EmptyIdentifierException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/FactTypeDeclarationException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/FactTypeRedeclaredException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/IllegalAnnotationDeclaration.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/IllegalOperationException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/RedeclaredFieldNameException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/UnsupportedTypeException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/FactParseError.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/RedeclaredConstructorException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/IllegalConstructorApplicationException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/UnexpectedTypeException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/InvalidDateTimeException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/UnexpectedResultTypeException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/exceptions/FieldLabelMismatchException.class|)
-                                  }),
-                                file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/ISetAlgebra.class|),
-                                file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/IWriter.class|),
-                                file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/IRational.class|),
-                                file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/IAnnotatable.class|),
-                                folder(
-                                  |project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/visitors|,
-                                  {
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/visitors/IdentityVisitor.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/visitors/VisitorException.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/visitors/VisitorAdapter.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/visitors/NullVisitor.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/visitors/BottomUpVisitor.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/visitors/BottomUpTransformer.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/visitors/IValueVisitor.class|)
-                                  }),
-                                file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/ISourceLocation.class|),
-                                file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/IListWriter.class|),
-                                file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/IInteger.class|),
-                                file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/ISetRelation.class|),
-                                file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/IDateTime.class|),
-                                folder(
-                                  |project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io|,
-                                  {
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/IValueBinaryReader.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/ATermReader.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/StandardTextReader.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/XMLWriter.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/AbstractBinaryReader.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/IValueTextWriter.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/AbstractTextReader.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/StandardTextReader$NoWhiteSpaceReader.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/BinaryValueReader.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/StandardTextReader$1.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/StandardTextReader$DateParts.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/ATermWriter.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/IValueBinaryWriter.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/StandardTextReader$TimeParts.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/StandardTextWriter.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/XMLReader.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/StandardTextWriter$Writer.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/ATermWriter$Writer.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/IValueTextReader.class|),
-                                    file(|project://org.eclipse.imp.pdb.values/target/classes/org/eclipse/imp/pdb/facts/io/StandardTextWriter<i>Writer</i>1.class|),
-                            ...
+|stdin:///|(0,10,&lt;1,0>,&lt;1,10>): Undeclared variable: getProject
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/Resources/getProject&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/Resources/getProject&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

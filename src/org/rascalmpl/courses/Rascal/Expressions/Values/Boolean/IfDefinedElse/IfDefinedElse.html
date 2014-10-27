@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,19 +48,19 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> ? <i>Exp</i><sub>2</sub></code>
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code> </th><th align="left"> <code><i>Exp</i><sub>2</sub></code> </th><th align="left"> <code><i>Exp</i><sub>1</sub> ? <i>Exp</i><sub>2</sub></code></th></tr><tr><td align="left"> <code><i>T</i><sub>1</sub></code>   </td><td align="left"> <code><i>T</i><sub>2</sub></code>   </td><td align="left">  <code><i>T</i><sub>2</sub> &lt;: <i>T</i><sub>1</sub></code> </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  If no exception is generated during the evaluation of <code><i>Exp</i><sub>1</sub></code>, the result of <code><i>Exp</i><sub>1</sub> ? <i>Exp</i><sub>2</sub></code> is the value of <code><i>Exp</i><sub>1</sub></code>.
  Otherwise, it is the value of <code><i>Exp</i><sub>2</sub></code>.
@@ -71,11 +71,11 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  This test can, for instance, be used to handle the case that a certain key value is not in a map:
  <pre class="screen"><span class="prompt">rascal></span>T = (&quot;a&quot; : 1, &quot;b&quot; : 2);
-map[str, int]: ("b":2,"a":1)
+map[str, int]: ("a":1,"b":2)
 </pre>  Trying to access the key <code>"c"</code> will result in an error:
 <pre class="screen"><span class="prompt">rascal></span>T[&quot;c&quot;];
 |stdin:///|(2,3,&lt;1,2>,&lt;1,5>): NoSuchKey("c")
@@ -87,7 +87,7 @@ map[str, int]: ("b":2,"a":1)
 int: 0
 </pre>  This is very useful, if we want to modify the associated value, but are not sure whether it exists:
 <pre class="screen"><span class="prompt">rascal></span>T[&quot;c&quot;] ? 0 += 1;
-map[str, int]: ("c":1,"b":2,"a":1)
+map[str, int]: ("a":1,"b":2,"c":1)
 </pre>  Another example using a list:
 <pre class="screen"><span class="prompt">rascal></span>L = [10, 20, 30];
 list[int]: [10,20,30]
@@ -97,9 +97,9 @@ int: 0
 
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Boolean/IfDefinedElse&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Boolean/IfDefinedElse&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

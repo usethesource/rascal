@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,19 +48,19 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code>{ &lt;<i>Exp</i><sub>11</sub>, <i>Exp</i><sub>12</sub>, ... > , &lt;<i>Exp</i><sub>21</sub>, <i>Exp</i><sub>22</sub>, ... > , ... }</code>
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>11</sub></code> </th><th align="left">  <code><i>Exp</i><sub>12</sub></code> </th><th align="left">  ...  </th><th align="left"> <code>{ &lt;<i>Exp</i><sub>11</sub>, <i>Exp</i><sub>12</sub>, ... > , ... }</code>  </th></tr><tr><td align="left"> <code><i>T</i><sub>1</sub></code>    </td><td align="left">    <code><i>T</i><sub>2</sub></code>  </td><td align="left">  ...  </td><td align="left">  <code>rel[<i>T</i><sub>1</sub>, <i>T</i><sub>2</sub>, ... ]</code>              </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Relation;</code> (included in <a href="/Rascal/Libraries/Prelude/Prelude.html">Prelude</a>)
 
@@ -117,33 +117,33 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>{&lt;1,10&gt;, &lt;2,20&gt;, &lt;3,30&gt;}
 rel[int,int]: {
-  &lt;1,10>,
   &lt;3,30>,
-  &lt;2,20>
+  &lt;2,20>,
+  &lt;1,10>
 }
 </pre>  instead of rel[int,int] we can also give <code>set[tuple[int,int]]</code> as type of the above expression
   remember that these types are interchangeable.
 <pre class="screen"><span class="prompt">rascal></span>{&lt;&quot;a&quot;,10&gt;, &lt;&quot;b&quot;,20&gt;, &lt;&quot;c&quot;,30&gt;}
 rel[str,int]: {
-  &lt;"a",10>,
   &lt;"c",30>,
-  &lt;"b",20>
+  &lt;"b",20>,
+  &lt;"a",10>
 }
 <span class="prompt">rascal></span>{&lt;&quot;a&quot;, 1, &quot;b&quot;&gt;, &lt;&quot;c&quot;, 2, &quot;d&quot;&gt;}
 rel[str,int,str]: {
-  &lt;"c",2,"d">,
-  &lt;"a",1,"b">
+  &lt;"a",1,"b">,
+  &lt;"c",2,"d">
 }
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -167,16 +167,13 @@ rel[str,int,str]: {
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_2" value="0@2@[2,5,1,0]">
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_3" value="0@3@[3,2,0]">
+<label for="Rascal/Expressions/Values/Relation_1_3">Has ordered elements. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_2" value="1@2@[3,2,0]">
 <label for="Rascal/Expressions/Values/Relation_1_2">Is a tuple of tuples. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_5" value="1@5@[2,5,1,0]">
-<label for="Rascal/Expressions/Values/Relation_1_5">Has a fixed length. </label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_1" value="2@1@[2,5,1,0]">
-<label for="Rascal/Expressions/Values/Relation_1_1">Is a list of tuples. </label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_0" value="3@0@[2,5,1,0]">
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_0" value="2@0@[3,2,0]">
 <label for="Rascal/Expressions/Values/Relation_1_0">Is a set of tuples. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">

@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,254 +48,31 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>Resource root()</code>
 
 </div>
 
-                           
-  	                       
+
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import util::Resources;
-ok
+|rascal://util::Resources|(658,85,&lt;18,0>,&lt;19,28>): Cannot link method org.rascalmpl.eclipse.library.util.Resources because: class not found
 <span class="prompt">rascal></span>root();
-Resource: root({
-    project(
-      |project://ZZZ|,
-      {
-        folder(
-          |project://ZZZ/src|,
-          {}),
-        folder(
-          |project://ZZZ/.settings|,
-          {file(|project://ZZZ/.settings/org.eclipse.core.resources.prefs|)}),
-        folder(
-          |project://ZZZ/META-INF|,
-          {
-            file(|project://ZZZ/META-INF/MANIFEST.MF|),
-            file(|project://ZZZ/META-INF/RASCAL.MF|)
-          })
-      }),
-    project(
-      |project://rascal|,
-      {}),
-    project(
-      |project://MissGrant|,
-      {
-        file(|project://MissGrant/.classpath|),
-        folder(
-          |project://MissGrant/META-INF|,
-          {file(|project://MissGrant/META-INF/MANIFEST.MF|)}),
-        file(|project://MissGrant/.project|),
-        folder(
-          |project://MissGrant/src|,
-          {
-            folder(
-              |project://MissGrant/src/lang|,
-              {folder(
-                  |project://MissGrant/src/lang/missgrant|,
-                  {
-                    folder(
-                      |project://MissGrant/src/lang/missgrant/retries|,
-                      {
-                        file(|project://MissGrant/src/lang/missgrant/retries/Check.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/Outline.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/AST.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/Parse.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/Desugar.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/Implode.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/Syntax.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/Plugin.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/Unparse.rsc|)
-                      }),
-                    folder(
-                      |project://MissGrant/src/lang/missgrant/base|,
-                      {
-                        file(|project://MissGrant/src/lang/missgrant/base/Implode.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Extract.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Outline.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/AST.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/XRef.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Eval.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Rename.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Merge.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Check.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Unparse.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Syntax.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Plugin.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Parse.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Compile.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Visualize.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Desugar.rsc|)
-                      })
-                  })}),
-            file(|project://MissGrant/src/Plugin.rsc|)
-          }),
-        file(|project://MissGrant/.gitignore|),
-        folder(
-          |project://MissGrant/.git|,
-          {
-            folder(
-              |project://MissGrant/.git/hooks|,
-              {
-                file(|project://MissGrant/.git/hooks/prepare-commit-msg.sample|),
-                file(|project://MissGrant/.git/hooks/pre-commit.sample|),
-                file(|project://MissGrant/.git/hooks/post-update.sample|),
-                file(|project://MissGrant/.git/hooks/pre-push.sample|),
-                file(|project://MissGrant/.git/hooks/pre-applypatch.sample|),
-                file(|project://MissGrant/.git/hooks/update.sample|),
-                file(|project://MissGrant/.git/hooks/pre-rebase.sample|),
-                file(|project://MissGrant/.git/hooks/applypatch-msg.sample|),
-                file(|project://MissGrant/.git/hooks/commit-msg.sample|)
-              }),
-            file(|project://MissGrant/.git/HEAD|),
-            folder(
-              |project://MissGrant/.git/refs|,
-              {
-                folder(
-                  |project://MissGrant/.git/refs/remotes|,
-                  {folder(
-                      |project://MissGrant/.git/refs/remotes/origin|,
-                      {file(|project://MissGrant/.git/refs/remotes/origin/HEAD|)})}),
-                folder(
-                  |project://MissGrant/.git/refs/tags|,
-                  {}),
-                folder(
-                  |project://MissGrant/.git/refs/heads|,
-                  {file(|project://MissGrant/.git/refs/heads/master|)})
-              }),
-            file(|project://MissGrant/.git/config|),
-            file(|project://MissGrant/.git/packed-refs|),
-            folder(
-              |project://MissGrant/.git/objects|,
-              {
-                folder(
-                  |project://MissGrant/.git/objects/pack|,
-                  {
-                    file(|project://MissGrant/.git/objects/pack/pack-9d2c90307a4c6c031d638e88145a5d3a97fba9e0.pack|),
-                    file(|project://MissGrant/.git/objects/pack/pack-9d2c90307a4c6c031d638e88145a5d3a97fba9e0.idx|)
-                  }),
-                folder(
-                  |project://MissGrant/.git/objects/info|,
-                  {})
-              }),
-            file(|project://MissGrant/.git/index|),
-            folder(
-              |project://MissGrant/.git/info|,
-              {file(|project://MissGrant/.git/info/exclude|)}),
-            file(|project://MissGrant/.git/description|),
-            folder(
-              |project://MissGrant/.git/logs|,
-              {
-                folder(
-                  |project://MissGrant/.git/logs/refs|,
-                  {
-                    folder(
-                      |project://MissGrant/.git/logs/refs/heads|,
-                      {file(|project://MissGrant/.git/logs/refs/heads/master|)}),
-                    folder(
-                      |project://MissGrant/.git/logs/refs/remotes|,
-                      {folder(
-                          |project://MissGrant/.git/logs/refs/remotes/origin|,
-                          {file(|project://MissGrant/.git/logs/refs/remotes/origin/HEAD|)})})
-                  }),
-                file(|project://MissGrant/.git/logs/HEAD|)
-              }),
-            folder(
-              |project://MissGrant/.git/branches|,
-              {})
-          }),
-        folder(
-          |project://MissGrant/input|,
-          {
-            file(|project://MissGrant/input/ing.ctl|),
-            file(|project://MissGrant/input/merged.ctl|),
-            file(|project://MissGrant/input/misterjones.java|),
-            file(|project://MissGrant/input/missgrant.png|),
-            file(|project://MissGrant/input/missgrant.ctl|),
-            file(|project://MissGrant/input/missgrantr.java|),
-            file(|project://MissGrant/input/moremissgrant.ctl|),
-            file(|project://MissGrant/input/missgrant.java|),
-            file(|project://MissGrant/input/misterjones.ctl|),
-            file(|project://MissGrant/input/missgrantr.ctlr|),
-            file(|project://MissGrant/input/merged.java|),
-            file(|project://MissGrant/input/ing.java|)
-          }),
-        folder(
-          |project://MissGrant/doc|,
-          {
-            file(|project://MissGrant/doc/preamble.tex|),
-            file(|project://MissGrant/doc/5languages2011.key|),
-            file(|project://MissGrant/doc/notes.txt|),
-            file(|project://MissGrant/doc/handout.pdf|),
-            file(|project://MissGrant/doc/handout.html|),
-            file(|project://MissGrant/doc/Makefile|),
-            file(|project://MissGrant/doc/5lang11.zip|),
-            file(|project://MissGrant/doc/handout.text|),
-            file(|project://MissGrant/doc/fowler.url|)
-          }),
-        file(|project://MissGrant/build.properties|)
-      }),
-    project(
-      |project://ExercisesInStyle|,
-      {
-        folder(
-          |project://ExercisesInStyle/META-INF|,
-          {file(|project://ExercisesInStyle/META-INF/MANIFEST.MF|)}),
-        folder(
-          |project://ExercisesInStyle/src|,
-          {
-            file(|project://ExercisesInStyle/src/pp.txt|),
-            file(|project://ExercisesInStyle/src/try1.rsc|)
-          }),
-        folder(
-          |project://ExercisesInStyle/.settings|,
-          {file(|project://ExercisesInStyle/.settings/org.eclipse.core.resources.prefs|)})
-      }),
-    project(
-      |project://org.eclipse.imp.pdb.values|,
-      {
-        folder(
-          |project://org.eclipse.imp.pdb.values/.settings|,
-          {
-            file(|project://org.eclipse.imp.pdb.values/.settings/org.eclipse.core.resources.prefs|),
-            file(|project://org.eclipse.imp.pdb.values/.settings/org.eclipse.jdt.core.prefs|)
-          }),
-        file(|project://org.eclipse.imp.pdb.values/pom.xml|),
-        folder(
-          |project://org.eclipse.imp.pdb.values/target|,
-          {
-            folder(
-              |project://org.eclipse.imp.pdb.values/target/classes|,
-              {
-                folder(
-                  |project://org.eclipse.imp.pdb.values/target/classes/objectexplorer|,
-                  {
-                    file(|project://org.eclipse.imp.pdb.values/target/classes/objectexplorer/MemoryMeasurer.class|),
-                    file(|project://org.eclipse.imp.pdb.values/target/classes/objectexplorer/MemoryMeasurer$MemoryMeasurerVisitor.class|),
-                    file(|project://org.eclipse.imp.pdb.values/target/classes/objectexplorer/MemoryMeasurer$DummyEnum.class|)
-                  }),
-                folder(
-                  |project://org.eclipse.imp.pdb.values/target/classes/nl|,
-                  {folder(
-                      |project://org.eclipse.imp.pdb.values/target/classes/nl/cwi|,
-                      {folder(
-                          |project://org.eclipse.imp.pdb.values/target/classes/nl/cwi/swat|,
-                          {
-             ...
+|stdin:///|(0,4,&lt;1,0>,&lt;1,4>): Undeclared variable: root
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/Resources/root&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/Resources/root&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

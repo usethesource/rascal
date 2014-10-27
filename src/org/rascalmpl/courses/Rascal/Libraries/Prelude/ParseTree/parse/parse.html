@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,18 +48,17 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <ol><li> <code>&amp;T&lt;:Tree parse(type[&amp;T&lt;:Tree] begin, str input)</code></li>
-<li> <code>&amp;T&lt;:Tree parse(type[&amp;T&lt;:Tree] begin, map[Production robust, CharClass lookaheads] recovery, str input, loc origin)</code></li>
 <li> <code>&amp;T&lt;:Tree parse(type[&amp;T&lt;:Tree] begin, str input, loc origin)</code></li>
 <li> <code>&amp;T&lt;:Tree parse(type[&amp;T&lt;:Tree] begin, loc input)</code></li>
 </ol>
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import ParseTree;</code>
  </AUTOINSERTED>
@@ -73,7 +72,7 @@
 </ol>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Concrete::NoLayout::Syntax;
 ok
@@ -81,8 +80,8 @@ ok
 ok
 </pre>  Seeing that <code>parse</code> returns a parse tree:
 <pre class="screen"><span class="prompt">rascal></span>parse(#Exp, &quot;2+3&quot;);
-sort("Exp"): `2+3`
-Tree: appl(prod(sort("Exp"),[sort("Exp"),layouts("<i>default</i>"),lit("+"),layouts("<i>default</i>"),sort("Exp")],{assoc(left())}),[appl(prod(sort("Exp"),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(50)])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)],appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(1,0,&lt;1,1>,&lt;1,1>)],appl(prod(lit("+"),[\char-class([range(43,43)])],{}),[char(43)]),appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(2,0,&lt;1,2>,&lt;1,2>)],appl(prod(sort("Exp"),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(0,3,&lt;1,0>,&lt;1,3>)]</pre>  Catching a parse error:
+|file://-|: Java compilation failed due to with classpath [/Applications/Eclipse/keppler/Eclipse.app/Contents/MacOS//../../../plugins/org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar]: package org.eclipse.imp.pdb.facts.type does not exist
+</pre>  Catching a parse error:
 <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
 <span class="prompt">rascal></span>try {
@@ -91,14 +90,13 @@ ok
 <span class="continuation">>>>>>>></span>catch ParseError(loc l): {
 <span class="continuation">>>>>>>></span>  println("I found a parse error at line &lt;l.begin.line>, column &lt;l.begin.column>");
 <span class="continuation">>>>>>>></span>}
-I found a parse error at line 1, column 1
-ok
+|file://-|: Java compilation failed due to with classpath [/Applications/Eclipse/keppler/Eclipse.app/Contents/MacOS//../../../plugins/org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar]: package org.eclipse.imp.pdb.facts.type does not exist
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/ParseTree/parse&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/ParseTree/parse&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
