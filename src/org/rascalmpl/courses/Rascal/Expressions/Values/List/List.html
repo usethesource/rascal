@@ -108,7 +108,6 @@
 </ul> The following functions are provided for lists:
  <ul><li><a href="/Rascal/Libraries/Prelude/List/delete/delete.html">delete</a>: Delete an element from a list.</li>
 <li><a href="/Rascal/Libraries/Prelude/List/distribution/distribution.html">distribution</a>: Get the distribution of the elements of the list. That is how often does each element occur in the list? </li>
-<li><a href="/Rascal/Libraries/Prelude/List/domain/domain.html">domain</a>: </li>
 <li><a href="/Rascal/Libraries/Prelude/List/drop/drop.html">drop</a>: Drop elements from the head of a list.</li>
 <li><a href="/Rascal/Libraries/Prelude/List/dup/dup.html">dup</a>: Remove multiple occurrences of elements in a list. The first occurrence remains.</li>
 <li><a href="/Rascal/Libraries/Prelude/List/getOneFrom/getOneFrom.html">getOneFrom</a>: Pick a random element from a list.</li>
@@ -217,14 +216,14 @@ list[int]: [10,1,2,3,20]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_4" value="0@4@[4,0,2]">
-<label for="Rascal/Expressions/Values/List_1_4">The least upper bound of the type of two arbitrary elements. </label><br/>
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_1" value="0@1@[1,2,4]">
+<label for="Rascal/Expressions/Values/List_1_1">The types of all the elements in the list. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_0" value="1@0@[4,0,2]">
-<label for="Rascal/Expressions/Values/List_1_0">The least upper bound of the type of all elements. </label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_2" value="2@2@[4,0,2]">
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_2" value="1@2@[1,2,4]">
 <label for="Rascal/Expressions/Values/List_1_2">The type of the element that was first added to the list. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_4" value="2@4@[1,2,4]">
+<label for="Rascal/Expressions/Values/List_1_4">The least upper bound of the type of two arbitrary elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -249,9 +248,9 @@ list[int]: [10,1,2,3,20]
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_2:B" value="&quot;Anise&quot;">
-<input type="hidden" name="Rascal_Expressions_Values_List_2:A" value="[&quot;R2-D2&quot;, &quot;I&quot;, &quot;Ernie&quot;, &quot;Countess Darling Von Darling&quot;]">
-<pre class="prequestion">[&quot;R2-D2&quot;, &quot;I&quot;, &quot;Ernie&quot;, &quot;Countess Darling Von Darling&quot;] <input type="text" size="30" name="Rascal_Expressions_Values_List_2:answer" class="answerText"> &quot;Anise&quot; == [&quot;R2-D2&quot;,&quot;I&quot;,&quot;Ernie&quot;,&quot;Countess Darling Von Darling&quot;,&quot;Anise&quot;]</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_2:B" value="&quot;Peppermint&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_List_2:A" value="[&quot;Mango&quot;, &quot;F&quot;, &quot;Pepper&quot;, &quot;Orange&quot;]">
+<pre class="prequestion">[&quot;Mango&quot;, &quot;F&quot;, &quot;Pepper&quot;, &quot;Orange&quot;] <input type="text" size="30" name="Rascal_Expressions_Values_List_2:answer" class="answerText"> &quot;Peppermint&quot; == [&quot;Mango&quot;,&quot;F&quot;,&quot;Pepper&quot;,&quot;Orange&quot;,&quot;Peppermint&quot;]</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_2:another" value="yes">
@@ -406,9 +405,9 @@ list[int]: [10,1,2,3,20]
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_8:A" value="[&quot;W&quot;, &quot;Little Bird&quot;, &quot;Isolder&quot;]">
-<input type="hidden" name="Rascal_Expressions_Values_List_8:B" value="[&quot;Pepper&quot;, &quot;Grape&quot;, &quot;Coriander&quot;]">
-<pre class="prequestion">[&quot;W&quot;, &quot;Little Bird&quot;, &quot;Isolder&quot;] <input type="text" size="30" name="Rascal_Expressions_Values_List_8:answer" class="answerText"> [&quot;Pepper&quot;, &quot;Grape&quot;, &quot;Coriander&quot;] == [&quot;W&quot;,&quot;Little Bird&quot;,&quot;Isolder&quot;,&quot;Pepper&quot;,&quot;Grape&quot;,&quot;Coriander&quot;]</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_8:A" value="[&quot;Yoda&quot;, &quot;Rosemary&quot;, &quot;B&quot;]">
+<input type="hidden" name="Rascal_Expressions_Values_List_8:B" value="[&quot;R&quot;, &quot;Anise&quot;, &quot;Saffron&quot;]">
+<pre class="prequestion">[&quot;Yoda&quot;, &quot;Rosemary&quot;, &quot;B&quot;] <input type="text" size="30" name="Rascal_Expressions_Values_List_8:answer" class="answerText"> [&quot;R&quot;, &quot;Anise&quot;, &quot;Saffron&quot;] == [&quot;Yoda&quot;,&quot;Rosemary&quot;,&quot;B&quot;,&quot;R&quot;,&quot;Anise&quot;,&quot;Saffron&quot;]</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_8:another" value="yes">
@@ -452,7 +451,7 @@ list[int]: [10,1,2,3,20]
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/List&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/List&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

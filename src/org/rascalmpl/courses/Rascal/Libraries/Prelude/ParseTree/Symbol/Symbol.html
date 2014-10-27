@@ -62,17 +62,6 @@ data Symbol
      | \seq(list[Symbol] symbols)
      ;
 data Symbol = \conditional(Symbol symbol, set[Condition] conditions) <img src="/images/12.png">;
-data Condition
-     = \follow(Symbol symbol) <img src="/images/13.png">
-     | \not-follow(Symbol symbol)
-     | \precede(Symbol symbol)
-     | \not-precede(Symbol symbol)
-     | \delete(Symbol symbol)
-     | \at-column(int column) 
-     | \begin-of-line()  
-     | \end-of-line()  
-     | \except(str label)
-     ;
 </pre>
 </div>
 

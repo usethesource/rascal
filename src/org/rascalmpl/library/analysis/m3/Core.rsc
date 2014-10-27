@@ -37,6 +37,17 @@ import Map;
 extend analysis::m3::TypeSymbol;
  
 data Modifier;
+
+@doc{
+Synopsis: m3 model constructor
+
+Description: 
+
+This constructor holds all information to an m3 model. It is identified by the _id_ field,
+which should be a unique name for the project or file that the m3 model was constructor for.
+
+Attached to this m3 model will be annotations with the specific information.
+}
 data M3 = m3(loc id);
              
 anno rel[loc name, loc src]        M3@declarations;            // maps declarations to where they are declared. contains any kind of data or type or code declaration (classes, fields, methods, variables, etc. etc.)

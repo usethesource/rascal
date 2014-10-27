@@ -162,13 +162,16 @@ lrel[str,int]: [
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_List_Product_1:answer" id="Rascal/Expressions/Values/List/Product_1_4" value="0@4@[4,2,0]">
-<label for="Rascal/Expressions/Values/List/Product_1_4">Equal to the number of elements in the largest list. </label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_List_Product_1:answer" id="Rascal/Expressions/Values/List/Product_1_2" value="1@2@[4,2,0]">
+<input type="radio" name="Rascal_Expressions_Values_List_Product_1:answer" id="Rascal/Expressions/Values/List/Product_1_2" value="0@2@[2,1,3,0]">
 <label for="Rascal/Expressions/Values/List/Product_1_2">Smaller than or equal to the number of elements in the second list. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_Product_1:answer" id="Rascal/Expressions/Values/List/Product_1_0" value="2@0@[4,2,0]">
+<input type="radio" name="Rascal_Expressions_Values_List_Product_1:answer" id="Rascal/Expressions/Values/List/Product_1_1" value="1@1@[2,1,3,0]">
+<label for="Rascal/Expressions/Values/List/Product_1_1">Smaller than or equal to the number of elements in the first list. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_List_Product_1:answer" id="Rascal/Expressions/Values/List/Product_1_3" value="2@3@[2,1,3,0]">
+<label for="Rascal/Expressions/Values/List/Product_1_3">Equal to the sum of the number of elements in both lists. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_List_Product_1:answer" id="Rascal/Expressions/Values/List/Product_1_0" value="3@0@[2,1,3,0]">
 <label for="Rascal/Expressions/Values/List/Product_1_0">Equal to the product of the number of elements in both lists. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
@@ -193,9 +196,9 @@ lrel[str,int]: [
 <span id="answerFeedback_Rascal_Expressions_Values_List_Product_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Product_2:A" value="[true, false, false]">
-<input type="hidden" name="Rascal_Expressions_Values_List_Product_2:B" value="[false]">
-The type of <tt>[true, false, false] * [false]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_Product_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Product_2:A" value="[&quot;Vanilla&quot;, &quot;Darth Vader&quot;, &quot;Parsley&quot;]">
+<input type="hidden" name="Rascal_Expressions_Values_List_Product_2:B" value="[&quot;Coriander&quot;]">
+The type of <tt>[&quot;Vanilla&quot;, &quot;Darth Vader&quot;, &quot;Parsley&quot;] * [&quot;Coriander&quot;]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_Product_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

@@ -59,38 +59,28 @@
 
 <div id="Description">
 <span class="sectionHead">Description</span>   First the value of <code><i>Exp</i><sub>1</sub></code> is determined and if that is defined it is assigned to <code><i>Assignable</i></code>. 
-  Otherwise, the value of <code><i>Exp</i><sub>2</sub></code> is assigned to <code><i>Assignable</i></code>.
+  Otherwise, the value of <code><i>Exp</i><sub>2</sub></code> is assigned to <code><i>Assignable</i></code>. Values which can be undefined are values in <a href="/Rascal/Expressions/Values/Map/Map.html">Rascal/Expressions/Values/Map</a>s where the key is not set or values of <a href="/Rascal/Libraries/lang/java/m3/Core/annotations/annotations.html">Annotations</a> which have not been set yet. 
+ <br/>
+<br/>
+
+ No other values can be used in an undefined state, so the ? operator does not make sense on undefined or uninitialized variables for example.
 
 </div>
 
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>    First assign to <code>N</code>:
-<pre class="screen"><span class="prompt">rascal></span>N = 1;
-int: 1
-</pre>  and use <code>?=</code> to assign to <code>N</code> (nothing spectacular here):
-<pre class="screen"><span class="prompt">rascal></span>N ?= 5;
-int: 1
-<span class="prompt">rascal></span>N;
-int: 1
-</pre>  Now explore what happens if we do this to an undefined variable <code>X</code>:
-<pre class="screen"><span class="prompt">rascal></span>X;
-|stdin:///|(0,1,&lt;1,0>,&lt;1,1>): Undeclared variable: X
-<span class="prompt">rascal></span>X ?= 3;
-int: 3
-<span class="prompt">rascal></span>X;
-int: 3
-<span class="prompt">rascal></span>Y ? 0 += 3;
-|stdin:///|(0,1,&lt;1,0>,&lt;1,1>): Uninitialized variable: Y
-</pre> <warning>Is this ok?</warning>  This is a common idiom to handle undefined key in maps:
-  Introduce a may M that does not contain a key "cef". 
-<pre class="screen"><span class="prompt">rascal></span>M = (&quot;abc&quot;: 1, &quot;def&quot; : 2);
-map[str, int]: ("abc":1,"def":2)
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>M = (&quot;Andy&quot;: 1, &quot;Brian&quot; : 2);
+map[str, int]: ("Andy":1,"Brian":2)
 </pre>  Using an <code>isDefined</code> assignable can we increment a non-existing entry:
-<pre class="screen"><span class="prompt">rascal></span>M[&quot;cef&quot;] ? 0 += 1;
-map[str, int]: ("abc":1,"cef":1,"def":2)
-<span class="prompt">rascal></span>M[&quot;cef&quot;];
+<pre class="screen"><span class="prompt">rascal></span>M[&quot;SomebodyElse&quot;] ? 0 += 1;
+map[str, int]: ("Andy":1,"Brian":2,"SomebodyElse":1)
+<span class="prompt">rascal></span>M[&quot;SomebodyElse&quot;];
 int: 1
+</pre>  And if we increment an existing entry the ? has no effect:
+<pre class="screen"><span class="prompt">rascal></span>M[&quot;Andy&quot;] ? 0 += 1;
+map[str, int]: ("Andy":2,"Brian":2,"SomebodyElse":1)
+<span class="prompt">rascal></span>M[&quot;Andy&quot;]
+int: 2
 </pre>
 </div>
 
@@ -100,7 +90,7 @@ int: 1
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Statements/Assignment/IsDefined&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Statements/Assignment/IsDefined&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

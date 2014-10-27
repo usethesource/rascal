@@ -67,10 +67,10 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import lang::java::jdt::m3::Core;
 ok
-<span class="prompt">rascal></span>myModel = createM3FromEclipseProject(|project://HelloWorld|);
-|rascal://lang::java::jdt::Project|(276,127,&lt;11,0>,&lt;12,47>): IO("project HelloWorld could not be opened.")
-	at *** somewhere ***(|rascal://lang::java::jdt::Project|(276,127,&lt;11,0>,&lt;12,47>))
-	at classPathForProject(|rascal://lang::java::jdt::m3::Core|(730,7,&lt;28,44>,&lt;28,51>))
+<span class="prompt">rascal></span>myModel = createM3FromEclipseProject(|project://pdb.values|);
+|rascal://lang::java::m3::AST|(6313,172,&lt;159,0>,&lt;161,87>): IO("Unsupported scheme project")
+	at *** somewhere ***(|rascal://lang::java::m3::AST|(6313,172,&lt;159,0>,&lt;161,87>))
+	at setEnvironmentOptions(|rascal://lang::java::jdt::m3::Core|(762,7,&lt;28,76>,&lt;28,83>))
 	at ___SCREEN_INSTANCE___(|stdin:///|(10,51,&lt;1,10>,&lt;1,61>))
 
 
