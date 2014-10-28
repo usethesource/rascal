@@ -100,8 +100,8 @@ public str save(ConceptName cn, str text, bool newConcept){
      try {
        c = compileAndGenerateConcept(fullName, true);
        return saveFeedback("", showConcept(c));
-     } catch CourseError(e): {
-       return saveFeedback(e, "");
+     } catch ConceptError(e,c): {
+       return saveFeedback(e, "<fullName> could not be compiled because <c>.");
      }
   } else {
     // Saving an existing concept
@@ -109,11 +109,9 @@ public str save(ConceptName cn, str text, bool newConcept){
       saveConceptFile(cn, text);
       c = compileAndGenerateConcept(cn, false);
       return saveFeedback(showConcept(c), "");
-    } catch ConceptError(e): {
-       return saveFeedback(e, "");
+    } catch ConceptError(_, e): {
+      return saveFeedback(e, "<cn> could not be compiled because <e>.");
     }
-    println("Other error");
-    return showConcept(cn);
   }
 }
 
