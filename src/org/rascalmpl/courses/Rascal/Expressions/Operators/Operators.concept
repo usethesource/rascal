@@ -70,8 +70,8 @@ All operators are summarized in the following table. They are listed from highes
                                                        [List/Concatenation],
                                                        [List/Insert],[List/Append],
                                                        [Tuple/Concatenation],
-                                                       [Expressions/Operators/Set/Union],
-                                                       [Expressions/Operators/Map/Union],
+                                                       [Expressions/Values/Set/Union],
+                                                       [Expressions/Values/Map/Union],
                                                        [Location/AddSegment] </td>                 <td>Add numbers; concatenate string, list or tuple; 
                                                                                              union on set (including relation), or map;
 concatenate location and string</td></tr>
