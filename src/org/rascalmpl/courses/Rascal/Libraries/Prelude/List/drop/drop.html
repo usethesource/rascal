@@ -108,16 +108,19 @@ list[str]: ["snake","owl"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_drop_1:answer" id="Rascal/Libraries/Prelude/List/drop_1_3" value="0@3@[3,4,1,0]">
-<label for="Rascal/Libraries/Prelude/List/drop_1_3">n-1 elements. </label><br/>
-
-<input type="radio" name="Rascal_Libraries_Prelude_List_drop_1:answer" id="Rascal/Libraries/Prelude/List/drop_1_4" value="1@4@[3,4,1,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_drop_1:answer" id="Rascal/Libraries/Prelude/List/drop_1_4" value="0@4@[4,2,1,3,0]">
 <label for="Rascal/Libraries/Prelude/List/drop_1_4">n-1 elements less than the original list. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_drop_1:answer" id="Rascal/Libraries/Prelude/List/drop_1_1" value="2@1@[3,4,1,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_drop_1:answer" id="Rascal/Libraries/Prelude/List/drop_1_2" value="1@2@[4,2,1,3,0]">
+<label for="Rascal/Libraries/Prelude/List/drop_1_2">n elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_drop_1:answer" id="Rascal/Libraries/Prelude/List/drop_1_1" value="2@1@[4,2,1,3,0]">
 <label for="Rascal/Libraries/Prelude/List/drop_1_1">1 element less that the original list. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_drop_1:answer" id="Rascal/Libraries/Prelude/List/drop_1_0" value="3@0@[3,4,1,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_drop_1:answer" id="Rascal/Libraries/Prelude/List/drop_1_3" value="3@3@[4,2,1,3,0]">
+<label for="Rascal/Libraries/Prelude/List/drop_1_3">n-1 elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_drop_1:answer" id="Rascal/Libraries/Prelude/List/drop_1_0" value="4@0@[4,2,1,3,0]">
 <label for="Rascal/Libraries/Prelude/List/drop_1_0">n elements less than the original list. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
@@ -142,9 +145,9 @@ list[str]: ["snake","owl"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_drop_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_drop_2:L" value="[&quot;Cardamon&quot;, &quot;Boba Fett&quot;, &quot;Zekk&quot;, &quot;Tibor&quot;, &quot;Nutmeg&quot;]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_drop_2:N" value="1">
-The type of <tt>drop(1, [&quot;Cardamon&quot;, &quot;Boba Fett&quot;, &quot;Zekk&quot;, &quot;Tibor&quot;, &quot;Nutmeg&quot;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_drop_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_drop_2:L" value="[&quot;Han Solo&quot;, &quot;Saffron&quot;, &quot;A&quot;, &quot;N&quot;, &quot;Pepper&quot;]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_drop_2:N" value="2">
+The type of <tt>drop(2, [&quot;Han Solo&quot;, &quot;Saffron&quot;, &quot;A&quot;, &quot;N&quot;, &quot;Pepper&quot;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_drop_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -168,9 +171,9 @@ The type of <tt>drop(1, [&quot;Cardamon&quot;, &quot;Boba Fett&quot;, &quot;Zekk
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_drop_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_drop_3:L" value="[&quot;W&quot;, &quot;Joh Yowza&quot;, &quot;Musterd&quot;, &quot;Guava&quot;, &quot;Oregano&quot;]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_drop_3:N" value="1">
-<pre class="prequestion">drop(1, [&quot;W&quot;, &quot;Joh Yowza&quot;, &quot;Musterd&quot;, &quot;Guava&quot;, &quot;Oregano&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_drop_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_drop_3:L" value="[&quot;Nutmeg&quot;, &quot;S&quot;, &quot;Bruno&quot;, &quot;Telly Monster&quot;, &quot;Z&quot;]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_drop_3:N" value="0">
+<pre class="prequestion">drop(0, [&quot;Nutmeg&quot;, &quot;S&quot;, &quot;Bruno&quot;, &quot;Telly Monster&quot;, &quot;Z&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_drop_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_drop_3:another" value="yes">
