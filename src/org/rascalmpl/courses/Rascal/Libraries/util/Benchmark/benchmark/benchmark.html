@@ -79,10 +79,10 @@ ok
 ok
 </pre>  We measure two calls to the factorial function with arguments <code>100</code>, respectively, <code>200</code> (using by default <code>realkTime</code> that returns milliseconds):
 <pre class="screen"><span class="prompt">rascal></span>benchmark( (&quot;fac10&quot; : void() {fac(100);}, &quot;fac20&quot; : void() {fac(200);}) );
-map[str, num]: ("fac20":2,"fac10":0)
+map[str, num]: ("fac20":1,"fac10":1)
 </pre>  We can do the same using <a href="/Rascal/Libraries/util/Benchmark/userTime/userTime.html">userTime</a> that returns nanoseconds:
 <pre class="screen"><span class="prompt">rascal></span>benchmark( (&quot;fac10&quot; : void() {fac(100);}, &quot;fac20&quot; : void() {fac(200);}), userTime );
-map[str, num]: ("fac20":977000,"fac10":442000)
+map[str, num]: ("fac20":1015000,"fac10":455000)
 </pre>
 </div>
 

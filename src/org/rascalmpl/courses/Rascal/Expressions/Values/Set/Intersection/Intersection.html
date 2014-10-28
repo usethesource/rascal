@@ -100,17 +100,14 @@ set[int]: {4,5}
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Set_Intersection_1:answer" id="Rascal/Expressions/Values/Set/Intersection_1_1" value="0@1@[1,2,3,0]">
-<label for="Rascal/Expressions/Values/Set/Intersection_1_1">Greater than the number of elements in both sets. </label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_Set_Intersection_1:answer" id="Rascal/Expressions/Values/Set/Intersection_1_2" value="1@2@[1,2,3,0]">
+<input type="radio" name="Rascal_Expressions_Values_Set_Intersection_1:answer" id="Rascal/Expressions/Values/Set/Intersection_1_2" value="0@2@[2,0,3]">
 <label for="Rascal/Expressions/Values/Set/Intersection_1_2">Greater than or equal to the number of elements in both sets. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Set_Intersection_1:answer" id="Rascal/Expressions/Values/Set/Intersection_1_3" value="2@3@[1,2,3,0]">
-<label for="Rascal/Expressions/Values/Set/Intersection_1_3">Smaller than the number of elements in both sets. </label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_Set_Intersection_1:answer" id="Rascal/Expressions/Values/Set/Intersection_1_0" value="3@0@[1,2,3,0]">
+<input type="radio" name="Rascal_Expressions_Values_Set_Intersection_1:answer" id="Rascal/Expressions/Values/Set/Intersection_1_0" value="1@0@[2,0,3]">
 <label for="Rascal/Expressions/Values/Set/Intersection_1_0">Smaller than or equal to the number of elements in the smallest set. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Set_Intersection_1:answer" id="Rascal/Expressions/Values/Set/Intersection_1_3" value="2@3@[2,0,3]">
+<label for="Rascal/Expressions/Values/Set/Intersection_1_3">Smaller than the number of elements in both sets. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -134,9 +131,9 @@ set[int]: {4,5}
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Intersection_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_2:A" value="[58]">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_2:B" value="[57, 63]">
-The type of <tt>[58] &amp; [57, 63]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Intersection_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_2:A" value="[82, 7, 8]">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_2:B" value="[7, 4, 6, 25, 66]">
+The type of <tt>[82, 7, 8] &amp; [7, 4, 6, 25, 66]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Intersection_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -160,10 +157,10 @@ The type of <tt>[58] &amp; [57, 63]</tt> is <input type="text" size="30" name="R
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Intersection_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_3:DIFF" value="{89, 86, 66, 10, 46}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_3:A" value="{77, 11, 90, 54, 13}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_3:B" value="{6, 61}">
-<pre class="prequestion">{66,10,11,46,89,90,13,77,54,86} &amp; {66,6,10,46,86,89,61} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Intersection_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_3:DIFF" value="{11, 65}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_3:A" value="{86}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_3:B" value="{86, 9, 33, 58, 3}">
+<pre class="prequestion">{65,11,86} &amp; {3,9,11,86,58,33,65} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Intersection_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_3:another" value="yes">
@@ -186,9 +183,9 @@ The type of <tt>[58] &amp; [57, 63]</tt> is <input type="text" size="30" name="R
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Intersection_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_4:A" value="{6, 3}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_4:B" value="{6, 4, 5, 7}">
-<pre class="prequestion">{6, 3} &amp; {6, 4, 5, 7} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Intersection_4:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_4:A" value="{4, 7, 5}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_4:B" value="{5, 0, 9, 8, 6}">
+<pre class="prequestion">{4, 7, 5} &amp; {5, 0, 9, 8, 6} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Intersection_4:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_4:another" value="yes">
