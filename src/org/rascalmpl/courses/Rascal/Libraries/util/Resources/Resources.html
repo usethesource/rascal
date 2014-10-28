@@ -105,19 +105,46 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  A location that points to a project in the Eclipse workspace  named "myProject":
  <pre class="listing">|project://myProject| 
-</pre> A location that points to a file named <code>Main.java</code> in the <code>src</code> 
- folder of the <code>myProject</code> project in the workspace:
- <pre class="listing">|project://myProject/src/Main.java| 
+</pre> A location that points to a file named <code>HelloWorld.java</code> in the <code>src</code> 
+ folder of the <code>example-project</code> project in the workspace:
+ <pre class="listing">|project://example-project/src/HelloWorld.java| 
 </pre> A location that points to a part of the previous file, 
  namely the first 10 characters on the first line:
- <pre class="listing">|project://myProject/src/Main.java|(0,10,1,0,1,10) 
-</pre> Assuming that the project <code>|project://org.eclipse.imp.pdb.values|</code> exists in the current workspace, we can get the following:
+ <pre class="listing">|project://example-project/src/HelloWorld.java|(0,10,1,0,1,10) 
+</pre> Assuming that the project <code>|project://example-project|</code> exists in the current workspace, we can get the following:
   <pre class="screen"><span class="prompt">rascal></span>import util::Resources;
 ok
-<span class="prompt">rascal></span>getProject(|project://org.eclipse.imp.pdb.values|);
+<span class="prompt">rascal></span>getProject(|project://example-project|);
 Resource: project(
-  |project://org.eclipse.imp.pdb.values|,
-  {})
+  |project://example-project|,
+  {
+    folder(
+      |project://example-project/bin|,
+      {
+        file(|project://example-project/bin/IFruit.class|),
+        file(|project://example-project/bin/Apple.class|),
+        file(|project://example-project/bin/HelloWorld.class|),
+        file(|project://example-project/bin/Fruit.class|)
+      }),
+    file(|project://example-project/.project|),
+    file(|project://example-project/.classpath|),
+    folder(
+      |project://example-project/src|,
+      {
+        file(|project://example-project/src/IFruit.java|),
+        file(|project://example-project/src/Apple.java|),
+        file(|project://example-project/src/HelloWorld.java|),
+        file(|project://example-project/src/Fruit.java|)
+      })
+  })
+</pre> <pre class="screen"><span class="prompt">rascal></span>import util::Resources;
+ok
+<span class="prompt">rascal></span>getProject(|project://example-project-which-does-not-exist|);
+|rascal://util::Resources|(1557,102,&lt;49,0>,&lt;50,45>): "Project does is not open: example-project-which-does-not-exist"
+	at *** somewhere ***(|rascal://util::Resources|(1557,102,&lt;49,0>,&lt;50,45>))
+	at getProject(|stdin:///|(11,48,&lt;1,11>,&lt;1,59>))
+
+
 </pre>
 </div>
 
