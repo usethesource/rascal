@@ -58,14 +58,59 @@
 
 
 <div id="Description">
-<span class="sectionHead">Description</span>  A type constrained pattern
- matches provided that the subject has type <code><i>Type</i></code> and <code><i>Pat</i></code> matches.
+<span class="sectionHead">Description</span>  A type constrained pattern matches provided that the subject has type <code><i>Type</i></code> and <code><i>Pat</i></code> matches. This can be handy in case of ambiguity (say more than one constructor with the same name), or in case the pattern is completely general. See an example below:
+ <br/>
+<br/>
 
+ <warning>This does not seem to work properly. There is a bug.</warning>
 </div>
 
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <warning> add example</warning>
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import IO;
+ok
+</pre>  Some example data type which contains generic values as well as specific expressions:
+<pre class="screen"><span class="prompt">rascal></span>data Exp = val(value v) | add(Exp l, Exp r) | sub(Exp l, Exp r);
+ok
+<span class="prompt">rascal></span>ex = add(add(val(&quot;hello&quot;(1,2)),val(&quot;bye&quot;)), sub(val(1),val(2)));
+Exp: add(
+  add(
+    val("hello"(1,2)),
+    val("bye")),
+  sub(
+    val(1),
+    val(2)))
+</pre>  Here we constraint the match to find only Exps:
+<pre class="screen"><span class="prompt">rascal></span>visit (ex) {
+<span class="continuation">>>>>>>></span>  case [Exp] str name(_,_) : println("node name is &lt;name>");
+<span class="continuation">>>>>>>></span>}
+node name is hello
+node name is add
+node name is sub
+node name is add
+Exp: add(
+  add(
+    val("hello"(1,2)),
+    val("bye")),
+  sub(
+    val(1),
+    val(2)))
+</pre>  Here we do not constrain the same pattern:
+<pre class="screen"><span class="prompt">rascal></span>visit (ex) {
+<span class="continuation">>>>>>>></span>  case str name(_,_) : println("node name is &lt;name>");
+<span class="continuation">>>>>>>></span>}
+node name is hello
+node name is add
+node name is sub
+node name is add
+Exp: add(
+  add(
+    val("hello"(1,2)),
+    val("bye")),
+  sub(
+    val(1),
+    val(2)))
+</pre>
 </div>
 
 
