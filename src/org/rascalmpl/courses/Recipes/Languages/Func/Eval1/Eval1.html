@@ -76,7 +76,7 @@ alias PEnv = map[str, Func];
 public int eval1(str main, list[int] args, Prog prog) {
   penv = ( f.name: f | f &lt;- prog.funcs );
   f = penv[main];
-  env = ( f.formals[i] : args[i] | i &lt;- domain(f.formals) ); 
+  env = ( f.formals[i] : args[i] | i &lt;- index(f.formals) ); 
   return eval1(f.body, env, penv);
 }
 
@@ -106,7 +106,7 @@ public int eval1(cond(Exp cond, Exp then, Exp otherwise), Env env, PEnv penv) =
                  
 public int eval1(call(str name, list[Exp] args), Env env, PEnv penv) {
    f = penv[name];
-   env =  ( f.formals[i]: eval1(args[i], env, penv) | i &lt;- domain(f.formals) );
+   env =  ( f.formals[i]: eval1(args[i], env, penv) | i &lt;- index(f.formals) );
    return eval1(f.body, env, penv);
 }
          
@@ -138,7 +138,7 @@ ok
 <span class="prompt">rascal></span>import demo::lang::Func::programs::F1;
 ok
 <span class="prompt">rascal></span>eval1(&quot;fact&quot;, [10], load(F1));
-|rascal://demo::lang::Func::Eval1|(325,6,&lt;15,40>,&lt;15,46>): Undeclared variable: domain
+int: 3628800
 </pre>
 </div>
 
@@ -148,7 +148,7 @@ ok
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Func/Eval1&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Func/Eval1&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

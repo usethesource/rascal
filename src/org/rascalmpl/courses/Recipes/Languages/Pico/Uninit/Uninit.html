@@ -70,6 +70,9 @@ import demo::lang::Pico::Load;
 import demo::lang::Pico::UseDef;
 import demo::lang::Pico::ControlFlow;
 
+import Relation;
+import analysis::graphs::Graph;
+
 public set[CFNode] defNodes(PicoId Id, set[Occurrence] Defs) =
    {statement(occ.stat@location, occ.stat) | Occurrence occ &lt;- Defs, occ.name == Id};
 
@@ -101,7 +104,23 @@ public set[Occurrence] uninitProgram(str txt) = uninitProgram(load(txt)); <img s
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Pico::Uninit;
 ok
 <span class="prompt">rascal></span>uninitProgram(&quot;begin declare n : natural, m : natural, p : natural; n := 10; m := n + p end&quot;);
-|rascal://demo::lang::Pico::Uninit|(548,6,&lt;17,34>,&lt;17,40>): Undeclared variable: reachX
+rel[loc location,PicoId name,STATEMENT stat]: {&lt;|file://-|(71,1,&lt;1,71>,&lt;1,72>),"p",asgStat(
+    "m",
+    add(
+      id("n")[
+        @location=|file://-|(67,1,&lt;1,67>,&lt;1,68>),
+        @comments=()
+      ],
+      id("p")[
+        @location=|file://-|(71,1,&lt;1,71>,&lt;1,72>),
+        @comments=()
+      ])[
+      @location=|file://-|(67,5,&lt;1,67>,&lt;1,72>),
+      @comments=()
+    ])[
+    @location=|file://-|(62,10,&lt;1,62>,&lt;1,72>),
+    @comments=()
+  ]>}
 </pre>
 </div>
 
@@ -111,7 +130,7 @@ ok
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Pico/Uninit&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Pico/Uninit&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

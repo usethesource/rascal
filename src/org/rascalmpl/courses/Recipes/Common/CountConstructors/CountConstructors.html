@@ -115,7 +115,7 @@ public map[str,int] countRelevant(node N, set[str] relevant) = domainR(count(N),
  <ul><li> <img src="/images/2.png"> introduces an empty map to maintain the frequencies.</li>
 <li> <img src="/images/3.png"> defines a visit of argument <code>N</code>; it traverses the complete value of <code>N</code>.</li>
 <li> <img src="/images/4.png"> defines the case that we encounter a node and we update its frequency count.   First the name of the constructor is retrieved (using <a href="/Rascal/Libraries/Prelude/Node/getName/getName.html">Rascal:getName</a>) and then the
-   frequency is updated. The <span class="inlineError">ambiguous: Rascal:IsDefined</span> operator is used to provide a default value of 0 when
+   frequency is updated. The <a href="/Rascal/Statements/Assignment/IsDefined/IsDefined.html">Rascal:IsDefined</a> operator is used to provide a default value of 0 when
    the name was not yet in the map.
 </li>
 <li> <img src="/images/5.png"> the map <code>freq</code> is returned as result.</li>
@@ -138,7 +138,7 @@ map[str, int]: ("hearts":2,"spades":1)
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Common/CountConstructors&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Common/CountConstructors&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
