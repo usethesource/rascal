@@ -105,14 +105,14 @@ list[str]: ["elephant","snake"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_3" value="0@3@[3,2,0]">
-<label for="Rascal/Libraries/Prelude/List/slice_1_3">N - 1 elements. </label><br/>
-
-<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_2" value="1@2@[3,2,0]">
-<label for="Rascal/Libraries/Prelude/List/slice_1_2">B + N elements. </label><br/>
-
-<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_0" value="2@0@[3,2,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_0" value="0@0@[0,1,2]">
 <label for="Rascal/Libraries/Prelude/List/slice_1_0">N elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_1" value="1@1@[0,1,2]">
+<label for="Rascal/Libraries/Prelude/List/slice_1_1">B elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_slice_1:answer" id="Rascal/Libraries/Prelude/List/slice_1_2" value="2@2@[0,1,2]">
+<label for="Rascal/Libraries/Prelude/List/slice_1_2">B + N elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -136,10 +136,10 @@ list[str]: ["elephant","snake"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_slice_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:L" value="[&quot;Bruno&quot;, &quot;Celery&quot;, &quot;W&quot;, &quot;W&quot;, &quot;Countess Von Backwards&quot;]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:L" value="[-8, 8, -8, 15]">
 <input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:B" value="0">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:E" value="3">
-The type of <tt>slice([&quot;Bruno&quot;, &quot;Celery&quot;, &quot;W&quot;, &quot;W&quot;, &quot;Countess Von Backwards&quot;],0,3)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_2:answer" class="answerText"><br/>
+<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_2:E" value="2">
+The type of <tt>slice([-8, 8, -8, 15],0,2)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -163,10 +163,10 @@ The type of <tt>slice([&quot;Bruno&quot;, &quot;Celery&quot;, &quot;W&quot;, &qu
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_slice_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:L" value="[&quot;Big Bird&quot;, &quot;Saffron&quot;, &quot;F&quot;, &quot;T&quot;]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:L" value="[7, -8, 11, -19, 12]">
 <input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:B" value="1">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:E" value="3">
-<pre class="prequestion">slice([&quot;Big Bird&quot;, &quot;Saffron&quot;, &quot;F&quot;, &quot;T&quot;],1,3) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_3:answer" class="answerText"></pre>
+<input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:E" value="2">
+<pre class="prequestion">slice([7, -8, 11, -19, 12],1,2) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_slice_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_slice_3:another" value="yes">

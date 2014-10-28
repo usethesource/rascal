@@ -216,14 +216,14 @@ list[int]: [10,1,2,3,20]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_0" value="0@0@[0,5,2]">
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_3" value="0@3@[3,0,4]">
+<label for="Rascal/Expressions/Values/List_1_3">The average of the type of the elements with the smallest and the largest type. </label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_0" value="1@0@[3,0,4]">
 <label for="Rascal/Expressions/Values/List_1_0">The least upper bound of the type of all elements. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_5" value="1@5@[0,5,2]">
-<label for="Rascal/Expressions/Values/List_1_5">The type of two arbitrary elements. </label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_2" value="2@2@[0,5,2]">
-<label for="Rascal/Expressions/Values/List_1_2">The type of the element that was first added to the list. </label><br/>
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_4" value="2@4@[3,0,4]">
+<label for="Rascal/Expressions/Values/List_1_4">The least upper bound of the type of two arbitrary elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -248,9 +248,9 @@ list[int]: [10,1,2,3,20]
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_2:B" value="&quot;Countess Von Backwards&quot;">
-<input type="hidden" name="Rascal_Expressions_Values_List_2:A" value="[&quot;Emperor Palpatine&quot;, &quot;Lime&quot;, &quot;Eggplant&quot;, &quot;Joh Yowza&quot;]">
-<pre class="prequestion">[&quot;Emperor Palpatine&quot;, &quot;Lime&quot;, &quot;Eggplant&quot;, &quot;Joh Yowza&quot;] <input type="text" size="30" name="Rascal_Expressions_Values_List_2:answer" class="answerText"> &quot;Countess Von Backwards&quot; == [&quot;Emperor Palpatine&quot;,&quot;Lime&quot;,&quot;Eggplant&quot;,&quot;Joh Yowza&quot;,&quot;Countess Von Backwards&quot;]</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_2:B" value="&quot;Darth Vader&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_List_2:A" value="[&quot;Gooseberry&quot;, &quot;Pincess Leia&quot;, &quot;Orange&quot;, &quot;Han Solo&quot;]">
+<pre class="prequestion">[&quot;Gooseberry&quot;, &quot;Pincess Leia&quot;, &quot;Orange&quot;, &quot;Han Solo&quot;] <input type="text" size="30" name="Rascal_Expressions_Values_List_2:answer" class="answerText"> &quot;Darth Vader&quot; == [&quot;Gooseberry&quot;,&quot;Pincess Leia&quot;,&quot;Orange&quot;,&quot;Han Solo&quot;,&quot;Darth Vader&quot;]</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_2:another" value="yes">
@@ -405,9 +405,9 @@ list[int]: [10,1,2,3,20]
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_8:A" value="[&quot;Blueberry&quot;, &quot;Fig&quot;, &quot;Mango&quot;]">
-<input type="hidden" name="Rascal_Expressions_Values_List_8:B" value="[&quot;Forgetful Jones&quot;, &quot;Curry&quot;, &quot;Parsley&quot;]">
-<pre class="prequestion">[&quot;Blueberry&quot;, &quot;Fig&quot;, &quot;Mango&quot;] <input type="text" size="30" name="Rascal_Expressions_Values_List_8:answer" class="answerText"> [&quot;Forgetful Jones&quot;, &quot;Curry&quot;, &quot;Parsley&quot;] == [&quot;Blueberry&quot;,&quot;Fig&quot;,&quot;Mango&quot;,&quot;Forgetful Jones&quot;,&quot;Curry&quot;,&quot;Parsley&quot;]</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_8:A" value="[2, 19, 17]">
+<input type="hidden" name="Rascal_Expressions_Values_List_8:B" value="[-14, -13]">
+<pre class="prequestion">[2, 19, 17] <input type="text" size="30" name="Rascal_Expressions_Values_List_8:answer" class="answerText"> [-14, -13] == [2,19,17,-14,-13]</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_8:another" value="yes">
@@ -431,9 +431,9 @@ list[int]: [10,1,2,3,20]
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_9:ELM" value="9">
-<input type="hidden" name="Rascal_Expressions_Values_List_9:A" value="[6, 6, 7]">
-<pre class="prequestion">9 <input type="text" size="30" name="Rascal_Expressions_Values_List_9:answer" class="answerText"> [6, 6, 7] == true</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_9:ELM" value="6">
+<input type="hidden" name="Rascal_Expressions_Values_List_9:A" value="[7, 3, 7, 7]">
+<pre class="prequestion">6 <input type="text" size="30" name="Rascal_Expressions_Values_List_9:answer" class="answerText"> [7, 3, 7, 7] == true</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_9:another" value="yes">
