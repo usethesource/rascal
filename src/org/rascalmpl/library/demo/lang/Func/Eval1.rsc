@@ -12,7 +12,7 @@ alias PEnv = map[str, Func];
 public int eval1(str main, list[int] args, Prog prog) {
   penv = ( f.name: f | f <- prog.funcs );
   f = penv[main];
-  env = ( f.formals[i] : args[i] | i <- domain(f.formals) ); 
+  env = ( f.formals[i] : args[i] | i <- index(f.formals) ); 
   return eval1(f.body, env, penv);
 }
 
@@ -42,7 +42,7 @@ public int eval1(cond(Exp cond, Exp then, Exp otherwise), Env env, PEnv penv) =
                  
 public int eval1(call(str name, list[Exp] args), Env env, PEnv penv) {
    f = penv[name];
-   env =  ( f.formals[i]: eval1(args[i], env, penv) | i <- domain(f.formals) );
+   env =  ( f.formals[i]: eval1(args[i], env, penv) | i <- index(f.formals) );
    return eval1(f.body, env, penv);
 }
          
