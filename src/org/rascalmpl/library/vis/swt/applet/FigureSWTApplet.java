@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyEvent;
@@ -130,9 +131,18 @@ public class FigureSWTApplet extends Composite
 					System.out.printf("Animating %d!\n", animations.size());
 					a.animate();
 				}
-				redraw();
-				for(FigureSWTApplet app : children){
-					app.redraw();
+				
+				try {
+					redraw();
+					for(FigureSWTApplet app : children){
+						app.redraw();
+					}
+				}
+				catch (SWTException e) {
+					if (e.code != SWT.ERROR_WIDGET_DISPOSED) {
+						throw e; // rethrow if its unexpected
+					}
+					// otherwise the window was closed before the animation ended
 				}
 			}
 			

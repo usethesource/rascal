@@ -100,8 +100,8 @@ public str save(ConceptName cn, str text, bool newConcept){
      try {
        c = compileAndGenerateConcept(fullName, true);
        return saveFeedback("", showConcept(c));
-     } catch CourseError(e): {
-       return saveFeedback(e, "");
+     } catch ConceptError(e,c): {
+       return saveFeedback(e, "<fullName> could not be compiled because <c>.");
      }
   } else {
     // Saving an existing concept
@@ -109,11 +109,9 @@ public str save(ConceptName cn, str text, bool newConcept){
       saveConceptFile(cn, text);
       c = compileAndGenerateConcept(cn, false);
       return saveFeedback(showConcept(c), "");
-    } catch ConceptError(e): {
-       return saveFeedback(e, "");
+    } catch ConceptError(_, e): {
+      return saveFeedback(e, "<cn> could not be compiled because <e>.");
     }
-    println("Other error");
-    return showConcept(cn);
   }
 }
 
@@ -195,8 +193,8 @@ private examResult validateAllAnswers(str timestamp, map[str,map[str,str]] param
 public str normalizeAnswer(str q, str answer){
     if(/<cpid:^.+>_<qid:[^_]+$>/ := q){
         cpid = replaceAll(cpid, "_", "/");
-	    q = getQuestion(cpid, qid);
-	    switch(q){
+	    qq = getQuestion(cpid, qid);
+	    switch(qq){
 	      case choiceQuestion(cid,qid,descr,choices): {
 		       if(/<selected:[0-9]+>@<orgSelected:[0-9]+>@<orgChoices:.*$>/ := answer){
 		       	  int c = toInt(orgSelected);
@@ -282,10 +280,10 @@ public str validateAnswer1(map[str,str] params){
         for(<name, tp> <- vars) {
           env[name] = <parseType(evalType(params[name] + ";")), params[name]>;
           generatedVars += name;
-	      }
+	    }
   
-		    for(<name, exp> <- auxVars){
-	          exp1 = subst(exp, env) + ";";
+		for(<name, expv> <- auxVars){
+	          exp1 = subst(expv, env) + ";";
 	          println("exp1 = <exp1>");
 	          println(" eval <setup + [exp1]>: <eval(setup + [exp1])>");
 	          if (\result(value res) := eval(setup + [exp1])) {
@@ -295,7 +293,7 @@ public str validateAnswer1(map[str,str] params){
 	            env[name] = <parseType("<evalType(setup + [exp1])>"), "ok">;
 	          }
 	          println("env[<name>] = <env[name]>");
-	      }
+	    }
         
         lstBefore = subst(lstBefore, env);
 		lstAfter = subst(lstAfter, env);
@@ -311,7 +309,7 @@ public str validateAnswer1(map[str,str] params){
 	              println("YES!");
 	              println(setup + ["<cndBefore><answer><cndAfter>;"]);
 	              if(holeInCnd){
-	                 if (\value(true) := eval(setup + ["<cndBefore><answer><cndAfter>;"])) {
+	                 if (\result(true) := eval(setup + ["<cndBefore><answer><cndAfter>;"])) {
 	                   return correctAnswer(cpid, qid);
 	                 }
 	                 wrongAnswer(cpid, qid, hint);
@@ -340,8 +338,8 @@ public str validateAnswer1(map[str,str] params){
 	              res = eval(setup + [validate]);
 	              println("result = <res>");
 	              switch (<res,hint>) {
-	                case <\ok(),_>          : if (cndBefore == "") return correctAnswer(cpid, qid);
-	                case <\result(true),_>  : return correctAnswer(cpid, qid);
+	                case <\ok(),str _>          : if (cndBefore == "") return correctAnswer(cpid, qid);
+	                case <\result(true), str _>  : return correctAnswer(cpid, qid);
 	                case <\result(false),"">: return wrongAnswer(cpid, qid, "The answer is not right; unfortunately I have no hint to offer.");	 
 	               
 	                default:       			  return wrongAnswer(cpid, qid, "The answer is not right. I expected <subst(hint, env)>.");                           
