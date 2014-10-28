@@ -8,6 +8,10 @@
 @contributor{Wietse Venema - wietsevenema@gmail.com - CWI}
 module cobra::tests::quickcheck::output
 
+import cobra::quickcheck;
+import cobra::util::outputlogger;
+import String;
+import List;
 
 test bool silentQuickcheckShouldBeSilent(){
 	startLog();
