@@ -20,7 +20,7 @@ First we define a `parse` function for Exp:
 and test it:
 <screen>
 import demo::lang::Exp::Combined::Manual::Parse;
-parse("2+3");
+parseExp("2+3");
 </screen>
 
 Next, we define a `load` function:
@@ -38,7 +38,7 @@ Some comments:
 Let's try it:
 <screen>
 import demo::lang::Exp::Combined::Manual::Load;
-load("2+3");
+loadExp("2+3");
 </screen>
 
 

@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Recipes/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Recipes/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  In <a href="/Recipes/Common/ColoredTrees/ColoredTrees.html">ColoredTrees</a>, we have seen a function that can count the number of red nodes in a <code>ColoredTree</code>.
  Is it possible to define a function that can count constructors in a value of any algerbaic data type?
@@ -66,7 +66,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="listing">module demo::common::CountConstructors
 
@@ -115,7 +115,7 @@ public map[str,int] countRelevant(node N, set[str] relevant) = domainR(count(N),
  <ul><li> <img src="/images/2.png"> introduces an empty map to maintain the frequencies.</li>
 <li> <img src="/images/3.png"> defines a visit of argument <code>N</code>; it traverses the complete value of <code>N</code>.</li>
 <li> <img src="/images/4.png"> defines the case that we encounter a node and we update its frequency count.   First the name of the constructor is retrieved (using <a href="/Rascal/Libraries/Prelude/Node/getName/getName.html">Rascal:getName</a>) and then the
-   frequency is updated. The <span class="inlineError">ambiguous: Rascal:IsDefined</span> operator is used to provide a default value of 0 when
+   frequency is updated. The <a href="/Rascal/Statements/Assignment/IsDefined/IsDefined.html">Rascal:IsDefined</a> operator is used to provide a default value of 0 when
    the name was not yet in the map.
 </li>
 <li> <img src="/images/5.png"> the map <code>freq</code> is returned as result.</li>
@@ -124,21 +124,21 @@ public map[str,int] countRelevant(node N, set[str] relevant) = domainR(count(N),
  <pre class="screen"><span class="prompt">rascal></span>import demo::common::CountConstructors;
 ok
 <span class="prompt">rascal></span>count(CT);
-map[str, int]: ("black":2,"leaf":5,"red":2)
+map[str, int]: ("red":2,"leaf":5,"black":2)
 <span class="prompt">rascal></span>count(H);
-map[str, int]: ("hand":1,"jack":1,"diamonds":1,"spades":1,"hearts":2,"two":1,"ace":1,"six":1)
+map[str, int]: ("six":1,"ace":1,"two":1,"hearts":2,"spades":1,"hand":1,"diamonds":1,"jack":1)
 <span class="prompt">rascal></span>countRelevant(H, {&quot;hearts&quot;, &quot;spades&quot;});
-map[str, int]: ("spades":1,"hearts":2)
+map[str, int]: ("hearts":2,"spades":1)
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Common/CountConstructors&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Common/CountConstructors&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

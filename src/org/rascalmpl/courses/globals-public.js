@@ -2,4 +2,4 @@
 // it will automaticaly rewrite the request for global.js to this file
 
 var enableEditing = false;
-var enableQuestions = fals;
+var enableQuestions = false;

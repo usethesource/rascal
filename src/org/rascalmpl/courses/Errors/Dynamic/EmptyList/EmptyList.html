@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Errors/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Errors/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>data RunTimeException = EmptyList();</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Exception;</code>
 
@@ -75,7 +75,7 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>    Import the <code>List</code> library and introduce <code>L</code> with an empty list as value:
 <pre class="screen"><span class="prompt">rascal></span>import List;
@@ -84,16 +84,16 @@ ok
 list[void]: []
 </pre>  Taking the head of an empty list gives an error:
 <pre class="screen"><span class="prompt">rascal></span>head(L);
-|std:///List.rsc|(4608,1037,&lt;211,0>,&lt;250,51>): EmptyList()
-	/List.rsc:211,0
-	somewhere in: head
+|rascal://List|(3636,1037,&lt;170,0>,&lt;209,51>): EmptyList()
+	at *** somewhere ***(|rascal://List|(3636,1037,&lt;170,0>,&lt;209,51>))
+	at head(|stdin:///|(5,1,&lt;1,5>,&lt;1,6>))
 
 
 </pre>  This is the case when taking the tail as well:
 <pre class="screen"><span class="prompt">rascal></span>tail(L);
-|std:///List.rsc|(25111,941,&lt;1237,0>,&lt;1281,40>): EmptyList()
-	/List.rsc:1237,0
-	somewhere in: tail
+|rascal://List|(24027,958,&lt;1194,0>,&lt;1238,57>): EmptyList()
+	at *** somewhere ***(|rascal://List|(24027,958,&lt;1194,0>,&lt;1238,57>))
+	at tail(|stdin:///|(5,1,&lt;1,5>,&lt;1,6>))
 
 
 </pre>  We can also catch the <code>EmptyList</code> error. First import the Rascal exceptions (which are also included in <code>Prelude</code>)
@@ -108,9 +108,9 @@ ok
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Dynamic/EmptyList&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Dynamic/EmptyList&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |

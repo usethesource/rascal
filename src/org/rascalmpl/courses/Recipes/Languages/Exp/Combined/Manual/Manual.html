@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Recipes/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Recipes/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,23 +48,23 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
-  	                       
+
+
+
+
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  First we define a <code>parse</code> function for Exp:
   <pre class="listing">module demo::lang::Exp::Combined::Manual::Parse
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
 import ParseTree;
 
-public Exp parse(str txt) = parse(#Exp, txt); 
+public Tree parseExp(str txt) = parse(#Exp, txt); 
 </pre> and test it:
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Combined::Manual::Parse;
 ok
-<span class="prompt">rascal></span>parse(&quot;2+3&quot;);
-sort("Exp"): `2+3`
+<span class="prompt">rascal></span>parseExp(&quot;2+3&quot;);
+Tree: `2+3`
 Tree: appl(prod(sort("Exp"),[sort("Exp"),layouts("Whitespace"),lit("+"),layouts("Whitespace"),sort("Exp")],{assoc(left())}),[appl(prod(sort("Exp"),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(50)])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)],appl(prod(layouts("Whitespace"),[\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],{}),[appl(regular(\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))),[])[@loc=|file://-|(1,0,&lt;1,1>,&lt;1,1>)]])[@loc=|file://-|(1,0,&lt;1,1>,&lt;1,1>)],appl(prod(lit("+"),[\char-class([range(43,43)])],{}),[char(43)]),appl(prod(layouts("Whitespace"),[\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))],{}),[appl(regular(\iter-star(\char-class([range(9,10),range(13,13),range(32,32)]))),[])[@loc=|file://-|(2,0,&lt;1,2>,&lt;1,2>)]])[@loc=|file://-|(2,0,&lt;1,2>,&lt;1,2>)],appl(prod(sort("Exp"),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(0,3,&lt;1,0>,&lt;1,3>)]</pre> Next, we define a <code>load</code> function:
  <pre class="listing">module demo::lang::Exp::Combined::Manual::Load
 
@@ -72,8 +72,9 @@ import demo::lang::Exp::Concrete::WithLayout::Syntax;  <img src="/images/1.png">
 import demo::lang::Exp::Abstract::Syntax;              <img src="/images/2.png">
 import demo::lang::Exp::Combined::Manual::Parse;       <img src="/images/3.png">
 import String;
+import ParseTree;
 
-public Exp load(str txt) = load(parse(txt));           <img src="/images/4.png">
+public Exp loadExp(str txt) = load(parseExp(txt));        <img src="/images/4.png">
      
 public Exp load((Exp)`&lt;IntegerLiteral l>`)             <img src="/images/5.png">
        = con(toInt("&lt;l>"));       
@@ -94,7 +95,7 @@ public Exp load((Exp)`( &lt;Exp e> )`)
 </ul> Let's try it:
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Combined::Manual::Load;
 ok
-<span class="prompt">rascal></span>load(&quot;2+3&quot;);
+<span class="prompt">rascal></span>loadExp(&quot;2+3&quot;);
 Exp: add(
   con(2),
   con(3))
@@ -108,7 +109,7 @@ import demo::lang::Exp::Abstract::Syntax;
 import demo::lang::Exp::Abstract::Eval;
 import demo::lang::Exp::Combined::Manual::Load;
 
-public int eval(str txt) = eval(load(txt));
+public int eval(str txt) = eval(loadExp(txt));
 </pre> Here is how it works:
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Combined::Manual::Eval;
 ok
@@ -117,9 +118,9 @@ int: 5
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Exp/Combined/Manual&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Exp/Combined/Manual&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
