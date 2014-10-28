@@ -40,8 +40,7 @@ public class RascalTutor {
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
 		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
-		eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-
+		
 		URIResolverRegistry reg = eval.getResolverRegistry();
 		final String courseSrc = System.getProperty("rascal.courses");
 		
@@ -62,7 +61,8 @@ public class RascalTutor {
 		  reg.registerInputOutput(fileURIResolver);
 		}
 		else {
-		  reg.registerInput(new ClassResourceInput(reg, "courses", getClass(), "/org/rascalmpl/courses"));
+			eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+			reg.registerInput(new ClassResourceInput(reg, "courses", getClass(), "/org/rascalmpl/courses"));
 		}
 		
 		eval.addRascalSearchPath(URIUtil.rootScheme("tutor"));
