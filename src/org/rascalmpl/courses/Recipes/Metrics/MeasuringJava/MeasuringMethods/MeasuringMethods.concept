@@ -21,7 +21,7 @@ import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 // First extract our overview model
-myModel = createM3FromEclipseProject(|project://HelloWorld|);
+myModel = createM3FromEclipseProject(|project://example-project|);
 // Now let's focus on the methods
 myMethods = methods(myModel);
 // What is the source code for a method?
