@@ -51,9 +51,9 @@ public Grammar fuse(GrammarDefinition def) {
   done = {};
   
   while (todo != {}) {
-    <name,todo> = takeOneFrom(todo);
-    \mod = def.modules[name];
-    done += name; 
+    <nm,todo> = takeOneFrom(todo);
+    \mod = def.modules[nm];
+    done += nm; 
     result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- \mod.imports + \mod.extends);
     todo += (\mod.extends - done);
   }
@@ -64,8 +64,8 @@ public Grammar fuse(GrammarDefinition def) {
 
 
 public GrammarModule module2grammar(Module \mod) {
-  <name, imps, exts> = getModuleMetaInf(\mod);
-  return \module(name, imps, exts, syntax2grammar(collect(\mod)));
+  <nm, imps, exts> = getModuleMetaInf(\mod);
+  return \module(nm, imps, exts, syntax2grammar(collect(\mod)));
 } 
 
 public tuple[str, set[str], set[str]] getModuleMetaInf(Module \mod) {
