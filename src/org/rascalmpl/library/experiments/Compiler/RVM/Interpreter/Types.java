@@ -37,30 +37,18 @@ public class Types {
 	}
 	
 	public IValue typeToValue(Type t, RascalExecutionContext rex) {
-		//Environment env = ctx.getCurrentEnvt();
-		//env.getStore().declareAbstractDataType(Factory.Type);
-		//env.getStore().declareConstructor(Factory.Type_Reified);
-		//TypeStore store = constructCompleteTypeStore(env);
-		
-		//Map<IConstructor, IConstructor> definitions = new HashMap<IConstructor, IConstructor>();
 		
 		TypeStore store = new TypeStore();
 		IMap definitions = rex.getSymbolDefinitions();
 		TypeReifier tr = new TypeReifier(vf);
 		tr.declareAbstractDataTypes(definitions, store);
 		
-		//IConstructor symbol = reify(t, definitions, ctx, store);
-		
 		IConstructor symbol = typeToSymbol(t, store);
 		
 		Map<Type,Type> bindings = new HashMap<Type,Type>();
 		bindings.put(Factory.TypeParam, t);
-		Type typeType = Factory.Type.instantiate(bindings);
+		Factory.Type.instantiate(bindings);
 		
-//		IMapWriter defs = vf.mapWriter();
-//		for (Map.Entry<IConstructor, IConstructor> entry : definitions.entrySet()) {
-//			defs.put(entry.getKey(), entry.getValue());
-//		}
 		IValue result = vf.constructor(Factory.Type_Reified.instantiate(bindings), symbol, definitions);
 		
 		return result;

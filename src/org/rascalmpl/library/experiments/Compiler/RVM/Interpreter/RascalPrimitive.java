@@ -4767,8 +4767,13 @@ public enum RascalPrimitive {
 						break;
 					}
 				} catch (Thrown e){
-					IConstructor cons = (IConstructor) e.value;
-					if(!cons.getName().equals(expected)){
+					String ename;
+					if(e.value instanceof IConstructor){
+						ename = ((IConstructor) e.value).getName();
+					} else {
+						ename = e.toString();
+					}
+					if(!ename.equals(expected)){
 						message = e.toString() + message;
 						passed = false;
 						exception = e;
