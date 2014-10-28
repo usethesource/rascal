@@ -26,7 +26,6 @@ import Node;
 import List;
 
 import util::FileSystem;
-import demo::common::Crawl;
 
 anno rel[loc from, loc to] M3@extends;            // classes extending classes and interfaces extending interfaces
 anno rel[loc from, loc to] M3@implements;         // classes implementing interfaces
@@ -77,25 +76,11 @@ map[loc, map[loc, Declaration]] methodASTs = ();
 Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
 }
 public M3 createM3FromDirectory(loc project, map[str, str] dependencyUpdateSites = (), str javaVersion = "1.7") {
-    //reset();
-    if (!(isDirectory(project)))
+    if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
-    int iresult = -1;
-    try iresult = buildProject(project, dependencyUpdateSites);
-    catch : println("error in build manager");
-    set[loc] classPaths = {};
-    if (iresult == 0) {
-      set[loc] firstLeveSubDirs = { d | d <- project.ls + project, isDirectory(d) };
-      for (loc dir <- firstLevelSubDirs) {
-        try {
-          str classPathContents = readTextValueFile(project + "cp.txt");
-        } catch : continue;
-        list[str] classPathSet = split(":", classPathContents);
-        classPaths += { |file:///| + cp | cp <- classPathSet };
-      }
-    } else {
-      classPaths = find(project, "jar");
     }
+    
+    classPaths = find(project, "jar");
     sourcePaths = getPaths(project, "java");
     setEnvironmentOptions(classPaths, findRoots(project, sourcePaths));
     m3s = { *createM3FromFile(f, javaVersion = javaVersion) | sp <- sourcePaths, loc f <- find(sp, "java") };
@@ -120,7 +105,7 @@ public M3 createM3FromJar(loc jarFile) {
     jarName = substring(jarName, findLast(jarName, "/")+1);
     loc jarLoc = |jar:///|;
     jarLoc.authority = jarName;
-    return composeJavaM3(jarLoc , { createM3FromJarClass(jarClass) | loc jarClass <- crawl(jarFile, "class") });
+    return composeJavaM3(jarLoc , { createM3FromJarClass(jarClass) | loc jarClass <- find(jarFile, "class") });
 }
 
 public bool isCompilationUnit(loc entity) = entity.scheme == "java+compilationUnit";
