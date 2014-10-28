@@ -54,7 +54,93 @@
 
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <warning>PathNotFound(|std:///demo/lang/Pico/Plugin.rsc|): L = |std:///demo/lang/Pico/Plugin.rsc|, File demo/lang/Pico/Plugin.rsc.</warning>  <ul><li> First the name of the language and its file name extension are defined (<img src="/images/1.png">).</li>
+<span class="sectionHead">Examples</span>  <pre class="listing">module demo::lang::Pico::Plugin
+
+import Prelude;
+import util::IDE;
+import util::ValueUI;
+
+import vis::Figure;
+import vis::Render;
+
+import demo::lang::Pico::Abstract;
+import demo::lang::Pico::Syntax;
+import demo::lang::Pico::Typecheck;
+import demo::lang::Pico::Eval;
+import demo::lang::Pico::Compile;
+import demo::lang::Pico::ControlFlow;
+import demo::lang::Pico::Uninit;
+import demo::lang::Pico::Visualize;
+
+// <img src="/images/1.png"> define the language name and extension
+
+private str Pico_NAME = "Pico";
+private str Pico_EXT = "pico";
+
+// <img src="/images/2.png"> Define the connection with the Pico parser
+Tree parser(str x, loc l) {
+    return parse(#Program, x, l);
+}
+
+// <img src="/images/3.png"> Define connection with the Pico checkers
+// (includes type checking and uninitialized variables check)
+
+public Program checkPicoProgram(Program x) {
+	p = implode(#PROGRAM, x);
+	env = checkProgram(p);
+	errors = { error(v, l) | &lt;loc l, PicoId v> &lt;- env.errors };
+	if(!isEmpty(errors))
+		return x[@messages = errors];
+    ids = uninitProgram(p);
+	warnings = { warning("Variable &lt;v> maybe uninitialized", l) | &lt;loc l, PicoId v, STATEMENT s> &lt;- ids };
+	return x[@messages = warnings];
+}
+
+// <img src="/images/4.png"> Define the connection with the Pico evaluator
+
+public void evalPicoProgram(Program x, loc selection) {
+	m = implode(#PROGRAM, x); 
+	text(evalProgram(m));
+}
+
+// <img src="/images/5.png"> Define connection with the Pico compiler
+
+public void compilePicoProgram(Program x, loc l){
+    p = implode(#PROGRAM, x);
+    asm = compileProgram(p);
+	text(asm);
+}
+
+// <img src="/images/6.png"> Define connection with CFG visualization
+
+public void visualizePicoProgram(Program x, loc selection) {
+	m = implode(#PROGRAM, x); 
+	CFG = cflowProgram(m);
+	render(visCFG(CFG.graph));
+}
+	
+// <img src="/images/7.png"> Define all contributions to the Pico IDE
+
+public set[Contribution] Pico_CONTRIBS = {
+	popup(
+		menu("Pico",[
+		    action("Evaluate Pico program", evalPicoProgram),
+    		action("Compile Pico to ASM", compilePicoProgram),
+    		action("Show Control flow graph", visualizePicoProgram)
+	    ])
+  	)
+};
+
+// <img src="/images/8.png"> Register the Pico tools
+
+public void registerPico() {
+  registerLanguage(Pico_NAME, Pico_EXT, parser);
+  registerAnnotator(Pico_NAME, checkPicoProgram);
+  registerContributions(Pico_NAME, Pico_CONTRIBS);
+}
+
+
+</pre> <ul><li> First the name of the language and its file name extension are defined (<img src="/images/1.png">).</li>
 <li> Next the connection with the parser (<img src="/images/2.png">), checkers (<img src="/images/3.png">), evaluator (<img src="/images/4.png">),   compiler (<img src="/images/5.png">), and visualizer (<img src="/images/6.png">) are defined.
 </li>
 <li> <img src="/images/7.png"> combines the above into a set of contributions to the Pico IDE.</li>
@@ -105,7 +191,7 @@
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Pico/IDE&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Pico/IDE&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Recipes/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
