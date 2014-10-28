@@ -81,11 +81,10 @@ Benefits:
 
 Pitfalls:
 For historical reasons the name of the annotation is "loc" and this interferes with the Rascal keyword `loc`
-for the type of [Location]s.
+for the type of [$Rascal/Expressions/Values/Location]s.
 Therefore the annotation name has to be escaped as `\loc` when it is declared or used.
 
 Questions:
-
 
 }
 
