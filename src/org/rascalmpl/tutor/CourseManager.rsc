@@ -397,8 +397,9 @@ public str validateAnswer1(map[str,str] params){
 	              
 	              expectedType = toString(generateType(rtype, env));
 	              
-	              if(equalType((holeInLst || holeInCnd) ? answerType : answer, expectedType))
+	              if (equalType(answer, expectedType)) {
 	                  return correctAnswer(cpid, qid);
+	              }
 	              return wrongAnswer(cpid, qid, "I expected the answer <expectedType>.");
 	            }
 	          }              
@@ -417,7 +418,8 @@ public str validateAnswer1(map[str,str] params){
 
 public str showCheat(ConceptName cpid, QuestionName qid, Question q, map[str,str] params){
    switch(q){
-      case choiceQuestion(qid,descr,choices): {
+   // ConceptName fullName, QuestionName name, str descr, list[Choice] choices
+      case choiceQuestion(qid,_,descr,choices): {
         gcnt = 0;
         for(ch <- choices)
            if(good(txt) := ch)
@@ -426,12 +428,12 @@ public str showCheat(ConceptName cpid, QuestionName qid, Question q, map[str,str
         return cheatAnswer(cpid, qid, "The expected answer<plural>: <for(ch <- choices){><(good(txt) := ch)?txt:""> <}>");
       }
       
-      case textQuestion(qid,descr,replies): {
+      case textQuestion(qid,_,descr,replies): {
         plural = (size(replies) > 1) ? "s" : "";
         return cheatAnswer(cpid, qid, "The expected answer<plural>: <for(r <- replies){><r> <}>");
       }
       
-      case tvQuestion(qid, qkind, qdetails): {
+      case tvQuestion(qid, _, qkind, qdetails): {
         setup  = qdetails.setup;
         lstBefore = qdetails.lstBefore;
         lstAfter  = qdetails.lstAfter;
