@@ -6,6 +6,8 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -13,6 +15,11 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -27,6 +34,36 @@ public class Types {
 	
 	public Types(IValueFactory vf) {
 		this.vf = vf;
+	}
+	
+	public IValue typeToValue(Type t, RascalExecutionContext rex) {
+		//Environment env = ctx.getCurrentEnvt();
+		//env.getStore().declareAbstractDataType(Factory.Type);
+		//env.getStore().declareConstructor(Factory.Type_Reified);
+		//TypeStore store = constructCompleteTypeStore(env);
+		
+		//Map<IConstructor, IConstructor> definitions = new HashMap<IConstructor, IConstructor>();
+		
+		TypeStore store = new TypeStore();
+		IMap definitions = rex.getSymbolDefinitions();
+		TypeReifier tr = new TypeReifier(vf);
+		tr.declareAbstractDataTypes(definitions, store);
+		
+		//IConstructor symbol = reify(t, definitions, ctx, store);
+		
+		IConstructor symbol = typeToSymbol(t, store);
+		
+		Map<Type,Type> bindings = new HashMap<Type,Type>();
+		bindings.put(Factory.TypeParam, t);
+		Type typeType = Factory.Type.instantiate(bindings);
+		
+//		IMapWriter defs = vf.mapWriter();
+//		for (Map.Entry<IConstructor, IConstructor> entry : definitions.entrySet()) {
+//			defs.put(entry.getKey(), entry.getValue());
+//		}
+		IValue result = vf.constructor(Factory.Type_Reified.instantiate(bindings), symbol, definitions);
+		
+		return result;
 	}
 	
 	public Type symbolToType(IConstructor symbol, TypeStore store) {
