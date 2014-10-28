@@ -34,6 +34,14 @@ public class RascalTutor {
 	private final Evaluator eval;
 	private ISourceLocation server;
 
+	public boolean isEditMode() {
+		return getCoursesLocation() != null;
+	}
+
+	private String getCoursesLocation() {
+		return System.getProperty("rascal.courses");
+	}
+	
 	public RascalTutor() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___TUTOR___", heap));
@@ -42,9 +50,8 @@ public class RascalTutor {
 		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
 		
 		URIResolverRegistry reg = eval.getResolverRegistry();
-		final String courseSrc = System.getProperty("rascal.courses");
 		
-		if (courseSrc != null) {
+		if (isEditMode()) {
 		   FileURIResolver fileURIResolver = new FileURIResolver() {
 		    @Override
 		    public String scheme() {
@@ -54,7 +61,7 @@ public class RascalTutor {
 		    @Override
 		    protected String getPath(URI uri) {
 		      String path = uri.getPath();
-		      return courseSrc + (path.startsWith("/") ? path : ("/" + path));
+		      return getCoursesLocation() + (path.startsWith("/") ? path : ("/" + path));
 		    }
 		  };
 		  
