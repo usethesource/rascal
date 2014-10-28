@@ -106,17 +106,14 @@ list[str]: ["zebra","elephant","owl"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_delete_1:answer" id="Rascal/Libraries/Prelude/List/delete_1_2" value="0@2@[2,3,1,0]">
-<label for="Rascal/Libraries/Prelude/List/delete_1_2">Stays the same. </label><br/>
-
-<input type="radio" name="Rascal_Libraries_Prelude_List_delete_1:answer" id="Rascal/Libraries/Prelude/List/delete_1_3" value="1@3@[2,3,1,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_delete_1:answer" id="Rascal/Libraries/Prelude/List/delete_1_3" value="0@3@[3,0,2]">
 <label for="Rascal/Libraries/Prelude/List/delete_1_3">Increases by one. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_delete_1:answer" id="Rascal/Libraries/Prelude/List/delete_1_1" value="2@1@[2,3,1,0]">
-<label for="Rascal/Libraries/Prelude/List/delete_1_1">Decreases with the number of occurrences of the deleted element. </label><br/>
-
-<input type="radio" name="Rascal_Libraries_Prelude_List_delete_1:answer" id="Rascal/Libraries/Prelude/List/delete_1_0" value="3@0@[2,3,1,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_delete_1:answer" id="Rascal/Libraries/Prelude/List/delete_1_0" value="1@0@[3,0,2]">
 <label for="Rascal/Libraries/Prelude/List/delete_1_0">Decreases by one. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_delete_1:answer" id="Rascal/Libraries/Prelude/List/delete_1_2" value="2@2@[3,0,2]">
+<label for="Rascal/Libraries/Prelude/List/delete_1_2">Stays the same. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -140,9 +137,9 @@ list[str]: ["zebra","elephant","owl"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_delete_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_delete_2:L" value="[-15, -11, 18, 6, 7]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_delete_2:L" value="[false, false, false, true, false]">
 <input type="hidden" name="Rascal_Libraries_Prelude_List_delete_2:I" value="1">
-The type of <tt>delete([-15, -11, 18, 6, 7], 1)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_delete_2:answer" class="answerText"><br/>
+The type of <tt>delete([false, false, false, true, false], 1)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_delete_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -166,9 +163,9 @@ The type of <tt>delete([-15, -11, 18, 6, 7], 1)</tt> is <input type="text" size=
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_delete_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_delete_3:L" value="[&quot;Blackcurrant&quot;, &quot;E&quot;, &quot;Lychee&quot;, &quot;Cumin&quot;]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_delete_3:I" value="0">
-<pre class="prequestion">delete([&quot;Blackcurrant&quot;, &quot;E&quot;, &quot;Lychee&quot;, &quot;Cumin&quot;], 0) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_delete_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_delete_3:L" value="[12, 1, -19, -20]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_delete_3:I" value="1">
+<pre class="prequestion">delete([12, 1, -19, -20], 1) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_delete_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_delete_3:another" value="yes">

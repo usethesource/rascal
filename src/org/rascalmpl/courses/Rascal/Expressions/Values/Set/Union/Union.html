@@ -105,14 +105,14 @@ set[int]: {2,3,4}
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Set_Union_1:answer" id="Rascal/Expressions/Values/Set/Union_1_0" value="0@0@[0,2,3]">
+<input type="radio" name="Rascal_Expressions_Values_Set_Union_1:answer" id="Rascal/Expressions/Values/Set/Union_1_0" value="0@0@[0,1,2]">
 <label for="Rascal/Expressions/Values/Set/Union_1_0">Smaller than or equal to the total number of elements in both sets. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Set_Union_1:answer" id="Rascal/Expressions/Values/Set/Union_1_2" value="1@2@[0,2,3]">
-<label for="Rascal/Expressions/Values/Set/Union_1_2">Greater than the number of elements in both sets. </label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Set_Union_1:answer" id="Rascal/Expressions/Values/Set/Union_1_1" value="1@1@[0,1,2]">
+<label for="Rascal/Expressions/Values/Set/Union_1_1">Greater than or equal to the number of elements in both sets. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Set_Union_1:answer" id="Rascal/Expressions/Values/Set/Union_1_3" value="2@3@[0,2,3]">
-<label for="Rascal/Expressions/Values/Set/Union_1_3">Smaller than the number of elements in both sets. </label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Set_Union_1:answer" id="Rascal/Expressions/Values/Set/Union_1_2" value="2@2@[0,1,2]">
+<label for="Rascal/Expressions/Values/Set/Union_1_2">Greater than the number of elements in both sets. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -136,9 +136,9 @@ set[int]: {2,3,4}
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Union_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Union_2:A" value="{&quot;U&quot;, &quot;Watermelon&quot;, &quot;Jar Jar Binks&quot;}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Union_2:B" value="{&quot;Slimey the Worm&quot;, &quot;Wasabi&quot;, &quot;Anise&quot;, &quot;Luke Skywalker&quot;}">
-The type of <tt>{&quot;U&quot;, &quot;Watermelon&quot;, &quot;Jar Jar Binks&quot;} + {&quot;Slimey the Worm&quot;, &quot;Wasabi&quot;, &quot;Anise&quot;, &quot;Luke Skywalker&quot;}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Union_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Union_2:A" value="{&quot;P&quot;, &quot;Bruno&quot;, &quot;W&quot;}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Union_2:B" value="{&quot;Dill&quot;, &quot;V&quot;, &quot;Strawberry&quot;, &quot;Count Von Count&quot;}">
+The type of <tt>{&quot;P&quot;, &quot;Bruno&quot;, &quot;W&quot;} + {&quot;Dill&quot;, &quot;V&quot;, &quot;Strawberry&quot;, &quot;Count Von Count&quot;}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Union_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -162,9 +162,9 @@ The type of <tt>{&quot;U&quot;, &quot;Watermelon&quot;, &quot;Jar Jar Binks&quot
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Union_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Union_3:A" value="{0.4986434899799840, 3.2849981215529280, 3.3099904361782880}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Union_3:B" value="{-15.88592934092685640, -12.39077592590314120, 7.1654945496898040}">
-<pre class="prequestion">{0.4986434899799840, 3.2849981215529280, 3.3099904361782880} + {-15.88592934092685640, -12.39077592590314120, 7.1654945496898040} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Union_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Union_3:A" value="{&quot;Peppermint&quot;, &quot;J&quot;, &quot;Mandarin&quot;, &quot;Joh Yowza&quot;}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Union_3:B" value="{&quot;Forgetful Jones&quot;, &quot;I&quot;, &quot;Little Bird&quot;}">
+<pre class="prequestion">{&quot;Peppermint&quot;, &quot;J&quot;, &quot;Mandarin&quot;, &quot;Joh Yowza&quot;} + {&quot;Forgetful Jones&quot;, &quot;I&quot;, &quot;Little Bird&quot;} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Union_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Union_3:another" value="yes">
@@ -187,9 +187,9 @@ The type of <tt>{&quot;U&quot;, &quot;Watermelon&quot;, &quot;Jar Jar Binks&quot
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Union_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Union_4:A" value="{13, -17, -4}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Union_4:B" value="{10}">
-<pre class="prequestion">{13, -17, -4} + <input type="text" size="30" name="Rascal_Expressions_Values_Set_Union_4:answer" class="answerText"> == {10,13,-17,-4}</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Union_4:A" value="{&quot;N&quot;}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Union_4:B" value="{&quot;Grape&quot;}">
+<pre class="prequestion">{&quot;N&quot;} + <input type="text" size="30" name="Rascal_Expressions_Values_Set_Union_4:answer" class="answerText"> == {&quot;Grape&quot;,&quot;N&quot;}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Union_4:another" value="yes">
@@ -212,9 +212,9 @@ The type of <tt>{&quot;U&quot;, &quot;Watermelon&quot;, &quot;Jar Jar Binks&quot
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Union_5" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Union_5:A" value="{&quot;R&quot;, &quot;Curry&quot;, &quot;E-3PO&quot;, &quot;H&quot;, &quot;Fig&quot;}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Union_5:B" value="{&quot;V&quot;, &quot;Melon&quot;, &quot;Saffron&quot;}">
-<pre class="prequestion">{&quot;R&quot;, &quot;Curry&quot;, &quot;E-3PO&quot;, &quot;H&quot;, &quot;Fig&quot;} + {&quot;V&quot;, &quot;Melon&quot;, &quot;Saffron&quot;} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Union_5:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Union_5:A" value="{1, -16, -1, 19, 0}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Union_5:B" value="{-20, -8, 3, 1}">
+<pre class="prequestion">{1, -16, -1, 19, 0} + {-20, -8, 3, 1} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Union_5:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Union_5:another" value="yes">
@@ -237,8 +237,8 @@ The type of <tt>{&quot;U&quot;, &quot;Watermelon&quot;, &quot;Jar Jar Binks&quot
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Union_6" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Union_6:A" value="{&quot;E-3PO&quot;}">
-<pre class="prequestion">{&quot;E-3PO&quot;} + {} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Union_6:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Union_6:A" value="{19, -4, -20, -11}">
+<pre class="prequestion">{19, -4, -20, -11} + {} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Union_6:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Union_6:another" value="yes">
