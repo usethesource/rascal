@@ -18,6 +18,7 @@ import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::RVM::Interpreter::ParsingTools;
+//import experiments::Compiler::RVM::Interpreter::ConstantFolder;
 import experiments::Compiler::muRascal::MuAllMuOr;
 
 /*
@@ -107,6 +108,8 @@ MuExp compose(Expression e){
 }
 
 MuExp translateComposeFunction(e){
+
+  println("composeFunction: <e>");
   lhsType = getType(e.lhs@\loc);
   rhsType = getType(e.rhs@\loc);
   resType = getType(e@\loc);
@@ -114,7 +117,10 @@ MuExp translateComposeFunction(e){
   MuExp lhsReceiver = translate(e.lhs);
   MuExp rhsReceiver = translate(e.rhs);
   
-  str ofqname = lhsReceiver.fuid + "+" + rhsReceiver.fuid;  // name of composition
+  println("lhsReceiver: <lhsReceiver>");
+  println("rhsReceiver: <rhsReceiver>");
+  str ofqname = "<lhsReceiver>+<rhsReceiver>";
+  //str ofqname = lhsReceiver.fuid + "+" + rhsReceiver.fuid;  // name of composition
   
   if(overloadingResolver[ofqname]?){
     return muOFun(ofqname);
@@ -253,19 +259,19 @@ MuExp comparison(str op, Expression e) {
 
 // Determine constant expressions
 
-bool isConstantLiteral((Literal) `<LocationLiteral src>`) = src.protocolPart is nonInterpolated;
-bool isConstantLiteral((Literal) `<StringLiteral n>`) = n is nonInterpolated;
-default bool isConstantLiteral(Literal l) = true;
-
-bool isConstant(Expression e:(Expression)`{ <{Expression ","}* es> }`) = size(es) == 0 || all(elm <- es, isConstant(elm));
-bool isConstant(Expression e:(Expression)`[ <{Expression ","}* es> ]`)  = size(es) == 0 ||  all(elm <- es, isConstant(elm));
-bool isConstant(Expression e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) = size(mappings) == 0 || all(m <- mappings, isConstant(m.from), isConstant(m.to));
-
-bool isConstant(e:(Expression) `\< <{Expression ","}+ elements> \>`) = size(elements) == 0 ||  all(elm <- elements, isConstant(elm));
-bool isConstant((Expression) `<Literal s>`) = isConstantLiteral(s);
-default bool isConstant(Expression e) = false;
-
-value getConstantValue(Expression e) = readTextValueString("<e>");
+//bool isConstantLiteral((Literal) `<LocationLiteral src>`) = src.protocolPart is nonInterpolated;
+//bool isConstantLiteral((Literal) `<StringLiteral n>`) = n is nonInterpolated;
+//default bool isConstantLiteral(Literal l) = true;
+//
+//bool isConstant(Expression e:(Expression)`{ <{Expression ","}* es> }`) = size(es) == 0 || all(elm <- es, isConstant(elm));
+//bool isConstant(Expression e:(Expression)`[ <{Expression ","}* es> ]`)  = size(es) == 0 ||  all(elm <- es, isConstant(elm));
+//bool isConstant(Expression e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) = size(mappings) == 0 || all(m <- mappings, isConstant(m.from), isConstant(m.to));
+//
+//bool isConstant(e:(Expression) `\< <{Expression ","}+ elements> \>`) = size(elements) == 0 ||  all(elm <- elements, isConstant(elm));
+//bool isConstant((Expression) `<Literal s>`) = isConstantLiteral(s);
+//default bool isConstant(Expression e) = false;
+//
+//value getConstantValue(Expression e) = readTextValueString("<e>");
 
 /*********************************************************************/
 /*                  Translate Literals                               */
@@ -1280,9 +1286,9 @@ private MuExp translateSetOrList(es, str kind){
        leaveWriter();
        return muBlock(code);
     } else {
-      if(size(es) == 0 || all(elm <- es, isConstant(elm))){
-         return kind == "list" ? muCon([getConstantValue(elm) | elm <- es]) : muCon({getConstantValue(elm) | elm <- es});
-      } else 
+      //if(size(es) == 0 || all(elm <- es, isConstant(elm))){
+      //   return kind == "list" ? muCon([getConstantValue(elm) | elm <- es]) : muCon({getConstantValue(elm) | elm <- es});
+      //} else 
         return muCallPrim("<kind>_create", [ translate(elem) | elem <- es ]);
     }
 }
@@ -1294,18 +1300,18 @@ MuExp translate (e:(Expression) `# <Type tp>`) = muCon(symbolToValue(translateTy
 // -- tuple expression ----------------------------------------------
 
 MuExp translate (e:(Expression) `\< <{Expression ","}+ elements> \>`) {
-    if(isConstant(e)){
-      return muCon(readTextValueString("<e>"));
-    } else
+    //if(isConstant(e)){
+    //  return muCon(readTextValueString("<e>"));
+    //} else
         return muCallPrim("tuple_create", [ translate(elem) | elem <- elements ], e@\loc);
 }
 
 // -- map expression ------------------------------------------------
 
 MuExp translate (e:(Expression) `( <{Mapping[Expression] ","}* mappings> )`) {
-   if(isConstant(e)){
-     return muCon(readTextValueString("<e>"));
-   } else 
+   //if(isConstant(e)){
+   //  return muCon(readTextValueString("<e>"));
+   //} else 
      return muCallPrim("map_create", [ translate(m.from), translate(m.to) | m <- mappings ], e@\loc);
 }   
 
