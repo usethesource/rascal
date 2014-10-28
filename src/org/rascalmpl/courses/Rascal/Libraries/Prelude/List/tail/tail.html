@@ -123,13 +123,16 @@ list[int]: [40,50,60]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_1" value="0@1@[1,2,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_1" value="0@1@[1,3,2,0]">
 <label for="Rascal/Libraries/Prelude/List/tail_1_1">N-M elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_2" value="1@2@[1,2,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_3" value="1@3@[1,3,2,0]">
+<label for="Rascal/Libraries/Prelude/List/tail_1_3">N * M elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_2" value="2@2@[1,3,2,0]">
 <label for="Rascal/Libraries/Prelude/List/tail_1_2">N elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_0" value="2@0@[1,2,0]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_0" value="3@0@[1,3,2,0]">
 <label for="Rascal/Libraries/Prelude/List/tail_1_0">M elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
@@ -154,9 +157,9 @@ list[int]: [40,50,60]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_tail_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_2:L" value="[-7, 9, -3, 0, -16, -19]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_2:L" value="[10, 0, -8, 8]">
 <input type="hidden" name="Rascal_Libraries_Prelude_List_tail_2:N" value="1">
-The type of <tt>tail([-7, 9, -3, 0, -16, -19], 1)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_tail_2:answer" class="answerText"><br/>
+The type of <tt>tail([10, 0, -8, 8], 1)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_tail_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -180,9 +183,9 @@ The type of <tt>tail([-7, 9, -3, 0, -16, -19], 1)</tt> is <input type="text" siz
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_tail_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:L" value="[&quot;Guava&quot;, &quot;Blackberry&quot;, &quot;Big Bird&quot;, &quot;R&quot;, &quot;Pineapple&quot;, &quot;W&quot;]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:N" value="1">
-<pre class="prequestion">tail([&quot;Guava&quot;, &quot;Blackberry&quot;, &quot;Big Bird&quot;, &quot;R&quot;, &quot;Pineapple&quot;, &quot;W&quot;],1) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_tail_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:L" value="[&quot;Prune&quot;, &quot;B&quot;, &quot;Bert&quot;, &quot;Cumin&quot;, &quot;Wasabi&quot;, &quot;Pepper&quot;]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:N" value="2">
+<pre class="prequestion">tail([&quot;Prune&quot;, &quot;B&quot;, &quot;Bert&quot;, &quot;Cumin&quot;, &quot;Wasabi&quot;, &quot;Pepper&quot;],2) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_tail_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:another" value="yes">

@@ -114,13 +114,13 @@ list[int]: [1]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_List_Concatenation_1:answer" id="Rascal/Expressions/Values/List/Concatenation_1_2" value="0@2@[2,1,3]">
+<input type="radio" name="Rascal_Expressions_Values_List_Concatenation_1:answer" id="Rascal/Expressions/Values/List/Concatenation_1_2" value="0@2@[2,0,3]">
 <label for="Rascal/Expressions/Values/List/Concatenation_1_2">Greater than the sum of the number of elements in both lists. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_Concatenation_1:answer" id="Rascal/Expressions/Values/List/Concatenation_1_1" value="1@1@[2,1,3]">
-<label for="Rascal/Expressions/Values/List/Concatenation_1_1">Equal to the sum of the number of elements in both lists. </label><br/>
+<input type="radio" name="Rascal_Expressions_Values_List_Concatenation_1:answer" id="Rascal/Expressions/Values/List/Concatenation_1_0" value="1@0@[2,0,3]">
+<label for="Rascal/Expressions/Values/List/Concatenation_1_0">Greater than or equal to the sum of the number of elements in both lists. </label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_Concatenation_1:answer" id="Rascal/Expressions/Values/List/Concatenation_1_3" value="2@3@[2,1,3]">
+<input type="radio" name="Rascal_Expressions_Values_List_Concatenation_1:answer" id="Rascal/Expressions/Values/List/Concatenation_1_3" value="2@3@[2,0,3]">
 <label for="Rascal/Expressions/Values/List/Concatenation_1_3">Smaller than the sum of the number of elements in both lists. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
@@ -145,9 +145,9 @@ list[int]: [1]
 <span id="answerFeedback_Rascal_Expressions_Values_List_Concatenation_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_2:A" value="[&quot;Admiral Sarn&quot;, &quot;Boba Fett&quot;, &quot;V&quot;, &quot;Zekk&quot;]">
-<input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_2:B" value="[&quot;Pineapple&quot;, &quot;C-3PO&quot;, &quot;Rosemary&quot;, &quot;Lychee&quot;]">
-The type of <tt>[&quot;Admiral Sarn&quot;, &quot;Boba Fett&quot;, &quot;V&quot;, &quot;Zekk&quot;] + [&quot;Pineapple&quot;, &quot;C-3PO&quot;, &quot;Rosemary&quot;, &quot;Lychee&quot;]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_Concatenation_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_2:A" value="[-12, 17, -9, 18]">
+<input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_2:B" value="[18, -2, 12, -3]">
+The type of <tt>[-12, 17, -9, 18] + [18, -2, 12, -3]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_Concatenation_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -171,9 +171,9 @@ The type of <tt>[&quot;Admiral Sarn&quot;, &quot;Boba Fett&quot;, &quot;V&quot;,
 <span id="answerFeedback_Rascal_Expressions_Values_List_Concatenation_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_3:A" value="[-3, 11, -14]">
-<input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_3:B" value="[-3]">
-<pre class="prequestion">[-3, 11, -14] + [-3] == <input type="text" size="30" name="Rascal_Expressions_Values_List_Concatenation_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_3:A" value="[&quot;Jabba the Hut&quot;, &quot;Apple&quot;]">
+<input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_3:B" value="[&quot;Boba Fett&quot;, &quot;Ailyn Vel&quot;]">
+<pre class="prequestion">[&quot;Jabba the Hut&quot;, &quot;Apple&quot;] + [&quot;Boba Fett&quot;, &quot;Ailyn Vel&quot;] == <input type="text" size="30" name="Rascal_Expressions_Values_List_Concatenation_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_3:another" value="yes">
@@ -196,9 +196,9 @@ The type of <tt>[&quot;Admiral Sarn&quot;, &quot;Boba Fett&quot;, &quot;V&quot;,
 <span id="answerFeedback_Rascal_Expressions_Values_List_Concatenation_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_4:A" value="[&quot;U&quot;, &quot;Prince Charming&quot;, &quot;Redcurrant&quot;]">
-<input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_4:B" value="[&quot;Raspberry&quot;]">
-<pre class="prequestion">[&quot;U&quot;, &quot;Prince Charming&quot;, &quot;Redcurrant&quot;] + <input type="text" size="30" name="Rascal_Expressions_Values_List_Concatenation_4:answer" class="answerText"> == [&quot;U&quot;,&quot;Prince Charming&quot;,&quot;Redcurrant&quot;,&quot;Raspberry&quot;]</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_4:A" value="[&quot;Fig&quot;]">
+<input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_4:B" value="[&quot;C&quot;, &quot;Cayenne&quot;, &quot;H&quot;]">
+<pre class="prequestion">[&quot;Fig&quot;] + <input type="text" size="30" name="Rascal_Expressions_Values_List_Concatenation_4:answer" class="answerText"> == [&quot;Fig&quot;,&quot;C&quot;,&quot;Cayenne&quot;,&quot;H&quot;]</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_4:another" value="yes">

@@ -259,25 +259,26 @@ Resource: root({
         file(|project://machino-update-site/README.md|)
       }),
     project(
-      |project://rascal|,
+      |project://rascal-shell|,
       {
-        file(|project://rascal/.gitignore|),
-        file(|project://rascal/ossmeter-release.xml|),
-        file(|project://rascal/plugin.xml|),
+        file(|project://rascal-shell/.gitignore|),
+        file(|project://rascal-shell/build.properties|),
         folder(
-          |project://rascal/lib|,
+          |project://rascal-shell/META-INF|,
+          {file(|project://rascal-shell/META-INF/MANIFEST.MF|)}),
+        folder(
+          |project://rascal-shell/lib|,
           {
-            file(|project://rascal/lib/gson-2.2.4-sources.jar|),
-            file(|project://rascal/lib/gson-2.2.4.jar|),
-            file(|project://rascal/lib/gson-2.2.4-javadoc.jar|),
-            file(|project://rascal/lib/snakeyaml-1.11.jar|)
+            file(|project://rascal-shell/lib/jline-0.9.94.jar|),
+            file(|project://rascal-shell/lib/jline-0.9.94.zip|)
           }),
-        file(|project://rascal/plugin.properties|),
+        file(|project://rascal-shell/.project|),
         folder(
-          |project://rascal/src|,
-          {
-            folder(
-              ...
+          |project://rascal-shell/.settings|,
+          {file(|project://rascal-shell/.settings/org.eclipse.jdt.core.prefs|)}),
+        file(|project://rascal-shell/.classpath|),
+        folder(
+    ...
 </pre>
 </div>
 

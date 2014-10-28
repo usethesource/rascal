@@ -59,13 +59,15 @@
 
  You can use this library module to define the menu structure and menu items, after which you need to register it with the IDE:
  <pre class="screen"><span class="prompt">rascal></span>import util::IDE;
-|rascal://util::IDE|(1130,18,&lt;38,21>,&lt;38,39>): Undeclared type: CompletionProposal
+ok
 <span class="prompt">rascal></span>import ParseTree;
 ok
 <span class="prompt">rascal></span>m1 = popup(menu(&quot;MyMenu&quot;, [action(&quot;Example item&quot;, void (Tree t, loc s) { println(&quot;&lt;t&gt; @ &lt;s&gt;&quot;);})]));
-|stdin:///|(5,5,&lt;1,5>,&lt;1,10>): Undeclared variable: popup
+Contribution: popup(menu(
+    "MyMenu",
+    [action("Example item",void (Tree, loc);)]))
 <span class="prompt">rascal></span>registerContributions(&quot;myLanguage&quot;, {m1});
-|stdin:///|(0,21,&lt;1,0>,&lt;1,21>): Undeclared variable: registerContributions
+ok
 </pre>
 </div>
 
@@ -76,7 +78,7 @@ ok
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/IDE/Menus&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/IDE/Menus&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 3 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
