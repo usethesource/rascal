@@ -446,7 +446,7 @@ public class TraversalEvaluator {
 			
 			INode n = eval.getValueFactory().node(node.getName(), args);
 			
-			if (node.asAnnotatable().hasAnnotations()) {
+			if (!node.mayHaveKeywordParameters() && node.asAnnotatable().hasAnnotations()) {
 				n = n.asAnnotatable().setAnnotations(node.asAnnotatable().getAnnotations());
 			}
 			
