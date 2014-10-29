@@ -11,22 +11,40 @@ import static org.rascalmpl.library.lang.json.Factory.JSON_string;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
+import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
+import org.eclipse.imp.pdb.facts.IExternalValue;
+import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRational;
+import org.eclipse.imp.pdb.facts.IReal;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.values.uptr.Factory;
@@ -53,9 +71,7 @@ public class JSONReadingTypeVisitor implements
 	}
 
 	private IValue read(Type type) throws IOException {
-		System.err.println("read:"+type);
 		while (type.isAliased()) {
-			System.err.println("read aliased:"+type);
 			type = type.getAliased();
 		}
 
@@ -64,12 +80,10 @@ public class JSONReadingTypeVisitor implements
 		}
 
 		if (type == tf.numberType()) {
-			System.err.println("read2:"+type);
 			return visitNumber(type);
 		}
 		
 		if (type == JSON) {
-			System.err.println("read3:"+type);
 			return readPlainJSON();
 		}
 
@@ -102,7 +116,6 @@ public class JSONReadingTypeVisitor implements
 
 	@Override
 	public IValue visitInteger(Type type) throws IOException {
-		System.err.println("visitInteger:"+stack.peek());
 		return vf.integer(((Double)stack.peek()).longValue());
 	}
 
@@ -307,7 +320,7 @@ public class JSONReadingTypeVisitor implements
 			for (Object k: kw.keySet()) {
 				String label = (String)k;
 				stack.push(kw.get(label));
-				kwargs.put(label, read(tf.valueType()));
+				kwargs.put(label, fixupTypeOfNodeValues(read(tf.valueType())));
 				stack.pop();
 			}
 		}
@@ -316,6 +329,159 @@ public class JSONReadingTypeVisitor implements
 			return vf.node(name, args, kwargs);
 		}
 		return vf.node(name, args);
+	}
+	
+	private IValue fixupTypeOfNodeValues(IValue input) {
+		return input.accept(new IValueVisitor<IValue, RuntimeException>() {
+
+			private Type calcLub(Iterable<? extends IValue> e) {
+				Type elemType = tf.voidType();
+				for (IValue v : e) {
+					elemType = elemType.lub(v.getType());
+				}
+				return elemType;
+			}
+
+			@Override
+			public IValue visitList(IList o) throws RuntimeException {
+				List<IValue> elements = new ArrayList<IValue>(o.length());
+				for (IValue e : o) {
+					elements.add(e.accept(this));
+				}
+				IListWriter writer = vf.listWriter(calcLub(elements));
+				writer.appendAll(elements);
+				return writer.done();
+			}
+
+			@Override
+			public IValue visitRelation(ISet o) throws RuntimeException {
+				List<IValue> elements = new ArrayList<IValue>(o.size());
+				for (IValue e : o) {
+					elements.add(e.accept(this));
+				}
+				ISetWriter writer = vf.relationWriter(calcLub(elements));
+				writer.insertAll(elements);
+				return writer.done();
+			}
+
+			@Override
+			public IValue visitListRelation(IList o) throws RuntimeException {
+				List<IValue> elements = new ArrayList<IValue>(o.length());
+				for (IValue e : o) {
+					elements.add(e.accept(this));
+				}
+				IListWriter writer = vf.listRelationWriter(calcLub(elements));
+				writer.appendAll(elements);
+				return writer.done();
+			}
+
+			@Override
+			public IValue visitSet(ISet o) throws RuntimeException {
+				List<IValue> elements = new ArrayList<IValue>(o.size());
+				for (IValue e : o) {
+					elements.add(e.accept(this));
+				}
+				ISetWriter writer = vf.setWriter(calcLub(elements));
+				writer.insertAll(elements);
+				return writer.done();
+			}
+			@Override
+			public IValue visitTuple(ITuple o) throws RuntimeException {
+				IValue[] elements = new IValue[o.arity()];
+				Type[] types = new Type[o.arity()];
+				for (int i = 0; i < elements.length; i++) {
+					elements[i] = o.get(i).accept(this);
+					types[i] = elements[i].getType();
+				}
+
+				return vf.tuple(tf.tupleType(types), elements);
+			}
+
+			@Override
+			public IValue visitNode(INode o) throws RuntimeException {
+				IValue[] children = new IValue[o.arity()];
+				for (int i = 0; i < children.length; i++) {
+					children[i] = o.get(i).accept(this);
+				}
+				if (o.mayHaveKeywordParameters()) {
+					IWithKeywordParameters<? extends INode> okw = o.asWithKeywordParameters();
+					Map<String, IValue> oldKwParams = okw.getParameters();
+					Map<String, IValue> kwParams = new HashMap<>(oldKwParams.size());
+					for (String key : oldKwParams.keySet()) {
+						kwParams.put(key, oldKwParams.get(key).accept(this));
+
+					}
+					return vf.node(o.getName(), children, kwParams);
+				}
+
+				return vf.node(o.getName(), children);
+			}
+
+			@Override
+			public IValue visitMap(IMap o) throws RuntimeException {
+				Iterator<Entry<IValue,IValue>> entries = o.entryIterator();
+				Map<IValue, IValue> newEntries = new HashMap<>(o.size());
+				while (entries.hasNext()) {
+					Entry<IValue, IValue> ent = entries.next();
+					newEntries.put(ent.getKey().accept(this), ent.getValue().accept(this));
+				}
+
+				IMapWriter writer = vf.mapWriter(calcLub(newEntries.keySet()), calcLub(newEntries.values()));
+				writer.putAll(newEntries);
+				return writer.done();
+			}
+
+			@Override
+			public IValue visitConstructor(IConstructor o)
+					throws RuntimeException {
+				throw new NotYetImplemented("Constructors are not yet implemented");
+			}
+
+			@Override
+			public IValue visitString(IString o) throws RuntimeException {
+				return o;
+			}
+
+			@Override
+			public IValue visitReal(IReal o) throws RuntimeException {
+				return o;
+			}
+
+			@Override
+			public IValue visitRational(IRational o) throws RuntimeException {
+				return o;
+			}
+
+
+
+			@Override
+			public IValue visitSourceLocation(ISourceLocation o)
+					throws RuntimeException {
+				return o;
+			}
+
+
+			@Override
+			public IValue visitInteger(IInteger o) throws RuntimeException {
+				return o;
+			}
+
+			@Override
+			public IValue visitBoolean(IBool boolValue) throws RuntimeException {
+				return boolValue;
+			}
+
+			@Override
+			public IValue visitExternal(IExternalValue externalValue)
+					throws RuntimeException {
+				return externalValue;
+			}
+
+			@Override
+			public IValue visitDateTime(IDateTime o) throws RuntimeException {
+				return o;
+			}
+		});
 	}
 
 	@Override
@@ -379,7 +545,6 @@ public class JSONReadingTypeVisitor implements
 
 	
 	private IValue readPlainJSON() throws IOException {
-		System.err.println("readPlainJSON:"+stack.peek());
 		return convertToIValue(stack.peek());
 	}
 
@@ -539,7 +704,7 @@ public class JSONReadingTypeVisitor implements
 		if (year != -1 && monthOfYear != -1 && dayOfMonth != -1 && hourOfDay != -1 
 				&& minuteOfHour != -1 && secondOfMinute != -1 && millisecondsOfSecond != -1
 				&& timezoneOffsetHours != -1 && timezoneOffsetMinutes != -1) {
-			return vf.datetime(year, monthOfYear, dayOfMonth, hourOfDay, minuteOfHour, secondOfMinute, millisecondsOfSecond);
+			return vf.datetime(year, monthOfYear, dayOfMonth, hourOfDay, minuteOfHour, secondOfMinute, millisecondsOfSecond, timezoneOffsetHours, timezoneOffsetMinutes);
 		}
 		if (year != -1 && monthOfYear != -1 && dayOfMonth != -1 && hourOfDay != -1 
 				&& minuteOfHour != -1 && secondOfMinute != -1 && millisecondsOfSecond != -1) {

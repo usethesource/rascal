@@ -9,8 +9,8 @@ loc targetFile = |tmp:///test.json|;
 
 bool writeRead(&T dt) = writeRead(type(typeOf(dt), ()), dt);
 
-bool writeRead(type[&T] returnType, &T dt) = fromJSON(returnType, json) == dt 
-  when str json := toJSON(dt), bprintln("x = <dt>"), bprintln("json = <json>"), &T dt2 := fromJSON(returnType, json), bprintln("y = <dt2>"), bprintln(dt == dt2); 
+bool writeRead(type[&T] returnType, &T dt) = fromJSON(returnType, json) == dt
+  when str json := toJSON(dt);
 	
 data DATA1 = f1(int n) | f1(int n, str s) | rec1(DATA1 d1, DATA1 d2);
 

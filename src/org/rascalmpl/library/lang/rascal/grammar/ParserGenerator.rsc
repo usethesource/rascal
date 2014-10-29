@@ -19,6 +19,7 @@ import lang::rascal::grammar::definition::Priorities;
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Keywords;
+import lang::rascal::grammar::Lookahead;
 
 import util::Monitor;
 import lang::rascal::\syntax::Rascal;

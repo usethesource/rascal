@@ -45,6 +45,8 @@ public class IO {
 	private boolean header;		// Does the file start with a line defining field names?
 
 	private TypeReifier tr;
+
+	private boolean printInferedType;
 	
 	public IO(IValueFactory values){
 		super();
@@ -56,20 +58,21 @@ public class IO {
 		this.pdbReader = new StandardTextReader();
 	}
 	
-	private void setOptions(IBool header, IString separator) {
+	private void setOptions(IBool header, IString separator, IBool printInferedType) {
 		this.separator = separator == null ? ',' : separator.charAt(0);
 		this.header = header == null ? true : header.getValue();
+		this.printInferedType = printInferedType == null ? false : printInferedType.getValue();
 	}
 	
 	/*
 	 * Read a CSV file
 	 */
-	public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-		return read(null, loc, header, separator, encoding, ctx);
+	public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferedType, IEvaluatorContext ctx){
+		return read(null, loc, header, separator, encoding, printInferedType, ctx);
 	}
 	
 	public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-		return read(result, loc, header, separator, encoding, ctx);
+		return read(result, loc, header, separator, encoding, values.bool(false), ctx);
 	}
 
 
@@ -82,8 +85,8 @@ public class IO {
 	
 	//////
 	
-	private IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx) {
-		setOptions(header, separator);
+	private IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferedType, IEvaluatorContext ctx) {
+		setOptions(header, separator, printInferedType);
 		Type resultType = types.valueType();
 		TypeStore store = new TypeStore();
 		if (resultTypeConstructor != null && resultTypeConstructor instanceof IConstructor) {
@@ -119,7 +122,7 @@ public class IO {
 
 
 	private IValue computeType(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx) {
-		IValue csvResult = this.read(null, loc, header, separator, encoding, ctx);
+		IValue csvResult = this.read(null, loc, header, separator, encoding, values.bool(true), ctx);
 		return ((IConstructor) new TypeReifier(values).typeToValue(csvResult.getType(), ctx).getValue());
 	}
 	
@@ -203,8 +206,10 @@ public class IO {
 		}
 		Type tupleType = types.tupleType(currentTypes, labels);
 		Type resultType = types.setType(tupleType);
-		ctx.getStdOut().println("readCSV inferred the relation type: " + resultType);
-		ctx.getStdOut().flush();
+		if (this.printInferedType) {
+			ctx.getStdOut().println("readCSV inferred the relation type: " + resultType);
+			ctx.getStdOut().flush();
+		}
 		
 		IWriter result = values.setWriter();
 		for (IValue[] rec : records) {
@@ -302,21 +307,7 @@ public class IO {
 				try {
 					result[i] = pdbReader.read(values, store, currentType, in);
 					if (currentType.isTop() && result[i].getType().isString()) {
-						// if pdb found a string, it means it was actually a doubly quoted string
-						// so to not lose the quotes, we have to return the whole field as a string
 						result[i] = values.string(field);
-					}
-					else {
-						try {
-							if (in.read() != -1) {
-								// the stream was not fully consumed
-								// that means that pdb reader was thrown off by
-								// a string that looked like a certain value but wasn't 
-								throw new FactParseError("PDB reader did not consume the full stream", 0);
-							}
-						}
-						catch (IOException e) {
-						}
 					}
 				}
 				catch (UnexpectedTypeException ute) {
@@ -365,7 +356,7 @@ public class IO {
 			}
 			@Override
 			public IValue visitRational(Type type) throws RuntimeException {
-				return values.rational(0, 0);
+				return values.rational(0, 1);
 			}
 			@Override
 			public IValue visitReal(Type type) throws RuntimeException {
