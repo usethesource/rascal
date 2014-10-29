@@ -3587,14 +3587,14 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                         cannotInstantiate = true;                                  	
                                 	}
                                 }
-                                if (size(subjects) == 1) {
-                                	try {
-                                		bindings = match(matchType, getOneFrom(subjects),bindings);
-                                	} catch : {
-                                        insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate pattern type <prettyPrintType(matchType)> with subject type <prettyPrintType(getOneFrom(subjects))>", ptn@at));
-                                        cannotInstantiate = true;                                  	                                	
-                                	}
-                                }
+                                //if (size(subjects) == 1) {
+                                //	try {
+                                //		bindings = match(matchType, getOneFrom(subjects),bindings);
+                                //	} catch : {
+                                //        insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate pattern type <prettyPrintType(matchType)> with subject type <prettyPrintType(getOneFrom(subjects))>", ptn@at));
+                                //        cannotInstantiate = true;                                  	                                	
+                                //	}
+                                //}
                                 if (!cannotInstantiate) {
                                     try {
                                         matchType = instantiate(matchType, bindings);
@@ -3715,7 +3715,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         if (size(unknowns) == 0 && size(arityProblems) == 0 && size(tooManyMatches) == 0) {
             //println("<pt@at>: Pattern tree is <pt>, with subjects <subjects>");
             newMessages = c.messages - startingMessages;
-            return < c, extendFailType(makeFailType("Type of pattern could not be computed", pat@\loc),newMessages) >;
+            return < c, collapseFailTypes(extendFailType(makeFailType("Type of pattern could not be computed", pat@\loc),newMessages) + { pti@rtype | /PatternTree pti := pt, (pti@rtype)?, isFailType(pti@rtype) }) >;
         } else {
     		for (PatternTree pt <- tooManyMatches)
     			failures += makeFailType("Multiple constructors and/or productions match this pattern, add additional type annotations", pt@at);
