@@ -242,7 +242,6 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 	}
 	
 	public boolean isDirectory(URI uri) {
-		System.err.println("isDirectory: " + uri.getPath());
 		try {
 			if (uri.getScheme().equals(scheme())) {
 				String path = getPath(uri);
