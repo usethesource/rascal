@@ -539,7 +539,7 @@ public class JSONReadingTypeVisitor implements
 		if (year != -1 && monthOfYear != -1 && dayOfMonth != -1 && hourOfDay != -1 
 				&& minuteOfHour != -1 && secondOfMinute != -1 && millisecondsOfSecond != -1
 				&& timezoneOffsetHours != -1 && timezoneOffsetMinutes != -1) {
-			return vf.datetime(year, monthOfYear, dayOfMonth, hourOfDay, minuteOfHour, secondOfMinute, millisecondsOfSecond);
+			return vf.datetime(year, monthOfYear, dayOfMonth, hourOfDay, minuteOfHour, secondOfMinute, millisecondsOfSecond, timezoneOffsetHours, timezoneOffsetMinutes);
 		}
 		if (year != -1 && monthOfYear != -1 && dayOfMonth != -1 && hourOfDay != -1 
 				&& minuteOfHour != -1 && secondOfMinute != -1 && millisecondsOfSecond != -1) {
