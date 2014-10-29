@@ -1,6 +1,6 @@
 Name: IO
 
-Synopsis:
+Synopsis: Basic input/output features of textual data and structured data
 
 Syntax:
 
@@ -13,6 +13,8 @@ Usage:
 Details:
 
 Description:
+
+<warning>IO, ValueIO, CSV and XML</warning>
 
 Examples:
 

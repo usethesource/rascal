@@ -1,6 +1,6 @@
 Name: Backtracking
 
-Synopsis:
+Synopsis: Avoiding overly nested control flow structures using builtin backtracking mechanisms
 
 Syntax:
 

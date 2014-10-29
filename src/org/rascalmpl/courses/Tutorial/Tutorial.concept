@@ -19,7 +19,7 @@ _Rascal is a programming language_ for a particular domain: _metaprogramming_. F
 This tutorial does not have all there is to know about Rascal:
 
 * If you have not installed Rascal yet, now is the time because you will need to do this tutorial in the Eclipse IDE to get interactive questions: [$Rascal:Rascal/InstallingAndRunning];
-* If you are looking for a specific problem you wish to solve, have a look at the [Recipes:Recipes] course;
+* If you are looking for a specific problem you wish to solve, have a look at the [Recipes:Recipes] course, which also explains some of the more popular libraries for Rascal;
 * If you wish to know the details about the syntax and semantics of Rascal language constructs, then the [Rascal:Rascal] course is the reference manual. 
 * If Rascal does not make sense on a conceptual level for you yet: have a look at the [Rascalopedia:Rascalopedia].
 

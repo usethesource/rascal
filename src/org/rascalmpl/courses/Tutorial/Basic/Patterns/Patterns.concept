@@ -1,6 +1,6 @@
 Name: Patterns
 
-Synopsis:
+Synopsis: Pattern matching is a core language feature used in [DynamicDispatch], [Statements], [Expressions], [Transformation], [Query]
 
 Syntax:
 
