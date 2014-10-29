@@ -2414,6 +2414,9 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> !:= <Express
     }
 
     < cNoMatch, t2 > = calculatePatternType(p, cNoMatch, t1);
+    if (isFailType(t2)) {
+        cNoMatch = addMissingPatternNames(cNoMatch, p);
+    }
     c = needNewScope ? exitBooleanScope(cNoMatch,c) : cNoMatch;
     
     if (isFailType(t2)) return markLocationFailed(c, exp@\loc, t2);
@@ -2431,6 +2434,9 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> := <Expressi
     }
 
     < cMatch, t2 > = calculatePatternType(p, cMatch, t1);
+    if (isFailType(t2)) {
+        cMatch = addMissingPatternNames(cMatch, p);
+    }
     c = needNewScope ? exitBooleanScope(cMatch,c) : cMatch;
     
     if (isFailType(t2)) return markLocationFailed(c, exp@\loc, t2);
@@ -2449,18 +2455,21 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> \<- <Express
         return markLocationFailed(c, exp@\loc, t1);
     }
     Symbol t2 = \void();
-    if (isSetType(t1))
+    if (isSetType(t1)) {
         < cEnum, t2 > = calculatePatternType(p, cEnum, getSetElementType(t1));
-    else if (isListType(t1))
+    } else if (isListType(t1)) {
         < cEnum, t2 > = calculatePatternType(p, cEnum, getListElementType(t1));
-    else if (isMapType(t1))
+    } else if (isMapType(t1)) {
         < cEnum, t2 > = calculatePatternType(p, cEnum, getMapDomainType(t1));
-    else if (isADTType(t1) || isTupleType(t1) || isNodeType(t1))
+    } else if (isADTType(t1) || isTupleType(t1) || isNodeType(t1)) {
         < cEnum, t2 > = calculatePatternType(p, cEnum, \value());
-    else if (isNonTerminalIterType(t1))
+    } else if (isNonTerminalIterType(t1)) {
     	< cEnum, t2 > = calculatePatternType(p, cEnum, getNonTerminalIterElement(t1));
-    else {
+    } else {
         t2 = makeFailType("Type <prettyPrintType(t1)> is not enumerable", exp@\loc);
+    }
+    if (isFailType(t2)) {
+        cEnum = addMissingPatternNames(cEnum, p);
     }
     c = needNewScope ? exitBooleanScope(cEnum, c) : cEnum;
     
@@ -2730,6 +2739,9 @@ public CheckResult checkFormals((Formals)`<{Pattern ","}* ps>`, bool isVarArgs, 
         } else {
         	formals += t;
         }
+	    if (isFailType(t)) {
+	        c = addMissingPatternNames(c, patterns[idx]);
+	    }
     }
     return < c, \tuple(formals) >;
 }
@@ -3728,7 +3740,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             return < c, collapseFailTypes(failures) >;
         }
     } else {
-		c.locationTypes = c.locationTypes + ( ptnode@at : ptnode@rtype | /PatternTree ptnode := pt, (ptnode@rtype)? );  
+		c.locationTypes = c.locationTypes + ( ptnode@at : ptnode@rtype | /PatternTree ptnode := pt, (ptnode@rtype)? );
+		  
 		return < c, pt@rtype >;
     }
 }
@@ -7722,6 +7735,15 @@ public Configuration checkCase(Case cs:(Case)`default : <Statement stmt>`, Symbo
     return c;   
 }
 
+private Configuration addMissingPatternNames(Configuration c, Pattern p) {
+	introducedNames = getPatternNames(p);
+	for (n <- introducedNames<0>, n notin c.fcvEnv) {
+		l = getOneFrom(introducedNames[n]);
+		c = addLocalVariable(c, n, false, l, makeFailTypeAsWarning("Error at location <p@\loc> prevented computation of type",l));
+	}
+	return c;
+}
+
 @doc{Check the type of Rascal pattern with action constructs: Replacing (DONE)}
 public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAction)`<Pattern p> =\> <Replacement r>`, Symbol expected, Configuration c) {
     // We need to enter a boolean scope here since we will be adding pattern vars in both
@@ -7735,6 +7757,7 @@ public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAc
     if (isFailType(pt)) {
     	<cVisit, pt> = markLocationFailed(cVisit, p@\loc, pt);
         pt = \value();
+        cVisit = addMissingPatternNames(cVisit, p);
     }
         
     // Now, calculate the replacement type. This should be a subtype of the pattern type, since it
@@ -7760,6 +7783,7 @@ public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAc
     if (isFailType(pt)) {
         <cVisit, pt> = markLocationFailed(cVisit, p@\loc, pt);
         pt = \value();
+        cVisit = addMissingPatternNames(cVisit, p);
     }
 
     // We slightly abuse the label stack by putting cases in there as well. This allows us to  
@@ -8210,7 +8234,10 @@ public Configuration checkCatch(Catch ctch:(Catch)`catch <Pattern p> : <Statemen
     } else {
         < cCatch, tp > = calculatePatternType(p, cCatch);
     }
-    if (isFailType(tp)) cCatch.messages = getFailures(tp);
+    if (isFailType(tp)) {
+    	cCatch.messages = getFailures(tp);
+        cCatch = addMissingPatternNames(cCatch, p);
+    }
         
     // Attempt to check the body regardless of whether the pattern is typable. NOTE: We could
     // also avoid this -- the tradeoff is that, if we check it anyway, we can possibly catch
