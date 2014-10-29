@@ -14,7 +14,7 @@ alias Result = tuple[Env, int];  /*1*/
 public Result eval2(str main, list[int] args, Prog prog) {
   penv = ( f.name: f | f <- prog.funcs );
   f = penv[main];
-  env = ( f.formals[i] : args[i] | i <- domain(f.formals) ); 
+  env = ( f.formals[i] : args[i] | i <- index(f.formals) ); 
   return eval2(f.body, env, penv);
 }
 
@@ -77,7 +77,7 @@ public Result eval2(cond(Exp cond, Exp then, Exp otherwise), Env env, PEnv penv)
       
 public Result eval2(call(str name, list[Exp] args), Env env, PEnv penv)  {
    f = penv[name];
-   for (i <- domain(f.formals)) {
+   for (i <- index(f.formals)) {
      <env, v> = eval2(args[i], env, penv);
      env[f.formals[i]] = v;
    }

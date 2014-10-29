@@ -41,7 +41,7 @@ Here is the `Parse` module for Exp ...
 ... and this is how it works:
 <screen>
 import demo::lang::Exp::Combined::Automatic::Parse;
-parse("2+3*4");
+parseExp("2+3*4");
 </screen>
 
 We can use `parse` to define `load`:

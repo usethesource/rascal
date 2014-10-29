@@ -70,9 +70,9 @@ public class RascalExecutionContext {
 	
 	IRascalMonitor getMonitor() {return monitor;}
 	
-	PrintWriter getStdErr() { return stderr; }
+	public PrintWriter getStdErr() { return stderr; }
 	
-	PrintWriter getStdOut() { return stdout; }
+	public PrintWriter getStdOut() { return stdout; }
 	
 	Configuration getConfiguration() { return config; }
 	

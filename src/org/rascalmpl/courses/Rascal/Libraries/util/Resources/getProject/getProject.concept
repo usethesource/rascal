@@ -15,9 +15,15 @@ Description:
 
 
 Examples:
+
 <screen>
 import util::Resources;
-getProject(|project://org.eclipse.imp.pdb.values|);
+getProject(|project://example-project|);
+</screen>
+
+<screen errors>
+import util::Resources;
+getProject(|project://example-project-which-does-not-exist|);
 </screen>
 
 Benefits:

@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -43,7 +43,7 @@
 <span class="sectionHead">Name</span> <a href="/Rascal/Rascal.html">Rascal</a>/<a href="/Rascal/Declarations/Declarations.html">Declarations</a>/<a href="/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>/<a href="/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>/<a href="/Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity/Associativity.html">Associativity</a>
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <ul><li> <code>syntax <i>Exp</i> = <i>Assoc</i> <i>Label</i> <i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub> ...</code></li>
 <li> <code>syntax <i>Exp</i> = <i>Assoc</i> ( <i>Alt</i><sub>1</sub> | <i>Alt</i><sub>2</sub> | ... )</code></li>
@@ -52,9 +52,9 @@
 
 </div>
 
-                           
-                           
-                           
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Using Associativity declarations we may disambiguate binary recursive operators. 
  <br/>
@@ -73,8 +73,8 @@
 </ul>
 </div>
 
-  	                       
-  	                       
+
+
 <div id="Benefits">
 <span class="sectionHead">Benefits</span>  <ul><li> short notation for common constructs in programming languages</li>
 <li> removes ambiguity but can not introduce parse errors</li>
@@ -82,14 +82,14 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  <ul><li> Please do not assume that Rascal's associativity declarations have the same semantics as SDF's associativity declarations.</li>
 <li> Use of productions that are not both left and right recursive in an associativity group, although safe, is not very meaningful. We would advise to use the <a href="/Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority/Priority.html">Priority</a> relation such a case. For example: <table><tr><th align="center"> Original associativity </th><th align="center"> Better written as priority </th></tr><tr><td align="left"><code>E = left ( "+" E | E "+" E );</code> </td><td align="left"> <code>E = E "+" E > "+" E;</code> </td></tr><tr><td align="left"><code>E = right ( "+" E | E "+" E );</code> </td><td align="left"> <code>E = "+" E > E "+" E;</code> </td></tr><tr><td align="left"><code>E = left ( E "+" | E "+" E);</code> </td><td align="left"> <code>E = E "+" > E "+" E;</code> </td></tr><tr><td align="left"><code>E = right ( E "+" | E "+" E);</code> </td><td align="left"> <code>E = E "+" E > E "+" ;</code></td></tr></table></li>
 </ul>
 </div>
 
-  	                       
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

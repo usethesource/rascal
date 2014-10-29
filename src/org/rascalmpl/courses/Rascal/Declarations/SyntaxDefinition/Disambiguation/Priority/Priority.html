@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -43,7 +43,7 @@
 <span class="sectionHead">Name</span> <a href="/Rascal/Rascal.html">Rascal</a>/<a href="/Rascal/Declarations/Declarations.html">Declarations</a>/<a href="/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>/<a href="/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>/<a href="/Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority/Priority.html">Priority</a>
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <ol><li> <code>syntax <i>Exp</i> = <i>alt</i><sub>1</sub> > <i>alt</i><sub>2</sub> > <i>alt</i><sub>3</sub></code> is the basic syntax for priorities.</li>
 <li> <code>syntax <i>Exp</i> = <i>alt</i><sub>1</sub> | <i>alt</i><sub>2</sub> > <i>alt</i><sub>3</sub> | <i>alt</i><sub>4</sub></code>, where the <code>|</code> signifies groups of equal priority</li>
@@ -51,9 +51,9 @@
 </ol>
 </div>
 
-                           
-                           
-                           
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Priority declarations define a partial ordering between the productions <i>within a single non-terminal</i>. The feature is specifically designed to fit with the semantics of expression sub-languages embedded in programming languages. There exist other mechanisms for <a href="/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>, if <a href="/Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority/Priority.html">Priority</a> does not work for you.
  <br/>
@@ -68,7 +68,7 @@
   <table><tr><th align="center"> If <code>Parent > Child</code> </th><th align="center"> Parent None: <code>E = "[" E "]"</code> </th><th align="center"> Parent Left-most: <code>E = E "*"</code> </th><th align="center">Parent  Right-most: <code>E = "*" E</code> </th><th align="center"> Parent Both: <code>E = E "*" E</code>  </th></tr><tr><td align="left"> <b>Child None:</b> <code>E = "{" E "}"</code> </td><td align="left"> No filter        </td><td align="left"> No filter                    </td><td align="left"> No filter                     </td><td align="left"> No filter              </td></tr><tr><td align="left"> <b>Child Left-most:</b> <code>E = E "+"</code> </td><td align="left"> No filter        </td><td align="left"> No filter                    </td><td align="left"> Filter under right            </td><td align="left"> Filter under right     </td></tr><tr><td align="left"> <b>Child Right-most:</b> <code>E = "+" E</code></td><td align="left"> No filter        </td><td align="left"> Filter under left            </td><td align="left"> No filter                     </td><td align="left"> Filter under left      </td></tr><tr><td align="left"> <b>Child Both:</b> <code>E = E "+" E</code>   </td><td align="left"> No filter        </td><td align="left"> Filter under left            </td><td align="left"> Filter under right            </td><td align="left"> Filter under left and right </td></tr></table>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  The following snippet uses all <a href="/Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority/Priority.html">Priority</a> features:
  <pre class="listing">syntax Exp 
@@ -93,7 +93,7 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Benefits">
 <span class="sectionHead">Benefits</span>  <ul><li> Short notation for common expression grammars</li>
 <li> Removes ambiguity but can not introduce parse errors</li>
@@ -101,7 +101,7 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  <ul><li> Please do not assume that Rascal's priorities have the same semantics as SDF's priorities.</li>
 <li> When a priority does not have a filtering effect, such as in <code>E = E "+" > E "*"</code> it is usually better to use normal alternative composition: <code>E = E "+" | E "*"</code>. There is no difference in the semantics of parsing, but the latter expression is more intentional.</li>
@@ -110,7 +110,7 @@
 </ul>
 </div>
 
-  	                       
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

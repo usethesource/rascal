@@ -11,11 +11,27 @@ Function:
 Details:
 
 Description:
-A type constrained pattern
-matches provided that the subject has type $Type$ and $Pat$ matches.
+
+A type constrained pattern matches provided that the subject has type $Type$ and $Pat$ matches. This can be handy in case of ambiguity (say more than one constructor with the same name), or in case the pattern is completely general. See an example below:
+
+<warning>This does not seem to work properly. There is a bug.</warning>
 
 Examples:
-<warning> add example</warning>
+
+<screen>
+import IO;
+// Some example data type which contains generic values as well as specific expressions:
+data Exp = val(value v) | add(Exp l, Exp r) | sub(Exp l, Exp r);
+ex = add(add(val("hello"(1,2)),val("bye")), sub(val(1),val(2)));
+// Here we constraint the match to find only Exps:
+visit (ex) {
+  case [Exp] str name(_,_) : println("node name is <name>");
+}
+// Here we do not constrain the same pattern:
+visit (ex) {
+  case str name(_,_) : println("node name is <name>");
+}
+</screen>
 
 Benefits:
 

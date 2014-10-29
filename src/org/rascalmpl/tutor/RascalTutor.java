@@ -34,18 +34,24 @@ public class RascalTutor {
 	private final Evaluator eval;
 	private ISourceLocation server;
 
+	public boolean isEditMode() {
+		return getCoursesLocation() != null;
+	}
+
+	private String getCoursesLocation() {
+		return System.getProperty("rascal.courses");
+	}
+	
 	public RascalTutor() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___TUTOR___", heap));
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
 		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
-		eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-
-		URIResolverRegistry reg = eval.getResolverRegistry();
-		final String courseSrc = System.getProperty("rascal.courses");
 		
-		if (courseSrc != null) {
+		URIResolverRegistry reg = eval.getResolverRegistry();
+		
+		if (isEditMode()) {
 		   FileURIResolver fileURIResolver = new FileURIResolver() {
 		    @Override
 		    public String scheme() {
@@ -55,14 +61,15 @@ public class RascalTutor {
 		    @Override
 		    protected String getPath(URI uri) {
 		      String path = uri.getPath();
-		      return courseSrc + (path.startsWith("/") ? path : ("/" + path));
+		      return getCoursesLocation() + (path.startsWith("/") ? path : ("/" + path));
 		    }
 		  };
 		  
 		  reg.registerInputOutput(fileURIResolver);
 		}
 		else {
-		  reg.registerInput(new ClassResourceInput(reg, "courses", getClass(), "/org/rascalmpl/courses"));
+			eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+			reg.registerInput(new ClassResourceInput(reg, "courses", getClass(), "/org/rascalmpl/courses"));
 		}
 		
 		eval.addRascalSearchPath(URIUtil.rootScheme("tutor"));

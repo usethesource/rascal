@@ -1548,6 +1548,9 @@ public class RVM {
 	}
 	
 	HashSet<String> converted = new HashSet<String>(Arrays.asList(
+			"org.rascalmpl.library.lang.csv.IOCompiled.readCSV",
+			"org.rascalmpl.library.lang.csv.IOCompiled.getCSVType",
+			"org.rascalmpl.library.lang.csv.IOCompiled.writeCSV",
 			"org.rascalmpl.library.lang.json.IOCompiled.fromJSON",
 			"org.rascalmpl.library.PreludeCompiled.exists",
 			"org.rascalmpl.library.PreludeCompiled.lastModified",

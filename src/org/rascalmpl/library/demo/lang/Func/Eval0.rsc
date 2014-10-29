@@ -15,7 +15,7 @@ public value eval0(str main, list[int] args, Prog prog) { /*2*/
 
 
 public Exp subst(Exp exp, list[str] vars, list[int] values) { /*3*/
-  env = ( vars[i]: values[i] | i <- domain(vars) );
+  env = ( vars[i]: values[i] | i <- index(vars) );
   return visit (exp) {
     case var(str name) => nat(env[name])
   };

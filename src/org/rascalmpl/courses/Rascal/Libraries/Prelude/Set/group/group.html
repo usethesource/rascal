@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,29 +48,29 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>set[set[&amp;T]] group(set[&amp;T] input, bool (&amp;T a, &amp;T b) similar)</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Set;</code>
  </AUTOINSERTED>
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  We classify animals by their number of legs.
  <pre class="screen"><span class="prompt">rascal></span>import Set;
 ok
 </pre>  Create a map from animals to number of legs.
 <pre class="screen"><span class="prompt">rascal></span>legs = (&quot;bird&quot;: 2, &quot;dog&quot;: 4, &quot;human&quot;: 2, &quot;snake&quot;: 0, &quot;spider&quot;: 8, &quot;millepede&quot;: 1000, &quot;crab&quot;: 8, &quot;cat&quot;: 4);
-map[str, int]: ("millepede":1000,"human":2,"dog":4,"bird":2,"cat":4,"spider":8,"crab":8,"snake":0)
+map[str, int]: ("snake":0,"spider":8,"human":2,"crab":8,"cat":4,"bird":2,"dog":4,"millepede":1000)
 </pre>  Define function <code>nLegs</code> that returns the number of legs fro each animal (or <code>0</code> when the animal is unknown):
 <pre class="screen"><span class="prompt">rascal></span>int nLegs(str animal){
 <span class="continuation">>>>>>>></span>    return legs[animal] ? 0;
@@ -81,20 +81,21 @@ bool (str, str): bool similar(str, str);
 </pre>  Now group a set of animals:
 <pre class="screen"><span class="prompt">rascal></span>group({&quot;bird&quot;, &quot;dog&quot;, &quot;human&quot;, &quot;spider&quot;, &quot;millepede&quot;, &quot;zebra&quot;, &quot;crab&quot;, &quot;cat&quot;}, similar);
 set[set[str]]: {
-  {"millepede"},
-  {"dog"},
-  {"zebra"},
-  {"cat"},
   {"spider"},
-  {"human","bird"},
-  {"crab"}
+  {"zebra"},
+  {"human"},
+  {"crab"},
+  {"cat"},
+  {"bird"},
+  {"dog"},
+  {"millepede"}
 }
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 

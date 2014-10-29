@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,7 +48,7 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <ol><li> <code><i>Modifiers</i> <i>Type</i> <i>Name</i>( <i>Type</i><sub>1</sub> <i>Var</i><sub>1</sub>, ..., <i>Type</i><sub>n</sub> <i>Var</i><sub>n</sub> ) <i>Body</i></code></li>
 <li> <code><i>Modifiers</i> <i>Type</i> <i>Name</i>( <i>Type</i><sub>1</sub> <i>Var</i><sub>1</sub>, ..., <i>Type</i><sub>n</sub> <i>Var</i><sub>n</sub> <i>Type</i><sub>0</sub> <i>Name</i><sub>0</sub>... ) <i>Body</i></code></li>
@@ -63,9 +63,9 @@
 </ul>
 </div>
 
-                           
-                           
-                           
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  <h2> Variant 1 </h2>
  A function declaration introduces a new function with name <code><i>Name</i></code>, typed formal parameters <code><i>Type</i><sub>1</sub> <i>Var</i><sub>1</sub></code>, a return type <code><i>Type</i></code>
@@ -124,7 +124,7 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>    Declare a function
 <pre class="screen"><span class="prompt">rascal></span>rel[int, int] invert(rel[int,int] R){
@@ -134,8 +134,8 @@ rel[int,int] (rel[int,int]): rel[int,int] invert(rel[int,int]);
 </pre>  Call it
 <pre class="screen"><span class="prompt">rascal></span>invert({&lt;1,10&gt;, &lt;2,20&gt;});
 rel[int,int]: {
-  &lt;20,2>,
-  &lt;10,1>
+  &lt;10,1>,
+  &lt;20,2>
 }
 </pre> In the following example we illustrate the use of type variables in function declarations.
  Declare an inversion function that is applicable to any binary relation:
@@ -146,13 +146,13 @@ rel[&amp;T2,&amp;T1] (rel[&amp;T1,&amp;T2]): rel[&amp;T2,&amp;T1] invert2(rel[&a
 </pre> Now apply it to relations with different types:
 <pre class="screen"><span class="prompt">rascal></span>invert2({&lt;1,10&gt;, &lt;2,20&gt;});
 rel[int,int]: {
-  &lt;20,2>,
-  &lt;10,1>
+  &lt;10,1>,
+  &lt;20,2>
 }
 <span class="prompt">rascal></span>invert2({&lt;&quot;mon&quot;, 1&gt;, &lt;&quot;tue&quot;, 2&gt;});
 rel[int,str]: {
-  &lt;2,"tue">,
-  &lt;1,"mon">
+  &lt;1,"mon">,
+  &lt;2,"tue">
 }
 </pre>  As another example declare a function that can be used to swap the elements of pairs of arbitrary types
   (also see <a href="/Rascal/Expressions/Values/Tuple/Subscription/Subscription.html">Tuple/Subscription</a>):
@@ -194,9 +194,9 @@ B: f()
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/Function&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Declarations/Function&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

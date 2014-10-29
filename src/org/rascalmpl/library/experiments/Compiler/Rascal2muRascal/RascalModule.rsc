@@ -19,6 +19,7 @@ import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
+import experiments::Compiler::RVM::Interpreter::ConstantFolder;
 
 /*
  * Translate a Rascal module to muRascal.

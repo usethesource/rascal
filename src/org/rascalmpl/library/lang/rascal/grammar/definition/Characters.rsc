@@ -71,7 +71,7 @@ public bool lessThan(CharRange r1, CharRange r2) {
 public CharRange difference(CharRange l, CharRange r) {
   if (l == \empty-range() || r == \empty-range()) return l;
   
-  if (\char-range(ls,le) := l, \char-range(rs,re) := r) {
+  if (\range(ls,le) := l, \range(rs,re) := r) {
     // left beyond right
     // <-right-> --------
     // --------- <-left->
@@ -353,9 +353,9 @@ public Symbol cc2ranges(Class cc) {
       
 private CharRange range(Range r) {
   switch (r) {
-    case character(Char c) : return range(character(c),character(c));
-    case fromTo(Char l, Char r) : {
-      <cL,cR> = <character(l),character(r)>;
+    case character(Char c) : return range(charToInt(c),charToInt(c));
+    case fromTo(Char l1, Char r1) : {
+      <cL,cR> = <charToInt(l1),charToInt(r1)>;
       // users may flip te ranges, but after this reversed ranges will results in empty ranges
       return cL <= cR ? range(cL, cR) : range(cR, cL);
     } 
@@ -363,7 +363,7 @@ private CharRange range(Range r) {
   }
 } 
  
-private int character(Char c) {
+private int charToInt(Char c) {
   switch (c) {
     case [Char] /^<ch:[^"'\-\[\]\\\>\< ]>/        : return charAt(ch, 0); 
     case [Char] /^\\n/ : return charAt("\n", 0);
