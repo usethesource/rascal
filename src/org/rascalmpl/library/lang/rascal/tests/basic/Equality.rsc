@@ -23,7 +23,9 @@ test bool transLTE(value x, value y, value z) = (x <= y && y <= z) ==> x <= z;
 test bool antiSymmetricLTESame(&Same x, &Same y) = (x <= y && y <= x) ==> (x == y);
 test bool transLTESame(&Same x, &Same y, &Same z) = (x <= y && y <= z) ==> x <= z;
 
-test bool antiSymmetricLTEWithKeywordParams() = antiSymmetricLTESame(""(), ""(x = 3)); 
+test bool antiSymmetricLTEWithKeywordParamsLt1() = antiSymmetricLTESame(""(), ""(x = 3)); 
+test bool antiSymmetricLTEWithKeywordParamsLt2() = antiSymmetricLTESame(""(x = 2), ""(x = 3)); 
+test bool antiSymmetricLTEWithKeywordParamsEq() = antiSymmetricLTESame(""(x = 3), ""(x = 3)); 
 
 // numbers are totally ordered
 test bool numTotalLTE(num x, num y) = x <= y || y <= x;
