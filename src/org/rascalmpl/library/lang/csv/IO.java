@@ -302,7 +302,21 @@ public class IO {
 				try {
 					result[i] = pdbReader.read(values, store, currentType, in);
 					if (currentType.isTop() && result[i].getType().isString()) {
+						// if pdb found a string, it means it was actually a doubly quoted string
+						// so to not lose the quotes, we have to return the whole field as a string
 						result[i] = values.string(field);
+					}
+					else {
+						try {
+							if (in.read() != -1) {
+								// the stream was not fully consumed
+								// that means that pdb reader was thrown off by
+								// a string that looked like a certain value but wasn't 
+								throw new FactParseError("PDB reader did not consume the full stream", 0);
+							}
+						}
+						catch (IOException e) {
+						}
 					}
 				}
 				catch (UnexpectedTypeException ute) {
