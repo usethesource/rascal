@@ -73,10 +73,10 @@ public tuple[str, set[str], set[str]] getModuleMetaInf(Module \mod) {
   // Tags tags "module" QualifiedName name ModuleParameters params Import* imports
   switch (\mod) {
     case \default(parameters(_, QualifiedName name, _, Import* is),_) :
-    return <deslash("<name>"), { "<i>" | \import(\default(QualifiedName i)) <- is } 
+    return <deslash("<name>"), { "<i>" | \default(\default(QualifiedName i)) <- is } 
                     , { "<i>" | \extend(\default(QualifiedName i)) <- is }>;
     case \default(\default(_, QualifiedName name, Import* is), _) : 
-    return <deslash("<name>"), { "<i>" |  \import(\default(QualifiedName i)) <- is } 
+    return <deslash("<name>"), { "<i>" |  \default(\default(QualifiedName i)) <- is } 
                     , { "<i>" | \extend(\default(QualifiedName i)) <- is }>; 
   }
   
