@@ -1,6 +1,7 @@
 module experiments::Compiler::Tests::StringTemplates
 
 extend experiments::Compiler::Tests::TestUtils;
+import List;
 
 
 test bool tst() = run("\"ab\"") == "ab";
@@ -23,7 +24,6 @@ test bool tst() = run("{\"a\<for(x \<- [0 .. 5]){\>\<x\>\<}\>b\";}") == "a<for(x
 
 // Indentation
 
-       
 test bool tst() = run("{x = 5; \"a\<if(true){\>
      \'\<x + 10\>\<}\>b\";}") == {x = 5; "a<if(true){>
      '<x + 10><}>b";};
@@ -32,3 +32,10 @@ test bool tst() = run("{x = 5; \"a\<if(true){\>
 test bool tst() = run("{\"a\<for(x \<- [0 .. 5]){\>
                          \' zz\<x\>\<}\>b\";}") == "a<for(x <- [0 .. 5]){>
                           ' zz<x><}>b";
+                                      
+bool tstIntercalate(str sep, list[value] L) = 
+      intercalate(sep, L)
+      == 
+      (isEmpty(L) ? "" : "<L[0]><for(int i <- [1..size(L)]){><sep><L[i]><}>");
+                                
+test bool  tst() = tstIntercalate("\n \t\t", [2140780238r200812343,"\n",|tmp:///B83|,""]);          
