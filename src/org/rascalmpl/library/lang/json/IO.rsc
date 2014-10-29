@@ -5,10 +5,14 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
+@doc{
+Synopsis: (de)serialization of JSON values. 
+}
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
+@contributor{Davy Landman - landman@cwi.nl (CWI)}
 
 module lang::json::IO
 
