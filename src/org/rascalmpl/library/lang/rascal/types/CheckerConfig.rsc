@@ -20,6 +20,8 @@ import util::Reflective;
 import DateTime;
 import String;
 import Exception;
+import List;
+import Type;
 
 import lang::rascal::checker::ListUtils;
 import lang::rascal::checker::TreeUtils;
