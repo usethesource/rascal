@@ -248,7 +248,6 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 				
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-					System.err.println("full = " + full.getPath());
 					if (reg.exists(full) &&
 						reg.isDirectory(full)) {
 						return true;
