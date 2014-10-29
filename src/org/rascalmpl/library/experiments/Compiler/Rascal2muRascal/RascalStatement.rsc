@@ -10,6 +10,7 @@ import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+import experiments::Compiler::RVM::Interpreter::ConstantFolder;
 
 /*
  * Translate Rascal statements to muRascal using the function: MuExp translate(Statement s).

@@ -4,10 +4,10 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -30,14 +30,16 @@ import org.eclipse.imp.pdb.facts.type.DefaultTypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Types;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.URIUtil;
 
-public class IO {
+public class IOCompiled extends IO {
 	private static final TypeFactory types = TypeFactory.getInstance();
+	private Types types2;
 	
 	private final IValueFactory values;
 	private final StandardTextReader pdbReader;
@@ -46,10 +48,11 @@ public class IO {
 
 	private TypeReifier tr;
 	
-	public IO(IValueFactory values){
-		super();
+	public IOCompiled(IValueFactory values){
+		super(values);
 		
 		this.values = values;
+		this.types2 = new Types(values);
 		this.tr = new TypeReifier(values);
 		separator = ',';
 		header = true;
@@ -64,63 +67,65 @@ public class IO {
 	/*
 	 * Read a CSV file
 	 */
-	public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-		return read(null, loc, header, separator, encoding, ctx);
+	public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, RascalExecutionContext rex){
+		return read(null, loc, header, separator, encoding, rex);
 	}
 	
-	public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-		return read(result, loc, header, separator, encoding, ctx);
+	public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IString encoding, RascalExecutionContext rex){
+		return read(result, loc, header, separator, encoding, rex);
 	}
 
 
 	/*
 	 * Calculate the type of a CSV file, returned as the string 
 	 */
-	public IValue getCSVType(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-		return computeType(loc, header, separator, encoding, ctx);
+	public IValue getCSVType(ISourceLocation loc, IBool header, IString separator, IString encoding, RascalExecutionContext rex){
+		return computeType(loc, header, separator, encoding, rex);
 	}
 	
 	//////
 	
-	private IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx) {
+	private IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, RascalExecutionContext rex) {
 		setOptions(header, separator);
 		Type resultType = types.valueType();
 		TypeStore store = new TypeStore();
 		if (resultTypeConstructor != null && resultTypeConstructor instanceof IConstructor) {
 			resultType = tr.valueToType((IConstructor)resultTypeConstructor, store);
 		}
+		System.err.println("resultTypeConstructor = " + resultTypeConstructor);
+		System.err.println("resultType = " + resultType);
 		Type actualType = resultType;
 		while (actualType.isAliased()) {
 			actualType = actualType.getAliased();
 		}
 		Reader reader = null;
 		try {
-			reader = ctx.getResolverRegistry().getCharacterReader(loc.getURI(), encoding.getValue());
+			reader = rex.getResolverRegistry().getCharacterReader(loc.getURI(), encoding.getValue());
 			if (actualType.isTop()) {
-				return readInferAndBuild(reader, store, ctx);
+				return readInferAndBuild(reader, store, rex);
 			}
 			else {
-				return readAndBuild(reader, actualType, store, ctx);
+				return readAndBuild(reader, actualType, store, rex);
 			}
 		}
 		catch (IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 		finally {
 			if (reader != null) {
 				try {
 					reader.close();
 				} catch (IOException e){
-					throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
+					throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 				}
 			}
 		}
 	}
 
 
-	private IValue computeType(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx) {
-		IValue csvResult = this.read(null, loc, header, separator, encoding, ctx);
-		return ((IConstructor) new TypeReifier(values).typeToValue(csvResult.getType(), ctx).getValue());
+	private IValue computeType(ISourceLocation loc, IBool header, IString separator, IString encoding, RascalExecutionContext rex) {
+		IValue csvResult = this.read(null, loc, header, separator, encoding, rex);
+		return types2.typeToValue(csvResult.getType(), rex);
 	}
 	
 	private String[] readFirstRecord(FieldReader reader) throws IOException {
@@ -134,7 +139,7 @@ public class IO {
 		return new String[0];
 	}
 
-	private void collectFields(FieldReader reader, final String[] currentRecord, IEvaluatorContext ctx) throws IOException {
+	private void collectFields(FieldReader reader, final String[] currentRecord, RascalExecutionContext rex) throws IOException {
 		int recordIndex = 0;
 		while (reader.hasField()) {
 			if (recordIndex < currentRecord.length) {
@@ -145,11 +150,11 @@ public class IO {
 			}
 		}
 		if (recordIndex != currentRecord.length) {
-			throw RuntimeExceptionFactory.illegalTypeArgument("Arities of actual type and requested type are different (expected: " + currentRecord.length + ", found: " + recordIndex + ")", ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.illegalTypeArgument("Arities of actual type and requested type are different (expected: " + currentRecord.length + ", found: " + recordIndex + ")", null, null);
 		}
 	}
 
-	private IValue readInferAndBuild(Reader stream, TypeStore store, IEvaluatorContext ctx) throws IOException {
+	private IValue readInferAndBuild(Reader stream, TypeStore store, RascalExecutionContext rex) throws IOException {
 		FieldReader reader = new FieldReader(stream, separator);
 
 		boolean first = header;
@@ -178,13 +183,13 @@ public class IO {
 				first = false;
 				continue;
 			}
-			collectFields(reader, currentRecord, ctx);
+			collectFields(reader, currentRecord, rex);
 
 			IValue[] tuple = new IValue[currentRecord.length];
-			parseRecordFields(currentRecord, expectedTypes, store, tuple, false, ctx);
+			parseRecordFields(currentRecord, expectedTypes, store, tuple, false, rex);
 			records.add(tuple);
 
-			// update infered type
+			// update inferred type
 			for (int i = 0; i < currentTypes.length; i++){
 				if (tuple[i] == null) continue;
 				currentTypes[i] = currentTypes[i].lub(tuple[i].getType());
@@ -197,14 +202,14 @@ public class IO {
 		// done reading records, lets infer and build
 		for (int i = 0; i < currentTypes.length; i++){
 			if(currentTypes[i].isBottom()) {
-				// in case of an completly empty row
+				// in case of an completely empty row
 				currentTypes[i] = types.stringType();
 			}
 		}
 		Type tupleType = types.tupleType(currentTypes, labels);
 		Type resultType = types.setType(tupleType);
-		ctx.getStdOut().println("readCSV inferred the relation type: " + resultType);
-		ctx.getStdOut().flush();
+		rex.getStdOut().println("readCSV inferred the relation type: " + resultType);
+		rex.getStdOut().flush();
 		
 		IWriter result = values.setWriter();
 		for (IValue[] rec : records) {
@@ -225,7 +230,7 @@ public class IO {
 		return values.tuple(tupleType, rec);
 	}
 
-	private IValue readAndBuild(Reader stream, Type actualType, TypeStore store, IEvaluatorContext ctx) throws IOException {
+	private IValue readAndBuild(Reader stream, Type actualType, TypeStore store, RascalExecutionContext rex) throws IOException {
 		FieldReader reader = new FieldReader(stream, separator);
 		IWriter result = actualType.isListRelation() ? values.listWriter() : values.setWriter();
 
@@ -239,12 +244,12 @@ public class IO {
 		final String[] currentRecord = new String[expectedTypes.length];
 		final IValue[] tuple = new IValue[expectedTypes.length];
 		while (reader.hasRecord()) {
-			collectFields(reader, currentRecord, ctx);
+			collectFields(reader, currentRecord, rex);
 			if (first) {
 				first = false;
 				continue;
 			}
-			parseRecordFields(currentRecord, expectedTypes, store, tuple, true, ctx);
+			parseRecordFields(currentRecord, expectedTypes, store, tuple, true, rex);
 			if (result instanceof IListWriter) {
 				((IListWriter)result).append(values.tuple(tuple));
 			}
@@ -255,7 +260,7 @@ public class IO {
 		return result.done();
 	}
 
-	private void parseRecordFields(final String[] fields, final Type[] expectedTypes, TypeStore store, IValue[] result, boolean replaceEmpty, final IEvaluatorContext ctx) throws IOException  {
+	private void parseRecordFields(final String[] fields, final Type[] expectedTypes, TypeStore store, IValue[] result, boolean replaceEmpty, final RascalExecutionContext rex) throws IOException  {
 		for (int i=0; i < fields.length; i++) {
 			final String field = fields[i];
 			final Type currentType = expectedTypes[i];
@@ -281,7 +286,7 @@ public class IO {
 						return values.integer(field);
 					}
 					catch (NumberFormatException nfe) {
-						throw RuntimeExceptionFactory.illegalTypeArgument(currentType.toString(),ctx.getCurrentAST(), ctx.getStackTrace(), "Invalid int \"" + field + "\" for requested field " + currentType);
+						throw RuntimeExceptionFactory.illegalTypeArgument(currentType.toString(),null, null, "Invalid int \"" + field + "\" for requested field " + currentType);
 					}
 				}
 				@Override
@@ -290,7 +295,7 @@ public class IO {
 						return values.real(field);
 					}
 					catch (NumberFormatException nfe) {
-						throw RuntimeExceptionFactory.illegalTypeArgument("Invalid real \"" + field + "\" for requested field " + currentType, ctx.getCurrentAST(), ctx.getStackTrace());
+						throw RuntimeExceptionFactory.illegalTypeArgument("Invalid real \"" + field + "\" for requested field " + currentType, null, null);
 					}
 				}
 
@@ -302,32 +307,18 @@ public class IO {
 				try {
 					result[i] = pdbReader.read(values, store, currentType, in);
 					if (currentType.isTop() && result[i].getType().isString()) {
-						// if pdb found a string, it means it was actually a doubly quoted string
-						// so to not lose the quotes, we have to return the whole field as a string
 						result[i] = values.string(field);
-					}
-					else {
-						try {
-							if (in.read() != -1) {
-								// the stream was not fully consumed
-								// that means that pdb reader was thrown off by
-								// a string that looked like a certain value but wasn't 
-								throw new FactParseError("PDB reader did not consume the full stream", 0);
-							}
-						}
-						catch (IOException e) {
-						}
 					}
 				}
 				catch (UnexpectedTypeException ute) {
-					throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" (" + ute.getExpected() + ") for requested field " + ute.getGiven(), ctx.getCurrentAST(), ctx.getStackTrace());
+					throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" (" + ute.getExpected() + ") for requested field " + ute.getGiven(), null, null);
 				}
 				catch (FactParseError ex) {
 					if (currentType.isTop()) {
 						result[i] = values.string(field);
 					}
 					else {
-						throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" is not a " + currentType, ctx.getCurrentAST(), ctx.getStackTrace());
+						throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" is not a " + currentType, null, null);
 					}
 				}
 				finally {
@@ -407,20 +398,22 @@ public class IO {
 	/*
 	 * Write a CSV file.
 	 */
-	public void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
+	
+	public void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, RascalExecutionContext rex){
 		String sep = separator != null ? separator.getValue() : ",";
 		Boolean head = header != null ? header.getValue() : true;
 		Writer out = null;
 		
-		Type paramType = ctx.getCurrentEnvt().getTypeBindings().get(types.parameterType("T"));
+		//Type paramType = ctx.getCurrentEnvt().getTypeBindings().get(types.parameterType("T"));
+		
+		Type paramType = rel.getType();
 		if(!paramType.isRelation() && !paramType.isListRelation()){
-			throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + paramType,ctx.getCurrentAST(), 
-					ctx.getStackTrace());
+			throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + paramType, null, null);
 		}
 		
 		try{
 			boolean isListRel = rel instanceof IList;
-			out = new UnicodeOutputStreamWriter(ctx.getResolverRegistry().getOutputStream(loc.getURI(), false), encoding.getValue(), false);
+			out = new UnicodeOutputStreamWriter(rex.getResolverRegistry().getOutputStream(loc.getURI(), false), encoding.getValue(), false);
 			out = new BufferedWriter(out); // performance
 			ISet irel = null;
 			IList lrel = null;
@@ -500,86 +493,5 @@ public class IO {
 			return "field" + pos;
 		else 
 		  return "\\" + label;
-	}
-}
-
-/**
- * Auxiliary class to read fields from an input stream.
- *
- */
-class FieldReader {
-	int lastChar = ';';
-	int separator = ';';
-	Reader in;
-	boolean startOfLine = true;
-	
-	FieldReader(Reader reader, int sep) throws IOException{
-		this.in = reader;
-		this.separator = sep;
-		startOfLine = true;
-		lastChar = reader.read();
-	}
-	
-	private boolean isEOL(int c) {
-		return c == '\n' || c == '\r';
-	}
-	
-	/**
-	 * @return true if the current record has another field left to be read.
-	 * @throws IOException
-	 */
-	boolean hasField() throws IOException{
-		if(startOfLine)
-			return true;
-		if(lastChar == separator){
-			lastChar = in.read();
-			return true; //lastChar != -1;
-		}
-		return false;
-	}
-	
-	/**
-	 * @return true if the current stream has another record to be read.
-	 * @throws IOException
-	 */
-	boolean hasRecord() throws IOException{
-		if(startOfLine)
-			return true;
-		while(isEOL(lastChar))
-			lastChar = in.read();
-		startOfLine = true;
-		return lastChar != -1;
-	}
-	
-	/**
-	 * @return The next field from the input stream.
-	 * @throws IOException
-	 */
-	String getField() throws IOException{
-		startOfLine = false;
-		StringWriter sw = new StringWriter();
-		if(lastChar == '"'){
-			lastChar = in.read();
-			while (lastChar != -1){
-				if(lastChar == '"'){
-					lastChar = in.read();
-					if(lastChar == '"'){
-						sw.append('"');
-						lastChar = in.read();
-					} else
-						break;
-				} else {
-					sw.append((char)lastChar);
-					lastChar = in.read();
-				}
-			}
-			assert lastChar == separator || isEOL(lastChar) || lastChar == -1;
-			return sw.toString();
-		}
-		while ((lastChar != -1) && (lastChar != separator) && !isEOL(lastChar)){
-			sw.append((char)lastChar);
-			lastChar = in.read();
-		}
-		return sw.toString();
 	}
 }

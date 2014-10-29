@@ -794,9 +794,9 @@ public str bad(){
    return "\<img height=\"25\" width=\"25\" src=\"/images/bad.png\"/\>";
 }
 
-public str status(QuestionName qid){
-  return (qid in goodAnswer) ? good() : ((qid in badAnswer) ? bad() : "");
-}
+//public str status(QuestionName qid){
+//  return (qid in goodAnswer) ? good() : ((qid in badAnswer) ? bad() : "");
+//}
 
 private str showStudentId(){
   return table("studentInfo",

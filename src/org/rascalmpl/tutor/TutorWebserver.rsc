@@ -3,6 +3,7 @@ module TutorWebserver
 import util::Webserver;
 import IO;
 import CourseManager;
+import DateTime;
 
 loc base = |courses:///|;
 
@@ -31,7 +32,7 @@ Response page(get(), /^\/edit/                       , map[str, str] ps) = respo
 Response page(get(), /^\/save/                       , map[str, str] ps) = response(save(ps["concept"], ps["newcontent"], ps["new"] == "true"));
 Response page(get(), /^\/compile/                    , map[str, str] ps) = response(compile(ps["name"]));
 Response page(get(), /^\/validate/                   , map[str, str] ps) = response(validateAnswer(ps));
-Response page(get(), /^\/validateExam/               , map[str, str] ps) = response(validateExam(ps));
+Response page(get(), /^\/validateExam/               , map[str, str] ps) = response(validateExamSubmission("<now()>", ps));
 
 default Response page(get(), str path, map[str, str] ps) = response(base + path); 
 

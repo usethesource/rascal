@@ -8,6 +8,10 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@doc{
+Synopsis: Library functions for reading and writing values in textual and binary format.
+
+}
 module ValueIO
 
 import Type;

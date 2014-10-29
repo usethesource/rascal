@@ -16,6 +16,7 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
 import experiments::Compiler::RVM::Interpreter::ParsingTools;
+import experiments::Compiler::RVM::Interpreter::ConstantFolder;
 
 /*
  * Compile the match operator and all possible patterns
