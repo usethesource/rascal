@@ -1,0 +1,52 @@
+Name: Values
+
+Synopsis: What does the data look like that you can manipulate in Rascal and how to type it in?
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+Rascal is a value-based language. A value is a piece of data for which the meaning is literal and which will never change. Like `1` and `2` and `1.423412`. All values in Rascal are like that, even the collections!
+
+Examples:
+
+<screen>
+// an integer value:
+1
+// a very very long integer value
+13298476123498761234126341238654123412386451234
+// a rational 
+1r2
+// a real
+11234.123412341234123412341234123412341234134
+// some lists:
+[1]
+[1,2]
+[]
+[1..10]
+[1,3..21]
+// some sets
+{}
+{1,1}
+{1,2,3}
+{3,2,1}
+// maps
+(1:1)
+("joyce":24, "harry": 22)
+// trees
+"branch"("leaf"(), "leaf"())
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:

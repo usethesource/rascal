@@ -1,0 +1,54 @@
+Name: Basic
+
+Synopsis: What you need to know to do basic programming in Rascal
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details: Values IO Expressions Types Patterns Data Functions Statements Backtracking Query Templates Transformation 
+
+Description:
+
+The [Basic] level has the following lessons:
+<toc Tutorial/Basic 1>
+
+In all lessons we explain Rascal by example by showing the Rascal prompt with an example program, statement or expression. Rascal will compute the result and print both the type of the value and the value itself, or `ok` if there is no result. Each lesson ends with a number of questions to find out if you get it.
+
+Examples:
+
+<screen>
+// How to print `Hello World`:
+import IO;
+println("Hello World!");
+// How to assign a value to a variable
+x = 42;
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+QChoice[Import]: Which library needs to be imported from the standard library to be able to call `println`:
+b: List
+g: IO
+b: Set
+b: ParseTree
+
+QValue:
+desc: assign a variable
+list:
+x = <?>;
+test: 1 + x == 2;
+
+QValue:
+desc: do not forget the semicolon
+list:
+x = 1<?>
+test: x == 1;

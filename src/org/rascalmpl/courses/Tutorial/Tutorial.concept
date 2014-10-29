@@ -1,0 +1,36 @@
+Name: Tutorial
+
+Synopsis:
+
+This is a step-by-step by-example lesson plan to quickly learn programming in Rascal. 
+
+Syntax:
+
+Types:
+
+Function:
+
+Details: Basic Advanced Wizard
+
+Description:
+
+_Rascal is a programming language_ for a particular domain: _metaprogramming_. First it is just a programming language. The lessons expect that you have some programming skill in another languages such as C, Java, PHP, Lisp, SmallTalk, Python, etc. Second it is for metaprogramming: designed to make common tasks in metaprogramming practical. You can learn it in three levels: [Basic], [Advanced] and [Wizard]. 
+
+This tutorial does not have all there is to know about Rascal:
+
+* If you have not installed Rascal yet, now is the time because you will need to do this tutorial in the Eclipse IDE to get interactive questions: [$Rascal:Rascal/InstallingAndRunning];
+* If you are looking for a specific problem you wish to solve, have a look at the [Recipes:Recipes] course;
+* If you wish to know the details about the syntax and semantics of Rascal language constructs, then the [Rascal:Rascal] course is the reference manual. 
+* If Rascal does not make sense on a conceptual level for you yet: have a look at the [Rascalopedia:Rascalopedia].
+
+
+The table of contents for this tutorial is:
+<toc Tutorial 2>
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
