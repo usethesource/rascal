@@ -2979,6 +2979,7 @@ public bool concreteType(Symbol t) = size({ ti | /Symbol ti := t, \failure(_) :=
 @doc{Calculate the type of pattern. If a subject is given, this is used as part of the type calculation to ensure the subject can be bound to the pattern.}
 public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol subjects...) {
     if (size(subjects) > 1) throw "Invalid invocation, only one subject allowed, not <size(subjects)>";
+    startingMessages = c.messages;
     
     // Init: extract the pattern tree, which gives us an abstract representation of the pattern
     < c, pt > = extractPatternTree(pat,c);
@@ -3713,7 +3714,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         tooManyMatches = tooManyMatchesFailures(pt);
         if (size(unknowns) == 0 && size(arityProblems) == 0 && size(tooManyMatches) == 0) {
             //println("<pt@at>: Pattern tree is <pt>, with subjects <subjects>");
-            return < c, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;
+            newMessages = c.messages - startingMessages;
+            return < c, extendFailType(makeFailType("Type of pattern could not be computed", pat@\loc),newMessages) >;
         } else {
     		for (PatternTree pt <- tooManyMatches)
     			failures += makeFailType("Multiple constructors and/or productions match this pattern, add additional type annotations", pt@at);
