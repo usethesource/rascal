@@ -68,7 +68,7 @@ public void chart(rel[str , str] r) {
     
 public void chart(map[str, num] m) {
      str body = barChart(y_axis = getYAxis(aggregateMethod="avg"), orderRule="x");
-     list[str] d = [x|str x<-domain(m)];
+     list[str] d = [x|str x<-Prelude::domain(m)];
      htmlDisplay(publish(
      |tmp:///dimple|
      ,barChartHeader("barChart"), body, ("x": d,"y":[m[i]|str i<-d])
@@ -77,7 +77,7 @@ public void chart(map[str, num] m) {
     
 public void chart(map[num, num] m) {
      str body = barChart(y_axis = getYAxis(aggregateMethod="avg"), orderRule="x");
-     list[int] d = [x|int x<-domain(m)];
+     list[int] d = [x|int x<-Prelude::domain(m)];
      htmlDisplay(publish(
      |tmp:///dimple|
      ,barChartHeader("barChart"), body, ("x": d,"y":[m[i]|int i<-d])
@@ -89,7 +89,7 @@ public void chart(map[num, num] m) {
      orderRule="x"); 
      if (isEmpty(ml)) return;
      int n = size(ml[getOneFrom(ml)]);
-     list[int] d = [x|int x<-domain(ml)];
+     list[int] d = [x|int x<-Prelude::domain(ml)];
      htmlDisplay(publish(
      |tmp:///dimple|
      ,barChartHeader("barChart"), body, [
@@ -104,8 +104,8 @@ public void chart(map[num, num] m) {
      str body = barChart(y_axis = getYAxis(aggregateMethod="avg", series= "kind"),
      orderRule="x"); 
      if (isEmpty(ml)) return;
-     int n = size(ml[getOneFrom(domain(ml))]);
-     list[str] d = [x|str x<-domain(ml)];
+     int n = size(ml[getOneFrom(Prelude::domain(ml))]);
+     list[str] d = [x|str x<-Prelude::domain(ml)];
      htmlDisplay(publish(
      |tmp:///dimple|
      ,barChartHeader("barChart"), body, [
