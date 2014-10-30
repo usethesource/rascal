@@ -24,7 +24,7 @@ public void chart(rel[num x, num y] r) {
  ,orderRule="x");
  Key2Data q = ("i":[], "x":[],"y":[]);
  int i = 0;
- for (<x, y><-r) {
+ for (<num x, num y><-r) {
         q["i"]=q["i"]+i; q["x"]=q["x"]+x; q["y"]=q["y"]+y;
         i+=1;
         }
@@ -40,7 +40,7 @@ public void chart(rel[num x, num y] r) {
  str body = barChart(y_axis = getYAxis(aggregateMethod="avg", plotFunction="bubble", series="i")
  ,orderRule="x");
  Key2Data q = ("i":[], "x":[],"y":[]);
- for (<x, y, z><-r) {
+ for (<num x, num y, str z><-r) {
         q["i"]=q["i"]+z; q["x"]=q["x"]+x; q["y"]=q["y"]+y;
         }
   htmlDisplay(publish(
@@ -56,7 +56,7 @@ public void chart(rel[str , str] r) {
  category=true));
  Key2Data q = ("i":[], "x":[],"y":[]);
  int i = 0;
- for (<x, y><-r) {
+ for (<str x, str y><-r) {
         q["i"]=q["i"]+i; q["x"]=q["x"]+x; q["y"]=q["y"]+y;
         i+=1;
         }
@@ -123,7 +123,7 @@ public void chart(rel[map[str, num] xlabel2rank, str ylabel] r) {
  str body = barChart(y_axis = getYAxis(aggregateMethod="count", plotFunction="bar", series=""), orderRule="n");
  Key2Data q = ("i":[], "x":[],"y":[], "n":[]);
  int i = 0;
- for (<x, y><-r) {
+ for (<map[str, num] x, str y><-r) {
         q["i"]=q["i"]+i; q["x"]=q["x"]+"<getOneFrom(x)>_<x[getOneFrom(x)]>"; q["y"]=q["y"]+y;
         q["n"]=q["n"]+x[getOneFrom(x)];
         i+=1;
@@ -140,7 +140,7 @@ public void chart(rel[map[str, num] xlabel2rank, str ylabel, str kind] r) {
  str body = barChart(y_axis = getYAxis(aggregateMethod="count", plotFunction="bar", series="kind"), orderRule="n");
  Key2Data q = ("i":[], "x":[],"y":[], "n":[], "kind":[]);
  int i = 0;
- for (<x, y, kind><-r) {
+ for (<map[str, num] x, str y, str kind><-r) {
         q["i"]=q["i"]+i; q["x"]=q["x"]+"<getOneFrom(x)>:<x[getOneFrom(x)]>"; q["y"]=q["y"]+y;
         q["n"]=q["n"]+x[getOneFrom(x)];
         q["kind"]=q["kind"]+kind;
@@ -206,7 +206,7 @@ public void chart(rel[map[loc, num] , loc, str] r) {
  category=true, orderRule="yn"), orderRule="xn");
  Key2Data q = ("i":[], "x":[],"y":[], "xn":[], "yn":[]);
  int i = 0;
- for (<x, y><-r) {
+ for (<map[str labelx, num rangx] x, map[str labely, num rangy] y><-r) {
         q["i"]=q["i"]+i; q["x"]=q["x"]+getOneFrom(x); q["y"]=q["y"]+getOneFrom(y);
         q["xn"]=q["xn"]+x[getOneFrom(x)]; q["yn"]=q["yn"]+y[getOneFrom(y)];
         i+=1;
