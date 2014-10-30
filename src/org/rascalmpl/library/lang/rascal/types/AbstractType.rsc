@@ -267,6 +267,7 @@ public Symbol makeTypeVarWithBound(str varName, Symbol varBound) = \parameter(va
 public Symbol unwrapType(\alias(_,_,at)) = unwrapType(at);
 public Symbol unwrapType(\parameter(_,tvb)) = unwrapType(tvb);
 public Symbol unwrapType(\label(_,ltype)) = unwrapType(ltype);
+public Symbol unwrapType(\conditional(sym,_)) = unwrapType(sym);
 public default Symbol unwrapType(Symbol t) = t;
 
 @doc{Get the type that has been reified and stored in the reified type.}
@@ -766,6 +767,7 @@ public bool nonTerminalAllowsFields(Symbol::\lex(str n)) = true;
 public bool nonTerminalAllowsFields(Symbol::\parameterized-sort(str n,_)) = true;
 public bool nonTerminalAllowsFields(Symbol::\parameterized-lex(str n,_)) = true;
 public bool nonTerminalAllowsFields(Symbol::\opt(Symbol ss)) = true;
+public bool nonTerminalAllowsFields(Symbol::\conditional(Symbol ss,_)) = nonTerminalAllowsFields(ss);
 public default bool nonTerminalAllowsFields(Symbol s) = false;
 
 @doc{Synopsis: Determine if the given type is a production.}
