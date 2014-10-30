@@ -505,7 +505,7 @@ function handleSave(evt) {
     evt.preventDefault();
 	$('#saveButton').attr('disabled','disabled');
 	$('#pleaseWaitMessage').css('display', 'inline');
-	$.get("save", formData, function processSaveFeedback(data, textStatus) {
+	$.post("save", formData, function processSaveFeedback(data, textStatus) {
 		$('#pleaseWaitMessage').hide();
 		$('#saveButton').removeAttr('disabled');
         var c = $('#concept', data).text();
