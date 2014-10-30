@@ -781,7 +781,7 @@ public default bool isProductionType(Symbol _) = false;
 public Symbol removeConditional(conditional(Symbol s, set[Condition] _)) = s;
 public Symbol removeConditional(label(str lab, conditional(Symbol s, set[Condition] _)))
   = label(lab, s);
-public default Symbol removeConditonal(Symbol s) = s;
+public default Symbol removeConditional(Symbol s) = s;
 
 @doc{Get a list of the argument types in a production.}
 public list[Symbol] getProductionArgumentTypes(Symbol pr) {
