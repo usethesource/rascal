@@ -2409,13 +2409,14 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> !:= <Express
     cNoMatch = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
     < cNoMatch, t1 > = checkExp(e, cNoMatch);
     if (isFailType(t1)) {
+    	cNoMatch = addMissingPatternNames(cNoMatch, p, e@\loc);
         c = needNewScope ? exitBooleanScope(cNoMatch,c) : cNoMatch;
         return markLocationFailed(c, exp@\loc, t1);
     }
 
     < cNoMatch, t2 > = calculatePatternType(p, cNoMatch, t1);
     if (isFailType(t2)) {
-        cNoMatch = addMissingPatternNames(cNoMatch, p);
+        cNoMatch = addMissingPatternNames(cNoMatch, p, p@\loc);
     }
     c = needNewScope ? exitBooleanScope(cNoMatch,c) : cNoMatch;
     
@@ -2429,13 +2430,14 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> := <Expressi
     cMatch = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
     < cMatch, t1 > = checkExp(e, cMatch);
     if (isFailType(t1)) {
+    	cMatch = addMissingPatternNames(cMatch, p, e@\loc);
         c = needNewScope ? exitBooleanScope(cMatch,c) : cMatch;
         return markLocationFailed(c, exp@\loc, t1);
     }
 
     < cMatch, t2 > = calculatePatternType(p, cMatch, t1);
     if (isFailType(t2)) {
-        cMatch = addMissingPatternNames(cMatch, p);
+        cMatch = addMissingPatternNames(cMatch, p, p@\loc);
     }
     c = needNewScope ? exitBooleanScope(cMatch,c) : cMatch;
     
@@ -2451,6 +2453,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> \<- <Express
     cEnum = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
     < cEnum, t1 > = checkExp(e, cEnum);
     if (isFailType(t1)) {
+    	cEnum = addMissingPatternNames(cEnum, p, e@\loc);
         c = needNewScope ? exitBooleanScope(cEnum, c) : cEnum;
         return markLocationFailed(c, exp@\loc, t1);
     }
@@ -2469,7 +2472,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> \<- <Express
         t2 = makeFailType("Type <prettyPrintType(t1)> is not enumerable", exp@\loc);
     }
     if (isFailType(t2)) {
-        cEnum = addMissingPatternNames(cEnum, p);
+        cEnum = addMissingPatternNames(cEnum, p, p@\loc);
     }
     c = needNewScope ? exitBooleanScope(cEnum, c) : cEnum;
     
@@ -2740,7 +2743,7 @@ public CheckResult checkFormals((Formals)`<{Pattern ","}* ps>`, bool isVarArgs, 
         	formals += t;
         }
 	    if (isFailType(t)) {
-	        c = addMissingPatternNames(c, patterns[idx]);
+	        c = addMissingPatternNames(c, patterns[idx], patterns[idx]@\loc);
 	    }
     }
     return < c, \tuple(formals) >;
@@ -4868,8 +4871,9 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<LocalVariableDeclaratio
                 if ((Variable)`<Name n> = <Expression init>` := v || (Variable)`<Name n>` := v) {
                     if ((Variable)`<Name n> = <Expression init>` := v) {
                         < c, t1 > = checkExp(init, c);
-                        if (!isFailType(t1) && !subtype(t1,rt)) 
-                            c = addScopeMessage(c, error("Initializer type <prettyPrintType(t1)> not assignable to variable of type <prettyPrintType(rt)>", v@\loc));                       
+                        if (!isFailType(rt) && !isFailType(t1) && !subtype(t1,rt)) { 
+                            c = addScopeMessage(c, error("Initializer type <prettyPrintType(t1)> not assignable to variable of type <prettyPrintType(rt)>", v@\loc));
+						}
                     }
                                         
                     RName rn = convertName(n);
@@ -6040,7 +6044,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         if (!isFailType(funType)) {
             cFun = setExpectedReturn(c, getFunctionReturnType(funType));
         } else {
-            cFun = setExpectedReturn(c, \void());
+            cFun = setExpectedReturn(c, \value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
@@ -6121,7 +6125,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         if (!isFailType(funType)) {
             cFun = setExpectedReturn(c, getFunctionReturnType(funType));
         } else {
-            cFun = setExpectedReturn(c, \void());
+            cFun = setExpectedReturn(c, \value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);        
@@ -7737,11 +7741,11 @@ public Configuration checkCase(Case cs:(Case)`default : <Statement stmt>`, Symbo
     return c;   
 }
 
-private Configuration addMissingPatternNames(Configuration c, Pattern p) {
+private Configuration addMissingPatternNames(Configuration c, Pattern p, loc sourceLoc) {
 	introducedNames = getPatternNames(p);
 	for (n <- introducedNames<0>, n notin c.fcvEnv) {
 		l = getOneFrom(introducedNames[n]);
-		c = addLocalVariable(c, n, false, l, makeFailTypeAsWarning("Error at location <p@\loc> prevented computation of type",l));
+		c = addLocalVariable(c, n, false, l, makeFailTypeAsWarning("Error at location <sourceLoc> prevented computation of type",l));
 	}
 	return c;
 }
@@ -7759,7 +7763,7 @@ public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAc
     if (isFailType(pt)) {
     	<cVisit, pt> = markLocationFailed(cVisit, p@\loc, pt);
         pt = \value();
-        cVisit = addMissingPatternNames(cVisit, p);
+        cVisit = addMissingPatternNames(cVisit, p, p@\loc);
     }
         
     // Now, calculate the replacement type. This should be a subtype of the pattern type, since it
@@ -7785,7 +7789,7 @@ public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAc
     if (isFailType(pt)) {
         <cVisit, pt> = markLocationFailed(cVisit, p@\loc, pt);
         pt = \value();
-        cVisit = addMissingPatternNames(cVisit, p);
+        cVisit = addMissingPatternNames(cVisit, p, p@\loc);
     }
 
     // We slightly abuse the label stack by putting cases in there as well. This allows us to  
@@ -8238,7 +8242,7 @@ public Configuration checkCatch(Catch ctch:(Catch)`catch <Pattern p> : <Statemen
     }
     if (isFailType(tp)) {
     	cCatch.messages = getFailures(tp);
-        cCatch = addMissingPatternNames(cCatch, p);
+        cCatch = addMissingPatternNames(cCatch, p, p@\loc);
     }
         
     // Attempt to check the body regardless of whether the pattern is typable. NOTE: We could
