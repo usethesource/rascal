@@ -130,7 +130,7 @@ int: 249
 </pre> OK, so we're making progress.  Let's define another function to help us explore the data space:
   <pre class="listing">public void printLastTwenty (int n){
     for(int i &lt;- [n-19..n]) {
-        println ("&lt;i>! has &lt;countTrailingZeros(fact(i))> ? + ?trailing zeros.");
+        println ("&lt;i>! has &lt;countTrailingZeros(fact(i))> trailing zeros.");
     }
 }
 
@@ -321,7 +321,7 @@ ok
     	int c = countTrailingZeros(ifact);
     	if (p != c) {
 	    failed = true;
-	    println (?Found a counter example at i=&lt;i>");
+	    println ("Found a counter example at i=&lt;i>");
 	    break;
     	} else {
 	    if (i % checkInterval == 0) {
@@ -330,7 +330,7 @@ ok
 	}
     }
     if (!failed) {
-	println ("The theory works for i: 1..&lt;N>?);
+	println ("The theory works for i: 1..&lt;N>");
     }
 }
 
@@ -373,7 +373,7 @@ public int floorLogBase (int a, int b) {
 rascal>floorLogBase(625,5);
 int: 3
 rascal>logB(625.0,5.0);
-real: 3.9999999999999998757330130880776320985295476764801684??..
+real: 3.9999999999999998757330130880776320985295476764801684...
 </pre> Oh right, real numbers are prone to round off error.  What should we do?
 <br/>
 <br/>
