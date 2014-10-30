@@ -37,5 +37,10 @@ bool tstIntercalate(str sep, list[value] L) =
       intercalate(sep, L)
       == 
       (isEmpty(L) ? "" : "<L[0]><for(int i <- [1..size(L)]){><sep><L[i]><}>");
-                                
+/*  
+The string template misses one \n character:                              
+value: "2140780238r200812343\n \t\t\n\n \t\t|tmp:///B83|\n \t\t"
+value: "2140780238r200812343\n \t\t\n \t\t|tmp:///B83|\n \t\t"
+*/
+
 test bool  tst() = tstIntercalate("\n \t\t", [2140780238r200812343,"\n",|tmp:///B83|,""]);          

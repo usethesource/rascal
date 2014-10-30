@@ -221,13 +221,15 @@ syntax ConcreteHole
 */
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
-  // println("translateConcretePattern, **** Grammar");
+  println("translateConcretePattern, concrete = <concrete>");
   fragType = getType(p@\loc);
   println("translateConcretePattern, fragType = <fragType>");
   reifiedFragType = symbolToValue(fragType);
   println("translateConcretePattern, reified: <reifiedFragType>");
+  g = getGrammar();
+  for(nt <- g) println("<nt> : <g[nt]>");
   parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar());
-  //println("**** parsedFragment");
+  println("**** parsedFragment: <parsedFragment>");
   iprintln(parsedFragment);
   return translateParsedConcretePattern(parsedFragment);
 }
