@@ -65,8 +65,6 @@ public Grammar compileLookaheads(Grammar G) {
     case priority(rhs, order)     => choice(rhs, {p | p <- order})
     case associativity(rhs, a, alts)  => choice(rhs, alts)
   }
-  // give the normalizer the chance to merge choices as much as possible 
-  G.rules = (s:{choice(s,G.rules[s])} | s <- G.rules);
 
   // now we optimize the lookaheads  
   return visit(G) {
