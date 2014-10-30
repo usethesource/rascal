@@ -42,7 +42,7 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
 
 public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefinition sd) {  
     switch (sd) {
-      case \layout(_, nonterminal(Nonterminal n), Prod p) : 
+      case \layout(Sym _, nonterminal(Nonterminal n), Prod p) : 
         return <{prod2prod(\layouts("<n>"), p)},nothing()>;
       case \language(present() /*start*/, nonterminal(Nonterminal n), Prod p) : 
         return < {prod(\start(sort("<n>")),[label("top", sort("<n>"))],{})
