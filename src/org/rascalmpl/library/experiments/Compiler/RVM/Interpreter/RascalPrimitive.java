@@ -3462,6 +3462,57 @@ public enum RascalPrimitive {
 					return sp - 1;
 				}
 			}
+			
+			if (!left.mayHaveKeywordParameters() && !right.mayHaveKeywordParameters()) {
+		    	if (left.asAnnotatable().hasAnnotations() || right.asAnnotatable().hasAnnotations()) {
+		    		// bail out 
+		    		stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+		    	}
+		    }
+		    
+		    if (!left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
+		    	stack[sp - 2] = Rascal_TRUE;
+				return sp - 1;
+		    }
+
+		    if (left.asWithKeywordParameters().hasParameters() && !right.asWithKeywordParameters().hasParameters()) {
+		    	stack[sp - 2] = Rascal_FALSE;
+				return sp - 1;
+		    }
+		    
+		    if (left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
+		    	Map<String, IValue> paramsLeft = left.asWithKeywordParameters().getParameters();
+		    	Map<String, IValue> paramsRight = right.asWithKeywordParameters().getParameters();
+		    	if (paramsLeft.size() < paramsRight.size()) {
+		    		stack[sp - 2] = Rascal_TRUE;
+					return sp - 1;
+		    	}
+		    	if (paramsLeft.size() > paramsRight.size()) {
+		    		stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+		    	}
+		    	if (paramsRight.keySet().containsAll(paramsLeft.keySet()) && !paramsRight.keySet().equals(paramsLeft.keySet())) {
+		    		stack[sp - 2] = Rascal_TRUE;
+					return sp - 1;
+		    	}
+		    	if (paramsLeft.keySet().containsAll(paramsLeft.keySet()) && !paramsRight.keySet().equals(paramsLeft.keySet())) {
+		    		stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+		    	}
+		    	//assert paramsLeft.keySet().equals(paramsRight.keySet());
+		    	for (String k: paramsLeft.keySet()) {
+		    		fakeStack[0] = paramsLeft.get(k);
+					fakeStack[1] = paramsRight.get(k);
+					less.execute(fakeStack, 2, 2, stacktrace);
+		    		
+					if(!((IBool)fakeStack[0]).getValue()){
+						stack[sp - 2] = Rascal_FALSE;
+						return sp - 1;
+					}
+		    	}
+		     }
+			
 			stack[sp - 2] = vf.bool((leftArity < rightArity) || ((IBool)fakeStack[0]).getValue());
 			return sp - 1;
 		}
