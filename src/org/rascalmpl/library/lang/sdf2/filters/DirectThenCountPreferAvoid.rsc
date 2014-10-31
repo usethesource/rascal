@@ -53,10 +53,10 @@ label alternatives.
   }
 }
 
-list[list[node]] getTags(list[Tree] ts) = [getTags(t) | t <- ts];
+list[list[value]] getTags(list[Tree] ts) = [getTags(t) | t <- ts];
 
-list[node] getTags(Tree t) {
-	list[node] result = [];
+list[value] getTags(Tree t) {
+	list[value] result = [];
 	todo = [t];
 	while (todo != []) {
 		todoCopy = todo;
