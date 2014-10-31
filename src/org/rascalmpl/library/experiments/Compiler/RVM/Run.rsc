@@ -13,7 +13,7 @@ import ParseTree;
 @reflect{Executes RVM programs}
 public java tuple[value,int] executeProgram(RVMProgram program,
 											map[str,Symbol] imported_types,
-                                            list[Declaration] imported_functions,
+                                            list[experiments::Compiler::RVM::AST::Declaration] imported_functions,
                                             lrel[str,list[str],list[str]] imported_overloaded_functions,
                                             map[str,int] imported_overloading_resolvers, 
 										    list[value] arguments, 
