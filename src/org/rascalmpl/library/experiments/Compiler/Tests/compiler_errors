@@ -1,0 +1,13 @@
+|rascal:///analysis/formalconcepts/CXTIO.rsc|
+|rascal:///experiments/Compiler/Benchmarks/BPatternMatchASTs.rsc|
+|rascal:///experiments/Compiler/Examples/QL/lang/qla/Plugin.rsc|
+|rascal:///experiments/Compiler/Examples/Tst3.rsc|
+|rascal:///experiments/Compiler/RVM/Tests.rsc|
+|rascal:///experiments/Compiler/muRascal/Load.rsc|
+|rascal:///experiments/Compiler/muRascal/Parse.rsc|
+|rascal:///experiments/Concept/FcaLattices.rsc|
+|rascal:///lang/java/m3/Core.rsc|
+|rascal:///lang/java/m3/TypeHierarchy.rsc|
+|rascal:///lang/rascal/grammar/definition/Layout.rsc|
+|rascal:///lang/rascal/syntax/tests/PreBootstrap.rsc|
+|rascal:///vis/examples/tetris/Tetris.rsc|
