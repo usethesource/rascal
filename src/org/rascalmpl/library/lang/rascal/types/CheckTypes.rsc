@@ -1371,19 +1371,15 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
             return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l);
         } 
     } else if (isNonTerminalType(t1)) {
-    	if (nonTerminalAllowsFields(t1)) {
-	        nonterminalName = RSimpleName(getNonTerminalName(t1));
-	        if (nonterminalName in c.typeEnv && c.store[c.typeEnv[nonterminalName]] is sorttype) {
-		        if (<c.typeEnv[nonterminalName],fAsString> notin c.nonterminalFields)
-		            return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
-		        else
-		            return c.nonterminalFields[<c.typeEnv[nonterminalName],fAsString>];
-		    } else {
-		    	return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l); 
-		    }  
-		} else {
-			return makeFailType("Non-terminal type <prettyPrintType(t1)> does not allow field access", l);
-		}
+        nonterminalName = RSimpleName(getNonTerminalName(t1));
+        if (nonterminalName in c.typeEnv && c.store[c.typeEnv[nonterminalName]] is sorttype) {
+	        if (<c.typeEnv[nonterminalName],fAsString> notin c.nonterminalFields)
+	            return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+	        else
+	            return c.nonterminalFields[<c.typeEnv[nonterminalName],fAsString>];
+	    } else {
+	    	return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l); 
+	    }  
     } else if (isTupleType(t1)) {
         if (tupleHasField(t1, fAsString))
             return getTupleFieldType(t1, fAsString);

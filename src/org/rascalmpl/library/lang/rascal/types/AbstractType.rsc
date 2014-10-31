@@ -758,18 +758,18 @@ public str getNonTerminalName(Symbol::\opt(Symbol ss)) = getNonTerminalName(ss);
 public str getNonTerminalName(Symbol::\conditional(Symbol ss,_)) = getNonTerminalName(ss);
 public default str getNonTerminalName(Symbol s) { throw "Invalid nonterminal passed to getNonTerminalName: <s>"; }
 
-@doc{Check to see if the type allows fields.}
-public bool nonTerminalAllowsFields(\alias(_,_,Symbol at)) = nonTerminalAllowsFields(at);
-public bool nonTerminalAllowsFields(\parameter(_,Symbol tvb)) = nonTerminalAllowsFields(tvb);
-public bool nonTerminalAllowsFields(\label(_,Symbol lt)) = nonTerminalAllowsFields(lt);
-public bool nonTerminalAllowsFields(Symbol::\start(Symbol ss)) = true;
-public bool nonTerminalAllowsFields(Symbol::\sort(str n)) = true;
-public bool nonTerminalAllowsFields(Symbol::\lex(str n)) = true;
-public bool nonTerminalAllowsFields(Symbol::\parameterized-sort(str n,_)) = true;
-public bool nonTerminalAllowsFields(Symbol::\parameterized-lex(str n,_)) = true;
-public bool nonTerminalAllowsFields(Symbol::\opt(Symbol ss)) = true;
-public bool nonTerminalAllowsFields(Symbol::\conditional(Symbol ss,_)) = nonTerminalAllowsFields(ss);
-public default bool nonTerminalAllowsFields(Symbol s) = false;
+//@doc{Check to see if the type allows fields.}
+//public bool nonTerminalAllowsFields(\alias(_,_,Symbol at)) = nonTerminalAllowsFields(at);
+//public bool nonTerminalAllowsFields(\parameter(_,Symbol tvb)) = nonTerminalAllowsFields(tvb);
+//public bool nonTerminalAllowsFields(\label(_,Symbol lt)) = nonTerminalAllowsFields(lt);
+//public bool nonTerminalAllowsFields(Symbol::\start(Symbol ss)) = true;
+//public bool nonTerminalAllowsFields(Symbol::\sort(str n)) = true;
+//public bool nonTerminalAllowsFields(Symbol::\lex(str n)) = true;
+//public bool nonTerminalAllowsFields(Symbol::\parameterized-sort(str n,_)) = true;
+//public bool nonTerminalAllowsFields(Symbol::\parameterized-lex(str n,_)) = true;
+//public bool nonTerminalAllowsFields(Symbol::\opt(Symbol ss)) = true;
+//public bool nonTerminalAllowsFields(Symbol::\conditional(Symbol ss,_)) = nonTerminalAllowsFields(ss);
+//public default bool nonTerminalAllowsFields(Symbol s) = false;
 
 @doc{Synopsis: Determine if the given type is a production.}
 public bool isProductionType(\alias(_,_,Symbol at)) = isProductionType(at);
