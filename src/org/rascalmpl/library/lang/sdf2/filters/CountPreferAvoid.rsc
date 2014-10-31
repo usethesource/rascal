@@ -12,11 +12,11 @@ label alternatives.
   alts = [*alternatives];
   counts = [( 0 | it + 1 | /appl(prod(_,_,{\tag("prefer"()),*_}),_) := alt) | alt <- alts];
   
-  new = [alts[i] | i <- index(alts), counts[i] == max(counts)];
+  new = [alts[i] | int i <- index(alts), counts[i] == max(counts)];
   
   counts = [( 0 | it + 1 | /appl(prod(_,_,{\tag("avoid"()),*_}),_) := alt) | alt <- new];
   
-  result = {new[i] | i <- index(new), counts[i] == min(counts)};
+  result = {new[i] | int i <- index(new), counts[i] == min(counts)};
   
   if (result == alternatives) {
     fail amb;
