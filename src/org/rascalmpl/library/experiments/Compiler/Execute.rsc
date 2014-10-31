@@ -27,7 +27,7 @@ public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/Libr
 
 public list[loc] defaultImports = [|rascal:///Exception.rsc|];
 
-list[Declaration] parseMuLibrary(loc bindir = |home:///bin|){
+list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |home:///bin|){
     println("rascal2rvm: Recompiling library <basename(MuLibrary)>.mu");
  	libModule = load(MuLibrary);
  	functions = [];
@@ -54,7 +54,7 @@ list[Declaration] parseMuLibrary(loc bindir = |home:///bin|){
 tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, 
 									bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
    map[str,Symbol] imported_types = ();
-   list[Declaration] imported_functions = [];
+   list[experiments::Compiler::RVM::AST::Declaration] imported_functions = [];
    lrel[str,list[str],list[str]] imported_overloaded_functions = [];
    map[str,int] imported_overloading_resolvers = ();
    
@@ -63,7 +63,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    
    if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
       try {
-  	       imported_functions = readTextValueFile(#list[Declaration], MuLibraryCompiled);
+  	       imported_functions = readTextValueFile(#list[experiments::Compiler::RVM::AST::Declaration], MuLibraryCompiled);
   	       // Temporary work around related to issue #343
   	       imported_functions = visit(imported_functions) { case type[value] t : { insert type(t.symbol,t.definitions); }}
   	       println("rascal2rvm: Using compiled library version <basename(MuLibraryCompiled)>.rvm");
@@ -124,7 +124,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    return <v, t>;
 }
 
-value execute(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
+value execute(experiments::Compiler::RVM::AST::RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
 	<v, t> = execute_and_time(rvmProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile);
 	return v;
 }

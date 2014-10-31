@@ -407,5 +407,10 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 	println("Compiler errors: <ncompiler>");
 	println("Time: <tosec(t1, realTime())> sec.");
 	
+	writeFile(|rascal:///experiments/Compiler/Tests/static_errors|, 
+	   "<for(f <- sort(toList(static_errors))){><f>\n<}>");
+	writeFile(|rascal:///experiments/Compiler/Tests/compiler_errors|, 
+	   "<for(f <- sort(toList(compiler_errors))){><f>\n<}>");
+	
 	return <static_errors, compiler_errors>;
 }
