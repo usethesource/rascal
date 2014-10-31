@@ -130,7 +130,7 @@ data Configuration = config(set[Message] messages,
                             bool importing
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
+public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -573,13 +573,13 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 		c.definitions = c.definitions + < itemId, l >;
 		c.globalSortMap[n] = itemId;
 
-		if(<itemId,"prod"> notin c.nonterminalFields) {
-			c.nonterminalFields[<itemId,"prod">] = makeADTType("Production");
-		}
-
-		if(<itemId,"args"> notin c.nonterminalFields) {
-			c.nonterminalFields[<itemId,"args">] = makeListType(makeADTType("Tree"));
-		}
+//		if(<itemId,"prod"> notin c.nonterminalFields) {
+//			c.nonterminalFields[<itemId,"prod">] = makeADTType("Production");
+//		}
+//
+//		if(<itemId,"args"> notin c.nonterminalFields) {
+//			c.nonterminalFields[<itemId,"args">] = makeListType(makeADTType("Tree"));
+//		}
 		
 		return itemId;
 	}

@@ -6499,10 +6499,10 @@ public Configuration startModuleImport(Configuration c, RSignature sig, RName mo
 	return c;
 }
 
-public Configuration loadConfigurationAndReset(Configuration c, Configuration d, RName mName, set[RName] toImport) {
+public Configuration loadConfigurationAndReset(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
 	cOrig = c;
 
-	c = loadConfiguration(c, d, mName, toImport);
+	c = loadConfiguration(c, d, mName, toImport, allImports);
 	
 	c.labelEnv = cOrig.labelEnv; 
 	c.fcvEnv = cOrig.fcvEnv; 
@@ -6514,10 +6514,14 @@ public Configuration loadConfigurationAndReset(Configuration c, Configuration d,
 }
 
 @doc{Copy top-level information on module mName from d to c}
-public Configuration loadConfiguration(Configuration c, Configuration d, RName mName, set[RName] toImport) {
+public Configuration loadConfiguration(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
 	// Add module mName into the configuration
 	mRec = d.store[d.modEnv[mName]];
-	c = addModule(c, mName, mRec.at);
+	if (mName notin c.modEnv) {
+		c = addModule(c, mName, mRec.at);
+	} else {
+		c.stack = c.modEnv[mName] + c.stack;
+	}
 	mId = c.modEnv[mName];
 	
 	map[int,int] containerMap = ( d.modEnv[mName] : mId );
@@ -6679,6 +6683,13 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	
 	minfo = modInfo(mName, c.labelEnv, c.fcvEnv, c.typeEnv, c.annotationEnv, c.tagEnv);
 	c.moduleInfo[mName] = minfo;
+	
+	// Add any of the modules that this information depends upon but that are not yet loaded
+	for (mn <- toImport - allImports, mn in d.modEnv) {
+		mRec = d.store[d.modEnv[mn]];
+		c = addModule(c, mn, mRec.at);
+		c = popModule(c);
+	}
 	
 	return c;
 }
@@ -7313,12 +7324,9 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	
 	// Using the checked type information, load in the info for each module
 	for (wl <- allImports, wl notin notImported) {
-		c = loadConfigurationAndReset(c, checkedModules[wl], wl, importFrom[wl]);
+		c = loadConfigurationAndReset(c, checkedModules[wl], wl, importFrom[wl], allImports - notImported);
 	}
-	
-	// Compute the IDs that could be brought in by each import
-	//importFromIds = ( dmn : { } | dmn <- importFrom<0> );
-	
+		
 	// Process the current module. We start by merging in everything from the modules we are
 	// extending to give an initial "seed" for our environment. We will just use the standard
 	// add functions for this.
