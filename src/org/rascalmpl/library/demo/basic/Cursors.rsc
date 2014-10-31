@@ -1,6 +1,6 @@
 module demo::basic::Cursors
 
-import util::Cursors;
+import util::Cursor;
 import IO;
 
 

@@ -1,10 +1,10 @@
 module experiments::Compiler::muRascal::Examples::Fib
 
-import Prelude;
-import experiments::Compiler::muRascal::AST;
-import experiments::Compiler::RVM::AST;
-import experiments::Compiler::RVM::Run;
-import experiments::Compiler::muRascal2RVM::mu2rvm;
+//import Prelude;
+//import experiments::Compiler::muRascal::AST;
+//import experiments::Compiler::RVM::AST;
+//import experiments::Compiler::RVM::Run;
+//import experiments::Compiler::muRascal2RVM::mu2rvm;
 
 /* OUTDATED muRascal constructors */
 
