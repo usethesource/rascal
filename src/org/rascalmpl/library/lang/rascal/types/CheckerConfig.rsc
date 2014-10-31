@@ -20,8 +20,6 @@ import util::Reflective;
 import DateTime;
 import String;
 import Exception;
-import List;
-import Type;
 
 import lang::rascal::checker::ListUtils;
 import lang::rascal::checker::TreeUtils;
@@ -574,6 +572,15 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 		c.store[itemId] = sorttype(n,sort,moduleId,{ l });
 		c.definitions = c.definitions + < itemId, l >;
 		c.globalSortMap[n] = itemId;
+
+		if(<itemId,"prod"> notin c.nonterminalFields) {
+			c.nonterminalFields[<itemId,"prod">] = makeADTType("Production");
+		}
+
+		if(<itemId,"args"> notin c.nonterminalFields) {
+			c.nonterminalFields[<itemId,"args">] = makeListType(makeADTType("Tree"));
+		}
+		
 		return itemId;
 	}
 
