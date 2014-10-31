@@ -1,12 +1,12 @@
 module experiments::Compiler::muRascal::Examples::Fac
 
-import Prelude;
-import util::Benchmark;
-
-import  experiments::Compiler::muRascal::AST;
-import experiments::Compiler::RVM::AST;
-import experiments::Compiler::RVM::Run;
-import experiments::Compiler::muRascal2RVM::mu2rvm;
+//import Prelude;
+//import util::Benchmark;
+//
+//import  experiments::Compiler::muRascal::AST;
+//import experiments::Compiler::RVM::AST;
+//import experiments::Compiler::RVM::Run;
+//import experiments::Compiler::muRascal2RVM::mu2rvm;
 
 /* OUTDATED muRascal constructors */
 
