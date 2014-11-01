@@ -468,7 +468,7 @@ public Configuration addImportedAnnotation(Configuration c, RName n, int annId) 
 		} else {
 			// This annotation has been declared before on at least one comparable type.
 			for (< ct, mId > <- onComparableTypes, !equivalent(c.store[mId].rtype,c.store[ct].rtype)) {
-				c = addScopeError(c, "Import of annotation <prettyPrintName(n)> in module <prettyPrintName(c.store[c.store[annId].containedIn].name)> conflicts with existing annotation in module <prettyPrintName(c.store[c.store[ct].containedIn].name)>", c.store[mid].at);
+				c = addScopeError(c, "Import of annotation <prettyPrintName(n)> in module <prettyPrintName(c.store[c.store[annId].containedIn].name)> conflicts with existing annotation in module <prettyPrintName(c.store[c.store[ct].containedIn].name)>", c.store[mId].at);
 			}
 		}
 	}
@@ -1344,7 +1344,7 @@ public Configuration addTag(Configuration c, TagKind tk, RName n, set[Symbol] on
         currentVal = c.store[c.tagEnv[n]];
         if (tk != currentVal.tkind) throw "Cannot add tag with same name but different kind into environment!";
         c.store[c.tagEnv[n]].onTypes = c.store[c.tagEnv[n]].onTypes + onTypes;
-        c.definitions[c.tagEnv[n]] = c.definitions + < c.tagEnv[n], l >; 
+        c.definitions = c.definitions + < c.tagEnv[n], l >; 
     } else {
         c.tagEnv[n] = c.nextLoc;
         c.store[c.nextLoc] = \tag(n, tk, onTypes, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
