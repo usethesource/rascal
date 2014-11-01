@@ -94,7 +94,6 @@
 |rascal:///lang/jvm/ast/Level1.rsc|
 |rascal:///lang/kodkod/AST.rsc|
 |rascal:///lang/rascal/checker/ListUtils.rsc|
-|rascal:///lang/rascal/checker/TTL/PatternGenerator.rsc|
 |rascal:///lang/rascal/checker/TTL/TTLGen.rsc|
 |rascal:///lang/rascal/checker/tests/Life.rsc|
 |rascal:///lang/rascal/grammar/Bootstrap.rsc|
@@ -147,7 +146,6 @@
 |rascal:///lang/uri/syntax/RFC3986.rsc|
 |rascal:///resource/jdbc/JDBC.rsc|
 |rascal:///util/Brackets.rsc|
-|rascal:///util/PriorityQueue.rsc|
 |rascal:///util/integration/maude/RLSRunner.rsc|
 |rascal:///util/tasks/Vis.rsc|
 |rascal:///vis/examples/Graph.rsc|

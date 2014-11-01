@@ -91,15 +91,15 @@ str toSymbolAsStr(ExtendedType t){
   if( t is valueType) return  "Symbol::\\value()";
   if( t is locType) return  "Symbol::\\loc()";
   if( t is datetimeType) return  "Symbol::\\datetime()";
-  if(t is listType) return "Symbol::\\list(<toSymbolAsStr(t.elemType)>)";
-  if(t is setType) return "Symbol::\\set(<toSymbolAsStr(t.elemType)>)";
-  if(t is mapType) return "Symbol::\\map(<toSymbolAsStr(t.keyType)>,<toSymbolAsStr(t.valType)>)";
-  if(t is tupleType) return "Symbol::\\tuple([<intercalate(",", [toSymbolAsStr(e) | e <- t.elemTypes])>])";
-  if(t is relType) return "Symbol::\\rel([<intercalate(",", [toSymbolAsStr(e) | e <- t.elemTypes])>])";
-  if(t is lrelType) return "Symbol::\\lrel([<intercalate(",", [toSymbolAsStr(e) | e <- t.elemTypes])>])";
-  if(t is lubType) return "\\LUB(<toSymbolAsStr(t.left)>,<toSymbolAsStr(t.right)>)";
-  if(t is typeVar) return "Symbol::\\parameter(\"<t.name>\", Symbol::\\value())";
-  if(t is typeVarBounded) return "Symbol::\\parameter(\"<t.name>\", <toSymbolAsStr(t.bound)>)";
+  if( t is listType) return "Symbol::\\list(<toSymbolAsStr(t.elemType)>)";
+  if( t is setType) return "Symbol::\\set(<toSymbolAsStr(t.elemType)>)";
+  if( t is mapType) return "Symbol::\\map(<toSymbolAsStr(t.keyType)>,<toSymbolAsStr(t.valType)>)";
+  if( t is tupleType) return "Symbol::\\tuple([<intercalate(",", [toSymbolAsStr(e) | e <- t.elemTypes])>])";
+  if( t is relType) return "Symbol::\\rel([<intercalate(",", [toSymbolAsStr(e) | e <- t.elemTypes])>])";
+  if( t is lrelType) return "Symbol::\\lrel([<intercalate(",", [toSymbolAsStr(e) | e <- t.elemTypes])>])";
+  if( t is lubType) return "\\LUB(<toSymbolAsStr(t.left)>,<toSymbolAsStr(t.right)>)";
+  if( t is typeVar) return "Symbol::\\parameter(\"<t.name>\", Symbol::\\value())";
+  if( t is typeVarBounded) return "Symbol::\\parameter(\"<t.name>\", <toSymbolAsStr(t.bound)>)";
   throw "unexpected case in toSymbolAsStr";
 }
 
@@ -115,15 +115,15 @@ Symbol toSymbol(ExtendedType t){
   if( t is valueType) return  Symbol::\value();
   if( t is locType) return  Symbol::\loc();
   if( t is datetimeType) return  Symbol::\datetime();
-  if(t is listType) return Symbol::\list(toSymbol(t.elemType));
-  if(t is setType) return Symbol::\set(toSymbol(t.elemType));
-  if(t is mapType) return Symbol::\map(toSymbol(t.keyType),toSymbol(t.valType));
-  if(t is tupleType) return Symbol::\tuple([toSymbol(e) | e <- t.elemTypes]);
-  if(t is relType) return Symbol::\rel([toSymbol(e) | e <- t.elemTypes]);
-  if(t is lrelType) return Symbol::\lrel([toSymbol(e) | e <- t.elemTypes]);
-  if(t is lubType) return \LUB(toSymbol(t.left),toSymbol(t.right));
-  if(t is typeVar) return Symbol::\parameter("<t.name>", Symbol::\value());
-  if(t is typeVarBounded) return Symbol::\parameter("<t.name>", toSymbol(t.bound));
+  if( t is listType) return Symbol::\list(toSymbol(t.elemType));
+  if( t is setType) return Symbol::\set(toSymbol(t.elemType));
+  if( t is mapType) return Symbol::\map(toSymbol(t.keyType),toSymbol(t.valType));
+  if( t is tupleType) return Symbol::\tuple([toSymbol(e) | e <- t.elemTypes]);
+  if( t is relType) return Symbol::\rel([toSymbol(e) | e <- t.elemTypes]);
+  if( t is lrelType) return Symbol::\lrel([toSymbol(e) | e <- t.elemTypes]);
+  if( t is lubType) return \LUB(toSymbol(t.left),toSymbol(t.right));
+  if( t is typeVar) return Symbol::\parameter("<t.name>", Symbol::\value());
+  if( t is typeVarBounded) return Symbol::\parameter("<t.name>", toSymbol(t.bound));
   throw "unexpected case in toSymbol";
 }
 
