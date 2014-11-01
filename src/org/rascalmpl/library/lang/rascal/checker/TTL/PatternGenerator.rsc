@@ -132,7 +132,7 @@ public PV generateValue(type[&T] t, int nvars, VarEnv env, bool allowVars){
      throw "Unknown type: <t>";
 }
 
-public PV generatePrimitive(value v, nvars, env) = <str _ := v ? "<escape(v)>" : "<v>", v, nvars, env>;
+public PV generatePrimitive(value v, int nvars, VarEnv env) = <str _ := v ? "<escape(v)>" : "<v>", v, nvars, env>;
      
 public num arbNumber(){
    return (arbBool()) ? arbInt() : arbReal();
@@ -186,7 +186,7 @@ public PV arbList(type[&T] et, int nvars, VarEnv env, bool allowVars){
    return <"[<intercalate(", ", pelms)>]", velms, nvars, env>;
 }
 
-public PV arbSet(type[&T] et, int nvars, VarEnv env, allowVars){
+public PV arbSet(type[&T] et, int nvars, VarEnv env, bool allowVars){
    if(isVoidType(et.symbol))
       return <"{}", {}, nvars, env>;
    n = arbInt(0, 5);
