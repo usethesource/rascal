@@ -1,7 +1,6 @@
 |rascal:///analysis/formalconcepts/FCA.rsc|
 |rascal:///analysis/linearprogramming/LinearProgramming.rsc|
 |rascal:///demo/Mod17.rsc|
-|rascal:///demo/basic/Cursors.rsc|
 |rascal:///demo/lang/Exp/Combined/Manual/Eval.rsc|
 |rascal:///demo/lang/Exp/Combined/Manual/Load.rsc|
 |rascal:///demo/lang/Func/Test.rsc|
@@ -23,14 +22,13 @@
 |rascal:///experiments/Compiler/Benchmarks/Run.rsc|
 |rascal:///experiments/Compiler/Benchmarks/SudokuEq.rsc|
 |rascal:///experiments/Compiler/Compile.rsc|
-|rascal:///experiments/Compiler/Examples/IfDefinedOtherwise.rsc|
-|rascal:///experiments/Compiler/Examples/IsDefined.rsc|
 |rascal:///experiments/Compiler/Examples/QL/lang/qla/FormatExpr.rsc|
 |rascal:///experiments/Compiler/Examples/QL/lang/qla/Outline.rsc|
 |rascal:///experiments/Compiler/Examples/QL/util/Explode.rsc|
 |rascal:///experiments/Compiler/Examples/QL/util/Priorities.rsc|
 |rascal:///experiments/Compiler/Examples/QL/util/SimpleBox.rsc|
 |rascal:///experiments/Compiler/Examples/Run.rsc|
+|rascal:///experiments/Compiler/Examples/Tst.rsc|
 |rascal:///experiments/Compiler/Examples/Tst2.rsc|
 |rascal:///experiments/Compiler/Examples/Tst5.rsc|
 |rascal:///experiments/Compiler/Execute.rsc|
@@ -40,7 +38,6 @@
 |rascal:///experiments/Compiler/Rascal2muRascal/RascalStatement.rsc|
 |rascal:///experiments/Compiler/Rascal2muRascal/RascalType.rsc|
 |rascal:///experiments/Compiler/Rascal2muRascal/Run.rsc|
-|rascal:///experiments/Compiler/Rascal2muRascal/TmpAndLabel.rsc|
 |rascal:///experiments/Compiler/Rascal2muRascal/TypeReifier.rsc|
 |rascal:///experiments/Compiler/Rascal2muRascal/TypeUtils.rsc|
 |rascal:///experiments/Compiler/ReductionWithEvalCtx/EvalCtx.rsc|
@@ -65,7 +62,6 @@
 |rascal:///experiments/Compiler/Tests/Types.rsc|
 |rascal:///experiments/Compiler/muRascal/Implode.rsc|
 |rascal:///experiments/Compiler/muRascal/MuAllMuOr.rsc|
-|rascal:///experiments/Compiler/muRascal/Run.rsc|
 |rascal:///experiments/Compiler/muRascal2RVM/ObsoleteReifiedTypes.rsc|
 |rascal:///experiments/Compiler/muRascal2RVM/mu2rvm.rsc|
 |rascal:///experiments/Concept/DotVis.rsc|
@@ -138,15 +134,13 @@
 |rascal:///lang/rascal/tests/types/StaticTestingUtils.rsc|
 |rascal:///lang/rascal/tests/types/SubscriptTCTests.rsc|
 |rascal:///lang/rascal/tests/types/VisitTCTests.rsc|
-|rascal:///lang/rascal/types/AbstractType.rsc|
 |rascal:///lang/rascal/types/CheckModule.rsc|
 |rascal:///lang/rascal/types/CheckTypes.rsc|
 |rascal:///lang/rascal/types/CheckerConfig.rsc|
 |rascal:///lang/rascal/types/ConvertType.rsc|
 |rascal:///lang/rascal/types/TestChecker.rsc|
-|rascal:///lang/rascal/types/TypeExceptions.rsc|
-|rascal:///lang/rascal/types/TypeInstantiation.rsc|
 |rascal:///lang/rascal/types/TypeSignature.rsc|
+|rascal:///lang/rascal/types/Util.rsc|
 |rascal:///lang/rascal/upgrade/UpdateNestedListAndSetPatterns.rsc|
 |rascal:///lang/rascal/upgrade/UpgradePostfixStarAndPlusToPrefix.rsc|
 |rascal:///lang/saf/Render.rsc|
