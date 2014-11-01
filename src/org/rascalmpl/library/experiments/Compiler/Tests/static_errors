@@ -94,13 +94,8 @@
 |rascal:///lang/jvm/ast/Level1.rsc|
 |rascal:///lang/kodkod/AST.rsc|
 |rascal:///lang/rascal/checker/ListUtils.rsc|
-|rascal:///lang/rascal/checker/TTL/ExpressionGenerator.rsc|
-|rascal:///lang/rascal/checker/TTL/Library.rsc|
 |rascal:///lang/rascal/checker/TTL/PatternGenerator.rsc|
 |rascal:///lang/rascal/checker/TTL/TTLGen.rsc|
-|rascal:///lang/rascal/checker/TTL/TTLsyntax.rsc|
-|rascal:///lang/rascal/checker/TTL/generated/Expressions.rsc|
-|rascal:///lang/rascal/checker/TTL/generated/Signatures.rsc|
 |rascal:///lang/rascal/checker/tests/Life.rsc|
 |rascal:///lang/rascal/grammar/Bootstrap.rsc|
 |rascal:///lang/rascal/grammar/ConcreteSyntax.rsc|
