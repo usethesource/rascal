@@ -8,6 +8,7 @@ import List;
 import lang::rascal::checker::TTL::Library;
 import lang::rascal::checker::TTL::PatternGenerator;
 import lang::rascal::checker::TTL::ExpressionGenerator;
+import ParseTree;
 
 private int tcnt = 0;
 
@@ -45,15 +46,15 @@ void generate(loc src){
    map[Name, Module] modules = ();
    str tests = "";
    for(TestItem item <- spec.items){
-       if(defMod(name, moduleText) := item){// Was: item is defMod){
-       	     if(decls[name]?) throw "Ambiguous name <name> at <item@\loc>";
-       	     if(modules[name]?) throw "Redeclared module name <name> at <item@\loc>";
-             modules[name] = item.moduleText;
-             writeFile(TTLRoot + "generated/<item.name>.rsc", addModulePrefix(item.moduleText)); // TODO: Imports from different ttl files could conflict
-       } else if(defDecl(name, declaration) := item){
-       		if(modules[name]?) throw "Ambiguous name <name> at <item@\loc>";
-       	     if(decls[name]?) throw "Redeclared declaration name <name> at <item@\loc>";
-             decls[name] = declaration;
+       if(defMod(nm, moduleText) := item){// Was: item is defMod){
+       	     if(decls[nm]?) throw "Ambiguous name <nm> at <item@\loc>";
+       	     if(modules[nm]?) throw "Redeclared module name <nm> at <item@\loc>";
+             modules[nm] = item.moduleText;
+             writeFile(TTLRoot + "generated/<item.namr>.rsc", addModulePrefix(item.moduleText)); // TODO: Imports from different ttl files could conflict
+       } else if(defDecl(nm, declaration) := item){
+       		if(modules[nm]?) throw "Ambiguous name <nm> at <item@\loc>";
+       	     if(decls[nm]?) throw "Redeclared declaration name <nm> at <item@\loc>";
+             decls[nm] = declaration;
        } else if(item is GeneralTest){
           tests += genGeneralTest(item, decls, modules);
        } else if(item is InfixTest){
@@ -98,18 +99,18 @@ str genGeneralTest(TestItem item,  map[Name, Declaration] declarations,  map[Nam
   vtypes = "[" + intercalate(", ", [ "type(typeOf(arg<i>), ())" | i <- [0 .. nargs]]) + "]";
   
   <imports, decls> = expandUsedNames(getUsedNames(item.use), declarations, modules);
-  <inferred, messages, exception> = getExpectations([e | e <- item.expectations]);
+  <inferred_type, messages, expected_exception> = getExpectations([e | e <- item.expectations]);
  
   escapedChars =  ("\"" : "\\\"", "\\" : "\\\\");
   decls = [escape(d, escapedChars) | d <- decls];
   code = escape("<item.statements>", escapedChars);
 
   if(!isEmpty(exception))
-  	exception = "@expect{<exception>}";
+  	expected_exception = "@expect{<exception>}";
   	
   inferredChecks = "";
-  for(<var, tp> <- inferred){
-    v = "<var>";
+  for(<var, tp> <- inferred_type){
+    str v = "<var>";
     if(v[0] == "_") v = v[1..];
     if(nargs > 0 && "<tp>"[1] == "T"){  // _T<i>
        i = toInt("<tp>"[2]);
@@ -141,7 +142,7 @@ str genGeneralTest(TestItem item,  map[Name, Declaration] declarations,  map[Nam
  
   
   return "
-  		 '/* <item> */ <exception>
+  		 '/* <item> */ <expected_exception>
   		 'test bool <tname>(<args>){
   		 '  vtypes = <vtypes>; 
   		 '  venv = ( );
@@ -175,25 +176,25 @@ tuple[list[str],list[str]] expandUsedNames(list[Name] names, map[Name, Declarati
 }
 
 tuple[lrel[Name,Type],list[RegExpLiteral],str] getExpectations(list[Expect] expect){
-  inferred = [];
+  inferred_type = [];
   list[RegExpLiteral] message = [];
-  exception = "";
+  expected_exception = "";
   for(e <- expect){
       if(e is inferred){
          inferred += <e.name, e.expectedType>;
       } else if (e is message){
       	 message += e.regexp;
       } else {
-        exception = "<e.name>";
+        expected_exception = "<e.name>";
       }
    }
-   return <inferred, message, exception>;
+   return <inferred_type, message, expected_exception>;
 }
 
 str genCondition(sig){
     typeCondition = "\n";
     if(nonempty(name, typeName) := sig.condition){//sig has condition && sig.condition is nonempty){
-       tname = "<typeName>";
+       str tname = "<typeName>";
        tname = toUpperCase(tname[0]) + tname[1..];
 	   typeCondition = "if(is<tname>Type(bindings[\"<name>\"])) return true;\n";
     }
@@ -214,7 +215,7 @@ str genInfixTest(TestItem item){
   tests = "";
   for(operator <- item.operators){
 	  operatorName = "<operator>"[1..-1]; 
-	  for(sig <- item.signatures){
+	  for(sig <- item.bin_signatures){
 	     typeCondition = "";
 	     if(sig.condition is condition){
 	        tname = "<sig.condition.typeName>";
@@ -253,8 +254,8 @@ str genUnaryTest(TestItem item, bool prefix){
   tests = "";
   for(operator <- item.operators){
 	  operatorName = "<operator>"[1..-1]; 
-	  for(sig <- item.signatures){
-	     expression = prefix ? "\"<operatorName> (\<escape(arg1)\>);\"" : "\"(\<escape(arg1)\>) <operatorName>;\"";
+	  for(sig <- item.un_signatures){
+	     expr = prefix ? "\"<operatorName> (\<escape(arg1)\>);\"" : "\"(\<escape(arg1)\>) <operatorName>;\"";
 	     tname = "<basename(item)><genSym()>";
 	     tests += "// Testing <prefix ? "prefix" : "postfix"> <item.name> <operatorName> for <sig>
 	     		  'test bool <tname>(<sig.left> arg1){ 
@@ -264,11 +265,11 @@ str genUnaryTest(TestItem item, bool prefix){
 	     		  '  <genArgument(sig.left, "l")>
 				  '  if(lmatches){
 				  '     <genCondition(sig)>
-				  '     if(verbose) println(\"[<tname>] exp: \" + <expression>);
-				  '	    checkResult = checkStatementsString(<expression>, importedModules=[], initialDecls = []); // apply the operator to its arguments
+				  '     if(verbose) println(\"[<tname>] exp: \" + <expr>);
+				  '	    checkResult = checkStatementsString(<expr>, importedModules=[], initialDecls = []); // apply the operator to its arguments
 	              '     actualType = checkResult.res; 
 	              '     expectedType = normalize(<toSymbolAsStr(sig.result)>, lbindings);
-	              '     return validate(\"<tname>\", <expression>, actualType, expectedType, arg1, <escape("signature <sig>")>);
+	              '     return validate(\"<tname>\", <expr>, actualType, expectedType, arg1, <escape("signature <sig>")>);
 	              '  }
 	              '  return false;
 	              '}\n";
