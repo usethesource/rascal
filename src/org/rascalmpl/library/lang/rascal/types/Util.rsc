@@ -11,8 +11,8 @@
 module lang::rascal::types::Util
 
 import lang::rascal::types::AbstractName;
+import lang::rascal::types::AbstractType;
 import lang::rascal::\syntax::Rascal;
-import ParseTree;
 
 public rel[RName,loc] getIntroducedNames((Assignable)`( <Assignable a> )`) = getIntroducedNames(a);
 public rel[RName,loc] getIntroducedNames((Assignable)`<QualifiedName qn>`) = { < convertName(qn), qn@\loc > };
@@ -63,8 +63,11 @@ public rel[RName,loc] regExpPatternNames(RegExpLiteral rl) {
     rel[RName,loc] names = { };
         
     top-down visit(rl) {
-        case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_,_,_],_),list[Tree] prds) : 
-        	names += < convertName(prds[1]), prds[1]@\loc >;
+        case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_,_,_],_),list[Tree] prds) : {
+        	if (Name regExpVarName := prds[1]) { 
+        		names += < convertName(regExpVarName), prds[1]@\loc >;
+        	}
+        }
     }
     
     return names;
