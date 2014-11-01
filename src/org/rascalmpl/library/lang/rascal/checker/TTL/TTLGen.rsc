@@ -23,7 +23,7 @@ list[TestItem] postfix = [];
 void main() { 
   tcnt = 0;
   infix = prefix = postfix = [];
-  for(ttl <- (TTLRoot + "specs").ls, ttl.extension == TTL)
+  for(loc ttl <- (TTLRoot + "specs").ls, ttl.extension == TTL)
       generate(ttl); 
   generateSignatures(infix, prefix, postfix);
 }
@@ -46,15 +46,15 @@ void generate(loc src){
    map[Name, Module] modules = ();
    str tests = "";
    for(TestItem item <- spec.items){
-       if(defMod(nm, moduleText) := item){// Was: item is defMod){
+       if(defMod(Name nm, Module moduleText) := item){// Was: item is defMod){
        	     if(decls[nm]?) throw "Ambiguous name <nm> at <item@\loc>";
        	     if(modules[nm]?) throw "Redeclared module name <nm> at <item@\loc>";
              modules[nm] = item.moduleText;
-             writeFile(TTLRoot + "generated/<item.namr>.rsc", addModulePrefix(item.moduleText)); // TODO: Imports from different ttl files could conflict
-       } else if(defDecl(nm, declaration) := item){
-       		if(modules[nm]?) throw "Ambiguous name <nm> at <item@\loc>";
-       	     if(decls[nm]?) throw "Redeclared declaration name <nm> at <item@\loc>";
-             decls[nm] = declaration;
+             writeFile(TTLRoot + "generated/<item.name>.rsc", addModulePrefix(item.moduleText)); // TODO: Imports from different ttl files could conflict
+       } else if(defDecl(Name nm2, Declaration declaration) := item){
+       		if(modules[nm2]?) throw "Ambiguous name <nm2> at <item@\loc>";
+       	     if(decls[nm2]?) throw "Redeclared declaration name <nm2> at <item@\loc>";
+             decls[nm2] = declaration;
        } else if(item is GeneralTest){
           tests += genGeneralTest(item, decls, modules);
        } else if(item is InfixTest){
@@ -105,8 +105,8 @@ str genGeneralTest(TestItem item,  map[Name, Declaration] declarations,  map[Nam
   decls = [escape(d, escapedChars) | d <- decls];
   code = escape("<item.statements>", escapedChars);
 
-  if(!isEmpty(exception))
-  	expected_exception = "@expect{<exception>}";
+  if(!isEmpty(expected_exception))
+  	expected_exception = "@expect{<expected_exception>}";
   	
   inferredChecks = "";
   for(<var, tp> <- inferred_type){
@@ -158,13 +158,13 @@ str genGeneralTest(TestItem item,  map[Name, Declaration] declarations,  map[Nam
 }
 
 list[Name] getUsedNames(Use u){
-    return (u is use) ? [name | name <- u.names] : [];
+    return (u is use) ? [name | Name name <- u.names] : [];
 }
 
 tuple[list[str],list[str]] expandUsedNames(list[Name] names, map[Name, Declaration] declarations,  map[Name, Module] modules){
     imports = [];
     decls = [];
-    for(name <- names){
+    for(Name name <- names){
       if(modules[name]?)
          imports += "<modulePrefix>::<name>";
       else if(declarations[name]?)
@@ -176,12 +176,12 @@ tuple[list[str],list[str]] expandUsedNames(list[Name] names, map[Name, Declarati
 }
 
 tuple[lrel[Name,Type],list[RegExpLiteral],str] getExpectations(list[Expect] expect){
-  inferred_type = [];
+  lrel[Name, Type] inferred_type = [];
   list[RegExpLiteral] message = [];
   expected_exception = "";
-  for(e <- expect){
+  for(Expect e <- expect){
       if(e is inferred){
-         inferred += <e.name, e.expectedType>;
+         inferred_type += <e.name, toSymbol(e.expectedType)>;
       } else if (e is message){
       	 message += e.regexp;
       } else {
@@ -191,9 +191,9 @@ tuple[lrel[Name,Type],list[RegExpLiteral],str] getExpectations(list[Expect] expe
    return <inferred_type, message, expected_exception>;
 }
 
-str genCondition(sig){
+str genCondition(Condition cond){
     typeCondition = "\n";
-    if(nonempty(name, typeName) := sig.condition){//sig has condition && sig.condition is nonempty){
+    if(nonempty(Name name, typeName) := cond){
        str tname = "<typeName>";
        tname = toUpperCase(tname[0]) + tname[1..];
 	   typeCondition = "if(is<tname>Type(bindings[\"<name>\"])) return true;\n";
@@ -234,7 +234,7 @@ str genInfixTest(TestItem item){
 	       		  '  <genArgument(sig.right, "r")>
 				  '  if(lmatches && rmatches){
 	              '     bindings = merge(lbindings, rbindings); 
-	              '     <genCondition(sig)>
+	              '     <genCondition(sig.condition)>
 	              '     expression = \"(\<escape(arg1)\>) <operatorName> (\<escape(arg2)\>);\";
 	              '     if(verbose) println(\"[<tname>] exp: \<expression\>\");
 	              '     checkResult = checkStatementsString(expression, importedModules=[], initialDecls = []); // apply the operator to its arguments
@@ -264,7 +264,7 @@ str genUnaryTest(TestItem item, bool prefix){
 	              '		return true;
 	     		  '  <genArgument(sig.left, "l")>
 				  '  if(lmatches){
-				  '     <genCondition(sig)>
+				  '     <genCondition(sig.condition)>
 				  '     if(verbose) println(\"[<tname>] exp: \" + <expr>);
 				  '	    checkResult = checkStatementsString(<expr>, importedModules=[], initialDecls = []); // apply the operator to its arguments
 	              '     actualType = checkResult.res; 
