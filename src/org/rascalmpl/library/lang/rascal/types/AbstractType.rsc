@@ -739,6 +739,14 @@ public bool isStartNonTerminalType(\label(_,Symbol lt)) = isNonTerminalType(lt);
 public bool isStartNonTerminalType(Symbol::\start(_)) = true;
 public default bool isStartNonTerminalType(Symbol _) = false;    
 
+public Symbol getStartNonTerminalType(\alias(_,_,Symbol at)) = isNonTerminalType(at);
+public Symbol getStartNonTerminalType(\parameter(_,Symbol tvb)) = isNonTerminalType(tvb);
+public Symbol getStartNonTerminalType(\label(_,Symbol lt)) = isNonTerminalType(lt);
+public Symbol getStartNonTerminalType(Symbol::\start(Symbol s)) = s;
+public default Symbol getStartNonTerminalType(Symbol s) {
+	throw "<prettyPrintType(s)> is not a start non-terminal type";
+}
+
 @doc{Get the name of the nonterminal.}
 public str getNonTerminalName(\alias(_,_,Symbol at)) = getNonTerminalName(at);
 public str getNonTerminalName(\parameter(_,Symbol tvb)) = getNonTerminalName(tvb);
