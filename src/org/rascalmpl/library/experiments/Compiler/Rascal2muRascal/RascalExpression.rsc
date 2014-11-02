@@ -145,12 +145,12 @@ MuExp translateComposeFunction(Expression e){
             throw "cannot handle composition/overloading for different arities";
          }
      }
-     comp_ftype = Symbol::func(Symbol::\value(), [Symbol::\value() | int i <- [0 .. nargs]]);
+     comp_ftype = Symbol::func(Symbol::\value(), [Symbol::\value() | int j <- [0 .. nargs]]);
   }
     
   enterFunctionScope(comp_fuid);
   kwargs = muCallMuPrim("make_mmap", []);
-  rhsCall = muOCall(rhsReceiver, \tuple([rhsType]), [muVar("parameter_<i>", comp_fuid, i) | int i <- [0 .. nargs]] + [ kwargs ], e.rhs@\loc);
+  rhsCall = muOCall(rhsReceiver, \tuple([rhsType]), [muVar("parameter_<i>", comp_fuid, j) | int j <- [0 .. nargs]] + [ kwargs ], e.rhs@\loc);
   body_exps =  [muReturn(muOCall(lhsReceiver, \tuple([lhsType]), [rhsCall, kwargs ], e.lhs@\loc))];
    
   leaveFunctionScope();
@@ -602,7 +602,7 @@ MuExp translateConcreteParsed(e: appl(Production prod, list[Tree] args)){
        translated_elems = muCallPrim("list_create", [translateConcreteParsed(arg) | Tree arg <- args], |unknown:///|);
     }
     return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
-                   [muCon(prod), translated_elems, muTypeCon(\void())]);
+                   [muCon(prod), translated_elems, muTypeCon(Symbol::\void())]);
 }
 
 bool isConcreteListVar(e: appl(Production prod, list[Tree] args)){
@@ -938,8 +938,8 @@ MuExp translateVisitCases(list[Case] cases, str fuid, Symbol subjectType) {
         	return exp;
 		} else {
 			// Arbitrary
-			statement = c.patternWithAction.statement;
-			\case = translate(statement);
+			case_statement = c.patternWithAction.statement;
+			\case = translate(case_statement);
 			insertType = topCaseType();
 			clearCaseType();
 			tcond = muCallPrim("subtype", [ muTypeCon(insertType), muCallPrim("typeOf", [ muVar("iSubject",fuid,iSubjectPos) ]) ]);

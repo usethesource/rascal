@@ -78,7 +78,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    
    // Recompile the default imports, if necessary
    
-   for(def <- defaultImports){
+   for(loc def <- defaultImports){
        compiledDef = compiledVersion(def, bindir);
        if(!exists(compiledDef) || lastModified(compiledDef) < lastModified(def)){
           compile(def, bindir = bindir);
@@ -101,7 +101,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
   	           processImports(importedRvmProgram);
   	          
   	           imported_types = imported_types + importedRvmProgram.types;
-  	           imported_functions += [ importedRvmProgram.declarations[fname] | fname <-importedRvmProgram.declarations ];
+  	           imported_functions += [ importedRvmProgram.declarations[fname] | str fname <-importedRvmProgram.declarations ];
   	       
   	           // We need to merge overloading resolvers regarding overloaded function indices
   	           pos_delta = size(imported_overloaded_functions); 
