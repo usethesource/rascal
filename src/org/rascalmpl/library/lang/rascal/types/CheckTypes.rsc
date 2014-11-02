@@ -4752,11 +4752,11 @@ public CheckResult checkStmt(Statement stmt:(Statement)`global <Type t> <{Qualif
     throw "Not Implemented";
 }
 
-private Configuration addMissingAssignableNames(Configuration c, Assignable a) {
+private Configuration addMissingAssignableNames(Configuration c, Assignable a, loc errorLoc) {
 	introducedNames = getIntroducedNames(a);
 	for (n <- introducedNames<0>, n notin c.fcvEnv) {
 		l = getOneFrom(introducedNames[n]);
-		c = addLocalVariable(c, n, false, l, makeFailTypeAsWarning("Error at location <a@\loc> prevented computation of type",l));
+		c = addLocalVariable(c, n, false, l, makeFailTypeAsWarning("Error at location <errorLoc> prevented computation of type",l));
 	}
 	return c;
 }
@@ -4767,12 +4767,12 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Assignable a> <Assignme
     // failure, we cannot figure out the type of the assignable, so just return right away.
     < c, t1 > = checkStmt(s, c);
     if (isFailType(t1)) {
-    	c = addMissingAssignableNames(c, a);
+    	c = addMissingAssignableNames(c, a, s@\loc);
     	return markLocationFailed(c, stmt@\loc, t1);
     }
     < c, t2 > = checkAssignment(op, a, t1, stmt@\loc, c);
     if (isFailType(t2)) {
-    	c = addMissingAssignableNames(c, a);
+    	c = addMissingAssignableNames(c, a, stmt@\loc);
     	return markLocationFailed(c, stmt@\loc, t2);
     }
     return markLocationType(c, stmt@\loc, t2);
@@ -7859,7 +7859,7 @@ public RName getFirstLabeledName(Configuration c, set[LabelSource] ls) {
 @doc{Check the type of a Rascal location literal}
 public CheckResult checkLocationLiteral(LocationLiteral ll, Configuration c) {
     set[Symbol] failures = { };
-    list[Expression] ipl = prodFilter(ll, bool(Production prd) { return prod(\label(_,\sort("Expression")),_,_) := prd; });
+    list[Expression] ipl = [ pf | Expression pf <- prodFilter(ll, bool(Production prd) { return prod(\label(_,\sort("Expression")),_,_) := prd; }) ];
     for (ipe <- ipl) {
         if ((Expression)`<Expression ipee>` := ipe) {
             < c, t1 > = checkExp(ipee, c);
@@ -8205,7 +8205,7 @@ public Configuration checkCatch(Catch ctch:(Catch)`catch <Pattern p> : <Statemen
         < cCatch, tp > = calculatePatternType(p, cCatch);
     }
     if (isFailType(tp)) {
-    	cCatch.messages = getFailures(tp);
+    	cCatch.messages = cCatch.messages + getFailures(tp);
         cCatch = addMissingPatternNames(cCatch, p, p@\loc);
     }
         
