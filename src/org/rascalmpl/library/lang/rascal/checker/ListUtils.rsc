@@ -11,13 +11,13 @@ module lang::rascal::checker::ListUtils
 
 import List;
 
-public &B joinList(list[&A] itemList, &B (&A) itemFun, &B itemSep, &B joinUnit) {
-	if (size(itemList) >= 2) return itemFun(head(itemList)) + itemSep + joinList(tail(itemList),itemFun,itemSep,joinUnit);
-	else if (size(itemList) >= 1) return itemFun(head(itemList));
-	else return joinUnit;	
+public list[&B] joinList(list[&A] itemList, &B (&A) itemFun, &B itemSep, &B joinUnit) {
+	if (size(itemList) >= 2) return [itemFun(head(itemList))] + itemSep + joinList(tail(itemList),itemFun,itemSep,joinUnit);
+	else if (size(itemList) >= 1) return [itemFun(head(itemList))];
+	else return [joinUnit];	
 }
 
-public str joinStrList(list[str] items, str sep) {
+public list[str] joinStrList(list[str] items, str sep) {
     return joinList(items, str(str x) { return x; }, sep, ""); 
 }
 
