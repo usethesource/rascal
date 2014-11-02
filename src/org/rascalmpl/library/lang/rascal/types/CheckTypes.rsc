@@ -1076,7 +1076,9 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
         // the type properly, so return right away with the failures. 
         return markLocationFailed(c, exp@\loc, failures);
     }
-    if (isListType(t1) && !isListRelType(t1)) {
+    if (isListType(t1) && (!isListRelType(t1) || (isListRelType(t1) && size(tl) == 1 && isIntType(tl[0])))) {
+    	// TODO: At some point we should have separate notation for this, but this final condition treats list
+    	// relations indexed by one int value as lists, making this an index versus a projection
         if (size(tl) != 1)
             return markLocationFailed(c,exp@\loc,makeFailType("Expected only 1 subscript for a list expression, not <size(tl)>",exp@\loc));
         else if (!isIntType(tl[0]))
