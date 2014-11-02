@@ -41,7 +41,7 @@ public Result eval(List([Atom("define"), var, exp]), Env e){
    return <FALSE, e>;
 }
                                                              /*8*/
-public Result eval(List([Atom("lambda"), List(vars*), exp]), Env defEnv) =
+public Result eval(List([Atom("lambda"), List(list[Lval] vars), exp]), Env defEnv) =
   <Closure(Result(list[Lval] args, Env callEnv) { return eval(exp, makeEnv(vars, args, tail(callEnv, size(defEnv))));}),
    defEnv>;
 
@@ -61,18 +61,18 @@ public Result apply(Closure(Result(list[Lval] args, Env env) fn), list[Lval] arg
 }
                                                              /*11*/
 
-public Result apply(Atom("+"),      [Integer(x), Integer(y)], Env e) = <Integer(x + y), e>;
-public Result apply(Atom("-"),      [Integer(x), Integer(y)], Env e) = <Integer(x - y), e>;
-public Result apply(Atom("*"),      [Integer(x), Integer(y)], Env e) = <Integer(x * y), e>;
-public Result apply(Atom("\<"),     [x, y],                   Env e) = <x < y ? TRUE : FALSE, e>;
-public Result apply(Atom("\>"),     [x, y],                   Env e) = <x >= y ? TRUE : FALSE, e>;
-public Result apply(Atom("equal?"), [x, y],                   Env e) = <x == y ? TRUE : FALSE, e>;
-public Result apply(Atom("null?"),  [List(*x)],               Env e) = <isEmpty(x) ? TRUE : FALSE, e>;
-public Result apply(Atom("cons"),   [x, List(y*)],            Env e) = <List([x, *y]), e>;
-public Result apply(Atom("append"), [List(x*), y],            Env e) = <List([*x, *y]), e>;
-public Result apply(Atom("car"),    [List(x*)],               Env e) = <head(x), e>;
-public Result apply(Atom("cdr"),    [List(x*)],               Env e) = <List(tail(x)), e>;
-public Result apply(Atom("list"),   list[Lval] x,             Env e) = <List(x), e>;
+public Result apply(Atom("+"),      [Integer(x), Integer(y)],      Env e) = <Integer(x + y), e>;
+public Result apply(Atom("-"),      [Integer(x), Integer(y)],      Env e) = <Integer(x - y), e>;
+public Result apply(Atom("*"),      [Integer(x), Integer(y)],      Env e) = <Integer(x * y), e>;
+public Result apply(Atom("\<"),     [Lval x, Lval y],              Env e) = <x < y ? TRUE : FALSE, e>;
+public Result apply(Atom("\>"),     [Lval x, Lval y],              Env e) = <x >= y ? TRUE : FALSE, e>;
+public Result apply(Atom("equal?"), [Lval x, Lval y],              Env e) = <x == y ? TRUE : FALSE, e>;
+public Result apply(Atom("null?"),  [List(list[Lval] x)],          Env e) = <isEmpty(x) ? TRUE : FALSE, e>;
+public Result apply(Atom("cons"),   [Lval x, List(list[Lval] y)],  Env e) = <List([x, *y]), e>;
+public Result apply(Atom("append"), [List(list[Lval] x), Lval y],  Env e) = <List([*x, *y]), e>;
+public Result apply(Atom("car"),    [List(list[Lval] x)],          Env e) = <head(x), e>;
+public Result apply(Atom("cdr"),    [List(list[Lval] x)],          Env e) = <List(tail(x)), e>;
+public Result apply(Atom("list"),   list[Lval] x,                  Env e) = <List(x), e>;
 
 default Result apply(Lval a,     list[Lval] b, Env e) {      /*12*/
   println("Cannot apply <a> to <b> using <e>");
