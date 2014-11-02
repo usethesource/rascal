@@ -1,6 +1,7 @@
 module demo::lang::Pico::CommonSubExpr
 
 import Prelude;
+import analysis::graphs::Graph;
 import demo::lang::Pico::Abstract;
 import demo::lang::Pico::Load;
 
