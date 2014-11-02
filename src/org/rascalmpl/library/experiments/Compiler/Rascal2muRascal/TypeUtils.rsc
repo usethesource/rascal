@@ -310,7 +310,7 @@ void extractScopes(Configuration c){
     	
    		// println("topdecls1: <topdecls>");
  		// println("outerScopes: <outerScopes>");
- 		fuid_module_init = getFUID(convert2fuid(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(\value())]),0);
+ 		fuid_module_init = getFUID(convert2fuid(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]),0);
  		
     	for(i <- index(topdecls)) {
     		// Assign a position to module variables

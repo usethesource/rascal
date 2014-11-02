@@ -12,6 +12,9 @@
 |rascal:///experiments/Concept/FcaLattices.rsc|
 |rascal:///lang/java/m3/Core.rsc|
 |rascal:///lang/java/m3/TypeHierarchy.rsc|
+|rascal:///lang/rascal/checker/TTL/PatternGenerator.rsc|
+|rascal:///lang/rascal/checker/TTL/generated/Expressions.rsc|
+|rascal:///lang/rascal/checker/TTL/generated/Signatures.rsc|
 |rascal:///lang/rascal/grammar/definition/Layout.rsc|
 |rascal:///lang/rascal/syntax/tests/PreBootstrap.rsc|
 |rascal:///lang/rascal/types/TypeExceptions.rsc|
