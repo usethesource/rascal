@@ -1576,7 +1576,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> has <Name
     < cHas, t1 > = checkExp(e, cHas);
     c = needNewScope ? exitBooleanScope(cHas, c) : cHas;
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
-    if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1)) return markLocationType(c,exp@\loc,Symbol::\bool());
+    if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isNonTerminalType(t1)) return markLocationType(c,exp@\loc,Symbol::\bool());
     return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected relation, tuple, or ADT types, found <prettyPrintType(t1)>", e@\loc));
 }
 
