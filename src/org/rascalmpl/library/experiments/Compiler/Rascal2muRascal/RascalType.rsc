@@ -78,7 +78,7 @@ Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters
 	throw "The name <name> is not resolved to a type: <val>.";
 }  
 									
-Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter(getSimpleName(convertName(name)), \value());  
+Symbol translateType(t: (TypeVar) `& <Name name>`) = \parameter(getSimpleName(convertName(name)), Symbol::\value());  
 Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) = \parameter(getSimpleName(convertName(name)), translateType(bound));  
 
 default Symbol translateType(Type t) {
