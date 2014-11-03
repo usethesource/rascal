@@ -257,5 +257,11 @@ public class Eval {
 			eval.interrupt();
 		}
 	}
+	
+	public void unimport (IString moduleName, IEvaluatorContext ctx) {
+	        if (this.eval!=null && this.eval.getHeap()!=null) this.eval.getHeap().removeModule(eval.getHeap().getModule(moduleName.getValue()));
+     }
+
+	
 }
 

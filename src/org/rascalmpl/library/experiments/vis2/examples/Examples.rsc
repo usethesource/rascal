@@ -9,7 +9,8 @@ import List;
 import util::Math;
 import experiments::vis2::\data::Nederland;
 import experiments::vis2::\data::Steden;
-
+import experiments::vis2::vega::VegaChart;
+      					  
 
 // ********************** Examples **********************
 
@@ -910,7 +911,57 @@ Datasets[LabeledData] exampleBarData() =
      						<"F Label" , -98.079782601442>,
       						<"G Label" , -13.925743130903>,
       						<"H Label" , -5.1387322875705>
-      					  ]);
+      				   ]);
+      				   
+ public map[str, lrel[str, int]] stackedData = (
+   "0": [
+    <"0", 28>,
+    <"1", 43>,
+    <"2", 81>,
+    <"3", 19>,
+    <"4", 52>,
+    <"5", 24>,
+    <"6", 87>,
+    <"7", 17>,
+    <"8", 68>,
+    <"9", 49>
+    ],
+   "1": [
+     <"0", 55>,
+     <"1", 91>,
+     <"2", 53>,
+     <"3", 87>,<"4", 48>,
+     <"5", 49>,
+     <"6", 66>,
+     <"7", 27>,
+     <"8", 16>,
+     <"9", 15>
+   ]
+);
+
+
+void stackedBarChart(){
+        // ex("stackedBarChart", vega(size=<500,200>, dataFile="vega/StackedBar.json", variable="aap"));
+        ex("stackedBarChart", vega(size=<500,200>, datasets=stackedData, variable="stackedBar()"));
+        //ex("stackedBarChart", vega(size=<800,200>, datasets=exampleSteden(), variable="stackedArea"));
+}
+
+void groupedBarChart(){
+        ex("groupedBarChart", vega(size=<500,200>, datasets=stackedData, variable="groupedBar()"));
+}
+
+void stackedAreaChart(){
+        ex("stackedAreaChart", vega(size=<500,200>, datasets=stackedData, variable="stackedArea()"));
+}
+
+void groupedSymbolChart(){
+        ex("groupedSymbolChart", vega(size=<500,200>, datasets=stackedData, variable="groupedSymbol()"));
+}
+
+void groupedLineChart(){
+        ex("groupedLineChart", vega(size=<500,200>, datasets=stackedData, variable="groupedLine()"));
+}
+     
 
 void barChart1(){
 	ex("barChart1", barChart(datasets=exampleBarData()));

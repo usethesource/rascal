@@ -134,7 +134,10 @@ public data Figure(
 	
 		// Dataset for chart-like layouts
 	
-		Datasets datasets = ()
+		Datasets datasets = (),
+		
+		// Tooltip
+		str tooltip = ""
 	) =
 	
 	emptyFigure()
@@ -221,8 +224,8 @@ public data Figure(
 
 // Charts
    
-   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), str orientation = "vertical", bool grouped = false, str flavor ="nvBarChart")
-      
+   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), str orientation = "vertical", bool grouped = false, str flavor ="nvBarChart") 
+   | vega(str dataFile = "", str variable = "", str \module ="experiments::vis2::vega::VegaChart", Datasets[LabeledData] datasets = ())      
    | scatterPlot()
    
    | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[XYData] datasets = (), bool area = false, str flavor ="nvLineChart")
