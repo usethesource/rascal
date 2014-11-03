@@ -4,6 +4,7 @@ import experiments::vis2::Figure;
 import experiments::vis2::Translate;
 import util::Webserver;
 import util::HtmlDisplay;
+import util::Eval;
 import IO;
 import List;
 import Map;
@@ -115,6 +116,28 @@ default Response page(post(), str path, map[str, str] parameters){
 default Response page(!get(), str path, map[str, str] parameters) {
   throw "invalid request <path> with <parameters>";
 }
+
+Response page(get(), /^\/vegaJSON\/<modul:[a-zA-Z0-9_:]+>\/<variable:[a-zA-Z0-9_(,)]+>/, map[str, str] parameters) {
+        println("get: initial_figure: <modul>  <variable>, <parameters>");
+        // println("aap");
+    str cmd = "import <modul>;import lang::json::IO;toJSON(<variable>);";
+    println(cmd);
+    try {
+      unimport("<modul>");
+      if (result(res) :=  eval(cmd)) {
+        if (str s := res) {
+            // println(s);
+            return response(s);
+            }
+        }
+     }
+     catch value x:
+                   println(x);
+        println("Someting goes wrong <cmd>");
+        return response("");
+}
+        
+
 
 /********************** web server creation ********************/
 

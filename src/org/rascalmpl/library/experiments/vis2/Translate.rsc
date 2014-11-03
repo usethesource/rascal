@@ -34,6 +34,7 @@ str propsToJSON(Figure child, Figure parent){
 	properties = [];
 	defaults = emptyFigure();
 	if (!isEmpty(child.id))   properties += "\"id\":<strArg(child.id)>";
+	if (!isEmpty(child.tooltip))   properties += "\"tooltip\":<strArg(child.tooltip)>";
 	if(child.size != parent.size /*&& child.size != defaults.size*/) 					
 													properties += "\"width\": <numArg(child.size[0])>, \"height\": <numArg(child.size[1])> ";
 												  
@@ -575,6 +576,22 @@ str trChart(str chartType, Figure chart, Figure parent, str extraProps="") {
 	'}";
 }
 
+str trVega(Figure chart, Figure parent) {
+    str variable = chart.variable;
+    str modul    = chart.\module;
+    str dataFile = chart.dataFile;
+    str datasets = trVegaDataset(chart.datasets); 
+    println("trVega:<modul> <variable>");
+    return 
+    "{\"figure\": \"vega\",
+    ' \"module\": \"<modul>\",
+    ' \"variable\": \"<variable>\", 
+    ' <isEmpty(dataFile)?datasets:"\"data\":\"<dataFile>\"">
+    ' <propsToJSON(chart, parent)>
+    '}";   
+   
+    }
+
 // ---------- barChart ----------
 
 str figToJSON(chart: barChart(), Figure parent) {
@@ -584,6 +601,10 @@ str figToJSON(chart: barChart(), Figure parent) {
 	}
 	return trChart("barChart", chart, parent, 
 		extraProps="\"orientation\": \"<chart.orientation>\", \"grouped\": <chart.grouped>");
+}
+
+str figToJSON(chart: vega(), Figure parent) {
+	return trVega(chart, parent);
 }
 
 // ---------- lineChart ----------
