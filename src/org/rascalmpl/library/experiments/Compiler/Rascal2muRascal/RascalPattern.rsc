@@ -215,27 +215,27 @@ syntax ConcreteHole
  *   - MATCH_OPTIONAL_LAYOUTR_IN_LIST: skips potential layout between list elements
  *   - MATCH_CONCRETE_MULTIVAR_IN_LIST
  *   - MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST
- *   - SKIP_OPTIONAL_SEARATOR: match a separator before or after a multivariable
+ *   - SKIP_OPTIONAL_SEPARATOR: match a separator before or after a multivariable
  *   - MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST
  *   - MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST
 */
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
-  println("translateConcretePattern, concrete = <concrete>");
+  //println("translateConcretePattern, concrete = <concrete>");
   fragType = getType(p@\loc);
-  println("translateConcretePattern, fragType = <fragType>");
+  //println("translateConcretePattern, fragType = <fragType>");
   reifiedFragType = symbolToValue(fragType);
-  println("translateConcretePattern, reified: <reifiedFragType>");
-  g = getGrammar();
-  for(nt <- g) println("<nt> : <g[nt]>");
+  //println("translateConcretePattern, reified: <reifiedFragType>");
+  //g = getGrammar();
+  //for(nt <- g) println("<nt> : <g[nt]>");
   parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar());
-  println("**** parsedFragment: <parsedFragment>");
-  iprintln(parsedFragment);
+  //println("**** parsedFragment: <parsedFragment>");
+  //iprintln(parsedFragment);
   return translateParsedConcretePattern(parsedFragment);
 }
 
 MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){
- println("translateParsedConcretePattern: <prod>");
+ //println("translateParsedConcretePattern: <prod>");
   if(prod.def == label("hole", lex("ConcretePart"))){
      varloc = args[0].args[4].args[0]@\loc;
      <fuid, pos> = getVariableScope("ConcreteVar", varloc);
