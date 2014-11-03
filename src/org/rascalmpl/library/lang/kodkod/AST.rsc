@@ -57,7 +57,7 @@ data Formula
   | \multiplicity(Expr exp, Multiplicity mult)
   | \not(Formula arg)
   | \quantified(list[Decl] decls, Formula arg, Quantifier quantifier) 
-  | \predicate(Expr, RelationPredicate pred)
+  | \predicate(Expr expr, RelationPredicate pred)
   ;
   
 data RelationPredicate
