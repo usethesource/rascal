@@ -440,17 +440,17 @@ INS tr(muCreate(MuExp coro, list[MuExp] args)) = [ *tr(args), *tr(coro),  CREATE
 // INS tr(muCreate(MuExp exp)) = tr(muReset(exp));
 // INS tr(muCreate(MuExp coro, list[MuExp] args)) = tr(muReset(muApply(coro,args)));  // order!
 
-INS tr(muContVar(str fuid)) = [ LOADCONT(fuid) ];
-INS tr(muReset(MuExp fun)) = [ *tr(fun), RESET() ];
-INS tr(muShift(MuExp body)) {
-    str fuid = functionScope + "/shift_<getShiftCounter()>(1)";
-    prevFunctionScope = functionScope;
-    functionScope = fuid;
-    shiftClosures += ( fuid : FUNCTION(fuid, Symbol::func(Symbol::\value(),[Symbol::\value()]), functionScope, 1, 1, false, |unknown:///|, estimate_stack_size(body), 
-                                       [ *tr(visit(body) { case muContVar(prevFunctionScope) => muContVar(fuid) }), RETURN1(1) ], []) );
-    functionScope = prevFunctionScope; 
-    return [ LOAD_NESTED_FUN(fuid, functionScope), SHIFT() ];
-}
+//INS tr(muContVar(str fuid)) = [ LOADCONT(fuid) ];
+//INS tr(muReset(MuExp fun)) = [ *tr(fun), RESET() ];
+//INS tr(muShift(MuExp body)) {
+//    str fuid = functionScope + "/shift_<getShiftCounter()>(1)";
+//    prevFunctionScope = functionScope;
+//    functionScope = fuid;
+//    shiftClosures += ( fuid : FUNCTION(fuid, Symbol::func(Symbol::\value(),[Symbol::\value()]), functionScope, 1, 1, false, |unknown:///|, estimate_stack_size(body), 
+//                                       [ *tr(visit(body) { case muContVar(prevFunctionScope) => muContVar(fuid) }), RETURN1(1) ], []) );
+//    functionScope = prevFunctionScope; 
+//    return [ LOAD_NESTED_FUN(fuid, functionScope), SHIFT() ];
+//}
 
 INS tr(muNext(MuExp coro)) = [*tr(coro), NEXT0()];
 INS tr(muNext(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!
@@ -459,7 +459,7 @@ INS tr(muYield()) = [YIELD0()];
 INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1(1)];
 INS tr(muYield(MuExp exp, list[MuExp] exps)) = [ *tr(exp), *tr(exps), YIELD1(size(exps) + 1) ];
 
-INS tr(muExhaust()) = [ EXHAUST() ];
+INS tr(experiments::Compiler::muRascal::AST::muExhaust()) = [ EXHAUST() ];
 
 INS tr(muGuard(MuExp exp)) = [ *tr(exp), GUARD() ];
 
@@ -652,10 +652,10 @@ INS tr(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[MuExp] elsePar
     elseLab = mkElse(label);
     continueLab = mkContinue(label);
     return [ *tr_cond(cond, nextLabel(), mkFail(label), elseLab), 
-             *(isEmpty(thenPart) ? LOADCON(111) : trblock(thenPart)),
+             *(isEmpty(thenPart) ? [LOADCON(111)] : trblock(thenPart)),
              JMP(continueLab), 
              LABEL(elseLab),
-             *(isEmpty(elsePart) ? LOADCON(222) : trblock(elsePart)),
+             *(isEmpty(elsePart) ? [LOADCON(222)] : trblock(elsePart)),
              LABEL(continueLab)
            ];
 }

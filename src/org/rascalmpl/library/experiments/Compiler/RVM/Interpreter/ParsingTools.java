@@ -435,7 +435,8 @@ public class ParsingTools {
 	    catch (ParseError e) {
 	      ISourceLocation loc = TreeAdapter.getLocation(tree);
 	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
-	      getMonitor().warning("parse error in concrete syntax", src);
+	      rex.getStdErr().println("***** WARNING: parseFragment, parse error at " + src);
+	      //getMonitor().warning("parse error in concrete syntax", src);
 	      return tree.asAnnotatable().setAnnotation("parseError", src);
 	    }
 //	    catch (StaticError e) {
@@ -482,7 +483,6 @@ public class ParsingTools {
 	        b.append(createHole(part, antiquotes));
 	      }
 	    }
-	    
 	    return b.toString().toCharArray();
 	  }
 

@@ -2,6 +2,7 @@
 module experiments::Compiler::Rascal2muRascal::TmpAndLabel
 
 import Prelude;
+import Type;
 import lang::rascal::\syntax::Rascal;
 
 /*
@@ -174,7 +175,7 @@ void enterVisit() {
 }
 
 bool inStringVisit(){
-	top(visits) == Symbol::\str();
+	top(visits) == \str();
 }
 
 void leaveVisit() {
