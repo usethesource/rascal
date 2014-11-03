@@ -264,56 +264,56 @@ Description:
 public Symbol lub(Symbol s, s) = s;
 public default Symbol lub(Symbol s, Symbol t) = \value();
 
-public Symbol lub(\value(), Symbol t) = \value();
-public Symbol lub(Symbol s, \value()) = \value();
-public Symbol lub(\void(), Symbol t) = t;
-public Symbol lub(Symbol s, \void()) = s;
-public Symbol lub(\int(), \num()) = \num();
-public Symbol lub(\int(), \real()) = \num();
-public Symbol lub(\int(), \rat()) = \num();
-public Symbol lub(\rat(), \num()) = \num();
-public Symbol lub(\rat(), \real()) = \num();
-public Symbol lub(\rat(), \int()) = \num();
-public Symbol lub(\real(), \num()) = \num();
-public Symbol lub(\real(), \int()) = \num();
-public Symbol lub(\real(), \rat()) = \num();
-public Symbol lub(\num(), \int()) = \num();
-public Symbol lub(\num(), \real()) = \num();
-public Symbol lub(\num(), \rat()) = \num();
+public Symbol lub(Symbol::\value(), Symbol t) = Symbol::\value();
+public Symbol lub(Symbol s, Symbol::\value()) = Symbol::\value();
+public Symbol lub(Symbol::\void(), Symbol t) = t;
+public Symbol lub(Symbol s, Symbol::\void()) = s;
+public Symbol lub(Symbol::\int(), Symbol::\num()) = Symbol::\num();
+public Symbol lub(Symbol::\int(), Symbol::\real()) = Symbol::\num();
+public Symbol lub(Symbol::\int(), Symbol::\rat()) = Symbol::\num();
+public Symbol lub(Symbol::\rat(), Symbol::\num()) = Symbol::\num();
+public Symbol lub(Symbol::\rat(), Symbol::\real()) = Symbol::\num();
+public Symbol lub(Symbol::\rat(), Symbol::\int()) = Symbol::\num();
+public Symbol lub(Symbol::\real(), Symbol::\num()) = Symbol::\num();
+public Symbol lub(Symbol::\real(), Symbol::\int()) = Symbol::\num();
+public Symbol lub(Symbol::\real(), Symbol::\rat()) = Symbol::\num();
+public Symbol lub(Symbol::\num(), Symbol::\int()) = Symbol::\num();
+public Symbol lub(Symbol::\num(), Symbol::\real()) = Symbol::\num();
+public Symbol lub(Symbol::\num(), Symbol::\rat()) = Symbol::\num();
 
-public Symbol lub(\set(Symbol s), \set(Symbol t)) = \set(lub(s, t));  
-public Symbol lub(\set(Symbol s), \rel(list[Symbol] ts)) = \set(lub(s,\tuple(ts)));  
-public Symbol lub(\rel(list[Symbol] ts), \set(Symbol s)) = \set(lub(s,\tuple(ts)));
+public Symbol lub(Symbol::\set(Symbol s), Symbol::\set(Symbol t)) = Symbol::\set(lub(s, t));  
+public Symbol lub(Symbol::\set(Symbol s), Symbol::\rel(list[Symbol] ts)) = Symbol::\set(lub(s,Symbol::\tuple(ts)));  
+public Symbol lub(Symbol::\rel(list[Symbol] ts), Symbol::\set(Symbol s)) = Symbol::\set(lub(s,Symbol::\tuple(ts)));
 
-public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
-public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
-public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
-public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
-public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \set(\value()) when size(l) != size(r);
+public Symbol lub(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
+public Symbol lub(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
+public Symbol lub(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
+public Symbol lub(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
+public Symbol lub(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol lub(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = \set(\value()) when size(l) != size(r);
 
-public Symbol lub(\list(Symbol s), \list(Symbol t)) = \list(lub(s, t));  
-public Symbol lub(\list(Symbol s), \lrel(list[Symbol] ts)) = \list(lub(s,\tuple(ts)));  
-public Symbol lub(\lrel(list[Symbol] ts), \list(Symbol s)) = \list(lub(s,\tuple(ts)));
+public Symbol lub(Symbol::\list(Symbol s), Symbol::\list(Symbol t)) = Symbol::\list(lub(s, t));  
+public Symbol lub(Symbol::\list(Symbol s), \lrel(list[Symbol] ts)) = Symbol::\list(lub(s,\tuple(ts)));  
+public Symbol lub(Symbol::\lrel(list[Symbol] ts), Symbol::\list(Symbol s)) = Symbol::\list(lub(s,\tuple(ts)));
 
-public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
-public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
-public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
-public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
-public Symbol lub(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \list(\value()) when size(l) != size(r);
+public Symbol lub(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
+public Symbol lub(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
+public Symbol lub(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
+public Symbol lub(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
+public Symbol lub(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol lub(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\list(\value()) when size(l) != size(r);
 
-public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
-public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
-public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
-public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
+public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
+public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
+public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
+public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
 
-public Symbol lub(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = \map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when lfl == rfl && ltl == rtl;
-public Symbol lub(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = \map(lub(lf,rf), lub(lt,rt)) when lfl != rfl || ltl != rtl;
-public Symbol lub(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(Symbol rf, Symbol rt)) = \map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when \label(_,_) !:= rf && \label(_,_) !:= rt;
-public Symbol lub(\map(Symbol lf, Symbol lt), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = \map(\label(rfl, lub(lf,rf)), \label(rtl, lub(lt,rt))) when \label(_,_) !:= lf && \label(_,_) !:= lt;
-public Symbol lub(\map(Symbol lf, Symbol lt), \map(Symbol rf, Symbol rt)) = \map(lub(lf,rf), lub(lt,rt)) when \label(_,_) !:= lf && \label(_,_) !:= lt && \label(_,_) !:= rf && \label(_,_) !:= rt;
+public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when lfl == rfl && ltl == rtl;
+public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(lub(lf,rf), lub(lt,rt)) when lfl != rfl || ltl != rtl;
+public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when \label(_,_) !:= rf && \label(_,_) !:= rt;
+public Symbol lub(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(rfl, lub(lf,rf)), \label(rtl, lub(lt,rt))) when \label(_,_) !:= lf && \label(_,_) !:= lt;
+public Symbol lub(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(lub(lf,rf), lub(lt,rt)) when \label(_,_) !:= lf && \label(_,_) !:= lt && \label(_,_) !:= rf && \label(_,_) !:= rt;
 
 public Symbol lub(\bag(Symbol s), \bag(Symbol t)) = \bag(lub(s, t));
 public Symbol lub(\adt(str n, list[Symbol] _), \node()) = \node();
@@ -338,7 +338,7 @@ public Symbol lub(\reified(Symbol l), \node()) = \node();
 
 public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp)) {
 	lubReturn = lub(lr,rr);
-	lubParams = glb(\tuple(lp),\tuple(rp));
+	lubParams = glb(Symbol::\tuple(lp),Symbol::\tuple(rp));
 	if (isTupleType(lubParams))
 		return \func(lubReturn, lubParams.symbols);
 	else
@@ -371,84 +371,84 @@ Description:
 public Symbol glb(Symbol s, s) = s;
 public default Symbol glb(Symbol s, Symbol t) = \void();
 
-public Symbol glb(\void(), Symbol t) = \void();
-public Symbol glb(Symbol s, \void()) = \void();
-public Symbol glb(\value(), Symbol t) = t;
-public Symbol glb(Symbol s, \value()) = s;
+public Symbol glb(Symbol::\void(), Symbol t) = Symbol::\void();
+public Symbol glb(Symbol s, Symbol::\void()) = Symbol::\void();
+public Symbol glb(Symbol::\value(), Symbol t) = t;
+public Symbol glb(Symbol s, Symbol::\value()) = s;
 
-public Symbol glb(\int(), \num()) = \int();
-public Symbol glb(\num(), \int()) = \int();
-public Symbol glb(\rat(), \num()) = \rat();
-public Symbol glb(\num(), \rat()) = \rat();
-public Symbol glb(\real(), \num()) = \real();
-public Symbol glb(\num(), \real()) = \real();
+public Symbol glb(Symbol::\int(), Symbol::\num()) = Symbol::\int();
+public Symbol glb(Symbol::\num(), Symbol::\int()) = Symbol::\int();
+public Symbol glb(Symbol::\rat(),Symbol::\num()) = Symbol::\rat();
+public Symbol glb(Symbol::\num(), Symbol::\rat()) = Symbol::\rat();
+public Symbol glb(Symbol::\real(), Symbol::\num()) = Symbol::\real();
+public Symbol glb(Symbol::\num(), Symbol::\real()) = Symbol::\real();
 
-public Symbol glb(\set(Symbol s), \set(Symbol t)) = \set(glb(s, t));  
-public Symbol glb(\set(Symbol s), \rel(list[Symbol] ts)) = \set(glb(s,\tuple(ts)));  
-public Symbol glb(\rel(list[Symbol] ts), \set(Symbol s)) = \set(glb(s,\tuple(ts)));
+public Symbol glb(Symbol::\set(Symbol s), Symbol::\set(Symbol t)) = Symbol::\set(glb(s, t));  
+public Symbol glb(Symbol::\set(Symbol s), Symbol::\rel(list[Symbol] ts)) = Symbol::\set(glb(s,Symbol::\tuple(ts)));  
+public Symbol glb(Symbol::\rel(list[Symbol] ts), Symbol::\set(Symbol s)) = \set(glb(s,Symbol::\tuple(ts)));
 
-public Symbol glb(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
-public Symbol glb(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
-public Symbol glb(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
-public Symbol glb(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol glb(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
-public Symbol glb(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \set(\value()) when size(l) != size(r);
+public Symbol glb(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
+public Symbol glb(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
+public Symbol glb(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
+public Symbol glb(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
+public Symbol glb(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol glb(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = \set(\value()) when size(l) != size(r);
 
-public Symbol glb(\list(Symbol s), \list(Symbol t)) = \list(glb(s, t));  
-public Symbol glb(\list(Symbol s), \lrel(list[Symbol] ts)) = \list(glb(s,\tuple(ts)));  
-public Symbol glb(\lrel(list[Symbol] ts), \list(Symbol s)) = \list(glb(s,\tuple(ts)));
+public Symbol glb(Symbol::\list(Symbol s), Symbol::\list(Symbol t)) = Symbol::\list(glb(s, t));  
+public Symbol glb(Symbol::\list(Symbol s), Symbol::\lrel(list[Symbol] ts)) = Symbol::\list(glb(s,Symbol::\tuple(ts)));  
+public Symbol glb(Symbol::\lrel(list[Symbol] ts), Symbol::\list(Symbol s)) = Symbol::\list(glb(s,Symbol::\tuple(ts)));
 
-public Symbol glb(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
-public Symbol glb(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
-public Symbol glb(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
-public Symbol glb(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol glb(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \lrel(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
-public Symbol glb(\lrel(list[Symbol] l), \lrel(list[Symbol] r)) = \list(\value()) when size(l) != size(r);
+public Symbol glb(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
+public Symbol glb(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
+public Symbol glb(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
+public Symbol glb(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
+public Symbol glb(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol glb(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\list(\value()) when size(l) != size(r);
 
-public Symbol glb(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
-public Symbol glb(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
-public Symbol glb(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
-public Symbol glb(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol glb(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol glb(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
+public Symbol glb(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
+public Symbol glb(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
+public Symbol glb(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
+public Symbol glb(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
 
-public Symbol glb(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = \map(\label(lfl, glb(lf,rf)), \label(ltl, glb(lt,rt))) when lfl == rfl && ltl == rtl;
-public Symbol glb(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = \map(glb(lf,rf), glb(lt,rt)) when lfl != rfl || ltl != rtl;
-public Symbol glb(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(Symbol rf, Symbol rt)) = \map(\label(lfl, glb(lf,rf)), \label(ltl, glb(lt,rt))) when \label(_,_) !:= rf && \label(_,_) !:= rt;
-public Symbol glb(\map(Symbol lf, Symbol lt), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = \map(\label(rfl, glb(lf,rf)), \label(rtl, glb(lt,rt))) when \label(_,_) !:= lf && \label(_,_) !:= lt;
-public Symbol glb(\map(Symbol lf, Symbol lt), \map(Symbol rf, Symbol rt)) = \map(glb(lf,rf), glb(lt,rt)) when \label(_,_) !:= lf && \label(_,_) !:= lt && \label(_,_) !:= rf && \label(_,_) !:= rt;
+public Symbol glb(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(lfl, glb(lf,rf)), \label(ltl, glb(lt,rt))) when lfl == rfl && ltl == rtl;
+public Symbol glb(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(glb(lf,rf), glb(lt,rt)) when lfl != rfl || ltl != rtl;
+public Symbol glb(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(\label(lfl, glb(lf,rf)), \label(ltl, glb(lt,rt))) when \label(_,_) !:= rf && \label(_,_) !:= rt;
+public Symbol glb(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(rfl, glb(lf,rf)), \label(rtl, glb(lt,rt))) when \label(_,_) !:= lf && \label(_,_) !:= lt;
+public Symbol glb(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(glb(lf,rf), glb(lt,rt)) when \label(_,_) !:= lf && \label(_,_) !:= lt && \label(_,_) !:= rf && \label(_,_) !:= rt;
 
-public Symbol glb(\bag(Symbol s), \bag(Symbol t)) = \bag(glb(s, t));
-public Symbol glb(\adt(str n, list[Symbol] _), \node()) = \node();
-public Symbol glb(\node(), \adt(str n, list[Symbol] _)) = \node();
-public Symbol glb(\adt(str n, list[Symbol] lp), \adt(n, list[Symbol] rp)) = \adt(n, addParamLabels(glb(lp,rp),getParamLabels(lp))) when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0;
-public Symbol glb(\adt(str n, list[Symbol] lp), \adt(n, list[Symbol] rp)) = \adt(n, glb(lp,rp)) when size(lp) == size(rp) && size(getParamLabels(lp)) == 0;
-public Symbol glb(\adt(str n, list[Symbol] lp), \adt(str m, list[Symbol] rp)) = \node() when n != m;
-public Symbol glb(\adt(str ln, list[Symbol] lp), Symbol::\cons(Symbol b, _, list[Symbol] _)) = glb(\adt(ln,lp),b);
+public Symbol glb(Symbol::\bag(Symbol s), Symbol::\bag(Symbol t)) = Symbol::\bag(glb(s, t));
+public Symbol glb(Symbol::\adt(str n, list[Symbol] _), Symbol::\node()) = Symbol::\node();
+public Symbol glb(\node(), Symbol::\adt(str n, list[Symbol] _)) = Symbol::\node();
+public Symbol glb(Symbol::\adt(str n, list[Symbol] lp), Symbol::\adt(n, list[Symbol] rp)) = Symbol::\adt(n, addParamLabels(glb(lp,rp),getParamLabels(lp))) when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0;
+public Symbol glb(Symbol::\adt(str n, list[Symbol] lp), Symbol::\adt(n, list[Symbol] rp)) = Symbol::\adt(n, glb(lp,rp)) when size(lp) == size(rp) && size(getParamLabels(lp)) == 0;
+public Symbol glb(Symbol::\adt(str n, list[Symbol] lp), Symbol::\adt(str m, list[Symbol] rp)) = Symbol::\node() when n != m;
+public Symbol glb(Symbol::\adt(str ln, list[Symbol] lp), Symbol::\cons(Symbol b, _, list[Symbol] _)) = glb(Symbol::\adt(ln,lp),b);
 
 public Symbol glb(Symbol::\cons(Symbol la, _, list[Symbol] _), Symbol::\cons(Symbol ra, _, list[Symbol] _)) = glb(la,ra);
-public Symbol glb(Symbol::\cons(Symbol a, _, list[Symbol] lp), \adt(str n, list[Symbol] rp)) = glb(a,\adt(n,rp));
+public Symbol glb(Symbol::\cons(Symbol a, _, list[Symbol] lp), Symbol::\adt(str n, list[Symbol] rp)) = glb(a,Symbol::\adt(n,rp));
 public Symbol glb(Symbol::\cons(Symbol _, _, list[Symbol] _), \node()) = \node();
 
-public Symbol glb(\alias(str _, list[Symbol] _, Symbol aliased), Symbol r) = glb(aliased, r);
-public Symbol glb(Symbol l, \alias(str _, list[Symbol] _, Symbol aliased)) = glb(l, aliased);
+public Symbol glb(Symbol::\alias(str _, list[Symbol] _, Symbol aliased), Symbol r) = glb(aliased, r);
+public Symbol glb(Symbol l, Symbol::\alias(str _, list[Symbol] _, Symbol aliased)) = glb(l, aliased);
 
-public Symbol glb(\parameter(str _, Symbol bound), Symbol r) = glb(bound, r);
-public Symbol glb(Symbol l, \parameter(str _, Symbol bound)) = glb(l, bound);
+public Symbol glb(Symbol::\parameter(str _, Symbol bound), Symbol r) = glb(bound, r);
+public Symbol glb(Symbol l, Symbol::\parameter(str _, Symbol bound)) = glb(l, bound);
 
-public Symbol glb(\reified(Symbol l), \reified(Symbol r)) = \reified(glb(l,r));
-public Symbol glb(\reified(Symbol l), \node()) = \node();
+public Symbol glb(Symbol::\reified(Symbol l), Symbol::\reified(Symbol r)) = Symbol::\reified(glb(l,r));
+public Symbol glb(Symbol::\reified(Symbol l), Symbol::\node()) = Symbol::\node();
 
 public Symbol glb(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp)) {
 	glbReturn = glb(lr,rr);
-	glbParams = lub(\tuple(lp),\tuple(rp));
+	glbParams = lub(Symbol::\tuple(lp),Symbol::\tuple(rp));
 	if (isTupleType(glbParams))
 		return \func(glbReturn, glbParams.symbols);
 	else
-		return \value();
+		return Symbol::\value();
 }
 
-public Symbol glb(\label(_,Symbol l), Symbol r) = glb(l,r);
-public Symbol glb(Symbol l, \label(_,Symbol r)) = glb(l,r);
+public Symbol glb(Symbol::\label(_,Symbol l), Symbol r) = glb(l,r);
+public Symbol glb(Symbol l, Symbol::\label(_,Symbol r)) = glb(l,r);
 
 public list[Symbol] glb(list[Symbol] l, list[Symbol] r) = [glb(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r); 
 public default list[Symbol] glb(list[Symbol] l, list[Symbol] r) = [\value()]; 
