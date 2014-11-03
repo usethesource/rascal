@@ -1,4 +1,7 @@
 |rascal:///analysis/formalconcepts/CXTIO.rsc|
+|rascal:///demo/lang/Pico/Uninit.rsc|
+|rascal:///demo/lang/Pico/UseDef.rsc|
+|rascal:///demo/lang/Pico/Visualize.rsc|
 |rascal:///demo/vis/Logo.rsc|
 |rascal:///demo/vis/VisADT.rsc|
 |rascal:///experiments/Compiler/Benchmarks/BDotVis.rsc|
@@ -15,6 +18,7 @@
 |rascal:///lang/rascal/checker/TTL/PatternGenerator.rsc|
 |rascal:///lang/rascal/checker/TTL/generated/Expressions.rsc|
 |rascal:///lang/rascal/checker/TTL/generated/Signatures.rsc|
+|rascal:///lang/rascal/meta/ModuleInfo.rsc|
 |rascal:///lang/rascal/syntax/tests/PreBootstrap.rsc|
 |rascal:///lang/rascal/tests/types/AccumulatingTCTests.rsc|
 |rascal:///lang/rascal/tests/types/AliasTCTests.rsc|
@@ -34,6 +38,7 @@
 |rascal:///lang/rascal/tests/types/StaticTestingUtils.rsc|
 |rascal:///lang/rascal/tests/types/SubscriptTCTests.rsc|
 |rascal:///lang/rascal/tests/types/VisitTCTests.rsc|
+|rascal:///lang/rascal/types/CheckModule.rsc|
 |rascal:///lang/rascal/types/TestChecker.rsc|
 |rascal:///lang/rascal/types/TypeExceptions.rsc|
 |rascal:///lang/rascal/types/TypeInstantiation.rsc|
