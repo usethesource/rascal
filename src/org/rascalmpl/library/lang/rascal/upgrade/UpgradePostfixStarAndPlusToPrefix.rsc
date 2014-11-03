@@ -5,8 +5,9 @@ import util::FileSystem;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import IO;
+import Message;
 
-list[message] report(loc root) 
+list[Message] report(loc root) 
    = [*report(parse(#start[Module], m)) | m <- find(root, "rsc")];
 
 void update(loc root) {
@@ -19,9 +20,9 @@ list[Message] report(Tree m) {
   result = [];
   visit(m) {
     case (Pattern) `[<{Pattern ","}* before>,list[<Type elem>] <Name n>,<{Pattern ","}* after>]` : 
-      result += [message("found list pattern to upgrade", elem@\loc)];
+      result += [info("found list pattern to upgrade", elem@\loc)];
     case (Pattern) `{<{Pattern ","}* before>,set[<Type elem>] <Name n>,<{Pattern ","}* after>}` : 
-      result += [message("found list pattern to upgrade", elem@\loc)];
+      result += [info("found list pattern to upgrade", elem@\loc)];
     case Pattern p : ;
   }
   
