@@ -56,7 +56,7 @@ private void setFunctionUID(loc l) {
    //println("function_uid = <function_uid>");
 }
 
-public int getFunctionUID() = function_uid;
+public str getFunctionUID() = function_uid;
 
 public list[MuFunction] getFunctionsInModule() = functions_in_module;
 
@@ -134,8 +134,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  map[str,Symbol] types = 
    	  	( uid2str[uid] : \type | 
    	  	  int uid <- config.store, 
-   	  	  ( constructor(name, Symbol \type, keywordParams, containedIn, at) := config.store[uid]
-   	  	  || production(name, Symbol \type, containedIn, at) := config.store[uid] 
+   	  	  ( AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int containedIn, loc at) := config.store[uid]
+   	  	  || AbstractValue::production(RName name, Symbol \type, int containedIn, Production p, loc at) := config.store[uid] 
    	  	  ),
    	  	  !isEmpty(getSimpleName(name)),
    	  	  containedIn == 0, 
@@ -144,12 +144,12 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	 
    	 // Constructor functions are generated in case of constructors with keyword parameters
    	 // (this enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments)						  
-   	 for(int uid <- config.store, constructor(name, Symbol \type, keywordParams, 0, _) := config.store[uid], !isEmpty(config.dataKeywordDefaults[uid])) {
+   	 for(int uid <- config.store, AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, 0, _) := config.store[uid], !isEmpty(config.dataKeywordDefaults[uid])) {
    	     // ***Note: the keywordParams field excludes the common keyword parameters 
-   	     map[RName,Symbol] keywordParams = ();
+   	     map[RName,Symbol] allKeywordParams = ();
    	     for(<RName rname, _> <- config.dataKeywordDefaults[uid]) { // All the keyword parameters
    	         int adt = toMapUnique(invert(config.adtConstructors))[uid];
-   	         keywordParams[rname] = config.adtFields[<adt,getSimpleName(rname)>];
+   	         allKeywordParams[rname] = config.adtFields[<adt,getSimpleName(rname)>];
    	     }
    	     str fuid = uid2str[uid] + "::companion";
    	     Symbol ftype = Symbol::func(getConstructorResultType(\type), [ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ]);
@@ -161,12 +161,12 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	     
    	     list[MuExp] kwps = [ muAssign("map_of_default_values", fuid, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
    	     list[MuExp] kwargs = [];
-         for(RName kwf <- keywordParams) {
+         for(RName kwf <- allKeywordParams) {
              if(Expression kw_default_expr := getOneFrom(config.dataKeywordDefaults[uid,kwf])){
 	             kwps += muCallMuPrim("mmap_str_entry_add_entry_type_ivalue", 
 	                                  [ muVar("map_of_default_values",fuid,defaults_pos), 
 	                                    muCon("<getSimpleName(kwf)>"), 
-	                                    muCallMuPrim("make_mentry_type_ivalue", [ muTypeCon(keywordParams[kwf]), 
+	                                    muCallMuPrim("make_mentry_type_ivalue", [ muTypeCon(allKeywordParams[kwf]), 
 	                                                                              translate(kw_default_expr) ]) ]);
 	             kwargs = kwargs + [ muCon("<getSimpleName(kwf)>"), muVarKwp(fuid,getSimpleName(kwf)) ];
              } else {
@@ -178,7 +178,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
          			+ kwargs 
          			+ [ muReturn(muCall(muConstr(uid2str[uid]),[ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
                     + [ muCallMuPrim("make_mmap", kwargs), 
-                    muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),keywordParams[rname]) | rname <- keywordParams ])) ])) ]);
+                    muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKeywordParams[rname]) | rname <- allKeywordParams ])) ])) ]);
                                                 
          leaveFunctionScope();
          functions_in_module += muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body);   	                                       
@@ -214,7 +214,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  				  getGrammar());
    	}
    } catch Java("ParseError","Parse error"): {
-   	   throw "Syntax errors in module <moduleLoc>";
+   	   throw "Syntax errors in module <M.header.name>";
    } 
    finally {
    	   //println("r2mu: Cleaning up ...");
@@ -235,7 +235,7 @@ void translateModule(m: (Module) `<Header header> <Body body>`) {
 /********************************************************************/
 
 private void importModule((Import) `import <QualifiedName qname> ;`){
-    name = replaceAll("<qname>", "::", "/");
+    str name = replaceAll("<qname>", "::", "/");
     name = replaceAll(name, "\\","");
     //println("name = <name>");
     imported_modules += |rascal:///| + ("<name>" + ".rsc");
@@ -243,7 +243,7 @@ private void importModule((Import) `import <QualifiedName qname> ;`){
 }
 
 private void importModule((Import) `extend <QualifiedName qname> ;`){  // TODO implement extend properly
-    name = replaceAll("<qname>", "::", "/");
+    str name = replaceAll("<qname>", "::", "/");
     name = replaceAll(name, "\\","");
     //println("name = <name>");
     imported_modules += |rascal:///| + ("<name>" + ".rsc");
@@ -296,7 +296,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions>;`){
-  translateFunctionDeclaration(fd, expression, [exp | exp <- conditions]);
+  translateFunctionDeclaration(fd, expression, [exp | exp <- conditions]); 
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
