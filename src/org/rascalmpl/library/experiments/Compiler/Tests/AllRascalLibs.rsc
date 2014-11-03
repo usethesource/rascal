@@ -1,3 +1,4 @@
+@bootstrapParser
 module experiments::Compiler::Tests::AllRascalLibs
 
 import Prelude;
@@ -7,6 +8,10 @@ import util::FileSystem;
 import util::Benchmark;
 
 import Set;
+
+import lang::rascal::types::CheckTypes;
+import lang::rascal::\syntax::Rascal;
+import Message;
 
 /*
  * Results of compiling Rascal library modules.
@@ -368,6 +373,7 @@ set[loc] failures = {
 tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 	allFiles = find(root, "rsc") - exclude;
 	nfiles = size(allFiles);
+	static_error_count = ();
 	static_errors = {};
 	compiler_errors = {};
 	t1 = realTime();
@@ -377,6 +383,12 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 		i += 1;
 		println("**** Compiling <i> of <nfiles> files (static_errors: <size(static_errors)>, compiler_errors: <size(compiler_errors)>), time sofar <tosec(t1, realTime())> sec. ****");
 		try {
+		    Configuration c = newConfiguration();
+		    M = parse(#start[Module], f).top;
+            Configuration config = checkModule(M, c);  
+            errors = [ e | e:error(_,_) <- config.messages];
+            static_error_count[f] = size(errors);
+            println("<f>: <size(errors)>, <static_error_count[f]>");
 			compile(f);
 		} catch /static error/: {
 			static_errors += f;
@@ -400,15 +412,27 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
   	}
   	
   	nstatic = size(static_errors);
+  	
   	ncompiler = size(compiler_errors);
   	ndone = nfiles - nstatic - ncompiler;
-	println("Processed: total <nfiles>, success <ndone>");
-	println("Static errors: <nstatic>");
+	println("Compiled: <nfiles> files");
+	println("Success: <ndone>");
+	println("Type checker: <nstatic> files with errors");
+	
+	nstatic_errors = (0 | it + static_error_count[fl] | loc fl <- static_error_count);
+	
+	println("Type checker: <nstatic_errors> error messages");
+	
 	println("Compiler errors: <ncompiler>");
 	println("Time: <tosec(t1, realTime())> sec.");
 	
 	writeFile(|rascal:///experiments/Compiler/Tests/static_errors|, 
 	   "<for(f <- sort(toList(static_errors))){><f>\n<}>");
+	   
+	perfile = sort(toList(static_error_count), bool(a, b) {return a[1] > b[1]; });
+	 writeFile(|rascal:///experiments/Compiler/Tests/static_error_count_per_file|, 
+       "<for(f <- perfile){><f>\n<}>");
+       
 	writeFile(|rascal:///experiments/Compiler/Tests/compiler_errors|, 
 	   "<for(f <- sort(toList(compiler_errors))){><f>\n<}>");
 	
