@@ -8,7 +8,7 @@ import experiments::Compiler::muRascal::Load;
 
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::RVM::Run;
-extend experiments::Compiler::Compile;
+import experiments::Compiler::Compile;
 
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
@@ -124,7 +124,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    return <v, t>;
 }
 
-value execute(experiments::Compiler::RVM::AST::RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
+value execute(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
 	<v, t> = execute_and_time(rvmProgram, arguments, debug=debug, listing=listing, testsuite=testsuite,recompile=recompile, profile=profile);
 	return v;
 }

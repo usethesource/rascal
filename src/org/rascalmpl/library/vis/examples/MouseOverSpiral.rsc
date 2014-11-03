@@ -12,15 +12,13 @@ import vis::Render;
 import util::Math;
 
 public Figure mouseOverSpiral(int n,real radius, real increase,real radiusIncrease,real curAngle){
-	props = (n == 0) ? 
+	list[FProperty] props = (n == 0) ? 
 		[] : 
 		[mouseOver(mouseOverSpiral(n-1,radius + radiusIncrease,increase,radiusIncrease,curAngle+increase))];
 	r = max(0.5,radius);
 	h = sin(curAngle) * radius + 0.5;
 	v = cos(curAngle) * radius + 0.5;
-	return ellipse(text("<n>"),[props] + 
-        [ halign(h),valign(v),
-          resizable(false),size(100),fillColor(arbColor()) ]);
+	return ellipse(text("<n>"), [*props, halign(h), valign(v), resizable(false), size(100), fillColor(arbColor())]);
 }
 	
 public void doMouseOverSpiral(){

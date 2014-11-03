@@ -181,7 +181,7 @@ void extractScopes(Configuration c){
                  loc2uid[l] = uid;
              }
              // Fill in uid2name
-             name = getFUID(getSimpleName(rname),rtype);
+             str name = getFUID(getSimpleName(rname),rtype);
              if(cases[inScope]?) {
                  if(cases[inScope][name]?) {
                      cases[inScope][name] = cases[inScope][name] + 1;
@@ -318,9 +318,9 @@ void extractScopes(Configuration c){
             // Assign local positions to variables occurring in module variable initializations
             for(os <- outerScopes){
             	if(config.store[os].at < config.store[topdecls[i]].at){
-            		decls_inner_vars = sort([ uid | UID uid <- declares[os], variable(name,_,_,_,_) := config.store[uid] ]);
-    			    for(int i <- index(decls_inner_vars)) {
-        			    uid2addr[decls_inner_vars[i]] = <fuid_module_init, 2 + nmodule_var_init_locals>;
+            		decls_inner_vars = sort([ uid | UID uid <- declares[os], variable(RName name,_,_,_,_) := config.store[uid] ]);
+    			    for(int j <- index(decls_inner_vars)) {
+        			    uid2addr[decls_inner_vars[j]] = <fuid_module_init, 2 + nmodule_var_init_locals>;
         			    nmodule_var_init_locals += 1;
         		    }
             	}
@@ -359,7 +359,7 @@ void extractScopes(Configuration c){
         // Filter all the non-keyword variables within the function scope
         // ***Note: Filtering by name is possible only when shadowing of local variables is not permitted
         // Sort variable declarations to ensure that formal parameters get first positions preserving their order
-        decls_non_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
+        decls_non_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
         fuid_str = uid2str[fuid1];
         for(int i <- index(decls_non_kwp)) {
         	// Note: we need to reserve positions for variables that will replace formal parameter patterns
@@ -367,7 +367,7 @@ void extractScopes(Configuration c){
         	uid2addr[decls_non_kwp[i]] = <fuid_str, i + nformals + 1>;
         }
         // Filter all the keyword variables (parameters) within the function scope
-        decls_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(name,_,_,_,_) := config.store[uid], name in keywordParams ]);
+        decls_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name in keywordParams ]);
         for(int i <- index(decls_kwp)) {
             keywordParameters += decls_kwp[i];
             uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
@@ -521,7 +521,7 @@ str convert2fuid(UID uid) {
 	if(!uid2name[uid]?) {
 		throw "uid2str is not applicable!";
 	}
-	name = uid2name[uid];
+	str name = uid2name[uid];
 	declaredIn = toMapUnique(invert(declares));
 	containedIn = toMapUnique(invert(containment));
 	if(containedIn[uid]?) {
@@ -531,7 +531,7 @@ str convert2fuid(UID uid) {
 	    if( (function(_,_,_,_,inScope,_,_,src) := val || 
 	         constructor(_,_,_,inScope,src) := val || 
 	         production(_,_,inScope,_,src) := val ), 
-	        \module(value _,loc at) := config.store[inScope]) {
+	        \module(RName _,loc at) := config.store[inScope]) {
         	if(at.path != src.path) {
         	    str path = replaceAll(src.path, ".rsc", "");
         	    path = replaceFirst(path, "/", "");
@@ -654,7 +654,7 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
 public list[MuFunction] lift(list[MuFunction] functions, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
     return [ (func.scopeIn == fromScope || func.scopeIn == toScope) 
 	             ? { func.scopeIn = toScope; func.body = lift(func.body,fromScope,toScope,mapping); func; } 
-	             : func | func <- getFunctionsInModule() ];
+	             : func | MuFunction func <- getFunctionsInModule() ];
 }
 public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
     return visit(body) {
@@ -668,7 +668,7 @@ public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tup
         													   => muAssignVarDeref(name,toScope,newPos,exp)
                                                                   when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
 	    case muFun(str fuid,fromScope)                         => muFun(fuid,toScope)
-	    case muCatch(str id,fromScope,Symbol \type,MuExp body) => muCatch(id,toScope,\type,body)
+	    case muCatch(str id,fromScope,Symbol \type,MuExp body2) => muCatch(id,toScope,\type,body2)
 	}
 }
 
