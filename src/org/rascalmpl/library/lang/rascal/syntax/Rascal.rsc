@@ -13,7 +13,7 @@
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
 module lang::rascal::\syntax::Rascal
 
-import ParseTree;
+//import ParseTree;
 
 lexical BooleanLiteral
 	= "true" 

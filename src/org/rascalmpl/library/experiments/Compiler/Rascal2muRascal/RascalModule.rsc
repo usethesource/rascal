@@ -408,7 +408,7 @@ private str resolveLibOverriding(str lib){
 private map[str,str] translateTags(Tags tags){
    m = ();
    for(tg <- tags.tags){
-     name = "<tg.name>";
+     str name = "<tg.name>";
      if(tg is \default){
         cont = "<tg.contents>"[1 .. -1];
         m[name] = name == "javaClass" ? resolveLibOverriding(cont) : cont;
