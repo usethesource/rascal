@@ -1,5 +1,11 @@
 module experiments::Compiler::Examples::Tst2
 
-value main(list[value] args) = visit("abbc"){ case /b+/: insert "B"; }; // == "aBc";
+import experiments::Compiler::Examples::Tst1;
 
-//value main(list[value] args) = visit("abc"){ case /b/: insert "B";}; // == "aBc";
+data Prop = size(int n) | c (Color cc);
+
+alias Props = list[Prop];
+
+data Box = box(Prop prop);
+
+Box box(Prop props...) = _box(props);

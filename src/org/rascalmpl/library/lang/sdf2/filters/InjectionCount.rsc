@@ -1,5 +1,7 @@
 module lang::sdf2::filters::InjectionCount
 
+import ParseTree;
+
 private default int count(Tree _) = 0;
 private int count(appl(prod(Symbol _,[Symbol _],set[Attr] _), [Tree arg])) = 1 + count(arg);
 

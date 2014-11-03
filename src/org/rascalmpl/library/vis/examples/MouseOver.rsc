@@ -9,9 +9,7 @@
 module vis::examples::MouseOver
 import vis::Figure;
 import vis::Render; 
-import Set;
-import List;
-import Real;
+import Prelude;
 import util::Math;
 
 

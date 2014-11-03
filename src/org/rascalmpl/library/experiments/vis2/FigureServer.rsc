@@ -11,6 +11,7 @@ import Set;
 import util::Cursor;
 import lang::json::IO;
 import Type;
+import Exception;
 
 /************************* Figure server *********************************
  This server responds to two requests:

@@ -50,16 +50,7 @@ public void getDeclarationInfo(Configuration config){
 
 	typeRel = { < getSimpleName(rname), config.store[config.typeEnv[rname]].rtype > | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype }; 
 	          //{ < getSimpleName(rname) , rtype > | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] };
-	//println("typeEnv");
-	//for(tp <- config.typeEnv){
-	//   println("<tp>: <config.typeEnv[tp]>");
-	//}
-	//println("typeRel:");
-	//for(tp <- typeRel){
-	//   println("<tp>");
-	//}
 
-	
 	// Collect all the constructors of the adt types in the type environment
 
 	types = range(typeRel);
@@ -97,6 +88,10 @@ public map[Symbol,Production] getGrammar() {
  	}
  	definitions = definitions + (Symbol::\layouts("$default$"):Production::choice(Symbol::\layouts("$default$"),{Production::prod(Symbol::\layouts("$default$"),[],{})}));
  	definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
+ 	
+ 	//println("getGrammar returns:\n----------");
+ 	//for(s <- definitions) println("<s>: <definitions[s]>");
+ 	//println("----------");
  	
  	return definitions;
 }

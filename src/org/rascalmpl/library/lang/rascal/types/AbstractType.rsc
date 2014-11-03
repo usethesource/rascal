@@ -40,39 +40,39 @@ public anno Symbol Tree@rtype;
 public anno loc Symbol@at; 
 
 @doc{Pretty printer for Rascal abstract types.}
-public str prettyPrintType(\int()) = "int";
-public str prettyPrintType(\bool()) = "bool";
-public str prettyPrintType(\real()) = "real";
-public str prettyPrintType(\rat()) = "rat";
-public str prettyPrintType(\str()) = "str";
-public str prettyPrintType(\num()) = "num";
-public str prettyPrintType(\node()) = "node";
-public str prettyPrintType(\void()) = "void";
-public str prettyPrintType(\value()) = "value";
-public str prettyPrintType(\loc()) = "loc";
-public str prettyPrintType(\datetime()) = "datetime";
-public str prettyPrintType(\label(str s, Symbol t)) = "<prettyPrintType(t)> <s>";
-public str prettyPrintType(\parameter(str pn, Symbol t)) = "&<pn> \<: <prettyPrintType(t)>";
-public str prettyPrintType(\set(Symbol t)) = "set[<prettyPrintType(t)>]";
-public str prettyPrintType(\rel(list[Symbol] ts)) = "rel[<intercalate(", ", [ prettyPrintType(t) | t <- ts ])>]";
-public str prettyPrintType(\lrel(list[Symbol] ts)) = "lrel[<intercalate(", ", [ prettyPrintType(t) | t <- ts ])>]";
-public str prettyPrintType(\tuple(list[Symbol] ts)) = "tuple[<intercalate(", ", [ prettyPrintType(t) | t <- ts ])>]";
-public str prettyPrintType(\list(Symbol t)) = "list[<prettyPrintType(t)>]";
-public str prettyPrintType(\map(Symbol d, Symbol r)) = "map[<prettyPrintType(d)>, <prettyPrintType(r)>]";
-public str prettyPrintType(\bag(Symbol t)) = "bag[<prettyPrintType(t)>]";
-public str prettyPrintType(\adt(str s, list[Symbol] ps)) = s when size(ps) == 0;
-public str prettyPrintType(\adt(str s, list[Symbol] ps)) = "<s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]" when size(ps) > 0;
+public str prettyPrintType(Symbol::\int()) = "int";
+public str prettyPrintType(Symbol::\bool()) = "bool";
+public str prettyPrintType(Symbol::\real()) = "real";
+public str prettyPrintType(Symbol::\rat()) = "rat";
+public str prettyPrintType(Symbol::\str()) = "str";
+public str prettyPrintType(Symbol::\num()) = "num";
+public str prettyPrintType(Symbol::\node()) = "node";
+public str prettyPrintType(Symbol::\void()) = "void";
+public str prettyPrintType(Symbol::\value()) = "value";
+public str prettyPrintType(Symbol::\loc()) = "loc";
+public str prettyPrintType(Symbol::\datetime()) = "datetime";
+public str prettyPrintType(Symbol::\label(str s, Symbol t)) = "<prettyPrintType(t)> <s>";
+public str prettyPrintType(Symbol::\parameter(str pn, Symbol t)) = "&<pn> \<: <prettyPrintType(t)>";
+public str prettyPrintType(Symbol::\set(Symbol t)) = "set[<prettyPrintType(t)>]";
+public str prettyPrintType(Symbol::\rel(list[Symbol] ts)) = "rel[<intercalate(", ", [ prettyPrintType(t) | t <- ts ])>]";
+public str prettyPrintType(Symbol::\lrel(list[Symbol] ts)) = "lrel[<intercalate(", ", [ prettyPrintType(t) | t <- ts ])>]";
+public str prettyPrintType(Symbol::\tuple(list[Symbol] ts)) = "tuple[<intercalate(", ", [ prettyPrintType(t) | t <- ts ])>]";
+public str prettyPrintType(Symbol::\list(Symbol t)) = "list[<prettyPrintType(t)>]";
+public str prettyPrintType(Symbol::\map(Symbol d, Symbol r)) = "map[<prettyPrintType(d)>, <prettyPrintType(r)>]";
+public str prettyPrintType(Symbol::\bag(Symbol t)) = "bag[<prettyPrintType(t)>]";
+public str prettyPrintType(Symbol::\adt(str s, list[Symbol] ps)) = s when size(ps) == 0;
+public str prettyPrintType(Symbol::\adt(str s, list[Symbol] ps)) = "<s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]" when size(ps) > 0;
 public str prettyPrintType(Symbol::\cons(Symbol a, str name, list[Symbol] fs)) = "<prettyPrintType(a)> <name> : (<intercalate(", ", [ prettyPrintType(f) | f <- fs ])>)";
-public str prettyPrintType(\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s> = <prettyPrintType(t)>" when size(ps) == 0;
-public str prettyPrintType(\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>] = <prettyPrintType(t)>" when size(ps) > 0;
+public str prettyPrintType(Symbol::\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s> = <prettyPrintType(t)>" when size(ps) == 0;
+public str prettyPrintType(Symbol::\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>] = <prettyPrintType(t)>" when size(ps) > 0;
 public str prettyPrintType(Symbol::\func(Symbol rt, list[Symbol] ps)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps])>)";
-public str prettyPrintType(\var-func(Symbol rt, list[Symbol] ps, Symbol va)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps+va])>...)";
-public str prettyPrintType(\reified(Symbol t)) = "type[<prettyPrintType(t)>]";
-public str prettyPrintType(\user(RName rn, list[Symbol] ps)) = "<prettyPrintName(rn)>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]";
-public str prettyPrintType(failure(set[Message] ms)) = "fail"; // TODO: Add more detail?
-public str prettyPrintType(\inferred(int n)) = "inferred(<n>)";
-public str prettyPrintType(\overloaded(set[Symbol] os, set[Symbol] defaults)) = "overloaded:\n\t\t<intercalate("\n\t\t",[prettyPrintType(\o) | \o <- os + defaults])>";
-public str prettyPrintType(deferred(Symbol givenType)) = "deferred(<prettyPrintType(givenType)>)";
+public str prettyPrintType(Symbol::\var-func(Symbol rt, list[Symbol] ps, Symbol va)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps+va])>...)";
+public str prettyPrintType(Symbol::\reified(Symbol t)) = "type[<prettyPrintType(t)>]";
+public str prettyPrintType(Symbol::\user(RName rn, list[Symbol] ps)) = "<prettyPrintName(rn)>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]";
+public str prettyPrintType(Symbol::failure(set[Message] ms)) = "fail"; // TODO: Add more detail?
+public str prettyPrintType(Symbol::\inferred(int n)) = "inferred(<n>)";
+public str prettyPrintType(Symbol::\overloaded(set[Symbol] os, set[Symbol] defaults)) = "overloaded:\n\t\t<intercalate("\n\t\t",[prettyPrintType(\o) | \o <- os + defaults])>";
+public str prettyPrintType(Symbol::deferred(Symbol givenType)) = "deferred(<prettyPrintType(givenType)>)";
 // named non-terminal symbols
 public str prettyPrintType(Symbol::\sort(str name)) = name;
 public str prettyPrintType(Symbol::\start(Symbol s)) = "start[<prettyPrintType(s)>]";
@@ -111,44 +111,44 @@ private str prettyPrintCond(Condition::\end-of-line()) = "$";
 private str prettyPrintCond(Condition::\except(str label)) = "!<label>";
 
 @doc{Create a new int type.}
-public Symbol makeIntType() = \int();
+public Symbol makeIntType() = Symbol::\int();
 
 @doc{Create a new bool type.}
-public Symbol makeBoolType() = \bool();
+public Symbol makeBoolType() = Symbol::\bool();
 
 @doc{Create a new real type.}
-public Symbol makeRealType() = \real();
+public Symbol makeRealType() = Symbol::\real();
 
 @doc{Create a new rat type.}
-public Symbol makeRatType() = \rat();
+public Symbol makeRatType() = Symbol::\rat();
 
 @doc{Create a new str type.}
-public Symbol makeStrType() = \str();
+public Symbol makeStrType() = Symbol::\str();
 
 @doc{Create a new num type.}
-public Symbol makeNumType() = \num();
+public Symbol makeNumType() = Symbol::\num();
 
 @doc{Create a new node type.}
-public Symbol makeNodeType() = \node();
+public Symbol makeNodeType() = Symbol::\node();
 
 @doc{Create a new void type.}
-public Symbol makeVoidType() = \void();
+public Symbol makeVoidType() = Symbol::\void();
 
 @doc{Create a new value type.}
-public Symbol makeValueType() = \value();
+public Symbol makeValueType() = Symbol::\value();
 
 @doc{Create a new loc type.}
-public Symbol makeLocType() = \loc();
+public Symbol makeLocType() = Symbol::\loc();
 
 @doc{Create a new datetime type.}
-public Symbol makeDateTimeType() = \datetime();
+public Symbol makeDateTimeType() = Symbol::\datetime();
 
 @doc{Create a new set type, given the element type of the set.}
-public Symbol makeSetType(Symbol elementType) = \set(elementType);
+public Symbol makeSetType(Symbol elementType) = Symbol::\set(elementType);
 
 @doc{Create a new rel type, given the element types of the fields. Check any given labels for consistency.}
 public Symbol makeRelType(Symbol elementTypes...) {
-	set[str] labels = { l | \label(l,_) <- elementTypes };
+	set[str] labels = { l | Symbol::\label(l,_) <- elementTypes };
 	if (size(labels) == 0 || size(labels) == size(elementTypes)) 
 		return \rel(elementTypes);
 	else
@@ -156,23 +156,23 @@ public Symbol makeRelType(Symbol elementTypes...) {
 }
 
 @doc{Create a new rel type based on a given tuple type.}
-public Symbol makeRelTypeFromTuple(Symbol t) = \rel(getTupleFields(t));
+public Symbol makeRelTypeFromTuple(Symbol t) = Symbol::\rel(getTupleFields(t));
 
 @doc{Create a new list rel type, given the element types of the fields. Check any given labels for consistency.}
 public Symbol makeListRelType(Symbol elementTypes...) {
-	set[str] labels = { l | \label(l,_) <- elementTypes };
+	set[str] labels = { l | Symbol::\label(l,_) <- elementTypes };
 	if (size(labels) == 0 || size(labels) == size(elementTypes)) 
-		return \lrel(elementTypes);
+		return Symbol::\lrel(elementTypes);
 	else
 		throw "For lrel types, either all fields much be given a distinct label or no fields should be labeled."; 
 }
 
 @doc{Create a new lrel type based on a given tuple type.}
-public Symbol makeListRelTypeFromTuple(Symbol t) = \lrel(getTupleFields(t));
+public Symbol makeListRelTypeFromTuple(Symbol t) = Symbol::\lrel(getTupleFields(t));
 
 @doc{Create a new tuple type, given the element types of the fields. Check any given labels for consistency.}
 public Symbol makeTupleType(Symbol elementTypes...) {
-	set[str] labels = { l | \label(l,_) <- elementTypes };
+	set[str] labels = { l | Symbol::\label(l,_) <- elementTypes };
 	if (size(labels) == 0 || size(labels) == size(elementTypes)) 
 		return \tuple(elementTypes);
 	else
@@ -180,20 +180,20 @@ public Symbol makeTupleType(Symbol elementTypes...) {
 }
 
 @doc{Create a new list type, given the element type of the list.}
-public Symbol makeListType(Symbol elementType) = \list(elementType);
+public Symbol makeListType(Symbol elementType) = Symbol::\list(elementType);
 
 @doc{Create a new map type, given the types of the domain and range. Check to make sure field names are used consistently.}
 public Symbol makeMapType(Symbol domain, Symbol range) {
-	if (\label(l1,t1) := domain && \label(l2,t2) := range && l1 != l2)
-		return \map(domain,range);
-	else if (\label(l1,t1) := domain && \label(l2,t2) := range && l1 == l2)
+	if (\label(l1,t1) := domain && Symbol::\label(l2,t2) := range && l1 != l2)
+		return Symbol::\map(domain,range);
+	else if (\label(l1,t1) := domain && Symbol::\label(l2,t2) := range && l1 == l2)
 		throw "The field names of the map domain and range must be distinct.";
-	else if (\label(l1,t1) := domain)
-		return \map(t1,range);
-	else if (\label(l2,t2) := range)
-		return \map(domain,t2);
+	else if (Symbol::\label(l1,t1) := domain)
+		return Symbol::\map(t1,range);
+	else if (Symbol::\label(l2,t2) := range)
+		return Symbol::\map(domain,t2);
 	else
-		return \map(domain,range);
+		return Symbol::\map(domain,range);
 }
 
 @doc{Create a new map type based on the given tuple.}
@@ -205,17 +205,17 @@ public Symbol makeMapTypeFromTuple(Symbol t) {
 }
 
 @doc{Create a new bag type, given the element type of the bag.}
-public Symbol makeBagType(Symbol elementType) = \bag(elementType);
+public Symbol makeBagType(Symbol elementType) = Symbol::\bag(elementType);
 
 @doc{Create a new ADT type with the given name.}
-public Symbol makeADTType(str n) = \adt(n,[]);
+public Symbol makeADTType(str n) = Symbol::\adt(n,[]);
 
 @doc{Create a new parameterized ADT type with the given type parameters}
-public Symbol makeParameterizedADTType(str n, Symbol p...) = \adt(n,p);
+public Symbol makeParameterizedADTType(str n, Symbol p...) = Symbol::\adt(n,p);
 
 @doc{Create a new constructor type.}
 public Symbol makeConstructorType(Symbol adtType, str name, Symbol consArgs...) {    
-	set[str] labels = { l | \label(l,_) <- consArgs };
+	set[str] labels = { l | Symbol::\label(l,_) <- consArgs };
 	if (size(labels) == 0 || size(labels) == size(consArgs)) 
 		return Symbol::\cons(adtType, name, consArgs);
 	else
@@ -228,17 +228,17 @@ public Symbol makeConstructorTypeFromTuple(Symbol adtType, str name, Symbol cons
 }
 
 @doc{Create a new alias type with the given name and aliased type.}
-public Symbol makeAliasType(str n, Symbol t) = \alias(n,[],t);
+public Symbol makeAliasType(str n, Symbol t) = Symbol::\alias(n,[],t);
 
 @doc{Create a new parameterized alias type with the given name, aliased type, and parameters.}
-public Symbol makeParameterizedAliasType(str n, Symbol t, list[Symbol] params) = \alias(n,params,t);
+public Symbol makeParameterizedAliasType(str n, Symbol t, list[Symbol] params) = Symbol::\alias(n,params,t);
 
 @doc{Marks if a function is a var-args function.}
 public anno bool Symbol@isVarArgs;
 
 @doc{Create a new function type with the given return and parameter types.}
 public Symbol makeFunctionType(Symbol retType, bool isVarArgs, Symbol paramTypes...) {
-	set[str] labels = { l | \label(l,_) <- paramTypes };
+	set[str] labels = { l | Symbol::\label(l,_) <- paramTypes };
 	if (size(labels) == 0 || size(labels) == size(paramTypes))
 		//if (isVarArgs) { 
 		//	return \var-func(retType, head(paramTypes,size(paramTypes)-1), last(paramTypes));
@@ -255,29 +255,30 @@ public Symbol makeFunctionTypeFromTuple(Symbol retType, bool isVarArgs, Symbol p
 }
 
 @doc{Create a type representing the reified form of the given type.}
-public Symbol makeReifiedType(Symbol mainType) = \reified(mainType);
+public Symbol makeReifiedType(Symbol mainType) = Symbol::\reified(mainType);
 
 @doc{Create a type representing a type parameter (type variable).}
-public Symbol makeTypeVar(str varName) = \parameter(varName, \value())[@boundGiven=false];
+public Symbol makeTypeVar(str varName) = Symbol::\parameter(varName, Symbol::\value())[@boundGiven=false];
 
 @doc{Create a type representing a type parameter (type variable) and bound.}
-public Symbol makeTypeVarWithBound(str varName, Symbol varBound) = \parameter(varName, varBound)[@boundGiven=true];
+public Symbol makeTypeVarWithBound(str varName, Symbol varBound) = Symbol::\parameter(varName, varBound)[@boundGiven=true];
 
 @doc{Unwraps aliases, parameters, and labels from around a type.}
-public Symbol unwrapType(\alias(_,_,at)) = unwrapType(at);
-public Symbol unwrapType(\parameter(_,tvb)) = unwrapType(tvb);
-public Symbol unwrapType(\label(_,ltype)) = unwrapType(ltype);
+public Symbol unwrapType(Symbol::\alias(_,_,at)) = unwrapType(at);
+public Symbol unwrapType(Symbol::\parameter(_,tvb)) = unwrapType(tvb);
+public Symbol unwrapType(Symbol::\label(_,ltype)) = unwrapType(ltype);
+public Symbol unwrapType(Symbol::\conditional(sym,_)) = unwrapType(sym);
 public default Symbol unwrapType(Symbol t) = t;
 
 @doc{Get the type that has been reified and stored in the reified type.}
 public Symbol getReifiedType(Symbol t) {
-    if (\reified(rt) := unwrapType(t)) return rt;
+    if (Symbol::\reified(rt) := unwrapType(t)) return rt;
     throw "getReifiedType given unexpected type: <prettyPrintType(t)>";
 }
 
 @doc{Get the type of the relation fields as a tuple.}
 public Symbol getRelElementType(Symbol t) {
-    if (\rel(ets) := unwrapType(t)) return \tuple(ets);
+    if (Symbol::\rel(ets) := unwrapType(t)) return Symbol::\tuple(ets);
     throw "Error: Cannot get relation element type from type <prettyPrintType(t)>";
 }
 
@@ -673,7 +674,7 @@ public Symbol \list(Symbol t) = \lrel(getTupleFields(t)) when isTupleType(t);
 
 @doc{Calculate the lub of a list of types.}
 public Symbol lubList(list[Symbol] ts) {
-	Symbol theLub = \void();
+	Symbol theLub = Symbol::\void();
 	for (t <- ts) theLub = lub(theLub,t);
 	return theLub;
 }
@@ -694,6 +695,7 @@ public bool isNonTerminalType(\alias(_,_,Symbol at)) = isNonTerminalType(at);
 public bool isNonTerminalType(\parameter(_,Symbol tvb)) = isNonTerminalType(tvb);
 public bool isNonTerminalType(\label(_,Symbol lt)) = isNonTerminalType(lt);
 public bool isNonTerminalType(Symbol::\start(Symbol ss)) = isNonTerminalType(ss);
+public bool isNonTerminalType(Symbol::\conditional(Symbol ss,_)) = isNonTerminalType(ss);
 public bool isNonTerminalType(Symbol::\sort(_)) = true;
 public bool isNonTerminalType(Symbol::\lex(_)) = true;
 public bool isNonTerminalType(Symbol::\layouts(_)) = true;
@@ -708,7 +710,7 @@ public bool isNonTerminalType(Symbol::\empty()) = true;
 public bool isNonTerminalType(Symbol::\opt(_)) = true;
 public bool isNonTerminalType(Symbol::\alt(_)) = true;
 public bool isNonTerminalType(Symbol::\seq(_)) = true;
-public bool isNonTerminalType(Symbol::\conditional(_,_)) = true;
+
 public default bool isNonTerminalType(Symbol _) = false;	
 
 public bool isNonTerminalIterType(\alias(_,_,Symbol at)) = isNonTerminalIterType(at);
@@ -737,6 +739,14 @@ public bool isStartNonTerminalType(\label(_,Symbol lt)) = isNonTerminalType(lt);
 public bool isStartNonTerminalType(Symbol::\start(_)) = true;
 public default bool isStartNonTerminalType(Symbol _) = false;    
 
+public Symbol getStartNonTerminalType(\alias(_,_,Symbol at)) = getStartNonTerminalType(at);
+public Symbol getStartNonTerminalType(\parameter(_,Symbol tvb)) = getStartNonTerminalType(tvb);
+public Symbol getStartNonTerminalType(\label(_,Symbol lt)) = getStartNonTerminalType(lt);
+public Symbol getStartNonTerminalType(Symbol::\start(Symbol s)) = s;
+public default Symbol getStartNonTerminalType(Symbol s) {
+	throw "<prettyPrintType(s)> is not a start non-terminal type";
+}
+
 @doc{Get the name of the nonterminal.}
 public str getNonTerminalName(\alias(_,_,Symbol at)) = getNonTerminalName(at);
 public str getNonTerminalName(\parameter(_,Symbol tvb)) = getNonTerminalName(tvb);
@@ -756,17 +766,18 @@ public str getNonTerminalName(Symbol::\opt(Symbol ss)) = getNonTerminalName(ss);
 public str getNonTerminalName(Symbol::\conditional(Symbol ss,_)) = getNonTerminalName(ss);
 public default str getNonTerminalName(Symbol s) { throw "Invalid nonterminal passed to getNonTerminalName: <s>"; }
 
-@doc{Check to see if the type allows fields.}
-public bool nonTerminalAllowsFields(\alias(_,_,Symbol at)) = nonTerminalAllowsFields(at);
-public bool nonTerminalAllowsFields(\parameter(_,Symbol tvb)) = nonTerminalAllowsFields(tvb);
-public bool nonTerminalAllowsFields(\label(_,Symbol lt)) = nonTerminalAllowsFields(lt);
-public bool nonTerminalAllowsFields(Symbol::\start(Symbol ss)) = true;
-public bool nonTerminalAllowsFields(Symbol::\sort(str n)) = true;
-public bool nonTerminalAllowsFields(Symbol::\lex(str n)) = true;
-public bool nonTerminalAllowsFields(Symbol::\parameterized-sort(str n,_)) = true;
-public bool nonTerminalAllowsFields(Symbol::\parameterized-lex(str n,_)) = true;
-public bool nonTerminalAllowsFields(Symbol::\opt(Symbol ss)) = true;
-public default bool nonTerminalAllowsFields(Symbol s) = false;
+//@doc{Check to see if the type allows fields.}
+//public bool nonTerminalAllowsFields(\alias(_,_,Symbol at)) = nonTerminalAllowsFields(at);
+//public bool nonTerminalAllowsFields(\parameter(_,Symbol tvb)) = nonTerminalAllowsFields(tvb);
+//public bool nonTerminalAllowsFields(\label(_,Symbol lt)) = nonTerminalAllowsFields(lt);
+//public bool nonTerminalAllowsFields(Symbol::\start(Symbol ss)) = true;
+//public bool nonTerminalAllowsFields(Symbol::\sort(str n)) = true;
+//public bool nonTerminalAllowsFields(Symbol::\lex(str n)) = true;
+//public bool nonTerminalAllowsFields(Symbol::\parameterized-sort(str n,_)) = true;
+//public bool nonTerminalAllowsFields(Symbol::\parameterized-lex(str n,_)) = true;
+//public bool nonTerminalAllowsFields(Symbol::\opt(Symbol ss)) = true;
+//public bool nonTerminalAllowsFields(Symbol::\conditional(Symbol ss,_)) = nonTerminalAllowsFields(ss);
+//public default bool nonTerminalAllowsFields(Symbol s) = false;
 
 @doc{Synopsis: Determine if the given type is a production.}
 public bool isProductionType(\alias(_,_,Symbol at)) = isProductionType(at);
@@ -775,10 +786,15 @@ public bool isProductionType(\label(_,Symbol lt)) = isProductionType(lt);
 public bool isProductionType(Symbol::\prod(_,_,_,_)) = true;
 public default bool isProductionType(Symbol _) = false;	
 
+public Symbol removeConditional(conditional(Symbol s, set[Condition] _)) = s;
+public Symbol removeConditional(label(str lab, conditional(Symbol s, set[Condition] _)))
+  = label(lab, s);
+public default Symbol removeConditional(Symbol s) = s;
+
 @doc{Get a list of the argument types in a production.}
 public list[Symbol] getProductionArgumentTypes(Symbol pr) {
 	if (Symbol::\prod(_,_,ps,_) := unwrapType(pr)) {
-		return [ psi | psi <- ps, isNonTerminalType(psi) ] ;
+		return [ removeConditional(psi) | psi <- ps, isNonTerminalType(psi) ] ;
 	}
     throw "Cannot get production arguments from non-production type <prettyPrintType(pr)>";
 }
@@ -799,3 +815,5 @@ public bool hasDeferredTypes(Symbol t) = size({d | /d:deferred(_) := t}) > 0;
 public bool subtype(deferred(Symbol t), Symbol s) = subtype(t,s);
 public bool subtype(Symbol t, deferred(Symbol s)) = subtype(t,s); 
 public bool subtype(Symbol t, \adt("Tree",[])) = true when isNonTerminalType(t);
+// TODO: Do we also want to consider the separator?
+public bool subtype(\iter-seps(Symbol s, _), \iter-star-seps(Symbol t, _)) = subtype(s,t);

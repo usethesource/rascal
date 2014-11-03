@@ -25,14 +25,14 @@ void stopTutor(loc site) {
   shutdown(site);
 }
 
-Response page(get(), /^\/$/                          , map[str,str] _)   = response(base + "index.html");
+Response page(get(), /^\/$/, map[str,str] _)   = response(base + "index.html");
 Response page(get(), /^\/show\/<f:.*>\/<c:.*\.html>$/, map[str, str] ps) = response((base + f) + c);
-Response page(get(), /^\/show\/<c:[^\/]*>\.html$/    , map[str, str] ps) = response(((base +c) + "<c>.html"));
-Response page(get(), /^\/edit/                       , map[str, str] ps) = response(edit(ps["concept"], ps["new"] == "true")); 
-Response page(get(), /^\/save/                       , map[str, str] ps) = response(save(ps["concept"], ps["newcontent"], ps["new"] == "true"));
-Response page(get(), /^\/compile/                    , map[str, str] ps) = response(compile(ps["name"]));
-Response page(get(), /^\/validate/                   , map[str, str] ps) = response(validateAnswer(ps));
-Response page(get(), /^\/validateExam/               , map[str, str] ps) = response(validateExamSubmission("<now()>", ps));
+Response page(get(), /^\/show\/<c:[^\/]*>\.html$/, map[str, str] ps) = response(((base +c) + "<c>.html"));
+Response page(get(), /^\/edit/, map[str, str] ps) = response(edit(ps["concept"], ps["new"] == "true")); 
+Response page(post(), /^\/save/, map[str, str] ps) = response(save(ps["concept"], ps["newcontent"], ps["new"] == "true"));
+Response page(get(), /^\/compile/, map[str, str] ps) = response(compile(ps["name"]));
+Response page(get(), /^\/validate/, map[str, str] ps) = response(validateAnswer(ps));
+Response page(post(), /^\/validateExam/, map[str, str] ps) = response(validateExamSubmission("<now()>", ps));
 
 default Response page(get(), str path, map[str, str] ps) = response(base + path); 
 
