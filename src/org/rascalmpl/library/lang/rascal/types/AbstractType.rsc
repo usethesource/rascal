@@ -783,12 +783,12 @@ public default str getNonTerminalName(Symbol s) { throw "Invalid nonterminal pas
 public list[Symbol] getNonTerminalTypeParameters(Symbol t) {
 	if (Symbol::\parameterized-sort(n,ps) := unwrapType(t)) return ps;
 	if (Symbol::\parameterized-lex(n,ps) := unwrapType(t)) return ps;
-	if (Symbol::\iter(s) := unwarpType(t)) return getNonTerminalTypeParameters(s);
-	if (Symbol::\iter-star(s) := unwarpType(t)) return getNonTerminalTypeParameters(s);
-	if (Symbol::\iter-seps(s,_) := unwarpType(t)) return getNonTerminalTypeParameters(s);
-	if (Symbol::\iter-star-seps(s,_) := unwarpType(t)) return getNonTerminalTypeParameters(s);
-	if (Symbol::\opt(s) := unwarpType(t)) return getNonTerminalTypeParameters(s);
-	if (Symbol::\conditional(s,_) := unwarpType(t)) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter(s) := unwrapType(t)) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter-star(s) := unwrapType(t)) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter-seps(s,_) := unwrapType(t)) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter-star-seps(s,_) := unwrapType(t)) return getNonTerminalTypeParameters(s);
+	if (Symbol::\opt(s) := unwrapType(t)) return getNonTerminalTypeParameters(s);
+	if (Symbol::\conditional(s,_) := unwrapType(t)) return getNonTerminalTypeParameters(s);
 	if (Symbol::\prod(s,_,_,_) := unwrapType(t)) return getNonTerminalTypeParameters(s);
     throw "getNonTerminalTypeParameters given type <prettyPrintType(t)>, expected non-terminal type";
 }
