@@ -678,7 +678,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         set[Symbol] finalDefaultMatches = {};
         bool cannotInstantiateFunction = false;
         bool cannotInstantiateConstructor = false;
-        
+        bool cannotInstantiateProduction = false;
+  
         // TODO: The above code checks keyword parameters; they need to be properly instantiated below
         // in case they are parametric.
         if (size(nonDefaultFunctionMatches + defaultFunctionMatches) > 0) {
@@ -738,15 +739,48 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         }
 
 		if (size(productionMatches) == 1) {
-            finalDefaultMatches += getOneFrom(productionMatches);
+            rt += getOneFrom(productionMatches);
+            if (typeContainsTypeVars(rt)) {
+                // If the production is parametric, we need to calculate the actual types of the
+                // parameters and getProductionArgumentTypes sure they fall within the proper bounds.
+                formalArgs = getConstructorArgumentTypes(rt);
+                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- (formalArgs+rt) };
+                map[str,Symbol] bindings = ( getTypeVarName(tv) : Symbol::\void() | tv <- typeVars );
+                for (idx <- index(tl)) {
+                    try {
+                        bindings = match(formalArgs[idx],tl[idx],bindings);
+                    } catch : {
+                        c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
+                        cannotInstantiateProduction = true;  
+                    }
+                }
+                if (!cannotInstantiateProduction) {
+                    try {
+                        rt = instantiate(rt, bindings);
+                        finalDefaultMatches += rt;
+                    } catch : {
+                        cannotInstantiateProduction = true;
+                    }
+                }
+            } else {
+            	finalDefaultMatches += rt;
+            }
         }
         
-        if (cannotInstantiateFunction && cannotInstantiateConstructor) {
+        if (cannotInstantiateFunction && cannotInstantiateConstructor && cannotInstantiateProduction) {
+        	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in function invocation and constructor and production", exp@\loc));
+        } else if (cannotInstantiateFunction && cannotInstantiateConstructor) {
         	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in function invocation and constructor", exp@\loc));
+        } else if (cannotInstantiateFunction && cannotInstantiateProduction) {
+        	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in function invocation and production", exp@\loc));
+        } else if (cannotInstantiateConstructor && cannotInstantiateProduction) {
+        	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in constructor and production", exp@\loc));
         } else if (cannotInstantiateFunction) {
         	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in function invocation", exp@\loc));
         } else if (cannotInstantiateConstructor) {
         	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in constructor", exp@\loc));
+        } else if (cannotInstantiateProduction) {
+        	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in production", exp@\loc));
         } else {
         	if ( (size(finalNonDefaultMatches) + size(finalDefaultMatches)) == 1 ) {
         		finalMatch = getOneFrom(finalNonDefaultMatches + finalDefaultMatches);
@@ -1371,7 +1405,24 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 			} else if (<c.typeEnv[nonterminalName],fAsString> notin c.nonterminalFields) {
 				return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
 			} else {
-				return c.nonterminalFields[<c.typeEnv[nonterminalName],fAsString>];
+				sortId = c.typeEnv[nonterminalName];
+				originalType = c.store[sortId].rtype;
+				originalParams = getNonTerminalTypeParameters(originalType);
+				fieldType = c.nonterminalFields[<c.typeEnv[nonterminalName],fAsString>];
+				if (size(originalParams) > 0) {
+					actualParams = getNonTerminalTypeParameters(t1);
+					if (size(originalParams) != size(actualParams)) {
+						return makeFailType("Invalid nonterminal type, the number of type parameters is inconsistent", l);
+					} else {
+						bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
+	                    try {
+	                        fieldType = instantiate(fieldType, bindings);
+	                    } catch : {
+	                        return makeFailType("Failed to instantiate type parameters in field type", l);
+	                    }						
+					}
+				}									        	
+	            return fieldType;
 			}
 		} else {
 			return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l);
@@ -1379,10 +1430,28 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
     } else if (isNonTerminalType(t1)) {
         nonterminalName = RSimpleName(getNonTerminalName(t1));
         if (nonterminalName in c.typeEnv && c.store[c.typeEnv[nonterminalName]] is sorttype) {
-	        if (<c.typeEnv[nonterminalName],fAsString> notin c.nonterminalFields)
+	        if (<c.typeEnv[nonterminalName],fAsString> notin c.nonterminalFields) {
 	            return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
-	        else
-	            return c.nonterminalFields[<c.typeEnv[nonterminalName],fAsString>];
+	        } else {
+				sortId = c.typeEnv[nonterminalName];
+				originalType = c.store[sortId].rtype;
+				originalParams = getNonTerminalTypeParameters(originalType);
+				fieldType = c.nonterminalFields[<c.typeEnv[nonterminalName],fAsString>];
+				if (size(originalParams) > 0) {
+					actualParams = getNonTerminalTypeParameters(t1);
+					if (size(originalParams) != size(actualParams)) {
+						return makeFailType("Invalid nonterminal type, the number of type parameters is inconsistent", l);
+					} else {
+						bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
+	                    try {
+	                        fieldType = instantiate(fieldType, bindings);
+	                    } catch : {
+	                        return makeFailType("Failed to instantiate type parameters in field type", l);
+	                    }						
+					}
+				}									        	
+	            return fieldType;
+	        }
 	    } else {
 	    	return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l); 
 	    }  
