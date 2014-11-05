@@ -383,12 +383,12 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 		i += 1;
 		println("**** Compiling <i> of <nfiles> files (static_errors: <size(static_errors)>, compiler_errors: <size(compiler_errors)>), time sofar <tosec(t1, realTime())> sec. ****");
 		try {
-		    Configuration c = newConfiguration();
-		    M = parse(#start[Module], f).top;
-            Configuration config = checkModule(M, c);  
-            errors = [ e | e:error(_,_) <- config.messages];
-            static_error_count[f] = size(errors);
-            println("<f>: <size(errors)>, <static_error_count[f]>");
+		    //Configuration c = newConfiguration();
+		    //M = parse(#start[Module], f).top;
+      //      Configuration config = checkModule(M, c);  
+      //      errors = [ e | e:error(_,_) <- config.messages];
+      //      static_error_count[f] = size(errors);
+      //      println("<f>: <size(errors)>, <static_error_count[f]>");
 			compile(f);
 		} catch /static error/: {
 			static_errors += f;
@@ -419,9 +419,9 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 	println("Success: <ndone>");
 	println("Type checker: <nstatic> files with errors");
 	
-	nstatic_errors = (0 | it + static_error_count[fl] | loc fl <- static_error_count);
-	
-	println("Type checker: <nstatic_errors> error messages");
+	//nstatic_errors = (0 | it + static_error_count[fl] | loc fl <- static_error_count);
+	//
+	//println("Type checker: <nstatic_errors> error messages");
 	
 	println("Compiler errors: <ncompiler>");
 	println("Time: <tosec(t1, realTime())> sec.");

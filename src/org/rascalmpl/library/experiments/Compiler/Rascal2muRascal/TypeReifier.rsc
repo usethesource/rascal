@@ -298,11 +298,11 @@ default Production sym2prod(Symbol s) { throw "Could not transform the symbol <s
 @doc{Intermix with an active layout}
 public Production \layouts(Production prod) {
   return top-down-break visit (prod) {
-    case prod(\start(y),[Symbol x],as) => Production::prod(\start(y),[activeLayout, x, activeLayout],  as)
-    case prod(sort(s),list[Symbol] lhs,as) => Production::prod(sort(s),intermix(lhs,activeLayout),as)
-    case prod(\parameterized-sort(s,n),list[Symbol] lhs,as) => Production::prod(\parameterized-sort(s,n),intermix(lhs,activeLayout),as)
-    case prod(label(t,sort(s)),list[Symbol] lhs,as) => Production::prod(label(t,sort(s)),intermix(lhs,activeLayout),as)
-    case prod(label(t,\parameterized-sort(s,n)),list[Symbol] lhs,as) => Production::prod(label(t,\parameterized-sort(s,n)),intermix(lhs,activeLayout),as) 
+    case Production::prod(\start(y),[Symbol x],as)                                  => Production::prod(\start(y),[activeLayout, x, activeLayout],  as)
+    case Production::prod(sort(s),list[Symbol] lhs,as)                              => Production::prod(sort(s),intermix(lhs,activeLayout),as)
+    case Production::prod(\parameterized-sort(s,n),list[Symbol] lhs,as)             => Production::prod(\parameterized-sort(s,n),intermix(lhs,activeLayout),as)
+    case Production::prod(label(t,sort(s)),list[Symbol] lhs,as)                     => Production::prod(label(t,sort(s)),intermix(lhs,activeLayout),as)
+    case Production::prod(label(t,\parameterized-sort(s,n)),list[Symbol] lhs,as)    => Production::prod(label(t,\parameterized-sort(s,n)),intermix(lhs,activeLayout),as) 
   }
 } 
 
