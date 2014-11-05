@@ -5,8 +5,9 @@ import lang::rascal::\syntax::Rascal;
 import util::FileSystem;
 import ParseTree;
 import IO;
+import Message;
 
-list[message] report(loc root) 
+list[Message] report(loc root) 
    = [*report(parse(#start[Module], m)) | m <- find(root, "rsc")];
    
 void update(loc root) {
@@ -16,8 +17,8 @@ void update(loc root) {
   }
 }
 
-list[message] report(Tree m) 
-  = [message("found postfix multivar", name@\loc) | /(Pattern) `<QualifiedName name>*` := m];
+list[Message] report(Tree m) 
+  = [info("found postfix multivar", name@\loc) | /(Pattern) `<QualifiedName name>*` := m];
 
 Tree update(Tree m) =
   visit(m) {
