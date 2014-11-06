@@ -961,11 +961,14 @@ void groupedSymbolChart(){
 void groupedLineChart(){
         ex("groupedLineChart", vega(size=<500,200>, datasets=stackedData, variable="groupedLine()"));
 }
+
+void stedenBarChart(){
+        ex("stedenBarChart", vega(size=<1000,200>, datasets=exampleSteden(), variable="stedenBar()"));
+}
      
 
 void barChart1(){
 	ex("barChart1", barChart(datasets=exampleBarData()));
-
 }
 
 void barChart2(){
