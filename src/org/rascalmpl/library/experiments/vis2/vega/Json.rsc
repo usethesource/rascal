@@ -1,5 +1,6 @@
 module experiments::vis2::vega::Json
 import Prelude;
+import lang::json::IO;
 
 public data JSON 
 	= null() 
@@ -71,7 +72,7 @@ public data MARK = mark(str name = "", str \type = "", list[MARK] marks =[],
     
 public data DATUM = datum(str name="", list[TRANSFORM] transform = [], str source = "", str \data="");
 
-public data TRANSFORM = t(str \type="", list[str] keys = [], str point ="", str height = "", str \value ="");
+public data TRANSFORM = transform(str \type="", list[str] keys = [], str point ="", str height = "", str \value ="");
 
 public data DOMAIN = ref(str \data="", str field = "");
 
@@ -138,7 +139,7 @@ JSON toJson(PADDING padding) {
      
 JSON toJson(TRANSFORM transform) { 
      switch (transform) {
-         case t(): return Object(("type":string(transform.\type), "keys": toJson(transform.keys), 
+         case transform(): return Object(("type":string(transform.\type), "keys": toJson(transform.keys), 
                "point":toJson(transform.point),  "height":toJson(transform.height),
                "value":toJson(transform.\value)));
          }
@@ -202,6 +203,10 @@ JSON propToJson(value v) {
             "viewport" : toJson(vega.viewport)));
          } 
     return null();
+    }
+    
+public str toJSON(VEGA vega) {
+    return toJSON(toJson(vega));
     }
   
  public void Main() {

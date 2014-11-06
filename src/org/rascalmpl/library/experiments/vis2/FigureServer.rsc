@@ -120,7 +120,8 @@ default Response page(!get(), str path, map[str, str] parameters) {
 Response page(get(), /^\/vegaJSON\/<modul:[a-zA-Z0-9_:]+>\/<variable:[a-zA-Z0-9_(,)]+>/, map[str, str] parameters) {
         println("get: initial_figure: <modul>  <variable>, <parameters>");
         // println("aap");
-    str cmd = "import <modul>;import lang::json::IO;toJSON(<variable>);";
+    str cmd = 
+      "import <modul>;import experiments::vis2::vega::Json;toJSON(<variable>);";
     println(cmd);
     try {
       unimport("<modul>");
