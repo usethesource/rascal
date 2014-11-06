@@ -826,9 +826,9 @@ public Symbol getProductionSortType(Symbol pr) {
 
 public bool hasDeferredTypes(Symbol t) = size({d | /d:deferred(_) := t}) > 0;
 
-public bool subtype(deferred(Symbol t), Symbol s) = subtype(t,s);
-public bool subtype(Symbol t, deferred(Symbol s)) = subtype(t,s); 
-public bool subtype(Symbol t, \adt("Tree",[])) = true when isNonTerminalType(t);
-public bool subtype(Symbol t, \node()) = true when isNonTerminalType(t);
+public bool subtype(Symbol::deferred(Symbol t), Symbol s) = subtype(t,s);
+public bool subtype(Symbol t, Symbol::deferred(Symbol s)) = subtype(t,s); 
+public bool subtype(Symbol t, Symbol::\adt("Tree",[])) = true when isNonTerminalType(t);
+public bool subtype(Symbol t, Symbol::\node()) = true when isNonTerminalType(t);
 // TODO: Do we also want to consider the separator?
-public bool subtype(\iter-seps(Symbol s, _), \iter-star-seps(Symbol t, _)) = subtype(s,t);
+public bool subtype(Symbol::\iter-seps(Symbol s, _), Symbol::\iter-star-seps(Symbol t, _)) = subtype(s,t);
