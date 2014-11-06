@@ -7229,7 +7229,8 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule _>;` := importItem > | 
 		importItem <- importList, 
 		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
-	rel[RName mname, bool isext] defaultModules = {}; // (moduleName != RSimpleName("Exception")) ? { < RSimpleName("Exception"), false > } : {};
+	rel[RName mname, bool isext] defaultModules = { < RSimpleName("Exception"), false > };
+	defaultModules = domainX(defaultModules, { moduleName }); // we don't want to accidentally set the current module as a default to import
 	list[RName] extendedModules = [ getNameOfImportedModule(im) | importItem <- importList, (Import)`extend <ImportedModule im>;` := importItem ];
 	set[RName] allImports = modulesToImport<0> + defaultModules<0>;
 	
@@ -7274,43 +7275,47 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	// module as well. 
 	for (wl <- allImports) {
 		reachable = igTrans[wl];
-		rebuildSet = { };
+		rebuildNeeded = false;
 		for (r <- reachable) {
 			try {
 				dependencyLoc = getModuleLocation(prettyPrintName(r));
-				if (r notin moduleHashes) {
-					// If we import this module, but this wasn't one of the modules we included
-					// in the signature hash earlier, we need to rebuild this import
-					rebuildSet = rebuildSet + r;
+				if (!exists(cachedHash(dependencyLoc, bindir))) {
+					// If we import this module, but the saved cache doesn't exist, we need
+					// to rebuild this import. 
+					rebuildNeeded = true;
+					break;
 				} else {
-					fileHash = currentHashes[r];
-					if (r == wl) 
-					if (!exists(cachedHash(dependencyLoc, bindir))) {
-						// If we import this module, but the saved cache doesn't exist, we need
-						// to rebuild this import
-						rebuildSet = rebuildSet + r;
-					} else {
-						existingHash = getCachedHash(dependencyLoc, bindir);
+					existingHash = getCachedHash(dependencyLoc, bindir);
+					if (r in currentHashes) {
+						fileHash = currentHashes[r];
 						if (! (existingHash == fileHash && existingHash == moduleHashes[r])) {
 							// If we import this module, and the saved cache exists, but it
 							// either differs from the current hash or the saved hash, we need
-							// to rebuild this import
-							rebuildSet = rebuildSet + r;
+							// to rebuild this import. 
+							rebuildNeeded = true;
+							break;
 						}
+					} else {
+						// If r isn't in the current map of hashes, trigger a rebuild of wl. This
+						// will generate the hash for r eventually, since it is a dependency.
+						rebuildNeeded = true;
+						break;
 					}
 				}
 
 				// If all the hash info is fine, but we don't have a config saved for some
-				// reason, we need to rebuild this import
+				// reason, we need to rebuild this import. We will rebuild rl, since this will
+				// then eventually rebuild r (which is a dependency).
 				if (!exists(cachedConfig(dependencyLoc, bindir))) {
-					rebuildSet = rebuildSet + r;
+					rebuildNeeded = true;
+					break;
 				}
 			} catch : {
 				; // Don't bother here, this is a dependency in an import -- if it is the direct import, we will catch it below
 			}
 		}
 		
-		if (size(rebuildSet) > 0) {
+		if (rebuildNeeded) {
 			try {
 				checkedModules[wl] = checkAndReturnConfig(prettyPrintName(wl), bindir=bindir, forceCheck=forceCheck);
 			} catch : {
