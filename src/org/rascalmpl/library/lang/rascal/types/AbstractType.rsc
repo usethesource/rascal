@@ -779,6 +779,20 @@ public default str getNonTerminalName(Symbol s) { throw "Invalid nonterminal pas
 //public bool nonTerminalAllowsFields(Symbol::\conditional(Symbol ss,_)) = nonTerminalAllowsFields(ss);
 //public default bool nonTerminalAllowsFields(Symbol s) = false;
 
+@doc{Get the type parameters of a nonterminal.}
+public list[Symbol] getNonTerminalTypeParameters(Symbol t) {
+	if (Symbol::\parameterized-sort(n,ps) := unwrapType(t)) return ps;
+	if (Symbol::\parameterized-lex(n,ps) := unwrapType(t)) return ps;
+	if (Symbol::\iter(s) := unwrapType(t)) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter-star(s) := unwrapType(t)) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter-seps(s,_) := unwrapType(t)) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter-star-seps(s,_) := unwrapType(t)) return getNonTerminalTypeParameters(s);
+	if (Symbol::\opt(s) := unwrapType(t)) return getNonTerminalTypeParameters(s);
+	if (Symbol::\conditional(s,_) := unwrapType(t)) return getNonTerminalTypeParameters(s);
+	if (Symbol::\prod(s,_,_,_) := unwrapType(t)) return getNonTerminalTypeParameters(s);
+    throw "getNonTerminalTypeParameters given type <prettyPrintType(t)>, expected non-terminal type";
+}
+
 @doc{Synopsis: Determine if the given type is a production.}
 public bool isProductionType(\alias(_,_,Symbol at)) = isProductionType(at);
 public bool isProductionType(\parameter(_,Symbol tvb)) = isProductionType(tvb);
@@ -812,9 +826,9 @@ public Symbol getProductionSortType(Symbol pr) {
 
 public bool hasDeferredTypes(Symbol t) = size({d | /d:deferred(_) := t}) > 0;
 
-public bool subtype(deferred(Symbol t), Symbol s) = subtype(t,s);
-public bool subtype(Symbol t, deferred(Symbol s)) = subtype(t,s); 
-public bool subtype(Symbol t, \adt("Tree",[])) = true when isNonTerminalType(t);
-public bool subtype(Symbol t, \node()) = true when isNonTerminalType(t);
+public bool subtype(Symbol::deferred(Symbol t), Symbol s) = subtype(t,s);
+public bool subtype(Symbol t, Symbol::deferred(Symbol s)) = subtype(t,s); 
+public bool subtype(Symbol t, Symbol::\adt("Tree",[])) = true when isNonTerminalType(t);
+public bool subtype(Symbol t, Symbol::\node()) = true when isNonTerminalType(t);
 // TODO: Do we also want to consider the separator?
-public bool subtype(\iter-seps(Symbol s, _), \iter-star-seps(Symbol t, _)) = subtype(s,t);
+public bool subtype(Symbol::\iter-seps(Symbol s, _), Symbol::\iter-star-seps(Symbol t, _)) = subtype(s,t);
