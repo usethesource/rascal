@@ -105,20 +105,16 @@ Note that this is equivalent to using the `home` scheme:
 |home://pico.trm|(0,1,<2,3>,<4,5>)
 </screen>
 
-Accessing a file `META-INF/MANIFEST.MF` in a project with the name `org.eclipse.imp.pdb.values` in the currently running Eclipse is done as follows:
+Accessing a file `src/HelloWorld.java` in a project with the name `example-project` in the currently running Eclipse is done as follows:
 <screen>
-|project://org.eclipse.imp.pdb.values/META-INF/MANIFEST.MF|
+|project://example-project/src/HelloWorld.java|
 </screen>
 
-Reading the `demo/Hello.rsc` from the Rascal library can be done using:
-<screen>
-|std://demo/basic/Hello.rsc|
-</screen>
 
 You could read a webpage:
 <screen>
 import IO;
-readFileLines(|http://www.rascal-mpl.org|)
+println(readFile(|http://www.example.org|))
 </screen>
 
 Addition on locations creates longer paths:
@@ -128,8 +124,8 @@ x += "myTempFile.txt";
 </screen>
 
 Check the contents of a folder:
-<screen errors>
-|std:///|.ls
+<screen>
+|project://example-project/src|.ls
 </screen>
 Benefits:
 

@@ -150,8 +150,8 @@ QValue:
 desc: Fill in the missing function name.
 prep: import List;
 make: L = list[arb[int,str],0,5]
-expr: H = domain(<L>)
-hint: domain
+expr: H = index(<L>)
+hint: index
 test: <?>(<L>) == <H>
 
 QValue:

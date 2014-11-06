@@ -25,6 +25,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -35,6 +36,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.Arity;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -236,7 +238,11 @@ public class ListRelationResult extends ListOrRelationResult<IList> {
 		@Override
 		public  <U extends IValue> Result<U> transitiveClosure() {
 			if (getValue().asRelation().arity() == 0 || getValue().asRelation().arity() == 2) {
-				return makeResult(type, getValue().asRelation().closure(), ctx);
+				try {
+					return makeResult(type, getValue().asRelation().closure(), ctx);
+				} catch (IllegalOperationException e){
+					throw new UnsupportedOperation("Illegal argument of transitive closure (+)", ctx.getCurrentAST());
+				}
 			}
 			throw new Arity(2, getValue().asRelation().arity(), ctx.getCurrentAST());
 		}
@@ -245,7 +251,11 @@ public class ListRelationResult extends ListOrRelationResult<IList> {
 		@Override
 		public  <U extends IValue> Result<U> transitiveReflexiveClosure() {
 			if (getValue().asRelation().arity() == 0 || getValue().asRelation().arity() == 2) {
-				return makeResult(type, getValue().asRelation().closureStar(), ctx);
+				try {
+					return makeResult(type, getValue().asRelation().closureStar(), ctx);
+				} catch (IllegalOperationException e){
+					throw new UnsupportedOperation("Illegal argument of reflexive transitive closure (*)", ctx.getCurrentAST());
+				}
 			}
 			throw new Arity(2, getValue().asRelation().arity(), ctx.getCurrentAST());
 		}

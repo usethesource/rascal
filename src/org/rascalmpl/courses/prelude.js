@@ -49,6 +49,17 @@ $(document).ready(function () {
 			}
 		});
 	}
+	$("#compileAction").click(function (e) {
+		e.preventDefault();
+		if ($("#pleaseWaitMessage").length == 0) {
+			$("#editMenu").after("<div id=\"pleaseWaitMessage\"><img src=\"/images/loader-light.gif\" width=\"16\" height=\"16\"> Recompiling the whole Course, please wait a few minutes..</div>");
+		}
+		$("#pleaseWaitMessage").show();
+		var url = $(this).attr('href');
+		$.get(url, function () {
+			location.reload();
+		});
+	});
 });
 
 var _gaq = _gaq || [];
@@ -208,6 +219,15 @@ function finishLoad() {
     $('pre').css('max-width', $(window).width() * 0.7);
     $(window).resize(function() {
         $('pre').css('max-width', $(window).width() * 0.7);
+    });
+    $("#editMenu").after("<div id=\"pleaseWaitMessage\"><img src=\"/images/loader-light.gif\" width=\"16\" height=\"16\"> Recompiling the whole Course, please wait a few minutes..</div>");
+    $("#compileAction").click(function (e) {
+        e.preventDefault();
+        $("#pleaseWaitMessage").show();
+        var url = $(this).attr('href');
+        $.get(url, function () {
+            location.reload();
+        });
     });
 }
 
@@ -485,7 +505,7 @@ function handleSave(evt) {
     evt.preventDefault();
 	$('#saveButton').attr('disabled','disabled');
 	$('#pleaseWaitMessage').css('display', 'inline');
-	$.get("save", formData, function processSaveFeedback(data, textStatus) {
+	$.post("save", formData, function processSaveFeedback(data, textStatus) {
 		$('#pleaseWaitMessage').hide();
 		$('#saveButton').removeAttr('disabled');
         var c = $('#concept', data).text();

@@ -10,6 +10,7 @@
 <"Rascal/Libraries/Prelude",|clib-rascal:///String.rsc|>,
 <"Rascal/Libraries/Prelude",|clib-rascal:///Exception.rsc|>,
 <"Rascal/Libraries/Prelude",|clib-rascal:///IO.rsc|>,
+<"Rascal/Libraries/Prelude",|clib-rascal:///ValueIO.rsc|>,
 <"Rascal/Libraries/Prelude",|clib-rascal:///Message.rsc|>,
 <"Rascal/Libraries/Prelude",|clib-rascal:///ParseTree.rsc|>,
 <"Rascal/Libraries/Prelude",|clib-rascal:///Type.rsc|>,

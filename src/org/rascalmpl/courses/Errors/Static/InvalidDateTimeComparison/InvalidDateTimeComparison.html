@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Errors/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Errors/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  <a href="/Rascal/Expressions/Values/DateTime/DateTime.html">Rascal:DateTime</a> values may contain two components: date and time.
  Datetime values that contain both a date and a time can be compared.
@@ -60,26 +60,26 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Comparing dates with dates:
  <pre class="screen"><span class="prompt">rascal></span>$2013-07-15 &lt; $2014-07-15
-bool: true
+                   ^ Parse error here
 </pre>  Or times with times:
 <pre class="screen"><span class="prompt">rascal></span>$T20:03:56.901+01:00 &lt; $T22:00:56.901+01:00
-bool: true
+                            ^ Parse error here
 </pre>  Or datetimes with datetimes:
 <pre class="screen"><span class="prompt">rascal></span>$2013-01-11T23:03:56.901+01:00 &lt; $2013-01-11T23:05:00.901+01:00
-bool: true
+                                      ^ Parse error here
 </pre> But mixing dates and times gives errors:
  <pre class="screen"><span class="prompt">rascal></span>$2013-07-15 &lt; $T20:03:56.901+01:00
-|stdin:///|(14,20,&lt;1,14>,&lt;1,34>): Invalid comparison between date and time
+                   ^ Parse error here
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Static/InvalidDateTimeComparison&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Static/InvalidDateTimeComparison&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |

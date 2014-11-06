@@ -30,7 +30,7 @@ The function `count` is defined at /*1*/:
 * /*3*/ defines a visit of argument `N`; it traverses the complete value of `N`.
 * /*4*/ defines the case that we encounter a node and we update its frequency count.
   First the name of the constructor is retrieved (using [Rascal:getName]) and then the
-  frequency is updated. The [Rascal:IsDefined] operator is used to provide a default value of 0 when
+  frequency is updated. The [$Rascal:Statements/Assignment/IsDefined] operator is used to provide a default value of 0 when
   the name was not yet in the map.
 * /*5*/ the map `freq` is returned as result.
 

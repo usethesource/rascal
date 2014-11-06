@@ -13,28 +13,21 @@ Usage:
 Details:
 
 Description:
+
  First the value of $Exp_1$ is determined and if that is defined it is assigned to $Assignable$. 
- Otherwise, the value of $Exp_2$ is assigned to $Assignable$.
+ Otherwise, the value of $Exp_2$ is assigned to $Assignable$. Values which can be undefined are values in [Rascal/Expressions/Values/Map]s where the key is not set or values of [Annotations] which have not been set yet. 
+
+No other values can be used in an undefined state, so the ? operator does not make sense on undefined or uninitialized variables for example.
 
 Examples:
-<screen errors>
-// First assign to `N`:
-N = 1;
-// and use `?=` to assign to `N` (nothing spectacular here):
-N ?= 5;
-N;
-// Now explore what happens if we do this to an undefined variable `X`:
-X;
-X ?= 3;
-X;
-Y ? 0 += 3;
-//<warning>Is this ok?</warning>
-// This is a common idiom to handle undefined key in maps:
-// Introduce a may M that does not contain a key "cef". 
-M = ("abc": 1, "def" : 2);
+<screen>
+M = ("Andy": 1, "Brian" : 2);
 // Using an `isDefined` assignable can we increment a non-existing entry:
-M["cef"] ? 0 += 1;
-M["cef"];
+M["SomebodyElse"] ? 0 += 1;
+M["SomebodyElse"];
+// And if we increment an existing entry the ? has no effect:
+M["Andy"] ? 0 += 1;
+M["Andy"]
 </screen>
 
 Benefits:

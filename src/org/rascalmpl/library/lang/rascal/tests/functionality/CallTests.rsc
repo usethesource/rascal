@@ -287,6 +287,16 @@ test bool  dispatchTest3() {
   		
     return [f((XYZ)`x`),f((XYZ)`y`),f((XYZ)`z`)] == [1,2,3];
 }	
+
+// Indirect calls
+
+@ignoreInterpreter
+test bool indirect1(){
+	bool isLF(int c) = c == 0x000A;
+    l = [ isLF ];
+    elem = l[0];
+    return !elem(0);
+}
  
 //  keywordTest
    
@@ -322,7 +332,7 @@ test bool keywordTest7(){
     int vol(int x, int y, int z, int area = x * y, int volume = area * z) = volume;
     return vol(1,2,3) == 6; 
 }
-  
+/*TODO:TC*/ 
 data Figure (real shrink = 1.0, str fillColor = "white", str lineColor = "black")  =  emptyFigure() 
   | ellipse(Figure inner = emptyFigure()) 
   | box(Figure inner = emptyFigure())

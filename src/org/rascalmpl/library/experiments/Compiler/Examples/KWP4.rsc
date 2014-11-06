@@ -9,7 +9,7 @@ int h(int delta = 1) {
 }
 
 value main(list[value] args) {
-    return f(0,delta = 5);
+    return f(0,delta = 5) == expectedResult;
 }
 
 public value expectedResult = 5;

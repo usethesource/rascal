@@ -71,7 +71,7 @@ public bool lessThan(CharRange r1, CharRange r2) {
 public CharRange difference(CharRange l, CharRange r) {
   if (l == \empty-range() || r == \empty-range()) return l;
   
-  if (\char-range(ls,le) := l, \char-range(rs,re) := r) {
+  if (\range(ls,le) := l, \range(rs,re) := r) {
     // left beyond right
     // <-right-> --------
     // --------- <-left->
@@ -324,20 +324,20 @@ public list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   throw "did not expect to end up here! <l> - <r>";
 }
 
-test bool comp() = complement(\char-class([])) == \char-class([range(1,16777215)]);
-test bool comp2() = complement(\char-class([range(0,0)])) == \char-class([range(1,16777215)]);
-test bool comp3() = complement(\char-class([range(1,1)])) == \char-class([range(2,16777215)]);
-test bool comp4() = complement(\char-class([range(10,20), range(30,40)])) == \char-class([range(1,9),range(21,29),range(41,16777215)]);
-test bool comp5() = complement(\char-class([range(10,35), range(30,40)])) == \char-class([range(1,9),range(41,16777215)]);
+test bool testComp() = complement(\char-class([])) == \char-class([range(1,16777215)]);
+test bool testComp2() = complement(\char-class([range(0,0)])) == \char-class([range(1,16777215)]);
+test bool testComp3() = complement(\char-class([range(1,1)])) == \char-class([range(2,16777215)]);
+test bool testComp4() = complement(\char-class([range(10,20), range(30,40)])) == \char-class([range(1,9),range(21,29),range(41,16777215)]);
+test bool testComp5() = complement(\char-class([range(10,35), range(30,40)])) == \char-class([range(1,9),range(41,16777215)]);
 
-test bool union1() = union(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([range(10,20), range(30,40)]);
-test bool union2() = union(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(10,40)]);
+test bool testUnion1() = union(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([range(10,20), range(30,40)]);
+test bool testUnion2() = union(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(10,40)]);
  
-test bool inter1() = intersection(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([]);
-test bool inter2() = intersection(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(20, 25)]);
+test bool testInter1() = intersection(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([]);
+test bool testInter2() = intersection(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(20, 25)]);
 
-test bool diff1() = difference(\char-class([range(10,30)]), \char-class([range(20,25)])) == \char-class([range(10,19), range(26,30)]);
-test bool diff2() = difference(\char-class([range(10,30), range(40,50)]), \char-class([range(25,45)])) ==\char-class( [range(10,24), range(46,50)]);
+test bool testDiff1() = difference(\char-class([range(10,30)]), \char-class([range(20,25)])) == \char-class([range(10,19), range(26,30)]);
+test bool testDiff2() = difference(\char-class([range(10,30), range(40,50)]), \char-class([range(25,45)])) ==\char-class( [range(10,24), range(46,50)]);
 
 public Symbol cc2ranges(Class cc) {
    switch(cc) {
@@ -353,9 +353,9 @@ public Symbol cc2ranges(Class cc) {
       
 private CharRange range(Range r) {
   switch (r) {
-    case character(Char c) : return range(character(c),character(c));
-    case fromTo(Char l, Char r) : {
-      <cL,cR> = <character(l),character(r)>;
+    case character(Char c) : return range(charToInt(c),charToInt(c));
+    case fromTo(Char l1, Char r1) : {
+      <cL,cR> = <charToInt(l1),charToInt(r1)>;
       // users may flip te ranges, but after this reversed ranges will results in empty ranges
       return cL <= cR ? range(cL, cR) : range(cR, cL);
     } 
@@ -363,7 +363,7 @@ private CharRange range(Range r) {
   }
 } 
  
-private int character(Char c) {
+private int charToInt(Char c) {
   switch (c) {
     case [Char] /^<ch:[^"'\-\[\]\\\>\< ]>/        : return charAt(ch, 0); 
     case [Char] /^\\n/ : return charAt("\n", 0);

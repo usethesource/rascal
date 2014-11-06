@@ -10,10 +10,22 @@ test bool reflexEq(value x) = x == x;
 test bool transEq(value x, value y, value z) = (x == y && y == z) ==> (x == z);
 test bool commutativeEq(value x, value y) = (x == y) <==> (y == x);
 
+// values have an equivalence relation, and by requiring the arguments to have the same types we may trigger bugs sooner:
+test bool transEqSame(&Same x, &Same y, &Same z) = (x == y && y == z) ==> (x == z);
+test bool commutativeEqSame(&Same x, &Same y) = (x == y) <==> (y == x);
+
 // values are partially ordered
 test bool reflexLTE(value x) = (x <= x);
 test bool antiSymmetricLTE(value x, value y) = (x <= y && y <= x) ==> (x == y);
 test bool transLTE(value x, value y, value z) = (x <= y && y <= z) ==> x <= z;
+
+// values are partially ordered, and by requiring the arguments to have the same type we may trigger bugs sooner:
+test bool antiSymmetricLTESame(&Same x, &Same y) = (x <= y && y <= x) ==> (x == y);
+test bool transLTESame(&Same x, &Same y, &Same z) = (x <= y && y <= z) ==> x <= z;
+
+test bool antiSymmetricLTEWithKeywordParamsLt1() = antiSymmetricLTESame(""(), ""(x = 3)); 
+test bool antiSymmetricLTEWithKeywordParamsLt2() = antiSymmetricLTESame(""(x = 2), ""(x = 3)); 
+test bool antiSymmetricLTEWithKeywordParamsEq() = antiSymmetricLTESame(""(x = 3), ""(x = 3)); 
 
 // numbers are totally ordered
 test bool numTotalLTE(num x, num y) = x <= y || y <= x;

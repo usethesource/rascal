@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,7 +48,7 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <ol><li> <code><i>Exp</i><sub>1</sub> [ <i>Exp</i><sub>2</sub> .. <i>Exp</i><sub>4</sub>]</code></li>
 <li> <code><i>Exp</i><sub>1</sub> [ <i>Exp</i><sub>2</sub> , <i>Exp</i>3 .. <i>Exp</i><sub>4</sub>]</code></li>
@@ -56,13 +56,13 @@
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><col align="center" /><col align="center" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code>     </th><th align="left"> <code><i>Exp</i><sub>2</sub></code> </th><th align="left">  <code><i>Exp</i><sub>3</sub></code>  </th><th align="center"> <code><i>Exp</i><sub>4</sub></code> </th><th align="center"> <code><i>Exp</i><sub>1</sub> [ <i>Exp</i><sub>2</sub> .. <i>Exp</i><sub>4</sub> ]</code>   or  <code><i>Exp</i><sub>1</sub> [ <i>Exp</i><sub>2</sub> , <i>Exp</i><sub>3</sub> .. <i>Exp</i><sub>4</sub>]</code> </th></tr><tr><td align="left"> <code>node</code> </td><td align="left"> <code>int</code>     </td><td align="left"> <code>int</code>       </td><td align="center"> <code>int</code>     </td><td align="center">  <code>list[value]</code>                                                                </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  A Node slice is similar to a list <a href="/Rascal/Expressions/Values/List/Slice/Slice.html">Slice</a> and uses the integer values of <code><i>Exp</i><sub>2</sub></code> and <code><i>Exp</i><sub>4</sub></code> to determine the <code>begin</code> (<b>inclusive</b>) and <code>end</code> (<b>exclusive</b>)
  of a slice from the children of the node value <code><i>ND</i></code> of <code><i>Exp</i><sub>1</sub></code>. Negative indices count from the end of the list of children backwards.
@@ -98,7 +98,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Consider the list <code>ND = "f"(0, "abc", 20, false, 40, [3,4,5], 60, {"a", "b"}, 80);</code> as running example.
  <br/>
@@ -122,7 +122,7 @@ node: "f"(
   40,
   [3,4,5],
   60,
-  {"b","a"},
+  {"a","b"},
   80)
 </pre>  Slices with begin &lt; end
 <pre class="screen"><span class="prompt">rascal></span>ND[1..3];
@@ -135,7 +135,7 @@ list[value]: [
   40,
   [3,4,5],
   60,
-  {"b","a"},
+  {"a","b"},
   80
 ]
 <span class="prompt">rascal></span>ND[..3];       // empty begin =&gt; first child of list
@@ -149,7 +149,7 @@ list[value]: [
   40,
   [3,4,5],
   60,
-  {"b","a"},
+  {"a","b"},
   80
 ]
 </pre>  Slices with  begin >= end
@@ -211,9 +211,9 @@ list[value]: [
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Node/Slice&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Node/Slice&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

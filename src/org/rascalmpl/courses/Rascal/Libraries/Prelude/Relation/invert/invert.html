@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,9 +48,9 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <ol><li> <code>rel[&amp;T1, &amp;T0] invert (rel[&amp;T0, &amp;T1] R)</code></li>
 <li> <code>rel[&amp;T2, &amp;T1, &amp;T0] invert (rel[&amp;T0, &amp;T1, &amp;T2] R)</code></li>
@@ -59,28 +59,28 @@
 </ol>
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Relation;</code>
  </AUTOINSERTED>
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Relation;
 ok
 <span class="prompt">rascal></span>invert({&lt;1,10&gt;, &lt;2,20&gt;});
 rel[int,int]: {
-  &lt;20,2>,
-  &lt;10,1>
+  &lt;10,1>,
+  &lt;20,2>
 }
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -102,8 +102,8 @@ rel[int,int]: {
 <span id="answerFeedback_Rascal_Libraries_Prelude_Relation_invert_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_invert_1:R" value="{&lt;&quot;Mango&quot;, &quot;Jabba the Hut&quot;&gt;, &lt;&quot;Oregano&quot;, &quot;Telly Monster&quot;&gt;, &lt;&quot;Orange&quot;, &quot;O&quot;&gt;}">
-The type of <tt>invert({&lt;&quot;Mango&quot;, &quot;Jabba the Hut&quot;&gt;, &lt;&quot;Oregano&quot;, &quot;Telly Monster&quot;&gt;, &lt;&quot;Orange&quot;, &quot;O&quot;&gt;})</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_invert_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_invert_1:R" value="{&lt;-5, &quot;Telly Monster&quot;&gt;}">
+The type of <tt>invert({&lt;-5, &quot;Telly Monster&quot;&gt;})</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_invert_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -127,8 +127,8 @@ The type of <tt>invert({&lt;&quot;Mango&quot;, &quot;Jabba the Hut&quot;&gt;, &l
 <span id="answerFeedback_Rascal_Libraries_Prelude_Relation_invert_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_invert_2:R" value="{&lt;&quot;Yoda&quot;, &quot;Emperor Palpatine&quot;&gt;}">
-<pre class="prequestion">invert({&lt;&quot;Yoda&quot;, &quot;Emperor Palpatine&quot;&gt;}) == <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_invert_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_invert_2:R" value="{&lt;-18, -20&gt;, &lt;3, -7&gt;, &lt;-15, 17&gt;, &lt;-12, -4&gt;}">
+<pre class="prequestion">invert({&lt;-18, -20&gt;, &lt;3, -7&gt;, &lt;-15, 17&gt;, &lt;-12, -4&gt;}) == <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_invert_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_invert_2:another" value="yes">

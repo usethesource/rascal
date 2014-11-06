@@ -534,17 +534,24 @@ test bool descendant11() = /int N := ("a" : 1) && N == 1;
 test bool descendant12() = /int N := <"a", 1> && N == 1;
   		
 test bool descendant13() = [1, /int N, 3] := [1, [1,2,3,2], 3] && N == 1;
-test bool descendant14() = [1, /int N, 3] := [1, [1,2,3,2], 3] && N == 2;	
-  	
- // descendant3
+test bool descendant14() = [1, /int N, 3] := [1, [1,2,3,2], 3] && N == 2;
+
+// descendant2
  
-test bool descendant23() = [n | /int n <- [1,2,3]] == [1,2,3];
-test bool descendant24() = [b | /bool b <- [true,false,true]] == [true,false,true];
-test bool descendant25() = [s | /str s <- ["a","b"]] == ["a","b"];
+data RECT = rect(int w, int h, str color = "white");
+ 
+test bool descendant21() = [n | /int n <- [1,2,3]] == [1,2,3];
+test bool descendant22() = [b | /bool b <- [true,false,true]] == [true,false,true];
+test bool descendant23() = [s | /str s <- ["a","b"]] == ["a","b"];
   		
-test bool descendant26() = {n | /int n <- {1,2,3}} == {1,2,3};
-test bool descendant27() = {n | /int n <- {<1,2,3>}} == {1,2,3};
-test bool descendant28() = {v | /value v <- {<1,"b",true>}} == {1,"b",true, <1,"b",true>}; 	
+test bool descendant24() = {n | /int n <- {1,2,3}} == {1,2,3};
+test bool descendant25() = {n | /int n <- {<1,2,3>}} == {1,2,3};
+test bool descendant26() = {v | /value v <- {<1,"b",true>}} == {1,"b",true, <1,"b",true>}; 
+
+@ignoreInterpreter{Not implemented}
+test bool descendant27() = [n | /int n := [1, "f"(2, kw1=3, kw2=4), 5]]  == [1,2,3,4,5];
+@ignoreInterpreter{Not implemented}	
+test bool descendant28() = [s | /str s := [1, rect(10,20), 5, rect(30,40,color="red")]]  == ["white", "red"];
   	
 // listCount1
  

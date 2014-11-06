@@ -9,7 +9,6 @@
 module lang::rascal::grammar::definition::Layout
 
 import lang::rascal::\syntax::Rascal;
-import lang::rascal::grammar::definition::Modules;
 import Grammar;
 import ParseTree;
 import List;
@@ -74,8 +73,8 @@ list[Symbol] intermix(list[Symbol] syms, Symbol l) {
   
   // Note that if a user manually put a layouts symbol, then this code makes sure not to override it and
   // not to surround it with new layout symbols  
-  while ([*pre, sym1, sym2, *post] := syms, !(sym1 is layouts), !(sym2 is layouts)) {
-      syms = [*pre, sym1, l, sym2, *post];
+  while ([*pre, sym1, sym2, *pst] := syms, !(sym1 is layouts), !(sym2 is layouts)) {
+      syms = [*pre, sym1, l, sym2, *pst];
   }
   
   return syms;

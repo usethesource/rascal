@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code>&amp;<i>Name</i> &lt;: <i>Type</i></code>
 
 </div>
 
-                           
-                           
-                           
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Constraints can be imposed on the actual types to which a type parameter may be bound. 
  This is expressed by a subtype constraint which expresses that 
@@ -64,7 +64,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Here is the definition of the absolute value function <code>abs</code> from the <a href="/Rascal/Expressions/Values/Number/Number.html">Number</a> library:
  <pre class="listing">public &amp;T &lt;: num abs(&amp;T &lt;: num N)
@@ -90,8 +90,8 @@ node: "f"(10,"abc")
 </pre>  First we apply <code>setAnnotations</code> to a node value:
 <pre class="screen"><span class="prompt">rascal></span>setAnnotations(nd, (&quot;color&quot; : &quot;red&quot;, &quot;size&quot; : &quot;large&quot;));
 node: "f"(10,"abc")[
-  @color="red",
-  @size="large"
+  @size="large",
+  @color="red"
 ]
 </pre>  Next, we introduce a new data type <code>Suite</code>:
 <pre class="screen"><span class="prompt">rascal></span>data Suite = hearts() | diamonds() | clubs() | spades();
@@ -107,9 +107,9 @@ Suite: diamonds()[
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/StaticTyping/TypeConstraints&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Declarations/StaticTyping/TypeConstraints&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

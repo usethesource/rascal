@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Recipes/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Recipes/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -43,10 +43,10 @@
 <span class="sectionHead">Name</span> <a href="/Recipes/Recipes.html">Recipes</a>/<a href="/Recipes/Languages/Languages.html">Languages</a>/<a href="/Recipes/Languages/Func/Func.html">Func</a>/<a href="/Recipes/Languages/Func/Eval1/Eval1.html">Eval1</a>
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Interpreter Eval1 supports the following features of Func: 
  <br/>
@@ -60,7 +60,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="listing">module demo::lang::Func::Eval1
 
@@ -76,7 +76,7 @@ alias PEnv = map[str, Func];
 public int eval1(str main, list[int] args, Prog prog) {
   penv = ( f.name: f | f &lt;- prog.funcs );
   f = penv[main];
-  env = ( f.formals[i] : args[i] | i &lt;- domain(f.formals) ); 
+  env = ( f.formals[i] : args[i] | i &lt;- index(f.formals) ); 
   return eval1(f.body, env, penv);
 }
 
@@ -106,7 +106,7 @@ public int eval1(cond(Exp cond, Exp then, Exp otherwise), Env env, PEnv penv) =
                  
 public int eval1(call(str name, list[Exp] args), Env env, PEnv penv) {
    f = penv[name];
-   env =  ( f.formals[i]: eval1(args[i], env, penv) | i &lt;- domain(f.formals) );
+   env =  ( f.formals[i]: eval1(args[i], env, penv) | i &lt;- index(f.formals) );
    return eval1(f.body, env, penv);
 }
          
@@ -142,9 +142,9 @@ int: 3628800
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Func/Eval1&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Func/Eval1&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |

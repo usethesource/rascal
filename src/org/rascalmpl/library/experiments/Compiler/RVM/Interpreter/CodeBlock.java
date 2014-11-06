@@ -22,30 +22,24 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Exhaust;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FailReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FilterReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.GreaterEqualInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Guard;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Halt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Instruction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Jmp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpFalse;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpIndexed;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCont;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Reset;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Shift;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Label;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LessInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadBool;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCon;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadConstr;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCont;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc;
@@ -60,20 +54,14 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc8;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc9;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocDeref;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadNestedFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadOFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVar;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Exhaust;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubType;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptArray;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptList;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubtractInt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownLoc;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next1;
@@ -82,13 +70,25 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Pop;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Println;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Reset;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return1;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Shift;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLoc;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocDeref;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarDeref;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarKwp;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubType;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptArray;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptList;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubtractInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Throw;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownLoc;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
 
@@ -538,10 +538,11 @@ public class CodeBlock {
 		return add(new OCallDyn(this, getTypeConstantIndex(types), arity, src));
 	}
 	
-	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes, int reflect){
+	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
 		return add(new CallJava(this, getConstantIndex(vf.string(methodName)), 
 									  getConstantIndex(vf.string(className)), 
 								      getTypeConstantIndex(parameterTypes),
+								      getTypeConstantIndex(keywordTypes),
 								      reflect));
 	}
 	
@@ -697,6 +698,17 @@ public class CodeBlock {
     		pc += opc.getPcIncrement();
     	}
     	System.out.println();
+    }
+    
+    public String toString(){
+    	StringBuilder sb = new StringBuilder();
+    	int pc = 0;
+    	while(pc < finalCode.length){
+    		Opcode opc = Opcode.fromInteger(finalCode[pc]);
+    		sb.append("[").append(pc).append("]: ").append(Opcode.toString(this, opc, pc));
+    		pc += opc.getPcIncrement();
+    	}
+    	return sb.toString();
     }
     
     public String toString(int n){

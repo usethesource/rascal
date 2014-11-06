@@ -151,6 +151,15 @@ test bool tst() = run("d1(int x, \"a\") := d1(1, \"a\")") == d1(int x, "a") := d
 
 test bool tst() = run("str f(int x, str s) := d1(1, \"a\")") == str f(int x, str s) := d1(1, "a") && x == 1 && s == "a" && f == "d1";
 
+test bool tst() = run("\"abc\"(1, true, 3.5,kw1=true) := \"abc\"(1, true, 3.5, kw1=true)") ==
+					     "abc"(1, true, 3.5,kw1=true) := "abc"(1, true, 3.5, kw1=true);
+
+test bool tst() = run("\"abc\"(1, true, 3.5,kw1=true,kw2=0) := \"abc\"(1, true, 3.5, kw1=true,kw2=0)") ==
+					     "abc"(1, true, 3.5,kw1=true,kw2=0) := "abc"(1, true, 3.5, kw1=true,kw2=0);
+					     					     
+test bool tst() = run("\"abc\"(1, true, 3.5,kw1=true,kw2=0) := \"abc\"(1, true, 3.5, kw2=0, kw1=true)") ==
+					     "abc"(1, true, 3.5,kw1=true,kw2=0) := "abc"(1, true, 3.5, kw2=0, kw1=true);
+
 test bool tst() = run("{ s = \"not matched\"; switch(\"a\"(1,2)) { case node nd: str n(int x, int y): s = n + \"_matched(\<x\>,\<y\>)\"; } s; }") 
 				    == { s = "not matched";   switch("a"(1,2))   { case node nd: str n(int x, int y): s = n + "_matched(<x>,<y>)"; } s; };
 
@@ -239,8 +248,8 @@ test bool tst() = run("{set[int] x = {10,20}; {1, x*} := {1,10,70};}") == {set[i
 test bool tst() = run("\<x, x\> := \<1, 1\>") == <x, x> := <1, 1>;
 test bool tst() = run("\<x, x\> := \<1, 2\>") == <x, x> := <1, 2>;
 
-test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2]") == [*int x, 3, x] := [1,2,3,1,2] && x == [1, 2];
-test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2] && x == [1, 2]") == [*int x, 3, x] := [1,2,3,1,2] && x == [1, 2];
+test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2]") == [*int x, 3, *x] := [1,2,3,1,2] && x == [1, 2];
+test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2] && x == [1, 2]") == [*int x, 3, *x] := [1,2,3,1,2] && x == [1, 2];
 
 test bool tst() = run("[*int x, *x, 3] := [1,2,1,2,3] && x == [1, 2]") == [*int x, *x, 3] := [1,2,1,2, 3] && x == [1, 2];
 test bool tst() = run("[*int x, *x, 3] := [1,2,3,1,2]") == [*int x, *x, 3] := [1,2,3,1,2];

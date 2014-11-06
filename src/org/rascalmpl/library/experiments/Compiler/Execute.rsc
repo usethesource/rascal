@@ -8,7 +8,7 @@ import experiments::Compiler::muRascal::Load;
 
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::RVM::Run;
-extend experiments::Compiler::Compile;
+import experiments::Compiler::Compile;
 
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
@@ -27,7 +27,7 @@ public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/Libr
 
 public list[loc] defaultImports = [|rascal:///Exception.rsc|];
 
-list[Declaration] parseMuLibrary(loc bindir = |home:///bin|){
+list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |home:///bin|){
     println("rascal2rvm: Recompiling library <basename(MuLibrary)>.mu");
  	libModule = load(MuLibrary);
  	functions = [];
@@ -54,7 +54,7 @@ list[Declaration] parseMuLibrary(loc bindir = |home:///bin|){
 tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments, bool debug=false, bool listing=false, 
 									bool testsuite=false, bool recompile=false, bool profile=false, loc bindir = |home:///bin|){
    map[str,Symbol] imported_types = ();
-   list[Declaration] imported_functions = [];
+   list[experiments::Compiler::RVM::AST::Declaration] imported_functions = [];
    lrel[str,list[str],list[str]] imported_overloaded_functions = [];
    map[str,int] imported_overloading_resolvers = ();
    
@@ -63,7 +63,9 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    
    if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
       try {
-  	       imported_functions = readTextValueFile(#list[Declaration], MuLibraryCompiled);
+  	       imported_functions = readTextValueFile(#list[experiments::Compiler::RVM::AST::Declaration], MuLibraryCompiled);
+  	       // Temporary work around related to issue #343
+  	       imported_functions = visit(imported_functions) { case type[value] t : { insert type(t.symbol,t.definitions); }}
   	       println("rascal2rvm: Using compiled library version <basename(MuLibraryCompiled)>.rvm");
   	  } catch: {
   	       imported_functions = parseMuLibrary();
@@ -76,7 +78,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    
    // Recompile the default imports, if necessary
    
-   for(def <- defaultImports){
+   for(loc def <- defaultImports){
        compiledDef = compiledVersion(def, bindir);
        if(!exists(compiledDef) || lastModified(compiledDef) < lastModified(def)){
           compile(def, bindir = bindir);
@@ -94,12 +96,12 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
   	           importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
   	           
   	           // Temporary work around related to issue #343
-  	           importedRvmProgram = visit(importedRvmProgram) { case type[value] t => type(t.symbol,t.definitions) }
+  	           importedRvmProgram = visit(importedRvmProgram) { case type[value] t : { insert type(t.symbol,t.definitions); }}
   	           
   	           processImports(importedRvmProgram);
   	          
   	           imported_types = imported_types + importedRvmProgram.types;
-  	           imported_functions += [ importedRvmProgram.declarations[fname] | fname <-importedRvmProgram.declarations ];
+  	           imported_functions += [ importedRvmProgram.declarations[fname] | str fname <-importedRvmProgram.declarations ];
   	       
   	           // We need to merge overloading resolvers regarding overloaded function indices
   	           pos_delta = size(imported_overloaded_functions); 

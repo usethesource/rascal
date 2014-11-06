@@ -16,6 +16,7 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
 import experiments::Compiler::RVM::Interpreter::ParsingTools;
+import experiments::Compiler::RVM::Interpreter::ConstantFolder;
 
 /*
  * Compile the match operator and all possible patterns
@@ -77,7 +78,25 @@ map[str,str] regexpEscapes = (
 ")" : ")"
 );
 
-MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
+MuExp translateRegExpLiteral(re: (RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`) {
+   <buildRegExp,varrefs> = processRegExpLiteral(re);
+   return muApply(mkCallToLibFun("Library", "MATCH_REGEXP"), 
+                 [ buildRegExp,
+                   muCallMuPrim("make_array", varrefs)
+                 ]); 
+}
+
+MuExp translateRegExpLiteral(re: (RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`, MuExp begin, MuExp end) {
+   <buildRegExp,varrefs> = processRegExpLiteral(re);
+   return muApply(mkCallToLibFun("Library", "MATCH_REGEXP_IN_VISIT"), 
+                 [ buildRegExp,
+                   muCallMuPrim("make_array", varrefs),
+                   begin,
+                   end
+                 ]); 
+}
+
+tuple[MuExp, list[MuExp]] processRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
    str fuid = topFunctionScope();
    swriter = nextTmp();
    fragmentCode = [];
@@ -136,11 +155,8 @@ MuExp translateRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier m
    buildRegExp = muBlock(muAssignTmp(swriter, fuid, muCallPrim("stringwriter_open", [])) + 
                        [ muCallPrim("stringwriter_add", [muTmp(swriter,fuid), exp]) | exp <- fragmentCode ] +
                        muCallPrim("stringwriter_close", [muTmp(swriter,fuid)]));
- 
-   return muApply(mkCallToLibFun("Library", "MATCH_REGEXP"), 
-                 [ buildRegExp,
-                   muCallMuPrim("make_array", varrefs)
-                 ]);  
+   return <buildRegExp, varrefs>;
+   
 }
 
 tuple[MuExp, list[MuExp]] extractNamedRegExp((RegExp) `\<<Name name>:<NamedRegExp* namedregexps>\>`) {
@@ -199,26 +215,27 @@ syntax ConcreteHole
  *   - MATCH_OPTIONAL_LAYOUTR_IN_LIST: skips potential layout between list elements
  *   - MATCH_CONCRETE_MULTIVAR_IN_LIST
  *   - MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST
- *   - SKIP_OPTIONAL_SEARATOR: match a separator before or after a multivariable
+ *   - SKIP_OPTIONAL_SEPARATOR: match a separator before or after a multivariable
  *   - MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST
  *   - MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST
 */
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
-  // println("translateConcretePattern, **** Grammar");
-  //iprintln(getGrammar(config));
+  //println("translateConcretePattern, concrete = <concrete>");
   fragType = getType(p@\loc);
-  println("translateConcretePattern, fragType = <fragType>");
-  reifiedFragType = symbolToValue(fragType, config);
-  println("translateConcretePattern, reified: <reifiedFragType>");
-  parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar(config));
-  //println("**** parsedFragment");
-  iprintln(parsedFragment);
+  //println("translateConcretePattern, fragType = <fragType>");
+  reifiedFragType = symbolToValue(fragType);
+  //println("translateConcretePattern, reified: <reifiedFragType>");
+  //g = getGrammar();
+  //for(nt <- g) println("<nt> : <g[nt]>");
+  parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar());
+  //println("**** parsedFragment: <parsedFragment>");
+  //iprintln(parsedFragment);
   return translateParsedConcretePattern(parsedFragment);
 }
 
 MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){
- println("translateParsedConcretePattern: <prod>");
+ //println("translateParsedConcretePattern: <prod>");
   if(prod.def == label("hole", lex("ConcretePart"))){
      varloc = args[0].args[4].args[0]@\loc;
      <fuid, pos> = getVariableScope("ConcreteVar", varloc);
@@ -321,7 +338,7 @@ default int nIter(Symbol s) { throw "Cannot determine iteration count: <s>"; }
 // Get the separator of an iterator type
 Symbol getSeparator(\iter-seps(Symbol symbol, list[Symbol] separators)) = separators[0];
 Symbol getSeparator(\iter-star-seps(Symbol symbol, list[Symbol] separators)) = separators[0];
-default list[Symbol] getSeparator(Symbol sym) { throw "Cannot determine separator: <sym>"; }
+default Symbol getSeparator(Symbol sym) { throw "Cannot determine separator: <sym>"; }
 
 // What is is the minimal iteration count of a pattern (as Tree)?
 int nIter(Tree pat){
@@ -444,9 +461,14 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    MuExp fun_pat;
    MuExp fun_name;
    argCode = [ translatePat(pat) | pat <- arguments ] + translatePatKWArguments(keywordArguments);
+   //iprintln(expression);
    if(expression is qualifiedName){
       fun_name = getType(expression@\loc).name;
       //fun_pat = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(fun_name)]);
+      return muApply(mkCallToLibFun("Library","MATCH_SIMPLE_CALL_OR_TREE"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
+   } else if(expression is literal){ // StringConstant
+      fun_name = "<expression>"[1..-1];
+      println("fun_name = <fun_name>");
       return muApply(mkCallToLibFun("Library","MATCH_SIMPLE_CALL_OR_TREE"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
    } else {
      fun_pat = translatePat(expression);

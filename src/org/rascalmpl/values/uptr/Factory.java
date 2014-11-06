@@ -12,15 +12,11 @@
 *******************************************************************************/
 package org.rascalmpl.values.uptr;
 
-import java.util.Collections;
-
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -39,7 +35,6 @@ public class Factory {
 			org.rascalmpl.values.errors.Factory.getStore(), 
 			org.rascalmpl.values.locations.Factory.getStore());
 	private final static TypeFactory tf = TypeFactory.getInstance();
-	private final static RascalTypeFactory rtf = RascalTypeFactory.getInstance();
 	
 	private static final Type str = tf.stringType();
 	
@@ -75,9 +70,8 @@ public class Factory {
 	public static final Type Production_Error = tf.constructor(uptr, Production, "error", Production, "prod", tf.integerType(), "dot");
 	public static final Type Production_Skipped = tf.constructor(uptr, Production, "skipped");
 	
-	public static final Type InitializerMap = tf.mapType(str, rtf.functionType(tf.valueType(), tf.tupleType(tf.mapType(str, tf.valueType())), tf.voidType(), Collections.<String,IKeywordParameterInitializer>emptyMap()));
-	public static final Type Production_Cons = tf.constructor(uptr, Production, "cons", Symbol, "def", tf.listType(Symbol), "symbols", tf.listType(Symbol), "kwTypes", InitializerMap, "kwDefaults", tf.setType(Attr), "attributes");
-	public static final Type Production_Func = tf.constructor(uptr, Production, "func", Symbol, "def", tf.listType(Symbol), "symbols", tf.listType(Symbol), "kwTypes", InitializerMap, "kwDefaults", tf.setType(Attr), "attributes");
+	public static final Type Production_Cons = tf.constructor(uptr, Production, "cons", Symbol, "def", tf.listType(Symbol), "symbols", tf.listType(Symbol), "kwTypes", tf.setType(Attr), "attributes");
+	public static final Type Production_Func = tf.constructor(uptr, Production, "func", Symbol, "def", tf.listType(Symbol), "symbols", tf.listType(Symbol), "kwTypes", tf.setType(Attr), "attributes");
 	public static final Type Production_Choice = tf.constructor(uptr, Production, "choice", Symbol, "def", tf.setType(Production), "alternatives");
 	public static final Type Production_Priority = tf.constructor(uptr, Production, "priority", Symbol, "def", tf.listType(Production), "choices");
 	public static final Type Production_Associativity = tf.constructor(uptr, Production, "associativity", Symbol, "def", Associativity, "assoc", tf.setType(Production), "alternatives");

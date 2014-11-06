@@ -146,7 +146,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 		}
 		args[i] = kwargs.done();
 		IValue rval = rvm.executeFunction(this, args);
-		return ResultFactory.makeResult(rval.getType(), rval, rvm.getEvaluatorContext());
+		return ResultFactory.makeResult(rval.getType(), rval, rvm.getEvaluatorContext());	// TODO: remove CTX
 	}
 
 	@Override
@@ -168,7 +168,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 
 	@Override
 	public IEvaluator<Result<IValue>> getEval() {
-		return rvm.getEvaluatorContext().getEvaluator();
+		return rvm.getEvaluatorContext().getEvaluator();	// TODO: remove CTX
 	}
 	
 	@Override
