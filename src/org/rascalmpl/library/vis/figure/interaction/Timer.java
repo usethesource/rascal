@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -65,19 +66,23 @@ public class Timer extends LayoutProxy {
 
 
 	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
-		if(!visible) return;
+		if(!visible) {
+			return;
+		}
+		
 		IValue timerInfo = getTimerInfo();
 		//if(debug)System.out.printf("timerInit %s\n", timerInfo);
-		timerAction = (IConstructor) cbenv.executeRascalCallBackSingleArgument(timerInit, TimerInfo, timerInfo).getValue();
+		Result<IValue> result = cbenv.executeRascalCallBackSingleArgument(timerInit, TimerInfo, timerInfo);
 		
-		//if(debug)System.out.printf("Result %s\n",timerAction);
-		
-		exectureTimerAcion(timerAction);
-		hidden = false;
+		if (result != null && result.getValue() != null) {
+			timerAction = (IConstructor) result.getValue();
+			executeTimerAction(timerAction);
+			hidden = false;
+		}
 
 	}
 	
-	private void exectureTimerAcion(IConstructor timerAction){
+	private void executeTimerAction(IConstructor timerAction){
 		Type type = timerAction.getConstructorType();
 		if(type == TimerAction_noChange){
 			if(hidden){

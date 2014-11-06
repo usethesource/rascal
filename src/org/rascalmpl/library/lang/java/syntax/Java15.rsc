@@ -13,6 +13,8 @@
 
 module lang::java::\syntax::Java15
 
+import ParseTree;
+
 start syntax CompilationUnit =
    compilationUnit: PackageDec? ImportDec* TypeDec*
   ;

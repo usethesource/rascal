@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.regex.Pattern;
@@ -36,14 +37,16 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.InvalidDateTimeException;
+import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext
+import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /*
@@ -80,21 +83,25 @@ public enum RascalPrimitive {
 	constructor {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
-			assert arity == 2;
-			Type type = (Type) stack[sp - 2]; 
-			IValue[] args = (IValue[]) stack[sp - 1];
-			stack[sp - 2] = vf.constructor(type, args);
-			return sp - 1;
+			assert arity == 3;
+			Type type = (Type) stack[sp - 3]; 
+			IValue[] args = (IValue[]) stack[sp - 2];
+			@SuppressWarnings("unchecked")
+			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
+			stack[sp - 3] = vf.constructor(type, args, kwargs);
+			return sp - 2;
 		}
 	},
 	node {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
-			assert arity == 2;
-			String name = ((IString) stack[sp - 2]).getValue(); 
-			IValue[] args = (IValue[]) stack[sp - 1];
-			stack[sp - 2] = vf.node(name, args);
-			return sp - 1;
+			assert arity == 3;
+			String name = ((IString) stack[sp - 3]).getValue(); 
+			IValue[] args = (IValue[]) stack[sp - 2];
+			@SuppressWarnings("unchecked")
+			Map<String,IValue> kwargs = (Map<String,IValue>) stack[sp - 1];
+			stack[sp - 3] = vf.node(name, args, kwargs);
+			return sp - 2;
 		}
 	},
 	list {
@@ -106,7 +113,25 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
+	lrel {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			assert arity == 1;
+			IValue[] args = (IValue[]) stack[sp - 1];
+			stack[sp - 1] = args.length == 0 ? emptyList : vf.list(args);
+			return sp;
+		}
+	},
 	set {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			assert arity == 1;
+			IValue[] args = (IValue[]) stack[sp - 1];
+			stack[sp - 1] = args.length == 0 ? emptySet : vf.set(args);
+			return sp;
+		}
+	},
+	rel {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 1;
@@ -594,6 +619,12 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			return set_add_set.execute(stack, sp, arity, stacktrace);
+		}
+	},
+	rel_add_elm {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			return set_add_elm.execute(stack, sp, arity, stacktrace);
 		}
 	},
 	str_add_str {
@@ -1297,14 +1328,26 @@ public enum RascalPrimitive {
 			String fieldName = ((IString) stack[sp - 1]).getValue();
 			Type tp = cons.getConstructorType();
 			try {
-				int fld_index = tp.getFieldIndex(fieldName);
-				stack[sp - 2] = cons.get(fld_index);
+				if(tp.hasField(fieldName)){
+					int fld_index = tp.getFieldIndex(fieldName);
+					stack[sp - 2] = cons.get(fld_index);
+					return sp - 1;
+				} 
+				IValue v = null;
+				if(cons.mayHaveKeywordParameters()){
+					v = cons.asWithKeywordParameters().getParameter(fieldName);
+				}
+				if(v == null){
+					throw RascalRuntimeException.noSuchField(fieldName, stacktrace);
+				}
+				stack[sp - 2] = v;
 				return sp - 1;
 			} catch(FactTypeUseException e) {
 				throw RascalRuntimeException.noSuchField(fieldName, stacktrace);
 			}
 		}
 	},
+	
 	datetime_field_access {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
@@ -1560,6 +1603,13 @@ public enum RascalPrimitive {
 
 				if (i != -1) {
 					path = path.substring(0, i);
+					if (sloc.getScheme().equalsIgnoreCase("file")) {
+						// there is a special case for file references to windows paths.
+						// the root path should end with a / (c:/ not c:)
+						if (path.lastIndexOf((int)'/') == 0 && path.endsWith(":")) {
+							path += "/";
+						}
+					}
 					v = $loc_field_update(sloc, "path", vf.string(path), stacktrace);
 				} else {
 					throw RascalRuntimeException.noParent(sloc, stacktrace);
@@ -1764,6 +1814,7 @@ public enum RascalPrimitive {
 	 */
 
 	annotation_get {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 2;
@@ -1781,6 +1832,7 @@ public enum RascalPrimitive {
 		}
 	},
 	annotation_set {
+		@SuppressWarnings("deprecation")
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity == 3;
@@ -3410,6 +3462,57 @@ public enum RascalPrimitive {
 					return sp - 1;
 				}
 			}
+			
+			if (!left.mayHaveKeywordParameters() && !right.mayHaveKeywordParameters()) {
+		    	if (left.asAnnotatable().hasAnnotations() || right.asAnnotatable().hasAnnotations()) {
+		    		// bail out 
+		    		stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+		    	}
+		    }
+		    
+		    if (!left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
+		    	stack[sp - 2] = Rascal_TRUE;
+				return sp - 1;
+		    }
+
+		    if (left.asWithKeywordParameters().hasParameters() && !right.asWithKeywordParameters().hasParameters()) {
+		    	stack[sp - 2] = Rascal_FALSE;
+				return sp - 1;
+		    }
+		    
+		    if (left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
+		    	Map<String, IValue> paramsLeft = left.asWithKeywordParameters().getParameters();
+		    	Map<String, IValue> paramsRight = right.asWithKeywordParameters().getParameters();
+		    	if (paramsLeft.size() < paramsRight.size()) {
+		    		stack[sp - 2] = Rascal_TRUE;
+					return sp - 1;
+		    	}
+		    	if (paramsLeft.size() > paramsRight.size()) {
+		    		stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+		    	}
+		    	if (paramsRight.keySet().containsAll(paramsLeft.keySet()) && !paramsRight.keySet().equals(paramsLeft.keySet())) {
+		    		stack[sp - 2] = Rascal_TRUE;
+					return sp - 1;
+		    	}
+		    	if (paramsLeft.keySet().containsAll(paramsLeft.keySet()) && !paramsRight.keySet().equals(paramsLeft.keySet())) {
+		    		stack[sp - 2] = Rascal_FALSE;
+					return sp - 1;
+		    	}
+		    	//assert paramsLeft.keySet().equals(paramsRight.keySet());
+		    	for (String k: paramsLeft.keySet()) {
+		    		fakeStack[0] = paramsLeft.get(k);
+					fakeStack[1] = paramsRight.get(k);
+					less.execute(fakeStack, 2, 2, stacktrace);
+		    		
+					if(!((IBool)fakeStack[0]).getValue()){
+						stack[sp - 2] = Rascal_FALSE;
+						return sp - 1;
+					}
+		    	}
+		     }
+			
 			stack[sp - 2] = vf.bool((leftArity < rightArity) || ((IBool)fakeStack[0]).getValue());
 			return sp - 1;
 		}
@@ -4167,9 +4270,6 @@ public enum RascalPrimitive {
 			assert arity == 5;
 			INode node = (INode) stack[sp - 5];
 			int nd_arity = node.arity();
-			if(node.get(nd_arity - 1).getType().isMap()){ // Take keyword map into consideration, when present
-				nd_arity--;
-			}
 			SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), nd_arity, stacktrace);
 			IList repl = (IList) stack[sp - 1];
 			stack[sp - 5] = node.replace(sd.first, sd.second, sd.end, repl);
@@ -4198,16 +4298,17 @@ public enum RascalPrimitive {
 		}
 	},
 	node_create {
+		@SuppressWarnings("unchecked")
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 			assert arity >= 1;
 
 			String name = ((IString) stack[sp - arity]).getValue();
-			IValue[] args = new IValue[arity - 1];
-			for(int i = 0; i < arity - 1; i ++){
+			IValue[] args = new IValue[arity - 2];
+			for(int i = 0; i < arity - 2; i ++){
 				args[i] = (IValue) stack[sp - arity + 1 + i];
 			}
-			stack[sp - arity] = vf.node(name, args);
+			stack[sp - arity] = vf.node(name, args, (HashMap<String, IValue>)stack[sp - 1]);
 			return sp - arity + 1;
 		}
 
@@ -4232,9 +4333,6 @@ public enum RascalPrimitive {
 
 			INode node = (INode) stack[sp - 4];
 			int nd_arity = node.arity();
-			if(node.get(nd_arity - 1).getType().isMap()){ // Take keyword map into consideration, when present
-				nd_arity--;
-			}
 			stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), nd_arity, stacktrace));
 			return sp - 3;
 		}
@@ -4329,6 +4427,22 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	listwriter_splice_concrete_list_var {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			assert arity == 2;
+			IListWriter writer = (IListWriter)stack[sp - 2];
+			IConstructor nonterm = (IConstructor) stack[sp - 1];
+			IList non_termargs = (IList) nonterm.get("args");
+			IConstructor iter = (IConstructor) non_termargs.get(0);
+			IList iter_args = (IList) iter.get("args");
+			for(IValue v : iter_args) {
+				writer.append(v);
+			}
+			stack[sp - 2] = writer;
+			return sp - 1;
+		}
+	},
 	sublist {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
@@ -4340,6 +4454,7 @@ public enum RascalPrimitive {
 			return sp - 2;
 		}
 	},
+	
 	
 	/*
 	 * product
@@ -4673,16 +4788,15 @@ public enum RascalPrimitive {
 			Type argType = typeReifier.valueToType(type_cons);
 			IMap definitions = (IMap) type_cons.get("definitions");
 
-			TypeStore store = new TypeStore();
-			typeReifier.declareAbstractDataTypes(definitions, store);
+			typeReifier.declareAbstractDataTypes(definitions, typeStore);
 
 			int nargs = argType.getArity();
-			IValue[] args = new IValue[nargs + 1]; // '+1' kwargs
+			IValue[] args = new IValue[nargs];
 
 			TypeParameterVisitor tpvisit = new TypeParameterVisitor();
 			Type requestedType = tf.tupleType(argType);
 			HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
-			RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, MAXDEPTH, tpbindings, store);
+			RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, MAXDEPTH, tpbindings, typeStore);
 
 			int tries = nargs == 0 ? 1 : TRIES;
 			boolean passed = true;
@@ -4698,15 +4812,19 @@ public enum RascalPrimitive {
 					}
 				}
 				try {
-					args[nargs] = vf.mapWriter().done(); // kwargs
 					IValue res = rvm.executeFunction(fun, args); 
 					passed = ((IBool) res).getValue();
 					if(!passed){
 						break;
 					}
 				} catch (Thrown e){
-					IConstructor cons = (IConstructor) e.value;
-					if(!cons.getName().equals(expected)){
+					String ename;
+					if(e.value instanceof IConstructor){
+						ename = ((IConstructor) e.value).getName();
+					} else {
+						ename = e.toString();
+					}
+					if(!ename.equals(expected)){
 						message = e.toString() + message;
 						passed = false;
 						exception = e;
@@ -5025,9 +5143,7 @@ public enum RascalPrimitive {
 			int idx = ((IInteger) stack[sp - 1]).intValue();
 			try {
 				if(idx < 0){
-					int nd_arity = node.arity();
-					/* take keyword map into consideration, when present */
-					idx =  (nd_arity + idx) + (node.get(nd_arity - 1).getType().isMap() ? - 1 : 0);
+					idx =  node.arity() + idx;
 				}
 				stack[sp - 2] = node.get(idx);  
 			} catch(IndexOutOfBoundsException e) {
@@ -5654,6 +5770,48 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
+	reifiedType_create {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			assert arity == 2;
+			
+			IConstructor type_cons = (IConstructor) stack[sp - 2];
+			IMap idefinitions = (IMap) stack[sp - 1];
+			typeReifier = new TypeReifier(vf);
+			
+			Type type = typeReifier.symbolToType(type_cons, idefinitions);
+			
+			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
+			bindings.put(Factory.TypeParam, type);
+			
+			stack[sp - 2] = vf.constructor(Factory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
+			
+			return sp - 1;
+		}
+	},
+	
+	type2symbol {
+		@Override
+		public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
+			assert arity == 2;
+			
+			Type type = (Type) stack[sp - 2];
+			stack[sp - 2] = $type2symbol(type);
+//			IMap idefinitions = (IMap) stack[sp - 1];
+//			typeReifier = new TypeReifier(vf);
+//			
+//			new ReifiedType(type);
+//			
+//			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
+//			bindings.put(Factory.TypeParam, type);
+//			
+//			Symbols.typeToSymbol(type, false,  "");
+//			
+//			stack[sp - 2] = vf.constructor(Factory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
+//			
+			return sp - 1;
+		}
+	},
 
 	elementTypeOf {
 		@Override
@@ -5807,6 +5965,7 @@ public enum RascalPrimitive {
 
 	private static IValueFactory vf;
 	private static TypeFactory tf;
+	private static TypeStore typeStore;
 	private static Type lineColumnType;
 	private static IMap emptyMap;
 	private static IList emptyList;
@@ -5836,6 +5995,7 @@ public enum RascalPrimitive {
 		parsingTools = new ParsingTools(vf);
 		parsingTools.setContext(rex);
 		tf = TypeFactory.getInstance();
+		typeStore = rex.getTypeStore();
 		lineColumnType = tf.tupleType(new Type[] {tf.integerType(), tf.integerType()},
 				new String[] {"line", "column"});
 		emptyMap = vf.mapWriter().done();
@@ -6067,6 +6227,7 @@ public enum RascalPrimitive {
 				if (uri.getHost() != null) {
 					uri = URIUtil.changeUserInformation(uri, newStringValue);
 				}
+				authority = uri.getAuthority();
 				uriPartChanged = true;
 				break;
 
@@ -6489,7 +6650,145 @@ public enum RascalPrimitive {
 		}
 		return val.toString();
 	}
+	
+	private static IConstructor $type2symbol(Type t){
+		 return t.accept(new ITypeVisitor<IConstructor,RuntimeException>() {
 
+			@Override
+			public IConstructor visitReal(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Real);
+			}
+
+			@Override
+			public IConstructor visitInteger(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Int);
+			}
+
+			@Override
+			public IConstructor visitRational(Type type)
+					throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Rat);
+			}
+
+			@Override
+			public IConstructor visitList(Type type) throws RuntimeException {
+				Type elementType = type.getElementType();
+				if(elementType.isTuple()){
+					IConstructor[] fields = new IConstructor[elementType.getArity()];
+					for(int i = 0; i < elementType.getArity(); i++){
+						fields[i] =elementType.getFieldType(i).accept(this);
+					}
+					return vf.constructor(Factory.Symbol_ListRel, vf.list(fields));
+				}
+				return vf.constructor(Factory.Symbol_List, type.getElementType().accept(this));
+			}
+
+			@Override
+			public IConstructor visitMap(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Map, type.getKeyType().accept(this), type.getValueType().accept(this));
+			}
+
+			@Override
+			public IConstructor visitNumber(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Num);
+			}
+
+			@Override
+			public IConstructor visitAlias(Type type) throws RuntimeException {
+				throw new RuntimeException();
+			}
+
+			@Override
+			public IConstructor visitSet(Type type) throws RuntimeException {
+				Type elementType = type.getElementType();
+				if(elementType.isTuple()){
+					IConstructor[] fields = new IConstructor[elementType.getArity()];
+					for(int i = 0; i < elementType.getArity(); i++){
+						fields[i] =elementType.getFieldType(i).accept(this);
+					}
+					return vf.constructor(Factory.Symbol_Rel, vf.list(fields));
+				}
+				return vf.constructor(Factory.Symbol_Set, type.getElementType().accept(this));
+			}
+
+			@Override
+			public IConstructor visitSourceLocation(Type type)
+					throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Loc);
+			}
+
+			@Override
+			public IConstructor visitString(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Str);
+			}
+
+			@Override
+			public IConstructor visitNode(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Node);
+			}
+
+			@Override
+			public IConstructor visitConstructor(Type type)
+					throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Cons, vf.string(type.getName()), type.getFieldTypes().accept(this));
+			}
+
+			@Override
+			public IConstructor visitAbstractData(Type type)
+					throws RuntimeException {
+				Type parameterType = type.getTypeParameters();
+				IValue args[] = new IValue[parameterType.getArity()];
+				for(int i = 0; i < parameterType.getArity(); i++){
+					args[i] = parameterType.getFieldType(i).accept(this);
+				}
+				return vf.constructor(Factory.Symbol_Adt, vf.string(type.getName()), vf.list(args));
+			}
+
+			@Override
+			public IConstructor visitTuple(Type type) throws RuntimeException {
+				IConstructor fields[] = new IConstructor[type.getArity()];
+				for(int i = 0; i < type.getArity(); i++){
+					fields[i] = type.getFieldType(i).accept(this);
+				}
+				return vf.constructor(Factory.Symbol_Tuple, vf.list(fields));
+			}
+
+			@Override
+			public IConstructor visitValue(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Value);
+			}
+
+			@Override
+			public IConstructor visitVoid(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Void);
+			}
+
+			@Override
+			public IConstructor visitBool(Type type) throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Bool);
+			}
+
+			@Override
+			public IConstructor visitParameter(Type type)
+					throws RuntimeException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public IConstructor visitExternal(Type type)
+					throws RuntimeException {
+				return type.accept(this);
+			}
+
+			@Override
+			public IConstructor visitDateTime(Type type)
+					throws RuntimeException {
+				return vf.constructor(Factory.Symbol_Datetime);
+			}
+			
+	});
+	}
 }
 
 /*

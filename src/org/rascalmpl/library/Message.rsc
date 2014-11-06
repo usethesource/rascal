@@ -75,7 +75,7 @@ public Message warning(loc source, str msg) {
 
 @doc{
 Synopsis: Create an info message.
-}
+},
 public Message info(loc source, str msg) {
   return info(msg,source);
 }

@@ -21,7 +21,7 @@ import util::Reflective;
 import ParseTree;
 import Node;
 
-list[loc] libSearchPath = [|std:///|, |eclipse-std:///|];
+list[loc] libSearchPath = [|clib-rascal:///|, |clib-rascal-eclipse:///|];
 
 // Rascal utilities
 // ------------------ Extract and replace concepts from Rascal sources external to the Tutor ----------------

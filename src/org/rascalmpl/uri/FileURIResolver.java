@@ -98,11 +98,16 @@ public class FileURIResolver implements IURIInputOutputResolver {
 	}
 
 	public String[] listEntries(URI uri) {
-		return new File(getPath(uri)).list();
+		String[] res = new File(getPath(uri)).list();
+		if (res == null) {
+			return new String[] { };
+		} else {
+			return res;
+		}
 	}
 
 	public void mkDirectory(URI uri) {
-		new File(getPath(uri)).mkdir();
+		new File(getPath(uri)).mkdirs();
 	}
 
 	public URI getResourceURI(URI uri) {

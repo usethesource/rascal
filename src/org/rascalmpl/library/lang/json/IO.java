@@ -68,7 +68,6 @@ public class IO {
 		.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
 		.setVersion(1.0)
 		.create();
-		
 		Object obj = gson.fromJson(src.getValue(), Object.class);
 		try {
 			return JSONReadingTypeVisitor.read(obj, values, store, start);

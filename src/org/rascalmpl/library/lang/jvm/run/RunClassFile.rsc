@@ -8,6 +8,8 @@
 @contributor{Atze van der Ploeg - Atze.van.der.Ploeg@cwi.nl (CWI)}
 module lang::jvm::run::RunClassFile
 
+import Exception;
+
 @doc{Register the class file, and its dependencies and run it's main method}
 @javaClass{org.rascalmpl.library.lang.jvm.run.RunClassFile}
 @reflect{Uses URI Resolver Registry}

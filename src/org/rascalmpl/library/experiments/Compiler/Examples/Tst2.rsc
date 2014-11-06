@@ -1,14 +1,11 @@
 module experiments::Compiler::Examples::Tst2
 
-import util::Eval;
-//import List;
-//syntax A = "a";
-//
-//int x;
+import experiments::Compiler::Examples::Tst1;
 
+data Prop = size(int n) | c (Color cc);
 
+alias Props = list[Prop];
 
-//value main(list[value] args) { [A] "b"; |unknown:///|.begin; [1,2,3][4]; throw "abc"; x = 2; } //x; //head([]);
-//value main(list[value] args) { $2014-04-26$.hour; } //|unknown:///|.ls; [1,2,3][4]; throw "abc"; x = 2; } //x; //head([]);
+data Box = box(Prop prop);
 
-value main(list[value] args) = eval("1+1;");
+Box box(Prop props...) = _box(props);

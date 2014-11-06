@@ -20,15 +20,17 @@ public set[Attr] mods2attrs(ProdModifier* mods) = {mod2attr(m) | ProdModifier m 
  
 public Attr mod2attr(ProdModifier m) {
   switch (m) {
-    case \associativity(\left())        : return \assoc(\left());
-    case \associativity(\right())       : return \assoc(\right());
-    case \associativity(\nonAssociative())   : return \assoc(\non-assoc());
-    case \associativity(\associative())       : return \assoc(\assoc());
-    case \bracket()                     : return \bracket();
+    case \associativity(\left())                : return \assoc(Associativity::\left());
+    case \associativity(\right())               : return \assoc(Associativity::\right());
+    case \associativity(\nonAssociative())      : return \assoc(\non-assoc());
+    case \associativity(\associative())         : return \assoc(\assoc());
+    case \bracket()                             : return \bracket();
     case \tag(\default(Name n, TagString s))    : return \tag("<n>"("<s>"));
     case \tag(\empty(Name n))                   : return \tag("<n>"()); 
-    case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l)))))  : return \tag("<n>"("<unescape(l)>"));
-    case \tag(\expression(Name n, literal(Literal l)))                                  : return \tag("<n>"("<unescape(l)>"));
+    case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l)))))  
+                                                : return \tag("<n>"("<unescape(l)>"));
+    case \tag(\expression(Name n, literal(Literal l)))
+                                                : return \tag("<n>"("<unescape("<l>")>"));
     default: { rprintln(m); throw "missed a case <m>"; }
   }
 }

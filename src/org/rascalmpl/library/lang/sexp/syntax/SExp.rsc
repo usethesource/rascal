@@ -1,6 +1,10 @@
+@doc{
+Synopsis: Syntax definition for S-Expressions, based on http://people.csail.mit.edu/rivest/Sexp.txt
+}
+@contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
+
 module lang::sexp::\syntax::SExp
 
-// http://people.csail.mit.edu/rivest/Sexp.txt
 import String;
 import IO;
 

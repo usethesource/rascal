@@ -5,7 +5,7 @@ the standard library, the online documentation and the type checker.
 Other relevant repositories:
 
 * https://github.com/cwi-swat/rascal-eclipse
-* https://github.com/impulse-org/pdb.values
+* https://github.com/cwi-swat/pdb.values
 
 Rascal is used in practice, but we consider it to be alpha software because we are still improving the language.
 

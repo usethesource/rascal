@@ -35,7 +35,7 @@ RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false, loc
   	       rvmProgram = readTextValueFile(#RVMProgram, rvmProgramLoc);
   	       
   	       // Temporary work around related to issue #343
-  	       rvmProgram = visit(rvmProgram) { case type[value] t => type(t.symbol,t.definitions) }
+  	       rvmProgram = visit(rvmProgram) { case type[value] t: { insert type(t.symbol,t.definitions); }}
   	       
   	       println("rascal2rvm: Using compiled version <rvmProgramLoc>");
   	       return rvmProgram;
@@ -54,4 +54,37 @@ RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false, loc
    	writeTextValueFile(rvmProgramLoc, rvmProgram);
    	
    	return rvmProgram;
+}
+
+void listing(loc moduleLoc, str name = "", bool recompile=false){
+
+	rvmProgram = compile(moduleLoc, recompile=recompile);
+	
+	if(name != ""){
+		for(decl <- rvmProgram.declarations){
+			if(findFirst(decl, name) >= 0){
+				iprintln(rvmProgram.declarations[decl]);
+			}
+		}
+		return;
+	}
+	
+	println("MODULE\t<rvmProgram.name>");
+	
+	println("IMPORTS\t<rvmProgram.imports>");
+	
+	println("DECLARATIONS");
+	
+	for(decl <- rvmProgram.declarations){
+		iprintln(rvmProgram.declarations[decl]);
+	}
+	
+	println("INITIALIZATION");
+	iprintln(rvmProgram.initialization);
+	
+	println("RESOLVER");
+	print("\t"); iprintln(rvmProgram.resolver);
+		
+	println("OVERLOADED FUNCTIONS");
+	print("\t"); iprintln(rvmProgram.overloaded_functions);
 }

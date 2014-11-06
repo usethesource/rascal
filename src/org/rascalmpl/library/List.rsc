@@ -13,7 +13,7 @@
 
 module List
 
-import util::Math;
+import Exception;
 import Map;
 
 @doc{
@@ -55,46 +55,6 @@ test: delete(<L>, <I>) == <?>
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] delete(list[&T] lst, int n);
-
-//@doc{
-//Synopsis: The set of all legal indices of a list [Deprecated, use index]
-//
-//Description:
-//Returns the set of all legal index values for a list. Also see [$List/index] for a function that returns a list
-//of __ordered__ index values.
-//
-//Examples:
-//<screen>
-//import List;
-//domain([1, 3, 5]);
-//domain(["zebra", "elephant", "snake", "owl"]);
-//// Compare this with the result of [$List/index]:
-//index([1, 3, 5]);
-//</screen>
-//
-//Questions:
-//QChoice: The number of elements in the domain of a list is:
-//g: Equal to the number of elements in the list.
-//b: Depends on the number of repeated elements in the list.
-//b: One less than the number of elements in the list.
-//b: One larger than the number of elements in the list.
-//
-//QType:
-//prep: import List;
-//make: L = list[arb[int,str],3,5]
-//test: domain(<L>)
-//
-//QValue:
-//prep: import List;
-//make: L = list[arb[int,str],0,5]
-//expr: H = domain(<L>)
-//hint: <H>
-//test: domain(<L>) == <?>
-//
-//
-//}
-//@javaClass{org.rascalmpl.library.Prelude}
-//public java set[int] domain(list[&T] lst);
 
 @doc{
 Synopsis: Drop elements from the head of a list.
@@ -291,16 +251,13 @@ public tuple[&T, list[&T]] headTail(list[&T] lst) throws EmptyList {
 Synopsis: A list of legal index values of a list.
 
 Description:
-Returns a list of all legal index values for a given list `lst`. See [$List/domain] for a function that returns a _set_ of legal index values.
+Returns a list of all legal index values for a given list `lst`.
 
 Examples:
 <screen>
 import List;
 index([1, 3, 5]);
 index(["zebra", "elephant", "snake", "owl"]);
-// Compare with the result of [$List/domain]:
-domain([1, 3, 5]);
-domain(["zebra", "elephant", "snake", "owl"]);
 </screen>
 
 Benefits:
@@ -686,7 +643,10 @@ test: mix(<L>, <M>) == <?>
 
 }
 public list[&T] mix(list[&T] l, list[&T] r){
-	return [elementAt(l,i),elementAt(r,i)| i <- [0 .. min(size(l),size(r))]] + drop(size(r),l) + drop(size(l),r);
+	sizeL = size(l);
+	sizeR = size(r);
+	minSize = sizeL < sizeR ? sizeL : sizeR;
+	return [elementAt(l,i),elementAt(r,i)| i <- [0 .. minSize]] + drop(sizeR,l) + drop(sizeL,r);
 }
 
 @doc{
@@ -819,8 +779,7 @@ map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el, 
 
 set[list[&T]] permutationsBag(map[&T element, int occurs] b) =
 	isEmpty(b) ? {[]} : 
-	{ [e] + rest | e <- domain(b),
-				   rest <- permutationsBag(removeFromBag(b,e))};
+	{ [e] + rest | e <- b, rest <- permutationsBag(removeFromBag(b,e))};
 
 @doc{
 Synopsis: Get the distribution of the elements of the list. That

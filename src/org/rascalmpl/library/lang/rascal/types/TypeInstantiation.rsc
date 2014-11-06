@@ -9,12 +9,9 @@
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 module lang::rascal::types::TypeInstantiation
 
-import List;
 import Set;
 import IO;
 import Node;
-import Type;
-import ParseTree;
 
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
@@ -25,19 +22,32 @@ public alias Bindings = map[str varName, Symbol varType];
 // TODO: Add support for bags if we ever get around to supporting them...
 // TODO: Add support for overloaded types if they can make it to here (this is
 // usually invoked on specific types that are inside overloads)
-public Bindings match(Symbol r, Symbol s, Bindings b) {
+public Bindings match(Symbol r, Symbol s, Bindings b, bool bindIdenticalVars=false) {
+	if (!typeContainsTypeVars(r)) return b;
+	return match(r,s,b,bindIdenticalVars);
+}
+
+public Bindings match(Symbol r, Symbol s, Bindings b, bool bindIdenticalVars) {
 	// Strip off labels and aliases
-	if (\label(_, lt) := r) return match(lt, s, b);
-	if (\label(_, rt) := s) return match(r, rt, b);
-	if (\alias(_,_,lt) := r) return match(lt, s, b);
-	if (\alias(_,_,rt) := s) return match(r, rt, b);
+	if (\label(_, lt) := r) return match(lt, s, b, bindIdenticalVars);
+	if (\label(_, rt) := s) return match(r, rt, b, bindIdenticalVars);
+	if (\alias(_,_,lt) := r) return match(lt, s, b, bindIdenticalVars);
+	if (\alias(_,_,rt) := s) return match(r, rt, b, bindIdenticalVars);
 
 	// The simple case: if the receiver is a basic type or a node 
 	// (i.e., has no internal structure), just do a comparability
 	// check. The receiver obviously does not contain a parameter.
 	if (arity(r) == 0 && comparable(s,r)) return b;
-	
+
+	// Another simple case: if the receiver has no type vars, then just return
+	// the current bindings.
+	if (!typeContainsTypeVars(r)) return b;
+		
 	// Handle parameters
+	if (isTypeVar(r) && isTypeVar(s) && getTypeVarName(r) == getTypeVarName(s) && getTypeVarBound(r) == getTypeVarBound(s) && !bindIdenticalVars) {
+		return b;
+	}
+	
 	if (isTypeVar(r)) {
 		varName = getTypeVarName(r);
 		varBound = getTypeVarBound(r);
@@ -58,9 +68,9 @@ public Bindings match(Symbol r, Symbol s, Bindings b) {
 	// able to be matched to one another
 	if ( isSetType(r) && isSetType(s) ) {
 		if ( isRelType(r) && isVoidType(getSetElementType(s)) ) {
-			return match(getSetElementType(r), \tuple([\void() | idx <- index(getRelFields(r))]), b);
+			return match(getSetElementType(r), \tuple([\void() | idx <- index(getRelFields(r))]), b, bindIdenticalVars);
 		} else {	
-			return match(getSetElementType(r), getSetElementType(s), b);
+			return match(getSetElementType(r), getSetElementType(s), b, bindIdenticalVars);
 		}
 	}
 		
@@ -68,45 +78,49 @@ public Bindings match(Symbol r, Symbol s, Bindings b) {
 	// able to be matched to one another
 	if ( isListType(r) && isListType(s) ) {
 		if ( isListRelType(r) && isVoidType(getListElementType(s)) ) {
-			return match(getListElementType(r), \tuple([\void() | idx <- index(getListRelFields(r))]), b);
+			return match(getListElementType(r), \tuple([\void() | idx <- index(getListRelFields(r))]), b, bindIdenticalVars);
 		} else {
-			return match(getListElementType(r), getListElementType(s), b);
+			return match(getListElementType(r), getListElementType(s), b, bindIdenticalVars);
 		}
 	}
 		
 	// For maps, match the domains and ranges
 	if ( isMapType(r) && isMapType(s) )
-		return match(getMapFieldsAsTuple(r), getMapFieldsAsTuple(s), b);
+		return match(getMapFieldsAsTuple(r), getMapFieldsAsTuple(s), b, bindIdenticalVars);
 	
 	// For reified types, match the type being reified
 	if ( isReifiedType(r) && isReifiedType(s) )
-		return match(getReifiedType(r), getReifiedType(s), b);
+		return match(getReifiedType(r), getReifiedType(s), b, bindIdenticalVars);
 
 	// For ADTs, try to match parameters when the ADTs are the same
 	if ( isADTType(r) && isADTType(s) && getADTName(r) == getADTName(s) && size(getADTTypeParameters(r)) == size(getADTTypeParameters(s))) {
 		rparams = getADTTypeParameters(r);
 		sparams = getADTTypeParameters(s);
-		for (idx <- index(rparams)) b = match(rparams[idx], sparams[idx], b);
+		for (idx <- index(rparams)) b = match(rparams[idx], sparams[idx], b, bindIdenticalVars);
 		return b;
 	}
 			
 	// For constructors, match when the constructor name, ADT name, and arity are the same, then we can check params
 	if ( isConstructorType(r) && isConstructorType(s) && getADTName(r) == getADTName(s)) {
-		b = match(getConstructorArgumentTypesAsTuple(r), getConstructorArgumentTypesAsTuple(s), b);
-		return match(getConstructorResultType(r), getConstructorResultType(s), b);
+		b = match(getConstructorArgumentTypesAsTuple(r), getConstructorArgumentTypesAsTuple(s), b, bindIdenticalVars);
+		return match(getConstructorResultType(r), getConstructorResultType(s), b, bindIdenticalVars);
+	}
+	
+	if ( isConstructorType(r) && isADTType(s) ) {
+		return match(getConstructorResultType(r), s, b, bindIdenticalVars);
 	}
 	
 	// For functions, match the return types and the parameter types
 	if ( isFunctionType(r) && isFunctionType(s) ) {
-		b = match(getFunctionArgumentTypesAsTuple(r), getFunctionArgumentTypesAsTuple(s), b);
-		return match(getFunctionReturnType(r), getFunctionReturnType(s), b);
+		b = match(getFunctionArgumentTypesAsTuple(r), getFunctionArgumentTypesAsTuple(s), b, bindIdenticalVars);
+		return match(getFunctionReturnType(r), getFunctionReturnType(s), b, bindIdenticalVars);
 	}
 	
 	// For tuples, check the arity then match the item types
 	if ( isTupleType(r) && isTupleType(s) && getTupleFieldCount(r) == getTupleFieldCount(s) ) {
 		rfields = getTupleFieldTypes(r);
 		sfields = getTupleFieldTypes(s);
-		for (idx <- index(rfields)) b = match(rfields[idx], sfields[idx], b);
+		for (idx <- index(rfields)) b = match(rfields[idx], sfields[idx], b, bindIdenticalVars);
 		return b;
 	}
 	

@@ -146,11 +146,28 @@ test bool Issue458c() =                                              // TODO
 
 // https://github.com/cwi-swat/rascal/issues/465
 
-test bool Issue465(){			                                     // TODO: not sure									
+test bool Issue465a(){			                                     // TODO: not sure									
 	makeModule("M", "lexical IntegerLiteral = [0-9]+;           
-					 start syntax Exp = con: IntegerLiteral;
-					 data Exp = con(int n);");
-	return checkOK("true;", importedModules=["M"]);
+					 start syntax Exp = con: IntegerLiteral;");
+	return checkOK("true;", importedModules=["M"], initialDecls=["data Exp = con(int n);"]);
+}
+
+test bool Issue465b(){			                                     								
+	makeModule("M", "lexical IntegerLiteral = [0-9]+;           
+					 start syntax Exp = con: IntegerLiteral;");
+	return checkOK("c = con(5);", importedModules=["M"], initialDecls=["data Exp = con(int n);"]);
+}
+
+test bool Issue465c(){			                                     								
+	makeModule("M", "lexical IntegerLiteral = [0-9]+;           
+					 start syntax Exp = con: IntegerLiteral;");
+	return checkOK("Exp c = con(5);", importedModules=["M"], initialDecls=["data Exp = con(int n);"]);
+}
+
+test bool Issue465d(){			                                     								
+	makeModule("M", "lexical IntegerLiteral = [0-9]+;           
+					 start syntax Exp = con: IntegerLiteral;");
+	return checkOK("M::Exp c = [M::Exp] \"3\";", importedModules=["M"], initialDecls=["data Exp = con(int n);"]);
 }
 
 // https://github.com/cwi-swat/rascal/issues/471
@@ -201,8 +218,8 @@ test bool Issue471h() =
 // https://github.com/cwi-swat/rascal/issues/472
 
 test bool Issue472a() =                                                      // TODO: EmptyList()
-	checkOK("[1, /f(/g(2), _), 3] := [1, f(g(1),f(g(2),g(3),true)), 3];", 
-					initialDecls = ["f(F left, F right) | g(int N);"]);
+	checkOK("[1, /f(/g(2), _), 3] := [1, f(g(1),f(g(2),g(3))), 3];", 
+					initialDecls = ["data F = f(F left, F right) | g(int N);"]);
  
 test bool Issue472b() =
 	checkOK("[1, F outer: /f(/F inner: g(2), _), 3] := [1, f(g(1),f(g(2),g(3))), 3] && outer == f(g(1),f(g(2),g(3))) && inner == g(2);", 

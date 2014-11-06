@@ -1,7 +1,9 @@
 module experiments::Compiler::Examples::Tst
 
-test bool test1() = true;
+lrel[str,int] lr = [
+  <"a",1>,
+  <"b",2>
+];
 
-test bool test2(int a) = true;
-
-value main(list[value] args) = true;
+                                          
+value main(list[value] args) = lr*;

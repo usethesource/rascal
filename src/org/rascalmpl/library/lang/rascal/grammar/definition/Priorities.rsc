@@ -17,6 +17,7 @@ import util::Maybe;
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::analyze::Recursion;
+import lang::rascal::grammar::Lookahead;
 
 public alias Priorities = rel[Production father, Production child];
 public alias DoNotNest = rel[Production father, int position, Production child];

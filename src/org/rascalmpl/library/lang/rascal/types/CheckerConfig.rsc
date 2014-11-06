@@ -9,19 +9,17 @@
 @bootstrapParser
 module lang::rascal::types::CheckerConfig
 
-import List;
 import analysis::graphs::Graph;
 import IO;
 import Set;
 import Map;
-import ParseTree;
 import Message;
 import Node;
-import Type;
 import Relation;
 import util::Reflective;
 import DateTime;
 import String;
+import Exception;
 
 import lang::rascal::checker::ListUtils;
 import lang::rascal::checker::TreeUtils;
@@ -72,8 +70,8 @@ data AbstractValue
     | datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
     | sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats)
     | constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at)
-    | production(RName name, Symbol rtype, int containedIn, loc at)
-    | annotation(RName name, Symbol rtype, set[Symbol] onTypes, int containedIn, loc at)
+    | production(RName name, Symbol rtype, int containedIn, Production p, loc at)
+    | annotation(RName name, Symbol rtype, Symbol onType, int containedIn, loc at)
     | \tag(RName name, TagKind tkind, set[Symbol] onTypes, int containedIn, loc at)
     | \alias(RName name, Symbol rtype, int containedIn, loc at)
     | booleanScope(int containedIn, loc at)
@@ -121,16 +119,18 @@ data Configuration = config(set[Message] messages,
                             list[Timing] timings,
                             int nextLoc,
                             int uniqueify,
-                            map[int,Expression] keywordDefaults,
-                            rel[int,RName,Expression] dataKeywordDefaults,
+                            map[int,value] keywordDefaults,
+                            rel[int,RName,value] dataKeywordDefaults,
                             map[str,Symbol] tvarBounds,
                             map[RName,ModuleInfo] moduleInfo,
                             map[RName,int] globalAdtMap,
-                            map[int,Signature] deferredSignatures,
+                            map[RName,int] globalSortMap,
+                            map[int,value] deferredSignatures,
+                            set[RName] unimportedNames,
                             bool importing
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),false);
+public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -188,22 +188,23 @@ public Configuration addLabel(Configuration c, RName n, loc l, LabelSource ls) {
 
 public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
 
+@doc{Get the container in which the given item is defined.}
 public int definingContainer(Configuration c, int i) {
 	if (c.store[i] is overload) return definingContainer(c, getOneFrom(c.store[i].items));
     cid = c.store[i].containedIn;
-    if (c.store[cid] is \module) return cid;
-    if (c.store[cid] is function) return cid;
-    if (c.store[cid] is closure) return cid;
+    if (c.store[cid] is \module || c.store[cid] is function || c.store[cid] is closure) return cid;
     return definingContainer(c,cid);
 }
 
+@doc{Starting with the current context, get the container in which it is being defined.}
 public list[int] upToContainer(Configuration c, int i) {
-    if (c.store[i] is \module) return [i];
-    if (c.store[i] is function) return [i];
-    if (c.store[i] is closure) return [i];
+	// NOTE: The reason we do not need to check for overload here is because the current context can
+	// never be an overload -- it has to be some actual scope item that could be put on the stack.
+    if (c.store[i] is \module || c.store[i] is function || c.store[i] is closure) return [i];
     return [i] + upToContainer(c,c.store[i].containedIn);
 }
 
+@doc{Get the container for a given abstract value.}
 private int getContainedIn(Configuration c, AbstractValue av) {
 	if (av has containedIn) return av.containedIn;
 	// NOTE: This assumes that overloads are all defined at the same level (all at the top
@@ -265,7 +266,7 @@ public tuple[Configuration,Symbol] checkTVarBound(Configuration c, loc l, Symbol
 
 @doc{Add a new top-level variable into the configuration.}
 public Configuration addTopLevelVariable(Configuration c, RName n, bool inf, Vis visibility, loc l, Symbol rt) {
-	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	moduleId = head([i | i <- c.stack, c.store[i] is \module]);
 	moduleName = c.store[moduleId].name;
 
 	< c, rt > = checkTVarBound(c, l, rt);
@@ -307,9 +308,9 @@ public Configuration addTopLevelVariable(Configuration c, RName n, bool inf, loc
 
 @doc{Add an imported top-level variable into the configuration.}
 public Configuration addImportedVariable(Configuration c, RName n, int varId, bool addFullName=false) {
-	if (n in c.fcvEnv && c.fcvEnv[n] == itemId) return c;
+	if (n in c.fcvEnv && c.fcvEnv[n] == varId) return c;
 
-	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	moduleId = head([i | i <- c.stack, c.store[i] is \module]);
 	moduleName = c.store[moduleId].name;
 	if (n notin c.fcvEnv) {
 		c.fcvEnv[n] = varId;
@@ -324,7 +325,7 @@ public Configuration addImportedVariable(Configuration c, RName n, int varId, bo
 
 @doc{Add a new local variable into the configuration.}
 public Configuration addLocalVariable(Configuration c, RName n, bool inf, loc l, Symbol rt) {
-	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	moduleId = head([i | i <- c.stack, c.store[i] is \module]);
 	moduleName = c.store[moduleId].name;
 
 	< c, rt > = checkTVarBound(c, l, rt);
@@ -382,26 +383,54 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
 		if (!isEmpty(existingDefs)) return getOneFrom(existingDefs);
 
 		annId = c.nextLoc;
-		c.store[annId] = annotation(n,rt,{rtOn},moduleId,l);
+		c.store[annId] = annotation(n,rt,rtOn,moduleId,l);
 		c.definitions = c.definitions + < annId, l >;
 		c.nextLoc = annId + 1;
 		return annId;
+	}
+
+	void updateAnnotation(int id, int newid) {
+		if (c.store[id] is overload) {
+			c.store[id].items = c.store[id].items + newid;
+			c.store[id].rtype = lub(c.store[id].rtype, rt);
+		} else {
+			oitem = overload({ id, newid }, lub(c.store[id].rtype, rt));
+			oid = c.nextLoc;
+			c.store[oid] = oitem;
+			c.nextLoc = oid + 1;
+			c.annotationEnv[n] = oid;
+		}
 	}
 
 	if (n notin c.annotationEnv) {
 		annId = insertAnnotation();
 		c.annotationEnv[n] = annId;
 	} else {
-		// If the annotation already exists, make sure the new annotation has an equivalent type. This is
-		// required even for cases where we have the same annotation name on two different types.
-		// TODO: Should we allow different annotation types on different target types?
-		if (!equivalent(rt,c.store[c.annotationEnv[n]].rtype)){
-			c = addScopeError(c, "Annotation <prettyPrintName(n)> has already been declared with type <c.store[c.annotationEnv[n]].rtype> in module <prettyPrintName(moduleName)>", l);
+		// If an annotation of this name has already been declared, we need to make sure that either it has not been
+		// declared on this (or a comparable type) or, if it has, that the types are equivalent
+		annIds = (c.store[c.annotationEnv[n]] is overload) ? c.store[c.annotationEnv[n]].items : { c.annotationEnv[n] };
+		onComparableTypes = { aId | aId <- annIds, comparable(rtOn, c.store[aId].onType) };
+		
+		if (size(onComparableTypes) == 0) {
+			// This annotation has not been declared before on any comparable types.
 			annId = insertAnnotation();
+			updateAnnotation(c.annotationEnv[n], annId);			
 		} else {
-			c.store[c.annotationEnv[n]].onTypes = c.store[c.annotationEnv[n]].onTypes + rtOn;
-			c.definitions = c.definitions + < c.annotationEnv[n], l >;
-		} 
+			// This annotation has been declared before on at least one comparable type.
+			bool firstTimeThrough = true;
+			for (ct <- onComparableTypes) {
+				if (!equivalent(rt,c.store[ct].rtype)) {
+					c = addScopeError(c, "Annotation <prettyPrintName(n)> has already been declared with type <c.store[ct].rtype> in module <prettyPrintName(c.store[c.store[ct].containedIn].name)>", l);
+					if (firstTimeThrough) {
+						// If we don't add an item regardless, this can lead to errors later, but we don't want to add it repeatedly
+						annId = insertAnnotation();
+						firstTimeThrough = false;
+					}
+				} else {
+					c.definitions = c.definitions + < getOneFrom(onComparableTypes), l >;
+				}
+			}
+		}
 	}
 	
 	return c;
@@ -411,18 +440,44 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
 public Configuration addImportedAnnotation(Configuration c, RName n, int annId) {
 	if (n in c.annotationEnv && c.annotationEnv[n] == annId) return c;
 
+	void updateAnnotation(int id) {
+		if (c.store[id] is overload) {
+			c.store[id].items = c.store[id].items + ( (c.store[annId] is overload) ? c.store[annId].items : { annId } );
+			c.store[id].rtype = lub(c.store[id].rtype, c.store[annId].rtype);
+		} else {
+			oitem = overload(( (c.store[annId] is overload) ? c.store[annId].items : { annId } ) + id, lub(c.store[id].rtype, c.store[annId].rtype));
+			oid = c.nextLoc;
+			c.store[oid] = oitem;
+			c.nextLoc = oid + 1;
+			c.annotationEnv[n] = oid;
+		}
+	}
+
 	if (n notin c.annotationEnv) {
 		c.annotationEnv[n] = annId;
-	} else if (!equivalent(c.store[annId].rtype,c.store[c.annotationEnv[n]].rtype)){
-		moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
-		moduleName = c.store[moduleId].name;
-		c = addScopeError(c, "Annotation <prettyPrintName(n)> has already been declared with type <c.store[c.annotationEnv[n]].rtype> in module <prettyPrintName(moduleName)>", c.store[annId].at);
+	} else {
+		// If an annotation of this name has already been declared, we need to make sure that either it has not been
+		// declared on this (or a comparable type) or, if it has, that the types are equivalent
+		annIds = (c.store[c.annotationEnv[n]] is overload) ? c.store[c.annotationEnv[n]].items : { c.annotationEnv[n] };
+		mergeIds = (c.store[annId] is overload) ? c.store[annId].items : { annId };
+		onComparableTypes = { < aId, mId > | aId <- annIds, mId <- mergeIds, comparable(c.store[mId].onType, c.store[aId].onType) };
+		
+		if (size(onComparableTypes) == 0) {
+			// This annotation has not been declared before on any comparable types.
+			updateAnnotation(c.annotationEnv[n]);			
+		} else {
+			// This annotation has been declared before on at least one comparable type.
+			for (< ct, mId > <- onComparableTypes, !equivalent(c.store[mId].rtype,c.store[ct].rtype)) {
+				c = addScopeError(c, "Import of annotation <prettyPrintName(n)> in module <prettyPrintName(c.store[c.store[annId].containedIn].name)> conflicts with existing annotation in module <prettyPrintName(c.store[c.store[ct].containedIn].name)>", c.store[mId].at);
+			}
+		}
 	}
+	
 	return c;
 }
 
 @doc{Add a user-defined ADT into the configuration}
-public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Symbol rt) {
+public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Symbol rt, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -445,7 +500,6 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 
 	Configuration extendDataType(Configuration c, int existingId) {
 		c.store[existingId].ats = c.store[existingId].ats + l;
-		c.typeEnv[fullName] = existingId;
 		c.definitions = c.definitions + < existingId, l >;		
 		return c; 	
 	}
@@ -454,11 +508,17 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		// No type of this name already exists. Add a new data type item, and link it in
 		// using both the qualified and unqualified names.
 		itemId = addDataType();
-		c.typeEnv[n] = itemId;
-		c.typeEnv[fullName] = itemId;
+		if (registerName) {
+			c.typeEnv[n] = itemId;
+			c.typeEnv[fullName] = itemId;
+		}
 	} else if (n notin c.typeEnv && n in c.globalAdtMap) {
 		existingId = c.globalAdtMap[n];
 		c = extendDataType(c, existingId);
+		if (registerName) {
+			if (n notin c.typeEnv) c.typeEnv[n] = existingId;
+			c.typeEnv[fullName] = existingId;
+		}
 	} else if (c.store[c.typeEnv[n]] is datatype) {
 		// A datatype of this name already exists. Use this existing data type item, adding
 		// a link to it using the qualified name. NOTE: This means that the same type may be available
@@ -470,7 +530,9 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
 		// to distinguish them.
 		itemId = addDataType();
-		c = addScopeError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+		if (registerName) {
+			c = addScopeError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+		}
 	}
 	
 	return c;
@@ -496,38 +558,52 @@ public Configuration addImportedADT(Configuration c, RName n, int itemId, bool a
 }
 
 @doc{Add a user-defined non-terminal type into the configuration}
-public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort) {
+public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
 
 	int addNonTerminal() {
-		if (n in c.globalAdtMap) {
-			return c.globalAdtMap[n];
+		if (n in c.globalSortMap) {
+			return c.globalSortMap[n];
 		}
 		itemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
 		c.store[itemId] = sorttype(n,sort,moduleId,{ l });
 		c.definitions = c.definitions + < itemId, l >;
-		c.globalAdtMap[n] = itemId;
+		c.globalSortMap[n] = itemId;
+
+		if(<itemId,"prod"> notin c.nonterminalFields) {
+			c.nonterminalFields[<itemId,"prod">] = makeADTType("Production");
+		}
+
+		if(<itemId,"args"> notin c.nonterminalFields) {
+			c.nonterminalFields[<itemId,"args">] = makeListType(makeADTType("Tree"));
+		}
+		
 		return itemId;
 	}
 
 	Configuration extendNonTerminal(Configuration c, int existingId) {
 		c.store[existingId].ats = c.store[existingId].ats + l;
-		c.typeEnv[fullName] = existingId;
+		if (registerName) {
+			if (n notin c.typeEnv) c.typeEnv[n] = existingId;
+			c.typeEnv[fullName] = existingId;
+		}
 		c.definitions = c.definitions + < existingId, l >;
 		return c; 	
 	}
 		    
-	if (n notin c.typeEnv && n notin c.globalAdtMap) {
+	if (n notin c.typeEnv && n notin c.globalSortMap) {
 		// No type of this name already exists. Add a new nonterminal item, and link it in
 		// using both the qualified and unqualified names.
 		itemId = addNonTerminal();
-		c.typeEnv[n] = itemId;
-		c.typeEnv[fullName] = itemId;
-	} else if (n notin c.typeEnv && n in c.globalAdtMap) {
-		existingId = c.globalAdtMap[n];
+		if (registerName) {
+			c.typeEnv[n] = itemId;
+			c.typeEnv[fullName] = itemId;
+		}
+	} else if (n notin c.typeEnv && n in c.globalSortMap) {
+		existingId = c.globalSortMap[n];
 		c = extendNonTerminal(c, existingId);
 	} else if (c.store[c.typeEnv[n]] is sorttype) {
 		// A nonterminal of this name already exists. Use this existing nonterminal item, adding
@@ -540,7 +616,9 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
 		// to distinguish them.
 		itemId = addNonTerminal();
-		c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+		if (registerName) {
+			c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+		}
 	}
 	
 	return c;
@@ -617,14 +695,21 @@ public Configuration addImportedAlias(Configuration c, RName n, int itemId, bool
 }
 
 @doc{Add a constructor into the configuration}
-public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, KeywordParamRel commonParams, KeywordParamRel keywordParams) {
+public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, KeywordParamRel commonParams, KeywordParamRel keywordParams, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
 
 	adtName = RSimpleName(rt.\adt.name);
 	fullAdtName = appendName(moduleName, adtName);
-	adtId = c.globalAdtMap[adtName];
+	
+	adtId = 0;
+	if (adtName in c.globalAdtMap) {
+		adtId = c.globalAdtMap[adtName];
+	} else {
+		c = addScopeError(c, "Cannot add constructor <prettyPrintName(n)>, associated ADT <prettyPrintName(adtName)> not found", l);
+		return c;
+	}
 
 	keywordParamMap = ( pn : pt | <pn,pt,_> <- keywordParams);
 
@@ -715,10 +800,10 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 			// Case 2: The name is already overloaded. Add this as one more overload.
 			// TODO: If we are annotating overload items, we need to copy annotations here
 			c.store[c.fcvEnv[n]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + rt));
-		} else if (c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is function) {
+		} else if (c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is production) {
 			nonDefaults = {};
 			defaults = { rt };
-			if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
+			if(isConstructorType(c.store[c.fcvEnv[n]].rtype) || isProductionType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
 	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
@@ -733,22 +818,28 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 			c.fcvEnv[n] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
-			c = addScopeError(c, "Invalid addition: cannot add constructor <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or production name in the same scope.", l);
+			c = addScopeWarning(c, "Invalid declaration: constructor <prettyPrintName(n)> clashes with an existing variable name in the same scope.", l);
 		}
 	}
 
-	existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
+	existingIds = { i | i <- c.adtConstructors[adtId], c.store[i].at == l};
+	existsAlready = size(existingIds) > 0;
+	nameWithAdt = appendName(adtName,n);
+	nameWithModule = appendName(moduleName,n);
 	if (!existsAlready) {
-		nameWithAdt = appendName(adtName,n);
-		nameWithModule = appendName(moduleName,n);
-
 		constructorItemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
 
-		overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt)}; //, !equivalent(c.store[i].rtype,rt)};
-		if (size(overlaps) > 0)
-			c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
-
+		if (registerName) {
+			overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
+			if (size(overlaps) > 0)
+				c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
+		}
+		
+		// NOTE: This will pick one if we have multiple types for the same name, but we will have already issued
+		// a warning above...
+		keywordParamMap = ( pn : pt | pn <- consolidatedParams<0>, pt := getOneFrom(consolidatedParams[pn]<0>) );
+		
 		constructorItem = constructor(n,rt,keywordParamMap,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
 		c.store[constructorItemId] = constructorItem;
 		c.definitions = c.definitions + < constructorItemId, l >;
@@ -756,10 +847,23 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 
 		c.dataKeywordDefaults = c.dataKeywordDefaults + { < constructorItemId, cp, pe > | <cp,pt,pe> <- consolidatedParams };
 
-		addConstructorItem(n, constructorItemId);
-		addConstructorItem(nameWithAdt, constructorItemId);
-		addConstructorItem(nameWithModule, constructorItemId);
-	}    
+		if (registerName) {
+			addConstructorItem(n, constructorItemId);
+			addConstructorItem(nameWithAdt, constructorItemId);
+			addConstructorItem(nameWithModule, constructorItemId);
+		}
+	} else if (registerName) {
+		existingNameIds = idsForName(c,n) + idsForName(c,nameWithAdt) + idsForName(c,nameWithModule);
+		for (constructorItemId <- existingIds, constructorItemId notin existingNameIds) {
+			overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
+			if (size(overlaps) > 0)
+				c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
+
+			addConstructorItem(n, constructorItemId);
+			addConstructorItem(nameWithAdt, constructorItemId);
+			addConstructorItem(nameWithModule, constructorItemId);
+		}
+	} 
 
 	return c;
 }
@@ -776,10 +880,10 @@ public Configuration addImportedConstructor(Configuration c, RName n, int itemId
 			c.fcvEnv[n] = constructorItemId;
 		} else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
 			c.store[c.fcvEnv[n]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + c.store[constructorItemId].rtype));
-		} else if (c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is function) {
+		} else if (c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is production) {
 			nonDefaults = {};
 			defaults = { c.store[constructorItemId].rtype };
-			if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
+			if(isConstructorType(c.store[c.fcvEnv[n]].rtype) || isProductionType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
 	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
@@ -794,7 +898,7 @@ public Configuration addImportedConstructor(Configuration c, RName n, int itemId
 			c.fcvEnv[n] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
-			c = addScopeError(c, "Invalid addition: cannot add constructor <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or production name in the same scope.", c.store[itemId].at);
+			c = addScopeWarning(c, "Invalid declaration: constructor <prettyPrintName(n)> clashes with an existing variable, function, or production name in the same scope.", c.store[itemId].at);
 		}
 	}
 
@@ -806,8 +910,24 @@ public Configuration addImportedConstructor(Configuration c, RName n, int itemId
 	return c;
 }
 
+private set[int] idsForName(Configuration c, RName n) {
+	set[int] unwindIds(int i) {
+		if (c.store[i] is overload) {
+			return c.store[i].items;
+		} else {
+			return { i };
+		}
+	}
+	
+	if (n in c.fcvEnv) {
+		return unwindIds(c.fcvEnv[n]);
+	} else {
+		return { };
+	} 
+}
+
 @doc{Add a production into the configuration.}
-public Configuration addProduction(Configuration c, RName n, loc l, Production prod) {
+public Configuration addProduction(Configuration c, RName n, loc l, Production prod, bool registerName=true) {
 	assert ( (prod.def is label && prod.def.symbol has name) || ( !(prod.def is label) && prod.def has name ) || prod.def is \start);
  
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
@@ -819,16 +939,29 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 
 	if (unwrapType(prod.def) is \start) {
 		sortName = RSimpleName("start[<getNonTerminalName(prod.def)>]");
-		sortId = c.globalAdtMap[sortName];
-	}
-	else {
+		if (sortName in c.globalSortMap) {
+			sortId = c.globalSortMap[sortName];
+		} else {
+			if (RSimpleName("") !:= n) {
+				c = addScopeError(c, "Cannot add production <prettyPrintName(n)>, associated sort <prettyPrintName(sortName)> not found", l);
+			} else {
+				c = addScopeError(c, "Cannot add production <prettyPrintName(n)>, associated sort <prettyPrintName(sortName)> not found", l);
+			}
+		}
+	} else {
 		sortName = RSimpleName( (prod.def is label) ? prod.def.symbol.name : prod.def.name );
-		fullSortName = appendName(moduleName, sortName);
-		sortId = c.globalAdtMap[sortName];
+		if (sortName in c.globalSortMap) {
+			sortId = c.globalSortMap[sortName];
+		} else {
+			if (RSimpleName("") !:= n) {
+				c = addScopeError(c, "Cannot add production <prettyPrintName(n)>, associated sort <prettyPrintName(sortName)> not found", l);
+			} else {
+				c = addScopeError(c, "Cannot add production <prettyPrintName(n)>, associated sort <prettyPrintName(sortName)> not found", l);
+			}
+		}
 	}   
-
+	
 	args = prod.symbols;
-	moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
 	// TODO: think about production overload when we start to create ability to construct concrete trees from abstract names
 	Symbol rtype = Symbol::\prod( (prod.def is label) ? prod.def.symbol : prod.def, getSimpleName(n), prod.symbols, prod.attributes );
 
@@ -840,10 +973,10 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 			// Case 2: The name is already overloaded. Add this as one more overload.
 			// TODO: If we are annotating overload items, we need to copy annotations here
 			c.store[c.fcvEnv[n]] = overload(items + productionItemId, overloaded(itemTypes,defaults + rtype));
-		} else if (c.store[c.fcvEnv[n]] is production || c.store[c.fcvEnv[n]] is function) {
+		} else if (c.store[c.fcvEnv[n]] is production || c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is constructor) {
 			nonDefaults = {};
 			defaults = { rtype };
-			if(isProductionType(c.store[c.fcvEnv[n]].rtype)) {
+			if(isProductionType(c.store[c.fcvEnv[n]].rtype) || isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
 	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
@@ -858,35 +991,77 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 			c.fcvEnv[n] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
-			c = addScopeError(c, "Invalid addition: cannot add production <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or constructor name in the same scope.", l);
+			c = addScopeWarning(c, "Invalid declaration: production <prettyPrintName(n)> clashes with an existing variable name in the same scope.", l);
 		}
 	}
 
-	existsAlready = size({ i | i <- c.nonterminalConstructors[sortId], c.store[i].at == l, c.store[i].name == n}) > 0;
+	Symbol removeAllLabels(Symbol st) { return top-down visit(st) { case label(_,sti) => sti }; }
+	
+	// We can have unnamed productions; in that case, we still add information into the store, but don't add anything
+	// into the name environment, since we cannot look this up by name.
+	existingIds = { i | i <- c.nonterminalConstructors[sortId], c.store[i].at == l, c.store[i].name == n};
+	existsAlready = size(existingIds) > 0;
+	nameWithSort = appendName(sortName,n);
+	nameWithModule = appendName(moduleName,n);
 	if (!existsAlready) {
-		nameWithSort = appendName(sortName,n);
-		nameWithModule = appendName(moduleName,n);
-
 		productionItemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
 
-		overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, comparable(c.store[i].rtype,rtype)}; //, !equivalent(c.store[i].rtype,rt)};
-		if (size(overlaps) > 0)
-			c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);
-
-		productionItem = production(n, rtype, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
+		if (registerName) {
+			if (RSimpleName("") != n) {
+				// If the production is named, another production will overlap if it has the same name and a different type, including
+				// labels -- it is only acceptable to repeat a production exactly
+				overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, c.store[i].rtype != rtype}; 
+				if (size(overlaps) > 0)
+					c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);
+			} else {
+				// If the production isn't named, we have a slightly different rule: the productions don't need to match, but if
+				// they match not accounting for labels, they have to match given labels -- so, the production can be different,
+				// but if it has the same parts, they have to have the same names
+				overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, removeAllLabels(c.store[i].rtype) == removeAllLabels(rtype), c.store[i].rtype != rtype};
+				if (size(overlaps) > 0)
+					c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);		
+			}
+		}
+				
+		productionItem = production(n, rtype, head([i | i <- c.stack, \module(_,_) := c.store[i]]), prod, l);
 		c.store[productionItemId] = productionItem;
 		c.definitions = c.definitions + < productionItemId, l >;
 		c.nonterminalConstructors = c.nonterminalConstructors + < sortId, productionItemId >;
 
-		addProductionItem(n, productionItemId);
-		addProductionItem(nameWithSort, productionItemId);
-		addProductionItem(nameWithModule, productionItemId);
-	}    
+		if (registerName && RSimpleName("") != n) {
+			addProductionItem(n, productionItemId);
+			addProductionItem(nameWithSort, productionItemId);
+			addProductionItem(nameWithModule, productionItemId);
+		}
+	} else if (registerName) {
+		existingNameIds = idsForName(c,n) + idsForName(c,nameWithSort) + idsForName(c,nameWithModule);
+		for (productionItemId <- existingIds, productionItemId notin existingNameIds) {
+			if (RSimpleName("") != n) {
+				// If the production is named, another production will overlap if it has the same name and a different type, including
+				// labels -- it is only acceptable to repeat a production exactly
+				overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, c.store[i].rtype != rtype}; 
+				if (size(overlaps) > 0)
+					c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);
+			} else {
+				// If the production isn't named, we have a slightly different rule: the productions don't need to match, but if
+				// they match not accounting for labels, they have to match given labels -- so, the production can be different,
+				// but if it has the same parts, they have to have the same names
+				overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, removeAllLabels(c.store[i].rtype) == removeAllLabels(rtype), c.store[i].rtype != rtype};
+				if (size(overlaps) > 0)
+					c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);		
+			}
 
+			addProductionItem(n, productionItemId);
+			addProductionItem(nameWithSort, productionItemId);
+			addProductionItem(nameWithModule, productionItemId);
+		}
+	} 
+	
 	// Add non-terminal fields
 	alreadySeen = {};
-	for(\label(str fn, Symbol ft) <- prod.symbols) {
+	for(\label(str fn, Symbol ft2) <- prod.symbols) {
+		ft = removeConditional(ft2);
 		if(fn notin alreadySeen) {
 			if(c.nonterminalFields[<sortId,fn>]?) {
 				t = c.nonterminalFields[<sortId,fn>];
@@ -918,10 +1093,10 @@ public Configuration addImportedProduction(Configuration c, RName n, int itemId,
 			c.fcvEnv[n] = productionItemId;
 		} else if (overload(items,overloaded(set[Symbol] itemTypes, set[Symbol] defaults)) := c.store[c.fcvEnv[n]]) {
 			c.store[c.fcvEnv[n]] = overload(items + productionItemId, overloaded(itemTypes,defaults + c.store[productionItemId].rtype));
-		} else if (c.store[c.fcvEnv[n]] is production || c.store[c.fcvEnv[n]] is function) {
+		} else if (c.store[c.fcvEnv[n]] is production || c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is constructor) {
 			nonDefaults = {};
 			defaults = { c.store[productionItemId].rtype };
-			if(isProductionType(c.store[c.fcvEnv[n]].rtype)) {
+			if(isProductionType(c.store[c.fcvEnv[n]].rtype) || isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
 	        	if (!c.store[c.fcvEnv[n]].isDeferred) {
@@ -936,7 +1111,7 @@ public Configuration addImportedProduction(Configuration c, RName n, int itemId,
 			c.fcvEnv[n] = c.nextLoc;
 			c.nextLoc = c.nextLoc + 1;
 		} else {
-			c = addScopeError(c, "Invalid addition: cannot add production <prettyPrintName(n)> into scope, it clashes with an existing variable, function, or constructor name in the same scope.", c.store[itemId].at);
+			c = addScopeWarning(c, "Invalid declaration: production <prettyPrintName(n)> clashes with an existing variable name in the same scope.", c.store[itemId].at);
 		}
 	}
 
@@ -949,20 +1124,26 @@ public Configuration addImportedProduction(Configuration c, RName n, int itemId,
 }
 
 @doc{Add a syntax definition into the configuration.}
-public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Production prod, bool isStart) {
+public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Production prod, bool isStart, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
  	fullSortName = appendName(moduleName, rn);
 
-    if (fullSortName notin c.typeEnv) {
+    if (fullSortName notin c.typeEnv && registerName) {
     	c = addScopeError(c, "Could not add syntax definition, associated nonterminal is not in scope", l);
     	return c;
     }
-    sortId = c.typeEnv[fullSortName];
+    
+    if (rn notin c.globalSortMap) {
+    	c = addScopeError(c, "Nonterminal name <prettyPrintName(rn)> is not known", l);
+    	return c;
+    }
+    
+    sortId = c.globalSortMap[rn];
 
     if(isStart) {
     	c.starts = c.starts + sortId;
-    	c = addNonterminal(c,RSimpleName("start[<getNonTerminalName(prod.def)>]"), l, prod.def);
+    	c = addNonterminal(c,RSimpleName("start[<getNonTerminalName(prod.def)>]"), l, prod.def, registerName=registerName);
     	return c;
     }
     
@@ -1164,7 +1345,7 @@ public Configuration addTag(Configuration c, TagKind tk, RName n, set[Symbol] on
         currentVal = c.store[c.tagEnv[n]];
         if (tk != currentVal.tkind) throw "Cannot add tag with same name but different kind into environment!";
         c.store[c.tagEnv[n]].onTypes = c.store[c.tagEnv[n]].onTypes + onTypes;
-        c.definitions[c.tagEnv[n]] = c.definitions + < c.tagEnv[n], l >; 
+        c.definitions = c.definitions + < c.tagEnv[n], l >; 
     } else {
         c.tagEnv[n] = c.nextLoc;
         c.store[c.nextLoc] = \tag(n, tk, onTypes, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
@@ -1177,6 +1358,7 @@ public Configuration addTag(Configuration c, TagKind tk, RName n, set[Symbol] on
 
 // TODO: If we ever use tags, add support for importing them...
 
+public Configuration addMessage(Configuration c, Message m) = c[messages = c.messages + m];
 public Configuration addScopeMessage(Configuration c, Message m) = c[messages = c.messages + m];
 
 public Configuration addScopeError(Configuration c, str s, loc l) = addScopeMessage(c,error(s,l));
@@ -1185,9 +1367,6 @@ public Configuration addScopeInfo(Configuration c, str s, loc l) = addScopeMessa
 
 @doc{Represents the result of checking an expression.}
 alias CheckResult = tuple[Configuration conf, Symbol res];
-
-@doc{Marks if a function is a var-args function.}
-public anno bool Symbol@isVarArgs;
 
 @doc{Marks the location(s) where a defined type (function, constructor, etc) is defined.}
 public anno set[loc] Symbol@definedAt;
@@ -1222,4 +1401,3 @@ public Configuration exitBooleanScope(Configuration c, Configuration cOrig) {
 
 @doc{Check if a set of function modifiers has the default modifier}
 public bool hasDefaultModifier(set[Modifier] modifiers) = defaultModifier() in modifiers;
-

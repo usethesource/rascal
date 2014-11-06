@@ -1,6 +1,7 @@
 module lang::rascal::grammar::Bootstrap
 
 import lang::rascal::\syntax::Rascal; 
+import ParseTree;
 
 import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::SyntaxTreeGenerator;
