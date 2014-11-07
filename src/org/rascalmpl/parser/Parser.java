@@ -26,7 +26,7 @@ import org.jgll.grammar.GrammarGraph;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParseError;
 import org.jgll.parser.ParserFactory;
-import org.jgll.sppf.NonterminalSymbolNode;
+import org.jgll.sppf.NonterminalNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.util.Input;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -61,7 +61,7 @@ public class Parser {
 		Input input = Input.fromCharArray(data, location);
   		GLLParser parser = ParserFactory.newParser(grammar, input);
   		
-  		NonterminalSymbolNode sppf;
+  		NonterminalNode sppf;
   		
   		try {
   			sppf = parser.parse(input, grammar, nt);

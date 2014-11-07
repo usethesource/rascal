@@ -80,6 +80,8 @@ public class GrammarToJigll {
 	
 	private boolean saveObjects = false;
 
+	private IMap definitions;
+
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
 		deleteSetCache = new HashMap<>();
@@ -96,16 +98,15 @@ public class GrammarToJigll {
 		input = Input.fromString(str.getValue(), loc.getURI());
 		parser = ParserFactory.newParser(grammar, input);
 
-		log.info("Iguana started.");
-
 		startSymbol = SymbolAdapter.toString(symbol, true);
 
 		GrammarGraph grammarGraph = grammar.toGrammarGraph();
+		grammarGraph.reset();
 		ParseResult result = parser.parse(input, grammarGraph, startSymbol);
 
 		if (result.isParseSuccess()) {
 			long start = System.nanoTime();
-			SPPFNode sppf = result.asParseSuccess().getSPPFNode();
+			SPPFNode sppf = result.asParseSuccess().getRoot();
 			sppf.accept(new ModelBuilderVisitor<>(input, new ParsetreeBuilder(), grammarGraph));
 			long end = System.nanoTime();
 			log.info("Flattening: %d ms ", (end - start) / 1000_000);
@@ -126,6 +127,7 @@ public class GrammarToJigll {
 	}
 
 	public void generateGrammar(IConstructor rascalGrammar) {
+		System.out.println("Iguana started.");
 		grammar = convert("inmemory", rascalGrammar);
 		IMap notAllowed = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("notAllowed"));
 		IMap except = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("excepts"));
@@ -136,7 +138,7 @@ public class GrammarToJigll {
 		OperatorPrecedence op = new OperatorPrecedence();
 		addExceptPatterns(op, except);
 		addPrecedencePatterns(op, notAllowed);
-//		grammar = op.rewrite(grammar);
+		grammar = op.transform(grammar);
 	}
 
 	public void printGrammar() {
@@ -153,7 +155,7 @@ public class GrammarToJigll {
 		GrammarGraph grammarGraph = grammar.toGrammarGraph();
 		ParseResult result = parser.parse(input, grammarGraph, startSymbol);
 		if (result.isParseSuccess()) {
-			SPPFNode sppf = result.asParseSuccess().getSPPFNode();
+			SPPFNode sppf = result.asParseSuccess().getRoot();
 			Visualization.generateSPPFGraph(path.getValue(), sppf, grammarGraph, input);
 		} else {
 			ParseError e = result.asParseError();
@@ -169,7 +171,7 @@ public class GrammarToJigll {
 	}
 
 	private Condition getNotFollow(IConstructor symbol) {
-
+		
 		switch (symbol.getName()) {
 
 			case "char-class":
@@ -178,19 +180,12 @@ public class GrammarToJigll {
 	
 			case "lit":
 				return RegularExpressionCondition.notFollow(getRegularExpression(symbol));
-	
+				
 			case "seq":
 				IList list = (IList) symbol.get("symbols");
-				List<Symbol> symbols = new ArrayList<>();
-				for (IValue v : list) {
-					symbols.add(getSymbol((IConstructor) v));
-				}
-				symbols.remove(1);
-				if(isAllRegularExpression(symbols)) {
-					return RegularExpressionCondition.notFollow(Sequence.from(conver(symbols)));				
-				} else {
-					return ContextFreeCondition.notFollow(symbols);
-				}
+				if (list.length() > 0 && ((IConstructor)list.get(0)).getName().equals("lex")) {
+					return RegularExpressionCondition.notFollow(createRegularExpression((IConstructor) list.get(0), definitions));
+				} 
 	
 			default:
 				throw new IllegalStateException("Should not be here!");
@@ -260,7 +255,7 @@ public class GrammarToJigll {
 
 		Grammar.Builder builder = new Grammar.Builder();
 		
-		IMap definitions = (IMap) rascalGrammar.get("rules");
+		definitions = (IMap) rascalGrammar.get("rules");
 		
 		rulesMap = new HashMap<>();
 		regularExpressionsMap = new HashMap<>();
@@ -373,6 +368,23 @@ public class GrammarToJigll {
 //				}
 			}
 		}
+	}
+	
+	private RegularExpression createRegularExpression(IConstructor regex, IMap definitions) {
+		
+		IConstructor prod = (IConstructor) definitions.get(regex);
+		
+		if (prod.getName().equals("choice")) {
+			ISet alts = (ISet) prod.get("alternatives");
+			assert alts.size() == 1;
+			prod = (IConstructor) alts.iterator().next();
+		}
+		
+		IList rhs = (IList) ((IConstructor) prod).get("symbols");
+
+		List<RegularExpression> body = getRegularExpressionList(rhs);
+		
+		return new Sequence.Builder<RegularExpression>(body).build();
 	}
 
 	private void addExceptPatterns(OperatorPrecedence op, IMap map) {

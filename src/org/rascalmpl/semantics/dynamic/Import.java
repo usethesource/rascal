@@ -38,7 +38,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.jgll.grammar.GrammarGraph;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParserFactory;
-import org.jgll.sppf.NonterminalSymbolNode;
+import org.jgll.sppf.NonterminalNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.util.Input;
 import org.rascalmpl.ast.ImportedModule;
