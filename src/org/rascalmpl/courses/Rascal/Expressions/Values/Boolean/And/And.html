@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,19 +48,19 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> &amp;&amp; <i>Exp</i><sub>2</sub></code>
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code> </th><th align="left"> <code><i>Exp</i><sub>2</sub></code>  </th><th align="left"> <code><i>Exp</i><sub>1</sub> &amp;&amp; <i>Exp</i><sub>2</sub></code> </th></tr><tr><td align="left"> <code>bool</code>       </td><td align="left"> <code>bool</code>         </td><td align="left"> <code>bool</code> </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  The <i>and</i> operator on Boolean values defined as follows:
   <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code> </th><th align="left"> <code><i>Exp</i><sub>2</sub></code>  </th><th align="left"> <code><i>Exp</i><sub>1</sub> &amp;&amp; <i>Exp</i><sub>2</sub></code> </th></tr><tr><td align="left"> <code>true</code>       </td><td align="left"> <code>true</code>         </td><td align="left"> <code>true</code> </td></tr><tr><td align="left"> <code>true</code>       </td><td align="left"> <code>false</code>         </td><td align="left"> <code>false</code> </td></tr><tr><td align="left"> <code>false</code>       </td><td align="left"> <code>true</code>         </td><td align="left"> <code>false</code> </td></tr><tr><td align="left"> <code>false</code>       </td><td align="left"> <code>false</code>         </td><td align="left"> <code>false</code> </td></tr></table> Boolean operators have <i>short circuit</i> semantics:  only those operands are evaluated that are needed to compute the result. In the case of the <code>&amp;&amp;</code> operator, the result is <code>false</code> if <code><i>Exp</i><sub>1</sub></code> evaluates to <code>false</code>, otherwise <code><i>Exp</i><sub>2</sub></code> is evaluated to determine the result.
@@ -75,7 +75,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>true &amp;&amp; false;
 bool: false
@@ -95,13 +95,13 @@ list[void]: []
 </pre>
 </div>
 
-  	                       
+
 <div id="Benefits">
 <span class="sectionHead">Benefits</span>  <ul><li> the backtracking <code>&amp;&amp;</code> allows one to express searching for a computational solution in concise manner.</li>
 </ul>
 </div>
 
-  	                       
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  <ul><li> side effects to global variables or IO in the context of a backtracking <code>&amp;&amp;</code> can lead to more effects than you bargained for.<br/>
 <br/>
@@ -121,7 +121,7 @@ int: 3
 </ul>
 </div>
 
-  	                       
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Boolean/And&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Boolean/And&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

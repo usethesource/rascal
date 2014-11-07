@@ -1,0 +1,110 @@
+{
+  "data": [
+    {
+      "name": "table",
+       "data": [{"name": "table"}]
+    }
+  ],
+  "padding":0
+  ,
+  "scales": [
+    {
+      "name": "cat",
+      "type": "ordinal",
+      "range": "width",
+      "padding": 0.2,
+      "domain": {"data": "table", "field": "data.x"}
+    },
+    {
+      "name": "val",
+      "range": "height", 
+      "round": true,
+      "nice": true,
+      "domain": {"data": "table", "field": "data.y"}
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "range": "category10"
+    }
+  ],
+  "axes": [
+    {"type": "x", "scale": "cat", "tickSize": 0, "tickPadding": 0, "offset":0,
+    "properties": {
+       "labels":{
+          "dy" : {"value":0}
+          , "angle": {"value": 90}
+          ,"fill":{"value":"black"}
+           ,"align":{"value":"left"}
+          }
+      ,"axis": {"stroke":{"value":"black"}
+         }
+    }},
+    {"type": "y", "scale": "val", "format":"s"}
+  ],
+  "marks": [
+    {
+      "type": "group",
+      "from": {
+        "data": "table",
+        "transform": [{"type":"facet", "keys":["data.x"]}]
+      },
+      "properties": {
+        "enter": {
+          "x": {"scale": "cat", "field": "key"},
+          "width": {"scale": "cat", "band": true}       
+        }
+        
+      },
+      "scales": [
+        {
+          "name": "pos",
+          "type": "ordinal",
+          "range": "width",
+          "domain": {"field": "data.c"}
+        }
+      ],
+      "marks": [
+        {
+          "type": "rect",
+          "properties": {
+            "enter": {
+              "y2": {"scale": "val","value": 0},
+              "x": {"scale": "pos", "field": "data.c"},     
+              "width": {"scale": "pos", "band": true},
+              "y": {"scale": "val", "field": "data.y"},
+              "fill": {"scale": "color", "field": "data.c"}  ,
+              "stroke":{"value":"lightgray"}      
+            } 
+           ,
+            "hover": {
+               "fill": {"value": "red"}
+               }
+            ,
+            "update": {
+               "fill": {"scale": "color", "field": "data.c"}
+               }
+                  
+          }
+        },
+        {
+          "type": "text",
+          "properties": {
+            "enter": {
+              "x": {"scale": "pos", "field": "data.c"},
+              "dx": {"scale": "pos", "band": true, "mult": 0.5},
+              "y2": {"scale": "val","value": 0},
+              "y": {"scale": "val", "field": "data.y", "offset": 8},
+              "fill": {"value": "white"},
+              "angle": {"value": 90},
+              "baseline":{"value":"bottom"},
+              "align":{"value":"left"},
+              "text": {"field": "data.y"},
+              "dy": {"value": -3}
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

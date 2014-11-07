@@ -30,13 +30,45 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 public class FunctionType extends RascalType {
 	private final Type returnType;
 	private final Type argumentTypes;
+	private final Type keywordParameters;
 	
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	
-	/*package*/ FunctionType(Type returnType, Type argumentTypes) {
+	/*package*/ FunctionType(Type returnType, Type argumentTypes, Type keywordParameters) {
 		this.argumentTypes = argumentTypes.isTuple() ? argumentTypes : TF.tupleType(argumentTypes);
 		this.returnType = returnType;
+		this.keywordParameters = keywordParameters;
+	}
+	
+	@Override
+	public Type getFieldType(int i) {
+		return argumentTypes.getFieldType(i);
+	}
+	
+	@Override
+	public Type getFieldType(String fieldName) throws FactTypeUseException {
+		return argumentTypes.getFieldType(fieldName);
+	}
+	
+	@Override
+	public int getFieldIndex(String fieldName) {
+		return argumentTypes.getFieldIndex(fieldName);
+	}
+	
+	@Override
+	public String getFieldName(int i) {
+		return argumentTypes.getFieldName(i);
+	}
+	
+	@Override
+	public String[] getFieldNames() {
+		return argumentTypes.getFieldNames();
+	}
+	
+	@Override
+	public Type getFieldTypes() {
+		return argumentTypes;
 	}
 	
 	@Override
@@ -55,6 +87,25 @@ public class FunctionType extends RascalType {
 	@Override
 	public int getArity() {
 		return argumentTypes.getArity();
+	}
+	
+	public Type getKeywordParameterTypes() {
+		return keywordParameters;
+	}
+	
+	@Override
+	public Type getKeywordParameterType(String label) {
+	  return keywordParameters.getFieldType(label);
+	}
+	
+	@Override
+	public boolean hasKeywordParameter(String label) {
+	  return keywordParameters.hasField(label);
+	}
+	
+	@Override
+	public boolean hasKeywordParameters() {
+	  return keywordParameters != null && !keywordParameters.isBottom();
 	}
 	
 	@Override
@@ -112,8 +163,9 @@ public class FunctionType extends RascalType {
 	  Type returnType = getReturnType().lub(f.getReturnType());
 	  Type argumentTypes = getArgumentTypes().glb(f.getArgumentTypes());
 	  
-	  if(argumentTypes.isTuple()) {
-	    return RTF.functionType(returnType, argumentTypes);
+	  if (argumentTypes.isTuple()) {
+	    // TODO: figure out what lub means for keyword parameters!
+	    return RTF.functionType(returnType, argumentTypes, TF.voidType());
 	  }
 	  
 	  return TF.valueType();
@@ -131,7 +183,8 @@ public class FunctionType extends RascalType {
 	  Type argumentTypes = getArgumentTypes().lub(f.getArgumentTypes());
 		
 	  if(argumentTypes.isTuple()) {
-		return RTF.functionType(returnType, argumentTypes);
+	    // TODO: figure out what glb means for keyword parameters
+	    return RTF.functionType(returnType, argumentTypes, TF.voidType());
 	  }
 		
 	  return TF.voidType();
@@ -179,21 +232,36 @@ public class FunctionType extends RascalType {
 	
 	@Override
 	public int hashCode() {
-		return 19 + 19 * returnType.hashCode() + 23 * argumentTypes.hashCode();
+		return 19 + 19 * returnType.hashCode() + 23 * argumentTypes.hashCode() 
+				+ (keywordParameters != null ? 29 * keywordParameters.hashCode() : 0)
+				;
 	}
 	
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof FunctionType) {
 			FunctionType other = (FunctionType) o;
-			return returnType == other.returnType && argumentTypes == other.argumentTypes;
+			
+			if (returnType != other.returnType) { 
+				return false;
+			}
+			
+			if (argumentTypes != other.argumentTypes) {
+				return false;
+			}
+			
+			if (keywordParameters != other.keywordParameters) {
+				return false;
+			}
+
+			return true;
 		}
 		return false;
 	}
 	
 	@Override
 	public Type instantiate(Map<Type, Type> bindings) {
-		return RTF.functionType(returnType.instantiate(bindings), argumentTypes.instantiate(bindings));
+		return RTF.functionType(returnType.instantiate(bindings), argumentTypes.instantiate(bindings), keywordParameters);
 	}
 	
 	@Override
@@ -236,14 +304,15 @@ public class FunctionType extends RascalType {
 			return right;
 		}
 		Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+		
 		if(right instanceof FunctionType) {
 			if(TF.tupleType(((FunctionType) right).returnType).isSubtypeOf(this.argumentTypes)) {
-				return RTF.functionType(this.returnType, ((FunctionType) right).getArgumentTypes());
+				return RTF.functionType(this.returnType, ((FunctionType) right).getArgumentTypes(), ((FunctionType) right).keywordParameters);
 			}
 		} else if(right instanceof OverloadedFunctionType) {
 			for(FunctionType ftype : ((OverloadedFunctionType) right).getAlternatives()) {
 				if(TF.tupleType(ftype.getReturnType()).isSubtypeOf(this.argumentTypes)) {
-					newAlternatives.add((FunctionType) RTF.functionType(this.returnType, ftype.getArgumentTypes()));
+					newAlternatives.add((FunctionType) RTF.functionType(this.returnType, ftype.getArgumentTypes(), ftype.keywordParameters));
 				}
 			}
 		} else {

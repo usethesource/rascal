@@ -38,6 +38,7 @@ import org.rascalmpl.ast.Expression.VoidClosure;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionDeclaration.Conditional;
 import org.rascalmpl.ast.FunctionDeclaration.Default;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Statement;
@@ -69,12 +70,14 @@ public class RascalFunction extends NamedFunction {
 	private final List<Expression> formals;
 	private final String firstOutermostLabel;
 	private final IConstructor firstOutermostProduction;
+	private final List<KeywordFormal> initializers;
 	
 	public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
-				(FunctionType) func.getSignature().typeOf(env, true),
+				(FunctionType) func.getSignature().typeOf(env, true, eval),
+				getFormals(func),
 				varargs, isDefault(func), hasTestMod(func.getSignature()),
 				func.getBody().getStatements(), env, accumulators);
 	}
@@ -83,7 +86,8 @@ public class RascalFunction extends NamedFunction {
 			Stack<Accumulator> accumulators) {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
-				(FunctionType) func.getSignature().typeOf(env, true), 
+				(FunctionType) func.getSignature().typeOf(env, true, eval), 
+				getFormals(func),
 				varargs, isDefault(func), hasTestMod(func.getSignature()),
 				Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getLocation(), ASTBuilder.makeStat("Expression", func.getLocation(), func.getExpression()))}),
 				env, accumulators);
@@ -91,19 +95,21 @@ public class RascalFunction extends NamedFunction {
 
 	@SuppressWarnings("unchecked")
 	public RascalFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, String name, FunctionType functionType,
+			List<KeywordFormal> initializers,
 			boolean varargs, boolean isDefault, boolean isTest, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
-		super(ast, eval, functionType, name, varargs, isDefault, isTest, null, env);
+		super(ast, eval, functionType, initializers, name, varargs, isDefault, isTest, env);
 		this.body = body;
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
 		this.accumulators = (Stack<Accumulator>) accumulators.clone();
 		this.formals = cacheFormals();
 		this.firstOutermostLabel = computeFirstOutermostLabel(ast);
 		this.firstOutermostProduction = computeFirstOutermostProduction(ast);
+		this.initializers = initializers;
 	}
 	
 	@Override
 	public RascalFunction cloneInto(Environment env) {
-		RascalFunction rf = new RascalFunction(getAst(), getEval(), getName(), getFunctionType(), hasVarArgs(), isDefault(), isTest(), body, env, accumulators);
+		RascalFunction rf = new RascalFunction(getAst(), getEval(), getName(), getFunctionType(), initializers, hasVarArgs(), isDefault(), isTest(), body, env, accumulators);
 		rf.setPublic(isPublic()); // TODO: should be in constructors
 		return rf;
 	}
@@ -222,9 +228,11 @@ public class RascalFunction extends NamedFunction {
 
 	@Override
   public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
-	Result<IValue> result = getMemoizedResult(actuals, keyArgValues);
-	if (result !=  null) 
-		return result;
+	  Result<IValue> result = getMemoizedResult(actuals, keyArgValues);
+	  if (result !=  null) { 
+	    return result;
+	  }
+	
     Environment old = ctx.getCurrentEnvt();
     AbstractAST currentAST = ctx.getCurrentAST();
     AbstractAST oldAST = currentAST;
@@ -250,8 +258,9 @@ public class RascalFunction extends NamedFunction {
       int i = 0;
       
       
-      if (!hasVarArgs && size != this.formals.size())
+      if (!hasVarArgs && size != this.formals.size()) {
         throw new MatchFailed();
+      }
 
       if (size == 0) {
         try {
@@ -284,8 +293,8 @@ public class RascalFunction extends NamedFunction {
             try {
               bindKeywordArgs(keyArgValues);
               result = runBody();
-	          storeMemoizedResult(actuals,keyArgValues, result);
-	          return result;
+              storeMemoizedResult(actuals,keyArgValues, result);
+              return result;
             }
             catch (Failure e) {
               // backtrack current pattern assignment
@@ -315,8 +324,8 @@ public class RascalFunction extends NamedFunction {
     }
     catch (Return e) {
       result = computeReturn(e);
-	  storeMemoizedResult(actuals,keyArgValues, result);
-	  return result;
+      storeMemoizedResult(actuals,keyArgValues, result);
+      return result;
     } 
     finally {
       if (callTracing) {

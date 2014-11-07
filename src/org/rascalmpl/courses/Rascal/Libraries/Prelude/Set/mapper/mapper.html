@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>set[&amp;U] mapper(set[&amp;T] st, &amp;U (&amp;T) fn)</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Set;</code>
  </AUTOINSERTED>
@@ -68,20 +68,20 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Set;
 ok
 <span class="prompt">rascal></span>int incr(int x) { return x + 1; }
 int (int): int incr(int);
 <span class="prompt">rascal></span>mapper({1, 2, 3, 4}, incr);
-set[int]: {5,4,3,2}
+set[int]: {2,3,4,5}
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -103,9 +103,9 @@ set[int]: {5,4,3,2}
 <span id="answerFeedback_Rascal_Libraries_Prelude_Set_mapper_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Set_mapper_1:S" value="{13, -18, 10}">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Set_mapper_1:S" value="{11, -3, -8, -7, 5}">
 Given <pre class="prequestion">int incr(int x) { return x + 1; }
-</pre>The type of <tt>mapper({13, -18, 10}, incr)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_Set_mapper_1:answer" class="answerText"><br/>
+</pre>The type of <tt>mapper({11, -3, -8, -7, 5}, incr)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_Set_mapper_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -129,9 +129,9 @@ Given <pre class="prequestion">int incr(int x) { return x + 1; }
 <span id="answerFeedback_Rascal_Libraries_Prelude_Set_mapper_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Set_mapper_2:S" value="{-12, 17}">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Set_mapper_2:S" value="{-11, -9, 13, 17, -10}">
 Given <pre class="prequestion">int incr(int x) { return x + 1; }
-</pre><pre class="prequestion">mapper({-12, 17}, incr) == <input type="text" size="30" name="Rascal_Libraries_Prelude_Set_mapper_2:answer" class="answerText"></pre>
+</pre><pre class="prequestion">mapper({-11, -9, 13, 17, -10}, incr) == <input type="text" size="30" name="Rascal_Libraries_Prelude_Set_mapper_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Set_mapper_2:another" value="yes">

@@ -30,7 +30,7 @@ Examples:
 Benefits:
 
 Pitfalls:
-* if both operands of `+` are a set then it acts as [Set/Union].
+* if both operands of `+` are a set then it acts as [$Rascal/Expressions/Values/Set/Union].
 
 Questions:
 

@@ -10,7 +10,6 @@
 module lang::rascal::types::AbstractKind
 
 import ParseTree;
-import Type;
 import lang::rascal::\syntax::Rascal;
 
 @doc{Kinds of tags}

@@ -41,24 +41,30 @@ A location that points to a project in the Eclipse workspace  named "myProject":
 |project://myProject| 
 </listing>
 
-A location that points to a file named `Main.java` in the `src` 
-folder of the `myProject` project in the workspace:
+A location that points to a file named `HelloWorld.java` in the `src` 
+folder of the `example-project` project in the workspace:
 <listing>
-|project://myProject/src/Main.java| 
+|project://example-project/src/HelloWorld.java| 
 </listing>
 
 A location that points to a part of the previous file, 
 namely the first 10 characters on the first line:
 <listing>
-|project://myProject/src/Main.java|(0,10,1,0,1,10) 
+|project://example-project/src/HelloWorld.java|(0,10,1,0,1,10) 
 </listing>
 
-Assuming that the project `|project://org.eclipse.imp.pdb.values|` exists in the current workspace, we can get the following:
+Assuming that the project `|project://example-project|` exists in the current workspace, we can get the following:
 
 <screen>
 import util::Resources;
-getProject(|project://org.eclipse.imp.pdb.values|);
+getProject(|project://example-project|);
 </screen>
+
+<screen errors>
+import util::Resources;
+getProject(|project://example-project-which-does-not-exist|);
+</screen>
+
 
 Benefits:
 
@@ -66,4 +72,3 @@ Pitfalls:
 This library is only available for the Eclipse version of Rascal.
 
 Questions:
-

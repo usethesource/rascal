@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -89,6 +89,20 @@ public abstract class Class extends AbstractAST {
       return visitor.visitClassBracket(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Bracket)) {
+        return false;
+      }        
+      Bracket tmp = (Bracket) o;
+      return true && tmp.charclass.equals(this.charclass) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 853 + 593 * charclass.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Class getCharclass() {
@@ -125,6 +139,20 @@ public abstract class Class extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitClassComplement(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Complement)) {
+        return false;
+      }        
+      Complement tmp = (Complement) o;
+      return true && tmp.charClass.equals(this.charClass) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 937 + 587 * charClass.hashCode() ; 
+    } 
   
     
     @Override
@@ -164,6 +192,20 @@ public abstract class Class extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitClassDifference(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Difference)) {
+        return false;
+      }        
+      Difference tmp = (Difference) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 37 + 29 * lhs.hashCode() + 733 * rhs.hashCode() ; 
+    } 
   
     
     @Override
@@ -213,6 +255,20 @@ public abstract class Class extends AbstractAST {
       return visitor.visitClassIntersection(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Intersection)) {
+        return false;
+      }        
+      Intersection tmp = (Intersection) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 431 + 607 * lhs.hashCode() + 131 * rhs.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Class getLhs() {
@@ -259,6 +315,20 @@ public abstract class Class extends AbstractAST {
       return visitor.visitClassSimpleCharclass(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof SimpleCharclass)) {
+        return false;
+      }        
+      SimpleCharclass tmp = (SimpleCharclass) o;
+      return true && tmp.ranges.equals(this.ranges) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 293 + 103 * ranges.hashCode() ; 
+    } 
+  
     
     @Override
     public java.util.List<org.rascalmpl.ast.Range> getRanges() {
@@ -297,6 +367,20 @@ public abstract class Class extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitClassUnion(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Union)) {
+        return false;
+      }        
+      Union tmp = (Union) o;
+      return true && tmp.lhs.equals(this.lhs) && tmp.rhs.equals(this.rhs) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 199 + 739 * lhs.hashCode() + 677 * rhs.hashCode() ; 
+    } 
   
     
     @Override

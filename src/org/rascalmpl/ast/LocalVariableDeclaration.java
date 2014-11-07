@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -61,6 +61,20 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
       return visitor.visitLocalVariableDeclarationDefault(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Default)) {
+        return false;
+      }        
+      Default tmp = (Default) o;
+      return true && tmp.declarator.equals(this.declarator) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 787 + 397 * declarator.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Declarator getDeclarator() {
@@ -97,6 +111,20 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitLocalVariableDeclarationDynamic(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Dynamic)) {
+        return false;
+      }        
+      Dynamic tmp = (Dynamic) o;
+      return true && tmp.declarator.equals(this.declarator) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 443 + 47 * declarator.hashCode() ; 
+    } 
   
     
     @Override

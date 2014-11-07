@@ -45,7 +45,7 @@ public Figure vertice(Id s, Attrs attrs) {
     if (!isEmpty(r)) {
       switch(r[0]) {
        case "ellipse": return shapeEllipse(text(substr(lab)), getProps(attrs)+id(s));
-       case "diamond": return shapeDiamand(text(substr(lab)), getProps(attrs)+id(s));
+       case "diamond": return shapeDiamond(text(substr(lab)), getProps(attrs)+id(s));
        }
     }
     return shapeBox(text(substr(lab)), getProps(attrs)+id(s));

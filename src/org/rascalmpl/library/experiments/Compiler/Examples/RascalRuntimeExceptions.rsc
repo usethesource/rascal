@@ -1,5 +1,7 @@
 module experiments::Compiler::Examples::RascalRuntimeExceptions
 
+import Exception;
+
 value main(list[value] args) {
 	map[int,str] m = (0:"0", 1:"1",2:"2");
 	

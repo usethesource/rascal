@@ -3,7 +3,7 @@ module experiments::Compiler::Rascal2muRascal::TypeReifier
 /*
 * This module handles the mapping between types and reified types. It defines two functions:
 *     (1) map[Symbol,Production] getGrammar(Configuration) (extracts only a syntax definition)
-*     (2) type[value]            symbolToValue(Symbol,Configuration) (extracts a type definition)
+*     (2) type[value]            symbolToValue(Symbol) (extracts a type definition)
 */
 
 import lang::rascal::types::TestChecker;
@@ -11,22 +11,27 @@ import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 
+import experiments::Compiler::Rascal2muRascal::TypeUtils;
+
 import ParseTree;
 import List;
 import Map;
 import Set;
+import Relation;
 
 import IO;
 
-private map[str,Symbol] typeMap = ();
+private rel[str,Symbol] typeRel = {};
+private set[Symbol] types = {};
 private rel[Symbol,Symbol] constructors = {};
 private rel[Symbol,Symbol] productions = {};
 private map[Symbol,Production] grammar = ();
 private set[Symbol] starts = {};
 private Symbol activeLayout = Symbol::\layouts("$default$");
 
-private void resetTypeReifier() {
-    typeMap = ();
+public void resetTypeReifier() {
+    typeRel = {};
+    types = {};
     constructors = {};
     productions = {};
     grammar = ();
@@ -34,79 +39,92 @@ private void resetTypeReifier() {
     activeLayout = Symbol::\layouts("$default$");
 }
 
-public map[Symbol,Production] getGrammar(Configuration config) {
+// Extract common declaration info and save it for later use by
+// - getGrammar
+// - symbolToValue
 
-	// Collect all the types that are in the type environment
-	typeMap = ( getSimpleName(rname) : rtype | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] );
-	set[Symbol] types = range(typeMap);
-	constructors = {};
-	// Collects all the productions of the non-terminal types in the type environment
-	grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
+public void getDeclarationInfo(Configuration config){
+    resetTypeReifier();
+    
+    // Collect all the types that are in the type environment
+
+	typeRel = { < getSimpleName(rname), config.store[config.typeEnv[rname]].rtype > | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype }; 
+	          //{ < getSimpleName(rname) , rtype > | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] };
+
+	// Collect all the constructors of the adt types in the type environment
+
+	types = range(typeRel);
+	constructors = { <\type.\adt, \type> | int uid <- config.store, 
+												constructor(_, Symbol \type, _, _, _) := config.store[uid],
+												\type.\adt in types };
+
+	// Collect all the productions of the non-terminal types in the type environment
+    
+    grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
    	  																config.store[uid].rtype in types );
-   	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
-   	
-   	productions = { p.def is label ? <p.def.symbol, Symbol::prod(p.def.symbol, p.def.name, p.symbols, p.attributes)> 
+   
+    productions = { p.def is label ? <p.def.symbol, Symbol::prod(p.def.symbol, p.def.name, p.symbols, p.attributes)> 
 	                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 
 	                                     | /Production p:prod(_,_,_) := grammar };
-    
+   	
+   	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
+   	
    	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
    	if(!isEmpty(activeLayouts)) {
    		activeLayout = getOneFrom(activeLayouts);
    	}
+}
+
+// Extract the declared grammar from a type checker configuration
+
+public map[Symbol,Production] getGrammar() {
 	
 	map[Symbol,Production] definitions =   ( nonterminal : \layouts(grammar[nonterminal]) | nonterminal <- grammar ) 
 										 + ( Symbol::\start(nonterminal) : \layouts(Production::choice(Symbol::\start(nonterminal),
 																					   				   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) })) 
 																				| nonterminal <- starts );
-	if(str n <- typeMap, Symbol::\layouts(_) := typeMap[n]) {
- 		definitions = reify(typeMap[n],definitions);
+	if(<str n, Symbol def> <- typeRel, Symbol::\layouts(_) := def) {
+ 		definitions = reify(def,definitions);
  	}
  	definitions = definitions + (Symbol::\layouts("$default$"):Production::choice(Symbol::\layouts("$default$"),{Production::prod(Symbol::\layouts("$default$"),[],{})}));
  	definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
  	
- 	resetTypeReifier();
+ 	//println("getGrammar returns:\n----------");
+ 	//for(s <- definitions) println("<s>: <definitions[s]>");
+ 	//println("----------");
  	
  	return definitions;
 }
 
-public type[value] symbolToValue(Symbol symbol, Configuration config) {
+// Extract all declared symbols from a type checker configuration
+
+public map[Symbol,Production] getDefinitions() {
+
+   	// Collect all symbols
+   	symbols = types + carrier(constructors) + carrier(productions) + domain(grammar);
+    
+   	// and find their definitions
+   	map[Symbol,Production] definitions  = (() | reify(symbol, it) | symbol <- symbols);
+ 	
+ 	return definitions;
+}
+
+public type[value] symbolToValue(Symbol symbol) {
+   	
+	// Recursively collect all the type definitions associated with a given symbol
 	
-	// Collect all the types that are in the type environment
-	typeMap = ( getSimpleName(rname) : config.store[config.typeEnv[rname]].rtype | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype );
-	// Collect all the constructors of the adt types in the type environment
-	types = range(typeMap);
-	constructors = { <\type.\adt, \type> | int uid <- config.store, 
-												constructor(_, Symbol \type, _, _, _) := config.store[uid],
-												\type.\adt in types };
-	// Collects all the productions of the non-terminal types in the type environment
-	grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
-   	  																config.store[uid].rtype in types );
-   	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
-   	
-   	productions = { p.def is label ? <p.def.symbol, Symbol::prod(p.def.symbol, p.def.name, p.symbols, p.attributes)> 
-	                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 
-	                                     | /Production p:prod(_,_,_) := grammar };
-   	
-   	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
-   	if(!isEmpty(activeLayouts)) {
-   		activeLayout = getOneFrom(activeLayouts);
-   	}
-   	
-	// Recursively collects all the type definitions associated with a given symbol
  	map[Symbol,Production] definitions = reify(symbol, ());
  	
  	symbol = (Symbol::conditional(Symbol sym,_) := symbol) ? sym : symbol;
  	
  	if(Symbol::\sort(_):= symbol || Symbol::\lex(_):= symbol ||
  		Symbol::\parameterized-sort(_,_):= symbol || Symbol::\parameterized-lex(_,_):= symbol) {
- 			if(str n <- typeMap, Symbol::\layouts(_) := typeMap[n]) {
- 				definitions = reify(typeMap[n],definitions);
+ 			if(<str n, Symbol def> <- typeRel, Symbol::\layouts(_) := def) {
+ 				definitions = reify(def,definitions);
  			}
  			definitions = definitions + (Symbol::\layouts("$default$"):Production::choice(Symbol::\layouts("$default$"),{Production::prod(Symbol::\layouts("$default$"),[],{})}));
  			definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
  	}
- 	
- 	resetTypeReifier();
  	
  	return type(symbol, definitions);
 }
@@ -142,15 +160,22 @@ public map[Symbol,Production] reify(Symbol::\map(Symbol from, Symbol to), map[Sy
 	= reify(from, definitions) + reify(to, definitions);
 // adt
 public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols), map[Symbol,Production] definitions) {
-	Symbol adtDef = typeMap[name];
-	assert Symbol::\adt(name,_) := adtDef;
-	if(!definitions[adtDef]?) {
-		alts = { sym2prod(sym) | sym <- constructors[adtDef] };
-		definitions[adtDef] = Production::\choice(adtDef, alts);
-		definitions = ( definitions | reify(sym, it) | sym <- constructors[adtDef] );
-	}
-	definitions = ( definitions | reify(sym, it) | sym <- symbols );
-	return definitions;
+	set[Symbol] defs = typeRel[name];
+	//println("reify: <name>, <defs>");
+
+    for(Symbol s <- defs){
+	   if(adtDef:Symbol::\adt(name,_) := s){
+          //assert Symbol::\adt(name,_) := adtDef;
+          if(!definitions[adtDef]?) {
+        	 alts = { sym2prod(sym) | sym <- constructors[adtDef] };
+        	 definitions[adtDef] = Production::\choice(adtDef, alts);
+        	 definitions = ( definitions | reify(sym, it) | sym <- constructors[adtDef] );
+          }
+          definitions = ( definitions | reify(sym, it) | sym <- symbols );
+          return definitions;
+       }
+    }
+    throw "No definition for ADT <name>";
 }
 // constructors
 public map[Symbol,Production] reify(Symbol::\cons(Symbol \adt, str name, list[Symbol] parameters), map[Symbol,Production] definitions)
@@ -176,7 +201,7 @@ public map[Symbol,Production] reify(Symbol::\var-func(Symbol ret, list[Symbol] p
 	return definitions;
 }
 // reified
-public map[Symbol,Production] reify(Symbol::\reified(Symbol symbol), map[Symbol,Production] definitions) 
+public map[Symbol,Production] reify(Symbol::\reified(Symbol ret), map[Symbol,Production] definitions) 
 	= reify(ret, definitions);
 // parameter
 public map[Symbol,Production] reify(Symbol::\parameter(str name, Symbol bound), map[Symbol,Production] definitions)
@@ -185,39 +210,50 @@ public map[Symbol,Production] reify(Symbol::\parameter(str name, Symbol bound), 
 // sort, lex
 public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) 
 	= { 
-		Symbol nonterminal = typeMap[name]; 
-		assert !(Symbol::\adt(name,_) := nonterminal);
-		if(!definitions[nonterminal]?) {
-			definitions[nonterminal] = \layouts(grammar[nonterminal]); // inserts an active layout
-			if(nonterminal in starts) {
-				definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),
+	    set[Symbol] defs = typeRel[name];
+		//println("reify: name=<name>"); 
+		//assert !(Symbol::\adt(name,_) := nonterminal);
+		for(Symbol nonterminal <- defs){
+		    if(Symbol::\adt(name,_) !:= nonterminal){
+		       if(!definitions[nonterminal]?) {
+			      definitions[nonterminal] = \layouts(grammar[nonterminal]); // inserts an active layout
+			      if(nonterminal in starts) {
+				     definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),
 																					   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) }));
-			}
-			println("Productions[nonterminal]: <productions[nonterminal]>");
-			println("Domain(grammar): <domain(grammar)>");
-			definitions = ( definitions | reify(sym, it) | sym <- productions[nonterminal] );
+			      }
+			     //println("Productions[nonterminal]: <productions[nonterminal]>");
+			     //println("Domain(grammar): <domain(grammar)>");
+			    definitions = ( definitions | reify(sym, it) | sym <- productions[nonterminal] );
+		     }
+		     return definitions;
+		  }
 		}
-		definitions;
+		throw "No definition for symbol <name>";
 	  } when Symbol::\sort(str name) := symbol || Symbol::\lex(str name) := symbol ||
 	  		 Symbol::\layouts(str name) := symbol || Symbol::\keywords(str name) := symbol;
 
 // parameterized-sort, parameterized-lex  
 public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) 
 	= { 
-		Symbol nonterminal = typeMap[name]; 
-		assert !(Symbol::\adt(name,_) := nonterminal);
-		if(!definitions[nonterminal]?) {
-			definitions[nonterminal] = \layouts(grammar[nonterminal]); // inserts an active layout
-			if(nonterminal in starts) {
-				definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),
+	    set[Symbol] defs = typeRel[name];
+		//assert !(Symbol::\adt(name,_) := nonterminal);
+		for(Symbol nonterminal <- defs){
+            if(Symbol::\adt(name,_) !:= nonterminal){
+		       if(!definitions[nonterminal]?) {
+			      definitions[nonterminal] = \layouts(grammar[nonterminal]); // inserts an active layout
+			      if(nonterminal in starts) {
+				     definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),
 																					   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) }));
-			}
-			println("Productions[nonterminal]: <productions[nonterminal]>");
-			println("Domain(grammar): <domain(grammar)>");
-			definitions = ( definitions | reify(sym, it) | sym <- productions[nonterminal] );
+			      }
+			      //println("Productions[nonterminal]: <productions[nonterminal]>");
+			     //println("Domain(grammar): <domain(grammar)>");
+			     definitions = ( definitions | reify(sym, it) | sym <- productions[nonterminal] );
+		      }
+		      definitions = ( definitions | reify(sym, it) | sym <- parameters );
+		       return definitions;
+		   }
 		}
-		definitions = ( definitions | reify(sym, it) | sym <- parameters );
-		definitions;
+		throw "No definition for symbol <name>";
 	  } when Symbol::\parameterized-sort(str name, list[Symbol] parameters) := symbol || Symbol::\parameterized-lex(str name, list[Symbol] parameters) := symbol;
 
 public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions)
@@ -251,7 +287,7 @@ public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] defin
 public default map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) = definitions;
 
 private Production sym2prod(Symbol::\cons(Symbol \type, str name, list[Symbol] parameters)) 
-	= Production::\cons(Symbol::label(name, \type), parameters, {}) 
+	= Production::\cons(Symbol::label(name, \type), parameters, [], (), {}) 
 		when Symbol::\adt(str _, list[Symbol] _) := \type;
 private Production sym2prod(Symbol::\prod(Symbol \type, str name, list[Symbol] parameters, set[Attr] attributes))
 	= Production::\prod(Symbol::\label(name, \type), parameters, attributes) 
@@ -264,11 +300,11 @@ default Production sym2prod(Symbol s) { throw "Could not transform the symbol <s
 @doc{Intermix with an active layout}
 public Production \layouts(Production prod) {
   return top-down-break visit (prod) {
-    case prod(\start(y),[Symbol x],as) => Production::prod(\start(y),[activeLayout, x, activeLayout],  as)
-    case prod(sort(s),list[Symbol] lhs,as) => Production::prod(sort(s),intermix(lhs,activeLayout),as)
-    case prod(\parameterized-sort(s,n),list[Symbol] lhs,as) => Production::prod(\parameterized-sort(s,n),intermix(lhs,activeLayout),as)
-    case prod(label(t,sort(s)),list[Symbol] lhs,as) => Production::prod(label(t,sort(s)),intermix(lhs,activeLayout),as)
-    case prod(label(t,\parameterized-sort(s,n)),list[Symbol] lhs,as) => Production::prod(label(t,\parameterized-sort(s,n)),intermix(lhs,activeLayout),as) 
+    case Production::prod(\start(y),[Symbol x],as)                                  => Production::prod(\start(y),[activeLayout, x, activeLayout],  as)
+    case Production::prod(sort(s),list[Symbol] lhs,as)                              => Production::prod(sort(s),intermix(lhs,activeLayout),as)
+    case Production::prod(\parameterized-sort(s,n),list[Symbol] lhs,as)             => Production::prod(\parameterized-sort(s,n),intermix(lhs,activeLayout),as)
+    case Production::prod(label(t,sort(s)),list[Symbol] lhs,as)                     => Production::prod(label(t,sort(s)),intermix(lhs,activeLayout),as)
+    case Production::prod(label(t,\parameterized-sort(s,n)),list[Symbol] lhs,as)    => Production::prod(label(t,\parameterized-sort(s,n)),intermix(lhs,activeLayout),as) 
   }
 } 
 

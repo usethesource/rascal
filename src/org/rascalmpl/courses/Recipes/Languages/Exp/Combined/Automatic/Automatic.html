@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Recipes/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Recipes/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  <a href="/Rascal/Libraries/Prelude/ParseTree/implode/implode.html">Rascal:implode</a> is a function that automates the mapping between parse trees and abstract syntax trees.
  It takes two arguments:
@@ -64,7 +64,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Let's first label the syntax rules of the Exp grammar with constructor names:
  <pre class="listing">module demo::lang::Exp::Combined::Automatic::Syntax
@@ -96,12 +96,12 @@ start syntax Exp =
 import demo::lang::Exp::Combined::Automatic::Syntax;
 import ParseTree;
 
-public Exp parse(str txt) = parse(#Exp, txt); 
+public Tree parseExp(str txt) = parse(#Exp, txt); 
 </pre> ... and this is how it works:
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Combined::Automatic::Parse;
 ok
-<span class="prompt">rascal></span>parse(&quot;2+3*4&quot;);
-sort("Exp"): `2+3*4`
+<span class="prompt">rascal></span>parseExp(&quot;2+3*4&quot;);
+Tree: `2+3*4`
 Tree: appl(prod(label("add",sort("Exp")),[sort("Exp"),layouts("LAYOUTLIST"),lit("+"),layouts("LAYOUTLIST"),sort("Exp")],{assoc(left())}),[appl(prod(label("con",sort("Exp")),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(50)])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)],appl(prod(layouts("LAYOUTLIST"),[conditional(\iter-star(lex("LAYOUT")),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex("LAYOUT"))),[])[@loc=|file://-|(1,0,&lt;1,1>,&lt;1,1>)]])[@loc=|file://-|(1,0,&lt;1,1>,&lt;1,1>)],appl(prod(lit("+"),[\char-class([range(43,43)])],{}),[char(43)]),appl(prod(layouts("LAYOUTLIST"),[conditional(\iter-star(lex("LAYOUT")),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex("LAYOUT"))),[])[@loc=|file://-|(2,0,&lt;1,2>,&lt;1,2>)]])[@loc=|file://-|(2,0,&lt;1,2>,&lt;1,2>)],appl(prod(label("mul",sort("Exp")),[sort("Exp"),layouts("LAYOUTLIST"),lit("*"),layouts("LAYOUTLIST"),sort("Exp")],{assoc(left())}),[appl(prod(label("con",sort("Exp")),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)],appl(prod(layouts("LAYOUTLIST"),[conditional(\iter-star(lex("LAYOUT")),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex("LAYOUT"))),[])[@loc=|file://-|(3,0,&lt;1,3>,&lt;1,3>)]])[@loc=|file://-|(3,0,&lt;1,3>,&lt;1,3>)],appl(prod(lit("*"),[\char-class([range(42,42)])],{}),[char(42)]),appl(prod(layouts("LAYOUTLIST"),[conditional(\iter-star(lex("LAYOUT")),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex("LAYOUT"))),[])[@loc=|file://-|(4,0,&lt;1,4>,&lt;1,4>)]])[@loc=|file://-|(4,0,&lt;1,4>,&lt;1,4>)],appl(prod(label("con",sort("Exp"...</pre> We can use <code>parse</code> to define <code>load</code>:
  <pre class="listing">module demo::lang::Exp::Combined::Automatic::Load
 
@@ -109,8 +109,7 @@ import demo::lang::Exp::Combined::Automatic::Parse;  <img src="/images/1.png">
 import demo::lang::Exp::Abstract::Syntax;            <img src="/images/2.png">
 import ParseTree;                                    <img src="/images/3.png">
 
-public demo::lang::Exp::Abstract::Syntax::Exp load(str txt) = 
-       implode(#demo::lang::Exp::Abstract::Syntax::Exp, parse(txt)); 
+public Exp load(str txt) = implode(#Exp, parseExp(txt)); 
 </pre> Notes:
  <ul><li> <img src="/images/1.png"> We also need the <code>parse</code> function, as defined above.</li>
 <li> <img src="/images/2.png"> We also need the abstract syntax as already defined earlier in <a href="/Recipes/Languages/Exp/Abstract/Abstract.html">Exp/Abstract</a>.</li>
@@ -147,6 +146,10 @@ import demo::lang::Exp::Abstract::Eval;
 import demo::lang::Exp::Combined::Automatic::Load;
 
 public int eval(str txt) = eval(load(txt));
+
+public value main(list[value] args){
+  return eval("1+2");
+}
 </pre> Here is the end result:
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Combined::Automatic::Eval;
 ok
@@ -155,9 +158,9 @@ int: 14
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Exp/Combined/Automatic&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Exp/Combined/Automatic&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |

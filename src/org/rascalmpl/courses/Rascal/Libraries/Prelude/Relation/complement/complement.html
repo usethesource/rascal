@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,9 +48,9 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <ol><li> <code>rel[&amp;T0, &amp;T1] complement(rel[&amp;T0, &amp;T1] R)</code></li>
 <li> <code>rel[&amp;T0, &amp;T1, &amp;T2] complement(rel[&amp;T0, &amp;T1, &amp;T2] R)</code></li>
@@ -59,7 +59,7 @@
 </ol>
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Relation;</code>
  </AUTOINSERTED>
@@ -73,54 +73,54 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Relation;
 ok
 </pre>  Declare <code>R</code> and compute corresponding <code>U</code>:
 <pre class="screen"><span class="prompt">rascal></span>R = {&lt;1,10&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;};
 rel[int,int]: {
-  &lt;1,10>,
   &lt;3,30>,
-  &lt;2,20>
+  &lt;2,20>,
+  &lt;1,10>
 }
 <span class="prompt">rascal></span>U = domain(R) * range(R);
 rel[int,int]: {
-  &lt;1,10>,
-  &lt;2,10>,
-  &lt;3,10>,
-  &lt;1,30>,
-  &lt;2,30>,
   &lt;3,30>,
-  &lt;2,20>,
+  &lt;2,30>,
+  &lt;1,30>,
+  &lt;1,20>,
   &lt;3,20>,
-  &lt;1,20>
+  &lt;2,20>,
+  &lt;3,10>,
+  &lt;2,10>,
+  &lt;1,10>
 }
 </pre>  Here is the complement of <code>R</code> computed in two ways:
 <pre class="screen"><span class="prompt">rascal></span>U - R;
 rel[int,int]: {
-  &lt;2,10>,
-  &lt;3,10>,
-  &lt;1,30>,
   &lt;2,30>,
+  &lt;1,30>,
+  &lt;1,20>,
   &lt;3,20>,
-  &lt;1,20>
+  &lt;3,10>,
+  &lt;2,10>
 }
 <span class="prompt">rascal></span>complement({&lt;1,10&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;});
 rel[int,int]: {
-  &lt;2,10>,
-  &lt;3,10>,
-  &lt;1,30>,
   &lt;2,30>,
+  &lt;1,30>,
+  &lt;1,20>,
   &lt;3,20>,
-  &lt;1,20>
+  &lt;3,10>,
+  &lt;2,10>
 }
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -142,8 +142,8 @@ rel[int,int]: {
 <span id="answerFeedback_Rascal_Libraries_Prelude_Relation_complement_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_complement_1:R" value="{&lt;&quot;Lime&quot;, 0&gt;, &lt;&quot;Anakin Skywalker&quot;, -14&gt;, &lt;&quot;I&quot;, -1&gt;}">
-The type of <tt>complement({&lt;&quot;Lime&quot;, 0&gt;, &lt;&quot;Anakin Skywalker&quot;, -14&gt;, &lt;&quot;I&quot;, -1&gt;})</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_complement_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_complement_1:R" value="{&lt;&quot;Sy Snootles&quot;, 13&gt;, &lt;&quot;Elmo&quot;, 17&gt;}">
+The type of <tt>complement({&lt;&quot;Sy Snootles&quot;, 13&gt;, &lt;&quot;Elmo&quot;, 17&gt;})</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_complement_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -167,8 +167,8 @@ The type of <tt>complement({&lt;&quot;Lime&quot;, 0&gt;, &lt;&quot;Anakin Skywal
 <span id="answerFeedback_Rascal_Libraries_Prelude_Relation_complement_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_complement_2:R" value="{&lt;&quot;U&quot;, 10&gt;, &lt;&quot;Sy Snootles&quot;, 1&gt;}">
-<pre class="prequestion">complement({&lt;&quot;U&quot;, 10&gt;, &lt;&quot;Sy Snootles&quot;, 1&gt;}) == <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_complement_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_complement_2:R" value="{&lt;&quot;Joh Yowza&quot;, 9&gt;, &lt;&quot;Pumpkin&quot;, 13&gt;, &lt;&quot;Count Von Count&quot;, 14&gt;}">
+<pre class="prequestion">complement({&lt;&quot;Joh Yowza&quot;, 9&gt;, &lt;&quot;Pumpkin&quot;, 13&gt;, &lt;&quot;Count Von Count&quot;, 14&gt;}) == <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_complement_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_complement_2:another" value="yes">

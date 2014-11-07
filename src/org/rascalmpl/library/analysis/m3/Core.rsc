@@ -3,7 +3,7 @@ Synopsis: M3 common source code model represent facts extracted from source code
 
 Description:
 
-The M3 core defines basic concepts such as:
+The [$Rascal/Libraries/analysis/m3] core defines basic concepts such as:
 
 * qualified names: we use [$Values/Location]s to model qualified names for each programming language
 * containment: which artifacts are contained in which other artifacts
@@ -11,7 +11,7 @@ The M3 core defines basic concepts such as:
 * uses: where declared artifacts are used
 * types: which artifacts has which types
 
-From this core, M3 is supposed to be extended with features specific for a programming language. See for example [lang/java/m3].
+From this core, [$Rascal/Libraries/analysis/m3] is supposed to be extended with features specific for a programming language. See for example [lang/java/m3].
 
 Benefits:
 
@@ -32,32 +32,94 @@ import Set;
 import IO;
 import util::FileSystem;
 import analysis::graphs::Graph;
+import Node;
+import Map;
 extend analysis::m3::TypeSymbol;
  
 data Modifier;
+
+@doc{
+Synopsis: m3 model constructor
+
+Description: 
+
+This constructor holds all information to an m3 model. It is identified by the _id_ field,
+which should be a unique name for the project or file that the m3 model was constructor for.
+
+Attached to this m3 model will be annotations with the specific information.
+}
 data M3 = m3(loc id);
              
 anno rel[loc name, loc src]        M3@declarations;            // maps declarations to where they are declared. contains any kind of data or type or code declaration (classes, fields, methods, variables, etc. etc.)
 anno rel[loc name, TypeSymbol typ] M3@types;                   // assigns types to declared source code artifacts
 anno rel[loc src, loc name]        M3@uses;                    // maps source locations of usages to the respective declarations
 anno rel[loc from, loc to]         M3@containment;             // what is logically contained in what else (not necessarily physically, but usually also)
-anno list[Message messages]        M3@messages;                // error messages and warnings produced while constructing a single m3 model
+anno list[Message]                 M3@messages;                // error messages and warnings produced while constructing a single m3 model
 anno rel[str simpleName, loc qualifiedName]  M3@names;         // convenience mapping from logical names to end-user readable (GUI) names, and vice versa
 anno rel[loc definition, loc comments]       M3@documentation; // comments and javadoc attached to declared things
 anno rel[loc definition, Modifier modifier] M3@modifiers;     // modifiers associated with declared things
 
-M3 composeM3(loc id, set[M3] models) {
-  m = m3(id);
-  m@declarations = {*model@declarations | model <- models};
-  m@uses = {*model@uses | model <- models};
-  m@containment = {*model@containment | model <- models};
-  m@documentation = {*model@documentation | model <- models};
-  m@modifiers = {*model@modifiers | model <- models};
-  m@messages = [*model@messages | model <- models];
-  m@names = {*model@names | model <- models};
-  m@types = {*model@types | model <- models};
-  
-  return m;
+public data Language(str version = "")
+  = generic()
+  ;
+
+@doc{
+	Create an empty m3 term with empty annotations
+}
+public M3 emptyM3(loc id)
+{
+	m = m3(id);
+
+	m@declarations = {};
+	m@uses = {};
+	m@containment = {};
+	m@documentation = {};
+	m@modifiers = {};
+	m@messages = [];
+	m@names = {};
+	m@types = {};
+
+	return m;
+}
+
+private value compose(set[&T] s1, set[&T] s2) = s1 + s2; // works on rel as well
+private value compose(list[&T] l1, list[&T] l2) = l1 + l2;
+private value compose(map[&T, &U] m1, map[&T, &U] m2) = m1 + m2;
+private value compose(value v1, value v2) { throw "can\'t compose non-collections or values of different types"; }
+
+@doc{
+	Generic function to compose the annotations of a set of M3s.
+}
+@memo
+M3 composeM3(loc id, set[M3] models)
+{
+	set[str] allAnnoNames = { *domain(getAnnotations(m)) | m <- models };
+
+	map[str, value] allAnnos = ();
+
+	for (m <- models)
+	{
+		annos = getAnnotations(m);
+
+		for (name <- allAnnoNames, name in annos)
+		{
+			if (allAnnos[name]?)
+			{
+				try
+				{
+					allAnnos[name] = compose(allAnnos[name], annos[name]);
+				}
+				catch e:
+				; // ignore
+			}
+			else
+			{
+				allAnnos[name] = annos[name];
+			}
+		}
+	}
+
+	return setAnnotations(m3(id), allAnnos);
 }
 
 bool isEmpty(M3 model) = model.id.scheme == "unknown";

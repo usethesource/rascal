@@ -47,8 +47,8 @@ void eval(v(bs, vs), int ind, bool vert, void(str) write) {
 void eval(i(bs, vs, \is), int ind, bool vert, void(str) write) 
   = eval(v(bs, vs), ind + \is, true, write);
 
-str spaces(int n) = ( "" | it + " " | i <- [0..n] ); 
-str newlines(int n) = ( "" | it + "\n" | i <- [0..n] ); 
+str spaces(int n) = ( "" | it + " " | int i <- [0..n] ); 
+str newlines(int n) = ( "" | it + "\n" | int i <- [0..n] ); 
 
 
 void evalKid(value x, int ind, bool vert, void(str) write) {

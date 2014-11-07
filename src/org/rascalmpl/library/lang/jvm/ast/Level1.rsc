@@ -21,8 +21,6 @@ public Class class(int version, set[ClassModifier] modifiers, str name, str sign
 				 class(version, modifiers, name, signature, superName, interfaces, "", "", "", "", "",
 				   innerClasses, fields, methods);
 
-public Class innerClass(str name, int access) = innerClass(name, "", "", access);
-
 data PrimitiveTypeDescriptor = boolean() | char() | byte() | short() | \int() | float() | long() | double();
 data TypeDescriptor = primitive(PrimitiveTypeDescriptor \type) | object(str internalName) | array(TypeDescriptor \td);
 

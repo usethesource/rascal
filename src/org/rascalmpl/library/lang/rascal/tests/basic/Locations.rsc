@@ -5,9 +5,18 @@ import List;
 import IO;
 
 int singleChar(str s) = charAt(s,0);
-list[int] validSchemeChars = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")] 
+
+list[int] makeValidSchemeChars() = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")] 
 	+ [singleChar("0")..singleChar("9")] + [singleChar("+"), singleChar("-"), singleChar(".")]
 	;
+	
+list[int] validSchemeChars = makeValidSchemeChars();
+
+// TODO: the compiler cannot handle this initalization
+//list[int] validSchemeChars = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")] 
+//	+ [singleChar("0")..singleChar("9")] + [singleChar("+"), singleChar("-"), singleChar(".")]
+//	;
+
 str createValidScheme(str s) {
 	if (s == "")
 		return "a";
@@ -51,7 +60,10 @@ test bool validURIFragment(loc l, str s) = l[fragment = s].uri != "";
 
 str fixPathAddition(str s) = replaceAll(s, "/", "");
 
-test bool pathAdditions1(list[str] ss) = (|tmp:///ba| | it + fixPathAddition(s)  | s <- ss, s != "" ).path == ("/ba" | it + "/" + fixPathAddition(s)  | s <- ss, s != "" );
+test bool pathAdditions1(list[str] ss) 
+  =  (|tmp:///ba| | it + t  | s <- ss, t := fixPathAddition(s), t != "" ).path 
+  == ("/ba" | it + "/" + t  | s <- ss, t := fixPathAddition(s), t != "" );
+  
 test bool pathAdditions2(loc l, str s) = s == "" || (l + fixPathAddition(s)).path == ((endsWith(l.path, "/") ? l.path : l.path + "/") + fixPathAddition(s)) ;
 
 test bool testParent(loc l, str s) = s == "" || ((l + replaceAll(s, "/","_")).parent + "/") == (l[path=l.path] + "/");
@@ -68,11 +80,4 @@ test bool supportSquareBraces(loc l) {
 	return newL.authority == newAuth;
 }
 
-test bool testExtension(loc l, str s, str s2) {
-	s2 = replaceAll(s2, ".","_");
-	s2 = replaceAll(s2, "/","_");
-	if (endsWith(s, "/")) {
-		s += "a";	
-	}
-	return (l + "<s>.<s2>").extension == s2;
-}
+ 

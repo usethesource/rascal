@@ -21,11 +21,15 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -33,6 +37,7 @@ import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.FigureFactory;
 import org.rascalmpl.library.vis.figure.combine.Overlap;
 import org.rascalmpl.library.vis.figure.combine.containers.WhiteSpace;
+import org.rascalmpl.library.vis.graphics.SWTGraphicsContext;
 import org.rascalmpl.library.vis.properties.IRunTimePropertyChanges;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.Animation;
@@ -40,6 +45,7 @@ import org.rascalmpl.library.vis.swt.FigureExecutionEnvironment;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.vector.Coordinate;
+import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 public class FigureSWTApplet extends Composite 
 	implements IFigureConstructionEnv, DisposeListener{
@@ -125,9 +131,18 @@ public class FigureSWTApplet extends Composite
 					System.out.printf("Animating %d!\n", animations.size());
 					a.animate();
 				}
-				redraw();
-				for(FigureSWTApplet app : children){
-					app.redraw();
+				
+				try {
+					redraw();
+					for(FigureSWTApplet app : children){
+						app.redraw();
+					}
+				}
+				catch (SWTException e) {
+					if (e.code != SWT.ERROR_WIDGET_DISPOSED) {
+						throw e; // rethrow if its unexpected
+					}
+					// otherwise the window was closed before the animation ended
 				}
 			}
 			
@@ -178,6 +193,30 @@ public class FigureSWTApplet extends Composite
 	
 	public void writeScreenshot(OutputStream to){
 		viewPortHandler.writeScreenShot(to);
+	}
+	
+	/**
+	 * Draw the figure to a new Image. This way the whole figure gets saved unlike with the writeScreenshot method which
+	 * only saves that part of the figure which is visible in the applet
+	 *  
+	 * @param to - the output stream to write the image data to
+	 */
+	public void saveImage(OutputStream to) {;
+		int figureWidth = (int)Math.ceil(figure.size.getX());
+		int figureHeight = (int)Math.ceil(figure.size.getY());
+		
+		Image image = new Image(getDisplay(), figureWidth, figureHeight);
+		GC gc = new GC(image);
+		SWTGraphicsContext swtGC = new SWTGraphicsContext();
+		swtGC.setGC(gc);
+		
+		gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+
+		figure.draw(new Coordinate(1.0, 1.0), swtGC, new Rectangle(0, 0, figureWidth, figureHeight), new SWTElementsVisibilityManager().getVisibleSWTElementsVector());
+	
+		ImageLoader il = new ImageLoader();
+		il.data = new ImageData[] {image.getImageData()};
+		il.save(to, SWT.IMAGE_PNG);
 	}
 	
 	public FigureExecutionEnvironment getExectutionEnv(){ 

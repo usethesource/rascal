@@ -105,6 +105,7 @@ public class RandomUtil {
 	}
 
 	
+	private final static StringGen alphaOnly = new CharRanges(new int[]{'a','A'}, new int[]{'z','Z'});
 	private final static StringGen normalStrings = new CharRanges(new int[]{'a','A','0'}, new int[]{'z','Z','9'});
 	private final static StringGen generalStrangeChars = new CharRanges(new int[]{0x00, 0x21,0xA1}, new int[]{0x09,0x2F,0xAC});
 	private final static StringGen normalUnicode = new CharRanges(new int[]{0x0100,0x3400,0xD000}, new int[]{0x0200,0x4D00,0xD700});
@@ -134,6 +135,12 @@ public class RandomUtil {
 	public static String stringAlphaNumeric(Random rand, int depth) {
 		StringBuilder result = new StringBuilder(depth);
 		normalStrings.generate(rand, depth, result);
+		return sanitize(result.toString());
+	}
+
+	public static String stringAlpha(Random rand, int depth) {
+		StringBuilder result = new StringBuilder(depth);
+		alphaOnly.generate(rand, depth, result);
 		return sanitize(result.toString());
 	}
 

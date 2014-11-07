@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,20 +48,20 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <ol><li> <code><i>Type</i> <i>Name</i> = <i>Exp</i>;</code></li>
 <li> <code><i>Type</i> <i>Name</i>;</code></li>
 </ol>
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><tr><th align="left"><code><i>Type</i></code>  </th><th align="left"> <code><i>Exp</i></code>     </th></tr><tr><td align="left"> <code><i>Type</i></code> </td><td align="left"> <code>&lt;: <i>Type</i></code> </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  The effect of a variable declaration is to introduce a new variable <code><i>Name</i></code> and
  to assign the value of expression <code><i>Exp</i></code> to <code><i>Name</i></code>. A mention of <code><i>Name</i></code> later on in the same scope
@@ -91,7 +91,7 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>    Two explicit variable declarations:
 <pre class="screen"><span class="prompt">rascal></span>int max = 100;
@@ -102,13 +102,13 @@ int: 0
 <pre class="screen"><span class="prompt">rascal></span>day = {&lt;&quot;mon&quot;, 1&gt;, &lt;&quot;tue&quot;, 2&gt;, &lt;&quot;wed&quot;,3&gt;, 
 <span class="continuation">>>>>>>></span>       &lt;"thu", 4>, &lt;"fri", 5>, &lt;"sat",6>, &lt;"sun",7>};
 rel[str,int]: {
-  &lt;"wed",3>,
-  &lt;"fri",5>,
-  &lt;"sun",7>,
-  &lt;"mon",1>,
-  &lt;"sat",6>,
+  &lt;"tue",2>,
   &lt;"thu",4>,
-  &lt;"tue",2>
+  &lt;"sat",6>,
+  &lt;"mon",1>,
+  &lt;"sun",7>,
+  &lt;"fri",5>,
+  &lt;"wed",3>
 }
 </pre>  Variable declaration and assignment leading to type error
 <pre class="screen"><span class="prompt">rascal></span>int month = 12;
@@ -118,8 +118,8 @@ int: 12
 </pre>
 </div>
 
-  	                       
-  	                       
+
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  <ul><li> Local type inference for variables always uses the smallest possible scope for a variable; this implies that   a variable introduced in an inner scope is not available outside that scope. Here is how things can go wrong:
 <br/>
@@ -132,7 +132,7 @@ str: "abc"
 </ul>
 </div>
 
-  	                       
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/Variable&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Declarations/Variable&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

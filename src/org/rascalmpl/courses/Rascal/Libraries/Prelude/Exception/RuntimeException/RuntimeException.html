@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,8 +48,8 @@
 
 </div>
 
-	                       
-                           
+
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <pre class="listing">data RuntimeException
      = ArithmeticException(str message)
@@ -67,7 +67,7 @@
      | Java(str class, str message, RuntimeException cause)
      | ModuleNotFound(str name)
      | NoSuchAnnotation(str label)
- 
+     | NoMainFunction()
      | NoSuchKey(value key)
      | MultipleKey(value key)
      | ParseError(loc location)
@@ -93,8 +93,8 @@
 </pre>
 </div>
 
-                           
-                           
+
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Exception;</code>
  </AUTOINSERTED>
@@ -111,7 +111,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>    Import relevant libraries:
 <pre class="screen"><span class="prompt">rascal></span>import Exception;
@@ -120,7 +120,7 @@ ok
 ok
 </pre>  Define the map <code>weekend</code> and do a subscription with a non-existing key:
 <pre class="screen"><span class="prompt">rascal></span>weekend = (&quot;saturday&quot;: 1, &quot;sunday&quot;: 2);
-map[str, int]: ("saturday":1,"sunday":2)
+map[str, int]: ("sunday":2,"saturday":1)
 <span class="prompt">rascal></span>weekend[&quot;monday&quot;];
 |stdin:///|(8,8,&lt;1,8>,&lt;1,16>): NoSuchKey("monday")
 	at ___SCREEN_INSTANCE___(|stdin:///|(0,18,&lt;1,0>,&lt;1,18>))
@@ -140,9 +140,9 @@ ok
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/Exception/RuntimeException&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/Exception/RuntimeException&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

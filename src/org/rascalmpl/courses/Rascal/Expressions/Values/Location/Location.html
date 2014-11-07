@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,7 +48,7 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code>| <i>Uri</i> | ( <i>O</i>, <i>L</i>, &lt;<i>BL</i>, <i>BC</i>> , &lt;<i>EL</i>,<i>EC</i>> )</code>
  where:
@@ -60,14 +60,14 @@
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <code>loc</code>
 
 </div>
 
-                           
-                           
+
+
 <div id="Details">
 <span class="sectionHead">Details</span> <a href="/Rascal/Expressions/Values/Location/AddSegment/AddSegment.html">AddSegment</a> &#032 <a href="/Rascal/Expressions/Values/Location/Equal/Equal.html">Equal</a> &#032 <a href="/Rascal/Expressions/Values/Location/FieldSelection/FieldSelection.html">FieldSelection</a> &#032 <a href="/Rascal/Expressions/Values/Location/GreaterThan/GreaterThan.html">GreaterThan</a> &#032 <a href="/Rascal/Expressions/Values/Location/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a> &#032 <a href="/Rascal/Expressions/Values/Location/LessThan/LessThan.html">LessThan</a> &#032 <a href="/Rascal/Expressions/Values/Location/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a> &#032 <a href="/Rascal/Expressions/Values/Location/NotEqual/NotEqual.html">NotEqual</a> &#032 
 </div>
@@ -108,7 +108,7 @@
   <table><tr><th align="center"> Scheme name and pattern </th><th align="center"> Description </th></tr><tr><td align="left"> <code>http://<i>host</i>:<i>port</i>/<i>path</i>?<i>query</i>#<i>fragment</i></code> </td><td align="left"> access a remote file via the web. </td></tr><tr><td align="left"> <code>file:///<i>path</i></code> </td><td align="left"> access a local file on the file system. </td></tr><tr><td align="left"> <code>cwd:///<i>path</i></code></td><td align="left"> access the current working directory (the directory from which Rascal was started). </td></tr><tr><td align="left"> <code>home:///<i>path</i></code></td><td align="left"> access the home directory of the user. </td></tr><tr><td align="left"> <code>std:///<i>path</i></code></td><td align="left"> access the Rascal standard library. </td></tr><tr><td align="left"> <code>tmp:///<i>path</i></code></td><td align="left"> access the temporay file directory. </td></tr><tr><td align="left"> <code>jar:<i>url</i>!/[<i>entry</i>]</code> </td><td align="left"> access any entry in a zip file (or a jar) </td></tr><tr><td align="left"> <code>rascal://<i>qualifiedModulename</i></code> </td><td align="left"> access the source code of a Rascal module name </td></tr><tr><td align="left"> <code>project://<i>projectName</i>/<i>projectRelativePath</i></code></td><td align="left"> access a project in the current instance of Eclipse. </td></tr><tr><td align="left"> <code>bundleresource://<i>bundleId</i>/<i>bundleRelativePath</i></code> </td><td align="left"> access OSGI bundles. Only active in Eclipse context </td></tr></table>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Locations with specific position information should always be generated automatically but for the curious here is an example:
  <pre class="screen"><span class="prompt">rascal></span>|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)
@@ -116,74 +116,87 @@ loc: |file:///home/paulk/pico.trm|(0,1,&lt;2,3>,&lt;4,5>)
 </pre> Note that this is equivalent to using the <code>home</code> scheme:
  <pre class="screen"><span class="prompt">rascal></span>|home://pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)
 loc: |home://pico.trm|(0,1,&lt;2,3>,&lt;4,5>)
-</pre> Accessing a file <code>META-INF/MANIFEST.MF</code> in a project with the name <code>org.eclipse.imp.pdb.values</code> in the currently running Eclipse is done as follows:
- <pre class="screen"><span class="prompt">rascal></span>|project://org.eclipse.imp.pdb.values/META-INF/MANIFEST.MF|
-loc: |project://org.eclipse.imp.pdb.values/META-INF/MANIFEST.MF|
-</pre> Reading the <code>demo/Hello.rsc</code> from the Rascal library can be done using:
- <pre class="screen"><span class="prompt">rascal></span>|std://demo/basic/Hello.rsc|
-loc: |std://demo/basic/Hello.rsc|
-</pre> You could read a webpage:
+</pre> Accessing a file <code>src/HelloWorld.java</code> in a project with the name <code>example-project</code> in the currently running Eclipse is done as follows:
+ <pre class="screen"><span class="prompt">rascal></span>|project://example-project/src/HelloWorld.java|
+loc: |project://example-project/src/HelloWorld.java|
+</pre> <br/>
+<br/>
+
+ You could read a webpage:
  <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
-<span class="prompt">rascal></span>readFileLines(|http://www.rascal-mpl.org|)
-list[str]: ["\&lt;!DOCTYPE html\>","\&lt;html lang=\"en\"\>","  \&lt;head\>","    \&lt;meta charset=\"utf-8\"\>","    \&lt;title\>Rascal MPL - \&lt;/title\>","\t","\t\&lt;meta name=\"author\" content=\"\"\>","","\t\&lt;!-- Enable responsive viewport --\>","\t\&lt;meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\>","","    \&lt;!-- Le styles --\>","    \&lt;link href=\"/assets/css/bootstrap.min.css\" rel=\"stylesheet\"\>","    \&lt;link href=\"/assets/css/custom.css\" rel=\"stylesheet\"\>","    \&lt;link href=\"/assets/css/bootstrap-responsive.min.css\" rel=\"stylesheet\"\>","    \&lt;link href=\"/assets/font-awesome/css/font-awesome.min.css\" rel=\"stylesheet\"\>","","    \&lt;!-- HTML5 shim, for IE6-8 support of HTML5 elements --\>","    \&lt;!--[if lt IE 9]\>","      \&lt;script src=\"/assets/js/html5shiv.js\"\>\&lt;/script\>","    \&lt;![endif]--\>","","    \&lt;!-- Fav and touch icons --\>","\t\&lt;link rel=\"apple-touch-icon-precomposed\" sizes=\"144x144\" href=\"/assets/ico/apple-touch-icon-144-precomposed.png\"\>","\t\&lt;link rel=\"apple-touch-icon-precomposed\" sizes=\"114x114\" href=\"/assets/ico/apple-touch-icon-114-precomposed.png\"\>","\t\&lt;link rel=\"apple-touch-icon-precomposed\" sizes=\"72x72\" href=\"/assets/ico/apple-touch-icon-72-precomposed.png\"\>","\t\&lt;link rel=\"apple-touch-icon-precomposed\" href=\"/assets/ico/apple-touch-icon-57-precomposed.png\"\>","\t\&lt;link rel=\"shortcut icon\" href=\"/assets/ico/favicon.png\"\>","  \&lt;/head\>","","  \&lt;body\>","","   \&lt;div class=\"container\"\>","      \&lt;div class=\"row-fluid\"\>","         \&lt;div class=\"span8 offset2 front-back\"\>","","            \&lt;div class=\"masthead\"\>","               \&lt;ul class=\"nav nav-pills pull-left\"\>","                  ","","","","   \&lt;li class=\"active\"\>\&lt;a href=\"/\" class=\"active\"\>Home\&lt;/a\>\&lt;/li\>","","","","","","","","","","","   \&lt;li\>\&lt;a href=\"/start/\"\>Download\&lt;/a\>\&lt;/li\>","","","","","","","","","","","   \&lt;li\>\&lt;a href=\"/help/\"\>Help\&lt;/a\>\&lt;/li\>","","","","","","","","","","","   \&lt;li\>\&lt;a href=\"/developers/\"\>Developers\&lt;/a\>\&lt;/li\>","","","","","","","","","","","","   \&lt;li\>\&lt;a href=\"/blog/\"\>Blog\&lt;/a\>\&lt;/li\>","","","","","","","","","","","   \&lt;li\>\&lt;a href=\"/about/\"\>About\&lt;/a\>\&lt;/li\>","","","","","","","               \&lt;/ul\>","            \&lt;/div\>","","            \&lt;!-- Jumbotron --\>","            \&lt;div class=\"jumbotron\" style=\"clear: left\"\>","               \&lt;h1\>Rascal\&lt;/h1\>","               \&lt;p class=\"lead\"\>Metaprogramming Language\&lt;/p\>","               \&lt;a class=\"btn btn-large btn-success\" href=\"/start/\"\>Get started\&lt;/a\>","            \&lt;/div\>","","            \&lt;hr\>","         \&lt;/div\>","      \&lt;/div\>","      \&lt;div class=\"row-fluid content\"\>","         \&lt;div class=\"span8 offset2\"\>","               \&lt;h1\>The one-stop shop for metaprogramming\&lt;/h1\>","","\&lt;p class=\"lead\"\> ","You want to use the best tool for the job when  analyzing, transforming or generating source code, so normally you will end up with many different tools, possibly even written in different languages.","Now the problem is to integrate these tools again. Rascal solves this problem by integrating source code analysis, transformation, and generation","primitives on the language level. Use it for any kind of metaprogramming task: to","construct parsers for programming languages, to analyze and transform source","code, or to define new DSLs with full IDE support.","\&lt;/p\>","","\&lt;p class=\"lead\"\> ","Rascal is a programming language; such that meta programs","can be created by, understood by, and debugged by \&lt;strong\>programmers\&lt;/strong\>.","\&lt;/p\>","","\&lt;p class=\"lead\"\> ","Rascal \&lt;strong\>primitives\&lt;/strong\> include immutable data, context-free grammars and algebraic data-types, relations, relational calculus operators,","advanced patterns matching, generic type-safe traversal, comprehensions, concrete syntax for objects, lexically scoped backtracking,","and string templates for code generation. ","It has \&lt;strong\>libraries\&lt;/strong\> for integrating language front-ends, for reusing analysis","algorithms, for getting typed meta-data out o...
+<span class="prompt">rascal></span>println(readFile(|http://www.example.org|))
+&lt;!doctype html>
+&lt;html>
+&lt;head>
+    &lt;title>Example Domain&lt;/title>
+
+    &lt;meta charset="utf-8" />
+    &lt;meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1" />
+    &lt;style type="text/css">
+    body {
+        background-color: #f0f0f2;
+        margin: 0;
+        padding: 0;
+        font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        
+    }
+    div {
+        width: 600px;
+        margin: 5em auto;
+        padding: 50px;
+        background-color: #fff;
+        border-radius: 1em;
+    }
+    a:link, a:visited {
+        color: #38488f;
+        text-decoration: none;
+    }
+    @media (max-width: 700px) {
+        body {
+            background-color: #fff;
+        }
+        div {
+            width: auto;
+            margin: 0 auto;
+            border-radius: 0;
+            padding: 1em;
+        }
+    }
+    &lt;/style>    
+&lt;/head>
+
+&lt;body>
+&lt;div>
+    &lt;h1>Example Domain&lt;/h1>
+    &lt;p>This domain is established to be used for illustrative examples in documents. You may use this
+    domain in examples without prior coordination or asking for permission.&lt;/p>
+    &lt;p>&lt;a href="http://www.iana.org/domains/example">More information...&lt;/a>&lt;/p>
+&lt;/div>
+&lt;/body>
+&lt;/html>
+
+ok
 </pre> Addition on locations creates longer paths:
  <pre class="screen"><span class="prompt">rascal></span>x = |tmp://myTempDirectory|;
 loc: |tmp://myTempDirectory|
 <span class="prompt">rascal></span>x += &quot;myTempFile.txt&quot;;
 loc: |tmp://myTempDirectory/myTempFile.txt|
 </pre> Check the contents of a folder:
- <pre class="screen"><span class="prompt">rascal></span>|std:///|.ls
+ <pre class="screen"><span class="prompt">rascal></span>|project://example-project/src|.ls
 list[loc]: [
-  |std:///.project|,
-  |std:///Ambiguity.rsc|,
-  |std:///analysis|,
-  |std:///APIGen.rsc|,
-  |std:///Boolean.rsc|,
-  |std:///cobra|,
-  |std:///DateTime.rsc|,
-  |std:///demo|,
-  |std:///Distance.class|,
-  |std:///Exception.rsc|,
-  |std:///experiments|,
-  |std:///Grammar.rsc|,
-  |std:///IO.rsc|,
-  |std:///lang|,
-  |std:///List.rsc|,
-  |std:///ListRelation.rsc|,
-  |std:///Map.rsc|,
-  |std:///Message.rsc|,
-  |std:///Node.rsc|,
-  |std:///NodeComparator.class|,
-  |std:///Origins.rsc|,
-  |std:///ParseTree.rsc|,
-  |std:///Prelude$1.class|,
-  |std:///Prelude$Backtrack.class|,
-  |std:///Prelude$IValueWrap.class|,
-  |std:///Prelude$Less.class|,
-  |std:///Prelude$Sorting.class|,
-  |std:///Prelude.class|,
-  |std:///Prelude.rsc|,
-  |std:///Relation.rsc|,
-  |std:///resource|,
-  |std:///Set.rsc|,
-  |std:///String.rsc|,
-  |std:///Time.rsc|,
-  |std:///ToString.rsc|,
-  |std:///Traversal.rsc|,
-  |std:///Tuple.rsc|,
-  |std:///Type.class|,
-  |std:///Type.rsc|,
-  |std:///util|,
-  |std:///ValueIO.rsc|,
-  |std:///vis|
+  |project://example-project/src/Apple.java|,
+  |project://example-project/src/Fruit.java|,
+  |project://example-project/src/HelloWorld.java|,
+  |project://example-project/src/IFruit.java|
 ]
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Location&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Location&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

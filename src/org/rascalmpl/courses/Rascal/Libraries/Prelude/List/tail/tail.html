@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,16 +48,16 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <ol><li> <code>list[&amp;T] tail(list[&amp;T] lst) throws EmptyList</code></li>
 <li> <code>list[&amp;T] tail(list[&amp;T] lst, int len) throws IndexOutOfBounds</code></li>
 </ol>
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import List;</code>
  </AUTOINSERTED>
@@ -70,7 +70,7 @@
 </ol>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>    All but first element:
 <pre class="screen"><span class="prompt">rascal></span>import List;
@@ -79,8 +79,8 @@ ok
 list[int]: [20,30]
 </pre>  Try an error case:
 <pre class="screen"><span class="prompt">rascal></span>tail([]);
-|rascal://List|(25134,958,&lt;1235,0>,&lt;1279,57>): EmptyList()
-	at *** somewhere ***(|rascal://List|(25134,958,&lt;1235,0>,&lt;1279,57>))
+|rascal://List|(24027,958,&lt;1194,0>,&lt;1238,57>): EmptyList()
+	at *** somewhere ***(|rascal://List|(24027,958,&lt;1194,0>,&lt;1238,57>))
 	at tail(|stdin:///|(5,2,&lt;1,5>,&lt;1,7>))
 
 
@@ -89,17 +89,17 @@ list[int]: [20,30]
 list[int]: [40,50,60]
 </pre>  Try an error case:
 <pre class="screen"><span class="prompt">rascal></span>tail([10, 20, 30, 40, 50, 60], 10);
-|rascal://List|(26095,115,&lt;1281,0>,&lt;1282,73>): IndexOutOfBounds(4)
-	at *** somewhere ***(|rascal://List|(26095,115,&lt;1281,0>,&lt;1282,73>))
+|rascal://List|(24988,115,&lt;1240,0>,&lt;1241,73>): IndexOutOfBounds(4)
+	at *** somewhere ***(|rascal://List|(24988,115,&lt;1240,0>,&lt;1241,73>))
 	at tail(|stdin:///|(31,2,&lt;1,31>,&lt;1,33>))
 
 
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <div id="questions">
 
 
@@ -123,14 +123,17 @@ list[int]: [40,50,60]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_0" value="0@0@[0,3,2]">
-<label for="Rascal/Libraries/Prelude/List/tail_1_0">M elements. </label><br/>
+<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_1" value="0@1@[1,3,2,0]">
+<label for="Rascal/Libraries/Prelude/List/tail_1_1">N-M elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_3" value="1@3@[0,3,2]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_3" value="1@3@[1,3,2,0]">
 <label for="Rascal/Libraries/Prelude/List/tail_1_3">N * M elements. </label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_2" value="2@2@[0,3,2]">
+<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_2" value="2@2@[1,3,2,0]">
 <label for="Rascal/Libraries/Prelude/List/tail_1_2">N elements. </label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_tail_1:answer" id="Rascal/Libraries/Prelude/List/tail_1_0" value="3@0@[1,3,2,0]">
+<label for="Rascal/Libraries/Prelude/List/tail_1_0">M elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -154,9 +157,9 @@ list[int]: [40,50,60]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_tail_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_2:L" value="[false, false, false, true, true]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_2:L" value="[10, 0, -8, 8]">
 <input type="hidden" name="Rascal_Libraries_Prelude_List_tail_2:N" value="1">
-The type of <tt>tail([false, false, false, true, true], 1)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_tail_2:answer" class="answerText"><br/>
+The type of <tt>tail([10, 0, -8, 8], 1)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_tail_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -180,9 +183,9 @@ The type of <tt>tail([false, false, false, true, true], 1)</tt> is <input type="
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_tail_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:L" value="[true, false, false, false, false]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:N" value="1">
-<pre class="prequestion">tail([true, false, false, false, false],1) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_tail_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:L" value="[&quot;Prune&quot;, &quot;B&quot;, &quot;Bert&quot;, &quot;Cumin&quot;, &quot;Wasabi&quot;, &quot;Pepper&quot;]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:N" value="2">
+<pre class="prequestion">tail([&quot;Prune&quot;, &quot;B&quot;, &quot;Bert&quot;, &quot;Cumin&quot;, &quot;Wasabi&quot;, &quot;Pepper&quot;],2) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_tail_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_tail_3:another" value="yes">

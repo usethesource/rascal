@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Details">
 <span class="sectionHead">Details</span> <a href="/Rascal/Concepts/Enumerators/EquationSolving/EquationSolving.html">EquationSolving</a> &#032 
 </div>
@@ -68,7 +68,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="listing">int x &lt;- { 1, 3, 5, 7, 11 }
 int x &lt;- [ 1 .. 10 ]
@@ -105,7 +105,7 @@ bool: true
 
  A more satisfying use is as follows:
  <pre class="screen"><span class="prompt">rascal></span>{ x * x | int x &lt;- {1, 3, 5, 7, 11 }};
-set[int]: {9,25,121,1,49}
+set[int]: {1,9,49,25,121}
 </pre> When used inside <a href="/Rascal/Expressions/Comprehensions/Comprehensions.html">Comprehensions</a>, or <a href="/Rascal/Statements/For/For.html">For</a>, <a href="/Rascal/Statements/Do/Do.html">Do</a>, or <a href="/Rascal/Statements/While/While.html">While</a> statement, all values of the generator will be produced and used.
  The variables that are introduced by a enumerator are local to the construct in which the enumerator is used.
  Here is a similar example:
@@ -113,23 +113,23 @@ set[int]: {9,25,121,1,49}
 ok
 <span class="prompt">rascal></span>for(int x &lt;- {1, 3, 5, 7, 11 })
 <span class="continuation">>>>>>>></span>    println("x = &lt;x>");
-x = 11
-x = 7
-x = 5
-x = 3
 x = 1
+x = 3
+x = 5
+x = 7
+x = 11
 list[void]: []
 </pre>
 </div>
 
-  	                       
-  	                       
+
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  The variables that are bound by an enumerator are local to the statement in which the enumerator is used.
 
 </div>
 
-  	                       
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Concepts/Enumerators&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Concepts/Enumerators&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

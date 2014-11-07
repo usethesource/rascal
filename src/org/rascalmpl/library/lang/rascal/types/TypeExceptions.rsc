@@ -10,7 +10,6 @@
 module lang::rascal::types::TypeExceptions
 
 import Exception;
-import Type;
 import lang::rascal::types::AbstractType;
 
 data RuntimeException =

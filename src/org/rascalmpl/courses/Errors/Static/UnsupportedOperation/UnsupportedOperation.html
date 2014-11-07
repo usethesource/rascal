@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Errors/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Errors/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  This error is generated when an unsupported operation is applied to (a combination of) values.
  There can be many causes for this as illustrated below.
@@ -65,7 +65,7 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>L = [1,2,3];
 list[int]: [1,2,3]
@@ -77,16 +77,16 @@ list[int]: [1,2,3]
 |stdin:///|(5,1,&lt;1,5>,&lt;1,6>): multiplication not supported on list[int] and list[int]
 </pre>  Taking the time from a date-only value is not supported:
 <pre class="screen"><span class="prompt">rascal></span>$2010-07-15.justTime;
-|stdin:///|(0,11,&lt;1,0>,&lt;1,11>): Can not retrieve the time component of a date value
+                   ^ Parse error here
 </pre>  Calling an integer as a function is not supported:
 <pre class="screen"><span class="prompt">rascal></span>17(3, &quot;abc&quot;);
 |stdin:///|(6,5,&lt;1,6>,&lt;1,11>): A value of type int is not something you can call like a function, a constructor or a closure.
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Static/UnsupportedOperation&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Static/UnsupportedOperation&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |

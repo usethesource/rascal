@@ -40,7 +40,7 @@ private int estimate(muTmp(str id, str fuid)) = 1;
 private int estimate(muLocKwp(str name)) = 1;
 private int estimate(muVarKwp(str fuid, str name)) = 1;
 
-private int estimate(muCallConstr(str fuid, list[MuExp] args, loc src)) = estimate_arg_list(args);
+private int estimate(muCallConstr(str fuid, list[MuExp] args)) = estimate_arg_list(args);
 
 private int estimate(muCall(muFun(str fuid), list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muCall(muConstr(str fuid), list[MuExp] args)) = estimate_arg_list(args);
@@ -55,7 +55,7 @@ private int estimate(muOCall(MuExp fun, Symbol types, list[MuExp] args, loc src)
 
 private int estimate(muCallPrim(str name, list[MuExp] args, loc src)) = estimate_arg_list(args);
 private int estimate(muCallMuPrim(str name, list[MuExp] args)) = estimate_arg_list(args);
-private int estimate(muCallJava(str name, str class, Symbol argTypes, int reflect, list[MuExp] args)) = estimate_arg_list(args);
+private int estimate(muCallJava(str name, str class, Symbol parameterTypes,  Symbol keywordTypes, int reflect, list[MuExp] args)) = estimate_arg_list(args);
 
 private int estimate(muAssign(str id, str fuid, int pos, MuExp exp)) = estimate(exp);
 private int estimate(muAssignLoc(str id, int pos, MuExp exp)) = estimate(exp);

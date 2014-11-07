@@ -16,9 +16,12 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Formals extends org.rascalmpl.ast.Formals {
 
@@ -30,12 +33,12 @@ public abstract class Formals extends org.rascalmpl.ast.Formals {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
+		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			List<org.rascalmpl.ast.Expression> list = this.getFormals();
 			Type[] types = new Type[list.size()];
 
 			for (int index = 0; index < list.size(); index++) {
-				types[index] = list.get(index).typeOf(env, instantiateTypeParameters);
+				types[index] = list.get(index).typeOf(env, instantiateTypeParameters, eval);
 			}
 
 			return TypeFactory.getInstance().tupleType(types);

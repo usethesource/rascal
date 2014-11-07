@@ -12,10 +12,13 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.junit.runner.Description;
@@ -34,9 +37,24 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.TestExecutor;
 import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.IURIInputStreamResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+/**
+ * A JUnit test runner for compiled Rascal tests.
+ * 
+ * The current approach is hybrid:
+ *  - The Rascal source files are parsed to extract the tests.
+ *  - Next the the compiled version of the tests is executed.
+ *  - If needed, tests are recompiled.
+ *  
+ *  To achieve this the Rascal sources of the compiler are loaded in the interpreter.
+ *  
+ *  In a future version we could skip the parsing phase and extract test info from meta-infor
+ *  in the generated code.
+ *
+ */
 public class RascalJUnitCompiledTestRunner extends Runner {
 	private static Evaluator evaluator;
 	private static GlobalEnvironment heap;
@@ -47,6 +65,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	private String prefix;
 	private HashMap<String, Integer> testsPerModule; 				// number of tests to be executed
 	private HashMap<String, List<Description>> ignoredPerModule;	// tests to be ignored
+	int totalTests = 0;
 
 	static {
 		heap = new GlobalEnvironment();
@@ -61,9 +80,14 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		// Import the compiler's Execute module
 		NullRascalMonitor monitor = new NullRascalMonitor();
 		
-		System.err.println("**** Loading Compiler (takes a minute!) ****");
+		System.err.println("*********************************************");
+		System.err.println("**** Loading Compiler (takes a minute!)  ****");
+		System.err.println("**** Needs JVM arguments: -Xms64m -Xmx1G ****");
+		
 		evaluator.doImport(monitor, "experiments::Compiler::Execute");		
-		System.err.println("**** Compiler Loaded ****");
+		
+		System.err.println("****          Compiler Loaded            ****");
+		System.err.println("*********************************************");
 	}  
 	
 	public RascalJUnitCompiledTestRunner(Class<?> clazz) {
@@ -71,6 +95,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		desc = null;
 		testsPerModule = new HashMap<String, Integer>();
 		ignoredPerModule = new HashMap<String, List<Description>>();
+		totalTests = 0;
 		try {
 			Object instance = clazz.newInstance();
 			if (instance instanceof IRascalJUnitTestSetup) {
@@ -93,32 +118,68 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		this.prefix = prefix;
 	}
 	
+	@Override
+	public int testCount(){
+		getDescription();
+		System.err.println("testCount: " + totalTests);
+		return totalTests;
+	}
+	
 	private void cleanUp(){
 		desc = null;
 		testsPerModule = null;
 		ignoredPerModule = null;
+		totalTests = 0;
 	}
 	
 	static protected String computeTestName(String name, ISourceLocation loc) {
 		return name + ": <" + loc.getOffset() +"," + loc.getLength() +">";
 	}
+
+	static protected List<String> getRecursiveModuleList(URI root, URIResolverRegistry reg) throws IOException {
+		List<String> result = new ArrayList<>();
+		Queue<URI> todo = new LinkedList<>();
+		todo.add(root);
+		while (!todo.isEmpty()) {
+			URI currentDir = todo.poll();
+			String prefix = currentDir.getPath().replaceFirst(root.getPath(), "").replaceFirst("/", "").replaceAll("/", "::");
+			for (String ent : reg.listEntries(currentDir)) {
+				if (ent.endsWith(".rsc")) {
+					if (prefix.isEmpty()) {
+						result.add(ent.replace(".rsc", ""));
+					}
+					else {
+						result.add(prefix + "::" + ent.replace(".rsc", ""));
+					}
+				}
+				else {
+					URI possibleDir;
+					try {
+						possibleDir = URIUtil.changePath(currentDir, currentDir.getPath() + "/" + ent);
+						if (reg.isDirectory(possibleDir)) {
+							todo.add(possibleDir);
+						}
+					} catch (URISyntaxException e) {
+					}
+				}
+			}
+		}
+		return result;
+		
+	}
 	
 	@Override
-	public Description getDescription() {
+	public Description getDescription() {			
 		if(desc != null)
 			return desc;
 		Description desc = Description.createSuiteDescription(prefix);
 		this.desc = desc;
-		int totalTests = 0;
 
 		try {
-			String[] modules = evaluator.getResolverRegistry().listEntries(URIUtil.create("rascal", "", "/" + prefix.replaceAll("::", "/")));
+			List<String> modules = getRecursiveModuleList(URIUtil.create("rascal", "", "/" + prefix.replaceAll("::", "/")), evaluator.getResolverRegistry());
 
 			for (String module : modules) {
-				if (!module.endsWith(".rsc")) {
-					continue;
-				}
-				String name = prefix + "::" + module.replaceFirst(".rsc", "");
+				String name = prefix + "::" + module;
 				
 				evaluator.doImport(new NullRascalMonitor(), name);
 				Description modDesc = Description.createSuiteDescription(name);
@@ -156,8 +217,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 			desc = getDescription();
 		}
 		notifier.fireTestRunStarted(desc);
-		
-		System.err.println("run: testCount = " + desc.testCount());
 
 		for (Description mod : desc.getChildren()) {
 			
@@ -175,8 +234,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 				e.printStackTrace(System.err);
 				notifier.fireTestFailure(new Failure(mod, e));
 			}
-			notifier.fireTestStarted(mod);	// Make sure that the test count is decremented for the test suite itself
-			notifier.fireTestFinished(mod);
 		}
 
 		notifier.fireTestRunFinished(new Result());
@@ -206,7 +263,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 
 		@Override
 		public void start(int count) {
-			System.out.println("RascalJunitCompiledTestRunner.start: " + count);
+			//System.out.println("RascalJunitCompiledTestRunner.start: " + count);
 			notifier.fireTestRunStarted(module);
 		}
 
@@ -218,7 +275,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 			notifier.fireTestStarted(desc);
 
 			if (!successful) {
-				notifier.fireTestFailure(new Failure(desc, t != null ? t : (message == null ? null : new Exception(message))));
+				notifier.fireTestFailure(new Failure(desc, t != null ? t : new AssertionError(message == null ? "test failed" : message)));
 			}
 			else {
 				notifier.fireTestFinished(desc);
@@ -231,15 +288,3 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		}
 	}
 }
-
-//class ExtendedDescription {
-//	final Description description;
-//	final String name;
-//	final ISourceLocation loc;
-//	
-//	ExtendedDescription(Description desc, String name, ISourceLocation s){
-//		this.description = desc;
-//		this.name = name;
-//		this.loc = s;
-//	}
-//}

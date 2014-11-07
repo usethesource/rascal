@@ -66,7 +66,7 @@ VENV evalStats(list[STATEMENT] Stats1, VENV env) {
 // Eval declarations
 
 VENV evalDecls(list[DECL] Decls) =
-    ( Id : (tp == natural() ? natval(0) : strval(""))  | decl(PicoId Id, TYPE tp) <- Decls);
+    ( Id : (tp == demo::lang::Pico::Abstract::natural() ? natval(0) : strval(""))  | decl(PicoId Id, TYPE tp) <- Decls);
 
 // Evaluate a Pico program
 

@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,57 +48,57 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i> &lt; <i>Field</i><sub>1</sub>, <i>Field</i><sub>2</sub> ... ></code>
 
 </div>
 
-                           
-                           
-                           
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  <code><i>Exp</i></code> should evaluate to a tuple or relation, and <code><i>Field</i><sub>i</sub></code> should be a field name or an integer constant
   that refers to elements in the order in which they occur in the original value (counting from 0). 
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Suppose we have a relation with traffic information that records the name of the day, the day number, and the length of the traffic jams at that day.
  <pre class="screen"><span class="prompt">rascal></span>rel[str day, int daynum, int length] Traffic = 
 <span class="continuation">>>>>>>></span>{&lt;"mon", 1, 100>, &lt;"tue", 2, 150>, &lt;"wed", 3, 125>, 
 <span class="continuation">>>>>>>></span> &lt;"thur", 4, 110>, &lt;"fri", 5, 90>};
 rel[str day,int daynum,int length]: {
-  &lt;"mon",1,100>,
   &lt;"wed",3,125>,
+  &lt;"mon",1,100>,
   &lt;"thur",4,110>,
-  &lt;"fri",5,90>,
-  &lt;"tue",2,150>
+  &lt;"tue",2,150>,
+  &lt;"fri",5,90>
 }
 <span class="prompt">rascal></span>Traffic&lt;length,daynum&gt;;
 rel[int length,int daynum]: {
-  &lt;100,1>,
-  &lt;90,5>,
   &lt;110,4>,
+  &lt;100,1>,
+  &lt;150,2>,
   &lt;125,3>,
-  &lt;150,2>
+  &lt;90,5>
 }
 <span class="prompt">rascal></span>Traffic&lt;2,day&gt;;
 rel[int length,str day]: {
-  &lt;125,"wed">,
+  &lt;90,"fri">,
   &lt;150,"tue">,
+  &lt;125,"wed">,
   &lt;110,"thur">,
-  &lt;100,"mon">,
-  &lt;90,"fri">
+  &lt;100,"mon">
 }
 </pre> Field projection thus selects parts from a larger value that has a fixed number of parts. The selection is based on position and not on value and can be used to completely reorder or remove the parts of a larger value.
 
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Operators/FieldProjection&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Operators/FieldProjection&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
