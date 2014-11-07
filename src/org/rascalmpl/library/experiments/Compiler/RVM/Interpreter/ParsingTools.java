@@ -250,7 +250,7 @@ public class ParsingTools {
 		initializeRecovery(robust, lookaheads, robustProds);
 		
 		//__setInterrupt(false);
-		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(rex.getEvaluatorContext());
+		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(rex.getEvaluatorContext());  // TODO: remove CTX
 		
 	      String className = name;
 	      Class<?> clazz;
@@ -385,11 +385,19 @@ public class ParsingTools {
 	  }
 	  
 	  private boolean getBootstrap() { return false; }
-	  
-	// Rascal library function
-	public IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
-		if(rex == null){
-			rex = new RascalExecutionContext(vf, false, false, ctx, null);
+	 
+	  // Rascal library function (interpreter version)
+	  public IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
+		  if(rex == null){
+			  rex = new RascalExecutionContext(vf, null, false, false, ctx, null);
+		  }
+		  return parseFragment(name, start, tree, loc.getURI(), grammar);
+	  }
+		
+	// Rascal library function (compiler version)
+	public IConstructor parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex){ 
+		if(this.rex == null){
+			this.rex = rex;
 		}
 		return parseFragment(name, start, tree, loc.getURI(), grammar);
 	}
@@ -427,7 +435,8 @@ public class ParsingTools {
 	    catch (ParseError e) {
 	      ISourceLocation loc = TreeAdapter.getLocation(tree);
 	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
-	      getMonitor().warning("parse error in concrete syntax", src);
+	      rex.getStdErr().println("***** WARNING: parseFragment, parse error at " + src);
+	      //getMonitor().warning("parse error in concrete syntax", src);
 	      return tree.asAnnotatable().setAnnotation("parseError", src);
 	    }
 //	    catch (StaticError e) {
@@ -474,7 +483,6 @@ public class ParsingTools {
 	        b.append(createHole(part, antiquotes));
 	      }
 	    }
-	    
 	    return b.toString().toCharArray();
 	  }
 

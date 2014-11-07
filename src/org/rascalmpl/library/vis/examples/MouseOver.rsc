@@ -9,9 +9,7 @@
 module vis::examples::MouseOver
 import vis::Figure;
 import vis::Render; 
-import Set;
-import List;
-import Real;
+import Prelude;
 import util::Math;
 
 
@@ -26,7 +24,7 @@ public void simple(){
 }
 
 public void mouseOverLeft(){
-	render(ellipse(mouseOver(ellipse(shrink(0.3),left()))));
+	render(ellipse(mouseOver(ellipse(shrink(0.3), vis::Figure::left()))));
 }
 
 public Figure tunnel(real hal, real val){

@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -57,6 +58,7 @@ import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.EvalCommand;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
@@ -71,7 +73,6 @@ import org.rascalmpl.interpreter.debug.IRascalSuspendTrigger;
 import org.rascalmpl.interpreter.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
@@ -601,11 +602,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   }
 
   public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
-    List<KeywordParameter> kwps = func.getKeywordParameterDefaults();
+    Map<String, Expression> kwps = func.getKeywordParameterDefaults();
     Map<String, Type> expectedTypes = new HashMap<String,Type>();
     
-    for (KeywordParameter kwp : kwps) {
-      expectedTypes.put(kwp.getName(), kwp.getType());
+    for (Entry<String, Expression> kwp : kwps.entrySet()) {
+      expectedTypes.put(kwp.getKey(), kwp.getValue().getType().typeOf(func.getEnv(), false, func.getEval()));
     }
 
     Map<String, IValue> params = new HashMap<String,IValue>();
@@ -642,7 +643,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
           throw new CommandlineError("expected option for " + label, func);
         }
         else if (expected.isSubtypeOf(tf.listType(tf.valueType()))) {
-          IListWriter writer = vf.listWriter(expected.getElementType());
+          IListWriter writer = vf.listWriter();
           
           while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
             writer.append(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
@@ -651,7 +652,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
           params.put(label, writer.done());
         }
         else if (expected.isSubtypeOf(tf.setType(tf.valueType()))) {
-          ISetWriter writer = vf.setWriter(expected.getElementType());
+          ISetWriter writer = vf.setWriter();
           
           while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
             writer.insert(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
@@ -685,7 +686,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   }
   
   @Override
-  public IValue call(String name, String module, Map<String, IValue> kwArgs, IValue[] args) {
+  public IValue call(String name, String module, Map<String, IValue> kwArgs, IValue... args) {
 	  IRascalMonitor old = setMonitor(monitor);
     Environment oldEnv = getCurrentEnvt();
     
@@ -700,13 +701,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
   }
 	
-	private IValue call(String name, Map<String,IValue> kwArgs, IValue[] args) {
+	private IValue call(String name, Map<String,IValue> kwArgs, IValue... args) {
 	  QualifiedName qualifiedName = Names.toQualifiedName(name, getCurrentEnvt().getLocation());
 	  setCurrentAST(qualifiedName);
 		return call(qualifiedName, kwArgs, args);
 	}
 	
-  private IValue call(QualifiedName qualifiedName, Map<String,IValue> kwArgs, IValue... args) {
+  public IValue call(QualifiedName qualifiedName, Map<String,IValue> kwArgs, IValue... args) {
     OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(qualifiedName);
 		RascalTypeFactory rtf = RascalTypeFactory.getInstance();
     
@@ -1580,12 +1581,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		this.curStdout = null;
 	}
 
-	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues) {
+	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
 		if (Evaluator.doProfiling && profiler == null) {
 			profiler = new Profiler(this);
 			profiler.start();
 			try {
-				return fun.call(monitor, argTypes, argValues, null);
+				return fun.call(monitor, argTypes, argValues, keyArgValues);
 			} finally {
 				if (profiler != null) {
 					profiler.pleaseStop();
@@ -1595,8 +1596,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			}
 		}
 		else {
-			return fun.call(monitor, argTypes, argValues, null);
+			return fun.call(monitor, argTypes, argValues, keyArgValues);
 		}
+	}
+	
+	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue... argValues) {
+		return call(monitor, fun, argTypes, argValues, null);
 	}
 	
 	@Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,6 +86,20 @@ public abstract class StringMiddle extends AbstractAST {
       return visitor.visitStringMiddleInterpolated(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Interpolated)) {
+        return false;
+      }        
+      Interpolated tmp = (Interpolated) o;
+      return true && tmp.mid.equals(this.mid) && tmp.expression.equals(this.expression) && tmp.tail.equals(this.tail) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 761 + 431 * mid.hashCode() + 659 * expression.hashCode() + 617 * tail.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.MidStringChars getMid() {
@@ -141,6 +155,20 @@ public abstract class StringMiddle extends AbstractAST {
       return visitor.visitStringMiddleMid(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Mid)) {
+        return false;
+      }        
+      Mid tmp = (Mid) o;
+      return true && tmp.mid.equals(this.mid) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 991 + 701 * mid.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.MidStringChars getMid() {
@@ -181,6 +209,20 @@ public abstract class StringMiddle extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitStringMiddleTemplate(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Template)) {
+        return false;
+      }        
+      Template tmp = (Template) o;
+      return true && tmp.mid.equals(this.mid) && tmp.template.equals(this.template) && tmp.tail.equals(this.tail) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 569 + 953 * mid.hashCode() + 821 * template.hashCode() + 19 * tail.hashCode() ; 
+    } 
   
     
     @Override

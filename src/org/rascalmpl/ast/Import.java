@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -82,6 +82,20 @@ public abstract class Import extends AbstractAST {
       return visitor.visitImportDefault(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Default)) {
+        return false;
+      }        
+      Default tmp = (Default) o;
+      return true && tmp.module.equals(this.module) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 367 + 653 * module.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.ImportedModule getModule() {
@@ -118,6 +132,20 @@ public abstract class Import extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitImportExtend(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Extend)) {
+        return false;
+      }        
+      Extend tmp = (Extend) o;
+      return true && tmp.module.equals(this.module) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 397 + 811 * module.hashCode() ; 
+    } 
   
     
     @Override
@@ -157,6 +185,20 @@ public abstract class Import extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitImportExternal(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof External)) {
+        return false;
+      }        
+      External tmp = (External) o;
+      return true && tmp.name.equals(this.name) && tmp.at.equals(this.at) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 421 + 547 * name.hashCode() + 787 * at.hashCode() ; 
+    } 
   
     
     @Override
@@ -203,6 +245,20 @@ public abstract class Import extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitImportSyntax(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Syntax)) {
+        return false;
+      }        
+      Syntax tmp = (Syntax) o;
+      return true && tmp.syntax.equals(this.syntax) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 211 + 131 * syntax.hashCode() ; 
+    } 
   
     
     @Override

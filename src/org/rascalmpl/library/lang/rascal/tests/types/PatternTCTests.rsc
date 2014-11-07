@@ -155,18 +155,18 @@ test bool setExpressions2() = unexpectedType("value n = 1; set[int] l = { 1, *[n
 test bool PicoQuoted1() = 
 	checkOK("Program program := t1;",
 			initialDecls = ["Tree t1 = (Program) `begin declare x: natural; x := 10 end`;"],
-			importedModules = ["ParseTree",  "lang::pico::\\syntax::Main;"]);
+			importedModules = ["ParseTree",  "lang::pico::\\syntax::Main"]);
 
 test bool PicoQuoted2() = 
 	checkOK("(Program) `\<Program program\>` := t1;",
 			initialDecls = ["Tree t1 = (Program) `begin declare x: natural; x := 10 end`;"],
-			importedModules = ["ParseTree",  "lang::pico::\\syntax::Main;"]);
+			importedModules = ["ParseTree",  "lang::pico::\\syntax::Main"]);
   
 
 test bool PicoQuoted2() = 
 	checkOK(" (Program) `begin \<Declarations decls\> \<{Statement \";\"}* stats\> end` := t1; ",
 			initialDecls = ["Tree t1 = (Program) `begin declare x: natural; x := 10 end`;"],
-			importedModules = ["ParseTree",  "lang::pico::\\syntax::Main;"]);
+			importedModules = ["ParseTree",  "lang::pico::\\syntax::Main"]);
 		
   	
   	

@@ -72,7 +72,7 @@ public class TypeReifier {
 		bindings.put(Factory.TypeParam, t);
 		Type typeType = Factory.Type.instantiate(bindings);
 		
-		IMapWriter defs = vf.mapWriter(Factory.Symbol, Factory.Production);
+		IMapWriter defs = vf.mapWriter();
 		for (Map.Entry<IConstructor, IConstructor> entry : definitions.entrySet()) {
 			defs.put(entry.getKey(), entry.getValue());
 		}
@@ -145,7 +145,10 @@ public class TypeReifier {
 	private Type declareConstructor(Type adt, IConstructor alt, TypeStore store) {
 		IConstructor defined = (IConstructor) alt.get("def");
 		String name = ((IString) defined.get("name")).getValue();
-		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
+		Type kwTypes = symbolsToTupleType((IList) alt.get("kwTypes"), store);
+		if (kwTypes.getArity() == 0) kwTypes = tf.voidType();
+		
+		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store), kwTypes);
 	}
 
 	private Type symbolToType(IConstructor symbol, TypeStore store) {
@@ -290,17 +293,17 @@ public class TypeReifier {
 	private Type funcToType(IConstructor symbol, TypeStore store) {
 		Type returnType = symbolToType((IConstructor) symbol.get("ret"), store);
 		Type parameters = symbolsToTupleType((IList) symbol.get("parameters"), store);
-		return RascalTypeFactory.getInstance().functionType(returnType, parameters);
+	
+                // TODO: while merging the other branch had tf.voidType()... 	
+		return RascalTypeFactory.getInstance().functionType(returnType, parameters, tf.tupleEmpty());
 	}
 
 	private Type consToType(IConstructor symbol, TypeStore store) {
 		Type adt = symbolToType((IConstructor) symbol.get("adt"), store);
 		IList parameters = (IList) symbol.get("parameters");
 		String name = ((IString) symbol.get("name")).getValue();
-		System.err.println("Cons in: " + symbol);
 		// here we assume the store has the declaration already
 		Type t = store.lookupConstructor(adt, name, symbolsToTupleType(parameters, store));
-		System.err.println("Cons out: " + t);
 		return t;
 		
 	}
@@ -470,6 +473,9 @@ public class TypeReifier {
 							w.append(field.accept(this));
 						}
 					}
+					
+					
+					
 					result = vf.constructor(Factory.Symbol_Cons, vf.constructor(Factory.Symbol_Label, vf.string(type.getName()), adt), w.done());
 
 					cache.put(type, result);
@@ -501,10 +507,19 @@ public class TypeReifier {
 					}
 				}
 				
-				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), vf.set()));
+				IListWriter kwTypes = vf.listWriter();
+				IMapWriter kwDefaults = vf.mapWriter();
+				
+				for (String key : type.getKeywordParameters()) {
+					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(key), type.getKeywordParameterType(key).accept(this)));
+				}
+				
+				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), kwDefaults.done(), vf.set()));
 				choice = vf.constructor(Factory.Production_Choice, adt, alts.done());
 				definitions.put(adt, choice);
 			}
+			
+			
 
 			@Override
 			public IValue visitAbstractData(Type type) {

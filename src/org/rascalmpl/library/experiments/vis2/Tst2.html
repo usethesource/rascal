@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+
+<meta charset="utf-8">
+<title>Path Experiments</title>
+<svg>
+	<rect x="0.5" y="0.5" width="300" height="300" style="stroke: rgb(0, 0, 0); fill: rgb(255, 255, 255); stroke-width: 1px;"></rect>
+	<defs>
+		<marker id="startMarker" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto"><rect style="stroke: rgb(0, 0, 0); fill: rgb(255, 0, 0); stroke-width: 1px;"></rect>
+		</marker>
+		</defs>
+	<path d="M100 100L200 200" x="100.5" y="100.5" width="100" height="100" transform="translate(100.5,100.5)" 
+	      style="stroke: rgb(0, 0, 0); fill-rule: evenodd; fill: rgb(255, 255, 255); stroke-width: 1px; marker-start: url(#startMarker);">
+	</path>
+</svg>

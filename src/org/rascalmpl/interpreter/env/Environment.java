@@ -33,6 +33,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.Evaluator;
@@ -42,6 +43,7 @@ import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 
 /**
@@ -304,6 +306,25 @@ public class Environment {
 		}
 	}
 	
+	public ConstructorFunction getConstructorFunction(Type constructorType) {
+		Type functionType = RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), constructorType.getKeywordParameterTypes());
+		List<AbstractFunction> list = new LinkedList<>();
+		getAllFunctions(constructorType.getAbstractDataType(), constructorType.getName(), list);
+		
+		for (AbstractFunction candidate : list) {
+			if (candidate instanceof ConstructorFunction) {
+				ConstructorFunction func = (ConstructorFunction) candidate;
+				
+				if (func.getName().equals(constructorType.getName()) 
+						&& func.getFunctionType() == functionType) {
+					return func;
+				}
+			}
+		}
+		
+		return null; // not found
+	}
+	
 	public void getAllFunctions(Type returnType, String name, List<AbstractFunction> collection) {
 		if (functionEnvironment != null) {
 			List<AbstractFunction> locals = functionEnvironment.get(name);
@@ -526,17 +547,19 @@ public class Environment {
 			functionEnvironment.put(name, list);
 		}
 
-		list.add(function);
-		functionEnvironment.put(name, list);
+		if (!list.contains(function)) {
+			list.add(function);
+			functionEnvironment.put(name, list);
 		
-		if (function.hasResourceScheme()) {
-			if (getRoot() instanceof ModuleEnvironment) {
-				((ModuleEnvironment)getRoot()).addResourceImporter(function);
+			if (function.hasResourceScheme()) {
+				if (getRoot() instanceof ModuleEnvironment) {
+					((ModuleEnvironment)getRoot()).addResourceImporter(function);
+				}
 			}
-		}
-		
-		if (function.hasResolverScheme()) {
-			getRoot().getHeap().registerSourceResolver(function.getResolverScheme(), function);
+
+			if (function.hasResolverScheme()) {
+				getRoot().getHeap().registerSourceResolver(function.getResolverScheme(), function);
+			}
 		}
 	}
 
@@ -686,17 +709,13 @@ public class Environment {
 		return getRoot().concreteSyntaxType(name, symbol);
 	}
 
-	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordParameter> keyargs) {
-		return getRoot().constructorFromTuple(ast, eval, adt, name, tupleType, keyargs);
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, Type keywordParams, List<KeywordFormal> initializers) {
+		return getRoot().constructorFromTuple(ast, eval, adt, name, tupleType, keywordParams, initializers);
 	}
 
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Object... childrenAndLabels ) {
-		return getRoot().constructor(ast, eval, nodeType, name, keyargs, childrenAndLabels);
-	}
-
-	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, List<KeywordParameter> keyargs, Type... children ) {
-		return getRoot().constructor(ast, eval, nodeType, name, keyargs, children);
-	}
+//	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Map<String,Type> keywordParams, Map<String,IValue> defaultParams, Object... childrenAndLabels ) {
+//		return getRoot().constructor(ast, eval, nodeType, name, keywordParams, defaultParams, childrenAndLabels);
+//	}
 
 	public Type aliasType(String name, Type aliased, Type...parameters) {
 		return getRoot().aliasType(name, aliased, parameters);

@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -47,8 +48,6 @@ public class RVM {
 
 	public final IValueFactory vf;
 	private final TypeFactory tf;
-//	private final Boolean TRUE;
-//	private final Boolean FALSE;
 	private final IBool Rascal_TRUE;
 	private final IBool Rascal_FALSE;
 	private final IString NONE; 
@@ -64,7 +63,7 @@ public class RVM {
 	private final Map<String, Integer> resolver;
 	private final ArrayList<OverloadedFunction> overloadedStore;
 	
-	private final TypeStore typeStore = new TypeStore();
+	private final TypeStore typeStore;
 	private final Types types;
 	
 	private final ArrayList<Type> constructorStore;
@@ -117,9 +116,9 @@ public class RVM {
 
 		this.vf = rex.getValueFactory();
 		tf = TypeFactory.getInstance();
+		typeStore = rex.getTypeStore();
 		
 		this.rex = rex;
-		//this.ctx = ctx;
 		this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
@@ -128,8 +127,6 @@ public class RVM {
 		
 		this.types = new Types(this.vf);
 		
-//		TRUE = true;
-//		FALSE = false;
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
 		NONE = vf.string("$nothing$");
@@ -159,14 +156,19 @@ public class RVM {
 
 	
 	public void declare(Function f){
+		//System.out.println(functionStore.size() + ", declare: " + f.getName());
 		if(functionMap.get(f.getName()) != null){
 			throw new CompilerError("Double declaration of function: " + f.getName());
 		}
 		functionMap.put(f.getName(), functionStore.size());
 		functionStore.add(f);
+		
 	}
 	
 	public void declareConstructor(String name, IConstructor symbol) {
+//		if(name.indexOf("ParseTree") >= 0 && name.indexOf("Production") >= 0){
+//			System.err.println("declareConstructor: " + name + ", " + symbol);
+//		}
 		Type constr = types.symbolToType(symbol, typeStore);
 		if(constructorMap.get(name) != null) {
 			throw new CompilerError("Double declaration of constructor: " + name);
@@ -199,6 +201,8 @@ public class RVM {
 			int i = 0;
 			for(IValue fuid : fuids) {
 				String name = ((IString) fuid).getValue();
+				//stdout.println("fillOverloadedStore: " + name);
+				//stdout.flush();
 				Integer index = functionMap.get(name);
 				if(index == null){
 					throw new CompilerError("No definition for " + fuid + " in functionMap");
@@ -218,6 +222,42 @@ public class RVM {
 			this.overloadedStore.add(new OverloadedFunction(funs, constrs, scopeIn));
 		}
 	}
+	 
+	
+	void printStores(){
+		System.out.println("FUNCTION STORE");
+		for(int i = 0; i < functionStore.size(); i++){
+			Function fun = functionStore.get(i);
+			System.out.println(i + ": " + (fun == null ? "null" : fun));
+		}
+		System.out.println("OVERLOADED STORE");
+		for(int i = 0; i < overloadedStore.size(); i++){
+			OverloadedFunction ofun = overloadedStore.get(i);
+			StringBuilder sb = new StringBuilder(i + ": ");
+			if(ofun.functions.length > 0){
+				sb.append(" functions:");
+				for(int j = 0; j < ofun.functions.length; j++){
+					int ifun = ofun.functions[j];
+					String fname = functionStore.get(ifun).getQualifiedName();
+					sb.append(" ").append(ifun).append(" [").append(fname).append("]");
+				}
+			}
+			if(ofun.constructors.length > 0){
+				sb.append(" constructors:");
+				for(int j = 0; j < ofun.constructors.length; j++){
+					int icons = ofun.constructors[j];
+					String cname = constructorStore.get(icons).getName();
+					sb.append(" ").append(icons).append(" [").append(cname).append("]");
+				}
+			}
+			System.out.println(sb);
+		}
+		
+		System.out.println("CONSTRUCTOR STORE");
+		for(int i = 0; i < constructorStore.size(); i++){
+			System.out.println(i + ": " + constructorStore.get(i));;
+		}
+	}
 	
 	/**
 	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned.
@@ -230,9 +270,6 @@ public class RVM {
 	 * @return converted result or an exception
 	 */
 	private IValue narrow(Object result){
-//		if(result instanceof Boolean) {
-//			return vf.bool((Boolean) result);
-//		}
 		if(result instanceof Integer) {
 			return vf.integer((Integer)result);
 		}
@@ -267,6 +304,8 @@ public class RVM {
 //			return ((Boolean) o).toString() + " [Java]";
 		if(o instanceof Integer)
 			return ((Integer)o).toString() + " [Java]";
+		if(o instanceof String)
+			return ((String)o) + " [Java]";
 		if(o instanceof IValue)
 			return ((IValue) o).toString() +" [IValue]";
 		if(o instanceof Type)
@@ -326,6 +365,9 @@ public class RVM {
 		if(o instanceof HashSet){
 			return "HashSet[" + ((HashSet<?>) o).toString() + "]";
 		}
+		if(o instanceof Map){
+			return "Map[" + ((Map<?, ?>) o).toString() + "]";
+		}
 		if(o instanceof HashMap){
 			return "HashMap[" + ((HashMap<?, ?>) o).toString() + "]";
 		}
@@ -335,7 +377,7 @@ public class RVM {
 		throw new CompilerError("asString cannot convert: " + o);
 	}
 	
-	public void finalize(){
+	private void finalizeInstructions(){
 		// Finalize the instruction generation of all functions, if needed
 		if(!finalized){
 			finalized = true;
@@ -348,7 +390,7 @@ public class RVM {
 		}
 	}
 
-	public String getFunctionName(int n) {
+	private String getFunctionName(int n) {
 		for(String fname : functionMap.keySet()) {
 			if(functionMap.get(fname) == n) {
 				return fname;
@@ -386,6 +428,7 @@ public class RVM {
 		for(int i = 0; i < args.length; i++){
 			cf.stack[i] = args[i]; 
 		}
+		cf.stack[args.length] = new HashMap<String, IValue>();
 		Object o = executeProgram(root, cf);
 		if(o instanceof Thrown){
 			throw (Thrown) o;
@@ -436,10 +479,13 @@ public class RVM {
 	
 	public IValue executeProgram(String uid_main, IValue[] args) {
 		
-		finalize();
+		//printStores();
+		
+		finalizeInstructions();
 		
 		Function main_function = functionStore.get(functionMap.get(uid_main));
 
+		
 		if (main_function == null) {
 			throw RascalRuntimeException.noMainFunction(null);
 		}
@@ -451,7 +497,7 @@ public class RVM {
 		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
 		Frame cf = root;
 		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
-		cf.stack[1] = vf.mapWriter().done();
+		cf.stack[1] = new HashMap<String, IValue>();
 		cf.src = main_function.src;
 		Object o = executeProgram(root, cf);
 		if(o != null && o instanceof Thrown){
@@ -465,6 +511,7 @@ public class RVM {
 		return res;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private Object executeProgram(Frame root, Frame cf) {
 		Object[] stack = cf.stack;		                              	// current stack
 		int sp = cf.function.nlocals;				                  	// current stack pointer
@@ -508,6 +555,7 @@ public class RVM {
 						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
 					}
 					stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
+					stdout.flush();
 				}
 				
 				//Opcode.use(instruction);
@@ -727,31 +775,21 @@ public class RVM {
 					arity = CodeBlock.fetchArg2(instruction);
 					//cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
 					
-					IValue[] args = null;
-					if(arity == constructor.getArity()) {
-						args = new IValue[arity];
-					} else {
+					IValue[] args = new IValue[constructor.getArity()];
+					
+					java.util.Map<String,IValue> kwargs;
+					Type type = (Type) stack[--sp];
+					if(type.getArity() > 0){
 						// Constructors with keyword parameters
-						Type type = (Type) stack[--sp];
-						IMap kwargs = (IMap) stack[--sp];
-						Object[] types = new Object[2*constructor.getArity() + 2*kwargs.size()];
-						int j = 0;
-						for(int i = 0; i < constructor.getArity(); i++) {
-							types[j++] = constructor.getFieldType(i);
-							types[j++] = constructor.getFieldName(i);
-						}
-						args = new IValue[constructor.getArity() + kwargs.size()];
-						for(int i = 0; i < type.getArity(); i++) {
-							types[j++] = type.getFieldType(i);
-							types[j++] = type.getFieldName(i);
-							args[constructor.getArity() + i] = kwargs.get(vf.string(type.getFieldName(i)));
-						}
-						constructor = tf.constructorFromTuple(typeStore, constructor.getAbstractDataType(), constructor.getName(), tf.tupleType(types), constructor.getArity());
+						kwargs = (java.util.Map<String,IValue>) stack[--sp];
+					} else {
+						kwargs = new HashMap<String,IValue>();
 					}
-					for(int i = 0; i < constructor.getPositionalArity(); i++) {
-						args[constructor.getPositionalArity() - 1 - i] = (IValue) stack[--sp];
+					
+					for(int i = 0; i < constructor.getArity(); i++) {
+						args[constructor.getArity() - 1 - i] = (IValue) stack[--sp];
 					}
-					stack[sp++] = vf.constructor(constructor, args);
+					stack[sp++] = vf.constructor(constructor, args, kwargs);
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLDYN:				
@@ -841,6 +879,7 @@ public class RVM {
 						// 	1. FunctionInstance due to closures
 						if(funcObject instanceof FunctionInstance) {
 							FunctionInstance fun_instance = (FunctionInstance) funcObject;
+							//stdout.println("OCALLDYN: " + fun_instance.function.name);
 							cf = cf.getFrame(fun_instance.function, fun_instance.env, arity, sp);
 							instructions = cf.function.codeblock.getInstructions();
 							stack = cf.stack;
@@ -893,7 +932,7 @@ public class RVM {
 					assert cf.previousCallFrame == c_ofun_call.cf;
 					
 					frame = c_ofun_call.nextFrame(functionStore);				
-					if(frame != null) {						
+					if(frame != null) {
 						if(debug) {
 							this.appendToTrace("		" + "try alternative: " + frame.function.name);
 						}
@@ -974,14 +1013,18 @@ public class RVM {
 					String methodName =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
 					String className =  ((IString) cf.function.constantStore[instructions[pc++]]).getValue();
 					Type parameterTypes = cf.function.typeConstantStore[instructions[pc++]];
+					Type keywordTypes = cf.function.typeConstantStore[instructions[pc++]];
 					int reflect = instructions[pc++];
 					arity = parameterTypes.getArity();
 					try {
-					    sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
+					    sp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
 					} catch(Throw e) {
 						stacktrace.add(cf);
 						thrown = Thrown.getInstance(e.getException(), e.getLocation(), stacktrace);
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
+					} catch (Exception e){
+						e.printStackTrace(stderr);
+						throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: "+ e.getMessage() + e.getCause() );
 					}
 					
 					continue NEXT_INSTRUCTION;
@@ -1223,7 +1266,6 @@ public class RVM {
 					
 				case Opcode.OP_TYPEOF:
 					if(stack[sp - 1] instanceof HashSet<?>){	// For the benefit of set matching
-						@SuppressWarnings("unchecked")
 						HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
 						if(mset.isEmpty()){
 							stack[sp - 1] = tf.setType(tf.voidType());
@@ -1244,6 +1286,11 @@ public class RVM {
 				case Opcode.OP_CHECKARGTYPE:
 					Type argType =  ((IValue) stack[sp - 2]).getType();
 					Type paramType = ((Type) stack[sp - 1]);
+//					System.err.println("CHECKARGTYPE in " + cf.function.name + ": paramType=" + paramType + ", argType=" + argType + " => " + argType.isSubtypeOf(paramType));
+//					if(!argType.isSubtypeOf(paramType)){
+//						System.err.println("CHECKARGTYPE fails in " + cf.function.name + ": paramType=" + paramType + ", argType=" + argType);
+//						boolean b = argType.isSubtypeOf(paramType);
+//					}
 					stack[sp - 2] = vf.bool(argType.isSubtypeOf(paramType));
 					sp--;
 					continue NEXT_INSTRUCTION;
@@ -1286,12 +1333,13 @@ public class RVM {
 					postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 					
 				case Opcode.OP_LOADLOCKWP:
-					IString name = (IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction));
+					String name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction))).getValue();
 					@SuppressWarnings("unchecked")
 					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
-					Map.Entry<Type, IValue> defaultValue = defaults.get(name.getValue());
+					Map.Entry<Type, IValue> defaultValue = defaults.get(name);
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						IMap kargs = (IMap) f.stack[f.function.nformals - 1];
+						@SuppressWarnings("unchecked")
+						HashMap<String, IValue> kargs = (HashMap<String,IValue>) f.stack[f.function.nformals - 1];
 						if(kargs.containsKey(name)) {
 							val = kargs.get(name);
 							if(val.getType().isSubtypeOf(defaultValue.getKey())) {
@@ -1308,9 +1356,10 @@ public class RVM {
 					
 				case Opcode.OP_STORELOCKWP:
 					val = (IValue) stack[sp - 1];
-					name = (IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction));
-					IMap kargs = (IMap) stack[cf.function.nformals - 1];
-					stack[cf.function.nformals - 1] = kargs.put(name, val);
+					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction))).getValue();
+					@SuppressWarnings("unchecked")
+					HashMap<String, IValue> kargs = (HashMap<String, IValue>) stack[cf.function.nformals - 1];
+					/*stack[cf.function.nformals - 1] = */kargs.put(name, val);
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_STOREVARKWP:
@@ -1329,7 +1378,7 @@ public class RVM {
 					throw new CompilerError("LOADCONT cannot find matching scope: " + s);
 				
 				case Opcode.OP_RESET:
-					fun_instance = (FunctionInstance) stack[--sp]; // A fucntion of zero arguments
+					fun_instance = (FunctionInstance) stack[--sp]; // A function of zero arguments
 					cf.pc = pc;
 					cf = cf.getCoroutineFrame(fun_instance, 0, sp);
 					activeCoroutines.push(new Coroutine(cf));
@@ -1415,7 +1464,7 @@ public class RVM {
 		}
 	}
 	
-	int callJavaMethod(String methodName, String className, Type parameterTypes, int reflect, Object[] stack, int sp) throws Throw {
+	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw {
 		Class<?> clazz = null;
 		try {
 			try {
@@ -1440,17 +1489,38 @@ public class RVM {
 			Constructor<?> cons;
 			cons = clazz.getConstructor(IValueFactory.class);
 			Object instance = cons.newInstance(vf);
-			Method m = clazz.getMethod(methodName, makeJavaTypes(parameterTypes, reflect));
-			int nformals = parameterTypes.getArity();
-			Object[] parameters = new Object[nformals + reflect];
-			for(int i = 0; i < nformals; i++){
-				parameters[i] = stack[sp - nformals + i];
+			Method m = clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
+			int arity = parameterTypes.getArity();
+			int kwArity = keywordTypes.getArity();
+			int kwMaps = kwArity > 0 ? 2 : 0;
+			Object[] parameters = new Object[arity + kwArity + reflect];
+			int i = 0;
+			while(i < arity){
+				parameters[i] = stack[sp - arity - kwMaps + i];
+				i++;
 			}
+			if(kwArity > 0){
+				@SuppressWarnings("unchecked")
+				Map<String, IValue> kwMap = (Map<String, IValue>) stack[sp - 2];
+				@SuppressWarnings("unchecked")
+				Map<String, Map.Entry<Type, IValue>> kwDefaultMap = (Map<String, Map.Entry<Type, IValue>>) stack[sp - 1];
+
+				while(i < arity + kwArity){
+					String key = keywordTypes.getFieldName(i - arity);
+					IValue val = kwMap.get(key);
+					if(val == null){
+						val = kwDefaultMap.get(key).getValue();
+					}
+					parameters[i] = val;
+					i++;
+				}
+			}
+			
 			if(reflect == 1) {
-				parameters[nformals] = this.getEvaluatorContext();
+				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : this.getEvaluatorContext(); // TODO: remove CTX
 			}
-			stack[sp - nformals] =  m.invoke(instance, parameters);
-			return sp - nformals + 1;
+			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
+			return sp - arity - kwMaps + 1;
 		} 
 //		catch (ClassNotFoundException e) {
 //			// TODO Auto-generated catch block
@@ -1477,20 +1547,60 @@ public class RVM {
 		return sp;
 	}
 	
-	Class<?>[] makeJavaTypes(Type parameterTypes, int reflect){
+	HashSet<String> converted = new HashSet<String>(Arrays.asList(
+			"org.rascalmpl.library.lang.csv.IOCompiled.readCSV",
+			"org.rascalmpl.library.lang.csv.IOCompiled.getCSVType",
+			"org.rascalmpl.library.lang.csv.IOCompiled.writeCSV",
+			"org.rascalmpl.library.lang.json.IOCompiled.fromJSON",
+			"org.rascalmpl.library.PreludeCompiled.exists",
+			"org.rascalmpl.library.PreludeCompiled.lastModified",
+			"org.rascalmpl.library.PreludeCompiled.isDirectory",
+			"org.rascalmpl.library.PreludeCompiled.isFile",
+			"org.rascalmpl.library.PreludeCompiled.remove",
+			"org.rascalmpl.library.PreludeCompiled.mkDirectory",
+			"org.rascalmpl.library.PreludeCompiled.listEntries",
+			"org.rascalmpl.library.PreludeCompiled.readFile",
+			"org.rascalmpl.library.PreludeCompiled.readFileEnc",
+			"org.rascalmpl.library.PreludeCompiled.md5HashFile",
+			"org.rascalmpl.library.PreludeCompiled.writeFile",
+			"org.rascalmpl.library.PreludeCompiled.writeFileEnc",
+			"org.rascalmpl.library.PreludeCompiled.writeBytes",
+			"org.rascalmpl.library.PreludeCompiled.appendToFile",
+			"org.rascalmpl.library.PreludeCompiled.appendToFileEnc",
+			"org.rascalmpl.library.PreludeCompiled.readFileLines",
+			"org.rascalmpl.library.PreludeCompiled.readFileLinesEnc",
+			"org.rascalmpl.library.PreludeCompiled.readFileBytes",
+			"org.rascalmpl.library.PreludeCompiled.getFileLength",
+			"org.rascalmpl.library.PreludeCompiled.readBinaryValueFile",
+			"org.rascalmpl.library.PreludeCompiled.readTextValueFile",
+			"org.rascalmpl.library.PreludeCompiled.readTextValueString",
+			"org.rascalmpl.library.PreludeCompiled.writeBinaryValueFile",
+			"org.rascalmpl.library.PreludeCompiled.writeTextValueFile",
+			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment"
+			
+	));
+			
+	Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
 		JavaClasses javaClasses = new JavaClasses();
-		int arity = parameterTypes.getArity() + reflect;
-		Class<?>[] jtypes = new Class<?>[arity];
+		int arity = parameterTypes.getArity();
+		int kwArity = keywordTypes.getArity();
+		Class<?>[] jtypes = new Class<?>[arity + kwArity + reflect];
 		
-		for(int i = 0; i < parameterTypes.getArity(); i++){
+		int i = 0;
+		while(i < parameterTypes.getArity()){
 			jtypes[i] = parameterTypes.getFieldType(i).accept(javaClasses);
+			i++;
 		}
+		
+		while(i < arity + kwArity){
+			jtypes[i] = keywordTypes.getFieldType(i -  arity).accept(javaClasses);
+			i++;
+		}
+		
 		if(reflect == 1) {
-			try {
-				jtypes[arity - 1] = this.getClass().getClassLoader().loadClass("org.rascalmpl.interpreter.IEvaluatorContext");
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
+			jtypes[arity + kwArity] = converted.contains(className + "." + methodName) 
+									  ? RascalExecutionContext.class 
+									  : IEvaluatorContext.class;				// TODO: remove CTX
 		}
 		return jtypes;
 	}

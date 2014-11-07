@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,6 +86,20 @@ public abstract class Header extends AbstractAST {
       return visitor.visitHeaderDefault(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Default)) {
+        return false;
+      }        
+      Default tmp = (Default) o;
+      return true && tmp.tags.equals(this.tags) && tmp.name.equals(this.name) && tmp.imports.equals(this.imports) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 823 + 653 * tags.hashCode() + 139 * name.hashCode() + 439 * imports.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Tags getTags() {
@@ -146,6 +160,20 @@ public abstract class Header extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitHeaderParameters(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Parameters)) {
+        return false;
+      }        
+      Parameters tmp = (Parameters) o;
+      return true && tmp.tags.equals(this.tags) && tmp.name.equals(this.name) && tmp.params.equals(this.params) && tmp.imports.equals(this.imports) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 619 + 641 * tags.hashCode() + 971 * name.hashCode() + 149 * params.hashCode() + 197 * imports.hashCode() ; 
+    } 
   
     
     @Override

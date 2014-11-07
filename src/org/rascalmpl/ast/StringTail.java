@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -93,6 +93,20 @@ public abstract class StringTail extends AbstractAST {
       return visitor.visitStringTailMidInterpolated(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof MidInterpolated)) {
+        return false;
+      }        
+      MidInterpolated tmp = (MidInterpolated) o;
+      return true && tmp.mid.equals(this.mid) && tmp.expression.equals(this.expression) && tmp.tail.equals(this.tail) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 569 + 173 * mid.hashCode() + 983 * expression.hashCode() + 647 * tail.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.MidStringChars getMid() {
@@ -152,6 +166,20 @@ public abstract class StringTail extends AbstractAST {
       return visitor.visitStringTailMidTemplate(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof MidTemplate)) {
+        return false;
+      }        
+      MidTemplate tmp = (MidTemplate) o;
+      return true && tmp.mid.equals(this.mid) && tmp.template.equals(this.template) && tmp.tail.equals(this.tail) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 709 + 463 * mid.hashCode() + 463 * template.hashCode() + 733 * tail.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.MidStringChars getMid() {
@@ -206,6 +234,20 @@ public abstract class StringTail extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitStringTailPost(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Post)) {
+        return false;
+      }        
+      Post tmp = (Post) o;
+      return true && tmp.post.equals(this.post) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 823 + 347 * post.hashCode() ; 
+    } 
   
     
     @Override

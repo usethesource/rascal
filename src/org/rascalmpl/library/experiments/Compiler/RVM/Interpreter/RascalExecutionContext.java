@@ -4,11 +4,13 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
@@ -30,13 +32,17 @@ public class RascalExecutionContext {
 	private final PrintWriter stdout;
 	private final IEvaluatorContext ctx;
 	private final IValueFactory vf;
+	private final TypeStore typeStore;
 	private final boolean debug;
 	private final boolean profile;
 	private final ITestResultListener testResultListener;
+	private final IMap symbol_definitions;
 	
-	RascalExecutionContext(IValueFactory vf, boolean debug, boolean profile, IEvaluatorContext ctx, ITestResultListener testResultListener){
+	RascalExecutionContext(IValueFactory vf, IMap symbol_definitions, boolean debug, boolean profile, IEvaluatorContext ctx, ITestResultListener testResultListener){
 		
 		this.vf = vf;
+		this.symbol_definitions = symbol_definitions;
+		this.typeStore = new TypeStore();
 		this.debug = debug;
 		this.profile = profile;
 		
@@ -52,17 +58,21 @@ public class RascalExecutionContext {
 
 	IValueFactory getValueFactory(){ return vf; }
 	
+	public IMap getSymbolDefinitions() { return symbol_definitions; }
+	
+	public TypeStore getTypeStore() { return typeStore; }
+	
 	boolean getDebug() { return debug; }
 	
 	boolean getProfile(){ return profile; }
 	
-	URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
+	public URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
 	
 	IRascalMonitor getMonitor() {return monitor;}
 	
-	PrintWriter getStdErr() { return stderr; }
+	public PrintWriter getStdErr() { return stderr; }
 	
-	PrintWriter getStdOut() { return stdout; }
+	public PrintWriter getStdOut() { return stdout; }
 	
 	Configuration getConfiguration() { return config; }
 	

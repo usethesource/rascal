@@ -181,7 +181,8 @@ public class Eval {
 			  throw new Throw(values.constructor(Exception_StaticError, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, ctx.getStackTrace());
 			}
 			throw e;
-		} catch (URISyntaxException e) {
+		} 
+		catch (URISyntaxException e) {
 			// this should never happen
 			if (forRascal)
 				throw RuntimeExceptionFactory.illegalArgument(commands, null, null);
@@ -256,5 +257,11 @@ public class Eval {
 			eval.interrupt();
 		}
 	}
+	
+	public void unimport (IString moduleName, IEvaluatorContext ctx) {
+	        if (this.eval!=null && this.eval.getHeap()!=null) this.eval.getHeap().removeModule(eval.getHeap().getModule(moduleName.getValue()));
+     }
+
+	
 }
 

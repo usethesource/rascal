@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,6 +77,20 @@ public abstract class Visit extends AbstractAST {
       return visitor.visitVisitDefaultStrategy(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DefaultStrategy)) {
+        return false;
+      }        
+      DefaultStrategy tmp = (DefaultStrategy) o;
+      return true && tmp.subject.equals(this.subject) && tmp.cases.equals(this.cases) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 103 + 383 * subject.hashCode() + 563 * cases.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.Expression getSubject() {
@@ -126,6 +140,20 @@ public abstract class Visit extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitVisitGivenStrategy(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof GivenStrategy)) {
+        return false;
+      }        
+      GivenStrategy tmp = (GivenStrategy) o;
+      return true && tmp.strategy.equals(this.strategy) && tmp.subject.equals(this.subject) && tmp.cases.equals(this.cases) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 19 + 811 * strategy.hashCode() + 349 * subject.hashCode() + 419 * cases.hashCode() ; 
+    } 
   
     
     @Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -95,6 +95,20 @@ public abstract class Signature extends AbstractAST {
       return visitor.visitSignatureNoThrows(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof NoThrows)) {
+        return false;
+      }        
+      NoThrows tmp = (NoThrows) o;
+      return true && tmp.modifiers.equals(this.modifiers) && tmp.type.equals(this.type) && tmp.name.equals(this.name) && tmp.parameters.equals(this.parameters) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 877 + 431 * modifiers.hashCode() + 607 * type.hashCode() + 89 * name.hashCode() + 997 * parameters.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.FunctionModifiers getModifiers() {
@@ -166,6 +180,20 @@ public abstract class Signature extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitSignatureWithThrows(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof WithThrows)) {
+        return false;
+      }        
+      WithThrows tmp = (WithThrows) o;
+      return true && tmp.modifiers.equals(this.modifiers) && tmp.type.equals(this.type) && tmp.name.equals(this.name) && tmp.parameters.equals(this.parameters) && tmp.exceptions.equals(this.exceptions) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 827 + 797 * modifiers.hashCode() + 991 * type.hashCode() + 73 * name.hashCode() + 809 * parameters.hashCode() + 823 * exceptions.hashCode() ; 
+    } 
   
     
     @Override

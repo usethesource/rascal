@@ -14,7 +14,9 @@ import lang::rascal::types::CheckTypes;
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
-RVMProgram compile(str rascalSource, bool listing=false, bool recompile=false){
+loc compiledVersion(loc src, loc bindir) = (bindir + src.path)[extension="rvm"];
+
+RVMProgram compile(str rascalSource, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
    muMod  = r2mu(parse(#start[Module], rascalSource).top);
    for(imp <- muMod.imports){
    	    println("Compiling import <imp>");
@@ -25,15 +27,15 @@ RVMProgram compile(str rascalSource, bool listing=false, bool recompile=false){
 }
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
-RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false){
+RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
     println("compile: <moduleLoc>");
-    rvmProgramLoc = moduleLoc.parent + (basename(moduleLoc) + ".rvm");
+    rvmProgramLoc = compiledVersion(moduleLoc, bindir);
     if(!recompile && exists(rvmProgramLoc) && lastModified(rvmProgramLoc) > lastModified(moduleLoc)){
        try {
   	       rvmProgram = readTextValueFile(#RVMProgram, rvmProgramLoc);
   	       
   	       // Temporary work around related to issue #343
-  	       rvmProgram = visit(rvmProgram) { case type[value] t => type(t.symbol,t.definitions) }
+  	       rvmProgram = visit(rvmProgram) { case type[value] t: { insert type(t.symbol,t.definitions); }}
   	       
   	       println("rascal2rvm: Using compiled version <rvmProgramLoc>");
   	       return rvmProgram;
@@ -52,4 +54,37 @@ RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false){
    	writeTextValueFile(rvmProgramLoc, rvmProgram);
    	
    	return rvmProgram;
+}
+
+void listing(loc moduleLoc, str name = "", bool recompile=false){
+
+	rvmProgram = compile(moduleLoc, recompile=recompile);
+	
+	if(name != ""){
+		for(decl <- rvmProgram.declarations){
+			if(findFirst(decl, name) >= 0){
+				iprintln(rvmProgram.declarations[decl]);
+			}
+		}
+		return;
+	}
+	
+	println("MODULE\t<rvmProgram.name>");
+	
+	println("IMPORTS\t<rvmProgram.imports>");
+	
+	println("DECLARATIONS");
+	
+	for(decl <- rvmProgram.declarations){
+		iprintln(rvmProgram.declarations[decl]);
+	}
+	
+	println("INITIALIZATION");
+	iprintln(rvmProgram.initialization);
+	
+	println("RESOLVER");
+	print("\t"); iprintln(rvmProgram.resolver);
+		
+	println("OVERLOADED FUNCTIONS");
+	print("\t"); iprintln(rvmProgram.overloaded_functions);
 }

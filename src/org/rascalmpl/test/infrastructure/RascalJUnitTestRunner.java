@@ -5,14 +5,20 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors: Jurgen Vinju
+ * Contributors: Paul Klint, Jurgen Vinju
  */
 
 package org.rascalmpl.test.infrastructure;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.junit.runner.Description;
@@ -31,6 +37,7 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.IURIInputStreamResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -82,20 +89,56 @@ public class RascalJUnitTestRunner extends Runner {
 		return name + ": <" + loc.getOffset() +"," + loc.getLength() +">";
 	}
 	
+	static protected List<String> getRecursiveModuleList(URI root, URIResolverRegistry reg) throws IOException {
+		List<String> result = new ArrayList<>();
+		Queue<URI> todo = new LinkedList<>();
+		todo.add(root);
+		while (!todo.isEmpty()) {
+			URI currentDir = todo.poll();
+			String prefix = currentDir.getPath().replaceFirst(root.getPath(), "").replaceFirst("/", "").replaceAll("/", "::");
+			for (String ent : reg.listEntries(currentDir)) {
+				if (ent.endsWith(".rsc")) {
+					if (prefix.isEmpty()) {
+						result.add(ent.replace(".rsc", ""));
+					}
+					else {
+						result.add(prefix + "::" + ent.replace(".rsc", ""));
+					}
+				}
+				else {
+					URI possibleDir;
+					try {
+						possibleDir = URIUtil.changePath(currentDir, currentDir.getPath() + "/" + ent);
+						if (reg.isDirectory(possibleDir)) {
+							todo.add(possibleDir);
+						}
+					} catch (URISyntaxException e) {
+					}
+				}
+			}
+		}
+		return result;
+		
+	}
+	
 	@Override
-	public Description getDescription() {
+	public Description getDescription() {		
 		Description desc = Description.createSuiteDescription(prefix);
 		this.desc = desc;
 		
 		try {
-			String[] modules = evaluator.getResolverRegistry().listEntries(URIUtil.create("rascal", "", "/" + prefix.replaceAll("::", "/")));
+			List<String> modules = getRecursiveModuleList(URIUtil.create("rascal", "", "/" + prefix.replaceAll("::", "/")), evaluator.getResolverRegistry());
 			
 			for (String module : modules) {
-				if (!module.endsWith(".rsc")) {
-					continue;
+				String name = prefix + "::" + module;
+				
+				try {
+					evaluator.doImport(new NullRascalMonitor(), name);
 				}
-				String name = prefix + "::" + module.replaceFirst(".rsc", "");
-				evaluator.doImport(new NullRascalMonitor(), name);
+				catch (Throwable e) {
+					throw new RuntimeException("Could not import " + name + " for testing...", e);
+				}
+				
 				Description modDesc = Description.createSuiteDescription(name);
 				desc.addChild(modDesc);
 				
@@ -112,7 +155,7 @@ public class RascalJUnitTestRunner extends Runner {
 			throw new RuntimeException("could not create test suite", e);
 		} catch (URISyntaxException e) {
 			throw new RuntimeException("could not create test suite", e);
-		}
+		} 
 	}
 
 	@Override

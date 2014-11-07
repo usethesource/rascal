@@ -32,15 +32,21 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.IValueTextWriter;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.Factory;
 
 /**
  * This class implements the JSon readable syntax for {@link IValue}'s. See also
  * {@link JSonReader}
  * 
- * @author bertl
+ * Contributors:
+ *    Bert Lisser  (Bert.Lisser@cwi.nl)
+ *    Paul Klint	(Paul.Klint@cwi.nl) - added missing cases and made standards compliant
  * 
  **/
 
@@ -52,7 +58,9 @@ public class JSonWriter implements IValueTextWriter {
 
 	static boolean debug = false;
 
-	static final String name = "#name", args = "#args", annos = "#annos";
+	static final String name = "#name", args = "#args", annos = "#annos", keywords = "#keywords";
+	
+	static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
 	public void write(IValue value, java.io.Writer stream) throws IOException {
 	  value.accept(new Writer(stream));
@@ -248,6 +256,13 @@ public class JSonWriter implements IValueTextWriter {
 			return o;
 		}
 
+		private boolean isParseTreeNode(INode node){
+			Type tp = node.getType();
+			return tp.isSubtypeOf(Factory.Tree) || tp.isSubtypeOf(Factory.Production) || tp.isSubtypeOf(Factory.Attributes)  ||
+				   tp.isSubtypeOf(Factory.Attr) || tp.isSubtypeOf(Factory.Associativity) || tp.isSubtypeOf(Factory.Symbol) ||
+				   tp.isSubtypeOf(Factory.Symbol) || tp.isSubtypeOf(Factory.CharRange)  || tp.isSubtypeOf(Factory.Condition) ;
+		}
+	
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -257,14 +272,10 @@ public class JSonWriter implements IValueTextWriter {
 		 */
 		public IValue visitNode(INode o) throws IOException {
 			Iterator<IValue> nodeIterator = o.iterator();
-			Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
-			Iterator<String> annoIterator = annotations.keySet().iterator();
+			
 			if (nodeTyped) inNode++;
 			append("{\"" + name + "\":");
-			append('\"');
-			append(o.getName().replaceAll("\"", "\\\\\"")
-					.replaceAll("\n", "\\\\n"));
-			append('\"');
+			visitString(vf.string(o.getName()));
 			append(",\"" + args + "\":");
 			append('[');
 			if (nodeIterator.hasNext()) {
@@ -277,24 +288,53 @@ public class JSonWriter implements IValueTextWriter {
 				}
 			}
 			append(']');
-		    if (annoIterator.hasNext()) {
-			     append(",\""+annos+"\":");
-//				// append('[');
-				append('{');
-				String key = annoIterator.next();
-				append("\""+key+"\"");
-				append(':');
-				annotations.get(key).accept(this);
-				while (annoIterator.hasNext()) {
-					append(',');
-					key = annoIterator.next();
+			
+			if(o.isAnnotatable()){
+				Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
+				Iterator<String> annoIterator = annotations.keySet().iterator();
+				if (annoIterator.hasNext()) {
+					append(",\""+annos+"\":");
+					// append('[');
+					append('{');
+					String key = annoIterator.next();
 					append("\""+key+"\"");
 					append(':');
 					annotations.get(key).accept(this);
+					while (annoIterator.hasNext()) {
+						append(',');
+						key = annoIterator.next();
+						append("\""+key+"\"");
+						append(':');
+						annotations.get(key).accept(this);
+					}
+					append('}');
+					// append(']');
 				}
-				append('}');
-//				// append(']');
 			}
+		    
+		    // TODO: SOS horrible hack to prevent crash on writing parse trees
+		    
+		    if(!isParseTreeNode(o)){
+		    	Map<String, IValue> keywordParameters = o.asWithKeywordParameters().getParameters();
+		    	Iterator<String> keywordIterator = keywordParameters.keySet().iterator();
+		    	if (keywordIterator.hasNext()) {
+		    		append(",");
+		    		//				// append('[');
+		    		String key = keywordIterator.next();
+		    		append("\""+key+"\"");
+		    		append(':');
+		    		keywordParameters.get(key).accept(this);
+		    		while (keywordIterator.hasNext()) {
+		    			append(',');
+		    			key = keywordIterator.next();
+		    			append("\""+key+"\"");
+		    			append(':');
+		    			keywordParameters.get(key).accept(this);
+		    		}
+		    		//append('}');
+		    		//				// append(']');
+		    	}
+		    }
 			append('}');
 			if (nodeTyped) inNode--;
 			return o;
@@ -309,12 +349,54 @@ public class JSonWriter implements IValueTextWriter {
 				append("]}");
 			return o;
 		}
-
+		
+		/*	(non-Javadoc)
+		 * @see org.eclipse.imp.pdb.facts.visitors.IValueVisitor#visitString(org.eclipse.imp.pdb.facts.IString)
+		 */
 		public IValue visitString(IString o) throws IOException {
-			// TODO optimize this implementation and finish all escapes
+			// See http://www.json.org for string escapes
 			append('\"');
-			append(o.getValue().replaceAll("\"", "\\\\\"")
-					.replaceAll("\n", "\\\\n"));
+			for(int i = 0; i < o.length(); i++){
+				String s = o.substring(i, i+1).getValue();
+				switch(s){
+				
+				case "\"":
+					append("\\\"");
+					break;
+					
+				case "\\":
+					append("\\\\");
+					break;
+				case "/":
+					append("\\/");
+					break;
+				case "\b":
+					append("\\b");
+					break;
+					
+				case "\f":
+					append("\\f");
+					break;
+					
+				case "\n":
+					append("\\n");
+					break;
+					
+				case "\r":
+					append("\\r");
+					break;
+					
+				case "\t":
+					append("\\t");
+					break;
+				
+				default:
+					append(s);
+				}
+			}
+
+//			append(o.getValue().replaceAll("\"", "\\\\\"")
+//					.replaceAll("\n", "\\\\n"));
 			append('\"');
 			return o;
 		}
@@ -329,11 +411,13 @@ public class JSonWriter implements IValueTextWriter {
 			if (typed || inNode > 0)
 				append("{\"" + name + "\":\"#datetime\",\"" + args + "\":[");
 			append('\"');
+			
 			SimpleDateFormat sd = new SimpleDateFormat(
-					"yyyy-MM-dd HH:mm:ss.SSSZ");
+					"yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 //			SimpleDateFormat sd = new SimpleDateFormat(
 //					"yyyy-MM-dd HH:mm:ss.SSS");
 			append(sd.format(new Date(o.getInstant())));
+			//System.err.println("visitdateTime: " +new Date(o.getInstant()));
 			append('\"');
 			if (typed || inNode > 0)
 				append("]}");

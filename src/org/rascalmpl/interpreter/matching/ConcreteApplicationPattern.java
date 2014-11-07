@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -161,6 +162,18 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			throw new IllegalOperationException(
 					"Cannot be viewed as annotatable.", getType());
 		}
+		
+	  @Override
+	  public boolean mayHaveKeywordParameters() {
+	    return false;
+	  }
+	  
+	  @Override
+	  public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+	    throw new IllegalOperationException(
+	        "Cannot be viewed as with keyword parameters", getType());
+	  }
+
 	}
 	
 	private class LexicalTreeAsTuple extends TreeAsTuple {

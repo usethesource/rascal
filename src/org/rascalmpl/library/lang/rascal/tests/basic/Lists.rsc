@@ -460,7 +460,8 @@ test bool tstToRel(list[&T] L) = isEmpty(L) || toRel(L) == {<elementAt(L,i), ele
 
 test bool tstToSet(list[&T] L) = toSet(L) == {x | x <- L};
 
-test bool tstToString(list[&T] L) = (readTextValueString(#list[&T], toString(L)) == L);
+ 
+test bool tstToString(list[value] L) = (readTextValueString(#list[value], toString(L)) == L);
 
 
 test bool tstUnzip2(list[tuple[&A, &B]] L) = unzip(L) == <[a | <a,b> <- L], [b | <a,b> <- L]>;

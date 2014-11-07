@@ -19,7 +19,6 @@ import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.junit.runner.Description;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 
@@ -38,7 +37,6 @@ public class TestExecutor {
 	}
 
 	public void test(String moduleName, int nTests) {
-		
 		testResultListener.start(nTests);
 		IValueFactory vf = eval.getValueFactory();
 		ISourceLocation src = null;
@@ -46,7 +44,7 @@ public class TestExecutor {
 			src = vf.sourceLocation("rascal", "", moduleName.replaceAll("::",  "/") + ".rsc");
 			System.err.println("TestExecutor.test: testing " + moduleName + ", " + nTests + " tests");
 			eval.call("executeTests", src);
-			System.err.println("TestExecutor.test: testing " + moduleName + " ... done");
+			//System.err.println("TestExecutor.test: testing " + moduleName + " ... done");
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

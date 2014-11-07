@@ -13,13 +13,14 @@ package org.rascalmpl.library.cobra;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -36,8 +37,7 @@ public class DynamicGenerator extends AbstractFunction {
 	public DynamicGenerator(IEvaluator<Result<IValue>> eval, Type returnType, Environment env,
 			HashMap<Type, ICallableValue> generators) {
 		super(null, eval, (FunctionType) RascalTypeFactory.getInstance()
-				.functionType(returnType,
-						TypeFactory.getInstance().integerType()), false, null, env);
+				.functionType(returnType, TF.integerType(), TF.voidType()), Collections.<KeywordFormal>emptyList(), false, env);
 		this.generators = generators;
 	}
 	

@@ -37,7 +37,7 @@ public Result eval3(str main, list[int] args, Prog prog) {
 
 public tuple[Mem, Env] bind(list[str] fs, list[int] args, Mem mem) {
   env = ();
-  for (i <- domain(fs)) {
+  for (i <- index(fs)) {
     <mem, a> = alloc(mem, args[i]);
     env[fs[i]] = a;
   }

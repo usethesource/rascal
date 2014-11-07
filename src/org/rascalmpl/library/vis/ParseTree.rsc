@@ -67,7 +67,7 @@ private bool allChars(list[Tree] trees){
 }
 
 private str getChars(list[Tree] trees){
-  chars = [ c | t <- trees, char(int c) := t];
+  list[int] chars = [ c | t <- trees, char(int c) := t];
   return stringChars(chars);
 }
 

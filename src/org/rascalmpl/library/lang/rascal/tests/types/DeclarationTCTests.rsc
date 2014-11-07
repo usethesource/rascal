@@ -4,7 +4,7 @@ import lang::rascal::tests::types::StaticTestingUtils;
  
 test bool localTypeInferenceNoEscape2() = undeclaredVariable("{ x = 1; x == 1; } x;");
 
-test bool undeclaredType1() = undeclaredVariable("X N;");            // TODO Type X undeclared
+test bool undeclaredType1() = undeclaredType("X N;");            // TODO Type X undeclared
 
 test bool doubleDeclaration3() = redeclaredVariable("int f(int N){int N = 1; return N;}");
 
@@ -43,10 +43,14 @@ test bool RedeclaredVarDeclaration(){
 }
 
 
-test bool moduleRedeclarationError1(){ 
-	makeModule("M", "public int n = 1; public int n = 2;"); 
-	return redeclaredVariable("n == 1;", importedModules=["M"]);
-}
+// MAH: I will need to look for a good way to test this now; the configuration no
+// longer includes errors detected in imported modules unless they are actual
+// import errors, in this case the first n is in the imported configuration
+// but the second n isn't since it would raise an error while checking M.
+//test bool moduleRedeclarationError1(){ 
+//	makeModule("M", "public int n = 1; public int n = 2;"); 
+//	return redeclaredVariable("n == 1;", importedModules=["M"]);
+//}
 
 test bool qualifiedScopeTest(){ 
 	makeModule("M", "public int n = 1;"); 
@@ -134,9 +138,12 @@ test bool ExtendADT(){
 	return checkOK("DATA x = d2(3);", initialDecls=["data DATA = d2(int n);"], importedModules=["M"]);
 }
 
+// MAH: We currently allow redeclarations in cases where the redeclaration exactly matches
+// an existing declaration. The original test was modified to add constructor fields, which
+// will then trigger an error.
 test bool RedeclareConstructorError(){ 
-	makeModule("M", "data DATA = d();"); 
-	return declarationError("DATA x = d();", initialDecls=["data DATA = d();"], importedModules=["M"]);
+	makeModule("M", "data DATA = d(int n);"); 
+	return declarationError("DATA x = d(3);", initialDecls=["data DATA = d(int m);"], importedModules=["M"]);
 }
 
 // Alias declaration in imported module

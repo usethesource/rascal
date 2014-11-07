@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -75,6 +75,20 @@ public abstract class DateTimeLiteral extends AbstractAST {
       return visitor.visitDateTimeLiteralDateAndTimeLiteral(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DateAndTimeLiteral)) {
+        return false;
+      }        
+      DateAndTimeLiteral tmp = (DateAndTimeLiteral) o;
+      return true && tmp.dateAndTime.equals(this.dateAndTime) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 31 + 107 * dateAndTime.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.DateAndTime getDateAndTime() {
@@ -112,6 +126,20 @@ public abstract class DateTimeLiteral extends AbstractAST {
       return visitor.visitDateTimeLiteralDateLiteral(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DateLiteral)) {
+        return false;
+      }        
+      DateLiteral tmp = (DateLiteral) o;
+      return true && tmp.date.equals(this.date) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 569 + 953 * date.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.JustDate getDate() {
@@ -148,6 +176,20 @@ public abstract class DateTimeLiteral extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitDateTimeLiteralTimeLiteral(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof TimeLiteral)) {
+        return false;
+      }        
+      TimeLiteral tmp = (TimeLiteral) o;
+      return true && tmp.time.equals(this.time) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 883 + 2 * time.hashCode() ; 
+    } 
   
     
     @Override

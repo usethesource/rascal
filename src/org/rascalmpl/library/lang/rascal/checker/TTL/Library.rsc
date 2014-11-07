@@ -37,7 +37,7 @@ BIND bind(\map(from1, to1), \map(from2, to2)) {
   return <m1 && m2, bindings1 + bindings2>;
 }
 
-default BIND bind(t1, t2) = <subtype(t2, t1), ()>;
+default BIND bind(Symbol t1, Symbol t2) = <subtype(t2, t1), ()>;
 
 BIND bindList(list[Symbol] left, list[Symbol] right){
   if(size(left) != size(right))

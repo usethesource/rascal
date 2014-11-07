@@ -166,7 +166,7 @@ public void K6(){
 
 public void K(int n){
     nodes = [box(id("<i>"), size(20), fillColor("blue")) | int i <- [1 .. n] ];
-    edges = [[edge("<i>", "<j>") | int j <- [ 1 .. n], j != i] | int i <- [ 1 .. n ] ];
+    edges = [*[edge("<i>", "<j>") | int j <- [ 1 .. n], j != i] | int i <- [ 1 .. n ] ];
     render(graph(nodes, edges, size(400),gap(40)));
 }
 

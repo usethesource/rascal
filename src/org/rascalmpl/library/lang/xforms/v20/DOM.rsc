@@ -1,3 +1,7 @@
+@doc{
+Synopsis: AST model for XForms v 2.0. 
+}
+@contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 module lang::xforms::v20::DOM
 
 import lang::xml::DOM;

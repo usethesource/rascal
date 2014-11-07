@@ -431,8 +431,9 @@ public class Cases  {
         }
       }
     } finally {
-      if (debug)
+      if (debug) {
         System.err.println("Unwind to old env");
+      }
       eval.unwind(old);
     }
     return false;

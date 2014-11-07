@@ -174,7 +174,7 @@ test bool assignStep() { L = "f"(0,1,2,3,4,5,6,7,8,9); L[-1,-3..] = [10,20,30,40
 
 // Library functions
 
-test bool tstNode1(node N) = N == makeNode(getName(N), getChildren(N));
+test bool tstNode1(node N) = N == makeNode(getName(N), getChildren(N), keywordParameters = getKeywordParameters(N));
 
 test bool tstNode2(str name, list[value] children) = arity(makeNode(name, children)) == size(children) &&
                                                                getName(makeNode(name, children)) == name &&

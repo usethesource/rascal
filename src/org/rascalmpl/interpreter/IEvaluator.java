@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
+import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.debug.IRascalSuspendTriggerListener;
@@ -121,7 +122,9 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 
 	public IValue call(IRascalMonitor monitor, String name, IValue... args);
 
-	public IValue call(String name, String module, Map<String, IValue> kwArgs, IValue[] args);
+	public IValue call(QualifiedName name, Map<String, IValue> kwArgs, IValue... args);
+	
+	public IValue call(String name, String module, Map<String, IValue> kwArgs, IValue... args);
 	 
 	public IConstructor parseCommands(IRascalMonitor monitor, String commands,
 			URI location);

@@ -24,7 +24,7 @@ public map[int,str] getProductionTypes(Tree t) {
 
     if (Production p := t[0]) {
         if (list[Symbol] ls := p[0]) {
-            for (n <- domain(ls)) {
+            for (int n <- index(ls)) {
                 if (containsSort(ls[n])) mt[n] = getSortNameFromSymbol(ls[n]);
             }
         }
@@ -57,7 +57,7 @@ public list[Tree] prodFilter(Tree t, bool(Production) fltr) {
 
 public list[Tree] getAllNodes(Tree t) {
     if (appl(p,list[Tree] tl) := t) {
-        return [ t ] + [ getAllNodes(tli) | tli <- tl ];
+        return [ t ] + [ *getAllNodes(tli) | Tree tli <- tl ];
     } else {
         return [  ] ;
     }

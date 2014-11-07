@@ -51,6 +51,12 @@ public class EclipseJavaCompiler {
     this.classPathEntries = new ArrayList<String>();
     this.sourcePathEntries = new ArrayList<String>();
   }
+  
+  private void reset() {
+	  this.classPathEntries.clear();
+	  this.sourcePathEntries.clear();
+	  EclipseJavaCompiler.cache.clear();
+  }
 
   public void setEnvironmentOptions(ISet classPaths, ISet sourcePaths, IEvaluatorContext eval) {
     classPathEntries.clear();
@@ -149,7 +155,7 @@ public class EclipseJavaCompiler {
       converter.set(loc);
       cu.accept(converter);
       
-      converter.insertCompilationUnitMessages(true);
+      converter.insertCompilationUnitMessages(true, null);
       return converter.getValue();
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
@@ -169,7 +175,7 @@ public class EclipseJavaCompiler {
 	      converter.set(loc);
 	      cu.accept(converter);
 	      
-	      converter.insertCompilationUnitMessages(true);
+	      converter.insertCompilationUnitMessages(true, null);
 	      return converter.getValue();
 	    } catch (IOException e) {
 	      throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
