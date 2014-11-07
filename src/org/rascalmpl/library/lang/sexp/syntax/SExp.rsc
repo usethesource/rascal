@@ -20,7 +20,7 @@ syntax String
 
 syntax SimpleString
   = raw: Raw
-  | token: Token
+  | \token: Token
   | base64: Base64
   | hex: HexaDecimal
   | quoted: QuotedString

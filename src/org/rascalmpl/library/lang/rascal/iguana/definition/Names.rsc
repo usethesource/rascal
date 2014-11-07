@@ -5,7 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-module lang::rascal::grammar::definition::Names
+module lang::rascal::iguana::definition::Names
 
 import ParseTree;
 import Grammar;
@@ -31,7 +31,6 @@ public GrammarDefinition resolve(GrammarDefinition d) {
   ks = {n | m <- d.modules, \keywords(n) <- d.modules[m].grammar.rules};
   ls = {n | m <- d.modules, \layouts(n) <- d.modules[m].grammar.rules};
   
-  println("tk: <tk>");
   return visit(d) {
     case sort(n) : {
       if (n in lx) insert \lex(n);

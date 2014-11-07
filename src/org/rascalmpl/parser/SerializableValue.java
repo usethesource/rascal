@@ -16,6 +16,9 @@ public class SerializableValue implements Serializable {
 	private IValue wrapped;
 
 	public SerializableValue(IValue val) {
+		if (val == null) {
+			throw new RuntimeException("Value cannot be null.");
+		}
 		this.wrapped = val;
 	}
 
@@ -44,6 +47,11 @@ public class SerializableValue implements Serializable {
 
 		StandardTextReader reader = new StandardTextReader();
 		this.wrapped = reader.read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Production, new StringReader(b.toString()));
+	}
+	
+	@Override
+	public String toString() {
+		return wrapped.toString();
 	}
 
 }

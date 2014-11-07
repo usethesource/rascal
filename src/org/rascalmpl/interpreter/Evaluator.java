@@ -52,7 +52,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.jgll.grammar.Grammar;
+import org.jgll.grammar.GrammarGraph;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
@@ -731,7 +731,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	@Override	
 	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input){
 		if (getConfiguration().getIguana()) {
-			Grammar gr = org.rascalmpl.semantics.dynamic.Import.getIguanaParser(this, (ModuleEnvironment) getCurrentEnvt().getRoot(), location, false);
+			GrammarGraph gr = org.rascalmpl.semantics.dynamic.Import.getIguanaParser(this, (ModuleEnvironment) getCurrentEnvt().getRoot(), location, false);
 			return new Parser(getClassLoaders()).parseObject(gr, SymbolAdapter.toString(startSort), input, location);
 		}
 		else {

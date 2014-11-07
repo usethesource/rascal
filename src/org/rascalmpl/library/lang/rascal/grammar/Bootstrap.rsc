@@ -11,7 +11,6 @@ import lang::rascal::grammar::definition::Parameters;
 import IO;
 import ValueIO;  
 import Grammar;
-import Jigll;
 import util::Monitor;
 
 private str package = "org.rascalmpl.library.lang.rascal.syntax";
@@ -53,7 +52,3 @@ public void bootAST(Grammar g, loc rascalHome) {
   grammarToJavaAPI(rascalHome + "src/org/rascalmpl/ast", "org.rascalmpl.ast", g);
 }
 
-public void iguanaBootstrap() {
-  gr = getRascalGrammar();
-  
-}

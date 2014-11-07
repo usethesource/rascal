@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.jgll.grammar.Grammar;
+import org.jgll.grammar.GrammarGraph;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParseError;
 import org.jgll.parser.ParserFactory;
@@ -39,7 +39,7 @@ public class Parser {
 	public static final String START_COMMANDS = "start__Commands";
 	public static final String START_MODULE = "start__Module";
 	private final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	private Grammar rascalGrammar;
+	private GrammarGraph rascalGrammar;
 	private final List<ClassLoader> loaders;
 	
 	public Parser(List<ClassLoader> loaders) {
@@ -47,7 +47,7 @@ public class Parser {
 		this.loaders = loaders;
 	}
 	
-	public Grammar getRascalGrammar() {
+	public GrammarGraph getRascalGrammar() {
 		return rascalGrammar;
 	}
 	
@@ -57,7 +57,7 @@ public class Parser {
   		return parseObject(rascalGrammar, "start[Module]", data, location);
 	}
 	
-	public IConstructor parseObject(Grammar grammar, String nt, char[] data, URI location) {
+	public IConstructor parseObject(GrammarGraph grammar, String nt, char[] data, URI location) {
 		Input input = Input.fromCharArray(data, location);
   		GLLParser parser = ParserFactory.newParser(grammar, input);
   		
@@ -81,7 +81,7 @@ public class Parser {
 		return ((org.jgll.traversal.Result<IConstructor>) sppf.getObject()).getObject();
 	}
 
-	private Grammar initRascalGrammar() {
+	private GrammarGraph initRascalGrammar() {
 		if (rascalGrammar != null) {
 			return rascalGrammar;
 		}
@@ -108,7 +108,7 @@ public class Parser {
 				}
 			};
 			
-			return (Grammar) in.readObject();
+			return (GrammarGraph) in.readObject();
 		} catch (ClassNotFoundException | IOException e) {
 			throw new ImplementationError("failed to load Rascal grammar", e);
 		}
