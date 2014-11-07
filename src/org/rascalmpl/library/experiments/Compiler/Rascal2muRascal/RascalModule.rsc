@@ -50,13 +50,13 @@ private set[str] notOverriddenLibs = {};			// Java libraries not overridden for 
 
 public str getModuleName() = module_name;
 
-private void setFunctionUID(loc l) {
-   inverted = getConfiguration().definitions<1,0>;
-   function_uid = toList(inverted[l])[0];
-   //println("function_uid = <function_uid>");
-}
-
-public str getFunctionUID() = function_uid;
+//private void setFunctionUID(loc l) {
+//   rel[loc,int] inverted = getConfiguration().definitions<1,0>;
+//   function_uid = toList(inverted[l])[0];
+//   println("function_uid = <function_uid>");
+//}
+//
+//public str getFunctionUID() = function_uid;
 
 public list[MuFunction] getFunctionsInModule() = functions_in_module;
 
@@ -98,8 +98,7 @@ MuModule r2mu(str moduleStr){
 @doc{Compile a Rascal source module (given at a location) to muRascal}
 MuModule r2mu(loc moduleLoc){
     println(readFile(moduleLoc));   
-   	muMod = r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
-   	return muMod;
+   	return r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
 }
 
 @doc{Compile a parsed Rascal source module to muRascal}
@@ -113,17 +112,18 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    	if(size(errors) > 0) {
-   	  for(e <- errors) {
-   	  	println(e);
-   	  }
-   	  throw "Module contains static errors!";
+   	    return errorMuModule(module_name, config.messages);
+   	  //for(e <- errors) {
+   	  //	println(e);
+   	  //}
+   	  //throw "Module contains static errors!";
    	} else {
    	  // If no static errors...
-   	  if(size(warnings) > 0) {
-   	  	for(w <- warnings) {
-   	  		println(w);
-   	  	}
-   	  }
+   	  //if(size(warnings) > 0) {
+   	  //	for(w <- warnings) {
+   	  //		println(w);
+   	  //	}
+   	  //}
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes(config); 
    	  module_name = "<M.header.name>";
@@ -201,7 +201,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  	  > 
    	  	| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions 
    	  	];    
-   	  return muModule(modName, 
+   	  return muModule(modName,
+   	                  config.messages, 
    	  				  imported_modules, 
    	  				  types, 
    	  				  getDefinitions(), 
@@ -214,7 +215,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  				  getGrammar());
    	}
    } catch Java("ParseError","Parse error"): {
-   	   throw "Syntax errors in module <M.header.name>";
+   	   return errorMuModule(module_name, [error("Syntax errors in module <M.header.name>")]);
    } 
    finally {
    	   //println("r2mu: Cleaning up ...");
@@ -305,7 +306,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
 
 private void translateFunctionDeclaration(FunctionDeclaration fd, node body, list[Expression] when_conditions){
   println("r2mu: Compiling <fd.signature.name>");
-  setFunctionUID(fd@\loc);
+  //setFunctionUID(fd@\loc);
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
   uid = loc2uid[fd@\loc];
