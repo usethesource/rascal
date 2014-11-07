@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,6 +59,20 @@ public abstract class DataTarget extends AbstractAST {
       return visitor.visitDataTargetEmpty(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Empty)) {
+        return false;
+      }        
+      Empty tmp = (Empty) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 769 ; 
+    } 
+  
     	
   }
   public boolean isLabeled() {
@@ -86,6 +100,20 @@ public abstract class DataTarget extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitDataTargetLabeled(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Labeled)) {
+        return false;
+      }        
+      Labeled tmp = (Labeled) o;
+      return true && tmp.label.equals(this.label) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 53 + 431 * label.hashCode() ; 
+    } 
   
     
     @Override

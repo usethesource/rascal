@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Assignable</i> [ <i>Exp</i><sub>1</sub> ] = <i>Exp</i><sub>2</sub></code>
 
 </div>
 
-                           
-                           
-                           
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>    Let <code><i>V</i></code> be the current value of <code><i>Assignable</i></code>. The value of <code><i>Exp</i><sub>1</sub></code> is used as index in <code><i>V</i></code> and 
    the value of <code><i>Exp</i><sub>2</sub></code> replaces the original value at that index position. 
@@ -64,7 +64,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>    Assignable has a list value:
 <pre class="screen"><span class="prompt">rascal></span>L = [10,20,30];
@@ -78,9 +78,9 @@ list[int]: [10,200,30]
 list[int]: [10,20,30]
 </pre>   Assignable has a map value:
 <pre class="screen"><span class="prompt">rascal></span>M = (&quot;abc&quot;: 1, &quot;def&quot; : 2);
-map[str, int]: ("def":2,"abc":1)
+map[str, int]: ("abc":1,"def":2)
 <span class="prompt">rascal></span>M[&quot;def&quot;] = 3;
-map[str, int]: ("def":3,"abc":1)
+map[str, int]: ("abc":1,"def":3)
 </pre>  Assignable has a tuple value:
 <pre class="screen"><span class="prompt">rascal></span>T = &lt;1, &quot;abc&quot;, true&gt;;
 tuple[int,str,bool]: &lt;1,"abc",true>
@@ -89,9 +89,9 @@ tuple[int,str,bool]: &lt;1,"def",true>
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Statements/Assignment/Subscription&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Statements/Assignment/Subscription&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

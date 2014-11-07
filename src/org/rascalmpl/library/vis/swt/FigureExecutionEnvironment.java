@@ -160,7 +160,8 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 				ctx.getEvaluator().__setInterrupt(false);
 				result = ((ICallableValue) callback).call(argTypes, argVals, null);
 			}
-		} catch (Throw e) {
+		} 
+		catch (Throw e) {
 			e.printStackTrace(ctx.getStdErr());
 			ctx.getStdErr().printf("Callback error: " + e.getMessage() + ""
 					+ e.getTrace());
@@ -169,6 +170,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 			e.printStackTrace(ctx.getStdErr());
 			ctx.getStdErr().printf("Callback error: " + e.getMessage());
 		}
+		
 		if(profile) rascalTime += System.nanoTime() - startTime;
 		if(!computing){
 			if(callbackBatch){
@@ -231,6 +233,10 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 
 	public void writeScreenshot(OutputStream s){
 		appletRoot.writeScreenshot(s);
+	}
+	
+	public void saveImage(OutputStream s) {
+		appletRoot.saveImage(s);
 	}
 
 	@Override

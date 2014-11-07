@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,6 +52,20 @@ public abstract class Visibility extends AbstractAST {
       return visitor.visitVisibilityDefault(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Default)) {
+        return false;
+      }        
+      Default tmp = (Default) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 739 ; 
+    } 
+  
     	
   }
   public boolean isPrivate() {
@@ -78,6 +92,20 @@ public abstract class Visibility extends AbstractAST {
       return visitor.visitVisibilityPrivate(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Private)) {
+        return false;
+      }        
+      Private tmp = (Private) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 127 ; 
+    } 
+  
     	
   }
   public boolean isPublic() {
@@ -103,6 +131,20 @@ public abstract class Visibility extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitVisibilityPublic(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Public)) {
+        return false;
+      }        
+      Public tmp = (Public) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 277 ; 
+    } 
   
     	
   }

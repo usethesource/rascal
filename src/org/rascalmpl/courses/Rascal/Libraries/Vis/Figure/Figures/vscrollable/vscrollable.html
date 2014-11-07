@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>Figure vscrollable(Figure f, FProperty props ...)</code>
 
 </div>
 
-                           
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Embeds figure <code>f</code> in a scrollable plane. The full width of <code>f</code> will always be shown, but if the vertical space for the vscrollable is too small to show the entire figure <code>f</code> then a vertical scrollbar will appear. The minimal width of the <code>vscrollable</code> is the minimal width of the figure <code>f</code> plus the width of a vertical scrollbar and the minimal height is the minimal height required to show a vertical scrollbar (unless the minimal size is specified by <a href="/Rascal/Libraries/Vis/Figure/Properties/size/size.html">Properties/size</a>). 
  <br/>
@@ -66,7 +66,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="listing">box1 = box(vsize(2000), fillColor("Blue"));
 sb = vscrollable(box1,shrink(0.5));
@@ -75,14 +75,14 @@ render(box(sb,fillColor("red")));
 
 </div>
 
-  	                       
-  	                       
+
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  When rendering on-screen the figure is always displayed in a scrollable area. Thus using a scrollable as a top level figure makes little sense, as there is no observable difference between <code>render(vscrollable(g))</code> and <code>render(g)</code>. In both cases horizontal as well as vertical scrollbars may appear.
 
 </div>
 
-  	                       
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/vscrollable&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/vscrollable&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

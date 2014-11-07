@@ -17,6 +17,8 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -81,10 +83,10 @@ public class NodeResult extends ElementResult<INode> {
 		}
 		IInteger index = ((IntegerResult)subscripts[0]).getValue();
 		int idx = index.intValue();
-		if(idx < 0){
-			idx = idx + getValue().positionalArity();
+		if (idx < 0){
+			idx = idx + getValue().arity();
 		}
-		if ( (idx >= getValue().positionalArity()) || (idx < 0)) {
+		if ( (idx >= getValue().arity()) || (idx < 0)) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		Type elementType = getTypeFactory().valueType();
@@ -137,21 +139,76 @@ public class NodeResult extends ElementResult<INode> {
     int leftArity = left.arity();
     int rightArity = right.arity();
     
-    for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
-       IValue leftArg = left.get(i);
-       IValue rightArg = right.get(i);
-       LessThanOrEqualResult loe = makeResult(leftArg.getType(), leftArg, ctx).lessThanOrEqual(makeResult(rightArg.getType(), rightArg,ctx));
-       
-       if (loe.getLess() && !loe.getEqual()) {
-         return new LessThanOrEqualResult(true, false, ctx);
-       }
-       
-       if (!loe.getEqual()) { 
-         return new LessThanOrEqualResult(false, false, ctx);
-       }
+    if (leftArity < rightArity) {
+    	return new LessThanOrEqualResult(true, false, ctx);
     }
     
-    return new LessThanOrEqualResult(leftArity < rightArity, leftArity == rightArity, ctx);
+    if (leftArity > rightArity) {
+    	return new LessThanOrEqualResult(false, false, ctx);
+    }
+    
+    for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
+    	IValue leftArg = left.get(i);
+    	IValue rightArg = right.get(i);
+    	LessThanOrEqualResult loe = makeResult(leftArg.getType(), leftArg, ctx).lessThanOrEqual(makeResult(rightArg.getType(), rightArg,ctx));
+
+    	if (loe.getLess() && !loe.getEqual()) {
+    		return new LessThanOrEqualResult(true, false, ctx);
+    	}
+
+    	if (!loe.getEqual()) { 
+    		return new LessThanOrEqualResult(false, false, ctx);
+    	}
+    }
+    
+    if (!left.mayHaveKeywordParameters() && !right.mayHaveKeywordParameters()) {
+    	if (left.asAnnotatable().hasAnnotations() || right.asAnnotatable().hasAnnotations()) {
+    		// bail out 
+    		return new LessThanOrEqualResult(false, true, ctx);
+    	}
+    }
+    
+    if (!left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
+    	return new LessThanOrEqualResult(true, false, ctx);
+    }
+
+    if (left.asWithKeywordParameters().hasParameters() && !right.asWithKeywordParameters().hasParameters()) {
+    	return new LessThanOrEqualResult(false, false, ctx);
+    }
+    
+    if (left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
+    	Map<String, IValue> paramsLeft = left.asWithKeywordParameters().getParameters();
+    	Map<String, IValue> paramsRight = right.asWithKeywordParameters().getParameters();
+    	if (paramsLeft.size() < paramsRight.size()) {
+    		return new LessThanOrEqualResult(true, false, ctx);
+    	}
+    	if (paramsLeft.size() > paramsRight.size()) {
+    		return new LessThanOrEqualResult(false, false, ctx);
+    	}
+    	if (paramsRight.keySet().containsAll(paramsLeft.keySet()) && !paramsRight.keySet().equals(paramsLeft.keySet())) {
+    		return new LessThanOrEqualResult(true, false, ctx);
+    	}
+    	if (paramsLeft.keySet().containsAll(paramsLeft.keySet()) && !paramsRight.keySet().equals(paramsLeft.keySet())) {
+    		return new LessThanOrEqualResult(false, false, ctx);
+    	}
+    	//assert paramsLeft.keySet().equals(paramsRight.keySet());
+    	for (String k: paramsLeft.keySet()) {
+    		IValue paramLeft = paramsLeft.get(k);
+    		IValue paramRight = paramsRight.get(k);
+    		LessThanOrEqualResult loe = makeResult(paramLeft.getType(), paramLeft, ctx).lessThanOrEqual(makeResult(paramRight.getType(), paramRight,ctx));
+
+        	if (loe.getLess() && !loe.getEqual()) {
+        		return new LessThanOrEqualResult(true, false, ctx);
+        	}
+
+        	if (!loe.getEqual()) { 
+        		return new LessThanOrEqualResult(false, false, ctx);
+        	}
+    	}
+     }
+    
+     return new LessThanOrEqualResult(false, true, ctx);
+     //return new LessThanOrEqualResult(leftArity < rightArity, leftArity == rightArity, ctx);
 	}
 
 	@Override

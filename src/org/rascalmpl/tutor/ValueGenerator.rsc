@@ -145,7 +145,7 @@ test parseType("void") == \void();
 // --- printing types
 
 public str toString(RascalType t){
-     switch(t){
+     switch (t) {
        case \bool(): 				return "bool";
        case \int(int f, int t):		return "int";
        case \real(int f, int t):	return "real";
@@ -218,8 +218,8 @@ public RascalType generateRelType(list[RascalType] ets, VarEnv env){
    return \rel([generateType(et, env) | et <- ets ]);
 }
 
-public RascalType generateRelType(list[RascalType] ets, VarEnv env){
-   return \lrel([generateTyLpe(et, env) | et <- ets ]);
+public RascalType generateLRelType(list[RascalType] ets, VarEnv env){
+   return \lrel([generateType(et, env) | et <- ets ]);
 }
 
 /*
@@ -439,11 +439,11 @@ public str generateTuple(list[RascalType] ets, VarEnv env){
 }
 
 public str generateRel(list[RascalType] ets, VarEnv env){
-   return "\<<for(int i <- [0 .. size(elts)]){><(i==0)?"":", "><generateValue(ets[i], env)><}>\>";
+   return "\<<for(int i <- [0 .. size(ets)]){><(i==0)?"":", "><generateValue(ets[i], env)><}>\>";
 }
 
 public str generateLRel(list[RascalType] ets, VarEnv env){
-   return "\<<for(int i <- [0 .. size(elts)]){><(i==0)?"":", "><generateValue(ets[i], env)><}>\>";
+   return "\<<for(int i <- [0 .. size(ets)]){><(i==0)?"":", "><generateValue(ets[i], env)><}>\>";
 }
 
 public str generateArb(int n, list[RascalType] prefs, VarEnv env){
@@ -451,11 +451,11 @@ public str generateArb(int n, list[RascalType] prefs, VarEnv env){
    	  return generateValue(getOneFrom(prefs), env);
    	  
    switch(arbInt(5)){
-     case 0: return \list(generateArb(n-1, prefs, env), minSize, maxSize);
-     case 1: return \set(generateArb(n-1, prefs, env), minSize, maxSize);
-     case 2: return \map(generateArb(n-1, prefs, env), generateArb(n-1, prefs, env));
-     case 3: return generateArbTuple(n-1, prefs, env);
-     case 4: return generateArbRel(n-1, prefs, env);
+     case 0: return generateList(generateArbType(n-1, prefs, env), minSize, maxSize, env);
+     case 1: return generateSet(generateArbType(n-1, prefs, env), minSize, maxSize, env);
+     case 2: return generateMap(generateArbType(n-1, prefs, env), generateArbType(n-1, prefs, env), env);
+     case 3: return generateTuple(prefs, env);
+     case 4: return generateRel(prefs, env);
    }
 } 
 

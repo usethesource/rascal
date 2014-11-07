@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,6 +52,20 @@ public abstract class FunctionModifier extends AbstractAST {
       return visitor.visitFunctionModifierDefault(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Default)) {
+        return false;
+      }        
+      Default tmp = (Default) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 617 ; 
+    } 
+  
     	
   }
   public boolean isJava() {
@@ -78,6 +92,20 @@ public abstract class FunctionModifier extends AbstractAST {
       return visitor.visitFunctionModifierJava(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Java)) {
+        return false;
+      }        
+      Java tmp = (Java) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 223 ; 
+    } 
+  
     	
   }
   public boolean isTest() {
@@ -103,6 +131,20 @@ public abstract class FunctionModifier extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitFunctionModifierTest(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Test)) {
+        return false;
+      }        
+      Test tmp = (Test) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 167 ; 
+    } 
   
     	
   }

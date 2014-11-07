@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,16 +48,16 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <ol><li> <code>*<i>Var</i></code></li>
 <li> <code>*<i>Type</i> <i>Var</i></code></li>
 </ol>
 </div>
 
-                           
-                           
-                           
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  A multi-variable is an abbreviation for a variable declaration pattern.
  It can occur in a list pattern or set pattern and can match zero or more list or set elements.
@@ -65,7 +65,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
@@ -82,24 +82,24 @@ ok
 </pre>  Using sets:
 <pre class="screen"><span class="prompt">rascal></span>if({10, *S, 50} := {50, 40, 30, 30, 10})
 <span class="continuation">>>>>>>></span>   println("Match succeeds, S == &lt;S>");
-Match succeeds, S == {30,40}
+Match succeeds, S == {40,30}
 ok
 </pre>  the above is equivalent with:
 <pre class="screen"><span class="prompt">rascal></span>if({10, *int S, 50} := {50, 40, 30, 30, 10})
 <span class="continuation">>>>>>>></span>   println("Match succeeds, S == &lt;S>");
-Match succeeds, S == {30,40}
+Match succeeds, S == {40,30}
 ok
 </pre>
 </div>
 
-  	                       
-  	                       
+
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  In older versions of Rascal the type of a multi-variable had to be a list or set type.
 
 </div>
 
-  	                       
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Patterns/Abstract/MultiVariable&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Patterns/Abstract/MultiVariable&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

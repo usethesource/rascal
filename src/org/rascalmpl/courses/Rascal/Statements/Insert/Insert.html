@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code>insert <i>Exp</i>;</code>
 
 </div>
 
-                           
-                           
-                           
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  An insert statement may only occur in the action part of a <a href="/Rascal/Patterns/PatternWithAction/PatternWithAction.html">PatternWithAction</a>, more precisely in
  a case in a <a href="/Rascal/Expressions/Visit/Visit.html">Visit</a> expression. The value matched by the pattern of this case is replaced by the value of <code><i>Exp</i></code>.
@@ -68,7 +68,7 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Consider the following datatype <code>CTree</code> and assign a CTree value to variable <code>T</code>:
  <pre class="screen"><span class="prompt">rascal></span>data CTree = leaf(int n) | red(CTree left, CTree right) | green(CTree left, CTree right);
@@ -112,15 +112,15 @@ CTree: red(
 </pre>
 </div>
 
-  	                       
-  	                       
+
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  There is a glitch in the Rascal syntax that <i>requires</i> a semicolon after a case (as in the first example),
  but refuses it in the abbreviated version using <code>=></code> (the second example).
 
 </div>
 
-  	                       
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Statements/Insert&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Statements/Insert&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

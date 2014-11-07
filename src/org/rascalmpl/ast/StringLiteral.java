@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -93,6 +93,20 @@ public abstract class StringLiteral extends AbstractAST {
       return visitor.visitStringLiteralInterpolated(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Interpolated)) {
+        return false;
+      }        
+      Interpolated tmp = (Interpolated) o;
+      return true && tmp.pre.equals(this.pre) && tmp.expression.equals(this.expression) && tmp.tail.equals(this.tail) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 37 + 683 * pre.hashCode() + 181 * expression.hashCode() + 727 * tail.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.PreStringChars getPre() {
@@ -148,6 +162,20 @@ public abstract class StringLiteral extends AbstractAST {
       return visitor.visitStringLiteralNonInterpolated(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof NonInterpolated)) {
+        return false;
+      }        
+      NonInterpolated tmp = (NonInterpolated) o;
+      return true && tmp.constant.equals(this.constant) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 139 + 797 * constant.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.StringConstant getConstant() {
@@ -188,6 +216,20 @@ public abstract class StringLiteral extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitStringLiteralTemplate(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Template)) {
+        return false;
+      }        
+      Template tmp = (Template) o;
+      return true && tmp.pre.equals(this.pre) && tmp.template.equals(this.template) && tmp.tail.equals(this.tail) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 281 + 577 * pre.hashCode() + 677 * template.hashCode() + 977 * tail.hashCode() ; 
+    } 
   
     
     @Override

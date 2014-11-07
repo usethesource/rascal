@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Errors/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Errors/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>data RunTimeException = PathNotFound(loc location);</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Exception;</code>
 
@@ -81,30 +81,30 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
 </pre>  Reading a non-existing URI gives an error:
 <pre class="screen"><span class="prompt">rascal></span>readFile(|http://www.cwi.nl/does_not_exist|);
 |stdin:///|(9,34,&lt;1,9>,&lt;1,43>): PathNotFound(|http://www.cwi.nl/does_not_exist|)
-	/:1,9
-	somewhere in: readFile
+	at *** somewhere ***(|stdin:///|(9,34,&lt;1,9>,&lt;1,43>))
+	at readFile(|stdin:///|(9,34,&lt;1,9>,&lt;1,43>))
 
 
 </pre>  Trying to write to a file for which we do not have write access (don't run this as superuser!) als gives an error:
 <pre class="screen"><span class="prompt">rascal></span>writeFile(|file:///etc/passwd|, &quot;A BAD idea!&quot;);
 |stdin:///|(32,13,&lt;1,32>,&lt;1,45>): PathNotFound(|file:///etc/passwd|)
-	/:1,32
-	somewhere in: writeFile
+	at *** somewhere ***(|stdin:///|(32,13,&lt;1,32>,&lt;1,45>))
+	at writeFile(|stdin:///|(32,13,&lt;1,32>,&lt;1,45>))
 
 
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Dynamic/PathNotFound&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Dynamic/PathNotFound&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |

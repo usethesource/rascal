@@ -88,7 +88,7 @@ OK, so we're making progress.  Let's define another function to help us explore 
 <listing>
 public void printLastTwenty (int n){
     for(int i <- [n-19..n]) {
-        println ("<i>! has <countTrailingZeros(fact(i))> ? + ?trailing zeros.");
+        println ("<i>! has <countTrailingZeros(fact(i))> trailing zeros.");
     }
 }
 
@@ -283,7 +283,7 @@ public void verifyTheory (int N) {
     	int c = countTrailingZeros(ifact);
     	if (p != c) {
 	    failed = true;
-	    println (?Found a counter example at i=<i>");
+	    println ("Found a counter example at i=<i>");
 	    break;
     	} else {
 	    if (i % checkInterval == 0) {
@@ -292,7 +292,7 @@ public void verifyTheory (int N) {
 	}
     }
     if (!failed) {
-	println ("The theory works for i: 1..<N>?);
+	println ("The theory works for i: 1..<N>");
     }
 }
 
@@ -337,7 +337,7 @@ public int floorLogBase (int a, int b) {
 rascal>floorLogBase(625,5);
 int: 3
 rascal>logB(625.0,5.0);
-real: 3.9999999999999998757330130880776320985295476764801684??..
+real: 3.9999999999999998757330130880776320985295476764801684...
 </listing>
 
 Oh right, real numbers are prone to round off error.  What should we do?

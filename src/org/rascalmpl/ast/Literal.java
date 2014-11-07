@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -110,6 +110,20 @@ public abstract class Literal extends AbstractAST {
       return visitor.visitLiteralBoolean(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Boolean)) {
+        return false;
+      }        
+      Boolean tmp = (Boolean) o;
+      return true && tmp.booleanLiteral.equals(this.booleanLiteral) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 79 + 379 * booleanLiteral.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.BooleanLiteral getBooleanLiteral() {
@@ -146,6 +160,20 @@ public abstract class Literal extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitLiteralDateTime(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof DateTime)) {
+        return false;
+      }        
+      DateTime tmp = (DateTime) o;
+      return true && tmp.dateTimeLiteral.equals(this.dateTimeLiteral) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 389 + 239 * dateTimeLiteral.hashCode() ; 
+    } 
   
     
     @Override
@@ -184,6 +212,20 @@ public abstract class Literal extends AbstractAST {
       return visitor.visitLiteralInteger(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Integer)) {
+        return false;
+      }        
+      Integer tmp = (Integer) o;
+      return true && tmp.integerLiteral.equals(this.integerLiteral) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 631 + 269 * integerLiteral.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.IntegerLiteral getIntegerLiteral() {
@@ -220,6 +262,20 @@ public abstract class Literal extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitLiteralLocation(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Location)) {
+        return false;
+      }        
+      Location tmp = (Location) o;
+      return true && tmp.locationLiteral.equals(this.locationLiteral) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 31 + 919 * locationLiteral.hashCode() ; 
+    } 
   
     
     @Override
@@ -258,6 +314,20 @@ public abstract class Literal extends AbstractAST {
       return visitor.visitLiteralRational(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Rational)) {
+        return false;
+      }        
+      Rational tmp = (Rational) o;
+      return true && tmp.rationalLiteral.equals(this.rationalLiteral) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 643 + 977 * rationalLiteral.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.RationalLiteral getRationalLiteral() {
@@ -294,6 +364,20 @@ public abstract class Literal extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitLiteralReal(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Real)) {
+        return false;
+      }        
+      Real tmp = (Real) o;
+      return true && tmp.realLiteral.equals(this.realLiteral) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 191 + 647 * realLiteral.hashCode() ; 
+    } 
   
     
     @Override
@@ -332,6 +416,20 @@ public abstract class Literal extends AbstractAST {
       return visitor.visitLiteralRegExp(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof RegExp)) {
+        return false;
+      }        
+      RegExp tmp = (RegExp) o;
+      return true && tmp.regExpLiteral.equals(this.regExpLiteral) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 379 + 563 * regExpLiteral.hashCode() ; 
+    } 
+  
     
     @Override
     public org.rascalmpl.ast.RegExpLiteral getRegExpLiteral() {
@@ -368,6 +466,20 @@ public abstract class Literal extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitLiteralString(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof String)) {
+        return false;
+      }        
+      String tmp = (String) o;
+      return true && tmp.stringLiteral.equals(this.stringLiteral) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 733 + 433 * stringLiteral.hashCode() ; 
+    } 
   
     
     @Override

@@ -83,9 +83,10 @@ test bool sum3()  = sum({1,2}) == 3;
 test bool sum4()  = sum({1,2,3}) == 6;
   
 // takeOneFrom
-  
-test bool takeOneFrom1() {<E, SI> = Set::takeOneFrom({1}); return (E == 1) && (SI == {}) ;}
-test bool takeOneFrom2() {<E, SI> = Set::takeOneFrom({1,2}); return ((E == 1) && (SI == {2})) || ((E == 2) && (SI == {1}));}
+
+// TODO: rename E1 back to E  
+test bool takeOneFrom1() {<E1, SI> = Set::takeOneFrom({1}); return (E1 == 1) && (SI == {}) ;}
+test bool takeOneFrom2() {<E1, SI> = Set::takeOneFrom({1,2}); return ((E1 == 1) && (SI == {2})) || ((E1 == 2) && (SI == {1}));}
           
 @expected{EmptySet}
 test bool takeOneFromError1() {

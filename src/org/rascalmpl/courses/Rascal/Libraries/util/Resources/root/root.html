@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,250 +48,243 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>Resource root()</code>
 
 </div>
 
-                           
-  	                       
+
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import util::Resources;
 ok
 <span class="prompt">rascal></span>root();
 Resource: root({
     project(
-      |project://ZZZ|,
+      |project://rascal-developers-feature|,
       {
+        file(|project://rascal-developers-feature/.project|),
         folder(
-          |project://ZZZ/src|,
-          {}),
-        folder(
-          |project://ZZZ/.settings|,
-          {file(|project://ZZZ/.settings/org.eclipse.core.resources.prefs|)}),
-        folder(
-          |project://ZZZ/META-INF|,
+          |project://rascal-developers-feature/.git|,
           {
-            file(|project://ZZZ/META-INF/MANIFEST.MF|),
-            file(|project://ZZZ/META-INF/RASCAL.MF|)
-          })
-      }),
-    project(
-      |project://rascal|,
-      {}),
-    project(
-      |project://MissGrant|,
-      {
-        file(|project://MissGrant/.classpath|),
-        folder(
-          |project://MissGrant/META-INF|,
-          {file(|project://MissGrant/META-INF/MANIFEST.MF|)}),
-        file(|project://MissGrant/.project|),
-        folder(
-          |project://MissGrant/src|,
-          {
+            file(|project://rascal-developers-feature/.git/HEAD|),
+            file(|project://rascal-developers-feature/.git/description|),
+            file(|project://rascal-developers-feature/.git/config|),
             folder(
-              |project://MissGrant/src/lang|,
-              {folder(
-                  |project://MissGrant/src/lang/missgrant|,
-                  {
-                    folder(
-                      |project://MissGrant/src/lang/missgrant/retries|,
-                      {
-                        file(|project://MissGrant/src/lang/missgrant/retries/Check.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/Outline.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/AST.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/Parse.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/Desugar.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/Implode.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/Syntax.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/Plugin.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/retries/Unparse.rsc|)
-                      }),
-                    folder(
-                      |project://MissGrant/src/lang/missgrant/base|,
-                      {
-                        file(|project://MissGrant/src/lang/missgrant/base/Implode.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Extract.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Outline.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/AST.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/XRef.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Eval.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Rename.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Merge.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Check.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Unparse.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Syntax.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Plugin.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Parse.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Compile.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Visualize.rsc|),
-                        file(|project://MissGrant/src/lang/missgrant/base/Desugar.rsc|)
-                      })
-                  })}),
-            file(|project://MissGrant/src/Plugin.rsc|)
-          }),
-        file(|project://MissGrant/.gitignore|),
-        folder(
-          |project://MissGrant/.git|,
-          {
+              |project://rascal-developers-feature/.git/info|,
+              {file(|project://rascal-developers-feature/.git/info/exclude|)}),
             folder(
-              |project://MissGrant/.git/hooks|,
-              {
-                file(|project://MissGrant/.git/hooks/prepare-commit-msg.sample|),
-                file(|project://MissGrant/.git/hooks/pre-commit.sample|),
-                file(|project://MissGrant/.git/hooks/post-update.sample|),
-                file(|project://MissGrant/.git/hooks/pre-push.sample|),
-                file(|project://MissGrant/.git/hooks/pre-applypatch.sample|),
-                file(|project://MissGrant/.git/hooks/update.sample|),
-                file(|project://MissGrant/.git/hooks/pre-rebase.sample|),
-                file(|project://MissGrant/.git/hooks/applypatch-msg.sample|),
-                file(|project://MissGrant/.git/hooks/commit-msg.sample|)
-              }),
-            file(|project://MissGrant/.git/HEAD|),
-            folder(
-              |project://MissGrant/.git/refs|,
+              |project://rascal-developers-feature/.git/objects|,
               {
                 folder(
-                  |project://MissGrant/.git/refs/remotes|,
-                  {folder(
-                      |project://MissGrant/.git/refs/remotes/origin|,
-                      {file(|project://MissGrant/.git/refs/remotes/origin/HEAD|)})}),
+                  |project://rascal-developers-feature/.git/objects/af|,
+                  {file(|project://rascal-developers-feature/.git/objects/af/1060c55ad096e287c6370adb66727a35293d61|)}),
                 folder(
-                  |project://MissGrant/.git/refs/tags|,
+                  |project://rascal-developers-feature/.git/objects/5b|,
+                  {file(|project://rascal-developers-feature/.git/objects/5b/5dfad431dbcdbe3282695725b70bb87b7d80d9|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/pack|,
                   {}),
                 folder(
-                  |project://MissGrant/.git/refs/heads|,
-                  {file(|project://MissGrant/.git/refs/heads/master|)})
-              }),
-            file(|project://MissGrant/.git/config|),
-            file(|project://MissGrant/.git/packed-refs|),
-            folder(
-              |project://MissGrant/.git/objects|,
-              {
+                  |project://rascal-developers-feature/.git/objects/75|,
+                  {file(|project://rascal-developers-feature/.git/objects/75/9f674a27336ae9a9c77ec2fba622a7e5b0d6eb|)}),
                 folder(
-                  |project://MissGrant/.git/objects/pack|,
+                  |project://rascal-developers-feature/.git/objects/91|,
+                  {file(|project://rascal-developers-feature/.git/objects/91/c628ecc00194727e1dbebf5627822e820b8dd4|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/71|,
+                  {file(|project://rascal-developers-feature/.git/objects/71/2fabcbf705ad0325170da161da4d833e677030|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/cb|,
+                  {file(|project://rascal-developers-feature/.git/objects/cb/4ae4f590279a551fda5695e681aa8b42d69e24|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/68|,
+                  {file(|project://rascal-developers-feature/.git/objects/68/1a72ce7693622026b63238edee22edf499fbbf|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/fd|,
+                  {file(|project://rascal-developers-feature/.git/objects/fd/c1625ed07ee8cc497776864350963222b3210d|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/7c|,
+                  {file(|project://rascal-developers-feature/.git/objects/7c/d80e4593ec60554106776c187b6a7274c83cae|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/0d|,
+                  {file(|project://rascal-developers-feature/.git/objects/0d/7988e86258f14b417b7c1279333187e8430fb9|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/d0|,
+                  {file(|project://rascal-developers-feature/.git/objects/d0/3499ed345dc8b3e3c6ada796e8b2afc2742289|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/e0|,
+                  {file(|project://rascal-developers-feature/.git/objects/e0/9f4c22f29f09eae761a45b3a07d5e58ec8b971|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/b2|,
+                  {file(|project://rascal-developers-feature/.git/objects/b2/20769ec3f11a5489ada1b0b81694fda617ecc2|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/8f|,
+                  {file(|project://rascal-developers-feature/.git/objects/8f/66bef5ed9550efb2e0155533d31ba9592ab611|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/42|,
+                  {file(|project://rascal-developers-feature/.git/objects/42/fd50c43075ce58910f61fd9ad3e807462d779b|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/67|,
+                  {file(|project://rascal-developers-feature/.git/objects/67/407c722966bbf0221e547a90d0df9e3017cf86|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/94|,
+                  {file(|project://rascal-developers-feature/.git/objects/94/a9084d24c7d7a3551af794710f88677369c117|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/info|,
+                  {}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/64|,
+                  {file(|project://rascal-developers-feature/.git/objects/64/f93a9f0b7328eb563aa5ad6cec7f828020e124|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/09|,
+                  {file(|project://rascal-developers-feature/.git/objects/09/c5146ae6cf8674013cb6d7700bcc8b5f4ad1d8|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/63|,
+                  {file(|project://rascal-developers-feature/.git/objects/63/73750ef79622fb396e874eb5ba29948ecec16b|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/c7|,
                   {
-                    file(|project://MissGrant/.git/objects/pack/pack-9d2c90307a4c6c031d638e88145a5d3a97fba9e0.pack|),
-                    file(|project://MissGrant/.git/objects/pack/pack-9d2c90307a4c6c031d638e88145a5d3a97fba9e0.idx|)
+                    file(|project://rascal-developers-feature/.git/objects/c7/e0ee0263353aff6f0bcbf1d16a3f0ccae78a94|),
+                    file(|project://rascal-developers-feature/.git/objects/c7/cc26069ecee16772ae6294a72177dd2f2213d4|)
                   }),
                 folder(
-                  |project://MissGrant/.git/objects/info|,
-                  {})
+                  |project://rascal-developers-feature/.git/objects/65|,
+                  {file(|project://rascal-developers-feature/.git/objects/65/e4fdf95ec71cfab5a1792b95865f4c8b69345f|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/e6|,
+                  {file(|project://rascal-developers-feature/.git/objects/e6/fa2b2aae5edbbeb9868928c9b6d015fc5e2d2a|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/c9|,
+                  {file(|project://rascal-developers-feature/.git/objects/c9/69527dc84eae97f13a69251b9e217bdd581423|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/ff|,
+                  {file(|project://rascal-developers-feature/.git/objects/ff/0f94609c9b75fc5dfd9448dc80ae3b907efb92|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/03|,
+                  {file(|project://rascal-developers-feature/.git/objects/03/3826ede330f3cb23ca14d7b1a814c547f6bf05|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/89|,
+                  {file(|project://rascal-developers-feature/.git/objects/89/fb1240e1de7461aabb6ac98d970924de970590|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/30|,
+                  {file(|project://rascal-developers-feature/.git/objects/30/b4727e0476d24e6620d20d190f2e9992f96763|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/14|,
+                  {file(|project://rascal-developers-feature/.git/objects/14/66d70614edf0c3e92765abee47945c7bbbc785|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/58|,
+                  {file(|project://rascal-developers-feature/.git/objects/58/08e5850174ed86a62d90c009274c02cd410b7d|)}),
+                folder(
+                  |project://rascal-developers-feature/.git/objects/ae|,
+                  {file(|project://rascal-developers-feature/.git/objects/ae/12c1fa184db8e18d684585e2edbd9ff37a585a|)})
               }),
-            file(|project://MissGrant/.git/index|),
             folder(
-              |project://MissGrant/.git/info|,
-              {file(|project://MissGrant/.git/info/exclude|)}),
-            file(|project://MissGrant/.git/description|),
+              |project://rascal-developers-feature/.git/branches|,
+              {}),
+            file(|project://rascal-developers-feature/.git/index|),
             folder(
-              |project://MissGrant/.git/logs|,
+              |project://rascal-developers-feature/.git/hooks|,
+              {
+                file(|project://rascal-developers-feature/.git/hooks/post-update.sample|),
+                file(|project://rascal-developers-feature/.git/hooks/pre-commit.sample|),
+                file(|project://rascal-developers-feature/.git/hooks/update.sample|),
+                file(|project://rascal-developers-feature/.git/hooks/commit-msg.sample|),
+                file(|project://rascal-developers-feature/.git/hooks/prepare-commit-msg.sample|),
+                file(|project://rascal-developers-feature/.git/hooks/pre-push.sample|),
+                file(|project://rascal-developers-feature/.git/hooks/pre-applypatch.sample|),
+                file(|project://rascal-developers-feature/.git/hooks/pre-rebase.sample|),
+                file(|project://rascal-developers-feature/.git/hooks/applypatch-msg.sample|)
+              }),
+            folder(
+              |project://rascal-developers-feature/.git/logs|,
               {
                 folder(
-                  |project://MissGrant/.git/logs/refs|,
+                  |project://rascal-developers-feature/.git/logs/refs|,
                   {
                     folder(
-                      |project://MissGrant/.git/logs/refs/heads|,
-                      {file(|project://MissGrant/.git/logs/refs/heads/master|)}),
+                      |project://rascal-developers-feature/.git/logs/refs/heads|,
+                      {file(|project://rascal-developers-feature/.git/logs/refs/heads/master|)}),
                     folder(
-                      |project://MissGrant/.git/logs/refs/remotes|,
+                      |project://rascal-developers-feature/.git/logs/refs/remotes|,
                       {folder(
-                          |project://MissGrant/.git/logs/refs/remotes/origin|,
-                          {file(|project://MissGrant/.git/logs/refs/remotes/origin/HEAD|)})})
+                          |project://rascal-developers-feature/.git/logs/refs/remotes/origin|,
+                          {file(|project://rascal-developers-feature/.git/logs/refs/remotes/origin/master|)})})
                   }),
-                file(|project://MissGrant/.git/logs/HEAD|)
+                file(|project://rascal-developers-feature/.git/logs/HEAD|)
               }),
             folder(
-              |project://MissGrant/.git/branches|,
-              {})
-          }),
-        folder(
-          |project://MissGrant/input|,
-          {
-            file(|project://MissGrant/input/ing.ctl|),
-            file(|project://MissGrant/input/merged.ctl|),
-            file(|project://MissGrant/input/misterjones.java|),
-            file(|project://MissGrant/input/missgrant.png|),
-            file(|project://MissGrant/input/missgrant.ctl|),
-            file(|project://MissGrant/input/missgrantr.java|),
-            file(|project://MissGrant/input/moremissgrant.ctl|),
-            file(|project://MissGrant/input/missgrant.java|),
-            file(|project://MissGrant/input/misterjones.ctl|),
-            file(|project://MissGrant/input/missgrantr.ctlr|),
-            file(|project://MissGrant/input/merged.java|),
-            file(|project://MissGrant/input/ing.java|)
-          }),
-        folder(
-          |project://MissGrant/doc|,
-          {
-            file(|project://MissGrant/doc/preamble.tex|),
-            file(|project://MissGrant/doc/5languages2011.key|),
-            file(|project://MissGrant/doc/notes.txt|),
-            file(|project://MissGrant/doc/handout.pdf|),
-            file(|project://MissGrant/doc/handout.html|),
-            file(|project://MissGrant/doc/Makefile|),
-            file(|project://MissGrant/doc/5lang11.zip|),
-            file(|project://MissGrant/doc/handout.text|),
-            file(|project://MissGrant/doc/fowler.url|)
-          }),
-        file(|project://MissGrant/build.properties|)
-      }),
-    project(
-      |project://ExercisesInStyle|,
-      {
-        folder(
-          |project://ExercisesInStyle/META-INF|,
-          {file(|project://ExercisesInStyle/META-INF/MANIFEST.MF|)}),
-        folder(
-          |project://ExercisesInStyle/src|,
-          {
-            file(|project://ExercisesInStyle/src/pp.txt|),
-            file(|project://ExercisesInStyle/src/try1.rsc|)
-          }),
-        folder(
-          |project://ExercisesInStyle/.settings|,
-          {file(|project://ExercisesInStyle/.settings/org.eclipse.core.resources.prefs|)})
-      }),
-    project(
-      |project://org.eclipse.imp.pdb.values|,
-      {
-        folder(
-          |project://org.eclipse.imp.pdb.values/.settings|,
-          {
-            file(|project://org.eclipse.imp.pdb.values/.settings/org.eclipse.core.resources.prefs|),
-            file(|project://org.eclipse.imp.pdb.values/.settings/org.eclipse.jdt.core.prefs|)
-          }),
-        file(|project://org.eclipse.imp.pdb.values/pom.xml|),
-        folder(
-          |project://org.eclipse.imp.pdb.values/target|,
-          {
-            folder(
-              |project://org.eclipse.imp.pdb.values/target/classes|,
+              |project://rascal-developers-feature/.git/refs|,
               {
                 folder(
-                  |project://org.eclipse.imp.pdb.values/target/classes/objectexplorer|,
-                  {
-                    file(|project://org.eclipse.imp.pdb.values/target/classes/objectexplorer/MemoryMeasurer.class|),
-                    file(|project://org.eclipse.imp.pdb.values/target/classes/objectexplorer/MemoryMeasurer$MemoryMeasurerVisitor.class|),
-                    file(|project://org.eclipse.imp.pdb.values/target/classes/objectexplorer/MemoryMeasurer$DummyEnum.class|)
-                  }),
+                  |project://rascal-developers-feature/.git/refs/heads|,
+                  {file(|project://rascal-developers-feature/.git/refs/heads/master|)}),
                 folder(
-                  |project://org.eclipse.imp.pdb.values/target/classes/nl|,
+                  |project://rascal-developers-feature/.git/refs/tags|,
+                  {}),
+                folder(
+                  |project://rascal-developers-feature/.git/refs/remotes|,
                   {folder(
-                      |project://org.eclipse.imp.pdb.values/target/classes/nl/cwi|,
-                      {folder(
-                          |project://org.eclipse.imp.pdb.values/target/classes/nl/cwi/swat|,
-                          {
-             ...
+                      |project://rascal-developers-feature/.git/refs/remotes/origin|,
+                      {file(|project://rascal-developers-feature/.git/refs/remotes/origin/master|)})})
+              }),
+            file(|project://rascal-developers-feature/.git/COMMIT_EDITMSG|)
+          }),
+        file(|project://rascal-developers-feature/feature.xml|),
+        file(|project://rascal-developers-feature/build.properties|),
+        file(|project://rascal-developers-feature/pom.xml|)
+      }),
+    project(
+      |project://machino-update-site|,
+      {
+        file(|project://machino-update-site/build.properties|),
+        folder(
+          |project://machino-update-site/features|,
+          {file(|project://machino-update-site/features/machino_feature_0.0.1.201409232355.jar|)}),
+        folder(
+          |project://machino-update-site/plugins|,
+          {
+            file(|project://machino-update-site/plugins/Machino_0.0.2.jar|),
+            file(|project://machino-update-site/plugins/Machino_0.0.1.jar|)
+          }),
+        file(|project://machino-update-site/.project|),
+        file(|project://machino-update-site/feature.xml|),
+        file(|project://machino-update-site/content.jar|),
+        file(|project://machino-update-site/artifacts.jar|),
+        file(|project://machino-update-site/site.xml|),
+        file(|project://machino-update-site/pom.xml|),
+        file(|project://machino-update-site/README.md|)
+      }),
+    project(
+      |project://rascal-shell|,
+      {
+        file(|project://rascal-shell/.gitignore|),
+        file(|project://rascal-shell/build.properties|),
+        folder(
+          |project://rascal-shell/META-INF|,
+          {file(|project://rascal-shell/META-INF/MANIFEST.MF|)}),
+        folder(
+          |project://rascal-shell/lib|,
+          {
+            file(|project://rascal-shell/lib/jline-0.9.94.jar|),
+            file(|project://rascal-shell/lib/jline-0.9.94.zip|)
+          }),
+        file(|project://rascal-shell/.project|),
+        folder(
+          |project://rascal-shell/.settings|,
+          {file(|project://rascal-shell/.settings/org.eclipse.jdt.core.prefs|)}),
+        file(|project://rascal-shell/.classpath|),
+        folder(
+    ...
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/Resources/root&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/Resources/root&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

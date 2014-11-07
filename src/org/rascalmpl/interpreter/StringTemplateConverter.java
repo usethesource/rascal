@@ -175,7 +175,7 @@ public class StringTemplateConverter {
 					}
 					if (atBeginning && ch == '\'') {
 						// we've only seen ' ' and/or '\t' so we're about
-						// to reach real content, don't add buf.
+						// to reach real content, don't add to buf.
 						buf = new StringBuffer();
 						atBeginning = false;
 						continue;
@@ -199,8 +199,12 @@ public class StringTemplateConverter {
 					}
 					sb.appendCodePoint(ch);
 				}
+				
+				// Add trailing whitespace (fixes #543)
+				sb.append(buf.toString());
+				String jstr = sb.toString();
 				// TODO: inline this to avoid another pass over the string.
-				return VF.string(org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(sb.toString()));
+				return VF.string(org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(jstr));
 			}
 			
 			private IString preprocess(String arg) {

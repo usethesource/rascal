@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Errors/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Errors/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  <a href="/Rascal/Expressions/Values/Location/Location.html">Rascal:Location</a>s provide very flexible ways to access files and external data sources.
  There any many protocols (called <i>schemes</i>) that can be used (e.g., <code>file</code>, <code>http</code>, <code>home</code> and many others).
@@ -63,26 +63,26 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Misspelling the scheme for Rascal's standard library (which is <code>std</code>) gives an error when the location is used:
  <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
 <span class="prompt">rascal></span>readFileLines(|standard:///demo/basic/Hello.rsc|);
 |stdin:///|(14,34,&lt;1,14>,&lt;1,48>): IO("Unsupported scheme standard")
-	/:1,14
-	somewhere in: readFileLines
+	at *** somewhere ***(|stdin:///|(14,34,&lt;1,14>,&lt;1,48>))
+	at readFileLines(|stdin:///|(14,34,&lt;1,14>,&lt;1,48>))
 
 
 </pre>  This is fixed by using the proper scheme name:
 <pre class="screen"><span class="prompt">rascal></span>readFileLines(|std:///demo/basic/Hello.rsc|);
-list[str]: ["@license{","  Copyright (c) 2009-2013 CWI","  All rights reserved. This program and the accompanying materials","  are made available under the terms of the Eclipse Public License v1.0","  which accompanies this distribution, and is available at","  http://www.eclipse.org/legal/epl-v10.html","}","@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}","@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}","//START","module demo::basic::Hello","","import IO;","","public void hello() {","   println(\"Hello world, this is my first Rascal program\");","}"]
+list[str]: ["@license{","  Copyright (c) 2009-2013 CWI","  All rights reserved. This program and the accompanying materials","  are made available under the terms of the Eclipse Public License v1.0","  which accompanies this distribution, and is available at","  http://www.eclipse.org/legal/epl-v10.html","}","@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}","@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}","//START","module demo::basic::Hello","","import IO;","","void hello() {","   println(\"Hello world, this is my first Rascal program\");","}"]
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Static/UndeclaredModuleProvider&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Static/UndeclaredModuleProvider&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |

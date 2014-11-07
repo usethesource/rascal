@@ -32,7 +32,7 @@ public final class TypeUtils {
 		boolean someLabeled = false;
 
 		for (TypeArg arg : args) {
-			fieldTypes[i] = arg.getType().typeOf(env, instantiateTypeParameters);
+			fieldTypes[i] = arg.getType().typeOf(env, instantiateTypeParameters, null);
 
 			if (arg.isNamed()) {
 				fieldLabels[i] = Names.name(arg.getName());

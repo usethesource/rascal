@@ -8,9 +8,13 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@doc{
+Synopsis: Library functions for reading and writing values in textual and binary format.
+
+}
 module ValueIO
 
-
+import Type;
 
 @doc{Read  a value from a binary file in PBF format}
 public value readValueFile(loc file) {
@@ -40,6 +44,14 @@ public value readTextValueFile(loc file) {
   return readTextValueFile(#value, file);
 }
 
+@doc{
+Synopsis: If you have written a file containing reified types, then you can use this function
+  to read them back.  
+}
+public &T readTextValueFileWithEmbeddedTypes(type[&T] result, loc file) {
+  return readTextValueFile(type(result.symbol, result.definitions + #Symbol.definitions + #Production.definitions), file);
+}
+
 @doc{Parse a textual string representation of a value}
 public value readTextValueString(str input) {
   return readTextValueString(#value, input);
@@ -53,7 +65,7 @@ public java &T readTextValueString(type[&T] result, str input);
 @doc{Write a value to a file using an efficient binary file format}
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
-public java void writeBinaryValueFile(loc file, value val);
+public java void writeBinaryValueFile(loc file, value val, bool compression = true);
 	
 @doc{Write a value to a file using a textual file format}
 @javaClass{org.rascalmpl.library.Prelude}

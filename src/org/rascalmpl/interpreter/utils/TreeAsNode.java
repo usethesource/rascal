@@ -7,8 +7,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -17,10 +17,12 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class TreeAsNode implements INode {
   private final String name;
   private final IList args;
+  private final IConstructor tree;
 
   public TreeAsNode(IConstructor tree) {
     this.name = TreeAdapter.getConstructorName(tree);
     this.args = TreeAdapter.isContextFree(tree) ? TreeAdapter.getASTArgs(tree) : TreeAdapter.getArgs(tree);
+    this.tree = tree;
   }
   
   @Override
@@ -76,44 +78,24 @@ public class TreeAsNode implements INode {
     throw new UnsupportedOperationException();
   }
 
-@Override
-public IValue getKeywordArgumentValue(String name) {
-	throw new UnsupportedOperationException();
-}
+  @Override
+  public boolean isAnnotatable() {
+    return tree.isAnnotatable();
+  }
 
-@Override
-public boolean hasKeywordArguments() {
-	// TODO Auto-generated method stub
-	return false;
-}
+  @Override
+  public IAnnotatable<? extends INode> asAnnotatable() {
+    return tree.asAnnotatable();
+  }
 
-@Override
-public String[] getKeywordArgumentNames() {
-	// TODO Auto-generated method stub
-	return null;
-}
+  @Override
+  public boolean mayHaveKeywordParameters() {
+    return false;
+  }
 
-@Override
-public int getKeywordIndex(String name) {
-	// TODO Auto-generated method stub
-	return 0;
-}
-
-@Override
-public int positionalArity() {
-	// TODO Auto-generated method stub
-	return 0;
-}
-
-@Override
-public boolean isAnnotatable() {
-	return false;
-}
-
-@Override
-public IAnnotatable<? extends INode> asAnnotatable() {
-	throw new IllegalOperationException(
-			"Cannot be viewed as annotatable.", getType());
-}
+  @Override
+  public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
+    return tree.asWithKeywordParameters();
+  }
 
 }

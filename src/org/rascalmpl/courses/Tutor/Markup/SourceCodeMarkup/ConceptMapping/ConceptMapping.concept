@@ -26,16 +26,16 @@ changing a single entry is this mapping.
 Examples:
 This is an excerpt from the  `remote-concepts.value` for the Rascal course:
 <listing>
-[<"Rascal/Libraries/Prelude",|std:///Boolean.rsc|>,
-<"Rascal/Libraries/Prelude",|std:///DateTime.rsc|>,
-<"Rascal/Libraries/Prelude",|std:///List.rsc|>,
-<"Rascal/Libraries/Prelude",|std:///Map.rsc|>,
+[<"Rascal/Libraries/Prelude",|clib-rascal:///Boolean.rsc|>,
+<"Rascal/Libraries/Prelude",|clib-rascal:///DateTime.rsc|>,
+<"Rascal/Libraries/Prelude",|clib-rascal:///List.rsc|>,
+<"Rascal/Libraries/Prelude",|clib-rascal:///Map.rsc|>,
 ...
-<"Rascal/Libraries/Prelude",|std:///ParseTree.rsc|>,
-<"Rascal/Libraries",|std:///util/Benchmark.rsc|>,
-<"Rascal/Libraries",|std:///util/Eval.rsc|>,
-<"Rascal/Libraries",|eclipse-std:///util/IDE.rsc|>,
-<"Rascal/Libraries",|std:///util/Math.rsc|>]
+<"Rascal/Libraries/Prelude",|clib-rascal:///ParseTree.rsc|>,
+<"Rascal/Libraries",|clib-rascal:///util/Benchmark.rsc|>,
+<"Rascal/Libraries",|clib-rascal:///util/Eval.rsc|>,
+<"Rascal/Libraries",|clib-rascal-eclipse:///util/IDE.rsc|>,
+<"Rascal/Libraries",|clib-rascal:///util/Math.rsc|>]
 </listing>
 
 This establishes that the function `now` that is declared in the `DateTime.rsc` library files
@@ -44,7 +44,8 @@ will become `Rascal/Libraries/Prelude/DateTime/now`.
 Benefits:
 
 Pitfalls:
-Be carefull to avoid spaces, since the value reader does not like them.
+
+* Be carefull to avoid spaces, since the value reader does not like them.
 
 Questions:
 

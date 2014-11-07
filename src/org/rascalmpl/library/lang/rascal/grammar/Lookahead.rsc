@@ -65,8 +65,6 @@ public Grammar compileLookaheads(Grammar G) {
     case priority(rhs, order)     => choice(rhs, {p | p <- order})
     case associativity(rhs, a, alts)  => choice(rhs, alts)
   }
-  // give the normalizer the chance to merge choices as much as possible 
-  G.rules = (s:{choice(s,G.rules[s])} | s <- G.rules);
 
   // now we optimize the lookaheads  
   return visit(G) {
@@ -179,7 +177,7 @@ public Grammar removeLabels(Grammar G) {
   }
 }
 
-public Symbol removeLabel(Symbol sym) {
+public Symbol removeLabel(Symbol s) {
   return (label(_,s2) := s) ? s2 : s;
 }
 
@@ -324,11 +322,11 @@ public Grammar G1 = simple({sort("E")},
 	pr(sort("B"), [lit("1")])
 } + Lit1.productions);
 
-test bool used1()  = usedSymbols(G1) >= {lit("0"),lit("1"),sort("E"),sort("B"),lit("*"),lit("+")};
+test bool testUsed1()  = usedSymbols(G1) >= {lit("0"),lit("1"),sort("E"),sort("B"),lit("*"),lit("+")};
 
-test bool defined1() = definedSymbols(G1) == {sort("E"),sort("B"),lit("+"),lit("*"),lit("0"),lit("1")};
+test bool testDefined1() = definedSymbols(G1) == {sort("E"),sort("B"),lit("+"),lit("*"),lit("0"),lit("1")};
 
-test bool startsDefined() = G1.starts < definedSymbols(G1);
+test bool testStartsDefined() = G1.starts < definedSymbols(G1);
 
 public SymbolUse firstLit1 = (
   lit("0"):{\char-class([range(48,48)])},

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -66,6 +66,20 @@ public abstract class ShellCommand extends AbstractAST {
       return visitor.visitShellCommandClear(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Clear)) {
+        return false;
+      }        
+      Clear tmp = (Clear) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 379 ; 
+    } 
+  
     	
   }
   public boolean isEdit() {
@@ -93,6 +107,20 @@ public abstract class ShellCommand extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitShellCommandEdit(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Edit)) {
+        return false;
+      }        
+      Edit tmp = (Edit) o;
+      return true && tmp.name.equals(this.name) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 137 + 313 * name.hashCode() ; 
+    } 
   
     
     @Override
@@ -129,6 +157,20 @@ public abstract class ShellCommand extends AbstractAST {
       return visitor.visitShellCommandHelp(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Help)) {
+        return false;
+      }        
+      Help tmp = (Help) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 401 ; 
+    } 
+  
     	
   }
   public boolean isHistory() {
@@ -154,6 +196,20 @@ public abstract class ShellCommand extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitShellCommandHistory(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof History)) {
+        return false;
+      }        
+      History tmp = (History) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 89 ; 
+    } 
   
     	
   }
@@ -181,6 +237,20 @@ public abstract class ShellCommand extends AbstractAST {
       return visitor.visitShellCommandListDeclarations(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof ListDeclarations)) {
+        return false;
+      }        
+      ListDeclarations tmp = (ListDeclarations) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 31 ; 
+    } 
+  
     	
   }
   public boolean isListModules() {
@@ -207,6 +277,20 @@ public abstract class ShellCommand extends AbstractAST {
       return visitor.visitShellCommandListModules(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof ListModules)) {
+        return false;
+      }        
+      ListModules tmp = (ListModules) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 419 ; 
+    } 
+  
     	
   }
   public boolean isQuit() {
@@ -232,6 +316,20 @@ public abstract class ShellCommand extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitShellCommandQuit(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Quit)) {
+        return false;
+      }        
+      Quit tmp = (Quit) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 331 ; 
+    } 
   
     	
   }
@@ -262,6 +360,20 @@ public abstract class ShellCommand extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitShellCommandSetOption(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof SetOption)) {
+        return false;
+      }        
+      SetOption tmp = (SetOption) o;
+      return true && tmp.name.equals(this.name) && tmp.expression.equals(this.expression) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 953 + 211 * name.hashCode() + 347 * expression.hashCode() ; 
+    } 
   
     
     @Override
@@ -307,6 +419,20 @@ public abstract class ShellCommand extends AbstractAST {
       return visitor.visitShellCommandTest(this);
     }
   
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Test)) {
+        return false;
+      }        
+      Test tmp = (Test) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 541 ; 
+    } 
+  
     	
   }
   public boolean isUndeclare() {
@@ -334,6 +460,20 @@ public abstract class ShellCommand extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitShellCommandUndeclare(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Undeclare)) {
+        return false;
+      }        
+      Undeclare tmp = (Undeclare) o;
+      return true && tmp.name.equals(this.name) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 787 + 479 * name.hashCode() ; 
+    } 
   
     
     @Override
@@ -371,6 +511,20 @@ public abstract class ShellCommand extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitShellCommandUnimport(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Unimport)) {
+        return false;
+      }        
+      Unimport tmp = (Unimport) o;
+      return true && tmp.name.equals(this.name) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 53 + 719 * name.hashCode() ; 
+    } 
   
     
     @Override

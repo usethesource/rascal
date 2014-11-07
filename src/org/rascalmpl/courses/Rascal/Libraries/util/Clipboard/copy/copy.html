@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/util/Clipboard/copy</title>
 
-<meta name="description" content="Rascal/Libraries/util/Clipboard/copy:  Copy a value to the clipboar">
+<meta name="description" content="Rascal/Libraries/util/Clipboard/copy:  copy a value to the user's clipboard">
 
 <meta name="keywords" content="Rascal/Libraries/util/Clipboard/copy, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -44,29 +44,45 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Copy a value to the clipboar
+<span class="sectionHead">Synopsis</span>  copy a value to the user's clipboard
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>void copy(value contents)</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import util::Clipboard;</code>
  </AUTOINSERTED>
 
 </div>
 
-  	                       
-  	                       
-  	                       
-  	                       
+<div id="Description">
+<span class="sectionHead">Description</span>  This uses Java standard library functionality to copy contents to the clipboard. The
+ string which is copied is equal to what is printed using the <a href="/Rascal/Libraries/Prelude/IO/print/print.html">print</a> function of <a href="/Rascal/Libraries/Prelude/IO/IO.html">IO</a>.
+ <br/>
+<br/>
+
+ Examples
+  <pre class="screen"><span class="prompt">rascal></span>import util::Clipboard;
+ok
+<span class="prompt">rascal></span>copy([1,2,3]);
+ok
+<span class="prompt">rascal></span>paste();
+str: "[1,2,3]"
+</pre>
+</div>
+
+
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/Clipboard/copy&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/Clipboard/copy&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

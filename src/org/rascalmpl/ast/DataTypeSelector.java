@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -69,6 +69,20 @@ public abstract class DataTypeSelector extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitDataTypeSelectorSelector(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Selector)) {
+        return false;
+      }        
+      Selector tmp = (Selector) o;
+      return true && tmp.sort.equals(this.sort) && tmp.production.equals(this.production) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 509 + 197 * sort.hashCode() + 839 * production.hashCode() ; 
+    } 
   
     
     @Override

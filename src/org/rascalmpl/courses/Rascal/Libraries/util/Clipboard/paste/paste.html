@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/util/Clipboard/paste</title>
 
-<meta name="description" content="Rascal/Libraries/util/Clipboard/paste:  Paste the current value on the clipboard">
+<meta name="description" content="Rascal/Libraries/util/Clipboard/paste:  copy a value to the user's clipboard">
 
 <meta name="keywords" content="Rascal/Libraries/util/Clipboard/paste, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/prelude.css"/>
@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -44,29 +44,46 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Paste the current value on the clipboard
+<span class="sectionHead">Synopsis</span>  copy a value to the user's clipboard
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>str paste()</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import util::Clipboard;</code>
  </AUTOINSERTED>
 
 </div>
 
-  	                       
-  	                       
-  	                       
-  	                       
+<div id="Description">
+<span class="sectionHead">Description</span>  This uses Java standard library functionality to copy contents from the clipboard. The
+ string which is retrieved is the exact contents of the clipboard if the content is indeed
+ representable as a string.
+ <br/>
+<br/>
+
+ Examples
+  <pre class="screen"><span class="prompt">rascal></span>import util::Clipboard;
+ok
+<span class="prompt">rascal></span>copy(&quot;Hello clipboard!&quot;);
+ok
+<span class="prompt">rascal></span>paste();
+str: "Hello clipboard!"
+</pre>
+</div>
+
+
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/Clipboard/paste&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/Clipboard/paste&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

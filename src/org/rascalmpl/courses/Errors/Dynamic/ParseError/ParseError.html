@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Errors/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Errors/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>data RunTimeException = ParseError(loc location);</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Exception;</code>
 
@@ -75,7 +75,7 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>    Define the Non-terminal <code>As</code> that accepts one or more letters <code>a</code>:
 <pre class="screen"><span class="prompt">rascal></span>import ParseTree;
@@ -84,29 +84,28 @@ ok
 ok
 </pre>  It parses a sentences of letters <code>a</code>:
 <pre class="screen"><span class="prompt">rascal></span>parse(#As, &quot;aaaaaaaa&quot;);
-|file://-|: Java compilation failed due to /Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/interpreter/result/DateTimeResult.java:38: cannot find symbol
-symbol  : class Calendar
-location: package com.ibm.icu.util
-</pre>  But gives an error when parsing an input that it cannot accept:
+sort("As"): `aaaaaaaa`
+Tree: appl(prod(sort("As"),[\iter-seps(lit("a"),[layouts("<i>default</i>")])],{}),[appl(regular(\iter-seps(lit("a"),[layouts("<i>default</i>")])),[appl(prod(lit("a"),[\char-class([range(97,97)])],{}),[char(97)]),appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(1,0,&lt;1,1>,&lt;1,1>)],appl(prod(lit("a"),[\char-class([range(97,97)])],{}),[char(97)]),appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(2,0,&lt;1,2>,&lt;1,2>)],appl(prod(lit("a"),[\char-class([range(97,97)])],{}),[char(97)]),appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(3,0,&lt;1,3>,&lt;1,3>)],appl(prod(lit("a"),[\char-class([range(97,97)])],{}),[char(97)]),appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(4,0,&lt;1,4>,&lt;1,4>)],appl(prod(lit("a"),[\char-class([range(97,97)])],{}),[char(97)]),appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(5,0,&lt;1,5>,&lt;1,5>)],appl(prod(lit("a"),[\char-class([range(97,97)])],{}),[char(97)]),appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(6,0,&lt;1,6>,&lt;1,6>)],appl(prod(lit("a"),[\char-class([range(97,97)])],{}),[char(97)]),appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(7,0,&lt;1,7>,&lt;1,7>)],appl(prod(lit("a"),[\char-class([range(97,97)])],{}),[char(97)])])[@loc=|file://-|(0,8,&lt;1,0>,&lt;1,8>)]])[@loc=|file://-|(0,8,&lt;1,0>,&lt;1,8>)]</pre>  But gives an error when parsing an input that it cannot accept:
 <pre class="screen"><span class="prompt">rascal></span>parse(#As, &quot;aaaabaaa&quot;);
-|file://-|: Java compilation failed due to /Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/interpreter/result/DateTimeResult.java:38: cannot find symbol
-symbol  : class Calendar
-location: package com.ibm.icu.util
+|rascal://ParseTree|(10175,833,&lt;248,0>,&lt;274,60>): ParseError(|file://-|(4,1,&lt;1,4>,&lt;1,5>))
+	at *** somewhere ***(|rascal://ParseTree|(10175,833,&lt;248,0>,&lt;274,60>))
+	at parse(|stdin:///|(11,10,&lt;1,11>,&lt;1,21>))
+
+
 </pre>  We can also catch the ParseError. First import the Rascal exceptions (which are also included in Prelude) and IO:
 <pre class="screen"><span class="prompt">rascal></span>import Exception;
 ok
 <span class="prompt">rascal></span>import IO;
 ok
 <span class="prompt">rascal></span>try parse(#As, &quot;aaaabaaa&quot;); catch ParseError(e): println(&quot;Your input cannot be parsed: &lt;e&gt;&quot;);
-|file://-|: Java compilation failed due to /Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/interpreter/result/DateTimeResult.java:38: cannot find symbol
-symbol  : class Calendar
-location: package com.ibm.icu.util
+Your input cannot be parsed: |file://-|(4,1,&lt;1,4>,&lt;1,5>)
+ok
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Dynamic/ParseError&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Dynamic/ParseError&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |

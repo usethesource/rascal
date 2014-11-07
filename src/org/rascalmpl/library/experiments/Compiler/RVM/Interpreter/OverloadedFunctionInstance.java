@@ -7,6 +7,8 @@ import java.util.Set;
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -58,7 +60,7 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 		}
 		for(int constr : this.constructors) {
 			Type type = constructorStore.get(constr);
-			types.add((FunctionType) RascalTypeFactory.getInstance().functionType(type.getAbstractDataType(), type.getFieldTypes()));
+			types.add((FunctionType) RascalTypeFactory.getInstance().functionType(type.getAbstractDataType(), type.getFieldTypes(), type.getKeywordParameterTypes()));
 		}
 		this.type = RascalTypeFactory.getInstance().overloadedFunctionType(types);
 		return this.type;
@@ -131,4 +133,14 @@ public class OverloadedFunctionInstance implements /*ICallableValue,*/ IExternal
 //		return rvm.getEvaluatorContext().getEvaluator();
 //	}
 
+	@Override
+  public boolean mayHaveKeywordParameters() {
+    return false;
+  }
+  
+  @Override
+  public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+    throw new IllegalOperationException(
+        "Cannot be viewed as with keyword parameters", getType());
+  }
 }

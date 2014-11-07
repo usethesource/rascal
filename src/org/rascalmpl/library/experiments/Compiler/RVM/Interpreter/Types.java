@@ -6,6 +6,8 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -13,6 +15,11 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -27,6 +34,24 @@ public class Types {
 	
 	public Types(IValueFactory vf) {
 		this.vf = vf;
+	}
+	
+	public IValue typeToValue(Type t, RascalExecutionContext rex) {
+		
+		TypeStore store = new TypeStore();
+		IMap definitions = rex.getSymbolDefinitions();
+		TypeReifier tr = new TypeReifier(vf);
+		tr.declareAbstractDataTypes(definitions, store);
+		
+		IConstructor symbol = typeToSymbol(t, store);
+		
+		Map<Type,Type> bindings = new HashMap<Type,Type>();
+		bindings.put(Factory.TypeParam, t);
+		Factory.Type.instantiate(bindings);
+		
+		IValue result = vf.constructor(Factory.Type_Reified.instantiate(bindings), symbol, definitions);
+		
+		return result;
 	}
 	
 	public Type symbolToType(IConstructor symbol, TypeStore store) {
@@ -171,7 +196,8 @@ public class Types {
 	private Type funcToType(IConstructor symbol, TypeStore store) {
 		Type returnType = symbolToType((IConstructor) symbol.get("ret"), store);
 		Type parameters = symbolsToTupleType((IList) symbol.get("parameters"), store);
-		return RascalTypeFactory.getInstance().functionType(returnType, parameters);
+		// TODO: function types shouls also reify keyword parameters
+		return RascalTypeFactory.getInstance().functionType(returnType, parameters, tf.voidType());
 	}
 
 	private Type consToType(IConstructor symbol, TypeStore store) {

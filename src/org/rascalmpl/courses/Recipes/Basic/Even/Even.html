@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Recipes/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Recipes/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Let's write a function that generates all the even numbers in a list up to a certain maximum. We will do it in a few alternative 
  ways: from very imperative to very declarative and some steps in between.
@@ -119,12 +119,12 @@ list[int]: [0,2,4,6,8,10,12,14,16,18,20,22,24]
 <pre class="screen"><span class="prompt">rascal></span>set[int] even7(int max) = {i | i &lt;- [0..max], i % 2 == 0};
 set[int] (int): set[int] even7(int);
 <span class="prompt">rascal></span>even7(25);
-set[int]: {14,12,10,24,8,22,6,20,4,18,2,16,0}
+set[int]: {0,2,4,6,8,10,12,14,16,18,20,22,24}
 </pre>
 </div>
 
-  	                       
-  	                       
+
+
 <div id="Benefits">
 <span class="sectionHead">Benefits</span>  <ul><li> You can program in for loops and use temporary variables if you like.</li>
 <li> Comprehensions are shorter and more powerful.</li>
@@ -132,13 +132,13 @@ set[int]: {14,12,10,24,8,22,6,20,4,18,2,16,0}
 </ul>
 </div>
 
-  	                       
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  <ul><li> Trainwreck alert: if you start putting too many conditions in a single for loop or comprehension the code may become unreadable.</li>
 </ul>
 </div>
 
-  	                       
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Basic/Even&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Basic/Even&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |

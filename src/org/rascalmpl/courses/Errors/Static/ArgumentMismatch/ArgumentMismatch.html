@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Errors/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Errors/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  A function has a name and a signature (the names and types of its arguments). 
  This error is reported when a call of a function cannot be associated with a function declaration.
@@ -64,7 +64,7 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Define a function <code>triple</code> that multiplies its argument by 3:
  <pre class="screen"><span class="prompt">rascal></span>int triple(int x) = 3 * x;
@@ -74,7 +74,7 @@ int (int): int triple(int);
 int: 15
 </pre>  Unless it is called with an argument of a wrong type:
 <pre class="screen"><span class="prompt">rascal></span>triple([1,2,3])
-|stdin:///|(12,1,&lt;1,12>,&lt;1,13>): The called signature: triple(list[int]),
+|stdin:///|(0,15,&lt;1,0>,&lt;1,15>): The called signature: triple(list[int]),
 does not match the declared signature:	int triple(int);
 
 </pre>  We can define a new version of <code>triple</code> function that accepts lists:
@@ -85,9 +85,9 @@ list[int]: [3,6,9]
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Static/ArgumentMismatch&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Static/ArgumentMismatch&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |

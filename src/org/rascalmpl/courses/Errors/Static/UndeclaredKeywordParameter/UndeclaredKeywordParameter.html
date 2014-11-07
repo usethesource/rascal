@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Errors/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Errors/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Rascal functions may have keyword parameters. This error is generated when a function call uses an undeclared keyword parameter.
  <br/>
@@ -63,22 +63,22 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>int incr(int n, int delta=1) = n + delta;
-int (int): int incr(int, int delta=1);
+int (int): int incr(int, int delta= ...);
 </pre>  Calling <code>incr</code> with a wrong keyword parameter gives an error:
 <pre class="screen"><span class="prompt">rascal></span>incr(3, diff=5);
-|stdin:///|(13,1,&lt;1,13>,&lt;1,14>): Function incr has no keyword parameter diff
+int: 4
 </pre>  This can be fixed by using the correct name for the keyword parameter:
 <pre class="screen"><span class="prompt">rascal></span>incr(3, delta=5);
 int: 8
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Static/UndeclaredKeywordParameter&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Static/UndeclaredKeywordParameter&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |

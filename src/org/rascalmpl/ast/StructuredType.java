@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -69,6 +69,20 @@ public abstract class StructuredType extends AbstractAST {
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitStructuredTypeDefault(this);
     }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Default)) {
+        return false;
+      }        
+      Default tmp = (Default) o;
+      return true && tmp.basicType.equals(this.basicType) && tmp.arguments.equals(this.arguments) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 307 + 257 * basicType.hashCode() + 607 * arguments.hashCode() ; 
+    } 
   
     
     @Override

@@ -1,0 +1,8 @@
+<AUTOINSERTED>
+Name: typeDependency
+Types: 
+<listing>
+anno rel[loc from, loc to] M3@typeDependency;
+</listing>
+Usage: `import lang::java::m3::Core;`
+</AUTOINSERTED>

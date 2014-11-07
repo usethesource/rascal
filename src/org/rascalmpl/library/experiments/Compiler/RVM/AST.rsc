@@ -15,6 +15,7 @@ public data Declaration =
 		  		   int maxStack,
 		  		   list[Instruction] instructions,
 		  		   lrel[str from, str to, Symbol \type, str target] exceptions)
+		  		   
 	    | COROUTINE(str qname, 
 	                str uqname,
 		  		    str scopeIn, 
@@ -27,15 +28,16 @@ public data Declaration =
 		  		    list[Instruction] instructions)
 		;
 
-public data RVMProgram = rvm(str name,
-							 list[loc] imports,
-                             map[str,Symbol] types, 
-                             map[str, Declaration] declarations, 
-                             list[Instruction] initialization, 
-                             map[str,int] resolver, 
-                             lrel[str,list[str],list[str]] overloaded_functions
-                             //,map[Symbol, Production] grammar
-                             );
+public data RVMProgram = 
+		  rvm(str name,
+			  list[loc] imports,
+              map[str,Symbol] types, 
+              map[Symbol, Production] symbol_definitions,
+              map[str, Declaration] declarations, 
+              list[Instruction] initialization, 
+              map[str,int] resolver, 
+              lrel[str,list[str],list[str]] overloaded_functions)
+        ;
 
 public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
@@ -91,6 +93,7 @@ public data Instruction =
 		| CALLPRIM(str name, int arity, loc src)	// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
 		| CALLJAVA(str name, str class, 
 		           Symbol parameterTypes,
+		           Symbol keywordTypes,
 		           int reflect)			            // Call a Java method
 		
 		| RETURN0()									// Return from function without value
