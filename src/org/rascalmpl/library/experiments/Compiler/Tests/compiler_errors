@@ -8,12 +8,14 @@
 |rascal:///experiments/Compiler/Benchmarks/BDotVis.rsc|
 |rascal:///experiments/Compiler/Benchmarks/BPatternMatchASTs.rsc|
 |rascal:///experiments/Compiler/Examples/QL/lang/qla/FormatExpr.rsc|
+|rascal:///experiments/Compiler/Examples/QL/lang/qla/Outline.rsc|
 |rascal:///experiments/Compiler/Examples/QL/lang/qla/Plugin.rsc|
 |rascal:///experiments/Compiler/Examples/QL/util/Priorities.rsc|
-|rascal:///experiments/Compiler/Examples/Tst3.rsc|
-|rascal:///experiments/Compiler/Execute.rsc|
+|rascal:///experiments/Compiler/Examples/Tst.rsc|
 |rascal:///experiments/Compiler/RVM/Tests.rsc|
+|rascal:///experiments/Compiler/Rascal2muRascal/RascalStatement.rsc|
 |rascal:///experiments/Compiler/Rascal2muRascal/RascalType.rsc|
+|rascal:///experiments/Compiler/Rascal2muRascal/Run.rsc|
 |rascal:///experiments/Compiler/Rascal2muRascal/TmpAndLabel.rsc|
 |rascal:///experiments/Compiler/Rascal2muRascal/TypeReifier.rsc|
 |rascal:///experiments/Compiler/Rascal2muRascal/TypeUtils.rsc|
@@ -23,7 +25,6 @@
 |rascal:///experiments/Compiler/muRascal/Parse.rsc|
 |rascal:///experiments/Compiler/muRascal/Run.rsc|
 |rascal:///experiments/Compiler/muRascal2RVM/RascalReifiedTypes.rsc|
-|rascal:///experiments/Compiler/muRascal2RVM/mu2rvm.rsc|
 |rascal:///experiments/Concept/FcaLattices.rsc|
 |rascal:///lang/java/m3/Core.rsc|
 |rascal:///lang/java/m3/TypeHierarchy.rsc|

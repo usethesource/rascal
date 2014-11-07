@@ -409,18 +409,18 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 	
 	println("Type checker: <nstatic_errors> error messages");
 	
-	println("Compiler errors: <ncompiler>");
+	println("Compiler errors: <ncompiler> crashes");
 	println("Time: <tosec(t1, realTime())> sec.");
 	
 	writeFile(|rascal:///experiments/Compiler/Tests/static_errors|, 
-	   "<for(f <- sort(toList(static_errors))){><f>\n<}>");
-	   
-	perfile = sort(toList(static_error_count), bool(int a, int b) {return a[1] > b[1]; });
+	   "<for(loc f <- sort(toList(static_errors))){><f>\n<}>");
+	 
+	perfile = sort(toList(static_error_count), bool(tuple[loc,int] a, tuple[loc,int] b) {return a[1] > b[1]; });
     writeFile(|rascal:///experiments/Compiler/Tests/static_error_count_per_file|, 
-       "<for(f <- perfile){><f>\n<}>");
+       "<for(tp <- perfile){><tp>\n<}>");
        
 	writeFile(|rascal:///experiments/Compiler/Tests/compiler_errors|, 
-	   "<for(f <- sort(toList(compiler_errors))){><f>\n<}>");
+	   "<for(loc f <- sort(toList(compiler_errors))){><f>\n<}>");
 	
 	return <static_errors, compiler_errors>;
 }

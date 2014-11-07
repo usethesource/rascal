@@ -19,16 +19,15 @@
 |rascal:///experiments/Compiler/Benchmarks/Run.rsc|
 |rascal:///experiments/Compiler/Benchmarks/SudokuEq.rsc|
 |rascal:///experiments/Compiler/Compile.rsc|
-|rascal:///experiments/Compiler/Examples/QL/lang/qla/Outline.rsc|
 |rascal:///experiments/Compiler/Examples/QL/util/Explode.rsc|
 |rascal:///experiments/Compiler/Examples/Run.rsc|
 |rascal:///experiments/Compiler/Examples/Tst2.rsc|
+|rascal:///experiments/Compiler/Examples/Tst3.rsc|
 |rascal:///experiments/Compiler/Examples/Tst5.rsc|
+|rascal:///experiments/Compiler/Execute.rsc|
 |rascal:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|
 |rascal:///experiments/Compiler/Rascal2muRascal/RascalModule.rsc|
 |rascal:///experiments/Compiler/Rascal2muRascal/RascalPattern.rsc|
-|rascal:///experiments/Compiler/Rascal2muRascal/RascalStatement.rsc|
-|rascal:///experiments/Compiler/Rascal2muRascal/Run.rsc|
 |rascal:///experiments/Compiler/Tests/AllCompilerTests.rsc|
 |rascal:///experiments/Compiler/Tests/AllRascalLibs.rsc|
 |rascal:///experiments/Compiler/Tests/AllRascalTests.rsc|
@@ -44,6 +43,7 @@
 |rascal:///experiments/Compiler/Tests/TestUtils.rsc|
 |rascal:///experiments/Compiler/Tests/Types.rsc|
 |rascal:///experiments/Compiler/muRascal2RVM/ObsoleteReifiedTypes.rsc|
+|rascal:///experiments/Compiler/muRascal2RVM/mu2rvm.rsc|
 |rascal:///experiments/Concept/DotVis.rsc|
 |rascal:///experiments/Concept/GetFigure.rsc|
 |rascal:///experiments/Concept/Types.rsc|
@@ -60,6 +60,8 @@
 |rascal:///experiments/vis2/examples/gui/StateMachine.rsc|
 |rascal:///experiments/vis2/examples/gui/Todo1.rsc|
 |rascal:///experiments/vis2/examples/gui/Todo2.rsc|
+|rascal:///experiments/vis2/vega/Json.rsc|
+|rascal:///experiments/vis2/vega/VegaChart.rsc|
 |rascal:///lang/box/syntax/Box.rsc|
 |rascal:///lang/box/util/Box2Text.rsc|
 |rascal:///lang/box/util/BoxFormat.rsc|
