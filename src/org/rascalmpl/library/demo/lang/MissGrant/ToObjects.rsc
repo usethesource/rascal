@@ -4,10 +4,10 @@ import demo::lang::MissGrant::AST;
 
 public str instantiateController(Controller ctl) =
          "<for (e <- ctl.events) {>
-         'Event <e.name> = new Event(\"<e.name>\", \"<e.token>\");
+         'Event <e.name> = new Event(\"<e.name>\", \"<e.\token>\");
          '<}>
          '<for (c <- ctl.commands) {>
-         'Event <c.name> = new Command(\"<c.name>\", \"<c.token>\");
+         'Event <c.name> = new Command(\"<c.name>\", \"<c.\token>\");
          '<}>
          '<for (s <- ctl.states) {>
          'State <s.name> = new State(\"<s.name>\");

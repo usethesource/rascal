@@ -285,6 +285,9 @@ public class SymbolAdapter {
 		if (isLiteral(symbol)) {
 			return '"' + ((IString) symbol.get("string")).getValue() + '"';
 		}
+		if (isToken(symbol)) {
+			return ((IString) symbol.get("name")).getValue();
+		}
 		if (isCILiteral(symbol)) {
 			return '\'' + ((IString) symbol.get("string")).getValue() + '\'';
 		}

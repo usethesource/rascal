@@ -2,12 +2,14 @@ module Jigll
 
 import Grammar;
 import ParseTree;
-import lang::rascal::grammar::definition::Literals;
-import lang::rascal::grammar::definition::Priorities;
-import lang::rascal::grammar::definition::Regular;
-import lang::rascal::grammar::definition::Parameters;
-import lang::rascal::grammar::analyze::Lexicals;
-import lang::rascal::grammar::definition::Keywords;
+import lang::rascal::iguana::definition::Literals;
+import lang::rascal::iguana::definition::Priorities;
+import lang::rascal::iguana::definition::Regular;
+import lang::rascal::iguana::definition::Parameters;
+import lang::rascal::iguana::definition::Tokens;
+import lang::rascal::iguana::definition::Keywords;
+import lang::rascal::iguana::definition::Names;
+import lang::rascal::iguana::definition::Modules;
 import IO;
 import Node;
 import util::FileSystem;
@@ -17,8 +19,29 @@ import Type;
 import util::ValueUI;
 import util::Reflective;
 import Ambiguity;
+import String;
 
 list[loc] ignoreList = [|std:///lang/rascal/types/CheckTypes.rsc|];  
+
+public void generate(loc mo) {
+   if (start[Module] m := parseModule(mo)) {
+     gr = modules2grammar(replaceAll("<m.top.header.name>","\\",""), { m.top });
+    
+     gr = resolve(gr);
+     gr = literals(gr);
+     gr = flattenTokens(gr);
+     gr = expandKeywords(gr);
+     gr = makeRegularStubs(expandRegularSymbols(makeRegularStubs(gr)));
+     gr = expandParameterizedSymbols(gr);
+     gr = addNotAllowedSets(gr);
+     gr = prioAssocToChoice(gr);
+
+     generateGrammar(gr);
+     return;
+   }
+   
+   throw "could not parse <mo>";
+}
 
 @javaClass{org.rascalmpl.parser.GrammarToJigll}
 public java void generateGrammar(Grammar grammar);
@@ -28,14 +51,15 @@ public java void generateGraph(str f, loc l);
 
 public void generate(type[&T <: Tree] nont) {
   gr = grammar({nont.symbol}, nont.definitions, ());
+  gr = resolve(gr);
   gr = literals(gr);
-  gr = expandKeywords(gr);
-  gr.about["regularExpressions"] = getRegularLexicals(gr);
+  gr = flattenTokens(gr);
+  //gr = expandKeywords(gr);
   gr = makeRegularStubs(expandRegularSymbols(makeRegularStubs(gr)));
   gr = expandParameterizedSymbols(gr);
   gr = addNotAllowedSets(gr);
   gr = prioAssocToChoice(gr);
- 
+  
   generateGrammar(gr);
 }
 
@@ -70,7 +94,7 @@ public void compare(&T<:Tree old, &T<:Tree new) {
 }
 
 public bool testModules(list[loc] files, list[loc] path) {
-  generate(#start[Module]);
+  generate(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|);
   errors = [];
   for (f <- files) {
     println("parsing <f>");
@@ -98,9 +122,10 @@ public bool testModules(list[loc] files, list[loc] path) {
         case 16777215 => 1114111 
       }
       
-      if (!eq(new, old)) {
+      if (new != old) {
         rnew = { p | /p:prod(_,_,_) := new};
         rold = { p | /p:prod(_,_,_) := old};
+        
         println("trees are different for <f>: <rold - rnew>, <rnew - rold>");
         //iprintln(findCauses(new, old));
         //text("new"(new));

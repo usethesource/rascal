@@ -1,11 +1,8 @@
 package org.rascalmpl.parser;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,13 +32,13 @@ import org.jgll.grammar.condition.PositionalCondition;
 import org.jgll.grammar.condition.RegularExpressionCondition;
 import org.jgll.grammar.precedence.OperatorPrecedence;
 import org.jgll.grammar.symbol.CharacterClass;
-import org.jgll.grammar.symbol.Keyword;
 import org.jgll.grammar.symbol.Nonterminal;
 import org.jgll.grammar.symbol.Range;
 import org.jgll.grammar.symbol.Rule;
 import org.jgll.grammar.symbol.Symbol;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParseError;
+import org.jgll.parser.ParseResult;
 import org.jgll.parser.ParserFactory;
 import org.jgll.regex.RegexAlt;
 import org.jgll.regex.RegexOpt;
@@ -49,9 +46,10 @@ import org.jgll.regex.RegexPlus;
 import org.jgll.regex.RegexStar;
 import org.jgll.regex.RegularExpression;
 import org.jgll.regex.Sequence;
-import org.jgll.sppf.NonterminalSymbolNode;
+import org.jgll.sppf.SPPFNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.traversal.Result;
+import org.jgll.util.GrammarUtil;
 import org.jgll.util.Input;
 import org.jgll.util.Visualization;
 import org.jgll.util.logging.LoggerWrapper;
@@ -60,17 +58,12 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class GrammarToJigll {
 
-	public static final int CHARACTER_LEVEL = 0;
-	public static final int TOKEN_BASED = 1;
-	
 	private static final LoggerWrapper log = LoggerWrapper.getLogger(GrammarToJigll.class);
 
 	private final IValueFactory vf;
 
 	private Map<IValue, Rule> rulesMap;
 
-	private Map<String, Keyword> keywordsMap;
-	
 	private Map<String, RegularExpression> regularExpressionsMap;
 	
 	private Map<IConstructor, RegularExpression> regularExpressionsCache;
@@ -85,11 +78,8 @@ public class GrammarToJigll {
 
 	private Input input;
 
-	private IConstructor rascalGrammar;
-	
-	private int mode = CHARACTER_LEVEL;
-	
-	
+	private boolean saveObjects = false;
+
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
 		deleteSetCache = new HashMap<>();
@@ -108,34 +98,35 @@ public class GrammarToJigll {
 
 		log.info("Iguana started.");
 
-		NonterminalSymbolNode sppf = null;
-
 		startSymbol = SymbolAdapter.toString(symbol, true);
 
-		try {
-			sppf = parser.parse(input, this.grammarGraph, startSymbol);
-		} catch (ParseError e) {
-			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(loc, 
-																	   e.getInputIndex(), 
-																	   1,
-																	   input.getLineNumber(e.getInputIndex()),
-																	   input.getLineNumber(e.getInputIndex()),
-																	   input.getColumnNumber(e.getInputIndex()) - 1,
-																	   input.getColumnNumber(e.getInputIndex()) - 1), null, null);
+		GrammarGraph grammarGraph = grammar.toGrammarGraph();
+		ParseResult result = parser.parse(input, grammarGraph, startSymbol);
+
+		if (result.isParseSuccess()) {
+			long start = System.nanoTime();
+			SPPFNode sppf = result.asParseSuccess().getSPPFNode();
+			sppf.accept(new ModelBuilderVisitor<>(input, new ParsetreeBuilder(), grammarGraph));
+			long end = System.nanoTime();
+			log.info("Flattening: %d ms ", (end - start) / 1000_000);
+
+			return ((Result<IConstructor>) sppf.getObject()).getObject();			
+		} else {
+			ParseError e = result.asParseError();
+			throw RuntimeExceptionFactory.parseError(
+					   vf.sourceLocation(loc, 
+					   e.getInputIndex(), 
+					   1,
+					   input.getLineNumber(e.getInputIndex()),
+					   input.getLineNumber(e.getInputIndex()),
+					   input.getColumnNumber(e.getInputIndex()) - 1,
+					   input.getColumnNumber(e.getInputIndex()) - 1), null, null);			
 		}
-
-		long start = System.nanoTime();
-		sppf.accept(new ModelBuilderVisitor<>(input, new ParsetreeBuilder(), grammarGraph));
-		long end = System.nanoTime();
-		log.info("Flattening: %d ms ", (end - start) / 1000_000);
-
-		return ((Result<IConstructor>) sppf.getObject()).getObject();
+		
 	}
 
 	public void generateGrammar(IConstructor rascalGrammar) {
-		this.rascalGrammar = rascalGrammar;
-		
-		Grammar grammar = convert("inmemory", rascalGrammar);
+		grammar = convert("inmemory", rascalGrammar);
 		IMap notAllowed = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("notAllowed"));
 		IMap except = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("excepts"));
 
@@ -146,9 +137,6 @@ public class GrammarToJigll {
 		addExceptPatterns(op, except);
 		addPrecedencePatterns(op, notAllowed);
 		grammar = op.rewrite(grammar);
-//		System.out.println(grammar);
-
-		grammarGraph = grammar.toGrammarGraph();
 	}
 
 	public void printGrammar() {
@@ -156,22 +144,19 @@ public class GrammarToJigll {
 	}
 
 	public void save(IString path) throws FileNotFoundException, IOException {
-		File file = new File(path.getValue());
-		if (!file.exists()) {
-			file.createNewFile();
-		}
-		ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
-		out.writeObject(grammarGraph);
-		out.close();
+		GrammarUtil.save(grammar, new File(path.getValue()).toURI());
 	}
 
 	public void generateGraph(IString path, ISourceLocation loc) {
 		parser = ParserFactory.newParser(grammarGraph, input);
 
-		NonterminalSymbolNode sppf;
-		try {
-			sppf = parser.parse(input, this.grammarGraph, startSymbol);
-		} catch (ParseError e) {
+		GrammarGraph grammarGraph = grammar.toGrammarGraph();
+		ParseResult result = parser.parse(input, grammarGraph, startSymbol);
+		if (result.isParseSuccess()) {
+			SPPFNode sppf = result.asParseSuccess().getSPPFNode();
+			Visualization.generateSPPFGraph(path.getValue(), sppf, grammarGraph, input);
+		} else {
+			ParseError e = result.asParseError();
 			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(loc, 
 					   e.getInputIndex(), 
 					   1,
@@ -180,8 +165,6 @@ public class GrammarToJigll {
 					   input.getColumnNumber(e.getInputIndex()) - 1,
 					   input.getColumnNumber(e.getInputIndex()) - 1), null, null);
 		}
-
-		Visualization.generateSPPFGraph(path.getValue(), sppf, grammarGraph, input);
 	}
 
 	private Condition getNotFollow(IConstructor symbol) {
@@ -190,10 +173,10 @@ public class GrammarToJigll {
 
 			case "char-class":
 				List<Range> targetRanges = buildRanges(symbol);
-				return RegularExpressionCondition.notFollow(new CharacterClass(targetRanges));
+				return RegularExpressionCondition.notFollow(CharacterClass.from(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.notFollow(getKeyword(symbol));
+				return RegularExpressionCondition.notFollow(getRegularExpression(symbol));
 	
 			case "seq":
 				IList list = (IList) symbol.get("symbols");
@@ -203,7 +186,7 @@ public class GrammarToJigll {
 				}
 				symbols.remove(1);
 				if(isAllRegularExpression(symbols)) {
-					return RegularExpressionCondition.notFollow(new Sequence<RegularExpression>(conver(symbols)));				
+					return RegularExpressionCondition.notFollow(Sequence.from(conver(symbols)));				
 				} else {
 					return ContextFreeCondition.notFollow(symbols);
 				}
@@ -219,10 +202,10 @@ public class GrammarToJigll {
 
 			case "char-class":
 				List<Range> targetRanges = buildRanges(symbol);
-				return RegularExpressionCondition.follow(new CharacterClass(targetRanges));
+				return RegularExpressionCondition.follow(CharacterClass.from(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.follow(getKeyword(symbol));
+				return RegularExpressionCondition.follow(getRegularExpression(symbol));
 	
 			case "seq":
 				IList list = (IList) symbol.get("symbols");
@@ -232,7 +215,7 @@ public class GrammarToJigll {
 				}
 				symbols.remove(1);
 				if(isAllRegularExpression(symbols)) {
-					return RegularExpressionCondition.follow(new Sequence<RegularExpression>(conver(symbols)));				
+					return RegularExpressionCondition.follow(Sequence.from(conver(symbols)));				
 				} else {
 					return ContextFreeCondition.follow(symbols);
 				}
@@ -247,10 +230,10 @@ public class GrammarToJigll {
 			
 			case "char-class":
 				List<Range> targetRanges = buildRanges(symbol);
-				return RegularExpressionCondition.notPrecede(new CharacterClass(targetRanges));
+				return RegularExpressionCondition.notPrecede(CharacterClass.from(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.notPrecede(getKeyword(symbol));
+				return RegularExpressionCondition.notPrecede(getRegularExpression(symbol));
 	
 			default:
 				throw new IllegalStateException("Should not be here!");
@@ -262,10 +245,10 @@ public class GrammarToJigll {
 		
 			case "char-class":
 				List<Range> targetRanges = buildRanges(symbol);
-				return RegularExpressionCondition.precede(new CharacterClass(targetRanges));
+				return RegularExpressionCondition.precede(CharacterClass.from(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.precede(getKeyword(symbol));
+				return RegularExpressionCondition.precede(getRegularExpression(symbol));
 	
 			default:
 				throw new IllegalStateException("Should not be here!");
@@ -273,50 +256,29 @@ public class GrammarToJigll {
 	}
 
 	public Grammar convert(String name, IConstructor rascalGrammar) {
-
-		Grammar grammar = new Grammar();
+		Grammar.Builder builder = new Grammar.Builder();
 		
 		IMap definitions = (IMap) rascalGrammar.get("rules");
-
+		
 		rulesMap = new HashMap<>();
-		keywordsMap = new HashMap<>();
 		regularExpressionsMap = new HashMap<>();
 		regularExpressionsCache = new HashMap<>();
 		deleteSetCache = new HashMap<>();
 		
-		if(mode == TOKEN_BASED) {
-			IMap regularExpressions = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("regularExpressions"));
-			createRegularExpressions(regularExpressions);
-		}
-		
-		for (Entry<String, RegularExpression> e : regularExpressionsMap.entrySet()) {
-			System.out.println(e.getKey() + ": " + e.getValue());
-		}
+		createRegularExpressions(definitions);
 
 		for (IValue nonterminal : definitions) {
 
-			System.out.println(nonterminal);
 			IConstructor constructor = (IConstructor) nonterminal;
 			
 			boolean ebnf = isEBNF(constructor);
 
 			Nonterminal head = getHead(constructor);
 			
-			if(mode == TOKEN_BASED) {
-				// Don't create a rule body for regular expression heads.
-				if(regularExpressionsMap.containsKey(head.getName())) {
-					continue;
-				}
-	
-				if(isKeyword(constructor)) {
-					continue;
-				}
-				
-//				if(isRegularExpression(constructor)) {
-//					continue;
-//				}
+			if(regularExpressionsMap.containsKey(head.getName())) {
+				continue;
 			}
-
+			
 			IConstructor choice = (IConstructor) definitions.get(nonterminal);
 			assert choice.getName().equals("choice");
 			ISet alts = (ISet) choice.get("alternatives");
@@ -325,13 +287,15 @@ public class GrammarToJigll {
 
 				IConstructor prod = (IConstructor) alt;
 
-				IConstructor object;
+				SerializableValue object = null;
 
-				if (ebnf) {
-					object = getRegularDefinition(alts);
-				} else {
-					object = (IConstructor) alt;
-				}
+				if (saveObjects) {
+					if (ebnf) {
+						object = new SerializableValue(getRegularDefinition(alts));
+					} else {
+						object = new SerializableValue((IConstructor) alt);
+					}					
+				} 
 
 				if (!prod.getName().equals("regular")) {
 
@@ -339,14 +303,14 @@ public class GrammarToJigll {
 
 					List<Symbol> body = getSymbolList(rhs);
 					
-					Rule rule = new Rule(head, body, new SerializableValue(object));
+					Rule rule = new Rule(head, body, object);
 					rulesMap.put(prod, rule);
 					grammar.addRule(rule);
 				}
 			}
 		}
 		
-		return grammar;
+		return builder.build();
 	}
 
 	private void addPrecedencePatterns(OperatorPrecedence op, IMap notAllowed) {
@@ -371,26 +335,43 @@ public class GrammarToJigll {
 		}
 	}
 
-	private void createRegularExpressions(IMap regularExpressions) {
+	private void createRegularExpressions(IMap definitions) {
 		
-		Iterator<Entry<IValue, IValue>> it = regularExpressions.entryIterator();
+		Iterator<Entry<IValue, IValue>> it = definitions.entryIterator();
 
 		while (it.hasNext()) {
 			Entry<IValue, IValue> regularExpression = it.next();
+			IConstructor nont = (IConstructor) regularExpression.getKey();
+			
+			Nonterminal head = getHead(nont);
+			
+			if (SymbolAdapter.isToken(nont) || SymbolAdapter.isLiteral(nont) || SymbolAdapter.isCILiteral(nont) ) {
+				
+				IConstructor prod = (IConstructor) regularExpression.getValue();
+				
+				if (prod.getName().equals("choice")) {
+					ISet alts = (ISet) prod.get("alternatives");
+					assert alts.size() == 1;
+					prod = (IConstructor) alts.iterator().next();
+				}
+				
+				IList rhs = (IList) ((IConstructor) prod).get("symbols");
 
-			Nonterminal head = getHead((IConstructor) regularExpression.getKey());
-			IValue prod = regularExpression.getValue();
-			IList rhs = (IList) ((IConstructor) prod).get("symbols");
-
-			List<RegularExpression> body = getRegularExpressionList(rhs);
-			if(body.size() == 1) {
-				regularExpressionsMap.put(head.getName(), body.get(0));				
-			} else {
-				regularExpressionsMap.put(head.getName(), new Sequence<>(body));
+				List<RegularExpression> body = getRegularExpressionList(rhs);
+				
+//				if(body.size() == 1) {
+//					regularExpressionsMap.put(head.getName(), body.get(0));				
+//				} else {
+				SerializableValue object = null;
+				if (saveObjects) {
+					object = new SerializableValue(prod);
+				}
+				
+				regularExpressionsMap.put(head.getName(), new Sequence.Builder<RegularExpression>(body).setLabel(head.getName()).setObject(object).build());
+//				}
 			}
 		}
 	}
-	
 	private void addExceptPatterns(OperatorPrecedence op, IMap map) {
 
 		Iterator<Entry<IValue, IValue>> it = map.entryIterator();
@@ -420,7 +401,7 @@ public class GrammarToJigll {
 			IConstructor range = (IConstructor) r;
 			int begin = ((IInteger) range.get("begin")).intValue();
 			int end = ((IInteger) range.get("end")).intValue();
-			targetRanges.add(new Range(begin, end));
+			targetRanges.add(Range.in(begin, end));
 		}
 		return targetRanges;
 	}
@@ -432,7 +413,7 @@ public class GrammarToJigll {
 		for(int i = 0; i < rhs.length(); i++) {
 			IConstructor current = (IConstructor) rhs.get(i);
 			
-			Symbol symbol = getSymbol(current);				
+			Symbol symbol = getSymbol(current);
 			
 			if (symbol != null) {
 				result.add(symbol);
@@ -457,240 +438,83 @@ public class GrammarToJigll {
 		
 		return result;
 	}
-
-	private Keyword getKeyword(IConstructor symbol) {
-
-		String name = SymbolAdapter.toString(symbol, true);
-		Keyword keyword = keywordsMap.get(name);
-
-		if (keyword == null) {
-
-			IMap definitions = (IMap) rascalGrammar.get("rules");
-			IConstructor choice = (IConstructor) definitions.get(symbol);
-
-			// Keywords are already expanded into a sequence
-			if(choice == null) {
-				if (symbol.getName().equals("seq")) {
-					keyword = new Keyword(name, getChars((IList) symbol.get("symbols")));
-				} else if (symbol.getName().equals("char-class")) {
-						keyword = new Keyword(name, getChars(symbol));	
-				}
-			} else {
-				ISet alts = null;
-				try {
-					alts = (ISet) choice.get("alternatives");
-				} catch(Exception e) {
-					throw e;
-				}
-
-				assert alts.size() == 1;
-
-				for (IValue alt : alts) {
-					
-					IConstructor prod = (IConstructor) alt;
-
-					IList rhs = null;
-					try {
-						rhs = (IList) prod.get("symbols");
-					} catch(Exception e) {
-						throw e;
-					}
-					
-					keyword = new Keyword(name, getChars(rhs));
-				}				
-			}
-			
-			keywordsMap.put(name, keyword);
-		}
-
-		return keyword;
-	}
 	
-	private int[] getChars(IList rhs) {
-		int[] chars = new int[rhs.length()];
-
-		int i = 0;
-		for (IValue s : rhs) {
-
-			IList ranges = null;
-			try {
-				ranges = (IList) ((IConstructor) s).get("ranges");
-			} catch(Exception e) {
-				throw e;
-			}
-
-			assert ranges.length() == 1;
-			
-			for (IValue r : ranges) {
-				IConstructor range = (IConstructor) r;
-				int begin = ((IInteger) range.get("begin")).intValue();
-				int end = ((IInteger) range.get("end")).intValue();
-				assert begin == end;
-				chars[i++] = begin;
-			}
-		}
-		
-		return chars;
-	}
-	
-	/**
-	 * Transforms a charclas with a single char into an int array 
-	 */
-	private int[] getChars(IConstructor charClass) {
-		int[] chars = new int[1];
-
-		IList ranges = null;
-		try {
-			ranges = (IList) charClass.get("ranges");
-		} catch(Exception e) {
-			throw e;
-		}
-
-		assert ranges.length() == 1;
-		
-		IConstructor range = (IConstructor) ranges.get(0);
-		int begin = ((IInteger) range.get("begin")).intValue();
-		int end = ((IInteger) range.get("end")).intValue();
-		assert begin == end;
-		chars[0] = begin;
-		
-		return chars;
-	}
-	
-	
-	private boolean isKeyword(IConstructor symbol) {
-		return symbol.getName().equals("lit");
-	}
-	
-	private boolean isRegularExpression(IConstructor symbol) {
-		if(SymbolAdapter.isLex(symbol)) {
-			return regularExpressionsMap.containsKey(((IString)symbol.get("name")).getValue());
-		} 
-		else if(SymbolAdapter.isIterStar(symbol)) {
-			return isRegularExpression(getSymbolCons(symbol));
-		}
-		else if(SymbolAdapter.isIterStarSeps(symbol)) {
-			return isRegularExpression(getSymbolCons(symbol));
-		}
-		else if(SymbolAdapter.isIterPlusSeps(symbol)) {
-			return isRegularExpression(getSymbolCons(symbol));
-		}
-		else if(SymbolAdapter.isIterPlus(symbol)) {
-			return isRegularExpression(getSymbolCons(symbol));
-		} 
-		else if(SymbolAdapter.isAlt(symbol)) {
-			ISet alts = (ISet) symbol.get("alternatives");
-			for(IValue i : alts) {
-				if(!isRegularExpression((IConstructor) i)) {
-					return false;
-				}
-			}
-			return true;
-		}
-		else if(SymbolAdapter.isSequence(symbol)) {
-			IList symbols = (IList) symbol.get("symbols");
-			for(IValue i : symbols) {
-				if(!isRegularExpression((IConstructor) i)) {
-					return false;
-				}
-			}
-			return true;
-		} 
-		
-		else if(SymbolAdapter.isCharClass(symbol)) {
-			return true;
-		}
-
-		
-		return false;
-	}
-		
-
 	private Nonterminal getHead(IConstructor symbol) {
 		switch (symbol.getName()) {
 
 			case "lit":
-				return new Nonterminal(SymbolAdapter.toString(symbol, true));
+				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
+				
+			case "token":
+				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
 	
 			case "iter":
-				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
 	
 			case "iter-seps":
-				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
 	
 			case "iter-star":
-				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
 	
 			case "iter-star-seps":
-				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
 	
 			default:
-				return new Nonterminal(SymbolAdapter.toString(symbol, true));
+				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
 		}
 	}
 
 	private Symbol getSymbol(IConstructor symbol) {
 		
-
-		if(mode == TOKEN_BASED) {
-			
-			if(symbol.getName().equals("lex")) {
-				RegularExpression regularExpression = regularExpressionsMap.get(SymbolAdapter.toString(symbol, true));
-				if(regularExpression != null) {
-					return regularExpression;
-				}
-			}
-			
-			// TODO: can be used later when I add the translation of {A sep}* to regular expressions.
-//			if(isRegularExpression(symbol)) {
-//				return getRegularExpression(symbol);
-//			}
-			
-			if(isKeyword(symbol)) {
-				return getKeyword(symbol);
-			}
+		RegularExpression regularExpression = regularExpressionsMap.get(SymbolAdapter.toString(symbol, true));
+		if(regularExpression != null) {
+			return regularExpression;
 		}
-		
+
 		switch (symbol.getName()) {
 
 			case "char-class":
 				return getCharacterClass(symbol);
-	
+				
 			case "lit":
-				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
 	
 			case "label":
 				return getSymbol(getSymbolCons(symbol));
 	
 			case "iter":
-				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
 	
 			case "iter-seps":
-				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
 	
 			case "iter-star":
-				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
 	
 			case "iter-star-seps":
-				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
+				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
 	
 			case "opt":
-				return new Nonterminal(SymbolAdapter.toString(symbol, true));
+				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
 	
 			case "alt":
-				return new Nonterminal(SymbolAdapter.toString(symbol, true));
+				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
 	
 			case "seq":
-				return new Nonterminal(SymbolAdapter.toString(symbol, true));
+				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
 	
 			case "start":
-				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
+				return Nonterminal.withName("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
 	
 			case "conditional":
-				return getSymbol(getSymbolCons(symbol)).withConditions(getConditions(symbol));
+				return getSymbol(getSymbolCons(symbol)).builder().addConditions(getConditions(symbol)).build();
+				
+			case "token":
+				return getRegularExpression(symbol);
 	
 			default:
-				return new Nonterminal(SymbolAdapter.toString(symbol, true));
+				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
 		}
 	}
 	
@@ -702,17 +526,27 @@ public class GrammarToJigll {
 			return regex;
 		}
 		
+		SerializableValue object = null;
+		if (saveObjects) {
+			object = new SerializableValue(symbol);
+		}
+		
 		switch (symbol.getName()) {
 		
 			case "keywords":
 			case "sort":
 			case "layouts":
 			case "lex":
+			case "token":
 				regex = regularExpressionsMap.get(((IString)symbol.get("name")).getValue());
 				break;
-				 
+				
+			case "lit":
+				regex = regularExpressionsMap.get(SymbolAdapter.toString(symbol, true));
+				break;
+				
 			case "conditional":
-				regex = getRegularExpression(getSymbolCons(symbol)).withConditions(getConditions(symbol));
+				regex = (RegularExpression) getRegularExpression(getSymbolCons(symbol)).builder().addConditions(getConditions(symbol)).build();
 				break;
 			
 			case "label":
@@ -724,38 +558,40 @@ public class GrammarToJigll {
 				break;
 	
 			case "iter":
-				regex = new RegexPlus(getRegularExpression(getSymbolCons(symbol)));
+				regex = new RegexPlus.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
 				break;
 	
 			case "iter-seps":
-				regex = new RegexPlus(getRegularExpression(getSymbolCons(symbol)));
+				regex = new RegexPlus.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
 				break;
 	
 			case "iter-star":
-				regex = new RegexStar(getRegularExpression(getSymbolCons(symbol)));
+				regex = new RegexStar.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
 				break;
 	
 			case "iter-star-seps":
-				regex = new RegexStar(getRegularExpression(getSymbolCons(symbol)));
+				regex = new RegexStar.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
 				break;
 	
 			case "opt":
-				regex = new RegexOpt(getRegularExpression(getSymbolCons(symbol)));
+				regex = new RegexOpt.Builder(getRegularExpression(getSymbolCons(symbol))).build();
 				break;
 	
 			case "alt":
-				regex = new RegexAlt<>(getRegularExpressionList((ISet) symbol.get("alternatives")));
+				regex = new RegexAlt.Builder<>(getRegularExpressionList((ISet) symbol.get("alternatives"))).setObject(object).build();
 				break;
 	
 			case "seq":
-				regex = new Sequence<>(getRegularExpressionList((IList) symbol.get("symbols")));
+				regex = new Sequence.Builder<>(getRegularExpressionList((IList) symbol.get("symbols"))).setObject(object).build();
 				break;
 				
 			default:
 				throw new IllegalStateException("Should not reach here. " + symbol);
 			}
 		
-		if(regex == null) return null;
+		if(regex == null) {
+			throw new RuntimeException("Regex cannot be null.");
+		}
 
 		// Initialize the automaton field
 		regex.getAutomaton().determinize();
@@ -765,7 +601,7 @@ public class GrammarToJigll {
 
 	private CharacterClass getCharacterClass(IConstructor symbol) {
 		List<Range> targetRanges = buildRanges(symbol);
-		return new CharacterClass(targetRanges);
+		return new CharacterClass.Builder(targetRanges).setLabel(SymbolAdapter.toString(symbol, true)).build();
 	}
 
 	private Set<Condition> getConditions(IConstructor symbol) {
@@ -823,11 +659,11 @@ public class GrammarToJigll {
 			RegularExpression regex = deleteSetCache.get(deleteList);
 			
 			if(regex == null) {
-				List<Keyword> keywords = new ArrayList<>();
+				List<RegularExpression> list = new ArrayList<>();
 				for(IConstructor c : deleteList) {
-					keywords.add(getKeyword(c));
+					list.add(getRegularExpression(c));
 				}
-				regex = new RegexAlt<>(keywords);
+				regex = RegexAlt.from(list);
 				
 				deleteSetCache.put(deleteList, regex);
 			}
@@ -844,7 +680,7 @@ public class GrammarToJigll {
 
 	private boolean isEBNF(IConstructor value) {
 		return isEBNFList(value) || SymbolAdapter.isAlt(value)
-				|| SymbolAdapter.isSeq(value) || SymbolAdapter.isOpt(value) || SymbolAdapter.isEmpty(value);
+				|| SymbolAdapter.isSeq(value) || SymbolAdapter.isOpt(value);
 	}
 
 	private boolean isEBNFList(IConstructor value) {

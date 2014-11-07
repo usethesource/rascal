@@ -35,7 +35,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.jgll.grammar.Grammar;
+import org.jgll.grammar.GrammarGraph;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParserFactory;
 import org.jgll.sppf.NonterminalSymbolNode;
@@ -526,7 +526,7 @@ public abstract class Import {
      });
   }
   
-  public static Grammar getIguanaParser(IEvaluator<Result<IValue>> eval, ModuleEnvironment currentModule, URI loc, boolean force) {
+  public static GrammarGraph getIguanaParser(IEvaluator<Result<IValue>> eval, ModuleEnvironment currentModule, URI loc, boolean force) {
 	  initParser(eval);
 	  
 	  if (currentModule.getBootstrap()) {
@@ -536,7 +536,7 @@ public abstract class Import {
 	  IMap definitions = currentModule.getSyntaxDefinition();
 	    
 	  
-	  Grammar parser = eval.getHeap().getIguanaParser(currentModule.getName(), definitions);
+	  GrammarGraph parser = eval.getHeap().getIguanaParser(currentModule.getName(), definitions);
 
 	  if (parser == null || force) {
 		  String parserName = currentModule.getName(); // .replaceAll("::", ".");
@@ -602,7 +602,7 @@ public abstract class Import {
     IValueFactory vf = eval.getValueFactory();
     
     if (eval.getConfiguration().getIguana()) {
-    	Grammar gr = env.getBootstrap() ? parser.getRascalGrammar() : getIguanaParser(eval, env, TreeAdapter.getLocation(tree).getURI(), false);
+    	GrammarGraph gr = env.getBootstrap() ? parser.getRascalGrammar() : getIguanaParser(eval, env, TreeAdapter.getLocation(tree).getURI(), false);
 
     	try {
     		String nt = pg.getNonterminalName(symTree);
