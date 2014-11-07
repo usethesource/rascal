@@ -777,7 +777,7 @@ private int NumberOfPhiFixFormals = 5;
 private int NumberOfPhiFixLocals = 7;
 
 
-MuExp translateVisit(label, lang::rascal::\syntax::Rascal::Visit \visit) {
+MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	MuExp traverse_fun;
 	bool fixpoint = false;
 	
