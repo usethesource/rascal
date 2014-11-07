@@ -25,8 +25,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.jgll.grammar.GrammarGraph;
 import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParseError;
+import org.jgll.parser.ParseResult;
 import org.jgll.parser.ParserFactory;
-import org.jgll.sppf.NonterminalSymbolNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.util.Input;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -59,13 +59,11 @@ public class Parser {
 	
 	public IConstructor parseObject(GrammarGraph grammar, String nt, char[] data, URI location) {
 		Input input = Input.fromCharArray(data, location);
-  		GLLParser parser = ParserFactory.newParser(grammar, input);
-  		
-  		NonterminalSymbolNode sppf;
-  		
-  		try {
-  			sppf = parser.parse(input, grammar, nt);
-		} catch (ParseError e) {
+  		GLLParser parser = ParserFactory.newParser();
+		ParseResult result = parser.parse(input, grammar, nt);
+
+  		if (result.isParseError()) {
+  			ParseError e = result.asParseError();
 			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(vf.sourceLocation(location), 
 																	   e.getInputIndex(), 
 																	   1,
@@ -76,9 +74,7 @@ public class Parser {
 		}
 
   		// TODO: parse tree builder has to call rascal normalization/filtering functions
-		sppf.accept(new ModelBuilderVisitor<>(input, new ParsetreeBuilder(), grammar));
-
-		return ((org.jgll.traversal.Result<IConstructor>) sppf.getObject()).getObject();
+		return result.asParseSuccess().build(new ModelBuilderVisitor<>(input, new ParsetreeBuilder(), grammar));
 	}
 
 	private GrammarGraph initRascalGrammar() {

@@ -36,11 +36,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.jgll.grammar.GrammarGraph;
-import org.jgll.parser.GLLParser;
-import org.jgll.parser.ParserFactory;
-import org.jgll.sppf.NonterminalSymbolNode;
-import org.jgll.traversal.ModelBuilderVisitor;
-import org.jgll.util.Input;
 import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.LocationLiteral;
 import org.rascalmpl.ast.Module;
@@ -72,9 +67,6 @@ import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.IguanaParserGenerator;
 import org.rascalmpl.parser.Parser;
-import org.rascalmpl.parser.ParserGenerator;
-import org.rascalmpl.parser.ParsetreeBuilder;
-import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
@@ -548,51 +540,20 @@ public abstract class Import {
 	  return parser;
   }
   
-  @SuppressWarnings("unchecked")
-  public static IGTD<IConstructor, IConstructor, ISourceLocation> getParser(IEvaluator<Result<IValue>> eval, ModuleEnvironment currentModule, URI loc, boolean force) {
-    if (currentModule.getBootstrap()) {
-      return new RascalParser();
-    }
-    
-    if (currentModule.hasCachedParser()) {
-      String className = currentModule.getCachedParser();
-      Class<?> clazz;
-      for (ClassLoader cl: eval.getClassLoaders()) {
-        try {
-          clazz = cl.loadClass(className);
-          return (IGTD<IConstructor, IConstructor, ISourceLocation>) clazz.newInstance();
-        } catch (ClassNotFoundException e) {
-          continue;
-        } catch (InstantiationException e) {
-          throw new ImplementationError("could not instantiate " + className + " to valid IGTD parser", e);
-        } catch (IllegalAccessException e) {
-          throw new ImplementationError("not allowed to instantiate " + className + " to valid IGTD parser", e);
-        }
-      }
-      throw new ImplementationError("class for cached parser " + className + " could not be found");
-    }
-
-    ParserGenerator pg = eval.getParserGenerator();
+  public static GrammarGraph getParser(IEvaluator<Result<IValue>> eval, ModuleEnvironment currentModule, URI loc, boolean force) {
+    IguanaParserGenerator pg = eval.getParserGenerator();
     IMap definitions = currentModule.getSyntaxDefinition();
     
-    Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = eval.getHeap().getObjectParser(currentModule.getName(), definitions);
+    GrammarGraph parser = eval.getHeap().getObjectParser(currentModule.getName(), definitions);
 
     if (parser == null || force) {
       String parserName = currentModule.getName(); // .replaceAll("::", ".");
 
-      parser = pg.getNewParser(eval, loc, parserName, definitions);
+      parser = pg.generateGrammar(eval.getMonitor(), parserName, definitions);
       eval.getHeap().storeObjectParser(currentModule.getName(), definitions, parser);
     }
 
-    try {
-      return parser.newInstance();
-    } catch (InstantiationException e) {
-      throw new ImplementationError(e.getMessage(), e);
-    } catch (IllegalAccessException e) {
-      throw new ImplementationError(e.getMessage(), e);
-    } catch (ExceptionInInitializerError e) {
-      throw new ImplementationError(e.getMessage(), e);
-    }
+    return parser;
   }
   
   private static IConstructor parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, IConstructor tree, URI uri) {
@@ -601,77 +562,36 @@ public abstract class Import {
     Map<String, IConstructor> antiquotes = new HashMap<String,IConstructor>();
     IValueFactory vf = eval.getValueFactory();
     
-    if (eval.getConfiguration().getIguana()) {
-    	GrammarGraph gr = env.getBootstrap() ? parser.getRascalGrammar() : getIguanaParser(eval, env, TreeAdapter.getLocation(tree).getURI(), false);
+    GrammarGraph gr = env.getBootstrap() ? parser.getRascalGrammar() : getIguanaParser(eval, env, TreeAdapter.getLocation(tree).getURI(), false);
 
-    	try {
-    		String nt = pg.getNonterminalName(symTree);
-    		char[] input = replaceAntiQuotesByHoles(eval, lit, antiquotes);
-    		IConstructor fragment = (IConstructor) parser.parseObject(gr, nt, input, uri);
-    		fragment = replaceHolesByAntiQuotes(eval, fragment, antiquotes);
-    		IConstructor prod = TreeAdapter.getProduction(tree);
-    		IConstructor sym = ProductionAdapter.getDefined(prod);
-    		sym = SymbolAdapter.delabel(sym); 
-    		prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
-    		return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
-    	}
-    	catch (ParseError e) {
-    		ISourceLocation loc = TreeAdapter.getLocation(tree);
-    		ISourceLocation src = vf.sourceLocation(vf.sourceLocation(loc.getURI()), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
-    		eval.getMonitor().warning("parse error in concrete syntax", src);
-    		return tree.asAnnotatable().setAnnotation("parseError", src);
-    	}
-    	catch (StaticError e) {
-    		ISourceLocation loc = TreeAdapter.getLocation(tree);
-    		ISourceLocation src = vf.sourceLocation(vf.sourceLocation(loc.getURI()), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-    		eval.getMonitor().warning(e.getMessage(), e.getLocation());
-    		return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
-    	}
-    	catch (UndeclaredNonTerminalException e) {
-    		ISourceLocation loc = TreeAdapter.getLocation(tree);
-    		ISourceLocation src = vf.sourceLocation(vf.sourceLocation(loc.getURI()), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-    		eval.getMonitor().warning(e.getMessage(), src);
-    		return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
-    	}
-
+    try {
+    	String nt = pg.getNonterminalName(symTree);
+    	char[] input = replaceAntiQuotesByHoles(eval, lit, antiquotes);
+    	IConstructor fragment = (IConstructor) parser.parseObject(gr, nt, input, uri);
+    	fragment = replaceHolesByAntiQuotes(eval, fragment, antiquotes);
+    	IConstructor prod = TreeAdapter.getProduction(tree);
+    	IConstructor sym = ProductionAdapter.getDefined(prod);
+    	sym = SymbolAdapter.delabel(sym); 
+    	prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
+    	return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
     }
-    else {
-    	IGTD<IConstructor, IConstructor, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser(eval, env, TreeAdapter.getLocation(tree).getURI(), false);
-
-    	try {
-    		String parserMethodName = eval.getParserGenerator().getParserMethodName(symTree);
-    		DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation> converter = new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>();
-    		UPTRNodeFactory nodeFactory = new UPTRNodeFactory();
-
-    		char[] input = replaceAntiQuotesByHoles(eval, lit, antiquotes);
-
-    		IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri, input, converter, nodeFactory);
-    		fragment = replaceHolesByAntiQuotes(eval, fragment, antiquotes);
-
-    		IConstructor prod = TreeAdapter.getProduction(tree);
-    		IConstructor sym = ProductionAdapter.getDefined(prod);
-    		sym = SymbolAdapter.delabel(sym); 
-    		prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
-    		return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
-    	}
-    	catch (ParseError e) {
-    		ISourceLocation loc = TreeAdapter.getLocation(tree);
-    		ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
-    		eval.getMonitor().warning("parse error in concrete syntax", src);
-    		return tree.asAnnotatable().setAnnotation("parseError", src);
-    	}
-    	catch (StaticError e) {
-    		ISourceLocation loc = TreeAdapter.getLocation(tree);
-    		ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-    		eval.getMonitor().warning(e.getMessage(), e.getLocation());
-    		return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
-    	}
-    	catch (UndeclaredNonTerminalException e) {
-    		ISourceLocation loc = TreeAdapter.getLocation(tree);
-    		ISourceLocation src = eval.getValueFactory().sourceLocation(loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-    		eval.getMonitor().warning(e.getMessage(), src);
-    		return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
-    	}
+    catch (ParseError e) {
+    	ISourceLocation loc = TreeAdapter.getLocation(tree);
+    	ISourceLocation src = vf.sourceLocation(vf.sourceLocation(loc.getURI()), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
+    	eval.getMonitor().warning("parse error in concrete syntax", src);
+    	return tree.asAnnotatable().setAnnotation("parseError", src);
+    }
+    catch (StaticError e) {
+    	ISourceLocation loc = TreeAdapter.getLocation(tree);
+    	ISourceLocation src = vf.sourceLocation(vf.sourceLocation(loc.getURI()), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+    	eval.getMonitor().warning(e.getMessage(), e.getLocation());
+    	return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
+    }
+    catch (UndeclaredNonTerminalException e) {
+    	ISourceLocation loc = TreeAdapter.getLocation(tree);
+    	ISourceLocation src = vf.sourceLocation(vf.sourceLocation(loc.getURI()), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+    	eval.getMonitor().warning(e.getMessage(), src);
+    	return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
     }
   }
   

@@ -29,7 +29,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.jgll.grammar.GrammarGraph;
-import org.jgll.parser.GLLParser;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -203,8 +202,8 @@ public class GlobalEnvironment {
 		return current;
 	}
 	
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getObjectParser(String module, IMap productions) {
-		return getParser(objectParsersForModules, module, productions);
+	public GrammarGraph getObjectParser(String module, IMap productions) {
+		return getIguanaParser(module, productions);
 	}
 	
 	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getRascalParser(String module, IMap productions) {
@@ -236,8 +235,8 @@ public class GlobalEnvironment {
 		return null;
 	}
 	
-	public void storeObjectParser(String module, IMap productions, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
-		storeParser(objectParsersForModules, module, productions, parser);
+	public void storeObjectParser(String module, IMap productions, GrammarGraph parser) {
+		storeIguanaParser(module, productions, parser);
 	}
 	
 	public void storeRascalParser(String module, IMap productions, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {

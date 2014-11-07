@@ -103,12 +103,10 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -2303,23 +2301,10 @@ public class Prelude {
 	}
 	
 	public IString saveParser(ISourceLocation outFile, IEvaluatorContext ctx) {
-		if (ctx.getConfiguration().getIguana()) {
-			 // TODO
-			throw new NotYetImplemented("iguana saving is not yet implemented");
-		}
-		else {
-			IGTD<IConstructor, IConstructor, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), URIUtil.invalidURI(), false);
-			Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, IConstructor, ISourceLocation>>) parser.getClass();
-
-
-			try(OutputStream outStream = ctx.getResolverRegistry().getOutputStream(outFile.getURI(), false)) {
-				ctx.getEvaluator().getParserGenerator().saveToJar(parserClass, outStream);
-			} catch (IOException e) {
-				throw RuntimeExceptionFactory.io(ctx.getValueFactory().string("Unable to save to output file '" + outFile.getURI() + "'"), ctx.getCurrentAST(), ctx.getStackTrace());
-			}
-			return ctx.getValueFactory().string(parserClass.getName());
-		}
+		// TODO
+		throw new NotYetImplemented("iguana saving is not yet implemented");
 	}
+	
 	public IString unparse(IConstructor tree) {
 		return values.string(TreeAdapter.yield(tree));
 	}
@@ -3535,12 +3520,12 @@ public class Prelude {
 	  loc = ctx.getHeap().resolveSourceLocation(loc);
 	  
 		OutputStream out = null;
-		try{
+		try {
 			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false); 
 			new BinaryValueWriter().write(value, out, compression.getValue());
-		}catch (IOException ioex){
+		} catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
-		}finally{
+		} finally{
 			if(out != null){
 				try{
 					out.close();
