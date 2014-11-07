@@ -38,7 +38,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.JavaBridge;
-import org.rascalmpl.parser.ParserGenerator;
+import org.rascalmpl.parser.IguanaParserGenerator;
 
 /**
  * TODO: This interface was used by the
@@ -169,14 +169,14 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	 */
 	public IEvaluator<T> fork();
 
-  public ParserGenerator getParserGenerator();
+	public IguanaParserGenerator getParserGenerator();
 
-  public List<IRascalSuspendTriggerListener> getSuspendTriggerListeners();
+	public List<IRascalSuspendTriggerListener> getSuspendTriggerListeners();
 
-  /**
-   * temporary mode flag for bootstrapping into using iguana
-   */
-   public boolean useIguana();
+	/**
+	 * temporary mode flag for bootstrapping into using iguana
+	 */
+	public boolean useIguana();
 
  
 }
