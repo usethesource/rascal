@@ -229,7 +229,7 @@ MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) {
   //g = getGrammar();
   //for(nt <- g) println("<nt> : <g[nt]>");
   parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar());
-  //println("**** parsedFragment: <parsedFragment>");
+  println("**** parsedFragment: <parsedFragment>");
   //iprintln(parsedFragment);
   return translateParsedConcretePattern(parsedFragment);
 }
@@ -253,9 +253,12 @@ MuExp translateParsedConcretePattern(cc: char(int c)) {
   return muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(cc)]);
 }
 
+//"type" "(" Pattern symbol "," Pattern definitions ")" 
+
+
 default MuExp translateParsedConcretePattern(Tree c) {
    iprintln(c);
-   throw "translateParsedConcretePattern: Cannot handle <c>";
+   throw "translateParsedConcretePattern: Cannot handle <c> at <c@\loc>";
 }
 
 bool isLayoutPat(Tree pat) = appl(prod(layouts(_), _, _), _) := pat;
@@ -611,7 +614,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
    uniquePats = [];
    outer: for(i <- index(lpats)){
       pat = lpats[i];
-      name = getName(pat, i);
+      str name = getName(pat, i);
       if(name != "_"){
 	      for(j <- [0 .. i]){
 	          if(getName(lpats[j], j) == name){

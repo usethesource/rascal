@@ -1,6 +1,7 @@
 module experiments::Compiler::Execute
 
 import Prelude;
+import Message;
 
 //import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
@@ -57,6 +58,11 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    list[experiments::Compiler::RVM::AST::Declaration] imported_functions = [];
    lrel[str,list[str],list[str]] imported_overloaded_functions = [];
    map[str,int] imported_overloading_resolvers = ();
+   set[Message] messages = rvmProgram.messages;
+   
+   if(any(msg <- messages, error(_,_) := msg)){
+        throw "Cannot execute due to compilation errors";
+   }
    
    // Read the muLibrary, recompile if necessary
    MuLibraryCompiled = compiledVersion(MuLibrary, bindir);
@@ -81,7 +87,8 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    for(loc def <- defaultImports){
        compiledDef = compiledVersion(def, bindir);
        if(!exists(compiledDef) || lastModified(compiledDef) < lastModified(def)){
-          compile(def, bindir = bindir);
+          rvm_def = compile(def, bindir = bindir);
+          messages += rvm_def;
        }
    }
    
@@ -94,6 +101,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
            importedLoc = compiledVersion(imp, bindir);
            try {
   	           importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
+  	           messages += importedRvmProgram.messages;
   	           
   	           // Temporary work around related to issue #343
   	           importedRvmProgram = visit(importedRvmProgram) { case type[value] t : { insert type(t.symbol,t.definitions); }}
@@ -113,7 +121,14 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    }
    
    processImports(rvmProgram);
+  
+   if(any(msg <- messages, error(_,_) := msg)){
+        for(e: error(_,_) <- messages){
+            println(e);
+        }
+        throw "Cannot execute due to compilation errors";
    
+   }
    pos_delta = size(imported_overloaded_functions);
    rvmProgram.resolver = ( ofname : rvmProgram.resolver[ofname] + pos_delta | str ofname <- rvmProgram.resolver );
    <v, t> = executeProgram(rvmProgram, imported_types,
