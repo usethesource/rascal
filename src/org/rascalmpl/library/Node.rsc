@@ -94,6 +94,16 @@ getChildren("f"(10, "abc"));
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[value] getChildren(node T);
 
+@doc{Synopsis: Get the keyword parameters of a node.
+Examples:
+<screen>
+import Node;
+getKeywordParameters("f"(10, "abc", height=0));
+</screen>
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java map[str,value] getKeywordParameters(node T);
+
 @doc{
 Synopsis: Determine the name of a node.
 
@@ -116,7 +126,7 @@ makeNode("f", [10, "abc"]);
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java node makeNode(str N, value V...);
+public java node makeNode(str N, value V..., map[str, value] keywordParameters = ());
 
 
 

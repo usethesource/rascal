@@ -7,8 +7,11 @@
 }
 @contributor{Wietse Venema - wietsevenema@gmail.com - CWI}
 module cobra::tests::quickcheck::annotations
+
+import cobra::quickcheck;
 import cobra::util::outputlogger;
 import cobra::tests::quickcheck::imported;
+import Exception;
 
 
 test bool annotationsHaveEffect(){

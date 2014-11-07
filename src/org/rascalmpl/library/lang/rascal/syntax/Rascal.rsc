@@ -13,6 +13,8 @@
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
 module lang::rascal::\syntax::Rascal
 
+//import ParseTree;
+
 lexical BooleanLiteral
 	= "true" 
 	| "false" ;
@@ -428,7 +430,7 @@ syntax Parameters
 lexical OptionalComma = \default: ","? ;
 
 syntax KeywordFormals
-    = \default: OptionalComma optionalComma {KeywordFormal ","}+ keywordFormalList
+    = \default: OptionalComma optionalComma [,\ (\t\n] << {KeywordFormal ","}+ keywordFormalList
     | none: ()
     ;
     
@@ -437,7 +439,7 @@ syntax KeywordFormal
     ;
     
 syntax KeywordArguments[&T]
-    = \default:  OptionalComma optionalComma {KeywordArgument[&T] ","}+ keywordArgumentList
+    = \default:  OptionalComma optionalComma [,\ (\t\n] << {KeywordArgument[&T] ","}+ keywordArgumentList
     | none: ()
     ;
     
@@ -827,9 +829,9 @@ lexical Char
     
 syntax Prod
 	= reference: ":" Name referenced
-	| labeled: ProdModifier* modifiers Name name ":" Sym* args 
+	| labeled: ProdModifier* modifiers Name name ":" Sym* syms 
 	| others: "..." 
-	| unlabeled: ProdModifier* modifiers Sym* args
+	| unlabeled: ProdModifier* modifiers Sym* syms
 	| @Foldable associativityGroup: Assoc associativity "(" Prod group ")" 
 	// | TODO add bracket rule for easy readability
 	> left \all   : Prod lhs "|" Prod rhs 

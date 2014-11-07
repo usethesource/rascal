@@ -85,7 +85,6 @@ public class RuntimeExceptionFactory {
 	public static final Type JavaWithCause = TF.constructor(TS, Exception, "Java", TF.stringType(), "class", TF.stringType(), "message", Exception, "cause");
   
 	public static final Type Subversion = TF.constructor(TS, Exception, "Subversion", TF.stringType(), "message");
-	public static final Type JavaBytecodeError = TF.constructor(TS, Exception, "JavaBytecodeError", TF.stringType(), "message");
 
 	public static final Type InvalidUseOfDate = TF.constructor(TS, Exception, "InvalidUseOfDate", TF.dateTimeType(), "msg");
 	public static final Type InvalidUseOfTime = TF.constructor(TS, Exception, "InvalidUseOfTime", TF.dateTimeType(), "msg");
@@ -281,7 +280,7 @@ public class RuntimeExceptionFactory {
 	}
 	
 	public static Throw illegalTypeArgument(String type, AbstractAST ast, StackTrace trace){
-		return new Throw(VF.constructor(IllegalTypeArgument,VF.string(type)), ast, trace);	
+		return new Throw(VF.constructor(IllegalTypeArgument,VF.string(type), VF.string("")), ast, trace);	
 	}
 	
 	public static Throw implodeError(String msg, AbstractAST ast, StackTrace trace) {
@@ -303,10 +302,6 @@ public class RuntimeExceptionFactory {
 	public static Throw invalidUseOfDateTimeException(String message, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(InvalidUseOfDateTime, VF.string(message)), ast, trace);
 	}
-	
-//	public static Throw javaBytecodeError(String message, AbstractAST ast, StackTrace trace) {
-//		return new Throw(JavaBytecodeError.make(VF, VF.string(message)), ast, trace);
-//	}
 	
 //	public static Throw locationNotFound(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
 //		return new Throw(LocationNotFound.make(VF, loc), ast, trace);

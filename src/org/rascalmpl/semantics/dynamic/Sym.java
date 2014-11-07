@@ -14,8 +14,11 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Sym extends org.rascalmpl.ast.Sym {
 
@@ -27,8 +30,8 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters) {
-			return getNonterminal().typeOf(env, instantiateTypeParameters);
+		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+			return getNonterminal().typeOf(env, instantiateTypeParameters, eval);
 		}
 	}
 

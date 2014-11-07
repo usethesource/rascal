@@ -99,16 +99,16 @@ syntax Exp  =
 			| preVarDeref:   			"deref" FunNamePart+ funNames Identifier!fvar!ivar!mvar id
 			
 			| preMuCallPrim: 			"prim" NoNLList "(" String name ")"
-			| preMuCallPrim:            "prim" NoNLList "(" String name "," {Exp ","}+ args ")"
-			| muCallMuPrim: 			"muprim" NoNLList "(" String name "," {Exp ","}+ args ")"
+			| preMuCallPrim:            "prim" NoNLList "(" String name "," {Exp ","}+ largs1 ")"
+			| muCallMuPrim: 			"muprim" NoNLList "(" String name "," {Exp ","}+ largs1 ")"
 			
 			| muMulti:                  "multi" "(" Exp exp ")"
 			| muOne:                    "one" "(" {Exp ","}+ exps ")"
 			| muAll:                    "all" "(" {Exp ","}+ exps ")"
 			
 			// function call and partial function application
-			| muCall: 					Exp!muReturn!muYield!muExhaust exp NoNLList "(" {Exp ","}* args0 ")"
-			| muApply:                  "bind" "(" Exp!muReturn!muYield!muExhaust exp "," {Exp ","}+ args ")"
+			| muCall: 					Exp!muReturn!muYield!muExhaust exp NoNLList "(" {Exp ","}* largs0 ")"
+			| muApply:                  "bind" "(" Exp!muReturn!muYield!muExhaust exp "," {Exp ","}+ largs1 ")"
 			
 			| preSubscript:             Exp exp NoNLList "[" Exp index "]"
 			| preList:					"[" {Exp ","}* exps0 "]"
@@ -157,10 +157,10 @@ syntax Exp  =
 			| preTypeSwitch:			"typeswitch" "(" Exp exp ")" "{" (TypeCase ";"?)+ cases "default" ":" Exp default ";"? "}"
 			
 			| muCreate: 				"create" "(" Exp coro ")"
-			| muCreate: 				"create" "(" Exp coro "," {Exp ","}+ args ")"
+			| muCreate: 				"create" "(" Exp coro "," {Exp ","}+ largs1 ")"
 			
 			| muNext:   				"next" "(" Exp coro ")"
-			| muNext:   				"next" "(" Exp coro "," {Exp ","}+ args ")"
+			| muNext:   				"next" "(" Exp coro "," {Exp ","}+ largs1 ")"
 			
 			> muReturn: 				"return" NoNLList Exp exp
 			| muReturn:                 () "return" NoNLList "(" Exp exp "," {Exp ","}+ exps1 ")"

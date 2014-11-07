@@ -16,6 +16,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,7 +44,6 @@ import org.rascalmpl.ast.UserType;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.IllegalQualifiedDeclaration;
@@ -50,7 +51,6 @@ import org.rascalmpl.interpreter.staticErrors.RedeclaredField;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredType;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.Names;
 
 public class TypeDeclarationEvaluator {
@@ -82,6 +82,19 @@ public class TypeDeclarationEvaluator {
 		}
 	}
 
+	public static Type computeKeywordParametersType(List<KeywordFormal> kws, IEvaluator<Result<IValue>> eval) {
+		Type[] kwTypes = new Type[kws.size()];
+		String[] kwLabels = new String[kws.size()];
+		
+		int i = 0;
+		for (KeywordFormal kw : kws) {
+			kwLabels[i] = Names.name(kw.getName());
+			kwTypes[i++] = kw.getType().typeOf(eval.getCurrentEnvt(), false, eval);
+		}
+		
+		return TypeFactory.getInstance().tupleType(kwTypes, kwLabels);
+	}
+	
 	public void declareConstructor(Data x, Environment env) {
 		TypeFactory tf = TypeFactory.getInstance();
 
@@ -89,46 +102,39 @@ public class TypeDeclarationEvaluator {
 		// from a shell instead of from a module
 		Type adt = declareAbstractDataType(x.getUser(), env);
 
-		// Evaluate the keyword parameters that are common for all variants
-		List<KeywordParameter> commonKwargs = new LinkedList<KeywordParameter> ();
-		if(x.getCommonKeywordParameters().isPresent()){
-			List<KeywordFormal> common = x.getCommonKeywordParameters().getKeywordFormalList();
-			for(KeywordFormal kwf : common){
-				Type declaredType = kwf.getType().typeOf(env, true);
-				Result<IValue> r = kwf.getExpression().interpret(eval);
-				if(r.getType().isSubtypeOf(declaredType))
-					commonKwargs.add(new KeywordParameter(Names.name(kwf.getName()), declaredType, r));
-				else {
-					throw new UnexpectedType(declaredType, r.getType(), kwf);
-				}
-			}
-		}
+		List<KeywordFormal> common = x.getCommonKeywordParameters().isPresent() 
+				? x.getCommonKeywordParameters().getKeywordFormalList()
+		        : Collections.<KeywordFormal>emptyList();
 		
 		for (Variant var : x.getVariants()) {
 			String altName = Names.name(var.getName());
 
+			Type kwType = tf.voidType();
+			
 			if (var.isNAryConstructor()) {
-				List<TypeArg> args = var.getArguments();
-				List<KeywordParameter> kwargs = new LinkedList<KeywordParameter> ();
-				if(var.getKeywordArguments().isDefault()){					
-					for(KeywordFormal kwf :  var.getKeywordArguments().getKeywordFormalList()){
-						Type declaredType = kwf.getType().typeOf(env, true);
-						Result<IValue> r = kwf.getExpression().interpret(eval);
-						if(r.getType().isSubtypeOf(declaredType))
-							kwargs.add(new KeywordParameter(Names.name(kwf.getName()), declaredType, r));
-						else {
-							throw new UnexpectedType(declaredType, r.getType(), kwf);
-						}
-					}
+				List<KeywordFormal> local = var.getKeywordArguments().hasKeywordFormalList() ? var.getKeywordArguments().getKeywordFormalList() : Collections.<KeywordFormal>emptyList();
+				List<KeywordFormal> kws = new ArrayList<>(common.size() + local.size());
+				
+				if (var.getKeywordArguments().isDefault()) {
+					kws.addAll(common);
+					kws.addAll(local);
+					
+					kwType = computeKeywordParametersType(kws, eval);
 				}
-				kwargs.addAll(commonKwargs);
-				int nAllArgs = args.size() + kwargs.size();
+				else if (!common.isEmpty()) {
+					kwType = computeKeywordParametersType(common, eval);
+					kws = common;
+				}
+
+				List<TypeArg> args = var.getArguments();
+				int nAllArgs = args.size();
+				
 				Type[] fields = new Type[nAllArgs];
 				String[] labels = new String[nAllArgs];
 
 				for (int i = 0; i < args.size(); i++) {
 					TypeArg arg = args.get(i);
-					fields[i] = arg.getType().typeOf(env, true);
+					fields[i] = arg.getType().typeOf(env, true, eval);
 
 					if (fields[i] == null) {
 						throw new UndeclaredType(arg.hasName() ? Names.name(arg.getName()) : "?", arg);
@@ -141,14 +147,10 @@ public class TypeDeclarationEvaluator {
 					}
 				}
 				
-				for(int i = 0; i < kwargs.size(); i++){
-					fields[args.size() + i] = kwargs.get(i).getType();
-					labels[args.size() + i] = kwargs.get(i).getName();
-				}
-
 				Type children = tf.tupleType(fields, labels);
+				
 				try {
-					ConstructorFunction cons = env.constructorFromTuple(var, eval, adt, altName, children, kwargs);
+					ConstructorFunction cons = env.constructorFromTuple(var, eval, adt, altName, children, kwType, kws);
 					cons.setPublic(true); // TODO: implement declared visibility
 				} catch (org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException e) {
 					throw new RedeclaredType(altName, var);
@@ -189,7 +191,7 @@ public class TypeDeclarationEvaluator {
 	
 	public void declareAlias(Alias x, Environment env) {
 		try {
-			Type base = x.getBase().typeOf(env, true);
+			Type base = x.getBase().typeOf(env, true, eval);
 
 			assert base != null;
 			
@@ -260,7 +262,7 @@ public class TypeDeclarationEvaluator {
 									+ formal + " is not allowed", formal.getLocation());
 				}
 				TypeVar var = formal.getTypeVar();	
-				Type bound = var.hasBound() ? var.getBound().typeOf(env, true) : tf
+				Type bound = var.hasBound() ? var.getBound().typeOf(env, true, eval) : tf
 						.valueType();
 				params[i++] = tf
 						.parameterType(Names.name(var.getName()), bound);

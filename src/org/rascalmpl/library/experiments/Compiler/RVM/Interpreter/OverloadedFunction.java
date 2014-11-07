@@ -20,5 +20,22 @@ public class OverloadedFunction {
 			this.scopeIn = functionMap.get(funIn);
 		}
 	}
+	
+	public String toString(){
+		StringBuilder sb = new StringBuilder("Overloaded: ");
+		if(functions.length > 0){
+			sb.append("functions:");
+			for(int i = 0; i < functions.length; i++){
+				sb.append(" ").append(functions[i]);
+			}
+		}
+		if(constructors.length > 0){
+			sb.append("; constructors:");
+			for(int i = 0; i < constructors.length; i++){
+				sb.append(" ").append(constructors[i]);
+			}
+		}
+		return sb.toString();
+	}
 
 }

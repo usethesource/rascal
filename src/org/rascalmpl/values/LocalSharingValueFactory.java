@@ -589,6 +589,11 @@ public class LocalSharingValueFactory implements IValueFactory{
 	}
 	
 	@Override
+	public IDateTime datetime(long instant, int timezoneHours, int timezoneMinutes) {
+		return cachedDateTimes.cache(valueFactory.datetime(instant, timezoneHours, timezoneMinutes));
+	}
+	
+	@Override
 	public IDateTime time(int hour, int minute, int second, int millisecond) {
 		return cachedDateTimes.cache(valueFactory.time(hour, minute, second, millisecond));
 	}

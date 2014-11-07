@@ -711,6 +711,8 @@ public Symbol getSymbol(Sym sym, bool isLex) {
         
     case (Sym) `(<Sym first> | <Sym second>)` :
          return alt({getSymbol(first, isLex), getSymbol(second, isLex)});
+    case (Sym) `(<Sym single>)`: 
+    	return getSymbol(single, isLex);
     default: throw "missed a case <sym>";  
   }
 }  
@@ -825,7 +827,7 @@ public Symbol getCharClass(Class cc) {
      	return \char-class([]);
      	
      case (Class) `[<Range* ranges>]` :
-     		return \char-class([getCharRange(r) | /Range r := ranges]);
+     		return \new-char-class([getCharRange(r) | /Range r := ranges]);
      	
      case (Class) `(<Class c>)`: 
      	return getCharClass(c);

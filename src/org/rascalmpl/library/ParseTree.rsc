@@ -81,11 +81,10 @@ Benefits:
 
 Pitfalls:
 For historical reasons the name of the annotation is "loc" and this interferes with the Rascal keyword `loc`
-for the type of [Location]s.
+for the type of [$Rascal/Expressions/Values/Location]s.
 Therefore the annotation name has to be escaped as `\loc` when it is declared or used.
 
 Questions:
-
 
 }
 
@@ -182,7 +181,9 @@ data Symbol
   
 data Symbol = \conditional(Symbol symbol, set[Condition] conditions) /*12*/;
 
-
+@doc{
+Synopsis: constructors for declaring preconditions and postconditions on symbols
+}
 data Condition
      = \follow(Symbol symbol) /*13*/
      | \not-follow(Symbol symbol)

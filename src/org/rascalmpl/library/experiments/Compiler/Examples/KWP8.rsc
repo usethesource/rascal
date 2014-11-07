@@ -9,5 +9,7 @@ int h(int step, int delta = 1 + step) {
 }
 
 value main(list[value] args) {
-    return "<f(0,delta = 999)> + <f(100)>";
+    return "<f(0,delta = 999)> + <f(100)>" == expectedResultKWP8;
 }
+
+public value expectedResultKWP8 = "999 + 666";

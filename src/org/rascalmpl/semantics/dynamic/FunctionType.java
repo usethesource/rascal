@@ -15,9 +15,12 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.TypeArg;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.TypeUtils;
 
 public abstract class FunctionType extends org.rascalmpl.ast.FunctionType {
@@ -31,11 +34,11 @@ public abstract class FunctionType extends org.rascalmpl.ast.FunctionType {
 		}
 
 		@Override
-		public Type typeOf(Environment __eval, boolean instantiateTypeParameters) {
-			Type returnType = this.getType().typeOf(__eval, instantiateTypeParameters);
+		public Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+			Type returnType = this.getType().typeOf(__eval, instantiateTypeParameters, eval);
 			Type argTypes = TypeUtils.typeOf(this.getArguments(), __eval, instantiateTypeParameters);
 			return org.rascalmpl.interpreter.types.RascalTypeFactory
-					.getInstance().functionType(returnType, argTypes);
+					.getInstance().functionType(returnType, argTypes, TF.voidType());
 		}
 	}
 

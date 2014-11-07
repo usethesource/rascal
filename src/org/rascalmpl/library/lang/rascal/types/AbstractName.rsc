@@ -9,7 +9,6 @@
 @bootstrapParser
 module lang::rascal::types::AbstractName
 
-import List;
 import String;
 import ParseTree;
 
@@ -68,3 +67,13 @@ public str prettyPrintNameList(list[str] nameList) = intercalate("::", nameList)
 @doc{Pretty-print the abstract representation of a name.}
 public str prettyPrintName(RSimpleName(str s)) = s;
 public str prettyPrintName(RCompoundName(list[str] sl)) = prettyPrintNameList(sl);
+
+@doc{Covert a string to an RName}
+public RName convertNameString(str s) {
+	sl = [ (startsWith("<n>","\\") ? substring("<n>",1) : "<n>") | n <- split("::",s) ];
+	if (size(sl) >= 2) {
+		return RCompoundName(sl);
+	} else {
+		return RSimpleName(s);
+	}
+}

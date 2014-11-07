@@ -5,16 +5,15 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@doc{
+Synopsis: AST model for YAML (loosely based on the serialization model of http://www.yaml.org/spec/1.2/spec.html)
+}
+@contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl (CWI)}
 module lang::yaml::Model
 
 import Type;
 import IO;
 
-/*
- * loosely Based on the Serialization Model of http://www.yaml.org/spec/1.2/spec.html
- */
- 
 
 // Tagging will be used to do typed 
 // serialization for ADTs in the future.

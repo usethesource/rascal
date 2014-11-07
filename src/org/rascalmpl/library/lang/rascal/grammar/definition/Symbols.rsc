@@ -39,7 +39,7 @@ public Symbol sym2symbol(Sym sym) {
   switch (sym) {
     case \token(Nonterminal n) :
       return \token("<n>");
-    case nonterminal(Nonterminal n) : 
+    case lang::rascal::\syntax::Rascal::nonterminal(Nonterminal n) : 
       return sort("<n>");
     case \start(Nonterminal n) : 
       return \start(sort("<n>"));

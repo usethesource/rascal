@@ -15,6 +15,7 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -23,6 +24,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.NonTerminalType;
@@ -34,9 +36,8 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteConstructorFunction extends ConstructorFunction {
 
-	public ConcreteConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval,
-			Environment env) {
-		super(ast, eval, env, Factory.Tree_Appl, null);
+	public ConcreteConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env) {
+		super(ast, eval, env, Factory.Tree_Appl, Collections.<KeywordFormal>emptyList());
 	}
 	
 	@Override

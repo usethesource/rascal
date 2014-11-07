@@ -11,6 +11,8 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module util::Math
 
+import List;
+
 @doc{
 Synopsis: Absolute value of a number.
 
@@ -563,9 +565,14 @@ toString(3.14)
 @javaClass{org.rascalmpl.library.util.Math}
 public java str toString(num N);
 
+@doc{ 
+Synopsis: generate prime numbers up to a maximum
+}
+@memo
+public list[int] primes(int upTo) 
+  = [p | p <- [2..upTo], p < 4 || all(i <- [2..toInt(sqrt(p))+1], p != i ? p % i != 0 : true)];
+// Some test code: https://gist.github.com/grammarware/839f63b1a4999992ade7
 
-
-
-
+public int arbPrime(int upTo) = ps[arbInt(size(ps))] when ps := primes(upTo); 
 
 

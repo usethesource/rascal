@@ -17,6 +17,7 @@ import analysis::graphs::Graph;
 import analysis::m3::Registry;
 
 import IO;
+import ValueIO;
 import String;
 import Relation;
 import Set;
@@ -25,7 +26,6 @@ import Node;
 import List;
 
 import util::FileSystem;
-import demo::common::Crawl;
 
 anno rel[loc from, loc to] M3@extends;            // classes extending classes and interfaces extending interfaces
 anno rel[loc from, loc to] M3@implements;         // classes implementing interfaces
@@ -34,6 +34,8 @@ anno rel[loc from, loc to] M3@fieldAccess;        // code using data (like field
 anno rel[loc from, loc to] M3@typeDependency;     // using a type literal in some code (types of variables, annotations)
 anno rel[loc from, loc to] M3@methodOverrides;    // which method override which other methods
 anno rel[loc declaration, loc annotation] M3@annotations;
+
+data Language(str version="") = java();
 
 public M3 composeJavaM3(loc id, set[M3] models) {
   m = composeM3(id, models);
@@ -73,13 +75,14 @@ map[loc, map[loc, Declaration]] methodASTs = ();
 @doc{
 Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
 }
-public M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
-    if (!(isDirectory(project)))
+public M3 createM3FromDirectory(loc project, map[str, str] dependencyUpdateSites = (), str javaVersion = "1.7") {
+    if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
-    classPaths = getPaths(project, "class") + find(project, "jar");
+    }
+    
+    classPaths = find(project, "jar");
     sourcePaths = getPaths(project, "java");
-    //setEnvironmentOptions(project);
-    setEnvironmentOptions(classPaths, sourcePaths);
+    setEnvironmentOptions(classPaths, findRoots(project, sourcePaths));
     m3s = { *createM3FromFile(f, javaVersion = javaVersion) | sp <- sourcePaths, loc f <- find(sp, "java") };
     M3 result = composeJavaM3(project, m3s);
     registerProject(project, result);
@@ -102,15 +105,7 @@ public M3 createM3FromJar(loc jarFile) {
     jarName = substring(jarName, findLast(jarName, "/")+1);
     loc jarLoc = |jar:///|;
     jarLoc.authority = jarName;
-    return composeJavaM3(jarLoc , { createM3FromJarClass(jarClass) | loc jarClass <- crawl(jarFile, "class") });
-}
-
-public M3 includeJarRelations(M3 project, set[M3] jarRels = {}) {
-  set[M3] rels = jarRels;
-  if (isEmpty(rels))
-    rels = createM3FromProjectJars(project.id);
-  
-  return composeJavaM3(project.id, rels);
+    return composeJavaM3(jarLoc , { createM3FromJarClass(jarClass) | loc jarClass <- find(jarFile, "class") });
 }
 
 public bool isCompilationUnit(loc entity) = entity.scheme == "java+compilationUnit";

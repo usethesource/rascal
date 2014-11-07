@@ -6,14 +6,15 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
+@contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 module lang::json::ast::JSON
 
-data Value 
+data JSON 
 	= null() 
-	| object(map[str memberName, Value memberValue] members) 
-	| array(list[Value] values) 
-	| integer(int n)
-	| float(real r)
+	| object(map[str, JSON] properties) 
+	| array(list[JSON] values) 
+	| number(real n)
 	| string(str s) 
 	| boolean(bool b)
+	| ivalue(type[value] t, value v)
 	;

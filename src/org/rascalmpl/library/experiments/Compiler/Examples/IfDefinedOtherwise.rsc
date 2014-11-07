@@ -1,5 +1,7 @@
 module experiments::Compiler::Examples::IfDefinedOtherwise
 
+import Exception;
+
 public str expectedResult = "2 Did not find the key 3; 1; -99";
 
 value main(list[value] args) {
