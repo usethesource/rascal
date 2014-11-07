@@ -98,7 +98,7 @@ str val(value field) {
            if (isEmpty(fields)) return "[]";
            str r="[";
            r += "\"<head(fields)>\"";
-           for (f<-tail(fields)) r+= ",\"<f>\"";
+           for (fi<-tail(fields)) r+= ",\"<fi>\"";
            r += "]";
            return r;
        }
@@ -107,8 +107,8 @@ str val(value field) {
            str r="[";
            dColor p = head(fields);
            r += "new dimple.color(\"<p[0]>\",\"<p[1]>\",\"<p[2]>\")";
-           for (f<-tail(fields)) {
-               p = f;
+           for (fi<-tail(fields)) {
+               p = fi;
                r += ",new dimple.color(\"<p[0]>\",\"<p[1]>\",\"<p[2]>\")";            
            }
            r += "]";
@@ -124,14 +124,14 @@ str val(value field) {
 str vals(list[value] fields) {
     if (isEmpty(fields)) return "";
     str r = val(head(fields));
-    for (f<-tail(fields)) r+= ", <val(f)>";
+    for (fi<-tail(fields)) r+= ", <val(fi)>";
     return r;
     }
     
 str vals1(list[value] fields) {
     if (isEmpty(fields)) return "";
     str r="";
-    for (f<-fields) r+= ", <val(f)>";
+    for (fi<-fields) r+= ", <val(fi)>";
     return r;
     }
 
