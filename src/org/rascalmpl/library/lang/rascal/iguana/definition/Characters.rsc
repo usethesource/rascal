@@ -29,7 +29,7 @@ public CharRange range(int from, int to) {
   else
     fail;
 }
-
+/*
 public Symbol \char-class([*CharRange a, \empty-range(), *CharRange b]) 
   = \char-class(a+b);
 
@@ -49,6 +49,7 @@ public Symbol \char-class([*CharRange a, range(int n,int m), *CharRange b, range
   else 
     fail;
 }
+*/
      
 test bool testFlip() = \char-class([range(2,2), range(1,1)]) == \char-class([range(1,2)]);
 test bool testMerge() = \char-class([range(3,4), range(2,2), range(1,1)]) == \char-class([range(1,4)]);
