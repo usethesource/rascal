@@ -1,6 +1,7 @@
 module experiments::Compiler::muRascal::AST
 
 import Prelude;
+import Message;
 
 /*
  * Abstract syntax for muRascal.
@@ -11,17 +12,21 @@ import Prelude;
 // All information related to one Rascal module
 
 public data MuModule =											
-              muModule(str name, list[loc] imports,
-              					 map[str,Symbol] types, 
-              					 map[Symbol, Production] symbol_definitions,
-                                 list[MuFunction] functions, 
-                                 list[MuVariable] variables, 
-                                 list[MuExp] initialization,
-                                 int nlocals_in_initializations,
-                                 map[str,int] resolver,
-                                 lrel[str,list[str],list[str]] overloaded_functions,
-                                 map[Symbol, Production] grammar)
+              muModule(str name, 
+                       set[Message] messages,
+                       list[loc] imports,
+              		   map[str,Symbol] types, 
+              		   map[Symbol, Production] symbol_definitions,
+                       list[MuFunction] functions, 
+                       list[MuVariable] variables, 
+                       list[MuExp] initialization,
+                       int nlocals_in_initializations,
+                       map[str,int] resolver,
+                       lrel[str,list[str],list[str]] overloaded_functions,
+                       map[Symbol, Production] grammar)
             ;
+            
+MuModule errorMuModule(str name, set[Message] messages) = muModule(name, messages, [], (), (), [], [], [], 0, (), [], ());
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
@@ -345,7 +350,7 @@ MuExp muCallPrim("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), mu
 MuExp muCallPrim("node_create", [muCon(str name), *MuExp args, muCallMuPrim("make_mmap", [])], loc src) = muCon(makeNode(name, [a | muCon(a) <- args]))  
       when allConstant(args);
       
-MuExp muCallPrim("appl_create", [muCon(prod), muCon(args)], loc src) = muCon(makeNode("appl", prod, args));
+MuExp muCallPrim("appl_create", [muCon(value prod), muCon(list[value] args)], loc src) = muCon(makeNode("appl", prod, args));
 
 // muRascal primitives
 
