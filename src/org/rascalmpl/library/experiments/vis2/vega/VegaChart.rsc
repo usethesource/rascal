@@ -4,7 +4,6 @@ import experiments::vis2::vega::Json;
 
 import Prelude;
 
-
 public VEGA setAxe(VEGA vega, str name, AXE a) {
     return visit(vega) {
           case axe(scale=name) => a
@@ -23,33 +22,11 @@ public SCALE getScale(VEGA vega, str name) {
           case v:scale(name=name): return v;
           } 
     }
-    
-public map[str tg, str() f] ftab;
-
-public str _aap(bool grid=false) {return "<grid>";}
-
-public map[str tg, str() f] aap(bool grid = false) {
-    ftab["aap"] = str () {return _aap(grid=grid);};
-    // ftab+= ("aap" : str () {return _aap(grid=grid);});
-    return ftab;
-    }
-    
-public map[str tg, str() f] getMap() = ftab;
+  
 
 public void Main() {
-     ftab = ();
-     aap(grid=true);
-     //z = getAxe(stackedBar(), "x");
-     //z.grid = true;
-     //println(setAxe(stackedBar(),"x", z));
-     println(getMap());
      }      
 
-/*
- public void Main() {
-     // iprintln(stackedBar);
-     }
-*/
 VEGA  _stackedBar = vega(
             viewport = [1800, 1800]
              ,
@@ -129,8 +106,14 @@ VEGA  _stackedBar = vega(
                   
                 ); 
  
- public VEGA stackedBar() {
-    return _stackedBar;
+ public VEGA() stackedBar(bool grid = false) {
+    return VEGA() {
+        VEGA r = _stackedBar;
+        AXE a = getAxe(r, "x");
+        a.grid = grid;
+        r = setAxe(r, "x", a);
+        return r;
+        };
     }
     
 public VEGA stedenBar() {
@@ -150,11 +133,7 @@ public VEGA stedenBar() {
             viewport = [1800, 1800]
              ,
             axes= [
-                axe(scale="x", \type="x", grid = true 
-               // , properties =("labels":("angle":("value":90),"dx":("value":1)
-               // ,"baseline":("value":"middle"), "align":("value":"left"))
-               // ,"title":("dy":("value":50)))
-                )
+                axe(scale="x", \type="x", grid = true)
                 ,
                 axe(scale = "y", \type ="y", grid = true
                 //, properties =("labels":("fill":("value":"green")),
