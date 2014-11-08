@@ -4,16 +4,35 @@ import experiments::vis2::vega::Json;
 
 import Prelude;
 
- public void Main() {
-     iprintln(stackedBar);
-     }
+public VEGA setAxe(VEGA vega, str name, AXE a) {
+    return visit(vega) {
+          case axe(scale=name) => a
+          } 
+    }
 
-VEGA  stackedBar = vega(
+
+public AXE getAxe(VEGA vega, str name) {
+    visit(vega) {
+          case v:axe(scale=name): return v;
+          } 
+    }
+    
+public SCALE getScale(VEGA vega, str name) {
+    visit(vega) {
+          case v:scale(name=name): return v;
+          } 
+    }
+  
+
+public void Main() {
+     }      
+
+VEGA  _stackedBar = vega(
             viewport = [1800, 1800]
              ,
             axes= [
-                axe(scale="x", \type="x", 
-                properties =("labels":("angle":("value":90),"dx":("value":1)
+                axe(scale="x", \type="x"
+                , properties =("labels":("angle":("value":90),"dx":("value":1)
                 ,"baseline":("value":"middle"), "align":("value":"left"))
                 ,"title":("dy":("value":50))
                 )
@@ -43,9 +62,9 @@ VEGA  stackedBar = vega(
               \data =[datum(name="table"),
                       datum(name="stats", 
                           transform= [
-                              t(keys=["data.x"],                       
+                              transform(keys=["data.x"],                       
                                 \type = "facet"),      
-                              t(\value="data.y",
+                              transform(\value="data.y",
                                 \type = "stats")
                               ],                     
                           source= "table")
@@ -74,9 +93,9 @@ VEGA  stackedBar = vega(
                           ,
                         from = datum(\data="table",
                                transform = [
-                                  t(keys = ["data.c"],
+                                  transform(keys = ["data.c"],
                                     \type = "facet"),
-                                  t(point = "data.x", 
+                                  transform(point = "data.x", 
                                     height = "data.y",
                                     \type = "stack")
                                ] 
@@ -87,20 +106,34 @@ VEGA  stackedBar = vega(
                   
                 ); 
  
- public JSON stackedBar() {
-    return toJson(stackedBar);
+ public VEGA() stackedBar(bool grid = false) {
+    return VEGA() {
+        VEGA r = _stackedBar;
+        AXE a = getAxe(r, "x");
+        a.grid = grid;
+        r = setAxe(r, "x", a);
+        return r;
+        };
+    }
+    
+public VEGA stedenBar() {
+    VEGA r = groupedBar();
+    AXE a = getAxe(r, "x");
+    map[str, value] p = a.properties;
+    p["labels"] = ("angle":("value":90),"dx":("value":1)
+          ,"baseline":("value":"middle"), "align":("value":"left"));
+    p["title"] = ("dy":("value":50));
+    a.properties = p;
+    r= setAxe(r, "x", a);
+    return r;
     }
                
 
- VEGA  stackedArea = vega(
+ VEGA  _stackedArea = vega(
             viewport = [1800, 1800]
              ,
             axes= [
-                axe(scale="x", \type="x", grid = true 
-               // , properties =("labels":("angle":("value":90),"dx":("value":1)
-               // ,"baseline":("value":"middle"), "align":("value":"left"))
-               // ,"title":("dy":("value":50)))
-                )
+                axe(scale="x", \type="x", grid = true)
                 ,
                 axe(scale = "y", \type ="y", grid = true
                 //, properties =("labels":("fill":("value":"green")),
@@ -126,9 +159,9 @@ VEGA  stackedBar = vega(
               \data =[datum(name="table"),
                       datum(name="stats", 
                           transform= [
-                              t(keys=["data.x"],                       
+                              transform(keys=["data.x"],                       
                                 \type = "facet"),      
-                              t(\value="data.y",
+                              transform(\value="data.y",
                                 \type = "stats")
                               ],                     
                           source= "table")
@@ -155,9 +188,9 @@ VEGA  stackedBar = vega(
                           ,
                         from = datum(\data="table",
                                transform = [
-                                  t(keys = ["data.c"],
+                                  transform(keys = ["data.c"],
                                     \type = "facet"),
-                                  t(point = "data.x", 
+                                  transform(point = "data.x", 
                                     height = "data.y",
                                     \type = "stack")
                                ] 
@@ -168,16 +201,20 @@ VEGA  stackedBar = vega(
                   
                 ); 
  
- public JSON stackedArea() {
-    return toJson(stackedArea);
+ public VEGA stackedArea() {
+    return _stackedArea;
     }
     
-VEGA  groupedBar = vega(
+VEGA  _groupedBar = vega(
             viewport = [1800, 1800]
              ,
             axes= [
                 axe(scale="x", \type="x", 
                   tickSize = 0, tickPadding = 8
+                //, properties =("labels":("angle":("value":90),"dx":("value":1)
+                //    ,"baseline":("value":"middle"), "align":("value":"left"))
+                //     ,"title":("dy":("value":50))
+                //)
                 ),
                 axe(scale = "y", \type ="y"              
                 )
@@ -204,7 +241,7 @@ VEGA  groupedBar = vega(
              marks = [mark(\type = "group",
                         from = datum(\data="table",
                                       transform = [
-                                          t(keys = ["data.x"],
+                                          transform(keys = ["data.x"],
                                           \type = "facet"
                                      )
                                     ] 
@@ -243,11 +280,11 @@ VEGA  groupedBar = vega(
                   
                 ); 
              
-public JSON groupedBar() {
-    return toJson(groupedBar);
+public VEGA groupedBar() {
+    return _groupedBar;
     }
     
-VEGA  groupedSymbol= 
+VEGA  _groupedSymbol= 
 vega(
             viewport = [1800, 1800]
              ,
@@ -280,7 +317,7 @@ vega(
              marks = [mark(\type = "group",
                         from = datum(\data="table",
                                       transform = [
-                                          t(keys = ["data.x"],
+                                          transform(keys = ["data.x"],
                                           \type = "facet"
                                      )
                                     ] 
@@ -320,11 +357,11 @@ vega(
              
         
  
- public JSON groupedSymbol() {
-    return toJson(groupedSymbol);
+ public VEGA groupedSymbol() {
+    return _groupedSymbol;
     }
     
-VEGA  _groupedLine() = vega(
+VEGA _groupedLine = vega(
             viewport = [1800, 1800]
              ,
             axes= [
@@ -378,7 +415,7 @@ VEGA  _groupedLine() = vega(
                           ,
                         from = datum(\data="table"
                                ,transform = [
-                                  t(keys = ["data.c"],
+                                  transform(keys = ["data.c"],
                                     \type = "facet")
                                ]                     
                          )                       
@@ -386,6 +423,6 @@ VEGA  _groupedLine() = vega(
                    ]                
                 ); 
  
- public JSON groupedLine() {
-    return toJson(_groupedLine());
+ public VEGA groupedLine() {
+    return _groupedLine;
     }

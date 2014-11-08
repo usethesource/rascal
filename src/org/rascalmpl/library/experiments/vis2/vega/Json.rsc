@@ -1,5 +1,6 @@
 module experiments::vis2::vega::Json
 import Prelude;
+import lang::json::IO;
 
 public data JSON 
 	= null() 
@@ -10,51 +11,6 @@ public data JSON
 	| boolean(bool b)
 	| ivalue(type[value] t, value v)
 	;
-	
-	
-public JSON gj(JSON v, list[value] keys) throws NoSuchKey {
-    return (v | _gj(it, key) | value key <-keys);
-    }
-    
-JSON _gj(JSON v, value key) throws NoSuchKey {
-    switch(v) {
-    case null(): throw NoSuchKey(key);
-	case object(map[str, JSON] properties): 
-	      if (str k := key)
-	             return properties[k];
-	      else throw NoSuchKey(key);
-	 case array(list[JSON] values):
-	     if (int k := key)
-	             return values[k];
-	     else throw NoSuchKey(key);
-	 default: throw NoSuchKey(key);
-	 }       
-    }
-    
-JSON _uj(JSON v, value key, JSON val) throws NoSuchKey {
-    switch(v) {
-    case null(): throw NoSuchKey(key);
-	case object(map[str, JSON] properties): 
-	      if (str k := key) {
-	             properties[key] = val;
-	             return object(properties);
-	             }
-	      else throw NoSuchKey(key);
-	 case array(list[JSON] values):
-	     if (int k := key) {
-	             values[k] = val;
-	             return array(values);
-	             }
-	     else throw NoSuchKey(key);
-	 default: throw NoSuchKey(key);
-	 }       
-    }
-    
-JSON uj(JSON v, list[value] keys, JSON val) throws NoSuchKey {
-    if (isEmpty(keys)) return val;
-    value key = head(keys);
-    return _uj(v, key, uj(_gj(v, key), tail(keys), val));
-    }
   
 public data VEGA =  vega(list[AXE] axes=[], list[SCALE] scales=[], 
                          list[DATUM] \data=[], PADDING padding= padding(), 
@@ -71,7 +27,7 @@ public data MARK = mark(str name = "", str \type = "", list[MARK] marks =[],
     
 public data DATUM = datum(str name="", list[TRANSFORM] transform = [], str source = "", str \data="");
 
-public data TRANSFORM = t(str \type="", list[str] keys = [], str point ="", str height = "", str \value ="");
+public data TRANSFORM = transform(str \type="", list[str] keys = [], str point ="", str height = "", str \value ="");
 
 public data DOMAIN = ref(str \data="", str field = "");
 
@@ -79,13 +35,6 @@ public data RANGE = lit(str key = "");
 
 public data SCALE = scale(str name = "", str \type = "", DOMAIN domain = ref(), RANGE range = lit(),
              bool nice = false, bool zero = true, bool round = false, real padding = 99999.);
-
-
-//("axes":array(
-//        [object(("scale":string("x"), "type":string("x"))),
-//         object(("scale":string("y"),"type":string("y")))
-//        ]),
-
 
 JSON Object(map[str, JSON] m) {
     // println(m);
@@ -138,15 +87,12 @@ JSON toJson(PADDING padding) {
      
 JSON toJson(TRANSFORM transform) { 
      switch (transform) {
-         case t(): return Object(("type":string(transform.\type), "keys": toJson(transform.keys), 
+         case transform(): return Object(("type":string(transform.\type), "keys": toJson(transform.keys), 
                "point":toJson(transform.point),  "height":toJson(transform.height),
                "value":toJson(transform.\value)));
          }
      return null();    
      }
-     
- // public data MARK = mark(str name = "table", str \type = "group", list[MARK] marks =[], 
- //   map[str, value]  properties = (), list[DATUM] from  =[]);
  
  JSON toJson(MARK mark) { 
      switch (mark) {
@@ -202,6 +148,10 @@ JSON propToJson(value v) {
             "viewport" : toJson(vega.viewport)));
          } 
     return null();
+    }
+    
+public str toJSON(VEGA vega) {
+    return toJSON(toJson(vega));
     }
   
  public void Main() {
