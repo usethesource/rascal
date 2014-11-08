@@ -592,7 +592,7 @@ Assignable getReceiver(a: (Assignable) `<Assignable receiver> @ <Name annotation
 
 MuExp translate(s: (Statement) `;`) = muBlock([]);
 
-MuExp translate(s: (Statement) `global <Type \type> <{QualifiedName ","}+ names> ;`) { throw("globalDirective"); }
+//MuExp translate(s: (Statement) `global <Type \type> <{QualifiedName ","}+ names> ;`) { throw("globalDirective"); }
 
 // -- return statement -----------------------------------------------
 

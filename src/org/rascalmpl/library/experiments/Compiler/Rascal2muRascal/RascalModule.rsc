@@ -111,22 +111,13 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	//println("config.grammar = <config.grammar>");
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
+   	module_name = "<M.header.name>";
    	if(size(errors) > 0) {
    	    return errorMuModule(module_name, config.messages);
-   	  //for(e <- errors) {
-   	  //	println(e);
-   	  //}
-   	  //throw "Module contains static errors!";
    	} else {
-   	  // If no static errors...
-   	  //if(size(warnings) > 0) {
-   	  //	for(w <- warnings) {
-   	  //		println(w);
-   	  //	}
-   	  //}
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes(config); 
-   	  module_name = "<M.header.name>";
+   	 
    	  imported_modules = [];
    	  functions_in_module = [];
    	  variables_in_module = [];

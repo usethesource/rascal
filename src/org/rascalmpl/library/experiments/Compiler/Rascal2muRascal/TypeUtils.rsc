@@ -10,7 +10,7 @@ import lang::rascal::types::AbstractType;
 import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
-import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getQualifiedFunctionName, need better structure
+import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getFunctionsInModule, need better structure
 
 /*
  * This module provides a bridge to the "Configuration" delivered by the type checker
@@ -222,6 +222,7 @@ void extractScopes(Configuration c){
              //}	
         }
         case constructor(rname,rtype,_,inScope,src): { 
+             //println("constructor: <rname>, <rtype>");
 			 constructors += {uid};
 			 declares += {<inScope, uid>};
 			 loc2uid[src] = uid;
@@ -295,7 +296,7 @@ void extractScopes(Configuration c){
 			 // Fill in uid2name
 			 uid2name[uid] = prettyPrintName(rname);
         }
-        default: ;//println("extractScopes: skipping <uid>: <item>");
+        default: ; //println("extractScopes: skipping <uid>: <item>");
       }
     }
     

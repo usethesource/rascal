@@ -370,24 +370,27 @@ set[loc] failures = {
  
 };
 
+
+int countErrors(map[loc,int] counts) = size( {msg | msg <- counts, counts[msg] > 0} );
+
 tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 	allFiles = find(root, "rsc") - exclude;
 	nfiles = size(allFiles);
 	static_error_count = ();
-	static_errors = {};
 	compiler_errors = {};
+	set[Message] all_static_errors = {};
 	t1 = realTime();
 	i = 0;
 	while(!isEmpty(allFiles)){
 		<f, allFiles> = takeOneFrom(allFiles);
 		i += 1;
-		println("**** Compiling <i> of <nfiles> files (static_errors: <size(static_errors)>, compiler_errors: <size(compiler_errors)>), time sofar <tosec(t1, realTime())> sec. ****");
+		println("**** Compiling <i> of <nfiles> files (static_errors: <countErrors(static_error_count)>, compiler_errors: <size(compiler_errors)>), time sofar <tosec(t1, realTime())> sec. ****");
 		try {
 			f_rvm = compile(f);
-			errors = [ e | e:error(_,_) <- f_rvm.messages];
-            static_error_count[f] = size(errors);
-            if(size(errors) > 0){
-                static_errors += f;
+			f_errors = { e | e:error(_,_) <- f_rvm.messages};
+			all_static_errors += f_errors;
+            static_error_count[f] = size(f_errors);
+            if(size(f_errors) > 0){
                 for(msg <- f_rvm.messages){
                     println(msg);
                 }
@@ -397,7 +400,7 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 		}
 	}
 	
-  	nstatic = size(static_errors);
+  	nstatic = countErrors(static_error_count);
   	
   	ncompiler = size(compiler_errors);
   	ndone = nfiles - nstatic - ncompiler;
@@ -405,15 +408,15 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 	println("Success: <ndone>");
 	println("Type checker: <nstatic> files with errors");
 	
-	nstatic_errors = (0 | it + static_error_count[fl] | loc fl <- static_error_count);
+	nstatic_errors = size(all_static_errors);
 	
 	println("Type checker: <nstatic_errors> error messages");
 	
 	println("Compiler errors: <ncompiler> crashes");
 	println("Time: <tosec(t1, realTime())> sec.");
 	
-	writeFile(|rascal:///experiments/Compiler/Tests/static_errors|, 
-	   "<for(loc f <- sort(toList(static_errors))){><f>\n<}>");
+	//writeFile(|rascal:///experiments/Compiler/Tests/static_errors|, 
+	//   "<for(loc f <- sort(toList(static_errors))){><f>\n<}>");
 	 
 	perfile = sort(toList(static_error_count), bool(tuple[loc,int] a, tuple[loc,int] b) {return a[1] > b[1]; });
     writeFile(|rascal:///experiments/Compiler/Tests/static_error_count_per_file|, 
@@ -422,5 +425,5 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 	writeFile(|rascal:///experiments/Compiler/Tests/compiler_errors|, 
 	   "<for(loc f <- sort(toList(compiler_errors))){><f>\n<}>");
 	
-	return <static_errors, compiler_errors>;
+	return <domain(static_error_count), compiler_errors>;
 }
