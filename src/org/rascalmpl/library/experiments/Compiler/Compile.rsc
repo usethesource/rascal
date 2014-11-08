@@ -29,7 +29,16 @@ RVMProgram compile(str rascalSource, bool listing=false, bool recompile=false, l
 }
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
+
 RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
+    rvmProgram = compile(moduleLoc, {moduleLoc}, listing=listing, recompile=recompile,bindir=bindir);
+    for(msg <- rvmProgram.messages){
+        println(msg);
+    }
+    return rvmProgram;
+}
+
+private RVMProgram compile(loc moduleLoc,  set[loc] worklist, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
     println("compile: <moduleLoc>");
     rvmProgramLoc = compiledVersion(moduleLoc, bindir);
     if(!recompile && exists(rvmProgramLoc) && lastModified(rvmProgramLoc) > lastModified(moduleLoc)){
@@ -57,9 +66,10 @@ RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false, loc
    	    }
    	    rvmProgram = errorRVMProgram(muMod.name, messages);
    	} else {
-       	for(imp <- muMod.imports){
+       	for(imp <- muMod.imports, imp notin worklist){
        	    println("Compiling import <imp>");
-       	    rvm_imp = compile(imp);
+       	    worklist += imp;
+       	    rvm_imp = compile(imp, worklist);
        	    messages += rvm_imp.messages;
        	}
    	
