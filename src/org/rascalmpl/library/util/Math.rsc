@@ -395,6 +395,21 @@ pow(12345678901234567890.0, 1000)
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java real pow(num x, int y);
+@doc{
+Synopsis: Calculate an arbitrary power of a numeric value.
+
+Description:
+The calculate `x`<sup>`y`</sup> where `y` can be any real value.
+
+Examples:
+<screen>
+import util::Math;
+pow(sqrt(42), 2.3)
+pow(12345678901234567890.0, 100.2)
+</screen>
+}
+@javaClass{org.rascalmpl.library.util.Math}
+public java real pow(num x, real y);
 
 @doc{
 Synopsis: Return the precision of a real number.
