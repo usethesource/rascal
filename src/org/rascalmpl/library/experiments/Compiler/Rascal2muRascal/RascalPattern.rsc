@@ -462,11 +462,11 @@ MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> 
 
 MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) {
    MuExp fun_pat;
-   MuExp fun_name;
+   str fun_name;
    argCode = [ translatePat(pat) | pat <- arguments ] + translatePatKWArguments(keywordArguments);
    //iprintln(expression);
    if(expression is qualifiedName){
-      fun_name = getType(expression@\loc).name;
+      fun_name = "<getType(expression@\loc).name>";
       //fun_pat = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(fun_name)]);
       return muApply(mkCallToLibFun("Library","MATCH_SIMPLE_CALL_OR_TREE"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
    } else if(expression is literal){ // StringConstant
@@ -644,8 +644,8 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
         // compiledPats += translatePatAsSetElem(pat, false);
       }
    }
-   MuExp litCode = (all(lit <- literals, isConstant(lit))) ? muCon({ getLiteralValue(lit) | lit <- literals })
-   		           										   : muCallPrim("set_create", [ translate(lit) | lit <- literals] );
+   MuExp litCode = (all(Literal lit <- literals, isConstant(lit))) ? muCon({ getLiteralValue(lit) | Literal lit <- literals })
+   		           										           : muCallPrim("set_create", [ translate(lit) | Literal lit <- literals] );
    
     return muApply(mkCallToLibFun("Library","MATCH_SET"), [ litCode, muCallMuPrim("make_array", compiledPats) ]);
    
@@ -848,7 +848,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
       leaveBacktrackingScope();
       return exp;
    } else {
-      name = pat.name;
+      Name name = pat.name;
       tp = pat.\type;
       <fuid, pos> = getVariableScope("<name>", name@\loc);
       // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  

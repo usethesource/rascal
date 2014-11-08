@@ -14,6 +14,7 @@ import lang::rascal::format::Grammar;
 import lang::rascal::format::Escape;
 import vis::Figure;
 import vis::Render;
+import vis::KeySym;
 
 import ParseTree;
 import IO;

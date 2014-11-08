@@ -34,7 +34,7 @@ import experiments::Compiler::muRascal::MuAllMuOr;
 //int size_assignables({Assignable ","}+ es) = size([e | e <- es]);	    // TODO: should become library function
 
 int size_keywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) = 
-    (keywordArguments is \default) ? size([kw | kw <- keywordArguments.keywordArgumentList]) : 0;
+    (keywordArguments is \default) ? size([kw | KeywordArgument[Expression] kw <- keywordArguments.keywordArgumentList]) : 0;
 
 // Produces multi- or backtrack-free expressions
 MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) {
@@ -1151,7 +1151,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
 MuExp translateKeywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) {
    // Keyword arguments
    if(keywordArguments is \default){
-      kwargs = [ muCon("<kwarg.name>"), translate(kwarg.expression)  | /*KeywordArgument[Expression]*/ kwarg <- keywordArguments.keywordArgumentList ];
+      kwargs = [ muCon("<kwarg.name>"), translate(kwarg.expression)  | KeywordArgument[Expression] kwarg <- keywordArguments.keywordArgumentList ];
       if(size(kwargs) > 0){
          return muCallMuPrim("make_mmap", kwargs);
       }
