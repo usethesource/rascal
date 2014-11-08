@@ -387,7 +387,7 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 		println("**** Compiling <i> of <nfiles> files (static_errors: <countErrors(static_error_count)>, compiler_errors: <size(compiler_errors)>), time sofar <tosec(t1, realTime())> sec. ****");
 		try {
 			f_rvm = compile(f);
-			f_errors = { e | e:error(_,_) <- f_rvm.messages};
+			f_errors = { e | e:error(_,_) <- f_rvm.messages, e.at.path == f.path};
 			all_static_errors += f_errors;
             static_error_count[f] = size(f_errors);
             if(size(f_errors) > 0){
@@ -416,7 +416,7 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 	println("Time: <tosec(t1, realTime())> sec.");
 	
 	writeFile(|rascal:///experiments/Compiler/Tests/static_errors|, 
-	   "<for(loc f <- sort(toList(domain(static_error_count)))){><f>\n<}>");
+	   "<for(loc f <- sort([ msg | msg <- static_error_count, static_error_count[msg] > 0])){><f>\n<}>");
 	 
 	perfile = sort(toList(static_error_count), bool(tuple[loc,int] a, tuple[loc,int] b) {return a[1] > b[1]; });
     writeFile(|rascal:///experiments/Compiler/Tests/static_error_count_per_file|, 
