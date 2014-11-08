@@ -415,8 +415,8 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 	println("Compiler errors: <ncompiler> crashes");
 	println("Time: <tosec(t1, realTime())> sec.");
 	
-	//writeFile(|rascal:///experiments/Compiler/Tests/static_errors|, 
-	//   "<for(loc f <- sort(toList(static_errors))){><f>\n<}>");
+	writeFile(|rascal:///experiments/Compiler/Tests/static_errors|, 
+	   "<for(loc f <- sort(toList(domain(static_error_count)))){><f>\n<}>");
 	 
 	perfile = sort(toList(static_error_count), bool(tuple[loc,int] a, tuple[loc,int] b) {return a[1] > b[1]; });
     writeFile(|rascal:///experiments/Compiler/Tests/static_error_count_per_file|, 

@@ -799,10 +799,44 @@ value translatePatternAsConstant(p:(Pattern) `{<{Pattern ","}* pats>}`) = { tran
 
 value translatePatternAsConstant(p:(Pattern) `[<{Pattern ","}* pats>]`) = [ translatePatternAsConstant(pat) | pat <- pats ];
 
-value translatePatternAsConstant(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
-  lpats = [ pat | pat <- pats]; // TODO
-  return ( <translatePatternAsConstant(lpats[0])> | it + <translatePatternAsConstant(lpats[i])> | i <- [1 .. size(lpats)] );
+//value translatePatternAsConstant(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
+//  lpats = [ pat | pat <- pats]; // TODO
+//  return ( <translatePatternAsConstant(lpats[0])> | it + <translatePatternAsConstant(lpats[i])> | i <- [1 .. size(lpats)] );
+//}
+
+value translatePatternAsConstant(p:(Pattern) `\<<Pattern  pat1>\>`) {
+  return < translatePatternAsConstant(pat1) >;
 }
+
+value translatePatternAsConstant(p:(Pattern) `\<<Pattern  pat1>, <Pattern  pat2>\>`) {
+  return < translatePatternAsConstant(pat1), 
+           translatePatternAsConstant(pat2)
+         >;
+}
+
+value translatePatternAsConstant(p:(Pattern) `\<<Pattern  pat1>, <Pattern  pat2>, <Pattern  pat3>\>`) {
+  return < translatePatternAsConstant(pat1), 
+           translatePatternAsConstant(pat2), 
+           translatePatternAsConstant(pat3)
+         >;
+}
+
+value translatePatternAsConstant(p:(Pattern) `\<<Pattern  pat1>, <Pattern  pat2>, <Pattern  pat3>, <Pattern  pat4>\>`) {
+  return < translatePatternAsConstant(pat1), 
+           translatePatternAsConstant(pat2), 
+           translatePatternAsConstant(pat3),
+           translatePatternAsConstant(pat4)
+         >;
+}
+value translatePatternAsConstant(p:(Pattern) `\<<Pattern  pat1>, <Pattern  pat2>, <Pattern  pat3>, <Pattern  pat4>, <Pattern  pat5>\>`) {
+  return < translatePatternAsConstant(pat1), 
+           translatePatternAsConstant(pat2), 
+           translatePatternAsConstant(pat3),
+           translatePatternAsConstant(pat4),
+           translatePatternAsConstant(pat5)
+         >;
+}
+
  
 default value translatePatternAsConstant(Pattern p){
   throw "Not a constant pattern: <p>";
@@ -897,4 +931,17 @@ MuExp translateFunctionBody(MuExp exp) = exp;
 // TODO: check the interpreter subtyping
 default MuExp translateFunctionBody(Statement* stats) = muBlock([ translate(stat) | stat <- stats ]);
 default MuExp translateFunctionBody(Statement+ stats) = muBlock([ translate(stat) | stat <- stats ]);
+
+default MuExp translateFunctionBody(node nd) {  throw "Cannot handle function body <nd>"; }
+
+//MuExp translateFunctionBody(node nd){
+//    switch(nd){
+//        case Expression exp:    return translate(exp);
+//        case MuExp exp:         return exp;
+//        case Statement* stats:  muBlock([ translate(stat) | stat <- stats ]);
+//        case Statement+ stats:  muBlock([ translate(stat) | stat <- stats ]);
+//        default:
+//            throw "Cannot handle function body <nd>";
+//    }
+//}
 
