@@ -942,30 +942,33 @@ Datasets[LabeledData] exampleBarData() =
 
 void stackedBarChart(){
         // ex("stackedBarChart", vega(size=<500,200>, dataFile="vega/StackedBar.json", variable="aap"));
-        ex("stackedBarChart", vega(size=<500,200>, datasets=stackedData, variable="stackedBar()"));
+        ex("stackedBarChart", vega(size=<500,200>, datasets=stackedData, variable="stackedBar()", command= stackedBar(grid=true)));
         //ex("stackedBarChart", vega(size=<800,200>, datasets=exampleSteden(), variable="stackedArea"));
 }
 
 void groupedBarChart(){
-        ex("groupedBarChart", vega(size=<500,200>, datasets=stackedData, variable="groupedBar()"));
+        ex("groupedBarChart", vega(size=<500,200>, datasets=stackedData, command=groupedBar));
 }
 
 void stackedAreaChart(){
-        ex("stackedAreaChart", vega(size=<500,200>, datasets=stackedData, variable="stackedArea()"));
+        ex("stackedAreaChart", vega(size=<500,200>, datasets=stackedData, command=stackedArea));
 }
 
 void groupedSymbolChart(){
-        ex("groupedSymbolChart", vega(size=<500,200>, datasets=stackedData, variable="groupedSymbol()"));
+        ex("groupedSymbolChart", vega(size=<500,200>, datasets=stackedData, command=groupedSymbol));
 }
 
 void groupedLineChart(){
-        ex("groupedLineChart", vega(size=<500,200>, datasets=stackedData, variable="groupedLine()"));
+        ex("groupedLineChart", vega(size=<500,200>, datasets=stackedData, command=groupedLine));
+}
+
+void stedenBarChart(){
+        ex("stedenBarChart", vega(size=<1000,200>, datasets=exampleSteden(), command=stedenBar));
 }
      
 
 void barChart1(){
 	ex("barChart1", barChart(datasets=exampleBarData()));
-
 }
 
 void barChart2(){
@@ -976,15 +979,7 @@ void barChart3(){
 	ex("barChart3", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, datasets=exampleBarData())]));
 }
 
-void vegaBarChart1(){
-	ex("vegaBarChart1", barChart(size=<800,800>, datasets=exampleNederland(), flavor="vegaBarChart",
-	orientation="vertical", grouped=false));
-}
 
-void vegaBarChart2(){
-	ex("vegaBarChart2", barChart(size=<1600,800>, datasets=exampleSteden(), flavor="vegaBarChart",
-	orientation="vertical", grouped=true));
-}
 
 /********************* lineChart ******************************/
 

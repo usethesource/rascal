@@ -29,12 +29,12 @@ var printq = function(o){
 
 
 Figure.bboxFunction.vega = function(selection) {
-    Figure.registerComponent("vega", this.variable);
+    Figure.registerComponent("vega", this.name);
     
-    Figure.drawFunction[this.variable] = function(figure, x, y, w, h) {
+    Figure.drawFunction[this.name] = function(figure, x, y, w, h) {
    //  var data = {name:"table",:figure.data};
     // alert(data);
-    var dfile =  Figure.site + "/vegaJSON/" + figure.module +"/"+figure.variable;
+    var dfile =  Figure.site + "/vegaJSON/" + figure.name;
     // var dfile ="vega/StackedBar.json";
     d3.json(dfile, function(err, data){
          figure.padding = new Object();
@@ -97,7 +97,6 @@ Figure.bboxFunction.vega = function(selection) {
   	
 }
 
-Figure.drawFunction.vega = function (x, y, w, h) {
-    // alert(this.variable);  
-	return Figure.getDrawForComponent("vega", this.variable)(this, x, y, w, h);
+Figure.drawFunction.vega = function (x, y, w, h) {  
+	return Figure.getDrawForComponent("vega", this.name)(this, x, y, w, h);
     }

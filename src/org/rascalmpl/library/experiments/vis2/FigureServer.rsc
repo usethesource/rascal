@@ -13,6 +13,7 @@ import util::Cursor;
 import lang::json::IO;
 import Type;
 import Exception;
+import experiments::vis2::vega::Json;
 
 /************************* Figure server *********************************
  This server responds to two requests:
@@ -117,25 +118,19 @@ default Response page(!get(), str path, map[str, str] parameters) {
   throw "invalid request <path> with <parameters>";
 }
 
-Response page(get(), /^\/vegaJSON\/<modul:[a-zA-Z0-9_:]+>\/<variable:[a-zA-Z0-9_(,)]+>/, map[str, str] parameters) {
-        println("get: initial_figure: <modul>  <variable>, <parameters>");
-        // println("aap");
-    str cmd = "import <modul>;import lang::json::IO;toJSON(<variable>);";
-    println(cmd);
-    try {
-      unimport("<modul>");
-      if (result(res) :=  eval(cmd)) {
-        if (str s := res) {
-            // println(s);
-            return response(s);
-            }
-        }
-     }
-     catch value x:
-                   println(x);
-        println("Someting goes wrong <cmd>");
-        return response("");
-}
+Response page(get(), /^\/vegaJSON\/<name:[a-zA-Z0-9_:]+>/, 
+      map[str, str] parameters) {
+      // println("get: name: <name>");
+      if(visualizations[name]?){
+		    descr = visualizations[name];
+		    VEGA s = descr.figure.command();
+		    return response(toJSON(s));
+		    }
+      else {
+    	  throw "get_initial_figure: visualization <name> unknown";
+    	  }
+    }
+   
         
 
 
@@ -176,7 +171,6 @@ public void render(str name, type[&T] model_type, &T model, Figure (str event, s
 public void render(str name, type[&T] model_type, &T model, Figure (str event, str utag, &T model) visualize, &T (&T model) transform){
     println("render: <model_type> <trCursor(makeCursor(model))>");
 	f = visualize("init", "all", makeCursor(model));
-	// println("render: <figToJSON(f, getSite())>");
 	visualizations[name] = descriptor(name, model_type, model, visualize, transform, f);
 	println(getSite());
 	htmlDisplay(site /*+ "?name=<name>"*/);
