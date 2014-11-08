@@ -48,16 +48,21 @@ public void getDeclarationInfo(Configuration config){
     
     // Collect all the types that are in the type environment
 
-	typeRel = { < getSimpleName(rname), config.store[config.typeEnv[rname]].rtype > | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype }; 
-	          //{ < getSimpleName(rname) , rtype > | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] };
+	typeRel = { < getSimpleName(rname), config.store[config.typeEnv[rname]].rtype > | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype }
+	        + { < getSimpleName(rname) , rtype > | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] }
+            + { < getSimpleName(config.store[uid].rname), config.store[uid].rtype > | int uid <- config.store, config.store[uid] has rname, config.store[uid] has rtype };
+    
 
 	// Collect all the constructors of the adt types in the type environment
-
-	types = range(typeRel);
+	
 	constructors = { <\type.\adt, \type> | int uid <- config.store, 
-												constructor(_, Symbol \type, _, _, _) := config.store[uid],
-												\type.\adt in types };
-
+												constructor(_, Symbol \type, _, _, _) := config.store[uid]
+												//\type.\adt in types 
+												};
+    typeRel += { <cns[1].adt.name, cns[1].adt> | cns <- constructors };
+    
+    types = range(typeRel);
+    
 	// Collect all the productions of the non-terminal types in the type environment
     
     grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, 
@@ -101,10 +106,15 @@ public map[Symbol,Production] getGrammar() {
 public map[Symbol,Production] getDefinitions() {
 
    	// Collect all symbols
-   	symbols = types + carrier(constructors) + carrier(productions) + domain(grammar);
+   	set[Symbol] symbols = types + carrier(constructors) + carrier(productions) + domain(grammar);
+   	
+   	//println("getDefinitions:");
+   	//for(Symbol s <- symbols){
+   	//    println("\t<s>");
+   	//}
     
    	// and find their definitions
-   	map[Symbol,Production] definitions  = (() | reify(symbol, it) | symbol <- symbols);
+   	map[Symbol,Production] definitions  = (() | reify(symbol, it) | Symbol symbol <- symbols);
  	
  	return definitions;
 }
@@ -130,7 +140,7 @@ public type[value] symbolToValue(Symbol symbol) {
 }
 
 // primitive
-public map[Symbol,Production] reify(Symbol symbol, Configuration config, map[Symbol,Production] definitions) 
+public map[Symbol,Production] reify(Symbol symbol, /*Configuration config,*/ map[Symbol,Production] definitions) 
 	= definitions when isIntType(symbol) || isBoolType(symbol) || isRealType(symbol) || isRatType(symbol) ||
 					   isStrType(symbol) || isNumType(symbol) || isNodeType(symbol) || isVoidType(symbol) ||
 					   isValueType(symbol) || isLocType(symbol) || isDateTimeType(symbol);
@@ -161,10 +171,10 @@ public map[Symbol,Production] reify(Symbol::\map(Symbol from, Symbol to), map[Sy
 // adt
 public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols), map[Symbol,Production] definitions) {
 	set[Symbol] defs = typeRel[name];
-	//println("reify: <name>, <defs>");
+	//println("reify adt: <name>, <symbols>, <defs>, <constructors>");
 
     for(Symbol s <- defs){
-	   if(adtDef:Symbol::\adt(name,_) := s){
+	   if(adtDef: Symbol::\adt(name,_) := s){
           //assert Symbol::\adt(name,_) := adtDef;
           if(!definitions[adtDef]?) {
         	 alts = { sym2prod(sym) | sym <- constructors[adtDef] };
@@ -189,12 +199,14 @@ public map[Symbol,Production] reify(Symbol::\alias(str name, list[Symbol] parame
 }
 // function
 public map[Symbol,Production] reify(Symbol::\func(Symbol ret, list[Symbol] parameters), map[Symbol,Production] definitions) {
+    //println("reify function: <ret>, <parameters>, <definitions>");
 	definitions = reify(ret, definitions);
-	definitions = ( definitions | reify(sym, it) | sym <- parameters );
+	definitions = ( definitions | reify(sym, it) | Symbol sym <- parameters );
 	return definitions;
 }
 // function with varargs
 public map[Symbol,Production] reify(Symbol::\var-func(Symbol ret, list[Symbol] parameters, Symbol varArg), map[Symbol,Production] definitions) {
+    
 	definitions = reify(ret, definitions);
 	definitions = ( definitions | reify(sym, it) | sym <- parameters );
 	definitions = reify(varArg, definitions);
@@ -280,6 +292,7 @@ public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] defin
 		when Condition::\follow(Symbol symbol) := cond || Condition::\not-follow(Symbol symbol) := cond ||
 			 Condition::\precede(Symbol symbol) := cond || Condition::\not-precede(Symbol symbol) := cond ||
 			 Condition::\delete(Symbol symbol) := cond;
+			 
 public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] definitions) = definitions;
 		   
 public default map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) = definitions;
