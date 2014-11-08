@@ -564,7 +564,7 @@ syntax ConcreteHole
 //  return muCallPrim("list_subscript_int", [muCallPrim("adt_field_access", [mkVar("<name>", name@\loc), muCon("args")]), muCon(7)]);
 //}
 
-default MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
+MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
     fragType = getType(e@\loc);
     println("translateConcrete, fragType = <fragType>");
     reifiedFragType = symbolToValue(fragType);
@@ -1151,7 +1151,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
 MuExp translateKeywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) {
    // Keyword arguments
    if(keywordArguments is \default){
-      kwargs = [ muCon("<kwarg.name>"), translate(kwarg.expression)  | KeywordArgument[Expression] kwarg <- keywordArguments.keywordArgumentList ];
+      kwargs = [ muCon("<kwarg.name>"), translate(kwarg.expression)  | /*KeywordArgument[Expression]*/ kwarg <- keywordArguments.keywordArgumentList ];
       if(size(kwargs) > 0){
          return muCallMuPrim("make_mmap", kwargs);
       }
