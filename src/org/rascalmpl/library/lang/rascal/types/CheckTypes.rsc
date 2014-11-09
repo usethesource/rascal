@@ -3330,7 +3330,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                     ptn.nameId = c.nextLoc - 1;
 	                return < ptn[@rtype = c.store[c.fcvEnv[n]].rtype], c >;
 	            }  else {
-	                c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+	                c.uses = c.uses + < c.fcvEnv[n], l >;
 	                c.usedIn[ptn@at] = head(c.stack);
 	                if (!(c.store[c.fcvEnv[n]] is variable)) {
 	                    c = addScopeWarning(c, "Name <prettyPrintName(n)> is a function, constructor, or production name", ptn@at);
