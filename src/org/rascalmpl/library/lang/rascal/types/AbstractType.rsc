@@ -684,7 +684,7 @@ public bool isElementType(Symbol t) =
 	isIntType(t) || isBoolType(t) || isRealType(t) || isRatType(t) || isStrType(t) || 
 	isNumType(t) || isNodeType(t) || isVoidType(t) || isValueType(t) || isLocType(t) || 
 	isDateTimeType(t) || isTupleType(t) || isADTType(t) || isConstructorType(t) ||
-	isFunctionType(t) || isReifiedType(t);
+	isFunctionType(t) || isReifiedType(t) || isNonTerminalType(t);
 
 @doc{Is this type a container type?}
 public bool isContainerType(Symbol t) =
@@ -794,6 +794,26 @@ public list[Symbol] getNonTerminalTypeParameters(Symbol t) {
 	if (Symbol::\conditional(s,_) := t) return getNonTerminalTypeParameters(s);
 	if (Symbol::\prod(s,_,_,_) := t) return getNonTerminalTypeParameters(s);
     return [ ];
+}
+
+public Symbol provideNonTerminalTypeParameters(Symbol t, list[Symbol] ps) {
+	// Note: this function assumes the length is proper -- that we are replacing
+	// a list of params with a list of types that is the same length. The caller
+	// needs to check this.
+	
+	t = unwrapType(t);
+	
+	if (Symbol::\parameterized-sort(n,ts) := t) return t[parameters=ps];
+	if (Symbol::\parameterized-lex(n,ts) := t) return t[parameters=ps];
+	if (Symbol::\start(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\iter(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\iter-star(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\iter-seps(s,_) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\iter-star-seps(s,_) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\opt(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\conditional(s,_) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\prod(s,_,_,_) := t) return t[def=provideNonTerminalTypeParameters(s,ps)];
+    return t;
 }
 
 @doc{Synopsis: Determine if the given type is a production.}

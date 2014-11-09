@@ -7687,9 +7687,26 @@ public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c)
 					} else {
 						return < c, makeFailType("Data type <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
 					}
-				} else if (ut is \lex || ut is \sort || ut is \keyword || ut is \layout) {
-					insert(ut);
+				} else if (isNonTerminalType(ut)) {
+					atps = getNonTerminalTypeParameters(ut);
+					if (size(pl) == size(atps)) {
+						failures = { };
+						for (idx <- index(pl), !subtype(pl[idx],getTypeVarBound(atps[idx]))) 
+							failures = failures + makeFailType("Cannot instantiate parameter <idx> with type <prettyPrintType(pl[idx])>, parameter has bound <prettyPrintType(getTypeVarBound(atps[idx]))>", l);
+						if (size(failures) == 0) {
+							if (size(pl) > 0) {
+								insert(provideNonTerminalTypeParameters(ut,pl));
+							} else {
+								insert(ut);
+							}
+						} else {
+							return < c, collapseFailTypes(failures) >;
+						} 
+					} else {
+						return < c, makeFailType("Data type <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l) >;
+					}
 				} else {
+					println("Maybe the debugger will deign to stop here...");
 					throw "User type should not refer to type <prettyPrintType(ut)>";
 				}
 			} else {
