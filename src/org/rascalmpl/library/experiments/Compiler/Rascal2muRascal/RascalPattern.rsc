@@ -255,6 +255,22 @@ MuExp translateParsedConcretePattern(cc: char(int c)) {
 
 //"type" "(" Pattern symbol "," Pattern definitions ")" 
 
+MuExp translateParsedConcretePattern(Pattern pat:(Pattern)`type ( <Pattern s>, <Pattern d> )`) {
+    throw "translateParsedConcretePattern type() case"; 
+}
+
+// The patterns callOrTree and reifiedType are ambiguous, therefore we need special treatment here.
+
+MuExp translateParsedConcretePattern(amb(set[Tree] alts)) {
+    for(a <- alts){
+        println("<a>, <a is reifiedType>");
+        if(a is reifiedType){
+        ;
+        }
+    }
+   throw "translateParsedConcretePattern: ambiguous, <alts>";
+}
+
 
 default MuExp translateParsedConcretePattern(Tree c) {
    iprintln(c);
