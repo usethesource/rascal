@@ -780,7 +780,21 @@ public default str getNonTerminalName(Symbol s) { throw "Invalid nonterminal pas
 //public default bool nonTerminalAllowsFields(Symbol s) = false;
 
 @doc{Get the type parameters of a nonterminal.}
-public list[Symbol] getNonTerminalTypeParameters(Symbol t) = [ rt | / Symbol rt : \parameter(_,_) := t ];
+//public list[Symbol] getNonTerminalTypeParameters(Symbol t) = [ rt | / Symbol rt : \parameter(_,_) := t ];
+public list[Symbol] getNonTerminalTypeParameters(Symbol t) {
+	t = unwrapType(t);
+	if (Symbol::\parameterized-sort(n,ps) := t) return ps;
+	if (Symbol::\parameterized-lex(n,ps) := t) return ps;
+	if (Symbol::\start(s) := t) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter(s) := t) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter-star(s) := t) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter-seps(s,_) := t) return getNonTerminalTypeParameters(s);
+	if (Symbol::\iter-star-seps(s,_) := t) return getNonTerminalTypeParameters(s);
+	if (Symbol::\opt(s) := t) return getNonTerminalTypeParameters(s);
+	if (Symbol::\conditional(s,_) := t) return getNonTerminalTypeParameters(s);
+	if (Symbol::\prod(s,_,_,_) := t) return getNonTerminalTypeParameters(s);
+    return [ ];
+}
 
 @doc{Synopsis: Determine if the given type is a production.}
 public bool isProductionType(\alias(_,_,Symbol at)) = isProductionType(at);
