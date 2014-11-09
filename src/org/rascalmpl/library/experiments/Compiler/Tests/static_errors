@@ -13,6 +13,7 @@
 |rascal:///experiments/Compiler/Benchmarks/Run.rsc|
 |rascal:///experiments/Compiler/Compile.rsc|
 |rascal:///experiments/Compiler/Examples/QL/util/Explode.rsc|
+|rascal:///experiments/Compiler/Examples/Tst1.rsc|
 |rascal:///experiments/Compiler/Examples/Tst2.rsc|
 |rascal:///experiments/Compiler/Examples/Tst5.rsc|
 |rascal:///experiments/Compiler/Execute.rsc|
@@ -53,6 +54,7 @@
 |rascal:///lang/rascal/checker/TTL/TTLGen.rsc|
 |rascal:///lang/rascal/syntax/tests/ConcreteSyntax.rsc|
 |rascal:///lang/rascal/tests/types/PatternTCTests.rsc|
+|rascal:///lang/rascal/types/AbstractType.rsc|
 |rascal:///lang/rascal/types/CheckTypes.rsc|
 |rascal:///lang/saf/Render.rsc|
 |rascal:///lang/saf/Run.rsc|
