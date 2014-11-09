@@ -3,7 +3,7 @@ module demo::lang::Pico::UseDef
 import Prelude;
 import demo::lang::Pico::Abstract;
 import demo::lang::Pico::ControlFlow;
-
+ 
 set[Occurrence] usesExp(EXP e, STATEMENT s) = 
   u:id(PicoId Id1) := e ? {< u@location, Id1, s>}
                         : {< u@location, Id2, s> | /u:id(PicoId Id2) <- e };

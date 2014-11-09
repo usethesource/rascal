@@ -84,7 +84,8 @@ public map[UID uid,str name] uid2name = (); 		// map uid to simple names, used t
 public map[UID uid,map[str,int] name2n] cases = (); // number of functions with the same type within a scope
 public map[UID uid,int n] blocks = ();              // number of blocks within a scope
 public map[UID uid,int n] closures = ();            // number of closures within a scope
-public map[UID uid,int n] bscopes = ();             // number of boolean scopes within a scope
+public map[UID uid,int n] bool_scopes = ();             // number of boolean scopes within a scope
+public map[UID uid,int n] sig_scopes = ();          // number of signature scopes within a scope
 
 @doc{Handling nesting}
 public rel[UID,UID] declares = {};
@@ -119,7 +120,8 @@ public void resetScopeExtraction() {
 	cases = ();
 	blocks = ();
 	closures = ();
-	bscopes = ();
+	bool_scopes = ();
+	sig_scopes = ();
 	declares = {};
 	containment = {};
 	
@@ -267,15 +269,29 @@ void extractScopes(Configuration c){
 		     containment += {<inScope, uid>}; 
 			 loc2uid[src] = uid;
 			 // Fill in uid2name
-			 if(bscopes[inScope]?) {
-			    bscopes[inScope] = bscopes[inScope] + 1;
+			 if(bool_scopes[inScope]?) {
+			    bool_scopes[inScope] = bool_scopes[inScope] + 1;
 			 } else {
-			    bscopes[inScope] = 0;
+			    bool_scopes[inScope] = 0;
 			 }
-			 uid2name[uid] = "bscope#<bscopes[inScope]>";
+			 uid2name[uid] = "bool_scope#<bool_scopes[inScope]>";
 			 if(inScope == 0){
 			 	outerScopes += uid;
 			 }
+        }
+        case signatureScope(inScope,src): {
+             containment += {<inScope, uid>}; 
+             loc2uid[src] = uid;
+             // Fill in uid2name
+             if(sig_scopes[inScope]?) {
+                sig_scopes[inScope] = sig_scopes[inScope] + 1;
+             } else {
+                sig_scopes[inScope] = 0;
+             }
+             uid2name[uid] = "sig_scope#<sig_scopes[inScope]>";
+             if(inScope == 0){
+                outerScopes += uid;
+             }
         }
         case closure(rtype,keywordParams,inScope,src): {
              functions += {uid};
@@ -521,7 +537,7 @@ str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<p
 
 str convert2fuid(UID uid) {
 	if(!uid2name[uid]?) {
-		throw "uid2str is not applicable!";
+		throw "uid2str is not applicable for <uid>!";
 	}
 	str name = uid2name[uid];
 	declaredIn = toMapUnique(invert(declares));

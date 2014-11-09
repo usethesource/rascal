@@ -1,5 +1,4 @@
-|rascal:///demo/lang/Pico/Uninit.rsc|
-|rascal:///demo/lang/Pico/UseDef.rsc|
-|rascal:///lang/rascal/checker/TTL/PatternGenerator.rsc|
+|rascal:///experiments/Compiler/Examples/Tst.rsc|
+|rascal:///lang/rascal/tests/functionality/CallTests.rsc|
 |rascal:///lang/rascal/types/Util.rsc|
 |rascal:///lang/rascal/upgrade/UpgradePostfixStarAndPlusToPrefix.rsc|
