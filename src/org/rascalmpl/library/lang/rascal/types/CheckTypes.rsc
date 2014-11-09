@@ -150,7 +150,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
     < cFun, ptTuple > = checkParameters(ps, cFun);
     list[Symbol] parameterTypes = getTupleFields(ptTuple);
 
-	< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(ps), cFun);
+	< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(ps), cFun, typesOnly=false);
     
     // Check each of the parameters for failures. If we have any failures, we do
     // not build a function type.
@@ -208,7 +208,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <State
     // Calculate the parameter types. This returns the parameters as a tuple. As
     // a side effect, names defined in the parameters are added to the environment.
     < cFun, ptTuple > = checkParameters(ps, cFun);
-    < cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(ps), cFun);
+    < cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(ps), cFun, typesOnly=false);
     list[Symbol] parameterTypes = getTupleFields(ptTuple);
     
     // Check each of the parameters for failures. If we have any failures, we do
@@ -1412,7 +1412,7 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 				if (size(originalParams) > 0) {
 					actualParams = getNonTerminalTypeParameters(t1);
 					if (size(originalParams) != size(actualParams)) {
-						return makeFailType("Invalid nonterminal type, the number of type parameters is inconsistent", l);
+						return makeFailType("Invalid nonterminal type, the number of type parameters (<size(originalParams)>,<size(actualParams)>) is inconsistent", l);
 					} else {
 						bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
 	                    try {
@@ -1440,7 +1440,7 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 				if (size(originalParams) > 0) {
 					actualParams = getNonTerminalTypeParameters(t1);
 					if (size(originalParams) != size(actualParams)) {
-						return makeFailType("Invalid nonterminal type, the number of type parameters is inconsistent", l);
+						return makeFailType("Invalid nonterminal type, the number of type parameters (<size(originalParams)>,<size(actualParams)>) is inconsistent", l);
 					} else {
 						bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
 	                    try {
@@ -2821,33 +2821,39 @@ public CheckResult checkFormals((Formals)`<{Pattern ","}* ps>`, bool isVarArgs, 
 }
 
 @doc{Check the types of Rascal keyword formals}
-public tuple[Configuration,KeywordParamMap] checkKeywordFormals((KeywordFormals)`<OptionalComma oc> <{KeywordFormal ","}+ kfl>`, Configuration c) {
+public tuple[Configuration,KeywordParamMap] checkKeywordFormals((KeywordFormals)`<OptionalComma oc> <{KeywordFormal ","}+ kfl>`, Configuration c, bool typesOnly=true) {
 	KeywordParamMap kpm = ( );
 	for (kfi <- kfl) {
-		< c, rn, rt > = checkKeywordFormal(kfi, c);
+		< c, rn, rt > = checkKeywordFormal(kfi, c, typesOnly=typesOnly);
 		kpm[rn] = rt;
 	}
 	return < c, kpm >;
 }
 
 // This is for the case when the keyword formals production derives empty
-public default tuple[Configuration,KeywordParamMap] checkKeywordFormals(KeywordFormals kwf, Configuration c) = < c, ( ) >;
+public default tuple[Configuration,KeywordParamMap] checkKeywordFormals(KeywordFormals kwf, Configuration c, bool typesOnly=true) = < c, ( ) >;
 
 @doc{Check the type of a single Rascal keyword formal}
-public tuple[Configuration,RName,Symbol] checkKeywordFormal(KeywordFormal kf: (KeywordFormal)`<Type t> <Name n> = <Expression e>`, Configuration c) {
+public tuple[Configuration,RName,Symbol] checkKeywordFormal(KeywordFormal kf: (KeywordFormal)`<Type t> <Name n> = <Expression e>`, Configuration c, bool typesOnly=true) {
 	// Note: We check the default expression first, since the name should NOT be visible inside it
-	< c, et > = checkExp(e, c);
+	et = Symbol::\void(); 
+	if (!typesOnly) {
+		< c, et > = checkExp(e, c);
+	}
 
     < c, rt > = convertAndExpandType(t,c);
 	currentNextLoc = c.nextLoc;
 	rn = convertName(n);
 	c = addLocalVariable(c, rn, false, n@\loc, rt);
 	
-	if (!subtype(et, rt))
-		rt = makeFailType("The default is not compatible with the parameter type", kf@\loc);  
-	if (c.nextLoc > currentNextLoc)
-		c.keywordDefaults[currentNextLoc] = e;	  	
-	
+	if (!typesOnly) {
+		if (!subtype(et, rt))
+			rt = makeFailType("The default is not compatible with the parameter type", kf@\loc);
+
+		if (c.nextLoc > currentNextLoc)
+			c.keywordDefaults[currentNextLoc] = e;	  	
+	}
+		
 	return < c, rn, rt >;
 }
 
@@ -5787,14 +5793,17 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
     return c;
 }
 
-public tuple[Configuration, KeywordParamRel] calculateKeywordParamRel(Configuration c, list[KeywordFormal] kfl) {
+public tuple[Configuration, KeywordParamRel] calculateKeywordParamRel(Configuration c, list[KeywordFormal] kfl, bool typesOnly=false) {
 	KeywordParamRel kprel = [ ];
 	for (KeywordFormal kf: (KeywordFormal)`<Type kt> <Name kn> = <Expression ke>` <- kfl) {
 		kfName = convertName(kn);
 		< c, kfType > = convertAndExpandType(kt,c);
-		< c, defType > = checkExp(ke, c);
-		if (!subtype(defType, kfType))
-			c = addScopeError(c, "The default for keyword parameter <prettyPrintName(kfName)> is of an invalid type", kf@\loc);
+		if (!typesOnly) {
+			< c, defType > = checkExp(ke, c);
+			if (!isFailType(defType) && !isFailType(kfType) && !subtype(defType, kfType)) {
+				c = addScopeError(c, "The default for keyword parameter <prettyPrintName(kfName)> is of an invalid type", kf@\loc);
+			}
+		}
 		kprel += < kfName, kfType, ke >;
 	}
 	return < c, kprel >;
@@ -5849,8 +5858,8 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 			kfl = [ ];
 			if ((KeywordFormals)`<OptionalComma _> <{KeywordFormal ","}+ keywordFormalList>` := keywordArgs)
 				kfl = [ ka | ka <- keywordFormalList ];
-			< c, ckfrel > = calculateKeywordParamRel(c, commonParamList);
-			< c, kfrel > = calculateKeywordParamRel(c, kfl);
+			< c, ckfrel > = calculateKeywordParamRel(c, commonParamList, typesOnly = true);
+			< c, kfrel > = calculateKeywordParamRel(c, kfl, typesOnly = true);
 			if (size(failures) > 0) {
 				c = addScopeError(c, "Errors present in constructor parameters, cannot add constructor to scope", vr@\loc);
 				c.messages += getFailures(collapseFailTypes(failures));
@@ -5863,21 +5872,55 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 	return c;
 }
 
+public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> data <UserType ut> <CommonKeywordParameters commonParams> = <{Variant "|"}+ vs>;`, Configuration c) {
+	commonParamList = [ ];
+	if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := commonParams) commonParamList = [ kfi | kfi <- kfs ];
+
+	for (Variant vr:(Variant)`<Name vn> ( < {TypeArg ","}* vargs > <KeywordFormals keywordArgs>)` <- vs) {
+		kfl = [ ];
+		if ((KeywordFormals)`<OptionalComma _> <{KeywordFormal ","}+ keywordFormalList>` := keywordArgs)
+			kfl = [ ka | ka <- keywordFormalList ];
+
+		if ((size(kfl) + size(commonParamList)) > 0) {
+			cSig = enterSignature(c, vr@\loc);
+			for (varg <- vargs, varg is named) { 
+				< cSig, vargT > = convertAndExpandType(varg.\type, cSig);
+				vargN = convertName(varg.name);
+				cSig = addLocalVariable(cSig, vargN, false, varg@\loc, vargT);
+			} 
+			for (KeywordFormal kfi <- commonParamList + kfl) {
+				< cSig, kfT > = convertAndExpandType(kfi.\type, cSig);
+				cSig = addLocalVariable(cSig, convertName(kfi.name), false, kfi@\loc, kfT);
+				< cSig, _ > = calculateKeywordParamRel(cSig, [ kfi ], typesOnly = false ); 
+			}
+			
+			//< cSig, ckfrel > = calculateKeywordParamRel(cSig, commonParamList, typesOnly = false);
+			//< cSig, kfrel > = calculateKeywordParamRel(cSig, kfl, typesOnly = false);
+			
+			c = leaveSignature(cSig, c);
+		}
+	}
+
+	return c;
+}
+
+public default Configuration checkConstructorKeywordParams(Declaration decl, Configuration c) = c;
+
 @doc{Check the type of the components of a declaration: Function}
 public Configuration checkDeclaration(Declaration decl:(Declaration)`<FunctionDeclaration fd>`, bool descend, Configuration c) {
     return checkFunctionDeclaration(fd,descend,c);
 }
 
-@doc{Prepare the name environment for checking the function signature.}
-private Configuration prepareSignatureEnv(Configuration c) {
-    // Strip other functions and variables out of the environment. We do 
-    // this so we have an appropriate environment for typing the patterns 
-    // in the function signature. Names used in these patterns cannot be 
-    // existing variables and/or functions that are live in the current 
-    // environment. Also, this way we can just get the type and drop all 
-    // the changes that would be made to the environment.
-    return c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, (c.store[c.fcvEnv[ename]] is constructor) || (overload(ids,_) := c.store[c.fcvEnv[ename]] && size({consid | consid <- ids, c.store[consid] is constructor})>0) )];
-}
+//@doc{Prepare the name environment for checking the function signature.}
+//private Configuration prepareSignatureEnv(Configuration c) {
+//    // Strip other functions and variables out of the environment. We do 
+//    // this so we have an appropriate environment for typing the patterns 
+//    // in the function signature. Names used in these patterns cannot be 
+//    // existing variables and/or functions that are live in the current 
+//    // environment. Also, this way we can just get the type and drop all 
+//    // the changes that would be made to the environment.
+//    return c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, (c.store[c.fcvEnv[ename]] is constructor) || (overload(ids,_) := c.store[c.fcvEnv[ename]] && size({consid | consid <- ids, c.store[consid] is constructor})>0) )];
+//}
 
 @doc{Prepare the various environments for checking the function body.}
 private Configuration prepareFunctionBodyEnv(Configuration c) {
@@ -5907,7 +5950,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     // id for the function, we don't want to create a new entry for it.
     if (fd@\loc notin c.definitions<1>) { 
     	set[Modifier] modifiers = getModifiers(sig);
-        cFun = prepareSignatureEnv(c);
+        cFun = enterSignature(c, fd@\loc); // prepareSignatureEnv(c);
             
         // Put the function in, so we can enter the correct scope. This also puts the function name into the
         // scope -- we don't want to inadvertently use the function name as the name of a pattern variable,
@@ -5924,7 +5967,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 		// Check the keyword formals. This will compute the types, check for redeclarations of the param
 		// names, and also make sure the default is the correct type.        
-		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=true);
 		for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
 		
 		cFun.stack = tail(cFun.stack);
@@ -5946,7 +5989,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         < cFun, tFun > = processSignature(sig, c);
         // Checking the keyword formals here adds the names into the store and also adds
         // entries mapping each name to its default
-		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=false);
         c = recoverEnvironmentsAfterCall(cFun, c);
     }
     
@@ -5970,7 +6013,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
     if (fd@\loc notin c.definitions<1>) { 
     	set[Modifier] modifiers = getModifiers(sig);
-        cFun = prepareSignatureEnv(c);
+        cFun = enterSignature(c, fd@\loc); // prepareSignatureEnv(c);
         cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
@@ -5983,7 +6026,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 		// Check the keyword formals. This will compute the types, check for redeclarations of the param
 		// names, and also make sure the default is the correct type.        
-		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=true);
 		for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
 		
 		cFun.stack = tail(cFun.stack);
@@ -6009,7 +6052,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
             cFun = setExpectedReturn(c, Symbol::\value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
-		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=false);
         cFun = addLabel(cFun,rn,fd@\loc,functionLabel());
         cFun.labelStack = labelStackItem(rn, functionLabel(), Symbol::\void()) + cFun.labelStack;
         < cFun, tExp > = checkExp(exp, cFun);
@@ -6039,7 +6082,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
     if (fd@\loc notin c.definitions<1>) {
     	set[Modifier] modifiers = getModifiers(sig); 
-        cFun = prepareSignatureEnv(c);
+        cFun = enterSignature(c, fd@\loc); // prepareSignatureEnv(c);
         cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
@@ -6052,7 +6095,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 		// Check the keyword formals. This will compute the types, check for redeclarations of the param
 		// names, and also make sure the default is the correct type.        
-		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=true);
 		for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
 
 		cFun.stack = tail(cFun.stack);
@@ -6076,7 +6119,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
             cFun = setExpectedReturn(c, Symbol::\value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
-		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=false);
 	
 		// Any variables bound in the when clause should be visible inside the function body,
 		// so we enter a new boolean scope to make sure the bindings are handled properly.
@@ -6120,7 +6163,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     
     if (fd@\loc notin c.definitions<1>) { 
     	set[Modifier] modifiers = getModifiers(sig);
-        cFun = prepareSignatureEnv(c);
+        cFun = enterSignature(c, fd@\loc); // prepareSignatureEnv(c);
         cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
@@ -6133,7 +6176,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 		// Check the keyword formals. This will compute the types, check for redeclarations of the param
 		// names, and also make sure the default is the correct type.        
-		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=true);
 		for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
 
 		cFun.stack = tail(cFun.stack);
@@ -6157,7 +6200,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
             cFun = setExpectedReturn(c, Symbol::\value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
-		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);        
+		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=false);        
         cFun = addLabel(cFun,rn,fd@\loc,functionLabel());
         cFun.labelStack = labelStackItem(rn, functionLabel(), Symbol::\void()) + cFun.labelStack;
 
@@ -6302,7 +6345,7 @@ public Configuration finalizeFunctionImport(Configuration c, RName functionName)
 			    	c.store[c.fcvEnv[ename]] is constructor || c.store[c.fcvEnv[ename]] is production || c.store[c.fcvEnv[ename]] is overload )];
 			    < cFun, tFun > = processSignature(sig, cFun);
 			    if(isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
-				< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
+				< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=false);
 				for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
 				item = item[rtype=tFun][keywordParams=keywordParams][isDeferred=false];
 				c.store[itemId] = item;
@@ -7152,7 +7195,7 @@ public Configuration checkModuleUsingSignatures(Module md:(Module)`<Header heade
 
 		// Now, actually process the type declarations, which will add any constructors.
 		for (t <- typesAndTags) c = checkDeclaration(t,true,c);
-
+		
 		// Process the current module. We start by merging in everything from the modules we are
 		// extending to give an initial "seed" for our environment. We will just use the standard
 		// add functions for this.
@@ -7171,6 +7214,9 @@ public Configuration checkModuleUsingSignatures(Module md:(Module)`<Header heade
 		
 		// Next, introduce names into the environment
 		for (t <- names) c = checkDeclaration(t,false,c);
+
+		// Reprocess the constructors, checking keyword parameters (which can use functions, other constructors, etc)
+		for (t <- typesAndTags) c = checkConstructorKeywordParams(t,c);
 
 		// Process the names
 		for (t <- names) c = checkDeclaration(t,true,c);
@@ -7476,6 +7522,9 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		
 		// Next, introduce names into the environment
 		for (t <- names) c = checkDeclaration(t,false,c);
+
+		// Reprocess the constructors, checking keyword parameters (which can use functions, other constructors, etc)
+		for (t <- typesAndTags) c = checkConstructorKeywordParams(t,c);
 
 		// Process the names
 		for (t <- names) c = checkDeclaration(t,true,c);
