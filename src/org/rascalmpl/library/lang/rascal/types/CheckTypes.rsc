@@ -1412,7 +1412,7 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 				if (size(originalParams) > 0) {
 					actualParams = getNonTerminalTypeParameters(t1);
 					if (size(originalParams) != size(actualParams)) {
-						return makeFailType("Invalid nonterminal type, the number of type parameters is inconsistent", l);
+						return makeFailType("Invalid nonterminal type, the number of type parameters (<size(originalParams)>,<size(actualParams)>) is inconsistent", l);
 					} else {
 						bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
 	                    try {
@@ -1440,7 +1440,7 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 				if (size(originalParams) > 0) {
 					actualParams = getNonTerminalTypeParameters(t1);
 					if (size(originalParams) != size(actualParams)) {
-						return makeFailType("Invalid nonterminal type, the number of type parameters is inconsistent", l);
+						return makeFailType("Invalid nonterminal type, the number of type parameters (<size(originalParams)>,<size(actualParams)>) is inconsistent", l);
 					} else {
 						bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
 	                    try {

@@ -1061,7 +1061,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 	
 	// Add non-terminal fields
 	alreadySeen = {};
-	for(\label(str fn, Symbol ft2) <- prod.symbols) {
+	for(psym <- prod.symbols, \label(str fn, Symbol ft2) := removeConditional(psym)) {
 		ft = removeConditional(ft2);
 		if(fn notin alreadySeen) {
 			if(c.nonterminalFields[<sortId,fn>]?) {
