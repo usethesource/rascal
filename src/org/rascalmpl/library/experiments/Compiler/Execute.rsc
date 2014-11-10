@@ -26,7 +26,7 @@ public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/Libr
 // public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.rvm|;
 // map[str,Symbol] libTypes = ();
 
-public list[loc] defaultImports = [|rascal:///Exception.rsc|];
+public list[loc] defaultImports = [];  //[|rascal:///Exception.rsc|];
 
 list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |home:///bin|){
     println("rascal2rvm: Recompiling library <basename(MuLibrary)>.mu");
