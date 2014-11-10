@@ -13,10 +13,10 @@ import IO;
   
 public Grammar preprocess(Grammar gr) {
 iprintln("gr before: <gr.rules<0>>");
-  gr = literals(gr);
-  gr = flattenTokens(gr);
+  //gr = flattenTokens(gr);
   gr = addHoles(gr);
-  //gr = expandKeywords(gr);
+  gr = literals(gr);
+  gr = expandKeywords(gr);
   gr = expandRegularSymbols(makeRegularStubs(gr));
   gr = expandParameterizedSymbols(gr);
   gr = addNotAllowedSets(gr);

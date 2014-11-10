@@ -59,7 +59,7 @@ public Grammar makeRegularStubs(Grammar g) {
 }
 
 public set[Production] makeRegularStubs(set[Production] prods) {
-  return {regular(reg) | /Production p:prod(_,_,_) <- prods, sym <- p.symbols, reg <- getRegular(sym) };
+  return {regular(empty()), *{regular(reg) | /Production p:prod(_,_,_) <- prods, sym <- p.symbols, reg <- getRegular(sym)}};
 }
 
 private set[Symbol] getRegular(Symbol s) = { t | /Symbol t := s, isRegular(t) }; 
