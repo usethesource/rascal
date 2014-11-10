@@ -651,71 +651,35 @@ public class RVMRun implements IRVM {
 	// stack[sp++] = stack[i];
 	// }
 
-	// public void insnLOADBOOL(int i) {
-	// stack[sp++] = i == 1 ? Rascal_TRUE : Rascal_FALSE;
-	// }
-
-	// public void insnLOADBOOLTRUE() {
-	// stack[sp++] = Rascal_TRUE;
-	// }
-
 	public int insnLOADBOOLTRUE(Object[] stack, int sp) {
 		stack[sp++] = Rascal_TRUE;
 		return sp;
 	}
-
-	// public void insnLOADBOOLFALSE() {
-	// stack[sp++] = Rascal_FALSE;
-	// }
 
 	public int insnLOADBOOLFALSE(Object[] stack, int sp) {
 		stack[sp++] = Rascal_FALSE;
 		return sp;
 	}
 
-	// public void insnLOADINT(int i) {
-	// stack[sp++] = i;
-	// }
-
 	public int insnLOADINT(Object[] stack, int sp, int i) {
 		stack[sp++] = i;
 		return sp;
 	}
-
-	// public void insnLOADCON(int arg1) {
-	// stack[sp++] = cf.function.constantStore[arg1];
-	// }
 
 	public int insnLOADCON(Object[] stack, int sp, Frame cf, int arg1) {
 		stack[sp++] = cf.function.constantStore[arg1];
 		return sp++;
 	}
 
-	// public void insnLOADLOCREF(int i) {
-	// stack[sp++] = new Reference(stack, i);
-	// }
 	public int insnLOADLOCREF(Object[] stack, int sp, int args1) {
 		stack[sp++] = new Reference(stack, args1);
 		return sp;
 	}
 
-	// In this partial implementation fully inlined.
-	// public void insnCALLMUPRIM(int arg1, int arg2) {
-	// sp = MuPrimitive.values[arg1].execute(stack, sp, arg2);
-	// }
-
-	// public void insnLOADTYPE(int i) {
-	// stack[sp++] = cf.function.typeConstantStore[i];
-	// }
 	public int insnLOADTYPE(Object[] stack, int sp, Frame cf, int arg1) {
 		stack[sp++] = cf.function.typeConstantStore[arg1];
 		return sp;
 	}
-
-	// public void insnLOADLOCDEREF(int loc) {
-	// Reference ref = (Reference) stack[loc];
-	// stack[sp++] = ref.stack[ref.pos];
-	// }
 
 	public int insnLOADLOCDEREF(Object[] stack, int sp, int loc) {
 		Reference ref = (Reference) stack[loc];
@@ -723,49 +687,26 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	// public void insnSTORELOC(int target) {
-	// stack[target] = stack[sp - 1];
-	// }
-	//
-	// public void insnSTORELOC(Object[] stack,int sp, int target) {
-	// stack[target] = stack[sp - 1];
-	// }
-
 	public int insnUNWRAPTHROWNLOC(Object[] stack, int sp, int target) {
 		stack[target] = ((Thrown) stack[--sp]).value;
 		return sp;
 	}
 
-	// public void insnSTORELOCDEREF(int loc) {
-	// Reference ref = (Reference) stack[loc];
-	// ref.stack[ref.pos] = stack[sp - 1];
-	// }
 	public void insnSTORELOCDEREF(Object[] stack, int sp, int loc) {
 		Reference ref = (Reference) stack[loc];
 		ref.stack[ref.pos] = stack[sp - 1];
 	}
 
-	// public void insnLOADFUN(int fun) {
-	// stack[sp++] = new FunctionInstance(functionStore.get(fun), root, this);
-	// }
 	public int insnLOADFUN(Object[] stack, int sp, int fun) {
 		stack[sp++] = new FunctionInstance(functionStore.get(fun), root, this);
 		return sp;
 	}
 
-	// public void insnLOAD_NESTED_FUN(int fun, int scopeIn) {
-	// stack[sp++] = FunctionInstance.computeFunctionInstance(functionStore.get(fun), cf, scopeIn, this);
-	// }
 	public int insnLOAD_NESTED_FUN(Object[] stack, int sp, Frame cf, int fun, int scopeIn) {
 		stack[sp++] = FunctionInstance.computeFunctionInstance(functionStore.get(fun), cf, scopeIn, this);
 		return sp;
 	}
 
-	// public void insnLOADOFUN(int ofun) {
-	// OverloadedFunction of = overloadedStore.get(ofun);
-	// stack[sp++] = of.scopeIn == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this) : OverloadedFunctionInstance
-	// .computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.scopeIn, functionStore, constructorStore, this);
-	// }
 	public int insnLOADOFUN(Object[] stack, int sp, Frame cf, int ofun) {
 		OverloadedFunction of = overloadedStore.get(ofun);
 		stack[sp++] = of.scopeIn == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this) : OverloadedFunctionInstance
@@ -773,43 +714,12 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	// public void insnLOADCONSTR(int construct) {
-	// Type constructor = constructorStore.get(construct);
-	// stack[sp++] = constructor;
-	// }
 	public int insnLOADCONSTR(Object[] stack, int sp, int construct) {
 		Type constructor = constructorStore.get(construct);
 		stack[sp++] = constructor;
 		return sp;
 	}
 
-	// public void insnLOADVAR(int scopeid, int pos, boolean maxArg2) {
-	// postOp = 0;
-	// Object rval;
-	//
-	// if (maxArg2) {
-	// rval = moduleVariables.get(cf.function.constantStore[scopeid]);
-	// if (rval == null) {
-	// postOp = Opcode.POSTOP_CHECKUNDEF;
-	// return; // TODO break INSTRUCTION;
-	// }
-	// stack[sp++] = rval;
-	// return;
-	// }
-	//
-	// for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-	// if (fr.scopeId == scopeid) {
-	// rval = fr.stack[pos];
-	// if (rval == null) {
-	// postOp = Opcode.POSTOP_CHECKUNDEF;
-	// return; // TODO break INSTRUCTION;
-	// }
-	// stack[sp++] = rval;
-	// return;
-	// }
-	// }
-	// throw new RuntimeException("LOADVAR cannot find matching scope: " + scopeid);
-	// }
 	public int insnLOADVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxArg2) {
 		postOp = 0;
 		Object rval;
@@ -838,24 +748,6 @@ public class RVMRun implements IRVM {
 		throw new RuntimeException("LOADVAR cannot find matching scope: " + scopeid);
 	}
 
-	// public void insnLOADVARREF(int scopeid, int pos, boolean maxarg2) {
-	// Object rval;
-	// if (maxarg2) {
-	// rval = moduleVariables.get(cf.function.constantStore[scopeid]);
-	// stack[sp++] = rval;
-	// return;
-	// }
-	//
-	// for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-	// if (fr.scopeId == scopeid) {
-	// rval = new Reference(fr.stack, pos);
-	// stack[sp++] = rval;
-	// return;
-	// }
-	// }
-	// throw new RuntimeException("LOADVAR or LOADVARREF cannot find matching scope: " + scopeid);
-	// }
-
 	public int insnLOADVARREF(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
 		Object rval;
 		if (maxarg2) {
@@ -874,16 +766,6 @@ public class RVMRun implements IRVM {
 		throw new RuntimeException("LOADVAR or LOADVARREF cannot find matching scope: " + scopeid);
 	}
 
-	// public void insnLOADVARDEREF(int scopeid, int pos) {
-	// for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-	// if (fr.scopeId == scopeid) {
-	// Reference ref = (Reference) fr.stack[pos];
-	// stack[sp++] = ref.stack[ref.pos];
-	// return;
-	// }
-	// }
-	// throw new RuntimeException("LOADVARDEREF cannot find matching scope: " + scopeid);
-	// }
 	public int insnLOADVARDEREF(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
@@ -895,22 +777,6 @@ public class RVMRun implements IRVM {
 		throw new RuntimeException("LOADVARDEREF cannot find matching scope: " + scopeid);
 	}
 
-	// public void insnSTOREVAR(int scopeid, int pos, boolean maxarg2) {
-	// if (maxarg2) {
-	// IValue mvar = cf.function.constantStore[scopeid];
-	// moduleVariables.put(mvar, (IValue) stack[sp - 1]);
-	// return;
-	// }
-	// for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-	// if (fr.scopeId == scopeid) {
-	// // TODO: We need to re-consider how to guarantee
-	// // safe use of both Java objects and IValues
-	// fr.stack[pos] = stack[sp - 1];
-	// return;
-	// }
-	// }
-	// throw new RuntimeException("STOREVAR cannot find matching scope: " + scopeid);
-	// }
 	public void insnSTOREVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
 		if (maxarg2) {
 			IValue mvar = cf.function.constantStore[scopeid];
@@ -928,22 +794,6 @@ public class RVMRun implements IRVM {
 		throw new RuntimeException("STOREVAR cannot find matching scope: " + scopeid);
 	}
 
-	// public void insnUNWRAPTHROWNVAR(int scopeid, int pos, boolean maxarg2) {
-	// if (maxarg2) {
-	// IValue mvar = cf.function.constantStore[scopeid];
-	// moduleVariables.put(mvar, (IValue) stack[sp - 1]);
-	// return;
-	// }
-	// for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-	// if (fr.scopeId == scopeid) {
-	// // TODO: We need to re-consider how to guarantee safe use of
-	// // both Java objects and IValues
-	// fr.stack[pos] = ((Thrown) stack[--sp]).value;
-	// return;
-	// }
-	// }
-	// throw new RuntimeException("UNWRAPTHROWNVAR cannot find matching scope: " + scopeid);
-	// }
 	public int insnUNWRAPTHROWNVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
 		if (maxarg2) {
 			IValue mvar = cf.function.constantStore[scopeid];
@@ -961,16 +811,6 @@ public class RVMRun implements IRVM {
 		throw new RuntimeException("UNWRAPTHROWNVAR cannot find matching scope: " + scopeid);
 	}
 
-	// public void insnSTOREVARDEREF(int scopeid, int pos) {
-	// for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-	// if (fr.scopeId == scopeid) {
-	// Reference ref = (Reference) fr.stack[pos];
-	// ref.stack[ref.pos] = stack[sp - 1];
-	// return;
-	// }
-	// }
-	// throw new RuntimeException("STOREVARDEREF cannot find matching scope: " + scopeid);
-	// }
 	public void insnSTOREVARDEREF(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
@@ -982,35 +822,6 @@ public class RVMRun implements IRVM {
 		throw new RuntimeException("STOREVARDEREF cannot find matching scope: " + scopeid);
 	}
 
-	// public void insnCALLCONSTR(int constrctr, int arity) {
-	// Type constructor = constructorStore.get(constrctr);
-	//
-	// IValue[] args = null;
-	// if (arity == constructor.getArity()) {
-	// args = new IValue[arity];
-	// } else {
-	// // Constructors with keyword parameters
-	// Type type = (Type) stack[--sp];
-	// IMap kwargs = (IMap) stack[--sp];
-	// Object[] types = new Object[2 * constructor.getArity() + 2 * kwargs.size()];
-	// int j = 0;
-	// for (int i = 0; i < constructor.getArity(); i++) {
-	// types[j++] = constructor.getFieldType(i);
-	// types[j++] = constructor.getFieldName(i);
-	// }
-	// args = new IValue[constructor.getArity() + kwargs.size()];
-	// for (int i = 0; i < type.getArity(); i++) {
-	// types[j++] = type.getFieldType(i);
-	// types[j++] = type.getFieldName(i);
-	// args[constructor.getArity() + i] = kwargs.get(vf.string(type.getFieldName(i)));
-	// }
-	// constructor = tf.constructorFromTuple(typeStore, constructor.getAbstractDataType(), constructor.getName(), tf.tupleType(types), constructor.getArity());
-	// }
-	// for (int i = 0; i < constructor.getPositionalArity(); i++) {
-	// args[constructor.getPositionalArity() - 1 - i] = (IValue) stack[--sp];
-	// }
-	// stack[sp++] = vf.constructor(constructor, args);
-	// }
 	public int insnCALLCONSTR(Object[] stack, int sp, int constrctr, int arity) {
 		Type constructor = constructorStore.get(constrctr);
 
@@ -1042,23 +853,6 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	// public void insnCALLJAVA(int m, int c, int p, int r) {
-	// int arity;
-	// postOp = 0;
-	// String methodName = ((IString) cf.function.constantStore[m]).getValue();
-	// String className = ((IString) cf.function.constantStore[c]).getValue();
-	// Type parameterTypes = cf.function.typeConstantStore[p];
-	// int reflect = r;
-	// arity = parameterTypes.getArity();
-	// try {
-	// sp = callJavaMethod(methodName, className, parameterTypes, reflect, stack, sp);
-	// } catch (Throw e) {
-	// thrown = Thrown.getInstance(e.getException(), e.getLocation(), new ArrayList<Frame>());
-	// postOp = Opcode.POSTOP_HANDLEEXCEPTION;
-	// return; // TODO break INSTRUCTION;
-	// }
-	// return;
-	// }
 	public int insnCALLJAVA(Object[] stack, int sp, Frame cf, int m, int c, int p, int r) {
 
 		int arity;
@@ -1078,16 +872,6 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	// public void insnAPPLY(int function, int arity) {
-	// FunctionInstance fun_instance;
-	// Function fun = functionStore.get(function);
-	// assert arity <= fun.nformals;
-	// assert fun.scopeIn == -1;
-	// fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
-	// sp = sp - arity;
-	// stack[sp++] = fun_instance;
-	// return;
-	// }
 	public int insnAPPLY(Object[] stack, int sp, int function, int arity) {
 		FunctionInstance fun_instance;
 		Function fun = functionStore.get(function);
@@ -1099,19 +883,6 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	// public void insnAPPLYDYN(int arity) {
-	// FunctionInstance fun_instance;
-	// Object src = stack[--sp];
-	// if (src instanceof FunctionInstance) {
-	// fun_instance = (FunctionInstance) src;
-	// assert arity + fun_instance.next <= fun_instance.function.nformals;
-	// fun_instance = fun_instance.applyPartial(arity, stack, sp);
-	// } else {
-	// throw new RuntimeException("Unexpected argument type for APPLYDYN: " + asString(src));
-	// }
-	// sp = sp - arity;
-	// stack[sp++] = fun_instance;
-	// }
 	public int insnAPPLYDYN(Object[] stack, int sp, int arity) {
 		FunctionInstance fun_instance;
 		Object src = stack[--sp];
@@ -1127,106 +898,48 @@ public class RVMRun implements IRVM {
 		return sp;
 	}
 
-	// public void insnCALLPRIM(int muprim, int arity) {
-	// postOp = 0;
-	// try {
-	// sp = RascalPrimitive.values[muprim].execute(stack, sp, arity, stacktrace);
-	// } catch (Exception exception) {
-	// if (!(exception instanceof Thrown)) {
-	// throw exception;
-	// }
-	// thrown = (Thrown) exception;
-	// thrown.stacktrace.add(cf);
-	// sp = sp - arity;
-	// postOp = Opcode.POSTOP_HANDLEEXCEPTION;
-	// }
-	// }
-
-	// public void insnSUBSCRIPTARRAY() {
-	// sp--;
-	// stack[sp - 1] = ((Object[]) stack[sp - 1])[((Integer) stack[sp])];
-	// }
 	public int insnSUBSCRIPTARRAY(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = ((Object[]) stack[sp - 1])[((Integer) stack[sp])];
 		return sp;
 	}
 
-	// public void insnSUBSCRIPTLIST() {
-	// sp--;
-	// stack[sp - 1] = ((IList) stack[sp - 1]).get((Integer) stack[sp]);
-	// }
 	public int insnSUBSCRIPTLIST(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = ((IList) stack[sp - 1]).get((Integer) stack[sp]);
 		return sp;
 	}
 
-	// public void insnLESSINT() {
-	// sp--;
-	// stack[sp - 1] = ((Integer) stack[sp - 1]) < ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
-	// }
 	public int insnLESSINT(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = ((Integer) stack[sp - 1]) < ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
 		return sp;
 	}
 
-	// public void insnGREATEREQUALINT() {
-	// sp--;
-	// stack[sp - 1] = ((Integer) stack[sp - 1]) >= ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
-	// }
 	public int insnGREATEREQUALINT(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = ((Integer) stack[sp - 1]) >= ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
 		return sp;
 	}
 
-	// public void insnADDINT() {
-	// sp--;
-	// stack[sp - 1] = ((Integer) stack[sp - 1]) + ((Integer) stack[sp]);
-	// }
 	public int insnADDINT(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = ((Integer) stack[sp - 1]) + ((Integer) stack[sp]);
 		return sp;
 	}
 
-	// public void insnSUBTRACTINT() {
-	// sp--;
-	// stack[sp - 1] = ((Integer) stack[sp - 1]) - ((Integer) stack[sp]);
-	// }
 	public int insnSUBTRACTINT(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = ((Integer) stack[sp - 1]) - ((Integer) stack[sp]);
 		return sp;
 	}
 
-	// public void insnANDBOOL() {
-	// sp--;
-	// stack[sp - 1] = ((IBool) stack[sp - 1]).and((IBool) stack[sp]) ;
-	// }
 	public int insnANDBOOL(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = ((IBool) stack[sp - 1]).and((IBool) stack[sp]);
 		return sp;
 	}
 
-	// public void insnTYPEOF() {
-	// if (stack[sp - 1] instanceof HashSet<?>) { // For the benefit of set
-	// // matching
-	// @SuppressWarnings("unchecked")
-	// HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
-	// if (mset.isEmpty()) {
-	// stack[sp - 1] = tf.setType(tf.voidType());
-	// } else {
-	// IValue v = mset.iterator().next();
-	// stack[sp - 1] = tf.setType(v.getType());
-	// }
-	// } else {
-	// stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
-	// }
-	// }
 	public void insnTYPEOF(Object[] stack, int sp) {
 		if (stack[sp - 1] instanceof HashSet<?>) { // For the benefit of set
 													// matching
@@ -1243,22 +956,12 @@ public class RVMRun implements IRVM {
 		}
 	}
 
-	// public void insnSUBTYPE() {
-	// sp--;
-	// stack[sp - 1] = vf.bool(((Type) stack[sp - 1]).isSubtypeOf((Type) stack[sp]));
-	// }
 	public int insnSUBTYPE(Object[] stack, int sp) {
 		sp--;
 		stack[sp - 1] = vf.bool(((Type) stack[sp - 1]).isSubtypeOf((Type) stack[sp]));
 		return sp;
 	}
 
-	// public void insnCHECKARGTYPE() {
-	// sp--;
-	// Type argType = ((IValue) stack[sp - 1]).getType();
-	// Type paramType = ((Type) stack[sp]);
-	// stack[sp - 1] = argType.isSubtypeOf(paramType) ? Rascal_TRUE : Rascal_FALSE;
-	// }
 	public int insnCHECKARGTYPE(Object[] stack, int sp) {
 		sp--;
 		Type argType = ((IValue) stack[sp - 1]).getType();
@@ -1365,8 +1068,8 @@ public class RVMRun implements IRVM {
 
 		stack = cf.stack;
 
-		cf.stack[0] = vf.list(args); // pass the program argument to
-		cf.stack[1] = vf.mapWriter().done();
+		stack[0] = vf.list(args); // pass the program argument to
+		stack[1] = vf.mapWriter().done();
 
 		sp = func.nlocals;
 		cf.sp = this.sp;
@@ -1404,16 +1107,6 @@ public class RVMRun implements IRVM {
 		return rval;
 	}
 
-//	public void jvmCREATE(int fun, int arity) {
-//		cccf = cf.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
-//		cccf.previousCallFrame = cf;
-//		cf = cccf;
-//
-//		stack = cf.stack;
-//		sp = cf.sp;
-//		dynRun(fun, cf); // Run untill guard, leaves coroutine instance in stack.
-//	}
-
 	public int jvmCREATE(Object[] stock, int sop, Frame cof, int fun, int arity) {
 		cccf = cf.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
 		cccf.previousCallFrame = cf;
@@ -1424,26 +1117,6 @@ public class RVMRun implements IRVM {
 		dynRun(fun, cf); // Run untill guard, leaves coroutine instance in stack.
 		return sp;
 	}
-
-//	public void jvmCREATEDYN(int arity) {
-//		FunctionInstance fun_instance;
-//
-//		Object src = stack[--sp];
-//
-//		if (!(src instanceof FunctionInstance)) {
-//			throw new RuntimeException("Unexpected argument type for CREATEDYN: " + src.getClass() + ", " + src);
-//		}
-//
-//		// In case of partial parameter binding
-//		fun_instance = (FunctionInstance) src;
-//		cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
-//		cccf.previousCallFrame = cf;
-//		cf = cccf;
-//
-//		stack = cf.stack;
-//		sp = cf.sp;
-//		dynRun(fun_instance.function.funId, cf);
-//	}
 
 	public int jvmCREATEDYN(Object[] stock, int sop, Frame cof, int arity) {
 		FunctionInstance fun_instance;
@@ -1892,5 +1565,4 @@ public class RVMRun implements IRVM {
 	public void fillOverloadedStore(IList overloadedStore) {
 		throw new UnsupportedOperationException();
 	}
-
 }
