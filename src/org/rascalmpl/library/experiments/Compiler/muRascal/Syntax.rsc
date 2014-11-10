@@ -45,7 +45,7 @@ lexical Identifier =
               | @category = "Reference" rvar: RId var3
               | mvar: MId var4
               ; 
-
+ 
 lexical StrChar = 
 			  @category = "Constant" NewLine: [\\] [n] 
             | @category = "Constant" Tab: [\\] [t] 
@@ -81,16 +81,16 @@ syntax Function =
                               "{" (VarDecls NoNLList Sep NoNLList () !>> [\n \r])? locals {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
 			;
 			
-syntax FunNamePart = FConst id >> "::" "::" Integer nformals >> "::" "::";
-syntax ModNamePart = MConst id >> "::" "::";
+syntax FunNamePart = FConst fconst >> "::" "::" Integer nformals >> "::" "::";
+syntax ModNamePart = MConst mconst >> "::" "::";
 
 syntax Exp  =
 			  muLab: 					Label lid
 			
 			// non-nested, named functions inside or ouside a given module
-			| preFunNN:             	ModNamePart modName FConst id >> "::" "::" Integer nformals
+			| preFunNN:             	ModNamePart modName FConst fid >> "::" "::" Integer nformals
 			// nested functions inside a current module
-			| preFunN:              	FunNamePart+ funNames FConst id >> "::" "::" Integer nformals
+			| preFunN:              	FunNamePart+ funNames FConst fid >> "::" "::" Integer nformals
 			
 			| muConstr: 				"cons" FConst cid
 			
@@ -99,16 +99,16 @@ syntax Exp  =
 			| preVarDeref:   			"deref" FunNamePart+ funNames Identifier!fvar!ivar!mvar id
 			
 			| preMuCallPrim: 			"prim" NoNLList "(" String name ")"
-			| preMuCallPrim:            "prim" NoNLList "(" String name "," {Exp ","}+ args ")"
-			| muCallMuPrim: 			"muprim" NoNLList "(" String name "," {Exp ","}+ args ")"
+			| preMuCallPrim:            "prim" NoNLList "(" String name "," {Exp ","}+ largs1 ")"
+			| muCallMuPrim: 			"muprim" NoNLList "(" String name "," {Exp ","}+ largs1 ")"
 			
 			| muMulti:                  "multi" "(" Exp exp ")"
 			| muOne:                    "one" "(" {Exp ","}+ exps ")"
 			| muAll:                    "all" "(" {Exp ","}+ exps ")"
 			
 			// function call and partial function application
-			| muCall: 					Exp!muReturn!muYield!muExhaust exp NoNLList "(" {Exp ","}* args0 ")"
-			| muApply:                  "bind" "(" Exp!muReturn!muYield!muExhaust exp "," {Exp ","}+ args ")"
+			| muCall: 					Exp!muReturn!muYield!muExhaust exp NoNLList "(" {Exp ","}* largs0 ")"
+			| muApply:                  "bind" "(" Exp!muReturn!muYield!muExhaust exp "," {Exp ","}+ largs1 ")"
 			
 			| preSubscript:             Exp exp NoNLList "[" Exp index "]"
 			| preList:					"[" {Exp ","}* exps0 "]"
@@ -157,10 +157,10 @@ syntax Exp  =
 			| preTypeSwitch:			"typeswitch" "(" Exp exp ")" "{" (TypeCase ";"?)+ cases "default" ":" Exp default ";"? "}"
 			
 			| muCreate: 				"create" "(" Exp coro ")"
-			| muCreate: 				"create" "(" Exp coro "," {Exp ","}+ args ")"
+			| muCreate: 				"create" "(" Exp coro "," {Exp ","}+ largs1 ")"
 			
 			| muNext:   				"next" "(" Exp coro ")"
-			| muNext:   				"next" "(" Exp coro "," {Exp ","}+ args ")"
+			| muNext:   				"next" "(" Exp coro "," {Exp ","}+ largs1 ")"
 			
 			> muReturn: 				"return" NoNLList Exp exp
 			| muReturn:                 () "return" NoNLList "(" Exp exp "," {Exp ","}+ exps1 ")"
@@ -208,9 +208,9 @@ syntax Exp =
               preIntCon:				Integer txt1
             | preStrCon:				String txt2
             | preTypeCon:   			"type" String txt3
-			| preVar: 					Identifier id
+			| preVar: 					Identifier pid
 			// *local* variables of functions used inside their closures and nested functions
-			| preVar: 					FunNamePart+ funNames Identifier id 
+			| preVar: 					FunNamePart+ funNames Identifier pid 
 			
 			| preIfthen:    			"if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}"
 			;

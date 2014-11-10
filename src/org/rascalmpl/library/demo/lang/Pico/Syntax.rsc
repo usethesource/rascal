@@ -10,8 +10,8 @@ layout Layout = WhitespaceAndComment* !>> [\ \t\n\r%];
 
 lexical WhitespaceAndComment 
    = [\ \t\n\r]
-   | @category="Comment" "%" ![%]+ "%"
-   | @category="Comment" "%%" ![\n]* $
+   | @category="Comment" ws2: "%" ![%]+ "%"
+   | @category="Comment" ws3: "%%" ![\n]* $
    ;
 
 start syntax Program 

@@ -287,6 +287,16 @@ test bool  dispatchTest3() {
   		
     return [f((XYZ)`x`),f((XYZ)`y`),f((XYZ)`z`)] == [1,2,3];
 }	
+
+// Indirect calls
+
+@ignoreInterpreter
+test bool indirect1(){
+	bool isLF(int c) = c == 0x000A;
+    l = [ isLF ];
+    elem = l[0];
+    return !elem(0);
+}
  
 //  keywordTest
    

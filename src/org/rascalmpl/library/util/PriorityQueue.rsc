@@ -98,7 +98,7 @@ public tuple[int, int, PriorityQueue] extractMinimum(PriorityQueue Q){
    // Determine the new minimal tree
    int minIndex = -1;
    int minPrio = 10000;
-   for(int i <- domain(Q.trees)){
+   for(int i <- index(Q.trees)){
        if(Q.trees[i].priority < minPrio){
        	  minPrio = Q.trees[i].priority;
        	  minIndex = i;
@@ -111,7 +111,7 @@ public tuple[int, int, PriorityQueue] extractMinimum(PriorityQueue Q){
 
 public str toString(PriorityQueue Q){
     str res = "(";
-	for(int i <- domain(Q.trees)){
+	for(int i <- index(Q.trees)){
 	    res = res + "\n" + toString(i) + ":" + toString(Q.trees[i]);
 	}
 	return res + "\n)";

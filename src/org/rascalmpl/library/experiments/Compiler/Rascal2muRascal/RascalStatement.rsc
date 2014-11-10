@@ -391,7 +391,7 @@ MuExp translateAssignment(s: (Statement) `<Assignable assignable> <Assignment op
 
 // apply assignment operator 
     
-MuExp applyOperator(str operator, assignable, str rhs_type, MuExp rhs) {
+MuExp applyOperator(str operator, Assignable assignable, str rhs_type, MuExp rhs) {
     if(operator == "=")
         return rhs;
     if(operator == "?="){
@@ -441,11 +441,11 @@ MuExp assignTo(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpre
 MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, str operator,  str rhs_type, MuExp rhs) {
     str fuid = topFunctionScope();
     nelems = size(elements); // size_assignables
-    name = nextTmp();
+    str tmp_name = nextTmp();
     elems = [ e | e <- elements];   // hack since elements[i] yields a value result;
     return muBlock(
-              muAssignTmp(name, fuid, applyOperator(operator, a, rhs_type, rhs)) + 
-              [ assignTo(elems[i], "=", rhs_type, muCallPrim("tuple_subscript_int", [muTmp(name,fuid), muCon(i)], a@\loc) )
+              muAssignTmp(tmp_name, fuid, applyOperator(operator, a, rhs_type, rhs)) + 
+              [ assignTo(elems[i], "=", rhs_type, muCallPrim("tuple_subscript_int", [muTmp(tmp_name,fuid), muCon(i)], a@\loc) )
               | i <- [0 .. nelems]
               ]);
 }
@@ -453,11 +453,11 @@ MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, str operat
 MuExp assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, str operator,  str rhs_type, MuExp rhs) { 
     str fuid = topFunctionScope();
     nelems = size(arguments);// size_assignables
-    name = nextTmp();
+    str tmp_name = nextTmp();
     elems = [ e | e <- arguments];  // hack since elements[i] yields a value result;
     return muBlock(
-              muAssignTmp(name, fuid, applyOperator(operator, a, rhs_type, rhs)) + 
-              [ assignTo(elems[i], "=", rhs_type, muCallPrim("adt_subscript_int", [muTmp(name,fuid), muCon(i)], a@\loc) )
+              muAssignTmp(tmp_name, fuid, applyOperator(operator, a, rhs_type, rhs)) + 
+              [ assignTo(elems[i], "=", rhs_type, muCallPrim("adt_subscript_int", [muTmp(tmp_name,fuid), muCon(i)], a@\loc) )
               | i <- [0 .. nelems]
               ]);
 }
@@ -581,7 +581,7 @@ list[MuExp] getValues(a: (Assignable) `<Assignable receiver> @ <Name annotation>
 Assignable getReceiver(a: (Assignable) `<QualifiedName qualifiedName>`) = a;
 Assignable getReceiver(a: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`) = getReceiver(receiver);
 Assignable getReceiver(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) = getReceiver(receiver);
-Assignable getReceiver(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`) = getReceivers(receiver);  
+Assignable getReceiver(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`) = getReceiver(receiver);  
 Assignable getReceiver(a: (Assignable) `<Assignable receiver> . <Name field>`) = getReceiver(receiver); 
 Assignable getReceiver(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`) = getReceiver(receiver); 
 Assignable getReceiver(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`) = a;
@@ -592,7 +592,7 @@ Assignable getReceiver(a: (Assignable) `<Assignable receiver> @ <Name annotation
 
 MuExp translate(s: (Statement) `;`) = muBlock([]);
 
-MuExp translate(s: (Statement) `global <Type \type> <{QualifiedName ","}+ names> ;`) { throw("globalDirective"); }
+//MuExp translate(s: (Statement) `global <Type \type> <{QualifiedName ","}+ names> ;`) { throw("globalDirective"); }
 
 // -- return statement -----------------------------------------------
 

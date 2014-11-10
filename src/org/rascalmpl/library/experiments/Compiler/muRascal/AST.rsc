@@ -1,6 +1,7 @@
 module experiments::Compiler::muRascal::AST
 
 import Prelude;
+import Message;
 
 /*
  * Abstract syntax for muRascal.
@@ -11,17 +12,21 @@ import Prelude;
 // All information related to one Rascal module
 
 public data MuModule =											
-              muModule(str name, list[loc] imports,
-              					 map[str,Symbol] types, 
-              					 map[Symbol, Production] symbol_definitions,
-                                 list[MuFunction] functions, 
-                                 list[MuVariable] variables, 
-                                 list[MuExp] initialization,
-                                 int nlocals_in_initializations,
-                                 map[str,int] resolver,
-                                 lrel[str,list[str],list[str]] overloaded_functions,
-                                 map[Symbol, Production] grammar)
+              muModule(str name, 
+                       set[Message] messages,
+                       list[loc] imports,
+              		   map[str,Symbol] types, 
+              		   map[Symbol, Production] symbol_definitions,
+                       list[MuFunction] functions, 
+                       list[MuVariable] variables, 
+                       list[MuExp] initialization,
+                       int nlocals_in_initializations,
+                       map[str,int] resolver,
+                       lrel[str,list[str],list[str]] overloaded_functions,
+                       map[Symbol, Production] grammar)
             ;
+            
+MuModule errorMuModule(str name, set[Message] messages) = muModule(name, messages, [], (), (), [], [], [], 0, (), [], ());
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
@@ -81,15 +86,15 @@ public data MuExp =
           | muTypeCon(Symbol tp)								// Type constant
           
           // Call/Apply/return    		
-          | muCall(MuExp fun, list[MuExp] args)                 // Call a *muRascal function
-          | muApply(MuExp fun, list[MuExp] args)                // Partial *muRascal function application
+          | muCall(MuExp fun, list[MuExp] largs)                 // Call a *muRascal function
+          | muApply(MuExp fun, list[MuExp] largs)                // Partial *muRascal function application
           
-          | muOCall(MuExp fun, list[MuExp] args, loc src)       // Call a declared *Rascal function
+          | muOCall(MuExp fun, list[MuExp] largs, loc src)       // Call a declared *Rascal function
 
           | muOCall(MuExp fun, Symbol types,                    // Call a dynamic *Rascal function
-          					   list[MuExp] args, loc src)
+          					   list[MuExp] largs, loc src)
           
-          | muCallConstr(str fuid, list[MuExp] args /*, loc src*/)	// Call a constructor
+          | muCallConstr(str fuid, list[MuExp] largs /*, loc src*/)	// Call a constructor
           
           | muCallPrim(str name, loc src)                       // Call a Rascal primitive function (with empty list of arguments)
           | muCallPrim(str name, list[MuExp] exps, loc src)		// Call a Rascal primitive function
@@ -99,7 +104,7 @@ public data MuExp =
           			   Symbol parameterTypes,
           			   Symbol keywordTypes,
           			   int reflect,
-          			   list[MuExp] args)						// Call a Java method in given class
+          			   list[MuExp] largs)						// Call a Java method in given class
  
           | muReturn()											// Return from a function without value
           | muReturn(MuExp exp)									// Return from a function with value
@@ -137,10 +142,10 @@ public data MuExp =
             // Coroutines
           
           | muCreate(MuExp coro)								// Creates a coroutine instance, no arguments
-          | muCreate(MuExp coro, list[MuExp] args)				// Creates a coroutine instance, with arguments
+          | muCreate(MuExp coro, list[MuExp] largs)				// Creates a coroutine instance, with arguments
           
           | muNext(MuExp exp)									// Next on coroutine, no arguments
-          | muNext(MuExp exp1, list[MuExp] args)				// Next on coroutine, with arguments
+          | muNext(MuExp exp1, list[MuExp] largs)				// Next on coroutine, with arguments
           
           | muYield()											// Yield from a coroutine without value
           | muYield(MuExp exp)									// Yield from a coroutine with value
@@ -345,7 +350,7 @@ MuExp muCallPrim("tuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), mu
 MuExp muCallPrim("node_create", [muCon(str name), *MuExp args, muCallMuPrim("make_mmap", [])], loc src) = muCon(makeNode(name, [a | muCon(a) <- args]))  
       when allConstant(args);
       
-MuExp muCallPrim("appl_create", [muCon(prod), muCon(args)], loc src) = muCon(makeNode("appl", prod, args));
+MuExp muCallPrim("appl_create", [muCon(value prod), muCon(list[value] args)], loc src) = muCon(makeNode("appl", prod, args));
 
 // muRascal primitives
 

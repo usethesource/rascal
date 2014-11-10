@@ -6,10 +6,66 @@
 
 /****************** vegaBarChart *************************/
 
-Figure.registerComponent("barChart", "vegaBarChart");
+var printq = function(o){
+    var str='';
 
-Figure.drawFunction.vegaBarChart = function(figure, x, y, w, h) {
-    var data = {table: figure.datasets};
+    for(var p in o){
+        // str+= p + '\n';
+        if(typeof o[p] == 'string'){
+            str+= p + ': ' + o[p]+';';
+        }else{ str+= '';
+            // str+= p + ': {' + printq(o[p]) + '}';
+        }
+        
+    }
+
+    return str;
+}
+
+
+/********************************************************/
+/*				vega			 					*/
+/********************************************************/
+
+
+Figure.bboxFunction.vega = function(selection) {
+    Figure.registerComponent("vega", this.name);
+    
+    Figure.drawFunction[this.name] = function(figure, x, y, w, h) {
+   //  var data = {name:"table",:figure.data};
+    // alert(data);
+    var dfile =  Figure.site + "/vegaJSON/" + figure.name;
+    // var dfile ="vega/StackedBar.json";
+    d3.json(dfile, function(err, data){
+         figure.padding = new Object();
+         figure.padding.left = data.padding.left;
+         figure.padding.right = data.padding.right;
+         figure.padding.top = data.padding.top;
+         figure.padding.bottom = data.padding.bottom;
+    });
+    
+    function parse(err, d) { 
+    figure.svg.append("foreignObject")
+    .attr("width", figure.width)
+    .attr("height", figure.height)
+    .attr("x", x).attr("y", y)
+    .append("xhtml:body")
+    .attr("id", "chartName")
+    .attr("style","stroke:none;");  
+    vg.parse.spec(dfile, function(chart) {
+         var view; 
+         var data = {table: d};
+         if (figure.data || figure.datasets) {
+                view = chart({el: "#chartName", data: data, renderer: "svg"});
+            } else {
+                view = chart({el: "#chartName",renderer: "svg"});
+            }
+           view.width(figure.width-figure.padding.left-figure.padding.right)
+           .height(figure.height-figure.padding.bottom-figure.padding.top).padding(figure.padding).update();
+           d3.select("canvas").remove();  
+           }
+         );    
+    } 
     
     function updateSpec(spec, width, height, top, left, bottom, right) {
         spec.width = width - left - right;
@@ -22,32 +78,25 @@ Figure.drawFunction.vegaBarChart = function(figure, x, y, w, h) {
         spec.padding = padding;
         return spec;
     }
-    var dfile="illegal orientation";
-    if (figure.grouped) {
-        if (figure.orientation=="vertical") dfile = "vega/Vertical.json";
-        if (figure.orientation=="horizontal") dfile = "vega/Horizontal.json";
-        } 
-    else
-        dfile = "vega/Stacked.json";
-	d3.json(dfile, function(err, spec) {
-	// alert(spec);
-	figure.svg
-    .append("foreignObject")
-    .attr("width", figure.width)
-     .attr("height", figure.height)
-     .attr("x", x).attr("y", y)
-   .append("xhtml:body")
-    .attr("id", "chartName")
-    ;
-    
-    vg.parse.spec(updateSpec(spec, figure.width, figure.height, 100, 100, 100, 100), function(chart) {
-        // alert("chart");
-          var view = chart({el: "#chartName",data: data,renderer: "svg"})
-           .update();
-            d3.select("canvas").remove();
-            }
-           );
-      }
-      );
+    if (figure.data) {
+       d3.json(figure.data ,  parse);
+       }
+    else {
+         // alert(JSON.stringify(figure.datasets));
+         parse("", figure.datasets);
+         }
     }
+  	this.svg = selection.append("svg");
+  	if(!this.hasDefinedWidth()){
+  		this.width = 400;
+  	}
+  	if(!this.hasDefinedHeight()){
+  		this.height = 400;
+  	}
+  	return this.svg;
+  	
+}
 
+Figure.drawFunction.vega = function (x, y, w, h) {  
+	return Figure.getDrawForComponent("vega", this.name)(this, x, y, w, h);
+    }
