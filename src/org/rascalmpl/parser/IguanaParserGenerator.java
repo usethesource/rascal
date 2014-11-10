@@ -75,16 +75,7 @@ public class IguanaParserGenerator {
 	
 	public GrammarGraph generateGrammar(IRascalMonitor monitor, String main, IMap definitions) {
 		IConstructor gr = getPreprocessedGrammar(monitor, main, definitions);
-	    RascalGrammarLoader loader = new RascalGrammarLoader(evaluator.getValueFactory());
-
-	    // TODO: does convert do the priorities and such?
-	    return loader.convert(main, gr).toGrammarGraph();
-	    
-//		IMap notAllowed = (IMap) ((IMap) gr.get("about")).get(vf.string("notAllowed"));
-//		IMap except = (IMap) ((IMap) gr.get("about")).get(vf.string("excepts"));
-
-//		addExceptPatterns(builder, except);
-//		addPrecedencePatterns(builder, notAllowed);
+	    return new RascalGrammarLoader(vf).convert(main, gr).toGrammarGraph();
 	}
 	
 	public IValue diagnoseAmbiguity(IConstructor parseForest) {
@@ -124,7 +115,7 @@ public class IguanaParserGenerator {
 	}
 	
 
-  public String createHole(IConstructor part, int size) {
-    return ((IString) evaluator.call("createHole", part, vf.integer(size))).getValue();
-  }
+	public String createHole(IConstructor part, int size) {
+		return ((IString) evaluator.call("createHole", part, vf.integer(size))).getValue();
+	}
 }

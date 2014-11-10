@@ -12,6 +12,9 @@
 *******************************************************************************/
 package org.rascalmpl.parser;
 
+import static org.rascalmpl.values.uptr.ProductionAdapter.getSymbols;
+import static org.rascalmpl.values.uptr.ProductionAdapter.isRegular;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -90,7 +93,7 @@ public class RascalGrammarLoader {
 				return RegularExpressionCondition.notFollow(getKeyword(symbol));
 	
 			case "seq":
-				IList list = (IList) symbol.get("symbols");
+				IList list = SymbolAdapter.getSymbols(symbol);
 				List<Symbol> symbols = new ArrayList<>();
 				for (IValue v : list) {
 					symbols.add(getSymbol((IConstructor) v));
@@ -193,9 +196,7 @@ public class RascalGrammarLoader {
 			ISet alts = (ISet) choice.get("alternatives");
 
 			for (IValue alt : alts) {
-
 				IConstructor prod = (IConstructor) alt;
-
 				IConstructor object;
 
 				if (ebnf) {
@@ -204,12 +205,9 @@ public class RascalGrammarLoader {
 					object = (IConstructor) alt;
 				}
 
-				if (!prod.getName().equals("regular")) {
-
-					IList rhs = (IList) prod.get("symbols");
-
+				if (!isRegular(prod)) {
+					IList rhs = getSymbols(prod);
 					List<Symbol> body = getSymbolList(rhs);
-					
 					Rule rule = new Rule(head, body, new SerializableValue(object));
 					rulesMap.put(prod, rule);
 					builder.addRule(rule);
@@ -217,7 +215,15 @@ public class RascalGrammarLoader {
 			}
 		}
 		
-		return builder.build();
+		
+		Grammar g = builder.build();
+		IMap notAllowed = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("notAllowed"));
+		IMap except = (IMap) ((IMap) rascalGrammar.get("about")).get(vf.string("excepts"));
+
+		OperatorPrecedence op = new OperatorPrecedence();
+ 		addExceptPatterns(op, except);
+ 		addPrecedencePatterns(op, notAllowed);
+		return op.transform(g);
 	}
 
 	private void addPrecedencePatterns(OperatorPrecedence op, IMap notAllowed) {
@@ -242,8 +248,8 @@ public class RascalGrammarLoader {
 		}
 	}
 
+	@SuppressWarnings("unused") // for tokens
 	private void createRegularExpressions(IMap regularExpressions) {
-		
 		Iterator<Entry<IValue, IValue>> it = regularExpressions.entryIterator();
 
 		while (it.hasNext()) {
@@ -429,10 +435,14 @@ public class RascalGrammarLoader {
 	}
 	
 	
+	@SuppressWarnings("unused") // for tokens
+	// TODO: this code is better expressed in Rascal
 	private boolean isKeyword(IConstructor symbol) {
 		return symbol.getName().equals("lit");
 	}
 	
+	@SuppressWarnings("unused") // for tokens
+	// TODO: this code is better expressed in Rascal
 	private boolean isRegularExpression(IConstructor symbol) {
 		if(SymbolAdapter.isLex(symbol)) {
 			return regularExpressionsMap.containsKey(((IString)symbol.get("name")).getValue());
@@ -479,73 +489,27 @@ public class RascalGrammarLoader {
 
 	private Nonterminal getHead(IConstructor symbol) {
 		return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
-// TODO Can this old code below indeed by replaced by the above simplification?		
-//		switch (symbol.getName()) {
-//
-//			case "lit":
-//				return Nonterminal.(SymbolAdapter.toString(symbol, true));
-//	
-//			case "iter":
-//				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-//	
-//			case "iter-seps":
-//				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-//	
-//			case "iter-star":
-//				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-//	
-//			case "iter-star-seps":
-//				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-//	
-//			default:
-//				return new Nonterminal(SymbolAdapter.toString(symbol, true));
-//		}
 	}
 
 	private Symbol getSymbol(IConstructor symbol) {
-		return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
-		
-		// TODO: remove comment below, can this really replace the statement above here?
-//		switch (symbol.getName()) {
-//			case "char-class":
-//				return getCharacterClass(symbol);
-//	
-//			case "lit":
-//				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-//	
-//			case "label":
-//				return getSymbol(getSymbolCons(symbol));
-//	
-//			case "iter":
-//				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-//	
-//			case "iter-seps":
-//				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-//	
-//			case "iter-star":
-//				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-//	
-//			case "iter-star-seps":
-//				return new Nonterminal(SymbolAdapter.toString(symbol, true), true);
-//	
-//			case "opt":
-//				return new Nonterminal(SymbolAdapter.toString(symbol, true));
-//	
-//			case "alt":
-//				return new Nonterminal(SymbolAdapter.toString(symbol, true));
-//	
-//			case "seq":
-//				return new Nonterminal(SymbolAdapter.toString(symbol, true));
-//	
-//			case "start":
-//				return new Nonterminal("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
-//	
-//			case "conditional":
-//				return getSymbol(getSymbolCons(symbol)).withConditions(getConditions(symbol));
-//	
-//			default:
-//				return new Nonterminal(SymbolAdapter.toString(symbol, true));
-//		}
+		switch (symbol.getName()) {
+			case "char-class":
+				return getCharacterClass(symbol);
+	
+			case "lit":
+				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
+	
+			case "label":
+				return getSymbol(getSymbolCons(symbol));
+	
+			case "conditional":
+				 Symbol cond = getSymbol(getSymbolCons(symbol)); 
+				 cond.getConditions().addAll(getConditions(symbol));
+				 return cond;
+				 
+			default:
+				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
+		}
 	}
 	
 	private RegularExpression getRegularExpression(IConstructor symbol) {
@@ -697,8 +661,11 @@ public class RascalGrammarLoader {
 	}
 
 	private boolean isEBNF(IConstructor value) {
-		return isEBNFList(value) || SymbolAdapter.isAlt(value)
-				|| SymbolAdapter.isSeq(value) || SymbolAdapter.isOpt(value) || SymbolAdapter.isEmpty(value);
+		return isEBNFList(value) 
+				|| SymbolAdapter.isAlt(value)
+				|| SymbolAdapter.isSeq(value) 
+				|| SymbolAdapter.isOpt(value) 
+				|| SymbolAdapter.isEmpty(value);
 	}
 
 	private boolean isEBNFList(IConstructor value) {
