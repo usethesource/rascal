@@ -356,14 +356,14 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
         failures += rt; 
     }  
     
-    name = convertName(n)[@at = n@\loc];
+    varName = convertName(n)[@at = n@\loc];
     
-    if (fcvExists(c, name)) {
-        c.uses = c.uses + < c.fcvEnv[name], n@\loc >;
+    if (fcvExists(c, varName)) {
+        c.uses = c.uses + < c.fcvEnv[varName], n@\loc >;
         c.usedIn[n@\loc] = head(c.stack);
-        <c, rt> = markLocationType(c, n@\loc, c.store[c.fcvEnv[name]].rtype);
+        <c, rt> = markLocationType(c, n@\loc, c.store[c.fcvEnv[varName]].rtype);
     } else {
-        <c, rt> = markLocationFailed(c, n@\loc, makeFailType("Name <prettyPrintName(name)> is not in scope", n@\loc));
+        <c, rt> = markLocationFailed(c, n@\loc, makeFailType("Name <prettyPrintName(varName)> is not in scope", n@\loc));
         failures += rt;
     }
   }
@@ -490,7 +490,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 			return subtype(t1,t2);
 		} else {
 			overloads = getNonDefaultOverloadOptions(t1) + getDefaultOverloadOptions(t1);
-			return (true in { subtype(overload,t2) | overload <- overloads });
+			return (true in { subtype(oitem,t2) | oitem <- overloads });
 		}		
 	}
 	
@@ -650,7 +650,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 			nonDefaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- nonDefaultFunctionMatchesWithKP, typeContainsTypeVars(a) || subtype(getFunctionReturnType(a),exp@typeHint) };
 			defaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- defaultFunctionMatchesWithKP, typeContainsTypeVars(a) || subtype(getFunctionReturnType(a),exp@typeHint) };
 			constructorMatchesWithKP = { < a, kpm > | < a, kpm > <- constructorMatchesWithKP, typeContainsTypeVars(a) || subtype(getConstructorResultType(a),exp@typeHint) };
-			productionMatches = { < a, kpm > | < a, kpm > <- productionMatches, typeContainsTypeVars(a) || subtype(getProductionSortType(a),exp@typeHint) };
+			productionMatches = { a | a <- productionMatches, typeContainsTypeVars(a) || subtype(getProductionSortType(a),exp@typeHint) };
 		}
         
 		set[Symbol] nonDefaultFunctionMatches = nonDefaultFunctionMatchesWithKP<0>;
@@ -739,7 +739,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         }
 
 		if (size(productionMatches) == 1) {
-            rt += getOneFrom(productionMatches);
+            rt = getOneFrom(productionMatches);
             if (typeContainsTypeVars(rt)) {
                 // If the production is parametric, we need to calculate the actual types of the
                 // parameters and getProductionArgumentTypes sure they fall within the proper bounds.
@@ -1908,7 +1908,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> join <Ex
 
     if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 	
-	    Symbol stripLabel(Symbol t) = (\label(s,lt) := t) ? stripLabel(lt) : t;
+	    Symbol stripLabel(Symbol t) = (\label(s,ltype) := t) ? stripLabel(ltype) : t;
 	
     if ((isRelType(t1) && isRelType(t2)) || (isListRelType(t1) && isListRelType(t2))) {
         list[Symbol] lflds = isRelType(t1) ? getRelFields(t1) : getListRelFields(t1);
@@ -2626,13 +2626,13 @@ public CheckResult checkBooleanOpsWithMerging(Expression exp, Expression e1, Exp
     // also need to ensure that the type information is consistent. We also want to merge them in
     // the store and in bookkeeping info like uses, ensuring we only have one copy of each of
     // the variables.
-    for (vn <- leftVars, vn in rightVars, variable(vn,lt,linf,lin,lloc) := leftVars[vn], variable(vn,rt,rinf,rin,rloc) := rightVars[vn]) {
+    for (vn <- leftVars, vn in rightVars, variable(vn,ltype,linf,lin,lloc) := leftVars[vn], variable(vn,rtype,rinf,rin,rloc) := rightVars[vn]) {
         // NOTE: It should be the case that lt and rt, the types assigned to the vars, are not
         // inferred types -- they should have been bound to actual types already. Check here
         // just in case (since this will have been marked elsewhere as an error, don't add another 
         // error here, just leave the name out of the scope). We also make sure they are not
         // failure types, in which case we don't want to introduce the variable.
-        if (! (isInferredType(lt) || isInferredType(rt) || isFailType(lt) || isFailType(rt)) ) {
+        if (! (isInferredType(ltype) || isInferredType(rtype) || isFailType(ltype) || isFailType(rtype)) ) {
         	// If the variable is available on both sides, we hoist it up into this level,
         	// merging all references to the two independent variables into just one
 			cOr.store[cOrLeft.fcvEnv[vn]].containedIn = head(cOr.stack);; // Move the definition from the left-hand side to this level
@@ -2643,11 +2643,11 @@ public CheckResult checkBooleanOpsWithMerging(Expression exp, Expression e1, Exp
 			cOr.store = domainX(cOr.store, { cOrRight.fcvEnv[vn] }); // Finally, remove the right-hand definition from the store
 			cOr.fcvEnv[vn] = cOrLeft.fcvEnv[vn]; // Make sure the name is in the top environment
             
-            if (!equivalent(lt,rt)) {
+            if (!equivalent(ltype,rtype)) {
                 // We added the variable anyway just to prevent spurious errors, but we just assume the first type
                 // is the correct one. If not, we will get errors based on that (i.e., the user meant for the
                 // second type, from the right-hand branch, to be the correct one).
-                failures += makeFailType("Variable <prettyPrintName(vn)> given inconsistent types <prettyPrintType(lt)> and <prettyPrintType(rt)>", exp@\loc); 
+                failures += makeFailType("Variable <prettyPrintName(vn)> given inconsistent types <prettyPrintType(ltype)> and <prettyPrintType(rtype)>", exp@\loc); 
             }
         }
     }
@@ -2733,11 +2733,11 @@ public CheckResult checkLiteral(Literal l:(Literal)`<RegExpLiteral rl>`, Configu
 
     // Come up with a consolidated, ordered list. All the items in nameUses and nameDefs are at the top level, so we don't have
     // to worry about nesting here. All the nested names are inside defUses.
-    list[Tree] consolidated = sort(nameUses + nameDefs, bool(Tree l, Tree r) { return l.begin.line < r.begin.line || (l.begin.line <= r.begin.line && l.begin.column < r.begin.column); });
+    list[Tree] consolidated = sort(nameUses + nameDefs, bool(Tree l, Tree r) { return l@\loc.begin.line < r@\loc.begin.line || (l@\loc.begin.line <= r@\loc.begin.line && l@\loc.begin.column < r@\loc.begin.column); });
     
     // Process the names in the regexp, making sure they are defined or adding them into scope as needed.
     if (size(consolidated) > 0) {
-        for (n <- consolidated) {
+        for (Name n <- consolidated) {
             RName rn = convertName(n);
             if (n in nameUses) {
                 // If this is just a use, it should be defined already. It can be of any type -- it will just be
@@ -2753,7 +2753,7 @@ public CheckResult checkLiteral(Literal l:(Literal)`<RegExpLiteral rl>`, Configu
                 c = addLocalVariable(c, rn, false, n@\loc, \str());
                 
                 // Then process names used in the def part.
-                for (cn <- defUses[n]) {
+                for (Name cn <- defUses[n]) {
                     if (!fcvExists(c,convertName(cn))) {
                         c = addScopeMessage(c, error("Name is undefined", cn@\loc));
                     } else {
@@ -2949,12 +2949,18 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<RegExpLiteral rl>`, 
     list[LiteralNodeInfo] names = [ ];
         
     top-down visit(rl) {
-        case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_],_),list[Tree] prds) : 
-        	names += literalNodeInfo(use(convertName(prds[1]),0), prds[1]@\loc );
+        case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_],_),list[Tree] prds) :
+        	if (Name pn := prds[1]) {
+        		names += literalNodeInfo(use(convertName(pn),0), prds[1]@\loc );
+        	}
         case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_,_,_],_),list[Tree] prds) : 
-        	names += literalNodeInfo(def(convertName(prds[1]),0), prds[1]@\loc);
+        	if (Name pn := prds[1]) {
+    	    	names += literalNodeInfo(def(convertName(pn),0), prds[1]@\loc);
+        	}
         case \appl(\prod(lex("NamedRegExp"),[_,\lex("Name"),_],_),list[Tree] prds) : 
-        	names += literalNodeInfo(use(convertName(prds[1]),0), prds[1]@\loc);
+        	if (Name pn := prds[1]) {
+	        	names += literalNodeInfo(use(convertName(pn),0), prds[1]@\loc);
+        	}
     }
     
     return < c, literalNode(names)[@at = pat@\loc] >;
@@ -3508,9 +3514,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             		; // If we bind successfully, we take advantage of that, otherwise we ignore it -- this lets us propagate the type
             	}
                 if ( (cp@rtype)? && concreteType(cp@rtype)) {
-                    Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[nid].rtype;
-                    if (!comparable(cp@rtype, rt))
-                        failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(rt)>", ptn@at);
+                    Symbol tvType = (RSimpleName("_") == n) ? ptn@rtype : c.store[nid].rtype;
+                    if (!comparable(cp@rtype, tvType))
+                        failures += makeFailType("Cannot assign pattern of type <prettyPrintType(cp@rtype)> to non-inferred variable <prettyPrintName(n)> of type <prettyPrintType(tvType)>", ptn@at);
                 }
             }
             
@@ -3599,7 +3605,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			                                			    (isSetType(argType) && kpargs[kpname] is setNode) ||
 			                                			    (isMapType(argType) && kpargs[kpname] is mapNode) ||
 			                                			    ( !(kpargs[kpname] is listNode || kpargs[kpname] is setNode || kpargs[kpname] is mapNode) && (!((kpargs[kpname]@rtype)?) || !(concreteType(kpargs[kpname]@rtype)))))) {
-			                                			badMatches = badMatches + idx;
+			                                			badMatches = badMatches + kpname;
 			                                		}
 			                                	}
 				                 			}
@@ -3809,11 +3815,11 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
             newMessages = c.messages - startingMessages;
             return < c, collapseFailTypes(extendFailType(makeFailType("Type of pattern could not be computed", pat@\loc),newMessages) + { pti@rtype | /PatternTree pti := pt, (pti@rtype)?, isFailType(pti@rtype) }) >;
         } else {
-    		for (PatternTree pt <- tooManyMatches)
-    			failures += makeFailType("Multiple constructors and/or productions match this pattern, add additional type annotations", pt@at);
+    		for (PatternTree pTree <- tooManyMatches)
+    			failures += makeFailType("Multiple constructors and/or productions match this pattern, add additional type annotations", pTree@at);
         	
-    		for (PatternTree pt <- arityProblems)
-    			failures += makeFailType("Only constructors or productions with a different arity are available", pt@at);
+    		for (PatternTree pTree <- arityProblems)
+    			failures += makeFailType("Only constructors or productions with a different arity are available", pTree@at);
 
             for (unk <- unknowns)
             	failures += makeFailType("Constructor or production name is not in scope", unk@at);
@@ -4072,7 +4078,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
             return < c, pt[child = cpNew] >;
         }
         
-        case literalNode(nt) : {
+        case literalNode(Symbol nt) : {
         	if (isNonTerminalType(rt) && isStrType(pt@rtype)) {
         		return < c, pt >;
         	} else if (!isInferredType(rt) && !comparable(pt@rtype,rt)) {
@@ -4880,7 +4886,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`insert <DataTarget dt> <
         // TODO: Check to see what category the label is in?
         if (labelName notin c.labelEnv) {
             failures += makeFailType("Target label not defined", dt@\loc);
-        } else if (visitLabel() !:= c.labelEnv[labelName]) {
+        } else if (visitLabel() !:= c.store[c.labelEnv[labelName]].source) {
             failures += makeFailType("Target label must refer to a visit statement or expression", dt@\loc);
         }
     }
@@ -4946,8 +4952,8 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<LocalVariableDeclaratio
             }
             
             for (v <- vars) {
-                if ((Variable)`<Name n> = <Expression init>` := v || (Variable)`<Name n>` := v) {
-                    if ((Variable)`<Name n> = <Expression init>` := v) {
+                if ((Variable)`<Name n> = <Expression _ >` := v || (Variable)`<Name n>` := v) {
+                    if ((Variable)`<Name _> = <Expression init>` := v) {
                         < c, t1 > = checkExp(init, c);
                         if (!isFailType(rt) && !isFailType(t1) && !subtype(t1,rt)) { 
                             c = addScopeMessage(c, error("Initializer type <prettyPrintType(t1)> not assignable to variable of type <prettyPrintType(rt)>", v@\loc));
@@ -6448,7 +6454,7 @@ public Configuration importProduction(Production prod, loc at, Configuration c, 
 		c = addSyntaxDefinition(c, RSimpleName(sortName), at, prod, prod.def is \start, registerName=registerName);
 	}
 	// Productions that end up in the store
-	for(/Production p:prod(_,_,_) := prod) {
+	for(/Production p := prod, p is prod) {
 		if(label(str l, Symbol _) := p.def) {
     		c = addProduction(c, RSimpleName(l), at, p, registerName=registerName);
     	} else {
@@ -7281,7 +7287,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	set[RName] allImports = modulesToImport<0> + defaultModules<0>;
 	
 	// Get the transitive modules that will be imported
-	< ig, infomap > = getImportGraphAndInfo(md, removeExtend = false, extraImports=defaultModules);
+	< ig, infomap > = getImportGraphAndInfo(md, extraImports=defaultModules);
 	map[RName,str] currentHashes = ( );
 	for (imn <- carrier(ig)) {
 		try {
