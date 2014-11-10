@@ -493,6 +493,9 @@ public class SourceConverter extends M3Converter {
 			FieldDeclaration parent = (FieldDeclaration)parentASTNode;
 			parent.getType().accept(this);
 			visitListOfModifiers(parent.modifiers());
+			if (parent.getJavadoc() != null) {
+				parent.getJavadoc().accept(this);
+			}
 		} 
 		else if (parentASTNode instanceof VariableDeclarationExpression) {
 			VariableDeclarationExpression parent = (VariableDeclarationExpression)parentASTNode;

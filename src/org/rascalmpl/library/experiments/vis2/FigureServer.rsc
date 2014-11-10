@@ -4,6 +4,7 @@ import experiments::vis2::Figure;
 import experiments::vis2::Translate;
 import util::Webserver;
 import util::HtmlDisplay;
+import util::Eval;
 import IO;
 import List;
 import Map;
@@ -11,6 +12,8 @@ import Set;
 import util::Cursor;
 import lang::json::IO;
 import Type;
+import Exception;
+import experiments::vis2::vega::Json;
 
 /************************* Figure server *********************************
  This server responds to two requests:
@@ -115,6 +118,22 @@ default Response page(!get(), str path, map[str, str] parameters) {
   throw "invalid request <path> with <parameters>";
 }
 
+Response page(get(), /^\/vegaJSON\/<name:[a-zA-Z0-9_:]+>/, 
+      map[str, str] parameters) {
+      // println("get: name: <name>");
+      if(visualizations[name]?){
+		    descr = visualizations[name];
+		    VEGA s = descr.figure.command();
+		    return response(toJSON(s));
+		    }
+      else {
+    	  throw "get_initial_figure: visualization <name> unknown";
+    	  }
+    }
+   
+        
+
+
 /********************** web server creation ********************/
 
 
@@ -152,7 +171,6 @@ public void render(str name, type[&T] model_type, &T model, Figure (str event, s
 public void render(str name, type[&T] model_type, &T model, Figure (str event, str utag, &T model) visualize, &T (&T model) transform){
     println("render: <model_type> <trCursor(makeCursor(model))>");
 	f = visualize("init", "all", makeCursor(model));
-	// println("render: <figToJSON(f, getSite())>");
 	visualizations[name] = descriptor(name, model_type, model, visualize, transform, f);
 	println(getSite());
 	htmlDisplay(site /*+ "?name=<name>"*/);

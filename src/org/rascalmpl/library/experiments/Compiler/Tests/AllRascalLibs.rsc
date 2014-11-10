@@ -1,12 +1,17 @@
+@bootstrapParser
 module experiments::Compiler::Tests::AllRascalLibs
 
 import Prelude;
 import experiments::Compiler::Compile;
+import experiments::Compiler::RVM::AST;
 
 import util::FileSystem;
 import util::Benchmark;
 
 import Set;
+
+import lang::rascal::\syntax::Rascal;
+import Message;
 
 /*
  * Results of compiling Rascal library modules.
@@ -365,47 +370,60 @@ set[loc] failures = {
  
 };
 
+
+int countErrors(map[loc,int] counts) = size( {msg | msg <- counts, counts[msg] > 0} );
+
 tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 	allFiles = find(root, "rsc") - exclude;
 	nfiles = size(allFiles);
-	static_errors = {};
+	static_error_count = ();
 	compiler_errors = {};
+	set[Message] all_static_errors = {};
 	t1 = realTime();
 	i = 0;
 	while(!isEmpty(allFiles)){
 		<f, allFiles> = takeOneFrom(allFiles);
 		i += 1;
-		println("**** Compiling <i> of <nfiles> files (static_errors: <size(static_errors)>, compiler_errors: <size(compiler_errors)>), time sofar <tosec(t1, realTime())> sec. ****");
+		println("**** Compiling <i> of <nfiles> files (static_errors: <countErrors(static_error_count)>, compiler_errors: <size(compiler_errors)>), time sofar <tosec(t1, realTime())> sec. ****");
 		try {
-			compile(f);
-		} catch /static error/: {
-			static_errors += f;
-		  }
-		  catch e: {
+			f_rvm = compile(f);
+			f_errors = { e | e:error(_,_) <- f_rvm.messages, e.at.path == f.path};
+			all_static_errors += f_errors;
+            static_error_count[f] = size(f_errors);
+            if(size(f_errors) > 0){
+                for(msg <- f_rvm.messages){
+                    println(msg);
+                }
+            }
+		} catch e: {
 			compiler_errors += f;
 		}
 	}
 	
-	if(size(static_errors) > 0){
-    	println("\nSTATIC ERRORS:\n");
-     		for(loc lib <- static_errors){
-       			println("<lib>");
-    		}
-  	}
-	if(size(compiler_errors) > 0){
-    	println("\nCOMPILER ERRORS:\n");
-     		for(loc lib <- compiler_errors){
-       			println("<lib>");
-    		}
-  	}
+  	nstatic = countErrors(static_error_count);
   	
-  	nstatic = size(static_errors);
   	ncompiler = size(compiler_errors);
   	ndone = nfiles - nstatic - ncompiler;
-	println("Processed: total <nfiles>, success <ndone>");
-	println("Static errors: <nstatic>");
-	println("Compiler errors: <ncompiler>");
+	println("Compiled: <nfiles> files");
+	println("Success: <ndone>");
+	println("Type checker: <nstatic> files with errors");
+	
+	nstatic_errors = size(all_static_errors);
+	
+	println("Type checker: <nstatic_errors> error messages");
+	
+	println("Compiler errors: <ncompiler> crashes");
 	println("Time: <tosec(t1, realTime())> sec.");
 	
-	return <static_errors, compiler_errors>;
+	writeFile(|rascal:///experiments/Compiler/Tests/static_errors|, 
+	   "<for(loc f <- sort([ msg | msg <- static_error_count, static_error_count[msg] > 0])){><f>\n<}>");
+	 
+	perfile = sort(toList(static_error_count), bool(tuple[loc,int] a, tuple[loc,int] b) {return a[1] > b[1]; });
+    writeFile(|rascal:///experiments/Compiler/Tests/static_error_count_per_file|, 
+       "<for(tp <- perfile){><tp>\n<}>");
+       
+	writeFile(|rascal:///experiments/Compiler/Tests/compiler_errors|, 
+	   "<for(loc f <- sort(toList(compiler_errors))){><f>\n<}>");
+	
+	return <domain(static_error_count), compiler_errors>;
 }

@@ -24,7 +24,7 @@ public void simple(){
 }
 
 public void mouseOverLeft(){
-	render(ellipse(mouseOver(ellipse(shrink(0.3),left()))));
+	render(ellipse(mouseOver(ellipse(shrink(0.3), vis::Figure::left()))));
 }
 
 public Figure tunnel(real hal, real val){

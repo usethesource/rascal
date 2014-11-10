@@ -76,6 +76,7 @@ data AbstractValue
     | \alias(RName name, Symbol rtype, int containedIn, loc at)
     | booleanScope(int containedIn, loc at)
     | blockScope(int containedIn, loc at)
+    | signatureScope(int containedIn, loc at)
     ;
 
 data LabelStackItem = labelStackItem(RName labelName, LabelSource labelSource, Symbol labelType);
@@ -130,7 +131,7 @@ data Configuration = config(set[Message] messages,
                             bool importing
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
+public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -200,7 +201,7 @@ public int definingContainer(Configuration c, int i) {
 public list[int] upToContainer(Configuration c, int i) {
 	// NOTE: The reason we do not need to check for overload here is because the current context can
 	// never be an overload -- it has to be some actual scope item that could be put on the stack.
-    if (c.store[i] is \module || c.store[i] is function || c.store[i] is closure) return [i];
+    if (c.store[i] is \module || c.store[i] is function || c.store[i] is closure || c.store[i] is signatureScope) return [i];
     return [i] + upToContainer(c,c.store[i].containedIn);
 }
 
@@ -468,7 +469,7 @@ public Configuration addImportedAnnotation(Configuration c, RName n, int annId) 
 		} else {
 			// This annotation has been declared before on at least one comparable type.
 			for (< ct, mId > <- onComparableTypes, !equivalent(c.store[mId].rtype,c.store[ct].rtype)) {
-				c = addScopeError(c, "Import of annotation <prettyPrintName(n)> in module <prettyPrintName(c.store[c.store[annId].containedIn].name)> conflicts with existing annotation in module <prettyPrintName(c.store[c.store[ct].containedIn].name)>", c.store[mid].at);
+				c = addScopeError(c, "Import of annotation <prettyPrintName(n)> in module <prettyPrintName(c.store[c.store[annId].containedIn].name)> conflicts with existing annotation in module <prettyPrintName(c.store[c.store[ct].containedIn].name)>", c.store[mId].at);
 			}
 		}
 	}
@@ -1060,7 +1061,8 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 	
 	// Add non-terminal fields
 	alreadySeen = {};
-	for(\label(str fn, Symbol ft) <- prod.symbols) {
+	for(psym <- prod.symbols, \label(str fn, Symbol ft2) := removeConditional(psym)) {
+		ft = removeConditional(ft2);
 		if(fn notin alreadySeen) {
 			if(c.nonterminalFields[<sortId,fn>]?) {
 				t = c.nonterminalFields[<sortId,fn>];
@@ -1344,7 +1346,7 @@ public Configuration addTag(Configuration c, TagKind tk, RName n, set[Symbol] on
         currentVal = c.store[c.tagEnv[n]];
         if (tk != currentVal.tkind) throw "Cannot add tag with same name but different kind into environment!";
         c.store[c.tagEnv[n]].onTypes = c.store[c.tagEnv[n]].onTypes + onTypes;
-        c.definitions[c.tagEnv[n]] = c.definitions + < c.tagEnv[n], l >; 
+        c.definitions = c.definitions + < c.tagEnv[n], l >; 
     } else {
         c.tagEnv[n] = c.nextLoc;
         c.store[c.nextLoc] = \tag(n, tk, onTypes, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
@@ -1373,6 +1375,18 @@ public anno set[loc] Symbol@definedAt;
 @doc{Strip the label off a symbol, if it has one at the top.}
 private Symbol stripLabel(Symbol::\label(str s, Symbol t)) = stripLabel(t);
 private default Symbol stripLabel(Symbol t) = t;
+
+public Configuration enterSignature(Configuration c, loc l) {
+    c.store[c.nextLoc] = signatureScope(head(c.stack), l);
+    c.stack = c.nextLoc + c.stack;
+    c.nextLoc = c.nextLoc + 1;
+    return c;
+}
+
+public Configuration leaveSignature(Configuration c, Configuration cOrig) {
+	c.stack = tail(c.stack);
+    return recoverEnvironments(c,cOrig);
+}
 
 public Configuration enterBlock(Configuration c, loc l) {
     c.store[c.nextLoc] = blockScope(head(c.stack), l);

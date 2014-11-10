@@ -50,13 +50,13 @@ private set[str] notOverriddenLibs = {};			// Java libraries not overridden for 
 
 public str getModuleName() = module_name;
 
-private void setFunctionUID(loc l) {
-   inverted = getConfiguration().definitions<1,0>;
-   function_uid = toList(inverted[l])[0];
-   //println("function_uid = <function_uid>");
-}
-
-public int getFunctionUID() = function_uid;
+//private void setFunctionUID(loc l) {
+//   rel[loc,int] inverted = getConfiguration().definitions<1,0>;
+//   function_uid = toList(inverted[l])[0];
+//   println("function_uid = <function_uid>");
+//}
+//
+//public str getFunctionUID() = function_uid;
 
 public list[MuFunction] getFunctionsInModule() = functions_in_module;
 
@@ -98,8 +98,7 @@ MuModule r2mu(str moduleStr){
 @doc{Compile a Rascal source module (given at a location) to muRascal}
 MuModule r2mu(loc moduleLoc){
     println(readFile(moduleLoc));   
-   	muMod = r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
-   	return muMod;
+   	return r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
 }
 
 @doc{Compile a parsed Rascal source module to muRascal}
@@ -112,21 +111,13 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	//println("config.grammar = <config.grammar>");
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
+   	module_name = "<M.header.name>";
    	if(size(errors) > 0) {
-   	  for(e <- errors) {
-   	  	println(e);
-   	  }
-   	  throw "Module contains static errors!";
+   	    return errorMuModule(module_name, config.messages);
    	} else {
-   	  // If no static errors...
-   	  if(size(warnings) > 0) {
-   	  	for(w <- warnings) {
-   	  		println(w);
-   	  	}
-   	  }
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes(config); 
-   	  module_name = "<M.header.name>";
+   	 
    	  imported_modules = [];
    	  functions_in_module = [];
    	  variables_in_module = [];
@@ -134,8 +125,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  map[str,Symbol] types = 
    	  	( uid2str[uid] : \type | 
    	  	  int uid <- config.store, 
-   	  	  ( constructor(name, Symbol \type, keywordParams, containedIn, at) := config.store[uid]
-   	  	  || production(name, Symbol \type, containedIn, at) := config.store[uid] 
+   	  	  ( AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int containedIn, loc at) := config.store[uid]
+   	  	  || AbstractValue::production(RName name, Symbol \type, int containedIn, Production p, loc at) := config.store[uid] 
    	  	  ),
    	  	  !isEmpty(getSimpleName(name)),
    	  	  containedIn == 0, 
@@ -144,12 +135,12 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	 
    	 // Constructor functions are generated in case of constructors with keyword parameters
    	 // (this enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments)						  
-   	 for(int uid <- config.store, constructor(name, Symbol \type, keywordParams, 0, _) := config.store[uid], !isEmpty(config.dataKeywordDefaults[uid])) {
+   	 for(int uid <- config.store, AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, 0, _) := config.store[uid], !isEmpty(config.dataKeywordDefaults[uid])) {
    	     // ***Note: the keywordParams field excludes the common keyword parameters 
-   	     map[RName,Symbol] keywordParams = ();
+   	     map[RName,Symbol] allKeywordParams = ();
    	     for(<RName rname, _> <- config.dataKeywordDefaults[uid]) { // All the keyword parameters
    	         int adt = toMapUnique(invert(config.adtConstructors))[uid];
-   	         keywordParams[rname] = config.adtFields[<adt,getSimpleName(rname)>];
+   	         allKeywordParams[rname] = config.adtFields[<adt,getSimpleName(rname)>];
    	     }
    	     str fuid = uid2str[uid] + "::companion";
    	     Symbol ftype = Symbol::func(getConstructorResultType(\type), [ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ]);
@@ -161,12 +152,12 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	     
    	     list[MuExp] kwps = [ muAssign("map_of_default_values", fuid, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
    	     list[MuExp] kwargs = [];
-         for(RName kwf <- keywordParams) {
+         for(RName kwf <- allKeywordParams) {
              if(Expression kw_default_expr := getOneFrom(config.dataKeywordDefaults[uid,kwf])){
 	             kwps += muCallMuPrim("mmap_str_entry_add_entry_type_ivalue", 
 	                                  [ muVar("map_of_default_values",fuid,defaults_pos), 
 	                                    muCon("<getSimpleName(kwf)>"), 
-	                                    muCallMuPrim("make_mentry_type_ivalue", [ muTypeCon(keywordParams[kwf]), 
+	                                    muCallMuPrim("make_mentry_type_ivalue", [ muTypeCon(allKeywordParams[kwf]), 
 	                                                                              translate(kw_default_expr) ]) ]);
 	             kwargs = kwargs + [ muCon("<getSimpleName(kwf)>"), muVarKwp(fuid,getSimpleName(kwf)) ];
              } else {
@@ -178,7 +169,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
          			+ kwargs 
          			+ [ muReturn(muCall(muConstr(uid2str[uid]),[ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
                     + [ muCallMuPrim("make_mmap", kwargs), 
-                    muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),keywordParams[rname]) | rname <- keywordParams ])) ])) ]);
+                    muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKeywordParams[rname]) | rname <- allKeywordParams ])) ])) ]);
                                                 
          leaveFunctionScope();
          functions_in_module += muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body);   	                                       
@@ -201,7 +192,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  	  > 
    	  	| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions 
    	  	];    
-   	  return muModule(modName, 
+   	  return muModule(modName,
+   	                  config.messages, 
    	  				  imported_modules, 
    	  				  types, 
    	  				  getDefinitions(), 
@@ -214,7 +206,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  				  getGrammar());
    	}
    } catch Java("ParseError","Parse error"): {
-   	   throw "Syntax errors in module <moduleLoc>";
+   	   return errorMuModule(module_name, [error("Syntax errors in module <M.header.name>")]);
    } 
    finally {
    	   //println("r2mu: Cleaning up ...");
@@ -235,7 +227,7 @@ void translateModule(m: (Module) `<Header header> <Body body>`) {
 /********************************************************************/
 
 private void importModule((Import) `import <QualifiedName qname> ;`){
-    name = replaceAll("<qname>", "::", "/");
+    str name = replaceAll("<qname>", "::", "/");
     name = replaceAll(name, "\\","");
     //println("name = <name>");
     imported_modules += |rascal:///| + ("<name>" + ".rsc");
@@ -243,7 +235,7 @@ private void importModule((Import) `import <QualifiedName qname> ;`){
 }
 
 private void importModule((Import) `extend <QualifiedName qname> ;`){  // TODO implement extend properly
-    name = replaceAll("<qname>", "::", "/");
+    str name = replaceAll("<qname>", "::", "/");
     name = replaceAll(name, "\\","");
     //println("name = <name>");
     imported_modules += |rascal:///| + ("<name>" + ".rsc");
@@ -296,7 +288,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <S
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions>;`){
-  translateFunctionDeclaration(fd, expression, [exp | exp <- conditions]);
+  translateFunctionDeclaration(fd, expression, [exp | exp <- conditions]); 
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
@@ -305,7 +297,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
 
 private void translateFunctionDeclaration(FunctionDeclaration fd, node body, list[Expression] when_conditions){
   println("r2mu: Compiling <fd.signature.name>");
-  setFunctionUID(fd@\loc);
+  //setFunctionUID(fd@\loc);
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
   uid = loc2uid[fd@\loc];
@@ -408,7 +400,7 @@ private str resolveLibOverriding(str lib){
 private map[str,str] translateTags(Tags tags){
    m = ();
    for(tg <- tags.tags){
-     name = "<tg.name>";
+     str name = "<tg.name>";
      if(tg is \default){
         cont = "<tg.contents>"[1 .. -1];
         m[name] = name == "javaClass" ? resolveLibOverriding(cont) : cont;

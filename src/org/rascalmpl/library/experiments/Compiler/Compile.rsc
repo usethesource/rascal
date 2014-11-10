@@ -2,6 +2,8 @@
 module experiments::Compiler::Compile
 
 import Prelude;
+import Message;
+
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::RVM::AST;
@@ -27,7 +29,16 @@ RVMProgram compile(str rascalSource, bool listing=false, bool recompile=false, l
 }
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
+
 RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
+    rvmProgram = compile(moduleLoc, {moduleLoc}, listing=listing, recompile=recompile,bindir=bindir);
+    for(msg <- rvmProgram.messages){
+        println(msg);
+    }
+    return rvmProgram;
+}
+
+private RVMProgram compile(loc moduleLoc,  set[loc] worklist, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
     println("compile: <moduleLoc>");
     rvmProgramLoc = compiledVersion(moduleLoc, bindir);
     if(!recompile && exists(rvmProgramLoc) && lastModified(rvmProgramLoc) > lastModified(moduleLoc)){
@@ -42,14 +53,37 @@ RVMProgram compile(loc moduleLoc,  bool listing=false, bool recompile=false, loc
   	   } catch x: println("rascal2rvm: Reading <rvmProgramLoc> did not succeed: <x>");
   	}
     println("compile: parsing and compiling <moduleLoc>");
+   
    	muMod = r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
-   	for(imp <- muMod.imports){
-   	    println("Compiling import <imp>");
-   	    compile(imp);
-   	}
-   	println("compile: generate rvm <moduleLoc>");
-   	rvmProgram = mu2rvm(muMod, listing=listing);                          
-
+   	messages = muMod.messages;
+   	
+   	RVMProgram rvmProgram;
+   	
+   	if(any(msg <- messages, error(_,_) := msg)){
+   	    println("compile: errors in <muMod.name>");
+   	    for(e:error(_,_) <- messages){
+   	        println(e);
+   	    }
+   	    rvmProgram = errorRVMProgram(muMod.name, messages);
+   	} else {
+       	for(imp <- muMod.imports, imp notin worklist){
+       	    println("Compiling import <imp>");
+       	    worklist += imp;
+       	    rvm_imp = compile(imp, worklist);
+       	    messages += rvm_imp.messages;
+       	}
+   	
+       	if(any(msg <- messages, error(_,_) := msg)){
+       	    println("compile: errors in imports of <muMod.name>");
+       	    for(e:error(_,_) <- messages){
+                println(e);
+            }
+       	    rvmProgram = errorRVMProgram(muMod.name, messages);
+       	} else {
+       	    println("compile: generate rvm <moduleLoc>");
+       	    rvmProgram = mu2rvm(muMod, listing=listing); 
+       	}                         
+    }
    	println("rascal2rvm: Writing compiled version <rvmProgramLoc>");
    	writeTextValueFile(rvmProgramLoc, rvmProgram);
    	

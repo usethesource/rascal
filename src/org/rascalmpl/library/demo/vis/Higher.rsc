@@ -9,6 +9,7 @@ module demo::vis::Higher
 
 import vis::Figure;
 import vis::Render;
+import String;
 
 public bool intInput(str s){
 	return /^[0-9]+$/ := s;
