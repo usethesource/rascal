@@ -1369,16 +1369,16 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 		}
     } else if (isADTType(t1)) {
         adtName = RSimpleName(getADTName(t1));
-        if (adtName in c.typeEnv && c.store[c.typeEnv[adtName]] is datatype) {
+        if (adtName in c.globalAdtMap && c.store[c.globalAdtMap[adtName]] is datatype) {
+        	adtId = c.globalAdtMap[adtName];
         	if (getADTName(t1) == "Tree" && fAsString == "top") {
         		return t1;
-	        } if (<c.typeEnv[adtName],fAsString> notin c.adtFields) {
+	        } if (<adtId,fAsString> notin c.adtFields) {
 	            return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
 	        } else {
-				adtId = c.typeEnv[adtName];
 				originalType = c.store[adtId].rtype;
 				originalParams = getADTTypeParameters(originalType);
-				fieldType = c.adtFields[<c.typeEnv[adtName],fAsString>];
+				fieldType = c.adtFields[<adtId,fAsString>];
 				if (size(originalParams) > 0) {
 					actualParams = getADTTypeParameters(t1);
 					if (size(originalParams) != size(actualParams)) {
@@ -1399,16 +1399,16 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 	    }  
     } else if (isStartNonTerminalType(t1)) {
 		nonterminalName = RSimpleName("start[<getNonTerminalName(t1)>]");
-		if (nonterminalName in c.typeEnv && c.store[c.typeEnv[nonterminalName]] is sorttype) {
+		if (nonterminalName in c.globalSortMap && c.store[c.globalSortMap[nonterminalName]] is sorttype) {
+			sortId = c.globalSortMap[nonterminalName];
 			if (fAsString == "top") {
 				return getStartNonTerminalType(t1);
-			} else if (<c.typeEnv[nonterminalName],fAsString> notin c.nonterminalFields) {
+			} else if (<sortId,fAsString> notin c.nonterminalFields) {
 				return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
 			} else {
-				sortId = c.typeEnv[nonterminalName];
 				originalType = c.store[sortId].rtype;
 				originalParams = getNonTerminalTypeParameters(originalType);
-				fieldType = c.nonterminalFields[<c.typeEnv[nonterminalName],fAsString>];
+				fieldType = c.nonterminalFields[<sortId,fAsString>];
 				if (size(originalParams) > 0) {
 					actualParams = getNonTerminalTypeParameters(t1);
 					if (size(originalParams) != size(actualParams)) {
@@ -1429,14 +1429,14 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 		} 
     } else if (isNonTerminalType(t1)) {
         nonterminalName = RSimpleName(getNonTerminalName(t1));
-        if (nonterminalName in c.typeEnv && c.store[c.typeEnv[nonterminalName]] is sorttype) {
-	        if (<c.typeEnv[nonterminalName],fAsString> notin c.nonterminalFields) {
+        if (nonterminalName in c.globalSortMap && c.store[c.globalSortMap[nonterminalName]] is sorttype) {
+			sortId = c.globalSortMap[nonterminalName];
+	        if (<sortId,fAsString> notin c.nonterminalFields) {
 	            return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
 	        } else {
-				sortId = c.typeEnv[nonterminalName];
 				originalType = c.store[sortId].rtype;
 				originalParams = getNonTerminalTypeParameters(originalType);
-				fieldType = c.nonterminalFields[<c.typeEnv[nonterminalName],fAsString>];
+				fieldType = c.nonterminalFields[<sortId,fAsString>];
 				if (size(originalParams) > 0) {
 					actualParams = getNonTerminalTypeParameters(t1);
 					if (size(originalParams) != size(actualParams)) {
