@@ -10,11 +10,11 @@ int nviolations = 0;
 
 void main(list[value] args) {
    nviolations = 0;
-   for(m <- find(|file:///Users/paulklint/git/rascal/src|, "rsc")){
-       if(Module m := parseModule(m).top){
+   for(mfile <- find(|file:///Users/paulklint/git/rascal/src|, "rsc")){
+       if(Module m := parseModule(mfile).top){
           reportNonInit(m);
        } else {
-          println("<m>: NO MATCH");
+          println("<mfile>: NO MATCH");
        }
    }
 
