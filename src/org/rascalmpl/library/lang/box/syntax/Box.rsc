@@ -13,8 +13,8 @@ start syntax Main = Boxx WhitespaceAndComment*;
 
 syntax Boxx
         = StrCon
-        | BoxOperator operator "[" Boxx* list "]"
-        | FontOperator operator "[" Boxx* list "]"
+        | BoxOperator box_operator "[" Boxx* list "]"
+        | FontOperator font_operator "[" Boxx* list "]"
         | "LBL" "[" StrCon "," Boxx "]"
         | "REF" "[" StrCon "," Boxx "]"
         | "CNT" "[" StrCon "," StrCon "]"
