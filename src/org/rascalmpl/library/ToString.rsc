@@ -9,4 +9,4 @@
 module ToString
 
 @doc{Convert a value to a string}
-public str toString(value v) = "<v>";
+default str toString(value v) = "<v>";

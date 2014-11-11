@@ -142,7 +142,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	         int adt = toMapUnique(invert(config.adtConstructors))[uid];
    	         allKeywordParams[rname] = config.adtFields[<adt,getSimpleName(rname)>];
    	     }
-   	     str fuid = uid2str[uid] + "::companion";
+   	     str fuid = getCompanionForUID(uid);
    	     Symbol ftype = Symbol::func(getConstructorResultType(\type), [ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ]);
    	     tuple[str fuid,int pos] addr = uid2addr[uid];
    	     int nformals = size(\type.parameters) + 1;
@@ -187,7 +187,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  		[ uid2str[fuid] | int fuid <- of.fuids, (fuid in functions) && (fuid notin defaultFunctions) ] 
    	  		+ [ uid2str[fuid] | int fuid <- of.fuids, fuid in defaultFunctions ]
    	  		  // Replace call to a constructor with call to the constructor function if the constructor has keyword parameters
-   	  		+ [ uid2str[fuid] + "::companion" | int fuid <- of.fuids, fuid in constructors, !isEmpty(config.dataKeywordDefaults[fuid]) ],
+   	  		+ [ getCompanionForUID(fuid) | int fuid <- of.fuids, fuid in constructors, !isEmpty(config.dataKeywordDefaults[fuid]) ],
    	  		[ uid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.dataKeywordDefaults[fuid]) ]
    	  	  > 
    	  	| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions 
@@ -227,18 +227,18 @@ void translateModule((Module) `<Header header> <Body body>`) {
 /********************************************************************/
 
 private void importModule((Import) `import <QualifiedName qname> ;`){
-    str name = replaceAll("<qname>", "::", "/");
-    name = replaceAll(name, "\\","");
+    //str name = replaceAll("<qname>", "::", "/");
+    //name = replaceAll(name, "\\","");
     //println("name = <name>");
-    imported_modules += |rascal:///| + ("<name>" + ".rsc");
+    imported_modules += |rascal:///| + ("<qualifiedNameToPath(qname)>" + ".rsc");
     //println("imported_modules = <imported_modules>");
 }
 
 private void importModule((Import) `extend <QualifiedName qname> ;`){  // TODO implement extend properly
-    str name = replaceAll("<qname>", "::", "/");
-    name = replaceAll(name, "\\","");
+    //str name = replaceAll("<qname>", "::", "/");
+    //name = replaceAll(name, "\\","");
     //println("name = <name>");
-    imported_modules += |rascal:///| + ("<name>" + ".rsc");
+    imported_modules += |rascal:///| + ("<qualifiedNameToPath(qname)>" + ".rsc");
     //println("imported_modules = <imported_modules>");
 }
 
