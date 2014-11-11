@@ -235,7 +235,7 @@ MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) {
 }
 
 MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args)){
- //println("translateParsedConcretePattern: <prod>");
+ println("translateParsedConcretePattern: <prod>");
   if(prod.def == label("hole", lex("ConcretePart"))){
      varloc = args[0].args[4].args[0]@\loc;
      <fuid, pos> = getVariableScope("ConcreteVar", varloc);
@@ -253,8 +253,6 @@ MuExp translateParsedConcretePattern(cc: char(int c)) {
   return muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(cc)]);
 }
 
-//"type" "(" Pattern symbol "," Pattern definitions ")" 
-
 MuExp translateParsedConcretePattern(Pattern pat:(Pattern)`type ( <Pattern s>, <Pattern d> )`) {
     throw "translateParsedConcretePattern type() case"; 
 }
@@ -262,15 +260,8 @@ MuExp translateParsedConcretePattern(Pattern pat:(Pattern)`type ( <Pattern s>, <
 // The patterns callOrTree and reifiedType are ambiguous, therefore we need special treatment here.
 
 MuExp translateParsedConcretePattern(amb(set[Tree] alts)) {
-    for(a <- alts){
-        println("<a>, <a is reifiedType>");
-        if(a is reifiedType){
-        ;
-        }
-    }
    throw "translateParsedConcretePattern: ambiguous, <alts>";
 }
-
 
 default MuExp translateParsedConcretePattern(Tree c) {
    iprintln(c);
