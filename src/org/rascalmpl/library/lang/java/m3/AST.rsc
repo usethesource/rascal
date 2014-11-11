@@ -202,13 +202,14 @@ public set[Declaration] createAstsFromDirectory(loc project, bool collectBinding
    catch : println("error in build manager");
    set[loc] classPaths = {};
    if (iresult == 0) {
-     set[loc] firstLeveSubDirs = { d | d <- project.ls + project, isDirectory(d) };
+     set[loc] firstLevelSubDirs = { d | d <- project.ls + project, isDirectory(d) };
      for (loc dir <- firstLevelSubDirs) {
        try {
-         str classPathContents = readTextValueFile(project + "cp.txt");
+         str classPathContents = readTextValueFile(#str, project + "cp.txt");
+         list[str] classPathSet = split(":", classPathContents);
+         classPaths += { |file:///| + cp | cp <- classPathSet };
        } catch : continue;
-       list[str] classPathSet = split(":", classPathContents);
-       classPaths += { |file:///| + cp | cp <- classPathSet };
+       
      }
    } else {
      classPaths = find(project, "jar");
