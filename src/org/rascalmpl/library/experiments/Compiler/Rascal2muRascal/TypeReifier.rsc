@@ -47,10 +47,10 @@ public void getDeclarationInfo(Configuration config){
     resetTypeReifier();
     
     // Collect all the types that are in the type environment
-
+    // TODO: simplify
 	typeRel = { < getSimpleName(rname), config.store[config.typeEnv[rname]].rtype > | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype }
 	        + { < getSimpleName(rname) , rtype > | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] }
-            + { < getSimpleName(config.store[uid].rname), config.store[uid].rtype > | int uid <- config.store, config.store[uid] has rname, config.store[uid] has rtype };
+            + { < getSimpleName(config.store[uid].name), config.store[uid].rtype > | int uid <- config.store, config.store[uid] has name, config.store[uid] has rtype };
     
 
 	// Collect all the constructors of the adt types in the type environment
