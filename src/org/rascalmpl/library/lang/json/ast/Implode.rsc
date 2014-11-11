@@ -23,8 +23,8 @@ public JSON buildAST((JSONText)`<Array a>`) = array(convertArray(a));
 
 private JSON convertValue((Value)`<Object obj>`) = object(convertObject(obj));
 private JSON convertValue((Value)`<Array a>`) = array(convertArray(a));
-private JSON convertValue((Value)`<IntegerLiteral il>`) = integer(toInt("<il>"));
-private JSON convertValue((Value)`<RealLiteral rl>`) = float(toReal("<rl>"));
+private JSON convertValue((Value)`<IntegerLiteral il>`) = number(toReal("<il>"));
+private JSON convertValue((Value)`<RealLiteral rl>`) = number(toReal("<rl>"));
 private JSON convertValue((Value)`<StringLiteral sl>`) = string(removeEnds("<sl>"));
 private JSON convertValue((Value)`false`) = boolean(false);
 private JSON convertValue((Value)`null`) = null();
