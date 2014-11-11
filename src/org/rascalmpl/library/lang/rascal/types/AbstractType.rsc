@@ -812,7 +812,7 @@ public Symbol provideNonTerminalTypeParameters(Symbol t, list[Symbol] ps) {
 	if (Symbol::\iter-star-seps(s,_) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
 	if (Symbol::\opt(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
 	if (Symbol::\conditional(s,_) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
-	if (Symbol::\prod(s,_,_,_) := t) return t[def=provideNonTerminalTypeParameters(s,ps)];
+	if (Symbol::\prod(s,_,_,_) := t) return t[\sort=provideNonTerminalTypeParameters(s,ps)];
     return t;
 }
 
