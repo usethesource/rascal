@@ -32,7 +32,6 @@
 |rascal:///experiments/vis2/examples/gui/Todo1.rsc|
 |rascal:///experiments/vis2/examples/gui/Todo2.rsc|
 |rascal:///experiments/vis2/vega/Json.rsc|
-|rascal:///lang/box/syntax/Box.rsc|
 |rascal:///lang/box/util/Box2Text.rsc|
 |rascal:///lang/box/util/BoxFormat.rsc|
 |rascal:///lang/box/util/Parse.rsc|
@@ -49,10 +48,8 @@
 |rascal:///lang/rascal/tests/types/PatternTCTests.rsc|
 |rascal:///lang/rascal/types/AbstractType.rsc|
 |rascal:///lang/rascal/types/CheckTypes.rsc|
-|rascal:///lang/saf/Render.rsc|
 |rascal:///lang/saf/Run.rsc|
 |rascal:///lang/sdf2/util/SDF2Grammar.rsc|
-|rascal:///lang/sexp/syntax/SExp.rsc|
 |rascal:///resource/jdbc/JDBC.rsc|
 |rascal:///util/integration/maude/RLSRunner.rsc|
 |rascal:///util/tasks/Vis.rsc|
