@@ -206,7 +206,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  				  getGrammar());
    	}
    } catch Java("ParseError","Parse error"): {
-   	   return errorMuModule(module_name, [error("Syntax errors in module <M.header.name>")]);
+   	   return errorMuModule(module_name, {error("Syntax errors in module <M.header.name>", M@\loc)});
    } 
    finally {
    	   //println("r2mu: Cleaning up ...");
@@ -217,7 +217,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    throw "r2mu: cannot come here!";
 }
 
-void translateModule(m: (Module) `<Header header> <Body body>`) {
+void translateModule((Module) `<Header header> <Body body>`) {
     for(imp <- header.imports) importModule(imp);
 	for( tl <- body.toplevels) translate(tl);
 }

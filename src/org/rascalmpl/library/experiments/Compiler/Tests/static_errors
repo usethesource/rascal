@@ -1,4 +1,3 @@
-|rascal:///analysis/linearprogramming/LinearProgramming.rsc|
 |rascal:///demo/Mod17.rsc|
 |rascal:///demo/lang/Exp/Combined/Manual/Load.rsc|
 |rascal:///demo/lang/Lisra/Eval.rsc|
@@ -11,23 +10,15 @@
 |rascal:///demo/lang/Pico/ToDot.rsc|
 |rascal:///demo/lang/turing/l2/desugar/Desugar.rsc|
 |rascal:///experiments/Compiler/Benchmarks/Run.rsc|
-|rascal:///experiments/Compiler/Compile.rsc|
 |rascal:///experiments/Compiler/Examples/QL/util/Explode.rsc|
 |rascal:///experiments/Compiler/Examples/Tst1.rsc|
 |rascal:///experiments/Compiler/Examples/Tst2.rsc|
 |rascal:///experiments/Compiler/Examples/Tst5.rsc|
-|rascal:///experiments/Compiler/Execute.rsc|
 |rascal:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|
 |rascal:///experiments/Compiler/Rascal2muRascal/RascalModule.rsc|
 |rascal:///experiments/Compiler/Rascal2muRascal/TypeReifier.rsc|
-|rascal:///experiments/Compiler/Tests/AllCompilerTests.rsc|
 |rascal:///experiments/Compiler/Tests/Booleans.rsc|
 |rascal:///experiments/Compiler/Tests/CoroutineExperiment.rsc|
-|rascal:///experiments/Compiler/Tests/FindNonInit.rsc|
-|rascal:///experiments/Compiler/Tests/GetGrammarTest.rsc|
-|rascal:///experiments/Compiler/Tests/MyIO.rsc|
-|rascal:///experiments/Compiler/muRascal2RVM/ObsoleteReifiedTypes.rsc|
-|rascal:///experiments/Compiler/muRascal2RVM/mu2rvm.rsc|
 |rascal:///experiments/Concept/DotVis.rsc|
 |rascal:///experiments/Concept/GetFigure.rsc|
 |rascal:///experiments/Concept/Types.rsc|
@@ -52,6 +43,8 @@
 |rascal:///lang/java/syntax/Java15.rsc|
 |rascal:///lang/json/ast/Implode.rsc|
 |rascal:///lang/rascal/checker/TTL/TTLGen.rsc|
+|rascal:///lang/rascal/grammar/definition/Characters.rsc|
+|rascal:///lang/rascal/grammar/definition/Literals.rsc|
 |rascal:///lang/rascal/syntax/tests/ConcreteSyntax.rsc|
 |rascal:///lang/rascal/tests/types/PatternTCTests.rsc|
 |rascal:///lang/rascal/types/AbstractType.rsc|
@@ -60,7 +53,6 @@
 |rascal:///lang/saf/Run.rsc|
 |rascal:///lang/sdf2/util/SDF2Grammar.rsc|
 |rascal:///lang/sexp/syntax/SExp.rsc|
-|rascal:///lang/uri/syntax/RFC3986.rsc|
 |rascal:///resource/jdbc/JDBC.rsc|
 |rascal:///util/integration/maude/RLSRunner.rsc|
 |rascal:///util/tasks/Vis.rsc|
