@@ -3764,6 +3764,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         }
         
         if (size(subjects) == 1) {
+        	if (subjects == [lex("Char")]) {
+        		println("Found the right subjects");
+        	}
             try {
                 < c, pt > = bind(pt, getOneFrom(subjects), c);
                 // Why do this? Because we want to bind at least once, and the first bind could
@@ -4168,7 +4171,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         
 		// TODO: Do we also need a case here for a type parameter?
         case asTypeNode(nt, cp) : {
-            < c, cpNew > = bind(cp, rt, c);
+            < c, cpNew > = bind(cp, makeStrType(), c);
             return < c, pt[child = cpNew] >;
         }
         
