@@ -7,9 +7,9 @@ extend analysis::m3::AST;
 import util::FileSystem;
 import lang::java::m3::TypeSymbol;
 import IO;
-import ValueIO;
 import Set;
 import String;
+import List;
  
 data Declaration
     = \compilationUnit(list[Declaration] imports, list[Declaration] types)
@@ -162,18 +162,38 @@ set[loc] getPaths(loc dir, str suffix) {
 java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
 
 @memo
-set[loc] findRoots(loc project, set[loc] allPaths) {
+set[loc] findRoots(set[loc] folders) {
   set[loc] result = {};
-  while (!isEmpty(allPaths)) {
-    loc oneLoc = getOneFrom(allPaths);
-    allPaths -= oneLoc;
-    loc parent = project[path=replaceLast(oneLoc.path, "/" + oneLoc.file, "")];
-    if (parent != project && parent != project+"/") {
-      allPaths += parent;
-    } else {
-      result += oneLoc;
+  for (folder <- folders) {
+    // only consult one java file per package tree
+    top-down-break visit (crawl(folder)) {
+      case directory(d, contents): {
+        set[loc] roots = {};
+        for (file(f) <- contents, toLowerCase(f.extension) == "java") {
+          try {
+            for (/package<p:[^;]*>;/ := readFile(f)) {
+              packagedepth = size(split(".", trim(p)));
+              roots += { d[path = intercalate("/", split("/", d.path)[..-packagedepth])] };
+            }
+            
+            if (roots == {}) { // no package declaration means d is a root 
+              roots += { d }; 
+            }
+            
+            break;            
+          } catch _(_) : ;          
+        }
+        
+        if (roots != {}) {
+          result += roots;
+        }
+        else {
+          fail; // continue searching subdirectories
+        }
+      }
     }
   }
+  
   return result;
 }
       
@@ -195,26 +215,12 @@ public java Declaration createAstFromString(loc fileName, str source, bool colle
 
 @doc{Creates ASTs from a project}
 public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, str javaVersion = "1.7" ) {
-   if (!(isDirectory(project)))
-     throw "<project> is not a valid directory";
-   int iresult = -1;
-   try iresult = buildProject(project, dependencyUpdateSites);
-   catch : println("error in build manager");
-   set[loc] classPaths = {};
-   if (iresult == 0) {
-     set[loc] firstLevelSubDirs = { d | d <- project.ls + project, isDirectory(d) };
-     for (loc dir <- firstLevelSubDirs) {
-       try {
-         str classPathContents = readTextValueFile(#str, project + "cp.txt");
-         list[str] classPathSet = split(":", classPathContents);
-         classPaths += { |file:///| + cp | cp <- classPathSet };
-       } catch : continue;
-       
-     }
-   } else {
-     classPaths = find(project, "jar");
-   }
-   sourcePaths = getPaths(project, "java");
-   setEnvironmentOptions(classPaths, findRoots(project, sourcePaths));
-   return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | sp <- sourcePaths, loc f <- find(sp, "java") };
+    if (!(isDirectory(project))) {
+      throw "<project> is not a valid directory";
+    }
+    
+    classPaths = find(project, "jar");
+    sourcePaths = getPaths(project, "java");
+    setEnvironmentOptions(classPaths, findRoots(sourcePaths));
+    return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | sp <- sourcePaths, loc f <- find(sp, "java") };
 }
