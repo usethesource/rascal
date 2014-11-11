@@ -4168,7 +4168,27 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         
 		// TODO: Do we also need a case here for a type parameter?
         case asTypeNode(nt, cp) : {
-            < c, cpNew > = bind(cp, makeStrType(), c);
+        	cpNew = cp;
+        	
+        	// TODO: Improve the message from here, it isn't very useful right now
+        	if (isNonTerminalType(nt)) {
+            	< c, cpNew > = bind(cp, makeStrType(), c);
+            } else {
+            	< c, cpNew> = bind(cp, nt, c);
+            }
+            
+            if ( (cpNew@rtype)? ) {
+	            if (isNonTerminalType(nt)) {
+	            	if (!equivalent(makeStrType(), cpNew@rtype)) {
+	            		throw "Bind error, cannot use pattern of type <prettyPrintType(cpNew@rtype)> in as node pattern with a non-terminal type";
+	            	} 
+	            } else {
+	            	if (!comparable(rt, cpNew@rtype)) {
+	            		throw "Bind error, cannot use pattern of type <prettyPrintType(cpNew@rtype)> in as type pattern with type <prettyPrintType(nt)>";
+	            	}
+	            }
+            }
+            
             return < c, pt[child = cpNew] >;
         }
         
