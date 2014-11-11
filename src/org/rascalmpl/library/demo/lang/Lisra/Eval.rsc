@@ -8,7 +8,7 @@ public Lval eval(Lval x) = eval(x, [()]).val;
 
 // Evaluate an Lval in a given environment and return a Result.
 
-public Result eval(str exp) = eval(parse(exp));
+public Result eval(str exp) = eval(parse(exp),  [()]);
 
 public Result eval(Integer(int x), Env e) = <Integer(x), e>; /*1*/
 
