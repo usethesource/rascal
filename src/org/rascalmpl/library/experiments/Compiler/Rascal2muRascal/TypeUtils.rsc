@@ -422,7 +422,7 @@ void extractScopes(Configuration c){
                 // Sort variable declarations to ensure that formal parameters get first positions preserving their order
                 decls_non_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
                 
-                fuid_str = uid2str[fuid1] + "::companion";
+                fuid_str = getCompanionForUID(fuid1);
                 //println("fuid_str = <fuid_str>, decls_non_kwp = <decls_non_kwp>, declared[innerSopes] = <declares[innerScopes]>");
                 for(int i <- index(decls_non_kwp)) {
                     // Note: we need to reserve positions for variables that will replace formal parameter patterns
@@ -578,6 +578,14 @@ str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cn
 
 str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
 str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
+
+
+str getCompanionForUID(UID uid) = uid2str[uid] + "::companion";
+
+str qualifiedNameToPath(QualifiedName qname){
+    str path = replaceAll("<qname>", "::", "/");
+    return replaceAll(path, "\\","");
+}
 
 str convert2fuid(UID uid) {
 	if(!uid2name[uid]?) {
