@@ -25,7 +25,7 @@ public Figure blockHand(num x, num y) = box(shrink(0.1, 0.7), align(x,y));
 
 public Figure mirror(Figure fig) = 
   visit (fig) {
-    case halign(x) => halign(1.0 - x)
+    case halign(num x) => halign(1.0 - x)
   };
 
 

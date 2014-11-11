@@ -55,7 +55,7 @@ public Figure state2figure(FState f) {
   else if(f.health <= 20 && f.health >= 0) 
     c = "red";
 
-  label = "<f.fighter.name>:                                 
+  flabel = "<f.fighter.name>:                                 
           'Health  : <f.health>
           'Position: <f.position>
           'Move    : <f.move>
@@ -64,7 +64,7 @@ public Figure state2figure(FState f) {
 
   return box(
     vcat([
-        text(label),        
+        text(flabel),        
         vcat([box(hshrink(0.5),vshrink((100.0 - f.health) / 100.0)),
             box(hshrink(0.5), vshrink((f.health)/100.0),fillColor(c))])]),
     lineColor("silver"),
@@ -96,7 +96,7 @@ public Figure positionedFighters(FState f1, FState f2, FProperty props ...) {
 		mirror(fighter2figure(f2,hshrink(FIGHTER_SHRINK))),
 		space(hshrink(rightShrink))
 	],props);
-  return x;
+  //return x;
 }
 
 
