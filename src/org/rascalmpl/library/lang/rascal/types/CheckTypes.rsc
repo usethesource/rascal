@@ -433,7 +433,17 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 			// formals as actuals.
 			for (idx <- index(tl)) {
 				try {
-					bindings = match(formalArgs[idx],tl[idx],bindings,bindIdenticalVars=true);
+					if (isOverloadedType(tl[idx])) {
+						// Note: this means the bindings must be consistant across all overload options, since we will only
+						// get this when we have a higher-order function being passed in and then we want to make sure this
+						// is true. The alternative would be to use this as a filter as well, discarding options that don't
+						// work with these bindings.
+						for (topt <- (getDefaultOverloadOptions(tl[idx]) + getNonDefaultOverloadOptions(tl[idx]))) {
+							bindings = match(formalArgs[idx],topt,bindings,bindIdenticalVars=true);
+						}
+					} else {
+						bindings = match(formalArgs[idx],tl[idx],bindings,bindIdenticalVars=true);
+					}
 				} catch : {
 					// c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
 					canInstantiate = false;  
