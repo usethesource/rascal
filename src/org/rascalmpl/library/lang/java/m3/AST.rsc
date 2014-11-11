@@ -181,7 +181,7 @@ set[loc] findRoots(set[loc] folders) {
             }
             
             break;            
-          } catch _(_) : ;          
+          } catch: ;          
         }
         
         if (roots != {}) {
