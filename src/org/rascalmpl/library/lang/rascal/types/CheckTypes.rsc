@@ -5050,7 +5050,8 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName 
 	        	startingType = c.store[c.fcvEnv[n]].rtype;
 	        	c = resolveDeferredTypes(c, c.fcvEnv[n]);
 		        if (isFailType(c.store[c.fcvEnv[n]].rtype)) {
-		        	return markLocationFailed(c, assn@\loc, makeFailType("Cannot resolve imported types in <prettyPrintType(startingType)>", assn@\loc));
+		        	failType = makeFailType("Cannot resolve imported types in type of variable <prettyPrintName(n)>", assn@\loc);
+		        	return < c, variableNode(n)[@atype=failType][@at=assn@\loc] >;
 		        }
 	        }
 
@@ -5270,7 +5271,8 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 	        if (true in { hasDeferredTypes(ati) | ati <- { c.store[annId].rtype, c.store[annId].onType | annId <- annIds } }) {
 	        	c = resolveDeferredTypes(c, c.annotationEnv[aname]);
 		        if (true in { isFailType(ati) | ati <- { c.store[annId].rtype, c.store[annId].onType | annId <- annIds } }) {
-		        	return markLocationFailed(c, assn@\loc, makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", assn@\loc));
+		        	failType = makeFailType("Cannot resolve imported types in annotation <prettyPrintName(aname)>", assn@\loc);
+		        	return < c, annotationNode(atree,aname)[@atype=failType][@at=assn@\loc] >;
 		        }
 	        }
 		     
