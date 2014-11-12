@@ -31,6 +31,7 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Field;
@@ -1757,7 +1758,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				
 				// TODO: Question, should we allow non terminal types in splices?
 				if (type instanceof NonTerminalType) {
-					throw new ImplementationError(null);
+					throw new UnsupportedOperation("splicing match not supported here", type, this);
+//					throw new ImplementationError(null);
 				}				
 				return new TypedMultiVariablePattern(eval, this, type, arg.getName());
 			}
