@@ -1758,7 +1758,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				
 				// TODO: Question, should we allow non terminal types in splices?
 				if (type instanceof NonTerminalType) {
-					throw new UnsupportedOperation("splicing match not supported here", type, this);
+					throw new UnsupportedOperation("splicing match", type, this);
 //					throw new ImplementationError(null);
 				}				
 				return new TypedMultiVariablePattern(eval, this, type, arg.getName());
