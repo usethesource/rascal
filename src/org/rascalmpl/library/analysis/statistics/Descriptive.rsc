@@ -110,11 +110,18 @@ of the data values. It shows how much variation exists from the average (mean, o
 @javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
 public java num standardDeviation(list[num] values);
 
+public (&T <:num) sum(list[(&T <:num)] _:[]) {
+	throw ArithmeticException(
+		"For the emtpy list it is not possible to decide the correct precision to return.\n
+		'If you want to call sum on empty lists, use sum([0.000]+lst) or sum([0r] +lst) or sum([0]+lst) 
+		'to make the list non-empty and indicate the required precision for the sum of the empty list
+		");
+}
 @doc{
 Synopsis: Sum of data values.
 }
-@javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
-public java num sum(list[num] values);
+public default (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl])
+	= (hd | it + i | i <- tl);
 
 @doc{
 Synopsis: Sum of the squares of data values.

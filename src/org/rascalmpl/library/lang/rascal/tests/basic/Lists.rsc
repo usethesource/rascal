@@ -413,7 +413,7 @@ test bool tstSplit(list[&T] L) {
   return L1 + L2 == L;
 }
 
-test bool tstSum(list[int] L) = sum(L) == (0 | it + x | x <- L);
+test bool tstSum(list[int] L) = isEmpty(L) || sum(L) == (0 | it + x | x <- L);
 
 test bool tstTail(list[&T] L) = isEmpty(L) || (tail(L) == (size(L) == 1 ? [] : L[1..]));
 
