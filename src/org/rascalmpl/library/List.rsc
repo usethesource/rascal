@@ -1161,6 +1161,13 @@ public list[&T] sort(list[&T] lst) =
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
 
+public (&T <:num) sum(list[(&T <:num)] _:[]) {
+	throw ArithmeticException(
+		"For the emtpy list it is not possible to decide the correct precision to return.\n
+		'If you want to call sum on empty lists, use sum([0.000]+lst) or sum([0r] +lst) or sum([0]+lst) 
+		'to make the list non-empty and indicate the required precision for the sum of the empty list
+		");
+}
 @doc{
 Synopsis: Sum the elements of a list.
 
@@ -1189,7 +1196,8 @@ test: sum(<L>)
 
 
 }
-public num sum(list[num] l) = (size(l) == 0) ? 0 : (head(l) | it + e | e <- tail(l));
+public default (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl])
+	= (hd | it + i | i <- tl);
 
 @doc{
 Synopsis: Get the tail element(s) from a list.
