@@ -188,7 +188,7 @@ Description:
 Returns the [skewness](http://en.wikipedia.org/wiki/Skewness) of the available values. Skewness is a measure of the asymmetry of a given distribution.
 }
 default real skewness(list[num] values) 
-	= centralMoment(values, order=3) / pow(centralMomement(values, order=2), 3/2);
+	= centralMoment(values, order=3) / pow(centralMoment(values, order=2), 3/2);
 
 @doc{
 Synopsis: Standard deviation of data values.
@@ -228,10 +228,10 @@ Synopsis: Sum of the squares of data values.
 }
 real centralMoment(list[num] nums, int order = 1) {
 	if (nums == []) {
-		throw IllegalArgument(l,"Central moment cannot be calculated for empty lists");
+		throw IllegalArgument(nums,"Central moment cannot be calculated for empty lists");
 	}
 	if (order < 0) {
-		throw IllegalArgument(k,"Central moment cannot be calculated for the <k>-th order.");
+		throw IllegalArgument(nums,"Central moment cannot be calculated for the <order>-th order.");
 	}
 	if (order == 0) {
 		return 1.;	
@@ -248,10 +248,10 @@ real centralMoment(list[num] nums, int order = 1) {
 }
 real moment(list[num] nums, int order = 1) {
 	if (nums == []) {
-		throw IllegalArgument(l,"Moment cannot be calculated for empty lists");
+		throw IllegalArgument(nums,"Moment cannot be calculated for empty lists");
 	}
 	if (order < 0) {
-		throw IllegalArgument(order,"Central moment cannot be calculated for the <k>-th order.");
+		throw IllegalArgument(order,"Central moment cannot be calculated for the <order>-th order.");
 	}
 	if (order == 0) {
 		return 1.;	
