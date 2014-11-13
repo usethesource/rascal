@@ -129,8 +129,19 @@ Returns the `p`th [percentile](http://en.wikipedia.org/wiki/Percentile) of the d
  0 < `p` <= 100 should hold.
 
 }
-@javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
-public java num percentile(list[num] values, num p);
+&T <: num percentile(list[&T <: num] nums, num p) {
+	if (0 > p || p > 100) {
+		throw IllegalArgument(p, "Percentile argument should be between 0 and 100");
+	}
+	if (nums == []) {
+		throw EmptyList();
+	}
+	nums = sort(nums);
+	idx = toReal(size(nums)) * (toReal(p) / 100);
+	return nums[ceil(idx) - 1];
+}
+
+
 
 @doc{
 Synopsis: Variance of data values.
