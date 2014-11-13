@@ -74,6 +74,21 @@ num mean(list[num] nums)
 rat mean(list[rat] nums)
 	= sum(nums) / size(nums);
 
+
+(&T <: num) median(list[&T<:num] l:[]) {
+	throw IllegalArgument(l,"Median cannot be calculated for empty lists");
+}
+
+private list[&T <: num] middle(list[&T <: num] nums) {
+	nums = sort(nums);
+	n = size(nums);
+	if (n % 2 == 1) {
+		return [nums[n/2]];	
+	}	
+	n = n / 2;
+	return nums[n-1..n+1];
+}
+
 @doc{
 Synopsis: Median of data values.
 
@@ -90,8 +105,14 @@ median([1,2,2,6,7,8]);
 </screen>
 
 }
-@javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
-public java num median(list[num] values);
+real median(list[int] nums) 
+	= mean(middle(nums));
+real median(list[real] nums) 
+	= mean(middle(nums));
+rat median(list[rat] nums) 
+	= mean(middle(nums));
+num median(list[num] nums) 
+	= mean(middle(nums));
 
 @doc{
 Synopsis: Smallest data value.
