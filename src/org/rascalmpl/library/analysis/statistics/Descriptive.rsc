@@ -178,14 +178,17 @@ num variance([num hd, *num tl]) {
 	return (sum2 - (pow(sum3,2)/n)) / (n -1);
 }
 
+real skewness(list[num] l:[]) {
+	throw IllegalArgument(l,"Standard Deviation cannot be calculated for empty lists");
+} 
 @doc{
 Synopsis: Skewness of data values.
 
 Description:
 Returns the [skewness](http://en.wikipedia.org/wiki/Skewness) of the available values. Skewness is a measure of the asymmetry of a given distribution.
 }
-@javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
-public java num skewness(list[num] values);
+default real skewness(list[num] values) 
+	= centralMoment(values, order=3) / pow(centralMomement(values, order=2), 3/2);
 
 @doc{
 Synopsis: Standard deviation of data values.
