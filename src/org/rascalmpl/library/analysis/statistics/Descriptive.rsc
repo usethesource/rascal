@@ -202,3 +202,41 @@ Synopsis: Sum of the squares of data values.
 @javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
 public java num sumsq(list[num] values);
 
+@doc{
+	Calculate the k-th central moment
+}
+real centralMoment(list[num] nums, int order = 1) {
+	if (nums == []) {
+		throw IllegalArgument(l,"Central moment cannot be calculated for empty lists");
+	}
+	if (order < 0) {
+		throw IllegalArgument(k,"Central moment cannot be calculated for the <k>-th order.");
+	}
+	if (order == 0) {
+		return 1.;	
+	}
+	if (order == 1) {
+		return 0.;	
+	}
+	mn = mean(nums);
+	return moment([n - mn | n <- nums], order = order);
+}
+
+@doc{
+	Calculate the k-th moment
+}
+real moment(list[num] nums, int order = 1) {
+	if (nums == []) {
+		throw IllegalArgument(l,"Moment cannot be calculated for empty lists");
+	}
+	if (order < 0) {
+		throw IllegalArgument(order,"Central moment cannot be calculated for the <k>-th order.");
+	}
+	if (order == 0) {
+		return 1.;	
+	}
+	if (order == 1) {
+		return toReal(sum(nums)) / size(nums);	
+	}
+	return (0. | it + pow(n, order) | n <- nums) / size(nums);
+}
