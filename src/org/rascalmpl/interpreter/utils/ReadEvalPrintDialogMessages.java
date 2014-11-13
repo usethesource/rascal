@@ -171,8 +171,23 @@ public class ReadEvalPrintDialogMessages {
 	}
 
 	public static String throwMessage(Throw e) {
-		String content;
-		content = e.getLocation() + ": " + e.getException().toString() + '\n';
+		LimitedResultWriter lros = new LimitedResultWriter(1000);
+		StandardTextWriter stw = new StandardTextWriter(false);
+		try {
+			stw.write(e.getException(), lros);
+		}
+		catch(IOLimitReachedException iolrex){
+			// This is fine, ignore.
+		}
+		catch(IOException ioex){
+			// This can never happen.
+		}
+		
+		String content = e.getLocation().toString() 
+				+ ": " 
+				+ lros.getBuffer().toString()
+				+ "\n";
+		
 		StackTrace trace = e.getTrace();
 		if (trace != null) {
 			content += trace.toLinkedString() + '\n';
