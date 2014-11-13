@@ -7,6 +7,14 @@
 }
 module analysis::statistics::Descriptive
 
+import IO;
+import List;
+import Exception;
+import util::Math;
+
+real geometricMean(list[num] l:[]) {
+	throw IllegalArgument(l,"Geometric mean cannot be calculated for empty lists");
+}
 @doc{
 Synopsis: Geometric mean of data values.
 
@@ -14,8 +22,19 @@ Description:
 
 Computes the [geometric mean](http://en.wikipedia.org/wiki/Geometric_mean) of the given data values.
 }
-@javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
-public java num geometricMean(list[num] values);
+default real geometricMean([num hd, *num tl]) {
+	if (tl == []) {
+		return toReal(hd);	
+	}
+	prod = (hd | it * v | v <- tl);
+	if (prod < 0) {
+		throw ArithmeticException("Geometric mean can only be calculated for positive numbers");	
+	}
+	if (prod == 0) {
+		return toReal(prod);
+	}
+	return nroot(prod, 1 + size(tl));
+}
 
 @doc{
 Synopsis: Kurtosis of data values.
