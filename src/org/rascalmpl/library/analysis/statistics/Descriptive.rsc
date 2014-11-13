@@ -50,8 +50,8 @@ public java num kurtosis(list[num] values);
 @doc{
 Synopsis: Largest data value.
 }
-@javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
-public java num max(list[num] values);
+(&T <: num) max(list[&T <: num] nums) throws EmptyList
+	= (head(nums) | it < n ? n : it | n <- tail(nums));
 
 
 (&T <: num) mean(list[&T<:num] l:[]) {
@@ -96,8 +96,8 @@ public java num median(list[num] values);
 @doc{
 Synopsis: Smallest data value.
 }
-@javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
-public java num min(list[num] values);
+(&T <: num) min(list[&T <: num] nums) throws EmptyList
+	= (head(nums) | it > n ? n : it | n <- tail(nums));
 
 @doc{
 Synopsis: Percentile of data values.
