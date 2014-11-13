@@ -1,4 +1,3 @@
-
 @license{
   Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
@@ -9,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-
+@contributor{Vadim Zaytsev - vadim@grammarware.net - UvA}
 
 module List
 
@@ -400,7 +399,59 @@ hint: <H>
 test: intercalate(";", <L>) == <?>
 }
 public str intercalate(str sep, list[value] l) = 
-	(l == []) ? "" : ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
+	(isEmpty(l)) ? "" : ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
+
+
+@doc{
+Synopsis: Intersperses a list of values with a separator.
+
+Examples:
+<screen>
+import List;
+intersperse(", ", ["a","b","c"]);
+intersperse(0, [1, 2, 3]);
+intersperse(1, []);
+intersperse([], [1]);
+</screen>
+
+Questions:
+
+QValue:
+prep: import List;
+make: L = list[int,0,5]
+expr: H = intersperse(42, <L>) 
+hint: <H>
+test: intersperse(42, <L>) == <?>
+}
+public list[&T] intersperse(&T sep, list[&T] xs) = 
+  (isEmpty(xs))? [] : ([head(x)] | it + [sep,x] | x <- tail(xs);
+
+
+@doc{
+Synopsis: Concatenate a list of lists.
+
+Examples:
+<screen>
+import List;
+concat([]);
+concat([[]]);
+concat([[1]]);
+concat([[1],[],[2,3]]);
+concat([[1,2],[3],[4,5],[]]);
+</screen>
+
+Questions:
+
+QValue:
+prep: import List;
+make: L = list[int,0,5]
+expr: H = concat(<L>) 
+hint: <H>
+test: concat(<L>) == <?>
+}
+public list[&T] concat(list[list[&T]] xxs) =
+  ([] | it + xs | xs <- xxs);
+
 
 @doc{
 Synopsis: Test whether a list is empty.
