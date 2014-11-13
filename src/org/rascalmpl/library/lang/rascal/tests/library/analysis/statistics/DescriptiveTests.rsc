@@ -33,3 +33,9 @@ test bool percentileRelation(list[num] nums, int a, int b) {
 	}
 	return leq(percentile(nums, a), percentile(nums, b));
 }
+
+test bool varianceIsPositive(list[num] nums) {
+	if (nums == []) return true;
+	nums = assureRange(nums, 0.0001, 400);
+	return variance(nums) >= 0;
+}

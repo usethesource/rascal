@@ -142,7 +142,9 @@ Returns the `p`th [percentile](http://en.wikipedia.org/wiki/Percentile) of the d
 }
 
 
-
+num variance(list[num] l:[]) {
+	throw IllegalArgument(l,"variance cannot be calculated for empty lists");
+}
 @doc{
 Synopsis: Variance of data values.
 
@@ -150,8 +152,17 @@ Description:
 Computes the [variance](http://en.wikipedia.org/wiki/Variance) of the data values.
 It measures how far a set of numbers is spread out.
 }
-@javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
-public java num variance(list[num] values);
+num variance([num hd, *num tl]) {
+	if (tl == []) {
+		return 0.;	
+	}
+	//Compensated variant of the two pass algorithm
+	n = 1 + size(tl);
+	mn = mean(tl + hd);
+	sum2 = (pow(hd - mn, 2) | it + pow(i - mn, 2) | i <- tl); 
+	sum3 = (hd - mn | it + (i - mn) | i <- tl); 
+	return (sum2 - (pow(sum3,2)/n)) / (n -1);
+}
 
 @doc{
 Synopsis: Skewness of data values.
