@@ -220,8 +220,8 @@ public default (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl])
 @doc{
 Synopsis: Sum of the squares of data values.
 }
-@javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
-public java num sumsq(list[num] values);
+(&T <:num) sumsq(list[&T <:num] values)
+	= sum([ n * n | n <- values]);
 
 @doc{
 	Calculate the k-th central moment
