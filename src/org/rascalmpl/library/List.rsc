@@ -424,7 +424,7 @@ hint: <H>
 test: intersperse(42, <L>) == <?>
 }
 public list[&T] intersperse(&T sep, list[&T] xs) = 
-  (isEmpty(xs))? [] : ([head(x)] | it + [sep,x] | x <- tail(xs));
+  (isEmpty(xs))? [] : ([head(xs)] | it + [sep,x] | x <- tail(xs));
 
 
 @doc{
