@@ -44,8 +44,22 @@ Description:
 Computes the [kurtosis](http://en.wikipedia.org/wiki/Kurtosis) of the given data values.
 Kurtosis is a measure of the "peakedness" of a distribution.
 }
-@javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
-public java num kurtosis(list[num] values);
+real kurtosis(list[num] values) {
+	if (values == []) {
+		throw IllegalArgument(values,"Kurtosis cannot be calculated for empty lists");
+	}
+	return centralMoment(values, order= 4) / pow(variance(values), 2);
+}
+
+@doc{
+Synopsis: Kurtosis excess of data values.
+
+Description:
+
+Computes the [kurtosis excess](http://en.wikipedia.org/wiki/Kurtosis) of the given data values.
+Kurtosis excess is a measure of the "peakedness" of a distribution corrected such that a normal distribution will be 0.
+}
+real kurtosisExcess(list[num] values) = kurtosis(values) - 3;
 
 @doc{
 Synopsis: Largest data value.
