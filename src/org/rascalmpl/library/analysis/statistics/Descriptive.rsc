@@ -34,6 +34,11 @@ Synopsis: Largest data value.
 @javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
 public java num max(list[num] values);
 
+
+(&T <: num) mean(list[&T<:num] l:[]) {
+	throw IllegalArgument(l,"Mean cannot be calculated for empty lists");
+}
+
 @doc{
 Synopsis: Arithmetic mean of data values.
 
@@ -41,8 +46,14 @@ Description:
 
 Computes the [arithmetic mean](http://en.wikipedia.org/wiki/Arithmetic_mean) of the data values.
 }
-@javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
-public java num mean(list[num] values);
+real mean(list[int] nums)
+	= toReal(sum(nums)) / size(nums);
+real mean(list[real] nums)
+	= sum(nums) / size(nums);
+num mean(list[num] nums)
+	= sum(nums) / size(nums);
+rat mean(list[rat] nums)
+	= sum(nums) / size(nums);
 
 @doc{
 Synopsis: Median of data values.
