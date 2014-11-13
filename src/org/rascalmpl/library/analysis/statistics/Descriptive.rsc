@@ -137,7 +137,7 @@ Returns the `p`th [percentile](http://en.wikipedia.org/wiki/Percentile) of the d
 		throw EmptyList();
 	}
 	nums = sort(nums);
-	idx = toReal(size(nums)) * (toReal(p) / 100);
+	idx = max(1., toReal(size(nums)) * (toReal(p) / 100));
 	return nums[ceil(idx) - 1];
 }
 
