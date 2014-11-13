@@ -197,8 +197,12 @@ Description:
 Computes the [standard deviation](http://en.wikipedia.org/wiki/Standard_deviation)
 of the data values. It shows how much variation exists from the average (mean, or expected value). 
 }
-@javaClass{org.rascalmpl.library.analysis.statistics.Descriptive}
-public java num standardDeviation(list[num] values);
+real standardDeviation(list[num] values) {
+	if (values == []) {
+		throw IllegalArgument(values,"Standard Deviation cannot be calculated for empty lists");
+	}
+	return sqrt(variance(values));
+}
 
 public (&T <:num) sum(list[(&T <:num)] _:[]) {
 	throw ArithmeticException(
