@@ -48,7 +48,11 @@ real kurtosis(list[num] values) {
 	if (values == []) {
 		throw IllegalArgument(values,"Kurtosis cannot be calculated for empty lists");
 	}
-	return centralMoment(values, order= 4) / pow(variance(values), 2);
+	varPow = pow(variance(values), 2);
+	if (varPow == 0.) {
+		throw ArithmeticException("kurtosis is undefined for values with 0 variance");	
+	}
+	return centralMoment(values, order= 4) / varPow;
 }
 
 @doc{
