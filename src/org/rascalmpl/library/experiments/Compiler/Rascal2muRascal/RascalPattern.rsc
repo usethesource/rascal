@@ -134,7 +134,7 @@ tuple[MuExp, list[MuExp]] processRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>
         	if(varnames["<name>"]?){
         	   fragment += "\\<varnames["<name>"]>";
         	} else {
-        	  fragmentCode += [ muCallPrim("str_escape_for_regexp", [ translate(name) ], r@\loc)];
+        	  fragmentCode += [ muCallPrim3("str_escape_for_regexp", [ translate(name) ], r@\loc)];
         	}
           case (RegExp) `\<<Name name>:<NamedRegExp* namedregexps>\>`: {
          		<varref, fragmentCode1> = extractNamedRegExp(r);
@@ -867,12 +867,12 @@ default bool backtrackFree(Pattern p) = true;
 MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp] kwps, node body, list[Expression] when_conditions){
    if(isEmpty(formals)) {
       if(isEmpty(when_conditions)){
-  	      return muBlock([ *kwps, muReturn(translateFunctionBody(body)) ]);
+  	      return muBlock([ *kwps, muReturn1(translateFunctionBody(body)) ]);
   	  } else {
   	      ifname = nextLabel();
           enterBacktrackingScope(ifname);
           conditions = [ translate(cond) | cond <- when_conditions];
-          mubody = muIfelse(ifname,makeMu("ALL",conditions), [ *kwps, muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
+          mubody = muIfelse(ifname,makeMu("ALL",conditions), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	      leaveBacktrackingScope();
 	      return mubody;
   	  }
@@ -927,7 +927,7 @@ MuExp translateFunction({Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps
 	  };
 	  conditions += [ translate(cond) | cond <- when_conditions];
 
-	  mubody = muIfelse(ifname,makeMu("ALL",conditions), [ *kwps, muReturn(translateFunctionBody(body)) ], [ muFailReturn() ]);
+	  mubody = muIfelse(ifname,makeMu("ALL",conditions), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	  leaveBacktrackingScope();
 	  return mubody;
   }

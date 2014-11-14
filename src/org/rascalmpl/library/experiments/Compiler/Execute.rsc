@@ -65,7 +65,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    }
    
    // Read the muLibrary, recompile if necessary
-   MuLibraryCompiled = compiledVersion(MuLibrary, bindir);
+   MuLibraryCompiled = RVMProgramLocation(MuLibrary, bindir);
    
    if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
       try {
@@ -98,7 +98,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
            println("importing: <imp>");
            processed += imp;
            //importedLoc = imp.parent + (basename(imp) + ".rvm");
-           importedLoc = compiledVersion(imp, bindir);
+           importedLoc = RVMProgramLocation(imp, bindir);
            try {
   	           importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
   	           messages += importedRvmProgram.messages;

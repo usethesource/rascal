@@ -157,7 +157,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                																						}
                case preVar(mvar("true")) 														=> muBool(true)
                case preVar(mvar("false")) 														=> muBool(false)
-               case preVar(fvar(str var))                                           			=> { if(!isGlobalNonOverloadedFunction(var)) { throw "Function or coroutine <var> has not been declared!"; } muFun(getUidOfGlobalNonOverloadedFunction(var)); }
+               case preVar(fvar(str var))                                           			=> { if(!isGlobalNonOverloadedFunction(var)) { throw "Function or coroutine <var> has not been declared!"; } muFun1(getUidOfGlobalNonOverloadedFunction(var)); }
      	       case preVar(Identifier id) 														=> muVar(id.var,uid,vardefs[uid][id.var])
      	       case preVar(lrel[str,int] funNames1, Identifier id)        						=> muVar(id.var,getUID(modName,funNames1),vardefs[getUID(modName,funNames1)][id.var])
      	       // Specific to delimited continuations (experimental)
@@ -179,11 +179,11 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preAssignLocDeref(Identifier id, MuExp exp1)  								=> muAssignVarDeref(id.var,uid,vardefs[uid][id.var], exp1)
       	       case preAssignVarDeref(lrel[str,int] funNames1, Identifier id, MuExp exp1)       => muAssignVarDeref(id.var,getUID(modName,funNames1),vardefs[getUID(modName,funNames1)][id.var],exp1)
       	       
-      	       case muCallPrim(str name, loc src)                                            	=> muCallPrim(name[1..-1], [], src)
-               case muCallPrim(str name, list[MuExp] exps, loc src)								=> muCallPrim(name[1..-1], exps, src)			// strip surrounding quotes
+      	       case muCallPrim(str name, loc src)                                            	=> muCallPrim3(name[1..-1], [], src)
+               case muCallPrim(str name, list[MuExp] exps, loc src)								=> muCallPrim3(name[1..-1], exps, src)			// strip surrounding quotes
                
-               case preMuCallPrim(str name)                                            			=> muCallPrim(name[1..-1], [],   |unknown:///a-location-in-library|)
-               case preMuCallPrim(str name, list[MuExp] exps)									=> muCallPrim(name[1..-1], exps, |unknown:///a-location-in-library|)
+               case preMuCallPrim1(str name)                                            			=> muCallPrim3(name[1..-1], [],   |unknown:///a-location-in-library|)
+               case preMuCallPrim2(str name, list[MuExp] exps)									=> muCallPrim3(name[1..-1], exps, |unknown:///a-location-in-library|)
                
                case preThrow(MuExp exp1)														=> muThrow(exp1, |unknown:///a-location-in-library|)
                
@@ -269,7 +269,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("set")), list[MuExp] exps) 								=> muCallMuPrim("set", exps)
              
                case muCall(preVar(mvar("make_mset")), list[MuExp] exps)							=> muCallMuPrim("make_mset", exps)
-               case muCall(preVar(mvar("make_tuple")), list[MuExp] exps)							=> muCallPrim("tuple_create", exps)
+               case muCall(preVar(mvar("make_tuple")), list[MuExp] exps)						=> muCallPrim("tuple_create", exps)
                case muCall(preVar(mvar("get_tuple_elements")), [exp1])							=> muCallMuPrim("get_tuple_elements", [exp1])
                case muCall(preVar(mvar("println")), list[MuExp] exps)							=> muCallMuPrim("println", exps)
                												
@@ -298,12 +298,12 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preIs(MuExp lhs, str typeName)												=> muCallMuPrim("is_<typeName>", [lhs])
       	       
       	       // Overloading
-      	       case preFunNN(str modName1,  str name1, int nformals1)                  			=> muFun(getUID(modName1,[],name1,nformals1))
-      	       case preFunN(lrel[str,int] funNames1,  str name1, int nformals1)        			=> muFun(getUID(modName,funNames1,name1,nformals1), getUID(modName,funNames1))
+      	       case preFunNN(str modName1,  str name1, int nformals1)                  			=> muFun1(getUID(modName1,[],name1,nformals1))
+      	       case preFunN(lrel[str,int] funNames1,  str name1, int nformals1)        			=> muFun1(getUID(modName,funNames1,name1,nformals1), getUID(modName,funNames1))
       	       
       	       case muAll(list[MuExp] exps)                                                     => makeMu("ALL",exps)
       	       case muOr(list[MuExp] exps)                                                      => makeMu("OR",exps)
-      	       case muOne(list[MuExp] exps)                                                     => makeMuOne("ALL",exps)
+      	       case muOne2(list[MuExp] exps)                                                     => makeMuOne("ALL",exps)
       	       
       	       /*
  				* The field 'comma' is a work around given the current semantics of implode 
@@ -329,19 +329,19 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
 MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
     str all_uid = "<fuid>/ALL_<getNextAll()>";
     localvars = [ muVar("c_<i>", all_uid, i)| int i <- index(exps) ];
-    list[MuExp] body = [ muYield() ];
+    list[MuExp] body = [ muYield0() ];
     for(int i <- index(exps)) {
         int j = size(exps) - 1 - i;
         if(backtrackfree[j]) {
             body = [ muIfelse(nextLabel(), exps[j], body, [ muCon(222) ]) ];
         } else {
-            body = [ muAssign("c_<j>", all_uid, j, muCreate(exps[j])), muWhile(nextLabel(), muNext(localvars[j]), body), muCon(222) ];
+            body = [ muAssign("c_<j>", all_uid, j, muCreate1(exps[j])), muWhile(nextLabel(), muNext1(localvars[j]), body), muCon(222) ];
         }
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     												//TODO scopeIn argument is missing
     functions_in_module += muCoroutine(all_uid, fuid, "", 0, size(localvars), |unknown:///a-location-in-library|, [], muBlock(body));
-    return muMulti(muApply(muFun(all_uid, fuid), []));
+    return muMulti(muApply(muFun2(all_uid, fuid), []));
 }
 
 MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
@@ -350,7 +350,7 @@ MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
     list[MuExp] body = [];
     for(int i <- index(exps)) {
         if(backtrackfree[i]) {
-            body += muIfelse(nextLabel(), exps[i], [ muYield() ], [ muCon(222) ]);
+            body += muIfelse(nextLabel(), exps[i], [ muYield0() ], [ muCon(222) ]);
         } else {
             body = body + [ muCall(exps[i],[]) ];
         }
@@ -358,7 +358,7 @@ MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     												//TODO scopeIn argument is missing
     functions_in_module += muCoroutine(or_uid, fuid, "", 0, size(localvars),  |unknown:///a-location-in-library|, [], muBlock(body));
-    return muMulti(muApply(muFun(or_uid, fuid), []));
+    return muMulti(muApply(muFun2(or_uid, fuid), []));
 }
 
 // Produces multi- or backtrack-free expressions

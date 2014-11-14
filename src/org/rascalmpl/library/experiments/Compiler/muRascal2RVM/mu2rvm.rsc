@@ -84,8 +84,8 @@ int getTmp(str name, str fuid){
 // Does an expression produce a value? (needed for cleaning up the stack)
 
 bool producesValue(muWhile(str label, MuExp cond, list[MuExp] body)) = false;
-bool producesValue(muReturn()) = false;
-bool producesValue(muNext(MuExp coro)) = false;
+bool producesValue(muReturn0()) = false;
+bool producesValue(muNext1(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;
 
 // Management needed to compute exception tables
@@ -308,8 +308,8 @@ INS tr(muTypeCon(Symbol sym)) = [LOADTYPE(sym)];
 
 // muRascal functions
 
-INS tr(muFun(str fuid)) = [LOADFUN(fuid)];
-INS tr(muFun(str fuid, str scopeIn)) = [LOAD_NESTED_FUN(fuid, scopeIn)];
+INS tr(muFun1(str fuid)) = [LOADFUN(fuid)];
+INS tr(muFun2(str fuid, str scopeIn)) = [LOAD_NESTED_FUN(fuid, scopeIn)];
 
 // Rascal functions
 
@@ -370,33 +370,33 @@ INS tr(muCallConstr(str fuid, list[MuExp] args)) = [ *tr(args), CALLCONSTR(fuid,
 
 // muRascal functions
 
-INS tr(muCall(muFun(str fuid), list[MuExp] args)) = [*tr(args), CALL(fuid, size(args))];
+INS tr(muCall(muFun1(str fuid), list[MuExp] args)) = [*tr(args), CALL(fuid, size(args))];
 INS tr(muCall(muConstr(str fuid), list[MuExp] args)) = [*tr(args), CALLCONSTR(fuid, size(args))];
 default INS tr(muCall(MuExp fun, list[MuExp] args)) = [*tr(args), *tr(fun), CALLDYN(size(args))];
 
 // Partial application of muRascal functions
 
-INS tr(muApply(muFun(str fuid), [])) = [ LOADFUN(fuid) ];
-INS tr(muApply(muFun(str fuid), list[MuExp] args)) = [ *tr(args), APPLY(fuid, size(args)) ];
+INS tr(muApply(muFun1(str fuid), [])) = [ LOADFUN(fuid) ];
+INS tr(muApply(muFun1(str fuid), list[MuExp] args)) = [ *tr(args), APPLY(fuid, size(args)) ];
 INS tr(muApply(muConstr(str fuid), list[MuExp] args)) { throw "Partial application is not supported for constructor calls!"; }
-INS tr(muApply(muFun(str fuid, str scopeIn), [])) = [ LOAD_NESTED_FUN(fuid, scopeIn) ];
+INS tr(muApply(muFun2(str fuid, str scopeIn), [])) = [ LOAD_NESTED_FUN(fuid, scopeIn) ];
 default INS tr(muApply(MuExp fun, list[MuExp] args)) = [ *tr(args), *tr(fun), APPLYDYN(size(args)) ];
 
 // Rascal functions
 
-INS tr(muOCall(muOFun(str fuid), list[MuExp] args, loc src)) = [*tr(args), OCALL(fuid, size(args), src)];
-INS tr(muOCall(MuExp fun, Symbol types, list[MuExp] args, loc src)) 
+INS tr(muOCall3(muOFun(str fuid), list[MuExp] args, loc src)) = [*tr(args), OCALL(fuid, size(args), src)];
+INS tr(muOCall4(MuExp fun, Symbol types, list[MuExp] args, loc src)) 
 	= [ *tr(args),
 	    *tr(fun), 
 		OCALLDYN(types, size(args), src)];
 
 // Calls to Rascal primitives
 
-INS tr(muCallPrim("println", list[MuExp] args, loc src)) = [*tr(args), PRINTLN(size(args))];
-INS tr(muCallPrim("subtype", list[MuExp] args, loc src)) = [*tr(args), SUBTYPE()];
-INS tr(muCallPrim("typeOf", list[MuExp] args, loc src)) = [*tr(args), TYPEOF()];
+INS tr(muCallPrim3("println", list[MuExp] args, loc src)) = [*tr(args), PRINTLN(size(args))];
+INS tr(muCallPrim3("subtype", list[MuExp] args, loc src)) = [*tr(args), SUBTYPE()];
+INS tr(muCallPrim3("typeOf", list[MuExp] args, loc src)) = [*tr(args), TYPEOF()];
 
-default INS tr(muCallPrim(str name, list[MuExp] args, loc src)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args), src)];
+default INS tr(muCallPrim3(str name, list[MuExp] args, loc src)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args), src)];
 
 // Calls to MuRascal primitives that are directly translated to RVM instructions
 
@@ -417,15 +417,15 @@ default INS tr(muCallJava(str name, str class, Symbol parameterTypes, Symbol key
 
 // Return
 
-INS tr(muReturn()) = [RETURN0()];
-INS tr(muReturn(MuExp exp)) {
+INS tr(muReturn0()) = [RETURN0()];
+INS tr(muReturn1(MuExp exp)) {
 	if(muTmp(_,_) := exp) {
 		inlineMuFinally();
 		return [*finallyBlock, *tr(exp), RETURN1(1)];
 	}
 	return [*tr(exp), RETURN1(1)];
 }
-INS tr(muReturn(MuExp exp, list[MuExp] exps))
+INS tr(muReturn2(MuExp exp, list[MuExp] exps))
 	= [*tr(exp), *tr(exps), RETURN1(size(exps) + 1)];
 
 INS tr(muFailReturn()) = [ FAILRETURN() ];
@@ -434,10 +434,10 @@ INS tr(muFilterReturn()) = [ FILTERRETURN() ];
 
 // Coroutines
 
-INS tr(muCreate(muFun(str fuid))) = [ CREATE(fuid, 0) ];
-INS tr(muCreate(MuExp exp)) = [ *tr(exp), CREATEDYN(0) ];
-INS tr(muCreate(muFun(str fuid), list[MuExp] args)) = [ *tr(args), CREATE(fuid, size(args)) ];
-INS tr(muCreate(MuExp coro, list[MuExp] args)) = [ *tr(args), *tr(coro),  CREATEDYN(size(args)) ];  // order! 
+INS tr(muCreate1(muFun1(str fuid))) = [ CREATE(fuid, 0) ];
+INS tr(muCreate1(MuExp exp)) = [ *tr(exp), CREATEDYN(0) ];
+INS tr(muCreate2(muFun1(str fuid), list[MuExp] args)) = [ *tr(args), CREATE(fuid, size(args)) ];
+INS tr(muCreate2(MuExp coro, list[MuExp] args)) = [ *tr(args), *tr(coro),  CREATEDYN(size(args)) ];  // order! 
 
 // Delimited continuations (experimental)
 // INS tr(muCreate(MuExp exp)) = tr(muReset(exp));
@@ -455,12 +455,12 @@ INS tr(muCreate(MuExp coro, list[MuExp] args)) = [ *tr(args), *tr(coro),  CREATE
 //    return [ LOAD_NESTED_FUN(fuid, functionScope), SHIFT() ];
 //}
 
-INS tr(muNext(MuExp coro)) = [*tr(coro), NEXT0()];
-INS tr(muNext(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!
+INS tr(muNext1(MuExp coro)) = [*tr(coro), NEXT0()];
+INS tr(muNext2(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!
 
-INS tr(muYield()) = [YIELD0()];
-INS tr(muYield(MuExp exp)) = [*tr(exp), YIELD1(1)];
-INS tr(muYield(MuExp exp, list[MuExp] exps)) = [ *tr(exp), *tr(exps), YIELD1(size(exps) + 1) ];
+INS tr(muYield0()) = [YIELD0()];
+INS tr(muYield1(MuExp exp)) = [*tr(exp), YIELD1(1)];
+INS tr(muYield2(MuExp exp, list[MuExp] exps)) = [ *tr(exp), *tr(exps), YIELD1(size(exps) + 1) ];
 
 INS tr(experiments::Compiler::muRascal::AST::muExhaust()) = [ EXHAUST() ];
 
@@ -706,7 +706,7 @@ INS tr(e:muMulti(MuExp exp)) =
        NEXT0()
      ];
 
-INS tr(e:muOne(MuExp exp)) =
+INS tr(e:muOne1(MuExp exp)) =
     [ *tr(exp),
        CREATEDYN(0),
        NEXT0()
@@ -738,7 +738,7 @@ default INS tr(MuExp e) { throw "Unknown node in the muRascal AST: <e>"; }
 
 // muOne: explore one successful evaluation
 
-INS tr_cond(muOne(MuExp exp), str continueLab, str failLab, str falseLab) =
+INS tr_cond(muOne1(MuExp exp), str continueLab, str failLab, str falseLab) =
       [ LABEL(continueLab), LABEL(failLab) ]
     + [ *tr(exp), 
         CREATEDYN(0), 

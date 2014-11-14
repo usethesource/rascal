@@ -669,7 +669,7 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
  *       on the number of formal parameters has been removed 
  */
 public MuExp mkCallToLibFun(str modName, str fname)
-	= muFun("<modName>/<fname>");
+	= muFun1("<modName>/<fname>");
 
 // Generate a MuExp to access a variable
 
@@ -738,7 +738,7 @@ public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tup
         case muAssignVarDeref(str name,fromScope,int pos,MuExp exp) 
         													   => muAssignVarDeref(name,toScope,newPos,exp)
                                                                   when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
-	    case muFun(str fuid,fromScope)                         => muFun(fuid,toScope)
+	    case muFun2(str fuid,fromScope)                         => muFun2(fuid,toScope)
 	    case muCatch(str id,fromScope,Symbol \type,MuExp body2) => muCatch(id,toScope,\type,body2)
 	}
 }
