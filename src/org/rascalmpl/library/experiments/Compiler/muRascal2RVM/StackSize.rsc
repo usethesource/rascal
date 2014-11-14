@@ -26,8 +26,8 @@ private default int estimate(muCon(value v)) = 1;
 
 private int estimate(muTypeCon(Symbol sym)) = 1;
 
-private int estimate(muFun(str fuid)) = 1;
-private int estimate(muFun(str fuid, str scopeIn)) = 1;
+private int estimate(muFun1(str fuid)) = 1;
+private int estimate(muFun2(str fuid, str scopeIn)) = 1;
 
 private int estimate(muOFun(str fuid)) = 1;
 
@@ -42,18 +42,18 @@ private int estimate(muVarKwp(str fuid, str name)) = 1;
 
 private int estimate(muCallConstr(str fuid, list[MuExp] args)) = estimate_arg_list(args);
 
-private int estimate(muCall(muFun(str fuid), list[MuExp] args)) = estimate_arg_list(args);
+private int estimate(muCall(muFun1(str fuid), list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muCall(muConstr(str fuid), list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muCall(MuExp fun, list[MuExp] args)) = max(estimate(fun), 1 + estimate_arg_list(args));
 
-private int estimate(muApply(muFun(str fuid), list[MuExp] args)) = estimate_arg_list(args);
+private int estimate(muApply(muFun1(str fuid), list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muApply(muConstr(str fuid), list[MuExp] args)) { throw "Partial application is not supported for constructor calls!"; }
 private int estimate(muApply(MuExp fun, list[MuExp] args)) = max(estimate(fun), 1 + estimate_arg_list(args));
 
-private int estimate(muOCall(muOFun(str fuid), list[MuExp] args, loc src)) = estimate_arg_list(args);
-private int estimate(muOCall(MuExp fun, Symbol types, list[MuExp] args, loc src)) = max(estimate(fun), 1 + estimate_arg_list(args));
+private int estimate(muOCall3(muOFun(str fuid), list[MuExp] args, loc src)) = estimate_arg_list(args);
+private int estimate(muOCall4(MuExp fun, Symbol types, list[MuExp] args, loc src)) = max(estimate(fun), 1 + estimate_arg_list(args));
 
-private int estimate(muCallPrim(str name, list[MuExp] args, loc src)) = estimate_arg_list(args);
+private int estimate(muCallPrim3(str name, list[MuExp] args, loc src)) = estimate_arg_list(args);
 private int estimate(muCallMuPrim(str name, list[MuExp] args)) = estimate_arg_list(args);
 private int estimate(muCallJava(str name, str class, Symbol parameterTypes,  Symbol keywordTypes, int reflect, list[MuExp] args)) = estimate_arg_list(args);
 
@@ -80,28 +80,28 @@ private int estimate(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp \defa
 private int estimate(muFailReturn()) = 0;
 private int estimate(muFilterReturn()) = 0;
 
-private int estimate(muCreate(MuExp exp)) = estimate(exp);
-private int estimate(muCreate(MuExp coro, list[MuExp] args)) = max(estimate(coro), 1 + estimate_arg_list(args));
+private int estimate(muCreate1(MuExp exp)) = estimate(exp);
+private int estimate(muCreate2(MuExp coro, list[MuExp] args)) = max(estimate(coro), 1 + estimate_arg_list(args));
 
-private int estimate(muNext(MuExp coro)) = estimate(coro);
-private int estimate(muNext(MuExp coro, list[MuExp] args)) = max(estimate(coro), 1 + estimate_arg_list(args));
+private int estimate(muNext1(MuExp coro)) = estimate(coro);
+private int estimate(muNext2(MuExp coro, list[MuExp] args)) = max(estimate(coro), 1 + estimate_arg_list(args));
 
-private int estimate(muYield()) = 1;
-private int estimate(muYield(MuExp exp)) = estimate(exp);
-private int estimate(muYield(MuExp exp, list[MuExp] exps)) = estimate_arg_list([ exp, *exps ]);
+private int estimate(muYield0()) = 1;
+private int estimate(muYield1(MuExp exp)) = estimate(exp);
+private int estimate(muYield2(MuExp exp, list[MuExp] exps)) = estimate_arg_list([ exp, *exps ]);
 
 private int estimate(muExhaust()) = 1;
 
 private int estimate(muGuard(MuExp exp)) = estimate(exp);
 
-private int estimate(muReturn()) = 0;
-private int estimate(muReturn(MuExp exp)) = estimate(exp);
-private int estimate(muReturn(MuExp exp, list[MuExp] exps)) = estimate_arg_list([ exp, *exps ]);
+private int estimate(muReturn0()) = 0;
+private int estimate(muReturn1(MuExp exp)) = estimate(exp);
+private int estimate(muReturn2(MuExp exp, list[MuExp] exps)) = estimate_arg_list([ exp, *exps ]);
 
 private int estimate(muMulti(MuExp exp)) = estimate(exp);
-    
-private int estimate(e:muOne(list[MuExp] exps)) = estimate_arg_list(exps) + 1;
-private int estimate(e:muOne(MuExp exp)) = estimate(exp) + 1;
+
+private int estimate(e:muOne1(MuExp exp)) = estimate(exp) + 1; 
+private int estimate(e:muOne2(list[MuExp] exps)) = estimate_arg_list(exps) + 1;
 
 private int estimate(e:muAll(list[MuExp] exps)) = estimate_arg_list(exps) + 2;
 private int estimate(e:muOr(list[MuExp] exps)) = estimate_arg_list(exps) + 2;

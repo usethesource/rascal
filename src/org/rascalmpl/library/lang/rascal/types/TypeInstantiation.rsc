@@ -133,7 +133,7 @@ private void invalidInstantiation() {
 
 @doc{Instantiate type parameters found inside the types.}
 public Symbol instantiate(Symbol t:\void(), Bindings bindings) = t;
-public Symbol instantiate(\label(str x, Symbol t), Bindings bindings) = \label(x, instantiate(t,bindings));
+public Symbol instantiate(Symbol::\label(str x, Symbol t), Bindings bindings) = \label(x, instantiate(t,bindings));
 public Symbol instantiate(\set(Symbol et), Bindings bindings) = \set(instantiate(et,bindings));
 public Symbol instantiate(\rel(list[Symbol] ets), Bindings bindings) = \rel([ instantiate(et,bindings) | et <- ets ]);
 public Symbol instantiate(\tuple(list[Symbol] ets), Bindings bindings) = \tuple([ instantiate(et,bindings) | et <- ets ]);

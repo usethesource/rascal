@@ -103,7 +103,7 @@ test bool tst() = run("(x \<- [1,2] && x == 3) \<==\> (y \<- [5,6] && y == 7)") 
 
 // Miscellaneous
 
-test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2] && x == [1, 2]") == [*int zz, 3, zz] := [1,2,3,1,2] && zz == [1, 2];
+test bool tst() = run("[*int x, 3, *x] := [1,2,3,1,2] && x == [1, 2]") == [*int x, 3, *x] := [1,2,3,1,2] && x == [1, 2];
 
 // Shortcut evaluation
 
