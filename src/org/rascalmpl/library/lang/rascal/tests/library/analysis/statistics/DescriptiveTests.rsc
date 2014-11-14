@@ -39,3 +39,15 @@ test bool varianceIsPositive(list[num] nums) {
 	nums = assureRange(nums, 0.0001, 400);
 	return variance(nums) >= 0;
 }
+
+test bool kurtoiseNeverBelowZero(list[num] nums) {
+	if (nums == []) return true;
+	nums = assureRange(nums, 0.0001, 400);
+	return variance(nums) > 0 ==> kurtosis(nums) >= 0;
+}
+
+test bool standardDeviationIsPositive(list[num] nums) {
+	if (nums == []) return true;
+	nums = assureRange(nums, 0.0001, 400);
+	return standardDeviation(nums) >= 0;
+}
