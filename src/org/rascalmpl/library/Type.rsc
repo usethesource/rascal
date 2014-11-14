@@ -330,8 +330,10 @@ public Symbol lub(Symbol::\cons(Symbol _, _, list[Symbol] _), Symbol::\node()) =
 public Symbol lub(Symbol::\alias(str _, list[Symbol] _, Symbol aliased), Symbol r) = lub(aliased, r);
 public Symbol lub(Symbol l, \alias(str _, list[Symbol] _, Symbol aliased)) = lub(l, aliased);
 
-public Symbol lub(Symbol l:Symbol::\parameter(str s, Symbol bound), Symbol r:Symbol::\parameter(str s, Symbol bound)) = l;
-public Symbol lub(Symbol l:Symbol::\parameter(str s1, Symbol bound1), Symbol r:Symbol::\parameter(str s2, Symbol bound2)) = lub(bound1,bound2) when s1 != s2;
+public bool keepParams(Symbol::\parameter(str s1, Symbol bound1), Symbol::\parameter(str s2, Symbol bound2)) = s1 == s2 && equivalent(bound1,bound2);
+
+public Symbol lub(Symbol l:Symbol::\parameter(str s1, Symbol bound1), Symbol r:Symbol::\parameter(str s2, Symbol bound2)) = l when keepParams(l,r);
+public Symbol lub(Symbol l:Symbol::\parameter(str s1, Symbol bound1), Symbol r:Symbol::\parameter(str s2, Symbol bound2)) = lub(bound1,bound2) when !keepParams(l,r);
 public Symbol lub(Symbol::\parameter(str _, Symbol bound), Symbol r) = lub(bound, r) when !(isTypeVar(r));
 public Symbol lub(Symbol l, Symbol::\parameter(str _, Symbol bound)) = lub(l, bound) when !(isTypeVar(l));
 
