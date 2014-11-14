@@ -1,0 +1,180 @@
+module experiments::Compiler::RVM::Viewer
+
+import Prelude;
+import ValueIO;
+import util::FileSystem;
+import experiments::Compiler::RVM::AST;
+
+import experiments::Compiler::Compile;
+
+/*
+ *  Viewer for compiled RVM programs
+ *
+ * TODO: zillions of options could be added
+ * - show a foldable vizialization.
+ */
+ 
+void view(loc srcLoc,                   // location of Rascal source file
+          loc bindir = |home:///bin|,   // location where binaries are stored
+          list[str] selection = [],     // selection of function names to be shown
+          bool listing = false          // show instruction listing
+          ){
+
+    rvmLoc = RVMProgramLocation(srcLoc, bindir);
+    try {
+        p = readTextValueFile(#RVMProgram, rvmLoc);
+        
+        if(size(selection) > 0){
+            listDecls(p, selection, listing);
+            return;
+        }
+        println("RVM PROGRAM: <p.name>");
+        msgs = p.messages;
+        if(size(msgs) > 0){
+            println("MESSAGES:");
+            for(msg <- msgs){
+                println("\t<msg>");
+            }
+        }
+        imps = p.imports;
+        if(size(imps)> 0){
+            println("IMPORTS:");
+            for(imp <- imps){
+                println("\t<imp>");
+            }
+        }
+        sym_defs = p.symbol_definitions;
+        if(size(sym_defs) > 0){
+            println("SYMBOL DEFINITIONS:");
+            for(sym <- sym_defs){
+                if(choice(s, choices) := sym_defs[sym]){
+                    println("\t<s>:");
+                    for(c <- choices){
+                        println("\t\t<c>");
+                    }
+                } else {
+                  println("\t<sym>: <sym_defs[sym]>");
+                }
+            }
+        }
+       
+        println("DECLARATIONS:");
+        for(dname <- p.declarations){
+            printDecl(p.declarations[dname]);
+        }
+        init = p.initialization;
+        if(size(init) > 0){
+            println("INITIALIZATION:");
+            iprintln(init);
+        }
+        res = p.resolver;
+        if(size(res) > 0){
+            println("RESOLVER:");
+            for(f <- res){
+                println("\t<f>: <res[f]>");
+            }        
+        }
+        overloaded = p.overloaded_functions;
+        if(size(overloaded) > 0){
+          println("OVERLOADED FUNCTIONS:");
+            for(t <- overloaded){
+                println("\t<t>");
+            }
+        }
+        return;
+    } catch: {
+        println("Cannot read: <rvmLoc>");
+    }
+}
+
+void printDecl(Declaration d){
+    if(d is FUNCTION){
+        println("\tFUNCTION <d.uqname>, <d.qname>, <d.ftype>");
+        println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, exceptions=<size(d.exceptions)>, scopeIn=<d.scopeIn>, src=<d.src>");
+    } else {
+        println("\tCOROUTINE <d.uqname>, <d.qname>, <d.ftype>");
+        println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, scopeIn=<d.scopeIn>, src=<d.src>");
+    }
+}
+
+void listDecls(RVMProgram p, list[str] selection, bool listing){
+    selection = [toLowerCase(sel) | sel <- selection];
+    for(dname <- p.declarations){
+        for(sel <- selection){
+            if(findFirst(toLowerCase(dname), sel) >= 0){
+                printDecl(p.declarations[dname]);
+                if(listing){
+                    for(ins <- p.declarations[dname].instructions){
+                        println("\t\t<ins>");
+                    
+                    }
+                }
+            }
+        
+        }
+    }
+
+}
+
+void statistics(loc root = |rascal:///|,
+                loc bindir = |home:///bin|
+                ){
+    allFiles = find(root, "rsc");
+    
+    nfunctions = 0;
+    ncoroutines = 0;
+    ninstructions = 0;
+  
+    messages = {};
+    missing = {};
+    nsuccess = 0;
+    for(f <- allFiles){
+        rvmLoc = RVMProgramLocation(f, bindir);
+        try {
+            p = readTextValueFile(#RVMProgram, rvmLoc);
+            if(size(p.messages) == 0 || all(msg <- p.messages, msg is warning)){
+                nsuccess += 1;
+            }
+            messages += p.messages;
+           
+            for(dname <- p.declarations){
+                decl = p.declarations[dname];
+                if(decl is FUNCTION)
+                    nfunctions += 1;
+                else {
+                    ncoroutines += 1;
+                }
+                ninstructions += size(decl.instructions);
+            }
+        } catch: 
+            missing += f;
+    }
+    
+    nfatal = 0;
+    nerrors = 0;
+    nwarnings = 0;
+    
+    for(msg <- messages){
+        if(msg is error){
+            if(findFirst(msg.msg, "Fatal compilation error") >= 0){
+                nfatal += 1;
+            } else {
+                nerrors += 1;
+            }
+         } else {
+            nwarnings += 1;
+         }
+    }
+    
+    println("files:        <size(allFiles)>
+            'functions:    <nfunctions>
+            'coroutines:   <ncoroutines>
+            'instructions: <ninstructions>
+            'errors:       <nerrors>
+            'warnings:     <nwarnings>
+            'missing:      <size(missing)>, <missing>
+            'success:      <nsuccess>
+            'fatal:        <nfatal>
+            '");
+    
+}
