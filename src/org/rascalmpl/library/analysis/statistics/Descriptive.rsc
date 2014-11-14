@@ -8,9 +8,9 @@
 module analysis::statistics::Descriptive
 
 import IO;
-import List;
 import Exception;
 import util::Math;
+
 
 real geometricMean(list[num] l:[]) {
 	throw IllegalArgument(l,"Geometric mean cannot be calculated for empty lists");
@@ -83,14 +83,8 @@ Description:
 
 Computes the [arithmetic mean](http://en.wikipedia.org/wiki/Arithmetic_mean) of the data values.
 }
-real mean(list[int] nums)
+default real mean(list[num] nums)
 	= toReal(sum(nums)) / size(nums);
-real mean(list[real] nums)
-	= sum(nums) / size(nums);
-num mean(list[num] nums)
-	= sum(nums) / size(nums);
-rat mean(list[rat] nums)
-	= sum(nums) / size(nums);
 
 
 (&T <: num) median(list[&T<:num] l:[]) {
@@ -123,13 +117,7 @@ median([1,2,2,6,7,8]);
 </screen>
 
 }
-real median(list[int] nums) 
-	= mean(middle(nums));
-real median(list[real] nums) 
-	= mean(middle(nums));
-rat median(list[rat] nums) 
-	= mean(middle(nums));
-num median(list[num] nums) 
+real median(list[num] nums) 
 	= mean(middle(nums));
 
 @doc{
@@ -265,3 +253,18 @@ real moment(list[num] nums, int order = 1) {
 	}
 	return (0. | it + pow(n, order) | n <- nums) / size(nums);
 }
+
+
+// importing functions from List.rsc to avoid the overlapping to cause typechecker issues
+@javaClass{org.rascalmpl.library.Prelude}
+private java int size(list[&T] lst);
+@javaClass{org.rascalmpl.library.Prelude}
+private java list[&T] tail(list[&T] lst) throws EmptyList;
+@javaClass{org.rascalmpl.library.Prelude}
+private java &T head(list[&T] lst) throws EmptyList;
+
+private list[&T] sort(list[&T] lst) =
+	sort(lst, bool (&T a,&T b) { return a < b; } );
+	
+@javaClass{org.rascalmpl.library.Prelude}
+private java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
