@@ -3157,52 +3157,49 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			}
 			
 	        case ptn:setNode(ptns) : {
-	            for (idx <- index(ptns), spliceNodePlus(n,_,rt,nid) := ptns[idx] || spliceNodeStar(n,_,rt,nid) := ptns[idx]) {
-	                if (RSimpleName("_") == n) {
-                        c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
-                        ptns[idx].nameId = c.nextLoc - 1;
-	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
-	                } else {
-	                	// TODO: Do we want to issue a warning here if the same name is used multiple times? Probably, although a pass
-	                	// over the pattern tree may be a better way to do this (this would only catch cases at the same level of
-	                	// a set pattern or, below, a list pattern)
-	                    c = addLocalVariable(c, n, false, ptns[idx]@at, \set(rt));
-                        ptns[idx].nameId = c.nextLoc - 1;
-	                    ptns[idx] = ptns[idx][@rtype = rt];
-	                } 
-	            }
-	            
-	            for (idx <- index(ptns), spliceNodePlus(n,nid) := ptns[idx] || spliceNodeStar(n,nid) := ptns[idx] || 
-	                                     multiNameNode(n,nid) := ptns[idx]) {
-	                if (RSimpleName("_") == n) {
-	                    rt = \inferred(c.uniqueify);
-	                    c.uniqueify = c.uniqueify + 1;
-	                    c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
-                        ptns[idx].nameId = c.nextLoc - 1;
-	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
-	                } else if (!fcvExists(c, n)) {
-	                    rt = \inferred(c.uniqueify);
-	                    c.uniqueify = c.uniqueify + 1;
-	                    c = addLocalVariable(c, n, true, ptns[idx]@at, \set(rt));
-                        ptns[idx].nameId = c.nextLoc - 1;
-	                    ptns[idx] = ptns[idx][@rtype = rt];
-	                } else {
-	                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
-	                    c.usedIn[ptn@at] = head(c.stack);
-	                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
-                        ptns[idx].nameId = c.fcvEnv[n];
-	                    // TODO: Keep this now that we have splicing?
-	                    if (isSetType(rt))
-	                        ptns[idx] = ptns[idx][@rtype = getSetElementType(rt)];
-	                    else
-	                        failures += makeFailType("Expected type set, not <prettyPrintType(rt)>", ptns[idx]@at);
-	                    c = addNameWarning(c,n,ptns[idx]@at);
-	                }
-	            }
-	            
-				for (idx <- index(ptns)) {
-	        		< pti, c > = assignInitialPatternTypes(ptns[idx], c);
-	        		ptns[idx] = pti;
+	        	for (idx <- index(ptns)) {
+	        		if (spliceNodePlus(n,_,rt,nid) := ptns[idx] || spliceNodeStar(n,_,rt,nid) := ptns[idx]) {
+		                if (RSimpleName("_") == n) {
+	                        c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                } else {
+		                	// TODO: Do we want to issue a warning here if the same name is used multiple times? Probably, although a pass
+		                	// over the pattern tree may be a better way to do this (this would only catch cases at the same level of
+		                	// a set pattern or, below, a list pattern)
+		                    c = addLocalVariable(c, n, false, ptns[idx]@at, \set(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                } 
+	        		} else if (spliceNodePlus(n,nid) := ptns[idx] || spliceNodeStar(n,nid) := ptns[idx] || multiNameNode(n,nid) := ptns[idx]) {
+		                if (RSimpleName("_") == n) {
+		                    rt = \inferred(c.uniqueify);
+		                    c.uniqueify = c.uniqueify + 1;
+		                    c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                } else if (!fcvExists(c, n)) {
+		                    rt = \inferred(c.uniqueify);
+		                    c.uniqueify = c.uniqueify + 1;
+		                    c = addLocalVariable(c, n, true, ptns[idx]@at, \set(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                } else {
+		                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
+		                    c.usedIn[ptn@at] = head(c.stack);
+		                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
+	                        ptns[idx].nameId = c.fcvEnv[n];
+		                    // TODO: Keep this now that we have splicing?
+		                    if (isSetType(rt))
+		                        ptns[idx] = ptns[idx][@rtype = getSetElementType(rt)];
+		                    else
+		                        failures += makeFailType("Expected type set, not <prettyPrintType(rt)>", ptns[idx]@at);
+		                    c = addNameWarning(c,n,ptns[idx]@at);
+		                }
+	        		} else {
+		        		< pti, c > = assignInitialPatternTypes(ptns[idx], c);
+		        		ptns[idx] = pti;
+	        		}
 	        	}
 
 	            ptn.children = ptns;
@@ -3210,49 +3207,46 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	        }
 	
 	        case ptn:listNode(ptns) : {
-	            for (idx <- index(ptns), spliceNodePlus(n,_,rt,nid) := ptns[idx] || spliceNodeStar(n,_,rt,nid) := ptns[idx]) {
-	                if (RSimpleName("_") == n) {
-                        c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
-                        ptns[idx].nameId = c.nextLoc - 1;
-	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
-	                } else {
-	                    c = addLocalVariable(c, n, false, ptns[idx]@at, \list(rt));
-                        ptns[idx].nameId = c.nextLoc - 1;
-	                    ptns[idx] = ptns[idx][@rtype = rt];
-	                } 
-	            }
-				
-	            for (idx <- index(ptns), spliceNodePlus(n,nid) := ptns[idx] || spliceNodeStar(n,nid) := ptns[idx] || 
-	                                     multiNameNode(n,nid) := ptns[idx]) {
-	                if (RSimpleName("_") == n) {
-	                    rt = \inferred(c.uniqueify);
-	                    c.uniqueify = c.uniqueify + 1;
-	                    c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
-                        ptns[idx].nameId = c.nextLoc - 1;
-	                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
-	                } else if (!fcvExists(c, n)) {
-	                    rt = \inferred(c.uniqueify);
-	                    c.uniqueify = c.uniqueify + 1;
-	                    c = addLocalVariable(c, n, true, ptns[idx]@at, \list(rt));
-                        ptns[idx].nameId = c.nextLoc - 1;
-	                    ptns[idx] = ptns[idx][@rtype = rt];
-	                } else {
-	                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
-	                    c.usedIn[ptn@at] = head(c.stack);
-                        ptns[idx].nameId = c.fcvEnv[n];
-	                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
-	                    // TODO: Keep this now that we have splicing?
-	                    if (isListType(rt))
-	                        ptns[idx] = ptns[idx][@rtype = getListElementType(rt)];
-	                    else
-	                        failures += makeFailType("Expected type list, not <prettyPrintType(rt)>", ptns[idx]@at); 
-	                    c = addNameWarning(c,n,ptns[idx]@at);
-	                }
-	            }
-
-				for (idx <- index(ptns)) {
-	        		< pti, c > = assignInitialPatternTypes(ptns[idx], c);
-	        		ptns[idx] = pti;
+	        	for (idx <- index(ptns)) {
+	        		if (spliceNodePlus(n,_,rt,nid) := ptns[idx] || spliceNodeStar(n,_,rt,nid) := ptns[idx]) {
+		                if (RSimpleName("_") == n) {
+	                        c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                } else {
+		                    c = addLocalVariable(c, n, false, ptns[idx]@at, \list(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                } 
+	        		} else if (spliceNodePlus(n,nid) := ptns[idx] || spliceNodeStar(n,nid) := ptns[idx] || multiNameNode(n,nid) := ptns[idx]) {
+		                if (RSimpleName("_") == n) {
+		                    rt = \inferred(c.uniqueify);
+		                    c.uniqueify = c.uniqueify + 1;
+		                    c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
+		                } else if (!fcvExists(c, n)) {
+		                    rt = \inferred(c.uniqueify);
+		                    c.uniqueify = c.uniqueify + 1;
+		                    c = addLocalVariable(c, n, true, ptns[idx]@at, \list(rt));
+	                        ptns[idx].nameId = c.nextLoc - 1;
+		                    ptns[idx] = ptns[idx][@rtype = rt];
+		                } else {
+		                    c.uses = c.uses + < c.fcvEnv[n], ptns[idx]@at >;
+		                    c.usedIn[ptn@at] = head(c.stack);
+	                        ptns[idx].nameId = c.fcvEnv[n];
+		                    Symbol rt = c.store[c.fcvEnv[n]].rtype;
+		                    // TODO: Keep this now that we have splicing?
+		                    if (isListType(rt))
+		                        ptns[idx] = ptns[idx][@rtype = getListElementType(rt)];
+		                    else
+		                        failures += makeFailType("Expected type list, not <prettyPrintType(rt)>", ptns[idx]@at); 
+		                    c = addNameWarning(c,n,ptns[idx]@at);
+		                }	        		
+					} else {
+		        		< pti, c > = assignInitialPatternTypes(ptns[idx], c);
+		        		ptns[idx] = pti;
+	        		}
 	        	}
 
 	            ptn.children = ptns;
