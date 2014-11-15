@@ -92,14 +92,15 @@ MuModule r2mu(loc moduleLoc){
 @doc{Compile a parsed Rascal source module to muRascal}
 MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    try {
-    println("r2mu: entering ...");
+    module_name = "<M.header.name>";
+    println("r2mu: entering ... <module_name>");
    	Configuration c = newConfiguration();
    	Configuration config = checkModule(M, c);
    	// Uncomment to dump the type checker configuration:
    	//text(config);
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
-   	module_name = "<M.header.name>";
+   
    	if(size(errors) > 0) {
    	    return errorMuModule(module_name, config.messages);
    	} else {
