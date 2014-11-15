@@ -390,9 +390,16 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 			f_errors = { e | e:error(_,_) <- f_rvm.messages, e.at.path == f.path};
 			all_static_errors += f_errors;
             static_error_count[f] = size(f_errors);
+            
             if(size(f_errors) > 0){
                 for(msg <- f_rvm.messages){
-                    println(msg);
+                
+                    if(msg is error){
+                        if(findFirst(msg.msg, "Fatal compilation error") >= 0){
+                            compiler_errors += f;
+                        } 
+                        println(msg);
+                    }
                 }
             }
 		} catch e: {
