@@ -7565,11 +7565,10 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	}
 
 	c.stack = tail(c.stack);
-	computedModuleLoc = getModuleLocation(prettyPrintName(moduleName));
-	if (exists(moduleLoc)) {       // TODO: Review this test
-		writeCachedHash(computedModuleLoc, bindir, fileHash);
-		writeCachedConfig(computedModuleLoc, bindir, c);
-		writeCachedHashMap(computedModuleLoc, bindir, currentHashes);
+	if (exists(moduleLoc)) {
+		writeCachedHash(moduleLoc, bindir, fileHash);
+		writeCachedConfig(moduleLoc, bindir, c);
+		writeCachedHashMap(moduleLoc, bindir, currentHashes);
 	}
 		
 	return c;
