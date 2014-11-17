@@ -1204,9 +1204,9 @@ public class Prelude {
 			
 			byte[] hash = md.digest();
 			StringBuffer result = new StringBuffer();
-		    for (int i = 0; i < hash.length; i++) {
-		    	result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
-		    }
+			for (int i = 0; i < hash.length; i++) {
+				result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+			}
 			return values.string(result.toString());
 		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, ctx.getCurrentAST(), null);
