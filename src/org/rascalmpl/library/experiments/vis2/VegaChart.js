@@ -36,13 +36,24 @@ Figure.bboxFunction.vega = function(selection) {
     // alert(data);
     var dfile =  Figure.site + "/vegaJSON/" + figure.name;
     // var dfile ="vega/StackedBar.json";
+    
+    if (figure.padding_left==0 && figure.padding_right==0 
+         && figure.padding_bottom==0 && figure.padding_top == 0) {
     d3.json(dfile, function(err, data){
+        
          figure.padding = new Object();
          figure.padding.left = data.padding.left;
          figure.padding.right = data.padding.right;
          figure.padding.top = data.padding.top;
          figure.padding.bottom = data.padding.bottom;
     });
+    } else {
+        figure.padding = new Object();
+        figure.padding.left = figure.padding_left;
+        figure.padding.right = figure.padding_right;
+        figure.padding.top = figure.padding_top;
+        figure.padding.bottom = figure.padding_bottom;
+    }
     
     function parse(err, d) { 
     figure.svg.append("foreignObject")
@@ -67,17 +78,7 @@ Figure.bboxFunction.vega = function(selection) {
          );    
     } 
     
-    function updateSpec(spec, width, height, top, left, bottom, right) {
-        spec.width = width - left - right;
-        spec.height = height - top - bottom;
-        var padding = new Object();
-        padding.top = top;
-        padding.left = left;
-        padding.bottom = bottom;
-        padding.right = right;
-        spec.padding = padding;
-        return spec;
-    }
+    
     if (figure.data) {
        d3.json(figure.data ,  parse);
        }

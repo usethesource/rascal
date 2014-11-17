@@ -124,6 +124,7 @@ Response page(get(), /^\/vegaJSON\/<name:[a-zA-Z0-9_:]+>/,
       if(visualizations[name]?){
 		    descr = visualizations[name];
 		    VEGA s = descr.figure.command();
+		    println(toJSON(s));
 		    return response(toJSON(s));
 		    }
       else {

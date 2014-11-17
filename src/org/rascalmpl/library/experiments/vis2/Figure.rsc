@@ -95,6 +95,7 @@ public data Figure(
 		// Dimensions and Alignmenting
 		
 		tuple[int,int] size = <0,0>,
+		tuple[int, int, int, int] padding = <0, 0, 0, 0>,
 		int width = 0,
 		int height = 0,
 		Position at = <0,0>,
@@ -226,7 +227,7 @@ public data Figure(
 // Charts
    
    | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), str orientation = "vertical", bool grouped = false, str flavor ="nvBarChart") 
-   | vega(str dataFile = "", str variable="", VEGA() command = (){return VEGA();}, str \module ="experiments::vis2::vega::VegaChart", Datasets[LabeledData] datasets = ())      
+   | vega(str dataFile = "",  VEGA() command = (){return VEGA();}, str \module ="experiments::vis2::vega::VegaChart", Datasets[LabeledData] datasets = ())      
    | scatterPlot()
    
    | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[XYData] datasets = (), bool area = false, str flavor ="nvLineChart")
