@@ -11,5 +11,5 @@ import ParseTree;
 public test bool tst() {
 	configuration = newConfiguration();
 	configuration = checkModule(parse(#start[Module],|rascal:///lang/rascal/syntax/Rascal.rsc|).top,configuration);
-	return getGrammar(configuration) == getModuleType().definitions;
+	return getGrammar() == getModuleType().definitions;
 }

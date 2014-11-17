@@ -77,7 +77,7 @@ test bool size4()  = Set::size({1,2,3}) == 3;
   
 // sum	
   
-test bool sum1()  = sum({}) == 0;
+test bool sum1()  = sum({0}) == 0;
 test bool sum2()  = sum({1}) == 1;
 test bool sum3()  = sum({1,2}) == 3;
 test bool sum4()  = sum({1,2,3}) == 6;

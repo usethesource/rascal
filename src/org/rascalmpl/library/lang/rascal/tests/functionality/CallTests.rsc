@@ -304,7 +304,6 @@ test bool keywordTest11() {
     int incr(int x, int delta=1) = x + delta;
     return incr(3) == 4 && incr(3, delta=2) == 5;
 }
-  
   	
 test bool  keywordTest2() { 
     int sum(int x = 0, int y = 0) = x + y;
@@ -332,7 +331,7 @@ test bool keywordTest7(){
     int vol(int x, int y, int z, int area = x * y, int volume = area * z) = volume;
     return vol(1,2,3) == 6; 
 }
-/*TODO:TC*/ 
+
 data Figure (real shrink = 1.0, str fillColor = "white", str lineColor = "black")  =  emptyFigure() 
   | ellipse(Figure inner = emptyFigure()) 
   | box(Figure inner = emptyFigure())
@@ -363,12 +362,9 @@ test bool keywordTest17() = volume(2,3,4,area=0).volume == 0;
 
 test bool keywordTest18() = volume(2,3,4,volume=0).area == 6;
 
+test bool keywordTest19() = ellipse(inner=emptyFigure(fillColor="red")).fillColor == "white";
 
-
-/* The following give NoSuchKey errors: TC info is missing or not found in the compiler */
-/*TODO:TC*///test bool keywordTest16() = ellipse(inner=emptyFigure(fillColor="red")).fillColor == "white";
-
-/*TODO:TC*///test bool keywordTest17() = ellipse(inner=emptyFigure(fillColor="red")).inner.fillColor == "red";
+test bool keywordTest20() = ellipse(inner=emptyFigure(fillColor="red")).inner.fillColor == "red";
 
 
 data D = d(int x, int y = 3);
@@ -394,7 +390,7 @@ data POINT1 = point1(int x, int y, int z = 3, list[str] colors = []);
   
 test bool keywordMatchTest11() = point1(_, _, colors=["blue"]) := point1(1,2, colors=["blue"]);
   		
-  	
 test bool keywordMatchTest12() =point1(_, _, colors=[*_,"blue",*_]) := point1(1,2, colors=["red","green","blue"]);
-/*TODO:TC+COMP*///test bool keywordMatchTest13() =point1(_, _, colors=[*_,*X,*_,*X, *_]) := point1(1,2, colors=["red","blue","green","blue"]);
+
+test bool keywordMatchTest13() =point1(_, _, colors=[*_,*X,*_,*X, *_]) := point1(1,2, colors=["red","blue","green","blue"]);
  

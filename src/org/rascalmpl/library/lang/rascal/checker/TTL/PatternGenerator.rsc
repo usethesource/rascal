@@ -72,7 +72,7 @@ public PV generatePattern(type[&T] t, int nvars, VarEnv env, bool allowVars){
      if(allowVars){
 	     if(arbInt(0,3) == 0){ // Use existing variable
 	        for(str var <- env){
-	            if(env[var].symbol == #t.symbol){          // TODO: maybe wrong
+	            if(env[var].symbol == t.symbol){
 	               return <var, env[var].val, nvars, env>;
 	             }
 	        } 

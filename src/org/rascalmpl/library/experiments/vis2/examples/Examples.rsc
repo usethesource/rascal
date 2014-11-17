@@ -931,7 +931,8 @@ Datasets[LabeledData] exampleBarData() =
      <"0", 55>,
      <"1", 91>,
      <"2", 53>,
-     <"3", 87>,<"4", 48>,
+     <"3", 87>,
+     <"4", 48>,
      <"5", 49>,
      <"6", 66>,
      <"7", 27>,
@@ -941,37 +942,40 @@ Datasets[LabeledData] exampleBarData() =
 );
 
 
-void stackedBarChart(){
-        // ex("stackedBarChart", vega(size=<500,200>,  dataFile="vega/StackedBar.json", variable="aap"));
-        ex("stackedBarChart", vega(size=<500,200>, padding = <10,100,10,10>, datasets=stackedData,  command= 
-              stackedBar(title=("x":"index", "y":"N","color":"p") 
+void stackedBarChart(){       
+        ex("stackedBarChart", vega(size=<500,200>, padding = <10,100,10,10>
+             ,datasets=stackedData,  command= 
+              stackedBar(
+                title=("x":"index", "y":"N","color":"p") 
                ,legends = ("color":"fill")
-              , xTickLabels=tickLabels(angle=45)
-              , palette =  color12
-              
+               ,tickLabels=("x":tickLabels(angle=45))          
+               ,palette =  color12     
               )
-         ));
-        //ex("stackedBarChart", vega(size=<800,200>, datasets=exampleSteden(), variable="stackedArea"));
+         ));        
 }
 
 void groupedBarChart(){
-        ex("groupedBarChart", vega(size=<500,200>, datasets=stackedData, command=
+        ex("groupedBarChart", vega(
+           size=<500,200>, datasets=stackedData, command=
            groupedBar(
-             title=("x":"index", "y":"N","color":"p") 
+              title=("x":"index", "y":"N","color":"p") 
              ,legends = ("color":"fill")
-             ,xTickLabels=tickLabels(angle=90))));
+             ,xTickLabels=tickLabels(angle=90)
+             )
+           )
+          );
 }
 
 void stackedAreaChart(){
-        ex("stackedAreaChart", vega(size=<500,200>, datasets=stackedData, command=stackedArea));
+        ex("stackedAreaChart", vega(size=<500,200>, datasets=stackedData, command=stackedArea()));
 }
 
-void groupedSymbolChart(){
-        ex("groupedSymbolChart", vega(size=<500,200>, datasets=stackedData, command=groupedSymbol));
+void graphSetChart(){
+        ex("graphSet", vega(size=<500,200>, datasets=stackedData, command=graphSet(grid=true,legends = ("color":"fill"))));
 }
 
-void groupedLineChart(){
-        ex("groupedLineChart", vega(size=<500,200>, datasets=stackedData, command=groupedLine));
+void symbolSetChart(){
+        ex("symbolSet", vega(size=<500,200>, datasets=stackedData, command=graphSet(shape=("all":"circle"))));
 }
 
 void stedenBarChart(){
@@ -979,9 +983,11 @@ void stedenBarChart(){
         groupedBar(
              title=("x":"steden", "y":"N","color":"p") 
              ,legends = ("color":"fill")
-             ,xTickLabels=tickLabels(angle=90, title_dy = 60, dx = 1)
-             ,yTickLabels=tickLabels(title_dy = -40)
+             ,tickLabels=("x": tickLabels(angle=90, title_dy = 60, dx = 1),
+                          "y": tickLabels(title_dy = -40)
+                          )        
              ,palette =  color12
+             ,format = ("y": "3s")
              )
         ));
 }
@@ -998,6 +1004,17 @@ void barChart2(){
 void barChart3(){
 	ex("barChart3", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, datasets=exampleBarData())]));
 }
+
+/*
+map[str, lrel[str, num]] sincos = ("Sine Wave": [<"<x>", round(sin(x/10),0.01)>| x <- [0.0, 1.0 .. 100.0]],
+	 "Cosine Wave":       [<"<x>", round(0.5 * cos(x/10), 0.01)>        | x <- [0.0, 1.0 .. 100.0]],
+	 "Another sine wave": [<"<x>", round(0.25 * sin(x/10) + 0.5, 0.01)> | x <- [0.0, 1.0 .. 100.0]]
+	);
+
+void graphSetChart2(){
+        ex("graphSet2", vega(size=<500,200>, datasets=sincos, command=graphSet(shape=("all":"circle"),grid=true)));
+}
+*/
 
 
 

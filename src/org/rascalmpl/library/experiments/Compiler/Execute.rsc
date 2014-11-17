@@ -26,7 +26,7 @@ public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/Libr
 // public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.rvm|;
 // map[str,Symbol] libTypes = ();
 
-public list[loc] defaultImports = [|rascal:///Exception.rsc|];
+public list[loc] defaultImports = [];  //[|rascal:///Exception.rsc|];
 
 list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |home:///bin|){
     println("rascal2rvm: Recompiling library <basename(MuLibrary)>.mu");
@@ -65,7 +65,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    }
    
    // Read the muLibrary, recompile if necessary
-   MuLibraryCompiled = compiledVersion(MuLibrary, bindir);
+   MuLibraryCompiled = RVMProgramLocation(MuLibrary, bindir);
    
    if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
       try {
@@ -88,7 +88,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
        compiledDef = compiledVersion(def, bindir);
        if(!exists(compiledDef) || lastModified(compiledDef) < lastModified(def)){
           rvm_def = compile(def, bindir = bindir);
-          messages += rvm_def;
+          messages += rvm_def.messages;
        }
    }
    
@@ -98,7 +98,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
            println("importing: <imp>");
            processed += imp;
            //importedLoc = imp.parent + (basename(imp) + ".rvm");
-           importedLoc = compiledVersion(imp, bindir);
+           importedLoc = RVMProgramLocation(imp, bindir);
            try {
   	           importedRvmProgram = readTextValueFile(#RVMProgram, importedLoc);
   	           messages += importedRvmProgram.messages;
