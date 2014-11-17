@@ -7263,26 +7263,27 @@ public Configuration checkModuleUsingSignatures(Module md:(Module)`<Header heade
 	return c;
 }
 
-loc cachedConfig(loc src, loc bindir) = (bindir + src.path)[extension="tc"];
-loc cachedHash(loc src, loc bindir) = (bindir + src.path)[extension="sig"];
-loc cachedHashMap(loc src, loc bindir) = (bindir + src.path)[extension="sigs"];
+str modToPath(str modName) = replaceAll(modName,"::","/");
+loc cachedConfig(str modName, loc bindir) = (bindir + modToPath(modName))[extension="tc"];
+loc cachedHash(str modName, loc bindir) = (bindir + modToPath(modName))[extension="sig"];
+loc cachedHashMap(str modName, loc bindir) = (bindir + modToPath(modName))[extension="sigs"];
 
-str getCachedHash(loc src, loc bindir) = readBinaryValueFile(#str, cachedHash(src,bindir));
-Configuration getCachedConfig(loc src, loc bindir) = readBinaryValueFile(#Configuration, cachedConfig(src,bindir));
-map[RName,str] getCachedHashMap(loc src, loc bindir) = readBinaryValueFile(#map[RName,str], cachedHashMap(src,bindir));
+str getCachedHash(str modName, loc bindir) = readBinaryValueFile(#str, cachedHash(modName,bindir));
+Configuration getCachedConfig(str modName, loc bindir) = readBinaryValueFile(#Configuration, cachedConfig(modName,bindir));
+map[RName,str] getCachedHashMap(str modName, loc bindir) = readBinaryValueFile(#map[RName,str], cachedHashMap(modName,bindir));
 
-void writeCachedHash(loc src, loc bindir, str hashval) {
-	l = cachedHash(src,bindir);
+void writeCachedHash(str modName, loc bindir, str hashval) {
+	l = cachedHash(modName,bindir);
 	if (!exists(l.parent)) mkDirectory(l.parent);
 	writeBinaryValueFile(l, hashval, compression=false); 
 }
-void writeCachedConfig(loc src, loc bindir, Configuration c) {
-	l = cachedConfig(src,bindir); 
+void writeCachedConfig(str modName, loc bindir, Configuration c) {
+	l = cachedConfig(modName,bindir); 
 	if (!exists(l.parent)) mkDirectory(l.parent);
 	writeBinaryValueFile(l, c, compression=false); 
 }
-void writeCachedHashMap(loc src, loc bindir, map[RName,str] m) {
-	l = cachedHashMap(src,bindir); 
+void writeCachedHashMap(str modName, loc bindir, map[RName,str] m) {
+	l = cachedHashMap(modName,bindir); 
 	if (!exists(l.parent)) mkDirectory(l.parent);
 	writeBinaryValueFile(l, m, compression=false); 
 }
@@ -7298,8 +7299,8 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	set[RName] notImported = { };
 	map[RName,str] moduleHashes = ( );
 	
-	if (exists(moduleLoc) && exists(cachedHashMap(moduleLoc, bindir))) {
-		moduleHashes = getCachedHashMap(moduleLoc, bindir);
+	if (exists(cachedHashMap(prettyPrintName(moduleName), bindir))) {
+		moduleHashes = getCachedHashMap(prettyPrintName(moduleName), bindir);
 	}
 	
 	// A relation from imported module names to bool, with true meaning this is an extending import
@@ -7356,14 +7357,13 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		rebuildNeeded = false;
 		for (r <- reachable) {
 			try {
-				dependencyLoc = getModuleLocation(prettyPrintName(r));
-				if (!exists(cachedHash(dependencyLoc, bindir))) {
+				if (!exists(cachedHash(prettyPrintName(r), bindir))) {
 					// If we import this module, but the saved cache doesn't exist, we need
 					// to rebuild this import. 
 					rebuildNeeded = true;
 					break;
 				} else {
-					existingHash = getCachedHash(dependencyLoc, bindir);
+					existingHash = getCachedHash(prettyPrintName(r), bindir);
 					if (r in currentHashes) {
 						fileHash = currentHashes[r];
 						if (! (existingHash == fileHash && existingHash == moduleHashes[r])) {
@@ -7384,7 +7384,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 				// If all the hash info is fine, but we don't have a config saved for some
 				// reason, we need to rebuild this import. We will rebuild rl, since this will
 				// then eventually rebuild r (which is a dependency).
-				if (!exists(cachedConfig(dependencyLoc, bindir))) {
+				if (!exists(cachedConfig(prettyPrintName(r), bindir))) {
 					rebuildNeeded = true;
 					break;
 				}
@@ -7403,8 +7403,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 			dirty = true;
 		} else {
 			try {
-				importLoc = getModuleLocation(prettyPrintName(wl));
-				checkedModules[wl] = getCachedConfig(importLoc, bindir);
+				checkedModules[wl] = getCachedConfig(prettyPrintName(wl), bindir);
 			} catch : {
 				notImported = notImported + wl;
 				c = addScopeError(c, "Cannot import module <prettyPrintName(wl)>", md@\loc);
@@ -7416,8 +7415,8 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	fileHash = "";
 	if (exists(moduleLoc)) {
 		fileHash = md5HashFile(moduleLoc);
-		if (!dirty && !forceCheck && exists(cachedHash(moduleLoc, bindir)) && getCachedHash(moduleLoc, bindir) == fileHash && exists(cachedConfig(moduleLoc, bindir))) {
-			return getCachedConfig(moduleLoc, bindir);
+		if (!dirty && !forceCheck && exists(cachedHash(prettyPrintName(moduleName), bindir)) && getCachedHash(prettyPrintName(moduleName), bindir) == fileHash && exists(cachedConfig(prettyPrintName(moduleName), bindir))) {
+			return getCachedConfig(prettyPrintName(moduleName), bindir);
 		}
 	}
 		
@@ -7566,9 +7565,9 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 
 	c.stack = tail(c.stack);
 	if (exists(moduleLoc)) {
-		writeCachedHash(moduleLoc, bindir, fileHash);
-		writeCachedConfig(moduleLoc, bindir, c);
-		writeCachedHashMap(moduleLoc, bindir, currentHashes);
+		writeCachedHash(prettyPrintName(moduleName), bindir, fileHash);
+		writeCachedConfig(prettyPrintName(moduleName), bindir, c);
+		writeCachedHashMap(prettyPrintName(moduleName), bindir, currentHashes);
 	}
 		
 	return c;
