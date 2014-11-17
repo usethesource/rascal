@@ -1193,13 +1193,10 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IValue md5HashFile(ISourceLocation sloc, IEvaluatorContext ctx){
-		
-		InputStream in = null;
-		try{
-			in = ctx.getResolverRegistry().getInputStream(sloc.getURI());
+		try (InputStream in = ctx.getResolverRegistry().getInputStream(sloc.getURI())){
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			byte[] buf = new byte[4096];
-			int count = 0;
+			int count;
 
 			while((count = in.read(buf)) != -1){
 				md.update(buf, 0, count);
@@ -1217,14 +1214,6 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
 		} catch (NoSuchAlgorithmException e) {
 			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"), ctx.getCurrentAST(), null);
-		}finally{
-			if(in != null){
-				try{
-					in.close();
-				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), null);
-				}
-			}
 		}
 	}
 
