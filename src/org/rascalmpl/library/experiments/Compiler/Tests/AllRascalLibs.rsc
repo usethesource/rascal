@@ -52,73 +52,27 @@ list[str] libs = [
 "util::PriorityQueue",					// OK
 "util::Reflective", 					// OK
 "util::ShellExec",						// OK
-"util::Webserver"						// OK
-/*
-// Not yet OK
-
-"Ambiguity",			// #483
-						//|rascal://lang::rascal::types::CheckTypes|(31671,1,<634,13>,<634,14>): Expected map[RName, int], but got map[RName, value]     	
+"util::Webserver",						// OK
 
 
-"APIGen", 			 	// #482
-						//error("Type of pattern could not be computed, please add additional type annotations",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(3641,16,<89,62>,<89,78>))
-						//error("Type of pattern could not be computed, please add additional type annotations",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(3281,33,<80,24>,<80,57>))
-						//error("Name cs is not in scope",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(7837,2,<207,39>,<207,41>))
-						//error("Expected type bool, found fail",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(7726,25,<206,46>,<206,71>))
-						//error("Multiple constructors and/or productions match this pattern, add additional type annotations",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(2134,15,<61,11>,<61,26>))
-						//error("Type of pattern could not be computed",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(2134,15,<61,11>,<61,26>))
-						//error("Field definitions does not exist on type type",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(7738,13,<206,58>,<206,71>))
-						//error("Name t2 is not in scope",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(3093,2,<73,87>,<73,89>))
-						//error("Function of type fun str(str) cannot be called with argument types (inferred(11))",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(2159,18,<61,36>,<61,54>))
-						//error("Multiple constructors and/or productions match this pattern, add additional type annotations",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(6028,12,<166,11>,<166,23>))
-						//error("Function of type fun str(Symbol) cannot be called with argument types (inferred(41))",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(3603,21,<89,24>,<89,45>))
-						//error("Function of type fun str(Symbol) cannot be called with argument types (value)",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(3468,22,<85,26>,<85,48>))
-						//error("Field definitions does not exist on type type",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(7769,13,<206,89>,<206,102>))
-						//error("Expected type str, found fail",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(7795,48,<206,115>,<207,45>))
-						//error("Type of pattern could not be computed",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(6028,12,<166,11>,<166,23>))
-						//error("Expected type bool, found fail",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(7753,39,<206,73>,<206,112>))
-						//error("Invalid return type str, expected return type void",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(3323,61,<81,5>,<81,66>))
-						//error("Could not calculate function type because of errors calculating the parameter types",|project://rascal/src/org/rascalmpl/library/APIGen.rsc|(3259,56,<80,2>,<80,58>))
+"Ambiguity",			
 
+"APIGen", 			 	
 // "Number"				// DEPRECATED: TC gives errors
 
 
-"util::LOC"			// #394
+"util::LOC",			// #394
 				
-				// error("Could not calculate function type because of errors calculating the parameter types",|project://rascal/src/org/rascalmpl/library/ParseTree.rsc|(11024,119,<278,7>,<278,126>))
-				// error("Type of pattern could not be computed, please add additional type annotations",|project://rascal/src/org/rascalmpl/library/ParseTree.rsc|(11066,53,<278,49>,<278,102>))					
-
+				
 "analysis::formalconcepts::FCA",
-//error("Name object is not in scope",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(2841,6,<75,13>,<75,19>))
-//error("Name attribute is not in scope",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(2949,9,<76,41>,<76,50>))
-//error("Alias Object2Attributes declares 2 type parameters, but given 0 instantiating types",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(2576,17,<69,58>,<69,75>))
-//error("Name p is not in scope",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(5607,1,<154,26>,<154,27>))
-//error("Name attribute is not in scope",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(2849,9,<75,21>,<75,30>))
-//error("Alias Attribute2Objects declares 2 type parameters, but given 0 instantiating types",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(2796,17,<74,58>,<74,75>))
-//error("Name attribute is not in scope",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(2626,9,<70,21>,<70,30>))
-//error("Type of pattern could not be computed, please add additional type annotations",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(2796,28,<74,58>,<74,86>))
-//error("Type of pattern could not be computed, please add additional type annotations",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(2576,25,<69,58>,<69,83>))
-//error("Initializer type rel[set[&Object \<: value] objects, set[&Attribute \<: value] attributes] not assignable to variable of type fail",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(5547,32,<153,20>,<153,52>))
-//error("Name object is not in scope",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(2618,6,<70,13>,<70,19>))
-//error("Name object is not in scope",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(2720,6,<71,44>,<71,50>))
-//error("Type concept_t not declared",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(5532,14,<153,5>,<153,19>))
-//error("Could not calculate function type because of errors calculating the parameter types",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(2745,80,<74,7>,<74,87>))
-//error("Could not calculate function type because of errors calculating the parameter types",|project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc|(2525,77,<69,7>,<69,84>))
 
 "analysis::graphs::Graph",					// OK		
 "analysis::graphs::LabeledGraph",			// OK
 "analysis::linearprogramming::LinearProgramming",
-//error("Constructor overlaps existing constructors in the same datatype : 265, {19}",|project://rascal/src/org/rascalmpl/library/analysis/linearprogramming/LinearProgramming.rsc|(792,4,<26,30>,<26,34>))
-//error("Constructor overlaps existing constructors in the same datatype : 262, {18}",|project://rascal/src/org/rascalmpl/library/analysis/linearprogramming/LinearProgramming.rsc|(784,5,<26,22>,<26,27>))
-//error("Name varVals is not in scope",|project://rascal/src/org/rascalmpl/library/analysis/linearprogramming/LinearProgramming.rsc|(1878,7,<57,27>,<57,34>))
-//error("Function of type fun Solution(LLSolution, list[str]) cannot be called with argument types (value,list[str])",|project://rascal/src/org/rascalmpl/library/analysis/linearprogramming/LinearProgramming.rsc|(2813,30,<88,33>,<88,63>))
-//error("Constructor overlaps existing constructors in the same datatype : 268, {20}",|project://rascal/src/org/rascalmpl/library/analysis/linearprogramming/LinearProgramming.rsc|(799,5,<26,37>,<26,42>))
 
 "analysis::m3::AST",						// OK
 "analysis::m3::Core",						// OK
 "analysis::m3::Registry",
-//error("Unable to bind subject type str to assignable",|project://rascal/src/org/rascalmpl/library/analysis/m3/Registry.rsc|(2765,19,<92,4>,<92,23>))
-//error("Unable to bind subject type str to assignable",|project://rascal/src/org/rascalmpl/library/analysis/m3/Registry.rsc|(2434,19,<81,4>,<81,23>))
 
 "analysis::m3::TypeSymbol",					// OK
 "analysis::statistics::Correlation",		// OK
@@ -127,6 +81,7 @@ list[str] libs = [
 "analysis::statistics::Inference",			// OK
 "analysis::statistics::SimpleRegression"	// OK
 
+/*
 // DEMO
 
 "demo::basic::Ackermann",					// OK
@@ -345,7 +300,16 @@ value main(list[value] args){
     try {
 	    //compile("module TMP  extend Exception; extend <lib>;", recompile=true);
 	    
-    	compile(|project://rascal-eclipse/src/org/rascalmpl/eclipse/library/| + (replaceAll(lib, "::", "/") + ".rsc"), recompile=true);
+    	rvm_lib = compile(|project://rascal-eclipse/src/org/rascalmpl/eclipse/library/| + (replaceAll(lib, "::", "/") + ".rsc"), recompile=true);
+        for(msg <- rvm_lib.messages){
+            if(msg is error){
+                if(findFirst(msg.msg, "Fatal compilation error") >= 0){
+                     crashes += <lib, "<e>">;
+                     break;
+                }
+            }
+        }
+ 
     } catch e: {
       crashes += <lib, "<e>">;
     }
@@ -392,8 +356,7 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
             static_error_count[f] = size(f_errors);
             
             if(size(f_errors) > 0){
-                for(msg <- f_rvm.messages){
-                
+                for(msg <-f_errors){
                     if(msg is error){
                         if(findFirst(msg.msg, "Fatal compilation error") >= 0){
                             compiler_errors += f;
