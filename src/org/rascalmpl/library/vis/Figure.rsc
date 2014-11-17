@@ -34,7 +34,7 @@ import ToString;
  */
  
  /*
-  * Colors and color management
+  * Colors and color management 
   */
 
 alias Color = int;
@@ -141,6 +141,23 @@ public Color arbColor(){
 	return rgb(toInt(arbReal() * 255.0),toInt(arbReal() * 255.0),toInt(arbReal() * 255.0));
 }
 
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
+public java int getRed(Color c) ;
+
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
+public java int getGreen(Color c) ;
+
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
+public java int getBlue(Color c);
+
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
+public java int getAlpha(Color c);
+
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}	
+public java Color withoutAlpha(Color c);
+
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}	
+public java str getHexDecimal(Color c);
 
 @doc{Create a list of font names}
 @javaClass{org.rascalmpl.library.vis.swt.SWTFontsAndColors}

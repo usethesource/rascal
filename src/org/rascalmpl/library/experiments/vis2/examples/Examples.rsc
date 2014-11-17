@@ -10,6 +10,7 @@ import util::Math;
 import experiments::vis2::\data::Nederland;
 import experiments::vis2::\data::Steden;
 import experiments::vis2::vega::VegaChart;
+
       					  
 
 // ********************** Examples **********************
@@ -941,13 +942,24 @@ Datasets[LabeledData] exampleBarData() =
 
 
 void stackedBarChart(){
-        // ex("stackedBarChart", vega(size=<500,200>, dataFile="vega/StackedBar.json", variable="aap"));
-        ex("stackedBarChart", vega(size=<500,200>, datasets=stackedData, variable="stackedBar()", command= stackedBar(grid=true)));
+        // ex("stackedBarChart", vega(size=<500,200>,  dataFile="vega/StackedBar.json", variable="aap"));
+        ex("stackedBarChart", vega(size=<500,200>, padding = <10,100,10,10>, datasets=stackedData,  command= 
+              stackedBar(title=("x":"index", "y":"N","color":"p") 
+               ,legends = ("color":"fill")
+              , xTickLabels=tickLabels(angle=45)
+              , palette =  color12
+              
+              )
+         ));
         //ex("stackedBarChart", vega(size=<800,200>, datasets=exampleSteden(), variable="stackedArea"));
 }
 
 void groupedBarChart(){
-        ex("groupedBarChart", vega(size=<500,200>, datasets=stackedData, command=groupedBar));
+        ex("groupedBarChart", vega(size=<500,200>, datasets=stackedData, command=
+           groupedBar(
+             title=("x":"index", "y":"N","color":"p") 
+             ,legends = ("color":"fill")
+             ,xTickLabels=tickLabels(angle=90))));
 }
 
 void stackedAreaChart(){
@@ -963,7 +975,15 @@ void groupedLineChart(){
 }
 
 void stedenBarChart(){
-        ex("stedenBarChart", vega(size=<1000,200>, datasets=exampleSteden(), command=stedenBar));
+        ex("stedenBarChart", vega(size=<1000,300>, datasets=exampleSteden(), command=
+        groupedBar(
+             title=("x":"steden", "y":"N","color":"p") 
+             ,legends = ("color":"fill")
+             ,xTickLabels=tickLabels(angle=90, title_dy = 60, dx = 1)
+             ,yTickLabels=tickLabels(title_dy = -40)
+             ,palette =  color12
+             )
+        ));
 }
      
 

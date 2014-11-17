@@ -4,6 +4,30 @@ import experiments::vis2::vega::Json;
 
 import Prelude;
 
+@doc{Create a fixed color palette}
+public list[str] color12 = [ "yellow", "aqua", "navy", "violet", 
+                          "red", "darkviolet", "maroon", "green",
+                          "teal", "blue", "olive", "lime"];
+                          
+
+public VEGA setAxe(VEGA vega, str name, AXE a) {
+    return visit(vega) {
+          case axe(scale=name) => a
+          } 
+    }
+
+
+public LEGEND createLegend(str k, str v, str title) {
+    LEGEND r = legend();
+    switch (v) {
+       case "fill": r = legend(fill=k, title = title);
+       case "stroke": r = legend(stroke=k, title = title);
+       case "size": r = legend(size=k, title = title);
+       case "shape": r = legend(shape=k, title = title);
+       }
+    return r; 
+    }
+    
 public VEGA setAxe(VEGA vega, str name, AXE a) {
     return visit(vega) {
           case axe(scale=name) => a
@@ -14,7 +38,8 @@ public VEGA setAxe(VEGA vega, str name, AXE a) {
 public AXE getAxe(VEGA vega, str name) {
     visit(vega) {
           case v:axe(scale=name): return v;
-          } 
+          }
+    return axe();
     }
     
 public SCALE getScale(VEGA vega, str name) {
@@ -23,20 +48,39 @@ public SCALE getScale(VEGA vega, str name) {
           } 
     }
   
-
+public VEGA setScale(VEGA vega, str name, SCALE s) {
+    return visit(vega) {
+          case scale(name=name) => s
+          } 
+    }
+    
 public void Main() {
-     }      
+     }  
+     
+data TICKLABELS = tickLabels(int angle = 0,   int dx = 99999, int dy = 99999, 
+       int title_dx = 99999, int title_dy = 99999,
+       int fontSize = 99999, str fontStyle="italic", str fontWeight="normal",
+       str fill = "black"
+       );   
 
+map [str, value] _tickLabels(str axe, TICKLABELS tickLabels) = 
+                ("labels":("angle":("value":tickLabels.angle),
+                 "dx":("value":tickLabels.dx),
+                 "dy":("value":tickLabels.dy),
+                 "fontSize":("value":tickLabels.fontSize)
+                , "fontStyle":("value":tickLabels.fontStyle)
+                , "fontWeight":("value":tickLabels.fontWeight)
+                , "fill":("value":tickLabels.fill)
+                ,"baseline":("value":"middle"), "align":("value":axe=="x"?"left":"right"))
+                ,"title":("dx":("value":tickLabels.title_dx), "dy":("value":tickLabels.title_dy))
+                );
+                
 VEGA  _stackedBar = vega(
             viewport = [1800, 1800]
              ,
             axes= [
                 axe(scale="x", \type="x"
-                , properties =("labels":("angle":("value":90),"dx":("value":1)
-                ,"baseline":("value":"middle"), "align":("value":"left"))
-                ,"title":("dy":("value":50))
-                )
-                )
+                )          
                 ,
                 axe(scale = "y", \type ="y",
                 properties =("labels":("fill":("value":"green")),
@@ -70,7 +114,7 @@ VEGA  _stackedBar = vega(
                           source= "table")
                    ]
                    ,
-             padding= padding(left=100, bottom = 30, top = 10, right = 10),
+             padding= padding(left=100, bottom = 30, top = 10, right = 100),
              marks = [mark(\type = "group",
                          marks=[
                              mark(\type="rect",
@@ -85,7 +129,7 @@ VEGA  _stackedBar = vega(
                                       "y2":("scale":"y","field":"y2")
                                       ),
                                      "update":  ("fillOpacity":("value":1.0)),
-                                     "hover":   ("fillOpacity":("value":0.5))   
+                                     "hover":   ("fillOpacity":("value":0.5))                         
                                   )
                                
                                 )
@@ -102,31 +146,46 @@ VEGA  _stackedBar = vega(
                          
                          )                       
                    )
-                   ]
-                  
+                   ],
+                legends = []          
                 ); 
- 
- public VEGA() stackedBar(bool grid = false) {
-    return VEGA() {
-        VEGA r = _stackedBar;
-        AXE a = getAxe(r, "x");
-        a.grid = grid;
-        r = setAxe(r, "x", a);
+                
+ VEGA update(VEGA r, bool grid = false, 
+    map[str, str] title = (), map[str, str] legends = (),
+    TICKLABELS xTickLabels = tickLabels(),
+    TICKLABELS yTickLabels = tickLabels(), list[str] palette = []
+    )
+    {
+        AXE ax = getAxe(r, "x"); 
+        if (title["x"]?) ax.title = title["x"];
+        ax.grid = grid;
+        ax.properties += _tickLabels("x", xTickLabels);           
+        AXE ay = getAxe(r, "y");
+        if (title["y"]?) ay.title = title["y"];
+        ay.grid = grid;  
+        ay.properties += _tickLabels("y", yTickLabels);     
+        r = setAxe(r, "x", ax);
+        r = setAxe(r, "y", ay);
+        r.legends = [createLegend(k, legends[k], (title[k]?)?title[k]:"")| k <-legends];
+        if (!isEmpty(palette)) {
+           SCALE color = getScale(r, "color");
+           color.range = array(values = hexColors(palette)); 
+           r = setScale(r, "color", color);
+           }
         return r;
+    }
+ 
+ public VEGA() stackedBar(bool grid = false, 
+    map[str, str] title = (), map[str, str] legends = (), list[str] palette =[],
+    TICKLABELS xTickLabels =  tickLabels()
+    ,TICKLABELS yTickLabels = tickLabels()
+    ) {
+    return VEGA() {
+        return update(_stackedBar, grid = grid, title = title, legends = legends,
+        xTickLabels = xTickLabels, yTickLabels = yTickLabels, palette = palette);
         };
     }
     
-public VEGA stedenBar() {
-    VEGA r = groupedBar();
-    AXE a = getAxe(r, "x");
-    map[str, value] p = a.properties;
-    p["labels"] = ("angle":("value":90),"dx":("value":1)
-          ,"baseline":("value":"middle"), "align":("value":"left"));
-    p["title"] = ("dy":("value":50));
-    a.properties = p;
-    r= setAxe(r, "x", a);
-    return r;
-    }
                
 
  VEGA  _stackedArea = vega(
@@ -237,7 +296,7 @@ VEGA  _groupedBar = vega(
                ,
               \data =[datum(name="table")]
              ,
-             padding= padding(left=100, bottom = 30, top = 10, right = 10),
+             padding= padding(left=100, bottom = 100, top = 10, right = 10),
              marks = [mark(\type = "group",
                         from = datum(\data="table",
                                       transform = [
@@ -280,8 +339,16 @@ VEGA  _groupedBar = vega(
                   
                 ); 
              
-public VEGA groupedBar() {
-    return _groupedBar;
+public VEGA() groupedBar(bool grid = false, 
+    map[str, str] title = (), map[str, str] legends = ()
+    ,TICKLABELS xTickLabels = tickLabels()
+    ,TICKLABELS yTickLabels = tickLabels()
+    , list[str] palette =[]
+    ) {
+    return VEGA() {
+        return update(_groupedBar, grid = grid, title = title, legends = legends
+        ,xTickLabels = xTickLabels, yTickLabels = yTickLabels, palette = palette);
+        };
     }
     
 VEGA  _groupedSymbol= 
