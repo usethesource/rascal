@@ -54,7 +54,7 @@ data Solution = solution(VariableVals varVals, num funVal);
 
 num runObjFul(ObjectiveFun f, VariableVals vals) =
 	(f.const | 
-	 it + f.coefficients[var]*varVals[var] |
+	 it + f.coefficients[var]*vals[var] |
 	 var <- domain(f.coefficients));
 
 

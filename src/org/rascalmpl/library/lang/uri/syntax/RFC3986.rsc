@@ -15,7 +15,7 @@ lexical SubDelims = [!$&\'()*+,;=];
 lexical Unreserved = [A-Za-z0-9\-._~];
 
 lexical HierPart 
-  = "//" Authority PathAbempty
+  = "//" Authority PathAbEmpty
   | PathAbsolute
   | PathRootless
   | PathEmpty
@@ -27,11 +27,11 @@ lexical Authority = (Userinfo "@")? Host (":" Port)?;
 
 lexical Userinfo = (Unreserved | PctEncoded | SubDelims | ":")*;
 
-lexical Host = IPLiteral | IPv4address | RegName;
+lexical Host = IPLiteral | IPv4Address | RegName;
 
 lexical IPLiteral = "[" (IPv6addres | IPvFuture) "]";
 
-lexical IPvFuture = "v" [A-Fa-f0-9]+ "." (Unreserved | SubDelim | ":")+;
+lexical IPvFuture = "v" [A-Fa-f0-9]+ "." (Unreserved | SubDelims | ":")+;
 
 lexical IPv6addres 
   = H16 ":" H16 ":" H16 ":" H16 ":" H16 ":" H16 ":" LS32
@@ -64,9 +64,9 @@ lexical RegName = (Unreserved | PctEncoded | SubDelims)*;
 lexical Port = [0-9]*;
 
 lexical Path 
-  = PathAbempty
+  = PathAbEmpty
   | PathAbsolute
-  | PathNoscheme
+  | PathNoScheme
   | PathRootless
   | PathEmpty
   ;

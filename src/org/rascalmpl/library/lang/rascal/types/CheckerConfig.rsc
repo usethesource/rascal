@@ -76,6 +76,7 @@ data AbstractValue
     | \alias(RName name, Symbol rtype, int containedIn, loc at)
     | booleanScope(int containedIn, loc at)
     | blockScope(int containedIn, loc at)
+    | signatureScope(int containedIn, loc at)
     ;
 
 data LabelStackItem = labelStackItem(RName labelName, LabelSource labelSource, Symbol labelType);
@@ -200,7 +201,7 @@ public int definingContainer(Configuration c, int i) {
 public list[int] upToContainer(Configuration c, int i) {
 	// NOTE: The reason we do not need to check for overload here is because the current context can
 	// never be an overload -- it has to be some actual scope item that could be put on the stack.
-    if (c.store[i] is \module || c.store[i] is function || c.store[i] is closure) return [i];
+    if (c.store[i] is \module || c.store[i] is function || c.store[i] is closure || c.store[i] is signatureScope) return [i];
     return [i] + upToContainer(c,c.store[i].containedIn);
 }
 
@@ -1060,7 +1061,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 	
 	// Add non-terminal fields
 	alreadySeen = {};
-	for(\label(str fn, Symbol ft2) <- prod.symbols) {
+	for(psym <- prod.symbols, \label(str fn, Symbol ft2) := removeConditional(psym)) {
 		ft = removeConditional(ft2);
 		if(fn notin alreadySeen) {
 			if(c.nonterminalFields[<sortId,fn>]?) {
@@ -1374,6 +1375,18 @@ public anno set[loc] Symbol@definedAt;
 @doc{Strip the label off a symbol, if it has one at the top.}
 private Symbol stripLabel(Symbol::\label(str s, Symbol t)) = stripLabel(t);
 private default Symbol stripLabel(Symbol t) = t;
+
+public Configuration enterSignature(Configuration c, loc l) {
+    c.store[c.nextLoc] = signatureScope(head(c.stack), l);
+    c.stack = c.nextLoc + c.stack;
+    c.nextLoc = c.nextLoc + 1;
+    return c;
+}
+
+public Configuration leaveSignature(Configuration c, Configuration cOrig) {
+	c.stack = tail(c.stack);
+    return recoverEnvironments(c,cOrig);
+}
 
 public Configuration enterBlock(Configuration c, loc l) {
     c.store[c.nextLoc] = blockScope(head(c.stack), l);

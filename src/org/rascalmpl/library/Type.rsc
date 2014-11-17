@@ -307,7 +307,7 @@ public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)
 public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
 public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
 public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && ! ( (allLabeled(l) && allLabeled(r)) || (allLabeled(l) && noneLabeled(r)) || (noneLabeled(l) && allLabeled(r)));
 
 public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when lfl == rfl && ltl == rtl;
 public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(lub(lf,rf), lub(lt,rt)) when lfl != rfl || ltl != rtl;
@@ -330,8 +330,12 @@ public Symbol lub(Symbol::\cons(Symbol _, _, list[Symbol] _), Symbol::\node()) =
 public Symbol lub(Symbol::\alias(str _, list[Symbol] _, Symbol aliased), Symbol r) = lub(aliased, r);
 public Symbol lub(Symbol l, \alias(str _, list[Symbol] _, Symbol aliased)) = lub(l, aliased);
 
-public Symbol lub(Symbol::\parameter(str _, Symbol bound), Symbol r) = lub(bound, r);
-public Symbol lub(Symbol l, Symbol::\parameter(str _, Symbol bound)) = lub(l, bound);
+public bool keepParams(Symbol::\parameter(str s1, Symbol bound1), Symbol::\parameter(str s2, Symbol bound2)) = s1 == s2 && equivalent(bound1,bound2);
+
+public Symbol lub(Symbol l:Symbol::\parameter(str s1, Symbol bound1), Symbol r:Symbol::\parameter(str s2, Symbol bound2)) = l when keepParams(l,r);
+public Symbol lub(Symbol l:Symbol::\parameter(str s1, Symbol bound1), Symbol r:Symbol::\parameter(str s2, Symbol bound2)) = lub(bound1,bound2) when !keepParams(l,r);
+public Symbol lub(Symbol::\parameter(str _, Symbol bound), Symbol r) = lub(bound, r) when !(isTypeVar(r));
+public Symbol lub(Symbol l, Symbol::\parameter(str _, Symbol bound)) = lub(l, bound) when !(isTypeVar(l));
 
 public Symbol lub(Symbol::\reified(Symbol l), Symbol::\reified(Symbol r)) = Symbol::\reified(lub(l,r));
 public Symbol lub(Symbol::\reified(Symbol l), Symbol::\node()) = Symbol::\node();

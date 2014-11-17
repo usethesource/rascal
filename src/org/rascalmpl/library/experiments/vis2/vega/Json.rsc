@@ -19,7 +19,7 @@ public data VEGA =  vega(list[AXE] axes=[], list[SCALE] scales=[],
 
 public data AXE =   axe(str scale = "", str \type= "", map[str, value]  properties = (), str title=""
 , bool grid = false, str format = "", str orient = "", int tickSize = 99999, 
-  int tickPadding = 99999);
+  int tickPadding = 99999, int ticks = 99999, list[value] values = []);
 
 public data PADDING = padding(int left = 30, int bottom = 30, int top = 10, int right = 10);
 
@@ -69,6 +69,7 @@ JSON toJson(AXE axe) {
          "properties": propToJson(axe.properties), "title":toJson(axe.title)
          , "grid":toJson(axe.grid), "orient":toJson(axe.orient), "format":toJson(axe.format)
          , "tickSize":toJson(axe.tickSize,99999), "tickPadding":toJson(axe.tickPadding,99999)
+         , "ticks":toJson(axe.ticks, 99999), "values":toJson(axe.values)
          ));     
          }
      return null();

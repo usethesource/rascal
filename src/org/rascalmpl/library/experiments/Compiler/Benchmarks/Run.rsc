@@ -235,7 +235,7 @@ void report(list[Analysis] results){
   sep = "==========================================================";
   println("\n<sep>\nSummary of Measurements <now()>:\n");
   println("Number of samples = <nsamples>");
-  for(a <- results){
+  for(Analysis a <- results){
      report_one(a);
   }
   println("Average speedup: <precision(mean(results.speedup), 5)>");
@@ -251,7 +251,7 @@ void report_one_latex(Analysis a){
 void report_latex(list[Analysis] results){
   println("\\begin{tabular}{| l | r | r | r |} \\hline");
   println("\\textbf{Name} & \\textbf{Compiled} & \\textbf{Interpreted} & \\textbf{Speedup} \\\\ \\hline \\hline");
-   for(a <- results){
+   for(Analysis a <- results){
      report_one_latex(a);
   }
   println("\\textbf{Average Speedup}&   &  & \\textbf{<round(mean(results.speedup), 0.1)>} \\\\ \\hline");
