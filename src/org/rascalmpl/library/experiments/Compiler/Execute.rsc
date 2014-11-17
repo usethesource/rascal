@@ -85,7 +85,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    // Recompile the default imports, if necessary
    
    for(loc def <- defaultImports){
-       compiledDef = compiledVersion(def, bindir);
+       compiledDef = RVMProgramLocation(def, bindir);
        if(!exists(compiledDef) || lastModified(compiledDef) < lastModified(def)){
           rvm_def = compile(def, bindir = bindir);
           messages += rvm_def.messages;

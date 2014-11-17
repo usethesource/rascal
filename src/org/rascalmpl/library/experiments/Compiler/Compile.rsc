@@ -39,20 +39,20 @@ bool valid(loc moduleLoc, loc bindir){
 
 private MuModule getMuModule(loc moduleLoc, bool recompile=false, loc bindir = |home:///bin|){
    muModuleLoc = MuModuleLocation(moduleLoc, bindir);
-   println("exists(<muModuleLoc>): <exists(muModuleLoc)>");
-   println("lastModified(<muModuleLoc>) \> lastModified(<moduleLoc>): <lastModified(muModuleLoc) > lastModified(moduleLoc)>");
+   //println("exists(<muModuleLoc>): <exists(muModuleLoc)>");
+   //println("lastModified(<muModuleLoc>) \> lastModified(<moduleLoc>): <lastModified(muModuleLoc) > lastModified(moduleLoc)>");
    if(!recompile && exists(muModuleLoc) && lastModified(muModuleLoc) > lastModified(moduleLoc)){
        try {
            muMod = readTextValueFile(#MuModule, muModuleLoc);
-           //if(all(imp <- muMod.imports, valid(imp, bindir))){
+           if(all(imp <- muMod.imports, valid(imp, bindir))){
               println("compile: Using existing MuModule <muModuleLoc>");
               return muMod;
-           //} else {
-           //   println("compile: recompiling <muModuleLoc> since imports are no longer valid");
-           //}
+           } else {
+              println("compile: recompiling <muModuleLoc> since imports are no longer valid");
+           }
        } catch x: println("compile: Reading <muModuleLoc> did not succeed: <x>");
     }
-    println("compile: recompiling <moduleLoc>");
+    println("compile: recompiling (recompile=<recompile>) <moduleLoc>");
     muMod = r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
     println("compile: Writing MuModule <muModuleLoc>");
     writeTextValueFile(muModuleLoc, muMod);
@@ -78,7 +78,7 @@ RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=false, loc 
 
 private RVMProgram compile1(loc moduleLoc, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
     if(completed[moduleLoc]?){
-        println("compile: <moduleLoc>,retireved from completed");
+        println("compile: <moduleLoc>, retrieved from completed");
         return completed[moduleLoc];
     }
     println("compile: <moduleLoc>, busy: <busy>");

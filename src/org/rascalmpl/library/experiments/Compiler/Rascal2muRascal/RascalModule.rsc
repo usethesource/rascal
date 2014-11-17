@@ -5,7 +5,7 @@ import lang::rascal::\syntax::Rascal;
 import Prelude;
 import util::Reflective;
 import util::ValueUI;
-import ParseTree;
+import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 import lang::rascal::types::TestChecker;
@@ -95,7 +95,13 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
     module_name = "<M.header.name>";
     println("r2mu: entering ... <module_name>");
    	Configuration c = newConfiguration();
-   	Configuration config = checkModule(M, c);
+   	
+   	Configuration config;
+   	try {
+   	    config  = checkModule(M, c);
+   	} catch e: {
+   	    throw e;
+   	}
    	// Uncomment to dump the type checker configuration:
    	//text(config);
    	errors = [ e | e:error(_,_) <- config.messages];
@@ -197,6 +203,9 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    } catch Java("ParseError","Parse error"): {
    	   return errorMuModule(module_name, {error("Syntax errors in module <M.header.name>", M@\loc)});
    } 
+   catch e: {
+        return errorMuModule(module_name, {error("Unexpected exception <e>", M@\loc)});
+   }
    finally {
    	   resetR2mu();
    	   resetScopeExtraction();
@@ -214,12 +223,20 @@ void translateModule((Module) `<Header header> <Body body>`) {
 /********************************************************************/
 
 private void importModule((Import) `import <QualifiedName qname> ;`){
-    imported_modules += |rascal:///| + ("<qualifiedNameToPath(qname)>" + ".rsc");
+    imported_modules += getModuleLocation(qualifiedNameToPath(qname));
 }
 
 private void importModule((Import) `extend <QualifiedName qname> ;`){  // TODO implement extend properly
-    imported_modules += |rascal:///| + ("<qualifiedNameToPath(qname)>" + ".rsc");
+    imported_modules += getModuleLocation(qualifiedNameToPath(qname));
 }
+
+//private void importModule((Import) `import <QualifiedName qname> ;`){
+//    imported_modules += |rascal:///| + ("<qualifiedNameToPath(qname)>" + ".rsc");
+//}
+//
+//private void importModule((Import) `extend <QualifiedName qname> ;`){  // TODO implement extend properly
+//    imported_modules += |rascal:///| + ("<qualifiedNameToPath(qname)>" + ".rsc");
+//}
 
 private void importModule((Import) `<SyntaxDefinition syntaxdef>`){ /* nothing to do */ }
 
@@ -275,8 +292,10 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
 }
 
 private void translateFunctionDeclaration(FunctionDeclaration fd, node body, list[Expression] when_conditions){
-  println("r2mu: Compiling <fd.signature.name>");
+  println("r2mu: Compiling <fd.signature.name>, <fd@\loc>");
   //setFunctionUID(fd@\loc);
+  
+  try {
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
   uid = loc2uid[fd@\loc];
@@ -321,6 +340,10 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
      tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ignoreTest(ttags)), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]))) ]);
   }
   leaveFunctionScope();
+  
+  } catch e: {
+  ;
+  }
 }
 
 /********************************************************************/

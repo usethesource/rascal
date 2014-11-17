@@ -179,8 +179,8 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preAssignLocDeref(Identifier id, MuExp exp1)  								=> muAssignVarDeref(id.var,uid,vardefs[uid][id.var], exp1)
       	       case preAssignVarDeref(lrel[str,int] funNames1, Identifier id, MuExp exp1)       => muAssignVarDeref(id.var,getUID(modName,funNames1),vardefs[getUID(modName,funNames1)][id.var],exp1)
       	       
-      	       case muCallPrim(str name, loc src)                                            	=> muCallPrim3(name[1..-1], [], src)
-               case muCallPrim(str name, list[MuExp] exps, loc src)								=> muCallPrim3(name[1..-1], exps, src)			// strip surrounding quotes
+      	       case muCallPrim2(str name, loc src)                                            	=> muCallPrim3(name[1..-1], [], src)
+               case muCallPrim3(str name, list[MuExp] exps, loc src)								=> muCallPrim3(name[1..-1], exps, src)			// strip surrounding quotes
                
                case preMuCallPrim1(str name)                                            			=> muCallPrim3(name[1..-1], [],   |unknown:///a-location-in-library|)
                case preMuCallPrim2(str name, list[MuExp] exps)									=> muCallPrim3(name[1..-1], exps, |unknown:///a-location-in-library|)
@@ -299,7 +299,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       
       	       // Overloading
       	       case preFunNN(str modName1,  str name1, int nformals1)                  			=> muFun1(getUID(modName1,[],name1,nformals1))
-      	       case preFunN(lrel[str,int] funNames1,  str name1, int nformals1)        			=> muFun1(getUID(modName,funNames1,name1,nformals1), getUID(modName,funNames1))
+      	       case preFunN(lrel[str,int] funNames1,  str name1, int nformals1)        			=> muFun2(getUID(modName,funNames1,name1,nformals1), getUID(modName,funNames1))
       	       
       	       case muAll(list[MuExp] exps)                                                     => makeMu("ALL",exps)
       	       case muOr(list[MuExp] exps)                                                      => makeMu("OR",exps)
