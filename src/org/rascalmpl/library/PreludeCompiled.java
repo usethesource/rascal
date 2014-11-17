@@ -241,35 +241,27 @@ public class PreludeCompiled extends Prelude {
 	}
 	
 	public IValue md5HashFile(ISourceLocation sloc, RascalExecutionContext rex){
-		StringBuilder result = new StringBuilder(1024 * 1024);
-
-		InputStream in = null;
-		try{
-			in = rex.getResolverRegistry().getInputStream(sloc.getURI());
+		try (InputStream in = rex.getResolverRegistry().getInputStream(sloc.getURI())){
 			MessageDigest md = MessageDigest.getInstance("MD5");
-			in = new DigestInputStream(in, md);
 			byte[] buf = new byte[4096];
 			int count;
 
 			while((count = in.read(buf)) != -1){
-				result.append(new java.lang.String(buf, 0, count));
+				md.update(buf, 0, count);
 			}
 
-			return values.string(new String(md.digest()));
+			byte[] hash = md.digest();
+			StringBuffer result = new StringBuffer();
+			for (int i = 0; i < hash.length; i++) {
+				result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+			}
+			return values.string(result.toString());
 		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 		} catch (NoSuchAlgorithmException e) {
 			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"), null, null);
-		}finally{
-			if(in != null){
-				try{
-					in.close();
-				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
-				}
-			}
 		}
 	}
 	
