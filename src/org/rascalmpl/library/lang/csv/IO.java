@@ -313,7 +313,7 @@ public class IO {
 				catch (UnexpectedTypeException ute) {
 					throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" (" + ute.getExpected() + ") for requested field " + ute.getGiven(), ctx.getCurrentAST(), ctx.getStackTrace());
 				}
-				catch (FactParseError ex) {
+				catch (FactParseError | NumberFormatException ex) {
 					if (currentType.isTop()) {
 						result[i] = values.string(field);
 					}
