@@ -36,7 +36,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 public class Reflective {
-	private final IValueFactory values;
+	protected final IValueFactory values;
 	private Evaluator cachedEvaluator;
 	private int robin = 0;
 	private static final int maxCacheRounds = 500;
