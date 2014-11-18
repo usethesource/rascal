@@ -259,7 +259,7 @@ list[str] libs = [
 "lang::rascal::grammar::SyntaxTreeGenerator",				// ERROR
 */
 
-
+ 
 ];
 
 list[str] eclipse_libs =
