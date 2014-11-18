@@ -25,8 +25,9 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 /**
- * This class implements the rascal:// scheme. If the path component of a given URI represents a module name, then
- * this resolver will look through the Rascal search path and find the proper input stream if it exists.
+ * This class implements a search path for Rascal. It can be used to look up modules
+ * by name or files by path relative to the roots of all path contributors.
+ * It will return the first match found.
  */
 public class RascalURIResolver {
 	private final ArrayList<IRascalSearchPathContributor> contributors;
