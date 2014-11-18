@@ -104,7 +104,7 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
  for(tst <- names){
       prog = base + (tst + ".rsc");
       try {
-	      if(lrel[loc,int,str] test_results := execute(prog, [], recompile=false, testsuite=true, listing=false, debug=false)){
+	      if(lrel[loc,int,str] test_results := execute(prog, [], recompile=true, testsuite=true, listing=false, debug=false)){
 	         s = makeTestSummary(test_results);
 	         println("TESTING <prog>: <s>");
 	         partial_results += <prog, s>;
