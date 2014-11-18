@@ -29,11 +29,11 @@ import org.rascalmpl.uri.URIUtil;
  * by name or files by path relative to the roots of all path contributors.
  * It will return the first match found.
  */
-public class RascalURIResolver {
+public class RascalSearchPath {
 	private final ArrayList<IRascalSearchPathContributor> contributors;
 	private final URIResolverRegistry reg;
 	
-	public RascalURIResolver(URIResolverRegistry ctx) {
+	public RascalSearchPath(URIResolverRegistry ctx) {
 		this.contributors = new ArrayList<IRascalSearchPathContributor>();
 		this.reg = ctx;
 	}
