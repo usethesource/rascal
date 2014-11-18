@@ -156,8 +156,8 @@ bool missingModule(str stmts, list[str] importedModules = [], list[str] initialD
 	check(stmts, [
 		"Cannot import module _"
 	], importedModules=importedModules, initialDecls=initialDecls);
-	
-// PAUL TODO: this is not working probably..	
+
 void makeModule(str name, str body) {
-    writeFile(|home:///<name>.rsc|, "module <name>\n<body>"); // used to be |rascal:///|
+    writeFile( getSearchPathLocation("lang/rascal/tests/types") + "<name>.rsc", 
+               "module lang::rascal::tests::types::<name>\n<body>");
 }
