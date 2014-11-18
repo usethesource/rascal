@@ -137,7 +137,7 @@ Response page(get(), /^\/vegaJSON\/<name:[a-zA-Z0-9_:]+>/,
 /********************** web server creation ********************/
 
 
-private loc base = |rascal:///experiments/vis2|;
+private loc base = |std:///experiments/vis2|;
 
 private loc startFigureServer() {
   	loc site = |http://localhost:8081|;

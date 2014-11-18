@@ -337,7 +337,7 @@ set[loc] failures = {
 
 int countErrors(map[loc,int] counts) = size( {msg | msg <- counts, counts[msg] > 0} );
 
-tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
+tuple[set[loc],set[loc]] compileAll(loc root = |std:///|){ // PAUL: this now missed eclipse libraries (used to be "rascal:///")
 	allFiles = find(root, "rsc") - exclude;
 	nfiles = size(allFiles);
 	static_error_count = ();
@@ -385,14 +385,15 @@ tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
 	println("Compiler errors: <ncompiler> crashes");
 	println("Time: <tosec(t1, realTime())> sec.");
 	
-	writeFile(|rascal:///experiments/Compiler/Tests/static_errors|, 
+	// TODO: PAUL watch out stats appear elsewhere now:
+	writeFile(|home:///rascal-stats/experiments/Compiler/Tests/static_errors|, 
 	   "<for(loc f <- sort([ msg | msg <- static_error_count, static_error_count[msg] > 0])){><f>\n<}>");
 	 
 	perfile = sort(toList(static_error_count), bool(tuple[loc,int] a, tuple[loc,int] b) {return a[1] > b[1]; });
-    writeFile(|rascal:///experiments/Compiler/Tests/static_error_count_per_file|, 
+    writeFile(|home:///rascal-stats/experiments/Compiler/Tests/static_error_count_per_file|, 
        "<for(tp <- perfile){><tp>\n<}>");
        
-	writeFile(|rascal:///experiments/Compiler/Tests/compiler_errors|, 
+	writeFile(|home:///rascal-stats/experiments/Compiler/Tests/compiler_errors|, 
 	   "<for(loc f <- sort(toList(compiler_errors))){><f>\n<}>");
 	
 	return <domain(static_error_count), compiler_errors>;

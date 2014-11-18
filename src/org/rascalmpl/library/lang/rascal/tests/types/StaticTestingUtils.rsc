@@ -157,6 +157,7 @@ bool missingModule(str stmts, list[str] importedModules = [], list[str] initialD
 		"Cannot import module _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
-void makeModule(str name, str body){
-    writeFile(|rascal:///<name>.rsc|, "module <name>\n<body>");
+// PAUL TODO: this is not working probably..	
+void makeModule(str name, str body) {
+    writeFile(|cwd:///<name>.rsc|, "module <name>\n<body>"); // used to be |rascal:///|
 }

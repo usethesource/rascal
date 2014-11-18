@@ -167,7 +167,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
                     muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKeywordParams[rname]) | rname <- allKeywordParams ])) ])) ]);
                                                 
          leaveFunctionScope();
-         functions_in_module += muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body);   	                                       
+         functions_in_module += muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|std:///|,[],(),body);   	                                       
    	 }
    	 				  
    	  translateModule(M);
@@ -384,7 +384,7 @@ private str resolveLibOverriding(str lib){
 	if(lib in overriddenLibs) return "<lib>Compiled";
 
     rlib1 = replaceFirst(lib, "org.rascalmpl.library.", "");
-    rlib2 = |rascal:///| + "<replaceAll(rlib1, ".", "/")>Compiled.java";
+    rlib2 = |std:///| + "<replaceAll(rlib1, ".", "/")>Compiled.java";
   
 	if(exists(rlib2)){
 	   overriddenLibs += lib;
@@ -438,5 +438,5 @@ private void generate_tests(str module_name){
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
    name_testsuite = "<module_name>_testsuite";
    main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-   functions_in_module += muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, |rascal:///|, [], (), code);
+   functions_in_module += muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, |std:///|, [], (), code);
 }

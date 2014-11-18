@@ -3,7 +3,7 @@ module experiments::Compiler::Tests::TestUtils
 import  experiments::Compiler::Execute;
 import IO;
 
-loc TMP = |rascal:///experiments/Compiler/Tests/TMP.rsc|;
+loc TMP = |std:///experiments/Compiler/Tests/TMP.rsc|;
 
 value run(str exp, bool listing=false, bool debug=false, bool recompile=true, bool profile=false) {
     msrc = "module experiments::Compiler::Tests::TMP data D = d1(int n, str s) | d2(str s, bool b) | d3(list[int] l, list[int] r); value main(list[value] args) = <exp>;";

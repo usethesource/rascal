@@ -125,9 +125,9 @@ value main(list[value] args){
   crashes = [];
   partial_results = [];
   all_results = [];
-  all_results += runTests(functionalityTests, |rascal:///lang/rascal/tests/functionality|);
-  all_results += runTests(basicTests, |rascal:///lang/rascal/tests/basic|);
-  all_results += runTests(libraryTests, |rascal:///lang/rascal/tests/library|);
+  all_results += runTests(functionalityTests, |std:///lang/rascal/tests/functionality|);
+  all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
+  all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
   
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");

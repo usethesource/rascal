@@ -176,7 +176,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		this.desc = desc;
 
 		try {
-			List<String> modules = getRecursiveModuleList(URIUtil.create("rascal", "", "/" + prefix.replaceAll("::", "/")), evaluator.getResolverRegistry());
+			List<String> modules = getRecursiveModuleList(URIUtil.create("std", "", "/" + prefix.replaceAll("::", "/")), evaluator.getResolverRegistry());
 
 			for (String module : modules) {
 				String name = prefix + "::" + module;

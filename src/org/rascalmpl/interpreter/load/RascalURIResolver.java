@@ -96,6 +96,45 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		}
 	}
 
+	public URI resolveModule(String module) {
+		module = moduleToFile(module);
+				
+		try {
+			for (URI dir : collect()) {
+				URI full = getFullURI(module, dir);
+				if (reg.exists(full)) {
+					return full;
+				}
+			}
+			
+			return null;
+		} catch (URISyntaxException e) {
+			return null;
+		}
+	}
+
+	private String moduleToFile(String module) {
+		if (!module.endsWith(Configuration.RASCAL_FILE_EXT)) {
+			module = module.concat(Configuration.RASCAL_FILE_EXT);
+		}
+		return module.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
+	}
+	
+	public URI resolvePath(String path) {
+		try {
+			for (URI dir : collect()) {
+				URI full = getFullURI(path, dir);
+				if (reg.exists(full)) {
+					return full;
+				}
+			}
+			
+			return null;
+		} catch (URISyntaxException e) {
+			return null;
+		}
+	}
+	
 	public boolean exists(URI uri) {
 		try {
 			if (uri.getScheme().equals(scheme())) {
@@ -115,10 +154,10 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		}
 	}
 
-	public URI getRootForModule(URI uri) {
+	public URI getRootForModule(String module) {
 		try {
 			for (URI dir : collect()) {
-				URI full = getFullURI(getPath(uri), dir);
+				URI full = getFullURI(moduleToFile(module), dir);
 				if (reg.exists(full)) {
 					return dir;
 				}
@@ -174,10 +213,7 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 				if (host.endsWith("/")) {
 					host = host.substring(0, host.length() - 2);
 				}
-				if (!host.endsWith(Configuration.RASCAL_FILE_EXT)) {
-					host = host.concat(Configuration.RASCAL_FILE_EXT);
-				}
-				host = host.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
+				host = moduleToFile(host);
 			}
 			return host;
 		}

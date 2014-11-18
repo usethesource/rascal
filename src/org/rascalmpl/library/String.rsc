@@ -562,7 +562,6 @@ Examples:
 <screen>
 import String;
 toLocation("http://grammarware.net");
-toLocation("rascal://lang::rascal::syntax::Rascal");
 toLocation("document.xml");
 </screen>
 }

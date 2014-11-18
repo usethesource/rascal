@@ -116,7 +116,7 @@ void listDecls(RVMProgram p, list[str] selection, bool listing){
 
 }
 
-void statistics(loc root = |rascal:///|,
+void statistics(loc root = |std:///|, // TODO PAUL: this now misses the eclipse libraries! used to be "rascal:///"
                 loc bindir = |home:///bin|
                 ){
     allFiles = find(root, "rsc");
