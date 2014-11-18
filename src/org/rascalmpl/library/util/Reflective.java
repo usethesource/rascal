@@ -16,6 +16,7 @@ package org.rascalmpl.library.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -194,4 +195,28 @@ public class Reflective {
 		}
 		return ctx.getValueFactory().sourceLocation(uri);
 	}
+	
+	public IValue getSearchPathLocation(IString path, IEvaluatorContext ctx) {
+		String value = path.getValue();
+		
+		if (path.length() == 0 || "/".equals(value)) {
+			throw RuntimeExceptionFactory.illegalArgument(path, null, null);
+		}
+		
+		if (!value.startsWith("/")) {
+			value = "/" + value;
+		}
+		
+		try {
+			URI uri = ctx.getEvaluator().getRascalResolver().resolve(URIUtil.create("rascal", "", value));
+			if (uri == null) {
+				throw RuntimeExceptionFactory.io(values.string("File not found in search path: " + path), null, null);
+			}
+
+			return ctx.getValueFactory().sourceLocation(uri);
+		} catch (URISyntaxException e) {
+			throw  RuntimeExceptionFactory.malformedURI(value, null, null);
+		}
+	}
+
 }
