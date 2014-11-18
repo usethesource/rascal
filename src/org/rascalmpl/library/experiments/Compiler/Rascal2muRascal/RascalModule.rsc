@@ -4,7 +4,6 @@ module experiments::Compiler::Rascal2muRascal::RascalModule
 import lang::rascal::\syntax::Rascal;
 import Prelude;
 import util::Reflective;
-import util::ValueUI;
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
