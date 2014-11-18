@@ -138,9 +138,9 @@ public abstract class Import {
 					String moduleEnvName = eval.getCurrentModuleEnvironment().getName();
 					URI ur = null;
 					if (moduleEnvName.equals(ModuleEnvironment.SHELL_MODULE)) {
-						ur = URIUtil.rootScheme("rascal");
+						ur = URIUtil.rootScheme("cwd");
 					} else {
-						ur = eval.getRascalResolver().getRootForModule((URIUtil.createRascalModule(moduleEnvName)));
+						ur = eval.getRascalResolver().getRootForModule(moduleEnvName);
 					}
 					Result<?> loc = new SourceLocationResult(TF.sourceLocationType(), VF.sourceLocation(ur), eval);
 					String modulePath = moduleName.replaceAll("::", "/");
@@ -333,7 +333,7 @@ public abstract class Import {
   }
   
   private static Module buildModule(String name, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
-    IConstructor tree = eval.parseModule(eval, URIUtil.createRascalModule(name));
+    IConstructor tree = eval.parseModule(eval, eval.getRascalResolver().resolveModule(name));
     return getBuilder().buildModule(tree);
   }
   

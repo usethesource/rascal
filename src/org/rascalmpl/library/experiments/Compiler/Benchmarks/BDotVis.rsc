@@ -93,7 +93,7 @@ public Figure dot2fig(DotGraph g) {
 }
     
 public value main(list[value] args) {
-     ConceptLattice[str, str] cl = fca(readCxt(|rascal:///experiments/Compiler/Benchmarks/fca/examples/FCxt2.cxt|));
+     ConceptLattice[str, str] cl = fca(readCxt(|std:///experiments/Compiler/Benchmarks/fca/examples/FCxt2.cxt|));
      DotGraph gr = toDot(cl);
      Figure g = dot2fig(gr);
      //render(g);

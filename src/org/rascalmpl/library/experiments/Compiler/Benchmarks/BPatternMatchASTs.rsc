@@ -6,7 +6,7 @@ import analysis::m3::TypeSymbol;
 import ValueIO;
 
 //private set[Declaration] getData() 
-//	= readBinaryValueFile(#set[Declaration], |rascal:///experiments/Compiler/Benchmarks/pdb.values.bin|);
+//	= readBinaryValueFile(#set[Declaration], |std:///experiments/Compiler/Benchmarks/pdb.values.bin|);
 //	
 //
 //int countReturnStatementsReducer() {

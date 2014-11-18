@@ -196,13 +196,14 @@ public class Reflective {
 	
 	// REFLECT -- copy in ReflectiveCompiled
 	public IValue getModuleLocation(IString modulePath, IEvaluatorContext ctx) {
-		URI uri = ctx.getEvaluator().getRascalResolver().resolve(URIUtil.createRascalModule(modulePath.getValue()));
+		URI uri = ctx.getEvaluator().getRascalResolver().resolveModule(modulePath.getValue());
 		if (uri == null) {
 		  throw RuntimeExceptionFactory.moduleNotFound(modulePath, ctx.getCurrentAST(), null);
 		}
 		return ctx.getValueFactory().sourceLocation(uri);
 	}
 	
+	// REFLECT -- copy in ReflectiveCompiled
 	public ISourceLocation getSearchPathLocation(IString path, IEvaluatorContext ctx) {
 		String value = path.getValue();
 		
@@ -215,7 +216,7 @@ public class Reflective {
 		}
 		
 		try {
-			URI uri = ctx.getEvaluator().getRascalResolver().resolve(URIUtil.create("rascal", "", value));
+			URI uri = ctx.getEvaluator().getRascalResolver().resolvePath(value);
 			if (uri == null) {
 				URI parent = URIUtil.getParentURI(URIUtil.createFile(value));
 				
