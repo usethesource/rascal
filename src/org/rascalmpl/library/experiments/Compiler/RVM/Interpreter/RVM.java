@@ -1577,7 +1577,8 @@ public class RVM {
 			"org.rascalmpl.library.PreludeCompiled.readTextValueString",
 			"org.rascalmpl.library.PreludeCompiled.writeBinaryValueFile",
 			"org.rascalmpl.library.PreludeCompiled.writeTextValueFile",
-			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation"
+			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
+			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation"
 			
 	));
 			
