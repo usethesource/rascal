@@ -28,7 +28,6 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.debug.IDebugMessage.Detail;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.load.RascalURIResolver;
 
 public final class DebugHandler implements IDebugHandler {
 
@@ -70,21 +69,14 @@ public final class DebugHandler implements IDebugHandler {
 	private Runnable terminateAction = null;
 
 	/**
-	 * To resolve rascal:/// source locs
-	 */
-  private final RascalURIResolver resolver;
-	
-
-	/**
 	 * Create a new debug handler with its own interpreter event trigger.
 	 */
-	public DebugHandler(RascalURIResolver resolver) {
-	  this.resolver = resolver;
+	public DebugHandler() {
 		setEventTrigger(newNullEventTrigger());
 	}
 	
 	private boolean hasBreakpoint(ISourceLocation b) {
-		return breakpoints.contains(resolver.resolve(b).toString());
+		return breakpoints.contains(b.toString());
 	}
 	
 	private void addBreakpoint(ISourceLocation breakpointLocation) {
@@ -183,7 +175,6 @@ public final class DebugHandler implements IDebugHandler {
 			case NO_STEP:
 			  if (hasBreakpoint(location)) {
 			    updateSuspensionState(evaluator, currentAST);
-			    location = evaluator.getRascalResolver().resolve(location);
 			    getEventTrigger().fireSuspendByBreakpointEvent(location);
 			  }
 			  break;
