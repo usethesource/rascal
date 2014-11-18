@@ -18,8 +18,8 @@ import experiments::Compiler::muRascal2RVM::mu2rvm;
 import experiments::Compiler::muRascal2RVM::StackSize;
 import experiments::Compiler::muRascal2RVM::PeepHole;
 
-public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/LibraryGamma.mu|;
-public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/LibraryGamma.rvm|;
+public loc MuLibrary = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.mu|;
+public loc MuLibraryCompiled = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.rvm|;
 
 // Specific for delimited continuations (experimental)
 // public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.mu|;

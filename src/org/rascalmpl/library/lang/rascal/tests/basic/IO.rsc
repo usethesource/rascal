@@ -87,3 +87,8 @@ test bool readOffsetMiddle(str a, str b, str c) {
 	}
 	return true;
 }
+
+test bool md5Hash(){
+	writeFileEnc(|home:///wr.txt|, encodingNames[utf8()], "abc\n123\n!@#$%\n");
+	return md5HashFile(|home:///wr.txt|) == "931210fcfae2c4979e5d51a264648b82";
+}

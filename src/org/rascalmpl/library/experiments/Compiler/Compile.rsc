@@ -20,7 +20,7 @@ loc RVMProgramLocation(loc src, loc bindir) = (bindir + src.path)[extension="rvm
 
 loc MuModuleLocation(loc src, loc bindir) = (bindir + src.path)[extension="mu"];
 
-RVMProgram compile(str rascalSource, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
+RVMProgram compile(str rascalSource, bool listing=false, bool recompile=true, loc bindir = |home:///bin|){
    muMod  = r2mu(parse(#start[Module], rascalSource).top);
    for(imp <- muMod.imports){
    	    println("Compiling import <imp>");
@@ -48,11 +48,11 @@ private MuModule getMuModule(loc moduleLoc, bool recompile=false, loc bindir = |
               println("compile: Using existing MuModule <muModuleLoc>");
               return muMod;
            } else {
-              println("compile: recompiling <muModuleLoc> since imports are no longer valid");
+              println("compile: recompiling <muModuleLoc> since some imports are no longer valid");
            }
        } catch x: println("compile: Reading <muModuleLoc> did not succeed: <x>");
     }
-    println("compile: recompiling (recompile=<recompile>) <moduleLoc>");
+    println("compile: recompiling <moduleLoc>");
     muMod = r2mu(parse(#start[Module], moduleLoc).top); // .top is needed to remove start! Ugly!
     println("compile: Writing MuModule <muModuleLoc>");
     writeTextValueFile(muModuleLoc, muMod);
@@ -64,7 +64,7 @@ set[loc] busy = {};
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
 
-RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
+RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=true, loc bindir = |home:///bin|){
     completed = ();
     busy = {};
     rvmProgram = compile1(moduleLoc, listing=listing, recompile=recompile,bindir=bindir);

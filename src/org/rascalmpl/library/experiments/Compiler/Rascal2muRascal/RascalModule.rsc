@@ -292,7 +292,7 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
 }
 
 private void translateFunctionDeclaration(FunctionDeclaration fd, node body, list[Expression] when_conditions){
-  println("r2mu: Compiling <fd.signature.name>, <fd@\loc>");
+  println("r2mu: Compiling <fd.signature.name>");
   //setFunctionUID(fd@\loc);
   
   try {

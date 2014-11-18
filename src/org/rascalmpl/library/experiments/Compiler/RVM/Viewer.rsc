@@ -154,10 +154,12 @@ void statistics(loc root = |rascal:///|,
     nerrors = 0;
     nwarnings = 0;
     
+    fatal = {};
+    
     for(msg <- messages){
         if(msg is error){
             if(findFirst(msg.msg, "Fatal compilation error") >= 0){
-                nfatal += 1;
+                fatal += msg.at;
             } else {
                 nerrors += 1;
             }
@@ -174,7 +176,7 @@ void statistics(loc root = |rascal:///|,
             'warnings:     <nwarnings>
             'missing:      <size(missing)>, <missing>
             'success:      <nsuccess>
-            'fatal:        <nfatal>
+            'fatal:        <size(fatal)>, <fatal>
             '");
     
 }
