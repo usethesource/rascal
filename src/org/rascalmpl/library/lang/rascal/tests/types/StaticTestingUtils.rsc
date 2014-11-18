@@ -159,5 +159,5 @@ bool missingModule(str stmts, list[str] importedModules = [], list[str] initialD
 	
 // PAUL TODO: this is not working probably..	
 void makeModule(str name, str body) {
-    writeFile(|cwd:///<name>.rsc|, "module <name>\n<body>"); // used to be |rascal:///|
+    writeFile(|home:///<name>.rsc|, "module <name>\n<body>"); // used to be |rascal:///|
 }

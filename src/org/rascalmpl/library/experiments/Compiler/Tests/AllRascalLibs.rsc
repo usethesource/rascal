@@ -337,7 +337,7 @@ set[loc] failures = {
 
 int countErrors(map[loc,int] counts) = size( {msg | msg <- counts, counts[msg] > 0} );
 
-tuple[set[loc],set[loc]] compileAll(loc root = |std:///|){ // PAUL: this now missed eclipse libraries (used to be "rascal:///")
+tuple[set[loc],set[loc]] compileAll(loc root = |std:///|){ //TODO: this now missed eclipse libraries (used to be "rascal:///")
 	allFiles = find(root, "rsc") - exclude;
 	nfiles = size(allFiles);
 	static_error_count = ();
@@ -385,7 +385,7 @@ tuple[set[loc],set[loc]] compileAll(loc root = |std:///|){ // PAUL: this now mis
 	println("Compiler errors: <ncompiler> crashes");
 	println("Time: <tosec(t1, realTime())> sec.");
 	
-	// TODO: PAUL watch out stats appear elsewhere now:
+	// TODO: watch out stats appear elsewhere now:
 	writeFile(|home:///rascal-stats/experiments/Compiler/Tests/static_errors|, 
 	   "<for(loc f <- sort([ msg | msg <- static_error_count, static_error_count[msg] > 0])){><f>\n<}>");
 	 
