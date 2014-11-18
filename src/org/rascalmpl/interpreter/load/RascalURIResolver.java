@@ -14,32 +14,21 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.load;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.uri.BadURIException;
-import org.rascalmpl.uri.IURIInputOutputResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.UnsupportedSchemeException;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * This class implements the rascal:// scheme. If the path component of a given URI represents a module name, then
  * this resolver will look through the Rascal search path and find the proper input stream if it exists.
  */
-public class RascalURIResolver implements IURIInputOutputResolver {
+public class RascalURIResolver {
 	private final ArrayList<IRascalSearchPathContributor> contributors;
 	private final URIResolverRegistry reg;
 	
@@ -54,48 +43,6 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		}
 	}
 	
-	public ISourceLocation resolve(ISourceLocation loc) {
-		URI uri = loc.getURI();
-		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-
-		if (!uri.getScheme().equals(scheme())) {
-			return loc;
-		}
-		URI resolved = resolve(uri);
-
-		if(resolved != null){
-			if (loc.hasOffsetLength()) {
-				if (loc.hasLineColumn()) {
-					return vf.sourceLocation(vf.sourceLocation(resolved), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
-				}
-				else {
-					return vf.sourceLocation(vf.sourceLocation(resolved), loc.getOffset(), loc.getLength());
-				}
-			}
-			return vf.sourceLocation(resolved);
-		}
-
-		return null;
-	}
-	
-	/**
-	 * Returns a URI that does not have the rascal scheme, or null if the URI is not found.
-	 */
-	public URI resolve(URI uri) {
-		try {
-			for (URI dir : collect()) {
-				URI full = getFullURI(getPath(uri), dir);
-				if (reg.exists(full)) {
-					return full;
-				}
-			}
-			
-			return null;
-		} catch (URISyntaxException e) {
-			return null;
-		}
-	}
-
 	public URI resolveModule(String module) {
 		module = moduleToFile(module);
 				
@@ -135,25 +82,6 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		}
 	}
 	
-	public boolean exists(URI uri) {
-		try {
-			if (uri.getScheme().equals(scheme())) {
-				String path = getPath(uri);
-				
-				for (URI dir : collect()) {
-					URI full = getFullURI(path, dir);
-					if (reg.exists(full)) {
-						return true;
-					}
-				}
-			}
-			return false;
-		} 
-		catch (URISyntaxException e) {
-			return false;
-		}
-	}
-
 	public URI getRootForModule(String module) {
 		try {
 			for (URI dir : collect()) {
@@ -178,11 +106,6 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 			c.contributePaths(paths);
 		}
 		
-		for (URI uri : paths) {
-			if (uri.getScheme().equals(scheme())) {
-				throw new IllegalArgumentException("The rascal scheme can not be contributed to the Rascal path:" + uri);
-			}
-		}
 		return paths;
 	}
 
@@ -200,277 +123,11 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		return URIUtil.changePath(dir, dirPath + path);
 	}
 
-	private String getPath(URI uri) {
-		String path = uri.getPath();
-		
-		if (path != null && path.length() != 0) {
-			return path;
-		}
-		else {
-			String host = uri.getAuthority();
-			
-			if (host != null) {
-				if (host.endsWith("/")) {
-					host = host.substring(0, host.length() - 2);
-				}
-				host = moduleToFile(host);
-			}
-			return host;
-		}
-	}
-	
-	public InputStream getInputStream(URI uri) throws IOException {
-		try {
-			if (uri.getScheme().equals(scheme())) {
-				String path = getPath(uri);
-
-				for (URI dir : collect()) {
-					URI full = getFullURI(path, dir);
-					if (reg.exists(full)) {
-						return reg.getInputStream(full);
-					}
-				}
-			}
-			
-			if (uri.getPath() == null || uri.getPath().length() == 0) {
-				throw new IOException("File " + uri + " not found.");
-			}
-			else {
-				throw new IOException("Module " + uri + " not found.");
-			}
-		} 
-		catch (URISyntaxException e) {
-			throw new IOException(e.getMessage(), e);
-		}
-	}
-
-	public String scheme() {
-		return "rascal";
-	}
-
-	public OutputStream getOutputStream(URI uri, boolean append)
-			throws IOException {
-		try {
-			if (uri.getScheme().equals(scheme())) {
-				String path = getPath(uri);
-				URI parent = URIUtil.getParentURI(uri);
-
-				for (URI dir : collect()) {
-					URI fullParent = parent != null ? getFullURI(getPath(parent), dir) : null;
-					if (fullParent == null || reg.exists(fullParent)) {
-						URI full = getFullURI(path, dir);
-						try {
-							return reg.getOutputStream(full, append);
-						}
-						catch (UnsupportedSchemeException e) {
-							// it happens
-						}
-					}
-				}
-			}
-			
-			if (uri.getPath() == null || uri.getPath().length() == 0) {
-				throw new IOException("Module " + uri.getPath() + " not found");
-			}
-			else {
-				throw new IOException("Could not write to file " + uri);
-			}
-		} 
-		catch (URISyntaxException e) {
-			throw new IOException(e.getMessage(), e);
-		}
-	}
-	
-	public boolean isDirectory(URI uri) {
-		try {
-			if (uri.getScheme().equals(scheme())) {
-				String path = getPath(uri);
-				
-				for (URI dir : collect()) {
-					URI full = getFullURI(path, dir);
-					if (reg.exists(full) &&
-						reg.isDirectory(full)) {
-						return true;
-					}
-				}
-			}
-			return false;
-		} 
-		catch (URISyntaxException e) {
-			return false;
-		}
-	}
-	
-	public boolean isFile(URI uri) {
-		try {
-			if (uri.getScheme().equals(scheme())) {
-				String path = getPath(uri);
-				
-				for (URI dir : collect()) {
-					URI full = getFullURI(path, dir);
-					if (reg.exists(full) &&
-					    reg.isFile(full)) {
-						return true;
-					}
-				}
-			}
-			return false;
-		} 
-		catch (URISyntaxException e) {
-			return false;
-		}
-	}
-	
-	public long lastModified(URI uri) throws IOException {
-		try {
-			if (uri.getScheme().equals(scheme())) {
-				String path = getPath(uri);
-				
-				for (URI dir : collect()) {
-					URI full = getFullURI(path, dir);
-					if (reg.exists(full)) {
-						return reg.lastModified(full);
-					}
-				}
-			}
-			throw new UnsupportedSchemeException(uri.toString());
-		} 
-		catch (URISyntaxException e) {
-			throw new BadURIException(e);
-		}
-	}
-	
-	public String[] listEntries(URI uri) throws IOException {
-		try {
-			if (uri.getScheme().equals(scheme())) {
-				String path = getPath(uri);
-				
-				for (URI dir : collect()) {
-					URI full = getFullURI(path, dir);
-					if (reg.exists(full)) {
-						return reg.listEntries(full);
-					}
-				}
-				
-				throw new FileNotFoundException(uri.toASCIIString());
-			}
-			throw new UnsupportedSchemeException(uri.toString());
-		} 
-		catch (URISyntaxException e) {
-			throw new BadURIException(e);
-		}
-	}
-
-	@Override
-	public void remove(URI uri) throws IOException {
-	  try {
-      if (uri.getScheme().equals(scheme())) {
-        String path = getPath(uri);
-        IOException lastException = null;
-        
-        for (URI dir : collect()) {
-          URI full = getFullURI(path, dir);
-          lastException = null;
-          try {
-            reg.remove(full);
-          }
-          catch (UnsupportedSchemeException e) {
-            // it happens
-          }
-          catch (IOException e) {
-            lastException = e;
-            // it happens
-          }
-        }
-        
-        if (lastException != null) {
-          throw lastException;
-        }
-      }
-      
-      
-      throw new FileNotFoundException("Parent of " + uri + " could not be found");
-    } 
-    catch (URISyntaxException e) {
-      throw new IOException(e.getMessage(), e);
-    }
-
-	}
-	
-	public void mkDirectory(URI uri) throws IOException {
-		try {
-			if (uri.getScheme().equals(scheme())) {
-				String path = getPath(uri);
-				
-				for (URI dir : collect()) {
-					URI full = getFullURI(path, dir);
-					try {
-						reg.mkDirectory(full);
-					}
-					catch (UnsupportedSchemeException e) {
-						// it happens
-						continue;
-					}
-					return;
-				}
-			}
-			
-			
-			throw new FileNotFoundException("Parent of " + uri + " could not be found");
-		} 
-		catch (URISyntaxException e) {
-			throw new IOException(e.getMessage(), e);
-		}
-	}
-
-	public URI getResourceURI(URI uri) {
-		try {
-			String path = getPath(uri);
-
-			for (URI dir : collect()) {
-				URI full = getFullURI(path, dir);
-				if (reg.exists(full)) {
-					return full;
-				}
-			}
-		}
-		catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-		return null;
-		
-	}
-
 	public URIResolverRegistry getRegistry() {
 		return reg;
 	}
 
-	public boolean supportsHost() {
-		return false;
+	public void remove(IRascalSearchPathContributor contrib) {
+		contributors.remove(contrib);
 	}
-
-	@Override
-	public Charset getCharset(URI uri) throws IOException {
-		try {
-			
-			if (uri.getScheme().equals(scheme())) {
-				String path = getPath(uri);
-
-				for (URI dir : collect()) {
-					URI full = getFullURI(path, dir);
-					if (reg.exists(full)) {
-						return reg.getCharset(full);
-					}
-				}
-			}
-			return null;
-		} 
-		catch (URISyntaxException e) {
-			return null;
-		}
-	}
-
-  public void remove(IRascalSearchPathContributor contrib) {
-    contributors.remove(contrib);
-  }
 }

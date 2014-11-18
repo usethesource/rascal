@@ -242,8 +242,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		
 		resolverRegistry.registerInput(new JarURIResolver());
 
-		resolverRegistry.registerInputOutput(rascalPathResolver);
-
 		resolverRegistry.registerInputOutput(new HomeURIResolver());
 		resolverRegistry.registerInputOutput(new TempURIResolver());
 		
