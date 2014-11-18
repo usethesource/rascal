@@ -281,7 +281,11 @@ public abstract class Import {
     }
     
     try {
-      Module module = buildModule(name, env, eval);
+    	URI uri = eval.getRascalResolver().resolveModule(name);
+    	if (uri == null) {
+    		throw new ModuleImport(name, "can not find in search path", x);
+    	}
+      Module module = buildModule(uri, env, eval);
 
       if (isDeprecated(module)) {
         eval.getStdErr().println("WARNING: deprecated module " + name + ":" + getDeprecatedMessage(module));
@@ -332,8 +336,8 @@ public abstract class Import {
     return "";
   }
   
-  private static Module buildModule(String name, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
-    IConstructor tree = eval.parseModule(eval, eval.getRascalResolver().resolveModule(name));
+  private static Module buildModule(URI uri, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
+	IConstructor tree = eval.parseModule(eval, uri);
     return getBuilder().buildModule(tree);
   }
   
