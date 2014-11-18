@@ -16,6 +16,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.uri.URIResolverRegistry;
 
@@ -50,6 +51,7 @@ public class RascalExecutionContext {
 		
 		resolverRegistry = ctx.getResolverRegistry();
 		rascalURIResolver = new RascalURIResolver(resolverRegistry);
+		rascalURIResolver.addPathContributor(StandardLibraryContributor.getInstance());
 		monitor = ctx.getEvaluator().getMonitor();
 		stdout = ctx.getEvaluator().getStdOut();
 		stderr = ctx.getEvaluator().getStdErr();

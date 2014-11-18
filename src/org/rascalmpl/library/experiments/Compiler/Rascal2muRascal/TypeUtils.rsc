@@ -504,10 +504,14 @@ str getType(Tree e) = "<getType(e@\loc)>";
 
 // Get the outermost type constructor of an expression as string
 str getOuterType(Tree e) { 
-	if(parameter(str _, Symbol bound) := getType(e@\loc)) {
+    tp = getType(e@\loc);
+	if(parameter(str _, Symbol bound) := tp) {
 		return "<getName(bound)>";
 	}
-	return "<getName(getType(e@\loc))>";
+	if(label(_, Symbol sym) := tp){
+	   return "<getName(sym)>";
+	}
+	return "<getName(tp)>";
 }
 
 /* 
