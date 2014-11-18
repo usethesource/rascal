@@ -221,7 +221,7 @@ public class Reflective {
 				
 				if (parent == null) {
 					// if the parent does not exist we are at the root and we look up the first path contributor:
-					parent = ctx.getEvaluator().getRascalResolver().resolve(URIUtil.create("rascal", "", "/")); 
+					parent = URIUtil.createFile("/"); 
 				}
 				
 				// here we recurse on the parent to see if it might exist
