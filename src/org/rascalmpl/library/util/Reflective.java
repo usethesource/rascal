@@ -196,11 +196,11 @@ public class Reflective {
 		return ctx.getValueFactory().sourceLocation(uri);
 	}
 	
-	public IValue getSearchPathLocation(IString path, IEvaluatorContext ctx) {
+	public ISourceLocation getSearchPathLocation(IString path, IEvaluatorContext ctx) {
 		String value = path.getValue();
 		
-		if (path.length() == 0 || "/".equals(value)) {
-			throw RuntimeExceptionFactory.illegalArgument(path, null, null);
+		if (path.length() == 0) {
+			throw RuntimeExceptionFactory.io(values.string("File not found in search path: [" + path + "]"), null, null);
 		}
 		
 		if (!value.startsWith("/")) {
@@ -210,6 +210,21 @@ public class Reflective {
 		try {
 			URI uri = ctx.getEvaluator().getRascalResolver().resolve(URIUtil.create("rascal", "", value));
 			if (uri == null) {
+				URI parent = URIUtil.getParentURI(URIUtil.createFile(value));
+				
+				if (parent == null) {
+					// if the parent does not exist we are at the root and we look up the first path contributor:
+					parent = ctx.getEvaluator().getRascalResolver().resolve(URIUtil.create("rascal", "", "/")); 
+				}
+				
+				// here we recurse on the parent to see if it might exist
+				ISourceLocation result = getSearchPathLocation(values.string(parent.getPath()), ctx);
+				
+				if (result != null) {
+					String child = URIUtil.getURIName(URIUtil.createFile(value));
+					return values.sourceLocation(URIUtil.getChildURI(result.getURI(), child));
+				}
+				
 				throw RuntimeExceptionFactory.io(values.string("File not found in search path: " + path), null, null);
 			}
 
