@@ -15,7 +15,9 @@ import Exception;
 import List;
 
 // concat
-test bool concat1() = concat([]) == [];
+
+//concat1 violates stricter typing rules of compiler
+//test bool concat1() = concat([]) == [];
 test bool concat2() = concat([[]]) == [];
 test bool concat3() = concat(concat([[[]]])) == [];
 test bool concat4() = concat([[1]]) == [1];
