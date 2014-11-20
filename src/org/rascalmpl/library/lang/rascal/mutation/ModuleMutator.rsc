@@ -52,21 +52,21 @@ Module make(Module input, int c, real chance = 0.1)
                       '  throw "mutant!";`
        when  arbInt(10) == 0, /Pattern p := cond, !(p is concrete)
        
-     //case (Statement) `if (<{Expression ","}+ cond>) <Statement s> else <Statement t>` =>
-     //     (Statement) `if (<{Expression ","}+ cond>) throw "mutant!"; else <Statement t>`
-     //  when  arbInt(10) == 0, /Pattern p := cond, !(p is concrete)
-     //  
-     //case (Statement) `if (<{Expression ","}+ cond>) <Statement s> else <Statement t>` =>
-     //     (Statement) `if (<{Expression ","}+ cond>) <Statement s> else throw "mutant!";`
-     //  when  arbInt(10) == 0, /Pattern p := cond, !(p is concrete) 
-     //  
-     //case (Statement) `while (<{Expression ","}+ cond>) <Statement s>` =>
-     //     (Statement) `while (<{Expression ","}+ cond>) throw "mutant!";`
-     //  when  arbInt(10) == 0, /Pattern p := cond, !(p is concrete)
-     //  
-     //case (Statement) `for (<{Expression ","}+ cond>) <Statement s>` =>
-     //     (Statement) `for (<{Expression ","}+ cond>) throw "mutant!";`
-     //  when  arbInt(10) == 0, /Pattern p := cond, !(p is concrete)             
+     case (Statement) `if (<{Expression ","}+ cond1>) <Statement s> else <Statement t>` =>
+          (Statement) `if (<{Expression ","}+ cond1>) throw "mutant!"; else <Statement t>`
+       when  arbInt(10) == 0, /Pattern p := cond1, !(p is concrete)
+       
+     case (Statement) `if (<{Expression ","}+ cond2>) <Statement s> else <Statement t>` =>
+          (Statement) `if (<{Expression ","}+ cond2>) <Statement s> else throw "mutant!";`
+       when  arbInt(10) == 0, /Pattern p := cond2, !(p is concrete) 
+       
+     case (Statement) `while (<{Expression ","}+ cond3>) <Statement s>` =>
+          (Statement) `while (<{Expression ","}+ cond3>) throw "mutant!";`
+       when  arbInt(10) == 0, /Pattern p := cond3, !(p is concrete)
+       
+     case (Statement) `for (<{Expression ","}+ cond4>) <Statement s>` =>
+          (Statement) `for (<{Expression ","}+ cond4>) throw "mutant!";`
+       when  arbInt(10) == 0, /Pattern p := cond4, !(p is concrete)             
  });
  
 test bool renameTest() = rename(20, (Module) `module a::b::X`) == (Module) `module a::b::X20`;
