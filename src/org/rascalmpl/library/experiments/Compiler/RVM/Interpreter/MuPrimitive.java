@@ -1022,7 +1022,7 @@ public enum MuPrimitive {
 			String RegExpAsString = ((IString) stack[sp - 2]).getValue();
 			String subject = ((IString) stack[sp - 1]).getValue();
 			try {
-				Pattern pat = Pattern.compile(RegExpAsString);
+				Pattern pat = Pattern.compile(RegExpAsString, Pattern.UNICODE_CHARACTER_CLASS);
 				stack[sp - 2] = pat.matcher(subject);
 				return sp - 1;
 			} catch (PatternSyntaxException e) {
