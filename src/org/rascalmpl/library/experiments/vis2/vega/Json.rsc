@@ -14,11 +14,12 @@ public data JSON
   
 public data VEGA =  vega(list[AXE] axes=[], list[SCALE] scales=[], 
                          list[DATUM] \data=[], PADDING padding= padding(), 
-                         list[MARK] marks = [], list[int] viewport = []);
+                         list[MARK] marks = [], list[LEGEND] legends = [],
+                         list[int] viewport = []);
 
 public data AXE =   axe(str scale = "", str \type= "", map[str, value]  properties = (), str title=""
 , bool grid = false, str format = "", str orient = "", int tickSize = 99999, 
-  int tickPadding = 99999);
+  int tickPadding = 99999, int ticks = 99999, list[value] values = []);
 
 public data PADDING = padding(int left = 30, int bottom = 30, int top = 10, int right = 10);
 
@@ -31,10 +32,15 @@ public data TRANSFORM = transform(str \type="", list[str] keys = [], str point =
 
 public data DOMAIN = ref(str \data="", str field = "");
 
-public data RANGE = lit(str key = "");
+public data RANGE = lit(str key = "")|array(list[value] values =[]);
 
 public data SCALE = scale(str name = "", str \type = "", DOMAIN domain = ref(), RANGE range = lit(),
              bool nice = false, bool zero = true, bool round = false, real padding = 99999.);
+             
+public data LEGEND = legend(str size = "", str shape = "", str fill = "",
+                     str stroke = "", str orient = "", str title = "", 
+                     str format = "", list[str] values = [], 
+                     map[str, value] properties = ());
 
 JSON Object(map[str, JSON] m) {
     // println(m);
@@ -52,6 +58,7 @@ JSON toJson(DOMAIN domain) {
 JSON toJson(RANGE range) {
      switch (range) {
          case lit() : return toJson(range.key);
+         case array() : return toJson(range.values);
          }
      return null();
      }
@@ -62,6 +69,7 @@ JSON toJson(AXE axe) {
          "properties": propToJson(axe.properties), "title":toJson(axe.title)
          , "grid":toJson(axe.grid), "orient":toJson(axe.orient), "format":toJson(axe.format)
          , "tickSize":toJson(axe.tickSize,99999), "tickPadding":toJson(axe.tickPadding,99999)
+         , "ticks":toJson(axe.ticks, 99999), "values":toJson(axe.values)
          ));     
          }
      return null();
@@ -99,6 +107,21 @@ JSON toJson(TRANSFORM transform) {
         case mark(): return Object (("name": toJson(mark.name),"type":toJson(mark.\type), 
            "marks": toJson(mark.marks), "properties": propToJson(mark.properties),
            "from": toJson(mark.from), "scales": toJson(mark.scales)));
+        }
+     return null();
+     }
+     
+JSON toJson(LEGEND legend) { 
+     switch (legend) {
+        case legend(): return Object ((
+            "fill": toJson(legend.fill), 
+            "shape": toJson(legend.shape),
+            "stroke": toJson(legend.stroke), 
+            "orient": toJson(legend.orient), 
+            "title": toJson(legend.title), 
+            "format": toJson(legend.format), 
+            "values": toJson(legend.values), 
+            "properties": propToJson(legend.properties)));       
         }
      return null();
      }
@@ -144,6 +167,7 @@ JSON propToJson(value v) {
  public JSON toJson(VEGA vega) {
     switch (vega) { 
          case vega():  return Object (("axes":toJson(vega.axes), "scales":toJson(vega.scales),
+            "legends":toJson(vega.legends),
             "data":toJson(vega.\data) ,  "padding": toJson(vega.padding), "marks" : toJson(vega.marks),
             "viewport" : toJson(vega.viewport)));
          } 
@@ -153,7 +177,22 @@ JSON propToJson(value v) {
 public str toJSON(VEGA vega) {
     return toJSON(toJson(vega));
     }
-  
+
+// ---------------- COLORS -----------------------------------------------------------
+alias Color = int;
+
+@doc{Named color}
+@reflect{Needs calling context when generating an exception}
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
+public java Color color(str colorName);
+
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}	
+public java str getHexDecimal(Color c);
+
+public list[str] hexColors(list[str] colors) = [getHexDecimal(color(s)) | s <- colors]; 
+
+// -------------------------------------------------------------------------------- 
+
  public void Main() {
      println(toJson(b));
      }

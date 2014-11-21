@@ -280,9 +280,35 @@ public class FigureColorUtils {
 	public static int withoutAlpha(int c){
 		return c & 0xffffff; 
 	}
+	
+	public static IInteger getRed(IInteger c) {
+		return vf.integer(getRed(c.intValue()));
+	}
+	
+	public static IInteger getGreen(IInteger c) {
+		return vf.integer(getGreen(c.intValue()));
+	}
+	
+	public static IInteger getBlue(IInteger c) {
+		return vf.integer(getBlue(c.intValue()));
+	}
+	
+	public static IInteger getAlpha(IInteger c) {
+		return vf.integer(getAlpha(c.intValue()));
+	}
+	
+	public static IInteger withoutAlpha(IInteger c) {
+		return vf.integer(withoutAlpha(c.intValue()));
+	}
 
 	public static RGB toRGB(int c) {
 		return new RGB(getRed(c), getGreen(c), getBlue(c));
+	}
+	
+	public static IString getHexDecimal(IInteger cc) {
+		int c = cc.intValue();
+		String s = String.format("#%02x%02x%02x", getRed(c), getGreen(c), getBlue(c));
+		return vf.string(s);
 	}
 
 	public IInteger interpolateColor(IInteger from, IInteger to, IReal amt) {
