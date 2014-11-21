@@ -20,7 +20,7 @@ loc RVMProgramLocation(loc src, loc bindir) = (bindir + src.path)[extension="rvm
 
 loc MuModuleLocation(loc src, loc bindir) = (bindir + src.path)[extension="mu"];
 
-RVMProgram compile(str rascalSource, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
+RVMProgram compile(str rascalSource, bool listing=false, bool recompile=true, loc bindir = |home:///bin|){
    muMod  = r2mu(parse(#start[Module], rascalSource).top);
    for(imp <- muMod.imports){
    	    println("Compiling import <imp>");
@@ -39,17 +39,17 @@ bool valid(loc moduleLoc, loc bindir){
 
 private MuModule getMuModule(loc moduleLoc, bool recompile=false, loc bindir = |home:///bin|){
    muModuleLoc = MuModuleLocation(moduleLoc, bindir);
-   println("exists(<muModuleLoc>): <exists(muModuleLoc)>");
-   println("lastModified(<muModuleLoc>) \> lastModified(<moduleLoc>): <lastModified(muModuleLoc) > lastModified(moduleLoc)>");
+   //println("exists(<muModuleLoc>): <exists(muModuleLoc)>");
+   //println("lastModified(<muModuleLoc>) \> lastModified(<moduleLoc>): <lastModified(muModuleLoc) > lastModified(moduleLoc)>");
    if(!recompile && exists(muModuleLoc) && lastModified(muModuleLoc) > lastModified(moduleLoc)){
        try {
            muMod = readTextValueFile(#MuModule, muModuleLoc);
-           //if(all(imp <- muMod.imports, valid(imp, bindir))){
+           if(all(imp <- muMod.imports, valid(imp, bindir))){
               println("compile: Using existing MuModule <muModuleLoc>");
               return muMod;
-           //} else {
-           //   println("compile: recompiling <muModuleLoc> since imports are no longer valid");
-           //}
+           } else {
+              println("compile: recompiling <muModuleLoc> since some imports are no longer valid");
+           }
        } catch x: println("compile: Reading <muModuleLoc> did not succeed: <x>");
     }
     println("compile: recompiling <moduleLoc>");
@@ -64,7 +64,7 @@ set[loc] busy = {};
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
 
-RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
+RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=true, loc bindir = |home:///bin|){
     completed = ();
     busy = {};
     rvmProgram = compile1(moduleLoc, listing=listing, recompile=recompile,bindir=bindir);
@@ -78,7 +78,7 @@ RVMProgram compile(loc moduleLoc, bool listing=false, bool recompile=false, loc 
 
 private RVMProgram compile1(loc moduleLoc, bool listing=false, bool recompile=false, loc bindir = |home:///bin|){
     if(completed[moduleLoc]?){
-        println("compile: <moduleLoc>,retireved from completed");
+        println("compile: <moduleLoc>, retrieved from completed");
         return completed[moduleLoc];
     }
     println("compile: <moduleLoc>, busy: <busy>");

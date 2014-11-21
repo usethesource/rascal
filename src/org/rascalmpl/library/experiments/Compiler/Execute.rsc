@@ -18,8 +18,8 @@ import experiments::Compiler::muRascal2RVM::mu2rvm;
 import experiments::Compiler::muRascal2RVM::StackSize;
 import experiments::Compiler::muRascal2RVM::PeepHole;
 
-public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/LibraryGamma.mu|;
-public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/LibraryGamma.rvm|;
+public loc MuLibrary = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.mu|;
+public loc MuLibraryCompiled = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.rvm|;
 
 // Specific for delimited continuations (experimental)
 // public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.mu|;
@@ -85,7 +85,7 @@ tuple[value, num] execute_and_time(RVMProgram rvmProgram, list[value] arguments,
    // Recompile the default imports, if necessary
    
    for(loc def <- defaultImports){
-       compiledDef = compiledVersion(def, bindir);
+       compiledDef = RVMProgramLocation(def, bindir);
        if(!exists(compiledDef) || lastModified(compiledDef) < lastModified(def)){
           rvm_def = compile(def, bindir = bindir);
           messages += rvm_def.messages;

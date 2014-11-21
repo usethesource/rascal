@@ -1548,6 +1548,7 @@ public class RVM {
 	}
 	
 	HashSet<String> converted = new HashSet<String>(Arrays.asList(
+			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
 			"org.rascalmpl.library.lang.csv.IOCompiled.readCSV",
 			"org.rascalmpl.library.lang.csv.IOCompiled.getCSVType",
 			"org.rascalmpl.library.lang.csv.IOCompiled.writeCSV",
@@ -1576,7 +1577,8 @@ public class RVM {
 			"org.rascalmpl.library.PreludeCompiled.readTextValueString",
 			"org.rascalmpl.library.PreludeCompiled.writeBinaryValueFile",
 			"org.rascalmpl.library.PreludeCompiled.writeTextValueFile",
-			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment"
+			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
+			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation"
 			
 	));
 			
