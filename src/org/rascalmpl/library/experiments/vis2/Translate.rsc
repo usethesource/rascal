@@ -37,6 +37,8 @@ str propsToJSON(Figure child, Figure parent){
 	if (!isEmpty(child.tooltip))   properties += "\"tooltip\":<strArg(child.tooltip)>";
 	if(child.size != parent.size /*&& child.size != defaults.size*/) 					
 													properties += "\"width\": <numArg(child.size[0])>, \"height\": <numArg(child.size[1])> ";
+						
+properties += "\"padding_top\": <numArg(child.padding[0])>, \"padding_left\": <numArg(child.padding[1])>,  \"padding_bottom\": <numArg(child.padding[2])>, \"padding_right\": <numArg(child.padding[3])>";
 												  
 	if(child.width != parent.width) 				properties += "\"width\": <numArg(child.width)>";
 	if(child.height != parent.height) 				properties += "\"height\": <numArg(child.height)>";
@@ -577,15 +579,12 @@ str trChart(str chartType, Figure chart, Figure parent, str extraProps="") {
 }
 
 str trVega(Figure chart, Figure parent) {
-    str variable = chart.variable;
     str modul    = chart.\module;
     str dataFile = chart.dataFile;
     str datasets = trVegaDataset(chart.datasets); 
-    println("trVega:<modul> <variable>");
     return 
     "{\"figure\": \"vega\",
     ' \"module\": \"<modul>\",
-    ' \"variable\": \"<variable>\", 
     ' <isEmpty(dataFile)?datasets:"\"data\":\"<dataFile>\"">
     ' <propsToJSON(chart, parent)>
     '}";   
