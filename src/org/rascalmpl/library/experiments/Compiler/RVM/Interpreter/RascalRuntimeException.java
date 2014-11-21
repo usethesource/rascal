@@ -79,6 +79,9 @@ public class RascalRuntimeException {
 	
 	public static final Type RegExpSyntaxError = TF.constructor(TS, Exception, "RegExpSyntaxError", TF.stringType(), "message");
 
+	public static final Type NotImplemented = TF.constructor(TS, Exception, "NotImplemented", TF.stringType(), "message");
+	
+	
 	
 	public static Thrown arithmeticException(String msg, List<Frame> stacktrace) {
 		return Thrown.getInstance(VF.constructor(ArithmeticException, VF.string(msg)), stacktrace);
@@ -303,6 +306,10 @@ public class RascalRuntimeException {
 //	public static Thrown permissionDenied(IString msg, ISourceLocation loc, List<Frame> stacktrace) {
 //		return Thrown.getInstance(VF.constructor(PermissionDenied, msg), loc, stacktrace);
 //	}
+	
+	public static Thrown notImplemented(String msg, ISourceLocation loc, List<Frame> stacktrace) {
+    	return Thrown.getInstance(VF.constructor(NotImplemented, VF.string(msg)), loc, stacktrace);
+    }
 
 	public static Thrown unavailableInformation(String message, List<Frame> stacktrace){
 		return Thrown.getInstance(VF.constructor(UnavailableInformation, VF.string(message)),  stacktrace);	

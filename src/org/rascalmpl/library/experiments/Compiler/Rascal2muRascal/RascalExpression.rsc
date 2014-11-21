@@ -1389,6 +1389,7 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
        return translate((Expression)`<Expression expression> \< <Name field> \>`);
    }
    op = isNonTerminalType(tp) ? "nonterminal" : getOuterType(expression);
+   if(op == "label") println("field_access: <tp>, <e>");
    return muCallPrim3("<op>_field_access", [ translate(expression), muCon("<field>") ], e@\loc);
 }
 

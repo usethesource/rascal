@@ -227,7 +227,15 @@ public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] defini
 		//assert !(Symbol::\adt(name,_) := nonterminal);
 		for(Symbol nonterminal <- defs){
 		    if(Symbol::\adt(name,_) !:= nonterminal){
+		       //println("nonterminal1=<nonterminal>");
+		       if(prod(Symbol s, _, _, _) := nonterminal){
+		          nonterminal = s;
+		       }
+		       // println("nonterminal2=<nonterminal>");
 		       if(!definitions[nonterminal]?) {
+		          //println("grammar:\n----------");
+            //      for(s <- grammar) println("<s>: <grammar[s]>");
+            //      println("----------");
 			      definitions[nonterminal] = \layouts(grammar[nonterminal]); // inserts an active layout
 			      if(nonterminal in starts) {
 				     definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),

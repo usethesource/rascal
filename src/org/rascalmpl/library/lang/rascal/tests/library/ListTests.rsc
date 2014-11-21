@@ -15,7 +15,9 @@ import Exception;
 import List;
 
 // concat
-test bool concat1() = concat([]) == [];
+
+//concat1 violates stricter typing rules of compiler
+//test bool concat1() = concat([]) == [];
 test bool concat2() = concat([[]]) == [];
 test bool concat3() = concat(concat([[[]]])) == [];
 test bool concat4() = concat([[1]]) == [1];
@@ -53,7 +55,8 @@ test bool dup5()  = dup([1,1,2])   == [1,2];
 test bool dup6()  = dup([1,1,2,2]) == [1,2];
 
 // elementAt - deprecated!
-@expected{NoSuchElement} test bool elementAt1() {[][0]; return false;}
+@ignoreCompiler{Other exception} @expected{NoSuchElement} test bool elementAt1() {[][0]; return false;}
+@ignoreInterpreter{Other exception} @expected{IndexOutOfBounds} test bool elementAt1() {[][0]; return false;}
 test bool elementAt2()  = [1,2,3][0] == 1;
 test bool elementAt3()  = [1,2,3][1] == 2;
 test bool elementAt4()  = [1,2,3][2] == 3;
