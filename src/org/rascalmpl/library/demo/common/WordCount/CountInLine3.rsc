@@ -13,3 +13,9 @@ module demo::common::WordCount::CountInLine3
 public int countInLine3(str S){
   return (0 | it + 1 | /\w+/ := S);
 }
+
+test bool tstCountInLine3a() = countInLine3("") == 0;
+
+test bool tstCountInLine3b() = countInLine3("Jabberwocky by Lewis Carroll") == 4;
+
+
