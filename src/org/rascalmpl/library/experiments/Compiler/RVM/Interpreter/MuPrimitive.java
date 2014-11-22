@@ -258,7 +258,11 @@ public enum MuPrimitive {
 			for (int i = 0; i < cons_arity; i++) {
 			  elems[i] = v.get(i);
 			}
-			elems[cons_arity] = v.asWithKeywordParameters().getParameters();
+			if(v.mayHaveKeywordParameters()){
+				elems[cons_arity] = v.asWithKeywordParameters().getParameters();
+			} else {
+				elems[cons_arity] = emptyKeywordMap;
+			}
 			stack[sp - 1] = elems;
 			return sp;
 		};
@@ -272,7 +276,11 @@ public enum MuPrimitive {
 		public int execute(Object[] stack, int sp, int arity) {
 			assert arity == 1;
 			INode v = (INode) stack[sp - 1];
-			stack[sp - 1] = v.asWithKeywordParameters().getParameters();
+			if(v.mayHaveKeywordParameters()){
+				stack[sp - 1] = v.asWithKeywordParameters().getParameters();
+			} else {
+				stack[sp - 1] = emptyKeywordMap;
+			}
 			return sp;
 		};
 	},
@@ -328,7 +336,12 @@ public enum MuPrimitive {
 			assert arity == 1;
 			INode v = (INode) stack[sp - 1];
 			int cons_arity = v.arity();
-			Map<String, IValue> m = v.asWithKeywordParameters().getParameters();
+			Map<String, IValue> m ;
+			if(v.mayHaveKeywordParameters()){
+				m = v.asWithKeywordParameters().getParameters();
+			} else {
+				m = emptyKeywordMap;
+			}
 			int kw_arity = m.size();
 			Object[] elems = new Object[cons_arity + kw_arity];
 			for (int i = 0; i < cons_arity; i++) {
