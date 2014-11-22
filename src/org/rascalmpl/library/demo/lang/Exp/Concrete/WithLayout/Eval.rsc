@@ -14,3 +14,8 @@ public int eval((Exp)`( <Exp e> )`) = eval(e);
 public value main(list[value] args) {
   return eval("2+3");
 }
+
+test bool tstEval1() = eval(" 7") == 7;
+test bool tstEval2() = eval("7 * 3") == 21;
+test bool tstEval3() = eval("7 + 3") == 10;
+test bool tstEval3() = eval(" 3 + 4*5 ") == 23;

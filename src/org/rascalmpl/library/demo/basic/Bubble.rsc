@@ -17,60 +17,80 @@ import IO;
 
 // sort1: uses list indexing and a for-loop
 
-public list[int] sort1(list[int] Numbers){
-  for(int I <- [0 .. size(Numbers) - 1 ]){
-     if(Numbers[I] > Numbers[I+1]){
-       <Numbers[I], Numbers[I+1]> = <Numbers[I+1], Numbers[I]>;
-       return sort1(Numbers);
-     }
-  }
-  return Numbers;
+public list[int] sort1(list[int] numbers){
+  if(size(numbers) > 0){
+     for(int i <- [0 .. size(numbers)-1]){
+       if(numbers[i] > numbers[i+1]){
+         <numbers[i], numbers[i+1]> = <numbers[i+1], numbers[i]>;
+         return sort1(numbers);
+       }
+    }
+  }  
+  return numbers;
 }
+
+bool isSorted(list[int] lst) = !any(int i <- index(lst), int j <- index(lst), (i < j) && (lst[i] > lst[j]));
+
+test bool sorted1a() = isSorted([]);
+test bool sorted1b() = isSorted([10]);
+test bool sorted1c() = isSorted([10, 20]);
+test bool sorted1d() = isSorted([-10, 20, 30]);
+test bool sorted1e() = !isSorted([10, 20, -30]);
 
 // sort2: uses list matching and switch
 
-public list[int] sort2(list[int] Numbers){
-  switch(Numbers){
-    case [*int Nums1, int P, int Q, *int Nums2]:
-       if(P > Q){
-          return sort2(Nums1 + [Q, P] + Nums2);
+public list[int] sort2(list[int] numbers){
+  switch(numbers){
+    case [*int nums1, int p, int q, *int nums2]:
+       if(p > q){
+          return sort2(nums1 + [q, p] + nums2);
        } else {
        	  fail;
        }
-     default: return Numbers;
+     default: return numbers;
    }
 }
 
+test bool sorted2(list[int] lst) = isSorted(sort2(lst));
+
 // sort3: uses list matching and while
 
-public list[int] sort3(list[int] Numbers){
-  while([*int Nums1, int P, *int Nums2, int Q, *int Nums3] := Numbers && P > Q)
-        Numbers = Nums1 + [Q] + Nums2 + [P] + Nums3;
-  return Numbers;
+public list[int] sort3(list[int] numbers){
+  while([*int nums1, int p, *int nums2, int q, *int nums3] := numbers && p > q)
+        numbers = nums1 + [q] + nums2 + [p] + nums3;
+  return numbers;
 }
+
+test bool sorted3(list[int] lst) = isSorted(sort3(lst));
 
 // sort4: similar to sort3, but shorter.
 
-public list[int] sort4(list[int] Numbers){
-  while([Nums1*, P, Nums2*, Q, Nums3*] := Numbers && P > Q)
-        Numbers = Nums1 + [Q] + Nums2 + [P] + Nums3;
-  return Numbers;
-
+public list[int] sort4(list[int] numbers){
+  while([nums1*, p, nums2*, q, nums3*] := numbers && p > q)
+        numbers = nums1 + [q] + nums2 + [p] + nums3;
+  return numbers;
 }
 
+test bool sorted4(list[int] lst) = isSorted(sort4(lst));
+
 // sort5: using recursion instead of iteration, and splicing instead of concat
-public list[int] sort5([*int Nums1, int P, *int Nums2, int Q, *int Nums3]) {
-  if (P > Q) 
-    return sort5([*Nums1, Q, *Nums2, P, *Nums3]); 
+public list[int] sort5([*int nums1, int p, *int nums2, int q, *int nums3]) {
+  if (p > q) 
+    return sort5([*nums1, q, *nums2, p, *nums3]); 
   else 
     fail sort5;
 }
 
+test bool sorted5(list[int] lst) = isSorted(sort5(lst));
+
 public default list[int] sort5(list[int] x) = x;
 
 // finally, sort 6 inlines the condition into a when:
-public list[int] sort6([*int Nums1, int P, *int Nums2, int Q, *int Nums3]) 
-  = sort6([*Nums1, Q, *Nums2, P, *Nums3])
-  when P > Q; 
+public list[int] sort6([*int nums1, int p, *int nums2, int q, *int nums3]) 
+  = sort6([*nums1, q, *nums2, p, *nums3])
+  when p > q; 
 
 public default list[int] sort6(list[int] x) = x;
+
+test bool sorted6(list[int] lst) = isSorted(sort6(lst));
+
