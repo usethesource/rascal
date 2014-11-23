@@ -1022,10 +1022,14 @@ public class RVM {
 						stacktrace.add(cf);
 						thrown = Thrown.getInstance(e.getException(), e.getLocation(), stacktrace);
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
+					} catch (Thrown e){
+						stacktrace.add(cf);
+						thrown = e;
+						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 					} catch (Exception e){
 						e.printStackTrace(stderr);
 						throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: "+ e.getMessage() + e.getCause() );
-					}
+					} 
 					
 					continue NEXT_INSTRUCTION;
 				
@@ -1541,6 +1545,9 @@ public class RVM {
 		} catch (InvocationTargetException e) {
 			if(e.getTargetException() instanceof Throw) {
 				throw (Throw) e.getTargetException();
+			}
+			if(e.getTargetException() instanceof Thrown){
+				throw (Thrown) e.getTargetException();
 			}
 			e.printStackTrace();
 		}
