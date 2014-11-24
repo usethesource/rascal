@@ -13,7 +13,6 @@ public Exp dd(var(V1), var(V2))            = con((V1 == V2) ? 1 : 0);
 public Exp dd(add(Exp e1, Exp e2), var(V)) = add(dd(e1, var(V)), dd(e2, var(V)));
 public Exp dd(mul(Exp e1, Exp e2), var(V)) = add(mul(dd(e1, var(V)), e2), mul(e1, dd(e2, var(V))));
  
-
 public Exp simp(add(con(n), con(m))) = con(n + m);   /*4*/
 public Exp simp(mul(con(n), con(m))) = con(n * m);
 
@@ -33,4 +32,5 @@ public Exp simplify(Exp e){                          /*6*/
          }
 }
 
-
+test bool tstSimplity1() = simplify(mul(var("x"), add(con(3), con(5)))) == mul(var("x"), con(8));
+test bool tstSimplity2() = simplify(dd(E, var("x"))) == con(5);

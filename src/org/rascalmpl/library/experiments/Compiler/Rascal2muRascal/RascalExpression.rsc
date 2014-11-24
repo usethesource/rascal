@@ -1192,13 +1192,15 @@ MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = make
 // -- all expression ------------------------------------------------
 
 MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
+  println("all: <e>");
   // First split generators with a top-level && operator
   generators1 = [*(((Expression) `<Expression e1> && <Expression e2>` := g) ? [e1, e2] : [g]) | g <- generators];
   isGen = [!backtrackFree(g) | g <- generators1];
+  println("isGen: <isGen>");
   tgens = [];
   for(i <- index(generators1)) {
      gen = generators1[i];
-     //println("all <i>: <gen>");
+     println("all <i>: <gen>");
      if(isGen[i]){
 	 	tgen = translate(gen);
 	 	if(muMulti(exp) := tgen){ // Unwraps muMulti, if any

@@ -17,3 +17,7 @@ public int countInLine1(str S){
   }
   return count;
 }
+
+test bool tstCountInLine1a() = countInLine1("") == 0;
+
+test bool tstCountInLine1b() = countInLine1("Jabberwocky by Lewis Carroll") == 4;
