@@ -89,7 +89,7 @@ res = "\<html\>
 		'\</body\>
 		'\</html\>
 		";
-	println(res);
+	// println(res);
 	return response(res);
 }
 
@@ -120,10 +120,12 @@ default Response page(!get(), str path, map[str, str] parameters) {
 
 Response page(get(), /^\/vegaJSON\/<name:[a-zA-Z0-9_:]+>/, 
       map[str, str] parameters) {
-      // println("get: name: <name>");
+     //  println("get: name: <name>");
       if(visualizations[name]?){
 		    descr = visualizations[name];
+		    // println("get: descr: <descr>");
 		    VEGA s = descr.figure.command();
+		    // println(s);
 		    // println(toJSON(s));
 		    return response(toJSON(s));
 		    }
@@ -170,7 +172,7 @@ public void render(str name, type[&T] model_type, &T model, Figure (str event, s
 }
 
 public void render(str name, type[&T] model_type, &T model, Figure (str event, str utag, &T model) visualize, &T (&T model) transform){
-    println("render: <model_type> <trCursor(makeCursor(model))>");
+    // println("render: <model_type> <trCursor(makeCursor(model))>");
 	f = visualize("init", "all", makeCursor(model));
 	visualizations[name] = descriptor(name, model_type, model, visualize, transform, f);
 	println(getSite());
@@ -186,7 +188,7 @@ private str get_initial_figure(str name){
 		f = descr.visualize("init", "all", makeCursor(descr.model));
 		println("get_initial_figure: <toJSON(descr.model)> <descr.model>");
     	res = "{\"model_root\": <toJSON(descr.model)>, \"figure_root\" : <figToJSON(f, getSite())>, \"site\": \"<getSite()>\", \"name\": \"<name>\" }";
-    	// println("get_initial_server: res = <res>");
+    	println("get_initial_server: res = <res>");
     	return res;
     } else {
     	throw "get_initial_figure: visualization <name> unknown";
@@ -205,11 +207,11 @@ private str refresh(str name, str modelAsJSON, str event, str utag){
 			model = descr.transform(model);
 			// model = descr.transform(makeCursor(model));
 			Figure figure = descr.visualize(event, utag, makeCursor(model));
+			// println("refresh: figure after figToJSON: <figure>");	
 			s = figToJSON(figure, getSite());
-			// println("refresh: figure after figToJSON: <figure>");		
+			// println(s);	
 			descr.model = model;
 			visualizations[name] = descr;
-			// println(s);
 			return "{\"model_root\": <toJSON(model)>, \"figure_root\" : <s>, \"site\":  \"<getSite()>\", \"name\": \"<name>\" }";
 		} else {
 			return "refresh: unknown visualization: <name>";

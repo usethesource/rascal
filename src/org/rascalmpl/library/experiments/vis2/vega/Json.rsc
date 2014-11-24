@@ -11,9 +11,12 @@ public data JSON
 	| boolean(bool b)
 	| ivalue(type[value] t, value v)
 	;
+
+public data PADDING = paddin(int left = 30, int bottom = 30, int top = 10, int right = 10);
+
   
 public data VEGA =  vega(list[AXE] axes=[], list[SCALE] scales=[], 
-                         list[DATUM] \data=[], PADDING padding= padding(), 
+                         list[DATUM] \data=[], PADDING padding= paddin(), 
                          list[MARK] marks = [], list[LEGEND] legends = [],
                          list[int] viewport = []);
 
@@ -21,7 +24,7 @@ public data AXE =   axe(str scale = "", str \type= "", map[str, value]  properti
 , bool grid = false, str format = "", str orient = "", int tickSize = 99999, 
   int tickPadding = 99999, int ticks = 99999, list[value] values = []);
 
-public data PADDING = padding(int left = 30, int bottom = 30, int top = 10, int right = 10);
+
 
 public data MARK = mark(str name = "", str \type = "", list[MARK] marks =[], 
     map[str, value]  properties = (), DATUM from  = datum(), list[SCALE] scales=[]);
@@ -88,7 +91,7 @@ JSON toJson(SCALE scale) {
       
 JSON toJson(PADDING padding) {
      switch (padding) {
-         case padding() : return Object(("left":toJson(padding.left), "bottom":toJson(padding.bottom), "top":toJson(padding.top), "right":toJson(padding.right)));     
+         case paddin() : return Object(("left":toJson(padding.left), "bottom":toJson(padding.bottom), "top":toJson(padding.top), "right":toJson(padding.right)));     
          }
      return null();
      } 
@@ -181,6 +184,11 @@ public str toJSON(VEGA vega) {
 // ---------------- COLORS -----------------------------------------------------------
 alias Color = int;
 
+@doc{Create a fixed color palette}
+public list[str] color12 = [ "red", "aqua", "navy", "violet", 
+                          "yellow", "darkviolet", "maroon", "green",
+                          "teal", "blue", "olive", "lime"];
+
 @doc{Named color}
 @reflect{Needs calling context when generating an exception}
 @javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
@@ -190,6 +198,139 @@ public java Color color(str colorName);
 public java str getHexDecimal(Color c);
 
 public list[str] hexColors(list[str] colors) = [getHexDecimal(color(s)) | s <- colors]; 
+
+// Update
+
+public VEGA setAxe(VEGA vega, str name, AXE a) {
+    return visit(vega) {
+          case axe(scale=name) => a
+          } 
+    }
+
+
+public LEGEND createLegend(str k, str v, str title) {
+    LEGEND r = legend();
+    switch (v) {
+       case "fill": r = legend(fill=k, title = title);
+       case "stroke": r = legend(stroke=k, title = title);
+       case "size": r = legend(size=k, title = title);
+       case "shape": r = legend(shape=k, title = title);
+       }
+    return r; 
+    }
+    
+public VEGA setAxe(VEGA vega, str name, AXE a) {
+    return visit(vega) {
+          case axe(scale=name) => a
+          } 
+    }
+
+
+public AXE getAxe(VEGA vega, str name) {
+    visit(vega) {
+          case v:axe(scale=name): return v;
+          }
+    return axe();
+    }
+    
+public SCALE getScale(VEGA vega, str name) {
+    visit(vega) {
+          case v:scale(name=name): return v;
+          } 
+    }
+    
+ public MARK getMark(VEGA vega, str name) {
+    visit(vega) {
+          case v:mark(\type=name): return v;
+          }
+    return mark();
+    }
+    
+public VEGA setMark(VEGA vega, str name,  MARK m) {
+    return visit(vega) {
+          case mark(\type=name) => m
+          } 
+    }
+  
+public VEGA setScale(VEGA vega, str name, SCALE s) {
+    return visit(vega) {
+          case scale(name=name) => s
+          } 
+    }
+   
+     
+public data TICKLABELS = tickLabels(int angle = 0,   int dx = 99999, int dy = 99999, 
+       int title_dx = 99999, int title_dy = 99999,
+       int fontSize = 99999, str fontStyle="italic", str fontWeight="normal",
+       str fill = "black"
+       );   
+
+map [str, value] _tickLabels(str axe, TICKLABELS tickLabels) = 
+                ("labels":("angle":("value":tickLabels.angle),
+                 "dx":("value":tickLabels.dx),
+                 "dy":("value":tickLabels.dy),
+                 "fontSize":("value":tickLabels.fontSize)
+                , "fontStyle":("value":tickLabels.fontStyle)
+                , "fontWeight":("value":tickLabels.fontWeight)
+                , "fill":("value":tickLabels.fill)
+                ,"baseline":("value":"middle"), "align":("value":axe=="x"?"left":"right"))
+                ,"title":("dx":("value":tickLabels.title_dx), "dy":("value":tickLabels.title_dy))
+                );
+
+VEGA update(VEGA r, bool grid = false, 
+    map[str, str] title =  (), map[str, str] legends = (),
+    map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = (),   
+    map[str, TICKLABELS] tickLabels = (),
+    map[str, str] interpolate = (),  map[str, str] shape = (), 
+    list[str] palette = color12
+    )
+    {
+        
+        AXE ax = getAxe(r, "x"); 
+        if (title["x"]?) ax.title = title["x"];
+        if (format["x"]?) ax.format = format["x"];
+        if (values["x"]?) ax.values = values["x"];
+        if (ticks["x"]?) ax.ticks = ticks["x"];
+        ax.grid = grid;
+        if (tickLabels["x"]?) ax.properties += _tickLabels("x", tickLabels["x"]);           
+        AXE ay = getAxe(r, "y");
+        if (title["y"]?) ay.title = title["y"];
+        if (format["y"]?) ay.format = format["y"];
+        if (values["y"]?) ay.values = values["y"];
+        if (ticks["y"]?) ay.ticks = ticks["y"];
+        ay.grid = grid;  
+        if (tickLabels["y"]?) ay.properties += _tickLabels("y", tickLabels["y"]);     
+        r = setAxe(r, "x", ax);
+        r = setAxe(r, "y", ay);
+        
+        r.legends = [createLegend(k, legends[k], (title[k]?)?title[k]:"")| k <-legends];
+        if (!isEmpty(palette)) {
+           SCALE color = getScale(r, "color");
+           color.range = array(values = hexColors(palette)); 
+           r = setScale(r, "color", color);
+           }
+       if (interpolate["all"]? || shape["all"]?) {
+         MARK m1 = getMark(r, "line"); 
+         MARK m2 =  getMark(r, "symbol");
+         r = setMark(r, "line", mark(\type="line")); 
+         r = setMark(r, "symbol", mark(\type="symbol"));     
+        if (interpolate["all"]?) {
+              m1.properties["enter"]+=("stroke":
+              ("scale":"color", "field":"data.c"));
+              m1.properties["enter"]+=("interpolate": 
+                   ("value":interpolate["all"]));
+              r = setMark(r, "line", m1);
+             }   
+        if (shape["all"]?) {          
+             m2.properties["enter"]+=("fill": ("scale":"color", "field":"data.c"));    
+             m2.properties+=("shape": ("value":shape["all"]));
+             r = setMark(r, "symbol", m2);
+             }    
+        }  
+        return r;
+    }
+
+
 
 // -------------------------------------------------------------------------------- 
 

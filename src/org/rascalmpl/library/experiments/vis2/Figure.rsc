@@ -226,11 +226,11 @@ public data Figure(
 
 // Charts
    
-   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), str orientation = "vertical", bool grouped = false, str flavor ="nvBarChart") 
-   | vega(str dataFile = "",  VEGA() command = (){return VEGA();}, str \module ="experiments::vis2::vega::VegaChart", Datasets[LabeledData] datasets = ())      
-   | scatterPlot()
+//   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), str orientation = "vertical", bool grouped = false, str flavor ="nvBarChart") 
+   | vegaChart(str dataFile = "",  VEGA() command = (){return VEGA();}, str \module ="experiments::vis2::vega::VegaChart", Datasets[value] datasets = ())      
+//  | scatterPlot()
    
-   | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[XYData] datasets = (), bool area = false, str flavor ="nvLineChart")
+//   | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[XYData] datasets = (), bool area = false, str flavor ="nvLineChart")
      
 // Graphs
 

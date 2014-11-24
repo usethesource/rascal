@@ -567,7 +567,6 @@ str trChart(str chartType, Figure chart, Figure parent, str extraProps="") {
 	xaxis = chart.xAxis;
 	yaxis = chart.yAxis;
 	datasets = startsWith(chart.flavor, "nv") ? trNvDataset(chart.datasets) :  trVegaDataset(chart.datasets);
-
 	return
 	"{\"figure\": \"<chartType>\",
 	' \"flavor\": \"<chart.flavor>\", 
@@ -582,6 +581,7 @@ str trVega(Figure chart, Figure parent) {
     str modul    = chart.\module;
     str dataFile = chart.dataFile;
     str datasets = trVegaDataset(chart.datasets); 
+    // println(datasets);
     return 
     "{\"figure\": \"vega\",
     ' \"module\": \"<modul>\",
@@ -593,22 +593,23 @@ str trVega(Figure chart, Figure parent) {
 
 // ---------- barChart ----------
 
-str figToJSON(chart: barChart(), Figure parent) {
+//str figToJSON(chart: barChart(), Figure parent) {
+//
+//	if(chart.orientation notin {"vertical", "horizontal"}){
+//		throw "orientation has illegal value: <chart.orientation>";
+//	}
+//	return trChart("barChart", chart, parent, 
+//		extraProps="\"orientation\": \"<chart.orientation>\", \"grouped\": <chart.grouped>");
+//}
 
-	if(chart.orientation notin {"vertical", "horizontal"}){
-		throw "orientation has illegal value: <chart.orientation>";
-	}
-	return trChart("barChart", chart, parent, 
-		extraProps="\"orientation\": \"<chart.orientation>\", \"grouped\": <chart.grouped>");
-}
 
-str figToJSON(chart: vega(), Figure parent) {
+str figToJSON(chart: vegaChart(), Figure parent) {
 	return trVega(chart, parent);
 }
 
 // ---------- lineChart ----------
 
-str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, parent, extraProps="\"area\": <chart.area>");
+// str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, parent, extraProps="\"area\": <chart.area>");
 
 
 // ---------- graph ----------
