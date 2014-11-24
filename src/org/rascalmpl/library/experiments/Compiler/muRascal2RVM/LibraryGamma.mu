@@ -80,7 +80,7 @@ function RASCAL_ALL(genArray, generators) {
                 j = j - 1
             }
         }
-        if(j <= 0) {
+        if(j < 0) {
            return true
         }
         if(j == len) {

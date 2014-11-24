@@ -26,6 +26,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;				// TODO: remove import: Y
 import org.rascalmpl.interpreter.IRascalMonitor;				// remove import: NO
 import org.rascalmpl.interpreter.types.NonTerminalType;			// remove import: NO
 import org.rascalmpl.interpreter.types.ReifiedType;				// remove import: NO
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -178,6 +179,9 @@ public class ParsingTools {
 		}
 		catch (UndeclaredNonTerminalException e){
 			throw new CompilerError("Undeclared non-terminal: " + e.getName() + ", " + e.getClassName());
+		}
+		catch (Exception e) {
+			throw new CompilerError("Unexpected exception:" + e);
 		}
 	}
 	

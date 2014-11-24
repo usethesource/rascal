@@ -416,17 +416,21 @@ MuExp translateAssignment(s: (Statement) `<Assignable assignable> <Assignment op
 // apply assignment operator 
     
 MuExp applyOperator(str operator, Assignable assignable, str rhs_type, MuExp rhs) {
-    if(operator == "=")
+    if(operator == "="){
         return rhs;
+    }
+   
     if(operator == "?="){
         oldval = getValues(assignable);
         assert size(oldval) == 1;   
         return generateIfDefinedOtherwise(oldval[0], rhs);
     }
-    op1 = ("+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator]; 
-    op2 = typedBinaryOp(getOuterType(assignable), op1, rhs_type);
     
     oldval = getValues(assignable);
+     
+    op1 = ("+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator]; //TODO: add new operator <<=
+    op2 = typedBinaryOp(getOuterType(assignable), op1, rhs_type);
+    
     assert size(oldval) == 1;
     return muCallPrim("<op2>", [*oldval, rhs]);    
 }
@@ -460,7 +464,8 @@ MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, str opera
      //assignTo(receiver, muCallPrim("<getOuterType(receiver)>_field_update", [*getValues(receiver), muCon("<field>"), rhs]) );
 
 MuExp assignTo(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator,  str rhs_type, MuExp rhs) = 
-    assignTo(receiver,  "=", rhs_type, rhs);
+    assignTo(receiver,  "=", rhs_type, applyOperator(operator, a, rhs_type, rhs));
+    
 
 MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, str operator,  str rhs_type, MuExp rhs) {
     str fuid = topFunctionScope();
