@@ -161,7 +161,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			break;
 
 		case "path":
-			stringResult = value.hasPath() ? value.getPath() : "";
+			stringResult = value.hasPath() ? value.getPath() : "/";
 			break;
 
 		case "query":
@@ -237,9 +237,6 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		case "file": {
 			String path = value.hasPath() ? value.getPath() : "";
 			
-			if (path.equals("")) {
-				throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
-			}
 			int i = path.lastIndexOf((int)'/');
 			
 			if (i != -1) {
@@ -290,7 +287,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		
 		case "params" : {
 			String query = value.hasQuery() ? value.getQuery() : "";
-			IMapWriter res = vf.mapWriter(tf.stringType(), tf.stringType());
+			IMapWriter res = vf.mapWriter();
 			
 			if (query != null && query.length() > 0) {
 				String[] params = query.split("&");
