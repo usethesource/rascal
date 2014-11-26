@@ -6,7 +6,7 @@ import Set;
 import IO;
 import String;
 import ToString;
-import experiments::vis2::vega::Json;
+import experiments::vis2::vega::Vega;
 
 /* Properties */
 

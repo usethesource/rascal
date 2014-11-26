@@ -13,7 +13,7 @@ import util::Cursor;
 import lang::json::IO;
 import Type;
 import Exception;
-import experiments::vis2::vega::Json;
+import experiments::vis2::vega::Vega;
 
 /************************* Figure server *********************************
  This server responds to two requests:
