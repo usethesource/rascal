@@ -10,7 +10,7 @@ import util::Math;
 import experiments::vis2::\data::Nederland;
 import experiments::vis2::\data::Steden;
 import experiments::vis2::vega::VegaChart;
-import experiments::vis2::vega::Json;
+import experiments::vis2::vega::ParameterTypes;
 
 
       					  
@@ -972,13 +972,13 @@ void stackedAreaChart(){
         size=<500,200>, datasets=stackedData,  command=stackedArea(grid = true)));
 }
 
-void linePlot(){
-        ex("linePlot", vegaChart(size=<500,200>, datasets=stackedData, command=graphSet(grid=true,legends = ("color":"fill"),
+void lineChart(){
+        ex("lineChart", vegaChart(size=<500,200>, datasets=stackedData, command=linePlot(grid=true,legends = ("color":"fill"),
         interpolate=("all":"monotone"))));
 }
 
-void scatterPlot(){
-        ex("scatterPlot", vegaChart(size=<500,200>, datasets=stackedData, command=graphSet(shape=("all":"circle"))));
+void scatterChart(){
+        ex("scatterChart", vegaChart(size=<500,200>, datasets=stackedData, command=linePlot(shape=("all":"circle"))));
 }
 
 void stedenBarChart(){
@@ -989,7 +989,7 @@ void stedenBarChart(){
              ,tickLabels=("x": tickLabels(angle=90, title_dy = 60, dx = 1),
                           "y": tickLabels(title_dy = -40)
                           )        
-             // ,palette =  color12
+             ,palette =  color12X
              ,format = ("y": "3s")
              )
         ));

@@ -1,6 +1,7 @@
 module experiments::vis2::vega::VegaChart
 
-import experiments::vis2::vega::Json;
+import experiments::vis2::vega::Vega;
+import experiments::vis2::vega::ParameterTypes;
 
 import Prelude;
 
@@ -44,7 +45,7 @@ VEGA  _stackedBar = vega(
                           source= "table")
                    ]
                    ,
-             padding= paddin(left=100, bottom = 30, top = 10, right = 100),
+             padding= padding(left=100, bottom = 30, top = 10, right = 100),
              marks = [mark(\type = "group",
                          marks=[
                              mark(\type="rect",
@@ -133,7 +134,7 @@ VEGA  _stackedBar = vega(
                           source= "table")
                    ]
                    ,
-             padding= paddin(left=100, bottom = 30, top = 10, right = 10),
+             padding= padding(left=100, bottom = 30, top = 10, right = 10),
              marks = [mark(\type = "group",
                          marks=[
                              mark(\type="area",
@@ -169,7 +170,7 @@ VEGA  _stackedBar = vega(
  public VEGA() stackedArea(bool grid = false, 
     map[str, str] title = (), map[str, str] legends = ()
     ,map[str, TICKLABELS] tickLabels = ()
-    , list[str] palette = []
+    , list[str] palette = color12
     , map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = ()
     ) {
     return VEGA() {return update(_stackedArea, grid = grid, title = title, legends = legends,
@@ -206,7 +207,7 @@ VEGA  _groupedBar = vega(
                ,
               \data =[datum(name="table")]
              ,
-             padding= paddin(left=100, bottom = 100, top = 50, right = 10),
+             padding= padding(left=100, bottom = 100, top = 50, right = 10),
              marks = [mark(\type = "group",
                         from = datum(\data="table",
                                       transform = [
@@ -268,7 +269,7 @@ VEGA  _groupedBar = vega(
 public VEGA() groupedBar(bool grid = false, 
     map[str, str] title = (), map[str, str] legends = ()
     ,map[str, TICKLABELS] tickLabels = ()
-    , list[str] palette = []
+    , list[str] palette = color12
     , map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = ()
     ) {
     return VEGA() {
@@ -279,7 +280,7 @@ public VEGA() groupedBar(bool grid = false,
         };
     }
     
-VEGA  _graphSet = 
+VEGA  _linePlot = 
         vega(
             viewport = [1800, 1800]       
            ,axes= [
@@ -304,7 +305,7 @@ VEGA  _graphSet =
                  )
                 ]
               ,\data =[datum(name="table")]
-             ,padding= paddin(left=100, bottom = 30, top = 10, right = 10)
+             ,padding= padding(left=100, bottom = 30, top = 10, right = 10)
              ,marks = [mark(\type = "group",
                         from = datum(\data="table",
                                       transform = [
@@ -350,15 +351,15 @@ VEGA  _graphSet =
                 ); 
              
         
-  public VEGA() graphSet(bool grid = false, 
+  public VEGA() linePlot(bool grid = false, 
     map[str, str] title = (), map[str, str] legends = ()
-    ,list[str] palette = []
+    ,list[str] palette = color12
     ,map[str, TICKLABELS] tickLabels =  ()
     ,map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = () 
     ,map[str, str] interpolate = (),map[str, str] shape = () 
     ) {
     return VEGA() {
-        return update(_graphSet, grid = grid, title = title
+        return update(_linePlot, grid = grid, title = title
          ,legends = legends
          ,tickLabels = tickLabels,  palette = palette
          ,format = format, ticks = ticks, values = values

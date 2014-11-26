@@ -1,6 +1,7 @@
-module experiments::vis2::vega::Json
+module experiments::vis2::vega::Vega
 import Prelude;
 import lang::json::IO;
+import experiments::vis2::vega::ParameterTypes;
 
 public data JSON 
 	= null() 
@@ -12,11 +13,11 @@ public data JSON
 	| ivalue(type[value] t, value v)
 	;
 
-public data PADDING = paddin(int left = 30, int bottom = 30, int top = 10, int right = 10);
+public data PADDING = padding(int left = 30, int bottom = 30, int top = 10, int right = 10);
 
   
 public data VEGA =  vega(list[AXE] axes=[], list[SCALE] scales=[], 
-                         list[DATUM] \data=[], PADDING padding= paddin(), 
+                         list[DATUM] \data=[], PADDING padding= padding(), 
                          list[MARK] marks = [], list[LEGEND] legends = [],
                          list[int] viewport = []);
 
@@ -91,7 +92,7 @@ JSON toJson(SCALE scale) {
       
 JSON toJson(PADDING padding) {
      switch (padding) {
-         case paddin() : return Object(("left":toJson(padding.left), "bottom":toJson(padding.bottom), "top":toJson(padding.top), "right":toJson(padding.right)));     
+         case padding() : return Object(("left":toJson(padding.left), "bottom":toJson(padding.bottom), "top":toJson(padding.top), "right":toJson(padding.right)));     
          }
      return null();
      } 
@@ -184,11 +185,6 @@ public str toJSON(VEGA vega) {
 // ---------------- COLORS -----------------------------------------------------------
 alias Color = int;
 
-@doc{Create a fixed color palette}
-public list[str] color12 = [ "red", "aqua", "navy", "violet", 
-                          "yellow", "darkviolet", "maroon", "green",
-                          "teal", "blue", "olive", "lime"];
-
 @doc{Named color}
 @reflect{Needs calling context when generating an exception}
 @javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
@@ -258,12 +254,6 @@ public VEGA setScale(VEGA vega, str name, SCALE s) {
           } 
     }
    
-     
-public data TICKLABELS = tickLabels(int angle = 0,   int dx = 99999, int dy = 99999, 
-       int title_dx = 99999, int title_dy = 99999,
-       int fontSize = 99999, str fontStyle="italic", str fontWeight="normal",
-       str fill = "black"
-       );   
 
 map [str, value] _tickLabels(str axe, TICKLABELS tickLabels) = 
                 ("labels":("angle":("value":tickLabels.angle),
