@@ -183,7 +183,8 @@ hint: <H>
 test: complement(<R>) == <?>
 }
 public lrel[&T0, &T1] complement(lrel[&T0, &T1] R)
-	= squeeze([<V0, V1> | &T0 V0 <- R<0>, &T1 V1 <- R<1>, <V0, V1> notin R]);
+	= size(R) < 2 ? []
+	: squeeze([<V0, V1> | &T0 V0 <- R<0>, &T1 V1 <- R<1>, <V0, V1> notin R]);
  // Was:  (domain(R) * range(R)) - R;
 
 public lrel[&T0, &T1, &T2] complement(lrel[&T0, &T1, &T2] R)
