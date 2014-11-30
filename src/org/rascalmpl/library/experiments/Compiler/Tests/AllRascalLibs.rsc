@@ -187,77 +187,6 @@ list[str] libs = [
 "demo::vis::VisADT",
 
 
-// COMPILER
-
-// RVM
-"experiments::Compiler::RVM::AST",							// OK
-"experiments::Compiler::RVM::Syntax",						// OK
-"experiments::Compiler::RVM::Load",							// OK
-"experiments::Compiler::RVM::Parse"							// OK
-*/
-/*
-// MuRascal
-"experiments::Compiler::muRascal::AST",						// OK
-"experiments::Compiler::muRascal::Parse",					// ERROR was OK
-"experiments::Compiler::muRascal::Load",					// ERROR was OK
-"experiments::Compiler::muRascal::Implode",					// ERROR
-"experiments::Compiler::muRascal::MuAllMuOr",				// ERROR
-"experiments::Compiler::muRascal::Syntax",					// OK
-"experiments::Compiler::muRascal::Run"						// ERROR was OK
-*/
-/*
-// muRascal2RVM
-"experiments::Compiler::muRascal2RVM::PeepHole",			// was OK
-"experiments::Compiler::muRascal2RVM::RascalReifiedTypes",	// OK
-"experiments::Compiler::muRascal2RVM::ReifiedTypes",		// ERROR
-"experiments::Compiler::muRascal2RVM::StackSize",			// OK
-"experiments::Compiler::muRascal2RVM::ToplevelType",		// OK
-"experiments::Compiler::muRascal2RVM::mu2rvm"				// ERROR
-
-// Rascal2muRascal
-"experiments::Compiler::Rascal2muRascal::RascalExpression",	// ERROR
-"experiments::Compiler::Rascal2muRascal::RascalModule",		// ERROR
-"experiments::Compiler::Rascal2muRascal::RascalPattern",	// ERROR
-"experiments::Compiler::Rascal2muRascal::RascalStatement",	// ERROR
-"experiments::Compiler::Rascal2muRascal::RascalType",		// ERROR
-"experiments::Compiler::Rascal2muRascal::TmpAndLabel",		// OK
-"experiments::Compiler::Rascal2muRascal::TypeReifier",		// ERROR
-"experiments::Compiler::Rascal2muRascal::TypeUtils",		// ERROR
-
-// Typechecker
-"lang::rascal::types::AbstractKind",						// OK
-"lang::rascal::types::AbstractName",						// ERROR
-"lang::rascal::types::AbstractType",						// ERROR
-"lang::rascal::types::CheckTypes",							// ERROR
-"lang::rascal::types::ConvertType",							// ERROR
-"lang::rascal::types::TestChecker",							// ERROR
-"lang::rascal::types::TypeExceptions",						// ERROR
-"lang::rascal::types::TypeInstantiation",					// ERROR
-"lang::rascal::types::TypeSignature",						// ERROR
-
-// Parser generator
-"lang::rascal::grammar::analyze::DefUse",					// OK
-"lang::rascal::grammar::analyze::Dependency",				// OK
-
-"lang::rascal::grammar::definition::Attributes",			// ERROR
-"lang::rascal::grammar::definition::Characters",			// ERROR
-"lang::rascal::grammar::definition::Keywords",				// ERROR
-"lang::rascal::grammar::definition::Layout",				// ERROR
-"lang::rascal::grammar::definition::Literals",				// ERROR
-"lang::rascal::grammar::definition::Modules",				// ERROR
-"lang::rascal::grammar::definition::Names",					// OK
-"lang::rascal::grammar::definition::Parameters",			// OK
-"lang::rascal::grammar::definition::Priorities",			// ERROR
-"lang::rascal::grammar::definition::Productions",			// ERROR
-"lang::rascal::grammar::definition::Regular",				// ERROR
-"lang::rascal::grammar::definition::Symbols",				// ERROR
-
-"lang::rascal::grammar::Bootstrap",							// ERROR
-"lang::rascal::grammar::ConcreteSyntax",					// ERROR
-"lang::rascal::grammar::Lookahead",							// ERROR
-"lang::rascal::grammar::ParserGenerator",					// ERROR
-"lang::rascal::grammar::SyntaxTreeGenerator",				// ERROR
-*/
 
 
 ];
@@ -337,7 +266,7 @@ set[loc] failures = {
 
 int countErrors(map[loc,int] counts) = size( {msg | msg <- counts, counts[msg] > 0} );
 
-tuple[set[loc],set[loc]] compileAll(loc root = |rascal:///|){
+tuple[set[loc],set[loc]] compileAll(loc root = |std:///|){
 	allFiles = find(root, "rsc") - exclude;
 	nfiles = size(allFiles);
 	static_error_count = ();

@@ -21,6 +21,8 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::RVM::Interpreter::ConstantFolder;
 
+import util::ValueUI;
+
 /*
  * Translate a Rascal module to muRascal.
  * The essential functions are:

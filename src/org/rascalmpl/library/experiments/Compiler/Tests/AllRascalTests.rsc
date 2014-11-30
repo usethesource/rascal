@@ -96,6 +96,54 @@ list[str] libraryTests = [
 ];
 
 
+list[str] files_with_tests =
+[
+"demo/basic/Ackermann",
+"demo/basic/Bubble",
+"demo/basic/Factorial",
+"demo/common/Calls",
+"demo/common/ColoredTrees",
+"demo/common/CountConstructors",
+"demo/common/Cycles",
+"demo/common/Derivative",
+"demo/common/Lift",
+"demo/common/StringTemplate",
+"demo/common/Trans",
+"demo/common/WordReplacement",
+"demo/common/WordCount/CountInLine1",
+"demo/common/WordCount/CountInLine2",
+"demo/common/WordCount/CountInLine3",
+"demo/common/WordCount/WordCount",
+"demo/Dominators",
+"demo/lang/Exp/Abstract/Eval",
+"demo/lang/Exp/Combined/Automatic/Eval",
+"demo/lang/Exp/Combined/Manual/Eval",
+"demo/lang/Exp/Concrete/NoLayout/Eval",
+"demo/lang/Exp/Concrete/WithLayout/Eval",
+"demo/lang/Func/Test",
+"demo/lang/Lisra/Test",
+"demo/McCabe",
+"demo/ReachingDefs",
+"demo/Slicing",
+"demo/Uninit",
+"lang/rascal/format/Escape",
+"lang/rascal/format/Grammar",
+"lang/rascal/grammar/definition/Characters",
+"lang/rascal/grammar/Lookahead",
+"lang/rascal/syntax/tests/ConcreteSyntax",
+"lang/rascal/syntax/tests/ExpressionGrammars",
+"lang/rascal/syntax/tests/ImplodeTests",
+"lang/rascal/syntax/tests/KnownIssues",
+"lang/rascal/syntax/tests/ParsingRegressionTests",
+"lang/rascal/syntax/tests/PreBootstrap",
+"lang/rascal/syntax/tests/SolvedIssues",
+"lang/yaml/Model",
+"util/PriorityQueue",
+"util/UUID"
+];
+
+
+
 lrel[loc,str] crashes = [];
 lrel[loc,str] partial_results = [];
 
@@ -125,6 +173,9 @@ value main(list[value] args){
   crashes = [];
   partial_results = [];
   all_results = [];
+   
+  //all_results += runTests(files_with_tests, |rascal:///|);
+   
   all_results += runTests(functionalityTests, |rascal:///lang/rascal/tests/functionality|);
   all_results += runTests(basicTests, |rascal:///lang/rascal/tests/basic|);
   all_results += runTests(libraryTests, |rascal:///lang/rascal/tests/library|);
