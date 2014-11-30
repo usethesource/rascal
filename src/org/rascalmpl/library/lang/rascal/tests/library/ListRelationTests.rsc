@@ -195,12 +195,12 @@ test bool rangeXl4() = rangeX([<1,10>,<2,20>], [20,10]) == [];
 
 // toMap
 
-test bool toMap1() = toMap([]) == ();
-test bool toMap2() = toMap([<1,1>]) == (1:[1]);
-test bool toMap3() = toMap([<1,1>,<1,2>]) == (1:[1,2]);
-test bool toMap4() = toMap([<1,1>,<2,2>]) == (1:[1],2:[2]);
-test bool toMap5() = toMap([<2,1>,<2,2>]) == (2:[1,2]);
-test bool toMap6() = toMap([<2,2>,<2,1>]) == (2:[2,1]);
+test bool toMap1() = ListRelation::toMap([]) == ();
+test bool toMap2() = ListRelation::toMap([<1,1>]) == (1:[1]);
+test bool toMap3() = ListRelation::toMap([<1,1>,<1,2>]) == (1:[1,2]);
+test bool toMap4() = ListRelation::toMap([<1,1>,<2,2>]) == (1:[1],2:[2]);
+test bool toMap5() = ListRelation::toMap([<2,1>,<2,2>]) == (2:[1,2]);
+test bool toMap6() = ListRelation::toMap([<2,2>,<2,1>]) == (2:[2,1]);
 
 // Tests related to the correctness of the dynamic types of list relations produced by the library functions;
 // incorrect dynamic types make pattern matching fail;
