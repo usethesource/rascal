@@ -31,6 +31,11 @@ public str nextTmp(){
     return "TMP<tmpVar>";
 }
 
+public str nextTmp(str name){
+    tmpVar += 1;
+    return "<name>:TMP<tmpVar>";
+}
+
 public int tmpLabel = -1;						// *** state
 
 public str nextLabel(){

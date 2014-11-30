@@ -31,6 +31,6 @@ Graph[int] G3 = {<1,2>, <1,3>, <2,6>, <3,4>, <3,5>, <4,7>, <5,8>, <6,7>, <7,8>};
 Graph[int] G5 = {<1,2>, <2,3>, <2,4>, <3,6>, <4,2>, <4,5>, <5, 10>, <6, 7>, 
                  <7, 8>, <7,9>, <8,9>, <9, 7>, <9,10>};
 
-public test bool t1() = cyclomaticComplexity(G1) == 1;
-public test bool t2() = cyclomaticComplexity(G3) == 3;
-public test bool t3() = cyclomaticComplexity(G5) == 5;
+test bool tstCyclomaticComplexity1() = cyclomaticComplexity(G1) == 1;
+test bool tstCyclomaticComplexity2() = cyclomaticComplexity(G3) == 3;
+test bool tstCyclomaticComplexity3() = cyclomaticComplexity(G5) == 5;

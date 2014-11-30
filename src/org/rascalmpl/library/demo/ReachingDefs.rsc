@@ -1,7 +1,7 @@
 @license{
   Copyright (c) 2009-2013 CWI
   All rights reserved. This program and the accompanying materials
-  are made available under the terms of the Eclipse Public License v1.0
+  are made available under the terms of the Eclipse License v1.0
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
@@ -19,24 +19,24 @@ import IO;
  * Addison-Wesley, 1986, Section 10.5 Introduction to global data-flow analysis.
  */
 
-public alias stat = int;
-public alias var = str;
-public alias def  = tuple[stat, var];
-public alias use = tuple[stat,var];
+alias stat = int;
+alias var = str;
+alias def  = tuple[stat, var];
+alias use = tuple[stat,var];
 
-public rel[stat,def] definition(rel[stat,var] DEFS){
+rel[stat,def] definition(rel[stat,var] DEFS){
 	return {<S,<S,V>> | <stat S, var V> <- DEFS};
 }
 
-public rel[stat,def] use(rel[stat, var] USES){
+rel[stat,def] use(rel[stat, var] USES){
 	return {<S, <S, V>> | <stat S, var V> <- USES};
 }
 
-public rel[stat,def] kill(rel[stat,var] DEFS) { 
+rel[stat,def] kill(rel[stat,var] DEFS) { 
 	return {<S1, <S2, V>> | <stat S1, var V> <- DEFS, <stat S2, V> <- DEFS, S1 != S2};
 }
 
-public rel[stat, def] reachingDefinitions(rel[stat,var] DEFS, rel[stat,stat] PRED){
+rel[stat, def] reachingDefinitions(rel[stat,var] DEFS, rel[stat,stat] PRED){
 	set[stat] STATEMENT = carrier(PRED);
 	rel[stat,def] DEF  = definition(DEFS);
 	rel[stat,def] KILL = kill(DEFS);
@@ -53,7 +53,7 @@ public rel[stat, def] reachingDefinitions(rel[stat,var] DEFS, rel[stat,stat] PRE
 	return IN;
 }
 
-public rel[stat,def] liveVariables(rel[stat,var] DEFS, rel[stat, var] USES, rel[stat,stat] PRED){
+rel[stat,def] liveVariables(rel[stat,var] DEFS, rel[stat, var] USES, rel[stat,stat] PRED){
 	set[stat] STATEMENT = carrier(PRED);
 	rel[stat,def] DEF  = definition(DEFS);
 	rel[stat,def] USE = use(USES);
@@ -68,7 +68,7 @@ public rel[stat,def] liveVariables(rel[stat,var] DEFS, rel[stat, var] USES, rel[
 	return LIN;
 }
 
-public test bool testReaching1(){
+test bool testReaching1(){
 
 	// Reaching definitions, example ASU, p626
 
@@ -100,7 +100,7 @@ public test bool testReaching1(){
                       
 }
 
-public test bool testReaching2(){
+test bool testReaching2(){
 
 // Example from Aho, Sethi, Ullman, p619
 
@@ -131,7 +131,7 @@ public test bool testReaching2(){
 	return true;
 }
 
-public test bool testLive(){
+test bool testLive(){
 
 	rel[stat,stat] PRED = { <1,2>, <2,3>, <3,4>, <4,5>, <5,6>, <5,7>, <6,7>, <7,4>};
 	rel[stat, var] DEFS = { <1, "i">, <2, "j">, <3, "a">, <4, "i">, <5, "j">, <6, "a">, <7, "i">};
