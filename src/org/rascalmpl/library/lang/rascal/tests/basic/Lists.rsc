@@ -451,7 +451,7 @@ test bool tstTakeWhile(list[int] L){
 
 test bool tstToMap(lrel[&A, &B] L)
 {
-	mapFromLRel = toMap(L);
+	mapFromLRel = ListRelation::toMap(L);
 	mapFromRel = toMap(toSet(L));
 	return (k:toSet(mapFromLRel[k]) | k <- mapFromLRel) == mapFromRel;
 }
