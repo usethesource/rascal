@@ -32,14 +32,16 @@ public data MARK = mark(str name = "", str \type = "", list[MARK] marks =[],
     
 public data DATUM = datum(str name="", list[TRANSFORM] transform = [], str source = "", str \data="");
 
-public data TRANSFORM = transform(str \type="", list[str] keys = [], str point ="", str height = "", str \value ="");
+public data TRANSFORM = transform(str \type="", list[str] keys = [], str point ="", str height = "", str \value ="",
+      str by = "", str key = "", str field = "", str expr="", str \test = "");
 
 public data DOMAIN = ref(str \data="", str field = "");
 
 public data RANGE = lit(str key = "")|array(list[value] values =[]);
 
 public data SCALE = scale(str name = "", str \type = "", DOMAIN domain = ref(), RANGE range = lit(),
-             bool nice = false, bool zero = true, bool round = false, real padding = 99999.);
+             bool sort = true, bool nice = false, bool zero = true, 
+             bool round = false, real padding = 99999.);
              
 public data LEGEND = legend(str size = "", str shape = "", str fill = "",
                      str stroke = "", str orient = "", str title = "", 
@@ -85,6 +87,7 @@ JSON toJson(SCALE scale) {
             "range":toJson(scale.range), "nice":toJson(scale.nice)
             ,"zero":toJson(scale.zero), "round":toJson(scale.round)
             ,"padding":toJson(scale.padding, 99999.)
+            ,"sort":toJson(scale.sort)
             ));     
          }
      return null();
@@ -99,9 +102,22 @@ JSON toJson(PADDING padding) {
      
 JSON toJson(TRANSFORM transform) { 
      switch (transform) {
-         case transform(): return Object(("type":string(transform.\type), "keys": toJson(transform.keys), 
-               "point":toJson(transform.point),  "height":toJson(transform.height),
-               "value":toJson(transform.\value)));
+         case transform(): { 
+              JSON r =  Object(
+                (
+                "type":toJson(transform.\type)
+               , "key":toJson(transform.key)
+               ,"field": toJson(transform.field) 
+               ,"point": toJson(transform.point)
+               ,"by": toJson(transform.by)
+               ,"expr": toJson(transform.expr)
+               ,"test": toJson(transform.\test)
+               ,"keys": toJson(transform.keys) 
+               ,"height":toJson(transform.height)
+               ,"value":toJson(transform.\value)
+               ));           
+               return r;
+         }
          }
      return null();    
      }
@@ -247,6 +263,19 @@ public VEGA setMark(VEGA vega, str name,  MARK m) {
           case mark(\type=name) => m
           } 
     }
+    
+public TRANSFORM getTransform(VEGA vega, str name) {
+    visit(vega) {
+          case v:transform(\type=name): return v;
+          }
+    return mark();
+    }
+    
+public VEGA setTransform(VEGA vega, str name,  TRANSFORM m) {
+    return visit(vega) {
+          case transform(\type=name) => m
+          } 
+    }
   
 public VEGA setScale(VEGA vega, str name, SCALE s) {
     return visit(vega) {
@@ -267,15 +296,24 @@ map [str, value] _tickLabels(str axe, TICKLABELS tickLabels) =
                 ,"title":("dx":("value":tickLabels.title_dx), "dy":("value":tickLabels.title_dy))
                 );
 
+str jsIndexOf(list[str] keys) {
+           if (isEmpty(keys)) return "";
+           str s = "[\"<head(keys)>\"";
+           str t = "<for(q<-tail(keys)){>,\"<q>\"<}>";
+           str u = s+t+"]";
+           str r = "<u>.indexOf(d.data.c)";
+           // println(r);
+           return r;
+           }
+           
 VEGA update(VEGA r, bool grid = false, 
     map[str, str] title =  (), map[str, str] legends = (),
     map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = (),   
     map[str, TICKLABELS] tickLabels = (),
     map[str, str] interpolate = (),  map[str, str] shape = (), 
-    list[str] palette = color12
+    list[str] palette = color12, list[str] groupOrder = []
     )
-    {
-        
+    {     
         AXE ax = getAxe(r, "x"); 
         if (title["x"]?) ax.title = title["x"];
         if (format["x"]?) ax.format = format["x"];
@@ -299,6 +337,11 @@ VEGA update(VEGA r, bool grid = false,
            color.range = array(values = hexColors(palette)); 
            r = setScale(r, "color", color);
            }
+       else {
+           SCALE color = getScale(r, "color");
+           color.range = array(values = hexColors(color12)); 
+           r = setScale(r, "color", color);
+           }
        if (interpolate["all"]? || shape["all"]?) {
          MARK m1 = getMark(r, "line"); 
          MARK m2 =  getMark(r, "symbol");
@@ -316,7 +359,12 @@ VEGA update(VEGA r, bool grid = false,
              m2.properties+=("shape": ("value":shape["all"]));
              r = setMark(r, "symbol", m2);
              }    
-        }  
+        } 
+        if (!isEmpty(groupOrder)) {
+            TRANSFORM t = getTransform(r, "formula");
+            t.expr = jsIndexOf(groupOrder);
+            r = setTransform(r, "formula", t);
+            } 
         return r;
     }
 

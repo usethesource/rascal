@@ -9,6 +9,7 @@ import List;
 import util::Math;
 import experiments::vis2::\data::Nederland;
 import experiments::vis2::\data::Steden;
+
 import experiments::vis2::vega::VegaChart;
 import experiments::vis2::vega::ParameterTypes;
 
@@ -950,7 +951,24 @@ void stackedBarChart(){
               stackedBar(
                 title=("x":"index", "y":"N","color":"p") 
                ,legends = ("color":"fill")
-               ,tickLabels=("x":tickLabels(angle=45))            
+               ,tickLabels=("x":tickLabels(angle=45))
+               ,groupOrder =   ["0", "1"]         
+              )
+         ));        
+}
+
+str p = "\<";
+
+list[str] order = ["20-", "20-45","45-65","65-80","80+"];
+
+void nederlandBarChart(){       
+        ex("nederlandBarChart", vegaChart(size=<500,200>, padding = <10,100,10,10>
+             ,datasets=exampleNederland(),  command= 
+              stackedBar(
+                title=("x":"index", "y":"N","color":"p") 
+               ,legends = ("color":"fill")
+               ,tickLabels=("x":tickLabels(angle=90, title_dy = 40))
+               ,groupOrder = order            
               )
          ));        
 }
@@ -975,6 +993,13 @@ void stackedAreaChart(){
 void lineChart(){
         ex("lineChart", vegaChart(size=<500,200>, datasets=stackedData, command=linePlot(grid=true,legends = ("color":"fill"),
         interpolate=("all":"monotone"))));
+}
+
+void sinAndCosChart(){
+        ex("sinAndCosChart", vegaChart(size=<500,200>, datasets=sinAndCos(), command=linePlot(grid=true, interpolate=("all":"monotone"), 
+           title=("x":"Time (s)", "y":"Voltage(v)"),
+           ticks = ("y":4),
+           legends = ("color":"fill"))));
 }
 
 void scatterChart(){
@@ -1009,12 +1034,7 @@ void barChart3(){
 }
 
 
-void graphSetChart2(){
-        ex("graphSet2", vegaChart(size=<500,200>, datasets=sinAndCos(), command=graphSet(grid=true, interpolate=("all":"monotone"), 
-           title=("x":"Time (s)", "y":"Voltage(v)"),
-           ticks = ("y":4),
-           legends = ("color":"fill"))));
-}
+
 
 
 
