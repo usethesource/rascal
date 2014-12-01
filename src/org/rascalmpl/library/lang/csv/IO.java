@@ -46,7 +46,7 @@ public class IO {
 
 	private TypeReifier tr;
 
-	private boolean printInferedType;
+	private boolean printInferredType;
 	
 	public IO(IValueFactory values){
 		super();
@@ -58,17 +58,17 @@ public class IO {
 		this.pdbReader = new StandardTextReader();
 	}
 	
-	private void setOptions(IBool header, IString separator, IBool printInferedType) {
+	private void setOptions(IBool header, IString separator, IBool printInferredType) {
 		this.separator = separator == null ? ',' : separator.charAt(0);
 		this.header = header == null ? true : header.getValue();
-		this.printInferedType = printInferedType == null ? false : printInferedType.getValue();
+		this.printInferredType = printInferredType == null ? false : printInferredType.getValue();
 	}
 	
 	/*
 	 * Read a CSV file
 	 */
-	public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferedType, IEvaluatorContext ctx){
-		return read(null, loc, header, separator, encoding, printInferedType, ctx);
+	public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, IEvaluatorContext ctx){
+		return read(null, loc, header, separator, encoding, printInferredType, ctx);
 	}
 	
 	public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
@@ -85,8 +85,8 @@ public class IO {
 	
 	//////
 	
-	private IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferedType, IEvaluatorContext ctx) {
-		setOptions(header, separator, printInferedType);
+	private IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, IEvaluatorContext ctx) {
+		setOptions(header, separator, printInferredType);
 		Type resultType = types.valueType();
 		TypeStore store = new TypeStore();
 		if (resultTypeConstructor != null && resultTypeConstructor instanceof IConstructor) {
@@ -206,7 +206,7 @@ public class IO {
 		}
 		Type tupleType = types.tupleType(currentTypes, labels);
 		Type resultType = types.setType(tupleType);
-		if (this.printInferedType) {
+		if (this.printInferredType) {
 			ctx.getStdOut().println("readCSV inferred the relation type: " + resultType);
 			ctx.getStdOut().flush();
 		}
