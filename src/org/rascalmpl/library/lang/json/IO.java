@@ -51,6 +51,7 @@ public class IO {
 		.setDateFormat(DateFormat.LONG)
 		.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
 		.setVersion(1.0)
+		.disableHtmlEscaping()  // Bert Lisser
 		.create();
 		try {
 			String json = gson.toJson(value, new TypeToken<IValue>() {}.getType());

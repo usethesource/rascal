@@ -6,7 +6,7 @@ public data TICKLABELS = tickLabels(int angle = 0,   int dx = 99999, int dy = 99
        str fill = "black"
        ); 
        
- @doc{Create a fixed color palette}
+ 
 public list[str] color12 = [ "red", "aqua", "navy", "violet", 
                           "yellow", "darkviolet", "maroon", "green",
                           "teal", "blue", "olive", "lime"];  

@@ -68,13 +68,16 @@ VEGA  _stackedBar = vega(
                           ,
                         from = datum(\data="table",
                                transform = [
-                                  transform(keys = ["data.c"],
-                                    \type = "facet"),
-                                  transform(point = "data.x", 
+                                 transform(field = "keyId",
+                                    \type = "formula", expr = "[].indexOf(d.data.c)") 
+                                ,transform(
+                                      \type = "sort", by = "keyId")   
+                                 ,transform(keys = ["data.c"],
+                                    \type = "facet") 
+                                 ,transform(point = "data.x", 
                                     height = "data.y",
-                                    \type = "stack")
-                               ] 
-                         
+                                    \type = "stack")                           
+                               ]                 
                          )                       
                    )
                    ],
@@ -86,12 +89,13 @@ VEGA  _stackedBar = vega(
  public VEGA() stackedBar(bool grid = false, 
     map[str, str] title = (), map[str, str] legends = (), list[str] palette =[],
     map[str, TICKLABELS] tickLabels =  ()
-    , map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = () 
+    , map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = ()
+    , list[str] groupOrder = []
     ) {
     return VEGA() {
         return update(_stackedBar, grid = grid, title = title, legends = legends,
         tickLabels = tickLabels,  palette = palette
-        , format = format, ticks = ticks, values = values
+        , format = format, ticks = ticks, values = values, groupOrder = groupOrder
         );
         };
     }
@@ -170,7 +174,7 @@ VEGA  _stackedBar = vega(
  public VEGA() stackedArea(bool grid = false, 
     map[str, str] title = (), map[str, str] legends = ()
     ,map[str, TICKLABELS] tickLabels = ()
-    , list[str] palette = color12
+    , list[str] palette = []
     , map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = ()
     ) {
     return VEGA() {return update(_stackedArea, grid = grid, title = title, legends = legends,
@@ -269,7 +273,7 @@ VEGA  _groupedBar = vega(
 public VEGA() groupedBar(bool grid = false, 
     map[str, str] title = (), map[str, str] legends = ()
     ,map[str, TICKLABELS] tickLabels = ()
-    , list[str] palette = color12
+    , list[str] palette = []
     , map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = ()
     ) {
     return VEGA() {
@@ -306,22 +310,23 @@ VEGA  _linePlot =
                 ]
               ,\data =[datum(name="table")]
              ,padding= padding(left=100, bottom = 30, top = 10, right = 10)
-             ,marks = [mark(\type = "group",
-                        from = datum(\data="table",
+             ,marks = [mark(\type = "group"
+                     ,from = datum(\data="table",
                                       transform = [
-                                          transform(keys = ["data.c"],
-                                          \type = "facet"
-                                          )
+                                      transform(\type = "filter", \test =  "1==1")
+                                      , transform(keys = ["data.c"],
+                                         \type = "facet"
+                                          )               
                                          ] 
-                                    )                         
+                                    )                          
                         ,scales =  [
                             scale(name="c", \type = "ordinal", 
                                    domain = DOMAIN::ref(\data = "table", field = "data.c"),
                                    range = RANGE::lit(key= "width"))             
                          ]
-                        ,marks=[
-                             mark(\type="symbol",
-                                  properties = (
+                        ,marks=[             
+                                mark(\type="symbol"         
+                                  , properties = (
                                      "enter":(  
                                       "stroke":("scale":"color", "field":"data.c")
                                       ,"x":("scale":"x","field":"data.x")
@@ -330,15 +335,16 @@ VEGA  _linePlot =
                                      ,"update":  ("fillOpacity":("value":1.0))
                                      ,"hover":   ("fillOpacity":("value":0.5))   
                                   )              
-                                )
+                                )                            
                                 ,
-                             mark(\type="line",
-                                  properties = (
-                                     "enter":(
-                                       "interpolate":("value":"monotone")
-                                      ,"stroke":("scale":"color", "field":"data.c")
+                              mark(\type="line" 
+                                , from =  datum(transform = [transform(\type = "filter", \test =  "1==1")])                                             
+                                  , properties = (
+                                     "enter":(    
+                                      "stroke":("scale":"color", "field":"data.c")
                                       ,"x":("scale":"x","field":"data.x")
                                       ,"y":("scale":"y","field":"data.y")
+                                      , "interpolate":("value":"monotone")
                                      )
                                      ,"update":  ("fillOpacity":("value":1.0))
                                      ,"hover":   ("fillOpacity":("value":0.5))   
@@ -353,7 +359,7 @@ VEGA  _linePlot =
         
   public VEGA() linePlot(bool grid = false, 
     map[str, str] title = (), map[str, str] legends = ()
-    ,list[str] palette = color12
+    ,list[str] palette = []
     ,map[str, TICKLABELS] tickLabels =  ()
     ,map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = () 
     ,map[str, str] interpolate = (),map[str, str] shape = () 

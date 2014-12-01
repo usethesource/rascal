@@ -258,7 +258,7 @@ str trCursor(value v, bool deep = false){
 
 str toJSNumber(num n) {
 	s = "<n>";
-	return s[-1] == "." ? "<s>0" : s;
+	return (s[-1] == "." ? "<s>0" : s);
 }
 
 str escape(str s) = escape(s, (	"\"" : "\\\"", 
