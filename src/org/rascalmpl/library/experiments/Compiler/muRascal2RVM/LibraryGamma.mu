@@ -192,7 +192,7 @@ coroutine ENUM_NODE_NO_KEYWORD_PARAMS(iNd, rVal)
 {
    var array, iLst, len, children, j = 0, prod, op, delta = 2, opname
    
-   println("ENUM_NODE_NO_KEYWORD_PARAMS", iNd);
+   //println("ENUM_NODE_NO_KEYWORD_PARAMS", iNd);
    // TODO concrete appl case?
    array = get_children(iNd)
    len = size_array(array)                    

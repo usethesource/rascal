@@ -81,119 +81,12 @@ list[str] libs = [
 "analysis::statistics::Inference",			// OK
 "analysis::statistics::SimpleRegression"	// OK
 
-/*
-// DEMO
-
-"demo::basic::Ackermann",					// OK
-"demo::basic::Bottles",						// OK
-"demo::basic::Bubble",						// OK
-"demo::basic::BubbleTest",					// OK
-"demo::basic::Factorial",					// OK
-"demo::basic::FactorialTest",				// OK
-
-"demo::basic::FizzBuzz",					// OK
-"demo::basic::Hello",						// OK
-"demo::basic::Quine",
-//Java("FactParseError","Expected : but got  ")
-"demo::basic::Squares",
-"demo::common::WordCount::CountInLine1",	// OK
-"demo::common::WordCount::CountInLine2",	// OK
-"demo::common::WordCount::CountInLine3",	// OK
-"demo::common::WordCount::WordCount",		// OK
-"demo::common::Calls",						// OK
-"demo::common::ColoredTrees",				// OK
-"demo::common::ColoredTreesTest",			// OK
-"demo::common::CountConstructors",			// OK
-"demo::common::Crawl",						// OK
-"demo::common::Cycles",						// OK
-"demo::common::Derivative",					// OK
-"demo::common::Lift",						// OK
-"demo::common::LiftTest",					// OK
-"demo::common::StringTemplate",				// OK
-"demo::common::StringTemplateTest",			// OK
-"demo::common::Trans",						// OK
-"demo::common::WordReplacement",			// OK
-"demo::common::WordReplacementTest",		// OK
-
-"demo::lang::Exp::Abstract::Eval",			// OK
-
-"demo::lang::Exp::Combined::Automatic::Load",	// OK
-"demo::lang::Exp::Combined::Automatic::Parse",	// OK
-"demo::lang::Exp::Combined::Automatic::Eval",	// OK
-
-"demo::lang::Exp::Combined::Manual::Load",		// ERROR
-"demo::lang::Exp::Combined::Manual::Parse",		// OK
-"demo::lang::Exp::Combined::Manual::Eval",		// ERROR
-
-"demo::lang::Exp::Concrete::NoLayout::Eval",	// OK
-"demo::lang::Exp::Concrete::WithLayout::Eval"	// OK
-
-"demo::lang::Func::AST",
-"demo::lang::Func::Eval0",
-"demo::lang::Func::Eval1",
-"demo::lang::Func::Eval2",
-"demo::lang::Func::Eval3",
-"demo::lang::Func::Func",
-"demo::lang::Func::Parse",
-"demo::lang::Func::Test",
-
-"demo::lang::Lisra::Eval",
-"demo::lang::Lisra::Parse",
-"demo::lang::Lisra::Pretty",
-"demo::lang::Lisra::Runtime",
-"demo::lang::Lisra::Syntax",
-"demo::lang::Lisra::Test",
-
-"demo::lang::MissGrant::AST",
-"demo::lang::MissGrant::CheckController",
-"demo::lang::MissGrant::DesugarResetEvents",
-"demo::lang::MissGrant::Implode",
-"demo::lang::MissGrant::MissGrant",
-"demo::lang::MissGrant::Outline",
-"demo::lang::MissGrant::ParallelMerge",
-"demo::lang::MissGrant::Parse",
-"demo::lang::MissGrant::Step",
-"demo::lang::MissGrant::ToDot",
-"demo::lang::MissGrant::ToMethods",
-"demo::lang::MissGrant::ToObjects",
-"demo::lang::MissGrant::ToRelation",
-"demo::lang::MissGrant::ToSwitch",
-
-
-"demo::lang::Pico::Compile",
-"demo::lang::Pico::ControlFlow",
-"demo::lang::Pico::Eval",
-"demo::lang::Pico::Typecheck",
-"demo::lang::Pico::Uninit",
-"demo::lang::Pico::UseDef",
-"demo::lang::Pico::Visualize",
-
-
-"demo::lang::turing::l1::ast::Load",
-"demo::lang::turing::l1::ast::Turing",
-"demo::lang::turing::l1::cst::Parse",
-"demo::lang::turing::l1::cst::Syntax",
-"demo::lang::turing::l1::interpreter::Interpreter",
-"demo::lang::turing::l2::ast::Load",
-"demo::lang::turing::l2::ast::Turing",
-"demo::lang::turing::l2::check::Check",
-"demo::lang::turing::l2::cst::Parse",
-"demo::lang::turing::l2::cst::Syntax",
-"demo::lang::turing::l2::desugar::Desugar",
-"demo::lang::turing::l2::format::Format",
-
-"demo::vis::Higher",
-"demo::vis::Logo",
-"demo::vis::VisADT",
-
-
-
 
 ];
 
 list[str] eclipse_libs =
 [
-/*
+
 // Eclipse library
 "util::Clipboard",						// OK				
 "util::ContentCompletion",				// ERROR
@@ -208,7 +101,7 @@ list[str] eclipse_libs =
 "util::Resources",						// ERROR
 "util::SyntaxHighligthingTemplates",	// ERROR
 "util::ValueUI"							// ERROR
-*/
+
 ];
 
 value main(list[value] args){
