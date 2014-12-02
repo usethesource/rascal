@@ -19,7 +19,7 @@ import IO;
 
 public list[int] sort1(list[int] numbers){
   if(size(numbers) > 0){
-     for(int i <- [0 .. size(numbers)]){
+     for(int i <- [0 .. size(numbers)-1]){
        if(numbers[i] > numbers[i+1]){
          <numbers[i], numbers[i+1]> = <numbers[i+1], numbers[i]>;
          return sort1(numbers);
