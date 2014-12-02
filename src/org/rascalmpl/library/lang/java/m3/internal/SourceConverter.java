@@ -234,7 +234,11 @@ public class SourceConverter extends M3Converter {
 	}
 	
 	public boolean visit(Javadoc node) {
-		insert(documentation, getParent(), getSourceLocation(node));
+		ASTNode parent = node.getParent();
+		if (parent == null) {
+			parent = node.getAlternateRoot();
+		}
+		insert(documentation, resolveBinding(parent), getSourceLocation(node));
 		return false;
 	}
 	
