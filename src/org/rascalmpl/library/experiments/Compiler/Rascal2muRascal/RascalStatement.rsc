@@ -311,10 +311,10 @@ MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <B
    return muBlock([ muAssignTmp(iterations, fuid, (bound is empty) ? muCon(1000000) : translate(bound.expression)),
     				muCallPrim("non_negative", [muTmp(iterations,fuid)]),
                     muAssignTmp(change, fuid, muCon(true)),
-                    *[ muAssignTmp(tmps[i], fuid, varCode[i]) | int i <- index(varCode) ],
                     muWhile(nextLabel("while"),
                             muCallMuPrim("and_mbool_mbool", [muTmp(change,fuid), muCallPrim("int_greater_int", [muTmp(iterations,fuid), muCon(0)]) ]), 
                             [ muAssignTmp(change, fuid, muCon(false)),
+                            *[ muAssignTmp(tmps[i], fuid, varCode[i]) | int i <- index(varCode) ],
                               muAssignTmp(result, fuid, translate(body)),
                               *[ muIfelse(nextLabel("notequal-vars"), muCallPrim("notequal", [muTmp(tmps[i],fuid), varCode[i]]), [muAssignTmp(change,fuid,muCon(true))], []) 
                  			   | int i <- index(varCode)
