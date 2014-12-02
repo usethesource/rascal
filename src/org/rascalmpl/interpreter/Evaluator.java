@@ -564,7 +564,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       AbstractFunction main = func.getFunctions().get(0);
       
       if (func.getFunctions().size() > 1) {
-        throw new CommandlineError("should only have one main function", main);
+    	  func.getEval().getMonitor().warning("should only have one main function.", modEnv.getLocation());
       }
       
       if (main.getArity() == 1) {
