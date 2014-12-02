@@ -33,6 +33,8 @@
 |std:///lang/java/syntax/Java15.rsc|
 |std:///lang/rascal/checker/TTL/TTLGen.rsc|
 |std:///lang/rascal/syntax/tests/ConcreteSyntax.rsc|
+|std:///lang/rascal/tests/basic/Lists.rsc|
+|std:///lang/rascal/tests/library/ListRelationTests.rsc|
 |std:///lang/rascal/tests/library/analysis/statistics/RangeUtils.rsc|
 |std:///lang/rascal/tests/types/PatternTCTests.rsc|
 |std:///lang/saf/Run.rsc|
