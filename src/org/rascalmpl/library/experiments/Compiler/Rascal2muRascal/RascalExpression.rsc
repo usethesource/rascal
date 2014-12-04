@@ -1440,23 +1440,25 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
 
 // -- set annotation expression -------------------------------------
 
+str unescape(str name) = name[0] == "\\" ? name[1..] : name;
+
 MuExp translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expression val> ]`) =
-    muCallPrim3("annotation_set", [translate(expression), muCon("<name>"), translate(val)], e@\loc);
+    muCallPrim3("annotation_set", [translate(expression), muCon(unescape("<name>")), translate(val)], e@\loc);
 
 // -- get annotation expression -------------------------------------
 
 MuExp translate (e:(Expression) `<Expression expression> @ <Name name>`) =
-    muCallPrim3("annotation_get", [translate(expression), muCon("<name>")], e@\loc);
+    muCallPrim3("annotation_get", [translate(expression), muCon(unescape("<name>"))], e@\loc);
 
 // -- is expression --------------------------------------------------
 
 MuExp translate (e:(Expression) `<Expression expression> is <Name name>`) =
-    muCallPrim3("is", [translate(expression), muCon("<name>")], e@\loc);
+    muCallPrim3("is", [translate(expression), muCon(unescape("<name>"))], e@\loc);
 
 // -- has expression -----------------------------------------------
 
 MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) = 
-    muCon(hasField(getType(expression@\loc), "<name>"));   
+    muCon(hasField(getType(expression@\loc), unescape("<name>")));   
 
 // -- transitive closure expression ---------------------------------
 
