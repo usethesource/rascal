@@ -5,6 +5,7 @@ import Type;
 import List;
 import DateTime;
 import experiments::Compiler::Execute;
+import String;
 
 // Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
@@ -88,11 +89,44 @@ list[str] libraryTests = [
 "ValueIOTests"
 ];
 
+list[str] importTests = [
+
+"ImportTests1",             // OK
+"ImportTests2",             // OK
+"ImportTests3",             // OK
+"ImportTests4",             // OK
+"ImportTests5",             // OK
+"ImportTests6",             // OK
+"ImportTests7"              // OK
+];
+
+list[str] typeTests = [
+//"AccumulatingTCTests",
+//"AliasTCTests",
+//"AllStaticIssues",
+//"AnnotationTCTests",
+//"AssignmentTCTests",
+//"CallTCTests",
+//"ComprehensionTCTests",
+//"DataDeclarationTCTests",
+//"DataTypeTCTests",
+//"DeclarationTCTests",
+//"ImportTCTests",
+//"PatternTCTests",
+//"ProjectionTCTests",
+//"RegExpTCTests",
+//"ScopeTCTests",
+//"StatementTCTests",
+//"StatementTCTests",
+//"SubscriptTCTests",
+"VisitTCTests"
+];
+
 
 list[str] files_with_tests =
 [
 "demo/basic/Ackermann",                             // OK
-"demo/basic/Bubble",                                // 1 fails
+"demo/basic/Bubble",                                // OK
 "demo/basic/Factorial",                             // OK
 "demo/common/Calls",                                // OK
 "demo/common/ColoredTrees",                         // OK
@@ -120,13 +154,13 @@ list[str] files_with_tests =
 "demo/Slicing",                                     // OK
 "demo/Uninit",                                      // OK
 "lang/rascal/format/Escape",                        // OK
-"lang/rascal/format/Grammar",                       // 2 fail
-"lang/rascal/grammar/definition/Characters",        // 1 fails
-"lang/rascal/grammar/Lookahead",                    // 2 fail
+"lang/rascal/format/Grammar",                       // OK
+"lang/rascal/grammar/definition/Characters",        // OK
+"lang/rascal/grammar/Lookahead",                    // OK
 "lang/rascal/syntax/tests/ConcreteSyntax",          // static errors
 "lang/rascal/syntax/tests/ExpressionGrammars",      // OK
 "lang/rascal/syntax/tests/ImplodeTests",            // 2 fail
-"lang/rascal/syntax/tests/KnownIssues",             // 1 fail, parse error
+"lang/rascal/syntax/tests/KnownIssues",             // OK
 "lang/rascal/syntax/tests/ParsingRegressionTests",  // 2 fail
 "lang/rascal/syntax/tests/PreBootstrap",            // 2 fail
 "lang/rascal/syntax/tests/SolvedIssues",            // 10 fail, parse errors
@@ -145,11 +179,17 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
  for(tst <- names){
       prog = base + (tst + ".rsc");
       try {
-	      if(lrel[loc,int,str] test_results := execute(prog, [], recompile=false, testsuite=true, listing=false, debug=false)){
+	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, [], recompile=false, testsuite=true, listing=false, debug=false)){
 	         s = makeTestSummary(test_results);
 	         println("TESTING <prog>: <s>");
 	         partial_results += <prog, s>;
 	         all_test_results += test_results;
+	         
+	          for(msg <- test_results.msgs){
+                if(msg != "" && msg != "FALSE" && findFirst(msg, "test fails for arguments:") < 0){
+                    crashes += <prog, msg>;
+                } 
+              }
 	      } else {
 	         println("testsuite did not return a list of test results");
 	      }
@@ -169,9 +209,11 @@ value main(list[value] args){
    
   all_results += runTests(files_with_tests, |rascal:///|);
    
-  //all_results += runTests(functionalityTests, |rascal:///lang/rascal/tests/functionality|);
-  //all_results += runTests(basicTests, |rascal:///lang/rascal/tests/basic|);
-  //all_results += runTests(libraryTests, |rascal:///lang/rascal/tests/library|);
+  all_results += runTests(functionalityTests, |rascal:///lang/rascal/tests/functionality|);
+  all_results += runTests(basicTests, |rascal:///lang/rascal/tests/basic|);
+  all_results += runTests(libraryTests, |rascal:///lang/rascal/tests/library|);
+  all_results += runTests(importTests, |rascal:///lang/rascal/tests/imports|);
+  //all_results += runTests(typeTests, |rascal:///lang/rascal/tests/types|);
   
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");
