@@ -204,7 +204,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     
     // Append catch blocks to the end of the function body code
     // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
-    code = peephole(tr(fun.body)) + [LABEL("FAIL_<fun.uqname>"), FAILRETURN()] + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    code = peephole(tr(fun.body)) /*+ [LABEL("FAIL_<fun.uqname>"), FAILRETURN()]*/ + [ *catchBlock | INS catchBlock <- catchBlocks ];
     
     // Debugging exception handling
     // println("FUNCTION BODY:");
