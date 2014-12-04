@@ -137,7 +137,7 @@ public class IO {
 		return new String[0];
 	}
 
-	private void collectFields(FieldReader reader, final String[] currentRecord, IEvaluatorContext ctx) throws IOException {
+	private void collectFields(FieldReader reader, final String[] currentRecord, IEvaluatorContext ctx, int currentRecordCount) throws IOException {
 		int recordIndex = 0;
 		while (reader.hasField()) {
 			if (recordIndex < currentRecord.length) {
@@ -148,7 +148,7 @@ public class IO {
 			}
 		}
 		if (recordIndex != currentRecord.length) {
-			throw RuntimeExceptionFactory.illegalTypeArgument("Arities of actual type and requested type are different (expected: " + currentRecord.length + ", found: " + recordIndex + ")", ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.illegalTypeArgument("Arities of actual type and requested type are different (expected: " + currentRecord.length + ", found: " + recordIndex + ") at record: " + currentRecordCount, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
 
@@ -175,13 +175,14 @@ public class IO {
 		Arrays.fill(currentTypes, types.voidType());
 
 		List<IValue[]> records = new LinkedList<>();
+		int currentRecordCount = 1;
 
 		do {
 			if (first) {
 				first = false;
 				continue;
 			}
-			collectFields(reader, currentRecord, ctx);
+			collectFields(reader, currentRecord, ctx, currentRecordCount++);
 
 			IValue[] tuple = new IValue[currentRecord.length];
 			parseRecordFields(currentRecord, expectedTypes, store, tuple, false, ctx);
@@ -241,10 +242,11 @@ public class IO {
 			expectedTypes[i] = tupleType.getFieldType(i);
 		}
 
+		int currentRecordCount = 1;
 		final String[] currentRecord = new String[expectedTypes.length];
 		final IValue[] tuple = new IValue[expectedTypes.length];
 		while (reader.hasRecord()) {
-			collectFields(reader, currentRecord, ctx);
+			collectFields(reader, currentRecord, ctx, currentRecordCount++);
 			if (first) {
 				first = false;
 				continue;
