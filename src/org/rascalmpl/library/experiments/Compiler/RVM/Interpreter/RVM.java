@@ -1562,6 +1562,7 @@ public class RVM {
 			"org.rascalmpl.library.lang.json.IOCompiled.fromJSON",
 			"org.rascalmpl.library.PreludeCompiled.exists",
 			"org.rascalmpl.library.PreludeCompiled.lastModified",
+			"org.rascalmpl.library.PreludeCompiled.implode",
 			"org.rascalmpl.library.PreludeCompiled.isDirectory",
 			"org.rascalmpl.library.PreludeCompiled.isFile",
 			"org.rascalmpl.library.PreludeCompiled.remove",
@@ -1586,7 +1587,69 @@ public class RVM {
 			"org.rascalmpl.library.PreludeCompiled.writeTextValueFile",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation"
+
+			/*
+			 * 	TODO:
+			 * cobra::util::outputlogger::startLog
+			 * cobra::util::outputlogger::getLog
+			 * cobra::quickcheck::_quickcheck
+			 * cobra::quickcheck::arbitrary
+			 * 
+			 * experiments::Compiler::RVM::Interpreter::ParsingTools::parseFragment
+			 * experiments::Compiler::RVM::Run::executeProgram
+			 * 
+			 * experiments::resource::Resource::registerResource
+			 * experiments::resource::Resource::getTypedResource
+			 * experiments::resource::Resource::generateTypedInterfaceInternal
 			
+			 * experiments::vis2::vega::Vega::color
+			 * 
+			 * lang::aterm::IO::readTextATermFile
+			 * lang::aterm::IO::writeTextATermFile
+			 * 
+			 * lang::html::IO::readHTMLFile
+			 * 
+			 * lang::java::m3::AST::setEnvironmentOptions
+			 * lang::java::m3::AST::createAstFromFile
+			 * lang::java::m3::AST::createAstFromString
+			 * lang::java::m3::Core::createM3FromFile
+			 * lang::java::m3::Core::createM3FromFile
+			 *  lang::java::m3::Core::createM3FromJarClass
+			 *  
+			 *  lang::jvm::run::RunClassFile::runClassFile
+			 *  lang::jvm::transform::SerializeClass::serialize
+			 *  
+			 *  lang::rsf::IO::readRSF
+			 *  lang::rsf::IO::getRSFTypes
+			 *  lang::rsf::IO::readRSFRelation
+			 *  
+			 *  lang::yaml::Model::loadYAML
+			 *  lang::yaml::Model::dumpYAML
+			 *  
+			 *  resource::jdbc::JDBC::registerJDBCClass
+			 *  util::tasks::Manager
+			 *  util::Eval
+			 *  util::Monitor
+			 *  util::Reflective
+			 *  
+			 *  util::Webserver
+			 *  
+			 *  vis::Figure::color
+			 *  
+			 *  Traversal::getTraversalContext
+			 *  
+			 *  tutor::HTMLGenerator
+			 *  
+			 *  **eclipse**
+			 *  util::Editors
+			 *  util::FastPrint
+			 *  util::HtmlDisplay
+			 *  util::IDE
+			 *  util::ResourceMarkers
+			 *  vis::Render
+			 *  vis::RenderSWT
+			 *  
+			 */
 	));
 			
 	Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
