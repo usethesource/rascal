@@ -29,7 +29,7 @@ bool readWrite(type[&T] returnType, set[&T1] dt) {
 	if (/\node() !:= typeOf(dt)) {
 		writeCSV(dt, targetFile);
 		if (dt != readCSV(targetFile)) {
-			throw "infered types";	
+			throw "inferred types";	
 		}
 	}
 	return true;

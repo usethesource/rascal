@@ -221,13 +221,14 @@ syntax ConcreteHole
 */
 
 MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
-  //println("translateConcretePattern, concrete = <concrete>");
+  println("translateConcretePattern, concrete = <concrete>");
   fragType = getType(p@\loc);
   //println("translateConcretePattern, fragType = <fragType>");
   reifiedFragType = symbolToValue(fragType);
   //println("translateConcretePattern, reified: <reifiedFragType>");
-  //g = getGrammar();
-  //for(nt <- g) println("<nt> : <g[nt]>");
+  g = getGrammar();
+  println("GRAMMAR:");
+  for(nt <- g) println("<nt> : <g[nt]>");
   parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar());
   println("**** parsedFragment: <parsedFragment>");
   //iprintln(parsedFragment);
@@ -377,14 +378,16 @@ MuExp translatePatAsConcreteListElem(Production listProd, t:appl(Production appl
            libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST";
            println("libFun = <libFun>");
            println("lookahead = <lookahead>");
+           println("listProd= <listProd>");
            return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), muCon(nIter(holeType)), muCon(1000000), muCon(lookahead.nElem), 
-                												  muCon(sep), getConstructor("appl"), muCon(listProd), muCon(regular(listProd.symbols[0]))]);
+                												  muCon(sep), getConstructor("appl"), muCon(listProd), muCon(regular(holeType /*listProd.symbols[0]*/))]);
         } else {
            libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_IN_LIST";
            println("libFun = <libFun>");
            println("lookahead = <lookahead>");
+           println("listProd= <listProd>");
            return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), muCon(nIter(holeType)), muCon(1000000), muCon(lookahead.nElem), 
-           														 getConstructor("appl"), muCon(listProd), muCon(regular(listProd.symbols[0]))]);
+           														 getConstructor("appl"), muCon(listProd), muCon(regular(holeType /*listProd.symbols[0]*/))]);
        }
      }
      return muApply(mkCallToLibFun("Library","MATCH_VAR_IN_LIST"), [muVarRef("ConcreteVar", fuid, pos)]);
@@ -906,20 +909,19 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
     }
 }
 
-MuExp translateFunction({Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps, node body, list[Expression] when_conditions){
-  bool b = true;
+MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps, node body, list[Expression] when_conditions){
+  bool simpleArgs = true;
   for(pat <- formals){
       if(!(pat is typedVariable || pat is literal))
-      b = false;
+      simpleArgs = false;
   }
-  if(b) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {	
+  if(simpleArgs) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {	
   	return translateFormals([formal | formal <- formals], isVarArgs, 0, kwps, body, when_conditions);
   } else {
 	  list[MuExp] conditions = [];
 	  int i = 0;
 	  // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
-  	  ifname = nextLabel();
-      enterBacktrackingScope(ifname);
+      enterBacktrackingScope(fname);
       // TODO: account for a variable number of arguments
 	  for(Pattern pat <- formals) {
 	      conditions += muMulti(muApply(translatePat(pat), [ muVar("<i>",topFunctionScope(),i) ]));
@@ -927,7 +929,7 @@ MuExp translateFunction({Pattern ","}* formals, bool isVarArgs, list[MuExp] kwps
 	  };
 	  conditions += [ translate(cond) | cond <- when_conditions];
 
-	  mubody = muIfelse(ifname,makeMu("ALL",conditions), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+	  mubody = muIfelse(fname, makeMu("ALL",conditions), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	  leaveBacktrackingScope();
 	  return mubody;
   }

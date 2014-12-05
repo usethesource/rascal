@@ -33,7 +33,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -57,7 +56,6 @@ import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.EvalCommand;
-import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
@@ -566,7 +564,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       AbstractFunction main = func.getFunctions().get(0);
       
       if (func.getFunctions().size() > 1) {
-        throw new CommandlineError("should only have one main function", main);
+    	  func.getEval().getMonitor().warning("should only have one main function.", modEnv.getLocation());
       }
       
       if (main.getArity() == 1) {
@@ -595,11 +593,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   }
 
   public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
-    Map<String, Expression> kwps = func.getKeywordParameterDefaults();
     Map<String, Type> expectedTypes = new HashMap<String,Type>();
+    Type kwTypes = func.getKeywordArgumentTypes();
     
-    for (Entry<String, Expression> kwp : kwps.entrySet()) {
-      expectedTypes.put(kwp.getKey(), kwp.getValue().getType().typeOf(func.getEnv(), false, func.getEval()));
+    for (String kwp : kwTypes.getFieldNames()) {
+      expectedTypes.put(kwp, kwTypes.getFieldType(kwp));
     }
 
     Map<String, IValue> params = new HashMap<String,IValue>();

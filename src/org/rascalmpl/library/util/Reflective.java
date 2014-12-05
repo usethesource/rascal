@@ -203,6 +203,7 @@ public class Reflective {
 		return ctx.getValueFactory().sourceLocation(uri);
 	}
 	
+	// REFLECT -- copy in ReflectiveCompiled
 	public ISourceLocation getSearchPathLocation(IString path, IEvaluatorContext ctx) {
 		String value = path.getValue();
 		

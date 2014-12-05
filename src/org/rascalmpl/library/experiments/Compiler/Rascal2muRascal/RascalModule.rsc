@@ -21,6 +21,8 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::RVM::Interpreter::ConstantFolder;
 
+import util::ValueUI;
+
 /*
  * Translate a Rascal module to muRascal.
  * The essential functions are:
@@ -328,7 +330,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
         body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, keywordTypes, ("reflect" in ttags) ? 1 : 0, params);
      }
   }
-  tbody = translateFunction(fd.signature.parameters.formals.formals, isVarArgs, kwps, body, when_conditions);
+  tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, kwps, body, when_conditions);
   
   functions_in_module += muFunction(fuid, "<fd.signature.name>", ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									getFormals(uid), getScopeSize(fuid), 
