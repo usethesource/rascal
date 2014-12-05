@@ -51,6 +51,12 @@ test bool tst_in(&K key, &V val, map[&K, &V] M) = key in M || (key in (M + (key 
 														              key in ((key : val) + M) && val == ((key : val) + M)[key]);
 test bool tst_notin(int A, map[int,int] B) = A notin (B - (A:A));
 
+test bool intKeyHandling(){
+    N = 10000;
+    m = (i : i | int i <- [0..N]);
+    return size(m) == N && size(domain(m)) == N && size(range(m)) == N;
+}
+
 // Library functions
 
 test bool tst_domain(map[str, int] X) = 
