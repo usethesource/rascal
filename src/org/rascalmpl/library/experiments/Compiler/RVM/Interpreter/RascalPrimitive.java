@@ -1591,7 +1591,7 @@ public enum RascalPrimitive {
 				break;
 
 			case "path":
-				v = vf.string(sloc.hasPath() ? sloc.getPath() : "");
+				v = vf.string(sloc.hasPath() ? sloc.getPath() : "/");
 				break;
 
 			case "parent":
@@ -1619,10 +1619,7 @@ public enum RascalPrimitive {
 			case "file": 
 				path = sloc.hasPath() ? sloc.getPath() : "";
 
-				if (path.equals("")) {
-					throw RascalRuntimeException.noParent(sloc, stacktrace);
-				}
-				i = path.lastIndexOf("/");
+				i = path.lastIndexOf((int)'/');
 
 				if (i != -1) {
 					path = path.substring(i+1);
@@ -5925,7 +5922,7 @@ public enum RascalPrimitive {
 			if(((IInteger)stack[sp -1]).intValue() < 0){
 				throw RascalRuntimeException.indexOutOfBounds(((IInteger)stack[sp -1]), stacktrace);
 			}
-			return sp  - 1;
+			return sp;
 		}
 	},
 	value_to_string {

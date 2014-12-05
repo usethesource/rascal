@@ -150,13 +150,16 @@ coroutine ENUM_NODE(iNd, rVal)
 {
    var array, iLst, len, children, j = 0, prod, op, delta = 2, opname
    
-   // println("ENUM_NODE", iNd);
+   //println("ENUM_NODE", iNd);
    if(equal(get_name(iNd), "appl")){            // A concrete list?
       children = get_children(iNd)
       prod = children[0]
+      //println("prod", prod);
+      //println("get_name(prod)", get_name(prod))
       if(equal(get_name(prod), "regular")){     // regular(opname(), ...)
          op = get_children(prod)[0]
          opname = get_name(op)
+         //println("opname", opname)
          // Consider layout and separators
          if(equal(opname, "iter-seps") || equal(opname, "iter-star-seps")){
             delta = 1 + size_list(get_children(op)[1]);
@@ -189,7 +192,7 @@ coroutine ENUM_NODE_NO_KEYWORD_PARAMS(iNd, rVal)
 {
    var array, iLst, len, children, j = 0, prod, op, delta = 2, opname
    
-   // println("ENUM_NODE_NO_KEYWORD_PARAMS", iNd);
+   //println("ENUM_NODE_NO_KEYWORD_PARAMS", iNd);
    // TODO concrete appl case?
    array = get_children(iNd)
    len = size_array(array)                    
@@ -1079,8 +1082,27 @@ guard {
     undefine(rVar)
 }
 
+// applConstr: 	Tree::appl
+// listProd:   	Chain rule surrounding the concrete list
+// applProd:  	list constructor
+// elms:		actual list elements
+
 function MAKE_CONCRETE_LIST(applConstr, listProd, applProd, elms) {
-    var listResult = prim("appl_create", applConstr, listProd, prim("list_create", prim("appl_create", applConstr, applProd, elms)))
+    var listResult
+    
+    //println("MAKE_CONCRETE_LIST, applConstr", applConstr)
+    //println("MAKE_CONCRETE_LIST, listProd", listProd)
+    //println("MAKE_CONCRETE_LIST, applProd", applProd)
+    //println("MAKE_CONCRETE_LIST, elms", elms)
+    
+    //println("MAKE_CONCRETE_LIST, size", size(get_children(listProd)[1]))
+    
+    if(size(get_children(listProd)[1]) > 1){ // chain rule with concrete syntax
+    	listResult = prim("appl_create", applConstr, applProd, elms)
+    } else {
+    	listResult = prim("appl_create", applConstr, listProd, prim("list_create", prim("appl_create", applConstr, applProd, elms)))
+    }
+    //println("MAKE_CONCRETE_LIST", listResult)
     return listResult
 }
 

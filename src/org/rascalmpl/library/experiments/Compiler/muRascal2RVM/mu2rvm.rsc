@@ -204,7 +204,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     
     // Append catch blocks to the end of the function body code
     // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
-    code = peephole(tr(fun.body)) + [LABEL("FAIL_<fun.uqname>"), FAILRETURN()] + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    code = peephole(tr(fun.body)) /*+ [LABEL("FAIL_<fun.uqname>"), FAILRETURN()]*/ + [ *catchBlock | INS catchBlock <- catchBlocks ];
     
     // Debugging exception handling
     // println("FUNCTION BODY:");
@@ -217,6 +217,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
     // }
     
     required_frame_size = nlocal[functionScope] + estimate_stack_size(fun.body);
+    
     lrel[str from, str to, Symbol \type, str target] exceptions = [ <range.from, range.to, entry.\type, entry.\catch> | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable, 
     																			  tuple[str from, str to] range <- entry.ranges ];
     funMap += (fun is muCoroutine) ? (fun.qname : COROUTINE(fun.qname, fun.uqname, fun.scopeIn, fun.nformals, nlocal[functionScope], localNames, fun.refs, |unknown:///|, required_frame_size, code))

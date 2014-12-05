@@ -63,34 +63,25 @@ public list[int] sort3(list[int] numbers){
 
 test bool sorted3(list[int] lst) = isSorted(sort3(lst));
 
-// sort4: similar to sort3, but shorter.
-
-public list[int] sort4(list[int] numbers){
-  while([nums1*, p, nums2*, q, nums3*] := numbers && p > q)
-        numbers = nums1 + [q] + nums2 + [p] + nums3;
-  return numbers;
+// sort4: using recursion instead of iteration, and splicing instead of concat
+public list[int] sort4([*int nums1, int p, *int nums2, int q, *int nums3]) {
+  if (p > q) 
+    return sort4([*nums1, q, *nums2, p, *nums3]); 
+  else 
+    fail sort4;
 }
+
+public default list[int] sort4(list[int] x) = x;
 
 test bool sorted4(list[int] lst) = isSorted(sort4(lst));
 
-// sort5: using recursion instead of iteration, and splicing instead of concat
-public list[int] sort5([*int nums1, int p, *int nums2, int q, *int nums3]) {
-  if (p > q) 
-    return sort5([*nums1, q, *nums2, p, *nums3]); 
-  else 
-    fail sort5;
-}
-
-test bool sorted5(list[int] lst) = isSorted(sort5(lst));
+// finally, sort 6 inlines the condition into a when:
+public list[int] sort5([*int nums1, int p, *int nums2, int q, *int nums3]) 
+  = sort5([*nums1, q, *nums2, p, *nums3])
+  when p > q; 
 
 public default list[int] sort5(list[int] x) = x;
 
-// finally, sort 6 inlines the condition into a when:
-public list[int] sort6([*int nums1, int p, *int nums2, int q, *int nums3]) 
-  = sort6([*nums1, q, *nums2, p, *nums3])
-  when p > q; 
+test bool sorted5(list[int] lst) = isSorted(sort5(lst));
 
-public default list[int] sort6(list[int] x) = x;
-
-test bool sorted6(list[int] lst) = isSorted(sort6(lst));
 

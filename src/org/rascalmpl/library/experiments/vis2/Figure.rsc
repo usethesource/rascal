@@ -133,10 +133,6 @@ public data Figure(
 		// Interaction
 	
 		Event event = on(),
-	
-		// Dataset for chart-like layouts
-	
-		Datasets datasets = (),
 		
 		// Tooltip
 		str tooltip = ""
@@ -226,15 +222,17 @@ public data Figure(
 
 // Charts
    
-//   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), str orientation = "vertical", bool grouped = false, str flavor ="nvBarChart") 
-   | vegaChart(str dataFile = "",  VEGA() command = (){return VEGA();}, str \module ="experiments::vis2::vega::VegaChart", Datasets[value] datasets = ())      
-//  | scatterPlot()
-   
-//   | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[XYData] datasets = (), bool area = false, str flavor ="nvLineChart")
-     
+  | vegaChart(str dataFile = "",  VEGA() command = (){return VEGA();}, str \module ="experiments::vis2::vega::VegaChart", Datasets[value] datasets = ())   
+/*   
+  | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), str orientation = "vertical", bool grouped = false, str flavor ="nvBarChart") 
+ 
+  | scatterPlot()
+      | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[XYData] datasets = (), bool area = false, str flavor ="nvLineChart")  
+*/ 
+    
 // Graphs
 
-   | graph(lrel[str, Figure] nodes = (), Figures edges = [], str orientation = "topDown", int nodeSep = 50, int edgeSep=10, int layerSep= 30, str flavor="layeredGraph")
+   | graph(lrel[str, Figure] nodes = [], Figures edges = [], str orientation = "topDown", int nodeSep = 50, int edgeSep=10, int layerSep= 30, str flavor="layeredGraph")
    | edge(str from, str to, str label)
    
 // Trees

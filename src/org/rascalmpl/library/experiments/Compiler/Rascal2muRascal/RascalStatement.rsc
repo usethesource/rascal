@@ -301,22 +301,23 @@ MuExp translate(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound 
 
 MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`) {
    str fuid = topFunctionScope();
-   iterations = nextTmp();  // count number of iterations
-   change = nextTmp();		// keep track of any changed value
-   result = nextTmp();		// result of body computation
+   iterations = nextTmp("iterations");  // count number of iterations
+   change = nextTmp("change");		    // keep track of any changed value
+   result = nextTmp("result");		    // result of body computation
  
    varCode = [ translate(var) | var <- variables ];
-   tmps = [ nextTmp() | var <- variables ];
+   println("varCode: <varCode>");
+   tmps = [ nextTmp("<var>") | var <- variables ];
    return muBlock([ muAssignTmp(iterations, fuid, (bound is empty) ? muCon(1000000) : translate(bound.expression)),
     				muCallPrim("non_negative", [muTmp(iterations,fuid)]),
                     muAssignTmp(change, fuid, muCon(true)),
-                    *[ muAssignTmp(tmps[i], fuid, varCode[i]) | i <- index(varCode) ],
-                    muWhile(nextLabel(),
+                    muWhile(nextLabel("while"),
                             muCallMuPrim("and_mbool_mbool", [muTmp(change,fuid), muCallPrim("int_greater_int", [muTmp(iterations,fuid), muCon(0)]) ]), 
                             [ muAssignTmp(change, fuid, muCon(false)),
+                            *[ muAssignTmp(tmps[i], fuid, varCode[i]) | int i <- index(varCode) ],
                               muAssignTmp(result, fuid, translate(body)),
-                              *[ muIfelse(nextLabel(), muCallPrim("notequal", [muTmp(tmps[i],fuid), varCode[i]]), [muAssignTmp(change,fuid,muCon(true))], []) 
-                 			   | i <- index(varCode)
+                              *[ muIfelse(nextLabel("notequal-vars"), muCallPrim("notequal", [muTmp(tmps[i],fuid), varCode[i]]), [muAssignTmp(change,fuid,muCon(true))], []) 
+                 			   | int i <- index(varCode)
                  			   ],
                               muAssignTmp(iterations, fuid, muCallPrim("int_subtract_int", [muTmp(iterations,fuid), muCon(1)])) 
                             ]),
