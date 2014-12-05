@@ -168,6 +168,7 @@ public class Execute {
 
 				IListWriter w = vf.listWriter();
 				for(String uid_testsuite: testsuites){
+					RascalPrimitive.reset();
 					IList test_results = (IList)rvm.executeProgram(uid_testsuite, arguments);
 					w.insertAll(test_results);
 				}
