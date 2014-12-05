@@ -6003,6 +6003,11 @@ public enum RascalPrimitive {
 		Rascal_FALSE = vf.bool(false);
 		testResultListener = rex.getTestResultListener();
 	}
+	
+	public static void reset(){
+		parsingTools.reset();
+		indentStack = new Stack<String>();
+	}
 
 	public int execute(Object[] stack, int sp, int arity,List<Frame> stacktrace) {
 		System.err.println("Not implemented mufunction");

@@ -60,6 +60,10 @@ public class ParsingTools {
 		stderr = new PrintWriter(System.err);
 	}
 	
+	public void reset(){
+		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, IConstructor, ISourceLocation>>>();
+	}
+	
 	public void setContext(RascalExecutionContext rex){
 		this.rex = rex;
 		monitor = rex.getMonitor();
