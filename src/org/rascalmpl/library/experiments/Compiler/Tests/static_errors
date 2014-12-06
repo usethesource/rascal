@@ -7,10 +7,10 @@
 |std:///experiments/Compiler/Benchmarks/Run.rsc|
 |std:///experiments/Compiler/Examples/QL/lang/qla/Outline.rsc|
 |std:///experiments/Compiler/Examples/QL/util/Explode.rsc|
+|std:///experiments/Compiler/Examples/Tst4.rsc|
 |std:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|
 |std:///experiments/Compiler/Rascal2muRascal/RascalModule.rsc|
 |std:///experiments/Compiler/Tests/AllRascalLibs.rsc|
-|std:///experiments/Compiler/Tests/AllRascalTests.rsc|
 |std:///experiments/Compiler/muRascal/Load.rsc|
 |std:///experiments/Concept/DotVis.rsc|
 |std:///experiments/Concept/GetFigure.rsc|

@@ -143,7 +143,7 @@ list[str] files_with_tests =
 "demo/common/WordCount/WordCount",                  // OK
 "demo/Dominators",                                  // OK
 "demo/lang/Exp/Abstract/Eval",                      // OK
-"demo/lang/Exp/Combined/Automatic/Eval",            // 1 fails
+"demo/lang/Exp/Combined/Automatic/Eval",            // OK
 "demo/lang/Exp/Combined/Manual/Eval",               // static errors
 "demo/lang/Exp/Concrete/NoLayout/Eval",             // 4 fail, parse error, incomplete grammar info
 "demo/lang/Exp/Concrete/WithLayout/Eval",           // 4 fail parse error, incomplete grammar info
@@ -162,9 +162,9 @@ list[str] files_with_tests =
 "lang/rascal/syntax/tests/ImplodeTests",            // 2 fail
 "lang/rascal/syntax/tests/KnownIssues",             // OK
 "lang/rascal/syntax/tests/ParsingRegressionTests",  // 2 fail
-"lang/rascal/syntax/tests/PreBootstrap",            // 2 fail
-"lang/rascal/syntax/tests/SolvedIssues",            // 10 fail, parse errors
-"lang/yaml/Model",                                  // 1 fails, illegal argument
+"lang/rascal/syntax/tests/PreBootstrap",            // OK
+"lang/rascal/syntax/tests/SolvedIssues",            // OK
+// "lang/yaml/Model",                                  // test fails in interpreter
 "util/PriorityQueue",                               // OK
 "util/UUID"                                         // OK
 ];
