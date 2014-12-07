@@ -593,7 +593,7 @@ MuExp translateConcreteParsed(e: appl(Production prod, list[Tree] args)){
                                     muCallPrim3("listwriter_close", [muTmp(writer,fuid)], e@\loc) 
                                   ]);
     } else {
-       translated_elems = muCallPrim3("list_create", [translateConcreteParsed(arg) | Tree arg <- args], |unknown:///|);
+       translated_elems = muCallPrim3("list_create", [translateConcreteParsed(arg) | Tree arg <- args], e@\loc);
     }
     return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
                    [muCon(prod), translated_elems, muTypeCon(Symbol::\void())]);

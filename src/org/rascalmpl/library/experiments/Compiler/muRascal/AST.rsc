@@ -183,7 +183,19 @@ public data MuExp =
 public MuExp muMulti(muOne1(MuExp exp)) = muOne1(exp);
 public MuExp muOne1(muMulti(MuExp exp)) = muOne1(exp);
 
-anno loc MuExp@\loc;
+anno loc MuModule@\location;
+anno loc MuFunction@\location;
+anno loc MuVariable@\location;
+anno loc MuExp@\location;
+anno loc MuCatch@\location;
+anno loc MuTypeCase@\location;
+anno loc Identifier@\location;
+anno loc VarDecl@\location;
+
+anno loc Module@\location;
+anno loc TypeDeclaration@\location;
+anno loc Guard@\location;
+anno loc Function@\location;
  
 data MuCatch = muCatch(str id, str fuid, Symbol \type, MuExp body);    
 
