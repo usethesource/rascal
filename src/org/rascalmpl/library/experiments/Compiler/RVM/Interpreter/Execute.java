@@ -52,7 +52,11 @@ public class Execute {
 								 IList imported_overloaded_functions,
 								 IMap imported_overloading_resolvers,
 								 IList argumentsAsList,
-								 IBool debug, IBool testsuite, IBool profile, IEvaluatorContext ctx) {
+								 IBool debug, 
+								 IBool testsuite, 
+								 IBool profile, 
+								 IBool trackCalls, 
+								 IEvaluatorContext ctx) {
 		
 		boolean isTestSuite = testsuite.getValue();
 		String moduleName = ((IString) program.get("name")).getValue();
@@ -75,7 +79,7 @@ public class Execute {
 		
 		IMap symbol_definitions = (IMap) program.get("symbol_definitions");
 		
-		RVM rvm = new RVM(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), ctx, testResultListener));
+		RVM rvm = new RVM(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), trackCalls.getValue(), ctx, testResultListener));
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
