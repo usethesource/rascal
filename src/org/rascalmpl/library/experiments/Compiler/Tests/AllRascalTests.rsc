@@ -156,15 +156,17 @@ list[str] files_with_tests =
 "lang/rascal/format/Escape",                        // OK
 "lang/rascal/format/Grammar",                       // OK
 "lang/rascal/grammar/definition/Characters",        // OK
+"lang/rascal/grammar/definition/Literals",          // OK
 "lang/rascal/grammar/Lookahead",                    // OK
+"lang/rascal/grammar/ParserGenerator",              // 3 fail
 "lang/rascal/syntax/tests/ConcreteSyntax",          // static errors
 "lang/rascal/syntax/tests/ExpressionGrammars",      // OK
 "lang/rascal/syntax/tests/ImplodeTests",            // 2 fail
 "lang/rascal/syntax/tests/KnownIssues",             // OK
-"lang/rascal/syntax/tests/ParsingRegressionTests",  // 2 fail
+"lang/rascal/syntax/tests/ParsingRegressionTests",  // OK
 "lang/rascal/syntax/tests/PreBootstrap",            // OK
 "lang/rascal/syntax/tests/SolvedIssues",            // OK
-// "lang/yaml/Model",                                  // test fails in interpreter
+"lang/yaml/Model",                                  // test fails in interpreter
 "util/PriorityQueue",                               // OK
 "util/UUID"                                         // OK
 ];
