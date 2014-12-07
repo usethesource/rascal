@@ -7077,7 +7077,8 @@ public Configuration checkModuleUsingSignatures(Module md:(Module)`<Header heade
 		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule _>;` := importItem > | 
 		importItem <- importList, 
 		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
-	rel[RName mname, bool isext] defaultModules = (moduleName != RSimpleName("Exception")) ? { < RSimpleName("Exception"), false > } : {};
+	rel[RName mname, bool isext] defaultModules = (moduleName == RSimpleName("Exception")  || moduleName == RSimpleName("ParseTree")) ? {} :
+	                                              { < RSimpleName("Exception"), false >, < RSimpleName("ParseTree"), false > };
 	
 	println("defaultModules = <defaultModules>");
 	
