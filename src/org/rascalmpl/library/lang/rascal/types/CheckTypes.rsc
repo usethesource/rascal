@@ -7077,9 +7077,9 @@ public Configuration checkModuleUsingSignatures(Module md:(Module)`<Header heade
 		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule _>;` := importItem > | 
 		importItem <- importList, 
 		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
-	rel[RName mname, bool isext] defaultModules = (moduleName == RSimpleName("Exception")  || moduleName == RSimpleName("ParseTree")) ? {} :
-	                                              { < RSimpleName("Exception"), false >, < RSimpleName("ParseTree"), false > };
-	
+	//rel[RName mname, bool isext] defaultModules = (moduleName != RSimpleName("Exception")) ? { < RSimpleName("Exception"), false > } : {};
+	rel[RName mname, bool isext] defaultModules = { < convertNameString("Exception"), false >, < convertNameString("ParseTree"), false >};
+	defaultModules = domainX(defaultModules,{moduleName});	
 	println("defaultModules = <defaultModules>");
 	
 	// Now, for each module being imported, create a module in the configuration
