@@ -12,11 +12,32 @@
 *******************************************************************************/
 package org.rascalmpl.values.uptr;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.eclipse.imp.pdb.facts.IAnnotatable;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
+import org.eclipse.imp.pdb.facts.impl.AbstractDefaultAnnotatable;
+import org.eclipse.imp.pdb.facts.impl.AbstractDefaultWithKeywordParameters;
+import org.eclipse.imp.pdb.facts.impl.AbstractValueFactoryAdapter;
+import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
+import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
+import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -30,7 +51,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  * as the Rascal interpreter).
  * 
  */
-public class Factory {
+public class Factory extends AbstractValueFactoryAdapter {
 	public final static TypeStore uptr = new TypeStore(
 			org.rascalmpl.values.errors.Factory.getStore(), 
 			org.rascalmpl.values.locations.Factory.getStore());
@@ -161,21 +182,350 @@ public class Factory {
 	public static final IValue Attribute_Assoc_Assoc = vf.constructor(Attr_Assoc, vf.constructor(Associativity_Assoc));
 	public static final IValue Attribute_Bracket = vf.constructor(Attr_Bracket);
 	
-	
-	private static final class InstanceHolder {
-		public final static Factory factory = new Factory();
-	}
-	  
-	public static Factory getInstance() {
-		return InstanceHolder.factory;
+	public static TypeStore getStore() {
+		return uptr;
 	}
 	
-	private Factory() {
+	public Factory(IValueFactory factory) {
+		super(factory);
 		uptr.declareAnnotation(Tree, Location, tf.sourceLocationType());
 		uptr.declareAnnotation(Tree, Length, tf.integerType());
 	}
+
+	@Override
+	public IConstructor constructor(org.eclipse.imp.pdb.facts.type.Type constructor, IValue... children)
+			throws FactTypeUseException {
+		assert constructor != null;
+		
+		if (constructor.getAbstractDataType() == Tree) {
+			if (constructor == Tree_Appl) {
+				IConstructor prod = (IConstructor) children[0];
+				IList args = (IList) children[1];
+
+				if (args.length() == 0) {
+					return new Appl0(prod);
+				}
+
+			}
+			else if (constructor == Tree_Char) {
+				return new TreeInt(((IInteger) children[0]).intValue());
+			}
+		}
+		
+		return super.constructor(constructor, children);
+	}
 	
-	public static TypeStore getStore() {
-		return uptr;
+	private class TreeInt implements IConstructor {
+		final int ch;
+		
+		public TreeInt(int ch) {
+			this.ch = ch;
+		}
+
+		@Override
+		public IValue get(int i) throws IndexOutOfBoundsException {
+			switch (i) {
+			case 0: return integer(ch);
+			default: throw new IndexOutOfBoundsException();
+			}
+		}
+
+		@Override
+		public int arity() {
+			return 1;
+		}
+
+		@Override
+		public String getName() {
+			return Tree_Char.getName();
+		}
+
+		@Override
+		public Iterable<IValue> getChildren() {
+			return this;
+		}
+
+		@Override
+		public Iterator<IValue> iterator() {
+			return new Iterator<IValue>() {
+				boolean done = false;
+				
+				@Override
+				public boolean hasNext() {
+					return !done;
+				}
+
+				@Override
+				public IValue next() {
+					done = true;
+					return integer(ch); 
+				}
+
+				@Override
+				public void remove() {
+					throw new UnsupportedOperationException();
+				}
+			};
+		}
+
+		@Override
+		public INode replace(int first, int second, int end, IList repl)
+				throws FactTypeUseException, IndexOutOfBoundsException {
+			// TODO
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v)
+				throws E {
+			return v.visitConstructor(this);
+		}
+
+		@Override
+		public boolean isEqual(IValue other) {
+			if (other instanceof TreeInt) {
+				TreeInt o = (TreeInt) other;
+				return o.ch == ch;
+			}
+			
+			return false;
+		}
+
+		@Override
+		public boolean isAnnotatable() {
+			return false;
+		}
+
+		@Override
+		public boolean mayHaveKeywordParameters() {
+			return false;
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getType() {
+			return Tree;
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getConstructorType() {
+			return Tree_Char;
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getUninstantiatedConstructorType() {
+			return Tree_Char;
+		}
+
+		@Override
+		public IValue get(String label) {
+			return get(Tree_Char.getFieldIndex(label));
+		}
+
+		@Override
+		public IConstructor set(String label, IValue newChild)
+				throws FactTypeUseException {
+			return set(Tree_Char.getFieldIndex(label), newChild);
+		}
+
+		@Override
+		public boolean has(String label) {
+			return Tree_Char.hasField(label);
+		}
+
+		@Override
+		public IConstructor set(int index, IValue newChild)
+				throws FactTypeUseException {
+			switch (index) {
+			case 0: return new TreeInt(((IInteger) newChild).intValue());
+			default: throw new IndexOutOfBoundsException();
+			}
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getChildrenTypes() {
+			return tf.tupleType(tf.integerType());
+		}
+
+		@Override
+		public boolean declaresAnnotation(TypeStore store, String label) {
+			return false;
+		}
+
+		@Override
+		public IAnnotatable<? extends IConstructor> asAnnotatable() {
+			// TODO
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+			// TODO
+			throw new UnsupportedOperationException();
+		}
+	}
+	
+	private class Appl0 implements IConstructor {
+		protected final IConstructor production;
+
+		public Appl0(IConstructor production) {
+			this.production = production;
+		}
+		
+		@Override
+		public IValue get(int i) throws IndexOutOfBoundsException {
+			switch (i) {
+			case 0: return production;
+			case 1: return listWriter().done();
+			default: throw new IndexOutOfBoundsException();
+			}
+		}
+
+		@Override
+		public int arity() {
+			return 0;
+		}
+
+		@Override
+		public String getName() {
+			return Tree_Appl.getName();
+		}
+
+		@Override
+		public Iterable<IValue> getChildren() {
+			return Collections.emptyList();
+		}
+
+		@Override
+		public Iterator<IValue> iterator() {
+			return getChildren().iterator();
+		}
+
+		@Override
+		public INode replace(int first, int second, int end, IList repl)
+				throws FactTypeUseException, IndexOutOfBoundsException {
+			throw new IndexOutOfBoundsException();
+		}
+
+		@Override
+		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v)
+				throws E {
+			return v.visitConstructor(this);
+		}
+
+		@Override
+		public boolean isEqual(IValue other) {
+			if (other.getClass() == getClass()) {
+				Appl0 o = (Appl0) other;
+				
+				return o.production.isEqual(production);
+			}
+			
+			return false;
+		}
+
+		@Override
+		public boolean isAnnotatable() {
+			return true;
+		}
+
+		@Override
+		public boolean mayHaveKeywordParameters() {
+			return false;
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getType() {
+			return Tree;
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getConstructorType() {
+			return Tree_Appl;
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getUninstantiatedConstructorType() {
+			return Tree_Appl;
+		}
+
+		@Override
+		public IValue get(String label) {
+			switch (label) {
+			case "prod": return production;
+			case "args": return listWriter().done();
+			default: throw new UndeclaredFieldException(Tree_Appl, label);
+			}
+		}
+
+		@Override
+		public IConstructor set(String label, IValue newChild)
+				throws FactTypeUseException {
+			switch (label) {
+			case "prod": return constructor(Tree_Appl, newChild, listWriter().done());
+			case "args": return constructor(Tree_Appl, production, newChild);
+			default: throw new UndeclaredFieldException(Tree_Appl, label);
+			}
+		}
+
+		@Override
+		public boolean has(String label) {
+			return Tree_Appl.hasField(label);
+		}
+
+		@Override
+		public IConstructor set(int index, IValue newChild)
+				throws FactTypeUseException {
+			switch (index) {
+			case 0: return constructor(Tree_Appl, newChild, listWriter().done());
+			case 1: return constructor(Tree_Appl, production, newChild);
+			default: throw new IndexOutOfBoundsException();
+			}
+		}
+
+		@Override
+		public org.eclipse.imp.pdb.facts.type.Type getChildrenTypes() {
+			return tf.tupleType(production.getType(), Args);
+		}
+
+		@Override
+		public boolean declaresAnnotation(TypeStore store, String label) {
+			return store.getAnnotations(Tree).containsKey(label);
+		}
+
+		@Override
+		public IAnnotatable<? extends IConstructor> asAnnotatable() {
+			return new AbstractDefaultAnnotatable<IConstructor>(this) {
+				@Override
+				protected IConstructor wrap(IConstructor content,
+						ImmutableMap<String, IValue> annotations) {
+					return new AnnotatedConstructorFacade(content, annotations);
+				}
+			};
+		}
+
+		@Override
+		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+			 return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
+				    @Override
+				    protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+				      return new ConstructorWithKeywordParametersFacade(content, parameters);
+				    }
+				    
+				    @Override
+				    public boolean hasParameters() {
+				    	return content.getConstructorType().hasKeywordParameters();
+				    }
+
+				    @Override
+				    public String[] getParameterNames() {
+				    	return content.getConstructorType().getKeywordParameters();
+				    }
+
+				    @Override
+				    public Map<String, IValue> getParameters() {
+				    	return Collections.unmodifiableMap(parameters);
+				    }
+				  }; 
+		}
 	}
 }
