@@ -103,7 +103,12 @@ public class Function {
 	}
 	
 	public String getPrintableName(){
-		return name.substring(name.indexOf("/")+1, name.indexOf("("));
+		int from = name.indexOf("/")+1;
+		int to = name.indexOf("(");
+		if(to < 0){
+			to = name.length();
+		}
+		return name.substring(from, to);
 	}
 	
 	public String getQualifiedName(){

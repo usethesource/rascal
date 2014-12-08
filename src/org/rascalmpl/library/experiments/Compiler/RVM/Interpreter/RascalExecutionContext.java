@@ -37,17 +37,19 @@ public class RascalExecutionContext {
 	private final TypeStore typeStore;
 	private final boolean debug;
 	private final boolean profile;
+	private final boolean trackCalls;
 	private final ITestResultListener testResultListener;
 	private final IMap symbol_definitions;
 	private RascalURIResolver rascalURIResolver;
 	
-	RascalExecutionContext(IValueFactory vf, IMap symbol_definitions, boolean debug, boolean profile, IEvaluatorContext ctx, ITestResultListener testResultListener){
+	RascalExecutionContext(IValueFactory vf, IMap symbol_definitions, boolean debug, boolean profile, boolean trackCalls, IEvaluatorContext ctx, ITestResultListener testResultListener){
 		
 		this.vf = vf;
 		this.symbol_definitions = symbol_definitions;
 		this.typeStore = new TypeStore();
 		this.debug = debug;
 		this.profile = profile;
+		this.trackCalls = trackCalls;
 		
 		resolverRegistry = ctx.getResolverRegistry();
 		rascalURIResolver = new RascalURIResolver(resolverRegistry);
@@ -70,6 +72,8 @@ public class RascalExecutionContext {
 	boolean getDebug() { return debug; }
 	
 	boolean getProfile(){ return profile; }
+	
+	boolean getTrackCalls() { return trackCalls; }
 	
 	public URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
 	

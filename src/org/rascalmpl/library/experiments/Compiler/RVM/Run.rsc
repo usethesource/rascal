@@ -19,7 +19,8 @@ public java tuple[value,int] executeProgram(RVMProgram program,
 										    list[value] arguments, 
 										    bool debug, 
 										    bool testsuite,
-										    bool profile);						    
+										    bool profile,
+										    bool trackCalls);						    
 										    
 
 //public void execute(experiments::Compiler::RVM::Syntax::RascalVM tree, loc selection) {

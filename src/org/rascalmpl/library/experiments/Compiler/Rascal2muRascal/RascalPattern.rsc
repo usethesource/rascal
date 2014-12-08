@@ -473,6 +473,7 @@ MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> 
 MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) {
    MuExp fun_pat;
    str fun_name;
+   
    argCode = [ translatePat(pat) | pat <- arguments ] + translatePatKWArguments(keywordArguments);
    //iprintln(expression);
    if(expression is qualifiedName){
@@ -481,7 +482,6 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
       return muApply(mkCallToLibFun("Library","MATCH_SIMPLE_CALL_OR_TREE"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
    } else if(expression is literal){ // StringConstant
       fun_name = "<expression>"[1..-1];
-      println("fun_name = <fun_name>");
       return muApply(mkCallToLibFun("Library","MATCH_SIMPLE_CALL_OR_TREE"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
    } else {
      fun_pat = translatePat(expression);
