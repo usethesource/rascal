@@ -487,7 +487,9 @@ public class JavaBridge {
 			Collection<String> dirs = new ArrayList<String>();
 
 			for (JavaFileObject o : list) {
-				String path = o.toUri().getPath().replace(".", "/");
+				String binaryName = manager.inferBinaryName(StandardLocation.CLASS_PATH, o);
+				String path = binaryName.replace(".", "/");
+				
 				makeJarDirs(target, dirs, path);
 				entry = new JarEntry(path + ".class");
 				entry.setTime(o.getLastModified());
@@ -509,16 +511,18 @@ public class JavaBridge {
 				String name = mainClazz.getName();
 				String path = name.replace(".", "/") + ".class";
 				
-				String dir = path.substring(0, path.lastIndexOf('/'));
-				StringBuilder dirTmp = new StringBuilder(dir.length());
-				for (String d : dir.split("/")) {
-					dirTmp.append(d);
-					dirTmp.append("/");
-					String tmp = dirTmp.toString();
-					if (!dirs.contains(tmp)) {
-						dirs.add(tmp);
-						entry = new JarEntry(tmp);
-						target.putNextEntry(entry);
+				if(path.contains("/")) {
+					String dir = path.substring(0, path.lastIndexOf('/'));
+					StringBuilder dirTmp = new StringBuilder(dir.length());
+					for (String d : dir.split("/")) {
+						dirTmp.append(d);
+						dirTmp.append("/");
+						String tmp = dirTmp.toString();
+						if (!dirs.contains(tmp)) {
+							dirs.add(tmp);
+							entry = new JarEntry(tmp);
+							target.putNextEntry(entry);
+						}
 					}
 				}
 				entry = new JarEntry(path);
@@ -543,18 +547,20 @@ public class JavaBridge {
 	private void makeJarDirs(JarOutputStream target, Collection<String> dirs,
 			String path) throws IOException {
 		JarEntry entry;
-		String dir = path.substring(0, path.lastIndexOf('/'));
-		while(dir.startsWith("/"))
-			dir = dir.substring(1);
-		StringBuilder dirTmp = new StringBuilder(dir.length());
-		for (String d : dir.split("/")) {
-			dirTmp.append(d);
-			dirTmp.append("/");
-			String tmp = dirTmp.toString();
-			if (!dirs.contains(tmp)) {
-				dirs.add(tmp);
-				entry = new JarEntry(tmp);
-				target.putNextEntry(entry);
+		if(path.contains("/")) {
+			String dir = path.substring(0, path.lastIndexOf('/'));
+			while(dir.startsWith("/"))
+				dir = dir.substring(1);
+			StringBuilder dirTmp = new StringBuilder(dir.length());
+			for (String d : dir.split("/")) {
+				dirTmp.append(d);
+				dirTmp.append("/");
+				String tmp = dirTmp.toString();
+				if (!dirs.contains(tmp)) {
+					dirs.add(tmp);
+					entry = new JarEntry(tmp);
+					target.putNextEntry(entry);
+				}
 			}
 		}
 	}
