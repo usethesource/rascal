@@ -916,7 +916,7 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
       simpleArgs = false;
   }
   if(simpleArgs) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {	
-  	return translateFormals([formal | formal <- formals], isVarArgs, 0, kwps, body, when_conditions);
+  	return muIfelse(fname, muCon(true), [ translateFormals([formal | formal <- formals], isVarArgs, 0, kwps, body, when_conditions)], [ muFailReturn() ]);
   } else {
 	  list[MuExp] conditions = [];
 	  int i = 0;
