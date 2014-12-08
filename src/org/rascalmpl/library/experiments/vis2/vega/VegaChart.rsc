@@ -101,7 +101,6 @@ VEGA  _stackedBar = vega(
     }
     
                
-
  VEGA  _stackedArea = vega(
             viewport = [1800, 1800]
              ,
@@ -313,8 +312,7 @@ VEGA  _linePlot =
              ,marks = [mark(\type = "group"
                      ,from = datum(\data="table",
                                       transform = [
-                                      transform(\type = "filter", \test =  "1==1")
-                                      , transform(keys = ["data.c"],
+                                        transform(keys = ["data.c"],
                                          \type = "facet"
                                           )               
                                          ] 
@@ -325,20 +323,7 @@ VEGA  _linePlot =
                                    range = RANGE::lit(key= "width"))             
                          ]
                         ,marks=[             
-                                mark(\type="symbol"         
-                                  , properties = (
-                                     "enter":(  
-                                      "stroke":("scale":"color", "field":"data.c")
-                                      ,"x":("scale":"x","field":"data.x")
-                                      ,"y":("scale":"y","field":"data.y")
-                                     )
-                                     ,"update":  ("fillOpacity":("value":1.0))
-                                     ,"hover":   ("fillOpacity":("value":0.5))   
-                                  )              
-                                )                            
-                                ,
                               mark(\type="line" 
-                                , from =  datum(transform = [transform(\type = "filter", \test =  "1==1")])                                             
                                   , properties = (
                                      "enter":(    
                                       "stroke":("scale":"color", "field":"data.c")
@@ -373,3 +358,4 @@ VEGA  _linePlot =
         );
         };
     }
+  

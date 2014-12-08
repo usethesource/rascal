@@ -995,6 +995,12 @@ void lineChart(){
         interpolate=("all":"monotone"))));
 }
 
+Datasets[XYData] sinAndCos() =
+	("Sine Wave":         [<x, round(sin(x/10),0.01)>               | x <- [0.0, 1.0 .. 100.0]],
+	 "Cosine Wave":       [<x, round(0.5 * cos(x/10), 0.01)>        | x <- [0.0, 1.0 .. 100.0]],
+	 "Another sine wave": [<x, round(0.25 * sin(x/10) + 0.5, 0.01)> | x <- [0.0, 1.0 .. 100.0]]
+	);
+
 void sinAndCosChart(){
         ex("sinAndCosChart", vegaChart(size=<500,200>, datasets=sinAndCos(), command=linePlot(grid=true, interpolate=("all":"monotone"), 
            title=("x":"Time (s)", "y":"Voltage(v)"),
@@ -1003,7 +1009,8 @@ void sinAndCosChart(){
 }
 
 void scatterChart(){
-        ex("scatterChart", vegaChart(size=<500,200>, datasets=stackedData, command=linePlot(shape=("all":"circle"))));
+        ex("scatterChart", vegaChart(size=<500,200>, datasets=stackedData, command=linePlot(shape=("1":"square", "0":"circle"), 
+                           interpolate=("all":"monotone"), legends = ("color":"fill"))));
 }
 
 void stedenBarChart(){
@@ -1041,11 +1048,7 @@ void stedenBarChart(){
 
 /********************* lineChart ******************************/
 
-//Datasets[XYData] sinAndCos() =
-//	("Sine Wave":         [<x, round(sin(x/10),0.01)>               | x <- [0.0, 1.0 .. 100.0]],
-//	 "Cosine Wave":       [<x, round(0.5 * cos(x/10), 0.01)>        | x <- [0.0, 1.0 .. 100.0]],
-//	 "Another sine wave": [<x, round(0.25 * sin(x/10) + 0.5, 0.01)> | x <- [0.0, 1.0 .. 100.0]]
-//	);
+
 //
 //void lineChart1(){
 //	ex("lineChart1", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
@@ -1116,15 +1119,15 @@ void graph3(){
 							 ]));
 }
 
-void graph4(){
-	ex("graph4", hcat(figs=[ barChart(size=<400,300>, dataset=exampleBarData()),
-						     graph(nodes=nodes1, edges=edges1),
-					         lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
-							   		   yAxis=axis(label="Volutage (v)", tick=".02f"),	
-							   		   dataset= sinAndCos(), 
-							   		   size=<400,400>)
-					], gap=<50,50>));
-}
+//void graph4(){
+//	ex("graph4", hcat(figs=[ barChart(size=<400,300>, dataset=exampleBarData()),
+//						     graph(nodes=nodes1, edges=edges1),
+//					         lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+//							   		   yAxis=axis(label="Volutage (v)", tick=".02f"),	
+//							   		   dataset= sinAndCos(), 
+//							   		   size=<400,400>)
+//					], gap=<50,50>));
+// }
 
 map[str,Figure] nodes2 =
         ("A": box(size=<20,20>, fillColor="green"),
@@ -1279,9 +1282,9 @@ data COUNTER = COUNTER(int counter);
 int f(str event, str utag, int x) {if (event=="click") {println("aap"); return x+1;} else return x;}
 
 void counter1(){	
-	render("counter1",  #COUNTER, COUNTER(666), Figure (str event, str uutag, COUNTER m) {
+	render("counter1",  #COUNTER, COUNTER(666), Figure (str event, str utag, COUNTER m) {
 			return
-				vcat(figs=[ box(fig=text("Click me", event=on("click", bind(m.counter, f(event, m.counter))), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
+				vcat(figs=[ box(fig=text("Click me", event=on("click", bind(m.counter, f(event, utag, m.counter))), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
 					        text(m.counter, size=<150,50>,fontSize=30)
 				     ], align=topLeft);
 			});
@@ -1306,7 +1309,7 @@ void counter3(){
 	
 	render("counter3",  #COUNTER, COUNTER(666), Figure (str event, str utag, COUNTER m) {
 			return
-				vcat(figs=[ buttonInput(trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, f(event, m.counter))), size=<80,40>),
+				vcat(figs=[ buttonInput(trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, f(event, utag, m.counter))), size=<80,40>),
 					   text(m.counter, size=<150,50>,fontSize=30)
 				     ]);
 			});

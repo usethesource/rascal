@@ -126,8 +126,8 @@ Response page(get(), /^\/vegaJSON\/<name:[a-zA-Z0-9_:]+>/,
 		    // println("get: descr: <descr>");
 		    VEGA s = descr.figure.command();
 		    // println(s);
-		    // println(toJSON(s));
-		    return response(toJSON(s));
+		    // println(vegaToJSON(s));
+		    return response(vegaToJSON(s));
 		    }
       else {
     	  throw "get_initial_figure: visualization <name> unknown";
