@@ -248,7 +248,7 @@ public class Execute {
 		Integer maxstack = ((IInteger) declaration.get("maxStack")).intValue();
 		IList code = (IList) declaration.get("instructions");
 		ISourceLocation src = (ISourceLocation) declaration.get("src");
-		CodeBlock codeblock = new CodeBlock(vf);
+		CodeBlock codeblock = new CodeBlock(name, vf);
 		// Loading instructions
 		try {
 		for (int i = 0; i < code.length(); i++) {
