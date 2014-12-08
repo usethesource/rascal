@@ -54,6 +54,7 @@ public class RVM {
 	
 	private boolean debug = true;
 	private boolean listing = false;
+	private boolean trackCalls = false;
 	private boolean finalized = false;
 	
 	private final ArrayList<Function> functionStore;
@@ -123,6 +124,7 @@ public class RVM {
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
 		this.debug = rex.getDebug();
+		this.trackCalls = rex.getTrackCalls();
 		this.finalized = false;
 		
 		this.types = new Types(this.vf);
@@ -538,11 +540,14 @@ public class RVM {
 		pos = 0;
 		last_function_name = "";
 		
+		if(trackCalls) { cf.printEnter(stdout); }
+		
 		try {
 			NEXT_INSTRUCTION: while (true) {
-//				if(pc < 0 || pc >= instructions.length){
-//					throw new CompilerError(cf.function.name + " illegal pc: " + pc);
-//				}
+				
+				assert pc >=0 && pc < instructions.length : "Illegal pc value: " + pc;
+				assert sp >= cf.function.nlocals :          "Illegal sp value: " + sp;
+				
 				int instruction = instructions[pc++];
 				int op = CodeBlock.fetchOp(instruction);
 
@@ -568,37 +573,48 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC0:
+					assert stack[0] != null: "Local variable 0 is null";
 					stack[sp++] = stack[0]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC1:
+					assert stack[1] != null: "Local variable 1 is null";
 					stack[sp++] = stack[1]; continue NEXT_INSTRUCTION; 
 					
 				case Opcode.OP_LOADLOC2:
+					assert stack[2] != null: "Local variable 2 is null";
 					stack[sp++] = stack[2]; continue NEXT_INSTRUCTION; 
 					
 				case Opcode.OP_LOADLOC3:
+					assert stack[3] != null: "Local variable 3 is null";
 					stack[sp++] = stack[3]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC4:
+					assert stack[4] != null: "Local variable 4 is null";
 					stack[sp++] = stack[4]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC5:
+					assert stack[5] != null: "Local variable 5 is null";
 					stack[sp++] = stack[5]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC6:
+					assert stack[6] != null: "Local variable 6 is null";
 					stack[sp++] = stack[6]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC7:
+					assert stack[7] != null: "Local variable 7 is null";
 					stack[sp++] = stack[7]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC8:
+					assert stack[8] != null: "Local variable 8 is null";
 					stack[sp++] = stack[8]; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC9:
+					assert stack[9] != null: "Local variable 9 is null";
 					stack[sp++] = stack[9]; continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_LOADLOC:
 					pos = CodeBlock.fetchArg1(instruction);
+					assert stack[pos] != null: "Local variable " + pos + " is null";
 					stack[sp++] = stack[pos];
 					continue NEXT_INSTRUCTION;
 					
@@ -620,6 +636,7 @@ public class RVM {
 				
 				case Opcode.OP_CALLMUPRIM:				
 					sp = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, CodeBlock.fetchArg2(instruction));
+					assert stack[sp - 1] != null: "MuPrimitive returns null";
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_JMP:
@@ -850,10 +867,12 @@ public class RVM {
 						    continue NEXT_INSTRUCTION;
 						}
 						cf = cf.getFrame(fun, root, arity, sp);
+						
 					} else {
 						throw new CompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]));
 					}
 					
+					if(trackCalls) { cf.printEnter(stdout); }
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
@@ -885,6 +904,7 @@ public class RVM {
 							stack = cf.stack;
 							sp = cf.sp;
 							pc = cf.pc;
+							if(trackCalls) { cf.printEnter(stdout); }
 							continue NEXT_INSTRUCTION;
 						}
 					 	// 2. OverloadedFunctionInstance due to named Rascal functions
@@ -917,6 +937,7 @@ public class RVM {
 							this.appendToTrace("		" + "try alternative: " + frame.function.name);
 						}
 						cf = frame;
+						if(trackCalls) { cf.printEnter(stdout); }
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
@@ -993,6 +1014,7 @@ public class RVM {
 					}
 					
 					cf = cf.previousCallFrame;
+					
 					if(cf == null) {
 						if(returns) {
 							return rval; 
@@ -1000,6 +1022,7 @@ public class RVM {
 							return NONE;
 						}
 					}
+					if(trackCalls) { cf.printBack(stdout); }
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
@@ -1461,7 +1484,7 @@ public class RVM {
 				throw e;
 			}
 			e.printStackTrace(stderr);
-			throw new CompilerError("Instruction execution: instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: "+ e.getMessage() + e.getCause() );
+			throw new CompilerError("Executing function " + cf.toString() + "; instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: "+ e.getMessage() + e.getCause() );
 			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
 			//e.printStackTrace();
 			//stderr.println(e.getStackTrace());
@@ -1562,6 +1585,7 @@ public class RVM {
 			"org.rascalmpl.library.lang.json.IOCompiled.fromJSON",
 			"org.rascalmpl.library.PreludeCompiled.exists",
 			"org.rascalmpl.library.PreludeCompiled.lastModified",
+			"org.rascalmpl.library.PreludeCompiled.implode",
 			"org.rascalmpl.library.PreludeCompiled.isDirectory",
 			"org.rascalmpl.library.PreludeCompiled.isFile",
 			"org.rascalmpl.library.PreludeCompiled.remove",
@@ -1586,7 +1610,69 @@ public class RVM {
 			"org.rascalmpl.library.PreludeCompiled.writeTextValueFile",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation"
+
+			/*
+			 * 	TODO:
+			 * cobra::util::outputlogger::startLog
+			 * cobra::util::outputlogger::getLog
+			 * cobra::quickcheck::_quickcheck
+			 * cobra::quickcheck::arbitrary
+			 * 
+			 * experiments::Compiler::RVM::Interpreter::ParsingTools::parseFragment
+			 * experiments::Compiler::RVM::Run::executeProgram
+			 * 
+			 * experiments::resource::Resource::registerResource
+			 * experiments::resource::Resource::getTypedResource
+			 * experiments::resource::Resource::generateTypedInterfaceInternal
 			
+			 * experiments::vis2::vega::Vega::color
+			 * 
+			 * lang::aterm::IO::readTextATermFile
+			 * lang::aterm::IO::writeTextATermFile
+			 * 
+			 * lang::html::IO::readHTMLFile
+			 * 
+			 * lang::java::m3::AST::setEnvironmentOptions
+			 * lang::java::m3::AST::createAstFromFile
+			 * lang::java::m3::AST::createAstFromString
+			 * lang::java::m3::Core::createM3FromFile
+			 * lang::java::m3::Core::createM3FromFile
+			 *  lang::java::m3::Core::createM3FromJarClass
+			 *  
+			 *  lang::jvm::run::RunClassFile::runClassFile
+			 *  lang::jvm::transform::SerializeClass::serialize
+			 *  
+			 *  lang::rsf::IO::readRSF
+			 *  lang::rsf::IO::getRSFTypes
+			 *  lang::rsf::IO::readRSFRelation
+			 *  
+			 *  lang::yaml::Model::loadYAML
+			 *  lang::yaml::Model::dumpYAML
+			 *  
+			 *  resource::jdbc::JDBC::registerJDBCClass
+			 *  util::tasks::Manager
+			 *  util::Eval
+			 *  util::Monitor
+			 *  util::Reflective
+			 *  
+			 *  util::Webserver
+			 *  
+			 *  vis::Figure::color
+			 *  
+			 *  Traversal::getTraversalContext
+			 *  
+			 *  tutor::HTMLGenerator
+			 *  
+			 *  **eclipse**
+			 *  util::Editors
+			 *  util::FastPrint
+			 *  util::HtmlDisplay
+			 *  util::IDE
+			 *  util::ResourceMarkers
+			 *  vis::Render
+			 *  vis::RenderSWT
+			 *  
+			 */
 	));
 			
 	Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){

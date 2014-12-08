@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.PrintWriter;
 import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -181,25 +182,58 @@ public class Frame {
 	}
 	
 	public String toString(){
-		StringBuilder s = new StringBuilder("\tin ");
+		StringBuilder s = new StringBuilder(); //new StringBuilder("\tin ");
 		s.append(this.function.getPrintableName()).append("(");
 		for(int i = 0; i < function.nformals-1; i++){
 			if(i > 0) s.append(", ");
 			s.append(stack[i]);
 		}
-		@SuppressWarnings("unchecked")
-		HashMap<String, IValue> m = (HashMap<String, IValue>) stack[function.nformals-1];
-		if(m.size() > 0){
-			for(String key : m.keySet()){
-				s.append(", ").append(key).append("=").append(m.get(key));
+	
+		if(function.nformals-1 > 0 && stack[function.nformals-1] instanceof HashMap<?, ?>){
+			@SuppressWarnings("unchecked")
+			HashMap<String, IValue> m = (HashMap<String, IValue>) stack[function.nformals-1];
+			if(m.size() > 0){
+				for(String key : m.keySet()){
+					s.append(", ").append(key).append("=").append(m.get(key));
+				}
 			}
 		}
 		
 		s.append(")");
 		if(src != null){
-				s.append(" at ").append(src);
+				s.//append(" at ").append(src).
+				append(" \uE007[](").append(src);
 		}
 		return s.toString();
+	}
+	
+	private StringBuilder indent(){
+		int n = 0;
+		Frame prev = previousCallFrame;
+		while(prev != null){
+			n++;
+			prev = prev.previousCallFrame;
+		}
+		StringBuilder b = new StringBuilder(2 * n + 10);
+		for (int i = 0; i < n; i += 1) {
+		    b.append("  ");
+		}
+		return b;
+	}
+	
+	public void printEnter(PrintWriter stdout){
+		stdout.println(indent().append("--> ").append(this.toString())); stdout.flush();
+		//stdout.println(indent().append("--> ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
+	}
+	
+	public void printBack(PrintWriter stdout){
+		stdout.println(indent().append("--- ").append(this.toString())); stdout.flush();
+		//stdout.println(indent().append("--- ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
+	}
+	
+	public void printLeave(PrintWriter stdout){
+		stdout.println(indent().append("<-- ").append(this.toString())); stdout.flush();
+		//stdout.println(indent().append("<-- ").append(function.getPrintableName()).append(":").append(src)); stdout.flush();
 	}
 	
 }

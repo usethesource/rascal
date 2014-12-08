@@ -13,7 +13,9 @@ module lang::yaml::Model
 
 import Type;
 import IO;
-
+import List;
+import Map;
+import Set;
 
 // Tagging will be used to do typed 
 // serialization for ADTs in the future.
@@ -69,10 +71,10 @@ public Node BAD_YAML =
       sequence([])[@anchor=4]
    ])[@anchor=2]))[@anchor=2];
    
-// Complains about not being able to use external type (type[value]?)
-public test bool testLoadDump(Node n) {
-  yaml = dumpYAML(n);
-  return n == loadYAML(yaml);
+public test bool testLoadDump() {
+  Node n = loadYAML(TEST_YAML);
+  str y = dumpYAML(n);
+  return equalNodes(n, loadYAML(y));
 }
 
 
@@ -152,7 +154,63 @@ public tuple[set[int], set[int]] undefinedRefs(nod:mapping(m), set[int] seen, se
 public default tuple[set[int], set[int]] undefinedRefs(Node n, set[int] seen, set[int] dupl) 
   = <seen, dupl>;
 
+bool equalNodes(Node x, Node y) {
 
+   map[int, Node] anchors(Node n) {
+     m = ();
+     visit (n) {
+       case s:sequence(_): 
+          if (s@anchor?) m[s@anchor] = s;
+       case mp:mapping(_): 
+          if (mp@anchor?) m[mp@anchor] = mp;
+     }
+     return m;
+   }
+   
+   anchors1 = anchors(x);
+   anchors2 = anchors(y);
+
+   matching = ();
+   
+   bool equalNodesRec(Node x, Node y) {
+     switch (<x, y>) {
+       case <s1:sequence(ls1), s2:sequence(ls2)>: {
+         if (size(ls1) != size(ls2)) {
+           return false;
+         }
+         return ( true | it && equalNodesRec(e1, e2) | <e1, e2> <- zip(ls1, ls2) );
+       }
+     
+	       case <scalar(v1), scalar(v2)>:
+	         return v1 == v2;
+	     
+	       case <reference(r1), reference(r2)>: {
+	         if (r1 in matching, matching[r1] == r2) {
+	           return true; // avoid infinite loop;
+	         }
+	         matching[r1] = r2;
+	         a1 = anchors1[r1];
+	         a2 = anchors2[r2];
+	         return equalNodesRec(a1, a2);
+	         
+	       }
+	     
+	       case <mp1:mapping(m1), mp2:mapping(m2)>: {
+	         ls1 = sort(domain(m1));
+	         ls2 = sort(domain(m2));
+	         domEq = ( true | it && equalNodesRec(e1, e2) | <e1, e2> <- zip(ls1, ls2) );
+	         if (!domEq) {
+	           return false;
+	         }
+	         return ( true | it && equalNodesRec(m1[k], m2[k]) | k <- ls1 ); 
+	       }
+	     
+	       default: return false;
+	     }
+	   }
+	   
+	   return equalNodesRec(x, y);
+}
 
 
 

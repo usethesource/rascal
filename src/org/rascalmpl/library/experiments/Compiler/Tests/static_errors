@@ -1,3 +1,4 @@
+|std:///analysis/formalconcepts/FCA.rsc|
 |std:///demo/Mod17.rsc|
 |std:///demo/lang/Exp/Combined/Manual/Load.rsc|
 |std:///demo/lang/Lisra/Pretty.rsc|
@@ -10,9 +11,10 @@
 |std:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|
 |std:///experiments/Compiler/Rascal2muRascal/RascalModule.rsc|
 |std:///experiments/Compiler/Tests/AllRascalLibs.rsc|
-|std:///experiments/Compiler/Tests/AllRascalTests.rsc|
 |std:///experiments/Compiler/muRascal/Load.rsc|
+|std:///experiments/Compiler/muRascal2RVM/mu2rvm.rsc|
 |std:///experiments/Concept/DotVis.rsc|
+|std:///experiments/Concept/FcaLattices.rsc|
 |std:///experiments/Concept/GetFigure.rsc|
 |std:///experiments/Concept/Types.rsc|
 |std:///experiments/vis2/Figure.rsc|
@@ -33,7 +35,9 @@
 |std:///lang/java/m3/Core.rsc|
 |std:///lang/java/syntax/Java15.rsc|
 |std:///lang/rascal/checker/TTL/TTLGen.rsc|
+|std:///lang/rascal/mutation/ModuleMutator.rsc|
 |std:///lang/rascal/syntax/tests/ConcreteSyntax.rsc|
+|std:///lang/rascal/tests/functionality/ConcreteSyntaxTests2.rsc|
 |std:///lang/rascal/tests/library/analysis/statistics/RangeUtils.rsc|
 |std:///lang/rascal/tests/types/PatternTCTests.rsc|
 |std:///lang/saf/Run.rsc|

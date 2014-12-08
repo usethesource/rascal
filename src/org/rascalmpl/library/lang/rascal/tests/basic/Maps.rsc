@@ -10,8 +10,12 @@ import util::Math;
 bool isUnion(map[&K, &V] A, map[&K, &V] B, map[&K, &V] C) =
      isEmpty(A) ==> C == B ||
      isEmpty(B) ==> C == A ||
-     all(x <- C,  x in domain(B) && C[x] == B[x] || x in domain(A) && C[x] == A[x]);
-
+     ( domain(A) + domain(B) == domain(C) &&
+       range(C) <= range(A) + range(B) &&
+       all(x <- C,  x in domain(B) && C[x] == B[x] || x in domain(A) && C[x] == A[x]) &&
+       all(x <- C,  (x in domain(B) && x in domain(A)) ==> C[x] == B[x])
+     );
+    
 test bool union(map[&K, &V] A, map[&K, &V] B) = isUnion(A,   B,  A + B);
 
 // is A - B == C?
@@ -46,6 +50,12 @@ test bool greater(map[int, str] A, map[int, str] B)  = B <= A || (B + A) > A;
 test bool tst_in(&K key, &V val, map[&K, &V] M) = key in M || (key in (M + (key : val)) && val == (M + (key : val))[key] &&
 														              key in ((key : val) + M) && val == ((key : val) + M)[key]);
 test bool tst_notin(int A, map[int,int] B) = A notin (B - (A:A));
+
+test bool intKeyHandling(){
+    N = 10000;
+    m = (i : i | int i <- [0..N]);
+    return size(m) == N && size(domain(m)) == N && size(range(m)) == N;
+}
 
 // Library functions
 
