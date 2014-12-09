@@ -6684,7 +6684,7 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 				}
 				
 				case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
-					c = importProduction(p, at, c); 
+					//c = importProduction(p, at, c); 
 					//c = addProduction(c, name, at, p); 
 					loadedIds = loadedIds + itemId;
 				}
@@ -6737,13 +6737,13 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 		}
 	}
 
-	void loadTransProduction(int itemId) {
-		AbstractValue av = d.store[itemId];
-		if (production(RName name, Symbol rtype, int containedIn, Production p, loc at) := av) {
-			c = importProduction(p, at, c, registerName=false); 
-			loadedIds = loadedIds + itemId;
-		}
-	}
+	//void loadTransProduction(int itemId) {
+	//	AbstractValue av = d.store[itemId];
+	//	if (production(RName name, Symbol rtype, int containedIn, Production p, loc at) := av) {
+	//		c = importProduction(p, at, c, registerName=false); 
+	//		loadedIds = loadedIds + itemId;
+	//	}
+	//}
 				
 	// Add the items from d into c
 	// NOTE: This seems repetitive, but we cannot just collapse all the IDs into a set
@@ -6772,16 +6772,27 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	for (itemId <- notLoadedSorts) {
 		loadTransSort(itemId);
 	}
-
+	
+	// Bring in the grammar information for all sorts at once, which should also load
+	// all the productions; this is done here to make sure all the sort names are in
+	// scope.
+	for (itemId <- d.typeEnv<1>, itemId in filteredIds, d.store[itemId] is sorttype, itemId in d.grammar) {
+		itemToLoad = d.store[itemId];
+		c = importProduction(d.grammar[itemId], getOneFrom(d.store[itemId].ats), c);
+	}
+	for (itemId <- notLoadedSorts, itemId in d.grammar) {
+		c = importProduction(d.grammar[itemId], getOneFrom(d.store[itemId].ats), c, registerName=false);
+	}
+	
 	notLoadedConstructors = { di | di <- d.store<0>, d.store[di] is constructor } - loadedIds;
 	for (itemId <- notLoadedConstructors) {
 		loadTransConstructor(itemId);
 	}
 
-	notLoadedProds = { di | di <- d.store<0>, d.store[di] is production } - loadedIds;
-	for (itemId <- notLoadedProds) {
-		loadTransProduction(itemId);
-	}
+	//notLoadedProds = { di | di <- d.store<0>, d.store[di] is production } - loadedIds;
+	//for (itemId <- notLoadedProds) {
+	//	loadTransProduction(itemId);
+	//}
 	
 	c = popModule(c);
 	
