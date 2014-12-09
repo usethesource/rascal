@@ -43,6 +43,17 @@ public Bindings match(Symbol r, Symbol s, Bindings b, bool bindIdenticalVars) {
 	// the current bindings.
 	if (!typeContainsTypeVars(r)) return b;
 		
+	// We can always treat a void subject as a void set, list, map, or bag if we
+	// are matching against a set, list, map, or bag type, respectively
+	if (isSetType(r) && isVoidType(s))
+		s = makeSetType(s);
+	else if (isListType(r) && isVoidType(s))
+		s = makeListType(s);
+	else if (isMapType(r) && isVoidType(s))
+		s = makeMapType(s,s);
+	else if (isBagType(r) && isVoidType(s))
+		s = makeBagType(s);
+		 
 	// Handle parameters
 	if (isTypeVar(r) && isTypeVar(s) && getTypeVarName(r) == getTypeVarName(s) && getTypeVarBound(r) == getTypeVarBound(s) && !bindIdenticalVars) {
 		return b;
