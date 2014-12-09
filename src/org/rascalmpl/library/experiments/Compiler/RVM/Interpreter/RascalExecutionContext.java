@@ -92,6 +92,47 @@ public class RascalExecutionContext {
 	IEvaluatorContext getEvaluatorContext() { return ctx; }
 	
 	ITestResultListener getTestResultListener() { return testResultListener; }
+	
+	public int endJob(boolean succeeded) {
+		if (monitor != null)
+			return monitor.endJob(succeeded);
+		return 0;
+	}
+	
+	public void event(int inc) {
+		if (monitor != null)
+			monitor.event(inc);
+	}
+	
+	public void event(String name, int inc) {
+		if (monitor != null)
+			monitor.event(name, inc);
+	}
+
+	public void event(String name) {
+		if (monitor != null)
+			monitor.event(name);
+	}
+
+	public void startJob(String name, int workShare, int totalWork) {
+		if (monitor != null)
+			monitor.startJob(name, workShare, totalWork);
+	}
+	
+	public void startJob(String name, int totalWork) {
+		if (monitor != null)
+			monitor.startJob(name, totalWork);
+	}
+	
+	public void startJob(String name) {
+		if (monitor != null)
+			monitor.startJob(name);
+	}
+		
+	public void todo(int work) {
+		if (monitor != null)
+			monitor.todo(work);
+	}
 
 	/**
 	 * Source location resolvers map user defined schemes to primitive schemes
