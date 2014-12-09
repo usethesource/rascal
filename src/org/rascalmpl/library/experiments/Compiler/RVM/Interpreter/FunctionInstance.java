@@ -45,7 +45,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 				return new FunctionInstance(function, env, rvm);
 			}
 		}
-		throw new CompilerError("Inside " + cf.function.name + " (" + cf.src + "): cannot find matching scope when looking for nested function " + function.name);
+		throw new CompilerError("Inside " + cf.function.name + " (" + cf.src + "): cannot find matching scope when looking for nested function " + function.name, rvm.getStdErr(), cf);
 	}
 	
 	/**
@@ -180,6 +180,10 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
   public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
     throw new IllegalOperationException(
         "Cannot be viewed as with keyword parameters", getType());
+  }
+  
+  public String toString(){
+	  return "FunctionInstance[" + function.name + "]";
   }
 
 }

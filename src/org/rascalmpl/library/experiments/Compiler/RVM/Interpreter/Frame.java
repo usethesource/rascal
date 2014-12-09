@@ -51,7 +51,7 @@ public class Frame {
 				return getCoroutineFrame(f, env, arity, sp);
 			}
 		}
-		throw new CompilerError("Could not find a matching scope when computing a nested coroutine instance: " + f.scopeIn);
+		throw new CompilerError("Could not find a matching scope when computing a nested coroutine instance: " + f.scopeIn, this);
 	}
 	
 	/**
@@ -64,7 +64,7 @@ public class Frame {
 	public Frame getCoroutineFrame(Function f, Frame env, int arity, int sp) {
 		Frame frame = new Frame(f.scopeId, null, env, f.maxstack, f);
 		if(arity != f.nformals) {
-			throw new CompilerError("Incorrect number of arguments has been passed to create a coroutine instance, expected: " + f.nformals);
+			throw new CompilerError("Incorrect number of arguments has been passed to create a coroutine instance, expected: " + f.nformals, env);
 		}
 		for (int i = 0; i < arity; i++) {
 			frame.stack[i] = stack[sp - arity + i];
@@ -186,7 +186,17 @@ public class Frame {
 		s.append(this.function.getPrintableName()).append("(");
 		for(int i = 0; i < function.nformals-1; i++){
 			if(i > 0) s.append(", ");
-			s.append(stack[i]);
+			String repr;
+			if(stack[i] instanceof IValue ) {
+					repr = ((IValue) stack[i]).toString();
+			} else {
+				repr = stack[i].toString();
+				int n = repr.lastIndexOf(".");
+				if(n >= 0){
+					repr = repr.substring(n + 1, repr.length());
+				}
+			}
+			s.append(repr);
 		}
 	
 		if(function.nformals-1 > 0 && stack[function.nformals-1] instanceof HashMap<?, ?>){

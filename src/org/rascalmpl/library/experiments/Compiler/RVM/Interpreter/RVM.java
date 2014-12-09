@@ -735,7 +735,7 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new CompilerError("LOADVAR or LOADVARREF cannot find matching scope: " + varScope);
+					throw new CompilerError("LOADVAR or LOADVARREF cannot find matching scope: " + varScope, cf);
 				}
 				
 				case Opcode.OP_LOADVARDEREF: {
@@ -749,7 +749,7 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new CompilerError("LOADVARDEREF cannot find matching scope: " + s);
+					throw new CompilerError("LOADVARDEREF cannot find matching scope: " + s, cf);
 				}
 				
 				case Opcode.OP_STOREVAR:
@@ -771,7 +771,7 @@ public class RVM {
 						}
 					}
 
-					throw new CompilerError(((op == Opcode.OP_STOREVAR) ? "STOREVAR" : "UNWRAPTHROWNVAR") + " cannot find matching scope: " + s);
+					throw new CompilerError(((op == Opcode.OP_STOREVAR) ? "STOREVAR" : "UNWRAPTHROWNVAR") + " cannot find matching scope: " + s, cf);
 				
 				case Opcode.OP_STOREVARDEREF:
 					s = CodeBlock.fetchArg1(instruction);
@@ -785,7 +785,7 @@ public class RVM {
 						}
 					}
 
-					throw new CompilerError("STOREVARDEREF cannot find matching scope: " + s);
+					throw new CompilerError("STOREVARDEREF cannot find matching scope: " + s, cf);
 				
 				case Opcode.OP_CALLCONSTR:
 					constructor = constructorStore.get(CodeBlock.fetchArg1(instruction));
@@ -869,7 +869,7 @@ public class RVM {
 						cf = cf.getFrame(fun, root, arity, sp);
 						
 					} else {
-						throw new CompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]));
+						throw new CompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]), cf);
 					}
 					
 					if(trackCalls) { cf.printEnter(stdout); }
@@ -994,7 +994,7 @@ public class RVM {
 								arity = CodeBlock.fetchArg1(instruction);
 								int[] refs = cf.function.refs;
 								if(arity != refs.length) {
-									throw new CompilerError("Coroutine " + cf.function.name + ": arity of return (" + arity  + ") unequal to number of reference parameters (" +  refs.length + ")");
+									throw new CompilerError("Coroutine " + cf.function.name + ": arity of return (" + arity  + ") unequal to number of reference parameters (" +  refs.length + ")", cf);
 								}
 								for(int i = 0; i < arity; i++) {
 									ref = (Reference) stack[refs[arity - 1 - i]];
@@ -1051,7 +1051,7 @@ public class RVM {
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 					} catch (Exception e){
 						e.printStackTrace(stderr);
-						throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: "+ e.getMessage() + e.getCause() );
+						throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: "+ e.getMessage() + e.getCause(), cf );
 					} 
 					
 					continue NEXT_INSTRUCTION;
@@ -1068,7 +1068,7 @@ public class RVM {
 							FunctionInstance fun_instance = (FunctionInstance) src;
 							cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
 						} else {
-							throw new CompilerError("Unexpected argument type for INIT: " + src.getClass() + ", " + src);
+							throw new CompilerError("Unexpected argument type for INIT: " + src.getClass() + ", " + src, cf);
 						}
 					}
 					sp = cf.sp;
@@ -1094,7 +1094,7 @@ public class RVM {
 //					} else if(rval instanceof Boolean) {
 //						precondition = (Boolean) rval;
 					} else {
-						throw new CompilerError("Guard's expression has to be boolean!");
+						throw new CompilerError("Guard's expression has to be boolean!", cf);
 					}
 					
 					if(cf == cccf) {
@@ -1149,7 +1149,7 @@ public class RVM {
 							assert arity + fun_instance.next <= fun_instance.function.nformals;
 							fun_instance = fun_instance.applyPartial(arity, stack, sp);
 						} else {
-							throw new CompilerError("Unexpected argument type for APPLYDYN: " + asString(src));
+							throw new CompilerError("Unexpected argument type for APPLYDYN: " + asString(src), cf);
 						}
 					}
 					sp = sp - arity;
@@ -1198,7 +1198,7 @@ public class RVM {
 						int[] refs = cf.function.refs; 
 						
 						if(arity != refs.length) {
-							throw new CompilerError("The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length);
+							throw new CompilerError("The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length, cf);
 						}
 						
 						for(int i = 0; i < arity; i++) {
@@ -1323,7 +1323,7 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 								
 				case Opcode.OP_LABEL:
-					throw new CompilerError("LABEL instruction at runtime");
+					throw new CompilerError("LABEL instruction at runtime", cf);
 					
 				case Opcode.OP_HALT:
 					if (debug) {
@@ -1402,7 +1402,7 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new CompilerError("LOADCONT cannot find matching scope: " + s);
+					throw new CompilerError("LOADCONT cannot find matching scope: " + s, cf);
 				
 				case Opcode.OP_RESET:
 					fun_instance = (FunctionInstance) stack[--sp]; // A function of zero arguments
@@ -1437,7 +1437,7 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 								
 				default:
-					throw new CompilerError("RVM main loop -- cannot decode instruction");
+					throw new CompilerError("RVM main loop -- cannot decode instruction", cf);
 				}
 				
 				switch(postOp){
@@ -1484,7 +1484,7 @@ public class RVM {
 				throw e;
 			}
 			e.printStackTrace(stderr);
-			throw new CompilerError("Executing function " + cf.toString() + "; instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: "+ e.getMessage() + e.getCause() );
+			throw new CompilerError("Executing function " + cf.toString() + "; instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: "+ e.getMessage() + e.getCause(), cf );
 			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
 			//e.printStackTrace();
 			//stderr.println(e.getStackTrace());
@@ -1510,7 +1510,7 @@ public class RVM {
 			}
 			
 			if(clazz == null) {
-				throw new CompilerError("Class not found: " + className);
+				throw new CompilerError("Class " + className + " not found, while trying to call method"  + methodName);
 			}
 			
 			Constructor<?> cons;
@@ -1608,6 +1608,10 @@ public class RVM {
 			"org.rascalmpl.library.PreludeCompiled.readTextValueString",
 			"org.rascalmpl.library.PreludeCompiled.writeBinaryValueFile",
 			"org.rascalmpl.library.PreludeCompiled.writeTextValueFile",
+			"org.rascalmpl.library.util.MonitorCompiled.startJob",
+			"org.rascalmpl.library.util.MonitorCompiled.event",
+			"org.rascalmpl.library.util.MonitorCompiled.endJob",
+			"org.rascalmpl.library.util.MonitorCompiled.todo",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation"
 
