@@ -1043,7 +1043,7 @@ public class RVM {
 					    sp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
 					} catch(Throw e) {
 						stacktrace.add(cf);
-						thrown = Thrown.getInstance(e.getException(), e.getLocation(), stacktrace);
+						thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 					} catch (Thrown e){
 						stacktrace.add(cf);
@@ -1241,13 +1241,13 @@ public class RVM {
 					arity = CodeBlock.fetchArg2(instruction);
 					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
 					try {
-						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity, stacktrace);
+						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity, cf);
 					} catch(Exception exception) {
 						if(!(exception instanceof Thrown)){
 							throw exception;
 						}
 						thrown = (Thrown) exception;
-						thrown.stacktrace.add(cf);
+						//thrown.stacktrace.add(cf);
 						sp = sp - arity;
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 					}
@@ -1350,9 +1350,9 @@ public class RVM {
 					thrown = null;
 					cf.src = (ISourceLocation) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					if(obj instanceof IValue) {
-						stacktrace = new ArrayList<Frame>();
-						stacktrace.add(cf);
-						thrown = Thrown.getInstance((IValue) obj, null, stacktrace);
+						//stacktrace = new ArrayList<Frame>();
+						//stacktrace.add(cf);
+						thrown = Thrown.getInstance((IValue) obj, null, cf);
 					} else {
 						// Then, an object of type 'Thrown' is on top of the stack
 						thrown = (Thrown) obj;
@@ -1446,9 +1446,9 @@ public class RVM {
 				case Opcode.POSTOP_HANDLEEXCEPTION:
 					// EXCEPTION HANDLING
 					if(postOp == Opcode.POSTOP_CHECKUNDEF) {
-						stacktrace = new ArrayList<Frame>();
-						stacktrace.add(cf);
-						thrown = RascalRuntimeException.uninitializedVariable(last_var_name, stacktrace);
+						//stacktrace = new ArrayList<Frame>();
+						//stacktrace.add(cf);
+						thrown = RascalRuntimeException.uninitializedVariable(last_var_name, cf);
 					}
 					cf.pc = pc;
 					// First, try to find a handler in the current frame function,

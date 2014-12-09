@@ -236,9 +236,10 @@ MuExp postfix_rel_lrel(str op, Expression arg) {
 set[str] numeric = {"int", "real", "rat", "num"};
 
 MuExp comparison(str op, Expression e) {
+ 
   lot = reduceContainerType(getOuterType(e.lhs));
   rot = reduceContainerType(getOuterType(e.rhs));
-
+  
   if(lot == "value" || rot == "value"){
      lot = ""; rot = "";
   } else {
@@ -564,39 +565,44 @@ MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){
     reifiedFragType = symbolToValue(fragType);
     println("translateConcrete, reified: <reifiedFragType>");
     Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar());
-    return translateConcreteParsed(parsedFragment);
+    //println("parsedFragment, before"); iprintln(parsedFragment);
+    return translateConcreteParsed(parsedFragment, parsedFragment@\loc);
 }
 
 default MuExp translateConcrete(lang::rascal::\syntax::Rascal::Concrete c) = muCon(c);
 
-MuExp translateConcreteParsed(e: appl(Production prod, list[Tree] args)){
-   println("parsedFragment: <e> with prod.def= <prod.def>");
-   //iprintln(args);
-   if(prod.def == label("hole", lex("ConcretePart"))){
-       varloc = args[0].args[4].args[0]@\loc;		// TODO: refactor (see concrete patterns)
-       println("varloc = <getType(varloc)>");
-       <fuid, pos> = getVariableScope("ConcreteVar", varloc);
-       
-       return muVar("ConcreteVar", fuid, pos);
-    } 
-    MuExp translated_elems;
-    if(any(arg <- args, isConcreteListVar(arg))){       
-       str fuid = topFunctionScope();
-       writer = nextTmp();
-    
-       translated_args = [ muCallPrim3(isConcreteListVar(arg) ? "listwriter_splice_concrete_list_var" : "listwriter_add", 
-                                      [muTmp(writer,fuid), translateConcreteParsed(arg)], e@\loc)
-                         | Tree arg <- args
-                         ];
-       translated_elems = muBlock([ muAssignTmp(writer, fuid, muCallPrim3("listwriter_open", [], e@\loc)),
-                                    *translated_args,
-                                    muCallPrim3("listwriter_close", [muTmp(writer,fuid)], e@\loc) 
-                                  ]);
+MuExp translateConcreteParsed(Tree e, loc src){
+   if(appl(Production prod, list[Tree] args) := e){
+       my_src = e@\loc ? src;
+       iprintln(e);
+       if(prod.def == label("hole", lex("ConcretePart"))){
+           varloc = args[0].args[4].args[0]@\loc;		// TODO: refactor (see concrete patterns)
+           println("varloc = <getType(varloc)>");
+           <fuid, pos> = getVariableScope("ConcreteVar", varloc);
+           
+           return muVar("ConcreteVar", fuid, pos);
+        } 
+        MuExp translated_elems;
+        if(any(arg <- args, isConcreteListVar(arg))){       
+           str fuid = topFunctionScope();
+           writer = nextTmp();
+        
+           translated_args = [ muCallPrim3(isConcreteListVar(arg) ? "listwriter_splice_concrete_list_var" : "listwriter_add", 
+                                          [muTmp(writer,fuid), translateConcreteParsed(arg, my_src)], my_src)
+                             | Tree arg <- args
+                             ];
+           translated_elems = muBlock([ muAssignTmp(writer, fuid, muCallPrim3("listwriter_open", [], my_src)),
+                                        *translated_args,
+                                        muCallPrim3("listwriter_close", [muTmp(writer,fuid)], my_src) 
+                                      ]);
+        } else {
+           translated_elems = muCallPrim3("list_create", [translateConcreteParsed(arg, my_src) | Tree arg <- args], my_src);
+        }
+        return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
+                       [muCon(prod), translated_elems, muTypeCon(Symbol::\void())]);
     } else {
-       translated_elems = muCallPrim3("list_create", [translateConcreteParsed(arg) | Tree arg <- args], e@\loc);
+        return muCon(e);
     }
-    return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
-                   [muCon(prod), translated_elems, muTypeCon(Symbol::\void())]);
 }
 
 bool isConcreteListVar(e: appl(Production prod, list[Tree] args)){
@@ -611,7 +617,7 @@ bool isConcreteListVar(e: appl(Production prod, list[Tree] args)){
 
 default bool isConcreteListVar(Tree t) = false;
 
-default MuExp translateConcreteParsed(Tree t) = muCon(t);
+//default MuExp translateConcreteParsed(Tree t) = muCon(t);
 
 // -- block expression ----------------------------------------------
 

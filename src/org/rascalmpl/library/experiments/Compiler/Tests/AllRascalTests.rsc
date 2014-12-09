@@ -166,7 +166,7 @@ list[str] files_with_tests =
 "lang/rascal/syntax/tests/ParsingRegressionTests",  // OK
 "lang/rascal/syntax/tests/PreBootstrap",            // OK
 "lang/rascal/syntax/tests/SolvedIssues",            // OK
-"lang/yaml/Model",                                  // test fails in interpreter
+"lang/yaml/Model",                                  // OK
 "util/PriorityQueue",                               // OK
 "util/UUID"                                         // OK
 ];
