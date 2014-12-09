@@ -1130,7 +1130,7 @@ public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Produ
 	moduleName = c.store[moduleId].name;
  	fullSortName = appendName(moduleName, rn);
 
-    if (fullSortName notin c.typeEnv && registerName) {
+    if ((rn notin c.typeEnv && fullSortName notin c.typeEnv) && registerName) {
     	c = addScopeError(c, "Could not add syntax definition, associated nonterminal is not in scope", l);
     	return c;
     }
