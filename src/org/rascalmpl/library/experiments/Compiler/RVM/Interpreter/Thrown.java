@@ -16,27 +16,23 @@ public class Thrown extends RuntimeException {
 	IValue value;
 	ISourceLocation loc;
 	
-	List<Frame> stacktrace;
+	Frame currentFrame;
 	
 	private Thrown() {
 		super();
 		this.value = null;
-		this.stacktrace = null;
+		this.currentFrame = null;
 	}
 	
-	public static Thrown getInstance(IValue value, ISourceLocation loc, List<Frame> stacktrace) {
+	public static Thrown getInstance(IValue value, ISourceLocation loc, Frame currentFrame) {
 		instance.value = value;
 		instance.loc = loc;
-		instance.stacktrace = stacktrace;
+		instance.currentFrame = currentFrame;
 		return instance;
 	}
 	
-	public static Thrown getInstance(IValue value, List<Frame> stacktrace) {
-		return getInstance(value, null, stacktrace);
-//		instance.value = value;
-//		instance.loc = null;
-//		instance.stacktrace = stacktrace;
-//		return instance;
+	public static Thrown getInstance(IValue value, Frame currentFrame) {
+		return getInstance(value,  currentFrame.src, currentFrame);
 	}
 
 	public String toString() {
@@ -53,17 +49,15 @@ public class Thrown extends RuntimeException {
 	}
 	
 	public void printStackTrace(PrintWriter stdout) {
-		stdout.println(this.toString() + ((loc !=null) ? " at " + loc : "") );
-		if(stacktrace != null){
-			for(Frame cf : stacktrace) {
-				for(Frame f = cf; f != null; f = f.previousCallFrame) {
-					//stdout.println("at " + f.function.name);
-					stdout.println(f);
-				}
-			}
+		
+		stdout.println(this.toString() + ((loc != null) ? " at " + loc : "") );
+		stdout.println("Call stack (most recent first):");
+		
+		for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
+			//stdout.println("at " + f.function.name);
+			stdout.println("\t" + f);
 		}
 		stdout.println(getAdvice());
-		
 	}
 	
 }

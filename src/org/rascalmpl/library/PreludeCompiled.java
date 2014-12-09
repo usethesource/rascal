@@ -536,7 +536,7 @@ public class PreludeCompiled extends Prelude {
 	@Override
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 	public IValue parse(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
-		return RascalPrimitive.getParsingTools().parse(super.values.string("XXX"), start, input);
+		return RascalPrimitive.getParsingTools().parse(super.values.string("XXX"), start, input, null);
 	}
 	
 	@Override

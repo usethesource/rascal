@@ -125,28 +125,29 @@ public class ParsingTools {
 	 * Parse text from a string
 	 * @param start		Start symbol
 	 * @param input		Text to be parsed as string
-	 * @param stacktrace TODO
+	 * @param currentFrame TODO
 	 * @return ParseTree or Exception
 	 */
-	public IValue parse(IString moduleName, IValue start, IString input, List<Frame> stacktrace) {
-		return parse(moduleName, start, vf.mapWriter().done(), URIUtil.invalidURI(), input.getValue().toCharArray(), stacktrace);
+	public IValue parse(IString moduleName, IValue start, IString input, Frame currentFrame) {
+		return parse(moduleName, start, vf.mapWriter().done(), URIUtil.invalidURI(), input.getValue().toCharArray(), currentFrame);
 	}
 	
 	/**
 	 * Parse text at a location
 	 * @param moduleName Name of module in which grammar is defined
 	 * @param start		Start symbol
+	 * @param currentFrame TODO
 	 * @param input		To be parsed as location
 	 * @return ParseTree or Exception
 	 */
-	public IValue parse(IString moduleName, IValue start, ISourceLocation location) {
+	public IValue parse(IString moduleName, IValue start, ISourceLocation location, Frame currentFrame) {
 		IRascalMonitor old = setMonitor(monitor);
 		
 		try{
 			char[] input = getResourceContent(location.getURI());
-			return parse(moduleName, start,  vf.mapWriter().done(), location.getURI(), input, null);
+			return parse(moduleName, start,  vf.mapWriter().done(), location.getURI(), input, currentFrame);
 		}catch(IOException ioex){
-			throw RascalRuntimeException.io(vf.string(ioex.getMessage()), null);
+			throw RascalRuntimeException.io(vf.string(ioex.getMessage()), currentFrame);
 		} finally{
 			setMonitor(old);
 		}
@@ -159,12 +160,12 @@ public class ParsingTools {
 	 * @param robust		Error recovery map
 	 * @param location		Location where input text comes from
 	 * @param input			Input text as char array
-	 * @param stacktrace 	Stacktrace of calling context
+	 * @param currentFrame 	Stacktrace of calling context
 	 * @return
 	 */
-	public IValue parse(IString moduleName, IValue start, IMap robust, URI location, char[] input, List<Frame> stacktrace) {
+	public IValue parse(IString moduleName, IValue start, IMap robust, URI location, char[] input, Frame currentFrame) {
 		Type reified = start.getType();
-		IConstructor startSort = checkPreconditions(start, reified);
+		IConstructor startSort = checkPreconditions(start, reified, currentFrame);
 		
 		IMap syntax = (IMap) ((IConstructor) start).get(1);
 		try {
@@ -179,7 +180,7 @@ public class ParsingTools {
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = vf.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
-			throw RascalRuntimeException.parseError(errorLoc, stacktrace);
+			throw RascalRuntimeException.parseError(errorLoc, currentFrame);
 		}
 		catch (UndeclaredNonTerminalException e){
 			throw new CompilerError("Undeclared non-terminal: " + e.getName() + ", " + e.getClassName());
@@ -214,15 +215,15 @@ public class ParsingTools {
 	 * @param reified		Reified type, that shoud represent a non-terminal type
 	 * @return Start symbol represented as Symbol
 	 */
-	private static IConstructor checkPreconditions(IValue start, Type reified) {
+	private static IConstructor checkPreconditions(IValue start, Type reified, Frame currentFrame) {
 		if (!(reified instanceof ReifiedType)) {
-		   throw RascalRuntimeException.illegalArgument(start, null, "A reified type is required instead of " + reified);
+		   throw RascalRuntimeException.illegalArgument(start, currentFrame, "A reified type is required instead of " + reified);
 		}
 		
 		Type nt = reified.getTypeParameters().getFieldType(0);
 		
 		if (!(nt instanceof NonTerminalType)) {
-			throw RascalRuntimeException.illegalArgument(start, null, "A non-terminal type is required instead of  " + nt);
+			throw RascalRuntimeException.illegalArgument(start, currentFrame, "A non-terminal type is required instead of  " + nt);
 		}
 		
 		IConstructor symbol = ((NonTerminalType) nt).getSymbol();
