@@ -8006,7 +8006,14 @@ public CheckResult checkVisit(Visit v:(Visit)`visit ( <Expression sub> ) { < Cas
 }
 
 public Configuration addAppendTypeInfo(Configuration c, Symbol t, RName rn, set[LabelSource] ls, loc l) {
-    possibleIndexes = [ idx | idx <- index(c.labelStack), c.labelStack[idx].labelSource in ls, c.labelStack[idx].labelName == rn ];
+	// A guess: most often, a label is not used
+    possibleIndexes = [ idx | idx <- index(c.labelStack), c.labelStack[idx].labelSource in ls ];
+    
+    // But, if we have a label, filter by this label
+    if (RSimpleName("") != rn) {
+    	possibleIndexes = [ idx | idx <- index(c.labelStack), c.labelStack[idx].labelSource in ls, c.labelStack[idx].labelName == rn ];
+    }
+    
     if (size(possibleIndexes) == 0) {
         c = addScopeError(c, "Cannot add append information, no valid surrounding context found", l);
     } else {
