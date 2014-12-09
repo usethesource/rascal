@@ -32,7 +32,7 @@ public class Thrown extends RuntimeException {
 	}
 	
 	public static Thrown getInstance(IValue value, Frame currentFrame) {
-		return getInstance(value,  currentFrame.src, currentFrame);
+		return getInstance(value,  currentFrame != null ? currentFrame.src : null, currentFrame);
 	}
 
 	public String toString() {
@@ -51,11 +51,16 @@ public class Thrown extends RuntimeException {
 	public void printStackTrace(PrintWriter stdout) {
 		
 		stdout.println(this.toString() + ((loc != null) ? " at " + loc : "") );
-		stdout.println("Call stack (most recent first):");
 		
-		for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
-			//stdout.println("at " + f.function.name);
-			stdout.println("\t" + f);
+		if(currentFrame != null){
+			stdout.println("Call stack (most recent first):");
+
+			for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
+				//stdout.println("at " + f.function.name);
+				stdout.println("\t in " + f);
+			}
+		} else {
+			stdout.println("No call stack available");
 		}
 		stdout.println(getAdvice());
 	}
