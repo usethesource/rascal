@@ -13,12 +13,16 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.control_exceptions;
 
+import java.io.IOException;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.StackTrace;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 
 /**
  * This class is for representing all run-time exceptions in Rascal.
@@ -37,6 +41,24 @@ public final class Throw extends ControlException {
 	private volatile ISourceLocation loc;
 	private volatile StackTrace trace;
 	
+	
+	private static String toString(IValue value, int length){
+		StandardTextWriter stw = new StandardTextWriter(true);
+		LimitedResultWriter lros = new LimitedResultWriter(length);
+		
+		try {
+			stw.write(value, lros);
+		}
+		catch (IOLimitReachedException iolrex){
+			// This is fine, ignore.
+		}
+		catch (IOException ioex) {
+			// This can never happen.
+		}
+		
+		return lros.toString();
+	}
+	
 	// It is *not* the idea that these exceptions store references to AbstractAST's!
 	/**
 	 * Make a new Rascal exception.
@@ -46,7 +68,7 @@ public final class Throw extends ControlException {
 	 * @param trace A stack trace, or null
 	 */
 	public Throw(IValue value, ISourceLocation loc, StackTrace trace) {
-		super(value.toString());
+		super(toString(value, 4096));
 		this.exception = value;
 		this.loc = loc;
 		if(trace == null) {
