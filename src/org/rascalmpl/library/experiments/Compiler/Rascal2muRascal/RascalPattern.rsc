@@ -226,11 +226,11 @@ MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) {
   //println("translateConcretePattern, fragType = <fragType>");
   reifiedFragType = symbolToValue(fragType);
   //println("translateConcretePattern, reified: <reifiedFragType>");
-  g = getGrammar();
-  println("GRAMMAR:");
-  for(nt <- g) println("<nt> : <g[nt]>");
+  //g = getGrammar();
+  //println("GRAMMAR:");
+  //for(nt <- g) println("<nt> : <g[nt]>");
   parsedFragment = parseFragment(getModuleName(), reifiedFragType, concrete, p@\loc, getGrammar());
-  println("**** parsedFragment: <parsedFragment>");
+  println("++++ parsedFragment: <parsedFragment>");
   //iprintln(parsedFragment);
   return translateParsedConcretePattern(parsedFragment);
 }
