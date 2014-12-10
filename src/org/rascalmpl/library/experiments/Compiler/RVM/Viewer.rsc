@@ -82,8 +82,8 @@ void view(loc srcLoc,                   // location of Rascal source file
             }
         }
         return;
-    } catch: {
-        println("Cannot read: <rvmLoc>");
+    } catch e: {
+        println("Reading: <rvmLoc>: <e>");
     }
 }
 
@@ -92,7 +92,7 @@ void printDecl(Declaration d){
         println("\tFUNCTION <d.uqname>, <d.qname>, <d.ftype>");
         println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, exceptions=<size(d.exceptions)>, scopeIn=<d.scopeIn>, src=<d.src>");
     } else {
-        println("\tCOROUTINE <d.uqname>, <d.qname>, <d.ftype>");
+        println("\tCOROUTINE <d.uqname>, <d.qname>");
         println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, scopeIn=<d.scopeIn>, src=<d.src>");
     }
 }

@@ -28,8 +28,8 @@ import experiments::Compiler::RVM::Interpreter::ConstantFolder;
 
 MuExp translateMatch((Expression) `<Pattern pat> := <Expression exp>`)  = translateMatch(pat, exp);
    
-MuExp translateMatch((Expression) `<Pattern pat> !:= <Expression exp>`) =
-    muCallMuPrim("not_mbool", [ makeMu("ALL", [ translateMatch(pat, exp) ]) ]);
+MuExp translateMatch(e: (Expression) `<Pattern pat> !:= <Expression exp>`) =
+    muCallMuPrim("not_mbool", [ makeMu("ALL", [ translateMatch(pat, exp) ], e@\loc) ]);
     
 default MuExp translateMatch(Pattern pat, Expression exp) =
     muMulti(muApply(translatePat(pat), [ translate(exp) ]));
@@ -875,7 +875,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
   	      ifname = nextLabel();
           enterBacktrackingScope(ifname);
           conditions = [ translate(cond) | cond <- when_conditions];
-          mubody = muIfelse(ifname,makeMu("ALL",conditions), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+          mubody = muIfelse(ifname,makeMu("ALL",conditions, |unknown:///|), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	      leaveBacktrackingScope();
 	      return mubody;
   	  }
@@ -929,7 +929,7 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
 	  };
 	  conditions += [ translate(cond) | cond <- when_conditions];
 
-	  mubody = muIfelse(fname, makeMu("ALL",conditions), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+	  mubody = muIfelse(fname, makeMu("ALL",conditions, |unknown:///|), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	  leaveBacktrackingScope();
 	  return mubody;
   }

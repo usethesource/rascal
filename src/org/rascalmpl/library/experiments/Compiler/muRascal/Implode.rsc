@@ -209,7 +209,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
                case muCall(preVar(mvar("size_map")), [exp1])									=> muCallMuPrim("size_map", [exp1])
                case muCall(preVar(mvar("size_str")), [exp1])									=> muCallMuPrim("size_str", [exp1])
                case muCall(preVar(mvar("size_tuple")), [exp1])									=> muCallMuPrim("size_tuple", [exp1])
-               case org_exp: muCall(preVar(mvar("size")),[exp1])                             	=> muCallMuPrim("size",[exp1])
+               case muCall(preVar(mvar("size")),[exp1])                             	        => muCallMuPrim("size",[exp1])
                case muCall(preVar(mvar("is_defined")), [exp1])									=> muCallMuPrim("is_defined", [exp1])
                case muCall(preVar(mvar("is_element")), [exp1, exp2])							=> muCallMuPrim("is_element", [exp1, exp2])
                case muCall(preVar(mvar("is_tail")), [exp1, exp2, exp3])							=> muCallMuPrim("is_tail_str_str_mint", [exp1, exp2, exp3])
@@ -285,9 +285,9 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
       	       case preFunNN(str modName1,  str name1, int nformals1)                  			=> muFun1(getUID(modName1,[],name1,nformals1))
       	       case preFunN(lrel[str,int] funNames1,  str name1, int nformals1)        			=> muFun2(getUID(modName,funNames1,name1,nformals1), getUID(modName,funNames1))
       	       
-      	       case muAll(list[MuExp] exps)                                                     => makeMu("ALL",exps)
-      	       case muOr(list[MuExp] exps)                                                      => makeMu("OR",exps)
-      	       case muOne2(list[MuExp] exps)                                                    => makeMuOne("ALL",exps)
+      	       case org_exp: muAll(list[MuExp] exps)                                            => makeMu("ALL",exps,org_exp@location)
+      	       case org_exp: muOr(list[MuExp] exps)                                             => makeMu("OR",exps,org_exp@location)
+      	       case org_exp: muOne2(list[MuExp] exps)                                           => makeMuOne("ALL",exps,org_exp@location)
       	       
       	       /*
  				* The field 'comma' is a work around given the current semantics of implode 
@@ -312,7 +312,7 @@ list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nform
     }    
 }
 
-MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
+MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree, loc src) {
     str all_uid = "<fuid>/ALL_<getNextAll()>";
     localvars = [ muVar("c_<i>", all_uid, i)| int i <- index(exps) ];
     list[MuExp] body = [ muYield0() ];
@@ -326,11 +326,11 @@ MuExp generateMu("ALL", list[MuExp] exps, list[bool] backtrackfree) {
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     												//TODO scopeIn argument is missing
-    functions_in_module += muCoroutine(all_uid, fuid, "", 0, size(localvars), |unknown:///generated-ALL|, [], muBlock(body));
+    functions_in_module += muCoroutine(all_uid, fuid, "", 0, size(localvars), src, [], muBlock(body));
     return muMulti(muApply(muFun2(all_uid, fuid), []));
 }
 
-MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
+MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree, loc src) {
     str or_uid = "<fuid>/Or_<getNextOr()>";
     localvars = [ muVar("c_<i>", or_uid, i)| int i <- index(exps) ];
     list[MuExp] body = [];
@@ -343,25 +343,25 @@ MuExp generateMu("OR", list[MuExp] exps, list[bool] backtrackfree) {
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
     												//TODO scopeIn argument is missing
-    functions_in_module += muCoroutine(or_uid, fuid, "", 0, size(localvars),  |unknown:///generated-OR|, [], muBlock(body));
+    functions_in_module += muCoroutine(or_uid, fuid, "", 0, size(localvars),  src, [], muBlock(body));
     return muMulti(muApply(muFun2(or_uid, fuid), []));
 }
 
 // Produces multi- or backtrack-free expressions
-MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) {
-    tuple[MuExp e,list[MuFunction] functions] res = makeMu(muAllOrMuOr,fuid,exps);
+MuExp makeMu(str muAllOrMuOr, list[MuExp] exps, loc src) {
+    tuple[MuExp e,list[MuFunction] functions] res = makeMu(muAllOrMuOr,fuid,exps,src);
     functions_in_module = functions_in_module + res.functions;
     return res.e;
 }
 
-MuExp makeMuMulti(MuExp exp) {
-    tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,fuid);
+MuExp makeMuMulti(MuExp exp, loc src) {
+    tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,fuid,src);
     functions_in_module = functions_in_module + res.functions;
     return res.e;
 }
 
-MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps) {
-    tuple[MuExp e,list[MuFunction] functions] res = makeMuOne(muAllOrMuOr,fuid,exps);
+MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps, loc src) {
+    tuple[MuExp e,list[MuFunction] functions] res = makeMuOne(muAllOrMuOr,fuid,exps,src);
     functions_in_module = functions_in_module + res.functions;
     return res.e;
 }
