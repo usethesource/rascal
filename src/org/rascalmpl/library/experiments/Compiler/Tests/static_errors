@@ -6,7 +6,7 @@
 |std:///demo/lang/Pico/ToDot.rsc|
 |std:///demo/lang/turing/l2/desugar/Desugar.rsc|
 |std:///experiments/Compiler/Benchmarks/Run.rsc|
-|std:///experiments/Compiler/Examples/QL/util/Explode.rsc|
+|std:///experiments/Compiler/Examples/Tst.rsc|
 |std:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|
 |std:///experiments/Compiler/Rascal2muRascal/RascalModule.rsc|
 |std:///experiments/Compiler/Tests/AllRascalLibs.rsc|
@@ -31,11 +31,11 @@
 |std:///lang/dimacs/IO.rsc|
 |std:///lang/dot/Dot.rsc|
 |std:///lang/java/m3/Core.rsc|
+|std:///lang/java/syntax/Disambiguate.rsc|
 |std:///lang/java/syntax/Java15.rsc|
 |std:///lang/rascal/checker/TTL/TTLGen.rsc|
-|std:///lang/rascal/mutation/ModuleMutator.rsc|
 |std:///lang/rascal/syntax/tests/ConcreteSyntax.rsc|
-|std:///lang/rascal/tests/functionality/ConcreteSyntaxTests2.rsc|
+|std:///lang/rascal/tests/library/MapTests.rsc|
 |std:///lang/rascal/tests/library/analysis/statistics/RangeUtils.rsc|
 |std:///lang/rascal/tests/types/PatternTCTests.rsc|
 |std:///lang/saf/Run.rsc|

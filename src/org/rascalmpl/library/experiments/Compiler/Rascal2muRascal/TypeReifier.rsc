@@ -123,12 +123,22 @@ public type[value] symbolToValue(Symbol symbol) {
    	
 	// Recursively collect all the type definitions associated with a given symbol
 	
+	println("symbolToValue: <symbol>");
  	map[Symbol,Production] definitions = reify(symbol, ());
  	
- 	symbol = (Symbol::conditional(Symbol sym,_) := symbol) ? sym : symbol;
+ 	if(Symbol::\start(Symbol sym) := symbol){
+ 	    definitions += (symbol : choice(symbol, { prod(symbol,
+                                                       [ layouts("Whitespace"),
+                                                         label("top", sym),
+                                                         layouts("Whitespace")
+                                                       ],
+                                                    {})}));
+    }
+ 	                                             
+ 	der_symbol = (Symbol::conditional(Symbol sym,_) := symbol || Symbol::\start(Symbol sym) := symbol) ? sym : symbol;
  	
- 	if(Symbol::\sort(_):= symbol || Symbol::\lex(_):= symbol ||
- 		Symbol::\parameterized-sort(_,_):= symbol || Symbol::\parameterized-lex(_,_):= symbol) {
+ 	if(Symbol::\sort(_):= der_symbol || Symbol::\lex(_):= der_symbol ||
+ 		Symbol::\parameterized-sort(_,_):= der_symbol || Symbol::\parameterized-lex(_,_):= der_symbol) {
  			if(<str n, Symbol def> <- typeRel, Symbol::\layouts(_) := def) {
  				definitions = reify(def,definitions);
  			}
@@ -144,30 +154,39 @@ public map[Symbol,Production] reify(Symbol symbol, /*Configuration config,*/ map
 	= definitions when isIntType(symbol) || isBoolType(symbol) || isRealType(symbol) || isRatType(symbol) ||
 					   isStrType(symbol) || isNumType(symbol) || isNodeType(symbol) || isVoidType(symbol) ||
 					   isValueType(symbol) || isLocType(symbol) || isDateTimeType(symbol);
+					   
 // labeled					   
 public map[Symbol,Production] reify(Symbol::\label(str name, Symbol symbol), map[Symbol,Production] definitions)
 	= reify(symbol, definitions);
+	
 // set
 public map[Symbol,Production] reify(Symbol::\set(Symbol symbol), map[Symbol,Production] definitions)
 	= reify(symbol, definitions);
+	
 // rel
 public map[Symbol,Production] reify(Symbol::\rel(list[Symbol] symbols), map[Symbol,Production] definitions)
 	= ( definitions | reify(sym, it) | sym <- symbols );
+	
 // list
 public map[Symbol,Production] reify(Symbol::\list(Symbol symbol), map[Symbol,Production] definitions)
 	= reify(symbol, definitions);
+	
 // lrel
 public map[Symbol,Production] reify(Symbol::\lrel(list[Symbol] symbols), map[Symbol,Production] definitions)
 	= ( definitions | reify(sym, it) | sym <- symbols );
+	
 // bag
 public map[Symbol,Production] reify(Symbol::\bag(Symbol symbol), map[Symbol,Production] definitions)
 	= reify(symbol, definitions);
+	
 // tuple
 public map[Symbol,Production] reify(Symbol::\tuple(list[Symbol] symbols), map[Symbol,Production] definitions)
 	= ( definitions | reify(sym, it) | sym <- symbols );
+	
 // map
 public map[Symbol,Production] reify(Symbol::\map(Symbol from, Symbol to), map[Symbol,Production] definitions)
 	= reify(from, definitions) + reify(to, definitions);
+	
 // adt
 public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols), map[Symbol,Production] definitions) {
 	set[Symbol] defs = typeRel[name];
@@ -187,16 +206,19 @@ public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols)
     }
     throw "No definition for ADT <name>";
 }
+
 // constructors
 public map[Symbol,Production] reify(Symbol::\cons(Symbol \adt, str name, list[Symbol] parameters), map[Symbol,Production] definitions)
 	// adt has been already added to the definitions
 	= ( definitions | reify(sym, it) | sym <- parameters );
+	
 // alias
 public map[Symbol,Production] reify(Symbol::\alias(str name, list[Symbol] parameters, Symbol aliased), map[Symbol,Production] definitions) {
 	definitions = reify(aliased, definitions);
 	definitions = ( definitions | reify(sym, it) | sym <- parameters );
 	return definitions;
 }
+
 // function
 public map[Symbol,Production] reify(Symbol::\func(Symbol ret, list[Symbol] parameters), map[Symbol,Production] definitions) {
     //println("reify function: <ret>, <parameters>, <definitions>");
@@ -204,6 +226,7 @@ public map[Symbol,Production] reify(Symbol::\func(Symbol ret, list[Symbol] param
 	definitions = ( definitions | reify(sym, it) | Symbol sym <- parameters );
 	return definitions;
 }
+
 // function with varargs
 public map[Symbol,Production] reify(Symbol::\var-func(Symbol ret, list[Symbol] parameters, Symbol varArg), map[Symbol,Production] definitions) {
     
@@ -212,9 +235,11 @@ public map[Symbol,Production] reify(Symbol::\var-func(Symbol ret, list[Symbol] p
 	definitions = reify(varArg, definitions);
 	return definitions;
 }
+
 // reified
 public map[Symbol,Production] reify(Symbol::\reified(Symbol ret), map[Symbol,Production] definitions) 
 	= reify(ret, definitions);
+	
 // parameter
 public map[Symbol,Production] reify(Symbol::\parameter(str name, Symbol bound), map[Symbol,Production] definitions)
 	= reify(bound, definitions);
@@ -249,7 +274,7 @@ public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] defini
 		  }
 		}
 		throw "No definition for symbol <name>";
-	  } when Symbol::\sort(str name) := symbol || Symbol::\lex(str name) := symbol ||
+	  } when /*Symbol::\start(Symbol::\sort(str name)) := symbol || */Symbol::\sort(str name) := symbol || Symbol::\lex(str name) := symbol ||
 	  		 Symbol::\layouts(str name) := symbol || Symbol::\keywords(str name) := symbol;
 
 // parameterized-sort, parameterized-lex  
@@ -278,7 +303,7 @@ public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] defini
 
 public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions)
 	= reify(sym, definitions)
-		when Symbol::\opt(Symbol sym) := symbol || Symbol::\iter(Symbol sym) := symbol ||
+		when Symbol::\start(Symbol sym) := symbol || Symbol::\opt(Symbol sym) := symbol || Symbol::\iter(Symbol sym) := symbol ||
 			 Symbol::\iter-star(Symbol sym) := symbol || Symbol::\iter-seps(Symbol sym, _) := symbol ||
 			 Symbol::\iter-star-seps(Symbol sym, list[Symbol] _) := symbol;
 
@@ -308,12 +333,15 @@ public default map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production
 private Production sym2prod(Symbol::\cons(Symbol \type, str name, list[Symbol] parameters)) 
 	= Production::\cons(Symbol::label(name, \type), parameters, [], (), {}) 
 		when Symbol::\adt(str _, list[Symbol] _) := \type;
+		
 private Production sym2prod(Symbol::\prod(Symbol \type, str name, list[Symbol] parameters, set[Attr] attributes))
 	= Production::\prod(Symbol::\label(name, \type), parameters, attributes) 
 		when name != "" && \type has name;
+		
 private Production sym2prod(Symbol::\prod(Symbol \type, str name, list[Symbol] parameters, set[Attr] attributes))
 	= Production::\prod(\type, parameters, attributes) 
 		when name == "" && \type has name;
+		
 default Production sym2prod(Symbol s) { throw "Could not transform the symbol <s> to a Production node"; }
 
 @doc{Intermix with an active layout}
