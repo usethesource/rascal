@@ -204,7 +204,9 @@ public class RascalRuntimeException {
 	}
 	
 	public static Thrown noSuchAnnotation(String label, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(NoSuchAnnotation, VF.string(label)), currentFrame);
+		Thrown res = Thrown.getInstance(VF.constructor(NoSuchAnnotation, VF.string(label)), currentFrame);
+		res.printStackTrace(System.out);
+		return res;
 	}
 
 	public static Thrown noSuchKey(IValue v, Frame currentFrame) {

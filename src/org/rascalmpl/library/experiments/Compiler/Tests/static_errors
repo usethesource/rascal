@@ -6,7 +6,6 @@
 |std:///demo/lang/Pico/ToDot.rsc|
 |std:///demo/lang/turing/l2/desugar/Desugar.rsc|
 |std:///experiments/Compiler/Benchmarks/Run.rsc|
-|std:///experiments/Compiler/Examples/QL/lang/qla/Outline.rsc|
 |std:///experiments/Compiler/Examples/QL/util/Explode.rsc|
 |std:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|
 |std:///experiments/Compiler/Rascal2muRascal/RascalModule.rsc|
@@ -26,7 +25,6 @@
 |std:///experiments/vis2/examples/gui/StateMachine.rsc|
 |std:///experiments/vis2/examples/gui/Todo1.rsc|
 |std:///experiments/vis2/examples/gui/Todo2.rsc|
-|std:///experiments/vis2/vega/Vega.rsc|
 |std:///lang/box/util/Box2Text.rsc|
 |std:///lang/box/util/BoxFormat.rsc|
 |std:///lang/box/util/Parse.rsc|
@@ -43,10 +41,3 @@
 |std:///lang/saf/Run.rsc|
 |std:///lang/sdf2/util/SDF2Grammar.rsc|
 |std:///util/tasks/Vis.rsc|
-|std:///vis/web/BarChart.rsc|
-|std:///vis/web/PlotFunction.rsc|
-|std:///vis/web/examples/CodeCut.rsc|
-|std:///vis/web/examples/M3BarChart.rsc|
-|std:///vis/web/examples/Napoleon.rsc|
-|std:///vis/web/markup/D3.rsc|
-|std:///vis/web/markup/Dimple.rsc|

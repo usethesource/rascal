@@ -34,20 +34,20 @@ int size_keywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expr
     (keywordArguments is \default) ? size([kw | KeywordArgument[Expression] kw <- keywordArguments.keywordArgumentList]) : 0;
 
 // Produces multi- or backtrack-free expressions
-MuExp makeMu(str muAllOrMuOr, list[MuExp] exps) {
-    tuple[MuExp e,list[MuFunction] functions] res = makeMu(muAllOrMuOr,topFunctionScope(),exps);
+MuExp makeMu(str muAllOrMuOr, list[MuExp] exps, loc src) {
+    tuple[MuExp e,list[MuFunction] functions] res = makeMu(muAllOrMuOr,topFunctionScope(),exps,src);
     addFunctionsToModule(res.functions);
     return res.e;
 }
 
-MuExp makeMuMulti(MuExp exp) {
-    tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,topFunctionScope());
+MuExp makeMuMulti(MuExp exp, loc src) {
+    tuple[MuExp e,list[MuFunction] functions] res = makeMuMulti(exp,topFunctionScope(),src);
     addFunctionsToModule(res.functions);
     return res.e;
 }
 
-MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps) {
-    tuple[MuExp e,list[MuFunction] functions] res = makeMuOne(muAllOrMuOr,topFunctionScope(),exps);
+MuExp makeMuOne(str muAllOrMuOr, list[MuExp] exps, loc src) {
+    tuple[MuExp e,list[MuFunction] functions] res = makeMuOne(muAllOrMuOr,topFunctionScope(),exps,src);
     addFunctionsToModule(res.functions);
     return res.e;
 }
@@ -574,7 +574,7 @@ default MuExp translateConcrete(lang::rascal::\syntax::Rascal::Concrete c) = muC
 MuExp translateConcreteParsed(Tree e, loc src){
    if(appl(Production prod, list[Tree] args) := e){
        my_src = e@\loc ? src;
-       iprintln(e);
+       //iprintln(e);
        if(prod.def == label("hole", lex("ConcretePart"))){
            varloc = args[0].args[4].args[0]@\loc;		// TODO: refactor (see concrete patterns)
            println("varloc = <getType(varloc)>");
@@ -703,6 +703,7 @@ MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expre
 // -- range expression ----------------------------------------------
 
 MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) {
+  //println("range: <e>");
   str fuid = topFunctionScope();
   loopname = nextLabel(); 
   writer = asTmp(loopname);
@@ -715,7 +716,7 @@ MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) {
   return
     muBlock(
     [ muAssignTmp(writer, fuid, muCallPrim3("listwriter_open", [], e@\loc)),
-      muWhile(loopname, makeMu("ALL", [ rangecode ]), [ muCallPrim3("listwriter_add", [muTmp(writer,fuid), muTmp(var,fuid)], e@\loc)]),
+      muWhile(loopname, makeMu("ALL", [ rangecode ], e@\loc), [ muCallPrim3("listwriter_add", [muTmp(writer,fuid), muTmp(var,fuid)], e@\loc)]),
       muCallPrim3("listwriter_close", [muTmp(writer,fuid)], e@\loc) 
     ]);
     
@@ -736,7 +737,7 @@ MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <
   return
     muBlock(
     [ muAssignTmp(writer, fuid, muCallPrim3("listwriter_open", [], e@\loc)),
-      muWhile(loopname, makeMu("ALL", [ rangecode ]), [ muCallPrim3("listwriter_add", [muTmp(writer,fuid), muTmp(var,fuid)], e@\loc)]),
+      muWhile(loopname, makeMu("ALL", [ rangecode ], e@\loc), [ muCallPrim3("listwriter_add", [muTmp(writer,fuid), muTmp(var,fuid)], e@\loc)]),
       muCallPrim3("listwriter_close", [muTmp(writer,fuid)], e@\loc) 
     ]);
 }
@@ -865,7 +866,7 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 						                                                     muVar("end", phi_fixpoint_fuid, endPos)			                                                                                   
 						                                                   ])),
 						  muIfelse(nextLabel(), makeMu("ALL", [ muCallPrim("equal", [ muVar("val", phi_fixpoint_fuid, valPos), 
-						                                                              muVar("iSubject", phi_fixpoint_fuid, iSubjectPos) ]) ]),
+						                                                              muVar("iSubject", phi_fixpoint_fuid, iSubjectPos) ]) ], \visit@\loc),
 						  						[ muAssign("changed", phi_fixpoint_fuid,changedPos, muBool(false)) ], 
 						  						[ muAssign("iSubject", phi_fixpoint_fuid, iSubjectPos, muVar("val", phi_fixpoint_fuid, valPos)) ] )]);
 		body_exps += muReturn1(muVar("iSubject", phi_fixpoint_fuid, iSubjectPos));
@@ -937,7 +938,7 @@ MuExp translateVisitCases(list[Case] cases, str fuid, Symbol subjectType) {
 			list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
 			                      muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)), 
 			                      replacement ];
-        	exp = muIfelse(ifname, makeMu("ALL",[ cond,tcond,*conditions ]), [ muReturn1(muBlock(cbody)) ], [ translateVisitCases(tail(cases),fuid, subjectType) ]);
+        	exp = muIfelse(ifname, makeMu("ALL",[ cond,tcond,*conditions ], pattern@\loc), [ muReturn1(muBlock(cbody)) ], [ translateVisitCases(tail(cases),fuid, subjectType) ]);
         	leaveBacktrackingScope();
         	return exp;
 		} else {
@@ -952,7 +953,7 @@ MuExp translateVisitCases(list[Case] cases, str fuid, Symbol subjectType) {
 				cbody += \case;
 			}
 			cbody += muReturn1(muVar("iSubject", fuid, iSubjectPos));
-			exp = muIfelse(ifname, makeMu("ALL",[ cond,tcond ]), cbody, [ translateVisitCases(tail(cases),fuid, subjectType) ]);
+			exp = muIfelse(ifname, makeMu("ALL",[ cond,tcond ], pattern@\loc), cbody, [ translateVisitCases(tail(cases),fuid, subjectType) ]);
         	leaveBacktrackingScope();
 			return exp;
 		}
@@ -999,14 +1000,17 @@ MuExp translatePatInVisit(Pattern pattern, str fuid, Symbol subjectType){
 
 // -- reducer expression --------------------------------------------
 
-MuExp translate (e:(Expression) `( <Expression init> | <Expression result> | <{Expression ","}+ generators> )`) = translateReducer(init, result, generators);
+MuExp translate (e:(Expression) `( <Expression init> | <Expression result> | <{Expression ","}+ generators> )`) = translateReducer(e); //translateReducer(init, result, generators);
 
-MuExp translateReducer(Expression init, Expression result, {Expression ","}+ generators){
+MuExp translateReducer(Expression e){ //Expression init, Expression result, {Expression ","}+ generators){
+    Expression init = e.init;
+    Expression result = e.result;
+    {Expression ","}+  generators = e.generators;
     str fuid = topFunctionScope();
     loopname = nextLabel(); 
     tmp = asTmp(loopname); 
     pushIt(tmp,fuid);
-    code = [ muAssignTmp(tmp, fuid, translate(init)), muWhile(loopname, makeMuMulti(makeMu("ALL", [ translate(g) | g <- generators ])), [muAssignTmp(tmp,fuid,translate(result))]), muTmp(tmp,fuid)];
+    code = [ muAssignTmp(tmp, fuid, translate(init)), muWhile(loopname, makeMuMulti(makeMu("ALL", [ translate(g) | g <- generators ], e@\loc), e@\loc), [muAssignTmp(tmp,fuid,translate(result))]), muTmp(tmp,fuid)];
     popIt();
     return muBlock(code);
 }
@@ -1193,12 +1197,12 @@ MuExp translateKeywordArguments((KeywordArguments[Expression]) `<KeywordArgument
 
 // -- any expression ------------------------------------------------
 
-MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = makeMuOne("ALL",[ translate(g) | g <- generators ]);
+MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = makeMuOne("ALL",[ translate(g) | g <- generators ], e@\loc);
 
 // -- all expression ------------------------------------------------
 
 MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
-  println("all: <e>");
+  
   // First split generators with a top-level && operator
   generators1 = [*(((Expression) `<Expression e1> && <Expression e2>` := g) ? [e1, e2] : [g]) | g <- generators];
   isGen = [!backtrackFree(g) | g <- generators1];
@@ -1222,11 +1226,14 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
 
 // -- comprehension expression --------------------------------------
 
-MuExp translate (e:(Expression) `<Comprehension comprehension>`) = translateComprehension(comprehension);
+MuExp translate (e:(Expression) `<Comprehension comprehension>`) =translateComprehension(comprehension);
 
-private MuExp translateGenerators({Expression ","}+ generators){
-   return makeMu("ALL",[translate(g) | g <-generators]);
-}
+//private MuExp translateGenerators({Expression ","}+ generators){
+//   println("translateGenerators: <generators>, <generators@\loc>");
+//   res = makeMu("ALL",[translate(g) | g <-generators], generators@\loc);
+//   println("res = <res>");
+//   return res;
+//}
 
 private list[MuExp] translateComprehensionContribution(str kind, str tmp, str fuid, list[Expression] results){
   return 
@@ -1240,37 +1247,40 @@ private list[MuExp] translateComprehensionContribution(str kind, str tmp, str fu
 } 
 
 private MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ results> | <{Expression ","}+ generators> ]`) {
+    //println("translateComprehension (list): <generators>");
     str fuid = topFunctionScope();
     loopname = nextLabel(); 
     tmp = asTmp(loopname);
     return
     muBlock(
     [ muAssignTmp(tmp, fuid, muCallPrim3("listwriter_open", [], c@\loc)),
-      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ])), translateComprehensionContribution("list", tmp, fuid, [r | r <- results])),
+      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ], c@\loc), c@\loc), translateComprehensionContribution("list", tmp, fuid, [r | r <- results])),
       muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], c@\loc) 
     ]);
 }
 
 private MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ results> | <{Expression ","}+ generators> }`) {
+    //println("translateComprehension (set): <generators>");
     str fuid = topFunctionScope();
     loopname = nextLabel(); 
     tmp = asTmp(loopname); 
     return
     muBlock(
     [ muAssignTmp(tmp, fuid, muCallPrim3("setwriter_open", [], c@\loc)),
-      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ])), translateComprehensionContribution("set", tmp, fuid, [r | r <- results])),
+      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ], c@\loc), c@\loc), translateComprehensionContribution("set", tmp, fuid, [r | r <- results])),
       muCallPrim3("setwriter_close", [muTmp(tmp,fuid)], c@\loc) 
     ]);
 }
 
 private MuExp translateComprehension(c: (Comprehension) `(<Expression from> : <Expression to> | <{Expression ","}+ generators> )`) {
+    //println("translateComprehension (map): <generators>");
     str fuid = topFunctionScope();
     loopname = nextLabel(); 
     tmp = asTmp(loopname); 
     return
     muBlock(
     [ muAssignTmp(tmp, fuid, muCallPrim3("mapwriter_open", [], c@\loc)),
-      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ])), [muCallPrim3("mapwriter_add", [muTmp(tmp,fuid)] + [ translate(from), translate(to)], c@\loc)]), 
+      muWhile(loopname, makeMuMulti(makeMu("ALL",[ translate(g) | g <- generators ], c@\loc), c@\loc), [muCallPrim3("mapwriter_add", [muTmp(tmp,fuid)] + [ translate(from), translate(to)], c@\loc)]), 
       muCallPrim3("mapwriter_close", [muTmp(tmp,fuid)], c@\loc) 
     ]);
 }
@@ -1714,13 +1724,13 @@ bool backtrackFree(Expression e){
 
 // Boolean expressions
 
-MuExp translateBool((Expression) `<Expression lhs> && <Expression rhs>`) = translateBoolBinaryOp("and", lhs, rhs);
+MuExp translateBool(e: (Expression) `<Expression lhs> && <Expression rhs>`) = makeMu("ALL",[translate(lhs), translate(rhs)], e@\loc); //translateBoolBinaryOp("and", lhs, rhs);
 
-MuExp translateBool((Expression) `<Expression lhs> || <Expression rhs>`) = translateBoolBinaryOp("or", lhs, rhs);
+MuExp translateBool(e: (Expression) `<Expression lhs> || <Expression rhs>`) = makeMu("OR",[translate(lhs), translate(rhs)], e@\loc); //translateBoolBinaryOp("or", lhs, rhs);
 
-MuExp translateBool((Expression) `<Expression lhs> ==\> <Expression rhs>`) = translateBoolBinaryOp("implies", lhs, rhs);
+MuExp translateBool(e: (Expression) `<Expression lhs> ==\> <Expression rhs>`) = makeMu("IMPLICATION",[ translate(lhs), translate(rhs) ], e@\loc); //translateBoolBinaryOp("implies", lhs, rhs);
 
-MuExp translateBool((Expression) `<Expression lhs> \<==\> <Expression rhs>`) = translateBoolBinaryOp("equivalent", lhs, rhs);
+MuExp translateBool(e: (Expression) `<Expression lhs> \<==\> <Expression rhs>`) = makeMu("EQUIVALENCE",[ translate(lhs), translate(rhs) ], e@\loc); //translateBoolBinaryOp("equivalent", lhs, rhs);
 
 MuExp translateBool((Expression) `! <Expression lhs>`) = translateBoolNot(lhs);
  
@@ -1752,7 +1762,7 @@ MuExp translateBoolNot(Expression lhs){
   if(backtrackFree(lhs)){
   	  return muCallMuPrim("not_mbool", [translateBool(lhs)]);
   	} else {
-  	  return muCallMuPrim("not_mbool", [ makeMu("ALL",[translate(lhs)]) ]);
+  	  return muCallMuPrim("not_mbool", [ makeMu("ALL",[translate(lhs)], lhs@\loc) ]);
   	}
 }
 

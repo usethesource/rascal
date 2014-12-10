@@ -33,27 +33,10 @@ str getParserMethodName(label(_,Symbol s)) = getParserMethodName(s);
 str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(s);
 default str getParserMethodName(Symbol s) = value2id(s);
 
-public value main(list[value] args) = expandParameterizedSymbols(G0);
-//grammar(
-//  {sort("S")},
-//  (
-//    sort("S"):choice(
-//      sort("S"),
-//      {prod(
-//          sort("S"),
-//          [lit("0")],
-//          {})}),
-//    lit("0"):choice(
-//      lit("0"),
-//      {prod(
-//          lit("0"),
-//          [\char-class([range(48,48)])],
-//          {})})
-//  ));
+public value main(list[value] args) = //{p | /Production p := G0, prod(_,_,_) := p || regular(_) := p};
 
 
-
-//newGenerate("GeneratedG0Parser", "G0Parser", G0) == readFile(|rascal:///lang/rascal/grammar/tests/G0Parser.java|);
+newGenerate("GeneratedG0Parser", "G0Parser", G0); // == readFile(|rascal:///lang/rascal/grammar/tests/G0Parser.java|);
 
 public str newGenerate(str package, str name, Grammar gr) {
     startJob("Generating parser <package>.<name>");
@@ -74,14 +57,20 @@ public str newGenerate(str package, str name, Grammar gr) {
     
     event("establishing production set");
     uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_) := p};
- 
+    
+    src = "";
+
     event("assigning unique ids to symbols");
+  
     gr = visit(gr) { case Symbol s => s[@id=newItem()] }
-        
+ 
+      
     event("generating item allocations");
     newItems = generateNewItems(gr);
     
     event("computing priority and associativity filter");
+    
+    /*
     rel[int parent, int child] dontNest = computeDontNests(newItems, gr);
     // this creates groups of children that forbidden below certain parents
     rel[set[int] children, set[int] parents] dontNestGroups = 
@@ -246,6 +235,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  <generateParseMethod(newItems, gr.rules[nont])><}>
            '}";
    endJob(true);
+   */
    return src;
 }  
 
@@ -295,15 +285,21 @@ map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
   map[Symbol,map[Item,tuple[str new, int itemId]]] items = ();
   map[Item,tuple[str new, int itemId]] fresh = ();
   
+  println("generateNewItems: <g>");
   visit (g) {
-    case Production p:prod(Symbol s,[],_) : 
-       items[getType(s)]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<s@id>, 0)", s@id>);
+    case Production p:prod(Symbol s,[],_) : {
+        println("case 1");
+        items[getType(s)]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<s@id>, 0)", s@id>);
+       }
     case Production p:prod(Symbol s,list[Symbol] lhs, _) : {
+      println("case 2");
       for (int i <- index(lhs)) 
         items[getType(s)]?fresh += (item(p, i): sym2newitem(g, lhs[i], i));
     }
     case Production p:regular(Symbol s) : {
+      println("case 3");
       while (s is conditional || s is label)
+        println("while true");
         s = s.symbol;
          
       switch(s) {
@@ -605,14 +601,14 @@ str v2i(value v) {
 
 //public Grammar GEMPTY = grammar({sort("S")}, ());
 //
-//private Production pr(Symbol rhs, list[Symbol] lhs) {
-//  return prod(rhs,lhs,{});
-//}
-//
-//public Grammar G0 = grammar({sort("S")}, (
-//    sort("S"): choice(sort("S"), { pr(sort("S"), [ lit("0") ]) }),
-//    lit("0"): choice(lit("0"), { pr(lit("0"),[\char-class([range(48,48)])]) })
-//));
+private Production pr(Symbol rhs, list[Symbol] lhs) {
+  return prod(rhs,lhs,{});
+}
+
+public Grammar G0 = grammar({sort("S")}, (
+    sort("S"): choice(sort("S"), { pr(sort("S"), [ lit("0") ]) }),
+    lit("0"): choice(lit("0"), { pr(lit("0"),[\char-class([range(48,48)])]) })
+));
 //
 //public map[Symbol sort, Production def] Lit1 = (
 //  lit("*"): choice(lit("*"), { pr(lit("*"),[\char-class([range(42,42)])]) }),
