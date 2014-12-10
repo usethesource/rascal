@@ -675,7 +675,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions and constructors found which could be applied",exp@\loc));
         } else if ( (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) && size(productionMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions and productions found which could be applied",exp@\loc));
-        } else if (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) {
+        } else if (size(nonDefaultFunctionMatches) > 1 && size(defaultFunctionMatches) != 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions found which could be applied",exp@\loc));
         } else if (size(constructorMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple constructors found which could be applied",exp@\loc));
@@ -821,18 +821,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				}
 				< c, rtp > = markLocationType(c,e@\loc,functionVariant);
 				return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
-			} else if (size(finalNonDefaultMatches) == 1 && size(finalDefaultMatches) == 1) {
+			} else if (size(finalNonDefaultMatches) > 1 && size(finalDefaultMatches) == 1) {
 				// Make sure the function and the default function or constructor variants have the same return type, else we
 				// have a conflict.
-				functionVariant = getOneFrom(filterSet(finalNonDefaultMatches, isFunctionType));
 				defaultVariant = getOneFrom(finalDefaultMatches);
 				defaultResultType = isConstructorType(defaultVariant) ? getConstructorResultType(defaultVariant) : (isFunctionType(defaultVariant) ? getFunctionReturnType(defaultVariant) : getProductionSortType(defaultVariant));
 				
-				if (equivalent(getFunctionReturnType(functionVariant),defaultResultType)) {
-					finalType = makeOverloadedType(finalNonDefaultMatches,finalDefaultMatches);
-				    < c, rtp > = markLocationType(c,e@\loc,finalType);
-				    return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
-				} else {
+				for (functionVariant <- filterSet(finalNonDefaultMatches, isFunctionType), !equivalent(getFunctionReturnType(functionVariant),defaultResultType)) {
 					// TODO: This should also result in an error on the function
 					// declaration, since we should not have a function with the same name
 					// and parameters but a different return type
@@ -840,6 +835,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				    < c, rtp > = markLocationType(c,e@\loc,defaultVariant);
 				    return markLocationType(c,exp@\loc,defaultResultType);
 				}
+				
+				functionVariant = getOneFrom(filterSet(finalNonDefaultMatches, isFunctionType));
+				finalType = makeOverloadedType(finalNonDefaultMatches,finalDefaultMatches);
+			    < c, rtp > = markLocationType(c,e@\loc,finalType);
+			    return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
 			} else {
 				// Make sure the function, the default function and constructor variants have the same return type, else we
 				// have a conflict.

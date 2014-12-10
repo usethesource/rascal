@@ -43,17 +43,6 @@ public Bindings match(Symbol r, Symbol s, Bindings b, bool bindIdenticalVars) {
 	// the current bindings.
 	if (!typeContainsTypeVars(r)) return b;
 		
-	// We can always treat a void subject as a void set, list, map, or bag if we
-	// are matching against a set, list, map, or bag type, respectively
-	if (isSetType(r) && isVoidType(s))
-		s = makeSetType(s);
-	else if (isListType(r) && isVoidType(s))
-		s = makeListType(s);
-	else if (isMapType(r) && isVoidType(s))
-		s = makeMapType(s,s);
-	else if (isBagType(r) && isVoidType(s))
-		s = makeBagType(s);
-		 
 	// Handle parameters
 	if (isTypeVar(r) && isTypeVar(s) && getTypeVarName(r) == getTypeVarName(s) && getTypeVarBound(r) == getTypeVarBound(s) && !bindIdenticalVars) {
 		return b;
@@ -80,6 +69,8 @@ public Bindings match(Symbol r, Symbol s, Bindings b, bool bindIdenticalVars) {
 	if ( isSetType(r) && isSetType(s) ) {
 		if ( isRelType(r) && isVoidType(getSetElementType(s)) ) {
 			return match(getSetElementType(r), \tuple([\void() | idx <- index(getRelFields(r))]), b, bindIdenticalVars);
+		} else if ( isVoidType(getSetElementType(s)) ) {
+			return b;
 		} else {	
 			return match(getSetElementType(r), getSetElementType(s), b, bindIdenticalVars);
 		}
@@ -90,6 +81,8 @@ public Bindings match(Symbol r, Symbol s, Bindings b, bool bindIdenticalVars) {
 	if ( isListType(r) && isListType(s) ) {
 		if ( isListRelType(r) && isVoidType(getListElementType(s)) ) {
 			return match(getListElementType(r), \tuple([\void() | idx <- index(getListRelFields(r))]), b, bindIdenticalVars);
+		} else if ( isVoidType(getListElementType(s)) ) {
+			return b;
 		} else {
 			return match(getListElementType(r), getListElementType(s), b, bindIdenticalVars);
 		}
@@ -131,7 +124,11 @@ public Bindings match(Symbol r, Symbol s, Bindings b, bool bindIdenticalVars) {
 	if ( isTupleType(r) && isTupleType(s) && getTupleFieldCount(r) == getTupleFieldCount(s) ) {
 		rfields = getTupleFieldTypes(r);
 		sfields = getTupleFieldTypes(s);
-		for (idx <- index(rfields)) b = match(rfields[idx], sfields[idx], b, bindIdenticalVars);
+		for (idx <- index(rfields)) {
+			if (!isVoidType(sfields[idx])) {
+				b = match(rfields[idx], sfields[idx], b, bindIdenticalVars);
+			}
+		}
 		return b;
 	}
 	

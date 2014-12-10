@@ -279,7 +279,7 @@ toRel(("apple": 1, "pear": 2, "orange": 3));
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java rel[&K, &V] toRel(map[&K, &V] M);
+public default java rel[&K, &V] toRel(map[&K, &V] M);
 
 public rel[&K,&V] toRel(map[&K,set[&V]] M) = {<k,v> | &K k <- M, &V v <- M[k]};
 public rel[&K,&V] toRel(map[&K,list[&V]] M) = {<k,v> | &K k <- M, &V v <- M[k]};
