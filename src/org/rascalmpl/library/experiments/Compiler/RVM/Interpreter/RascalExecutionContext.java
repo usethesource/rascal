@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -42,6 +43,8 @@ public class RascalExecutionContext {
 	private final IMap symbol_definitions;
 	private RascalURIResolver rascalURIResolver;
 	
+	private String currentModuleName;
+	
 	RascalExecutionContext(IValueFactory vf, IMap symbol_definitions, boolean debug, boolean profile, boolean trackCalls, IEvaluatorContext ctx, ITestResultListener testResultListener){
 		
 		this.vf = vf;
@@ -50,6 +53,8 @@ public class RascalExecutionContext {
 		this.debug = debug;
 		this.profile = profile;
 		this.trackCalls = trackCalls;
+		
+		currentModuleName = "UNDEFINED";
 		
 		resolverRegistry = ctx.getResolverRegistry();
 		rascalURIResolver = new RascalURIResolver(resolverRegistry);
@@ -92,6 +97,10 @@ public class RascalExecutionContext {
 	IEvaluatorContext getEvaluatorContext() { return ctx; }
 	
 	ITestResultListener getTestResultListener() { return testResultListener; }
+	
+	public String getCurrentModuleName(){ return currentModuleName; }
+	
+	void setCurrentModuleName(String moduleName) { currentModuleName = moduleName; }
 	
 	public int endJob(boolean succeeded) {
 		if (monitor != null)

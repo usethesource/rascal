@@ -479,9 +479,9 @@ public class RVM {
 	}
 	
 	
-	public IValue executeProgram(String uid_main, IValue[] args) {
+	public IValue executeProgram(String moduleName, String uid_main, IValue[] args) {
 		
-		//printStores();
+		rex.setCurrentModuleName(moduleName);
 		
 		finalizeInstructions();
 		
@@ -1591,6 +1591,7 @@ public class RVM {
 			"org.rascalmpl.library.PreludeCompiled.remove",
 			"org.rascalmpl.library.PreludeCompiled.mkDirectory",
 			"org.rascalmpl.library.PreludeCompiled.listEntries",
+			"org.rascalmpl.library.PreludeCompiled.parse",
 			"org.rascalmpl.library.PreludeCompiled.readFile",
 			"org.rascalmpl.library.PreludeCompiled.readFileEnc",
 			"org.rascalmpl.library.PreludeCompiled.md5HashFile",
