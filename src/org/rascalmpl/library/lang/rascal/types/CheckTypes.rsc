@@ -821,7 +821,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				}
 				< c, rtp > = markLocationType(c,e@\loc,functionVariant);
 				return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
-			} else if (size(finalNonDefaultMatches) > 1 && size(finalDefaultMatches) == 1) {
+			} else if (size(finalNonDefaultMatches) >= 1 && size(finalDefaultMatches) == 1) {
 				// Make sure the function and the default function or constructor variants have the same return type, else we
 				// have a conflict.
 				defaultVariant = getOneFrom(finalDefaultMatches);
