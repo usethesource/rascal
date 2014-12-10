@@ -50,7 +50,7 @@ public Result eval(List([Atom("lambda"), List(list[Lval] vars), exp]), Env defEn
 
 public default Result eval(List([ exps* ]), Env e) {         /*9*/
   if(isEmpty(exps))
-     return <FALSE, e>;
+     return <List([]), e>;
   vals = [ eval(exp, e).val | exp <- exps ];
   return apply(head(vals), tail(vals), e);
 }
