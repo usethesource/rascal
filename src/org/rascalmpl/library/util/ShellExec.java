@@ -80,11 +80,13 @@ public class ShellExec {
 			// Build the arg array using the command and the command arguments passed in the arguments list
 			List<String> args = new ArrayList<String>();
 			args.add(processCommand.getValue());
-			for (int n = 0; n < arguments.length(); ++n) {
-				if (arguments.get(n) instanceof IString) 
-					args.add(((IString)arguments.get(n)).getValue());
-				else
-					throw RuntimeExceptionFactory.illegalArgument(arguments.get(n),null, null);
+			if(arguments != null) {
+			    for (int n = 0; n < arguments.length(); ++n) {
+				    if (arguments.get(n) instanceof IString) 
+					    args.add(((IString)arguments.get(n)).getValue());
+				    else
+					    throw RuntimeExceptionFactory.illegalArgument(arguments.get(n),null, null);
+			    }
 			}
 			ProcessBuilder pb = new ProcessBuilder(args);
 			
