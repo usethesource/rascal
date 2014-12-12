@@ -13,6 +13,7 @@ module List
 
 import Exception;
 import Map;
+import IO;
 
 @doc{
 Synopsis: Concatenate a list of lists.
@@ -373,7 +374,7 @@ test: indexOf(<L>, <E>) == <?>
 
 }
 public int indexOf(list[&T] lst, &T elt) {
-	for(i <- index(lst)) {
+	for(int i <- [0..size(lst)]) {
 		if(lst[i] == elt) return i;
 	}
 	return -1;
