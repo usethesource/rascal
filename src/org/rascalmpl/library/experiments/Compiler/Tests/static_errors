@@ -1,3 +1,6 @@
+|project://rascal/src/org/rascalmpl/tutor/CourseManager.rsc|
+|project://rascal/src/org/rascalmpl/tutor/RascalUtils.rsc|
+|project://rascal/src/org/rascalmpl/tutor/ValueGenerator.rsc|
 |std:///analysis/formalconcepts/FCA.rsc|
 |std:///demo/Mod17.rsc|
 |std:///demo/lang/Exp/Combined/Manual/Load.rsc|
@@ -6,7 +9,6 @@
 |std:///demo/lang/Pico/ToDot.rsc|
 |std:///demo/lang/turing/l2/desugar/Desugar.rsc|
 |std:///experiments/Compiler/Benchmarks/Run.rsc|
-|std:///experiments/Compiler/Examples/Tst.rsc|
 |std:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|
 |std:///experiments/Compiler/Rascal2muRascal/RascalModule.rsc|
 |std:///experiments/Compiler/Tests/AllRascalLibs.rsc|
@@ -30,14 +32,15 @@
 |std:///lang/box/util/Parse.rsc|
 |std:///lang/dimacs/IO.rsc|
 |std:///lang/dot/Dot.rsc|
-|std:///lang/java/m3/Core.rsc|
 |std:///lang/java/syntax/Disambiguate.rsc|
 |std:///lang/java/syntax/Java15.rsc|
 |std:///lang/rascal/checker/TTL/TTLGen.rsc|
 |std:///lang/rascal/syntax/tests/ConcreteSyntax.rsc|
-|std:///lang/rascal/tests/library/MapTests.rsc|
 |std:///lang/rascal/tests/library/analysis/statistics/RangeUtils.rsc|
 |std:///lang/rascal/tests/types/PatternTCTests.rsc|
+|std:///lang/rascal/types/CheckTypes.rsc|
+|std:///lang/rascal/types/CheckerConfig.rsc|
+|std:///lang/rascal/types/TypeInstantiation.rsc|
 |std:///lang/saf/Run.rsc|
 |std:///lang/sdf2/util/SDF2Grammar.rsc|
 |std:///util/tasks/Vis.rsc|
