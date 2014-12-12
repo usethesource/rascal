@@ -53,16 +53,8 @@ import Map;
 domainR(("apple": 1, "pear": 2, "orange": 3), {"apple", "pear"});
 </screen>
 }
-public map[&K, &V] domainR(map[&K, &V] M, set[&K] S) {
-	map[&K, &V] result = ();
-	for(&K key <- M) {
-		if(key in S) {
-			result += (key: M[key]);
-		}
-	}
-
-	return result;
-}
+public map[&K, &V] domainR(map[&K, &V] M, set[&K] S)
+	= isEmpty(M) ? M : (k:M[k] | &K k <- M, k in S);
 
 @doc{
 Synopsis: Map with certain keys excluded.
@@ -76,16 +68,8 @@ import Map;
 domainX(("apple": 1, "pear": 2, "orange": 3), {"apple", "pear"});
 </screen>
 }
-public map[&K, &V] domainX(map[&K, &V] M, set[&K] S) {
-	map[&K, &V] result = ();
-	for(&K key <- M) {
-		if(key notin S) {
-			result += (key: M[key]);
-		}
-	}
-
-	return result;
-}
+public map[&K, &V] domainX(map[&K, &V] M, set[&K] S)
+	= isEmpty(M) ? M : (k:M[k] | &K k <- M, k notin S);
 
 @doc{
 Synopsis: Get a n arbitrary key from a map.
@@ -205,16 +189,8 @@ import Map;
 rangeR(("apple": 1, "pear": 2, "orange": 3), {2, 3});
 </screen>
 }
-public map[&K, &V] rangeR(map[&K, &V] M, set[&V] S) {
-	map[&K, &V] result = ();
-	for(&K key <- M) {
-		if(M[key] in S) {
-			result += (key: M[key]);
-		}
-	}
-
-	return result;
-}
+public map[&K, &V] rangeR(map[&K, &V] M, set[&V] S)
+	= isEmpty(M) ? M : (k:M[k] | &K k <- M, M[k] in S);
 
 @doc{
 Synopsis: Map with certain values in (key,value) pairs excluded.
@@ -228,16 +204,8 @@ import Map;
 rangeX(("apple": 1, "pear": 2, "orange": 3), {2, 3});
 </screen>
 }
-public map[&K, &V] rangeX(map[&K, &V] M, set[&V] S) {
-	map[&K, &V] result = ();
-	for(&K key <- M) {
-		if(M[key] notin S) {
-			result += (key: M[key]);
-		}
-	}
-
-	return result;
-}
+public map[&K, &V] rangeX(map[&K, &V] M, set[&V] S)
+	= isEmpty(M) ? M : (k:M[k] | &K k <- M, M[k] notin S);
 
 @doc{
 Synopsis: Number of (key, value) pairs in a map.
@@ -253,7 +221,6 @@ size(("apple": 1, "pear": 2, "orange": 3));
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java int size(map[&K, &V] M);
-
 
 @doc{
 Synopsis: Convert a map to a list of tuples.
@@ -276,12 +243,11 @@ import Map;
 toRel(("apple": 1, "pear": 2, "orange": 3));
 </screen>
 }
+public rel[&K,&V] toRel(map[&K,set[&V]] M) = isEmpty(M) ? {} : {<k,v> | &K k <- M, &V v <- M[k]};
+public rel[&K,&V] toRel(map[&K,list[&V]] M) = {<k,v> | &K k <- M, &V v <- M[k]};
 @javaClass{org.rascalmpl.library.Prelude}
 public default java rel[&K, &V] toRel(map[&K, &V] M);
 
-public rel[&K,&V] toRel(map[&K,set[&V]] M) = {<k,v> | &K k <- M, &V v <- M[k]};
-public rel[&K,&V] toRel(map[&K,list[&V]] M) = {<k,v> | &K k <- M, &V v <- M[k]};
-  
 @doc{
 Synopsis: Convert a map to a string.
 
@@ -294,7 +260,6 @@ toString(("apple": 1, "pear": 2, "orange": 3));
 @javaClass{org.rascalmpl.library.Prelude}
 public java str toString(map[&K, &V] M);
 
-
 @doc{
 Synopsis: Convert a map to a indented string.
 
@@ -306,5 +271,3 @@ itoString(("apple": 1, "pear": 2, "orange": 3));
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str itoString(map[&K, &V] M);
-
-
