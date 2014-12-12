@@ -166,6 +166,6 @@ public Symbol instantiate(Symbol::\iter-star(Symbol s), Bindings bindings) = Sym
 public Symbol instantiate(Symbol::\iter-seps(Symbol s, list[Symbol] seps), Bindings bindings) = Symbol::\iter-seps(instantiate(s,bindings),seps);
 public Symbol instantiate(Symbol::\iter-star-seps(Symbol s, list[Symbol] seps), Bindings bindings) = Symbol::\iter-star-seps(instantiate(s,bindings),seps);
 public Symbol instantiate(Symbol::\opt(Symbol s), Bindings bindings) = Symbol::\opt(instantiate(s,bindings));
-public Symbol instantiate(Symbol::\conditional(Symbol s, list[Condition] conds), Bindings bindings) = Symbol::\conditional(instantiate(s,bindings),conds);
+public Symbol instantiate(Symbol::\conditional(Symbol s, set[Condition] conds), Bindings bindings) = Symbol::\conditional(instantiate(s,bindings),conds);
 public Symbol instantiate(Symbol::\prod(Symbol s, str name, list[Symbol] parameters, set[Attr] attributes), Bindings bindings) = Symbol::\prod(instantiate(s,bindings),name,parameters,attributes);
 public default Symbol instantiate(Symbol t, Bindings bindings) = t;
