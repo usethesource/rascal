@@ -821,7 +821,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				}
 				< c, rtp > = markLocationType(c,e@\loc,functionVariant);
 				return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
-			} else if (size(finalNonDefaultMatches) > 1 && size(finalDefaultMatches) == 1) {
+			} else if (size(finalNonDefaultMatches) >= 1 && size(finalDefaultMatches) == 1) {
 				// Make sure the function and the default function or constructor variants have the same return type, else we
 				// have a conflict.
 				defaultVariant = getOneFrom(finalDefaultMatches);
@@ -835,11 +835,9 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				    < c, rtp > = markLocationType(c,e@\loc,defaultVariant);
 				    return markLocationType(c,exp@\loc,defaultResultType);
 				}
-				
-				functionVariant = getOneFrom(filterSet(finalNonDefaultMatches, isFunctionType));
 				finalType = makeOverloadedType(finalNonDefaultMatches,finalDefaultMatches);
 			    < c, rtp > = markLocationType(c,e@\loc,finalType);
-			    return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
+			    return markLocationType(c,exp@\loc,defaultResultType);
 			} else {
 				// Make sure the function, the default function and constructor variants have the same return type, else we
 				// have a conflict.
