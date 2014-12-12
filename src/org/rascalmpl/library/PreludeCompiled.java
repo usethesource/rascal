@@ -14,7 +14,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.nio.charset.Charset;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -42,12 +41,8 @@ import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.Prelude.Backtrack;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.unicode.UnicodeDetector;
@@ -532,17 +527,14 @@ public class PreludeCompiled extends Prelude {
 	}
 	
 	
-	
-	@Override
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
-	public IValue parse(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
-		return RascalPrimitive.getParsingTools().parse(super.values.string("XXX"), start, input, null);
+	public IValue parse(IValue start, ISourceLocation input, RascalExecutionContext rex) {
+		return RascalPrimitive.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
 	}
-	
-	@Override
+
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
-	public IValue parse(IValue start, IString input, IEvaluatorContext ctx) {
-		return RascalPrimitive.getParsingTools().parse(super.values.string("XXX"), start, input, null);
+	public IValue parse(IValue start, IString input, RascalExecutionContext rex) {
+		return RascalPrimitive.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
 	}
 	
 	private TypeStore typeStore = new TypeStore();

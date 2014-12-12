@@ -99,7 +99,7 @@ public class ParsingTools {
 	 * @param parser		The generated parser class
 	 */
 	private void storeObjectParser(String moduleName, IValue start, Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser) {
-		stderr.println("Storing parser for : " + moduleName + "/" + start);
+		stderr.println("Storing parser for " + moduleName + "/" + start);
 		parsers.put(start, parser);
 	}
 
@@ -111,7 +111,7 @@ public class ParsingTools {
 	 */
 	private Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getObjectParser(String moduleName, IValue start) {
 		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = parsers.get(start);
-		stderr.println("Retrieving parser for : " + moduleName + "/" + start + ((parser == null) ? " fails" : " succeeds"));
+		stderr.println("Retrieving parser for " + moduleName + "/" + start + ((parser == null) ? " fails" : " succeeds"));
 		return parser;
 	}
 	
@@ -183,10 +183,10 @@ public class ParsingTools {
 			throw RascalRuntimeException.parseError(errorLoc, currentFrame);
 		}
 		catch (UndeclaredNonTerminalException e){
-			throw new CompilerError("Undeclared non-terminal: " + e.getName() + ", " + e.getClassName());
+			throw new CompilerError("Undeclared non-terminal: " + e.getName() + ", " + e.getClassName(), currentFrame);
 		}
 		catch (Exception e) {
-			throw new CompilerError("Unexpected exception:" + e);
+			throw new CompilerError("Unexpected exception:" + e, currentFrame);
 		}
 	}
 	

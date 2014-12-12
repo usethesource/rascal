@@ -154,7 +154,7 @@ public class Execute {
 		}
 		// Execute initializers of imported modules
 		for(String initializer: initializers){
-			rvm.executeProgram(initializer, arguments);
+			rvm.executeProgram("UNDEFINED", initializer, arguments);
 		}
 		
 		if((uid_module_init == null)) {
@@ -168,12 +168,12 @@ public class Execute {
 				/*
 				 * Execute as testsuite
 				 */
-				rvm.executeProgram(uid_module_init, arguments);
+				rvm.executeProgram("TESTSUITE", uid_module_init, arguments);
 
 				IListWriter w = vf.listWriter();
 				for(String uid_testsuite: testsuites){
 					RascalPrimitive.reset();
-					IList test_results = (IList)rvm.executeProgram(uid_testsuite, arguments);
+					IList test_results = (IList)rvm.executeProgram("TESTSUITE", uid_testsuite, arguments);
 					w.insertAll(test_results);
 				}
 				result = w.done();
@@ -184,9 +184,8 @@ public class Execute {
 				if((uid_main == null)) {
 					throw RascalRuntimeException.noMainFunction(null);
 				}
-			
-				rvm.executeProgram(uid_module_init, arguments);
-				result = rvm.executeProgram(uid_main, arguments);
+				rvm.executeProgram(moduleName, uid_module_init, arguments);
+				result = rvm.executeProgram(moduleName, uid_main, arguments);
 			}
 			long now = Timing.getCpuTime();
 			MuPrimitive.exit();

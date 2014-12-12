@@ -205,6 +205,7 @@ void extractScopes(Configuration c){
              }
         }
         case overload(_,_): {
+             //println("<uid>: <item>");
 		     ofunctions += {uid};
 		     for(l <- config.uses[uid]) {
 		     	loc2uid[l] = uid;
@@ -689,12 +690,19 @@ MuExp mkVar(str name, loc l) {
     // Generate a unique name for an overloaded function resolved for this specific use
     str ofuid = convert2fuid(config.usedIn[l]) + "/use:" + name;
     
-    bool exists = <addr.fuid,ofuids> in overloadedFunctions;
+    bool occurs = <addr.fuid,ofuids> in overloadedFunctions;
     int i = size(overloadedFunctions);
-    if(!exists) {
+    if(!occurs) {
     	overloadedFunctions += <addr.fuid,ofuids>;
     } else {
     	i = indexOf(overloadedFunctions, <addr.fuid,ofuids>);
+    	if(i < 0){
+    		println("&&&&&&&&&&&&&&");
+    		println("\toverloadedFunctions = <overloadedFunctions>");
+    		println("\t\<<addr.fuid>,<ofuids>\> in overloadedFunctions = < <addr.fuid,ofuids> in overloadedFunctions>");
+    		println("\tindexOf(<overloadedFunctions>, <<addr.fuid,ofuids> >) = <indexOf(overloadedFunctions, <addr.fuid, ofuids>)>");
+    		println("&&&&&&&&&&&&&&");
+    	}
     }   
     overloadingResolver[ofuid] = i;
   	return muOFun(ofuid);

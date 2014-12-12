@@ -1028,6 +1028,7 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`){
 
+  // println("translate: <e>");
    MuExp kwargs = translateKeywordArguments(keywordArguments);
       
    MuExp receiver = translate(expression);
@@ -1058,12 +1059,16 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        str ofqname = receiver.fuid + "(<for(targ<-targs){><targ>;<}>)";
        // Resolve alternatives for this specific call
        int i = overloadingResolver[receiver.fuid];
+       assert i >= 0: "index in overloadingResolver cannot be negative";
        tuple[str scopeIn,set[int] alts] of = overloadedFunctions[i];
        set[int] resolved = {};
        
-       //println("ftype = <ftype>, ofqname = <ofqname>, alts = <of.alts>");
+       //println("overloadingResolver = <overloadingResolver>");
+       //println("overloadedFunctions = <overloadedFunctions>");
+       //println("ftype = <ftype>, ofqname = <ofqname>, i = <i>, alts = <of.alts>");
        
        bool matches(Symbol t) {
+       	   //println("matches: <ftype>, <t>");
            if(isFunctionType(ftype) || isConstructorType(ftype)) {
                if(/parameter(_,_) := t) { // In case of polymorphic function types
                    ftype_selected = ftype;
@@ -1084,14 +1089,19 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                            //println("ftype_selected: <ftype_selected>");
                  
                            bindings = match(getFunctionArgumentTypesAsTuple(t),getFunctionArgumentTypesAsTuple(ftype_selected),());
+                           
                            //println("bindings1: <bindings>");
-                           //bindings = bindings + ( name : Symbol::\void() | /parameter(str name,_) := t, name notin bindings );
+                           
+                           bindings = bindings + ( name : Symbol::\void() | /parameter(str name,_) := t, name notin bindings );
                            
                            //println("bindings2: <bindings>");
                            //println("t.ret:               <t.ret> becomes <instantiate(t.ret,bindings)>");
                            //println("ftype_selected.ret:  <ftype_selected.ret> becomes <instantiate(ftype_selected.ret,bindings)>");
+                           
                            bool res =  instantiate(t.ret,bindings) == ftype_selected.ret;
+                           
                            //println("res: <res>");
+                           
                            return res;
                        }
                        return false;
@@ -1103,6 +1113,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                        println("WARNING: Cannot match <ftype> against <t> for location: <expression@\loc>! <err>");
                    }
                }
+               //println("matches returns: <subtype(ftype.parameters, t.parameters)>");
                //return t == ftype;
                return subtype(ftype.parameters, t.parameters);
            }           
@@ -1139,13 +1150,15 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
      
-       
+       //println("ftype = <ftype>, of.alts = <of.alts>");
        for(int alt <- of.alts) {
            t = uid2type[alt];
            if(matches(t)) {
+           	   //println("alt <alt> matches");
                resolved += alt;
            }
        }
+       //println("resolved = <resolved>");
        if(isEmpty(resolved)) {
            for(int alt <- of.alts) {
                t = uid2type[alt];
@@ -1157,6 +1170,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        bool exists = <of.scopeIn,resolved> in overloadedFunctions;
        if(!exists) {
            i = size(overloadedFunctions);
+           //println("Adding <<of.scopeIn,resolved>> as overloadedFunctions[<i>]");
            overloadedFunctions += <of.scopeIn,resolved>;
        } else {
            i = indexOf(overloadedFunctions, <of.scopeIn,resolved>);
