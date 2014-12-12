@@ -424,7 +424,7 @@ public class RVMRunBody extends RVMRun {
 	}
 
 	public void insnLOADIN2T(int i) {
-		insnPOP();
+		insnPOP(sp);
 	}
 
 	public void mup(MuPrimitive muprim) {

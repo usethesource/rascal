@@ -285,7 +285,8 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineReturn0(boolean debug) {
 		if (!emit)
 			return;
-		Label l0 = new Label();
+		
+		Label normalReturn = new Label();
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 3);
 		mv.visitVarInsn(ILOAD, 2);
@@ -294,10 +295,10 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ASTORE, 1);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "cf", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitJumpInsn(IFNONNULL, l0);
+		mv.visitJumpInsn(IFNONNULL, normalReturn);
 		mv.visitVarInsn(ALOAD, 1);
 		mv.visitInsn(ARETURN);
-		mv.visitLabel(l0);
+		mv.visitLabel(normalReturn);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/eclipse/imp/pdb/facts/IString;");
 		mv.visitInsn(ARETURN);

@@ -599,9 +599,9 @@ public class RVMRun implements IRVM {
 		this.functionMap = functionMap2;
 	}
 
-	final public void insnPOP() {
-		sp--;
-	}
+//	final public void insnPOP() {
+//		sp--;
+//	}
 
 	public int insnPOP(int sp) {
 		return --sp;
@@ -1397,7 +1397,7 @@ public class RVMRun implements IRVM {
 		return rval;
 	}
 
-	public Object calldynHelper(Object[] stock, int sop, Frame cof, int arity, int ep) {
+	public Object calldynHelper(Object[] st0ck, int sop, Frame c0f, int arity, int ep) {
 		// In case of CALLDYN, the stack top value of type 'Type'
 		// leads to a constructor call
 		// This instruction is a monstrosity it should be split in three.
