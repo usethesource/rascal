@@ -22,10 +22,10 @@ private set[&T] emptySet(type[&T] _) = {};
 private map[value,value] up(map[&K,&V] m) = m;
 
 // composition
-test bool composition1(map[&K,&V] kvs) = kvs o emptyMap(#map[value,value]) == ();
-test bool composition2(map[&K,&V] kvs) = () o kvs == ();
-test bool composition3(map[&K,&V] kvs) = kvs o (v:v | &K k <- kvs, &V v := kvs[k]) == kvs;
-test bool composition4(map[&K,&V] kvs) = (k:k | &K k <- kvs) o kvs == kvs;
+test bool composition1(map[&K,&V] M) = M o emptyMap(#map[value,value]) == ();
+test bool composition2(map[&K,&V] M) = () o M == ();
+test bool composition3(map[&K,&V] M) = M o (v:v | &K k <- M, &V v := M[k]) == M;
+test bool composition4(map[&K,&V] M) = (k:k | &K k <- M) o M == M;
 
 // comprehension
 test bool comprehension1() = (k:k*k | k <- emptyList(#num)) == ();
@@ -33,20 +33,20 @@ test bool comprehension2() = (k:k*k | k <- [1..5]) == (1:1,2:4,3:9,4:16);
 test bool comprehension3(set[&K] xs) = size((k:k | &K k <- xs)) == size(xs);
 
 // difference
-test bool difference1(map[&K,&V] kvs) = kvs - () == kvs;
-test bool difference2(map[&K,&V] kvs) = () - kvs == ();
+test bool difference1(map[&K,&V] M) = M - () == M;
+test bool difference2(map[&K,&V] M) = () - M == ();
 test bool difference3() = (1:10) - (2:20) == (1:10);
 test bool difference4() = (1:10) - (1:10) == ();
 test bool difference5() = (1:10) - (1:20) == ();
 
 // equal
 test bool equal1() = () == ();
-test bool equal2(map[&K,&V] kvs) = kvs == kvs;
-test bool equal3(map[&K,&V] kvs1, map[&K,&V] kvs2)
-	= (kvs1 == kvs2) ==>
-	( domain(kvs1) == domain(kvs2)
-	&& range(kvs1) == range(kvs2)
-	&& (isEmpty(kvs1) || all(x <- kvs1, kvs1[x] == kvs2[x])));
+test bool equal2(map[&K,&V] M) = M == M;
+test bool equal3(map[&K,&V] M1, map[&K,&V] M2)
+	= (M1 == M2) ==>
+	( domain(M1) == domain(M2)
+	&& range(M1) == range(M2)
+	&& (isEmpty(M1) || all(x <- M1, M1[x] == M2[x])));
 test bool equal4()
 {
 	map[int,int] iie = ();
@@ -64,8 +64,12 @@ test bool equal6()
 }
 
 // in
-test bool in1(map[&K,&V] kvs) = isEmpty(kvs) || all(&K k <- kvs, k in kvs);
+test bool in1(map[&K,&V] M) = isEmpty(M) || all(&K k <- M, k in M);
 test bool in2(&K k) = k in (k:k); 
+test bool in3(&K k, &V v, map[&K,&V] M) = k in (M + (k:v)); 
+test bool in4(&K k, &V v, map[&K,&V] M) = v == (M + (k:v))[k]; 
+test bool in5(&K k, &V v, map[&K,&V] M) = k in ((k:v) + M); 
+test bool in6(&K k, &V v, map[&K,&V] M) = k in M || v == ((k:v) + M)[k]; 
 
 // intersection
 test bool intersection1() = (1:10, 2:20) & (3:30) == ();
@@ -73,18 +77,18 @@ test bool intersection2() = (1:10, 2:20) & (2:30) == ();
 test bool intersection3() = (1:10, 2:20) & (1:20) == ();
 test bool intersection4() = (1:10, 2:20) & (1:10) == (1:10);
 test bool intersection5() = (1:10, 2:20) & (2:20) == (2:20);
-test bool intersection6(map[&K,&V] kvs) = kvs & () == ();
-test bool intersection7(map[&K,&V] kvs) = () & kvs == ();
+test bool intersection6(map[&K,&V] M) = M & () == ();
+test bool intersection7(map[&K,&V] M) = () & M == ();
 
 // notequal
 test bool notequal1() = !(() != ());
-test bool notequal2(map[&K,&V] kvs) = !(kvs != kvs);
-test bool notequal3(map[&K,&V] kvs1, map[&K,&V] kvs2)
-	= (kvs1 != kvs2) ==>
-	(domain(kvs1) != domain(kvs2)
-	|| range(kvs1) != range(kvs2)
-	|| isEmpty(kvs1) 
-	|| any(x <- kvs1, kvs1[x] != kvs2[x]));
+test bool notequal2(map[&K,&V] M) = !(M != M);
+test bool notequal3(map[&K,&V] M1, map[&K,&V] M2)
+	= (M1 != M2) ==>
+	(domain(M1) != domain(M2)
+	|| range(M1) != range(M2)
+	|| isEmpty(M1) 
+	|| any(x <- M1, M1[x] != M2[x]));
 test bool notequal4()
 {
 	map[value,value] iie = (1:1) - (1:1);
@@ -99,42 +103,48 @@ test bool notequal6()
 	return !(iit != nvt);
 }
 test bool notequal7() = up((1:10)) != up((1.0:10));
-test bool notequal8(map[&K,&V] kvs) = isEmpty(kvs) || kvs != ();
+test bool notequal8(map[&K,&V] M) = isEmpty(M) || M != ();
 
 // notin
 test bool notin1(&K k) = k notin ();
-test bool notin2(&K k, map[&K,&V] kvs) = k notin (kvs - (k:k));
- 
+test bool notin2(&K k, map[&K,&V] M) = k notin (M - (k:k));
+
+// pattern matching
+test bool pm1() { value n = 1; value s = "string"; return map[int, int] _ := ( n : n ); }
+test bool pm2() { value n = 1; value s = "string"; return map[str, int] _ := ( s : n ); }
+test bool pm3() { value n = 1; value s = "string"; return map[int, str] _ := ( n : s ); }
+test bool pm4() { value n = 1; value s = "string"; return map[str, str] _ := ( s : s ); }
+
 // strictsubmap
-test bool strictsubmap1(map[&K,&V] kvs) = isEmpty(kvs) || () < kvs;
-test bool strictsubmap2(map[&K,&V] kvs) = isEmpty(kvs) || delete(kvs,getOneFrom(kvs)) < kvs;
+test bool strictsubmap1(map[&K,&V] M) = isEmpty(M) || () < M;
+test bool strictsubmap2(map[&K,&V] M) = isEmpty(M) || delete(M,getOneFrom(M)) < M;
 
 // strictsupermap
-test bool strictsupermap1(map[&K,&V] kvs) = isEmpty(kvs) || kvs > ();
-test bool strictsupermap2(map[&K,&V] kvs) = isEmpty(kvs) || kvs > delete(kvs,getOneFrom(kvs));
+test bool strictsupermap1(map[&K,&V] M) = isEmpty(M) || M > ();
+test bool strictsupermap2(map[&K,&V] M) = isEmpty(M) || M > delete(M,getOneFrom(M));
 
 // submap
-test bool submap1(map[&K,&V] kvs) = () <= kvs;
-test bool submap2(map[&K,&V] kvs) = kvs <= kvs;
-test bool submap3(map[&K,&V] kvs) = isEmpty(kvs) || delete(kvs,getOneFrom(kvs)) <= kvs;
-test bool submap1(map[&K,&V] kvs1, map[&K,&V] kvs2) = kvs1 < kvs2 ==> kvs1 <= kvs2;
+test bool submap1(map[&K,&V] M) = () <= M;
+test bool submap2(map[&K,&V] M) = M <= M;
+test bool submap3(map[&K,&V] M) = isEmpty(M) || delete(M,getOneFrom(M)) <= M;
+test bool submap1(map[&K,&V] M1, map[&K,&V] M2) = M1 < M2 ==> M1 <= M2;
 
 // subscription
-@expected{NoSuchKey} test bool subscription1(&K k) {map[&K,bool] kvs = (); return kvs[k];}
+@expected{NoSuchKey} test bool subscription1(&K k) {map[&K,bool] M = (); return M[k];}
 @expected{NoSuchKey} test bool subscription2() = (1:false)[2];
 test bool subscription3() = (1:10)[1] == 10;
 test bool subscription4() = (1:10,2:20)[1] == 10;
 
 // supermap
-test bool supermap1(map[&K,&V] kvs) = kvs >= ();
-test bool supermap2(map[&K,&V] kvs) = kvs >= kvs;
-test bool supermap3(map[&K,&V] kvs) = isEmpty(kvs) || kvs >= delete(kvs,getOneFrom(kvs));
-test bool supermap4(map[&K,&V] kvs1, map[&K,&V] kvs2) = kvs1 > kvs2 ==> kvs1 >= kvs2;
+test bool supermap1(map[&K,&V] M) = M >= ();
+test bool supermap2(map[&K,&V] M) = M >= M;
+test bool supermap3(map[&K,&V] M) = isEmpty(M) || M >= delete(M,getOneFrom(M));
+test bool supermap4(map[&K,&V] M1, map[&K,&V] M2) = M1 > M2 ==> M1 >= M2;
 
 // union
-test bool union1(map[&K,&V] kvs1, map[&K,&V] kvs2) = size(kvs1 + kvs2) >= size(kvs1);
-test bool union2(map[&K,&V] kvs) = () + kvs == kvs;
-test bool union3(map[&K,&V] kvs) = kvs + () == kvs;
+test bool union1(map[&K,&V] M1, map[&K,&V] M2) = size(M1 + M2) >= size(M1);
+test bool union2(map[&K,&V] M) = () + M == M;
+test bool union3(map[&K,&V] M) = M + () == M;
 test bool union4() = (1:10) + (2:20) == (1:10,2:20);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,70 +180,8 @@ test bool less(map[&K, &V] A, map[&K, &V] B) = (A != B + A) ==> A < (B + A);
 test bool greatereq(map[&K, &V] A, map[&K, &V] B)  = (B + A) >= A;
 test bool greater(map[int, str] A, map[int, str] B)  = B <= A || (B + A) > A;
 
-test bool tst_in(&K key, &V val, map[&K, &V] M) = key in M || (key in (M + (key : val)) && val == (M + (key : val))[key] &&
-														              key in ((key : val) + M) && val == ((key : val) + M)[key]);
-
 test bool intKeyHandling(){
     N = 10000;
     m = (i : i | int i <- [0..N]);
     return size(m) == N && size(domain(m)) == N && size(range(m)) == N;
 }
-
-// Library functions
-
-test bool tst_domain(map[str, int] X) = 
-   isEmpty(X) || 
-   {k | k <- X} == domain(X);
-
-private set[int] sample(map[int, int] X) {
-   c = domain(X) + range(X);
-   if(size(c) <= 2)
-   	  return {};
-   <r1, c> = takeOneFrom(c);
-   <r2, c> = takeOneFrom(c);
-  return {r1, r2};
-}
-
-test bool tst_domainR(map[int, int] X) {
-   s = sample(X);
-   XR = domainR(X, s);
-   return isEmpty(XR) || all(k <- XR, k in s);
-}
-
-test bool tst_domainX(map[int, int] X) {
-   s = sample(X);
-   XR = domainX(X, s);
-   return isEmpty(XR) || all(k <- XR, k notin s);
-}
-
-test bool tst_invert(map[int, int] X) = isEmpty(X) || domain(invert(X)) == range(X) && domain(X) == {*invert(X)[k] | k <- invert(X)};
-
-test bool tst_invertUnique(set[int] D, set[int] R) {
- if(isEmpty(D) || isEmpty(R)) return true;
- dList = toList(D);
- rList = toList(R);
- S = (dList[i] : rList[i] | i <- [0 .. min(size(D) -1 , size(R) -1) + 1]);
- return domain(S) == range(invertUnique(S)) && range(S) == domain(invertUnique(S));
-}
-
-test bool tst_range(map[str, int] X) = 
-   isEmpty(X) || 
-   {X[k] | k <- X} == range(X);
-
-test bool tst_rangeR(map[int, int] X) {
-   s = sample(X);
-   XR = rangeR(X, s);
-   return isEmpty(XR) || all(k <- XR, X[k] in s);
-}
-
-test bool tst_rangeX(map[int, int] X) {
-   s = sample(X);
-   XR = rangeX(X, s);
-   return isEmpty(XR) || all(k <- XR, X[k] notin s);
-}
-
-test bool tst_toList(map[int,int] S) = isEmpty(S) || size(S) == size(toList(S)) && all(k <- S, <k, S[k]> in toList(S));
-
-test bool tst_toRel(map[int,int] S) = isEmpty(S) || size(S) == size(toRel(S)) && all(k <- S, <k, S[k]> in toRel(S));
-
-
