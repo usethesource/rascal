@@ -1192,7 +1192,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
 MuExp translateKeywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) {
    // Keyword arguments
    if(keywordArguments is \default){
-      kwargs = [ muCon("<kwarg.name>"), translate(kwarg.expression)  | /*KeywordArgument[Expression]*/ kwarg <- keywordArguments.keywordArgumentList ];
+      kwargs = [ muCon(unescape("<kwarg.name>")), translate(kwarg.expression)  | /*KeywordArgument[Expression]*/ kwarg <- keywordArguments.keywordArgumentList ];
       if(size(kwargs) > 0){
          return muCallMuPrim("make_mmap", kwargs);
       }
@@ -1422,7 +1422,7 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
    }
    op = isNonTerminalType(tp) ? "nonterminal" : getOuterType(expression);
    if(op == "label") println("field_access: <tp>, <e>");
-   return muCallPrim3("<op>_field_access", [ translate(expression), muCon("<field>") ], e@\loc);
+   return muCallPrim3("<op>_field_access", [ translate(expression), muCon(unescape("<field>")) ], e@\loc);
 }
 
 // -- field update expression ---------------------------------------
@@ -1438,9 +1438,9 @@ MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Express
     } else if(isMapType(tp)){
        tp = getMapFieldsAsTuple(tp);
     } else if(isADTType(tp)){
-        return muCallPrim3("adt_field_update", [ translate(expression), muCon("<key>"), translate(replacement) ], e@\loc);
+        return muCallPrim3("adt_field_update", [ translate(expression), muCon(unescape("<key>")), translate(replacement) ], e@\loc);
     } else if(isLocType(tp)){
-     	return muCallPrim3("loc_field_update", [ translate(expression), muCon("<key>"), translate(replacement) ], e@\loc);
+     	return muCallPrim3("loc_field_update", [ translate(expression), muCon(unescape("<key>")), translate(replacement) ], e@\loc);
     }
     if(tupleHasFieldNames(tp)){
     	  fieldNames = getTupleFieldNames(tp);
@@ -1746,7 +1746,9 @@ MuExp translateBool(e: (Expression) `<Expression lhs> ==\> <Expression rhs>`) = 
 
 MuExp translateBool(e: (Expression) `<Expression lhs> \<==\> <Expression rhs>`) = makeMu("EQUIVALENCE",[ translate(lhs), translate(rhs) ], e@\loc); //translateBoolBinaryOp("equivalent", lhs, rhs);
 
-MuExp translateBool((Expression) `! <Expression lhs>`) = translateBoolNot(lhs);
+MuExp translateBool((Expression) `! <Expression lhs>`) =
+	backtrackFree(lhs) ? muCallMuPrim("not_mbool", [translateBool(lhs)])
+  					   : muCallMuPrim("not_mbool", [ makeMu("ALL",[translate(lhs)], lhs@\loc) ]);
  
 MuExp translateBool(e: (Expression) `<Pattern pat> := <Expression exp>`)  = translateMatch(e);
    
@@ -1755,28 +1757,6 @@ MuExp translateBool(e: (Expression) `<Pattern pat> !:= <Expression exp>`) = tran
 // All other expressions are translated as ordinary expression
 
 default MuExp translateBool(Expression e) {
-   //println("translateBool, default: <e>");
    return translate(e);
-}
-   
-// Translate Boolean operators
-
-MuExp translateBoolBinaryOp(str fun, Expression lhs, Expression rhs){
-    switch(fun){
-    	case "and": return makeMu("ALL",[translate(lhs), translate(rhs)]);
-    	case "or":  return makeMu("OR",[translate(lhs), translate(rhs)]);
-    	case "implies": return makeMu("IMPLICATION",[ translate(lhs), translate(rhs) ]);
-    	case "equivalent": return makeMu("EQUIVALENCE",[ translate(lhs), translate(rhs) ]);
-    	default:
-    		throw "translateBoolBinary: unknown operator <fun>";
-    }
-}
-
-MuExp translateBoolNot(Expression lhs){
-  if(backtrackFree(lhs)){
-  	  return muCallMuPrim("not_mbool", [translateBool(lhs)]);
-  	} else {
-  	  return muCallMuPrim("not_mbool", [ makeMu("ALL",[translate(lhs)], lhs@\loc) ]);
-  	}
 }
 
