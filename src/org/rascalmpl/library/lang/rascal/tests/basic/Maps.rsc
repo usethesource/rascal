@@ -16,14 +16,19 @@ import List;
 import ListRelation;
 import util::Math;
 
+private map[&K,&V] emptyMap(type[map[&K,&V]] _) = ();
+private list[&T] emptyList(type[&T] _) = [];
+private set[&T] emptySet(type[&T] _) = {};
+private map[value,value] up(map[&K,&V] m) = m;
+
 // composition
-test bool composition1(map[&K,&V] kvs) = kvs o () == ();
+test bool composition1(map[&K,&V] kvs) = kvs o emptyMap(#map[value,value]) == ();
 test bool composition2(map[&K,&V] kvs) = () o kvs == ();
 test bool composition3(map[&K,&V] kvs) = kvs o (v:v | &K k <- kvs, &V v := kvs[k]) == kvs;
 test bool composition4(map[&K,&V] kvs) = (k:k | &K k <- kvs) o kvs == kvs;
 
 // comprehension
-test bool comprehension1() = (k:k*k | k <- []) == ();
+test bool comprehension1() = (k:k*k | k <- emptyList(#num)) == ();
 test bool comprehension2() = (k:k*k | k <- [1..5]) == (1:1,2:4,3:9,4:16);
 test bool comprehension3(set[&K] xs) = size((k:k | &K k <- xs)) == size(xs);
 
@@ -46,7 +51,9 @@ test bool equal4()
 {
 	map[int,int] iie = ();
 	map[str,str] sse = ();
-	return iie == sse;
+	map[value,value] iiev = iie;
+	map[value,value] ssev = sse;
+	return iiev == ssev;
 }
 test bool equal5() = (2:20,1:10) == (1:10,2:20);
 test bool equal6()
@@ -80,8 +87,8 @@ test bool notequal3(map[&K,&V] kvs1, map[&K,&V] kvs2)
 	|| any(x <- kvs1, kvs1[x] != kvs2[x]));
 test bool notequal4()
 {
-	map[int,int] iie = ();
-	map[str,str] sse = ();
+	map[value,value] iie = (1:1) - (1:1);
+	map[value,value] sse = ("x":"x") - ("x":"x");
 	return !(iie != sse);
 }
 test bool notequal5() = !((2:20,1:10) != (1:10,2:20));
@@ -91,7 +98,7 @@ test bool notequal6()
 	map[num,value] nvt = (1:10);
 	return !(iit != nvt);
 }
-test bool notequal7() = (1:10) != (1.0:10);
+test bool notequal7() = up((1:10)) != up((1.0:10));
 test bool notequal8(map[&K,&V] kvs) = isEmpty(kvs) || kvs != ();
 
 // notin
