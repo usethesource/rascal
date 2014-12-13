@@ -554,7 +554,7 @@ public class RVM {
 				if (debug) {
 					int startpc = pc - 1;
 					if(!last_function_name.equals(cf.function.name))
-						stdout.printf("[%03d] %s\n", startpc, cf.function.name);
+						stdout.printf("[%03d] %s, scope %d\n", startpc, cf.function.name, cf.scopeId);
 					
 					for (int i = 0; i < sp; i++) {
 						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));

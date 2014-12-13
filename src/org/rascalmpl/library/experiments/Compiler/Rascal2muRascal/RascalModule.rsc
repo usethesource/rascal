@@ -48,18 +48,32 @@ private set[str] notOverriddenLibs = {};			// Java libraries not overridden for 
 
 public str getModuleName() = module_name;
 
-public list[MuFunction] getFunctionsInModule() = functions_in_module;
+public list[MuFunction] getFunctionsInModule() {
+  	//println("getFunctionsInModule:");for(fun <- functions_in_module){ println("\t<fun.qname>, <fun.scopeIn>"); }
+	return functions_in_module;
+}
 
 public void addFunctionToModule(MuFunction fun) {
-   functions_in_module += fun;
+   //println("addFunctionToModule: <fun.qname>, <fun.scopeIn>");
+   functions_in_module += [fun];
+   
+   //for(f <- functions_in_module){ println("\t<f.qname>, <f.scopeIn>"); }
 }
 
 public void addFunctionsToModule(list[MuFunction] funs) {
+   //println("addFunctionToModule: <for(f <- funs){><f.qname>, <f.scopeIn> <}>");
+   
    functions_in_module += funs;
+   
+   //for(f <- functions_in_module){ println("\t<f.qname>, <f.scopeIn>"); }
 }
 
 public void setFunctionsInModule(list[MuFunction] funs) {
+   //println("setFunctionsInModule: <for(f <- funs){><f.qname>, <f.scopeIn> <}>");
+   
    functions_in_module = funs;
+   
+   //for(f <- functions_in_module){	println("\t<f.qname>, <f.scopeIn>"); }
 }
 
 // Reset global state

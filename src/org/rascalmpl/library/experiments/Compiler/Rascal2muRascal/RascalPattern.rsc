@@ -929,7 +929,7 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
 	  };
 	  conditions += [ translate(cond) | cond <- when_conditions];
 
-	  mubody = muIfelse(fname, makeMu("ALL",conditions, |unknown:///|), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+	  mubody = muIfelse(fname, makeMu("ALL",conditions, formals@\loc), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	  leaveBacktrackingScope();
 	  return mubody;
   }
