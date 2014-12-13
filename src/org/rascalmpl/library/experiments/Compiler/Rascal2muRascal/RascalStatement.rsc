@@ -424,7 +424,7 @@ MuExp applyOperator(str operator, Assignable assignable, str rhs_type, MuExp rhs
     if(operator == "?="){
         oldval = getValues(assignable);
         assert size(oldval) == 1;   
-        return generateIfDefinedOtherwise(oldval[0], rhs);
+        return generateIfDefinedOtherwise(oldval[0], rhs, assignable@\loc);
     }
     
     oldval = getValues(assignable);
@@ -521,7 +521,7 @@ list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) =
     [ muCallPrim3("<getOuterType(receiver)>_field_access", [ *getValues(receiver), muCon(unescape("<field>"))], a@\loc) ];
 
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`) = 
-     [ generateIfDefinedOtherwise(getValues(receiver)[0], translate(defaultExpression)) ];
+     [ generateIfDefinedOtherwise(getValues(receiver)[0], translate(defaultExpression), a@\loc) ];
 
 list[MuExp] getValues(a:(Assignable) `\<  <{Assignable ","}+ elements > \>` ) = [ *getValues(elm) | elm <- elements ];
 
