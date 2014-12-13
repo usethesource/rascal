@@ -867,7 +867,7 @@ default bool backtrackFree(Pattern p) = true;
 /*                  Signature Patterns                               */
 /*********************************************************************/
 
-MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp] kwps, node body, list[Expression] when_conditions){
+MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp] kwps, node body, list[Expression] when_conditions, loc src){
    if(isEmpty(formals)) {
       if(isEmpty(when_conditions)){
   	      return muBlock([ *kwps, muReturn1(translateFunctionBody(body)) ]);
@@ -875,7 +875,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
   	      ifname = nextLabel();
           enterBacktrackingScope(ifname);
           conditions = [ translate(cond) | cond <- when_conditions];
-          mubody = muIfelse(ifname,makeMu("ALL",conditions, |unknown:///|), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
+          mubody = muIfelse(ifname,makeMu("ALL",conditions, src), [ *kwps, muReturn1(translateFunctionBody(body)) ], [ muFailReturn() ]);
 	      leaveBacktrackingScope();
 	      return mubody;
   	  }
@@ -886,7 +886,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
   	  ifname = nextLabel();
       enterBacktrackingScope(ifname);
       exp = muIfelse(ifname,muCallMuPrim("equal", [ muVar("<i>",topFunctionScope(),i), translate(pat.literal) ]),
-                   [ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions) ],
+                   [ translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) ],
                    [ muFailReturn() ]
                   );
       leaveBacktrackingScope();
@@ -900,7 +900,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, int i, list[MuExp]
       enterBacktrackingScope(ifname);
       exp = muIfelse(ifname,muCallMuPrim("check_arg_type", [ muVar("<i>",topFunctionScope(),i), muTypeCon( (isVarArgs && size(formals) == 1) ? Symbol::\list(translateType(tp)) : translateType(tp) ) ]),
                    [ muAssign("<name>", fuid, pos, muVar("<i>",topFunctionScope(),i)),
-                     translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions) 
+                     translateFormals(tail(formals), isVarArgs, i + 1, kwps, body, when_conditions, src) 
                    ],
                    [ muFailReturn() ]
                   );
@@ -916,7 +916,7 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
       simpleArgs = false;
   }
   if(simpleArgs) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {	
-  	return muIfelse(fname, muCon(true), [ translateFormals([formal | formal <- formals], isVarArgs, 0, kwps, body, when_conditions)], [ muFailReturn() ]);
+  	return muIfelse(fname, muCon(true), [ translateFormals([formal | formal <- formals], isVarArgs, 0, kwps, body, when_conditions, formals@\loc)], [ muFailReturn() ]);
   } else {
 	  list[MuExp] conditions = [];
 	  int i = 0;

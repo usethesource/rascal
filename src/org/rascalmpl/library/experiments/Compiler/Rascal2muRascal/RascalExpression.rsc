@@ -1503,14 +1503,14 @@ MuExp translate(e:(Expression) `<Expression argument> *`) =
 // -- isDefined expression ------------------------------------------
 
 MuExp translate(e:(Expression) `<Expression argument> ?`) =
-    generateIfDefinedOtherwise(muBlock([ translate(argument), muCon(true) ]),  muCon(false));
+    generateIfDefinedOtherwise(muBlock([ translate(argument), muCon(true) ]),  muCon(false), e@\loc);
 
 // -- isDefinedOtherwise expression ---------------------------------
 
 MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) =
-    generateIfDefinedOtherwise(translate(lhs), translate(rhs));
+    generateIfDefinedOtherwise(translate(lhs), translate(rhs), e@\loc);
 
-MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS) {
+MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
     str fuid = topFunctionScope();
     str varname = asTmp(nextLabel());
 	// Check if evaluation of the expression throws a 'NoSuchKey' or 'NoSuchAnnotation' exception;
@@ -1520,7 +1520,7 @@ MuExp generateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS) {
 	cond2 = muCallMuPrim("equal", [ muCon("NoSuchKey"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]) ]);
 	cond3 = muCallMuPrim("equal", [ muCon("NoSuchAnnotation"), muCallMuPrim("get_name", [ muTmp(asUnwrapedThrown(varname),fuid) ]) ]);
 		
-	elsePart3 = muIfelse(nextLabel(), cond3, [ muRHS ], [ muThrow(muTmp(varname,fuid), |unknown:///|) ]);
+	elsePart3 = muIfelse(nextLabel(), cond3, [ muRHS ], [ muThrow(muTmp(varname,fuid), src) ]);
 	elsePart2 = muIfelse(nextLabel(), cond2, [ muRHS ], [ elsePart3 ]);
 	catchBody = muIfelse(nextLabel(), cond1, [ muRHS ], [ elsePart2 ]);
 	return muTry(muLHS, muCatch(varname, fuid, Symbol::\adt("RuntimeException",[]), catchBody), 
