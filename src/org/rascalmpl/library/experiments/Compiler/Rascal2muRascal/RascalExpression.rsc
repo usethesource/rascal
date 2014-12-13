@@ -809,6 +809,8 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	// Unique 'id' of a visit in the function body
 	int i = nextVisit();
 	
+	previously_declared_functions = size(getFunctionsInModule());
+	
 	// Generate and add a nested function 'phi'
 	str scopeId = topFunctionScope();
 	str phi_fuid = scopeId + "/" + "PHI_<i>";
@@ -831,6 +833,11 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	//        are affected
 	// TODO: It seems possible to perform this lifting during translation 
 	rel[str fuid,int pos] decls = getAllVariablesAndFunctionsOfBlockScope(\visit@\loc);
+	
+	//println("getAllVariablesAndFunctionsOfBlockScope:");
+	//for(tup <- decls){
+	//	println(tup);
+	//}
 	// Starting from the number of formal parameters (iSubject, matched, hasInsert, begin, end)
 	int pos_in_phi = NumberOfPhiFormals;
 	// Map from <scopeId,pos> to <phi_fuid,newPos>
@@ -840,9 +847,33 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 	    mapping[<scopeId,pos>] = <phi_fuid,pos_in_phi>;
 	    pos_in_phi = pos_in_phi + 1;
 	}
+	
+	//println("mapping");
+	//for(k <- mapping){ println("\t<k>: <mapping[k]>"); }
+	//println("lifting, scopeId = <scopeId>, phi_fuid = <phi_fuid>");
+	//println("previously_declared_functions = <previously_declared_functions>, added by visit: <size(getFunctionsInModule()) - previously_declared_functions>");
+	
+	
 	body = lift(body,scopeId,phi_fuid,mapping);
-	//functions_in_module = lift(functions_in_module,scopeId,phi_fuid,mapping);
-	setFunctionsInModule(lift(getFunctionsInModule(), scopeId, phi_fuid, mapping));
+
+    all_functions = getFunctionsInModule();
+    
+    //println("all_functions");
+    //for(f <- all_functions){
+    //	println("<f.qname>, <f.src>, inside visit: <f.src < \visit@\loc>");
+    //
+    //}
+    //print("sizes: <size(all_functions[ .. previously_declared_functions])>, <size(all_functions[previously_declared_functions..])>");
+    
+    lifted_functions = lift(all_functions[previously_declared_functions..], scopeId, phi_fuid, mapping);
+    
+    //println("size lifted_functions: <size(lifted_functions)>");
+    
+	setFunctionsInModule(all_functions[ .. previously_declared_functions] + lifted_functions);
+	
+	//setFunctionsInModule(lift(all_functions, scopeId, phi_fuid, mapping));
+	
+	//println("size functions after lift: <size(getFunctionsInModule())>");
 	
 	addFunctionToModule(muFunction(phi_fuid, "PHI", phi_ftype, scopeId, NumberOfPhiFormals, pos_in_phi, false, \visit@\loc, [], (), body));
 	

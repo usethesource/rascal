@@ -736,10 +736,13 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
 
 public list[MuFunction] lift(list[MuFunction] functions, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
     return [ (func.scopeIn == fromScope || func.scopeIn == toScope) 
-	             ? { func.scopeIn = toScope; func.body = lift(func.body,fromScope,toScope,mapping); func; } 
-	             : func | MuFunction func <- getFunctionsInModule() ];
+	         ? { func.scopeIn = toScope; func.body = lift(func.body,fromScope,toScope,mapping); func; } 
+	         : func 
+	       | MuFunction func <- functions 
+	       ];
 }
 public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
+
     return visit(body) {
 	    case muAssign(str name,fromScope,int pos,MuExp exp)    => muAssign(name,toScope,newPos,exp) 
 	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]

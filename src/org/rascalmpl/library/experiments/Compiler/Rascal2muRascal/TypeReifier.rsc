@@ -274,7 +274,7 @@ public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] defini
 		  }
 		}
 		throw "No definition for symbol <name>";
-	  } when /*Symbol::\start(Symbol::\sort(str name)) := symbol || */Symbol::\sort(str name) := symbol || Symbol::\lex(str name) := symbol ||
+	  } when Symbol::\sort(str name) := symbol || Symbol::\lex(str name) := symbol ||
 	  		 Symbol::\layouts(str name) := symbol || Symbol::\keywords(str name) := symbol;
 
 // parameterized-sort, parameterized-lex  
