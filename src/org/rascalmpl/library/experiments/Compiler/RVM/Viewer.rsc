@@ -16,7 +16,7 @@ import experiments::Compiler::Compile;
  
 void view(loc srcLoc,                   // location of Rascal source file
           loc bindir = |home:///bin|,   // location where binaries are stored
-          list[str] selection = [],     // selection of function names to be shown
+          list[str] select = [],     	// select unction names to be shown
           bool listing = false          // show instruction listing
           ){
 
@@ -24,8 +24,8 @@ void view(loc srcLoc,                   // location of Rascal source file
     try {
         p = readTextValueFile(#RVMProgram, rvmLoc);
         
-        if(size(selection) > 0){
-            listDecls(p, selection, listing);
+        if(size(select) > 0){
+            listDecls(p, select, listing);
             return;
         }
         println("RVM PROGRAM: <p.name>");
@@ -90,18 +90,21 @@ void view(loc srcLoc,                   // location of Rascal source file
 void printDecl(Declaration d){
     if(d is FUNCTION){
         println("\tFUNCTION <d.uqname>, <d.qname>, <d.ftype>");
-        println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, exceptions=<size(d.exceptions)>, scopeIn=<d.scopeIn>, src=<d.src>");
+        println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, exceptions=<size(d.exceptions)>");
+        println("\t\tscopeIn=<d.scopeIn>,\n\t\tsrc=<d.src>");
     } else {
         println("\tCOROUTINE <d.uqname>, <d.qname>");
-        println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, scopeIn=<d.scopeIn>, src=<d.src>");
+        println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>");
+        println("\t\tscopeIn=<d.scopeIn>,\n\t\tsrc=<d.src>");
     }
 }
 
-void listDecls(RVMProgram p, list[str] selection, bool listing){
-    selection = [toLowerCase(sel) | sel <- selection];
+void listDecls(RVMProgram p, list[str] select, bool listing){
+    select = [toLowerCase(sel) | sel <- select];
     for(dname <- p.declarations){
-        for(sel <- selection){
-            if(findFirst(toLowerCase(dname), sel) >= 0){
+        uqname = p.declarations[dname].uqname;
+        for(sel <- select){
+            if(findFirst(toLowerCase(uqname), sel) == 0){
                 printDecl(p.declarations[dname]);
                 if(listing){
                     for(ins <- p.declarations[dname].instructions){

@@ -338,7 +338,7 @@ private str computeIndent(str s) {
 private str computeIndent(PreStringChars pre) = computeIndent(removeMargins(deescape("<pre>"[1..-1])));
 private str computeIndent(MidStringChars mid) = computeIndent(removeMargins(deescape("<mid>"[1..-1])));
 
-private MuExp translateChars(str s) = muCon(removeMargins(s[1..-1]))
+private MuExp translateChars(str s) = muCon(removeMargins(deescape(s[1..-1])))
 when bprintln(s[1..-1]);
 
 private MuExp translatePreChars(PreStringChars pre) =
@@ -370,7 +370,7 @@ private str deescape(str s)  =  visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t
         | midTemplate: MidStringChars mid StringTemplate template StringTail tail ;
 */
 
-public MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`) = muCon(removeMargins("<mid>"[1..-1]));
+public MuExp translateMiddle((StringMiddle) `<MidStringChars mid>`) = muCon(removeMargins(deescape("<mid>"[1..-1])));
 
 public MuExp translateMiddle(s: (StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) {
     str fuid = topFunctionScope();
@@ -399,7 +399,7 @@ private list[MuExp] translateTail(s: (StringTail) `<MidStringChars mid> <Express
 	
 private list[MuExp] translateTail((StringTail) `<PostStringChars post>`) {
   content = removeMargins(deescape("<post>"[1..-1]));
-  return size(content) == 0 ? [] : [muCon(content)];
+  return size(content) == 0 ? [] : [muCon(deescape(content))];
 }
 
 private list[MuExp] translateTail(s: (StringTail) `<MidStringChars mid> <StringTemplate template> <StringTail tail>`) {
