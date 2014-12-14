@@ -685,7 +685,7 @@ public enum RascalPrimitive {
 			String ind = ((IString) stack[sp - 2]).getValue();
 			String pre = ((IString) stack[sp - 1]).getValue();
 			$indent(ind);
-			stack[sp - 2] = vf.string(pre);
+			stack[sp - 2] = vf.string($unescape(pre));
 			return sp - 1;
 		}
 	},
@@ -694,10 +694,10 @@ public enum RascalPrimitive {
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
 			assert arity <= 2;
 			if(arity == 1){
-				stack[sp - 1] = (((IString) stack[sp - 1]));
+				stack[sp - 1] = vf.string($unescape((((IString) stack[sp - 1])).getValue()));
 				return sp;
 			}
-			stack[sp - 2] = ((IString) stack[sp - 2]).concat(((IString) stack[sp - 1]));
+			stack[sp - 2] = ((IString) stack[sp - 2]).concat(vf.string($unescape((((IString) stack[sp - 1])).getValue())));
 			return sp - 1;
 		}
 	},
@@ -708,10 +708,11 @@ public enum RascalPrimitive {
 			IString template = (IString) stack[sp - arity];
 			String indent = $getCurrentIndent();
 			for(int i = 1; i < arity; i++){
-				IString arg_s = (IString) stack[sp - arity + i];
-				String [] lines = $removeMargins(arg_s.getValue()).split("\n");
+				String arg_s = ((IString) stack[sp - arity + i]).getValue();
+				String [] lines = $removeMargins(arg_s).split("\n");
 				if(lines.length <= 1){
-					template = template.concat(arg_s);
+					template = template.concat(vf.string(arg_s));
+					System.err.println("template_add1: " + arg_s);
 				} else {
 					StringBuilder sb = new StringBuilder();
 					sb.append(lines[0]);
@@ -719,6 +720,7 @@ public enum RascalPrimitive {
 						sb.append("\n").append(indent).append(lines[j]);
 					}
 					String res = sb.toString();
+					System.err.println("template_add2: " + vf.string(res));
 					template = template.concat(vf.string(res));
 				}
 			}
@@ -731,6 +733,7 @@ public enum RascalPrimitive {
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
 			assert arity == 1;
 			$unindent();
+			System.err.println("templace_close: " + stack[sp - 1]);
 			return sp;
 		}
 	},
@@ -5929,6 +5932,7 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
 			assert arity == 1;
+			String res;
 			if(stack[sp - 1] instanceof IValue){
 				IValue val = (IValue) stack[sp -1];
 				Type tp = val.getType();
@@ -5938,18 +5942,17 @@ public enum RascalPrimitive {
 					for(int i = 0; i < lst.length(); i++){
 						w.write($value2string(lst.get(i)));
 					}
-					stack[sp - 1] = vf.string(w.toString());
+					res = w.toString();
 
 				} else {
-					stack[sp - 1] = vf.string($value2string(val));
+					res = $value2string(val);
 				}
-//			} else if(stack[sp - 1] instanceof Boolean){
-//				stack[sp - 1] = vf.string(((Boolean) stack[sp - 1]).toString());
 			} else if(stack[sp - 1] instanceof Integer){
-				stack[sp - 1] = vf.string(((Integer) stack[sp - 1]).toString());
+				res = ((Integer) stack[sp - 1]).toString();
 			} else {
 				throw RascalRuntimeException.illegalArgument(vf.string(stack[sp -1].toString()), currentFrame);
 			}
+			stack[sp - 1] =  vf.string(res);
 			return sp;
 		}
 	};
@@ -6081,7 +6084,8 @@ public enum RascalPrimitive {
 
 	private static String $removeMargins(String arg) {
 		arg = MARGIN.matcher(arg).replaceAll("");
-		return org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(arg);
+		return arg;
+		//return org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(arg);
 	}
 
 	private static ISourceLocation $loc_field_update(ISourceLocation sloc, String field, IValue repl,Frame currentFrame) {		
@@ -6634,6 +6638,27 @@ public enum RascalPrimitive {
 			return (IConstructor) cons.get(1);
 		return cons;
 	}
+	
+	public static String $unescape(String s) {
+		StringBuilder b = new StringBuilder(s.length() * 2); 
+
+		int sLength = s.length();
+		for (int c = 0; c < sLength; c++) {
+			String schr = s.substring(c, c+1);
+			String sub = schr;
+
+			switch(schr){
+			case "\\\"":	sub = "\""; break;
+			case "\\\'":	sub = "\'"; break;
+			case "\\\\":	sub = "\\"; break;
+			case "\\<":		sub = "<"; break;
+			case "\\>":		sub = ">"; break;
+			}
+			b.append(sub);
+		}
+		return b.toString();
+	}
+		
 
 	private static String $value2string(IValue val){
 		if(val.getType().isString()){

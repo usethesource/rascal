@@ -1,16 +1,18 @@
 module experiments::Compiler::Examples::Tst3
 
+import ParseTree;
 
-data NODE1 = f(value V1, value V2) 
-           | f(value V1, value V2, value V3) 
-           ;
+syntax S 
+  = "s"
+  | "star" S* list "."
+  ;
+     
+layout WS = [\t\n\ ]* !>> [\t\n\ ];
+ 
+// testing regular expressions
 
-NODE1 walk(NODE1 t) = t;
+public S s = (S) `s`;
 
-value main(list[value] args) {
-	
-    return walk(f(1,2,3)) == f(2,4,6) 
-           || 
-           walk(f(1,f(2,3))) == f(2, f(4, 6))
-            ;
-}
+public S star_two = (S) `star <S s> <S s>.`;
+
+value main(list[value] args) { if ((S*) x := star_two.\list) { return (S) `star <S* x> <S* x>.` ;} }//== (S) `star s s s s.`;
