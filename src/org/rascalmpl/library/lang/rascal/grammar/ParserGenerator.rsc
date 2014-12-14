@@ -542,6 +542,20 @@ public str esc(Symbol s){
     return esc("<s>");
 }
 
+test bool tstEsc1() = esc(sort("S")) == "sort(\\\"S\\\")";
+test bool tstEsc2() = esc(lit(":")) == "lit(\\\":\\\")";
+test bool tstEsc3() = esc(lit("\"")) == "lit(\\\"\\\\\\\"\\\")";
+
+test bool tstEsc4() = "<esc(sort("S"))>" == "sort(\\\"S\\\")";
+test bool tstEsc5() = "<esc(lit("\""))>" == "lit(\\\"\\\\\\\"\\\")";
+
+test bool tstEsc6() = "<esc(sort("S"))>" == "<"sort(\\\"S\\\")">";
+test bool tstEsc7() = "<esc(lit(":"))>" == "<"lit(\\\":\\\")">";
+test bool tstEsc8() = "<esc(lit("\""))>" == "<"lit(\\\"\\\\\\\"\\\")">";
+
+test bool tstEsc9() = "<for(s <- [sort("S"), lit("\"")]){><esc(s)><}>" ==  "sort(\\\"S\\\")lit(\\\"\\\\\\\"\\\")";
+test bool tstEsc10() = "\"<for(s <- [sort("S"), lit("\"")]){>\"<esc(s)>\"<}>\"" ==  "\"\"sort(\\\"S\\\")\"\"lit(\\\"\\\\\\\"\\\")\"\"";
+
 map[str,str] javaStringEscapes = ( "\n":"\\n", "\"":"\\\"", "\t":"\\t", "\r":"\\r","\\u":"\\\\u","\\":"\\\\");
 
 public str esc(str s){
@@ -590,6 +604,8 @@ str v2i(value v) {
 }
 
 // -------- Examples and tests -------------------
+
+
 
 public Grammar GEMPTY = grammar({sort("S")}, ());
 
@@ -1089,10 +1105,12 @@ grammar(
           [\char-class([range(48,48)])],
           {})})
   ));
+  
+bool sameLines(str s1, str s2) = size(split("\n", s1) - split("\n", s2)) == 0;
  
-test bool tstNewGenerate1() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "GEMPTYParser", GEMPTY) == readFile(|rascal:///lang/rascal/grammar/tests/GEMPTYParser.java|);
-test bool tstNewGenerate2() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "G0Parser", G0) == readFile(|rascal:///lang/rascal/grammar/tests/G0Parser.java|);
-test bool tstNewGenerate3() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "GEXPParser", GEXP) == readFile(|rascal:///lang/rascal/grammar/tests/GEXPParser.java|);
-test bool tstNewGenerate4() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "GEXPPRIOParser", GEXPPRIO) == readFile(|rascal:///lang/rascal/grammar/tests/GEXPPRIOParser.java|);
+test bool tstNewGenerate1() = sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "GEMPTYParser", GEMPTY), readFile(|rascal:///lang/rascal/grammar/tests/GEMPTYParser.java|));
+test bool tstNewGenerate2() = sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "G0Parser", G0), readFile(|rascal:///lang/rascal/grammar/tests/G0Parser.java|));
+test bool tstNewGenerate3() = sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "GEXPParser", GEXP), readFile(|rascal:///lang/rascal/grammar/tests/GEXPParser.java|));
+test bool tstNewGenerate4() = sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "GEXPPRIOParser", GEXPPRIO), readFile(|rascal:///lang/rascal/grammar/tests/GEXPPRIOParser.java|));
 
     
