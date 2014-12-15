@@ -37,6 +37,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.Configuration;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
@@ -73,6 +74,9 @@ public class RVM {
 	private final Map<IValue, IValue> moduleVariables;
 	PrintWriter stdout;
 	PrintWriter stderr;
+	
+	private Frame currentFrame;	// used for profiling
+	private Profiler profiler;
 	
 	// Management of active coroutines
 	Stack<Coroutine> activeCoroutines = new Stack<>();
@@ -146,6 +150,8 @@ public class RVM {
 		MuPrimitive.init(vf, stdout, rex.getProfile());
 		RascalPrimitive.init(this, rex);
 		Opcode.init(stdout, rex.getProfile());
+		
+		this.currentFrame = null;
 	}
 	
 	URIResolverRegistry getResolverRegistry() { return rex.getResolverRegistry(); }
@@ -226,40 +232,40 @@ public class RVM {
 	}
 	 
 	
-	void printStores(){
-		System.out.println("FUNCTION STORE");
-		for(int i = 0; i < functionStore.size(); i++){
-			Function fun = functionStore.get(i);
-			System.out.println(i + ": " + (fun == null ? "null" : fun));
-		}
-		System.out.println("OVERLOADED STORE");
-		for(int i = 0; i < overloadedStore.size(); i++){
-			OverloadedFunction ofun = overloadedStore.get(i);
-			StringBuilder sb = new StringBuilder(i + ": ");
-			if(ofun.functions.length > 0){
-				sb.append(" functions:");
-				for(int j = 0; j < ofun.functions.length; j++){
-					int ifun = ofun.functions[j];
-					String fname = functionStore.get(ifun).getQualifiedName();
-					sb.append(" ").append(ifun).append(" [").append(fname).append("]");
-				}
-			}
-			if(ofun.constructors.length > 0){
-				sb.append(" constructors:");
-				for(int j = 0; j < ofun.constructors.length; j++){
-					int icons = ofun.constructors[j];
-					String cname = constructorStore.get(icons).getName();
-					sb.append(" ").append(icons).append(" [").append(cname).append("]");
-				}
-			}
-			System.out.println(sb);
-		}
-		
-		System.out.println("CONSTRUCTOR STORE");
-		for(int i = 0; i < constructorStore.size(); i++){
-			System.out.println(i + ": " + constructorStore.get(i));;
-		}
-	}
+//	void printStores(){
+//		System.out.println("FUNCTION STORE");
+//		for(int i = 0; i < functionStore.size(); i++){
+//			Function fun = functionStore.get(i);
+//			System.out.println(i + ": " + (fun == null ? "null" : fun));
+//		}
+//		System.out.println("OVERLOADED STORE");
+//		for(int i = 0; i < overloadedStore.size(); i++){
+//			OverloadedFunction ofun = overloadedStore.get(i);
+//			StringBuilder sb = new StringBuilder(i + ": ");
+//			if(ofun.functions.length > 0){
+//				sb.append(" functions:");
+//				for(int j = 0; j < ofun.functions.length; j++){
+//					int ifun = ofun.functions[j];
+//					String fname = functionStore.get(ifun).getQualifiedName();
+//					sb.append(" ").append(ifun).append(" [").append(fname).append("]");
+//				}
+//			}
+//			if(ofun.constructors.length > 0){
+//				sb.append(" constructors:");
+//				for(int j = 0; j < ofun.constructors.length; j++){
+//					int icons = ofun.constructors[j];
+//					String cname = constructorStore.get(icons).getName();
+//					sb.append(" ").append(icons).append(" [").append(cname).append("]");
+//				}
+//			}
+//			System.out.println(sb);
+//		}
+//		
+//		System.out.println("CONSTRUCTOR STORE");
+//		for(int i = 0; i < constructorStore.size(); i++){
+//			System.out.println(i + ": " + constructorStore.get(i));;
+//		}
+//	}
 	
 	/**
 	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned.
@@ -419,6 +425,15 @@ public class RVM {
 		throw new CompilerError("Undefined overloaded function index " + n);
 	}
 	
+	/*
+	 * Get source location where current frame is executing, if available
+	 */
+	ISourceLocation getLocation(){
+		if(currentFrame != null)
+			return currentFrame.src;
+		return null;
+	}
+	
 	public IValue executeFunction(String uid_func, IValue[] args){
 		// Assumption here is that the function called is not nested one
 		// and does not use global variables
@@ -501,6 +516,12 @@ public class RVM {
 		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
 		cf.stack[1] = new HashMap<String, IValue>();
 		cf.src = main_function.src;
+		
+		currentFrame = cf;
+		if(rex.getProfile()){
+			profiler = new Profiler(this);
+			profiler.start();
+		}
 		Object o = executeProgram(root, cf);
 		if(o != null && o instanceof Thrown){
 			throw (Thrown) o;
@@ -509,6 +530,13 @@ public class RVM {
 		if(debug) {
 			stdout.println("TRACE:");
 			stdout.println(getTrace());
+		}
+		if (rex.getProfile()) {
+			if (profiler != null) {
+				profiler.pleaseStop();
+				profiler.report();
+				profiler = null;
+			}
 		}
 		return res;
 	}
@@ -550,6 +578,8 @@ public class RVM {
 				
 				int instruction = instructions[pc++];
 				int op = CodeBlock.fetchOp(instruction);
+				
+				currentFrame = cf;	// TODO only set currentFrame when cf is changed.
 
 				if (debug) {
 					int startpc = pc - 1;
