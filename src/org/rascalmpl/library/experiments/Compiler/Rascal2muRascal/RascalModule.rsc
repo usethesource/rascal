@@ -19,7 +19,6 @@ import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
-import experiments::Compiler::RVM::Interpreter::ConstantFolder;
 
 import util::ValueUI;
 
@@ -190,7 +189,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
    	 
-   	  generate_tests(modName);
+   	  generate_tests(modName, M@\loc);
    	  
    	  // Overloading resolution...	  
    	  lrel[str,list[str],list[str]] overloaded_functions = 
@@ -450,8 +449,8 @@ private list[str] translateModifiers(FunctionModifiers modifiers){
 /*                  Translate the tests in a module                 */
 /********************************************************************/
 
-private void generate_tests(str module_name){
-   code = muBlock([ muCallPrim("testreport_open", []), *tests, muReturn1(muCallPrim("testreport_close", [])) ]);
+private void generate_tests(str module_name, loc src){
+   code = muBlock([ muCallPrim3("testreport_open", [], src), *tests, muReturn1(muCallPrim3("testreport_close", [], src)) ]);
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
    name_testsuite = "<module_name>_testsuite";
    main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);

@@ -18,7 +18,6 @@ import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::RVM::Interpreter::ParsingTools;
-//import experiments::Compiler::RVM::Interpreter::ConstantFolder;
 import experiments::Compiler::muRascal::MuAllMuOr;
 
 /*
