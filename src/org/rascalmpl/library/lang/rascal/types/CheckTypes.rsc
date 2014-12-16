@@ -8479,21 +8479,28 @@ public default Module check(Tree t) {
 }
 
 CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {
-  sym = visit(sym) {
-   case sort(str name) : {
-     sname = RSimpleName(name);
-     if (sname notin c.typeEnv || !(c.store[c.typeEnv[sname]] is sorttype)) {
-       c = addScopeMessage(c,error("Syntax type <name> is not defined", l));
-     }
-     else {
-       c.uses = c.uses + < c.typeEnv[sname], l >;
-       c.usedIn[l] = head(c.stack);
-       insert c.store[c.typeEnv[sname]].rtype;
-     } // TODO finish
-   }
-  }
-  
-  return <c, sym>;
+	sym = visit(sym) {
+		case sort(str name) : {
+			sname = RSimpleName(name);     
+			if (sname notin c.typeEnv || !(c.store[c.typeEnv[sname]] is sorttype)) {
+				if (sname in c.unimportedNames && sname in c.globalSortMap) {
+					nameMatches = { "<prettyPrintName(appendName(mi,sname))>" | mi <- c.moduleInfo, sname in c.moduleInfo[mi].typeEnv || appendName(mi,sname) in c.moduleInfo[mi].typeEnv };
+					if (size(nameMatches) > 0) {
+						c = addScopeMessage(c,error("Nonterminal <prettyPrintName(sname)> was not imported, use one of the following fully qualified type names instead: <intercalate(",",toList(nameMatches))>", l));
+					} else {
+						c = addScopeMessage(c,error("Nonterminal <prettyPrintName(sname)> not declared", l));
+					}
+				} else {
+					c = addScopeMessage(c,error("Nonterminal <prettyPrintName(sname)> not declared", l));
+				}
+			} else {
+				c.uses = c.uses + < c.typeEnv[sname], l >;
+				c.usedIn[l] = head(c.stack);
+				insert c.store[c.typeEnv[sname]].rtype;
+			} // TODO finish
+		}
+	}
+	return <c, sym>;
 }
 
 tuple[Production,Configuration] resolveProduction(Production prod, loc l, Configuration c, bool imported) {
