@@ -95,7 +95,7 @@ MuExp translateRegExpLiteral(re: (RegExpLiteral) `/<RegExp* rexps>/<RegExpModifi
                  ]); 
 }
 
-tuple[MuExp, list[MuExp]] processRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
+tuple[MuExp, list[MuExp]] processRegExpLiteral(e: (RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
    str fuid = topFunctionScope();
    swriter = nextTmp();
    fragmentCode = [];
@@ -151,9 +151,9 @@ tuple[MuExp, list[MuExp]] processRegExpLiteral((RegExpLiteral) `/<RegExp* rexps>
    if(size(fragment) > 0){
       fragmentCode += muCon(fragment);
    }
-   buildRegExp = muBlock(muAssignTmp(swriter, fuid, muCallPrim("stringwriter_open", [])) + 
-                       [ muCallPrim("stringwriter_add", [muTmp(swriter,fuid), exp]) | exp <- fragmentCode ] +
-                       muCallPrim("stringwriter_close", [muTmp(swriter,fuid)]));
+   buildRegExp = muBlock(muAssignTmp(swriter, fuid, muCallPrim3("stringwriter_open", [], e@\loc)) + 
+                       [ muCallPrim3("stringwriter_add", [muTmp(swriter,fuid), exp], e@\loc) | exp <- fragmentCode ] +
+                       muCallPrim3("stringwriter_close", [muTmp(swriter,fuid)], e@\loc));
    return <buildRegExp, varrefs>;
    
 }
@@ -654,7 +654,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`) {
       }
    }
    MuExp litCode = (all(Literal lit <- literals, isConstant(lit))) ? muCon({ getLiteralValue(lit) | Literal lit <- literals })
-   		           										           : muCallPrim("set_create", [ translate(lit) | Literal lit <- literals] );
+   		           										           : muCallPrim3("set_create", [ translate(lit) | Literal lit <- literals], p@\loc );
    
     return muApply(mkCallToLibFun("Library","MATCH_SET"), [ litCode, muCallMuPrim("make_array", compiledPats) ]);
    

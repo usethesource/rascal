@@ -56,6 +56,7 @@ public class Execute {
 								 IBool testsuite, 
 								 IBool profile, 
 								 IBool trackCalls, 
+								 IBool coverage,
 								 IEvaluatorContext ctx) {
 		
 		boolean isTestSuite = testsuite.getValue();
@@ -79,7 +80,7 @@ public class Execute {
 		
 		IMap symbol_definitions = (IMap) program.get("symbol_definitions");
 		
-		RVM rvm = new RVM(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), trackCalls.getValue(), ctx, testResultListener));
+		RVM rvm = new RVM(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), trackCalls.getValue(), coverage.getValue(), ctx, testResultListener));
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
@@ -92,6 +93,9 @@ public class Execute {
 		
 		for(IValue imp : imported_functions){
 			IConstructor declaration = (IConstructor) imp;
+			if(((IString) declaration.get("qname")).getValue().indexOf("subtype") > 0){
+				stdout.println("import function/coroutine: " + declaration.get("qname") + ", " + declaration.get("src"));
+			}
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
 				
@@ -152,12 +156,18 @@ public class Execute {
 		for(int i = 0; i < argumentsAsList.length(); i++){
 			arguments[i] = argumentsAsList.get(i);
 		}
+		
+		rvm.getLocationReporter().start();
+	
+		
 		// Execute initializers of imported modules
 		for(String initializer: initializers){
 			rvm.executeProgram("UNDEFINED", initializer, arguments);
 		}
 		
 		if((uid_module_init == null)) {
+			
+			rvm.getLocationReporter().stop();
 			throw new CompilerError("No module_init function found when loading RVM code!");
 		}
 		
@@ -191,6 +201,8 @@ public class Execute {
 			MuPrimitive.exit();
 			RascalPrimitive.exit();
 			Opcode.exit();
+			rvm.getLocationReporter().report(rvm.getStdOut());
+			
 			return vf.tuple((IValue) result, vf.integer((now - start)/1000000));
 			
 		} catch(Thrown e) {

@@ -20,7 +20,8 @@ public java tuple[value,int] executeProgram(RVMProgram program,
 										    bool debug, 
 										    bool testsuite,
 										    bool profile,
-										    bool trackCalls);						    
+										    bool trackCalls,
+										    bool coverage);						    
 										    
 
 //public void execute(experiments::Compiler::RVM::Syntax::RascalVM tree, loc selection) {
