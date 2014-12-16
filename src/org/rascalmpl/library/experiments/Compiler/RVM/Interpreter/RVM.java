@@ -37,7 +37,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
@@ -55,7 +54,6 @@ public class RVM {
 	
 	private boolean debug = true;
 	private boolean listing = false;
-	private boolean trackCalls = false;
 	private boolean finalized = false;
 	
 	private final ArrayList<Function> functionStore;
@@ -76,7 +74,7 @@ public class RVM {
 	PrintWriter stderr;
 	
 	private Frame currentFrame;	// used for profiling
-	private Profiler profiler;
+	private ILocationReporter locationReporter;
 	
 	// Management of active coroutines
 	Stack<Coroutine> activeCoroutines = new Stack<>();
@@ -115,7 +113,6 @@ public class RVM {
 		}  
 	};
 
-
 	public RVM(RascalExecutionContext rex) {
 		super();
 
@@ -128,7 +125,7 @@ public class RVM {
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
 		this.debug = rex.getDebug();
-		this.trackCalls = rex.getTrackCalls();
+		//this.trackCalls = rex.getTrackCalls();
 		this.finalized = false;
 		
 		this.types = new Types(this.vf);
@@ -151,20 +148,28 @@ public class RVM {
 		RascalPrimitive.init(this, rex);
 		Opcode.init(stdout, rex.getProfile());
 		
+		this.locationReporter = rex.getLocationReporter();
 		this.currentFrame = null;
 	}
 	
 	URIResolverRegistry getResolverRegistry() { return rex.getResolverRegistry(); }
-	IRascalMonitor getMonitor() {return rex.getMonitor();}
-	PrintWriter getStdErr() { return rex.getStdErr(); }
-	PrintWriter getStdOut() { return rex.getStdOut(); }
-	Configuration getConfiguration() { return rex.getConfiguration(); }
-	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
-	IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
-
 	
+	IRascalMonitor getMonitor() {return rex.getMonitor();}
+	
+	PrintWriter getStdErr() { return rex.getStdErr(); }
+	
+	PrintWriter getStdOut() { return rex.getStdOut(); }
+	
+	Configuration getConfiguration() { return rex.getConfiguration(); }
+	
+	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
+	
+	IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
+	
+	ILocationReporter getLocationReporter() { return rex.getLocationReporter(); }
+
 	public void declare(Function f){
-		//System.out.println(functionStore.size() + ", declare: " + f.getName());
+		System.out.println(functionStore.size() + ", declare: " + f.getName());
 		if(functionMap.get(f.getName()) != null){
 			throw new CompilerError("Double declaration of function: " + f.getName());
 		}
@@ -209,8 +214,10 @@ public class RVM {
 			int i = 0;
 			for(IValue fuid : fuids) {
 				String name = ((IString) fuid).getValue();
-				//stdout.println("fillOverloadedStore: " + name);
-				//stdout.flush();
+				if(name.indexOf("subtype") >= 0){
+					stdout.println("fillOverloadedStore: " + name);
+					stdout.flush();
+				}
 				Integer index = functionMap.get(name);
 				if(index == null){
 					throw new CompilerError("No definition for " + fuid + " in functionMap");
@@ -230,42 +237,6 @@ public class RVM {
 			this.overloadedStore.add(new OverloadedFunction(funs, constrs, scopeIn));
 		}
 	}
-	 
-	
-//	void printStores(){
-//		System.out.println("FUNCTION STORE");
-//		for(int i = 0; i < functionStore.size(); i++){
-//			Function fun = functionStore.get(i);
-//			System.out.println(i + ": " + (fun == null ? "null" : fun));
-//		}
-//		System.out.println("OVERLOADED STORE");
-//		for(int i = 0; i < overloadedStore.size(); i++){
-//			OverloadedFunction ofun = overloadedStore.get(i);
-//			StringBuilder sb = new StringBuilder(i + ": ");
-//			if(ofun.functions.length > 0){
-//				sb.append(" functions:");
-//				for(int j = 0; j < ofun.functions.length; j++){
-//					int ifun = ofun.functions[j];
-//					String fname = functionStore.get(ifun).getQualifiedName();
-//					sb.append(" ").append(ifun).append(" [").append(fname).append("]");
-//				}
-//			}
-//			if(ofun.constructors.length > 0){
-//				sb.append(" constructors:");
-//				for(int j = 0; j < ofun.constructors.length; j++){
-//					int icons = ofun.constructors[j];
-//					String cname = constructorStore.get(icons).getName();
-//					sb.append(" ").append(icons).append(" [").append(cname).append("]");
-//				}
-//			}
-//			System.out.println(sb);
-//		}
-//		
-//		System.out.println("CONSTRUCTOR STORE");
-//		for(int i = 0; i < constructorStore.size(); i++){
-//			System.out.println(i + ": " + constructorStore.get(i));;
-//		}
-//	}
 	
 	/**
 	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned.
@@ -308,8 +279,6 @@ public class RVM {
 	private String asString(Object o){
 		if(o == null)
 			return "null";
-//		if(o instanceof Boolean)
-//			return ((Boolean) o).toString() + " [Java]";
 		if(o instanceof Integer)
 			return ((Integer)o).toString() + " [Java]";
 		if(o instanceof String)
@@ -435,7 +404,7 @@ public class RVM {
 	}
 	
 	public IValue executeFunction(String uid_func, IValue[] args){
-		// Assumption here is that the function called is not nested one
+		// Assumption here is that the function called is not a nested one
 		// and does not use global variables
 		Function func = functionStore.get(functionMap.get(uid_func));
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
@@ -518,10 +487,6 @@ public class RVM {
 		cf.src = main_function.src;
 		
 		currentFrame = cf;
-		if(rex.getProfile()){
-			profiler = new Profiler(this);
-			profiler.start();
-		}
 		Object o = executeProgram(root, cf);
 		if(o != null && o instanceof Thrown){
 			throw (Thrown) o;
@@ -530,13 +495,6 @@ public class RVM {
 		if(debug) {
 			stdout.println("TRACE:");
 			stdout.println(getTrace());
-		}
-		if (rex.getProfile()) {
-			if (profiler != null) {
-				profiler.pleaseStop();
-				profiler.report();
-				profiler = null;
-			}
 		}
 		return res;
 	}
@@ -568,7 +526,7 @@ public class RVM {
 		pos = 0;
 		last_function_name = "";
 		
-		if(trackCalls) { cf.printEnter(stdout); }
+		//if(trackCalls) { cf.printEnter(stdout); }
 		
 		try {
 			NEXT_INSTRUCTION: while (true) {
@@ -578,8 +536,6 @@ public class RVM {
 				
 				int instruction = instructions[pc++];
 				int op = CodeBlock.fetchOp(instruction);
-				
-				currentFrame = cf;	// TODO only set currentFrame when cf is changed.
 
 				if (debug) {
 					int startpc = pc - 1;
@@ -902,7 +858,7 @@ public class RVM {
 						throw new CompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]), cf);
 					}
 					
-					if(trackCalls) { cf.printEnter(stdout); }
+					//if(trackCalls) { cf.printEnter(stdout); }
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
@@ -916,6 +872,7 @@ public class RVM {
 					arity = CodeBlock.fetchArg2(instruction);
 					
 					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
+					locationReporter.setLocation(cf.src);
 					cf.sp = sp;
 					cf.pc = pc;
 					
@@ -934,7 +891,7 @@ public class RVM {
 							stack = cf.stack;
 							sp = cf.sp;
 							pc = cf.pc;
-							if(trackCalls) { cf.printEnter(stdout); }
+							//if(trackCalls) { cf.printEnter(stdout); }
 							continue NEXT_INSTRUCTION;
 						}
 					 	// 2. OverloadedFunctionInstance due to named Rascal functions
@@ -967,7 +924,7 @@ public class RVM {
 							this.appendToTrace("		" + "try alternative: " + frame.function.name);
 						}
 						cf = frame;
-						if(trackCalls) { cf.printEnter(stdout); }
+						//if(trackCalls) { cf.printEnter(stdout); }
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
@@ -1052,7 +1009,7 @@ public class RVM {
 							return NONE;
 						}
 					}
-					if(trackCalls) { cf.printBack(stdout); }
+					//if(trackCalls) { cf.printBack(stdout); }
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
@@ -1270,6 +1227,7 @@ public class RVM {
 				case Opcode.OP_CALLPRIM:
 					arity = CodeBlock.fetchArg2(instruction);
 					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
+					locationReporter.setLocation(cf.src);
 					try {
 						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity, cf);
 					} catch(Exception exception) {
@@ -1379,6 +1337,7 @@ public class RVM {
 					Object obj = stack[--sp];
 					thrown = null;
 					cf.src = (ISourceLocation) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
+					locationReporter.setLocation(cf.src);
 					if(obj instanceof IValue) {
 						//stacktrace = new ArrayList<Frame>();
 						//stacktrace.add(cf);
@@ -1391,11 +1350,9 @@ public class RVM {
 					
 				case Opcode.OP_LOADLOCKWP:
 					String name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction))).getValue();
-					@SuppressWarnings("unchecked")
 					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
 					Map.Entry<Type, IValue> defaultValue = defaults.get(name);
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						@SuppressWarnings("unchecked")
 						HashMap<String, IValue> kargs = (HashMap<String,IValue>) f.stack[f.function.nformals - 1];
 						if(kargs.containsKey(name)) {
 							val = kargs.get(name);

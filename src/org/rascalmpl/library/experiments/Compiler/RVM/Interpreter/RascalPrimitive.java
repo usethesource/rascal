@@ -712,7 +712,6 @@ public enum RascalPrimitive {
 				String [] lines = $removeMargins(arg_s).split("\n");
 				if(lines.length <= 1){
 					template = template.concat(vf.string(arg_s));
-					System.err.println("template_add1: " + arg_s);
 				} else {
 					StringBuilder sb = new StringBuilder();
 					sb.append(lines[0]);
@@ -720,7 +719,6 @@ public enum RascalPrimitive {
 						sb.append("\n").append(indent).append(lines[j]);
 					}
 					String res = sb.toString();
-					System.err.println("template_add2: " + vf.string(res));
 					template = template.concat(vf.string(res));
 				}
 			}
@@ -733,7 +731,6 @@ public enum RascalPrimitive {
 		public int execute(Object[] stack, int sp, int arity,Frame currentFrame) {
 			assert arity == 1;
 			$unindent();
-			System.err.println("templace_close: " + stack[sp - 1]);
 			return sp;
 		}
 	},

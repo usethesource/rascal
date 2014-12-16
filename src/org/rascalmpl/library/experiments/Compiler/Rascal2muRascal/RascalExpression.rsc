@@ -895,8 +895,8 @@ MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit) {
 						                                                     muVar("begin", phi_fixpoint_fuid, beginPos),	
 						                                                     muVar("end", phi_fixpoint_fuid, endPos)			                                                                                   
 						                                                   ])),
-						  muIfelse(nextLabel(), makeMu("ALL", [ muCallPrim("equal", [ muVar("val", phi_fixpoint_fuid, valPos), 
-						                                                              muVar("iSubject", phi_fixpoint_fuid, iSubjectPos) ]) ], \visit@\loc),
+						  muIfelse(nextLabel(), makeMu("ALL", [ muCallPrim3("equal", [ muVar("val", phi_fixpoint_fuid, valPos), 
+						                                                              muVar("iSubject", phi_fixpoint_fuid, iSubjectPos) ], \visit@\loc) ], \visit@\loc ),
 						  						[ muAssign("changed", phi_fixpoint_fuid,changedPos, muBool(false)) ], 
 						  						[ muAssign("iSubject", phi_fixpoint_fuid, iSubjectPos, muVar("val", phi_fixpoint_fuid, valPos)) ] )]);
 		body_exps += muReturn1(muVar("iSubject", phi_fixpoint_fuid, iSubjectPos));
@@ -963,8 +963,8 @@ MuExp translateVisitCases(list[Case] cases, str fuid, Symbol subjectType) {
 				conditions = [ translate(e) | Expression e <- c.patternWithAction.replacement.conditions ];
 			}
 			replacementType = getType(c.patternWithAction.replacement.replacementExpression@\loc);
-			tcond = muCallPrim("subtype", [ muTypeCon(replacementType), 
-			                                muCallPrim("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ]) ]);
+			tcond = muCallPrim3("subtype", [ muTypeCon(replacementType), 
+			                                 muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], c@\loc) ], c@\loc);
 			list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
 			                      muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)), 
 			                      replacement ];
@@ -977,7 +977,7 @@ MuExp translateVisitCases(list[Case] cases, str fuid, Symbol subjectType) {
 			\case = translate(case_statement);
 			insertType = topCaseType();
 			clearCaseType();
-			tcond = muCallPrim("subtype", [ muTypeCon(insertType), muCallPrim("typeOf", [ muVar("iSubject",fuid,iSubjectPos) ]) ]);
+			tcond = muCallPrim3("subtype", [ muTypeCon(insertType), muCallPrim3("typeOf", [ muVar("iSubject",fuid,iSubjectPos) ], c@\loc) ], c@\loc);
 			list[MuExp] cbody = [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)) ];
 			if(!(muBlock([]) := \case)) {
 				cbody += \case;
@@ -1049,7 +1049,7 @@ MuExp translateReducer(Expression e){ //Expression init, Expression result, {Exp
 
 MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) {
 	
-    return muCallPrim("reifiedType_create", [translate(symbol), translate(definitions)]);
+    return muCallPrim3("reifiedType_create", [translate(symbol), translate(definitions)], e@\loc);
     
 }
 
@@ -1332,24 +1332,24 @@ private MuExp translateComprehension(c: (Comprehension) `(<Expression from> : <E
 // -- set expression ------------------------------------------------
 
 MuExp translate(Expression e:(Expression)`{ <{Expression ","}* es> }`) =
-    translateSetOrList(es, "set");
+    translateSetOrList(e, es, "set");
 
 // -- list expression -----------------------------------------------
 
 MuExp translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`) = 
-    translateSetOrList(es, "list");
+    translateSetOrList(e, es, "list");
 
 // Translate SetOrList including spliced elements
 
 private bool containSplices({Expression ","}* es) =
     any(Expression e <- es, e is splice);
 
-private MuExp translateSetOrList({Expression ","}* es, str kind){
+private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
  if(containSplices(es)){
        str fuid = topFunctionScope();
        writer = nextTmp();
        enterWriter(writer);
-       code = [ muAssignTmp(writer, fuid, muCallPrim("<kind>writer_open", [])) ];
+       code = [ muAssignTmp(writer, fuid, muCallPrim3("<kind>writer_open", [], e@\loc)) ];
        for(elem <- es){
            if(elem is splice){
               code += muCallPrim3("<kind>writer_splice", [muTmp(writer,fuid), translate(elem.argument)], elem.argument@\loc);
@@ -1357,14 +1357,14 @@ private MuExp translateSetOrList({Expression ","}* es, str kind){
               code += muCallPrim3("<kind>writer_add", [muTmp(writer,fuid), translate(elem)], elem@\loc);
            }
        }
-       code += [ muCallPrim("<kind>writer_close", [ muTmp(writer,fuid) ]) ];
+       code += [ muCallPrim3("<kind>writer_close", [ muTmp(writer,fuid) ], e@\loc) ];
        leaveWriter();
        return muBlock(code);
     } else {
       //if(size(es) == 0 || all(elm <- es, isConstant(elm))){
       //   return kind == "list" ? muCon([getConstantValue(elm) | elm <- es]) : muCon({getConstantValue(elm) | elm <- es});
       //} else 
-        return muCallPrim("<kind>_create", [ translate(elem) | elem <- es ]);
+        return muCallPrim3("<kind>_create", [ translate(elem) | elem <- es ], e@\loc);
     }
 }
 

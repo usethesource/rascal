@@ -24,10 +24,11 @@ public data MuModule =
                        int nlocals_in_initializations,
                        map[str,int] resolver,
                        lrel[str,list[str],list[str]] overloaded_functions,
-                       map[Symbol, Production] grammar)
+                       map[Symbol, Production] grammar,
+                       loc src)
             ;
             
-MuModule errorMuModule(str name, set[Message] messages) = muModule(name, messages, [], (), (), [], [], [], 0, (), [], ());
+MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, messages, [], (), (), [], [], [], 0, (), [], (), src);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 

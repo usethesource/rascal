@@ -56,13 +56,13 @@ class Count {
 }
 
 public class Profiler extends Thread {
-	private RVM rvm;
+	private ProfilingLocationReporter reporter;
 	private HashMap<ISourceLocation,Count> data;
 	private volatile boolean running;
 	private long resolution = 1;
 	
-	public Profiler(RVM rvm){
-		this.rvm = rvm;
+	public Profiler(ProfilingLocationReporter reporter){
+		this.reporter = reporter;
 		this.data = new HashMap<ISourceLocation,Count>();
 		running = true;
 	}
@@ -70,7 +70,7 @@ public class Profiler extends Thread {
 	@Override
 	public void run(){
 		while(running){
-			ISourceLocation stat = rvm.getLocation();
+			ISourceLocation stat = reporter.getLocation();
 			if(stat != null){
 				Count currentCount = data.get(stat);
 				if(currentCount == null)
@@ -118,7 +118,7 @@ public class Profiler extends Thread {
 		return w.done();
 	}
 	
-	public void report() {
+	public void report(PrintWriter out) {
 	  List<Map.Entry<ISourceLocation, Count>> sortedData = sortData();
 
 	  int maxURL = 1;
@@ -130,20 +130,25 @@ public class Profiler extends Thread {
 	      maxURL = sz;
 	    nTicks += e.getValue().getTicks();
 	  }
-	  PrintWriter out = rvm.getStdOut();
-	  out.printf("PROFILE: %d data points, %d ticks, tick = %d milliSecs\n", data.size(), nTicks, resolution);
-	  out.printf("%8s%9s  %s\n", "Ticks", "%", "Source");
 
-	  for(Map.Entry<ISourceLocation, Count> e : sortedData){
+	  if(nTicks > 0){
+		  out.printf("PROFILE: %d data points, %d ticks, tick = %d milliSecs\n", data.size(), nTicks, resolution);
+		  out.printf("%8s%9s  %s\n", "Ticks", "%", "Source");
 
-	    int ticks = e.getValue().getTicks();
-	    double perc = (ticks * 100.0)/nTicks;
+		  for(Map.Entry<ISourceLocation, Count> e : sortedData){
 
-	    String source = String.format("%s", e.getKey().toString());
+			  int ticks = e.getValue().getTicks();
+			  double perc = (ticks * 100.0)/nTicks;
 
-	    out.printf("%8d%8.1f%%  %s\n", ticks, perc, source);
+			  String source = String.format("%s", e.getKey().toString());
+
+			  out.printf("%8d%8.1f%%  %s\n", ticks, perc, source);
+		  }
+
+		
+	  } else {
+		  out.printf("PROFILE: not enough data collected\n");
 	  }
-	  
 	  // Make sure that our output is seen:
 	  out.flush();
 	}
