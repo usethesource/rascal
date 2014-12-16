@@ -80,15 +80,18 @@ test bool invertUnique4() = invertUnique(([[]]:0,[[2]]:2,[[1,2],[2,1]]:1,[[1]]:3
 @expected{MultipleKey} test bool invertUnique5() { invertUnique((1:10, 2:10)); return true; }
 test bool invertUnique6(map[&K,&V] M)
 {
-	try	map[&V,&K] RM = invertUnique(M);
-	catch MultipleKey: return true;
-	return range(M) == domain(RM);
+	try	{ 
+		map[&V,&K] RM = invertUnique(M);
+		return range(M) == domain(RM);
+	} catch MultipleKey(_): return true;
+	
 }
 test bool invertUnique7(map[&K,&V] M)
 {
-	try	map[&V,&K] RM = invertUnique(M);
-	catch MultipleKey: return true;
-	return range(RM) == domain(M);
+	try	{
+		map[&V,&K] RM = invertUnique(M);
+		return range(RM) == domain(M);
+	} catch MultipleKey(_): return true;
 }
 test bool invertUnique8(set[int] D, set[int] R)
 {
