@@ -95,8 +95,9 @@ public map[Symbol,Production] getGrammar() {
  	definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
  	
  	//println("getGrammar returns:\n----------");
- 	//for(s <- definitions) println("<s>: <definitions[s]>");
- 	//println("----------");
+ 	//println("(");
+ 	//for(s <- definitions) println("<s>: <definitions[s]>,");
+ 	//println(")\n----------");
  	
  	return definitions;
 }

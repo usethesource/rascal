@@ -9,7 +9,7 @@ import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::muRascal::AST;
-import experiments::Compiler::Rascal2muRascal::TypeReifier;
+import experiments::Compiler::Rascal2muRascal::TypeReifier; 
 import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getFunctionsInModule, need better structure
 
 /*
@@ -176,6 +176,7 @@ void extractScopes(Configuration c){
       item = config.store[uid];
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
+        	 //println("<uid>: <rname>, <rtype>");
 	         functions += {uid};
 	         declares += {<inScope, uid>}; 
              loc2uid[src] = uid;
@@ -442,6 +443,8 @@ void extractScopes(Configuration c){
 
     }
     
+    println("ofunctions = <ofunctions>");
+    
     // Fill in uid2addr for overloaded functions;
     for(UID fuid2 <- ofunctions) {
         set[UID] funs = config.store[fuid2].items;
@@ -466,7 +469,8 @@ void extractScopes(Configuration c){
     }
     
     //for(int uid <- uid2addr){
-    //	println("uid2addr[<uid>] = <uid2addr[uid]>");
+    //	if(uid in ofunctions)
+    //		println("uid2addr[<uid>] = <uid2addr[uid]>, <config.store[uid]>");
     //}
     
     // Finally, extract all declarations for the benefit of the type reifier
@@ -567,8 +571,9 @@ tuple[str fuid,int pos] getVariableScope(str name, loc l) {
 // Create unique symbolic names for functions, constructors and productions
 
 str getFUID(str fname, Symbol \type) { 
-    //println("getFUID: <fname>, <\type>");
-    return "<fname>(<for(p<-\type.parameters){><p>;<}>)";
+    res = "<fname>(<for(p<-\type.parameters){><p>;<}>)";
+    //println("getFUID: <fname>, <\type> =\> <res>");
+    return res;
 }
 
 str getField(Symbol::label(l, t)) = "<t> <l>";
