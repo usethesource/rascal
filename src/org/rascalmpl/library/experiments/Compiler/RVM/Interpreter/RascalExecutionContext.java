@@ -44,7 +44,9 @@ public class RascalExecutionContext {
 	private RascalURIResolver rascalURIResolver;
 	
 	private String currentModuleName;
-	private ILocationReporter locationReporter;
+	//private ILocationCollector locationReporter;
+	private RVM rvm;
+	private boolean coverage;
 	
 	RascalExecutionContext(IValueFactory vf, IMap symbol_definitions, boolean debug, boolean profile, boolean trackCalls, boolean coverage, IEvaluatorContext ctx, ITestResultListener testResultListener){
 		
@@ -53,11 +55,12 @@ public class RascalExecutionContext {
 		this.typeStore = new TypeStore();
 		this.debug = debug;
 		this.profile = profile;
+		this.coverage = coverage;
 		this.trackCalls = trackCalls;
 		
-		this.locationReporter = (profile) ? new ProfilingLocationReporter() 
-		                                  : coverage ? new CoverageLocationReporter()
-		                                  	         : new NullLocationReporter();
+//		this.locationReporter = (profile) ? new ProfilingLocationReporter() 
+//		                                  : coverage ? new CoverageLocationCollector()
+//		                                  	         : new NullLocationCollector();
 		
 		currentModuleName = "UNDEFINED";
 		
@@ -83,9 +86,19 @@ public class RascalExecutionContext {
 	
 	boolean getProfile(){ return profile; }
 	
+	boolean getCoverage(){ return coverage; }
+	
 	boolean getTrackCalls() { return trackCalls; }
 	
-	ILocationReporter getLocationReporter() { return this.locationReporter; }
+	public RVM getRVM(){
+		return rvm;
+	}
+	
+	void setRVM(RVM rvm){
+		this.rvm = rvm;
+	}
+	
+//	ILocationCollector getLocationCollector() { return this.locationReporter; }
 	
 	public URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
 	

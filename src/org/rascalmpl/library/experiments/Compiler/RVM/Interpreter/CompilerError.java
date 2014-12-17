@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 
 public class CompilerError extends RuntimeException {

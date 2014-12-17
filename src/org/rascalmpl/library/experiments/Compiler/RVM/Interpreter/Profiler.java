@@ -10,6 +10,8 @@ import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -56,12 +58,12 @@ class Count {
 }
 
 public class Profiler extends Thread {
-	private ProfilingLocationReporter reporter;
+	private ProfilingLocationCollector reporter;
 	private HashMap<ISourceLocation,Count> data;
 	private volatile boolean running;
 	private long resolution = 1;
 	
-	public Profiler(ProfilingLocationReporter reporter){
+	public Profiler(ProfilingLocationCollector reporter){
 		this.reporter = reporter;
 		this.data = new HashMap<ISourceLocation,Count>();
 		running = true;
@@ -114,6 +116,15 @@ public class Profiler extends Thread {
 		IListWriter w = VF.listWriter(elemType);
 		for(Map.Entry<ISourceLocation, Count> e : sortData()){
 			w.insert(VF.tuple(e.getKey(), VF.integer(e.getValue().getTicks())));
+		}
+		return w.done();
+	}
+	
+	public IMap report(){
+		IValueFactory VF = ValueFactoryFactory.getValueFactory();
+		IMapWriter w = VF.mapWriter();
+		for(Map.Entry<ISourceLocation, Count> e : sortData()){
+			w.insert(e.getKey(), VF.integer(e.getValue().getTicks()));
 		}
 		return w.done();
 	}

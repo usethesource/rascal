@@ -73,8 +73,8 @@ public class RVM {
 	PrintWriter stdout;
 	PrintWriter stderr;
 	
-	private Frame currentFrame;	// used for profiling
-	private ILocationReporter locationReporter;
+	//private Frame currentFrame;	// used for profiling
+	private ILocationCollector locationCollector;
 	
 	// Management of active coroutines
 	Stack<Coroutine> activeCoroutines = new Stack<>();
@@ -121,6 +121,7 @@ public class RVM {
 		typeStore = rex.getTypeStore();
 		
 		this.rex = rex;
+		rex.setRVM(this);
 		this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
@@ -148,8 +149,8 @@ public class RVM {
 		RascalPrimitive.init(this, rex);
 		Opcode.init(stdout, rex.getProfile());
 		
-		this.locationReporter = rex.getLocationReporter();
-		this.currentFrame = null;
+		this.locationCollector = new NullLocationCollector();
+					
 	}
 	
 	URIResolverRegistry getResolverRegistry() { return rex.getResolverRegistry(); }
@@ -166,7 +167,15 @@ public class RVM {
 	
 	IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
 	
-	ILocationReporter getLocationReporter() { return rex.getLocationReporter(); }
+//	public ILocationCollector getLocationCollector() { return rex.getLocationCollector(); }
+	
+	public void setLocationCollector(ILocationCollector collector){
+		this.locationCollector = collector;
+	}
+	
+	public void resetLocationCollector(){
+		this.locationCollector = new NullLocationCollector();
+	}
 
 	public void declare(Function f){
 		System.out.println(functionStore.size() + ", declare: " + f.getName());
@@ -220,7 +229,7 @@ public class RVM {
 				}
 				Integer index = functionMap.get(name);
 				if(index == null){
-					throw new CompilerError("No definition for " + fuid + " in functionMap");
+					throw new CompilerError("No definition for " + fuid + " in functionMap, i = " + i);
 				}
 				funs[i++] = index;
 			}
@@ -394,15 +403,6 @@ public class RVM {
 		throw new CompilerError("Undefined overloaded function index " + n);
 	}
 	
-	/*
-	 * Get source location where current frame is executing, if available
-	 */
-	ISourceLocation getLocation(){
-		if(currentFrame != null)
-			return currentFrame.src;
-		return null;
-	}
-	
 	public IValue executeFunction(String uid_func, IValue[] args){
 		// Assumption here is that the function called is not a nested one
 		// and does not use global variables
@@ -486,7 +486,6 @@ public class RVM {
 		cf.stack[1] = new HashMap<String, IValue>();
 		cf.src = main_function.src;
 		
-		currentFrame = cf;
 		Object o = executeProgram(root, cf);
 		if(o != null && o instanceof Thrown){
 			throw (Thrown) o;
@@ -872,7 +871,7 @@ public class RVM {
 					arity = CodeBlock.fetchArg2(instruction);
 					
 					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
-					locationReporter.setLocation(cf.src);
+					locationCollector.registerLocation(cf.src);
 					cf.sp = sp;
 					cf.pc = pc;
 					
@@ -1227,7 +1226,7 @@ public class RVM {
 				case Opcode.OP_CALLPRIM:
 					arity = CodeBlock.fetchArg2(instruction);
 					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
-					locationReporter.setLocation(cf.src);
+					locationCollector.registerLocation(cf.src);
 					try {
 						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity, cf);
 					} catch(Exception exception) {
@@ -1337,7 +1336,7 @@ public class RVM {
 					Object obj = stack[--sp];
 					thrown = null;
 					cf.src = (ISourceLocation) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
-					locationReporter.setLocation(cf.src);
+					locationCollector.registerLocation(cf.src);
 					if(obj instanceof IValue) {
 						//stacktrace = new ArrayList<Frame>();
 						//stacktrace.add(cf);
@@ -1566,6 +1565,8 @@ public class RVM {
 	
 	HashSet<String> converted = new HashSet<String>(Arrays.asList(
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
+			"org.rascalmpl.library.experiments.Compiler.Coverage.startCoverage",
+			"org.rascalmpl.library.experiments.Compiler.Coverage.getCoverage",
 			"org.rascalmpl.library.lang.csv.IOCompiled.readCSV",
 			"org.rascalmpl.library.lang.csv.IOCompiled.getCSVType",
 			"org.rascalmpl.library.lang.csv.IOCompiled.writeCSV",

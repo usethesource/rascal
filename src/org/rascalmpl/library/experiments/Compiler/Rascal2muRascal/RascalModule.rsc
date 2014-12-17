@@ -118,7 +118,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	    throw e;
    	}
    	// Uncomment to dump the type checker configuration:
-   	text(config);
+   	//text(config);
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    
@@ -346,6 +346,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   }
   
   tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, kwps, body, when_conditions);
+  
+  println("translateFunctionDeclration: <fuid>, <addr.fuid>, <moduleNames>,  addr.fuid in moduleNames = <addr.fuid in moduleNames>");
   
   functions_in_module += muFunction(fuid, "<fd.signature.name>", ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									getFormals(uid), getScopeSize(fuid), 

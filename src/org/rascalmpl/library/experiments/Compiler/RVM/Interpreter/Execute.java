@@ -82,6 +82,8 @@ public class Execute {
 		
 		RVM rvm = new RVM(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), trackCalls.getValue(), coverage.getValue(), ctx, testResultListener));
 		
+		ILocationCollector collector = null;
+		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
 		
@@ -157,8 +159,13 @@ public class Execute {
 			arguments[i] = argumentsAsList.get(i);
 		}
 		
-		rvm.getLocationReporter().start();
-	
+		if(profile.getValue()){
+			collector = new ProfilingLocationCollector();
+			rvm.setLocationCollector(collector);
+		} else if(coverage.getValue()){
+			collector = new CoverageLocationCollector();
+			rvm.setLocationCollector(new CoverageLocationCollector());
+		}
 		
 		// Execute initializers of imported modules
 		for(String initializer: initializers){
@@ -166,8 +173,7 @@ public class Execute {
 		}
 		
 		if((uid_module_init == null)) {
-			
-			rvm.getLocationReporter().stop();
+			// TODO remove collector
 			throw new CompilerError("No module_init function found when loading RVM code!");
 		}
 		
@@ -201,7 +207,9 @@ public class Execute {
 			MuPrimitive.exit();
 			RascalPrimitive.exit();
 			Opcode.exit();
-			rvm.getLocationReporter().report(rvm.getStdOut());
+			if(profile.getValue() || coverage.getValue()){
+				collector.print(rvm.getStdOut());
+			}
 			
 			return vf.tuple((IValue) result, vf.integer((now - start)/1000000));
 			
