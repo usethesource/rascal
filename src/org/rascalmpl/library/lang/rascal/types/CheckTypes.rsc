@@ -8484,12 +8484,21 @@ CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {
 			sname = RSimpleName(name);     
 			if (sname notin c.typeEnv || !(c.store[c.typeEnv[sname]] is sorttype)) {
 				if (sname in c.unimportedNames && sname in c.globalSortMap) {
-					nameMatches = { "<prettyPrintName(appendName(mi,sname))>" | mi <- c.moduleInfo, sname in c.moduleInfo[mi].typeEnv || appendName(mi,sname) in c.moduleInfo[mi].typeEnv };
-					if (size(nameMatches) > 0) {
-						c = addScopeMessage(c,error("Nonterminal <prettyPrintName(sname)> was not imported, use one of the following fully qualified type names instead: <intercalate(",",toList(nameMatches))>", l));
-					} else {
-						c = addScopeMessage(c,error("Nonterminal <prettyPrintName(sname)> not declared", l));
-					}
+					
+					//nameAndIdMatches = { < appendName(mi,sname), nameId > | mi <- c.moduleInfo, 
+					//	(sname in c.moduleInfo[mi].typeEnv && nameId := c.moduleInfo[mi].typeEnv[sname] && c.store[nameId] is sorttype) ||
+					//	(appendName(mi,sname) in c.moduleInfo[mi].typeEnv && nameId := c.moduleInfo[mi].typeEnv[appendName(mi,sname)] && c.store[nameId] is sorttype) 
+					//	};
+					//if (size(nameMatches) > 0) {
+					//	c = addScopeMessage(c,error("Nonterminal <prettyPrintName(sname)> was not imported, use one of the following fully qualified type names instead: <intercalate(",",toList(nameMatches))>", l));
+					//} else {
+					//	c = addScopeMessage(c,error("Nonterminal <prettyPrintName(sname)> not declared", l));
+					//}
+					
+					c.uses = c.uses + < c.globalSortMap[sname], l >;
+					c.usedIn[l] = head(c.stack);
+					insert c.store[c.globalSortMap[sname]].rtype;
+					
 				} else {
 					c = addScopeMessage(c,error("Nonterminal <prettyPrintName(sname)> not declared", l));
 				}
