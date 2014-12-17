@@ -1,4 +1,4 @@
-module experiments::Compiler::RVM::Viewer
+module experiments::Compiler::RVM::Inspector
 
 import Prelude;
 import ValueIO;
@@ -14,7 +14,7 @@ import experiments::Compiler::Compile;
  * - show a foldable vizialization.
  */
  
-void view(loc srcLoc,                   // location of Rascal source file
+void inspect(loc srcLoc,                   // location of Rascal source file
           loc bindir = |home:///bin|,   // location where binaries are stored
           list[str] select = [],     	// select unction names to be shown
           bool listing = false          // show instruction listing
@@ -181,5 +181,20 @@ void statistics(loc root = |rascal:///|,
             'success:      <nsuccess>
             'fatal:        <size(fatal)>, <fatal>
             '");
-    
 }
+
+set[loc] getFunctionLocations(
+						   loc srcLoc,                  // location of Rascal source file
+   loc bindir = |home:///bin|   // location where binaries are stored
+){
+   rvmLoc = RVMProgramLocation(srcLoc, bindir);
+   try {
+        p = readTextValueFile(#RVMProgram, rvmLoc);
+        
+        return for(dname <- p.declarations){
+            append p.declarations[dname].src;
+        }
+   } catch e: {
+        println("Reading: <rvmLoc>: <e>");
+   }
+} 

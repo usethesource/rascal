@@ -176,7 +176,6 @@ void extractScopes(Configuration c){
       item = config.store[uid];
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
-        	 //println("<uid>: <rname>, <rtype>");
 	         functions += {uid};
 	         declares += {<inScope, uid>}; 
              loc2uid[src] = uid;
@@ -185,6 +184,7 @@ void extractScopes(Configuration c){
              }
              // Fill in uid2name
              str name = getFUID(getSimpleName(rname),rtype);
+             println("name = <name>");
              if(cases[inScope]?) {
                  if(cases[inScope][name]?) {
                      cases[inScope][name] = cases[inScope][name] + 1;
@@ -196,6 +196,9 @@ void extractScopes(Configuration c){
              }
              name = getFUID(getSimpleName(rname),rtype,cases[inScope][name]);
              uid2name[uid] = name;
+              if(getSimpleName(rname) == "subtype"){
+        	 	println("<uid>: <rname>, <rtype>, inScope=<inScope>, <src>");
+        	 }
              // Fill in uid2type to enable more precise overloading resolution
              uid2type[uid] = rtype;
              // Check if the function is default
@@ -627,6 +630,7 @@ str convert2fuid(UID uid) {
         }
 		name = convert2fuid(declaredIn[uid]) + "/" + name;
 	}
+	//println("convert2fuid(<uid>) =\> <name>");
 	return name;
 }
 

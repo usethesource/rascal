@@ -655,6 +655,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
     MuExp body = translateFunction("CLOSURE", parameters.formals.formals, isVarArgs, kwps, cbody, []);
     
     tuple[str fuid,int pos] addr = uid2addr[uid];
+    
     addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									  getFormals(uid), getScopeSize(fuid), 
   									  isVarArgs, e@\loc, [], (), 
