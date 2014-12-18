@@ -24,15 +24,15 @@ public class CompressedStreamResolver implements IURIInputOutputResolver {
 	
 	@Override
 	public String scheme() {
-		return "compress";
+		return "compressed";
 	}
 	
 	private URI getActualURI(URI wrappedURI) throws IOException {
 		String scheme = wrappedURI.getScheme();
-		if (scheme.length() <= "compress+".length()) {
+		if (scheme.length() <= "compressed+".length()) {
 			throw new IOException("Invalid scheme: \"" + scheme +"\"");
 		}
-		String actualScheme = scheme.substring("compress+".length());
+		String actualScheme = scheme.substring("compressed+".length());
 		try {
 			return URIUtil.changeScheme(wrappedURI, actualScheme);
 		} catch (URISyntaxException e) {
