@@ -33,6 +33,8 @@
             <zipfileset excludes="META-INF/*.SF" src="/Applications/Eclipse/keppler/plugins/org.eclipse.osgi_3.9.1.v20140110-1610.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="./lib/snakeyaml-1.11.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="./lib/gson-2.2.4.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/xz-1.5.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="./lib/commons-compress-1.9.jar"/>
         </jar>
     </target>
 </project>
