@@ -16,6 +16,6 @@ import ParseTree;
 import IO;   
                                                              
 public value main(list[value] args) {
-  //return #start[Exp];
-  return [Exp] "7+  2*3";
+  //return #start[Exp].definitions[\start(sort("Exp"))];
+  return [start[Exp]] " 7+  2*3";
 }

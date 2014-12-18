@@ -1,16 +1,18 @@
 module experiments::Compiler::Coverage
 
-@javaClass{org.rascalmpl.library.experiments.Compiler.Coverage}
-@reflect{Use Rascal Execution Context to access RVM}
-void startCoverage();
+import IO;
 
 @javaClass{org.rascalmpl.library.experiments.Compiler.Coverage}
 @reflect{Use Rascal Execution Context to access RVM}
-void stopCoverage();
+java void startCoverage();
 
 @javaClass{org.rascalmpl.library.experiments.Compiler.Coverage}
 @reflect{Use Rascal Execution Context to access RVM}
-set[loc] getCoverage();
+java void stopCoverage();
+
+@javaClass{org.rascalmpl.library.experiments.Compiler.Coverage}
+@reflect{Use Rascal Execution Context to access RVM}
+java set[loc] getCoverage();
 
 void reportCoverage(set[loc] covered){
 	for(src <- covered){
