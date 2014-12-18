@@ -23,6 +23,8 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 
@@ -55,12 +57,29 @@ public class URIResolverRegistry {
 		outputResolvers.put(resolver.scheme(), resolver);
 	}
 	
+	private static final Pattern splitScheme = Pattern.compile("^([^\\+]*)\\+");
 	
 	private IURIInputStreamResolver getInputResolver(String scheme) {
-		 return inputResolvers.get(scheme);
+		 IURIInputStreamResolver result = inputResolvers.get(scheme);
+		 if (result == null) {
+			 Matcher m = splitScheme.matcher(scheme);
+			 if (m.find()) {
+				 String subScheme = m.group(1);
+				 return inputResolvers.get(subScheme);
+			 }
+		 }
+		 return result;
 	}
 	private IURIOutputStreamResolver getOutputResolver(String scheme) {
-		 return outputResolvers.get(scheme);
+		 IURIOutputStreamResolver result = outputResolvers.get(scheme);
+		 if (result == null) {
+			 Matcher m = splitScheme.matcher(scheme);
+			 if (m.find()) {
+				 String subScheme = m.group(1);
+				 return outputResolvers.get(subScheme);
+			 }
+		 }
+		 return result;
 	}
 	
 	public boolean supportsInputScheme(String scheme) {
