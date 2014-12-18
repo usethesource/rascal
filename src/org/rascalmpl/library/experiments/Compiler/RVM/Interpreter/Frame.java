@@ -190,7 +190,7 @@ public class Frame {
 			if(stack[i] instanceof IValue ) {
 					repr = ((IValue) stack[i]).toString();
 			} else {
-				repr = stack[i].toString();
+				repr = (stack[i] == null) ? "null" : stack[i].toString();
 				int n = repr.lastIndexOf(".");
 				if(n >= 0){
 					repr = repr.substring(n + 1, repr.length());
