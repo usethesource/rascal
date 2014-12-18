@@ -113,7 +113,7 @@ map[Compression, str] comprExtension
 @tries{100}
 test bool compressionWorks(str a, Compression comp) {
 	targetFile = aFile[extension = aFile.extension + "." + comprExtension[comp]];
-	targetFile = targetFile[scheme = "compress+" + targetFile.scheme];
+	targetFile = targetFile[scheme = "compressed+" + targetFile.scheme];
 	writeFile(targetFile, a);
 	return readFile(targetFile) == a;
 }
@@ -121,7 +121,7 @@ test bool compressionWorks(str a, Compression comp) {
 @tries{100}
 test bool compressionWorksWithEncoding(str a, Compression comp, Encoding enc) {
 	targetFile = aFile[extension = aFile.extension + "." + comprExtension[comp]];
-	targetFile = targetFile[scheme = "compress+" + targetFile.scheme];
+	targetFile = targetFile[scheme = "compressed+" + targetFile.scheme];
 	writeFileEnc(targetFile, encodingNames[enc], a);
 	return readFileEnc(targetFile, encodingNames[enc]) == a;
 }
