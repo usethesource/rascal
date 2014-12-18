@@ -105,6 +105,7 @@ import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.recovery.Recoverer;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInput;
+import org.rascalmpl.uri.CompressedStreamResolver;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
@@ -244,6 +245,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 		resolverRegistry.registerInputOutput(new HomeURIResolver());
 		resolverRegistry.registerInputOutput(new TempURIResolver());
+		
+		resolverRegistry.registerInputOutput(new CompressedStreamResolver(resolverRegistry));
 		
 		// here we have code that makes sure that courses can be edited by
 		// maintainers of Rascal, using the -Drascal.courses=/path/to/courses property.
