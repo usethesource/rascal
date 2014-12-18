@@ -54,6 +54,7 @@ public class RVM {
 	
 	private boolean debug = true;
 	private boolean listing = false;
+	private boolean trackCalls = false;
 	private boolean finalized = false;
 	
 	private final ArrayList<Function> functionStore;
@@ -126,7 +127,7 @@ public class RVM {
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
 		this.debug = rex.getDebug();
-		//this.trackCalls = rex.getTrackCalls();
+		this.trackCalls = rex.getTrackCalls();
 		this.finalized = false;
 		
 		this.types = new Types(this.vf);
@@ -525,7 +526,7 @@ public class RVM {
 		pos = 0;
 		last_function_name = "";
 		
-		//if(trackCalls) { cf.printEnter(stdout); }
+		if(trackCalls) { cf.printEnter(stdout); }
 		
 		try {
 			NEXT_INSTRUCTION: while (true) {
@@ -857,7 +858,7 @@ public class RVM {
 						throw new CompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]), cf);
 					}
 					
-					//if(trackCalls) { cf.printEnter(stdout); }
+					if(trackCalls) { cf.printEnter(stdout); }
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
@@ -1565,8 +1566,9 @@ public class RVM {
 	
 	HashSet<String> converted = new HashSet<String>(Arrays.asList(
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
-			"org.rascalmpl.library.experiments.Compiler.Coverage.startCoverage",
-			"org.rascalmpl.library.experiments.Compiler.Coverage.getCoverage",
+			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.startCoverage",
+			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.stopCoverage",
+			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.getCoverage",
 			"org.rascalmpl.library.lang.csv.IOCompiled.readCSV",
 			"org.rascalmpl.library.lang.csv.IOCompiled.getCSVType",
 			"org.rascalmpl.library.lang.csv.IOCompiled.writeCSV",

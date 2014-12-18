@@ -58,10 +58,6 @@ public class RascalExecutionContext {
 		this.coverage = coverage;
 		this.trackCalls = trackCalls;
 		
-//		this.locationReporter = (profile) ? new ProfilingLocationReporter() 
-//		                                  : coverage ? new CoverageLocationCollector()
-//		                                  	         : new NullLocationCollector();
-		
 		currentModuleName = "UNDEFINED";
 		
 		resolverRegistry = ctx.getResolverRegistry();
@@ -90,15 +86,9 @@ public class RascalExecutionContext {
 	
 	boolean getTrackCalls() { return trackCalls; }
 	
-	public RVM getRVM(){
-		return rvm;
-	}
+	public RVM getRVM(){ return rvm; }
 	
-	void setRVM(RVM rvm){
-		this.rvm = rvm;
-	}
-	
-//	ILocationCollector getLocationCollector() { return this.locationReporter; }
+	void setRVM(RVM rvm){ this.rvm = rvm; }
 	
 	public URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
 	
