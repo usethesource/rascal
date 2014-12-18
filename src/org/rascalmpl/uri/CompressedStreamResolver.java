@@ -65,13 +65,14 @@ public class CompressedStreamResolver implements IURIInputOutputResolver {
 		OutputStream result = ctx.getOutputStream(getActualURI(uri), append);
 		if (result != null) {
 			String detectedCompression = detectCompression(uri);
+			if (detectedCompression == null) {
+				throw new IOException("We could not detect the compression based on the extension.");
+			}
 			try {
-				if (detectedCompression == null) {
-					throw new IOException("We could not detect the compression based on the extension.");
-				}
 				return new CompressorStreamFactory().createCompressorOutputStream(detectedCompression, result);
 			} catch (CompressorException e) {
-				return null;
+				result.close();
+				throw new IOException("We cannot compress this kind of file. (Only gz,xz,bz2 have write support)",e);
 			}
 
 		}
