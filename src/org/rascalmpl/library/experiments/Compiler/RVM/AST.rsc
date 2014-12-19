@@ -38,10 +38,11 @@ public data RVMProgram =
               map[str, Declaration] declarations, 
               list[Instruction] initialization, 
               map[str,int] resolver, 
-              lrel[str,list[str],list[str]] overloaded_functions)
+              lrel[str,list[str],list[str]] overloaded_functions,
+              loc src)
         ;
 
-RVMProgram errorRVMProgram(str name, set[Message] messages) = rvm(name, messages, [], (), (), (), [], (), []);
+RVMProgram errorRVMProgram(str name, set[Message] messages, loc src) = rvm(name, messages, [], (), (), (), [], (), [], src);
 
 public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean

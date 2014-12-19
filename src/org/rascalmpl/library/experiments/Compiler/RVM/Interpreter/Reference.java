@@ -32,4 +32,8 @@ public class Reference {
 	public void undefine(){
 		stack[pos] = null;
 	}
+	
+	public String toString(){
+		return "ref[@" + stack.hashCode() + ":" + pos + " => " + stack[pos] + "]";
+	}
 }

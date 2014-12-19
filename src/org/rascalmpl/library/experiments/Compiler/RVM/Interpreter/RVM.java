@@ -74,6 +74,9 @@ public class RVM {
 	PrintWriter stdout;
 	PrintWriter stderr;
 	
+	//private Frame currentFrame;	// used for profiling
+	private ILocationCollector locationCollector;
+	
 	// Management of active coroutines
 	Stack<Coroutine> activeCoroutines = new Stack<>();
 	Frame ccf = null; // The start frame of the current active coroutine (coroutine's main function)
@@ -111,7 +114,6 @@ public class RVM {
 		}  
 	};
 
-
 	public RVM(RascalExecutionContext rex) {
 		super();
 
@@ -120,6 +122,7 @@ public class RVM {
 		typeStore = rex.getTypeStore();
 		
 		this.rex = rex;
+		rex.setRVM(this);
 		this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
@@ -146,19 +149,37 @@ public class RVM {
 		MuPrimitive.init(vf, stdout, rex.getProfile());
 		RascalPrimitive.init(this, rex);
 		Opcode.init(stdout, rex.getProfile());
+		
+		this.locationCollector = NullLocationCollector.getInstance();
+					
 	}
 	
 	URIResolverRegistry getResolverRegistry() { return rex.getResolverRegistry(); }
-	IRascalMonitor getMonitor() {return rex.getMonitor();}
-	PrintWriter getStdErr() { return rex.getStdErr(); }
-	PrintWriter getStdOut() { return rex.getStdOut(); }
-	Configuration getConfiguration() { return rex.getConfiguration(); }
-	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
-	IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
-
 	
+	IRascalMonitor getMonitor() {return rex.getMonitor();}
+	
+	PrintWriter getStdErr() { return rex.getStdErr(); }
+	
+	PrintWriter getStdOut() { return rex.getStdOut(); }
+	
+	Configuration getConfiguration() { return rex.getConfiguration(); }
+	
+	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
+	
+	IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
+	
+//	public ILocationCollector getLocationCollector() { return rex.getLocationCollector(); }
+	
+	public void setLocationCollector(ILocationCollector collector){
+		this.locationCollector = collector;
+	}
+	
+	public void resetLocationCollector(){
+		this.locationCollector = NullLocationCollector.getInstance();
+	}
+
 	public void declare(Function f){
-		//System.out.println(functionStore.size() + ", declare: " + f.getName());
+		System.out.println(functionStore.size() + ", declare: " + f.getName());
 		if(functionMap.get(f.getName()) != null){
 			throw new CompilerError("Double declaration of function: " + f.getName());
 		}
@@ -203,11 +224,13 @@ public class RVM {
 			int i = 0;
 			for(IValue fuid : fuids) {
 				String name = ((IString) fuid).getValue();
-				//stdout.println("fillOverloadedStore: " + name);
-				//stdout.flush();
+				if(name.indexOf("subtype") >= 0){
+					stdout.println("fillOverloadedStore: " + name);
+					stdout.flush();
+				}
 				Integer index = functionMap.get(name);
 				if(index == null){
-					throw new CompilerError("No definition for " + fuid + " in functionMap");
+					throw new CompilerError("No definition for " + fuid + " in functionMap, i = " + i);
 				}
 				funs[i++] = index;
 			}
@@ -222,42 +245,6 @@ public class RVM {
 				constrs[i++] = index;
 			}
 			this.overloadedStore.add(new OverloadedFunction(funs, constrs, scopeIn));
-		}
-	}
-	 
-	
-	void printStores(){
-		System.out.println("FUNCTION STORE");
-		for(int i = 0; i < functionStore.size(); i++){
-			Function fun = functionStore.get(i);
-			System.out.println(i + ": " + (fun == null ? "null" : fun));
-		}
-		System.out.println("OVERLOADED STORE");
-		for(int i = 0; i < overloadedStore.size(); i++){
-			OverloadedFunction ofun = overloadedStore.get(i);
-			StringBuilder sb = new StringBuilder(i + ": ");
-			if(ofun.functions.length > 0){
-				sb.append(" functions:");
-				for(int j = 0; j < ofun.functions.length; j++){
-					int ifun = ofun.functions[j];
-					String fname = functionStore.get(ifun).getQualifiedName();
-					sb.append(" ").append(ifun).append(" [").append(fname).append("]");
-				}
-			}
-			if(ofun.constructors.length > 0){
-				sb.append(" constructors:");
-				for(int j = 0; j < ofun.constructors.length; j++){
-					int icons = ofun.constructors[j];
-					String cname = constructorStore.get(icons).getName();
-					sb.append(" ").append(icons).append(" [").append(cname).append("]");
-				}
-			}
-			System.out.println(sb);
-		}
-		
-		System.out.println("CONSTRUCTOR STORE");
-		for(int i = 0; i < constructorStore.size(); i++){
-			System.out.println(i + ": " + constructorStore.get(i));;
 		}
 	}
 	
@@ -302,8 +289,6 @@ public class RVM {
 	private String asString(Object o){
 		if(o == null)
 			return "null";
-//		if(o instanceof Boolean)
-//			return ((Boolean) o).toString() + " [Java]";
 		if(o instanceof Integer)
 			return ((Integer)o).toString() + " [Java]";
 		if(o instanceof String)
@@ -420,7 +405,7 @@ public class RVM {
 	}
 	
 	public IValue executeFunction(String uid_func, IValue[] args){
-		// Assumption here is that the function called is not nested one
+		// Assumption here is that the function called is not a nested one
 		// and does not use global variables
 		Function func = functionStore.get(functionMap.get(uid_func));
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
@@ -479,9 +464,9 @@ public class RVM {
 	}
 	
 	
-	public IValue executeProgram(String uid_main, IValue[] args) {
+	public IValue executeProgram(String moduleName, String uid_main, IValue[] args) {
 		
-		//printStores();
+		rex.setCurrentModuleName(moduleName);
 		
 		finalizeInstructions();
 		
@@ -501,6 +486,7 @@ public class RVM {
 		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
 		cf.stack[1] = new HashMap<String, IValue>();
 		cf.src = main_function.src;
+		
 		Object o = executeProgram(root, cf);
 		if(o != null && o instanceof Thrown){
 			throw (Thrown) o;
@@ -554,7 +540,7 @@ public class RVM {
 				if (debug) {
 					int startpc = pc - 1;
 					if(!last_function_name.equals(cf.function.name))
-						stdout.printf("[%03d] %s\n", startpc, cf.function.name);
+						stdout.printf("[%03d] %s, scope %d\n", startpc, cf.function.name, cf.scopeId);
 					
 					for (int i = 0; i < sp; i++) {
 						stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i]));
@@ -735,7 +721,7 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new CompilerError("LOADVAR or LOADVARREF cannot find matching scope: " + varScope);
+					throw new CompilerError("LOADVAR or LOADVARREF cannot find matching scope: " + varScope, cf);
 				}
 				
 				case Opcode.OP_LOADVARDEREF: {
@@ -749,7 +735,7 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new CompilerError("LOADVARDEREF cannot find matching scope: " + s);
+					throw new CompilerError("LOADVARDEREF cannot find matching scope: " + s, cf);
 				}
 				
 				case Opcode.OP_STOREVAR:
@@ -771,7 +757,7 @@ public class RVM {
 						}
 					}
 
-					throw new CompilerError(((op == Opcode.OP_STOREVAR) ? "STOREVAR" : "UNWRAPTHROWNVAR") + " cannot find matching scope: " + s);
+					throw new CompilerError(((op == Opcode.OP_STOREVAR) ? "STOREVAR" : "UNWRAPTHROWNVAR") + " cannot find matching scope: " + s, cf);
 				
 				case Opcode.OP_STOREVARDEREF:
 					s = CodeBlock.fetchArg1(instruction);
@@ -785,7 +771,7 @@ public class RVM {
 						}
 					}
 
-					throw new CompilerError("STOREVARDEREF cannot find matching scope: " + s);
+					throw new CompilerError("STOREVARDEREF cannot find matching scope: " + s, cf);
 				
 				case Opcode.OP_CALLCONSTR:
 					constructor = constructorStore.get(CodeBlock.fetchArg1(instruction));
@@ -869,7 +855,7 @@ public class RVM {
 						cf = cf.getFrame(fun, root, arity, sp);
 						
 					} else {
-						throw new CompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]));
+						throw new CompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]), cf);
 					}
 					
 					if(trackCalls) { cf.printEnter(stdout); }
@@ -886,6 +872,7 @@ public class RVM {
 					arity = CodeBlock.fetchArg2(instruction);
 					
 					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
+					locationCollector.registerLocation(cf.src);
 					cf.sp = sp;
 					cf.pc = pc;
 					
@@ -904,7 +891,7 @@ public class RVM {
 							stack = cf.stack;
 							sp = cf.sp;
 							pc = cf.pc;
-							if(trackCalls) { cf.printEnter(stdout); }
+							//if(trackCalls) { cf.printEnter(stdout); }
 							continue NEXT_INSTRUCTION;
 						}
 					 	// 2. OverloadedFunctionInstance due to named Rascal functions
@@ -937,7 +924,7 @@ public class RVM {
 							this.appendToTrace("		" + "try alternative: " + frame.function.name);
 						}
 						cf = frame;
-						if(trackCalls) { cf.printEnter(stdout); }
+						//if(trackCalls) { cf.printEnter(stdout); }
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
@@ -994,7 +981,7 @@ public class RVM {
 								arity = CodeBlock.fetchArg1(instruction);
 								int[] refs = cf.function.refs;
 								if(arity != refs.length) {
-									throw new CompilerError("Coroutine " + cf.function.name + ": arity of return (" + arity  + ") unequal to number of reference parameters (" +  refs.length + ")");
+									throw new CompilerError("Coroutine " + cf.function.name + ": arity of return (" + arity  + ") unequal to number of reference parameters (" +  refs.length + ")", cf);
 								}
 								for(int i = 0; i < arity; i++) {
 									ref = (Reference) stack[refs[arity - 1 - i]];
@@ -1022,7 +1009,7 @@ public class RVM {
 							return NONE;
 						}
 					}
-					if(trackCalls) { cf.printBack(stdout); }
+					//if(trackCalls) { cf.printBack(stdout); }
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
@@ -1043,7 +1030,7 @@ public class RVM {
 					    sp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
 					} catch(Throw e) {
 						stacktrace.add(cf);
-						thrown = Thrown.getInstance(e.getException(), e.getLocation(), stacktrace);
+						thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 					} catch (Thrown e){
 						stacktrace.add(cf);
@@ -1051,7 +1038,7 @@ public class RVM {
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 					} catch (Exception e){
 						e.printStackTrace(stderr);
-						throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: "+ e.getMessage() + e.getCause() );
+						throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: "+ e.getMessage() + e.getCause(), cf );
 					} 
 					
 					continue NEXT_INSTRUCTION;
@@ -1068,7 +1055,7 @@ public class RVM {
 							FunctionInstance fun_instance = (FunctionInstance) src;
 							cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
 						} else {
-							throw new CompilerError("Unexpected argument type for INIT: " + src.getClass() + ", " + src);
+							throw new CompilerError("Unexpected argument type for INIT: " + src.getClass() + ", " + src, cf);
 						}
 					}
 					sp = cf.sp;
@@ -1094,7 +1081,7 @@ public class RVM {
 //					} else if(rval instanceof Boolean) {
 //						precondition = (Boolean) rval;
 					} else {
-						throw new CompilerError("Guard's expression has to be boolean!");
+						throw new CompilerError("Guard's expression has to be boolean!", cf);
 					}
 					
 					if(cf == cccf) {
@@ -1149,7 +1136,7 @@ public class RVM {
 							assert arity + fun_instance.next <= fun_instance.function.nformals;
 							fun_instance = fun_instance.applyPartial(arity, stack, sp);
 						} else {
-							throw new CompilerError("Unexpected argument type for APPLYDYN: " + asString(src));
+							throw new CompilerError("Unexpected argument type for APPLYDYN: " + asString(src), cf);
 						}
 					}
 					sp = sp - arity;
@@ -1198,7 +1185,7 @@ public class RVM {
 						int[] refs = cf.function.refs; 
 						
 						if(arity != refs.length) {
-							throw new CompilerError("The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length);
+							throw new CompilerError("The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length, cf);
 						}
 						
 						for(int i = 0; i < arity; i++) {
@@ -1240,14 +1227,15 @@ public class RVM {
 				case Opcode.OP_CALLPRIM:
 					arity = CodeBlock.fetchArg2(instruction);
 					cf.src = (ISourceLocation) cf.function.constantStore[instructions[pc++]];
+					locationCollector.registerLocation(cf.src);
 					try {
-						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity, stacktrace);
+						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute(stack, sp, arity, cf);
 					} catch(Exception exception) {
 						if(!(exception instanceof Thrown)){
 							throw exception;
 						}
 						thrown = (Thrown) exception;
-						thrown.stacktrace.add(cf);
+						//thrown.stacktrace.add(cf);
 						sp = sp - arity;
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 					}
@@ -1323,7 +1311,7 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 								
 				case Opcode.OP_LABEL:
-					throw new CompilerError("LABEL instruction at runtime");
+					throw new CompilerError("LABEL instruction at runtime", cf);
 					
 				case Opcode.OP_HALT:
 					if (debug) {
@@ -1349,10 +1337,11 @@ public class RVM {
 					Object obj = stack[--sp];
 					thrown = null;
 					cf.src = (ISourceLocation) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
+					locationCollector.registerLocation(cf.src);
 					if(obj instanceof IValue) {
-						stacktrace = new ArrayList<Frame>();
-						stacktrace.add(cf);
-						thrown = Thrown.getInstance((IValue) obj, null, stacktrace);
+						//stacktrace = new ArrayList<Frame>();
+						//stacktrace.add(cf);
+						thrown = Thrown.getInstance((IValue) obj, null, cf);
 					} else {
 						// Then, an object of type 'Thrown' is on top of the stack
 						thrown = (Thrown) obj;
@@ -1361,11 +1350,9 @@ public class RVM {
 					
 				case Opcode.OP_LOADLOCKWP:
 					String name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction))).getValue();
-					@SuppressWarnings("unchecked")
 					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
 					Map.Entry<Type, IValue> defaultValue = defaults.get(name);
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						@SuppressWarnings("unchecked")
 						HashMap<String, IValue> kargs = (HashMap<String,IValue>) f.stack[f.function.nformals - 1];
 						if(kargs.containsKey(name)) {
 							val = kargs.get(name);
@@ -1402,7 +1389,7 @@ public class RVM {
 							continue NEXT_INSTRUCTION;
 						}
 					}
-					throw new CompilerError("LOADCONT cannot find matching scope: " + s);
+					throw new CompilerError("LOADCONT cannot find matching scope: " + s, cf);
 				
 				case Opcode.OP_RESET:
 					fun_instance = (FunctionInstance) stack[--sp]; // A function of zero arguments
@@ -1437,7 +1424,7 @@ public class RVM {
 					continue NEXT_INSTRUCTION;
 								
 				default:
-					throw new CompilerError("RVM main loop -- cannot decode instruction");
+					throw new CompilerError("RVM main loop -- cannot decode instruction", cf);
 				}
 				
 				switch(postOp){
@@ -1446,9 +1433,9 @@ public class RVM {
 				case Opcode.POSTOP_HANDLEEXCEPTION:
 					// EXCEPTION HANDLING
 					if(postOp == Opcode.POSTOP_CHECKUNDEF) {
-						stacktrace = new ArrayList<Frame>();
-						stacktrace.add(cf);
-						thrown = RascalRuntimeException.uninitializedVariable(last_var_name, stacktrace);
+						//stacktrace = new ArrayList<Frame>();
+						//stacktrace.add(cf);
+						thrown = RascalRuntimeException.uninitializedVariable(last_var_name, cf);
 					}
 					cf.pc = pc;
 					// First, try to find a handler in the current frame function,
@@ -1484,7 +1471,7 @@ public class RVM {
 				throw e;
 			}
 			e.printStackTrace(stderr);
-			throw new CompilerError("Executing function " + cf.toString() + "; instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: "+ e.getMessage() + e.getCause() );
+			throw new CompilerError("Executing function " + cf.toString() + "; instruction: " + cf.function.codeblock.toString(pc - 1) + "; message: "+ e.getMessage() + e.getCause(), cf );
 			//stdout.println("PANIC: (instruction execution): " + e.getMessage());
 			//e.printStackTrace();
 			//stderr.println(e.getStackTrace());
@@ -1510,7 +1497,7 @@ public class RVM {
 			}
 			
 			if(clazz == null) {
-				throw new CompilerError("Class not found: " + className);
+				throw new CompilerError("Class " + className + " not found, while trying to call method"  + methodName);
 			}
 			
 			Constructor<?> cons;
@@ -1579,6 +1566,9 @@ public class RVM {
 	
 	HashSet<String> converted = new HashSet<String>(Arrays.asList(
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
+			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.startCoverage",
+			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.stopCoverage",
+			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.getCoverage",
 			"org.rascalmpl.library.lang.csv.IOCompiled.readCSV",
 			"org.rascalmpl.library.lang.csv.IOCompiled.getCSVType",
 			"org.rascalmpl.library.lang.csv.IOCompiled.writeCSV",
@@ -1591,6 +1581,7 @@ public class RVM {
 			"org.rascalmpl.library.PreludeCompiled.remove",
 			"org.rascalmpl.library.PreludeCompiled.mkDirectory",
 			"org.rascalmpl.library.PreludeCompiled.listEntries",
+			"org.rascalmpl.library.PreludeCompiled.parse",
 			"org.rascalmpl.library.PreludeCompiled.readFile",
 			"org.rascalmpl.library.PreludeCompiled.readFileEnc",
 			"org.rascalmpl.library.PreludeCompiled.md5HashFile",
@@ -1608,6 +1599,10 @@ public class RVM {
 			"org.rascalmpl.library.PreludeCompiled.readTextValueString",
 			"org.rascalmpl.library.PreludeCompiled.writeBinaryValueFile",
 			"org.rascalmpl.library.PreludeCompiled.writeTextValueFile",
+			"org.rascalmpl.library.util.MonitorCompiled.startJob",
+			"org.rascalmpl.library.util.MonitorCompiled.event",
+			"org.rascalmpl.library.util.MonitorCompiled.endJob",
+			"org.rascalmpl.library.util.MonitorCompiled.todo",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation"
 

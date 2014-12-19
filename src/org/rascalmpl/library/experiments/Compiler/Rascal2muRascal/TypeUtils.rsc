@@ -9,7 +9,7 @@ import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::muRascal::AST;
-import experiments::Compiler::Rascal2muRascal::TypeReifier;
+import experiments::Compiler::Rascal2muRascal::TypeReifier; 
 import experiments::Compiler::Rascal2muRascal::RascalModule;  // for getFunctionsInModule, need better structure
 
 /*
@@ -184,6 +184,7 @@ void extractScopes(Configuration c){
              }
              // Fill in uid2name
              str name = getFUID(getSimpleName(rname),rtype);
+             println("name = <name>");
              if(cases[inScope]?) {
                  if(cases[inScope][name]?) {
                      cases[inScope][name] = cases[inScope][name] + 1;
@@ -195,6 +196,9 @@ void extractScopes(Configuration c){
              }
              name = getFUID(getSimpleName(rname),rtype,cases[inScope][name]);
              uid2name[uid] = name;
+              if(getSimpleName(rname) == "subtype"){
+        	 	println("<uid>: <rname>, <rtype>, inScope=<inScope>, <src>");
+        	 }
              // Fill in uid2type to enable more precise overloading resolution
              uid2type[uid] = rtype;
              // Check if the function is default
@@ -205,6 +209,7 @@ void extractScopes(Configuration c){
              }
         }
         case overload(_,_): {
+             //println("<uid>: <item>");
 		     ofunctions += {uid};
 		     for(l <- config.uses[uid]) {
 		     	loc2uid[l] = uid;
@@ -441,6 +446,8 @@ void extractScopes(Configuration c){
 
     }
     
+    println("ofunctions = <ofunctions>");
+    
     // Fill in uid2addr for overloaded functions;
     for(UID fuid2 <- ofunctions) {
         set[UID] funs = config.store[fuid2].items;
@@ -465,7 +472,8 @@ void extractScopes(Configuration c){
     }
     
     //for(int uid <- uid2addr){
-    //	println("uid2addr[<uid>] = <uid2addr[uid]>");
+    //	if(uid in ofunctions)
+    //		println("uid2addr[<uid>] = <uid2addr[uid]>, <config.store[uid]>");
     //}
     
     // Finally, extract all declarations for the benefit of the type reifier
@@ -566,8 +574,9 @@ tuple[str fuid,int pos] getVariableScope(str name, loc l) {
 // Create unique symbolic names for functions, constructors and productions
 
 str getFUID(str fname, Symbol \type) { 
-    //println("getFUID: <fname>, <\type>");
-    return "<fname>(<for(p<-\type.parameters){><p>;<}>)";
+    res = "<fname>(<for(p<-\type.parameters){><p>;<}>)";
+    //println("getFUID: <fname>, <\type> =\> <res>");
+    return res;
 }
 
 str getField(Symbol::label(l, t)) = "<t> <l>";
@@ -621,6 +630,7 @@ str convert2fuid(UID uid) {
         }
 		name = convert2fuid(declaredIn[uid]) + "/" + name;
 	}
+	//println("convert2fuid(<uid>) =\> <name>");
 	return name;
 }
 
@@ -689,12 +699,19 @@ MuExp mkVar(str name, loc l) {
     // Generate a unique name for an overloaded function resolved for this specific use
     str ofuid = convert2fuid(config.usedIn[l]) + "/use:" + name;
     
-    bool exists = <addr.fuid,ofuids> in overloadedFunctions;
+    bool occurs = <addr.fuid,ofuids> in overloadedFunctions;
     int i = size(overloadedFunctions);
-    if(!exists) {
+    if(!occurs) {
     	overloadedFunctions += <addr.fuid,ofuids>;
     } else {
     	i = indexOf(overloadedFunctions, <addr.fuid,ofuids>);
+    	if(i < 0){
+    		println("&&&&&&&&&&&&&&");
+    		println("\toverloadedFunctions = <overloadedFunctions>");
+    		println("\t\<<addr.fuid>,<ofuids>\> in overloadedFunctions = < <addr.fuid,ofuids> in overloadedFunctions>");
+    		println("\tindexOf(<overloadedFunctions>, <<addr.fuid,ofuids> >) = <indexOf(overloadedFunctions, <addr.fuid, ofuids>)>");
+    		println("&&&&&&&&&&&&&&");
+    	}
     }   
     overloadingResolver[ofuid] = i;
   	return muOFun(ofuid);
@@ -728,10 +745,13 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
 
 public list[MuFunction] lift(list[MuFunction] functions, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
     return [ (func.scopeIn == fromScope || func.scopeIn == toScope) 
-	             ? { func.scopeIn = toScope; func.body = lift(func.body,fromScope,toScope,mapping); func; } 
-	             : func | MuFunction func <- getFunctionsInModule() ];
+	         ? { func.scopeIn = toScope; func.body = lift(func.body,fromScope,toScope,mapping); func; } 
+	         : func 
+	       | MuFunction func <- functions 
+	       ];
 }
 public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
+
     return visit(body) {
 	    case muAssign(str name,fromScope,int pos,MuExp exp)    => muAssign(name,toScope,newPos,exp) 
 	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
