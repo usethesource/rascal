@@ -2,6 +2,7 @@ module experiments::Compiler::muRascal::AST
 
 import Prelude;
 import Message;
+import experiments::Compiler::muRascal::ConstantFolder;  
 
 /*
  * Abstract syntax for muRascal.
@@ -23,10 +24,11 @@ public data MuModule =
                        int nlocals_in_initializations,
                        map[str,int] resolver,
                        lrel[str,list[str],list[str]] overloaded_functions,
-                       map[Symbol, Production] grammar)
+                       map[Symbol, Production] grammar,
+                       loc src)
             ;
             
-MuModule errorMuModule(str name, set[Message] messages) = muModule(name, messages, [], (), (), [], [], [], 0, (), [], ());
+MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, messages, [], (), (), [], [], [], 0, (), [], (), src);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
@@ -298,12 +300,11 @@ public bool isOverloadedFunction(muOFun(str _)) = true;
 //public bool isOverloadedFunction(muOFun(str _, str _)) = true;
 public default bool isOverloadedFunction(MuExp _) = false;
 
-MuExp muCallPrim(str name) = muCallPrim2(name, |unknown:///no-location-available|);
-MuExp muCallPrim(str name, list[MuExp] exps) = muCallPrim3(name, exps, |unknown:///no-location-available|);
-
 
 //--------------- constant folding rules ----------------------------------------
-// These rules should go to experiments::Compiler::RVM::Interpreter::ConstantFolder.rsc
+// TODO:
+// - These rules should go to a separate module
+// - Introduce a library function applyPrim(str name, list[value] args) to simplify these rules and cover more cases
 
 
 bool allConstant(list[MuExp] args) { b = isEmpty(args) || all(a <- args, muCon(_) := a); /*println("allConstant: <args> : <b>"); */return b; }
@@ -365,6 +366,6 @@ MuExp muCallPrim3("node_create", [muCon(str name), *MuExp args, muCallMuPrim("ma
       
 MuExp muCallPrim3("appl_create", [muCon(value prod), muCon(list[value] args)], loc src) = muCon(makeNode("appl", prod, args));
 
-// muRascal primitives
-
-//MuExp muCallMuPrim(str name, list[MuExp] exps) = x;
+//// muRascal primitives
+//
+////MuExp muCallMuPrim(str name, list[MuExp] exps) = x;

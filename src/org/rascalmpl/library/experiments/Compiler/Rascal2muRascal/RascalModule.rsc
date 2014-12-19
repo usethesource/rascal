@@ -19,7 +19,6 @@ import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
-import experiments::Compiler::RVM::Interpreter::ConstantFolder;
 
 import util::ValueUI;
 
@@ -48,18 +47,32 @@ private set[str] notOverriddenLibs = {};			// Java libraries not overridden for 
 
 public str getModuleName() = module_name;
 
-public list[MuFunction] getFunctionsInModule() = functions_in_module;
+public list[MuFunction] getFunctionsInModule() {
+  	//println("getFunctionsInModule:");for(fun <- functions_in_module){ println("\t<fun.qname>, <fun.scopeIn>"); }
+	return functions_in_module;
+}
 
 public void addFunctionToModule(MuFunction fun) {
-   functions_in_module += fun;
+   //println("addFunctionToModule: <fun.qname>, <fun.scopeIn>");
+   functions_in_module += [fun];
+   
+   //for(f <- functions_in_module){ println("\t<f.qname>, <f.scopeIn>"); }
 }
 
 public void addFunctionsToModule(list[MuFunction] funs) {
+   //println("addFunctionToModule: <for(f <- funs){><f.qname>, <f.scopeIn> <}>");
+   
    functions_in_module += funs;
+   
+   //for(f <- functions_in_module){ println("\t<f.qname>, <f.scopeIn>"); }
 }
 
 public void setFunctionsInModule(list[MuFunction] funs) {
+   //println("setFunctionsInModule: <for(f <- funs){><f.qname>, <f.scopeIn> <}>");
+   
    functions_in_module = funs;
+   
+   //for(f <- functions_in_module){	println("\t<f.qname>, <f.scopeIn>"); }
 }
 
 // Reset global state
@@ -110,7 +123,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    
    	if(size(errors) > 0) {
-   	    return errorMuModule(module_name, config.messages);
+   	    return errorMuModule(module_name, config.messages, M@\loc);
    	} else {
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes(config); 
@@ -176,14 +189,14 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
    	 
-   	  generate_tests(modName);
+   	  generate_tests(modName, M@\loc);
    	  
    	  // Overloading resolution...	  
    	  lrel[str,list[str],list[str]] overloaded_functions = 
    	  	[ < (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
    	  		[ uid2str[fuid] | int fuid <- of.fuids, (fuid in functions) && (fuid notin defaultFunctions) ] 
    	  		+ [ uid2str[fuid] | int fuid <- of.fuids, fuid in defaultFunctions ]
-   	  		  // Replace call to a constructor with call to the constructor function if the constructor has keyword parameters
+   	  		  // Replace call to a constructor with call to the constructor companion function if the constructor has keyword parameters
    	  		+ [ getCompanionForUID(fuid) | int fuid <- of.fuids, fuid in constructors, !isEmpty(config.dataKeywordDefaults[fuid]) ],
    	  		[ uid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.dataKeywordDefaults[fuid]) ]
    	  	  > 
@@ -200,13 +213,14 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  				  getModuleVarInitLocals(modName), 
    	  				  overloadingResolver, 
    	  				  overloaded_functions, 
-   	  				  getGrammar());
+   	  				  getGrammar(),
+   	  				  M@\loc);
    	}
    } catch Java("ParseError","Parse error"): {
-   	   return errorMuModule(module_name, {error("Syntax errors in module <M.header.name>", M@\loc)});
+   	   return errorMuModule(module_name, {error("Syntax errors in module <M.header.name>", M@\loc)}, M@\loc);
    } 
    catch e: {
-        return errorMuModule(module_name, {error("Unexpected exception <e>", M@\loc)});
+        return errorMuModule(module_name, {error("Unexpected exception <e>", M@\loc)}, M@\loc);
    }
    finally {
    	   resetR2mu();
@@ -325,12 +339,15 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
      }
      if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
-     	body = muCallPrim("type2symbol", [ muCallPrim("typeOf", params), muCon(getGrammar()) ]);
+     	body = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
      } else {
         body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, keywordTypes, ("reflect" in ttags) ? 1 : 0, params);
      }
   }
+  
   tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, kwps, body, when_conditions);
+  
+  println("translateFunctionDeclration: <fuid>, <addr.fuid>, <moduleNames>,  addr.fuid in moduleNames = <addr.fuid in moduleNames>");
   
   functions_in_module += muFunction(fuid, "<fd.signature.name>", ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									getFormals(uid), getScopeSize(fuid), 
@@ -339,12 +356,12 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   
   if("test" in tmods){
      params = ftype.parameters;
-     tests += muCallPrim("testreport_add", [muCon(fuid),  muCon(ignoreTest(ttags)), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]))) ]);
+     tests += muCallPrim3("testreport_add", [muCon(fuid),  muCon(ignoreTest(ttags)), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]))) ], fd@\loc);
   }
   leaveFunctionScope();
   
   } catch e: {
-  ;
+        throw "EXCEPTION in translateFunctionDeclaration: <e>";
   }
 }
 
@@ -435,8 +452,8 @@ private list[str] translateModifiers(FunctionModifiers modifiers){
 /*                  Translate the tests in a module                 */
 /********************************************************************/
 
-private void generate_tests(str module_name){
-   code = muBlock([ muCallPrim("testreport_open", []), *tests, muReturn1(muCallPrim("testreport_close", [])) ]);
+private void generate_tests(str module_name, loc src){
+   code = muBlock([ muCallPrim3("testreport_open", [], src), *tests, muReturn1(muCallPrim3("testreport_close", [], src)) ]);
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
    name_testsuite = "<module_name>_testsuite";
    main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);

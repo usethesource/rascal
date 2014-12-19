@@ -446,10 +446,6 @@ z a =    tst([1, 2, 3]);
 data z = tst(list[int]);
 
  public void Main() {
-      z t = tst([1,2,3]);
-      w = visit(t) {
-       case tst(list[int] q) => tst(q+4)
-       }
-     println(w);
-     // println(toJson(b));
+     str b = "aap";
+     println(toJSON(b));
      }

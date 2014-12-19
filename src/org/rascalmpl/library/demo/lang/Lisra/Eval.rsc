@@ -48,9 +48,9 @@ public Result eval(List([Atom("lambda"), List(list[Lval] vars), exp]), Env defEn
   <Closure(Result(list[Lval] args, Env callEnv) { return eval(exp, makeEnv(vars, args, tail(callEnv, size(defEnv))));}),
    defEnv>;
 
-public default Result eval(List([ exps* ]), Env e) {         /*9*/
+public default Result eval(List([ *Lval exps ]), Env e) {         /*9*/
   if(isEmpty(exps))
-     return <FALSE, e>;
+     return <List([]), e>;
   vals = [ eval(exp, e).val | exp <- exps ];
   return apply(head(vals), tail(vals), e);
 }

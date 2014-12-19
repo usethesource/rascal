@@ -159,8 +159,9 @@ set[loc] failures = {
 
 int countErrors(map[loc,int] counts) = size( {msg | msg <- counts, counts[msg] > 0} );
 
-tuple[set[loc],set[loc]] compileAll(loc root = |std:///|){
-	allFiles = find(root, "rsc") - exclude;
+tuple[set[loc],set[loc]] compileAll(list[loc] roots = [|std:///|, |project://rascal/src/org/rascalmpl/tutor|]){
+	allFiles = [ *find(root, "rsc") | root <- roots];
+
 	nfiles = size(allFiles);
 	static_error_count = ();
 	compiler_errors = {};

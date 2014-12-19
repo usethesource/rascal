@@ -1,25 +1,21 @@
 module experiments::Compiler::Examples::Tst1
 
-//import demo::lang::Exp::Concrete::NoLayout::Syntax;
+//import demo::lang::Exp::Concrete::WithLayout::Syntax;
+layout Whitespace = w: [\t-\n\r\ ]*; /*1*/
+    
+lexical IntegerLiteral = i: [0-9]+;           
 
-import String;
+start syntax Exp 
+  = e1: IntegerLiteral          
+  | bracket "(" Exp ")"     
+  > left e2: Exp "*" Exp        
+  > left e3: Exp "+" Exp        
+  ;
+
 import ParseTree; 
-
-lexical IntegerLiteral = [0-9]+;           /*1*/
-
-start syntax Exp            /*2*/
-  = IntegerLiteral          /*3*/
-  | bracket "(" Exp ")"     /*4*/
-  > left Exp "*" Exp        /*5*/
-  > left Exp "+" Exp        /*6*/
-  ;                                                /*1*/
-
-int eval(str txt) = eval(parse(#Exp, txt));                /*2*/
-
-int eval((Exp)`<IntegerLiteral l>`) = toInt("<l>");        /*3*/
-int eval((Exp)`<Exp e1>*<Exp e2>`) = eval(e1) * eval(e2);  /*4*/
-int eval((Exp)`<Exp e1>+<Exp e2>`) = eval(e1) + eval(e2);  /*5*/
-int eval((Exp)`(<Exp e>)`) = eval(e);                      /*6*/
-
-value main(list[value] args)  = eval("7")
-;
+import IO;   
+                                                             
+public value main(list[value] args) {
+  //return #start[Exp].definitions[\start(sort("Exp"))];
+  return [start[Exp]] " 7+  2*3";
+}

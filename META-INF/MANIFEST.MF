@@ -6,6 +6,13 @@ Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
 Bundle-Version: 0.7.1.qualifier
 Export-Package: 
+ org.apache.commons.compress.compressors,
+ org.apache.commons.compress.compressors.bzip2,
+ org.apache.commons.compress.compressors.deflate,
+ org.apache.commons.compress.compressors.gzip,
+ org.apache.commons.compress.compressors.lzma,
+ org.apache.commons.compress.compressors.xz,
+ org.apache.commons.compress.compressors.z,
  org.rascalmpl.ast,
  org.rascalmpl.checker,
  org.rascalmpl.interpreter,
@@ -71,6 +78,7 @@ Export-Package:
  org.rascalmpl.values.locations,
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors,
+ org.tukaani.xz,
  org.yaml.snakeyaml
 Require-Bundle: org.eclipse.imp.pdb.values,
  org.eclipse.swt,
@@ -101,4 +109,6 @@ Import-Package: com.google.gson;version="2.1.0",
  org.rascalmpl.values
 Bundle-ClassPath: lib/snakeyaml-1.11.jar,
  lib/gson-2.2.4.jar,
+ lib/xz-1.5.jar,
+ lib/commons-compress-1.9.jar,
  .
