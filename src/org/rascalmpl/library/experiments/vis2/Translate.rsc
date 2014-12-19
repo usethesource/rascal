@@ -5,6 +5,7 @@ import Node;
 import String;
 import IO;
 import List;
+import ListRelation;
 import util::Cursor;
 import Type;
 import lang::json::IO;
@@ -544,15 +545,39 @@ str trNVSeries(str key, Datasets[&T] ds) {
 }
 
 // ---------- Vega output
+// sum(range(domainR(v,{1})));
+
+num getClass(num lo, num hi, int N, num v) {
+    return round(lo +  (floor((v-lo)*(N+1))/(N*(hi-lo)))*hi, 0.01);
+    }
+
+XYData getHistogramData(tuple[int nTickMarks, list[num] \data] x) {
+      XYData r =  [<getClass(min(x[1]), max(x[1]), x.nTickMarks, d), 1>|d <-x[1]];
+      // println(r);
+      return r;
+      }
+
+XYData inject(XYData r) {
+     return [<k, sum([v[1]| v<-domainR(r,{k})])>|k<-domain(r)];
+     }
+     
+LabeledData inject(LabeledData r) {
+     return [<k, sum([v[1]|v<-domainR(r,{k})])>|k<-domain(r)];
+     }
+// LabeledData
+
 
 str trVegaDataset(Datasets ds) = 
 	"\"datasets\": [ <intercalate(",\n", [ trVegaSeries(key, ds[key]) | key <- ds ])> ]";
 
 str trVegaSeries(str key, lrel[num x, num y] xyData) =
-	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}" | <x,y> <- xyData ]);
+	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}" | <x,y> <- inject(xyData) ]);
 
 str trVegaSeries(str key, lrel[str label, num val] labeledData) =
-	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- labeledData ]);
+	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- inject(labeledData) ]);
+	
+str trVegaSeries(str key, tuple[int nTickMarks, list[num] val] histogramData) =
+	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- inject(getHistogramData(histogramData)) ]);
 
 str trVegaSeries(str key, Datasets[&T] ds) {
 	throw "trVegaSeries: not recognized: <ds>";

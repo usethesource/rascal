@@ -38,7 +38,7 @@ public map[str, Descriptor] visualizations = ();
 /********************** handle page requests ********************/
 
 Response page1(Method method, str path, map[str, str] parameters){ // Debugging only
-	println("page1: <site>, <method>, <path>, <parameters>");
+	// println("page1: <site>, <method>, <path>, <parameters>");
 	return page(method, path, parameters);
 }
 
@@ -94,7 +94,8 @@ res = "\<html\>
 }
 
 Response page(post(), /^\/initial_figure\/<name:[a-zA-Z0-9_]+>/, map[str, str] parameters) {
-	println("post: initial_figure: <name>, <parameters>");
+	// println("post: initial_figure: <name>, <parameters>");
+	// println(get_initial_figure(name));
 	return response(get_initial_figure(name));
 }
 
@@ -120,7 +121,6 @@ default Response page(!get(), str path, map[str, str] parameters) {
 
 Response page(get(), /^\/vegaJSON\/<name:[a-zA-Z0-9_:]+>/, 
       map[str, str] parameters) {
-     //  println("get: name: <name>");
       if(visualizations[name]?){
 		    descr = visualizations[name];
 		    // println("get: descr: <descr>");
@@ -182,8 +182,7 @@ public void render(str name, type[&T] model_type, &T model, Figure (str event, s
 /********************** get_initial_figure **********************/
 
 private str get_initial_figure(str name){
-	// println("get_initial_figure: <name>");
-	if(visualizations[name]?){
+	if(visualizations[name]?){  
 		descr = visualizations[name];
 		f = descr.visualize("init", "all", makeCursor(descr.model));
 		println("get_initial_figure: <toJSON(descr.model)> <descr.model>");

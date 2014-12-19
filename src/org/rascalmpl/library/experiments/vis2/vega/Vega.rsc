@@ -23,17 +23,20 @@ public data VEGA =  vega(list[AXE] axes=[], list[SCALE] scales=[],
 
 public data AXE =   axe(str scale = "", str \type= "", map[str, value]  properties = (), str title=""
 , bool grid = false, str format = "", str orient = "", int tickSize = 99999, 
-  int tickPadding = 99999, int ticks = 99999, list[value] values = []);
+  int tickPadding = 99999, int ticks = 99999, list[value] values = [],
+  int offset = 99999, int titleOffset = 99999);
 
 
 
 public data MARK = mark(str name = "", str \type = "", list[MARK] marks =[], 
-    map[str, value]  properties = (), DATUM from  = datum(), list[SCALE] scales=[]);
+    map[str, value]  properties = (), DATUM from  = datum(), list[SCALE] scales=[],
+    list[AXE] axes = []);
     
 public data DATUM = datum(str name="", list[TRANSFORM] transform = [], str source = "", str \data="");
 
 public data TRANSFORM = transform(str \type="", list[str] keys = [], str point ="", str height = "", str \value ="",
-      str by = "", str key = "", str field = "", str expr="", str \test = "");
+      str by = "", str key = "", str field = "", str expr="", str \test = "", bool assign = false, bool median = false,
+      str as = "");
 
 public data DOMAIN = ref(str \data="", str field = "");
 
@@ -75,6 +78,7 @@ JSON toJson(AXE axe) {
          , "grid":toJson(axe.grid), "orient":toJson(axe.orient), "format":toJson(axe.format)
          , "tickSize":toJson(axe.tickSize,99999), "tickPadding":toJson(axe.tickPadding,99999)
          , "ticks":toJson(axe.ticks, 99999), "values":toJson(axe.values)
+         , "offset":toJson(axe.offset, 99999), "titleOffset":toJson(axe.titleOffset, 99999)
          ));     
      } 
  
@@ -96,15 +100,18 @@ JSON toJson(TRANSFORM transform) {
               JSON r =  Object(
                 (
                 "type":toJson(transform.\type)
-               , "key":toJson(transform.key)
+               ,"key":toJson(transform.key)
                ,"field": toJson(transform.field) 
                ,"point": toJson(transform.point)
                ,"by": toJson(transform.by)
+               ,"as": toJson(transform.as)
                ,"expr": toJson(transform.expr)
                ,"test": toJson(transform.\test)
                ,"keys": toJson(transform.keys) 
                ,"height":toJson(transform.height)
                ,"value":toJson(transform.\value)
+               ,"assign":toJson(transform.assign)
+               ,"median":toJson(transform.median)
                ));           
                return r;
          }
@@ -113,7 +120,7 @@ JSON toJson(TRANSFORM transform) {
  JSON toJson(MARK mark) { 
       return Object (("name": toJson(mark.name),"type":toJson(mark.\type), 
            "marks": toJson(mark.marks), "properties": propToJson(mark.properties),
-           "from": toJson(mark.from), "scales": toJson(mark.scales)));
+           "from": toJson(mark.from), "scales": toJson(mark.scales),"axes": toJson(mark.axes)));
         }
      
 JSON toJson(LEGEND legend) { 
@@ -263,7 +270,8 @@ public AXE getAxe(VEGA vega, str name) {
 public SCALE getScale(VEGA vega, str name) {
     visit(vega) {
           case v:scale(name=name): return v;
-          } 
+          }
+    return scale(); 
     }
     
  public MARK getMark(VEGA vega, str name) {
@@ -283,7 +291,7 @@ public TRANSFORM getTransform(VEGA vega, str name) {
     visit(vega) {
           case v:transform(\type=name): return v;
           }
-    return mark();
+    return transform();
     }
     
 public VEGA setTransform(VEGA vega, str name,  TRANSFORM m) {
@@ -365,7 +373,8 @@ VEGA update(VEGA r, bool grid = false,
     map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = (),   
     map[str, TICKLABELS] tickLabels = (),
     map[str, str] interpolate = (),  map[str, str] shape = (), 
-    list[str] palette = color12, list[str] groupOrder = []
+    list[str] palette = color12, list[str] groupOrder = [],
+    num offset = 99999
     )
     {     
         AXE ax = getAxe(r, "x"); 
@@ -394,7 +403,14 @@ VEGA update(VEGA r, bool grid = false,
            SCALE color = getScale(r, "color");
            color.range = array(values = hexColors(color12)); 
            r = setScale(r, "color", color);
-           }       
+           }  
+       if (offset!=99999) {
+           MARK mg = getMark(r, "rect");
+           mg.properties["enter"]= addProp(mg.properties["enter"],
+              ("width":("scale":"x", "offset":offset,"band":true
+               )));
+           r = setMark(r, "rect", mg);
+           }     
        if (!isEmpty(interpolate) || !isEmpty(shape)) { 
         MARK mg = getMark(r, "group");
         r.marks = []; 
@@ -408,7 +424,6 @@ VEGA update(VEGA r, bool grid = false,
              r.marks = r.marks + dupMark(mg, "all", shape["all"], false);
              }    
         else {
-            println(shape);
             r.marks = r.marks + [
                dupMark(mg, key, shape[key], false)|key<-shape
                ];   
@@ -418,7 +433,7 @@ VEGA update(VEGA r, bool grid = false,
             TRANSFORM t = getTransform(r, "formula");
             t.expr = jsIndexOf(groupOrder);
             r = setTransform(r, "formula", t);
-            } 
+            }
         return r;
     }
 

@@ -916,7 +916,7 @@ Datasets[LabeledData] exampleBarData() =
       						<"G Label" , -13.925743130903>,
       						<"H Label" , -5.1387322875705>
       				   ]);
-      				   
+ /*     				   
  public map[str, LabeledData] stackedData = (
    "0": [
     <"0", 28>,
@@ -943,6 +943,35 @@ Datasets[LabeledData] exampleBarData() =
      <"9", 15>
    ]
 );
+*/
+
+ public map[str, XYData] stackedData = (
+   "0": [
+    <0, 28>,
+    <1, 43>,
+    <2, 81>,
+    <3, 19>,
+    <4, 52>,
+    <5, 24>,
+    <6, 87>,
+    <7, 17>,
+    <8, 68>,
+    <9, 49>
+    ],
+   "1": [
+     <0, 55>,
+     <1, 91>,
+     <2, 53>,
+     <3, 87>,
+     <4, 48>,
+     <5, 49>,
+     <6, 66>,
+     <7, 27>,
+     <8, 16>,
+     <9, 15>
+   ]
+);
+
 
 
 void stackedBarChart(){       
@@ -952,14 +981,15 @@ void stackedBarChart(){
                 title=("x":"index", "y":"N","color":"p") 
                ,legends = ("color":"fill")
                ,tickLabels=("x":tickLabels(angle=45))
-               ,groupOrder =   ["0", "1"]         
+               ,groupOrder =   ["0", "1"], gap = -10        
               )
-         ));        
+         )); 
+                
 }
 
 str p = "\<";
 
-list[str] order = ["20-", "20-45","45-65","65-80","80+"];
+list[str] order = ["\<20", "20-45","45-65","65-80","\>80"];
 
 void nederlandBarChart(){       
         ex("nederlandBarChart", vegaChart(size=<500,200>, padding = <10,100,10,10>
@@ -985,6 +1015,23 @@ void groupedBarChart(){
           );
 }
 
+
+
+void groupedHistogram(){
+        ex("groupedHistogram", vegaChart(   
+           size=<400,400>, 
+          //   datasets=stackedData,      
+         datasets = ("sin":<10, [round(sin(x/100),0.01)| x <- [0.0, 1.0 .. 100.0]]>), 
+          command=
+           histogram(
+              title=("x":"index", "y":"N","color":"p") 
+             ,legends = ("color":"fill")
+             ,tickLabels=("x":tickLabels(angle=90))
+             )
+           )
+          );
+}
+
 void stackedAreaChart(){
         ex("stackedAreaChart", vegaChart(
         size=<500,200>, datasets=stackedData,  command=stackedArea(grid = true)));
@@ -1000,6 +1047,13 @@ Datasets[XYData] sinAndCos() =
 	 "Cosine Wave":       [<x, round(0.5 * cos(x/10), 0.01)>        | x <- [0.0, 1.0 .. 100.0]],
 	 "Another sine wave": [<x, round(0.25 * sin(x/10) + 0.5, 0.01)> | x <- [0.0, 1.0 .. 100.0]]
 	);
+	
+//public str vg() = vegaToJSON(linePlot(grid=true, interpolate=("all":"monotone"), 
+//           title=("x":"Time (s)", "y":"Voltage(v)"),
+//           ticks = ("y":4),
+//           legends = ("color":"fill"))());
+
+
 
 void sinAndCosChart(){
         ex("sinAndCosChart", vegaChart(size=<500,200>, datasets=sinAndCos(), command=linePlot(grid=true, interpolate=("all":"monotone"), 
@@ -1535,6 +1589,7 @@ void visible2(){
 				 gap=<30,30>);
 				 });
 }
+
 
 // Tooltip
 
