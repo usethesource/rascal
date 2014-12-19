@@ -58,10 +58,10 @@ public class SymbolAdapter {
 		return tree.getConstructorType() == Factory.Symbol_Start_Sort;
 	}  
 	
-	public static boolean isStart(IConstructor tree) {
-		tree = delabel(tree);
-		return tree.getConstructorType() == Factory.Symbol_START;
-	}
+//	public static boolean isStart(IConstructor tree) {
+//		tree = delabel(tree);
+//		return tree.getConstructorType() == Factory.Symbol_START;
+//	}
 	  
 	public static IConstructor getStart(IConstructor tree) {
 		if (isStartSort(tree)) {
