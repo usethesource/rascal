@@ -51,7 +51,9 @@ data Bind
 
 alias XYData 			= lrel[num x, num y];
 			 		 
-alias LabeledData 		= lrel[str label, num val];		
+alias LabeledData 		= lrel[str label, num val];	
+
+alias HistogramData     = tuple[int nTickMarks, list[num val] \data];		
 
 alias ErrorData			= lrel[str label, num mean, num low, num high];	
 
@@ -222,7 +224,7 @@ public data Figure(
 
 // Charts
    
-  | vegaChart(str dataFile = "",  VEGA() command = (){return VEGA();}, str \module ="experiments::vis2::vega::VegaChart", Datasets[value] datasets = ())   
+  | vegaChart(str dataFile = "",  VEGA() command = (){return vega();}, str \module ="experiments::vis2::vega::VegaChart", Datasets[value] datasets = ())   
 /*   
   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), str orientation = "vertical", bool grouped = false, str flavor ="nvBarChart") 
  
