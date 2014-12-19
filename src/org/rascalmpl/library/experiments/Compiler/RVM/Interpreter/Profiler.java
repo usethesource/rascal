@@ -58,12 +58,12 @@ class Count {
 }
 
 public class Profiler extends Thread {
-	private ProfilingLocationCollector reporter;
+	private ProfileLocationCollector reporter;
 	private HashMap<ISourceLocation,Count> data;
 	private volatile boolean running;
 	private long resolution = 1;
 	
-	public Profiler(ProfilingLocationCollector reporter){
+	public Profiler(ProfileLocationCollector reporter){
 		this.reporter = reporter;
 		this.data = new HashMap<ISourceLocation,Count>();
 		running = true;

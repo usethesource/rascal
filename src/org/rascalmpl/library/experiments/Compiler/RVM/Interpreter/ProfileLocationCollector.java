@@ -7,13 +7,13 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 
-public class ProfilingLocationCollector implements ILocationCollector, ILocationReporter<IList> {
+public class ProfileLocationCollector implements ILocationCollector, ILocationReporter<IList> {
 
 	volatile ISourceLocation src;
 	
 	Profiler profiler;
 	
-	ProfilingLocationCollector(){
+	public ProfileLocationCollector(){
 		profiler = new Profiler(this);
 	}
 	

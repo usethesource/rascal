@@ -1,21 +1,24 @@
 module experiments::Compiler::Examples::Tst1
 
-//import demo::lang::Exp::Concrete::WithLayout::Syntax;
-layout Whitespace = w: [\t-\n\r\ ]*; /*1*/
-    
-lexical IntegerLiteral = i: [0-9]+;           
+import experiments::Compiler::Profile; 
+ 
+void f(){
+	x = 13;
+	for(int i <- [0 .. 100]){
+		x = x * x;
+	}
+}  
 
-start syntax Exp 
-  = e1: IntegerLiteral          
-  | bracket "(" Exp ")"     
-  > left e2: Exp "*" Exp        
-  > left e3: Exp "+" Exp        
-  ;
-
-import ParseTree; 
-import IO;   
+void g(){
+	x = "a";
+	for(int i <- [0 .. 100]){
+		y = x + x;
+	}
+} 
                                                              
 public value main(list[value] args) {
-  //return #start[Exp].definitions[\start(sort("Exp"))];
-  return [start[Exp]] " 7+  2*3";
+  f();
+  g();
+  f();
+  g();
 }
