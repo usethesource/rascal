@@ -24,10 +24,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;				// TODO: remove import: YES
 import org.rascalmpl.interpreter.IRascalMonitor;				// remove import: NO
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.types.NonTerminalType;			// remove import: NO
 import org.rascalmpl.interpreter.types.ReifiedType;				// remove import: NO
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -172,11 +170,11 @@ public class ParsingTools {
 		try {
 			IConstructor pt = parseObject(moduleName, startSort, robust, location, input, syntax);
 // TODO layout hier wel weghalen?
-			if (TreeAdapter.isAppl(pt)) {
-				if (isStartSort(TreeAdapter.getType(pt))) {
-					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-				}
-			}
+//			if (TreeAdapter.isAppl(pt)) {
+//				if (SymbolAdapter.isStartSort(TreeAdapter.getType(pt))) {
+//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+//				}
+//			}
 			return pt;
 		}
 		catch (ParseError pe) {
@@ -232,36 +230,6 @@ public class ParsingTools {
 		return symbol;
 	}
 	
-	// We need our own version of some SymbolAdapter methods since equality 
-	// between grammars constructed by compiled code cannot be compared
-	// with grammars built by the interpreter
-	
-	private static boolean isStartSort(IConstructor tree) {
-		tree = SymbolAdapter.delabel(tree);
-		return tree.getConstructorType().getName().equals("start");
-	} 
-	
-	public static boolean isLex(IConstructor rhs) {
-		return rhs.getConstructorType().getName().equals("lex");
-	}
-	
-	public static boolean isLayouts(IConstructor tree) {
-		return tree.getConstructorType().getName().equals("layouts");
-	}
-	
-	public static boolean isSort(IConstructor tree) {
-		tree = SymbolAdapter.delabel(tree);
-		return tree.getConstructorType().getName().equals("sort");
-	}
-	
-	public static IConstructor getStart(IConstructor tree) {
-		if (isStartSort(tree)) {
-			tree = SymbolAdapter.delabel(tree);
-			return (IConstructor) tree.get(0);
-		}
-		throw new ImplementationError("Symbol does not have a child named start: " + tree);
-	}
-	
 	/**
 	 * The actual parse object that is connected to a generated parser
 	 * @param moduleName	Name of module in which grammar is defined
@@ -276,12 +244,12 @@ public class ParsingTools {
 	public IConstructor parseObject(IString moduleName, IConstructor startSort, IMap robust, URI location, char[] input, IMap syntax){
 		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(moduleName, startSort, location, syntax);
 		String name = ""; moduleName.getValue();
-		if (isStartSort(startSort)) {
+		if (SymbolAdapter.isStartSort(startSort)) {
 			name = "start__";
-			startSort = getStart(startSort);
+			startSort = SymbolAdapter.getStart(startSort);
 		}
 		
-		if (isSort(startSort) || isLex(startSort) || isLayouts(startSort)) {
+		if (SymbolAdapter.isSort(startSort) || SymbolAdapter.isLex(startSort) || SymbolAdapter.isLayouts(startSort)) {
 			name += SymbolAdapter.getName(startSort);
 		}
 
