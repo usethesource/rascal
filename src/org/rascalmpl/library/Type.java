@@ -12,10 +12,15 @@
 package org.rascalmpl.library;
 
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -69,7 +74,43 @@ public class Type {
 			throw RuntimeExceptionFactory.illegalArgument(type, null, null);
 		}
 		
-		
 	}
+	
+//	public IValue make(IValue type, IString name, IList args, IMap keywordParameters) {
+//		TypeStore store = new TypeStore();
+//		org.eclipse.imp.pdb.facts.type.Type t = new TypeReifier(vf).valueToType((IConstructor) type, store);
+//		
+//		IValue[] children = new IValue[args.length()];
+//		org.eclipse.imp.pdb.facts.type.Type[] argsTypes = new org.eclipse.imp.pdb.facts.type.Type[args.length()];
+//
+//		for (int i = 0; i < args.length(); i++) {
+//			children[i] = args.get(i);
+//			argsTypes[i] = children[i].getType();
+//		}
+//		Iterator<Entry<IValue, IValue>> iter = keywordParameters.entryIterator();
+//		Map<String, IValue> kwmap = Collections.emptyMap();
+//		while(iter.hasNext()){
+//			Entry<IValue, IValue> entry = iter.next();
+//			kwmap.put(((IString) entry.getKey()).getValue(), entry.getValue());
+//		}
+//		
+//		try {
+//			Set<org.eclipse.imp.pdb.facts.type.Type> alts = store.lookupConstructors(name.getValue());
+//			for(org.eclipse.imp.pdb.facts.type.Type alt : alts){
+//				if(alt.comparable(t)){
+//					return vf.constructor(alt, children, kwmap);
+//				}
+//			}
+//		
+//			// TODO: improve error messaging, using specialized exception
+//			throw RuntimeExceptionFactory.illegalArgument(type, null, null);
+//		}
+//		catch (FactTypeUseException e) {
+//			// TODO: improve error messaging, using specialized exception
+//			throw RuntimeExceptionFactory.illegalArgument(type, null, null);
+//		}
+		
+		
+//	}
 	
 }
