@@ -145,7 +145,7 @@ data CharRange = range(int begin, int end) /*6*/;
 alias CharClass = list[CharRange] /*7*/;
 
 
-data Symbol = \start(Symbol symbol) /*8*/;
+data Symbol = \start(Symbol \start) /*8*/;
 
 // These symbols are the named non-terminals.
 data Symbol 
