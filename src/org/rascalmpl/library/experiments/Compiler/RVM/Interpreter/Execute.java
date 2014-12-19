@@ -82,7 +82,7 @@ public class Execute {
 		
 		RVM rvm = new RVM(new RascalExecutionContext(vf, symbol_definitions, debug.getValue(), profile.getValue(), trackCalls.getValue(), coverage.getValue(), ctx, testResultListener));
 		
-		ProfilingLocationCollector profilingCollector = null;
+		ProfileLocationCollector profilingCollector = null;
 		CoverageLocationCollector coverageCollector = null;
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
@@ -161,7 +161,7 @@ public class Execute {
 		}
 		
 		if(profile.getValue()){
-			profilingCollector = new ProfilingLocationCollector();
+			profilingCollector = new ProfileLocationCollector();
 			rvm.setLocationCollector(profilingCollector);
 			profilingCollector.start();
 	
