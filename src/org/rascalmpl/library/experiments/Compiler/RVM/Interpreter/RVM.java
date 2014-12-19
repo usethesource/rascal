@@ -150,7 +150,7 @@ public class RVM {
 		RascalPrimitive.init(this, rex);
 		Opcode.init(stdout, rex.getProfile());
 		
-		this.locationCollector = new NullLocationCollector();
+		this.locationCollector = NullLocationCollector.getInstance();
 					
 	}
 	
@@ -175,7 +175,7 @@ public class RVM {
 	}
 	
 	public void resetLocationCollector(){
-		this.locationCollector = new NullLocationCollector();
+		this.locationCollector = NullLocationCollector.getInstance();
 	}
 
 	public void declare(Function f){
