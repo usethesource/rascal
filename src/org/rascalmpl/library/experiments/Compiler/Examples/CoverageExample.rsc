@@ -1,4 +1,4 @@
-module experiments::Compiler::Examples::Tst
+module experiments::Compiler::Examples::CoverageExample
 
 
 import experiments::Compiler::Coverage;   

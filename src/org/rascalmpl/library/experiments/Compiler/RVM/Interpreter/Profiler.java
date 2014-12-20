@@ -58,25 +58,29 @@ class Count {
 }
 
 public class Profiler extends Thread {
-	private ProfileLocationCollector reporter;
-	private HashMap<ISourceLocation,Count> data;
+	private final ProfileLocationCollector collector;
+	private final HashMap<ISourceLocation,Count> data;
 	private volatile boolean running;
-	private long resolution = 1;
+	private final long resolution = 1;
 	
-	public Profiler(ProfileLocationCollector reporter){
-		this.reporter = reporter;
-		this.data = new HashMap<ISourceLocation,Count>();
-		running = true;
+	public Profiler(ProfileLocationCollector collector){
+		this(collector, new HashMap<ISourceLocation,Count>());
 	}
 	
+	public Profiler(ProfileLocationCollector collector, HashMap<ISourceLocation,Count> data) {
+		this.collector = collector;
+		this.data = data;
+		running = true;
+	}
+
 	@Override
 	public void run(){
 		while(running){
-			ISourceLocation stat = reporter.getLocation();
-			if(stat != null){
-				Count currentCount = data.get(stat);
+			ISourceLocation src = collector.getLocation();
+			if(src != null){
+				Count currentCount = data.get(src);
 				if(currentCount == null)
-					data.put(stat, new Count());
+					data.put(src, new Count());
 				else
 					currentCount.increment();
 			}
@@ -109,7 +113,7 @@ public class Profiler extends Thread {
 	  return sortedData;
 	}
 	
-	public IList getProfileData(){
+	public IList getProfile(){
 		TypeFactory TF = TypeFactory.getInstance();
 		Type elemType = TF.tupleType(TF.sourceLocationType(), TF.integerType());
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
@@ -120,13 +124,8 @@ public class Profiler extends Thread {
 		return w.done();
 	}
 	
-	public IMap report(){
-		IValueFactory VF = ValueFactoryFactory.getValueFactory();
-		IMapWriter w = VF.mapWriter();
-		for(Map.Entry<ISourceLocation, Count> e : sortData()){
-			w.insert(e.getKey(), VF.integer(e.getValue().getTicks()));
-		}
-		return w.done();
+	public HashMap<ISourceLocation,Count> getRawData(){
+		return data;
 	}
 	
 	public void report(PrintWriter out) {

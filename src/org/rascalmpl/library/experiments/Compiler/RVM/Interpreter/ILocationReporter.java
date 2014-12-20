@@ -6,5 +6,5 @@ public interface ILocationReporter<T> {
 	
 	T getData();
 
-	void printData(PrintWriter out);
+	void report(T data, PrintWriter out);
 }

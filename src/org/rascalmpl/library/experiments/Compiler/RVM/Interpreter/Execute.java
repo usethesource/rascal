@@ -211,9 +211,9 @@ public class Execute {
 			RascalPrimitive.exit();
 			Opcode.exit();
 			if(profile.getValue()){
-				profilingCollector.printData(rvm.getStdOut());
+				profilingCollector.report(rvm.getStdOut());
 			} else if(coverage.getValue()){
-				coverageCollector.printData(rvm.getStdOut());
+				coverageCollector.report(rvm.getStdOut());
 			}
 			
 			return vf.tuple((IValue) result, vf.integer((now - start)/1000000));

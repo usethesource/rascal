@@ -3,15 +3,13 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.PrintWriter;
 
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
 
 public class ProfileLocationCollector implements ILocationCollector, ILocationReporter<IList> {
 
-	volatile ISourceLocation src;
+	private volatile ISourceLocation src;
 	
-	Profiler profiler;
+	private Profiler profiler;
 	
 	public ProfileLocationCollector(){
 		profiler = new Profiler(this);
@@ -29,9 +27,22 @@ public class ProfileLocationCollector implements ILocationCollector, ILocationRe
 	public void start() {
 		profiler.start();
 	}
+	
+	public void restart(){
+		profiler = new Profiler(this, profiler.getRawData());
+	}
+	
+	public void stop() {
+		profiler.pleaseStop();
+	}
 
 	@Override
-	public void printData(PrintWriter out) {
+	public void report(IList data, PrintWriter out) {
+		profiler.pleaseStop();
+		profiler.report(out);
+	}
+	
+	public void report(PrintWriter out) {
 		profiler.pleaseStop();
 		profiler.report(out);
 	}
@@ -39,7 +50,7 @@ public class ProfileLocationCollector implements ILocationCollector, ILocationRe
 	@Override
 	public IList getData() {
 		profiler.pleaseStop();
-		IList data = profiler.getProfileData();
+		IList data = profiler.getProfile();
 		return data;
 	}
 
