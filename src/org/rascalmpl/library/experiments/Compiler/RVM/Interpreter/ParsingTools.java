@@ -169,12 +169,6 @@ public class ParsingTools {
 		IMap syntax = (IMap) ((IConstructor) start).get(1);
 		try {
 			IConstructor pt = parseObject(moduleName, startSort, robust, location, input, syntax);
-// TODO layout hier wel weghalen?
-//			if (TreeAdapter.isAppl(pt)) {
-//				if (SymbolAdapter.isStartSort(TreeAdapter.getType(pt))) {
-//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-//				}
-//			}
 			return pt;
 		}
 		catch (ParseError pe) {
@@ -188,21 +182,6 @@ public class ParsingTools {
 			throw new CompilerError("Unexpected exception:" + e, currentFrame);
 		}
 	}
-	
-//	public IString saveParser(ISourceLocation outFile) {
-//		
-//		IGTD<IConstructor, IConstructor, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), URIUtil.invalidURI(), false);
-//		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, IConstructor, ISourceLocation>>) parser.getClass();
-//		
-//		
-//		try(OutputStream outStream = resolverRegistry.getOutputStream(outFile.getURI(), false)) {
-//			ctx.getEvaluator().getParserGenerator().saveToJar(parserClass, outStream);
-//		} catch (IOException e) {
-//			throw RuntimeExceptionFactory.io(vf.string("Unable to save to output file '" + outFile.getURI() + "'"), null, null);
-//		}
-//		return vf.string(parserClass.getName());
-//
-//	}
 	
 	public IString unparse(IConstructor tree) {
 		return vf.string(TreeAdapter.yield(tree));
@@ -347,27 +326,6 @@ public class ParsingTools {
 	}
 	  
 	  public IGTD<IConstructor, IConstructor, ISourceLocation> getParser(String name, IValue start, URI loc, boolean force, IMap syntax) {
-//	    if (currentModule.getBootstrap()) {
-//	      return new RascalParser();
-//	    }
-//	    
-//	    if (currentModule.hasCachedParser()) {
-//	      String className = currentModule.getCachedParser();
-//	      Class<?> clazz;
-//	      for (ClassLoader cl: eval.getClassLoaders()) {
-//	        try {
-//	          clazz = cl.loadClass(className);
-//	          return (IGTD<IConstructor, IConstructor, ISourceLocation>) clazz.newInstance();
-//	        } catch (ClassNotFoundException e) {
-//	          continue;
-//	        } catch (InstantiationException e) {
-//	          throw new ImplementationError("could not instantiate " + className + " to valid IGTD parser", e);
-//	        } catch (IllegalAccessException e) {
-//	          throw new ImplementationError("not allowed to instantiate " + className + " to valid IGTD parser", e);
-//	        }
-//	      }
-//	      throw new ImplementationError("class for cached parser " + className + " could not be found");
-//	    }
 
 	    ParserGenerator pg = getParserGenerator();
 	    IMap definitions = syntax;
@@ -433,12 +391,6 @@ public class ParsingTools {
 	      IConstructor fragment = (IConstructor) parser.parse(parserMethodName, uri, input, converter, nodeFactory);
 	      fragment = replaceHolesByAntiQuotes(fragment, antiquotes);
 	      return fragment;
-	      
-//	      IConstructor prod = TreeAdapter.getProduction(tree);
-//	      IConstructor sym = ProductionAdapter.getDefined(prod);
-//	      sym = SymbolAdapter.delabel(sym); 
-//	      prod = ProductionAdapter.setDefined(prod, vf.constructor(Factory.Symbol_Label, vf.string("$parsed"), sym));
-//	      return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
 	    }
 	    catch (ParseError e) {
 	      ISourceLocation loc = TreeAdapter.getLocation(tree);
@@ -447,18 +399,6 @@ public class ParsingTools {
 	      //getMonitor().warning("parse error in concrete syntax", src);
 	      return tree.asAnnotatable().setAnnotation("parseError", src);
 	    }
-//	    catch (StaticError e) {
-//	      ISourceLocation loc = TreeAdapter.getLocation(tree);
-//	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-//	      getMonitor().warning(e.getMessage(), e.getLocation());
-//	      return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
-//	    }
-//	    catch (UndeclaredNonTerminalException e) {
-//	      ISourceLocation loc = TreeAdapter.getLocation(tree);
-//	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-//	      getMonitor().warning(e.getMessage(), src);
-//	      return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
-//	    }
 	  }
 	  
 	  private char[] replaceAntiQuotesByHoles(IConstructor lit, Map<String, IConstructor> antiquotes) {
@@ -548,16 +488,4 @@ public class ParsingTools {
 			  }
 		  });
 	  }
-	 
-//	  private static boolean containsBackTick(char[] data, int offset) {
-//	    for (int i = data.length - 1; i >= offset; --i) {
-//	      if (data[i] == '`')
-//	        return true;
-//	    }
-//	    return false;
-//	  }
-//	  
-//	  private static boolean needBootstrapParser(char[] input) {
-//	    return new String(input).contains("@bootstrapParser");
-//	  }
 }
