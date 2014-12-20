@@ -16,28 +16,31 @@ public class ProfileCompiled extends Profile {
 	public void startProfile(RascalExecutionContext rex){
 		if(profileCollector == null){
 			profileCollector = new ProfileLocationCollector();
+			profileCollector.start();
+		} else {
+			profileCollector.restart();
 		}
 		rex.getRVM().setLocationCollector(profileCollector);
-		//System.err.println("startCoverage");
 	}
 	
 	public void stopProfile(RascalExecutionContext rex){
+		profileCollector.stop();
 		rex.getRVM().resetLocationCollector();
 	}
 	
 	public IList getProfile(RascalExecutionContext rex){
-		//System.err.println("getProfile");
 		assert profileCollector != null: "startProfile not called before getProfile";
 		IList res = ProfileCompiled.profileCollector.getData();
 		rex.getRVM().resetLocationCollector();
-		//System.err.println("getProfile, returns " + res);
 		profileCollector = null;
 		return res;
 	}
 	
-//	public void printProfile(RascalExecutionContext rex){
-//		System.err.println("printProfile");
-//		profileCollector.printData(rex.getStdOut());
-//		rex.getRVM().resetLocationCollector();
-//	}
+	public void reportProfile(RascalExecutionContext rex){
+		profileCollector.report(rex.getStdOut());
+	}
+	
+	public void reportProfile(IList profileData, RascalExecutionContext rex){
+		profileCollector.report(profileData, rex.getStdOut());
+	}
 }

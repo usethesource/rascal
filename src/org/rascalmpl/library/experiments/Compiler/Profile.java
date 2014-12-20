@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler;
 
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -22,11 +23,15 @@ public class Profile {
 			throw new CompilerError("stopProfile only implemented for compiled code");
 		}
 		
-		public ISet getProfile(IEvaluatorContext ctx){
+		public IList getProfile(IEvaluatorContext ctx){
 			throw new CompilerError("getProfile only implemented for compiled code");
 		}
 		
-//		public void printProfile(IEvaluatorContext ctx){
-//			throw new CompilerError("printProfile only implemented for compiled code");
-//		}
+		public void reportProfile(IEvaluatorContext ctx){
+			throw new CompilerError("reportProfile only implemented for compiled code");
+		}
+		
+		public void reportProfile(IList data, IEvaluatorContext ctx){
+			throw new CompilerError("reportProfile only implemented for compiled code");
+		}
 }
