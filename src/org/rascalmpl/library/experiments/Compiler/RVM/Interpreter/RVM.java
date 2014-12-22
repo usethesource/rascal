@@ -39,6 +39,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -85,6 +86,9 @@ public class RVM {
 	RascalExecutionContext rex;
 	List<ClassLoader> classLoaders;
 	
+	private final Map<Class<?>, Object> instanceCache;
+	private final Map<String, Class<?>> classCache;
+	
 	// An exhausted coroutine instance
 	public static Coroutine exhausted = new Coroutine(null) {
 
@@ -120,6 +124,8 @@ public class RVM {
 		this.vf = rex.getValueFactory();
 		tf = TypeFactory.getInstance();
 		typeStore = rex.getTypeStore();
+		this.instanceCache = new HashMap<Class<?>, Object>();
+		this.classCache = new HashMap<String, Class<?>>();
 		
 		this.rex = rex;
 		rex.setRVM(this);
@@ -168,8 +174,6 @@ public class RVM {
 	
 	IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
 	
-//	public ILocationCollector getLocationCollector() { return rex.getLocationCollector(); }
-	
 	public void setLocationCollector(ILocationCollector collector){
 		this.locationCollector = collector;
 	}
@@ -179,7 +183,9 @@ public class RVM {
 	}
 
 	public void declare(Function f){
-		System.out.println(functionStore.size() + ", declare: " + f.getName());
+		if(f.getName().lastIndexOf("subtype") >= 0){
+			System.out.println(functionStore.size() + ", declare: " + f.getName());
+		}
 		if(functionMap.get(f.getName()) != null){
 			throw new CompilerError("Double declaration of function: " + f.getName());
 		}
@@ -1478,31 +1484,99 @@ public class RVM {
 		}
 	}
 	
+	public Class<?> getJavaClass(String className){
+		Class<?> clazz = classCache.get(className);
+		if(clazz != null){
+			return clazz;
+		}
+		try {
+			clazz = this.getClass().getClassLoader().loadClass(className);
+		} catch(ClassNotFoundException e1) {
+			// If the class is not found, try other class loaders
+			for(ClassLoader loader : this.classLoaders) {
+				try {
+					clazz = loader.loadClass(className);
+					break;
+				} catch(ClassNotFoundException e2) {
+					;
+				}
+			}
+		}
+		if(clazz == null) {
+			throw new CompilerError("Class " + className + " not found");
+		}
+		classCache.put(className, clazz);
+		return clazz;
+	}
+	
+	public Object getJavaClassInstance(Class<?> clazz){
+		Object instance = instanceCache.get(clazz);
+		if(instance != null){
+			return instance;
+		}
+//		Class<?> clazz = null;
+//		try {
+//			clazz = this.getClass().getClassLoader().loadClass(className);
+//		} catch(ClassNotFoundException e1) {
+//			// If the class is not found, try other class loaders
+//			for(ClassLoader loader : this.classLoaders) {
+//				//for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
+//				try {
+//					clazz = loader.loadClass(className);
+//					break;
+//				} catch(ClassNotFoundException e2) {
+//					;
+//				}
+//			}
+//		}
+		try{
+			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
+			instance = constructor.newInstance(vf);
+			instanceCache.put(clazz, instance);
+			return instance;
+		} catch (IllegalArgumentException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (InstantiationException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (IllegalAccessException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (InvocationTargetException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (SecurityException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} catch (NoSuchMethodException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} 
+	}
+	
 	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw {
 		Class<?> clazz = null;
 		try {
-			try {
-				clazz = this.getClass().getClassLoader().loadClass(className);
-			} catch(ClassNotFoundException e1) {
-				// If the class is not found, try other class loaders
-				for(ClassLoader loader : this.classLoaders) {
-					//for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
-					try {
-						clazz = loader.loadClass(className);
-						break;
-					} catch(ClassNotFoundException e2) {
-						;
-					}
-				}
-			}
+//			try {
+//				clazz = this.getClass().getClassLoader().loadClass(className);
+//			} catch(ClassNotFoundException e1) {
+//				// If the class is not found, try other class loaders
+//				for(ClassLoader loader : this.classLoaders) {
+//					//for(ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
+//					try {
+//						clazz = loader.loadClass(className);
+//						break;
+//					} catch(ClassNotFoundException e2) {
+//						;
+//					}
+//				}
+//			}
+//			
+//			if(clazz == null) {
+//				throw new CompilerError("Class " + className + " not found, while trying to call method"  + methodName);
+//			}
 			
-			if(clazz == null) {
-				throw new CompilerError("Class " + className + " not found, while trying to call method"  + methodName);
-			}
+//			Constructor<?> cons;
+//			cons = clazz.getConstructor(IValueFactory.class);
+//			Object instance = cons.newInstance(vf);
+			clazz = getJavaClass(className);
+			Object instance = getJavaClassInstance(clazz);
 			
-			Constructor<?> cons;
-			cons = clazz.getConstructor(IValueFactory.class);
-			Object instance = cons.newInstance(vf);
 			Method m = clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
 			int arity = parameterTypes.getArity();
 			int kwArity = keywordTypes.getArity();
@@ -1536,14 +1610,7 @@ public class RVM {
 			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
 			return sp - arity - kwMaps + 1;
 		} 
-//		catch (ClassNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 		catch (NoSuchMethodException | SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -1569,6 +1636,10 @@ public class RVM {
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.startCoverage",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.stopCoverage",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.getCoverage",
+			"org.rascalmpl.library.experiments.Compiler.ProfileCompiled.startProfile",
+			"org.rascalmpl.library.experiments.Compiler.ProfileCompiled.stopProfile",
+			"org.rascalmpl.library.experiments.Compiler.ProfileCompiled.getProfile",
+			"org.rascalmpl.library.experiments.Compiler.ProfileCompiled.reportProfile",
 			"org.rascalmpl.library.lang.csv.IOCompiled.readCSV",
 			"org.rascalmpl.library.lang.csv.IOCompiled.getCSVType",
 			"org.rascalmpl.library.lang.csv.IOCompiled.writeCSV",

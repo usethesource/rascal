@@ -2,10 +2,12 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class CoverageLocationCollector implements ILocationCollector, ILocationReporter<ISet> {
@@ -35,9 +37,16 @@ public class CoverageLocationCollector implements ILocationCollector, ILocationR
 	}
 
 	@Override
-	public void printData(PrintWriter out) {
+	public void report(ISet data, PrintWriter out) {
+		Iterator<IValue> iter = data.iterator();
+		while(iter.hasNext()){
+			out.printf("%s\n",  iter.next());
+		}
+	}
+	
+	public void report(PrintWriter out) {
 		for(ISourceLocation src : data){
-			out.printf("%s\n",  src );
+			out.printf("%s\n",  src);
 		}
 	}
 

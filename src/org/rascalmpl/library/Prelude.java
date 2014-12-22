@@ -2222,11 +2222,11 @@ public class Prelude {
 		try {
 			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getURI());
 
-			if (TreeAdapter.isAppl(pt)) {
-				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-				}
-			}
+//			if (TreeAdapter.isAppl(pt)) {
+//				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
+//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+//				}
+//			}
 			return pt;
 		}
 		catch (ParseError pe) {
@@ -2248,11 +2248,11 @@ public class Prelude {
 		try {
 			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue());
 
-			if (TreeAdapter.isAppl(pt)) {
-				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-				}
-			}
+//			if (TreeAdapter.isAppl(pt)) {
+//				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
+//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+//				}
+//			}
 
 			return pt;
 		}
@@ -2275,11 +2275,11 @@ public class Prelude {
 		try {
 			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), loc);
 
-			if (TreeAdapter.isAppl(pt)) {
-				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-				}
-			}
+//			if (TreeAdapter.isAppl(pt)) {
+//				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
+//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+//				}
+//			}
 
 			return pt;
 		}
