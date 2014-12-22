@@ -58,17 +58,17 @@ public class SymbolAdapter {
 		return tree.getConstructorType() == Factory.Symbol_Start_Sort;
 	}  
 	
-	public static boolean isStart(IConstructor tree) {
-		tree = delabel(tree);
-		return tree.getConstructorType() == Factory.Symbol_START;
-	}
+//	public static boolean isStart(IConstructor tree) {
+//		tree = delabel(tree);
+//		return tree.getConstructorType() == Factory.Symbol_START;
+//	}
 	  
 	public static IConstructor getStart(IConstructor tree) {
 		if (isStartSort(tree)) {
 			tree = delabel(tree);
-			return (IConstructor) tree.get("start");
+			return (IConstructor) tree.get("symbol");
 		}
-		throw new ImplementationError("Symbol does not have a child named start: " + tree);
+		throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
 	}
 
 	

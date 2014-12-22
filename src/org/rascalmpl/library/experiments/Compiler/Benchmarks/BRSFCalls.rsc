@@ -28,10 +28,10 @@ public bool measureOne(){
 
 public bool measure(list[str] names){
 
-	loc p = |rascal:///experiments/Compiler/Benchmarks/|;
+	loc p = |compressed+rascal:///experiments/Compiler/Benchmarks/|;
 	
 	for(str name <- names){
-		map[str, rel[str,str]] values = readRSF(p[path= p.path + name]);
+		map[str, rel[str,str]] values = readRSF(p[path= p.path + name +".xz"]);
 		rel[str,str] CALL = values["CALL"];
 		n = size(CALL);
 		println("<name>: CALL contains <n> tuples");

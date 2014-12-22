@@ -86,6 +86,7 @@ list[str] libraryTests = [
 "RelationTests",		    // OK
 "SetTests",				    // OK
 "StringTests",			    // OK
+"TypeTests",
 "ValueIOTests"
 ];
 
