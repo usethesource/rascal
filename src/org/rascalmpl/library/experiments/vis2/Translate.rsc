@@ -548,7 +548,9 @@ str trNVSeries(str key, Datasets[&T] ds) {
 // sum(range(domainR(v,{1})));
 
 num getClass(num lo, num hi, int N, num v) {
-    return round(lo +  (floor((v-lo)*(N+1))/(N*(hi-lo)))*hi, 0.01);
+    num r = round(lo +  floor(N*(v-lo)/(hi-lo))*(hi-lo)/N, 0.01);
+    // println("getClassR:<lo> <hi> <N> <r>");
+    return r;
     }
 
 XYData getHistogramData(tuple[int nTickMarks, list[num] \data] x) {
@@ -557,27 +559,30 @@ XYData getHistogramData(tuple[int nTickMarks, list[num] \data] x) {
       return r;
       }
 
-XYData inject(XYData r) {
-     return [<k, sum([v[1]| v<-domainR(r,{k})])>|k<-domain(r)];
+XYData inject(XYData r, num(list[num]) f) {
+     if (f == nullFunction) {return r;}
+     return [<k, f([v[1]| v<-domainR(r,{k})])>|k<-domain(r)];
      }
      
-LabeledData inject(LabeledData r) {
-     return [<k, sum([v[1]|v<-domainR(r,{k})])>|k<-domain(r)];
+LabeledData inject(LabeledData r, num(list[num]) f) {
+     if (f == nullFunction) {return r;}
+     return [<k, f([v[1]|v<-domainR(r,{k})])>|k<-domain(r)];
      }
 // LabeledData
 
 
-str trVegaDataset(Datasets ds) = 
-	"\"datasets\": [ <intercalate(",\n", [ trVegaSeries(key, ds[key]) | key <- ds ])> ]";
+str trVegaDataset(Datasets ds, num(list[num]) f) = 
+	"\"datasets\": [ <intercalate(",\n", [ trVegaSeries(key, ds[key], f) | key <- ds ])> ]";
 
-str trVegaSeries(str key, lrel[num x, num y] xyData) =
-	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}" | <x,y> <- inject(xyData) ]);
+str trVegaSeries(str key, lrel[num x, num y] xyData, num(list[num]) f) =
+	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}" | <x,y> <- inject(xyData, f)]);
 
-str trVegaSeries(str key, lrel[str label, num val] labeledData) =
-	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- inject(labeledData) ]);
+str trVegaSeries(str key, lrel[str label, num val] labeledData, num(list[num]) f) =
+	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- inject(labeledData, f) ]);
 	
-str trVegaSeries(str key, tuple[int nTickMarks, list[num] val] histogramData) =
-	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- inject(getHistogramData(histogramData)) ]);
+str trVegaSeries(str key, tuple[int nTickMarks, list[num] val] histogramData, num(list[num]) f) =
+	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- inject(getHistogramData(histogramData), 
+	   f == nullFunction? sum: f) ]);
 
 str trVegaSeries(str key, Datasets[&T] ds) {
 	throw "trVegaSeries: not recognized: <ds>";
@@ -591,7 +596,7 @@ str trChart(str chartType, Figure chart, Figure parent, str extraProps="") {
 	}
 	xaxis = chart.xAxis;
 	yaxis = chart.yAxis;
-	datasets = startsWith(chart.flavor, "nv") ? trNvDataset(chart.datasets) :  trVegaDataset(chart.datasets);
+	datasets = startsWith(chart.flavor, "nv") ? trNvDataset(chart.datasets) :  trVegaDataset(chart.datasets, chart.aggregate);
 	return
 	"{\"figure\": \"<chartType>\",
 	' \"flavor\": \"<chart.flavor>\", 
@@ -605,7 +610,7 @@ str trChart(str chartType, Figure chart, Figure parent, str extraProps="") {
 str trVega(Figure chart, Figure parent) {
     str modul    = chart.\module;
     str dataFile = chart.dataFile;
-    str datasets = trVegaDataset(chart.datasets); 
+    str datasets = trVegaDataset(chart.datasets, chart.aggregate); 
     // println(datasets);
     return 
     "{\"figure\": \"vega\",

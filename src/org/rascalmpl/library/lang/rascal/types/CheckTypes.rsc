@@ -2044,7 +2044,7 @@ Symbol computeAdditionType(Symbol t1, Symbol t2, loc l) {
     	if (tupleHasFieldNames(t1) && tupleHasFieldNames(t2)) {
 	    	tflds1 = getTupleFields(t1);
 	    	tflds2 = getTupleFields(t2);
-	    	if (size(toSet(tflds1)+toSet(tflds2)) == size(tflds1+tflds2)) {
+	    	if (size(toSet(getTupleFieldNames(t1) + getTupleFieldNames(t2))) == size(tflds1+tflds2)) {
 	    		return \tuple(tflds1+tflds2);
 	    	} else {
 	    		return \tuple(getTupleFieldTypes(t1) + getTupleFieldTypes(t2));

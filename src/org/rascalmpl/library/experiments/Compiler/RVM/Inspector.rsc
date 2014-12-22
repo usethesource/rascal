@@ -14,7 +14,7 @@ import experiments::Compiler::Compile;
  * - show a foldable vizialization.
  */
  
-void inspect(loc srcLoc,                   // location of Rascal source file
+void inspect(loc srcLoc,                // location of Rascal source file
           loc bindir = |home:///bin|,   // location where binaries are stored
           list[str] select = [],     	// select unction names to be shown
           bool listing = false          // show instruction listing
@@ -24,67 +24,97 @@ void inspect(loc srcLoc,                   // location of Rascal source file
     try {
         p = readTextValueFile(#RVMProgram, rvmLoc);
         
+        println("RVM PROGRAM: <p.name>");
+         
         if(size(select) > 0){
             listDecls(p, select, listing);
+            printOverloaded(p.overloaded_functions, select);
+            printResolver(p.resolver, select);
             return;
         }
-        println("RVM PROGRAM: <p.name>");
-        msgs = p.messages;
-        if(size(msgs) > 0){
-            println("MESSAGES:");
-            for(msg <- msgs){
-                println("\t<msg>");
-            }
-        }
-        imps = p.imports;
-        if(size(imps)> 0){
-            println("IMPORTS:");
-            for(imp <- imps){
-                println("\t<imp>");
-            }
-        }
-        sym_defs = p.symbol_definitions;
-        if(size(sym_defs) > 0){
-            println("SYMBOL DEFINITIONS:");
-            for(sym <- sym_defs){
-                if(choice(s, choices) := sym_defs[sym]){
-                    println("\t<s>:");
-                    for(c <- choices){
-                        println("\t\t<c>");
-                    }
-                } else {
-                  println("\t<sym>: <sym_defs[sym]>");
-                }
-            }
-        }
+       
+        printMessages(p.messages);
+       
+        printImports(p.imports);
+       
+        printSymbolDefinitions(p.symbol_definitions);
        
         println("DECLARATIONS:");
         for(dname <- p.declarations){
             printDecl(p.declarations[dname]);
         }
+        
         init = p.initialization;
         if(size(init) > 0){
             println("INITIALIZATION:");
             iprintln(init);
         }
-        res = p.resolver;
-        if(size(res) > 0){
-            println("RESOLVER:");
-            for(f <- res){
-                println("\t<f>: <res[f]>");
-            }        
-        }
-        overloaded = p.overloaded_functions;
-        if(size(overloaded) > 0){
-          println("OVERLOADED FUNCTIONS:");
-            for(t <- overloaded){
-                println("\t<t>");
-            }
-        }
+        
+        printResolver(p.resolver, select);
+        
+        printOverloaded(p.overloaded_functions, select);
+        
         return;
     } catch e: {
         println("Reading: <rvmLoc>: <e>");
     }
+}
+
+void printSymbolDefinitions(map[Symbol, Production] sym_defs){
+	if(size(sym_defs) > 0){
+    	println("SYMBOL DEFINITIONS:");
+		for(sym <- sym_defs){
+        	if(choice(s, choices) := sym_defs[sym]){
+            	println("\t<s>:");
+                for(c <- choices){
+                	println("\t\t<c>");
+                }
+            } else {
+            	println("\t<sym>: <sym_defs[sym]>");
+            }
+		}
+	}
+}
+
+void printMessages(set[Message] messages){
+	if(size(messages) > 0){
+    	println("MESSAGES:");
+        for(msg <- messages){
+        	println("\t<msg>");
+        }
+    }
+}
+
+void printImports(list[loc] imports){
+	if(size(imports)> 0){
+    	println("IMPORTS:");
+       	for(imp <- imports){
+        	println("\t<imp>");
+        }
+    }
+}
+
+void printResolver(map[str, int] resolver, list[str] select){
+	if(size(resolver) > 0){
+		println("RESOLVER:");
+		for(f <- resolver){
+			if(size(select) == 0 || matchesSelection(f, select, atStart=false)){
+					println("\t<f>: <resolver[f]>");
+			}
+		}
+    }
+}
+
+void printOverloaded(lrel[str,list[str],list[str]] overloaded, list[str] select){
+	if(size(overloaded) > 0){
+    	println("OVERLOADED FUNCTIONS:");
+        for(int i <- index(overloaded)){
+        	t = overloaded[i];
+        	if(size(select) == 0 || any(/str s :=  t, matchesSelection(s, select, atStart=false))){
+            	println("\t<right("<i>", 6)>: <t>");
+            }
+        }
+	}
 }
 
 void printDecl(Declaration d){
@@ -99,24 +129,24 @@ void printDecl(Declaration d){
     }
 }
 
+bool matchesSelection(str info, list[str] select, bool atStart = false){
+	select = [toLowerCase(sel) | sel <- select];
+	return any(sel <- select, int i := findFirst(toLowerCase(info), sel), atStart ? i == 0 : i >= 0);
+}
+
 void listDecls(RVMProgram p, list[str] select, bool listing){
     select = [toLowerCase(sel) | sel <- select];
     for(dname <- p.declarations){
         uqname = p.declarations[dname].uqname;
-        for(sel <- select){
-            if(findFirst(toLowerCase(uqname), sel) == 0){
-                printDecl(p.declarations[dname]);
-                if(listing){
-                    for(ins <- p.declarations[dname].instructions){
-                        println("\t\t<ins>");
-                    
-                    }
-                }
+        if(matchesSelection(uqname, select, atStart = true)){
+        	printDecl(p.declarations[dname]);
+            if(listing){
+ 				for(ins <- p.declarations[dname].instructions){
+					println("\t\t<ins>");                
+				}
             }
-        
         }
     }
-
 }
 
 void statistics(loc root = |rascal:///|,

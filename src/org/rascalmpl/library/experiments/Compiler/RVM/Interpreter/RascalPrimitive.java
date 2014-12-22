@@ -1792,11 +1792,6 @@ public enum RascalPrimitive {
 			IConstructor prod = (IConstructor) appl.get("prod");
 			IList prod_symbols = (IList) prod.get("symbols");
 			IString field = ((IString) stack[sp - 1]);
-			
-			if(field.getValue().equals("top")){
-				stack[sp - 2] = appl.has("top") ? appl.get("top") :	appl;
-				return sp - 1;
-			}
 
 			for(int i = 0; i < prod_symbols.length(); i++){
 				IConstructor arg = (IConstructor) prod_symbols.get(i);
