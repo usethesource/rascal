@@ -88,7 +88,8 @@ public class RascalShell {
 	}
 	
 	public void run() throws IOException {
-	  Evaluator evaluator = getDefaultEvaluator();
+		Evaluator evaluator = getDefaultEvaluator();
+		addExtraSourceFolders(evaluator);
 		StringBuilder input = new StringBuilder();
 		String line;
 		
@@ -221,16 +222,8 @@ public class RascalShell {
 		RascalManifest mf = new RascalManifest();
 		assert mf.hasManifest(RascalShell.class);
 
-		List<String> roots = mf.getSourceRoots(RascalShell.class);
 		Evaluator eval = getDefaultEvaluator();
-		URIResolverRegistry reg = eval.getResolverRegistry();
-
-		int count = 0;
-		for (String root : roots) {
-			String scheme = "root" + count;
-			reg.registerInput(new ClassResourceInput(reg, scheme, RascalShell.class, "/" + root));
-			eval.addRascalSearchPath(URIUtil.rootScheme(scheme));
-		}
+		addExtraSourceFolders(eval);
 		IRascalMonitor monitor = new NullRascalMonitor();
 
 		String module = mf.getMainModule(RascalShell.class);
@@ -258,6 +251,22 @@ public class RascalShell {
 		} catch (CommandlineError e) {
 			System.err.println(e.getMessage());
 			System.err.println(e.help("java -jar ..."));
+		}
+	}
+
+	private static void addExtraSourceFolders(Evaluator eval) {
+		RascalManifest mf = new RascalManifest();
+		if (!mf.hasManifest(RascalShell.class)) {
+			return;
+		}
+		List<String> roots = mf.getSourceRoots(RascalShell.class);
+		URIResolverRegistry reg = eval.getResolverRegistry();
+
+		int count = 0;
+		for (String root : roots) {
+			String scheme = "root" + count;
+			reg.registerInput(new ClassResourceInput(reg, scheme, RascalShell.class, "/" + root));
+			eval.addRascalSearchPath(URIUtil.rootScheme(scheme));
 		}
 	}
 
