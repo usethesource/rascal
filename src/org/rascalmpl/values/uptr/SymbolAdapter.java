@@ -668,7 +668,7 @@ public class SymbolAdapter {
 	}
 
 	private static IList getSequence(IConstructor r) {
-		return (IList) r.get("sequence");
+		return (IList) r.get("symbols");
 	}
 
 	public static boolean isEqual(ISet l, ISet r) {
