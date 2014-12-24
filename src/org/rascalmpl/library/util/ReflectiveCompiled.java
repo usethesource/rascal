@@ -33,10 +33,6 @@ public class ReflectiveCompiled extends Reflective {
 	public ReflectiveCompiled(IValueFactory values){
 		super(values);
 	}
-
-	public IConstructor getModuleGrammar(ISourceLocation loc,  RascalExecutionContext rex) {
-		throw RascalRuntimeException.notImplemented("getModuleGrammar", null, null);
-	}
 	
 	public IValue parseCommand(IString str, ISourceLocation loc,  RascalExecutionContext rex) {
 		throw RascalRuntimeException.notImplemented("parseCommand", null, null);

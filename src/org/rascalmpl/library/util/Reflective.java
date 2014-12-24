@@ -46,13 +46,6 @@ public class Reflective {
 		super();
 		this.values = values;
 	}
-
-	// REFLECT -- copy in ReflectiveCompiled
-	public IConstructor getModuleGrammar(ISourceLocation loc, IEvaluatorContext ctx) {
-		URI uri = loc.getURI();
-		IEvaluator<?> evaluator = ctx.getEvaluator();
-		return evaluator.getGrammar(evaluator.getMonitor(), uri);
-	}
 	
 	// REFLECT -- copy in ReflectiveCompiled
 	public IValue parseCommand(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
