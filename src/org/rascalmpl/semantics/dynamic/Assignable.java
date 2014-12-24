@@ -51,6 +51,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscript;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
@@ -479,18 +480,19 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			} else if (rec.getType().isMap()) {
 				Type keyType = rec.getType().getKeyType();
 
-				if (rec.hasInferredType()
-						|| subscript.getType().isSubtypeOf(keyType)) {
-					IValue oldValue = ((IMap) rec.getValue()).get(subscript
-							.getValue());
-					__eval.__setValue(__eval.newResult(oldValue, __eval
-							.__getValue()));
-					IMap map = ((IMap) rec.getValue()).put(
-							subscript.getValue(), __eval.__getValue()
-									.getValue());
-					result = org.rascalmpl.interpreter.result.ResultFactory
-							.makeResult(rec.hasInferredType() ? rec.getType()
-									.lub(map.getType()) : rec.getType(), map,
+				if (rec.hasInferredType() || subscript.getType().isSubtypeOf(keyType)) {
+					IValue oldValue = ((IMap) rec.getValue()).get(subscript.getValue());
+					Result<IValue> oldResult = null;
+					
+					if (oldValue != null) {
+						Type oldType = rec.getType().getValueType();
+					    oldResult = makeResult(oldType, oldValue, __eval.getEvaluator());
+					    oldResult.setInferredType(rec.hasInferredType());
+					    __eval.__setValue(__eval.newResult(oldResult, __eval.__getValue()));
+					}
+					
+					IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), __eval.__getValue().getValue());
+					result = makeResult(rec.hasInferredType() ? rec.getType().lub(map.getType()) : rec.getType(), map,
 									__eval.__getEval());
 				} else {
 					throw new UnexpectedType(keyType, subscript.getType(),
@@ -616,10 +618,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			} else if (receiver.getType().isMap()) {
 				Type keyType = receiver.getType().getKeyType();
 
-				if (receiver.hasInferredType()
-						|| subscript.getType().isSubtypeOf(keyType)) {
-					IValue result = ((IMap) receiver.getValue()).get(subscript
-							.getValue());
+				if (receiver.hasInferredType()|| subscript.getType().isSubtypeOf(keyType)) {
+					IValue result = ((IMap) receiver.getValue()).get(subscript.getValue());
 
 					if (result == null) {
 						throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
