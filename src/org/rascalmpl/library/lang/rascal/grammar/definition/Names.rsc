@@ -15,13 +15,13 @@ them in four classes: normal, lex, keywords and layout. This function will
 mark all uses accordingly such that the proper interpretation can be done
 by semantic processing of parse trees
 }
-public GrammarDefinition resolve(GrammarDefinition d) {
-  cd = {n | m <- d.modules, \sort(n) <- d.modules[m].grammar.rules};
-  pcd = {n | m <- d.modules, \parameterized-sort(n,_) <- d.modules[m].grammar.rules};
-  lx = {n | m <- d.modules, \lex(n) <- d.modules[m].grammar.rules};
-  plx = {n | m <- d.modules, \parameterized-lex(n,_) <- d.modules[m].grammar.rules};
-  ks = {n | m <- d.modules, \keywords(n) <- d.modules[m].grammar.rules};
-  ls = {n | m <- d.modules, \layouts(n) <- d.modules[m].grammar.rules};
+public Grammar resolve(Grammar d) {
+  cd = {n | \sort(n) <- d.rules};
+  pcd = {n | \parameterized-sort(n,_) <- d.rules};
+  lx = {n | \lex(n) <- d.rules};
+  plx = {n | \parameterized-lex(n,_) <- d.rules};
+  ks = {n | \keywords(n) <- d.rules};
+  ls = {n | \layouts(n) <- d.rules};
   
   return visit(d) {
     case sort(n) : {
