@@ -733,6 +733,20 @@ public default Symbol getNonTerminalIterElement(Symbol i) {
 	throw "<prettyPrintType(i)> is not an iterable non-terminal type";
 }	
 
+public bool isNonTerminalOptType(\alias(_,_,Symbol at)) = isNonTerminalOptType(at);
+public bool isNonTerminalOptType(\parameter(_,Symbol tvb)) = isNonTerminalOptType(tvb);
+public bool isNonTerminalOptType(\label(_,Symbol lt)) = isNonTerminalOptType(lt);
+public bool isNonTerminalOptType(Symbol::\opt(Symbol ot)) = true;
+public default bool isNonTerminalOptType(Symbol _) = false;
+
+public Symbol getNonTerminalOptType(\alias(_,_,Symbol at)) = getNonTerminalOptType(at);
+public Symbol getNonTerminalOptType(\parameter(_,Symbol tvb)) = getNonTerminalOptType(tvb);
+public Symbol getNonTerminalOptType(\label(_,Symbol lt)) = getNonTerminalOptType(lt);
+public Symbol getNonTerminalOptType(Symbol::\opt(Symbol ot)) = ot;
+public default Symbol getNonTerminalOptType(Symbol ot) {
+	throw "<prettyPrintType(ot)> is not an optional non-terminal type";
+}
+
 public bool isStartNonTerminalType(\alias(_,_,Symbol at)) = isNonTerminalType(at);
 public bool isStartNonTerminalType(\parameter(_,Symbol tvb)) = isNonTerminalType(tvb);
 public bool isStartNonTerminalType(\label(_,Symbol lt)) = isNonTerminalType(lt);
