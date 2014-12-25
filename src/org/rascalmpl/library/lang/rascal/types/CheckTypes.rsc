@@ -2547,6 +2547,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> \<- <Express
         < cEnum, t2 > = calculatePatternType(p, cEnum, Symbol::\value());
     } else if (isNonTerminalIterType(t1)) {
     	< cEnum, t2 > = calculatePatternType(p, cEnum, getNonTerminalIterElement(t1));
+    } else if (isNonTerminalOptType(t1)) {
+    	< cEnum, t2 > = calculatePatternType(p, cEnum, getNonTerminalOptType(t1));
     } else {
         t2 = makeFailType("Type <prettyPrintType(t1)> is not enumerable", exp@\loc);
     }
