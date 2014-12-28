@@ -38,6 +38,7 @@ import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
@@ -890,6 +891,24 @@ public class Environment {
 		
 		if (!isRootScope()) return parent.getFlagsEnvironment(name);
 		return null;
+	}
+
+	public void declareConstructorKeywordParameter(Type onType, String label,
+			Type valueType) {
+		getRoot().declareConstructorKeywordParameter(onType, label, valueType);
+	}
+
+	public Set<GenericKeywordParameters> lookupGenericKeywordParameters(Type adt) {
+		return getRoot().lookupGenericKeywordParameters(adt);
+	}
+
+	public void declareGenericKeywordParameters(Type adt, Type kwTypes,
+			List<KeywordFormal> formals) {
+		getRoot().declareGenericKeywordParameters(adt, kwTypes, formals);
+	}
+
+	public Map<String, Type> getKeywordParameterTypes(Type ontype) {
+		return getRoot().getKeywordParameterTypes(ontype);
 	}
 }
 

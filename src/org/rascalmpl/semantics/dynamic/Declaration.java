@@ -92,12 +92,9 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
-			__eval.__getTypeDeclarator().declareConstructor(this,
-					__eval.getCurrentEnvt());
-			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+			eval.__getTypeDeclarator().declareConstructor(this, eval.getCurrentEnvt());
+			return ResultFactory.nothing();
 		}
 
 	}
