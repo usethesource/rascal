@@ -34,6 +34,7 @@ import org.rascalmpl.interpreter.TypeDeclarationEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -81,11 +82,15 @@ public class ConstructorFunction extends NamedFunction {
 				for (KeywordFormal kwparam : gkw.getFormals()) {
 					String name = Names.name(kwparam.getName());
 					Type kwType = gkw.getTypes().get(name);
+					
+					if (kwType == null) {
+						continue;
+					}
 					Result<IValue> kwResult;
 					
 					if (keyArgValues.containsKey(name)){
-						IValue r = keyArgValues.get(kwparam);
-
+						IValue r = keyArgValues.get(name);
+						
 						if(!r.getType().isSubtypeOf(kwType)) {
 							throw new UnexpectedKeywordArgumentType(name, kwType, r.getType(), ctx.getCurrentAST());
 						}
