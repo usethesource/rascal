@@ -38,7 +38,7 @@ public class FunctionType extends RascalType {
 	/*package*/ FunctionType(Type returnType, Type argumentTypes, Type keywordParameters) {
 		this.argumentTypes = argumentTypes.isTuple() ? argumentTypes : TF.tupleType(argumentTypes);
 		this.returnType = returnType;
-		this.keywordParameters = keywordParameters;
+		this.keywordParameters = keywordParameters.isBottom() || (keywordParameters.isTuple() && keywordParameters.getArity() == 0) ? null : keywordParameters;
 	}
 	
 	@Override
@@ -90,21 +90,21 @@ public class FunctionType extends RascalType {
 	}
 	
 	public Type getKeywordParameterTypes() {
-		return keywordParameters;
+		return keywordParameters == null ? TypeFactory.getInstance().voidType() : keywordParameters;
 	}
 	
 	
 	public Type getKeywordParameterType(String label) {
-	  return keywordParameters.getFieldType(label);
+	  return keywordParameters != null ? keywordParameters.getFieldType(label) : null;
 	}
 	
 
 	public boolean hasKeywordParameter(String label) {
-	  return keywordParameters.hasField(label);
+	  return keywordParameters != null ? keywordParameters.hasField(label) : false;
 	}
 	
 	public boolean hasKeywordParameters() {
-	  return keywordParameters != null && !keywordParameters.isBottom();
+	  return keywordParameters != null;
 	}
 	
 	@Override
