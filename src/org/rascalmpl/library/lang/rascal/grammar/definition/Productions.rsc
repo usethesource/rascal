@@ -27,7 +27,7 @@ import util::Maybe;
 // conversion functions
 
 public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
-  set[Production] prods = {prod(empty(),[],{}), prod(layouts("$default$"),[],{})};
+  set[Production] prods = {prod(Symbol::empty(),[],{}), prod(layouts("$default$"),[],{})};
   set[Symbol] starts = {};
   
   for (sd <- defs) {
@@ -83,13 +83,13 @@ private Production prod2prod(Symbol nt, Prod p) {
     case \first(Prod l, Prod r) : 
       return priority(nt,[prod2prod(nt, l), prod2prod(nt, r)]);
     case associativityGroup(\left(), Prod q) :
-      return associativity(nt, \left(), {prod2prod(nt, q)});
+      return associativity(nt, Associativity::\left(), {prod2prod(nt, q)});
     case associativityGroup(\right(), Prod q) :
-      return associativity(nt, \right(), {prod2prod(nt, q)});
+      return associativity(nt, Associativity::\right(), {prod2prod(nt, q)});
     case associativityGroup(\nonAssociative(), Prod q) :      
       return associativity(nt, \non-assoc(), {prod2prod(nt, q)});
     case associativityGroup(\associative(), Prod q) :      
-      return associativity(nt, \left(), {prod2prod(nt, q)});
+      return associativity(nt, Associativity::\left(), {prod2prod(nt, q)});
     case others(): return \others(nt);
     case reference(Name n): return \reference(nt, "<n>");
     default: throw "missed a case <p>";

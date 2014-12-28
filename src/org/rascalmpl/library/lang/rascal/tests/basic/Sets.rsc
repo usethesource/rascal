@@ -102,7 +102,7 @@ public bool isSorted(list[int] L) = !any(int i <- index(L), int j <- index(L), i
 
 test bool tst_sort(set[int] S) = isEmpty(S) || all(x <- sort(S), x in S) && size(S) == size(sort(S)) && isSorted(sort(S));
 
-test bool tst_sum(set[int] S) = sum(S) == (0 | it + x | x <- S);
+test bool tst_sum(set[int] S) = isEmpty(S) || sum(S) == (0 | it + x | x <- S);
 
 test bool tst_takeOneFrom(set[int] S) {
   if(isEmpty(S)) return true;

@@ -14,6 +14,7 @@ import lang::rascal::format::Grammar;
 import lang::rascal::format::Escape;
 import vis::Figure;
 import vis::Render;
+import vis::KeySym;
 
 import ParseTree;
 import IO;
@@ -67,7 +68,7 @@ private bool allChars(list[Tree] trees){
 }
 
 private str getChars(list[Tree] trees){
-  chars = [ c | t <- trees, char(int c) := t];
+  list[int] chars = [ c | t <- trees, char(int c) := t];
   return stringChars(chars);
 }
 

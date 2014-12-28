@@ -46,6 +46,8 @@ public Grammar grammar(set[Symbol] starts, set[Production] prods) {
   return grammar(starts, rules);
 } 
            
+Grammar grammar(type[&T <: Tree] sym)
+	= grammar({sym.symbol}, sym.definitions);
 
   
 @doc{
@@ -78,4 +80,5 @@ public rel[str, str] extends(GrammarDefinition def) {
 public rel[str,str] imports(GrammarDefinition def) {
   return {<m,i> | m <- def.modules, \module(_, imps, _ , _) := def.modules[m], i <- imps};
 }
+
 

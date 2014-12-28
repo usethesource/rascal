@@ -3,10 +3,10 @@ module demo::lang::Pico::UseDef
 import Prelude;
 import demo::lang::Pico::Abstract;
 import demo::lang::Pico::ControlFlow;
-
+ 
 set[Occurrence] usesExp(EXP e, STATEMENT s) = 
-  u:id(PicoId Id) := e ? {< u@location, Id, s>}
-                       : {< u@location, Id, s> | /u:id(PicoId Id) <- e };
+  u:id(PicoId Id1) := e ? {< u@location, Id1, s>}
+                        : {< u@location, Id2, s> | /u:id(PicoId Id2) <- e };
      
 set[Occurrence] usesStat(s:asgStat(PicoId Id, EXP e)) = usesExp(e, s);
 

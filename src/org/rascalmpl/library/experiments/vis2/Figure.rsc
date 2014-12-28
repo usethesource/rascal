@@ -6,6 +6,7 @@ import Set;
 import IO;
 import String;
 import ToString;
+import experiments::vis2::vega::Vega;
 
 /* Properties */
 
@@ -50,7 +51,9 @@ data Bind
 
 alias XYData 			= lrel[num x, num y];
 			 		 
-alias LabeledData 		= lrel[str label, num val];		
+alias LabeledData 		= lrel[str label, num val];	
+
+alias HistogramData     = tuple[int nTickMarks, list[num val] \data];		
 
 alias ErrorData			= lrel[str label, num mean, num low, num high];	
 
@@ -94,6 +97,7 @@ public data Figure(
 		// Dimensions and Alignmenting
 		
 		tuple[int,int] size = <0,0>,
+		tuple[int, int, int, int] padding = <0, 0, 0, 0>,
 		int width = 0,
 		int height = 0,
 		Position at = <0,0>,
@@ -131,10 +135,9 @@ public data Figure(
 		// Interaction
 	
 		Event event = on(),
-	
-		// Dataset for chart-like layouts
-	
-		Datasets datasets = ()
+		
+		// Tooltip
+		str tooltip = ""
 	) =
 	
 	emptyFigure()
@@ -221,15 +224,17 @@ public data Figure(
 
 // Charts
    
-   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), str orientation = "vertical", bool grouped = false, str flavor ="nvBarChart")
-      
-   | scatterPlot()
-   
-   | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[XYData] datasets = (), bool area = false, str flavor ="nvLineChart")
-     
+  | vegaChart(str dataFile = "",  VEGA() command = (){return vega();}, str \module ="experiments::vis2::vega::VegaChart", Datasets[value] datasets = ())   
+/*   
+  | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), str orientation = "vertical", bool grouped = false, str flavor ="nvBarChart") 
+ 
+  | scatterPlot()
+      | lineChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[XYData] datasets = (), bool area = false, str flavor ="nvLineChart")  
+*/ 
+    
 // Graphs
 
-   | graph(lrel[str, Figure] nodes = (), Figures edges = [], str orientation = "topDown", int nodeSep = 50, int edgeSep=10, int layerSep= 30, str flavor="layeredGraph")
+   | graph(lrel[str, Figure] nodes = [], Figures edges = [], str orientation = "topDown", int nodeSep = 50, int edgeSep=10, int layerSep= 30, str flavor="layeredGraph")
    | edge(str from, str to, str label)
    
 // Trees

@@ -16,6 +16,7 @@ import util::Maybe;
  
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
+import lang::rascal::grammar::Lookahead;
 // import lang::rascal::grammar::analyze::Recursion;
 
 public alias Priorities = rel[Production father, Production child];
@@ -130,7 +131,7 @@ public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] 
         return <pr, as>; 
       }
     case \lookahead(_,_,q) :
-      return doNotNest(q); 
+      return doNotNest(q, lefties, righties); 
     case priority(_, list[Production] levels) : 
       return priority(levels, lefties, righties);
     case \associativity(_, Associativity a, set[Production] alts) : 

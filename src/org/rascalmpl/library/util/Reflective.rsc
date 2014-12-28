@@ -15,17 +15,12 @@ module util::Reflective
 import Exception;
 import Message;
 import ParseTree;
-import Grammar;
 import IO;
 
 public Tree getModuleParseTree(str modulePath) {
     mloc = getModuleLocation(modulePath);
     return parseModule(mloc);
 }
-
-@javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to get back the grammars imported by \mod}
-public java Grammar getModuleGrammar(loc \mod);
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to get back the parse tree for the given command}
@@ -50,5 +45,9 @@ public java Tree parseModule(loc location);
 public java Tree parseModule(loc location, list[loc] searchPath);
 
 @javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to resolve a module name into a source location}
+@reflect{Uses Evaluator to resolve a module name in the Rascal search path}
 public java loc getModuleLocation(str modulePath);
+
+@javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Uses Evaluator to resolve a path name in the Rascal search path}
+public java loc getSearchPathLocation(str filePath);

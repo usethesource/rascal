@@ -21,7 +21,7 @@ import util::Reflective;
 import ParseTree;
 import Node;
 
-list[loc] libSearchPath = [|std:///|, |eclipse-std:///|];
+list[loc] libSearchPath = [|clib-rascal:///|, |clib-rascal-eclipse:///|];
 
 // Rascal utilities
 // ------------------ Extract and replace concepts from Rascal sources external to the Tutor ----------------
@@ -149,8 +149,8 @@ private str getDataOrAliasSignature(Declaration decl){
 private str getDataDoc(str mname, Declaration decl, list[str] sigs){
     //println("getDataDoc: <decl>, <sigs>");
 	doc = getDoc(decl.tags);
-	name = normalizeName("<decl.user>");
-	ins =  "<makeName(name)>
+	nname = normalizeName("<decl.user>");
+	ins =  "<makeName(nname)>
 	       'Types: 
 	       '\<listing\>
 	       '<intercalate("\n", sigs)>
@@ -235,8 +235,8 @@ private str getAnnotationSignature(Declaration decl){
 private str getAnnotationDoc(str mname, Declaration decl, str sig){
     //println("getAnnotationDoc: <decl>, <sig>");
 	doc = getDoc(decl.tags);
-	name = normalizeName("<decl.name>");
-	ins =  "<makeName(name)>
+	nname = normalizeName("<decl.name>");
+	ins =  "<makeName(nname)>
 	       'Types: 
 	       '\<listing\>
 	       '<sig>
@@ -256,16 +256,16 @@ private tuple[int,str] extractAnnotationDeclaration(int current, bool writing){
   decl = declarations[current];
   annoType = "<decl.annoType>";
   onType   = "<decl.onType>";
-  name     = de_escape("<decl.name>");
-  //println("name = <name>");
-  key = "<libRoot>/<moduleName>/<name>";
+  nname     = de_escape("<decl.name>");
+  //println("nname = <nname>");
+  key = "<libRoot>/<moduleName>/<nname>";
   doc = "";
   if(!contentMap[key]?){
      //println("extractAnnotationDeclaration: <name>");
      sig = getAnnotationSignature(decl);
      doc = getAnnotationDoc(moduleName, decl, sig);
      if(doc != "" && writing){  	
-	    writeFile(courseDir + libRoot + moduleName + name + remoteLoc, decl@\loc);
+	    writeFile(courseDir + libRoot + moduleName + nname + remoteLoc, decl@\loc);
 	    contentMap[key] = doc;
 	 }
   }
@@ -316,7 +316,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   return contentMap;
 
   }
-  catch PathNotFound(_): {
+  catch PathNotFound(loc l): {
     println("Referred module has disappeared: <L>, as referred to in <root>");
     return ();
   }

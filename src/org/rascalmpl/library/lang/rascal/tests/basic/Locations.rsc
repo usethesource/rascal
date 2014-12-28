@@ -10,12 +10,9 @@ list[int] makeValidSchemeChars() = [singleChar("a")..singleChar("z")] + [singleC
 	+ [singleChar("0")..singleChar("9")] + [singleChar("+"), singleChar("-"), singleChar(".")]
 	;
 	
-list[int] validSchemeChars = makeValidSchemeChars();
-
-// TODO: the compiler cannot handle this initalization
-//list[int] validSchemeChars = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")] 
-//	+ [singleChar("0")..singleChar("9")] + [singleChar("+"), singleChar("-"), singleChar(".")]
-//	;
+list[int] validSchemeChars = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")] 
+	+ [singleChar("0")..singleChar("9")] + [singleChar("+"), singleChar("-"), singleChar(".")]
+	;
 
 str createValidScheme(str s) {
 	if (s == "")
@@ -80,4 +77,7 @@ test bool supportSquareBraces(loc l) {
 	return newL.authority == newAuth;
 }
 
- 
+test bool noFile()    = |tmp://X|.file == "";
+test bool rootPath()  = |tmp://X|.path == "/";
+test bool rootPath3() = |tmp:///|.path == "/";
+test bool rootPath4() = |tmp://X/|.path == "/";

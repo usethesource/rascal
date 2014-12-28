@@ -544,8 +544,14 @@ public class TypeReifier {
 
 					// make sure to find the type by the uninstantiated adt
 					Type adt = store.lookupAbstractDataType(type.getName());
-					for (Type cons : store.lookupAlternatives(adt)) {
-						cons.accept(this);
+					
+					if (adt != null) {
+						// somebody else (the type checker) should report
+						// that the ADT was undeclared. Here it does not matter 
+						// much, something useful but incomplete will be produced.
+						for (Type cons : store.lookupAlternatives(adt)) {
+							cons.accept(this);
+						}
 					}
 				}
 				

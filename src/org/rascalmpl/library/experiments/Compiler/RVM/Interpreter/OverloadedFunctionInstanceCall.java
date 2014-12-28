@@ -43,7 +43,7 @@ public class OverloadedFunctionInstanceCall {
 				return new OverloadedFunctionInstanceCall(cf, functions, constructors, env, types, arity);
 			}
 		}
-		throw new CompilerError("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn);
+		throw new CompilerError("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn, cf);
 	}
 	
 	public Frame nextFrame(List<Function> functionStore) {

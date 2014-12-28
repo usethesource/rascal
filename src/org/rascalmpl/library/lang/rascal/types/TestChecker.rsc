@@ -183,22 +183,27 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
 
 	// Now, parse each statement, then check them in turn, using the environment
 	// build above (including all imports and declarations).	
-	rt = \void();
-	list[Tree] stmts = [ ];
-	try {
-		if ((Statement)`{ < Statement* sl > }` := parseStatement("{ <statementsString> }"))
-			stmts = [ s | s <- sl ];			
-	} catch perror : {
-		c = addScopeError(c, "Cannot parse statement <statementsString>",  |file:///tmp/CheckStatementsString.rsc|);
+	if (RSimpleName("CheckStatementsString") in c.modEnv) {
+		rt = Symbol::\void();
+		list[Tree] stmts = [ ];
+		try {
+			if ((Statement)`{ < Statement* sl > }` := parseStatement("{ <statementsString> }"))
+				stmts = [ s | s <- sl ];			
+		} catch perror : {
+			c = addScopeError(c, "Cannot parse statement <statementsString>",  |file:///tmp/CheckStatementsString.rsc|);
+		}
+		
+		// Re-enter module scope
+		c.stack = c.modEnv[RSimpleName("CheckStatementsString")] + c.stack;
+		
+		for (Statement stmt <- stmts) < c, rt > = checkStmt(stmt, c);
+		
+		c.stack = tail(c.stack);
+
+		return < c, rt >;
 	}
 	
-	// Re-enter module scope
-	c.stack = c.modEnv[RSimpleName("CheckStatementsString")] + c.stack;
-	
-	for (stmt <- stmts) < c, rt > = checkStmt(stmt, c);
-	
-	c.stack = tail(c.stack);
-	return < c, rt >;
+	return < c, Symbol::\void() >;
 }
 
 public Symbol getTypeForName(Configuration c, str name) {
@@ -213,7 +218,7 @@ public set[RName] getVariablesInScope(Configuration c) {
 }
 
 public set[RName] getFunctionsInScope(Configuration c) {
-	return { n | l <- c.fcvEnv, i:function(n,_,_,_,_,_) := c.store[c.fcvEnv[l]] };
+	return { n | l <- c.fcvEnv, i:function(n,_,_,_,_,_,_,_) := c.store[c.fcvEnv[l]] };
 }
 
 public set[AbstractValue] getPatternVariableValues(Configuration c) {

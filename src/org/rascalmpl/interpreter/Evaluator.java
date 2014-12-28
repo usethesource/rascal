@@ -33,7 +33,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -57,7 +56,6 @@ import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.EvalCommand;
-import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
@@ -107,6 +105,7 @@ import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.recovery.Recoverer;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInput;
+import org.rascalmpl.uri.CompressedStreamResolver;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
@@ -246,6 +245,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 		resolverRegistry.registerInputOutput(new HomeURIResolver());
 		resolverRegistry.registerInputOutput(new TempURIResolver());
+		
+		resolverRegistry.registerInputOutput(new CompressedStreamResolver(resolverRegistry));
 		
 		// here we have code that makes sure that courses can be edited by
 		// maintainers of Rascal, using the -Drascal.courses=/path/to/courses property.
@@ -566,7 +567,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       AbstractFunction main = func.getFunctions().get(0);
       
       if (func.getFunctions().size() > 1) {
-        throw new CommandlineError("should only have one main function", main);
+    	  func.getEval().getMonitor().warning("should only have one main function.", modEnv.getLocation());
       }
       
       if (main.getArity() == 1) {
@@ -595,11 +596,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   }
 
   public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
-    Map<String, Expression> kwps = func.getKeywordParameterDefaults();
     Map<String, Type> expectedTypes = new HashMap<String,Type>();
+    Type kwTypes = func.getKeywordArgumentTypes();
     
-    for (Entry<String, Expression> kwp : kwps.entrySet()) {
-      expectedTypes.put(kwp.getKey(), kwp.getValue().getType().typeOf(func.getEnv(), false, func.getEval()));
+    for (String kwp : kwTypes.getFieldNames()) {
+      expectedTypes.put(kwp, kwTypes.getFieldType(kwp));
     }
 
     Map<String, IValue> params = new HashMap<String,IValue>();
@@ -816,20 +817,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor getGrammar(Environment env) {
 		ModuleEnvironment root = (ModuleEnvironment) env.getRoot();
 		return getParserGenerator().getGrammar(monitor, root.getName(), root.getSyntaxDefinition());
-	}
-	
-	@Override
-	public IConstructor getGrammar(IRascalMonitor monitor, URI uri) {
-		IRascalMonitor old = setMonitor(monitor);
-		try {
-			ParserGenerator pgen = getParserGenerator();
-			String main = uri.getAuthority();
-			ModuleEnvironment env = getHeap().getModule(main);
-			return pgen.getGrammar(monitor, main, env.getSyntaxDefinition());
-		}
-		finally {
-			setMonitor(old);
-		}
 	}
 	
 	public IValue diagnoseAmbiguity(IRascalMonitor monitor, IConstructor parseTree) {
@@ -1438,12 +1425,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 */
 	@Override
 	public IConstructor parseModule(IRascalMonitor monitor, URI location) throws IOException{
-	  // TODO remove this code and replace by facility in rascal-eclipse to retrieve the
-	  // correct file references from a rascal:// URI
-//	  URI resolved = rascalPathResolver.resolve(location);
-//	  if(resolved != null){
-//	    location = resolved;
-//	  }
+	  URI resolved = rascalPathResolver.resolve(location);
+	  if(resolved != null){
+	    location = resolved;
+	  }
 		return parseModule(monitor, getResourceContent(location), location);
 	}
 	

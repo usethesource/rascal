@@ -12,10 +12,13 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.junit.runner.Description;
@@ -34,6 +37,7 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.TestExecutor;
 import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.IURIInputStreamResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -79,7 +83,9 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		System.err.println("*********************************************");
 		System.err.println("**** Loading Compiler (takes a minute!)  ****");
 		System.err.println("**** Needs JVM arguments: -Xms64m -Xmx1G ****");
+		
 		evaluator.doImport(monitor, "experiments::Compiler::Execute");		
+		
 		System.err.println("****          Compiler Loaded            ****");
 		System.err.println("*********************************************");
 	}  
@@ -123,10 +129,43 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		desc = null;
 		testsPerModule = null;
 		ignoredPerModule = null;
+		totalTests = 0;
 	}
 	
 	static protected String computeTestName(String name, ISourceLocation loc) {
 		return name + ": <" + loc.getOffset() +"," + loc.getLength() +">";
+	}
+
+	static protected List<String> getRecursiveModuleList(URI root, URIResolverRegistry reg) throws IOException {
+		List<String> result = new ArrayList<>();
+		Queue<URI> todo = new LinkedList<>();
+		todo.add(root);
+		while (!todo.isEmpty()) {
+			URI currentDir = todo.poll();
+			String prefix = currentDir.getPath().replaceFirst(root.getPath(), "").replaceFirst("/", "").replaceAll("/", "::");
+			for (String ent : reg.listEntries(currentDir)) {
+				if (ent.endsWith(".rsc")) {
+					if (prefix.isEmpty()) {
+						result.add(ent.replace(".rsc", ""));
+					}
+					else {
+						result.add(prefix + "::" + ent.replace(".rsc", ""));
+					}
+				}
+				else {
+					URI possibleDir;
+					try {
+						possibleDir = URIUtil.changePath(currentDir, currentDir.getPath() + "/" + ent);
+						if (reg.isDirectory(possibleDir)) {
+							todo.add(possibleDir);
+						}
+					} catch (URISyntaxException e) {
+					}
+				}
+			}
+		}
+		return result;
+		
 	}
 	
 	@Override
@@ -137,13 +176,10 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		this.desc = desc;
 
 		try {
-			String[] modules = evaluator.getResolverRegistry().listEntries(URIUtil.create("rascal", "", "/" + prefix.replaceAll("::", "/")));
+			List<String> modules = getRecursiveModuleList(URIUtil.create("rascal", "", "/" + prefix.replaceAll("::", "/")), evaluator.getResolverRegistry());
 
 			for (String module : modules) {
-				if (!module.endsWith(".rsc")) {
-					continue;
-				}
-				String name = prefix + "::" + module.replaceFirst(".rsc", "");
+				String name = prefix + "::" + module;
 				
 				evaluator.doImport(new NullRascalMonitor(), name);
 				Description modDesc = Description.createSuiteDescription(name);

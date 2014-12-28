@@ -37,7 +37,7 @@ public Symbol delabel(Symbol s) = visit(s) { case label(_,t) => t };
 
 public Symbol sym2symbol(Sym sym) {
   switch (sym) {
-    case nonterminal(Nonterminal n) : 
+    case lang::rascal::\syntax::Rascal::nonterminal(Nonterminal n) : 
       return sort("<n>");
     case \start(Nonterminal n) : 
       return \start(sort("<n>"));

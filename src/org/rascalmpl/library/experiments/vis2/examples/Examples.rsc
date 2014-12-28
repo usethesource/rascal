@@ -10,6 +10,11 @@ import util::Math;
 import experiments::vis2::\data::Nederland;
 import experiments::vis2::\data::Steden;
 
+import experiments::vis2::vega::VegaChart;
+import experiments::vis2::vega::ParameterTypes;
+
+
+      					  
 
 // ********************** Examples **********************
 
@@ -910,77 +915,233 @@ Datasets[LabeledData] exampleBarData() =
      						<"F Label" , -98.079782601442>,
       						<"G Label" , -13.925743130903>,
       						<"H Label" , -5.1387322875705>
-      					  ]);
+      				   ]);
+ /*     				   
+ public map[str, LabeledData] stackedData = (
+   "0": [
+    <"0", 28>,
+    <"1", 43>,
+    <"2", 81>,
+    <"3", 19>,
+    <"4", 52>,
+    <"5", 24>,
+    <"6", 87>,
+    <"7", 17>,
+    <"8", 68>,
+    <"9", 49>
+    ],
+   "1": [
+     <"0", 55>,
+     <"1", 91>,
+     <"2", 53>,
+     <"3", 87>,
+     <"4", 48>,
+     <"5", 49>,
+     <"6", 66>,
+     <"7", 27>,
+     <"8", 16>,
+     <"9", 15>
+   ]
+);
+*/
 
-void barChart1(){
-	ex("barChart1", barChart(datasets=exampleBarData()));
+ public map[str, XYData] stackedData = (
+   "0": [
+    <0, 28>,
+    <1, 43>,
+    <2, 81>,
+    <3, 19>,
+    <4, 52>,
+    <5, 24>,
+    <6, 87>,
+    <7, 17>,
+    <8, 68>,
+    <9, 49>
+    ],
+   "1": [
+     <0, 55>,
+     <1, 91>,
+     <2, 53>,
+     <3, 87>,
+     <4, 48>,
+     <5, 49>,
+     <6, 66>,
+     <7, 27>,
+     <8, 16>,
+     <9, 15>
+   ]
+);
 
+
+
+void stackedBarChart(){       
+        ex("stackedBarChart", vegaChart(size=<500,200>, padding = <10,100,10,10>
+             ,datasets=stackedData,  command= 
+              stackedBar(
+                title=("x":"index", "y":"N","color":"p") 
+               ,legends = ("color":"fill")
+               ,tickLabels=("x":tickLabels(angle=45))
+               ,groupOrder =   ["0", "1"], gap = -10        
+              )
+         )); 
+                
 }
 
-void barChart2(){
-	ex("barChart2", barChart(datasets=exampleBarData(), size=<600,600>));
+str p = "\<";
+
+list[str] order = ["\<20", "20-45","45-65","65-80","\>80"];
+
+void nederlandBarChart(){       
+        ex("nederlandBarChart", vegaChart(size=<500,200>, padding = <10,100,10,10>
+             ,datasets=exampleNederland(),  command= 
+              stackedBar(
+                title=("x":"index", "y":"N","color":"p") 
+               ,legends = ("color":"fill")
+               ,tickLabels=("x":tickLabels(angle=90, title_dy = 40))
+               ,groupOrder = order            
+              )
+         ));        
 }
 
-void barChart3(){
-	ex("barChart3", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, datasets=exampleBarData())]));
+void groupedBarChart(){
+        ex("groupedBarChart", vegaChart(
+           size=<500,400>, datasets=stackedData, command=
+           groupedBar(
+              title=("x":"index", "y":"N","color":"p") 
+             ,legends = ("color":"fill")
+             ,tickLabels=("x":tickLabels(angle=90))
+             )
+           )
+          );
 }
 
-void vegaBarChart1(){
-	ex("vegaBarChart1", barChart(size=<800,800>, datasets=exampleNederland(), flavor="vegaBarChart",
-	orientation="vertical", grouped=false));
+
+
+void groupedHistogram(){
+        ex("groupedHistogram", vegaChart(   
+           size=<400,400>, 
+          //   datasets=stackedData,      
+         datasets = ("sin":<10, [round(sin(x/100),0.01)| x <- [0.0, 1.0 .. 100.0]]>), 
+          command=
+           histogram(
+              title=("x":"index", "y":"N","color":"p") 
+             ,legends = ("color":"fill")
+             ,tickLabels=("x":tickLabels(angle=90))
+             )
+           )
+          );
 }
 
-void vegaBarChart2(){
-	ex("vegaBarChart2", barChart(size=<1600,800>, datasets=exampleSteden(), flavor="vegaBarChart",
-	orientation="vertical", grouped=true));
+void stackedAreaChart(){
+        ex("stackedAreaChart", vegaChart(
+        size=<500,200>, datasets=stackedData,  command=stackedArea(grid = true)));
 }
 
-/********************* lineChart ******************************/
+void lineChart(){
+        ex("lineChart", vegaChart(size=<500,200>, datasets=stackedData, command=linePlot(grid=true,legends = ("color":"fill"),
+        interpolate=("all":"monotone"))));
+}
 
 Datasets[XYData] sinAndCos() =
 	("Sine Wave":         [<x, round(sin(x/10),0.01)>               | x <- [0.0, 1.0 .. 100.0]],
 	 "Cosine Wave":       [<x, round(0.5 * cos(x/10), 0.01)>        | x <- [0.0, 1.0 .. 100.0]],
 	 "Another sine wave": [<x, round(0.25 * sin(x/10) + 0.5, 0.01)> | x <- [0.0, 1.0 .. 100.0]]
 	);
+	
+//public str vg() = vegaToJSON(linePlot(grid=true, interpolate=("all":"monotone"), 
+//           title=("x":"Time (s)", "y":"Voltage(v)"),
+//           ticks = ("y":4),
+//           legends = ("color":"fill"))());
 
-void lineChart1(){
-	ex("lineChart1", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
-							   yAxis=axis(label="Volutage (v)", tick=".02f"),	
-							   datasets= sinAndCos()));
+
+
+void sinAndCosChart(){
+        ex("sinAndCosChart", vegaChart(size=<500,200>, datasets=sinAndCos(), command=linePlot(grid=true, interpolate=("all":"monotone"), 
+           title=("x":"Time (s)", "y":"Voltage(v)"),
+           ticks = ("y":4),
+           legends = ("color":"fill"))));
 }
 
-void lineChart2(){
-	ex("lineChart2", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
-							   yAxis=axis(label="Volutage (v)", tick=".02f"),	
-							   datasets= sinAndCos(), size=<600,600>));
+void scatterChart(){
+        ex("scatterChart", vegaChart(size=<500,200>, datasets=stackedData, command=linePlot(shape=("1":"square", "0":"circle"), 
+                           interpolate=("all":"monotone"), legends = ("color":"fill"))));
 }
 
-void lineChart3(){
-	ex("lineChart3", hcat(figs=[box(fillColor="yellow", size=<200,100>),
-								lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
-							   			  yAxis=axis(label="Volutage (v)", tick=".02f"),	
-							   			  datasets= sinAndCos(), 
-							   			  size=<400,400>)
-	]));
+void stedenBarChart(){
+        ex("stedenBarChart", vegaChart(size=<1000,300>, datasets=exampleSteden(), command=
+        groupedBar(
+             title=("x":"steden", "y":"N","color":"p") 
+             ,legends = ("color":"fill")
+             ,tickLabels=("x": tickLabels(angle=90, title_dy = 60, dx = 1),
+                          "y": tickLabels(title_dy = -40)
+                          )        
+             ,palette =  color12X
+             ,format = ("y": "3s")
+             )
+        ));
 }
+     
 
-void lineChart4(){
-	ex("lineChart4", box(fillColor="whitesmoke", lineWidth=4, lineColor="blue",
-					     fig=hcat(figs=[barChart(size=<400,300>, dataset=exampleBarData()),
-								lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
-							   			  yAxis=axis(label="Volutage (v)", tick=".02f"),	
-							   			  datasets= sinAndCos(), 
-							   			  size=<400,400>)
-	])));
-}
+//void barChart1(){
+//	ex("barChart1", barChart(datasets=exampleBarData()));
+//}
+//
+//void barChart2(){
+//	ex("barChart2", barChart(datasets=exampleBarData(), size=<600,600>));
+//}
+//
+//void barChart3(){
+//	ex("barChart3", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, datasets=exampleBarData())]));
+//}
 
-void lineChart5(){
-	ex("lineChart5", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
-							   yAxis=axis(label="Volutage (v)", tick=".02f"),	
-							   datasets= sinAndCos(), 
-							   flavor="nvLineWithFocusChart",
-							   size=<400,400>));
-}
+
+
+
+
+
+
+/********************* lineChart ******************************/
+
+
+//
+//void lineChart1(){
+//	ex("lineChart1", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+//							   yAxis=axis(label="Volutage (v)", tick=".02f"),	
+//							   datasets= sinAndCos()));
+//}
+//
+//void lineChart2(){
+//	ex("lineChart2", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+//							   yAxis=axis(label="Volutage (v)", tick=".02f"),	
+//							   datasets= sinAndCos(), size=<600,600>));
+//}
+//
+//void lineChart3(){
+//	ex("lineChart3", hcat(figs=[box(fillColor="yellow", size=<200,100>),
+//								lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+//							   			  yAxis=axis(label="Volutage (v)", tick=".02f"),	
+//							   			  datasets= sinAndCos(), 
+//							   			  size=<400,400>)
+//	]));
+//}
+//
+//void lineChart4(){
+//	ex("lineChart4", box(fillColor="whitesmoke", lineWidth=4, lineColor="blue",
+//					     fig=hcat(figs=[barChart(size=<400,300>, dataset=exampleBarData()),
+//								lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+//							   			  yAxis=axis(label="Volutage (v)", tick=".02f"),	
+//							   			  datasets= sinAndCos(), 
+//							   			  size=<400,400>)
+//	])));
+//}
+//
+//void lineChart5(){
+//	ex("lineChart5", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+//							   yAxis=axis(label="Volutage (v)", tick=".02f"),	
+//							   datasets= sinAndCos(), 
+//							   flavor="nvLineWithFocusChart",
+//							   size=<400,400>));
+//}
 
 /********************* graph ******************************/
 
@@ -1012,15 +1173,15 @@ void graph3(){
 							 ]));
 }
 
-void graph4(){
-	ex("graph4", hcat(figs=[ barChart(size=<400,300>, dataset=exampleBarData()),
-						     graph(nodes=nodes1, edges=edges1),
-					         lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
-							   		   yAxis=axis(label="Volutage (v)", tick=".02f"),	
-							   		   dataset= sinAndCos(), 
-							   		   size=<400,400>)
-					], gap=<50,50>));
-}
+//void graph4(){
+//	ex("graph4", hcat(figs=[ barChart(size=<400,300>, dataset=exampleBarData()),
+//						     graph(nodes=nodes1, edges=edges1),
+//					         lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+//							   		   yAxis=axis(label="Volutage (v)", tick=".02f"),	
+//							   		   dataset= sinAndCos(), 
+//							   		   size=<400,400>)
+//					], gap=<50,50>));
+// }
 
 map[str,Figure] nodes2 =
         ("A": box(size=<20,20>, fillColor="green"),
@@ -1175,9 +1336,9 @@ data COUNTER = COUNTER(int counter);
 int f(str event, str utag, int x) {if (event=="click") {println("aap"); return x+1;} else return x;}
 
 void counter1(){	
-	render("counter1",  #COUNTER, COUNTER(666), Figure (str event, str uutag, COUNTER m) {
+	render("counter1",  #COUNTER, COUNTER(666), Figure (str event, str utag, COUNTER m) {
 			return
-				vcat(figs=[ box(fig=text("Click me", event=on("click", bind(m.counter, f(event, m.counter))), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
+				vcat(figs=[ box(fig=text("Click me", event=on("click", bind(m.counter, f(event, utag, m.counter))), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
 					        text(m.counter, size=<150,50>,fontSize=30)
 				     ], align=topLeft);
 			});
@@ -1202,7 +1363,7 @@ void counter3(){
 	
 	render("counter3",  #COUNTER, COUNTER(666), Figure (str event, str utag, COUNTER m) {
 			return
-				vcat(figs=[ buttonInput(trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, f(event, m.counter))), size=<80,40>),
+				vcat(figs=[ buttonInput(trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, f(event, utag, m.counter))), size=<80,40>),
 					   text(m.counter, size=<150,50>,fontSize=30)
 				     ]);
 			});
@@ -1428,6 +1589,7 @@ void visible2(){
 				 gap=<30,30>);
 				 });
 }
+
 
 // Tooltip
 

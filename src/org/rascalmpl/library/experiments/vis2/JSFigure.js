@@ -239,7 +239,7 @@ Figure.getDrawForComponent("lineChart", "nvLineChart")
 This assumes (and checks!) that the function Figure.drawFunction.nvLineChart exists.
 ***********************************************************************************/
 
-Figure.components = {barChart: [], lineChart: [], graph: []};
+Figure.components = {barChart: [], lineChart: [], graph: [], vega: []};
 
 
 Figure.registerComponent = function(componentType, flavor){
@@ -488,6 +488,7 @@ function askServer(path, params) {
             //alert(params);
             
             var res = JSON.parse(responseText);
+            // alert(JSON.stringify(res));
             var area = d3.select("#figurearea svg");
             if(!area.empty()){
               try { area.remove(); } catch(e) { console.log("askServer", e); };
@@ -548,6 +549,9 @@ Figure.bboxFunction.box = function(selection) {
  	figure.select = selection;
  	figure.svg = selection.append("rect");
 	figure.svg = setFillAndStrokeStyles(figure, figure.svg);
+	if (figure.hasOwnProperty("tooltip")) {
+	    figure.svg.append("svg:title").text(figure.tooltip); // Bert
+	    }
     if (figure.hasOwnProperty("inner")) {
         var inner = figure.inner;
         // console.log(inner);

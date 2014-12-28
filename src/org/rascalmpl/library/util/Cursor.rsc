@@ -4,12 +4,12 @@ alias Path = list[Nav];
 
 data Nav
   = root(str name)
+  | field(int position)    // tuples
+  | argument(int position) // nodes
+  | element(int index)     // lists
   | field(str name)
-  | field(int position)
-  | argument(int position)
   | argument(str name)
   | keywordParam(str name)
-  | element(int index)
   | sublist(int from, int to)
   | lookup(value key)
   | select(list[int] indices)

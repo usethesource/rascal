@@ -96,6 +96,6 @@ private bool quotable(Symbol x) {
        && \layouts(_) !:= x
        && \keywords(_) !:= x
        && \start(_) !:= x
-       && \parameterized-sort(_,[\parameter(_),_*]) !:= x
-       && \parameterized-lex(_,[\parameter(_),_*]) !:= x;
+       && \parameterized-sort(_,[\parameter(_,_),*_]) !:= x
+       && \parameterized-lex(_,[\parameter(_,_),*_]) !:= x;
 }

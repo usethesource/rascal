@@ -16,6 +16,7 @@ package org.rascalmpl.library.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -36,7 +37,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 public class Reflective {
-	private final IValueFactory values;
+	protected final IValueFactory values;
 	private Evaluator cachedEvaluator;
 	private int robin = 0;
 	private static final int maxCacheRounds = 500;
@@ -45,23 +46,20 @@ public class Reflective {
 		super();
 		this.values = values;
 	}
-
-	public IConstructor getModuleGrammar(ISourceLocation loc, IEvaluatorContext ctx) {
-		URI uri = loc.getURI();
-		IEvaluator<?> evaluator = ctx.getEvaluator();
-		return evaluator.getGrammar(evaluator.getMonitor(), uri);
-	}
 	
+	// REFLECT -- copy in ReflectiveCompiled
 	public IValue parseCommand(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
 		IEvaluator<?> evaluator = ctx.getEvaluator();
 		return evaluator.parseCommand(evaluator.getMonitor(), str.getValue(), loc.getURI());
 	}
 
+	// REFLECT -- copy in ReflectiveCompiled
 	public IValue parseCommands(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
 		IEvaluator<?> evaluator = ctx.getEvaluator();
 		return evaluator.parseCommands(evaluator.getMonitor(), str.getValue(), loc.getURI());
 	}
 	
+	// REFLECT -- copy in ReflectiveCompiled
 	public IValue parseModule(ISourceLocation loc, IEvaluatorContext ctx) {
 		try {
 			Evaluator ownEvaluator = getPrivateEvaluator(ctx);
@@ -97,11 +95,13 @@ public class Reflective {
 		return cachedEvaluator;
 	}
 	
+	// REFLECT -- copy in ReflectiveCompiled
 	public IValue parseModule(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
 		Evaluator ownEvaluator = getPrivateEvaluator(ctx);
 		return ownEvaluator.parseModule(ownEvaluator.getMonitor(), str.getValue().toCharArray(), loc.getURI());
 	}
 	
+	// REFLECT -- copy in ReflectiveCompiled
 	public IValue parseModule(ISourceLocation loc, final IList searchPath, IEvaluatorContext ctx) {
     final Evaluator ownEvaluator = getPrivateEvaluator(ctx);
     final URIResolverRegistry otherReg = ctx.getResolverRegistry();
@@ -187,6 +187,7 @@ public class Reflective {
     }
 	}
 	
+	// REFLECT -- copy in ReflectiveCompiled
 	public IValue getModuleLocation(IString modulePath, IEvaluatorContext ctx) {
 		URI uri = ctx.getEvaluator().getRascalResolver().resolve(URIUtil.createRascalModule(modulePath.getValue()));
 		if (uri == null) {
@@ -194,4 +195,44 @@ public class Reflective {
 		}
 		return ctx.getValueFactory().sourceLocation(uri);
 	}
+	
+	// REFLECT -- copy in ReflectiveCompiled
+	public ISourceLocation getSearchPathLocation(IString path, IEvaluatorContext ctx) {
+		String value = path.getValue();
+		
+		if (path.length() == 0) {
+			throw RuntimeExceptionFactory.io(values.string("File not found in search path: [" + path + "]"), null, null);
+		}
+		
+		if (!value.startsWith("/")) {
+			value = "/" + value;
+		}
+		
+		try {
+			URI uri = ctx.getEvaluator().getRascalResolver().resolve(URIUtil.create("rascal", "", value));
+			if (uri == null) {
+				URI parent = URIUtil.getParentURI(URIUtil.createFile(value));
+				
+				if (parent == null) {
+					// if the parent does not exist we are at the root and we look up the first path contributor:
+					parent = URIUtil.createFile("/"); 
+				}
+				
+				// here we recurse on the parent to see if it might exist
+				ISourceLocation result = getSearchPathLocation(values.string(parent.getPath()), ctx);
+				
+				if (result != null) {
+					String child = URIUtil.getURIName(URIUtil.createFile(value));
+					return values.sourceLocation(URIUtil.getChildURI(result.getURI(), child));
+				}
+				
+				throw RuntimeExceptionFactory.io(values.string("File not found in search path: " + path), null, null);
+			}
+
+			return ctx.getValueFactory().sourceLocation(uri);
+		} catch (URISyntaxException e) {
+			throw  RuntimeExceptionFactory.malformedURI(value, null, null);
+		}
+	}
+
 }

@@ -4,6 +4,7 @@ import experiments::vis2::Figure;
 import experiments::vis2::Translate;
 import util::Webserver;
 import util::HtmlDisplay;
+import util::Eval;
 import IO;
 import List;
 import Map;
@@ -11,6 +12,8 @@ import Set;
 import util::Cursor;
 import lang::json::IO;
 import Type;
+import Exception;
+import experiments::vis2::vega::Vega;
 
 /************************* Figure server *********************************
  This server responds to two requests:
@@ -35,7 +38,7 @@ public map[str, Descriptor] visualizations = ();
 /********************** handle page requests ********************/
 
 Response page1(Method method, str path, map[str, str] parameters){ // Debugging only
-	println("page1: <site>, <method>, <path>, <parameters>");
+	// println("page1: <site>, <method>, <path>, <parameters>");
 	return page(method, path, parameters);
 }
 
@@ -86,12 +89,13 @@ res = "\<html\>
 		'\</body\>
 		'\</html\>
 		";
-	println(res);
+	// println(res);
 	return response(res);
 }
 
 Response page(post(), /^\/initial_figure\/<name:[a-zA-Z0-9_]+>/, map[str, str] parameters) {
-	println("post: initial_figure: <name>, <parameters>");
+	// println("post: initial_figure: <name>, <parameters>");
+	// println(get_initial_figure(name));
 	return response(get_initial_figure(name));
 }
 
@@ -114,6 +118,24 @@ default Response page(post(), str path, map[str, str] parameters){
 default Response page(!get(), str path, map[str, str] parameters) {
   throw "invalid request <path> with <parameters>";
 }
+
+Response page(get(), /^\/vegaJSON\/<name:[a-zA-Z0-9_:]+>/, 
+      map[str, str] parameters) {
+      if(visualizations[name]?){
+		    descr = visualizations[name];
+		    // println("get: descr: <descr>");
+		    VEGA s = descr.figure.command();
+		    // println(s);
+		    // println(vegaToJSON(s));
+		    return response(vegaToJSON(s));
+		    }
+      else {
+    	  throw "get_initial_figure: visualization <name> unknown";
+    	  }
+    }
+   
+        
+
 
 /********************** web server creation ********************/
 
@@ -150,9 +172,8 @@ public void render(str name, type[&T] model_type, &T model, Figure (str event, s
 }
 
 public void render(str name, type[&T] model_type, &T model, Figure (str event, str utag, &T model) visualize, &T (&T model) transform){
-    println("render: <model_type> <trCursor(makeCursor(model))>");
+    // println("render: <model_type> <trCursor(makeCursor(model))>");
 	f = visualize("init", "all", makeCursor(model));
-	// println("render: <figToJSON(f, getSite())>");
 	visualizations[name] = descriptor(name, model_type, model, visualize, transform, f);
 	println(getSite());
 	htmlDisplay(site /*+ "?name=<name>"*/);
@@ -161,8 +182,7 @@ public void render(str name, type[&T] model_type, &T model, Figure (str event, s
 /********************** get_initial_figure **********************/
 
 private str get_initial_figure(str name){
-	// println("get_initial_figure: <name>");
-	if(visualizations[name]?){
+	if(visualizations[name]?){  
 		descr = visualizations[name];
 		f = descr.visualize("init", "all", makeCursor(descr.model));
 		println("get_initial_figure: <toJSON(descr.model)> <descr.model>");
@@ -186,11 +206,11 @@ private str refresh(str name, str modelAsJSON, str event, str utag){
 			model = descr.transform(model);
 			// model = descr.transform(makeCursor(model));
 			Figure figure = descr.visualize(event, utag, makeCursor(model));
+			// println("refresh: figure after figToJSON: <figure>");	
 			s = figToJSON(figure, getSite());
-			// println("refresh: figure after figToJSON: <figure>");		
+			// println(s);	
 			descr.model = model;
 			visualizations[name] = descr;
-			// println(s);
 			return "{\"model_root\": <toJSON(model)>, \"figure_root\" : <s>, \"site\":  \"<getSite()>\", \"name\": \"<name>\" }";
 		} else {
 			return "refresh: unknown visualization: <name>";

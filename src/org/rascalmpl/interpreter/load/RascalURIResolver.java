@@ -55,23 +55,27 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 	}
 	
 	public ISourceLocation resolve(ISourceLocation loc) {
-	  URI uri = loc.getURI();
-	  IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	  
-	  if (!uri.getScheme().equals(scheme())) {
-	    return loc;
-	  }
-	  
-	  if (loc.hasOffsetLength()) {
-	    if (loc.hasLineColumn()) {
-	      return vf.sourceLocation(vf.sourceLocation(resolve(uri)), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
-	    }
-	    else {
-	      return vf.sourceLocation(vf.sourceLocation(resolve(uri)), loc.getOffset(), loc.getLength());
-	    }
-	  }
-	  
-	  return vf.sourceLocation(resolve(uri));
+		URI uri = loc.getURI();
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
+
+		if (!uri.getScheme().equals(scheme())) {
+			return loc;
+		}
+		URI resolved = resolve(uri);
+
+		if(resolved != null){
+			if (loc.hasOffsetLength()) {
+				if (loc.hasLineColumn()) {
+					return vf.sourceLocation(vf.sourceLocation(resolved), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
+				}
+				else {
+					return vf.sourceLocation(vf.sourceLocation(resolved), loc.getOffset(), loc.getLength());
+				}
+			}
+			return vf.sourceLocation(resolved);
+		}
+
+		return null;
 	}
 	
 	/**
@@ -242,14 +246,12 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 	}
 	
 	public boolean isDirectory(URI uri) {
-		System.err.println("isDirectory: " + uri.getPath());
 		try {
 			if (uri.getScheme().equals(scheme())) {
 				String path = getPath(uri);
 				
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-					System.err.println("full = " + full.getPath());
 					if (reg.exists(full) &&
 						reg.isDirectory(full)) {
 						return true;
