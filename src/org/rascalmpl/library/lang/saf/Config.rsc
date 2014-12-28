@@ -45,7 +45,7 @@ data FState = fstate(Fighter fighter,
               str result);
 
 public int getAttr(FState f, str name) = getAttr(f.fighter, name);
-public str state2str(FState s) = "<f.name>:p<f.position>\th<f.health>";
+//public str state2str(FState f) = "<f.name>:p<f.position>\th<f.health>";  <== f.name does not exist
 //////
 
 public set[str] CONDITIONS = {"stronger", "weaker", "much_stronger", 

@@ -34,7 +34,7 @@ public list[str] Jabberwocky = [
 	"The frumious Bandersnatch!\"",
 	"",
 	"He took his vorpal sword in hand:",
-	"Long time the manxome foe he sought‚Äî",
+	"Long time the manxome foe he sought.",
 	"So rested he by the Tumtum tree,",
 	"And stood awhile in thought.",
 	"",

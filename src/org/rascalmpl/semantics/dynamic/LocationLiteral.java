@@ -48,6 +48,13 @@ public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral 
 			try {
 				URI url = URIUtil.createFromEncoded(uri);
 				ISourceLocation r = __eval.__getVf().sourceLocation(url);
+				
+				r = __eval.getRascalResolver().resolve(r);
+				if(r == null){
+					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.moduleNotFound(VF.string(uri.toString()), this,  __eval.getStackTrace());
+					
+				}
+				
 				return org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(org.rascalmpl.interpreter.Evaluator
 								.__getTf().sourceLocationType(), r, __eval);

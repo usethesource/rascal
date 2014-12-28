@@ -146,7 +146,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		    return bindingsResolver.resolveType(binding.getType(), false);
 		  }
 	  } catch (NullPointerException e) {
-		  System.err.println("Got NPE for node" + node);
+		  System.err.println("Got NPE for node " + node);
 	  }
 	  
 	  return null;

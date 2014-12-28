@@ -234,7 +234,11 @@ public class SourceConverter extends M3Converter {
 	}
 	
 	public boolean visit(Javadoc node) {
-		insert(documentation, getParent(), getSourceLocation(node));
+		ASTNode parent = node.getParent();
+		if (parent == null) {
+			parent = node.getAlternateRoot();
+		}
+		insert(documentation, resolveBinding(parent), getSourceLocation(node));
 		return false;
 	}
 	
@@ -493,6 +497,9 @@ public class SourceConverter extends M3Converter {
 			FieldDeclaration parent = (FieldDeclaration)parentASTNode;
 			parent.getType().accept(this);
 			visitListOfModifiers(parent.modifiers());
+			if (parent.getJavadoc() != null) {
+				parent.getJavadoc().accept(this);
+			}
 		} 
 		else if (parentASTNode instanceof VariableDeclarationExpression) {
 			VariableDeclarationExpression parent = (VariableDeclarationExpression)parentASTNode;

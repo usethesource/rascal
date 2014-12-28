@@ -10,6 +10,13 @@
 //START
 module demo::common::WordCount::WordCount
 
+import demo::common::WordCount::CountInLine1;
+import demo::common::WordCount::CountInLine2;
+import demo::common::WordCount::CountInLine3;
+import demo::common::WordCount::Jabberwocky;
+
+import String;
+
 // wordCount takes a list of strings and a count function
 // that is applied to each line. The total number of words is returned
 
@@ -20,4 +27,26 @@ public int wordCount(list[str] input, int (str s) countInLine)
      count += countInLine(line);    /*2*/
   }
   return count;
+}
+
+test bool tstWordCount1() = wordCount(Jabberwocky, countInLine1) == wordCount(Jabberwocky, countInLine2);
+
+test bool tstWordCount2() = wordCount(Jabberwocky, countInLine1) == wordCount(Jabberwocky, countInLine3);
+
+test bool tstWordCount3() = wordCount(Jabberwocky, countInLine2) == wordCount(Jabberwocky, countInLine3);
+
+test bool tstWordCount4(str txt) {
+    lines = split(txt, "\n");
+    return wordCount(lines, countInLine1) == wordCount(lines, countInLine2);
+}    
+    
+test bool tstWordCount5(str txt) {
+    lines = split(txt, "\n"); 
+    return wordCount(lines, countInLine1) == wordCount(lines, countInLine3); 
+}
+
+    
+test bool tstWordCount6(str txt) {
+    lines = split(txt, "\n");  
+    return wordCount(lines, countInLine2) == wordCount(lines, countInLine3);
 }

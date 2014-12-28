@@ -19,7 +19,7 @@ import IO;
 import ValueIO;
 import String;
 import Exception;
-import ParseTree;
+//import ParseTree;
 import RascalUtils;
 import Warnings;
 
@@ -98,8 +98,8 @@ data TVkind   = valueOfExpr()
 // TODO:
 // - labels in tuples and relations are not yet handled
 
-data RascalType =
-       \bool()
+data RascalType 
+     = \bool()
      | \int(int from, int to)
      | \real(int from, int to)
      | \num(int from, int to)
@@ -111,6 +111,7 @@ data RascalType =
      | \map(RascalType key, RascalType val)
      | \tuple(list[RascalType] tps)
      | \rel(list[RascalType] tps)
+     | \lrel(list[RascalType] tps)
      | \value()
      | \void()
      | \arb(int depth, list[RascalType] tps)	// arbitrary type of max depth and preference for leaf types

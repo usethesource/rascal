@@ -70,7 +70,7 @@ public class Rascalify {
 		try (InputStream inputStream = _resolver.getInputStream(source.getURI())) {
 			ClassNode cn = new ClassNode();
       ClassReader cr = new ClassReader(inputStream);
-			cr.accept(cn, 0);
+			//cr.aaccept(cn, 0);
 			
 			OutputStreamWriter writer = new OutputStreamWriter(_resolver.getOutputStream(destination.getURI(), false));
 			writer.write("module " + moduleName.getValue() + "\n\n");

@@ -19,8 +19,10 @@ package org.rascalmpl.interpreter;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 
@@ -35,6 +37,7 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
@@ -242,7 +245,11 @@ public class TraversalEvaluator {
 			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
 		IConstructor cons = (IConstructor)subject;
 		
-		if (cons.arity() == 0) {
+		Map<String, IValue> kwParams = null;
+		if (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().hasParameters()) {
+			kwParams = new HashMap<>();
+		}
+		if (cons.arity() == 0 && kwParams == null) {
 			return subject; // constants have no children to traverse into
 		} 
 
@@ -302,8 +309,22 @@ public class TraversalEvaluator {
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 			}
+			if (kwParams != null) {
+				IWithKeywordParameters<? extends INode> consKw = cons.asWithKeywordParameters();
+				for (String kwName : consKw.getParameterNames()) {
+					IValue val = consKw.getParameter(kwName);
+					tr.changed = false;
+					tr.matched = false;
+					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr);
+					kwParams.put(kwName, newVal);
+					hasChanged |= tr.changed;
+					hasMatched |= tr.matched;
+				}
+			}
 			tr.matched = hasMatched;
 			tr.changed = hasChanged;
+
+			
 		}
 
 		if (tr.changed) {
@@ -311,7 +332,7 @@ public class TraversalEvaluator {
 		  
 		  try {
 		    QualifiedName n = Names.toQualifiedName(cons.getType().getName(), cons.getName(), null);
-		    rcons = (IConstructor) eval.call(n, cons.mayHaveKeywordParameters() ? cons.asWithKeywordParameters().getParameters() : Collections.<String,IValue>emptyMap(), args);
+		    rcons = (IConstructor) eval.call(n, kwParams != null ? kwParams : Collections.<String,IValue>emptyMap(), args);
 		  }
 		  catch (UndeclaredFunction | UndeclaredModule | ArgumentsMismatch e) {
 		    // This may happen when visiting data constructors dynamically which are not 
@@ -320,8 +341,8 @@ public class TraversalEvaluator {
 		    // and normalizing "rewrite rules" will not trigger at all, but we can gracefully continue 
 		    // because we know what the tree looked like before we started visiting.
 		    eval.warning("In visit: " + e.getMessage(), eval.getCurrentAST().getLocation());
-		    if (cons.mayHaveKeywordParameters()) {
-		    	rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(),  args, cons.asWithKeywordParameters().getParameters());
+		    if (kwParams != null) {
+		    	rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(),  args, kwParams);
 		    }
 		    else {
 		    	rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(),  args);
@@ -424,11 +445,15 @@ public class TraversalEvaluator {
 			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
 		IValue result;
 		INode node = (INode)subject;
-		if (node.arity() == 0){
+		if (node.arity() == 0 && !(node.mayHaveKeywordParameters() && node.asWithKeywordParameters().hasParameters()) ){
 			result = subject;
 		} 
 		else {
 			IValue args[] = new IValue[node.arity()];
+			Map<String, IValue> kwParams = null;
+			if (node.mayHaveKeywordParameters() && node.asWithKeywordParameters().hasParameters()) {
+				kwParams = new HashMap<>();
+			}
 			boolean hasChanged = false;
 			boolean hasMatched = false;
 			
@@ -440,14 +465,32 @@ public class TraversalEvaluator {
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 			}
+			if (kwParams != null) {
+				IWithKeywordParameters<? extends INode> nodeKw = node.asWithKeywordParameters();
+				for (String kwName : nodeKw.getParameterNames()) {
+					IValue val = nodeKw.getParameter(kwName);
+					tr.changed = false;
+					tr.matched = false;
+					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr);
+					kwParams.put(kwName, newVal);
+					hasChanged |= tr.changed;
+					hasMatched |= tr.matched;
+				}
+			}
 			
 			tr.changed = hasChanged;
 			tr.matched = hasMatched;
 			
-			INode n = eval.getValueFactory().node(node.getName(), args);
+			INode n = null;
+			if (kwParams != null) {
+				n = eval.getValueFactory().node(node.getName(), args, kwParams);
+			}
+			else {
+				n = eval.getValueFactory().node(node.getName(), args);
 			
-			if (node.asAnnotatable().hasAnnotations()) {
-				n = n.asAnnotatable().setAnnotations(node.asAnnotatable().getAnnotations());
+				if (!node.mayHaveKeywordParameters() && node.asAnnotatable().hasAnnotations()) {
+					n = n.asAnnotatable().setAnnotations(node.asAnnotatable().getAnnotations());
+				}
 			}
 			
 			result = n;

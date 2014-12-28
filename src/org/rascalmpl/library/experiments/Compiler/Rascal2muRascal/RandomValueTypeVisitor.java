@@ -18,11 +18,11 @@ import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -148,7 +148,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		 * depth of the list of arguments plus 1.
 		 */
 
-		if (type.getArity() == 0) { // Diepte 0 dus we mogen altijd opleveren.
+		if (type.getArity() == 0 && !type.hasKeywordParameters()) { // Diepte 0 dus we mogen altijd opleveren.
 			return vf.constructor(type);
 		} else if (this.maxDepth <= 0) {
 			return null;
@@ -162,15 +162,26 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 			IValue argument = visitor.generate(fieldType);
 			if (argument == null) {
 				return null;
-				/*
-				 * Het is onmogelijk om de constructor te bouwen als ������n
-				 * argument null is.
-				 */
 			}
 			values.add(argument);
 		}
-		return vf.constructor(type, values.toArray(new IValue[values.size()]));
-
+		IValue[] params = values.toArray(new IValue[values.size()]);
+		if (stRandom.nextBoolean() && type.getKeywordParameterTypes().getArity() > 0) {
+			Map<String, IValue> kwParams = new HashMap<>();
+			for (String kw:  type.getKeywordParameters()) {
+				if (stRandom.nextBoolean()) continue;
+				Type fieldType = type.getKeywordParameterType(kw);
+				IValue argument = visitor.generate(fieldType);
+				if (argument == null) {
+					return null;
+				}
+				kwParams.put(kw, argument);
+			}
+			return vf.constructor(type, params, kwParams);
+		}
+		else {
+			return vf.constructor(type, params);
+		}
 	}
 
 	@Override
@@ -255,14 +266,32 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
 	@Override
 	public IValue visitNode(Type type) {
-	  String str =  Math.random() > 0.5 ? RandomStringUtils.random(stRandom.nextInt(5)) : RandomStringUtils.randomAlphanumeric(stRandom.nextInt(5));
+	  String str = stRandom.nextBoolean() ? RandomUtil.string(stRandom, stRandom.nextInt(5)) : RandomUtil.stringAlpha(stRandom, stRandom.nextInt(5));
+
 
 	  int arity = maxDepth <= 0 ? 0: stRandom.nextInt(5);
 		IValue[] args = new IValue[arity];
 		for (int i = 0; i < arity; i++) {
 			args[i] = descend().generate(tf.valueType());
 		}
-		
+		if (stRandom.nextBoolean()) {
+			int kwArity = 1 + stRandom.nextInt(5);
+			Map<String, IValue> kwParams = new HashMap<>(kwArity);
+			for (int i = 0; i < kwArity; i++) {
+				String name = "";
+				while (name.isEmpty()) {
+					// names have to start with alpha character
+					name = RandomUtil.stringAlpha(stRandom, 3); 
+				}
+				name += RandomUtil.stringAlphaNumeric(stRandom, 4);
+				IValue argument = descend().generate(tf.valueType());
+				if (argument == null) {
+					return null;
+				}
+				kwParams.put(name, argument);
+			}
+			return vf.node(str, args, kwParams);
+		}
 		return vf.node(str, args);	
 	}
 

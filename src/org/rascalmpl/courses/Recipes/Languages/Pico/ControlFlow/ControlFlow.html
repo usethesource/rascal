@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Recipes/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Recipes/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,11 +48,11 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
-  	                       
+
+
+
+
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  A control flow graph shows how the entry and exit points of a program are connected with each other via all
  decision points and statements in the program. Typically, an assignment statement is a single node in the graph
@@ -158,16 +158,6 @@ ok
 <span class="prompt">rascal></span>cflowProgram(&quot;begin declare n : natural, s : string; n := 10; s := \&quot;a\&quot;; while n do s := s + \&quot;a\&quot;; n := n - 1 od end&quot;);
 CFGraph: &lt;{entry(|file://-|(0,100,&lt;1,0>,&lt;1,100>))},{
   &lt;statement(
-    |file://-|(39,7,&lt;1,39>,&lt;1,46>),
-    asgStat(
-      "n",
-      natCon(10)[
-        @location=|file://-|(44,2,&lt;1,44>,&lt;1,46>),
-        @comments=()
-      ])[
-      @location=|file://-|(39,7,&lt;1,39>,&lt;1,46>),
-      @comments=()
-    ]),statement(
     |file://-|(48,8,&lt;1,48>,&lt;1,56>),
     asgStat(
       "s",
@@ -176,6 +166,102 @@ CFGraph: &lt;{entry(|file://-|(0,100,&lt;1,0>,&lt;1,100>))},{
         @comments=()
       ])[
       @location=|file://-|(48,8,&lt;1,48>,&lt;1,56>),
+      @comments=()
+    ]),choice(
+    |file://-|(64,1,&lt;1,64>,&lt;1,65>),
+    id("n")[
+      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>),
+      @comments=()
+    ])>,
+  &lt;choice(
+    |file://-|(64,1,&lt;1,64>,&lt;1,65>),
+    id("n")[
+      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>),
+      @comments=()
+    ]),exit()>,
+  &lt;choice(
+    |file://-|(64,1,&lt;1,64>,&lt;1,65>),
+    id("n")[
+      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>),
+      @comments=()
+    ]),statement(
+    |file://-|(69,12,&lt;1,69>,&lt;1,81>),
+    asgStat(
+      "s",
+      add(
+        id("s")[
+          @location=|file://-|(74,1,&lt;1,74>,&lt;1,75>),
+          @comments=()
+        ],
+        strCon("\"a\"")[
+          @location=|file://-|(78,3,&lt;1,78>,&lt;1,81>),
+          @comments=()
+        ])[
+        @location=|file://-|(74,7,&lt;1,74>,&lt;1,81>),
+        @comments=()
+      ])[
+      @location=|file://-|(69,12,&lt;1,69>,&lt;1,81>),
+      @comments=()
+    ])>,
+  &lt;statement(
+    |file://-|(69,12,&lt;1,69>,&lt;1,81>),
+    asgStat(
+      "s",
+      add(
+        id("s")[
+          @location=|file://-|(74,1,&lt;1,74>,&lt;1,75>),
+          @comments=()
+        ],
+        strCon("\"a\"")[
+          @location=|file://-|(78,3,&lt;1,78>,&lt;1,81>),
+          @comments=()
+        ])[
+        @location=|file://-|(74,7,&lt;1,74>,&lt;1,81>),
+        @comments=()
+      ])[
+      @location=|file://-|(69,12,&lt;1,69>,&lt;1,81>),
+      @comments=()
+    ]),statement(
+    |file://-|(83,10,&lt;1,83>,&lt;1,93>),
+    asgStat(
+      "n",
+      sub(
+        id("n")[
+          @location=|file://-|(88,1,&lt;1,88>,&lt;1,89>),
+          @comments=()
+        ],
+        natCon(1)[
+          @location=|file://-|(92,1,&lt;1,92>,&lt;1,93>),
+          @comments=()
+        ])[
+        @location=|file://-|(88,5,&lt;1,88>,&lt;1,93>),
+        @comments=()
+      ])[
+      @location=|file://-|(83,10,&lt;1,83>,&lt;1,93>),
+      @comments=()
+    ])>,
+  &lt;statement(
+    |file://-|(83,10,&lt;1,83>,&lt;1,93>),
+    asgStat(
+      "n",
+      sub(
+        id("n")[
+          @location=|file://-|(88,1,&lt;1,88>,&lt;1,89>),
+          @comments=()
+        ],
+        natCon(1)[
+          @location=|file://-|(92,1,&lt;1,92>,&lt;1,93>),
+          @comments=()
+        ])[
+        @location=|file://-|(88,5,&lt;1,88>,&lt;1,93>),
+        @comments=()
+      ])[
+      @location=|file://-|(83,10,&lt;1,83>,&lt;1,93>),
+      @comments=()
+    ]),choice(
+    |file://-|(64,1,&lt;1,64>,&lt;1,65>),
+    id("n")[
+      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>),
       @comments=()
     ])>,
   &lt;entry(|file://-|(0,100,&lt;1,0>,&lt;1,100>)),statement(
@@ -189,98 +275,17 @@ CFGraph: &lt;{entry(|file://-|(0,100,&lt;1,0>,&lt;1,100>))},{
       @location=|file://-|(39,7,&lt;1,39>,&lt;1,46>),
       @comments=()
     ])>,
-  &lt;choice(
-    |file://-|(64,1,&lt;1,64>,&lt;1,65>),
-    id("n")[
-      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>),
-      @comments=()
-    ]),statement(
-    |file://-|(69,12,&lt;1,69>,&lt;1,81>),
-    asgStat(
-      "s",
-      add(
-        id("s")[
-          @location=|file://-|(74,1,&lt;1,74>,&lt;1,75>),
-          @comments=()
-        ],
-        strCon("\"a\"")[
-          @location=|file://-|(78,3,&lt;1,78>,&lt;1,81>),
-          @comments=()
-        ])[
-        @location=|file://-|(74,7,&lt;1,74>,&lt;1,81>),
-        @comments=()
-      ])[
-      @comments=(),
-      @location=|file://-|(69,12,&lt;1,69>,&lt;1,81>)
-    ])>,
   &lt;statement(
-    |file://-|(83,10,&lt;1,83>,&lt;1,93>),
+    |file://-|(39,7,&lt;1,39>,&lt;1,46>),
     asgStat(
       "n",
-      sub(
-        id("n")[
-          @comments=(),
-          @location=|file://-|(88,1,&lt;1,88>,&lt;1,89>)
-        ],
-        natCon(1)[
-          @location=|file://-|(92,1,&lt;1,92>,&lt;1,93>),
-          @comments=()
-        ])[
-        @location=|file://-|(88,5,&lt;1,88>,&lt;1,93>),
+      natCon(10)[
+        @location=|file://-|(44,2,&lt;1,44>,&lt;1,46>),
         @comments=()
       ])[
-      @location=|file://-|(83,10,&lt;1,83>,&lt;1,93>),
+      @location=|file://-|(39,7,&lt;1,39>,&lt;1,46>),
       @comments=()
-    ]),choice(
-    |file://-|(64,1,&lt;1,64>,&lt;1,65>),
-    id("n")[
-      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>),
-      @comments=()
-    ])>,
-  &lt;statement(
-    |file://-|(69,12,&lt;1,69>,&lt;1,81>),
-    asgStat(
-      "s",
-      add(
-        id("s")[
-          @location=|file://-|(74,1,&lt;1,74>,&lt;1,75>),
-          @comments=()
-        ],
-        strCon("\"a\"")[
-          @location=|file://-|(78,3,&lt;1,78>,&lt;1,81>),
-          @comments=()
-        ])[
-        @location=|file://-|(74,7,&lt;1,74>,&lt;1,81>),
-        @comments=()
-      ])[
-      @comments=(),
-      @location=|file://-|(69,12,&lt;1,69>,&lt;1,81>)
     ]),statement(
-    |file://-|(83,10,&lt;1,83>,&lt;1,93>),
-    asgStat(
-      "n",
-      sub(
-        id("n")[
-          @comments=(),
-          @location=|file://-|(88,1,&lt;1,88>,&lt;1,89>)
-        ],
-        natCon(1)[
-          @location=|file://-|(92,1,&lt;1,92>,&lt;1,93>),
-          @comments=()
-        ])[
-        @location=|file://-|(88,5,&lt;1,88>,&lt;1,93>),
-        @comments=()
-      ])[
-      @location=|file://-|(83,10,&lt;1,83>,&lt;1,93>),
-      @comments=()
-    ])>,
-  &lt;choice(
-    |file://-|(64,1,&lt;1,64>,&lt;1,65>),
-    id("n")[
-      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>),
-      @comments=()
-    ]),exit()>,
-  &lt;statement(
     |file://-|(48,8,&lt;1,48>,&lt;1,56>),
     asgStat(
       "s",
@@ -290,20 +295,15 @@ CFGraph: &lt;{entry(|file://-|(0,100,&lt;1,0>,&lt;1,100>))},{
       ])[
       @location=|file://-|(48,8,&lt;1,48>,&lt;1,56>),
       @comments=()
-    ]),choice(
-    |file://-|(64,1,&lt;1,64>,&lt;1,65>),
-    id("n")[
-      @location=|file://-|(64,1,&lt;1,64>,&lt;1,65>),
-      @comments=()
     ])>
 },{exit()}>
 </pre> Is the above not very motivating to move on to <a href="/Recipes/Languages/Pico/Visualize/Visualize.html">Pico/Visualize</a>?
 
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Pico/ControlFlow&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Pico/ControlFlow&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |

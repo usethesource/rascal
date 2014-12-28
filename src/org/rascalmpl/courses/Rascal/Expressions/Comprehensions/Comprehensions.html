@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Details">
 <span class="sectionHead">Details</span> <a href="/Rascal/Expressions/Comprehensions/Enumerator/Enumerator.html">Enumerator</a> &#032 <a href="/Rascal/Expressions/Comprehensions/Filter/Filter.html">Filter</a> &#032 
 </div>
@@ -76,7 +76,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>    A list comprehension:
 <pre class="screen"><span class="prompt">rascal></span>[ 3 * X | int X &lt;- [1 .. 10] ];
@@ -89,31 +89,31 @@ list[int]: [18,21,24,27]
 list[int]: [3,9,4,16,5,25]
 </pre>  A set comprehension with a filter:
 <pre class="screen"><span class="prompt">rascal></span>{X | int X &lt;- {1, 2, 3, 4, 5}, X &gt;= 3};
-set[int]: {5,4,3}
+set[int]: {3,4,5}
 </pre>  A set comprehension that constructs a relation:
 <pre class="screen"><span class="prompt">rascal></span>{&lt;X, Y&gt; | int X &lt;- {1, 2, 3}, int Y &lt;- {2, 3, 4}, X &gt;= Y};
 rel[int,int]: {
-  &lt;3,3>,
+  &lt;3,2>,
   &lt;2,2>,
-  &lt;3,2>
+  &lt;3,3>
 }
 <span class="prompt">rascal></span>{&lt;Y, X&gt; | &lt;int X, int Y&gt; &lt;- {&lt;1,10&gt;, &lt;2,20&gt;}};
 rel[int,int]: {
-  &lt;20,2>,
-  &lt;10,1>
+  &lt;10,1>,
+  &lt;20,2>
 }
 </pre>  Introduce a map of <code>fruits</code> and use a map comprehension to filter fruits with an associated value larger than 10:
 <pre class="screen"><span class="prompt">rascal></span>fruits = (&quot;pear&quot; : 1, &quot;apple&quot; : 3, &quot;banana&quot; : 0, &quot;berry&quot; : 25, &quot;orange&quot;: 35);
-map[str, int]: ("orange":35,"apple":3,"pear":1,"berry":25,"banana":0)
+map[str, int]: ("banana":0,"pear":1,"orange":35,"berry":25,"apple":3)
 <span class="prompt">rascal></span>(fruit : fruits[fruit] | fruit &lt;- fruits, fruits[fruit] &gt; 10);
 map[str, int]: ("orange":35,"berry":25)
 </pre> See <a href="/Rascal/Expressions/Values/List/Comprehension/Comprehension.html">List/Comprehension</a>, <a href="/Rascal/Expressions/Values/Set/Comprehension/Comprehension.html">Set/Comprehension</a>, or <a href="/Rascal/Expressions/Values/Map/Comprehension/Comprehension.html">Map/Comprehension</a> for more examples.
 
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Comprehensions&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Comprehensions&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

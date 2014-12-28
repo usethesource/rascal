@@ -21,7 +21,7 @@ import Set;
 
 alias ImportGraph = Graph[RName];
 
-public ImportGraph getImportGraph(Module m, bool removeExtends=false, rel[RName mname, bool isext] extraImports={}) {
+public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndInfo(Module m, bool removeExtends=false, rel[RName mname, bool isext] extraImports={}) {
 	// Set up the imports for the "top" module
 	mname = convertName(m.header.name);
 	minfoMap = ( mname : getImports(m) );
@@ -44,7 +44,11 @@ public ImportGraph getImportGraph(Module m, bool removeExtends=false, rel[RName 
 		< wlName, worklist > = takeOneFrom(worklist);
 		try {
 			pt = getModuleParseTree(prettyPrintName(wlName));
-			minfoMap[wlName] = getImports(pt.top);
+			if (Module mImp := pt.top) {
+				minfoMap[wlName] = getImports(mImp);
+			} else {
+				throw "Unexpected parse, pt is not a module";
+			}
 		} catch : {
 			;
 		}		
@@ -71,9 +75,9 @@ public ImportGraph getImportGraph(Module m, bool removeExtends=false, rel[RName 
 		
 	// Build a graph based on imports information
 	if (removeExtends) {
-		return { < mi, convertNameString(n) > | mi <- minfoMap, n <- minfoMap[mi].importedModules };
+		return < { < mi, convertNameString(n) > | mi <- minfoMap, n <- minfoMap[mi].importedModules }, minfoMap >;
 	} else {
-		return { < mi, convertNameString(n) > | mi <- minfoMap, n <- (minfoMap[mi].importedModules + minfoMap[mi].extendedModules) };
+		return < { < mi, convertNameString(n) > | mi <- minfoMap, n <- (minfoMap[mi].importedModules + minfoMap[mi].extendedModules) }, minfoMap >;
 	}
 }
 
@@ -98,7 +102,7 @@ public TypeNameInfo extractTypeNames(Module m) {
           syntaxNames = syntaxNames + RSimpleName(name);
         case \parameterized-lex(str name, list[Symbol] parameters) : 
           syntaxNames = syntaxNames + RSimpleName(name);
-        case \start(Sym ssym) : 
+        case \start(Symbol ssym) : 
           addSym(ssym);
       }
 	}
@@ -114,10 +118,10 @@ public TypeNameInfo extractTypeNames(Module m) {
 	for (ti <- m.body.toplevels) {
 		if ((Declaration)`<Tags _> <Visibility _> data <UserType user>;` := ti.declaration) {
 			dataNames = dataNames + convertName(user.name);
-		} else if ((Declaration)`<Tags _> <Visibility _> data <UserType user> <CommonKeywordParameters ckps> = <{Variant "|"}+ _>;` := ti.declaration) {
-			dataNames = dataNames + convertName(user.name);
-		} else if ((Declaration)`<Tags _> <Visibility _> alias <UserType user> = <Type base>;` := ti.declaration) {
-			aliasNames = aliasNames + convertName(user.name);
+		} else if ((Declaration)`<Tags _> <Visibility _> data <UserType ut> <CommonKeywordParameters ckps> = <{Variant "|"}+ _>;` := ti.declaration) {
+			dataNames = dataNames + convertName(ut.name);
+		} else if ((Declaration)`<Tags _> <Visibility _> alias <UserType ut> = <Type base>;` := ti.declaration) {
+			aliasNames = aliasNames + convertName(ut.name);
 		} 
 	}
 	

@@ -19,6 +19,7 @@ import Relation;
 import util::Reflective;
 import DateTime;
 import String;
+import Exception;
 
 import lang::rascal::checker::ListUtils;
 import lang::rascal::checker::TreeUtils;
@@ -75,6 +76,7 @@ data AbstractValue
     | \alias(RName name, Symbol rtype, int containedIn, loc at)
     | booleanScope(int containedIn, loc at)
     | blockScope(int containedIn, loc at)
+    | signatureScope(int containedIn, loc at)
     ;
 
 data LabelStackItem = labelStackItem(RName labelName, LabelSource labelSource, Symbol labelType);
@@ -129,7 +131,7 @@ data Configuration = config(set[Message] messages,
                             bool importing
                            );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
+public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -199,7 +201,7 @@ public int definingContainer(Configuration c, int i) {
 public list[int] upToContainer(Configuration c, int i) {
 	// NOTE: The reason we do not need to check for overload here is because the current context can
 	// never be an overload -- it has to be some actual scope item that could be put on the stack.
-    if (c.store[i] is \module || c.store[i] is function || c.store[i] is closure) return [i];
+    if (c.store[i] is \module || c.store[i] is function || c.store[i] is closure || c.store[i] is signatureScope) return [i];
     return [i] + upToContainer(c,c.store[i].containedIn);
 }
 
@@ -467,7 +469,7 @@ public Configuration addImportedAnnotation(Configuration c, RName n, int annId) 
 		} else {
 			// This annotation has been declared before on at least one comparable type.
 			for (< ct, mId > <- onComparableTypes, !equivalent(c.store[mId].rtype,c.store[ct].rtype)) {
-				c = addScopeError(c, "Import of annotation <prettyPrintName(n)> in module <prettyPrintName(c.store[c.store[annId].containedIn].name)> conflicts with existing annotation in module <prettyPrintName(c.store[c.store[ct].containedIn].name)>", c.store[mid].at);
+				c = addScopeError(c, "Import of annotation <prettyPrintName(n)> in module <prettyPrintName(c.store[c.store[annId].containedIn].name)> conflicts with existing annotation in module <prettyPrintName(c.store[c.store[ct].containedIn].name)>", c.store[mId].at);
 			}
 		}
 	}
@@ -476,7 +478,7 @@ public Configuration addImportedAnnotation(Configuration c, RName n, int annId) 
 }
 
 @doc{Add a user-defined ADT into the configuration}
-public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Symbol rt) {
+public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Symbol rt, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -499,7 +501,6 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 
 	Configuration extendDataType(Configuration c, int existingId) {
 		c.store[existingId].ats = c.store[existingId].ats + l;
-		c.typeEnv[fullName] = existingId;
 		c.definitions = c.definitions + < existingId, l >;		
 		return c; 	
 	}
@@ -508,11 +509,17 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		// No type of this name already exists. Add a new data type item, and link it in
 		// using both the qualified and unqualified names.
 		itemId = addDataType();
-		c.typeEnv[n] = itemId;
-		c.typeEnv[fullName] = itemId;
+		if (registerName) {
+			c.typeEnv[n] = itemId;
+			c.typeEnv[fullName] = itemId;
+		}
 	} else if (n notin c.typeEnv && n in c.globalAdtMap) {
 		existingId = c.globalAdtMap[n];
 		c = extendDataType(c, existingId);
+		if (registerName) {
+			if (n notin c.typeEnv) c.typeEnv[n] = existingId;
+			c.typeEnv[fullName] = existingId;
+		}
 	} else if (c.store[c.typeEnv[n]] is datatype) {
 		// A datatype of this name already exists. Use this existing data type item, adding
 		// a link to it using the qualified name. NOTE: This means that the same type may be available
@@ -524,7 +531,9 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
 		// to distinguish them.
 		itemId = addDataType();
-		c = addScopeError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+		if (registerName) {
+			c = addScopeError(c, "An alias or nonterminal named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+		}
 	}
 	
 	return c;
@@ -550,7 +559,7 @@ public Configuration addImportedADT(Configuration c, RName n, int itemId, bool a
 }
 
 @doc{Add a user-defined non-terminal type into the configuration}
-public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort) {
+public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -564,13 +573,24 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 		c.store[itemId] = sorttype(n,sort,moduleId,{ l });
 		c.definitions = c.definitions + < itemId, l >;
 		c.globalSortMap[n] = itemId;
+
+		if(<itemId,"prod"> notin c.nonterminalFields) {
+			c.nonterminalFields[<itemId,"prod">] = makeADTType("Production");
+		}
+
+		if(<itemId,"args"> notin c.nonterminalFields) {
+			c.nonterminalFields[<itemId,"args">] = makeListType(makeADTType("Tree"));
+		}
+		
 		return itemId;
 	}
 
 	Configuration extendNonTerminal(Configuration c, int existingId) {
 		c.store[existingId].ats = c.store[existingId].ats + l;
-		if (n notin c.typeEnv) c.typeEnv[n] = existingId;
-		c.typeEnv[fullName] = existingId;
+		if (registerName) {
+			if (n notin c.typeEnv) c.typeEnv[n] = existingId;
+			c.typeEnv[fullName] = existingId;
+		}
 		c.definitions = c.definitions + < existingId, l >;
 		return c; 	
 	}
@@ -579,8 +599,10 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 		// No type of this name already exists. Add a new nonterminal item, and link it in
 		// using both the qualified and unqualified names.
 		itemId = addNonTerminal();
-		c.typeEnv[n] = itemId;
-		c.typeEnv[fullName] = itemId;
+		if (registerName) {
+			c.typeEnv[n] = itemId;
+			c.typeEnv[fullName] = itemId;
+		}
 	} else if (n notin c.typeEnv && n in c.globalSortMap) {
 		existingId = c.globalSortMap[n];
 		c = extendNonTerminal(c, existingId);
@@ -595,7 +617,9 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 		// type of redefinition, so this is an error. This is because there is no way we can qualify the names
 		// to distinguish them.
 		itemId = addNonTerminal();
-		c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+		if (registerName) {
+			c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", l);
+		}
 	}
 	
 	return c;
@@ -672,7 +696,7 @@ public Configuration addImportedAlias(Configuration c, RName n, int itemId, bool
 }
 
 @doc{Add a constructor into the configuration}
-public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, KeywordParamRel commonParams, KeywordParamRel keywordParams) {
+public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, KeywordParamRel commonParams, KeywordParamRel keywordParams, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -799,18 +823,20 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		}
 	}
 
-	existsAlready = size({ i | i <- c.adtConstructors[adtId], c.store[i].at == l}) > 0;
+	existingIds = { i | i <- c.adtConstructors[adtId], c.store[i].at == l};
+	existsAlready = size(existingIds) > 0;
+	nameWithAdt = appendName(adtName,n);
+	nameWithModule = appendName(moduleName,n);
 	if (!existsAlready) {
-		nameWithAdt = appendName(adtName,n);
-		nameWithModule = appendName(moduleName,n);
-
 		constructorItemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
 
-		overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
-		if (size(overlaps) > 0)
-			c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
-
+		if (registerName) {
+			overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
+			if (size(overlaps) > 0)
+				c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
+		}
+		
 		// NOTE: This will pick one if we have multiple types for the same name, but we will have already issued
 		// a warning above...
 		keywordParamMap = ( pn : pt | pn <- consolidatedParams<0>, pt := getOneFrom(consolidatedParams[pn]<0>) );
@@ -822,10 +848,23 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 
 		c.dataKeywordDefaults = c.dataKeywordDefaults + { < constructorItemId, cp, pe > | <cp,pt,pe> <- consolidatedParams };
 
-		addConstructorItem(n, constructorItemId);
-		addConstructorItem(nameWithAdt, constructorItemId);
-		addConstructorItem(nameWithModule, constructorItemId);
-	}    
+		if (registerName) {
+			addConstructorItem(n, constructorItemId);
+			addConstructorItem(nameWithAdt, constructorItemId);
+			addConstructorItem(nameWithModule, constructorItemId);
+		}
+	} else if (registerName) {
+		existingNameIds = idsForName(c,n) + idsForName(c,nameWithAdt) + idsForName(c,nameWithModule);
+		for (constructorItemId <- existingIds, constructorItemId notin existingNameIds) {
+			overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
+			if (size(overlaps) > 0)
+				c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
+
+			addConstructorItem(n, constructorItemId);
+			addConstructorItem(nameWithAdt, constructorItemId);
+			addConstructorItem(nameWithModule, constructorItemId);
+		}
+	} 
 
 	return c;
 }
@@ -872,8 +911,24 @@ public Configuration addImportedConstructor(Configuration c, RName n, int itemId
 	return c;
 }
 
+private set[int] idsForName(Configuration c, RName n) {
+	set[int] unwindIds(int i) {
+		if (c.store[i] is overload) {
+			return c.store[i].items;
+		} else {
+			return { i };
+		}
+	}
+	
+	if (n in c.fcvEnv) {
+		return unwindIds(c.fcvEnv[n]);
+	} else {
+		return { };
+	} 
+}
+
 @doc{Add a production into the configuration.}
-public Configuration addProduction(Configuration c, RName n, loc l, Production prod) {
+public Configuration addProduction(Configuration c, RName n, loc l, Production prod, bool registerName=true) {
 	assert ( (prod.def is label && prod.def.symbol has name) || ( !(prod.def is label) && prod.def has name ) || prod.def is \start);
  
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
@@ -945,44 +1000,69 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 	
 	// We can have unnamed productions; in that case, we still add information into the store, but don't add anything
 	// into the name environment, since we cannot look this up by name.
-	existsAlready = size({ i | i <- c.nonterminalConstructors[sortId], c.store[i].at == l, c.store[i].name == n}) > 0;
+	existingIds = { i | i <- c.nonterminalConstructors[sortId], c.store[i].at == l, c.store[i].name == n};
+	existsAlready = size(existingIds) > 0;
+	nameWithSort = appendName(sortName,n);
+	nameWithModule = appendName(moduleName,n);
 	if (!existsAlready) {
-		nameWithSort = appendName(sortName,n);
-		nameWithModule = appendName(moduleName,n);
-
 		productionItemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
 
-		if (RSimpleName("") != n) {
-			// If the production is named, another production will overlap if it has the same name and a different type, including
-			// labels -- it is only acceptable to repeat a production exactly
-			overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, c.store[i].rtype != rtype}; 
-			if (size(overlaps) > 0)
-				c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);
-		} else {
-			// If the production isn't named, we have a slightly different rule: the productions don't need to match, but if
-			// they match not accounting for labels, they have to match given labels -- so, the production can be different,
-			// but if it has the same parts, they have to have the same names
-			overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, removeAllLabels(c.store[i].rtype) == removeAllLabels(rtype), c.store[i].rtype != rtype};
-			if (size(overlaps) > 0)
-				c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);		
+		if (registerName) {
+			if (RSimpleName("") != n) {
+				// If the production is named, another production will overlap if it has the same name and a different type, including
+				// labels -- it is only acceptable to repeat a production exactly
+				overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, c.store[i].rtype != rtype}; 
+				if (size(overlaps) > 0)
+					c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);
+			} else {
+				// If the production isn't named, we have a slightly different rule: the productions don't need to match, but if
+				// they match not accounting for labels, they have to match given labels -- so, the production can be different,
+				// but if it has the same parts, they have to have the same names
+				overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, removeAllLabels(c.store[i].rtype) == removeAllLabels(rtype), c.store[i].rtype != rtype};
+				if (size(overlaps) > 0)
+					c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);		
+			}
 		}
-		
+				
 		productionItem = production(n, rtype, head([i | i <- c.stack, \module(_,_) := c.store[i]]), prod, l);
 		c.store[productionItemId] = productionItem;
 		c.definitions = c.definitions + < productionItemId, l >;
 		c.nonterminalConstructors = c.nonterminalConstructors + < sortId, productionItemId >;
 
-		if (RSimpleName("") != n) {
+		if (registerName && RSimpleName("") != n) {
 			addProductionItem(n, productionItemId);
 			addProductionItem(nameWithSort, productionItemId);
 			addProductionItem(nameWithModule, productionItemId);
 		}
-	}    
+	} else if (registerName) {
+		existingNameIds = idsForName(c,n) + idsForName(c,nameWithSort) + idsForName(c,nameWithModule);
+		for (productionItemId <- existingIds, productionItemId notin existingNameIds) {
+			if (RSimpleName("") != n) {
+				// If the production is named, another production will overlap if it has the same name and a different type, including
+				// labels -- it is only acceptable to repeat a production exactly
+				overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, c.store[i].rtype != rtype}; 
+				if (size(overlaps) > 0)
+					c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);
+			} else {
+				// If the production isn't named, we have a slightly different rule: the productions don't need to match, but if
+				// they match not accounting for labels, they have to match given labels -- so, the production can be different,
+				// but if it has the same parts, they have to have the same names
+				overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, removeAllLabels(c.store[i].rtype) == removeAllLabels(rtype), c.store[i].rtype != rtype};
+				if (size(overlaps) > 0)
+					c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);		
+			}
+
+			addProductionItem(n, productionItemId);
+			addProductionItem(nameWithSort, productionItemId);
+			addProductionItem(nameWithModule, productionItemId);
+		}
+	} 
 	
 	// Add non-terminal fields
 	alreadySeen = {};
-	for(\label(str fn, Symbol ft) <- prod.symbols) {
+	for(psym <- prod.symbols, \label(str fn, Symbol ft2) := removeConditional(psym)) {
+		ft = removeConditional(ft2);
 		if(fn notin alreadySeen) {
 			if(c.nonterminalFields[<sortId,fn>]?) {
 				t = c.nonterminalFields[<sortId,fn>];
@@ -1045,20 +1125,26 @@ public Configuration addImportedProduction(Configuration c, RName n, int itemId,
 }
 
 @doc{Add a syntax definition into the configuration.}
-public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Production prod, bool isStart) {
+public Configuration addSyntaxDefinition(Configuration c, RName rn, loc l, Production prod, bool isStart, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
  	fullSortName = appendName(moduleName, rn);
 
-    if (fullSortName notin c.typeEnv) {
+    if ((rn notin c.typeEnv && fullSortName notin c.typeEnv) && registerName) {
     	c = addScopeError(c, "Could not add syntax definition, associated nonterminal is not in scope", l);
     	return c;
     }
-    sortId = c.typeEnv[fullSortName];
+    
+    if (rn notin c.globalSortMap) {
+    	c = addScopeError(c, "Nonterminal name <prettyPrintName(rn)> is not known", l);
+    	return c;
+    }
+    
+    sortId = c.globalSortMap[rn];
 
     if(isStart) {
     	c.starts = c.starts + sortId;
-    	c = addNonterminal(c,RSimpleName("start[<getNonTerminalName(prod.def)>]"), l, prod.def);
+    	c = addNonterminal(c,RSimpleName("start[<getNonTerminalName(prod.def)>]"), l, prod.def, registerName=registerName);
     	return c;
     }
     
@@ -1260,7 +1346,7 @@ public Configuration addTag(Configuration c, TagKind tk, RName n, set[Symbol] on
         currentVal = c.store[c.tagEnv[n]];
         if (tk != currentVal.tkind) throw "Cannot add tag with same name but different kind into environment!";
         c.store[c.tagEnv[n]].onTypes = c.store[c.tagEnv[n]].onTypes + onTypes;
-        c.definitions[c.tagEnv[n]] = c.definitions + < c.tagEnv[n], l >; 
+        c.definitions = c.definitions + < c.tagEnv[n], l >; 
     } else {
         c.tagEnv[n] = c.nextLoc;
         c.store[c.nextLoc] = \tag(n, tk, onTypes, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
@@ -1289,6 +1375,18 @@ public anno set[loc] Symbol@definedAt;
 @doc{Strip the label off a symbol, if it has one at the top.}
 private Symbol stripLabel(Symbol::\label(str s, Symbol t)) = stripLabel(t);
 private default Symbol stripLabel(Symbol t) = t;
+
+public Configuration enterSignature(Configuration c, loc l) {
+    c.store[c.nextLoc] = signatureScope(head(c.stack), l);
+    c.stack = c.nextLoc + c.stack;
+    c.nextLoc = c.nextLoc + 1;
+    return c;
+}
+
+public Configuration leaveSignature(Configuration c, Configuration cOrig) {
+	c.stack = tail(c.stack);
+    return recoverEnvironments(c,cOrig);
+}
 
 public Configuration enterBlock(Configuration c, loc l) {
     c.store[c.nextLoc] = blockScope(head(c.stack), l);

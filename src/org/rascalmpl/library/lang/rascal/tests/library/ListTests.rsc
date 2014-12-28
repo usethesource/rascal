@@ -1,150 +1,229 @@
- module lang::rascal::tests::library::ListTests
- /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
-
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
-*******************************************************************************/
+@license{
+  Copyright (c) 2009-2014 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
+@contributor{Vadim Zaytsev - vadim@grammarware.net - UvA}
+module lang::rascal::tests::library::ListTests
+ 
 import Exception;
 import List;
-  	
-// delete	
-  	
+
+// concat
+
+//concat1 violates stricter typing rules of compiler
+//test bool concat1() = concat([]) == [];
+test bool concat2() = concat([[]]) == [];
+test bool concat3() = concat(concat([[[]]])) == [];
+test bool concat4() = concat([[1]]) == [1];
+test bool concat5() = concat([[1],[],[2,3]]) == [1,2,3];
+test bool concat6() = concat([[1,2],[3],[4,5],[]]) == [1,2,3,4,5];
+
+// delete
 test bool delete1() = delete([0,1,2], 0) == [1,2];
 test bool delete2() = delete([0,1,2], 1) == [0,2];
 test bool delete3() = delete([0,1,2], 2) == [0,1];
+@expected{IndexOutOfBounds} test bool delete4() { delete([0,1,2], 3); return false; } 
   		
 // distribution
-  
 test bool distribution1()  = distribution([]) == ();
 test bool distribution2()  = distribution([1]) == (1:1);
 test bool distribution3()  = distribution([1,2]) == (1:1, 2:1);
-test bool distribution4()  = distribution([1,2, 2]) == (1:1, 2:2);
+test bool distribution4()  = distribution([1,2,2]) == (1:1, 2:2);
+test bool distribution5()  = distribution([2,2,2]) == (2:3);
+test bool distribution6()  = distribution([[]]) == ([]:1);
 
-  
-/*
-// domain on Lists has been removed
-  
-test bool domain1() = domain([]) == {};
-test bool domain2()  = domain([1]) == {0};
-test bool domain3() = domain([1, 2]) == {0, 1};
-*/
-  	
+// drop
+test bool drop1()  = drop(0,[])    == [];
+test bool drop2()  = drop(0,[1])   == [1];
+test bool drop3()  = drop(0,[1,2]) == [1,2];
+test bool drop4()  = drop(1,[])    == [];
+test bool drop5()  = drop(1,[1])   == [];
+test bool drop6()  = drop(1,[1,2]) == [2];
+
+// dup
+test bool dup1()  = dup([])        == [];
+test bool dup2()  = dup([1])       == [1];
+test bool dup3()  = dup([1,2])     == [1,2];
+test bool dup4()  = dup([1,1])     == [1];
+test bool dup5()  = dup([1,1,2])   == [1,2];
+test bool dup6()  = dup([1,1,2,2]) == [1,2];
+
+// elementAt - deprecated!
+@ignoreCompiler{Other exception} @expected{NoSuchElement} test bool elementAt1() {[][0]; return false;}
+@ignoreInterpreter{Other exception} @expected{IndexOutOfBounds} test bool elementAt1() {[][0]; return false;}
+test bool elementAt2()  = [1,2,3][0] == 1;
+test bool elementAt3()  = [1,2,3][1] == 2;
+test bool elementAt4()  = [1,2,3][2] == 3;
+@expected{IndexOutOfBounds} test bool elementAt5() {[1,2,3][3]; return false;}
+test bool elementAt6()  = [1,2,3][-1] == 3;
+test bool elementAt7()  = [1,2,3][-2] == 2;
+test bool elementAt8()  = [1,2,3][-3] == 1;
+@expected{IndexOutOfBounds} test bool elementAt9() {[1,2,3][-4]; return false;}
+
 // getOneFrom
-  
-test bool getOneFrom1() {int N = List::getOneFrom([1]); return N == 1;}
+@expected{EmptyList} test bool getOneFrom1() {getOneFrom([]); return false;} 
 test bool getOneFrom2() {int N = getOneFrom([1]); return N == 1;}
-test bool getOneFrom3() {int N = List::getOneFrom([1,2]); return  (N == 1) || (N == 2);}
-test bool getOneFrom4() {int N = List::getOneFrom([1,2,3]); return  (N == 1) || (N == 2) || (N == 3);}
-test bool getOneFrom5() {real D = List::getOneFrom([1.0,2.0]); return  (D == 1.0) || (D == 2.0);}
-test bool getOneFrom6() {str S = List::getOneFrom(["abc","def"]); return  (S == "abc") || (S == "def");}
+test bool getOneFrom3() {int N = getOneFrom([1,2]); return  (N == 1) || (N == 2);}
+test bool getOneFrom4() {int N = getOneFrom([1,2,3]); return  (N == 1) || (N == 2) || (N == 3);}
+test bool getOneFrom5() {real D = getOneFrom([1.0,2.0]); return  (D == 1.0) || (D == 2.0);}
+test bool getOneFrom6() {str S = getOneFrom(["abc","def"]); return  (S == "abc") || (S == "def");}
   
-// getOneFromError
-  
-@expected{EmptyList}
-test bool getOneFromError1() {
-	getOneFrom([]);
-	return false;
-}
-  
-// head
-  
-test bool head1() = List::head([1]) == 1;
-test bool head2() = head([1]) == 1;
-test bool head3() = List::head([1, 2]) == 1;
-  
-test bool head4() = head([1, 2, 3, 4], 0) == [];
-test bool head5() = head([1, 2, 3, 4], 1) == [1];
-test bool head6() = head([1, 2, 3, 4], 2) == [1,2];
-test bool head7() = head([1, 2, 3, 4], 3) == [1,2,3];
-test bool head8() = head([1, 2, 3, 4], 4) == [1,2,3,4];
-  	
-@expected{EmptyList}
-test bool head9() {
-	head([]);
-	return false;
-}
-	  	
-@expected{IndexOutOfBounds}
-test bool head10() {
-	head([], 3);
-	return false;
-}	
-	  		
-@expected{IndexOutOfBounds}
-test bool head11() {
-	head([1,2,3], 4);
-	return false;
-}
-  		
-// insertAt
-  
-test bool insertAt1() = List::insertAt([], 0, 1) == [1];
-test bool insertAt2() = insertAt([], 0, 1) == [1];
-test bool insertAt3() = List::insertAt([2,3], 1, 1) == [2,1, 3];
+// head/1
+@expected{EmptyList} test bool head1a() {head([]);return false;}
+test bool head2a() = head([1]) == 1;
+test bool head3a() = head([1, 2]) == 1;
+
+// head/2
+test bool head1b() = head([1, 2, 3, 4], 0) == [];
+test bool head2b() = head([1, 2, 3, 4], 1) == [1];
+test bool head3b() = head([1, 2, 3, 4], 2) == [1,2];
+test bool head4b() = head([1, 2, 3, 4], 3) == [1,2,3];
+test bool head5b() = head([1, 2, 3, 4], 4) == [1,2,3,4];
+@expected{IndexOutOfBounds} test bool head6b() {head([],1);return false;}
+@expected{IndexOutOfBounds} test bool head7b() {head([],3);return false;}
+@expected{IndexOutOfBounds} test bool head8b() {head([1,2],3);return false;}
+@expected{IndexOutOfBounds} test bool head9b() {head([],-1);return false;}
+
+// headTail - see pop
+
+// index
+test bool index1() = index([]) == [];
+test bool index2() = index([1]) == [0];
+test bool index3() = index([1,2]) == [0,1];
+test bool index4() = index([10..1]) == [0..9];
+
+// indexOf
+test bool indexOf1() = indexOf([],1) == -1;
+test bool indexOf2() = indexOf([1],1) == 0;
+test bool indexOf3() = indexOf([1,2],1) == 0;
+test bool indexOf4() = indexOf([2,1],1) == 1;
+test bool indexOf5() = indexOf([1,2,1],1) == 0;
+
+// insertAt  
+test bool insertAt1() = insertAt([], 0, 1) == [1];
+@expected{IndexOutOfBounds} test bool insertAt2() {insertAt([], 1, 1) == [1]; return false;}
+test bool insertAt3() = insertAt([2,3], 0, 1) == [1, 2, 3];
 test bool insertAt4() = insertAt([2,3], 1, 1) == [2, 1, 3];
-test bool insertAt5() = List::insertAt([2,3], 2, 1) == [2,3,1];
-test bool insertAt6() = insertAt([2,3], 2, 1) == [2, 3, 1];
-  	
-@expected{IndexOutOfBounds}
-test bool insertAt7() {insertAt([1,2,3], 4, 5); return false;}
-  	
+test bool insertAt5() = insertAt([2,3], 2, 1) == [2, 3, 1];
+
+// intercalate
+test bool intercalate1()  = intercalate(",", []) == "";
+test bool intercalate2()  = intercalate("!", [1]) == "1";
+test bool intercalate3()  = intercalate(",", [1,2]) == "1,2";
+
+// intersperse
+test bool intersperse1()  = intersperse(0, []) == [];
+test bool intersperse2()  = intersperse(0, [1]) == [1];
+test bool intersperse3()  = intersperse(0, [1,2]) == [1,0,2];
+
 // isEmpty
-  
 test bool isEmpty1()  = isEmpty([]);
-test bool isEmpty2()  = isEmpty([1,2]) == false;
-  	
+test bool isEmpty2()  = !isEmpty([0]);
+test bool isEmpty3()  = !isEmpty([1,2]);
+
+// last
+@expected{EmptyList} test bool last1() {last([]);return false;}
+test bool last2() = last([1]) == 1;
+test bool last3() = last([1, 2]) == 2;
+
+// lastIndexOf
+test bool lastIndexOf1() = lastIndexOf([],1) == -1;
+test bool lastIndexOf2() = lastIndexOf([1],1) == 0;
+test bool lastIndexOf3() = lastIndexOf([1,2],1) == 0;
+test bool lastIndexOf4() = lastIndexOf([2,1],1) == 1;
+test bool lastIndexOf5() = lastIndexOf([1,2,1],1) == 2;
+
 // mapper 
-  
-test bool mapper1() {int inc(int n) {return n + 1;} return mapper([1, 2, 3], inc) == [2, 3, 4];}
+test bool mapper1() = mapper([], int (int n) {return n*10;}) == [];
+test bool mapper2() = mapper([1,2], int (int n) {return n;}) == [1,2];
+test bool mapper3() = mapper([1,2,3], int (int n) {return n+1;}) == [2,3,4];
   
 // max
-  
-test bool max1() = List::max([1, 2, 3, 2, 1]) == 3;
-test bool max2() = max([1, 2, 3, 2, 1]) == 3;
+@expected{EmptyList} test bool max1() {max([]); return false;}
+test bool max2() = max([1, 1, 1]) == 1;
+test bool max3() = max([1, 2, 3, 2, 1]) == 3;
+test bool max4() = max([-1, -2, -3]) == -1;
+
+// merge
+test bool merge1() = merge([],[]) == [];
+test bool merge2() = merge([1],[]) == [1];
+test bool merge3() = merge([],[2]) == [2];
+test bool merge4() = merge([1],[2]) == [1,2];
+test bool merge5() = merge([2],[2]) == [2,2];
+test bool merge6() = merge([3],[2]) == [2,3];
   	
 // min
-  
-test bool min1() = List::min([1, 2, 3, 2, 1]) == 1;
-test bool min2() = min([1, 2, 3, 2, 1]) == 1;
-  		
+@expected{EmptyList} test bool min1() {min([]); return false;}
+test bool min2() = min([1, 1, 1]) == 1;
+test bool min3() = min([1, 2, 3, 2, 1]) == 1;
+test bool min4() = min([-1, -2, -3]) == -3;
+
+// mix
+test bool mix1() = mix([],[]) == [];
+test bool mix2() = mix([],[1]) == [1];
+test bool mix3() = mix([],[1,2]) == [1,2];
+test bool mix4() = mix([1],[]) == [1];
+test bool mix5() = mix([1,2],[]) == [1,2];
+test bool mix6() = mix([1,3],[2]) == [1,2,3];
+test bool mix7() = mix([1,3],[2,4]) == [1,2,3,4];
+
 // permutations
-  
 test bool permutations1()  = permutations([]) == {[]};
 test bool permutations2()  = permutations([1]) == {[1]};
 test bool permutations3()  = permutations([1,2]) == {[1,2],[2,1]};
 test bool permutations4()  = permutations([1,2,3]) ==  {[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]};
-    	
-// reducer
-  
-test bool reducer1() {
-	int add(int x, int y){return x + y;};
-	return reducer([1, 2, 3, 4], add, 0) == 10;
-}
-  	
-// reverse 
-  
-test bool reverse1() = List::reverse([]) == [];
-test bool reverse2() = reverse([]) == [];
-test bool reverse3() = List::reverse([1]) == [1];
-test bool reverse4() = List::reverse([1,2,3]) == [3,2,1];
+test bool permutations5()  = permutations([1,1]) == {[1,1]};
+test bool permutations6()  = permutations([1,1,1]) == {[1,1,1]};
+
+// pop
+@expected{EmptyList} test bool pop1() {pop([]);return false;}
+test bool pop2() = pop([1]) == <1,[]>;
+test bool pop3() = pop([1,2]) == <1,[2]>;
+test bool pop4() = pop([1,2,3]) == <1,[2,3]>;
+
+// prefix
+test bool prefix1() = prefix([])    == [];
+test bool prefix2() = prefix([1])   == [];
+test bool prefix3() = prefix([1,2]) == [1];
+test bool prefix4() = prefix(prefix([1,2])) == [];
+
+// push
+test bool push1() = push(0,[]) == [0];
+test bool push2() = push(1,[2]) == [1,2];
+test bool push3() = push(1,[2,3]) == [1,2,3];
+
+// reducer - deprecated!
+
+// remove
+test bool remove1() = remove([],0) == [];
+test bool remove2() = remove([1],0) == [];
+test bool remove3() = remove([1,2],0) == [2];
+test bool remove4() = remove([1,2],1) == [1];
+test bool remove5() = remove([1,2],2) == [1,2];
+test bool remove6() = remove([1,2],-1) == [1,2];
+test bool remove7() = remove([1],-1) == [1];
+test bool remove8() = remove([],0) == [];
+
+// reverse
+test bool reverse1() = reverse([]) == [];
+test bool reverse2() = reverse([1]) == [1];
+test bool reverse3() = reverse([1,1]) == [1,1];
+test bool reverse4() = reverse([1,2]) == [2,1];
+test bool reverse5() = reverse([1,2,3]) == [3,2,1];
   
 // size
-  
-test bool size1() = List::size([]) == 0;
-test bool size2() = size([]) == 0;
-test bool size3() = List::size([1]) == 1;
-test bool size4() = List::size([1,2,3]) == 3;
+test bool size1() = 0 == size([]);
+test bool size2() = 1 == size([1]);
+test bool size3() = 2 == size([1,2]);
+test bool size4() = 3 == size([1,2,3]);
   	
 // slice
-  
 test bool slice1() = slice([1,2,3,4], 0, 0) == [];
 test bool slice2() = slice([1,2,3,4], 0, 1) == [1];
 test bool slice3() = slice([1,2,3,4], 0, 2) == [1,2];
@@ -155,121 +234,119 @@ test bool slice7() = slice([1,2,3,4], 1, 1) == [2];
 test bool slice8() = slice([1,2,3,4], 1, 2) == [2,3];
 test bool slice9() = slice([1,2,3,4], 3, 0) == [];
 test bool slice10() = slice([1,2,3,4], 3, 1) == [4];
-  
-// sort
-test bool sort1() = List::sort([]) == [];
-test bool sort2() = sort([]) == [];
-test bool sort3() = List::sort([1]) == [1];
-test bool sort4() = sort([1]) == [1];
-test bool sort5() = List::sort([2, 1]) == [1,2];
-test bool sort6() = sort([2, 1]) == [1,2];
-test bool sort7() = List::sort([2,-1,4,-2,3]) == [-2,-1,2,3, 4];
-test bool sort8() = sort([2,-1,4,-2,3]) == [-2,-1,2,3, 4];
-test bool sort9() = sort([1,2,3,4,5,6]) == [1,2,3,4,5,6];
-test bool sort10() = sort([1,1,1,1,1,1]) == [1,1,1,1,1,1];
-test bool sort11() = sort([1,1,0,1,1]) == [0,1,1,1,1];
-  	
-// sortWithCompareFunction 	
-  
-test bool sortWithCompare1() = sort([1, 2, 3]) == [1,2,3];
-test bool sortWithCompare2() = sort([1, 2, 3], bool(int a, int b){return a < b;}) == [1,2,3];
-test bool sortWithCompare3() = sort([1, 2, 3], bool(int a, int b){return a > b;}) == [3,2,1];
-  		
-@expected{IllegalArgument}
-test bool sortWithCompare4() {sort([1, 2, 3], bool(int a, int b){return a <= b;}); return false ;}
-          
-@expected{IllegalArgument}
-test bool sortWithCompare5() {sort([1, 0, 1], bool(int a, int b){return a <= b;});  return false;}
- 
- // sum
-  
-test bool sum1() = sum([]) == 0;
+
+// sort/1
+test bool sort1a() = sort([]) == [];
+test bool sort2a() = sort([1]) == [1];
+test bool sort3a() = sort([1, 2]) == [1,2];
+test bool sort4a() = sort([2, 1]) == [1,2];
+test bool sort5a() = sort([2,-1,4,-2,3]) == [-2,-1,2,3,4];
+test bool sort6a() = sort([1,2,3,4,5,6]) == [1,2,3,4,5,6];
+test bool sort7a() = sort([1,1,1,1,1,1]) == [1,1,1,1,1,1];
+test bool sort8a() = sort([1,1,0,1,1]) == [0,1,1,1,1];
+test bool sort9a() = sort(["mango", "strawberry", "pear", "pineapple", "banana", "grape", "kiwi"]) == ["banana","grape","kiwi","mango","pear","pineapple","strawberry"];
+
+// sort/2
+test bool sort1b() = sort([1,2,3], bool(int a, int b){return a < b;}) == [1,2,3];
+test bool sort1b() = sort([1,3,2], bool(int a, int b){return a < b;}) == [1,2,3];
+test bool sort1b() = sort([1,3,2], bool(int a, int b){return a > b;}) == [3,2,1];
+test bool sort1b() = sort([3,2,1], bool(int a, int b){return a > b;}) == [3,2,1];
+@expected{IllegalArgument} test bool sort1b() {sort([1,2,3], bool(int a, int b){return a <= b;}); return false;}
+@expected{IllegalArgument} test bool sort1b() {sort([1,2,3], bool(int a, int b){return a >= b;}); return false;}
+
+// split
+test bool split1() = split([]) == <[],[]>;
+test bool split2() = split([1]) == <[],[1]>;
+test bool split3() = split([1,2]) == <[1],[2]>;
+test bool split4() = split([1,2,3]) == <[1],[2,3]>;
+test bool split5() = split([1,2,3,4]) == <[1,2],[3,4]>;
+
+// sum
+test bool sum1() = sum([0]) == 0;
 test bool sum2() = sum([1]) == 1;
 test bool sum3() = sum([1,2]) == 3;
 test bool sum4() = sum([1,2,3]) == 6;
+@expected{ArithmeticException} test bool sum5() {sum([]); return false;}
 
-// tail
-  
-test bool tail1() = List::tail([1]) == [];
-test bool tail2() = tail([1]) == [];
-test bool tail3() = List::tail([1, 2]) == [2];
-test bool tail4() = tail([1, 2, 3]) + [4, 5, 6]  == [2, 3, 4, 5, 6];
-test bool tail5() = tail([1, 2, 3]) + tail([4, 5, 6])  == [2, 3, 5, 6];
-  
-test bool tail6() = tail([1, 2, 3], 2) == [2,3];
-test bool tail7() = tail([1, 2, 3], 0) == [];
-  		
-test bool tail8() = tail(tail([1, 2])) == tail([3]);
-  		
-test bool tail9() { L = [1,2]; return tail(tail(L)) == tail(tail(L));}
-test bool tail10() { L1 = [1,2,3]; L2 = [2,3]; return tail(tail(L1)) == tail(L2);}
-test bool tail11() { L1 = [1,2]; L2 = [3]; return tail(tail(L1)) == tail(L2);}
-test bool tail12() { L1 = [1,2]; L2 = [3]; return {tail(tail(L1)), tail(L2)} == {[]};}
-  			
-@expected{EmptyList}
-test bool tail13() {
-	tail([]); return false;
-}
+// tail/1
+@expected{EmptyList} test bool tail1a() {tail([]);return false;}
+test bool tail2a() = tail([1]) == [];
+test bool tail3a() = tail([1, 2]) == [2];
+test bool tail4a() = tail(tail([1, 2])) == [];
 
-@expected{IndexOutOfBounds}
-test bool tail14() {
-	tail([1,2,3], 4); return false;
-}
+// tail/2
+test bool tail1b() = tail([1, 2, 3, 4], 0) == [];
+test bool tail2b() = tail([1, 2, 3, 4], 1) == [4];
+test bool tail3b() = tail([1, 2, 3, 4], 2) == [3,4];
+test bool tail4b() = tail([1, 2, 3, 4], 3) == [2,3,4];
+test bool tail5b() = tail([1, 2, 3, 4], 4) == [1,2,3,4];
+@expected{IndexOutOfBounds} test bool tail6b() {tail([],1);return false;}
+@expected{IndexOutOfBounds} test bool tail7b() {tail([],3);return false;}
+@expected{IndexOutOfBounds} test bool tail8b() {tail([1,2],3);return false;}
+@expected{IndexOutOfBounds} test bool tail9b() {tail([],-1);return false;}
   	
 // takeOneFrom
-  
 test bool takeOneFrom1() {<E, L> = takeOneFrom([1]); return (E == 1) && (L == []);}
-test bool takeOneFrom2() {<E, L> = List::takeOneFrom([1,2]); return ((E == 1) && (L == [2])) || ((E == 2) && (L == [1]));}
-  	
-@expected{EmptyList}
-test bool takeOneFrom3() {
-	takeOneFrom([]);
-	return false;
-}
-  	
-// toMapUnique
-  
-test bool toMapUnique1() = List::toMapUnique([]) == ();
-test bool toMapUnique2() = toMapUnique([]) == ();
-test bool toMapUnique3() = List::toMapUnique([<1,10>, <2,20>]) == (1:10, 2:20);
-  
-@expected{MultipleKey}		
-test bool toMapUnique4() = List::toMapUnique([<1,10>, <1,20>]) == (1:10, 2:20);
+test bool takeOneFrom2() {<E, L> = takeOneFrom([1,2]); return ((E == 1) && (L == [2])) || ((E == 2) && (L == [1]));}
+@expected{EmptyList} test bool takeOneFrom3() {takeOneFrom([]); return false;}
+
+// takeWhile
+test bool takeWhile1() = takeWhile([],bool(int x){ return x mod 2 == 0;}) == [];
+test bool takeWhile2() = takeWhile([1,2],bool(int x){ return x mod 2 == 0;}) == [];
+test bool takeWhile3() = takeWhile([2,1],bool(int x){ return x mod 2 == 0;}) == [2]; 
+test bool takeWhile4() = takeWhile([5..-5],bool(int x){ return x < 0;}) == []; 
+test bool takeWhile5() = takeWhile([5..-5],bool(int x){ return x > 0;}) == [5..0]; 
+test bool takeWhile6() = takeWhile([-20..20],bool(int x){ return x < 0;}) == [-20..0]; 
+test bool takeWhile7() = takeWhile([-20..20],bool(int x){ return x > 0;}) == []; 
 
 // toMap
-  
-test bool toMap5() = List::toMap([]) == ();
-test bool toMap6() = toMap([]) == ();
-test bool toMap7() = List::toMap([<1,10>, <2,20>]) == (1:{10}, 2:{20});
-test bool toMap8() = List::toMap([<1,10>, <2,20>, <1,30>]) == (1:{10,30}, 2:{20});
+test bool toMap1() = toMap([]) == ();
+test bool toMap2() = toMap([<1,10>, <2,20>]) == (1:{10}, 2:{20});
+test bool toMap3() = toMap([<1,10>, <2,20>, <1,30>]) == (1:{10,30}, 2:{20});
+
+// toMapUnique
+test bool toMapUnique1() = toMapUnique([]) == ();
+test bool toMapUnique2() = toMapUnique([<1,10>, <2,20>]) == (1:10, 2:20);
+@expected{MultipleKey} test bool toMapUnique3() {toMapUnique([<1,10>, <1,20>]); return false;}
+
+// top - see head
+
+// toRel
+test bool toRel1() = toRel([]) == {};
+test bool toRel2() = toRel([1]) == {};
+test bool toRel3() = toRel([1,2]) == {<1,2>};
+test bool toRel4() = toRel([1,2,3]) == {<1,2>, <2,3>};
+test bool toRel5() = toRel([1,2,3,4]) == {<1,2>, <2,3>, <3,4>};
+
+// toSet
+test bool toSet1() = toSet([]) == {};
+test bool toSet2() = toSet([1]) == {1};
+test bool toSet3() = toSet([1,2]) == {1, 2};
+test bool toSet4() = toSet([1,2,1]) == {1, 2};
   	
-test bool toMap9() = List::toSet([]) == {};
-test bool toMap10() = toSet([]) == {};
-test bool toMap11() = List::toSet([1]) == {1};
-test bool toMap12() = toSet([1]) == {1};
-test bool toMap13() = List::toSet([1, 2, 1]) == {1, 2};
-  	
-// toString
-  
-test bool toString1() = List::toString([]) == "[]";
-test bool toString2() = toString([]) == "[]";
-test bool toString3() = List::toString([1]) == "[1]";
-test bool toString4() = List::toString([1, 2]) == "[1,2]";
+// toString  
+test bool toString1() = toString([]) == "[]";
+test bool toString2() = toString([1]) == "[1]";
+test bool toString3() = toString([1, 2]) == "[1,2]";
+
+// itoString  
+test bool itoString1() = itoString([]) == "[]";
+test bool itoString2() = itoString([1]) == "[1]";
+test bool itoString3() = itoString([1, 2]) == "[1,2]";
+test bool itoString4() = itoString([1, [], 2]) == "[\n  1,\n  [],\n  2\n]";
   	
 // listExpressions
-  
  test bool listExpressions() { 
 	value n = 1; 
 	value s = "string"; 
 	return list[int] _ := [ n ] && 
 	list[str] _ := [ s, s, *[ s, s ] ]; 
 }
-  	
+
 // Tests related to the correctness of the dynamic types of lists produced by the library functions;
 // incorrect dynamic types make pattern matching fail;
   
 // testDynamicTypes
-  
 test bool dynamicTypes1() { list[value] lst = ["1",2,3]; return list[int] _ := slice(lst, 1, 2); }
 test bool dynamicTypes2() { list[value] lst = ["1",2,3]; return list[int] _ := lst - "1"; }
 test bool dynamicTypes3() { list[value] lst = ["1",2,3]; return list[int] _ := lst - ["1"]; }

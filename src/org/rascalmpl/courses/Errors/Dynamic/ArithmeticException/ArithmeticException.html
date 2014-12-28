@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Errors/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Errors/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,20 +48,20 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  data RunTimeException = ArithmeticException(str message);
 
 </div>
 
-                           
-                           
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>data RunTimeException = ArithmeticException(str message);</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  import Exception;
 
@@ -79,19 +79,20 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>    Division by 0 gives an error:
 <pre class="screen"><span class="prompt">rascal></span>3/0;
 |stdin:///|(2,1,&lt;1,2>,&lt;1,3>): ArithmeticException("/ by zero")
 
+
 </pre>  Giving an out-of-range argument to a mathematical function also gives an error:
 <pre class="screen"><span class="prompt">rascal></span>import util::Math;
 ok
 <span class="prompt">rascal></span>tan(-550000000000000000000000);
-|std:///util/Math.rsc|(9177,248,&lt;478,0>,&lt;492,28>): ArithmeticException("x should be between -(pi/2) and (pi/2)")
-	/util/Math.rsc:478,0
-	somewhere in: tan
+|rascal://util::Math|(9442,248,&lt;503,0>,&lt;517,28>): ArithmeticException("x should be between -(pi/2) and (pi/2)")
+	at *** somewhere ***(|rascal://util::Math|(9442,248,&lt;503,0>,&lt;517,28>))
+	at tan(|stdin:///|(5,24,&lt;1,5>,&lt;1,29>))
 
 
 </pre>  We can also catch the <code>ArithmeticException</code> error. First import the Rascal exceptions (which are also included in <code>Prelude</code>)
@@ -106,9 +107,9 @@ ok
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Dynamic/ArithmeticException&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Dynamic/ArithmeticException&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |

@@ -100,7 +100,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		
 		try {
 			String RegExpAsString = interpolate(ctx);
-			pat = Pattern.compile(RegExpAsString);
+			pat = Pattern.compile(RegExpAsString, Pattern.UNICODE_CHARACTER_CLASS);
 		} catch (PatternSyntaxException e){
 			throw new SyntaxError(e.getMessage(), ctx.getCurrentAST().getLocation());
 		}

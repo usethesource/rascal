@@ -107,7 +107,7 @@ public class FileURIResolver implements IURIInputOutputResolver {
 	}
 
 	public void mkDirectory(URI uri) {
-		new File(getPath(uri)).mkdir();
+		new File(getPath(uri)).mkdirs();
 	}
 
 	public URI getResourceURI(URI uri) {

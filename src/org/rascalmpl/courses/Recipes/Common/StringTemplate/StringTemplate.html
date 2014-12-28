@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Recipes/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Recipes/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Many websites and code generators use template-based code generation. They start from a text template that contains embedded variables and code. The template is "executed" by replacing the embedded variables and code by their string value. Languages like PHP and Ruby are popular for this feature. Let's see how we can do this in Rascal. 
  <br/>
@@ -63,7 +63,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  The problem we want to solve is as follows: 
  given a number of fields (with a name and a type)
@@ -136,7 +136,7 @@ ok
 <span class="continuation">>>>>>>></span>     "age" : "Integer",
 <span class="continuation">>>>>>>></span>     "address" : "String"
 <span class="continuation">>>>>>>></span>  );
-map[str, str]: ("age":"Integer","name":"String","address":"String")
+map[str, str]: ("name":"String","address":"String","age":"Integer")
 <span class="prompt">rascal></span>println(genClass(&quot;Person&quot;, fields));
 public class Person {
   
@@ -166,14 +166,14 @@ ok
 </pre>
 </div>
 
-  	                       
+
 <div id="Benefits">
 <span class="sectionHead">Benefits</span>  <ul><li> String templates are ideal to generate arbitrary output. In particular, no grammar is needed to describe this output.</li>
 <li> Auto-indent helps to be able to compose templates from reusable parts.</li>
 </ul>
 </div>
 
-  	                       
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  <ul><li> Since no grammar is used to control output, errors in generated code can only be detected by a downstream processor such as a compiler for the generated code.</li>
 <li> In more complex cases, it can be better to introduce an abstract datatype to represent the desired code and to use string templates to produce the actual textual representation of that code.
@@ -181,7 +181,7 @@ ok
 </ul>
 </div>
 
-  	                       
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Common/StringTemplate&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Common/StringTemplate&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |

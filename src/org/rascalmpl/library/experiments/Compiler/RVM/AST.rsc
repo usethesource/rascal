@@ -1,6 +1,7 @@
 module experiments::Compiler::RVM::AST
 
 import Type;
+import Message;
 
 public data Declaration = 
 		  FUNCTION(str qname,
@@ -30,13 +31,18 @@ public data Declaration =
 
 public data RVMProgram = 
 		  rvm(str name,
+		      set[Message] messages,
 			  list[loc] imports,
               map[str,Symbol] types, 
+              map[Symbol, Production] symbol_definitions,
               map[str, Declaration] declarations, 
               list[Instruction] initialization, 
               map[str,int] resolver, 
-              lrel[str,list[str],list[str]] overloaded_functions)
+              lrel[str,list[str],list[str]] overloaded_functions,
+              loc src)
         ;
+
+RVMProgram errorRVMProgram(str name, set[Message] messages, loc src) = rvm(name, messages, [], (), (), (), [], (), [], src);
 
 public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean

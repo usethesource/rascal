@@ -15,10 +15,10 @@ Description:
 
 
 Examples:
-Assuming that the project `|project://org.eclipse.imp.pdb.values|` exists in the current workspace, we can get the following:
+Assuming that the project `|project://example-project|` exists in the current workspace, we can get the following:
 <screen>
 import util::Resources;
-dependencies(|project://org.eclipse.imp.pdb.values|);
+dependencies(|project://example-project|);
 </screen>
 
 Benefits:

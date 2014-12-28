@@ -75,7 +75,7 @@ public list[Message] checkController(Controller ctl) {
     for (t:transition(e, _) <- s.transitions, e notin evs)  
       append err: error("Undeclared event", t@location);
     for (t:transition(_, s2) <- s.transitions, s2 notin sts)  
-      append err: error("Undeclared state", s2@location);
+      append err: error("Undeclared state", t@location);
   }
   
   g = stateGraph(ctl)+;

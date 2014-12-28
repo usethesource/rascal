@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,15 +48,15 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code>solve(<i>Var</i><sub>1</sub>, <i>Var</i><sub>2</sub>, ..., <i>Var</i><sub>n</sub>; <i>Exp</i>) <i>Statement</i>;</code>
 
 </div>
 
-                           
-                           
-                           
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Rascal provides a solve statement for performing arbitrary fixed-point computations. This means, repeating a certain computation as long as it causes changes. This can, for instance, be used for the solution of sets of simultaneous 
  linear equations but has much wider applicability.
@@ -76,7 +76,7 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Let's consider transitive closure as an example (transitive closure is already available as built-in operator, 
  we use it here just as a simple illustration). Transitive closure of a relation is usually defined as:
@@ -86,32 +86,32 @@
  <pre class="screen"><span class="prompt">rascal></span>rel[int,int] R = {&lt;1,2&gt;, &lt;2,3&gt;, &lt;3,4&gt;};
 rel[int,int]: {
   &lt;2,3>,
-  &lt;3,4>,
-  &lt;1,2>
+  &lt;1,2>,
+  &lt;3,4>
 }
 <span class="prompt">rascal></span>T = R;
 rel[int,int]: {
   &lt;2,3>,
-  &lt;3,4>,
-  &lt;1,2>
+  &lt;1,2>,
+  &lt;3,4>
 }
 <span class="prompt">rascal></span>solve (T) {
 <span class="continuation">>>>>>>></span>          T = T + (T o R);
 <span class="continuation">>>>>>>></span>        }
 rel[int,int]: {
-  &lt;2,3>,
-  &lt;1,3>,
+  &lt;1,4>,
   &lt;2,4>,
-  &lt;3,4>,
+  &lt;1,3>,
+  &lt;2,3>,
   &lt;1,2>,
-  &lt;1,4>
+  &lt;3,4>
 }
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Statements/Solve&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Statements/Solve&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
