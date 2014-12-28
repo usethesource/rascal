@@ -147,10 +147,12 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		 * alternative with more than 0 arguments is defined as the maximum
 		 * depth of the list of arguments plus 1.
 		 */
-
-		if (type.getArity() == 0 && !type.hasKeywordParameters()) { // Diepte 0 dus we mogen altijd opleveren.
+		Map<String, Type> kwParams = definitions.getKeywordParameters(type);
+		
+		if (type.getArity() == 0 && kwParams.size() == 0) { 
 			return vf.constructor(type);
-		} else if (this.maxDepth <= 0) {
+		} 
+		else if (this.maxDepth <= 0) {
 			return null;
 		}
 
@@ -166,18 +168,20 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 			values.add(argument);
 		}
 		IValue[] params = values.toArray(new IValue[values.size()]);
-		if (stRandom.nextBoolean() && type.getKeywordParameterTypes().getArity() > 0) {
-			Map<String, IValue> kwParams = new HashMap<>();
-			for (String kw:  type.getKeywordParameters()) {
-				if (stRandom.nextBoolean()) continue;
-				Type fieldType = type.getKeywordParameterType(kw);
+		if (stRandom.nextBoolean() && kwParams.size() > 0) {
+			Map<String,IValue> kwp = new HashMap<>();
+			for (String kw:  kwParams.keySet()) {
+				if (stRandom.nextBoolean()) {
+					continue;
+				}
+				Type fieldType = kwParams.get(kw);
 				IValue argument = visitor.generate(fieldType);
 				if (argument == null) {
 					return null;
 				}
-				kwParams.put(kw, argument);
+				kwp.put(kw, argument);
 			}
-			return vf.constructor(type, params, kwParams);
+			return vf.constructor(type, params, kwp);
 		}
 		else {
 			return vf.constructor(type, params);
