@@ -27,6 +27,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.TypeDeclarationEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -38,9 +39,13 @@ public class ConstructorFunction extends NamedFunction {
 	private final List<KeywordFormal> initializers;
 
 	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType, List<KeywordFormal> initializers) {
-		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), constructorType.getKeywordParameterTypes()), initializers, constructorType.getName(), false, true, false, env);
+		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), TypeDeclarationEvaluator.computeKeywordParametersType(initializers, eval)), initializers, constructorType.getName(), false, true, false, env);
 		this.constructorType = constructorType;
 		this.initializers = initializers;
+	}
+	
+	public Type getConstructorType() {
+		return constructorType;
 	}
 
 	@Override
@@ -52,7 +57,7 @@ public class ConstructorFunction extends NamedFunction {
 	
 	@Override
 	public Type getKeywordArgumentTypes() {
-	  return constructorType.getKeywordParameterTypes();
+	  return functionType.getKeywordParameterTypes();
 	}
 	
 	@Override
