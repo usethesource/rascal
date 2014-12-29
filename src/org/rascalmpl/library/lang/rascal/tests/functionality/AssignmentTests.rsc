@@ -106,6 +106,18 @@ test bool assigningClosureToVariableBug8771() {
     		return x() == true;
 }
   	
-  
-  	
- 
+data F(int kw1 = 0) = h(int w = -1);
+
+test bool testKwParams1() { 
+  X = h();
+  assert X.w == -1;
+  X.w *= 2;
+  return X.w == -2;
+}
+
+test bool testKwParams2() { 
+  X = h();
+  assert X.kw1 == 0;
+  X.kw1 = 2;
+  return X.kw1 == 2;
+}
