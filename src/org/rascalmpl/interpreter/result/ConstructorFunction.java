@@ -17,6 +17,7 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import java.util.Set;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
@@ -34,7 +36,6 @@ import org.rascalmpl.interpreter.TypeDeclarationEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -65,7 +66,27 @@ public class ConstructorFunction extends NamedFunction {
 	
 	@Override
 	public Type getKeywordArgumentTypes() {
-	  return functionType.getKeywordParameterTypes();
+		Type kwTypes = functionType.getKeywordParameterTypes();
+		ArrayList<Type> types = new ArrayList<>();
+		ArrayList<String> labels = new ArrayList<>();
+		
+		for (String label : kwTypes.getFieldNames()) {
+			types.add(kwTypes.getFieldType(label));
+			labels.add(label);
+		}
+		
+		Set<GenericKeywordParameters> kws = getEnv().lookupGenericKeywordParameters(constructorType.getAbstractDataType());
+		for (GenericKeywordParameters p : kws) {
+			Map<String, Type> m = p.getTypes();
+			for (String name : m.keySet()) {
+				labels.add(name);
+				types.add(m.get(name));
+			}
+		}
+		
+		Type[] typeArray = types.toArray(new Type[0]);
+		String[] stringArray = labels.toArray(new String[0]);
+		return TypeFactory.getInstance().tupleType(typeArray, stringArray);
 	}
 	
 	@Override
