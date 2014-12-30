@@ -330,7 +330,7 @@ public class Environment {
 			
 			if (locals != null) {
 				for (AbstractFunction func : locals) {
-					if (func.getReturnType().isSubtypeOf(returnType)) {
+					if (func.getReturnType().comparable(returnType)) {
 						collection.add(func);
 					}
 				}

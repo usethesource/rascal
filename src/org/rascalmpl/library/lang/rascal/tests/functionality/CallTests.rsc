@@ -398,8 +398,8 @@ test bool genericKwParams1() = number(1).depth == 0;
 test bool genericKwParams2() = id("tommie").width == 1;
 test bool genericKwParamsBack1() = number(1).y == 4;
 
-data Expr(int x = 2, int y = 2 * x) = add(Expr l, Expr r, int z = x * y);
+data Expr(int x = 2, int y = 2 * x) = a(Expr l, Expr r, int z = x * y);
 
-test bool genericKwParams3() = add(id("x"), id("y")).z == 8;
+test bool genericKwParams3() = a(id("x"), id("y")).z == 8;
 
-test bool genericKwParams4() = add(id("x"),id("y"),x = 3).z == 18;
+test bool genericKwParams4() = a(id("x"),id("y"),x = 3).z == 18;
