@@ -392,13 +392,13 @@ test bool keywordMatchTest12() =point1(_, _, colors=[*_,"blue",*_]) := point1(1,
 test bool keywordMatchTest13() =point1(_, _, colors=[*_,*X,*_,*X, *_]) := point1(1,2, colors=["red","blue","green","blue"]);
  
 data Expr(int depth = 0) = id(str x);
-data Expr(int width = 1) = number(num x);
+data Expr(int width = 1) = number(num n);
 
 test bool genericKwParams1() = number(1).depth == 0;
 test bool genericKwParams2() = id("tommie").width == 1;
 test bool genericKwParamsBack1() = number(1).y == 4;
 
-data Expr(int x = 2, int y = 2 * x) = add(Exp l, Exp r, int z = x * y);
+data Expr(int x = 2, int y = 2 * x) = add(Expr l, Expr r, int z = x * y);
 
 test bool genericKwParams3() = add(id("x"), id("y")).z == 8;
 
