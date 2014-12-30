@@ -315,7 +315,7 @@ public class Environment {
 				ConstructorFunction func = (ConstructorFunction) candidate;
 				
 				if (func.getName().equals(constructorType.getName()) 
-						&& func.getConstructorType() == constructorType) {
+						&& constructorType.isSubtypeOf(func.getConstructorType())) {
 					return func;
 				}
 			}

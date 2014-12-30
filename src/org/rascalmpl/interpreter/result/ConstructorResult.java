@@ -66,7 +66,6 @@ public class ConstructorResult extends NodeResult {
 		try {
 			ConstructorFunction cons = ctx.getCurrentEnvt().getConstructorFunction(getValue().getConstructorType());
 			Type kwTypes = cons.getKeywordArgumentTypes();
-			
 			if (!getType().hasField(name, store) && !kwTypes.hasField(name)) {
 				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
