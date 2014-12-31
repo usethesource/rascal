@@ -529,7 +529,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
         "Facade cannot be viewed as with keyword parameters.", getType());
 	}
 
-	protected void bindKeywordArgs(Map<String, IValue> keyArgValues) {
+	protected void bindKeywordArgs(Map<String, IValue> keyArgValues, Environment callerEnvironment) {
 	    Environment env = ctx.getCurrentEnvt();
 
 	    if (functionType.hasKeywordParameters()) {
@@ -574,10 +574,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			}
 		
 			// then we initialize the keyword parameters in this environment
-			bindKeywordArgs(keyArgValues);
+			bindKeywordArgs(keyArgValues, old);
 			
 			ImmutableMap<String, IValue> result = AbstractSpecialisedImmutableMap.mapOf();
-			result = transferKeywordArgs(env, result);
+			result = transferKeywordArgs(env, old, result);
 			
 			return result;
 		}
@@ -586,7 +586,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 
-	protected ImmutableMap<String, IValue> transferKeywordArgs(Environment env, ImmutableMap<String, IValue> result) {
+	protected ImmutableMap<String, IValue> transferKeywordArgs(Environment env, Environment callerScope, ImmutableMap<String, IValue> result) {
 		Type kwType = getFunctionType().getKeywordParameterTypes();
 		
 		for (int i = 0; i < kwType.getArity(); i++) {
