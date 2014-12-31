@@ -198,20 +198,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 				}
 				kwParams.put(kw, argument);
 			}
-			if (stRandom.nextDouble() > 0.7) {
-				int total = 1 + stRandom.nextInt(4);
-				while (total > 0) {
-					String name = RandomUtil.stringAlphaNumeric(stRandom, 5);
-					while (kwParams.containsKey(name)) {
-						name = RandomUtil.stringAlphaNumeric(stRandom, 5);
-					}
-					IValue arg = visitor.generate(tf.valueType());
-					if (arg != null) {
-						kwParams.put(name, arg);
-					}
-					total--;
-				}
-			}
+			
 			return vf.constructor(type, params, kwParams);
 		}
 		else {
