@@ -75,7 +75,7 @@ public class ConstructorFunction extends NamedFunction {
 			labels.add(label);
 		}
 		
-		Set<GenericKeywordParameters> kws = getEnv().lookupGenericKeywordParameters(constructorType.getAbstractDataType());
+		Set<GenericKeywordParameters> kws = getEvaluatorContext().getCurrentEnvt().lookupGenericKeywordParameters(constructorType.getAbstractDataType());
 		for (GenericKeywordParameters p : kws) {
 			Map<String, Type> m = p.getTypes();
 			for (String name : m.keySet()) {
@@ -90,8 +90,8 @@ public class ConstructorFunction extends NamedFunction {
 	}
 	
 	@Override
-	protected void bindKeywordArgs(Map<String, IValue> keyArgValues) {
-		Set<GenericKeywordParameters> kws = getEnv().lookupGenericKeywordParameters(constructorType.getAbstractDataType());
+	protected void bindKeywordArgs(Map<String, IValue> keyArgValues, Environment callerEnvironment) {
+		Set<GenericKeywordParameters> kws = callerEnvironment.lookupGenericKeywordParameters(constructorType.getAbstractDataType());
 		Environment resultScope = ctx.getCurrentEnvt();
 		
 		for (GenericKeywordParameters gkw : kws) {
@@ -138,13 +138,13 @@ public class ConstructorFunction extends NamedFunction {
 		}
 			
 		// and here go the constructor-specific initializers
-		super.bindKeywordArgs(keyArgValues);
+		super.bindKeywordArgs(keyArgValues, callerEnvironment);
 	}
 	
 	@Override
-	protected ImmutableMap<String, IValue> transferKeywordArgs(Environment env,
+	protected ImmutableMap<String, IValue> transferKeywordArgs(Environment env, Environment callerScope, 
 			ImmutableMap<String, IValue> result) {
-		Set<GenericKeywordParameters> kws = getEnv().lookupGenericKeywordParameters(constructorType.getAbstractDataType());
+		Set<GenericKeywordParameters> kws = callerScope.lookupGenericKeywordParameters(constructorType.getAbstractDataType());
 		
 		for (GenericKeywordParameters gkw : kws) {
 			Map<String, Type> types = gkw.getTypes();
@@ -154,7 +154,7 @@ public class ConstructorFunction extends NamedFunction {
 			}
 		}
 		
-		result = super.transferKeywordArgs(env, result);
+		result = super.transferKeywordArgs(env, callerScope, result);
 		return result;
 	}
 	
