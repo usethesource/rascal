@@ -29,3 +29,9 @@ test bool crossModuleAssignAndFieldRef() {
   
   return a.e == "hello" && b.c == 42;
 }
+
+test bool allocatedElseWhereUsedWithNewExtension1() 
+   = createL1().g == l().g;
+
+test bool allocatedElseWhereUsedWithNewExtension2() 
+   = createN2().a == n().a;
