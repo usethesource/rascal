@@ -300,5 +300,5 @@ test bool StringVisit67() = TDCntAB("abcabca") == <3, 20>;
 data RECT = rect(int w, int h, str color = "white");
 
 test bool KeywordVisit1()=visit("f"(1, kw1="abc", kw2=13)){ case 1 => 10 case "abc" => "def" case 13 => 14} == "f"(10, kw1="def", kw2=14);
-test bool KeywordVisit2()=visit(rect(10,20)){ case "white" => "red"} == rect(10, 20, color="red");
+test bool KeywordVisit2()=visit(rect(10,20,color="white")){ case "white" => "red"} == rect(10, 20, color="red");
 
