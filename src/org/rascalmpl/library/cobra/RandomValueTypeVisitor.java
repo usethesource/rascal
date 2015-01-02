@@ -187,11 +187,13 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 			values.add(argument);
 		}
 		IValue[] params = values.toArray(new IValue[values.size()]);
-		if (stRandom.nextBoolean() && cons.getKeywordArgumentTypes().getArity() > 0) {
+		Type kwArgTypes = cons.getKeywordArgumentTypes(this.rootEnv);
+		
+		if (stRandom.nextBoolean() && kwArgTypes.getArity() > 0) {
 			Map<String, IValue> kwParams = new HashMap<>();
-			for (String kw: cons.getKeywordArgumentTypes().getFieldNames()) {
+			for (String kw: kwArgTypes.getFieldNames()) {
 				if (stRandom.nextBoolean()) continue;
-				Type fieldType = cons.getKeywordArgumentTypes().getFieldType(kw);
+				Type fieldType = kwArgTypes.getFieldType(kw);
 				IValue argument = visitor.generate(fieldType);
 				if (argument == null) {
 					return null;

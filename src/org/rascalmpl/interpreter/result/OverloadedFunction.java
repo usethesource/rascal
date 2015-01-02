@@ -71,13 +71,13 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override
-	public Type getKeywordArgumentTypes() {
+	public Type getKeywordArgumentTypes(Environment scope) {
 	  ArrayList<String> labels = new ArrayList<>();
 	  ArrayList<Type> types = new ArrayList<>();
 	  // TODO: I am not sure this is what we want. Double names will end up twice in the tuple type...
 	  
 	  for (AbstractFunction c : primaryCandidates) {
-	    Type args = c.getKeywordArgumentTypes();
+	    Type args = c.getKeywordArgumentTypes(scope);
 	    
 	    if (args != null && args.hasFieldNames()) {
 	    	for (String label : args.getFieldNames()) {
@@ -88,7 +88,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	  }
 	  
 	  for (AbstractFunction c : defaultCandidates) {
-		  Type args = c.getKeywordArgumentTypes();
+		  Type args = c.getKeywordArgumentTypes(scope);
 
 		  if (args != null && args.hasFieldNames()) {
 			  for (String label : args.getFieldNames()) {

@@ -213,7 +213,7 @@ public class JavaMethod extends NamedFunction {
 			int amountOfKWArguments =  kwType.getArity();
 			Object[] newActuals = new Object[oldActuals.length + amountOfKWArguments];
 			System.arraycopy(oldActuals, 0, newActuals, 0, oldActuals.length);
-			bindKeywordArgs(keyArgValues, old);
+			bindKeywordArgs(keyArgValues);
 			
 			// then we add the resulting values in order to the actual parameter array for the Java method
 			for (int i = 0; i < amountOfKWArguments; i++) {

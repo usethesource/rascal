@@ -17,6 +17,7 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -24,16 +25,21 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIUtil;
 
 public class ConstructorResult extends NodeResult {
 
@@ -64,29 +70,31 @@ public class ConstructorResult extends NodeResult {
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		try {
-			ConstructorFunction cons = ctx.getCurrentEnvt().getConstructorFunction(getValue().getConstructorType());
-			Type kwTypes = cons.getKeywordArgumentTypes();
+			Type consType = getValue().getConstructorType();
+			ConstructorFunction cons = ctx.getCurrentEnvt().getConstructorFunction(consType);
+			Type kwTypes = cons.getKeywordArgumentTypes(ctx.getCurrentEnvt());
+			
 			if (!getType().hasField(name, store) && !kwTypes.hasField(name)) {
 				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 			}
 
-			Type nodeType = getValue().getConstructorType();
-			
-			if (!nodeType.hasField(name) && !kwTypes.hasField(name)) {
+			if (!consType.hasField(name) && !kwTypes.hasField(name)) {
 				throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
 			}
 			
-			if (kwTypes.hasField(name)) {
+			if (kwTypes.hasField(name)) { // it's a keyword parameter
 				IValue parameter = getValue().asWithKeywordParameters().getParameter(name);
-				if (parameter == null) {
-					throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
-				}
 				
-				return makeResult(kwTypes.getFieldType(name), parameter, ctx);
+				if (parameter == null) {  
+					return (Result<U>) cons.computeDefaultKeywordParameter(name, getValue(), ctx.getCurrentEnvt());
+				}
+				else {
+					return makeResult(kwTypes.getFieldType(name), parameter, ctx);
+				}
 			}
-			else {
-				int index = nodeType.getFieldIndex(name);
-				return makeResult(nodeType.getFieldType(index), getValue().get(index), ctx);
+			else { // it is a normal parameter
+				int index = consType.getFieldIndex(name);
+				return makeResult(consType.getFieldType(index), getValue().get(index), ctx);
 			}
 		} catch (UndeclaredAbstractDataTypeException e) {
 			throw new UndeclaredType(getType().toString(), ctx.getCurrentAST());
@@ -96,7 +104,7 @@ public class ConstructorResult extends NodeResult {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		ConstructorFunction cons = ctx.getCurrentEnvt().getConstructorFunction(getValue().getConstructorType());
-		Type kwTypes = cons.getKeywordArgumentTypes();
+		Type kwTypes = cons.getKeywordArgumentTypes(ctx.getCurrentEnvt());
 		
 		if (!getType().hasField(name, store) && !kwTypes.hasField(name)) {
 			throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
@@ -126,6 +134,7 @@ public class ConstructorResult extends NodeResult {
 		}
 	}
 
+	
 	@Override
 	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env) {
 		Type annoType = env.getAnnotationType(getType(), annoName);

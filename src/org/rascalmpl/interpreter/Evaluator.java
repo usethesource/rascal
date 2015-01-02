@@ -597,7 +597,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
   public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
     Map<String, Type> expectedTypes = new HashMap<String,Type>();
-    Type kwTypes = func.getKeywordArgumentTypes();
+    Type kwTypes = func.getKeywordArgumentTypes(getCurrentEnvt());
     
     for (String kwp : kwTypes.getFieldNames()) {
       expectedTypes.put(kwp, kwTypes.getFieldType(kwp));
