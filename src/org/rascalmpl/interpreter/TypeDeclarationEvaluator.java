@@ -155,8 +155,15 @@ public class TypeDeclarationEvaluator {
 	}
 
 	public void declareAbstractADT(DataAbstract x, Environment env) {
-		TypeFactory.getInstance();
-		declareAbstractDataType(x.getUser(), env);
+		Type adt = declareAbstractDataType(x.getUser(), env);
+		
+		List<KeywordFormal> common = x.getCommonKeywordParameters().isPresent() 
+				? x.getCommonKeywordParameters().getKeywordFormalList()
+		        : Collections.<KeywordFormal>emptyList();
+		
+		if (common.size() > 0) {
+			env.declareGenericKeywordParameters(adt, computeKeywordParametersType(common, eval), common);
+		}
 	}
 	
 	private void declareAliases(Set<Alias> aliasDecls) {
