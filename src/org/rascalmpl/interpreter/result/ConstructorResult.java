@@ -111,7 +111,7 @@ public class ConstructorResult extends NodeResult {
 		}
 		
 		Type nodeType = getValue().getConstructorType();
-		if (!nodeType.hasField(name)) {
+		if (!nodeType.hasField(name) && !kwTypes.hasField(name)) {
 			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
 		}				
 		
