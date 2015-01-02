@@ -38,7 +38,7 @@ test bool crossModuleAssignAndFieldRef() {
 // this requires the compiler/interpreter to inject code
 // to resolve the default values dynamically
 test bool allocatedElseWhereUsedWithNewExtension1() 
-   = createL1().g == l().g;
+   = createL1().f == l().f;
 
 test bool allocatedElseWhereUsedWithNewExtension2() 
    = createN2().a == n().a;
@@ -54,9 +54,9 @@ test bool defaultEquality() = createL1() == l();
 // `"l(a=0)" != "l()"` even though `l.a == 0` through the default mechanism
 test bool observableOverrides() {
   x = l();
-  assert x.a == 0;
+  assert x.a == 1;
   y = x;
   assert x == y && "<x>" == "<y>";
-  x.a = 0;
+  x.a = 1;
   return x != y && "<x>" != "<y>";
 }

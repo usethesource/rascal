@@ -305,11 +305,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 					IValue paramValue = cons.asWithKeywordParameters().getParameter(label);
 					if (paramValue == null) {
-						__eval.__setValue(receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()));
+						paramValue = receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()).getValue();
 					}
-					else {
-						__eval.__setValue(__eval.newResult(paramValue, __eval.__getValue()));
-					}
+					__eval.__setValue(__eval.newResult(paramValue, __eval.__getValue()));
 
 					IValue result = cons.asWithKeywordParameters().setParameter(label,  __eval.__getValue().getValue());
 					return __eval.recur(this,
