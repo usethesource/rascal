@@ -277,7 +277,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					|| receiver.getType().isAbstractData()) {
 				IConstructor cons = (IConstructor) receiver.getValue();
 				Type node = cons.getConstructorType();
-				Type kwType = __eval.getCurrentEnvt().getConstructorFunction(node).getKeywordArgumentTypes();
+				Type kwType = __eval.getCurrentEnvt().getConstructorFunction(node).getKeywordArgumentTypes(__eval.getCurrentEnvt());
 
 				if (node.hasField(label)) {
 					int index = node.getFieldIndex(label);
@@ -303,7 +303,13 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 								__eval.__getValue().getType(), this);
 					}
 
-					__eval.__setValue(__eval.newResult(cons.asWithKeywordParameters().getParameter(label), __eval.__getValue()));
+					IValue paramValue = cons.asWithKeywordParameters().getParameter(label);
+					if (paramValue == null) {
+						__eval.__setValue(receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()));
+					}
+					else {
+						__eval.__setValue(__eval.newResult(paramValue, __eval.__getValue()));
+					}
 
 					IValue result = cons.asWithKeywordParameters().setParameter(label,  __eval.__getValue().getValue());
 					return __eval.recur(this,
@@ -364,7 +370,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			else if (receiverType.isConstructor() || receiverType.isAbstractData()) {
 				IConstructor cons = (IConstructor) receiver.getValue();
 				Type node = cons.getConstructorType();
-				Type kwType = __eval.getCurrentEnvt().getConstructorFunction(node).getKeywordArgumentTypes();
+				Type kwType = __eval.getCurrentEnvt().getConstructorFunction(node).getKeywordArgumentTypes(__eval.getCurrentEnvt());
 
 				if (!kwType.hasField(label) && !node.hasField(label)) {
 					throw new UndeclaredField(label, receiverType, this);

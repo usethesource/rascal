@@ -510,8 +510,7 @@ public class TypeReifier {
 				
 				IListWriter kwTypes = vf.listWriter();
 				IMapWriter kwDefaults = vf.mapWriter();
-				Type consType = ctx.getCurrentEnvt().getRoot().getConstructorFunction(type).getKeywordArgumentTypes();
-				
+				Type consType = ctx.getCurrentEnvt().getRoot().getConstructorFunction(type).getKeywordArgumentTypes(ctx.getCurrentEnvt().getRoot());
 				
 				for (int i = 0; i < consType.getArity(); i++) {
 					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(consType.getFieldName(i)), consType.getFieldType(i).accept(this)));

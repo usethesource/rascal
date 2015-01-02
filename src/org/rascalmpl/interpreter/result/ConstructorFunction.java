@@ -24,10 +24,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.KeywordFormal;
@@ -64,8 +66,111 @@ public class ConstructorFunction extends NamedFunction {
 		return c;
 	}
 	
+	// TODO: refactor and make small. For now this does the job.
+	public Result<IValue> computeDefaultKeywordParameter(String label, IConstructor value, Environment callerEnvironment) {
+		Set<GenericKeywordParameters> kws = callerEnvironment.lookupGenericKeywordParameters(constructorType.getAbstractDataType());
+		IWithKeywordParameters<IConstructor> wkw = value.asWithKeywordParameters();
+		Environment old = ctx.getCurrentEnvt();
+		Environment resultEnv = new Environment(declarationEnvironment, vf.sourceLocation(URIUtil.rootScheme("initializer")), "keyword parameter initializer");
+		
+		// first we compute the keyword parameters for the abstract data-type:
+		for (GenericKeywordParameters gkw : kws) {
+			// for hygiene's sake, each list of generic params needs to be evaluated in its declaring environment
+			Environment env = new Environment(gkw.getEnv(), vf.sourceLocation(URIUtil.rootScheme("initializer")), "kwp initializer");
+			
+			try {
+				ctx.setCurrentEnvt(env);
+			
+				for (KeywordFormal kwparam : gkw.getFormals()) {
+					String name = Names.name(kwparam.getName());
+					Type kwType = gkw.getTypes().get(name);
+					
+					if (kwType == null) {
+						continue;
+					}
+					Result<IValue> kwResult;
+					
+					if (wkw.hasParameter(name)){
+						IValue r = wkw.getParameter(name);
+						
+						if(!r.getType().isSubtypeOf(kwType)) {
+							throw new UnexpectedKeywordArgumentType(name, kwType, r.getType(), ctx.getCurrentAST());
+						}
+
+						kwResult = ResultFactory.makeResult(kwType, r, ctx);
+					} 
+					else {
+						Expression def = kwparam.getExpression();
+						kwResult = def.interpret(eval);
+					}
+					
+					if (name.equals(label)) {
+						// we have the one we need, bail out quickly
+						return kwResult;
+					}
+					else {
+						env.declareVariable(kwResult.getType(), name);
+						env.storeVariable(name, kwResult);
+						resultEnv.declareVariable(kwResult.getType(), name);
+						resultEnv.storeVariable(name, kwResult);
+					}
+				}
+			}
+			finally {
+				ctx.setCurrentEnvt(old);
+			}
+		}
+		
+		Type formals = getFunctionType().getArgumentTypes();
+		
+		try {
+			// we set up an environment to hold the positional parameter values
+			ctx.setCurrentEnvt(resultEnv);
+			
+			for (int i = 0; i < formals.getArity(); i++) {
+				String fieldName = formals.getFieldName(i);
+				Type fieldType = formals.getFieldType(i);
+				resultEnv.declareVariable(fieldType, fieldName);
+				resultEnv.storeLocalVariable(fieldName, ResultFactory.makeResult(fieldType, value.get(fieldName), ctx));
+			}
+		
+			for (String kwparam : functionType.getKeywordParameterTypes().getFieldNames()) {
+	            Type kwType = functionType.getKeywordParameterType(kwparam);
+	            Result<IValue> kwResult;
+	            
+	            if (wkw.hasParameter(kwparam)){
+	                IValue r = wkw.getParameter(kwparam);
+	
+	                if(!r.getType().isSubtypeOf(kwType)) {
+	                    throw new UnexpectedKeywordArgumentType(kwparam, kwType, r.getType(), ctx.getCurrentAST());
+	                }
+	
+	                kwResult = ResultFactory.makeResult(kwType, r, ctx);
+	            } 
+	            else {
+	                Expression def = getKeywordParameterDefaults().get(kwparam);
+	                kwResult = def.interpret(eval);
+	            }
+	            
+	            if (kwparam.equals(label)) {
+	            	return kwResult;
+	            }
+	            else {
+	            	resultEnv.declareVariable(kwType, kwparam);
+	            	resultEnv.storeVariable(kwparam, kwResult);
+	            }
+	        }
+			
+			throw new UndeclaredFieldException(constructorType, label);
+		}
+		finally {
+			ctx.setCurrentEnvt(old);
+		}
+	}
+	
+	
 	@Override
-	public Type getKeywordArgumentTypes() {
+	public Type getKeywordArgumentTypes(Environment env) {
 		Type kwTypes = functionType.getKeywordParameterTypes();
 		ArrayList<Type> types = new ArrayList<>();
 		ArrayList<String> labels = new ArrayList<>();
@@ -75,7 +180,7 @@ public class ConstructorFunction extends NamedFunction {
 			labels.add(label);
 		}
 		
-		Set<GenericKeywordParameters> kws = getEvaluatorContext().getCurrentEnvt().lookupGenericKeywordParameters(constructorType.getAbstractDataType());
+		Set<GenericKeywordParameters> kws = env.lookupGenericKeywordParameters(constructorType.getAbstractDataType());
 		for (GenericKeywordParameters p : kws) {
 			Map<String, Type> m = p.getTypes();
 			for (String name : m.keySet()) {
@@ -89,74 +194,7 @@ public class ConstructorFunction extends NamedFunction {
 		return TypeFactory.getInstance().tupleType(typeArray, stringArray);
 	}
 	
-	@Override
-	protected void bindKeywordArgs(Map<String, IValue> keyArgValues, Environment callerEnvironment) {
-		Set<GenericKeywordParameters> kws = callerEnvironment.lookupGenericKeywordParameters(constructorType.getAbstractDataType());
-		Environment resultScope = ctx.getCurrentEnvt();
-		
-		for (GenericKeywordParameters gkw : kws) {
-			// for hygiene's sake, each list of generic params needs to be evaluated in its declaring environment
-			Environment env = new Environment(gkw.getEnv(), vf.sourceLocation(URIUtil.rootScheme("initializer")), "keyword parameter initializer");
-			ctx.setCurrentEnvt(env);
-			
-			try {
-				for (KeywordFormal kwparam : gkw.getFormals()) {
-					String name = Names.name(kwparam.getName());
-					Type kwType = gkw.getTypes().get(name);
-					
-					if (kwType == null) {
-						continue;
-					}
-					Result<IValue> kwResult;
-					
-					if (keyArgValues.containsKey(name)){
-						IValue r = keyArgValues.get(name);
-						
-						if(!r.getType().isSubtypeOf(kwType)) {
-							throw new UnexpectedKeywordArgumentType(name, kwType, r.getType(), ctx.getCurrentAST());
-						}
-
-						kwResult = ResultFactory.makeResult(kwType, r, ctx);
-					} 
-					else {
-						Expression def = kwparam.getExpression();
-						kwResult = def.interpret(eval);
-					}
-					
-					// we store it in the local scope so the next initializer may use it
-					env.declareVariable(kwType, name);
-					env.storeVariable(name, kwResult);
-					
-					// and we clone it in the outer scope so the constructor specific initializers may use them
-					resultScope.declareVariable(kwType, name);
-					resultScope.storeVariable(name, kwResult);
-				}
-			}
-			finally {
-				ctx.setCurrentEnvt(resultScope);
-			}
-		}
-			
-		// and here go the constructor-specific initializers
-		super.bindKeywordArgs(keyArgValues, callerEnvironment);
-	}
 	
-	@Override
-	protected ImmutableMap<String, IValue> transferKeywordArgs(Environment env, Environment callerScope, 
-			ImmutableMap<String, IValue> result) {
-		Set<GenericKeywordParameters> kws = callerScope.lookupGenericKeywordParameters(constructorType.getAbstractDataType());
-		
-		for (GenericKeywordParameters gkw : kws) {
-			Map<String, Type> types = gkw.getTypes();
-			
-			for (String name : types.keySet()) {
-				result = result.__put(name, env.getVariable(name).getValue());
-			}
-		}
-		
-		result = super.transferKeywordArgs(env, callerScope, result);
-		return result;
-	}
 	
 	@Override
 	public boolean isStatic() {
@@ -185,7 +223,7 @@ public class ConstructorFunction extends NamedFunction {
 			instantiated = constructorType.instantiate(bindings);
 		}
 
-		return makeResult(instantiated, ctx.getValueFactory().constructor(constructorType, actuals, computeKeywordArgs(actuals, keyArgValues)), ctx);
+		return makeResult(instantiated, ctx.getValueFactory().constructor(constructorType, actuals, keyArgValues), ctx);
 	}
 	
 	@Override
