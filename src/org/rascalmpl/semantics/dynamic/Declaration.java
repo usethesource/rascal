@@ -103,8 +103,8 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			org.rascalmpl.ast.Declaration.DataAbstract {
 
 		public DataAbstract(IConstructor __param1, Tags __param2, Visibility __param3,
-				UserType __param4) {
-			super(__param1, __param2, __param3, __param4);
+				UserType __param4, CommonKeywordParameters __param5) {
+			super(__param1, __param2, __param3, __param4, __param5);
 		}
 
 		@Override

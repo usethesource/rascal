@@ -13,8 +13,6 @@
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
 module lang::rascal::\syntax::Rascal
 
-import ParseTree;       // TODO: needed to compile grammar, but prevents bootstrap to work!
-
 lexical BooleanLiteral
 	= "true" 
 	| "false" ;
@@ -731,7 +729,7 @@ syntax Declaration
 	| annotation  : Tags tags Visibility visibility "anno" Type annoType Type onType "@" Name name ";" 
 	| \alias       : Tags tags Visibility visibility "alias" UserType user "=" Type base ";" 
 	| \tag         : Tags tags Visibility visibility "tag" Kind kind Name name "on" {Type ","}+ types ";" 
-	| dataAbstract: Tags tags Visibility visibility "data" UserType user ";" 
+	| dataAbstract: Tags tags Visibility visibility "data" UserType user CommonKeywordParameters commonKeywordParameters ";" 
 	| @Foldable \data : Tags tags Visibility visibility "data" UserType user CommonKeywordParameters commonKeywordParameters"=" {Variant "|"}+ variants ";"
 	| function       : FunctionDeclaration functionDeclaration 
 	;
