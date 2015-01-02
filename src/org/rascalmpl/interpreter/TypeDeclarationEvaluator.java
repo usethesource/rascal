@@ -320,7 +320,4 @@ public class TypeDeclarationEvaluator {
 			return x;
 		}
 	}
-
-	
-
 }
