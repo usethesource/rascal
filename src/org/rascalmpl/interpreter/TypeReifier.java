@@ -510,10 +510,10 @@ public class TypeReifier {
 				
 				IListWriter kwTypes = vf.listWriter();
 				IMapWriter kwDefaults = vf.mapWriter();
-				Type consType = ctx.getCurrentEnvt().getRoot().getConstructorFunction(type).getKeywordArgumentTypes(ctx.getCurrentEnvt().getRoot());
-				
-				for (int i = 0; i < consType.getArity(); i++) {
-					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(consType.getFieldName(i)), consType.getFieldType(i).accept(this)));
+				Map<String,Type> keywordParameters = store.getKeywordParameters(type);
+						
+				for (String label : keywordParameters.keySet()) {
+					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(label), keywordParameters.get(label).accept(this)));
 				}
 				
 				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), kwDefaults.done(), vf.set()));
@@ -521,8 +521,6 @@ public class TypeReifier {
 				definitions.put(adt, choice);
 			}
 			
-			
-
 			@Override
 			public IValue visitAbstractData(Type type) {
 				IValue sym = cache.get(type);
