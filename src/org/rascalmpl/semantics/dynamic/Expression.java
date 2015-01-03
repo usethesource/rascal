@@ -31,7 +31,6 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Field;
@@ -496,7 +495,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			  
 				if (hasKeywordArguments()) {
 				  KeywordArguments_Expression keywordArgs = this.getKeywordArguments();
-				  Type kwFormals = function.getKeywordArgumentTypes();
+				  Type kwFormals = function.getKeywordArgumentTypes(eval.getCurrentEnvt());
 				
 				  if (keywordArgs.isDefault()){
 				    kwActuals = new HashMap<String,IValue>();

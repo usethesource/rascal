@@ -79,7 +79,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 281 + 401 * type.hashCode() ; 
+      return 431 + 347 * type.hashCode() ; 
     } 
   
     
@@ -132,7 +132,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 683 + 349 * type.hashCode() + 823 * name.hashCode() ; 
+      return 353 + 829 * type.hashCode() + 389 * name.hashCode() ; 
     } 
   
     
