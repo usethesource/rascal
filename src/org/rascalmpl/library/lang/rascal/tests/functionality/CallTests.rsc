@@ -1,20 +1,17 @@
- module lang::rascal::tests::functionality::CallTests
- /*******************************************************************************
-   * Copyright (c) 2009-2015 CWI
-   * All rights reserved. This program and the accompanying materials
-   * are made available under the terms of the Eclipse License v1.0
-   * which accompanies this distribution, and is available at
-   * http://www.eclipse.org/legal/epl-v10.html
-   *
-   * Contributors:
-  
-   *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
-   *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
-   *   * Paul Klint - Paul.Klint@cwi.nl - CWI
-   *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-   *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
-  *******************************************************************************/
-
+@license{
+ Copyright (c) 2009-2014 CWI
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the Eclipse License v1.0
+ which accompanies this distribution, and is available at
+ http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
+module lang::rascal::tests::functionality::CallTests
+ 
 import ParseTree;
 
 import  lang::rascal::tests::functionality::CallTestsAux;
@@ -394,3 +391,15 @@ test bool keywordMatchTest12() =point1(_, _, colors=[*_,"blue",*_]) := point1(1,
 
 test bool keywordMatchTest13() =point1(_, _, colors=[*_,*X,*_,*X, *_]) := point1(1,2, colors=["red","blue","green","blue"]);
  
+data Expr(int depth = 0) = id(str x);
+data Expr(int width = 1) = number(num n);
+
+test bool genericKwParams1() = number(1).depth == 0;
+test bool genericKwParams2() = id("tommie").width == 1;
+test bool genericKwParamsBack1() = number(1).y == 4;
+
+data Expr(int x = 2, int y = 2 * x) = a(Expr l, Expr r, int z = x * y);
+
+test bool genericKwParams3() = a(id("x"), id("y")).z == 8;
+
+test bool genericKwParams4() = a(id("x"),id("y"),x = 3).z == 18;

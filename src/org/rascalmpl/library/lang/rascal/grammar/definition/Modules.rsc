@@ -33,7 +33,7 @@ public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, s
 @memo
 @doc{Converts concrete syntax definitions and fuses them into one single grammar definition}     
 public Grammar modules2grammar(str main, set[Module] modules) {
-  return fuse(layouts(resolve(modules2definition(main, modules))));
+  return resolve(fuse(layouts(modules2definition(main, modules))));
 }
 
 @doc{Converts concrete syntax definitions to abstract grammar definitions}

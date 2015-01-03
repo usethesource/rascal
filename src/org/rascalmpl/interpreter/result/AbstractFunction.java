@@ -99,7 +99,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public Type getKeywordArgumentTypes() {
+	public Type getKeywordArgumentTypes(Environment env) {
 	  return functionType.getKeywordParameterTypes();
 	}
 
@@ -175,7 +175,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public boolean hasKeywordArgs() {
+	public boolean hasKeywordArguments() {
 		return hasKeyArgs;
 	}
 	
@@ -531,7 +531,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 
 	protected void bindKeywordArgs(Map<String, IValue> keyArgValues) {
 	    Environment env = ctx.getCurrentEnvt();
-	
+
 	    if (functionType.hasKeywordParameters()) {
 	        for (String kwparam : functionType.getKeywordParameterTypes().getFieldNames()){
 	            Type kwType = functionType.getKeywordParameterType(kwparam);
@@ -574,19 +574,26 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			}
 		
 			// then we initialize the keyword parameters in this environment
-			Type kwType = getFunctionType().getKeywordParameterTypes();
 			bindKeywordArgs(keyArgValues);
-
+			
 			ImmutableMap<String, IValue> result = AbstractSpecialisedImmutableMap.mapOf();
-			for (int i = 0; i < kwType.getArity(); i++) {
-				String fieldName = kwType.getFieldName(i);
-				result = result.__put(fieldName, env.getVariable(fieldName).getValue());
-			}
+			result = transferKeywordArgs(env, old, result);
 			
 			return result;
 		}
 		finally {
 			ctx.setCurrentEnvt(old);
 		}
+	}
+
+	protected ImmutableMap<String, IValue> transferKeywordArgs(Environment env, Environment callerScope, ImmutableMap<String, IValue> result) {
+		Type kwType = getFunctionType().getKeywordParameterTypes();
+		
+		for (int i = 0; i < kwType.getArity(); i++) {
+			String fieldName = kwType.getFieldName(i);
+			result = result.__put(fieldName, env.getVariable(fieldName).getValue());
+		}
+		
+		return result;
 	}
 }
