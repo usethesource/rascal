@@ -675,7 +675,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions and constructors found which could be applied",exp@\loc));
         } else if ( (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) && size(productionMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions and productions found which could be applied",exp@\loc));
-        } else if (size(nonDefaultFunctionMatches) > 1 && size(defaultFunctionMatches) != 1) {
+        } else if (size(nonDefaultFunctionMatches) > 1 || (size(nonDefaultFunctionMatches) == 0 && size(defaultFunctionMatches) > 1)) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions found which could be applied",exp@\loc));
         } else if (size(constructorMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple constructors found which could be applied",exp@\loc));
@@ -792,19 +792,25 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         } else if (cannotInstantiateProduction) {
         	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in production", exp@\loc));
         } else {
-        	if ( (size(finalNonDefaultMatches) + size(finalDefaultMatches)) == 1 ) {
-        		finalMatch = getOneFrom(finalNonDefaultMatches + finalDefaultMatches);
+        	if (size(finalNonDefaultMatches) == 1) {
+        		finalMatch = getOneFrom(finalNonDefaultMatches);
+				< c, rtp > = markLocationType(c,e@\loc,finalMatch);
         		if (isFunctionType(finalMatch)) {
-				    < c, rtp > = markLocationType(c,e@\loc,finalMatch);
 				    return markLocationType(c,exp@\loc,getFunctionReturnType(finalMatch));
+				} else {
+					return markLocationFailed(c,exp@\loc,makeFailType("Unexpected match, should have had a function type, instead found <prettyPrintType(finalMatch)>"));
+				}
+        	} else if (size(finalDefaultMatches) == 1) {
+				finalMatch = getOneFrom(finalDefaultMatches);
+				< c, rtp > = markLocationType(c,e@\loc,finalMatch);
+				if (isFunctionType(finalMatch)) {
+					return markLocationType(c,exp@\loc,getFunctionReturnType(finalMatch));
 				} else if (isConstructorType(finalMatch)) {
-			        < c, rtp > = markLocationType(c,e@\loc,finalMatch);
-			        return markLocationType(c,exp@\loc,getConstructorResultType(finalMatch));
+					return markLocationType(c,exp@\loc,getConstructorResultType(finalMatch));
 				} else if (isProductionType(finalMatch)) {
-					< c, rtp > = markLocationType(c,e@\loc,finalMatch);
 					return markLocationType(c,exp@\loc,getProductionSortType(finalMatch));
 				}
-			} else if (size(finalNonDefaultMatches) == 0 && size(finalDefaultMatches) == 2) {
+			} else if (size(finalDefaultMatches) > 1) {
 				// Make sure the defaults function, constructor, and production variants have the same return type, else we
 				// have a conflict.
 				functionMatches = filterSet(finalDefaultMatches, isFunctionType);
@@ -821,46 +827,46 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				}
 				< c, rtp > = markLocationType(c,e@\loc,functionVariant);
 				return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
-			} else if (size(finalNonDefaultMatches) >= 1 && size(finalDefaultMatches) == 1) {
-				// Make sure the function and the default function or constructor variants have the same return type, else we
-				// have a conflict.
-				defaultVariant = getOneFrom(finalDefaultMatches);
-				defaultResultType = isConstructorType(defaultVariant) ? getConstructorResultType(defaultVariant) : (isFunctionType(defaultVariant) ? getFunctionReturnType(defaultVariant) : getProductionSortType(defaultVariant));
-				
-				for (functionVariant <- filterSet(finalNonDefaultMatches, isFunctionType), !equivalent(getFunctionReturnType(functionVariant),defaultResultType)) {
-					// TODO: This should also result in an error on the function
-					// declaration, since we should not have a function with the same name
-					// and parameters but a different return type
-					println("WARNING: call at <e@\loc> uses a function with a bad return type");
-				    < c, rtp > = markLocationType(c,e@\loc,defaultVariant);
-				    return markLocationType(c,exp@\loc,defaultResultType);
-				}
-				finalType = makeOverloadedType(finalNonDefaultMatches,finalDefaultMatches);
-			    < c, rtp > = markLocationType(c,e@\loc,finalType);
-			    return markLocationType(c,exp@\loc,defaultResultType);
-			} else {
-				// Make sure the function, the default function and constructor variants have the same return type, else we
-				// have a conflict.
-				functionVariant = getOneFrom(filterSet(finalNonDefaultMatches, isFunctionType));
-				defaultVariant = getOneFrom(filterSet(finalDefaultMatches, isFunctionType));
-				constructorMatches = filterSet(finalDefaultMatches, isConstructorType);
-				productionMatches = filterSet(finalDefaultMatches, isProductionType);
-				nonFunctionResult = (size(constructorMatches) > 0) ? getConstructorResultType(getOneFrom(constructorMatches)) : getProductionSortType(getOneFrom(productionMatches));
-				
-				if ( equivalent(getFunctionReturnType(functionVariant),getFunctionReturnType(defaultVariant))
-						&& equivalent(getFunctionReturnType(functionVariant),nonFunctionResult) ) {
-					finalType = makeOverloadedType(finalNonDefaultMatches,{ defaultVariant });
-				    < c, rtp > = markLocationType(c,e@\loc,finalType);
-				    return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
-				} else {
-					// TODO: This should also result in an error on the function
-					// declaration, since we should not have a function with the same name
-					// and parameters but a different return type
-					println("WARNING: call at <e@\loc> uses a function with a bad return type");
-				    < c, rtp > = markLocationType(c,e@\loc,defaultVariant);
-				    return markLocationType(c,exp@\loc,getFunctionReturnType(defaultVariant));
-				}
-			}
+			} // else if (size(finalNonDefaultMatches) == 1 && size(finalDefaultMatches) == 1) {
+			//	// Make sure the function and the default function or constructor variants have the same return type, else we
+			//	// have a conflict.
+			//	defaultVariant = getOneFrom(finalDefaultMatches);
+			//	defaultResultType = isConstructorType(defaultVariant) ? getConstructorResultType(defaultVariant) : (isFunctionType(defaultVariant) ? getFunctionReturnType(defaultVariant) : getProductionSortType(defaultVariant));
+			//	
+			//	for (functionVariant <- filterSet(finalNonDefaultMatches, isFunctionType), !equivalent(getFunctionReturnType(functionVariant),defaultResultType)) {
+			//		// TODO: This should also result in an error on the function
+			//		// declaration, since we should not have a function with the same name
+			//		// and parameters but a different return type
+			//		println("WARNING: call at <e@\loc> uses a function with a bad return type");
+			//	    < c, rtp > = markLocationType(c,e@\loc,defaultVariant);
+			//	    return markLocationType(c,exp@\loc,defaultResultType);
+			//	}
+			//	finalType = makeOverloadedType(finalNonDefaultMatches,finalDefaultMatches);
+			//    < c, rtp > = markLocationType(c,e@\loc,finalType);
+			//    return markLocationType(c,exp@\loc,defaultResultType);
+			//} else {
+			//	// Make sure the function, the default function and constructor variants have the same return type, else we
+			//	// have a conflict.
+			//	functionVariant = getOneFrom(filterSet(finalNonDefaultMatches, isFunctionType));
+			//	defaultVariant = getOneFrom(filterSet(finalDefaultMatches, isFunctionType));
+			//	constructorMatches = filterSet(finalDefaultMatches, isConstructorType);
+			//	productionMatches = filterSet(finalDefaultMatches, isProductionType);
+			//	nonFunctionResult = (size(constructorMatches) > 0) ? getConstructorResultType(getOneFrom(constructorMatches)) : getProductionSortType(getOneFrom(productionMatches));
+			//	
+			//	if ( equivalent(getFunctionReturnType(functionVariant),getFunctionReturnType(defaultVariant))
+			//			&& equivalent(getFunctionReturnType(functionVariant),nonFunctionResult) ) {
+			//		finalType = makeOverloadedType(finalNonDefaultMatches,{ defaultVariant });
+			//	    < c, rtp > = markLocationType(c,e@\loc,finalType);
+			//	    return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
+			//	} else {
+			//		// TODO: This should also result in an error on the function
+			//		// declaration, since we should not have a function with the same name
+			//		// and parameters but a different return type
+			//		println("WARNING: call at <e@\loc> uses a function with a bad return type");
+			//	    < c, rtp > = markLocationType(c,e@\loc,defaultVariant);
+			//	    return markLocationType(c,exp@\loc,getFunctionReturnType(defaultVariant));
+			//	}
+			//}
         }
         
     } else if (isLocType(t1)) {
