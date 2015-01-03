@@ -12,7 +12,6 @@ http://www.eclipse.org/legal/epl-v10.html
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
 module lang::rascal::tests::functionality::DataDeclarationTests
  
-  
 data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);
 data Exp = let(str name, Exp exp1, Exp exp2) | var(str name) | \int(int intVal);
 data Exp1[&T] = tval(&T tval) | tval2(&T tval1, &T tval2) | ival(int x);
