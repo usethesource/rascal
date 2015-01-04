@@ -149,52 +149,40 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 
 		if (ctx.getCurrentEnvt().getStore().hasKeywordParameters(type)) {
-			// this fills in the defaults for pattern matching against them:
 			ConstructorFunction func = ctx.getCurrentEnvt().getConstructorFunction(type);
-			Map<String, IValue> kwArgs = func.computeKeywordArgs(subjectChildren, subject.getValue().asWithKeywordParameters().getParameters());
+			Map<String, IValue> kwArgs = ((INode) subject).asWithKeywordParameters().getParameters();
 
 			Map<String, Type> kwFormals = ctx.getCurrentEnvt().getStore().getKeywordParameters(type);
 			
-			for (String kwLabel : kwFormals.keySet()) {
+			for (String kwLabel : keywordParameters.keySet()) {
 				IValue subjectParam = kwArgs.get(kwLabel);
-				
-				if (keywordParameters.containsKey(kwLabel)) {
-					IMatchingResult matcher = keywordParameters.get(kwLabel);
-					matcher.initMatch(ResultFactory.makeResult(kwFormals.get(kwLabel), subjectParam, ctx));
-					
-					if (!matcher.hasNext()) {
-						// the matcher can never work, so we can skip initializing the rest
-						hasNext = false;
-						break;
-					}
+				if (subjectParam == null) {
+					subjectParam = func.computeDefaultKeywordParameter(kwLabel, (IConstructor) subject.getValue(), ctx.getCurrentEnvt()).getValue();
 				}
+				IMatchingResult matcher = keywordParameters.get(kwLabel);
+				matcher.initMatch(ResultFactory.makeResult(kwFormals.get(kwLabel), subjectParam, ctx));
 				
-				// note if there is no matcher for the current parameter, still we have initialized it because the next
-				// keyword parameter that who do match on may depend on its dynamic value.
+				if (!matcher.hasNext()) {
+					// the matcher can never work, so we can skip initializing the rest
+					hasNext = false;
+					break;
+				}
 			}
 		}
 		else if (this.subject.mayHaveKeywordParameters()) {
-			Map<String, IValue> kwArgs;
+			Map<String, IValue> kwArgs = this.subject.asWithKeywordParameters().getParameters();
+			ConstructorFunction func = null;
 			
-			// the matching side has no declared keyword parameters (an untyped node), so we do not have default values to take care of
 			if (this.subject.getType().isAbstractData()) {
-				ConstructorFunction func = ctx.getCurrentEnvt().getConstructorFunction(((IConstructor) this.subject).getConstructorType());
+				func = ctx.getCurrentEnvt().getConstructorFunction(((IConstructor) this.subject).getConstructorType());
+			}
 			
-				if (func != null) {
-					kwArgs = func.computeKeywordArgs(subjectChildren, subject.getValue().asWithKeywordParameters().getParameters());
-				}
-				else {
-					// the definition of the constructor could not be found, so we don't have defaults
-					kwArgs = this.subject.asWithKeywordParameters().getParameters();
-				}
-			}
-			else {
-				// a generic node does not support defaults
-				kwArgs = this.subject.asWithKeywordParameters().getParameters();
-			}
-
 			for (Entry<String,IMatchingResult> entry : keywordParameters.entrySet()) {
 				IValue subjectParam = kwArgs.get(entry.getKey());
+				
+				if (subjectParam == null && func != null) { // we may have a default available
+					subjectParam = func.computeDefaultKeywordParameter(entry.getKey(), (IConstructor) subject.getValue(), ctx.getCurrentEnvt()).getValue();
+				}
 				
 				if (subjectParam != null) {
 					// we are matching a keyword parameter, and indeed the subject has one
@@ -206,8 +194,7 @@ public class NodePattern extends AbstractMatchingResult {
 						hasNext = false;
 						break;
 					}
-				}
-				else {
+				} else {
 					// we are matching a keyword parameter, but the subject has none.
 					hasNext = false;
 					break;
