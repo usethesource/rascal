@@ -38,6 +38,7 @@ import org.rascalmpl.interpreter.TypeDeclarationEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -161,7 +162,7 @@ public class ConstructorFunction extends NamedFunction {
 	            }
 	        }
 			
-			throw new UndeclaredFieldException(constructorType, label);
+			throw new UndeclaredField(label,constructorType, ctx.getCurrentAST());
 		}
 		finally {
 			ctx.setCurrentEnvt(old);
