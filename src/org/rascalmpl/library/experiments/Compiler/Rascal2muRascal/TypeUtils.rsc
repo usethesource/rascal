@@ -91,13 +91,36 @@ public map[UID uid,int n] sig_scopes = ();          // number of signature scope
 public rel[UID,UID] declares = {};
 public rel[UID,UID] containment = {};
 
+//public map[UID,UID] declaredIn = ();
+//public map[UID,UID] containedIn = ();
+
 
 public map[UID,str] uid2str = ();					// map uids to str
 
 public map[UID,Symbol] uid2type = ();				// We need to perform more precise overloading resolution than provided by the type checker
 
 public map[str,int] overloadingResolver = ();		// map function name to overloading resolver
-public lrel[str,set[UID]] overloadedFunctions = [];	// list of overloaded functions
+public lrel[str,list[UID]] overloadedFunctions = [];	// list of overloaded functions
+
+
+// These 3 are not yet used, but introduce better encapsulation
+
+void addOverloadedFunction(tuple[str, list[UID]] fundescr){
+	//println("addOverloadedFunction: <funddescr>");
+	overloadedFunctions += fundescr;
+}
+
+void addOverloadingResolver(fuid, int index){
+	//println("addOverloadingResolver: <fuid>, <index>");
+	overloadingResolver[fuid] = index;
+}
+
+void addOverloadedFunctionAndResolver(tuple[str fuid, list[UID] alts] fundescr){
+	//println("addOverloadedFunctionAndResolver: <fundescr>");
+	int n = size (overloadedFunctions);
+	overloadedFunctions += fundescr;
+	overloadingResolver[fundescr.fuid] = n;
+}
 
 // Reset the above global variables, when compiling the next module.
 
@@ -184,7 +207,7 @@ void extractScopes(Configuration c){
              }
              // Fill in uid2name
              str name = getFUID(getSimpleName(rname),rtype);
-             println("name = <name>");
+             //println("name = <name>");
              if(cases[inScope]?) {
                  if(cases[inScope][name]?) {
                      cases[inScope][name] = cases[inScope][name] + 1;
@@ -446,7 +469,7 @@ void extractScopes(Configuration c){
 
     }
     
-    println("ofunctions = <ofunctions>");
+    //println("ofunctions = <ofunctions>");
     
     // Fill in uid2addr for overloaded functions;
     for(UID fuid2 <- ofunctions) {
@@ -475,6 +498,9 @@ void extractScopes(Configuration c){
     //	if(uid in ofunctions)
     //		println("uid2addr[<uid>] = <uid2addr[uid]>, <config.store[uid]>");
     //}
+    
+ //   declaredIn = toMapUnique(invert(declares));
+	//containedIn = toMapUnique(invert(containment));
     
     // Finally, extract all declarations for the benefit of the type reifier
     
@@ -695,7 +721,7 @@ MuExp mkVar(str name, loc l) {
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in constructors || uid in ofunctions) {
     // Get the function uids of an overloaded function
-    set[int] ofuids = (uid in functions || uid in constructors) ? { uid } : config.store[uid].items;
+    list[int] ofuids = (uid in functions || uid in constructors) ? [uid] : sort(config.store[uid].items);
     // Generate a unique name for an overloaded function resolved for this specific use
     str ofuid = convert2fuid(config.usedIn[l]) + "/use:" + name;
     
