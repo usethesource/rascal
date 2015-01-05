@@ -31,9 +31,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  * 
  */
 public class Factory {
-	public final static TypeStore uptr = new TypeStore(
-			org.rascalmpl.values.errors.Factory.getStore(), 
-			org.rascalmpl.values.locations.Factory.getStore());
+	public final static TypeStore uptr = new TypeStore();
 	private final static TypeFactory tf = TypeFactory.getInstance();
 	
 	private static final Type str = tf.stringType();

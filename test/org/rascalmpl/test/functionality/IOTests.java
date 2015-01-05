@@ -14,15 +14,10 @@
 
 package org.rascalmpl.test.functionality;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
 import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -84,26 +79,5 @@ public class IOTests extends TestCase {
 		return vf.constructor(NameNode, vf.string(n));
 	}
 	
-	public void testATermReader() {
-		ATermReader testReader = new ATermReader();
-		
-		
-		
-		try {
-			for (int i = 0; i < testATerm.length; i++) {
-				IValue result = testReader.read(vf, ts, Boolean, new ByteArrayInputStream(testATerm[i].getBytes()));
-				System.err.println(testATerm[i] + " -> " + result);
-				
-				if (!result.isEqual(testValues[i])) {
-					fail(testATerm[i] + " did not parse correctly: " + result + " != " + testValues[i]);
-				}
-			}
-		} catch (FactTypeUseException e) {
-			fail();
-		} catch (IOException e) {
-			fail();
-		}
-	}
-
 	
 }

@@ -30,7 +30,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -84,7 +83,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.AbstractValueFactoryAdapter;
-import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueWriter;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
@@ -2140,24 +2138,6 @@ public class Prelude {
 		}
 		
 		return values.node(N.getValue(), args, map);
-	}
-	
-	public IValue readATermFromFile(IString fileName){
-	//@doc{readATermFromFile -- read an ATerm from a named file}
-		ATermReader atr = new ATermReader();
-		try {
-			FileInputStream stream = new FileInputStream(fileName.getValue());
-			IValue result = atr.read(values, stream);
-			stream.close();
-			return result;
-		} catch (FactTypeUseException e) {
-			e.printStackTrace();
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-
-		}
 	}
 	
 	public IValue toString(INode T)
