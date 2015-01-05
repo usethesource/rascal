@@ -91,6 +91,8 @@ alias Points = lrel[num x, num y];
 
 public alias Figures = list[Figure];
 
+public num nullFunction(list[num] x) { return 0;}
+
 public data Figure(
         // Naming
         str id = "",
@@ -224,7 +226,8 @@ public data Figure(
 
 // Charts
    
-  | vegaChart(str dataFile = "",  VEGA() command = (){return vega();}, str \module ="experiments::vis2::vega::VegaChart", Datasets[value] datasets = ())   
+  | vegaChart(str dataFile = "",  VEGA() command = (){return vega();}, str \module ="experiments::vis2::vega::VegaChart"
+    , Datasets[value] datasets = (), num(list[num]) aggregate = nullFunction)   
 /*   
   | barChart(Axis xAxis=axis(), Axis yAxis=axis(), Datasets[LabeledData] datasets = (), str orientation = "vertical", bool grouped = false, str flavor ="nvBarChart") 
  

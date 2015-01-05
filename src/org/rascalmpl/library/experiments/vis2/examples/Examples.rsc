@@ -1005,7 +1005,9 @@ void nederlandBarChart(){
 
 void groupedBarChart(){
         ex("groupedBarChart", vegaChart(
-           size=<500,400>, datasets=stackedData, command=
+           size=<500,400>, datasets=stackedData, 
+           // aggregate = sum, 
+           command=
            groupedBar(
               title=("x":"index", "y":"N","color":"p") 
              ,legends = ("color":"fill")
@@ -1019,10 +1021,13 @@ void groupedBarChart(){
 
 void groupedHistogram(){
         ex("groupedHistogram", vegaChart(   
-           size=<400,400>, 
+           size=<400,600>, 
           //   datasets=stackedData,      
-         datasets = ("sin":<10, [round(sin(x/100),0.01)| x <- [0.0, 1.0 .. 100.0]]>), 
-          command=
+         datasets = ("sin":<10, [round(sin((PI()/2)*x/100),0.01)| x <- [0.0, 1.0 .. 101.0]]>,
+                     "cos":<10, [round(cos((PI()/2)*x/100),0.01)| x <- [0.0, 1.0 .. 101.0]]>
+                    )
+         // , aggregate = sum
+          , command=
            histogram(
               title=("x":"index", "y":"N","color":"p") 
              ,legends = ("color":"fill")
@@ -1034,7 +1039,7 @@ void groupedHistogram(){
 
 void stackedAreaChart(){
         ex("stackedAreaChart", vegaChart(
-        size=<500,200>, datasets=stackedData,  command=stackedArea(grid = true)));
+        size=<500,200>, datasets=stackedData,  aggregate = sum, command=stackedArea(grid = true)));
 }
 
 void lineChart(){
