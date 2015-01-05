@@ -2174,7 +2174,7 @@ public class Prelude {
 	}
 	
 	public IMap getAnnotations(INode node) {
-		java.util.Map<java.lang.String,IValue> map = node.asAnnotatable().getAnnotations();
+		java.util.Map<java.lang.String,IValue> map = node.asWithKeywordParameters().getParameters();
 		IMapWriter w = values.mapWriter();
 		
 		for (Entry<java.lang.String,IValue> entry : map.entrySet()) {
@@ -2230,7 +2230,7 @@ public class Prelude {
 			return pt;
 		}
 		catch (ParseError pe) {
-			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch (UndeclaredNonTerminalException e){
@@ -2257,7 +2257,7 @@ public class Prelude {
 			return pt;
 		}
 		catch (ParseError pe) {
-			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
 		}
 		catch (UndeclaredNonTerminalException e){
@@ -2284,7 +2284,7 @@ public class Prelude {
 			return pt;
 		}
 		catch (ParseError pe) {
-			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
 		}
 		catch (UndeclaredNonTerminalException e){
@@ -2295,6 +2295,7 @@ public class Prelude {
 	public IString saveParser(ISourceLocation outFile, IEvaluatorContext ctx) {
 		
 		IGTD<IConstructor, IConstructor, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), URIUtil.invalidURI(), false);
+		@SuppressWarnings("unchecked")
 		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, IConstructor, ISourceLocation>>) parser.getClass();
 		
 		
@@ -2407,7 +2408,7 @@ public class Prelude {
 			IValue result = implode(store, type, ast, splicing, ctx);
 			if (result.getType().isNode()) {
 				IMapWriter comments = values.mapWriter();
-				comments.putAll((IMap)((INode)result).asAnnotatable().getAnnotation("comments"));
+				comments.putAll((IMap)((INode)result).asWithKeywordParameters().getParameter("comments"));
 				IList beforeComments = extractComments(before);
 				if (!beforeComments.isEmpty()) {
 					comments.put(values.integer(-1), beforeComments);

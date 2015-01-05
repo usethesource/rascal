@@ -272,6 +272,10 @@ public class TreeAdapter {
 	public static ISourceLocation getLocation(IConstructor tree) {
 		return (ISourceLocation) tree.asWithKeywordParameters().getParameter("src");
 	}
+	
+	public static IConstructor setLocation(IConstructor tree, ISourceLocation loc) {
+		return tree.asWithKeywordParameters().setParameter("src", loc);
+	}
 
 	public static int getCharacter(IConstructor tree) {
 		return ((IInteger) tree.get("character")).intValue();
@@ -419,7 +423,7 @@ public class TreeAdapter {
 		}
 
 		if (TreeAdapter.isAmb(tree)) {
-			if (tree.asAnnotatable().hasAnnotation(label)) {
+			if (tree.asWithKeywordParameters().hasParameter(label)) {
 				return tree;
 			}
 			

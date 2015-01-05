@@ -23,7 +23,7 @@ public final class Ambiguous extends AssertionError {
 
 	public Ambiguous(IConstructor tree) {
 		super("Ambiguous code (internal error), " + TreeAdapter.yield(tree, 100));
-		this.loc = (ISourceLocation) tree.asAnnotatable().getAnnotation("loc");
+		this.loc = TreeAdapter.getLocation(tree);
 		this.tree = tree;
 	}
 	

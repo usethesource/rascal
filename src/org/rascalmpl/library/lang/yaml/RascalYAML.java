@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.lang.yaml;
 
-import static org.rascalmpl.library.lang.yaml.YAMLTypeFactory.Node;
 import static org.rascalmpl.library.lang.yaml.YAMLTypeFactory.Node_mapping;
 import static org.rascalmpl.library.lang.yaml.YAMLTypeFactory.Node_reference;
 import static org.rascalmpl.library.lang.yaml.YAMLTypeFactory.Node_scalar;
@@ -103,35 +102,35 @@ public class RascalYAML {
 	private IConstructor loadRec(Object obj, IdentityHashMap<Object, Integer> anchors, IdentityHashMap<Object, Boolean> visited, IEvaluatorContext ctx) {
 		if (obj instanceof Integer) {
 			return values.constructor(Node_scalar, values.integer((Integer)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.integerType(), ctx).getValue());
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.integerType(), ctx).getValue());
 		}
 		if (obj instanceof Long) {
 			return	values.constructor(Node_scalar, values.integer((Long)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.integerType(), ctx).getValue());
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.integerType(), ctx).getValue());
 		}
 		if (obj instanceof Double) {
 			return values.constructor(Node_scalar, values.real((Double)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.realType(), ctx).getValue());
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.realType(), ctx).getValue());
 		}
 		if (obj instanceof Float) {
 			return values.constructor(Node_scalar, values.real((Float)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.realType(), ctx).getValue());
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.realType(), ctx).getValue());
 		}
 		if (obj instanceof String) {
 			return values.constructor(Node_scalar, values.string((String)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.stringType(), ctx).getValue());
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.stringType(), ctx).getValue());
 		}
 		if (obj instanceof Boolean) {
 			return values.constructor(Node_scalar, values.bool((Boolean)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.boolType(), ctx).getValue());
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.boolType(), ctx).getValue());
 		}
 		if (obj instanceof Date) {
 			return values.constructor(Node_scalar, values.datetime(((Date)obj).getTime()))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.dateTimeType(), ctx).getValue());
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.dateTimeType(), ctx).getValue());
 		}
 		if (obj instanceof URI) {
 			return values.constructor(Node_scalar, values.sourceLocation((URI)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.sourceLocationType(), ctx).getValue());
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.sourceLocationType(), ctx).getValue());
 		}
 
 		// Structural types may be shared.
@@ -143,21 +142,21 @@ public class RascalYAML {
 		
 		IConstructor result;
 		if (obj instanceof Object[]) {
-			IListWriter w = values.listWriter(Node);
+			IListWriter w = values.listWriter();
 			for (Object elt: (Object[])obj) {
 				w.append(loadRec(elt, anchors, visited, ctx));
 			}
 			result = values.constructor(Node_sequence, w.done());
 		}
 		else if (obj instanceof List) {
-			IListWriter w = values.listWriter(Node);
+			IListWriter w = values.listWriter();
 			for (Object elt: (List<Object>)obj) {
 				w.append(loadRec(elt, anchors, visited, ctx));
 			}
 			result = values.constructor(Node_sequence, w.done());
 		}
 		else if (obj instanceof Map) {
-			IMapWriter w = values.mapWriter(Node, Node);
+			IMapWriter w = values.mapWriter();
 			Map<Object, Object> m = (Map<Object,Object>)obj;
 			for (Map.Entry<Object,Object> e: m.entrySet()) {
 				w.put(loadRec(e.getKey(), anchors, visited, ctx), loadRec(e.getValue(), anchors, visited, ctx));
@@ -170,7 +169,7 @@ public class RascalYAML {
 					ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		if (anchors.get(obj) != -1) {
-			result = result.asAnnotatable().setAnnotation(ANCHOR_ANNO, values.integer(anchors.get(obj)));
+			result = result.asWithKeywordParameters().setParameter(ANCHOR_ANNO, values.integer(anchors.get(obj)));
 		}
 		return result;
 	}

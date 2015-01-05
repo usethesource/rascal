@@ -82,14 +82,14 @@ public class DebugUpdater {
 
 				// 1: does current production application need an annotation?
 				if (hasBreakableAttributeTag(prod) || addBreakable && !isList) {
-					arg = arg.asAnnotatable().setAnnotation("breakable", VF.bool(true));
+					arg = arg.asWithKeywordParameters().setParameter("breakable", VF.bool(true));
 				}
 				
 				// 2: push-down deferred production names.
 				Set<Integer> pushdownPositions = getChildProductionPositionsForPushdown(prod);				
 											
 				// update children by recursively applying this visitor.
-				IListWriter writer = VF.listWriter(Factory.Args.getElementType());
+				IListWriter writer = VF.listWriter();
 
 				Iterator<IValue> iter = TreeAdapter.getArgs(arg).iterator();
 				for (Integer pos = 0; iter.hasNext(); pos++) {

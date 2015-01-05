@@ -111,13 +111,13 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 			IConstructor result = (IConstructor) this.generate(pick);
 			if (result != null) {
 				RandomValueTypeVisitor visitor = descend();
-				Map<String, Type> annotations = definitions.getAnnotations(type);
+				Map<String, Type> annotations = definitions.getKeywordParameters(type);
 				for (Map.Entry<String, Type> entry : annotations.entrySet()) {
 					IValue value = visitor.generate(entry.getValue());
 					if (value == null) {
 						return null;
 					}
-					result = result.asAnnotatable().setAnnotation(entry.getKey(), value);
+					result = result.asWithKeywordParameters().setParameter(entry.getKey(), value);
 				}
 
 				return result;

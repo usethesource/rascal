@@ -71,10 +71,6 @@ public class ParsingTools {
 		classLoaders = rex.getClassLoaders();
 	}
 	
-	private IRascalMonitor getMonitor() {
-		return monitor;
-	}
-	
 	private IRascalMonitor setMonitor(IRascalMonitor monitor2) {
 		monitor = monitor2;
 		return monitor2;
@@ -172,7 +168,7 @@ public class ParsingTools {
 			return pt;
 		}
 		catch (ParseError pe) {
-			ISourceLocation errorLoc = vf.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation errorLoc = vf.sourceLocation(vf.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
 			throw RascalRuntimeException.parseError(errorLoc, currentFrame);
 		}
 		catch (UndeclaredNonTerminalException e){
@@ -397,7 +393,7 @@ public class ParsingTools {
 	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
 	      rex.getStdErr().println("***** WARNING: parseFragment, parse error at " + src);
 	      //getMonitor().warning("parse error in concrete syntax", src);
-	      return tree.asAnnotatable().setAnnotation("parseError", src);
+	      return tree.asWithKeywordParameters().setParameter("parseError", src);
 	    }
 	  }
 	  
@@ -458,7 +454,7 @@ public class ParsingTools {
 				  }
 
 				  IConstructor type = retrieveHoleType(tree);
-				  return antiquotes.get(TreeAdapter.yield(tree)).asAnnotatable().setAnnotation("holeType", type);
+				  return antiquotes.get(TreeAdapter.yield(tree)).asWithKeywordParameters().setParameter("holeType", type);
 			  }
 
 			  private IConstructor retrieveHoleType(IConstructor tree) {
