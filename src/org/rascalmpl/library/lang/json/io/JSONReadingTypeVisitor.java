@@ -334,21 +334,13 @@ public class JSONReadingTypeVisitor implements
 	private IValue fixupTypeOfNodeValues(IValue input) {
 		return input.accept(new IValueVisitor<IValue, RuntimeException>() {
 
-			private Type calcLub(Iterable<? extends IValue> e) {
-				Type elemType = tf.voidType();
-				for (IValue v : e) {
-					elemType = elemType.lub(v.getType());
-				}
-				return elemType;
-			}
-
 			@Override
 			public IValue visitList(IList o) throws RuntimeException {
 				List<IValue> elements = new ArrayList<IValue>(o.length());
 				for (IValue e : o) {
 					elements.add(e.accept(this));
 				}
-				IListWriter writer = vf.listWriter(calcLub(elements));
+				IListWriter writer = vf.listWriter();
 				writer.appendAll(elements);
 				return writer.done();
 			}
@@ -359,7 +351,7 @@ public class JSONReadingTypeVisitor implements
 				for (IValue e : o) {
 					elements.add(e.accept(this));
 				}
-				ISetWriter writer = vf.relationWriter(calcLub(elements));
+				ISetWriter writer = vf.setWriter();
 				writer.insertAll(elements);
 				return writer.done();
 			}
@@ -370,7 +362,7 @@ public class JSONReadingTypeVisitor implements
 				for (IValue e : o) {
 					elements.add(e.accept(this));
 				}
-				IListWriter writer = vf.listRelationWriter(calcLub(elements));
+				IListWriter writer = vf.listWriter();
 				writer.appendAll(elements);
 				return writer.done();
 			}
@@ -381,7 +373,7 @@ public class JSONReadingTypeVisitor implements
 				for (IValue e : o) {
 					elements.add(e.accept(this));
 				}
-				ISetWriter writer = vf.setWriter(calcLub(elements));
+				ISetWriter writer = vf.setWriter();
 				writer.insertAll(elements);
 				return writer.done();
 			}
@@ -426,7 +418,7 @@ public class JSONReadingTypeVisitor implements
 					newEntries.put(ent.getKey().accept(this), ent.getValue().accept(this));
 				}
 
-				IMapWriter writer = vf.mapWriter(calcLub(newEntries.keySet()), calcLub(newEntries.values()));
+				IMapWriter writer = vf.mapWriter();
 				writer.putAll(newEntries);
 				return writer.done();
 			}
@@ -524,12 +516,18 @@ public class JSONReadingTypeVisitor implements
 		}
 
 		Map<String, IValue> kwargs = null;
-		if (ctor.hasKeywordParameters() && l.size() > 3) {
+		Map<String, Type> kwformals = ts.getKeywordParameters(ctor);
+		
+		if (kwformals.size() > 0 && l.size() > 3) {
 			kwargs = new HashMap<>();
 			Map kw = (Map)l.get(3);
 			for (Object k: kw.keySet()) {
 				String label = (String)k;
-				Type kwType = ctor.getKeywordParameterType(label);
+				Type kwType = kwformals.get(label);
+				if (kwType == null) {
+					// TODO: JV added this, kwType could be null
+					kwType = tf.valueType();
+				}
 				stack.push(kw.get(label));
 				kwargs.put(label, read(kwType));
 				stack.pop();

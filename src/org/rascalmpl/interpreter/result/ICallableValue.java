@@ -22,7 +22,7 @@ import org.rascalmpl.interpreter.env.Environment;
 public interface ICallableValue extends IValue {
 	public int getArity();
 	public boolean hasVarArgs();
-	public boolean hasKeywordArgs();
+	public boolean hasKeywordArguments();
 	
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues);
 	

@@ -1,10 +1,6 @@
 package org.rascalmpl.interpreter.staticErrors;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 
@@ -24,19 +20,19 @@ public class CommandlineError extends RuntimeException {
     b.append("Usage: ");
     b.append(command);
     
-    Map<String, IValue> kwargs = main.computeKeywordArgs(new IValue[] {}, Collections.<String,IValue>emptyMap());
+    Type kwargs = main.getKeywordArgumentTypes(main.getEnv());
     
-    if (kwargs.size() > 1) {
+    if (kwargs.getArity() > 1) {
       b.append(" [options]\n\nOptions:\n");
     
-      for (Entry<String, IValue> param : kwargs.entrySet()) {
+      for (String param : kwargs.getFieldNames()) {
         b.append("\t-");
-        b.append(param.getKey());
-        if (param.getValue().getType().isSubtypeOf(tf.boolType())) {
+        b.append(param);
+        if (kwargs.getFieldType(param).isSubtypeOf(tf.boolType())) {
           b.append("\t[arg]: one of nothing (true), \'1\', \'0\', \'true\' or \'false\';\n");
         }
         else {
-          b.append("\t[arg]: " + param.getValue().getType() + " argument;\n");
+          b.append("\t[arg]: " + kwargs.getFieldType(param) + " argument;\n");
         }
       }
     }
