@@ -2,12 +2,12 @@ module experiments::Compiler::Examples::AnotherOr
 
 data AnotherOrData = a();
 
-anno list[int] AnotherOrData@l;
+data AnotherOrData(list[int] l = []);
 
 value main(list[value] args) {
-    v = a()[@l = [1,2,3]];
+    v = a(l = [1,2,3]);
     list[list[int]] res = [];
-    if(v@l? && [*int x,*int y] := v@l) {
+    if(v has l && [*int x,*int y] := v.l) {
        res = res + [ x, y ];
        fail;
     }

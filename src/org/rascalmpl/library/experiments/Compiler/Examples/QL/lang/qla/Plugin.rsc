@@ -36,7 +36,7 @@ public void setupQL() {
       ast = implodeQL(pt);
       inf = resolve(ast);
       msgs = checkForm(ast, inf);
-      return pt[@messages=msgs][@hyperlinks=computeXRef(inf)];
+      return pt[messages=msgs][hyperlinks=computeXRef(inf)];
     }),
     
     builder(set[Message] (Tree pt) {

@@ -33,8 +33,8 @@ data Node
   
 // Anchors are only currently valid on seq/map nodes.
 // and should be unique.
-anno int Node@anchor;
-anno type[value] Node@\tag;
+data Node(int anchor = 0);
+data Node(type[value] \tag = #void);
 
 private set[type[value]] SUPPORTED_TYPES 
   = {#int, #str, #real, #datetime, #str, #bool, #loc}
@@ -62,14 +62,14 @@ public str TEST_YAML =
    
 public Node BAD_YAML =
   mapping((
-   scalar(3)[@anchor=3]:
+   scalar(3,anchor=3):
    sequence([
-      scalar("abc")[@\tag=#int],
-      scalar("cde")[@\tag=#str],
-      scalar("unsupported")[@\tag=#node],
+      scalar("abc",\tag=#int),
+      scalar("cde",\tag=#str),
+      scalar("unsupported",\tag=#node),
       reference(4),
-      sequence([])[@anchor=4]
-   ])[@anchor=2]))[@anchor=2];
+      sequence([],anchor=4)
+   ],anchor=2)),anchor=2);
    
 public test bool testLoadDump() {
   Node n = loadYAML(TEST_YAML);
@@ -88,21 +88,21 @@ public set[str] checkYAML(Node n)
   ;
 
 public set[Node] badAnchors(Node n)
-  = { s | /s:scalar(_) <- n, (s@anchor)? }
-  + { r | /r:reference(_) <- n, (r@anchor)? };
+  = { s | /s:scalar(_) <- n, s has anchor }
+  + { r | /r:reference(_) <- n, r has anchor };
 
 
 public set[Node] wronglyTypedScalars(Node n)
-  = { s | /s:scalar(value v) <- n, s@\tag?, type[&T] t := s@\tag, !okValue(t, v) };
+  = { s | /s:scalar(value v, \tag=type[&T] t) <- n, s has \tag, !okValue(t, v) };
 
 // Doesn't work: always succeeds.
 public bool okValue(type[&T <: value] t, value v) = (&T _ := v);
 
 public set[type[value]] unsupportedTypes(Node n) 
-  = { t | /s:scalar(_) <- n, s@\tag?, type[value] t := s@\tag, t notin SUPPORTED_TYPES };
+  = { t | /s:scalar(_,\tag=type[value] t) <- n, s has \tag, t notin SUPPORTED_TYPES };
 
 public set[Node] untaggedScalars(Node n) 
-  = { s | /s:scalar(_) <- n, !(s@\tag?) }
+  = { s | /s:scalar(_) <- n, !(s has \tag) }
   ;
 
 public set[int] duplicateAnchors(Node n) {
@@ -110,11 +110,11 @@ public set[int] duplicateAnchors(Node n) {
   duplicate = {};
 
   void record(Node s) {
-   if (!(s@anchor?)) return;
-   if (s@anchor in seen) 
-     duplicate += {s@anchor};
+   if (!(s has anchor)) return;
+   if (s.anchor in seen) 
+     duplicate += {s.anchor};
    else 
-     seen += {s@anchor};
+     seen += {s.anchor};
   }
   
   visit (n) {
@@ -131,8 +131,8 @@ public tuple[set[int], set[int]] undefinedRefs(reference(i), set[int] seen, set[
   
 public tuple[set[int], set[int]] undefinedRefs(s:sequence(ns), set[int] seen, set[int] dupl) {
   undefs = {};
-  if (s@anchor?) {
-    seen += {s@anchor};
+  if (s has anchor) {
+    seen += {s.anchor};
   }
   for (n <- ns) 
     <seen, dupl> = undefinedRefs(n, seen, dupl);
@@ -141,8 +141,8 @@ public tuple[set[int], set[int]] undefinedRefs(s:sequence(ns), set[int] seen, se
 
 public tuple[set[int], set[int]] undefinedRefs(nod:mapping(m), set[int] seen, set[int] dupl) {
   undefs = {};
-  if (nod@anchor?) {
-    seen += {nod@anchor};
+  if (nod has anchor) {
+    seen += {nod.anchor};
   }
   for (Node n <- m) {
     <seen, dupl> = undefinedRefs(n, seen, dupl);
@@ -160,9 +160,9 @@ bool equalNodes(Node x, Node y) {
      m = ();
      visit (n) {
        case s:sequence(_): 
-          if (s@anchor?) m[s@anchor] = s;
+          if (s has anchor) m[s.anchor] = s;
        case mp:mapping(_): 
-          if (mp@anchor?) m[mp@anchor] = mp;
+          if (mp has anchor) m[mp.anchor] = mp;
      }
      return m;
    }

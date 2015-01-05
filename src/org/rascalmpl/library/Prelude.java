@@ -2183,6 +2183,14 @@ public class Prelude {
 		return node.asAnnotatable().removeAnnotation(label.getValue());
 	}
 	
+	public INode unset(INode node, IString label) {
+		return node.asWithKeywordParameters().unsetParameter(label.getValue());
+	}
+	
+	public INode unsetAll(INode node) {
+		return node.asWithKeywordParameters().unsetAll();
+	}
+	
 	/*
 	 * ParseTree
 	 */

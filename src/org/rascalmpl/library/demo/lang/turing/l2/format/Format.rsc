@@ -12,13 +12,13 @@ public Box stat2box(writeUnset()) = KW(L("W0"));
 public Box stat2box(moveForward()) = KW(L("MF"));
 public Box stat2box(moveBackward()) = KW(L("MB"));
 
-public Box stat2box(jumpAlwaysLabel(n)) = H([KW(L("J_")), VAR(L(n))])[@hs=1];
-public Box stat2box(jumpSetLabel(n)) = H([KW(L("J1")), VAR(L(n))])[@hs=1];
-public Box stat2box(jumpUnsetLabel(n)) = H([KW(L("J0")), VAR(L(n))])[@hs=1];
+public Box stat2box(jumpAlwaysLabel(n)) = H([KW(L("J_")), VAR(L(n))],hs=1);
+public Box stat2box(jumpSetLabel(n)) = H([KW(L("J1")), VAR(L(n))],hs=1);
+public Box stat2box(jumpUnsetLabel(n)) = H([KW(L("J0")), VAR(L(n))],hs=1);
 
 public Box stat2box(loop(n, ss)) 
   = V([
-     H([KW(L("REP")), L("<n>"), L("{")])[@hs=1],
+     H([KW(L("REP")), L("<n>"), L("{")],hs=1),
      I([stats2box(ss)]),
      L("}")
     ]);

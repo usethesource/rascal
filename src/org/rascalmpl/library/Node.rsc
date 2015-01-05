@@ -36,6 +36,18 @@ delAnnotation(F, "size");
 public java &T <: node delAnnotation(&T <: node x, str label);
 
 @doc{
+Synopsis: Set a specific parameter back to default on a node.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T <: node unset(&T <: node x, str label);
+
+@doc{
+Synopsis: Set all keyword parameters back to default.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T <: node unset(&T <: node x);
+
+@doc{
 Synopsis: Delete all annotations from a node.
 
 Examples:
