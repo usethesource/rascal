@@ -58,25 +58,4 @@ data Message =
        error(str msg, loc at)
      | warning(str msg, loc at)
      | info(str msg, loc at);
-/*
-@doc{
-Synopsis: Create an error message.
-}
-public Message error(loc source, str msg) {
-  return error(msg,source);
-}
 
-@doc{
-Synopsis: Create a warning message.
-}
-public Message warning(loc source, str msg) {
-  return warning(msg,source);
-}
-
-@doc{
-Synopsis: Create an info message.
-},
-public Message info(loc source, str msg) {
-  return info(msg,source);
-}
-*/

@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
@@ -36,6 +37,8 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 public class TreeAdapter {
+
+	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
 	private TreeAdapter() {
 		super();
@@ -190,7 +193,7 @@ public class TreeAdapter {
 					"This is not a context-free list production: " + tree);
 		}
 		IList children = getArgs(tree);
-		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter(Factory.Args.getElementType());
+		IListWriter writer = VF.listWriter();
 
 		for (int i = 0; i < children.length(); ++i) {
 			IValue kid = children.get(i);
@@ -240,7 +243,7 @@ public class TreeAdapter {
 		}
 
 		IList children = getArgs(tree);
-		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter(Factory.Args.getElementType());
+		IListWriter writer = VF.listWriter();
 
 		for (int i = 0; i < children.length(); i++) {
 			IConstructor kid = (IConstructor) children.get(i);
@@ -267,7 +270,7 @@ public class TreeAdapter {
 	}
 
 	public static ISourceLocation getLocation(IConstructor tree) {
-		return (ISourceLocation) tree.asAnnotatable().getAnnotation(Factory.Location);
+		return (ISourceLocation) tree.asWithKeywordParameters().getParameter("src");
 	}
 
 	public static int getCharacter(IConstructor tree) {
@@ -576,7 +579,7 @@ public class TreeAdapter {
 	}
 
 	public static IList searchCategory(IConstructor tree, String category) {
-		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter(Factory.Args.getElementType());
+		IListWriter writer = VF.listWriter();
 		if (isAppl(tree)) {
 			String s = ProductionAdapter.getCategory(getProduction(tree));
 			if (s == category)

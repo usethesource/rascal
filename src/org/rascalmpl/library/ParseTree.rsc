@@ -23,7 +23,7 @@ represents the syntactic structure of a string according to some formal grammar.
 * `Tree` is a subtype of the type [$Values/Node].
 * All [SyntaxDefinition] types (non-terminals) are sub-types of `Tree`
 * All [ConcreteSyntax] expressions produce parse trees the types of which are non-terminals
-* Trees can be annotated in various ways, see [IDEConstruction] features. Most importantly the `\loc` annotation always points to the source location of any (sub) parse tree.
+* Trees can be annotated in various ways, see [IDEConstruction] features. Most importantly the `src` keyword parameter always points to the source location of any (sub) parse tree.
 
 
 Parse trees are usually analyzed and constructed using [ConcreteSyntax] expressions and patterns.
@@ -80,9 +80,6 @@ Examples:
 Benefits:
 
 Pitfalls:
-For historical reasons the name of the annotation is "loc" and this interferes with the Rascal keyword `loc`
-for the type of [$Rascal/Expressions/Values/Location]s.
-Therefore the annotation name has to be escaped as `\loc` when it is declared or used.
 
 Questions:
 
@@ -115,9 +112,9 @@ Description:
 }
 
 data Tree 
-     = appl(Production prod, list[Tree] args, loc pos = |unknown:///|) /*1*/
+     = appl(Production prod, list[Tree] args, loc src = |unknown:///|) /*1*/
      | cycle(Symbol symbol, int cycleLength) 
-     | amb(set[Tree] alternatives)  
+     | amb(set[Tree] alternatives, loc src = a <- alternatives ? a.src : |unknown:///|)  
      | char(int character)
      ;
 
@@ -458,12 +455,6 @@ data Exp = add(Exp, Exp);
 public java &T<:value implode(type[&T<:value] t, Tree tree);
 
 @doc{
-Synopsis: Annotate a parse tree node with an (error) message.
-}
-public anno Message Tree@message;
-
-
-@doc{
 Synopsis: Tree search result type for [treeAt].
 }
 public data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
@@ -474,7 +465,7 @@ Synopsis: Select the innermost Tree of a given type which is enclosed by a given
 Description: Select the innermost Tree of type `t` which is enclosed by location `l`.
 }
 public TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, a:appl(_, _)) {
-	if ((a@\loc)?, al := a@\loc, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
+	if (a has src, al := a.src, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
 		for (arg <- a.args, TreeSearchResult[&T<:Tree] r:treeFound(&T<:Tree _) := treeAt(t, l, arg)) {
 			return r;
 		}

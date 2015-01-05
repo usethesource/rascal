@@ -29,6 +29,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
@@ -41,7 +42,6 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -51,6 +51,8 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * UPTR parse node of a rascal program.
  */
 public class ASTBuilder {
+	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+
 	private static final String MODULE_SORT = "Module";
 
     private final PointerKeyedHashMap<IConstructor, AbstractAST> sortCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
@@ -231,7 +233,7 @@ public class ASTBuilder {
 			i++;
 		}
 
-		AbstractAST ast = callMakerMethod(sort, cons, tree.asAnnotatable().getAnnotations(), actuals, null);
+		AbstractAST ast = callMakerMethod(sort, cons, tree.asWithKeywordParameters().getParameters(), actuals, null);
 		
 		sortCache.putUnsafe(tree, ast);
 		return ast;
@@ -249,7 +251,7 @@ public class ASTBuilder {
 		}
 		Object actuals[] = new Object[] { tree, new String(TreeAdapter.yield(tree)) };
 
-		AbstractAST result = callMakerMethod(sort, "Lexical", tree.asAnnotatable().getAnnotations(), actuals, null);
+		AbstractAST result = callMakerMethod(sort, "Lexical", tree.asWithKeywordParameters().getParameters(), actuals, null);
 		lexCache.putUnsafe(tree, result);
 		return result;
 	}
@@ -381,7 +383,7 @@ public class ASTBuilder {
 
 	private IList getASTArgs(IConstructor tree) {
 		IList children = TreeAdapter.getArgs(tree);
-		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter(Factory.Args.getElementType());
+		IListWriter writer = VF.listWriter();
 	
 		for (int i = 0; i < children.length(); i++) {
 			IConstructor kid = (IConstructor) children.get(i);

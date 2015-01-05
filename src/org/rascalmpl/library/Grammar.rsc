@@ -34,8 +34,6 @@ data GrammarModule
 data GrammarDefinition
   = \definition(str main, map[str name, GrammarModule \mod] modules);
 
-anno loc Production@\loc;
- 
 public Grammar grammar(set[Symbol] starts, set[Production] prods) {
   rules = ();
 
