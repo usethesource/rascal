@@ -34,6 +34,19 @@ public class WithKeywordParametersCursor extends Cursor implements IWithKeywordP
 	}
 
 	@Override
+	public IConstructor unsetParameter(String label) {
+		// TODO: @tijs check this?
+		return new ConstructorCursor(getKWP().unsetParameter(label));
+	}
+	
+	@Override
+	public IConstructor unsetAll() {
+		// TODO: @tijs check this?
+		return new ConstructorCursor(getKWP().unsetAll());
+	}
+	
+	
+	@Override
 	public IConstructor setParameter(String label, IValue newValue)
 			throws FactTypeUseException {
 		return new ConstructorCursor(getKWP().setParameter(label, newValue), getCtx());
