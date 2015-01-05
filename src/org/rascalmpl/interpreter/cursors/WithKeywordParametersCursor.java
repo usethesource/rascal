@@ -60,6 +60,18 @@ public class WithKeywordParametersCursor extends Cursor implements IWithKeywordP
 	}
 
 	@Override
+	public IConstructor unsetParameter(String label) {
+		// TODO: @tijs check this?
+		return new ConstructorCursor(getKWP().unsetParameter(label));
+	}
+	
+	@Override
+	public IConstructor unsetAll() {
+		// TODO: @tijs check this?
+		return new ConstructorCursor(getKWP().unsetAll());
+	}
+	
+	@Override
 	public IConstructor setParameters(Map<String, IValue> params) {
 		return new ConstructorCursor(getKWP().setParameters(params), getCtx());
 	}
