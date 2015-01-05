@@ -4,6 +4,8 @@ import Prelude;
 import vis::Figure;
 import vis::KeySym;
 
+import util::Editors;
+
 import demo::lang::Pico::Abstract;
 import demo::lang::Pico::ControlFlow;
 

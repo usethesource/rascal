@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -38,7 +37,6 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.KeywordParameterInitializerWrapperFunction;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.ReifiedType;
@@ -149,16 +147,11 @@ public class TypeReifier {
 		String name = ((IString) defined.get("name")).getValue();
 		Type kwTypes = symbolsToTupleType((IList) alt.get("kwTypes"), store);
 		
-		IMap kwDefaultMap = (IMap) alt.get("kwDefaults");
-		Map<String,IKeywordParameterInitializer> kwDefaults = new HashMap<>();
-		
-		for (IValue key : kwDefaultMap) {
-			// this depends on the reifier to use KeywordParameterInitializerWrapperFunction to reify an IKeywordParameterInitializer
-			KeywordParameterInitializerWrapperFunction wrapper = (KeywordParameterInitializerWrapperFunction) kwDefaultMap.get(key);
-			kwDefaults.put(((IString) key).getValue(), wrapper.getInitializer());
+		if (kwTypes.getArity() == 0) {
+			kwTypes = tf.voidType();
 		}
 		
-		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store), kwTypes, kwDefaults);
+		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
 	}
 
 	private Type symbolToType(IConstructor symbol, TypeStore store) {
@@ -303,26 +296,17 @@ public class TypeReifier {
 	private Type funcToType(IConstructor symbol, TypeStore store) {
 		Type returnType = symbolToType((IConstructor) symbol.get("ret"), store);
 		Type parameters = symbolsToTupleType((IList) symbol.get("parameters"), store);
-		Type kwTypes = symbolsToTupleType((IList) symbol.get("kwTypes"), store); 
-		
-		IMap kwDefaultMap = (IMap) symbol.get("kwDefaults");
-		Map<String,IKeywordParameterInitializer> kwDefaults = new HashMap<>();
-		
-		for (IValue key : kwDefaultMap) {
-			kwDefaults.put(((IString) key).getValue(), ((KeywordParameterInitializerWrapperFunction) kwDefaultMap.get(key)).getInitializer());
-		}
-		
-		return RascalTypeFactory.getInstance().functionType(returnType, parameters, kwTypes, kwDefaults);
+	
+                // TODO: while merging the other branch had tf.voidType()... 	
+		return RascalTypeFactory.getInstance().functionType(returnType, parameters, tf.tupleEmpty());
 	}
 
 	private Type consToType(IConstructor symbol, TypeStore store) {
 		Type adt = symbolToType((IConstructor) symbol.get("adt"), store);
 		IList parameters = (IList) symbol.get("parameters");
 		String name = ((IString) symbol.get("name")).getValue();
-		System.err.println("Cons in: " + symbol);
 		// here we assume the store has the declaration already
 		Type t = store.lookupConstructor(adt, name, symbolsToTupleType(parameters, store));
-		System.err.println("Cons out: " + t);
 		return t;
 		
 	}
@@ -493,8 +477,6 @@ public class TypeReifier {
 						}
 					}
 					
-					
-					
 					result = vf.constructor(Factory.Symbol_Cons, vf.constructor(Factory.Symbol_Label, vf.string(type.getName()), adt), w.done());
 
 					cache.put(type, result);
@@ -528,10 +510,10 @@ public class TypeReifier {
 				
 				IListWriter kwTypes = vf.listWriter();
 				IMapWriter kwDefaults = vf.mapWriter();
-				
-				for (String key : type.getKeywordParameters()) {
-					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(key), type.getKeywordParameterType(key).accept(this)));
-					kwDefaults.put(vf.string(key), new KeywordParameterInitializerWrapperFunction(type.getKeywordParameterInitializer(key), ctx));
+				Map<String,Type> keywordParameters = store.getKeywordParameters(type);
+						
+				for (String label : keywordParameters.keySet()) {
+					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(label), keywordParameters.get(label).accept(this)));
 				}
 				
 				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), kwDefaults.done(), vf.set()));
@@ -539,8 +521,6 @@ public class TypeReifier {
 				definitions.put(adt, choice);
 			}
 			
-			
-
 			@Override
 			public IValue visitAbstractData(Type type) {
 				IValue sym = cache.get(type);
@@ -560,8 +540,14 @@ public class TypeReifier {
 
 					// make sure to find the type by the uninstantiated adt
 					Type adt = store.lookupAbstractDataType(type.getName());
-					for (Type cons : store.lookupAlternatives(adt)) {
-						cons.accept(this);
+					
+					if (adt != null) {
+						// somebody else (the type checker) should report
+						// that the ADT was undeclared. Here it does not matter 
+						// much, something useful but incomplete will be produced.
+						for (Type cons : store.lookupAlternatives(adt)) {
+							cons.accept(this);
+						}
 					}
 				}
 				

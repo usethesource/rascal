@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Errors/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Errors/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Functions may be declared to have keyword parameters. Each keyword parameters has a type, a name and a default value.
  This error is generated when the declared type and the actual type of the keyword parameter are not compatible.
@@ -64,20 +64,20 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>    Declare <code>incr</code> function with keyword parameter <code>delta</code> of type <code>int</code>:
 <pre class="screen"><span class="prompt">rascal></span>int incr(int x, int delta = 1) = n + delta;
-int (int): int incr(int, int delta=1);
+int (int): int incr(int, int delta= ...);
 </pre>  Erroneous use of <code>delta</code> with a string value:
 <pre class="screen"><span class="prompt">rascal></span>incr(3, delta=&quot;more&quot;);
-|stdin:///|(14,6,&lt;1,14>,&lt;1,20>): Expected int, but got str for keyword parameter delta
+|stdin:///|(0,21,&lt;1,0>,&lt;1,21>): Expected int, but got str
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Static/UnexpectedKeywordArgumentType&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Static/UnexpectedKeywordArgumentType&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |

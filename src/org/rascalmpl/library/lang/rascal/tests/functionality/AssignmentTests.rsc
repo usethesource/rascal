@@ -20,7 +20,7 @@ test bool testTuple2() {<a, b> = <1, 2>; return (a == 1) && (b == 2);}
 test bool testTuple3() {tuple[str name, int cnt] T = <"abc", 1>; T.name = "def"; return T.name == "def";}
 test bool testTuple4() {tuple[str name, int cnt] T = <"abc", 1>; return T[name = "def"] == <"def", 1>;}
   
-// testList1
+// testList
   
 test bool testList1() {list[int] L = []; return L == [];}
 test bool testList2() {list[int] L = [0,1,2]; L[1] = 10; return L == [0,10,2];}
@@ -106,6 +106,18 @@ test bool assigningClosureToVariableBug8771() {
     		return x() == true;
 }
   	
-  
-  	
- 
+data FK(int kw1 = 0) = h(int w = -1);
+
+test bool testKwParams1() { 
+  FK X = h();
+  assert X.w == -1;
+  X.w *= 2;
+  return X.w == -2;
+}
+
+test bool testKwParams2() { 
+  FK X = h();
+  assert X.kw1 == 0;
+  X.kw1 = 2;
+  return X.kw1 == 2;
+}

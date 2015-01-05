@@ -59,7 +59,6 @@ public class RascalRuntimeException {
 	public static final Type JavaWithCause = TF.constructor(TS, Exception, "Java", TF.stringType(), "class", TF.stringType(), "message", Exception, "cause");
   
 	public static final Type Subversion = TF.constructor(TS, Exception, "Subversion", TF.stringType(), "message");
-	public static final Type JavaBytecodeError = TF.constructor(TS, Exception, "JavaBytecodeError", TF.stringType(), "message");
 
 	public static final Type InvalidUseOfDate = TF.constructor(TS, Exception, "InvalidUseOfDate", TF.dateTimeType(), "msg");
 	public static final Type InvalidUseOfTime = TF.constructor(TS, Exception, "InvalidUseOfTime", TF.dateTimeType(), "msg");
@@ -80,91 +79,90 @@ public class RascalRuntimeException {
 	
 	public static final Type RegExpSyntaxError = TF.constructor(TS, Exception, "RegExpSyntaxError", TF.stringType(), "message");
 
+	public static final Type NotImplemented = TF.constructor(TS, Exception, "NotImplemented", TF.stringType(), "message");
 	
-	public static Thrown arithmeticException(String msg, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(ArithmeticException, VF.string(msg)), stacktrace);
+	
+	
+	public static Thrown arithmeticException(String msg, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(ArithmeticException, VF.string(msg)), currentFrame);
 	}
 	
-	public static Thrown assertionFailed(ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(AssertionFailed), loc, stacktrace);
+	public static Thrown assertionFailed(ISourceLocation loc, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(AssertionFailed), loc, currentFrame);
 	}
 
-	public static Thrown assertionFailed(IString msg, ISourceLocation loc, List<Frame> stacktrace) {
-    	return Thrown.getInstance(VF.constructor(LabeledAssertionFailed, msg), loc, stacktrace);
+	public static Thrown assertionFailed(IString msg, ISourceLocation loc, Frame currentFrame) {
+    	return Thrown.getInstance(VF.constructor(LabeledAssertionFailed, msg), loc, currentFrame);
     }
 	
-	public static Thrown emptyList(List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(EmptyList), stacktrace);
+	public static Thrown emptyList(Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(EmptyList), currentFrame);
 	}
 	
-	public static Thrown emptySet(List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(EmptySet), stacktrace);
+	public static Thrown emptySet(Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(EmptySet), currentFrame);
 	}
 	
-	public static Thrown emptyMap(List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(EmptyMap), stacktrace);
+	public static Thrown emptyMap(Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(EmptyMap), currentFrame);
 	}
 	
-	public static Thrown illegalArgument(List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(AnonymousIllegalArgument), stacktrace);	
+	public static Thrown illegalArgument(Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(AnonymousIllegalArgument), currentFrame);	
 	}
 	
-	public static Thrown illegalArgument(IValue v, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(IllegalArgument), stacktrace);	
+	public static Thrown illegalArgument(IValue v, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(IllegalArgument), currentFrame);	
 	}
 	
-	public static Thrown illegalArgument(IValue v, List<Frame> stacktrace, String message) {
-		return Thrown.getInstance(VF.constructor(IllegalArgument, v, VF.string(message)), stacktrace);	
+	public static Thrown illegalArgument(IValue v, Frame currentFrame, String message) {
+		return Thrown.getInstance(VF.constructor(IllegalArgument, v, VF.string(message)), currentFrame);	
 	}
 	
-	public static Thrown indexOutOfBounds(IInteger i, List<Frame> stacktrace) {
-    	return Thrown.getInstance(VF.constructor(IndexOutOfBounds, i), stacktrace);
+	public static Thrown indexOutOfBounds(IInteger i, Frame currentFrame) {
+    	return Thrown.getInstance(VF.constructor(IndexOutOfBounds, i), currentFrame);
     }
 	
-	public static Thrown io(IString msg, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(IO, msg), stacktrace);
+	public static Thrown io(IString msg, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(IO, msg), currentFrame);
 	}
 	
-	private static Thrown javaException(String clazz, String message, IValue cause, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(Java, VF.string(clazz), VF.string(message), cause), loc, stacktrace);
+	private static Thrown javaException(String clazz, String message, IValue cause, ISourceLocation loc, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(Java, VF.string(clazz), VF.string(message), cause), loc, currentFrame);
 	}
 
-	private static Thrown javaException(String clazz, String message, ISourceLocation loc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(Java, VF.string(clazz), VF.string(message)), loc, stacktrace);
+	private static Thrown javaException(String clazz, String message, ISourceLocation loc, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(Java, VF.string(clazz), VF.string(message)), loc, currentFrame);
 	}
 	
-	public static Thrown javaException(Throwable targetException, ISourceLocation loc, List<Frame> stacktrace) throws CompilerError {
-		try {
-			String clazz = targetException.getClass().getSimpleName();
-			String msg = targetException.getMessage();
-			List<Frame> trace = buildTrace(targetException, stacktrace);
-			Throwable cause = targetException.getCause();
+	public static Thrown javaException(Throwable targetException, ISourceLocation loc, Frame currentFrame) throws CompilerError {
+		String clazz = targetException.getClass().getSimpleName();
+		String msg = targetException.getMessage();
+		//List<Frame> trace = buildTrace(targetException, currentFrame);
+		Throwable cause = targetException.getCause();
 
-			if (cause != null && cause != targetException) {
-				Thrown throwCause = cause instanceof Thrown ? (Thrown) cause : javaException(cause, loc, trace);
-				return javaException(clazz, msg != null ? msg : "", throwCause.value, loc, trace);
-			}
-			else {
-				return javaException(clazz, msg != null ? msg : "", loc, trace);
-			}
-		} catch (IOException e) {
-			throw new CompilerError("Could not create stack trace: " + e);
+		if (cause != null && cause != targetException) {
+			Thrown throwCause = cause instanceof Thrown ? (Thrown) cause : javaException(cause, loc, currentFrame);
+			return javaException(clazz, msg != null ? msg : "", throwCause.value, loc, currentFrame);
+		}
+		else {
+			return javaException(clazz, msg != null ? msg : "", loc, currentFrame);
 		}
 	}
 
-	private static List<Frame> buildTrace(Throwable targetException, List<Frame> stacktrace) throws IOException {
-		StackTraceElement[] elements = targetException.getStackTrace();
-		List<Frame> trace = new ArrayList<Frame>();
-		for(StackTraceElement elem : elements) {
-			if(elem.getMethodName().equals("invoke")) {
-				break;
-			}
-			Function function = new Function(elem.getClassName() + "." + elem.getMethodName(), null, null, -1, -1, null, -1, null, null);
-			trace.add(new Frame(-1, null, -1, function));
-		}
-		trace.addAll(stacktrace);
-		return trace;
-	}
+//	private static List<Frame> buildTrace(Throwable targetException, Frame currentFrame) throws IOException {
+//		StackTraceElement[] elements = targetException.getStackTrace();
+//		List<Frame> trace = new ArrayList<Frame>();
+//		for(StackTraceElement elem : elements) {
+//			if(elem.getMethodName().equals("invoke")) {
+//				break;
+//			}
+//			Function function = new Function(elem.getClassName() + "." + elem.getMethodName(), null, null, -1, -1, null, -1, null, null);
+//			trace.add(new Frame(-1, null, -1, function));
+//		}
+//		trace.addAll(stacktrace);
+//		return trace;
+//	}
 	
 //    private static ISourceLocation robustSourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
 //    	if (path == null) {
@@ -201,20 +199,22 @@ public class RascalRuntimeException {
 //		return Thrown.getInstance(VF.constructor(ModuleNotFound, module), loc, stacktrace);
 //	}
 	
-	public static Thrown noMainFunction(List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(NoMainFunction), stacktrace);
+	public static Thrown noMainFunction(Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(NoMainFunction), currentFrame);
 	}
 	
-	public static Thrown noSuchAnnotation(String label, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(NoSuchAnnotation, VF.string(label)), stacktrace);
+	public static Thrown noSuchAnnotation(String label, Frame currentFrame) {
+		Thrown res = Thrown.getInstance(VF.constructor(NoSuchAnnotation, VF.string(label)), currentFrame);
+		res.printStackTrace(System.out);
+		return res;
 	}
 
-	public static Thrown noSuchKey(IValue v, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(NoSuchKey, v),  stacktrace);
+	public static Thrown noSuchKey(IValue v, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(NoSuchKey, v),  currentFrame);
 	}
 	
-	public static Thrown parseError(ISourceLocation parseloc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(ParseError, parseloc), stacktrace);
+	public static Thrown parseError(ISourceLocation parseloc, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(ParseError, parseloc), currentFrame);
 	}
 	
 //	public static Thrown pathNotFound(ISourceLocation parseloc, ISourceLocation loc, List<Frame> stacktrace) {
@@ -257,24 +257,24 @@ public class RascalRuntimeException {
 //		return Thrown.getInstance(VF.constructor(ImplodeError, VF.string(msg)), loc, stacktrace);
 //	}
 
-	public static Thrown invalidUseOfLocation(String msg, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(InvalidUseOfLocation, VF.string(msg)),  stacktrace);
+	public static Thrown invalidUseOfLocation(String msg, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(InvalidUseOfLocation, VF.string(msg)),  currentFrame);
 	}	
 	
-	public static Thrown invalidUseOfDateException(String message, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(InvalidUseOfDate, VF.string(message)), stacktrace);
+	public static Thrown invalidUseOfDateException(String message, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(InvalidUseOfDate, VF.string(message)), currentFrame);
 	}
 	
-	public static Thrown invalidUseOfTimeException(String message, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(InvalidUseOfTime, VF.string(message)),  stacktrace);
+	public static Thrown invalidUseOfTimeException(String message, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(InvalidUseOfTime, VF.string(message)),  currentFrame);
 	}
 	
-	public static Thrown invalidUseOfDateTimeException(String message, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(InvalidUseOfDateTime, VF.string(message)),  stacktrace);
+	public static Thrown invalidUseOfDateTimeException(String message, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(InvalidUseOfDateTime, VF.string(message)),  currentFrame);
 	}
 	
-	public static Thrown malformedURI(String uri, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(MalFormedURI, VF.string(uri)), stacktrace);
+	public static Thrown malformedURI(String uri, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(MalFormedURI, VF.string(uri)), currentFrame);
 	}
 	
 //	public static Thrown MultipleKey(IValue v, ISourceLocation loc, List<Frame> stacktrace) {
@@ -285,16 +285,16 @@ public class RascalRuntimeException {
 //		return Thrown.getInstance(VF.constructor(NameMismatch, VF.string(expected), VF.string(got)), loc, stacktrace);
 //	}
 	
-	public static Thrown noParent(ISourceLocation noparentloc, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(NoParent, noparentloc), stacktrace);
+	public static Thrown noParent(ISourceLocation noparentloc, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(NoParent, noparentloc), currentFrame);
 	}
 	
 //	public static Thrown noSuchElement(IValue v, ISourceLocation loc, List<Frame> stacktrace) {
 //		return Thrown.getInstance(VF.constructor(NoSuchElement,v), loc, stacktrace);	
 //	}
 
-	public static Thrown noSuchField(String name, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(NoSuchField, VF.string(name)), stacktrace);
+	public static Thrown noSuchField(String name, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(NoSuchField, VF.string(name)), currentFrame);
 	}
 	
 //	public static Thrown permissionDenied(ISourceLocation loc, List<Frame> stacktrace) {
@@ -304,9 +304,13 @@ public class RascalRuntimeException {
 //	public static Thrown permissionDenied(IString msg, ISourceLocation loc, List<Frame> stacktrace) {
 //		return Thrown.getInstance(VF.constructor(PermissionDenied, msg), loc, stacktrace);
 //	}
+	
+	public static Thrown notImplemented(String msg, ISourceLocation loc, Frame currentFrame) {
+    	return Thrown.getInstance(VF.constructor(NotImplemented, VF.string(msg)), loc, currentFrame);
+    }
 
-	public static Thrown unavailableInformation(String message, List<Frame> stacktrace){
-		return Thrown.getInstance(VF.constructor(UnavailableInformation, VF.string(message)),  stacktrace);	
+	public static Thrown unavailableInformation(String message, Frame currentFrame){
+		return Thrown.getInstance(VF.constructor(UnavailableInformation, VF.string(message)),  currentFrame);	
 	}
 
 //	public static Thrown schemeNotSupported(ISourceLocation file, ISourceLocation loc, List<Frame> stacktrace) {
@@ -317,11 +321,11 @@ public class RascalRuntimeException {
 //    	return Thrown.getInstance(VF.constructor(Timeout), loc, stacktrace);
 //    }
 	
-	public static Thrown uninitializedVariable(String name, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(UninitializedVariable, VF.string(name)), stacktrace);
+	public static Thrown uninitializedVariable(String name, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(UninitializedVariable, VF.string(name)), currentFrame);
 	}
 	
-	public static Thrown RegExpSyntaxError(String message, List<Frame> stacktrace) {
-		return Thrown.getInstance(VF.constructor(RegExpSyntaxError, VF.string(message)), stacktrace);
+	public static Thrown RegExpSyntaxError(String message, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(RegExpSyntaxError, VF.string(message)), currentFrame);
 	}
 }

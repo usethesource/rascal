@@ -27,18 +27,18 @@ syntax T
      
 layout WS = [\t\n\ ]* !>> [\t\n\ ];
    
-public A a = (A) `a`;  
-public A b = (A) `b`;  
-public A aa = (A) `a a`; 
-public A ab = (A) `a b`;      
+public A given_a = (A) `a`;  
+public A given_b = (A) `b`;  
+public A given_aa = (A) `a a`; 
+public A given_ab = (A) `a b`;      
 
-public A twoA = (A) `<A a> <A a>`;
-public A threeA = (A) `<A aa> <A a>`; 
+public A twoA = (A) `<A given_a> <A given_a>`;
+public A threeA = (A) `<A given_aa> <A given_a>`; 
 
-public test bool typeMatch() = A _ := a;
-public test bool twoMatch() = (A) `<A a1> <A a2>` := twoA && a1 == a && a2 == a;
-public test bool twoMatch2() = (A) `<A a1> <A a2>` := ab && a1 == a && a2 == b;
-public test bool threeMatch() = (A) `<A a1> <A a2> <A a3>` := threeA && a1 == a && a2 == a && a3 == a;
+public test bool typeMatch() = A _ := given_a;
+public test bool twoMatch() = (A) `<A a1> <A a2>` := twoA && a1 == given_a && a2 == given_a;
+public test bool twoMatch2() = (A) `<A a1> <A a2>` := given_ab && a1 == given_a && a2 == given_b;
+public test bool threeMatch() = (A) `<A a1> <A a2> <A a3>` := threeA && a1 == given_a && a2 == given_a && a3 == given_a;
  
 // testing regular expressions
 

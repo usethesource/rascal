@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,25 +48,25 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code>all ( <i>Exp</i><sub>1</sub>, <i>Exp</i><sub>2</sub>, ... )</code>
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code> </th><th align="left"> <code><i>Exp</i><sub>2</sub></code> </th><th align="left"> ... </th><th align="left"> <code>all ( <i>Exp</i><sub>1</sub>, <i>Exp</i><sub>2</sub>, ... )</code> </th></tr><tr><td align="left"><code>bool</code>     </td><td align="left"> <code>bool</code>    </td><td align="left"> ... </td><td align="left"> <code>bool</code>                          </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Yields <code>true</code> when all combinations of values of <code><i>Exp</i><sub>i</sub></code> are true.
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>    Are all integers 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 even?
 <pre class="screen"><span class="prompt">rascal></span>all(int n &lt;- [1 .. 10], n % 2 == 0);
@@ -77,8 +77,8 @@ bool: true
 </pre>
 </div>
 
-  	                       
-  	                       
+
+
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  When one of the <code><i>Exp</i><sub>i</sub></code> enumerates the elements of an empty list, <code>all</code> always returns <code>false</code>:
  <pre class="screen"><span class="prompt">rascal></span>all(int n &lt;- [], n &gt; 0);
@@ -86,7 +86,7 @@ bool: false
 </pre>
 </div>
 
-  	                       
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Boolean/All&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Boolean/All&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

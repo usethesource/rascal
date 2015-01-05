@@ -1,6 +1,6 @@
 module lang::rascal::tests::library::ValueIOTests
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the EclipseLicense v1.0
  * which accompanies this distribution, and is available at
@@ -115,3 +115,8 @@ test bool setBinary(set[value] v) = binaryWriteRead(#set[value], v);
 test bool listBinary(list[value] v) = binaryWriteRead(#list[value], v);
 test bool tupleBinary(tuple[value,value,value] v) = binaryWriteRead(#tuple[value,value,value], v);
 test bool numBinary(num v) = binaryWriteRead(#num, v);
+
+test bool compressionWorks(value v) {
+   writeBinaryValueFile(|file:///tmp/xxx|,v, compression=false);
+   return readBinaryValueFile(|file:///tmp/xxx|) == v;
+}

@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -154,9 +154,9 @@ public str unescape(str s) {
 public void displayResultsAsTab(str tabName, str res) {
     render(tabName, 
         vcat([
-            space(text("",fontSize(14)),gap(5), left()),
-            space(text(substring(res,1,size(res)-2), fontSize(14), font("Courier New"), left()), gap(5))
-            ], left()));
+            space(text("",fontSize(14)),gap(5), vis::Figure::left()),
+            space(text(substring(res,1,size(res)-2), fontSize(14), font("Courier New"), vis::Figure::left()), gap(5))
+            ], vis::Figure::left()));
 }
 
 @doc{Display the results on the console}
@@ -167,7 +167,7 @@ public void displayResultsInConsole(str resultTag, str res) {
 @doc{Convert a list into a Maude-formatted list}
 public str listToMaudeList(list[&T] l, str unit) {
     if (size(l) == 0) return unit;
-    return "_`,_(\"<head(l)>\",<listToMaudeList(tail(l))>)";
+    return "_`,_(\"<head(l)>\",<listToMaudeList(tail(l), unit)>)";
 }
 
 @doc{Given a list of error messages in format:::uri-path::offset::length::start-row::start-col::end-row::end-col::message:::, return a set of Message items.}
@@ -184,7 +184,7 @@ public set[Message] createMessages(str info) {
             else if (severity == "2")
                 errorMsgs = errorMsgs + warning(errorMsg, errorLoc);
             else
-                errorMsgs = errorMsgs + info(errorMsg, errorLoc);
+                errorMsgs = errorMsgs + Message::info(errorInfo, errorLoc);
         }
     }
     return errorMsgs;

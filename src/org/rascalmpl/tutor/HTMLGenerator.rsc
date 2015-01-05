@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -22,6 +22,8 @@ import List;
 import Map;
 import util::Eval;
 import Warnings;
+
+import Exception;
 
 /*
 // Maintain a list of warnings found for current concept;
@@ -145,8 +147,10 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
     case /^\<listing\s*<name:.+>\>$/: {
       loc L = (|courses:///|[path = name]).top;
       if(!exists(L))
-          L = (|std:///|[path = name]).top;
-       
+          L = (|clib-rascal:///|[path = name]).top;
+      if (!exists(L))
+          L = (|clib-rascal-eclipse:///|[path = name]).top;
+          
       try {
       	codeLines = readFileLines(L);
       	return < markupListing(stripLicense(codeLines)), skipOneNL(lines, i+1, n) >;

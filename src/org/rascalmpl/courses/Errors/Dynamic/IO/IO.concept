@@ -14,7 +14,7 @@ Details:
 Description:
 This error can be generated for many reasons.
 
-First there may be a problem in the [Rascal:Location] that is used.
+First there may be a problem in the [$Rascal:Expressions/Values/Location] that is used.
 It maybe that the _schemes_ is not supported.
 Examples of supported schemes include `http`, `file`, `home`, `std`, `rascal` and `project`.
 It can also be the case that the _host_ that occurs in the location cannot be found.

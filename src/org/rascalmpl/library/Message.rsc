@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -75,7 +75,7 @@ public Message warning(loc source, str msg) {
 
 @doc{
 Synopsis: Create an info message.
-}
+},
 public Message info(loc source, str msg) {
   return info(msg,source);
 }

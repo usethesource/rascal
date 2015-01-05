@@ -1,5 +1,5 @@
  @license{
-  Copyright (c) 2009-2012 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -729,7 +729,7 @@ syntax Declaration
 	| annotation  : Tags tags Visibility visibility "anno" Type annoType Type onType "@" Name name ";" 
 	| \alias       : Tags tags Visibility visibility "alias" UserType user "=" Type base ";" 
 	| \tag         : Tags tags Visibility visibility "tag" Kind kind Name name "on" {Type ","}+ types ";" 
-	| dataAbstract: Tags tags Visibility visibility "data" UserType user ";" 
+	| dataAbstract: Tags tags Visibility visibility "data" UserType user CommonKeywordParameters commonKeywordParameters ";" 
 	| @Foldable \data : Tags tags Visibility visibility "data" UserType user CommonKeywordParameters commonKeywordParameters"=" {Variant "|"}+ variants ";"
 	| function       : FunctionDeclaration functionDeclaration 
 	;
@@ -821,9 +821,9 @@ lexical Char
     
 syntax Prod
 	= reference: ":" Name referenced
-	| labeled: ProdModifier* modifiers Name name ":" Sym* args 
+	| labeled: ProdModifier* modifiers Name name ":" Sym* syms 
 	| others: "..." 
-	| unlabeled: ProdModifier* modifiers Sym* args
+	| unlabeled: ProdModifier* modifiers Sym* syms
 	| @Foldable associativityGroup: Assoc associativity "(" Prod group ")" 
 	// | TODO add bracket rule for easy readability
 	> left \all   : Prod lhs "|" Prod rhs 

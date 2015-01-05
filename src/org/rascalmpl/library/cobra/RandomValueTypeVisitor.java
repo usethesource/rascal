@@ -31,7 +31,6 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
@@ -39,6 +38,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.cobra.util.RandomUtil;
@@ -163,8 +163,9 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		 * alternative with more than 0 arguments is defined as the maximum
 		 * depth of the list of arguments plus 1.
 		 */
+		 ConstructorFunction cons = this.rootEnv.getConstructorFunction(type);
 
-		if (type.getArity() == 0 && !type.hasKeywordParameters()) { 
+		if (type.getArity() == 0 && !cons.hasKeywordArguments()) { 
 			return vf.constructor(type);
 		} else if (this.maxDepth <= 0) {
 			return null;
@@ -179,24 +180,27 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 			if (argument == null) {
 				return null;
 				/*
-				 * Het is onmogelijk om de constructor te bouwen als ������n
+				 * Het is onmogelijk om de constructor te bouwen als een
 				 * argument null is.
 				 */
 			}
 			values.add(argument);
 		}
 		IValue[] params = values.toArray(new IValue[values.size()]);
-		if (stRandom.nextBoolean() && type.getKeywordParameterTypes().getArity() > 0) {
+		Type kwArgTypes = cons.getKeywordArgumentTypes(this.rootEnv);
+		
+		if (stRandom.nextBoolean() && kwArgTypes.getArity() > 0) {
 			Map<String, IValue> kwParams = new HashMap<>();
-			for (String kw:  type.getKeywordParameters()) {
+			for (String kw: kwArgTypes.getFieldNames()) {
 				if (stRandom.nextBoolean()) continue;
-				Type fieldType = type.getKeywordParameterType(kw);
+				Type fieldType = kwArgTypes.getFieldType(kw);
 				IValue argument = visitor.generate(fieldType);
 				if (argument == null) {
 					return null;
 				}
 				kwParams.put(kw, argument);
 			}
+			
 			return vf.constructor(type, params, kwParams);
 		}
 		else {

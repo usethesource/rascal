@@ -23,6 +23,8 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 
@@ -55,12 +57,37 @@ public class URIResolverRegistry {
 		outputResolvers.put(resolver.scheme(), resolver);
 	}
 	
+	private static final Pattern splitScheme = Pattern.compile("^([^\\+]*)\\+");
+	
+	private IURIInputStreamResolver getInputResolver(String scheme) {
+		 IURIInputStreamResolver result = inputResolvers.get(scheme);
+		 if (result == null) {
+			 Matcher m = splitScheme.matcher(scheme);
+			 if (m.find()) {
+				 String subScheme = m.group(1);
+				 return inputResolvers.get(subScheme);
+			 }
+		 }
+		 return result;
+	}
+	private IURIOutputStreamResolver getOutputResolver(String scheme) {
+		 IURIOutputStreamResolver result = outputResolvers.get(scheme);
+		 if (result == null) {
+			 Matcher m = splitScheme.matcher(scheme);
+			 if (m.find()) {
+				 String subScheme = m.group(1);
+				 return outputResolvers.get(subScheme);
+			 }
+		 }
+		 return result;
+	}
+	
 	public boolean supportsInputScheme(String scheme) {
-	  return inputResolvers.containsKey(scheme);
+		return getInputResolver(scheme) != null;
 	}
 	
 	public boolean supportsOutputScheme(String scheme) {
-	  return outputResolvers.containsKey(scheme);
+		return getOutputResolver(scheme) != null;
 	}
 	
 	public void registerInputOutput(IURIInputOutputResolver resolver) {
@@ -69,9 +96,9 @@ public class URIResolverRegistry {
 	}
 	
 	public boolean supportsHost(URI uri) {
-		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
 		if (resolver == null) {
-			IURIOutputStreamResolver resolverOther = outputResolvers.get(uri.getScheme());
+			IURIOutputStreamResolver resolverOther = getOutputResolver(uri.getScheme());
 			if (resolverOther == null) {
 				return false;
 			}
@@ -81,7 +108,7 @@ public class URIResolverRegistry {
 	}
 	
 	public boolean exists(URI uri) {
-		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
 		
 		if (resolver == null) {
 			return false;
@@ -91,7 +118,7 @@ public class URIResolverRegistry {
 	}
 	
 	public URI getResourceURI(URI uri) throws IOException {
-		IURIOutputStreamResolver oresolver = outputResolvers.get(uri.getScheme());
+		IURIOutputStreamResolver oresolver = getOutputResolver(uri.getScheme());
 		if (oresolver != null) {
 			return oresolver.getResourceURI(uri);
 		}
@@ -99,7 +126,7 @@ public class URIResolverRegistry {
 	}
 	
 	public boolean isDirectory(URI uri) {
-		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
 		
 		if (resolver == null) {
 			return false;
@@ -108,7 +135,7 @@ public class URIResolverRegistry {
 	}
 	
 	public void mkDirectory(URI uri) throws IOException {
-		IURIOutputStreamResolver resolver = outputResolvers.get(uri.getScheme());
+		IURIOutputStreamResolver resolver = getOutputResolver(uri.getScheme());
 		
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
@@ -120,7 +147,7 @@ public class URIResolverRegistry {
 	}
 	
 	public void remove(URI uri) throws IOException {
-	  IURIOutputStreamResolver out = outputResolvers.get(uri.getScheme());
+		IURIOutputStreamResolver out = getOutputResolver(uri.getScheme());
     
 	  if (out == null) {
       throw new UnsupportedSchemeException(uri.getScheme());
@@ -141,7 +168,7 @@ public class URIResolverRegistry {
 	}
 
 	public boolean isFile(URI uri) {
-		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
 		
 		if (resolver == null) {
 			return false;
@@ -150,7 +177,7 @@ public class URIResolverRegistry {
 	}
 
 	public long lastModified(URI uri) throws IOException {
-		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
 		
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
@@ -159,7 +186,7 @@ public class URIResolverRegistry {
 	}
 
 	public String[] listEntries(URI uri) throws IOException {
-		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
 		
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
@@ -181,7 +208,7 @@ public class URIResolverRegistry {
 		
 	}
 	public InputStream getInputStream(URI uri) throws IOException {
-		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
 		
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
@@ -191,7 +218,7 @@ public class URIResolverRegistry {
 	}
 	
 	public Charset getCharset(URI uri) throws IOException {
-		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
 		
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
@@ -201,7 +228,7 @@ public class URIResolverRegistry {
 	}
 	
 	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
-		IURIOutputStreamResolver resolver = outputResolvers.get(uri.getScheme());
+		IURIOutputStreamResolver resolver = getOutputResolver(uri.getScheme());
 		
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());

@@ -20,5 +20,39 @@ public class OverloadedFunction {
 			this.scopeIn = functionMap.get(funIn);
 		}
 	}
+	
+	// The next four members are needed bij the bytecode generator.
+	public int[] getFuntions() {
+		return functions;
+	}
+
+	public int[] getConstructors() {
+		return constructors;
+	}
+	
+	public int getScope() {
+		return scopeIn ;
+	}
+	
+	public String getScopeFun() {
+		return funIn ;
+	}
+	
+	public String toString(){
+		StringBuilder sb = new StringBuilder("Overloaded: ");
+		if(functions.length > 0){
+			sb.append("functions:");
+			for(int i = 0; i < functions.length; i++){
+				sb.append(" ").append(functions[i]);
+			}
+		}
+		if(constructors.length > 0){
+			sb.append("; constructors:");
+			for(int i = 0; i < constructors.length; i++){
+				sb.append(" ").append(constructors[i]);
+			}
+		}
+		return sb.toString();
+	}
 
 }

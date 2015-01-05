@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@ public Class class(int version, int access, str name, str signature, str superNa
 				 class(version, access, name, signature, superName, interfaces, "", "", "", "", "",
 				   innerClasses, fields, methods);
 				   
-public Class innerClass(str name, int access) = innerClass(name, "", "", access);
+public InnerClass innerClass(str name, int access) = innerClass(name, "", "", access);
 
 data Class 
   = class(int version, int access, str name, str signature, str superName, list[str] interfaces,

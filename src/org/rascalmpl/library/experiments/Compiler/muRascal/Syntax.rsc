@@ -45,7 +45,7 @@ lexical Identifier =
               | @category = "Reference" rvar: RId var3
               | mvar: MId var4
               ; 
-
+ 
 lexical StrChar = 
 			  @category = "Constant" NewLine: [\\] [n] 
             | @category = "Constant" Tab: [\\] [t] 
@@ -57,7 +57,7 @@ lexical StrChar =
 
 lexical String = @category = "Constant" [\"] StrChar* [\"];
 
-syntax Sep = () ";" () | {[\n \r] NoNLList}+ ;			
+syntax Sep = () ";" () | {[\n \r] NoNLList}+ ;	
 
 start syntax Module =
 			  preMod: 		"module" MConst name TypeDeclaration* types Function* functions
@@ -65,13 +65,13 @@ start syntax Module =
 			
 syntax TypeDeclaration = preTypeDecl: "declares" String sym;
 
-syntax VarDecl = preVarDecl: Identifier!fvar id 
-               | preVarDecl: Identifier!fvar id "=" Exp initializer;
+syntax VarDecl = preVarDecl1: Identifier!fvar id 
+               | preVarDecl2: Identifier!fvar id "=" Exp initializer;
 
 syntax VarDecls = "var" {VarDecl ","}+;
 
-syntax Guard = preGuard: "guard" Exp exp
-             | preGuard: "guard" "{" VarDecls locals NoNLList Sep NoNLList Exp exp "}";
+syntax Guard = preGuard1: "guard" Exp exp
+             | preGuard3: "guard" "{" VarDecls locals NoNLList Sep NoNLList Exp exp "}";
 
 syntax Function =     
                 preFunction:  "function"  FunNamePart* funNames FConst name "(" {Identifier!fvar ","}* formals ")"
@@ -81,16 +81,16 @@ syntax Function =
                               "{" (VarDecls NoNLList Sep NoNLList () !>> [\n \r])? locals {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
 			;
 			
-syntax FunNamePart = FConst id >> "::" "::" Integer nformals >> "::" "::";
-syntax ModNamePart = MConst id >> "::" "::";
+syntax FunNamePart = FConst fconst >> "::" "::" Integer nformals >> "::" "::";
+syntax ModNamePart = MConst mconst >> "::" "::";
 
 syntax Exp  =
 			  muLab: 					Label lid
 			
 			// non-nested, named functions inside or ouside a given module
-			| preFunNN:             	ModNamePart modName FConst id >> "::" "::" Integer nformals
+			| preFunNN:             	ModNamePart modName FConst fid >> "::" "::" Integer nformals
 			// nested functions inside a current module
-			| preFunN:              	FunNamePart+ funNames FConst id >> "::" "::" Integer nformals
+			| preFunN:              	FunNamePart+ funNames FConst fid >> "::" "::" Integer nformals
 			
 			| muConstr: 				"cons" FConst cid
 			
@@ -98,17 +98,18 @@ syntax Exp  =
 			| preLocDeref:  			"deref" Identifier!fvar!ivar!mvar id
 			| preVarDeref:   			"deref" FunNamePart+ funNames Identifier!fvar!ivar!mvar id
 			
-			| preMuCallPrim: 			"prim" NoNLList "(" String name ")"
-			| preMuCallPrim:            "prim" NoNLList "(" String name "," {Exp ","}+ args ")"
-			| muCallMuPrim: 			"muprim" NoNLList "(" String name "," {Exp ","}+ args ")"
+			| preMuCallPrim1: 			"prim" NoNLList "(" String name ")"
+			| preMuCallPrim2:           "prim" NoNLList "(" String name "," {Exp ","}+ largs1 ")"
+	
+			| muCallMuPrim: 			"muprim" NoNLList "(" String name "," {Exp ","}+ largs1 ")"
 			
 			| muMulti:                  "multi" "(" Exp exp ")"
-			| muOne:                    "one" "(" {Exp ","}+ exps ")"
+			| muOne2:                   "one" "(" {Exp ","}+ exps ")"
 			| muAll:                    "all" "(" {Exp ","}+ exps ")"
 			
 			// function call and partial function application
-			| muCall: 					Exp!muReturn!muYield!muExhaust exp NoNLList "(" {Exp ","}* args0 ")"
-			| muApply:                  "bind" "(" Exp!muReturn!muYield!muExhaust exp "," {Exp ","}+ args ")"
+			| muCall: 					Exp!muReturn!muYield0!muYield1!muYield2!muExhaust exp NoNLList "(" {Exp ","}* largs0 ")"
+			| muApply:                  "bind" "(" Exp!muReturn0!muReturn1!muReturn2!muYield0!muYield1!muYield2!muExhaust exp "," {Exp ","}+ largs1 ")"
 			
 			| preSubscript:             Exp exp NoNLList "[" Exp index "]"
 			| preList:					"[" {Exp ","}* exps0 "]"
@@ -149,26 +150,26 @@ syntax Exp  =
 			| preAssignVarDeref:  		"deref" FunNamePart+ funNames Identifier!fvar!ivar!mvar id "=" Exp exp
 			
 		
-			| preIfelse: 				"if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}" "else" "{" {Exp (NoNLList Sep NoNLList)}+ elsePart ";"? "}"
-		 	| preIfelse: 				Label label ":" "if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}" "else" "{" {Exp (NoNLList Sep NoNLList)}+ elsePart ";"? "}"
+			| preIfelse: 				"if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}" "else" "{" {Exp (NoNLList Sep NoNLList)}+ elsePart ";"? "}" 	
+		 	| preIfelse: 				Label label ":" "if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}" "else" "{" {Exp (NoNLList Sep NoNLList)}+ elsePart ";"? "}"			
 			| preWhile: 				"while" "(" Exp cond ")" "{" {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
 			| preWhile: 				Label label ":" "while" "(" Exp cond ")" "{" {Exp (NoNLList Sep NoNLList)}+ body ";"? "}"
 			
 			| preTypeSwitch:			"typeswitch" "(" Exp exp ")" "{" (TypeCase ";"?)+ cases "default" ":" Exp default ";"? "}"
 			
-			| muCreate: 				"create" "(" Exp coro ")"
-			| muCreate: 				"create" "(" Exp coro "," {Exp ","}+ args ")"
+			| muCreate1: 				"create" "(" Exp coro ")"
+			| muCreate2: 				"create" "(" Exp coro "," {Exp ","}+ largs1 ")"
 			
-			| muNext:   				"next" "(" Exp coro ")"
-			| muNext:   				"next" "(" Exp coro "," {Exp ","}+ args ")"
+			| muNext1:   				"next" "(" Exp coro ")"
+			| muNext2:   				"next" "(" Exp coro "," {Exp ","}+ largs1 ")"
 			
-			> muReturn: 				"return" NoNLList Exp exp
-			| muReturn:                 () "return" NoNLList "(" Exp exp "," {Exp ","}+ exps1 ")"
-			| muReturn: 				() () "return"
+			> muReturn1: 				"return" NoNLList Exp exp
+			| muReturn2:                 () "return" NoNLList "(" Exp exp "," {Exp ","}+ exps1 ")"
+			| muReturn0: 				() () "return"
 			
-			| muYield: 					"yield" NoNLList Exp exp
-			| muYield:                  () "yield" NoNLList "(" Exp exp "," {Exp ","}+ exps1 ")"
-			| muYield: 					() () "yield"
+			| muYield1: 					"yield" NoNLList Exp exp
+			| muYield2:                  () "yield" NoNLList "(" Exp exp "," {Exp ","}+ exps1 ")"
+			| muYield0: 					() () "yield"
 			
 			| muExhaust:                "exhaust"
 			
@@ -208,9 +209,9 @@ syntax Exp =
               preIntCon:				Integer txt1
             | preStrCon:				String txt2
             | preTypeCon:   			"type" String txt3
-			| preVar: 					Identifier id
+			| preVar: 					Identifier pid
 			// *local* variables of functions used inside their closures and nested functions
-			| preVar: 					FunNamePart+ funNames Identifier id 
+			| preVar: 					FunNamePart+ funNames Identifier pid 
 			
 			| preIfthen:    			"if" "(" Exp exp1 ")" "{" {Exp (NoNLList Sep NoNLList)}+ thenPart ";"? "}"
 			;

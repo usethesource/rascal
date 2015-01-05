@@ -22,30 +22,24 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Exhaust;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FailReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FilterReturn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.GreaterEqualInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Guard;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Halt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Instruction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Jmp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpFalse;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpIndexed;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCont;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Reset;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Shift;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Label;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LessInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadBool;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCon;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadConstr;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCont;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc;
@@ -60,20 +54,14 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc8;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc9;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocDeref;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadNestedFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadOFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVar;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Exhaust;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubType;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptArray;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptList;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubtractInt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownLoc;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next1;
@@ -82,18 +70,31 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Pop;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Println;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Reset;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return1;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Shift;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLoc;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocDeref;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocKwp;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarDeref;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarKwp;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubType;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptArray;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptList;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubtractInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Throw;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownLoc;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
 
 public class CodeBlock {
 
+	private final String name;
 	public final IValueFactory vf;
 	int pc;
 	int labelIndex = 0;
@@ -116,11 +117,12 @@ public class CodeBlock {
 	
 	public int[] finalCode;
 	
-	public CodeBlock(IValueFactory factory){
+	public CodeBlock(String name, IValueFactory factory){
 		labelInfo = new HashMap<String, LabelInfo>();
 		insList = new ArrayList<Instruction>();
 		new ArrayList<Integer>();
 		pc = 0;
+		this.name = name;
 		this.vf = factory;
 		constantMap = new HashMap<IValue, Integer>();
 		this.constantStore = new ArrayList<IValue>();
@@ -134,7 +136,7 @@ public class CodeBlock {
 			labelInfo.put(label, new LabelInfo(ins, labelIndex++, pc));
 		} else {
 			if(info.isResolved()){
-				throw new CompilerError("Double declaration of label " + label);
+				throw new CompilerError("In function " + name + ": double declaration of label " + label);
 			}
 			info.instruction = ins;
 			info.PC = pc;
@@ -153,7 +155,7 @@ public class CodeBlock {
 	public int getLabelPC(String label){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
-			throw new CompilerError("Undefined label " + label);
+			throw new CompilerError("In function " + name + " undefined label " + label);
 		}
 		return info.PC;
 	}
@@ -161,7 +163,7 @@ public class CodeBlock {
 	public Instruction getLabelInstruction(String label){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
-			throw new CompilerError("Undefined label " + label);
+			throw new CompilerError("In function " + name + ": undefined label " + label);
 		}
 		return info.instruction;
 	}
@@ -172,7 +174,7 @@ public class CodeBlock {
 				return constant;
 			}
 		}
-		throw new CompilerError("Undefined constant index " + n);
+		throw new CompilerError("In function " + name + ": undefined constant index " + n);
 	}
 	
 	public int getConstantIndex(IValue v){
@@ -191,7 +193,7 @@ public class CodeBlock {
 				return type;
 			}
 		}
-		throw new CompilerError("Undefined type constant index " + n);
+		throw new CompilerError("In function " + name + ": undefined type constant index " + n);
 	}
 	
 	public int getTypeConstantIndex(Type type){
@@ -210,13 +212,13 @@ public class CodeBlock {
 				return fname;
 			}
 		}
-		throw new CompilerError("Undefined function index " + n);
+		throw new CompilerError("In function " + name + ": undefined function index " + n);
 	}
 	
 	public int getFunctionIndex(String name){
 		Integer n = functionMap.get(name);
 		if(n == null){
-			throw new CompilerError("Undefined function name " + name);
+			throw new CompilerError("In function " + name + ": undefined function name " + name);
 		}
 		return n;
 	}
@@ -227,13 +229,13 @@ public class CodeBlock {
 				return fname;
 			}
 		}
-		throw new CompilerError("Undefined overloaded function index " + n);
+		throw new CompilerError("In function " + name + ": undefined overloaded function index " + n);
 	}
 	
 	public int getOverloadedFunctionIndex(String name){
 		Integer n = resolver.get(name);
 		if(n == null){
-			throw new CompilerError("Undefined overloaded function name " + name);
+			throw new CompilerError("In function " + name + ": undefined overloaded function name " + name);
 		}
 		return n;
 	}
@@ -243,13 +245,13 @@ public class CodeBlock {
 			if(constructorMap.get(cname) == n)
 				return cname;
 		}
-		throw new CompilerError("Undefined constructor index " + n);
+		throw new CompilerError("In function " + name + ": undefined constructor index " + n);
 	}
 	
 	public int getConstructorIndex(String name) {
 		Integer n = constructorMap.get(name);
 		if(n == null)
-			throw new CompilerError("Undefined constructor name " + name);
+			throw new CompilerError("In function " + name + ": undefined constructor name " + name);
 		return n;
 	}
 	
@@ -538,10 +540,11 @@ public class CodeBlock {
 		return add(new OCallDyn(this, getTypeConstantIndex(types), arity, src));
 	}
 	
-	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes, int reflect){
+	public CodeBlock CALLJAVA(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
 		return add(new CallJava(this, getConstantIndex(vf.string(methodName)), 
 									  getConstantIndex(vf.string(className)), 
 								      getTypeConstantIndex(parameterTypes),
+								      getTypeConstantIndex(keywordTypes),
 								      reflect));
 	}
 	
@@ -697,6 +700,17 @@ public class CodeBlock {
     		pc += opc.getPcIncrement();
     	}
     	System.out.println();
+    }
+    
+    public String toString(){
+    	StringBuilder sb = new StringBuilder();
+    	int pc = 0;
+    	while(pc < finalCode.length){
+    		Opcode opc = Opcode.fromInteger(finalCode[pc]);
+    		sb.append("[").append(pc).append("]: ").append(Opcode.toString(this, opc, pc));
+    		pc += opc.getPcIncrement();
+    	}
+    	return sb.toString();
     }
     
     public String toString(int n){

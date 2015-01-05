@@ -3,6 +3,23 @@
 
 "use strict";
 
+var printq = function(o){
+    var str='';
+
+    for(var p in o){
+        str+= p + '\n';
+        /*
+        if(typeof o[p] == 'string'){
+            str+= p + ': ' + o[p]+'; </br>';
+        }else{
+            str+= p + ': { </br>' + printq(o[p]) + '}';
+        }
+        */
+    }
+
+    return str;
+}
+
 var Figure = {
     figure: "figure",
     textValue: "none",
@@ -41,7 +58,10 @@ var Figure = {
     
     setModelElement: function(accessor, v) { 
           var v1 = !isString(v) ? JSON.stringify(v) : v;
-          eval(accessor + "=" + v1); return v; 
+          // alert(accessor + "=" + v1);
+          eval(accessor + "=" + v1); 
+          // alert(accessor);
+          return v; 
           },
     
     model: undefined,
@@ -176,7 +196,7 @@ function buildFigure1(description, parent) {
                 if(prop === "accessor"){
                     Object.defineProperty(f, prop, {get: function(){ return accessor;},  set: function(v) { return accessor; }});
                 } else {
-                    Object.defineProperty(f, prop, {get: function(){ return eval(accessor);},  set: function(v) { return eval(accessor); } });
+                    Object.defineProperty(f, prop, {get: function(){return eval(accessor);},  set: function(v) {return eval(accessor); } });
                 }
             } else {
                 var val = description[prop];
@@ -189,6 +209,9 @@ function buildFigure1(description, parent) {
         }; 
         handle_prop(p);
     }
+    if (f.hasOwnProperty("replacement")) {
+	    Figure.setModelElement(f.accessor, f.replacement);  // Bert Lisser 
+	    }  
     return f;
 }
 
@@ -216,7 +239,7 @@ Figure.getDrawForComponent("lineChart", "nvLineChart")
 This assumes (and checks!) that the function Figure.drawFunction.nvLineChart exists.
 ***********************************************************************************/
 
-Figure.components = {barChart: [], lineChart: [], graph: []};
+Figure.components = {barChart: [], lineChart: [], graph: [], vega: []};
 
 
 Figure.registerComponent = function(componentType, flavor){
@@ -259,6 +282,7 @@ Figure.getDrawForComponent = function(componentType, flavor){
 
 
 function redrawFigure(){
+   
     var area = d3.select("#figurearea svg");
     if(!area.empty()){
       try { area.remove(); } catch(e) { console.log(redrawFigure, e); };
@@ -287,7 +311,7 @@ function drawFigure1(f) {
      	
     var svgarea = setDefaultStyles(area.append("svg"));
      	
-    svgarea = zoomSetup(svgarea);
+    // svgarea = zoomSetup(svgarea);
     try {
    	 f.bbox(svgarea);
    	 } catch(e){
@@ -345,17 +369,17 @@ function addInteraction(fig) {
     if (fig.hasOwnProperty("event")) {
 		var selection = fig.svg;
     	selection.style("cursor", "crosshair");
-        
         if(fig.event != "click"){
             selection.on("mouseout", function(){ d3.event.preventDefault(); fig.draw_extra_figure = false;  redrawFigure();});
         }
-        
         selection.on(fig.event, function(e) {
            d3.event.preventDefault();
            d3.event.stopPropagation();
-           if(fig.hasOwnProperty("replacement")){
-                Figure.setModelElement(fig.accessor, fig.replacement);
-                refreshFromServer();
+           if(fig.hasOwnProperty("replacement")){  
+                // Figure.setModelElement(fig.accessor, fig.replacement);
+                refreshFromServer(fig.event, fig.id); 
+                // alert(fig.replacement)
+               
            } else if(fig.hasOwnProperty("extra_figure")){
                fig.draw_extra_figure = (fig.event === "click") ? ! fig.draw_extra_figure : true;
                redrawFigure();
@@ -367,24 +391,28 @@ function addInteraction(fig) {
     return selection;
 }
 
-function drawExtraFigure(fig, x, y){
-    if(fig.hasOwnProperty("extra_figure") && fig.draw_extra_figure === true){
+function drawExtraFigure(fig, x, y){ 
+    if(fig.hasOwnProperty("extra_figure")  && fig.draw_extra_figure === true){
 		var extra = fig.extra_figure;
-        extra.bbox(fig.svg);
+		console.log("drawExtraFigure:", x, y, extra.width, extra.height);
+        extra.bbox(fig.select);
+        // console.log("drawExtraFigure2:",extra);
         extra.draw(x, y, extra.width, extra.height);
+        // console.log("drawExtraFigure3");
     }
 }
 
 function handleUserInput(fig, v) {
     d3.event.stopPropagation();
     
-    if(fig.hasOwnProperty("replacement")){
-        Figure.setModelElement(fig.accessor, fig.replacement);
-        refreshFromServer();
+    if(fig.hasOwnProperty("replacement")){  
+        Figure.setModelElement(fig.accessor, fig.replacement); 
+        refreshFromServer(fig.event, fig.id);    
     } else {
-        Figure.setModelElement(fig.accessor, v);
-        //redrawFigure();
-        refreshFromServer();
+        // alert("HandleUserInput:"+fig.accessor+":"+v);
+        Figure.setModelElement(fig.accessor, v);  
+        // redrawFigure();
+        refreshFromServer(fig.event, fig.id);
     }
     return false;
 }
@@ -457,7 +485,10 @@ function askServer(path, params) {
             if(d3.event){
               d3.event.stopPropagation();
             }
+            //alert(params);
+            
             var res = JSON.parse(responseText);
+            // alert(JSON.stringify(res));
             var area = d3.select("#figurearea svg");
             if(!area.empty()){
               try { area.remove(); } catch(e) { console.log("askServer", e); };
@@ -468,15 +499,17 @@ function askServer(path, params) {
             Figure.site = res.site;
             Figure.figure_root = res.figure_root;
             drawFigure(res.figure_root);
-            return;
+            // alert(responseText);
         } catch (e) {
             console.error(e.message + ", on figure " + responseText);
         }
 	});
 }
 
-function refreshFromServer(){
-    askServer(Figure.site + "/refresh/" + Figure.name, {"model" : JSON.stringify(Figure.model)});
+function refreshFromServer(event, utag){
+    // alert(JSON.stringify(Figure.model));
+    if (typeof utag === 'undefined') utag = "";
+    askServer(Figure.site + "/refresh/" + Figure.name, {"model" : JSON.stringify(Figure.model), "event": event, "utag":utag});
 }
 
 
@@ -512,27 +545,25 @@ Figure.bboxFunction.box = function(selection) {
     var figure = this,
 		width  = figure.hasDefinedWidth()  ? figure.width  : 0,
         height = figure.hasDefinedHeight() ? figure.height : 0;
- 	
-    figure.svg = selection
-    	.append("rect")
-    	.attr("rx", figure.rx)
-    	.attr("ry", figure.ry)
-		;
-	
+ 	// console.log("bbox box:", selection);
+ 	figure.select = selection;
+ 	figure.svg = selection.append("rect");
 	figure.svg = setFillAndStrokeStyles(figure, figure.svg);
-    
+	if (figure.hasOwnProperty("tooltip")) {
+	    figure.svg.append("svg:title").text(figure.tooltip); // Bert
+	    }
     if (figure.hasOwnProperty("inner")) {
         var inner = figure.inner;
-        console.log(inner);
+        // console.log(inner);
         inner.bbox(selection);
-        console.log("box.inner", inner.width, inner.height);
+        // console.log("box.inner", inner.width, inner.height);
         if(!figure.hasDefinedWidth()){
             width = Math.max(width, figure.grow * inner.min_width + 2 * figure.hgap);
         }
         if(!figure.hasDefinedHeight()){
             height = Math.max(height, figure.grow * inner.min_height + 2 * figure.vgap);
         }
-        console.log("box outer size:", width, height);
+        // console.log("box outer size:", width, height);
     }
 	
     var lw = figure["stroke-width"];
@@ -540,14 +571,16 @@ Figure.bboxFunction.box = function(selection) {
     figure.min_width  = width  + lw;
     figure.min_height = height + lw;
     
-    console.log("box.bbox:", figure.min_width,  figure.min_height);
+    // console.log("box.bbox:", figure.min_width,  figure.min_height);
 	return figure.svg;
 }
 
 Figure.drawFunction.box = function (x, y, w, h) {
+    // alert("drawfuntionBox:"+h);
+    console.log("draw box:", this, x, y, w, h);
  	var figure = this,
 		lw = (figure["stroke-width"]);		// TODO: check this
-		
+	// console.log("draw box2:", lw);	
 	figure.svg
 		.attr("x", x + lw/2)
     	.attr("y", y + lw/2)
@@ -556,13 +589,18 @@ Figure.drawFunction.box = function (x, y, w, h) {
    	;
     
     if (figure.hasOwnProperty("inner")) {
+        // console.log("draw box3:");
         var inner = figure.inner;
         inner.draw(x + lw/2 + figure.hgap + figure.halign * (w - inner.min_width  - 2 * figure.hgap), 
                    y + lw/2 + figure.vgap + figure.valign * (h - inner.min_height - 2 * figure.vgap),
                    inner.min_width - lw, inner.min_height - lw );
+        // console.log("box4:");          
     }
+    // console.log("draw box5:");   
     drawExtraFigure(figure, x, y);
+    // console.log("draw box5.5:");   
     addInteraction(figure);
+    // console.log("draw box6:"); 
     return figure.svg;
 }
 
@@ -829,6 +867,8 @@ Figure.drawFunction.shape = function (x, y, w, h) {
 
 Figure.bboxFunction.text = function(selection) {
 	var figure = this;
+	// alert("text");
+	// console.log("bb text0:", figure);
     figure.svg = selection.append("text");
 	figure.svg = setAllStyles(figure, figure.svg);
 	figure.svg
@@ -836,15 +876,23 @@ Figure.bboxFunction.text = function(selection) {
         .style("fill", figure["stroke"])
         .text(this.textValue)
         ;
-   
+    // console.log("bb text1:", this.svg.node());
     var bb = this.svg.node().getBBox();
+    // var bb = {"width":50, "height":20, "y":10};
+   //  console.log("bb text2:", bb.width, bb.height);
+    
     this.min_width = 1.05*bb.width;
     this.min_height = 1.05*bb.height;
     this.ascent = bb.y; // save the y of the bounding box as ascent
-    console.log("text:", this.min_width, this.min_height, this.ascent);
+    // console.log("bb text3:", this.min_width, this.min_height, this.ascent);
 }
 
 Figure.drawFunction.text = function (x, y, w, h) {
+    // alert("drawfuntionText:"+h);
+    // w = 50;
+    // h = 20;
+    // console.log("text:", x, y, w, h);
+    // alert(this.id);
     this.svg
         .attr("x", x)
         .attr("y", y - this.ascent) // take ascent into account
@@ -1417,23 +1465,21 @@ Figure.drawFunction.visible = function (x, y, w, h) {
 Figure.bboxFunction.buttonInput = function (selection) {
     var fig = this;
     var accessor = this.accessor; 
-    var b = Figure.getModelElement(accessor);
-	
+    var b = eval(accessor);
 	var w = this.width || 50;
 	var h = this.height || 25;
     
     var foreign = this.svg = selection.append("foreignObject");
-   
     foreign.append("xhtml:body")
         .append("form").attr("action", "")
         .append("input")
             .style("width", w + "px").style("height", h + "px")
-            .attr("type", "button").attr("value", b ? this.trueText : this.falseText);
-        
+            .attr("type", "button").attr("value", b ? this.trueText : this.falseText); 
     foreign.on("mousedown", function() {
-         var b = !Figure.getModelElement(accessor); 
+         var b = !eval(accessor); 
          return handleUserInput(fig, b);
     });
+   
 	 
 	var bb = foreign.node().getBBox();
 	
@@ -1494,7 +1540,6 @@ Figure.bboxFunction.choiceInput = function (selection) {
     var fig = this;
     var accessor = this.accessor;
     var selectedIndex = Figure.getModelElement(this.accessor);
-	
 	var w = this.width || 50;
 	var h = this.height || 25;
     
@@ -1600,7 +1645,7 @@ Figure.bboxFunction.colorInput = function (selection) {
         .append("form").attr("action", "").attr("onsubmit", "return false")
         .append("input")
             .style("width", w + "px").style("height", h + "px")
-            .attr("type", "color").attr("value", Figure.getModelElement(accessor));
+            .attr("type", "color").attr("value", Figure.getModelElement(accessor+"[1]"));
             
     foreign.on("change", function() {
         return handleUserInput(fig, "\"" + foreign.select("input")[0][0].value + "\"");
@@ -1626,12 +1671,11 @@ Figure.bboxFunction.numInput = function (selection) {
 	var h = this.height || 25;
     
     var foreign = this.svg = selection.append("foreignObject");
-    
     foreign.append("xhtml:body")
         .append("form").attr("action", "").attr("onsubmit", "return false")
         .append("input")
             .style("width", w + "px").style("height", h + "px")
-            .attr("type", "number").attr("value", Figure.getModelElement(accessor));
+            .attr("type", "number").attr("value", eval(accessor));
      
     foreign.on(this.event, function() {
            return handleUserInput(fig, JSON.parse(foreign.select("input")[0][0].value));
@@ -1657,14 +1701,14 @@ Figure.bboxFunction.rangeInput = function (selection) {
 	var h = this.height || 25;
 	
     var foreign = this.svg = selection.append("foreignObject");
-    
+    // alert(this.accessor);
     foreign.append("xhtml:body")
         .append("form").attr("action", "").attr("onsubmit", "return false")
         .append("input")
             .style("width", w + "px").style("height", h + "px")
             .attr("type", "range")
             .attr("min", this.min).attr("max", this.max).attr("step", this.step)
-            .attr("value", Figure.getModelElement(this.accessor));
+            .attr("value", eval(this.accessor));
         
     foreign.on(fig.event, function(){
             return handleUserInput(fig, foreign.select("input")[0][0].value);
@@ -1691,12 +1735,12 @@ Figure.bboxFunction.strInput = function (selection) {
 	
 	var w = this.width || 50;
 	var h = this.height || 25;
-    
+    // alert(Figure.getModelElement(accessor));
     foreign.append("xhtml:body")
         .append("form").attr("action", "").attr("onsubmit", "return false;")
         .append("input")
             .style("width", w + "px").style("height", h + "px")
-            .attr("type", "text").attr("value", Figure.getModelElement(accessor));
+            .attr("type", "text").attr("value", eval(accessor));
   
     this.svg.on(fig.event, function() {
         return handleUserInput(fig, "'" + foreign.select("input")[0][0].value + "'");

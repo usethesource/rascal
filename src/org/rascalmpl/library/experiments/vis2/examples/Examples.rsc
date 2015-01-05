@@ -2,6 +2,7 @@ module experiments::vis2::examples::Examples
 
 import experiments::vis2::Figure;
 import experiments::vis2::FigureServer; 
+import IO;
 
 import String;
 import List;
@@ -9,6 +10,11 @@ import util::Math;
 import experiments::vis2::\data::Nederland;
 import experiments::vis2::\data::Steden;
 
+import experiments::vis2::vega::VegaChart;
+import experiments::vis2::vega::ParameterTypes;
+
+
+      					  
 
 // ********************** Examples **********************
 
@@ -909,77 +915,233 @@ Datasets[LabeledData] exampleBarData() =
      						<"F Label" , -98.079782601442>,
       						<"G Label" , -13.925743130903>,
       						<"H Label" , -5.1387322875705>
-      					  ]);
+      				   ]);
+ /*     				   
+ public map[str, LabeledData] stackedData = (
+   "0": [
+    <"0", 28>,
+    <"1", 43>,
+    <"2", 81>,
+    <"3", 19>,
+    <"4", 52>,
+    <"5", 24>,
+    <"6", 87>,
+    <"7", 17>,
+    <"8", 68>,
+    <"9", 49>
+    ],
+   "1": [
+     <"0", 55>,
+     <"1", 91>,
+     <"2", 53>,
+     <"3", 87>,
+     <"4", 48>,
+     <"5", 49>,
+     <"6", 66>,
+     <"7", 27>,
+     <"8", 16>,
+     <"9", 15>
+   ]
+);
+*/
 
-void barChart1(){
-	ex("barChart1", barChart(datasets=exampleBarData()));
+ public map[str, XYData] stackedData = (
+   "0": [
+    <0, 28>,
+    <1, 43>,
+    <2, 81>,
+    <3, 19>,
+    <4, 52>,
+    <5, 24>,
+    <6, 87>,
+    <7, 17>,
+    <8, 68>,
+    <9, 49>
+    ],
+   "1": [
+     <0, 55>,
+     <1, 91>,
+     <2, 53>,
+     <3, 87>,
+     <4, 48>,
+     <5, 49>,
+     <6, 66>,
+     <7, 27>,
+     <8, 16>,
+     <9, 15>
+   ]
+);
 
+
+
+void stackedBarChart(){       
+        ex("stackedBarChart", vegaChart(size=<500,200>, padding = <10,100,10,10>
+             ,datasets=stackedData,  command= 
+              stackedBar(
+                title=("x":"index", "y":"N","color":"p") 
+               ,legends = ("color":"fill")
+               ,tickLabels=("x":tickLabels(angle=45))
+               ,groupOrder =   ["0", "1"], gap = -10        
+              )
+         )); 
+                
 }
 
-void barChart2(){
-	ex("barChart2", barChart(datasets=exampleBarData(), size=<600,600>));
+str p = "\<";
+
+list[str] order = ["\<20", "20-45","45-65","65-80","\>80"];
+
+void nederlandBarChart(){       
+        ex("nederlandBarChart", vegaChart(size=<500,200>, padding = <10,100,10,10>
+             ,datasets=exampleNederland(),  command= 
+              stackedBar(
+                title=("x":"index", "y":"N","color":"p") 
+               ,legends = ("color":"fill")
+               ,tickLabels=("x":tickLabels(angle=90, title_dy = 40))
+               ,groupOrder = order            
+              )
+         ));        
 }
 
-void barChart3(){
-	ex("barChart3", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, datasets=exampleBarData())]));
+void groupedBarChart(){
+        ex("groupedBarChart", vegaChart(
+           size=<500,400>, datasets=stackedData, command=
+           groupedBar(
+              title=("x":"index", "y":"N","color":"p") 
+             ,legends = ("color":"fill")
+             ,tickLabels=("x":tickLabels(angle=90))
+             )
+           )
+          );
 }
 
-void vegaBarChart1(){
-	ex("vegaBarChart1", barChart(size=<800,800>, datasets=exampleNederland(), flavor="vegaBarChart",
-	orientation="vertical", grouped=false));
+
+
+void groupedHistogram(){
+        ex("groupedHistogram", vegaChart(   
+           size=<400,400>, 
+          //   datasets=stackedData,      
+         datasets = ("sin":<10, [round(sin(x/100),0.01)| x <- [0.0, 1.0 .. 100.0]]>), 
+          command=
+           histogram(
+              title=("x":"index", "y":"N","color":"p") 
+             ,legends = ("color":"fill")
+             ,tickLabels=("x":tickLabels(angle=90))
+             )
+           )
+          );
 }
 
-void vegaBarChart2(){
-	ex("vegaBarChart2", barChart(size=<1600,800>, datasets=exampleSteden(), flavor="vegaBarChart",
-	orientation="vertical", grouped=true));
+void stackedAreaChart(){
+        ex("stackedAreaChart", vegaChart(
+        size=<500,200>, datasets=stackedData,  command=stackedArea(grid = true)));
 }
 
-/********************* lineChart ******************************/
+void lineChart(){
+        ex("lineChart", vegaChart(size=<500,200>, datasets=stackedData, command=linePlot(grid=true,legends = ("color":"fill"),
+        interpolate=("all":"monotone"))));
+}
 
 Datasets[XYData] sinAndCos() =
 	("Sine Wave":         [<x, round(sin(x/10),0.01)>               | x <- [0.0, 1.0 .. 100.0]],
 	 "Cosine Wave":       [<x, round(0.5 * cos(x/10), 0.01)>        | x <- [0.0, 1.0 .. 100.0]],
 	 "Another sine wave": [<x, round(0.25 * sin(x/10) + 0.5, 0.01)> | x <- [0.0, 1.0 .. 100.0]]
 	);
+	
+//public str vg() = vegaToJSON(linePlot(grid=true, interpolate=("all":"monotone"), 
+//           title=("x":"Time (s)", "y":"Voltage(v)"),
+//           ticks = ("y":4),
+//           legends = ("color":"fill"))());
 
-void lineChart1(){
-	ex("lineChart1", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
-							   yAxis=axis(label="Voltage (v)", tick=".02f"),	
-							   datasets= sinAndCos()));
+
+
+void sinAndCosChart(){
+        ex("sinAndCosChart", vegaChart(size=<500,200>, datasets=sinAndCos(), command=linePlot(grid=true, interpolate=("all":"monotone"), 
+           title=("x":"Time (s)", "y":"Voltage(v)"),
+           ticks = ("y":4),
+           legends = ("color":"fill"))));
 }
 
-void lineChart2(){
-	ex("lineChart2", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
-							   yAxis=axis(label="Voltage (v)", tick=".02f"),	
-							   datasets= sinAndCos(), size=<600,600>));
+void scatterChart(){
+        ex("scatterChart", vegaChart(size=<500,200>, datasets=stackedData, command=linePlot(shape=("1":"square", "0":"circle"), 
+                           interpolate=("all":"monotone"), legends = ("color":"fill"))));
 }
 
-void lineChart3(){
-	ex("lineChart3", hcat(figs=[box(fillColor="yellow", size=<200,100>),
-								lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
-							   			  yAxis=axis(label="Voltage (v)", tick=".02f"),	
-							   			  datasets= sinAndCos(), 
-							   			  size=<400,400>)
-	]));
+void stedenBarChart(){
+        ex("stedenBarChart", vegaChart(size=<1000,300>, datasets=exampleSteden(), command=
+        groupedBar(
+             title=("x":"steden", "y":"N","color":"p") 
+             ,legends = ("color":"fill")
+             ,tickLabels=("x": tickLabels(angle=90, title_dy = 60, dx = 1),
+                          "y": tickLabels(title_dy = -40)
+                          )        
+             ,palette =  color12X
+             ,format = ("y": "3s")
+             )
+        ));
 }
+     
 
-void lineChart4(){
-	ex("lineChart4", box(fillColor="whitesmoke", lineWidth=4, lineColor="blue",
-					     fig=hcat(figs=[barChart(size=<400,300>, dataset=exampleBarData()),
-								lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
-							   			  yAxis=axis(label="Voltage (v)", tick=".02f"),	
-							   			  datasets= sinAndCos(), 
-							   			  size=<400,400>)
-	])));
-}
+//void barChart1(){
+//	ex("barChart1", barChart(datasets=exampleBarData()));
+//}
+//
+//void barChart2(){
+//	ex("barChart2", barChart(datasets=exampleBarData(), size=<600,600>));
+//}
+//
+//void barChart3(){
+//	ex("barChart3", hcat(figs=[  box(fillColor="red",size=<100,100>), barChart(size=<400,300>, datasets=exampleBarData())]));
+//}
 
-void lineChart5(){
-	ex("lineChart5", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
-							   yAxis=axis(label="Voltage (v)", tick=".02f"),	
-							   datasets= sinAndCos(), 
-							   flavor="nvLineWithFocusChart",
-							   size=<400,400>));
-}
+
+
+
+
+
+
+/********************* lineChart ******************************/
+
+
+//
+//void lineChart1(){
+//	ex("lineChart1", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+//							   yAxis=axis(label="Volutage (v)", tick=".02f"),	
+//							   datasets= sinAndCos()));
+//}
+//
+//void lineChart2(){
+//	ex("lineChart2", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+//							   yAxis=axis(label="Volutage (v)", tick=".02f"),	
+//							   datasets= sinAndCos(), size=<600,600>));
+//}
+//
+//void lineChart3(){
+//	ex("lineChart3", hcat(figs=[box(fillColor="yellow", size=<200,100>),
+//								lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+//							   			  yAxis=axis(label="Volutage (v)", tick=".02f"),	
+//							   			  datasets= sinAndCos(), 
+//							   			  size=<400,400>)
+//	]));
+//}
+//
+//void lineChart4(){
+//	ex("lineChart4", box(fillColor="whitesmoke", lineWidth=4, lineColor="blue",
+//					     fig=hcat(figs=[barChart(size=<400,300>, dataset=exampleBarData()),
+//								lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+//							   			  yAxis=axis(label="Volutage (v)", tick=".02f"),	
+//							   			  datasets= sinAndCos(), 
+//							   			  size=<400,400>)
+//	])));
+//}
+//
+//void lineChart5(){
+//	ex("lineChart5", lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+//							   yAxis=axis(label="Volutage (v)", tick=".02f"),	
+//							   datasets= sinAndCos(), 
+//							   flavor="nvLineWithFocusChart",
+//							   size=<400,400>));
+//}
 
 /********************* graph ******************************/
 
@@ -1011,15 +1173,15 @@ void graph3(){
 							 ]));
 }
 
-void graph4(){
-	ex("graph4", hcat(figs=[ barChart(size=<400,300>, dataset=exampleBarData()),
-						     graph(nodes=nodes1, edges=edges1),
-					         lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
-							   		   yAxis=axis(label="Voltage (v)", tick=".02f"),	
-							   		   dataset= sinAndCos(), 
-							   		   size=<400,400>)
-					], gap=<50,50>));
-}
+//void graph4(){
+//	ex("graph4", hcat(figs=[ barChart(size=<400,300>, dataset=exampleBarData()),
+//						     graph(nodes=nodes1, edges=edges1),
+//					         lineChart(xAxis=axis(label="Time (s)",    tick=",r"), 
+//							   		   yAxis=axis(label="Volutage (v)", tick=".02f"),	
+//							   		   dataset= sinAndCos(), 
+//							   		   size=<400,400>)
+//					], gap=<50,50>));
+// }
 
 map[str,Figure] nodes2 =
         ("A": box(size=<20,20>, fillColor="green"),
@@ -1171,11 +1333,12 @@ void math1(){
 
 data COUNTER = COUNTER(int counter);
 
-void counter1(){
-	
-	render("counter1",  #COUNTER, COUNTER(666), Figure (COUNTER m) {
+int f(str event, str utag, int x) {if (event=="click") {println("aap"); return x+1;} else return x;}
+
+void counter1(){	
+	render("counter1",  #COUNTER, COUNTER(666), Figure (str event, str utag, COUNTER m) {
 			return
-				vcat(figs=[ box(fig=text("Click me", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
+				vcat(figs=[ box(fig=text("Click me", event=on("click", bind(m.counter, f(event, utag, m.counter))), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
 					        text(m.counter, size=<150,50>,fontSize=30)
 				     ], align=topLeft);
 			});
@@ -1183,7 +1346,7 @@ void counter1(){
 
 void counter2(){
 	
-	render("counter2",  #COUNTER, COUNTER(666),  Figure (COUNTER m) {
+	render("counter2",  #COUNTER, COUNTER(666),  Figure (str event, str utag, COUNTER m) {
 			return
 				vcat(figs=[ box(fig=text("Click me 1", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
 					   text(m.counter, size=<150,50>,fontSize=30),
@@ -1194,11 +1357,13 @@ void counter2(){
 			});
 }
 
+
+
 void counter3(){
 	
-	render("counter3",  #COUNTER, COUNTER(666), Figure (COUNTER m) {
+	render("counter3",  #COUNTER, COUNTER(666), Figure (str event, str utag, COUNTER m) {
 			return
-				vcat(figs=[ buttonInput(trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, m.counter + 1)), size=<80,40>),
+				vcat(figs=[ buttonInput(trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, f(event, utag, m.counter))), size=<80,40>),
 					   text(m.counter, size=<150,50>,fontSize=30)
 				     ]);
 			});
@@ -1206,7 +1371,7 @@ void counter3(){
 
 void counter4(){
 	
-	render("counter4",  #COUNTER, COUNTER(666), Figure (COUNTER m) {
+	render("counter4",  #COUNTER, COUNTER(666), Figure (str event, str utag, COUNTER m) {
 			return
 				vcat(figs=[ buttonInput( trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, m.counter + 1)), size=<80,40>),
 					   text(m.counter, size=<150,50>,fontSize=30),
@@ -1217,12 +1382,29 @@ void counter4(){
 			});
 }
 
+data COUNTER11 = COUNTER11(int counter1, int counter2);
+
+int f1(str event, str utag, int x) {if (event=="click"&& utag== "text1") {return x+1;} else return x;}
+
+int f2(str event, str utag, int x) {if (event=="click"&& utag== "text2") {return x+2;} else return x;}
+
+void counter11(){	
+	render("counter1",  #COUNTER11, COUNTER11(1, 1), Figure (str event, str utag, COUNTER11 m) {
+			return
+				vcat(figs=[ box(fig=text("Click me", id = "text1", event=on("click", bind(m.counter1, f1(event, utag, m.counter1))), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
+					        text(m.counter1, size=<150,50>,fontSize=30),
+					        box(fig=text("Click me", id = "text2",  event=on("click", bind(m.counter2, f2(event, utag, m.counter2))), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
+					        text(m.counter2, size=<150,50>,fontSize=30)				      
+				     ], align=topLeft);
+			});
+}
+
 data ECHO = ECHO(str TXT);
 
 void echo1(){
-	render("echo1", #ECHO, ECHO("abc"), Figure (ECHO m) {
+	render("echo1", #ECHO, ECHO("abc"), Figure (str event, str utag, ECHO m) {
 			return
-				hcat(figs=[ strInput(event=on("change", bind(m.TXT))), 
+				hcat(figs=[ strInput(event=on("submit", bind(m.TXT))), 
 	                        text(m.TXT, size=<150,50>, fontSize=50),
 	                        text(m.TXT, size=<150,50>, fontSize=80)
 				          ], align=bottom, gap=<20,20>);
@@ -1232,7 +1414,7 @@ void echo1(){
 data ECHO2 = ECHO2(num NUM);
 
 void echo2(){
-	render("echo2", #ECHO2, ECHO2(0), Figure (ECHO2 m) {
+	render("echo2", #ECHO2, ECHO2(0), Figure (str event, str utag,  ECHO2 m) {
 			return
 				hcat(figs=[ text("Enter number:", fontSize=18),
 							numInput(event=on("input", bind(m.NUM))), 
@@ -1245,7 +1427,7 @@ void echo2(){
 data BORDER = BORDER(str C);
 
 void border1(){
-	render("border1", #BORDER, BORDER("red"), Figure (BORDER m) {
+	render("border1", #BORDER, BORDER("red"), Figure (str event, str utag, BORDER m) {
 			return
 				hcat(figs=[ text("Enter:", fontSize=18), 
 				
@@ -1259,7 +1441,7 @@ void border1(){
 }
 
 void border2(){
-	render("border2", #BORDER, BORDER("red"), Figure (BORDER m) {
+	render("border2", #BORDER, BORDER("red"), Figure (str event, str utag, BORDER m) {
 			return
 				hcat(figs=[ text("Enter:", fontSize=18), 
 				
@@ -1275,7 +1457,7 @@ void border2(){
 data CONTROL = CONTROL(str FC, int LW, int WIDTH , int HEIGHT);
 
 void control1(){
-	render("control1", #CONTROL, CONTROL("red",1,100,100), Figure (CONTROL m) {
+	render("control1", #CONTROL, CONTROL("red",1,100,100), Figure (str event, str utag, CONTROL m) {
 			return
 				vcat(figs=[
 					hcat(figs=[ text("  fillColor:", size=<150,50>, fontSize=20), colorInput(event=on("submit", bind(m.FC)), size=<100,25>),
@@ -1298,11 +1480,11 @@ void control1(){
 data CHOICE = CHOICE(int SEL);
 
 void choice1(){
-	render("choice1", #CHOICE, CHOICE(0),  Figure (CHOICE m) {
+	render("choice1", #CHOICE, CHOICE(0),  Figure (str event, str utag, CHOICE m) {
 			return
 			hcat(figs=[ text("Enter:", size=<150,50>, fontSize=18), 
 			
-	               numInput(event=on("change", bind(m.SEL)), size=<100,25>),
+	               numInput(event=on("submit", bind(m.SEL)), size=<100,25>),
 	               
 				   choice(selection=m.SEL, 
 				   		   figs = [ box(fillColor="red", size=<100,100>),
@@ -1314,7 +1496,7 @@ void choice1(){
 }
 
 void choice2(){
-	render("choice2", #CHOICE, CHOICE(0),  Figure (CHOICE m) {
+	render("choice2", #CHOICE, CHOICE(0),  Figure (str event, str utag, CHOICE m) {
 			return
 			hcat(figs=[ text("Enter:", size=<150,50>, fontSize=18), 
 			
@@ -1332,7 +1514,7 @@ void choice2(){
 data SLIDER = SLIDER(int SLIDER);
 
 void slider1(){
-	render("slider1", #SLIDER, SLIDER(50), Figure (SLIDER m) {
+	render("slider1", #SLIDER, SLIDER(50), Figure (str event, str utag, SLIDER m) {
 			return
 			vcat(figs=[ hcat(figs=[text("0"), rangeInput(low=0,high=100,step=5, event=on("change", bind(m.SLIDER)), size=<150,50>), text("100")]),
 			
@@ -1346,7 +1528,7 @@ data DIM = DIM(int WIDTH, int HEIGHT);
 
 void slider2(){
 
-	render("slider2", #DIM, DIM(50,50), Figure (DIM m) {
+	render("slider2", #DIM, DIM(50,50), Figure (str event, str utag, DIM m) {
 			return vcat(figs=[ hcat(figs=[text("WIDTH"), text("0"), rangeInput(low=0,high=100,step=5, event=on("change", bind(m.WIDTH)), size=<150,50>), text("100")]),
 			       hcat(figs=[text("HEIGHT"), text("0"), rangeInput(low=0,high=100,step=5, event=on("change", bind(m.HEIGHT)), size=<150,50>), text("100")]),
 			
@@ -1357,7 +1539,7 @@ void slider2(){
 }
 
 void slider3(){
-	render("slider3", #SLIDER, SLIDER(25), Figure (SLIDER m) {
+	render("slider3", #SLIDER, SLIDER(25), Figure (str event, str utag, SLIDER m) {
 			return 
 			vcat(figs=[ rangeInput(low=0, high=50, step=5, event=on("change", bind(m.SLIDER)), size=<200,50>),
 				   box(size=<50,50>, lineWidth=0),
@@ -1373,7 +1555,7 @@ data SIZE = SIZE(int SIZE);
 
 void slider4(){
 
-	render("slider4", #SIZE, SIZE(300), Figure (SIZE m) {
+	render("slider4", #SIZE, SIZE(300), Figure (str event, str utag, SIZE m) {
 			low = 100;
 			high = 500;
 			return vcat(figs=[ hcat(figs=[text("SIZE"), text(low), rangeInput(low=low,high=high,step=5, event=on("change", bind(m.SIZE)), size=<500,50>), text(high) ]),
@@ -1384,7 +1566,7 @@ void slider4(){
 }
 
 
-data VISABLE = VISABLE(bool VISABLE);
+data VISABLE = VISABLE(str event, str utag, bool VISABLE);
 
 void visible1(){
 	render("visible1", #VISABLE, VISABLE(true), Figure (VISABLE m) {
@@ -1398,7 +1580,7 @@ void visible1(){
 }
 
 void visible2(){
-	render("visible2", #VISABLE, VISABLE(true), Figure (VISABLE m) {
+	render("visible2", #VISABLE, VISABLE(true), Figure (str event, str utag, VISABLE m) {
 			return 
 			vcat(figs=[ checkboxInput(event=on("click", bind(m.VISABLE)), size=<50,50>),
 				   
@@ -1408,18 +1590,19 @@ void visible2(){
 				 });
 }
 
+
 // Tooltip
 
 data EMPTY = EMPTY();
 
-Event tooltip(str txt) = on("mouseover", box(size=<50,50>,fig=text(txt, fontSize=12, lineColor="black"), fillColor="yellow"));
+Event tooltip(str txt) = on("mouseover", box(size=<100, 20>, fig=text(txt, fontSize=12, lineColor="black"), fillColor="yellow"));
 
 void tooltip1(){
-	ex("tooltip1", box(fillColor="red", width=100, height=100, event=tooltip("I am a red box")));
+	ex("tooltip1", box(fillColor="red", width=200, height=100, event=tooltip("I am a red box")));
 }
 
 void tooltip2(){
-	render("tooltip2", #EMPTY, EMPTY(), Figure (EMPTY m) {
+	render("tooltip2", #EMPTY, EMPTY(), Figure (bool e, EMPTY m) {
 			return 
 				vcat(figs=[ box(size=<200,50>, lineColor="white"),
 					   hcat(figs=[ box(fillColor="red", width=100, height=100, event=tooltip("I am a red box")),
@@ -1435,7 +1618,7 @@ data COLOR1 = COLOR1(str C);
 
 void boxcolor1(){
           
-	render("boxcolor1", #COLOR1, COLOR1("white"), Figure (COLOR1 m) {
+	render("boxcolor1", #COLOR1, COLOR1("white"), Figure (str event, str utag, COLOR1 m) {
 			return box(size=<100,100>, fig=colorInput(event=on("change", bind(m.C)), size=<50,20>, fillColor=m.C, rounded=<10,10>, gap=<20,20>,lineDashing=[1,1,1,1,1,1]));
 		});
 }
@@ -1444,7 +1627,7 @@ data COLOR2 = COLOR2(str C1, str C2);
 
 void boxcolor2(){
           
-	render("boxcolor2", #COLOR2, COLOR2("white", "blue"), Figure (COLOR2 m) {
+	render("boxcolor2", #COLOR2, COLOR2("white", "blue"), Figure (str event, str utag, COLOR2 m) {
 			return hcat(figs=[ box(size=<100,100>, fig=colorInput(event=on("change", bind(m.C1)), size=<50,20>, fillColor=m.C1, rounded=<10,10>, gap=<20,20>,lineDashing=[1,1,1,1,1,1])),
 						       box(size=<100,100>, fig=colorInput(event=on("change", bind(m.C2)), size=<50,20>, fillColor=m.C2, rounded=<10,10>, gap=<20,20>,lineDashing=[1,1,1,1,1,1]))
 						     ], gap=<20,30>);

@@ -33,13 +33,12 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
-import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
@@ -136,11 +135,12 @@ public class NodePattern extends AbstractMatchingResult {
 			return;
 		}
 
+		IValue[] subjectChildren = new IValue[patternChildren.size()];
 		for (int i = 0; i < patternChildren.size(); i++){
-			IValue subjectChild = this.subject.get(i);
+			subjectChildren[i] = this.subject.get(i);
 			IMatchingResult patternChild = patternChildren.get(i);
 
-			patternChild.initMatch(ResultFactory.makeResult(subjectChild.getType(), subjectChild, ctx));
+			patternChild.initMatch(ResultFactory.makeResult(subjectChildren[i].getType(), subjectChildren[i], ctx));
 			hasNext = patternChild.hasNext();
 
 			if (!hasNext) {
@@ -148,48 +148,41 @@ public class NodePattern extends AbstractMatchingResult {
 			}
 		}
 
-		if (type.hasKeywordParameters()) {
-			ImmutableMap<String, IValue> kwEnv = AbstractSpecialisedImmutableMap.mapOf();
+		if (ctx.getCurrentEnvt().getStore().hasKeywordParameters(type)) {
+			ConstructorFunction func = ctx.getCurrentEnvt().getConstructorFunction(type);
+			Map<String, IValue> kwArgs = ((INode) subject).asWithKeywordParameters().getParameters();
+
+			Map<String, Type> kwFormals = ctx.getCurrentEnvt().getStore().getKeywordParameters(type);
 			
-			// We have to be careful to match the keyword parameters in order of their declaration in the constructor
-			// because the default values may have data dependencies going from right to left in the declaration, at the 
-			// same time the concrete value may override default values.
-			for (String kwLabel : type.getKeywordParameterTypes().getFieldNames()) {
-				IWithKeywordParameters<? extends INode> wkw = this.subject.asWithKeywordParameters();
-				IValue subjectParam = wkw.getParameter(kwLabel);
-				
-				if (subjectParam == null) { 
-					// the subject does not have the keyword parameter, but we know how to get a default value
-					// note that wkw.getParameter could return a default value as well, but this is not guaranteed because
-					// its value could have been generated in a context where the default is not defined, yet the constructor
-					// name and the arity matches. So here, we find a default from the declaring context of the pattern.
-					subjectParam = type.getKeywordParameterInitializer(kwLabel).initialize(kwEnv);
+			for (String kwLabel : keywordParameters.keySet()) {
+				IValue subjectParam = kwArgs.get(kwLabel);
+				if (subjectParam == null) {
+					subjectParam = func.computeDefaultKeywordParameter(kwLabel, (IConstructor) subject.getValue(), ctx.getCurrentEnvt()).getValue();
 				}
+				IMatchingResult matcher = keywordParameters.get(kwLabel);
+				matcher.initMatch(ResultFactory.makeResult(kwFormals.get(kwLabel), subjectParam, ctx));
 				
-				// update the initialization environment which is shared from left to right between the initializers
-				kwEnv = kwEnv.__put(kwLabel, subjectParam);
-				
-				if (keywordParameters.containsKey(kwLabel)) {
-					IMatchingResult matcher = keywordParameters.get(kwLabel);
-					matcher.initMatch(ResultFactory.makeResult(type.getKeywordParameterType(kwLabel), subjectParam, ctx));
-					
-					if (!matcher.hasNext()) {
-						// the matcher can never work, so we can skip initializing the rest
-						hasNext = false;
-						break;
-					}
+				if (!matcher.hasNext()) {
+					// the matcher can never work, so we can skip initializing the rest
+					hasNext = false;
+					break;
 				}
-				
-				// note if there is no matcher for the current parameter, still we have initialized it because the next
-				// keyword parameter that who do match on may depend on its dynamic value.
 			}
 		}
 		else if (this.subject.mayHaveKeywordParameters()) {
-			// the matching side has no declared keyword parameters (an untyped node), so we do not have default values to take care of
-			IWithKeywordParameters<? extends INode> wkw = this.subject.asWithKeywordParameters();
+			Map<String, IValue> kwArgs = this.subject.asWithKeywordParameters().getParameters();
+			ConstructorFunction func = null;
+			
+			if (this.subject.getType().isAbstractData()) {
+				func = ctx.getCurrentEnvt().getConstructorFunction(((IConstructor) this.subject).getConstructorType());
+			}
 			
 			for (Entry<String,IMatchingResult> entry : keywordParameters.entrySet()) {
-				IValue subjectParam = wkw.getParameter(entry.getKey());
+				IValue subjectParam = kwArgs.get(entry.getKey());
+				
+				if (subjectParam == null && func != null) { // we may have a default available
+					subjectParam = func.computeDefaultKeywordParameter(entry.getKey(), (IConstructor) subject.getValue(), ctx.getCurrentEnvt()).getValue();
+				}
 				
 				if (subjectParam != null) {
 					// we are matching a keyword parameter, and indeed the subject has one
@@ -201,8 +194,7 @@ public class NodePattern extends AbstractMatchingResult {
 						hasNext = false;
 						break;
 					}
-				}
-				else {
+				} else {
 					// we are matching a keyword parameter, but the subject has none.
 					hasNext = false;
 					break;

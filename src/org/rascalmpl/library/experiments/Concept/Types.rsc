@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -16,9 +16,10 @@ import IO;
 import Relation;
 import vis::Figure;
 import vis::Render; 
+import analysis::formalconcepts::FCA;
 
 public FProperty tip(str S){ 
-	return mouseOver(box([fillColor("lightgrey")], text([fontColor("green")], S)));
+	return mouseOver(box(text(S, fontColor("green")), fillColor("lightgrey")));
 }
 
 alias property_table = tuple[map[str, set[str]] item, map[str, set[str]]feature ];
@@ -55,7 +56,7 @@ public set[&T] union(set[set[&T]] st)
   return result;
 }
    
-set[str] pi(map[str, set[str]] a, set[str] b) {return isEmpty(b)?{a[i]|i<-domain(a)}:intersection({{a[i]}|str i<- b});}
+set[str] pi(map[str, set[str]] a, set[str] b) {return isEmpty(b)?{a[i]|i<-domain(a)} : intersection({a[i]|str i<- b});}
 
 public set[str] sigma(property_table t, set[str] b) {return pi(t.item, b);}
 
@@ -81,14 +82,14 @@ bool isConcept(property_table t, concept_t c) {
    return sigma(t, tau(t, c.feature))==c.feature;
    }
    
-set[set[str]] maxincl(set[set[str]] c) {return {{s}|set[str] s <- c, !isSubset(c, s)};}
+set[set[str]] maxincl(set[set[str]] c) {return {s |set[str] s <- c, !isSubset(c, s)};}
 
 @doc{Return Attribute lattice.}  
 public rel[set[str], set[str]] createAttributeLattice(property_table vb) {
      set[str] G = domain(vb[0]);
      set[str] M = domain(vb[1]);
-     set[set[str]] layer = {{M}};
-     set[set[str]] B = {{sigma(vb, {g})} | g <- G};
+     set[set[str]] layer = {M};
+     set[set[str]] B = {sigma(vb, {g}) | g <- G};
      rel[set[str], set[str]] r = {};
      while (!isEmpty(layer)&& layer!={{}}) {
          set[set[str]] nextLayer = {};

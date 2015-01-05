@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -12,15 +12,13 @@ import vis::Render;
 import util::Math;
 
 public Figure mouseOverSpiral(int n,real radius, real increase,real radiusIncrease,real curAngle){
-	props = (n == 0) ? 
+	list[FProperty] props = (n == 0) ? 
 		[] : 
 		[mouseOver(mouseOverSpiral(n-1,radius + radiusIncrease,increase,radiusIncrease,curAngle+increase))];
 	r = max(0.5,radius);
 	h = sin(curAngle) * radius + 0.5;
 	v = cos(curAngle) * radius + 0.5;
-	return ellipse(text("<n>"),[props] + 
-        [ halign(h),valign(v),
-          resizable(false),size(100),fillColor(arbColor()) ]);
+	return ellipse(text("<n>"), [*props, halign(h), valign(v), resizable(false), size(100), fillColor(arbColor())]);
 }
 	
 public void doMouseOverSpiral(){

@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -27,13 +27,13 @@ public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, s
                                     syntax2grammar(mods[m].defs)
                                     ) 
                           | m <- mods));
-  return fuse(layouts(resolve(def)));
+  return resolve(fuse(layouts(def)));
 }
 
 @memo
 @doc{Converts concrete syntax definitions and fuses them into one single grammar definition}     
 public Grammar modules2grammar(str main, set[Module] modules) {
-  return fuse(layouts(resolve(modules2definition(main, modules))));
+  return resolve(fuse(layouts(modules2definition(main, modules))));
 }
 
 @doc{Converts concrete syntax definitions to abstract grammar definitions}
@@ -51,9 +51,9 @@ public Grammar fuse(GrammarDefinition def) {
   done = {};
   
   while (todo != {}) {
-    <name,todo> = takeOneFrom(todo);
-    \mod = def.modules[name];
-    done += name; 
+    <nm,todo> = takeOneFrom(todo);
+    \mod = def.modules[nm];
+    done += nm; 
     result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- \mod.imports + \mod.extends);
     todo += (\mod.extends - done);
   }
@@ -64,8 +64,8 @@ public Grammar fuse(GrammarDefinition def) {
 
 
 public GrammarModule module2grammar(Module \mod) {
-  <name, imps, exts> = getModuleMetaInf(\mod);
-  return \module(name, imps, exts, syntax2grammar(collect(\mod)));
+  <nm, imps, exts> = getModuleMetaInf(\mod);
+  return \module(nm, imps, exts, syntax2grammar(collect(\mod)));
 } 
 
 public tuple[str, set[str], set[str]] getModuleMetaInf(Module \mod) {
@@ -73,10 +73,10 @@ public tuple[str, set[str], set[str]] getModuleMetaInf(Module \mod) {
   // Tags tags "module" QualifiedName name ModuleParameters params Import* imports
   switch (\mod) {
     case \default(parameters(_, QualifiedName name, _, Import* is),_) :
-    return <deslash("<name>"), { "<i>" | \import(\default(QualifiedName i)) <- is } 
+    return <deslash("<name>"), { "<i>" | \default(\default(QualifiedName i)) <- is } 
                     , { "<i>" | \extend(\default(QualifiedName i)) <- is }>;
     case \default(\default(_, QualifiedName name, Import* is), _) : 
-    return <deslash("<name>"), { "<i>" |  \import(\default(QualifiedName i)) <- is } 
+    return <deslash("<name>"), { "<i>" |  \default(\default(QualifiedName i)) <- is } 
                     , { "<i>" | \extend(\default(QualifiedName i)) <- is }>; 
   }
   

@@ -1,6 +1,5 @@
 module experiments::Compiler::Tests::Expressions
 
-import Exception;
 extend  experiments::Compiler::Tests::TestUtils;
 
 // Booleans, see separate files Booleans.rsc
@@ -239,6 +238,8 @@ test bool tst() = run("1 notin (1 : 10, 2 : 20)") == 1 notin (1 : 10, 2 : 20);
 // Node
 test bool tst() = run("\"abc\"(1, true, 3.5)") == "abc"(1, true, 3.5);
 test bool tst() = run("{ x | int x \<- \"a\"(1,2,3) }") == { x | int x <- "a"(1,2,3) };
+test bool tst() = run("\"abc\"(1, true, 3.5,kw1=true)") == "abc"(1, true, 3.5, kw1=true);
+test bool tst() = run("\"abc\"(1, true, 3.5,kw1=true,kw2=0)") == "abc"(1, true, 3.5, kw2=0, kw1=true);
 
 // ADT
 
@@ -284,10 +285,13 @@ test bool tst() = run("all(x \<- [1,2,13,3], x \> 20)") == all(x <- [1,2,13,3], 
 test bool tst() = run("all(int x \<- [1,2,13,3], x \> 20)") == all(int x <- [1,2,13,3], x > 20);
 test bool tst() = run("all(int x \<- [1,2,3], x \>= 2 )") == all(int x <- [1,2,3], x >= 2 );
 test bool tst() = run("all(int x \<- [1,2,3], x \<= 2 )") == all(int x <- [1,2,3], x <= 2 );
-// Incompatibilities interpreter/compiler:
+
+// NOTE: incompatibilities interpreter/compiler:
 test bool tst() = run("all(int x \<- [])") == !all(int x <- []);
 test bool tst() = run("all(i \<- [1,2,3], (i % 2 == 0 || i % 2 == 1))") == !all(i <- [1,2,3], (i % 2 == 0 || i % 2 == 1));
 test bool tst() = run("all([*x, *y] := [1,2,3], true)") == !all([*x, *y] := [1,2,3], true);
+
+ test bool tst() = run("all(int M \<- {1,2}, M == 1, true)") == all(int M <- {1,2}, M == 1, true);
 
 
 // Range
@@ -442,5 +446,9 @@ test bool tst() = run(" 1 == 1.0") == (1 == 1.0);
 
 test bool tst() = run("{\<1,2\>} == {}") == ( {<1,2>} == {} );
 
+// Type related
+
+test bool tst() = run("#int") == #int;
+test bool tst() = run("#list[int]") == #list[int];
 
 

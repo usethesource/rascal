@@ -1,3 +1,7 @@
+@doc{
+Synopsis: AST model for HTML5 including pretty printer
+}
+@contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 module lang::html5::DOM
 
 import List;
@@ -309,7 +313,7 @@ HTML5Attr style(value val) = html5attr("style", val);
 HTML5Attr tabindex(value val) = html5attr("tabindex", val);
 HTML5Attr target(value val) = html5attr("target", val);
 HTML5Attr template(value val) = html5attr("template", val);
-HTML5Attr title(value val) = html5attr("title", val);
+//HTML5Attr title(value val) = html5attr("title", val);  <== overlaps with title(value kids...) defined above
 HTML5Attr translate(value val) = html5attr("translate", val);
 HTML5Attr \type(value val) = html5attr("type", val);
 HTML5Attr typeof(value val) = html5attr("typeof", val);
@@ -375,7 +379,7 @@ default str startTag(str n, set[HTML5Attr] attrs)
   = startTag(n, " " + attrsToString(attrs));
   
 str attrsToString(set[HTML5Attr] attrs) 
-  = intercalate(" ", [ attrToString(a) | a <- attrs ] );
+  = intercalate(" ", [ attrToString(a) | HTML5Attr a <- attrs ] );
   
 // TODO: escaping
 str attrToString(html5attr(str x, value v)) = "<x>=\"<v>\"";

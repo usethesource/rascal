@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -25,7 +25,7 @@ Append a textual representation of some values to an existing or a newly created
 * Each value is terminated by a newline character.
 
 == Encoding ==
-The existing file can be stored using any character set possible, if you know the character set, please use [appendFileEnc].
+The existing file can be stored using any character set possible, if you know the character set, please use [appendToFileEnc].
 Else the same method of deciding the character set is used as in [readFile].
 
 Pitfalls:
@@ -262,7 +262,7 @@ Examples:
 <screen>
 import IO;
 // Determine the last modification date of the Rascal standard library:
-lastModified(|std:///IO.rsc|);
+lastModified(|clib-rascal:///IO.rsc|);
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}

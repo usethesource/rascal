@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -22,7 +22,7 @@ import IO;
 import ValueIO;
 import Time;
 
-alias HighScore  = tuple[str name,int score];
+data HighScore  = highScore(str name,int score);
 alias Highscores = list[HighScore];
  // does not work on windows
 loc highscoresFile = |home:///rascaltetrishighscores.bin|;
@@ -61,7 +61,7 @@ Highscores readHighscores(){
 	if(exists(highscoresFile)){
 		return readBinaryValueFile(#Highscores, highscoresFile);
 	} else {
-		return [<"No one",0> | i <- [1 .. nrHighscores+1]];
+		return [highScore("No one",0)| i <- [1 .. nrHighscores+1]];
 	}
 }
 void writeHighscores(Highscores highscores) { 
@@ -74,6 +74,7 @@ void writeHighscores(Highscores highscores) {
 }
 bool newHighScore(Highscores highscores,int score) = 
 	score >= highscores[nrHighscores-1].score;
+	
 bool highScoreOrd(HighScore l,HighScore r) = l.score >= r.score; 
 bool isValidName(str name) = name != "";
 Highscores addHighScore(Highscores s, HighScore n) {
@@ -135,7 +136,7 @@ public Figure tetris(){
 	
 	void enterHighscore(str name){
 		if(!highscoreEntered) {
-			highscores = addHighScore(highscores,<name,state.score>);
+			highscores = addHighScore(highscores,highScore(name,state.score));
 			highscoreEntered = true;
 		}
 	}
@@ -229,8 +230,8 @@ public Figure tetris(){
 					  box(storedTetrominoFig,fillColor("black"))]);
 					  
 	Figure highScoreFig(int i) = 
-		hcat([text(str () { return highscores[i][0]; },left()), 
-			  text(str () { return "<highscores[i][1]>"; },right())]);
+		hcat([text(str () { return highscores[i].name; },left()), 
+			  text(str () { return "<highscores[i].score>"; },right())]);
 	highScoresFig = box(
 		vcat([highScoreFig(i) | i <- [0..nrHighscores]],vgrow(1.03)),
 		fillColor("black"),grow(1.1));

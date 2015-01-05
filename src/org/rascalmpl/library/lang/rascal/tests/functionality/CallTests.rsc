@@ -1,20 +1,17 @@
- module lang::rascal::tests::functionality::CallTests
- /*******************************************************************************
-   * Copyright (c) 2009-2011 CWI
-   * All rights reserved. This program and the accompanying materials
-   * are made available under the terms of the Eclipse License v1.0
-   * which accompanies this distribution, and is available at
-   * http://www.eclipse.org/legal/epl-v10.html
-   *
-   * Contributors:
-  
-   *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
-   *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
-   *   * Paul Klint - Paul.Klint@cwi.nl - CWI
-   *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-   *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
-  *******************************************************************************/
-
+@license{
+ Copyright (c) 2009-2014 CWI
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the Eclipse License v1.0
+ which accompanies this distribution, and is available at
+ http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
+module lang::rascal::tests::functionality::CallTests
+ 
 import ParseTree;
 
 import  lang::rascal::tests::functionality::CallTestsAux;
@@ -287,6 +284,16 @@ test bool  dispatchTest3() {
   		
     return [f((XYZ)`x`),f((XYZ)`y`),f((XYZ)`z`)] == [1,2,3];
 }	
+
+// Indirect calls
+
+@ignoreInterpreter
+test bool indirect1(){
+	bool isLF(int c) = c == 0x000A;
+    l = [ isLF ];
+    elem = l[0];
+    return !elem(0);
+}
  
 //  keywordTest
    
@@ -294,7 +301,6 @@ test bool keywordTest11() {
     int incr(int x, int delta=1) = x + delta;
     return incr(3) == 4 && incr(3, delta=2) == 5;
 }
-  
   	
 test bool  keywordTest2() { 
     int sum(int x = 0, int y = 0) = x + y;
@@ -322,7 +328,7 @@ test bool keywordTest7(){
     int vol(int x, int y, int z, int area = x * y, int volume = area * z) = volume;
     return vol(1,2,3) == 6; 
 }
-  
+
 data Figure (real shrink = 1.0, str fillColor = "white", str lineColor = "black")  =  emptyFigure() 
   | ellipse(Figure inner = emptyFigure()) 
   | box(Figure inner = emptyFigure())
@@ -353,12 +359,9 @@ test bool keywordTest17() = volume(2,3,4,area=0).volume == 0;
 
 test bool keywordTest18() = volume(2,3,4,volume=0).area == 6;
 
+test bool keywordTest19() = ellipse(inner=emptyFigure(fillColor="red")).fillColor == "white";
 
-
-/* The following give NoSuchKey errors: TC info is missing or not found in the compiler */
-/*TODO:TC*///test bool keywordTest16() = ellipse(inner=emptyFigure(fillColor="red")).fillColor == "white";
-
-/*TODO:TC*///test bool keywordTest17() = ellipse(inner=emptyFigure(fillColor="red")).inner.fillColor == "red";
+test bool keywordTest20() = ellipse(inner=emptyFigure(fillColor="red")).inner.fillColor == "red";
 
 
 data D = d(int x, int y = 3);
@@ -384,7 +387,19 @@ data POINT1 = point1(int x, int y, int z = 3, list[str] colors = []);
   
 test bool keywordMatchTest11() = point1(_, _, colors=["blue"]) := point1(1,2, colors=["blue"]);
   		
-  	
 test bool keywordMatchTest12() =point1(_, _, colors=[*_,"blue",*_]) := point1(1,2, colors=["red","green","blue"]);
-/*TODO:TC+COMP*///test bool keywordMatchTest13() =point1(_, _, colors=[*_,*X,*_,*X, *_]) := point1(1,2, colors=["red","blue","green","blue"]);
+
+test bool keywordMatchTest13() =point1(_, _, colors=[*_,*X,*_,*X, *_]) := point1(1,2, colors=["red","blue","green","blue"]);
  
+data Expr(int depth = 0) = id(str x);
+data Expr(int width = 1) = number(num n);
+
+test bool genericKwParams1() = number(1).depth == 0;
+test bool genericKwParams2() = id("tommie").width == 1;
+test bool genericKwParamsBack1() = number(1).y == 4;
+
+data Expr(int x = 2, int y = 2 * x) = a(Expr l, Expr r, int z = x * y);
+
+test bool genericKwParams3() = a(id("x"), id("y")).z == 8;
+
+test bool genericKwParams4() = a(id("x"),id("y"),x = 3).z == 18;

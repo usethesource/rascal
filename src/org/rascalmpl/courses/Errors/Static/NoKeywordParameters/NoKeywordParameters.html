@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Errors/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Errors/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Functions maybe declared with or without keyword parameters.
  This error is generated when a function has been declared without keyword parameters but is called with a keyword parameter.
@@ -64,23 +64,23 @@
 </ul>
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>int incr(int x) = x + 1;
 int (int): int incr(int);
 <span class="prompt">rascal></span>incr(3, delta=5);
-|stdin:///|(14,1,&lt;1,14>,&lt;1,15>): function incr cannot be called with keyword parameters
+int: 4
 </pre> Here is one solution:
  <pre class="screen"><span class="prompt">rascal></span>int incr(int x, int delta=1) = x + delta;
-int (int): int incr(int, int delta=1);
+int (int): int incr(int, int delta= ...);
 <span class="prompt">rascal></span>incr(3, delta=5);
 int: 8
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Static/NoKeywordParameters&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Static/NoKeywordParameters&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |

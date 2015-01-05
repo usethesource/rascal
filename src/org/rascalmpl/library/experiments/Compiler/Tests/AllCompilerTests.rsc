@@ -26,12 +26,12 @@ extend experiments::Compiler::Examples::Run;
 // extend experiments::Compiler::Tests::GetGrammarTest;
 
 // This could work if we get the working directory of the created proces right ... or if we add a remove file function
-void clean(){
- command = "/bin/ls"; // will become "/bin/rm"
- for(subdir <- ["", "util", "experiments/Compiler/Benchmarks", "experiments/Compiler/Examples", "experiments/Compiler/Tests", "experiments/Compiler/muRascal2RVM"]){ 
-     dir = |home:///Documents/workspace-level1/rascal/src/org/rascampl/library/| + subdir;
-     pid = createProcess(command, [l.path | l <- listEntries(dir), l.extension == "rvm"], dir);
-     println(readEntireerrStream(pid));
-  }
-}
+//void clean(){
+// command = "/bin/ls"; // will become "/bin/rm"
+// for(subdir <- ["", "util", "experiments/Compiler/Benchmarks", "experiments/Compiler/Examples", "experiments/Compiler/Tests", "experiments/Compiler/muRascal2RVM"]){ 
+//     dir = |home:///Documents/workspace-level1/rascal/src/org/rascampl/library/| + subdir;
+//     pid = createProcess(command, [l.path | l <- listEntries(dir), l.extension == "rvm"], dir);
+//     println(readEntireerrStream(pid));
+//  }
+//}
 

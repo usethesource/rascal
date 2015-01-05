@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,19 +48,19 @@
 
 </div>
 
-	                       
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code>( <i>Exp</i><sub>1</sub> : <i>Exp</i><sub>2</sub> | <i>Gen</i><sub>1</sub>, <i>Gen</i><sub>2</sub>, ... )</code>
 
 </div>
 
-                           
+
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code> </th><th align="left"> <code><i>Exp</i><sub>2</sub></code> </th><th align="left"> <code>( <i>Exp</i><sub>1</sub> : <i>Exp</i><sub>2</sub> | <i>Gen</i><sub>1</sub>, <i>Gen</i><sub>2</sub>, ... )</code> </th></tr><tr><td align="left"> <code><i>T</i><sub>1</sub></code>   </td><td align="left"> <code><i>T</i><sub>2</sub></code>   </td><td align="left"> <code>map[<i>T</i><sub>1</sub>, <i>T</i><sub>2</sub>]</code>                              </td></tr></table>
 </div>
 
-                           
-                           
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  A map comprehension consists of a number of two contributing expressions <code><i>Exp</i><sub>1</sub></code> (for key values), 
  and <code><i>Exp</i><sub>2</sub></code> (the values associated with those key values) and a number of
@@ -68,25 +68,25 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>    Introduce a map of <code>fruits</code>:
 <pre class="screen"><span class="prompt">rascal></span>fruits = (&quot;pear&quot; : 1, &quot;apple&quot; : 3, &quot;banana&quot; : 0, &quot;berry&quot; : 25, &quot;orange&quot;: 35);
-map[str, int]: ("orange":35,"apple":3,"pear":1,"berry":25,"banana":0)
+map[str, int]: ("banana":0,"pear":1,"orange":35,"berry":25,"apple":3)
 <span class="prompt">rascal></span>import String;
 ok
 </pre>  Use a map comprehension to filter fruits with a name of at most 5 characters:
 <pre class="screen"><span class="prompt">rascal></span>(fruit : fruits[fruit] | fruit &lt;- fruits, size(fruit) &lt;= 5);
-map[str, int]: ("apple":3,"berry":25,"pear":1)
+map[str, int]: ("pear":1,"berry":25,"apple":3)
 </pre>  Use a map comprehension to filter fruits with an associated value larger than 10:
 <pre class="screen"><span class="prompt">rascal></span>(fruit : fruits[fruit] | fruit &lt;- fruits, fruits[fruit] &gt; 10);
 map[str, int]: ("orange":35,"berry":25)
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Map/Comprehension&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Map/Comprehension&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

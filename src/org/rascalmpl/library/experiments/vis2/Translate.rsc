@@ -5,6 +5,7 @@ import Node;
 import String;
 import IO;
 import List;
+import ListRelation;
 import util::Cursor;
 import Type;
 import lang::json::IO;
@@ -33,10 +34,12 @@ void check(str property, str val, set[str] allowed){
 str propsToJSON(Figure child, Figure parent){
 	properties = [];
 	defaults = emptyFigure();
-	
-	
+	if (!isEmpty(child.id))   properties += "\"id\":<strArg(child.id)>";
+	if (!isEmpty(child.tooltip))   properties += "\"tooltip\":<strArg(child.tooltip)>";
 	if(child.size != parent.size /*&& child.size != defaults.size*/) 					
 													properties += "\"width\": <numArg(child.size[0])>, \"height\": <numArg(child.size[1])> ";
+						
+properties += "\"padding_top\": <numArg(child.padding[0])>, \"padding_left\": <numArg(child.padding[1])>,  \"padding_bottom\": <numArg(child.padding[2])>, \"padding_right\": <numArg(child.padding[3])>";
 												  
 	if(child.width != parent.width) 				properties += "\"width\": <numArg(child.width)>";
 	if(child.height != parent.height) 				properties += "\"height\": <numArg(child.height)>";
@@ -95,20 +98,24 @@ str propsToJSON(Figure child, Figure parent){
 			throw "non-existing event name: <child.event>";
 		}
 	
-	    println("propsToJSON: <child.event>");
+	    // println("propsToJSON: <child.event>");
 		switch(child.event){
-			case on(str event, binder: bind(accessor)):
-				if(isCursor(accessor)){ 	
+			case on(str event, binder: bind(accessor)): {
+				if(isCursor(accessor)){ 
+				    // println("QQQ bind1:<accessor>");	
 					properties += [
 						"\"event\": \"<event>\"",
 						//"\"type\":  \"<typeOf(accessor)>\"", 
-						"\"accessor\": <trCursor(accessor)>"
+						"\"accessor\": <trCursor(accessor, deep = true)>"  // Must [1] behind
 						];
+				    // println("QQQ bind2:<properties>");
  				} else {
    				  	throw "on: accessor <accessor> in binder is not a cursor";
    				}
+   				}
 			case  on(str event, bind(accessor, replacement)): {
-				println("accessor: <accessor>, isCursor: <isCursor(accessor)>");
+			    // println("bind:<trCursor(accessor)> <replacement>");
+				// println("accessor: <accessor>, isCursor: <isCursor(accessor)>");
 				if(isCursor(accessor)){ 	
 					properties += [
 						"\"event\":  		\"<event>\"",
@@ -216,7 +223,7 @@ bool isLegalEvent(str event) = event in {
   ;
   */
   
-str trCursor(value v){
+str trCursor(value v, bool deep = false){
 	path = toPath(v);
     accessor = "Figure.model";
 	for(nav <- path){
@@ -244,15 +251,15 @@ str trCursor(value v){
   			default:
   				throw "Unsupported path element <nav>";
   		}
-  	}
-  	accessor += "[1]";
-  	println("trCursor: <v>, <path>: <accessor>");
+  	} 
+  	if (deep) accessor += "[1]";   // Bert
+  	// println("trCursor: <v>, <path>: <accessor>");
   	return "\"<accessor>\"";
 }
 
 str toJSNumber(num n) {
 	s = "<n>";
-	return s[-1] == "." ? "<s>0" : s;
+	return (s[-1] == "." ? "<s>0" : s);
 }
 
 str escape(str s) = escape(s, (	"\"" : "\\\"", 
@@ -262,16 +269,16 @@ str escape(str s) = escape(s, (	"\"" : "\\\"",
 								));
 
 
-str numArg(num n) 	= isCursor(n) ? "{\"use\": <trCursor(n)>}" : toJSNumber(n);
+str numArg(num n) 	= isCursor(n) ? "{\"use\": <trCursor(n, deep = true)>}" : toJSNumber(n);
 
-str strArg(str s) 	= isCursor(s) ? "{\"use\": <trCursor(s)>}" : "\"<escape(s)>\"";
+str strArg(str s) 	= isCursor(s) ? "{\"use\": <trCursor(s, deep= true)>}" : "\"<escape(s)>\"";
 
-str locArg(loc v) = isCursor(v) ? "{\"use\": <trCursor(v)>}" : 
+str locArg(loc v) = isCursor(v) ? "{\"use\": <trCursor(v, deep = true)>}" : 
 					(v.scheme == "file" ? "\"<site>/<v.path>\"" : "\"<"<v>"[1..-1]>\"");
 
-str valArg(value v) = isCursor(v) ? "{\"use\": <trCursor(v)>}" : "<v>";
+str valArg(value v) = isCursor(v) ? "{\"use\": <trCursor(v, deep = true)>}" : "<v>";
 
-str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trCursor(v)>}" : "\"<escape("<v>")>\"";		
+str valArgQuoted(value v) = isCursor(v) ? "{\"use\": <trCursor(v, deep = true)>}" : "\"<escape("<v>")>\"";		
 
 /******************** Translate figures ************************************/
 		
@@ -538,15 +545,39 @@ str trNVSeries(str key, Datasets[&T] ds) {
 }
 
 // ---------- Vega output
+// sum(range(domainR(v,{1})));
+
+num getClass(num lo, num hi, int N, num v) {
+    return round(lo +  (floor((v-lo)*(N+1))/(N*(hi-lo)))*hi, 0.01);
+    }
+
+XYData getHistogramData(tuple[int nTickMarks, list[num] \data] x) {
+      XYData r =  [<getClass(min(x[1]), max(x[1]), x.nTickMarks, d), 1>|d <-x[1]];
+      // println(r);
+      return r;
+      }
+
+XYData inject(XYData r) {
+     return [<k, sum([v[1]| v<-domainR(r,{k})])>|k<-domain(r)];
+     }
+     
+LabeledData inject(LabeledData r) {
+     return [<k, sum([v[1]|v<-domainR(r,{k})])>|k<-domain(r)];
+     }
+// LabeledData
+
 
 str trVegaDataset(Datasets ds) = 
 	"\"datasets\": [ <intercalate(",\n", [ trVegaSeries(key, ds[key]) | key <- ds ])> ]";
 
 str trVegaSeries(str key, lrel[num x, num y] xyData) =
-	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}" | <x,y> <- xyData ]);
+	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": <toJSNumber(x)>, \"y\": <toJSNumber(y)>}" | <x,y> <- inject(xyData) ]);
 
 str trVegaSeries(str key, lrel[str label, num val] labeledData) =
-	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- labeledData ]);
+	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- inject(labeledData) ]);
+	
+str trVegaSeries(str key, tuple[int nTickMarks, list[num] val] histogramData) =
+	intercalate(",\n", [ "{\"c\": \"<key>\", \"x\": \"<label>\", \"y\": <val>}" | <label, val> <- inject(getHistogramData(histogramData)) ]);
 
 str trVegaSeries(str key, Datasets[&T] ds) {
 	throw "trVegaSeries: not recognized: <ds>";
@@ -561,7 +592,6 @@ str trChart(str chartType, Figure chart, Figure parent, str extraProps="") {
 	xaxis = chart.xAxis;
 	yaxis = chart.yAxis;
 	datasets = startsWith(chart.flavor, "nv") ? trNvDataset(chart.datasets) :  trVegaDataset(chart.datasets);
-
 	return
 	"{\"figure\": \"<chartType>\",
 	' \"flavor\": \"<chart.flavor>\", 
@@ -572,20 +602,39 @@ str trChart(str chartType, Figure chart, Figure parent, str extraProps="") {
 	'}";
 }
 
+str trVega(Figure chart, Figure parent) {
+    str modul    = chart.\module;
+    str dataFile = chart.dataFile;
+    str datasets = trVegaDataset(chart.datasets); 
+    // println(datasets);
+    return 
+    "{\"figure\": \"vega\",
+    ' \"module\": \"<modul>\",
+    ' <isEmpty(dataFile)?datasets:"\"data\":\"<dataFile>\"">
+    ' <propsToJSON(chart, parent)>
+    '}";   
+   
+    }
+
 // ---------- barChart ----------
 
-str figToJSON(chart: barChart(), Figure parent) {
+//str figToJSON(chart: barChart(), Figure parent) {
+//
+//	if(chart.orientation notin {"vertical", "horizontal"}){
+//		throw "orientation has illegal value: <chart.orientation>";
+//	}
+//	return trChart("barChart", chart, parent, 
+//		extraProps="\"orientation\": \"<chart.orientation>\", \"grouped\": <chart.grouped>");
+//}
 
-	if(chart.orientation notin {"vertical", "horizontal"}){
-		throw "orientation has illegal value: <chart.orientation>";
-	}
-	return trChart("barChart", chart, parent, 
-		extraProps="\"orientation\": \"<chart.orientation>\", \"grouped\": <chart.grouped>");
+
+str figToJSON(chart: vegaChart(), Figure parent) {
+	return trVega(chart, parent);
 }
 
 // ---------- lineChart ----------
 
-str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, parent, extraProps="\"area\": <chart.area>");
+// str figToJSON(chart: lineChart(), Figure parent) = trChart("lineChart", chart, parent, extraProps="\"area\": <chart.area>");
 
 
 // ---------- graph ----------

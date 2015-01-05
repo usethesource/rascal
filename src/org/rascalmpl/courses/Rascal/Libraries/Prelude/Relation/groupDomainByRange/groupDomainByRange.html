@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,48 +48,48 @@
 
 </div>
 
-	                       
-                           
-                           
+
+
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>set[set[&amp;U]] groupDomainByRange(rel[&amp;U dom, &amp;T ran] input)</code>
 
 </div>
 
-                           
+
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Relation;</code>
  </AUTOINSERTED>
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Relation;
 ok
 <span class="prompt">rascal></span>legs = {&lt;&quot;bird&quot;, 2&gt;, &lt;&quot;dog&quot;, 4&gt;, &lt;&quot;human&quot;, 2&gt;, &lt;&quot;spider&quot;, 8&gt;, &lt;&quot;millepede&quot;, 1000&gt;, &lt;&quot;crab&quot;, 8&gt;, &lt;&quot;cat&quot;, 4&gt;};
 rel[str,int]: {
-  &lt;"millepede",1000>,
-  &lt;"bird",2>,
-  &lt;"human",2>,
-  &lt;"dog",4>,
   &lt;"spider",8>,
+  &lt;"human",2>,
+  &lt;"crab",8>,
   &lt;"cat",4>,
-  &lt;"crab",8>
+  &lt;"dog",4>,
+  &lt;"bird",2>,
+  &lt;"millepede",1000>
 }
 <span class="prompt">rascal></span>groupDomainByRange(legs);
 set[set[str]]: {
-  {"millepede"},
-  {"dog","cat"},
+  {"human","bird"},
+  {"cat","dog"},
   {"spider","crab"},
-  {"human","bird"}
+  {"millepede"}
 }
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/Relation/groupDomainByRange&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/Relation/groupDomainByRange&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

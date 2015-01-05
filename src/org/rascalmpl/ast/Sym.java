@@ -158,7 +158,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 389 + 59 * first.hashCode() + 599 * alternatives.hashCode() ; 
+      return 11 + 499 * first.hashCode() + 601 * alternatives.hashCode() ; 
     } 
   
     
@@ -218,7 +218,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 829 + 359 * cistring.hashCode() ; 
+      return 229 + 883 * cistring.hashCode() ; 
     } 
   
     
@@ -269,7 +269,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 61 + 691 * charClass.hashCode() ; 
+      return 197 + 997 * charClass.hashCode() ; 
     } 
   
     
@@ -322,7 +322,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 997 + 919 * symbol.hashCode() + 383 * column.hashCode() ; 
+      return 383 + 227 * symbol.hashCode() + 631 * column.hashCode() ; 
     } 
   
     
@@ -380,7 +380,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 883 ; 
+      return 733 ; 
     } 
   
     	
@@ -422,7 +422,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 + 691 * symbol.hashCode() ; 
+      return 577 + 43 * symbol.hashCode() ; 
     } 
   
     
@@ -475,7 +475,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 17 + 251 * symbol.hashCode() + 439 * label.hashCode() ; 
+      return 439 + 163 * symbol.hashCode() + 61 * label.hashCode() ; 
     } 
   
     
@@ -537,7 +537,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 719 + 331 * symbol.hashCode() + 71 * match.hashCode() ; 
+      return 761 + 719 * symbol.hashCode() + 151 * match.hashCode() ; 
     } 
   
     
@@ -597,7 +597,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 97 + 977 * symbol.hashCode() ; 
+      return 541 + 3 * symbol.hashCode() ; 
     } 
   
     
@@ -650,7 +650,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 239 + 599 * symbol.hashCode() + 67 * sep.hashCode() ; 
+      return 29 + 557 * symbol.hashCode() + 853 * sep.hashCode() ; 
     } 
   
     
@@ -710,7 +710,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 + 73 * symbol.hashCode() ; 
+      return 29 + 103 * symbol.hashCode() ; 
     } 
   
     
@@ -763,7 +763,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13 + 433 * symbol.hashCode() + 449 * sep.hashCode() ; 
+      return 3 + 709 * symbol.hashCode() + 2 * sep.hashCode() ; 
     } 
   
     
@@ -825,7 +825,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 107 + 317 * symbol.hashCode() + 41 * label.hashCode() ; 
+      return 479 + 173 * symbol.hashCode() + 587 * label.hashCode() ; 
     } 
   
     
@@ -885,7 +885,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 233 + 463 * string.hashCode() ; 
+      return 353 + 229 * string.hashCode() ; 
     } 
   
     
@@ -936,7 +936,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 107 + 103 * nonterminal.hashCode() ; 
+      return 103 + 19 * nonterminal.hashCode() ; 
     } 
   
     
@@ -989,7 +989,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 101 * symbol.hashCode() + 881 * match.hashCode() ; 
+      return 907 + 701 * symbol.hashCode() + 643 * match.hashCode() ; 
     } 
   
     
@@ -1051,7 +1051,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 661 + 487 * match.hashCode() + 277 * symbol.hashCode() ; 
+      return 751 + 757 * match.hashCode() + 971 * symbol.hashCode() ; 
     } 
   
     
@@ -1111,7 +1111,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 499 + 647 * symbol.hashCode() ; 
+      return 229 + 227 * symbol.hashCode() ; 
     } 
   
     
@@ -1162,7 +1162,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 911 + 673 * nonterminal.hashCode() ; 
+      return 499 + 821 * nonterminal.hashCode() ; 
     } 
   
     
@@ -1215,7 +1215,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 + 709 * nonterminal.hashCode() + 2 * parameters.hashCode() ; 
+      return 821 + 991 * nonterminal.hashCode() + 941 * parameters.hashCode() ; 
     } 
   
     
@@ -1277,7 +1277,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 433 + 961 * match.hashCode() + 479 * symbol.hashCode() ; 
+      return 389 + 967 * match.hashCode() + 487 * symbol.hashCode() ; 
     } 
   
     
@@ -1339,7 +1339,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 421 + 761 * first.hashCode() + 127 * sequence.hashCode() ; 
+      return 457 + 743 * first.hashCode() + 431 * sequence.hashCode() ; 
     } 
   
     
@@ -1399,7 +1399,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 79 + 269 * nonterminal.hashCode() ; 
+      return 313 + 61 * nonterminal.hashCode() ; 
     } 
   
     
@@ -1450,7 +1450,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 929 + 383 * symbol.hashCode() ; 
+      return 311 + 37 * symbol.hashCode() ; 
     } 
   
     
@@ -1503,7 +1503,7 @@ public abstract class Sym extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 709 + 283 * symbol.hashCode() + 3 * match.hashCode() ; 
+      return 653 + 379 * symbol.hashCode() + 53 * match.hashCode() ; 
     } 
   
     

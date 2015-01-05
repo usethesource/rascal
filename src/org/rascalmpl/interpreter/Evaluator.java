@@ -70,7 +70,6 @@ import org.rascalmpl.interpreter.debug.IRascalSuspendTrigger;
 import org.rascalmpl.interpreter.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.KeywordParameter;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
@@ -106,6 +105,7 @@ import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.recovery.Recoverer;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInput;
+import org.rascalmpl.uri.CompressedStreamResolver;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
@@ -245,6 +245,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 		resolverRegistry.registerInputOutput(new HomeURIResolver());
 		resolverRegistry.registerInputOutput(new TempURIResolver());
+		
+		resolverRegistry.registerInputOutput(new CompressedStreamResolver(resolverRegistry));
 		
 		// here we have code that makes sure that courses can be edited by
 		// maintainers of Rascal, using the -Drascal.courses=/path/to/courses property.
@@ -565,13 +567,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       AbstractFunction main = func.getFunctions().get(0);
       
       if (func.getFunctions().size() > 1) {
-        throw new CommandlineError("should only have one main function", main);
+    	  func.getEval().getMonitor().warning("should only have one main function.", modEnv.getLocation());
       }
       
       if (main.getArity() == 1) {
         return func.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parsePlainCommandLineArgs(commandline)}, null).getValue();
       }
-      else if (main.hasKeywordArgs() && main.getArity() == 0) {
+      else if (main.hasKeywordArguments() && main.getArity() == 0) {
         Map<String, IValue> args = parseKeywordCommandLineArgs(monitor, commandline, main);
         return func.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
       }
@@ -594,11 +596,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   }
 
   public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
-    List<KeywordParameter> kwps = func.getKeywordParameterDefaults();
     Map<String, Type> expectedTypes = new HashMap<String,Type>();
+    Type kwTypes = func.getKeywordArgumentTypes(getCurrentEnvt());
     
-    for (KeywordParameter kwp : kwps) {
-      expectedTypes.put(kwp.getName(), kwp.getType());
+    for (String kwp : kwTypes.getFieldNames()) {
+      expectedTypes.put(kwp, kwTypes.getFieldType(kwp));
     }
 
     Map<String, IValue> params = new HashMap<String,IValue>();
@@ -635,7 +637,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
           throw new CommandlineError("expected option for " + label, func);
         }
         else if (expected.isSubtypeOf(tf.listType(tf.valueType()))) {
-          IListWriter writer = vf.listWriter(expected.getElementType());
+          IListWriter writer = vf.listWriter();
           
           while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
             writer.append(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
@@ -644,7 +646,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
           params.put(label, writer.done());
         }
         else if (expected.isSubtypeOf(tf.setType(tf.valueType()))) {
-          ISetWriter writer = vf.setWriter(expected.getElementType());
+          ISetWriter writer = vf.setWriter();
           
           while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
             writer.insert(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
@@ -815,20 +817,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor getGrammar(Environment env) {
 		ModuleEnvironment root = (ModuleEnvironment) env.getRoot();
 		return getParserGenerator().getGrammar(monitor, root.getName(), root.getSyntaxDefinition());
-	}
-	
-	@Override
-	public IConstructor getGrammar(IRascalMonitor monitor, URI uri) {
-		IRascalMonitor old = setMonitor(monitor);
-		try {
-			ParserGenerator pgen = getParserGenerator();
-			String main = uri.getAuthority();
-			ModuleEnvironment env = getHeap().getModule(main);
-			return pgen.getGrammar(monitor, main, env.getSyntaxDefinition());
-		}
-		finally {
-			setMonitor(old);
-		}
 	}
 	
 	public IValue diagnoseAmbiguity(IRascalMonitor monitor, IConstructor parseTree) {
@@ -1437,12 +1425,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 */
 	@Override
 	public IConstructor parseModule(IRascalMonitor monitor, URI location) throws IOException{
-	  // TODO remove this code and replace by facility in rascal-eclipse to retrieve the
-	  // correct file references from a rascal:// URI
-//	  URI resolved = rascalPathResolver.resolve(location);
-//	  if(resolved != null){
-//	    location = resolved;
-//	  }
+	  URI resolved = rascalPathResolver.resolve(location);
+	  if(resolved != null){
+	    location = resolved;
+	  }
 		return parseModule(monitor, getResourceContent(location), location);
 	}
 	
@@ -1567,12 +1553,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		this.curStdout = null;
 	}
 
-	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue... argValues) {
+	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
 		if (Evaluator.doProfiling && profiler == null) {
 			profiler = new Profiler(this);
 			profiler.start();
 			try {
-				return fun.call(monitor, argTypes, argValues, null);
+				return fun.call(monitor, argTypes, argValues, keyArgValues);
 			} finally {
 				if (profiler != null) {
 					profiler.pleaseStop();
@@ -1582,8 +1568,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			}
 		}
 		else {
-			return fun.call(monitor, argTypes, argValues, null);
+			return fun.call(monitor, argTypes, argValues, keyArgValues);
 		}
+	}
+	
+	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue... argValues) {
+		return call(monitor, fun, argTypes, argValues, null);
 	}
 	
 	@Override

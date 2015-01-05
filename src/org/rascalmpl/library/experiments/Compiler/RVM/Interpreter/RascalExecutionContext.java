@@ -4,15 +4,20 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.interpreter.load.RascalURIResolver;
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.uri.URIResolverRegistry;
 
@@ -30,17 +35,34 @@ public class RascalExecutionContext {
 	private final PrintWriter stdout;
 	private final IEvaluatorContext ctx;
 	private final IValueFactory vf;
+	private final TypeStore typeStore;
 	private final boolean debug;
 	private final boolean profile;
+	private final boolean trackCalls;
 	private final ITestResultListener testResultListener;
+	private final IMap symbol_definitions;
+	private RascalURIResolver rascalURIResolver;
 	
-	RascalExecutionContext(IValueFactory vf, boolean debug, boolean profile, IEvaluatorContext ctx, ITestResultListener testResultListener){
+	private String currentModuleName;
+	//private ILocationCollector locationReporter;
+	private RVM rvm;
+	private boolean coverage;
+	
+	RascalExecutionContext(IValueFactory vf, IMap symbol_definitions, boolean debug, boolean profile, boolean trackCalls, boolean coverage, IEvaluatorContext ctx, ITestResultListener testResultListener){
 		
 		this.vf = vf;
+		this.symbol_definitions = symbol_definitions;
+		this.typeStore = new TypeStore();
 		this.debug = debug;
 		this.profile = profile;
+		this.coverage = coverage;
+		this.trackCalls = trackCalls;
+		
+		currentModuleName = "UNDEFINED";
 		
 		resolverRegistry = ctx.getResolverRegistry();
+		rascalURIResolver = new RascalURIResolver(resolverRegistry);
+		rascalURIResolver.addPathContributor(StandardLibraryContributor.getInstance());
 		monitor = ctx.getEvaluator().getMonitor();
 		stdout = ctx.getEvaluator().getStdOut();
 		stderr = ctx.getEvaluator().getStdErr();
@@ -52,17 +74,31 @@ public class RascalExecutionContext {
 
 	IValueFactory getValueFactory(){ return vf; }
 	
+	public IMap getSymbolDefinitions() { return symbol_definitions; }
+	
+	public TypeStore getTypeStore() { return typeStore; }
+	
 	boolean getDebug() { return debug; }
 	
 	boolean getProfile(){ return profile; }
 	
-	URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
+	boolean getCoverage(){ return coverage; }
+	
+	boolean getTrackCalls() { return trackCalls; }
+	
+	public RVM getRVM(){ return rvm; }
+	
+	void setRVM(RVM rvm){ this.rvm = rvm; }
+	
+	public URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
+	
+	public RascalURIResolver getRascalResolver() { return rascalURIResolver; }
 	
 	IRascalMonitor getMonitor() {return monitor;}
 	
-	PrintWriter getStdErr() { return stderr; }
+	public PrintWriter getStdErr() { return stderr; }
 	
-	PrintWriter getStdOut() { return stdout; }
+	public PrintWriter getStdOut() { return stdout; }
 	
 	Configuration getConfiguration() { return config; }
 	
@@ -71,6 +107,51 @@ public class RascalExecutionContext {
 	IEvaluatorContext getEvaluatorContext() { return ctx; }
 	
 	ITestResultListener getTestResultListener() { return testResultListener; }
+	
+	public String getCurrentModuleName(){ return currentModuleName; }
+	
+	void setCurrentModuleName(String moduleName) { currentModuleName = moduleName; }
+	
+	public int endJob(boolean succeeded) {
+		if (monitor != null)
+			return monitor.endJob(succeeded);
+		return 0;
+	}
+	
+	public void event(int inc) {
+		if (monitor != null)
+			monitor.event(inc);
+	}
+	
+	public void event(String name, int inc) {
+		if (monitor != null)
+			monitor.event(name, inc);
+	}
+
+	public void event(String name) {
+		if (monitor != null)
+			monitor.event(name);
+	}
+
+	public void startJob(String name, int workShare, int totalWork) {
+		if (monitor != null)
+			monitor.startJob(name, workShare, totalWork);
+	}
+	
+	public void startJob(String name, int totalWork) {
+		if (monitor != null)
+			monitor.startJob(name, totalWork);
+	}
+	
+	public void startJob(String name) {
+		if (monitor != null)
+			monitor.startJob(name);
+	}
+		
+	public void todo(int work) {
+		if (monitor != null)
+			monitor.todo(work);
+	}
 
 	/**
 	 * Source location resolvers map user defined schemes to primitive schemes

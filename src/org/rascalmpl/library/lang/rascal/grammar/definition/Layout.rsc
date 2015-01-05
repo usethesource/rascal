@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -9,7 +9,6 @@
 module lang::rascal::grammar::definition::Layout
 
 import lang::rascal::\syntax::Rascal;
-import lang::rascal::grammar::definition::Modules;
 import Grammar;
 import ParseTree;
 import List;
@@ -66,8 +65,8 @@ public Grammar \layouts(Grammar g, Symbol l) {
   
   // Note that if a user manually put a layouts symbol, then this code makes sure not to override it and
   // not to surround it with new layout symbols  
-  while ([*pre, sym1, sym2, *post] := syms, !(sym1 is layouts), !(sym2 is layouts)) {
-      syms = [*pre, sym1, l, sym2, *post];
+  while ([*pre, sym1, sym2, *pst] := syms, !(sym1 is layouts), !(sym2 is layouts)) {
+      syms = [*pre, sym1, l, sym2, *pst];
   }
   
   return syms;

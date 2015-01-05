@@ -1,6 +1,6 @@
  module lang::rascal::tests::library::SetTests
   /*******************************************************************************
-   * Copyright (c) 2009-2011 CWI
+   * Copyright (c) 2009-2015 CWI
    * All rights reserved. This program and the accompanying materials
    * are made available under the terms of the Eclipse Public License v1.0
    * which accompanies this distribution, and is available at
@@ -77,15 +77,16 @@ test bool size4()  = Set::size({1,2,3}) == 3;
   
 // sum	
   
-test bool sum1()  = sum({}) == 0;
+test bool sum1()  = sum({0}) == 0;
 test bool sum2()  = sum({1}) == 1;
 test bool sum3()  = sum({1,2}) == 3;
 test bool sum4()  = sum({1,2,3}) == 6;
   
 // takeOneFrom
-  
-test bool takeOneFrom1() {<E, SI> = Set::takeOneFrom({1}); return (E == 1) && (SI == {}) ;}
-test bool takeOneFrom2() {<E, SI> = Set::takeOneFrom({1,2}); return ((E == 1) && (SI == {2})) || ((E == 2) && (SI == {1}));}
+
+// TODO: rename E1 back to E  
+test bool takeOneFrom1() {<E1, SI> = Set::takeOneFrom({1}); return (E1 == 1) && (SI == {}) ;}
+test bool takeOneFrom2() {<E1, SI> = Set::takeOneFrom({1,2}); return ((E1 == 1) && (SI == {2})) || ((E1 == 2) && (SI == {1}));}
           
 @expected{EmptySet}
 test bool takeOneFromError1() {

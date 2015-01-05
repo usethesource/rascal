@@ -203,7 +203,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 		return matchedEntries.toArray(listedEntries);
 	}
 	
-	public String scheme(){
+	public String scheme() {
 		return "jar";
 	}
 

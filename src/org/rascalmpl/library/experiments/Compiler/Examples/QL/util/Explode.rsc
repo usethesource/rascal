@@ -46,7 +46,7 @@ Tree value2tree(Symbol x, value v, map[Symbol, Production] defs) {
 }
 
 
-Tree list2regular(iter:\iter-star-seps(s, seps), list[value] vs, map[Symbol, Production] defs) {
+Tree list2regular(iters:\iter-star-seps(s, seps), list[value] vs, map[Symbol, Production] defs) {
   //println("values = <vs>");
   int last = size(vs) - 1;
   i = 0;
@@ -63,7 +63,7 @@ Tree list2regular(iter:\iter-star-seps(s, seps), list[value] vs, map[Symbol, Pro
      }
      i += 1;
   }
-  return appl(regular(iter), as);
+  return appl(regular(iters), as);
 }
 
 Tree value2tree(Production p, node ast, map[Symbol, Production] defs) 

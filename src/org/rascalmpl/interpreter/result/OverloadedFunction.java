@@ -16,7 +16,6 @@
 package org.rascalmpl.interpreter.result;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -72,13 +71,13 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override
-	public Type getKeywordArgumentTypes() {
+	public Type getKeywordArgumentTypes(Environment scope) {
 	  ArrayList<String> labels = new ArrayList<>();
 	  ArrayList<Type> types = new ArrayList<>();
 	  // TODO: I am not sure this is what we want. Double names will end up twice in the tuple type...
 	  
 	  for (AbstractFunction c : primaryCandidates) {
-	    Type args = c.getKeywordArgumentTypes();
+	    Type args = c.getKeywordArgumentTypes(scope);
 	    
 	    if (args != null && args.hasFieldNames()) {
 	    	for (String label : args.getFieldNames()) {
@@ -89,7 +88,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	  }
 	  
 	  for (AbstractFunction c : defaultCandidates) {
-		  Type args = c.getKeywordArgumentTypes();
+		  Type args = c.getKeywordArgumentTypes(scope);
 
 		  if (args != null && args.hasFieldNames()) {
 			  for (String label : args.getFieldNames()) {
@@ -275,7 +274,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override
-	public boolean hasKeywordArgs() {
+	public boolean hasKeywordArguments() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -355,7 +354,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		for (AbstractFunction candidate : candidates) {
 			if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
 					|| candidate.getArity() == argValues.length
-					|| candidate.hasKeywordArgs()) {
+					|| candidate.hasKeywordArguments()) {
 				try {
 					return candidate.call(argTypes, argValues, keyArgValues);
 				}

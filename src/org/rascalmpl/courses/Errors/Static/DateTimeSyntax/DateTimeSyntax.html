@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Errors/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Errors/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,10 +48,10 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
+
+
+
+
 <div id="Description">
 <span class="sectionHead">Description</span>  datetime values have a rather complex format as described in <a href="/Rascal/Expressions/Values/DateTime/DateTime.html">Rascal:DateTime</a>.
  Some errors in the format are treated as syntax errors, others generate the DateTimeSyntax error.
@@ -62,23 +62,23 @@
 
 </div>
 
-  	                       
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  A correct datetime value:
  <pre class="screen"><span class="prompt">rascal></span>$2013-07-15T09:15:23.123+03:00
-datetime: $2013-07-15T09:15:23.123+03:00
+
 </pre> Certain errors, like a wrong day number (here: 40) lead to a parse error:
  <pre class="screen"><span class="prompt">rascal></span>$2013-07-40T09:15:23.123+03:00;
                  ^ Parse error here
 </pre> Others, like a wrong month number (here: 15) lead to a DateTimeSyntax error:
 <pre class="screen"><span class="prompt">rascal></span>$2010-15-15T09:15:23.123+03:00;
-|stdin:///|(0,30,&lt;1,0>,&lt;1,30>): Invalid datetime input: Cannot create datetime with provided values.
+
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Errors/Static/DateTimeSyntax&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Errors/Static/DateTimeSyntax&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Errors"><b>Recompile Course</b></a>] |

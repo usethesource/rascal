@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -7,12 +7,11 @@
 }
 module vis::examples::New
 
+import Prelude;
+import util::Math;
+
 import vis::Figure;
 import vis::Render;
-import Real;
-import util::Math;
-import List;
-
 
 public void overlay1(){
 	render(overlay([
@@ -25,8 +24,8 @@ public void overlay1(){
 public void overlay2(){
 	render(overlay([
 		box(fillColor("red")),
-		box(fillColor("green"),shrink(0.6),left()),
-		box(fillColor("orange"),shrink(0.3),right(),bottom())
+		box(fillColor("green"),shrink(0.6),vis::Figure::left()),
+		box(fillColor("orange"),shrink(0.3),vis::Figure::right(),bottom())
 	],shrink(0.9)));
 }
 
@@ -113,8 +112,8 @@ public void frenchFlag(){
 
 public void vennDiagram(){
 	render(overlay([
-		ellipse(text("A"),left(),top(),shrink(0.6),fillColor(color("red",0.6))),
-		ellipse(text("B"),right(),top(),shrink(0.6),fillColor(color("green",0.6))),
+		ellipse(text("A"),vis::Figure::left(),top(),shrink(0.6),fillColor(color("red",0.6))),
+		ellipse(text("B"),vis::Figure::right(),top(),shrink(0.6),fillColor(color("green",0.6))),
 		ellipse(text("C"),bottom(),shrink(0.6),fillColor(color("blue",0.6)))
 		]));
 }

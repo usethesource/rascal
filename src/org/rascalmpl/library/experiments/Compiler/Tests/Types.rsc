@@ -33,8 +33,8 @@ test bool tst6() {
 	type[value] v1 = typeCast(#type[value], run3());
 	type[value] v2 = getStatementType();
 	
-	alts1 = { alt | /alt:Production::prod(_,_,_) <- v1.definitions[sort("Statement")].alternatives };
-	alts2 = { alt | /alt:Production::prod(_,_,_) <- v2.definitions[sort("Statement")].alternatives };
+	set[Production] alts1 = { a | /a:Production::prod(_,_,_) <- v1.definitions[sort("Statement")].alternatives };
+	set[Production] alts2 = { a | /a:Production::prod(_,_,_) <- v2.definitions[sort("Statement")].alternatives };
 	
 	set[Production] common = alts1 & alts2;
 	println(size(common));
@@ -61,8 +61,8 @@ test bool tst8() {
 	type[value] v1 = typeCast(#type[value], run5());
 	type[value] v2 = getModuleType();
 	
-	alts1 = { alt | /alt:Production::prod(_,_,_) <- v1.definitions };
-	alts2 = { alt | /alt:Production::prod(_,_,_) <- v2.definitions };
+	alts1 = { a | /a:Production::prod(_,_,_) <- v1.definitions };
+	alts2 = { a | /a:Production::prod(_,_,_) <- v2.definitions };
 	
 	set[Production] common = alts1 & alts2;
 	println(size(common));

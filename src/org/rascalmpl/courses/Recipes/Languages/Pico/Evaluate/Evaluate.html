@@ -34,7 +34,7 @@
     <div id="popups"></div>
   </form>
 </div>
-         </td></tr><tr><td id="tdnav">
+</td></tr><tr><td id="tdnav">
 <a id="navPanePlaceHolder" href="/Recipes/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Recipes/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
@@ -48,11 +48,11 @@
 
 </div>
 
-	                       
-                           
-                           
-                           
-  	                       
+
+
+
+
+
 <div id="Examples">
 <span class="sectionHead">Examples</span>  A complete evaluator (interpreter) for Pico is defined below.
  <pre class="listing">module demo::lang::Pico::Eval
@@ -123,7 +123,7 @@ VENV evalStats(list[STATEMENT] Stats1, VENV env) {
 // Eval declarations
 
 VENV evalDecls(list[DECL] Decls) =
-    ( Id : (tp == natural() ? natval(0) : strval(""))  | decl(PicoId Id, TYPE tp) &lt;- Decls);
+    ( Id : (tp == demo::lang::Pico::Abstract::natural() ? natval(0) : strval(""))  | decl(PicoId Id, TYPE tp) &lt;- Decls);
 
 // Evaluate a Pico program
 
@@ -149,15 +149,15 @@ public VENV evalProgram(str txt) = evalProgram(load(txt));
 ok
 <span class="prompt">rascal></span>evalProgram(&quot;begin declare x : natural, y : natural; x := 1; y := x + 5 end&quot;);
 VENV: (
-  "y":natval(6),
-  "x":natval(1)
+  "x":natval(1),
+  "y":natval(6)
 )
 </pre>
 </div>
 
-  	                       
-  	                       
-  	                       
+
+
+
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Pico/Evaluate&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Pico/Evaluate&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
