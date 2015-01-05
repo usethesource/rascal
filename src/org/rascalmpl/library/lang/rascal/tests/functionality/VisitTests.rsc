@@ -1,7 +1,7 @@
 module lang::rascal::tests::functionality::VisitTests
 
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -300,5 +300,5 @@ test bool StringVisit67() = TDCntAB("abcabca") == <3, 20>;
 data RECT = rect(int w, int h, str color = "white");
 
 test bool KeywordVisit1()=visit("f"(1, kw1="abc", kw2=13)){ case 1 => 10 case "abc" => "def" case 13 => 14} == "f"(10, kw1="def", kw2=14);
-test bool KeywordVisit2()=visit(rect(10,20)){ case "white" => "red"} == rect(10, 20, color="red");
+test bool KeywordVisit2()=visit(rect(10,20,color="white")){ case "white" => "red"} == rect(10, 20, color="red");
 

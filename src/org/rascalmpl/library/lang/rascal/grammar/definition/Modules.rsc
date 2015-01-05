@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -27,13 +27,13 @@ public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, s
                                     syntax2grammar(mods[m].defs)
                                     ) 
                           | m <- mods));
-  return fuse(layouts(resolve(def)));
+  return resolve(fuse(layouts(def)));
 }
 
 @memo
 @doc{Converts concrete syntax definitions and fuses them into one single grammar definition}     
 public Grammar modules2grammar(str main, set[Module] modules) {
-  return fuse(layouts(resolve(modules2definition(main, modules))));
+  return resolve(fuse(layouts(modules2definition(main, modules))));
 }
 
 @doc{Converts concrete syntax definitions to abstract grammar definitions}

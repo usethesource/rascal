@@ -81,7 +81,7 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 479 + 281 * optionalComma.hashCode() + 271 * keywordArgumentList.hashCode() ; 
+      return 631 + 907 * optionalComma.hashCode() + 151 * keywordArgumentList.hashCode() ; 
     } 
   
     
@@ -139,7 +139,7 @@ public abstract class KeywordArguments_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 149 ; 
+      return 47 ; 
     } 
   
     	

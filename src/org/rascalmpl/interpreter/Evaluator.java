@@ -573,7 +573,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       if (main.getArity() == 1) {
         return func.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parsePlainCommandLineArgs(commandline)}, null).getValue();
       }
-      else if (main.hasKeywordArgs() && main.getArity() == 0) {
+      else if (main.hasKeywordArguments() && main.getArity() == 0) {
         Map<String, IValue> args = parseKeywordCommandLineArgs(monitor, commandline, main);
         return func.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
       }
@@ -597,7 +597,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
   public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
     Map<String, Type> expectedTypes = new HashMap<String,Type>();
-    Type kwTypes = func.getKeywordArgumentTypes();
+    Type kwTypes = func.getKeywordArgumentTypes(getCurrentEnvt());
     
     for (String kwp : kwTypes.getFieldNames()) {
       expectedTypes.put(kwp, kwTypes.getFieldType(kwp));
@@ -817,20 +817,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor getGrammar(Environment env) {
 		ModuleEnvironment root = (ModuleEnvironment) env.getRoot();
 		return getParserGenerator().getGrammar(monitor, root.getName(), root.getSyntaxDefinition());
-	}
-	
-	@Override
-	public IConstructor getGrammar(IRascalMonitor monitor, URI uri) {
-		IRascalMonitor old = setMonitor(monitor);
-		try {
-			ParserGenerator pgen = getParserGenerator();
-			String main = uri.getAuthority();
-			ModuleEnvironment env = getHeap().getModule(main);
-			return pgen.getGrammar(monitor, main, env.getSyntaxDefinition());
-		}
-		finally {
-			setMonitor(old);
-		}
 	}
 	
 	public IValue diagnoseAmbiguity(IRascalMonitor monitor, IConstructor parseTree) {

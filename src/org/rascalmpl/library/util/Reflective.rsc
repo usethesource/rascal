@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -15,17 +15,12 @@ module util::Reflective
 import Exception;
 import Message;
 import ParseTree;
-import Grammar;
 import IO;
 
 public Tree getModuleParseTree(str modulePath) {
     mloc = getModuleLocation(modulePath);
     return parseModule(mloc);
 }
-
-@javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to get back the grammars imported by \mod}
-public java Grammar getModuleGrammar(loc \mod);
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to get back the parse tree for the given command}

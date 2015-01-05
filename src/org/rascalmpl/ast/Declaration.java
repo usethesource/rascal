@@ -169,7 +169,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 677 + 5 * tags.hashCode() + 877 * visibility.hashCode() + 463 * user.hashCode() + 631 * base.hashCode() ; 
+      return 739 + 401 * tags.hashCode() + 313 * visibility.hashCode() + 829 * user.hashCode() + 641 * base.hashCode() ; 
     } 
   
     
@@ -255,7 +255,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 7 + 229 * tags.hashCode() + 293 * visibility.hashCode() + 421 * annoType.hashCode() + 277 * onType.hashCode() + 113 * name.hashCode() ; 
+      return 997 + 47 * tags.hashCode() + 653 * visibility.hashCode() + 193 * annoType.hashCode() + 811 * onType.hashCode() + 541 * name.hashCode() ; 
     } 
   
     
@@ -350,7 +350,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 433 + 953 * tags.hashCode() + 283 * visibility.hashCode() + 487 * user.hashCode() + 71 * commonKeywordParameters.hashCode() + 433 * variants.hashCode() ; 
+      return 163 + 223 * tags.hashCode() + 457 * visibility.hashCode() + 719 * user.hashCode() + 409 * commonKeywordParameters.hashCode() + 109 * variants.hashCode() ; 
     } 
   
     
@@ -405,19 +405,21 @@ public abstract class Declaration extends AbstractAST {
   }
 
   static public class DataAbstract extends Declaration {
-    // Production: sig("DataAbstract",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.UserType","user")])
+    // Production: sig("DataAbstract",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Visibility","visibility"),arg("org.rascalmpl.ast.UserType","user"),arg("org.rascalmpl.ast.CommonKeywordParameters","commonKeywordParameters")])
   
     
     private final org.rascalmpl.ast.Tags tags;
     private final org.rascalmpl.ast.Visibility visibility;
     private final org.rascalmpl.ast.UserType user;
+    private final org.rascalmpl.ast.CommonKeywordParameters commonKeywordParameters;
   
-    public DataAbstract(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user) {
+    public DataAbstract(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Visibility visibility,  org.rascalmpl.ast.UserType user,  org.rascalmpl.ast.CommonKeywordParameters commonKeywordParameters) {
       super(node);
       
       this.tags = tags;
       this.visibility = visibility;
       this.user = user;
+      this.commonKeywordParameters = commonKeywordParameters;
     }
   
     @Override
@@ -436,12 +438,12 @@ public abstract class Declaration extends AbstractAST {
         return false;
       }        
       DataAbstract tmp = (DataAbstract) o;
-      return true && tmp.tags.equals(this.tags) && tmp.visibility.equals(this.visibility) && tmp.user.equals(this.user) ; 
+      return true && tmp.tags.equals(this.tags) && tmp.visibility.equals(this.visibility) && tmp.user.equals(this.user) && tmp.commonKeywordParameters.equals(this.commonKeywordParameters) ; 
     }
    
     @Override
     public int hashCode() {
-      return 641 + 601 * tags.hashCode() + 29 * visibility.hashCode() + 863 * user.hashCode() ; 
+      return 691 + 419 * tags.hashCode() + 83 * visibility.hashCode() + 773 * user.hashCode() + 839 * commonKeywordParameters.hashCode() ; 
     } 
   
     
@@ -470,6 +472,15 @@ public abstract class Declaration extends AbstractAST {
   
     @Override
     public boolean hasUser() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.CommonKeywordParameters getCommonKeywordParameters() {
+      return this.commonKeywordParameters;
+    }
+  
+    @Override
+    public boolean hasCommonKeywordParameters() {
       return true;
     }	
   }
@@ -510,7 +521,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 811 + 181 * functionDeclaration.hashCode() ; 
+      return 941 + 823 * functionDeclaration.hashCode() ; 
     } 
   
     
@@ -569,7 +580,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 263 + 677 * tags.hashCode() + 859 * visibility.hashCode() + 101 * kind.hashCode() + 821 * name.hashCode() + 547 * types.hashCode() ; 
+      return 11 + 379 * tags.hashCode() + 809 * visibility.hashCode() + 277 * kind.hashCode() + 821 * name.hashCode() + 101 * types.hashCode() ; 
     } 
   
     
@@ -662,7 +673,7 @@ public abstract class Declaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 + 197 * tags.hashCode() + 617 * visibility.hashCode() + 349 * type.hashCode() + 397 * variables.hashCode() ; 
+      return 653 + 83 * tags.hashCode() + 191 * visibility.hashCode() + 409 * type.hashCode() + 241 * variables.hashCode() ; 
     } 
   
     
