@@ -688,88 +688,88 @@ Grammar makeUnique(Grammar gr) {
 } 
 
 test bool tstUnique0() = makeUnique(GEMPTY) == grammar(
-  {sort("S",id=2)},
+  {sort("S")},
   ());
   
  test bool tstUnique0() = makeUnique(G0) == grammar(
-  {sort("S",id=2)},
+  {sort("S")},
   (
-    sort("S",id=3):choice(
-      sort("S",id=4),
+    sort("S"):choice(
+      sort("S",id=2),
       {prod(
-          sort("S",id=5),
-          [lit("0",id=6)],
+          sort("S",id=3),
+          [lit("0",id=4)],
           {})}),
-    lit("0",id=7):choice(
-      lit("0",id=8),
+    lit("0"):choice(
+      lit("0",id=5),
       {prod(
-          lit("0",id=9),
+          lit("0",id=6),
           [\char-class([range(48,48)],id=10)],
           {})})
   ));
   
 test bool tstUnique1() = makeUnique(GEXP)== grammar(
-  {sort("E",id=2)},
+  {sort("E")},
   (
-    lit("+",id=3):choice(
-      lit("+",id=4),
+    lit("+"):choice(
+      lit("+",id=2),
       {prod(
-          lit("+",id=5),
-          [\char-class([range(43,43)],id=6)],
+          lit("+",id=3),
+          [\char-class([range(43,43)],id=4)],
           {})}),
-    lit("*",id=7):choice(
-      lit("*",id=8),
+    lit("*"):choice(
+      lit("*",id=5),
       {prod(
-          lit("*",id=9),
-          [\char-class([range(42,42)],id=10)],
+          lit("*",id=6),
+          [\char-class([range(42,42)],id=7)],
           {})}),
-    sort("B",id=11):choice(
-      sort("B",id=12),
+    sort("B"):choice(
+      sort("B",id=8),
       {
         prod(
-          sort("B",id=13),
-          [lit("0",id=14)],
+          sort("B",id=9),
+          [lit("0",id=10)],
           {}),
         prod(
-          sort("B",id=15),
-          [lit("1",id=16)],
+          sort("B",id=11),
+          [lit("1",id=12)],
           {})
       }),
-    lit("0",id=17):choice(
-      lit("0",id=18),
+    lit("0"):choice(
+      lit("0",id=13),
       {prod(
-          lit("0",id=19),
-          [\char-class([range(48,48)],id=20)],
+          lit("0",id=14),
+          [\char-class([range(48,48)],id=15)],
           {})}),
-    sort("E",id=21):choice(
-      sort("E",id=22),
+    sort("E"):choice(
+      sort("E",id=16),
       {
+        prod(
+          sort("E",id=17),
+          [sort("B",id=18)],
+          {}),
+        prod(
+          sort("E",id=19),
+          [
+            sort("E",id=20),
+            lit("+",id=21),
+            sort("B",id=22)
+          ],
+          {}),
         prod(
           sort("E",id=23),
-          [sort("B",id=24)],
-          {}),
-        prod(
-          sort("E",id=25),
           [
-            sort("E",id=26),
-            lit("+",id=27),
-            sort("B",id=28)
-          ],
-          {}),
-        prod(
-          sort("E",id=29),
-          [
-            sort("E",id=30),
-            lit("*",id=31),
-            sort("B",id=32)
+            sort("E",id=24),
+            lit("*",id=25),
+            sort("B",id=26)
           ],
           {})
       }),
-    lit("1",id=33):choice(
-      lit("1",id=34),
+    lit("1"):choice(
+      lit("1",id=27),
       {prod(
-          lit("1",id=35),
-          [\char-class([range(49,49)],id=36)],
+          lit("1",id=28),
+          [\char-class([range(49,49)],id=29)],
           {})})
   ));
 

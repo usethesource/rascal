@@ -139,18 +139,18 @@ public class GEXPPRIOParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor
     protected static final void _init_prod__$MetaHole_E__char_class___range__0_0_lit___115_111_114_116_40_34_69_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__E(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new ListStackNode<IConstructor>(110, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(109, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(107, 1, prod__lit___115_111_114_116_40_34_69_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__69_69_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,69,34,41}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(106, 0, new int[][]{{0,0}}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(111, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(108, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(98, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(97, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(95, 1, prod__lit___115_111_114_116_40_34_69_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__69_69_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,69,34,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(94, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(99, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(96, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
       builder.addAlternative(GEXPPRIOParser.prod__$MetaHole_E__char_class___range__0_0_lit___115_111_114_116_40_34_69_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__E, tmp);
 	}
     protected static final void _init_prod__E__T_E1_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
       
-      tmp[1] = new NonTerminalStackNode<IConstructor>(103, 1, "E1", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(102, 0, "T", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(91, 1, "E1", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(90, 0, "T", null, null);
       builder.addAlternative(GEXPPRIOParser.prod__E__T_E1_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -173,25 +173,25 @@ public class GEXPPRIOParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor
     protected static final void _init_prod__$MetaHole_E1__char_class___range__0_0_lit___115_111_114_116_40_34_69_49_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__E1(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[0] = new CharStackNode<IConstructor>(59, 0, new int[][]{{0,0}}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(64, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(61, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(63, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(62, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(60, 1, prod__lit___115_111_114_116_40_34_69_49_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__69_69_char_class___range__49_49_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,69,49,34,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(52, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(57, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(54, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(56, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(55, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(53, 1, prod__lit___115_111_114_116_40_34_69_49_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__69_69_char_class___range__49_49_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,69,49,34,41}, null, null);
       builder.addAlternative(GEXPPRIOParser.prod__$MetaHole_E1__char_class___range__0_0_lit___115_111_114_116_40_34_69_49_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__E1, tmp);
 	}
     protected static final void _init_prod__E1__(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new EpsilonStackNode<IConstructor>(52, 0);
+      tmp[0] = new EpsilonStackNode<IConstructor>(45, 0);
       builder.addAlternative(GEXPPRIOParser.prod__E1__, tmp);
 	}
     protected static final void _init_prod__E1__lit___43_T_E1_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(54, 0, prod__lit___43__char_class___range__43_43_, new int[] {43}, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(56, 2, "E1", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(55, 1, "T", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(47, 0, prod__lit___43__char_class___range__43_43_, new int[] {43}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(49, 2, "E1", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(48, 1, "T", null, null);
       builder.addAlternative(GEXPPRIOParser.prod__E1__lit___43_T_E1_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -216,44 +216,44 @@ public class GEXPPRIOParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor
     protected static final void _init_prod__$MetaHole_F__char_class___range__0_0_lit___115_111_114_116_40_34_70_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__F(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[0] = new CharStackNode<IConstructor>(123, 0, new int[][]{{0,0}}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(128, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(125, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(124, 1, prod__lit___115_111_114_116_40_34_70_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__70_70_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,70,34,41}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(127, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(126, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(110, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(115, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(112, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(111, 1, prod__lit___115_111_114_116_40_34_70_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__70_70_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,70,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(114, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(113, 0, new int[][]{{48,57}}, null, null), true, null, null);
       builder.addAlternative(GEXPPRIOParser.prod__$MetaHole_F__char_class___range__0_0_lit___115_111_114_116_40_34_70_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__F, tmp);
+	}
+    protected static final void _init_prod__F__lit___40_E_lit___41_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
+      
+      tmp[2] = new LiteralStackNode<IConstructor>(105, 2, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(103, 0, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(104, 1, "E", null, null);
+      builder.addAlternative(GEXPPRIOParser.prod__F__lit___40_E_lit___41_, tmp);
 	}
     protected static final void _init_prod__F__lit_id_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(120, 0, prod__lit_id__char_class___range__105_105_char_class___range__100_100_, new int[] {105,100}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(107, 0, prod__lit_id__char_class___range__105_105_char_class___range__100_100_, new int[] {105,100}, null, null);
       builder.addAlternative(GEXPPRIOParser.prod__F__lit_id_, tmp);
 	}
     protected static final void _init_prod__F__lit___42_F_T1_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode<IConstructor>(135, 2, "T1", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(134, 1, "F", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(133, 0, prod__lit___42__char_class___range__42_42_, new int[] {42}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(121, 2, "T1", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(120, 1, "F", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(119, 0, prod__lit___42__char_class___range__42_42_, new int[] {42}, null, null);
       builder.addAlternative(GEXPPRIOParser.prod__F__lit___42_F_T1_, tmp);
-	}
-    protected static final void _init_prod__F__lit___40_E_lit___41_(ExpectBuilder<IConstructor> builder) {
-      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
-      
-      tmp[2] = new LiteralStackNode<IConstructor>(118, 2, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(116, 0, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(117, 1, "E", null, null);
-      builder.addAlternative(GEXPPRIOParser.prod__F__lit___40_E_lit___41_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
       
         _init_prod__$MetaHole_F__char_class___range__0_0_lit___115_111_114_116_40_34_70_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__F(builder);
       
+        _init_prod__F__lit___40_E_lit___41_(builder);
+      
         _init_prod__F__lit_id_(builder);
       
         _init_prod__F__lit___42_F_T1_(builder);
-      
-        _init_prod__F__lit___40_E_lit___41_(builder);
       
     }
   }
@@ -269,18 +269,18 @@ public class GEXPPRIOParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor
     protected static final void _init_prod__$MetaHole_T__char_class___range__0_0_lit___115_111_114_116_40_34_84_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__T(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[1] = new LiteralStackNode<IConstructor>(16, 1, prod__lit___115_111_114_116_40_34_84_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__84_84_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,84,34,41}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(17, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(20, 4, new int[][]{{0,0}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(15, 0, new int[][]{{0,0}}, null, null);
-      tmp[3] = new ListStackNode<IConstructor>(19, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(18, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(12, 1, prod__lit___115_111_114_116_40_34_84_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__84_84_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,84,34,41}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(13, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(16, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(11, 0, new int[][]{{0,0}}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(14, 0, new int[][]{{48,57}}, null, null), true, null, null);
       builder.addAlternative(GEXPPRIOParser.prod__$MetaHole_T__char_class___range__0_0_lit___115_111_114_116_40_34_84_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__T, tmp);
 	}
     protected static final void _init_prod__T__F_T1_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(23, 0, "F", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(24, 1, "T1", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(19, 0, "F", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(20, 1, "T1", null, null);
       builder.addAlternative(GEXPPRIOParser.prod__T__F_T1_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -303,17 +303,17 @@ public class GEXPPRIOParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor
     protected static final void _init_prod__$MetaHole_T1__char_class___range__0_0_lit___115_111_114_116_40_34_84_49_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__T1(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[3] = new ListStackNode<IConstructor>(142, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(141, 0, new int[][]{{48,57}}, null, null), true, null, null);
-      tmp[1] = new LiteralStackNode<IConstructor>(139, 1, prod__lit___115_111_114_116_40_34_84_49_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__84_84_char_class___range__49_49_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,84,49,34,41}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(138, 0, new int[][]{{0,0}}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(143, 4, new int[][]{{0,0}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(140, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(128, 3, regular__iter__char_class___range__48_57, new CharStackNode<IConstructor>(127, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(125, 1, prod__lit___115_111_114_116_40_34_84_49_34_41__char_class___range__115_115_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_char_class___range__40_40_char_class___range__34_34_char_class___range__84_84_char_class___range__49_49_char_class___range__34_34_char_class___range__41_41_, new int[] {115,111,114,116,40,34,84,49,34,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(124, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(129, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(126, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
       builder.addAlternative(GEXPPRIOParser.prod__$MetaHole_T1__char_class___range__0_0_lit___115_111_114_116_40_34_84_49_34_41_lit___58_iter__char_class___range__48_57_char_class___range__0_0__tag__holeType__T1, tmp);
 	}
     protected static final void _init_prod__T1__(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new EpsilonStackNode<IConstructor>(145, 0);
+      tmp[0] = new EpsilonStackNode<IConstructor>(131, 0);
       builder.addAlternative(GEXPPRIOParser.prod__T1__, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
