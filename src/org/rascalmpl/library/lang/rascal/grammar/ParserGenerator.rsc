@@ -495,10 +495,10 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
             throw "All parameters should have been instantiated by now: <sym>";
         case \start(s) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \lit(l) : {iprintln(grammar.rules);
+        case \lit(l) : 
             if (/p:prod(lit(l,id=_),list[Symbol] chars,_) := grammar.rules[getType(sym)])
                 return <"new LiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
-            else throw "literal not found in grammar: <grammar>";}
+            else throw "literal not found in grammar: <grammar>";
         case \cilit(l) : 
             if (/p:prod(cilit(l,id=_),list[Symbol] chars,_) := grammar.rules[getType(sym)])
                 return <"new CaseInsensitiveLiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
