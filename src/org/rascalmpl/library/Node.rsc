@@ -124,6 +124,7 @@ public java map[str,value] getKeywordParameters(node T);
 Synopsis: translates a map to keyword parameters given a type context which allows this.
 }
 @javaClass{org.rascalmpl.library.Prelude}
+@reflect{to generate warnings}
 public java &T <: node setKeywordParameters(type[&T] context, &T <: node n, map[str,value] parameters);
 
 public node setKeywordParameters(node n, map[str, value] params)

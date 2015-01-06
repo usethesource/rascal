@@ -92,15 +92,15 @@ private value compose(value v1, value v2) { throw "can\'t compose non-collection
 	Generic function to compose the annotations of a set of M3s.
 }
 @memo
-M3 composeM3(loc id, set[M3] models)
+M3 composeM3(type[M3] context, loc id, set[M3] models)
 {
-	set[str] allAnnoNames = { *domain(getAnnotations(m)) | m <- models };
+	set[str] allAnnoNames = { *domain(getKeywordParameters(m)) | m <- models };
 
 	map[str, value] allAnnos = ();
 
 	for (m <- models)
 	{
-		annos = getAnnotations(m);
+		annos = getKeywordParameters(m);
 
 		for (name <- allAnnoNames, name in annos)
 		{
@@ -120,7 +120,7 @@ M3 composeM3(loc id, set[M3] models)
 		}
 	}
 
-	return setAnnotations(m3(id), allAnnos);
+	return setKeywordParameters(context, m3(id), allAnnos);
 }
 
 bool isEmpty(M3 model) = model.id.scheme == "unknown";

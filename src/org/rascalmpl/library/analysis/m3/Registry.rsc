@@ -73,24 +73,24 @@ loc resolveM3(loc name) {
   str project = name.authority;
   if (isEmpty(project)) {
     for (proj <- projects) {
-      if (<name, src> <- projects[proj]@declarations) {
+      if (<name, src> <- projects[proj].declarations) {
         return src;
       }
     }
     // lets try again with our parent, maybe someone has been messing with the locations
     name = name.parent;
     for (proj <- projects) {
-      if (<name, src> <- projects[proj]@declarations) {
+      if (<name, src> <- projects[proj].declarations) {
         return src;
       }
     }
   } else {
-    if (<name, src> <- projects[name[path=""]]@declarations) { 
+    if (<name, src> <- projects[name[path=""]].declarations) { 
       return src;
     }
     // lets try again with our parent, maybe someone has been messing with the locations
     name = name.parent;
-    if (<name, src> <- projects[name[path=""]]@declarations) { 
+    if (<name, src> <- projects[name[path=""]].declarations) { 
       return src;
     }
   }

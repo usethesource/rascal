@@ -2176,7 +2176,7 @@ public class Prelude {
 		return node.asAnnotatable().setAnnotations(map);
 	}
 	
-	public INode setKeywordParameters(IValue context, INode node, IMap parameters) {
+	public INode setKeywordParameters(IValue context, INode node, IMap parameters, IEvaluatorContext ctx) {
 		TypeReifier tr = new TypeReifier(values);
 		Map<String,IValue> map = new HashMap<>();
 		TypeStore store = new TypeStore();
@@ -2193,10 +2193,12 @@ public class Prelude {
 			IValue value = parameters.get(key);
 			if (formals != null) {
 				if (!formals.containsKey(label)) {
-					throw RuntimeExceptionFactory.noSuchField(label, null, null);
+					ctx.warning("ignoring undeclared keyword parameter " + label, ctx.getCurrentAST().getLocation());
+					continue;
 				}
-				if (!value.getType().isSubtypeOf(formals.get(label))) {
-					throw RuntimeExceptionFactory.illegalArgument(value, null, null, "keyword parameter type does not fit declaration of " + formals.get(label) + " " + label);
+				else if (!value.getType().isSubtypeOf(formals.get(label))) {
+					ctx.warning("ignoring keyword parameter " + label + ", because the value type (" + value.getType() + ") does not fit its declared type (" + formals.get(label) + ")", ctx.getCurrentAST().getLocation());
+					continue;
 				}
 			}
 			
