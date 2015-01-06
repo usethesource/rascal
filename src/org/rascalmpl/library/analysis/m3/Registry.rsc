@@ -52,7 +52,7 @@ void unregisterProject(loc project) {
 
 M3 getModelContaining(loc entity) {
   for (proj <- projects) {
-    if (<entity, _> <- projects[proj]@declarations) {
+    if (<entity, _> <- projects[proj].declarations) {
       return projects[proj];
     }
   }

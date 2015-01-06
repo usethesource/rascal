@@ -66,20 +66,20 @@ public abstract class M3Converter extends JavaToRascalConverter {
 	
 	public IValue getModel(boolean insertErrors) {
 		ownValue = values.constructor(CONSTRUCTOR_M3, loc);
-		setAnnotation("declarations", declarations.done());
-		setAnnotation("uses", uses.done());
-		setAnnotation("containment", containment.done());
-		setAnnotation("extends", extendsRelations.done());
-		setAnnotation("implements", implementsRelations.done());
-		setAnnotation("methodInvocation", methodInvocation.done());
-		setAnnotation("modifiers", modifiers.done());
-		setAnnotation("typeDependency", typeDependency.done());
-		setAnnotation("documentation", documentation.done());
-		setAnnotation("fieldAccess", fieldAccess.done());
-		setAnnotation("names", names.done());
-		setAnnotation("methodOverrides", methodOverrides.done());
-		setAnnotation("types", types.done());
-		setAnnotation("annotations", annotations.done());
+		setParameter("declarations", declarations.done());
+		setParameter("uses", uses.done());
+		setParameter("containment", containment.done());
+		setParameter("extends", extendsRelations.done());
+		setParameter("implements", implementsRelations.done());
+		setParameter("methodInvocation", methodInvocation.done());
+		setParameter("modifiers", modifiers.done());
+		setParameter("typeDependency", typeDependency.done());
+		setParameter("documentation", documentation.done());
+		setParameter("fieldAccess", fieldAccess.done());
+		setParameter("names", names.done());
+		setParameter("methodOverrides", methodOverrides.done());
+		setParameter("types", types.done());
+		setParameter("annotations", annotations.done());
 		insertCompilationUnitMessages(insertErrors, messages.done());
 		return ownValue;
 	}

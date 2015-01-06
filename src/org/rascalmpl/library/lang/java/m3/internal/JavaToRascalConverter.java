@@ -68,10 +68,10 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		this.DATATYPE_RASCAL_AST_DECLARATION_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_DECLARATION_NODE);
 		this.DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_EXPRESSION_NODE);
 		this.DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_STATEMENT_NODE);
-		this.DATATYPE_RASCAL_MESSAGE_DATA_TYPE          = typeStore.lookupAbstractDataType(DATATYPE_RASCAL_MESSAGE);
-		this.DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE    = typeStore.lookupConstructor(DATATYPE_RASCAL_MESSAGE_DATA_TYPE, DATATYPE_RASCAL_MESSAGE_ERROR).iterator().next();
+		JavaToRascalConverter.DATATYPE_RASCAL_MESSAGE_DATA_TYPE          = typeStore.lookupAbstractDataType(DATATYPE_RASCAL_MESSAGE);
+		JavaToRascalConverter.DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE    = typeStore.lookupConstructor(DATATYPE_RASCAL_MESSAGE_DATA_TYPE, DATATYPE_RASCAL_MESSAGE_ERROR).iterator().next();
 
-		messages = values.listWriter(DATATYPE_RASCAL_MESSAGE_DATA_TYPE);
+		messages = values.listWriter();
 	}
 	
 	public void set(CompilationUnit compilUnit) {
@@ -235,23 +235,23 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		return values.constructor(constr, removeNulls(children));
 	}
 	
-	protected void setAnnotation(String annoName, IValue annoValue) {
-		if(this.ownValue == null) {
-      return ;
-    }
-		if (annoValue != null && ownValue.getType().declaresAnnotation(this.typeStore, annoName)) {
-      ownValue = ((IConstructor) ownValue).asAnnotatable().setAnnotation(annoName, annoValue);
-    }
+	protected void setParameter(String annoName, IValue annoValue) {
+		if (this.ownValue == null) {
+			return ;
+		}
+		if (annoValue != null && this.typeStore.getKeywordParameterType(ownValue.getType(), annoName) != null) {
+			ownValue = ((IConstructor) ownValue).asWithKeywordParameters().setParameter(annoName, annoValue);
+		}
 	}
 	
-	protected void setAnnotation(String annoName, IValueList annoList) {
+	protected void setListParameter(String annoName, IValueList annoList) {
 		IList annos = (IList) annoList.asList();
-		if(this.ownValue == null) {
-      return ;
-    }
-		if (annoList != null && this.ownValue.getType().declaresAnnotation(this.typeStore, annoName) && !annos.isEmpty()) {
-      this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annos);
-    }
+		if (this.ownValue == null) {
+			return ;
+		}
+		if (annoList != null && this.typeStore.getKeywordParameterType(ownValue.getType(), annoName) != null && !annos.isEmpty()) {
+			this.ownValue = ((IConstructor) this.ownValue).asWithKeywordParameters().setParameter(annoName, annos);
+		}
 	}
 	
 	protected IValue constructDeclarationNode(String constructor, IValue... children) {
@@ -307,7 +307,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 				result.add(values.constructor(constr, values.string(problems[i].getMessage()), pos));
 			}
 		}
-		setAnnotation("messages", result.asList());
+		setParameter("messages", result.asList());
 	}
 
 	public void insert(IListWriter listW, IValue message) {

@@ -41,24 +41,28 @@ public data \AST(loc file = |unknown:///|)
   | noAST(Message msg)
   ;
 
-data Declaration;
-anno loc             Declaration@src;
-anno loc             Declaration@decl;
-anno TypeSymbol      Declaration@typ;
-anno list[Modifier]  Declaration@modifiers;
-anno list[Message]   Declaration@messages;
+data Declaration(
+  loc src  = |unknown:///|,
+  loc decl = |unknown:///|,
+  TypeSymbol typ  = \any(),
+  list[Modifier] modifiers = [],
+  list[Message] messages  = []
+);
 
-data Statement;
-anno loc Statement@src;
-anno loc Statement@decl;
+data Statement(
+  loc src = |unknown:///|,
+  loc decl = |unknown:///|
+);
 
-data Expression;
-anno loc Expression@src;
-anno loc Expression@decl;
-anno TypeSymbol Expression@typ;
+data Expression(
+  loc src = |unknown:///|,
+  loc decl = |unknown:///|,
+  TypeSymbol typ = \any()
+);
 
-data Type;
-anno loc Type@name;              
-anno TypeSymbol Type@typ;
+data Type(
+  loc name = |unknown:///|,              
+  TypeSymbol typ = \any()
+);
 
 data Modifier;

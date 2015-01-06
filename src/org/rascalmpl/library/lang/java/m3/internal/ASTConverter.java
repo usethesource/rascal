@@ -115,12 +115,12 @@ public class ASTConverter extends JavaToRascalConverter {
 	}
 	
 	public void postVisit(ASTNode node) {
-		setAnnotation("src", getSourceLocation(node));
+		setParameter("src", getSourceLocation(node));
 		ISourceLocation decl = resolveBinding(node);
 		if (!decl.getURI().getScheme().equals("unknown")) {
-		  setAnnotation("decl", decl); 
+		  setParameter("decl", decl); 
 		}
-		setAnnotation("typ", resolveType(node));
+		setParameter("typ", resolveType(node));
 	}
 	
 	private IValue resolveType(ASTNode node) {
@@ -163,7 +163,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		}
 	
 		ownValue = constructDeclarationNode("annotationType", name, bodyDeclarations.asList());
-		setAnnotation("modifiers", extendedModifiers);
+		setListParameter("modifiers", extendedModifiers);
 		return false;
 	}
 	
@@ -175,7 +175,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		
 		IValue defaultBlock = node.getDefault() == null ? null : visitChild(node.getDefault());
 		ownValue = constructDeclarationNode("annotationTypeMember", typeArgument, values.string(name), defaultBlock);
-		setAnnotation("modifiers", extendedModifiers);
+		setListParameter("modifiers", extendedModifiers);
 		return false;
 	}
 	
@@ -339,7 +339,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue anonymousClassDeclaration = node.getAnonymousClassDeclaration() == null ? null : visitChild(node.getAnonymousClassDeclaration());
 		
 		ownValue = constructExpressionNode("newObject", expression, type, arguments.asList(), anonymousClassDeclaration);
-		setAnnotation("typeParameters", genericTypes);
+		setListParameter("typeParameters", genericTypes);
 		return false;
 	}
 	
@@ -391,7 +391,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		}
 		
 		ownValue = constructStatementNode("constructorCall", values.bool(false),  arguments.asList());
-		setAnnotation("typeParameters", types);
+		setListParameter("typeParameters", types);
 		
 		return false;
 	}
@@ -448,7 +448,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue anonymousClassDeclaration = node.getAnonymousClassDeclaration() == null ? null : visitChild(node.getAnonymousClassDeclaration());
 		
 		ownValue = constructDeclarationNode("enumConstant", name, arguments.asList(), anonymousClassDeclaration);
-		setAnnotation("modifiers", extendedModifiers);
+		setListParameter("modifiers", extendedModifiers);
 		return false;
 	}
 	
@@ -480,7 +480,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		}
 	
 		ownValue = constructDeclarationNode("enum", name, implementedInterfaces.asList(), enumConstants.asList(), bodyDeclarations.asList());
-		setAnnotation("modifiers", extendedModifiers);
+		setListParameter("modifiers", extendedModifiers);
 		return false;
 	}
 	
@@ -514,7 +514,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		}
 		
 		ownValue = constructDeclarationNode("field", type, fragments.asList());
-		setAnnotation("modifiers", extendedModifiers);
+		setListParameter("modifiers", extendedModifiers);
 		return false;
 	}
 	
@@ -566,7 +566,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		}
 		
 		ownValue = constructDeclarationNode("import", values.string(name));
-		setAnnotation("modifiers", importModifiers);
+		setListParameter("modifiers", importModifiers);
 		
 		return false;
 	}
@@ -594,7 +594,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue body = visitChild(node.getBody());
 	
 		ownValue = constructDeclarationNode("initializer", body);
-		setAnnotation("modifiers", extendedModifiers);
+		setListParameter("modifiers", extendedModifiers);
 		return false;
 	}
 	
@@ -699,9 +699,9 @@ public class ASTConverter extends JavaToRascalConverter {
 		IValue body = node.getBody() == null ? null : visitChild(node.getBody()); 
 	
 		ownValue = constructDeclarationNode(constructorName, returnType, name, parameters.asList(), possibleExceptions.asList(), body);
-		setAnnotation("modifiers", extendedModifiers);
+		setListParameter("modifiers", extendedModifiers);
 		// FIXME: this doesn't seem to be in use anymore
-		setAnnotation("typeParameters", genericTypes);
+		setListParameter("typeParameters", genericTypes);
 		return false;
 	}
 	
@@ -728,7 +728,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		}		
 		
 		ownValue = constructExpressionNode("methodCall", values.bool(false), expression, name, arguments.asList());
-		setAnnotation("typeParameters", genericTypes);
+		setListParameter("typeParameters", genericTypes);
 		return false;
 	}
 	
@@ -787,14 +787,14 @@ public class ASTConverter extends JavaToRascalConverter {
 		for (String component: node.getName().getFullyQualifiedName().split("\\.")) {
 			if (ownValue == null) {
 				ownValue = constructDeclarationNode("package", values.string(component));
-				setAnnotation("decl", resolveBinding(component));
+				setParameter("decl", resolveBinding(component));
 				continue;
 			}
 			ownValue = constructDeclarationNode("package", ownValue, values.string(component));
-			setAnnotation("decl", resolveBinding(component));
+			setParameter("decl", resolveBinding(component));
 		}
 		
-		setAnnotation("modifiers", annotations);
+		setListParameter("modifiers", annotations);
 		return false;
 	}
 	
@@ -809,7 +809,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		}
 	
 		ownValue = constructTypeNode("parameterizedType", type);
-		setAnnotation("typeParameters", genericTypes);
+		setListParameter("typeParameters", genericTypes);
 		return false;
 	}
 	
@@ -918,7 +918,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		if (node.getAST().apiLevel() >= AST.JLS3 && node.isVarargs())
 			ownValue = constructDeclarationNode("vararg", type, name);
 		
-		setAnnotation("modifiers", extendedModifiers);
+		setListParameter("modifiers", extendedModifiers);
 		
 		return false;
 	}
@@ -952,7 +952,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		}
 	
 		ownValue = constructStatementNode("constructorCall", values.bool(true), expression, arguments.asList());
-		setAnnotation("typeParameters", genericTypes);
+		setListParameter("typeParameters", genericTypes);
 		return false;
 	}
 	
@@ -989,7 +989,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		}
 	
 		ownValue = constructExpressionNode("methodCall", values.bool(true), qualifier, name, arguments.asList());
-		setAnnotation("typeParameters", genericTypes);
+		setListParameter("typeParameters", genericTypes);
 		return false;
 	}
 	
@@ -1125,8 +1125,8 @@ public class ASTConverter extends JavaToRascalConverter {
 		}
 		
 		ownValue = constructDeclarationNode(objectType, name, extendsClass.asList(), implementsInterfaces.asList(), bodyDeclarations.asList());
-		setAnnotation("modifiers", extendedModifiers);
-		setAnnotation("typeParameters", genericTypes);
+		setListParameter("modifiers", extendedModifiers);
+		setListParameter("typeParameters", genericTypes);
 		return false;
 	}
 	
@@ -1198,7 +1198,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		}
 		
 		ownValue = constructDeclarationNode("variables", type, fragments.asList());
-		setAnnotation("modifiers", extendedModifiers);
+		setListParameter("modifiers", extendedModifiers);
 		
 		ownValue = constructExpressionNode("declarationExpression", ownValue);
 		
@@ -1232,7 +1232,7 @@ public class ASTConverter extends JavaToRascalConverter {
 		}
 		
 		ownValue = constructDeclarationNode("variables", type, fragments.asList());
-		setAnnotation("modifiers", extendedModifiers);
+		setListParameter("modifiers", extendedModifiers);
 		
 		ownValue = constructStatementNode("declarationStatement", ownValue);
 		

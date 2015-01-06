@@ -27,34 +27,50 @@ import List;
 
 import util::FileSystem;
 
-anno rel[loc from, loc to] M3@extends;            // classes extending classes and interfaces extending interfaces
-anno rel[loc from, loc to] M3@implements;         // classes implementing interfaces
-anno rel[loc from, loc to] M3@methodInvocation;   // methods calling each other (including constructors)
-anno rel[loc from, loc to] M3@fieldAccess;        // code using data (like fields)
-anno rel[loc from, loc to] M3@typeDependency;     // using a type literal in some code (types of variables, annotations)
-anno rel[loc from, loc to] M3@methodOverrides;    // which method override which other methods
-anno rel[loc declaration, loc annotation] M3@annotations;
+data M3(
+  // classes extending classes and interfaces extending interfaces
+  rel[loc from, loc to] extends = {},            
+  
+  // classes implementing interfaces
+  rel[loc from, loc to] implements = {},
+         
+  // methods calling each other (including constructors)
+  rel[loc from, loc to] methodInvocation = {},
+  
+  // code using data (like fields)   
+  rel[loc from, loc to] fieldAccess = {},        
+  
+  // using a type literal in some code (types of variables, annotations)
+  rel[loc from, loc to] typeDependency = {},     
+  
+  // which method override which other methods
+  rel[loc from, loc to] methodOverrides = {}, 
+  
+  // where are which annotations attached   
+  rel[loc declaration, loc annotation] annotations = {}
+);
 
 data Language(str version="") = java();
 
 public M3 composeJavaM3(loc id, set[M3] models) {
-  m = composeM3(id, models);
+  m = composeM3(#M3, id, models);
   
-  m@extends = {*model@extends | model <- models};
-  m@implements = {*model@implements | model <- models};
-  m@methodInvocation = {*model@methodInvocation | model <- models};
-  m@fieldAccess = {*model@fieldAccess | model <- models};
-  m@typeDependency = {*model@typeDependency | model <- models};
-  m@methodOverrides = {*model@methodOverrides | model <- models};
-  m@annotations = {*model@annotations | model <- models};
+  // this should be automatically done by the above call:
+  //m.extends = {*model.extends | model <- models};
+  //m.implements = {*model.implements | model <- models};
+  //m.methodInvocation = {*model.methodInvocation | model <- models};
+  //m.fieldAccess = {*model.fieldAccess | model <- models};
+  //m.typeDependency = {*model.typeDependency | model <- models};
+  //m.methodOverrides = {*model.methodOverrides | model <- models};
+  //m.annotations = {*model.annotations | model <- models};
   
   return m;
 }
 
 public M3 link(M3 projectModel, set[M3] libraryModels) {
-  projectModel@declarations = { <name[authority=projectModel.id.authority], src> | <name, src> <- projectModel@declarations };
+  projectModel.declarations = { <name[authority=projectModel.id.authority], src> | <name, src> <- projectModel.declarations };
   for (libraryModel <- libraryModels) {
-    libraryModel@declarations = { <name[authority=libraryModel.id.authority], src> | <name, src> <- libraryModel@declarations }; 
+    libraryModel.declarations = { <name[authority=libraryModel.id.authority], src> | <name, src> <- libraryModel.declarations }; 
   }
 }
 
@@ -94,7 +110,7 @@ public Declaration getMethodAST(loc methodLoc, M3 model = m3(|unknown:///|)) {
     model = getModelContaining(methodLoc);
   }
   if (model.id notin methodASTs) {
-    methodASTs[model.id] = ( d@decl : d |/Declaration d := createAstsFromDirectory(model.id, true), d is method || d is constructor);
+    methodASTs[model.id] = ( d.decl : d |/Declaration d := createAstsFromDirectory(model.id, true), d is method || d is constructor);
   }
   try return methodASTs[model.id][methodLoc];
   catch: throw "Method <methodLoc> not found in any model";
@@ -122,40 +138,40 @@ public set[loc] files(rel[loc, loc] containment)
 
 public rel[loc, loc] declaredMethods(M3 m, set[Modifier] checkModifiers = {}) {
     declaredClasses = classes(m);
-    methodModifiersMap = toMap(m@modifiers);
+    methodModifiersMap = toMap(m.modifiers);
     
-    return {e | tuple[loc lhs, loc rhs] e <- domainR(m@containment, declaredClasses), isMethod(e.rhs), checkModifiers <= (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {}) };
+    return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredClasses), isMethod(e.rhs), checkModifiers <= (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {}) };
 }
 
 public rel[loc, loc] declaredFields(M3 m, set[Modifier] checkModifiers = {}) {
     declaredClasses = classes(m);
-    methodModifiersMap = toMap(m@modifiers);
+    methodModifiersMap = toMap(m.modifiers);
     
-    return {e | tuple[loc lhs, loc rhs] e <- domainR(m@containment, declaredClasses), isField(e.rhs), checkModifiers <= (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {}) };
+    return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredClasses), isField(e.rhs), checkModifiers <= (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {}) };
 }
 
 public rel[loc, loc] declaredFieldsX(M3 m, set[Modifier] checkModifiers = {}) {
     declaredClasses = classes(m);
-    methodModifiersMap = toMap(m@modifiers);
+    methodModifiersMap = toMap(m.modifiers);
     
-    return {e | tuple[loc lhs, loc rhs] e <- domainR(m@containment, declaredClasses), isField(e.rhs), isEmpty(checkModifiers & (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {})) };
+    return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredClasses), isField(e.rhs), isEmpty(checkModifiers & (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {})) };
 } 
  
 public rel[loc, loc] declaredTopTypes(M3 m)  
-  = {e | tuple[loc lhs, loc rhs] e <- m@containment, isCompilationUnit(e.lhs), isClass(e.rhs) || isInterface(e.rhs)}; 
+  = {e | tuple[loc lhs, loc rhs] e <- m.containment, isCompilationUnit(e.lhs), isClass(e.rhs) || isInterface(e.rhs)}; 
 
 public rel[loc, loc] declaredSubTypes(M3 m) 
-  = {e | tuple[loc lhs, loc rhs] e <- m@containment, isClass(e.rhs)} - declaredTopTypes(m);
+  = {e | tuple[loc lhs, loc rhs] e <- m.containment, isClass(e.rhs)} - declaredTopTypes(m);
 
-@memo public set[loc] classes(M3 m) =  {e | e <- m@declarations<name>, isClass(e)};
-@memo public set[loc] interfaces(M3 m) =  {e | e <- m@declarations<name>, isInterface(e)};
-@memo public set[loc] packages(M3 m) = {e | e <- m@declarations<name>, isPackage(e)};
-@memo public set[loc] variables(M3 m) = {e | e <- m@declarations<name>, isVariable(e)};
-@memo public set[loc] parameters(M3 m)  = {e | e <- m@declarations<name>, isParameter(e)};
-@memo public set[loc] fields(M3 m) = {e | e <- m@declarations<name>, isField(e)};
-@memo public set[loc] methods(M3 m) = {e | e <- m@declarations<name>, isMethod(e)};
+@memo public set[loc] classes(M3 m) =  {e | e <- m.declarations<name>, isClass(e)};
+@memo public set[loc] interfaces(M3 m) =  {e | e <- m.declarations<name>, isInterface(e)};
+@memo public set[loc] packages(M3 m) = {e | e <- m.declarations<name>, isPackage(e)};
+@memo public set[loc] variables(M3 m) = {e | e <- m.declarations<name>, isVariable(e)};
+@memo public set[loc] parameters(M3 m)  = {e | e <- m.declarations<name>, isParameter(e)};
+@memo public set[loc] fields(M3 m) = {e | e <- m.declarations<name>, isField(e)};
+@memo public set[loc] methods(M3 m) = {e | e <- m.declarations<name>, isMethod(e)};
 
-public set[loc] elements(M3 m, loc parent) = { e | <parent, e> <- m@containment };
+public set[loc] elements(M3 m, loc parent) = { e | <parent, e> <- m.containment };
 
 @memo public set[loc] fields(M3 m, loc class) = { e | e <- elements(m, class), isField(e) };
 @memo public set[loc] methods(M3 m, loc class) = { e | e <- elements(m, class), isMethod(e) };

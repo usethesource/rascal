@@ -98,23 +98,17 @@ M3 composeM3(type[M3] context, loc id, set[M3] models)
 
 	map[str, value] allAnnos = ();
 
-	for (m <- models)
-	{
+	for (m <- models) {
 		annos = getKeywordParameters(m);
 
-		for (name <- allAnnoNames, name in annos)
-		{
-			if (allAnnos[name]?)
-			{
-				try
-				{
+		for (name <- allAnnoNames, name in annos) {
+			if (allAnnos[name]?) {
+				try {
 					allAnnos[name] = compose(allAnnos[name], annos[name]);
 				}
 				catch e:
 				; // ignore
-			}
-			else
-			{
+			} else {
 				allAnnos[name] = annos[name];
 			}
 		}
@@ -136,13 +130,13 @@ Description: this function will not terminate if the relation is cyclic.
 }
 
 set[loc] files(M3 model) {
- todo = top(model@containment);
+ todo = top(model.containment);
  done = {};
  
  while (todo != {}) {
    <elem,todo> = takeOneFrom(todo);
    if (isDirectory(elem)) {
-     todo += model@containment[elem];
+     todo += model.containment[elem];
    }
    else {
      done += elem;
@@ -167,11 +161,11 @@ Pitfalls:
 * Do not forget that the relational operators such as [TransitiveClosure], [Comprehension] and [Composition] may be just
 as effective and perhaps more efficient, as applied directly on the containment relation. 
 }
-set[FileSystem] containmentToFileSystem(M3 model) = relToFileSystem(model@containment);
+set[FileSystem] containmentToFileSystem(M3 model) = relToFileSystem(model.containment);
 
 list[Message] checkM3(M3 model) {
   result  = [m | m <- model@messages, m is error];
-  result += [error("undeclared element in containment", decl) | decl <- model@containment<to> - model@declarations<name>];
-  result += [error("non-root element is not contained anywhere", decl) | decl <- model@containment<from> - model@declarations<name> - top(model@containment)];
+  result += [error("undeclared element in containment", decl) | decl <- model.containment<to> - model.declarations<name>];
+  result += [error("non-root element is not contained anywhere", decl) | decl <- model.containment<from> - model.declarations<name> - top(model.containment)];
   return result;
 }
