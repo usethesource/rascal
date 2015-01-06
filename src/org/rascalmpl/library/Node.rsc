@@ -121,6 +121,15 @@ getKeywordParameters("f"(10, "abc", height=0));
 public java map[str,value] getKeywordParameters(node T);
 
 @doc{
+Synopsis: translates a map to keyword parameters given a type context which allows this.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T <: node setKeywordParameters(type[&T] context, &T <: node n, map[str,value] parameters);
+
+public node setKeywordParameters(node n, map[str, value] params)
+  = setKeywordParameters(#node, n, params);
+  
+@doc{
 Synopsis: Determine the name of a node.
 
 Examples:

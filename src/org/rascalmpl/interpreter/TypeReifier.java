@@ -151,7 +151,13 @@ public class TypeReifier {
 			kwTypes = tf.voidType();
 		}
 		
-		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
+		Type cons = tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
+		
+		for (String label : kwTypes.getFieldNames()) {
+			store.declareKeywordParameter(cons, label, kwTypes.getFieldType(label));
+		}
+		
+		return cons;
 	}
 
 	private Type symbolToType(IConstructor symbol, TypeStore store) {

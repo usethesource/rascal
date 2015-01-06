@@ -1494,6 +1494,7 @@ public class Prelude {
 	 */
 	
 	private WeakReference<IList> indexes;
+	private Map<String, Type> formals;
 
 	
 	
@@ -2173,6 +2174,36 @@ public class Prelude {
 		}
 		
 		return node.asAnnotatable().setAnnotations(map);
+	}
+	
+	public INode setKeywordParameters(IValue context, INode node, IMap parameters) {
+		TypeReifier tr = new TypeReifier(values);
+		Map<String,IValue> map = new HashMap<>();
+		TypeStore store = new TypeStore();
+		Map<String,Type> formals = null;
+		Type type = tr.valueToType((IConstructor) context, store);
+		
+		if (type.isAbstractData()) {
+			// then we will check the types at run-time for which we need a filled store
+			formals = store.getKeywordParameters(((IConstructor) node).getConstructorType());
+		}
+		
+		for (IValue key : parameters) {
+			String label = ((IString) key).getValue();
+			IValue value = parameters.get(key);
+			if (formals != null) {
+				if (!formals.containsKey(label)) {
+					throw RuntimeExceptionFactory.noSuchField(label, null, null);
+				}
+				if (!value.getType().isSubtypeOf(formals.get(label))) {
+					throw RuntimeExceptionFactory.illegalArgument(value, null, null, "keyword parameter type does not fit declaration");
+				}
+			}
+			
+			map.put(label, value);
+		}	
+		
+		return node.asWithKeywordParameters().setParameters(map);
 	}
 	
 	public INode delAnnotations(INode node) {

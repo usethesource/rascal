@@ -48,16 +48,31 @@ which should be a unique name for the project or file that the m3 model was cons
 
 Attached to this m3 model will be annotations with the specific information.
 }
-data M3 = m3(loc id);
-             
-anno rel[loc name, loc src]        M3@declarations;            // maps declarations to where they are declared. contains any kind of data or type or code declaration (classes, fields, methods, variables, etc. etc.)
-anno rel[loc name, TypeSymbol typ] M3@types;                   // assigns types to declared source code artifacts
-anno rel[loc src, loc name]        M3@uses;                    // maps source locations of usages to the respective declarations
-anno rel[loc from, loc to]         M3@containment;             // what is logically contained in what else (not necessarily physically, but usually also)
-anno list[Message]                 M3@messages;                // error messages and warnings produced while constructing a single m3 model
-anno rel[str simpleName, loc qualifiedName]  M3@names;         // convenience mapping from logical names to end-user readable (GUI) names, and vice versa
-anno rel[loc definition, loc comments]       M3@documentation; // comments and javadoc attached to declared things
-anno rel[loc definition, Modifier modifier] M3@modifiers;     // modifiers associated with declared things
+data M3 = m3(loc id,
+  // maps declarations to where they are declared. contains any kind of data or type or code declaration (classes, fields, methods, variables, etc. etc.)
+  rel[loc name, loc src]  declarations = {},
+  
+  // assigns types to declared source code artifacts          
+  rel[loc name, TypeSymbol typ] types = {},
+  
+  // maps source locations of usages to the respective declarations
+  rel[loc src, loc name]        uses = {},
+                      
+  // what is logically contained in what else (not necessarily physically, but usually also)
+  rel[loc from, loc to]         containment = {},
+               
+  // error messages and warnings produced while constructing a single m3 model
+  list[Message]                 messages = [],
+                  
+  // convenience mapping from logical names to end-user readable (GUI) names, and vice versa
+  rel[str simpleName, loc qualifiedName]  names = {},
+           
+  // comments and javadoc attached to declared things
+  rel[loc definition, loc comments]       documentation = {},
+  
+  // modifiers associated with declared things 
+  rel[loc definition, Modifier modifier] modifiers = {}
+);     
 
 public data Language(str version = "")
   = generic()
@@ -66,21 +81,7 @@ public data Language(str version = "")
 @doc{
 	Create an empty m3 term with empty annotations
 }
-public M3 emptyM3(loc id)
-{
-	m = m3(id);
-
-	m@declarations = {};
-	m@uses = {};
-	m@containment = {};
-	m@documentation = {};
-	m@modifiers = {};
-	m@messages = [];
-	m@names = {};
-	m@types = {};
-
-	return m;
-}
+public M3 emptyM3(loc id) = m3(id);
 
 private value compose(set[&T] s1, set[&T] s2) = s1 + s2; // works on rel as well
 private value compose(list[&T] l1, list[&T] l2) = l1 + l2;
