@@ -2187,7 +2187,7 @@ public class Prelude {
 		return node.asWithKeywordParameters().unsetParameter(label.getValue());
 	}
 	
-	public INode unsetAll(INode node) {
+	public INode unset(INode node) {
 		return node.asWithKeywordParameters().unsetAll();
 	}
 	

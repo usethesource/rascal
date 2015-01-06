@@ -64,7 +64,11 @@ public str newGenerate(str package, str name, Grammar gr) {
     uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_) := p};
  
     event("assigning unique ids to symbols");
-    gr = visit(gr) { case Symbol s => s[id=newItem()] }
+    Production rewrite(Production p) = 
+      visit(p) { 
+        case Symbol s => s[id=newItem()] 
+      }; 
+    gr.rules = (s : rewrite(gr.rules[s]) | s <- gr.rules);
         
     event("generating item allocations");
     newItems = generateNewItems(gr);
@@ -197,7 +201,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '    
            '  // Item declarations
            '	<for (Symbol s <- sort(newItems<0>), isNonterminal(s)) {
-	           items = newItems[s];
+	           items = newItems[unsetRec(s)];
 	           map[Production prods, list[Item] items] alts = ();
 	           for(Item item <- items) {
 		         Production prod = item.production;
@@ -231,7 +235,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '	
            '  // Parse methods    
            '  <for (Symbol nont <- sort(gr.rules.sort), isNonterminal(nont)) { >
-           '  <generateParseMethod(newItems, gr.rules[nont])><}>
+           '  <generateParseMethod(newItems, gr.rules[getType(nont)])><}>
            '}";
    endJob(true);
    return src;
@@ -273,7 +277,7 @@ int getItemId(Symbol s, int pos, prod(label(str l, Symbol _),list[Symbol] _, set
 Symbol getType(Production p) = getType(p.def);
 Symbol getType(label(str _, Symbol s)) = getType(s);
 Symbol getType(conditional(Symbol s, set[Condition] cs)) = getType(s);
-default Symbol getType(Symbol s) = s;
+default Symbol getType(Symbol s) = unsetRec(s);
 
 
 @doc{This function generates Java code to allocate a new item for each position in the grammar.
@@ -293,6 +297,7 @@ map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
     case Production p:regular(Symbol s) : {
       while (s is conditional || s is label)
         s = s.symbol;
+      s = unsetRec(s);
          
       switch(s) {
         case \iter(Symbol elem) : 
@@ -490,12 +495,12 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
             throw "All parameters should have been instantiated by now: <sym>";
         case \start(s) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \lit(l) : 
-            if (/p:prod(sym,list[Symbol] chars,_) := grammar.rules[sym])
+        case \lit(l) : {iprintln(grammar.rules);
+            if (/p:prod(lit(l,id=_),list[Symbol] chars,_) := grammar.rules[getType(sym)])
                 return <"new LiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
-            else throw "literal not found in grammar: <grammar>";
+            else throw "literal not found in grammar: <grammar>";}
         case \cilit(l) : 
-            if (/p:prod(sym,list[Symbol] chars,_) := grammar.rules[sym])
+            if (/p:prod(cilit(l,id=_),list[Symbol] chars,_) := grammar.rules[getType(sym)])
                 return <"new CaseInsensitiveLiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "ci-literal not found in grammar: <grammar>";
         case \iter(s) : 
@@ -674,8 +679,12 @@ test bool tstLiterals4() = literals(GEXPPRIO) == GEXPPRIO;
 Grammar makeUnique(Grammar gr) {
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
+    Production rewrite(Production p) = 
+      visit(p) { 
+        case Symbol s => s[id=newItem()] 
+      }; 
     
-    return visit(gr) { case Symbol s => s[id=newItem()] }
+    return gr[rules = (s : rewrite(gr.rules[s]) | s <- gr.rules)];
 } 
 
 test bool tstUnique0() = makeUnique(GEMPTY) == grammar(
