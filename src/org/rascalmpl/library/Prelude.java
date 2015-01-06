@@ -2196,7 +2196,7 @@ public class Prelude {
 					throw RuntimeExceptionFactory.noSuchField(label, null, null);
 				}
 				if (!value.getType().isSubtypeOf(formals.get(label))) {
-					throw RuntimeExceptionFactory.illegalArgument(value, null, null, "keyword parameter type does not fit declaration");
+					throw RuntimeExceptionFactory.illegalArgument(value, null, null, "keyword parameter type does not fit declaration of " + formals.get(label) + " " + label);
 				}
 			}
 			
