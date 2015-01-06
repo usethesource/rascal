@@ -2438,7 +2438,7 @@ public class Prelude {
 				if (!afterComments.isEmpty()) {
 					comments.put(values.integer(((INode)result).arity()), afterComments);
 				}
-				result = ((INode)result).asAnnotatable().setAnnotation("comments", comments.done());
+				result = ((INode)result).asWithKeywordParameters().setParameter("comments", comments.done());
 			}
 			return result;
 		}
@@ -2465,7 +2465,7 @@ public class Prelude {
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
 						IConstructor ast = makeConstructor(type, constructorName, ctx, values.string(yield));
-						return ast.asAnnotatable().setAnnotation("location", loc);
+						return ast.asWithKeywordParameters().setParameter("location", loc);
 					}
 					catch (Backtrack b) {
 						continue;
@@ -2640,7 +2640,7 @@ public class Prelude {
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
 				INode ast = values.node(constructorName, implodeArgs(store, type, args, ctx));
-				return ast.asAnnotatable().setAnnotation("location", TreeAdapter.getLocation(tree)).asAnnotatable().setAnnotation("comments", comments);
+				return ast.asWithKeywordParameters().setParameter("location", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
 			}
 			
 			// make a typed constructor
@@ -2656,7 +2656,7 @@ public class Prelude {
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IValue[] implodedArgs = implodeArgs(store, cons, args, ctx);
 					IConstructor ast = makeConstructor(type, constructorName, ctx, implodedArgs);
-					return ast.asAnnotatable().setAnnotation("location", loc).asAnnotatable().setAnnotation("comments", comments);
+					return ast.asWithKeywordParameters().setParameter("location", loc).asWithKeywordParameters().setParameter("comments", comments);
 				}
 				catch (Backtrack b) {
 					continue;

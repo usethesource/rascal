@@ -616,7 +616,7 @@ public class PreludeCompiled extends Prelude {
 			IValue result = implode(store, type, ast, splicing, rex);
 			if (result.getType().isNode()) {
 				IMapWriter comments = values.mapWriter();
-				comments.putAll((IMap)((INode)result).asAnnotatable().getAnnotation("comments"));
+				comments.putAll((IMap)((INode)result).asWithKeywordParameters().getParameter("comments"));
 				IList beforeComments = extractComments(before);
 				if (!beforeComments.isEmpty()) {
 					comments.put(values.integer(-1), beforeComments);
@@ -625,7 +625,7 @@ public class PreludeCompiled extends Prelude {
 				if (!afterComments.isEmpty()) {
 					comments.put(values.integer(((INode)result).arity()), afterComments);
 				}
-				result = ((INode)result).asAnnotatable().setAnnotation("comments", comments.done());
+				result = ((INode)result).asWithKeywordParameters().setParameter("comments", comments.done());
 			}
 			return result;
 		}
@@ -652,7 +652,7 @@ public class PreludeCompiled extends Prelude {
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
 						IConstructor ast = makeConstructor(store, type, constructorName, values.string(yield));
-						return ast.asAnnotatable().setAnnotation("location", loc);
+						return ast.asWithKeywordParameters().setParameter("location", loc);
 					}
 					catch (Backtrack b) {
 						continue;
@@ -827,7 +827,7 @@ public class PreludeCompiled extends Prelude {
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
 				INode ast = values.node(constructorName, implodeArgs(store, type, args, rex));
-				return ast.asAnnotatable().setAnnotation("location", TreeAdapter.getLocation(tree)).asAnnotatable().setAnnotation("comments", comments);
+				return ast.asWithKeywordParameters().setParameter("location", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
 			}
 			
 			// make a typed constructor
@@ -843,7 +843,7 @@ public class PreludeCompiled extends Prelude {
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IValue[] implodedArgs = implodeArgs(store, cons, args, rex);
 					IConstructor ast = makeConstructor(store, type, constructorName, implodedArgs);
-					return ast.asAnnotatable().setAnnotation("location", loc).asAnnotatable().setAnnotation("comments", comments);
+					return ast.asWithKeywordParameters().setParameter("location", loc).asWithKeywordParameters().setParameter("comments", comments);
 				}
 				catch (Backtrack b) {
 					continue;

@@ -454,7 +454,7 @@ public class TreeAdapter {
 		
 		if (l.getOffset() <= offset
 				&& l.getOffset() + l.getLength() >= offset) {
-			if (tree.asAnnotatable().hasAnnotation(label)) {
+			if (tree.asWithKeywordParameters().getParameter(label) != null) {
 				return tree;
 			}
 		}

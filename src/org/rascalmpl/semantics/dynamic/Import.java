@@ -581,13 +581,15 @@ public abstract class Import {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
       ISourceLocation src = valueFactory.sourceLocation(valueFactory.sourceLocation(loc.getURI()), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
       eval.getMonitor().warning(e.getMessage(), e.getLocation());
+   // TODO: better message
       return tree.asWithKeywordParameters().setParameter("parseError", src);
     }
     catch (UndeclaredNonTerminalException e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
       ISourceLocation src = valueFactory.sourceLocation(valueFactory.sourceLocation(loc.getURI()), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
       eval.getMonitor().warning(e.getMessage(), src);
-      return tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
+      // TODO: better message
+      return tree.asWithKeywordParameters().setParameter("parseError", src);
     }
   }
   

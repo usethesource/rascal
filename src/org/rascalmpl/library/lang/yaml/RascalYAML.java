@@ -217,8 +217,9 @@ public class RascalYAML {
 		}
 		if (yaml.getConstructorType() == Node_sequence) {
 			List<Object> l = new ArrayList<Object>();
-			if (yaml.asAnnotatable().hasAnnotation(ANCHOR_ANNO)) {
-				visited.put(((IInteger)yaml.asAnnotatable().getAnnotation(ANCHOR_ANNO)).intValue(), l);
+			IValue anno = yaml.asWithKeywordParameters().getParameter(ANCHOR_ANNO);
+			if (anno != null) {
+				visited.put(((IInteger) anno).intValue(), l);
 			}
 			for (IValue v: (IList)yaml.get(0)) {
 				l.add(dumpYAMLrec((IConstructor)v, visited, ctx));
@@ -227,8 +228,9 @@ public class RascalYAML {
 		}
 		if (yaml.getConstructorType() == Node_mapping) {
 			Map<Object, Object> m = new IdentityHashMap<Object, Object>();
-			if (yaml.asAnnotatable().hasAnnotation(ANCHOR_ANNO)) {
-				visited.put(((IInteger)yaml.asAnnotatable().getAnnotation(ANCHOR_ANNO)).intValue(), m);
+			IValue anno2 = yaml.asWithKeywordParameters().getParameter(ANCHOR_ANNO);
+			if (anno2 != null) {
+				visited.put(((IInteger) anno2).intValue(), m);
 			}
 			Iterator<Entry<IValue, IValue>> iter = ((IMap)yaml.get(0)).entryIterator();
 			while (iter.hasNext()) {
