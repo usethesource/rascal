@@ -67,14 +67,15 @@ public str newGenerate(str package, str name, Grammar gr) {
     Production rewrite(Production p) = 
       visit(p) { 
         case Symbol s => s[id=newItem()] 
-      }; 
+      };
+    beforeUniqueGr = gr;   
     gr.rules = (s : rewrite(gr.rules[s]) | s <- gr.rules);
         
     event("generating item allocations");
     newItems = generateNewItems(gr);
     
     event("computing priority and associativity filter");
-    rel[int parent, int child] dontNest = computeDontNests(newItems, gr);
+    rel[int parent, int child] dontNest = computeDontNests(newItems, beforeUniqueGr);
     // this creates groups of children that forbidden below certain parents
     rel[set[int] children, set[int] parents] dontNestGroups = 
       {<c,g[c]> | rel[set[int] children, int parent] g := {<dontNest[p],p> | p <- dontNest.parent}, c <- g.children};
@@ -286,18 +287,20 @@ constants to improve run-time efficiency of the generated parser}
 map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
   map[Symbol,map[Item,tuple[str new, int itemId]]] items = ();
   map[Item,tuple[str new, int itemId]] fresh = ();
+  Production cl(Production p) = unsetRec(p);
   
   visit (g) {
     case Production p:prod(Symbol s,[],_) : 
-       items[getType(s)]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<s.id>, 0)", s.id>);
+       items[getType(s)]?fresh += (item(cl(p), -1):<"new EpsilonStackNode\<IConstructor\>(<s.id>, 0)", s.id>);
     case Production p:prod(Symbol s,list[Symbol] lhs, _) : {
       for (int i <- index(lhs)) 
-        items[getType(s)]?fresh += (item(p, i): sym2newitem(g, lhs[i], i));
+        items[getType(s)]?fresh += (item(cl(p), i): sym2newitem(g, lhs[i], i));
     }
     case Production p:regular(Symbol s) : {
       while (s is conditional || s is label)
         s = s.symbol;
       s = unsetRec(s);
+      p = unsetRec(p);
          
       switch(s) {
         case \iter(Symbol elem) : 
@@ -330,7 +333,7 @@ map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
            items[s]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<s.id>, 0)", s.id>);
         }
       }
-     }
+    }
   }
   
   return items;
@@ -780,14 +783,14 @@ test bool tstGenerateNewItems2() = generateNewItems(makeUnique(G0)) ==
  (
   sort("S"):(item(
       prod(
-        sort("S",id=3),
-        [lit("0",id=4)],
+        sort("S"),
+        [lit("0")],
         {}),
       0):<"new LiteralStackNode\<IConstructor\>(4, 0, prod__lit_0__char_class___range__48_48_, new int[] {48}, null, null)",4>),
   lit("0"):(item(
       prod(
-        lit("0",id=6),
-        [\char-class([range(48,48)],id=7)],
+        lit("0"),
+        [\char-class([range(48,48)])],
         {}),
       0):<"new CharStackNode\<IConstructor\>(7, 0, new int[][]{{48,48}}, null, null)",7>)
 );
@@ -796,116 +799,116 @@ test bool tstGenerateNewItems3() = generateNewItems(makeUnique(GEXP)) ==
  (
   lit("+"):(item(
       prod(
-        lit("+",id=3),
-        [\char-class([range(43,43)],id=4)],
+        lit("+"),
+        [\char-class([range(43,43)])],
         {}),
       0):<"new CharStackNode\<IConstructor\>(4, 0, new int[][]{{43,43}}, null, null)",4>),
   lit("*"):(item(
       prod(
-        lit("*",id=6),
-        [\char-class([range(42,42)],id=7)],
+        lit("*"),
+        [\char-class([range(42,42)])],
         {}),
       0):<"new CharStackNode\<IConstructor\>(7, 0, new int[][]{{42,42}}, null, null)",7>),
   sort("B"):(
     item(
       prod(
-        sort("B",id=9),
-        [lit("0",id=10)],
+        sort("B"),
+        [lit("0")],
         {}),
       0):<"new LiteralStackNode\<IConstructor\>(10, 0, prod__lit_0__char_class___range__48_48_, new int[] {48}, null, null)",10>,
     item(
       prod(
-        sort("B",id=11),
-        [lit("1",id=12)],
+        sort("B"),
+        [lit("1")],
         {}),
       0):<"new LiteralStackNode\<IConstructor\>(12, 0, prod__lit_1__char_class___range__49_49_, new int[] {49}, null, null)",12>
   ),
   lit("0"):(item(
       prod(
-        lit("0",id=14),
-        [\char-class([range(48,48)],id=15)],
+        lit("0"),
+        [\char-class([range(48,48)])],
         {}),
       0):<"new CharStackNode\<IConstructor\>(15, 0, new int[][]{{48,48}}, null, null)",15>),
   sort("E"):(
     item(
       prod(
-        sort("E",id=17),
-        [sort("B",id=18)],
+        sort("E"),
+        [sort("B")],
         {}),
       0):<"new NonTerminalStackNode\<IConstructor\>(18, 0, \"B\", null, null)",18>,
     item(
       prod(
-        sort("E",id=23),
+        sort("E"),
         [
-          sort("E",id=24),
-          lit("*",id=25),
-          sort("B",id=26)
+          sort("E"),
+          lit("*"),
+          sort("B")
         ],
         {}),
       1):<"new LiteralStackNode\<IConstructor\>(25, 1, prod__lit___42__char_class___range__42_42_, new int[] {42}, null, null)",25>,
     item(
       prod(
-        sort("E",id=19),
+        sort("E"),
         [
-          sort("E",id=20),
-          lit("+",id=21),
-          sort("B",id=22)
+          sort("E"),
+          lit("+"),
+          sort("B")
         ],
         {}),
       1):<"new LiteralStackNode\<IConstructor\>(21, 1, prod__lit___43__char_class___range__43_43_, new int[] {43}, null, null)",21>,
     item(
       prod(
-        sort("E",id=19),
+        sort("E"),
         [
-          sort("E",id=20),
-          lit("+",id=21),
-          sort("B",id=22)
+          sort("E"),
+          lit("+"),
+          sort("B")
         ],
         {}),
       0):<"new NonTerminalStackNode\<IConstructor\>(20, 0, \"E\", null, null)",20>,
     item(
       prod(
-        sort("E",id=23),
+        sort("E"),
         [
-          sort("E",id=24),
-          lit("*",id=25),
-          sort("B",id=26)
+          sort("E"),
+          lit("*"),
+          sort("B")
         ],
         {}),
       0):<"new NonTerminalStackNode\<IConstructor\>(24, 0, \"E\", null, null)",24>,
     item(
       prod(
-        sort("E",id=23),
+        sort("E"),
         [
-          sort("E",id=24),
-          lit("*",id=25),
-          sort("B",id=26)
+          sort("E"),
+          lit("*"),
+          sort("B")
         ],
         {}),
       2):<"new NonTerminalStackNode\<IConstructor\>(26, 2, \"B\", null, null)",26>,
     item(
       prod(
-        sort("E",id=19),
+        sort("E"),
         [
-          sort("E",id=20),
-          lit("+",id=21),
-          sort("B",id=22)
+          sort("E"),
+          lit("+"),
+          sort("B")
         ],
         {}),
       2):<"new NonTerminalStackNode\<IConstructor\>(22, 2, \"B\", null, null)",22>
   ),
   lit("1"):(item(
       prod(
-        lit("1",id=28),
-        [\char-class([range(49,49)],id=29)],
+        lit("1"),
+        [\char-class([range(49,49)])],
         {}),
       0):<"new CharStackNode\<IConstructor\>(29, 0, new int[][]{{49,49}}, null, null)",29>)
 );
 
-test bool tstComputeDontNests1() = computeDontNests(generateNewItems(makeUnique(GEMPTY)), makeUnique(GEMPTY)) == {};
-test bool tstComputeDontNests2() = computeDontNests(generateNewItems(makeUnique(G0)), makeUnique(G0)) == {};
-test bool tstComputeDontNests3() = computeDontNests(generateNewItems(makeUnique(GEXP)), makeUnique(GEXP)) == {};
-test bool tstComputeDontNests4() = computeDontNests(generateNewItems(makeUnique(GEXPPRIO)), makeUnique(GEXPPRIO)) == {};
+test bool tstComputeDontNests1() = computeDontNests(generateNewItems(makeUnique(GEMPTY)), GEMPTY) == {};
+test bool tstComputeDontNests2() = computeDontNests(generateNewItems(makeUnique(G0)), G0) == {};
+test bool tstComputeDontNests3() = computeDontNests(generateNewItems(makeUnique(GEXP)), GEXP) == {};
+test bool tstComputeDontNests4() = computeDontNests(generateNewItems(makeUnique(GEXPPRIO)), GEXPPRIO) == {};
 
 test bool tstExpandParameterizedSymbols1() = expandParameterizedSymbols(G0) == 
 grammar(
