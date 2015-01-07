@@ -69,7 +69,8 @@ public class ConstructorResult extends NodeResult {
 		try {
 			Type consType = getValue().getConstructorType();
 			ConstructorFunction cons = ctx.getCurrentEnvt().getConstructorFunction(consType);
-			Type kwTypes = cons.getKeywordArgumentTypes(ctx.getCurrentEnvt());
+			Type kwTypes = cons != null ? cons.getKeywordArgumentTypes(ctx.getCurrentEnvt()) : getTypeFactory().voidType();
+			
 			
 			if (!getType().hasField(name, store) && !kwTypes.hasField(name)) {
 				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
