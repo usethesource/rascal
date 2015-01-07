@@ -62,9 +62,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 				__eval.unwind(old);
 				__eval.setCurrentAST(this.getExpression());
 			}
-
 		}
-
 	}
 
 	static public class Import extends org.rascalmpl.ast.Command.Import {
