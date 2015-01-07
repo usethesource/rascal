@@ -236,7 +236,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '	
            '  // Parse methods    
            '  <for (Symbol nont <- sort(gr.rules.sort), isNonterminal(nont)) { >
-           '  <generateParseMethod(newItems, gr.rules[getType(nont)])><}>
+           '  <generateParseMethod(newItems, gr.rules[unsetRec(nont)])><}>
            '}";
    endJob(true);
    return src;
