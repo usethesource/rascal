@@ -1,6 +1,7 @@
 package org.rascalmpl.uri;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -69,7 +70,7 @@ public class CompressedStreamResolver implements IURIInputOutputResolver {
 				throw new IOException("We could not detect the compression based on the extension.");
 			}
 			try {
-				return new CompressorStreamFactory().createCompressorOutputStream(detectedCompression, result);
+				return new BufferedOutputStream(new CompressorStreamFactory().createCompressorOutputStream(detectedCompression, result));
 			} catch (CompressorException e) {
 				result.close();
 				throw new IOException("We cannot compress this kind of file. (Only gz,xz,bz2 have write support)",e);
