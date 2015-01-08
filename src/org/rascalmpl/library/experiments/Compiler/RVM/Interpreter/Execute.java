@@ -58,7 +58,7 @@ public class Execute {
 								 IBool trackCalls, 
 								 IBool coverage,
 								 IEvaluatorContext ctx) {
-		
+			
 		boolean isTestSuite = testsuite.getValue();
 		String moduleName = ((IString) program.get("name")).getValue();
 		
@@ -96,9 +96,9 @@ public class Execute {
 		
 		for(IValue imp : imported_functions){
 			IConstructor declaration = (IConstructor) imp;
-			if(((IString) declaration.get("qname")).getValue().indexOf("subtype") > 0){
-				stdout.println("import function/coroutine: " + declaration.get("qname") + ", " + declaration.get("src"));
-			}
+//			if(((IString) declaration.get("qname")).getValue().indexOf("complement") > 0){
+//				stdout.println("import function/coroutine: " + declaration.get("qname") + ", " + declaration.get("src"));
+//			}
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
 				

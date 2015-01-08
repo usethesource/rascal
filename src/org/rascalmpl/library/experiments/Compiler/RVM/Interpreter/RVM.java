@@ -88,6 +88,7 @@ public class RVM {
 	
 	private final Map<Class<?>, Object> instanceCache;
 	private final Map<String, Class<?>> classCache;
+	private OverloadedFunction res;
 	
 	// An exhausted coroutine instance
 	public static Coroutine exhausted = new Coroutine(null) {
@@ -183,9 +184,9 @@ public class RVM {
 	}
 
 	public void declare(Function f){
-		if(f.getName().lastIndexOf("subtype") >= 0){
-			System.out.println(functionStore.size() + ", declare: " + f.getName());
-		}
+//		if(f.getName().lastIndexOf("complement") >= 0){
+//			System.out.println(functionStore.size() + ", declare: " + f.getName() + ", " + f.src);
+//		}
 		if(functionMap.get(f.getName()) != null){
 			throw new CompilerError("Double declaration of function: " + f.getName());
 		}
@@ -220,6 +221,8 @@ public class RVM {
 	
 	public void fillOverloadedStore(IList overloadedStore) {
 		for(IValue of : overloadedStore) {
+//			boolean isComplement = false;
+			
 			ITuple ofTuple = (ITuple) of;
 			String scopeIn = ((IString) ofTuple.get(0)).getValue();
 			if(scopeIn.equals("")) {
@@ -230,15 +233,17 @@ public class RVM {
 			int i = 0;
 			for(IValue fuid : fuids) {
 				String name = ((IString) fuid).getValue();
-				if(name.indexOf("subtype") >= 0){
-					stdout.println("fillOverloadedStore: " + name);
-					stdout.flush();
-				}
+				
+//				if(name.indexOf("complement") >= 0){
+//					isComplement = true;
+//				}
 				Integer index = functionMap.get(name);
 				if(index == null){
 					throw new CompilerError("No definition for " + fuid + " in functionMap, i = " + i);
 				}
 				funs[i++] = index;
+//				if(isComplement)
+//					stdout.println("fuid = " + fuid + ", name = " + name + ", index = " + index + ", " + functionStore.get(index).src);
 			}
 			fuids = (IList) ofTuple.get(2);
 			int[] constrs = new int[fuids.length()];
@@ -250,7 +255,12 @@ public class RVM {
 				}
 				constrs[i++] = index;
 			}
-			this.overloadedStore.add(new OverloadedFunction(funs, constrs, scopeIn));
+			res = new OverloadedFunction(funs, constrs, scopeIn);
+//			if(isComplement){
+//				stdout.println("Overloaded function: " + of);
+//				stdout.println("Adding: " + res);
+//			}
+			this.overloadedStore.add(res);
 		}
 	}
 	

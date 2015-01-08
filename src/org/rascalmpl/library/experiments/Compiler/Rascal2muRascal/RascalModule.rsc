@@ -193,19 +193,19 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	 
    	  generate_tests(modName, M@\loc);
    	  
-   	  //println("overloadedFunctions"); for(tp <- overloadedFunctions) println(tp);
+   	  //println("overloadedFunctions"); for(tp <- getOverloadedFunctions()) println(tp);
    	  // Overloading resolution...	  
    	  lrel[str,list[str],list[str]] overloaded_functions = 
    	  	[ < (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
-   	  		[ uid2str[fuid] | int fuid <- of.fuids, (fuid in functions) && (fuid notin defaultFunctions) ] 
-   	  		+ [ uid2str[fuid] | int fuid <- of.fuids, fuid in defaultFunctions ]
+   	  		[ uid2str[fuid] | int fuid <- of.fuids, isFunction(fuid) && !isDefaultFunction(fuid) ] 
+   	  		+ [ uid2str[fuid] | int fuid <- of.fuids, isDefaultFunction(fuid) ]
    	  		  // Replace call to a constructor with call to the constructor companion function if the constructor has keyword parameters
-   	  		+ [ getCompanionForUID(fuid) | int fuid <- of.fuids, fuid in constructors, !isEmpty(config.dataKeywordDefaults[fuid]) ],
-   	  		[ uid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.dataKeywordDefaults[fuid]) ]
+   	  		+ [ getCompanionForUID(fuid) | int fuid <- of.fuids, isConstructor(fuid), !isEmpty(config.dataKeywordDefaults[fuid]) ],
+   	  		[ uid2str[fuid] | int fuid <- of.fuids, isConstructor(fuid), isEmpty(config.dataKeywordDefaults[fuid]) ]
    	  	  > 
-   	  	| tuple[str scopeIn,list[int] fuids] of <- overloadedFunctions 
+   	  	| tuple[str scopeIn,list[int] fuids] of <- getOverloadedFunctions() 
    	  	];  
-   	  //println("overloaded_functions"); for(tp <- overloaded_functions) println(tp);
+   	  
    	  return muModule(modName,
    	                  config.messages, 
    	  				  imported_modules, 
@@ -215,7 +215,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  				  variables_in_module, 
    	  				  variable_initializations, 
    	  				  getModuleVarInitLocals(modName), 
-   	  				  overloadingResolver, 
+   	  				  getOverloadingResolver(),
    	  				  overloaded_functions, 
    	  				  getGrammar(),
    	  				  M@\loc);

@@ -2678,10 +2678,18 @@ public enum RascalPrimitive {
 						}
 					}
 				} else {
-					stack[sp - 2] = vf.bool(((IConstructor)val).getConstructorType().getName().equals(name));
+					String consName = ((IConstructor)val).getConstructorType().getName();
+					if(consName.startsWith("\\")){
+						consName = consName.substring(1);
+					}
+					stack[sp - 2] = vf.bool(consName.equals(name));
 				}
 			} else if(tp.isNode()){
-				stack[sp - 2] = vf.bool(((INode) val).getName().equals(name));
+				String nodeName = ((INode) val).getName();
+				if(nodeName.startsWith("\\")){
+					nodeName = nodeName.substring(1);
+				}
+				stack[sp - 2] = vf.bool(nodeName.equals(name));
 			} 
 			return sp - 1;
 		}
