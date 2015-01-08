@@ -164,6 +164,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
   if(any(m <- messages, error(_,_) := m)){
     return errorRVMProgram(module_name, messages);
   }
+ 
   main_fun = getUID(module_name,[],"MAIN",2);
   module_init_fun = getUID(module_name,[],"#<module_name>_init",2);
   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
