@@ -65,7 +65,7 @@ public str newGenerate(str package, str name, Grammar gr) {
  
     event("assigning unique ids to symbols");
     Production rewrite(Production p) = 
-      visit(p) { 
+      visit (p) { 
         case Symbol s => s[id=newItem()] 
       };
     beforeUniqueGr = gr;   
@@ -75,11 +75,12 @@ public str newGenerate(str package, str name, Grammar gr) {
     newItems = generateNewItems(gr);
     
     event("computing priority and associativity filter");
-    rel[int parent, int child] dontNest = computeDontNests(newItems, beforeUniqueGr);
+    rel[int parent, int child] dontNest = computeDontNests(newItems, beforeUniqueGr, gr);
     // this creates groups of children that forbidden below certain parents
     rel[set[int] children, set[int] parents] dontNestGroups = 
       {<c,g[c]> | rel[set[int] children, int parent] g := {<dontNest[p],p> | p <- dontNest.parent}, c <- g.children};
    
+    println("dn: <dontNest>");
     //println("computing lookahead sets");
     //gr = computeLookaheads(gr, extraLookaheads);
     
@@ -242,19 +243,20 @@ public str newGenerate(str package, str name, Grammar gr) {
    return src;
 }  
 
-rel[int,int] computeDontNests(Items items, Grammar grammar) {
+rel[int,int] computeDontNests(Items items, Grammar grammar, Grammar uniqueGrammar) {
   // first we compute a map from productions to their last items (which identify each production)
-  prodItems = (p:items[getType(rhs)][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
+  prodItems = (p:items[getType(rhs)][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar, bprintln("item: <items[getType(rhs)][item(p,size(lhs)-1)]>"));
   
   // Note that we do not need identifiers for "regular" productions, because these can not be the forbidden child in a priority, assoc
   // or except filter. They can be the fathers though. 
   
   // now we get the "don't nest" relation, which is defined by associativity and priority declarations, and excepts
   dnn = doNotNest(grammar);
+  println("dnn <dnn>");
   
   // finally we produce a relation between item id for use in the internals of the parser
-  return {<items[getType(father.def)][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn, father is prod}
-       + {<getItemId(t, pos, child), prodItems[child]> | <regular(s),pos,child> <- dnn, /Symbol t := grammar, s == t};
+  return {<items[unsetRec(father.def)][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn, father is prod}
+       + {<getItemId(t, pos, child), prodItems[child]> | <regular(s),pos,child> <- dnn, defined <- uniqueGrammar.rules, /Symbol t := uniqueGrammar, unsetRec(t) == s};
 }
 
 int getItemId(Symbol s, int pos, prod(label(str l, Symbol _),list[Symbol] _, set[Attr] _)) {
@@ -299,38 +301,38 @@ map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
     case Production p:regular(Symbol s) : {
       while (s is conditional || s is label)
         s = s.symbol;
-      s = unsetRec(s);
+      us = unsetRec(s);
       p = unsetRec(p);
-         
+      println("s: <s>");   
       switch(s) {
         case \iter(Symbol elem) : 
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
+          items[us]?fresh += (item(p,0):sym2newitem(g, elem, 0));
         case \iter-star(Symbol elem) : 
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
+          items[us]?fresh += (item(p,0):sym2newitem(g, elem, 0));
         case \iter-seps(Symbol elem, list[Symbol] seps) : {
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
+          items[us]?fresh += (item(p,0):sym2newitem(g, elem, 0));
           for (int i <- index(seps)) 
-            items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], i+1));
+            items[us]?fresh += (item(p,i+1):sym2newitem(g, seps[i], i+1));
         }
         case \iter-star-seps(Symbol elem, list[Symbol] seps) : {
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
+          items[us]?fresh += (item(p,0):sym2newitem(g, elem, 0));
           for (int i <- index(seps)) 
-            items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], i+1));
+            items[us]?fresh += (item(p,i+1):sym2newitem(g, seps[i], i+1));
         }
         // not sure if these belong here
         case \seq(list[Symbol] elems) : {
           for (int i <- index(elems))
-            items[s]?fresh += (item(p,i+1):sym2newitem(g, elems[i], i+1));
+            items[us]?fresh += (item(p,i+1):sym2newitem(g, elems[i], i+1));
         }
         case \opt(Symbol elem) : {
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
+          items[us]?fresh += (item(p,0):sym2newitem(g, elem, 0));
         }
         case \alt(set[Symbol] alts) : {
           for (Symbol elem <- alts) 
-            items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
+            items[us]?fresh += (item(p,0):sym2newitem(g, elem, 0));
         }
         case \empty() : {
-           items[s]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<s.id>, 0)", s.id>);
+           items[us]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<s.id>, 0)", s.id>);
         }
       }
     }
@@ -440,6 +442,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
       sym = sym.symbol;
       
     itemId = sym.id;
+    assert itemId != 0;
     
     list[str] enters = [];
     list[str] exits = [];

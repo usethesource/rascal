@@ -79,7 +79,6 @@ public DoNotNest except(Production p:prod(Symbol _, list[Symbol] lhs, set[Attr] 
   
 public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
   Maybe[Production] find(str c, Symbol t) = (/q:prod(label(c,t),_,_) := (g.rules[t]?choice(s,{}))) ? just(q) : nothing();
-  
   switch (s) {
     case \opt(conditional(t,cs)) : 
       return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)};
