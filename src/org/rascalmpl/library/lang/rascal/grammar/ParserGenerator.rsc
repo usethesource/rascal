@@ -906,10 +906,10 @@ test bool tstGenerateNewItems3() = generateNewItems(makeUnique(GEXP)) ==
       0):<"new CharStackNode\<IConstructor\>(29, 0, new int[][]{{49,49}}, null, null)",29>)
 );
 
-test bool tstComputeDontNests1() = computeDontNests(generateNewItems(makeUnique(GEMPTY)), GEMPTY) == {};
-test bool tstComputeDontNests2() = computeDontNests(generateNewItems(makeUnique(G0)), G0) == {};
-test bool tstComputeDontNests3() = computeDontNests(generateNewItems(makeUnique(GEXP)), GEXP) == {};
-test bool tstComputeDontNests4() = computeDontNests(generateNewItems(makeUnique(GEXPPRIO)), GEXPPRIO) == {};
+test bool tstComputeDontNests1() = computeDontNests(generateNewItems(makeUnique(GEMPTY)), GEMPTY,makeUnique(GEMPTY)) == {};
+test bool tstComputeDontNests2() = computeDontNests(generateNewItems(makeUnique(G0)), G0, makeUnique(G0)) == {};
+test bool tstComputeDontNests3() = computeDontNests(generateNewItems(makeUnique(GEXP)), GEXP,makeUnique(GEXP)) == {};
+test bool tstComputeDontNests4() = computeDontNests(generateNewItems(makeUnique(GEXPPRIO)), GEXPPRIO, makeUnique(GEXPPRIO)) == {};
 
 test bool tstExpandParameterizedSymbols1() = expandParameterizedSymbols(G0) == 
 grammar(
