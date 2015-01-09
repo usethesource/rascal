@@ -31,6 +31,7 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Field;
@@ -98,8 +99,8 @@ import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -1042,41 +1043,53 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			Result<IValue> result = this.getArgument().interpret(__eval);
 			Type expected = getType().typeOf(__eval.getCurrentEnvt(), true, __eval);
-
-			if (!(expected instanceof NonTerminalType)) {
-				throw new UnsupportedOperation("inline parsing", expected, this);
-			}
+			Result<IValue> reified = new TypeReifier(VF).typeToValue(expected, __eval);
 			
 			if (!result.getType().isSubtypeOf(TF.stringType()) && !result.getType().isSubtypeOf(TF.sourceLocationType())) {
 				throw new UnsupportedOperation("inline parsing", result.getType(), this);
 			}
 			
-			IConstructor symbol = ((NonTerminalType) expected).getSymbol();
-			if (!SymbolAdapter.isSort(symbol) && !SymbolAdapter.isLex(symbol) && !SymbolAdapter.isLayouts(symbol) && !SymbolAdapter.isStartSort(symbol)) {
-				throw new UnsupportedOperation("inline parsing", expected, this);
-			}
-
+		
 			__eval.__setInterrupt(false);
 			try {
-				IConstructor tree = null;
+				IValue tree = null;
+				Prelude p = new Prelude(VF);
 				
-				if (result.getType().isString()) {
-					tree = __eval.parseObject(symbol, VF.mapWriter().done(),
-						this.getLocation().getURI(),
-						((IString) result.getValue()).getValue().toCharArray());
+				if (expected instanceof NonTerminalType) {
+					IConstructor symbol = ((NonTerminalType) expected).getSymbol();
+					if (!SymbolAdapter.isSort(symbol) && !SymbolAdapter.isLex(symbol) && !SymbolAdapter.isLayouts(symbol) && !SymbolAdapter.isStartSort(symbol)) {
+						throw new UnsupportedOperation("inline parsing", expected, this);
+					}
+
+					if (result.getType().isString()) {
+						tree = p.parse(reified.getValue(), ((IString) result.getValue()), __eval);
+					}
+					else if (result.getType().isSourceLocation()) {
+						tree = p.parse(reified.getValue(), ((ISourceLocation) result.getValue()), __eval);
+					}
 				}
-				else if (result.getType().isSourceLocation()) {
-					tree = __eval.parseObject(__eval, symbol, VF.mapWriter().done(),
-							((ISourceLocation) result.getValue()).getURI());
+				else {
+					try {
+						if (result.getType().isString()) {
+							tree = p.readTextValueString(reified.getValue(), ((IString) result.getValue()), __eval);
+						}
+						else if (result.getType().isSourceLocation()) {
+							tree = p.readTextValueFile(reified.getValue(), ((ISourceLocation) result.getValue()), __eval);
+						}
+					}
+					catch (FactParseError e) {
+						throw RuntimeExceptionFactory.parseError(result.getType().isString() ? this.getLocation() : ((ISourceLocation) result.getValue()), this, __eval.getStackTrace());
+					}
 				}
 				
 				assert tree != null; // because we checked earlier
 
-				return org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(expected, tree, __eval);
+				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(expected, tree, __eval);
 			}
-			catch (ParseError e) {
-				throw RuntimeExceptionFactory.parseError(getLocation(), this, __eval.getStackTrace());
+			catch (Throw e) {
+				e.setLocation(getLocation());
+				e.setTrace(__eval.getStackTrace());
+				throw e;
 			}
 		}
 
