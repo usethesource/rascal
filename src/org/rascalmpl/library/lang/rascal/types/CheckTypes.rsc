@@ -1767,8 +1767,7 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <Type t> ] <Expression
     < c, rt > = convertAndExpandType(t,c);
     
     set[Symbol] failures = { };
-    if (!isNonTerminalType(rt)) failures += makeFailType("Expected non-terminal type, instead found <prettyPrintType(rt)>", t@\loc);
-    if (!isFailType(t1) && !isStrType(t1)) failures += makeFailType("Expected str, instead found <prettyPrintType(t1)>", e@\loc);
+    if (!isFailType(t1) && !isStrType(t1) && !isLocationType(t1)) failures += makeFailType("Expected str or loc, instead found <prettyPrintType(t1)>", e@\loc);
     if (isFailType(t1)) failures += t1;
 
     if (size(failures) > 0) return markLocationFailed(c, exp@\loc, collapseFailTypes(failures));
