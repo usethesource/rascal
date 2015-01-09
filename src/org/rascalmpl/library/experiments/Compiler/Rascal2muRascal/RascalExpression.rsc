@@ -110,10 +110,10 @@ MuExp translateComposeFunction(Expression e){
   
   //println("lhsReceiver: <lhsReceiver>");
   //println("rhsReceiver: <rhsReceiver>");
-  str ofqname = "<lhsReceiver>+<rhsReceiver>";
-  //str ofqname = lhsReceiver.fuid + "+" + rhsReceiver.fuid;  // name of composition
   
-  if(overloadingResolver[ofqname]?){
+  str ofqname = lhsReceiver.fuid + "_o_" + rhsReceiver.fuid;  // name of composition
+  
+  if(hasOverloadingResolver(ofqname)){
     return muOFun(ofqname);
   }
   
@@ -148,12 +148,8 @@ MuExp translateComposeFunction(Expression e){
   fun = muFunction(comp_fuid, "COMPOSED_FUNCTIONS_<i>", comp_ftype, scopeId, nargs, 2, false, \e@\loc, [], (), muBlock(body_exps));
  
   int uid = declareGeneratedFunction(comp_fuid, comp_ftype);
-  addFunctionToModule(fun);
-  
-  int k = size(overloadedFunctions);
-  scopeId1 = scopeId[0 .. findFirst(scopeId, "/")];
-  overloadedFunctions += <getModuleName(), {uid}>;
-  overloadingResolver[ofqname] = k;
+  addFunctionToModule(fun);  
+  addOverloadedFunctionAndResolver(ofqname, <getModuleName(), [uid]>);
  
   return muOFun(ofqname);
 }
@@ -173,48 +169,32 @@ MuExp translateAddFunction(Expression e){
   str2uid = invertUnique(uid2str);
   
   MuExp lhsReceiver = translate(e.lhs);
-  tuple[str scopeIn, set[int] alts] lhsOf;
+  OFUN lhsOf;
   
-  if(overloadingResolver[lhsReceiver.fuid]?){
-    int lhsResolver = overloadingResolver[lhsReceiver.fuid];
-    lhsOf = overloadedFunctions[lhsResolver];
+  if(hasOverloadingResolver(lhsReceiver.fuid)){
+    lhsOf = getOverloadedFunction(lhsReceiver.fuid);
   } else {
-    int k = size(overloadedFunctions);
     uid = str2uid[lhsReceiver.fuid];
-    lhsOf = <topFunctionScope(), {uid }>;
-    overloadedFunctions += lhsOf;
-    overloadingResolver[lhsReceiver.fuid] = k;
+    lhsOf = <topFunctionScope(), [uid]>;
+    addOverloadedFunctionAndResolver(lhsReceiver.fuid, lhsOf);
   }
  
   MuExp rhsReceiver = translate(e.rhs);
-  tuple[str scopeIn,set[int] alts] rhsOf;
+  OFUN rhsOf;
   
-  if( overloadingResolver[rhsReceiver.fuid]?){
-    int rhsResolver = overloadingResolver[rhsReceiver.fuid];
-    rhsOf = overloadedFunctions[rhsResolver];
+  if( hasOverloadingResolver(rhsReceiver.fuid)){
+    rhsOf = getOverloadedFunction(rhsReceiver.fuid);
   } else {
-    int k = size(overloadedFunctions);
     uid = str2uid[rhsReceiver.fuid];
-    rhsOf = <topFunctionScope(), {uid }>;
-    overloadedFunctions += rhsOf;
-    overloadingResolver[rhsReceiver.fuid] = k;
+    rhsOf = <topFunctionScope(), [uid]>;
+    addOverloadedFunctionAndResolver(rhsReceiver.fuid, rhsOf);
   }
  
-  tuple[str scopeIn,set[int] alts] compOf = <lhsOf[0], lhsOf[1] + rhsOf[1]>; // add all alternatives
+  OFUN compOf = <lhsOf[0], lhsOf[1] + rhsOf[1]>; // add all alternatives
   
-  str ofqname = lhsReceiver.fuid + "+" + rhsReceiver.fuid;  // name of addition
-  
-  int k;
-  bool exists = compOf in overloadedFunctions;
+  str ofqname = lhsReceiver.fuid + "_+_" + rhsReceiver.fuid;  // name of addition
  
-  if(!exists) {
-     k = size(overloadedFunctions);
-     overloadedFunctions += compOf;
-  } else {
-     k = indexOf(overloadedFunctions, compOf);
-  }
-  overloadingResolver[ofqname] = k;  
-
+  addOverloadedFunctionAndResolver(ofqname, compOf); 
   return muOFun(ofqname);
 }
 
@@ -514,8 +494,9 @@ MuExp translate(e:(Expression) `<Concrete concrete>`) {
 }
 
 MuExp getConstructor(str cons) {
+   cons = unescape(cons);
    uid = -1;
-   for(c <- constructors){
+   for(c <- getConstructors()){
      //println("c = <c>, uid2name = <uid2name[c]>, uid2str = <convert2fuid(c)>");
      if(cons == getSimpleName(getConfiguration().store[c].name)){
         //println("c = <c>, <config.store[c]>,  <uid2addr[c]>");
@@ -1059,21 +1040,22 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`){
 
-  // println("translate: <e>");
+   //println("translate: <e>");
    MuExp kwargs = translateKeywordArguments(keywordArguments);
       
    MuExp receiver = translate(expression);
    list[MuExp] args = [ translate(a) | a <- arguments ];
    
-   if(getOuterType(expression) == "str") {
+   //println("BACK at translate <e>");
+   
+   if(getOuterType(expression) == "str"){
    		return muCallPrim3("node_create", [receiver, *args, *kwargs], e@\loc);
        //return muCallPrim3("node_create", [receiver, *args] + (size_keywordArguments(keywordArguments) > 0 ? [kwargs] : [/* muCon(()) */]), e@\loc);
    }
-   
+  
    if(getOuterType(expression) == "loc"){
        return muCallPrim3("loc_with_offset_create", [receiver, *args], e@\loc);
    }
-   
    if(muFun1(str _) := receiver || muFun2(str _, str _) := receiver || muConstr(str _) := receiver) {
        return muCall(receiver, args + [ kwargs ]);
    }
@@ -1083,20 +1065,15 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                                      // and a version with type parameters uniquely renamed
    ftype_renamed = visit(ftype) { case parameter(str name, Symbol sym) => parameter("1" + name, sym) };
    
-   if(isOverloadedFunction(receiver) && receiver.fuid in overloadingResolver) {
+   if(isOverloadedFunction(receiver) && hasOverloadingResolver(receiver.fuid)){
        // Get the types of arguments
        list[Symbol] targs = [ getType(arg@\loc) | arg <- arguments ];
        // Generate a unique name for an overloaded function resolved for this specific use 
        str ofqname = receiver.fuid + "(<for(targ<-targs){><targ>;<}>)";
        // Resolve alternatives for this specific call
-       int i = overloadingResolver[receiver.fuid];
-       assert i >= 0: "index in overloadingResolver cannot be negative";
-       tuple[str scopeIn,set[int] alts] of = overloadedFunctions[i];
-       set[int] resolved = {};
+       OFUN of = getOverloadedFunction(receiver.fuid);
        
-       //println("overloadingResolver = <overloadingResolver>");
-       //println("overloadedFunctions = <overloadedFunctions>");
-       //println("ftype = <ftype>, ofqname = <ofqname>, i = <i>, alts = <of.alts>");
+       list[int] resolved = [];
        
        bool matches(Symbol t) {
        	   //println("matches: <ftype>, <t>");
@@ -1183,6 +1160,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
      
        //println("ftype = <ftype>, of.alts = <of.alts>");
        for(int alt <- of.alts) {
+       	   assert uid2type[alt]? : "cannot find type of alt";
            t = uid2type[alt];
            if(matches(t)) {
            	   //println("alt <alt> matches");
@@ -1198,20 +1176,12 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
            }
            throw "ERROR in overloading resolution: <ftype>; <expression@\loc>";
        }
-       bool exists = <of.scopeIn,resolved> in overloadedFunctions;
-       if(!exists) {
-           i = size(overloadedFunctions);
-           //println("Adding <<of.scopeIn,resolved>> as overloadedFunctions[<i>]");
-           overloadedFunctions += <of.scopeIn,resolved>;
-       } else {
-           i = indexOf(overloadedFunctions, <of.scopeIn,resolved>);
-       }
+       addOverloadedFunctionAndResolver(ofqname, <of.fuid,resolved>);
        
-       overloadingResolver[ofqname] = i;
        return muOCall3(muOFun(ofqname), args + [ kwargs ], e@\loc);
    }
-   if(isOverloadedFunction(receiver) && receiver.fuid notin overloadingResolver) {
-      throw "The use of a function has to be managed via overloading resolver!";
+   if(isOverloadedFunction(receiver) && !hasOverloadingResolver(receiver.fuid)) {
+      throw "The use of a function has to be managed via an overloading resolver!";
    }
    // Push down additional information if the overloading resolution needs to be done at runtime
    return muOCall4(receiver, 
@@ -1251,11 +1221,11 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
   // First split generators with a top-level && operator
   generators1 = [*(((Expression) `<Expression e1> && <Expression e2>` := g) ? [e1, e2] : [g]) | g <- generators];
   isGen = [!backtrackFree(g) | g <- generators1];
-  println("isGen: <isGen>");
+  //println("isGen: <isGen>");
   tgens = [];
   for(i <- index(generators1)) {
      gen = generators1[i];
-     println("all <i>: <gen>");
+     //println("all <i>: <gen>");
      if(isGen[i]){
 	 	tgen = translate(gen);
 	 	if(muMulti(exp) := tgen){ // Unwraps muMulti, if any
@@ -1408,7 +1378,7 @@ MuExp translate(q:(QualifiedName) `<QualifiedName v>`) =
 // For the benefit of names in regular expressions
 
 MuExp translate((Name) `<Name name>`) =
-    mkVar("<name>", name@\loc);
+    mkVar(unescape("<name>"), name@\loc);
 
 // -- subscript expression ------------------------------------------
 
@@ -1501,7 +1471,7 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
 
 // -- set annotation expression -------------------------------------
 
-str unescape(str name) = name[0] == "\\" ? name[1..] : name;
+
 
 MuExp translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expression val> ]`) =
     muCallPrim3("annotation_set", [translate(expression), muCon(unescape("<name>")), translate(val)], e@\loc);

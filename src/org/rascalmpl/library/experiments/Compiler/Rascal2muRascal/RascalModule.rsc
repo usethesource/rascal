@@ -53,26 +53,28 @@ public list[MuFunction] getFunctionsInModule() {
 }
 
 public void addFunctionToModule(MuFunction fun) {
-   //println("addFunctionToModule: <fun.qname>, <fun.scopeIn>");
+   //println("addFunctionToModule: <fun.qname>, \"<fun.scopeIn>\"");
    functions_in_module += [fun];
    
-   //for(f <- functions_in_module){ println("\t<f.qname>, <f.scopeIn>"); }
+   //for(f <- functions_in_module){ println("\t<f.qname>, \"<f.scopeIn>\""); }
 }
 
 public void addFunctionsToModule(list[MuFunction] funs) {
-   //println("addFunctionToModule: <for(f <- funs){><f.qname>, <f.scopeIn> <}>");
+   if(size(funs) > 0){
+   		//println("addFunctionsToModule [<size(funs)>]: <for(fun <- funs){><fun.qname>, \"<fun.scopeIn>\" <}>");
    
-   functions_in_module += funs;
+   		functions_in_module += funs;
    
-   //for(f <- functions_in_module){ println("\t<f.qname>, <f.scopeIn>"); }
+   		//for(f <- functions_in_module){ println("\t<f.qname>, \"<f.scopeIn>\""); }
+   }
 }
 
 public void setFunctionsInModule(list[MuFunction] funs) {
-   //println("setFunctionsInModule: <for(f <- funs){><f.qname>, <f.scopeIn> <}>");
+   //println("setFunctionsInModule: <for(f <- funs){><f.qname>, \"<f.scopeIn>\" <}>");
    
    functions_in_module = funs;
    
-   //for(f <- functions_in_module){	println("\t<f.qname>, <f.scopeIn>"); }
+   //for(f <- functions_in_module){	println("\t<f.qname>, \"<f.scopeIn>\""); }
 }
 
 // Reset global state
@@ -182,7 +184,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
                     muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKeywordParams[rname]) | rname <- allKeywordParams ])) ])) ]);
                                                 
          leaveFunctionScope();
-         functions_in_module += muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body);   	                                       
+         addFunctionToModule(muFunction(fuid,name.name,ftype,(addr.fuid in moduleNames) ? "" : addr.fuid,nformals,nformals + 1,false,|rascal:///|,[],(),body));   	                                       
    	 }
    	 				  
    	  translateModule(M);
@@ -191,17 +193,19 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	 
    	  generate_tests(modName, M@\loc);
    	  
+   	  //println("overloadedFunctions"); for(tp <- getOverloadedFunctions()) println(tp);
    	  // Overloading resolution...	  
    	  lrel[str,list[str],list[str]] overloaded_functions = 
    	  	[ < (of.scopeIn in moduleNames) ? "" : of.scopeIn, 
-   	  		[ uid2str[fuid] | int fuid <- of.fuids, (fuid in functions) && (fuid notin defaultFunctions) ] 
-   	  		+ [ uid2str[fuid] | int fuid <- of.fuids, fuid in defaultFunctions ]
+   	  		[ uid2str[fuid] | int fuid <- of.fuids, isFunction(fuid) && !isDefaultFunction(fuid) ] 
+   	  		+ [ uid2str[fuid] | int fuid <- of.fuids, isDefaultFunction(fuid) ]
    	  		  // Replace call to a constructor with call to the constructor companion function if the constructor has keyword parameters
-   	  		+ [ getCompanionForUID(fuid) | int fuid <- of.fuids, fuid in constructors, !isEmpty(config.dataKeywordDefaults[fuid]) ],
-   	  		[ uid2str[fuid] | int fuid <- of.fuids, fuid in constructors, isEmpty(config.dataKeywordDefaults[fuid]) ]
+   	  		+ [ getCompanionForUID(fuid) | int fuid <- of.fuids, isConstructor(fuid), !isEmpty(config.dataKeywordDefaults[fuid]) ],
+   	  		[ uid2str[fuid] | int fuid <- of.fuids, isConstructor(fuid), isEmpty(config.dataKeywordDefaults[fuid]) ]
    	  	  > 
-   	  	| tuple[str scopeIn,set[int] fuids] of <- overloadedFunctions 
-   	  	];    
+   	  	| tuple[str scopeIn,list[int] fuids] of <- getOverloadedFunctions() 
+   	  	];  
+   	  
    	  return muModule(modName,
    	                  config.messages, 
    	  				  imported_modules, 
@@ -211,7 +215,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  				  variables_in_module, 
    	  				  variable_initializations, 
    	  				  getModuleVarInitLocals(modName), 
-   	  				  overloadingResolver, 
+   	  				  getOverloadingResolver(),
    	  				  overloaded_functions, 
    	  				  getGrammar(),
    	  				  M@\loc);
@@ -347,12 +351,12 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   
   tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, kwps, body, when_conditions);
   
-  println("translateFunctionDeclration: <fuid>, <addr.fuid>, <moduleNames>,  addr.fuid in moduleNames = <addr.fuid in moduleNames>");
+  //println("translateFunctionDeclaration: <fuid>, <addr.fuid>, <moduleNames>,  addr.fuid in moduleNames = <addr.fuid in moduleNames>");
   
-  functions_in_module += muFunction(fuid, "<fd.signature.name>", ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
+  addFunctionToModule(muFunction(fuid, "<fd.signature.name>", ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									getFormals(uid), getScopeSize(fuid), 
   									isVarArgs, fd@\loc, tmods, ttags, 
-  									tbody);
+  									tbody));
   
   if("test" in tmods){
      params = ftype.parameters;
@@ -457,5 +461,5 @@ private void generate_tests(str module_name, loc src){
    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
    name_testsuite = "<module_name>_testsuite";
    main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-   functions_in_module += muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, |rascal:///|, [], (), code);
+   addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, |rascal:///|, [], (), code));
 }
