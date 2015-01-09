@@ -1047,7 +1047,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				throw new UnsupportedOperation("inline parsing", expected, this);
 			}
 			
-			if (!result.getType().isSubtypeOf(TF.stringType())) {
+			if (!result.getType().isSubtypeOf(TF.stringType()) && !result.getType().isSubtypeOf(TF.sourceLocationType())) {
 				throw new UnsupportedOperation("inline parsing", result.getType(), this);
 			}
 			
@@ -1058,9 +1058,19 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			__eval.__setInterrupt(false);
 			try {
-				IConstructor tree = __eval.parseObject(symbol, VF.mapWriter().done(),
+				IConstructor tree = null;
+				
+				if (result.getType().isString()) {
+					tree = __eval.parseObject(symbol, VF.mapWriter().done(),
 						this.getLocation().getURI(),
 						((IString) result.getValue()).getValue().toCharArray());
+				}
+				else if (result.getType().isSourceLocation()) {
+					tree = __eval.parseObject(__eval, symbol, VF.mapWriter().done(),
+							((ISourceLocation) result.getValue()).getURI());
+				}
+				
+				assert tree != null; // because we checked earlier
 
 				return org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(expected, tree, __eval);
