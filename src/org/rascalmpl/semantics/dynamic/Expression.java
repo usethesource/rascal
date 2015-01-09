@@ -1052,7 +1052,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			}
 			
 			IConstructor symbol = ((NonTerminalType) expected).getSymbol();
-			if (!SymbolAdapter.isSort(symbol) && !SymbolAdapter.isLex(symbol) && !SymbolAdapter.isLayouts(symbol)) {
+			if (!SymbolAdapter.isSort(symbol) && !SymbolAdapter.isLex(symbol) && !SymbolAdapter.isLayouts(symbol) && !SymbolAdapter.isStartSort(symbol)) {
 				throw new UnsupportedOperation("inline parsing", expected, this);
 			}
 
