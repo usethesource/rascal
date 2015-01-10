@@ -184,6 +184,7 @@ public class CodeBlock {
 			constantStore.add(v);
 			constantMap.put(v,  n);
 		}
+		System.err.println("getConstantIndex: " + v + " => " + n);
 		return n;
 	}
 	

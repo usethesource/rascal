@@ -2,8 +2,6 @@ module experiments::Compiler::Examples::Tst1
 
 import experiments::Compiler::muRascal::Syntax;
 import ParseTree;
-import Ambiguity;
-import IO;
 
 Tree parseMuRascal(loc s) {
   pt = parse( #start[Module], s);
