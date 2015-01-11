@@ -385,7 +385,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     list[Expression] epsList = [ epsi | epsi <- eps ];
     < c, t1 > = checkExp(e, c);
     
-    baseUsedItems = usedItems = invert(c.uses)[e@\loc];
+    usedItems = invert(c.uses)[e@\loc];
     usedItems = { ui | ui <- usedItems, !(c.store[ui] is overload)} + { uii | ui <- usedItems, c.store[ui] is overload, uii <- c.store[ui].items };
     rel[Symbol,KeywordParamMap] functionKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is function };
     rel[Symbol,KeywordParamMap] constructorKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is constructor };
@@ -798,10 +798,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         		if (isFunctionType(finalMatch)) {
         			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is function, comparable(c.store[ui].rtype,finalMatch) };
         			if (size(actuallyUsed) > 0) {
-	        			notUsed = (baseUsedItems + usedItems) - actuallyUsed;
-	        			c.uses = c.uses - (notUsed*{e@\loc}) + (actuallyUsed*{e@\loc});
-	        		} else {
-	        			c = addScopeInfo(c, "Could not replace used IDs on call site", e@\loc);
+	        			c.narrowedUses = c.narrowedUses + (actuallyUsed*{e@\loc});
 	        		}  
 				    return markLocationType(c,exp@\loc,getFunctionReturnType(finalMatch));
 				} else {
@@ -813,28 +810,19 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				if (isFunctionType(finalMatch)) {
         			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is function, comparable(c.store[ui].rtype,finalMatch) };
         			if (size(actuallyUsed) > 0) {
-	        			notUsed = (baseUsedItems + usedItems) - actuallyUsed;
-	        			c.uses = c.uses - (notUsed*{e@\loc}) + (actuallyUsed*{e@\loc});
-	        		} else {
-	        			c = addScopeInfo(c, "Could not replace used IDs on call site", e@\loc);
+	        			c.narrowedUses = c.narrowedUses + (actuallyUsed*{e@\loc});
 	        		}  
 					return markLocationType(c,exp@\loc,getFunctionReturnType(finalMatch));
 				} else if (isConstructorType(finalMatch)) {
         			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is constructor, comparable(c.store[ui].rtype,finalMatch) };
         			if (size(actuallyUsed) > 0) {
-	        			notUsed = (baseUsedItems + usedItems) - actuallyUsed;
-	        			c.uses = c.uses - (notUsed*{e@\loc}) + (actuallyUsed*{e@\loc});
-	        		} else {
-	        			c = addScopeInfo(c, "Could not replace used IDs on call site", e@\loc);
+	        			c.narrowedUses = c.narrowedUses + (actuallyUsed*{e@\loc});
 	        		}  
 					return markLocationType(c,exp@\loc,getConstructorResultType(finalMatch));
 				} else if (isProductionType(finalMatch)) {
         			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is production, comparable(c.store[ui].rtype,finalMatch) };
         			if (size(actuallyUsed) > 0) {
-	        			notUsed = (baseUsedItems + usedItems) - actuallyUsed;
-	        			c.uses = c.uses - (notUsed*{e@\loc}) + (actuallyUsed*{e@\loc});
-	        		} else {
-	        			c = addScopeInfo(c, "Could not replace used IDs on call site", e@\loc);
+	        			c.narrowedUses = c.narrowedUses + (actuallyUsed*{e@\loc});
 	        		}  
 					return markLocationType(c,exp@\loc,getProductionSortType(finalMatch));
 				}
@@ -855,10 +843,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				}
     			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is function, comparable(c.store[ui].rtype,functionVariant) };
     			if (size(actuallyUsed) > 0) {
-        			notUsed = (baseUsedItems + usedItems) - actuallyUsed;
-        			c.uses = c.uses - (notUsed*{e@\loc}) + (actuallyUsed*{e@\loc});
-        		} else {
-        			c = addScopeInfo(c, "Could not replace used IDs on call site", e@\loc);
+        			c.narrowedUses = c.narrowedUses + (actuallyUsed*{e@\loc});
         		}  
 				< c, rtp > = markLocationType(c,e@\loc,functionVariant);
 				return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
@@ -3844,10 +3829,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is constructor || c.store[ui] is production, comparable(c.store[ui].rtype,ctType) };
 
 			if (size(actuallyUsed) > 0) {
-				notUsed = usedItems - actuallyUsed;
-				c.uses = c.uses - (notUsed*{ph@at}) + (actuallyUsed*{ph@at});
-			} else {
-				c = addScopeInfo(c, "Could not replace used IDs on call site", ph@at);
+				c.narrowedUses = c.narrowedUses + (actuallyUsed*{ph@at});
 			}  
 			
 		}
