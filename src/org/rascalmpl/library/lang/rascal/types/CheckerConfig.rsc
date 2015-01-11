@@ -112,6 +112,7 @@ data Configuration = config(set[Message] messages,
                             rel[int,Modifier] functionModifiers,
                             rel[int,loc] definitions,
                             rel[int,loc] uses,
+                            rel[int,loc] narrowedUses,
                             map[loc,int] usedIn,
                             rel[int,int] adtConstructors,
                             rel[int,int] nonterminalConstructors,
@@ -131,7 +132,7 @@ data Configuration = config(set[Message] messages,
                             bool importing
                            );
 
-public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
+public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
