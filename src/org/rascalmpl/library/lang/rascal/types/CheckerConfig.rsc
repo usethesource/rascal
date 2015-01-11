@@ -1415,3 +1415,21 @@ public Configuration exitBooleanScope(Configuration c, Configuration cOrig) {
 
 @doc{Check if a set of function modifiers has the default modifier}
 public bool hasDefaultModifier(set[Modifier] modifiers) = defaultModifier() in modifiers;
+
+private bool ignoreDeclaration(Tags tags){
+    map[str,str] getTags(Tags tags){
+       m = ();
+       for(tg <- tags.tags){
+         str name = "<tg.name>";
+         if(tg is \default){
+            cont = "<tg.contents>"[1 .. -1];
+            m[name] = cont;
+         } else if (tg is empty)
+            m[name] = "";
+         else
+            m[name] = "<tg.expression>"[1 .. -1];
+       }
+       return m;
+    }
+    return !isEmpty(domain(getTags(tags)) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+}

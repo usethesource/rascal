@@ -5965,6 +5965,8 @@ private Configuration prepareFunctionBodyEnv(Configuration c) {
 
 @doc{Check function declarations: Abstract}
 public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig>;`, bool descend, Configuration c) {
+	if (ignoreDeclaration(tags)) return c;
+	
     // TODO: Enforce that this is a java function?
     rn = getFunctionName(sig);
     throwsTypes = [ ];
@@ -6031,6 +6033,8 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 @doc{Check function declarations: Expression}
 public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;`, bool descend, Configuration c) {
+	if (ignoreDeclaration(tags)) return c;
+
     rn = getFunctionName(sig);
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
@@ -6100,6 +6104,8 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 @doc{Check function declarations: Conditional}
 public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> = <Expression exp> when <{Expression ","}+ conds>;`, bool descend, Configuration c) {
+	if (ignoreDeclaration(tags)) return c;
+
     rn = getFunctionName(sig);
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
@@ -6181,6 +6187,8 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 @doc{Check function declarations: Default}
 public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> <FunctionBody body>`, bool descend, Configuration c) {
+	if (ignoreDeclaration(tags)) return c;
+
     rn = getFunctionName(sig);
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
