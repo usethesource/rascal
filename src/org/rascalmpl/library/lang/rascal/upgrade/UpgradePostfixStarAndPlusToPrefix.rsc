@@ -1,20 +1,7 @@
 @bootstrapParser
 module lang::rascal::upgrade::UpgradePostfixStarAndPlusToPrefix
 
-import util::FileSystem;
-import lang::rascal::\syntax::Rascal;
-import ParseTree;
-import IO;
-import Message;
-
-list[Message] report(loc root) 
-   = [*report(parse(#start[Module], m)) | m <- find(root, "rsc")];
-
-void update(loc root) {
-  for (m <- find(root, "rsc")) {
-    writeFile(m, "<update(parse(#start[Module], m))>");
-  }
-}
+import lang::rascal::upgrade::UpgradeBase;
 
 list[Message] report(Tree m) {
   result = [];
