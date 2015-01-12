@@ -108,6 +108,7 @@ test bool assigningClosureToVariableBug8771() {
   	
 data FK(int kw1 = 0) = h(int w = -1);
 
+@ignoreCompiler{Not yet implemented}
 test bool testKwParams1() { 
   FK X = h();
   assert X.w == -1;
@@ -115,6 +116,7 @@ test bool testKwParams1() {
   return X.w == -2;
 }
 
+@ignoreCompiler{Not yet implemented}
 test bool testKwParams2() { 
   FK X = h();
   assert X.kw1 == 0;
