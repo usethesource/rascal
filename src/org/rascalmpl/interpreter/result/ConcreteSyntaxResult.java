@@ -94,6 +94,20 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			return makeResult(tree.getConstructorType().getFieldType(name), tree.get(name), ctx);
 		}
 		
+		Type kwType = store.getKeywordParameterType(Factory.Tree_Appl, name);
+		
+		if (kwType != null) {
+			IValue parameter = tree.asWithKeywordParameters().getParameter(name);
+		
+			if (parameter == null) {  
+				ConstructorFunction appl = ctx.getCurrentEnvt().getConstructorFunction(Factory.Tree_Appl);
+				return (Result<U>) appl.computeDefaultKeywordParameter(name, getValue(), ctx.getCurrentEnvt());
+			}
+			else {
+				return makeResult(kwType, parameter, ctx);
+			}
+		}
+		
 		throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 	
