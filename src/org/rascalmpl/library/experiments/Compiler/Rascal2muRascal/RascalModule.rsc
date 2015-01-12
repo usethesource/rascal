@@ -316,6 +316,12 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   //setFunctionUID(fd@\loc);
   
   try {
+  ttags =  translateTags(fd.tags);
+  if(ignoreTest(ttags)){
+  	return;
+  }
+  tmods = translateModifiers(fd.signature.modifiers);
+  
   ftype = getFunctionType(fd@\loc);
   nformals = size(ftype.parameters);
   uid = loc2uid[fd@\loc];
@@ -329,8 +335,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   // Keyword parameters
   list[MuExp] kwps = translateKeywordParameters(fd.signature.parameters, fuid, getFormals(uid), fd@\loc);
  
-  tmods = translateModifiers(fd.signature.modifiers);
-  ttags =  translateTags(fd.tags);
+  
   
   if(ttags["javaClass"]?){
      paramTypes = \tuple([param | param <- ftype.parameters]);
