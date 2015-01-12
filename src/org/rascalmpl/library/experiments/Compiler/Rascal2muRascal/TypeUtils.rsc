@@ -4,7 +4,7 @@ module experiments::Compiler::Rascal2muRascal::TypeUtils
 import Prelude;
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::TestChecker;
-import lang::rascal::types::CheckTypes;
+import lang::rascal::types::CheckTypes; 
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 import experiments::Compiler::Rascal2muRascal::RascalType;
@@ -128,7 +128,7 @@ void addOverloadedFunctionAndResolver(str fuid1, OFUN fundescr){
 		overloadedFunctions += fundescr;
 	}
 	println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
-	assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
+	//assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
 	overloadingResolver[fuid1] = n;
 	//println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>");
 }
@@ -143,7 +143,7 @@ bool hasOverloadingResolver(FUID fuid) = overloadingResolver[fuid]?;
 OFUN getOverloadedFunction(FUID fuid) {
 	assert overloadingResolver[fuid]? : "No overloading resolver defined for <fuid>";
 	resolver = overloadingResolver[fuid];
-	//println("getOverloadedFunction(<fuid>) ==\> <overloadedFunctions[resolver]>");
+	println("getOverloadedFunction(<fuid>) ==\> <overloadedFunctions[resolver]>");
 	return overloadedFunctions[resolver];
 }
 
@@ -256,6 +256,7 @@ void extractScopes(Configuration c){
              println("<uid>: <item>");
 		     ofunctions += {uid};
 		     for(l <- config.uses[uid]) {
+		     	println("add loc2uid[<l>] = <uid>");
 		     	loc2uid[l] = uid;
 		     } 
     	}
@@ -758,14 +759,14 @@ MuExp mkVar(str name, loc l) {
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in constructors || uid in ofunctions) {
     // Get the function uids of an overloaded function
-    //println("config.store[<uid>].items = <config.store[uid].items>");
+    println("config.store[<uid>] = <config.store[uid]>");
     list[int] ofuids = (uid in functions || uid in constructors) ? [uid] : sortOverloadedFunctions(config.store[uid].items);
     println("ofuids = <ofuids>");
     for(nnuid <- ofuids){
     	println("<nnuid>: <config.store[nnuid]>");
     }
     // Generate a unique name for an overloaded function resolved for this specific use
-    str ofuid = convert2fuid(config.usedIn[l]) + "/use:<name>";   // "/use:<name>#<l.begin.line>";
+    str ofuid = convert2fuid(config.usedIn[l]) + /*"/use:<name>";   // */ "/use:<name>#<l.begin.line>";
     
  
     addOverloadedFunctionAndResolver(ofuid, <addr.fuid,ofuids>);
