@@ -43,7 +43,10 @@ public void resetTypeReifier() {
 // - getGrammar
 // - symbolToValue
 
+private map[Symbol,Production] TreeDefinitions = #Tree.definitions;
+
 public void getDeclarationInfo(Configuration config){
+	println("Start getDeclarationInfo");
     resetTypeReifier();
     
     // Collect all the types that are in the type environment
@@ -55,10 +58,13 @@ public void getDeclarationInfo(Configuration config){
 
 	// Collect all the constructors of the adt types in the type environment
 	
-	constructors = { <\type.\adt, \type> | int uid <- config.store, 
+	rel[Symbol, Symbol] constructors = { <\type.\adt, \type> | int uid <- config.store, 
 												constructor(_, Symbol \type, _, _, _) := config.store[uid]
 												//\type.\adt in types 
 												};
+	
+	//constructors += <#Tree.symbol, type(Tree, ())>;
+	
     typeRel += { <cns[1].adt.name, cns[1].adt> | cns <- constructors };
     
     types = range(typeRel);
@@ -78,12 +84,13 @@ public void getDeclarationInfo(Configuration config){
    	if(!isEmpty(activeLayouts)) {
    		activeLayout = getOneFrom(activeLayouts);
    	}
+   	println("End getDeclarationInfo");
 }
 
 // Extract the declared grammar from a type checker configuration
 
 public map[Symbol,Production] getGrammar() {
-	
+	println("Start getGrammar");
 	map[Symbol,Production] definitions =   ( nonterminal : \layouts(grammar[nonterminal]) | nonterminal <- grammar ) 
 										 + ( Symbol::\start(nonterminal) : \layouts(Production::choice(Symbol::\start(nonterminal),
 																					   				   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) })) 
@@ -99,13 +106,14 @@ public map[Symbol,Production] getGrammar() {
  	//for(s <- definitions) println("<s>: <definitions[s]>,");
  	//println(")\n----------");
  	
+ 	println("End getGrammar");
  	return definitions;
 }
 
 // Extract all declared symbols from a type checker configuration
 
 public map[Symbol,Production] getDefinitions() {
-
+	println("Start getDefinitions");
    	// Collect all symbols
    	set[Symbol] symbols = types + carrier(constructors) + carrier(productions) + domain(grammar);
    	
@@ -115,10 +123,16 @@ public map[Symbol,Production] getDefinitions() {
    	//}
     
    	// and find their definitions
+   	//iprintln(TreeDefinitions);
    	map[Symbol,Production] definitions  = (() | reify(symbol, it) | Symbol symbol <- symbols);
+ 	
+ 	println("End getDefinitions");
+ 	iprintln(definitions);
  	
  	return definitions;
 }
+
+
 
 public type[value] symbolToValue(Symbol symbol) {
    	
@@ -187,11 +201,13 @@ public map[Symbol,Production] reify(Symbol::\tuple(list[Symbol] symbols), map[Sy
 // map
 public map[Symbol,Production] reify(Symbol::\map(Symbol from, Symbol to), map[Symbol,Production] definitions)
 	= reify(from, definitions) + reify(to, definitions);
-	
+
+
+
 // adt
 public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols), map[Symbol,Production] definitions) {
 	set[Symbol] defs = typeRel[name];
-	//println("reify adt: <name>, <symbols>, <defs>, <constructors>");
+	println("reify adt: <name>, <symbols>, <defs>, <constructors>");
 
     for(Symbol s <- defs){
 	   if(adtDef: Symbol::\adt(name,_) := s){
@@ -205,7 +221,7 @@ public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols)
           return definitions;
        }
     }
-    throw "No definition for ADT <name>";
+    throw "No definition for ADT <name>(<symbols>)";
 }
 
 // constructors
