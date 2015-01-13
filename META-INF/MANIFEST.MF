@@ -4,7 +4,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: CWI
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.7.1.qualifier
+Bundle-Version: 0.7.2.qualifier
 Export-Package: 
  org.apache.commons.compress.compressors,
  org.apache.commons.compress.compressors.bzip2,
