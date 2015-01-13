@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Name;
@@ -150,9 +151,21 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 				}
 				throw new UnexpectedType(fieldType, repl.getType(), ctx.getCurrentAST());
 			}
+			
+			Type kwType = store.getKeywordParameterType(Factory.Tree_Appl, name);
+			
+			if (kwType != null) {
+				if (repl.getType().isSubtypeOf(kwType)) {
+					return makeResult(getType(), getValue().asWithKeywordParameters().setParameter(name, repl.getValue()), ctx);
+				}
+				else {
+					throw new UnexpectedTypeException(kwType, repl.getType());
+				}
+			}
 
 			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
+		
 		throw new UnsupportedOperation("field update", ctx.getCurrentAST());
 	}
 	
