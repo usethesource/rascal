@@ -112,6 +112,7 @@ data Configuration = config(set[Message] messages,
                             rel[int,Modifier] functionModifiers,
                             rel[int,loc] definitions,
                             rel[int,loc] uses,
+                            rel[int,loc] narrowedUses,
                             map[loc,int] usedIn,
                             rel[int,int] adtConstructors,
                             rel[int,int] nonterminalConstructors,
@@ -131,7 +132,7 @@ data Configuration = config(set[Message] messages,
                             bool importing
                            );
 
-public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
+public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -1414,3 +1415,21 @@ public Configuration exitBooleanScope(Configuration c, Configuration cOrig) {
 
 @doc{Check if a set of function modifiers has the default modifier}
 public bool hasDefaultModifier(set[Modifier] modifiers) = defaultModifier() in modifiers;
+
+private bool ignoreDeclaration(Tags tags){
+    map[str,str] getTags(Tags tags){
+       m = ();
+       for(tg <- tags.tags){
+         str name = "<tg.name>";
+         if(tg is \default){
+            cont = "<tg.contents>"[1 .. -1];
+            m[name] = cont;
+         } else if (tg is empty)
+            m[name] = "";
+         else
+            m[name] = "<tg.expression>"[1 .. -1];
+       }
+       return m;
+    }
+    return !isEmpty(domain(getTags(tags)) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+}

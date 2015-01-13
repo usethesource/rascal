@@ -13,6 +13,8 @@
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
 module lang::rascal::\syntax::Rascal
 
+import ParseTree;       // TODO: needed to compile grammar, but prevents bootstrap to work!
+
 lexical BooleanLiteral
 	= "true" 
 	| "false" ;
