@@ -21,7 +21,10 @@ list[Message] reportFor(loc l) {
 void update(loc root) {
   modules = [ f | /file(f) := crawl(root), f.extension == "rsc"];
   for (m <- modules) {
-    writeFile(m, "<update(parse(#start[Module], m))>");
+    try 
+      writeFile(m, "<update(parse(#start[Module], m))>");
+    catch ParseError(l):
+      println("parse error in <l>, skipped");
   }
 }
 

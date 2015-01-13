@@ -16,6 +16,7 @@ Tree update(Tree m) =
       => (Declaration) `<Tags t> 
                        '<Visibility v> data <Name adt>(<Type t> <Name name> = <Expression init>);` 
       when Expression init := getInitializer(t) 
+    case (Expression) `<Expression e>@\\loc` => (Expression) `<Expression e>.src`
     case (Expression) `<Expression e>@<Name name>` => (Expression) `<Expression e>.<Name name>`
     case (Expression) `<Expression e>[@<Name name>=<Expression def>]` => (Expression) `<Expression e>[<Name name>=<Expression def>]`
     case (Assignable) `<Name rec>@<Name field>` => (Assignable) `<Name rec>.<Name field>`

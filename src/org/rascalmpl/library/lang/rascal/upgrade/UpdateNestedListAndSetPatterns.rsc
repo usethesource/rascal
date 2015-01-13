@@ -4,7 +4,7 @@ module lang::rascal::upgrade::UpdateNestedListAndSetPatterns
 extend lang::rascal::upgrade::UpgradeBase;
 
 list[Message] report(Tree m) 
-  = [info("found postfix multivar", name@\loc) | /(Pattern) `<QualifiedName name>*` := m];
+  = [info("found postfix multivar",  name@\loc) | /(Pattern) `<QualifiedName name>*` := m];
 
 Tree update(Tree m) =
   visit(m) {
