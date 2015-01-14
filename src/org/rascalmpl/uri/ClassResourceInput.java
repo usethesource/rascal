@@ -50,7 +50,7 @@ public class ClassResourceInput implements IURIInputStreamResolver {
 		return prefix;
 	}
 	
-	private String getPath(URI uri) {
+	protected String getPath(URI uri) {
 		String path = uri.getPath();
 		while (path.startsWith("/")) {
 			path = path.substring(1);

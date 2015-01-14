@@ -111,7 +111,7 @@ MuExp translateComposeFunction(Expression e){
   //println("lhsReceiver: <lhsReceiver>");
   //println("rhsReceiver: <rhsReceiver>");
   
-  str ofqname = lhsReceiver.fuid + "_o_" + rhsReceiver.fuid;  // name of composition
+  str ofqname = lhsReceiver.fuid + "_o_" + rhsReceiver.fuid + e@\loc.offset;  // name of composition
   
   if(hasOverloadingResolver(ofqname)){
     return muOFun(ofqname);
@@ -122,7 +122,8 @@ MuExp translateComposeFunction(Expression e){
     
   // Generate and add a function COMPOSED_FUNCTIONS_<i>
   str scopeId = topFunctionScope();
-  str comp_fuid = scopeId + "/" + "COMPOSED_FUNCTIONS_<i>";
+  str comp_name = "COMPOSED_FUNCTIONS_<e@\loc.offset>";
+  str comp_fuid = scopeId + "/" + comp_name;
   
   Symbol comp_ftype;  
   int nargs;
@@ -141,11 +142,11 @@ MuExp translateComposeFunction(Expression e){
     
   enterFunctionScope(comp_fuid);
   kwargs = muCallMuPrim("make_mmap", []);
-  rhsCall = muOCall4(rhsReceiver, \tuple([rhsType]), [muVar("parameter_<i>", comp_fuid, j) | int j <- [0 .. nargs]] + [ kwargs ], e.rhs@\loc);
+  rhsCall = muOCall4(rhsReceiver, \tuple([rhsType]), [muVar("parameter_<comp_name>", comp_fuid, j) | int j <- [0 .. nargs]] + [ kwargs ], e.rhs@\loc);
   body_exps =  [muReturn1(muOCall4(lhsReceiver, \tuple([lhsType]), [rhsCall, kwargs ], e.lhs@\loc))];
    
   leaveFunctionScope();
-  fun = muFunction(comp_fuid, "COMPOSED_FUNCTIONS_<i>", comp_ftype, scopeId, nargs, 2, false, \e@\loc, [], (), muBlock(body_exps));
+  fun = muFunction(comp_fuid, comp_name, comp_ftype, scopeId, nargs, 2, false, \e@\loc, [], (), muBlock(body_exps));
  
   int uid = declareGeneratedFunction(comp_fuid, comp_ftype);
   addFunctionToModule(fun);  
@@ -192,7 +193,7 @@ MuExp translateAddFunction(Expression e){
  
   OFUN compOf = <lhsOf[0], lhsOf[1] + rhsOf[1]>; // add all alternatives
   
-  str ofqname = lhsReceiver.fuid + "_+_" + rhsReceiver.fuid;  // name of addition
+  str ofqname = lhsReceiver.fuid + "_+_" + rhsReceiver.fuid + e@\loc.offset;  // name of addition
  
   addOverloadedFunctionAndResolver(ofqname, compOf); 
   return muOFun(ofqname);
@@ -1069,7 +1070,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        // Get the types of arguments
        list[Symbol] targs = [ getType(arg@\loc) | arg <- arguments ];
        // Generate a unique name for an overloaded function resolved for this specific use 
-       str ofqname = receiver.fuid + "(<for(targ<-targs){><targ>;<}>)";
+       str ofqname = receiver.fuid + "(<for(targ<-targs){><targ>;<}>)#<e@\loc.offset>";
        // Resolve alternatives for this specific call
        OFUN of = getOverloadedFunction(receiver.fuid);
        
