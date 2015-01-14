@@ -89,6 +89,10 @@ public class TreeAdapter {
 	public static boolean isAmb(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Tree_Amb;
 	}
+	
+	public static boolean isTop(IConstructor tree) {
+		return SymbolAdapter.isStartSort(getType(tree));
+	}
 
 	public static boolean isChar(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Tree_Char;
