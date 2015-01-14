@@ -1,5 +1,5 @@
 module experiments::Compiler::Examples::Tst2
 
-data A = a(int n) | a(str s);
+import lang::rascal::tests::types::StaticTestingUtils;
 
-value main(list[value] args) = a(1);
+test bool undeclaredTypeError() = declarationError("A x = 0;", initialDecls=["alias A = B;"]);
