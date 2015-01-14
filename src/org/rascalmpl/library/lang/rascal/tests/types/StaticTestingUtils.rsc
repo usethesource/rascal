@@ -158,5 +158,6 @@ bool missingModule(str stmts, list[str] importedModules = [], list[str] initialD
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
 void makeModule(str name, str body){
-    writeFile(|rascal:///<name>.rsc|, "module <name>\n<body>");
+	mloc = |tmp:///<name>.rsc|;
+    writeFile(mloc, "module <name>\n<body>");
 }
