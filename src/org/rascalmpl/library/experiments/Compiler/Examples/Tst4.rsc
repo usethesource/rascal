@@ -1,5 +1,4 @@
 module experiments::Compiler::Examples::Tst4
 
-extend ParseTree;
-public data Symbol = deferred(Symbol givenType);
-public bool subtype(Symbol t, Symbol::deferred(Symbol s)) = subtype(t,s); 
+alias Person = tuple[str name, int age];
+Person merge() = ( <"X", 3> | <it.name, it.age + i> | i <- [0..10]); 

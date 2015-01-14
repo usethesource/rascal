@@ -250,14 +250,6 @@ private void importModule((Import) `extend <QualifiedName qname> ;`){  // TODO i
     imported_modules += getModuleLocation(qualifiedNameToPath(qname));
 }
 
-//private void importModule((Import) `import <QualifiedName qname> ;`){
-//    imported_modules += |rascal:///| + ("<qualifiedNameToPath(qname)>" + ".rsc");
-//}
-//
-//private void importModule((Import) `extend <QualifiedName qname> ;`){  // TODO implement extend properly
-//    imported_modules += |rascal:///| + ("<qualifiedNameToPath(qname)>" + ".rsc");
-//}
-
 private void importModule((Import) `<SyntaxDefinition syntaxdef>`){ /* nothing to do */ }
 
 private default void importModule(Import imp){

@@ -127,10 +127,9 @@ void addOverloadedFunctionAndResolver(str fuid1, OFUN fundescr){
 		n = size (overloadedFunctions);
 		overloadedFunctions += fundescr;
 	}
-	println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
-	//assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
+	//println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
+	assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
 	overloadingResolver[fuid1] = n;
-	//println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>");
 }
 
 public list[OFUN] getOverloadedFunctions() = overloadedFunctions;
@@ -143,7 +142,7 @@ bool hasOverloadingResolver(FUID fuid) = overloadingResolver[fuid]?;
 OFUN getOverloadedFunction(FUID fuid) {
 	assert overloadingResolver[fuid]? : "No overloading resolver defined for <fuid>";
 	resolver = overloadingResolver[fuid];
-	println("getOverloadedFunction(<fuid>) ==\> <overloadedFunctions[resolver]>");
+	//println("getOverloadedFunction(<fuid>) ==\> <overloadedFunctions[resolver]>");
 	return overloadedFunctions[resolver];
 }
 
@@ -223,7 +222,7 @@ void extractScopes(Configuration c){
       item = config.store[uid];
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
-         	 println("<uid>: <item>");
+         	 //println("<uid>: <item>");
 	         functions += {uid};
 	         declares += {<inScope, uid>}; 
              loc2uid[src] = uid;
@@ -236,27 +235,26 @@ void extractScopes(Configuration c){
              suffix = fname == "main" || endsWith(fname, "_init") || endsWith(fname, "testsuite") ? 0 : src.begin.line;
                
              name = getFUID(getSimpleName(rname),rtype,suffix);
-             //name = getFUID(getSimpleName(rname),rtype,cases[inScope][name]);
              uid2name[uid] = name;
-             //if(getSimpleName(rname) == "complement"){
-        	 	println("<uid>: <rname>, <rtype>, inScope=<inScope>, <src>");
-        	 	println("name = <name>, uid2name[<uid>] = <uid2name[uid]>");
+             
+        	 // println("<uid>: <rname>, <rtype>, inScope=<inScope>, <src>");
+        	 // println("name = <name>, uid2name[<uid>] = <uid2name[uid]>");
         	 	
-        	 //}
+        	 
              // Fill in uid2type to enable more precise overloading resolution
              uid2type[uid] = rtype;
              // Check if the function is default
-             println(config.store[uid]);
-             println(config.functionModifiers[uid]);
+             //println(config.store[uid]);
+             //println(config.functionModifiers[uid]);
              if(defaultModifier() in config.functionModifiers[uid]) {
              	defaultFunctions += {uid};
              }
         }
         case overload(_,_): {
-             println("<uid>: <item>");
+             //println("<uid>: <item>");
 		     ofunctions += {uid};
 		     for(l <- config.uses[uid]) {
-		     	println("add loc2uid[<l>] = <uid>");
+		     	//println("add loc2uid[<l>] = <uid>");
 		     	loc2uid[l] = uid;
 		     } 
     	}
@@ -530,8 +528,6 @@ void extractScopes(Configuration c){
 }
 
 int declareGeneratedFunction(str name, Symbol rtype){
-
-println("declareGeneratedFunction: <name>, <rtype>");
     uid = config.nextLoc;
     config.nextLoc = config.nextLoc + 1;
     functions += {uid};
@@ -745,26 +741,26 @@ bool compareScopes(int n, int m) = config.store[n].at.begin.line < config.store[
 
 list[int] sortOverloadedFunctions(set[int] items){
 
-	println("sortOverloadedFunctions: <items>");
+	//println("sortOverloadedFunctions: <items>");
 	defaults = [i | i <- items, i in defaultFunctions];
 	return sort(toList(items) - defaults, compareScopes) + sort(defaults, compareScopes);
 }
 
 MuExp mkVar(str name, loc l) {
   //name = unescape(name);
-  println("mkVar: <name>, <l>");
+  //println("mkVar: <name>, <l>");
   uid = loc2uid[l];
   tuple[str fuid,int pos] addr = uid2addr[uid];
   
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in constructors || uid in ofunctions) {
     // Get the function uids of an overloaded function
-    println("config.store[<uid>] = <config.store[uid]>");
+    //println("config.store[<uid>] = <config.store[uid]>");
     list[int] ofuids = (uid in functions || uid in constructors) ? [uid] : sortOverloadedFunctions(config.store[uid].items);
-    println("ofuids = <ofuids>");
-    for(nnuid <- ofuids){
-    	println("<nnuid>: <config.store[nnuid]>");
-    }
+    //println("ofuids = <ofuids>");
+    //for(nnuid <- ofuids){
+    //	println("<nnuid>: <config.store[nnuid]>");
+    //}
     // Generate a unique name for an overloaded function resolved for this specific use
     str ofuid = convert2fuid(config.usedIn[l]) + /*"/use:<name>";   // */ "/use:<name>#<l.begin.line>";
     
