@@ -57,6 +57,8 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 
@@ -270,27 +272,40 @@ public class TraversalEvaluator {
 			// Otherwise:
 			// - Copy prod node verbatim to result
 			// - Only visit non-layout nodes in argument list
-			args[0] = cons.get(0);
-			IList list = (IList) cons.get(1);
+			args[0] = TreeAdapter.getProduction(cons);
+			IList list = TreeAdapter.getArgs(cons);
 			int len = list.length();
 
 			if (len > 0) {
 				IListWriter w = eval.getValueFactory().listWriter(list.getType().getElementType());
 				boolean hasChanged = false;
 				boolean hasMatched = false;
-
-				for (int i = 0; i < len; i++){
-					IValue elem = list.get(i);
-					if (i % 2 == 0) { // Recursion to all non-layout elements
-						tr.changed = false;
-						tr.matched = false;
-						w.append(traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr));
-						hasChanged |= tr.changed;
-						hasMatched |= tr.matched;
-					} else { // Just copy layout elements
-						w.append(list.get(i));
+				boolean isTop = TreeAdapter.isTop(cons);
+				
+				if (isTop) {
+					w.append(list.get(0)); // copy layout before
+					tr.changed = false;
+					tr.matched = false;
+					w.append(traverseOnce(list.get(1), casesOrRules, direction, progress, fixedpoint, tr));
+					hasChanged |= tr.changed;
+					hasMatched |= tr.matched;
+					w.append(list.get(2)); // copy layout after
+				} 
+				else { 
+					for (int i = 0; i < len; i++){
+						IValue elem = list.get(i);
+						if (i % 2 == 0) { // Recursion to all non-layout elements
+							tr.changed = false;
+							tr.matched = false;
+							w.append(traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr));
+							hasChanged |= tr.changed;
+							hasMatched |= tr.matched;
+						} else { // Just copy layout elements
+							w.append(list.get(i));
+						}
 					}
 				}
+				
 				tr.changed = hasChanged;
 				tr.matched = hasMatched;
 				args[1] = w.done();
