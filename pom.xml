@@ -2,16 +2,23 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
+	<!-- <parent>
 		<relativePath>../rascal-pom-parent/pom.xml</relativePath>
 		<groupId>org.rascalmpl</groupId>
 		<artifactId>rascal-pom-parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
-	</parent>
+	</parent> -->
 
+	<groupId>org.rascalmpl</groupId>
 	<artifactId>rascal</artifactId>
-	<version>0.7.2.qualifier</version>
-	<packaging>eclipse-plugin</packaging>
+	<version>0.7.2-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.7</maven.compiler.source>
+	</properties>
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/cwi-swat/rascal.git</developerConnection>
@@ -20,21 +27,21 @@
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
-		  <resource>
-		    <directory>src</directory>
-		    <excludes>
-		      <exclude>**/*.java</exclude>
-		      <exclude>**/*.class</exclude>
-		    </excludes>
-		  </resource>
-		  <resource>
-		    <directory>.</directory>
-		    <filtering>false</filtering>
-		    <includes>
-		      <include>plugin.xml</include>
-		      <include>META-INF/RASCAL.MF</include>
-		    </includes>
-		  </resource>
+			<resource>
+				<directory>src</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+					<exclude>**/*.class</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>.</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>plugin.xml</include>
+					<include>META-INF/RASCAL.MF</include>
+				</includes>
+			</resource>
 		</resources>
 		<testSourceDirectory>test</testSourceDirectory>
 		<testResources>
@@ -63,7 +70,7 @@
 				</executions>
 				<configuration>
 					<argLine>
-                  -ea
+				  		-ea
 						-Xmx1g
 						-Xss128m
 					</argLine>
@@ -76,23 +83,25 @@
 	</build>
 
 	<dependencies>
-		<!-- Used to trigger upstream projects in Jenkins  -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+		</dependency>	
 		<dependency>
 			<groupId>org.eclipse.imp</groupId>
-			<artifactId>org.eclipse.imp.pdb.values</artifactId>
-			<version>0.4.1.qualifier</version>
-		</dependency>	
-		
-		<!-- Rascal MANIFEST.MF Dependencies -->
+			<artifactId>pdb.values-api</artifactId>
+			<version>0.4.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.imp</groupId>
+			<artifactId>pdb.values-core</artifactId>
+			<version>0.4.1-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm-all</artifactId>
 			<version>4.2</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.icu</groupId>
-			<artifactId>icu4j</artifactId>
-			<version>52.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -103,7 +112,32 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
-		</dependency>            
+		</dependency>
+		<dependency>
+			<groupId>org.rascalmpl</groupId>
+			<artifactId>p2-repackaged</artifactId>
+			<version>0.0.1</version>
+		</dependency>		
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.9</version>
+		</dependency>
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+			<version>1.14</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jdom</groupId>
+			<artifactId>jdom</artifactId>
+			<version>1.1.3</version>
+		</dependency>
 	</dependencies>
 
 </project>

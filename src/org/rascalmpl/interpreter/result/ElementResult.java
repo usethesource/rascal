@@ -273,9 +273,8 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return (Result<U>) makeSlice(firstIndex, secondIndex, endIndex);
 	}
 
-  @SuppressWarnings("unchecked")
   protected Result<? extends INumber> toReal(IntegerResult from) {
-    return (Result<? extends INumber>) makeResult(getTypeFactory().realType(), from.getValue().toReal(), ctx);
+    return makeResult(getTypeFactory().realType(), from.getValue().toReal(), ctx);
   }
 
 	
