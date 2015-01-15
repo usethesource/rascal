@@ -314,10 +314,7 @@ public class ASTBuilder {
 				kids.add(ast);
 			}
 
-			if (TreeAdapter.isLexical(tree)) {
-				return cache(tree, new Tree.Lexical(tree, kids));
-			}
-			else if (TreeAdapter.isList(tree)) {
+			if (TreeAdapter.isList(tree)) {
 				// TODO: splice element lists (can happen in case of ambiguous lists)
 				return cache(tree, new Tree.List(tree, kids));
 			}

@@ -76,6 +76,9 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		evaluator.getConfiguration().setErrors(true);
+        IURIInputStreamResolver rascalProject = new RascalProjectInput(evaluator.getResolverRegistry(), RascalJUnitCompiledTestRunner.class);
+        evaluator.getResolverRegistry().registerInput(rascalProject);
+        evaluator.addRascalSearchPath(URIUtil.rootScheme("project"));
 
 		// Import the compiler's Execute module
 		NullRascalMonitor monitor = new NullRascalMonitor();
