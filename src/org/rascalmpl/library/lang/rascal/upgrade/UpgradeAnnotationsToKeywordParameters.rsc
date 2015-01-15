@@ -12,13 +12,21 @@ list[Message] report(Tree m)
 
 Tree update(Tree m) =
   visit(m) {
-    case (Declaration) `<Tags t> <Visibility v> anno <Type t> <Name adt>@<Name name>;` 
-      => (Declaration) `<Tags t> 
+    case (Declaration) `<Tags tags> <Visibility v> anno <Type t> <Name adt>@<Name name>;` 
+      => (Declaration) `<Tags tags> 
                        '<Visibility v> data <Name adt>(<Type t> <Name name> = <Expression init>);` 
       when Expression init := getInitializer(t) 
-    case (Expression) `<Expression e>@\\loc` => (Expression) `<Expression e>.src`
+    case (Expression) `<Expression e>@\\loc` => (Expression) `<Expression e>.origin`
+    case (Expression) `<Expression e>@src` => (Expression) `<Expression e>.origin`
+    case (Expression) `<Expression e>@location` => (Expression) `<Expression e>.origin`
     case (Expression) `<Expression e>@<Name name>` => (Expression) `<Expression e>.<Name name>`
+    case (Expression) `<Expression e>[@location=<Expression def>]` => (Expression) `<Expression e>[origin=<Expression def>]`
+    case (Expression) `<Expression e>[@\\loc=<Expression def>]` => (Expression) `<Expression e>[origin=<Expression def>]`
+    case (Expression) `<Expression e>[@src=<Expression def>]` => (Expression) `<Expression e>[origin=<Expression def>]`
     case (Expression) `<Expression e>[@<Name name>=<Expression def>]` => (Expression) `<Expression e>[<Name name>=<Expression def>]`
+    case (Assignable) `<Name rec>@\\loc` => (Assignable) `<Name rec>.origin`
+    case (Assignable) `<Name rec>@src` => (Assignable) `<Name rec>.origin`
+    case (Assignable) `<Name rec>@location` => (Assignable) `<Name rec>.origin`
     case (Assignable) `<Name rec>@<Name field>` => (Assignable) `<Name rec>.<Name field>`
   };
 
@@ -32,4 +40,5 @@ Expression getInitializer((Type) `num`) = (Expression) `0`;
 Expression getInitializer((Type) `str`) = (Expression) `""`;
 Expression getInitializer((Type) `value`) = (Expression) `[]`; 
 Expression getInitializer((Type) `rat`) = (Expression) `r0`; 
+Expression getInitializer((Type) `loc`) = (Expression) `|unknown:///|`; 
 default Expression getInitializer(Type t) = (Expression) `<Type t> () { throw "no default value"; }()`;   
