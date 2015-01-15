@@ -42,7 +42,7 @@ public data \AST(loc file = |unknown:///|)
   ;
 
 data Declaration(
-  loc src  = |unknown:///|,
+  loc origin  = |unknown:///|,
   loc decl = |unknown:///|,
   TypeSymbol typ  = \any(),
   list[Modifier] modifiers = [],
@@ -50,12 +50,12 @@ data Declaration(
 );
 
 data Statement(
-  loc src = |unknown:///|,
+  loc origin = |unknown:///|,
   loc decl = |unknown:///|
 );
 
 data Expression(
-  loc src = |unknown:///|,
+  loc origin = |unknown:///|,
   loc decl = |unknown:///|,
   TypeSymbol typ = \any()
 );

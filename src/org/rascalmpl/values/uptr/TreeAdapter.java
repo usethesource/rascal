@@ -274,11 +274,11 @@ public class TreeAdapter {
 	}
 
 	public static ISourceLocation getLocation(IConstructor tree) {
-		return (ISourceLocation) tree.asWithKeywordParameters().getParameter("src");
+		return (ISourceLocation) tree.asWithKeywordParameters().getParameter("origin");
 	}
 	
 	public static IConstructor setLocation(IConstructor tree, ISourceLocation loc) {
-		return tree.asWithKeywordParameters().setParameter("src", loc);
+		return tree.asWithKeywordParameters().setParameter("origin", loc);
 	}
 
 	public static int getCharacter(IConstructor tree) {

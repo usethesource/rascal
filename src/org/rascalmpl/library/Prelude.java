@@ -2465,7 +2465,7 @@ public class Prelude {
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
 						IConstructor ast = makeConstructor(type, constructorName, ctx, values.string(yield));
-						return ast.asWithKeywordParameters().setParameter("location", loc);
+						return ast.asWithKeywordParameters().setParameter("origin", loc);
 					}
 					catch (Backtrack b) {
 						continue;
@@ -2640,7 +2640,7 @@ public class Prelude {
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
 				INode ast = values.node(constructorName, implodeArgs(store, type, args, ctx));
-				return ast.asWithKeywordParameters().setParameter("location", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
+				return ast.asWithKeywordParameters().setParameter("origin", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
 			}
 			
 			// make a typed constructor

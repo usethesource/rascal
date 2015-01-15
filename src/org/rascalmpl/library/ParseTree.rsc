@@ -112,9 +112,9 @@ Description:
 }
 
 data Tree 
-     = appl(Production prod, list[Tree] args, loc src = |unknown:///|) /*1*/
+     = appl(Production prod, list[Tree] args, loc origin = |unknown:///|) /*1*/
      | cycle(Symbol symbol, int cycleLength) 
-     | amb(set[Tree] alternatives, loc src = a <- alternatives ? a.src : |unknown:///|)  
+     | amb(set[Tree] alternatives, loc origin = a <- alternatives ? a.origin : |unknown:///|)  
      | char(int character)
      ;
 

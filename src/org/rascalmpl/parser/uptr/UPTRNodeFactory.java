@@ -111,7 +111,7 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 	}
 	
 	public IConstructor addPositionInformation(IConstructor node, ISourceLocation location){
-		return node.asWithKeywordParameters().setParameter("src", location);
+		return TreeAdapter.setLocation(node, location);
 	}
 	
 	public ArrayList<IConstructor> getChildren(IConstructor node){

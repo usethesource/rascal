@@ -149,7 +149,7 @@ public class Factory {
 	public static final Type CharRange_Single = tf.constructor(uptr, CharRange, "from", tf.integerType()); // TODO: can go when older parser is gone
 	public static final Type CharRange_Range = tf.constructor(uptr, CharRange, "range", tf.integerType(), "begin", tf.integerType(), "end");
 	
-	public static final String Location = "loc";
+	public static final String Location = "origin";
 	public static final String Length = "len";
 
 	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
@@ -169,8 +169,8 @@ public class Factory {
 	}
 	
 	private Factory() {
-		uptr.declareAnnotation(Tree, Location, tf.sourceLocationType());
-		uptr.declareAnnotation(Tree, Length, tf.integerType());
+		uptr.declareKeywordParameter(Tree_Appl, Location, tf.sourceLocationType());
+		uptr.declareKeywordParameter(Tree_Amb, Location, tf.sourceLocationType());
 	}
 	
 	public static TypeStore getStore() {
