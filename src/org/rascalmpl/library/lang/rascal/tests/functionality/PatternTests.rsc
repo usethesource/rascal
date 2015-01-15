@@ -295,7 +295,8 @@ test bool matchADTwithKeywords2() = f1(1, M=10)             := f1(1);
 test bool matchADTwithKeywords3() = f1(1, B=false, M=10)    := f1(1);
 test bool matchADTwithKeywords4() = f1(1, M=20)             := f1(1, B=false, M=20);
   		
-/*TODO:TC*///test bool matchADTwithKeywords5() = f1(1, M=X)             := f1(1, B=false, M=20) && X == 20;
+@ignoreCompiler{Not yet implemented in typechcker}
+test bool matchADTwithKeywords5() = f1(1, M=X)             := f1(1, B=false, M=20) && X == 20;
   	
 //	matchNode
   		
@@ -332,7 +333,8 @@ test bool matchNodeWithKeywords13() ="f1"(1, M=10, B=false)!:= "f1"(1, B=false, 
 test bool matchNodeWithKeywords14() ="f1"(1, M=_, B=false)  := "f1"(1, B=false, M=20);
 test bool matchNodeWithKeywords15() ="f1"(_, M=20, B=false) := "f1"(1, B=false, M=20);
   		
-/*TODO:TC*///test bool matchNodeWithKeywords16() = "f1"(1, M=X) := "f1"(1, B=false, M=20) && X == 20;
+@ignoreCompiler{Not yet implemented in typechcker}
+test bool matchNodeWithKeywords16() = "f1"(1, M=X) := "f1"(1, B=false, M=20) && X == 20;
   	
 //	matchSet1
   		
@@ -500,12 +502,17 @@ test bool matchVariableBecomes5() = [1, L1: [*int L2, int N], L1] := [1,[2,3,4],
   
 // variableBecomesEquality
           
-//* NoSuchKey in TypeUtils
-/*TODO:COMP*///test bool matchVariableBecomesEquality1() {int N = 5; return N : 3 !:= 3 && N != 3;}
-/*TODO:COMP*///test bool matchVariableBecomesEquality2() {int N = 3; return N : 3 := 3 && N == 3;}
+@ignoreCompiler{NoSuchKey in TypeUtils}
+test bool matchVariableBecomesEquality1() {int N = 5; return N : 3 !:= 3 && N != 3;}
+
+@ignoreCompiler{NoSuchKey in TypeUtils}
+test bool matchVariableBecomesEquality2() {int N = 3; return N : 3 := 3 && N == 3;}
   		
-/*TODO:TC*///test bool doubleVariableBecomes1() = !(([N : 3, N : 4] := [3,4]) && N == 3);
-/*TODO:TC*///test bool doubleVariableBecomes2() = [N : 3, N : 3] := [3,3] && N == 3;
+@ignoreCompiler{Not yet implemented in typechecker}
+test bool doubleVariableBecomes1() = !(([N : 3, N : 4] := [3,4]) && N == 3);
+
+@ignoreCompiler{Not yet implemented in typechecker}
+test bool doubleVariableBecomes2() = [N : 3, N : 3] := [3,3] && N == 3;
   	
 // antiPattern
 
