@@ -17,6 +17,7 @@ syntax Cs = {C ","}+;
 syntax D = "d";
 syntax Ds = {D ","}*;
 
+lexical MyName = ([A-Z a-z _] !<< [A-Z _ a-z] [0-9 A-Z _ a-z]* !>> [0-9 A-Z _ a-z]) ;
 lexical Mies = ([ab] [cd]);
 syntax Noot  = (("a"|"b") ("c"|"d"));
 
@@ -92,9 +93,9 @@ test bool concreteMatch50() = (Ds) `<{D ","}* ds1>,<{D ","}* ds2>,d` := [Ds] "d"
 test bool concreteMatch51() = (Ds) `<{D ","}* ds1>,d,d,<{D ","}* ds2>,d` := [Ds] "d,d,d,d,d" && "<ds1>" == "" && "<ds2>" == "d,d";
 test bool concreteMatch52() = (Ds) `<{D ","}* ds1>,d,d,d,<{D ","}* ds2>` := [Ds] "d,d,d,d,d" && "<ds1>" == "" && "<ds2>" == "d,d";
 
-
 test bool lexicalSequenceMatch() = (Mies) `ac` !:= (Mies) `ad`;
 test bool syntaxSequenceMatch() = (Noot) `ac` !:= (Noot) `ad`;
+test bool lexicalTokenMatch() = (MyName) `location` := (MyName) `location`;
  
 /*TODO:TC*/
 //test bool optionalNotPresentIsFalse() = !((A)`a` <- ([OptTestGrammar] "b").a);
