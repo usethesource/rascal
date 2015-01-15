@@ -73,6 +73,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
@@ -230,13 +231,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		CWDURIResolver cwd = new CWDURIResolver();
 		resolverRegistry.registerInputOutput(cwd);
 
-		ClassResourceInput library = new ClassResourceInput(resolverRegistry, "std", getClass(), "/org/rascalmpl/library");
+		ClassResourceInput library = new ClassResourceInput(resolverRegistry, "std", getClass(), "org/rascalmpl/library");
 		resolverRegistry.registerInput(library);
 
-		ClassResourceInput testdata = new ClassResourceInput(resolverRegistry, "testdata", getClass(), "/org/rascalmpl/test/data");
+		ClassResourceInput testdata = new ClassResourceInput(resolverRegistry, "testdata", getClass(), "org/rascalmpl/test/data");
 		resolverRegistry.registerInput(testdata);
 		
-		ClassResourceInput benchmarkdata = new ClassResourceInput(resolverRegistry, "benchmarks", getClass(), "/org/rascalmpl/benchmark");
+		ClassResourceInput benchmarkdata = new ClassResourceInput(resolverRegistry, "benchmarks", getClass(), "org/rascalmpl/benchmark");
 		resolverRegistry.registerInput(benchmarkdata);
 		
 		resolverRegistry.registerInput(new JarURIResolver());
@@ -268,14 +269,16 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		  resolverRegistry.registerInputOutput(fileURIResolver);
 		}
 		else {
-		  resolverRegistry.registerInput(new ClassResourceInput(resolverRegistry, "courses", getClass(), "/org/rascalmpl/courses"));
+		  resolverRegistry.registerInput(new ClassResourceInput(resolverRegistry, "courses", getClass(), "org/rascalmpl/courses"));
 		}
 	
-		ClassResourceInput tutor = new ClassResourceInput(resolverRegistry, "tutor", getClass(), "/org/rascalmpl/tutor");
+		ClassResourceInput tutor = new ClassResourceInput(resolverRegistry, "tutor", getClass(), "org/rascalmpl/tutor");
 		resolverRegistry.registerInput(tutor);
 		
 		// default event trigger to swallow events
 		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
+		
+		addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 	}
 
 	private Evaluator(Evaluator source, ModuleEnvironment scope) {
