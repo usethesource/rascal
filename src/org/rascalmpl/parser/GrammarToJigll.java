@@ -31,9 +31,11 @@ import org.jgll.grammar.condition.ContextFreeCondition;
 import org.jgll.grammar.condition.PositionalCondition;
 import org.jgll.grammar.condition.RegularExpressionCondition;
 import org.jgll.grammar.precedence.OperatorPrecedence;
+import org.jgll.grammar.symbol.Character;
 import org.jgll.grammar.symbol.CharacterClass;
+import org.jgll.grammar.symbol.CharacterRange;
+import org.jgll.grammar.symbol.Keyword;
 import org.jgll.grammar.symbol.Nonterminal;
-import org.jgll.grammar.symbol.Range;
 import org.jgll.grammar.symbol.Rule;
 import org.jgll.grammar.symbol.Symbol;
 import org.jgll.parser.GLLParser;
@@ -48,7 +50,7 @@ import org.jgll.regex.RegularExpression;
 import org.jgll.regex.Sequence;
 import org.jgll.sppf.SPPFNode;
 import org.jgll.traversal.ModelBuilderVisitor;
-import org.jgll.traversal.Result;
+import org.jgll.util.Configuration;
 import org.jgll.util.GrammarUtil;
 import org.jgll.util.Input;
 import org.jgll.util.Visualization;
@@ -88,21 +90,22 @@ public class GrammarToJigll {
 		regularExpressionsCache = new HashMap<>();
 	}
 
-	@SuppressWarnings("unchecked")
 	public IConstructor jparse(IConstructor symbol, IString str, ISourceLocation loc) {
 		
 		if (grammar == null) {
 			return null;
 		}
+		
+		Configuration config = Configuration.DEFAULT;
 
 		input = Input.fromString(str.getValue(), loc.getURI());
-		parser = ParserFactory.newParser(grammar, input);
+		parser = ParserFactory.getParser(config, input, grammar);
 
 		startSymbol = SymbolAdapter.toString(symbol, true);
 
-		GrammarGraph grammarGraph = grammar.toGrammarGraph();
-		grammarGraph.reset();
-		ParseResult result = parser.parse(input, grammarGraph, startSymbol);
+		GrammarGraph grammarGraph = grammar.toGrammarGraph(input, config);
+		grammarGraph.reset(input);
+		ParseResult result = parser.parse(input, grammarGraph, Nonterminal.withName(startSymbol));
 
 		if (result.isParseSuccess()) {
 			long start = System.nanoTime();
@@ -111,7 +114,8 @@ public class GrammarToJigll {
 			long end = System.nanoTime();
 			log.info("Flattening: %d ms ", (end - start) / 1000_000);
 
-			return ((Result<IConstructor>) sppf.getObject()).getObject();			
+//			return ((Result<IConstructor>) sppf.getObject()).getObject();
+			return null;
 		} else {
 			ParseError e = result.asParseError();
 			throw RuntimeExceptionFactory.parseError(
@@ -150,13 +154,14 @@ public class GrammarToJigll {
 	}
 
 	public void generateGraph(IString path, ISourceLocation loc) {
-		parser = ParserFactory.newParser(grammar, input);
+		Configuration config = Configuration.DEFAULT;
+		parser = ParserFactory.getParser(config, input, grammar);
 
-		GrammarGraph grammarGraph = grammar.toGrammarGraph();
-		ParseResult result = parser.parse(input, grammarGraph, startSymbol);
+		GrammarGraph grammarGraph = grammar.toGrammarGraph(input, config);
+		ParseResult result = parser.parse(input, grammarGraph, Nonterminal.withName(startSymbol));
 		if (result.isParseSuccess()) {
 			SPPFNode sppf = result.asParseSuccess().getRoot();
-			Visualization.generateSPPFGraph(path.getValue(), sppf, grammarGraph, input);
+			Visualization.generateSPPFGraph(path.getValue(), sppf, grammarGraph.getRegistry(), input);
 		} else {
 			ParseError e = result.asParseError();
 			throw RuntimeExceptionFactory.parseError(vf.sourceLocation(loc, 
@@ -175,7 +180,7 @@ public class GrammarToJigll {
 		switch (symbol.getName()) {
 
 			case "char-class":
-				List<Range> targetRanges = buildRanges(symbol);
+				List<CharacterRange> targetRanges = buildRanges(symbol);
 				return RegularExpressionCondition.notFollow(CharacterClass.from(targetRanges));
 	
 			case "lit":
@@ -197,7 +202,7 @@ public class GrammarToJigll {
 		switch (symbol.getName()) {
 
 			case "char-class":
-				List<Range> targetRanges = buildRanges(symbol);
+				List<CharacterRange> targetRanges = buildRanges(symbol);
 				return RegularExpressionCondition.follow(CharacterClass.from(targetRanges));
 	
 			case "lit":
@@ -225,7 +230,7 @@ public class GrammarToJigll {
 		switch (symbol.getName()) {
 			
 			case "char-class":
-				List<Range> targetRanges = buildRanges(symbol);
+				List<CharacterRange> targetRanges = buildRanges(symbol);
 				return RegularExpressionCondition.notPrecede(CharacterClass.from(targetRanges));
 	
 			case "lit":
@@ -240,7 +245,7 @@ public class GrammarToJigll {
 		switch (symbol.getName()) {
 		
 			case "char-class":
-				List<Range> targetRanges = buildRanges(symbol);
+				List<CharacterRange> targetRanges = buildRanges(symbol);
 				return RegularExpressionCondition.precede(CharacterClass.from(targetRanges));
 	
 			case "lit":
@@ -300,7 +305,7 @@ public class GrammarToJigll {
 
 					List<Symbol> body = getSymbolList(rhs);
 					
-					Rule rule = new Rule(head, body, object);
+					Rule rule = Rule.withHead(head).addSymbols(body).setObject(object).build();
 					rulesMap.put(prod, rule);
 					builder.addRule(rule);
 				}
@@ -364,10 +369,31 @@ public class GrammarToJigll {
 					object = new SerializableValue(prod);
 				}
 				
-				regularExpressionsMap.put(head.getName(), new Sequence.Builder<RegularExpression>(body).setLabel(head.getName()).setObject(object).build());
+				regularExpressionsMap.put(head.getName(), getBody(body, head.getName(), object));
 //				}
 			}
 		}
+	}
+	
+	private RegularExpression getBody(List<RegularExpression> list, String label, Object object) {
+		if (list.size() == 1) 
+			return list.get(0);
+		
+		boolean allChar = true;
+		for (RegularExpression regex : list) {
+			if (!regex.isSingleChar())
+				allChar = false;
+		}
+		
+		if (allChar) {
+			List<Character> chars = new ArrayList<>();
+			for (RegularExpression regex : list) {
+				chars.add(regex.asSingleChar());
+			}
+			return Keyword.builder(chars).setLabel(label).setObject(object).build();
+		}
+		
+		return Sequence.builder(list).setLabel(label).setObject(object).build();
 	}
 	
 	private RegularExpression createRegularExpression(IConstructor regex, IMap definitions) {
@@ -409,14 +435,14 @@ public class GrammarToJigll {
 		}
 	}
 
-	private static List<Range> buildRanges(IConstructor symbol) {
-		List<Range> targetRanges = new LinkedList<Range>();
+	private static List<CharacterRange> buildRanges(IConstructor symbol) {
+		List<CharacterRange> targetRanges = new LinkedList<>();
 		IList ranges = (IList) symbol.get("ranges");
 		for (IValue r : ranges) {
 			IConstructor range = (IConstructor) r;
 			int begin = ((IInteger) range.get("begin")).intValue();
 			int end = ((IInteger) range.get("end")).intValue();
-			targetRanges.add(Range.in(begin, end));
+			targetRanges.add(CharacterRange.in(begin, end));
 		}
 		return targetRanges;
 	}
@@ -523,7 +549,10 @@ public class GrammarToJigll {
 				return Nonterminal.withName("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
 	
 			case "conditional":
-				return getSymbol(getSymbolCons(symbol)).builder().addConditions(getConditions(symbol)).build();
+				return getSymbol(getSymbolCons(symbol)).copyBuilder()
+							.addPreConditions(getPreConditions(symbol))
+							.addPostConditions(getPostConditions(symbol))
+							.build();
 				
 			case "token":
 				return getRegularExpression(symbol);
@@ -561,7 +590,10 @@ public class GrammarToJigll {
 				break;
 				
 			case "conditional":
-				regex = (RegularExpression) getRegularExpression(getSymbolCons(symbol)).builder().addConditions(getConditions(symbol)).build();
+				regex = (RegularExpression) getRegularExpression(getSymbolCons(symbol)).copyBuilder()
+											.addPreConditions(getPreConditions(symbol))
+											.addPostConditions(getPostConditions(symbol))
+											.build();
 				break;
 			
 			case "label":
@@ -615,11 +647,11 @@ public class GrammarToJigll {
 	}
 
 	private CharacterClass getCharacterClass(IConstructor symbol) {
-		List<Range> targetRanges = buildRanges(symbol);
+		List<CharacterRange> targetRanges = buildRanges(symbol);
 		return new CharacterClass.Builder(targetRanges).setLabel(SymbolAdapter.toString(symbol, true)).build();
 	}
-
-	private Set<Condition> getConditions(IConstructor symbol) {
+	
+	private Set<Condition> getPostConditions(IConstructor symbol) {
 		ISet conditions = (ISet) symbol.get("conditions");
 		Set<Condition> set = new HashSet<>();
 		
@@ -643,37 +675,20 @@ public class GrammarToJigll {
 					deleteList.add(getSymbolCons((IConstructor) condition));
 					break;
 	
-				case "not-precede":
-					IConstructor notPrecede = getSymbolCons((IConstructor) condition);
-					set.add(getNotPrecede(notPrecede));
-					break;
-	
 				case "end-of-line":
 					set.add(new PositionalCondition(ConditionType.END_OF_LINE));
 					break;
 	
-				case "start-of-line":
-					set.add(new PositionalCondition(ConditionType.START_OF_LINE));
-					break;
-	
-				case "precede":
-					IConstructor precede = getSymbolCons((IConstructor) condition);
-					set.add(getPrecede(precede));
-					break;
-	
 				case "except":
 					break;
-	
-				default:
-					throw new RuntimeException("Unsupported conditional " + symbol);
 				}
 		}
 
-		if(!deleteList.isEmpty()) {
+		if (!deleteList.isEmpty()) {
 			
 			RegularExpression regex = deleteSetCache.get(deleteList);
 			
-			if(regex == null) {
+			if (regex == null) {
 				List<RegularExpression> list = new ArrayList<>();
 				for(IConstructor c : deleteList) {
 					list.add(getRegularExpression(c));
@@ -684,6 +699,33 @@ public class GrammarToJigll {
 			}
 			
 			set.add(RegularExpressionCondition.notMatch(regex));
+		}
+		
+		return set;
+	}
+
+	private Set<Condition> getPreConditions(IConstructor symbol) {
+		
+		ISet conditions = (ISet) symbol.get("conditions");
+		Set<Condition> set = new HashSet<>();
+		
+		for (IValue condition : conditions) {
+			switch (((IConstructor) condition).getName()) {
+	
+				case "not-precede":
+					IConstructor notPrecede = getSymbolCons((IConstructor) condition);
+					set.add(getNotPrecede(notPrecede));
+					break;
+	
+				case "start-of-line":
+					set.add(new PositionalCondition(ConditionType.START_OF_LINE));
+					break;
+	
+				case "precede":
+					IConstructor precede = getSymbolCons((IConstructor) condition);
+					set.add(getPrecede(precede));
+					break;
+				}
 		}
 		
 		return set;
