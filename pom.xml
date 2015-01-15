@@ -70,6 +70,7 @@
 				</executions>
 				<configuration>
 					<argLine>
+						-Dfile.encoding=utf8
 				  		-ea
 						-Xmx1g
 						-Xss128m
