@@ -164,7 +164,7 @@ as effective and perhaps more efficient, as applied directly on the containment 
 set[FileSystem] containmentToFileSystem(M3 model) = relToFileSystem(model.containment);
 
 list[Message] checkM3(M3 model) {
-  result  = [m | m <- model@messages, m is error];
+  result  = [m | m <- model.messages, m is error];
   result += [error("undeclared element in containment", decl) | decl <- model.containment<to> - model.declarations<name>];
   result += [error("non-root element is not contained anywhere", decl) | decl <- model.containment<from> - model.declarations<name> - top(model.containment)];
   return result;

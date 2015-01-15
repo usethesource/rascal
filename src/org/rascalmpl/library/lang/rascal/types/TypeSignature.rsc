@@ -119,7 +119,7 @@ private RSignature createRSignature(Tree t, set[RName] visitedAlready) {
 	RSignature processModule(RName mn, RSignature sig, Import* i, Body b) {
 		visitedAlready = visitedAlready + mn;
 		sig = addImports(i,sig,visitedAlready);
-		sig = createModuleBodySignature(b,sig,b@\loc);
+		sig = createModuleBodySignature(b,sig,b.origin);
 		return sig;
 	}
 	if (t has top && Module m := t.top) t = m;
@@ -155,7 +155,7 @@ public RSignature processSyntax(RName name, RSignature sig, list[Import] defs) {
     
     // Add productions as in grammar definitions to the signature
     for(pi <- rule.prods) {
-    	prods += ProductionSigItem(pi, sd.defined@\loc, sd@\loc);
+    	prods += ProductionSigItem(pi, sd.defined.origin, sd.origin);
     }
     
     for (/pr:prod(_,_,_) <- rule.prods) {
@@ -165,17 +165,17 @@ public RSignature processSyntax(RName name, RSignature sig, list[Import] defs) {
       
       switch (sym) {
         case sort(str sortName) : 
-          sig.contextfreeNonterminals += [ContextfreeSigItem(RSimpleName(sortName), sym, sd.defined@\loc)];
+          sig.contextfreeNonterminals += [ContextfreeSigItem(RSimpleName(sortName), sym, sd.defined.origin)];
         case lex(str lexName) : 
-          sig.lexicalNonterminals += [LexicalSigItem(RSimpleName(lexName), sym, sd.defined@\loc)];
+          sig.lexicalNonterminals += [LexicalSigItem(RSimpleName(lexName), sym, sd.defined.origin)];
         case layouts(str layoutsName) : 
-          sig.layoutNonterminals += [LayoutSigItem(RSimpleName(layoutsName), sym, sd.defined@\loc)];
+          sig.layoutNonterminals += [LayoutSigItem(RSimpleName(layoutsName), sym, sd.defined.origin)];
         case keywords(str keywordsName) : 
-          sig.keywordNonterminals += [KeywordSigItem(RSimpleName(keywordsName), sym, sd.defined@\loc)];  
+          sig.keywordNonterminals += [KeywordSigItem(RSimpleName(keywordsName), sym, sd.defined.origin)];  
         case \parameterized-sort(str sortName, list[Symbol] parameters) : 
-          sig.contextfreeNonterminals += [ContextfreeSigItem(RSimpleName(sortName), sym, sd.defined@\loc)];
+          sig.contextfreeNonterminals += [ContextfreeSigItem(RSimpleName(sortName), sym, sd.defined.origin)];
         case \parameterized-lex(str lexName, list[Symbol] parameters) : 
-          sig.lexicalNonterminals += [LexicalSigItem(RSimpleName(lexName), sym, sd.defined@\loc)];
+          sig.lexicalNonterminals += [LexicalSigItem(RSimpleName(lexName), sym, sd.defined.origin)];
         case \start(_) : 
           ; // TODO: add support for start non-terminals
         default: 
@@ -226,19 +226,19 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
 		switch(fd) {
 			// Abstract (i.e., without a body) function declaration
 			case (FunctionDeclaration) `<Tags tgs> <Visibility vis> <Signature s> ;` : 
-				return signatureForSignature(vis,s,fd@\loc);
+				return signatureForSignature(vis,s,fd.origin);
 
 			// Concrete (i.e., with a body) function declaration
 			case (FunctionDeclaration) `<Tags tgs> <Visibility vis> <Signature s> <FunctionBody fb>` :
-				return signatureForSignature(vis,s,fd@\loc);
+				return signatureForSignature(vis,s,fd.origin);
 
 			// Concrete (i.e., with a body) function declaration, expression form
 			case (FunctionDeclaration) `<Tags tgs> <Visibility vis> <Signature s> = <Expression exp>;` :
-				return signatureForSignature(vis,s,fd@\loc);
+				return signatureForSignature(vis,s,fd.origin);
 
 			// Concrete (i.e., with a body) function declaration, expression form, with condition
 			case (FunctionDeclaration) `<Tags tgs> <Visibility vis> <Signature s> = <Expression exp> when <{Expression ","}+ conds>;` :
-				return signatureForSignature(vis,s,fd@\loc);
+				return signatureForSignature(vis,s,fd.origin);
 
 			default: throw "signatureForFunction case not implemented for item <fd>";
 		}
@@ -253,43 +253,43 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
 						switch(v) {
 							case (Variable)`<Name n>` :
 								if ((Visibility)`public` := vis) 
-									sig.publicVariables = sig.publicVariables + VariableSigItem(convertName(n), typ, t@\loc);
+									sig.publicVariables = sig.publicVariables + VariableSigItem(convertName(n), typ, t.origin);
 								else
-									sig.privateVariables = sig.privateVariables + VariableSigItem(convertName(n), typ, t@\loc);
+									sig.privateVariables = sig.privateVariables + VariableSigItem(convertName(n), typ, t.origin);
 							case (Variable)`<Name n> = <Expression e>` :
 								if ((Visibility)`public` := vis) 
-									sig.publicVariables = sig.publicVariables + VariableSigItem(convertName(n), typ, t@\loc);
+									sig.publicVariables = sig.publicVariables + VariableSigItem(convertName(n), typ, t.origin);
 								else
-									sig.privateVariables = sig.privateVariables + VariableSigItem(convertName(n), typ, t@\loc);
+									sig.privateVariables = sig.privateVariables + VariableSigItem(convertName(n), typ, t.origin);
 						}
 					}
 				}
 
 				// Annotation declaration
 				case (Toplevel) `<Tags tgs> <Visibility vis> anno <Type typ> <Type otyp> @ <Name n> ;` : {
-					sig.annotations = sig.annotations + AnnotationSigItem(convertName(n), typ, otyp, t@\loc);
+					sig.annotations = sig.annotations + AnnotationSigItem(convertName(n), typ, otyp, t.origin);
 				}
 
 				// Tag declaration
 				case (Toplevel) `<Tags tgs> <Visibility vis> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` : {
-					sig.tags = sig.tags + TagSigItem(convertName(n), convertKind(k), [ convertType(typ) | typ <- typs ], t@\loc);
+					sig.tags = sig.tags + TagSigItem(convertName(n), convertKind(k), [ convertType(typ) | typ <- typs ], t.origin);
 				}
 
 				// ADT without variants
 				case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> ;` : {
-					sig.datatypes = sig.datatypes + ADTSigItem(convertName(getUserTypeRawName(typ)), typ, t@\loc);
+					sig.datatypes = sig.datatypes + ADTSigItem(convertName(getUserTypeRawName(typ)), typ, t.origin);
 				}
 
 				// ADT with variants
 				case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> <CommonKeywordParameters params> = <{Variant "|"}+ vars> ;` : {
 					commonParamList = [ ];
 					if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := params) commonParamList = [ kfi | kfi <- kfs ];
-					sig.datatypes = sig.datatypes + ADTSigItem(convertName(getUserTypeRawName(typ)), typ, t@\loc);
+					sig.datatypes = sig.datatypes + ADTSigItem(convertName(getUserTypeRawName(typ)), typ, t.origin);
 					for (var <- vars) {
 						if ((Variant) `<Name n> ( <{TypeArg ","}* args> <KeywordFormals kfs>)` := var) {
 							paramlist = [ ];
 							if ((KeywordFormals)`<OptionalComma _> <{KeywordFormal ","}+ kfsi>` := kfs) paramlist = [ kfi | kfi <- kfsi];
-							sig.publicConstructors = sig.publicConstructors + ConstructorSigItem(convertName(n), typ, [ targ | targ <- args ], commonParamList, paramlist, t@\loc, var@\loc);
+							sig.publicConstructors = sig.publicConstructors + ConstructorSigItem(convertName(n), typ, [ targ | targ <- args ], commonParamList, paramlist, t.origin, var.origin);
 						}
 					}
 				}
@@ -298,7 +298,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
 				case (Toplevel) `<Tags tgs> <Visibility vis> alias <UserType typ> = <Type btyp> ;` : {
 					Symbol aliasType = convertUserType(typ);
 					Symbol aliasedType = convertType(btyp);
-					sig.aliases = sig.aliases + AliasSigItem(convertName(getUserTypeRawName(typ)), typ, btyp, t@\loc);
+					sig.aliases = sig.aliases + AliasSigItem(convertName(getUserTypeRawName(typ)), typ, btyp, t.origin);
 				}
 
 				// Function declaration

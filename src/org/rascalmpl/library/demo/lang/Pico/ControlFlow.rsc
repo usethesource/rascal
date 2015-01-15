@@ -14,7 +14,7 @@ public data CFNode                                                              
 alias CFGraph = tuple[set[CFNode] entry, Graph[CFNode] graph, set[CFNode] exit];  /*2*/
 
 CFGraph cflowStat(s:asgStat(PicoId Id, EXP Exp)) {                                /*3*/
-   S = statement(s@location, s);
+   S = statement(s.origin, s);
    return <{S}, {}, {S}>;
 }
 
@@ -23,13 +23,13 @@ CFGraph cflowStat(ifElseStat(EXP Exp,                                           
                               list[STATEMENT] Stats2)){
    CF1 = cflowStats(Stats1); 
    CF2 = cflowStats(Stats2); 
-   E = {choice(Exp@location, Exp)}; 
+   E = {choice(Exp.origin, Exp)}; 
    return < E, (E * CF1.entry) + (E * CF2.entry) + CF1.graph + CF2.graph, CF1.exit + CF2.exit >;
 }
 
 CFGraph cflowStat(whileStat(EXP Exp, list[STATEMENT] Stats)) {                    /*5*/
    CF = cflowStats(Stats); 
-   E = {choice(Exp@location, Exp)}; 
+   E = {choice(Exp.origin, Exp)}; 
    return < E, (E * CF.entry) + CF.graph + (CF.exit * E), E >;
 }
 
@@ -44,7 +44,7 @@ CFGraph cflowStats(list[STATEMENT] Stats){                                      
 public CFGraph cflowProgram(PROGRAM P){                                           /*7*/
   if(program(list[DECL] Decls, list[STATEMENT] Series) := P){
      CF = cflowStats(Series);
-     Entry = entry(P@location);
+     Entry = entry(P.origin);
      Exit  = exit();
      return <{Entry}, ({Entry} * CF.entry) + CF.graph + (CF.exit * {Exit}), {Exit}>;
   } else

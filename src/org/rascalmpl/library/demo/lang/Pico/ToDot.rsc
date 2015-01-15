@@ -25,7 +25,7 @@ map[loc, int] getMap(rel[CFNode,CFNode] c) {
    list[CFNode] c2 = [d[0]|d<-c1]+[d[1]|d<-c1];
    for (CFNode d<-c2) { 
       if (exp(EXP e):=d) {  
-       loc l = e@location;
+       loc l = e.origin;
        if (!(idx[l]?)) {
           idx[l] = i;
           i=i+1;
@@ -48,22 +48,22 @@ DotGraph  buildGraph(CFGraph c) {
             Attrs attrs = [<"label", "<delAnnotationsRec(e)>">];
             for (q<-c.entry) 
                if (exp(EXP h):=q)
-                 if (e@location == h@location)  {
+                 if (e.origin == h.origin)  {
                      attrs += <"fillcolor","lightsalmon">;
                      break;
                      }
              for (q<-c.exit) 
                if (exp(EXP h):=q)
-                 if (e@location == h@location)  {
+                 if (e.origin == h.origin)  {
                      attrs += <"fillcolor","palegreen">;
                      break;
                      }
-            nodes+=N("<idx[e@location]>", attrs);
+            nodes+=N("<idx[e.origin]>", attrs);
             }
         }
         for (<CFNode from, CFNode to> <-g) {
            if ((exp(EXP f):=from) && (exp(EXP t):=to)) {
-            edges+=E("<idx[f@location]>", "<idx[t@location]>"); 
+            edges+=E("<idx[f.origin]>", "<idx[t.origin]>"); 
             }
         }
     return digraph("controlflow", nodes+edges);

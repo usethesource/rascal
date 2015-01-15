@@ -68,7 +68,7 @@ str exp2lazyValue(Expr e)
   when str ps := expParams(e);
     
 
-str nameFor(Question q) = "q<q@location.offset>";
+str nameFor(Question q) = "q<q.origin.offset>";
 
 str type2widget(QType::boolean()) = "BooleanValueWidget";
 str type2widget(QType::money())   = "MoneyValueWidget";

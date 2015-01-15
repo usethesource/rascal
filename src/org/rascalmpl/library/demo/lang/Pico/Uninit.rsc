@@ -11,7 +11,7 @@ import Relation;
 import analysis::graphs::Graph;
 
 public set[CFNode] defNodes(PicoId Id, set[Occurrence] Defs) =
-   {statement(occ.stat@location, occ.stat) | Occurrence occ <- Defs, occ.name == Id};
+   {statement(occ.stat.origin, occ.stat) | Occurrence occ <- Defs, occ.name == Id};
 
 public set[Occurrence] uninitProgram(PROGRAM P) {
    D = defs(P);                     /*1*/

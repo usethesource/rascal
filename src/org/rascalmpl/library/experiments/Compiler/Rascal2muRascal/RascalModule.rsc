@@ -125,7 +125,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    
    	if(size(errors) > 0) {
-   	    return errorMuModule(module_name, config.messages, M@\loc);
+   	    return errorMuModule(module_name, config.messages, M.origin);
    	} else {
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes(config); 
@@ -191,7 +191,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
    	 
-   	  generate_tests(modName, M@\loc);
+   	  generate_tests(modName, M.origin);
    	  
    	  //println("overloadedFunctions"); for(tp <- getOverloadedFunctions()) println(tp);
    	  // Overloading resolution...	  
@@ -218,13 +218,13 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M){
    	  				  getOverloadingResolver(),
    	  				  overloaded_functions, 
    	  				  getGrammar(),
-   	  				  M@\loc);
+   	  				  M.origin);
    	}
    } catch Java("ParseError","Parse error"): {
-   	   return errorMuModule(module_name, {error("Syntax errors in module <M.header.name>", M@\loc)}, M@\loc);
+   	   return errorMuModule(module_name, {error("Syntax errors in module <M.header.name>", M.origin)}, M.origin);
    } 
    catch e: {
-        return errorMuModule(module_name, {error("Unexpected exception <e>", M@\loc)}, M@\loc);
+        return errorMuModule(module_name, {error("Unexpected exception <e>", M.origin)}, M.origin);
    }
    finally {
    	   resetR2mu();
@@ -270,7 +270,7 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <
    	for(var <- variables){
    		variables_in_module += [muVariable("<var.name>")];
    		if(var is initialized) 
-   		   variable_initializations +=  mkAssign("<var.name>", var@\loc, translate(var.initial));
+   		   variable_initializations +=  mkAssign("<var.name>", var.origin, translate(var.initial));
    	}
    	leaveFunctionScope();
 }   	
@@ -314,9 +314,9 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   }
   tmods = translateModifiers(fd.signature.modifiers);
   
-  ftype = getFunctionType(fd@\loc);
+  ftype = getFunctionType(fd.origin);
   nformals = size(ftype.parameters);
-  uid = loc2uid[fd@\loc];
+  uid = loc2uid[fd.origin];
   fuid = convert2fuid(uid);
   
   enterFunctionScope(fuid);
@@ -325,7 +325,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   bool isVarArgs = (varArgs(_,_) := fd.signature.parameters);
   
   // Keyword parameters
-  list[MuExp] kwps = translateKeywordParameters(fd.signature.parameters, fuid, getFormals(uid), fd@\loc);
+  list[MuExp] kwps = translateKeywordParameters(fd.signature.parameters, fuid, getFormals(uid), fd.origin);
  
   
   
@@ -340,7 +340,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
      }
      if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
-     	body = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
+     	body = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd.origin), muCon(getGrammar()) ], fd.origin);
      } else {
         body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, keywordTypes, ("reflect" in ttags) ? 1 : 0, params);
      }
@@ -352,12 +352,12 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   
   addFunctionToModule(muFunction(fuid, "<fd.signature.name>", ftype, (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									getFormals(uid), getScopeSize(fuid), 
-  									isVarArgs, fd@\loc, tmods, ttags, 
+  									isVarArgs, fd.origin, tmods, ttags, 
   									tbody));
   
   if("test" in tmods){
      params = ftype.parameters;
-     tests += muCallPrim3("testreport_add", [muCon(fuid),  muCon(ignoreTest(ttags)), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]))) ], fd@\loc);
+     tests += muCallPrim3("testreport_add", [muCon(fuid),  muCon(ignoreTest(ttags)), muCon(ttags["expected"] ? ""), muCon(fd.origin)] + [ muCon(symbolToValue(\tuple([param | param <- params ]))) ], fd.origin);
   }
   leaveFunctionScope();
   

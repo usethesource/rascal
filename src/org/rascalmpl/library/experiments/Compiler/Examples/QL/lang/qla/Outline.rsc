@@ -22,10 +22,10 @@ node outline(Form f) {
  list[node] ls = [];
  
  void addQuestion(Question q) {
-   qn = "question"(label="<q.name.name>",\loc=q@location);
+   qn = "question"(label="<q.name.name>",\loc=q.origin);
    qs += [qn]; 
    l = "<q.label>"[1..-1];
-   ls += ["label"(label=l,src=q@location)];
+   ls += ["label"(label=l,src=q.origin)];
    types += {<type2str(q.tipe), "<q.name.name>", q.location>}; 
  }
  
@@ -37,7 +37,7 @@ node outline(Form f) {
    case q:question(_, _, _): addQuestion(q);
    case q:computed(_, _, _, e): {
      addQuestion(q);
-     es += ["expr"(label=format(e),src=e@location)];
+     es += ["expr"(label=format(e),src=e.origin)];
    }
    case ifThen(c, _):  addCond(c); 
    case ifThenElse(c, _, _): addCond(c); 

@@ -56,7 +56,7 @@ public value implode(element(Namespace _, str name, list[Node] kids)) {
   result = name ([implode(e) | e <- kids, !(e is attribute)]);
   
   if (attribute(_,_,_) <- kids) 
-    result@attrs = (k:v | attribute(_,k,v) <- kids);
+    result.attrs = (k:v | attribute(_,k,v) <- kids);
   
   return result;
 }

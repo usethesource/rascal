@@ -11,9 +11,12 @@ data Field
   | quoted(str text);
 
 
-anno loc Field@location;
-anno loc Record@location;
-anno loc Table@location;
+ 
+data Field(loc origin = |unknown:///|);
+ 
+data Record(loc origin = |unknown:///|);
+ 
+data Table(loc origin = |unknown:///|);
 
 public Table unquote(Table tbl) {
   str unescape(str s) = replaceAll(replaceAll(replaceAll(s, "\\n", "\n"), "\\t", "\t"), "\"\"", "\"");

@@ -25,7 +25,7 @@ void main(list[value] args) {
     visit(m){
        case v: (Variable) `<Name name>`: 
             {    nviolations += 1;
-                 println("<name@\loc>: <v>");
+                 println("<name.origin>: <v>");
             }
       }
 }

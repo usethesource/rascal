@@ -5,8 +5,8 @@ import demo::lang::Pico::Abstract;
 import demo::lang::Pico::ControlFlow;
  
 set[Occurrence] usesExp(EXP e, STATEMENT s) = 
-  u:id(PicoId Id1) := e ? {< u@location, Id1, s>}
-                        : {< u@location, Id2, s> | /u:id(PicoId Id2) <- e };
+  u:id(PicoId Id1) := e ? {< u.origin, Id1, s>}
+                        : {< u.origin, Id2, s> | /u:id(PicoId Id2) <- e };
      
 set[Occurrence] usesStat(s:asgStat(PicoId Id, EXP e)) = usesExp(e, s);
 
@@ -25,4 +25,4 @@ set[Occurrence] usesStats(list[STATEMENT] stats) =
 public set[Occurrence] uses(PROGRAM p) = usesStats(p.stats);
 
 public set[Occurrence] defs(PROGRAM p) =                 
-   { < stat@location, v, stat > | /stat:asgStat(PicoId v, EXP e) <- p.stats};
+   { < stat.origin, v, stat > | /stat:asgStat(PicoId v, EXP e) <- p.stats};

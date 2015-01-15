@@ -29,7 +29,7 @@ QType numeric(Expr lhs, Expr rhs, Info i)
 
 QType typeOf(var(x), Info i) = t 
   when
-    d <- i.refs.use[x@location], t <- i.refs.def[d];  
+    d <- i.refs.use[x.origin], t <- i.refs.def[d];  
    
 QType typeOf(Expr::integer(_), Info i) = integer();
 QType typeOf(\true(), Info i) = boolean();

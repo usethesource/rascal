@@ -32,7 +32,7 @@ public set[Message] checkDuplicateAttributes(Fighter fighter) {
   errs = {};
   for (a:attribute(n, s) <- fighter.specs) {
     if (n in done) 
-      errs += {error("Duplicate attribute", a@location)};
+      errs += {error("Duplicate attribute", a.origin)};
     else
       done += {n};
   }
@@ -41,10 +41,10 @@ public set[Message] checkDuplicateAttributes(Fighter fighter) {
   
 
 public set[Message] checkIdentifiers(Fighter fighter) =
-  { error("Invalid strength", a@location) |  /a:attribute(n, _) := fighter, n notin STRENGTHS }
-  + { error("Invalid condition", c@location) | /c:const(n) := fighter, n notin CONDITIONS }
-  + { error("Invalid move", a@location) | /behavior(_, /a:action(n), _) := fighter, n notin MOVES }
-  + { error("Invalid fight", a@location) | /behavior(_, _, /a:action(n)) := fighter, n notin FIGHTS };
+  { error("Invalid strength", a.origin) |  /a:attribute(n, _) := fighter, n notin STRENGTHS }
+  + { error("Invalid condition", c.origin) | /c:const(n) := fighter, n notin CONDITIONS }
+  + { error("Invalid move", a.origin) | /behavior(_, /a:action(n), _) := fighter, n notin MOVES }
+  + { error("Invalid fight", a.origin) | /behavior(_, _, /a:action(n)) := fighter, n notin FIGHTS };
 
 
 public tuple[list[str], set[Message]] checkCond(const(n), set[Message] errs) = <[n], errs>;
@@ -68,7 +68,7 @@ public tuple[list[str], set[Message]] checkCond(a:and(c1, c2), set[Message] errs
   ns = ns1 + ns2;
   for (n1 <- ns1, n2 <- ns2) {
     if (<n1, n2> in contradictions) {
-      errs += {error("Possible contradiction between <n1> and <n2>", a@location)}; 
+      errs += {error("Possible contradiction between <n1> and <n2>", a.origin)}; 
     }
     else {
       ns -= [n1, n2];

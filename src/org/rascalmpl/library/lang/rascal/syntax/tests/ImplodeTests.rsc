@@ -19,19 +19,27 @@ public data Num = \int(str n);
 public data Exp = id(str name) | eq(Exp e1, Exp e2) | number(Num n);
 public Exp number(Num::\int("0")) = Exp::number(Num::\int("01"));
 
-public anno loc Num@location;
-public anno loc Exp@location;
-public anno map[int,list[str]] Num@comments;
-public anno map[int,list[str]] Exp@comments;
+ 
+data Num(loc origin = |unknown:///|);
+ 
+data Exp(loc origin = |unknown:///|);
+ 
+data Num(map[int,list[str]] comments = ());
+ 
+data Exp(map[int,list[str]] comments = ());
 
 public data Number = \int(str n);
 public data Expr = id(str name) | eq(Expr e1, Expr e2) | number(Number n);
 public Expr number(Number::\int("0")) = Expr::number(Number::\int("02"));
 
-public anno loc Number@location;
-public anno loc Expr@location;
-public anno map[int,list[str]] Number@comments;
-public anno map[int,list[str]] Expr@comments;
+ 
+data Number(loc origin = |unknown:///|);
+ 
+data Expr(loc origin = |unknown:///|);
+ 
+data Number(map[int,list[str]] comments = ());
+ 
+data Expr(map[int,list[str]] comments = ());
 
 public Exp implodeExp(str s) = implode(#Exp, parseExp(s));
 public Exp implodeExpLit1() = implode(#Exp, expLit1());

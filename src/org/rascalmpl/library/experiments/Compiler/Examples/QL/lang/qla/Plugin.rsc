@@ -15,7 +15,8 @@ import IO;
 
 private str QLA ="QL";
 
-anno rel[loc,loc, str] Tree@hyperlinks;
+ 
+data Tree(rel[loc,loc, str] hyperlinks = {});
 
 rel[loc,loc,str] computeXRef(Info i) 
   = { <u, d, "<l>"> | u <- i.refs.use, d <- i.refs.use[u], 
@@ -43,9 +44,9 @@ public void setupQL() {
       ast = implodeQL(pt);
       msgs = checkForm(ast, resolve(ast));
       if (msgs == {}) {
-        js = pt@\loc[extension="js"];
+        js = pt.origin[extension="js"];
         writeFile(js, form2js(ast));
-        html = pt@\loc[extension="html"];
+        html = pt.origin[extension="html"];
         writeFile(html, form2html(ast, js));
       }
       return msgs;

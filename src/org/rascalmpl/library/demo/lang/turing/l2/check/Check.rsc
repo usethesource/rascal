@@ -11,7 +11,7 @@ public set[Message] check(Program p) {
  seen = {};
  for (/l:label(n) <- p) {
    if (n in seen) {
-     errs += {error("Duplicate label", l@location)};
+     errs += {error("Duplicate label", l.origin)};
    }
    else {
      seen += {n};
@@ -22,11 +22,11 @@ public set[Message] check(Program p) {
  jls = { j | /Statement j <- p, /^jump/ := getName(j), j has name };
  dls = { l | /l:label(n) <- p };
  
- errs += { error("Undefined label", j@location) | j <- jls, j.name notin names(dls) };
- errs += { warning("Unused label", l@location) | l <- dls, l.name notin names(jls) };
+ errs += { error("Undefined label", j.origin) | j <- jls, j.name notin names(dls) };
+ errs += { warning("Unused label", l.origin) | l <- dls, l.name notin names(jls) };
  
  set[Statement] l1s = { j | /Statement j <- p, /^jump/ := getName(j), j has line };
- errs += { warning("Level 1 jump", j@location) | j <- l1s };
+ errs += { warning("Level 1 jump", j.origin) | j <- l1s };
  
  return errs;
 }

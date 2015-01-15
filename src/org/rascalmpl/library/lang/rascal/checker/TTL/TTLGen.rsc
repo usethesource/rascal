@@ -30,7 +30,7 @@ void main() {
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];
 
-str basename(TestItem item) = basename(item@\loc);
+str basename(TestItem item) = basename(item.origin);
 
 str addModulePrefix(Module m){
   if(/\s*module\s+<mname:[a-zA-Z0-9]+><rest:.*$>/ := "<m>"){
@@ -47,13 +47,13 @@ void generate(loc src){
    str tests = "";
    for(TestItem item <- spec.items){
        if(defMod(Name nm, Module moduleText) := item){// Was: item is defMod){
-       	     if(decls[nm]?) throw "Ambiguous name <nm> at <item@\loc>";
-       	     if(modules[nm]?) throw "Redeclared module name <nm> at <item@\loc>";
+       	     if(decls[nm]?) throw "Ambiguous name <nm> at <item.origin>";
+       	     if(modules[nm]?) throw "Redeclared module name <nm> at <item.origin>";
              modules[nm] = item.moduleText;
              writeFile(TTLRoot + "generated/<item.name>.rsc", addModulePrefix(item.moduleText)); // TODO: Imports from different ttl files could conflict
        } else if(defDecl(Name nm2, Declaration declaration) := item){
-       		if(modules[nm2]?) throw "Ambiguous name <nm2> at <item@\loc>";
-       	     if(decls[nm2]?) throw "Redeclared declaration name <nm2> at <item@\loc>";
+       		if(modules[nm2]?) throw "Ambiguous name <nm2> at <item.origin>";
+       	     if(decls[nm2]?) throw "Redeclared declaration name <nm2> at <item.origin>";
              decls[nm2] = declaration;
        } else if(item is GeneralTest){
           tests += genGeneralTest(item, decls, modules);
@@ -170,7 +170,7 @@ tuple[list[str],list[str]] expandUsedNames(list[Name] names, map[Name, Declarati
       else if(declarations[name]?)
          decls += "<declarations[name]>";
       else
-          throw "Undefined name <name> at <name@\loc>";
+          throw "Undefined name <name> at <name.origin>";
     }
     return <imports, decls>;
 }

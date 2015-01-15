@@ -14,4 +14,5 @@ data Statement
 	| moveBackward()
 	;
 
-anno loc Statement@location;
+ 
+data Statement(loc origin = |unknown:///|);

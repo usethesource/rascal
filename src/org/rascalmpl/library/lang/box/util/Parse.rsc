@@ -22,10 +22,10 @@ Box annotateBox(Box b,list[Tree] tl) {
     if (SpaceOption so:=t) {
       if ((SpaceOption) `<SpaceSymbol sp> = <NatCon n>`:=so) {
         switch (sp) {
-          case hs: b@hs = toInt("<n>");
-          case vs: b@vs = toInt("<n>");
-          case is: b@is = toInt("<n>");
-          case ts: b@ts = toInt("<n>");
+          case hs: b.hs = toInt("<n>");
+          case vs: b.vs = toInt("<n>");
+          case is: b.is = toInt("<n>");
+          case ts: b.ts = toInt("<n>");
           }
         }
       }
@@ -47,7 +47,7 @@ Box getUserDefined(Tree q) {
            if ((AlignmentOptions) `( <{AlignmentOption ","}* at> )`:=alignments) {
              list[Tree] as = getA(at);
              Box b = annotateBox(A(getArgs(boxs)),getA(s));
-             b@format = ["<al>"|Tree t<-as,AlignmentOption al:=t];
+             b.format = ["<al>"|Tree t<-as,AlignmentOption al:=t];
              return b;
              }
       case (BoxOperator) `R`: return R(getArgs(boxs));
@@ -72,9 +72,9 @@ str pr(list[Box] bl) { str r = ""; for (Box b<-bl) r += toString(b); return r; }
 
 str getAnno(Box b) {
   str r = "";
-  if ((b@hs)?) { r += "hs=<b@hs>"; }
-  if ((b@vs)?) { r += "vs=<b@vs>"; }
-  if ((b@is)?) { r += "is=<b@is>"; }
+  if ((b.hs)?) { r += "hs=<b.hs>"; }
+  if ((b.vs)?) { r += "vs=<b.vs>"; }
+  if ((b.is)?) { r += "is=<b.is>"; }
   return r;
   }
 

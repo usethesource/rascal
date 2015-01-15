@@ -25,10 +25,15 @@ public data STATEMENT =
      | whileStat(EXP exp, list[STATEMENT] body)
      ;
 
-anno loc TYPE@location;                   /*4*/
-anno loc PROGRAM@location;
-anno loc DECL@location;
-anno loc EXP@location;
-anno loc STATEMENT@location;
+ 
+data TYPE(loc origin = |unknown:///|);                   /*4*/
+ 
+data PROGRAM(loc origin = |unknown:///|);
+ 
+data DECL(loc origin = |unknown:///|);
+ 
+data EXP(loc origin = |unknown:///|);
+ 
+data STATEMENT(loc origin = |unknown:///|);
 
 public alias Occurrence = tuple[loc location, PicoId name, STATEMENT stat];  /*5*/

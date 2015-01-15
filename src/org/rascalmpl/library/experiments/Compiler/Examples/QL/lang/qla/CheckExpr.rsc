@@ -13,7 +13,7 @@ import Set;
 set[Message] tc(Expr e, QType mgt, Info i, Expr kids...) {
   errs = ( {} | it + tc(k, i) | k <- kids );
   if (errs == {}) {
-    return {error("Invalid operand type (expected <type2str(mgt)>)", k@location)
+    return {error("Invalid operand type (expected <type2str(mgt)>)", k.origin)
                | k <- kids, !compatible(typeOf(k, i), mgt) };
   }
   return errs;
@@ -22,13 +22,13 @@ set[Message] tc(Expr e, QType mgt, Info i, Expr kids...) {
 set[Message] checkEq(Expr e, Info i, Expr lhs, Expr rhs) {
   errs = tc(lhs, i) + tc(rhs, i);
   if (errs == {}, !compatible(typeOf(lhs, i), typeOf(rhs, i))) {
-    return {error("Incompatible types", e@location)};
+    return {error("Incompatible types", e.origin)};
   }
   return errs;
 }
 
-set[Message] tc(e:var(x), Info i) = {error("Undefined name", e@location)}
-  when i.refs.use[x@location] == {}; 
+set[Message] tc(e:var(x), Info i) = {error("Undefined name", e.origin)}
+  when i.refs.use[x.origin] == {}; 
 
 set[Message] tc(e:eq(lhs, rhs), Info i)   = checkEq(e, i, lhs, rhs);
 set[Message] tc(e:neq(lhs, rhs), Info i) = checkEq(e, i, lhs, rhs);

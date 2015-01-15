@@ -45,14 +45,14 @@ Info resolve(Form f) {
   }
   
   visit (f) {
-    case var(x): addUse(x@location, x); 
+    case var(x): addUse(x.origin, x); 
     case question(l, x, t): {
-      addLabel(l, x@location);
-      addDef(x, x@location, t);
+      addLabel(l, x.origin);
+      addDef(x, x.origin, t);
     }
     case computed(l, x, t, e): {
-      addLabel(l, x@location); 
-      addDef(x, x@location, t);
+      addLabel(l, x.origin); 
+      addDef(x, x.origin, t);
     }
   }
   

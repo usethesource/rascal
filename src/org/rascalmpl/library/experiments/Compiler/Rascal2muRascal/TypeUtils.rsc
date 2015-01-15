@@ -552,11 +552,11 @@ int declareGeneratedFunction(str name, Symbol rtype){
 Symbol getType(loc l) = config.locationTypes[l];
 
 // Get the type of an expression as string
-str getType(Tree e) = "<getType(e@\loc)>";
+str getType(Tree e) = "<getType(e.origin)>";
 
 // Get the outermost type constructor of an expression as string
 str getOuterType(Tree e) { 
-    tp = getType(e@\loc);
+    tp = getType(e.origin);
 	if(parameter(str _, Symbol bound) := tp) {
 		return "<getName(bound)>";
 	}

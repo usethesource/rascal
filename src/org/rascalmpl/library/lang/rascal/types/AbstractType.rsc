@@ -18,8 +18,8 @@ extend ParseTree;
 import lang::rascal::types::AbstractName;
 import lang::rascal::\syntax::Rascal;
 
-@doc{Annotation for parameterized types indicating whether the bound was explicitly given.}
-public anno bool Symbol@boundGiven;
+@doc{Annotation for parameterized types indicating whether the bound was explicitly given.} 
+data Symbol(bool boundGiven = bool () { throw "no default value"; }());
 
 @doc{Extension to add new types used internally during name resolution and checking.}
 public data Symbol =
@@ -33,11 +33,11 @@ public data Symbol =
 @doc{Extension to add a production type.}
 public data Symbol = \prod(Symbol \sort, str name, list[Symbol] parameters, set[Attr] attributes);
 
-@doc{Annotations to hold the type assigned to a tree.}
-public anno Symbol Tree@rtype;
+@doc{Annotations to hold the type assigned to a tree.} 
+data Tree(Symbol rtype = Symbol () { throw "no default value"; }());
 
-@doc{Annotations to hold the location at which a type is declared.}
-public anno loc Symbol@at; 
+@doc{Annotations to hold the location at which a type is declared.} 
+data Symbol(loc at = |unknown:///|); 
 
 @doc{Pretty printer for Rascal abstract types.}
 public str prettyPrintType(Symbol::\int()) = "int";
@@ -233,8 +233,8 @@ public Symbol makeAliasType(str n, Symbol t) = Symbol::\alias(n,[],t);
 @doc{Create a new parameterized alias type with the given name, aliased type, and parameters.}
 public Symbol makeParameterizedAliasType(str n, Symbol t, list[Symbol] params) = Symbol::\alias(n,params,t);
 
-@doc{Marks if a function is a var-args function.}
-public anno bool Symbol@isVarArgs;
+@doc{Marks if a function is a var-args function.} 
+data Symbol(bool isVarArgs = bool () { throw "no default value"; }());
 
 @doc{Create a new function type with the given return and parameter types.}
 public Symbol makeFunctionType(Symbol retType, bool isVarArgs, Symbol paramTypes...) {
@@ -243,7 +243,7 @@ public Symbol makeFunctionType(Symbol retType, bool isVarArgs, Symbol paramTypes
 		//if (isVarArgs) { 
 		//	return \var-func(retType, head(paramTypes,size(paramTypes)-1), last(paramTypes));
 		//} else {
-			return Symbol::\func(retType, paramTypes)[@isVarArgs=isVarArgs];
+			return Symbol::\func(retType, paramTypes)[isVarArgs=isVarArgs];
 		//}
 	else
 		throw "For function types, either all parameters much be given a distinct label or no parameters should be labeled."; 
@@ -258,10 +258,10 @@ public Symbol makeFunctionTypeFromTuple(Symbol retType, bool isVarArgs, Symbol p
 public Symbol makeReifiedType(Symbol mainType) = Symbol::\reified(mainType);
 
 @doc{Create a type representing a type parameter (type variable).}
-public Symbol makeTypeVar(str varName) = Symbol::\parameter(varName, Symbol::\value())[@boundGiven=false];
+public Symbol makeTypeVar(str varName) = Symbol::\parameter(varName, Symbol::\value())[boundGiven=false];
 
 @doc{Create a type representing a type parameter (type variable) and bound.}
-public Symbol makeTypeVarWithBound(str varName, Symbol varBound) = Symbol::\parameter(varName, varBound)[@boundGiven=true];
+public Symbol makeTypeVarWithBound(str varName, Symbol varBound) = Symbol::\parameter(varName, varBound)[boundGiven=true];
 
 @doc{Unwraps aliases, parameters, and labels from around a type.}
 public Symbol unwrapType(Symbol::\alias(_,_,at)) = unwrapType(at);

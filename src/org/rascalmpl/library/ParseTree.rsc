@@ -465,7 +465,7 @@ Synopsis: Select the innermost Tree of a given type which is enclosed by a given
 Description: Select the innermost Tree of type `t` which is enclosed by location `l`.
 }
 public TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, a:appl(_, _)) {
-	if (a has src, al := a.src, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
+	if (a has origin, al := a.origin, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
 		for (arg <- a.args, TreeSearchResult[&T<:Tree] r:treeFound(&T<:Tree _) := treeAt(t, l, arg)) {
 			return r;
 		}

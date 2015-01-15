@@ -14,36 +14,36 @@ str required(TYPE t1, TYPE t2) = required(t1, getName(t2));
 // compile Expressions.
 
 TENV checkExp(exp:natCon(int N), TYPE req, TENV env) =                              /*4*/
-  req == natural() ? env : addError(env, exp@location, required(req, "natural"));
+  req == natural() ? env : addError(env, exp.origin, required(req, "natural"));
 
 TENV checkExp(exp:strCon(str S), TYPE req, TENV env) =
- req == string() ? env : addError(env, exp@location, required(req, "string"));
+ req == string() ? env : addError(env, exp.origin, required(req, "string"));
 
 TENV checkExp(exp:id(PicoId Id), TYPE req, TENV env) {                              /*5*/
   if(!env.symbols[Id]?)
-     return addError(env, exp@location, "Undeclared variable <Id>");
+     return addError(env, exp.origin, "Undeclared variable <Id>");
   tpid = env.symbols[Id];
-  return req == tpid ? env : addError(env, exp@location, required(req, tpid));
+  return req == tpid ? env : addError(env, exp.origin, required(req, tpid));
 }
 
 TENV checkExp(exp:add(EXP E1, EXP E2), TYPE req, TENV env) =                        /*6*/
   req == natural() ? checkExp(E1, natural(), checkExp(E2, natural(), env))
-                   : addError(env, exp@location, required(req, "natural"));
+                   : addError(env, exp.origin, required(req, "natural"));
   
 TENV checkExp(exp:sub(EXP E1, EXP E2), TYPE req, TENV env) =                      
   req == natural() ? checkExp(E1, natural(), checkExp(E2, natural(), env))
-                   : addError(env, exp@location, required(req, "natural"));
+                   : addError(env, exp.origin, required(req, "natural"));
 
 TENV checkExp(exp:conc(EXP E1, EXP E2), TYPE req, TENV env) =                    
   req == string() ? checkExp(E1, string(), checkExp(E2, string(), env))
-                   : addError(env, exp@location, required(req, "string"));
+                   : addError(env, exp.origin, required(req, "string"));
 
 
 // check a statement
 
 TENV checkStat(stat:asgStat(PicoId Id, EXP Exp), TENV env) {                        /*9*/
   if(!env.symbols[Id]?)
-     return addError(env, stat@location, "Undeclared variable <Id>");
+     return addError(env, stat.origin, "Undeclared variable <Id>");
   tpid = env.symbols[Id];
   return checkExp(Exp, tpid, env);
 }

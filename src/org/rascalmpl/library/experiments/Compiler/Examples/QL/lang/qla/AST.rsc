@@ -44,6 +44,9 @@ data QType
 data Id = id(str name);
  
 
-anno loc Id@location;
-anno loc Expr@location;
-anno loc Question@location;
+ 
+data Id(loc origin = |unknown:///|);
+ 
+data Expr(loc origin = |unknown:///|);
+ 
+data Question(loc origin = |unknown:///|);

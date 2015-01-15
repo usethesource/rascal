@@ -34,10 +34,16 @@ data Box
     
 alias text = list[str];
 
-anno int Box@hs;
-anno int Box@vs;
-anno int Box@is;
-anno int Box@ts;
-anno int Box@width;
-anno int Box@height;
+ 
+data Box(int hs = 0);
+ 
+data Box(int vs = 0);
+ 
+data Box(int is = 0);
+ 
+data Box(int ts = 0);
+ 
+data Box(int width = 0);
+ 
+data Box(int height = 0);
 

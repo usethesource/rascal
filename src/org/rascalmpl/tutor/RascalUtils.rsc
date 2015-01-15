@@ -187,7 +187,7 @@ private tuple[int,str] extractFunctionDeclaration(int current, bool writing){
       }
       doc = getFunctionDoc(moduleName, fdecl, fsigs);
       if(doc != "" && writing){  	
-	     writeFile(courseDir + libRoot + moduleName + functionName + remoteLoc, fdecl@\loc);
+	     writeFile(courseDir + libRoot + moduleName + functionName + remoteLoc, fdecl.origin);
 		 contentMap[key] = doc;
 	  }
    } 
@@ -217,7 +217,7 @@ private tuple[int,str] extractDataOrAliasDeclaration(int current, bool writing){
       }
      doc = getDataDoc(moduleName, decl, sigs);
      if(doc != "" && writing){  	
-	    writeFile(courseDir + libRoot + moduleName + userType + remoteLoc, decl@\loc);
+	    writeFile(courseDir + libRoot + moduleName + userType + remoteLoc, decl.origin);
 	    contentMap[key] = doc;
 	 }
   }
@@ -265,7 +265,7 @@ private tuple[int,str] extractAnnotationDeclaration(int current, bool writing){
      sig = getAnnotationSignature(decl);
      doc = getAnnotationDoc(moduleName, decl, sig);
      if(doc != "" && writing){  	
-	    writeFile(courseDir + libRoot + moduleName + nname + remoteLoc, decl@\loc);
+	    writeFile(courseDir + libRoot + moduleName + nname + remoteLoc, decl.origin);
 	    contentMap[key] = doc;
 	 }
   }
@@ -294,7 +294,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   doc =  getModuleDoc(header);
   //println("extractRemoteConcepts: <moduleName>: \'<doc>\'");
   if(doc != ""){  		
-     writeFile(courseDir + root + moduleName + remoteLoc,  header@\loc);
+     writeFile(courseDir + root + moduleName + remoteLoc,  header.origin);
      contentMap["<root>/<moduleName>"] = doc;
   }
   
@@ -377,7 +377,7 @@ private bool replaceDoc(str itemName, Tags tags, str oldFileContent, str newDocC
 	visit(tags){
      case Tag t: 
         if("<t.name>" == "doc") {
-           	l = t@\loc;
+           	l = t.origin;
             newFileContent = replace(oldFileContent, l.offset, l.length, "@doc{\n<newDocContent>\n}");
             //println("newFileContent = <newFileContent>");
             writeFile(L, newFileContent);

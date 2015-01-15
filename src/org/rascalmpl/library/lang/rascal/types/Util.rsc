@@ -15,7 +15,7 @@ import lang::rascal::types::AbstractType;
 import lang::rascal::\syntax::Rascal;
 
 public rel[RName,loc] getIntroducedNames((Assignable)`( <Assignable a> )`) = getIntroducedNames(a);
-public rel[RName,loc] getIntroducedNames((Assignable)`<QualifiedName qn>`) = { < convertName(qn), qn@\loc > };
+public rel[RName,loc] getIntroducedNames((Assignable)`<QualifiedName qn>`) = { < convertName(qn), qn.origin > };
 public rel[RName,loc] getIntroducedNames((Assignable)`<Assignable a> [ <Expression _> ]`) = { };
 public rel[RName,loc] getIntroducedNames((Assignable)`<Assignable a> [ <OptionalExpression _> .. <OptionalExpression _> ]`) = { };
 public rel[RName,loc] getIntroducedNames((Assignable)`<Assignable a> [ <OptionalExpression _> , <Expression _> .. <OptionalExpression _> ]`) = { };
@@ -28,12 +28,12 @@ public default rel[RName,loc] getIntroducedNames(Assignable a) { throw "Case not
 
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`{ <{Pattern ","}* ps> }`) = { *getPatternNames(psi) | psi <- ps };
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`[ <{Pattern ","}* ps> ]`) = { *getPatternNames(psi) | psi <- ps };
-public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<QualifiedName qn>`) = { < convertName(qn), qn@\loc > };
-public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<QualifiedName qn>*`) = { < convertName(qn), qn@\loc > };
-public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`* <QualifiedName qn>`) = { < convertName(qn), qn@\loc > };
-public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`* <Type t> <Name n>`) = { < convertName(n), n@\loc > };
-public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`+ <QualifiedName qn>`) = { < convertName(qn), qn@\loc > };
-public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`+ <Type t> <Name n>`) = { < convertName(n), n@\loc > };
+public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<QualifiedName qn>`) = { < convertName(qn), qn.origin > };
+public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<QualifiedName qn>*`) = { < convertName(qn), qn.origin > };
+public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`* <QualifiedName qn>`) = { < convertName(qn), qn.origin > };
+public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`* <Type t> <Name n>`) = { < convertName(n), n.origin > };
+public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`+ <QualifiedName qn>`) = { < convertName(qn), qn.origin > };
+public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`+ <Type t> <Name n>`) = { < convertName(n), n.origin > };
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`- <Pattern p>`) = getPatternNames(p);
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<IntegerLiteral il>`) = { };
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<RealLiteral rl>`) = { };
@@ -44,19 +44,19 @@ public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<RegExpLiteral rl>`)
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<StringLiteral sl>`) = { };
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<LocationLiteral ll>`) = { };
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`\< <Pattern p1>, <{Pattern ","}* ps> \>`) = getPatternNames(p1) + { *getPatternNames(psi) | psi <- ps };
-public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<Type t> <Name n>`) = { < convertName(n), n@\loc> };
+public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<Type t> <Name n>`) = { < convertName(n), n.origin> };
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`( <{Mapping[Pattern] ","}* mps> )`) = { *getPatternNames(pd), *getPatternNames(pr) | (Mapping[Pattern])`<Pattern pd> : <Pattern pr>` <- mps };
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`type ( <Pattern s>, <Pattern d> )`) = getPatternNames(s) + getPatternNames(d);
-public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<Concrete concrete>`) = { < convertName(n), n@\loc > | /(ConcreteHole)`\<<Sym sym> <Name n>\>` := concrete };	
-public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<Name n> : <Pattern p>`) = { < convertName(n), n@\loc > } + getPatternNames(p);
+public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<Concrete concrete>`) = { < convertName(n), n.origin > | /(ConcreteHole)`\<<Sym sym> <Name n>\>` := concrete };	
+public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<Name n> : <Pattern p>`) = { < convertName(n), n.origin > } + getPatternNames(p);
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`[ <Type t> ] <Pattern p>`) = getPatternNames(p);
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`/ <Pattern p>`) = getPatternNames(p);
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`! <Pattern p>`) = getPatternNames(p);
-public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<Type t> <Name n> : <Pattern p>`) = { < convertName(n), n@\loc > } + getPatternNames(p);
+public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<Type t> <Name n> : <Pattern p>`) = { < convertName(n), n.origin > } + getPatternNames(p);
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> <KeywordArguments[Pattern] keywordArguments>)`) = 
 	getPatternNames(p) + 
 	{ *getPatternNames(psi) | psi <- ps } + 
-	{ < convertName(kn), kn@\loc > | (KeywordArguments[Pattern])`<OptionalComma oc> <{KeywordArgument[Pattern] ","}+ kargs>` := keywordArguments, ka:(KeywordArgument[Pattern])`<Name kn> = <Pattern kp>` <- kargs };
+	{ < convertName(kn), kn.origin > | (KeywordArguments[Pattern])`<OptionalComma oc> <{KeywordArgument[Pattern] ","}+ kargs>` := keywordArguments, ka:(KeywordArgument[Pattern])`<Name kn> = <Pattern kp>` <- kargs };
 public default rel[RName,loc] getPatternNames(Pattern p) { throw "Unhandled pattern <p>"; }
 
 public rel[RName,loc] regExpPatternNames(RegExpLiteral rl) {
@@ -65,7 +65,7 @@ public rel[RName,loc] regExpPatternNames(RegExpLiteral rl) {
     top-down visit(rl) {
         case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_,_,_],_),list[Tree] prds) : {
         	if (Name regExpVarName := prds[1]) { 
-        		names += < convertName(regExpVarName), prds[1]@\loc >;
+        		names += < convertName(regExpVarName), prds[1].origin >;
         	}
         }
     }

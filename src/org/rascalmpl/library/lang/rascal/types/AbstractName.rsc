@@ -20,8 +20,8 @@ data RName =
 	| RCompoundName(list[str] nameParts)     
 	;
 
-@doc{Annotate abstract names with locations.}
-anno loc RName@at;
+@doc{Annotate abstract names with locations.} 
+data RName(loc at = |unknown:///|);
 
 @doc{Convert RName to a simple name}
 public str getSimpleName(RSimpleName(str name)) = name;
@@ -32,9 +32,9 @@ public RName convertName(QualifiedName qn) {
 	if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
 		nameParts = [ (startsWith("<n>","\\") ? substring("<n>",1) : "<n>") | n <- nl ];
 		if (size(nameParts) > 1) {
-			return RCompoundName(nameParts)[@at = qn@\loc];
+			return RCompoundName(nameParts)[at=qn.origin];
 		} else {
-			return RSimpleName(head(nameParts))[@at = qn@\loc];
+			return RSimpleName(head(nameParts))[at=qn.origin];
 		} 
 	}
 	throw "Unexpected syntax for qualified name: <qn>";
@@ -43,7 +43,7 @@ public RName convertName(QualifiedName qn) {
 @doc{Convert names into an abstract representation.}
 public RName convertName(Name n) {
 	if (startsWith("<n>","\\"))
-		return RSimpleName(substring("<n>",1))[@at = n@\loc];
+		return RSimpleName(substring("<n>",1))[at=n.origin];
 	else
 		return RSimpleName("<n>");
 }

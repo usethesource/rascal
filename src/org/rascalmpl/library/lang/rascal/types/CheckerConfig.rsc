@@ -227,7 +227,7 @@ public tuple[Configuration,Symbol] checkTVarBound(Configuration c, loc l, Symbol
     		tvn = tvrel[n];
     		
     		// Filter the relation down to just those vars where the bound was actually given
-    		wBounds = { < b, tv > | < b, tv > <- tvn, (tv@boundGiven)? && tv@boundGiven };
+    		wBounds = { < b, tv > | < b, tv > <- tvn, (tv.boundGiven)? && tv.boundGiven };
     		
     		if (size(wBounds) > 0 && n in c.tvarBounds) {
     			// If bounds were given and the type var was already in the config, make sure the new
@@ -259,7 +259,7 @@ public tuple[Configuration,Symbol] checkTVarBound(Configuration c, loc l, Symbol
     	
     	// Now that we have bounds, make sure they are consistent in the actual type
     	rt = bottom-up visit(rt) {
-    		case tp:\parameter(tvn,tvb) => tp[bound=c.tvarBounds[tvn]][@boundGiven=true] when tvn in c.tvarBounds
+    		case tp:\parameter(tvn,tvb) => tp[bound=c.tvarBounds[tvn]][boundGiven=true] when tvn in c.tvarBounds
     	}
     }
     
@@ -1197,7 +1197,7 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
     // TODO: Along with the overlaps, see if we are bringing the same function in along multiple paths
     // and, if so, don't add a new entry for it. For now, we just get back multiple entries, which
     // is fine.
-    rt@isVarArgs = isVarArgs;
+    rt.isVarArgs = isVarArgs;
     currentModuleId = head([i | i <- c.stack, \module(_,_) := c.store[i]]);
 
 	// Create the new function item and insert it into the store; also keep track of
@@ -1370,8 +1370,8 @@ public Configuration addScopeInfo(Configuration c, str s, loc l) = addScopeMessa
 @doc{Represents the result of checking an expression.}
 alias CheckResult = tuple[Configuration conf, Symbol res];
 
-@doc{Marks the location(s) where a defined type (function, constructor, etc) is defined.}
-public anno set[loc] Symbol@definedAt;
+@doc{Marks the location(s) where a defined type (function, constructor, etc) is defined.} 
+data Symbol(set[loc] definedAt = {});
 
 @doc{Strip the label off a symbol, if it has one at the top.}
 private Symbol stripLabel(Symbol::\label(str s, Symbol t)) = stripLabel(t);

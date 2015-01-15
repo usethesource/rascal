@@ -185,19 +185,31 @@ public data MuExp =
 public MuExp muMulti(muOne1(MuExp exp)) = muOne1(exp);
 public MuExp muOne1(muMulti(MuExp exp)) = muOne1(exp);
 
-anno loc MuModule@\location;
-anno loc MuFunction@\location;
-anno loc MuVariable@\location;
-anno loc MuExp@\location;
-anno loc MuCatch@\location;
-anno loc MuTypeCase@\location;
-anno loc Identifier@\location;
-anno loc VarDecl@\location;
+ 
+data MuModule(loc \location = |unknown:///|);
+ 
+data MuFunction(loc \location = |unknown:///|);
+ 
+data MuVariable(loc \location = |unknown:///|);
+ 
+data MuExp(loc \location = |unknown:///|);
+ 
+data MuCatch(loc \location = |unknown:///|);
+ 
+data MuTypeCase(loc \location = |unknown:///|);
+ 
+data Identifier(loc \location = |unknown:///|);
+ 
+data VarDecl(loc \location = |unknown:///|);
 
-anno loc Module@\location;
-anno loc TypeDeclaration@\location;
-anno loc Guard@\location;
-anno loc Function@\location;
+ 
+data Module(loc \location = |unknown:///|);
+ 
+data TypeDeclaration(loc \location = |unknown:///|);
+ 
+data Guard(loc \location = |unknown:///|);
+ 
+data Function(loc \location = |unknown:///|);
  
 data MuCatch = muCatch(str id, str fuid, Symbol \type, MuExp body);    
 

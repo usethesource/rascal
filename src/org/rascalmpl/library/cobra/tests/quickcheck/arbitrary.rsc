@@ -72,11 +72,12 @@ test bool arbitraryShouldWorkWithImportedDataType(){
 
 data MyGraph = vertex(str name, int x, int y) | edge(str from, str to);
 data MyLayoutStrategy = dot() | tree() | force() | hierarchy() | fisheye();
-anno MyLayoutStrategy MyGraph@strategy;
+ 
+data MyGraph(MyLayoutStrategy strategy = MyLayoutStrategy () { throw "no default value"; }());
 
 test bool arbitraryGeneratesAnnotations(){
 	MyGraph g = arbitrary(#MyGraph, 5);
-	return MyLayoutStrategy l := g@strategy;
+	return MyLayoutStrategy l := g.strategy;
 }
 
 

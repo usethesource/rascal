@@ -26,10 +26,14 @@ data Action
   | choose(list[str] actions)
   ;
   
-public anno loc Fighter@location;
-public anno loc Spec@location;
-public anno loc Cond@location;
-public anno loc Action@location;
+ 
+data Fighter(loc origin = |unknown:///|);
+ 
+data Spec(loc origin = |unknown:///|);
+ 
+data Cond(loc origin = |unknown:///|);
+ 
+data Action(loc origin = |unknown:///|);
 
 public int getAttr(Fighter f, str name) {
   if (attribute(name, n) <- f.specs)

@@ -115,9 +115,10 @@ test bool tst_toList(set[int] S) = isEmpty(S) || size(S) == size(toList(S)) && a
 test bool tst_toMap(rel[int, int] S) = isEmpty(S) || domain(S) == domain(toMap(S)) && range(S) == {*toMap(S)[k] | k <- toMap(S)};
 
 data X = y(int y);
-anno int X@z;
+ 
+data X(int z = 0);
 test bool tst_toMapAnnotations(int a, int b) {
-	m = toMap({<y(1)[@z = a], a>, <y(1)[@z = b], b>});
+	m = toMap({<y(1)[z=a], a>, <y(1)[z=b], b>});
 	return m[y(1)] == {a, b};
 }
 

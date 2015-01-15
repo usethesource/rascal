@@ -16,11 +16,16 @@ data Event = event(str name, str token);
 data Transition = transition(str event, str state);
 
 
-anno loc Controller@location;
-anno loc State@location;
-anno loc Command@location;
-anno loc Event@location;
-anno loc Transition@location;
+ 
+data Controller(loc origin = |unknown:///|);
+ 
+data State(loc origin = |unknown:///|);
+ 
+data Command(loc origin = |unknown:///|);
+ 
+data Event(loc origin = |unknown:///|);
+ 
+data Transition(loc origin = |unknown:///|);
 
 data ControllerState = 
 	controllerState(
