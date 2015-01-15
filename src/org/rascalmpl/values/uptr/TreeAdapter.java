@@ -37,9 +37,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 public class TreeAdapter {
-
-	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
-
 	private TreeAdapter() {
 		super();
 	}
@@ -247,11 +244,7 @@ public class TreeAdapter {
 		}
 
 		IList children = getArgs(tree);
-<<<<<<< HEAD
-		IListWriter writer = VF.listWriter();
-=======
 		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
->>>>>>> master
 
 		for (int i = 0; i < children.length(); i++) {
 			IConstructor kid = (IConstructor) children.get(i);
@@ -591,11 +584,8 @@ public class TreeAdapter {
 	}
 
 	public static IList searchCategory(IConstructor tree, String category) {
-<<<<<<< HEAD
-		IListWriter writer = VF.listWriter();
-=======
 		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
->>>>>>> master
+
 		if (isAppl(tree)) {
 			String s = ProductionAdapter.getCategory(getProduction(tree));
 			if (s == category)
