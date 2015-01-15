@@ -197,7 +197,7 @@ public class TreeAdapter {
 					"This is not a context-free list production: " + tree);
 		}
 		IList children = getArgs(tree);
-		IListWriter writer = VF.listWriter();
+		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
 
 		for (int i = 0; i < children.length(); ++i) {
 			IValue kid = children.get(i);
@@ -247,7 +247,11 @@ public class TreeAdapter {
 		}
 
 		IList children = getArgs(tree);
+<<<<<<< HEAD
 		IListWriter writer = VF.listWriter();
+=======
+		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
+>>>>>>> master
 
 		for (int i = 0; i < children.length(); i++) {
 			IConstructor kid = (IConstructor) children.get(i);
@@ -587,7 +591,11 @@ public class TreeAdapter {
 	}
 
 	public static IList searchCategory(IConstructor tree, String category) {
+<<<<<<< HEAD
 		IListWriter writer = VF.listWriter();
+=======
+		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
+>>>>>>> master
 		if (isAppl(tree)) {
 			String s = ProductionAdapter.getCategory(getProduction(tree));
 			if (s == category)
@@ -674,7 +682,17 @@ public class TreeAdapter {
 		return (IConstructor) tree.get("symbol");
 	}
 
-  public static IConstructor getStartTop(IConstructor prefix) {
-    return (IConstructor) getArgs(prefix).get(1);
-  }
+	public static IConstructor getStartTop(IConstructor prefix) {
+		return (IConstructor) getArgs(prefix).get(1);
+	}
+
+	public static IList getNonLayoutArgs(IConstructor treeSubject) {
+		IListWriter w = ValueFactoryFactory.getValueFactory().listWriter();
+		for (IValue v : getArgs(treeSubject)) {
+			if (!TreeAdapter.isLayout((IConstructor) v)) {
+				w.append(v);
+			}
+		}
+		return w.done();
+	}
 }
