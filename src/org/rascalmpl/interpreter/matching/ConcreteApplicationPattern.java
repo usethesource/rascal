@@ -203,13 +203,13 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 				return;
 			}
 
+			if (!TreeAdapter.getProduction(treeSubject).isEqual(production)) {
+				// fail early if the subject's production is not the same
+				hasNext = false;
+				return;
+			}
+			
 			if (!SymbolAdapter.isLiteral(ProductionAdapter.getType(production))) {
-				if (!TreeAdapter.getProduction(treeSubject).isEqual(production)) {
-					// fail early if the subject's production is not the same
-					hasNext = false;
-					return;
-				}
-				
 				this.subjectArgs = TreeAdapter.getArgs(treeSubject);
 				tupleMatcher.initMatch(ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
 			
