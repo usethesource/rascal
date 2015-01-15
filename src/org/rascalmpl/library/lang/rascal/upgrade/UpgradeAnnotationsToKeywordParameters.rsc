@@ -35,6 +35,7 @@ Name getName((Name) `src`) = (Name) `origin`;
 Name getName((Name) `location`) = (Name) `origin`;
 default Name getName(Name n) = n;
 
+test bool nameTest() = getName((Name) `location`) == (Name) `origin`;
 
 Expression getInitializer((Type) `rel[<{TypeArg ","}* elem>]`) = (Expression) `{}`;
 Expression getInitializer((Type) `list[<Type elem>]`) = (Expression) `[]`;
