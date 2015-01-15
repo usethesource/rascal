@@ -11,24 +11,30 @@ list[Message] report(Tree m)
   ;
 
 Tree update(Tree m) =
-  visit(m) {
-    case (Declaration) `<Tags tags> <Visibility v> anno <Type t> <Name adt>@<Name name>;` 
+  top-down visit(m) {
+    case (Declaration) `<Tags tags> <Visibility _> anno <Type t> <Name adt>@<Name name>;` 
       => (Declaration) `<Tags tags> 
-                       '<Visibility v> data <Name adt>(<Type t> <Name name> = <Expression init>);` 
-      when Expression init := getInitializer(t) 
-    case (Expression) `<Expression e>@\\loc` => (Expression) `<Expression e>.origin`
-    case (Expression) `<Expression e>@src` => (Expression) `<Expression e>.origin`
-    case (Expression) `<Expression e>@location` => (Expression) `<Expression e>.origin`
-    case (Expression) `<Expression e>@<Name name>` => (Expression) `<Expression e>.<Name name>`
-    case (Expression) `<Expression e>[@location=<Expression def>]` => (Expression) `<Expression e>[origin=<Expression def>]`
-    case (Expression) `<Expression e>[@\\loc=<Expression def>]` => (Expression) `<Expression e>[origin=<Expression def>]`
-    case (Expression) `<Expression e>[@src=<Expression def>]` => (Expression) `<Expression e>[origin=<Expression def>]`
-    case (Expression) `<Expression e>[@<Name name>=<Expression def>]` => (Expression) `<Expression e>[<Name name>=<Expression def>]`
-    case (Assignable) `<Name rec>@\\loc` => (Assignable) `<Name rec>.origin`
-    case (Assignable) `<Name rec>@src` => (Assignable) `<Name rec>.origin`
-    case (Assignable) `<Name rec>@location` => (Assignable) `<Name rec>.origin`
-    case (Assignable) `<Name rec>@<Name field>` => (Assignable) `<Name rec>.<Name field>`
+                       'data <Name adt>(<Type t> <Name name2> = <Expression init>);` 
+      when Expression init := getInitializer(t), Name name2 := getName(name)
+      
+    case (Expression) `<Expression e>@<Name name> ? <Expression _>` => (Expression) `<Expression e>.<Name name2>`
+      when Name name2 := getName(name)
+      
+    case (Expression) `<Expression e>@<Name name>` => (Expression) `<Expression e>.<Name name2>`
+      when Name name2 := getName(name)
+    
+    case (Expression) `<Expression e>[@<Name name>=<Expression def>]` => (Expression) `<Expression e>[<Name name2>=<Expression def>]`
+      when Name name2 := getName(name)
+      
+    case (Assignable) `<Name rec>@<Name field>` => (Assignable) `<Name rec>.<Name name2>`
+      when Name name2 := getName(field)
   };
+
+Name getName((Name) `\\loc`) = (Name) `origin`;
+Name getName((Name) `src`) = (Name) `origin`;
+Name getName((Name) `location`) = (Name) `origin`;
+default Name getName(Name n) = n;
+
 
 Expression getInitializer((Type) `rel[<{TypeArg ","}* elem>]`) = (Expression) `{}`;
 Expression getInitializer((Type) `list[<Type elem>]`) = (Expression) `[]`;
