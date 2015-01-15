@@ -4,7 +4,7 @@ import experiments::Compiler::Profile;
 import IO; 
 import Message;
 import util::ResourceMarkers; 
-
+ 
 void addMarkers(lrel[loc src, int ticks] profData){
 	// TODO: add multiple ticks per line
 	addMessageMarkers({ info("<tup.ticks> ticks", tup.src) | tup <- profData });

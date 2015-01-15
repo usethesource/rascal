@@ -119,7 +119,7 @@ data X = y(int y);
 data X(int z = 0);
 test bool tst_toMapAnnotations(int a, int b) {
 	m = toMap({<y(1)[z=a], a>, <y(1)[z=b], b>});
-	return m[y(1)] == {a, b};
+	return m[y(1,z=a)] == {a};
 }
 
 test bool tst_toMapUnique(set[int] D, set[int] R) {
