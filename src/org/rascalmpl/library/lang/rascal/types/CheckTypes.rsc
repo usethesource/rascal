@@ -802,7 +802,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 	        		}  
 				    return markLocationType(c,exp@\loc,getFunctionReturnType(finalMatch));
 				} else {
-					return markLocationFailed(c,exp@\loc,makeFailType("Unexpected match, should have had a function type, instead found <prettyPrintType(finalMatch)>"));
+					return markLocationFailed(c,exp@\loc,makeFailType("Unexpected match, should have had a function type, instead found <prettyPrintType(finalMatch)>", exp@\loc));
 				}
         	} else if (size(finalDefaultMatches) == 1) {
 				finalMatch = getOneFrom(finalDefaultMatches);
