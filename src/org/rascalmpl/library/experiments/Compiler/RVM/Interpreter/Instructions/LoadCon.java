@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class LoadCon extends Instruction {
 
@@ -13,8 +14,10 @@ public class LoadCon extends Instruction {
 	
 	public String toString() { return "LOADCON " + constant + "[" + codeblock.getConstantValue(constant) + "]"; }
 	
-	public void generate(){
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		
+		//codeEmittor.emitCall("insnLOADCON", constant);
+		codeEmittor.emitCallWithArgsSSFI("insnLOADCON",constant,dcode);
 		codeblock.addCode1(opcode.getOpcode(), constant);
 	}
-
 }

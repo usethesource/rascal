@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class LoadConstr extends Instruction {
 	
@@ -13,7 +14,8 @@ public class LoadConstr extends Instruction {
 	
 	public String toString() { return "LOADCONSTR " + fuid + "[" + codeblock.getConstructorIndex(fuid) + "]"; }
 	
-	public void generate(){
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode) {
+		codeEmittor.emitCallWithArgsSSI("insnLOADCONSTR", codeblock.getConstructorIndex(fuid),dcode);
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getConstructorIndex(fuid));
 	}
 }

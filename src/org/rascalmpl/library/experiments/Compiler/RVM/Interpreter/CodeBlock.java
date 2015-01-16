@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,6 +92,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.U
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class CodeBlock {
 
@@ -389,8 +391,8 @@ public class CodeBlock {
 		return add(new LoadInt(this, n));
 	}
 	
-	public CodeBlock CALL(String fuid, int arity){
-		return add(new Call(this, fuid, arity));
+	public CodeBlock CALL(String fuid, int arity, int cp){
+		return add(new Call(this, fuid, arity, cp));
 	}
 	
 	public CodeBlock JMP(String arg){
@@ -452,8 +454,8 @@ public class CodeBlock {
 		return add(new LoadFun(this, fuid));
 	}
 	
-	public CodeBlock CALLDYN(int arity){
-		return add(new CallDyn(this, arity));
+	public CodeBlock CALLDYN(int arity, int cp){
+		return add(new CallDyn(this, arity, cp));
 	}
 	
 	public CodeBlock CREATE(String fuid, int arity) {
@@ -472,12 +474,12 @@ public class CodeBlock {
 		return add(new Next1(this));
 	}
 	
-	public CodeBlock YIELD0() {
-		return add(new Yield0(this));
+	public CodeBlock YIELD0(int cp) {
+		return add(new Yield0(this,cp));
 	}
 	
-	public CodeBlock YIELD1(int arity) {
-		return add(new Yield1(this, arity));
+	public CodeBlock YIELD1(int arity,int cp) {
+		return add(new Yield1(this, arity, cp));
 	}
 	
 	public CodeBlock PRINTLN(int arity){
@@ -568,8 +570,8 @@ public class CodeBlock {
 		return add(new Exhaust(this));
 	}
 	
-	public CodeBlock GUARD() {
-		return add(new Guard(this));
+	public CodeBlock GUARD(int cp) {
+		return add(new Guard(this,cp));
 	}
 	
 	public CodeBlock SUBSCRIPTARRAY() {
@@ -655,16 +657,53 @@ public class CodeBlock {
 	public CodeBlock SHIFT() {
 		return add(new Shift(this));
 	}
-			
-	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
+	
+	public CodeBlock done(BytecodeGenerator codeEmittor, String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing, boolean debug) {
 		this.functionMap = codeMap;
 		this.constructorMap = constructorMap;
 		this.resolver = resolver;
 		int codeSize = pc;
 		pc = 0;
+		
 		finalCode = new int[codeSize];
 		for(Instruction ins : insList){
-			ins.generate();
+			ins.generate(codeEmittor, debug);
+		}
+		// TODO: BUG  
+		if ( insList.get(insList.size()-1)  instanceof Label ) {
+			// The mu2rvm code generator emits faulty code and jumps outside existing space 
+			// put in a panic return, code is also generated on a not used label.  
+			// Activate the peephole optimizer :).
+			codeEmittor.emitPanicReturn() ;
+		}
+		
+		
+		finalConstantStore = new IValue[constantStore.size()];
+		for(int i = 0; i < constantStore.size(); i++ ){
+			finalConstantStore[i] = constantStore.get(i);
+		}
+		finalTypeConstantStore = new Type[typeConstantStore.size()];
+		for(int i = 0; i < typeConstantStore.size(); i++) {
+			finalTypeConstantStore[i] = typeConstantStore.get(i);
+		}
+		if(listing){
+			listing(fname);
+		}
+    	return this;
+    }
+
+	
+	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, boolean listing) {
+		this.functionMap = codeMap;
+		this.constructorMap = constructorMap;
+		this.resolver = resolver;
+		int codeSize = pc;
+		BytecodeGenerator codeEmittor = new BytecodeGenerator() ;
+		
+		pc = 0;
+		finalCode = new int[codeSize];
+		for(Instruction ins : insList){
+			ins.generate(codeEmittor,false);
 		}
 		finalConstantStore = new IValue[constantStore.size()];
 		for(int i = 0; i < constantStore.size(); i++ ){

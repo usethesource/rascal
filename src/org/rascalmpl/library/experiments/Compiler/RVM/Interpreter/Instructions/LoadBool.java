@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class LoadBool extends Instruction {
 	
@@ -13,7 +14,9 @@ public class LoadBool extends Instruction {
 	
 	public String toString() { return "LOADBOOL " + bool; }
 	
-	public void generate(){
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		
+		codeEmittor.emitInlineLoadBool(bool,dcode) ;
 		codeblock.addCode1(opcode.getOpcode(), bool ? 1 : 0);
 	}
 }

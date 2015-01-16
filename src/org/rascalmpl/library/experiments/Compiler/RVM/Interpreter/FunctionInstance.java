@@ -22,7 +22,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	
 	final Function function;
 	final Frame env;
-	final RVM rvm;
+	final IRVM rvm;
 	
 	/*
 	 * Records arguments in case of partial parameter binding
@@ -30,7 +30,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	Object[] args;
 	int next = 0;
 	
-	public FunctionInstance(Function function, Frame env, RVM rvm) {
+	public FunctionInstance(Function function, Frame env, IRVM rvm) {
 		this.function = function;
 		this.env = env;
 		this.rvm = rvm;
@@ -39,7 +39,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	/**
 	 * Assumption: scopeIn != -1; 
 	 */
-	public static FunctionInstance computeFunctionInstance(Function function, Frame cf, int scopeIn, RVM rvm) {
+	public static FunctionInstance computeFunctionInstance(Function function, Frame cf, int scopeIn, IRVM rvm) {
 		assert scopeIn != -1;
 		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
@@ -147,10 +147,10 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 		for(IValue argValue : argValues) {
 			args[i++] = argValue;
 		}
-		IMapWriter kwargs = rvm.vf.mapWriter();
+		IMapWriter kwargs = rvm.getValueFactory().mapWriter();
 		if(keyArgValues != null) {
 			for(Entry<String, IValue> entry : keyArgValues.entrySet()) {
-				kwargs.put(rvm.vf.string(entry.getKey()), keyArgValues.get(entry.getValue()));
+				kwargs.put(rvm.getValueFactory().string(entry.getKey()), keyArgValues.get(entry.getValue()));
 			}
 		}
 		args[i] = kwargs.done();
