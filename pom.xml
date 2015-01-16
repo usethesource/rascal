@@ -116,7 +116,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
-			<artifactId>p2-repackaged</artifactId>
+			<artifactId>rascal-p2-dependencies-repackaged</artifactId>
 			<version>0.0.1</version>
 		</dependency>		
 		<dependency>
