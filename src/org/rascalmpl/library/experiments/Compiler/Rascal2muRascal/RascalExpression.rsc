@@ -111,14 +111,14 @@ MuExp translateComposeFunction(Expression e){
   //println("lhsReceiver: <lhsReceiver>");
   //println("rhsReceiver: <rhsReceiver>");
   
-  str ofqname = lhsReceiver.fuid + "_o_" + rhsReceiver.fuid + e@\loc.offset;  // name of composition
+  str ofqname = "<lhsReceiver.fuid>_o_<rhsReceiver.fuid>#<e@\loc.offset>";  // name of composition
   
   if(hasOverloadingResolver(ofqname)){
     return muOFun(ofqname);
   }
   
   // Unique 'id' of a visit in the function body
-  int i = nextVisit();  // TODO: replace by generated function counter
+  //int i = nextVisit();  // TODO: replace by generated function counter
     
   // Generate and add a function COMPOSED_FUNCTIONS_<i>
   str scopeId = topFunctionScope();
@@ -193,7 +193,7 @@ MuExp translateAddFunction(Expression e){
  
   OFUN compOf = <lhsOf[0], lhsOf[1] + rhsOf[1]>; // add all alternatives
   
-  str ofqname = lhsReceiver.fuid + "_+_" + rhsReceiver.fuid + e@\loc.offset;  // name of addition
+  str ofqname = "<lhsReceiver.fuid>_+_<rhsReceiver.fuid>"; //#<e@\loc.offset>";  // name of addition
  
   addOverloadedFunctionAndResolver(ofqname, compOf); 
   return muOFun(ofqname);
@@ -1041,7 +1041,7 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`){
 
-   println("translate: <e>");
+   //println("translate: <e>");
    MuExp kwargs = translateKeywordArguments(keywordArguments);
       
    MuExp receiver = translate(expression);
@@ -1159,16 +1159,16 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
      
-       println("ftype = <ftype>, of.alts = <of.alts>");
+       //println("ftype = <ftype>, of.alts = <of.alts>");
        for(int alt <- of.alts) {
        	   assert uid2type[alt]? : "cannot find type of alt";
            t = uid2type[alt];
            if(matches(t)) {
-           	   println("alt <alt> matches");
+           	   //println("alt <alt> matches");
                resolved += alt;
            }
        }
-       println("resolved = <resolved>");
+       //println("resolved = <resolved>");
        if(isEmpty(resolved)) {
            for(int alt <- of.alts) {
                t = uid2type[alt];
@@ -1342,8 +1342,8 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
 
 // -- reified type expression ---------------------------------------
 
-MuExp translate (e:(Expression) `# <Type tp>`) = 
-    muCon(symbolToValue(translateType(tp)));
+MuExp translate (e:(Expression) `# <Type tp>`) =
+	muCon(symbolToValue(translateType(tp)));
 
 // -- tuple expression ----------------------------------------------
 

@@ -43,10 +43,10 @@ public void resetTypeReifier() {
 // - getGrammar
 // - symbolToValue
 
-private map[Symbol,Production] TreeDefinitions = #Tree.definitions;
+//private map[Symbol,Production] TreeDefinitions = #Tree.definitions;
 
 public void getDeclarationInfo(Configuration config){
-	println("Start getDeclarationInfo");
+	//println("Start getDeclarationInfo");
     resetTypeReifier();
     
     // Collect all the types that are in the type environment
@@ -58,11 +58,11 @@ public void getDeclarationInfo(Configuration config){
 
 	// Collect all the constructors of the adt types in the type environment
 	
-	rel[Symbol, Symbol] constructors = { <\type.\adt, \type> | int uid <- config.store, 
+	constructors = { <\type.\adt, \type> | int uid <- config.store, 
 												constructor(_, Symbol \type, _, _, _) := config.store[uid]
 												//\type.\adt in types 
 												};
-	
+
 	//constructors += <#Tree.symbol, type(Tree, ())>;
 	
     typeRel += { <cns[1].adt.name, cns[1].adt> | cns <- constructors };
@@ -84,13 +84,13 @@ public void getDeclarationInfo(Configuration config){
    	if(!isEmpty(activeLayouts)) {
    		activeLayout = getOneFrom(activeLayouts);
    	}
-   	println("End getDeclarationInfo");
+   	//println("End getDeclarationInfo");
 }
 
 // Extract the declared grammar from a type checker configuration
 
 public map[Symbol,Production] getGrammar() {
-	println("Start getGrammar");
+	//println("Start getGrammar");
 	map[Symbol,Production] definitions =   ( nonterminal : \layouts(grammar[nonterminal]) | nonterminal <- grammar ) 
 										 + ( Symbol::\start(nonterminal) : \layouts(Production::choice(Symbol::\start(nonterminal),
 																					   				   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) })) 
@@ -106,14 +106,14 @@ public map[Symbol,Production] getGrammar() {
  	//for(s <- definitions) println("<s>: <definitions[s]>,");
  	//println(")\n----------");
  	
- 	println("End getGrammar");
+ 	//println("End getGrammar");
  	return definitions;
 }
 
 // Extract all declared symbols from a type checker configuration
 
 public map[Symbol,Production] getDefinitions() {
-	println("Start getDefinitions");
+	//println("Start getDefinitions");
    	// Collect all symbols
    	set[Symbol] symbols = types + carrier(constructors) + carrier(productions) + domain(grammar);
    	
@@ -126,8 +126,8 @@ public map[Symbol,Production] getDefinitions() {
    	//iprintln(TreeDefinitions);
    	map[Symbol,Production] definitions  = (() | reify(symbol, it) | Symbol symbol <- symbols);
  	
- 	println("End getDefinitions");
- 	iprintln(definitions);
+ 	//println("End getDefinitions");
+ 	//iprintln(definitions);
  	
  	return definitions;
 }
@@ -207,7 +207,7 @@ public map[Symbol,Production] reify(Symbol::\map(Symbol from, Symbol to), map[Sy
 // adt
 public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols), map[Symbol,Production] definitions) {
 	set[Symbol] defs = typeRel[name];
-	println("reify adt: <name>, <symbols>, <defs>, <constructors>");
+	//println("reify adt: <name>, <symbols>, <defs>, <constructors>");
 
     for(Symbol s <- defs){
 	   if(adtDef: Symbol::\adt(name,_) := s){
@@ -218,6 +218,7 @@ public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols)
         	 definitions = ( definitions | reify(sym, it) | sym <- constructors[adtDef] );
           }
           definitions = ( definitions | reify(sym, it) | sym <- symbols );
+          //println("reify adt <name> =\> <definitions>");
           return definitions;
        }
     }
