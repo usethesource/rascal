@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::Parsing
+module lang::rascal::tests::functionality::ParsingTests
 
 import ParseTree;
 import IO;
