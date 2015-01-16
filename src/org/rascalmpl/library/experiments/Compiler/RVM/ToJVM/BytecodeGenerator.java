@@ -1165,6 +1165,8 @@ public class BytecodeGenerator implements Opcodes {
 	 * 2: There is only a constructor call constructor
 	 */
 	public void emitOptimizedOcall(String fuid, int overloadedFunctionIndex, int arity, boolean dcode) {
+		if (!emit)
+			return;
 		OverloadedFunction of = overloadedStore.get(overloadedFunctionIndex);
 		int[] functions = of.getFuntions();
 		if (functions.length == 1) {

@@ -45,7 +45,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 import org.rascalmpl.uri.URIResolverRegistry;
 
 
-public class RVM {
+public class RVM implements IRVM {
 
 	public final IValueFactory vf;
 	private final TypeFactory tf;
@@ -164,16 +164,14 @@ public class RVM {
 	URIResolverRegistry getResolverRegistry() { return rex.getResolverRegistry(); }
 	
 	IRascalMonitor getMonitor() {return rex.getMonitor();}
-	
-	PrintWriter getStdErr() { return rex.getStdErr(); }
-	
+	public PrintWriter getStdErr() { return rex.getStdErr(); }
 	PrintWriter getStdOut() { return rex.getStdOut(); }
 	
 	Configuration getConfiguration() { return rex.getConfiguration(); }
 	
 	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
 	
-	IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
+	public IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
 	
 	public void setLocationCollector(ILocationCollector collector){
 		this.locationCollector = collector;
@@ -1878,5 +1876,20 @@ public class RVM {
 		public Class<?> visitDateTime(Type type) {
 			return IDateTime.class;
 		}
+	}
+
+	@Override
+	public IValue executeProgram(String uid_main, IValue[] args) {
+		return null;
+	}
+
+	@Override
+	public RascalExecutionContext getRex() {
+		return rex;
+	}
+
+	@Override
+	public IValueFactory getValueFactory() {
+		return vf;
 	}
 }

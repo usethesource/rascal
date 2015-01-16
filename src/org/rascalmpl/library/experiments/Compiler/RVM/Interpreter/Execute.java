@@ -256,7 +256,7 @@ public class Execute {
 	 * @param rvm in which function will be loaded
 	 */
 	private void loadInstructions(String name, IConstructor declaration, RVM rvm, boolean isCoroutine){
-	
+		int continuationPoint = 0 ;
 		Type ftype = isCoroutine ? null : rvm.symbolToType((IConstructor) declaration.get("ftype"));
 		
 		//System.err.println("loadInstructions: " + name + ": ftype = " + ftype + ", declaration = " + declaration);
@@ -322,11 +322,11 @@ public class Execute {
 				break;
 
 			case "CALL":
-				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"));
+				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"),++continuationPoint);
 				break;
 
 			case "CALLDYN":
-				codeblock.CALLDYN( getIntField(instruction, "arity"));
+				codeblock.CALLDYN( getIntField(instruction, "arity"),++continuationPoint);
 				break;
 				
 			case "APPLY":
@@ -388,11 +388,11 @@ public class Execute {
 				break;
 
 			case "YIELD0":
-				codeblock.YIELD0();
+				codeblock.YIELD0(++continuationPoint);
 				break;
 
 			case "YIELD1":
-				codeblock.YIELD1(getIntField(instruction, "arity"));
+				codeblock.YIELD1(getIntField(instruction, "arity"),++continuationPoint);
 				break;
 				
 			case "SHIFT":
@@ -508,7 +508,7 @@ public class Execute {
 				break;
 				
 			case "GUARD":
-				codeblock.GUARD();
+				codeblock.GUARD(++continuationPoint);
 				break;
 				
 			case "SUBSCRIPTARRAY":
@@ -579,7 +579,7 @@ public class Execute {
 				break;
 				
 			default:
-				throw new CompilerError("In function " + name + ", nknown instruction: " + opcode);
+				throw new CompilerError("In function " + name + ", Unknown instruction: " + opcode);
 			}
 
 		}
@@ -587,7 +587,7 @@ public class Execute {
 			throw new CompilerError("In function " + name + " : " + e.getMessage());
 		}
 		
-		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src);
+		Function function = new Function(name, ftype, scopeIn, nformals, nlocals, localNames, maxstack, codeblock, src, continuationPoint);
 		if(isCoroutine) {
 			function.isCoroutine = true;
 			IList refList = (IList) declaration.get("refs");

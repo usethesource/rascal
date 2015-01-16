@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class CreateDyn extends Instruction {
 
@@ -13,8 +14,8 @@ public class CreateDyn extends Instruction {
 	
 	public String toString() { return "CREATEDYN " + arity; }
 	
-	public void generate(){
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		codeEmittor.emitCallWithArgsSSFI("jvmCREATEDYN", arity, dcode);
 		codeblock.addCode1(opcode.getOpcode(), arity);
 	}
-		
 }

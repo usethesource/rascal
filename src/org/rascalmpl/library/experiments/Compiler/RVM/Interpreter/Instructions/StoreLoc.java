@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class StoreLoc extends  Instruction {
 
@@ -14,7 +15,8 @@ public class StoreLoc extends  Instruction {
 	
 	public String toString() { return "STORELOC " + pos; }
 	
-	public void generate(){
+	public void generate(BytecodeGenerator codeEmittor, boolean dcode){
+		codeEmittor.emitInlineStoreLoc(pos, dcode);
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
 }
