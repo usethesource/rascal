@@ -40,6 +40,7 @@ list[str] functionalityTests = [
 "AssignmentTests",			// OK
 "BacktrackingTests",		// OK
 "CallTests",				// OK
+"CallTestsAux",
 "ComprehensionTests",		// OK, 3 tests fail that correspond to empty enumerations: interpreter gives false, compiler gives true.
 "ConcretePatternTests1",	// OK
 "ConcretePatternTests2",	// OK
@@ -51,9 +52,11 @@ list[str] functionalityTests = [
 "DeclarationTests",			// OK
 "FunctionCompositionTests",	// OK
 "InterpolationTests",
+"KeywordParameterImportTests",
+"ParsingTests",
 "PatternTests",				// OK
-"PatternTestsDescendant",
-"PatternTestsList3",
+"PatternDescendantTests",
+"PatternList3Tests",
 "ProjectionTests", 			// OK
 "RangeTests",				// OK, 4 tests fail but this is due to false 1. == 1.0 comparisons.
 "ReducerTests",				// OK
@@ -72,8 +75,7 @@ list[str] libraryTests = [
 
 // OK
 
-"lang/csv/CSVIOTests",      // OK
-"lang/json/JSONIOTests",    // OK
+
 "BooleanTests",			    // OK
 "GraphTests",			    // OK
 "IntegerTests",			    // OK
@@ -87,7 +89,11 @@ list[str] libraryTests = [
 "SetTests",				    // OK
 "StringTests",			    // OK
 "TypeTests",
-"ValueIOTests"
+"ValueIOTests",
+"analysis/statistics/DescriptiveTests",
+"analysis/statistics/RangeUtilsTests",
+"lang/csv/CSVIOTests",      // OK
+"lang/json/JSONIOTests"    // OK
 ];
 
 list[str] importTests = [
