@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::PatternTestsDescendant
+module lang::rascal::tests::functionality::PatternDescendantTests
 
 data F = f(F left, F right) | g(int N);
 

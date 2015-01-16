@@ -6,7 +6,7 @@ which accompanies this distribution, and is available at
 http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor=|mailto://Jurgen.Vinju@cwi.nl|
-module lang::rascal::tests::functionality::KeywordParameterTestImport
+module lang::rascal::tests::functionality::KeywordParameterImportTests
 
 import lang::rascal::tests::imports::KeywordParameterTest1;
 import lang::rascal::tests::imports::KeywordParameterTest2;
