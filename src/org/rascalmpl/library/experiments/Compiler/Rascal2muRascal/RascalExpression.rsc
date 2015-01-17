@@ -1084,6 +1084,30 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        
        list[int] resolved = [];
        
+       bool isVarArgs(Symbol ftype) = ftype@isVarArgs? ? ftype@isVarArgs : false;
+       
+       // match function use and def, taking varargs into account
+       bool function_subtype(Symbol fuse, Symbol fdef){
+       	upar = fuse.parameters;
+       	dpar = fdef.parameters;
+       	if(isVarArgs(fdef) && !isVarArgs(fuse)){
+       		un = size(upar);
+       		dn = size(dpar);
+       		var_elm_type = dpar[-1][0];
+       		i = un - 1;
+       		while(i > 0){
+       			if(subtype(upar[i], var_elm_type)){
+       				i -= 1;
+       			} else {
+       				break;
+       			}
+       		}
+       		upar = upar[0 .. i + 1] + dpar[-1];
+       	}
+       
+       	return subtype(upar, dpar);
+       }
+       
        bool matches(Symbol t) {
        	   //println("matches: <ftype>, <t>");
            if(isFunctionType(ftype) || isConstructorType(ftype)) {
@@ -1130,9 +1154,9 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                        println("WARNING: Cannot match <ftype> against <t> for location: <expression@\loc>! <err>");
                    }
                }
-               //println("matches returns: <subtype(ftype.parameters, t.parameters)>");
+               //println("matches returns: <function_subtype(ftype, t)>");
                //return t == ftype;
-               return subtype(ftype.parameters, t.parameters);
+               return function_subtype(ftype, t);
            }           
            if(isOverloadedType(ftype)) {
                if(/parameter(_,_) := t) { // In case of polymorphic function types
@@ -1161,7 +1185,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                    return false;
            	   }
                //return t in (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype));
-               return any(Symbol sup <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)), subtype(t.parameters, sup.parameters));
+               return any(Symbol sup <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)), subtype(t.parameters, sup.parameters)); // TODO function_subtype
            }
            throw "Ups, unexpected type of the call receiver expression!";
        }
