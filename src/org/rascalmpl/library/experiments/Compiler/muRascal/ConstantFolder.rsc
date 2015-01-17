@@ -1,6 +1,7 @@
 module experiments::Compiler::muRascal::ConstantFolder
 
-import experiments::Compiler::muRascal::AST;
+import experiments::Compiler::muRascal::AST; 
+import Node;
 
 // This where the constant fildoing rules belong
 // They are now placed in muRascal/AST.rsc since the interpreter does not seems to like

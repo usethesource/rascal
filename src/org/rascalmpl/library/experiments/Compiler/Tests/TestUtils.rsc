@@ -2,6 +2,7 @@ module experiments::Compiler::Tests::TestUtils
 
 import  experiments::Compiler::Execute;
 import IO;
+import ParseTree;
 
 loc TMP = |tmp:///experiments/Compiler/Tests/TMP.rsc|;
 

@@ -1,7 +1,7 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::TmpAndLabel
 
-import Prelude;
+import List;
 import Type;
 import lang::rascal::\syntax::Rascal;
 

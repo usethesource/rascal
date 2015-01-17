@@ -1,7 +1,11 @@
 module experiments::Compiler::Execute
 
-import Prelude;
+import IO;
+import ValueIO;
+import String;
+import Type;
 import Message;
+import List;
 
 //import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;

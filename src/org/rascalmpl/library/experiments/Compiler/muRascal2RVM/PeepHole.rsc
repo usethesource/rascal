@@ -1,6 +1,9 @@
 module experiments::Compiler::muRascal2RVM::PeepHole
 
-import Prelude;
+import IO;
+import String;
+import Set;
+import List;
 
 import experiments::Compiler::RVM::AST;
 

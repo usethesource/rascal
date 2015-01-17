@@ -4,12 +4,11 @@ import experiments::Compiler::muRascal::Parse;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::muRascal::Syntax;
-import ParseTree;
 
 MuModule load(loc l) = implodeMuRascal(parseMuRascal(l));
 MuModule load(str src) = implodeMuRascal(parseMuRascal(src));
 
-MuModule implodeMuRascal(Tree t) = preprocess(implode(#Module, t));
+MuModule implodeMuRascal(Tree t) = preprocess(implode(#experiments::Compiler::muRascal::AST::Module, t));
 
 /*
 MuExp loadstr(str src) = ip(parse(#Exp, src));

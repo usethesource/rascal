@@ -1,26 +1,32 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::RascalModule
 
-import lang::rascal::\syntax::Rascal;
-import Prelude;
+import IO;
+import Map;
+import String;
+import Set;
+import Relation;
 import util::Reflective;
 import util::ValueUI;
+
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
+
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
-import experiments::Compiler::muRascal::AST;
-import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 
-import util::ValueUI;
+import experiments::Compiler::muRascal::AST;
+import experiments::Compiler::muRascal::Implode;
+
+
 
 /*
  * Translate a Rascal module to muRascal.

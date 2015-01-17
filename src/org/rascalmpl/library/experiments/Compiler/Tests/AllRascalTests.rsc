@@ -124,9 +124,8 @@ list[str] typeTests = [
 //"RegExpTCTests",
 //"ScopeTCTests",
 //"StatementTCTests",
-//"StatementTCTests",
 //"SubscriptTCTests",
-"VisitTCTests"
+//"VisitTCTests"
 ];
 
 
