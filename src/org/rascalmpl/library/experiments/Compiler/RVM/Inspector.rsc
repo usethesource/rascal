@@ -6,6 +6,8 @@ import String;
 import List;
 import Map;
 import Set;
+import Type;
+import Message;
 import util::FileSystem;
 import experiments::Compiler::RVM::AST;
 
