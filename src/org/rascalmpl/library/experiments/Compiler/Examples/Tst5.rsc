@@ -1,9 +1,8 @@
 module experiments::Compiler::Examples::Tst5
 
-data D = d(int n);
-
-data D = d(int n);
-
-alias A = int;
-
-alias A = int;
+value main(list[value] args) {
+    str s = "<for(i <- [0..10]) {>
+            '...XXX
+            '<}>D";
+    return s;    
+}
