@@ -126,7 +126,7 @@ value main(list[value] args){
         for(msg <- rvm_lib.messages){
             if(msg is error){
                 if(findFirst(msg.msg, "Fatal compilation error") >= 0){
-                     crashes += <lib, "<e>">;
+                     crashes += <lib, "<msg>">;
                      break;
                 }
             }

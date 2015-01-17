@@ -718,6 +718,7 @@ public enum RascalPrimitive {
 					for(int j = 1; j < lines.length; j++){
 						sb.append("\n").append(indent).append(lines[j]);
 					}
+					//sb.append("\n");
 					String res = sb.toString();
 					template = template.concat(vf.string(res));
 				}
