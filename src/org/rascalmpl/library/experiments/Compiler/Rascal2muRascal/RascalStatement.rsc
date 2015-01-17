@@ -1,15 +1,25 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::RascalStatement
 
-import Prelude;
+import IO;
+import ValueIO;
+import Node;
+import Map;
+import Set;
+import String;
+import ParseTree;
+
 import lang::rascal::\syntax::Rascal;
+
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::Rascal2muRascal::RascalType;
-import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
+
+import experiments::Compiler::muRascal::AST;
+
 
 /*
  * Translate Rascal statements to muRascal using the functions:

@@ -1,7 +1,11 @@
 module experiments::Compiler::RVM::Inspector
 
-import Prelude;
+import IO;
 import ValueIO;
+import String;
+import List;
+import Map;
+import Set;
 import util::FileSystem;
 import experiments::Compiler::RVM::AST;
 
@@ -221,9 +225,7 @@ set[loc] getFunctionLocations(
    try {
         p = readTextValueFile(#RVMProgram, rvmLoc);
         
-        return for(dname <- p.declarations){
-            append p.declarations[dname].src;
-        }
+        return {p.declarations[dname].src | dname <- p.declarations};
    } catch e: {
         println("Reading: <rvmLoc>: <e>");
    }

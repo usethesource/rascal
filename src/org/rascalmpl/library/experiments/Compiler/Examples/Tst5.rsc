@@ -1,10 +1,9 @@
 module experiments::Compiler::Examples::Tst5
 
+data D = d(int n);
 
-import demo::lang::Exp::Abstract::Syntax;
-import demo::lang::Exp::Abstract::Eval;
-import demo::lang::Exp::Combined::Automatic::Load;
+data D = d(int n);
 
-public int eval(str txt) = eval(load(txt));
+alias A = int;
 
-value main(list[value] args) = eval("7") == 7;
+alias A = int;

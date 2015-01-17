@@ -2,6 +2,14 @@
 module experiments::Compiler::Rascal2muRascal::RascalExpression
 
 import Prelude;
+import IO;
+import ValueIO;
+import Node;
+import Map;
+import Set;
+import String;
+import ParseTree;
+
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;

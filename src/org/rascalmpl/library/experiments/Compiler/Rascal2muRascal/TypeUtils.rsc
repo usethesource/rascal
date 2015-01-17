@@ -1,7 +1,12 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::TypeUtils
 
-import Prelude;
+import IO;
+import Set;
+import Map;
+import Node;
+import Relation;
+import String;
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes; 
@@ -233,13 +238,8 @@ void extractScopes(Configuration c){
              
              fname = getSimpleName(rname);
              suffix = fname == "main" || endsWith(fname, "_init") || endsWith(fname, "testsuite") ? 0 : src.begin.line;
-               
-             name = getFUID(getSimpleName(rname),rtype,suffix);
-             uid2name[uid] = name;
-             
-        	 // println("<uid>: <rname>, <rtype>, inScope=<inScope>, <src>");
-        	 // println("name = <name>, uid2name[<uid>] = <uid2name[uid]>");
-        	 	
+  
+             uid2name[uid] = getFUID(getSimpleName(rname),rtype,suffix);;
         	 
              // Fill in uid2type to enable more precise overloading resolution
              uid2type[uid] = rtype;
