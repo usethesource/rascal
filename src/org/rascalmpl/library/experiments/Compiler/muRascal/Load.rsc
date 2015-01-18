@@ -1,5 +1,6 @@
 module experiments::Compiler::muRascal::Load
 
+import ParseTree;
 import experiments::Compiler::muRascal::Parse;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Implode;

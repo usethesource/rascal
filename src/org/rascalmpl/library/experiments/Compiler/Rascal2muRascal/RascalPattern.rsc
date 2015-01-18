@@ -31,8 +31,7 @@ import experiments::Compiler::RVM::Interpreter::ParsingTools;
 /*                  Match                                            */
 /*********************************************************************/
 
-MuExp translateMatch((Expression) `<Pattern pat> := <Expression exp>`)  = translateMatch(pat, exp);
-   
+MuExp translateMatch((Expression) `<Pattern pat> := <Expression exp>`)  = translateMatch(pat, exp) ;
 MuExp translateMatch(e: (Expression) `<Pattern pat> !:= <Expression exp>`) =
     muCallMuPrim("not_mbool", [ makeMu("ALL", [ translateMatch(pat, exp) ], e@\loc) ]);
     
