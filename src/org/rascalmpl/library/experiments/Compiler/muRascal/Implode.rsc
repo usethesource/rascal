@@ -7,6 +7,7 @@ import ValueIO;
 import Set;
 import List;
 import String;
+import Type;
 //import ParseTree;
 import Map;
 //import Ambiguity;

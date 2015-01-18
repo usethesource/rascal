@@ -7,8 +7,7 @@
 |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Benchmarks/Run.rsc|
 |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|
 |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst4.rsc|
-|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Tests/AllRascalLibs.rsc|
-|project://rascal/src/org/rascalmpl/library/experiments/Compiler/muRascal/Load.rsc|
+|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|
 |project://rascal/src/org/rascalmpl/library/experiments/Concept/DotVis.rsc|
 |project://rascal/src/org/rascalmpl/library/experiments/Concept/FcaLattices.rsc|
 |project://rascal/src/org/rascalmpl/library/experiments/Concept/GetFigure.rsc|
@@ -31,8 +30,6 @@
 |project://rascal/src/org/rascalmpl/library/lang/java/syntax/Java15.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/rascal/checker/TTL/TTLGen.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/functionality/FunctionCompositionTests.rsc|
-|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/functionality/ParsingTests.rsc|
-|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/MapTests.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/types/PatternTCTests.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/saf/Run.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/sdf2/util/SDF2Grammar.rsc|

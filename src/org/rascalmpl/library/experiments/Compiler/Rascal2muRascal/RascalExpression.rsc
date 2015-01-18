@@ -572,7 +572,8 @@ MuExp translateConcreteParsed(Tree e, loc src){
            return muVar("ConcreteVar", fuid, pos);
         } 
         MuExp translated_elems;
-        if(any(arg <- args, isConcreteListVar(arg))){       
+        if(any(arg <- args, isConcreteListVar(arg))){ 
+           println("splice in concrete list");      
            str fuid = topFunctionScope();
            writer = nextTmp();
         
