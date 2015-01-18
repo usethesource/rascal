@@ -132,18 +132,6 @@ public class ClassResourceInput implements IURIInputStreamResolver {
 		}
 	}
 	
-	private String getParent(URI uri){
-		String path = getPath(uri);
-		int n = path.lastIndexOf("/");
-		return (n  < 0) ? "/" : path.substring(0, n);
-	}
-	
-	private String getChild(URI uri){
-		String path = getPath(uri);
-		int n = path.lastIndexOf("/");
-		return (n  < 0) ? path : path.substring(n);
-	}
-
 	public boolean supportsHost() {
 		return false;
 	}
