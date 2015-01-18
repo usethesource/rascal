@@ -107,6 +107,7 @@ import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.CompressedStreamResolver;
 import org.rascalmpl.uri.FileURIResolver;
+import org.rascalmpl.uri.HereURIResolver;
 import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
 import org.rascalmpl.uri.HttpsURIResolver;
@@ -222,6 +223,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 		HttpURIResolver http = new HttpURIResolver();
 		resolverRegistry.registerInput(http);
+		
+		HereURIResolver here = new HereURIResolver();
+		resolverRegistry.registerInput(here);
 		
 		//added
 		HttpsURIResolver https = new HttpsURIResolver();
