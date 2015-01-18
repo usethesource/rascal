@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
-import org.apache.commons.compress.compressors.FileNameUtil;
 
 public class CompressedStreamResolver implements IURIInputOutputResolver {
 	
