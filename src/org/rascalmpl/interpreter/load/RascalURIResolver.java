@@ -130,7 +130,7 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		}
 	}
 	
-	private List<URI> collect() {
+	public List<URI> collect() {
 		// collect should run the contributors in reverse order
 		List<URI> paths = new LinkedList<URI>();
 //		List<IRascalSearchPathContributor> reversed = (List<IRascalSearchPathContributor>) contributors.clone();
