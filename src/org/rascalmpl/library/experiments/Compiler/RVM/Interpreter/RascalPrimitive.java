@@ -4439,12 +4439,29 @@ public enum RascalPrimitive {
 			assert arity == 2;
 			IListWriter writer = (IListWriter)stack[sp - 2];
 			IConstructor nonterm = (IConstructor) stack[sp - 1];
-			IList non_termargs = (IList) nonterm.get("args");
-			IConstructor iter = (IConstructor) non_termargs.get(0);
-			IList iter_args = (IList) iter.get("args");
-			for(IValue v : iter_args) {
-				writer.append(v);
+//			stdout.println("nonterm = " + nonterm);
+			
+			IList nonterm_args = (IList) nonterm.get("args");
+//			stdout.println("nonterm_args = " + nonterm_args);
+			
+			if($getIter((IConstructor) ((IConstructor) nonterm.get("prod")).get(0)) >= 0){
+				for(IValue v : nonterm_args) {
+//					stdout.println("append: " + v);
+					writer.append(v);
+				}
+			} else {
+				IConstructor iter = (IConstructor) nonterm_args.get(0);
+//				stdout.println("iter = " + iter);
+				
+				IList iter_args = (IList) iter.get("args");
+//				stdout.println("iter_args = " + iter_args);
+				
+				for(IValue v : iter_args) {
+//					stdout.println("append: " + v);
+					writer.append(v);
+				}
 			}
+			
 			stack[sp - 2] = writer;
 			return sp - 1;
 		}
