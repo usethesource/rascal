@@ -29,8 +29,11 @@
 |project://rascal/src/org/rascalmpl/library/lang/java/syntax/Disambiguate.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/java/syntax/Java15.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/rascal/checker/TTL/TTLGen.rsc|
+|project://rascal/src/org/rascalmpl/library/lang/rascal/meta/ModuleInfo.rsc|
+|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/tests/PreBootstrap.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/functionality/FunctionCompositionTests.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/types/PatternTCTests.rsc|
+|project://rascal/src/org/rascalmpl/library/lang/rascal/types/CheckTypes.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/saf/Run.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/sdf2/util/SDF2Grammar.rsc|
 |project://rascal/src/org/rascalmpl/library/util/tasks/Vis.rsc|
