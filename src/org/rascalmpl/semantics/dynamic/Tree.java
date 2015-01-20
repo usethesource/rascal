@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
@@ -48,8 +49,17 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 /**
  * These classes special case Expression.CallOrTree for concrete syntax patterns
  */
-public abstract class Tree {
-  static public class MetaVariable extends org.rascalmpl.ast.Expression {
+public abstract class Tree  extends org.rascalmpl.ast.Expression {
+
+	public Tree(IConstructor node) {
+		super(node);
+	}
+
+	public boolean isLayout() {
+		return false;
+	}
+
+static public class MetaVariable extends Tree {
 	private final String name;
 	private final Type type;
 
@@ -105,7 +115,7 @@ public abstract class Tree {
 	  
   }
   
-  static public class Appl extends org.rascalmpl.ast.Expression {
+  static public class Appl extends Tree{
 	protected final IConstructor production;
 	protected final java.util.List<org.rascalmpl.ast.Expression> args;
 	protected final Type type;
@@ -126,6 +136,11 @@ public abstract class Tree {
 		}
 	}
 
+	@Override
+	public boolean isLayout() {
+		return ProductionAdapter.isLayout(production);
+	}
+	
 	public boolean equals(Object o) {
 		if (!(o instanceof Appl)) {
 			return false;
@@ -189,27 +204,10 @@ public abstract class Tree {
 		}
 		
 		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
-		for (int i = 0; i < args.size(); i+=2) { // skip layout elements for efficiency
-			kids.add(args.get(i).buildMatcher(eval));
-		}
-		return new ConcreteApplicationPattern(eval, this,  kids);
-	}
-  }
-  
-  static public class Lexical extends Appl {
-	public Lexical(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> args) {
-		super(node, args);
-	}
-	
-	@Override
-	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-		if (constant) {
-			return new LiteralPattern(eval, this,  node);
-		}
-		
-		java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
-		for (org.rascalmpl.ast.Expression arg : args) {
-			kids.add(arg.buildMatcher(eval));
+		for (Expression kid : args) { 
+			if (!((Tree) kid).isLayout()) {
+				kids.add(kid.buildMatcher(eval));
+			}
 		}
 		return new ConcreteApplicationPattern(eval, this,  kids);
 	}
@@ -321,7 +319,7 @@ public abstract class Tree {
 	}
   }
   
-  static public class Amb extends  org.rascalmpl.ast.Expression {
+  static public class Amb extends Tree {
 	private final Type type;
 	private final java.util.List<org.rascalmpl.ast.Expression> alts;
 	private final boolean constant;
@@ -392,7 +390,7 @@ public abstract class Tree {
 	} 
   }
   
-  static public class Char extends  org.rascalmpl.ast.Expression {
+  static public class Char extends  Tree {
 	  private final IConstructor node;
 
 	  public Char(IConstructor node) {
@@ -430,7 +428,7 @@ public abstract class Tree {
 	  }
   }
   
-  static public class Cycle extends  org.rascalmpl.ast.Expression {
+  static public class Cycle extends Tree {
 	  private final int length;
 	  private final IConstructor node;
 

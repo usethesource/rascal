@@ -8,7 +8,14 @@ module experiments::Compiler::Benchmarks::Run
  * - Go and drink 99 bottles of beer :-(
  */
  
-import Prelude;
+
+import IO;
+import DateTime;
+import Relation;
+import Map;
+import List;
+import Set;
+import ValueIO;
 import util::Benchmark;
 import util::Math;
 import analysis::statistics::Descriptive;

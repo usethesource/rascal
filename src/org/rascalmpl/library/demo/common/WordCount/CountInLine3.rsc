@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -13,3 +13,9 @@ module demo::common::WordCount::CountInLine3
 public int countInLine3(str S){
   return (0 | it + 1 | /\w+/ := S);
 }
+
+test bool tstCountInLine3a() = countInLine3("") == 0;
+
+test bool tstCountInLine3b() = countInLine3("Jabberwocky by Lewis Carroll") == 4;
+
+

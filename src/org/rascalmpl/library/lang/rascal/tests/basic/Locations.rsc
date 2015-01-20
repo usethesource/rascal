@@ -77,4 +77,7 @@ test bool supportSquareBraces(loc l) {
 	return newL.authority == newAuth;
 }
 
- 
+test bool noFile()    = |tmp://X|.file == "";
+test bool rootPath()  = |tmp://X|.path == "/";
+test bool rootPath3() = |tmp:///|.path == "/";
+test bool rootPath4() = |tmp://X/|.path == "/";

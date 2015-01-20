@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -468,7 +468,7 @@ public &T typeCast(type[&T] typ, value v) {
 }
 
 @doc{
-Synopsis: instantiate an ADT constructor of a given type with the given children
+Synopsis: instantiate an ADT constructor of a given type with the given children and optional keyword arguments
 
 Description:
 
@@ -476,6 +476,9 @@ This function will build a constructor if the definition exists and throw an exc
 }
 @javaClass{org.rascalmpl.library.Type}
 public java &T make(type[&T] typ, str name, list[value] args);
+
+@javaClass{org.rascalmpl.library.Type}
+public java &T make(type[&T] typ, str name, list[value] args, map[str,value] keywordArgs);
 
 @doc{
 Synopsis: returns the dynamic type of a value as a reified type

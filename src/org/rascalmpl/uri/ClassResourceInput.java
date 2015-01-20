@@ -50,7 +50,7 @@ public class ClassResourceInput implements IURIInputStreamResolver {
 		return prefix;
 	}
 	
-	private String getPath(URI uri) {
+	protected String getPath(URI uri) {
 		String path = uri.getPath();
 		while (path.startsWith("/")) {
 			path = path.substring(1);
@@ -132,18 +132,6 @@ public class ClassResourceInput implements IURIInputStreamResolver {
 		}
 	}
 	
-	private String getParent(URI uri){
-		String path = getPath(uri);
-		int n = path.lastIndexOf("/");
-		return (n  < 0) ? "/" : path.substring(0, n);
-	}
-	
-	private String getChild(URI uri){
-		String path = getPath(uri);
-		int n = path.lastIndexOf("/");
-		return (n  < 0) ? path : path.substring(n);
-	}
-
 	public boolean supportsHost() {
 		return false;
 	}

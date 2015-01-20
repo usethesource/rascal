@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -37,17 +38,27 @@ public class RascalExecutionContext {
 	private final TypeStore typeStore;
 	private final boolean debug;
 	private final boolean profile;
+	private final boolean trackCalls;
 	private final ITestResultListener testResultListener;
 	private final IMap symbol_definitions;
 	private RascalSearchPath rascalURIResolver;
 	
-	RascalExecutionContext(IValueFactory vf, IMap symbol_definitions, boolean debug, boolean profile, IEvaluatorContext ctx, ITestResultListener testResultListener){
+	private String currentModuleName;
+	//private ILocationCollector locationReporter;
+	private RVM rvm;
+	private boolean coverage;
+	
+	RascalExecutionContext(IValueFactory vf, IMap symbol_definitions, boolean debug, boolean profile, boolean trackCalls, boolean coverage, IEvaluatorContext ctx, ITestResultListener testResultListener){
 		
 		this.vf = vf;
 		this.symbol_definitions = symbol_definitions;
 		this.typeStore = new TypeStore();
 		this.debug = debug;
 		this.profile = profile;
+		this.coverage = coverage;
+		this.trackCalls = trackCalls;
+		
+		currentModuleName = "UNDEFINED";
 		
 		resolverRegistry = ctx.getResolverRegistry();
 		rascalURIResolver = new RascalSearchPath(resolverRegistry);
@@ -71,6 +82,14 @@ public class RascalExecutionContext {
 	
 	boolean getProfile(){ return profile; }
 	
+	boolean getCoverage(){ return coverage; }
+	
+	boolean getTrackCalls() { return trackCalls; }
+	
+	public RVM getRVM(){ return rvm; }
+	
+	void setRVM(RVM rvm){ this.rvm = rvm; }
+	
 	public URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
 	
 	public RascalSearchPath getRascalResolver() { return rascalURIResolver; }
@@ -88,6 +107,51 @@ public class RascalExecutionContext {
 	IEvaluatorContext getEvaluatorContext() { return ctx; }
 	
 	ITestResultListener getTestResultListener() { return testResultListener; }
+	
+	public String getCurrentModuleName(){ return currentModuleName; }
+	
+	void setCurrentModuleName(String moduleName) { currentModuleName = moduleName; }
+	
+	public int endJob(boolean succeeded) {
+		if (monitor != null)
+			return monitor.endJob(succeeded);
+		return 0;
+	}
+	
+	public void event(int inc) {
+		if (monitor != null)
+			monitor.event(inc);
+	}
+	
+	public void event(String name, int inc) {
+		if (monitor != null)
+			monitor.event(name, inc);
+	}
+
+	public void event(String name) {
+		if (monitor != null)
+			monitor.event(name);
+	}
+
+	public void startJob(String name, int workShare, int totalWork) {
+		if (monitor != null)
+			monitor.startJob(name, workShare, totalWork);
+	}
+	
+	public void startJob(String name, int totalWork) {
+		if (monitor != null)
+			monitor.startJob(name, totalWork);
+	}
+	
+	public void startJob(String name) {
+		if (monitor != null)
+			monitor.startJob(name);
+	}
+		
+	public void todo(int work) {
+		if (monitor != null)
+			monitor.todo(work);
+	}
 
 	/**
 	 * Source location resolvers map user defined schemes to primitive schemes

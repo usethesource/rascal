@@ -1,6 +1,7 @@
 package org.rascalmpl.interpreter.cursors;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -22,7 +23,6 @@ public class WithKeywordParametersCursor extends Cursor implements IWithKeywordP
 	}
 	
 
-	@SuppressWarnings("unchecked")
 	private IWithKeywordParameters<IConstructor> getKWP() {
 		return kwp;
 	}
@@ -50,7 +50,7 @@ public class WithKeywordParametersCursor extends Cursor implements IWithKeywordP
 	}
 
 	@Override
-	public String[] getParameterNames() {
+	public Set<String> getParameterNames() {
 		return getKWP().getParameterNames();
 	}
 
@@ -59,6 +59,18 @@ public class WithKeywordParametersCursor extends Cursor implements IWithKeywordP
 		return getKWP().getParameters();
 	}
 
+	@Override
+	public IConstructor unsetParameter(String label) {
+		// TODO: @tijs check this?
+		return new ConstructorCursor(getKWP().unsetParameter(label));
+	}
+	
+	@Override
+	public IConstructor unsetAll() {
+		// TODO: @tijs check this?
+		return new ConstructorCursor(getKWP().unsetAll());
+	}
+	
 	@Override
 	public IConstructor setParameters(Map<String, IValue> params) {
 		return new ConstructorCursor(getKWP().setParameters(params), getCtx());

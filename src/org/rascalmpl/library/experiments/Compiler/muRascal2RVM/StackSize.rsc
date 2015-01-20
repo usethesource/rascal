@@ -1,7 +1,8 @@
 module experiments::Compiler::muRascal2RVM::StackSize
 
-import Prelude;
 import util::Math;
+import List;
+import Type;
 import experiments::Compiler::muRascal::AST;
 
 

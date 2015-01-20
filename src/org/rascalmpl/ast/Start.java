@@ -63,7 +63,7 @@ public abstract class Start extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 ; 
+      return 137 ; 
     } 
   
     	
@@ -103,7 +103,7 @@ public abstract class Start extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 881 ; 
+      return 521 ; 
     } 
   
     	

@@ -1,12 +1,11 @@
 module experiments::Compiler::Rascal2muRascal::Run
 
-import Prelude;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::muRascal::Implode;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::RVM::Run;
 import experiments::Compiler::RVM::AST;
-import experiments::Compiler::muRascal2RVM::mu2rvm;
+import experiments::Compiler::muRascal2RVM::mu2rvm; 
 
 loc Example1 = |std:///experiments/Compiler/Examples/Capture.rsc|;
 loc Example2 = |std:///experiments/Compiler/Examples/D1D2.rsc|;

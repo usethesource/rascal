@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -95,7 +95,7 @@ R1 = readCSV(|courses:///Rascal/Libraries/lang/csv/ex1.csv|, separator = ";");
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 @reflect{Uses URI Resolver Registry}
-public java value readCSV(loc location, bool header = true, str separator = ",", str encoding = "UTF8", bool printInferedType = false);
+public java value readCSV(loc location, bool header = true, str separator = ",", str encoding = "UTF8", bool printInferredType = false);
 
 @deprecated{use the readCSV with keyword parameters}
 public value readCSV(loc location, map[str,str] options) {

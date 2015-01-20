@@ -34,8 +34,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
-import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
@@ -51,7 +49,6 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.uri.URIUtil;
 
 abstract public class AbstractFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
@@ -99,7 +96,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public Type getKeywordArgumentTypes() {
+	public Type getKeywordArgumentTypes(Environment env) {
 	  return functionType.getKeywordParameterTypes();
 	}
 
@@ -175,7 +172,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public boolean hasKeywordArgs() {
+	public boolean hasKeywordArguments() {
 		return hasKeyArgs;
 	}
 	
@@ -531,7 +528,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 
 	protected void bindKeywordArgs(Map<String, IValue> keyArgValues) {
 	    Environment env = ctx.getCurrentEnvt();
-	
+
 	    if (functionType.hasKeywordParameters()) {
 	        for (String kwparam : functionType.getKeywordParameterTypes().getFieldNames()){
 	            Type kwType = functionType.getKeywordParameterType(kwparam);
@@ -556,37 +553,5 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	    }
 	    // TODO: what if the caller provides more arguments then are declared? They are
 	    // silently lost here.
-	}
-	
-	public Map<String, IValue> computeKeywordArgs(IValue[] oldActuals, Map<String, IValue> keyArgValues) {
-		Environment env = new Environment(declarationEnvironment, vf.sourceLocation(URIUtil.rootScheme("initializer")), "keyword parameter initializer");
-		Environment old = ctx.getCurrentEnvt();
-		Type formals = getFunctionType().getArgumentTypes();
-		
-		try {
-			// we set up an environment to hold the positional parameter values
-			ctx.setCurrentEnvt(env);
-			for (int i = 0; i < formals.getArity(); i++) {
-				String fieldName = formals.getFieldName(i);
-				Type fieldType = formals.getFieldType(i);
-				env.declareVariable(fieldType, fieldName);
-				env.storeLocalVariable(fieldName, ResultFactory.makeResult(fieldType, (IValue) oldActuals[i], ctx));
-			}
-		
-			// then we initialize the keyword parameters in this environment
-			Type kwType = getFunctionType().getKeywordParameterTypes();
-			bindKeywordArgs(keyArgValues);
-
-			ImmutableMap<String, IValue> result = AbstractSpecialisedImmutableMap.mapOf();
-			for (int i = 0; i < kwType.getArity(); i++) {
-				String fieldName = kwType.getFieldName(i);
-				result = result.__put(fieldName, env.getVariable(fieldName).getValue());
-			}
-			
-			return result;
-		}
-		finally {
-			ctx.setCurrentEnvt(old);
-		}
 	}
 }

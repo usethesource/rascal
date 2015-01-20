@@ -59,6 +59,7 @@ public class EclipseJavaCompiler {
   }
 
   public void setEnvironmentOptions(ISet classPaths, ISet sourcePaths, IEvaluatorContext eval) {
+	EclipseJavaCompiler.cache.clear();
     classPathEntries.clear();
     sourcePathEntries.clear();
     for (IValue path : classPaths) {
@@ -103,7 +104,8 @@ public class EclipseJavaCompiler {
       cu.accept(converter);
       for (Iterator it = cu.getCommentList().iterator(); it.hasNext();) {
         Comment comment = (Comment) it.next();
-        if (comment.isDocComment())
+        // Issue 720: changed condition to only visit comments without a parent (includes line, block and misplaced javadoc comments).
+        if (comment.getParent() != null)
         	continue;
         comment.accept(converter);
       }
@@ -128,7 +130,7 @@ public class EclipseJavaCompiler {
 	      cu.accept(converter);
 	      for (Iterator it = cu.getCommentList().iterator(); it.hasNext();) {
 	        Comment comment = (Comment) it.next();
-	        if (comment.isDocComment())
+	        if (comment.getParent() != null)
 	        	continue;
 	        comment.accept(converter);
 	      }

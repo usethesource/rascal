@@ -449,10 +449,15 @@ test bool tstTakeWhile(list[int] L){
   return takeWhile(L, isEven) == takeEven(L);
 }
 
-test bool tstToMap(list[tuple[&A, &B]] L) = toMap(L) == toMap(toSet(L));
+test bool tstToMap(lrel[&A, &B] L)
+{
+	mapFromLRel = ListRelation::toMap(L);
+	mapFromRel = toMap(toSet(L));
+	return (k:toSet(mapFromLRel[k]) | k <- mapFromLRel) == mapFromRel;
+}
 
 test bool tstToMapUnique(list[tuple[&A, &B]] L) =
-  (size(domain(L)) == size(toSet(domain(L)))) ==> (toMapUnique(L) == toMapUnique(toSet(L)));
+  (size(L<0>) == size(toSet(domain(L)))) ==> (toMapUnique(L) == toMapUnique(toSet(L)));
 
 test bool tstTop(list[&T] L) = isEmpty(L) || top(L) == elementAt(L,0);
 

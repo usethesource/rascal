@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -33,8 +33,8 @@ test bool testMerge() = \new-char-class([range(3,4), range(2,2), range(1,1)]) ==
 test bool testEnvelop() = \new-char-class([range(10,20), range(15,20), range(20,30)]) == \char-class([range(10,30)]);
 test bool testEnvelop2() = \new-char-class([range(10,20), range(10,19), range(20,30)]) == \char-class([range(10,30)]);
 
-public Symbol complement(\char-class(list[CharRange] r1)) 
-  = \char-class([ r | r <- complement(r1), !(r is \empty-range)]);
+public Symbol complement(\char-class(list[CharRange] r1)) =
+  \char-class([ r | r <- complement(r1), !(r is \empty-range)]);
   
 public default Symbol  complement(Symbol s) {
   throw "unsupported symbol for character class complement: <s>";

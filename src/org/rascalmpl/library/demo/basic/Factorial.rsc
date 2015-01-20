@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -20,3 +20,8 @@ public int fac3(int N)  { /*4*/
     return 1;
   return N * fac3(N - 1);
 }
+
+test bool tfac0()  = fac(0)  == 1;
+test bool tfac1()  = fac(1)  == 1;
+test bool tfac2()  = fac(4)  == 24;
+test bool tfac47() = fac(47) == 258623241511168180642964355153611979969197632389120000000000;

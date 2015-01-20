@@ -12,3 +12,9 @@ public Lval build((LispExp)`<IntegerLiteral il>`) = Integer(toInt("<il>"));     
 public Lval build((LispExp)`<AtomExp at>`)        = Atom("<at>");                  /*3*/
 public Lval build((LispExp)`( <LispExp* lst> )`)  = List([build(le) | le <- lst]); /*4*/
 
+test bool parse1() = parse("123") == Integer(123);
+test bool parse2() = parse("abc") == Atom("abc");
+test bool parse3() = parse("()") == List([]);
+test bool parse4() = parse("(123)") == List([Integer(123)]);
+test bool parse5() = parse("(123 abc)") == List([Integer(123), Atom("abc")]);
+
