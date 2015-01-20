@@ -51,7 +51,7 @@ import org.jgll.regex.RegexOpt;
 import org.jgll.regex.RegexPlus;
 import org.jgll.regex.RegexStar;
 import org.jgll.regex.RegularExpression;
-import org.jgll.regex.Sequence;
+import org.jgll.regex.Group;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
@@ -220,7 +220,7 @@ public class IguanaParserGenerator {
 				}
 				symbols.remove(1);
 				if(isAllRegularExpression(symbols)) {
-					return RegularExpressionCondition.notFollow(new Sequence<RegularExpression>(convert(symbols)));				
+					return RegularExpressionCondition.notFollow(new Group<RegularExpression>(convert(symbols)));				
 				} else {
 					return ContextFreeCondition.notFollow(symbols);
 				}
@@ -249,7 +249,7 @@ public class IguanaParserGenerator {
 				}
 				symbols.remove(1);
 				if(isAllRegularExpression(symbols)) {
-					return RegularExpressionCondition.follow(new Sequence<RegularExpression>(convert(symbols)));				
+					return RegularExpressionCondition.follow(new Group<RegularExpression>(convert(symbols)));				
 				} else {
 					return ContextFreeCondition.follow(symbols);
 				}
@@ -323,7 +323,7 @@ public class IguanaParserGenerator {
 			IList rhs = (IList) ((IConstructor) prod).get("symbols");
 
 //			System.out.println(new RegularExpression(head.getName(), body));
-			regularExpressionsMap.put(head.getName(), new Sequence<>(getRegularExpressionList(rhs)));
+			regularExpressionsMap.put(head.getName(), new Group<>(getRegularExpressionList(rhs)));
 		}
 	}
 	
@@ -630,7 +630,7 @@ public class IguanaParserGenerator {
 			return new RegexAlt<>(getRegularExpressionList((ISet) symbol.get("alternatives")));
 
 		case "seq":
-			return new Sequence<>(getRegularExpressionList((IList) symbol.get("symbols")));
+			return new Group<>(getRegularExpressionList((IList) symbol.get("symbols")));
 			
 		default:
 			throw new IllegalStateException("Should not reach here. " + symbol);

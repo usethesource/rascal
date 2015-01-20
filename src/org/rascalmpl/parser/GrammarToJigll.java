@@ -42,12 +42,12 @@ import org.jgll.parser.GLLParser;
 import org.jgll.parser.ParseError;
 import org.jgll.parser.ParseResult;
 import org.jgll.parser.ParserFactory;
-import org.jgll.regex.RegexAlt;
-import org.jgll.regex.RegexOpt;
-import org.jgll.regex.RegexPlus;
-import org.jgll.regex.RegexStar;
+import org.jgll.regex.Alt;
+import org.jgll.regex.Group;
+import org.jgll.regex.Opt;
+import org.jgll.regex.Plus;
 import org.jgll.regex.RegularExpression;
-import org.jgll.regex.Sequence;
+import org.jgll.regex.Star;
 import org.jgll.sppf.SPPFNode;
 import org.jgll.traversal.ModelBuilderVisitor;
 import org.jgll.util.Configuration;
@@ -150,6 +150,7 @@ public class GrammarToJigll {
 	}
 
 	public void save(IString path) throws FileNotFoundException, IOException {
+		System.out.println(grammar.getConstructorCode());
 		GrammarUtil.save(grammar, new File(path.getValue()).toURI());
 	}
 
@@ -216,7 +217,7 @@ public class GrammarToJigll {
 				}
 				symbols.remove(1);
 				if(isAllRegularExpression(symbols)) {
-					return RegularExpressionCondition.follow(Sequence.from(conver(symbols)));				
+					return RegularExpressionCondition.follow(Group.from(conver(symbols)));				
 				} else {
 					return ContextFreeCondition.follow(symbols);
 				}
@@ -393,7 +394,7 @@ public class GrammarToJigll {
 			return Keyword.builder(chars).setLabel(label).setObject(object).build();
 		}
 		
-		return Sequence.builder(list).setLabel(label).setObject(object).build();
+		return Group.builder(list).setLabel(label).setObject(object).build();
 	}
 	
 	private RegularExpression createRegularExpression(IConstructor regex, IMap definitions) {
@@ -410,7 +411,7 @@ public class GrammarToJigll {
 
 		List<RegularExpression> body = getRegularExpressionList(rhs);
 		
-		return new Sequence.Builder<RegularExpression>(body).build();
+		return Group.builder(body).build();
 	}
 
 	private void addExceptPatterns(OperatorPrecedence op, IMap map) {
@@ -605,31 +606,31 @@ public class GrammarToJigll {
 				break;
 	
 			case "iter":
-				regex = new RegexPlus.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
+				regex = Plus.builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
 				break;
 	
 			case "iter-seps":
-				regex = new RegexPlus.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
+				regex = Plus.builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
 				break;
 	
 			case "iter-star":
-				regex = new RegexStar.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
+				regex = Star.builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
 				break;
 	
 			case "iter-star-seps":
-				regex = new RegexStar.Builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
+				regex = Star.builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
 				break;
 	
 			case "opt":
-				regex = new RegexOpt.Builder(getRegularExpression(getSymbolCons(symbol))).build();
+				regex = Opt.builder(getRegularExpression(getSymbolCons(symbol))).build();
 				break;
 	
 			case "alt":
-				regex = new RegexAlt.Builder<>(getRegularExpressionList((ISet) symbol.get("alternatives"))).setObject(object).build();
+				regex = Alt.builder(getRegularExpressionList((ISet) symbol.get("alternatives"))).setObject(object).build();
 				break;
 	
 			case "seq":
-				regex = new Sequence.Builder<>(getRegularExpressionList((IList) symbol.get("symbols"))).setObject(object).build();
+				regex = Group.builder(getRegularExpressionList((IList) symbol.get("symbols"))).setObject(object).build();
 				break;
 				
 			default:
@@ -693,7 +694,7 @@ public class GrammarToJigll {
 				for(IConstructor c : deleteList) {
 					list.add(getRegularExpression(c));
 				}
-				regex = RegexAlt.from(list);
+				regex = Alt.from(list);
 				
 				deleteSetCache.put(deleteList, regex);
 			}
