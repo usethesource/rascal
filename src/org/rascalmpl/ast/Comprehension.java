@@ -95,7 +95,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 251 + 631 * results.hashCode() + 439 * generators.hashCode() ; 
+      return 379 + 353 * results.hashCode() + 101 * generators.hashCode() ; 
     } 
   
     
@@ -159,7 +159,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 79 + 5 * from.hashCode() + 863 * to.hashCode() + 97 * generators.hashCode() ; 
+      return 541 + 107 * from.hashCode() + 227 * to.hashCode() + 677 * generators.hashCode() ; 
     } 
   
     
@@ -230,7 +230,7 @@ public abstract class Comprehension extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 971 + 919 * results.hashCode() + 727 * generators.hashCode() ; 
+      return 139 + 463 * results.hashCode() + 701 * generators.hashCode() ; 
     } 
   
     

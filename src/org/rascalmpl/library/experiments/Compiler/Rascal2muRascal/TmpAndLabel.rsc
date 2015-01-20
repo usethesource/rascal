@@ -1,7 +1,7 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::TmpAndLabel
 
-import Prelude;
+import List;
 import Type;
 import lang::rascal::\syntax::Rascal;
 
@@ -29,6 +29,11 @@ public int tmpVar = -1;   						// *** state
 public str nextTmp(){
 	tmpVar += 1;
     return "TMP<tmpVar>";
+}
+
+public str nextTmp(str name){
+    tmpVar += 1;
+    return "<name>:TMP<tmpVar>";
 }
 
 public int tmpLabel = -1;						// *** state

@@ -1,8 +1,10 @@
 module demo::lang::MissGrant::Outline
 
 import demo::lang::MissGrant::AST;
+import ParseTree;
 
-import ParseTree; // for loc annos
+anno loc node@\loc;
+anno str node@label;
 
 public node outlineController(Controller ctl) = outline(ctl);
 

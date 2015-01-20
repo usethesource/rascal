@@ -107,8 +107,8 @@ public class AllDemoTests extends TestFramework {
 	}
 	
 	@Test
-	public void FactorialTest() {
-		assertTrue(runRascalTests("import demo::basic::FactorialTest;"));
+	public void Factorial() {
+		assertTrue(runRascalTests("import demo::basic::Factorial;"));
 	}
 	
 	@Test
@@ -178,7 +178,7 @@ public class AllDemoTests extends TestFramework {
 	
 	@Test
 	public void WordReplacement() {
-		assertTrue(runRascalTests("import demo::common::WordReplacementTest;"));
+		assertTrue(runRascalTests("import demo::common::WordReplacement;"));
 	}
 
 }

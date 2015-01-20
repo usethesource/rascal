@@ -17,8 +17,8 @@ public Result eval(var:Atom(str name), Env e) {              /*2*/
   return <(n < 0) ? var : e[n][var], e>;
 }
 
-public Result eval(List([Atom("quote"), exp*]), Env e) =     /*3*/
-  <size(exp) == 1 ? exp[0] : List(exp), e>;
+public Result eval(List([Atom("quote"), *Lval exps]), Env e) =     /*3*/
+  <size(exps) == 1 ? exps[0] : List(exps), e>;
 
 public Result eval(List([Atom("set!"), var, exp]), Env e) {  /*4*/
   val = eval(exp, e).val;
@@ -48,9 +48,9 @@ public Result eval(List([Atom("lambda"), List(list[Lval] vars), exp]), Env defEn
   <Closure(Result(list[Lval] args, Env callEnv) { return eval(exp, makeEnv(vars, args, tail(callEnv, size(defEnv))));}),
    defEnv>;
 
-public default Result eval(List([ exps* ]), Env e) {         /*9*/
+public default Result eval(List([ *Lval exps ]), Env e) {         /*9*/
   if(isEmpty(exps))
-     return <FALSE, e>;
+     return <List([]), e>;
   vals = [ eval(exp, e).val | exp <- exps ];
   return apply(head(vals), tail(vals), e);
 }

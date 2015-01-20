@@ -16,7 +16,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -106,26 +105,15 @@ public class TypeDeclarationEvaluator {
 				? x.getCommonKeywordParameters().getKeywordFormalList()
 		        : Collections.<KeywordFormal>emptyList();
 		
+		if (common.size() > 0) {
+			env.declareGenericKeywordParameters(adt, computeKeywordParametersType(common, eval), common);
+		}
+	
 		for (Variant var : x.getVariants()) {
 			String altName = Names.name(var.getName());
 
-			Type kwType = tf.voidType();
-			
 			if (var.isNAryConstructor()) {
 				List<KeywordFormal> local = var.getKeywordArguments().hasKeywordFormalList() ? var.getKeywordArguments().getKeywordFormalList() : Collections.<KeywordFormal>emptyList();
-				List<KeywordFormal> kws = new ArrayList<>(common.size() + local.size());
-				
-				if (var.getKeywordArguments().isDefault()) {
-					kws.addAll(common);
-					kws.addAll(local);
-					
-					kwType = computeKeywordParametersType(kws, eval);
-				}
-				else if (!common.isEmpty()) {
-					kwType = computeKeywordParametersType(common, eval);
-					kws = common;
-				}
-
 				List<TypeArg> args = var.getArguments();
 				int nAllArgs = args.size();
 				
@@ -147,11 +135,16 @@ public class TypeDeclarationEvaluator {
 					}
 				}
 				
-				Type children = tf.tupleType(fields, labels);
-				
 				try {
-					ConstructorFunction cons = env.constructorFromTuple(var, eval, adt, altName, children, kwType, kws);
+					ConstructorFunction cons = env.constructorFromTuple(var, eval, adt, altName, tf.tupleType(fields, labels), local);
 					cons.setPublic(true); // TODO: implement declared visibility
+					
+					if (local.size() > 0) {
+						Type kwType = computeKeywordParametersType(local, eval);
+						for (String label : kwType.getFieldNames()) {
+							env.getStore().declareKeywordParameter(cons.getConstructorType(), label, kwType.getFieldType(label));
+						}
+					}
 				} catch (org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException e) {
 					throw new RedeclaredType(altName, var);
 				} catch (RedeclaredFieldNameException e) {
@@ -162,8 +155,15 @@ public class TypeDeclarationEvaluator {
 	}
 
 	public void declareAbstractADT(DataAbstract x, Environment env) {
-		TypeFactory.getInstance();
-		declareAbstractDataType(x.getUser(), env);
+		Type adt = declareAbstractDataType(x.getUser(), env);
+		
+		List<KeywordFormal> common = x.getCommonKeywordParameters().isPresent() 
+				? x.getCommonKeywordParameters().getKeywordFormalList()
+		        : Collections.<KeywordFormal>emptyList();
+		
+		if (common.size() > 0) {
+			env.declareGenericKeywordParameters(adt, computeKeywordParametersType(common, eval), common);
+		}
 	}
 	
 	private void declareAliases(Set<Alias> aliasDecls) {
@@ -320,7 +320,4 @@ public class TypeDeclarationEvaluator {
 			return x;
 		}
 	}
-
-	
-
 }

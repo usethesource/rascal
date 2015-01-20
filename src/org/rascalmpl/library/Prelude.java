@@ -47,7 +47,6 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -2223,11 +2222,11 @@ public class Prelude {
 		try {
 			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getURI());
 
-			if (TreeAdapter.isAppl(pt)) {
-				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-				}
-			}
+//			if (TreeAdapter.isAppl(pt)) {
+//				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
+//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+//				}
+//			}
 			return pt;
 		}
 		catch (ParseError pe) {
@@ -2249,11 +2248,11 @@ public class Prelude {
 		try {
 			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue());
 
-			if (TreeAdapter.isAppl(pt)) {
-				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-				}
-			}
+//			if (TreeAdapter.isAppl(pt)) {
+//				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
+//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+//				}
+//			}
 
 			return pt;
 		}
@@ -2276,11 +2275,11 @@ public class Prelude {
 		try {
 			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), loc);
 
-			if (TreeAdapter.isAppl(pt)) {
-				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-				}
-			}
+//			if (TreeAdapter.isAppl(pt)) {
+//				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
+//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
+//				}
+//			}
 
 			return pt;
 		}
@@ -2321,7 +2320,7 @@ public class Prelude {
 		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor", null, null);
 	}
 	
-	private java.lang.String unescapedConsName(IConstructor tree) {
+	protected java.lang.String unescapedConsName(IConstructor tree) {
 		java.lang.String x = TreeAdapter.getConstructorName(tree);
 		if (x != null) {
 			x = x.replaceAll("\\\\", "");
@@ -2329,7 +2328,7 @@ public class Prelude {
 		return x;
 	}
 
-	private Set<Type> findConstructors(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
+	protected Set<Type> findConstructors(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
 		Set<Type> constructors = new HashSet<Type>();
 		
 		for (Type constructor : store.lookupConstructor(type, constructorName)) {

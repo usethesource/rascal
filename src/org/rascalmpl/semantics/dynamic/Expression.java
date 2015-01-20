@@ -31,7 +31,6 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Field;
@@ -496,7 +495,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			  
 				if (hasKeywordArguments()) {
 				  KeywordArguments_Expression keywordArgs = this.getKeywordArguments();
-				  Type kwFormals = function.getKeywordArgumentTypes();
+				  Type kwFormals = function.getKeywordArgumentTypes(eval.getCurrentEnvt());
 				
 				  if (keywordArgs.isDefault()){
 				    kwActuals = new HashMap<String,IValue>();
@@ -1048,20 +1047,30 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				throw new UnsupportedOperation("inline parsing", expected, this);
 			}
 			
-			if (!result.getType().isSubtypeOf(TF.stringType())) {
+			if (!result.getType().isSubtypeOf(TF.stringType()) && !result.getType().isSubtypeOf(TF.sourceLocationType())) {
 				throw new UnsupportedOperation("inline parsing", result.getType(), this);
 			}
 			
 			IConstructor symbol = ((NonTerminalType) expected).getSymbol();
-			if (!SymbolAdapter.isSort(symbol) && !SymbolAdapter.isLex(symbol) && !SymbolAdapter.isLayouts(symbol)) {
+			if (!SymbolAdapter.isSort(symbol) && !SymbolAdapter.isLex(symbol) && !SymbolAdapter.isLayouts(symbol) && !SymbolAdapter.isStartSort(symbol)) {
 				throw new UnsupportedOperation("inline parsing", expected, this);
 			}
 
 			__eval.__setInterrupt(false);
 			try {
-				IConstructor tree = __eval.parseObject(symbol, VF.mapWriter().done(),
+				IConstructor tree = null;
+				
+				if (result.getType().isString()) {
+					tree = __eval.parseObject(symbol, VF.mapWriter().done(),
 						this.getLocation().getURI(),
 						((IString) result.getValue()).getValue().toCharArray());
+				}
+				else if (result.getType().isSourceLocation()) {
+					tree = __eval.parseObject(__eval, symbol, VF.mapWriter().done(),
+							((ISourceLocation) result.getValue()).getURI());
+				}
+				
+				assert tree != null; // because we checked earlier
 
 				return org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(expected, tree, __eval);

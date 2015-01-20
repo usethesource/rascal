@@ -17,7 +17,7 @@ list[&T <: num] abs(list[&T <: num] nums)
 		}
 		return n + low;	
 	}
-	return makeSmallerThan(n, high);
+	return makeSmallerThan(n, toInt(high));
 }
 
 
@@ -31,8 +31,12 @@ list[&T <: num] assureRange(list[&T <: num] nums, num low, num high)
 	if (abs(n) < limit) {
 		return n;
 	}
-	f = trunc(n);
-	r = n - f;
+	real nn =0.;
+	if (real n2 := n ) {
+		nn = n2;	
+	}
+	f = toInt(nn);
+	r = nn - f;
 	return (f % limit) + r;
 }
 (&T<:rat) makeSmallerThan(&T <: rat n, int limit) {
@@ -41,7 +45,11 @@ list[&T <: num] assureRange(list[&T <: num] nums, num low, num high)
 	}
 	return toRat(1, denominator(n));
 }
+default (&T<:num) makeSmallerThan(&T <: num n, int limit) {
+	throw "This one should never be called";
+}
 
 
-list[num] makeSmallerThan(list[num] nums, int limit) 
+
+list[&T <: num] makeSmallerThan(list[&T <: num] nums, int limit) 
 	= [ makeSmallerThan(n, limit) | n <- nums];

@@ -1,4 +1,4 @@
-[![Project Status](http://githubkanban.herokuapp.com/images/cwi-swat_rascal.png)](http://bit.ly/12qbfqf)  
+
 This is the core implementation of the Rascal meta-programming language. It contains the interpreter, the parser generator, the parser run-time,
 the standard library, the online documentation and the type checker.
 

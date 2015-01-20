@@ -132,8 +132,6 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public Result<IValue> evalMore(IRascalMonitor monitor, String commands,
 			URI location);
 
-	public IConstructor getGrammar(IRascalMonitor monitor, URI uri);
-
 	public IValue call(String name, IValue... args);
 	
 	public IValue call(String returnType, String name, IValue... args);

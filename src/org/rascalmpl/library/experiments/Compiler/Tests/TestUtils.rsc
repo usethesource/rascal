@@ -2,9 +2,6 @@ module experiments::Compiler::Tests::TestUtils
 
 import  experiments::Compiler::Execute;
 import IO;
-import util::Reflective;
-
-loc TMP = getModuleLocation("experiments/Compiler/Tests/TMP");
 
 value run(str exp, bool listing=false, bool debug=false, bool recompile=true, bool profile=false) {
     msrc = "module experiments::Compiler::Tests::TMP data D = d1(int n, str s) | d2(str s, bool b) | d3(list[int] l, list[int] r); value main(list[value] args) = <exp>;";

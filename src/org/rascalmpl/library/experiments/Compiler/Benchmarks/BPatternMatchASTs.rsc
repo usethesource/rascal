@@ -6,7 +6,7 @@ import analysis::m3::TypeSymbol;
 import ValueIO;
 
 //private set[Declaration] getData() 
-//	= readBinaryValueFile(#set[Declaration], |std:///experiments/Compiler/Benchmarks/pdb.values.bin|);
+//	= readBinaryValueFile(#set[Declaration], |compressed+std:///experiments/Compiler/Benchmarks/pdb.values.bin.xz|);
 //	
 //
 //int countReturnStatementsReducer() {

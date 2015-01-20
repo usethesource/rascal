@@ -1,16 +1,25 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::RascalStatement
 
-import Prelude;
+import IO;
+import ValueIO;
+import Node;
+import Map;
+import Set;
+import String;
+import ParseTree;
+
 import lang::rascal::\syntax::Rascal;
+
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalPattern;
 import experiments::Compiler::Rascal2muRascal::RascalType;
-import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
-import experiments::Compiler::RVM::Interpreter::ConstantFolder;
+
+import experiments::Compiler::muRascal::AST;
+
 
 /*
  * Translate Rascal statements to muRascal using the functions:
@@ -56,11 +65,11 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
     enterLoop(whilename,fuid);
     enterBacktrackingScope(whilename);
     enterBacktrackingScope(ifname);
-    code = [ muAssignTmp(tmp,fuid,muCallPrim("listwriter_open", [])),
-             muWhile(whilename, muCon(true), [ muIfelse(ifname, makeMu("ALL", [ translate(c) | c <- conditions ]), 
+    code = [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)),
+             muWhile(whilename, muCon(true), [ muIfelse(ifname, makeMu("ALL", [ translate(c) | c <- conditions ], s@\loc), 
                                                                 [ visit(translate(body)) { case muFail(whileName) => muFail(ifname) } ], 
                                                                 [ muBreak(whilename) ]) ]),
-             muCallPrim("listwriter_close", [muTmp(tmp,fuid)])
+             muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], s@\loc)
            ];
     leaveBacktrackingScope();
     leaveBacktrackingScope();
@@ -70,7 +79,7 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
 
 // Due to the similarity of some statement and their template version, we present both version together
 
-MuExp translateTemplate((StringTemplate) `while ( <Expression condition> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, str indent, str pre, str prefuid){
+MuExp translateTemplate(s: (StringTemplate) `while ( <Expression condition> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, str indent, str pre, str prefuid){
     str fuid = topFunctionScope();
     whilename = nextLabel();
     ifname = nextLabel();
@@ -78,15 +87,15 @@ MuExp translateTemplate((StringTemplate) `while ( <Expression condition> ) { <St
     enterLoop(whilename,fuid);
     enterBacktrackingScope(whilename);
     enterBacktrackingScope(ifname);
-    code = [ muAssignTmp(result,fuid,muCallPrim("template_open", [muCon(""), muTmp(pre,prefuid)])), 
+    code = [ muAssignTmp(result,fuid,muCallPrim3("template_open", [muCon(""), muTmp(pre,prefuid)], s@\loc)), 
              muWhile(whilename, muCon(true),
-                 [ muIfelse(ifname, makeMu("ALL", [ translate(condition) ]), 
+                 [ muIfelse(ifname, makeMu("ALL", [ translate(condition) ], condition@\loc), 
                      [ translateStats(preStats),  
-                        muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(body)])), 
+                        muAssignTmp(result,fuid,muCallPrim3("template_add", [muTmp(result,fuid), translateMiddle(body)], body@\loc)), 
                        translateStats(postStats)
                      ], [ muBreak(whilename) ]) 
                  ]),
-             muCallPrim("template_close", [muTmp(result,fuid)])
+             muCallPrim3("template_close", [muTmp(result,fuid)], s@\loc)
            ];
     leaveBacktrackingScope();
     leaveBacktrackingScope();
@@ -104,13 +113,13 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
     enterLoop(doname,fuid);
     enterBacktrackingScope(doname);
     enterBacktrackingScope(ifname);
-    code = [ muAssignTmp(tmp,fuid,muCallPrim("listwriter_open", [])), 
+    code = [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)), 
              muWhile(doname, muCon(true), [ 
                 visit(translate(body)) { case muFail(doname) => muFail(ifname) }, 
-                muIfelse(ifname, makeMu("ALL", [ translate(condition) ]), 
+                muIfelse(ifname, makeMu("ALL", [ translate(condition) ], condition@\loc), 
                                  [ muContinue(doname) ], 
                                  [ muBreak(doname) ]) ]),
-             muCallPrim("listwriter_close", [muTmp(tmp,fuid)])
+             muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], s@\loc)
            ];
     leaveBacktrackingScope();
     leaveBacktrackingScope();
@@ -126,15 +135,15 @@ MuExp translateTemplate(s: (StringTemplate) `do { < Statement* preStats> <String
     enterLoop(doname,fuid);
     enterBacktrackingScope(doname);
     enterBacktrackingScope(ifname);
-    code = [ muAssignTmp(result,fuid,muCallPrim("template_open", [muCon(""), muTmp(pre,prefuid)])),
+    code = [ muAssignTmp(result,fuid,muCallPrim3("template_open", [muCon(""), muTmp(pre,prefuid)], s@\loc)),
              muWhile(doname, muCon(true),
                              [ translateStats(preStats),
-                               muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(body)])),
+                               muAssignTmp(result,fuid,muCallPrim3("template_add", [muTmp(result,fuid), translateMiddle(body)], body@\loc)),
                                translateStats(postStats),
-                               muIfelse(ifname, makeMu("ALL", [ translate(condition) ]), 
+                               muIfelse(ifname, makeMu("ALL", [ translate(condition) ], condition@\loc), 
                                                 [ muContinue(doname) ], 
                                                 [ muBreak(doname) ])]),
-             muCallPrim("template_close", [muTmp(result,fuid)])
+             muCallPrim3("template_close", [muTmp(result,fuid)], s@\loc)
            ];
     leaveBacktrackingScope();
     leaveBacktrackingScope();
@@ -150,29 +159,29 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
     tmp = asTmp(forname);
     enterLoop(forname,fuid);
     enterBacktrackingScope(forname);
-    code = [ muAssignTmp(tmp,fuid,muCallPrim("listwriter_open", [])),
-             muWhile(forname, makeMuMulti(makeMu("ALL",[ translate(c) | c <-generators ])), 
+    code = [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)),
+             muWhile(forname, makeMuMulti(makeMu("ALL",[ translate(c) | c <-generators ], s@\loc), s@\loc), 
                               [ translate(body) ]),
-             muCallPrim("listwriter_close", [muTmp(tmp,fuid)])
+             muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], s@\loc)
            ];
     leaveBacktrackingScope();
     leaveLoop();
     return muBlock(code);
 }
 
-MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, str indent, str pre, str prefuid){
+MuExp translateTemplate(s: (StringTemplate) `for ( <{Expression ","}+ generators> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, str indent, str pre, str prefuid){
     str fuid = topFunctionScope();
     forname = nextLabel();
     result = asTmp(forname);
     enterLoop(forname,fuid);
     enterBacktrackingScope(forname);
-    code = [ muAssignTmp(result,fuid,muCallPrim("template_open", [muCon(""), muTmp(pre,prefuid)])),
-             muWhile(forname, makeMuMulti(makeMu("ALL",[ translate(c) | c <-generators ])), 
+    code = [ muAssignTmp(result,fuid,muCallPrim3("template_open", [muCon(""), muTmp(pre,prefuid)], s@\loc)),
+             muWhile(forname, makeMuMulti(makeMu("ALL",[ translate(c) | c <-generators ], s@\loc), s@\loc), 
                      [ translateStats(preStats),  
-                       muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(body)])),
+                       muAssignTmp(result,fuid,muCallPrim3("template_add", [muTmp(result,fuid), translateMiddle(body)], body@\loc)),
                        translateStats(postStats)
                      ]),
-             muCallPrim("template_close", [muTmp(result,fuid)])
+             muCallPrim3("template_close", [muTmp(result,fuid)], s@\loc)
            ];
     leaveBacktrackingScope();
     leaveLoop();
@@ -184,23 +193,23 @@ MuExp translateTemplate((StringTemplate) `for ( <{Expression ","}+ generators> )
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) {
     ifname = getLabel(label);
 	enterBacktrackingScope(ifname);
-	code = muIfelse(ifname, makeMu("ALL", [ translate(c) | c <- conditions ]), [translate(thenStatement)], []);
+	code = muIfelse(ifname, makeMu("ALL", [ translate(c) | c <- conditions ], s@\loc), [translate(thenStatement)], []);
     leaveBacktrackingScope();
     return code;
 }
     
-MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, str indent, str pre, str prefuid){
+MuExp translateTemplate(s: (StringTemplate) `if (<{Expression ","}+ conditions> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, str indent, str pre, str prefuid){
     str fuid = topFunctionScope();
     ifname = nextLabel();
     result = asTmp(ifname);
     enterBacktrackingScope(ifname);
-    code = [ muAssignTmp(result,fuid,muCallPrim("template_open", [muCon(""), muTmp(pre,prefuid)])),
-             muIfelse(ifname, makeMu("ALL", [ translate(c) | c <- conditions ]), 
+    code = [ muAssignTmp(result,fuid,muCallPrim3("template_open", [muCon(""), muTmp(pre,prefuid)], s@\loc)),
+             muIfelse(ifname, makeMu("ALL", [ translate(c) | c <- conditions ], s@\loc), 
                       [ translateStats(preStats),
-                        muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(body)])),
+                        muAssignTmp(result,fuid,muCallPrim3("template_add", [muTmp(result,fuid), translateMiddle(body)], body@\loc)),
                         translateStats(postStats)],
                       []),
-               muCallPrim("template_close", [muTmp(result,fuid)])
+               muCallPrim3("template_close", [muTmp(result,fuid)], s@\loc)
            ];
     leaveBacktrackingScope();
     return muBlock(code);
@@ -210,31 +219,31 @@ MuExp translateTemplate((StringTemplate) `if (<{Expression ","}+ conditions> ) {
 
 MuExp translate(s: (Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`) {
 	ifname = getLabel(label);
-	code = muIfelse(ifname, makeMu("ALL",[ translate(c) | c <- conditions ]), 
+	code = muIfelse(ifname, makeMu("ALL",[ translate(c) | c <- conditions ], s@\loc), 
 	                        { enterBacktrackingScope(ifname); [ translate(thenStatement) ]; }, 
 	                        { leaveBacktrackingScope(); [ translate(elseStatement)]; });
     return code;
 }
     
-MuExp translateTemplate((StringTemplate) `if ( <{Expression ","}+ conditions> ) { <Statement* preStatsThen> <StringMiddle thenString> <Statement* postStatsThen> }  else { <Statement* preStatsElse> <StringMiddle elseString> <Statement* postStatsElse> }`, str indent, str pre, str prefuid){
+MuExp translateTemplate(s: (StringTemplate) `if ( <{Expression ","}+ conditions> ) { <Statement* preStatsThen> <StringMiddle thenString> <Statement* postStatsThen> }  else { <Statement* preStatsElse> <StringMiddle elseString> <Statement* postStatsElse> }`, str indent, str pre, str prefuid){
     str fuid = topFunctionScope();                    
     ifname = nextLabel();
     result = asTmp(ifname);
-    code = [ muAssignTmp(result,fuid,muCallPrim("template_open", [muCon(""), muTmp(pre,prefuid)])),
-             muIfelse(ifname, makeMu("ALL",[ translate(c) | c <- conditions ]), 
+    code = [ muAssignTmp(result,fuid,muCallPrim3("template_open", [muCon(""), muTmp(pre,prefuid)], s@\loc)),
+             muIfelse(ifname, makeMu("ALL",[ translate(c) | c <- conditions ], s@\loc), 
                       { enterBacktrackingScope(ifname);
                         [ translateStats(preStatsThen), 
-                          muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(thenString)])),
+                          muAssignTmp(result,fuid,muCallPrim3("template_add", [muTmp(result,fuid), translateMiddle(thenString)], thenString@\loc)),
                           translateStats(postStatsThen)
                         ];
                       },
                       { enterBacktrackingScope(ifname);
                         [ translateStats(preStatsElse), 
-                          muAssignTmp(result,fuid,muCallPrim("template_add", [muTmp(result,fuid), translateMiddle(elseString)])),
+                          muAssignTmp(result,fuid,muCallPrim3("template_add", [muTmp(result,fuid), translateMiddle(elseString)], elseString@\loc)),
                           translateStats(postStatsElse)
                         ];
                       }),
-              muCallPrim("template_close", [muTmp(result,fuid)])
+              muCallPrim3("template_close", [muTmp(result,fuid)], s@\loc)
            ];
     leaveBacktrackingScope();
     return muBlock(code);                                             
@@ -301,24 +310,25 @@ MuExp translate(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound 
 
 MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`) {
    str fuid = topFunctionScope();
-   iterations = nextTmp();  // count number of iterations
-   change = nextTmp();		// keep track of any changed value
-   result = nextTmp();		// result of body computation
+   iterations = nextTmp("iterations");  // count number of iterations
+   change = nextTmp("change");		    // keep track of any changed value
+   result = nextTmp("result");		    // result of body computation
  
    varCode = [ translate(var) | var <- variables ];
-   tmps = [ nextTmp() | var <- variables ];
+   println("varCode: <varCode>");
+   tmps = [ nextTmp("<var>") | var <- variables ];
    return muBlock([ muAssignTmp(iterations, fuid, (bound is empty) ? muCon(1000000) : translate(bound.expression)),
-    				muCallPrim("non_negative", [muTmp(iterations,fuid)]),
+    				muCallPrim3("non_negative", [muTmp(iterations,fuid)], bound@\loc),
                     muAssignTmp(change, fuid, muCon(true)),
-                    *[ muAssignTmp(tmps[i], fuid, varCode[i]) | i <- index(varCode) ],
-                    muWhile(nextLabel(),
-                            muCallMuPrim("and_mbool_mbool", [muTmp(change,fuid), muCallPrim("int_greater_int", [muTmp(iterations,fuid), muCon(0)]) ]), 
+                    muWhile(nextLabel("while"),
+                            muCallMuPrim("and_mbool_mbool", [muTmp(change,fuid), muCallPrim3("int_greater_int", [muTmp(iterations,fuid), muCon(0)], bound@\loc) ]), 
                             [ muAssignTmp(change, fuid, muCon(false)),
+                            *[ muAssignTmp(tmps[i], fuid, varCode[i]) | int i <- index(varCode) ],
                               muAssignTmp(result, fuid, translate(body)),
-                              *[ muIfelse(nextLabel(), muCallPrim("notequal", [muTmp(tmps[i],fuid), varCode[i]]), [muAssignTmp(change,fuid,muCon(true))], []) 
-                 			   | i <- index(varCode)
+                              *[ muIfelse(nextLabel("notequal-vars"), muCallPrim3("notequal", [muTmp(tmps[i],fuid), varCode[i]], bound@\loc), [muAssignTmp(change,fuid,muCon(true))], []) 
+                 			   | int i <- index(varCode)
                  			   ],
-                              muAssignTmp(iterations, fuid, muCallPrim("int_subtract_int", [muTmp(iterations,fuid), muCon(1)])) 
+                              muAssignTmp(iterations, fuid, muCallPrim3("int_subtract_int", [muTmp(iterations,fuid), muCon(1)], s@\loc)) 
                             ]),
                     muTmp(result,fuid)
            ]);
@@ -389,7 +399,7 @@ MuExp translateCatches(str varname, str varfuid, list[Catch] catches, bool hasDe
           conds = [ muMulti(muApply(translatePat(c.pattern), [ muTmp(asUnwrapedThrown(varname),varfuid) ])) ];
           then = [ translate(c.body) ];
       }
-      exp = muIfelse(ifname, makeMu("ALL",conds), then, [translateCatches(varname, varfuid, tail(catches), hasDefault)]);
+      exp = muIfelse(ifname, makeMu("ALL",conds, c@\loc), then, [translateCatches(varname, varfuid, tail(catches), hasDefault)]);
       leaveBacktrackingScope();
       return exp;
   }
@@ -416,19 +426,23 @@ MuExp translateAssignment(s: (Statement) `<Assignable assignable> <Assignment op
 // apply assignment operator 
     
 MuExp applyOperator(str operator, Assignable assignable, str rhs_type, MuExp rhs) {
-    if(operator == "=")
+    if(operator == "="){
         return rhs;
+    }
+   
     if(operator == "?="){
         oldval = getValues(assignable);
         assert size(oldval) == 1;   
-        return generateIfDefinedOtherwise(oldval[0], rhs);
+        return generateIfDefinedOtherwise(oldval[0], rhs, assignable@\loc);
     }
-    op1 = ("+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator]; 
-    op2 = typedBinaryOp(getOuterType(assignable), op1, rhs_type);
     
     oldval = getValues(assignable);
+     
+    op1 = ("+=" : "add", "-=" : "subtract", "*=" : "product", "/=" : "divide", "&=" : "intersect")[operator]; //TODO: add new operator <<=
+    op2 = typedBinaryOp(getOuterType(assignable), op1, rhs_type);
+    
     assert size(oldval) == 1;
-    return muCallPrim("<op2>", [*oldval, rhs]);    
+    return muCallPrim3("<op2>", [*oldval, rhs], assignable@\loc);    
 }
 
 str getAssignOp(str operator){
@@ -454,13 +468,10 @@ MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, str opera
      getOuterType(receiver) == "tuple" 
      ? assignTo(receiver,  "=", rhs_type, muCallPrim3("<getOuterType(receiver)>_update", [*getValues(receiver), muCon(getTupleFieldIndex(getType(receiver@\loc), "<field>")), applyOperator(operator, a, rhs_type, rhs)], a@\loc) )
      : assignTo(receiver, "=", rhs_type, muCallPrim3("<getOuterType(receiver)>_field_update", [*getValues(receiver), muCon("<field>"), applyOperator(operator, a, rhs_type, rhs)], a@\loc) );
-     
-     // Removed from Rascal
-     //MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, MuExp rhs) =
-     //assignTo(receiver, muCallPrim("<getOuterType(receiver)>_field_update", [*getValues(receiver), muCon("<field>"), rhs]) );
 
 MuExp assignTo(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator,  str rhs_type, MuExp rhs) = 
-    assignTo(receiver,  "=", rhs_type, rhs);
+    assignTo(receiver,  "=", rhs_type, applyOperator(operator, a, rhs_type, rhs));
+    
 
 MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, str operator,  str rhs_type, MuExp rhs) {
     str fuid = topFunctionScope();
@@ -512,10 +523,10 @@ list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpressi
      [ muCallPrim3("<getOuterType(receiver)>_slice", [ *getValues(receiver), translateOpt(optFirst),  translate(second), translateOpt(optLast) ], a@\loc) ];
 
 list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) = 
-    [ muCallPrim3("<getOuterType(receiver)>_field_access", [ *getValues(receiver), muCon("<field>")], a@\loc) ];
+    [ muCallPrim3("<getOuterType(receiver)>_field_access", [ *getValues(receiver), muCon(unescape("<field>"))], a@\loc) ];
 
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`) = 
-     [ generateIfDefinedOtherwise(getValues(receiver)[0], translate(defaultExpression)) ];
+     [ generateIfDefinedOtherwise(getValues(receiver)[0], translate(defaultExpression), a@\loc) ];
 
 list[MuExp] getValues(a:(Assignable) `\<  <{Assignable ","}+ elements > \>` ) = [ *getValues(elm) | elm <- elements ];
 

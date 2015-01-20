@@ -146,9 +146,12 @@ public class TypeReifier {
 		IConstructor defined = (IConstructor) alt.get("def");
 		String name = ((IString) defined.get("name")).getValue();
 		Type kwTypes = symbolsToTupleType((IList) alt.get("kwTypes"), store);
-		if (kwTypes.getArity() == 0) kwTypes = tf.voidType();
 		
-		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store), kwTypes);
+		if (kwTypes.getArity() == 0) {
+			kwTypes = tf.voidType();
+		}
+		
+		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
 	}
 
 	private Type symbolToType(IConstructor symbol, TypeStore store) {
@@ -474,8 +477,6 @@ public class TypeReifier {
 						}
 					}
 					
-					
-					
 					result = vf.constructor(Factory.Symbol_Cons, vf.constructor(Factory.Symbol_Label, vf.string(type.getName()), adt), w.done());
 
 					cache.put(type, result);
@@ -509,9 +510,10 @@ public class TypeReifier {
 				
 				IListWriter kwTypes = vf.listWriter();
 				IMapWriter kwDefaults = vf.mapWriter();
-				
-				for (String key : type.getKeywordParameters()) {
-					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(key), type.getKeywordParameterType(key).accept(this)));
+				Map<String,Type> keywordParameters = store.getKeywordParameters(type);
+						
+				for (String label : keywordParameters.keySet()) {
+					kwTypes.insert(vf.constructor(Factory.Symbol_Label, vf.string(label), keywordParameters.get(label).accept(this)));
 				}
 				
 				alts.insert(vf.constructor(Factory.Production_Cons, vf.constructor(Factory.Symbol_Label,  vf.string(type.getName()), adt), w.done(), kwTypes.done(), kwDefaults.done(), vf.set()));
@@ -519,8 +521,6 @@ public class TypeReifier {
 				definitions.put(adt, choice);
 			}
 			
-			
-
 			@Override
 			public IValue visitAbstractData(Type type) {
 				IValue sym = cache.get(type);
@@ -540,8 +540,14 @@ public class TypeReifier {
 
 					// make sure to find the type by the uninstantiated adt
 					Type adt = store.lookupAbstractDataType(type.getName());
-					for (Type cons : store.lookupAlternatives(adt)) {
-						cons.accept(this);
+					
+					if (adt != null) {
+						// somebody else (the type checker) should report
+						// that the ADT was undeclared. Here it does not matter 
+						// much, something useful but incomplete will be produced.
+						for (Type cons : store.lookupAlternatives(adt)) {
+							cons.accept(this);
+						}
 					}
 				}
 				

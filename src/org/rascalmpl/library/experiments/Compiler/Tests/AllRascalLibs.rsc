@@ -81,190 +81,12 @@ list[str] libs = [
 "analysis::statistics::Inference",			// OK
 "analysis::statistics::SimpleRegression"	// OK
 
-/*
-// DEMO
 
-"demo::basic::Ackermann",					// OK
-"demo::basic::Bottles",						// OK
-"demo::basic::Bubble",						// OK
-"demo::basic::BubbleTest",					// OK
-"demo::basic::Factorial",					// OK
-"demo::basic::FactorialTest",				// OK
-
-"demo::basic::FizzBuzz",					// OK
-"demo::basic::Hello",						// OK
-"demo::basic::Quine",
-//Java("FactParseError","Expected : but got  ")
-"demo::basic::Squares",
-"demo::common::WordCount::CountInLine1",	// OK
-"demo::common::WordCount::CountInLine2",	// OK
-"demo::common::WordCount::CountInLine3",	// OK
-"demo::common::WordCount::WordCount",		// OK
-"demo::common::Calls",						// OK
-"demo::common::ColoredTrees",				// OK
-"demo::common::ColoredTreesTest",			// OK
-"demo::common::CountConstructors",			// OK
-"demo::common::Crawl",						// OK
-"demo::common::Cycles",						// OK
-"demo::common::Derivative",					// OK
-"demo::common::Lift",						// OK
-"demo::common::LiftTest",					// OK
-"demo::common::StringTemplate",				// OK
-"demo::common::StringTemplateTest",			// OK
-"demo::common::Trans",						// OK
-"demo::common::WordReplacement",			// OK
-"demo::common::WordReplacementTest",		// OK
-
-"demo::lang::Exp::Abstract::Eval",			// OK
-
-"demo::lang::Exp::Combined::Automatic::Load",	// OK
-"demo::lang::Exp::Combined::Automatic::Parse",	// OK
-"demo::lang::Exp::Combined::Automatic::Eval",	// OK
-
-"demo::lang::Exp::Combined::Manual::Load",		// ERROR
-"demo::lang::Exp::Combined::Manual::Parse",		// OK
-"demo::lang::Exp::Combined::Manual::Eval",		// ERROR
-
-"demo::lang::Exp::Concrete::NoLayout::Eval",	// OK
-"demo::lang::Exp::Concrete::WithLayout::Eval"	// OK
-
-"demo::lang::Func::AST",
-"demo::lang::Func::Eval0",
-"demo::lang::Func::Eval1",
-"demo::lang::Func::Eval2",
-"demo::lang::Func::Eval3",
-"demo::lang::Func::Func",
-"demo::lang::Func::Parse",
-"demo::lang::Func::Test",
-
-"demo::lang::Lisra::Eval",
-"demo::lang::Lisra::Parse",
-"demo::lang::Lisra::Pretty",
-"demo::lang::Lisra::Runtime",
-"demo::lang::Lisra::Syntax",
-"demo::lang::Lisra::Test",
-
-"demo::lang::MissGrant::AST",
-"demo::lang::MissGrant::CheckController",
-"demo::lang::MissGrant::DesugarResetEvents",
-"demo::lang::MissGrant::Implode",
-"demo::lang::MissGrant::MissGrant",
-"demo::lang::MissGrant::Outline",
-"demo::lang::MissGrant::ParallelMerge",
-"demo::lang::MissGrant::Parse",
-"demo::lang::MissGrant::Step",
-"demo::lang::MissGrant::ToDot",
-"demo::lang::MissGrant::ToMethods",
-"demo::lang::MissGrant::ToObjects",
-"demo::lang::MissGrant::ToRelation",
-"demo::lang::MissGrant::ToSwitch",
-
-
-"demo::lang::Pico::Compile",
-"demo::lang::Pico::ControlFlow",
-"demo::lang::Pico::Eval",
-"demo::lang::Pico::Typecheck",
-"demo::lang::Pico::Uninit",
-"demo::lang::Pico::UseDef",
-"demo::lang::Pico::Visualize",
-
-
-"demo::lang::turing::l1::ast::Load",
-"demo::lang::turing::l1::ast::Turing",
-"demo::lang::turing::l1::cst::Parse",
-"demo::lang::turing::l1::cst::Syntax",
-"demo::lang::turing::l1::interpreter::Interpreter",
-"demo::lang::turing::l2::ast::Load",
-"demo::lang::turing::l2::ast::Turing",
-"demo::lang::turing::l2::check::Check",
-"demo::lang::turing::l2::cst::Parse",
-"demo::lang::turing::l2::cst::Syntax",
-"demo::lang::turing::l2::desugar::Desugar",
-"demo::lang::turing::l2::format::Format",
-
-"demo::vis::Higher",
-"demo::vis::Logo",
-"demo::vis::VisADT",
-
-
-// COMPILER
-
-// RVM
-"experiments::Compiler::RVM::AST",							// OK
-"experiments::Compiler::RVM::Syntax",						// OK
-"experiments::Compiler::RVM::Load",							// OK
-"experiments::Compiler::RVM::Parse"							// OK
-*/
-/*
-// MuRascal
-"experiments::Compiler::muRascal::AST",						// OK
-"experiments::Compiler::muRascal::Parse",					// ERROR was OK
-"experiments::Compiler::muRascal::Load",					// ERROR was OK
-"experiments::Compiler::muRascal::Implode",					// ERROR
-"experiments::Compiler::muRascal::MuAllMuOr",				// ERROR
-"experiments::Compiler::muRascal::Syntax",					// OK
-"experiments::Compiler::muRascal::Run"						// ERROR was OK
-*/
-/*
-// muRascal2RVM
-"experiments::Compiler::muRascal2RVM::PeepHole",			// was OK
-"experiments::Compiler::muRascal2RVM::RascalReifiedTypes",	// OK
-"experiments::Compiler::muRascal2RVM::ReifiedTypes",		// ERROR
-"experiments::Compiler::muRascal2RVM::StackSize",			// OK
-"experiments::Compiler::muRascal2RVM::ToplevelType",		// OK
-"experiments::Compiler::muRascal2RVM::mu2rvm"				// ERROR
-
-// Rascal2muRascal
-"experiments::Compiler::Rascal2muRascal::RascalExpression",	// ERROR
-"experiments::Compiler::Rascal2muRascal::RascalModule",		// ERROR
-"experiments::Compiler::Rascal2muRascal::RascalPattern",	// ERROR
-"experiments::Compiler::Rascal2muRascal::RascalStatement",	// ERROR
-"experiments::Compiler::Rascal2muRascal::RascalType",		// ERROR
-"experiments::Compiler::Rascal2muRascal::TmpAndLabel",		// OK
-"experiments::Compiler::Rascal2muRascal::TypeReifier",		// ERROR
-"experiments::Compiler::Rascal2muRascal::TypeUtils",		// ERROR
-
-// Typechecker
-"lang::rascal::types::AbstractKind",						// OK
-"lang::rascal::types::AbstractName",						// ERROR
-"lang::rascal::types::AbstractType",						// ERROR
-"lang::rascal::types::CheckTypes",							// ERROR
-"lang::rascal::types::ConvertType",							// ERROR
-"lang::rascal::types::TestChecker",							// ERROR
-"lang::rascal::types::TypeExceptions",						// ERROR
-"lang::rascal::types::TypeInstantiation",					// ERROR
-"lang::rascal::types::TypeSignature",						// ERROR
-
-// Parser generator
-"lang::rascal::grammar::analyze::DefUse",					// OK
-"lang::rascal::grammar::analyze::Dependency",				// OK
-
-"lang::rascal::grammar::definition::Attributes",			// ERROR
-"lang::rascal::grammar::definition::Characters",			// ERROR
-"lang::rascal::grammar::definition::Keywords",				// ERROR
-"lang::rascal::grammar::definition::Layout",				// ERROR
-"lang::rascal::grammar::definition::Literals",				// ERROR
-"lang::rascal::grammar::definition::Modules",				// ERROR
-"lang::rascal::grammar::definition::Names",					// OK
-"lang::rascal::grammar::definition::Parameters",			// OK
-"lang::rascal::grammar::definition::Priorities",			// ERROR
-"lang::rascal::grammar::definition::Productions",			// ERROR
-"lang::rascal::grammar::definition::Regular",				// ERROR
-"lang::rascal::grammar::definition::Symbols",				// ERROR
-
-"lang::rascal::grammar::Bootstrap",							// ERROR
-"lang::rascal::grammar::ConcreteSyntax",					// ERROR
-"lang::rascal::grammar::Lookahead",							// ERROR
-"lang::rascal::grammar::ParserGenerator",					// ERROR
-"lang::rascal::grammar::SyntaxTreeGenerator",				// ERROR
-*/
-
- 
 ];
-
+ 
 list[str] eclipse_libs =
 [
-/*
+
 // Eclipse library
 "util::Clipboard",						// OK				
 "util::ContentCompletion",				// ERROR
@@ -279,8 +101,8 @@ list[str] eclipse_libs =
 "util::Resources",						// ERROR
 "util::SyntaxHighligthingTemplates",	// ERROR
 "util::ValueUI"							// ERROR
-*/
-];
+
+]; 
 
 value main(list[value] args){
   crashes = [];
@@ -304,7 +126,7 @@ value main(list[value] args){
         for(msg <- rvm_lib.messages){
             if(msg is error){
                 if(findFirst(msg.msg, "Fatal compilation error") >= 0){
-                     crashes += <lib, "<e>">;
+                     crashes += <lib, "<msg>">;
                      break;
                 }
             }
@@ -337,8 +159,9 @@ set[loc] failures = {
 
 int countErrors(map[loc,int] counts) = size( {msg | msg <- counts, counts[msg] > 0} );
 
-tuple[set[loc],set[loc]] compileAll(loc root = |std:///|){ //TODO: this now missed eclipse libraries (used to be "rascal:///")
-	allFiles = find(root, "rsc") - exclude;
+tuple[set[loc],set[loc]] compileAll(list[loc] roots = [|project://rascal/|, |project://rascal/src/org/rascalmpl/tutor|]){
+	allFiles = [ *find(root, "rsc") | root <- roots];
+
 	nfiles = size(allFiles);
 	static_error_count = ();
 	compiler_errors = {};

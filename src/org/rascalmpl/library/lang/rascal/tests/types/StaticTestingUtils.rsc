@@ -93,7 +93,8 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 		"out of range",
 		"Cannot add append information, no valid surrounding context found",
 		"Cannot match an expression of type: _ against a pattern of type _",
-		"Cannot subscript map of type _ using subscript of type _"
+		"Cannot subscript map of type _ using subscript of type _",
+		"Inserted type _ must be a subtype of case type _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
 // NOTE: type checker does not yet support analysis of uninitialized variables, therefore this check always succeeds, for now.
@@ -157,7 +158,8 @@ bool missingModule(str stmts, list[str] importedModules = [], list[str] initialD
 		"Cannot import module _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
-void makeModule(str name, str body) {
-    writeFile( getSearchPathLocation("lang/rascal/tests/types") + "<name>.rsc", 
-               "module lang::rascal::tests::types::<name>\n<body>");
+	
+void makeModule(str name, str body){
+	mloc = |tmp:///<name>.rsc|;
+    writeFile(mloc, "module <name>\n<body>");
 }

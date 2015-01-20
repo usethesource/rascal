@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2013 CWI
+  Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -675,7 +675,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions and constructors found which could be applied",exp@\loc));
         } else if ( (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) && size(productionMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions and productions found which could be applied",exp@\loc));
-        } else if (size(nonDefaultFunctionMatches) > 1 || size(defaultFunctionMatches) > 1) {
+        } else if (size(nonDefaultFunctionMatches) > 1 || (size(nonDefaultFunctionMatches) == 0 && size(defaultFunctionMatches) > 1)) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple functions found which could be applied",exp@\loc));
         } else if (size(constructorMatches) > 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Multiple constructors found which could be applied",exp@\loc));
@@ -792,19 +792,41 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         } else if (cannotInstantiateProduction) {
         	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in production", exp@\loc));
         } else {
-        	if ( (size(finalNonDefaultMatches) + size(finalDefaultMatches)) == 1 ) {
-        		finalMatch = getOneFrom(finalNonDefaultMatches + finalDefaultMatches);
+        	if (size(finalNonDefaultMatches) == 1) {
+        		finalMatch = getOneFrom(finalNonDefaultMatches);
+				< c, rtp > = markLocationType(c,e@\loc,finalMatch);
         		if (isFunctionType(finalMatch)) {
-				    < c, rtp > = markLocationType(c,e@\loc,finalMatch);
+        			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is function, comparable(c.store[ui].rtype,finalMatch) };
+        			if (size(actuallyUsed) > 0) {
+	        			c.narrowedUses = c.narrowedUses + (actuallyUsed*{e@\loc});
+	        		}  
 				    return markLocationType(c,exp@\loc,getFunctionReturnType(finalMatch));
+				} else {
+					return markLocationFailed(c,exp@\loc,makeFailType("Unexpected match, should have had a function type, instead found <prettyPrintType(finalMatch)>", exp@\loc));
+				}
+        	} else if (size(finalDefaultMatches) == 1) {
+				finalMatch = getOneFrom(finalDefaultMatches);
+				< c, rtp > = markLocationType(c,e@\loc,finalMatch);
+				if (isFunctionType(finalMatch)) {
+        			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is function, comparable(c.store[ui].rtype,finalMatch) };
+        			if (size(actuallyUsed) > 0) {
+	        			c.narrowedUses = c.narrowedUses + (actuallyUsed*{e@\loc});
+	        		}  
+					return markLocationType(c,exp@\loc,getFunctionReturnType(finalMatch));
 				} else if (isConstructorType(finalMatch)) {
-			        < c, rtp > = markLocationType(c,e@\loc,finalMatch);
-			        return markLocationType(c,exp@\loc,getConstructorResultType(finalMatch));
+        			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is constructor, comparable(c.store[ui].rtype,finalMatch) };
+        			if (size(actuallyUsed) > 0) {
+	        			c.narrowedUses = c.narrowedUses + (actuallyUsed*{e@\loc});
+	        		}  
+					return markLocationType(c,exp@\loc,getConstructorResultType(finalMatch));
 				} else if (isProductionType(finalMatch)) {
-					< c, rtp > = markLocationType(c,e@\loc,finalMatch);
+        			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is production, comparable(c.store[ui].rtype,finalMatch) };
+        			if (size(actuallyUsed) > 0) {
+	        			c.narrowedUses = c.narrowedUses + (actuallyUsed*{e@\loc});
+	        		}  
 					return markLocationType(c,exp@\loc,getProductionSortType(finalMatch));
 				}
-			} else if (size(finalNonDefaultMatches) == 0 && size(finalDefaultMatches) == 2) {
+			} else if (size(finalDefaultMatches) > 1) {
 				// Make sure the defaults function, constructor, and production variants have the same return type, else we
 				// have a conflict.
 				functionMatches = filterSet(finalDefaultMatches, isFunctionType);
@@ -817,52 +839,15 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 					// TODO: This should also result in an error on the function
 					// declaration, since we should not have a function with the same name
 					// and parameters but a different return type
-					println("WARNING: call at <e@\loc> uses a function with a bad return type");    
+					c = addScopeWarning(c, "Call at <e@\loc> uses a function with a bad return type", e@\loc);
 				}
+    			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is function, comparable(c.store[ui].rtype,functionVariant) };
+    			if (size(actuallyUsed) > 0) {
+        			c.narrowedUses = c.narrowedUses + (actuallyUsed*{e@\loc});
+        		}  
 				< c, rtp > = markLocationType(c,e@\loc,functionVariant);
 				return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
-			} else if (size(finalNonDefaultMatches) == 1 && size(finalDefaultMatches) == 1) {
-				// Make sure the function and the default function or constructor variants have the same return type, else we
-				// have a conflict.
-				functionVariant = getOneFrom(filterSet(finalNonDefaultMatches, isFunctionType));
-				defaultVariant = getOneFrom(finalDefaultMatches);
-				defaultResultType = isConstructorType(defaultVariant) ? getConstructorResultType(defaultVariant) : (isFunctionType(defaultVariant) ? getFunctionReturnType(defaultVariant) : getProductionSortType(defaultVariant));
-				
-				if (equivalent(getFunctionReturnType(functionVariant),defaultResultType)) {
-					finalType = makeOverloadedType(finalNonDefaultMatches,finalDefaultMatches);
-				    < c, rtp > = markLocationType(c,e@\loc,finalType);
-				    return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
-				} else {
-					// TODO: This should also result in an error on the function
-					// declaration, since we should not have a function with the same name
-					// and parameters but a different return type
-					println("WARNING: call at <e@\loc> uses a function with a bad return type");
-				    < c, rtp > = markLocationType(c,e@\loc,defaultVariant);
-				    return markLocationType(c,exp@\loc,defaultResultType);
-				}
-			} else {
-				// Make sure the function, the default function and constructor variants have the same return type, else we
-				// have a conflict.
-				functionVariant = getOneFrom(filterSet(finalNonDefaultMatches, isFunctionType));
-				defaultVariant = getOneFrom(filterSet(finalDefaultMatches, isFunctionType));
-				constructorMatches = filterSet(finalDefaultMatches, isConstructorType);
-				productionMatches = filterSet(finalDefaultMatches, isProductionType);
-				nonFunctionResult = (size(constructorMatches) > 0) ? getConstructorResultType(getOneFrom(constructorMatches)) : getProductionSortType(getOneFrom(productionMatches));
-				
-				if ( equivalent(getFunctionReturnType(functionVariant),getFunctionReturnType(defaultVariant))
-						&& equivalent(getFunctionReturnType(functionVariant),nonFunctionResult) ) {
-					finalType = makeOverloadedType(finalNonDefaultMatches,{ defaultVariant });
-				    < c, rtp > = markLocationType(c,e@\loc,finalType);
-				    return markLocationType(c,exp@\loc,getFunctionReturnType(functionVariant));
-				} else {
-					// TODO: This should also result in an error on the function
-					// declaration, since we should not have a function with the same name
-					// and parameters but a different return type
-					println("WARNING: call at <e@\loc> uses a function with a bad return type");
-				    < c, rtp > = markLocationType(c,e@\loc,defaultVariant);
-				    return markLocationType(c,exp@\loc,getFunctionReturnType(defaultVariant));
-				}
-			}
+			} 
         }
         
     } else if (isLocType(t1)) {
@@ -2046,7 +2031,7 @@ Symbol computeAdditionType(Symbol t1, Symbol t2, loc l) {
     	if (tupleHasFieldNames(t1) && tupleHasFieldNames(t2)) {
 	    	tflds1 = getTupleFields(t1);
 	    	tflds2 = getTupleFields(t2);
-	    	if (size(toSet(tflds1)+toSet(tflds2)) == size(tflds1+tflds2)) {
+	    	if (size(toSet(getTupleFieldNames(t1) + getTupleFieldNames(t2))) == size(tflds1+tflds2)) {
 	    		return \tuple(tflds1+tflds2);
 	    	} else {
 	    		return \tuple(getTupleFieldTypes(t1) + getTupleFieldTypes(t2));
@@ -2549,6 +2534,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> \<- <Express
         < cEnum, t2 > = calculatePatternType(p, cEnum, Symbol::\value());
     } else if (isNonTerminalIterType(t1)) {
     	< cEnum, t2 > = calculatePatternType(p, cEnum, getNonTerminalIterElement(t1));
+    } else if (isNonTerminalOptType(t1)) {
+    	< cEnum, t2 > = calculatePatternType(p, cEnum, getNonTerminalOptType(t1));
     } else {
         t2 = makeFailType("Type <prettyPrintType(t1)> is not enumerable", exp@\loc);
     }
@@ -3833,7 +3820,20 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         }
     } else {
 		c.locationTypes = c.locationTypes + ( ptnode@at : ptnode@rtype | /PatternTree ptnode := pt, (ptnode@rtype)? );
-		  
+
+		for (/ptn:callOrTreeNode(ph,pargs,kpargs) := pt) {
+			ctType = ptn@rtype;
+
+			baseItems = invert(c.uses)[ph@at];
+			usedItems = baseItems + { uii | ui <- baseItems, c.store[ui] is overload, uii <- c.store[ui].items };
+			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is constructor || c.store[ui] is production, comparable(c.store[ui].rtype,ctType) };
+
+			if (size(actuallyUsed) > 0) {
+				c.narrowedUses = c.narrowedUses + (actuallyUsed*{ph@at});
+			}  
+			
+		}
+				  
 		return < c, pt@rtype >;
     }
 }
@@ -5769,7 +5769,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
         
         // Add the alias into the type environment
         // TODO: Check to make sure this is possible
-        c = addAlias(c,RSimpleName(utypeName),getVis(vis),decl@\loc,\alias(utypeName,utypeParams,Symbol::\void()));
+        c = addAlias(c,RSimpleName(utypeName),getVis(vis),decl@\loc,\alias(utypeName,utypeParams,convertType(t)));
     }
 
     // If we can descend, process the aliased type as well, assigning it into
@@ -5965,6 +5965,8 @@ private Configuration prepareFunctionBodyEnv(Configuration c) {
 
 @doc{Check function declarations: Abstract}
 public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig>;`, bool descend, Configuration c) {
+	if (ignoreDeclaration(tags)) return c;
+	
     // TODO: Enforce that this is a java function?
     rn = getFunctionName(sig);
     throwsTypes = [ ];
@@ -6031,6 +6033,8 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 @doc{Check function declarations: Expression}
 public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;`, bool descend, Configuration c) {
+	if (ignoreDeclaration(tags)) return c;
+
     rn = getFunctionName(sig);
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
@@ -6100,6 +6104,8 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 @doc{Check function declarations: Conditional}
 public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> = <Expression exp> when <{Expression ","}+ conds>;`, bool descend, Configuration c) {
+	if (ignoreDeclaration(tags)) return c;
+
     rn = getFunctionName(sig);
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
@@ -6181,6 +6187,8 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 @doc{Check function declarations: Default}
 public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> <FunctionBody body>`, bool descend, Configuration c) {
+	if (ignoreDeclaration(tags)) return c;
+
     rn = getFunctionName(sig);
     throwsTypes = [ ];
     for ( ttype <- getFunctionThrows(sig)) { 
@@ -6684,7 +6692,7 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 				}
 				
 				case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
-					c = importProduction(p, at, c); 
+					//c = importProduction(p, at, c); 
 					//c = addProduction(c, name, at, p); 
 					loadedIds = loadedIds + itemId;
 				}
@@ -6737,13 +6745,13 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 		}
 	}
 
-	void loadTransProduction(int itemId) {
-		AbstractValue av = d.store[itemId];
-		if (production(RName name, Symbol rtype, int containedIn, Production p, loc at) := av) {
-			c = importProduction(p, at, c, registerName=false); 
-			loadedIds = loadedIds + itemId;
-		}
-	}
+	//void loadTransProduction(int itemId) {
+	//	AbstractValue av = d.store[itemId];
+	//	if (production(RName name, Symbol rtype, int containedIn, Production p, loc at) := av) {
+	//		c = importProduction(p, at, c, registerName=false); 
+	//		loadedIds = loadedIds + itemId;
+	//	}
+	//}
 				
 	// Add the items from d into c
 	// NOTE: This seems repetitive, but we cannot just collapse all the IDs into a set
@@ -6772,16 +6780,27 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	for (itemId <- notLoadedSorts) {
 		loadTransSort(itemId);
 	}
-
+	
+	// Bring in the grammar information for all sorts at once, which should also load
+	// all the productions; this is done here to make sure all the sort names are in
+	// scope.
+	for (itemId <- d.typeEnv<1>, itemId in filteredIds, d.store[itemId] is sorttype, itemId in d.grammar) {
+		itemToLoad = d.store[itemId];
+		c = importProduction(d.grammar[itemId], getOneFrom(d.store[itemId].ats), c);
+	}
+	for (itemId <- notLoadedSorts, itemId in d.grammar) {
+		c = importProduction(d.grammar[itemId], getOneFrom(d.store[itemId].ats), c, registerName=false);
+	}
+	
 	notLoadedConstructors = { di | di <- d.store<0>, d.store[di] is constructor } - loadedIds;
 	for (itemId <- notLoadedConstructors) {
 		loadTransConstructor(itemId);
 	}
 
-	notLoadedProds = { di | di <- d.store<0>, d.store[di] is production } - loadedIds;
-	for (itemId <- notLoadedProds) {
-		loadTransProduction(itemId);
-	}
+	//notLoadedProds = { di | di <- d.store<0>, d.store[di] is production } - loadedIds;
+	//for (itemId <- notLoadedProds) {
+	//	loadTransProduction(itemId);
+	//}
 	
 	c = popModule(c);
 	
@@ -7077,8 +7096,9 @@ public Configuration checkModuleUsingSignatures(Module md:(Module)`<Header heade
 		{ < getNameOfImportedModule(im) , (Import)`extend <ImportedModule _>;` := importItem > | 
 		importItem <- importList, 
 		(Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem };
-	rel[RName mname, bool isext] defaultModules = (moduleName != RSimpleName("Exception")) ? { < RSimpleName("Exception"), false > } : {};
-	
+	//rel[RName mname, bool isext] defaultModules = (moduleName != RSimpleName("Exception")) ? { < RSimpleName("Exception"), false > } : {};
+	rel[RName mname, bool isext] defaultModules = { < convertNameString("Exception"), false >, < convertNameString("ParseTree"), false >};
+	defaultModules = domainX(defaultModules,{moduleName});	
 	println("defaultModules = <defaultModules>");
 	
 	// Now, for each module being imported, create a module in the configuration
@@ -7994,7 +8014,14 @@ public CheckResult checkVisit(Visit v:(Visit)`visit ( <Expression sub> ) { < Cas
 }
 
 public Configuration addAppendTypeInfo(Configuration c, Symbol t, RName rn, set[LabelSource] ls, loc l) {
-    possibleIndexes = [ idx | idx <- index(c.labelStack), c.labelStack[idx].labelSource in ls, c.labelStack[idx].labelName == rn ];
+	// A guess: most often, a label is not used
+    possibleIndexes = [ idx | idx <- index(c.labelStack), c.labelStack[idx].labelSource in ls ];
+    
+    // But, if we have a label, filter by this label
+    if (RSimpleName("") != rn) {
+    	possibleIndexes = [ idx | idx <- index(c.labelStack), c.labelStack[idx].labelSource in ls, c.labelStack[idx].labelName == rn ];
+    }
+    
     if (size(possibleIndexes) == 0) {
         c = addScopeError(c, "Cannot add append information, no valid surrounding context found", l);
     } else {
@@ -8462,21 +8489,37 @@ public default Module check(Tree t) {
 }
 
 CheckResult resolveSorts(Symbol sym, loc l, Configuration c) {
-  sym = visit(sym) {
-   case sort(str name) : {
-     sname = RSimpleName(name);
-     if (sname notin c.typeEnv || !(c.store[c.typeEnv[sname]] is sorttype)) {
-       c = addScopeMessage(c,error("Syntax type <name> is not defined", l));
-     }
-     else {
-       c.uses = c.uses + < c.typeEnv[sname], l >;
-       c.usedIn[l] = head(c.stack);
-       insert c.store[c.typeEnv[sname]].rtype;
-     } // TODO finish
-   }
-  }
-  
-  return <c, sym>;
+	sym = visit(sym) {
+		case sort(str name) : {
+			sname = RSimpleName(name);     
+			if (sname notin c.typeEnv || !(c.store[c.typeEnv[sname]] is sorttype)) {
+				if (sname in c.unimportedNames && sname in c.globalSortMap) {
+					
+					//nameAndIdMatches = { < appendName(mi,sname), nameId > | mi <- c.moduleInfo, 
+					//	(sname in c.moduleInfo[mi].typeEnv && nameId := c.moduleInfo[mi].typeEnv[sname] && c.store[nameId] is sorttype) ||
+					//	(appendName(mi,sname) in c.moduleInfo[mi].typeEnv && nameId := c.moduleInfo[mi].typeEnv[appendName(mi,sname)] && c.store[nameId] is sorttype) 
+					//	};
+					//if (size(nameMatches) > 0) {
+					//	c = addScopeMessage(c,error("Nonterminal <prettyPrintName(sname)> was not imported, use one of the following fully qualified type names instead: <intercalate(",",toList(nameMatches))>", l));
+					//} else {
+					//	c = addScopeMessage(c,error("Nonterminal <prettyPrintName(sname)> not declared", l));
+					//}
+					
+					c.uses = c.uses + < c.globalSortMap[sname], l >;
+					c.usedIn[l] = head(c.stack);
+					insert c.store[c.globalSortMap[sname]].rtype;
+					
+				} else {
+					c = addScopeMessage(c,error("Nonterminal <prettyPrintName(sname)> not declared", l));
+				}
+			} else {
+				c.uses = c.uses + < c.typeEnv[sname], l >;
+				c.usedIn[l] = head(c.stack);
+				insert c.store[c.typeEnv[sname]].rtype;
+			} // TODO finish
+		}
+	}
+	return <c, sym>;
 }
 
 tuple[Production,Configuration] resolveProduction(Production prod, loc l, Configuration c, bool imported) {

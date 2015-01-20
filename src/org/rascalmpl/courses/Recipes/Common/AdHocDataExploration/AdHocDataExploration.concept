@@ -87,7 +87,7 @@ OK, so we're making progress.  Let's define another function to help us explore 
 
 <listing>
 public void printLastTwenty (int n){
-    for(int i <- [n-19..n]) {
+    for(int i <- [n-19..n+1]) {
         println ("<i>! has <countTrailingZeros(fact(i))> trailing zeros.");
     }
 }
@@ -122,7 +122,7 @@ We defined one function above to help us look at the data more compactly; now le
 // Printout all i in [0..n] where i! has more trailing zeros than (i-1)!
 public void findLumps (int n) {
     int iMinusOneFactZeros = 0;
-    for (int i <- [1..n]) {
+    for (int i <- [1..n+1]) {
         int iFactZeros = countTrailingZeros(fact(i));
         int diff = iFactZeros - iMinusOneFactZeros ;
         if (diff >= 1) {
@@ -184,7 +184,7 @@ So probably we're noticing some patterns here already, and maybe forming some in
 // We can parameterize the threshold to look for jumps of 2, 3, or 4 zeros
 public void findLumps2 (int n, int tao) {
     int iMinusOneFactZeros = 0;
-    for (int i <- [1..n]) {
+    for (int i <- [1..n+1]) {
         int iFactZeros = countTrailingZeros(fact(i));
         int diff = iFactZeros - iMinusOneFactZeros ;
         if (diff >= tao) {
@@ -244,7 +244,7 @@ Let k = floor (log<sub>5</sub> N)
 
 Start a counter at zero, call it nz
 
-We want to examine i <- [1..N]
+We want to examine i <- [1..N+1]
 * If i  is not divisible by 5, ignore it
 * If  i  is divisible by 5, add 1 to nz
 * If  i  is also divisible by 25, add 1 more
@@ -256,9 +256,9 @@ We can write this in Rascal as:
 public int predictZeros (int N) {
     int k = floorLogBase(N, 5);  // I wrote this
     int nz = 0;
-    for (int i <- [1..N] ){
+    for (int i <- [1..N+1] ){
 	int p5 = 1;
-        for (int j <- [1..k]) {
+        for (int j <- [1..k+1]) {
     	    p5 *= 5;
     	    if (i % p5 == 0) {
 		nz += 1;
@@ -277,7 +277,7 @@ Now a little hand valdiation might convince you that this should work, but let's
 public void verifyTheory (int N) {
     int checkInterval = 100; // for printing
     bool failed = false;
-    for (int i <- [1..N]) {
+    for (int i <- [1..N+1]) {
         ifact=fact(i);
     	int p = predictZeros(i);
     	int c = countTrailingZeros(ifact);
