@@ -31,7 +31,7 @@ public void generate(loc mo) {
      gr = literals(gr);
      gr = flattenTokens(gr);
      gr = expandKeywords(gr);
-     gr = makeRegularStubs(expandRegularSymbols(makeRegularStubs(gr)));
+//     gr = makeRegularStubs(expandRegularSymbols(makeRegularStubs(gr)));
      gr = expandParameterizedSymbols(gr);
      gr = addNotAllowedSets(gr);
      gr = prioAssocToChoice(gr);
