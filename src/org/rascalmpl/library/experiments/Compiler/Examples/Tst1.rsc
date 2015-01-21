@@ -1,13 +1,12 @@
 module experiments::Compiler::Examples::Tst1
 
-import experiments::Compiler::muRascal::Syntax;
-import ParseTree;
+import demo::lang::Exp::Abstract::Syntax;
+import demo::lang::Exp::Abstract::Eval;
+import demo::lang::Exp::Combined::Automatic::Load;
 
-Tree parseMuRascal(loc s) {
-  pt = parse( #start[Module], s);
-  return pt;					   
-}
+public int eval(str txt) = eval(load(txt));
 
-value main(list[value] args) = parseMuRascal(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.mu|);
+value main(list[value] args) = eval("7"); // == 7;
+
 
 

@@ -409,13 +409,17 @@ private str resolveLibOverriding(str lib){
 	if(lib in overriddenLibs) return "<lib>Compiled";
 
     rlib1 = replaceFirst(lib, "org.rascalmpl.library.", "");
-    rlib2 = |std:///| + "<replaceAll(rlib1, ".", "/")>Compiled.java";
+    rlib2 = |project://rascal/src/org/rascalmpl/library/| + "<replaceAll(rlib1, ".", "/")>Compiled.java";
+    
+    println("rlib1 = <rlib1>, rlib2 = <rlib2>");
   
 	if(exists(rlib2)){
 	   overriddenLibs += lib;
+	   println("resolveLibOverriding <lib> =\> <lib>Compiled");
 	   return "<lib>Compiled";
 	} else {
 		notOverriddenLibs += lib;
+		println("resolveLibOverriding <lib> =\> <lib>");
 		return lib;
 	}
 }
