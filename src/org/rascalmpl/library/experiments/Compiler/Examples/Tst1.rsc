@@ -1,6 +1,7 @@
 module experiments::Compiler::Examples::Tst1
 
+lexical IntegerLiteral = [0-9]+;           
 
+start syntax Exp = con: IntegerLiteral;
 
-
-value main(list[value] args) = [1,2,3] >> 4;
+data Exp = con(int n);
