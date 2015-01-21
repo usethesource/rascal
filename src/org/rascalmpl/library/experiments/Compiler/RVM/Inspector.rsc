@@ -155,7 +155,7 @@ void listDecls(RVMProgram p, list[str] select, bool listing){
     }
 }
 
-void statistics(loc root = |rascal:///|,
+void statistics(loc root = |project://rascal/src/|,
                 loc bindir = |home:///bin|
                 ){
     allFiles = find(root, "rsc");
