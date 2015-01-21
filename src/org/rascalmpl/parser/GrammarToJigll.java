@@ -31,7 +31,6 @@ import org.jgll.grammar.condition.ContextFreeCondition;
 import org.jgll.grammar.condition.PositionalCondition;
 import org.jgll.grammar.condition.RegularExpressionCondition;
 import org.jgll.grammar.precedence.OperatorPrecedence;
-import org.jgll.grammar.symbol.Character;
 import org.jgll.grammar.symbol.CharacterClass;
 import org.jgll.grammar.symbol.CharacterRange;
 import org.jgll.grammar.symbol.Keyword;
@@ -66,12 +65,8 @@ public class GrammarToJigll {
 
 	private Map<IValue, Rule> rulesMap;
 
-	private Map<String, RegularExpression> regularExpressionsMap;
-	
-	private Map<IConstructor, RegularExpression> regularExpressionsCache;
-	
 	private Map<List<IConstructor>, RegularExpression> deleteSetCache;
-
+	
 	private Grammar grammar;
 
 	private GLLParser parser;
@@ -87,7 +82,6 @@ public class GrammarToJigll {
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
 		deleteSetCache = new HashMap<>();
-		regularExpressionsCache = new HashMap<>();
 	}
 
 	public IConstructor jparse(IConstructor symbol, IString str, ISourceLocation loc) {
@@ -185,12 +179,12 @@ public class GrammarToJigll {
 				return RegularExpressionCondition.notFollow(CharacterClass.from(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.notFollow(getRegularExpression(symbol));
+				return RegularExpressionCondition.notFollow((RegularExpression) getSymbol(symbol));
 				
 			case "seq":
 				IList list = (IList) symbol.get("symbols");
 				if (list.length() > 0 && ((IConstructor)list.get(0)).getName().equals("lex")) {
-					return RegularExpressionCondition.notFollow(createRegularExpression((IConstructor) list.get(0), definitions));
+					return RegularExpressionCondition.notFollow((RegularExpression) getSymbol((IConstructor) list.get(0)));
 				} 
 	
 			default:
@@ -207,7 +201,7 @@ public class GrammarToJigll {
 				return RegularExpressionCondition.follow(CharacterClass.from(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.follow(getRegularExpression(symbol));
+				return RegularExpressionCondition.follow((RegularExpression) getSymbol(symbol));
 	
 			case "seq":
 				IList list = (IList) symbol.get("symbols");
@@ -235,7 +229,7 @@ public class GrammarToJigll {
 				return RegularExpressionCondition.notPrecede(CharacterClass.from(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.notPrecede(getRegularExpression(symbol));
+				return RegularExpressionCondition.notPrecede((RegularExpression) getSymbol(symbol));
 	
 			default:
 				throw new IllegalStateException("Should not be here!");
@@ -250,7 +244,7 @@ public class GrammarToJigll {
 				return RegularExpressionCondition.precede(CharacterClass.from(targetRanges));
 	
 			case "lit":
-				return RegularExpressionCondition.precede(getRegularExpression(symbol));
+				return RegularExpressionCondition.precede((RegularExpression) getSymbol(symbol));
 	
 			default:
 				throw new IllegalStateException("Should not be here!");
@@ -264,11 +258,9 @@ public class GrammarToJigll {
 		definitions = (IMap) rascalGrammar.get("rules");
 		
 		rulesMap = new HashMap<>();
-		regularExpressionsMap = new HashMap<>();
-		regularExpressionsCache = new HashMap<>();
 		deleteSetCache = new HashMap<>();
 		
-		createRegularExpressions(definitions);
+//		createRegularExpressions(definitions);
 
 		for (IValue nonterminal : definitions) {
 
@@ -276,11 +268,7 @@ public class GrammarToJigll {
 			
 			boolean ebnf = isEBNF(constructor);
 
-			Nonterminal head = getHead(constructor);
-			
-			if(regularExpressionsMap.containsKey(head.getName())) {
-				continue;
-			}
+			Nonterminal head = Nonterminal.withName(SymbolAdapter.toString(constructor, true));
 			
 			IConstructor choice = (IConstructor) definitions.get(nonterminal);
 			assert choice.getName().equals("choice");
@@ -337,83 +325,7 @@ public class GrammarToJigll {
 			}
 		}
 	}
-
-	private void createRegularExpressions(IMap definitions) {
-		
-		Iterator<Entry<IValue, IValue>> it = definitions.entryIterator();
-
-		while (it.hasNext()) {
-			Entry<IValue, IValue> regularExpression = it.next();
-			IConstructor nont = (IConstructor) regularExpression.getKey();
-			
-			Nonterminal head = getHead(nont);
-			
-			if (SymbolAdapter.isToken(nont) || SymbolAdapter.isLiteral(nont) || SymbolAdapter.isCILiteral(nont) ) {
-				
-				IConstructor prod = (IConstructor) regularExpression.getValue();
-				
-				if (prod.getName().equals("choice")) {
-					ISet alts = (ISet) prod.get("alternatives");
-					assert alts.size() == 1;
-					prod = (IConstructor) alts.iterator().next();
-				}
-				
-				IList rhs = (IList) ((IConstructor) prod).get("symbols");
-
-				List<RegularExpression> body = getRegularExpressionList(rhs);
-				
-//				if(body.size() == 1) {
-//					regularExpressionsMap.put(head.getName(), body.get(0));				
-//				} else {
-				SerializableValue object = null;
-				if (saveObjects) {
-					object = new SerializableValue(prod);
-				}
-				
-				regularExpressionsMap.put(head.getName(), getBody(body, head.getName(), object));
-//				}
-			}
-		}
-	}
 	
-	private RegularExpression getBody(List<RegularExpression> list, String label, Object object) {
-		if (list.size() == 1) 
-			return list.get(0);
-		
-		boolean allChar = true;
-		for (RegularExpression regex : list) {
-			if (!regex.isSingleChar())
-				allChar = false;
-		}
-		
-		if (allChar) {
-			List<Character> chars = new ArrayList<>();
-			for (RegularExpression regex : list) {
-				chars.add(regex.asSingleChar());
-			}
-			return Keyword.builder(chars).setLabel(label).setObject(object).build();
-		}
-		
-		return Group.builder(list).setLabel(label).setObject(object).build();
-	}
-	
-	private RegularExpression createRegularExpression(IConstructor regex, IMap definitions) {
-		
-		IConstructor prod = (IConstructor) definitions.get(regex);
-		
-		if (prod.getName().equals("choice")) {
-			ISet alts = (ISet) prod.get("alternatives");
-			assert alts.size() == 1;
-			prod = (IConstructor) alts.iterator().next();
-		}
-		
-		IList rhs = (IList) ((IConstructor) prod).get("symbols");
-
-		List<RegularExpression> body = getRegularExpressionList(rhs);
-		
-		return Group.builder(body).build();
-	}
-
 	private void addExceptPatterns(OperatorPrecedence op, IMap map) {
 
 		Iterator<Entry<IValue, IValue>> it = map.entryIterator();
@@ -448,6 +360,23 @@ public class GrammarToJigll {
 		return targetRanges;
 	}
 	
+	
+	private List<Symbol> getSymbolList(ISet rhs) {
+		List<Symbol> result = new ArrayList<>();
+
+		Iterator<IValue> it = rhs.iterator();
+		while (it.hasNext()) {
+			IConstructor current = (IConstructor) it.next();
+			Symbol symbol = getSymbol(current);
+			
+			if (symbol != null) {
+				result.add(symbol);
+			}
+		}
+		
+		return result;
+	}
+	
 	private List<Symbol> getSymbolList(IList rhs) {
 		
 		List<Symbol> result = new ArrayList<>();
@@ -464,87 +393,44 @@ public class GrammarToJigll {
 		
 		return result;
 	}
-	
-	private List<RegularExpression> getRegularExpressionList(Iterable<IValue> rhs) {
-		
-		List<RegularExpression> result = new ArrayList<>();
-		
-		for(IValue val : rhs) {
-			IConstructor constructor = (IConstructor) val;
-			RegularExpression regex = getRegularExpression(constructor);	
-			
-			if (regex != null) {
-				result.add(regex);
-			}
-		}
-		
-		return result;
-	}
-	
-	private Nonterminal getHead(IConstructor symbol) {
-		switch (symbol.getName()) {
-
-			case "lit":
-				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
-				
-			case "token":
-				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
-	
-			case "iter":
-				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
-	
-			case "iter-seps":
-				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
-	
-			case "iter-star":
-				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
-	
-			case "iter-star-seps":
-				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
-	
-			default:
-				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
-		}
-	}
 
 	private Symbol getSymbol(IConstructor symbol) {
 		
-		RegularExpression regularExpression = regularExpressionsMap.get(SymbolAdapter.toString(symbol, true));
-		if(regularExpression != null) {
-			return regularExpression;
-		}
-
 		switch (symbol.getName()) {
+		
+			case "sort":
+			case "lex":
+				return Nonterminal.withName(getName(symbol));
 
 			case "char-class":
 				return getCharacterClass(symbol);
 				
 			case "lit":
-				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
+				return Keyword.from(getString(symbol));
 	
 			case "label":
-				return getSymbol(getSymbolCons(symbol));
+				return getSymbol(getSymbolCons(symbol)).copyBuilder().setLabel(getLabel(symbol)).build();
 	
 			case "iter":
-				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
+				return Plus.from(getSymbol(getSymbolCons(symbol)));
 	
 			case "iter-seps":
 				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
 	
 			case "iter-star":
-				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
+				return Star.from(getSymbol(getSymbolCons(symbol)));
 	
 			case "iter-star-seps":
 				return new Nonterminal.Builder(SymbolAdapter.toString(symbol, true)).setEbnfList(true).build();
 	
 			case "opt":
-				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
+				return Opt.from(getSymbol(getSymbolCons(symbol)));
 	
 			case "alt":
-				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
+				return Alt.from(getSymbolList(getAlternatives(symbol)));
 	
 			case "seq":
-				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
+				return Group.from(getSymbolList(getSymbols(symbol)));
 	
 			case "start":
 				return Nonterminal.withName("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
@@ -556,100 +442,15 @@ public class GrammarToJigll {
 							.build();
 				
 			case "token":
-				return getRegularExpression(symbol);
 	
 			default:
-				return Nonterminal.withName(SymbolAdapter.toString(symbol, true));
+				throw new UnsupportedOperationException(symbol.toString());
 		}
-	}
-	
-	private RegularExpression getRegularExpression(IConstructor symbol) {
-		
-		RegularExpression regex = regularExpressionsCache.get(symbol);
-		
-		if(regex != null) {
-			return regex;
-		}
-		
-		SerializableValue object = null;
-		if (saveObjects) {
-			object = new SerializableValue(symbol);
-		}
-		
-		switch (symbol.getName()) {
-		
-			case "keywords":
-			case "sort":
-			case "layouts":
-			case "lex":
-			case "token":
-				regex = regularExpressionsMap.get(((IString)symbol.get("name")).getValue());
-				break;
-				
-			case "lit":
-				regex = regularExpressionsMap.get(SymbolAdapter.toString(symbol, true));
-				break;
-				
-			case "conditional":
-				regex = (RegularExpression) getRegularExpression(getSymbolCons(symbol)).copyBuilder()
-											.addPreConditions(getPreConditions(symbol))
-											.addPostConditions(getPostConditions(symbol))
-											.build();
-				break;
-			
-			case "label":
-				regex = getRegularExpression(getSymbolCons(symbol));
-				break;
-				
-			case "char-class":
-				regex = getCharacterClass(symbol);
-				break;
-	
-			case "iter":
-				regex = Plus.builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
-				break;
-	
-			case "iter-seps":
-				regex = Plus.builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
-				break;
-	
-			case "iter-star":
-				regex = Star.builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
-				break;
-	
-			case "iter-star-seps":
-				regex = Star.builder(getRegularExpression(getSymbolCons(symbol))).setObject(object).build();
-				break;
-	
-			case "opt":
-				regex = Opt.builder(getRegularExpression(getSymbolCons(symbol))).build();
-				break;
-	
-			case "alt":
-				regex = Alt.builder(getRegularExpressionList((ISet) symbol.get("alternatives"))).setObject(object).build();
-				break;
-	
-			case "seq":
-				regex = Group.builder(getRegularExpressionList((IList) symbol.get("symbols"))).setObject(object).build();
-				break;
-				
-			default:
-				throw new IllegalStateException("Should not reach here. " + symbol);
-			}
-		
-		if(regex == null) {
-			throw new RuntimeException("Regex cannot be null.");
-		}
-
-		// Initialize the automaton field
-		regex.getAutomaton().determinize();
-		regularExpressionsCache.put(symbol, regex);
-		return regex;
 	}
 
 	private CharacterClass getCharacterClass(IConstructor symbol) {
 		List<CharacterRange> targetRanges = buildRanges(symbol);
-		return new CharacterClass.Builder(targetRanges).setLabel(SymbolAdapter.toString(symbol, true)).build();
+		return new CharacterClass.Builder(targetRanges).build();
 	}
 	
 	private Set<Condition> getPostConditions(IConstructor symbol) {
@@ -692,7 +493,7 @@ public class GrammarToJigll {
 			if (regex == null) {
 				List<RegularExpression> list = new ArrayList<>();
 				for(IConstructor c : deleteList) {
-					list.add(getRegularExpression(c));
+					list.add((RegularExpression) getSymbol(c));
 				}
 				regex = Alt.from(list);
 				
@@ -731,9 +532,29 @@ public class GrammarToJigll {
 		
 		return set;
 	}
+	
+	private String getName(IConstructor symbol) {
+		return ((IString) symbol.get("name")).getValue();
+	}
+	
+	private String getString(IConstructor symbol) {
+		return ((IString) symbol.get("string")).getValue();
+	}
+	
+	private String getLabel(IConstructor symbol) {
+		return ((IString) symbol.get("label")).getValue();
+	}
 
 	private IConstructor getSymbolCons(IConstructor symbol) {
 		return (IConstructor) symbol.get("symbol");
+	}
+	
+	private ISet getAlternatives(IConstructor symbol) {
+		return (ISet) symbol.get("alternatives");
+	}
+	
+	private IList getSymbols(IConstructor symbol) {
+		return (IList) symbol.get("symbols");
 	}
 
 	private boolean isEBNF(IConstructor value) {

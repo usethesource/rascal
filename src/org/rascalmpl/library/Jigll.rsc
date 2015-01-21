@@ -28,7 +28,7 @@ public void generate(loc mo) {
      gr = modules2grammar(replaceAll("<m.top.header.name>","\\",""), { m.top });
     
      gr = resolve(gr);
-     gr = literals(gr);
+//     gr = literals(gr);
      gr = flattenTokens(gr);
      gr = expandKeywords(gr);
 //     gr = makeRegularStubs(expandRegularSymbols(makeRegularStubs(gr)));
