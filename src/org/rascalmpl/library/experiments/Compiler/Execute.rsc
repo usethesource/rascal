@@ -26,12 +26,12 @@ public loc MuLibrary = |project://rascal/src/org/rascalmpl/library/experiments/C
 public loc MuLibraryCompiled = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/LibraryGamma.rvm|;
 
 // Specific for delimited continuations (experimental)
-// public loc MuLibrary = |rascal:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.mu|;
-// public loc MuLibraryCompiled = |rascal:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.rvm|;
+// public loc MuLibrary = |std:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.mu|;
+// public loc MuLibraryCompiled = |std:///experiments/Compiler/muRascal2RVM/LibraryDelimitedCont.rvm|;
 // map[str,Symbol] libTypes = ();
 
-public list[loc] defaultImports = [];  //[|rascal:///Exception.rsc|, |rascal:///ParseTree.rsc| ];
-
+public list[loc] defaultImports = [];  //[|std:///Exception.rsc|, |std:///ParseTree.rsc| ];
+ 
 list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(loc bindir = |home:///bin|){
     println("rascal2rvm: Recompiling library <basename(MuLibrary)>.mu");
  	libModule = load(MuLibrary);
