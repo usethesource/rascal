@@ -28,7 +28,7 @@ public bool measureOne(){
 
 public bool measure(list[str] names){
 
-	loc p = |compressed+rascal:///experiments/Compiler/Benchmarks/|;
+	loc p = |compressed+std:///experiments/Compiler/Benchmarks/|;
 	
 	for(str name <- names){
 		map[str, rel[str,str]] values = readRSF(p[path= p.path + name +".xz"]);

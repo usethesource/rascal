@@ -91,9 +91,4 @@ public class FunctionURIResolver implements IURIInputOutputResolver {
 	public void remove(URI uri) throws IOException {
 	  reg.remove(resolve(uri));
 	}
-
-	@Override
-	public URI getResourceURI(URI uri) throws IOException {
-		return reg.getResourceURI(resolve(uri));
-	}
 }

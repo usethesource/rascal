@@ -72,7 +72,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
-import org.rascalmpl.interpreter.load.RascalURIResolver;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
@@ -179,7 +179,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>(); // not sharable
 	private final Stack<String> indentStack = new Stack<String>(); // not sharable
-	private final RascalURIResolver rascalPathResolver; // sharable if frozen
+	private final RascalSearchPath rascalPathResolver; // sharable if frozen
 
 	private final URIResolverRegistry resolverRegistry; // sharable
 
@@ -187,10 +187,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private static final Object dummy = new Object();	
 	
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
-		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalURIResolver(new URIResolverRegistry()));
+		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath(new URIResolverRegistry()));
 	}
 
-	public Evaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalURIResolver rascalPathResolver) {
+	public Evaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
 		super();
 		
 		this.vf = vf;
@@ -244,8 +244,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		resolverRegistry.registerInput(benchmarkdata);
 		
 		resolverRegistry.registerInput(new JarURIResolver());
-
-		resolverRegistry.registerInputOutput(rascalPathResolver);
 
 		resolverRegistry.registerInputOutput(new HomeURIResolver());
 		resolverRegistry.registerInputOutput(new TempURIResolver());
@@ -474,7 +472,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	@Override
-	public RascalURIResolver getRascalResolver() {
+	public RascalSearchPath getRascalResolver() {
 		return rascalPathResolver;
 	}
 	
@@ -1429,10 +1427,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 */
 	@Override
 	public IConstructor parseModule(IRascalMonitor monitor, URI location) throws IOException{
-	  URI resolved = rascalPathResolver.resolve(location);
-	  if(resolved != null){
-	    location = resolved;
-	  }
 		return parseModule(monitor, getResourceContent(location), location);
 	}
 	
