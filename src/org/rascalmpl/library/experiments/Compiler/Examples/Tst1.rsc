@@ -1,10 +1,14 @@
 module experiments::Compiler::Examples::Tst1
 
-import demo::lang::Exp::Abstract::Syntax;
-import demo::lang::Exp::Abstract::Eval;
-import demo::lang::Exp::Combined::Automatic::Load;
+import lang::rascal::tests::imports::M1;
 
-public int eval(str txt) = eval(load(txt));
+//test bool Test11() = lang::rascal::tests::imports::M1::f(3) == 6;
+//
+//@ignore{}
+//test bool Test12() = f(3) == 6;
 
-value main(list[value] args) = eval("7"); // == 7;
-
+ 
+value main(list[value] args) { 
+	int f(int n) {return 3 * n;} 
+	return f(3) == 9;
+}

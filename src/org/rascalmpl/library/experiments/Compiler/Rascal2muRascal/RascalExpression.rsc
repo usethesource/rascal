@@ -1056,7 +1056,7 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`){
 
-   //println("translate: <e>");
+   println("translate: <e>");
    MuExp kwargs = translateKeywordArguments(keywordArguments);
       
    MuExp receiver = translate(expression);
@@ -1198,16 +1198,16 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
        
      
-       //println("ftype = <ftype>, of.alts = <of.alts>");
+       println("ftype = <ftype>, of.alts = <of.alts>");
        for(int alt <- of.alts) {
        	   assert uid2type[alt]? : "cannot find type of alt";
            t = uid2type[alt];
            if(matches(t)) {
-           	   //println("alt <alt> matches");
+           	   println("alt <alt> matches");
                resolved += alt;
            }
        }
-       //println("resolved = <resolved>");
+       println("resolved = <resolved>");
        if(isEmpty(resolved)) {
            for(int alt <- of.alts) {
                t = uid2type[alt];

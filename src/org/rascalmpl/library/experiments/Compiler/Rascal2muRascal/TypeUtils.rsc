@@ -737,13 +737,16 @@ public MuExp mkCallToLibFun(str modName, str fname)
 
 // Generate a MuExp to access a variable
 
-bool compareScopes(int n, int m) = config.store[n].at.begin.line < config.store[m].at.begin.line;
+// Sort available overloading alternatives as follows:
+// First non-default (most recent first), then defaults (also most recent first).
+
+bool funIdLess(int n, int m) = n > m; //config.store[n].at.begin.line < config.store[m].at.begin.line;
 
 list[int] sortOverloadedFunctions(set[int] items){
 
 	//println("sortOverloadedFunctions: <items>");
 	defaults = [i | i <- items, i in defaultFunctions];
-	return sort(toList(items) - defaults, compareScopes) + sort(defaults, compareScopes);
+	return sort(toList(items) - defaults, funIdLess) + sort(defaults, funIdLess);
 }
 
 MuExp mkVar(str name, loc l) {
