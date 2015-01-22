@@ -50,7 +50,7 @@ import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.RascalURIResolver;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.CommandlineError;
@@ -83,7 +83,7 @@ public class RascalShell {
 		running = true;
 	}
 	
-	public RascalShell(InputStream stdin, PrintWriter stderr, PrintWriter stdout, List<ClassLoader> classLoaders, RascalURIResolver uriResolver) throws IOException {
+	public RascalShell(InputStream stdin, PrintWriter stderr, PrintWriter stdout, List<ClassLoader> classLoaders, RascalSearchPath uriResolver) throws IOException {
 		console = new ConsoleReader(stdin, new PrintWriter(stdout));
 		running = true;
 	}
