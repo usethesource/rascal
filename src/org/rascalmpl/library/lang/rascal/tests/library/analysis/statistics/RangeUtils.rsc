@@ -26,30 +26,34 @@ list[&T <: num] assureRange(list[&T <: num] nums, num low, num high)
 
 
 
-(&T<:int) makeSmallerThan(&T <: int n, int limit) = n % limit;
-(&T<:real) makeSmallerThan(&T <: real n, int limit) {
+int makeSmallerThanInt(int n, int limit) = n % limit;
+real makeSmallerThanReal(real n, int limit) {
 	if (abs(n) < limit) {
 		return n;
 	}
-	real nn =0.;
-	if (real n2 := n ) {
-		nn = n2;	
-	}
-	f = toInt(nn);
-	r = nn - f;
+	f = toInt(n);
+	r = n - f;
 	return (f % limit) + r;
 }
-(&T<:rat) makeSmallerThan(&T <: rat n, int limit) {
+rat makeSmallerThanRat(rat n, int limit) {
 	if (abs(n) < limit) {
 		return n;
 	}
 	return toRat(1, denominator(n));
 }
-default (&T<:num) makeSmallerThan(&T <: num n, int limit) {
-	throw "This one should never be called";
+
+&T <: num makeSmallerThan(&T <: num n, int limit) {
+	if (int i := n) {
+		return makeSmallerThanInt(i, limit);	
+	}
+	if (real r := n) {
+		return makeSmallerThanReal(r, limit);	
+	}
+	if (rat r := n) {
+		return makeSmallerThanRat(r, limit);	
+	}
+	throw "Forgot about a different number type <n>";
 }
-
-
 
 list[&T <: num] makeSmallerThan(list[&T <: num] nums, int limit) 
 	= [ makeSmallerThan(n, limit) | n <- nums];
