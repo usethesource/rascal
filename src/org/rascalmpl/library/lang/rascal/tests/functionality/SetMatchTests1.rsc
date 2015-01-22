@@ -84,7 +84,7 @@ bool testSimplifyQ(TYPESET (TYPESET ts) simplify) =
    return ts;
 }
            
-test bool testSimp1A() = testSimplifyA(simp1); 
+ test bool testSimp1A() = testSimplifyA(simp1); 
 test bool testSimp1B() = testSimplifyB(simp1); 
 test bool testSimp1C() = testSimplifyC(simp1); 
 test bool testSimp1D() = testSimplifyD(simp1); 

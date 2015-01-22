@@ -83,7 +83,7 @@ public class Frame {
 		Function f = fun_instance.function;
 		Object[] args = fun_instance.args;
 		Frame frame = new Frame(f.scopeId, this, fun_instance.env, f.maxstack, f);
-		assert fun_instance.next + arity == f.nformals;
+		assert fun_instance.next + arity == f.nformals : "Arity mismatch in getCoroutineFrame";
 		if(args != null) {
 			for(Object arg : args) {
 				if(arg == null) {
@@ -148,7 +148,7 @@ public class Frame {
 	private int pushFunctionArguments(int arity, Object[] stack, int sp) {
 		int start = sp - arity;
 		if(!function.isVarArgs) {
-			assert this.sp + arity == function.nformals;
+			assert this.sp + arity == function.nformals : "Illegal sp in pushFunctionArguments";
 			for(int i = 0; i < arity; i++){
 				this.stack[this.sp++] = stack[start + i]; 
 			}

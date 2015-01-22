@@ -41,8 +41,8 @@ public class TestExecutor {
 		IValueFactory vf = eval.getValueFactory();
 		ISourceLocation src = null;
 		try {
-			src = vf.sourceLocation("rascal", "", moduleName.replaceAll("::",  "/") + ".rsc");
-			System.err.println("TestExecutor.test: testing " + moduleName + ", " + nTests + " tests");
+			src = vf.sourceLocation("project", "rascal", "src/org/rascalmpl/library/" + moduleName.replaceAll("::",  "/") + ".rsc");
+			System.err.println("TestExecutor.test: testing " + moduleName + "(" + src + "), " + nTests + " tests");
 			eval.call("executeTests", src);
 			//System.err.println("TestExecutor.test: testing " + moduleName + " ... done");
 		} catch (URISyntaxException e) {

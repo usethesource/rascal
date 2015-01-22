@@ -409,7 +409,10 @@ private str resolveLibOverriding(str lib){
 	if(lib in overriddenLibs) return "<lib>Compiled";
 
     rlib1 = replaceFirst(lib, "org.rascalmpl.library.", "");
-    rlib2 = |project://rascal/src/org/rascalmpl/library/| + "<replaceAll(rlib1, ".", "/")>Compiled.java";
+    rlib1slash = replaceAll(rlib1, ".", "/");
+    
+    assert exists(|std:///| + "<rlib1slash>.class") : "Compiled library file <rlib1slash> cannot be found";
+    rlib2 = |std:///| + "<rlib1slash>Compiled.class";
     
     println("rlib1 = <rlib1>, rlib2 = <rlib2>");
   

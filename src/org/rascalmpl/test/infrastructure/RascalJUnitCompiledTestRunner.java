@@ -178,6 +178,8 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 			return desc;
 		Description desc = Description.createSuiteDescription(prefix);
 		this.desc = desc;
+		
+		ArrayList<String> testNames = new ArrayList<String>();
 
 		try {
 			List<String> modules = getRecursiveModuleList(URIUtil.create("std", "", "/" + prefix.replaceAll("::", "/")), evaluator.getResolverRegistry());
@@ -193,6 +195,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 				
 				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
 						String test_name = computeTestName(f.getName(), f.getAst().getLocation());
+						testNames.add(test_name);
 						Description d = Description.createTestDescription(getClass(), test_name);
 						modDesc.addChild(d);
 						ntests++;
@@ -207,6 +210,14 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 				totalTests += ntests;
 			}
 			System.err.println("Total number of tests: " + totalTests);
+			System.err.println(testNames.size() + "TestNames: ");
+			for(int i = 0; i < testNames.size(); i++){
+				System.err.print(testNames.get(i) + "  ");
+				if(i % 10 == 0){
+					System.err.println("");
+				}
+				
+			}
 			return desc;
 		} catch (IOException e) {
 			throw new RuntimeException("could not create test suite", e);
@@ -267,14 +278,14 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 
 		@Override
 		public void start(int count) {
-			//System.out.println("RascalJunitCompiledTestRunner.start: " + count);
+			System.out.println("RascalJunitCompiledTestRunner.start: " + count);
 			notifier.fireTestRunStarted(module);
 		}
 
 		@Override
 		public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
 			
-			//System.err.println("RascalJunitCompiledTestRunner.report: " + successful + ", test = " + test + ", at " + loc + ", message = " + message);
+			System.err.println("RascalJunitCompiledTestRunner.report: " + successful + ", test = " + test + ", at " + loc + ", message = " + message);
 			Description desc = getDescription(test, loc);
 			notifier.fireTestStarted(desc);
 

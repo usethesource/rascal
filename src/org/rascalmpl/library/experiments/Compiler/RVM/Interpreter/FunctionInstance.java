@@ -40,7 +40,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	 * Assumption: scopeIn != -1; 
 	 */
 	public static FunctionInstance computeFunctionInstance(Function function, Frame cf, int scopeIn, RVM rvm) {
-		assert scopeIn != -1;
+		assert scopeIn != -1 : "Illegal scope in computeFunctionInstance";
 		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
 				return new FunctionInstance(function, env, rvm);
@@ -59,7 +59,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	 * Assumption: arity < function.nformals 
 	 */
 	public static FunctionInstance applyPartial(Function function, Frame env, RVM rvm, int arity, Object[] stack, int sp) {
-		assert arity < function.nformals;
+		assert arity < function.nformals : "Incorrect arity in applyPartial";
 		FunctionInstance fun_instance = new FunctionInstance(function, env, rvm);
 		if(arity == 0) {
 			return fun_instance;
@@ -76,7 +76,7 @@ public class FunctionInstance implements ICallableValue, IExternalValue {
 	 * Assumption: next + arity < function.nformals 
 	 */
 	public FunctionInstance applyPartial(int arity, Object[] stack, int sp) {
-		assert next + arity < function.nformals;
+		assert next + arity < function.nformals: "Incorrect arity in applyPartial";
 		if(arity == 0) {
 			return this;
 		}

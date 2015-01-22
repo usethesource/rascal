@@ -6,7 +6,7 @@ import Prelude;
 import lang::csv::IO;
 
 
-loc location = |project://rascal/src/org/rascalmpl/library/experiments/vis2/data/Steden.csv|;
+loc location = |std:///experiments/vis2/data/Steden.csv|;
 
 
 public map[str, lrel[str, int]] exampleSteden() {

@@ -68,7 +68,7 @@ public abstract class StaticError extends RuntimeException {
 		
 		URI uri = loc.getURI();
 		String mod;
-		if(uri.getScheme().equals("rascal"))
+		if(uri.getScheme().equals("rascal"))	// TODO: change scheme
 			mod = uri.getAuthority();
 		else
 			mod = uri.getPath().replaceAll("^.*/", "").replaceAll("\\..*$", "");

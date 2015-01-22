@@ -317,7 +317,7 @@ public class CodeBlock {
 	}
 	
 	public static int encode2(int op, int arg1, int arg2){
-		assert arg1 < (1 << sizeArg1) && arg2 < (1 << sizeArg2);
+		assert arg1 < (1 << sizeArg1) && arg2 < (1 << sizeArg2): "Illegal arguments in encode2";
 		return (arg2 << shiftArg2) | (arg1 << shiftArg1) | op;
 	}
 	

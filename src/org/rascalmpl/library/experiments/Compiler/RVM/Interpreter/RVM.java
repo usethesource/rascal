@@ -1141,15 +1141,15 @@ public class RVM {
 					if(op == Opcode.OP_APPLY) {
 						Function fun = functionStore.get(CodeBlock.fetchArg1(instruction));
 						arity = CodeBlock.fetchArg2(instruction);
-						assert arity <= fun.nformals;
-						assert fun.scopeIn == -1;
+						assert arity <= fun.nformals: "Illegal arity in OP_APPLY";
+						assert fun.scopeIn == -1: "Illegal scope in OP_APPLY";
 						fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
 					} else {
 						Object src = stack[--sp];
 						if(src instanceof FunctionInstance) {
 							fun_instance = (FunctionInstance) src;
 							arity = CodeBlock.fetchArg1(instruction);
-							assert arity + fun_instance.next <= fun_instance.function.nformals;
+							assert arity + fun_instance.next <= fun_instance.function.nformals: "Illegal arity in OPAPPLYDYN";
 							fun_instance = fun_instance.applyPartial(arity, stack, sp);
 						} else {
 							throw new CompilerError("Unexpected argument type for APPLYDYN: " + asString(src), cf);
@@ -1397,7 +1397,7 @@ public class RVM {
 					
 				case Opcode.OP_LOADCONT:
 					s = CodeBlock.fetchArg1(instruction);
-					assert stack[0] instanceof Coroutine;
+					assert stack[0] instanceof Coroutine: "Coroutine required in OP_LOADCONT";
 					for(Frame fr = cf; fr != null; fr = fr.previousScope) {
 						if (fr.scopeId == s) {
 							// TODO: unsafe in general case (the coroutine object should be copied)

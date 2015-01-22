@@ -19,7 +19,18 @@ import lang::rascal::types::CheckTypes;
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
-loc RVMProgramLocation(loc src, loc bindir) = (bindir + src.path)[extension="rvm"];
+loc RVMProgramLocation(loc src, loc bindir) {
+
+	if(src.scheme == "std"){
+		bindir += "/src/org/rascalmpl/library";
+	} else if(src.scheme == "rascal"){
+		println("*** RASCAL SCHEME USED ***");
+		bindir += "/src/org/rascalmpl/";
+	}
+	res = (bindir + src.path)[extension="rvm"];
+	println("RVMProgramLocation <src>, <bindir> =\> <res>");
+	return res;
+}	
 
 loc MuModuleLocation(loc src, loc bindir) = (bindir + src.path)[extension="mu"];
 

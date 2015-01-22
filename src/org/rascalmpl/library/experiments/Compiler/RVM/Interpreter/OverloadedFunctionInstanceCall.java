@@ -76,7 +76,7 @@ public class OverloadedFunctionInstanceCall {
 	
 	public Type nextConstructor(List<Type> constructorStore) {
 		if(types == null) {
-			assert constructors.length >= 1;
+			assert constructors.length >= 1 : "No constructor in nextConstructor";
 			return constructorStore.get(constructors[0]);
 		} else {
 			for(int index : constructors) {

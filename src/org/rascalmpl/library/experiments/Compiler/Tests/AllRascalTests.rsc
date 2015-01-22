@@ -11,7 +11,7 @@ import String;
 
 
 list[str] basicTests = [
-"Booleans",					// OK
+"Booleans",				// OK
 "Equality",					// OK
 "Functions",				// OK
 "Integers",                 // OK
@@ -186,6 +186,7 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
  all_test_results = [];
  for(tst <- names){
       prog = base + (tst + ".rsc");
+      println("prog = <prog>");
       try {
 	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, [], recompile=false, testsuite=true, listing=false, debug=false)){
 	         s = makeTestSummary(test_results);

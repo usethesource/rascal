@@ -8,7 +8,7 @@ import util::Math;
 import lang::csv::IO;
 
 
-loc location = |project://rascal/src/org/rascalmpl/library/experiments/vis2/data/Nederland.csv|;
+loc location = |std:///experiments/vis2/data/Nederland.csv|;
 
 //public rel[str name, int p2012, int p2013, int ext] v = readCSV(#rel[str name, int p2012, int p2013, int ext],
 // location);
