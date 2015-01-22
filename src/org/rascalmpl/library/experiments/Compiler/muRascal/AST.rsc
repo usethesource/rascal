@@ -1,8 +1,10 @@
 module experiments::Compiler::muRascal::AST
 
-import Prelude;
 import Message;
-import experiments::Compiler::muRascal::ConstantFolder;  
+import List;
+import Node;
+import Type;
+import experiments::Compiler::muRascal::ConstantFolder;    
 
 /*
  * Abstract syntax for muRascal.

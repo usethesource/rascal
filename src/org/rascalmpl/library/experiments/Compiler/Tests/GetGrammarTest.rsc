@@ -10,6 +10,6 @@ import ParseTree;
 
 public test bool tst() {
 	configuration = newConfiguration();
-	configuration = checkModule(parse(#start[Module],|rascal:///lang/rascal/syntax/Rascal.rsc|).top,configuration);
+	configuration = checkModule(parse(#start[Module],|std:///lang/rascal/syntax/Rascal.rsc|).top,configuration);
 	return getGrammar() == getModuleType().definitions;
 }

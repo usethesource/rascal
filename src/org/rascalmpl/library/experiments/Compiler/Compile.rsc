@@ -1,8 +1,11 @@
 @bootstrapParser
 module experiments::Compiler::Compile
 
-import Prelude;
+import IO;
+import ValueIO;
+import String;
 import Message;
+import ParseTree;
 
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::muRascal::AST;

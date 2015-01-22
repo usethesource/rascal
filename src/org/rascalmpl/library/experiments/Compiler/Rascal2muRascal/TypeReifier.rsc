@@ -43,26 +43,26 @@ public void resetTypeReifier() {
 // - getGrammar
 // - symbolToValue
 
-private map[Symbol,Production] TreeDefinitions = #Tree.definitions;
-
 public void getDeclarationInfo(Configuration config){
-	println("Start getDeclarationInfo");
+	//println("Start getDeclarationInfo");
     resetTypeReifier();
     
     // Collect all the types that are in the type environment
     // TODO: simplify
 	typeRel = { < getSimpleName(rname), config.store[config.typeEnv[rname]].rtype > | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype }
 	        + { < getSimpleName(rname) , rtype > | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] }
-            + { < getSimpleName(config.store[uid].name), config.store[uid].rtype > | int uid <- config.store, config.store[uid] has name, config.store[uid] has rtype };
+            + { < getSimpleName(config.store[uid].name), config.store[uid].rtype > | int uid <- config.store, config.store[uid] has name, config.store[uid] has rtype }
+            + { <"Tree", adt("Tree",[])> }
+            ;
     
 
 	// Collect all the constructors of the adt types in the type environment
 	
-	rel[Symbol, Symbol] constructors = { <\type.\adt, \type> | int uid <- config.store, 
+	constructors = { <\type.\adt, \type> | int uid <- config.store, 
 												constructor(_, Symbol \type, _, _, _) := config.store[uid]
 												//\type.\adt in types 
 												};
-	
+
 	//constructors += <#Tree.symbol, type(Tree, ())>;
 	
     typeRel += { <cns[1].adt.name, cns[1].adt> | cns <- constructors };
@@ -84,13 +84,13 @@ public void getDeclarationInfo(Configuration config){
    	if(!isEmpty(activeLayouts)) {
    		activeLayout = getOneFrom(activeLayouts);
    	}
-   	println("End getDeclarationInfo");
+   	//println("End getDeclarationInfo");
 }
 
 // Extract the declared grammar from a type checker configuration
 
 public map[Symbol,Production] getGrammar() {
-	println("Start getGrammar");
+	//println("Start getGrammar");
 	map[Symbol,Production] definitions =   ( nonterminal : \layouts(grammar[nonterminal]) | nonterminal <- grammar ) 
 										 + ( Symbol::\start(nonterminal) : \layouts(Production::choice(Symbol::\start(nonterminal),
 																					   				   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) })) 
@@ -106,7 +106,7 @@ public map[Symbol,Production] getGrammar() {
  	//for(s <- definitions) println("<s>: <definitions[s]>,");
  	//println(")\n----------");
  	
- 	println("End getGrammar");
+ 	//println("End getGrammar");
  	return definitions;
 }
 
@@ -127,7 +127,7 @@ public map[Symbol,Production] getDefinitions() {
    	map[Symbol,Production] definitions  = (() | reify(symbol, it) | Symbol symbol <- symbols);
  	
  	println("End getDefinitions");
- 	iprintln(definitions);
+ 	//iprintln(definitions);
  	
  	return definitions;
 }
@@ -138,7 +138,7 @@ public type[value] symbolToValue(Symbol symbol) {
    	
 	// Recursively collect all the type definitions associated with a given symbol
 	
-	//println("symbolToValue: <symbol>");
+	println("symbolToValue: <symbol>");
  	map[Symbol,Production] definitions = reify(symbol, ());
  	
  	if(Symbol::\start(Symbol sym) := symbol){
@@ -207,7 +207,7 @@ public map[Symbol,Production] reify(Symbol::\map(Symbol from, Symbol to), map[Sy
 // adt
 public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols), map[Symbol,Production] definitions) {
 	set[Symbol] defs = typeRel[name];
-	println("reify adt: <name>, <symbols>, <defs>, <constructors>");
+	//println("reify adt: <name>, <symbols>, <defs>, <constructors>");
 
     for(Symbol s <- defs){
 	   if(adtDef: Symbol::\adt(name,_) := s){
@@ -218,6 +218,7 @@ public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols)
         	 definitions = ( definitions | reify(sym, it) | sym <- constructors[adtDef] );
           }
           definitions = ( definitions | reify(sym, it) | sym <- symbols );
+          //println("reify adt <name> =\> <definitions>");
           return definitions;
        }
     }

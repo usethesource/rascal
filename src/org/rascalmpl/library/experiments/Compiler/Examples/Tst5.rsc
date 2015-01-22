@@ -1,3 +1,8 @@
 module experiments::Compiler::Examples::Tst5
 
-bool f(int n) = n == 0;
+value main(list[value] args) {
+    str s = "<for(i <- [0..10]) {>
+            '...XXX
+            '<}>D";
+    return s;    
+}

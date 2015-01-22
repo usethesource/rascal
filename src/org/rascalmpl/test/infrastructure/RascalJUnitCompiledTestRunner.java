@@ -108,6 +108,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 				IURIInputStreamResolver resolver = new ClassResourceInput(evaluator.getResolverRegistry(), "junit", clazz, "/");
 				evaluator.getResolverRegistry().registerInput(resolver);
 				evaluator.addRascalSearchPath(URIUtil.rootScheme("junit"));
+				evaluator.addRascalSearchPath(URIUtil.rootScheme("tmp"));
 			}
 		} catch (InstantiationException e) {
 			throw new ImplementationError("Could not setup tests for: " + clazz.getCanonicalName(), e);
@@ -179,7 +180,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		this.desc = desc;
 
 		try {
-			List<String> modules = getRecursiveModuleList(URIUtil.create("rascal", "", "/" + prefix.replaceAll("::", "/")), evaluator.getResolverRegistry());
+			List<String> modules = getRecursiveModuleList(URIUtil.create("std", "", "/" + prefix.replaceAll("::", "/")), evaluator.getResolverRegistry());
 
 			for (String module : modules) {
 				String name = prefix + "::" + module;

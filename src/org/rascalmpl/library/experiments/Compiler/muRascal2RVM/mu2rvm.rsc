@@ -1,7 +1,10 @@
 module experiments::Compiler::muRascal2RVM::mu2rvm
 
-import Prelude;
-
+import IO;
+import Type;
+import List;
+import ListRelation;
+import Message;
 import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal::Syntax;
@@ -162,7 +165,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
                   bool listing=false){
   
   if(any(m <- messages, error(_,_) := m)){
-    return errorRVMProgram(module_name, messages);
+    return errorRVMProgram(module_name, messages, src);
   }
  
   main_fun = getUID(module_name,[],"MAIN",2);
@@ -233,7 +236,7 @@ RVMProgram mu2rvm(muModule(str module_name, set[Message] messages, list[loc] imp
   }
   
   functionScope = module_init_fun;
-  code = trvoidblock(initializations); // comnpute code first since it may generate new locals!
+  code = trvoidblock(initializations); // comnpute code first since it may generate new locals!										// TODO: fix location 
   funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, |unknown-init:///|, estimate_stack_size(initializations) + nlocal[module_init_fun],
   								    [*code, 
   								     LOADCON(true),

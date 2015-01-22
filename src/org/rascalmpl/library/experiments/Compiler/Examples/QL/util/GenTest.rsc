@@ -20,10 +20,10 @@ private int MAXQ = 101;
 private int STEP = 10;
 
 void mergeCSVs() {
-  parsing = readTextValueFile(#lrel[int,num], |rascal:///experiments/Compiler/Examples/QL/output/parse.csv|);
-  binding = readTextValueFile(#lrel[int,num], |rascal:///experiments/Compiler/Examples/QL/output/bind.csv|);
-  checking = readTextValueFile(#lrel[int,num], |rascal:///experiments/Compiler/Examples/QL/output/typecheck.csv|);
-  compiling = readTextValueFile(#lrel[int,num], |rascal:///experiments/Compiler/Examples/QL/output/compile.csv|);
+  parsing = readTextValueFile(#lrel[int,num], |std:///experiments/Compiler/Examples/QL/output/parse.csv|);
+  binding = readTextValueFile(#lrel[int,num], |std:///experiments/Compiler/Examples/QL/output/bind.csv|);
+  checking = readTextValueFile(#lrel[int,num], |std:///experiments/Compiler/Examples/QL/output/typecheck.csv|);
+  compiling = readTextValueFile(#lrel[int,num], |std:///experiments/Compiler/Examples/QL/output/compile.csv|);
   csv = [];
   
   num toS(num ns) = toReal(ns) / 1000000000.0;
@@ -35,7 +35,8 @@ void mergeCSVs() {
              toS(checking[i][1]), 
              toS(compiling[i][1])>]; 
   }
-  myWriteCSV(csv, |rascal:///experiments/Compiler/Examples/QL/output/benchmarks.csv|); 
+  
+  myWriteCSV(csv, |tmp:///experiments/Compiler/Examples/QL/output/benchmarks.csv|); 
 }
 
 void myWriteCSV(lrel[num, num, num, num, num] csv, loc out) {
@@ -63,7 +64,7 @@ void benchmarkAll() {
 
 
   // Parse
-  benchmarkIt(|rascal:///experiments/Compiler/Examples/QL/output/parse.csv|,
+  benchmarkIt(|tmp:///experiments/Compiler/Examples/QL/output/parse.csv|,
     str(str src) { return src; },
     void(str src) {
       // bug in type checker? Assign does not work.
@@ -76,7 +77,7 @@ void benchmarkAll() {
 }
 
 map[int,num] benchmarkCheck() =
-  benchmarkIt(|rascal:///experiments/Compiler/Examples/QL/output/typecheck.csv|,
+  benchmarkIt(|tmp:///experiments/Compiler/Examples/QL/output/typecheck.csv|,
     tuple[Form, Info](str src) {
       Form f = load(src);
       rs = resolve(f);
@@ -86,7 +87,7 @@ map[int,num] benchmarkCheck() =
     });
 
 map[int, num] benchmarkBind() = 
-  benchmarkIt(|rascal:///experiments/Compiler/Examples/QL/output/bind.csv|,
+  benchmarkIt(|tmp:///experiments/Compiler/Examples/QL/output/bind.csv|,
     Form(str src) {
       return load(src);
     },
@@ -97,7 +98,7 @@ map[int, num] benchmarkBind() =
 
 
 map[int, num] benchmarkCompile() =
-  benchmarkIt(|rascal:///experiments/Compiler/Examples/QL/output/compile.csv|, 
+  benchmarkIt(|tmp:///experiments/Compiler/Examples/QL/output/compile.csv|, 
     Form(str src) {
       return load(src);
     }, form2js);

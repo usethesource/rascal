@@ -31,7 +31,7 @@ public class CWDURIResolver implements IURIInputOutputResolver {
 		return new FileInputStream(getAbsolutePath(uri));
 	}
 
-	public URI getResourceURI(URI uri) {
+	private URI getResourceURI(URI uri) {
 		return new File(System.getProperty("user.dir") + uri.getPath()).toURI();
 	}
 	

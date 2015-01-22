@@ -72,7 +72,7 @@ Synopsis: Largest data value.
 	= (head(nums) | it < n ? n : it | n <- tail(nums));
 
 
-(&T <: num) mean(list[&T<:num] l:[]) {
+real mean(list[&T<:num] l:[]) {
 	throw IllegalArgument(l,"Mean cannot be calculated for empty lists");
 }
 

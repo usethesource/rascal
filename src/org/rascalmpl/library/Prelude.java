@@ -3412,9 +3412,17 @@ public class Prelude {
 	
 	// REFLECT -- copy in PreludeCompiled
 	public IInteger getFileLength(ISourceLocation g, IEvaluatorContext ctx) throws IOException {
-		File f = new File(ctx.getResolverRegistry().getResourceURI(g.getURI()));
-		if (!f.exists() || f.isDirectory()) throw new IOException();
-		return values.integer(f.length());
+		if (g.getURI().getScheme().equals("file")) {
+			File f = new File(g.getURI());
+			if (!f.exists() || f.isDirectory()) { 
+				throw new IOException(g.toString());
+			}
+			
+			return values.integer(f.length());
+		}
+		else {
+			return values.integer(((IString) readFile(g, ctx)).getValue().getBytes().length);
+		}
 	}
 	
 	// REFLECT -- copy in PreludeCompiled

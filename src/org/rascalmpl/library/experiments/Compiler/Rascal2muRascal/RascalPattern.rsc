@@ -1,19 +1,25 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::RascalPattern
 
-import Prelude;
+import IO;
+import ValueIO;
+import Node;
+import Map;
+import Set;
+import String;
+import ParseTree;
 
 import lang::rascal::\syntax::Rascal;
+
 import experiments::Compiler::Rascal2muRascal::RascalModule;
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 import experiments::Compiler::Rascal2muRascal::RascalStatement;
 import experiments::Compiler::Rascal2muRascal::RascalType;
-
-import experiments::Compiler::muRascal::AST;
-
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
+
+import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::RVM::Interpreter::ParsingTools;
 
@@ -25,8 +31,7 @@ import experiments::Compiler::RVM::Interpreter::ParsingTools;
 /*                  Match                                            */
 /*********************************************************************/
 
-MuExp translateMatch((Expression) `<Pattern pat> := <Expression exp>`)  = translateMatch(pat, exp);
-   
+MuExp translateMatch((Expression) `<Pattern pat> := <Expression exp>`)  = translateMatch(pat, exp) ;
 MuExp translateMatch(e: (Expression) `<Pattern pat> !:= <Expression exp>`) =
     muCallMuPrim("not_mbool", [ makeMu("ALL", [ translateMatch(pat, exp) ], e.origin) ]);
     
@@ -934,7 +939,7 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
   }
 }
 
-MuExp translateFunctionBody(Expression exp) = translate(exp);
+MuExp translateFunctionBody(Expression exp) = translate(exp); // when bprintln("translateFunctionBody: <exp>");
 MuExp translateFunctionBody(MuExp exp) = exp;
 // TODO: check the interpreter subtyping
 default MuExp translateFunctionBody(Statement* stats) = muBlock([ translate(stat) | stat <- stats ]);

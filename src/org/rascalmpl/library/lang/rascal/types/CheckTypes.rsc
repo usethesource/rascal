@@ -39,6 +39,7 @@ import lang::rascal::types::Util;
 extend lang::rascal::types::CheckerConfig;
 
 import lang::rascal::\syntax::Rascal;
+import ParseTree;
 
 //
 // TODOs
@@ -802,7 +803,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 	        		}  
 				    return markLocationType(c,exp.origin,getFunctionReturnType(finalMatch));
 				} else {
-					return markLocationFailed(c,exp.origin,makeFailType("Unexpected match, should have had a function type, instead found <prettyPrintType(finalMatch)>"));
+					return markLocationFailed(c,exp.origin,makeFailType("Unexpected match, should have had a function type, instead found <prettyPrintType(finalMatch)>", exp.origin));
 				}
         	} else if (size(finalDefaultMatches) == 1) {
 				finalMatch = getOneFrom(finalDefaultMatches);
@@ -5769,7 +5770,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
         
         // Add the alias into the type environment
         // TODO: Check to make sure this is possible
-        c = addAlias(c,RSimpleName(utypeName),getVis(vis),decl.origin,\alias(utypeName,utypeParams,Symbol::\void()));
+        c = addAlias(c,RSimpleName(utypeName),getVis(vis),decl.origin,\alias(utypeName,utypeParams,convertType(t)));
     }
 
     // If we can descend, process the aliased type as well, assigning it into

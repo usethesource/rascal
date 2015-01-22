@@ -97,6 +97,7 @@ test bool lexicalSequenceMatch() = (Mies) `ac` !:= (Mies) `ad`;
 test bool syntaxSequenceMatch() = (Noot) `ac` !:= (Noot) `ad`;
 test bool lexicalTokenMatch() = (MyName) `location` := (MyName) `location`;
  
-/*TODO:TC*/
-//test bool optionalNotPresentIsFalse() = !((A)`a` <- ([OptTestGrammar] "b").a);
-//test bool optionalPresentIsTrue() = (A)`a` <- ([OptTestGrammar] "ab").a;
+@ignoreCompiler{Not yet implemented in typechcker}
+test bool optionalNotPresentIsFalse() = !((A)`a` <- ([OptTestGrammar] "b").a);
+@ignoreCompiler{Not yet implemented in typechcker}
+test bool optionalPresentIsTrue() = (A)`a` <- ([OptTestGrammar] "ab").a;

@@ -931,9 +931,9 @@ grammar(
   
 bool sameLines(str s1, str s2) = size(split("\n", s1) - split("\n", s2)) == 0;
  
-test bool tstNewGenerate1() = sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "GEMPTYParser", GEMPTY), readFile(|rascal:///lang/rascal/grammar/tests/GEMPTYParser.java|));
-test bool tstNewGenerate2() = sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "G0Parser", G0), readFile(|rascal:///lang/rascal/grammar/tests/G0Parser.java|));
-test bool tstNewGenerate3() = sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "GEXPParser", GEXP), readFile(|rascal:///lang/rascal/grammar/tests/GEXPParser.java|));
-test bool tstNewGenerate4() = sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "GEXPPRIOParser", GEXPPRIO), readFile(|rascal:///lang/rascal/grammar/tests/GEXPPRIOParser.java|));
+test bool tstNewGenerate1() = sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "GEMPTYParser", GEMPTY), readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/GEMPTYParser.java|));
+test bool tstNewGenerate2() = sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "G0Parser", G0), readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/G0Parser.java|));
+test bool tstNewGenerate3() = sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "GEXPParser", GEXP), readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/GEXPParser.java|));
+test bool tstNewGenerate4() = sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests", "GEXPPRIOParser", GEXPPRIO), readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/GEXPPRIOParser.java|));
 
     
