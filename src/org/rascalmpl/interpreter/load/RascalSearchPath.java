@@ -98,11 +98,8 @@ public class RascalSearchPath {
 		}
 	}
 	
-	private List<URI> collect() {
-		// collect should run the contributors in reverse order
+	public List<URI> collect() {
 		List<URI> paths = new LinkedList<URI>();
-//		List<IRascalSearchPathContributor> reversed = (List<IRascalSearchPathContributor>) contributors.clone();
-//		Collections.reverse(reversed);
 		for (IRascalSearchPathContributor c : contributors) {
 			c.contributePaths(paths);
 		}
