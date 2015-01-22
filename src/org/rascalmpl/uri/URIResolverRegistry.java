@@ -117,14 +117,6 @@ public class URIResolverRegistry {
 		return resolver.exists(uri);
 	}
 	
-	public URI getResourceURI(URI uri) throws IOException {
-		IURIOutputStreamResolver oresolver = getOutputResolver(uri.getScheme());
-		if (oresolver != null) {
-			return oresolver.getResourceURI(uri);
-		}
-		throw new UnsupportedSchemeException(uri.getScheme());
-	}
-	
 	public boolean isDirectory(URI uri) {
 		IURIInputStreamResolver resolver = getInputResolver(uri.getScheme());
 		

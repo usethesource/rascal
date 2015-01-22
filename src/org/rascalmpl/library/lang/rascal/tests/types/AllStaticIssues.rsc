@@ -277,12 +277,12 @@ test bool Issue480(){
 // https://github.com/cwi-swat/rascal/issues/482
 
 test bool Issue482() =                                       // TODO: it is possible that there are also real errors in APIGen
-	checkModuleOK(|rascal:///APIGen.rsc|);
+	checkModuleOK(|std:///APIGen.rsc|);
 	
 // https://github.com/cwi-swat/rascal/issues/483
 
 test bool Issue483() =                                       // TODO: it is possible that there are also real errors in Ambiguity
-	checkModuleOK(|rascal:///Ambiguity.rsc|);
+	checkModuleOK(|std:///Ambiguity.rsc|);
 	
 	
 // https://github.com/cwi-swat/rascal/issues/491
@@ -305,17 +305,17 @@ test bool Issue491() =
 // https://github.com/cwi-swat/rascal/issues/494
 	
 test bool Issue494() =                                       // TODO
-	checkModuleOK(|rascal:///demo/lang/Func/Test.rsc|);
+	checkModuleOK(|std:///demo/lang/Func/Test.rsc|);
 	
 // https://github.com/cwi-swat/rascal/issues/495
 
 test bool Issue495() =
-	checkModuleOK(|rascal:///demo/lang/Func/Parse.rsc|);
+	checkModuleOK(|std:///demo/lang/Func/Parse.rsc|);
 
 // https://github.com/cwi-swat/rascal/issues/496
 
 test bool Issue496a() = 
-	checkModuleOK(|rascal:///lang/java/m3/AST.rsc|);
+	checkModuleOK(|std:///lang/java/m3/AST.rsc|);
 
 
 test bool Issue496b(){

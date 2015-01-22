@@ -907,9 +907,17 @@ public class PreludeCompiled extends Prelude {
 	/*** end of implode ***/
 	
 	public IInteger getFileLength(ISourceLocation g, RascalExecutionContext rex) throws IOException {
-		File f = new File(rex.getResolverRegistry().getResourceURI(g.getURI()));
-		if (!f.exists() || f.isDirectory()) throw new IOException();
-		return values.integer(f.length());
+		if (g.getURI().getScheme().equals("file")) {
+			File f = new File(g.getURI());
+			if (!f.exists() || f.isDirectory()) { 
+				throw new IOException(g.toString());
+			}
+			
+			return values.integer(f.length());
+		}
+		else {
+			return values.integer(((IString) readFile(g, rex)).getValue().getBytes().length);
+		}
 	}
 
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc, RascalExecutionContext rex){

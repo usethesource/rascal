@@ -16,7 +16,7 @@ import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.load.RascalURIResolver;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -41,7 +41,7 @@ public class RascalExecutionContext {
 	private final boolean trackCalls;
 	private final ITestResultListener testResultListener;
 	private final IMap symbol_definitions;
-	private RascalURIResolver rascalURIResolver;
+	private RascalSearchPath rascalURIResolver;
 	
 	private String currentModuleName;
 	//private ILocationCollector locationReporter;
@@ -61,7 +61,7 @@ public class RascalExecutionContext {
 		currentModuleName = "UNDEFINED";
 		
 		resolverRegistry = ctx.getResolverRegistry();
-		rascalURIResolver = new RascalURIResolver(resolverRegistry);
+		rascalURIResolver = new RascalSearchPath(resolverRegistry);
 		rascalURIResolver.addPathContributor(StandardLibraryContributor.getInstance());
 		monitor = ctx.getEvaluator().getMonitor();
 		stdout = ctx.getEvaluator().getStdOut();
@@ -92,7 +92,7 @@ public class RascalExecutionContext {
 	
 	public URIResolverRegistry getResolverRegistry() { return resolverRegistry; }
 	
-	public RascalURIResolver getRascalResolver() { return rascalURIResolver; }
+	public RascalSearchPath getRascalResolver() { return rascalURIResolver; }
 	
 	IRascalMonitor getMonitor() {return monitor;}
 	

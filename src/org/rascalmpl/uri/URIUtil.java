@@ -59,6 +59,7 @@ public class URIUtil {
 	/**
 	 * Create a rascal module URI, moduleName is assumed to be correct.
 	 */
+	@Deprecated
 	public static URI createRascalModule(String moduleName) {
 		return assumeCorrect("rascal", moduleName, "");
 	}

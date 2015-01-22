@@ -113,7 +113,7 @@ map[str name,  value(list[value]) job] jobs = (
 "BSudoku":					experiments::Compiler::Benchmarks::BSudoku::main
 );
 
-loc base = |rascal:///experiments/Compiler/Benchmarks/|;
+loc base = |std:///experiments/Compiler/Benchmarks/|;
 
 map[str, list[num]] measurementsCompiled = ();		// list of timings of repeated runs per job, compiled
 map[str, list[num]] measurementsInterpreted = ();	// and interpreted
