@@ -110,10 +110,6 @@ public class FileURIResolver implements IURIInputOutputResolver {
 		new File(getPath(uri)).mkdirs();
 	}
 
-	public URI getResourceURI(URI uri) {
-		return new File(getPath(uri)).toURI();
-	}
-	
 	/**
 	 * Utility function to create a URI from an absolute path.
 	 * 
