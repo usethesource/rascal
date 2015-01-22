@@ -1,6 +1,7 @@
 @bootstrapParser
 module lang::rascal::\syntax::tests::PreBootstrap
 
+import ParseTree;
 import lang::rascal::\syntax::Rascal;
 
 public test bool expr() = Expression y := (Expression) `1`;

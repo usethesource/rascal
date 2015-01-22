@@ -5,6 +5,7 @@
 |project://rascal/src/org/rascalmpl/library/demo/lang/Pico/ToDot.rsc|
 |project://rascal/src/org/rascalmpl/library/demo/lang/turing/l2/desugar/Desugar.rsc|
 |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Benchmarks/Run.rsc|
+|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst1.rsc|
 |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|
 |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst4.rsc|
 |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|
@@ -30,10 +31,8 @@
 |project://rascal/src/org/rascalmpl/library/lang/java/syntax/Java15.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/rascal/checker/TTL/TTLGen.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/rascal/meta/ModuleInfo.rsc|
-|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/tests/PreBootstrap.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/functionality/FunctionCompositionTests.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/types/PatternTCTests.rsc|
-|project://rascal/src/org/rascalmpl/library/lang/rascal/types/CheckTypes.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/saf/Run.rsc|
 |project://rascal/src/org/rascalmpl/library/lang/sdf2/util/SDF2Grammar.rsc|
 |project://rascal/src/org/rascalmpl/library/util/tasks/Vis.rsc|

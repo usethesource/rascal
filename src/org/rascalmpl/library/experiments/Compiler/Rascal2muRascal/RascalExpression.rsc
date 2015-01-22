@@ -314,9 +314,15 @@ private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <E
 					]   );
 }
                     
-private MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString("<constant>"));
+private MuExp translateStringLiteral((StringLiteral)`<StringConstant constant>`) = muCon(readTextValueString(removeMargins("<constant>")));
 
-private str removeMargins(str s)  = visit(s) { case /^[ \t]*'/m => "" /* case /^[ \t]+$/m => "" */};
+private str removeMargins(str s) {
+	if(findFirst(s, "\n") < 0){
+		return s;
+	} else {
+		return visit(s) { case /^[ \t]*'/m => "" /* case /^[ \t]+$/m => "" */};
+	}
+}
 
 private str computeIndent(str s) {
    lines = split("\n", removeMargins(s)); 

@@ -8,5 +8,3 @@ public int eval(str txt) = eval(load(txt));
 
 value main(list[value] args) = eval("7"); // == 7;
 
-
-

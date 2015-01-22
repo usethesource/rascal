@@ -708,8 +708,12 @@ public enum RascalPrimitive {
 			IString template = (IString) stack[sp - arity];
 			String indent = $getCurrentIndent();
 			for(int i = 1; i < arity; i++){
-				String arg_s = ((IString) stack[sp - arity + i]).getValue();
-				String [] lines = $removeMargins(arg_s).split("\n");
+				IString iarg_s = ((IString) stack[sp - arity + i]);
+				int len = iarg_s.length();
+				boolean endsWithNL = len > 0 && iarg_s.substring(len - 1).getValue().equals("\n");
+				String arg_s = iarg_s.getValue();
+				arg_s = $removeMargins(arg_s);
+				String [] lines = arg_s.split("\n");
 				if(lines.length <= 1){
 					template = template.concat(vf.string(arg_s));
 				} else {
@@ -718,7 +722,8 @@ public enum RascalPrimitive {
 					for(int j = 1; j < lines.length; j++){
 						sb.append("\n").append(indent).append(lines[j]);
 					}
-					//sb.append("\n");
+					if(endsWithNL)
+						sb.append("\n");
 					String res = sb.toString();
 					template = template.concat(vf.string(res));
 				}
