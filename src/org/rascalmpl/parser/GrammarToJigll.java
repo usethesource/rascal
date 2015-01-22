@@ -27,13 +27,12 @@ import org.jgll.grammar.Grammar;
 import org.jgll.grammar.GrammarGraph;
 import org.jgll.grammar.condition.Condition;
 import org.jgll.grammar.condition.ConditionType;
-import org.jgll.grammar.condition.ContextFreeCondition;
 import org.jgll.grammar.condition.PositionalCondition;
 import org.jgll.grammar.condition.RegularExpressionCondition;
 import org.jgll.grammar.precedence.OperatorPrecedence;
+import org.jgll.grammar.symbol.Character;
 import org.jgll.grammar.symbol.CharacterClass;
 import org.jgll.grammar.symbol.CharacterRange;
-import org.jgll.grammar.symbol.Keyword;
 import org.jgll.grammar.symbol.Nonterminal;
 import org.jgll.grammar.symbol.Rule;
 import org.jgll.grammar.symbol.Symbol;
@@ -42,10 +41,10 @@ import org.jgll.parser.ParseError;
 import org.jgll.parser.ParseResult;
 import org.jgll.parser.ParserFactory;
 import org.jgll.regex.Alt;
-import org.jgll.regex.Group;
 import org.jgll.regex.Opt;
 import org.jgll.regex.Plus;
 import org.jgll.regex.RegularExpression;
+import org.jgll.regex.Sequence;
 import org.jgll.regex.Star;
 import org.jgll.sppf.SPPFNode;
 import org.jgll.traversal.ModelBuilderVisitor;
@@ -65,8 +64,6 @@ public class GrammarToJigll {
 
 	private Map<IValue, Rule> rulesMap;
 
-	private Map<List<IConstructor>, RegularExpression> deleteSetCache;
-	
 	private Grammar grammar;
 
 	private GLLParser parser;
@@ -81,7 +78,6 @@ public class GrammarToJigll {
 
 	public GrammarToJigll(IValueFactory vf) {
 		this.vf = vf;
-		deleteSetCache = new HashMap<>();
 	}
 
 	public IConstructor jparse(IConstructor symbol, IString str, ISourceLocation loc) {
@@ -167,88 +163,6 @@ public class GrammarToJigll {
 					   input.getColumnNumber(e.getInputIndex()) - 1,
 					   input.getColumnNumber(e.getInputIndex()) - 1), null, null);
 		}
-
-	}
-
-	private Condition getNotFollow(IConstructor symbol) {
-		
-		switch (symbol.getName()) {
-
-			case "char-class":
-				List<CharacterRange> targetRanges = buildRanges(symbol);
-				return RegularExpressionCondition.notFollow(CharacterClass.from(targetRanges));
-	
-			case "lit":
-				return RegularExpressionCondition.notFollow((RegularExpression) getSymbol(symbol));
-				
-			case "seq":
-				IList list = (IList) symbol.get("symbols");
-				if (list.length() > 0 && ((IConstructor)list.get(0)).getName().equals("lex")) {
-					return RegularExpressionCondition.notFollow((RegularExpression) getSymbol((IConstructor) list.get(0)));
-				} 
-	
-			default:
-				throw new IllegalStateException("Should not be here!");
-		}
-	}
-	
-	private Condition getFollow(IConstructor symbol) {
-
-		switch (symbol.getName()) {
-
-			case "char-class":
-				List<CharacterRange> targetRanges = buildRanges(symbol);
-				return RegularExpressionCondition.follow(CharacterClass.from(targetRanges));
-	
-			case "lit":
-				return RegularExpressionCondition.follow((RegularExpression) getSymbol(symbol));
-	
-			case "seq":
-				IList list = (IList) symbol.get("symbols");
-				List<Symbol> symbols = new ArrayList<>();
-				for (IValue v : list) {
-					symbols.add(getSymbol((IConstructor) v));
-				}
-				symbols.remove(1);
-				if(isAllRegularExpression(symbols)) {
-					return RegularExpressionCondition.follow(Group.from(conver(symbols)));				
-				} else {
-					return ContextFreeCondition.follow(symbols);
-				}
-	
-			default:
-				throw new IllegalStateException("Should not be here!");
-		}
-	}
-
-	private Condition getNotPrecede(IConstructor symbol) {
-		switch (symbol.getName()) {
-			
-			case "char-class":
-				List<CharacterRange> targetRanges = buildRanges(symbol);
-				return RegularExpressionCondition.notPrecede(CharacterClass.from(targetRanges));
-	
-			case "lit":
-				return RegularExpressionCondition.notPrecede((RegularExpression) getSymbol(symbol));
-	
-			default:
-				throw new IllegalStateException("Should not be here!");
-		}
-	}
-	
-	private Condition getPrecede(IConstructor symbol) {
-		switch (symbol.getName()) {
-		
-			case "char-class":
-				List<CharacterRange> targetRanges = buildRanges(symbol);
-				return RegularExpressionCondition.precede(CharacterClass.from(targetRanges));
-	
-			case "lit":
-				return RegularExpressionCondition.precede((RegularExpression) getSymbol(symbol));
-	
-			default:
-				throw new IllegalStateException("Should not be here!");
-		}
 	}
 
 	public Grammar convert(String name, IConstructor rascalGrammar) {
@@ -258,10 +172,7 @@ public class GrammarToJigll {
 		definitions = (IMap) rascalGrammar.get("rules");
 		
 		rulesMap = new HashMap<>();
-		deleteSetCache = new HashMap<>();
 		
-//		createRegularExpressions(definitions);
-
 		for (IValue nonterminal : definitions) {
 
 			IConstructor constructor = (IConstructor) nonterminal;
@@ -406,7 +317,8 @@ public class GrammarToJigll {
 				return getCharacterClass(symbol);
 				
 			case "lit":
-				return Keyword.from(getString(symbol));
+				Sequence<Character> keyword = Sequence.from(getString(symbol));
+				return keyword.isSingleChar() ? keyword.asSingleChar() : keyword;
 	
 			case "label":
 				return getSymbol(getSymbolCons(symbol)).copyBuilder().setLabel(getLabel(symbol)).build();
@@ -430,7 +342,7 @@ public class GrammarToJigll {
 				return Alt.from(getSymbolList(getAlternatives(symbol)));
 	
 			case "seq":
-				return Group.from(getSymbolList(getSymbols(symbol)));
+				return Sequence.from(getSymbolList(getSymbols(symbol)));
 	
 			case "start":
 				return Nonterminal.withName("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
@@ -464,12 +376,12 @@ public class GrammarToJigll {
 			
 				case "not-follow":
 					IConstructor notFollow = getSymbolCons((IConstructor) condition);
-					set.add(getNotFollow(notFollow));
+					set.add(RegularExpressionCondition.notFollow((RegularExpression) getSymbol(notFollow)));
 					break;
 	
 				case "follow":
 					IConstructor follow = getSymbolCons((IConstructor) condition);
-					set.add(getFollow(follow));
+					set.add(RegularExpressionCondition.follow((RegularExpression) getSymbol(follow)));
 					break;
 	
 				case "delete":
@@ -488,17 +400,12 @@ public class GrammarToJigll {
 
 		if (!deleteList.isEmpty()) {
 			
-			RegularExpression regex = deleteSetCache.get(deleteList);
-			
-			if (regex == null) {
-				List<RegularExpression> list = new ArrayList<>();
-				for(IConstructor c : deleteList) {
-					list.add((RegularExpression) getSymbol(c));
-				}
-				regex = Alt.from(list);
-				
-				deleteSetCache.put(deleteList, regex);
+			List<RegularExpression> list = new ArrayList<>();
+			for(IConstructor c : deleteList) {
+				list.add((RegularExpression) getSymbol(c));
 			}
+			
+			RegularExpression regex = Alt.from(list);
 			
 			set.add(RegularExpressionCondition.notMatch(regex));
 		}
@@ -516,7 +423,7 @@ public class GrammarToJigll {
 	
 				case "not-precede":
 					IConstructor notPrecede = getSymbolCons((IConstructor) condition);
-					set.add(getNotPrecede(notPrecede));
+					set.add(RegularExpressionCondition.notPrecede((RegularExpression) notPrecede));
 					break;
 	
 				case "start-of-line":
@@ -525,7 +432,7 @@ public class GrammarToJigll {
 	
 				case "precede":
 					IConstructor precede = getSymbolCons((IConstructor) condition);
-					set.add(getPrecede(precede));
+					set.add(RegularExpressionCondition.precede((RegularExpression) precede));
 					break;
 				}
 		}
@@ -568,7 +475,6 @@ public class GrammarToJigll {
 				|| SymbolAdapter.isIterPlus(value)
 				|| SymbolAdapter.isIterPlusSeps(value);
 	}
-	
 
 	private IConstructor getRegularDefinition(ISet alts) {
 		IConstructor value = null;
@@ -579,23 +485,6 @@ public class GrammarToJigll {
 			}
 		}
 		return value;
-	}
-	
-	private static boolean isAllRegularExpression(List<Symbol> list) {
-		for(Symbol s : list) {
-			if(!(s instanceof RegularExpression)) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	private static List<RegularExpression> conver(List<Symbol> symbols) {
-		List<RegularExpression> regularExpressions = new ArrayList<>();
-		for(Symbol s : symbols) {
-			regularExpressions.add((RegularExpression) s);
-		}
-		return regularExpressions;
 	}
 	
 }
