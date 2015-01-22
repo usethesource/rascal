@@ -158,9 +158,4 @@ public class CompressedStreamResolver implements IURIInputOutputResolver {
 	public boolean supportsHost() {
 		return true;
 	}
-	
-	@Override
-	public URI getResourceURI(URI uri) throws IOException {
-		return ctx.getResourceURI(getActualURI(uri));
-	}
 }
